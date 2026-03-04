@@ -34,7 +34,13 @@ This repository is now bootstrapped to the blueprint's canonical structure and i
 - Phase 1 Native Core kickoff implemented:
    - Event runtime kernels for deterministic priority ordering and cancellation/default behavior controls.
    - Debugger contract kernels for breakpoint storage and watch variable tables.
-- Test baseline added and passing (47 tests).
+- Phase 1 Native Core continuation implemented:
+   - Event execution timeline + reentrancy depth tracking contract kernel (`EventExecutionTimeline`).
+   - Debugger call-stack frame + step-control contract kernels (`CallStack`, `StepController`).
+- Phase 1 Native Core integration follow-up implemented:
+   - Runtime dispatch-session wiring over event timeline/reentrancy contracts (`EventDispatchSession`).
+   - Runtime debug-session wiring over breakpoints/watches/call-stack/step controls (`DebugRuntimeSession`).
+- Test baseline added and passing (51 tests).
 - Migration and schema anchors added:
   - `tools/migrate/migration_op.json`
   - `tools/migrate/fuzz_migrate.cpp`
@@ -42,9 +48,9 @@ This repository is now bootstrapped to the blueprint's canonical structure and i
 
 ## Immediate next implementation lanes
 
-1. Phase 1 Native Core continuation
-   - Event runtime execution timeline + reentrancy depth contract kernels.
-   - Debugger call-stack frame + step-control contract kernels.
+1. Phase 2 Compat Layer kickoff
+   - QuickJS runtime integration contract kernel scaffolding.
+   - WindowCompat core surface stubs + compatibility status tagging primitives.
 
 ## Build/test
 
