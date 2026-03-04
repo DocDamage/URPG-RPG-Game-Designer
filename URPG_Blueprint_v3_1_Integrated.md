@@ -38,6 +38,42 @@ _Full Engineering Specification - No Fluff_
 
 - Expanded Security UX: permission prompt contract + audit log schema for permission use.
 
+## Implementation Status (Live)
+
+Status Date: 2026-03-04
+
+This section tracks what has been implemented in code so this blueprint doubles as an execution ledger.
+
+### Completed Foundation Work
+
+- Canonical repository layout + CMake test/build wiring.
+- Deterministic core kernels and tests:
+  - SemVer, Fixed32 (Q16.16), FrameBudget, ECS deterministic iteration, CombatCalc baseline, bridge `Value` model.
+- Threading contract:
+  - Render/Logic/Audio/AssetStreaming role mapping + script access rules.
+- Renderer capability tiers:
+  - Basic/Standard/Advanced feature gate primitives.
+- File format + migration lane:
+  - Canonical JSON serializer, deterministic migration runner (`rename`, `set`), and `urpg_migrate` CLI.
+- Save lane:
+  - Save metadata envelopes, journaled writes, and recovery tiers (L1 autosave, L2 metadata+variables, L3 safe skeleton).
+- Source-of-truth lane:
+  - Compat/native/mixed authority policy with guardrails.
+  - Event edit integration guard with structured `event_authority` rejection diagnostics.
+- CI gating skeleton:
+  - PR/nightly/weekly labels and workflow scaffolding.
+  - Known-break waiver schema + validator (`tools/ci/check_waivers.ps1`).
+
+### Current Validation Baseline
+
+- Local CTest baseline: 29 passing tests.
+
+### Next Execution Lanes
+
+1. Recovery runtime integration (wire SaveRecoveryManager into actual load + safe-mode startup flow).
+2. CI suite expansion (replace nightly/weekly placeholders with real integration/snapshot/compat suites).
+3. Editor diagnostics UI hook-up (surface `event_authority` diagnostics with navigation to offending event blocks).
+
 ## 0 — Core Philosophy
 
 > *These are the invariants the whole system is built around. Everything downstream derives from them.*
