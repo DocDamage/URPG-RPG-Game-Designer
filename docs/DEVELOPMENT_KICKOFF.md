@@ -17,6 +17,7 @@ This repository is now bootstrapped to the blueprint's canonical structure and i
    - Renderer capability tier model (`Basic/Standard/Advanced`) with feature gating helpers.
    - Save metadata envelopes + journaled atomic save writes with backup retention.
    - Canonical JSON serializer contract and deterministic migration runner (`rename` + `set`) with CLI.
+   - Source-of-truth authority policy (`Compat` raw authoritative, `Native` AST authoritative, `Mixed` per-block authority tags) with guardrail validation.
 - Unit test baseline added and passing.
 - Migration and schema anchors added:
   - `tools/migrate/migration_op.json`
@@ -25,16 +26,16 @@ This repository is now bootstrapped to the blueprint's canonical structure and i
 
 ## Immediate next implementation lane
 
-1. Source-of-truth contract runtime scaffolding
-   - Add per-event authority tagging (Compat raw list vs Native AST).
-   - Block invalid cross-authority edits and emit diagnostics.
-
-2. Save recovery tiers
+1. Save recovery tiers
    - Add level 1/2/3 recovery entry points (autosave restore, metadata-only, skeleton load).
 
-3. CI gate skeleton
+2. CI gate skeleton
    - Add CTest labels/groups for PR vs nightly vs weekly suites.
    - Add baseline workflow config + known-break waiver mechanism.
+
+3. Event integration hook-up
+   - Thread authority validation into event editor mutation paths.
+   - Emit structured diagnostics when edits target derived views.
 
 ## Build/test
 
