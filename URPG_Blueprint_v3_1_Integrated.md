@@ -68,6 +68,12 @@ This section tracks what has been implemented in code so this blueprint doubles 
   - Event runtime kernel now enforces deterministic execution ordering by priority then registration order.
   - Event runtime kernel includes cancellation and prevent-default contract behavior.
   - Debugger kernels now include breakpoint storage contracts and watch table contracts.
+- Phase 1 Native Core continuation:
+  - Event runtime now includes execution timeline + reentrancy depth tracking contracts via `EventExecutionTimeline`.
+  - Debugger kernels now include call-stack frame contracts (`CallStack`) and stepping controls (`StepController`).
+- Phase 1 Native Core integration follow-up:
+  - Event runtime now includes dispatch-session wiring for timeline/reentrancy gating via `EventDispatchSession`.
+  - Debugger runtime now includes session wiring for breakpoints, watches, stack frames, and stepping via `DebugRuntimeSession`.
 - CI gating suites:
   - PR/nightly/weekly labels with real gate coverage.
   - Nightly now runs integration + snapshot suites (`ctest -L nightly`) with renderer-tier matrix (`basic/standard/advanced`).
@@ -77,11 +83,11 @@ This section tracks what has been implemented in code so this blueprint doubles 
 
 ### Current Validation Baseline
 
-- Local CTest baseline: 47 passing tests.
+- Local CTest baseline: 51 passing tests.
 
 ### Next Execution Lanes
 
-1. Phase 1 Native Core continuation (event execution timeline + reentrancy depth kernels, debugger call-stack and step-control kernels).
+1. Phase 2 Compat Layer kickoff (QuickJS runtime integration contract kernel scaffolding, WindowCompat core surface stubs with compatibility status tagging).
 
 ## 0 — Core Philosophy
 

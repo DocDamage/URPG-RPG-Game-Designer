@@ -35,3 +35,84 @@ TEST_CASE("Event runtime preventDefault controls default behavior", "[events][ru
     urpg::EventRuntimeKernel::PreventDefault(invocation);
     REQUIRE_FALSE(urpg::EventRuntimeKernel::ShouldRunDefaultBehavior(invocation));
 }
+
+TEST_CASE("Event execution timeline tracks reentrancy depth and order", "[events][runtime]") {
+    urpg::EventExecutionTimeline timeline;
+
+    timeline.Enter("evt_root");
+    timeline.Enter("evt_nested");
+    timeline.Exit("evt_nested");
+    timeline.Exit("evt_root");
+
+    REQUIRE(timeline.CurrentDepth() == 0);
+    REQUIRE(timeline.MaxDepth() == 2);
+
+    const auto& entries = timeline.Entries();
+    REQUIRE(entries.size() == 4);
+
+    REQUIRE(entries[0].event_id == "evt_root");
+    REQUIRE(entries[0].phase == urpg::EventExecutionPhase::Enter);
+    REQUIRE(entries[0].depth == 1);
+
+    REQUIRE(entries[1].event_id == "evt_nested");
+    REQUIRE(entries[1].phase == urpg::EventExecutionPhase::Enter);
+    REQUIRE(entries[1].depth == 2);
+
+    REQUIRE(entries[2].event_id == "evt_nested");
+    REQUIRE(entries[2].phase == urpg::EventExecutionPhase::Exit);
+    REQUIRE(entries[2].depth == 2);
+
+    REQUIRE(entries[3].event_id == "evt_root");
+    REQUIRE(entries[3].phase == urpg::EventExecutionPhase::Exit);
+    REQUIRE(entries[3].depth == 1);
+}
+
+TEST_CASE("Event execution timeline tolerates unmatched exit without underflow", "[events][runtime]") {
+    urpg::EventExecutionTimeline timeline;
+
+    timeline.Exit("evt_orphan");
+
+    REQUIRE(timeline.CurrentDepth() == 0);
+    REQUIRE(timeline.MaxDepth() == 0);
+    REQUIRE(timeline.Entries().size() == 1);
+    REQUIRE(timeline.Entries()[0].phase == urpg::EventExecutionPhase::Exit);
+    REQUIRE(timeline.Entries()[0].depth == 0);
+}
+
+TEST_CASE("Event dispatch session enforces non-reentrant event rule", "[events][runtime]") {
+    urpg::EventDispatchSession session;
+    urpg::EventInvocation invocation{"evt_gate", urpg::EventPriority::Normal, 1};
+
+    REQUIRE(session.CanEnter(invocation));
+    session.BeginInvocation(invocation);
+    REQUIRE_FALSE(session.CanEnter(invocation));
+
+    auto plan = session.BuildDispatchPlan(std::vector<urpg::EventInvocation>{invocation});
+    REQUIRE(plan.empty());
+
+    session.EndInvocation(invocation);
+    REQUIRE(session.CanEnter(invocation));
+}
+
+TEST_CASE("Event dispatch session allows bounded reentrancy and records timeline", "[events][runtime]") {
+    urpg::EventDispatchSession session;
+    urpg::EventInvocation invocation{"evt_reentrant", urpg::EventPriority::Normal, 1};
+    invocation.reentrancy_enabled = true;
+    invocation.reentrancy_depth_limit = 2;
+
+    REQUIRE(session.CanEnter(invocation));
+    session.BeginInvocation(invocation);
+    REQUIRE(session.CanEnter(invocation));
+    session.BeginInvocation(invocation);
+    REQUIRE_FALSE(session.CanEnter(invocation));
+
+    session.EndInvocation(invocation);
+    session.EndInvocation(invocation);
+
+    const auto& entries = session.Timeline().Entries();
+    REQUIRE(entries.size() == 4);
+    REQUIRE(entries[0].phase == urpg::EventExecutionPhase::Enter);
+    REQUIRE(entries[1].phase == urpg::EventExecutionPhase::Enter);
+    REQUIRE(entries[2].phase == urpg::EventExecutionPhase::Exit);
+    REQUIRE(entries[3].phase == urpg::EventExecutionPhase::Exit);
+}
