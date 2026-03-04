@@ -1,0 +1,8 @@
+{
+  "from": "1.0",
+  "to": "1.1",
+  "ops": [
+    { "op": "rename", "fromPath": "/player/atk", "toPath": "/player/attack" },
+    { "op": "set", "path": "/_urpg_format_version", "value": "1.1" }
+  ]
+}
