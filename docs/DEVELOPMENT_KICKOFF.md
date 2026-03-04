@@ -28,7 +28,10 @@ This repository is now bootstrapped to the blueprint's canonical structure and i
 - Editor diagnostics hook-up implemented:
    - `event_authority` diagnostics now include `block_id` for navigation.
    - Added editor diagnostics index to parse JSONL streams and resolve event/block navigation targets.
-- Test baseline added and passing (39 tests).
+- Editor diagnostics panel/view model implemented:
+   - Row projection + summary strings for `event_authority` diagnostics.
+   - Event-id filtering and selected-row one-click navigation target resolution.
+- Test baseline added and passing (42 tests).
 - Migration and schema anchors added:
   - `tools/migrate/migration_op.json`
   - `tools/migrate/fuzz_migrate.cpp`
@@ -36,10 +39,7 @@ This repository is now bootstrapped to the blueprint's canonical structure and i
 
 ## Immediate next implementation lanes
 
-1. Editor diagnostics UI hook-up
-   - Implement editor panel/view rendering layer on top of the diagnostics index.
-
-2. Phase 1 Native Core kickoff
+1. Phase 1 Native Core kickoff
    - Event system kernel expansion (priority/cancel/deterministic ordering).
    - Debugger breakpoint + watch contract kernels.
 
