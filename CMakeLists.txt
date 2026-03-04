@@ -10,6 +10,7 @@ option(URPG_FETCH_CATCH2 "Fetch Catch2 via CMake" ON)
 add_library(urpg_core
     engine/core/semver.cpp
     engine/core/threading/thread_roles.cpp
+    engine/core/events/event_edit_guard.cpp
     engine/core/format/canonical_json.cpp
     engine/core/migrate/migration_runner.cpp
     engine/core/sync/source_authority.cpp
@@ -68,6 +69,7 @@ add_executable(urpg_tests
     tests/unit/test_migration_runner.cpp
     tests/unit/test_source_authority.cpp
     tests/unit/test_save_recovery.cpp
+    tests/unit/test_event_edit_guard.cpp
 )
 
 target_link_libraries(urpg_tests PRIVATE urpg_core Catch2::Catch2WithMain)
