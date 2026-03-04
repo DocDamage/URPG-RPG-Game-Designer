@@ -50,6 +50,9 @@ std::string BuildDiagnosticJsonl(const EventEditRequest& request, const Authorit
     diagnostic["subsystem"] = "event_authority";
     diagnostic["event"] = "edit_rejected";
     diagnostic["event_id"] = request.event_id;
+    if (!request.block_id.empty()) {
+        diagnostic["block_id"] = request.block_id;
+    }
     diagnostic["mode"] = ToString(request.authority.project_mode);
     diagnostic["operation"] = ToString(request.operation);
     diagnostic["error_code"] = ToString(error.code);

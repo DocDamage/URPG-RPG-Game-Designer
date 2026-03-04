@@ -28,6 +28,10 @@ jobs:
   gate2-nightly:
     if: github.event_name == 'schedule' && github.event.schedule == '0 6 * * *'
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        renderer_tier: [basic, standard, advanced]
     steps:
       - uses: actions/checkout@v4
       - name: Validate known-break waivers
@@ -38,7 +42,15 @@ jobs:
       - name: Build
         run: cmake --build build --config Release
       - name: Run Gate 2 tests
-        run: ctest --test-dir build --output-on-failure -L nightly
+        env:
+          URPG_RENDERER_TIER: ${{ matrix.renderer_tier }}
+        run: ctest --test-dir build --output-on-failure -L nightly --output-log gate2-${{ matrix.renderer_tier }}.log
+      - name: Upload Gate 2 logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: gate2-${{ matrix.renderer_tier }}-logs
+          path: gate2-${{ matrix.renderer_tier }}.log
 
   gate3-weekly:
     if: github.event_name == 'schedule' && github.event.schedule == '0 7 * * 1'
@@ -53,4 +65,10 @@ jobs:
       - name: Build
         run: cmake --build build --config Release
       - name: Run Gate 3 tests
-        run: ctest --test-dir build --output-on-failure -L weekly
+        run: ctest --test-dir build --output-on-failure -L weekly --output-log gate3-weekly.log
+      - name: Upload Gate 3 logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: gate3-weekly-logs
+          path: gate3-weekly.log
