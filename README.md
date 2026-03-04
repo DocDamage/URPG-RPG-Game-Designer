@@ -17,16 +17,19 @@ Bootstrap workspace aligned to URPG Master Blueprint v3.1.
   - Renderer capability tiers + feature-gate helpers
   - Save metadata envelopes + journaled atomic write path
   - Save corruption recovery tiers (Level 1/2/3)
+  - Runtime save load integration with recovery fallback + force-safe-mode startup (`RuntimeSaveLoader`)
   - Canonical JSON serializer + deterministic migration runner (`rename`, `set`)
   - Source-of-truth authority policy (Compat/Native/Mixed)
-  - Event edit guard with structured `event_authority` diagnostics
-- CI gate skeleton:
+  - Event edit guard with structured `event_authority` diagnostics (with `block_id` emission)
+  - Editor diagnostics index for `event_authority` JSONL parsing + event/block navigation targets
+- CI gate suites:
   - Gate 1 (PR): `ctest -L pr`
-  - Gate 2 (nightly): `ctest -L nightly` (placeholder suite)
-  - Gate 3 (weekly): `ctest -L weekly` (placeholder suite)
+  - Gate 2 (nightly): `ctest -L nightly` (integration + snapshot suites)
+  - Gate 3 (weekly): `ctest -L weekly` (compat suite)
+  - Nightly renderer-tier matrix (`basic`, `standard`, `advanced`) + test log artifacts in CI
   - Known-break waiver validation via `tools/ci/check_waivers.ps1`
 - Migration CLI: `urpg_migrate`
-- Catch2 unit test baseline (29 passing tests).
+- Catch2/CTest baseline (39 passing tests).
 
 ## Build
 
@@ -46,6 +49,6 @@ ctest --test-dir build --output-on-failure
 
 Implement the next blueprint-critical contracts:
 
-1. Recovery integration hook-up into runtime save load flow and crash-safe mode startup.
-2. CI suite expansion (replace nightly/weekly placeholders with real integration/snapshot/compat suites).
-3. Editor diagnostics UI hook-up for `event_authority` rejection events.
+1. Phase 1 Native Core kickoff:
+  - Expand URPG event system runtime kernels (priority, cancellation, deterministic ordering).
+  - Add debugger-level contract kernels (breakpoint and watch foundations).

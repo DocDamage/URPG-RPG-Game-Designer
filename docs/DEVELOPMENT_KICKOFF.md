@@ -17,26 +17,31 @@ This repository is now bootstrapped to the blueprint's canonical structure and i
    - Renderer capability tier model (`Basic/Standard/Advanced`) with feature gating helpers.
    - Save metadata envelopes + journaled atomic save writes with backup retention.
    - Save corruption recovery tiers: Level 1 autosave restore, Level 2 metadata+variables restore, Level 3 safe-mode skeleton load.
+   - Runtime save load integration with recovery fallback and force-safe-mode startup (`RuntimeSaveLoader`).
    - Canonical JSON serializer contract and deterministic migration runner (`rename` + `set`) with CLI.
    - Source-of-truth authority policy (`Compat` raw authoritative, `Native` AST authoritative, `Mixed` per-block authority tags) with guardrail validation.
    - Event integration hook-up for authority validation and structured rejection diagnostics (`event_authority` JSONL).
-- Unit test baseline added and passing.
+- CI suite expansion implemented:
+   - Nightly gate now runs real integration + snapshot suites (`ctest -L nightly`).
+   - Weekly gate now runs compat suite (`ctest -L weekly`).
+   - Nightly renderer-tier matrix (`basic/standard/advanced`) and test log artifact upload in workflow.
+- Editor diagnostics hook-up implemented:
+   - `event_authority` diagnostics now include `block_id` for navigation.
+   - Added editor diagnostics index to parse JSONL streams and resolve event/block navigation targets.
+- Test baseline added and passing (39 tests).
 - Migration and schema anchors added:
   - `tools/migrate/migration_op.json`
   - `tools/migrate/fuzz_migrate.cpp`
   - `content/schemas/project.schema.json`
 
-## Immediate next implementation lane
+## Immediate next implementation lanes
 
-1. Recovery integration hook-up
-   - Wire SaveRecoveryManager into runtime save load flow and crash-safe mode startup path.
+1. Editor diagnostics UI hook-up
+   - Implement editor panel/view rendering layer on top of the diagnostics index.
 
-2. CI suite expansion
-   - Replace nightly/weekly placeholders with real integration/snapshot/compat suites.
-   - Add test artifact upload and renderer-tier matrix for nightly gates.
-
-3. Editor diagnostics UI hook-up
-   - Surface `event_authority` diagnostics in editor panels with one-click navigation to offending event blocks.
+2. Phase 1 Native Core kickoff
+   - Event system kernel expansion (priority/cancel/deterministic ordering).
+   - Debugger breakpoint + watch contract kernels.
 
 ## Build/test
 

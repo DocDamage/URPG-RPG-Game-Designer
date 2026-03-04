@@ -16,7 +16,9 @@ add_library(urpg_core
     engine/core/sync/source_authority.cpp
     engine/core/save/save_journal.cpp
     engine/core/save/save_recovery.cpp
+    engine/core/save/save_runtime.cpp
     engine/gameplay/combat/combat_calc.cpp
+    editor/diagnostics/event_authority_diagnostics.cpp
 )
 
 target_include_directories(urpg_core PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
@@ -69,22 +71,57 @@ add_executable(urpg_tests
     tests/unit/test_migration_runner.cpp
     tests/unit/test_source_authority.cpp
     tests/unit/test_save_recovery.cpp
+    tests/unit/test_save_runtime.cpp
     tests/unit/test_event_edit_guard.cpp
+    tests/unit/test_event_authority_diagnostics.cpp
 )
 
 target_link_libraries(urpg_tests PRIVATE urpg_core Catch2::Catch2WithMain)
 target_include_directories(urpg_tests PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
 
+add_executable(urpg_integration_tests
+    tests/integration/test_integration_runtime_recovery.cpp
+)
+
+target_link_libraries(urpg_integration_tests PRIVATE urpg_core Catch2::Catch2WithMain)
+target_include_directories(urpg_integration_tests PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+
+add_executable(urpg_snapshot_tests
+    tests/snapshot/test_snapshot_canonical_outputs.cpp
+)
+
+target_link_libraries(urpg_snapshot_tests PRIVATE urpg_core Catch2::Catch2WithMain)
+target_include_directories(urpg_snapshot_tests PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+
+add_executable(urpg_compat_tests
+    tests/compat/test_compat_authority_suite.cpp
+)
+
+target_link_libraries(urpg_compat_tests PRIVATE urpg_core Catch2::Catch2WithMain)
+target_include_directories(urpg_compat_tests PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+
 include(CTest)
 include(Catch)
-catch_discover_tests(urpg_tests TEST_LIST urpg_discovered_tests)
+catch_discover_tests(
+    urpg_tests
+    DISCOVERY_MODE PRE_TEST
+    PROPERTIES LABELS "pr"
+)
 
-if(urpg_discovered_tests)
-    set_tests_properties(${urpg_discovered_tests} PROPERTIES LABELS "pr")
-endif()
+catch_discover_tests(
+    urpg_integration_tests
+    DISCOVERY_MODE PRE_TEST
+    PROPERTIES LABELS "nightly"
+)
 
-add_test(NAME ci.nightly.placeholder COMMAND ${CMAKE_COMMAND} -E echo "nightly gate placeholder")
-set_tests_properties(ci.nightly.placeholder PROPERTIES LABELS "nightly")
+catch_discover_tests(
+    urpg_snapshot_tests
+    DISCOVERY_MODE PRE_TEST
+    PROPERTIES LABELS "nightly"
+)
 
-add_test(NAME ci.weekly.placeholder COMMAND ${CMAKE_COMMAND} -E echo "weekly gate placeholder")
-set_tests_properties(ci.weekly.placeholder PROPERTIES LABELS "weekly")
+catch_discover_tests(
+    urpg_compat_tests
+    DISCOVERY_MODE PRE_TEST
+    PROPERTIES LABELS "weekly"
+)

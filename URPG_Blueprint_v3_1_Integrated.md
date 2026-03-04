@@ -57,22 +57,27 @@ This section tracks what has been implemented in code so this blueprint doubles 
   - Canonical JSON serializer, deterministic migration runner (`rename`, `set`), and `urpg_migrate` CLI.
 - Save lane:
   - Save metadata envelopes, journaled writes, and recovery tiers (L1 autosave, L2 metadata+variables, L3 safe skeleton).
+  - Runtime save load integration via `RuntimeSaveLoader`, including recovery fallback and force-safe-mode startup flow.
 - Source-of-truth lane:
   - Compat/native/mixed authority policy with guardrails.
   - Event edit integration guard with structured `event_authority` rejection diagnostics.
-- CI gating skeleton:
-  - PR/nightly/weekly labels and workflow scaffolding.
+  - `event_authority` diagnostics now emit `block_id` for navigation.
+  - Editor diagnostics index parses JSONL diagnostics and resolves event/block navigation targets.
+- CI gating suites:
+  - PR/nightly/weekly labels with real gate coverage.
+  - Nightly now runs integration + snapshot suites (`ctest -L nightly`) with renderer-tier matrix (`basic/standard/advanced`).
+  - Weekly now runs compat suite (`ctest -L weekly`).
+  - Nightly/weekly workflows upload gate log artifacts.
   - Known-break waiver schema + validator (`tools/ci/check_waivers.ps1`).
 
 ### Current Validation Baseline
 
-- Local CTest baseline: 29 passing tests.
+- Local CTest baseline: 39 passing tests.
 
 ### Next Execution Lanes
 
-1. Recovery runtime integration (wire SaveRecoveryManager into actual load + safe-mode startup flow).
-2. CI suite expansion (replace nightly/weekly placeholders with real integration/snapshot/compat suites).
-3. Editor diagnostics UI hook-up (surface `event_authority` diagnostics with navigation to offending event blocks).
+1. Editor diagnostics panel/view rendering layer (consume diagnostics index and provide one-click jump UX).
+2. Phase 1 Native Core kickoff (event system priority/cancel/order kernels + debugger breakpoint/watch kernels).
 
 ## 0 — Core Philosophy
 
