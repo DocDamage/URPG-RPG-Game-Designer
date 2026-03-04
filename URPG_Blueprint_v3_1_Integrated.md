@@ -81,13 +81,118 @@ This section tracks what has been implemented in code so this blueprint doubles 
   - Nightly/weekly workflows upload gate log artifacts.
   - Known-break waiver schema + validator (`tools/ci/check_waivers.ps1`).
 
+### Phase 2 Compat Layer (In Progress)
+
+- QuickJS runtime integration contract kernel:
+  - `QuickJSContext` with eval, module loading, function registration, and object binding.
+  - `QuickJSRuntime` managing multiple isolated contexts per-plugin.
+  - Virtual filesystem mounts for sandboxed file access.
+  - Memory/CPU budget tracking with `CompatBudget` struct.
+  - API status registry tracking FULL/PARTIAL/STUB/UNSUPPORTED surface coverage.
+- WindowCompat core surface stubs:
+  - `Window_Base` with `drawText`, `drawIcon`, `drawActorFace`, `drawActorName`, `drawActorLevel`, `drawActorHp/Mp/Tp` gauges.
+  - `Window_Selectable` and `Window_Command` stubs for menu plugin compatibility.
+  - `Sprite_Character` and `Sprite_Actor` stubs for battle visual plugins.
+  - All surfaces tagged with `CompatStatus` (FULL/PARTIAL/STUB/UNSUPPORTED).
+- BattleManager MZ battle pipeline hooks:
+  - Battle phase tracking (NONE, INIT, START, INPUT, TURN, ACTION, END, ABORT).
+  - Hook points at each battle phase for plugin interception.
+  - Turn management, action queue, damage/healing methods.
+  - Battle result handling (WIN, ESCAPE, DEFEAT, ABORT).
+  - All methods tagged with `CompatStatus` registry.
+- DataManager MZ data/save/load semantics:
+  - Database loading (actors, skills, items, weapons, armors, enemies, troops, states, animations).
+  - Global state management ($gameXxx variables: party, gold, steps, playtime).
+  - Switch/variable/self-switch access with MZ-compatible indexing.
+  - Item inventory management with gain/lose operations.
+  - Save/load operations with header extensions.
+  - All methods tagged with `CompatStatus` registry.
+- AudioManager MZ audio middleware compatibility:
+  - Audio buses (BGM, BGS, ME, SE) with channel management.
+  - Volume control per-bus and master volume.
+  - Ducking support for BGM during ME playback.
+  - Crossfade transitions for BGM.
+  - Save/restore BGM settings.
+  - All methods tagged with `CompatStatus` registry.
+- InputManager/TouchInput MZ input compatibility:
+  - Keyboard state queries (isPressed, isTriggered, isRepeated, isReleased).
+  - Direction input (dir4, dir8) with MZ-compatible values.
+  - Mouse state tracking (position, buttons, wheel).
+  - Touch state tracking (position, pressed, count).
+  - Gamepad support (buttons, axes, connection state).
+  - Action mapping system for customizable controls.
+  - All methods tagged with `CompatStatus` registry.
+- PluginManager MZ plugin command registry:
+  - Plugin lifecycle management (load, unload, reload).
+  - Command registration and execution.
+  - Parameter management per-plugin.
+  - Dependency checking between plugins.
+  - Event hooks for plugin lifecycle events.
+  - Execution context tracking for nested command calls.
+  - All methods tagged with `CompatStatus` registry.
+- Compat tests:
+  - `test_quickjs_runtime.cpp` for QuickJS context and runtime tests.
+  - `test_window_compat.cpp` for WindowCompat surface tests.
+  - `test_battlemgr.cpp` for BattleManager hook and phase tests.
+  - `test_data_manager.cpp` for DataManager save/load tests.
+  - `test_audio_manager.cpp` for AudioManager bus/volume tests.
+  - `test_input_manager.cpp` for InputManager/TouchInput tests.
+  - `test_plugin_manager.cpp` for PluginManager command registry tests.
+
 ### Current Validation Baseline
 
-- Local CTest baseline: 51 passing tests.
+- Unit tests: 27 test files covering core kernels and compat layer:
+  - `test_semver.cpp`, `test_fixed32.cpp`, `test_frame_budget.cpp`, `test_ecs_world.cpp`
+  - `test_combat_calc.cpp`, `test_bridge_roundtrip.cpp`, `test_thread_roles.cpp`, `test_render_tier.cpp`
+  - `test_save_journal.cpp`, `test_canonical_json.cpp`, `test_migration_runner.cpp`, `test_source_authority.cpp`
+  - `test_save_recovery.cpp`, `test_save_runtime.cpp`, `test_event_edit_guard.cpp`, `test_event_runtime.cpp`
+  - `test_debug_session.cpp`, `test_quickjs_runtime.cpp`, `test_window_compat.cpp`
+  - `test_event_authority_diagnostics.cpp`, `test_event_authority_panel.cpp`
+  - `test_battlemgr.cpp`, `test_data_manager.cpp`, `test_audio_manager.cpp`, `test_input_manager.cpp`, `test_plugin_manager.cpp`
+- Integration tests: 1 file (`test_integration_runtime_recovery.cpp`).
+- Snapshot tests: 1 file (`test_snapshot_canonical_outputs.cpp`).
+- Compat tests: 1 file (`test_compat_authority_suite.cpp`).
+
+- CLI tools:
+  - `urpg_migrate` - migration runner CLI (`tools/migrate/migrate_cli.cpp`)
+### Implemented Source Files Map
+
+The following table maps documentation contracts to their actual source implementations:
+
+| Component | Header | Implementation | Test File |
+|-----------|--------|----------------|-----------|
+| SemVer | `engine/core/semver.h` | `engine/core/semver.cpp` | `tests/unit/test_semver.cpp` |
+| Fixed32 | `engine/core/math/fixed32.h` | (header-only) | `tests/unit/test_fixed32.cpp` |
+| FrameBudget | `engine/core/perf/frame_budget.h` | (header-only) | `tests/unit/test_frame_budget.cpp` |
+| ECS World | `engine/core/ecs/world.h` | (header-only) | `tests/unit/test_ecs_world.cpp` |
+| CombatCalc | `engine/gameplay/combat/combat_calc.h` | `engine/gameplay/combat/combat_calc.cpp` | `tests/unit/test_combat_calc.cpp` |
+| Bridge Value | `engine/runtimes/bridge/value.h` | (header-only) | `tests/unit/test_bridge_roundtrip.cpp` |
+| ThreadRoles | `engine/core/threading/thread_roles.h` | `engine/core/threading/thread_roles.cpp` | `tests/unit/test_thread_roles.cpp` |
+| RenderTier | `engine/core/render/render_tier.h` | (header-only) | `tests/unit/test_render_tier.cpp` |
+| CanonicalJson | `engine/core/format/canonical_json.h` | `engine/core/format/canonical_json.cpp` | `tests/unit/test_canonical_json.cpp` |
+| MigrationRunner | `engine/core/migrate/migration_runner.h` | `engine/core/migrate/migration_runner.cpp` | `tests/unit/test_migration_runner.cpp` |
+| SourceAuthority | `engine/core/sync/source_authority.h` | `engine/core/sync/source_authority.cpp` | `tests/unit/test_source_authority.cpp` |
+| SaveJournal | `engine/core/save/save_journal.h` | `engine/core/save/save_journal.cpp` | `tests/unit/test_save_journal.cpp` |
+| SaveRecovery | `engine/core/save/save_recovery.h` | `engine/core/save/save_recovery.cpp` | `tests/unit/test_save_recovery.cpp` |
+| SaveRuntime | `engine/core/save/save_runtime.h` | `engine/core/save/save_runtime.cpp` | `tests/unit/test_save_runtime.cpp` |
+| SaveTypes | `engine/core/save/save_types.h` | (header-only) | (via save tests) |
+| EventRuntime | `engine/core/events/event_runtime.h` | `engine/core/events/event_runtime.cpp` | `tests/unit/test_event_runtime.cpp` |
+| EventEditGuard | `engine/core/events/event_edit_guard.h` | `engine/core/events/event_edit_guard.cpp` | `tests/unit/test_event_edit_guard.cpp` |
+| DebugSession | `engine/core/debug/debug_session.h` | `engine/core/debug/debug_session.cpp` | `tests/unit/test_debug_session.cpp` |
+| QuickJSRuntime | `runtimes/compat_js/quickjs_runtime.h` | `runtimes/compat_js/quickjs_runtime.cpp` | `tests/unit/test_quickjs_runtime.cpp` |
+| WindowCompat | `runtimes/compat_js/window_compat.h` | `runtimes/compat_js/window_compat.cpp` | `tests/unit/test_window_compat.cpp` |
+| BattleManager | `runtimes/compat_js/battle_manager.h` | `runtimes/compat_js/battle_manager.cpp` | `tests/unit/test_battlemgr.cpp` |
+| DataManager | `runtimes/compat_js/data_manager.h` | `runtimes/compat_js/data_manager.cpp` | `tests/unit/test_data_manager.cpp` |
+| AudioManager | `runtimes/compat_js/audio_manager.h` | `runtimes/compat_js/audio_manager.cpp` | `tests/unit/test_audio_manager.cpp` |
+| InputManager | `runtimes/compat_js/input_manager.h` | `runtimes/compat_js/input_manager.cpp` | `tests/unit/test_input_manager.cpp` |
+| PluginManager | `runtimes/compat_js/plugin_manager.h` | `runtimes/compat_js/plugin_manager.cpp` | `tests/unit/test_plugin_manager.cpp` |
+| EventAuthorityDiagnostics | `editor/diagnostics/event_authority_diagnostics.h` | `editor/diagnostics/event_authority_diagnostics.cpp` | `tests/unit/test_event_authority_diagnostics.cpp` |
+| EventAuthorityPanel | `editor/diagnostics/event_authority_panel.h` | `editor/diagnostics/event_authority_panel.cpp` | `tests/unit/test_event_authority_panel.cpp` |
 
 ### Next Execution Lanes
 
-1. Phase 2 Compat Layer kickoff (QuickJS runtime integration contract kernel scaffolding, WindowCompat core surface stubs with compatibility status tagging).
+1. Complete Phase 2 Compat Layer: Expand WindowCompat surface coverage, validate against 10 real-world MZ plugins.
+2. Phase 3 Copilot + Polish: Producer Copilot canon-aware generation, cutscene timeline editor, full debugger profiler.
 
 ## 0 — Core Philosophy
 
@@ -1042,56 +1147,56 @@ CI Gates
 
 This section includes small reference implementations so the test examples are anchored to real code contracts (not guesses). These are not the full engine - they are the minimum 'contract kernels' every subsystem must match.
 
-18.1 SemVer (C++)
+### 18.1 SemVer (C++)
 
 ```cpp
 // engine/core/semver.h
 #pragma once
-#include \<cstdint\>
-#include \<string\>
+#include <cstdint>
+#include <string>
+
 namespace urpg {
 struct SemVer {
-uint16_t major = 0, minor = 0, patch = 0;
-static bool TryParse(const std::string& s, SemVer& out);
-std::string ToString() const;
+    uint16_t major = 0;
+    uint16_t minor = 0;
+    uint16_t patch = 0;
+
+    static bool TryParse(const std::string& s, SemVer& out);
+    std::string ToString() const;
 };
-```
 
 inline bool operator==(const SemVer& a, const SemVer& b) {
-
-```json
-return a.major == b.major && a.minor == b.minor && a.patch == b.patch;
+    return a.major == b.major && a.minor == b.minor && a.patch == b.patch;
 }
-```
 
-inline bool operator\<(const SemVer& a, const SemVer& b) {
-
-```json
-if (a.major != b.major) return a.major \< b.major;
-if (a.minor != b.minor) return a.minor \< b.minor;
-return a.patch \< b.patch;
+inline bool operator<(const SemVer& a, const SemVer& b) {
+    if (a.major != b.major) return a.major < b.major;
+    if (a.minor != b.minor) return a.minor < b.minor;
+    return a.patch < b.patch;
 }
 } // namespace urpg
 ```
 
-18.2 Unit Test Example (Catch2)
+### 18.2 Unit Test Example (Catch2)
 
 ```cpp
 // tests/unit/test_semver.cpp
 #include "engine/core/semver.h"
-#include \<catch2/catch_test_macros.hpp\>
+#include <catch2/catch_test_macros.hpp>
+
 TEST_CASE("SemVer parses valid versions", "[semver]") {
-urpg::SemVer v;
-REQUIRE(urpg::SemVer::TryParse("1.2.3", v));
-REQUIRE(v.major == 1);
-REQUIRE(v.minor == 2);
-REQUIRE(v.patch == 3);
-REQUIRE(v.ToString() == "1.2.3");
+    urpg::SemVer v;
+    REQUIRE(urpg::SemVer::TryParse("1.2.3", v));
+    REQUIRE(v.major == 1);
+    REQUIRE(v.minor == 2);
+    REQUIRE(v.patch == 3);
+    REQUIRE(v.ToString() == "1.2.3");
 }
+
 TEST_CASE("SemVer rejects invalid versions", "[semver]") {
-urpg::SemVer v;
-REQUIRE_FALSE(urpg::SemVer::TryParse("1.2", v));
-REQUIRE_FALSE(urpg::SemVer::TryParse("a.b.c", v));
+    urpg::SemVer v;
+    REQUIRE_FALSE(urpg::SemVer::TryParse("1.2", v));
+    REQUIRE_FALSE(urpg::SemVer::TryParse("a.b.c", v));
 }
 ```
 
@@ -1111,137 +1216,231 @@ All format migrations are pure functions: input JSON -\> output JSON. No side ef
 }
 ```
 
-18.4 Fixed32 Determinism Kernel (Q16.16)
+### 18.4 Fixed32 Determinism Kernel (Q16.16)
 
 Deterministic Mode must avoid float math for authoritative gameplay state. Fixed32 is Q16.16: enough range for RPG formulas while staying fast and predictable.
 
 ```cpp
 // engine/core/math/fixed32.h
 #pragma once
-#include \<cstdint\>
+#include <cstdint>
+
 namespace urpg {
 struct Fixed32 {
-int32_t raw = 0; // Q16.16
-static constexpr Fixed32 FromInt(int32_t v) { return Fixed32{ v \<\< 16 }; }
-static constexpr Fixed32 FromRaw(int32_t r) { return Fixed32{ r }; }
-// For display/debug only. Never use for authoritative state.
-float ToFloat() const { return (float)raw / 65536.0f; }
-```
+    int32_t raw = 0; // Q16.16
 
-friend constexpr Fixed32 operator+(Fixed32 a, Fixed32 b) { return Fixed32{ a.raw + b.raw }; }
+    static constexpr Fixed32 FromInt(int32_t v) {
+        return Fixed32{v << 16};
+    }
 
-friend constexpr Fixed32 operator-(Fixed32 a, Fixed32 b) { return Fixed32{ a.raw - b.raw }; }
+    static constexpr Fixed32 FromRaw(int32_t r) {
+        return Fixed32{r};
+    }
 
-friend constexpr Fixed32 operator\*(Fixed32 a, Fixed32 b) {
+    // For display/debug only. Never use for authoritative state.
+    float ToFloat() const {
+        return static_cast<float>(raw) / 65536.0f;
+    }
 
-```cpp
-return Fixed32{ (int32_t)(((int64_t)a.raw * (int64_t)b.raw) \>\> 16) };
-}
-```
+    friend constexpr Fixed32 operator+(Fixed32 a, Fixed32 b) {
+        return Fixed32{a.raw + b.raw};
+    }
 
-friend constexpr bool operator\<(Fixed32 a, Fixed32 b) { return a.raw \< b.raw; }
+    friend constexpr Fixed32 operator-(Fixed32 a, Fixed32 b) {
+        return Fixed32{a.raw - b.raw};
+    }
 
-friend constexpr bool operator==(Fixed32 a, Fixed32 b) { return a.raw == b.raw; }
+    friend constexpr Fixed32 operator*(Fixed32 a, Fixed32 b) {
+        return Fixed32{static_cast<int32_t>(
+            (static_cast<int64_t>(a.raw) * static_cast<int64_t>(b.raw)) >> 16
+        )};
+    }
 
-```cpp
+    friend constexpr bool operator<(Fixed32 a, Fixed32 b) {
+        return a.raw < b.raw;
+    }
+
+    friend constexpr bool operator==(Fixed32 a, Fixed32 b) {
+        return a.raw == b.raw;
+    }
 };
 } // namespace urpg
+```
+
+```cpp
 // tests/unit/test_fixed32.cpp
 #include "engine/core/math/fixed32.h"
-#include \<catch2/catch_test_macros.hpp\>
+#include <catch2/catch_test_macros.hpp>
+
 TEST_CASE("Fixed32 multiplies deterministically", "[math]") {
-using urpg::Fixed32;
-auto a = Fixed32::FromInt(3);
-auto b = Fixed32::FromInt(2);
-auto c = a * b;
-REQUIRE(c.raw == Fixed32::FromInt(6).raw);
+    using urpg::Fixed32;
+    auto a = Fixed32::FromInt(3);
+    auto b = Fixed32::FromInt(2);
+    auto c = a * b;
+    REQUIRE(c.raw == Fixed32::FromInt(6).raw);
 }
+
 TEST_CASE("Fixed32 handles negatives", "[math]") {
-using urpg::Fixed32;
-auto a = Fixed32::FromInt(-3);
-auto b = Fixed32::FromInt(2);
-REQUIRE((a * b).raw == Fixed32::FromInt(-6).raw);
+    using urpg::Fixed32;
+    auto a = Fixed32::FromInt(-3);
+    auto b = Fixed32::FromInt(2);
+    REQUIRE((a * b).raw == Fixed32::FromInt(-6).raw);
 }
 ```
 
-18.5 FrameBudget Allocation Kernel
+### 18.5 FrameBudget Allocation Kernel
 
 Frame budgets must be enforceable and testable. Time accounting uses injected clocks so tests stay deterministic.
 
 ```cpp
 // engine/core/perf/frame_budget.h
 #pragma once
-#include \<cstdint\>
+#include <cstdint>
+
 namespace urpg {
-enum class BudgetTier : uint8_t { CRITICAL=0, HIGH=1, NORMAL=2, LOW=3 };
+
+enum class BudgetTier : uint8_t {
+    CRITICAL = 0,
+    HIGH = 1,
+    NORMAL = 2,
+    LOW = 3
+};
+
 struct FrameBudget {
-uint32_t total_us = 16667; // 60fps
-uint32_t native_reserve = 8000;
-uint32_t plugin_pool = 6000;
-uint32_t headroom = 2667;
+    uint32_t total_us = 16667;      // 60fps
+    uint32_t native_reserve = 8000;
+    uint32_t plugin_pool = 6000;
+    uint32_t headroom = 2667;
 };
+
 struct PluginBudgetDecl {
-BudgetTier tier = BudgetTier::NORMAL;
-uint32_t weight = 1; // proportional slice within tier
+    BudgetTier tier = BudgetTier::NORMAL;
+    uint32_t weight = 1;  // proportional slice within tier
 };
+
 } // namespace urpg
+```
+
+```cpp
 // tests/unit/test_frame_budget.cpp
 #include "engine/core/perf/frame_budget.h"
-#include \<catch2/catch_test_macros.hpp\>
+#include <catch2/catch_test_macros.hpp>
+
 TEST_CASE("FrameBudget totals sum correctly", "[perf]") {
-urpg::FrameBudget b;
-REQUIRE(b.native_reserve + b.plugin_pool + b.headroom == b.total_us);
+    urpg::FrameBudget b;
+    REQUIRE(b.native_reserve + b.plugin_pool + b.headroom == b.total_us);
 }
 ```
 
-18.6 ECS World Kernel (Deterministic Iteration)
+### 18.6 ECS World Kernel (Deterministic Iteration)
 
 ECS is the internal object model. Determinism requires stable iteration order: ForEachWith must iterate entities in ascending EntityID order.
 
 ```cpp
 // engine/core/ecs/world.h
 #pragma once
-#include \<cstdint\>
-#include \<functional\>
-#include \<unordered_map\>
-#include \<vector\>
+
+#include <algorithm>
+#include <cstdint>
+#include <functional>
+#include <utility>
+#include <memory>
+#include <typeindex>
+#include <type_traits>
+#include <unordered_map>
+#include <vector>
+
 namespace urpg {
+
 using EntityID = uint32_t;
+
 class World {
 public:
-EntityID CreateEntity();
-void DestroyEntity(EntityID id);
-template\<typename T\>
-T& AddComponent(EntityID id, const T& component);
-template\<typename T\>
-T* GetComponent(EntityID id);
-template\<typename... Ts\>
-void ForEachWith(const std::function\<void(EntityID, Ts&...)\>& fn);
+    EntityID CreateEntity() {
+        const EntityID id = next_id_++;
+        alive_.push_back(id);
+        return id;
+    }
+
+    void DestroyEntity(EntityID id) {
+        const auto iter = std::lower_bound(alive_.begin(), alive_.end(), id);
+        if (iter != alive_.end() && *iter == id) {
+            alive_.erase(iter);
+        }
+    }
+
+    template <typename T>
+    T& AddComponent(EntityID id, const T& component) {
+        auto& storage = TypedStorage<T>();
+        storage[id] = component;
+        return storage[id];
+    }
+
+    template <typename T>
+    T* GetComponent(EntityID id) {
+        auto& storage = TypedStorage<T>();
+        auto iter = storage.find(id);
+        if (iter == storage.end()) {
+            return nullptr;
+        }
+        return &iter->second;
+    }
+
+    template <typename... Ts, typename Fn>
+    void ForEachWith(Fn&& fn) {
+        for (EntityID id : alive_) {
+            if constexpr (sizeof...(Ts) == 0) {
+                fn(id);
+            } else {
+                if ((GetComponent<Ts>(id) && ...)) {
+                    fn(id, *GetComponent<Ts>(id)...);
+                }
+            }
+        }
+    }
+
 private:
-EntityID next_id_ = 1;
-std::vector\<EntityID\> alive_; // maintained sorted
-// Contract kernel: real impl will use type-erased sparse sets.
-std::unordered_map\<EntityID, void*\> comp_dummy_;
+    struct IStorage {
+        virtual ~IStorage() = default;
+    };
+
+    template <typename T>
+    struct Storage final : IStorage {
+        std::unordered_map<EntityID, T> data;
+    };
+
+    EntityID next_id_ = 1;
+    std::vector<EntityID> alive_;
+    std::unordered_map<std::type_index, std::unique_ptr<IStorage>> storages_;
+
+    template <typename T>
+    std::unordered_map<EntityID, T>& TypedStorage();
 };
+
 } // namespace urpg
+```
+
+```cpp
 // tests/unit/test_ecs_world.cpp
 #include "engine/core/ecs/world.h"
-#include \<catch2/catch_test_macros.hpp\>
+#include <catch2/catch_test_macros.hpp>
+
 TEST_CASE("World creates monotonic EntityIDs", "[ecs]") {
-urpg::World w;
-auto a = w.CreateEntity();
-auto b = w.CreateEntity();
-REQUIRE(a \< b);
+    urpg::World w;
+    auto a = w.CreateEntity();
+    auto b = w.CreateEntity();
+    REQUIRE(a < b);
 }
+
 TEST_CASE("ForEachWith iteration is deterministic by EntityID", "[ecs]") {
-urpg::World w;
-auto e1 = w.CreateEntity();
-auto e2 = w.CreateEntity();
-REQUIRE(e1 \< e2);
+    urpg::World w;
+    auto e1 = w.CreateEntity();
+    auto e2 = w.CreateEntity();
+    REQUIRE(e1 < e2);
 }
 ```
 
-18.7 CombatCalc Kernel + Baseline Unit Tests
+### 18.7 CombatCalc Kernel + Baseline Unit Tests
 
 Combat formulas must be anchored by deterministic tests. The kernel below is intentionally small but defines the baseline contract for physical damage.
 
@@ -1249,91 +1448,130 @@ Combat formulas must be anchored by deterministic tests. The kernel below is int
 // engine/gameplay/combat/combat_calc.h
 #pragma once
 #include "engine/core/math/fixed32.h"
-#include \<cstdint\>
+#include <cstdint>
+
 namespace urpg {
+
 struct ActorStats {
-int32_t level = 1;
-Fixed32 atk = Fixed32::FromInt(0);
-Fixed32 def = Fixed32::FromInt(0);
+    int32_t level = 1;
+    Fixed32 atk = Fixed32::FromInt(0);
+    Fixed32 def = Fixed32::FromInt(0);
 };
+
 struct DamageResult {
-int32_t damage = 0;
-bool critical = false;
+    int32_t damage = 0;
+    bool critical = false;
 };
+
 class CombatCalc {
 public:
-// variance_seed is authoritative input for determinism.
-DamageResult PhysicalDamage(const ActorStats& a, const ActorStats& d, uint32_t variance_seed) const;
+    // variance_seed is authoritative input for determinism.
+    DamageResult PhysicalDamage(const ActorStats& a, const ActorStats& d, uint32_t variance_seed) const;
 };
+
 } // namespace urpg
+```
+
+```cpp
 // tests/unit/test_combat_calc.cpp
 #include "engine/gameplay/combat/combat_calc.h"
-#include \<catch2/catch_test_macros.hpp\>
+#include <catch2/catch_test_macros.hpp>
+
 TEST_CASE("Physical damage formula baseline", "[combat]") {
-urpg::CombatCalc calc;
-urpg::ActorStats attacker{ .level=10, .atk=urpg::Fixed32::FromInt(100), .def=urpg::Fixed32::FromInt(0) };
-urpg::ActorStats defender{ .level=10, .atk=urpg::Fixed32::FromInt(0), .def=urpg::Fixed32::FromInt(50) };
-auto result = calc.PhysicalDamage(attacker, defender, /*variance_seed=*/0);
-REQUIRE(result.damage == 50); // variance_seed=0 locks variance to 0% in the kernel
-REQUIRE_FALSE(result.critical);
+    urpg::CombatCalc calc;
+    urpg::ActorStats attacker{ .level=10, .atk=urpg::Fixed32::FromInt(100), .def=urpg::Fixed32::FromInt(0) };
+    urpg::ActorStats defender{ .level=10, .atk=urpg::Fixed32::FromInt(0), .def=urpg::Fixed32::FromInt(50) };
+    auto result = calc.PhysicalDamage(attacker, defender, /*variance_seed=*/0);
+    REQUIRE(result.damage == 50); // variance_seed=0 locks variance to 0% in the kernel
+    REQUIRE_FALSE(result.critical);
 }
 ```
 
-18.8 Bridge Marshalling Value Model + Round-Trip Tests
+### 18.8 Bridge Marshalling Value Model + Round-Trip Tests
 
 Instead of unit-testing QuickJS and Lua directly, define a runtime-agnostic Value model. Each runtime marshals to/from Value. Round-trip tests run purely in C++ and cannot drift.
 
 ```cpp
 // engine/runtimes/bridge/value.h
 #pragma once
-#include \<cstdint\>
-#include \<map\>
-#include \<string\>
-#include \<variant\>
-#include \<vector\>
+#include <cstdint>
+#include <map>
+#include <string>
+#include <utility>
+#include <variant>
+#include <vector>
+
 namespace urpg {
+
 struct Value;
-using Array = std::vector\<Value\>;
-using Object = std::map\<std::string, Value\>; // ordered for determinism
+using Array = std::vector<Value>;
+using Object = std::map<std::string, Value>; // ordered for determinism
+
 struct Value {
-using V = std::variant\<std::monostate, bool, int64_t, double, std::string, Array, Object\>;
-V v;
-static Value Nil() { return Value{std::monostate{}}; }
-static Value Int(int64_t x) { return Value{x}; }
-static Value Obj(Object o) { return Value{std::move(o)}; }
-static Value Arr(Array a) { return Value{std::move(a)}; }
+    using V = std::variant<std::monostate, bool, int64_t, double, std::string, Array, Object>;
+    V v;
+
+    static Value Nil() {
+        Value out;
+        out.v = std::monostate{};
+        return out;
+    }
+
+    static Value Int(int64_t x) {
+        Value out;
+        out.v = x;
+        return out;
+    }
+
+    static Value Obj(Object o) {
+        Value out;
+        out.v = std::move(o);
+        return out;
+    }
+
+    static Value Arr(Array a) {
+        Value out;
+        out.v = std::move(a);
+        return out;
+    }
 };
+
 } // namespace urpg
+```
+
+```cpp
 // tests/unit/test_bridge_roundtrip.cpp
 #include "engine/runtimes/bridge/value.h"
-#include \<catch2/catch_test_macros.hpp\>
+#include <catch2/catch_test_macros.hpp>
+
 TEST_CASE("Bridge Value round-trip is stable", "[bridge]") {
-using urpg::Value;
-urpg::Object nested;
-nested["y"] = Value::Int(2);
-urpg::Object root;
-root["x"] = Value::Int(1);
-root["nested"] = Value::Obj(nested);
-root["arr"] = Value::Arr({ Value::Int(10), Value::Int(20), Value::Int(30) });
-Value v = Value::Obj(root);
-auto* obj = std::get_if\<urpg::Object\>(&v.v);
-REQUIRE(obj != nullptr);
-REQUIRE(obj-\>at("x").v.index() == 2); // int64_t
+    using urpg::Value;
+    urpg::Object nested;
+    nested["y"] = Value::Int(2);
+    urpg::Object root;
+    root["x"] = Value::Int(1);
+    root["nested"] = Value::Obj(nested);
+    root["arr"] = Value::Arr({ Value::Int(10), Value::Int(20), Value::Int(30) });
+    Value v = Value::Obj(root);
+    auto* obj = std::get_if<urpg::Object>(&v.v);
+    REQUIRE(obj != nullptr);
+    REQUIRE(obj->at("x").v.index() == 2); // int64_t
 }
 ```
 
-18.9 Migration Fuzz Harness Contract
+### 18.9 Migration Fuzz Harness Contract
 
 Migration runners must never crash on malformed input. Fuzz tests mutate valid JSON and assert: (a) no crash, (b) output is valid JSON or explicit MigrationError.
 
 ```cpp
 // tools/migrate/fuzz_migrate.cpp
-#include \<cstdint\>
+#include <cstdint>
+
 int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size) {
-// Seed corpus: valid URPG project JSON and save envelopes.
-// Mutate via libFuzzer; feed to migration runner.
-// Assert: never throws uncaught; returns Ok(json) or MigrationError.
-return 0;
+    // Seed corpus: valid URPG project JSON and save envelopes.
+    // Mutate via libFuzzer; feed to migration runner.
+    // Assert: never throws uncaught; returns Ok(json) or MigrationError.
+    return 0;
 }
 ```
 
