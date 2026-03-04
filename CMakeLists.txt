@@ -14,6 +14,7 @@ add_library(urpg_core
     engine/core/migrate/migration_runner.cpp
     engine/core/sync/source_authority.cpp
     engine/core/save/save_journal.cpp
+    engine/core/save/save_recovery.cpp
     engine/gameplay/combat/combat_calc.cpp
 )
 
@@ -66,6 +67,7 @@ add_executable(urpg_tests
     tests/unit/test_canonical_json.cpp
     tests/unit/test_migration_runner.cpp
     tests/unit/test_source_authority.cpp
+    tests/unit/test_save_recovery.cpp
 )
 
 target_link_libraries(urpg_tests PRIVATE urpg_core Catch2::Catch2WithMain)

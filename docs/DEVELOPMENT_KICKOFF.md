@@ -16,6 +16,7 @@ This repository is now bootstrapped to the blueprint's canonical structure and i
    - Thread role + script access contracts (`Render/Logic/Audio/AssetStreaming`).
    - Renderer capability tier model (`Basic/Standard/Advanced`) with feature gating helpers.
    - Save metadata envelopes + journaled atomic save writes with backup retention.
+   - Save corruption recovery tiers: Level 1 autosave restore, Level 2 metadata+variables restore, Level 3 safe-mode skeleton load.
    - Canonical JSON serializer contract and deterministic migration runner (`rename` + `set`) with CLI.
    - Source-of-truth authority policy (`Compat` raw authoritative, `Native` AST authoritative, `Mixed` per-block authority tags) with guardrail validation.
 - Unit test baseline added and passing.
@@ -26,16 +27,16 @@ This repository is now bootstrapped to the blueprint's canonical structure and i
 
 ## Immediate next implementation lane
 
-1. Save recovery tiers
-   - Add level 1/2/3 recovery entry points (autosave restore, metadata-only, skeleton load).
-
-2. CI gate skeleton
+1. CI gate skeleton
    - Add CTest labels/groups for PR vs nightly vs weekly suites.
    - Add baseline workflow config + known-break waiver mechanism.
 
-3. Event integration hook-up
+2. Event integration hook-up
    - Thread authority validation into event editor mutation paths.
    - Emit structured diagnostics when edits target derived views.
+
+3. Recovery integration hook-up
+   - Wire SaveRecoveryManager into runtime save load flow and crash-safe mode startup path.
 
 ## Build/test
 
