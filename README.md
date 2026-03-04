@@ -16,9 +16,17 @@ Bootstrap workspace aligned to URPG Master Blueprint v3.1.
   - Thread role + script access model (Render/Logic/Audio/AssetStreaming)
   - Renderer capability tiers + feature-gate helpers
   - Save metadata envelopes + journaled atomic write path
+  - Save corruption recovery tiers (Level 1/2/3)
   - Canonical JSON serializer + deterministic migration runner (`rename`, `set`)
+  - Source-of-truth authority policy (Compat/Native/Mixed)
+  - Event edit guard with structured `event_authority` diagnostics
+- CI gate skeleton:
+  - Gate 1 (PR): `ctest -L pr`
+  - Gate 2 (nightly): `ctest -L nightly` (placeholder suite)
+  - Gate 3 (weekly): `ctest -L weekly` (placeholder suite)
+  - Known-break waiver validation via `tools/ci/check_waivers.ps1`
 - Migration CLI: `urpg_migrate`
-- Catch2 unit test baseline (17 passing tests).
+- Catch2 unit test baseline (29 passing tests).
 
 ## Build
 
@@ -38,6 +46,6 @@ ctest --test-dir build --output-on-failure
 
 Implement the next blueprint-critical contracts:
 
-1. Source-of-truth runtime scaffolding (Compat raw list vs Native AST authority tagging).
-2. Save corruption recovery tiers (L1/L2/L3 entry points).
-3. CI gate skeleton (PR/nightly/weekly stratification + waiver workflow).
+1. Recovery integration hook-up into runtime save load flow and crash-safe mode startup.
+2. CI suite expansion (replace nightly/weekly placeholders with real integration/snapshot/compat suites).
+3. Editor diagnostics UI hook-up for `event_authority` rejection events.
