@@ -22,6 +22,9 @@ add_library(urpg_core
     engine/gameplay/combat/combat_calc.cpp
     editor/diagnostics/event_authority_diagnostics.cpp
     editor/diagnostics/event_authority_panel.cpp
+    editor/compat/compat_report_panel.cpp
+    runtimes/compat_js/quickjs_runtime.cpp
+    runtimes/compat_js/window_compat.cpp
 )
 
 target_include_directories(urpg_core PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
@@ -80,6 +83,9 @@ add_executable(urpg_tests
     tests/unit/test_event_authority_panel.cpp
     tests/unit/test_event_runtime.cpp
     tests/unit/test_debug_session.cpp
+    tests/unit/test_quickjs_runtime.cpp
+    tests/unit/test_window_compat.cpp
+    tests/unit/test_compat_report_panel.cpp
 )
 
 target_link_libraries(urpg_tests PRIVATE urpg_core Catch2::Catch2WithMain)
