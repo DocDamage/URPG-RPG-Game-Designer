@@ -1,0 +1,28 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://urpg.dev/schemas/project.schema.json",
+  "title": "URPG Project",
+  "type": "object",
+  "required": ["_urpg_format_version", "_engine_version_min", "determinism"],
+  "properties": {
+    "_urpg_format_version": { "type": "string", "pattern": "^[0-9]+\\.[0-9]+$" },
+    "_engine_version_min": { "type": "string", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$" },
+    "determinism": {
+      "type": "object",
+      "required": ["level", "authoritative_math", "physics"],
+      "properties": {
+        "level": { "type": "string", "enum": ["A", "B"] },
+        "authoritative_math": { "type": "string", "enum": ["fixed32"] },
+        "physics": {
+          "type": "object",
+          "required": ["authoritative"],
+          "properties": {
+            "authoritative": { "type": "boolean" },
+            "note": { "type": "string" }
+          }
+        }
+      }
+    }
+  },
+  "additionalProperties": true
+}
