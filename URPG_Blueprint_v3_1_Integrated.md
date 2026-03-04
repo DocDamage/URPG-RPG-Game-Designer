@@ -63,6 +63,7 @@ This section tracks what has been implemented in code so this blueprint doubles 
   - Event edit integration guard with structured `event_authority` rejection diagnostics.
   - `event_authority` diagnostics now emit `block_id` for navigation.
   - Editor diagnostics index parses JSONL diagnostics and resolves event/block navigation targets.
+  - Editor diagnostics panel/view model now supports row rendering projections, event-id filtering, and one-click event/block navigation target selection.
 - CI gating suites:
   - PR/nightly/weekly labels with real gate coverage.
   - Nightly now runs integration + snapshot suites (`ctest -L nightly`) with renderer-tier matrix (`basic/standard/advanced`).
@@ -72,12 +73,11 @@ This section tracks what has been implemented in code so this blueprint doubles 
 
 ### Current Validation Baseline
 
-- Local CTest baseline: 39 passing tests.
+- Local CTest baseline: 42 passing tests.
 
 ### Next Execution Lanes
 
-1. Editor diagnostics panel/view rendering layer (consume diagnostics index and provide one-click jump UX).
-2. Phase 1 Native Core kickoff (event system priority/cancel/order kernels + debugger breakpoint/watch kernels).
+1. Phase 1 Native Core kickoff (event system priority/cancel/order kernels + debugger breakpoint/watch kernels).
 
 ## 0 — Core Philosophy
 

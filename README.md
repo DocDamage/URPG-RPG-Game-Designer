@@ -22,6 +22,7 @@ Bootstrap workspace aligned to URPG Master Blueprint v3.1.
   - Source-of-truth authority policy (Compat/Native/Mixed)
   - Event edit guard with structured `event_authority` diagnostics (with `block_id` emission)
   - Editor diagnostics index for `event_authority` JSONL parsing + event/block navigation targets
+  - Editor diagnostics panel/view model for rows, filtering, and one-click navigation target selection
 - CI gate suites:
   - Gate 1 (PR): `ctest -L pr`
   - Gate 2 (nightly): `ctest -L nightly` (integration + snapshot suites)
@@ -29,7 +30,7 @@ Bootstrap workspace aligned to URPG Master Blueprint v3.1.
   - Nightly renderer-tier matrix (`basic`, `standard`, `advanced`) + test log artifacts in CI
   - Known-break waiver validation via `tools/ci/check_waivers.ps1`
 - Migration CLI: `urpg_migrate`
-- Catch2/CTest baseline (39 passing tests).
+- Catch2/CTest baseline (42 passing tests).
 
 ## Build
 

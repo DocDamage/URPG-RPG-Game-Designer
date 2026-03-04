@@ -19,6 +19,7 @@ add_library(urpg_core
     engine/core/save/save_runtime.cpp
     engine/gameplay/combat/combat_calc.cpp
     editor/diagnostics/event_authority_diagnostics.cpp
+    editor/diagnostics/event_authority_panel.cpp
 )
 
 target_include_directories(urpg_core PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
@@ -74,6 +75,7 @@ add_executable(urpg_tests
     tests/unit/test_save_runtime.cpp
     tests/unit/test_event_edit_guard.cpp
     tests/unit/test_event_authority_diagnostics.cpp
+    tests/unit/test_event_authority_panel.cpp
 )
 
 target_link_libraries(urpg_tests PRIVATE urpg_core Catch2::Catch2WithMain)
