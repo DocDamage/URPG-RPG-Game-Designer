@@ -75,4 +75,14 @@ target_include_directories(urpg_tests PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
 
 include(CTest)
 include(Catch)
-catch_discover_tests(urpg_tests)
+catch_discover_tests(urpg_tests TEST_LIST urpg_discovered_tests)
+
+if(urpg_discovered_tests)
+    set_tests_properties(${urpg_discovered_tests} PROPERTIES LABELS "pr")
+endif()
+
+add_test(NAME ci.nightly.placeholder COMMAND ${CMAKE_COMMAND} -E echo "nightly gate placeholder")
+set_tests_properties(ci.nightly.placeholder PROPERTIES LABELS "nightly")
+
+add_test(NAME ci.weekly.placeholder COMMAND ${CMAKE_COMMAND} -E echo "weekly gate placeholder")
+set_tests_properties(ci.weekly.placeholder PROPERTIES LABELS "weekly")

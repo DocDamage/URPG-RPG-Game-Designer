@@ -27,16 +27,16 @@ This repository is now bootstrapped to the blueprint's canonical structure and i
 
 ## Immediate next implementation lane
 
-1. CI gate skeleton
-   - Add CTest labels/groups for PR vs nightly vs weekly suites.
-   - Add baseline workflow config + known-break waiver mechanism.
-
-2. Event integration hook-up
+1. Event integration hook-up
    - Thread authority validation into event editor mutation paths.
    - Emit structured diagnostics when edits target derived views.
 
-3. Recovery integration hook-up
+2. Recovery integration hook-up
    - Wire SaveRecoveryManager into runtime save load flow and crash-safe mode startup path.
+
+3. CI suite expansion
+   - Replace nightly/weekly placeholders with real integration/snapshot/compat suites.
+   - Add test artifact upload and renderer-tier matrix for nightly gates.
 
 ## Build/test
 

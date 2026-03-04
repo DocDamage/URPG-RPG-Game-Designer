@@ -1,0 +1,56 @@
+name: URPG CI Gates
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  schedule:
+    - cron: "0 6 * * *"
+    - cron: "0 7 * * 1"
+  workflow_dispatch:
+
+jobs:
+  gate1-pr:
+    if: github.event_name == 'pull_request' || github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate known-break waivers
+        shell: pwsh
+        run: ./tools/ci/check_waivers.ps1
+      - name: Configure
+        run: cmake -S . -B build -DURPG_FETCH_CATCH2=ON
+      - name: Build
+        run: cmake --build build --config Release
+      - name: Run Gate 1 tests
+        run: ctest --test-dir build --output-on-failure -L pr
+
+  gate2-nightly:
+    if: github.event_name == 'schedule' && github.event.schedule == '0 6 * * *'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate known-break waivers
+        shell: pwsh
+        run: ./tools/ci/check_waivers.ps1
+      - name: Configure
+        run: cmake -S . -B build -DURPG_FETCH_CATCH2=ON
+      - name: Build
+        run: cmake --build build --config Release
+      - name: Run Gate 2 tests
+        run: ctest --test-dir build --output-on-failure -L nightly
+
+  gate3-weekly:
+    if: github.event_name == 'schedule' && github.event.schedule == '0 7 * * 1'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate known-break waivers
+        shell: pwsh
+        run: ./tools/ci/check_waivers.ps1
+      - name: Configure
+        run: cmake -S . -B build -DURPG_FETCH_CATCH2=ON
+      - name: Build
+        run: cmake --build build --config Release
+      - name: Run Gate 3 tests
+        run: ctest --test-dir build --output-on-failure -L weekly
