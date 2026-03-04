@@ -19,6 +19,7 @@ This repository is now bootstrapped to the blueprint's canonical structure and i
    - Save corruption recovery tiers: Level 1 autosave restore, Level 2 metadata+variables restore, Level 3 safe-mode skeleton load.
    - Canonical JSON serializer contract and deterministic migration runner (`rename` + `set`) with CLI.
    - Source-of-truth authority policy (`Compat` raw authoritative, `Native` AST authoritative, `Mixed` per-block authority tags) with guardrail validation.
+   - Event integration hook-up for authority validation and structured rejection diagnostics (`event_authority` JSONL).
 - Unit test baseline added and passing.
 - Migration and schema anchors added:
   - `tools/migrate/migration_op.json`
@@ -27,16 +28,15 @@ This repository is now bootstrapped to the blueprint's canonical structure and i
 
 ## Immediate next implementation lane
 
-1. Event integration hook-up
-   - Thread authority validation into event editor mutation paths.
-   - Emit structured diagnostics when edits target derived views.
-
-2. Recovery integration hook-up
+1. Recovery integration hook-up
    - Wire SaveRecoveryManager into runtime save load flow and crash-safe mode startup path.
 
-3. CI suite expansion
+2. CI suite expansion
    - Replace nightly/weekly placeholders with real integration/snapshot/compat suites.
    - Add test artifact upload and renderer-tier matrix for nightly gates.
+
+3. Editor diagnostics UI hook-up
+   - Surface `event_authority` diagnostics in editor panels with one-click navigation to offending event blocks.
 
 ## Build/test
 
