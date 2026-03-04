@@ -23,6 +23,9 @@ Bootstrap workspace aligned to URPG Master Blueprint v3.1.
   - Event edit guard with structured `event_authority` diagnostics (with `block_id` emission)
   - Editor diagnostics index for `event_authority` JSONL parsing + event/block navigation targets
   - Editor diagnostics panel/view model for rows, filtering, and one-click navigation target selection
+- Phase 1 kickoff kernels:
+  - Event runtime priority ordering + cancellation + prevent-default contracts
+  - Debugger breakpoint store + watch table contract kernels
 - CI gate suites:
   - Gate 1 (PR): `ctest -L pr`
   - Gate 2 (nightly): `ctest -L nightly` (integration + snapshot suites)
@@ -30,7 +33,7 @@ Bootstrap workspace aligned to URPG Master Blueprint v3.1.
   - Nightly renderer-tier matrix (`basic`, `standard`, `advanced`) + test log artifacts in CI
   - Known-break waiver validation via `tools/ci/check_waivers.ps1`
 - Migration CLI: `urpg_migrate`
-- Catch2/CTest baseline (42 passing tests).
+- Catch2/CTest baseline (47 passing tests).
 
 ## Build
 
@@ -50,6 +53,6 @@ ctest --test-dir build --output-on-failure
 
 Implement the next blueprint-critical contracts:
 
-1. Phase 1 Native Core kickoff:
-  - Expand URPG event system runtime kernels (priority, cancellation, deterministic ordering).
-  - Add debugger-level contract kernels (breakpoint and watch foundations).
+1. Phase 1 Native Core continuation:
+  - Expand event runtime toward execution timeline + reentrancy depth controls.
+  - Add debugger contract kernels for call stack frames and step controls.

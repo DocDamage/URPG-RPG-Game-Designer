@@ -64,6 +64,10 @@ This section tracks what has been implemented in code so this blueprint doubles 
   - `event_authority` diagnostics now emit `block_id` for navigation.
   - Editor diagnostics index parses JSONL diagnostics and resolves event/block navigation targets.
   - Editor diagnostics panel/view model now supports row rendering projections, event-id filtering, and one-click event/block navigation target selection.
+- Phase 1 Native Core kickoff:
+  - Event runtime kernel now enforces deterministic execution ordering by priority then registration order.
+  - Event runtime kernel includes cancellation and prevent-default contract behavior.
+  - Debugger kernels now include breakpoint storage contracts and watch table contracts.
 - CI gating suites:
   - PR/nightly/weekly labels with real gate coverage.
   - Nightly now runs integration + snapshot suites (`ctest -L nightly`) with renderer-tier matrix (`basic/standard/advanced`).
@@ -73,11 +77,11 @@ This section tracks what has been implemented in code so this blueprint doubles 
 
 ### Current Validation Baseline
 
-- Local CTest baseline: 42 passing tests.
+- Local CTest baseline: 47 passing tests.
 
 ### Next Execution Lanes
 
-1. Phase 1 Native Core kickoff (event system priority/cancel/order kernels + debugger breakpoint/watch kernels).
+1. Phase 1 Native Core continuation (event execution timeline + reentrancy depth kernels, debugger call-stack and step-control kernels).
 
 ## 0 — Core Philosophy
 

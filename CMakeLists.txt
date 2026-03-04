@@ -8,9 +8,11 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 option(URPG_FETCH_CATCH2 "Fetch Catch2 via CMake" ON)
 
 add_library(urpg_core
+    engine/core/debug/debug_session.cpp
     engine/core/semver.cpp
     engine/core/threading/thread_roles.cpp
     engine/core/events/event_edit_guard.cpp
+    engine/core/events/event_runtime.cpp
     engine/core/format/canonical_json.cpp
     engine/core/migrate/migration_runner.cpp
     engine/core/sync/source_authority.cpp
@@ -76,6 +78,8 @@ add_executable(urpg_tests
     tests/unit/test_event_edit_guard.cpp
     tests/unit/test_event_authority_diagnostics.cpp
     tests/unit/test_event_authority_panel.cpp
+    tests/unit/test_event_runtime.cpp
+    tests/unit/test_debug_session.cpp
 )
 
 target_link_libraries(urpg_tests PRIVATE urpg_core Catch2::Catch2WithMain)

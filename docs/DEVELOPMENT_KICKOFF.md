@@ -31,7 +31,10 @@ This repository is now bootstrapped to the blueprint's canonical structure and i
 - Editor diagnostics panel/view model implemented:
    - Row projection + summary strings for `event_authority` diagnostics.
    - Event-id filtering and selected-row one-click navigation target resolution.
-- Test baseline added and passing (42 tests).
+- Phase 1 Native Core kickoff implemented:
+   - Event runtime kernels for deterministic priority ordering and cancellation/default behavior controls.
+   - Debugger contract kernels for breakpoint storage and watch variable tables.
+- Test baseline added and passing (47 tests).
 - Migration and schema anchors added:
   - `tools/migrate/migration_op.json`
   - `tools/migrate/fuzz_migrate.cpp`
@@ -39,9 +42,9 @@ This repository is now bootstrapped to the blueprint's canonical structure and i
 
 ## Immediate next implementation lanes
 
-1. Phase 1 Native Core kickoff
-   - Event system kernel expansion (priority/cancel/deterministic ordering).
-   - Debugger breakpoint + watch contract kernels.
+1. Phase 1 Native Core continuation
+   - Event runtime execution timeline + reentrancy depth contract kernels.
+   - Debugger call-stack frame + step-control contract kernels.
 
 ## Build/test
 
