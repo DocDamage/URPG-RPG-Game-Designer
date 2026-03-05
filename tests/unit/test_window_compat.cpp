@@ -5,6 +5,7 @@
 
 #include "runtimes/compat_js/window_compat.h"
 #include "runtimes/compat_js/quickjs_runtime.h"
+#include "runtimes/compat_js/data_manager.h"
 #include <catch2/catch_test_macros.hpp>
 
 using namespace urpg::compat;
@@ -119,15 +120,65 @@ TEST_CASE("Window_Base content rect calculation", "[compat][window]") {
 TEST_CASE("Window_Base getMethodStatus returns correct values", "[compat][window]") {
     REQUIRE(Window_Base::getMethodStatus("drawText") == CompatStatus::FULL);
     REQUIRE(Window_Base::getMethodStatus("drawIcon") == CompatStatus::FULL);
-    REQUIRE(Window_Base::getMethodStatus("drawActorFace") == CompatStatus::PARTIAL);
-    REQUIRE(Window_Base::getMethodStatus("drawItemName") == CompatStatus::PARTIAL);
+    REQUIRE(Window_Base::getMethodStatus("drawActorFace") == CompatStatus::FULL);
+    REQUIRE(Window_Base::getMethodStatus("drawItemName") == CompatStatus::FULL);
     REQUIRE(Window_Base::getMethodStatus("unknownMethod") == CompatStatus::UNSUPPORTED);
 }
 
 TEST_CASE("Window_Base getMethodDeviation returns notes", "[compat][window]") {
-    REQUIRE(Window_Base::getMethodDeviation("drawActorFace") != "");
+    REQUIRE(Window_Base::getMethodDeviation("drawActorFace") == "");
     REQUIRE(Window_Base::getMethodDeviation("drawActorHp") == "");
     REQUIRE(Window_Base::getMethodDeviation("drawText") == "");  // FULL, no deviation
+}
+
+TEST_CASE("Window_Base drawActorFace records canonical source and destination rects", "[compat][window]") {
+    Window_Base window(Window_Base::CreateParams{});
+
+    const uint32_t drawIconBefore = Window_Base::getMethodCallCount("drawIcon");
+    window.drawActorFace(3, 10, 20, 200, 180);
+    REQUIRE(Window_Base::getMethodCallCount("drawIcon") == drawIconBefore + 1);
+
+    const auto drawInfo = window.getLastFaceDraw();
+    REQUIRE(drawInfo.has_value());
+    REQUIRE(drawInfo->actorId == 3);
+    REQUIRE(drawInfo->faceIndex == 2);  // fallback mapping: actorId-1
+    REQUIRE(drawInfo->faceName == "ActorFace_3");
+    REQUIRE(drawInfo->sourceRect.x == 288);
+    REQUIRE(drawInfo->sourceRect.y == 0);
+    REQUIRE(drawInfo->sourceRect.width == 144);
+    REQUIRE(drawInfo->sourceRect.height == 144);
+    REQUIRE(drawInfo->destRect.x == 38);
+    REQUIRE(drawInfo->destRect.y == 38);
+    REQUIRE(drawInfo->destRect.width == 144);
+    REQUIRE(drawInfo->destRect.height == 144);
+
+    window.drawActorFace(3, 4, 8, 96, 120);
+    const auto clippedInfo = window.getLastFaceDraw();
+    REQUIRE(clippedInfo.has_value());
+    REQUIRE(clippedInfo->sourceRect.x == 312); // col=2 base 288 + (144-96)/2
+    REQUIRE(clippedInfo->sourceRect.y == 12);  // row=0 + (144-120)/2
+    REQUIRE(clippedInfo->sourceRect.width == 96);
+    REQUIRE(clippedInfo->sourceRect.height == 120);
+    REQUIRE(clippedInfo->destRect.x == 4);
+    REQUIRE(clippedInfo->destRect.y == 8);
+    REQUIRE(clippedInfo->destRect.width == 96);
+    REQUIRE(clippedInfo->destRect.height == 120);
+}
+
+TEST_CASE("Window_Base drawActorFace rejects invalid actor or size", "[compat][window]") {
+    Window_Base window(Window_Base::CreateParams{});
+    window.drawActorFace(2, 0, 0, 144, 144);
+    REQUIRE(window.getLastFaceDraw().has_value());
+
+    const uint32_t drawIconBefore = Window_Base::getMethodCallCount("drawIcon");
+
+    window.drawActorFace(0, 0, 0, 144, 144);
+    REQUIRE_FALSE(window.getLastFaceDraw().has_value());
+    REQUIRE(Window_Base::getMethodCallCount("drawIcon") == drawIconBefore);
+
+    window.drawActorFace(1, 0, 0, 0, 144);
+    REQUIRE_FALSE(window.getLastFaceDraw().has_value());
+    REQUIRE(Window_Base::getMethodCallCount("drawIcon") == drawIconBefore);
 }
 
 TEST_CASE("Window_Base setRect", "[compat][window]") {
@@ -150,14 +201,17 @@ TEST_CASE("Window_Base lineHeight returns default", "[compat][window]") {
     REQUIRE(window.lineHeight() == 36);  // MZ default
 }
 
-TEST_CASE("Window_Base textWidth estimates width", "[compat][window]") {
+TEST_CASE("Window_Base textWidth uses compat renderer metrics", "[compat][window]") {
     Window_Base window(Window_Base::CreateParams{});
     REQUIRE(window.textWidth("Hello") > 0);
     REQUIRE(window.textWidth("HELLO") > window.textWidth("...."));
     REQUIRE(window.textWidth("") == 0);
+
+    window.setFontSize(44);
+    REQUIRE(window.textWidth("Hello") > 70);
 }
 
-TEST_CASE("Window_Base textSize returns estimated rect", "[compat][window]") {
+TEST_CASE("Window_Base textSize uses compat layout metrics", "[compat][window]") {
     Window_Base window(Window_Base::CreateParams{});
     Rect size = window.textSize("Test");
     REQUIRE(size.width > 0);
@@ -165,20 +219,26 @@ TEST_CASE("Window_Base textSize returns estimated rect", "[compat][window]") {
 
     Rect multi = window.textSize("Line1\nLine2");
     REQUIRE(multi.height == window.lineHeight() * 2);
+
+    Rect withFontEscape = window.textSize("\\{BIG\\}line");
+    REQUIRE(withFontEscape.height >= window.lineHeight());
 }
 
-TEST_CASE("Window_Base drawItemName emits placeholder label", "[compat][window]") {
+TEST_CASE("Window_Base drawItemName emits icon + label draw calls", "[compat][window]") {
     Window_Base window(Window_Base::CreateParams{});
 
+    const uint32_t drawIconBefore = Window_Base::getMethodCallCount("drawIcon");
     const uint32_t drawTextBefore = Window_Base::getMethodCallCount("drawText");
     const uint32_t drawItemBefore = Window_Base::getMethodCallCount("drawItemName");
 
     window.drawItemName(7, 0, 0, 180);
     REQUIRE(Window_Base::getMethodCallCount("drawItemName") == drawItemBefore + 1);
+    REQUIRE(Window_Base::getMethodCallCount("drawIcon") == drawIconBefore + 1);
     REQUIRE(Window_Base::getMethodCallCount("drawText") == drawTextBefore + 1);
 
     window.drawItemName(0, 0, 0, 180);
     REQUIRE(Window_Base::getMethodCallCount("drawItemName") == drawItemBefore + 2);
+    REQUIRE(Window_Base::getMethodCallCount("drawIcon") == drawIconBefore + 1);
     REQUIRE(Window_Base::getMethodCallCount("drawText") == drawTextBefore + 1);
 }
 
@@ -264,21 +324,33 @@ TEST_CASE("Window_Base contents management", "[compat][window]") {
     REQUIRE(window.contents() == INVALID_BITMAP);
 }
 
-TEST_CASE("Window_Base drawTextEx strips escape codes", "[compat][window]") {
+TEST_CASE("Window_Base drawTextEx processes escape codes", "[compat][window]") {
     Window_Base window(Window_Base::CreateParams{});
-    // This should not crash - escape codes are stripped
-    window.drawTextEx("\\C[2]Hello\\I[5]World", 0, 0);
-    // Test passes if no exception thrown
+    DataManager::instance().setupNewGame();
+    DataManager::instance().setVariable(2, 777);
+
+    const uint32_t drawTextBefore = Window_Base::getMethodCallCount("drawText");
+    const uint32_t drawIconBefore = Window_Base::getMethodCallCount("drawIcon");
+    const uint32_t colorBefore = Window_Base::getMethodCallCount("changeTextColor");
+
+    window.drawTextEx("\\C[2]HP\\I[5]\\V[2]\\G", 0, 0);
+
+    REQUIRE(Window_Base::getMethodCallCount("drawText") >= drawTextBefore + 2);
+    REQUIRE(Window_Base::getMethodCallCount("drawIcon") == drawIconBefore + 1);
+    REQUIRE(Window_Base::getMethodCallCount("changeTextColor") == colorBefore + 1);
+
+    REQUIRE(window.textWidth("A\\I[5]B") > window.textWidth("AB"));
+    REQUIRE(window.textWidth("\\V[2]") > window.textWidth("0"));
 }
 
 TEST_CASE("Window_Base getMethodStatus for extended methods", "[compat][window]") {
     REQUIRE(Window_Base::getMethodStatus("lineHeight") == CompatStatus::FULL);
-    REQUIRE(Window_Base::getMethodStatus("drawTextEx") == CompatStatus::PARTIAL);
+    REQUIRE(Window_Base::getMethodStatus("drawTextEx") == CompatStatus::FULL);
     REQUIRE(Window_Base::getMethodStatus("drawActorHp") == CompatStatus::FULL);
     REQUIRE(Window_Base::getMethodStatus("drawActorMp") == CompatStatus::FULL);
     REQUIRE(Window_Base::getMethodStatus("drawActorTp") == CompatStatus::FULL);
-    REQUIRE(Window_Base::getMethodStatus("textWidth") == CompatStatus::PARTIAL);
-    REQUIRE(Window_Base::getMethodStatus("textSize") == CompatStatus::PARTIAL);
+    REQUIRE(Window_Base::getMethodStatus("textWidth") == CompatStatus::FULL);
+    REQUIRE(Window_Base::getMethodStatus("textSize") == CompatStatus::FULL);
 }
 
 // ============================================================================
@@ -797,6 +869,48 @@ TEST_CASE("Sprite_Actor startEffect", "[compat][sprite]") {
     sprite.startEffect("collapse");
     
     REQUIRE(sprite.isEffecting());
+
+    for (int i = 0; i < 31; ++i) {
+        REQUIRE(sprite.isEffecting());
+        sprite.update();
+    }
+    REQUIRE(sprite.isEffecting());
+    sprite.update();
+    REQUIRE_FALSE(sprite.isEffecting());
+}
+
+TEST_CASE("Sprite_Actor startAnimation runs deterministic lifecycle", "[compat][sprite]") {
+    Sprite_Actor sprite(Sprite_Actor::CreateParams{});
+    REQUIRE_FALSE(sprite.isAnimationPlaying());
+    REQUIRE(sprite.getAnimationId() == 0);
+
+    sprite.startAnimation(7);
+    REQUIRE(sprite.isAnimationPlaying());
+    REQUIRE(sprite.getAnimationId() == 7);
+
+    // Duration = 24 + ((id % 5) * 6). For id=7 => 36 frames.
+    for (int i = 0; i < 35; ++i) {
+        REQUIRE(sprite.isAnimationPlaying());
+        sprite.update();
+    }
+
+    REQUIRE(sprite.isAnimationPlaying());
+    sprite.update();
+    REQUIRE_FALSE(sprite.isAnimationPlaying());
+    REQUIRE(sprite.getAnimationId() == 0);
+}
+
+TEST_CASE("Sprite_Actor startAnimation ignores invalid ids", "[compat][sprite]") {
+    Sprite_Actor sprite(Sprite_Actor::CreateParams{});
+    sprite.startAnimation(0);
+    REQUIRE_FALSE(sprite.isAnimationPlaying());
+    REQUIRE(sprite.getAnimationId() == 0);
+}
+
+TEST_CASE("Sprite_Actor unknown effects are ignored deterministically", "[compat][sprite]") {
+    Sprite_Actor sprite(Sprite_Actor::CreateParams{});
+    sprite.startEffect("unknownEffect");
+    REQUIRE_FALSE(sprite.isEffecting());
 }
 
 TEST_CASE("Sprite_Actor visibility and opacity", "[compat][sprite]") {

@@ -7,6 +7,7 @@
 #include <algorithm>
 #include <chrono>
 #include <fstream>
+#include <nlohmann/json.hpp>
 #include <sstream>
 #include <iomanip>
 
@@ -128,6 +129,65 @@ void CompatReportModel::recordEvent(const CompatEvent& event) {
         [](const CompatEvent& a, const CompatEvent& b) {
             return a.timestamp > b.timestamp;
         });
+}
+
+void CompatReportModel::ingestPluginFailureDiagnosticsJsonl(std::string_view diagnostics_jsonl) {
+    if (diagnostics_jsonl.empty()) {
+        return;
+    }
+
+    std::istringstream stream{std::string(diagnostics_jsonl)};
+    std::string line;
+    while (std::getline(stream, line)) {
+        if (line.empty()) {
+            continue;
+        }
+
+        nlohmann::json row = nlohmann::json::parse(line, nullptr, false);
+        if (row.is_discarded() || !row.is_object()) {
+            continue;
+        }
+
+        if (row.value("subsystem", "") != "plugin_manager" ||
+            row.value("event", "") != "compat_failure") {
+            continue;
+        }
+
+        CompatEvent event;
+        event.timestamp = row.value(
+            "seq",
+            static_cast<uint64_t>(
+                duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count()
+            )
+        );
+        event.pluginId = row.value("plugin", "");
+        event.className = "PluginManager";
+        event.methodName = row.value("operation", "");
+        event.severity = CompatEvent::Severity::ERROR;
+        event.message = row.value("message", "");
+        event.sourceFile = row.value("subsystem", "");
+
+        const std::string command = row.value("command", "");
+        if (!event.pluginId.empty()) {
+            event.navigationTarget = "plugin://" + event.pluginId;
+            if (!command.empty()) {
+                event.navigationTarget += "#" + command;
+            }
+        }
+
+        recordEvent(event);
+
+        if (!event.pluginId.empty()) {
+            const std::string methodName =
+                event.methodName.empty() ? "unknown_failure" : event.methodName;
+            recordCall(
+                event.pluginId,
+                "PluginManager",
+                methodName,
+                CompatStatus::UNSUPPORTED
+            );
+        }
+    }
 }
 
 void CompatReportModel::recalculateSummaries() const {

@@ -3,7 +3,10 @@
 
 #include "runtimes/compat_js/plugin_manager.h"
 #include <catch2/catch_test_macros.hpp>
+#include <chrono>
+#include <condition_variable>
 #include <filesystem>
+#include <mutex>
 #include <memory>
 #include <stdexcept>
 
@@ -267,6 +270,62 @@ TEST_CASE("PluginManager: Command execution", "[plugin_manager]") {
         urpg::Value result = pm.executeCommand("NonExistent", "command", {});
         REQUIRE(result.v.index() == 0); // null/empty
     }
+
+    SECTION("Execute command asynchronously with FIFO callback order") {
+        pm.registerPlugin({"AsyncPlugin", "1.0", "", ""});
+        pm.registerCommand(
+            "AsyncPlugin",
+            "echoInt",
+            [](const std::vector<urpg::Value>& args) -> urpg::Value {
+                if (args.empty()) {
+                    return urpg::Value::Int(-1);
+                }
+                return args.front();
+            }
+        );
+
+        std::mutex callbackMutex;
+        std::condition_variable callbackCv;
+        std::vector<int64_t> callbackOrder;
+        int32_t completed = 0;
+        bool callbackTypeMismatch = false;
+
+        for (int32_t i = 0; i < 3; ++i) {
+            pm.executeCommandAsync(
+                "AsyncPlugin",
+                "echoInt",
+                {urpg::Value::Int(i)},
+                [&](const urpg::Value& result) {
+                    std::lock_guard<std::mutex> lock(callbackMutex);
+                    if (std::holds_alternative<int64_t>(result.v)) {
+                        callbackOrder.push_back(std::get<int64_t>(result.v));
+                    } else {
+                        callbackTypeMismatch = true;
+                    }
+                    ++completed;
+                    callbackCv.notify_one();
+                }
+            );
+        }
+
+        {
+            std::unique_lock<std::mutex> lock(callbackMutex);
+            const bool done = callbackCv.wait_for(
+                lock,
+                std::chrono::seconds(2),
+                [&]() { return completed == 3; }
+            );
+            REQUIRE(done);
+        }
+
+        REQUIRE_FALSE(callbackTypeMismatch);
+        REQUIRE(callbackOrder.size() == 3);
+        REQUIRE(callbackOrder[0] == 0);
+        REQUIRE(callbackOrder[1] == 1);
+        REQUIRE(callbackOrder[2] == 2);
+
+        pm.unregisterPlugin("AsyncPlugin");
+    }
 }
 
 TEST_CASE("PluginManager: Parameter management", "[plugin_manager]") {
@@ -476,6 +535,7 @@ TEST_CASE("PluginManager: Error handling", "[plugin_manager]") {
     PluginManager& pm = PluginManager::instance();
     
     SECTION("Get last error after failure") {
+        pm.clearFailureDiagnostics();
         pm.unloadPlugin("NonExistentPlugin");
         REQUIRE_FALSE(pm.getLastError().empty());
         
@@ -505,6 +565,32 @@ TEST_CASE("PluginManager: Error handling", "[plugin_manager]") {
         pm.setErrorHandler(nullptr);
         pm.unregisterPlugin("ErrorPlugin");
     }
+
+    SECTION("Failure diagnostics JSONL exports and clears structured failures") {
+        pm.clearFailureDiagnostics();
+        pm.executeCommand("MissingPlugin", "missingCommand", {});
+
+        const std::string jsonl = pm.exportFailureDiagnosticsJsonl();
+        REQUIRE_FALSE(jsonl.empty());
+        REQUIRE(jsonl.find("\"subsystem\":\"plugin_manager\"") != std::string::npos);
+        REQUIRE(jsonl.find("\"operation\":\"execute_command\"") != std::string::npos);
+        REQUIRE(jsonl.find("\"plugin\":\"MissingPlugin\"") != std::string::npos);
+
+        pm.clearFailureDiagnostics();
+        REQUIRE(pm.exportFailureDiagnosticsJsonl().empty());
+    }
+
+    SECTION("Invalid parameter JSON is captured in failure diagnostics") {
+        pm.clearFailureDiagnostics();
+        REQUIRE_FALSE(pm.parseParameters("BrokenParamPlugin", R"({"enabled":true,)"));
+
+        const std::string jsonl = pm.exportFailureDiagnosticsJsonl();
+        REQUIRE_FALSE(jsonl.empty());
+        REQUIRE(jsonl.find("\"operation\":\"parse_parameters_json\"") != std::string::npos);
+        REQUIRE(jsonl.find("\"plugin\":\"BrokenParamPlugin\"") != std::string::npos);
+
+        pm.clearFailureDiagnostics();
+    }
 }
 
 TEST_CASE("PluginManager: Method status registry", "[plugin_manager]") {
@@ -520,9 +606,9 @@ TEST_CASE("PluginManager: Method status registry", "[plugin_manager]") {
         REQUIRE(status == CompatStatus::FULL);
     }
     
-    SECTION("GetMethodStatus returns PARTIAL for async execution") {
+    SECTION("GetMethodStatus returns FULL for async execution") {
         CompatStatus status = pm.getMethodStatus("executeCommandAsync");
-        REQUIRE(status == CompatStatus::PARTIAL);
+        REQUIRE(status == CompatStatus::FULL);
     }
     
     SECTION("GetMethodStatus returns UNSUPPORTED for unknown methods") {

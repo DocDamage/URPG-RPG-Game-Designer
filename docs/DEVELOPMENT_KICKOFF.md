@@ -8,7 +8,7 @@ This repository is bootstrapped to the blueprint's canonical structure and now i
 
 - Phase 0 Foundation: complete.
 - Phase 1 Native Core: complete for v3.1 kickoff/continuation/integration contracts.
-- Phase 2 Compat Layer: in progress (active burn-down on remaining `PARTIAL`/`STUB` surface gaps).
+- Phase 2 Compat Layer: in progress (core `PARTIAL`/`STUB` burn-down complete; current focus is executable validation depth and diagnostics hardening).
 
 ## Completed now
 
@@ -49,15 +49,16 @@ This repository is bootstrapped to the blueprint's canonical structure and now i
    - Runtime dispatch-session wiring over event timeline/reentrancy contracts (`EventDispatchSession`).
    - Runtime debug-session wiring over breakpoints/watches/call-stack/step controls (`DebugRuntimeSession`).
 - Test baseline added and passing (Release snapshot):
-  - `urpg_tests`: 847 assertions / 207 test cases
+  - `urpg_tests`: 1183 assertions / 231 test cases
   - `urpg_integration_tests`: 10 assertions / 2 test cases
   - `urpg_snapshot_tests`: 4 assertions / 2 test cases
-  - `urpg_compat_tests`: 125 assertions / 3 test cases
+  - `urpg_compat_tests`: 534 assertions / 10 test cases
 - Phase 2 compat expansion implemented in active targets:
    - WindowCompat surface expansion for `Window_Base`, `Window_Selectable`, and `Window_Command` API registration.
    - WindowCompat method call-count tracking surfaced in compat reports.
    - Curated plugin profile conformance suite (`test_compat_window_plugin_profiles.cpp`) for 10 real-world MZ plugin profiles.
    - Executable plugin fixture suite (`test_compat_plugin_fixtures.cpp`) for the same 10 plugin profiles in the weekly lane.
+   - Curated failure-path diagnostics suite (`test_compat_plugin_failure_diagnostics.cpp`) now gates missing-command diagnostics, malformed fixture/load diagnostics artifacts, directory-scan failures, and dependency-failure behavior across the same 10 plugin profiles.
 - Phase 2 compat module wiring completed in active targets:
    - `battle_manager`, `data_manager`, `audio_manager`, `input_manager`, `plugin_manager` are now part of active CMake builds.
    - Corresponding unit tests are active in `urpg_tests`: `test_battlemgr`, `test_data_manager`, `test_audio_manager`, `test_input_manager`, `test_plugin_manager`.
@@ -67,10 +68,21 @@ This repository is bootstrapped to the blueprint's canonical structure and now i
    - Curated fixture profiles now validate JS directive `arg` and `const` modes across all 10 real-world plugin fixtures.
    - Fixture script DSL expanded with control flow + richer value sources (`if`, `args`, `paramKeys`, `hasParam`, `equals`, `coalesce`).
    - Plugin reload now rehydrates from tracked source paths and restores fixture commands for JSON-backed plugin profiles.
+   - PluginManager command/load failure diagnostics now propagate through `setErrorHandler` and structured JSONL artifact export (`exportFailureDiagnosticsJsonl` / `clearFailureDiagnostics`) for deterministic conformance capture.
+   - Compat report model now ingests PluginManager JSONL failure artifacts (`ingestPluginFailureDiagnosticsJsonl`) and projects them into event timeline + per-plugin unsupported/error summaries.
+   - QuickJS stub runtime now supports explicit eval-failure directives (`@urpg-fail-eval`) and evalModule failure propagation tests for deterministic failure-path conformance.
    - DataManager save/load compat lane now persists per-slot `GlobalState` + `SaveHeader` in-memory (including autosave slot `0`) with slot bounds validation.
    - DataManager header-extension compat APIs now round-trip per-slot plugin metadata and clear extension state on save-slot deletion.
    - DataManager transfer semantics now track reserved transfers and apply them via `processTransfer`.
    - Burned down selected compat statuses: `Window_Base.drawItemName`, `Window_Base.textWidth`, `Window_Base.textSize` from `STUB` to `PARTIAL`; `TouchInput.worldX/worldY` from `STUB` to `FULL`; `Window_Base.drawActorHp/drawActorMp/drawActorTp` from `PARTIAL` to `FULL`.
+   - Burned down WindowCompat text-surface statuses: `drawTextEx`, `textWidth`, `textSize` from `PARTIAL` to `FULL` using escape-token parity and compat renderer-backed measurement/layout flow.
+   - Burned down additional WindowCompat statuses: `drawItemName` from `PARTIAL` to `FULL` (DataManager-backed icon+label semantics) and `Sprite_Actor.startEffect` from `PARTIAL` to `FULL` (deterministic effect-duration lifecycle).
+   - Burned down additional Sprite_Actor animation status: `startAnimation` from `PARTIAL` to `FULL` with deterministic frame-duration playback lifecycle.
+   - Burned down remaining Window_Base face status: `drawActorFace` from `PARTIAL` to `FULL` with MZ-canonical face cell clipping/centering semantics and deterministic face draw metadata.
+   - Compat status burn-down checkpoint: runtime compat API registry now reports no `PARTIAL`/`STUB` surfaces.
+   - Burned down AudioManager compat statuses: `crossfadeBgm`/`crossfadeBgs` from `PARTIAL` to `FULL` via deterministic frame-based crossfade sequencing; BGM save/restore metadata now retains true track filename/position.
+   - Burned down BattleManager compat status: `processEscape` from `PARTIAL` to `FULL` with deterministic MZ-style escape ratio + fail-ramp handling.
+   - Burned down PluginManager compat status: `executeCommandAsync` from `PARTIAL` to `FULL` with deterministic FIFO task queue execution and callback order guarantees.
    - Input/Touch QuickJS API registration now returns live runtime state and `TouchInput` movement telemetry now tracks `moveSpeed` and `tapCount`.
 - Migration and schema anchors added:
   - `tools/migrate/migration_op.json`
@@ -80,9 +92,9 @@ This repository is bootstrapped to the blueprint's canonical structure and now i
 ## Immediate next implementation lanes
 
 1. Complete Phase 2 validation depth
-   - Validate wired compat modules/tests against 10 real-world MZ plugins and close remaining `PARTIAL`/`STUB` deviations.
+   - Wire runtime/session-level compat report panel refresh to consume exported PluginManager diagnostics artifacts in editor update flow.
 2. Deepen compat validation
-   - Expand fixture script DSL coverage and bridge script-backed fixtures into real JS plugin execution paths.
+   - Expand fixture script DSL + report artifact coverage for real JS plugin execution paths.
 
 ## Build/test
 

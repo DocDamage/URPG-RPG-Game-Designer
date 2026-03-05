@@ -26,9 +26,10 @@ TEST_CASE("AudioManager: channel lifecycle", "[audio_manager]") {
 TEST_CASE("AudioManager: BGM controls", "[audio_manager]") {
     AudioManager& am = AudioManager::instance();
 
-    am.playBgm("battle_theme", 80.0, 100.0, 0);
+    am.playBgm("battle_theme", 80.0, 100.0, 42);
     REQUIRE(am.isBgmPlaying());
     REQUIRE_FALSE(am.isBgmPaused());
+    REQUIRE(am.getCurrentBgm().name == "battle_theme");
 
     am.pauseBgm();
     REQUIRE(am.isBgmPaused());
@@ -41,9 +42,56 @@ TEST_CASE("AudioManager: BGM controls", "[audio_manager]") {
     am.playBgm("other_theme", 50.0, 90.0, 0);
     am.restoreBgmSettings();
     REQUIRE(am.isBgmPlaying());
+    AudioInfo restored = am.getCurrentBgm();
+    REQUIRE(restored.name == "battle_theme");
+    REQUIRE(restored.volume == Catch::Approx(80.0));
+    REQUIRE(restored.pitch == Catch::Approx(100.0));
+    REQUIRE(restored.pos == 42);
 
     am.stopBgm();
     REQUIRE_FALSE(am.isBgmPlaying());
+}
+
+TEST_CASE("AudioManager: deterministic crossfade progression", "[audio_manager]") {
+    AudioManager& am = AudioManager::instance();
+
+    am.playBgm("theme_a", 100.0, 100.0, 0);
+    am.crossfadeBgm("theme_b", 60.0, 100.0, 4);
+
+    am.update();
+    AudioInfo frame1 = am.getCurrentBgm();
+    REQUIRE(frame1.name == "theme_a");
+    REQUIRE(frame1.volume == Catch::Approx(50.0));
+
+    am.update();
+    AudioInfo frame2 = am.getCurrentBgm();
+    REQUIRE(frame2.name == "theme_b");
+    REQUIRE(frame2.volume == Catch::Approx(0.0));
+
+    am.update();
+    AudioInfo frame3 = am.getCurrentBgm();
+    REQUIRE(frame3.name == "theme_b");
+    REQUIRE(frame3.volume == Catch::Approx(30.0));
+
+    am.update();
+    AudioInfo frame4 = am.getCurrentBgm();
+    REQUIRE(frame4.name == "theme_b");
+    REQUIRE(frame4.volume == Catch::Approx(60.0));
+    am.stopBgm();
+
+    am.playBgs("rain_a", 80.0, 100.0, 0);
+    am.crossfadeBgs("rain_b", 40.0, 100.0, 2);
+    am.update();
+
+    AudioChannel* bgs = am.getChannel("bgs");
+    REQUIRE(bgs != nullptr);
+    REQUIRE(bgs->getFilename() == "rain_b");
+    REQUIRE(bgs->getVolume() == Catch::Approx(0.0));
+
+    am.update();
+    REQUIRE(bgs->getFilename() == "rain_b");
+    REQUIRE(bgs->getVolume() == Catch::Approx(0.4));
+    am.stopBgs();
 }
 
 TEST_CASE("AudioManager: buses and ducking", "[audio_manager]") {
@@ -93,7 +141,8 @@ TEST_CASE("AudioManager: method status registry", "[audio_manager]") {
     (void)am;
 
     REQUIRE(AudioManager::getMethodStatus("playBgm") == CompatStatus::FULL);
-    REQUIRE(AudioManager::getMethodStatus("crossfadeBgm") == CompatStatus::PARTIAL);
+    REQUIRE(AudioManager::getMethodStatus("crossfadeBgm") == CompatStatus::FULL);
+    REQUIRE(AudioManager::getMethodStatus("crossfadeBgs") == CompatStatus::FULL);
     REQUIRE(AudioManager::getMethodStatus("nonexistentMethod") == CompatStatus::UNSUPPORTED);
 }
 
@@ -107,6 +156,7 @@ TEST_CASE("AudioChannel: state and controls", "[audio_manager]") {
     channel.play("sfx", 90.0, 100.0, 0);
     REQUIRE(channel.getState() == AudioState::PLAYING);
     REQUIRE(channel.isPlaying());
+    REQUIRE(channel.getFilename() == "sfx");
 
     channel.pause();
     REQUIRE(channel.getState() == AudioState::PAUSED);

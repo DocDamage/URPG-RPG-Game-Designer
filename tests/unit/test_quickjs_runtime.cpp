@@ -159,6 +159,20 @@ TEST_CASE("QuickJSContext eval binds directive exports", "[compat][quickjs]") {
     REQUIRE(std::get<std::string>(constResult.value.v) == "ready");
 }
 
+TEST_CASE("QuickJSContext eval supports explicit failure directive", "[compat][quickjs]") {
+    QuickJSContext ctx;
+    REQUIRE(ctx.initialize(QuickJSConfig{}));
+
+    const auto result = ctx.eval(
+        R"(// @urpg-fail-eval simulated fixture eval failure)",
+        "fixture_failure.js"
+    );
+    REQUIRE_FALSE(result.success);
+    REQUIRE(result.severity == CompatSeverity::HARD_FAIL);
+    REQUIRE(result.error == "simulated fixture eval failure");
+    REQUIRE(result.sourceLocation == "fixture_failure.js:1");
+}
+
 TEST_CASE("QuickJSContext tracks API status", "[compat][quickjs]") {
     QuickJSContext ctx;
     REQUIRE(ctx.initialize(QuickJSConfig{}));
@@ -253,6 +267,24 @@ TEST_CASE("QuickJSContext evalModule fails for missing module", "[compat][quickj
     auto result = ctx.evalModule("nonexistent");
     REQUIRE_FALSE(result.success);
     REQUIRE(result.severity == CompatSeverity::SOFT_FAIL);
+}
+
+TEST_CASE("QuickJSContext evalModule propagates module eval failure", "[compat][quickjs]") {
+    QuickJSContext ctx;
+    REQUIRE(ctx.initialize(QuickJSConfig{}));
+
+    ctx.setModuleLoader([](const std::string& moduleId) -> std::optional<std::string> {
+        if (moduleId == "broken_module") {
+            return "// @urpg-fail-eval module fixture failure";
+        }
+        return std::nullopt;
+    });
+
+    const auto result = ctx.evalModule("broken_module");
+    REQUIRE_FALSE(result.success);
+    REQUIRE(result.severity == CompatSeverity::HARD_FAIL);
+    REQUIRE(result.error == "module fixture failure");
+    REQUIRE(result.sourceLocation == "broken_module:1");
 }
 
 TEST_CASE("QuickJSRuntime initializes", "[compat][quickjs]") {

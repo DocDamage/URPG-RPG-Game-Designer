@@ -107,6 +107,7 @@ struct SkillData {
 struct ItemData {
     int32_t id = 0;
     std::string name;
+    int32_t iconIndex = 0;
     std::string description;
     int32_t typeId = 0; // 0=regular, 1=key, 2=hidden
     int32_t consumable = 1;
