@@ -4,6 +4,12 @@ Snapshot Date: 2026-03-05
 
 This repository is bootstrapped to the blueprint's canonical structure and now includes core + compat kernels with active CI gate wiring.
 
+## Progress tracker
+
+- Phase 0 Foundation: complete.
+- Phase 1 Native Core: complete for v3.1 kickoff/continuation/integration contracts.
+- Phase 2 Compat Layer: in progress (active burn-down on remaining `PARTIAL`/`STUB` surface gaps).
+
 ## Completed now
 
 - Canonical layout roots created (`engine`, `editor`, `runtimes`, `content`, `tools`, `tests`, `docs`, `third_party`).
@@ -56,7 +62,16 @@ This repository is bootstrapped to the blueprint's canonical structure and now i
    - `battle_manager`, `data_manager`, `audio_manager`, `input_manager`, `plugin_manager` are now part of active CMake builds.
    - Corresponding unit tests are active in `urpg_tests`: `test_battlemgr`, `test_data_manager`, `test_audio_manager`, `test_input_manager`, `test_plugin_manager`.
    - `PluginManager` fixture loading now supports JSON plugin fixtures, directory scanning, JSON parameter parsing, and script-driven fixture command execution.
-   - Burned down selected compat statuses from `STUB` to `PARTIAL`: `Window_Base.drawItemName`, `Window_Base.textWidth`, `Window_Base.textSize`, `TouchInput.worldX`, `TouchInput.worldY`.
+   - Fixture script commands now execute through per-plugin `QuickJSRuntime` contexts (`QuickJSContext::call`) rather than direct in-manager dispatch.
+   - Fixture JSON commands now support lightweight JS source + entrypoint execution via `QuickJSContext::eval` + `call`.
+   - Curated fixture profiles now validate JS directive `arg` and `const` modes across all 10 real-world plugin fixtures.
+   - Fixture script DSL expanded with control flow + richer value sources (`if`, `args`, `paramKeys`, `hasParam`, `equals`, `coalesce`).
+   - Plugin reload now rehydrates from tracked source paths and restores fixture commands for JSON-backed plugin profiles.
+   - DataManager save/load compat lane now persists per-slot `GlobalState` + `SaveHeader` in-memory (including autosave slot `0`) with slot bounds validation.
+   - DataManager header-extension compat APIs now round-trip per-slot plugin metadata and clear extension state on save-slot deletion.
+   - DataManager transfer semantics now track reserved transfers and apply them via `processTransfer`.
+   - Burned down selected compat statuses: `Window_Base.drawItemName`, `Window_Base.textWidth`, `Window_Base.textSize` from `STUB` to `PARTIAL`; `TouchInput.worldX/worldY` from `STUB` to `FULL`; `Window_Base.drawActorHp/drawActorMp/drawActorTp` from `PARTIAL` to `FULL`.
+   - Input/Touch QuickJS API registration now returns live runtime state and `TouchInput` movement telemetry now tracks `moveSpeed` and `tapCount`.
 - Migration and schema anchors added:
   - `tools/migrate/migration_op.json`
   - `tools/migrate/fuzz_migrate.cpp`
