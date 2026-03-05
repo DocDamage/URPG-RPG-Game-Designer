@@ -48,6 +48,35 @@ TEST_CASE("QuickJSContext registers host function", "[compat][quickjs]") {
     REQUIRE(ctx.registerFunction("testFunc", fn));
 }
 
+TEST_CASE("QuickJSContext call dispatches registered host function", "[compat][quickjs]") {
+    QuickJSContext ctx;
+    REQUIRE(ctx.initialize(QuickJSConfig{}));
+
+    REQUIRE(ctx.registerFunction("sumArgs", [](const std::vector<urpg::Value>& args) -> urpg::Value {
+        int64_t total = 0;
+        for (const auto& arg : args) {
+            if (const auto* integer = std::get_if<int64_t>(&arg.v)) {
+                total += *integer;
+            }
+        }
+        return urpg::Value::Int(total);
+    }));
+
+    const auto result = ctx.call("sumArgs", {urpg::Value::Int(2), urpg::Value::Int(5)});
+    REQUIRE(result.success);
+    REQUIRE(std::holds_alternative<int64_t>(result.value.v));
+    REQUIRE(std::get<int64_t>(result.value.v) == 7);
+}
+
+TEST_CASE("QuickJSContext call fails for unknown function", "[compat][quickjs]") {
+    QuickJSContext ctx;
+    REQUIRE(ctx.initialize(QuickJSConfig{}));
+
+    const auto result = ctx.call("missingFn", {});
+    REQUIRE_FALSE(result.success);
+    REQUIRE(result.severity == CompatSeverity::SOFT_FAIL);
+}
+
 TEST_CASE("QuickJSContext registers object with methods", "[compat][quickjs]") {
     QuickJSContext ctx;
     REQUIRE(ctx.initialize(QuickJSConfig{}));
@@ -61,6 +90,73 @@ TEST_CASE("QuickJSContext registers object with methods", "[compat][quickjs]") {
     }, CompatStatus::PARTIAL, "Minor deviation"});
     
     REQUIRE(ctx.registerObject("TestObject", methods));
+}
+
+TEST_CASE("QuickJSContext callMethod invokes registered object method", "[compat][quickjs]") {
+    QuickJSContext ctx;
+    REQUIRE(ctx.initialize(QuickJSConfig{}));
+
+    std::vector<QuickJSContext::MethodDef> methods;
+    methods.push_back({"mul2", [](const std::vector<urpg::Value>& args) -> urpg::Value {
+        if (!args.empty()) {
+            if (const auto* integer = std::get_if<int64_t>(&args[0].v)) {
+                return urpg::Value::Int(*integer * 2);
+            }
+        }
+        return urpg::Value::Int(0);
+    }, CompatStatus::FULL});
+    REQUIRE(ctx.registerObject("MathObj", methods));
+
+    const auto result = ctx.callMethod("MathObj", "mul2", {urpg::Value::Int(21)});
+    REQUIRE(result.success);
+    REQUIRE(std::holds_alternative<int64_t>(result.value.v));
+    REQUIRE(std::get<int64_t>(result.value.v) == 42);
+
+    const auto status = ctx.getAPIStatus("MathObj.mul2");
+    REQUIRE(status.callCount == 1);
+    REQUIRE(status.failCount == 0);
+}
+
+TEST_CASE("QuickJSContext global set/get roundtrip", "[compat][quickjs]") {
+    QuickJSContext ctx;
+    REQUIRE(ctx.initialize(QuickJSConfig{}));
+
+    urpg::Value answer = urpg::Value::Int(42);
+    REQUIRE(ctx.setGlobal("answer", answer));
+
+    const auto found = ctx.getGlobal("answer");
+    REQUIRE(found.has_value());
+    REQUIRE(std::holds_alternative<int64_t>(found->v));
+    REQUIRE(std::get<int64_t>(found->v) == 42);
+
+    const auto missing = ctx.getGlobal("missing");
+    REQUIRE_FALSE(missing.has_value());
+}
+
+TEST_CASE("QuickJSContext eval binds directive exports", "[compat][quickjs]") {
+    QuickJSContext ctx;
+    REQUIRE(ctx.initialize(QuickJSConfig{}));
+
+    const std::string code = R"(// @urpg-export countArgs arg_count
+// @urpg-export secondArg arg 1
+// @urpg-export fixedValue const "ready")";
+    const auto evalResult = ctx.eval(code, "fixture_plugin.js");
+    REQUIRE(evalResult.success);
+
+    const auto countResult = ctx.call("countArgs", {urpg::Value::Int(1), urpg::Value::Int(2)});
+    REQUIRE(countResult.success);
+    REQUIRE(std::holds_alternative<int64_t>(countResult.value.v));
+    REQUIRE(std::get<int64_t>(countResult.value.v) == 2);
+
+    const auto argResult = ctx.call("secondArg", {urpg::Value::Int(7), urpg::Value::Int(42)});
+    REQUIRE(argResult.success);
+    REQUIRE(std::holds_alternative<int64_t>(argResult.value.v));
+    REQUIRE(std::get<int64_t>(argResult.value.v) == 42);
+
+    const auto constResult = ctx.call("fixedValue", {});
+    REQUIRE(constResult.success);
+    REQUIRE(std::holds_alternative<std::string>(constResult.value.v));
+    REQUIRE(std::get<std::string>(constResult.value.v) == "ready");
 }
 
 TEST_CASE("QuickJSContext tracks API status", "[compat][quickjs]") {

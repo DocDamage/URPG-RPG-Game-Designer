@@ -1,0 +1,29 @@
+{
+  "name": "Galv_QuestLog_MZ",
+  "version": "1.1.0-fixture",
+  "author": "URPG Fixture Harness",
+  "description": "Quest log compatibility fixture",
+  "parameters": {
+    "profile": "quest_log",
+    "questCount": 10
+  },
+  "commands": [
+    {
+      "name": "openQuestLog",
+      "script": [
+        {"op": "set", "key": "plugin", "value": {"from": "pluginName"}},
+        {"op": "set", "key": "command", "value": {"from": "commandName"}},
+        {"op": "set", "key": "profile", "value": {"from": "param", "name": "profile"}},
+        {"op": "set", "key": "questCount", "value": {"from": "param", "name": "questCount"}},
+        {"op": "set", "key": "argCount", "value": {"from": "argCount"}},
+        {"op": "returnObject"}
+      ]
+    },
+    {
+      "name": "questArgViaJs",
+      "description": "Returns second quest argument via QuickJS arg mode",
+      "entry": "questArgRuntime",
+      "js": "// @urpg-export questArgRuntime arg 1"
+    }
+  ]
+}

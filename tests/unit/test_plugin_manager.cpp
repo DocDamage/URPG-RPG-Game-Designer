@@ -3,9 +3,42 @@
 
 #include "runtimes/compat_js/plugin_manager.h"
 #include <catch2/catch_test_macros.hpp>
+#include <filesystem>
 #include <memory>
+#include <stdexcept>
 
 using namespace urpg::compat;
+
+namespace {
+
+std::filesystem::path fixturePath(const std::string& pluginName) {
+    std::vector<std::filesystem::path> candidateRoots;
+#ifdef URPG_SOURCE_DIR
+    candidateRoots.push_back(
+        std::filesystem::path(URPG_SOURCE_DIR) / "tests" / "compat" / "fixtures" / "plugins"
+    );
+#endif
+    candidateRoots.push_back(
+        std::filesystem::current_path() / "tests" / "compat" / "fixtures" / "plugins"
+    );
+    candidateRoots.push_back(
+        std::filesystem::current_path().parent_path() / "tests" / "compat" / "fixtures" / "plugins"
+    );
+    candidateRoots.push_back(
+        std::filesystem::path("tests") / "compat" / "fixtures" / "plugins"
+    );
+
+    for (const auto& root : candidateRoots) {
+        const auto candidate = root / (pluginName + ".json");
+        if (std::filesystem::exists(candidate)) {
+            return candidate;
+        }
+    }
+
+    return candidateRoots.front() / (pluginName + ".json");
+}
+
+} // namespace
 
 TEST_CASE("PluginManager: Plugin registration", "[plugin_manager]") {
     PluginManager& pm = PluginManager::instance();
@@ -84,6 +117,25 @@ TEST_CASE("PluginManager: Plugin lifecycle", "[plugin_manager]") {
         pm.unregisterPlugin("Plugin1");
         pm.unregisterPlugin("Plugin2");
     }
+
+    SECTION("Reload fixture plugin uses tracked source path") {
+        const auto fixture = fixturePath("VisuStella_CoreEngine_MZ");
+        REQUIRE(std::filesystem::exists(fixture));
+
+        REQUIRE(pm.loadPlugin(fixture.string()));
+        REQUIRE(pm.hasCommand("VisuStella_CoreEngine_MZ", "boot"));
+
+        REQUIRE(pm.reloadPlugin("VisuStella_CoreEngine_MZ"));
+        REQUIRE(pm.hasCommand("VisuStella_CoreEngine_MZ", "boot"));
+
+        urpg::Value arg;
+        arg.v = std::string("after_reload");
+        const urpg::Value result =
+            pm.executeCommand("VisuStella_CoreEngine_MZ", "boot", {arg});
+        REQUIRE(std::holds_alternative<urpg::Object>(result.v));
+
+        pm.unloadPlugin("VisuStella_CoreEngine_MZ");
+    }
 }
 
 TEST_CASE("PluginManager: Command registration", "[plugin_manager]") {
@@ -95,8 +147,8 @@ TEST_CASE("PluginManager: Command registration", "[plugin_manager]") {
         bool registered = pm.registerCommand(
             "CommandTestPlugin",
             "testCommand",
-            [](const std::vector<urpg::engine::Value>& args) -> urpg::engine::Value {
-                return urpg::engine::Value();
+            [](const std::vector<urpg::Value>& args) -> urpg::Value {
+                return urpg::Value();
             },
             "A test command"
         );
@@ -127,8 +179,8 @@ TEST_CASE("PluginManager: Command registration", "[plugin_manager]") {
         pm.registerCommand(
             "UnregCommandPlugin",
             "toUnregister",
-            [](const std::vector<urpg::engine::Value>&) -> urpg::engine::Value {
-                return urpg::engine::Value();
+            [](const std::vector<urpg::Value>&) -> urpg::Value {
+                return urpg::Value();
             }
         );
         
@@ -141,9 +193,9 @@ TEST_CASE("PluginManager: Command registration", "[plugin_manager]") {
     SECTION("Unregister all commands for plugin") {
         pm.registerPlugin({"MultiCommandPlugin", "1.0", "", ""});
         
-        pm.registerCommand("MultiCommandPlugin", "cmd1", [](const std::vector<urpg::engine::Value>&) -> urpg::engine::Value { return {}; });
-        pm.registerCommand("MultiCommandPlugin", "cmd2", [](const std::vector<urpg::engine::Value>&) -> urpg::engine::Value { return {}; });
-        pm.registerCommand("MultiCommandPlugin", "cmd3", [](const std::vector<urpg::engine::Value>&) -> urpg::engine::Value { return {}; });
+        pm.registerCommand("MultiCommandPlugin", "cmd1", [](const std::vector<urpg::Value>&) -> urpg::Value { return {}; });
+        pm.registerCommand("MultiCommandPlugin", "cmd2", [](const std::vector<urpg::Value>&) -> urpg::Value { return {}; });
+        pm.registerCommand("MultiCommandPlugin", "cmd3", [](const std::vector<urpg::Value>&) -> urpg::Value { return {}; });
         
         int32_t count = pm.unregisterAllCommands("MultiCommandPlugin");
         REQUIRE(count == 3);
@@ -165,9 +217,9 @@ TEST_CASE("PluginManager: Command execution", "[plugin_manager]") {
         pm.registerCommand(
             "ExecPlugin",
             "executeMe",
-            [&wasExecuted](const std::vector<urpg::engine::Value>& args) -> urpg::engine::Value {
+            [&wasExecuted](const std::vector<urpg::Value>& args) -> urpg::Value {
                 wasExecuted = true;
-                return urpg::engine::Value();
+                return urpg::Value();
             }
         );
         
@@ -184,9 +236,9 @@ TEST_CASE("PluginManager: Command execution", "[plugin_manager]") {
         pm.registerCommand(
             "FullNamePlugin",
             "myCommand",
-            [&wasExecuted](const std::vector<urpg::engine::Value>&) -> urpg::engine::Value {
+            [&wasExecuted](const std::vector<urpg::Value>&) -> urpg::Value {
                 wasExecuted = true;
-                return urpg::engine::Value();
+                return urpg::Value();
             }
         );
         
@@ -195,9 +247,24 @@ TEST_CASE("PluginManager: Command execution", "[plugin_manager]") {
         
         pm.unregisterPlugin("FullNamePlugin");
     }
+
+    SECTION("Execute command by full name supports plugin names with underscores") {
+        const auto fixture = fixturePath("VisuStella_CoreEngine_MZ");
+        REQUIRE(std::filesystem::exists(fixture));
+        REQUIRE(pm.loadPlugin(fixture.string()));
+
+        const urpg::Value result = pm.executeCommandByName(
+            "VisuStella_CoreEngine_MZ_countArgsViaJs",
+            {urpg::Value::Int(1), urpg::Value::Int(2)}
+        );
+        REQUIRE(std::holds_alternative<int64_t>(result.v));
+        REQUIRE(std::get<int64_t>(result.v) == 2);
+
+        pm.unloadPlugin("VisuStella_CoreEngine_MZ");
+    }
     
     SECTION("Execute non-existent command returns empty") {
-        urpg::engine::Value result = pm.executeCommand("NonExistent", "command", {});
+        urpg::Value result = pm.executeCommand("NonExistent", "command", {});
         REQUIRE(result.v.index() == 0); // null/empty
     }
 }
@@ -208,12 +275,12 @@ TEST_CASE("PluginManager: Parameter management", "[plugin_manager]") {
     SECTION("Set and get parameter") {
         pm.registerPlugin({"ParamPlugin", "1.0", "", ""});
         
-        urpg::engine::Value val;
+        urpg::Value val;
         val.v = std::string("test_value");
         
         pm.setParameter("ParamPlugin", "myParam", val);
         
-        urpg::engine::Value retrieved = pm.getParameter("ParamPlugin", "myParam");
+        urpg::Value retrieved = pm.getParameter("ParamPlugin", "myParam");
         REQUIRE(retrieved.v.index() == val.v.index());
         
         pm.unregisterPlugin("ParamPlugin");
@@ -222,11 +289,11 @@ TEST_CASE("PluginManager: Parameter management", "[plugin_manager]") {
     SECTION("Get parameter with default") {
         pm.registerPlugin({"DefaultParamPlugin", "1.0", "", ""});
         
-        urpg::engine::Value defaultVal;
+        urpg::Value defaultVal;
         defaultVal.v = std::string("default");
         
-        urpg::engine::Value retrieved = pm.getParameter("DefaultParamPlugin", "nonexistent", defaultVal);
-        // Should return default for non-existent parameter
+        urpg::Value retrieved = pm.getParameter("DefaultParamPlugin", "nonexistent", defaultVal);
+        REQUIRE(std::get<std::string>(retrieved.v) == "default");
         
         pm.unregisterPlugin("DefaultParamPlugin");
     }
@@ -234,7 +301,7 @@ TEST_CASE("PluginManager: Parameter management", "[plugin_manager]") {
     SECTION("Get all parameters for plugin") {
         pm.registerPlugin({"MultiParamPlugin", "1.0", "", ""});
         
-        urpg::engine::Value val1, val2;
+        urpg::Value val1, val2;
         val1.v = std::string("value1");
         val2.v = std::string("value2");
         
@@ -245,6 +312,26 @@ TEST_CASE("PluginManager: Parameter management", "[plugin_manager]") {
         REQUIRE(params.size() == 2);
         
         pm.unregisterPlugin("MultiParamPlugin");
+    }
+
+    SECTION("Parse parameters from JSON object") {
+        pm.registerPlugin({"JsonParamPlugin", "1.0", "", ""});
+
+        REQUIRE(pm.parseParameters("JsonParamPlugin", R"({"enabled":true,"retries":3,"name":"fixture"})"));
+
+        const auto params = pm.getParameters("JsonParamPlugin");
+        REQUIRE(params.size() == 3);
+        REQUIRE(std::get<bool>(params.at("enabled").v));
+        REQUIRE(std::get<int64_t>(params.at("retries").v) == 3);
+        REQUIRE(std::get<std::string>(params.at("name").v) == "fixture");
+
+        pm.unregisterPlugin("JsonParamPlugin");
+    }
+
+    SECTION("Parse parameters rejects invalid JSON") {
+        REQUIRE_FALSE(pm.parseParameters("BrokenJsonPlugin", R"({"enabled":true,)"));
+        REQUIRE(pm.getLastError().find("Parameter JSON") != std::string::npos);
+        pm.clearLastError();
     }
 }
 
@@ -353,9 +440,9 @@ TEST_CASE("PluginManager: Execution context", "[plugin_manager]") {
         pm.registerCommand(
             "ContextPlugin",
             "checkContext",
-            [&pm, &contextWasSet](const std::vector<urpg::engine::Value>&) -> urpg::engine::Value {
+            [&pm, &contextWasSet](const std::vector<urpg::Value>&) -> urpg::Value {
                 contextWasSet = pm.isExecuting();
-                return urpg::engine::Value();
+                return urpg::Value();
             }
         );
         
@@ -372,9 +459,9 @@ TEST_CASE("PluginManager: Execution context", "[plugin_manager]") {
         pm.registerCommand(
             "CurrentPluginTest",
             "getCurrentPlugin",
-            [&pm, &currentPlugin](const std::vector<urpg::engine::Value>&) -> urpg::engine::Value {
+            [&pm, &currentPlugin](const std::vector<urpg::Value>&) -> urpg::Value {
                 currentPlugin = pm.getCurrentPlugin();
-                return urpg::engine::Value();
+                return urpg::Value();
             }
         );
         
@@ -407,7 +494,7 @@ TEST_CASE("PluginManager: Error handling", "[plugin_manager]") {
         pm.registerCommand(
             "ErrorPlugin",
             "throwingCommand",
-            [](const std::vector<urpg::engine::Value>&) -> urpg::engine::Value {
+            [](const std::vector<urpg::Value>&) -> urpg::Value {
                 throw std::runtime_error("Test error");
             }
         );

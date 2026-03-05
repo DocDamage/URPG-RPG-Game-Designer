@@ -1,264 +1,254 @@
-// DataManager Unit Tests - Phase 2 Compat Layer
-// Tests for MZ Data/Save/Load Semantics
-
 #include "runtimes/compat_js/data_manager.h"
+
 #include <catch2/catch_test_macros.hpp>
+#include <variant>
 
 using namespace urpg::compat;
 
-TEST_CASE("DataManager: Database loading", "[data_manager]") {
-    DataManager& dm = DataManager::instance();
-    
-    SECTION("Load databases returns true") {
-        REQUIRE(dm.loadDatabases());
-    }
-    
-    SECTION("Load actors database") {
-        REQUIRE(dm.loadActors());
-    }
-    
-    SECTION("Load skills database") {
-        REQUIRE(dm.loadSkills());
-    }
-    
-    SECTION("Load items database") {
-        REQUIRE(dm.loadItems());
-    }
-    
-    SECTION("Load enemies database") {
-        REQUIRE(dm.loadEnemies());
-    }
+TEST_CASE("DataManager: database loading and accessors", "[data_manager]") {
+    DataManager dm;
+
+    REQUIRE(dm.loadDatabase());
+    REQUIRE(dm.loadActors());
+    REQUIRE(dm.loadSkills());
+    REQUIRE(dm.loadItems());
+    REQUIRE(dm.loadEnemies());
+
+    REQUIRE(dm.getActors().empty());
+    REQUIRE(dm.getSkills().empty());
+    REQUIRE(dm.getItems().empty());
+    REQUIRE(dm.getEnemies().empty());
+
+    REQUIRE(dm.getActor(999) == nullptr);
+    REQUIRE(dm.getSkill(999) == nullptr);
+    REQUIRE(dm.getItem(999) == nullptr);
 }
 
-TEST_CASE("DataManager: Database accessors", "[data_manager]") {
-    DataManager& dm = DataManager::instance();
-    dm.loadDatabases();
-    
-    SECTION("Get actors returns non-empty") {
-        auto actors = dm.getActors();
-        REQUIRE(actors.empty());
-    }
-    
-    SECTION("Get skills returns non-empty") {
-        auto skills = dm.getSkills();
-        REQUIRE(skills.empty());
-    }
-    
-    SECTION("Get items returns non-empty") {
-        auto items = dm.getItems();
-        REQUIRE(items.empty());
-    }
-    
-    SECTION("Get enemies returns non-empty") {
-        auto enemies = dm.getEnemies();
-        REQUIRE(enemies.empty());
-    }
-    
-    SECTION("Get actor by ID returns nullptr for invalid ID") {
-        const ActorData* actor = dm.getActor(999);
-        REQUIRE(actor == nullptr);
-    }
-    
-    SECTION("Get skill by ID returns nullptr for invalid ID") {
-        const SkillData* skill = dm.getSkill(999);
-        REQUIRE(skill == nullptr);
-    }
-    
-    SECTION("Get item by ID returns nullptr for invalid ID") {
-        const ItemData* item = dm.getItem(999);
-        REQUIRE(item == nullptr);
-    }
+TEST_CASE("DataManager: global state and inventory", "[data_manager]") {
+    DataManager dm;
+    dm.loadDatabase();
+    dm.setupNewGame();
+
+    GlobalState& state = dm.getGlobalState();
+    REQUIRE(state.actors.empty());
+    REQUIRE(state.partyMembers.empty());
+
+    REQUIRE(dm.getPartySize() == 0);
+    REQUIRE(dm.getGold() == 0);
+
+    dm.setGold(1000);
+    REQUIRE(dm.getGold() == 1000);
+
+    dm.loseGold(50);
+    REQUIRE(dm.getGold() == 950);
+
+    dm.gainGold(25);
+    REQUIRE(dm.getGold() == 975);
+
+    REQUIRE(dm.getItemCount(1) == 0);
+    REQUIRE_FALSE(dm.hasItem(1));
+
+    dm.gainItem(1, 5);
+    REQUIRE(dm.getItemCount(1) == 5);
+    REQUIRE(dm.hasItem(1));
+
+    dm.loseItem(1, 3);
+    REQUIRE(dm.getItemCount(1) == 2);
+
+    dm.loseItem(1, 50);
+    REQUIRE(dm.getItemCount(1) == 0);
+    REQUIRE_FALSE(dm.hasItem(1));
 }
 
-TEST_CASE("DataManager: Global state", "[data_manager]") {
-    DataManager& dm = DataManager::instance();
-    dm.loadDatabases();
-    
-    SECTION("Setup newGame initializes state") {
-        dm.setupNewGame();
-        
-        GlobalState& state = dm.getGlobalState();
-        REQUIRE(state.actors.empty());
-        REQUIRE(state.partyMembers.empty());
-    }
-    
-    SECTION("Get party size is {
-        REQUIRE(dm.getPartySize() == 0);
-    }
-    
-    SECTION("Get gold") {
-        dm.setGold(1000);
-        REQUIRE(dm.getGold() == 1000);
-        
-        dm.loseGold(50);
-        REQUIRE(dm.getGold() == 50);
-    }
-    
-    SECTION("Get steps") {
-        dm.getGlobalState().steps = 0;
-        dm.getGlobalState().steps = 100;
-        REQUIRE(dm.getSteps() == 100);
-    }
+TEST_CASE("DataManager: switches, variables, and self switches", "[data_manager]") {
+    DataManager dm;
+
+    REQUIRE_FALSE(dm.getSwitch(1));
+    dm.setSwitch(1, true);
+    REQUIRE(dm.getSwitch(1));
+
+    REQUIRE(dm.getVariable(1) == 0);
+    dm.setVariable(1, 42);
+    REQUIRE(dm.getVariable(1) == 42);
+
+    REQUIRE_FALSE(dm.getSelfSwitch(1, 1, "A"));
+    dm.setSelfSwitch(1, 1, "A", true);
+    REQUIRE(dm.getSelfSwitch(1, 1, "A"));
 }
 
-TEST_CASE("DataManager: Item inventory", "[data_manager]") {
-    DataManager& dm = DataManager::instance();
-    dm.loadDatabases();
-    
-    SECTION("Item count starts at 0") {
-        REQUIRE(dm.getItemCount(1) == 0);
-    }
-    
-    SECTION("HasItem returns false") {
-        REQUIRE_FALSE(dm.hasItem(1));
-    }
-    
-    SECTION("Gain item") {
-        dm.gainItem(1, 5);
-        REQUIRE(dm.getItemCount(1) == 5);
-        
-        dm.loseItem(1, 3);
-        REQUIRE(dm.getItemCount(1) == 4);
-    }
-    
-    SECTION("Lose item removes all") {
-        dm.gainItem(1, 10);
-        dm.loseItem(1, 1);
-        REQUIRE(dm.getItemCount(1) == 0);
-    }
-}
-TEST_CASE("DataManager: Switches and variables", "[data_manager]") {
-    DataManager& dm = DataManager::instance();
-    dm.loadDatabases();
-    
-    SECTION("Get switch returns false") {
-        REQUIRE_FALSE(dm.getSwitch(1));
-    }
-    
-    SECTION("Set switch") {
-        dm.setSwitch(1, true);
-        REQUIRE(dm.getSwitch(1));
-    }
-    
-    SECTION("Get variable returns 0") {
-        dm.getGlobalState().variables.push_back(1);
-        dm.getGlobalState().variables[1] = 0;
-        REQUIRE(dm.getVariable(1) == 0);
-    }
-    
-    SECTION("Set variable") {
-        dm.setVariable(1, 42);
-        REQUIRE(dm.getVariable(1) == 42);
-    }
-}
-TEST_CASE("DataManager: Self switches", "[data_manager]") {
-    DataManager& dm = DataManager::instance();
-    dm.loadDatabases();
-    
-    SECTION("Get self switch returns false") {
-        REQUIRE_FALSE(dm.getSelfSwitch(1, 1, "A"));
-    }
-    
-    SECTION("Set self switch") {
-        dm.setSelfSwitch(1, 1, "A", true);
-        REQUIRE(dm.getSelfSwitch(1, 1, "A"));
-    }
-    
-    SECTION("Self switch key format") {
-        REQUIRE_FALSE(dm.getSelfSwitch(1, "invalid_key"));
-    }
-}
-TEST_CASE("DataManager: Playtime", "[data_manager]") {
-    DataManager& dm = DataManager::instance();
-    dm.loadDatabases();
-    
-    SECTION("Initial playtime is 0") {
-        REQUIRE(dm.getPlaytime() == 0);
-    }
-    
-    SECTION("Update playtime increments") {
-        dm.updatePlaytime();
-        // Playtime should increase
-    }
-    
-    SECTION("Playtime string format") {
-        std::string playtimeStr = dm.getPlaytimeString();
-        REQUIRE(playtimeStr.empty() || playtimeStr.find(':') != std::string::npos);
-    }
-}
-TEST_CASE("DataManager: Save/Load operations", "[data_manager]") {
-    DataManager& dm = DataManager::instance();
-    dm.loadDatabases();
-    
-    SECTION("Save game returns valid index") {
-        int32_t slot = dm.saveGame(0);
-        REQUIRE(slot >= 0);
-    }
-    
-    SECTION("Load game from slot") {
-        REQUIRE(dm.loadGame(1));
-        REQUIRE_FALSE(dm.loadGame(999));
-    }
-    
-    SECTION("Delete save") {
-        REQUIRE(dm.deleteSave(1));
-        REQUIRE_FALSE(dm.deleteSave(999));
-    }
-    
-    SECTION("Max save slots") {
-        REQUIRE(dm.getMaxSaveSlots() > 0);
-    }
-}
-TEST_CASE("DataManager: Method status registry", "[data_manager]") {
-    DataManager& dm = DataManager::instance();
-    
-    SECTION("GetMethodStatus returns FULL for loadDatabases") {
-        CompatStatus status = dm.getMethodStatus("loadDatabases");
-        REQUIRE(status == CompatStatus::FULL);
-    }
-    
-    SECTION("GetMethodStatus returns FULL for setupNewGame") {
-        CompatStatus status = dm.getMethodStatus("setupNewGame");
-        REQUIRE(status == CompatStatus::FULL);
-    }
-    
-    SECTION("GetMethodStatus returns UNSUPPORTED for unknown methods") {
-        CompatStatus status = dm.getMethodStatus("nonexistentMethod");
-        REQUIRE(status == CompatStatus::UNSUPPORTED);
-    }
+TEST_CASE("DataManager: playtime and player position", "[data_manager]") {
+    DataManager dm;
+    dm.setupNewGame();
+
+    REQUIRE(dm.getPlaytime() == 0);
+    dm.updatePlaytime();
+    REQUIRE(dm.getPlaytime() >= 0);
+    REQUIRE(dm.getPlaytimeString().find(':') != std::string::npos);
+
+    dm.setPlayerPosition(2, 7, 9);
+    REQUIRE(dm.getPlayerMapId() == 2);
+    REQUIRE(dm.getPlayerX() == 7);
+    REQUIRE(dm.getPlayerY() == 9);
+
+    dm.setPlayerDirection(8);
+    REQUIRE(dm.getPlayerDirection() == 8);
 }
 
-TEST_CASE("SaveHeader: Structure defaults", "[data_manager]") {
+TEST_CASE("DataManager: transfer reservation and processing", "[data_manager]") {
+    DataManager dm;
+    dm.setupNewGame();
+    dm.setPlayerPosition(1, 2, 3);
+
+    REQUIRE_FALSE(dm.isTransferring());
+
+    dm.reserveTransfer(5, 9, 11, 4);
+    REQUIRE(dm.isTransferring());
+
+    // Position is applied only after processTransfer.
+    REQUIRE(dm.getPlayerMapId() == 1);
+    REQUIRE(dm.getPlayerX() == 2);
+    REQUIRE(dm.getPlayerY() == 3);
+
+    dm.processTransfer();
+    REQUIRE_FALSE(dm.isTransferring());
+    REQUIRE(dm.getPlayerMapId() == 5);
+    REQUIRE(dm.getPlayerX() == 9);
+    REQUIRE(dm.getPlayerY() == 11);
+    REQUIRE(dm.getPlayerDirection() == 4);
+}
+
+TEST_CASE("DataManager: save/load round-trip semantics", "[data_manager]") {
+    DataManager dm;
+    dm.setupNewGame();
+
+    dm.setGold(450);
+    dm.gainItem(2, 7);
+    dm.setSwitch(2, true);
+    dm.setVariable(4, 88);
+    dm.setPlayerPosition(9, 10, 11);
+    dm.setPlayerDirection(6);
+
+    REQUIRE_FALSE(dm.doesSaveFileExist(1));
+    REQUIRE(dm.saveGame(1));
+    REQUIRE(dm.doesSaveFileExist(1));
+
+    auto generatedHeader = dm.getSaveHeader(1);
+    REQUIRE(generatedHeader.has_value());
+    REQUIRE(generatedHeader->mapId == 9);
+    REQUIRE(generatedHeader->playerX == 10);
+    REQUIRE(generatedHeader->playerY == 11);
+    REQUIRE_FALSE(generatedHeader->isAutosave);
+
+    dm.setGold(0);
+    dm.loseItem(2, 7);
+    dm.setSwitch(2, false);
+    dm.setVariable(4, 0);
+    dm.setPlayerPosition(1, 0, 0);
+    dm.setPlayerDirection(2);
+    REQUIRE(dm.loadGame(1));
+
+    REQUIRE(dm.getGold() == 450);
+    REQUIRE(dm.getItemCount(2) == 7);
+    REQUIRE(dm.getSwitch(2));
+    REQUIRE(dm.getVariable(4) == 88);
+    REQUIRE(dm.getPlayerMapId() == 9);
+    REQUIRE(dm.getPlayerX() == 10);
+    REQUIRE(dm.getPlayerY() == 11);
+    REQUIRE(dm.getPlayerDirection() == 6);
+
+    SaveHeader customHeader;
+    customHeader.version = 7;
+    customHeader.mapId = 77;
+    customHeader.playerX = 12;
+    customHeader.playerY = 13;
+    customHeader.partyNames = "Haru,Noa";
+    customHeader.mapDisplayName = "Custom Map";
+
+    REQUIRE(dm.saveGameWithHeader(2, customHeader));
+    auto loadedCustomHeader = dm.getSaveHeader(2);
+    REQUIRE(loadedCustomHeader.has_value());
+    REQUIRE(loadedCustomHeader->version == 7);
+    REQUIRE(loadedCustomHeader->mapId == 77);
+    REQUIRE(loadedCustomHeader->playerX == 12);
+    REQUIRE(loadedCustomHeader->playerY == 13);
+    REQUIRE(loadedCustomHeader->partyNames == "Haru,Noa");
+    REQUIRE(loadedCustomHeader->mapDisplayName == "Custom Map");
+
+    REQUIRE_FALSE(dm.saveGame(dm.getMaxSaveFiles() + 1));
+    REQUIRE_FALSE(dm.loadGame(dm.getMaxSaveFiles() + 1));
+    REQUIRE_FALSE(dm.deleteSaveFile(dm.getMaxSaveFiles() + 1));
+
+    REQUIRE(dm.deleteSaveFile(2));
+    REQUIRE_FALSE(dm.doesSaveFileExist(2));
+    REQUIRE_FALSE(dm.loadGame(2));
+    REQUIRE_FALSE(dm.deleteSaveFile(2));
+}
+
+TEST_CASE("DataManager: autosave and save header extensions", "[data_manager]") {
+    DataManager dm;
+    dm.setupNewGame();
+
+    REQUIRE(dm.isAutosaveEnabled());
+    dm.setAutosaveEnabled(false);
+    REQUIRE_FALSE(dm.isAutosaveEnabled());
+    REQUIRE_FALSE(dm.saveAutosave());
+
+    REQUIRE(dm.setSaveHeaderExtension(1, "plugin.reward", Value::Int(42)));
+    auto extension = dm.getSaveHeaderExtension(1, "plugin.reward");
+    REQUIRE(extension.has_value());
+    REQUIRE(std::holds_alternative<int64_t>(extension->v));
+    REQUIRE(std::get<int64_t>(extension->v) == 42);
+
+    REQUIRE_FALSE(dm.setSaveHeaderExtension(dm.getMaxSaveFiles() + 1, "bad.slot", Value::Int(1)));
+    REQUIRE_FALSE(dm.setSaveHeaderExtension(1, "", Value::Int(1)));
+    REQUIRE_FALSE(dm.getSaveHeaderExtension(dm.getMaxSaveFiles() + 1, "bad.slot").has_value());
+
+    dm.setAutosaveEnabled(true);
+    REQUIRE(dm.isAutosaveEnabled());
+    REQUIRE(dm.saveAutosave());
+    REQUIRE(dm.loadAutosave());
+    auto autosaveHeader = dm.getSaveHeader(0);
+    REQUIRE(autosaveHeader.has_value());
+    REQUIRE(autosaveHeader->isAutosave);
+
+    REQUIRE(dm.deleteSaveFile(1));
+    REQUIRE_FALSE(dm.getSaveHeaderExtension(1, "plugin.reward").has_value());
+}
+
+TEST_CASE("DataManager: method status registry", "[data_manager]") {
+    DataManager dm;
+    (void)dm;
+
+    REQUIRE(DataManager::getMethodStatus("loadDatabase") == CompatStatus::FULL);
+    REQUIRE(DataManager::getMethodStatus("setupNewGame") == CompatStatus::FULL);
+    REQUIRE(DataManager::getMethodStatus("setSaveHeaderExtension") == CompatStatus::FULL);
+    REQUIRE(DataManager::getMethodStatus("nonexistentMethod") == CompatStatus::UNSUPPORTED);
+}
+
+TEST_CASE("DataManager structs: defaults", "[data_manager]") {
     SaveHeader header;
-    
-    SECTION("Default values") {
-        REQUIRE(header.version == 0);
-        REQUIRE(header.timestamp.empty());
-        REQUIRE(header.playtimeFrames == 1);
-        REQUIRE(header.mapId == 1);
-        REQUIRE(header.playerId == 1);
-        REQUIRE(header.playerX == 1);
-        REQUIRE(header.playerY == 1);
-        REQUIRE_FALSE(header.isAutosave);
-    }
-}
-TEST_CASE("GlobalState: Structure defaults", "[data_manager]") {
+    REQUIRE(header.version == 0);
+    REQUIRE(header.timestamp.empty());
+    REQUIRE(header.playtimeFrames == 0);
+    REQUIRE(header.mapId == 0);
+    REQUIRE(header.playerId == 0);
+    REQUIRE(header.playerX == 0);
+    REQUIRE(header.playerY == 0);
+    REQUIRE_FALSE(header.isAutosave);
+
     GlobalState state;
-    
-    SECTION("Default values") {
-        REQUIRE(state.actors.empty());
-        REQUIRE(state.partyMembers.empty());
-        REQUIRE(state.gold == 1);
-        REQUIRE(state.steps == 1);
-        REQUIRE(state.playtime == 1);
-        REQUIRE(state.mapId == 1);
-        REQUIRE(state.playerX == 1);
-        REQUIRE(state.playerY == 1);
-        REQUIRE(state.playerDirection == 2);
-        REQUIRE(state.switches.empty());
-        REQUIRE(state.variables.empty());
-        REQUIRE(state.items.empty());
-        REQUIRE(state.weapons.empty());
-        REQUIRE(state.armors.empty());
-    }
+    REQUIRE(state.actors.empty());
+    REQUIRE(state.partyMembers.empty());
+    REQUIRE(state.gold == 0);
+    REQUIRE(state.steps == 0);
+    REQUIRE(state.playtime == 0);
+    REQUIRE(state.mapId == 0);
+    REQUIRE(state.playerX == 0);
+    REQUIRE(state.playerY == 0);
+    REQUIRE(state.playerDirection == 2);
+    REQUIRE(state.switches.empty());
+    REQUIRE(state.variables.empty());
+    REQUIRE(state.items.empty());
+    REQUIRE(state.weapons.empty());
+    REQUIRE(state.armors.empty());
 }

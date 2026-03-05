@@ -1,0 +1,29 @@
+{
+  "name": "CGMZ_MenuCommandWindow",
+  "version": "1.1.0-fixture",
+  "author": "URPG Fixture Harness",
+  "description": "Command window compatibility fixture",
+  "parameters": {
+    "profile": "command_window",
+    "visibleRows": 8
+  },
+  "commands": [
+    {
+      "name": "refresh",
+      "script": [
+        {"op": "set", "key": "plugin", "value": {"from": "pluginName"}},
+        {"op": "set", "key": "command", "value": {"from": "commandName"}},
+        {"op": "set", "key": "profile", "value": {"from": "param", "name": "profile"}},
+        {"op": "set", "key": "visibleRows", "value": {"from": "param", "name": "visibleRows"}},
+        {"op": "set", "key": "argCount", "value": {"from": "argCount"}},
+        {"op": "returnObject"}
+      ]
+    },
+    {
+      "name": "visibleRowsConstViaJs",
+      "description": "Returns menu rows constant via QuickJS const mode",
+      "entry": "commandRowsConstRuntime",
+      "js": "// @urpg-export commandRowsConstRuntime const 8"
+    }
+  ]
+}

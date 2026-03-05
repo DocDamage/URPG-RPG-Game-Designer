@@ -1,0 +1,29 @@
+{
+  "name": "MOG_BattleHud_MZ",
+  "version": "1.1.0-fixture",
+  "author": "URPG Fixture Harness",
+  "description": "Battle HUD compatibility fixture",
+  "parameters": {
+    "profile": "battle_hud",
+    "hudSlots": 4
+  },
+  "commands": [
+    {
+      "name": "showHud",
+      "script": [
+        {"op": "set", "key": "plugin", "value": {"from": "pluginName"}},
+        {"op": "set", "key": "command", "value": {"from": "commandName"}},
+        {"op": "set", "key": "profile", "value": {"from": "param", "name": "profile"}},
+        {"op": "set", "key": "hudSlots", "value": {"from": "param", "name": "hudSlots"}},
+        {"op": "set", "key": "argCount", "value": {"from": "argCount"}},
+        {"op": "returnObject"}
+      ]
+    },
+    {
+      "name": "hudEnabledViaJs",
+      "description": "Returns static hud enablement via QuickJS const mode",
+      "entry": "hudEnabledRuntime",
+      "js": "// @urpg-export hudEnabledRuntime const true"
+    }
+  ]
+}

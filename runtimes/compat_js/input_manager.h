@@ -288,7 +288,7 @@ public:
     int32_t getScreenX() const;
     int32_t getScreenY() const;
     
-    // Status: STUB - World coordinates (requires camera)
+    // Status: FULL - Applies camera-aware transform mapping
     int32_t getWorldX() const;
     int32_t getWorldY() const;
     
@@ -340,6 +340,8 @@ public:
     void setTouchPosition(int32_t x, int32_t y);
     void setTouchPressed(bool pressed);
     void setTouchCount(int32_t count);
+    void setCameraTransform(double scaleX, double scaleY, int32_t offsetX, int32_t offsetY);
+    void resetCameraTransform();
     
     // ========================================================================
     // Compat Status
@@ -356,6 +358,8 @@ private:
     struct TouchState {
         int32_t x = 0;
         int32_t y = 0;
+        int32_t prevX = 0;
+        int32_t prevY = 0;
         int32_t startX = 0;
         int32_t startY = 0;
         int32_t endX = 0;
@@ -371,6 +375,10 @@ private:
         double moveDistance = 0.0;
         double moveSpeed = 0.0;
         int32_t moveDirection = 0;
+        double cameraScaleX = 1.0;
+        double cameraScaleY = 1.0;
+        int32_t cameraOffsetX = 0;
+        int32_t cameraOffsetY = 0;
     };
     
     TouchState state_;

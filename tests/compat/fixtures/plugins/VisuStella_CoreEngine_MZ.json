@@ -1,0 +1,49 @@
+{
+  "name": "VisuStella_CoreEngine_MZ",
+  "version": "1.1.0-fixture",
+  "author": "URPG Fixture Harness",
+  "description": "Core engine compatibility fixture",
+  "parameters": {
+    "profile": "core",
+    "supportsWindowBase": true
+  },
+  "commands": [
+    {
+      "name": "boot",
+      "description": "Boot entrypoint",
+      "script": [
+        {"op": "set", "key": "plugin", "value": {"from": "pluginName"}},
+        {"op": "set", "key": "command", "value": {"from": "commandName"}},
+        {"op": "set", "key": "profile", "value": {"from": "param", "name": "profile"}},
+        {"op": "set", "key": "argCount", "value": {"from": "argCount"}},
+        {"op": "set", "key": "argsEcho", "value": {"from": "args"}},
+        {"op": "set", "key": "hasProfileParam", "value": {"from": "hasParam", "name": "profile"}},
+        {"op": "set", "key": "paramKeys", "value": {"from": "paramKeys"}},
+        {
+          "op": "if",
+          "condition": {"from": "equals", "left": {"from": "argCount"}, "right": 0},
+          "then": [
+            {"op": "set", "key": "firstArg", "value": "none"}
+          ],
+          "else": [
+            {"op": "set", "key": "firstArg", "value": {"from": "arg", "index": 0}}
+          ]
+        },
+        {"op": "returnObject"}
+      ]
+    },
+    {
+      "name": "countArgs",
+      "description": "Returns argument count",
+      "script": [
+        {"op": "return", "value": {"from": "argCount"}}
+      ]
+    },
+    {
+      "name": "countArgsViaJs",
+      "description": "Returns argument count through QuickJS eval/call path",
+      "entry": "coreCountArgsRuntime",
+      "js": "// @urpg-export coreCountArgsRuntime arg_count"
+    }
+  ]
+}

@@ -1,0 +1,29 @@
+{
+  "name": "EliMZ_Book",
+  "version": "1.1.0-fixture",
+  "author": "URPG Fixture Harness",
+  "description": "Book UI compatibility fixture",
+  "parameters": {
+    "profile": "book",
+    "pages": 12
+  },
+  "commands": [
+    {
+      "name": "openBook",
+      "script": [
+        {"op": "set", "key": "plugin", "value": {"from": "pluginName"}},
+        {"op": "set", "key": "command", "value": {"from": "commandName"}},
+        {"op": "set", "key": "profile", "value": {"from": "param", "name": "profile"}},
+        {"op": "set", "key": "pages", "value": {"from": "param", "name": "pages"}},
+        {"op": "set", "key": "argCount", "value": {"from": "argCount"}},
+        {"op": "returnObject"}
+      ]
+    },
+    {
+      "name": "pageArgViaJs",
+      "description": "Returns first page argument via QuickJS arg mode",
+      "entry": "bookPageArgRuntime",
+      "js": "// @urpg-export bookPageArgRuntime arg 0"
+    }
+  ]
+}

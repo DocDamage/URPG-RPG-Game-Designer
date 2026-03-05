@@ -1,0 +1,29 @@
+{
+  "name": "MOG_CharacterMotion_MZ",
+  "version": "1.1.0-fixture",
+  "author": "URPG Fixture Harness",
+  "description": "Character motion compatibility fixture",
+  "parameters": {
+    "profile": "character_motion",
+    "supportsScale": true
+  },
+  "commands": [
+    {
+      "name": "startMotion",
+      "script": [
+        {"op": "set", "key": "plugin", "value": {"from": "pluginName"}},
+        {"op": "set", "key": "command", "value": {"from": "commandName"}},
+        {"op": "set", "key": "profile", "value": {"from": "param", "name": "profile"}},
+        {"op": "set", "key": "supportsScale", "value": {"from": "param", "name": "supportsScale"}},
+        {"op": "set", "key": "argCount", "value": {"from": "argCount"}},
+        {"op": "returnObject"}
+      ]
+    },
+    {
+      "name": "motionScaleConstViaJs",
+      "description": "Returns motion scale support via QuickJS const mode",
+      "entry": "characterMotionScaleRuntime",
+      "js": "// @urpg-export characterMotionScaleRuntime const true"
+    }
+  ]
+}

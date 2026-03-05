@@ -1,0 +1,29 @@
+{
+  "name": "CGMZ_Encyclopedia",
+  "version": "1.1.0-fixture",
+  "author": "URPG Fixture Harness",
+  "description": "Encyclopedia compatibility fixture",
+  "parameters": {
+    "profile": "encyclopedia",
+    "categories": 3
+  },
+  "commands": [
+    {
+      "name": "openCategory",
+      "script": [
+        {"op": "set", "key": "plugin", "value": {"from": "pluginName"}},
+        {"op": "set", "key": "command", "value": {"from": "commandName"}},
+        {"op": "set", "key": "profile", "value": {"from": "param", "name": "profile"}},
+        {"op": "set", "key": "categoryCount", "value": {"from": "param", "name": "categories"}},
+        {"op": "set", "key": "argCount", "value": {"from": "argCount"}},
+        {"op": "returnObject"}
+      ]
+    },
+    {
+      "name": "categoryArgViaJs",
+      "description": "Returns first category argument via QuickJS arg mode",
+      "entry": "encyCategoryArgRuntime",
+      "js": "// @urpg-export encyCategoryArgRuntime arg 0"
+    }
+  ]
+}

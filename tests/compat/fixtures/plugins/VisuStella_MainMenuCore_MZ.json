@@ -1,0 +1,36 @@
+{
+  "name": "VisuStella_MainMenuCore_MZ",
+  "version": "1.1.0-fixture",
+  "author": "URPG Fixture Harness",
+  "description": "Main menu compatibility fixture",
+  "dependencies": ["VisuStella_CoreEngine_MZ"],
+  "parameters": {
+    "profile": "menu_core",
+    "columns": 2
+  },
+  "commands": [
+    {
+      "name": "openMenu",
+      "script": [
+        {"op": "set", "key": "plugin", "value": {"from": "pluginName"}},
+        {"op": "set", "key": "command", "value": {"from": "commandName"}},
+        {"op": "set", "key": "profile", "value": {"from": "param", "name": "profile"}},
+        {"op": "set", "key": "columnCount", "value": {"from": "param", "name": "columns"}},
+        {"op": "set", "key": "argCount", "value": {"from": "argCount"}},
+        {"op": "returnObject"}
+      ]
+    },
+    {
+      "name": "countArgs",
+      "script": [
+        {"op": "return", "value": {"from": "argCount"}}
+      ]
+    },
+    {
+      "name": "firstArgViaJs",
+      "description": "Returns first argument through QuickJS directive arg mode",
+      "entry": "menuFirstArgRuntime",
+      "js": "// @urpg-export menuFirstArgRuntime arg 0"
+    }
+  ]
+}

@@ -25,6 +25,11 @@ add_library(urpg_core
     editor/compat/compat_report_panel.cpp
     runtimes/compat_js/quickjs_runtime.cpp
     runtimes/compat_js/window_compat.cpp
+    runtimes/compat_js/battle_manager.cpp
+    runtimes/compat_js/data_manager.cpp
+    runtimes/compat_js/audio_manager.cpp
+    runtimes/compat_js/input_manager.cpp
+    runtimes/compat_js/plugin_manager.cpp
 )
 
 target_include_directories(urpg_core PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
@@ -86,6 +91,11 @@ add_executable(urpg_tests
     tests/unit/test_quickjs_runtime.cpp
     tests/unit/test_window_compat.cpp
     tests/unit/test_compat_report_panel.cpp
+    tests/unit/test_battlemgr.cpp
+    tests/unit/test_data_manager.cpp
+    tests/unit/test_audio_manager.cpp
+    tests/unit/test_input_manager.cpp
+    tests/unit/test_plugin_manager.cpp
 )
 
 target_link_libraries(urpg_tests PRIVATE urpg_core Catch2::Catch2WithMain)
@@ -107,10 +117,13 @@ target_include_directories(urpg_snapshot_tests PRIVATE ${CMAKE_CURRENT_SOURCE_DI
 
 add_executable(urpg_compat_tests
     tests/compat/test_compat_authority_suite.cpp
+    tests/compat/test_compat_window_plugin_profiles.cpp
+    tests/compat/test_compat_plugin_fixtures.cpp
 )
 
 target_link_libraries(urpg_compat_tests PRIVATE urpg_core Catch2::Catch2WithMain)
 target_include_directories(urpg_compat_tests PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+target_compile_definitions(urpg_compat_tests PRIVATE URPG_SOURCE_DIR="${CMAKE_CURRENT_SOURCE_DIR}")
 
 include(CTest)
 include(Catch)

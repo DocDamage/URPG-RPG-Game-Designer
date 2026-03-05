@@ -1,352 +1,322 @@
-// InputManager Unit Tests - Phase 2 Compat Layer
-// Tests for MZ Input/TouchInput Compatibility Surface
-
 #include "runtimes/compat_js/input_manager.h"
+
+#include <catch2/catch_approx.hpp>
 #include <catch2/catch_test_macros.hpp>
-#include <cmath>
 
 using namespace urpg::compat;
+using urpg::Value;
 
-TEST_CASE("InputManager: Initialization", "[input_manager]") {
+TEST_CASE("InputManager: initialization and clear", "[input_manager]") {
     InputManager& im = InputManager::instance();
-    
-    SECTION("Initialize clears state") {
-        im.initialize();
-        
-        REQUIRE(im.getDir4() == 0);
-        REQUIRE(im.getDir8() == 0);
-        
-        im.shutdown();
-    }
-    
-    SECTION("Clear resets all state") {
-        im.initialize();
-        im.clear();
-        
-        REQUIRE(im.getDir4() == 0);
-        REQUIRE(im.getDir8() == 0);
-        
-        im.shutdown();
-    }
-}
 
-TEST_CASE("InputManager: Key state queries", "[input_manager]") {
-    InputManager& im = InputManager::instance();
     im.initialize();
-    
-    SECTION("isPressed returns false for unpressed key") {
-        REQUIRE_FALSE(im.isPressed(InputKey::DOWN));
-        REQUIRE_FALSE(im.isPressed(InputKey::UP));
-    }
-    
-    SECTION("isTriggered returns false for untriggered key") {
-        REQUIRE_FALSE(im.isTriggered(InputKey::DECISION));
-        REQUIRE_FALSE(im.isTriggered(InputKey::CANCEL));
-    }
-    
-    SECTION("isRepeated returns false for unrepeated key") {
-        REQUIRE_FALSE(im.isRepeated(InputKey::SHIFT));
-    }
-    
-    SECTION("isReleased returns false for unreleased key") {
-        REQUIRE_FALSE(im.isReleased(InputKey::CONTROL));
-    }
-    
+    REQUIRE(im.getDir4() == 0);
+    REQUIRE(im.getDir8() == 0);
+
+    im.setMousePosition(12, 34);
+    im.clear();
+    REQUIRE(im.getMouseX() == 0);
+    REQUIRE(im.getMouseY() == 0);
+
     im.shutdown();
 }
 
-TEST_CASE("InputManager: Direction state", "[input_manager]") {
+TEST_CASE("InputManager: key state transitions", "[input_manager]") {
     InputManager& im = InputManager::instance();
     im.initialize();
-    
-    SECTION("Initial dir4 is 0") {
-        REQUIRE(im.getDir4() == 0);
-    }
-    
-    SECTION("Initial dir8 is 0") {
-        REQUIRE(im.getDir8() == 0);
-    }
-    
-    SECTION("isDirectionPressed returns false initially") {
-        REQUIRE_FALSE(im.isDirectionPressed(2));
-        REQUIRE_FALSE(im.isDirectionPressed(4));
-        REQUIRE_FALSE(im.isDirectionPressed(6));
-        REQUIRE_FALSE(im.isDirectionPressed(8));
-    }
-    
+
+    REQUIRE_FALSE(im.isPressed(InputKey::DECISION));
+    REQUIRE_FALSE(im.isTriggered(InputKey::DECISION));
+
+    im.setKeyPressed(InputKey::DECISION, true);
+    REQUIRE(im.isPressed(InputKey::DECISION));
+    REQUIRE(im.isTriggered(InputKey::DECISION));
+
+    im.update();
+    REQUIRE(im.isPressed(InputKey::DECISION));
+    REQUIRE(im.isTriggered(InputKey::DECISION));
+
+    im.update();
+    REQUIRE_FALSE(im.isTriggered(InputKey::DECISION));
+
+    im.setKeyPressed(InputKey::DECISION, false);
+    REQUIRE_FALSE(im.isPressed(InputKey::DECISION));
+    REQUIRE(im.isReleased(InputKey::DECISION));
+
     im.shutdown();
 }
 
-TEST_CASE("InputManager: Mouse state", "[input_manager]") {
+TEST_CASE("InputManager: direction state", "[input_manager]") {
     InputManager& im = InputManager::instance();
     im.initialize();
-    
-    SECTION("Initial mouse position is 0") {
-        REQUIRE(im.mouseX() == 0);
-        REQUIRE(im.mouseY() == 0);
-    }
-    
-    SECTION("Initial mouse button state is false") {
-        REQUIRE_FALSE(im.isMousePressed(0));
-        REQUIRE_FALSE(im.isMouseTriggered(0));
-    }
-    
-    SECTION("Initial mouse wheel is 0") {
-        REQUIRE(im.mouseWheel() == 0);
-    }
-    
+
+    REQUIRE(im.getDir4() == 0);
+    REQUIRE(im.getDir8() == 0);
+
+    im.setKeyPressed(InputKey::DOWN, true);
+    im.update();
+    REQUIRE(im.getDir4() == 2);
+    REQUIRE(im.isDirectionPressed(2));
+
+    im.setKeyPressed(InputKey::DOWN, false);
+    im.update();
+    REQUIRE(im.getDir4() == 0);
+
     im.shutdown();
 }
 
-TEST_CASE("InputManager: Touch state", "[input_manager]") {
+TEST_CASE("InputManager: mouse and touch access", "[input_manager]") {
     InputManager& im = InputManager::instance();
     im.initialize();
-    
-    SECTION("Initial touch position is 0") {
-        REQUIRE(im.touchX() == 0);
-        REQUIRE(im.touchY() == 0);
-    }
-    
-    SECTION("Initial touch state is false") {
-        REQUIRE_FALSE(im.isTouchPressed());
-        REQUIRE_FALSE(im.isTouchTriggered());
-    }
-    
-    SECTION("Initial touch count is 0") {
-        REQUIRE(im.touchCount() == 0);
-    }
-    
+
+    im.setMousePosition(100, 200);
+    REQUIRE(im.getMouseX() == 100);
+    REQUIRE(im.getMouseY() == 200);
+
+    im.setMousePressed(0, true);
+    REQUIRE(im.isMousePressed(0));
+    REQUIRE(im.isMouseTriggered(0));
+
+    im.setMouseWheel(3);
+    REQUIRE(im.getMouseWheel() == 3);
+    im.update();
+    REQUIRE(im.getMouseWheel() == 0);
+
+    im.setTouchPosition(50, 60);
+    REQUIRE(im.getTouchX() == 50);
+    REQUIRE(im.getTouchY() == 60);
+
+    im.setTouchPressed(true);
+    REQUIRE(im.isTouchPressed());
+    REQUIRE(im.isTouchTriggered());
+    REQUIRE(im.getTouchCount() == 1);
+
     im.shutdown();
 }
 
-TEST_CASE("InputManager: Gamepad state", "[input_manager]") {
+TEST_CASE("InputManager: gamepad and action mapping", "[input_manager]") {
     InputManager& im = InputManager::instance();
     im.initialize();
-    
-    SECTION("Initial gamepad state is disconnected") {
-        REQUIRE_FALSE(im.isGamepadConnected());
-    }
-    
-    SECTION("Gamepad button state is false initially") {
-        REQUIRE_FALSE(im.isGamepadButtonPressed(0));
-        REQUIRE_FALSE(im.isGamepadButtonTriggered(0));
-    }
-    
-    SECTION("Gamepad axis returns 0 initially") {
-        REQUIRE(im.gamepadAxis(0) == Approx(0.0));
-        REQUIRE(im.gamepadAxis(1) == Approx(0.0));
-    }
-    
+
+    im.setGamepadConnected(true, 1);
+    REQUIRE(im.isGamepadConnected());
+    REQUIRE(im.getGamepadId() == 1);
+
+    im.setGamepadAxis(0, 0.75);
+    REQUIRE(im.getGamepadAxis(0) == Catch::Approx(0.75));
+
+    im.mapKeyToAction(InputKey::DECISION, "confirm");
+    const ActionMapping* mapping = im.getActionMapping("confirm");
+    REQUIRE(mapping != nullptr);
+    REQUIRE(mapping->actionId == "confirm");
+
+    im.setKeyPressed(InputKey::DECISION, true);
+    REQUIRE(im.isActionPressed("confirm"));
+
+    im.unmapAction("confirm");
+    REQUIRE(im.getActionMapping("confirm") == nullptr);
+
     im.shutdown();
 }
 
-TEST_CASE("InputManager: Action mappings", "[input_manager]") {
+TEST_CASE("InputManager: method status registry", "[input_manager]") {
+    InputManager& im = InputManager::instance();
+    (void)im;
+
+    REQUIRE(InputManager::getMethodStatus("isPressed") == CompatStatus::FULL);
+    REQUIRE(InputManager::getMethodStatus("dir4") == CompatStatus::FULL);
+    REQUIRE(InputManager::getMethodStatus("nonexistentMethod") == CompatStatus::UNSUPPORTED);
+}
+
+TEST_CASE("TouchInput: instance interface", "[input_manager]") {
+    TouchInput& touch = TouchInput::instance();
+    touch.clear();
+    touch.resetCameraTransform();
+
+    REQUIRE(touch.getX() == 0);
+    REQUIRE(touch.getY() == 0);
+    REQUIRE_FALSE(touch.isPressed());
+    REQUIRE_FALSE(touch.isTriggered());
+
+    touch.setTouchPosition(9, 11);
+    touch.setTouchPressed(true);
+    REQUIRE(touch.getX() == 9);
+    REQUIRE(touch.getY() == 11);
+    REQUIRE(touch.getWorldX() == 9);
+    REQUIRE(touch.getWorldY() == 11);
+    REQUIRE(touch.isPressed());
+    REQUIRE(touch.isTriggered());
+
+    touch.update();
+    REQUIRE_FALSE(touch.isTriggered());
+
+    touch.setTouchPressed(false);
+    REQUIRE(touch.isReleased());
+}
+
+TEST_CASE("TouchInput: world coordinates apply camera transform", "[input_manager]") {
+    TouchInput& touch = TouchInput::instance();
+    touch.clear();
+    touch.resetCameraTransform();
+
+    touch.setTouchPosition(250, 110);
+    touch.setCameraTransform(2.0, 0.5, 50, 10);
+
+    // (250 - 50) / 2.0 = 100
+    // (110 - 10) / 0.5 = 200
+    REQUIRE(touch.getWorldX() == 100);
+    REQUIRE(touch.getWorldY() == 200);
+
+    touch.resetCameraTransform();
+    REQUIRE(touch.getWorldX() == 250);
+    REQUIRE(touch.getWorldY() == 110);
+}
+
+TEST_CASE("TouchInput: movement speed and tap counting", "[input_manager]") {
+    TouchInput& touch = TouchInput::instance();
+    touch.clear();
+    touch.resetCameraTransform();
+
+    touch.setTouchPosition(0, 0);
+    touch.setTouchPressed(true);
+    touch.update();
+
+    touch.setTouchPosition(3, 4);
+    touch.update();
+    REQUIRE(touch.getMoveSpeed() == Catch::Approx(5.0));
+    REQUIRE(touch.getMoveDistance() == Catch::Approx(5.0));
+
+    touch.setTouchPressed(false);
+    touch.update();
+    REQUIRE(touch.getTapCount() == 1);
+}
+
+TEST_CASE("TouchInput: method status and constants", "[input_manager]") {
+    TouchInput& touch = TouchInput::instance();
+    (void)touch;
+
+    REQUIRE(TouchInput::getMethodStatus("x") == CompatStatus::FULL);
+    REQUIRE(TouchInput::getMethodStatus("isPressed") == CompatStatus::FULL);
+    REQUIRE(TouchInput::getMethodStatus("worldX") == CompatStatus::FULL);
+    REQUIRE(TouchInput::getMethodStatus("worldY") == CompatStatus::FULL);
+
+    REQUIRE(InputKey::DOWN == 2);
+    REQUIRE(InputKey::LEFT == 4);
+    REQUIRE(InputKey::RIGHT == 6);
+    REQUIRE(InputKey::UP == 8);
+
+    REQUIRE(InputKey::DECISION == 13);
+    REQUIRE(InputKey::CANCEL == 27);
+    REQUIRE(InputKey::F1 == 112);
+    REQUIRE(InputKey::F12 == 123);
+    REQUIRE(InputKey::GAMEPAD_A == 1000);
+}
+
+TEST_CASE("InputManager: registerAPI routes to runtime state", "[input_manager]") {
+    QuickJSContext ctx;
+    REQUIRE(ctx.initialize(QuickJSConfig{}));
+
+    InputManager::registerAPI(ctx);
+
     InputManager& im = InputManager::instance();
     im.initialize();
-    
-    SECTION("Map key to action") {
-        im.mapKeyToAction("confirm", InputKey::DECISION);
-        
-        // Action should be mapped
-        REQUIRE_FALSE(im.isActionPressed("confirm"));
-    }
-    
-    SECTION("Map gamepad button to action") {
-        im.mapGamepadButtonToAction("confirm", InputKey::GAMEPAD_A);
-        
-        // Action should be mapped
-        REQUIRE_FALSE(im.isActionPressed("confirm"));
-    }
-    
-    SECTION("Unmap action") {
-        im.mapKeyToAction("cancel", InputKey::CANCEL);
-        im.unmapAction("cancel");
-        
-        // Action should be unmapped
-    }
-    
-    SECTION("Clear action mappings") {
-        im.mapKeyToAction("test", InputKey::SHIFT);
-        im.clearActionMappings();
-        
-        // All mappings should be cleared
-    }
-    
+    im.clear();
+
+    im.setKeyPressed(InputKey::DECISION, true);
+    const auto pressed = ctx.callMethod("Input", "isPressed", {Value::Int(InputKey::DECISION)});
+    REQUIRE(pressed.success);
+    REQUIRE(std::holds_alternative<int64_t>(pressed.value.v));
+    REQUIRE(std::get<int64_t>(pressed.value.v) == 1);
+
+    const auto update = ctx.callMethod("Input", "update", {});
+    REQUIRE(update.success);
+
+    im.setKeyPressed(InputKey::DOWN, true);
+    REQUIRE(ctx.callMethod("Input", "update", {}).success);
+    const auto dir4 = ctx.callMethod("Input", "dir4", {});
+    REQUIRE(dir4.success);
+    REQUIRE(std::holds_alternative<int64_t>(dir4.value.v));
+    REQUIRE(std::get<int64_t>(dir4.value.v) == 2);
+
+    im.setKeyPressed(InputKey::DECISION, false);
+    const auto released = ctx.callMethod("Input", "isReleased", {Value::Int(InputKey::DECISION)});
+    REQUIRE(released.success);
+    REQUIRE(std::holds_alternative<int64_t>(released.value.v));
+    REQUIRE(std::get<int64_t>(released.value.v) == 1);
+
+    REQUIRE(ctx.callMethod("Input", "clear", {}).success);
+    const auto pressedAfterClear = ctx.callMethod("Input", "isPressed", {Value::Int(InputKey::DOWN)});
+    REQUIRE(pressedAfterClear.success);
+    REQUIRE(std::holds_alternative<int64_t>(pressedAfterClear.value.v));
+    REQUIRE(std::get<int64_t>(pressedAfterClear.value.v) == 0);
+
     im.shutdown();
 }
 
-TEST_CASE("InputManager: Update cycle", "[input_manager]") {
-    InputManager& im = InputManager::instance();
-    im.initialize();
-    
-    SECTION("Update clears triggered states") {
-        im.update();
-        
-        // After update, triggered states should be cleared
-        REQUIRE_FALSE(im.isTriggered(InputKey::DECISION));
-    }
-    
-    SECTION("Update clears mouse wheel") {
-        im.update();
-        
-        REQUIRE(im.mouseWheel() == 0);
-    }
-    
-    im.shutdown();
+TEST_CASE("TouchInput: registerAPI routes to runtime state", "[input_manager]") {
+    QuickJSContext ctx;
+    REQUIRE(ctx.initialize(QuickJSConfig{}));
+
+    TouchInput::registerAPI(ctx);
+
+    TouchInput& touch = TouchInput::instance();
+    touch.clear();
+    touch.resetCameraTransform();
+    touch.setTouchPosition(10, 20);
+    touch.setTouchPressed(true);
+
+    const auto x = ctx.callMethod("TouchInput", "x", {});
+    REQUIRE(x.success);
+    REQUIRE(std::holds_alternative<int64_t>(x.value.v));
+    REQUIRE(std::get<int64_t>(x.value.v) == 10);
+
+    const auto y = ctx.callMethod("TouchInput", "y", {});
+    REQUIRE(y.success);
+    REQUIRE(std::holds_alternative<int64_t>(y.value.v));
+    REQUIRE(std::get<int64_t>(y.value.v) == 20);
+
+    const auto triggered = ctx.callMethod("TouchInput", "isTriggered", {});
+    REQUIRE(triggered.success);
+    REQUIRE(std::holds_alternative<int64_t>(triggered.value.v));
+    REQUIRE(std::get<int64_t>(triggered.value.v) == 1);
+
+    REQUIRE(ctx.callMethod("TouchInput", "update", {}).success);
+    const auto triggeredAfterUpdate = ctx.callMethod("TouchInput", "isTriggered", {});
+    REQUIRE(triggeredAfterUpdate.success);
+    REQUIRE(std::holds_alternative<int64_t>(triggeredAfterUpdate.value.v));
+    REQUIRE(std::get<int64_t>(triggeredAfterUpdate.value.v) == 0);
+
+    touch.setTouchPressed(false);
+    const auto released = ctx.callMethod("TouchInput", "isReleased", {});
+    REQUIRE(released.success);
+    REQUIRE(std::holds_alternative<int64_t>(released.value.v));
+    REQUIRE(std::get<int64_t>(released.value.v) == 1);
+
+    REQUIRE(ctx.callMethod("TouchInput", "clear", {}).success);
+    const auto xAfterClear = ctx.callMethod("TouchInput", "x", {});
+    REQUIRE(xAfterClear.success);
+    REQUIRE(std::holds_alternative<int64_t>(xAfterClear.value.v));
+    REQUIRE(std::get<int64_t>(xAfterClear.value.v) == 0);
 }
 
-TEST_CASE("InputManager: Method status registry", "[input_manager]") {
-    InputManager& im = InputManager::instance();
-    
-    SECTION("GetMethodStatus returns FULL for core methods") {
-        CompatStatus status = im.getMethodStatus("isPressed");
-        REQUIRE(status == CompatStatus::FULL);
-    }
-    
-    SECTION("GetMethodStatus returns FULL for direction methods") {
-        CompatStatus status = im.getMethodStatus("dir4");
-        REQUIRE(status == CompatStatus::FULL);
-    }
-    
-    SECTION("GetMethodStatus returns UNSUPPORTED for unknown methods") {
-        CompatStatus status = im.getMethodStatus("nonexistentMethod");
-        REQUIRE(status == CompatStatus::UNSUPPORTED);
-    }
-}
-
-TEST_CASE("TouchInput: Static interface", "[input_manager]") {
-    TouchInput::initialize();
-    
-    SECTION("Initial X position is 0") {
-        REQUIRE(TouchInput::getX() == 0);
-    }
-    
-    SECTION("Initial Y position is 0") {
-        REQUIRE(TouchInput::getY() == 0);
-    }
-    
-    SECTION("Initial pressed state is false") {
-        REQUIRE_FALSE(TouchInput::isPressed());
-    }
-    
-    SECTION("Initial triggered state is false") {
-        REQUIRE_FALSE(TouchInput::isTriggered());
-    }
-    
-    SECTION("Initial wheel is 0") {
-        REQUIRE(TouchInput::getWheel() == 0);
-    }
-    
-    TouchInput::shutdown();
-}
-
-TEST_CASE("TouchInput: Method status registry", "[input_manager]") {
-    SECTION("GetMethodStatus returns FULL for core methods") {
-        CompatStatus status = TouchInput::getMethodStatus("getX");
-        REQUIRE(status == CompatStatus::FULL);
-    }
-    
-    SECTION("GetMethodStatus returns FULL for pressed state") {
-        CompatStatus status = TouchInput::getMethodStatus("isPressed");
-        REQUIRE(status == CompatStatus::FULL);
-    }
-}
-
-TEST_CASE("InputKey: Constants are MZ compatible", "[input_manager]") {
-    SECTION("Direction keys match MZ values") {
-        REQUIRE(InputKey::DOWN == 2);
-        REQUIRE(InputKey::LEFT == 4);
-        REQUIRE(InputKey::RIGHT == 6);
-        REQUIRE(InputKey::UP == 8);
-    }
-    
-    SECTION("Action keys are defined") {
-        REQUIRE(InputKey::DECISION == 13);
-        REQUIRE(InputKey::CANCEL == 27);
-        REQUIRE(InputKey::SHIFT == 16);
-        REQUIRE(InputKey::CONTROL == 17);
-    }
-    
-    SECTION("Function keys are sequential") {
-        REQUIRE(InputKey::F1 == 112);
-        REQUIRE(InputKey::F12 == 123);
-    }
-    
-    SECTION("Gamepad buttons are defined") {
-        REQUIRE(InputKey::GAMEPAD_A == 1000);
-        REQUIRE(InputKey::GAMEPAD_B == 1001);
-        REQUIRE(InputKey::GAMEPAD_START == 1009);
-    }
-}
-
-TEST_CASE("ActionMapping: Structure", "[input_manager]") {
+TEST_CASE("Input structs: defaults", "[input_manager]") {
     ActionMapping mapping;
-    
-    SECTION("Default values") {
-        REQUIRE(mapping.actionId.empty());
-        REQUIRE(mapping.keyCodes.empty());
-        REQUIRE(mapping.gamepadButtons.empty());
-        REQUIRE(mapping.gamepadAxis == -1);
-        REQUIRE(mapping.axisThreshold == Approx(0.5));
-    }
-    
-    SECTION("Can set action ID") {
-        mapping.actionId = "test_action";
-        REQUIRE(mapping.actionId == "test_action");
-    }
-    
-    SECTION("Can add key codes") {
-        mapping.keyCodes.push_back(InputKey::DECISION);
-        mapping.keyCodes.push_back(InputKey::GAMEPAD_A);
-        REQUIRE(mapping.keyCodes.size() == 2);
-    }
-}
+    REQUIRE(mapping.actionId.empty());
+    REQUIRE(mapping.keyCodes.empty());
+    REQUIRE(mapping.gamepadButtons.empty());
+    REQUIRE(mapping.gamepadAxis == -1);
+    REQUIRE(mapping.axisThreshold == Catch::Approx(0.5));
 
-TEST_CASE("InputState: Structure defaults", "[input_manager]") {
     InputState state;
-    
-    SECTION("Keyboard arrays are zeroed") {
-        for (int i = 0; i < 256; ++i) {
-            REQUIRE_FALSE(state.keys[i]);
-            REQUIRE_FALSE(state.prevKeys[i]);
-            REQUIRE_FALSE(state.triggeredKeys[i]);
-            REQUIRE_FALSE(state.repeatedKeys[i]);
-            REQUIRE(state.repeatCounters[i] == 0);
-        }
-    }
-    
-    SECTION("Mouse state is zeroed") {
-        REQUIRE(state.mouseX == 0);
-        REQUIRE(state.mouseY == 0);
-        REQUIRE(state.mouseWheel == 0);
-        for (int i = 0; i < 3; ++i) {
-            REQUIRE_FALSE(state.mousePressed[i]);
-            REQUIRE_FALSE(state.mouseTriggered[i]);
-        }
-    }
-    
-    SECTION("Touch state is zeroed") {
-        REQUIRE(state.touchX == 0);
-        REQUIRE(state.touchY == 0);
-        REQUIRE_FALSE(state.touchPressed);
-        REQUIRE_FALSE(state.touchTriggered);
-        REQUIRE(state.touchCount == 0);
-    }
-    
-    SECTION("Gamepad state is zeroed") {
-        REQUIRE_FALSE(state.gamepadConnected);
-        REQUIRE(state.gamepadId == -1);
-        for (int i = 0; i < 16; ++i) {
-            REQUIRE_FALSE(state.gamepadButtons[i]);
-            REQUIRE_FALSE(state.gamepadButtonsTriggered[i]);
-        }
-        for (int i = 0; i < 4; ++i) {
-            REQUIRE(state.gamepadAxes[i] == Approx(0.0));
-        }
-    }
-    
-    SECTION("Direction state is zeroed") {
-        REQUIRE(state.dir4 == 0);
-        REQUIRE(state.dir8 == 0);
-    }
+    REQUIRE(state.mouseX == 0);
+    REQUIRE(state.mouseY == 0);
+    REQUIRE(state.mouseWheel == 0);
+    REQUIRE(state.touchX == 0);
+    REQUIRE(state.touchY == 0);
+    REQUIRE_FALSE(state.touchPressed);
+    REQUIRE(state.touchCount == 0);
+    REQUIRE_FALSE(state.gamepadConnected);
+    REQUIRE(state.gamepadId == -1);
+    REQUIRE(state.dir4 == 0);
+    REQUIRE(state.dir8 == 0);
 }
