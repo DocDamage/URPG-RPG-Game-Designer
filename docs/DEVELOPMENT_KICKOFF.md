@@ -1,6 +1,8 @@
-# URPG Development Kickoff (v3.1)
+# URPG Development Status (v3.1)
 
-This repository is now bootstrapped to the blueprint's canonical structure and includes contract kernels + baseline tests.
+Snapshot Date: 2026-03-05
+
+This repository is bootstrapped to the blueprint's canonical structure and now includes core + compat kernels with active CI gate wiring.
 
 ## Completed now
 
@@ -40,7 +42,21 @@ This repository is now bootstrapped to the blueprint's canonical structure and i
 - Phase 1 Native Core integration follow-up implemented:
    - Runtime dispatch-session wiring over event timeline/reentrancy contracts (`EventDispatchSession`).
    - Runtime debug-session wiring over breakpoints/watches/call-stack/step controls (`DebugRuntimeSession`).
-- Test baseline added and passing (51 tests).
+- Test baseline added and passing (Release snapshot):
+  - `urpg_tests`: 847 assertions / 207 test cases
+  - `urpg_integration_tests`: 10 assertions / 2 test cases
+  - `urpg_snapshot_tests`: 4 assertions / 2 test cases
+  - `urpg_compat_tests`: 125 assertions / 3 test cases
+- Phase 2 compat expansion implemented in active targets:
+   - WindowCompat surface expansion for `Window_Base`, `Window_Selectable`, and `Window_Command` API registration.
+   - WindowCompat method call-count tracking surfaced in compat reports.
+   - Curated plugin profile conformance suite (`test_compat_window_plugin_profiles.cpp`) for 10 real-world MZ plugin profiles.
+   - Executable plugin fixture suite (`test_compat_plugin_fixtures.cpp`) for the same 10 plugin profiles in the weekly lane.
+- Phase 2 compat module wiring completed in active targets:
+   - `battle_manager`, `data_manager`, `audio_manager`, `input_manager`, `plugin_manager` are now part of active CMake builds.
+   - Corresponding unit tests are active in `urpg_tests`: `test_battlemgr`, `test_data_manager`, `test_audio_manager`, `test_input_manager`, `test_plugin_manager`.
+   - `PluginManager` fixture loading now supports JSON plugin fixtures, directory scanning, JSON parameter parsing, and script-driven fixture command execution.
+   - Burned down selected compat statuses from `STUB` to `PARTIAL`: `Window_Base.drawItemName`, `Window_Base.textWidth`, `Window_Base.textSize`, `TouchInput.worldX`, `TouchInput.worldY`.
 - Migration and schema anchors added:
   - `tools/migrate/migration_op.json`
   - `tools/migrate/fuzz_migrate.cpp`
@@ -48,9 +64,10 @@ This repository is now bootstrapped to the blueprint's canonical structure and i
 
 ## Immediate next implementation lanes
 
-1. Phase 2 Compat Layer kickoff
-   - QuickJS runtime integration contract kernel scaffolding.
-   - WindowCompat core surface stubs + compatibility status tagging primitives.
+1. Complete Phase 2 validation depth
+   - Validate wired compat modules/tests against 10 real-world MZ plugins and close remaining `PARTIAL`/`STUB` deviations.
+2. Deepen compat validation
+   - Expand fixture script DSL coverage and bridge script-backed fixtures into real JS plugin execution paths.
 
 ## Build/test
 
