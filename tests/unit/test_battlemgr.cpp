@@ -32,6 +32,42 @@ TEST_CASE("BattleManager: escape gate", "[battlemgr]") {
     REQUIRE_FALSE(bm.processEscape());
 }
 
+TEST_CASE("BattleManager: escape attempts ramp to deterministic success", "[battlemgr]") {
+    BattleManager bm;
+    bm.setup(11, true, false);
+    bm.startBattle();
+
+    bool escaped = false;
+    int32_t attempts = 0;
+    while (attempts < 6 && bm.canEscape()) {
+        ++attempts;
+        escaped = bm.processEscape();
+        if (escaped) {
+            break;
+        }
+    }
+
+    REQUIRE(escaped);
+    REQUIRE(attempts <= 6);
+    REQUIRE(bm.getResult() == BattleResult::ESCAPE);
+    REQUIRE(bm.getPhase() == BattlePhase::NONE);
+}
+
+TEST_CASE("BattleManager: escape outcomes are deterministic for same setup", "[battlemgr]") {
+    BattleManager a;
+    BattleManager b;
+
+    a.setup(17, true, false);
+    b.setup(17, true, false);
+    a.startBattle();
+    b.startBattle();
+
+    bool aFirst = a.processEscape();
+    bool bFirst = b.processEscape();
+    REQUIRE(aFirst == bFirst);
+    REQUIRE(a.getResult() == b.getResult());
+}
+
 TEST_CASE("BattleManager: hook registration and unregistration", "[battlemgr]") {
     BattleManager bm;
     int startHookCalls = 0;
@@ -107,7 +143,7 @@ TEST_CASE("BattleManager: method status registry", "[battlemgr]") {
     (void)bm;
 
     REQUIRE(BattleManager::getMethodStatus("setup") == CompatStatus::FULL);
-    REQUIRE(BattleManager::getMethodStatus("processEscape") == CompatStatus::PARTIAL);
+    REQUIRE(BattleManager::getMethodStatus("processEscape") == CompatStatus::FULL);
     REQUIRE(BattleManager::getMethodStatus("nonexistentMethod") == CompatStatus::UNSUPPORTED);
 }
 

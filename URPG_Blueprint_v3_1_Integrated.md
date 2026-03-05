@@ -89,6 +89,7 @@ This section tracks what has been implemented in code so this blueprint doubles 
   - Virtual filesystem mounts for sandboxed file access.
   - Memory/CPU budget tracking with `CompatBudget` struct.
   - API status registry tracking FULL/PARTIAL/STUB/UNSUPPORTED surface coverage.
+  - Stub conformance lane now supports explicit eval-failure directives (`@urpg-fail-eval`) and evalModule failure propagation coverage for deterministic failure-path tests.
 - WindowCompat core surface stubs:
   - `Window_Base` with `drawText`, `drawIcon`, `drawActorFace`, `drawActorName`, `drawActorLevel`, `drawActorHp/Mp/Tp` gauges.
   - `Window_Selectable` and `Window_Command` stubs for menu plugin compatibility.
@@ -97,11 +98,17 @@ This section tracks what has been implemented in code so this blueprint doubles 
   - Expanded API registry exposure for extended `Window_Base` + `Window_Selectable` + `Window_Command` methods used by menu plugins.
   - Added WindowCompat method call-count tracking in compat reports for runtime surface usage visibility.
   - Added command-window compatibility helpers (`isCommandEnabled`, `isCurrentItemEnabled`, `findSymbol`, `findExt`, `callOkHandler`).
+  - Window text parity burn-down: `drawTextEx`, `textWidth`, and `textSize` now run through escape-token-aware compat text layout/measurement and are marked `FULL`.
+  - Additional WindowCompat burn-down: `drawItemName` now resolves DataManager-backed icon/name semantics (`FULL`), and `Sprite_Actor.startEffect` now runs deterministic effect-duration lifecycle handling (`FULL`).
+  - Additional Sprite_Actor burn-down: `startAnimation` now runs deterministic frame-duration playback lifecycle handling (`FULL`).
+  - Additional Window_Base face burn-down: `drawActorFace` now runs MZ-canonical face cell clipping/centering semantics with deterministic draw metadata (`FULL`).
+  - Compat status burn-down checkpoint: runtime compat API registry now reports no remaining `PARTIAL`/`STUB` surfaces in active modules.
 - BattleManager MZ battle pipeline hooks:
   - Battle phase tracking (NONE, INIT, START, INPUT, TURN, ACTION, END, ABORT).
   - Hook points at each battle phase for plugin interception.
   - Turn management, action queue, damage/healing methods.
   - Battle result handling (WIN, ESCAPE, DEFEAT, ABORT).
+  - Escape processing now follows deterministic MZ-style ratio + failure-ramp semantics (`processEscape` now `FULL`).
   - All methods tagged with `CompatStatus` registry.
 - DataManager MZ data/save/load semantics:
   - Database loading (actors, skills, items, weapons, armors, enemies, troops, states, animations).
@@ -117,6 +124,8 @@ This section tracks what has been implemented in code so this blueprint doubles 
   - Volume control per-bus and master volume.
   - Ducking support for BGM during ME playback.
   - Crossfade transitions for BGM.
+  - BGM/BGS crossfades now run as deterministic frame-based fade-out/switch/fade-in sequences (`FULL` status).
+  - BGM save/restore metadata now preserves real track filenames/positions (not channel ids) for correct round-trip behavior.
   - Save/restore BGM settings.
   - All methods tagged with `CompatStatus` registry.
 - InputManager/TouchInput MZ input compatibility:
@@ -132,6 +141,7 @@ This section tracks what has been implemented in code so this blueprint doubles 
 - PluginManager MZ plugin command registry:
   - Plugin lifecycle management (load, unload, reload).
   - Command registration and execution.
+  - Async command execution now routes through deterministic FIFO task-queue processing (`executeCommandAsync` now `FULL`).
   - Parameter management per-plugin.
   - JSON fixture plugin loading, script-driven fixture command execution, and directory discovery for executable conformance runs.
   - Fixture script commands are now executed through per-plugin `QuickJSRuntime` contexts (`QuickJSContext::call` bridge path).
@@ -139,6 +149,9 @@ This section tracks what has been implemented in code so this blueprint doubles 
   - Curated fixtures now exercise JS directive `arg` and `const` modes across all 10 plugin profiles.
   - Fixture script DSL expanded with conditional flow + richer resolvers (`if`, `args`, `paramKeys`, `hasParam`, `equals`, `coalesce`).
   - Reload flow now tracks plugin source paths so JSON-backed fixture plugins rehydrate commands on `reloadPlugin`.
+  - Command failure diagnostics now route missing-command/full-name parse failures through `PluginManager::setErrorHandler` for deterministic capture.
+  - Plugin failure-path diagnostics are now exportable as structured JSONL artifacts (`exportFailureDiagnosticsJsonl` / `clearFailureDiagnostics`) with deterministic sequence IDs and operation tags.
+  - Compat report model now ingests PluginManager JSONL failure artifacts for event timeline/error summary wiring (`ingestPluginFailureDiagnosticsJsonl`).
   - Dependency checking between plugins.
   - Event hooks for plugin lifecycle events.
   - Execution context tracking for nested command calls.
@@ -155,6 +168,7 @@ This section tracks what has been implemented in code so this blueprint doubles 
     - `test_plugin_manager.cpp` for PluginManager command registry tests.
     - `test_compat_window_plugin_profiles.cpp` for curated 10-plugin profile conformance checks.
     - `test_compat_plugin_fixtures.cpp` for executable 10-plugin fixture loading/execution checks.
+    - `test_compat_plugin_failure_diagnostics.cpp` for curated 10-plugin failure-path diagnostics, malformed fixture/load artifact export coverage, and dependency-failure gating.
 
 ### Current Validation Baseline
 
@@ -168,12 +182,12 @@ This section tracks what has been implemented in code so this blueprint doubles 
   - `test_battlemgr.cpp`, `test_data_manager.cpp`, `test_audio_manager.cpp`, `test_input_manager.cpp`, `test_plugin_manager.cpp`
 - Integration tests: 1 file (`test_integration_runtime_recovery.cpp`).
 - Snapshot tests: 1 file (`test_snapshot_canonical_outputs.cpp`).
-- Compat tests: 3 files (`test_compat_authority_suite.cpp`, `test_compat_window_plugin_profiles.cpp`, `test_compat_plugin_fixtures.cpp`).
+- Compat tests: 4 files (`test_compat_authority_suite.cpp`, `test_compat_window_plugin_profiles.cpp`, `test_compat_plugin_fixtures.cpp`, `test_compat_plugin_failure_diagnostics.cpp`).
 - Release validation snapshot (2026-03-05):
-  - `urpg_tests`: 847 assertions / 207 test cases
+  - `urpg_tests`: 1183 assertions / 231 test cases
   - `urpg_integration_tests`: 10 assertions / 2 test cases
   - `urpg_snapshot_tests`: 4 assertions / 2 test cases
-  - `urpg_compat_tests`: 125 assertions / 3 test cases
+  - `urpg_compat_tests`: 534 assertions / 10 test cases
 
 - CLI tools:
   - `urpg_migrate` - migration runner CLI (`tools/migrate/migrate_cli.cpp`)
@@ -213,7 +227,7 @@ The following table maps documentation contracts to their actual source implemen
 
 ### Next Execution Lanes
 
-1. Complete Phase 2 Compat Layer: validate wired compat modules/tests against 10 real-world MZ plugins and close remaining PARTIAL/STUB deviations.
+1. Phase 2 validation hardening: run deeper executable conformance/failure-path diagnostics across curated 10-plugin profiles and gate compat regressions.
 2. Phase 3 Copilot + Polish: Producer Copilot canon-aware generation, cutscene timeline editor, full debugger profiler.
 
 ## 0 — Core Philosophy

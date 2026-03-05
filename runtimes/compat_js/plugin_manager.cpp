@@ -4,10 +4,17 @@
 #include "plugin_manager.h"
 #include <algorithm>
 #include <cassert>
+#include <chrono>
+#include <condition_variable>
 #include <cmath>
+#include <ctime>
+#include <deque>
 #include <filesystem>
 #include <fstream>
+#include <mutex>
 #include <nlohmann/json.hpp>
+#include <sstream>
+#include <thread>
 
 namespace urpg {
 namespace compat {
@@ -86,6 +93,25 @@ std::string valueToString(const Value& value) {
         return "{object}";
     }
     return "";
+}
+
+std::string currentUtcTimestampIso8601() {
+    using clock = std::chrono::system_clock;
+    const auto now = clock::now();
+    const std::time_t raw = clock::to_time_t(now);
+
+    std::tm utcTm{};
+#if defined(_WIN32)
+    gmtime_s(&utcTm, &raw);
+#else
+    gmtime_r(&raw, &utcTm);
+#endif
+
+    char buffer[32];
+    if (std::strftime(buffer, sizeof(buffer), "%Y-%m-%dT%H:%M:%SZ", &utcTm) == 0) {
+        return "1970-01-01T00:00:00Z";
+    }
+    return buffer;
 }
 
 struct FixtureScriptContext {
@@ -463,6 +489,14 @@ std::unordered_map<std::string, std::string> PluginManager::methodDeviations_;
 
 class PluginManagerImpl {
 public:
+    struct AsyncCommandTask {
+        std::string pluginName;
+        std::string commandName;
+        std::vector<Value> args;
+        std::function<void(const Value&)> callback;
+        uint64_t sequence = 0;
+    };
+
     // Plugin registry
     std::unordered_map<std::string, PluginInfo> plugins_;
     
@@ -483,15 +517,69 @@ public:
     std::string lastError_;
     std::function<void(const std::string&, const std::string&, const std::string&)> errorHandler_;
 
+    // Structured diagnostics for failure-path artifact export.
+    std::vector<std::string> failureDiagnosticsJsonl_;
+    uint64_t nextFailureDiagnosticSequence_ = 1;
+
     // Plugin source path tracking (used by reload)
     std::unordered_map<std::string, std::string> pluginSourcePaths_;
 
     // QuickJS runtime bridge for fixture-backed command execution
     QuickJSRuntime runtime_;
     bool runtimeInitialized_ = false;
+    mutable std::recursive_mutex stateMutex_;
+
+    // Async command queue (FIFO)
+    std::mutex asyncMutex_;
+    std::condition_variable asyncCv_;
+    std::deque<AsyncCommandTask> asyncQueue_;
+    std::thread asyncWorker_;
+    bool stopAsyncWorker_ = false;
+    uint64_t nextAsyncSequence_ = 1;
 
     PluginManagerImpl()
         : runtimeInitialized_(runtime_.initialize()) {}
+
+    void enqueueAsyncTask(AsyncCommandTask task) {
+        {
+            std::lock_guard<std::mutex> lock(asyncMutex_);
+            task.sequence = nextAsyncSequence_++;
+            asyncQueue_.push_back(std::move(task));
+        }
+        asyncCv_.notify_one();
+    }
+
+    void appendFailureDiagnostic(const std::string& pluginName,
+                                 const std::string& commandName,
+                                 const std::string& operation,
+                                 const std::string& message) {
+        nlohmann::json diagnostic;
+        diagnostic["seq"] = nextFailureDiagnosticSequence_++;
+        diagnostic["ts"] = currentUtcTimestampIso8601();
+        diagnostic["subsystem"] = "plugin_manager";
+        diagnostic["event"] = "compat_failure";
+        diagnostic["plugin"] = pluginName;
+        diagnostic["command"] = commandName;
+        diagnostic["operation"] = operation;
+        diagnostic["message"] = message;
+        failureDiagnosticsJsonl_.push_back(diagnostic.dump());
+
+        constexpr size_t kMaxFailureDiagnostics = 2048;
+        if (failureDiagnosticsJsonl_.size() > kMaxFailureDiagnostics) {
+            failureDiagnosticsJsonl_.erase(failureDiagnosticsJsonl_.begin());
+        }
+    }
+
+    void reportFailure(const std::string& pluginName,
+                       const std::string& commandName,
+                       const std::string& operation,
+                       const std::string& message) {
+        lastError_ = message;
+        appendFailureDiagnostic(pluginName, commandName, operation, message);
+        if (errorHandler_) {
+            errorHandler_(pluginName, commandName, message);
+        }
+    }
 
     QuickJSContext* ensurePluginContext(const std::string& pluginName) {
         if (!runtimeInitialized_) {
@@ -535,9 +623,42 @@ PluginManager::PluginManager()
     : impl_(std::make_unique<PluginManagerImpl>())
 {
     initializeMethodStatus();
+
+    impl_->asyncWorker_ = std::thread([this]() {
+        while (true) {
+            PluginManagerImpl::AsyncCommandTask task;
+            {
+                std::unique_lock<std::mutex> lock(impl_->asyncMutex_);
+                impl_->asyncCv_.wait(lock, [this]() {
+                    return impl_->stopAsyncWorker_ || !impl_->asyncQueue_.empty();
+                });
+
+                if (impl_->stopAsyncWorker_ && impl_->asyncQueue_.empty()) {
+                    return;
+                }
+
+                task = std::move(impl_->asyncQueue_.front());
+                impl_->asyncQueue_.pop_front();
+            }
+
+            const Value result = executeCommand(task.pluginName, task.commandName, task.args);
+            if (task.callback) {
+                task.callback(result);
+            }
+        }
+    });
 }
 
-PluginManager::~PluginManager() = default;
+PluginManager::~PluginManager() {
+    {
+        std::lock_guard<std::mutex> lock(impl_->asyncMutex_);
+        impl_->stopAsyncWorker_ = true;
+    }
+    impl_->asyncCv_.notify_all();
+    if (impl_->asyncWorker_.joinable()) {
+        impl_->asyncWorker_.join();
+    }
+}
 
 PluginManager& PluginManager::instance() {
     static PluginManager instance;
@@ -571,8 +692,7 @@ void PluginManager::initializeMethodStatus() {
         // Command execution
         methodStatus_["executeCommand"] = CompatStatus::FULL;
         methodStatus_["executeCommandByName"] = CompatStatus::FULL;
-        methodStatus_["executeCommandAsync"] = CompatStatus::PARTIAL;
-        methodDeviations_["executeCommandAsync"] = "Async execution may have different timing than MZ";
+        methodStatus_["executeCommandAsync"] = CompatStatus::FULL;
         
         // Parameter management
         methodStatus_["setParameter"] = CompatStatus::FULL;
@@ -598,6 +718,8 @@ void PluginManager::initializeMethodStatus() {
         methodStatus_["getLastError"] = CompatStatus::FULL;
         methodStatus_["clearLastError"] = CompatStatus::FULL;
         methodStatus_["setErrorHandler"] = CompatStatus::FULL;
+        methodStatus_["exportFailureDiagnosticsJsonl"] = CompatStatus::FULL;
+        methodStatus_["clearFailureDiagnostics"] = CompatStatus::FULL;
     }
 }
 
@@ -606,31 +728,59 @@ void PluginManager::initializeMethodStatus() {
 // ============================================================================
 
 bool PluginManager::loadPlugin(const std::string& path) {
+    std::lock_guard<std::recursive_mutex> lock(impl_->stateMutex_);
     impl_->lastError_.clear();
     const std::filesystem::path pluginPath(path);
+    const std::string pluginHint = pluginPath.has_stem() ? pluginPath.stem().string() : path;
+    const auto reportLoadFailure = [&](const std::string& pluginName,
+                                       const std::string& commandName,
+                                       const std::string& operation,
+                                       const std::string& message) {
+        impl_->reportFailure(pluginName, commandName, operation, message);
+    };
 
     // Fixture path: JSON files contain executable plugin command fixtures.
     if (pluginPath.has_extension() && pluginPath.extension() == ".json" &&
         std::filesystem::exists(pluginPath)) {
         std::ifstream input(pluginPath);
         if (!input.is_open()) {
-            impl_->lastError_ = "Failed to open plugin fixture: " + path;
+            reportLoadFailure(
+                pluginHint,
+                "",
+                "load_plugin_fixture_open",
+                "Failed to open plugin fixture: " + path
+            );
             return false;
         }
 
         nlohmann::json fixture = nlohmann::json::parse(input, nullptr, false);
         if (fixture.is_discarded() || !fixture.is_object()) {
-            impl_->lastError_ = "Invalid plugin fixture JSON: " + path;
+            reportLoadFailure(
+                pluginHint,
+                "",
+                "load_plugin_fixture_parse",
+                "Invalid plugin fixture JSON: " + path
+            );
             return false;
         }
 
         std::string name = fixture.value("name", pluginPath.stem().string());
         if (name.empty()) {
-            impl_->lastError_ = "Fixture plugin name cannot be empty: " + path;
+            reportLoadFailure(
+                pluginHint,
+                "",
+                "load_plugin_fixture_name",
+                "Fixture plugin name cannot be empty: " + path
+            );
             return false;
         }
         if (impl_->plugins_.find(name) != impl_->plugins_.end()) {
-            impl_->lastError_ = "Plugin already registered: " + name;
+            reportLoadFailure(
+                name,
+                "",
+                "load_plugin_duplicate",
+                "Plugin already registered: " + name
+            );
             return false;
         }
 
@@ -683,14 +833,24 @@ bool PluginManager::loadPlugin(const std::string& path) {
                     jsIt != cmd.end() && jsIt->is_string()) {
                     QuickJSContext* pluginContext = impl_->ensurePluginContext(name);
                     if (!pluginContext) {
-                        impl_->lastError_ = "Failed to initialize QuickJS context for plugin: " + name;
+                        reportLoadFailure(
+                            name,
+                            commandName,
+                            "load_plugin_quickjs_context",
+                            "Failed to initialize QuickJS context for plugin: " + name
+                        );
                         rollbackFixturePlugin();
                         return false;
                     }
 
                     const std::string entryPoint = cmd.value("entry", commandName);
                     if (entryPoint.empty()) {
-                        impl_->lastError_ = "Fixture JS command entry cannot be empty: " + commandName;
+                        reportLoadFailure(
+                            name,
+                            commandName,
+                            "load_plugin_js_entry",
+                            "Fixture JS command entry cannot be empty: " + commandName
+                        );
                         rollbackFixturePlugin();
                         return false;
                     }
@@ -699,10 +859,11 @@ bool PluginManager::loadPlugin(const std::string& path) {
                     const ScriptResult evalResult =
                         pluginContext->eval(jsSource, path + "#" + name + "." + commandName);
                     if (!evalResult.success) {
-                        impl_->lastError_ =
+                        const std::string message =
                             !evalResult.error.empty()
                                 ? evalResult.error
                                 : ("Failed to evaluate fixture JS for command: " + commandName);
+                        reportLoadFailure(name, commandName, "load_plugin_js_eval", message);
                         rollbackFixturePlugin();
                         return false;
                     }
@@ -713,27 +874,40 @@ bool PluginManager::loadPlugin(const std::string& path) {
                         [this, name, commandName, entryPoint](const std::vector<Value>& args) -> Value {
                             QuickJSContext* context = impl_->getPluginContext(name);
                             if (!context) {
-                                impl_->lastError_ = "QuickJS context missing for plugin: " + name;
-                                if (impl_->errorHandler_) {
-                                    impl_->errorHandler_(name, commandName, impl_->lastError_);
-                                }
+                                impl_->reportFailure(
+                                    name,
+                                    commandName,
+                                    "execute_command_quickjs_context_missing",
+                                    "QuickJS context missing for plugin: " + name
+                                );
                                 return Value::Nil();
                             }
 
                             const ScriptResult result = context->call(entryPoint, args);
                             if (!result.success) {
-                                impl_->lastError_ =
+                                const std::string message =
                                     !result.error.empty()
                                         ? result.error
                                         : ("QuickJS command failed: " + name + "_" + commandName);
-                                if (impl_->errorHandler_) {
-                                    impl_->errorHandler_(name, commandName, impl_->lastError_);
-                                }
+                                impl_->reportFailure(
+                                    name,
+                                    commandName,
+                                    "execute_command_quickjs_call",
+                                    message
+                                );
                                 return Value::Nil();
                             }
                             return result.value;
                         },
                         description)) {
+                        reportLoadFailure(
+                            name,
+                            commandName,
+                            "load_plugin_register_command",
+                            impl_->lastError_.empty()
+                                ? ("Failed registering command: " + commandName)
+                                : impl_->lastError_
+                        );
                         rollbackFixturePlugin();
                         return false;
                     }
@@ -744,7 +918,12 @@ bool PluginManager::loadPlugin(const std::string& path) {
                     scriptIt != cmd.end() && scriptIt->is_array()) {
                     QuickJSContext* pluginContext = impl_->ensurePluginContext(name);
                     if (!pluginContext) {
-                        impl_->lastError_ = "Failed to initialize QuickJS context for plugin: " + name;
+                        reportLoadFailure(
+                            name,
+                            commandName,
+                            "load_plugin_quickjs_context",
+                            "Failed to initialize QuickJS context for plugin: " + name
+                        );
                         rollbackFixturePlugin();
                         return false;
                     }
@@ -767,7 +946,12 @@ bool PluginManager::loadPlugin(const std::string& path) {
                                     params
                                 );
                             })) {
-                        impl_->lastError_ = "Failed to register QuickJS fixture function for command: " + commandName;
+                        reportLoadFailure(
+                            name,
+                            commandName,
+                            "load_plugin_register_script_fn",
+                            "Failed to register QuickJS fixture function for command: " + commandName
+                        );
                         rollbackFixturePlugin();
                         return false;
                     }
@@ -778,35 +962,40 @@ bool PluginManager::loadPlugin(const std::string& path) {
                         [this, pluginForCommand, commandForCommand](const std::vector<Value>& args) -> Value {
                             QuickJSContext* context = impl_->getPluginContext(pluginForCommand);
                             if (!context) {
-                                impl_->lastError_ = "QuickJS context missing for plugin: " + pluginForCommand;
-                                if (impl_->errorHandler_) {
-                                    impl_->errorHandler_(
-                                        pluginForCommand,
-                                        commandForCommand,
-                                        impl_->lastError_
-                                    );
-                                }
+                                impl_->reportFailure(
+                                    pluginForCommand,
+                                    commandForCommand,
+                                    "execute_command_quickjs_context_missing",
+                                    "QuickJS context missing for plugin: " + pluginForCommand
+                                );
                                 return Value::Nil();
                             }
 
                             const ScriptResult result = context->call(commandForCommand, args);
                             if (!result.success) {
-                                impl_->lastError_ =
+                                const std::string message =
                                     !result.error.empty()
                                         ? result.error
                                         : ("QuickJS command failed: " + pluginForCommand + "_" + commandForCommand);
-                                if (impl_->errorHandler_) {
-                                    impl_->errorHandler_(
-                                        pluginForCommand,
-                                        commandForCommand,
-                                        impl_->lastError_
-                                    );
-                                }
+                                impl_->reportFailure(
+                                    pluginForCommand,
+                                    commandForCommand,
+                                    "execute_command_quickjs_call",
+                                    message
+                                );
                                 return Value::Nil();
                             }
                             return result.value;
                         },
                         description)) {
+                        reportLoadFailure(
+                            name,
+                            commandName,
+                            "load_plugin_register_command",
+                            impl_->lastError_.empty()
+                                ? ("Failed registering command: " + commandName)
+                                : impl_->lastError_
+                        );
                         rollbackFixturePlugin();
                         return false;
                     }
@@ -822,6 +1011,14 @@ bool PluginManager::loadPlugin(const std::string& path) {
                             return Value::Int(static_cast<int64_t>(args.size()));
                         },
                         description)) {
+                        reportLoadFailure(
+                            name,
+                            commandName,
+                            "load_plugin_register_command",
+                            impl_->lastError_.empty()
+                                ? ("Failed registering command: " + commandName)
+                                : impl_->lastError_
+                        );
                         rollbackFixturePlugin();
                         return false;
                     }
@@ -837,6 +1034,14 @@ bool PluginManager::loadPlugin(const std::string& path) {
                         return constantValue;
                     },
                     description)) {
+                    reportLoadFailure(
+                        name,
+                        commandName,
+                        "load_plugin_register_command",
+                        impl_->lastError_.empty()
+                            ? ("Failed registering command: " + commandName)
+                            : impl_->lastError_
+                    );
                     rollbackFixturePlugin();
                     return false;
                 }
@@ -850,11 +1055,11 @@ bool PluginManager::loadPlugin(const std::string& path) {
     // Legacy fallback used by existing tests: derive name from path only.
     const std::string name = pluginNameFromPath(path);
     if (name.empty()) {
-        impl_->lastError_ = "Plugin name cannot be empty";
+        reportLoadFailure("", "", "load_plugin_name", "Plugin name cannot be empty");
         return false;
     }
     if (impl_->plugins_.find(name) != impl_->plugins_.end()) {
-        impl_->lastError_ = "Plugin already registered: " + name;
+        reportLoadFailure(name, "", "load_plugin_duplicate", "Plugin already registered: " + name);
         return false;
     }
 
@@ -869,7 +1074,12 @@ bool PluginManager::loadPlugin(const std::string& path) {
         if (!impl_->ensurePluginContext(name)) {
             impl_->plugins_.erase(name);
             impl_->pluginSourcePaths_.erase(name);
-            impl_->lastError_ = "Failed to initialize QuickJS context for plugin: " + name;
+            reportLoadFailure(
+                name,
+                "",
+                "load_plugin_quickjs_context",
+                "Failed to initialize QuickJS context for plugin: " + name
+            );
             return false;
         }
     }
@@ -879,6 +1089,7 @@ bool PluginManager::loadPlugin(const std::string& path) {
 }
 
 bool PluginManager::unloadPlugin(const std::string& name) {
+    std::lock_guard<std::recursive_mutex> lock(impl_->stateMutex_);
     impl_->lastError_.clear();
     
     auto it = impl_->plugins_.find(name);
@@ -905,6 +1116,7 @@ bool PluginManager::unloadPlugin(const std::string& name) {
 }
 
 bool PluginManager::reloadPlugin(const std::string& name) {
+    std::lock_guard<std::recursive_mutex> lock(impl_->stateMutex_);
     impl_->lastError_.clear();
     
     auto it = impl_->plugins_.find(name);
@@ -928,19 +1140,20 @@ bool PluginManager::reloadPlugin(const std::string& name) {
 }
 
 int32_t PluginManager::loadPluginsFromDirectory(const std::string& directory) {
+    std::lock_guard<std::recursive_mutex> lock(impl_->stateMutex_);
     impl_->lastError_.clear();
 
     std::error_code ec;
     const std::filesystem::path dirPath(directory);
     if (!std::filesystem::exists(dirPath, ec) || !std::filesystem::is_directory(dirPath, ec)) {
-        impl_->lastError_ = "Plugin directory not found: " + directory;
+        impl_->reportFailure("", "", "load_plugins_directory", "Plugin directory not found: " + directory);
         return 0;
     }
 
     int32_t loadedCount = 0;
     for (const auto& entry : std::filesystem::directory_iterator(dirPath, ec)) {
         if (ec) {
-            impl_->lastError_ = "Failed scanning plugin directory: " + directory;
+            impl_->reportFailure("", "", "load_plugins_directory_scan", "Failed scanning plugin directory: " + directory);
             return loadedCount;
         }
         if (!entry.is_regular_file(ec)) {
@@ -962,6 +1175,7 @@ int32_t PluginManager::loadPluginsFromDirectory(const std::string& directory) {
 }
 
 void PluginManager::unloadAllPlugins() {
+    std::lock_guard<std::recursive_mutex> lock(impl_->stateMutex_);
     // Get list of plugins to unload (copy because we're modifying)
     std::vector<std::string> names;
     for (const auto& [name, info] : impl_->plugins_) {
@@ -979,6 +1193,7 @@ void PluginManager::unloadAllPlugins() {
 // ============================================================================
 
 bool PluginManager::registerPlugin(const PluginInfo& info) {
+    std::lock_guard<std::recursive_mutex> lock(impl_->stateMutex_);
     impl_->lastError_.clear();
     
     if (info.name.empty()) {
@@ -1000,15 +1215,18 @@ bool PluginManager::registerPlugin(const PluginInfo& info) {
 }
 
 bool PluginManager::unregisterPlugin(const std::string& name) {
+    std::lock_guard<std::recursive_mutex> lock(impl_->stateMutex_);
     return unloadPlugin(name);
 }
 
 bool PluginManager::isPluginLoaded(const std::string& name) const {
+    std::lock_guard<std::recursive_mutex> lock(impl_->stateMutex_);
     auto it = impl_->plugins_.find(name);
     return it != impl_->plugins_.end() && it->second.loaded;
 }
 
 const PluginInfo* PluginManager::getPluginInfo(const std::string& name) const {
+    std::lock_guard<std::recursive_mutex> lock(impl_->stateMutex_);
     auto it = impl_->plugins_.find(name);
     if (it != impl_->plugins_.end()) {
         return &it->second;
@@ -1017,6 +1235,7 @@ const PluginInfo* PluginManager::getPluginInfo(const std::string& name) const {
 }
 
 std::vector<std::string> PluginManager::getLoadedPlugins() const {
+    std::lock_guard<std::recursive_mutex> lock(impl_->stateMutex_);
     std::vector<std::string> result;
     for (const auto& [name, info] : impl_->plugins_) {
         if (info.loaded) {
@@ -1034,6 +1253,7 @@ bool PluginManager::registerCommand(const std::string& pluginName,
                                    const std::string& commandName,
                                    PluginCommandHandler handler,
                                    const std::string& description) {
+    std::lock_guard<std::recursive_mutex> lock(impl_->stateMutex_);
     impl_->lastError_.clear();
     
     if (!handler) {
@@ -1073,6 +1293,7 @@ bool PluginManager::registerCommand(const std::string& pluginName,
 
 bool PluginManager::unregisterCommand(const std::string& pluginName,
                                      const std::string& commandName) {
+    std::lock_guard<std::recursive_mutex> lock(impl_->stateMutex_);
     impl_->lastError_.clear();
     
     std::string fullKey = pluginName + "_" + commandName;
@@ -1091,6 +1312,7 @@ bool PluginManager::unregisterCommand(const std::string& pluginName,
 }
 
 int32_t PluginManager::unregisterAllCommands(const std::string& pluginName) {
+    std::lock_guard<std::recursive_mutex> lock(impl_->stateMutex_);
     int32_t count = 0;
     
     // Find and remove all commands for this plugin
@@ -1113,12 +1335,14 @@ int32_t PluginManager::unregisterAllCommands(const std::string& pluginName) {
 
 bool PluginManager::hasCommand(const std::string& pluginName,
                               const std::string& commandName) const {
+    std::lock_guard<std::recursive_mutex> lock(impl_->stateMutex_);
     std::string fullKey = pluginName + "_" + commandName;
     return impl_->commands_.find(fullKey) != impl_->commands_.end();
 }
 
 const CommandInfo* PluginManager::getCommandInfo(const std::string& pluginName,
                                                 const std::string& commandName) const {
+    std::lock_guard<std::recursive_mutex> lock(impl_->stateMutex_);
     std::string fullKey = pluginName + "_" + commandName;
     auto it = impl_->commands_.find(fullKey);
     if (it != impl_->commands_.end()) {
@@ -1128,6 +1352,7 @@ const CommandInfo* PluginManager::getCommandInfo(const std::string& pluginName,
 }
 
 std::vector<std::string> PluginManager::getPluginCommands(const std::string& pluginName) const {
+    std::lock_guard<std::recursive_mutex> lock(impl_->stateMutex_);
     std::vector<std::string> result;
     
     for (const auto& [key, cmd] : impl_->commands_) {
@@ -1146,13 +1371,18 @@ std::vector<std::string> PluginManager::getPluginCommands(const std::string& plu
 Value PluginManager::executeCommand(const std::string& pluginName,
                                    const std::string& commandName,
                                    const std::vector<Value>& args) {
+    std::lock_guard<std::recursive_mutex> lock(impl_->stateMutex_);
     impl_->lastError_.clear();
+
+    const auto reportCommandError = [&](const std::string& message) {
+        impl_->reportFailure(pluginName, commandName, "execute_command", message);
+    };
     
     std::string fullKey = pluginName + "_" + commandName;
     
     auto it = impl_->commands_.find(fullKey);
     if (it == impl_->commands_.end()) {
-        impl_->lastError_ = "Command not found: " + fullKey;
+        reportCommandError("Command not found: " + fullKey);
         return Value();
     }
     
@@ -1168,17 +1398,9 @@ Value PluginManager::executeCommand(const std::string& pluginName,
     try {
         result = it->second.handler(args);
     } catch (const std::exception& e) {
-        impl_->lastError_ = std::string("Command execution error: ") + e.what();
-        
-        if (impl_->errorHandler_) {
-            impl_->errorHandler_(pluginName, commandName, impl_->lastError_);
-        }
+        reportCommandError(std::string("Command execution error: ") + e.what());
     } catch (...) {
-        impl_->lastError_ = "Unknown command execution error";
-        
-        if (impl_->errorHandler_) {
-            impl_->errorHandler_(pluginName, commandName, impl_->lastError_);
-        }
+        reportCommandError("Unknown command execution error");
     }
     
     // Pop execution context
@@ -1189,10 +1411,12 @@ Value PluginManager::executeCommand(const std::string& pluginName,
 
 Value PluginManager::executeCommandByName(const std::string& fullName,
                                          const std::vector<Value>& args) {
+    std::lock_guard<std::recursive_mutex> lock(impl_->stateMutex_);
+    impl_->lastError_.clear();
     // Parse full name (pluginName_commandName)
     size_t underscorePos = fullName.rfind('_');
     if (underscorePos == std::string::npos) {
-        impl_->lastError_ = "Invalid command name format: " + fullName;
+        impl_->reportFailure("", fullName, "execute_command_by_name_parse", "Invalid command name format: " + fullName);
         return Value();
     }
     
@@ -1206,13 +1430,12 @@ void PluginManager::executeCommandAsync(const std::string& pluginName,
                                        const std::string& commandName,
                                        const std::vector<Value>& args,
                                        std::function<void(const Value&)> callback) {
-    // TODO: Implement proper async execution with task queue
-    // For now, execute synchronously and call callback
-    Value result = executeCommand(pluginName, commandName, args);
-    
-    if (callback) {
-        callback(result);
-    }
+    PluginManagerImpl::AsyncCommandTask task;
+    task.pluginName = pluginName;
+    task.commandName = commandName;
+    task.args = args;
+    task.callback = std::move(callback);
+    impl_->enqueueAsyncTask(std::move(task));
 }
 
 // ============================================================================
@@ -1222,6 +1445,7 @@ void PluginManager::executeCommandAsync(const std::string& pluginName,
 void PluginManager::setParameter(const std::string& pluginName,
                                 const std::string& paramName,
                                 const Value& value) {
+    std::lock_guard<std::recursive_mutex> lock(impl_->stateMutex_);
     impl_->parameters_[pluginName][paramName] = value;
     
     triggerEvent(pluginName, PluginEvent::ON_PARAMETER_CHANGED);
@@ -1229,6 +1453,7 @@ void PluginManager::setParameter(const std::string& pluginName,
 
 Value PluginManager::getParameter(const std::string& pluginName,
                                  const std::string& paramName) const {
+    std::lock_guard<std::recursive_mutex> lock(impl_->stateMutex_);
     auto pluginIt = impl_->parameters_.find(pluginName);
     if (pluginIt == impl_->parameters_.end()) {
         return Value();
@@ -1253,6 +1478,7 @@ Value PluginManager::getParameter(const std::string& pluginName,
 }
 
 std::unordered_map<std::string, Value> PluginManager::getParameters(const std::string& pluginName) const {
+    std::lock_guard<std::recursive_mutex> lock(impl_->stateMutex_);
     auto it = impl_->parameters_.find(pluginName);
     if (it != impl_->parameters_.end()) {
         return it->second;
@@ -1262,16 +1488,17 @@ std::unordered_map<std::string, Value> PluginManager::getParameters(const std::s
 
 bool PluginManager::parseParameters(const std::string& pluginName,
                                    const std::string& json) {
+    std::lock_guard<std::recursive_mutex> lock(impl_->stateMutex_);
     impl_->lastError_.clear();
 
     if (pluginName.empty()) {
-        impl_->lastError_ = "Plugin name cannot be empty";
+        impl_->reportFailure("", "", "parse_parameters_name", "Plugin name cannot be empty");
         return false;
     }
 
     nlohmann::json parsed = nlohmann::json::parse(json, nullptr, false);
     if (parsed.is_discarded() || !parsed.is_object()) {
-        impl_->lastError_ = "Parameter JSON must be a valid object";
+        impl_->reportFailure(pluginName, "", "parse_parameters_json", "Parameter JSON must be a valid object");
         return false;
     }
 
@@ -1301,6 +1528,7 @@ bool PluginManager::checkDependencies(const std::string& pluginName) const {
 }
 
 std::vector<std::string> PluginManager::getMissingDependencies(const std::string& pluginName) const {
+    std::lock_guard<std::recursive_mutex> lock(impl_->stateMutex_);
     std::vector<std::string> missing;
     
     auto it = impl_->plugins_.find(pluginName);
@@ -1318,6 +1546,7 @@ std::vector<std::string> PluginManager::getMissingDependencies(const std::string
 }
 
 std::vector<std::string> PluginManager::getDependents(const std::string& pluginName) const {
+    std::lock_guard<std::recursive_mutex> lock(impl_->stateMutex_);
     std::vector<std::string> dependents;
     
     for (const auto& [name, info] : impl_->plugins_) {
@@ -1337,18 +1566,21 @@ std::vector<std::string> PluginManager::getDependents(const std::string& pluginN
 // ============================================================================
 
 int32_t PluginManager::registerEventHandler(PluginEvent event, PluginEventHandler handler) {
+    std::lock_guard<std::recursive_mutex> lock(impl_->stateMutex_);
     int32_t id = impl_->nextHandlerId_++;
     impl_->eventHandlers_[event][id] = std::move(handler);
     return id;
 }
 
 void PluginManager::unregisterEventHandler(int32_t handlerId) {
+    std::lock_guard<std::recursive_mutex> lock(impl_->stateMutex_);
     for (auto& [event, handlers] : impl_->eventHandlers_) {
         handlers.erase(handlerId);
     }
 }
 
 void PluginManager::triggerEvent(const std::string& pluginName, PluginEvent event) {
+    std::lock_guard<std::recursive_mutex> lock(impl_->stateMutex_);
     auto it = impl_->eventHandlers_.find(event);
     if (it != impl_->eventHandlers_.end()) {
         for (const auto& [id, handler] : it->second) {
@@ -1362,6 +1594,7 @@ void PluginManager::triggerEvent(const std::string& pluginName, PluginEvent even
 // ============================================================================
 
 const PluginContext* PluginManager::getCurrentContext() const {
+    std::lock_guard<std::recursive_mutex> lock(impl_->stateMutex_);
     if (impl_->contextStack_.empty()) {
         return nullptr;
     }
@@ -1369,10 +1602,12 @@ const PluginContext* PluginManager::getCurrentContext() const {
 }
 
 bool PluginManager::isExecuting() const {
+    std::lock_guard<std::recursive_mutex> lock(impl_->stateMutex_);
     return !impl_->contextStack_.empty();
 }
 
 std::string PluginManager::getCurrentPlugin() const {
+    std::lock_guard<std::recursive_mutex> lock(impl_->stateMutex_);
     if (impl_->contextStack_.empty()) {
         return "";
     }
@@ -1384,17 +1619,41 @@ std::string PluginManager::getCurrentPlugin() const {
 // ============================================================================
 
 std::string PluginManager::getLastError() const {
+    std::lock_guard<std::recursive_mutex> lock(impl_->stateMutex_);
     return impl_->lastError_;
 }
 
 void PluginManager::clearLastError() {
+    std::lock_guard<std::recursive_mutex> lock(impl_->stateMutex_);
     impl_->lastError_.clear();
 }
 
 void PluginManager::setErrorHandler(std::function<void(const std::string& pluginName,
                                                       const std::string& commandName,
                                                       const std::string& error)> handler) {
+    std::lock_guard<std::recursive_mutex> lock(impl_->stateMutex_);
     impl_->errorHandler_ = std::move(handler);
+}
+
+std::string PluginManager::exportFailureDiagnosticsJsonl() const {
+    std::lock_guard<std::recursive_mutex> lock(impl_->stateMutex_);
+    if (impl_->failureDiagnosticsJsonl_.empty()) {
+        return "";
+    }
+
+    std::ostringstream out;
+    for (size_t i = 0; i < impl_->failureDiagnosticsJsonl_.size(); ++i) {
+        out << impl_->failureDiagnosticsJsonl_[i];
+        if (i + 1 < impl_->failureDiagnosticsJsonl_.size()) {
+            out << '\n';
+        }
+    }
+    return out.str();
+}
+
+void PluginManager::clearFailureDiagnostics() {
+    std::lock_guard<std::recursive_mutex> lock(impl_->stateMutex_);
+    impl_->failureDiagnosticsJsonl_.clear();
 }
 
 // ============================================================================

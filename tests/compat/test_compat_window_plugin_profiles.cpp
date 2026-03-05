@@ -31,7 +31,7 @@ std::vector<PluginProfile> buildCuratedProfiles() {
             {
                 {"Window_Base.drawText", CompatStatus::FULL},
                 {"Window_Base.drawIcon", CompatStatus::FULL},
-                {"Window_Base.drawTextEx", CompatStatus::PARTIAL},
+                {"Window_Base.drawTextEx", CompatStatus::FULL},
                 {"Window_Base.lineHeight", CompatStatus::FULL},
             }
         },
@@ -73,6 +73,7 @@ std::vector<PluginProfile> buildCuratedProfiles() {
         {
             "EliMZ_Book",
             {
+                {"Window_Base.drawActorFace", CompatStatus::FULL},
                 {"Window_Base.drawActorName", CompatStatus::FULL},
                 {"Window_Base.drawActorLevel", CompatStatus::FULL},
                 {"Window_Base.drawActorHp", CompatStatus::FULL},
@@ -91,7 +92,8 @@ std::vector<PluginProfile> buildCuratedProfiles() {
             "MOG_BattleHud_MZ",
             {
                 {"Sprite_Actor.startMotion", CompatStatus::FULL},
-                {"Sprite_Actor.startEffect", CompatStatus::PARTIAL},
+                {"Sprite_Actor.startAnimation", CompatStatus::FULL},
+                {"Sprite_Actor.startEffect", CompatStatus::FULL},
                 {"Sprite_Actor.setOpacity", CompatStatus::FULL},
             }
         },

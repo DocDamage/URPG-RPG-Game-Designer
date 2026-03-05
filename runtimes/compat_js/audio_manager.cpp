@@ -100,6 +100,18 @@ void AudioChannel::update() {
 // AudioManagerImpl
 // ============================================================================
 
+struct PendingCrossfade {
+    bool active = false;
+    std::string filename;
+    double targetVolumePercent = 90.0;
+    double targetPitchPercent = 100.0;
+    int32_t targetPos = 0;
+    int32_t durationFrames = 0;
+    int32_t elapsedFrames = 0;
+    double sourceVolume = 1.0;
+    bool switchedTrack = false;
+};
+
 class AudioManagerImpl {
 public:
     std::vector<std::unique_ptr<AudioChannel>> channels_;
@@ -113,9 +125,11 @@ public:
     AudioInfo savedBgm_;
     bool bgmDucked_ = false;
     double bgmDuckVolume_ = 1.0;
-    
+    PendingCrossfade bgmCrossfade_;
+
     // BGS state
     AudioChannel* bgsChannel_ = nullptr;
+    PendingCrossfade bgsCrossfade_;
     
     // ME state
     AudioChannel* meChannel_ = nullptr;
@@ -145,8 +159,7 @@ AudioManager::AudioManager()
         methodStatus_["stopBgm"] = CompatStatus::FULL;
         methodStatus_["pauseBgm"] = CompatStatus::FULL;
         methodStatus_["resumeBgm"] = CompatStatus::FULL;
-        methodStatus_["crossfadeBgm"] = CompatStatus::PARTIAL;
-        methodDeviations_["crossfadeBgm"] = "Crossfade timing may differ slightly from MZ";
+        methodStatus_["crossfadeBgm"] = CompatStatus::FULL;
         methodStatus_["saveBgmSettings"] = CompatStatus::FULL;
         methodStatus_["restoreBgmSettings"] = CompatStatus::FULL;
         methodStatus_["isBgmPlaying"] = CompatStatus::FULL;
@@ -156,8 +169,7 @@ AudioManager::AudioManager()
         // BGS
         methodStatus_["playBgs"] = CompatStatus::FULL;
         methodStatus_["stopBgs"] = CompatStatus::FULL;
-        methodStatus_["crossfadeBgs"] = CompatStatus::PARTIAL;
-        methodDeviations_["crossfadeBgs"] = "Crossfade timing may differ slightly from MZ";
+        methodStatus_["crossfadeBgs"] = CompatStatus::FULL;
         
         // ME
         methodStatus_["playMe"] = CompatStatus::FULL;
@@ -253,6 +265,7 @@ AudioChannel* AudioManager::getChannel(uint32_t id) {
 // ============================================================================
 
 void AudioManager::playBgm(const std::string& filename, double volume, double pitch, int32_t pos) {
+    impl_->bgmCrossfade_.active = false;
     if (!impl_->bgmChannel_) {
         createChannel("bgm", AudioBus::BGM);
         impl_->bgmChannel_ = getChannel("bgm");
@@ -264,6 +277,7 @@ void AudioManager::playBgm(const std::string& filename, double volume, double pi
 }
 
 void AudioManager::stopBgm() {
+    impl_->bgmCrossfade_.active = false;
     if (impl_->bgmChannel_) {
         impl_->bgmChannel_->stop();
     }
@@ -282,15 +296,25 @@ void AudioManager::resumeBgm() {
 }
 
 void AudioManager::crossfadeBgm(const std::string& filename, double volume, double pitch, int32_t duration) {
-    // TODO: Implement actual crossfade with timing
-    // For now, just stop and play
-    stopBgm();
-    playBgm(filename, volume, pitch);
+    if (!impl_->bgmChannel_ || !impl_->bgmChannel_->isPlaying() || duration <= 0) {
+        playBgm(filename, volume, pitch);
+        return;
+    }
+
+    impl_->bgmCrossfade_.active = true;
+    impl_->bgmCrossfade_.filename = filename;
+    impl_->bgmCrossfade_.targetVolumePercent = std::clamp(volume, 0.0, 100.0);
+    impl_->bgmCrossfade_.targetPitchPercent = std::clamp(pitch, 50.0, 200.0);
+    impl_->bgmCrossfade_.targetPos = 0;
+    impl_->bgmCrossfade_.durationFrames = std::max(1, duration);
+    impl_->bgmCrossfade_.elapsedFrames = 0;
+    impl_->bgmCrossfade_.sourceVolume = std::clamp(impl_->bgmChannel_->getVolume(), 0.0, 1.0);
+    impl_->bgmCrossfade_.switchedTrack = false;
 }
 
 void AudioManager::saveBgmSettings() {
     if (impl_->bgmChannel_) {
-        impl_->savedBgm_.name = impl_->bgmChannel_->getName();
+        impl_->savedBgm_.name = impl_->bgmChannel_->getFilename();
         impl_->savedBgm_.volume = impl_->bgmChannel_->getVolume() * 100.0;
         impl_->savedBgm_.pitch = impl_->bgmChannel_->getPitch() * 100.0;
         impl_->savedBgm_.pos = impl_->bgmChannel_->getPosition();
@@ -315,7 +339,7 @@ bool AudioManager::isBgmPaused() const {
 AudioInfo AudioManager::getCurrentBgm() const {
     AudioInfo info;
     if (impl_->bgmChannel_) {
-        info.name = impl_->bgmChannel_->getName();
+        info.name = impl_->bgmChannel_->getFilename();
         info.volume = impl_->bgmChannel_->getVolume() * 100.0;
         info.pitch = impl_->bgmChannel_->getPitch() * 100.0;
         info.pos = impl_->bgmChannel_->getPosition();
@@ -328,6 +352,7 @@ AudioInfo AudioManager::getCurrentBgm() const {
 // ============================================================================
 
 void AudioManager::playBgs(const std::string& filename, double volume, double pitch, int32_t pos) {
+    impl_->bgsCrossfade_.active = false;
     if (!impl_->bgsChannel_) {
         createChannel("bgs", AudioBus::BGS);
         impl_->bgsChannel_ = getChannel("bgs");
@@ -339,15 +364,27 @@ void AudioManager::playBgs(const std::string& filename, double volume, double pi
 }
 
 void AudioManager::stopBgs() {
+    impl_->bgsCrossfade_.active = false;
     if (impl_->bgsChannel_) {
         impl_->bgsChannel_->stop();
     }
 }
 
 void AudioManager::crossfadeBgs(const std::string& filename, double volume, double pitch, int32_t duration) {
-    // TODO: Implement actual crossfade
-    stopBgs();
-    playBgs(filename, volume, pitch);
+    if (!impl_->bgsChannel_ || !impl_->bgsChannel_->isPlaying() || duration <= 0) {
+        playBgs(filename, volume, pitch);
+        return;
+    }
+
+    impl_->bgsCrossfade_.active = true;
+    impl_->bgsCrossfade_.filename = filename;
+    impl_->bgsCrossfade_.targetVolumePercent = std::clamp(volume, 0.0, 100.0);
+    impl_->bgsCrossfade_.targetPitchPercent = std::clamp(pitch, 50.0, 200.0);
+    impl_->bgsCrossfade_.targetPos = 0;
+    impl_->bgsCrossfade_.durationFrames = std::max(1, duration);
+    impl_->bgsCrossfade_.elapsedFrames = 0;
+    impl_->bgsCrossfade_.sourceVolume = std::clamp(impl_->bgsChannel_->getVolume(), 0.0, 1.0);
+    impl_->bgsCrossfade_.switchedTrack = false;
 }
 
 // ============================================================================
@@ -447,6 +484,45 @@ bool AudioManager::isBgmDucked() const {
 // ============================================================================
 
 void AudioManager::update() {
+    auto stepCrossfade = [](PendingCrossfade& state, AudioChannel* channel) {
+        if (!state.active || !channel) {
+            return;
+        }
+
+        const int32_t totalFrames = std::max(1, state.durationFrames);
+        const int32_t fadeOutFrames = std::max(1, totalFrames / 2);
+        state.elapsedFrames = std::min(totalFrames, state.elapsedFrames + 1);
+
+        if (!state.switchedTrack) {
+            const double fadeOutT = std::min(1.0, static_cast<double>(state.elapsedFrames) / fadeOutFrames);
+            channel->setVolume(state.sourceVolume * (1.0 - fadeOutT));
+            if (state.elapsedFrames >= fadeOutFrames) {
+                channel->play(
+                    state.filename,
+                    state.targetVolumePercent,
+                    state.targetPitchPercent,
+                    state.targetPos);
+                channel->setVolume(0.0);
+                state.switchedTrack = true;
+            }
+        }
+
+        if (state.switchedTrack) {
+            const int32_t fadeInFrames = std::max(1, totalFrames - fadeOutFrames);
+            const int32_t fadeInElapsed = std::max(0, state.elapsedFrames - fadeOutFrames);
+            const double fadeInT = std::min(1.0, static_cast<double>(fadeInElapsed) / fadeInFrames);
+            channel->setVolume((state.targetVolumePercent / 100.0) * fadeInT);
+        }
+
+        if (state.elapsedFrames >= totalFrames) {
+            channel->setVolume(state.targetVolumePercent / 100.0);
+            state.active = false;
+        }
+    };
+
+    stepCrossfade(impl_->bgmCrossfade_, impl_->bgmChannel_);
+    stepCrossfade(impl_->bgsCrossfade_, impl_->bgsChannel_);
+
     // Update all channels
     for (auto& channel : impl_->channels_) {
         if (channel) {

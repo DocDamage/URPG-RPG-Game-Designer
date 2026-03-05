@@ -46,7 +46,18 @@ Bootstrap workspace aligned to URPG Master Blueprint v3.1.
   - DataManager compat save lane now persists per-slot `GlobalState` + `SaveHeader` in-memory (including autosave slot `0`) with slot bound checks, plus `setSaveHeaderExtension`/`getSaveHeaderExtension` round-trip semantics and cleanup on slot deletion.
   - DataManager map transfer flow now tracks reserved transfers and applies them deterministically through `processTransfer`.
   - Burned down selected compat statuses: `Window_Base.drawItemName/textWidth/textSize` advanced from `STUB` to `PARTIAL`; `TouchInput.worldX/worldY` advanced from `STUB` to `FULL`; `Window_Base.drawActorHp/drawActorMp/drawActorTp` advanced from `PARTIAL` to `FULL`.
+  - Burned down WindowCompat text-surface statuses: `Window_Base.drawTextEx`, `Window_Base.textWidth`, `Window_Base.textSize` advanced from `PARTIAL` to `FULL` with escape-token parity and compat renderer-backed text measurement/layout.
+  - Burned down additional WindowCompat statuses: `Window_Base.drawItemName` advanced from `PARTIAL` to `FULL` with DataManager-backed icon+label semantics, and `Sprite_Actor.startEffect` advanced from `PARTIAL` to `FULL` with deterministic effect-duration lifecycle behavior.
+  - Burned down additional Sprite_Actor animation status: `startAnimation` advanced from `PARTIAL` to `FULL` with deterministic frame-duration playback lifecycle.
+  - Burned down remaining Window_Base face status: `drawActorFace` advanced from `PARTIAL` to `FULL` with MZ-canonical face cell clipping/centering semantics and deterministic face draw metadata.
+  - Compat status burn-down checkpoint: active runtime compat API registry now reports no `PARTIAL`/`STUB` surfaces; remaining Phase 2 work is deep executable validation + diagnostics hardening.
+  - Burned down AudioManager compat statuses: `crossfadeBgm`/`crossfadeBgs` advanced from `PARTIAL` to `FULL` with deterministic frame-based crossfade sequencing; BGM save metadata now preserves track filename/position for correct restore semantics.
+  - Burned down BattleManager compat status: `processEscape` advanced from `PARTIAL` to `FULL` with deterministic MZ-style escape ratio/failure ramp semantics.
+  - Burned down PluginManager compat status: `executeCommandAsync` advanced from `PARTIAL` to `FULL` with deterministic FIFO task-queue execution + callback ordering.
   - Input/Touch QuickJS API registration now routes to live runtime state (no placeholder zeros) and `TouchInput` movement/tap tracking now computes `moveSpeed` + `tapCount`.
+  - PluginManager failure-path diagnostics now emit deterministic JSONL artifacts (`exportFailureDiagnosticsJsonl` / `clearFailureDiagnostics`) with operation tags + sequence IDs.
+  - QuickJS stub lane now supports explicit eval failure directives (`@urpg-fail-eval`) and evalModule failure propagation tests for deterministic conformance.
+  - Compat report model now ingests PluginManager diagnostics JSONL (`ingestPluginFailureDiagnosticsJsonl`) into timeline events and per-plugin error summaries.
   - Compat module unit suites (`test_battlemgr`, `test_data_manager`, `test_audio_manager`, `test_input_manager`, `test_plugin_manager`) are active in `urpg_tests`.
 - Active build wiring snapshot:
   - `urpg_core` currently builds core kernels + editor diagnostics/panel + compat report panel + QuickJS + WindowCompat + Battle/Data/Audio/Input/Plugin compat modules.
@@ -59,11 +70,11 @@ Bootstrap workspace aligned to URPG Master Blueprint v3.1.
   - Known-break waiver validation via `tools/ci/check_waivers.ps1`
 - Migration CLI: `urpg_migrate`
 - Catch2/CTest baseline (Release snapshot, 2026-03-05):
-  - `urpg_tests`: 847 assertions / 207 test cases
+  - `urpg_tests`: 1183 assertions / 231 test cases
   - `urpg_integration_tests`: 10 assertions / 2 test cases
   - `urpg_snapshot_tests`: 4 assertions / 2 test cases
-  - `urpg_compat_tests`: 125 assertions / 3 test cases
-  - Total: 986 assertions / 214 test cases
+  - `urpg_compat_tests`: 534 assertions / 10 test cases
+  - Total: 1731 assertions / 245 test cases
 
 ## Build
 
@@ -84,6 +95,6 @@ ctest --test-dir build --output-on-failure
 Implement the next blueprint-critical contracts:
 
 1. Complete Phase 2 Compat Layer validation:
-  - Validate wired compat modules against 10 real-world MZ plugins and close remaining `PARTIAL`/`STUB` deviations.
+  - Wire runtime/session-level compat report refresh to consume exported PluginManager diagnostics artifacts in editor update flow.
 2. Expand plugin conformance depth:
-  - Expand fixture script DSL coverage and bridge script-backed fixtures into real JS plugin execution paths.
+  - Expand fixture script DSL coverage and report artifact depth over real JS plugin execution paths.

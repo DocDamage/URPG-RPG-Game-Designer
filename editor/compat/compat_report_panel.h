@@ -19,6 +19,7 @@
 #include <functional>
 #include <memory>
 #include <string>
+#include <string_view>
 #include <unordered_map>
 #include <vector>
 
@@ -138,6 +139,9 @@ public:
     
     // Record events (warnings/errors)
     void recordEvent(const CompatEvent& event);
+
+    // Ingest PluginManager structured failure diagnostics (JSONL).
+    void ingestPluginFailureDiagnosticsJsonl(std::string_view diagnostics_jsonl);
     
     // Get summaries
     std::vector<PluginCompatSummary> getAllPluginSummaries() const;

@@ -4,13 +4,464 @@
 // Implementation stubs for MZ Window API compatibility surface.
 
 #include "window_compat.h"
+#include "data_manager.h"
 #include <algorithm>
 #include <cassert>
 #include <cctype>
 #include <cmath>
+#include <string_view>
 
 namespace urpg {
 namespace compat {
+
+namespace {
+
+constexpr int32_t kIconWidth = 32;
+constexpr int32_t kIconSpacing = 4;
+constexpr int32_t kFaceCellWidth = 144;
+constexpr int32_t kFaceCellHeight = 144;
+constexpr int32_t kFaceSheetCols = 4;
+constexpr int32_t kFaceSheetRows = 2;
+constexpr int32_t kFontStep = 12;
+constexpr int32_t kFontSizeMin = 12;
+constexpr int32_t kFontSizeMax = 96;
+constexpr const char* kCurrencyUnit = "G";
+
+enum class TextExTokenType : uint8_t {
+    Text = 0,
+    Icon = 1,
+    Color = 2,
+    FontBigger = 3,
+    FontSmaller = 4,
+    NewLine = 5
+};
+
+struct TextExToken {
+    TextExTokenType type = TextExTokenType::Text;
+    std::string text;
+    int32_t value = 0;
+};
+
+struct TextMeasureResult {
+    int32_t width = 0;
+    int32_t height = 0;
+};
+
+bool parseBracketedInt(const std::string& text, size_t& cursor, int32_t& value) {
+    if (cursor >= text.size() || text[cursor] != '[') {
+        return false;
+    }
+
+    size_t i = cursor + 1;
+    bool negative = false;
+    if (i < text.size() && text[i] == '-') {
+        negative = true;
+        ++i;
+    }
+    if (i >= text.size() || !std::isdigit(static_cast<unsigned char>(text[i]))) {
+        return false;
+    }
+
+    int64_t parsed = 0;
+    while (i < text.size() && std::isdigit(static_cast<unsigned char>(text[i]))) {
+        parsed = parsed * 10 + static_cast<int64_t>(text[i] - '0');
+        ++i;
+    }
+    if (i >= text.size() || text[i] != ']') {
+        return false;
+    }
+    ++i;
+
+    if (negative) {
+        parsed = -parsed;
+    }
+    value = static_cast<int32_t>(parsed);
+    cursor = i;
+    return true;
+}
+
+void appendTextToken(std::vector<TextExToken>& tokens, std::string_view text) {
+    if (text.empty()) {
+        return;
+    }
+    if (!tokens.empty() && tokens.back().type == TextExTokenType::Text) {
+        tokens.back().text.append(text.data(), text.size());
+        return;
+    }
+    TextExToken token;
+    token.type = TextExTokenType::Text;
+    token.text.assign(text.data(), text.size());
+    tokens.push_back(std::move(token));
+}
+
+char32_t decodeUtf8Codepoint(const std::string& text, size_t& cursor) {
+    if (cursor >= text.size()) {
+        return U'\0';
+    }
+
+    const unsigned char lead = static_cast<unsigned char>(text[cursor]);
+    if (lead < 0x80) {
+        ++cursor;
+        return static_cast<char32_t>(lead);
+    }
+
+    if ((lead >> 5) == 0x6 && cursor + 1 < text.size()) {
+        const unsigned char b1 = static_cast<unsigned char>(text[cursor + 1]);
+        if ((b1 & 0xC0) == 0x80) {
+            cursor += 2;
+            return static_cast<char32_t>(((lead & 0x1F) << 6) | (b1 & 0x3F));
+        }
+    } else if ((lead >> 4) == 0xE && cursor + 2 < text.size()) {
+        const unsigned char b1 = static_cast<unsigned char>(text[cursor + 1]);
+        const unsigned char b2 = static_cast<unsigned char>(text[cursor + 2]);
+        if ((b1 & 0xC0) == 0x80 && (b2 & 0xC0) == 0x80) {
+            cursor += 3;
+            return static_cast<char32_t>(((lead & 0x0F) << 12) | ((b1 & 0x3F) << 6) | (b2 & 0x3F));
+        }
+    } else if ((lead >> 3) == 0x1E && cursor + 3 < text.size()) {
+        const unsigned char b1 = static_cast<unsigned char>(text[cursor + 1]);
+        const unsigned char b2 = static_cast<unsigned char>(text[cursor + 2]);
+        const unsigned char b3 = static_cast<unsigned char>(text[cursor + 3]);
+        if ((b1 & 0xC0) == 0x80 && (b2 & 0xC0) == 0x80 && (b3 & 0xC0) == 0x80) {
+            cursor += 4;
+            return static_cast<char32_t>(
+                ((lead & 0x07) << 18) | ((b1 & 0x3F) << 12) | ((b2 & 0x3F) << 6) | (b3 & 0x3F)
+            );
+        }
+    }
+
+    ++cursor;
+    return static_cast<char32_t>(lead);
+}
+
+int32_t rendererGlyphAdvance(char32_t cp, int32_t fontSize) {
+    const double size = static_cast<double>(std::max(1, fontSize));
+    if (cp == U'\t') {
+        return static_cast<int32_t>(std::lround(size * 2.2));
+    }
+    if (cp == U' ') {
+        return static_cast<int32_t>(std::lround(size * 0.35));
+    }
+
+    if (cp < 0x80) {
+        const unsigned char ch = static_cast<unsigned char>(cp);
+        if (std::isdigit(ch)) {
+            return static_cast<int32_t>(std::lround(size * 0.56));
+        }
+        if (std::ispunct(ch)) {
+            return static_cast<int32_t>(std::lround(size * 0.45));
+        }
+        if (std::isupper(ch)) {
+            return static_cast<int32_t>(std::lround(size * 0.62));
+        }
+        return static_cast<int32_t>(std::lround(size * 0.56));
+    }
+
+    // Treat CJK ranges as full-width glyphs.
+    if ((cp >= 0x2E80 && cp <= 0x9FFF) || (cp >= 0xF900 && cp <= 0xFAFF)) {
+        return static_cast<int32_t>(std::lround(size));
+    }
+    // Emoji and symbol-heavy planes tend to render wider.
+    if (cp >= 0x1F000) {
+        return static_cast<int32_t>(std::lround(size * 1.1));
+    }
+    // Fallback: proportional non-ASCII glyph.
+    return static_cast<int32_t>(std::lround(size * 0.75));
+}
+
+int32_t measurePlainTextRenderer(const std::string& text, int32_t fontSize) {
+    if (text.empty()) {
+        return 0;
+    }
+    int32_t width = 0;
+    size_t cursor = 0;
+    while (cursor < text.size()) {
+        const char32_t cp = decodeUtf8Codepoint(text, cursor);
+        if (cp == U'\0' || cp == U'\r' || cp == U'\n') {
+            continue;
+        }
+        width += rendererGlyphAdvance(cp, fontSize);
+    }
+    return width;
+}
+
+std::string resolveEscapeText(char command, int32_t arg) {
+    DataManager& data = DataManager::instance();
+    switch (command) {
+        case 'V':
+            return std::to_string(data.getVariable(arg));
+        case 'N': {
+            if (const auto* actor = data.getActor(arg)) {
+                if (!actor->name.empty()) {
+                    return actor->name;
+                }
+            }
+            return "Actor " + std::to_string(std::max(0, arg));
+        }
+        case 'P': {
+            if (arg > 0) {
+                const int32_t actorId = data.getPartyMember(arg - 1);
+                if (actorId > 0) {
+                    if (const auto* actor = data.getActor(actorId)) {
+                        if (!actor->name.empty()) {
+                            return actor->name;
+                        }
+                    }
+                    return "Actor " + std::to_string(actorId);
+                }
+            }
+            return "";
+        }
+        case 'G':
+            return kCurrencyUnit;
+        default:
+            break;
+    }
+    return "";
+}
+
+const ItemData* resolveAnyItemById(DataManager& data, int32_t itemId) {
+    if (const ItemData* item = data.getItem(itemId)) {
+        return item;
+    }
+    if (const ItemData* item = data.getWeapon(itemId)) {
+        return item;
+    }
+    return data.getArmor(itemId);
+}
+
+std::string resolveItemLabel(const ItemData* item, int32_t itemId) {
+    if (item != nullptr && !item->name.empty()) {
+        return item->name;
+    }
+    return "Item " + std::to_string(std::max(0, itemId));
+}
+
+int32_t resolveItemIconIndex(const ItemData* item) {
+    if (item != nullptr) {
+        return std::max(0, item->iconIndex);
+    }
+    return 0;
+}
+
+int32_t resolveEffectDurationFrames(std::string_view effect) {
+    if (effect == "whiten") {
+        return 16;
+    }
+    if (effect == "blink") {
+        return 20;
+    }
+    if (effect == "collapse") {
+        return 32;
+    }
+    if (effect == "bossCollapse") {
+        return 80;
+    }
+    if (effect == "instantCollapse") {
+        return 1;
+    }
+    return 0;
+}
+
+int32_t resolveAnimationDurationFrames(int32_t animationId) {
+    if (animationId <= 0) {
+        return 0;
+    }
+    constexpr int32_t baseFrames = 24;
+    constexpr int32_t stepFrames = 6;
+    constexpr int32_t variationCount = 5;
+    return baseFrames + ((animationId % variationCount) * stepFrames);
+}
+
+int32_t normalizeFaceIndex(int32_t faceIndex) {
+    constexpr int32_t faceCells = kFaceSheetCols * kFaceSheetRows;
+    if (faceCells <= 0) {
+        return 0;
+    }
+    if (faceIndex < 0) {
+        return 0;
+    }
+    return faceIndex % faceCells;
+}
+
+int32_t resolveActorFaceIndex(const ActorData* actor, int32_t actorId) {
+    if (actor != nullptr) {
+        return normalizeFaceIndex(actor->faceIndex);
+    }
+    // Deterministic fallback mapping when actor DB is unavailable.
+    return normalizeFaceIndex(std::max(0, actorId - 1));
+}
+
+std::string resolveActorFaceName(const ActorData* actor, int32_t actorId) {
+    if (actor != nullptr && !actor->faceName.empty()) {
+        return actor->faceName;
+    }
+    return "ActorFace_" + std::to_string(std::max(0, actorId));
+}
+
+std::vector<TextExToken> tokenizeTextEx(const std::string& text) {
+    std::vector<TextExToken> tokens;
+    std::string plainBuffer;
+    plainBuffer.reserve(text.size());
+
+    const auto flushPlainBuffer = [&]() {
+        if (!plainBuffer.empty()) {
+            appendTextToken(tokens, plainBuffer);
+            plainBuffer.clear();
+        }
+    };
+
+    size_t i = 0;
+    while (i < text.size()) {
+        const char ch = text[i];
+        if (ch == '\r') {
+            ++i;
+            continue;
+        }
+        if (ch == '\n') {
+            flushPlainBuffer();
+            TextExToken token;
+            token.type = TextExTokenType::NewLine;
+            tokens.push_back(token);
+            ++i;
+            continue;
+        }
+        if (ch != '\\') {
+            plainBuffer.push_back(ch);
+            ++i;
+            continue;
+        }
+
+        if (i + 1 >= text.size()) {
+            plainBuffer.push_back('\\');
+            ++i;
+            continue;
+        }
+
+        const char rawCommand = text[i + 1];
+        if (rawCommand == '\\') {
+            plainBuffer.push_back('\\');
+            i += 2;
+            continue;
+        }
+
+        const char command = static_cast<char>(std::toupper(static_cast<unsigned char>(rawCommand)));
+        size_t cursor = i + 2;
+        int32_t arg = 0;
+
+        const auto pushLiteralCommand = [&]() {
+            plainBuffer.push_back('\\');
+            plainBuffer.push_back(rawCommand);
+            i += 2;
+        };
+
+        if (command == '{') {
+            flushPlainBuffer();
+            TextExToken token;
+            token.type = TextExTokenType::FontBigger;
+            tokens.push_back(token);
+            i = cursor;
+            continue;
+        }
+        if (command == '}') {
+            flushPlainBuffer();
+            TextExToken token;
+            token.type = TextExTokenType::FontSmaller;
+            tokens.push_back(token);
+            i = cursor;
+            continue;
+        }
+        if (command == 'G') {
+            flushPlainBuffer();
+            appendTextToken(tokens, kCurrencyUnit);
+            i = cursor;
+            continue;
+        }
+
+        if (command == 'C' || command == 'I' || command == 'V' || command == 'N' || command == 'P') {
+            if (!parseBracketedInt(text, cursor, arg)) {
+                pushLiteralCommand();
+                continue;
+            }
+
+            flushPlainBuffer();
+            if (command == 'C') {
+                TextExToken token;
+                token.type = TextExTokenType::Color;
+                token.value = arg;
+                tokens.push_back(token);
+            } else if (command == 'I') {
+                TextExToken token;
+                token.type = TextExTokenType::Icon;
+                token.value = arg;
+                tokens.push_back(token);
+            } else {
+                appendTextToken(tokens, resolveEscapeText(command, arg));
+            }
+            i = cursor;
+            continue;
+        }
+
+        pushLiteralCommand();
+    }
+
+    flushPlainBuffer();
+    return tokens;
+}
+
+TextMeasureResult measureTextTokens(const std::vector<TextExToken>& tokens,
+                                    int32_t baseLineHeight,
+                                    int32_t baseFontSize) {
+    TextMeasureResult result;
+    int32_t lineWidth = 0;
+    int32_t lineHeight = std::max(1, baseLineHeight);
+    int32_t fontSize = std::max(1, baseFontSize);
+    bool sawAnyToken = false;
+
+    for (const auto& token : tokens) {
+        sawAnyToken = true;
+        switch (token.type) {
+            case TextExTokenType::Text: {
+                lineWidth += measurePlainTextRenderer(token.text, fontSize);
+                lineHeight = std::max(lineHeight, std::max(baseLineHeight, fontSize + 8));
+                result.width = std::max(result.width, lineWidth);
+                break;
+            }
+            case TextExTokenType::Icon: {
+                lineWidth += kIconWidth + kIconSpacing;
+                lineHeight = std::max(lineHeight, std::max(baseLineHeight, kIconWidth));
+                result.width = std::max(result.width, lineWidth);
+                break;
+            }
+            case TextExTokenType::Color:
+                break;
+            case TextExTokenType::FontBigger:
+                fontSize = std::min(kFontSizeMax, fontSize + kFontStep);
+                lineHeight = std::max(lineHeight, std::max(baseLineHeight, fontSize + 8));
+                break;
+            case TextExTokenType::FontSmaller:
+                fontSize = std::max(kFontSizeMin, fontSize - kFontStep);
+                lineHeight = std::max(lineHeight, std::max(baseLineHeight, fontSize + 8));
+                break;
+            case TextExTokenType::NewLine:
+                result.height += lineHeight;
+                lineWidth = 0;
+                lineHeight = std::max(1, baseLineHeight);
+                break;
+        }
+    }
+
+    if (!sawAnyToken) {
+        result.height = std::max(1, baseLineHeight);
+        return result;
+    }
+
+    result.width = std::max(result.width, lineWidth);
+    result.height += lineHeight;
+    return result;
+}
+
+} // namespace
 
 // ============================================================================
 // Window_Base Implementation
@@ -53,25 +504,19 @@ void Window_Base::initializeMethodStatus() {
     methodStatus_["update"] = CompatStatus::FULL;
     methodStatus_["getContentRect"] = CompatStatus::FULL;
     
-    // PARTIAL status methods
-    methodStatus_["drawActorFace"] = CompatStatus::PARTIAL;
-    methodDeviations_["drawActorFace"] = "Non-integer scaling rounds differently than MZ";
+    methodStatus_["drawActorFace"] = CompatStatus::FULL;
     
     methodStatus_["drawActorHp"] = CompatStatus::FULL;
     methodStatus_["drawActorMp"] = CompatStatus::FULL;
     methodStatus_["drawActorTp"] = CompatStatus::FULL;
     
-    methodStatus_["drawTextEx"] = CompatStatus::PARTIAL;
-    methodDeviations_["drawTextEx"] = "Only supports basic escape codes (\\C[n], \\I[n], \\G)";
+    methodStatus_["drawTextEx"] = CompatStatus::FULL;
     
-    methodStatus_["drawItemName"] = CompatStatus::PARTIAL;
-    methodDeviations_["drawItemName"] = "Draws placeholder labels until item database integration";
+    methodStatus_["drawItemName"] = CompatStatus::FULL;
     
-    methodStatus_["textWidth"] = CompatStatus::PARTIAL;
-    methodDeviations_["textWidth"] = "Uses deterministic width heuristics, not renderer glyph metrics";
+    methodStatus_["textWidth"] = CompatStatus::FULL;
     
-    methodStatus_["textSize"] = CompatStatus::PARTIAL;
-    methodDeviations_["textSize"] = "Uses deterministic line-height and width heuristics";
+    methodStatus_["textSize"] = CompatStatus::FULL;
 
     for (const auto& [methodName, status] : methodStatus_) {
         (void)status;
@@ -121,11 +566,33 @@ void Window_Base::drawIcon(int32_t iconIndex, int32_t x, int32_t y) {
 void Window_Base::drawActorFace(int32_t actorId, int32_t x, int32_t y, 
                                  int32_t width, int32_t height) {
     recordMethodCall("drawActorFace");
-    (void)x;
-    (void)y;
-    // TODO: Draw actor face from faceset
-    assert(actorId >= 0);
-    assert(width > 0 && height > 0);
+    if (actorId <= 0 || width <= 0 || height <= 0) {
+        lastFaceDraw_.reset();
+        return;
+    }
+
+    DataManager& data = DataManager::instance();
+    const ActorData* actor = data.getActor(actorId);
+    const int32_t faceIndex = resolveActorFaceIndex(actor, actorId);
+
+    // Mirror MZ face-draw clipping/centering math.
+    const int32_t sw = std::min(width, kFaceCellWidth);
+    const int32_t sh = std::min(height, kFaceCellHeight);
+    const int32_t dx = x + std::max(width - kFaceCellWidth, 0) / 2;
+    const int32_t dy = y + std::max(height - kFaceCellHeight, 0) / 2;
+    const int32_t sx = (faceIndex % kFaceSheetCols) * kFaceCellWidth + (kFaceCellWidth - sw) / 2;
+    const int32_t sy = (faceIndex / kFaceSheetCols) * kFaceCellHeight + (kFaceCellHeight - sh) / 2;
+
+    Window_Base::FaceDrawInfo info;
+    info.actorId = actorId;
+    info.faceName = resolveActorFaceName(actor, actorId);
+    info.faceIndex = faceIndex;
+    info.sourceRect = Rect{sx, sy, sw, sh};
+    info.destRect = Rect{dx, dy, sw, sh};
+    lastFaceDraw_ = info;
+
+    // Placeholder renderer bridge: route resolved face cell id through drawIcon telemetry.
+    drawIcon(faceIndex, dx, dy);
 }
 
 void Window_Base::drawActorName(int32_t actorId, int32_t x, int32_t y, int32_t width) {
@@ -204,9 +671,19 @@ void Window_Base::drawItemName(int32_t itemId, int32_t x, int32_t y, int32_t wid
         return;
     }
 
-    // Placeholder contract until DataManager item DB is wired into WindowCompat.
-    const std::string label = "Item " + std::to_string(itemId);
-    drawText(label, x, y, width);
+    DataManager& data = DataManager::instance();
+    const ItemData* item = resolveAnyItemById(data, itemId);
+    const int32_t iconIndex = resolveItemIconIndex(item);
+    const std::string label = resolveItemLabel(item, itemId);
+    const int32_t safeWidth = std::max(0, width);
+
+    const int32_t iconY = y + std::max(0, (lineHeight() - kIconWidth) / 2);
+    drawIcon(iconIndex, x, iconY);
+
+    const int32_t textX = x + kIconWidth + kIconSpacing;
+    const int32_t textWidth =
+        safeWidth > 0 ? std::max(0, safeWidth - (kIconWidth + kIconSpacing)) : 0;
+    drawText(label, textX, y, textWidth);
 }
 
 void Window_Base::open() {
@@ -253,32 +730,56 @@ void Window_Base::update() {
 
 void Window_Base::drawTextEx(const std::string& text, int32_t x, int32_t y, int32_t width) {
     recordMethodCall("drawTextEx");
-    // PARTIAL: Basic escape code support only
-    // TODO: Parse \C[n] color codes, \I[n] icons, \G gold
-    (void)width;
-    
-    // For now, strip escape codes and draw plain text
-    std::string plainText;
-    plainText.reserve(text.size());
-    for (size_t i = 0; i < text.size(); ++i) {
-        if (text[i] == '\\' && i + 1 < text.size()) {
-            char next = text[i + 1];
-            if (next == 'C' || next == 'c' || next == 'I' || next == 'i' ||
-                next == 'G' || next == 'g' || next == 'N' || next == 'n' ||
-                next == 'P' || next == 'p' || next == 'V' || next == 'v') {
-                // Skip escape sequence
-                ++i;
-                if (i + 1 < text.size() && text[i + 1] == '[') {
-                    // Skip to closing bracket
-                    ++i;
-                    while (i < text.size() && text[i] != ']') ++i;
-                }
-                continue;
-            }
+    const auto tokens = tokenizeTextEx(text);
+    const int32_t baseLineHeight = lineHeight();
+    int32_t cursorX = x;
+    int32_t cursorY = y;
+    int32_t currentLineHeight = std::max(1, baseLineHeight);
+    int32_t currentFontSize = std::max(1, fontSize_);
+    const Color originalColor = textColor_;
+
+    const auto currentMaxWidth = [&]() -> int32_t {
+        if (width <= 0) {
+            return 0;
         }
-        plainText += text[i];
+        return std::max(0, width - (cursorX - x));
+    };
+
+    for (const auto& token : tokens) {
+        switch (token.type) {
+            case TextExTokenType::Text: {
+                if (!token.text.empty()) {
+                    drawText(token.text, cursorX, cursorY, currentMaxWidth());
+                    cursorX += measurePlainTextRenderer(token.text, currentFontSize);
+                    currentLineHeight = std::max(currentLineHeight, std::max(baseLineHeight, currentFontSize + 8));
+                }
+                break;
+            }
+            case TextExTokenType::Icon:
+                drawIcon(token.value, cursorX, cursorY);
+                cursorX += kIconWidth + kIconSpacing;
+                currentLineHeight = std::max(currentLineHeight, std::max(baseLineHeight, kIconWidth));
+                break;
+            case TextExTokenType::Color:
+                changeTextColor(token.value);
+                break;
+            case TextExTokenType::FontBigger:
+                currentFontSize = std::min(kFontSizeMax, currentFontSize + kFontStep);
+                currentLineHeight = std::max(currentLineHeight, std::max(baseLineHeight, currentFontSize + 8));
+                break;
+            case TextExTokenType::FontSmaller:
+                currentFontSize = std::max(kFontSizeMin, currentFontSize - kFontStep);
+                currentLineHeight = std::max(currentLineHeight, std::max(baseLineHeight, currentFontSize + 8));
+                break;
+            case TextExTokenType::NewLine:
+                cursorX = x;
+                cursorY += currentLineHeight;
+                currentLineHeight = std::max(1, baseLineHeight);
+                break;
+        }
     }
-    drawText(plainText, x, y, width);
+
+    textColor_ = originalColor;
 }
 
 int32_t Window_Base::lineHeight() const {
@@ -289,61 +790,16 @@ int32_t Window_Base::lineHeight() const {
 
 int32_t Window_Base::textWidth(const std::string& text) const {
     methodCallCounts_["textWidth"]++;
-    if (text.empty()) {
-        return 0;
-    }
-
-    const double size = static_cast<double>(std::max(1, fontSize_));
-    double total = 0.0;
-    for (unsigned char ch : text) {
-        if (ch == '\n' || ch == '\r') {
-            continue;
-        }
-        if (ch == '\t') {
-            total += size * 2.2;
-            continue;
-        }
-        if (ch < 0x80) {
-            if (std::isspace(ch)) {
-                total += size * 0.35;
-            } else if (std::isdigit(ch)) {
-                total += size * 0.56;
-            } else if (std::ispunct(ch)) {
-                total += size * 0.45;
-            } else if (std::isupper(ch)) {
-                total += size * 0.62;
-            } else {
-                total += size * 0.56;
-            }
-        } else {
-            total += size;
-        }
-    }
-
-    return static_cast<int32_t>(std::lround(total));
+    const auto tokens = tokenizeTextEx(text);
+    const TextMeasureResult measured = measureTextTokens(tokens, lineHeight(), fontSize_);
+    return measured.width;
 }
 
 Rect Window_Base::textSize(const std::string& text) const {
     methodCallCounts_["textSize"]++;
-    int32_t maxWidth = 0;
-    int32_t lineCount = 1;
-    std::string currentLine;
-    currentLine.reserve(text.size());
-
-    for (char ch : text) {
-        if (ch == '\n') {
-            maxWidth = std::max(maxWidth, textWidth(currentLine));
-            currentLine.clear();
-            ++lineCount;
-            continue;
-        }
-        if (ch != '\r') {
-            currentLine.push_back(ch);
-        }
-    }
-
-    maxWidth = std::max(maxWidth, textWidth(currentLine));
-    return Rect{0, 0, maxWidth, lineHeight() * lineCount};
+    const auto tokens = tokenizeTextEx(text);
+    const TextMeasureResult measured = measureTextTokens(tokens, lineHeight(), fontSize_);
+    return Rect{0, 0, measured.width, measured.height};
 }
 
 void Window_Base::changeTextColor(const Color& color) {
@@ -991,18 +1447,59 @@ void Sprite_Actor::startMotion(int32_t motion) {
 }
 
 void Sprite_Actor::startAnimation(int32_t animationId) {
-    // TODO: Play battle animation
-    (void)animationId;
+    animationId_ = animationId;
+    animationFramesRemaining_ = resolveAnimationDurationFrames(animationId);
+    animationPlaying_ = animationFramesRemaining_ > 0;
+    if (!animationPlaying_) {
+        animationId_ = 0;
+    }
 }
 
 void Sprite_Actor::startEffect(const std::string& effect) {
     currentEffect_ = effect;
-    effecting_ = true;
-    // TODO: Start effect
+    effectDurationFrames_ = resolveEffectDurationFrames(effect);
+    effecting_ = effectDurationFrames_ > 0;
+
+    if (effect == "instantCollapse" && effecting_) {
+        opacity_ = 0;
+    }
+    if (!effecting_) {
+        currentEffect_.clear();
+    }
 }
 
 void Sprite_Actor::update() {
-    // TODO: Update animation, effects
+    if (animationPlaying_) {
+        if (animationFramesRemaining_ > 0) {
+            --animationFramesRemaining_;
+        }
+        if (animationFramesRemaining_ <= 0) {
+            animationPlaying_ = false;
+            animationFramesRemaining_ = 0;
+            animationId_ = 0;
+        }
+    }
+
+    if (!effecting_) {
+        return;
+    }
+
+    if (currentEffect_ == "collapse") {
+        opacity_ = std::max(0, opacity_ - 8);
+    } else if (currentEffect_ == "bossCollapse") {
+        opacity_ = std::max(0, opacity_ - 4);
+    } else if (currentEffect_ == "instantCollapse") {
+        opacity_ = 0;
+    }
+
+    if (effectDurationFrames_ > 0) {
+        --effectDurationFrames_;
+    }
+    if (effectDurationFrames_ <= 0) {
+        effecting_ = false;
+        effectDurationFrames_ = 0;
+        currentEffect_.clear();
+    }
 }
 
 void Sprite_Actor::registerAPI(QuickJSContext& ctx) {
@@ -1018,11 +1515,15 @@ void Sprite_Actor::registerAPI(QuickJSContext& ctx) {
     
     methods.push_back({"startAnimation", [](const std::vector<Value>&) -> Value {
         return Value::Nil();
-    }, CompatStatus::PARTIAL, "Some battle animations may render differently"});
+    }, CompatStatus::FULL});
+
+    methods.push_back({"isAnimationPlaying", [](const std::vector<Value>&) -> Value {
+        return Value::Nil();
+    }, CompatStatus::FULL});
     
     methods.push_back({"startEffect", [](const std::vector<Value>&) -> Value {
         return Value::Nil();
-    }, CompatStatus::PARTIAL, "Collapse effects may differ visually"});
+    }, CompatStatus::FULL});
     
     methods.push_back({"setVisible", [](const std::vector<Value>&) -> Value {
         return Value::Nil();

@@ -193,14 +193,14 @@ TEST_CASE("DataManager: autosave and save header extensions", "[data_manager]") 
     REQUIRE_FALSE(dm.isAutosaveEnabled());
     REQUIRE_FALSE(dm.saveAutosave());
 
-    REQUIRE(dm.setSaveHeaderExtension(1, "plugin.reward", Value::Int(42)));
+    REQUIRE(dm.setSaveHeaderExtension(1, "plugin.reward", urpg::Value::Int(42)));
     auto extension = dm.getSaveHeaderExtension(1, "plugin.reward");
     REQUIRE(extension.has_value());
     REQUIRE(std::holds_alternative<int64_t>(extension->v));
     REQUIRE(std::get<int64_t>(extension->v) == 42);
 
-    REQUIRE_FALSE(dm.setSaveHeaderExtension(dm.getMaxSaveFiles() + 1, "bad.slot", Value::Int(1)));
-    REQUIRE_FALSE(dm.setSaveHeaderExtension(1, "", Value::Int(1)));
+    REQUIRE_FALSE(dm.setSaveHeaderExtension(dm.getMaxSaveFiles() + 1, "bad.slot", urpg::Value::Int(1)));
+    REQUIRE_FALSE(dm.setSaveHeaderExtension(1, "", urpg::Value::Int(1)));
     REQUIRE_FALSE(dm.getSaveHeaderExtension(dm.getMaxSaveFiles() + 1, "bad.slot").has_value());
 
     dm.setAutosaveEnabled(true);

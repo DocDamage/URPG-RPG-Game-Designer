@@ -119,6 +119,7 @@ add_executable(urpg_compat_tests
     tests/compat/test_compat_authority_suite.cpp
     tests/compat/test_compat_window_plugin_profiles.cpp
     tests/compat/test_compat_plugin_fixtures.cpp
+    tests/compat/test_compat_plugin_failure_diagnostics.cpp
 )
 
 target_link_libraries(urpg_compat_tests PRIVATE urpg_core Catch2::Catch2WithMain)

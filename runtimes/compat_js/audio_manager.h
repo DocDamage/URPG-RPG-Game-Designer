@@ -80,6 +80,7 @@ public:
     // Bus type
     AudioBus getBus() const { return bus_; }
     const std::string& getName() const { return name_; }
+    const std::string& getFilename() const { return filename_; }
     
     // Update (called each frame)
     void update();
@@ -140,8 +141,7 @@ public:
     void pauseBgm();
     void resumeBgm();
     
-    // Status: PARTIAL - Crossfade BGM
-    // Deviation: Crossfade timing may differ slightly from MZ
+    // Status: FULL - Deterministic frame-based crossfade
     void crossfadeBgm(const std::string& filename, double volume = 90.0,
                        double pitch = 100.0, int32_t duration = 60);
     
@@ -165,7 +165,7 @@ public:
     // Status: FULL - Stop BGS
     void stopBgs();
     
-    // Status: PARTIAL - Crossfade BGS
+    // Status: FULL - Deterministic frame-based crossfade
     void crossfadeBgs(const std::string& filename, double volume = 90.0,
                        double pitch = 100.0, int32_t duration = 60);
     

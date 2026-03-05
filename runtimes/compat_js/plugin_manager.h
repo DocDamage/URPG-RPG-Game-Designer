@@ -164,8 +164,7 @@ public:
     Value executeCommandByName(const std::string& fullName,
                               const std::vector<Value>& args);
     
-    // Status: PARTIAL - Execute command asynchronously
-    // Deviation: Async execution may have different timing than MZ
+    // Status: FULL - Execute command asynchronously via deterministic FIFO task queue
     void executeCommandAsync(const std::string& pluginName,
                             const std::string& commandName,
                             const std::vector<Value>& args,
@@ -260,6 +259,12 @@ public:
     void setErrorHandler(std::function<void(const std::string& pluginName,
                                            const std::string& commandName,
                                            const std::string& error)> handler);
+
+    // Status: FULL - Export structured failure diagnostics as JSONL
+    std::string exportFailureDiagnosticsJsonl() const;
+
+    // Status: FULL - Clear accumulated failure diagnostics
+    void clearFailureDiagnostics();
     
     // ========================================================================
     // CompatStatus API Surface

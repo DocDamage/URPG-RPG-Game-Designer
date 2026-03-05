@@ -219,6 +219,55 @@ TEST_CASE("CompatReportModel - Event logging", "[compat][panel]") {
     }
 }
 
+TEST_CASE("CompatReportModel - Plugin failure diagnostics ingestion", "[compat][panel]") {
+    CompatReportModel model;
+
+    const std::string diagnosticsJsonl =
+        R"({"seq":1,"subsystem":"plugin_manager","event":"compat_failure","plugin":"BrokenEntryFixture","command":"brokenCommand","operation":"load_plugin_js_entry","message":"Fixture JS command entry cannot be empty"})"
+        "\n"
+        R"({"seq":2,"subsystem":"plugin_manager","event":"compat_failure","plugin":"BrokenEvalFixture","command":"brokenEval","operation":"load_plugin_js_eval","message":"fixture eval failure"})"
+        "\n"
+        R"({"seq":3,"subsystem":"other_subsystem","event":"ignored","plugin":"Nope","command":"","operation":"noop","message":"ignore me"})"
+        "\n"
+        "{not json}";
+
+    model.ingestPluginFailureDiagnosticsJsonl(diagnosticsJsonl);
+
+    auto events = model.getRecentEvents(10);
+    REQUIRE(events.size() == 2);
+
+    bool foundEntryFailure = false;
+    bool foundEvalFailure = false;
+    for (const auto& event : events) {
+        if (event.pluginId == "BrokenEntryFixture") {
+            foundEntryFailure = true;
+            REQUIRE(event.methodName == "load_plugin_js_entry");
+            REQUIRE(event.severity == CompatEvent::Severity::ERROR);
+            REQUIRE(event.navigationTarget == "plugin://BrokenEntryFixture#brokenCommand");
+        }
+        if (event.pluginId == "BrokenEvalFixture") {
+            foundEvalFailure = true;
+            REQUIRE(event.methodName == "load_plugin_js_eval");
+            REQUIRE(event.message == "fixture eval failure");
+            REQUIRE(event.navigationTarget == "plugin://BrokenEvalFixture#brokenEval");
+        }
+    }
+    REQUIRE(foundEntryFailure);
+    REQUIRE(foundEvalFailure);
+
+    const auto entrySummary = model.getPluginSummary("BrokenEntryFixture");
+    REQUIRE(entrySummary.unsupportedCount == 1);
+    REQUIRE(entrySummary.errorCount == 1);
+
+    const auto evalSummary = model.getPluginSummary("BrokenEvalFixture");
+    REQUIRE(evalSummary.unsupportedCount == 1);
+    REQUIRE(evalSummary.errorCount == 1);
+
+    const auto exported = model.exportAsJson();
+    REQUIRE(exported.find("BrokenEntryFixture") != std::string::npos);
+    REQUIRE(exported.find("BrokenEvalFixture") != std::string::npos);
+}
+
 TEST_CASE("CompatReportModel - Session management", "[compat][panel]") {
     CompatReportModel model;
     

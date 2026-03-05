@@ -148,8 +148,7 @@ public:
     // Status: FULL - Abort battle
     void abortBattle();
     
-    // Status: PARTIAL - Escape attempt (random success differs from MZ)
-    // Deviation: RNG sequence may differ from MZ
+    // Status: FULL - Escape attempt with deterministic MZ-style ratio ramp
     bool canEscape() const;
     bool processEscape();
     
@@ -353,6 +352,9 @@ private:
     int32_t turnCount_ = 0;
     bool canEscape_ = true;
     bool canLose_ = false;
+    double escapeRatio_ = 0.5;
+    int32_t escapeFailureCount_ = 0;
+    uint32_t escapeRngState_ = 0;
     
     // Subjects
     std::vector<BattleSubject> actors_;

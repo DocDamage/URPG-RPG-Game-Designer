@@ -13,6 +13,61 @@ namespace compat {
 std::unordered_map<std::string, CompatStatus> BattleManager::methodStatus_;
 std::unordered_map<std::string, std::string> BattleManager::methodDeviations_;
 
+namespace {
+
+double normalizeAgility(int32_t actionSpeed) {
+    return static_cast<double>(std::max(1, actionSpeed));
+}
+
+double averageAgility(const std::vector<BattleSubject>& subjects) {
+    if (subjects.empty()) {
+        return 100.0;
+    }
+
+    double total = 0.0;
+    int32_t count = 0;
+    for (const auto& subject : subjects) {
+        if (subject.hidden || subject.hp <= 0) {
+            continue;
+        }
+        total += normalizeAgility(subject.actionSpeed);
+        ++count;
+    }
+
+    if (count == 0) {
+        return 100.0;
+    }
+    return total / static_cast<double>(count);
+}
+
+double computeBaseEscapeRatio(const std::vector<BattleSubject>& actors,
+                              const std::vector<BattleSubject>& enemies) {
+    const double partyAgi = averageAgility(actors);
+    const double troopAgi = averageAgility(enemies);
+    if (troopAgi <= 0.0) {
+        return 1.0;
+    }
+    return std::clamp(0.5 * (partyAgi / troopAgi), 0.0, 1.0);
+}
+
+uint32_t mixEscapeSeed(int32_t troopId) {
+    uint32_t seed = 0x9E3779B9u;
+    seed ^= static_cast<uint32_t>(troopId) + 0x85EBCA6Bu + (seed << 6) + (seed >> 2);
+    return seed == 0 ? 0xA341316Cu : seed;
+}
+
+double nextEscapeRoll(uint32_t& state) {
+    if (state == 0) {
+        state = 0xA341316Cu;
+    }
+    state ^= (state << 13);
+    state ^= (state >> 17);
+    state ^= (state << 5);
+    return static_cast<double>(state) / static_cast<double>(UINT32_MAX);
+}
+
+} // namespace
+
 // Internal implementation
 class BattleManagerImpl {
 public:
@@ -36,8 +91,7 @@ BattleManager::BattleManager()
         methodStatus_["endBattle"] = CompatStatus::FULL;
         methodStatus_["abortBattle"] = CompatStatus::FULL;
         methodStatus_["canEscape"] = CompatStatus::FULL;
-        methodStatus_["processEscape"] = CompatStatus::PARTIAL;
-        methodDeviations_["processEscape"] = "RNG sequence may differ from MZ";
+        methodStatus_["processEscape"] = CompatStatus::FULL;
         methodStatus_["isBattleActive"] = CompatStatus::FULL;
         methodStatus_["getPhase"] = CompatStatus::FULL;
         methodStatus_["getResult"] = CompatStatus::FULL;
@@ -113,6 +167,11 @@ void BattleManager::setup(int32_t troopId, bool canEscape, bool canLose) {
     
     // TODO: Load troop data and populate enemies
     // TODO: Copy current party to actors
+
+    escapeFailureCount_ = 0;
+    escapeRatio_ = computeBaseEscapeRatio(actors_, enemies_);
+    escapeRngState_ = mixEscapeSeed(troopId_);
+    impl_->rng.seed(escapeRngState_);
 }
 
 void BattleManager::setBattleTransition(int32_t type) {
@@ -188,19 +247,19 @@ bool BattleManager::processEscape() {
     if (!canEscape()) {
         return false;
     }
-    
-    // Calculate escape success (MZ formula approximation)
-    // Escape rate = 0.5 * (party agility average / troop agility average)
-    // For stub, use 50% base rate
-    std::uniform_real_distribution<double> dist(0.0, 1.0);
-    bool success = dist(impl_->rng) < 0.5;
-    
+
+    const double roll = nextEscapeRoll(escapeRngState_);
+    const bool success = roll < escapeRatio_;
+
     triggerHook(HookPoint::ON_ESCAPE, {Value::Int(success ? 1 : 0)});
-    
+
     if (success) {
         endBattle(BattleResult::ESCAPE);
+    } else {
+        ++escapeFailureCount_;
+        escapeRatio_ = std::min(1.0, escapeRatio_ + 0.1);
     }
-    
+
     return success;
 }
 
@@ -750,7 +809,7 @@ void BattleManager::registerAPI(QuickJSContext& ctx) {
     methods.push_back({"processEscape", [](const std::vector<Value>&) -> Value {
         // return Value::Int(BattleManager::instance().processEscape() ? 1 : 0);
         return Value::Int(0);
-    }, CompatStatus::PARTIAL, "RNG sequence may differ from MZ"});
+    }, CompatStatus::FULL});
     
     ctx.registerObject("BattleManager", methods);
 }

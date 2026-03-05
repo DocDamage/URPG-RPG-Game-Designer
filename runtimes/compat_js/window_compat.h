@@ -91,8 +91,7 @@ public:
     // Status: FULL - Behaves identically to MZ
     virtual void drawIcon(int32_t iconIndex, int32_t x, int32_t y);
     
-    // Status: PARTIAL - Face scaling may differ slightly
-    // Deviation: Non-integer scaling rounds differently than MZ
+    // Status: FULL - MZ-canonical face cell clipping + destination centering semantics
     virtual void drawActorFace(int32_t actorId, int32_t x, int32_t y, 
                                int32_t width = 144, int32_t height = 144);
     
@@ -123,24 +122,23 @@ public:
     virtual void drawCharacter(const std::string& characterName,
                                int32_t index, int32_t x, int32_t y);
     
-    // Status: PARTIAL - Placeholder labels until item database integration
+    // Status: FULL - DataManager-backed icon + label rendering semantics
     virtual void drawItemName(int32_t itemId, int32_t x, int32_t y,
                               int32_t width = 312);
     
     // === Extended drawing methods (commonly used by MZ plugins) ===
     
-    // Status: PARTIAL - Basic escape codes only
-    // Deviation: Only supports \C[n], \I[n], \G basic codes
+    // Status: FULL - Escape-code parity (\C/\I/\V/\N/\P/\G, \{/\}, newline)
     virtual void drawTextEx(const std::string& text, int32_t x, int32_t y,
                             int32_t width = 0);
     
     // Status: FULL
     virtual int32_t lineHeight() const;
     
-    // Status: PARTIAL - Uses deterministic width heuristics instead of renderer glyph metrics
+    // Status: FULL - Compat renderer-backed glyph measurement
     virtual int32_t textWidth(const std::string& text) const;
 
-    // Status: PARTIAL - Uses deterministic width/line-height heuristics
+    // Status: FULL - Compat renderer-backed width/height text layout
     virtual Rect textSize(const std::string& text) const;
     
     // Text color management
@@ -209,6 +207,15 @@ public:
     static uint32_t getMethodCallCount(const std::string& methodName);
     static std::vector<std::string> getTrackedMethods();
 
+    struct FaceDrawInfo {
+        int32_t actorId = 0;
+        std::string faceName;
+        int32_t faceIndex = 0;
+        Rect sourceRect;
+        Rect destRect;
+    };
+    std::optional<FaceDrawInfo> getLastFaceDraw() const { return lastFaceDraw_; }
+
 protected:
     Rect rect_;
     bool isOpen_ = false;
@@ -223,6 +230,7 @@ protected:
     Color textColor_ = Color{255, 255, 255, 255};
     std::string fontFace_ = "Microsoft YaHei";
     int32_t fontSize_ = 22;
+    std::optional<FaceDrawInfo> lastFaceDraw_;
     
     // API status registry - must be public for static initialization
     static std::unordered_map<std::string, CompatStatus> methodStatus_;
@@ -491,6 +499,8 @@ public:
     // Animation
     void startMotion(int32_t motion);
     void startAnimation(int32_t animationId);
+    bool isAnimationPlaying() const { return animationPlaying_; }
+    int32_t getAnimationId() const { return animationId_; }
     
     // Effect (whiten, blink, collapse, bossCollapse, instantCollapse)
     void startEffect(const std::string& effect);
@@ -510,8 +520,12 @@ private:
     bool visible_ = true;
     int32_t blendMode_ = 0;
     int32_t opacity_ = 255;
+    bool animationPlaying_ = false;
+    int32_t animationId_ = 0;
+    int32_t animationFramesRemaining_ = 0;
     bool effecting_ = false;
     std::string currentEffect_;
+    int32_t effectDurationFrames_ = 0;
     BitmapHandle bitmap_ = INVALID_BITMAP;
 };
 

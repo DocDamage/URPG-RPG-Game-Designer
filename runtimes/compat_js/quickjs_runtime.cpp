@@ -163,7 +163,24 @@ ScriptResult QuickJSContext::eval(const std::string& code, const std::string& fi
     //   // @urpg-export <fnName> const <value>
     std::istringstream stream(code);
     std::string line;
+    uint32_t lineNumber = 0;
     while (std::getline(stream, line)) {
+        ++lineNumber;
+        const auto failPos = line.find("@urpg-fail-eval");
+        if (failPos != std::string::npos) {
+            std::string payload =
+                trim(line.substr(failPos + std::string("@urpg-fail-eval").size()));
+            if (payload.empty()) {
+                payload = "QuickJS eval failure requested by fixture directive";
+            }
+            result.success = false;
+            result.error = payload;
+            result.severity = CompatSeverity::HARD_FAIL;
+            result.sourceLocation = filename + ":" + std::to_string(lineNumber);
+            lastError_ = result.error;
+            return result;
+        }
+
         const auto markerPos = line.find("@urpg-export");
         if (markerPos == std::string::npos) {
             continue;
