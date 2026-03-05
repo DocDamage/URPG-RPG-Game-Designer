@@ -1,0 +1,30 @@
+{
+  "name": "VisuStella_OptionsCore_MZ",
+  "version": "1.1.0-fixture",
+  "author": "URPG Fixture Harness",
+  "description": "Options core compatibility fixture",
+  "dependencies": ["VisuStella_CoreEngine_MZ"],
+  "parameters": {
+    "profile": "options_core",
+    "toggleCount": 4
+  },
+  "commands": [
+    {
+      "name": "openOptions",
+      "script": [
+        {"op": "set", "key": "plugin", "value": {"from": "pluginName"}},
+        {"op": "set", "key": "command", "value": {"from": "commandName"}},
+        {"op": "set", "key": "profile", "value": {"from": "param", "name": "profile"}},
+        {"op": "set", "key": "toggleCount", "value": {"from": "param", "name": "toggleCount"}},
+        {"op": "set", "key": "argCount", "value": {"from": "argCount"}},
+        {"op": "returnObject"}
+      ]
+    },
+    {
+      "name": "optionsConstViaJs",
+      "description": "Returns static options profile token via QuickJS const mode",
+      "entry": "optionsConstRuntime",
+      "js": "// @urpg-export optionsConstRuntime const \"options_runtime_token\""
+    }
+  ]
+}

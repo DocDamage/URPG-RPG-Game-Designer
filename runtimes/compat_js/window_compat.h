@@ -15,6 +15,7 @@
 #include "quickjs_runtime.h"
 #include "engine/runtimes/bridge/value.h"
 #include <cstdint>
+#include <functional>
 #include <memory>
 #include <optional>
 #include <string>
@@ -102,16 +103,15 @@ public:
     // Status: FULL
     virtual void drawActorLevel(int32_t actorId, int32_t x, int32_t y);
     
-    // Status: PARTIAL - Gauge colors use URPG theme if not overridden
-    // Deviation: Default gauge colors match URPG theme, not MZ defaults
+    // Status: FULL - Uses MZ-compatible default gauge colors
     virtual void drawActorHp(int32_t actorId, int32_t x, int32_t y, 
                              int32_t width = 128);
     
-    // Status: PARTIAL - Gauge colors use URPG theme if not overridden
+    // Status: FULL - Uses MZ-compatible default gauge colors
     virtual void drawActorMp(int32_t actorId, int32_t x, int32_t y, 
                              int32_t width = 128);
     
-    // Status: PARTIAL - Gauge colors use URPG theme if not overridden
+    // Status: FULL - Uses MZ-compatible default gauge colors
     virtual void drawActorTp(int32_t actorId, int32_t x, int32_t y, 
                              int32_t width = 128);
     
@@ -123,7 +123,7 @@ public:
     virtual void drawCharacter(const std::string& characterName,
                                int32_t index, int32_t x, int32_t y);
     
-    // Status: STUB - No-op in V1
+    // Status: PARTIAL - Placeholder labels until item database integration
     virtual void drawItemName(int32_t itemId, int32_t x, int32_t y,
                               int32_t width = 312);
     
@@ -137,10 +137,10 @@ public:
     // Status: FULL
     virtual int32_t lineHeight() const;
     
-    // Status: STUB - Returns estimated width
+    // Status: PARTIAL - Uses deterministic width heuristics instead of renderer glyph metrics
     virtual int32_t textWidth(const std::string& text) const;
-    
-    // Status: STUB - Returns estimated size
+
+    // Status: PARTIAL - Uses deterministic width/line-height heuristics
     virtual Rect textSize(const std::string& text) const;
     
     // Text color management
@@ -206,6 +206,8 @@ public:
     // Get compat status for a method
     static CompatStatus getMethodStatus(const std::string& methodName);
     static std::string getMethodDeviation(const std::string& methodName);
+    static uint32_t getMethodCallCount(const std::string& methodName);
+    static std::vector<std::string> getTrackedMethods();
 
 protected:
     Rect rect_;
@@ -225,9 +227,11 @@ protected:
     // API status registry - must be public for static initialization
     static std::unordered_map<std::string, CompatStatus> methodStatus_;
     static std::unordered_map<std::string, std::string> methodDeviations_;
+    static std::unordered_map<std::string, uint32_t> methodCallCounts_;
     
     // Initialize static method status maps
     static void initializeMethodStatus();
+    static void recordMethodCall(const std::string& methodName);
 };
 
 // Window_Selectable - Base for menus with selectable items
@@ -254,15 +258,15 @@ public:
     
     // Item count
     int32_t getMaxItems() const { return maxItems_; }
-    void setMaxItems(int32_t count) { maxItems_ = count; }
+    void setMaxItems(int32_t count);
     
     // Column layout
     int32_t getMaxCols() const { return maxCols_; }
-    void setMaxCols(int32_t cols) { maxCols_ = cols; }
+    void setMaxCols(int32_t cols);
     
     // Item dimensions
     int32_t getItemHeight() const { return itemHeight_; }
-    void setItemHeight(int32_t height) { itemHeight_ = height; }
+    void setItemHeight(int32_t height);
     int32_t getItemWidth() const;
     
     // Navigation
@@ -341,7 +345,12 @@ public:
     
     // Current command
     const CommandItem& getCurrentCommand() const;
+    bool isCommandEnabled(int32_t index) const;
+    bool isCurrentItemEnabled() const;
     std::string getCurrentSymbol() const;
+    int32_t findSymbol(const std::string& symbol) const;
+    int32_t findExt(int32_t ext) const;
+    void callOkHandler();
     
     // Draw
     void drawItem(int32_t index);

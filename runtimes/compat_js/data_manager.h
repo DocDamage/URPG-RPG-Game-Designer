@@ -182,6 +182,9 @@ public:
     // Non-copyable
     DataManager(const DataManager&) = delete;
     DataManager& operator=(const DataManager&) = delete;
+
+    // Singleton access for compatibility.
+    static DataManager& instance();
     
     // ========================================================================
     // Database Loading
@@ -306,6 +309,11 @@ public:
     int32_t getPlayerDirection() const;
     void setPlayerPosition(int32_t mapId, int32_t x, int32_t y);
     void setPlayerDirection(int32_t direction);
+
+    // Status: FULL - Map transfer requests
+    void reserveTransfer(int32_t mapId, int32_t x, int32_t y, int32_t direction = -1);
+    bool isTransferring() const;
+    void processTransfer();
     
     // ========================================================================
     // Save/Load Operations
@@ -333,8 +341,7 @@ public:
     std::optional<SaveHeader> getSaveHeader(int32_t slot) const;
     std::vector<SaveHeader> getAllSaveHeaders() const;
     
-    // Status: PARTIAL - Header extension for plugins
-    // Deviation: Custom plugin data may not round-trip perfectly
+    // Status: FULL - Header extension for plugins
     bool setSaveHeaderExtension(int32_t slot, const std::string& key, const Value& value);
     std::optional<Value> getSaveHeaderExtension(int32_t slot, const std::string& key) const;
     

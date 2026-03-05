@@ -6,6 +6,7 @@
 #include <cassert>
 #include <chrono>
 #include <sstream>
+#include <utility>
 
 namespace urpg {
 namespace compat {
@@ -14,30 +15,61 @@ namespace compat {
 std::unordered_map<std::string, CompatStatus> DataManager::methodStatus_;
 std::unordered_map<std::string, std::string> DataManager::methodDeviations_;
 
+namespace {
+constexpr int32_t kAutosaveSlot = 0;
+
+bool isValidSaveSlot(int32_t slot, int32_t maxSaveFiles) {
+    return slot >= kAutosaveSlot && slot <= maxSaveFiles;
+}
+} // namespace
+
 // Internal implementation
+struct SaveSlotData {
+    SaveHeader header;
+    GlobalState state;
+};
+
+struct PendingTransfer {
+    int32_t mapId = 0;
+    int32_t x = 0;
+    int32_t y = 0;
+    int32_t direction = -1;
+};
+
 class DataManagerImpl {
 public:
     std::chrono::steady_clock::time_point playtimeStart;
     int32_t loadedMapId = 0;
     bool isDatabaseLoaded = false;
+    bool transferPending = false;
+    PendingTransfer pendingTransfer;
+    std::unordered_map<int32_t, SaveSlotData> saveSlots;
+    std::unordered_map<int32_t, std::unordered_map<std::string, Value>> saveHeaderExtensions;
 };
 
 DataManager::DataManager()
     : impl_(std::make_unique<DataManagerImpl>())
 {
+    impl_->playtimeStart = std::chrono::steady_clock::now();
+
     // Initialize method status registry
     if (methodStatus_.empty()) {
         // Save/Load
         methodStatus_["loadDatabase"] = CompatStatus::FULL;
         methodStatus_["saveGame"] = CompatStatus::FULL;
+        methodStatus_["saveGameWithHeader"] = CompatStatus::FULL;
         methodStatus_["loadGame"] = CompatStatus::FULL;
-        methodStatus_["deleteSave"] = CompatStatus::FULL;
-        methodStatus_["saveExists"] = CompatStatus::FULL;
-        methodStatus_["getMaxSaveSlots"] = CompatStatus::FULL;
+        methodStatus_["deleteSaveFile"] = CompatStatus::FULL;
+        methodStatus_["doesSaveFileExist"] = CompatStatus::FULL;
+        methodStatus_["getMaxSaveFiles"] = CompatStatus::FULL;
         methodStatus_["getSaveHeader"] = CompatStatus::FULL;
-        methodStatus_["loadSaveHeaders"] = CompatStatus::FULL;
-        methodStatus_["autosave"] = CompatStatus::FULL;
-        methodStatus_["isAutosave"] = CompatStatus::FULL;
+        methodStatus_["getAllSaveHeaders"] = CompatStatus::FULL;
+        methodStatus_["saveAutosave"] = CompatStatus::FULL;
+        methodStatus_["loadAutosave"] = CompatStatus::FULL;
+        methodStatus_["isAutosaveEnabled"] = CompatStatus::FULL;
+        methodStatus_["setAutosaveEnabled"] = CompatStatus::FULL;
+        methodStatus_["setSaveHeaderExtension"] = CompatStatus::FULL;
+        methodStatus_["getSaveHeaderExtension"] = CompatStatus::FULL;
         
         // Database access
         methodStatus_["getActors"] = CompatStatus::FULL;
@@ -90,6 +122,11 @@ DataManager::DataManager()
 }
 
 DataManager::~DataManager() = default;
+
+DataManager& DataManager::instance() {
+    static DataManager instance;
+    return instance;
+}
 
 // ============================================================================
 // Database Loading
@@ -340,6 +377,7 @@ void DataManager::setupNewGame() {
     globalState_.playtime = 0;
     
     impl_->playtimeStart = std::chrono::steady_clock::now();
+    impl_->transferPending = false;
 }
 
 GlobalState& DataManager::getGlobalState() {
@@ -528,9 +566,18 @@ int32_t DataManager::getPlayerY() const {
     return globalState_.playerY;
 }
 
-void DataManager::setPlayerPosition(int32_t x, int32_t y) {
+int32_t DataManager::getPlayerDirection() const {
+    return globalState_.playerDirection;
+}
+
+void DataManager::setPlayerPosition(int32_t mapId, int32_t x, int32_t y) {
+    globalState_.mapId = mapId;
     globalState_.playerX = x;
     globalState_.playerY = y;
+}
+
+void DataManager::setPlayerDirection(int32_t direction) {
+    globalState_.playerDirection = direction;
 }
 
 // ============================================================================
@@ -538,20 +585,29 @@ void DataManager::setPlayerPosition(int32_t x, int32_t y) {
 // ============================================================================
 
 void DataManager::reserveTransfer(int32_t mapId, int32_t x, int32_t y, int32_t direction) {
-    globalState_.mapId = mapId;
-    globalState_.playerX = x;
-    globalState_.playerY = y;
-    if (direction >= 0) {
-        globalState_.playerDirection = direction;
-    }
+    impl_->pendingTransfer.mapId = mapId;
+    impl_->pendingTransfer.x = x;
+    impl_->pendingTransfer.y = y;
+    impl_->pendingTransfer.direction = direction;
+    impl_->transferPending = true;
 }
 
 bool DataManager::isTransferring() const {
-    return false; // TODO: Track transfer state
+    return impl_->transferPending;
 }
 
 void DataManager::processTransfer() {
-    // TODO: Process the reserved transfer
+    if (!impl_->transferPending) {
+        return;
+    }
+
+    globalState_.mapId = impl_->pendingTransfer.mapId;
+    globalState_.playerX = impl_->pendingTransfer.x;
+    globalState_.playerY = impl_->pendingTransfer.y;
+    if (impl_->pendingTransfer.direction >= 0) {
+        globalState_.playerDirection = impl_->pendingTransfer.direction;
+    }
+    impl_->transferPending = false;
 }
 
 // ============================================================================
@@ -559,42 +615,84 @@ void DataManager::processTransfer() {
 // ============================================================================
 
 bool DataManager::saveGame(int32_t slot) {
-    // TODO: Implement actual save
-    (void)slot;
+    if (!isValidSaveSlot(slot, getMaxSaveFiles())) {
+        return false;
+    }
+
+    SaveSlotData slotData;
+    slotData.state = globalState_;
+    slotData.header = createSaveHeader(slot == kAutosaveSlot);
+    impl_->saveSlots[slot] = std::move(slotData);
+    return true;
+}
+
+bool DataManager::saveGameWithHeader(int32_t slot, const SaveHeader& header) {
+    if (!isValidSaveSlot(slot, getMaxSaveFiles())) {
+        return false;
+    }
+
+    SaveSlotData slotData;
+    slotData.state = globalState_;
+    slotData.header = header;
+    if (slot == kAutosaveSlot) {
+        slotData.header.isAutosave = true;
+    }
+    impl_->saveSlots[slot] = std::move(slotData);
     return true;
 }
 
 bool DataManager::loadGame(int32_t slot) {
-    // TODO: Implement actual load
-    (void)slot;
+    if (!isValidSaveSlot(slot, getMaxSaveFiles())) {
+        return false;
+    }
+
+    auto it = impl_->saveSlots.find(slot);
+    if (it == impl_->saveSlots.end()) {
+        return false;
+    }
+
+    globalState_ = it->second.state;
+    impl_->transferPending = false;
+    impl_->playtimeStart = std::chrono::steady_clock::now() - std::chrono::seconds(globalState_.playtime);
     return true;
 }
 
-bool DataManager::deleteSave(int32_t slot) {
-    // TODO: Implement actual delete
-    (void)slot;
-    return true;
+bool DataManager::deleteSaveFile(int32_t slot) {
+    if (!isValidSaveSlot(slot, getMaxSaveFiles())) {
+        return false;
+    }
+
+    const bool removedSave = (impl_->saveSlots.erase(slot) > 0);
+    const bool removedExt = (impl_->saveHeaderExtensions.erase(slot) > 0);
+    return removedSave || removedExt;
 }
 
-bool DataManager::saveExists(int32_t slot) const {
-    // TODO: Check if save file exists
-    (void)slot;
-    return false;
+bool DataManager::doesSaveFileExist(int32_t slot) const {
+    if (!isValidSaveSlot(slot, getMaxSaveFiles())) {
+        return false;
+    }
+    return impl_->saveSlots.find(slot) != impl_->saveSlots.end();
 }
 
-int32_t DataManager::getMaxSaveSlots() const {
+int32_t DataManager::getMaxSaveFiles() const {
     return 20; // MZ default
 }
 
 std::optional<SaveHeader> DataManager::getSaveHeader(int32_t slot) const {
-    // TODO: Load and return save header
-    (void)slot;
-    return std::nullopt;
+    if (!isValidSaveSlot(slot, getMaxSaveFiles())) {
+        return std::nullopt;
+    }
+
+    auto it = impl_->saveSlots.find(slot);
+    if (it == impl_->saveSlots.end()) {
+        return std::nullopt;
+    }
+    return it->second.header;
 }
 
-std::vector<SaveHeader> DataManager::loadSaveHeaders() const {
+std::vector<SaveHeader> DataManager::getAllSaveHeaders() const {
     std::vector<SaveHeader> headers;
-    for (int32_t i = 1; i <= getMaxSaveSlots(); ++i) {
+    for (int32_t i = 1; i <= getMaxSaveFiles(); ++i) {
         auto header = getSaveHeader(i);
         if (header) {
             headers.push_back(*header);
@@ -603,14 +701,84 @@ std::vector<SaveHeader> DataManager::loadSaveHeaders() const {
     return headers;
 }
 
-void DataManager::autosave() {
-    if (autosaveEnabled_) {
-        saveGame(0); // Slot 0 is autosave
-    }
+bool DataManager::isAutosaveEnabled() const {
+    return autosaveEnabled_;
 }
 
-bool DataManager::isAutosave() const {
-    return false; // TODO: Track if current state is from autosave
+void DataManager::setAutosaveEnabled(bool enabled) {
+    autosaveEnabled_ = enabled;
+}
+
+bool DataManager::saveAutosave() {
+    if (!autosaveEnabled_) {
+        return false;
+    }
+    return saveGame(0);
+}
+
+bool DataManager::loadAutosave() {
+    return loadGame(0);
+}
+
+bool DataManager::setSaveHeaderExtension(int32_t slot, const std::string& key, const Value& value) {
+    if (!isValidSaveSlot(slot, getMaxSaveFiles()) || key.empty()) {
+        return false;
+    }
+
+    impl_->saveHeaderExtensions[slot][key] = value;
+    return true;
+}
+
+std::optional<Value> DataManager::getSaveHeaderExtension(int32_t slot, const std::string& key) const {
+    if (!isValidSaveSlot(slot, getMaxSaveFiles()) || key.empty()) {
+        return std::nullopt;
+    }
+
+    auto slotIt = impl_->saveHeaderExtensions.find(slot);
+    if (slotIt == impl_->saveHeaderExtensions.end()) {
+        return std::nullopt;
+    }
+
+    auto keyIt = slotIt->second.find(key);
+    if (keyIt == slotIt->second.end()) {
+        return std::nullopt;
+    }
+    return keyIt->second;
+}
+
+SaveHeader DataManager::createSaveHeader(bool isAutosave) const {
+    SaveHeader header;
+    header.version = 1;
+    header.playtimeFrames = globalState_.playtime * 60;
+    header.mapId = globalState_.mapId;
+    header.playerId = 0;
+    header.playerX = globalState_.playerX;
+    header.playerY = globalState_.playerY;
+    header.isAutosave = isAutosave;
+    return header;
+}
+
+Value DataManager::getActorsAsValue() const { return Value::Arr({}); }
+Value DataManager::getSkillsAsValue() const { return Value::Arr({}); }
+Value DataManager::getItemsAsValue() const { return Value::Arr({}); }
+Value DataManager::getWeaponsAsValue() const { return Value::Arr({}); }
+Value DataManager::getArmorsAsValue() const { return Value::Arr({}); }
+Value DataManager::getEnemiesAsValue() const { return Value::Arr({}); }
+Value DataManager::getTroopsAsValue() const { return Value::Arr({}); }
+Value DataManager::getStatesAsValue() const { return Value::Arr({}); }
+Value DataManager::getClassesAsValue() const { return Value::Arr({}); }
+Value DataManager::getMapInfosAsValue() const { return Value::Arr({}); }
+
+Value DataManager::getGlobalStateAsValue() const {
+    Object obj;
+    obj["gold"] = Value::Int(globalState_.gold);
+    obj["steps"] = Value::Int(globalState_.steps);
+    obj["playtime"] = Value::Int(globalState_.playtime);
+    obj["mapId"] = Value::Int(globalState_.mapId);
+    obj["playerX"] = Value::Int(globalState_.playerX);
+    obj["playerY"] = Value::Int(globalState_.playerY);
+    obj["playerDirection"] = Value::Int(globalState_.playerDirection);
+    return Value::Obj(std::move(obj));
 }
 
 // ============================================================================

@@ -5,6 +5,49 @@
 #include <algorithm>
 #include <cassert>
 #include <cmath>
+#include <limits>
+
+namespace {
+
+double sanitizeScale(double value) {
+    if (!std::isfinite(value) || std::fabs(value) < std::numeric_limits<double>::epsilon()) {
+        return 1.0;
+    }
+    return value;
+}
+
+int64_t valueToInt64(const urpg::Value& value, int64_t fallback = 0) {
+    if (const auto* integer = std::get_if<int64_t>(&value.v)) {
+        return *integer;
+    }
+    if (const auto* real = std::get_if<double>(&value.v)) {
+        return static_cast<int64_t>(std::llround(*real));
+    }
+    if (const auto* flag = std::get_if<bool>(&value.v)) {
+        return *flag ? 1 : 0;
+    }
+    if (const auto* text = std::get_if<std::string>(&value.v)) {
+        try {
+            size_t consumed = 0;
+            const int64_t parsed = std::stoll(*text, &consumed, 10);
+            if (consumed == text->size()) {
+                return parsed;
+            }
+        } catch (...) {
+        }
+        try {
+            size_t consumed = 0;
+            const double parsed = std::stod(*text, &consumed);
+            if (consumed == text->size()) {
+                return static_cast<int64_t>(std::llround(parsed));
+            }
+        } catch (...) {
+        }
+    }
+    return fallback;
+}
+
+} // namespace
 
 namespace urpg {
 namespace compat {
@@ -513,39 +556,43 @@ void InputManager::registerAPI(QuickJSContext& ctx) {
     
     methods.push_back({"isPressed", [](const std::vector<Value>& args) -> Value {
         if (args.size() < 1) return Value::Int(0);
-        // return Value::Int(InputManager::instance().isPressed(keyCode) ? 1 : 0);
-        return Value::Int(0);
+        const int32_t keyCode = static_cast<int32_t>(valueToInt64(args[0]));
+        return Value::Int(InputManager::instance().isPressed(keyCode) ? 1 : 0);
     }, CompatStatus::FULL});
     
     methods.push_back({"isTriggered", [](const std::vector<Value>& args) -> Value {
         if (args.size() < 1) return Value::Int(0);
-        // return Value::Int(InputManager::instance().isTriggered(keyCode) ? 1 : 0);
-        return Value::Int(0);
+        const int32_t keyCode = static_cast<int32_t>(valueToInt64(args[0]));
+        return Value::Int(InputManager::instance().isTriggered(keyCode) ? 1 : 0);
     }, CompatStatus::FULL});
     
     methods.push_back({"isRepeated", [](const std::vector<Value>& args) -> Value {
         if (args.size() < 1) return Value::Int(0);
-        // return Value::Int(InputManager::instance().isRepeated(keyCode) ? 1 : 0);
-        return Value::Int(0);
+        const int32_t keyCode = static_cast<int32_t>(valueToInt64(args[0]));
+        return Value::Int(InputManager::instance().isRepeated(keyCode) ? 1 : 0);
+    }, CompatStatus::FULL});
+
+    methods.push_back({"isReleased", [](const std::vector<Value>& args) -> Value {
+        if (args.size() < 1) return Value::Int(0);
+        const int32_t keyCode = static_cast<int32_t>(valueToInt64(args[0]));
+        return Value::Int(InputManager::instance().isReleased(keyCode) ? 1 : 0);
     }, CompatStatus::FULL});
     
     methods.push_back({"dir4", [](const std::vector<Value>&) -> Value {
-        // return Value::Int(InputManager::instance().getDir4());
-        return Value::Int(0);
+        return Value::Int(InputManager::instance().getDir4());
     }, CompatStatus::FULL});
     
     methods.push_back({"dir8", [](const std::vector<Value>&) -> Value {
-        // return Value::Int(InputManager::instance().getDir8());
-        return Value::Int(0);
+        return Value::Int(InputManager::instance().getDir8());
     }, CompatStatus::FULL});
     
     methods.push_back({"update", [](const std::vector<Value>&) -> Value {
-        // InputManager::instance().update();
+        InputManager::instance().update();
         return Value::Nil();
     }, CompatStatus::FULL});
     
     methods.push_back({"clear", [](const std::vector<Value>&) -> Value {
-        // InputManager::instance().clear();
+        InputManager::instance().clear();
         return Value::Nil();
     }, CompatStatus::FULL});
     
@@ -563,10 +610,8 @@ TouchInput::TouchInput() {
         methodStatus_["y"] = CompatStatus::FULL;
         methodStatus_["screenX"] = CompatStatus::FULL;
         methodStatus_["screenY"] = CompatStatus::FULL;
-        methodStatus_["worldX"] = CompatStatus::STUB;
-        methodDeviations_["worldX"] = "Requires camera integration";
-        methodStatus_["worldY"] = CompatStatus::STUB;
-        methodDeviations_["worldY"] = "Requires camera integration";
+        methodStatus_["worldX"] = CompatStatus::FULL;
+        methodStatus_["worldY"] = CompatStatus::FULL;
         methodStatus_["isPressed"] = CompatStatus::FULL;
         methodStatus_["isTriggered"] = CompatStatus::FULL;
         methodStatus_["isReleased"] = CompatStatus::FULL;
@@ -598,35 +643,47 @@ void TouchInput::clear() {
 }
 
 void TouchInput::update() {
+    const bool justPressed = state_.pressed && !state_.prevPressed;
+    const bool justReleased = !state_.pressed && state_.prevPressed;
+
     // Check for trigger
-    if (state_.pressed && !state_.prevPressed) {
+    if (justPressed) {
         state_.startX = state_.x;
         state_.startY = state_.y;
         state_.holdTime = 0;
+        state_.moveDistance = 0.0;
+        state_.moveSpeed = 0.0;
+        state_.moveDirection = 0;
+        state_.moved = false;
+        state_.stayed = true;
     }
     
     // Check for release
-    if (!state_.pressed && state_.prevPressed) {
+    if (justReleased) {
         state_.endX = state_.x;
         state_.endY = state_.y;
+        if (state_.holdTime <= 20 && state_.moveDistance <= 10.0) {
+            ++state_.tapCount;
+        }
     }
     
     // Update hold time
     if (state_.pressed) {
-        state_.holdTime++;
-    }
-    
-    // Check for movement
-    if (state_.pressed && state_.prevPressed) {
-        int32_t dx = state_.x - state_.startX;
-        int32_t dy = state_.y - state_.startY;
-        state_.moveDistance = std::sqrt(dx * dx + dy * dy);
+        ++state_.holdTime;
+
+        const double frameDx = static_cast<double>(state_.x - state_.prevX);
+        const double frameDy = static_cast<double>(state_.y - state_.prevY);
+        state_.moveSpeed = std::sqrt(frameDx * frameDx + frameDy * frameDy);
+
+        const double totalDx = static_cast<double>(state_.x - state_.startX);
+        const double totalDy = static_cast<double>(state_.y - state_.startY);
+        state_.moveDistance = std::sqrt(totalDx * totalDx + totalDy * totalDy);
         state_.moved = state_.moveDistance > 10.0;
         state_.stayed = !state_.moved;
         
         // Calculate move direction (8-direction)
         if (state_.moveDistance > 0) {
-            double angle = std::atan2(dy, dx) * 180.0 / 3.14159265;
+            double angle = std::atan2(totalDy, totalDx) * 180.0 / 3.14159265;
             if (angle < 0) angle += 360.0;
             
             if (angle >= 337.5 || angle < 22.5) state_.moveDirection = 6;
@@ -638,18 +695,32 @@ void TouchInput::update() {
             else if (angle >= 247.5 && angle < 292.5) state_.moveDirection = 8;
             else state_.moveDirection = 9;
         }
+    } else {
+        state_.moveSpeed = 0.0;
     }
     
     // Store previous state
     state_.prevPressed = state_.pressed;
+    state_.prevX = state_.x;
+    state_.prevY = state_.y;
 }
 
 int32_t TouchInput::getX() const { return state_.x; }
 int32_t TouchInput::getY() const { return state_.y; }
 int32_t TouchInput::getScreenX() const { return state_.x; }
 int32_t TouchInput::getScreenY() const { return state_.y; }
-int32_t TouchInput::getWorldX() const { return state_.x; } // TODO: Camera transform
-int32_t TouchInput::getWorldY() const { return state_.y; } // TODO: Camera transform
+int32_t TouchInput::getWorldX() const {
+    const double scaleX = sanitizeScale(state_.cameraScaleX);
+    return static_cast<int32_t>(
+        std::lround((static_cast<double>(state_.x) - static_cast<double>(state_.cameraOffsetX)) / scaleX)
+    );
+}
+int32_t TouchInput::getWorldY() const {
+    const double scaleY = sanitizeScale(state_.cameraScaleY);
+    return static_cast<int32_t>(
+        std::lround((static_cast<double>(state_.y) - static_cast<double>(state_.cameraOffsetY)) / scaleY)
+    );
+}
 
 bool TouchInput::isPressed() const { return state_.pressed; }
 bool TouchInput::isTriggered() const { return state_.pressed && !state_.prevPressed; }
@@ -677,14 +748,28 @@ void TouchInput::setTouchPosition(int32_t x, int32_t y) {
 }
 
 void TouchInput::setTouchPressed(bool pressed) {
-    state_.pressed = pressed;
-    if (pressed) {
-        state_.count++;
+    if (pressed && !state_.pressed) {
+        ++state_.count;
     }
+    state_.pressed = pressed;
 }
 
 void TouchInput::setTouchCount(int32_t count) {
     state_.count = count;
+}
+
+void TouchInput::setCameraTransform(double scaleX, double scaleY, int32_t offsetX, int32_t offsetY) {
+    state_.cameraScaleX = sanitizeScale(scaleX);
+    state_.cameraScaleY = sanitizeScale(scaleY);
+    state_.cameraOffsetX = offsetX;
+    state_.cameraOffsetY = offsetY;
+}
+
+void TouchInput::resetCameraTransform() {
+    state_.cameraScaleX = 1.0;
+    state_.cameraScaleY = 1.0;
+    state_.cameraOffsetX = 0;
+    state_.cameraOffsetY = 0;
 }
 
 CompatStatus TouchInput::getMethodStatus(const std::string& methodName) {
@@ -707,27 +792,68 @@ void TouchInput::registerAPI(QuickJSContext& ctx) {
     std::vector<QuickJSContext::MethodDef> methods;
     
     methods.push_back({"x", [](const std::vector<Value>&) -> Value {
-        // return Value::Int(TouchInput::instance().getX());
-        return Value::Int(0);
+        return Value::Int(TouchInput::instance().getX());
     }, CompatStatus::FULL});
     
     methods.push_back({"y", [](const std::vector<Value>&) -> Value {
-        // return Value::Int(TouchInput::instance().getY());
-        return Value::Int(0);
+        return Value::Int(TouchInput::instance().getY());
+    }, CompatStatus::FULL});
+
+    methods.push_back({"screenX", [](const std::vector<Value>&) -> Value {
+        return Value::Int(TouchInput::instance().getScreenX());
+    }, CompatStatus::FULL});
+
+    methods.push_back({"screenY", [](const std::vector<Value>&) -> Value {
+        return Value::Int(TouchInput::instance().getScreenY());
+    }, CompatStatus::FULL});
+
+    methods.push_back({"worldX", [](const std::vector<Value>&) -> Value {
+        return Value::Int(TouchInput::instance().getWorldX());
+    }, CompatStatus::FULL});
+
+    methods.push_back({"worldY", [](const std::vector<Value>&) -> Value {
+        return Value::Int(TouchInput::instance().getWorldY());
     }, CompatStatus::FULL});
     
     methods.push_back({"isPressed", [](const std::vector<Value>&) -> Value {
-        // return Value::Int(TouchInput::instance().isPressed() ? 1 : 0);
-        return Value::Int(0);
+        return Value::Int(TouchInput::instance().isPressed() ? 1 : 0);
     }, CompatStatus::FULL});
     
     methods.push_back({"isTriggered", [](const std::vector<Value>&) -> Value {
-        // return Value::Int(TouchInput::instance().isTriggered() ? 1 : 0);
-        return Value::Int(0);
+        return Value::Int(TouchInput::instance().isTriggered() ? 1 : 0);
+    }, CompatStatus::FULL});
+
+    methods.push_back({"isReleased", [](const std::vector<Value>&) -> Value {
+        return Value::Int(TouchInput::instance().isReleased() ? 1 : 0);
+    }, CompatStatus::FULL});
+
+    methods.push_back({"isMoved", [](const std::vector<Value>&) -> Value {
+        return Value::Int(TouchInput::instance().isMoved() ? 1 : 0);
+    }, CompatStatus::FULL});
+
+    methods.push_back({"isStayed", [](const std::vector<Value>&) -> Value {
+        return Value::Int(TouchInput::instance().isStayed() ? 1 : 0);
+    }, CompatStatus::FULL});
+
+    methods.push_back({"touchCount", [](const std::vector<Value>&) -> Value {
+        return Value::Int(TouchInput::instance().getTouchCount());
+    }, CompatStatus::FULL});
+
+    methods.push_back({"tapCount", [](const std::vector<Value>&) -> Value {
+        return Value::Int(TouchInput::instance().getTapCount());
+    }, CompatStatus::FULL});
+
+    methods.push_back({"holdTime", [](const std::vector<Value>&) -> Value {
+        return Value::Int(TouchInput::instance().getHoldTime());
+    }, CompatStatus::FULL});
+
+    methods.push_back({"update", [](const std::vector<Value>&) -> Value {
+        TouchInput::instance().update();
+        return Value::Nil();
     }, CompatStatus::FULL});
     
     methods.push_back({"clear", [](const std::vector<Value>&) -> Value {
-        // TouchInput::instance().clear();
+        TouchInput::instance().clear();
         return Value::Nil();
     }, CompatStatus::FULL});
     

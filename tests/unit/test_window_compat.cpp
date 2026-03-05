@@ -120,13 +120,13 @@ TEST_CASE("Window_Base getMethodStatus returns correct values", "[compat][window
     REQUIRE(Window_Base::getMethodStatus("drawText") == CompatStatus::FULL);
     REQUIRE(Window_Base::getMethodStatus("drawIcon") == CompatStatus::FULL);
     REQUIRE(Window_Base::getMethodStatus("drawActorFace") == CompatStatus::PARTIAL);
-    REQUIRE(Window_Base::getMethodStatus("drawItemName") == CompatStatus::STUB);
+    REQUIRE(Window_Base::getMethodStatus("drawItemName") == CompatStatus::PARTIAL);
     REQUIRE(Window_Base::getMethodStatus("unknownMethod") == CompatStatus::UNSUPPORTED);
 }
 
 TEST_CASE("Window_Base getMethodDeviation returns notes", "[compat][window]") {
     REQUIRE(Window_Base::getMethodDeviation("drawActorFace") != "");
-    REQUIRE(Window_Base::getMethodDeviation("drawActorHp") != "");
+    REQUIRE(Window_Base::getMethodDeviation("drawActorHp") == "");
     REQUIRE(Window_Base::getMethodDeviation("drawText") == "");  // FULL, no deviation
 }
 
@@ -152,8 +152,8 @@ TEST_CASE("Window_Base lineHeight returns default", "[compat][window]") {
 
 TEST_CASE("Window_Base textWidth estimates width", "[compat][window]") {
     Window_Base window(Window_Base::CreateParams{});
-    // STUB: Returns estimated width
     REQUIRE(window.textWidth("Hello") > 0);
+    REQUIRE(window.textWidth("HELLO") > window.textWidth("...."));
     REQUIRE(window.textWidth("") == 0);
 }
 
@@ -162,6 +162,38 @@ TEST_CASE("Window_Base textSize returns estimated rect", "[compat][window]") {
     Rect size = window.textSize("Test");
     REQUIRE(size.width > 0);
     REQUIRE(size.height == window.lineHeight());
+
+    Rect multi = window.textSize("Line1\nLine2");
+    REQUIRE(multi.height == window.lineHeight() * 2);
+}
+
+TEST_CASE("Window_Base drawItemName emits placeholder label", "[compat][window]") {
+    Window_Base window(Window_Base::CreateParams{});
+
+    const uint32_t drawTextBefore = Window_Base::getMethodCallCount("drawText");
+    const uint32_t drawItemBefore = Window_Base::getMethodCallCount("drawItemName");
+
+    window.drawItemName(7, 0, 0, 180);
+    REQUIRE(Window_Base::getMethodCallCount("drawItemName") == drawItemBefore + 1);
+    REQUIRE(Window_Base::getMethodCallCount("drawText") == drawTextBefore + 1);
+
+    window.drawItemName(0, 0, 0, 180);
+    REQUIRE(Window_Base::getMethodCallCount("drawItemName") == drawItemBefore + 2);
+    REQUIRE(Window_Base::getMethodCallCount("drawText") == drawTextBefore + 1);
+}
+
+TEST_CASE("Window_Base drawActor gauges call drawGauge and drawText", "[compat][window]") {
+    Window_Base window(Window_Base::CreateParams{});
+
+    const uint32_t gaugeBefore = Window_Base::getMethodCallCount("drawGauge");
+    const uint32_t textBefore = Window_Base::getMethodCallCount("drawText");
+
+    window.drawActorHp(1, 0, 0, 128);
+    window.drawActorMp(1, 0, 0, 128);
+    window.drawActorTp(1, 0, 0, 128);
+
+    REQUIRE(Window_Base::getMethodCallCount("drawGauge") == gaugeBefore + 3);
+    REQUIRE(Window_Base::getMethodCallCount("drawText") == textBefore + 3);
 }
 
 TEST_CASE("Window_Base textColor change and reset", "[compat][window]") {
@@ -213,6 +245,9 @@ TEST_CASE("Window_Base font settings", "[compat][window]") {
     
     window.setFontSize(18);
     REQUIRE(window.fontSize() == 18);
+
+    window.setFontSize(0);
+    REQUIRE(window.fontSize() == 1);
     
     window.resetFontSettings();
     REQUIRE(window.fontFace() == "Microsoft YaHei");
@@ -239,7 +274,11 @@ TEST_CASE("Window_Base drawTextEx strips escape codes", "[compat][window]") {
 TEST_CASE("Window_Base getMethodStatus for extended methods", "[compat][window]") {
     REQUIRE(Window_Base::getMethodStatus("lineHeight") == CompatStatus::FULL);
     REQUIRE(Window_Base::getMethodStatus("drawTextEx") == CompatStatus::PARTIAL);
-    REQUIRE(Window_Base::getMethodStatus("textWidth") == CompatStatus::STUB);
+    REQUIRE(Window_Base::getMethodStatus("drawActorHp") == CompatStatus::FULL);
+    REQUIRE(Window_Base::getMethodStatus("drawActorMp") == CompatStatus::FULL);
+    REQUIRE(Window_Base::getMethodStatus("drawActorTp") == CompatStatus::FULL);
+    REQUIRE(Window_Base::getMethodStatus("textWidth") == CompatStatus::PARTIAL);
+    REQUIRE(Window_Base::getMethodStatus("textSize") == CompatStatus::PARTIAL);
 }
 
 // ============================================================================
@@ -283,6 +322,41 @@ TEST_CASE("Window_Selectable setIndex clamps to valid range", "[compat][window]"
     
     window.setIndex(-10);
     REQUIRE(window.getIndex() == -1);  // Deselected
+}
+
+TEST_CASE("Window_Selectable max cols and max items are clamped", "[compat][window]") {
+    Window_Selectable window(Window_Selectable::CreateParams{});
+
+    window.setMaxCols(0);
+    REQUIRE(window.getMaxCols() == 1);
+
+    window.setMaxItems(-10);
+    REQUIRE(window.getMaxItems() == 0);
+    REQUIRE(window.getIndex() == -1);
+}
+
+TEST_CASE("Window_Selectable onSelect callback fires for index changes", "[compat][window]") {
+    Window_Selectable window(Window_Selectable::CreateParams{});
+    window.setMaxItems(5);
+
+    int32_t callbackCount = 0;
+    int32_t lastIndex = -999;
+    window.setOnSelect([&](int32_t index) {
+        ++callbackCount;
+        lastIndex = index;
+    });
+
+    window.setIndex(3);
+    REQUIRE(callbackCount == 1);
+    REQUIRE(lastIndex == 3);
+
+    // Same index should not trigger callback.
+    window.setIndex(3);
+    REQUIRE(callbackCount == 1);
+
+    window.setIndex(-1);
+    REQUIRE(callbackCount == 2);
+    REQUIRE(lastIndex == -1);
 }
 
 TEST_CASE("Window_Selectable row and column calculation", "[compat][window]") {
@@ -484,6 +558,22 @@ TEST_CASE("Window_Command getCurrentSymbol", "[compat][window]") {
     REQUIRE(window.getCurrentSymbol() == "skill");
 }
 
+TEST_CASE("Window_Command command enabled helpers", "[compat][window]") {
+    Window_Command::CreateParams params;
+    params.commands = {
+        {"Item", "item", true, 0},
+        {"Locked", "locked", false, 1}
+    };
+    Window_Command window(params);
+
+    REQUIRE(window.isCommandEnabled(0));
+    REQUIRE_FALSE(window.isCommandEnabled(1));
+    REQUIRE_FALSE(window.isCommandEnabled(99));
+
+    window.setIndex(1);
+    REQUIRE_FALSE(window.isCurrentItemEnabled());
+}
+
 TEST_CASE("Window_Command selectSymbol", "[compat][window]") {
     Window_Command::CreateParams params;
     params.commands = {
@@ -509,6 +599,45 @@ TEST_CASE("Window_Command selectExt", "[compat][window]") {
     
     window.selectExt(20);
     REQUIRE(window.getIndex() == 1);
+}
+
+TEST_CASE("Window_Command findSymbol and findExt", "[compat][window]") {
+    Window_Command::CreateParams params;
+    params.commands = {
+        {"Item", "item", true, 10},
+        {"Skill", "skill", true, 20}
+    };
+    Window_Command window(params);
+
+    REQUIRE(window.findSymbol("skill") == 1);
+    REQUIRE(window.findSymbol("missing") == -1);
+    REQUIRE(window.findExt(10) == 0);
+    REQUIRE(window.findExt(999) == -1);
+}
+
+TEST_CASE("Window_Command callOkHandler honors enabled state", "[compat][window]") {
+    Window_Command::CreateParams params;
+    params.commands = {
+        {"Enabled", "ok", true, 0},
+        {"Disabled", "nope", false, 0}
+    };
+    Window_Command window(params);
+
+    int32_t calledCount = 0;
+    std::string lastSymbol;
+    window.setOnCommand([&](const std::string& symbol) {
+        ++calledCount;
+        lastSymbol = symbol;
+    });
+
+    window.setIndex(0);
+    window.callOkHandler();
+    REQUIRE(calledCount == 1);
+    REQUIRE(lastSymbol == "ok");
+
+    window.setIndex(1);
+    window.callOkHandler();
+    REQUIRE(calledCount == 1);
 }
 
 TEST_CASE("Window_Command getCommand bounds check", "[compat][window]") {
@@ -800,6 +929,28 @@ TEST_CASE("WindowCompatManager getCompatReport", "[compat][manager]") {
         }
     }
     REQUIRE(hasDrawText);
+}
+
+TEST_CASE("WindowCompatManager getCompatReport tracks call counts", "[compat][manager]") {
+    WindowCompatManager manager;
+
+    auto id = manager.createWindowBase(Window_Base::CreateParams{});
+    auto* window = manager.getWindow(id);
+    REQUIRE(window != nullptr);
+
+    const uint32_t before = Window_Base::getMethodCallCount("drawText");
+    window->drawText("Hello", 0, 0, 100, "left");
+
+    auto report = manager.getCompatReport();
+    uint32_t drawTextCountFromReport = 0;
+    for (const auto& entry : report) {
+        if (entry.methodName == "drawText") {
+            drawTextCountFromReport = entry.callCount;
+            break;
+        }
+    }
+
+    REQUIRE(drawTextCountFromReport == before + 1);
 }
 
 TEST_CASE("WindowCompatManager registerAllAPIs", "[compat][manager]") {

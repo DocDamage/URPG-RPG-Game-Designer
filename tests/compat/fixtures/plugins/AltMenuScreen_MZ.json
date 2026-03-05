@@ -1,0 +1,29 @@
+{
+  "name": "AltMenuScreen_MZ",
+  "version": "1.1.0-fixture",
+  "author": "URPG Fixture Harness",
+  "description": "Alternative menu screen compatibility fixture",
+  "parameters": {
+    "profile": "alt_menu",
+    "layout": "horizontal"
+  },
+  "commands": [
+    {
+      "name": "applyLayout",
+      "script": [
+        {"op": "set", "key": "plugin", "value": {"from": "pluginName"}},
+        {"op": "set", "key": "command", "value": {"from": "commandName"}},
+        {"op": "set", "key": "profile", "value": {"from": "param", "name": "profile"}},
+        {"op": "set", "key": "layout", "value": {"from": "param", "name": "layout"}},
+        {"op": "set", "key": "argCount", "value": {"from": "argCount"}},
+        {"op": "returnObject"}
+      ]
+    },
+    {
+      "name": "layoutColumnsViaJs",
+      "description": "Returns fixed column count via QuickJS const mode",
+      "entry": "layoutColumnsRuntime",
+      "js": "// @urpg-export layoutColumnsRuntime const 2"
+    }
+  ]
+}

@@ -7,9 +7,73 @@
 #include "quickjs_runtime.h"
 #include <algorithm>
 #include <cassert>
+#include <exception>
+#include <sstream>
 
 namespace urpg {
 namespace compat {
+
+namespace {
+
+constexpr uint64_t kStubCallCostUs = 100;
+
+std::string trim(std::string value) {
+    const auto first = value.find_first_not_of(" \t\r\n");
+    if (first == std::string::npos) {
+        return "";
+    }
+    const auto last = value.find_last_not_of(" \t\r\n");
+    return value.substr(first, last - first + 1);
+}
+
+Value parseDirectiveConstValue(const std::string& payload) {
+    const std::string text = trim(payload);
+    if (text.empty()) {
+        return Value::Nil();
+    }
+
+    if (text.size() >= 2 &&
+        ((text.front() == '"' && text.back() == '"') ||
+         (text.front() == '\'' && text.back() == '\''))) {
+        Value value;
+        value.v = text.substr(1, text.size() - 2);
+        return value;
+    }
+
+    if (text == "true" || text == "false") {
+        Value value;
+        value.v = (text == "true");
+        return value;
+    }
+
+    try {
+        size_t consumed = 0;
+        const int64_t asInt = std::stoll(text, &consumed, 10);
+        if (consumed == text.size()) {
+            return Value::Int(asInt);
+        }
+    } catch (...) {
+        // Fall through to double/string parsing.
+    }
+
+    try {
+        size_t consumed = 0;
+        const double asDouble = std::stod(text, &consumed);
+        if (consumed == text.size()) {
+            Value value;
+            value.v = asDouble;
+            return value;
+        }
+    } catch (...) {
+        // Fall through to string fallback.
+    }
+
+    Value value;
+    value.v = text;
+    return value;
+}
+
+} // namespace
 
 // ============================================================================
 // QuickJSContext Implementation
@@ -21,6 +85,7 @@ public:
     bool initialized = false;
     QuickJSConfig config;
     std::unordered_map<std::string, QuickJSContext::HostFunction> hostFunctions;
+    std::unordered_map<std::string, Value> globals;
     size_t heapSize = 0;
     uint64_t cpuUsedUs = 0;
 };
@@ -91,14 +156,72 @@ ScriptResult QuickJSContext::eval(const std::string& code, const std::string& fi
         return result;
     }
     
-    // TODO: Actual QuickJS evaluation
-    // JSValue val = JS_Eval(ctx, code.c_str(), code.size(), filename.c_str(), JS_EVAL_TYPE_GLOBAL);
-    // Check for exceptions, convert to Value, etc.
+    // Stub fixture bridge: parse lightweight export directives and bind functions.
+    // Supported directive format:
+    //   // @urpg-export <fnName> arg_count
+    //   // @urpg-export <fnName> arg <index>
+    //   // @urpg-export <fnName> const <value>
+    std::istringstream stream(code);
+    std::string line;
+    while (std::getline(stream, line)) {
+        const auto markerPos = line.find("@urpg-export");
+        if (markerPos == std::string::npos) {
+            continue;
+        }
+
+        std::istringstream directive(line.substr(markerPos + std::string("@urpg-export").size()));
+        std::string functionName;
+        std::string mode;
+        if (!(directive >> functionName >> mode)) {
+            continue;
+        }
+        if (functionName.empty()) {
+            continue;
+        }
+
+        if (mode == "arg_count") {
+            registerFunction(
+                functionName,
+                [](const std::vector<Value>& args) -> Value {
+                    return Value::Int(static_cast<int64_t>(args.size()));
+                }
+            );
+            continue;
+        }
+
+        if (mode == "arg") {
+            int64_t index = 0;
+            (void)(directive >> index);
+            registerFunction(
+                functionName,
+                [index](const std::vector<Value>& args) -> Value {
+                    if (index >= 0 && static_cast<size_t>(index) < args.size()) {
+                        return args[static_cast<size_t>(index)];
+                    }
+                    return Value::Nil();
+                }
+            );
+            continue;
+        }
+
+        if (mode == "const") {
+            std::string payload;
+            std::getline(directive, payload);
+            const Value constantValue = parseDirectiveConstValue(payload);
+            registerFunction(
+                functionName,
+                [constantValue](const std::vector<Value>&) -> Value {
+                    return constantValue;
+                }
+            );
+        }
+    }
     
     // Stub: return success with undefined
     result.success = true;
     result.value = Value::Nil();
     result.sourceLocation = filename + ":1";
+    lastError_.clear();
     
     return result;
 }
@@ -141,14 +264,51 @@ ScriptResult QuickJSContext::call(const std::string& functionName,
         result.severity = CompatSeverity::HARD_FAIL;
         return result;
     }
-    
-    // TODO: Actual QuickJS function call
-    // JSValue globalObj = JS_GetGlobalObject(ctx);
-    // JSValue func = JS_GetPropertyStr(ctx, globalObj, functionName.c_str());
-    // Convert args, call, handle result
-    
-    result.success = true;
-    result.value = Value::Nil();
+
+    if (isMemoryExceeded()) {
+        result.success = false;
+        result.error = "Memory budget exceeded";
+        result.severity = CompatSeverity::HARD_FAIL;
+        budget_.exceeded_memory = true;
+        return result;
+    }
+
+    if (config_.enableCPUBudget) {
+        impl_->cpuUsedUs += kStubCallCostUs;
+        if (isCPUExceeded()) {
+            budget_.exceeded_cpu = true;
+            result.success = false;
+            result.error = "CPU budget exceeded";
+            result.severity = CompatSeverity::SOFT_FAIL;
+            return result;
+        }
+    }
+
+    auto fnIt = impl_->hostFunctions.find(functionName);
+    if (fnIt == impl_->hostFunctions.end()) {
+        result.success = false;
+        result.error = "Function not found: " + functionName;
+        result.severity = CompatSeverity::SOFT_FAIL;
+        lastError_ = result.error;
+        return result;
+    }
+
+    try {
+        result.value = fnIt->second(args);
+        result.success = true;
+        result.sourceLocation = functionName;
+        lastError_.clear();
+    } catch (const std::exception& e) {
+        result.success = false;
+        result.error = std::string("Host function error: ") + e.what();
+        result.severity = CompatSeverity::HARD_FAIL;
+        lastError_ = result.error;
+    } catch (...) {
+        result.success = false;
+        result.error = "Unknown host function error";
+        result.severity = CompatSeverity::HARD_FAIL;
+        lastError_ = result.error;
+    }
     return result;
 }
 
@@ -176,19 +336,22 @@ ScriptResult QuickJSContext::callMethod(const std::string& objectName,
             result.error = "Unsupported API: " + fullName;
             result.severity = CompatSeverity::HARD_FAIL;
             it->second.failCount++;
+            lastError_ = result.error;
             return result;
         }
         if (it->second.status == CompatStatus::STUB) {
             result.success = true;
             result.value = Value::Nil();
+            lastError_.clear();
             return result;  // No-op for stubs
         }
     }
-    
-    // TODO: Actual QuickJS method call
-    
-    result.success = true;
-    result.value = Value::Nil();
+
+    const auto callResult = call(fullName, args);
+    result = callResult;
+    if (!result.success && it != apiRegistry_.end()) {
+        it->second.failCount++;
+    }
     return result;
 }
 
@@ -198,10 +361,12 @@ std::optional<Value> QuickJSContext::getGlobal(const std::string& name) {
     if (!impl_->initialized) {
         return std::nullopt;
     }
-    
-    // TODO: Actual QuickJS global lookup
-    
-    return Value::Nil();
+
+    auto it = impl_->globals.find(name);
+    if (it == impl_->globals.end()) {
+        return std::nullopt;
+    }
+    return it->second;
 }
 
 bool QuickJSContext::setGlobal(const std::string& name, const Value& value) {
@@ -210,14 +375,16 @@ bool QuickJSContext::setGlobal(const std::string& name, const Value& value) {
     if (!impl_->initialized) {
         return false;
     }
-    
-    // TODO: Actual QuickJS global set
-    
+
+    impl_->globals[name] = value;
     return true;
 }
 
 bool QuickJSContext::registerFunction(const std::string& name, HostFunction fn) {
     assert(impl_ != nullptr);
+    if (name.empty() || !fn) {
+        return false;
+    }
     impl_->hostFunctions[name] = std::move(fn);
     return true;
 }
@@ -227,6 +394,9 @@ bool QuickJSContext::registerObject(const std::string& name,
     assert(impl_ != nullptr);
     
     for (const auto& method : methods) {
+        if (method.name.empty() || !method.fn) {
+            continue;
+        }
         std::string fullName = name + "." + method.name;
         impl_->hostFunctions[fullName] = method.fn;
         
