@@ -109,6 +109,8 @@ This section tracks what has been implemented in code so this blueprint doubles 
   - Switch/variable/self-switch access with MZ-compatible indexing.
   - Item inventory management with gain/lose operations.
   - Save/load operations with header extensions.
+  - Save-slot runtime now persists `GlobalState` + `SaveHeader` in-memory with slot-bounds enforcement and autosave slot (`0`) semantics.
+  - Save header extension key/value metadata now round-trips per slot (`setSaveHeaderExtension`/`getSaveHeaderExtension`) and is cleared on slot deletion.
   - All methods tagged with `CompatStatus` registry.
 - AudioManager MZ audio middleware compatibility:
   - Audio buses (BGM, BGS, ME, SE) with channel management.
@@ -122,7 +124,8 @@ This section tracks what has been implemented in code so this blueprint doubles 
   - Direction input (dir4, dir8) with MZ-compatible values.
   - Mouse state tracking (position, buttons, wheel).
   - Touch state tracking (position, pressed, count).
-  - `worldX/worldY` now use identity mapping in compat lane (`PARTIAL`) until camera transform integration.
+  - `worldX/worldY` now apply camera-transform-aware mapping in compat lane (`FULL`).
+  - QuickJS API registration now routes through live Input/Touch runtime state; touch movement telemetry now tracks `moveSpeed` and `tapCount`.
   - Gamepad support (buttons, axes, connection state).
   - Action mapping system for customizable controls.
   - All methods tagged with `CompatStatus` registry.
@@ -131,6 +134,11 @@ This section tracks what has been implemented in code so this blueprint doubles 
   - Command registration and execution.
   - Parameter management per-plugin.
   - JSON fixture plugin loading, script-driven fixture command execution, and directory discovery for executable conformance runs.
+  - Fixture script commands are now executed through per-plugin `QuickJSRuntime` contexts (`QuickJSContext::call` bridge path).
+  - Fixture JSON commands now support lightweight JS source + explicit entrypoint dispatch through `QuickJSContext::eval` + `call`.
+  - Curated fixtures now exercise JS directive `arg` and `const` modes across all 10 plugin profiles.
+  - Fixture script DSL expanded with conditional flow + richer resolvers (`if`, `args`, `paramKeys`, `hasParam`, `equals`, `coalesce`).
+  - Reload flow now tracks plugin source paths so JSON-backed fixture plugins rehydrate commands on `reloadPlugin`.
   - Dependency checking between plugins.
   - Event hooks for plugin lifecycle events.
   - Execution context tracking for nested command calls.
