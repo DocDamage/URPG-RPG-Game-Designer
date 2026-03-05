@@ -40,7 +40,7 @@ _Full Engineering Specification - No Fluff_
 
 ## Implementation Status (Live)
 
-Status Date: 2026-03-04
+Status Date: 2026-03-05
 
 This section tracks what has been implemented in code so this blueprint doubles as an execution ledger.
 
@@ -94,6 +94,9 @@ This section tracks what has been implemented in code so this blueprint doubles 
   - `Window_Selectable` and `Window_Command` stubs for menu plugin compatibility.
   - `Sprite_Character` and `Sprite_Actor` stubs for battle visual plugins.
   - All surfaces tagged with `CompatStatus` (FULL/PARTIAL/STUB/UNSUPPORTED).
+  - Expanded API registry exposure for extended `Window_Base` + `Window_Selectable` + `Window_Command` methods used by menu plugins.
+  - Added WindowCompat method call-count tracking in compat reports for runtime surface usage visibility.
+  - Added command-window compatibility helpers (`isCommandEnabled`, `isCurrentItemEnabled`, `findSymbol`, `findExt`, `callOkHandler`).
 - BattleManager MZ battle pipeline hooks:
   - Battle phase tracking (NONE, INIT, START, INPUT, TURN, ACTION, END, ABORT).
   - Hook points at each battle phase for plugin interception.
@@ -119,6 +122,7 @@ This section tracks what has been implemented in code so this blueprint doubles 
   - Direction input (dir4, dir8) with MZ-compatible values.
   - Mouse state tracking (position, buttons, wheel).
   - Touch state tracking (position, pressed, count).
+  - `worldX/worldY` now use identity mapping in compat lane (`PARTIAL`) until camera transform integration.
   - Gamepad support (buttons, axes, connection state).
   - Action mapping system for customizable controls.
   - All methods tagged with `CompatStatus` registry.
@@ -126,32 +130,42 @@ This section tracks what has been implemented in code so this blueprint doubles 
   - Plugin lifecycle management (load, unload, reload).
   - Command registration and execution.
   - Parameter management per-plugin.
+  - JSON fixture plugin loading, script-driven fixture command execution, and directory discovery for executable conformance runs.
   - Dependency checking between plugins.
   - Event hooks for plugin lifecycle events.
   - Execution context tracking for nested command calls.
   - All methods tagged with `CompatStatus` registry.
 - Compat tests:
-  - `test_quickjs_runtime.cpp` for QuickJS context and runtime tests.
-  - `test_window_compat.cpp` for WindowCompat surface tests.
-  - `test_battlemgr.cpp` for BattleManager hook and phase tests.
-  - `test_data_manager.cpp` for DataManager save/load tests.
-  - `test_audio_manager.cpp` for AudioManager bus/volume tests.
-  - `test_input_manager.cpp` for InputManager/TouchInput tests.
-  - `test_plugin_manager.cpp` for PluginManager command registry tests.
+  - Active in CMake/CI:
+    - `test_quickjs_runtime.cpp` for QuickJS context and runtime tests.
+    - `test_window_compat.cpp` for WindowCompat surface tests.
+    - `test_compat_report_panel.cpp` for compat report model/view coverage.
+    - `test_battlemgr.cpp` for BattleManager hook and phase tests.
+    - `test_data_manager.cpp` for DataManager save/load tests.
+    - `test_audio_manager.cpp` for AudioManager bus/volume tests.
+    - `test_input_manager.cpp` for InputManager/TouchInput tests.
+    - `test_plugin_manager.cpp` for PluginManager command registry tests.
+    - `test_compat_window_plugin_profiles.cpp` for curated 10-plugin profile conformance checks.
+    - `test_compat_plugin_fixtures.cpp` for executable 10-plugin fixture loading/execution checks.
 
 ### Current Validation Baseline
 
-- Unit tests: 27 test files covering core kernels and compat layer:
+- Unit tests: 27 files in active `urpg_tests` target:
   - `test_semver.cpp`, `test_fixed32.cpp`, `test_frame_budget.cpp`, `test_ecs_world.cpp`
   - `test_combat_calc.cpp`, `test_bridge_roundtrip.cpp`, `test_thread_roles.cpp`, `test_render_tier.cpp`
   - `test_save_journal.cpp`, `test_canonical_json.cpp`, `test_migration_runner.cpp`, `test_source_authority.cpp`
   - `test_save_recovery.cpp`, `test_save_runtime.cpp`, `test_event_edit_guard.cpp`, `test_event_runtime.cpp`
   - `test_debug_session.cpp`, `test_quickjs_runtime.cpp`, `test_window_compat.cpp`
-  - `test_event_authority_diagnostics.cpp`, `test_event_authority_panel.cpp`
+  - `test_event_authority_diagnostics.cpp`, `test_event_authority_panel.cpp`, `test_compat_report_panel.cpp`
   - `test_battlemgr.cpp`, `test_data_manager.cpp`, `test_audio_manager.cpp`, `test_input_manager.cpp`, `test_plugin_manager.cpp`
 - Integration tests: 1 file (`test_integration_runtime_recovery.cpp`).
 - Snapshot tests: 1 file (`test_snapshot_canonical_outputs.cpp`).
-- Compat tests: 1 file (`test_compat_authority_suite.cpp`).
+- Compat tests: 3 files (`test_compat_authority_suite.cpp`, `test_compat_window_plugin_profiles.cpp`, `test_compat_plugin_fixtures.cpp`).
+- Release validation snapshot (2026-03-05):
+  - `urpg_tests`: 847 assertions / 207 test cases
+  - `urpg_integration_tests`: 10 assertions / 2 test cases
+  - `urpg_snapshot_tests`: 4 assertions / 2 test cases
+  - `urpg_compat_tests`: 125 assertions / 3 test cases
 
 - CLI tools:
   - `urpg_migrate` - migration runner CLI (`tools/migrate/migrate_cli.cpp`)
@@ -191,7 +205,7 @@ The following table maps documentation contracts to their actual source implemen
 
 ### Next Execution Lanes
 
-1. Complete Phase 2 Compat Layer: Expand WindowCompat surface coverage, validate against 10 real-world MZ plugins.
+1. Complete Phase 2 Compat Layer: validate wired compat modules/tests against 10 real-world MZ plugins and close remaining PARTIAL/STUB deviations.
 2. Phase 3 Copilot + Polish: Producer Copilot canon-aware generation, cutscene timeline editor, full debugger profiler.
 
 ## 0 — Core Philosophy

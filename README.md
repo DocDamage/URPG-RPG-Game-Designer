@@ -32,6 +32,17 @@ Bootstrap workspace aligned to URPG Master Blueprint v3.1.
 - Phase 1 integration follow-up:
   - Event runtime dispatch-session facade now wires timeline/reentrancy control (`EventDispatchSession`)
   - Debug runtime session facade now wires breakpoints/watches/call-stack/step flow (`DebugRuntimeSession`)
+- Phase 2 compat progression:
+  - QuickJS runtime kernel, WindowCompat surfaces, and Battle/Data/Audio/Input/Plugin compat modules are wired in active build targets.
+  - WindowCompat now includes expanded API registration coverage + method call-count telemetry for compat reports.
+  - Added curated compat profile conformance suite for 10 popular MZ plugin profiles.
+  - Added executable plugin fixture suite for 10 real-world MZ plugin profiles in weekly compat CI coverage.
+  - PluginManager now supports JSON fixture loading, directory discovery, JSON parameter parsing, and script-driven fixture command execution.
+  - Burned down selected compat statuses: `Window_Base.drawItemName/textWidth/textSize` advanced from `STUB` to `PARTIAL`; `TouchInput.worldX/worldY` advanced from `STUB` to `PARTIAL`.
+  - Compat module unit suites (`test_battlemgr`, `test_data_manager`, `test_audio_manager`, `test_input_manager`, `test_plugin_manager`) are active in `urpg_tests`.
+- Active build wiring snapshot:
+  - `urpg_core` currently builds core kernels + editor diagnostics/panel + compat report panel + QuickJS + WindowCompat + Battle/Data/Audio/Input/Plugin compat modules.
+  - `urpg_tests` includes the full compat unit slice in active CMake targets.
 - CI gate suites:
   - Gate 1 (PR): `ctest -L pr`
   - Gate 2 (nightly): `ctest -L nightly` (integration + snapshot suites)
@@ -39,7 +50,12 @@ Bootstrap workspace aligned to URPG Master Blueprint v3.1.
   - Nightly renderer-tier matrix (`basic`, `standard`, `advanced`) + test log artifacts in CI
   - Known-break waiver validation via `tools/ci/check_waivers.ps1`
 - Migration CLI: `urpg_migrate`
-- Catch2/CTest baseline (51 passing tests).
+- Catch2/CTest baseline (Release snapshot, 2026-03-05):
+  - `urpg_tests`: 847 assertions / 207 test cases
+  - `urpg_integration_tests`: 10 assertions / 2 test cases
+  - `urpg_snapshot_tests`: 4 assertions / 2 test cases
+  - `urpg_compat_tests`: 125 assertions / 3 test cases
+  - Total: 986 assertions / 214 test cases
 
 ## Build
 
@@ -59,6 +75,7 @@ ctest --test-dir build --output-on-failure
 
 Implement the next blueprint-critical contracts:
 
-1. Phase 2 Compat Layer kickoff:
-  - Add QuickJS runtime integration contract kernel scaffolding.
-  - Start WindowCompat core surface stubs + status tagging primitives.
+1. Complete Phase 2 Compat Layer validation:
+  - Validate wired compat modules against 10 real-world MZ plugins and close remaining `PARTIAL`/`STUB` deviations.
+2. Expand plugin conformance depth:
+  - Expand fixture script DSL coverage and bridge script-backed fixtures into real JS plugin execution paths.
