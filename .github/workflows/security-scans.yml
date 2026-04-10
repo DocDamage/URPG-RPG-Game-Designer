@@ -17,6 +17,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - name: Run gitleaks
         uses: gitleaks/gitleaks-action@v2
         env:
@@ -24,6 +26,7 @@ jobs:
           GITLEAKS_CONFIG: gitleaks.toml
 
   codeql:
+    if: (github.event.repository.private == false || vars.ENABLE_CODEQL_PRIVATE == 'true') && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false)
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
