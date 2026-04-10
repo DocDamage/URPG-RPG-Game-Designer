@@ -8,6 +8,9 @@ Copies RPG Maker MZ Steam DLC into repo vendor directories and stages plugin dro
 .\tools\rpgmaker\sync-steam-mz-dlc.ps1
 ```
 
+By default, sync now also runs curated drop-in generation and curated validation.
+Use `-SkipCurate` and/or `-SkipCuratedValidation` only when you intentionally want to bypass that pipeline.
+
 Reports:
 - `third_party/rpgmaker-mz/steam-dlc/reports/steam_mz_dlc_inventory.json`
 - `third_party/rpgmaker-mz/steam-dlc/reports/steam_mz_dlc_packs.csv`

@@ -106,6 +106,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Validate curated RPG Maker plugin drop-ins
+        shell: pwsh
+        run: ./tools/rpgmaker/validate-plugin-dropins.ps1 -PluginRoot third_party/rpgmaker-mz/steam-dlc/plugin-dropins-curated/js/plugins -ReportPrefix plugin_dropins_curated_ci_validation -FailOnError
       - name: Install sccache
         run: |
           sudo apt-get update
