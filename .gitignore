@@ -22,6 +22,8 @@ __pycache__/
 *.exp
 .DS_Store
 Thumbs.db
+__MACOSX/
+._*
 third_party/asset-index/
 third_party/itch-assets/reports/
 imports/reports/

@@ -130,6 +130,15 @@ git lfs track
 .\tools\ci\run_local_gates.ps1
 ```
 
+## Contributor guide
+
+See `CONTRIBUTING.md` for workflow, LFS policy, and asset hygiene checks.
+
+```powershell
+python .\tools\assets\asset_hygiene.py --write-reports --prune-junk
+.\tools\rpgmaker\validate-plugin-dropins.ps1
+```
+
 ## Pre-commit
 
 ```powershell

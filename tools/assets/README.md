@@ -38,3 +38,18 @@ python .\tools\assets\asset_db.py index --roots third_party/itch-assets/packs im
 .\tools\assets\asset-index.ps1
 .\tools\assets\asset-find.ps1 -Query "dragon AND kind:image" -Limit 25
 ```
+
+## Hygiene pass
+Scan for duplicate files, oversized files, and removable OS junk.
+
+```powershell
+python .\tools\assets\asset_hygiene.py --write-reports
+python .\tools\assets\asset_hygiene.py --write-reports --prune-junk
+```
+
+Reports are written to `imports/reports/`:
+- `asset_hygiene_summary.json`
+- `asset_hygiene_duplicates.csv`
+- `asset_hygiene_oversize.csv`
+- `asset_hygiene_junk.csv`
+- `asset_hygiene_hash_skips.csv`
