@@ -27,14 +27,14 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y sccache
       - name: Cache sccache
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: .cache/sccache
           key: ${{ runner.os }}-sccache-${{ hashFiles('CMakeLists.txt', 'CMakePresets.json') }}
           restore-keys: |
             ${{ runner.os }}-sccache-
       - name: Cache FetchContent dependencies
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: .cache/fetchcontent
           key: ${{ runner.os }}-fetchcontent-${{ hashFiles('CMakeLists.txt', 'CMakePresets.json') }}
@@ -67,14 +67,14 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y sccache
       - name: Cache sccache
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: .cache/sccache
           key: ${{ runner.os }}-sccache-${{ hashFiles('CMakeLists.txt', 'CMakePresets.json') }}
           restore-keys: |
             ${{ runner.os }}-sccache-
       - name: Cache FetchContent dependencies
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: .cache/fetchcontent
           key: ${{ runner.os }}-fetchcontent-${{ hashFiles('CMakeLists.txt', 'CMakePresets.json') }}
@@ -111,14 +111,14 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y sccache
       - name: Cache sccache
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: .cache/sccache
           key: ${{ runner.os }}-sccache-${{ hashFiles('CMakeLists.txt', 'CMakePresets.json') }}
           restore-keys: |
             ${{ runner.os }}-sccache-
       - name: Cache FetchContent dependencies
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: .cache/fetchcontent
           key: ${{ runner.os }}-fetchcontent-${{ hashFiles('CMakeLists.txt', 'CMakePresets.json') }}
