@@ -39,6 +39,24 @@ function Get-FileSha256 {
     return ([System.BitConverter]::ToString($hash)).Replace("-", "").ToLowerInvariant()
 }
 
+function Get-RelativePathNormalized {
+    param(
+        [string]$BasePath,
+        [string]$TargetPath
+    )
+
+    $baseFull = [System.IO.Path]::GetFullPath($BasePath)
+    $targetFull = [System.IO.Path]::GetFullPath($TargetPath)
+
+    if ([System.IO.Path].GetMethod("GetRelativePath", [Type[]]@([string], [string])) -ne $null) {
+        return [System.IO.Path]::GetRelativePath($baseFull, $targetFull).Replace("\", "/")
+    }
+
+    $baseUri = [System.Uri]::new(($baseFull.TrimEnd("\", "/") + [System.IO.Path]::DirectorySeparatorChar))
+    $targetUri = [System.Uri]::new($targetFull)
+    return [System.Uri]::UnescapeDataString($baseUri.MakeRelativeUri($targetUri).ToString()).Replace("\", "/")
+}
+
 function Add-Issue {
     param(
         [System.Collections.Generic.List[object]]$IssueRows,
@@ -84,7 +102,7 @@ if ($files.Count -eq 0) {
 }
 
 foreach ($file in $files) {
-    $pathRel = [System.IO.Path]::GetRelativePath($RepoRoot, $file.FullName).Replace("\", "/")
+    $pathRel = Get-RelativePathNormalized -BasePath $RepoRoot -TargetPath $file.FullName
     $text = Read-TextSafe -Path $file.FullName
     if ($null -eq $text) {
         Add-Issue -IssueRows $issueRows -Severity "ERROR" -Code "read_failed" -PathRel $pathRel -Message "Unable to read file."
