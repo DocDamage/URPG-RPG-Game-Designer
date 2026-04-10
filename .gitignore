@@ -28,3 +28,5 @@ third_party/asset-index/
 third_party/itch-assets/reports/
 imports/reports/
 itch/archives/
+.rex_db/
+.codemunch/last-index.json
