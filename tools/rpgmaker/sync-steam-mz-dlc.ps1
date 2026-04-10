@@ -33,9 +33,9 @@ if (-not (Test-Path -LiteralPath $SteamDlcRoot)) {
 }
 
 $steamDlcRootResolved = (Resolve-Path $SteamDlcRoot).Path
-$vendorRoot = Join-Path $RepoRoot "third_party\rpgmaker-mz\steam-dlc"
+$vendorRoot = Join-Path $RepoRoot "third_party/rpgmaker-mz/steam-dlc"
 $packsRoot = Join-Path $vendorRoot "packs"
-$pluginRoot = Join-Path $vendorRoot "plugin-dropins\js\plugins\steam-dlc"
+$pluginRoot = Join-Path $vendorRoot "plugin-dropins/js/plugins/steam-dlc"
 $reportRoot = Join-Path $vendorRoot "reports"
 
 Ensure-Directory -Path $vendorRoot
@@ -126,7 +126,7 @@ if (-not $DryRun) {
     if (-not $SkipCuratedValidation) {
         & (Join-Path $PSScriptRoot "validate-plugin-dropins.ps1") `
             -RepoRoot $RepoRoot `
-            -PluginRoot "third_party\rpgmaker-mz\steam-dlc\plugin-dropins-curated\js\plugins" `
+            -PluginRoot "third_party/rpgmaker-mz/steam-dlc/plugin-dropins-curated/js/plugins" `
             -ReportPrefix "plugin_dropins_curated_validation" `
             -FailOnError
     }
@@ -138,7 +138,7 @@ Write-Output "PACK_COUNT`t$($packRows.Count)"
 Write-Output "PLUGIN_JS_COUNT`t$($pluginFileRows.Count)"
 Write-Output "PACKS_ROOT`t$packsRoot"
 Write-Output "PLUGIN_DROPINS`t$pluginRoot"
-Write-Output "CURATED_PLUGIN_DROPINS`t$(Join-Path $vendorRoot "plugin-dropins-curated\js\plugins")"
+Write-Output "CURATED_PLUGIN_DROPINS`t$(Join-Path $vendorRoot "plugin-dropins-curated/js/plugins")"
 Write-Output "REPORT_JSON`t$summaryJsonPath"
 Write-Output "REPORT_PACKS_CSV`t$packCsvPath"
 Write-Output "REPORT_PLUGINS_CSV`t$pluginCsvPath"

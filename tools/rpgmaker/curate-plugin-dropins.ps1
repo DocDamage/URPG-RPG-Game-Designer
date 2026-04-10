@@ -59,13 +59,13 @@ if ([string]::IsNullOrWhiteSpace($RepoRoot)) {
 }
 
 if ([string]::IsNullOrWhiteSpace($SourcePluginRoot)) {
-    $SourcePluginRoot = Join-Path $RepoRoot "third_party\rpgmaker-mz\steam-dlc\plugin-dropins\js\plugins"
+    $SourcePluginRoot = Join-Path $RepoRoot "third_party/rpgmaker-mz/steam-dlc/plugin-dropins/js/plugins"
 } elseif (-not [System.IO.Path]::IsPathRooted($SourcePluginRoot)) {
     $SourcePluginRoot = Join-Path $RepoRoot $SourcePluginRoot
 }
 
 if ([string]::IsNullOrWhiteSpace($CuratedPluginRoot)) {
-    $CuratedPluginRoot = Join-Path $RepoRoot "third_party\rpgmaker-mz\steam-dlc\plugin-dropins-curated\js\plugins"
+    $CuratedPluginRoot = Join-Path $RepoRoot "third_party/rpgmaker-mz/steam-dlc/plugin-dropins-curated/js/plugins"
 } elseif (-not [System.IO.Path]::IsPathRooted($CuratedPluginRoot)) {
     $CuratedPluginRoot = Join-Path $RepoRoot $CuratedPluginRoot
 }
@@ -91,7 +91,7 @@ if ($files.Count -eq 0) {
 
 $candidateRows = New-Object System.Collections.Generic.List[object]
 foreach ($file in $files) {
-    $pathRel = $file.FullName.Replace($RepoRoot, "").TrimStart("\").Replace("\", "/")
+    $pathRel = [System.IO.Path]::GetRelativePath($RepoRoot, $file.FullName).Replace("\", "/")
     $text = Read-TextSafe -Path $file.FullName
     if ($null -eq $text) { continue }
 
@@ -141,7 +141,7 @@ foreach ($g in $groups) {
     }
 
     Copy-Item -LiteralPath $selected.FullPath -Destination $outPath -Force
-    $outRel = $outPath.Replace($RepoRoot, "").TrimStart("\").Replace("\", "/")
+    $outRel = [System.IO.Path]::GetRelativePath($RepoRoot, $outPath).Replace("\", "/")
 
     $hashCount = (($cands | Select-Object -ExpandProperty Sha256 | Sort-Object -Unique).Count)
     $conflictType = "single"

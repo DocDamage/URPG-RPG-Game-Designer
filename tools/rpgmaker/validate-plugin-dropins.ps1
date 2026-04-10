@@ -62,7 +62,7 @@ if ([string]::IsNullOrWhiteSpace($RepoRoot)) {
 }
 
 if ([string]::IsNullOrWhiteSpace($PluginRoot)) {
-    $PluginRoot = Join-Path $RepoRoot "third_party\rpgmaker-mz\steam-dlc\plugin-dropins\js\plugins"
+    $PluginRoot = Join-Path $RepoRoot "third_party/rpgmaker-mz/steam-dlc/plugin-dropins/js/plugins"
 } elseif (-not [System.IO.Path]::IsPathRooted($PluginRoot)) {
     $PluginRoot = Join-Path $RepoRoot $PluginRoot
 }
@@ -72,7 +72,7 @@ if (-not (Test-Path -LiteralPath $PluginRoot)) {
 }
 
 $pluginRootResolved = (Resolve-Path $PluginRoot).Path
-$reportRoot = Join-Path $RepoRoot "third_party\rpgmaker-mz\steam-dlc\reports"
+$reportRoot = Join-Path $RepoRoot "third_party/rpgmaker-mz/steam-dlc/reports"
 Ensure-Directory -Path $reportRoot
 
 $files = Get-ChildItem -LiteralPath $pluginRootResolved -File -Recurse -Filter "*.js" | Sort-Object FullName
@@ -84,7 +84,7 @@ if ($files.Count -eq 0) {
 }
 
 foreach ($file in $files) {
-    $pathRel = $file.FullName.Replace($RepoRoot, "").TrimStart("\").Replace("\", "/")
+    $pathRel = [System.IO.Path]::GetRelativePath($RepoRoot, $file.FullName).Replace("\", "/")
     $text = Read-TextSafe -Path $file.FullName
     if ($null -eq $text) {
         Add-Issue -IssueRows $issueRows -Severity "ERROR" -Code "read_failed" -PathRel $pathRel -Message "Unable to read file."
