@@ -1,6 +1,7 @@
 param(
     [string]$RepoRoot = "",
     [string]$PluginRoot = "",
+    [string]$ReportPrefix = "plugin_dropins_validation",
     [switch]$FailOnError
 )
 
@@ -170,9 +171,9 @@ $summary = [PSCustomObject]@{
     PluginKeyCollisionCount = $keyGroups.Count
 }
 
-$summaryJsonPath = Join-Path $reportRoot "plugin_dropins_validation_summary.json"
-$filesCsvPath = Join-Path $reportRoot "plugin_dropins_validation_files.csv"
-$issuesCsvPath = Join-Path $reportRoot "plugin_dropins_validation_issues.csv"
+$summaryJsonPath = Join-Path $reportRoot "${ReportPrefix}_summary.json"
+$filesCsvPath = Join-Path $reportRoot "${ReportPrefix}_files.csv"
+$issuesCsvPath = Join-Path $reportRoot "${ReportPrefix}_issues.csv"
 
 $summary | ConvertTo-Json -Depth 6 | Set-Content -LiteralPath $summaryJsonPath
 $fileRows | Export-Csv -LiteralPath $filesCsvPath -NoTypeInformation -Encoding UTF8

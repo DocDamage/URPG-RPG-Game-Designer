@@ -26,3 +26,23 @@ Reports:
 - `third_party/rpgmaker-mz/steam-dlc/reports/plugin_dropins_validation_summary.json`
 - `third_party/rpgmaker-mz/steam-dlc/reports/plugin_dropins_validation_files.csv`
 - `third_party/rpgmaker-mz/steam-dlc/reports/plugin_dropins_validation_issues.csv`
+
+## Curated safe drop-ins
+
+Builds a conflict-free curated plugin set (one canonical JS per plugin key) and exports selection/conflict reports.
+
+```powershell
+.\tools\rpgmaker\curate-plugin-dropins.ps1 -CleanOutput
+.\tools\rpgmaker\validate-plugin-dropins.ps1 -PluginRoot third_party\rpgmaker-mz\steam-dlc\plugin-dropins-curated\js\plugins -ReportPrefix plugin_dropins_curated_validation -FailOnError
+```
+
+Curated output:
+- `third_party/rpgmaker-mz/steam-dlc/plugin-dropins-curated/js/plugins/*.js`
+
+Reports:
+- `third_party/rpgmaker-mz/steam-dlc/reports/plugin_dropins_curated_summary.json`
+- `third_party/rpgmaker-mz/steam-dlc/reports/plugin_dropins_curated_manifest.csv`
+- `third_party/rpgmaker-mz/steam-dlc/reports/plugin_dropins_curated_conflicts.csv`
+- `third_party/rpgmaker-mz/steam-dlc/reports/plugin_dropins_curated_validation_summary.json`
+- `third_party/rpgmaker-mz/steam-dlc/reports/plugin_dropins_curated_validation_files.csv`
+- `third_party/rpgmaker-mz/steam-dlc/reports/plugin_dropins_curated_validation_issues.csv`
