@@ -1,7 +1,9 @@
 param(
     [string]$SteamDlcRoot = "C:\Program Files (x86)\Steam\steamapps\common\RPG Maker MZ\dlc",
     [string]$RepoRoot = "",
-    [switch]$DryRun
+    [switch]$DryRun,
+    [switch]$SkipCurate,
+    [switch]$SkipCuratedValidation
 )
 
 $ErrorActionPreference = "Stop"
@@ -116,6 +118,18 @@ if (-not $DryRun) {
     $summary | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath $summaryJsonPath
     $packRows | Export-Csv -LiteralPath $packCsvPath -NoTypeInformation -Encoding UTF8
     $pluginFileRows | Export-Csv -LiteralPath $pluginCsvPath -NoTypeInformation -Encoding UTF8
+
+    if (-not $SkipCurate) {
+        & (Join-Path $PSScriptRoot "curate-plugin-dropins.ps1") -RepoRoot $RepoRoot -CleanOutput
+    }
+
+    if (-not $SkipCuratedValidation) {
+        & (Join-Path $PSScriptRoot "validate-plugin-dropins.ps1") `
+            -RepoRoot $RepoRoot `
+            -PluginRoot "third_party\rpgmaker-mz\steam-dlc\plugin-dropins-curated\js\plugins" `
+            -ReportPrefix "plugin_dropins_curated_validation" `
+            -FailOnError
+    }
 }
 
 Write-Output "REPO_ROOT`t$RepoRoot"
@@ -124,6 +138,9 @@ Write-Output "PACK_COUNT`t$($packRows.Count)"
 Write-Output "PLUGIN_JS_COUNT`t$($pluginFileRows.Count)"
 Write-Output "PACKS_ROOT`t$packsRoot"
 Write-Output "PLUGIN_DROPINS`t$pluginRoot"
+Write-Output "CURATED_PLUGIN_DROPINS`t$(Join-Path $vendorRoot "plugin-dropins-curated\js\plugins")"
 Write-Output "REPORT_JSON`t$summaryJsonPath"
 Write-Output "REPORT_PACKS_CSV`t$packCsvPath"
 Write-Output "REPORT_PLUGINS_CSV`t$pluginCsvPath"
+Write-Output "CURATE_SKIPPED`t$SkipCurate"
+Write-Output "CURATED_VALIDATION_SKIPPED`t$SkipCuratedValidation"

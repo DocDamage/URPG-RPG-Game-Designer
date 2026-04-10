@@ -53,3 +53,16 @@ Reports are written to `imports/reports/`:
 - `asset_hygiene_oversize.csv`
 - `asset_hygiene_junk.csv`
 - `asset_hygiene_hash_skips.csv`
+
+## Safe duplicate prune wave
+Conservative duplicate cleanup for extracted working copies (`itch/unzipped`) when canonical copies already exist.
+
+```powershell
+python .\tools\assets\prune_safe_duplicates.py
+python .\tools\assets\prune_safe_duplicates.py --apply
+```
+
+Reports are written to `imports/reports/`:
+- `asset_safe_dedupe_plan.csv`
+- `asset_safe_dedupe_applied.csv`
+- `asset_safe_dedupe_summary.json`

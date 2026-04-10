@@ -19,6 +19,12 @@ if (-not $SkipBuild) {
 
 $testDir = "build/$ConfigurePreset"
 
+Write-Host "== Validate curated RPG Maker plugin drop-ins ==" -ForegroundColor Cyan
+& "$PSScriptRoot\..\rpgmaker\validate-plugin-dropins.ps1" `
+    -PluginRoot "third_party\rpgmaker-mz\steam-dlc\plugin-dropins-curated\js\plugins" `
+    -ReportPrefix "plugin_dropins_curated_ci_validation" `
+    -FailOnError
+
 Write-Host "== Gate 1 (pr) ==" -ForegroundColor Cyan
 ctest --test-dir $testDir --output-on-failure -L pr
 
@@ -29,4 +35,3 @@ Write-Host "== Gate 3 (weekly) ==" -ForegroundColor Cyan
 ctest --test-dir $testDir --output-on-failure -L weekly
 
 Write-Host "All gates passed." -ForegroundColor Green
-
