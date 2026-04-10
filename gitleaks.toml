@@ -1,0 +1,21 @@
+title = "URPG gitleaks config"
+
+[extend]
+useDefault = true
+
+[[allowlists]]
+description = "Known false positives from third-party asset index metadata"
+paths = [
+  '''(^|/)itch/unzipped/.+/.BridgeSort$''',
+  '''(^|/)third_party/itch-assets/.+/.BridgeSort$'''
+]
+
+[[allowlists]]
+description = "Placeholder query parameter in bundled third-party plugin docs/examples"
+paths = [
+  '''(^|/)third_party/rpgmaker-mz/cgmz/packages/CGMZ-ItchIOBuyLink/CGMZ_ItchIOBuyLink\.js$''',
+  '''(^|/)third_party/rpgmaker-mz/cgmz/plugin-dropins/js/plugins/CGMZ_ItchIOBuyLink\.js$'''
+]
+regexes = [
+  '''example-game-name\?secret=[A-Za-z0-9_-]+'''
+]
