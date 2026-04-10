@@ -9,6 +9,8 @@
 #include <cassert>
 #include <exception>
 #include <sstream>
+#include <stdexcept>
+#include <string_view>
 
 namespace urpg {
 namespace compat {
@@ -16,6 +18,8 @@ namespace compat {
 namespace {
 
 constexpr uint64_t kStubCallCostUs = 100;
+constexpr std::string_view kFailContextInitMarker = "__urpg_fail_context_init__";
+constexpr std::string_view kFailRegisterFunctionMarker = "__urpg_fail_register_function__";
 
 std::string trim(std::string value) {
     const auto first = value.find_first_not_of(" \t\r\n");
@@ -161,6 +165,7 @@ ScriptResult QuickJSContext::eval(const std::string& code, const std::string& fi
     //   // @urpg-export <fnName> arg_count
     //   // @urpg-export <fnName> arg <index>
     //   // @urpg-export <fnName> const <value>
+    //   // @urpg-fail-call <fnName> <message>
     std::istringstream stream(code);
     std::string line;
     uint32_t lineNumber = 0;
@@ -179,6 +184,32 @@ ScriptResult QuickJSContext::eval(const std::string& code, const std::string& fi
             result.sourceLocation = filename + ":" + std::to_string(lineNumber);
             lastError_ = result.error;
             return result;
+        }
+
+        const auto failCallPos = line.find("@urpg-fail-call");
+        if (failCallPos != std::string::npos) {
+            std::istringstream directive(
+                line.substr(failCallPos + std::string("@urpg-fail-call").size())
+            );
+            std::string functionName;
+            if (!(directive >> functionName) || functionName.empty()) {
+                continue;
+            }
+
+            std::string payload;
+            std::getline(directive, payload);
+            payload = trim(payload);
+            if (payload.empty()) {
+                payload = "QuickJS call failure requested by fixture directive";
+            }
+
+            registerFunction(
+                functionName,
+                [payload](const std::vector<Value>&) -> Value {
+                    throw std::runtime_error(payload);
+                }
+            );
+            continue;
         }
 
         const auto markerPos = line.find("@urpg-export");
@@ -323,7 +354,7 @@ ScriptResult QuickJSContext::call(const std::string& functionName,
     } catch (...) {
         result.success = false;
         result.error = "Unknown host function error";
-        result.severity = CompatSeverity::HARD_FAIL;
+        result.severity = CompatSeverity::CRASH_PREVENTED;
         lastError_ = result.error;
     }
     return result;
@@ -400,6 +431,9 @@ bool QuickJSContext::setGlobal(const std::string& name, const Value& value) {
 bool QuickJSContext::registerFunction(const std::string& name, HostFunction fn) {
     assert(impl_ != nullptr);
     if (name.empty() || !fn) {
+        return false;
+    }
+    if (name.find(kFailRegisterFunctionMarker) != std::string::npos) {
         return false;
     }
     impl_->hostFunctions[name] = std::move(fn);
@@ -536,6 +570,10 @@ std::optional<uint32_t> QuickJSRuntime::createContext(const std::string& pluginI
     assert(impl_ != nullptr);
     
     if (!impl_->initialized) {
+        return std::nullopt;
+    }
+
+    if (pluginId.find(kFailContextInitMarker) != std::string::npos) {
         return std::nullopt;
     }
     

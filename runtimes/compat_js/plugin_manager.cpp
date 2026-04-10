@@ -14,12 +14,18 @@
 #include <mutex>
 #include <nlohmann/json.hpp>
 #include <sstream>
+#include <stdexcept>
+#include <string_view>
 #include <thread>
 
 namespace urpg {
 namespace compat {
 
 namespace {
+
+constexpr std::string_view kFailDirectoryScanMarker = "__urpg_fail_directory_scan__";
+constexpr std::string_view kFailDirectoryEntryStatusMarker =
+    "__urpg_fail_directory_entry_status__";
 
 Value jsonToValue(const nlohmann::json& node) {
     Value value = Value::Nil();
@@ -95,6 +101,21 @@ std::string valueToString(const Value& value) {
     return "";
 }
 
+std::string compatSeverityToString(CompatSeverity severity) {
+    switch (severity) {
+        case CompatSeverity::WARN:
+            return "WARN";
+        case CompatSeverity::SOFT_FAIL:
+            return "SOFT_FAIL";
+        case CompatSeverity::HARD_FAIL:
+            return "HARD_FAIL";
+        case CompatSeverity::CRASH_PREVENTED:
+            return "CRASH_PREVENTED";
+        default:
+            return "HARD_FAIL";
+    }
+}
+
 std::string currentUtcTimestampIso8601() {
     using clock = std::chrono::system_clock;
     const auto now = clock::now();
@@ -127,13 +148,22 @@ struct FixtureScriptResult {
     Value value = Value::Nil();
 };
 
+using FixtureCommandInvoker =
+    std::function<Value(const std::string& pluginName,
+                        const std::string& commandName,
+                        const std::vector<Value>& args)>;
+using FixtureCommandByNameInvoker =
+    std::function<Value(const std::string& fullName, const std::vector<Value>& args)>;
+
 Value resolveFixtureScriptValue(const nlohmann::json& node, const FixtureScriptContext& ctx);
 FixtureScriptResult runFixtureScriptSteps(const nlohmann::json& script,
                                           const std::string& pluginName,
                                           const std::string& commandName,
                                           const std::vector<Value>& args,
                                           const std::unordered_map<std::string, Value>& parameters,
-                                          Object& locals);
+                                          Object& locals,
+                                          const FixtureCommandInvoker& commandInvoker,
+                                          const FixtureCommandByNameInvoker& commandByNameInvoker);
 
 bool isTruthy(const Value& value) {
     if (std::holds_alternative<std::monostate>(value.v)) {
@@ -222,6 +252,10 @@ bool valuesEqual(const Value& lhs, const Value& rhs) {
     return false;
 }
 
+bool isNilValue(const Value& value) {
+    return std::holds_alternative<std::monostate>(value.v);
+}
+
 Value resolveValueWithDefault(const nlohmann::json& fromNode,
                               const nlohmann::json& containerNode,
                               const FixtureScriptContext& ctx) {
@@ -279,6 +313,12 @@ Value resolveFixtureScriptValue(const nlohmann::json& node, const FixtureScriptC
                 return ctx.args[static_cast<size_t>(index)];
             }
             return resolveValueWithDefault(nlohmann::json{}, node, ctx);
+        }
+        if (source == "hasArg") {
+            const int64_t index = node.value("index", static_cast<int64_t>(-1));
+            Value value;
+            value.v = index >= 0 && static_cast<size_t>(index) < ctx.args.size();
+            return value;
         }
         if (source == "param") {
             const std::string name = node.value("name", "");
@@ -354,6 +394,129 @@ Value resolveFixtureScriptValue(const nlohmann::json& node, const FixtureScriptC
             value.v = std::move(out);
             return value;
         }
+        if (source == "length") {
+            const auto valueIt = node.find("value");
+            const Value target =
+                valueIt != node.end() ? resolveFixtureScriptValue(*valueIt, ctx) : Value::Nil();
+
+            int64_t length = -1;
+            if (std::holds_alternative<std::monostate>(target.v)) {
+                length = 0;
+            } else if (const auto* text = std::get_if<std::string>(&target.v)) {
+                length = static_cast<int64_t>(text->size());
+            } else if (const auto* array = std::get_if<Array>(&target.v)) {
+                length = static_cast<int64_t>(array->size());
+            } else if (const auto* object = std::get_if<Object>(&target.v)) {
+                length = static_cast<int64_t>(object->size());
+            }
+
+            if (length >= 0) {
+                return Value::Int(length);
+            }
+            return resolveValueWithDefault(nlohmann::json{}, node, ctx);
+        }
+        if (source == "contains") {
+            const auto containerIt = node.find("container");
+            const auto valueIt = node.find("value");
+            const Value container =
+                containerIt != node.end() ? resolveFixtureScriptValue(*containerIt, ctx) : Value::Nil();
+            const Value needle =
+                valueIt != node.end() ? resolveFixtureScriptValue(*valueIt, ctx) : Value::Nil();
+
+            bool contains = false;
+            if (const auto* array = std::get_if<Array>(&container.v)) {
+                for (const auto& entry : *array) {
+                    if (valuesEqual(entry, needle)) {
+                        contains = true;
+                        break;
+                    }
+                }
+            } else if (const auto* text = std::get_if<std::string>(&container.v)) {
+                contains = text->find(valueToString(needle)) != std::string::npos;
+            } else if (const auto* object = std::get_if<Object>(&container.v)) {
+                if (const auto* key = std::get_if<std::string>(&needle.v)) {
+                    contains = object->find(*key) != object->end();
+                }
+            }
+
+            Value value;
+            value.v = contains;
+            return value;
+        }
+        if (source == "greaterThan") {
+            const auto leftIt = node.find("left");
+            const auto rightIt = node.find("right");
+            const Value lhs =
+                leftIt != node.end() ? resolveFixtureScriptValue(*leftIt, ctx) : Value::Nil();
+            const Value rhs =
+                rightIt != node.end() ? resolveFixtureScriptValue(*rightIt, ctx) : Value::Nil();
+
+            const bool lhsNumeric =
+                std::holds_alternative<int64_t>(lhs.v) || std::holds_alternative<double>(lhs.v);
+            const bool rhsNumeric =
+                std::holds_alternative<int64_t>(rhs.v) || std::holds_alternative<double>(rhs.v);
+
+            Value value;
+            value.v = lhsNumeric && rhsNumeric && (asDouble(lhs) > asDouble(rhs));
+            return value;
+        }
+        if (source == "lessThan") {
+            const auto leftIt = node.find("left");
+            const auto rightIt = node.find("right");
+            const Value lhs =
+                leftIt != node.end() ? resolveFixtureScriptValue(*leftIt, ctx) : Value::Nil();
+            const Value rhs =
+                rightIt != node.end() ? resolveFixtureScriptValue(*rightIt, ctx) : Value::Nil();
+
+            const bool lhsNumeric =
+                std::holds_alternative<int64_t>(lhs.v) || std::holds_alternative<double>(lhs.v);
+            const bool rhsNumeric =
+                std::holds_alternative<int64_t>(rhs.v) || std::holds_alternative<double>(rhs.v);
+
+            Value value;
+            value.v = lhsNumeric && rhsNumeric && (asDouble(lhs) < asDouble(rhs));
+            return value;
+        }
+        if (source == "not") {
+            const auto valueIt = node.find("value");
+            const Value target =
+                valueIt != node.end() ? resolveFixtureScriptValue(*valueIt, ctx) : Value::Nil();
+            Value value;
+            value.v = !isTruthy(target);
+            return value;
+        }
+        if (source == "all") {
+            if (const auto valuesIt = node.find("values");
+                valuesIt != node.end() && valuesIt->is_array()) {
+                bool allTrue = true;
+                for (const auto& valueNode : *valuesIt) {
+                    if (!isTruthy(resolveFixtureScriptValue(valueNode, ctx))) {
+                        allTrue = false;
+                        break;
+                    }
+                }
+                Value value;
+                value.v = allTrue;
+                return value;
+            }
+            return resolveValueWithDefault(nlohmann::json{}, node, ctx);
+        }
+        if (source == "any") {
+            if (const auto valuesIt = node.find("values");
+                valuesIt != node.end() && valuesIt->is_array()) {
+                bool anyTrue = false;
+                for (const auto& valueNode : *valuesIt) {
+                    if (isTruthy(resolveFixtureScriptValue(valueNode, ctx))) {
+                        anyTrue = true;
+                        break;
+                    }
+                }
+                Value value;
+                value.v = anyTrue;
+                return value;
+            }
+            return resolveValueWithDefault(nlohmann::json{}, node, ctx);
+        }
     }
 
     Object object;
@@ -368,23 +531,36 @@ FixtureScriptResult runFixtureScriptSteps(const nlohmann::json& script,
                                           const std::string& commandName,
                                           const std::vector<Value>& args,
                                           const std::unordered_map<std::string, Value>& parameters,
-                                          Object& locals) {
+                                          Object& locals,
+                                          const FixtureCommandInvoker& commandInvoker,
+                                          const FixtureCommandByNameInvoker& commandByNameInvoker) {
     FixtureScriptResult out;
     if (!script.is_array()) {
         return out;
     }
 
-    for (const auto& step : script) {
+    for (size_t stepIndex = 0; stepIndex < script.size(); ++stepIndex) {
+        const auto& step = script[stepIndex];
         if (!step.is_object()) {
-            continue;
+            throw std::runtime_error(
+                "Fixture script step must be an object at index " + std::to_string(stepIndex)
+            );
         }
+
         const std::string op = step.value("op", "");
+        if (op.empty()) {
+            throw std::runtime_error(
+                "Fixture script step missing op at index " + std::to_string(stepIndex)
+            );
+        }
         FixtureScriptContext ctx{pluginName, commandName, args, parameters, locals};
 
         if (op == "set") {
             const std::string key = step.value("key", "");
             if (key.empty()) {
-                continue;
+                throw std::runtime_error(
+                    "Fixture script set op requires key at index " + std::to_string(stepIndex)
+                );
             }
             const auto valueIt = step.find("value");
             locals[key] = valueIt != step.end()
@@ -396,7 +572,9 @@ FixtureScriptResult runFixtureScriptSteps(const nlohmann::json& script,
         if (op == "append") {
             const std::string key = step.value("key", "");
             if (key.empty()) {
-                continue;
+                throw std::runtime_error(
+                    "Fixture script append op requires key at index " + std::to_string(stepIndex)
+                );
             }
             Array* outArray = nullptr;
             auto localIt = locals.find(key);
@@ -425,19 +603,151 @@ FixtureScriptResult runFixtureScriptSteps(const nlohmann::json& script,
                 conditionIt != step.end() ? resolveFixtureScriptValue(*conditionIt, ctx) : Value::Nil();
             const bool takeThen = isTruthy(condition);
             const auto branchIt = step.find(takeThen ? "then" : "else");
-            if (branchIt != step.end() && branchIt->is_array()) {
+            if (branchIt != step.end() && !branchIt->is_array()) {
+                throw std::runtime_error(
+                    "Fixture script if branch must be an array at index " +
+                    std::to_string(stepIndex)
+                );
+            }
+            if (branchIt != step.end()) {
                 const auto branchResult = runFixtureScriptSteps(
                     *branchIt,
                     pluginName,
                     commandName,
                     args,
                     parameters,
-                    locals
+                    locals,
+                    commandInvoker,
+                    commandByNameInvoker
                 );
                 if (branchResult.returned) {
                     return branchResult;
                 }
             }
+            continue;
+        }
+
+        if (op == "invoke" || op == "invokeByName") {
+            std::vector<Value> invokeArgs;
+            if (const auto argsIt = step.find("args");
+                argsIt != step.end()) {
+                if (!argsIt->is_array()) {
+                    throw std::runtime_error(
+                        "Fixture script " + op + " op requires array args at index " +
+                        std::to_string(stepIndex)
+                    );
+                }
+                invokeArgs.reserve(argsIt->size());
+                for (const auto& argNode : *argsIt) {
+                    invokeArgs.push_back(resolveFixtureScriptValue(argNode, ctx));
+                }
+            }
+
+            Value invokeResult = Value::Nil();
+            std::string target;
+            if (op == "invoke") {
+                if (!commandInvoker) {
+                    throw std::runtime_error(
+                        "Fixture script invoke op unavailable at index " +
+                        std::to_string(stepIndex)
+                    );
+                }
+
+                const auto commandIt = step.find("command");
+                if (commandIt == step.end()) {
+                    throw std::runtime_error(
+                        "Fixture script invoke op requires command at index " +
+                        std::to_string(stepIndex)
+                    );
+                }
+                const Value commandValue = resolveFixtureScriptValue(*commandIt, ctx);
+                if (!std::holds_alternative<std::string>(commandValue.v) ||
+                    std::get<std::string>(commandValue.v).empty()) {
+                    throw std::runtime_error(
+                        "Fixture script invoke op requires string command at index " +
+                        std::to_string(stepIndex)
+                    );
+                }
+                const std::string targetCommand = std::get<std::string>(commandValue.v);
+
+                std::string targetPlugin = pluginName;
+                if (const auto pluginIt = step.find("plugin");
+                    pluginIt != step.end()) {
+                    const Value pluginValue = resolveFixtureScriptValue(*pluginIt, ctx);
+                    if (!std::holds_alternative<std::string>(pluginValue.v) ||
+                        std::get<std::string>(pluginValue.v).empty()) {
+                        throw std::runtime_error(
+                            "Fixture script invoke op requires string plugin at index " +
+                            std::to_string(stepIndex)
+                        );
+                    }
+                    targetPlugin = std::get<std::string>(pluginValue.v);
+                }
+
+                target = targetPlugin + "_" + targetCommand;
+                invokeResult = commandInvoker(targetPlugin, targetCommand, invokeArgs);
+            } else {
+                if (!commandByNameInvoker) {
+                    throw std::runtime_error(
+                        "Fixture script invokeByName op unavailable at index " +
+                        std::to_string(stepIndex)
+                    );
+                }
+
+                const auto nameIt = step.find("name");
+                if (nameIt == step.end()) {
+                    throw std::runtime_error(
+                        "Fixture script invokeByName op requires name at index " +
+                        std::to_string(stepIndex)
+                    );
+                }
+                const Value nameValue = resolveFixtureScriptValue(*nameIt, ctx);
+                if (!std::holds_alternative<std::string>(nameValue.v) ||
+                    std::get<std::string>(nameValue.v).empty()) {
+                    throw std::runtime_error(
+                        "Fixture script invokeByName op requires string name at index " +
+                        std::to_string(stepIndex)
+                    );
+                }
+                target = std::get<std::string>(nameValue.v);
+                invokeResult = commandByNameInvoker(target, invokeArgs);
+            }
+
+            if (const auto storeIt = step.find("store");
+                storeIt != step.end()) {
+                if (!storeIt->is_string() || storeIt->get<std::string>().empty()) {
+                    throw std::runtime_error(
+                        "Fixture script " + op + " op requires string store at index " +
+                        std::to_string(stepIndex)
+                    );
+                }
+                locals[storeIt->get<std::string>()] = invokeResult;
+            }
+
+            if (const auto expectIt = step.find("expect");
+                expectIt != step.end()) {
+                if (!expectIt->is_string()) {
+                    throw std::runtime_error(
+                        "Fixture script " + op + " op requires string expect at index " +
+                        std::to_string(stepIndex)
+                    );
+                }
+                const std::string expect = expectIt->get<std::string>();
+                if (expect == "non_nil") {
+                    if (isNilValue(invokeResult)) {
+                        throw std::runtime_error(
+                            "Fixture script " + op + " op expected non-nil result for " +
+                            target + " at index " + std::to_string(stepIndex)
+                        );
+                    }
+                } else {
+                    throw std::runtime_error(
+                        "Fixture script " + op + " op unsupported expect value '" +
+                        expect + "' at index " + std::to_string(stepIndex)
+                    );
+                }
+            }
+
             continue;
         }
 
@@ -455,6 +765,23 @@ FixtureScriptResult runFixtureScriptSteps(const nlohmann::json& script,
             out.value = Value::Obj(locals);
             return out;
         }
+
+        if (op == "error") {
+            const auto messageIt = step.find("message");
+            const Value messageValue =
+                messageIt != step.end() ? resolveFixtureScriptValue(*messageIt, ctx) : Value::Nil();
+            std::string message = valueToString(messageValue);
+            if (message.empty()) {
+                message = "Fixture script error op triggered at index " +
+                          std::to_string(stepIndex);
+            }
+            throw std::runtime_error(message);
+        }
+
+        throw std::runtime_error(
+            "Unsupported fixture script op '" + op + "' at index " +
+            std::to_string(stepIndex)
+        );
     }
 
     return out;
@@ -464,10 +791,21 @@ Value executeFixtureScript(const nlohmann::json& script,
                            const std::string& pluginName,
                            const std::string& commandName,
                            const std::vector<Value>& args,
-                           const std::unordered_map<std::string, Value>& parameters) {
+                           const std::unordered_map<std::string, Value>& parameters,
+                           const FixtureCommandInvoker& commandInvoker,
+                           const FixtureCommandByNameInvoker& commandByNameInvoker) {
     Object locals;
     const auto result =
-        runFixtureScriptSteps(script, pluginName, commandName, args, parameters, locals);
+        runFixtureScriptSteps(
+            script,
+            pluginName,
+            commandName,
+            args,
+            parameters,
+            locals,
+            commandInvoker,
+            commandByNameInvoker
+        );
     if (result.returned) {
         return result.value;
     }
@@ -552,7 +890,8 @@ public:
     void appendFailureDiagnostic(const std::string& pluginName,
                                  const std::string& commandName,
                                  const std::string& operation,
-                                 const std::string& message) {
+                                 const std::string& message,
+                                 const std::string& severity) {
         nlohmann::json diagnostic;
         diagnostic["seq"] = nextFailureDiagnosticSequence_++;
         diagnostic["ts"] = currentUtcTimestampIso8601();
@@ -562,6 +901,7 @@ public:
         diagnostic["command"] = commandName;
         diagnostic["operation"] = operation;
         diagnostic["message"] = message;
+        diagnostic["severity"] = severity;
         failureDiagnosticsJsonl_.push_back(diagnostic.dump());
 
         constexpr size_t kMaxFailureDiagnostics = 2048;
@@ -573,9 +913,10 @@ public:
     void reportFailure(const std::string& pluginName,
                        const std::string& commandName,
                        const std::string& operation,
-                       const std::string& message) {
+                       const std::string& message,
+                       const std::string& severity = "HARD_FAIL") {
         lastError_ = message;
-        appendFailureDiagnostic(pluginName, commandName, operation, message);
+        appendFailureDiagnostic(pluginName, commandName, operation, message, severity);
         if (errorHandler_) {
             errorHandler_(pluginName, commandName, message);
         }
@@ -735,8 +1076,9 @@ bool PluginManager::loadPlugin(const std::string& path) {
     const auto reportLoadFailure = [&](const std::string& pluginName,
                                        const std::string& commandName,
                                        const std::string& operation,
-                                       const std::string& message) {
-        impl_->reportFailure(pluginName, commandName, operation, message);
+                                       const std::string& message,
+                                       const std::string& severity = "HARD_FAIL") {
+        impl_->reportFailure(pluginName, commandName, operation, message, severity);
     };
 
     // Fixture path: JSON files contain executable plugin command fixtures.
@@ -764,6 +1106,16 @@ bool PluginManager::loadPlugin(const std::string& path) {
             return false;
         }
 
+        if (const auto fixtureNameIt = fixture.find("name");
+            fixtureNameIt != fixture.end() && !fixtureNameIt->is_string()) {
+            reportLoadFailure(
+                pluginHint,
+                "",
+                "load_plugin_fixture_name",
+                "Fixture plugin name must be string: " + path
+            );
+            return false;
+        }
         std::string name = fixture.value("name", pluginPath.stem().string());
         if (name.empty()) {
             reportLoadFailure(
@@ -792,11 +1144,29 @@ bool PluginManager::loadPlugin(const std::string& path) {
         info.enabled = fixture.value("enabled", true);
         info.loaded = true;
         if (const auto depsIt = fixture.find("dependencies");
-            depsIt != fixture.end() && depsIt->is_array()) {
-            for (const auto& dep : *depsIt) {
-                if (dep.is_string()) {
-                    info.dependencies.push_back(dep.get<std::string>());
+            depsIt != fixture.end()) {
+            if (!depsIt->is_array()) {
+                reportLoadFailure(
+                    name,
+                    "",
+                    "load_plugin_dependencies",
+                    "Fixture plugin 'dependencies' must be array: " + path
+                );
+                return false;
+            }
+            for (size_t depIndex = 0; depIndex < depsIt->size(); ++depIndex) {
+                const auto& dep = (*depsIt)[depIndex];
+                if (!dep.is_string()) {
+                    reportLoadFailure(
+                        name,
+                        "",
+                        "load_plugin_dependency_entry",
+                        "Fixture plugin dependency must be string at index " +
+                            std::to_string(depIndex) + ": " + path
+                    );
+                    return false;
                 }
+                info.dependencies.push_back(dep.get<std::string>());
             }
         }
         impl_->plugins_[name] = std::move(info);
@@ -811,24 +1181,137 @@ bool PluginManager::loadPlugin(const std::string& path) {
         };
 
         if (const auto paramsIt = fixture.find("parameters");
-            paramsIt != fixture.end() && paramsIt->is_object()) {
+            paramsIt != fixture.end()) {
+            if (!paramsIt->is_object()) {
+                reportLoadFailure(
+                    name,
+                    "",
+                    "load_plugin_parameters",
+                    "Fixture plugin 'parameters' must be object: " + path
+                );
+                rollbackFixturePlugin();
+                return false;
+            }
             for (const auto& [key, paramValue] : paramsIt->items()) {
                 setParameter(name, key, jsonToValue(paramValue));
             }
         }
 
         if (const auto cmdsIt = fixture.find("commands");
-            cmdsIt != fixture.end() && cmdsIt->is_array()) {
-            for (const auto& cmd : *cmdsIt) {
+            cmdsIt != fixture.end()) {
+            if (!cmdsIt->is_array()) {
+                reportLoadFailure(
+                    name,
+                    "",
+                    "load_plugin_commands",
+                    "Fixture plugin 'commands' must be array: " + path
+                );
+                rollbackFixturePlugin();
+                return false;
+            }
+            for (size_t commandIndex = 0; commandIndex < cmdsIt->size(); ++commandIndex) {
+                const auto& cmd = (*cmdsIt)[commandIndex];
                 if (!cmd.is_object()) {
-                    continue;
+                    reportLoadFailure(
+                        name,
+                        "",
+                        "load_plugin_command_shape",
+                        "Fixture command entry must be an object at index " +
+                            std::to_string(commandIndex)
+                    );
+                    rollbackFixturePlugin();
+                    return false;
                 }
-                const std::string commandName = cmd.value("name", "");
+                if (const auto commandNameIt = cmd.find("name");
+                    commandNameIt != cmd.end() && !commandNameIt->is_string()) {
+                    reportLoadFailure(
+                        name,
+                        "",
+                        "load_plugin_command_name",
+                        "Fixture command name must be string at index " +
+                            std::to_string(commandIndex)
+                    );
+                    rollbackFixturePlugin();
+                    return false;
+                }
+                const std::string commandName =
+                    cmd.contains("name") && cmd["name"].is_string()
+                        ? cmd["name"].get<std::string>()
+                        : "";
                 if (commandName.empty()) {
-                    continue;
+                    reportLoadFailure(
+                        name,
+                        "",
+                        "load_plugin_command_name",
+                        "Fixture command name cannot be empty at index " +
+                            std::to_string(commandIndex)
+                    );
+                    rollbackFixturePlugin();
+                    return false;
                 }
 
-                const std::string description = cmd.value("description", "");
+                const bool hasJs = cmd.contains("js");
+                const bool hasScript = cmd.contains("script");
+                if (hasJs && !cmd["js"].is_string()) {
+                    reportLoadFailure(
+                        name,
+                        commandName,
+                        "load_plugin_js_payload",
+                        "Fixture JS command requires string 'js' payload: " + commandName
+                    );
+                    rollbackFixturePlugin();
+                    return false;
+                }
+                if (hasScript && !cmd["script"].is_array()) {
+                    reportLoadFailure(
+                        name,
+                        commandName,
+                        "load_plugin_script_payload",
+                        "Fixture script command requires array 'script' payload: " + commandName
+                    );
+                    rollbackFixturePlugin();
+                    return false;
+                }
+                if (hasJs && hasScript) {
+                    reportLoadFailure(
+                        name,
+                        commandName,
+                        "load_plugin_command_mode",
+                        "Fixture command cannot declare both 'js' and 'script': " + commandName
+                    );
+                    rollbackFixturePlugin();
+                    return false;
+                }
+
+                if (const auto dropContextIt = cmd.find("dropContextBeforeCall");
+                    dropContextIt != cmd.end() && !dropContextIt->is_boolean()) {
+                    reportLoadFailure(
+                        name,
+                        commandName,
+                        "load_plugin_drop_context_flag",
+                        "Fixture command 'dropContextBeforeCall' must be boolean: " + commandName
+                    );
+                    rollbackFixturePlugin();
+                    return false;
+                }
+
+                const bool dropContextBeforeCall = cmd.value("dropContextBeforeCall", false);
+
+                if (const auto descriptionIt = cmd.find("description");
+                    descriptionIt != cmd.end() && !descriptionIt->is_string()) {
+                    reportLoadFailure(
+                        name,
+                        commandName,
+                        "load_plugin_command_description",
+                        "Fixture command 'description' must be string: " + commandName
+                    );
+                    rollbackFixturePlugin();
+                    return false;
+                }
+                const std::string description =
+                    cmd.contains("description") && cmd["description"].is_string()
+                        ? cmd["description"].get<std::string>()
+                        : "";
                 if (const auto jsIt = cmd.find("js");
                     jsIt != cmd.end() && jsIt->is_string()) {
                     QuickJSContext* pluginContext = impl_->ensurePluginContext(name);
@@ -843,6 +1326,17 @@ bool PluginManager::loadPlugin(const std::string& path) {
                         return false;
                     }
 
+                    if (const auto entryIt = cmd.find("entry");
+                        entryIt != cmd.end() && !entryIt->is_string()) {
+                        reportLoadFailure(
+                            name,
+                            commandName,
+                            "load_plugin_js_entry",
+                            "Fixture JS command requires string 'entry' payload: " + commandName
+                        );
+                        rollbackFixturePlugin();
+                        return false;
+                    }
                     const std::string entryPoint = cmd.value("entry", commandName);
                     if (entryPoint.empty()) {
                         reportLoadFailure(
@@ -863,7 +1357,13 @@ bool PluginManager::loadPlugin(const std::string& path) {
                             !evalResult.error.empty()
                                 ? evalResult.error
                                 : ("Failed to evaluate fixture JS for command: " + commandName);
-                        reportLoadFailure(name, commandName, "load_plugin_js_eval", message);
+                        reportLoadFailure(
+                            name,
+                            commandName,
+                            "load_plugin_js_eval",
+                            message,
+                            compatSeverityToString(evalResult.severity)
+                        );
                         rollbackFixturePlugin();
                         return false;
                     }
@@ -871,7 +1371,10 @@ bool PluginManager::loadPlugin(const std::string& path) {
                     if (!registerCommand(
                         name,
                         commandName,
-                        [this, name, commandName, entryPoint](const std::vector<Value>& args) -> Value {
+                        [this, name, commandName, entryPoint, dropContextBeforeCall](const std::vector<Value>& args) -> Value {
+                            if (dropContextBeforeCall) {
+                                impl_->destroyPluginContext(name);
+                            }
                             QuickJSContext* context = impl_->getPluginContext(name);
                             if (!context) {
                                 impl_->reportFailure(
@@ -893,7 +1396,8 @@ bool PluginManager::loadPlugin(const std::string& path) {
                                     name,
                                     commandName,
                                     "execute_command_quickjs_call",
-                                    message
+                                    message,
+                                    compatSeverityToString(result.severity)
                                 );
                                 return Value::Nil();
                             }
@@ -943,7 +1447,16 @@ bool PluginManager::loadPlugin(const std::string& path) {
                                     pluginForCommand,
                                     commandForCommand,
                                     args,
-                                    params
+                                    params,
+                                    [this](const std::string& targetPlugin,
+                                           const std::string& targetCommand,
+                                           const std::vector<Value>& targetArgs) -> Value {
+                                        return executeCommand(targetPlugin, targetCommand, targetArgs);
+                                    },
+                                    [this](const std::string& fullName,
+                                           const std::vector<Value>& targetArgs) -> Value {
+                                        return executeCommandByName(fullName, targetArgs);
+                                    }
                                 );
                             })) {
                         reportLoadFailure(
@@ -959,7 +1472,10 @@ bool PluginManager::loadPlugin(const std::string& path) {
                     if (!registerCommand(
                         pluginForCommand,
                         commandForCommand,
-                        [this, pluginForCommand, commandForCommand](const std::vector<Value>& args) -> Value {
+                        [this, pluginForCommand, commandForCommand, dropContextBeforeCall](const std::vector<Value>& args) -> Value {
+                            if (dropContextBeforeCall) {
+                                impl_->destroyPluginContext(pluginForCommand);
+                            }
                             QuickJSContext* context = impl_->getPluginContext(pluginForCommand);
                             if (!context) {
                                 impl_->reportFailure(
@@ -981,7 +1497,8 @@ bool PluginManager::loadPlugin(const std::string& path) {
                                     pluginForCommand,
                                     commandForCommand,
                                     "execute_command_quickjs_call",
-                                    message
+                                    message,
+                                    compatSeverityToString(result.severity)
                                 );
                                 return Value::Nil();
                             }
@@ -1002,7 +1519,31 @@ bool PluginManager::loadPlugin(const std::string& path) {
                     continue;
                 }
 
-                const std::string mode = cmd.value("mode", "const");
+                if (const auto modeIt = cmd.find("mode");
+                    modeIt != cmd.end() && !modeIt->is_string()) {
+                    reportLoadFailure(
+                        name,
+                        commandName,
+                        "load_plugin_command_mode",
+                        "Fixture command 'mode' must be string: " + commandName
+                    );
+                    rollbackFixturePlugin();
+                    return false;
+                }
+                const std::string mode =
+                    cmd.contains("mode") && cmd["mode"].is_string()
+                        ? cmd["mode"].get<std::string>()
+                        : "const";
+                if (mode != "const" && mode != "arg_count") {
+                    reportLoadFailure(
+                        name,
+                        commandName,
+                        "load_plugin_command_mode",
+                        "Fixture command 'mode' unsupported: " + mode + " for " + commandName
+                    );
+                    rollbackFixturePlugin();
+                    return false;
+                }
                 if (mode == "arg_count") {
                     if (!registerCommand(
                         name,
@@ -1150,23 +1691,77 @@ int32_t PluginManager::loadPluginsFromDirectory(const std::string& directory) {
         return 0;
     }
 
-    int32_t loadedCount = 0;
-    for (const auto& entry : std::filesystem::directory_iterator(dirPath, ec)) {
+    if (dirPath.filename().string().find(kFailDirectoryScanMarker) != std::string::npos) {
+        impl_->reportFailure(
+            "",
+            "",
+            "load_plugins_directory_scan",
+            "Failed scanning plugin directory: " + directory
+        );
+        return 0;
+    }
+
+    std::vector<std::filesystem::path> candidates;
+    std::filesystem::directory_iterator it(dirPath, ec);
+    if (ec) {
+        impl_->reportFailure(
+            "",
+            "",
+            "load_plugins_directory_scan",
+            "Failed scanning plugin directory: " + directory
+        );
+        return 0;
+    }
+
+    for (const auto& entry : it) {
         if (ec) {
             impl_->reportFailure("", "", "load_plugins_directory_scan", "Failed scanning plugin directory: " + directory);
-            return loadedCount;
+            return 0;
         }
-        if (!entry.is_regular_file(ec)) {
-            continue;
+        if (entry.path().filename().string().find(kFailDirectoryEntryStatusMarker) !=
+            std::string::npos) {
+            impl_->reportFailure(
+                "",
+                "",
+                "load_plugins_directory_scan_entry",
+                "Failed reading plugin directory entry: " + entry.path().string()
+            );
+            return 0;
         }
-        if (ec) {
+
+        std::error_code entryEc;
+        const bool isRegular = entry.is_regular_file(entryEc);
+        if (entryEc) {
+            impl_->reportFailure(
+                "",
+                "",
+                "load_plugins_directory_scan_entry",
+                "Failed reading plugin directory entry: " + entry.path().string()
+            );
+            return 0;
+        }
+        if (!isRegular) {
             continue;
         }
         const auto ext = entry.path().extension().string();
         if (ext != ".json" && ext != ".js") {
             continue;
         }
-        if (loadPlugin(entry.path().string())) {
+        candidates.push_back(entry.path());
+    }
+
+    std::sort(
+        candidates.begin(),
+        candidates.end(),
+        [](const std::filesystem::path& lhs, const std::filesystem::path& rhs) {
+            return lhs.lexically_normal().generic_string() <
+                   rhs.lexically_normal().generic_string();
+        }
+    );
+
+    int32_t loadedCount = 0;
+    for (const auto& candidate : candidates) {
+        if (loadPlugin(candidate.string())) {
             ++loadedCount;
         }
     }
@@ -1181,6 +1776,8 @@ void PluginManager::unloadAllPlugins() {
     for (const auto& [name, info] : impl_->plugins_) {
         names.push_back(name);
     }
+
+    std::sort(names.begin(), names.end());
     
     // Unload each plugin
     for (const auto& name : names) {
@@ -1242,6 +1839,8 @@ std::vector<std::string> PluginManager::getLoadedPlugins() const {
             result.push_back(name);
         }
     }
+
+    std::sort(result.begin(), result.end());
     return result;
 }
 
@@ -1360,7 +1959,8 @@ std::vector<std::string> PluginManager::getPluginCommands(const std::string& plu
             result.push_back(cmd.commandName);
         }
     }
-    
+
+    std::sort(result.begin(), result.end());
     return result;
 }
 
@@ -1374,15 +1974,43 @@ Value PluginManager::executeCommand(const std::string& pluginName,
     std::lock_guard<std::recursive_mutex> lock(impl_->stateMutex_);
     impl_->lastError_.clear();
 
-    const auto reportCommandError = [&](const std::string& message) {
-        impl_->reportFailure(pluginName, commandName, "execute_command", message);
+    const auto reportCommandError = [&](const std::string& message,
+                                        const std::string& severity = "HARD_FAIL") {
+        impl_->reportFailure(pluginName, commandName, "execute_command", message, severity);
     };
     
     std::string fullKey = pluginName + "_" + commandName;
     
     auto it = impl_->commands_.find(fullKey);
     if (it == impl_->commands_.end()) {
-        reportCommandError("Command not found: " + fullKey);
+        impl_->reportFailure(
+            pluginName,
+            commandName,
+            "execute_command",
+            "Command not found: " + fullKey,
+            "WARN"
+        );
+        return Value();
+    }
+
+    const auto missingDependencies = getMissingDependencies(pluginName);
+    if (!missingDependencies.empty()) {
+        std::ostringstream message;
+        message << "Missing dependencies for " << fullKey << ": ";
+        for (size_t i = 0; i < missingDependencies.size(); ++i) {
+            if (i > 0) {
+                message << ", ";
+            }
+            message << missingDependencies[i];
+        }
+
+        impl_->reportFailure(
+            pluginName,
+            commandName,
+            "execute_command_dependency_missing",
+            message.str(),
+            "SOFT_FAIL"
+        );
         return Value();
     }
     
@@ -1400,7 +2028,7 @@ Value PluginManager::executeCommand(const std::string& pluginName,
     } catch (const std::exception& e) {
         reportCommandError(std::string("Command execution error: ") + e.what());
     } catch (...) {
-        reportCommandError("Unknown command execution error");
+        reportCommandError("Unknown command execution error", "CRASH_PREVENTED");
     }
     
     // Pop execution context
@@ -1413,10 +2041,28 @@ Value PluginManager::executeCommandByName(const std::string& fullName,
                                          const std::vector<Value>& args) {
     std::lock_guard<std::recursive_mutex> lock(impl_->stateMutex_);
     impl_->lastError_.clear();
+
+    const auto reportParseFailure = [&]() {
+        impl_->reportFailure(
+            "",
+            fullName,
+            "execute_command_by_name_parse",
+            "Invalid command name format: " + fullName,
+            "WARN"
+        );
+    };
+
+    // Fast path: exact full key match supports plugin/command names containing underscores.
+    if (const auto commandIt = impl_->commands_.find(fullName);
+        commandIt != impl_->commands_.end()) {
+        return executeCommand(commandIt->second.pluginName, commandIt->second.commandName, args);
+    }
+
     // Parse full name (pluginName_commandName)
     size_t underscorePos = fullName.rfind('_');
-    if (underscorePos == std::string::npos) {
-        impl_->reportFailure("", fullName, "execute_command_by_name_parse", "Invalid command name format: " + fullName);
+    if (underscorePos == std::string::npos || underscorePos == 0 ||
+        underscorePos + 1 >= fullName.size()) {
+        reportParseFailure();
         return Value();
     }
     
@@ -1557,7 +2203,8 @@ std::vector<std::string> PluginManager::getDependents(const std::string& pluginN
             }
         }
     }
-    
+
+    std::sort(dependents.begin(), dependents.end());
     return dependents;
 }
 

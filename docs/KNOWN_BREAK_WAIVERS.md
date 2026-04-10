@@ -2,6 +2,11 @@
 
 Use `tools/ci/known_break_waivers.json` to track temporary CI waivers.
 
+Status Date: 2026-03-05
+
+Current Snapshot:
+- `tools/ci/known_break_waivers.json` currently contains zero active waivers.
+
 ## Rules
 
 - Every waiver must include:

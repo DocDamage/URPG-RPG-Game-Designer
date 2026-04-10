@@ -9,21 +9,49 @@ on:
     - cron: "0 7 * * 1"
   workflow_dispatch:
 
+concurrency:
+  group: urpg-ci-gates-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  SCCACHE_DIR: ${{ github.workspace }}/.cache/sccache
+
 jobs:
   gate1-pr:
     if: github.event_name == 'pull_request' || github.event_name == 'push' || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Install sccache
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y sccache
+      - name: Cache sccache
+        uses: actions/cache@v4
+        with:
+          path: .cache/sccache
+          key: ${{ runner.os }}-sccache-${{ hashFiles('CMakeLists.txt', 'CMakePresets.json') }}
+          restore-keys: |
+            ${{ runner.os }}-sccache-
+      - name: Cache FetchContent dependencies
+        uses: actions/cache@v4
+        with:
+          path: .cache/fetchcontent
+          key: ${{ runner.os }}-fetchcontent-${{ hashFiles('CMakeLists.txt', 'CMakePresets.json') }}
+          restore-keys: |
+            ${{ runner.os }}-fetchcontent-
       - name: Validate known-break waivers
         shell: pwsh
         run: ./tools/ci/check_waivers.ps1
       - name: Configure
-        run: cmake -S . -B build -DURPG_FETCH_CATCH2=ON
+        run: cmake --preset ci
       - name: Build
-        run: cmake --build build --config Release
+        run: cmake --build --preset ci-release
+      - name: sccache stats
+        if: always()
+        run: sccache --show-stats || true
       - name: Run Gate 1 tests
-        run: ctest --test-dir build --output-on-failure -L pr
+        run: ctest --test-dir build/ci --output-on-failure -L pr
 
   gate2-nightly:
     if: github.event_name == 'schedule' && github.event.schedule == '0 6 * * *'
@@ -34,17 +62,38 @@ jobs:
         renderer_tier: [basic, standard, advanced]
     steps:
       - uses: actions/checkout@v4
+      - name: Install sccache
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y sccache
+      - name: Cache sccache
+        uses: actions/cache@v4
+        with:
+          path: .cache/sccache
+          key: ${{ runner.os }}-sccache-${{ hashFiles('CMakeLists.txt', 'CMakePresets.json') }}
+          restore-keys: |
+            ${{ runner.os }}-sccache-
+      - name: Cache FetchContent dependencies
+        uses: actions/cache@v4
+        with:
+          path: .cache/fetchcontent
+          key: ${{ runner.os }}-fetchcontent-${{ hashFiles('CMakeLists.txt', 'CMakePresets.json') }}
+          restore-keys: |
+            ${{ runner.os }}-fetchcontent-
       - name: Validate known-break waivers
         shell: pwsh
         run: ./tools/ci/check_waivers.ps1
       - name: Configure
-        run: cmake -S . -B build -DURPG_FETCH_CATCH2=ON
+        run: cmake --preset ci
       - name: Build
-        run: cmake --build build --config Release
+        run: cmake --build --preset ci-release
+      - name: sccache stats
+        if: always()
+        run: sccache --show-stats || true
       - name: Run Gate 2 tests
         env:
           URPG_RENDERER_TIER: ${{ matrix.renderer_tier }}
-        run: ctest --test-dir build --output-on-failure -L nightly --output-log gate2-${{ matrix.renderer_tier }}.log
+        run: ctest --test-dir build/ci --output-on-failure -L nightly --output-log gate2-${{ matrix.renderer_tier }}.log
       - name: Upload Gate 2 logs
         if: always()
         uses: actions/upload-artifact@v4
@@ -57,15 +106,36 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Install sccache
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y sccache
+      - name: Cache sccache
+        uses: actions/cache@v4
+        with:
+          path: .cache/sccache
+          key: ${{ runner.os }}-sccache-${{ hashFiles('CMakeLists.txt', 'CMakePresets.json') }}
+          restore-keys: |
+            ${{ runner.os }}-sccache-
+      - name: Cache FetchContent dependencies
+        uses: actions/cache@v4
+        with:
+          path: .cache/fetchcontent
+          key: ${{ runner.os }}-fetchcontent-${{ hashFiles('CMakeLists.txt', 'CMakePresets.json') }}
+          restore-keys: |
+            ${{ runner.os }}-fetchcontent-
       - name: Validate known-break waivers
         shell: pwsh
         run: ./tools/ci/check_waivers.ps1
       - name: Configure
-        run: cmake -S . -B build -DURPG_FETCH_CATCH2=ON
+        run: cmake --preset ci
       - name: Build
-        run: cmake --build build --config Release
+        run: cmake --build --preset ci-release
+      - name: sccache stats
+        if: always()
+        run: sccache --show-stats || true
       - name: Run Gate 3 tests
-        run: ctest --test-dir build --output-on-failure -L weekly --output-log gate3-weekly.log
+        run: ctest --test-dir build/ci --output-on-failure -L weekly --output-log gate3-weekly.log
       - name: Upload Gate 3 logs
         if: always()
         uses: actions/upload-artifact@v4
