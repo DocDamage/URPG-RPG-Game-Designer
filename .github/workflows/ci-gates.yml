@@ -96,7 +96,7 @@ jobs:
         run: ctest --test-dir build/ci --output-on-failure -L nightly --output-log gate2-${{ matrix.renderer_tier }}.log
       - name: Upload Gate 2 logs
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: gate2-${{ matrix.renderer_tier }}-logs
           path: gate2-${{ matrix.renderer_tier }}.log
@@ -138,7 +138,7 @@ jobs:
         run: ctest --test-dir build/ci --output-on-failure -L weekly --output-log gate3-weekly.log
       - name: Upload Gate 3 logs
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: gate3-weekly-logs
           path: gate3-weekly.log
