@@ -173,6 +173,39 @@ TEST_CASE("QuickJSContext eval supports explicit failure directive", "[compat][q
     REQUIRE(result.sourceLocation == "fixture_failure.js:1");
 }
 
+TEST_CASE("QuickJSContext eval supports explicit call failure directive", "[compat][quickjs]") {
+    QuickJSContext ctx;
+    REQUIRE(ctx.initialize(QuickJSConfig{}));
+
+    const auto evalResult = ctx.eval(
+        R"(// @urpg-fail-call brokenRuntime simulated fixture runtime failure)",
+        "fixture_runtime_failure.js"
+    );
+    REQUIRE(evalResult.success);
+
+    const auto callResult = ctx.call("brokenRuntime", {});
+    REQUIRE_FALSE(callResult.success);
+    REQUIRE(callResult.severity == CompatSeverity::HARD_FAIL);
+    REQUIRE(callResult.error == "Host function error: simulated fixture runtime failure");
+}
+
+TEST_CASE("QuickJSContext call marks unknown host exceptions as crash prevented", "[compat][quickjs]") {
+    QuickJSContext ctx;
+    REQUIRE(ctx.initialize(QuickJSConfig{}));
+
+    REQUIRE(ctx.registerFunction(
+        "unknownThrow",
+        [](const std::vector<urpg::Value>&) -> urpg::Value {
+            throw 7;
+        }
+    ));
+
+    const auto callResult = ctx.call("unknownThrow", {});
+    REQUIRE_FALSE(callResult.success);
+    REQUIRE(callResult.severity == CompatSeverity::CRASH_PREVENTED);
+    REQUIRE(callResult.error == "Unknown host function error");
+}
+
 TEST_CASE("QuickJSContext tracks API status", "[compat][quickjs]") {
     QuickJSContext ctx;
     REQUIRE(ctx.initialize(QuickJSConfig{}));
@@ -351,6 +384,19 @@ TEST_CASE("QuickJSRuntime duplicate createContext returns same ID", "[compat][qu
     auto ctx2 = runtime.createContext("plugin1", QuickJSConfig{});
     
     REQUIRE(ctx1 == ctx2);
+}
+
+TEST_CASE("QuickJSRuntime createContext supports deterministic fixture init failure marker",
+          "[compat][quickjs]") {
+    QuickJSRuntime runtime;
+    REQUIRE(runtime.initialize());
+
+    const auto failedContext =
+        runtime.createContext("broken__urpg_fail_context_init__plugin", QuickJSConfig{});
+    REQUIRE_FALSE(failedContext.has_value());
+    REQUIRE_FALSE(
+        runtime.getContextId("broken__urpg_fail_context_init__plugin").has_value()
+    );
 }
 
 TEST_CASE("QuickJSRuntime aggregate budget status", "[compat][quickjs]") {

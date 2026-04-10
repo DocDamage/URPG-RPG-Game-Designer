@@ -1,0 +1,89 @@
+{
+  "GeneratedAt": "2026-04-10T00:14:01-04:00",
+  "RepoRoot": "F:\\stuff from desktop\\URPG - RPG Game Maker",
+  "SteamDlcRoot": "C:\\Program Files (x86)\\Steam\\steamapps\\common\\RPG Maker MZ\\dlc",
+  "PackCount": 10,
+  "PluginJsCount": 30,
+  "Packs": [
+    {
+      "Pack": "3D Particle Effect Pack",
+      "SourcePath": "C:\\Program Files (x86)\\Steam\\steamapps\\common\\RPG Maker MZ\\dlc\\3D Particle Effect Pack",
+      "StagedPackPath": "F:\\stuff from desktop\\URPG - RPG Game Maker\\third_party\\rpgmaker-mz\\steam-dlc\\packs\\3D Particle Effect Pack",
+      "TotalFiles": 2209,
+      "JsFiles": 34,
+      "PluginJsFiles": 8
+    },
+    {
+      "Pack": "BasicResources",
+      "SourcePath": "C:\\Program Files (x86)\\Steam\\steamapps\\common\\RPG Maker MZ\\dlc\\BasicResources",
+      "StagedPackPath": "F:\\stuff from desktop\\URPG - RPG Game Maker\\third_party\\rpgmaker-mz\\steam-dlc\\packs\\BasicResources",
+      "TotalFiles": 745,
+      "JsFiles": 61,
+      "PluginJsFiles": 0
+    },
+    {
+      "Pack": "CAMERA MOVEMENT PLUGIN",
+      "SourcePath": "C:\\Program Files (x86)\\Steam\\steamapps\\common\\RPG Maker MZ\\dlc\\CAMERA MOVEMENT PLUGIN",
+      "StagedPackPath": "F:\\stuff from desktop\\URPG - RPG Game Maker\\third_party\\rpgmaker-mz\\steam-dlc\\packs\\CAMERA MOVEMENT PLUGIN",
+      "TotalFiles": 134,
+      "JsFiles": 30,
+      "PluginJsFiles": 2
+    },
+    {
+      "Pack": "Fantasy Generator - Armor Parts Set for MZ",
+      "SourcePath": "C:\\Program Files (x86)\\Steam\\steamapps\\common\\RPG Maker MZ\\dlc\\Fantasy Generator - Armor Parts Set for MZ",
+      "StagedPackPath": "F:\\stuff from desktop\\URPG - RPG Game Maker\\third_party\\rpgmaker-mz\\steam-dlc\\packs\\Fantasy Generator - Armor Parts Set for MZ",
+      "TotalFiles": 2093,
+      "JsFiles": 0,
+      "PluginJsFiles": 0
+    },
+    {
+      "Pack": "FantasyResourcePack",
+      "SourcePath": "C:\\Program Files (x86)\\Steam\\steamapps\\common\\RPG Maker MZ\\dlc\\FantasyResourcePack",
+      "StagedPackPath": "F:\\stuff from desktop\\URPG - RPG Game Maker\\third_party\\rpgmaker-mz\\steam-dlc\\packs\\FantasyResourcePack",
+      "TotalFiles": 29,
+      "JsFiles": 0,
+      "PluginJsFiles": 0
+    },
+    {
+      "Pack": "Menu Builder",
+      "SourcePath": "C:\\Program Files (x86)\\Steam\\steamapps\\common\\RPG Maker MZ\\dlc\\Menu Builder",
+      "StagedPackPath": "F:\\stuff from desktop\\URPG - RPG Game Maker\\third_party\\rpgmaker-mz\\steam-dlc\\packs\\Menu Builder",
+      "TotalFiles": 2775,
+      "JsFiles": 43,
+      "PluginJsFiles": 12
+    },
+    {
+      "Pack": "MV Trinity Resource Pack",
+      "SourcePath": "C:\\Program Files (x86)\\Steam\\steamapps\\common\\RPG Maker MZ\\dlc\\MV Trinity Resource Pack",
+      "StagedPackPath": "F:\\stuff from desktop\\URPG - RPG Game Maker\\third_party\\rpgmaker-mz\\steam-dlc\\packs\\MV Trinity Resource Pack",
+      "TotalFiles": 8384,
+      "JsFiles": 34,
+      "PluginJsFiles": 8
+    },
+    {
+      "Pack": "NpcResourcePack",
+      "SourcePath": "C:\\Program Files (x86)\\Steam\\steamapps\\common\\RPG Maker MZ\\dlc\\NpcResourcePack",
+      "StagedPackPath": "F:\\stuff from desktop\\URPG - RPG Game Maker\\third_party\\rpgmaker-mz\\steam-dlc\\packs\\NpcResourcePack",
+      "TotalFiles": 12,
+      "JsFiles": 0,
+      "PluginJsFiles": 0
+    },
+    {
+      "Pack": "RemakeMapResourcePack",
+      "SourcePath": "C:\\Program Files (x86)\\Steam\\steamapps\\common\\RPG Maker MZ\\dlc\\RemakeMapResourcePack",
+      "StagedPackPath": "F:\\stuff from desktop\\URPG - RPG Game Maker\\third_party\\rpgmaker-mz\\steam-dlc\\packs\\RemakeMapResourcePack",
+      "TotalFiles": 532,
+      "JsFiles": 0,
+      "PluginJsFiles": 0
+    },
+    {
+      "Pack": "UI Icon Set",
+      "SourcePath": "C:\\Program Files (x86)\\Steam\\steamapps\\common\\RPG Maker MZ\\dlc\\UI Icon Set",
+      "StagedPackPath": "F:\\stuff from desktop\\URPG - RPG Game Maker\\third_party\\rpgmaker-mz\\steam-dlc\\packs\\UI Icon Set",
+      "TotalFiles": 516,
+      "JsFiles": 0,
+      "PluginJsFiles": 0
+    }
+  ]
+}

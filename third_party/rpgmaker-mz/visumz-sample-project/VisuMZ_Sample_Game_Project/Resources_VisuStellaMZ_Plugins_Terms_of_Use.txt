@@ -1,0 +1,55 @@
+============================================================================
+Terms of Use
+============================================================================
+
+1. These plugins may be used in free or commercial games provided that they
+have been acquired through legitimate means at VisuStella.com and/or any
+other official approved VisuStella sources. Exceptions and special
+circumstances that may prohibit usage will be listed on VisuStella.com.
+
+2. All of the listed coders found in the Credits section of this plugin must
+be given credit in your games or credited as a collective under the name:
+"VisuStella".
+
+3. You may edit the source code to suit your needs, so long as you do not
+claim the source code belongs to you. VisuStella also does not take
+responsibility for the plugin if any changes have been made to the plugin's
+code, nor does VisuStella take responsibility for user-provided custom code
+used for custom control effects including advanced JavaScript notetags
+and/or plugin parameters that allow custom JavaScript code.
+
+4. You may NOT redistribute these plugins nor take code from this plugin to
+use as your own. These plugins and their code are only to be downloaded from
+VisuStella.com and other official/approved VisuStella sources. A list of
+official/approved sources can also be found on VisuStella.com.
+
+5. VisuStella is not responsible for problems found in your game due to
+unintended usage, incompatibility problems with plugins outside of the
+VisuStella MZ library, plugin versions that aren't up to date, nor
+responsible for the proper working of compatibility patches made by any
+third parties. VisuStella is not responsible for errors caused by any
+user-provided custom code used for custom control effects including advanced
+JavaScript notetags and/or plugin parameters that allow JavaScript code.
+
+6. If a compatibility patch needs to be made through a third party that is
+unaffiliated with VisuStella that involves using code from the VisuStella MZ
+library, contact must be made with a member from VisuStella and have it
+approved. The patch would be placed on VisuStella.com as a free download
+to the public. Such patches cannot be sold for monetary gain, including
+commissions, crowdfunding, and/or donations.
+
+7. If this VisuStella MZ plugin is a paid product, all project team members
+must purchase their own individual copies of the paid product if they are to
+use it. Usage includes working on related game mechanics, managing related
+code, and/or using related Plugin Commands and features. Redistribution of
+the plugin and/or its code to other members of the team is NOT allowed
+unless they own the plugin itself as that conflicts with Article 4.
+
+8. Any extensions and/or addendums made to this plugin's Terms of Use can be
+found on VisuStella.com and must be followed.
+
+
+
+============================================================================
+End of Terms of Use
+============================================================================

@@ -1,0 +1,221 @@
+*{
+    background-size: auto;
+    background-repeat: repeat;
+    background-image: url("images/background.png");
+}
+
+button{
+    background: rgb(0, 0, 0);
+    color:rgb(255, 255, 255);
+    text-shadow: 6px;
+    width: 30%;
+    height: 150px;
+    font-size: 36px;
+    border-radius: 20px;
+    justify-content: center;
+    align-items: center;
+}
+
+.active, button:hover{
+    background: rgb(68, 68, 68);
+    color:rgb(0, 0, 0);
+    text-shadow: 6px;
+    width: 30%;
+    height: 150px;
+    font-size: 36px;
+    border-radius: 60px;
+}
+
+#Editor_Help, #Editor_Msg{
+    background-image: none;
+    background: rgb(146, 146, 146);
+    background-color: antiquewhite;
+    border-color: rgb(25, 0, 255);
+    border-radius: 20px;
+    color:rgb(0, 0, 0);
+    width: 100%;
+    height:fit-content;
+    border: 20px;
+    padding: 5px;
+    font-size: 24px;
+}
+
+#menu_config_button{
+    background-image: none;
+    background: rgb(0, 0, 0);
+    color:rgb(255, 255, 255);
+    width: 100%;
+    height: 64px;
+    font-size: 36px;
+    border-radius: 20px;
+    border-left: 20%;
+    border-right: 20%;
+    justify-content: center;
+    align-items: center;
+}
+
+#menu_config_button:hover{
+    background-image: none;
+    background: rgba(68, 68, 68, 0.447);
+    color:rgb(0, 0, 0);
+    text-shadow: 12px;
+    width: 100%;
+    height: 72px;
+    font-size: 36px;
+    border-radius: 60px;
+    border-left: 20%;
+    border-right: 20%;
+    justify-content: center;
+}
+
+#Main_Menu{
+    background-image: none;
+    background-color: rgb(0, 0, 0);
+    width: 100%;
+    height: fit-content;
+}
+
+#contents, #Input_Form{
+    padding: 3%;
+    border-radius: 20px;
+    border-width: 20px;
+    border-left: 20%;
+    border-right: 20%;
+    border-color: black;
+    background-image: none;
+    background-color: rgb(156, 156, 156);
+    color: rgb(0, 0, 0);
+    width:90%;
+    height:fit-content;
+}
+
+.content{
+    background-image: none;
+    display: none;
+    overflow: hidden;
+}
+
+form, input, label{
+    background-image: none;
+    background-color: rgb(255, 255, 255);
+    padding-left: 5%;
+    padding-right: 5%;
+    width: fit-content;
+    font-size: 24px;
+    outline: 4px;
+    outline-color: rgb(57, 57, 57);
+}
+
+#On_Load_Scripts_Container, #Button_Container{
+    padding-left: 5%;
+    padding-right: 5%;
+}
+#script_line_container, #background_data_container{
+    background-image: none;
+    background-color: antiquewhite;
+    width: 100%;
+    height:fit-content;
+}
+#del_btn{
+    padding-left: 1%;
+    padding-right: 1%;
+    width: 10%;
+    font-size: 24px;
+    height: 32px;
+    background-color: rgb(80, 80, 80);
+    align-items: end;
+}
+#mod_btn{
+    padding-left: 1%;
+    padding-right: 1%;
+    width: 10%;
+    font-size: 24px;
+    height: 32px;
+    background-color: rgb(80, 80, 80);
+    align-items: end;
+}
+#del_btn:hover{
+    width: 10%;
+    font-size: 24px;
+    height: 32px;
+    background-color: black;
+    color:red;
+    align-items: end;
+}
+#mod_btn:hover{
+    width: 10%;
+    font-size: 24px;
+    height: 32px;
+    background-color: black;
+    color:blue;
+    align-items: end;
+}
+#open_list_button{
+    width: 100%;
+    height: 32px;
+    font-size: 24px;
+}
+#open_list_button_1{
+    width: 90%;
+    height: 30px;
+    font-size: 24px;
+    background-color: rgb(60, 0, 255);
+    color:rgb(0, 0, 0);
+}
+#open_list_button_1:hover, #open_list_button_1.active{
+    width: 90%;
+    height: 30px;
+    font-size: 24px;
+    background-color: rgb(230, 230, 230);
+    color:rgb(0, 155, 49);
+}
+#open_list_button_2{
+    width: 80%;
+    height: 30px;
+    font-size: 24px;
+    background-color: rgb(60, 0, 255);
+    color:rgb(0, 0, 0);
+}
+#open_list_button_2:hover, #open_list_button_2.active{
+    width: 80%;
+    height: 30px;
+    font-size: 24px;
+    background-color: rgb(230, 230, 230);
+    color:rgb(0, 155, 49);
+}
+#Add_Button{
+    width: 100%;
+    height: 32px;
+    font-size: 24px;
+}
+#Script_Input{
+    padding-left: 0;
+    padding-right: 0;
+    font-size: 16px;
+}
+#background_data_container{
+    border-bottom: 25px;
+    border-radius: 60px;
+    border-color: aqua;
+    padding-left: 5%;
+}
+#BG_Label, #Window_Label{
+    justify-content: start;
+    align-items: left;
+    width: 100%;
+    padding-left: 10%;
+}
+#BG_Check, #Window_Check{
+    align-items: flex-start;
+}
+#BG_Input, #Window_Input{
+    justify-content: end;
+    align-items: flex-end;
+    width: 94%;
+    padding-left: 0;
+}
+#Option_Container{
+    width: 80%;
+    background-color: antiquewhite;
+    background-image: none;
+}

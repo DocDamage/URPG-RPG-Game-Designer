@@ -6,6 +6,19 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
 option(URPG_FETCH_CATCH2 "Fetch Catch2 via CMake" ON)
+option(URPG_USE_SCCACHE "Use sccache as compiler launcher when available" ON)
+
+if(URPG_USE_SCCACHE)
+    find_program(SCCACHE_PROGRAM NAMES sccache)
+    if(SCCACHE_PROGRAM)
+        if(NOT CMAKE_CXX_COMPILER_LAUNCHER)
+            set(CMAKE_CXX_COMPILER_LAUNCHER "${SCCACHE_PROGRAM}" CACHE STRING "C++ compiler launcher")
+        endif()
+        message(STATUS "URPG: using sccache compiler launcher: ${SCCACHE_PROGRAM}")
+    else()
+        message(WARNING "URPG_USE_SCCACHE=ON but 'sccache' was not found on PATH")
+    endif()
+endif()
 
 add_library(urpg_core
     engine/core/debug/debug_session.cpp
@@ -100,6 +113,7 @@ add_executable(urpg_tests
 
 target_link_libraries(urpg_tests PRIVATE urpg_core Catch2::Catch2WithMain)
 target_include_directories(urpg_tests PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+target_compile_definitions(urpg_tests PRIVATE URPG_SOURCE_DIR="${CMAKE_CURRENT_SOURCE_DIR}")
 
 add_executable(urpg_integration_tests
     tests/integration/test_integration_runtime_recovery.cpp
@@ -107,6 +121,7 @@ add_executable(urpg_integration_tests
 
 target_link_libraries(urpg_integration_tests PRIVATE urpg_core Catch2::Catch2WithMain)
 target_include_directories(urpg_integration_tests PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+target_compile_definitions(urpg_integration_tests PRIVATE URPG_SOURCE_DIR="${CMAKE_CURRENT_SOURCE_DIR}")
 
 add_executable(urpg_snapshot_tests
     tests/snapshot/test_snapshot_canonical_outputs.cpp
@@ -114,6 +129,7 @@ add_executable(urpg_snapshot_tests
 
 target_link_libraries(urpg_snapshot_tests PRIVATE urpg_core Catch2::Catch2WithMain)
 target_include_directories(urpg_snapshot_tests PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+target_compile_definitions(urpg_snapshot_tests PRIVATE URPG_SOURCE_DIR="${CMAKE_CURRENT_SOURCE_DIR}")
 
 add_executable(urpg_compat_tests
     tests/compat/test_compat_authority_suite.cpp

@@ -11,11 +11,31 @@
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/catch_approx.hpp>
 #include "editor/compat/compat_report_panel.h"
+#include "runtimes/compat_js/plugin_manager.h"
 #include <chrono>
+#include <filesystem>
+#include <fstream>
+#include <string_view>
 #include <thread>
 
 using namespace urpg::editor;
 using namespace urpg::compat;
+
+namespace {
+
+std::filesystem::path uniqueTempFixturePath(std::string_view stem) {
+    const auto ticks = std::chrono::high_resolution_clock::now().time_since_epoch().count();
+    return std::filesystem::temp_directory_path() /
+           (std::string(stem) + "_" + std::to_string(ticks) + ".json");
+}
+
+void writeTextFile(const std::filesystem::path& path, std::string_view contents) {
+    std::ofstream out(path, std::ios::binary);
+    REQUIRE(out.is_open());
+    out << contents;
+}
+
+} // namespace
 
 TEST_CASE("CompatCallRecord - Default initialization", "[compat][panel]") {
     CompatCallRecord record;
@@ -144,6 +164,35 @@ TEST_CASE("CompatReportModel - Basic operations", "[compat][panel]") {
         REQUIRE(calls2.size() == 1);
         REQUIRE(calls2[0].status == CompatStatus::STUB);
     }
+
+    SECTION("Status transitions update warning/error flags on aggregated records") {
+        model.recordCall("plugin1", "Window_Base", "update", CompatStatus::FULL);
+        model.recordCall("plugin1", "Window_Base", "update", CompatStatus::UNSUPPORTED);
+
+        auto calls = model.getPluginCalls("plugin1");
+        REQUIRE(calls.size() == 1);
+        REQUIRE(calls[0].callCount == 2);
+        REQUIRE(calls[0].status == CompatStatus::UNSUPPORTED);
+        REQUIRE(calls[0].hasWarning == false);
+        REQUIRE(calls[0].hasError == true);
+
+        auto summary = model.getPluginSummary("plugin1");
+        REQUIRE(summary.unsupportedCount == 1);
+        REQUIRE(summary.errorCount == 1);
+        REQUIRE(summary.warningCount == 0);
+
+        model.recordCall("plugin1", "Window_Base", "update", CompatStatus::FULL);
+        calls = model.getPluginCalls("plugin1");
+        REQUIRE(calls.size() == 1);
+        REQUIRE(calls[0].status == CompatStatus::FULL);
+        REQUIRE(calls[0].hasWarning == false);
+        REQUIRE(calls[0].hasError == false);
+
+        summary = model.getPluginSummary("plugin1");
+        REQUIRE(summary.fullCount == 1);
+        REQUIRE(summary.unsupportedCount == 0);
+        REQUIRE(summary.errorCount == 0);
+    }
 }
 
 TEST_CASE("CompatReportModel - Summary generation", "[compat][panel]") {
@@ -171,6 +220,42 @@ TEST_CASE("CompatReportModel - Summary generation", "[compat][panel]") {
         auto summary = model.getPluginSummary("plugin1");
         REQUIRE(summary.warningCount == 2);  // PARTIAL + STUB
         REQUIRE(summary.errorCount == 1);    // UNSUPPORTED
+    }
+}
+
+TEST_CASE("CompatReportModel - History and timestamps", "[compat][panel]") {
+    CompatReportModel model;
+
+    SECTION("Record call stamps first seen and last updated") {
+        model.recordCall("plugin1", "Class", "method1", CompatStatus::FULL);
+
+        auto summary = model.getPluginSummary("plugin1");
+        REQUIRE(summary.firstSeenTimestamp > 0);
+        REQUIRE(summary.lastUpdatedTimestamp == summary.firstSeenTimestamp);
+        REQUIRE(summary.scoreHistory.empty());
+
+        std::this_thread::sleep_for(std::chrono::milliseconds(2));
+        model.recordCall("plugin1", "Class", "method2", CompatStatus::PARTIAL);
+
+        summary = model.getPluginSummary("plugin1");
+        REQUIRE(summary.lastUpdatedTimestamp >= summary.firstSeenTimestamp);
+    }
+
+    SECTION("Session end records bounded score history") {
+        for (int i = 0; i < 20; ++i) {
+            model.startSession();
+            model.recordCall(
+                "plugin1",
+                "Class",
+                "method1",
+                (i % 2 == 0) ? CompatStatus::FULL : CompatStatus::UNSUPPORTED
+            );
+            model.endSession();
+        }
+
+        const auto summary = model.getPluginSummary("plugin1");
+        REQUIRE(summary.scoreHistory.size() == 16);
+        REQUIRE(summary.scoreHistory.back() == summary.compatibilityScore);
     }
 }
 
@@ -223,9 +308,9 @@ TEST_CASE("CompatReportModel - Plugin failure diagnostics ingestion", "[compat][
     CompatReportModel model;
 
     const std::string diagnosticsJsonl =
-        R"({"seq":1,"subsystem":"plugin_manager","event":"compat_failure","plugin":"BrokenEntryFixture","command":"brokenCommand","operation":"load_plugin_js_entry","message":"Fixture JS command entry cannot be empty"})"
+        R"({"seq":1,"subsystem":"plugin_manager","event":"compat_failure","plugin":"BrokenEntryFixture","command":"brokenCommand","operation":"load_plugin_js_entry","message":"Fixture JS command entry cannot be empty","severity":"WARN"})"
         "\n"
-        R"({"seq":2,"subsystem":"plugin_manager","event":"compat_failure","plugin":"BrokenEvalFixture","command":"brokenEval","operation":"load_plugin_js_eval","message":"fixture eval failure"})"
+        R"({"seq":2,"subsystem":"plugin_manager","event":"compat_failure","plugin":"BrokenEvalFixture","command":"brokenEval","operation":"load_plugin_js_eval","message":"fixture eval failure","severity":"CRASH_PREVENTED"})"
         "\n"
         R"({"seq":3,"subsystem":"other_subsystem","event":"ignored","plugin":"Nope","command":"","operation":"noop","message":"ignore me"})"
         "\n"
@@ -242,13 +327,14 @@ TEST_CASE("CompatReportModel - Plugin failure diagnostics ingestion", "[compat][
         if (event.pluginId == "BrokenEntryFixture") {
             foundEntryFailure = true;
             REQUIRE(event.methodName == "load_plugin_js_entry");
-            REQUIRE(event.severity == CompatEvent::Severity::ERROR);
+            REQUIRE(event.severity == CompatEvent::Severity::WARNING);
             REQUIRE(event.navigationTarget == "plugin://BrokenEntryFixture#brokenCommand");
         }
         if (event.pluginId == "BrokenEvalFixture") {
             foundEvalFailure = true;
             REQUIRE(event.methodName == "load_plugin_js_eval");
             REQUIRE(event.message == "fixture eval failure");
+            REQUIRE(event.severity == CompatEvent::Severity::CRITICAL);
             REQUIRE(event.navigationTarget == "plugin://BrokenEvalFixture#brokenEval");
         }
     }
@@ -256,8 +342,10 @@ TEST_CASE("CompatReportModel - Plugin failure diagnostics ingestion", "[compat][
     REQUIRE(foundEvalFailure);
 
     const auto entrySummary = model.getPluginSummary("BrokenEntryFixture");
-    REQUIRE(entrySummary.unsupportedCount == 1);
-    REQUIRE(entrySummary.errorCount == 1);
+    REQUIRE(entrySummary.partialCount == 1);
+    REQUIRE(entrySummary.warningCount == 1);
+    REQUIRE(entrySummary.unsupportedCount == 0);
+    REQUIRE(entrySummary.errorCount == 0);
 
     const auto evalSummary = model.getPluginSummary("BrokenEvalFixture");
     REQUIRE(evalSummary.unsupportedCount == 1);
@@ -373,6 +461,43 @@ TEST_CASE("CompatReportView - Sorting", "[compat][panel]") {
         // First should have higher score than last
         REQUIRE(summaries.front().getCompatibilityScore() >= summaries.back().getCompatibilityScore());
     }
+
+    SECTION("Sort by call count includes unsupported calls") {
+        CompatReportModel callCountModel;
+        callCountModel.recordCall("pluginA", "Class", "fullMethod", CompatStatus::FULL);
+        callCountModel.recordCall("pluginB", "Class", "unsupportedMethod1", CompatStatus::UNSUPPORTED);
+        callCountModel.recordCall("pluginB", "Class", "unsupportedMethod2", CompatStatus::UNSUPPORTED);
+
+        CompatReportView callCountView(callCountModel);
+        callCountView.setSortBy(CompatReportView::SortBy::CALL_COUNT, false);
+        auto summaries = callCountView.getVisibleSummaries();
+
+        REQUIRE(summaries.size() == 2);
+        REQUIRE(summaries[0].pluginId == "pluginB");
+        REQUIRE(summaries[0].totalCalls == 2);
+        REQUIRE(summaries[1].pluginId == "pluginA");
+        REQUIRE(summaries[1].totalCalls == 1);
+    }
+
+    SECTION("Sort by last updated prefers newer plugin activity") {
+        CompatReportModel updatedModel;
+        updatedModel.recordCall("pluginA", "Class", "method", CompatStatus::FULL);
+        std::this_thread::sleep_for(std::chrono::milliseconds(2));
+        updatedModel.recordCall("pluginB", "Class", "method", CompatStatus::FULL);
+
+        CompatReportView updatedView(updatedModel);
+        updatedView.setSortBy(CompatReportView::SortBy::LAST_UPDATED, false);
+
+        const auto summaries = updatedView.getVisibleSummaries();
+        REQUIRE(summaries.size() == 2);
+        REQUIRE(summaries[0].pluginId == "pluginB");
+        REQUIRE(summaries[1].pluginId == "pluginA");
+
+        const auto rows = updatedView.getSummaryRows();
+        REQUIRE(rows.size() == 2);
+        REQUIRE(rows[0].lastUpdated != "Never");
+        REQUIRE(rows[1].lastUpdated != "Never");
+    }
 }
 
 TEST_CASE("CompatReportView - Filtering", "[compat][panel]") {
@@ -479,16 +604,114 @@ TEST_CASE("CompatReportView - Export", "[compat][panel]") {
     model.recordCall("plugin1", "Class", "method", CompatStatus::FULL);
     
     CompatReportView view(model);
+    const auto uniqueSuffix = std::to_string(
+        std::chrono::high_resolution_clock::now().time_since_epoch().count()
+    );
+    const auto jsonPath =
+        std::filesystem::temp_directory_path() / ("urpg_compat_report_" + uniqueSuffix + ".json");
+    const auto csvPath =
+        std::filesystem::temp_directory_path() / ("urpg_compat_report_" + uniqueSuffix + ".csv");
     
     SECTION("Export to JSON file") {
-        view.exportReport("json", "test_export.json");
-        // File should be created (basic smoke test)
+        view.exportReport("json", jsonPath.string());
+        REQUIRE(std::filesystem::exists(jsonPath));
+        std::error_code ec;
+        std::filesystem::remove(jsonPath, ec);
     }
     
     SECTION("Export to CSV file") {
-        view.exportReport("csv", "test_export.csv");
-        // File should be created (basic smoke test)
+        view.exportReport("csv", csvPath.string());
+        REQUIRE(std::filesystem::exists(csvPath));
+        std::error_code ec;
+        std::filesystem::remove(csvPath, ec);
     }
+}
+
+TEST_CASE("CompatReportPanel - Refresh ingests PluginManager diagnostics artifacts",
+          "[compat][panel][integration]") {
+    auto& pluginManager = urpg::compat::PluginManager::instance();
+    pluginManager.unloadAllPlugins();
+    pluginManager.clearFailureDiagnostics();
+
+    CompatReportPanel panel;
+
+    pluginManager.executeCommand("MissingPlugin", "missingCommand", {});
+    REQUIRE_FALSE(pluginManager.exportFailureDiagnosticsJsonl().empty());
+
+    panel.refresh();
+
+    auto& model = panel.getModel();
+    auto missingPluginEvents = model.getPluginEvents("MissingPlugin");
+    REQUIRE(missingPluginEvents.size() == 1);
+    REQUIRE(missingPluginEvents[0].className == "PluginManager");
+    REQUIRE(missingPluginEvents[0].methodName == "execute_command");
+    REQUIRE(missingPluginEvents[0].severity == CompatEvent::Severity::WARNING);
+    REQUIRE(missingPluginEvents[0].navigationTarget == "plugin://MissingPlugin#missingCommand");
+
+    const auto missingPluginSummary = model.getPluginSummary("MissingPlugin");
+    REQUIRE(missingPluginSummary.partialCount == 1);
+    REQUIRE(missingPluginSummary.warningCount == 1);
+    REQUIRE(missingPluginSummary.unsupportedCount == 0);
+    REQUIRE(missingPluginSummary.errorCount == 0);
+
+    REQUIRE(pluginManager.exportFailureDiagnosticsJsonl().empty());
+
+    pluginManager.executeCommandByName("invalidCommandName", {});
+    REQUIRE_FALSE(pluginManager.exportFailureDiagnosticsJsonl().empty());
+
+    panel.update();
+
+    auto genericEvents = model.getPluginEvents("");
+    REQUIRE(genericEvents.size() == 1);
+    REQUIRE(genericEvents[0].methodName == "execute_command_by_name_parse");
+    REQUIRE(genericEvents[0].navigationTarget.empty());
+
+    REQUIRE(pluginManager.exportFailureDiagnosticsJsonl().empty());
+
+    pluginManager.clearFailureDiagnostics();
+    pluginManager.unloadAllPlugins();
+}
+
+TEST_CASE("CompatReportPanel - Export contains runtime QuickJS failure diagnostics",
+          "[compat][panel][integration]") {
+    auto& pluginManager = urpg::compat::PluginManager::instance();
+    pluginManager.unloadAllPlugins();
+    pluginManager.clearFailureDiagnostics();
+
+    const auto runtimeFailureFixture = uniqueTempFixturePath("urpg_runtime_report_fixture");
+    writeTextFile(
+        runtimeFailureFixture,
+        R"({
+  "name": "RuntimeReportFixture",
+  "commands": [
+    {
+      "name": "brokenRuntime",
+      "entry": "brokenRuntimeEntry",
+      "js": "// @urpg-fail-call brokenRuntimeEntry report runtime failure"
+    }
+  ]
+})"
+    );
+
+    REQUIRE(pluginManager.loadPlugin(runtimeFailureFixture.string()));
+    const auto result = pluginManager.executeCommand("RuntimeReportFixture", "brokenRuntime", {});
+    REQUIRE(std::holds_alternative<std::monostate>(result.v));
+    REQUIRE_FALSE(pluginManager.exportFailureDiagnosticsJsonl().empty());
+
+    CompatReportPanel panel;
+    panel.refresh();
+
+    const std::string exported = panel.getModel().exportAsJson();
+    REQUIRE(exported.find("RuntimeReportFixture") != std::string::npos);
+    REQUIRE(exported.find("execute_command_quickjs_call") != std::string::npos);
+    REQUIRE(exported.find("Host function error: report runtime failure") != std::string::npos);
+
+    REQUIRE(pluginManager.exportFailureDiagnosticsJsonl().empty());
+
+    pluginManager.clearFailureDiagnostics();
+    pluginManager.unloadAllPlugins();
+    std::error_code ec;
+    std::filesystem::remove(runtimeFailureFixture, ec);
 }
 
 TEST_CASE("CompatReportPanel - Integration", "[compat][panel][integration]") {

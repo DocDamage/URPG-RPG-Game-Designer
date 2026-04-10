@@ -1,0 +1,11 @@
+[
+null,
+{"id":1,"battlerName":"Package3_1_mvt","characterIndex":0,"characterName":"Package3_mvt","classId":1,"equips":[2,0,0,3,0],"faceIndex":0,"faceName":"Package3_mvt","traits":[],"initialLevel":1,"maxLevel":99,"name":"Carol","nickname":"","note":"","profile":""},
+{"id":2,"battlerName":"Package3_2_mvt","characterIndex":1,"characterName":"Package3_mvt","classId":1,"equips":[1,0,0,9,0],"faceIndex":1,"faceName":"Package3_mvt","traits":[],"initialLevel":1,"maxLevel":99,"name":"Sakura","nickname":"","note":"","profile":""},
+{"id":3,"battlerName":"Package3_3_mvt","characterIndex":2,"characterName":"Package3_mvt","classId":4,"equips":[31,0,65,5,0],"faceIndex":2,"faceName":"Package3_mvt","traits":[],"initialLevel":1,"maxLevel":99,"name":"Avend","nickname":"","note":"","profile":""},
+{"id":4,"battlerName":"Package3_4_mvt","characterIndex":3,"characterName":"Package3_mvt","classId":5,"equips":[31,0,0,5,0],"faceIndex":3,"faceName":"Package3_mvt","traits":[],"initialLevel":1,"maxLevel":99,"name":"Shun","nickname":"","note":"","profile":""},
+{"id":5,"battlerName":"Package3_5_mvt","characterIndex":4,"characterName":"Package3_mvt","classId":6,"equips":[7,0,0,20,0],"faceIndex":4,"faceName":"Package3_mvt","traits":[],"initialLevel":1,"maxLevel":99,"name":"Aran","nickname":"","note":"","profile":""},
+{"id":6,"battlerName":"Package3_6_mvt","characterIndex":5,"characterName":"Package3_mvt","classId":7,"equips":[7,0,65,21,0],"faceIndex":5,"faceName":"Package3_mvt","traits":[],"initialLevel":1,"maxLevel":99,"name":"Merudy","nickname":"","note":"","profile":""},
+{"id":7,"battlerName":"Package3_7_mvt","characterIndex":6,"characterName":"Package3_mvt","classId":3,"equips":[7,0,0,20,0],"faceIndex":6,"faceName":"Package3_mvt","traits":[],"initialLevel":1,"maxLevel":99,"name":"Pupa","nickname":"","note":"","profile":""},
+{"id":8,"battlerName":"Package3_8_mvt","characterIndex":7,"characterName":"Package3_mvt","classId":2,"equips":[7,0,0,20,0],"faceIndex":7,"faceName":"Package3_mvt","traits":[],"initialLevel":1,"maxLevel":99,"name":"Mabie","nickname":"","note":"","profile":""}
+]

@@ -1,0 +1,76 @@
+{
+  "version": 6,
+  "cmakeMinimumRequired": {
+    "major": 3,
+    "minor": 23,
+    "patch": 0
+  },
+  "configurePresets": [
+    {
+      "name": "base",
+      "hidden": true,
+      "binaryDir": "${sourceDir}/build/${presetName}",
+      "cacheVariables": {
+        "URPG_FETCH_CATCH2": "ON",
+        "URPG_USE_SCCACHE": "ON"
+      }
+    },
+    {
+      "name": "dev-vs2022",
+      "displayName": "Dev (Visual Studio 2022)",
+      "inherits": "base",
+      "generator": "Visual Studio 17 2022"
+    },
+    {
+      "name": "dev-ninja-debug",
+      "displayName": "Dev (Ninja Debug)",
+      "inherits": "base",
+      "generator": "Ninja",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug"
+      }
+    },
+    {
+      "name": "dev-ninja-release",
+      "displayName": "Dev (Ninja Release)",
+      "inherits": "base",
+      "generator": "Ninja",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release"
+      }
+    },
+    {
+      "name": "ci",
+      "displayName": "CI (Ninja Release + cached FetchContent)",
+      "inherits": "base",
+      "generator": "Ninja",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release",
+        "FETCHCONTENT_BASE_DIR": "${sourceDir}/.cache/fetchcontent"
+      }
+    }
+  ],
+  "buildPresets": [
+    {
+      "name": "dev-debug",
+      "configurePreset": "dev-ninja-debug"
+    },
+    {
+      "name": "dev-release",
+      "configurePreset": "dev-ninja-release"
+    },
+    {
+      "name": "ci-release",
+      "configurePreset": "ci"
+    }
+  ],
+  "testPresets": [
+    {
+      "name": "dev-all",
+      "configurePreset": "dev-ninja-debug",
+      "output": {
+        "outputOnFailure": true
+      }
+    }
+  ]
+}

@@ -3,24 +3,44 @@
 
 #include "runtimes/compat_js/plugin_manager.h"
 #include <catch2/catch_test_macros.hpp>
+#include <nlohmann/json.hpp>
+#include <algorithm>
 #include <chrono>
 #include <condition_variable>
 #include <filesystem>
+#include <fstream>
 #include <mutex>
 #include <memory>
+#include <sstream>
 #include <stdexcept>
+#include <string_view>
 
 using namespace urpg::compat;
 
 namespace {
 
+std::filesystem::path sourceRootFromMacro() {
+#ifdef URPG_SOURCE_DIR
+    std::string sourceRoot = URPG_SOURCE_DIR;
+    if (sourceRoot.size() >= 2 &&
+        sourceRoot.front() == '"' &&
+        sourceRoot.back() == '"') {
+        sourceRoot = sourceRoot.substr(1, sourceRoot.size() - 2);
+    }
+    return std::filesystem::path(sourceRoot);
+#else
+    return {};
+#endif
+}
+
 std::filesystem::path fixturePath(const std::string& pluginName) {
     std::vector<std::filesystem::path> candidateRoots;
-#ifdef URPG_SOURCE_DIR
-    candidateRoots.push_back(
-        std::filesystem::path(URPG_SOURCE_DIR) / "tests" / "compat" / "fixtures" / "plugins"
-    );
-#endif
+    const auto sourceRoot = sourceRootFromMacro();
+    if (!sourceRoot.empty()) {
+        candidateRoots.push_back(
+            sourceRoot / "tests" / "compat" / "fixtures" / "plugins"
+        );
+    }
     candidateRoots.push_back(
         std::filesystem::current_path() / "tests" / "compat" / "fixtures" / "plugins"
     );
@@ -39,6 +59,38 @@ std::filesystem::path fixturePath(const std::string& pluginName) {
     }
 
     return candidateRoots.front() / (pluginName + ".json");
+}
+
+std::filesystem::path uniqueTempDirectoryPath(std::string_view stem) {
+    const auto ticks = std::chrono::high_resolution_clock::now().time_since_epoch().count();
+    return std::filesystem::temp_directory_path() /
+           (std::string(stem) + "_" + std::to_string(ticks));
+}
+
+void writeTextFile(const std::filesystem::path& path, std::string_view contents) {
+    std::ofstream out(path, std::ios::binary);
+    REQUIRE(out.is_open());
+    out << contents;
+}
+
+std::vector<nlohmann::json> parseJsonl(std::string_view jsonl) {
+    std::vector<nlohmann::json> rows;
+    if (jsonl.empty()) {
+        return rows;
+    }
+
+    std::istringstream stream{std::string(jsonl)};
+    std::string line;
+    while (std::getline(stream, line)) {
+        if (line.empty()) {
+            continue;
+        }
+        auto row = nlohmann::json::parse(line, nullptr, false);
+        if (!row.is_discarded() && row.is_object()) {
+            rows.push_back(std::move(row));
+        }
+    }
+    return rows;
 }
 
 } // namespace
@@ -119,6 +171,60 @@ TEST_CASE("PluginManager: Plugin lifecycle", "[plugin_manager]") {
         
         pm.unregisterPlugin("Plugin1");
         pm.unregisterPlugin("Plugin2");
+    }
+
+    SECTION("Load plugins from directory uses deterministic lexical order") {
+        const auto tempDir = uniqueTempDirectoryPath("urpg_plugin_order");
+        REQUIRE(std::filesystem::create_directories(tempDir));
+
+        const auto pluginCPath = tempDir / "c_fixture.json";
+        const auto pluginAPath = tempDir / "a_fixture.json";
+        const auto pluginBPath = tempDir / "b_fixture.json";
+
+        writeTextFile(
+            pluginCPath,
+            R"({"name":"OrderPluginC","commands":[{"name":"probe","mode":"arg_count"}]})"
+        );
+        writeTextFile(
+            pluginAPath,
+            R"({"name":"OrderPluginA","commands":[{"name":"probe","mode":"arg_count"}]})"
+        );
+        writeTextFile(
+            pluginBPath,
+            R"({"name":"OrderPluginB","commands":[{"name":"probe","mode":"arg_count"}]})"
+        );
+
+        std::vector<std::string> loadOrder;
+        const int32_t handlerId = pm.registerEventHandler(
+            PluginManager::PluginEvent::ON_LOAD,
+            [&loadOrder](const std::string& pluginName, PluginManager::PluginEvent) {
+                loadOrder.push_back(pluginName);
+            }
+        );
+
+        const auto loadedCount = pm.loadPluginsFromDirectory(tempDir.string());
+        REQUIRE(loadedCount == 3);
+        REQUIRE(loadOrder.size() == 3);
+        REQUIRE(loadOrder[0] == "OrderPluginA");
+        REQUIRE(loadOrder[1] == "OrderPluginB");
+        REQUIRE(loadOrder[2] == "OrderPluginC");
+
+        const auto loadedPlugins = pm.getLoadedPlugins();
+        REQUIRE(loadedPlugins.size() >= 3);
+        const auto aIt = std::find(loadedPlugins.begin(), loadedPlugins.end(), "OrderPluginA");
+        const auto bIt = std::find(loadedPlugins.begin(), loadedPlugins.end(), "OrderPluginB");
+        const auto cIt = std::find(loadedPlugins.begin(), loadedPlugins.end(), "OrderPluginC");
+        REQUIRE(aIt != loadedPlugins.end());
+        REQUIRE(bIt != loadedPlugins.end());
+        REQUIRE(cIt != loadedPlugins.end());
+        REQUIRE(aIt < bIt);
+        REQUIRE(bIt < cIt);
+
+        pm.unregisterEventHandler(handlerId);
+        pm.unloadAllPlugins();
+
+        std::error_code ec;
+        std::filesystem::remove_all(tempDir, ec);
     }
 
     SECTION("Reload fixture plugin uses tracked source path") {
@@ -208,6 +314,22 @@ TEST_CASE("PluginManager: Command registration", "[plugin_manager]") {
         
         pm.unregisterPlugin("MultiCommandPlugin");
     }
+
+    SECTION("Get plugin commands returns deterministic lexical order") {
+        pm.registerPlugin({"SortedCommandPlugin", "1.0", "", ""});
+
+        pm.registerCommand("SortedCommandPlugin", "zeta", [](const std::vector<urpg::Value>&) -> urpg::Value { return {}; });
+        pm.registerCommand("SortedCommandPlugin", "alpha", [](const std::vector<urpg::Value>&) -> urpg::Value { return {}; });
+        pm.registerCommand("SortedCommandPlugin", "middle", [](const std::vector<urpg::Value>&) -> urpg::Value { return {}; });
+
+        const auto commands = pm.getPluginCommands("SortedCommandPlugin");
+        REQUIRE(commands.size() == 3);
+        REQUIRE(commands[0] == "alpha");
+        REQUIRE(commands[1] == "middle");
+        REQUIRE(commands[2] == "zeta");
+
+        pm.unregisterPlugin("SortedCommandPlugin");
+    }
 }
 
 TEST_CASE("PluginManager: Command execution", "[plugin_manager]") {
@@ -265,10 +387,78 @@ TEST_CASE("PluginManager: Command execution", "[plugin_manager]") {
 
         pm.unloadPlugin("VisuStella_CoreEngine_MZ");
     }
+
+    SECTION("Execute command by full name supports commands with underscores") {
+        REQUIRE(pm.registerPlugin({"FullNameCommandPlugin", "1.0", "", ""}));
+        REQUIRE(pm.registerCommand(
+            "FullNameCommandPlugin",
+            "command_with_underscore",
+            [](const std::vector<urpg::Value>& args) -> urpg::Value {
+                return urpg::Value::Int(static_cast<int64_t>(args.size()));
+            }
+        ));
+
+        const urpg::Value result = pm.executeCommandByName(
+            "FullNameCommandPlugin_command_with_underscore",
+            {urpg::Value::Int(1), urpg::Value::Int(2), urpg::Value::Int(3)}
+        );
+        REQUIRE(std::holds_alternative<int64_t>(result.v));
+        REQUIRE(std::get<int64_t>(result.v) == 3);
+
+        pm.unregisterPlugin("FullNameCommandPlugin");
+    }
+
+    SECTION("Execute command by full name rejects missing plugin segment") {
+        const std::string invalidFullName = "_missingPluginSegment";
+        const urpg::Value result = pm.executeCommandByName(invalidFullName, {});
+        REQUIRE(std::holds_alternative<std::monostate>(result.v));
+        REQUIRE(pm.getLastError() == "Invalid command name format: " + invalidFullName);
+    }
+
+    SECTION("Execute command by full name rejects missing command segment") {
+        const std::string invalidFullName = "missingCommandSegment_";
+        const urpg::Value result = pm.executeCommandByName(invalidFullName, {});
+        REQUIRE(std::holds_alternative<std::monostate>(result.v));
+        REQUIRE(pm.getLastError() == "Invalid command name format: " + invalidFullName);
+    }
     
     SECTION("Execute non-existent command returns empty") {
         urpg::Value result = pm.executeCommand("NonExistent", "command", {});
         REQUIRE(result.v.index() == 0); // null/empty
+    }
+
+    SECTION("Execute command fails when required dependencies are missing") {
+        PluginInfo core;
+        core.name = "ExecDepCore";
+
+        PluginInfo dependent;
+        dependent.name = "ExecDependentPlugin";
+        dependent.dependencies = {"ExecDepCore"};
+
+        REQUIRE(pm.registerPlugin(core));
+        REQUIRE(pm.registerPlugin(dependent));
+
+        bool wasExecuted = false;
+        REQUIRE(pm.registerCommand(
+            "ExecDependentPlugin",
+            "run",
+            [&wasExecuted](const std::vector<urpg::Value>&) -> urpg::Value {
+                wasExecuted = true;
+                return urpg::Value::Int(99);
+            }
+        ));
+
+        REQUIRE(pm.unloadPlugin("ExecDepCore"));
+
+        const urpg::Value result = pm.executeCommand("ExecDependentPlugin", "run", {});
+        REQUIRE(std::holds_alternative<std::monostate>(result.v));
+        REQUIRE_FALSE(wasExecuted);
+        REQUIRE(
+            pm.getLastError() ==
+            "Missing dependencies for ExecDependentPlugin_run: ExecDepCore"
+        );
+
+        pm.unregisterPlugin("ExecDependentPlugin");
     }
 
     SECTION("Execute command asynchronously with FIFO callback order") {
@@ -325,6 +515,553 @@ TEST_CASE("PluginManager: Command execution", "[plugin_manager]") {
         REQUIRE(callbackOrder[2] == 2);
 
         pm.unregisterPlugin("AsyncPlugin");
+    }
+
+    SECTION("Fixture script command supports invoke and invokeByName chaining") {
+        pm.unloadAllPlugins();
+        pm.clearFailureDiagnostics();
+
+        const auto fixturePath = uniqueTempDirectoryPath("urpg_invoke_chain_fixture");
+        const auto fixtureFile = fixturePath.string() + ".json";
+        writeTextFile(
+            fixtureFile,
+            R"({
+  "name": "InvokeChainFixture",
+  "commands": [
+    {
+      "name": "base",
+      "result": 7
+    },
+    {
+      "name": "countArgs",
+      "mode": "arg_count"
+    },
+    {
+      "name": "chain",
+      "script": [
+        {"op": "invoke", "command": "base", "store": "baseResult", "expect": "non_nil"},
+        {"op": "invoke", "command": "countArgs", "args": [1, 2, 3], "store": "argCount", "expect": "non_nil"},
+        {"op": "invokeByName", "name": {"from": "concat", "parts": [{"from": "pluginName"}, "_base"]}, "store": "byNameResult", "expect": "non_nil"},
+        {"op": "invokeByName", "name": "missingQualifiedName", "store": "missingByName"},
+        {"op": "returnObject"}
+      ]
+    }
+  ]
+})"
+        );
+
+        REQUIRE(pm.loadPlugin(fixtureFile));
+
+        const urpg::Value result = pm.executeCommand("InvokeChainFixture", "chain", {});
+        REQUIRE(std::holds_alternative<urpg::Object>(result.v));
+        const auto& object = std::get<urpg::Object>(result.v);
+        REQUIRE(std::holds_alternative<int64_t>(object.at("baseResult").v));
+        REQUIRE(std::get<int64_t>(object.at("baseResult").v) == 7);
+        REQUIRE(std::holds_alternative<int64_t>(object.at("argCount").v));
+        REQUIRE(std::get<int64_t>(object.at("argCount").v) == 3);
+        REQUIRE(std::holds_alternative<int64_t>(object.at("byNameResult").v));
+        REQUIRE(std::get<int64_t>(object.at("byNameResult").v) == 7);
+        REQUIRE(std::holds_alternative<std::monostate>(object.at("missingByName").v));
+        REQUIRE(pm.getLastError() == "Invalid command name format: missingQualifiedName");
+
+        const auto diagnostics = parseJsonl(pm.exportFailureDiagnosticsJsonl());
+        const auto parseFailureCount = static_cast<int32_t>(std::count_if(
+            diagnostics.begin(),
+            diagnostics.end(),
+            [](const nlohmann::json& row) {
+                return row.value("operation", "") == "execute_command_by_name_parse" &&
+                       row.value("command", "") == "missingQualifiedName";
+            }
+        ));
+        REQUIRE(parseFailureCount == 1);
+
+        pm.clearFailureDiagnostics();
+        pm.unloadAllPlugins();
+
+        std::error_code ec;
+        std::filesystem::remove(fixtureFile, ec);
+    }
+
+    SECTION("Fixture command can deterministically drop QuickJS context before call") {
+        pm.unloadAllPlugins();
+        pm.clearFailureDiagnostics();
+
+        const auto fixturePath = uniqueTempDirectoryPath("urpg_context_drop_fixture");
+        const auto fixtureFile = fixturePath.string() + ".json";
+        writeTextFile(
+            fixtureFile,
+            R"({
+  "name": "ContextDropFixture",
+  "commands": [
+    {
+      "name": "dropAndCall",
+      "entry": "dropAndCallEntry",
+      "dropContextBeforeCall": true,
+      "js": "// @urpg-export dropAndCallEntry const 1"
+    }
+  ]
+})"
+        );
+
+        REQUIRE(pm.loadPlugin(fixtureFile));
+
+        const urpg::Value result = pm.executeCommand("ContextDropFixture", "dropAndCall", {});
+        REQUIRE(std::holds_alternative<std::monostate>(result.v));
+        REQUIRE(pm.getLastError() == "QuickJS context missing for plugin: ContextDropFixture");
+
+        const std::string diagnostics = pm.exportFailureDiagnosticsJsonl();
+        REQUIRE(diagnostics.find("\"operation\":\"execute_command_quickjs_context_missing\"") !=
+                std::string::npos);
+        REQUIRE(diagnostics.find("\"plugin\":\"ContextDropFixture\"") != std::string::npos);
+        REQUIRE(diagnostics.find("\"command\":\"dropAndCall\"") != std::string::npos);
+
+        pm.clearFailureDiagnostics();
+        pm.unloadAllPlugins();
+
+        std::error_code ec;
+        std::filesystem::remove(fixtureFile, ec);
+    }
+
+    SECTION("Fixture command rejects non-boolean dropContextBeforeCall metadata") {
+        pm.unloadAllPlugins();
+        pm.clearFailureDiagnostics();
+
+        const auto fixturePath = uniqueTempDirectoryPath("urpg_bad_context_drop_flag_fixture");
+        const auto fixtureFile = fixturePath.string() + ".json";
+        writeTextFile(
+            fixtureFile,
+            R"({
+  "name": "BadContextDropFlagFixture",
+  "commands": [
+    {
+      "name": "badDropFlag",
+      "entry": "badDropFlagEntry",
+      "dropContextBeforeCall": "yes",
+      "js": "// @urpg-export badDropFlagEntry const 1"
+    }
+  ]
+})"
+        );
+
+        REQUIRE_FALSE(pm.loadPlugin(fixtureFile));
+        REQUIRE(
+            pm.getLastError() ==
+            "Fixture command 'dropContextBeforeCall' must be boolean: badDropFlag"
+        );
+
+        const std::string diagnostics = pm.exportFailureDiagnosticsJsonl();
+        REQUIRE(diagnostics.find("\"operation\":\"load_plugin_drop_context_flag\"") !=
+                std::string::npos);
+        REQUIRE(diagnostics.find("\"plugin\":\"BadContextDropFlagFixture\"") != std::string::npos);
+        REQUIRE(diagnostics.find("\"command\":\"badDropFlag\"") != std::string::npos);
+
+        pm.clearFailureDiagnostics();
+        pm.unloadAllPlugins();
+
+        std::error_code ec;
+        std::filesystem::remove(fixtureFile, ec);
+    }
+
+    SECTION("Fixture command rejects non-string JS entry metadata") {
+        pm.unloadAllPlugins();
+        pm.clearFailureDiagnostics();
+
+        const auto fixturePath = uniqueTempDirectoryPath("urpg_bad_entry_type_fixture");
+        const auto fixtureFile = fixturePath.string() + ".json";
+        writeTextFile(
+            fixtureFile,
+            R"({
+  "name": "BadEntryTypeFixture",
+  "commands": [
+    {
+      "name": "badEntry",
+      "entry": 7,
+      "js": "// @urpg-export badEntry const 1"
+    }
+  ]
+})"
+        );
+
+        REQUIRE_FALSE(pm.loadPlugin(fixtureFile));
+        REQUIRE(pm.getLastError() == "Fixture JS command requires string 'entry' payload: badEntry");
+
+        const std::string diagnostics = pm.exportFailureDiagnosticsJsonl();
+        REQUIRE(diagnostics.find("\"operation\":\"load_plugin_js_entry\"") != std::string::npos);
+        REQUIRE(diagnostics.find("\"plugin\":\"BadEntryTypeFixture\"") != std::string::npos);
+        REQUIRE(diagnostics.find("\"command\":\"badEntry\"") != std::string::npos);
+
+        pm.clearFailureDiagnostics();
+        pm.unloadAllPlugins();
+
+        std::error_code ec;
+        std::filesystem::remove(fixtureFile, ec);
+    }
+
+    SECTION("Fixture command rejects non-string description metadata") {
+        pm.unloadAllPlugins();
+        pm.clearFailureDiagnostics();
+
+        const auto fixturePath = uniqueTempDirectoryPath("urpg_bad_description_type_fixture");
+        const auto fixtureFile = fixturePath.string() + ".json";
+        writeTextFile(
+            fixtureFile,
+            R"({
+  "name": "BadDescriptionTypeFixture",
+  "commands": [
+    {
+      "name": "badDescription",
+      "description": {"text":"bad"},
+      "result": 1
+    }
+  ]
+})"
+        );
+
+        REQUIRE_FALSE(pm.loadPlugin(fixtureFile));
+        REQUIRE(
+            pm.getLastError() ==
+            "Fixture command 'description' must be string: badDescription"
+        );
+
+        const std::string diagnostics = pm.exportFailureDiagnosticsJsonl();
+        REQUIRE(diagnostics.find("\"operation\":\"load_plugin_command_description\"") !=
+                std::string::npos);
+        REQUIRE(diagnostics.find("\"plugin\":\"BadDescriptionTypeFixture\"") !=
+                std::string::npos);
+        REQUIRE(diagnostics.find("\"command\":\"badDescription\"") != std::string::npos);
+
+        pm.clearFailureDiagnostics();
+        pm.unloadAllPlugins();
+
+        std::error_code ec;
+        std::filesystem::remove(fixtureFile, ec);
+    }
+
+    SECTION("Fixture command rejects non-string mode metadata") {
+        pm.unloadAllPlugins();
+        pm.clearFailureDiagnostics();
+
+        const auto fixturePath = uniqueTempDirectoryPath("urpg_bad_mode_type_fixture");
+        const auto fixtureFile = fixturePath.string() + ".json";
+        writeTextFile(
+            fixtureFile,
+            R"({
+  "name": "BadModeTypeFixture",
+  "commands": [
+    {
+      "name": "badMode",
+      "mode": 7,
+      "result": 1
+    }
+  ]
+})"
+        );
+
+        REQUIRE_FALSE(pm.loadPlugin(fixtureFile));
+        REQUIRE(pm.getLastError() == "Fixture command 'mode' must be string: badMode");
+
+        const std::string diagnostics = pm.exportFailureDiagnosticsJsonl();
+        REQUIRE(diagnostics.find("\"operation\":\"load_plugin_command_mode\"") !=
+                std::string::npos);
+        REQUIRE(diagnostics.find("\"plugin\":\"BadModeTypeFixture\"") != std::string::npos);
+        REQUIRE(diagnostics.find("\"command\":\"badMode\"") != std::string::npos);
+
+        pm.clearFailureDiagnostics();
+        pm.unloadAllPlugins();
+
+        std::error_code ec;
+        std::filesystem::remove(fixtureFile, ec);
+    }
+
+    SECTION("Fixture command rejects unsupported mode metadata value") {
+        pm.unloadAllPlugins();
+        pm.clearFailureDiagnostics();
+
+        const auto fixturePath = uniqueTempDirectoryPath("urpg_bad_mode_value_fixture");
+        const auto fixtureFile = fixturePath.string() + ".json";
+        writeTextFile(
+            fixtureFile,
+            R"({
+  "name": "BadModeValueFixture",
+  "commands": [
+    {
+      "name": "badModeValue",
+      "mode": "unknown_mode",
+      "result": 1
+    }
+  ]
+})"
+        );
+
+        REQUIRE_FALSE(pm.loadPlugin(fixtureFile));
+        REQUIRE(
+            pm.getLastError() ==
+            "Fixture command 'mode' unsupported: unknown_mode for badModeValue"
+        );
+
+        const std::string diagnostics = pm.exportFailureDiagnosticsJsonl();
+        REQUIRE(diagnostics.find("\"operation\":\"load_plugin_command_mode\"") !=
+                std::string::npos);
+        REQUIRE(diagnostics.find("\"plugin\":\"BadModeValueFixture\"") !=
+                std::string::npos);
+        REQUIRE(diagnostics.find("\"command\":\"badModeValue\"") != std::string::npos);
+
+        pm.clearFailureDiagnostics();
+        pm.unloadAllPlugins();
+
+        std::error_code ec;
+        std::filesystem::remove(fixtureFile, ec);
+    }
+
+    SECTION("Fixture script command reports deterministic QuickJS register-function failure") {
+        pm.unloadAllPlugins();
+        pm.clearFailureDiagnostics();
+
+        const auto fixturePath =
+            uniqueTempDirectoryPath("urpg_register_script_fn_failure_fixture");
+        const auto fixtureFile = fixturePath.string() + ".json";
+        writeTextFile(
+            fixtureFile,
+            R"({
+  "name": "RegisterScriptFnFailureFixture",
+  "commands": [
+    {
+      "name": "__urpg_fail_register_function___scriptCommand",
+      "script": [
+        {
+          "op": "return",
+          "value": 1
+        }
+      ]
+    }
+  ]
+})"
+        );
+
+        REQUIRE_FALSE(pm.loadPlugin(fixtureFile));
+        REQUIRE(
+            pm.getLastError() ==
+            "Failed to register QuickJS fixture function for command: __urpg_fail_register_function___scriptCommand"
+        );
+
+        const std::string diagnostics = pm.exportFailureDiagnosticsJsonl();
+        REQUIRE(diagnostics.find("\"operation\":\"load_plugin_register_script_fn\"") !=
+                std::string::npos);
+        REQUIRE(diagnostics.find("\"plugin\":\"RegisterScriptFnFailureFixture\"") !=
+                std::string::npos);
+        REQUIRE(diagnostics.find("\"command\":\"__urpg_fail_register_function___scriptCommand\"") !=
+                std::string::npos);
+
+        pm.clearFailureDiagnostics();
+        pm.unloadAllPlugins();
+
+        std::error_code ec;
+        std::filesystem::remove(fixtureFile, ec);
+    }
+
+    SECTION("Fixture plugin rejects non-array dependencies metadata") {
+        pm.unloadAllPlugins();
+        pm.clearFailureDiagnostics();
+
+        const auto fixturePath = uniqueTempDirectoryPath("urpg_bad_dependencies_shape_fixture");
+        const auto fixtureFile = fixturePath.string() + ".json";
+        writeTextFile(
+            fixtureFile,
+            R"({
+  "name": "BadDependenciesShapeFixture",
+  "dependencies": "CorePlugin",
+  "commands": [
+    {
+      "name": "ok",
+      "result": 1
+    }
+  ]
+})"
+        );
+
+        REQUIRE_FALSE(pm.loadPlugin(fixtureFile));
+        REQUIRE(
+            pm.getLastError() ==
+            ("Fixture plugin 'dependencies' must be array: " + fixtureFile)
+        );
+
+        const std::string diagnostics = pm.exportFailureDiagnosticsJsonl();
+        REQUIRE(diagnostics.find("\"operation\":\"load_plugin_dependencies\"") !=
+                std::string::npos);
+        REQUIRE(diagnostics.find("\"plugin\":\"BadDependenciesShapeFixture\"") !=
+                std::string::npos);
+
+        pm.clearFailureDiagnostics();
+        pm.unloadAllPlugins();
+
+        std::error_code ec;
+        std::filesystem::remove(fixtureFile, ec);
+    }
+
+    SECTION("Fixture plugin rejects non-string dependency entries") {
+        pm.unloadAllPlugins();
+        pm.clearFailureDiagnostics();
+
+        const auto fixturePath = uniqueTempDirectoryPath("urpg_bad_dependency_entry_fixture");
+        const auto fixtureFile = fixturePath.string() + ".json";
+        writeTextFile(
+            fixtureFile,
+            R"({
+  "name": "BadDependencyEntryFixture",
+  "dependencies": ["CorePlugin", 7],
+  "commands": [
+    {
+      "name": "ok",
+      "result": 1
+    }
+  ]
+})"
+        );
+
+        REQUIRE_FALSE(pm.loadPlugin(fixtureFile));
+        REQUIRE(
+            pm.getLastError() ==
+            ("Fixture plugin dependency must be string at index 1: " + fixtureFile)
+        );
+
+        const std::string diagnostics = pm.exportFailureDiagnosticsJsonl();
+        REQUIRE(diagnostics.find("\"operation\":\"load_plugin_dependency_entry\"") !=
+                std::string::npos);
+        REQUIRE(diagnostics.find("\"plugin\":\"BadDependencyEntryFixture\"") !=
+                std::string::npos);
+
+        pm.clearFailureDiagnostics();
+        pm.unloadAllPlugins();
+
+        std::error_code ec;
+        std::filesystem::remove(fixtureFile, ec);
+    }
+
+    SECTION("Fixture plugin rejects non-object parameters metadata") {
+        pm.unloadAllPlugins();
+        pm.clearFailureDiagnostics();
+
+        const auto fixturePath = uniqueTempDirectoryPath("urpg_bad_parameters_shape_fixture");
+        const auto fixtureFile = fixturePath.string() + ".json";
+        writeTextFile(
+            fixtureFile,
+            R"({
+  "name": "BadParametersShapeFixture",
+  "parameters": ["bad"],
+  "commands": [
+    {
+      "name": "ok",
+      "result": 1
+    }
+  ]
+})"
+        );
+
+        REQUIRE_FALSE(pm.loadPlugin(fixtureFile));
+        REQUIRE(
+            pm.getLastError() ==
+            ("Fixture plugin 'parameters' must be object: " + fixtureFile)
+        );
+
+        const std::string diagnostics = pm.exportFailureDiagnosticsJsonl();
+        REQUIRE(diagnostics.find("\"operation\":\"load_plugin_parameters\"") !=
+                std::string::npos);
+        REQUIRE(diagnostics.find("\"plugin\":\"BadParametersShapeFixture\"") !=
+                std::string::npos);
+
+        pm.clearFailureDiagnostics();
+        pm.unloadAllPlugins();
+
+        std::error_code ec;
+        std::filesystem::remove(fixtureFile, ec);
+    }
+
+    SECTION("Fixture plugin rejects non-array commands metadata") {
+        pm.unloadAllPlugins();
+        pm.clearFailureDiagnostics();
+
+        const auto fixturePath = uniqueTempDirectoryPath("urpg_bad_commands_shape_fixture");
+        const auto fixtureFile = fixturePath.string() + ".json";
+        writeTextFile(
+            fixtureFile,
+            R"({
+  "name": "BadCommandsShapeFixture",
+  "commands": {
+    "name": "not-an-array"
+  }
+})"
+        );
+
+        REQUIRE_FALSE(pm.loadPlugin(fixtureFile));
+        REQUIRE(
+            pm.getLastError() ==
+            ("Fixture plugin 'commands' must be array: " + fixtureFile)
+        );
+
+        const std::string diagnostics = pm.exportFailureDiagnosticsJsonl();
+        REQUIRE(diagnostics.find("\"operation\":\"load_plugin_commands\"") !=
+                std::string::npos);
+        REQUIRE(diagnostics.find("\"plugin\":\"BadCommandsShapeFixture\"") !=
+                std::string::npos);
+
+        pm.clearFailureDiagnostics();
+        pm.unloadAllPlugins();
+
+        std::error_code ec;
+        std::filesystem::remove(fixtureFile, ec);
+    }
+
+    SECTION("Directory loader can deterministically surface scan iterator failures") {
+        pm.unloadAllPlugins();
+        pm.clearFailureDiagnostics();
+
+        const auto fixtureDir =
+            uniqueTempDirectoryPath("urpg___urpg_fail_directory_scan___fixture_dir");
+        REQUIRE(std::filesystem::create_directories(fixtureDir));
+
+        const auto loadedCount = pm.loadPluginsFromDirectory(fixtureDir.string());
+        REQUIRE(loadedCount == 0);
+        REQUIRE(pm.getLastError() == "Failed scanning plugin directory: " + fixtureDir.string());
+
+        const std::string diagnostics = pm.exportFailureDiagnosticsJsonl();
+        REQUIRE(diagnostics.find("\"operation\":\"load_plugins_directory_scan\"") !=
+                std::string::npos);
+
+        pm.clearFailureDiagnostics();
+        pm.unloadAllPlugins();
+
+        std::error_code ec;
+        std::filesystem::remove_all(fixtureDir, ec);
+    }
+
+    SECTION("Directory loader can deterministically surface entry status failures") {
+        pm.unloadAllPlugins();
+        pm.clearFailureDiagnostics();
+
+        const auto fixtureDir = uniqueTempDirectoryPath("urpg_directory_entry_status_fixture_dir");
+        REQUIRE(std::filesystem::create_directories(fixtureDir));
+
+        const auto markerEntry =
+            fixtureDir / "__urpg_fail_directory_entry_status___marker.json";
+        writeTextFile(markerEntry, "{}");
+
+        const auto loadedCount = pm.loadPluginsFromDirectory(fixtureDir.string());
+        REQUIRE(loadedCount == 0);
+        REQUIRE(pm.getLastError().find("Failed reading plugin directory entry:") == 0);
+        REQUIRE(pm.getLastError().find("__urpg_fail_directory_entry_status___marker.json") !=
+                std::string::npos);
+
+        const std::string diagnostics = pm.exportFailureDiagnosticsJsonl();
+        REQUIRE(diagnostics.find("\"operation\":\"load_plugins_directory_scan_entry\"") !=
+                std::string::npos);
+        REQUIRE(diagnostics.find("__urpg_fail_directory_entry_status___marker.json") !=
+                std::string::npos);
+
+        pm.clearFailureDiagnostics();
+        pm.unloadAllPlugins();
+
+        std::error_code ec;
+        std::filesystem::remove_all(fixtureDir, ec);
     }
 }
 
@@ -447,6 +1184,36 @@ TEST_CASE("PluginManager: Dependencies", "[plugin_manager]") {
         pm.unregisterPlugin("Dependent2");
         pm.unregisterPlugin("CorePlugin2");
     }
+
+    SECTION("Get dependents returns deterministic lexical order") {
+        PluginInfo core;
+        core.name = "CorePluginSorted";
+        PluginInfo depZ;
+        depZ.name = "DependentZ";
+        depZ.dependencies = {"CorePluginSorted"};
+        PluginInfo depA;
+        depA.name = "DependentA";
+        depA.dependencies = {"CorePluginSorted"};
+        PluginInfo depM;
+        depM.name = "DependentM";
+        depM.dependencies = {"CorePluginSorted"};
+
+        pm.registerPlugin(core);
+        pm.registerPlugin(depZ);
+        pm.registerPlugin(depA);
+        pm.registerPlugin(depM);
+
+        const auto dependents = pm.getDependents("CorePluginSorted");
+        REQUIRE(dependents.size() == 3);
+        REQUIRE(dependents[0] == "DependentA");
+        REQUIRE(dependents[1] == "DependentM");
+        REQUIRE(dependents[2] == "DependentZ");
+
+        pm.unregisterPlugin("DependentZ");
+        pm.unregisterPlugin("DependentA");
+        pm.unregisterPlugin("DependentM");
+        pm.unregisterPlugin("CorePluginSorted");
+    }
 }
 
 TEST_CASE("PluginManager: Event handlers", "[plugin_manager]") {
@@ -566,6 +1333,40 @@ TEST_CASE("PluginManager: Error handling", "[plugin_manager]") {
         pm.unregisterPlugin("ErrorPlugin");
     }
 
+    SECTION("Unknown command exceptions are tagged as crash prevented diagnostics") {
+        pm.clearFailureDiagnostics();
+        REQUIRE(pm.registerPlugin({"CrashPreventedPlugin", "1.0", "", ""}));
+        REQUIRE(pm.registerCommand(
+            "CrashPreventedPlugin",
+            "throwUnknown",
+            [](const std::vector<urpg::Value>&) -> urpg::Value {
+                throw 7;
+            }
+        ));
+
+        const urpg::Value result = pm.executeCommand("CrashPreventedPlugin", "throwUnknown", {});
+        REQUIRE(std::holds_alternative<std::monostate>(result.v));
+        REQUIRE(pm.getLastError() == "Unknown command execution error");
+
+        const auto rows = parseJsonl(pm.exportFailureDiagnosticsJsonl());
+        REQUIRE_FALSE(rows.empty());
+        const auto rowIt = std::find_if(
+            rows.begin(),
+            rows.end(),
+            [](const nlohmann::json& row) {
+                return row.value("operation", "") == "execute_command" &&
+                       row.value("plugin", "") == "CrashPreventedPlugin" &&
+                       row.value("command", "") == "throwUnknown";
+            }
+        );
+        REQUIRE(rowIt != rows.end());
+        REQUIRE(rowIt->value("severity", "") == "CRASH_PREVENTED");
+        REQUIRE(rowIt->value("message", "") == "Unknown command execution error");
+
+        pm.clearFailureDiagnostics();
+        pm.unregisterPlugin("CrashPreventedPlugin");
+    }
+
     SECTION("Failure diagnostics JSONL exports and clears structured failures") {
         pm.clearFailureDiagnostics();
         pm.executeCommand("MissingPlugin", "missingCommand", {});
@@ -575,6 +1376,7 @@ TEST_CASE("PluginManager: Error handling", "[plugin_manager]") {
         REQUIRE(jsonl.find("\"subsystem\":\"plugin_manager\"") != std::string::npos);
         REQUIRE(jsonl.find("\"operation\":\"execute_command\"") != std::string::npos);
         REQUIRE(jsonl.find("\"plugin\":\"MissingPlugin\"") != std::string::npos);
+        REQUIRE(jsonl.find("\"severity\":\"WARN\"") != std::string::npos);
 
         pm.clearFailureDiagnostics();
         REQUIRE(pm.exportFailureDiagnosticsJsonl().empty());
@@ -588,6 +1390,41 @@ TEST_CASE("PluginManager: Error handling", "[plugin_manager]") {
         REQUIRE_FALSE(jsonl.empty());
         REQUIRE(jsonl.find("\"operation\":\"parse_parameters_json\"") != std::string::npos);
         REQUIRE(jsonl.find("\"plugin\":\"BrokenParamPlugin\"") != std::string::npos);
+        REQUIRE(jsonl.find("\"severity\":\"HARD_FAIL\"") != std::string::npos);
+
+        pm.clearFailureDiagnostics();
+    }
+
+    SECTION("Failure diagnostics JSONL retains last bounded window with monotonic sequence IDs") {
+        pm.clearFailureDiagnostics();
+
+        constexpr size_t kTotalFailures = 2051;
+        constexpr size_t kRetainedFailures = 2048;
+
+        for (size_t i = 0; i < kTotalFailures; ++i) {
+            pm.executeCommand("BoundedDiagPlugin", "missing_" + std::to_string(i), {});
+        }
+
+        const auto rows = parseJsonl(pm.exportFailureDiagnosticsJsonl());
+        REQUIRE(rows.size() == kRetainedFailures);
+
+        const uint64_t firstSeq = rows.front().value("seq", static_cast<uint64_t>(0));
+        const uint64_t lastSeq = rows.back().value("seq", static_cast<uint64_t>(0));
+        REQUIRE(lastSeq > firstSeq);
+        REQUIRE(lastSeq - firstSeq + 1 == static_cast<uint64_t>(kRetainedFailures));
+
+        for (size_t i = 1; i < rows.size(); ++i) {
+            const uint64_t prevSeq = rows[i - 1].value("seq", static_cast<uint64_t>(0));
+            const uint64_t seq = rows[i].value("seq", static_cast<uint64_t>(0));
+            REQUIRE(seq == prevSeq + 1);
+        }
+
+        REQUIRE(rows.front().value("command", "") == "missing_3");
+        REQUIRE(rows.back().value("command", "") == "missing_2050");
+        REQUIRE(rows.front().value("operation", "") == "execute_command");
+        REQUIRE(rows.back().value("operation", "") == "execute_command");
+        REQUIRE(rows.front().value("severity", "") == "WARN");
+        REQUIRE(rows.back().value("severity", "") == "WARN");
 
         pm.clearFailureDiagnostics();
     }

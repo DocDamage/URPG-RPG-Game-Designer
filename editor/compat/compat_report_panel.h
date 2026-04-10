@@ -21,6 +21,7 @@
 #include <string>
 #include <string_view>
 #include <unordered_map>
+#include <unordered_set>
 #include <vector>
 
 namespace urpg {
@@ -189,6 +190,7 @@ private:
     // Session tracking
     uint64_t sessionStartTime_ = 0;
     bool sessionActive_ = false;
+    std::unordered_set<std::string> sessionTouchedPlugins_;
     
     // Recalculate summaries from call records
     void recalculateSummaries() const;

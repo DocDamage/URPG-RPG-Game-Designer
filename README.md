@@ -4,6 +4,8 @@ Bootstrap workspace aligned to URPG Master Blueprint v3.1.
 
 ## Current scope
 
+- Documentation sync:
+  - `URPG_Blueprint_v3_1_Integrated.md` now maintains a top-of-file live progress tracker (phase status, completion, baseline counts, and weekly focus).
 - Canonical repo layout skeleton (engine/editor/runtimes/content/tools/tests/docs).
 - Contract kernels from section 18:
   - SemVer
@@ -37,11 +39,19 @@ Bootstrap workspace aligned to URPG Master Blueprint v3.1.
   - WindowCompat now includes expanded API registration coverage + method call-count telemetry for compat reports.
   - Added curated compat profile conformance suite for 10 popular MZ plugin profiles.
   - Added executable plugin fixture suite for 10 real-world MZ plugin profiles in weekly compat CI coverage.
+  - Curated failure-path diagnostics suite now gates missing-command/full-name parse errors, malformed fixture command payloads, fixture script runtime op failures, fixture script validation-shape failures (`set`/`append` key requirements plus malformed `invoke`/`invokeByName` target/store/expect shapes), malformed nested-branch fixture failures (`if` branch shape and nested branch-step validation), directory-scan failures (including deterministic iterator and entry-status branches), and dependency-failure behavior across the 10-profile corpus.
+  - Added a combined weekly regression that runs dependency-gating conformance across all 10 curated fixtures plus mixed malformed payload/eval/runtime/full-name-parse failure chains (including fixture-open/fixture-name/duplicate-load failures, `load_plugin_name` + `load_plugin_register_command` + `load_plugin_register_script_fn` + `load_plugin_quickjs_context` failures, parameter-parse failures, deterministic directory-scan iterator/entry-status failures (`load_plugins_directory_scan` / `load_plugins_directory_scan_entry`), malformed command metadata failures (`dropContextBeforeCall`/`entry`/`description` type validation), malformed fixture metadata shape failures (`dependencies`/`parameters`/`commands` type validation plus dependency-entry string enforcement), nested `all`/`any` runtime branch failures, `invoke`/`invokeByName` command-chain runtime failures, deterministic post-load context-drop coverage for `execute_command_quickjs_context_missing`, strict script-shape runtime failures, and malformed command-shape/name load failures) in one end-to-end diagnostics pass, including compat report model/panel ingestion and export projection checks.
   - PluginManager now supports JSON fixture loading, directory discovery, JSON parameter parsing, and script-driven fixture command execution.
+  - PluginManager directory/plugin/command/dependent enumeration paths now enforce deterministic lexical ordering (`loadPluginsFromDirectory`, `getLoadedPlugins`, `getPluginCommands`, `getDependents`).
   - Fixture script commands now route through per-plugin `QuickJSRuntime` contexts (`QuickJSContext::call`) for real compat-lane execution plumbing.
   - Fixture JSON commands can now provide lightweight JS source (`js`) + entrypoint (`entry`) and execute via `QuickJSContext::eval` + `call`.
+  - Fixture commands now support a deterministic `dropContextBeforeCall` hook for conformance coverage of `execute_command_quickjs_context_missing`.
   - Curated fixture profiles now actively exercise JS directive `arg` and `const` modes across all 10 real-world plugin fixtures.
-  - Fixture script DSL now supports conditional flow and richer value resolvers (`if`, `args`, `paramKeys`, `hasParam`, `equals`, `coalesce`).
+  - Fixture script DSL now supports conditional flow and richer value resolvers (`if`, `args`, `paramKeys`, `hasParam`, `hasArg`, `equals`, `coalesce`, `length`, `contains`, `greaterThan`, `lessThan`, `not`, `all`, `any`) with executable coverage expanded for `append`/`local`/`concat` chain behavior.
+  - Fixture script DSL now supports deterministic command-chain dispatch via `invoke` and `invokeByName`, including `store` capture and `expect: non_nil` assertions for nested execution validation.
+  - Compat conformance now includes invoke-chain success and failure-path diagnostics coverage (`execute_command`, `execute_command_by_name_parse`, and `execute_command_quickjs_call`) for nested fixture command flows, including malformed `invoke`/`invokeByName` validation branches.
+  - Added deterministic cross-plugin invoke chain fuzz matrix coverage (32 generated chain cases across curated fixtures, mixed `invoke` + `invokeByName`, nested branch routing).
+  - Unknown (non-`std::exception`) command/runtime throws are now classified as `CRASH_PREVENTED` in diagnostics to preserve deterministic crash-containment semantics.
   - Plugin reload now reuses tracked source paths and rehydrates fixture commands for JSON-backed compat plugins.
   - DataManager compat save lane now persists per-slot `GlobalState` + `SaveHeader` in-memory (including autosave slot `0`) with slot bound checks, plus `setSaveHeaderExtension`/`getSaveHeaderExtension` round-trip semantics and cleanup on slot deletion.
   - DataManager map transfer flow now tracks reserved transfers and applies them deterministically through `processTransfer`.
@@ -56,8 +66,19 @@ Bootstrap workspace aligned to URPG Master Blueprint v3.1.
   - Burned down PluginManager compat status: `executeCommandAsync` advanced from `PARTIAL` to `FULL` with deterministic FIFO task-queue execution + callback ordering.
   - Input/Touch QuickJS API registration now routes to live runtime state (no placeholder zeros) and `TouchInput` movement/tap tracking now computes `moveSpeed` + `tapCount`.
   - PluginManager failure-path diagnostics now emit deterministic JSONL artifacts (`exportFailureDiagnosticsJsonl` / `clearFailureDiagnostics`) with operation tags + sequence IDs.
-  - QuickJS stub lane now supports explicit eval failure directives (`@urpg-fail-eval`) and evalModule failure propagation tests for deterministic conformance.
+  - PluginManager diagnostics JSONL now include compat severity tags (`WARN`, `SOFT_FAIL`, `HARD_FAIL`, `CRASH_PREVENTED`) for downstream report classification.
+  - PluginManager failure diagnostics export now enforces bounded retention (last 2048 events) while preserving monotonic sequence IDs across trims; coverage is gated in unit tests.
+  - `executeCommandByName` now routes through exact registered full keys (supports underscore-heavy command names) and rejects missing plugin/command segments via deterministic `execute_command_by_name_parse` diagnostics.
+  - QuickJS stub lane now supports explicit eval failure directives (`@urpg-fail-eval`), explicit runtime call-failure directives (`@urpg-fail-call`), deterministic context-init failure marker support (`__urpg_fail_context_init__`), and evalModule failure propagation tests for deterministic conformance.
+  - Fixture command validation now fails malformed payloads deterministically (`js` must be string, `script` must be array, `dropContextBeforeCall` must be boolean, optional `entry`/`description`/`mode` metadata must be strings, `mode` values are restricted to `const` or `arg_count`, and commands cannot declare both `js` and `script`) with exported diagnostics operation tags.
+  - Fixture metadata shape validation now fails malformed `dependencies`/`parameters`/`commands` containers and non-string dependency entries deterministically with exported diagnostics operation tags.
+  - Fixture script runtime now supports explicit `error` op and unknown-op hard-fail behavior, surfaced through deterministic `execute_command_quickjs_call` diagnostics artifacts.
+  - Dependent plugin command execution is now gated when required dependencies are missing, surfaced through deterministic `execute_command_dependency_missing` diagnostics artifacts.
   - Compat report model now ingests PluginManager diagnostics JSONL (`ingestPluginFailureDiagnosticsJsonl`) into timeline events and per-plugin error summaries.
+  - Compat report ingestion now maps PluginManager compat severity tags into timeline severity levels (`WARNING`/`ERROR`/`CRITICAL`).
+  - Compat report panel runtime refresh now consumes and clears PluginManager diagnostics artifacts each update cycle (`CompatReportPanel::refresh`/`update`).
+  - Compat report diagnostics model hardening now updates warning/error flags when method statuses transition and sorts call-volume views by total calls (including unsupported operations).
+  - Compat report panel now records bounded per-plugin session score history plus first-seen/last-updated timestamps, and `LAST_UPDATED` sorting now projects human-readable recency labels.
   - Compat module unit suites (`test_battlemgr`, `test_data_manager`, `test_audio_manager`, `test_input_manager`, `test_plugin_manager`) are active in `urpg_tests`.
 - Active build wiring snapshot:
   - `urpg_core` currently builds core kernels + editor diagnostics/panel + compat report panel + QuickJS + WindowCompat + Battle/Data/Audio/Input/Plugin compat modules.
@@ -70,18 +91,51 @@ Bootstrap workspace aligned to URPG Master Blueprint v3.1.
   - Known-break waiver validation via `tools/ci/check_waivers.ps1`
 - Migration CLI: `urpg_migrate`
 - Catch2/CTest baseline (Release snapshot, 2026-03-05):
-  - `urpg_tests`: 1183 assertions / 231 test cases
+  - `urpg_tests`: 3447 assertions / 237 test cases
   - `urpg_integration_tests`: 10 assertions / 2 test cases
   - `urpg_snapshot_tests`: 4 assertions / 2 test cases
-  - `urpg_compat_tests`: 534 assertions / 10 test cases
-  - Total: 1731 assertions / 245 test cases
+  - `urpg_compat_tests`: 1985 assertions / 24 test cases
+  - Total: 5446 assertions / 265 test cases
 
 ## Build
 
 ```powershell
-cmake -S . -B build
-cmake --build build
-ctest --test-dir build --output-on-failure
+cmake --preset dev-ninja-debug
+cmake --build --preset dev-debug
+ctest --preset dev-all
+```
+
+## Build cache (sccache)
+
+```powershell
+$env:SCCACHE_DIR = "$PWD/.cache/sccache"
+sccache --zero-stats
+cmake --preset dev-ninja-debug
+cmake --build --preset dev-debug
+sccache --show-stats
+```
+
+`URPG_USE_SCCACHE` is enabled by default in `CMakePresets.json`.
+
+## Git LFS
+
+```powershell
+git lfs install
+git lfs track
+```
+
+## Local gates
+
+```powershell
+.\tools\ci\run_local_gates.ps1
+```
+
+## Pre-commit
+
+```powershell
+python -m pip install pre-commit
+pre-commit install
+pre-commit run --all-files
 ```
 
 ## Migration CLI
@@ -95,6 +149,6 @@ ctest --test-dir build --output-on-failure
 Implement the next blueprint-critical contracts:
 
 1. Complete Phase 2 Compat Layer validation:
-  - Wire runtime/session-level compat report refresh to consume exported PluginManager diagnostics artifacts in editor update flow.
+  - Expand executable conformance/failure-path depth across curated 10-plugin fixtures (additional malformed/eval/runtime command chains).
 2. Expand plugin conformance depth:
-  - Expand fixture script DSL coverage and report artifact depth over real JS plugin execution paths.
+  - Expand fixture script DSL coverage and report artifact depth over real JS plugin execution paths + compat report exports.
