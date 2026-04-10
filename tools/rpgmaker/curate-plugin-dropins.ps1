@@ -39,6 +39,24 @@ function Get-FileSha256 {
     return ([System.BitConverter]::ToString($hash)).Replace("-", "").ToLowerInvariant()
 }
 
+function Get-RelativePathNormalized {
+    param(
+        [string]$BasePath,
+        [string]$TargetPath
+    )
+
+    $baseFull = [System.IO.Path]::GetFullPath($BasePath)
+    $targetFull = [System.IO.Path]::GetFullPath($TargetPath)
+
+    if ([System.IO.Path].GetMethod("GetRelativePath", [Type[]]@([string], [string])) -ne $null) {
+        return [System.IO.Path]::GetRelativePath($baseFull, $targetFull).Replace("\", "/")
+    }
+
+    $baseUri = [System.Uri]::new(($baseFull.TrimEnd("\", "/") + [System.IO.Path]::DirectorySeparatorChar))
+    $targetUri = [System.Uri]::new($targetFull)
+    return [System.Uri]::UnescapeDataString($baseUri.MakeRelativeUri($targetUri).ToString()).Replace("\", "/")
+}
+
 function Get-SelectionScore {
     param([string]$PathRel)
     $p = $PathRel.ToLowerInvariant()
@@ -81,7 +99,7 @@ if ($CleanOutput -and (Test-Path -LiteralPath $CuratedPluginRoot)) {
     Get-ChildItem -LiteralPath $CuratedPluginRoot -File -Filter "*.js" -ErrorAction SilentlyContinue | Remove-Item -Force
 }
 
-$reportRoot = Join-Path $RepoRoot "third_party\rpgmaker-mz\steam-dlc\reports"
+$reportRoot = Join-Path $RepoRoot "third_party/rpgmaker-mz/steam-dlc/reports"
 Ensure-Directory -Path $reportRoot
 
 $files = Get-ChildItem -LiteralPath $sourceRootResolved -Recurse -File -Filter "*.js" | Sort-Object FullName
@@ -91,7 +109,7 @@ if ($files.Count -eq 0) {
 
 $candidateRows = New-Object System.Collections.Generic.List[object]
 foreach ($file in $files) {
-    $pathRel = [System.IO.Path]::GetRelativePath($RepoRoot, $file.FullName).Replace("\", "/")
+    $pathRel = Get-RelativePathNormalized -BasePath $RepoRoot -TargetPath $file.FullName
     $text = Read-TextSafe -Path $file.FullName
     if ($null -eq $text) { continue }
 
@@ -141,7 +159,7 @@ foreach ($g in $groups) {
     }
 
     Copy-Item -LiteralPath $selected.FullPath -Destination $outPath -Force
-    $outRel = [System.IO.Path]::GetRelativePath($RepoRoot, $outPath).Replace("\", "/")
+    $outRel = Get-RelativePathNormalized -BasePath $RepoRoot -TargetPath $outPath
 
     $hashCount = (($cands | Select-Object -ExpandProperty Sha256 | Sort-Object -Unique).Count)
     $conflictType = "single"
