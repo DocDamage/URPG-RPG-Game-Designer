@@ -130,6 +130,15 @@ git lfs track
 .\tools\ci\run_local_gates.ps1
 ```
 
+## CodeMunch Pro Workflow
+
+```powershell
+.\tools\codemunch\bootstrap-project.ps1
+.\tools\codemunch\index-project.ps1 -ProjectRoot . -Embed -OutFile ".codemunch\last-index.json"
+```
+
+See `tools/codemunch/README.md` for full usage and cross-project setup.
+
 ## Contributor guide
 
 See `CONTRIBUTING.md` for workflow, LFS policy, and asset hygiene checks.
