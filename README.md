@@ -139,6 +139,67 @@ git lfs track
 
 See `tools/codemunch/README.md` for full usage and cross-project setup.
 
+## ContextLattice Workflow
+
+```powershell
+.\tools\contextlattice\bootstrap-project.ps1
+.\tools\contextlattice\verify.ps1
+```
+
+See `tools/contextlattice/README.md` for env and smoke-test usage.
+
+## MemPalace to ContextLattice Bridge
+
+```powershell
+.\tools\memorybridge\bootstrap-project.ps1
+.\tools\memorybridge\sync-from-mempalace.ps1 -DryRun
+```
+
+Use this for one-way sync (`MemPalace -> ContextLattice`) so ContextLattice
+remains the shared canonical memory backend.
+
+See `tools/memorybridge/README.md` for mapping and incremental sync details.
+
+## Unified LLM Workflow
+
+Install one global command (once):
+
+```powershell
+.\tools\workflow\install-global-llm-workflow.ps1
+```
+
+Then in any project folder run:
+
+```powershell
+llm-workflow-up
+```
+
+Strict end-to-end check:
+
+```powershell
+llm-workflow-check
+```
+
+Environment and prerequisite diagnostics:
+
+```powershell
+llm-workflow-doctor -CheckContext
+```
+
+This command auto-creates missing `tools/codemunch`, `tools/contextlattice`,
+and `tools/memorybridge` from templates, loads `.env`, installs required
+dependencies, normalizes provider keys for OpenAI/Kimi/Gemini/GLM usage, and
+runs bootstrap/verification checks.
+
+Provider selection examples:
+
+```powershell
+llm-workflow-up -Provider glm
+llm-workflow-up -Provider gemini
+llm-workflow-check -Provider kimi
+llm-workflow-doctor -Provider auto -CheckContext -Strict
+```
+
 ## Contributor guide
 
 See `CONTRIBUTING.md` for workflow, LFS policy, and asset hygiene checks.

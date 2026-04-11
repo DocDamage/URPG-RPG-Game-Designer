@@ -30,3 +30,9 @@ imports/reports/
 itch/archives/
 .rex_db/
 .codemunch/last-index.json
+.contextlattice/orchestrator.env
+.memorybridge/bridge.config.json
+.memorybridge/bridge.config.sample.json
+.memorybridge/sync-state.json
+.env
+.env.*
