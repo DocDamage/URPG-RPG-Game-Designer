@@ -24,10 +24,6 @@ $projectPath = (Resolve-Path -LiteralPath $ProjectRoot).Path
 $globalIndexCmd = Join-Path $env:LOCALAPPDATA "Programs\rom-tools\bin\codemunch-index.cmd"
 $globalIndexEmbedCmd = Join-Path $env:LOCALAPPDATA "Programs\rom-tools\bin\codemunch-index-embed.cmd"
 
-if (-not (Test-Path -LiteralPath $globalIndexCmd)) {
-    throw "Global codemunch index wrapper not found: $globalIndexCmd"
-}
-
 if ($PSBoundParameters.ContainsKey("IncludePattern") -and $IncludePattern.Count -gt 0) {
     Write-Warning "IncludePattern is managed by global wrapper defaults in this mode and will be ignored."
 }
@@ -35,13 +31,33 @@ if ($PSBoundParameters.ContainsKey("ExcludePattern") -and $ExcludePattern.Count 
     Write-Warning "ExcludePattern is managed by global wrapper defaults in this mode and will be ignored."
 }
 
-if ($Embed) {
-    if (-not (Test-Path -LiteralPath $globalIndexEmbedCmd)) {
-        throw "Global codemunch embed wrapper not found: $globalIndexEmbedCmd"
+if (Test-Path -LiteralPath $globalIndexCmd) {
+    if ($Embed) {
+        if (-not (Test-Path -LiteralPath $globalIndexEmbedCmd)) {
+            throw "Global codemunch embed wrapper not found: $globalIndexEmbedCmd"
+        }
+        $result = & $globalIndexEmbedCmd $projectPath
+    } else {
+        $result = & $globalIndexCmd $projectPath
     }
-    $result = & $globalIndexEmbedCmd $projectPath
 } else {
-    $result = & $globalIndexCmd $projectPath
+    Write-Warning "Global codemunch wrappers not found under $($env:LOCALAPPDATA)\Programs\rom-tools\bin. Falling back to direct codemunch_pro indexing."
+    $embedValue = if ($Embed) { "true" } else { "false" }
+    $result = @'
+import json
+import sys
+
+from codemunch_pro.server import _index_directory
+
+project_path = sys.argv[1]
+embed_flag = sys.argv[2].lower() in {"1", "true", "yes", "on"}
+stats = _index_directory(project_path, include_patterns=None, exclude_patterns=None, embed=embed_flag)
+print(json.dumps(stats, indent=2))
+'@ | python - $projectPath $embedValue
+
+    if ($LASTEXITCODE -ne 0) {
+        throw "Fallback codemunch indexing failed. Ensure Python and codemunch-pro are installed and importable."
+    }
 }
 
 if (-not [string]::IsNullOrWhiteSpace($OutFile)) {
