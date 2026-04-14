@@ -12,6 +12,7 @@
 #include <catch2/catch_approx.hpp>
 #include "editor/compat/compat_report_panel.h"
 #include "runtimes/compat_js/plugin_manager.h"
+#include <algorithm>
 #include <chrono>
 #include <filesystem>
 #include <fstream>
@@ -354,6 +355,47 @@ TEST_CASE("CompatReportModel - Plugin failure diagnostics ingestion", "[compat][
     const auto exported = model.exportAsJson();
     REQUIRE(exported.find("BrokenEntryFixture") != std::string::npos);
     REQUIRE(exported.find("BrokenEvalFixture") != std::string::npos);
+}
+
+TEST_CASE("CompatReportModel - Plugin failure severity mapping covers all tags", "[compat][panel]") {
+    CompatReportModel model;
+
+    const std::string diagnosticsJsonl =
+        R"({"seq":11,"subsystem":"plugin_manager","event":"compat_failure","plugin":"SeverityFixture","command":"warnCommand","operation":"warn_op","message":"warn message","severity":"WARN"})"
+        "\n"
+        R"({"seq":12,"subsystem":"plugin_manager","event":"compat_failure","plugin":"SeverityFixture","command":"softCommand","operation":"soft_fail_op","message":"soft fail message","severity":"SOFT_FAIL"})"
+        "\n"
+        R"({"seq":13,"subsystem":"plugin_manager","event":"compat_failure","plugin":"SeverityFixture","command":"hardCommand","operation":"hard_fail_op","message":"hard fail message","severity":"HARD_FAIL"})"
+        "\n"
+        R"({"seq":14,"subsystem":"plugin_manager","event":"compat_failure","plugin":"SeverityFixture","command":"crashCommand","operation":"crash_prevented_op","message":"crash prevented message","severity":"CRASH_PREVENTED"})";
+
+    model.ingestPluginFailureDiagnosticsJsonl(diagnosticsJsonl);
+
+    const auto events = model.getPluginEvents("SeverityFixture");
+    REQUIRE(events.size() == 4);
+
+    const auto requireEvent = [&](std::string_view methodName) -> const CompatEvent& {
+        const auto it = std::find_if(
+            events.begin(),
+            events.end(),
+            [&](const CompatEvent& event) {
+                return event.methodName == methodName;
+            }
+        );
+        REQUIRE(it != events.end());
+        return *it;
+    };
+
+    REQUIRE(requireEvent("warn_op").severity == CompatEvent::Severity::WARNING);
+    REQUIRE(requireEvent("soft_fail_op").severity == CompatEvent::Severity::ERROR);
+    REQUIRE(requireEvent("hard_fail_op").severity == CompatEvent::Severity::ERROR);
+    REQUIRE(requireEvent("crash_prevented_op").severity == CompatEvent::Severity::CRITICAL);
+
+    const auto summary = model.getPluginSummary("SeverityFixture");
+    REQUIRE(summary.partialCount == 1);
+    REQUIRE(summary.unsupportedCount == 3);
+    REQUIRE(summary.warningCount == 1);
+    REQUIRE(summary.errorCount == 3);
 }
 
 TEST_CASE("CompatReportModel - Session management", "[compat][panel]") {
