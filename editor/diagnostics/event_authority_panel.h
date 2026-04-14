@@ -40,4 +40,31 @@ private:
     void RebuildVisibleRows();
 };
 
+class EventAuthorityPanel {
+public:
+    EventAuthorityPanel() = default;
+
+    EventAuthorityPanelModel& getModel() { return model_; }
+    const EventAuthorityPanelModel& getModel() const { return model_; }
+
+    void ingestDiagnosticsJsonl(std::string_view diagnostics_jsonl);
+    void clearDiagnostics();
+
+    void setFilter(std::string_view event_id_filter);
+    std::string getFilter() const { return event_id_filter_; }
+
+    void setVisible(bool visible);
+    bool isVisible() const;
+
+    void render();
+    void refresh();
+    void update();
+
+private:
+    EventAuthorityPanelModel model_;
+    std::string diagnostics_jsonl_;
+    std::string event_id_filter_;
+    bool visible_ = true;
+};
+
 } // namespace urpg

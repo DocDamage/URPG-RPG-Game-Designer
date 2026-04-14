@@ -3,8 +3,57 @@
 #include <cstdint>
 #include <string>
 #include <vector>
+#include <map>
 
 namespace urpg {
+
+enum class SaveSlotCategory : uint8_t {
+    Autosave = 0,
+    Quicksave = 1,
+    Manual = 2,
+};
+
+enum class SaveRetentionClass : uint8_t {
+    Autosave = 0,
+    Quicksave = 1,
+    Manual = 2,
+};
+
+inline const char* ToString(SaveSlotCategory category) {
+    switch (category) {
+    case SaveSlotCategory::Autosave:
+        return "autosave";
+    case SaveSlotCategory::Quicksave:
+        return "quicksave";
+    case SaveSlotCategory::Manual:
+        return "manual";
+    }
+    return "manual";
+}
+
+inline const char* ToString(SaveRetentionClass retention_class) {
+    switch (retention_class) {
+    case SaveRetentionClass::Autosave:
+        return "autosave";
+    case SaveRetentionClass::Quicksave:
+        return "quicksave";
+    case SaveRetentionClass::Manual:
+        return "manual";
+    }
+    return "manual";
+}
+
+inline SaveRetentionClass RetentionClassForCategory(SaveSlotCategory category) {
+    switch (category) {
+    case SaveSlotCategory::Autosave:
+        return SaveRetentionClass::Autosave;
+    case SaveSlotCategory::Quicksave:
+        return SaveRetentionClass::Quicksave;
+    case SaveSlotCategory::Manual:
+        return SaveRetentionClass::Manual;
+    }
+    return SaveRetentionClass::Manual;
+}
 
 struct PartyMemberSnapshot {
     std::string name;
@@ -21,6 +70,8 @@ struct SaveSlotFlags {
 
 struct SaveSlotMeta {
     int32_t slot_id = 0;
+    SaveSlotCategory category = SaveSlotCategory::Manual;
+    SaveRetentionClass retention_class = SaveRetentionClass::Manual;
     std::string save_version;
     std::string timestamp;
     uint64_t playtime_seconds = 0;
@@ -29,6 +80,7 @@ struct SaveSlotMeta {
     std::vector<PartyMemberSnapshot> party_snapshot;
     SaveSlotFlags flags;
     std::string data_blob_path;
+    std::map<std::string, std::string> custom_metadata;
 };
 
 struct SaveEnvelope {
