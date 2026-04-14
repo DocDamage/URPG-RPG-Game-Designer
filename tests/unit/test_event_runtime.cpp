@@ -1,6 +1,45 @@
 #include "engine/core/events/event_runtime.h"
+#include "engine/core/events/map_event_interpreter.h"
 
 #include <catch2/catch_test_macros.hpp>
+
+using namespace urpg;
+
+TEST_CASE("MapEventInterpreter: Command Flow", "[event][interpreter]") {
+    std::vector<EventCommand> list = {
+        { EventOpcode::ControlSwitches, 0, { 1, true } }, // Switch 1 = ON
+        { EventOpcode::PlaySE, 0, { "Cursor1", 100, 100, 0 } },
+        { EventOpcode::End, 0, {} }
+    };
+
+    MapEventInterpreter interp(list);
+
+    SECTION("Interprets commands sequentially") {
+        REQUIRE(interp.isRunning());
+        REQUIRE(interp.getIndex() == 0);
+
+        bool cont = interp.update(); // Switch
+        REQUIRE(cont == true); // Immediate continue
+        REQUIRE(interp.getIndex() == 1);
+
+        cont = interp.update(); // PlaySE
+        REQUIRE(cont == true);
+        REQUIRE(interp.getIndex() == 2);
+
+        cont = interp.update(); // End
+        REQUIRE_FALSE(interp.isRunning());
+    }
+
+    SECTION("ShowMessage triggers waiting status") {
+        std::vector<EventCommand> msgList = {
+            { EventOpcode::ShowMessage, 0, { "Hello World" } }
+        };
+        MapEventInterpreter msgInterp(msgList);
+        
+        bool cont = msgInterp.update();
+        REQUIRE(cont == false); // Should wait (e.g. for user input)
+    }
+}
 
 TEST_CASE("Event runtime orders by priority then registration order", "[events][runtime]") {
     std::vector<urpg::EventInvocation> invocations{

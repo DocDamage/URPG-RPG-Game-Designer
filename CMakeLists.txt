@@ -5,6 +5,10 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
+if(MSVC)
+    add_compile_options(/FS)
+endif()
+
 option(URPG_FETCH_CATCH2 "Fetch Catch2 via CMake" ON)
 option(URPG_USE_SCCACHE "Use sccache as compiler launcher when available" ON)
 
@@ -29,13 +33,18 @@ add_library(urpg_core
     engine/core/format/canonical_json.cpp
     engine/core/migrate/migration_runner.cpp
     engine/core/sync/source_authority.cpp
+    engine/core/save/save_catalog.cpp
     engine/core/save/save_journal.cpp
     engine/core/save/save_recovery.cpp
     engine/core/save/save_runtime.cpp
     engine/gameplay/combat/combat_calc.cpp
     editor/diagnostics/event_authority_diagnostics.cpp
     editor/diagnostics/event_authority_panel.cpp
+    editor/diagnostics/diagnostics_workspace.cpp
+    editor/diagnostics/diagnostics_facade.cpp
     editor/compat/compat_report_panel.cpp
+    editor/save/save_inspector_model.cpp
+    editor/save/save_inspector_panel.cpp
     runtimes/compat_js/quickjs_runtime.cpp
     runtimes/compat_js/window_compat.cpp
     runtimes/compat_js/battle_manager.cpp
@@ -94,11 +103,18 @@ add_executable(urpg_tests
     tests/unit/test_canonical_json.cpp
     tests/unit/test_migration_runner.cpp
     tests/unit/test_source_authority.cpp
+    tests/unit/test_diagnostics_facade.cpp
+    tests/unit/test_save_catalog.cpp
+    tests/unit/test_save_inspector_model.cpp
+    tests/unit/test_save_inspector_panel.cpp
     tests/unit/test_save_recovery.cpp
     tests/unit/test_save_runtime.cpp
+    tests/unit/test_save_serialization.cpp
+    tests/unit/test_engine_shell.cpp
     tests/unit/test_event_edit_guard.cpp
     tests/unit/test_event_authority_diagnostics.cpp
     tests/unit/test_event_authority_panel.cpp
+    tests/unit/test_diagnostics_workspace.cpp
     tests/unit/test_event_runtime.cpp
     tests/unit/test_debug_session.cpp
     tests/unit/test_quickjs_runtime.cpp
@@ -109,6 +125,12 @@ add_executable(urpg_tests
     tests/unit/test_audio_manager.cpp
     tests/unit/test_input_manager.cpp
     tests/unit/test_plugin_manager.cpp
+    tests/unit/test_menu_core.cpp
+    tests/unit/test_input_core.cpp
+    tests/unit/test_audio_core.cpp
+    tests/unit/test_scene_manager.cpp
+    tests/engine/core/test_render_assets.cpp
+    tests/engine/core/test_engine_shell.cpp
 )
 
 target_link_libraries(urpg_tests PRIVATE urpg_core Catch2::Catch2WithMain)

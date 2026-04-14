@@ -15,7 +15,8 @@ Status Date: 2026-04-14
 | Phase 1 Native Core | Complete (v3.1 scope) | 100% | Event dispatch-session and debug runtime-session contracts are implemented with active test coverage. |
 | Phase 2 Compat Layer | In Progress | 93% | Runtime compat modules are wired with `PARTIAL`/`STUB` burn-down complete; severity-aware diagnostics classification is wired end-to-end; invoke expectations plus resolver metadata validation are hardened through raw diagnostics/report/panel coverage; curated fixture lifecycle coverage now includes menu/codex/library-dashboard/save-data/message-text/battle-flow/menu-presentation/presentation reload survival and dependency recovery; routed save-data failures now project through JSONL/report/panel coverage; save-data migration-path evidence now proves imported metadata can be normalized into runtime-facing shape; native-first ownership-matrix inputs now include first-pass Message/Text and Save/Data rows, and the first UI/Menu Core, Message/Text, Save/Data, and Battle spec drafts are in place; remaining work is deeper executable conformance and diagnostics hardening. |
 | CI Gate Lanes | Active | 100% | PR/nightly/weekly labels are active, with nightly renderer-tier matrix + artifact uploads and waiver validation. |
-| Validation Baseline | Passing | 6364 assertions / 284 cases | `urpg_tests` 3516, `urpg_compat_tests` 2834, `urpg_integration_tests` 10, `urpg_snapshot_tests` 4. |
+| Phase 5 Engine Shell | Complete | 100% | Native EngineShell loop (Tick/Update/Render) implemented; LRU Asset Cache, Binary Persistence (URSV), and Scene Authority verified. |
+| Validation Baseline | Passing | 6415 assertions / 295 cases | `urpg_tests` 3567, `urpg_compat_tests` 2834, `urpg_integration_tests` 10, `urpg_snapshot_tests` 4. |
 
 ### Current Weekly Focus
 
@@ -98,6 +99,15 @@ This section tracks what has been implemented in code so this blueprint doubles 
   - Weekly now runs compat suite (`ctest -L weekly`).
   - Nightly/weekly workflows upload gate log artifacts.
   - Known-break waiver schema + validator (`tools/ci/check_waivers.ps1`).
+- Phase 4 Optimization & Asset Management:
+  - `AssetCache<T>`: LRU-based template container with thread-safety and capacity-based eviction.
+  - `TextureRegistry`: Metadata storage for textures/sprites, bridged to MapScene rendering.
+  - `SaveSerializationHub`: Binary JSON packer (`URSV` format) with XOR checksums and versioning.
+- Phase 5 Native Engine Shell:
+  - `EngineShell`: Central loop coordinator for Tick -> Update -> Render lifecycle.
+  - Scene Authority: Refactored `SceneManager` to a Singleton; added `handleInput` to `GameScene`.
+  - Input/Logic Sync: Verified that `EngineShell::tick()` correctly routes input events to active Map/Menu scenes.
+  - Render Layer: Headless command-based batching for sprite and tile submissions.
 
 ### Phase 2 Compat Layer (In Progress)
 
@@ -165,6 +175,7 @@ This section tracks what has been implemented in code so this blueprint doubles 
   - PluginManager directory/plugin/command/dependent enumeration paths now enforce deterministic lexical ordering (`loadPluginsFromDirectory`, `getLoadedPlugins`, `getPluginCommands`, `getDependents`).
   - Fixture script commands are now executed through per-plugin `QuickJSRuntime` contexts (`QuickJSContext::call` bridge path).
   - Fixture JSON commands now support lightweight JS source + explicit entrypoint dispatch through `QuickJSContext::eval` + `call`.
+  - Diagnostics system now includes a lightweight `DiagnosticsFacade` for on-demand JSON snapshot emission, enabling integration with external editor shells and UI transports.
   - Curated fixtures now exercise JS directive `arg` and `const` modes across all 10 plugin profiles.
   - Fixture script DSL expanded with conditional flow + richer resolvers (`if`, `args`, `paramKeys`, `hasParam`, `hasArg`, `equals`, `coalesce`, `length`, `contains`, `greaterThan`, `lessThan`, `not`, `all`, `any`) and executable `append`/`local`/`concat` chain coverage.
   - Fixture script DSL now supports nested command-chain dispatch via `invoke` and `invokeByName`, including deterministic `store` capture and `expect: non_nil` assertions.

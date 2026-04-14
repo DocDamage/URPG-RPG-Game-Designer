@@ -28,6 +28,28 @@ void TryHydrateSkeletonFromMetadata(const std::string& metadata_payload, SaveSlo
         if (root.contains("_slot_id") && root["_slot_id"].is_number_integer()) {
             out_meta.slot_id = root["_slot_id"].get<int32_t>();
         }
+        if (root.contains("_slot_category") && root["_slot_category"].is_string()) {
+            const auto category = root["_slot_category"].get<std::string>();
+            if (category == "autosave") {
+                out_meta.category = SaveSlotCategory::Autosave;
+            } else if (category == "quicksave") {
+                out_meta.category = SaveSlotCategory::Quicksave;
+            } else {
+                out_meta.category = SaveSlotCategory::Manual;
+            }
+        }
+        if (root.contains("_retention_class") && root["_retention_class"].is_string()) {
+            const auto retentionClass = root["_retention_class"].get<std::string>();
+            if (retentionClass == "autosave") {
+                out_meta.retention_class = SaveRetentionClass::Autosave;
+            } else if (retentionClass == "quicksave") {
+                out_meta.retention_class = SaveRetentionClass::Quicksave;
+            } else {
+                out_meta.retention_class = SaveRetentionClass::Manual;
+            }
+        } else {
+            out_meta.retention_class = RetentionClassForCategory(out_meta.category);
+        }
         if (root.contains("_save_version") && root["_save_version"].is_string()) {
             out_meta.save_version = root["_save_version"].get<std::string>();
         }
@@ -42,6 +64,22 @@ void TryHydrateSkeletonFromMetadata(const std::string& metadata_payload, SaveSlo
         }
         if (root.contains("_map_display_name") && root["_map_display_name"].is_string()) {
             out_meta.map_display_name = root["_map_display_name"].get<std::string>();
+        }
+        if (root.contains("_flags") && root["_flags"].is_object()) {
+            const auto& flags = root["_flags"];
+            if (flags.contains("autosave") && flags["autosave"].is_boolean()) {
+                out_meta.flags.autosave = flags["autosave"].get<bool>();
+                if (out_meta.flags.autosave) {
+                    out_meta.category = SaveSlotCategory::Autosave;
+                    out_meta.retention_class = SaveRetentionClass::Autosave;
+                }
+            }
+            if (flags.contains("copilot_generated") && flags["copilot_generated"].is_boolean()) {
+                out_meta.flags.copilot_generated = flags["copilot_generated"].get<bool>();
+            }
+            if (flags.contains("corrupted") && flags["corrupted"].is_boolean()) {
+                out_meta.flags.corrupted = flags["corrupted"].get<bool>();
+            }
         }
         if (root.contains("_party_snapshot") && root["_party_snapshot"].is_array()) {
             out_meta.party_snapshot.clear();
