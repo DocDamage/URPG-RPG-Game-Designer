@@ -1,0 +1,195 @@
+# Message / Text Core Native-First Spec
+
+Date: 2026-04-14
+Status: initial draft
+Scope: runtime ownership, editor ownership, schema, migration, diagnostics, and test anchors for native Message/Text Core absorption
+
+## Purpose
+
+Message / Text Core becomes the native owner for dialogue flow, rich text layout, portraits/faces, namebox chrome, and message presentation timing that currently appear as compat Window surfaces and routed fixture evidence.
+
+The subsystem should absorb the behavior proven by routed message-text fixtures and Window parity tests without turning plugin escape sheets or ad hoc text commands into the long-term authoring model.
+
+## Source evidence
+
+Primary evidence currently comes from:
+
+- message-text reload routed fixture
+- `Window_Base.drawTextEx` escape handling
+- `Window_Base.textWidth` and `Window_Base.textSize`
+- `Window_Base.drawActorFace`
+
+These anchors show that the product needs first-class ownership of:
+
+- dialogue-mode routing between speaker, narration, and system presentations
+- deterministic rich-text token layout
+- portrait/face placement and clipping
+- namebox and message chrome rules
+- reload-safe message presentation state
+
+## Ownership boundary
+
+Message / Text Core owns:
+
+- dialogue line flow and page progression
+- rich-text escape parsing and layout tokens
+- portraits, faces, and namebox presentation rules
+- message presentation variants such as narration, speaker, and system notices
+- choice prompt presentation and message-adjacent interaction chrome
+- preview-safe reload of message layouts, localized text, and presentation settings
+
+Message / Text Core does not own:
+
+- event graph sequencing outside message waits and callbacks
+- localization asset storage format
+- save serialization internals
+- battle logic or menu scene ownership
+
+It consumes those systems through typed interfaces.
+
+## Runtime model
+
+### Core runtime objects
+
+- `MessageFlowRunner`
+  - authoritative runner for pages, waits, advance rules, pauses, and callbacks into event runtime
+- `RichTextLayoutEngine`
+  - tokenizes escape codes, measures lines, resolves icons/variables/currency, and produces layout boxes
+- `DialoguePresentationModel`
+  - data-only description of chrome, namebox, portrait placement, and message variant styling
+- `PortraitBindingRegistry`
+  - resolves actor face, portrait source, fallback art, and variant swaps for message presentation
+- `ChoicePromptState`
+  - owns active choices, selection state, disabled-state reasons, and navigation contracts while a message session is open
+
+### Runtime contracts
+
+- message flow state is deterministic and serializable when the event/runtime layer requests it
+- escape processing is schema-owned and testable, not plugin-command-string-owned
+- text measurement is stable for preview and runtime under the same layout rules
+- narration, speaker, and system routes are explicit presentation modes rather than hidden plugin flags
+- portrait and face layout rules remain independent of menu or battle ownership
+
+## Editor surfaces
+
+Message / Text Core should ship with these editor owners:
+
+- `Dialogue Inspector`
+  - author lines, speaker bindings, pauses, waits, and branching hooks
+- `Rich Text Preview`
+  - live preview for escape codes, icons, variables, currency, and multiline wrapping
+- `Portrait and Namebox Layout Inspector`
+  - face source, portrait placement, namebox style, margins, and safe-area preview
+- `Choice Prompt Editor`
+  - choice labels, enable rules, default selection, and preview flow
+- `Localization Validation Panel`
+  - overflow checks, missing-token checks, and locale-sensitive layout warnings
+
+## Schema and data contracts
+
+### Required schemas
+
+- `message_styles.json`
+  - chrome variants, namebox rules, portrait docking, spacing, and safe-area settings
+- `dialogue_sequences.json`
+  - dialogue pages, speaker bindings, timing rules, waits, and callbacks into event runtime
+- `rich_text_tokens.json`
+  - supported escape families, icon mappings, variable bindings, and fallback handling
+- `choice_prompts.json`
+  - prompt definitions, options, enable rules, default selections, and continuation hooks
+
+### Schema rules
+
+- dialogue sequence IDs are stable and migration-safe
+- presentation mode is explicit and typed
+- layout rules are previewable without running gameplay logic
+- imported plugin metadata is preserved as mapping notes, not treated as the native source of truth
+- unsupported escape families fail with diagnostics instead of silently changing meaning
+
+## Migration and import rules
+
+### Import goals
+
+- translate message plugin behaviors into native dialogue and layout records where possible
+- preserve escape intent, portraits/faces, and timing semantics even when plugin command names are discarded
+- separate text layout concerns from event sequencing concerns during import
+
+### Mapping strategy
+
+- current compat `Window_Base` parity maps into native rich-text token and text-layout contracts
+- routed message-text fixture modes map into native presentation variants for speaker, narration, and system dialogue
+- imported message plugins should map namebox, portrait, and timing rules into native message-style schema instead of opaque parameter blocks
+- unsupported custom control flows remain behind compat shims only until a native message-flow contract exists
+
+### Failure handling
+
+- unsupported escape codes are recorded as import diagnostics with preserved raw token text
+- portrait/namebox conflicts produce upgrade diagnostics instead of hidden precedence rules
+- imported dialogue content can remain readable in safe mode even when custom chrome is dropped
+
+## Diagnostics and safety
+
+Message / Text Core diagnostics should include:
+
+- unsupported or malformed escape tokens
+- overflow and truncation risk for localized variants
+- missing portrait or face bindings
+- invalid namebox layout references
+- choice prompts with unreachable continuation targets
+- imported mappings that could not be normalized cleanly
+
+Safe-mode expectations:
+
+- preserve readable text output even if advanced chrome is disabled
+- fall back from portrait layouts to text-only presentation when assets or layout contracts are invalid
+- surface import warnings without blocking basic narrative progression
+
+## Extension points
+
+Allowed extension points:
+
+- custom rich-text token providers
+- portrait source providers
+- message-style skins
+- choice prompt decorators
+
+Disallowed extension patterns:
+
+- direct mutation of authoritative message flow state outside the runner
+- hidden token semantics that bypass schema registration
+- plugin-owned layout mutation that changes runtime meaning without diagnostics
+
+## Test anchors
+
+The subsystem should inherit and later replace these evidence paths:
+
+- `tests/compat/test_compat_plugin_fixtures.cpp`
+  - message-text reload routed anchor
+- `tests/unit/test_window_compat.cpp`
+  - `drawTextEx`
+  - `textWidth`
+  - `textSize`
+  - `drawActorFace`
+- future native tests should add:
+  - dialogue schema migration tests
+  - localized overflow snapshot tests
+  - choice prompt state tests
+  - message reload-safe state preservation tests
+  - import upgrade tests from compat message mappings into native dialogue schema
+
+## First implementation slice
+
+Phase 1 of Message / Text Core absorption should deliver:
+
+- native rich-text layout engine
+- native dialogue presentation variants for speaker, narration, and system text
+- portrait/namebox layout model
+- dialogue inspector and preview panel
+- import mapping for current Window parity and routed message-text anchor behavior
+
+## Non-goals for this slice
+
+- recreating every commercial message plugin one-for-one
+- folding event graph ownership into the message renderer
+- making escape strings the primary authoring UX forever
+- shipping advanced cinematic text effects before the layout and flow model is authoritative

@@ -13,15 +13,15 @@ Status Date: 2026-04-14
 | --- | --- | --- | --- |
 | Phase 0 Foundation | Complete | 100% | Core kernels, authority guards, migration/save lanes, diagnostics indexing/panel wiring, and CI lane scaffolding are in place. |
 | Phase 1 Native Core | Complete (v3.1 scope) | 100% | Event dispatch-session and debug runtime-session contracts are implemented with active test coverage. |
-| Phase 2 Compat Layer | In Progress | 90% | Runtime compat modules are wired with `PARTIAL`/`STUB` burn-down complete; severity-aware diagnostics classification is wired end-to-end; invoke expectations plus resolver metadata validation are hardened through raw diagnostics/report/panel coverage; curated fixture lifecycle coverage now includes menu/codex/library-dashboard/save-data/menu-presentation/presentation reload survival and dependency recovery; native-first ownership-matrix inputs now include first-pass Message/Text and Save/Data rows, and the first UI/Menu Core spec draft is in place; remaining work is deeper executable conformance and diagnostics hardening. |
+| Phase 2 Compat Layer | In Progress | 93% | Runtime compat modules are wired with `PARTIAL`/`STUB` burn-down complete; severity-aware diagnostics classification is wired end-to-end; invoke expectations plus resolver metadata validation are hardened through raw diagnostics/report/panel coverage; curated fixture lifecycle coverage now includes menu/codex/library-dashboard/save-data/message-text/battle-flow/menu-presentation/presentation reload survival and dependency recovery; routed save-data failures now project through JSONL/report/panel coverage; save-data migration-path evidence now proves imported metadata can be normalized into runtime-facing shape; native-first ownership-matrix inputs now include first-pass Message/Text and Save/Data rows, and the first UI/Menu Core, Message/Text, Save/Data, and Battle spec drafts are in place; remaining work is deeper executable conformance and diagnostics hardening. |
 | CI Gate Lanes | Active | 100% | PR/nightly/weekly labels are active, with nightly renderer-tier matrix + artifact uploads and waiver validation. |
-| Validation Baseline | Passing | 6109 assertions / 279 cases | `urpg_tests` 3497, `urpg_compat_tests` 2598, `urpg_integration_tests` 10, `urpg_snapshot_tests` 4. |
+| Validation Baseline | Passing | 6364 assertions / 284 cases | `urpg_tests` 3516, `urpg_compat_tests` 2834, `urpg_integration_tests` 10, `urpg_snapshot_tests` 4. |
 
 ### Current Weekly Focus
 
-1. Expand richer curated-plugin behavior and lifecycle scenarios across the curated 10-profile corpus, using the current menu-stack reload, codex reload, library-dashboard reload, save-data reload, menu-presentation reload, presentation-family reload, and dependency-recovery anchors as the baseline rather than the endpoint.
-2. Keep compat diagnostics artifact ingestion/export assertions in lockstep with new failure operations, severity mappings, report projections, and routed lifecycle-failure cases, including the default weekly unload branch.
-3. Carry the seeded ownership matrix and the first UI/Menu Core spec draft forward by adding a routed Message/Text anchor and broader Save/Data failure-path evidence so the remaining first-wave subsystem specs start from the same level of proof.
+1. Expand richer curated-plugin behavior and lifecycle scenarios across the curated 10-profile corpus, using the current menu-stack reload, codex reload, library-dashboard reload, save-data reload, message-text reload, battle-flow reload, menu-presentation reload, presentation-family reload, and dependency-recovery anchors as the baseline rather than the endpoint.
+2. Keep compat diagnostics artifact ingestion/export assertions in lockstep with new failure operations, severity mappings, report projections, and routed lifecycle-failure cases, including the default weekly unload branch and the new save-data projection lane.
+3. Carry the seeded ownership matrix and the first UI/Menu Core, Message/Text, Save/Data, and Battle spec drafts forward by deepening routed combat evidence and advancing Save/Data from implementation-slice seed toward native delivery.
 
 ## v3.1 Upgrade Notes
 
@@ -172,8 +172,12 @@ This section tracks what has been implemented in code so this blueprint doubles 
   - Executable compat fixtures now include deterministic cross-plugin invoke fuzz conformance (32 generated chain cases across curated profiles with mixed `invoke` + `invokeByName` branch routing).
   - Reload flow now tracks plugin source paths so JSON-backed fixture plugins rehydrate commands on `reloadPlugin`.
     - Curated compat fixture scenarios now cover richer menu-stack, codex/content, library-dashboard, save-data, menu-presentation, and presentation-family routing behavior, menu-stack/codex/content/library-dashboard/save-data/menu-presentation/presentation survival across plugin reload, and dependent command recovery after unloading and reloading shared core fixtures.
-    - Native-first planning handoff is now seeded with an ownership-matrix input table derived from the strongest routed compat anchors, expanded with first-pass Message/Text and Save/Data rows, so UI/Menu, Message/Text, and Save/Data ownership work can start from verified lifecycle or API-surface evidence.
-    - The first native-first subsystem spec draft now exists for UI/Menu Core (`docs/UI_MENU_CORE_NATIVE_SPEC.md`) and is ready to drive the next subsystem-spec pass.
+    - Native-first planning handoff is now seeded with an ownership-matrix input table derived from the strongest routed compat anchors, expanded with first-pass Message/Text and Save/Data rows, so UI/Menu, Message/Text, and Save/Data ownership work can start from verified lifecycle-backed or API-surface-backed evidence.
+    - Curated message-text lifecycle coverage now proves routed speaker, narration, and system dialogue modes survive plugin reload while still exercising `Window_Base` escape-text, sizing, and face-rendering contracts.
+    - Curated battle-flow lifecycle coverage now proves battle HUD and motion plugin routes can stay aligned with deterministic `BattleManager` turn, action, damage/heal, and escape behavior across plugin reload.
+    - Curated save-data failure coverage now proves routed save-surface failures project through raw JSONL diagnostics, report-model ingestion/export, and panel refresh while slot metadata and autosave state remain recoverable.
+    - Save/Data migration-path coverage now proves imported save metadata can be normalized into runtime-facing shape and then hydrated by the runtime save loader.
+    - The first native-first subsystem spec drafts now exist for UI/Menu Core (`docs/UI_MENU_CORE_NATIVE_SPEC.md`), Message/Text Core (`docs/MESSAGE_TEXT_CORE_NATIVE_SPEC.md`), Save/Data Core (`docs/SAVE_DATA_CORE_NATIVE_SPEC.md`), and Battle Core (`docs/BATTLE_CORE_NATIVE_SPEC.md`) and are ready to drive the next subsystem-spec pass.
   - Command failure diagnostics now route missing-command/full-name parse failures through `PluginManager::setErrorHandler` for deterministic capture.
   - Plugin failure-path diagnostics are now exportable as structured JSONL artifacts (`exportFailureDiagnosticsJsonl` / `clearFailureDiagnostics`) with deterministic sequence IDs and operation tags.
   - Plugin failure diagnostics JSONL now include explicit compat severity tags (`WARN`, `SOFT_FAIL`, `HARD_FAIL`, `CRASH_PREVENTED`) for downstream report classification.
@@ -226,10 +230,10 @@ This section tracks what has been implemented in code so this blueprint doubles 
 - Snapshot tests: 1 file (`test_snapshot_canonical_outputs.cpp`).
 - Compat tests: 4 files (`test_compat_authority_suite.cpp`, `test_compat_window_plugin_profiles.cpp`, `test_compat_plugin_fixtures.cpp`, `test_compat_plugin_failure_diagnostics.cpp`).
 - Debug validation snapshot (2026-04-14):
-    - `urpg_tests`: 3497 assertions / 238 test cases
+    - `urpg_tests`: 3516 assertions / 240 test cases
   - `urpg_integration_tests`: 10 assertions / 2 test cases
   - `urpg_snapshot_tests`: 4 assertions / 2 test cases
-    - `urpg_compat_tests`: 2598 assertions / 37 test cases
+    - `urpg_compat_tests`: 2834 assertions / 40 test cases
 
 - CLI tools:
   - `urpg_migrate` - migration runner CLI (`tools/migrate/migrate_cli.cpp`)
@@ -269,9 +273,9 @@ The following table maps documentation contracts to their actual source implemen
 
 ### Next Execution Lanes
 
-1. Phase 2 validation hardening: expand curated multi-plugin behavior and lifecycle conformance across the 10-profile corpus, using the menu-stack reload, codex reload, library-dashboard reload, save-data reload, menu-presentation reload, presentation-family reload, and dependency-recovery scenarios as anchors rather than the endpoint.
+1. Phase 2 validation hardening: expand curated multi-plugin behavior and lifecycle conformance across the 10-profile corpus, using the menu-stack reload, codex reload, library-dashboard reload, save-data reload, message-text reload, battle-flow reload, menu-presentation reload, presentation-family reload, and dependency-recovery scenarios as anchors rather than the endpoint.
 2. Phase 2 diagnostics completion: keep raw JSONL artifacts, report ingestion/export, and panel severity projections in lockstep for every newly added failure mode, including routed lifecycle unload cases now exercised by the weekly regression, until compat is trustworthy enough to exit.
-3. Native-first planning handoff: extend the seeded ownership matrix, build on the initial UI/Menu Core spec draft, and then produce the remaining first-wave subsystem specs for Message/Text, Battle, and Save/Data.
+3. Native-first planning handoff: extend the seeded ownership matrix, build on the initial UI/Menu Core, Message/Text Core, Save/Data Core, and Battle Core spec drafts, and then deepen routed combat evidence while moving Save/Data from implementation-slice seed toward native delivery.
 4. Phase 3 Copilot + Polish: Producer Copilot canon-aware generation, cutscene timeline editor, full debugger profiler.
 
 ## 0 — Core Philosophy

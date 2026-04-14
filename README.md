@@ -53,8 +53,14 @@ Bootstrap workspace aligned to URPG Master Blueprint v3.1.
   - Compat conformance now includes invoke-chain success and failure-path diagnostics coverage (`execute_command`, `execute_command_by_name_parse`, and `execute_command_quickjs_call`) for nested fixture command flows, including malformed `invoke`/`invokeByName` validation branches.
   - Compat fixture suites now include richer curated behavior scenarios for menu-stack and codex/content plugin flows so the 10-profile corpus is exercised through more realistic multi-plugin routing paths instead of only isolated command probes.
   - Curated compat lifecycle coverage now includes menu-stack, codex/content, library-dashboard, save-data, menu-presentation, and presentation-family behavior surviving plugin reload plus dependent command recovery after unloading and reloading shared core fixtures.
+  - Curated compat lifecycle coverage now also includes message-text routing where speaker, narration, and system dialogue modes survive plugin reload while still exercising `Window_Base` rich-text and face rendering surfaces.
+  - Curated compat lifecycle coverage now also includes battle-flow routing, coupling battle HUD and motion plugin routes to deterministic `BattleManager` turn, action, damage/heal, and escape behavior across plugin reload.
+  - Save-data failure-path coverage now projects routed save-surface failures through raw JSONL diagnostics, report-model ingestion/export, and panel refresh while authoritative slot and autosave state remain intact.
+  - Save/Data import-shape evidence now proves imported save metadata can be normalized through `MigrationRunner` into the runtime loader's native metadata shape and then hydrated successfully.
   - Native-first planning now includes a seeded ownership-matrix input table derived from the strongest routed compat anchors, extended with first-pass Message/Text and Save/Data rows.
   - The first native-first subsystem spec draft now exists at `docs/UI_MENU_CORE_NATIVE_SPEC.md` so UI/Menu ownership can move from matrix inputs into subsystem design.
+  - The first native-first Message/Text subsystem spec draft now exists at `docs/MESSAGE_TEXT_CORE_NATIVE_SPEC.md`, giving message flow and text layout the same planning handoff shape as UI/Menu.
+  - The first native-first Save/Data and Battle subsystem spec drafts now exist at `docs/SAVE_DATA_CORE_NATIVE_SPEC.md` and `docs/BATTLE_CORE_NATIVE_SPEC.md`.
   - Added deterministic cross-plugin invoke chain fuzz matrix coverage (32 generated chain cases across curated fixtures, mixed `invoke` + `invokeByName`, nested branch routing).
   - Unknown (non-`std::exception`) command/runtime throws are now classified as `CRASH_PREVENTED` in diagnostics to preserve deterministic crash-containment semantics.
   - Plugin reload now reuses tracked source paths and rehydrates fixture commands for JSON-backed compat plugins.
@@ -97,17 +103,17 @@ Bootstrap workspace aligned to URPG Master Blueprint v3.1.
   - Known-break waiver validation via `tools/ci/check_waivers.ps1`
 - Migration CLI: `urpg_migrate`
 - Catch2/CTest baseline (Debug snapshot, 2026-04-14):
-  - `urpg_tests`: 3497 assertions / 238 test cases
+  - `urpg_tests`: 3516 assertions / 240 test cases
   - `urpg_integration_tests`: 10 assertions / 2 test cases
   - `urpg_snapshot_tests`: 4 assertions / 2 test cases
-  - `urpg_compat_tests`: 2598 assertions / 37 test cases
-  - Total: 6109 assertions / 279 test cases
+  - `urpg_compat_tests`: 2834 assertions / 40 test cases
+  - Total: 6364 assertions / 284 test cases
 
 ## Immediate next steps
 
-1. Expand compat lifecycle and multi-plugin conformance beyond the current menu-stack reload, codex reload, library-dashboard reload, save-data reload, menu-presentation reload, presentation-family reload, and dependency-recovery anchors so more of the curated 10-profile corpus is exercised through realistic routed behavior instead of isolated command checks.
-2. Keep every new compat failure mode locked to raw JSONL diagnostics, report-model ingestion/export, and panel severity projection assertions, following the routed lifecycle-failure pattern now exercised directly in the weekly diagnostics lane rather than only direct command probes.
-3. Keep extending the seeded native-first ownership matrix, use `docs/UI_MENU_CORE_NATIVE_SPEC.md` as the first subsystem template, and then write the remaining first-wave specs for Message/Text, Battle, and Save/Data as outlined in `docs/NATIVE_FEATURE_ABSORPTION_PLAN.md`.
+1. Expand compat lifecycle and multi-plugin conformance beyond the current menu-stack reload, codex reload, library-dashboard reload, save-data reload, message-text reload, battle-flow reload, menu-presentation reload, presentation-family reload, and dependency-recovery anchors so more of the curated 10-profile corpus is exercised through realistic routed behavior instead of isolated command checks.
+2. Keep every new compat failure mode locked to raw JSONL diagnostics, report-model ingestion/export, and panel severity projection assertions, following the routed lifecycle-failure pattern now exercised directly in the weekly diagnostics lane for presentation and save-data surfaces rather than only direct command probes.
+3. Keep extending the seeded native-first ownership matrix, use `docs/UI_MENU_CORE_NATIVE_SPEC.md`, `docs/MESSAGE_TEXT_CORE_NATIVE_SPEC.md`, `docs/SAVE_DATA_CORE_NATIVE_SPEC.md`, and `docs/BATTLE_CORE_NATIVE_SPEC.md` as the first subsystem templates, and then deepen battle-specific routed combat evidence while carrying Save/Data from implementation-slice seed toward native delivery.
 
 ## Build
 
