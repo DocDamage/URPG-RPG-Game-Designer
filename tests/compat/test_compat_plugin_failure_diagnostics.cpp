@@ -1,4 +1,5 @@
 #include "editor/compat/compat_report_panel.h"
+#include "runtimes/compat_js/data_manager.h"
 #include "runtimes/compat_js/plugin_manager.h"
 
 #include <catch2/catch_test_macros.hpp>
@@ -15,6 +16,7 @@
 namespace {
 
 using urpg::compat::PluginManager;
+using urpg::compat::DataManager;
 
 struct FixtureSpec {
     std::string pluginName;
@@ -425,6 +427,199 @@ TEST_CASE(
     );
     REQUIRE(panelMotionEventIt != panelMotionEvents.end());
 
+    pm.clearFailureDiagnostics();
+    pm.unloadAllPlugins();
+
+    std::error_code ec;
+    std::filesystem::remove(lifecycleFixture, ec);
+}
+
+TEST_CASE(
+    "Compat fixtures: curated save-data lifecycle failures project through diagnostics report and panel",
+    "[compat][fixtures][failure]") {
+    PluginManager& pm = PluginManager::instance();
+    DataManager& data = DataManager::instance();
+    pm.unloadAllPlugins();
+    pm.clearFailureDiagnostics();
+
+    data.setupNewGame();
+    data.deleteSaveFile(0);
+    data.deleteSaveFile(1);
+
+    REQUIRE(pm.loadPlugin(fixturePath("VisuStella_CoreEngine_MZ").string()));
+    REQUIRE(pm.loadPlugin(fixturePath("VisuStella_MainMenuCore_MZ").string()));
+    REQUIRE(pm.loadPlugin(fixturePath("CGMZ_MenuCommandWindow").string()));
+
+    const auto lifecycleFixture = uniqueTempFixturePath("urpg_curated_save_data_failure_fixture");
+    writeTextFile(
+        lifecycleFixture,
+        R"({
+  "name": "CuratedSaveDataFailureFixture",
+  "parameters": {
+    "defaultRoute": "slot",
+    "defaultToken": "party"
+  },
+  "commands": [
+    {
+      "name": "open",
+      "script": [
+        {"op": "invoke", "plugin": "VisuStella_CoreEngine_MZ", "command": "boot", "args": [{"from": "arg", "index": 0, "default": "save_failure_boot"}], "store": "boot", "expect": "non_nil"},
+        {"op": "invokeByName", "name": "VisuStella_MainMenuCore_MZ_openMenu", "store": "menu"},
+        {"op": "invoke", "plugin": "CGMZ_MenuCommandWindow", "command": "refresh", "store": "dashboard"},
+        {"op": "set", "key": "route", "value": {"from": "coalesce", "values": [{"from": "arg", "index": 1}, {"from": "param", "name": "defaultRoute"}]}} ,
+        {"op": "if", "condition": {"from": "equals", "left": {"from": "local", "name": "route"}, "right": "autosave"},
+          "then": [
+            {"op": "set", "key": "routeToken", "value": {"from": "arg", "index": 2, "default": "autosave"}}
+          ],
+          "else": [
+            {"op": "set", "key": "routeToken", "value": {"from": "arg", "index": 2, "default": {"from": "param", "name": "defaultToken"}}}
+          ]
+        },
+        {"op": "returnObject"}
+      ]
+    }
+  ]
+})"
+    );
+
+    REQUIRE(pm.loadPlugin(lifecycleFixture.string()));
+
+    data.setGold(450);
+    data.gainItem(2, 7);
+    data.setVariable(4, 88);
+    data.setPlayerPosition(9, 10, 11);
+    data.setPlayerDirection(6);
+    REQUIRE(data.saveGame(1));
+
+    urpg::Value slotToken;
+    slotToken.v = std::string("party");
+    REQUIRE(data.setSaveHeaderExtension(1, "ui.tab", slotToken));
+
+    data.setAutosaveEnabled(true);
+    data.setVariable(8, 144);
+    REQUIRE(data.saveAutosave());
+
+    urpg::Value slotRoute;
+    slotRoute.v = std::string("slot");
+    urpg::Value autosaveRoute;
+    autosaveRoute.v = std::string("autosave");
+    urpg::Value beforeSlotBoot;
+    beforeSlotBoot.v = std::string("before_failure_slot");
+    urpg::Value beforeAutosaveBoot;
+    beforeAutosaveBoot.v = std::string("before_failure_autosave");
+    urpg::Value autosaveToken;
+    autosaveToken.v = std::string("autosave");
+
+    const urpg::Value beforeSlot = pm.executeCommand(
+        "CuratedSaveDataFailureFixture",
+        "open",
+        {beforeSlotBoot, slotRoute, slotToken}
+    );
+    REQUIRE(std::holds_alternative<urpg::Object>(beforeSlot.v));
+
+    const urpg::Value beforeAutosave = pm.executeCommandByName(
+        "CuratedSaveDataFailureFixture_open",
+        {beforeAutosaveBoot, autosaveRoute, autosaveToken}
+    );
+    REQUIRE(std::holds_alternative<urpg::Object>(beforeAutosave.v));
+    REQUIRE(pm.exportFailureDiagnosticsJsonl().empty());
+
+    REQUIRE(pm.unloadPlugin("CGMZ_MenuCommandWindow"));
+    REQUIRE_FALSE(pm.isPluginLoaded("CGMZ_MenuCommandWindow"));
+
+    urpg::Value afterSlotBoot;
+    afterSlotBoot.v = std::string("after_failure_slot");
+    const urpg::Value afterSlot = pm.executeCommand(
+        "CuratedSaveDataFailureFixture",
+        "open",
+        {afterSlotBoot, slotRoute, slotToken}
+    );
+    REQUIRE(std::holds_alternative<urpg::Object>(afterSlot.v));
+    const auto& afterSlotObject = std::get<urpg::Object>(afterSlot.v);
+    REQUIRE(std::get<std::string>(afterSlotObject.at("route").v) == "slot");
+    REQUIRE(std::get<std::string>(afterSlotObject.at("routeToken").v) == "party");
+    REQUIRE(std::holds_alternative<std::monostate>(afterSlotObject.at("dashboard").v));
+
+    urpg::Value afterAutosaveBoot;
+    afterAutosaveBoot.v = std::string("after_failure_autosave");
+    const urpg::Value afterAutosave = pm.executeCommandByName(
+        "CuratedSaveDataFailureFixture_open",
+        {afterAutosaveBoot, autosaveRoute, autosaveToken}
+    );
+    REQUIRE(std::holds_alternative<urpg::Object>(afterAutosave.v));
+    const auto& afterAutosaveObject = std::get<urpg::Object>(afterAutosave.v);
+    REQUIRE(std::get<std::string>(afterAutosaveObject.at("route").v) == "autosave");
+    REQUIRE(std::get<std::string>(afterAutosaveObject.at("routeToken").v) == "autosave");
+    REQUIRE(std::holds_alternative<std::monostate>(afterAutosaveObject.at("dashboard").v));
+
+    REQUIRE(data.loadGame(1));
+    REQUIRE(data.getGold() == 450);
+    REQUIRE(data.getItemCount(2) == 7);
+    REQUIRE(data.getVariable(4) == 88);
+    auto savedTab = data.getSaveHeaderExtension(1, "ui.tab");
+    REQUIRE(savedTab.has_value());
+    REQUIRE(std::holds_alternative<std::string>(savedTab->v));
+    REQUIRE(std::get<std::string>(savedTab->v) == "party");
+    REQUIRE(data.loadAutosave());
+    REQUIRE(data.getVariable(8) == 144);
+
+    const auto diagnostics = parseJsonl(pm.exportFailureDiagnosticsJsonl());
+    REQUIRE_FALSE(diagnostics.empty());
+    const auto dashboardRows = std::count_if(
+        diagnostics.begin(),
+        diagnostics.end(),
+        [](const nlohmann::json& row) {
+            return row.value("operation", "") == "execute_command" &&
+                   row.value("plugin", "") == "CGMZ_MenuCommandWindow" &&
+                   row.value("command", "") == "refresh" &&
+                   row.value("severity", "") == "WARN" &&
+                   row.value("message", "") ==
+                       "Command not found: CGMZ_MenuCommandWindow_refresh";
+        }
+    );
+    REQUIRE(dashboardRows == 2);
+
+    const std::string diagnosticsJsonl = pm.exportFailureDiagnosticsJsonl();
+    urpg::editor::CompatReportModel reportModel;
+    reportModel.ingestPluginFailureDiagnosticsJsonl(diagnosticsJsonl);
+
+    const auto dashboardEvents = reportModel.getPluginEvents("CGMZ_MenuCommandWindow");
+    REQUIRE(dashboardEvents.size() == 2);
+    for (const auto& event : dashboardEvents) {
+        REQUIRE(event.methodName == "execute_command");
+        REQUIRE(event.message == "Command not found: CGMZ_MenuCommandWindow_refresh");
+        REQUIRE(event.severity == urpg::editor::CompatEvent::Severity::WARNING);
+        REQUIRE(event.navigationTarget == "plugin://CGMZ_MenuCommandWindow#refresh");
+    }
+
+    const auto dashboardSummary = reportModel.getPluginSummary("CGMZ_MenuCommandWindow");
+    REQUIRE(dashboardSummary.warningCount == 1);
+    REQUIRE(dashboardSummary.errorCount == 0);
+    REQUIRE(dashboardSummary.totalCalls == 2);
+
+    const std::string exportedReport = reportModel.exportAsJson();
+    REQUIRE(exportedReport.find("CGMZ_MenuCommandWindow") != std::string::npos);
+    REQUIRE(exportedReport.find("Command not found: CGMZ_MenuCommandWindow_refresh") != std::string::npos);
+
+    urpg::editor::CompatReportPanel panel;
+    panel.refresh();
+    REQUIRE(pm.exportFailureDiagnosticsJsonl().empty());
+
+    const auto panelDashboardEvents = panel.getModel().getPluginEvents("CGMZ_MenuCommandWindow");
+    REQUIRE(panelDashboardEvents.size() == 2);
+    const auto panelDashboardEventCount = std::count_if(
+        panelDashboardEvents.begin(),
+        panelDashboardEvents.end(),
+        [](const urpg::editor::CompatEvent& event) {
+            return event.methodName == "execute_command" &&
+                   event.message == "Command not found: CGMZ_MenuCommandWindow_refresh" &&
+                   event.severity == urpg::editor::CompatEvent::Severity::WARNING;
+        }
+    );
+    REQUIRE(panelDashboardEventCount == 2);
+
+    data.deleteSaveFile(0);
+    data.deleteSaveFile(1);
     pm.clearFailureDiagnostics();
     pm.unloadAllPlugins();
 

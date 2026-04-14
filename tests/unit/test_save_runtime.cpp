@@ -1,6 +1,9 @@
 #include "engine/core/save/save_runtime.h"
+#include "engine/core/migrate/migration_runner.h"
 
 #include <catch2/catch_test_macros.hpp>
+
+#include <nlohmann/json.hpp>
 
 #include <filesystem>
 #include <fstream>
@@ -103,6 +106,56 @@ TEST_CASE("Runtime save loader force-safe-mode bypasses primary save", "[save][r
     REQUIRE(result.recovery_tier == urpg::SaveRecoveryTier::Level3SafeSkeleton);
     REQUIRE(result.active_meta.map_display_name == "Safe Mode - Origin");
     REQUIRE(result.payload.empty());
+
+    std::filesystem::remove_all(base);
+}
+
+TEST_CASE("Runtime save loader hydrates metadata after imported save migration", "[save][runtime][migrate]") {
+    const auto base = std::filesystem::temp_directory_path() / "urpg_save_runtime_migrated_meta";
+    std::filesystem::create_directories(base);
+
+    nlohmann::json legacyMeta = {
+        {"_urpg_format_version", "mz_compat_1"},
+        {"slotId", 6},
+        {"mapName", "Sunken Atrium"},
+        {"playtimeSeconds", 9876},
+        {"saveVersion", "mz-import"},
+        {"thumbnailHash", "thumb-save-6"}
+    };
+
+    nlohmann::json migrationSpec = {
+        {"from", "mz_compat_1"},
+        {"to", "1.0"},
+        {"ops", nlohmann::json::array({
+            {{"op", "rename"}, {"fromPath", "/slotId"}, {"toPath", "/_slot_id"}},
+            {{"op", "rename"}, {"fromPath", "/mapName"}, {"toPath", "/_map_display_name"}},
+            {{"op", "rename"}, {"fromPath", "/playtimeSeconds"}, {"toPath", "/_playtime_seconds"}},
+            {{"op", "rename"}, {"fromPath", "/saveVersion"}, {"toPath", "/_save_version"}},
+            {{"op", "rename"}, {"fromPath", "/thumbnailHash"}, {"toPath", "/_thumbnail_hash"}}
+        })}
+    };
+
+    const auto migrationError = urpg::MigrationRunner::Apply(migrationSpec, legacyMeta);
+    REQUIRE_FALSE(migrationError.has_value());
+
+    const auto primary = base / "slot_006.json";
+    const auto meta = base / "meta.json";
+    WriteText(primary, "{\"state\":\"migrated_primary\"}");
+    WriteText(meta, legacyMeta.dump());
+
+    urpg::RuntimeSaveLoadRequest request;
+    request.primary_save_path = primary;
+    request.metadata_path = meta;
+
+    const auto result = urpg::RuntimeSaveLoader::Load(request);
+    REQUIRE(result.ok);
+    REQUIRE_FALSE(result.loaded_from_recovery);
+    REQUIRE(result.payload == "{\"state\":\"migrated_primary\"}");
+    REQUIRE(result.active_meta.slot_id == 6);
+    REQUIRE(result.active_meta.map_display_name == "Sunken Atrium");
+    REQUIRE(result.active_meta.playtime_seconds == 9876);
+    REQUIRE(result.active_meta.save_version == "mz-import");
+    REQUIRE(result.active_meta.thumbnail_hash == "thumb-save-6");
 
     std::filesystem::remove_all(base);
 }

@@ -1,5 +1,7 @@
+#include "runtimes/compat_js/battle_manager.h"
 #include "runtimes/compat_js/data_manager.h"
 #include "runtimes/compat_js/plugin_manager.h"
+#include "runtimes/compat_js/window_compat.h"
 
 #include <catch2/catch_test_macros.hpp>
 #include <nlohmann/json.hpp>
@@ -16,8 +18,16 @@ namespace {
 
 using urpg::Object;
 using urpg::Value;
+using urpg::compat::BattleAction;
+using urpg::compat::BattleActionType;
+using urpg::compat::BattleManager;
+using urpg::compat::BattlePhase;
+using urpg::compat::BattleResult;
+using urpg::compat::BattleSubject;
+using urpg::compat::BattleSubjectType;
 using urpg::compat::DataManager;
 using urpg::compat::PluginManager;
+using urpg::compat::Window_Base;
 
 struct FixtureSpec {
     std::string pluginName;
@@ -1401,6 +1411,202 @@ TEST_CASE("Compat fixtures: curated library-dashboard scenarios survive plugin r
         std::filesystem::remove(reloadFixture, ec);
 }
 
+    TEST_CASE("Compat fixtures: curated message-text scenarios survive plugin reload",
+                "[compat][fixtures]") {
+        PluginManager& pm = PluginManager::instance();
+        DataManager& data = DataManager::instance();
+        pm.unloadAllPlugins();
+        pm.clearFailureDiagnostics();
+
+        data.setupNewGame();
+        data.setVariable(2, 777);
+
+        REQUIRE(pm.loadPlugin(fixturePath("VisuStella_CoreEngine_MZ").string()));
+
+        const auto reloadFixture = uniqueTempFixturePath("urpg_curated_message_text_reload_fixture");
+        writeTextFile(
+            reloadFixture,
+            R"({
+        "name": "CuratedMessageTextReloadFixture",
+        "parameters": {
+        "defaultRoute": "speaker",
+        "defaultSpeaker": "Alicia",
+        "defaultBody": "\\C[2]HP\\I[5]\\V[2]\\G",
+        "defaultNarration": "The door creaks open...\nFootsteps echo.",
+        "defaultSystem": "\\C[16]System\\C[0]: Autosave complete"
+        },
+        "commands": [
+        {
+            "name": "render",
+            "script": [
+            {"op": "invoke", "plugin": "VisuStella_CoreEngine_MZ", "command": "boot", "args": [{"from": "arg", "index": 0, "default": "message_reload_boot"}], "store": "boot", "expect": "non_nil"},
+            {"op": "set", "key": "route", "value": {"from": "coalesce", "values": [{"from": "arg", "index": 1}, {"from": "param", "name": "defaultRoute"}]}} ,
+            {"op": "if", "condition": {"from": "equals", "left": {"from": "local", "name": "route"}, "right": "narration"},
+                "then": [
+                {"op": "set", "key": "speaker", "value": ""},
+                {"op": "set", "key": "faceActorId", "value": 0},
+                {"op": "set", "key": "body", "value": {"from": "arg", "index": 2, "default": {"from": "param", "name": "defaultNarration"}}},
+                {"op": "set", "key": "layoutMode", "value": "narration"},
+                {"op": "set", "key": "tone", "value": "neutral"}
+                ],
+                "else": [
+                {"op": "if", "condition": {"from": "equals", "left": {"from": "local", "name": "route"}, "right": "system"},
+                    "then": [
+                    {"op": "set", "key": "speaker", "value": "System"},
+                    {"op": "set", "key": "faceActorId", "value": 0},
+                    {"op": "set", "key": "body", "value": {"from": "arg", "index": 2, "default": {"from": "param", "name": "defaultSystem"}}},
+                    {"op": "set", "key": "layoutMode", "value": "system"},
+                    {"op": "set", "key": "tone", "value": "system"}
+                    ],
+                    "else": [
+                    {"op": "set", "key": "speaker", "value": {"from": "arg", "index": 3, "default": {"from": "param", "name": "defaultSpeaker"}}},
+                    {"op": "set", "key": "faceActorId", "value": {"from": "arg", "index": 4, "default": 3}},
+                    {"op": "set", "key": "body", "value": {"from": "arg", "index": 2, "default": {"from": "param", "name": "defaultBody"}}},
+                    {"op": "set", "key": "layoutMode", "value": "speaker"},
+                    {"op": "set", "key": "tone", "value": "portrait"}
+                    ]
+                }
+                ]
+            },
+            {"op": "set", "key": "routeToken", "value": {"from": "concat", "parts": [{"from": "local", "name": "route"}, ":", {"from": "local", "name": "layoutMode"}, ":", {"from": "local", "name": "tone"}]}} ,
+            {"op": "returnObject"}
+            ]
+        }
+        ]
+    })"
+        );
+
+        REQUIRE(pm.loadPlugin(reloadFixture.string()));
+
+        auto requireObjectString = [](const Object& object, const std::string& key) {
+            const auto it = object.find(key);
+            REQUIRE(it != object.end());
+            REQUIRE(std::holds_alternative<std::string>(it->second.v));
+            return std::get<std::string>(it->second.v);
+        };
+
+        auto requireObjectInt = [](const Object& object, const std::string& key) {
+            const auto it = object.find(key);
+            REQUIRE(it != object.end());
+            REQUIRE(std::holds_alternative<int64_t>(it->second.v));
+            return std::get<int64_t>(it->second.v);
+        };
+
+        auto requireObjectRecord = [](const Object& object, const std::string& key) -> const Object& {
+            const auto it = object.find(key);
+            REQUIRE(it != object.end());
+            REQUIRE(std::holds_alternative<Object>(it->second.v));
+            return std::get<Object>(it->second.v);
+        };
+
+        auto verifySpeakerRoute = [&](const Value& value, const std::string& expectedBoot) {
+            REQUIRE(std::holds_alternative<Object>(value.v));
+            const auto& object = std::get<Object>(value.v);
+            REQUIRE(requireObjectString(requireObjectRecord(object, "boot"), "firstArg") == expectedBoot);
+            REQUIRE(requireObjectString(object, "route") == "speaker");
+            REQUIRE(requireObjectString(object, "layoutMode") == "speaker");
+            REQUIRE(requireObjectString(object, "tone") == "portrait");
+            REQUIRE(requireObjectString(object, "speaker") == "Alicia");
+            REQUIRE(requireObjectInt(object, "faceActorId") == 3);
+            REQUIRE(requireObjectString(object, "routeToken") == "speaker:speaker:portrait");
+            REQUIRE(requireObjectString(object, "body") == "\\C[2]HP\\I[5]\\V[2]\\G");
+
+            Window_Base window(Window_Base::CreateParams{});
+            const uint32_t drawTextBefore = Window_Base::getMethodCallCount("drawText");
+            const uint32_t drawIconBefore = Window_Base::getMethodCallCount("drawIcon");
+            const uint32_t colorBefore = Window_Base::getMethodCallCount("changeTextColor");
+
+            window.drawActorFace(static_cast<int32_t>(requireObjectInt(object, "faceActorId")), 8, 8, 144, 144);
+            const auto faceInfo = window.getLastFaceDraw();
+            REQUIRE(faceInfo.has_value());
+            REQUIRE(faceInfo->actorId == 3);
+
+            window.drawText(requireObjectString(object, "speaker"), 160, 0, 120, "left");
+            window.drawTextEx(requireObjectString(object, "body"), 160, 36);
+
+            REQUIRE(Window_Base::getMethodCallCount("drawText") >= drawTextBefore + 3);
+            REQUIRE(Window_Base::getMethodCallCount("drawIcon") == drawIconBefore + 2);
+            REQUIRE(Window_Base::getMethodCallCount("changeTextColor") == colorBefore + 1);
+            REQUIRE(window.textWidth(requireObjectString(object, "body")) > window.textWidth("HP"));
+            REQUIRE(window.textSize(requireObjectString(object, "body")).height == window.lineHeight());
+        };
+
+        auto verifyNarrationRoute = [&](const Value& value, const std::string& expectedBoot) {
+            REQUIRE(std::holds_alternative<Object>(value.v));
+            const auto& object = std::get<Object>(value.v);
+            REQUIRE(requireObjectString(requireObjectRecord(object, "boot"), "firstArg") == expectedBoot);
+            REQUIRE(requireObjectString(object, "route") == "narration");
+            REQUIRE(requireObjectString(object, "layoutMode") == "narration");
+            REQUIRE(requireObjectString(object, "tone") == "neutral");
+            REQUIRE(requireObjectString(object, "speaker").empty());
+            REQUIRE(requireObjectInt(object, "faceActorId") == 0);
+            REQUIRE(requireObjectString(object, "routeToken") == "narration:narration:neutral");
+            REQUIRE(requireObjectString(object, "body") == "The door creaks open...\nFootsteps echo.");
+
+            Window_Base window(Window_Base::CreateParams{});
+            const uint32_t drawTextBefore = Window_Base::getMethodCallCount("drawText");
+            window.drawTextEx(requireObjectString(object, "body"), 0, 0);
+            REQUIRE_FALSE(window.getLastFaceDraw().has_value());
+            REQUIRE(Window_Base::getMethodCallCount("drawText") >= drawTextBefore + 2);
+            REQUIRE(window.textSize(requireObjectString(object, "body")).height == window.lineHeight() * 2);
+        };
+
+        auto verifySystemRoute = [&](const Value& value, const std::string& expectedBoot) {
+            REQUIRE(std::holds_alternative<Object>(value.v));
+            const auto& object = std::get<Object>(value.v);
+            REQUIRE(requireObjectString(requireObjectRecord(object, "boot"), "firstArg") == expectedBoot);
+            REQUIRE(requireObjectString(object, "route") == "system");
+            REQUIRE(requireObjectString(object, "layoutMode") == "system");
+            REQUIRE(requireObjectString(object, "tone") == "system");
+            REQUIRE(requireObjectString(object, "speaker") == "System");
+            REQUIRE(requireObjectInt(object, "faceActorId") == 0);
+            REQUIRE(requireObjectString(object, "routeToken") == "system:system:system");
+
+            Window_Base window(Window_Base::CreateParams{});
+            const uint32_t drawTextBefore = Window_Base::getMethodCallCount("drawText");
+            const uint32_t colorBefore = Window_Base::getMethodCallCount("changeTextColor");
+            window.drawTextEx(requireObjectString(object, "body"), 0, 0);
+            REQUIRE(Window_Base::getMethodCallCount("drawText") >= drawTextBefore + 2);
+            REQUIRE(Window_Base::getMethodCallCount("changeTextColor") == colorBefore + 2);
+            REQUIRE(window.textSize(requireObjectString(object, "body")).height == window.lineHeight());
+        };
+
+        Value beforeReloadBoot;
+        beforeReloadBoot.v = std::string("before_reload_message");
+        const Value beforeReloadSpeaker =
+            pm.executeCommand("CuratedMessageTextReloadFixture", "render", {beforeReloadBoot});
+        verifySpeakerRoute(beforeReloadSpeaker, "before_reload_message");
+
+        REQUIRE(pm.reloadPlugin("VisuStella_CoreEngine_MZ"));
+        REQUIRE(pm.reloadPlugin("CuratedMessageTextReloadFixture"));
+
+        REQUIRE(pm.hasCommand("CuratedMessageTextReloadFixture", "render"));
+
+        Value afterReloadNarrationBoot;
+        afterReloadNarrationBoot.v = std::string("after_reload_narration");
+        Value narrationRoute;
+        narrationRoute.v = std::string("narration");
+        const Value afterReloadNarration =
+            pm.executeCommandByName("CuratedMessageTextReloadFixture_render", {afterReloadNarrationBoot, narrationRoute});
+        verifyNarrationRoute(afterReloadNarration, "after_reload_narration");
+
+        Value afterReloadSystemBoot;
+        afterReloadSystemBoot.v = std::string("after_reload_system");
+        Value systemRoute;
+        systemRoute.v = std::string("system");
+        const Value afterReloadSystem =
+            pm.executeCommand("CuratedMessageTextReloadFixture", "render", {afterReloadSystemBoot, systemRoute});
+        verifySystemRoute(afterReloadSystem, "after_reload_system");
+
+        REQUIRE(pm.exportFailureDiagnosticsJsonl().empty());
+
+        pm.clearFailureDiagnostics();
+        pm.unloadAllPlugins();
+
+        std::error_code ec;
+        std::filesystem::remove(reloadFixture, ec);
+    }
+
     TEST_CASE("Compat fixtures: curated save-data scenarios survive plugin reload",
                 "[compat][fixtures]") {
         PluginManager& pm = PluginManager::instance();
@@ -1831,6 +2037,205 @@ TEST_CASE("Compat fixtures: curated presentation scenarios survive plugin reload
         std::error_code ec;
         std::filesystem::remove(reloadFixture, ec);
 }
+
+    TEST_CASE("Compat fixtures: curated battle-flow scenarios survive plugin reload",
+                "[compat][fixtures]") {
+        PluginManager& pm = PluginManager::instance();
+        pm.unloadAllPlugins();
+        pm.clearFailureDiagnostics();
+
+        REQUIRE(pm.loadPlugin(fixturePath("VisuStella_CoreEngine_MZ").string()));
+        REQUIRE(pm.loadPlugin(fixturePath("MOG_BattleHud_MZ").string()));
+        REQUIRE(pm.loadPlugin(fixturePath("MOG_CharacterMotion_MZ").string()));
+
+        const auto reloadFixture = uniqueTempFixturePath("urpg_curated_battle_flow_reload_fixture");
+        writeTextFile(
+            reloadFixture,
+            R"({
+        "name": "CuratedBattleFlowReloadFixture",
+        "parameters": {
+        "defaultRoute": "action",
+        "defaultMotion": "slash"
+        },
+        "commands": [
+        {
+            "name": "engage",
+            "script": [
+            {"op": "invoke", "plugin": "VisuStella_CoreEngine_MZ", "command": "boot", "args": [{"from": "arg", "index": 0, "default": "battle_flow_boot"}], "store": "boot", "expect": "non_nil"},
+            {"op": "set", "key": "route", "value": {"from": "coalesce", "values": [{"from": "arg", "index": 1}, {"from": "param", "name": "defaultRoute"}]}} ,
+            {"op": "set", "key": "motionName", "value": {"from": "arg", "index": 2, "default": {"from": "param", "name": "defaultMotion"}}},
+            {"op": "if", "condition": {"from": "equals", "left": {"from": "local", "name": "route"}, "right": "escape"},
+                "then": [
+                {"op": "invoke", "plugin": "MOG_CharacterMotion_MZ", "command": "startMotion", "args": [{"from": "local", "name": "motionName"}], "store": "routeResult", "expect": "non_nil"},
+                {"op": "invoke", "plugin": "MOG_BattleHud_MZ", "command": "showHud", "store": "supportResult", "expect": "non_nil"},
+                {"op": "set", "key": "routeToken", "value": "escape:attempt"}
+                ],
+                "else": [
+                {"op": "invoke", "plugin": "MOG_BattleHud_MZ", "command": "showHud", "store": "routeResult", "expect": "non_nil"},
+                {"op": "invoke", "plugin": "MOG_CharacterMotion_MZ", "command": "startMotion", "args": [{"from": "local", "name": "motionName"}], "store": "supportResult", "expect": "non_nil"},
+                {"op": "set", "key": "routeToken", "value": "action:resolve"}
+                ]
+            },
+            {"op": "returnObject"}
+            ]
+        }
+        ]
+    })"
+        );
+
+        REQUIRE(pm.loadPlugin(reloadFixture.string()));
+
+        auto verifyActionRoute = [&](const Value& value, const std::string& expectedBoot, const std::string& expectedMotion) {
+            REQUIRE(std::holds_alternative<Object>(value.v));
+            const auto& object = std::get<Object>(value.v);
+            REQUIRE(std::get<std::string>(std::get<Object>(object.at("boot").v).at("firstArg").v) == expectedBoot);
+            REQUIRE(std::get<std::string>(object.at("route").v) == "action");
+            REQUIRE(std::get<std::string>(object.at("routeToken").v) == "action:resolve");
+                REQUIRE(std::get<std::string>(object.at("motionName").v) == expectedMotion);
+            REQUIRE(std::get<std::string>(std::get<Object>(object.at("routeResult").v).at("profile").v) == "battle_hud");
+            REQUIRE(std::get<int64_t>(std::get<Object>(object.at("routeResult").v).at("hudSlots").v) == 4);
+            REQUIRE(std::get<std::string>(std::get<Object>(object.at("supportResult").v).at("profile").v) == "character_motion");
+                REQUIRE(std::get<int64_t>(std::get<Object>(object.at("supportResult").v).at("argCount").v) == 1);
+                REQUIRE(std::get<bool>(std::get<Object>(object.at("supportResult").v).at("supportsScale").v));
+
+            BattleManager battle;
+            int actionStartCount = 0;
+            int actionEndCount = 0;
+            int damageCount = 0;
+            int healCount = 0;
+            battle.registerHook(BattleManager::HookPoint::ON_ACTION_START, "battle_anchor", [&actionStartCount](const std::vector<Value>&) {
+                ++actionStartCount;
+                return Value::Nil();
+            });
+            battle.registerHook(BattleManager::HookPoint::ON_ACTION_END, "battle_anchor", [&actionEndCount](const std::vector<Value>&) {
+                ++actionEndCount;
+                return Value::Nil();
+            });
+            battle.registerHook(BattleManager::HookPoint::ON_DAMAGE, "battle_anchor", [&damageCount](const std::vector<Value>&) {
+                ++damageCount;
+                return Value::Nil();
+            });
+            battle.registerHook(BattleManager::HookPoint::ON_HEAL, "battle_anchor", [&healCount](const std::vector<Value>&) {
+                ++healCount;
+                return Value::Nil();
+            });
+
+            battle.setup(11, true, false);
+            battle.startBattle();
+            REQUIRE(battle.getPhase() == BattlePhase::INPUT);
+            battle.startTurn();
+            REQUIRE(battle.getPhase() == BattlePhase::TURN);
+
+            BattleSubject actor;
+            actor.type = BattleSubjectType::ACTOR;
+            actor.index = 0;
+            actor.hp = 50;
+            actor.mhp = 100;
+            actor.actionSpeed = 18;
+
+            BattleSubject enemy;
+            enemy.type = BattleSubjectType::ENEMY;
+            enemy.index = 0;
+            enemy.hp = 90;
+            enemy.mhp = 90;
+
+            battle.queueAction(&actor, BattleActionType::WAIT);
+            BattleAction* action = battle.getNextAction();
+            REQUIRE(action != nullptr);
+            REQUIRE(action->type == BattleActionType::WAIT);
+            battle.processAction(action);
+            REQUIRE(actionStartCount == 1);
+            REQUIRE(actionEndCount == 1);
+
+            battle.applyDamage(&enemy, 15);
+            battle.applyHeal(&actor, 20);
+            REQUIRE(enemy.hp == 75);
+            REQUIRE(actor.hp == 70);
+            REQUIRE(damageCount == 1);
+            REQUIRE(healCount == 1);
+
+            battle.endTurn();
+            REQUIRE(battle.getTurnCount() == 1);
+            REQUIRE(battle.getPhase() == BattlePhase::INPUT);
+        };
+
+        auto verifyEscapeRoute = [&](const Value& value, const std::string& expectedBoot, const std::string& expectedMotion) {
+            REQUIRE(std::holds_alternative<Object>(value.v));
+            const auto& object = std::get<Object>(value.v);
+            REQUIRE(std::get<std::string>(std::get<Object>(object.at("boot").v).at("firstArg").v) == expectedBoot);
+            REQUIRE(std::get<std::string>(object.at("route").v) == "escape");
+            REQUIRE(std::get<std::string>(object.at("routeToken").v) == "escape:attempt");
+                REQUIRE(std::get<std::string>(object.at("motionName").v) == expectedMotion);
+            REQUIRE(std::get<std::string>(std::get<Object>(object.at("routeResult").v).at("profile").v) == "character_motion");
+                REQUIRE(std::get<int64_t>(std::get<Object>(object.at("routeResult").v).at("argCount").v) == 1);
+            REQUIRE(std::get<std::string>(std::get<Object>(object.at("supportResult").v).at("profile").v) == "battle_hud");
+
+            BattleManager battle;
+            int escapeHookCount = 0;
+            battle.registerHook(BattleManager::HookPoint::ON_ESCAPE, "battle_anchor", [&escapeHookCount](const std::vector<Value>&) {
+                ++escapeHookCount;
+                return Value::Nil();
+            });
+
+            battle.setup(17, true, false);
+            battle.startBattle();
+            REQUIRE(battle.getPhase() == BattlePhase::INPUT);
+            bool escaped = false;
+            int attempts = 0;
+            while (attempts < 6 && battle.canEscape()) {
+                ++attempts;
+                escaped = battle.processEscape();
+                if (escaped) {
+                    break;
+                }
+            }
+
+            REQUIRE(escaped);
+            REQUIRE(attempts >= 1);
+            REQUIRE(escapeHookCount == attempts + 1);
+            REQUIRE(battle.getResult() == BattleResult::ESCAPE);
+            REQUIRE(battle.getPhase() == BattlePhase::NONE);
+        };
+
+        Value beforeActionBoot;
+        beforeActionBoot.v = std::string("before_reload_battle_action");
+        const Value beforeAction =
+            pm.executeCommand("CuratedBattleFlowReloadFixture", "engage", {beforeActionBoot});
+        verifyActionRoute(beforeAction, "before_reload_battle_action", "slash");
+
+        REQUIRE(pm.reloadPlugin("VisuStella_CoreEngine_MZ"));
+        REQUIRE(pm.reloadPlugin("MOG_BattleHud_MZ"));
+        REQUIRE(pm.reloadPlugin("MOG_CharacterMotion_MZ"));
+        REQUIRE(pm.reloadPlugin("CuratedBattleFlowReloadFixture"));
+
+        REQUIRE(pm.hasCommand("CuratedBattleFlowReloadFixture", "engage"));
+        REQUIRE(pm.hasCommand("MOG_BattleHud_MZ", "showHud"));
+        REQUIRE(pm.hasCommand("MOG_CharacterMotion_MZ", "startMotion"));
+
+        Value afterActionBoot;
+        afterActionBoot.v = std::string("after_reload_battle_action");
+        const Value afterAction =
+            pm.executeCommandByName("CuratedBattleFlowReloadFixture_engage", {afterActionBoot});
+        verifyActionRoute(afterAction, "after_reload_battle_action", "slash");
+
+        Value escapeBoot;
+        escapeBoot.v = std::string("after_reload_battle_escape");
+        Value escapeRoute;
+        escapeRoute.v = std::string("escape");
+        Value retreatMotion;
+        retreatMotion.v = std::string("retreat");
+        const Value afterEscape =
+            pm.executeCommand("CuratedBattleFlowReloadFixture", "engage", {escapeBoot, escapeRoute, retreatMotion});
+        verifyEscapeRoute(afterEscape, "after_reload_battle_escape", "retreat");
+
+        REQUIRE(pm.exportFailureDiagnosticsJsonl().empty());
+
+        pm.clearFailureDiagnostics();
+        pm.unloadAllPlugins();
+
+        std::error_code ec;
+        std::filesystem::remove(reloadFixture, ec);
+    }
 
 TEST_CASE("Compat fixtures: curated menu-stack scenarios survive plugin reload",
                     "[compat][fixtures]") {
