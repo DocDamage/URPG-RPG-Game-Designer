@@ -7,20 +7,21 @@ _Full Engineering Specification - No Fluff_
 
 ## Progress Tracker (Live)
 
-Status Date: 2026-03-05
+Status Date: 2026-04-14
 
 | Track | Status | Completion | Notes |
 | --- | --- | --- | --- |
 | Phase 0 Foundation | Complete | 100% | Core kernels, authority guards, migration/save lanes, diagnostics indexing/panel wiring, and CI lane scaffolding are in place. |
 | Phase 1 Native Core | Complete (v3.1 scope) | 100% | Event dispatch-session and debug runtime-session contracts are implemented with active test coverage. |
-| Phase 2 Compat Layer | In Progress | 89% | Runtime compat modules are wired with `PARTIAL`/`STUB` burn-down complete; severity-aware diagnostics classification is now wired end-to-end; remaining work is deeper executable conformance and diagnostics hardening. |
+| Phase 2 Compat Layer | In Progress | 90% | Runtime compat modules are wired with `PARTIAL`/`STUB` burn-down complete; severity-aware diagnostics classification is wired end-to-end; invoke expectations plus resolver metadata validation are hardened through raw diagnostics/report/panel coverage; curated fixture lifecycle coverage now includes menu/codex/library-dashboard/save-data/menu-presentation/presentation reload survival and dependency recovery; native-first ownership-matrix inputs now include first-pass Message/Text and Save/Data rows, and the first UI/Menu Core spec draft is in place; remaining work is deeper executable conformance and diagnostics hardening. |
 | CI Gate Lanes | Active | 100% | PR/nightly/weekly labels are active, with nightly renderer-tier matrix + artifact uploads and waiver validation. |
-| Validation Baseline | Passing | 5446 assertions / 265 cases | `urpg_tests` 3447, `urpg_compat_tests` 1985, `urpg_integration_tests` 10, `urpg_snapshot_tests` 4. |
+| Validation Baseline | Passing | 6109 assertions / 279 cases | `urpg_tests` 3497, `urpg_compat_tests` 2598, `urpg_integration_tests` 10, `urpg_snapshot_tests` 4. |
 
 ### Current Weekly Focus
 
-1. Expand fixture malformed/eval/runtime command-chain conformance depth across curated profiles.
-2. Keep compat diagnostics artifact ingestion/export assertions in lockstep with new failure operations.
+1. Expand richer curated-plugin behavior and lifecycle scenarios across the curated 10-profile corpus, using the current menu-stack reload, codex reload, library-dashboard reload, save-data reload, menu-presentation reload, presentation-family reload, and dependency-recovery anchors as the baseline rather than the endpoint.
+2. Keep compat diagnostics artifact ingestion/export assertions in lockstep with new failure operations, severity mappings, report projections, and routed lifecycle-failure cases, including the default weekly unload branch.
+3. Carry the seeded ownership matrix and the first UI/Menu Core spec draft forward by adding a routed Message/Text anchor and broader Save/Data failure-path evidence so the remaining first-wave subsystem specs start from the same level of proof.
 
 ## v3.1 Upgrade Notes
 
@@ -57,7 +58,7 @@ Status Date: 2026-03-05
 
 ## Implementation Status (Live)
 
-Status Date: 2026-03-05
+Status Date: 2026-04-14
 
 This section tracks what has been implemented in code so this blueprint doubles as an execution ledger.
 
@@ -167,8 +168,12 @@ This section tracks what has been implemented in code so this blueprint doubles 
   - Curated fixtures now exercise JS directive `arg` and `const` modes across all 10 plugin profiles.
   - Fixture script DSL expanded with conditional flow + richer resolvers (`if`, `args`, `paramKeys`, `hasParam`, `hasArg`, `equals`, `coalesce`, `length`, `contains`, `greaterThan`, `lessThan`, `not`, `all`, `any`) and executable `append`/`local`/`concat` chain coverage.
   - Fixture script DSL now supports nested command-chain dispatch via `invoke` and `invokeByName`, including deterministic `store` capture and `expect: non_nil` assertions.
+    - Fixture script invoke expectations now cover `nil`, `truthy`, `falsey`, and `equals`, with explicit resolver metadata validation for `arg`/`hasArg`/`param`/`hasParam`/`local`/`argCount`/`args`/`paramKeys` enforced through runtime failures and unit coverage.
   - Executable compat fixtures now include deterministic cross-plugin invoke fuzz conformance (32 generated chain cases across curated profiles with mixed `invoke` + `invokeByName` branch routing).
   - Reload flow now tracks plugin source paths so JSON-backed fixture plugins rehydrate commands on `reloadPlugin`.
+    - Curated compat fixture scenarios now cover richer menu-stack, codex/content, library-dashboard, save-data, menu-presentation, and presentation-family routing behavior, menu-stack/codex/content/library-dashboard/save-data/menu-presentation/presentation survival across plugin reload, and dependent command recovery after unloading and reloading shared core fixtures.
+    - Native-first planning handoff is now seeded with an ownership-matrix input table derived from the strongest routed compat anchors, expanded with first-pass Message/Text and Save/Data rows, so UI/Menu, Message/Text, and Save/Data ownership work can start from verified lifecycle or API-surface evidence.
+    - The first native-first subsystem spec draft now exists for UI/Menu Core (`docs/UI_MENU_CORE_NATIVE_SPEC.md`) and is ready to drive the next subsystem-spec pass.
   - Command failure diagnostics now route missing-command/full-name parse failures through `PluginManager::setErrorHandler` for deterministic capture.
   - Plugin failure-path diagnostics are now exportable as structured JSONL artifacts (`exportFailureDiagnosticsJsonl` / `clearFailureDiagnostics`) with deterministic sequence IDs and operation tags.
   - Plugin failure diagnostics JSONL now include explicit compat severity tags (`WARN`, `SOFT_FAIL`, `HARD_FAIL`, `CRASH_PREVENTED`) for downstream report classification.
@@ -185,6 +190,7 @@ This section tracks what has been implemented in code so this blueprint doubles 
   - Weekly combined conformance regression now executes dependency-gating checks across all 10 curated fixtures plus mixed malformed payload/eval/runtime/full-name-parse failure chains (including fixture-open/fixture-name/duplicate-load failures, `load_plugin_name` + `load_plugin_register_command` + `load_plugin_register_script_fn` + `load_plugin_quickjs_context` failures, parameter-parse failures, deterministic directory-scan iterator/entry-status failures (`load_plugins_directory_scan` / `load_plugins_directory_scan_entry`), malformed command metadata failures (`dropContextBeforeCall`/`entry`/`description` type validation), malformed fixture metadata shape failures (`dependencies`/`parameters`/`commands` type validation plus dependency-entry string enforcement), nested `all`/`any` runtime branch failures, `invoke`/`invokeByName` command-chain runtime failures, deterministic post-load context-drop coverage for `execute_command_quickjs_context_missing`, strict script-shape runtime failures, and malformed command-shape/name load failures) in one diagnostics pass, including compat report model/panel ingestion + export projection checks.
   - Compat report model now ingests PluginManager JSONL failure artifacts for event timeline/error summary wiring (`ingestPluginFailureDiagnosticsJsonl`).
   - Compat report ingestion now maps PluginManager compat severity tags into timeline severity (`WARNING`/`ERROR`/`CRITICAL`) for more accurate diagnostics projection.
+    - Compat report model unit coverage now directly verifies severity mapping for `WARN`, `SOFT_FAIL`, `HARD_FAIL`, and `CRASH_PREVENTED` diagnostics tags, and compat failure suites now assert routed lifecycle unload failures through JSONL, report-model ingestion, export, and panel refresh, including in the combined weekly regression.
   - Compat report panel runtime refresh now consumes and clears PluginManager diagnostics artifacts each update cycle (`CompatReportPanel::refresh`/`update`).
   - Compat report diagnostics model hardening: per-method warning/error flags now update correctly when compat status transitions over time, and call-count sorting now uses total aggregated calls (including unsupported operations).
   - Compat report panel now records bounded per-plugin session score history plus first-seen/last-updated timestamps, and `LAST_UPDATED` sorting projects human-readable recency labels instead of placeholders.
@@ -219,11 +225,11 @@ This section tracks what has been implemented in code so this blueprint doubles 
 - Integration tests: 1 file (`test_integration_runtime_recovery.cpp`).
 - Snapshot tests: 1 file (`test_snapshot_canonical_outputs.cpp`).
 - Compat tests: 4 files (`test_compat_authority_suite.cpp`, `test_compat_window_plugin_profiles.cpp`, `test_compat_plugin_fixtures.cpp`, `test_compat_plugin_failure_diagnostics.cpp`).
-- Release validation snapshot (2026-03-05):
-  - `urpg_tests`: 3447 assertions / 237 test cases
+- Debug validation snapshot (2026-04-14):
+    - `urpg_tests`: 3497 assertions / 238 test cases
   - `urpg_integration_tests`: 10 assertions / 2 test cases
   - `urpg_snapshot_tests`: 4 assertions / 2 test cases
-  - `urpg_compat_tests`: 1985 assertions / 24 test cases
+    - `urpg_compat_tests`: 2598 assertions / 37 test cases
 
 - CLI tools:
   - `urpg_migrate` - migration runner CLI (`tools/migrate/migrate_cli.cpp`)
@@ -263,8 +269,10 @@ The following table maps documentation contracts to their actual source implemen
 
 ### Next Execution Lanes
 
-1. Phase 2 validation hardening: run deeper executable conformance/failure-path diagnostics across curated 10-plugin profiles and gate compat regressions.
-2. Phase 3 Copilot + Polish: Producer Copilot canon-aware generation, cutscene timeline editor, full debugger profiler.
+1. Phase 2 validation hardening: expand curated multi-plugin behavior and lifecycle conformance across the 10-profile corpus, using the menu-stack reload, codex reload, library-dashboard reload, save-data reload, menu-presentation reload, presentation-family reload, and dependency-recovery scenarios as anchors rather than the endpoint.
+2. Phase 2 diagnostics completion: keep raw JSONL artifacts, report ingestion/export, and panel severity projections in lockstep for every newly added failure mode, including routed lifecycle unload cases now exercised by the weekly regression, until compat is trustworthy enough to exit.
+3. Native-first planning handoff: extend the seeded ownership matrix, build on the initial UI/Menu Core spec draft, and then produce the remaining first-wave subsystem specs for Message/Text, Battle, and Save/Data.
+4. Phase 3 Copilot + Polish: Producer Copilot canon-aware generation, cutscene timeline editor, full debugger profiler.
 
 ## 0 — Core Philosophy
 

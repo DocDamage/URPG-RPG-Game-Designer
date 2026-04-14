@@ -1,3 +1,4 @@
+#include "runtimes/compat_js/data_manager.h"
 #include "runtimes/compat_js/plugin_manager.h"
 
 #include <catch2/catch_test_macros.hpp>
@@ -15,6 +16,7 @@ namespace {
 
 using urpg::Object;
 using urpg::Value;
+using urpg::compat::DataManager;
 using urpg::compat::PluginManager;
 
 struct FixtureSpec {
@@ -455,6 +457,1536 @@ TEST_CASE("Compat fixtures: fixture script DSL supports invoke command chaining 
     std::error_code ec;
     std::filesystem::remove(invokeFixture, ec);
 }
+
+TEST_CASE("Compat fixtures: nested invokeByName resolver flows support deeper mixed branches",
+                    "[compat][fixtures]") {
+        PluginManager& pm = PluginManager::instance();
+        pm.unloadAllPlugins();
+        pm.clearFailureDiagnostics();
+
+        REQUIRE(pm.loadPlugin(fixturePath("VisuStella_CoreEngine_MZ").string()));
+        REQUIRE(pm.loadPlugin(fixturePath("VisuStella_MainMenuCore_MZ").string()));
+
+        const auto nestedFixture = uniqueTempFixturePath("urpg_dsl_nested_invoke_by_name_fixture");
+        writeTextFile(
+                nestedFixture,
+                R"({
+    "name": "DslNestedInvokeByNameFixture",
+    "parameters": {
+        "defaultRoute": "menu"
+    },
+    "commands": [
+        {
+            "name": "route",
+            "script": [
+                {
+                    "op": "if",
+                    "condition": {
+                        "from": "equals",
+                        "left": {
+                            "from": "coalesce",
+                            "values": [
+                                {"from": "arg", "index": 0},
+                                {"from": "param", "name": "defaultRoute"}
+                            ]
+                        },
+                        "right": "menu"
+                    },
+                    "then": [
+                        {
+                            "op": "if",
+                            "condition": {
+                                "from": "equals",
+                                "left": {"from": "arg", "index": 1, "default": "primary"},
+                                "right": "primary"
+                            },
+                            "then": [
+                                {
+                                    "op": "invokeByName",
+                                    "name": {"from": "concat", "parts": ["VisuStella_MainMenuCore_MZ", "_openMenu"]},
+                                    "store": "selected",
+                                    "expect": "non_nil"
+                                }
+                            ],
+                            "else": [
+                                {
+                                    "op": "invokeByName",
+                                    "name": {
+                                        "from": "coalesce",
+                                        "values": [
+                                            {"from": "local", "name": "missingName"},
+                                            {"from": "concat", "parts": ["VisuStella_CoreEngine_MZ", "_boot"]}
+                                        ]
+                                    },
+                                    "store": "selected",
+                                    "expect": "non_nil"
+                                }
+                            ]
+                        }
+                    ],
+                    "else": [
+                        {
+                            "op": "if",
+                            "condition": {
+                                "from": "equals",
+                                "left": {"from": "arg", "index": 1, "default": "menu"},
+                                "right": "menu"
+                            },
+                            "then": [
+                                {
+                                    "op": "invokeByName",
+                                    "name": {"from": "concat", "parts": ["VisuStella_MainMenuCore_MZ", "_openMenu"]},
+                                    "store": "selected",
+                                    "expect": "non_nil"
+                                }
+                            ],
+                            "else": [
+                                {
+                                    "op": "invokeByName",
+                                    "name": {
+                                        "from": "coalesce",
+                                        "values": [
+                                            {"from": "local", "name": "missingName"},
+                                            {"from": "concat", "parts": ["VisuStella_CoreEngine_MZ", "_boot"]}
+                                        ]
+                                    },
+                                    "store": "selected",
+                                    "expect": "non_nil"
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "op": "set",
+                    "key": "decision",
+                    "value": {
+                        "from": "concat",
+                        "parts": [
+                            {
+                                "from": "coalesce",
+                                "values": [
+                                    {"from": "arg", "index": 0},
+                                    {"from": "param", "name": "defaultRoute"}
+                                ]
+                            },
+                            "/",
+                            {"from": "arg", "index": 1, "default": "primary"}
+                        ]
+                    }
+                },
+                {"op": "returnObject"}
+            ]
+        }
+    ]
+})"
+        );
+
+        REQUIRE(pm.loadPlugin(nestedFixture.string()));
+
+        const Value defaultRouteResult = pm.executeCommand("DslNestedInvokeByNameFixture", "route", {});
+        REQUIRE(std::holds_alternative<Object>(defaultRouteResult.v));
+        const auto& defaultRouteObject = std::get<Object>(defaultRouteResult.v);
+        REQUIRE(std::holds_alternative<Object>(defaultRouteObject.at("selected").v));
+        REQUIRE(
+                std::get<std::string>(std::get<Object>(defaultRouteObject.at("selected").v).at("plugin").v) ==
+                "VisuStella_MainMenuCore_MZ"
+        );
+        REQUIRE(std::get<std::string>(defaultRouteObject.at("decision").v) == "menu/primary");
+
+        Value thenElseArg0;
+        thenElseArg0.v = std::string("menu");
+        Value thenElseArg1;
+        thenElseArg1.v = std::string("secondary");
+        const Value thenElseResult =
+                pm.executeCommand("DslNestedInvokeByNameFixture", "route", {thenElseArg0, thenElseArg1});
+        REQUIRE(std::holds_alternative<Object>(thenElseResult.v));
+        const auto& thenElseObject = std::get<Object>(thenElseResult.v);
+        REQUIRE(std::holds_alternative<Object>(thenElseObject.at("selected").v));
+        REQUIRE(
+                std::get<std::string>(std::get<Object>(thenElseObject.at("selected").v).at("plugin").v) ==
+                "VisuStella_CoreEngine_MZ"
+        );
+        REQUIRE(std::get<std::string>(thenElseObject.at("decision").v) == "menu/secondary");
+
+        Value elseThenArg0;
+        elseThenArg0.v = std::string("fallback");
+        Value elseThenArg1;
+        elseThenArg1.v = std::string("menu");
+        const Value elseThenResult =
+                pm.executeCommand("DslNestedInvokeByNameFixture", "route", {elseThenArg0, elseThenArg1});
+        REQUIRE(std::holds_alternative<Object>(elseThenResult.v));
+        const auto& elseThenObject = std::get<Object>(elseThenResult.v);
+        REQUIRE(std::holds_alternative<Object>(elseThenObject.at("selected").v));
+        REQUIRE(
+                std::get<std::string>(std::get<Object>(elseThenObject.at("selected").v).at("plugin").v) ==
+                "VisuStella_MainMenuCore_MZ"
+        );
+        REQUIRE(std::get<std::string>(elseThenObject.at("decision").v) == "fallback/menu");
+
+        REQUIRE(pm.exportFailureDiagnosticsJsonl().empty());
+
+        pm.clearFailureDiagnostics();
+        pm.unloadAllPlugins();
+
+        std::error_code ec;
+        std::filesystem::remove(nestedFixture, ec);
+}
+
+TEST_CASE("Compat fixtures: nested invoke resolver flows support deeper mixed branches",
+                    "[compat][fixtures]") {
+        PluginManager& pm = PluginManager::instance();
+        pm.unloadAllPlugins();
+        pm.clearFailureDiagnostics();
+
+        REQUIRE(pm.loadPlugin(fixturePath("VisuStella_CoreEngine_MZ").string()));
+        REQUIRE(pm.loadPlugin(fixturePath("VisuStella_MainMenuCore_MZ").string()));
+
+        const auto nestedFixture = uniqueTempFixturePath("urpg_dsl_nested_invoke_fixture");
+        writeTextFile(
+                nestedFixture,
+                R"({
+    "name": "DslNestedInvokeFixture",
+    "parameters": {
+        "defaultPlugin": "VisuStella_MainMenuCore_MZ",
+        "defaultCommand": "openMenu"
+    },
+    "commands": [
+        {
+            "name": "route",
+            "script": [
+                {
+                    "op": "if",
+                    "condition": {
+                        "from": "equals",
+                        "left": {"from": "arg", "index": 0, "default": "menu"},
+                        "right": "menu"
+                    },
+                    "then": [
+                        {
+                            "op": "if",
+                            "condition": {
+                                "from": "equals",
+                                "left": {"from": "arg", "index": 1, "default": "primary"},
+                                "right": "primary"
+                            },
+                            "then": [
+                                {
+                                    "op": "invoke",
+                                    "plugin": {"from": "coalesce", "values": [{"from": "local", "name": "missingPlugin", "default": null}, {"from": "param", "name": "defaultPlugin"}]},
+                                    "command": {"from": "coalesce", "values": [{"from": "local", "name": "missingCommand", "default": null}, {"from": "param", "name": "defaultCommand"}]},
+                                    "store": "selected",
+                                    "expect": "non_nil"
+                                }
+                            ],
+                            "else": [
+                                {
+                                    "op": "invoke",
+                                    "plugin": {"from": "concat", "parts": ["VisuStella_CoreEngine", "_MZ"]},
+                                    "command": {"from": "concat", "parts": ["bo", "ot"]},
+                                    "store": "selected",
+                                    "expect": "non_nil"
+                                }
+                            ]
+                        }
+                    ],
+                    "else": [
+                        {
+                            "op": "if",
+                            "condition": {
+                                "from": "equals",
+                                "left": {"from": "arg", "index": 1, "default": "menu"},
+                                "right": "menu"
+                            },
+                            "then": [
+                                {
+                                    "op": "invoke",
+                                    "plugin": {"from": "coalesce", "values": [{"from": "param", "name": "defaultPlugin"}]},
+                                    "command": {"from": "coalesce", "values": [{"from": "param", "name": "defaultCommand"}]},
+                                    "store": "selected",
+                                    "expect": "non_nil"
+                                }
+                            ],
+                            "else": [
+                                {
+                                    "op": "invoke",
+                                    "plugin": {"from": "concat", "parts": ["VisuStella_CoreEngine", "_MZ"]},
+                                    "command": {"from": "concat", "parts": ["bo", "ot"]},
+                                    "store": "selected",
+                                    "expect": "non_nil"
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "op": "set",
+                    "key": "decision",
+                    "value": {
+                        "from": "concat",
+                        "parts": [
+                            {"from": "arg", "index": 0, "default": "menu"},
+                            "/",
+                            {"from": "arg", "index": 1, "default": "primary"}
+                        ]
+                    }
+                },
+                {"op": "returnObject"}
+            ]
+        }
+    ]
+})"
+        );
+
+        REQUIRE(pm.loadPlugin(nestedFixture.string()));
+
+        const Value defaultRouteResult = pm.executeCommand("DslNestedInvokeFixture", "route", {});
+        REQUIRE(std::holds_alternative<Object>(defaultRouteResult.v));
+        const auto& defaultRouteObject = std::get<Object>(defaultRouteResult.v);
+        REQUIRE(std::holds_alternative<Object>(defaultRouteObject.at("selected").v));
+        REQUIRE(
+                std::get<std::string>(std::get<Object>(defaultRouteObject.at("selected").v).at("plugin").v) ==
+                "VisuStella_MainMenuCore_MZ"
+        );
+        REQUIRE(std::get<std::string>(defaultRouteObject.at("decision").v) == "menu/primary");
+
+        Value thenElseArg0;
+        thenElseArg0.v = std::string("menu");
+        Value thenElseArg1;
+        thenElseArg1.v = std::string("secondary");
+        const Value thenElseResult =
+                pm.executeCommand("DslNestedInvokeFixture", "route", {thenElseArg0, thenElseArg1});
+        REQUIRE(std::holds_alternative<Object>(thenElseResult.v));
+        const auto& thenElseObject = std::get<Object>(thenElseResult.v);
+        REQUIRE(std::holds_alternative<Object>(thenElseObject.at("selected").v));
+        REQUIRE(
+                std::get<std::string>(std::get<Object>(thenElseObject.at("selected").v).at("plugin").v) ==
+                "VisuStella_CoreEngine_MZ"
+        );
+        REQUIRE(std::get<std::string>(thenElseObject.at("decision").v) == "menu/secondary");
+
+        Value elseThenArg0;
+        elseThenArg0.v = std::string("fallback");
+        Value elseThenArg1;
+        elseThenArg1.v = std::string("menu");
+        const Value elseThenResult =
+                pm.executeCommand("DslNestedInvokeFixture", "route", {elseThenArg0, elseThenArg1});
+        REQUIRE(std::holds_alternative<Object>(elseThenResult.v));
+        const auto& elseThenObject = std::get<Object>(elseThenResult.v);
+        REQUIRE(std::holds_alternative<Object>(elseThenObject.at("selected").v));
+        REQUIRE(
+                std::get<std::string>(std::get<Object>(elseThenObject.at("selected").v).at("plugin").v) ==
+                "VisuStella_MainMenuCore_MZ"
+        );
+        REQUIRE(std::get<std::string>(elseThenObject.at("decision").v) == "fallback/menu");
+
+        REQUIRE(pm.exportFailureDiagnosticsJsonl().empty());
+
+        pm.clearFailureDiagnostics();
+        pm.unloadAllPlugins();
+
+        std::error_code ec;
+        std::filesystem::remove(nestedFixture, ec);
+}
+
+TEST_CASE("Compat fixtures: fixture script DSL supports rich invoke expectations",
+                    "[compat][fixtures]") {
+        PluginManager& pm = PluginManager::instance();
+        pm.unloadAllPlugins();
+        pm.clearFailureDiagnostics();
+
+        REQUIRE(pm.loadPlugin(fixturePath("VisuStella_CoreEngine_MZ").string()));
+        REQUIRE(pm.loadPlugin(fixturePath("MOG_BattleHud_MZ").string()));
+
+        const auto expectFixture = uniqueTempFixturePath("urpg_dsl_expect_fixture");
+        writeTextFile(
+                expectFixture,
+                R"({
+    "name": "DslExpectFixture",
+    "commands": [
+        {
+            "name": "emitNil",
+            "result": null
+        },
+        {
+            "name": "chain",
+            "script": [
+                {
+                    "op": "invoke",
+                    "plugin": "VisuStella_CoreEngine_MZ",
+                    "command": "boot",
+                    "store": "coreBoot",
+                    "expect": {
+                        "equals": {
+                            "plugin": "VisuStella_CoreEngine_MZ",
+                            "command": "boot",
+                            "profile": "core",
+                            "argCount": 0,
+                            "firstArg": "none",
+                            "hasProfileParam": true,
+                            "argsEcho": [],
+                            "paramKeys": ["profile", "supportsWindowBase"]
+                        }
+                    }
+                },
+                {
+                    "op": "invoke",
+                    "plugin": "VisuStella_CoreEngine_MZ",
+                    "command": "countArgs",
+                    "args": [1, 2],
+                    "store": "argCount",
+                    "expect": {"equals": 2}
+                },
+                {
+                    "op": "invoke",
+                    "plugin": "MOG_BattleHud_MZ",
+                    "command": "hudEnabledViaJs",
+                    "store": "hudEnabled",
+                    "expect": "truthy"
+                },
+                {
+                    "op": "invoke",
+                    "command": "emitNil",
+                    "store": "nilValue",
+                    "expect": "nil"
+                },
+                {"op": "returnObject"}
+            ]
+        }
+    ]
+})"
+        );
+
+        REQUIRE(pm.loadPlugin(expectFixture.string()));
+
+        const Value result = pm.executeCommand("DslExpectFixture", "chain", {});
+        REQUIRE(std::holds_alternative<Object>(result.v));
+        const auto& object = std::get<Object>(result.v);
+
+        expectScriptResult(object.at("coreBoot"), fixtureSpecs().front(), 0, "none");
+        REQUIRE(std::holds_alternative<int64_t>(object.at("argCount").v));
+        REQUIRE(std::get<int64_t>(object.at("argCount").v) == 2);
+        REQUIRE(std::holds_alternative<bool>(object.at("hudEnabled").v));
+        REQUIRE(std::get<bool>(object.at("hudEnabled").v));
+        REQUIRE(std::holds_alternative<std::monostate>(object.at("nilValue").v));
+
+        REQUIRE(pm.exportFailureDiagnosticsJsonl().empty());
+
+        pm.clearFailureDiagnostics();
+        pm.unloadAllPlugins();
+
+        std::error_code ec;
+        std::filesystem::remove(expectFixture, ec);
+}
+
+TEST_CASE("Compat fixtures: curated menu-stack scenarios preserve plugin-specific behavior",
+                    "[compat][fixtures]") {
+        PluginManager& pm = PluginManager::instance();
+        pm.unloadAllPlugins();
+        pm.clearFailureDiagnostics();
+
+        REQUIRE(pm.loadPlugin(fixturePath("VisuStella_CoreEngine_MZ").string()));
+        REQUIRE(pm.loadPlugin(fixturePath("VisuStella_MainMenuCore_MZ").string()));
+        REQUIRE(pm.loadPlugin(fixturePath("VisuStella_OptionsCore_MZ").string()));
+        REQUIRE(pm.loadPlugin(fixturePath("CGMZ_MenuCommandWindow").string()));
+        REQUIRE(pm.loadPlugin(fixturePath("AltMenuScreen_MZ").string()));
+        REQUIRE(pm.loadPlugin(fixturePath("MOG_BattleHud_MZ").string()));
+
+        const auto scenarioFixture = uniqueTempFixturePath("urpg_curated_menu_stack_fixture");
+        writeTextFile(
+                scenarioFixture,
+                R"({
+    "name": "CuratedMenuScenarioFixture",
+    "parameters": {
+        "defaultRoute": "options"
+    },
+    "commands": [
+        {
+            "name": "run",
+            "script": [
+                {"op": "invoke", "plugin": "VisuStella_CoreEngine_MZ", "command": "boot", "args": [{"from": "arg", "index": 0, "default": "menu_boot"}], "store": "boot", "expect": "non_nil"},
+                {"op": "invokeByName", "name": "VisuStella_MainMenuCore_MZ_openMenu", "store": "menu", "expect": "non_nil"},
+                {"op": "set", "key": "route", "value": {"from": "coalesce", "values": [{"from": "arg", "index": 1}, {"from": "param", "name": "defaultRoute"}]}} ,
+                {"op": "if", "condition": {"from": "equals", "left": {"from": "local", "name": "route"}, "right": "options"},
+                    "then": [
+                        {"op": "invoke", "plugin": "VisuStella_OptionsCore_MZ", "command": "openOptions", "store": "routeResult", "expect": "non_nil"},
+                        {"op": "invoke", "plugin": "CGMZ_MenuCommandWindow", "command": "refresh", "store": "supportResult", "expect": "non_nil"},
+                        {"op": "invoke", "plugin": "VisuStella_OptionsCore_MZ", "command": "optionsConstViaJs", "store": "routeToken", "expect": {"equals": "options_runtime_token"}}
+                    ],
+                    "else": [
+                        {"op": "if", "condition": {"from": "equals", "left": {"from": "local", "name": "route"}, "right": "layout"},
+                            "then": [
+                                {"op": "invoke", "plugin": "AltMenuScreen_MZ", "command": "applyLayout", "store": "routeResult", "expect": "non_nil"},
+                                {"op": "invoke", "plugin": "CGMZ_MenuCommandWindow", "command": "refresh", "store": "supportResult", "expect": "non_nil"},
+                                {"op": "invoke", "plugin": "AltMenuScreen_MZ", "command": "layoutColumnsViaJs", "store": "routeToken", "expect": {"equals": 2}}
+                            ],
+                            "else": [
+                                {"op": "invoke", "plugin": "MOG_BattleHud_MZ", "command": "showHud", "store": "routeResult", "expect": "non_nil"},
+                                {"op": "invoke", "plugin": "CGMZ_MenuCommandWindow", "command": "refresh", "store": "supportResult", "expect": "non_nil"},
+                                {"op": "invoke", "plugin": "MOG_BattleHud_MZ", "command": "hudEnabledViaJs", "store": "routeToken", "expect": "truthy"}
+                            ]
+                        }
+                    ]
+                },
+                {"op": "set", "key": "summary", "value": {"from": "concat", "parts": [
+                    {"from": "local", "name": "route"},
+                    ":",
+                    {"from": "param", "name": "defaultRoute"},
+                    ":",
+                    {"from": "local", "name": "routeToken"}
+                ]}},
+                {"op": "returnObject"}
+            ]
+        }
+    ]
+})"
+        );
+
+        REQUIRE(pm.loadPlugin(scenarioFixture.string()));
+
+        const Value defaultResult = pm.executeCommand("CuratedMenuScenarioFixture", "run", {});
+        REQUIRE(std::holds_alternative<Object>(defaultResult.v));
+        const auto& defaultObject = std::get<Object>(defaultResult.v);
+        REQUIRE(std::get<std::string>(std::get<Object>(defaultObject.at("boot").v).at("plugin").v) ==
+                        "VisuStella_CoreEngine_MZ");
+        REQUIRE(std::get<std::string>(std::get<Object>(defaultObject.at("menu").v).at("profile").v) ==
+                        "menu_core");
+        REQUIRE(std::get<std::string>(defaultObject.at("route").v) == "options");
+        REQUIRE(std::get<std::string>(std::get<Object>(defaultObject.at("routeResult").v).at("profile").v) ==
+                        "options_core");
+        REQUIRE(std::get<int64_t>(std::get<Object>(defaultObject.at("supportResult").v).at("visibleRows").v) == 8);
+        REQUIRE(std::get<std::string>(defaultObject.at("routeToken").v) == "options_runtime_token");
+        REQUIRE(std::get<std::string>(defaultObject.at("summary").v) == "options:options:options_runtime_token");
+
+        Value layoutSeed;
+        layoutSeed.v = std::string("layout_boot");
+        Value layoutRoute;
+        layoutRoute.v = std::string("layout");
+        const Value layoutResult = pm.executeCommand(
+                "CuratedMenuScenarioFixture",
+                "run",
+                {layoutSeed, layoutRoute}
+        );
+        REQUIRE(std::holds_alternative<Object>(layoutResult.v));
+        const auto& layoutObject = std::get<Object>(layoutResult.v);
+        REQUIRE(std::get<std::string>(std::get<Object>(layoutObject.at("boot").v).at("firstArg").v) ==
+                        "layout_boot");
+        REQUIRE(std::get<std::string>(layoutObject.at("route").v) == "layout");
+        REQUIRE(std::get<std::string>(std::get<Object>(layoutObject.at("routeResult").v).at("layout").v) ==
+                        "horizontal");
+        REQUIRE(std::get<int64_t>(layoutObject.at("routeToken").v) == 2);
+        REQUIRE(std::get<std::string>(layoutObject.at("summary").v) == "layout:options:2");
+
+        Value battleSeed;
+        battleSeed.v = std::string("battle_boot");
+        Value battleRoute;
+        battleRoute.v = std::string("battle");
+        const Value battleResult = pm.executeCommand(
+                "CuratedMenuScenarioFixture",
+                "run",
+                {battleSeed, battleRoute}
+        );
+        REQUIRE(std::holds_alternative<Object>(battleResult.v));
+        const auto& battleObject = std::get<Object>(battleResult.v);
+        REQUIRE(std::get<std::string>(battleObject.at("route").v) == "battle");
+        REQUIRE(std::get<std::string>(std::get<Object>(battleObject.at("routeResult").v).at("profile").v) ==
+                        "battle_hud");
+        REQUIRE(std::get<int64_t>(std::get<Object>(battleObject.at("routeResult").v).at("hudSlots").v) == 4);
+        REQUIRE(std::get<bool>(battleObject.at("routeToken").v));
+        REQUIRE(std::get<std::string>(battleObject.at("summary").v) == "battle:options:true");
+
+        REQUIRE(pm.exportFailureDiagnosticsJsonl().empty());
+
+        pm.clearFailureDiagnostics();
+        pm.unloadAllPlugins();
+
+        std::error_code ec;
+        std::filesystem::remove(scenarioFixture, ec);
+}
+
+TEST_CASE("Compat fixtures: curated codex scenarios preserve content-plugin behavior",
+                    "[compat][fixtures]") {
+        PluginManager& pm = PluginManager::instance();
+        pm.unloadAllPlugins();
+        pm.clearFailureDiagnostics();
+
+        REQUIRE(pm.loadPlugin(fixturePath("VisuStella_CoreEngine_MZ").string()));
+        REQUIRE(pm.loadPlugin(fixturePath("CGMZ_Encyclopedia").string()));
+        REQUIRE(pm.loadPlugin(fixturePath("EliMZ_Book").string()));
+        REQUIRE(pm.loadPlugin(fixturePath("Galv_QuestLog_MZ").string()));
+
+        const auto scenarioFixture = uniqueTempFixturePath("urpg_curated_codex_fixture");
+        writeTextFile(
+                scenarioFixture,
+                R"({
+    "name": "CuratedCodexScenarioFixture",
+    "parameters": {
+        "defaultTopic": "quests"
+    },
+    "commands": [
+        {
+            "name": "explore",
+            "script": [
+                {"op": "invoke", "plugin": "VisuStella_CoreEngine_MZ", "command": "boot", "args": [{"from": "arg", "index": 0, "default": "codex_boot"}], "store": "boot", "expect": "non_nil"},
+                {"op": "set", "key": "topic", "value": {"from": "coalesce", "values": [{"from": "arg", "index": 1}, {"from": "param", "name": "defaultTopic"}]}} ,
+                {"op": "if", "condition": {"from": "equals", "left": {"from": "local", "name": "topic"}, "right": "encyclopedia"},
+                    "then": [
+                        {"op": "invoke", "plugin": "CGMZ_Encyclopedia", "command": "openCategory", "args": [{"from": "arg", "index": 2, "default": "bestiary"}], "store": "topicResult", "expect": "non_nil"},
+                        {"op": "invoke", "plugin": "CGMZ_Encyclopedia", "command": "categoryArgViaJs", "args": [{"from": "arg", "index": 2, "default": 5}], "store": "topicToken", "expect": {"equals": {"from": "arg", "index": 2, "default": 5}}}
+                    ],
+                    "else": [
+                        {"op": "if", "condition": {"from": "equals", "left": {"from": "local", "name": "topic"}, "right": "book"},
+                            "then": [
+                                {"op": "invokeByName", "name": "EliMZ_Book_openBook", "args": [{"from": "arg", "index": 2, "default": 12}], "store": "topicResult", "expect": "non_nil"},
+                                {"op": "invokeByName", "name": "EliMZ_Book_pageArgViaJs", "args": [{"from": "arg", "index": 2, "default": 12}], "store": "topicToken", "expect": {"equals": {"from": "arg", "index": 2, "default": 12}}}
+                            ],
+                            "else": [
+                                {"op": "invoke", "plugin": "Galv_QuestLog_MZ", "command": "openQuestLog", "args": [{"from": "arg", "index": 2, "default": 1}, {"from": "arg", "index": 3, "default": 77}], "store": "topicResult", "expect": "non_nil"},
+                                {"op": "invoke", "plugin": "Galv_QuestLog_MZ", "command": "questArgViaJs", "args": [{"from": "arg", "index": 2, "default": 1}, {"from": "arg", "index": 3, "default": 77}], "store": "topicToken", "expect": {"equals": {"from": "arg", "index": 3, "default": 77}}}
+                            ]
+                        }
+                    ]
+                },
+                {"op": "set", "key": "summary", "value": {"from": "concat", "parts": [
+                    {"from": "local", "name": "topic"},
+                    ":",
+                    {"from": "local", "name": "topicToken"},
+                    ":",
+                    {"from": "local", "name": "topic"}
+                ]}},
+                {"op": "returnObject"}
+            ]
+        }
+    ]
+})"
+        );
+
+        REQUIRE(pm.loadPlugin(scenarioFixture.string()));
+
+        const Value defaultResult = pm.executeCommand("CuratedCodexScenarioFixture", "explore", {});
+        REQUIRE(std::holds_alternative<Object>(defaultResult.v));
+        const auto& defaultObject = std::get<Object>(defaultResult.v);
+        REQUIRE(std::get<std::string>(defaultObject.at("topic").v) == "quests");
+        REQUIRE(std::get<std::string>(std::get<Object>(defaultObject.at("topicResult").v).at("profile").v) ==
+                        "quest_log");
+        REQUIRE(std::get<int64_t>(std::get<Object>(defaultObject.at("topicResult").v).at("questCount").v) == 10);
+        REQUIRE(std::get<int64_t>(defaultObject.at("topicToken").v) == 77);
+        REQUIRE(std::get<std::string>(defaultObject.at("summary").v) == "quests:77:quests");
+
+        Value encyclTopic;
+        encyclTopic.v = std::string("ency_boot");
+        Value encyclRoute;
+        encyclRoute.v = std::string("encyclopedia");
+        Value encyclCategory;
+        encyclCategory.v = std::string("bestiary");
+        const Value encyclopediaResult = pm.executeCommand(
+                "CuratedCodexScenarioFixture",
+                "explore",
+                {encyclTopic, encyclRoute, encyclCategory}
+        );
+        REQUIRE(std::holds_alternative<Object>(encyclopediaResult.v));
+        const auto& encyclopediaObject = std::get<Object>(encyclopediaResult.v);
+        REQUIRE(std::get<std::string>(std::get<Object>(encyclopediaObject.at("boot").v).at("firstArg").v) ==
+                        "ency_boot");
+        REQUIRE(std::get<std::string>(encyclopediaObject.at("topic").v) == "encyclopedia");
+        REQUIRE(std::get<std::string>(std::get<Object>(encyclopediaObject.at("topicResult").v).at("profile").v) ==
+                        "encyclopedia");
+        REQUIRE(std::get<int64_t>(std::get<Object>(encyclopediaObject.at("topicResult").v).at("categoryCount").v) == 3);
+        REQUIRE(std::get<std::string>(encyclopediaObject.at("topicToken").v) == "bestiary");
+        REQUIRE(std::get<std::string>(encyclopediaObject.at("summary").v) == "encyclopedia:bestiary:encyclopedia");
+
+        Value bookBoot;
+        bookBoot.v = std::string("book_boot");
+        Value bookRoute;
+        bookRoute.v = std::string("book");
+        const Value bookResult = pm.executeCommand(
+                "CuratedCodexScenarioFixture",
+                "explore",
+                {bookBoot, bookRoute, Value::Int(42)}
+        );
+        REQUIRE(std::holds_alternative<Object>(bookResult.v));
+        const auto& bookObject = std::get<Object>(bookResult.v);
+        REQUIRE(std::get<std::string>(bookObject.at("topic").v) == "book");
+        REQUIRE(std::get<std::string>(std::get<Object>(bookObject.at("topicResult").v).at("profile").v) ==
+                        "book");
+        REQUIRE(std::get<int64_t>(std::get<Object>(bookObject.at("topicResult").v).at("pages").v) == 12);
+        REQUIRE(std::get<int64_t>(bookObject.at("topicToken").v) == 42);
+        REQUIRE(std::get<std::string>(bookObject.at("summary").v) == "book:42:book");
+
+        REQUIRE(pm.exportFailureDiagnosticsJsonl().empty());
+
+        pm.clearFailureDiagnostics();
+        pm.unloadAllPlugins();
+
+        std::error_code ec;
+        std::filesystem::remove(scenarioFixture, ec);
+}
+
+TEST_CASE("Compat fixtures: curated codex scenarios survive plugin reload",
+                    "[compat][fixtures]") {
+        PluginManager& pm = PluginManager::instance();
+        pm.unloadAllPlugins();
+        pm.clearFailureDiagnostics();
+
+        REQUIRE(pm.loadPlugin(fixturePath("VisuStella_CoreEngine_MZ").string()));
+        REQUIRE(pm.loadPlugin(fixturePath("CGMZ_Encyclopedia").string()));
+        REQUIRE(pm.loadPlugin(fixturePath("EliMZ_Book").string()));
+        REQUIRE(pm.loadPlugin(fixturePath("Galv_QuestLog_MZ").string()));
+
+        const auto reloadFixture = uniqueTempFixturePath("urpg_curated_codex_reload_fixture");
+        writeTextFile(
+                reloadFixture,
+                R"({
+    "name": "CuratedCodexReloadFixture",
+    "parameters": {
+        "defaultTopic": "quests"
+    },
+    "commands": [
+        {
+            "name": "explore",
+            "script": [
+                {"op": "invoke", "plugin": "VisuStella_CoreEngine_MZ", "command": "boot", "args": [{"from": "arg", "index": 0, "default": "codex_reload_boot"}], "store": "boot", "expect": "non_nil"},
+                {"op": "set", "key": "topic", "value": {"from": "coalesce", "values": [{"from": "arg", "index": 1}, {"from": "param", "name": "defaultTopic"}]}} ,
+                {"op": "if", "condition": {"from": "equals", "left": {"from": "local", "name": "topic"}, "right": "encyclopedia"},
+                    "then": [
+                        {"op": "invoke", "plugin": "CGMZ_Encyclopedia", "command": "openCategory", "args": [{"from": "arg", "index": 2, "default": "bestiary"}], "store": "topicResult", "expect": "non_nil"},
+                        {"op": "invoke", "plugin": "CGMZ_Encyclopedia", "command": "categoryArgViaJs", "args": [{"from": "arg", "index": 2, "default": "bestiary"}], "store": "topicToken", "expect": {"equals": {"from": "arg", "index": 2, "default": "bestiary"}}}
+                    ],
+                    "else": [
+                        {"op": "if", "condition": {"from": "equals", "left": {"from": "local", "name": "topic"}, "right": "book"},
+                            "then": [
+                                {"op": "invokeByName", "name": "EliMZ_Book_openBook", "args": [{"from": "arg", "index": 2, "default": 12}], "store": "topicResult", "expect": "non_nil"},
+                                {"op": "invokeByName", "name": "EliMZ_Book_pageArgViaJs", "args": [{"from": "arg", "index": 2, "default": 12}], "store": "topicToken", "expect": {"equals": {"from": "arg", "index": 2, "default": 12}}}
+                            ],
+                            "else": [
+                                {"op": "invoke", "plugin": "Galv_QuestLog_MZ", "command": "openQuestLog", "args": [{"from": "arg", "index": 2, "default": 1}, {"from": "arg", "index": 3, "default": 77}], "store": "topicResult", "expect": "non_nil"},
+                                {"op": "invoke", "plugin": "Galv_QuestLog_MZ", "command": "questArgViaJs", "args": [{"from": "arg", "index": 2, "default": 1}, {"from": "arg", "index": 3, "default": 77}], "store": "topicToken", "expect": {"equals": {"from": "arg", "index": 3, "default": 77}}}
+                            ]
+                        }
+                    ]
+                },
+                {"op": "set", "key": "summary", "value": {"from": "concat", "parts": [
+                    {"from": "local", "name": "topic"},
+                    ":",
+                    {"from": "local", "name": "topicToken"},
+                    ":",
+                    {"from": "local", "name": "topic"}
+                ]}},
+                {"op": "returnObject"}
+            ]
+        }
+    ]
+})"
+        );
+
+        REQUIRE(pm.loadPlugin(reloadFixture.string()));
+
+        auto verifyQuestRoute = [&](const Value& value, const std::string& expectedBoot) {
+                REQUIRE(std::holds_alternative<Object>(value.v));
+                const auto& object = std::get<Object>(value.v);
+                REQUIRE(std::get<std::string>(std::get<Object>(object.at("boot").v).at("firstArg").v) == expectedBoot);
+                REQUIRE(std::get<std::string>(object.at("topic").v) == "quests");
+                REQUIRE(std::get<std::string>(std::get<Object>(object.at("topicResult").v).at("profile").v) == "quest_log");
+                REQUIRE(std::get<int64_t>(std::get<Object>(object.at("topicResult").v).at("questCount").v) == 10);
+                REQUIRE(std::get<int64_t>(object.at("topicToken").v) == 77);
+                REQUIRE(std::get<std::string>(object.at("summary").v) == "quests:77:quests");
+        };
+
+        auto verifyEncyclopediaRoute = [&](const Value& value, const std::string& expectedBoot) {
+                REQUIRE(std::holds_alternative<Object>(value.v));
+                const auto& object = std::get<Object>(value.v);
+                REQUIRE(std::get<std::string>(std::get<Object>(object.at("boot").v).at("firstArg").v) == expectedBoot);
+                REQUIRE(std::get<std::string>(object.at("topic").v) == "encyclopedia");
+                REQUIRE(std::get<std::string>(std::get<Object>(object.at("topicResult").v).at("profile").v) == "encyclopedia");
+                REQUIRE(std::get<int64_t>(std::get<Object>(object.at("topicResult").v).at("categoryCount").v) == 3);
+                REQUIRE(std::get<std::string>(object.at("topicToken").v) == "bestiary");
+                REQUIRE(std::get<std::string>(object.at("summary").v) == "encyclopedia:bestiary:encyclopedia");
+        };
+
+        auto verifyBookRoute = [&](const Value& value, const std::string& expectedBoot, int64_t expectedPage) {
+                REQUIRE(std::holds_alternative<Object>(value.v));
+                const auto& object = std::get<Object>(value.v);
+                REQUIRE(std::get<std::string>(std::get<Object>(object.at("boot").v).at("firstArg").v) == expectedBoot);
+                REQUIRE(std::get<std::string>(object.at("topic").v) == "book");
+                REQUIRE(std::get<std::string>(std::get<Object>(object.at("topicResult").v).at("profile").v) == "book");
+                REQUIRE(std::get<int64_t>(std::get<Object>(object.at("topicResult").v).at("pages").v) == 12);
+                REQUIRE(std::get<int64_t>(object.at("topicToken").v) == expectedPage);
+                REQUIRE(std::get<std::string>(object.at("summary").v) == "book:" + std::to_string(expectedPage) + ":book");
+        };
+
+        Value beforeReloadBoot;
+        beforeReloadBoot.v = std::string("before_reload_codex");
+        const Value beforeReloadQuest =
+                pm.executeCommand("CuratedCodexReloadFixture", "explore", {beforeReloadBoot});
+        verifyQuestRoute(beforeReloadQuest, "before_reload_codex");
+
+        REQUIRE(pm.reloadPlugin("VisuStella_CoreEngine_MZ"));
+        REQUIRE(pm.reloadPlugin("CGMZ_Encyclopedia"));
+        REQUIRE(pm.reloadPlugin("EliMZ_Book"));
+        REQUIRE(pm.reloadPlugin("Galv_QuestLog_MZ"));
+        REQUIRE(pm.reloadPlugin("CuratedCodexReloadFixture"));
+
+        REQUIRE(pm.hasCommand("CuratedCodexReloadFixture", "explore"));
+        REQUIRE(pm.hasCommand("CGMZ_Encyclopedia", "openCategory"));
+        REQUIRE(pm.hasCommand("EliMZ_Book", "openBook"));
+        REQUIRE(pm.hasCommand("Galv_QuestLog_MZ", "openQuestLog"));
+
+        Value afterReloadQuestBoot;
+        afterReloadQuestBoot.v = std::string("after_reload_quest");
+        const Value afterReloadQuest =
+                pm.executeCommandByName("CuratedCodexReloadFixture_explore", {afterReloadQuestBoot});
+        verifyQuestRoute(afterReloadQuest, "after_reload_quest");
+
+        Value encyclBoot;
+        encyclBoot.v = std::string("after_reload_ency");
+        Value encyclRoute;
+        encyclRoute.v = std::string("encyclopedia");
+        Value encyclCategory;
+        encyclCategory.v = std::string("bestiary");
+        const Value afterReloadEncyclopedia =
+                pm.executeCommand("CuratedCodexReloadFixture", "explore", {encyclBoot, encyclRoute, encyclCategory});
+        verifyEncyclopediaRoute(afterReloadEncyclopedia, "after_reload_ency");
+
+        Value bookBoot;
+        bookBoot.v = std::string("after_reload_book");
+        Value bookRoute;
+        bookRoute.v = std::string("book");
+        const Value afterReloadBook =
+                pm.executeCommandByName("CuratedCodexReloadFixture_explore", {bookBoot, bookRoute, Value::Int(42)});
+        verifyBookRoute(afterReloadBook, "after_reload_book", 42);
+
+        REQUIRE(pm.exportFailureDiagnosticsJsonl().empty());
+
+        pm.clearFailureDiagnostics();
+        pm.unloadAllPlugins();
+
+        std::error_code ec;
+        std::filesystem::remove(reloadFixture, ec);
+}
+
+TEST_CASE("Compat fixtures: curated library-dashboard scenarios survive plugin reload",
+                    "[compat][fixtures]") {
+        PluginManager& pm = PluginManager::instance();
+        pm.unloadAllPlugins();
+        pm.clearFailureDiagnostics();
+
+        REQUIRE(pm.loadPlugin(fixturePath("VisuStella_CoreEngine_MZ").string()));
+        REQUIRE(pm.loadPlugin(fixturePath("CGMZ_MenuCommandWindow").string()));
+        REQUIRE(pm.loadPlugin(fixturePath("CGMZ_Encyclopedia").string()));
+        REQUIRE(pm.loadPlugin(fixturePath("EliMZ_Book").string()));
+        REQUIRE(pm.loadPlugin(fixturePath("Galv_QuestLog_MZ").string()));
+
+        const auto reloadFixture = uniqueTempFixturePath("urpg_curated_library_dashboard_reload_fixture");
+        writeTextFile(
+                reloadFixture,
+                R"({
+    "name": "CuratedLibraryDashboardReloadFixture",
+    "parameters": {
+        "defaultRoute": "quests"
+    },
+    "commands": [
+        {
+            "name": "open",
+            "script": [
+                {"op": "invoke", "plugin": "VisuStella_CoreEngine_MZ", "command": "boot", "args": [{"from": "arg", "index": 0, "default": "library_reload_boot"}], "store": "boot", "expect": "non_nil"},
+                {"op": "set", "key": "route", "value": {"from": "coalesce", "values": [{"from": "arg", "index": 1}, {"from": "param", "name": "defaultRoute"}]}} ,
+                {"op": "if", "condition": {"from": "equals", "left": {"from": "local", "name": "route"}, "right": "encyclopedia"},
+                    "then": [
+                        {"op": "invoke", "plugin": "CGMZ_Encyclopedia", "command": "openCategory", "args": [{"from": "arg", "index": 2, "default": "bestiary"}], "store": "routeResult", "expect": "non_nil"},
+                        {"op": "invoke", "plugin": "CGMZ_Encyclopedia", "command": "categoryArgViaJs", "args": [{"from": "arg", "index": 2, "default": "bestiary"}], "store": "routeToken", "expect": {"equals": {"from": "arg", "index": 2, "default": "bestiary"}}}
+                    ],
+                    "else": [
+                        {"op": "if", "condition": {"from": "equals", "left": {"from": "local", "name": "route"}, "right": "book"},
+                            "then": [
+                                {"op": "invokeByName", "name": "EliMZ_Book_openBook", "args": [{"from": "arg", "index": 2, "default": 12}], "store": "routeResult", "expect": "non_nil"},
+                                {"op": "invokeByName", "name": "EliMZ_Book_pageArgViaJs", "args": [{"from": "arg", "index": 2, "default": 12}], "store": "routeToken", "expect": {"equals": {"from": "arg", "index": 2, "default": 12}}}
+                            ],
+                            "else": [
+                                {"op": "invoke", "plugin": "Galv_QuestLog_MZ", "command": "openQuestLog", "args": [{"from": "arg", "index": 2, "default": 1}, {"from": "arg", "index": 3, "default": 77}], "store": "routeResult", "expect": "non_nil"},
+                                {"op": "invoke", "plugin": "Galv_QuestLog_MZ", "command": "questArgViaJs", "args": [{"from": "arg", "index": 2, "default": 1}, {"from": "arg", "index": 3, "default": 77}], "store": "routeToken", "expect": {"equals": {"from": "arg", "index": 3, "default": 77}}}
+                            ]
+                        }
+                    ]
+                },
+                {"op": "invoke", "plugin": "CGMZ_MenuCommandWindow", "command": "refresh", "store": "dashboard", "expect": "non_nil"},
+                {"op": "returnObject"}
+            ]
+        }
+    ]
+})"
+        );
+
+        REQUIRE(pm.loadPlugin(reloadFixture.string()));
+
+        auto verifyQuestRoute = [&](const Value& value, const std::string& expectedBoot) {
+                REQUIRE(std::holds_alternative<Object>(value.v));
+                const auto& object = std::get<Object>(value.v);
+                REQUIRE(std::get<std::string>(std::get<Object>(object.at("boot").v).at("firstArg").v) == expectedBoot);
+                REQUIRE(std::get<std::string>(object.at("route").v) == "quests");
+                REQUIRE(std::get<std::string>(std::get<Object>(object.at("routeResult").v).at("profile").v) == "quest_log");
+                REQUIRE(std::get<int64_t>(object.at("routeToken").v) == 77);
+                REQUIRE(std::get<std::string>(std::get<Object>(object.at("dashboard").v).at("profile").v) == "command_window");
+                REQUIRE(std::get<int64_t>(std::get<Object>(object.at("dashboard").v).at("visibleRows").v) == 8);
+        };
+
+        auto verifyEncyclopediaRoute = [&](const Value& value, const std::string& expectedBoot) {
+                REQUIRE(std::holds_alternative<Object>(value.v));
+                const auto& object = std::get<Object>(value.v);
+                REQUIRE(std::get<std::string>(std::get<Object>(object.at("boot").v).at("firstArg").v) == expectedBoot);
+                REQUIRE(std::get<std::string>(object.at("route").v) == "encyclopedia");
+                REQUIRE(std::get<std::string>(std::get<Object>(object.at("routeResult").v).at("profile").v) == "encyclopedia");
+                REQUIRE(std::get<std::string>(object.at("routeToken").v) == "bestiary");
+                REQUIRE(std::get<std::string>(std::get<Object>(object.at("dashboard").v).at("profile").v) == "command_window");
+        };
+
+        auto verifyBookRoute = [&](const Value& value, const std::string& expectedBoot, int64_t expectedPage) {
+                REQUIRE(std::holds_alternative<Object>(value.v));
+                const auto& object = std::get<Object>(value.v);
+                REQUIRE(std::get<std::string>(std::get<Object>(object.at("boot").v).at("firstArg").v) == expectedBoot);
+                REQUIRE(std::get<std::string>(object.at("route").v) == "book");
+                REQUIRE(std::get<std::string>(std::get<Object>(object.at("routeResult").v).at("profile").v) == "book");
+                REQUIRE(std::get<int64_t>(object.at("routeToken").v) == expectedPage);
+                REQUIRE(std::get<std::string>(std::get<Object>(object.at("dashboard").v).at("profile").v) == "command_window");
+        };
+
+        Value beforeReloadBoot;
+        beforeReloadBoot.v = std::string("before_reload_library");
+        const Value beforeReloadQuest =
+                pm.executeCommand("CuratedLibraryDashboardReloadFixture", "open", {beforeReloadBoot});
+        verifyQuestRoute(beforeReloadQuest, "before_reload_library");
+
+        REQUIRE(pm.reloadPlugin("VisuStella_CoreEngine_MZ"));
+        REQUIRE(pm.reloadPlugin("CGMZ_MenuCommandWindow"));
+        REQUIRE(pm.reloadPlugin("CGMZ_Encyclopedia"));
+        REQUIRE(pm.reloadPlugin("EliMZ_Book"));
+        REQUIRE(pm.reloadPlugin("Galv_QuestLog_MZ"));
+        REQUIRE(pm.reloadPlugin("CuratedLibraryDashboardReloadFixture"));
+
+        REQUIRE(pm.hasCommand("CuratedLibraryDashboardReloadFixture", "open"));
+        REQUIRE(pm.hasCommand("CGMZ_MenuCommandWindow", "refresh"));
+        REQUIRE(pm.hasCommand("CGMZ_Encyclopedia", "openCategory"));
+        REQUIRE(pm.hasCommand("EliMZ_Book", "openBook"));
+        REQUIRE(pm.hasCommand("Galv_QuestLog_MZ", "openQuestLog"));
+
+        Value encyclBoot;
+        encyclBoot.v = std::string("after_reload_library_ency");
+        Value encyclRoute;
+        encyclRoute.v = std::string("encyclopedia");
+        Value encyclCategory;
+        encyclCategory.v = std::string("bestiary");
+        const Value afterReloadEncyclopedia =
+                pm.executeCommandByName("CuratedLibraryDashboardReloadFixture_open", {encyclBoot, encyclRoute, encyclCategory});
+        verifyEncyclopediaRoute(afterReloadEncyclopedia, "after_reload_library_ency");
+
+        Value bookBoot;
+        bookBoot.v = std::string("after_reload_library_book");
+        Value bookRoute;
+        bookRoute.v = std::string("book");
+        const Value afterReloadBook =
+                pm.executeCommand("CuratedLibraryDashboardReloadFixture", "open", {bookBoot, bookRoute, Value::Int(42)});
+        verifyBookRoute(afterReloadBook, "after_reload_library_book", 42);
+
+        Value questBoot;
+        questBoot.v = std::string("after_reload_library_quest");
+        const Value afterReloadQuest =
+                pm.executeCommandByName("CuratedLibraryDashboardReloadFixture_open", {questBoot});
+        verifyQuestRoute(afterReloadQuest, "after_reload_library_quest");
+
+        REQUIRE(pm.exportFailureDiagnosticsJsonl().empty());
+
+        pm.clearFailureDiagnostics();
+        pm.unloadAllPlugins();
+
+        std::error_code ec;
+        std::filesystem::remove(reloadFixture, ec);
+}
+
+    TEST_CASE("Compat fixtures: curated save-data scenarios survive plugin reload",
+                "[compat][fixtures]") {
+        PluginManager& pm = PluginManager::instance();
+        DataManager& data = DataManager::instance();
+        pm.unloadAllPlugins();
+        pm.clearFailureDiagnostics();
+
+        data.setupNewGame();
+        data.deleteSaveFile(0);
+        data.deleteSaveFile(1);
+
+        REQUIRE(pm.loadPlugin(fixturePath("VisuStella_CoreEngine_MZ").string()));
+        REQUIRE(pm.loadPlugin(fixturePath("VisuStella_MainMenuCore_MZ").string()));
+        REQUIRE(pm.loadPlugin(fixturePath("CGMZ_MenuCommandWindow").string()));
+
+        const auto reloadFixture = uniqueTempFixturePath("urpg_curated_save_data_reload_fixture");
+        writeTextFile(
+            reloadFixture,
+            R"({
+        "name": "CuratedSaveDataReloadFixture",
+        "parameters": {
+        "defaultRoute": "slot",
+        "defaultToken": "party"
+        },
+        "commands": [
+        {
+            "name": "open",
+            "script": [
+            {"op": "invoke", "plugin": "VisuStella_CoreEngine_MZ", "command": "boot", "args": [{"from": "arg", "index": 0, "default": "save_reload_boot"}], "store": "boot", "expect": "non_nil"},
+            {"op": "invokeByName", "name": "VisuStella_MainMenuCore_MZ_openMenu", "store": "menu", "expect": "non_nil"},
+            {"op": "invoke", "plugin": "CGMZ_MenuCommandWindow", "command": "refresh", "store": "dashboard", "expect": "non_nil"},
+            {"op": "set", "key": "route", "value": {"from": "coalesce", "values": [{"from": "arg", "index": 1}, {"from": "param", "name": "defaultRoute"}]}} ,
+            {"op": "if", "condition": {"from": "equals", "left": {"from": "local", "name": "route"}, "right": "autosave"},
+                "then": [
+                {"op": "set", "key": "routeToken", "value": {"from": "arg", "index": 2, "default": "autosave"}}
+                ],
+                "else": [
+                {"op": "set", "key": "routeToken", "value": {"from": "arg", "index": 2, "default": {"from": "param", "name": "defaultToken"}}}
+                ]
+            },
+            {"op": "returnObject"}
+            ]
+        }
+        ]
+    })"
+        );
+
+        REQUIRE(pm.loadPlugin(reloadFixture.string()));
+
+        data.setGold(450);
+        data.gainItem(2, 7);
+        data.setVariable(4, 88);
+        data.setPlayerPosition(9, 10, 11);
+        data.setPlayerDirection(6);
+        REQUIRE(data.saveGame(1));
+
+        Value saveTab;
+        saveTab.v = std::string("party");
+        REQUIRE(data.setSaveHeaderExtension(1, "ui.tab", saveTab));
+        auto saveTabExtension = data.getSaveHeaderExtension(1, "ui.tab");
+        REQUIRE(saveTabExtension.has_value());
+        REQUIRE(std::holds_alternative<std::string>(saveTabExtension->v));
+        REQUIRE(std::get<std::string>(saveTabExtension->v) == "party");
+
+        auto slotHeader = data.getSaveHeader(1);
+        REQUIRE(slotHeader.has_value());
+        REQUIRE(slotHeader->mapId == 9);
+        REQUIRE(slotHeader->playerX == 10);
+        REQUIRE(slotHeader->playerY == 11);
+        REQUIRE_FALSE(slotHeader->isAutosave);
+
+        auto verifySlotRoute = [&](const Value& value, const std::string& expectedBoot, const std::string& expectedTab) {
+            REQUIRE(std::holds_alternative<Object>(value.v));
+            const auto& object = std::get<Object>(value.v);
+            REQUIRE(std::get<std::string>(std::get<Object>(object.at("boot").v).at("firstArg").v) == expectedBoot);
+            REQUIRE(std::get<std::string>(std::get<Object>(object.at("menu").v).at("profile").v) == "menu_core");
+            REQUIRE(std::get<std::string>(object.at("route").v) == "slot");
+            REQUIRE(std::get<std::string>(object.at("routeToken").v) == expectedTab);
+            REQUIRE(std::get<std::string>(std::get<Object>(object.at("dashboard").v).at("profile").v) == "command_window");
+            REQUIRE(std::get<int64_t>(std::get<Object>(object.at("dashboard").v).at("visibleRows").v) == 8);
+        };
+
+        auto verifyAutosaveRoute = [&](const Value& value, const std::string& expectedBoot) {
+            REQUIRE(std::holds_alternative<Object>(value.v));
+            const auto& object = std::get<Object>(value.v);
+            REQUIRE(std::get<std::string>(std::get<Object>(object.at("boot").v).at("firstArg").v) == expectedBoot);
+            REQUIRE(std::get<std::string>(std::get<Object>(object.at("menu").v).at("profile").v) == "menu_core");
+            REQUIRE(std::get<std::string>(object.at("route").v) == "autosave");
+            REQUIRE(std::get<std::string>(object.at("routeToken").v) == "autosave");
+            REQUIRE(std::get<std::string>(std::get<Object>(object.at("dashboard").v).at("profile").v) == "command_window");
+        };
+
+        Value beforeReloadBoot;
+        beforeReloadBoot.v = std::string("before_reload_save_slot");
+        Value beforeReloadRoute;
+        beforeReloadRoute.v = std::string("slot");
+        const Value beforeReloadSlot =
+            pm.executeCommand("CuratedSaveDataReloadFixture", "open", {beforeReloadBoot, beforeReloadRoute, saveTab});
+        verifySlotRoute(beforeReloadSlot, "before_reload_save_slot", "party");
+
+        data.setAutosaveEnabled(true);
+        REQUIRE(data.isAutosaveEnabled());
+        data.setVariable(8, 144);
+        REQUIRE(data.saveAutosave());
+        auto autosaveHeader = data.getSaveHeader(0);
+        REQUIRE(autosaveHeader.has_value());
+        REQUIRE(autosaveHeader->isAutosave);
+
+        Value autosaveBoot;
+        autosaveBoot.v = std::string("before_reload_autosave");
+        Value autosaveRoute;
+        autosaveRoute.v = std::string("autosave");
+        Value autosaveToken;
+        autosaveToken.v = std::string("autosave");
+        const Value beforeReloadAutosave =
+            pm.executeCommandByName("CuratedSaveDataReloadFixture_open", {autosaveBoot, autosaveRoute, autosaveToken});
+        verifyAutosaveRoute(beforeReloadAutosave, "before_reload_autosave");
+
+        REQUIRE(pm.reloadPlugin("VisuStella_CoreEngine_MZ"));
+        REQUIRE(pm.reloadPlugin("VisuStella_MainMenuCore_MZ"));
+        REQUIRE(pm.reloadPlugin("CGMZ_MenuCommandWindow"));
+        REQUIRE(pm.reloadPlugin("CuratedSaveDataReloadFixture"));
+
+        REQUIRE(pm.hasCommand("CuratedSaveDataReloadFixture", "open"));
+        REQUIRE(pm.hasCommand("VisuStella_MainMenuCore_MZ", "openMenu"));
+        REQUIRE(pm.hasCommand("CGMZ_MenuCommandWindow", "refresh"));
+
+        data.setGold(0);
+        data.loseItem(2, 7);
+        data.setVariable(4, 0);
+        data.setPlayerPosition(1, 0, 0);
+        data.setPlayerDirection(2);
+        REQUIRE(data.loadGame(1));
+        REQUIRE(data.getGold() == 450);
+        REQUIRE(data.getItemCount(2) == 7);
+        REQUIRE(data.getVariable(4) == 88);
+        REQUIRE(data.getPlayerMapId() == 9);
+        REQUIRE(data.getPlayerX() == 10);
+        REQUIRE(data.getPlayerY() == 11);
+        REQUIRE(data.getPlayerDirection() == 6);
+
+        auto reloadedTabExtension = data.getSaveHeaderExtension(1, "ui.tab");
+        REQUIRE(reloadedTabExtension.has_value());
+        REQUIRE(std::holds_alternative<std::string>(reloadedTabExtension->v));
+        REQUIRE(std::get<std::string>(reloadedTabExtension->v) == "party");
+
+        Value afterReloadBoot;
+        afterReloadBoot.v = std::string("after_reload_save_slot");
+        const Value afterReloadSlot =
+            pm.executeCommandByName("CuratedSaveDataReloadFixture_open", {afterReloadBoot, beforeReloadRoute, saveTab});
+        verifySlotRoute(afterReloadSlot, "after_reload_save_slot", "party");
+
+        REQUIRE(data.loadAutosave());
+        REQUIRE(data.getVariable(8) == 144);
+        auto reloadedAutosaveHeader = data.getSaveHeader(0);
+        REQUIRE(reloadedAutosaveHeader.has_value());
+        REQUIRE(reloadedAutosaveHeader->isAutosave);
+
+        Value afterReloadAutosaveBoot;
+        afterReloadAutosaveBoot.v = std::string("after_reload_autosave");
+        const Value afterReloadAutosave =
+            pm.executeCommand("CuratedSaveDataReloadFixture", "open", {afterReloadAutosaveBoot, autosaveRoute, autosaveToken});
+        verifyAutosaveRoute(afterReloadAutosave, "after_reload_autosave");
+
+        REQUIRE(pm.exportFailureDiagnosticsJsonl().empty());
+
+        data.deleteSaveFile(0);
+        data.deleteSaveFile(1);
+        pm.clearFailureDiagnostics();
+        pm.unloadAllPlugins();
+
+        std::error_code ec;
+        std::filesystem::remove(reloadFixture, ec);
+    }
+
+TEST_CASE("Compat fixtures: curated menu-presentation scenarios survive plugin reload",
+                    "[compat][fixtures]") {
+        PluginManager& pm = PluginManager::instance();
+        pm.unloadAllPlugins();
+        pm.clearFailureDiagnostics();
+
+        REQUIRE(pm.loadPlugin(fixturePath("VisuStella_CoreEngine_MZ").string()));
+        REQUIRE(pm.loadPlugin(fixturePath("VisuStella_MainMenuCore_MZ").string()));
+        REQUIRE(pm.loadPlugin(fixturePath("CGMZ_MenuCommandWindow").string()));
+        REQUIRE(pm.loadPlugin(fixturePath("AltMenuScreen_MZ").string()));
+        REQUIRE(pm.loadPlugin(fixturePath("MOG_BattleHud_MZ").string()));
+
+        const auto reloadFixture = uniqueTempFixturePath("urpg_curated_menu_presentation_reload_fixture");
+        writeTextFile(
+                reloadFixture,
+                R"({
+    "name": "CuratedMenuPresentationReloadFixture",
+    "parameters": {
+        "defaultRoute": "layout"
+    },
+    "commands": [
+        {
+            "name": "run",
+            "script": [
+                {"op": "invoke", "plugin": "VisuStella_CoreEngine_MZ", "command": "boot", "args": [{"from": "arg", "index": 0, "default": "menu_presentation_reload_boot"}], "store": "boot", "expect": "non_nil"},
+                {"op": "invokeByName", "name": "VisuStella_MainMenuCore_MZ_openMenu", "store": "menu", "expect": "non_nil"},
+                {"op": "set", "key": "route", "value": {"from": "coalesce", "values": [{"from": "arg", "index": 1}, {"from": "param", "name": "defaultRoute"}]}} ,
+                {"op": "invoke", "plugin": "CGMZ_MenuCommandWindow", "command": "refresh", "store": "commandWindow", "expect": "non_nil"},
+                {"op": "if", "condition": {"from": "equals", "left": {"from": "local", "name": "route"}, "right": "hud"},
+                    "then": [
+                        {"op": "invoke", "plugin": "MOG_BattleHud_MZ", "command": "showHud", "store": "routeResult", "expect": "non_nil"},
+                        {"op": "invoke", "plugin": "MOG_BattleHud_MZ", "command": "hudEnabledViaJs", "store": "routeToken", "expect": "truthy"}
+                    ],
+                    "else": [
+                        {"op": "invoke", "plugin": "AltMenuScreen_MZ", "command": "applyLayout", "store": "routeResult", "expect": "non_nil"},
+                        {"op": "invoke", "plugin": "AltMenuScreen_MZ", "command": "layoutColumnsViaJs", "store": "routeToken", "expect": {"equals": 2}}
+                    ]
+                },
+                {"op": "returnObject"}
+            ]
+        }
+    ]
+})"
+        );
+
+        REQUIRE(pm.loadPlugin(reloadFixture.string()));
+
+        auto verifyLayoutRoute = [&](const Value& value, const std::string& expectedBoot) {
+                REQUIRE(std::holds_alternative<Object>(value.v));
+                const auto& object = std::get<Object>(value.v);
+                REQUIRE(std::get<std::string>(std::get<Object>(object.at("boot").v).at("firstArg").v) == expectedBoot);
+                REQUIRE(std::get<std::string>(std::get<Object>(object.at("menu").v).at("profile").v) == "menu_core");
+                REQUIRE(std::get<int64_t>(std::get<Object>(object.at("menu").v).at("columnCount").v) == 2);
+                REQUIRE(std::get<std::string>(object.at("route").v) == "layout");
+                REQUIRE(std::get<std::string>(std::get<Object>(object.at("routeResult").v).at("profile").v) == "alt_menu");
+                REQUIRE(std::get<std::string>(std::get<Object>(object.at("routeResult").v).at("layout").v) == "horizontal");
+                REQUIRE(std::get<int64_t>(object.at("routeToken").v) == 2);
+                REQUIRE(std::get<std::string>(std::get<Object>(object.at("commandWindow").v).at("profile").v) == "command_window");
+                REQUIRE(std::get<int64_t>(std::get<Object>(object.at("commandWindow").v).at("visibleRows").v) == 8);
+        };
+
+        auto verifyHudRoute = [&](const Value& value, const std::string& expectedBoot) {
+                REQUIRE(std::holds_alternative<Object>(value.v));
+                const auto& object = std::get<Object>(value.v);
+                REQUIRE(std::get<std::string>(std::get<Object>(object.at("boot").v).at("firstArg").v) == expectedBoot);
+                REQUIRE(std::get<std::string>(std::get<Object>(object.at("menu").v).at("profile").v) == "menu_core");
+                REQUIRE(std::get<std::string>(object.at("route").v) == "hud");
+                REQUIRE(std::get<std::string>(std::get<Object>(object.at("routeResult").v).at("profile").v) == "battle_hud");
+                REQUIRE(std::get<int64_t>(std::get<Object>(object.at("routeResult").v).at("hudSlots").v) == 4);
+                REQUIRE(std::get<bool>(object.at("routeToken").v));
+                REQUIRE(std::get<std::string>(std::get<Object>(object.at("commandWindow").v).at("profile").v) == "command_window");
+        };
+
+        Value beforeReloadBoot;
+        beforeReloadBoot.v = std::string("before_reload_menu_layout");
+        const Value beforeReloadLayout =
+                pm.executeCommand("CuratedMenuPresentationReloadFixture", "run", {beforeReloadBoot});
+        verifyLayoutRoute(beforeReloadLayout, "before_reload_menu_layout");
+
+        REQUIRE(pm.reloadPlugin("VisuStella_CoreEngine_MZ"));
+        REQUIRE(pm.reloadPlugin("VisuStella_MainMenuCore_MZ"));
+        REQUIRE(pm.reloadPlugin("CGMZ_MenuCommandWindow"));
+        REQUIRE(pm.reloadPlugin("AltMenuScreen_MZ"));
+        REQUIRE(pm.reloadPlugin("MOG_BattleHud_MZ"));
+        REQUIRE(pm.reloadPlugin("CuratedMenuPresentationReloadFixture"));
+
+        REQUIRE(pm.hasCommand("CuratedMenuPresentationReloadFixture", "run"));
+        REQUIRE(pm.hasCommand("VisuStella_MainMenuCore_MZ", "openMenu"));
+        REQUIRE(pm.hasCommand("CGMZ_MenuCommandWindow", "refresh"));
+        REQUIRE(pm.hasCommand("AltMenuScreen_MZ", "applyLayout"));
+        REQUIRE(pm.hasCommand("MOG_BattleHud_MZ", "showHud"));
+
+        Value layoutBoot;
+        layoutBoot.v = std::string("after_reload_menu_layout");
+        const Value afterReloadLayout =
+                pm.executeCommandByName("CuratedMenuPresentationReloadFixture_run", {layoutBoot});
+        verifyLayoutRoute(afterReloadLayout, "after_reload_menu_layout");
+
+        Value hudBoot;
+        hudBoot.v = std::string("after_reload_menu_hud");
+        Value hudRoute;
+        hudRoute.v = std::string("hud");
+        const Value afterReloadHud =
+                pm.executeCommand("CuratedMenuPresentationReloadFixture", "run", {hudBoot, hudRoute});
+        verifyHudRoute(afterReloadHud, "after_reload_menu_hud");
+
+        REQUIRE(pm.exportFailureDiagnosticsJsonl().empty());
+
+        pm.clearFailureDiagnostics();
+        pm.unloadAllPlugins();
+
+        std::error_code ec;
+        std::filesystem::remove(reloadFixture, ec);
+}
+
+TEST_CASE("Compat fixtures: curated presentation scenarios survive plugin reload",
+                    "[compat][fixtures]") {
+        PluginManager& pm = PluginManager::instance();
+        pm.unloadAllPlugins();
+        pm.clearFailureDiagnostics();
+
+        REQUIRE(pm.loadPlugin(fixturePath("VisuStella_CoreEngine_MZ").string()));
+        REQUIRE(pm.loadPlugin(fixturePath("AltMenuScreen_MZ").string()));
+        REQUIRE(pm.loadPlugin(fixturePath("MOG_BattleHud_MZ").string()));
+        REQUIRE(pm.loadPlugin(fixturePath("MOG_CharacterMotion_MZ").string()));
+
+        const auto reloadFixture = uniqueTempFixturePath("urpg_curated_presentation_reload_fixture");
+        writeTextFile(
+                reloadFixture,
+                R"({
+    "name": "CuratedPresentationReloadFixture",
+    "parameters": {
+        "defaultRoute": "motion"
+    },
+    "commands": [
+        {
+            "name": "run",
+            "script": [
+                {"op": "invoke", "plugin": "VisuStella_CoreEngine_MZ", "command": "boot", "args": [{"from": "arg", "index": 0, "default": "presentation_reload_boot"}], "store": "boot", "expect": "non_nil"},
+                {"op": "set", "key": "route", "value": {"from": "coalesce", "values": [{"from": "arg", "index": 1}, {"from": "param", "name": "defaultRoute"}]}} ,
+                {"op": "set", "key": "motionName", "value": {"from": "arg", "index": 2, "default": "idle"}},
+                {"op": "if", "condition": {"from": "equals", "left": {"from": "local", "name": "route"}, "right": "layout"},
+                    "then": [
+                        {"op": "invoke", "plugin": "AltMenuScreen_MZ", "command": "applyLayout", "store": "routeResult", "expect": "non_nil"},
+                        {"op": "invoke", "plugin": "AltMenuScreen_MZ", "command": "layoutColumnsViaJs", "store": "routeToken", "expect": {"equals": 2}}
+                    ],
+                    "else": [
+                        {"op": "if", "condition": {"from": "equals", "left": {"from": "local", "name": "route"}, "right": "hud"},
+                            "then": [
+                                {"op": "invoke", "plugin": "MOG_BattleHud_MZ", "command": "showHud", "store": "routeResult", "expect": "non_nil"},
+                                {"op": "invoke", "plugin": "MOG_BattleHud_MZ", "command": "hudEnabledViaJs", "store": "routeToken", "expect": "truthy"}
+                            ],
+                            "else": [
+                                {"op": "invoke", "plugin": "MOG_CharacterMotion_MZ", "command": "startMotion", "args": [{"from": "local", "name": "motionName"}], "store": "routeResult", "expect": "non_nil"},
+                                {"op": "invoke", "plugin": "MOG_CharacterMotion_MZ", "command": "motionScaleConstViaJs", "store": "routeToken", "expect": "truthy"}
+                            ]
+                        }
+                    ]
+                },
+                {"op": "returnObject"}
+            ]
+        }
+    ]
+})"
+        );
+
+        REQUIRE(pm.loadPlugin(reloadFixture.string()));
+
+        auto verifyLayoutRoute = [&](const Value& value, const std::string& expectedBoot) {
+                REQUIRE(std::holds_alternative<Object>(value.v));
+                const auto& object = std::get<Object>(value.v);
+                REQUIRE(std::get<std::string>(std::get<Object>(object.at("boot").v).at("firstArg").v) == expectedBoot);
+                REQUIRE(std::get<std::string>(object.at("route").v) == "layout");
+                REQUIRE(std::get<std::string>(std::get<Object>(object.at("routeResult").v).at("profile").v) == "alt_menu");
+                REQUIRE(std::get<std::string>(std::get<Object>(object.at("routeResult").v).at("layout").v) == "horizontal");
+                REQUIRE(std::get<int64_t>(object.at("routeToken").v) == 2);
+        };
+
+        auto verifyHudRoute = [&](const Value& value, const std::string& expectedBoot) {
+                REQUIRE(std::holds_alternative<Object>(value.v));
+                const auto& object = std::get<Object>(value.v);
+                REQUIRE(std::get<std::string>(std::get<Object>(object.at("boot").v).at("firstArg").v) == expectedBoot);
+                REQUIRE(std::get<std::string>(object.at("route").v) == "hud");
+                REQUIRE(std::get<std::string>(std::get<Object>(object.at("routeResult").v).at("profile").v) == "battle_hud");
+                REQUIRE(std::get<int64_t>(std::get<Object>(object.at("routeResult").v).at("hudSlots").v) == 4);
+                REQUIRE(std::get<bool>(object.at("routeToken").v));
+        };
+
+        auto verifyMotionRoute = [&](const Value& value, const std::string& expectedBoot, const std::string& expectedMotionName) {
+                REQUIRE(std::holds_alternative<Object>(value.v));
+                const auto& object = std::get<Object>(value.v);
+                REQUIRE(std::get<std::string>(std::get<Object>(object.at("boot").v).at("firstArg").v) == expectedBoot);
+                REQUIRE(std::get<std::string>(object.at("route").v) == "motion");
+                REQUIRE(std::get<std::string>(object.at("motionName").v) == expectedMotionName);
+                REQUIRE(std::get<std::string>(std::get<Object>(object.at("routeResult").v).at("profile").v) == "character_motion");
+                REQUIRE(std::get<bool>(std::get<Object>(object.at("routeResult").v).at("supportsScale").v));
+                REQUIRE(std::get<int64_t>(std::get<Object>(object.at("routeResult").v).at("argCount").v) == 1);
+                REQUIRE(std::get<bool>(object.at("routeToken").v));
+        };
+
+        Value beforeReloadBoot;
+        beforeReloadBoot.v = std::string("before_reload_motion");
+        Value beforeReloadRoute;
+        beforeReloadRoute.v = std::string("motion");
+        Value beforeReloadMotion;
+        beforeReloadMotion.v = std::string("dash");
+        const Value beforeReload =
+                pm.executeCommand("CuratedPresentationReloadFixture", "run", {beforeReloadBoot, beforeReloadRoute, beforeReloadMotion});
+        verifyMotionRoute(beforeReload, "before_reload_motion", "dash");
+
+        REQUIRE(pm.reloadPlugin("VisuStella_CoreEngine_MZ"));
+        REQUIRE(pm.reloadPlugin("AltMenuScreen_MZ"));
+        REQUIRE(pm.reloadPlugin("MOG_BattleHud_MZ"));
+        REQUIRE(pm.reloadPlugin("MOG_CharacterMotion_MZ"));
+        REQUIRE(pm.reloadPlugin("CuratedPresentationReloadFixture"));
+
+        REQUIRE(pm.hasCommand("CuratedPresentationReloadFixture", "run"));
+        REQUIRE(pm.hasCommand("AltMenuScreen_MZ", "applyLayout"));
+        REQUIRE(pm.hasCommand("MOG_BattleHud_MZ", "showHud"));
+        REQUIRE(pm.hasCommand("MOG_CharacterMotion_MZ", "startMotion"));
+
+        Value layoutBoot;
+        layoutBoot.v = std::string("after_reload_layout");
+        Value layoutRoute;
+        layoutRoute.v = std::string("layout");
+        const Value afterReloadLayout =
+                pm.executeCommandByName("CuratedPresentationReloadFixture_run", {layoutBoot, layoutRoute});
+        verifyLayoutRoute(afterReloadLayout, "after_reload_layout");
+
+        Value hudBoot;
+        hudBoot.v = std::string("after_reload_hud");
+        Value hudRoute;
+        hudRoute.v = std::string("hud");
+        const Value afterReloadHud =
+                pm.executeCommand("CuratedPresentationReloadFixture", "run", {hudBoot, hudRoute});
+        verifyHudRoute(afterReloadHud, "after_reload_hud");
+
+        Value motionBoot;
+        motionBoot.v = std::string("after_reload_motion");
+        Value motionRoute;
+        motionRoute.v = std::string("motion");
+        Value motionName;
+        motionName.v = std::string("float");
+        const Value afterReloadMotion =
+                pm.executeCommandByName("CuratedPresentationReloadFixture_run", {motionBoot, motionRoute, motionName});
+        verifyMotionRoute(afterReloadMotion, "after_reload_motion", "float");
+
+        REQUIRE(pm.exportFailureDiagnosticsJsonl().empty());
+
+        pm.clearFailureDiagnostics();
+        pm.unloadAllPlugins();
+
+        std::error_code ec;
+        std::filesystem::remove(reloadFixture, ec);
+}
+
+TEST_CASE("Compat fixtures: curated menu-stack scenarios survive plugin reload",
+                    "[compat][fixtures]") {
+        PluginManager& pm = PluginManager::instance();
+        pm.unloadAllPlugins();
+        pm.clearFailureDiagnostics();
+
+        REQUIRE(pm.loadPlugin(fixturePath("VisuStella_CoreEngine_MZ").string()));
+        REQUIRE(pm.loadPlugin(fixturePath("VisuStella_MainMenuCore_MZ").string()));
+        REQUIRE(pm.loadPlugin(fixturePath("VisuStella_OptionsCore_MZ").string()));
+        REQUIRE(pm.loadPlugin(fixturePath("CGMZ_MenuCommandWindow").string()));
+
+        const auto reloadFixture = uniqueTempFixturePath("urpg_curated_menu_reload_fixture");
+        writeTextFile(
+                reloadFixture,
+                R"({
+    "name": "CuratedMenuReloadFixture",
+    "parameters": {
+        "defaultRoute": "options"
+    },
+    "commands": [
+        {
+            "name": "run",
+            "script": [
+                {"op": "invoke", "plugin": "VisuStella_CoreEngine_MZ", "command": "boot", "args": [{"from": "arg", "index": 0, "default": "reload_boot"}], "store": "boot", "expect": "non_nil"},
+                {"op": "invokeByName", "name": "VisuStella_MainMenuCore_MZ_openMenu", "store": "menu", "expect": "non_nil"},
+                {"op": "invoke", "plugin": "VisuStella_OptionsCore_MZ", "command": "openOptions", "store": "options", "expect": "non_nil"},
+                {"op": "invoke", "plugin": "CGMZ_MenuCommandWindow", "command": "refresh", "store": "commandWindow", "expect": "non_nil"},
+                {"op": "set", "key": "summary", "value": {"from": "concat", "parts": [
+                    {"from": "arg", "index": 0, "default": "reload_boot"},
+                    ":",
+                    {"from": "param", "name": "defaultRoute"},
+                    ":",
+                    {"from": "local", "name": "menu", "default": null}
+                ]}},
+                {"op": "returnObject"}
+            ]
+        }
+    ]
+})"
+        );
+
+        REQUIRE(pm.loadPlugin(reloadFixture.string()));
+
+        auto verifyResult = [&](const Value& value, const std::string& expectedFirstArg) {
+                REQUIRE(std::holds_alternative<Object>(value.v));
+                const auto& object = std::get<Object>(value.v);
+
+                REQUIRE(std::get<std::string>(std::get<Object>(object.at("boot").v).at("firstArg").v) == expectedFirstArg);
+                REQUIRE(std::get<std::string>(std::get<Object>(object.at("menu").v).at("profile").v) == "menu_core");
+                REQUIRE(std::get<int64_t>(std::get<Object>(object.at("menu").v).at("columnCount").v) == 2);
+                REQUIRE(std::get<std::string>(std::get<Object>(object.at("options").v).at("profile").v) == "options_core");
+                REQUIRE(std::get<int64_t>(std::get<Object>(object.at("options").v).at("toggleCount").v) == 4);
+                REQUIRE(std::get<std::string>(std::get<Object>(object.at("commandWindow").v).at("profile").v) == "command_window");
+                REQUIRE(std::get<int64_t>(std::get<Object>(object.at("commandWindow").v).at("visibleRows").v) == 8);
+        };
+
+        Value beforeReloadArg;
+        beforeReloadArg.v = std::string("before_reload");
+        const Value beforeReload = pm.executeCommand("CuratedMenuReloadFixture", "run", {beforeReloadArg});
+        verifyResult(beforeReload, "before_reload");
+
+        REQUIRE(pm.reloadPlugin("VisuStella_CoreEngine_MZ"));
+        REQUIRE(pm.reloadPlugin("VisuStella_MainMenuCore_MZ"));
+        REQUIRE(pm.reloadPlugin("VisuStella_OptionsCore_MZ"));
+        REQUIRE(pm.reloadPlugin("CGMZ_MenuCommandWindow"));
+        REQUIRE(pm.reloadPlugin("CuratedMenuReloadFixture"));
+
+        REQUIRE(pm.hasCommand("CuratedMenuReloadFixture", "run"));
+        REQUIRE(pm.hasCommand("VisuStella_MainMenuCore_MZ", "openMenu"));
+
+        Value afterReloadArg;
+        afterReloadArg.v = std::string("after_reload");
+        const Value afterReload = pm.executeCommand("CuratedMenuReloadFixture", "run", {afterReloadArg});
+        verifyResult(afterReload, "after_reload");
+
+        const Value byNameReload =
+                pm.executeCommandByName("CuratedMenuReloadFixture_run", {afterReloadArg});
+        verifyResult(byNameReload, "after_reload");
+
+        REQUIRE(pm.exportFailureDiagnosticsJsonl().empty());
+
+        pm.clearFailureDiagnostics();
+        pm.unloadAllPlugins();
+
+        std::error_code ec;
+        std::filesystem::remove(reloadFixture, ec);
+}
+
+    TEST_CASE("Compat fixtures: dependent command execution recovers after core reload",
+                "[compat][fixtures]") {
+        PluginManager& pm = PluginManager::instance();
+        pm.unloadAllPlugins();
+        pm.clearFailureDiagnostics();
+
+        REQUIRE(pm.loadPlugin(fixturePath("VisuStella_CoreEngine_MZ").string()));
+        REQUIRE(pm.loadPlugin(fixturePath("VisuStella_MainMenuCore_MZ").string()));
+        REQUIRE(pm.loadPlugin(fixturePath("VisuStella_OptionsCore_MZ").string()));
+
+        REQUIRE(pm.checkDependencies("VisuStella_MainMenuCore_MZ"));
+        REQUIRE(pm.checkDependencies("VisuStella_OptionsCore_MZ"));
+
+        const Value beforeUnloadMainMenu =
+            pm.executeCommand("VisuStella_MainMenuCore_MZ", "openMenu", {});
+        REQUIRE(std::holds_alternative<Object>(beforeUnloadMainMenu.v));
+        REQUIRE(std::get<std::string>(std::get<Object>(beforeUnloadMainMenu.v).at("profile").v) ==
+                "menu_core");
+
+        REQUIRE(pm.unloadPlugin("VisuStella_CoreEngine_MZ"));
+        REQUIRE_FALSE(pm.checkDependencies("VisuStella_MainMenuCore_MZ"));
+        REQUIRE_FALSE(pm.checkDependencies("VisuStella_OptionsCore_MZ"));
+
+        const Value gatedMainMenu =
+            pm.executeCommand("VisuStella_MainMenuCore_MZ", "openMenu", {});
+        REQUIRE(std::holds_alternative<std::monostate>(gatedMainMenu.v));
+        REQUIRE(
+            pm.getLastError() ==
+            "Missing dependencies for VisuStella_MainMenuCore_MZ_openMenu: VisuStella_CoreEngine_MZ"
+        );
+
+        const Value gatedOptions =
+            pm.executeCommand("VisuStella_OptionsCore_MZ", "openOptions", {});
+        REQUIRE(std::holds_alternative<std::monostate>(gatedOptions.v));
+        REQUIRE(
+            pm.getLastError() ==
+            "Missing dependencies for VisuStella_OptionsCore_MZ_openOptions: VisuStella_CoreEngine_MZ"
+        );
+
+        const auto diagnosticsWhileMissing = pm.exportFailureDiagnosticsJsonl();
+        REQUIRE(diagnosticsWhileMissing.find("execute_command_dependency_missing") != std::string::npos);
+
+        pm.clearFailureDiagnostics();
+        REQUIRE(pm.loadPlugin(fixturePath("VisuStella_CoreEngine_MZ").string()));
+
+        REQUIRE(pm.checkDependencies("VisuStella_MainMenuCore_MZ"));
+        REQUIRE(pm.checkDependencies("VisuStella_OptionsCore_MZ"));
+
+        const Value recoveredMainMenu =
+            pm.executeCommand("VisuStella_MainMenuCore_MZ", "openMenu", {});
+        REQUIRE(std::holds_alternative<Object>(recoveredMainMenu.v));
+        const auto& recoveredMainMenuObject = std::get<Object>(recoveredMainMenu.v);
+        REQUIRE(std::get<std::string>(recoveredMainMenuObject.at("profile").v) == "menu_core");
+        REQUIRE(std::get<int64_t>(recoveredMainMenuObject.at("columnCount").v) == 2);
+
+        const Value recoveredOptions =
+            pm.executeCommandByName("VisuStella_OptionsCore_MZ_openOptions", {});
+        REQUIRE(std::holds_alternative<Object>(recoveredOptions.v));
+        const auto& recoveredOptionsObject = std::get<Object>(recoveredOptions.v);
+        REQUIRE(std::get<std::string>(recoveredOptionsObject.at("profile").v) == "options_core");
+        REQUIRE(std::get<int64_t>(recoveredOptionsObject.at("toggleCount").v) == 4);
+
+        REQUIRE(pm.exportFailureDiagnosticsJsonl().empty());
+
+        pm.clearFailureDiagnostics();
+        pm.unloadAllPlugins();
+    }
 
 TEST_CASE(
     "Compat fixtures: deterministic cross-plugin invoke chain fuzz matrix executes without diagnostics",

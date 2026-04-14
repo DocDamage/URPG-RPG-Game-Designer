@@ -1,0 +1,197 @@
+# UI / Menu Core Native-First Spec
+
+Date: 2026-04-14  
+Status: initial draft  
+Scope: runtime ownership, editor ownership, schema, migration, diagnostics, and test anchors for native UI/Menu Core absorption
+
+## Purpose
+
+UI / Menu Core becomes the native owner for menu composition, command routing, dashboard chrome, codex entry points, and presentation layout that currently appear across compat fixtures and plugin ecosystems.
+
+The subsystem should absorb the high-value behavior proven by the routed compat anchors while avoiding a plugin-parameter-driven product model.
+
+## Source evidence
+
+Primary routed evidence currently comes from:
+
+- `menu-stack reload`
+- `library-dashboard reload`
+- `menu-presentation reload`
+- `codex reload`
+- dependency recovery after core reload
+
+These anchors show that the product needs first-class ownership of:
+
+- deterministic command composition
+- dashboard entry routing
+- reusable command-window chrome
+- menu layout regions
+- codex/library entry surfaces
+- lifecycle-safe reload semantics
+
+## Ownership boundary
+
+UI / Menu Core owns:
+
+- scene-level menu composition
+- command registry for menu-visible actions
+- command visibility/enabled-state rules
+- layout regions, panes, dashboard blocks, and visual chrome
+- menu-facing content routes such as codex, quest log, encyclopedia, and book/library entry points
+- preview-safe reload of menu layouts and content routing state
+
+UI / Menu Core does not own:
+
+- battle simulation rules
+- save serialization internals
+- localization storage
+- event runtime sequencing
+
+It consumes those systems through typed interfaces.
+
+## Runtime model
+
+### Core runtime objects
+
+- `MenuSceneGraph`
+  - authoritative tree of scenes, panes, regions, and command hosts
+- `MenuCommandRegistry`
+  - declarative command definitions with IDs, labels, route targets, enabled rules, and visibility rules
+- `MenuRouteResolver`
+  - resolves command activation into native route targets such as codex views, quest logs, options panels, and save panels
+- `MenuLayoutModel`
+  - data-only layout description for regions, columns, stacks, tabs, and dashboard cards
+- `MenuPresentationState`
+  - ephemeral runtime state for selection, focus, active tab, preview overlays, and animation-safe transitions
+
+### Runtime contracts
+
+- command enumeration order is deterministic
+- route resolution is schema-owned, not plugin-command-string-owned
+- menu layout changes are hot-reload-safe when they do not change authoritative save schema or runtime ownership boundaries
+- UI-only presentation changes never own gameplay state
+- codex/library surfaces resolve through native route IDs, not imported plugin function names
+
+## Editor surfaces
+
+UI / Menu Core should ship with these editor owners:
+
+- `Menu Structure Inspector`
+  - scene tree, route targets, command ordering, and visibility rules
+- `Menu Layout Composer`
+  - region-based editor for panes, columns, cards, list blocks, and dock zones
+- `Command Window Inspector`
+  - visible rows, command grouping, command categories, and enable-state logic
+- `Menu Preview Panel`
+  - live preview for desktop resolutions, template skins, and focus flow
+- `Codex / Library Route Inspector`
+  - configures encyclopedia, quest log, book, glossary, and similar entry views as native content routes
+
+## Schema and data contracts
+
+### Required schemas
+
+- `menu_scenes.json`
+  - scene definitions, route graph, default scene entry points
+- `menu_layouts.json`
+  - layout regions, pane placements, template variants, breakpoints
+- `menu_commands.json`
+  - command IDs, labels, icons, visibility rules, enable rules, route bindings
+- `menu_content_routes.json`
+  - codex/library/quest/save/options route descriptors and backing data source references
+
+### Schema rules
+
+- menu command IDs are stable and migration-safe
+- route targets are explicit typed records, not freeform strings
+- layout schema is data-only and previewable without executing gameplay code
+- imported compat metadata must be preserved as mapping notes during upgrade, not as the native source of truth
+
+## Migration and import rules
+
+### Import goals
+
+- translate menu plugins into native scene/layout/command records where possible
+- preserve route intent even when specific plugin commands are not retained
+- separate visual layout concerns from command behavior concerns during import
+
+### Mapping strategy
+
+- `VisuStella_MainMenuCore_MZ` maps primarily into command groups, command ordering, and scene entry structure
+- `VisuStella_OptionsCore_MZ` maps into native settings panels and option-route descriptors
+- `CGMZ_MenuCommandWindow` maps into command-window presentation and command visibility metadata
+- `AltMenuScreen_MZ` maps into layout regions and pane composition
+- `CGMZ_Encyclopedia`, `EliMZ_Book`, and `Galv_QuestLog_MZ` map into native content-route definitions under UI/Menu ownership
+
+### Failure handling
+
+- unsupported plugin behavior is recorded as import diagnostics with retained compat notes
+- imported routes can remain bridged through compat only when no native route descriptor exists yet
+- conflicts between multiple menu plugins are resolved into explicit upgrade diagnostics instead of silent precedence rules
+
+## Diagnostics and safety
+
+UI / Menu Core diagnostics should include:
+
+- duplicate command IDs
+- unreachable route targets
+- invalid layout region references
+- layout overflow or missing required panes
+- command visibility rules referencing missing state
+- imported plugin mappings that could not be normalized cleanly
+
+Safe-mode expectations:
+
+- disable nonessential presentation overlays
+- preserve core command navigation and save/options escape routes
+- surface import/migration warnings without blocking basic menu access
+
+## Extension points
+
+Allowed extension points:
+
+- custom command providers
+- custom content-route providers
+- layout skin providers
+- menu preview decorators
+
+Disallowed extension patterns:
+
+- direct ownership of authoritative save state from menu plugins
+- ad hoc mutation of native route graph without schema updates
+- hidden command ordering side effects that bypass the registry
+
+## Test anchors
+
+The subsystem should inherit and later replace these evidence paths:
+
+- `tests/compat/test_compat_plugin_fixtures.cpp`
+  - menu-stack reload
+  - library-dashboard reload
+  - menu-presentation reload
+  - codex reload
+  - dependency recovery after core reload
+- future native tests should add:
+  - menu schema migration tests
+  - layout preview snapshot tests
+  - route-resolution unit tests
+  - reload-safe state preservation tests
+  - import upgrade tests from compat mappings into native menu schema
+
+## First implementation slice
+
+Phase 1 of UI / Menu Core absorption should deliver:
+
+- native menu command registry
+- native menu scene graph
+- command-window presentation model
+- options and codex route descriptors
+- editor structure inspector and preview panel
+- import mapping for the current strongest compat menu anchors
+
+## Non-goals for this slice
+
+- recreating every MZ menu plugin as a built-in one-off feature
+- absorbing battle simulation ownership into menu code
+- making plugin parameter sheets the primary authoring UI
+- shipping theme-only polish before the route/model layer is authoritative

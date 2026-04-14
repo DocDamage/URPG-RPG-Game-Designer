@@ -582,6 +582,170 @@ TEST_CASE("PluginManager: Command execution", "[plugin_manager]") {
         std::filesystem::remove(fixtureFile, ec);
     }
 
+        SECTION("Fixture script command supports rich invoke expectations") {
+                pm.unloadAllPlugins();
+                pm.clearFailureDiagnostics();
+
+                const auto fixturePath = uniqueTempDirectoryPath("urpg_rich_expect_fixture");
+                const auto fixtureFile = fixturePath.string() + ".json";
+                writeTextFile(
+                        fixtureFile,
+                        R"({
+    "name": "RichExpectFixture",
+    "commands": [
+        {
+            "name": "base",
+            "result": 7
+        },
+        {
+            "name": "emitTrue",
+            "result": true
+        },
+        {
+            "name": "emitFalse",
+            "result": false
+        },
+        {
+            "name": "emitNil",
+            "result": null
+        },
+        {
+            "name": "chain",
+            "script": [
+                {"op": "invoke", "command": "base", "store": "baseResult", "expect": {"equals": 7}},
+                {"op": "invoke", "command": "emitTrue", "store": "truthyResult", "expect": "truthy"},
+                {"op": "invoke", "command": "emitFalse", "store": "falseyResult", "expect": "falsey"},
+                {"op": "invoke", "command": "emitNil", "store": "nilResult", "expect": "nil"},
+                {"op": "returnObject"}
+            ]
+        }
+    ]
+})"
+                );
+
+                REQUIRE(pm.loadPlugin(fixtureFile));
+
+                const urpg::Value result = pm.executeCommand("RichExpectFixture", "chain", {});
+                REQUIRE(std::holds_alternative<urpg::Object>(result.v));
+                const auto& object = std::get<urpg::Object>(result.v);
+                REQUIRE(std::holds_alternative<int64_t>(object.at("baseResult").v));
+                REQUIRE(std::get<int64_t>(object.at("baseResult").v) == 7);
+                REQUIRE(std::holds_alternative<bool>(object.at("truthyResult").v));
+                REQUIRE(std::get<bool>(object.at("truthyResult").v));
+                REQUIRE(std::holds_alternative<bool>(object.at("falseyResult").v));
+                REQUIRE_FALSE(std::get<bool>(object.at("falseyResult").v));
+                REQUIRE(std::holds_alternative<std::monostate>(object.at("nilResult").v));
+                REQUIRE(pm.exportFailureDiagnosticsJsonl().empty());
+
+                pm.clearFailureDiagnostics();
+                pm.unloadAllPlugins();
+
+                std::error_code ec;
+                std::filesystem::remove(fixtureFile, ec);
+        }
+
+        SECTION("Fixture script resolver validation surfaces specific metadata errors") {
+                pm.unloadAllPlugins();
+                pm.clearFailureDiagnostics();
+
+                const auto fixturePath = uniqueTempDirectoryPath("urpg_bad_resolver_fixture");
+                const auto fixtureFile = fixturePath.string() + ".json";
+                writeTextFile(
+                        fixtureFile,
+                        R"({
+    "name": "BadResolverFixture",
+    "parameters": {
+        "profile": "unit_profile"
+    },
+    "commands": [
+        {
+            "name": "badArg",
+            "script": [
+                {"op": "set", "key": "value", "value": {"from": "arg", "index": "bad"}}
+            ]
+        },
+        {
+            "name": "badHasArg",
+            "script": [
+                {"op": "set", "key": "value", "value": {"from": "hasArg", "index": "bad"}}
+            ]
+        },
+        {
+            "name": "badParam",
+            "script": [
+                {"op": "set", "key": "value", "value": {"from": "param", "name": 7}}
+            ]
+        },
+        {
+            "name": "badHasParam",
+            "script": [
+                {"op": "set", "key": "value", "value": {"from": "hasParam", "name": 7}}
+            ]
+        },
+        {
+            "name": "badLocal",
+            "script": [
+                {"op": "set", "key": "value", "value": {"from": "local", "name": false}}
+            ]
+        },
+        {
+            "name": "badArgCount",
+            "script": [
+                {"op": "set", "key": "value", "value": {"from": "argCount", "index": 0}}
+            ]
+        },
+        {
+            "name": "badArgs",
+            "script": [
+                {"op": "set", "key": "value", "value": {"from": "args", "name": "bad"}}
+            ]
+        },
+        {
+            "name": "badParamKeys",
+            "script": [
+                {"op": "set", "key": "value", "value": {"from": "paramKeys", "index": 0}}
+            ]
+        }
+    ]
+})"
+                );
+
+                REQUIRE(pm.loadPlugin(fixtureFile));
+
+                const std::vector<std::pair<std::string, std::string>> failureCases = {
+                        {"badArg", "Host function error: Fixture script resolver arg requires integer index"},
+                        {"badHasArg", "Host function error: Fixture script resolver hasArg requires integer index"},
+                        {"badParam", "Host function error: Fixture script resolver param requires string name"},
+                        {"badHasParam", "Host function error: Fixture script resolver hasParam requires string name"},
+                        {"badLocal", "Host function error: Fixture script resolver local requires string name"},
+                    {"badArgCount", "Host function error: Fixture script resolver argCount does not accept field 'index'"},
+                    {"badArgs", "Host function error: Fixture script resolver args does not accept field 'name'"},
+                    {"badParamKeys", "Host function error: Fixture script resolver paramKeys does not accept field 'index'"},
+                };
+
+                for (const auto& [commandName, expectedMessage] : failureCases) {
+                        const urpg::Value result = pm.executeCommand("BadResolverFixture", commandName, {});
+                        REQUIRE(std::holds_alternative<std::monostate>(result.v));
+                        REQUIRE(pm.getLastError() == expectedMessage);
+                }
+
+                const std::string diagnostics = pm.exportFailureDiagnosticsJsonl();
+                REQUIRE(diagnostics.find("Fixture script resolver arg requires integer index") != std::string::npos);
+                REQUIRE(diagnostics.find("Fixture script resolver hasArg requires integer index") != std::string::npos);
+                REQUIRE(diagnostics.find("Fixture script resolver param requires string name") != std::string::npos);
+                REQUIRE(diagnostics.find("Fixture script resolver hasParam requires string name") != std::string::npos);
+                REQUIRE(diagnostics.find("Fixture script resolver local requires string name") != std::string::npos);
+                REQUIRE(diagnostics.find("Fixture script resolver argCount does not accept field 'index'") != std::string::npos);
+                REQUIRE(diagnostics.find("Fixture script resolver args does not accept field 'name'") != std::string::npos);
+                REQUIRE(diagnostics.find("Fixture script resolver paramKeys does not accept field 'index'") != std::string::npos);
+
+                pm.clearFailureDiagnostics();
+                pm.unloadAllPlugins();
+
+                std::error_code ec;
+                std::filesystem::remove(fixtureFile, ec);
+        }
+
     SECTION("Fixture command can deterministically drop QuickJS context before call") {
         pm.unloadAllPlugins();
         pm.clearFailureDiagnostics();

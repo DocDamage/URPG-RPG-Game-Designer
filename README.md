@@ -49,10 +49,16 @@ Bootstrap workspace aligned to URPG Master Blueprint v3.1.
   - Curated fixture profiles now actively exercise JS directive `arg` and `const` modes across all 10 real-world plugin fixtures.
   - Fixture script DSL now supports conditional flow and richer value resolvers (`if`, `args`, `paramKeys`, `hasParam`, `hasArg`, `equals`, `coalesce`, `length`, `contains`, `greaterThan`, `lessThan`, `not`, `all`, `any`) with executable coverage expanded for `append`/`local`/`concat` chain behavior.
   - Fixture script DSL now supports deterministic command-chain dispatch via `invoke` and `invokeByName`, including `store` capture and `expect: non_nil` assertions for nested execution validation.
+  - Fixture script DSL now supports richer invoke expectations (`nil`, `truthy`, `falsey`, `equals`) plus explicit resolver metadata validation for `arg`/`hasArg`/`param`/`hasParam`/`local`/`argCount`/`args`/`paramKeys` with raw diagnostics, report-model ingestion, export, and panel assertions kept in lockstep.
   - Compat conformance now includes invoke-chain success and failure-path diagnostics coverage (`execute_command`, `execute_command_by_name_parse`, and `execute_command_quickjs_call`) for nested fixture command flows, including malformed `invoke`/`invokeByName` validation branches.
+  - Compat fixture suites now include richer curated behavior scenarios for menu-stack and codex/content plugin flows so the 10-profile corpus is exercised through more realistic multi-plugin routing paths instead of only isolated command probes.
+  - Curated compat lifecycle coverage now includes menu-stack, codex/content, library-dashboard, save-data, menu-presentation, and presentation-family behavior surviving plugin reload plus dependent command recovery after unloading and reloading shared core fixtures.
+  - Native-first planning now includes a seeded ownership-matrix input table derived from the strongest routed compat anchors, extended with first-pass Message/Text and Save/Data rows.
+  - The first native-first subsystem spec draft now exists at `docs/UI_MENU_CORE_NATIVE_SPEC.md` so UI/Menu ownership can move from matrix inputs into subsystem design.
   - Added deterministic cross-plugin invoke chain fuzz matrix coverage (32 generated chain cases across curated fixtures, mixed `invoke` + `invokeByName`, nested branch routing).
   - Unknown (non-`std::exception`) command/runtime throws are now classified as `CRASH_PREVENTED` in diagnostics to preserve deterministic crash-containment semantics.
   - Plugin reload now reuses tracked source paths and rehydrates fixture commands for JSON-backed compat plugins.
+  - Compat report coverage now directly asserts severity mapping for `WARN`, `SOFT_FAIL`, `HARD_FAIL`, and `CRASH_PREVENTED` tags so raw diagnostics, report timelines, and panel projections stay aligned, and curated lifecycle failures now project through JSONL, report ingestion, and panel refresh for routed unload cases, including the default weekly diagnostics lane.
   - DataManager compat save lane now persists per-slot `GlobalState` + `SaveHeader` in-memory (including autosave slot `0`) with slot bound checks, plus `setSaveHeaderExtension`/`getSaveHeaderExtension` round-trip semantics and cleanup on slot deletion.
   - DataManager map transfer flow now tracks reserved transfers and applies them deterministically through `processTransfer`.
   - Burned down selected compat statuses: `Window_Base.drawItemName/textWidth/textSize` advanced from `STUB` to `PARTIAL`; `TouchInput.worldX/worldY` advanced from `STUB` to `FULL`; `Window_Base.drawActorHp/drawActorMp/drawActorTp` advanced from `PARTIAL` to `FULL`.
@@ -90,12 +96,18 @@ Bootstrap workspace aligned to URPG Master Blueprint v3.1.
   - Nightly renderer-tier matrix (`basic`, `standard`, `advanced`) + test log artifacts in CI
   - Known-break waiver validation via `tools/ci/check_waivers.ps1`
 - Migration CLI: `urpg_migrate`
-- Catch2/CTest baseline (Release snapshot, 2026-03-05):
-  - `urpg_tests`: 3447 assertions / 237 test cases
+- Catch2/CTest baseline (Debug snapshot, 2026-04-14):
+  - `urpg_tests`: 3497 assertions / 238 test cases
   - `urpg_integration_tests`: 10 assertions / 2 test cases
   - `urpg_snapshot_tests`: 4 assertions / 2 test cases
-  - `urpg_compat_tests`: 1985 assertions / 24 test cases
-  - Total: 5446 assertions / 265 test cases
+  - `urpg_compat_tests`: 2598 assertions / 37 test cases
+  - Total: 6109 assertions / 279 test cases
+
+## Immediate next steps
+
+1. Expand compat lifecycle and multi-plugin conformance beyond the current menu-stack reload, codex reload, library-dashboard reload, save-data reload, menu-presentation reload, presentation-family reload, and dependency-recovery anchors so more of the curated 10-profile corpus is exercised through realistic routed behavior instead of isolated command checks.
+2. Keep every new compat failure mode locked to raw JSONL diagnostics, report-model ingestion/export, and panel severity projection assertions, following the routed lifecycle-failure pattern now exercised directly in the weekly diagnostics lane rather than only direct command probes.
+3. Keep extending the seeded native-first ownership matrix, use `docs/UI_MENU_CORE_NATIVE_SPEC.md` as the first subsystem template, and then write the remaining first-wave specs for Message/Text, Battle, and Save/Data as outlined in `docs/NATIVE_FEATURE_ABSORPTION_PLAN.md`.
 
 ## Build
 

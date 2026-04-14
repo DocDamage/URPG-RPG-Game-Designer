@@ -11,6 +11,7 @@
 #include <deque>
 #include <filesystem>
 #include <fstream>
+#include <initializer_list>
 #include <mutex>
 #include <nlohmann/json.hpp>
 #include <sstream>
@@ -99,6 +100,16 @@ std::string valueToString(const Value& value) {
         return "{object}";
     }
     return "";
+}
+
+std::string describeValue(const Value& value) {
+    if (std::holds_alternative<std::monostate>(value.v)) {
+        return "nil";
+    }
+    if (const auto* text = std::get_if<std::string>(&value.v)) {
+        return "\"" + *text + "\"";
+    }
+    return valueToString(value);
 }
 
 std::string compatSeverityToString(CompatSeverity severity) {
@@ -256,6 +267,160 @@ bool isNilValue(const Value& value) {
     return std::holds_alternative<std::monostate>(value.v);
 }
 
+[[noreturn]] void throwFixtureResolverError(const std::string& message) {
+    throw std::runtime_error("Fixture script resolver " + message);
+}
+
+void validateResolverAllowedFields(const nlohmann::json& node,
+                                   const std::string& source,
+                                   std::initializer_list<std::string_view> allowedFields) {
+    for (const auto& [key, value] : node.items()) {
+        (void)value;
+        if (key == "from") {
+            continue;
+        }
+
+        const auto allowedIt = std::find_if(
+            allowedFields.begin(),
+            allowedFields.end(),
+            [&](const std::string_view field) {
+                return key == field;
+            }
+        );
+        if (allowedIt == allowedFields.end()) {
+            throwFixtureResolverError(source + " does not accept field '" + key + "'");
+        }
+    }
+}
+
+template <typename Predicate>
+const nlohmann::json& requireResolverTypedField(const nlohmann::json& node,
+                                                const std::string& source,
+                                                const char* fieldName,
+                                                const char* typeName,
+                                                Predicate&& predicate) {
+    const auto it = node.find(fieldName);
+    if (it == node.end() || !predicate(*it)) {
+        throwFixtureResolverError(source + " requires " + typeName + " " + fieldName);
+    }
+    return *it;
+}
+
+const nlohmann::json& requireResolverArrayField(const nlohmann::json& node,
+                                                const std::string& source,
+                                                const char* fieldName) {
+    return requireResolverTypedField(
+        node,
+        source,
+        fieldName,
+        "array",
+        [](const nlohmann::json& field) {
+            return field.is_array();
+        }
+    );
+}
+
+int64_t requireResolverIntegerField(const nlohmann::json& node,
+                                    const std::string& source,
+                                    const char* fieldName) {
+    return requireResolverTypedField(
+               node,
+               source,
+               fieldName,
+               "integer",
+               [](const nlohmann::json& field) {
+                   return field.is_number_integer() || field.is_number_unsigned();
+               }
+           )
+        .get<int64_t>();
+}
+
+std::string requireResolverStringField(const nlohmann::json& node,
+                                       const std::string& source,
+                                       const char* fieldName) {
+    return requireResolverTypedField(
+               node,
+               source,
+               fieldName,
+               "string",
+               [](const nlohmann::json& field) {
+                   return field.is_string() && !field.get<std::string>().empty();
+               }
+           )
+        .get<std::string>();
+}
+
+void enforceFixtureInvokeExpectation(const nlohmann::json& expectNode,
+                                     const Value& invokeResult,
+                                     const FixtureScriptContext& ctx,
+                                     const std::string& op,
+                                     const std::string& target,
+                                     size_t stepIndex) {
+    const auto fail = [&](const std::string& message) {
+        throw std::runtime_error(
+            "Fixture script " + op + " op " + message + " for " + target +
+            " at index " + std::to_string(stepIndex)
+        );
+    };
+
+    if (expectNode.is_string()) {
+        const std::string expect = expectNode.get<std::string>();
+        if (expect == "non_nil") {
+            if (isNilValue(invokeResult)) {
+                fail("expected non-nil result");
+            }
+            return;
+        }
+        if (expect == "nil") {
+            if (!isNilValue(invokeResult)) {
+                fail("expected nil result but got " + describeValue(invokeResult));
+            }
+            return;
+        }
+        if (expect == "truthy") {
+            if (!isTruthy(invokeResult)) {
+                fail("expected truthy result but got " + describeValue(invokeResult));
+            }
+            return;
+        }
+        if (expect == "falsey" || expect == "falsy") {
+            if (isTruthy(invokeResult)) {
+                fail("expected falsey result but got " + describeValue(invokeResult));
+            }
+            return;
+        }
+
+        throw std::runtime_error(
+            "Fixture script " + op + " op unsupported expect value '" + expect +
+            "' at index " + std::to_string(stepIndex)
+        );
+    }
+
+    if (expectNode.is_object()) {
+        const auto equalsIt = expectNode.find("equals");
+        if (equalsIt == expectNode.end()) {
+            throw std::runtime_error(
+                "Fixture script " + op + " op requires supported expect object at index " +
+                std::to_string(stepIndex)
+            );
+        }
+
+        const Value expected = resolveFixtureScriptValue(*equalsIt, ctx);
+        if (!valuesEqual(invokeResult, expected)) {
+            fail(
+                "expected result equal to " + describeValue(expected) +
+                " but got " + describeValue(invokeResult)
+            );
+        }
+        return;
+    }
+
+    throw std::runtime_error(
+        "Fixture script " + op + " op requires string or object expect at index " +
+        std::to_string(stepIndex)
+    );
+}
+
 Value resolveValueWithDefault(const nlohmann::json& fromNode,
                               const nlohmann::json& containerNode,
                               const FixtureScriptContext& ctx) {
@@ -287,19 +452,23 @@ Value resolveFixtureScriptValue(const nlohmann::json& node, const FixtureScriptC
         const std::string source = fromIt->get<std::string>();
 
         if (source == "pluginName") {
+            validateResolverAllowedFields(node, source, {});
             Value value;
             value.v = ctx.pluginName;
             return value;
         }
         if (source == "commandName") {
+            validateResolverAllowedFields(node, source, {});
             Value value;
             value.v = ctx.commandName;
             return value;
         }
         if (source == "argCount") {
+            validateResolverAllowedFields(node, source, {});
             return Value::Int(static_cast<int64_t>(ctx.args.size()));
         }
         if (source == "args") {
+            validateResolverAllowedFields(node, source, {});
             Array array;
             array.reserve(ctx.args.size());
             for (const auto& arg : ctx.args) {
@@ -308,41 +477,47 @@ Value resolveFixtureScriptValue(const nlohmann::json& node, const FixtureScriptC
             return Value::Arr(std::move(array));
         }
         if (source == "arg") {
-            const int64_t index = node.value("index", static_cast<int64_t>(-1));
+            validateResolverAllowedFields(node, source, {"index", "default"});
+            const int64_t index = requireResolverIntegerField(node, source, "index");
             if (index >= 0 && static_cast<size_t>(index) < ctx.args.size()) {
                 return ctx.args[static_cast<size_t>(index)];
             }
             return resolveValueWithDefault(nlohmann::json{}, node, ctx);
         }
         if (source == "hasArg") {
-            const int64_t index = node.value("index", static_cast<int64_t>(-1));
+            validateResolverAllowedFields(node, source, {"index"});
+            const int64_t index = requireResolverIntegerField(node, source, "index");
             Value value;
             value.v = index >= 0 && static_cast<size_t>(index) < ctx.args.size();
             return value;
         }
         if (source == "param") {
-            const std::string name = node.value("name", "");
+            validateResolverAllowedFields(node, source, {"name", "default"});
+            const std::string name = requireResolverStringField(node, source, "name");
             const auto it = ctx.parameters.find(name);
-            if (!name.empty() && it != ctx.parameters.end()) {
+            if (it != ctx.parameters.end()) {
                 return it->second;
             }
             return resolveValueWithDefault(nlohmann::json{}, node, ctx);
         }
         if (source == "local") {
-            const std::string name = node.value("name", "");
+            validateResolverAllowedFields(node, source, {"name", "default"});
+            const std::string name = requireResolverStringField(node, source, "name");
             const auto it = ctx.locals.find(name);
-            if (!name.empty() && it != ctx.locals.end()) {
+            if (it != ctx.locals.end()) {
                 return it->second;
             }
             return resolveValueWithDefault(nlohmann::json{}, node, ctx);
         }
         if (source == "hasParam") {
-            const std::string name = node.value("name", "");
+            validateResolverAllowedFields(node, source, {"name"});
+            const std::string name = requireResolverStringField(node, source, "name");
             Value value;
-            value.v = !name.empty() && ctx.parameters.find(name) != ctx.parameters.end();
+            value.v = ctx.parameters.find(name) != ctx.parameters.end();
             return value;
         }
         if (source == "paramKeys") {
+            validateResolverAllowedFields(node, source, {});
             std::vector<std::string> keys;
             keys.reserve(ctx.parameters.size());
             for (const auto& [key, paramValue] : ctx.parameters) {
@@ -360,35 +535,37 @@ Value resolveFixtureScriptValue(const nlohmann::json& node, const FixtureScriptC
             return Value::Arr(std::move(array));
         }
         if (source == "equals") {
+            validateResolverAllowedFields(node, source, {"left", "right"});
             const auto leftIt = node.find("left");
             const auto rightIt = node.find("right");
+            if (leftIt == node.end() || rightIt == node.end()) {
+                throwFixtureResolverError("equals requires left and right");
+            }
             const Value lhs =
-                leftIt != node.end() ? resolveFixtureScriptValue(*leftIt, ctx) : Value::Nil();
+                resolveFixtureScriptValue(*leftIt, ctx);
             const Value rhs =
-                rightIt != node.end() ? resolveFixtureScriptValue(*rightIt, ctx) : Value::Nil();
+                resolveFixtureScriptValue(*rightIt, ctx);
             Value value;
             value.v = valuesEqual(lhs, rhs);
             return value;
         }
         if (source == "coalesce") {
-            if (const auto valuesIt = node.find("values");
-                valuesIt != node.end() && valuesIt->is_array()) {
-                for (const auto& valueNode : *valuesIt) {
-                    const Value candidate = resolveFixtureScriptValue(valueNode, ctx);
-                    if (!std::holds_alternative<std::monostate>(candidate.v)) {
-                        return candidate;
-                    }
+            validateResolverAllowedFields(node, source, {"values", "default"});
+            const auto& values = requireResolverArrayField(node, source, "values");
+            for (const auto& valueNode : values) {
+                const Value candidate = resolveFixtureScriptValue(valueNode, ctx);
+                if (!std::holds_alternative<std::monostate>(candidate.v)) {
+                    return candidate;
                 }
             }
             return resolveValueWithDefault(nlohmann::json{}, node, ctx);
         }
         if (source == "concat") {
+            validateResolverAllowedFields(node, source, {"parts"});
             std::string out;
-            if (const auto partsIt = node.find("parts");
-                partsIt != node.end() && partsIt->is_array()) {
-                for (const auto& part : *partsIt) {
-                    out += valueToString(resolveFixtureScriptValue(part, ctx));
-                }
+            const auto& parts = requireResolverArrayField(node, source, "parts");
+            for (const auto& part : parts) {
+                out += valueToString(resolveFixtureScriptValue(part, ctx));
             }
             Value value;
             value.v = std::move(out);
@@ -517,6 +694,8 @@ Value resolveFixtureScriptValue(const nlohmann::json& node, const FixtureScriptC
             }
             return resolveValueWithDefault(nlohmann::json{}, node, ctx);
         }
+
+        throwFixtureResolverError("unknown source '" + source + "'");
     }
 
     Object object;
@@ -726,26 +905,14 @@ FixtureScriptResult runFixtureScriptSteps(const nlohmann::json& script,
 
             if (const auto expectIt = step.find("expect");
                 expectIt != step.end()) {
-                if (!expectIt->is_string()) {
-                    throw std::runtime_error(
-                        "Fixture script " + op + " op requires string expect at index " +
-                        std::to_string(stepIndex)
-                    );
-                }
-                const std::string expect = expectIt->get<std::string>();
-                if (expect == "non_nil") {
-                    if (isNilValue(invokeResult)) {
-                        throw std::runtime_error(
-                            "Fixture script " + op + " op expected non-nil result for " +
-                            target + " at index " + std::to_string(stepIndex)
-                        );
-                    }
-                } else {
-                    throw std::runtime_error(
-                        "Fixture script " + op + " op unsupported expect value '" +
-                        expect + "' at index " + std::to_string(stepIndex)
-                    );
-                }
+                enforceFixtureInvokeExpectation(
+                    *expectIt,
+                    invokeResult,
+                    ctx,
+                    op,
+                    target,
+                    stepIndex
+                );
             }
 
             continue;
