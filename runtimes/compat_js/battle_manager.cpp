@@ -271,6 +271,11 @@ BattleManager::BattleManager()
 
 BattleManager::~BattleManager() = default;
 
+BattleManager& BattleManager::instance() {
+    static BattleManager instance;
+    return instance;
+}
+
 // ============================================================================
 // Initialization and Setup
 // ============================================================================
