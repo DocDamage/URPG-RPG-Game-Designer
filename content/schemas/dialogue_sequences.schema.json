@@ -1,0 +1,66 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://urpg.dev/schemas/dialogue_sequences.schema.json",
+  "title": "URPG Dialogue Sequences",
+  "type": "object",
+  "required": ["_urpg_format_version", "sequences"],
+  "properties": {
+    "_urpg_format_version": { "type": "string", "pattern": "^[0-9]+\\.[0-9]+$" },
+    "sequences": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "pages"],
+        "properties": {
+          "id": { "type": "string", "minLength": 1 },
+          "source": { "type": "string" },
+          "pages": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "id",
+                "style_id",
+                "presentation_mode",
+                "tone",
+                "body",
+                "wait_for_advance"
+              ],
+              "properties": {
+                "id": { "type": "string", "minLength": 1 },
+                "style_id": { "type": "string", "minLength": 1 },
+                "presentation_mode": {
+                  "type": "string",
+                  "enum": ["speaker", "narration", "system"]
+                },
+                "tone": {
+                  "type": "string",
+                  "enum": ["portrait", "neutral", "system"]
+                },
+                "speaker": { "type": "string" },
+                "face_actor_id": { "type": "integer", "minimum": 0 },
+                "body": { "type": "string" },
+                "wait_for_advance": { "type": "boolean" },
+                "source_route": { "type": "string" },
+                "choices": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": ["id", "label", "enabled"],
+                    "properties": {
+                      "id": { "type": "string", "minLength": 1 },
+                      "label": { "type": "string" },
+                      "enabled": { "type": "boolean" },
+                      "disabled_reason": { "type": "string" }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "additionalProperties": true
+}

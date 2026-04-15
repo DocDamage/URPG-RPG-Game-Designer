@@ -1,0 +1,36 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://urpg.dev/schemas/choice_prompts.schema.json",
+  "title": "URPG Choice Prompts",
+  "type": "object",
+  "required": ["_urpg_format_version", "prompts"],
+  "properties": {
+    "_urpg_format_version": { "type": "string", "pattern": "^[0-9]+\\.[0-9]+$" },
+    "prompts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "options"],
+        "properties": {
+          "id": { "type": "string", "minLength": 1 },
+          "default_option_id": { "type": "string" },
+          "options": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["id", "label", "enabled"],
+              "properties": {
+                "id": { "type": "string", "minLength": 1 },
+                "label": { "type": "string" },
+                "enabled": { "type": "boolean" },
+                "disabled_reason": { "type": "string" },
+                "continue_to": { "type": "string" }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "additionalProperties": true
+}

@@ -134,6 +134,8 @@ cmake --build --preset dev-debug
 ctest --preset dev-all
 ```
 
+On Windows, test executable relinks now automatically clear stale process locks (`urpg_tests.exe`, `urpg_compat_tests.exe`, `urpg_integration_tests.exe`, `urpg_snapshot_tests.exe`). Disable if needed with `-DURPG_WINDOWS_UNLOCK_TEST_BINARIES=OFF`.
+
 ## Build cache (sccache)
 
 ```powershell

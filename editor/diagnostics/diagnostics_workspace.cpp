@@ -14,6 +14,10 @@ const char* TabName(DiagnosticsTab tab) {
         return "save";
     case DiagnosticsTab::EventAuthority:
         return "event_authority";
+    case DiagnosticsTab::MessageText:
+        return "message_text";
+    case DiagnosticsTab::Battle:
+        return "battle";
     }
     return "compat";
 }
@@ -48,6 +52,22 @@ const urpg::EventAuthorityPanel& DiagnosticsWorkspace::eventAuthorityPanel() con
     return event_authority_panel_;
 }
 
+MessageInspectorPanel& DiagnosticsWorkspace::messagePanel() {
+    return message_panel_;
+}
+
+const MessageInspectorPanel& DiagnosticsWorkspace::messagePanel() const {
+    return message_panel_;
+}
+
+BattleInspectorPanel& DiagnosticsWorkspace::battlePanel() {
+    return battle_panel_;
+}
+
+const BattleInspectorPanel& DiagnosticsWorkspace::battlePanel() const {
+    return battle_panel_;
+}
+
 void DiagnosticsWorkspace::bindSaveRuntime(const urpg::SaveCatalog& catalog,
                                            const urpg::SaveSessionCoordinator& coordinator) {
     save_panel_.bindRuntime(catalog, coordinator);
@@ -55,6 +75,24 @@ void DiagnosticsWorkspace::bindSaveRuntime(const urpg::SaveCatalog& catalog,
 
 void DiagnosticsWorkspace::clearSaveRuntime() {
     save_panel_.clearRuntime();
+}
+
+void DiagnosticsWorkspace::bindMessageRuntime(const urpg::message::MessageFlowRunner& flow_runner,
+                                              const urpg::message::RichTextLayoutEngine& layout_engine) {
+    message_panel_.bindRuntime(flow_runner, layout_engine);
+}
+
+void DiagnosticsWorkspace::clearMessageRuntime() {
+    message_panel_.clearRuntime();
+}
+
+void DiagnosticsWorkspace::bindBattleRuntime(const urpg::battle::BattleFlowController& flow_controller,
+                                             const urpg::battle::BattleActionQueue& action_queue) {
+    battle_panel_.bindRuntime(flow_controller, action_queue);
+}
+
+void DiagnosticsWorkspace::clearBattleRuntime() {
+    battle_panel_.clearRuntime();
 }
 
 void DiagnosticsWorkspace::ingestEventAuthorityDiagnosticsJsonl(std::string_view diagnostics_jsonl) {
@@ -122,6 +160,20 @@ DiagnosticsTabSummary DiagnosticsWorkspace::tabSummary(DiagnosticsTab tab) const
         summary.has_data = !rows.empty();
         break;
     }
+    case DiagnosticsTab::MessageText: {
+        const auto& model_summary = message_panel_.getModel().Summary();
+        summary.item_count = model_summary.total_pages;
+        summary.issue_count = model_summary.issue_count;
+        summary.has_data = model_summary.total_pages > 0;
+        break;
+    }
+    case DiagnosticsTab::Battle: {
+        const auto& model_summary = battle_panel_.getModel().Summary();
+        summary.item_count = model_summary.total_actions;
+        summary.issue_count = model_summary.issue_count + battle_panel_.previewPanel().issues().size();
+        summary.has_data = model_summary.active || model_summary.total_actions > 0 || model_summary.turn_count > 0;
+        break;
+    }
     }
 
     return summary;
@@ -132,6 +184,8 @@ std::vector<DiagnosticsTabSummary> DiagnosticsWorkspace::allTabSummaries() const
         tabSummary(DiagnosticsTab::Compat),
         tabSummary(DiagnosticsTab::Save),
         tabSummary(DiagnosticsTab::EventAuthority),
+        tabSummary(DiagnosticsTab::MessageText),
+        tabSummary(DiagnosticsTab::Battle),
     };
 }
 
@@ -163,8 +217,12 @@ void DiagnosticsWorkspace::render() {
         compat_panel_.render();
     } else if (active_tab_ == DiagnosticsTab::Save) {
         save_panel_.render();
-    } else {
+    } else if (active_tab_ == DiagnosticsTab::EventAuthority) {
         event_authority_panel_.render();
+    } else if (active_tab_ == DiagnosticsTab::MessageText) {
+        message_panel_.render();
+    } else {
+        battle_panel_.render();
     }
 }
 
@@ -172,6 +230,8 @@ void DiagnosticsWorkspace::refresh() {
     compat_panel_.refresh();
     save_panel_.refresh();
     event_authority_panel_.refresh();
+    message_panel_.refresh();
+    battle_panel_.refresh();
     syncPanelVisibility();
 }
 
@@ -179,6 +239,8 @@ void DiagnosticsWorkspace::update() {
     compat_panel_.update();
     save_panel_.update();
     event_authority_panel_.update();
+    message_panel_.update();
+    battle_panel_.update();
     syncPanelVisibility();
 }
 
@@ -186,6 +248,8 @@ void DiagnosticsWorkspace::syncPanelVisibility() {
     compat_panel_.setVisible(visible_ && active_tab_ == DiagnosticsTab::Compat);
     save_panel_.setVisible(visible_ && active_tab_ == DiagnosticsTab::Save);
     event_authority_panel_.setVisible(visible_ && active_tab_ == DiagnosticsTab::EventAuthority);
+    message_panel_.setVisible(visible_ && active_tab_ == DiagnosticsTab::MessageText);
+    battle_panel_.setVisible(visible_ && active_tab_ == DiagnosticsTab::Battle);
 }
 
 } // namespace urpg::editor

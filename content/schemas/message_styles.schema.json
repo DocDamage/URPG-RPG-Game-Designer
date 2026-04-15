@@ -1,0 +1,43 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://urpg.dev/schemas/message_styles.schema.json",
+  "title": "URPG Message Styles",
+  "type": "object",
+  "required": ["_urpg_format_version", "styles"],
+  "properties": {
+    "_urpg_format_version": { "type": "string", "pattern": "^[0-9]+\\.[0-9]+$" },
+    "styles": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "namebox", "portrait"],
+        "properties": {
+          "id": { "type": "string", "minLength": 1 },
+          "namebox": {
+            "type": "object",
+            "required": ["visible", "margin_x", "margin_y", "max_width"],
+            "properties": {
+              "visible": { "type": "boolean" },
+              "margin_x": { "type": "integer" },
+              "margin_y": { "type": "integer" },
+              "max_width": { "type": "integer", "minimum": 0 }
+            }
+          },
+          "portrait": {
+            "type": "object",
+            "required": ["visible", "dock", "x", "y", "width", "height"],
+            "properties": {
+              "visible": { "type": "boolean" },
+              "dock": { "type": "string", "enum": ["left", "right"] },
+              "x": { "type": "integer" },
+              "y": { "type": "integer" },
+              "width": { "type": "integer", "minimum": 0 },
+              "height": { "type": "integer", "minimum": 0 }
+            }
+          }
+        }
+      }
+    }
+  },
+  "additionalProperties": true
+}

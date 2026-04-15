@@ -1,0 +1,39 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://urpg.dev/schemas/rich_text_tokens.schema.json",
+  "title": "URPG Rich Text Token Registry",
+  "type": "object",
+  "required": ["_urpg_format_version", "tokens"],
+  "properties": {
+    "_urpg_format_version": { "type": "string", "pattern": "^[0-9]+\\.[0-9]+$" },
+    "tokens": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["code", "family", "description"],
+        "properties": {
+          "code": { "type": "string", "minLength": 1 },
+          "family": {
+            "type": "string",
+            "enum": [
+              "color",
+              "icon",
+              "variable",
+              "actor",
+              "party",
+              "currency",
+              "font",
+              "newline"
+            ]
+          },
+          "description": { "type": "string" },
+          "args": {
+            "type": "array",
+            "items": { "type": "string" }
+          }
+        }
+      }
+    }
+  },
+  "additionalProperties": true
+}

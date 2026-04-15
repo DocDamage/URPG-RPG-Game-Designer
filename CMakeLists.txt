@@ -11,6 +11,11 @@ endif()
 
 option(URPG_FETCH_CATCH2 "Fetch Catch2 via CMake" ON)
 option(URPG_USE_SCCACHE "Use sccache as compiler launcher when available" ON)
+option(
+    URPG_WINDOWS_UNLOCK_TEST_BINARIES
+    "On Windows, stop stale local test runner processes before relinking test executables"
+    ON
+)
 
 if(URPG_USE_SCCACHE)
     find_program(SCCACHE_PROGRAM NAMES sccache)
@@ -23,6 +28,36 @@ if(URPG_USE_SCCACHE)
         message(WARNING "URPG_USE_SCCACHE=ON but 'sccache' was not found on PATH")
     endif()
 endif()
+
+if(WIN32 AND URPG_WINDOWS_UNLOCK_TEST_BINARIES)
+    find_program(URPG_POWERSHELL_EXE NAMES pwsh powershell)
+    if(NOT URPG_POWERSHELL_EXE)
+        message(WARNING "URPG_WINDOWS_UNLOCK_TEST_BINARIES=ON but no PowerShell executable was found")
+    endif()
+endif()
+
+function(urpg_enable_windows_test_binary_unlock target_name)
+    if(NOT WIN32 OR NOT URPG_WINDOWS_UNLOCK_TEST_BINARIES OR NOT URPG_POWERSHELL_EXE)
+        return()
+    endif()
+
+    add_custom_command(
+        TARGET ${target_name}
+        PRE_LINK
+        COMMAND
+            ${URPG_POWERSHELL_EXE}
+            -NoProfile
+            -ExecutionPolicy
+            Bypass
+            -File
+            "${CMAKE_CURRENT_SOURCE_DIR}/tools/ci/unlock-test-binary.ps1"
+            -ProcessName
+            "$<TARGET_FILE_BASE_NAME:${target_name}>"
+            -BinaryPath
+            "$<TARGET_FILE:${target_name}>"
+        VERBATIM
+    )
+endfunction()
 
 add_library(urpg_core
     engine/core/debug/debug_session.cpp
@@ -49,9 +84,12 @@ add_library(urpg_core
     engine/core/save/save_journal.cpp
     engine/core/save/save_recovery.cpp
     engine/core/save/save_runtime.cpp
+    engine/core/battle/battle_core.cpp
     engine/gameplay/combat/combat_calc.cpp
     engine/core/ui/ui_window.cpp
     engine/core/ui/ui_command_list.cpp
+    engine/core/message/message_core.cpp
+    engine/core/message/message_migration.cpp
     editor/diagnostics/event_authority_diagnostics.cpp
     editor/diagnostics/event_authority_panel.cpp
     editor/diagnostics/diagnostics_workspace.cpp
@@ -59,6 +97,11 @@ add_library(urpg_core
     editor/compat/compat_report_panel.cpp
     editor/save/save_inspector_model.cpp
     editor/save/save_inspector_panel.cpp
+    editor/battle/battle_inspector_model.cpp
+    editor/battle/battle_preview_panel.cpp
+    editor/battle/battle_inspector_panel.cpp
+    editor/message/message_inspector_model.cpp
+    editor/message/message_inspector_panel.cpp
     engine/core/scene/battle_scene.cpp
     engine/core/scene/map_scene.cpp
     runtimes/compat_js/quickjs_runtime.cpp
@@ -157,6 +200,7 @@ add_executable(urpg_tests
     tests/unit/test_frame_budget.cpp
     tests/unit/test_ecs_world.cpp
     tests/unit/test_combat_calc.cpp
+    tests/unit/test_battle_core.cpp
     tests/unit/test_bridge_roundtrip.cpp
     tests/unit/test_thread_roles.cpp
     tests/unit/test_render_tier.cpp
@@ -171,6 +215,9 @@ add_executable(urpg_tests
     tests/unit/test_save_recovery.cpp
     tests/unit/test_save_runtime.cpp
     tests/unit/test_save_serialization.cpp
+    tests/unit/test_battle_inspector_model.cpp
+    tests/unit/test_battle_preview_panel.cpp
+    tests/unit/test_battle_inspector_panel.cpp
     tests/unit/test_engine_shell.cpp
     tests/unit/test_event_edit_guard.cpp
     tests/unit/test_event_authority_diagnostics.cpp
@@ -190,6 +237,11 @@ add_executable(urpg_tests
     tests/unit/test_menu_core.cpp
     tests/unit/test_input_core.cpp
     tests/unit/test_audio_core.cpp
+    tests/unit/test_message_text_core.cpp
+    tests/unit/test_message_migration.cpp
+    tests/unit/test_message_schema_contracts.cpp
+    tests/unit/test_message_inspector_model.cpp
+    tests/unit/test_message_inspector_panel.cpp
     tests/unit/test_scene_manager.cpp
     tests/engine/core/test_render_assets.cpp
     tests/engine/core/test_engine_shell.cpp
@@ -198,6 +250,7 @@ add_executable(urpg_tests
 target_link_libraries(urpg_tests PRIVATE urpg_core Catch2::Catch2WithMain)
 target_include_directories(urpg_tests PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
 target_compile_definitions(urpg_tests PRIVATE URPG_SOURCE_DIR="${CMAKE_CURRENT_SOURCE_DIR}")
+urpg_enable_windows_test_binary_unlock(urpg_tests)
 
 add_executable(urpg_integration_tests
     tests/integration/test_integration_runtime_recovery.cpp
@@ -206,6 +259,7 @@ add_executable(urpg_integration_tests
 target_link_libraries(urpg_integration_tests PRIVATE urpg_core Catch2::Catch2WithMain)
 target_include_directories(urpg_integration_tests PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
 target_compile_definitions(urpg_integration_tests PRIVATE URPG_SOURCE_DIR="${CMAKE_CURRENT_SOURCE_DIR}")
+urpg_enable_windows_test_binary_unlock(urpg_integration_tests)
 
 add_executable(urpg_snapshot_tests
     tests/snapshot/test_snapshot_canonical_outputs.cpp
@@ -214,6 +268,7 @@ add_executable(urpg_snapshot_tests
 target_link_libraries(urpg_snapshot_tests PRIVATE urpg_core Catch2::Catch2WithMain)
 target_include_directories(urpg_snapshot_tests PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
 target_compile_definitions(urpg_snapshot_tests PRIVATE URPG_SOURCE_DIR="${CMAKE_CURRENT_SOURCE_DIR}")
+urpg_enable_windows_test_binary_unlock(urpg_snapshot_tests)
 
 add_executable(urpg_compat_tests
     tests/compat/test_compat_authority_suite.cpp
@@ -225,6 +280,7 @@ add_executable(urpg_compat_tests
 target_link_libraries(urpg_compat_tests PRIVATE urpg_core Catch2::Catch2WithMain)
 target_include_directories(urpg_compat_tests PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
 target_compile_definitions(urpg_compat_tests PRIVATE URPG_SOURCE_DIR="${CMAKE_CURRENT_SOURCE_DIR}")
+urpg_enable_windows_test_binary_unlock(urpg_compat_tests)
 
 include(CTest)
 include(Catch)

@@ -1,7 +1,9 @@
 #pragma once
 
+#include "editor/battle/battle_inspector_panel.h"
 #include "editor/compat/compat_report_panel.h"
 #include "editor/diagnostics/event_authority_panel.h"
+#include "editor/message/message_inspector_panel.h"
 #include "editor/save/save_inspector_panel.h"
 
 namespace urpg::editor {
@@ -10,6 +12,8 @@ enum class DiagnosticsTab : uint8_t {
     Compat = 0,
     Save = 1,
     EventAuthority = 2,
+    MessageText = 3,
+    Battle = 4,
 };
 
 struct DiagnosticsTabSummary {
@@ -32,10 +36,20 @@ public:
 
     urpg::EventAuthorityPanel& eventAuthorityPanel();
     const urpg::EventAuthorityPanel& eventAuthorityPanel() const;
+    MessageInspectorPanel& messagePanel();
+    const MessageInspectorPanel& messagePanel() const;
+    BattleInspectorPanel& battlePanel();
+    const BattleInspectorPanel& battlePanel() const;
 
     void bindSaveRuntime(const urpg::SaveCatalog& catalog,
                          const urpg::SaveSessionCoordinator& coordinator);
     void clearSaveRuntime();
+    void bindMessageRuntime(const urpg::message::MessageFlowRunner& flow_runner,
+                            const urpg::message::RichTextLayoutEngine& layout_engine);
+    void clearMessageRuntime();
+    void bindBattleRuntime(const urpg::battle::BattleFlowController& flow_controller,
+                           const urpg::battle::BattleActionQueue& action_queue);
+    void clearBattleRuntime();
     void ingestEventAuthorityDiagnosticsJsonl(std::string_view diagnostics_jsonl);
     void clearEventAuthorityDiagnostics();
 
@@ -59,6 +73,8 @@ private:
     CompatReportPanel compat_panel_;
     SaveInspectorPanel save_panel_;
     urpg::EventAuthorityPanel event_authority_panel_;
+    MessageInspectorPanel message_panel_;
+    BattleInspectorPanel battle_panel_;
     DiagnosticsTab active_tab_ = DiagnosticsTab::Compat;
     bool visible_ = true;
 };

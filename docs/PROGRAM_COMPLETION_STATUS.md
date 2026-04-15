@@ -40,6 +40,51 @@ Program Scope: native-first roadmap rewire plus Wave 1 absorption, Wave 2 advanc
 - Rewrote the primary roadmap into an integrated plan:
   - `docs/NATIVE_FEATURE_ABSORPTION_PLAN.md`
   - includes Wave 2 advanced capability tracks (ability framework, pattern editor, modular level assembly, sprite pipeline, procedural toolkit, optional 2.5D lane, timeline orchestration, editor utilities)
+- Added Message/Text Core runtime ownership slice:
+  - `engine/core/message/message_core.h`
+  - `engine/core/message/message_core.cpp`
+  - route-mode mapping for `speaker`/`narration`/`system`
+  - native rich-text escape tokenization/layout and deterministic metrics
+  - message flow runner with page advance + choice prompt state snapshot/restore
+  - unit anchor coverage in `tests/unit/test_message_text_core.cpp`
+- Added Message/Text editor inspector + preview diagnostics slice:
+  - `editor/message/message_inspector_model.h`
+  - `editor/message/message_inspector_model.cpp`
+  - `editor/message/message_inspector_panel.h`
+  - `editor/message/message_inspector_panel.cpp`
+  - diagnostics workspace `message_text` tab wiring
+  - unit coverage in `tests/unit/test_message_inspector_model.cpp` and `tests/unit/test_message_inspector_panel.cpp`
+- Added Message/Text schema + migration completion slice:
+  - schema contracts:
+    - `content/schemas/message_styles.schema.json`
+    - `content/schemas/dialogue_sequences.schema.json`
+    - `content/schemas/rich_text_tokens.schema.json`
+    - `content/schemas/choice_prompts.schema.json`
+  - compat-to-native upgrader mapping:
+    - `engine/core/message/message_migration.h`
+    - `engine/core/message/message_migration.cpp`
+    - safe fallback mapping for unsupported route/escape/body/choice constructs
+    - structured migration diagnostics JSONL export
+  - unit coverage in `tests/unit/test_message_migration.cpp` and `tests/unit/test_message_schema_contracts.cpp`
+- Added Battle Core native runtime ownership slice:
+  - `engine/core/battle/battle_core.h`
+  - `engine/core/battle/battle_core.cpp`
+  - deterministic `BattleFlowController` phase/turn/escape state owner
+  - deterministic `BattleActionQueue` ordering owner (speed + priority + stable tie-break)
+  - deterministic `BattleRuleResolver` owner (damage + escape ratio baselines)
+  - unit coverage in `tests/unit/test_battle_core.cpp`
+- Added Battle Core editor inspector + preview diagnostics slice:
+  - `editor/battle/battle_inspector_model.h`
+  - `editor/battle/battle_inspector_model.cpp`
+  - `editor/battle/battle_preview_panel.h`
+  - `editor/battle/battle_preview_panel.cpp`
+  - `editor/battle/battle_inspector_panel.h`
+  - `editor/battle/battle_inspector_panel.cpp`
+  - diagnostics workspace `battle` tab wiring
+  - unit coverage in:
+    - `tests/unit/test_battle_inspector_model.cpp`
+    - `tests/unit/test_battle_preview_panel.cpp`
+    - `tests/unit/test_battle_inspector_panel.cpp`
 
 ## Definition of 100% complete (for this program scope)
 
