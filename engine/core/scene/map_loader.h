@@ -21,28 +21,67 @@ public:
     static std::unique_ptr<urpg::scene::MapScene> LoadToNative(int32_t mapId) {
         auto& dm = urpg::compat::DataManager::instance();
         
-        // In a real implementation, we would call dm.loadMapData(mapId) 
-        // and then extract width, height, and tile data from the MZ JSON structure.
-        
-        // Mocking metadata extraction from DataManager
-        int width = 20; 
-        int height = 15;
-        int tilesetId = 1; // Assume map uses tileset 1
+        // 1. Ensure DataManager is synchronized with the requested map ID.
+        if (!dm.loadMapData(mapId)) {
+            return nullptr;
+        }
+
+        const auto* mapData = dm.getCurrentMap();
+        if (!mapData) return nullptr;
+
+        int width = mapData->width;
+        int height = mapData->height;
+        int tilesetId = mapData->tilesetId;
         
         auto nativeMap = std::make_unique<urpg::scene::MapScene>(std::to_string(mapId), width, height);
-        
-        // Translation Logic:
-        // MZ maps use 6 layers of tile IDs. We would map them to native TileData.
+
+        // 2. Resolve Tileset Collision
+        const auto* compatTileset = dm.getTileset(tilesetId);
+        if (compatTileset) {
+            // Synchronize Native TilesetRegistry
+            TilesetData nativeTileset;
+            nativeTileset.id = compatTileset->id;
+            nativeTileset.name = compatTileset->name;
+            for (auto flag : compatTileset->flags) {
+                nativeTileset.flags.push_back(static_cast<uint16_t>(flag));
+            }
+            TilesetRegistry::instance().registerTileset(nativeTileset);
+        }
+
+        // 3. Move MZ Layers into Native Map
+        for (size_t layerIdx = 0; layerIdx < mapData->data.size(); ++layerIdx) {
+            nativeMap->setLayerData(static_cast<int>(layerIdx), mapData->data[layerIdx]);
+        }
+
+        // 4. Calculate Passability (simplified logic: check layer 0-3 for collision flags)
         for (int y = 0; y < height; ++y) {
             for (int x = 0; x < width; ++x) {
-                // Layer 0 is usually the background/floor (A1-A5)
-                // We check the TilesetRegistry to see if this tile ID is passable.
-                // For the mock, we assume tile ID 0 is floor and tile ID 1 is wall.
-                uint16_t tileId = (x == 0 || x == width-1 || y == 0 || y == height-1) ? 1 : 0;
+                int index = y * width + x;
+                bool isPassable = true;
+
+                // RPG Maker priority: top-down check
+                for (int layerIdx = 3; layerIdx >= 0; --layerIdx) {
+                    if (layerIdx < mapData->data.size()) {
+                        int tileId = mapData->data[layerIdx][index];
+                        if (tileId != 0 && !TilesetRegistry::instance().isTilePassable(tilesetId, tileId)) {
+                            isPassable = false;
+                            break;
+                        }
+                    }
+                }
                 
-                bool passable = TilesetRegistry::instance().isTilePassable(tilesetId, tileId);
-                nativeMap->setTile(x, y, tileId, passable);
+                // We set the base passability on the MapScene's collision grid
+                nativeMap->setTilePassable(x, y, isPassable);
             }
+        }
+
+        // 5. Load Player Start (Sync from DataManager)
+        int startX = dm.getStartX();
+        int startY = dm.getStartY();
+        // Here we would sync actor 1 character graphics
+        const auto* actor = dm.getActor(dm.getStartPartyMember(0));
+        if (actor) {
+            nativeMap->setPlayerCharacter(actor->characterName, actor->characterIndex);
         }
         
         return nativeMap;

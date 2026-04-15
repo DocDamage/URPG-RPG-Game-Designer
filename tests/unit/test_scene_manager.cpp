@@ -96,6 +96,8 @@ TEST_CASE("MapLoader: Bridge DataManager to MapScene", "[scene][map][loader]") {
     }
 }
 
+/* Deprecated BattleScene tests moved to test_battle_scene.cpp */
+#if 0
 TEST_CASE("BattleScene: Phase and Turn Authority", "[scene][battle]") {
     BattleScene battle({"slime_01", "slime_02"});
     
@@ -116,6 +118,7 @@ TEST_CASE("BattleScene: Phase and Turn Authority", "[scene][battle]") {
         REQUIRE(battle.getTurnCount() == 2);
     }
 }
+#endif
 
 TEST_CASE("MapScene: Coordinate and Collision Authority", "[scene][map]") {
     MapScene map("001", 10, 10);
