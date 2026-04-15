@@ -131,6 +131,9 @@ public:
     // Non-copyable
     BattleManager(const BattleManager&) = delete;
     BattleManager& operator=(const BattleManager&) = delete;
+
+    // Singleton access for compatibility.
+    static BattleManager& instance();
     
     // ========================================================================
     // Initialization and Setup
