@@ -140,6 +140,46 @@ TEST_CASE("SaveSessionCoordinator loads save_policies.json", "[save][catalog][sc
     std::filesystem::remove(path);
 }
 
+TEST_CASE("SaveSessionCoordinator loads save_slots.json descriptors", "[save][catalog][schema]") {
+    const auto path = std::filesystem::temp_directory_path() / "save_slots.json";
+    const std::string content = R"({
+        "slots": [
+            { "slot_id": 9, "category": "manual", "label": "Archive Slot 9", "reserved": false },
+            { "slot_id": 0, "category": "autosave", "label": "Autosave Root", "reserved": true },
+            { "slot_id": 3, "category": "quicksave", "label": "Quick Slot 3", "reserved": false }
+        ]
+    })";
+    WriteText(path, content);
+
+    urpg::SaveCatalog catalog;
+    urpg::SaveSessionCoordinator coordinator(catalog);
+    REQUIRE(coordinator.loadSaveSlots(path));
+
+    const auto& descriptors = coordinator.slotDescriptors();
+    REQUIRE(descriptors.size() == 3);
+    REQUIRE(descriptors[0].slot_id == 0);
+    REQUIRE(descriptors[0].category == urpg::SaveSlotCategory::Autosave);
+    REQUIRE(descriptors[0].label == "Autosave Root");
+    REQUIRE(descriptors[0].reserved);
+
+    REQUIRE(descriptors[1].slot_id == 3);
+    REQUIRE(descriptors[1].category == urpg::SaveSlotCategory::Quicksave);
+    REQUIRE(descriptors[1].label == "Quick Slot 3");
+    REQUIRE_FALSE(descriptors[1].reserved);
+
+    REQUIRE(descriptors[2].slot_id == 9);
+    REQUIRE(descriptors[2].category == urpg::SaveSlotCategory::Manual);
+    REQUIRE(descriptors[2].label == "Archive Slot 9");
+
+    const auto autosaveDescriptor = coordinator.slotDescriptor(0);
+    REQUIRE(autosaveDescriptor.has_value());
+    REQUIRE(autosaveDescriptor->reserved);
+
+    REQUIRE_FALSE(coordinator.slotDescriptor(404).has_value());
+
+    std::filesystem::remove(path);
+}
+
 TEST_CASE("Save session coordinator records primary slot loads", "[save][catalog]") {
     const auto base = std::filesystem::temp_directory_path() / "urpg_save_catalog_primary";
     std::filesystem::create_directories(base);

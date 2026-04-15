@@ -20,13 +20,16 @@ std::string RecoveryLabel(urpg::SaveRecoveryTier tier) {
     return "unknown";
 }
 
-std::string BuildSummary(const urpg::SaveCatalogEntry& entry) {
+std::string BuildSummary(const urpg::SaveCatalogEntry& entry, bool reserved_slot) {
     std::string summary = entry.last_operation.empty() ? "untracked" : entry.last_operation;
     summary += " / ";
     summary += ToString(entry.meta.category);
     summary += " / " + RecoveryLabel(entry.last_recovery_tier);
     summary += " / retained:";
     summary += ToString(entry.meta.retention_class);
+    if (reserved_slot) {
+        summary += " / reserved";
+    }
     if (entry.meta.flags.corrupted) {
         summary += " / corrupted";
     }
@@ -42,6 +45,10 @@ bool IsProblemRow(const urpg::SaveCatalogEntry& entry) {
 void SaveInspectorModel::LoadFromCatalog(const urpg::SaveCatalog& catalog,
                                          const urpg::SaveSessionCoordinator& coordinator) {
     all_entries_ = catalog.listEntries(true);
+    slot_descriptors_by_slot_id_.clear();
+    for (const auto& descriptor : coordinator.slotDescriptors()) {
+        slot_descriptors_by_slot_id_[descriptor.slot_id] = descriptor;
+    }
     selected_row_index_.reset();
 
     summary_ = {};
@@ -50,6 +57,12 @@ void SaveInspectorModel::LoadFromCatalog(const urpg::SaveCatalog& catalog,
     summary_.autosave_retention_limit = coordinator.retentionPolicy().max_autosave_slots;
     summary_.quicksave_retention_limit = coordinator.retentionPolicy().max_quicksave_slots;
     summary_.manual_retention_limit = coordinator.retentionPolicy().max_manual_slots;
+    summary_.reserved_slots = 0;
+    for (const auto& descriptor : coordinator.slotDescriptors()) {
+        if (descriptor.reserved) {
+            ++summary_.reserved_slots;
+        }
+    }
 
     for (const auto& entry : all_entries_) {
         ++summary_.total_slots;
@@ -130,12 +143,23 @@ void SaveInspectorModel::RebuildVisibleRows() {
         row.boot_safe_mode = entry.last_recovery_tier == urpg::SaveRecoveryTier::Level3SafeSkeleton;
         row.category = entry.meta.category;
         row.retention_class = entry.meta.retention_class;
-        row.map_display_name = entry.meta.map_display_name;
+        if (const auto descriptorIt = slot_descriptors_by_slot_id_.find(entry.meta.slot_id);
+            descriptorIt != slot_descriptors_by_slot_id_.end()) {
+            row.reserved_slot = descriptorIt->second.reserved;
+            row.slot_label = descriptorIt->second.label;
+            if (entry.meta.map_display_name.empty()) {
+                row.map_display_name = descriptorIt->second.label;
+            } else {
+                row.map_display_name = entry.meta.map_display_name;
+            }
+        } else {
+            row.map_display_name = entry.meta.map_display_name;
+        }
         row.operation = entry.last_operation;
         row.category_label = ToString(entry.meta.category);
         row.retention_label = ToString(entry.meta.retention_class);
         row.recovery_label = RecoveryLabel(entry.last_recovery_tier);
-        row.summary = BuildSummary(entry);
+        row.summary = BuildSummary(entry, row.reserved_slot);
         row.diagnostic = entry.diagnostic;
         visible_rows_.push_back(std::move(row));
     }

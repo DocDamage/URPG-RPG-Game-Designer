@@ -42,6 +42,16 @@ SaveRetentionClass ParseRetentionClass(const SaveSlotMeta& meta, SaveSlotCategor
             : RetentionClassForCategory(category));
 }
 
+SaveSlotCategory ParseSlotCategoryString(const std::string& rawCategory) {
+    if (rawCategory == "autosave") {
+        return SaveSlotCategory::Autosave;
+    }
+    if (rawCategory == "quicksave") {
+        return SaveSlotCategory::Quicksave;
+    }
+    return SaveSlotCategory::Manual;
+}
+
 void NormalizeMeta(SaveSlotMeta& meta, int32_t slot_id, int32_t autosave_slot, const SaveMetadataRegistry* registry = nullptr) {
     meta.slot_id = slot_id;
     meta.category = ParseSlotCategory(meta, slot_id, autosave_slot);
@@ -215,6 +225,60 @@ bool SaveSessionCoordinator::loadSavePolicies(const std::filesystem::path& path)
     } catch (...) {
         return false;
     }
+}
+
+bool SaveSessionCoordinator::loadSaveSlots(const std::filesystem::path& path) {
+    std::ifstream f(path);
+    if (!f.is_open()) {
+        return false;
+    }
+
+    try {
+        nlohmann::json data = nlohmann::json::parse(f);
+        if (!data.is_object() || !data.contains("slots") || !data["slots"].is_array()) {
+            return false;
+        }
+
+        std::vector<SaveSlotDescriptor> parsed;
+        for (const auto& item : data["slots"]) {
+            if (!item.is_object() || !item.contains("slot_id") || !item["slot_id"].is_number_integer()) {
+                return false;
+            }
+
+            SaveSlotDescriptor descriptor;
+            descriptor.slot_id = item["slot_id"].get<int32_t>();
+            descriptor.category = ParseSlotCategoryString(item.value("category", std::string("manual")));
+            descriptor.label = item.value("label", std::string("Slot ") + std::to_string(descriptor.slot_id));
+            descriptor.reserved = item.value("reserved", false);
+            parsed.push_back(std::move(descriptor));
+        }
+
+        std::sort(parsed.begin(), parsed.end(), [](const SaveSlotDescriptor& lhs, const SaveSlotDescriptor& rhs) {
+            if (lhs.slot_id != rhs.slot_id) {
+                return lhs.slot_id < rhs.slot_id;
+            }
+            if (lhs.category != rhs.category) {
+                return static_cast<uint8_t>(lhs.category) < static_cast<uint8_t>(rhs.category);
+            }
+            return lhs.label < rhs.label;
+        });
+
+        slot_descriptors_ = std::move(parsed);
+        return true;
+    } catch (...) {
+        return false;
+    }
+}
+
+std::optional<SaveSlotDescriptor> SaveSessionCoordinator::slotDescriptor(int32_t slot_id) const {
+    const auto it = std::find_if(slot_descriptors_.begin(), slot_descriptors_.end(),
+                                 [slot_id](const SaveSlotDescriptor& descriptor) {
+                                     return descriptor.slot_id == slot_id;
+                                 });
+    if (it == slot_descriptors_.end()) {
+        return std::nullopt;
+    }
+    return *it;
 }
 
 bool SaveSessionCoordinator::canAutosave() const {
