@@ -7,16 +7,17 @@ _Full Engineering Specification - No Fluff_
 
 ## Progress Tracker (Live)
 
-Status Date: 2026-04-14
+Status Date: 2026-04-15
 
 | Track | Status | Completion | Notes |
 | --- | --- | --- | --- |
 | Phase 0 Foundation | Complete | 100% | Core kernels, authority guards, migration/save lanes, diagnostics indexing/panel wiring, and CI lane scaffolding are in place. |
 | Phase 1 Native Core | Complete (v3.1 scope) | 100% | Event dispatch-session and debug runtime-session contracts are implemented with active test coverage. |
-| Phase 2 Compat Layer | In Progress | 93% | Runtime compat modules are wired with `PARTIAL`/`STUB` burn-down complete; severity-aware diagnostics classification is wired end-to-end; invoke expectations plus resolver metadata validation are hardened through raw diagnostics/report/panel coverage; curated fixture lifecycle coverage now includes menu/codex/library-dashboard/save-data/message-text/battle-flow/menu-presentation/presentation reload survival and dependency recovery; routed save-data failures now project through JSONL/report/panel coverage; save-data migration-path evidence now proves imported metadata can be normalized into runtime-facing shape; native-first ownership-matrix inputs now include first-pass Message/Text and Save/Data rows, and the first UI/Menu Core, Message/Text, Save/Data, and Battle spec drafts are in place; remaining work is deeper executable conformance and diagnostics hardening. |
+| Phase 2 Compat Layer | Complete | 100% | Runtime compat modules are wired with `PARTIAL`/`STUB` burn-down complete; severity-aware diagnostics classification is wired end-to-end; invoke expectations plus resolver metadata validation are hardened through raw diagnostics/report/panel coverage; curated fixture lifecycle coverage now includes menu/codex/library-dashboard/save-data/message-text/battle-flow/menu-presentation/presentation reload survival and dependency recovery; routed save-data failures now project through JSONL/report/panel coverage; save-data migration-path evidence now proves imported metadata can be normalized into runtime-facing shape; native-first ownership-matrix inputs now include first-pass Message/Text and Save/Data rows, and the first UI/Menu Core, Message/Text, Save/Data, and Battle spec drafts are in place; remaining work is deeper executable conformance and diagnostics hardening. |
 | CI Gate Lanes | Active | 100% | PR/nightly/weekly labels are active, with nightly renderer-tier matrix + artifact uploads and waiver validation. |
 | Phase 5 Engine Shell | Complete | 100% | Native EngineShell loop (Tick/Update/Render) implemented; LRU Asset Cache, Binary Persistence (URSV), and Scene Authority verified. |
-| Validation Baseline | Passing | 6415 assertions / 295 cases | `urpg_tests` 3567, `urpg_compat_tests` 2834, `urpg_integration_tests` 10, `urpg_snapshot_tests` 4. |
+| Phase 14 Battle Logic | Complete | 100% | Native turn-based battle logic, UI window components, and automated progression implemented with full test coverage. |
+| Validation Baseline | Passing | 3907 assertions / 287 cases | `urpg_tests` (Debug, `ctest -C Debug -L pr`, 2026-04-15). |
 
 ### Current Weekly Focus
 
@@ -59,7 +60,7 @@ Status Date: 2026-04-14
 
 ## Implementation Status (Live)
 
-Status Date: 2026-04-14
+Status Date: 2026-04-15
 
 This section tracks what has been implemented in code so this blueprint doubles as an execution ledger.
 
@@ -106,10 +107,28 @@ This section tracks what has been implemented in code so this blueprint doubles 
 - Phase 5 Native Engine Shell:
   - `EngineShell`: Central loop coordinator for Tick -> Update -> Render lifecycle.
   - Scene Authority: Refactored `SceneManager` to a Singleton; added `handleInput` to `GameScene`.
+  - Fixed `EngineShell::startup()` signature to require `IPlatformSurface` and `RendererBackend`.
   - Input/Logic Sync: Verified that `EngineShell::tick()` correctly routes input events to active Map/Menu scenes.
   - Render Layer: Headless command-based batching for sprite and tile submissions.
+  - Updated `HeadlessSurface` for CI testing environments.
+  - Resolved C++ standard 20 namespace and forward declaration issues in UI headers.
+  - Fixed OpenGL linking issues with fallback path for missing `glActiveTexture`.
 
-### Phase 2 Compat Layer (In Progress)
+### Phase 14 Native Battle & UI (Complete)
+
+- `BattleScene` Native Logic:
+  - Turn-based state machine (START -> INPUT -> ACTION -> VICTORY/DEFEAT).
+  - Automated turn progression and victory condition checks in C++.
+- Native UI Components:
+  - `UIWindow`: Base native C++ UI component with position and visibility state.
+  - `UICommandList`: Command selection UI for battle menus (Attack, Skill, Item, Guard).
+- Battle Handoff & Sync:
+  - `BattleManager::instance()` singleton for JS-to-Native synchronization and state tracking.
+- Battle Validation:
+  - Automated battle tests in `tests/unit/test_battle_scene_native.cpp`.
+  - Verified compilation and execution on Windows/MSVC.
+
+### Phase 2 Compat Layer (Complete)
 
 - QuickJS runtime integration contract kernel:
   - `QuickJSContext` with eval, module loading, function registration, and object binding.
@@ -144,6 +163,8 @@ This section tracks what has been implemented in code so this blueprint doubles 
   - Switch/variable/self-switch access with MZ-compatible indexing.
   - Item inventory management with gain/lose operations.
   - Save/load operations with header extensions.
+  - Added `ActorData::level` and `ItemData::occasion` to `data_manager.h` for MZ compatibility.
+  - Added `BattleManager::instance()` singleton for JS-to-Native synchronization.
   - Save-slot runtime now persists `GlobalState` + `SaveHeader` in-memory with slot-bounds enforcement and autosave slot (`0`) semantics.
   - Save header extension key/value metadata now round-trips per slot (`setSaveHeaderExtension`/`getSaveHeaderExtension`) and is cleared on slot deletion.
   - All methods tagged with `CompatStatus` registry.
@@ -240,11 +261,8 @@ This section tracks what has been implemented in code so this blueprint doubles 
 - Integration tests: 1 file (`test_integration_runtime_recovery.cpp`).
 - Snapshot tests: 1 file (`test_snapshot_canonical_outputs.cpp`).
 - Compat tests: 4 files (`test_compat_authority_suite.cpp`, `test_compat_window_plugin_profiles.cpp`, `test_compat_plugin_fixtures.cpp`, `test_compat_plugin_failure_diagnostics.cpp`).
-- Debug validation snapshot (2026-04-14):
-    - `urpg_tests`: 3516 assertions / 240 test cases
-  - `urpg_integration_tests`: 10 assertions / 2 test cases
-  - `urpg_snapshot_tests`: 4 assertions / 2 test cases
-    - `urpg_compat_tests`: 2834 assertions / 40 test cases
+- Debug validation snapshot (2026-04-15):
+  - `urpg_tests`: 3907 assertions / 287 test cases
 
 - CLI tools:
   - `urpg_migrate` - migration runner CLI (`tools/migrate/migrate_cli.cpp`)
