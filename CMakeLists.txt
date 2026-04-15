@@ -5,6 +5,10 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
+if(MSVC)
+    add_compile_options(/FS /EHsc)
+endif()
+
 option(URPG_FETCH_CATCH2 "Fetch Catch2 via CMake" ON)
 option(URPG_USE_SCCACHE "Use sccache as compiler launcher when available" ON)
 
@@ -22,22 +26,44 @@ endif()
 
 add_library(urpg_core
     engine/core/debug/debug_session.cpp
+    engine/core/engine_shell.cpp
+    engine/core/global_state_hub.cpp
+    engine/core/platform/opengl_renderer.cpp
+    engine/core/platform/sdl_surface.cpp
+    engine/core/platform/gl_shader.cpp
+    engine/core/platform/gl_texture.cpp
+    engine/core/render/asset_loader.cpp
+    engine/core/render/tilemap_renderer.cpp
+    engine/core/render/sprite_animator.cpp
+    engine/core/sprite_batcher.cpp
+    engine/core/clock.cpp
     engine/core/semver.cpp
     engine/core/threading/thread_roles.cpp
+    engine/core/scene/map_scene.cpp
     engine/core/events/event_edit_guard.cpp
     engine/core/events/event_runtime.cpp
     engine/core/format/canonical_json.cpp
     engine/core/migrate/migration_runner.cpp
     engine/core/sync/source_authority.cpp
+    engine/core/save/save_catalog.cpp
     engine/core/save/save_journal.cpp
     engine/core/save/save_recovery.cpp
     engine/core/save/save_runtime.cpp
     engine/gameplay/combat/combat_calc.cpp
+    engine/core/ui/ui_window.cpp
+    engine/core/ui/ui_command_list.cpp
     editor/diagnostics/event_authority_diagnostics.cpp
     editor/diagnostics/event_authority_panel.cpp
+    editor/diagnostics/diagnostics_workspace.cpp
+    editor/diagnostics/diagnostics_facade.cpp
     editor/compat/compat_report_panel.cpp
+    editor/save/save_inspector_model.cpp
+    editor/save/save_inspector_panel.cpp
+    engine/core/scene/battle_scene.cpp
+    engine/core/scene/map_scene.cpp
     runtimes/compat_js/quickjs_runtime.cpp
     runtimes/compat_js/window_compat.cpp
+    runtimes/compat_js/global_state_bridge.cpp
     runtimes/compat_js/battle_manager.cpp
     runtimes/compat_js/data_manager.cpp
     runtimes/compat_js/audio_manager.cpp
@@ -74,6 +100,48 @@ endif()
 
 target_link_libraries(urpg_core PUBLIC nlohmann_json::nlohmann_json)
 
+# Platform Dependencies (SDL2, OpenGL)
+set(SDL2_DISABLE_INSTALL ON CACHE BOOL "" FORCE)
+set(SDL2_TESTS OFF CACHE BOOL "" FORCE)
+find_package(SDL2 QUIET)
+if(NOT SDL2_FOUND)
+    include(FetchContent)
+    FetchContent_Declare(
+        SDL2
+        GIT_REPOSITORY https://github.com/libsdl-org/SDL.git
+        GIT_TAG release-2.30.0 # Stable baseline for URPG
+    )
+    FetchContent_MakeAvailable(SDL2)
+endif()
+
+# Fetch stb_image
+include(FetchContent)
+FetchContent_Declare(
+    stb
+    GIT_REPOSITORY https://github.com/nothings/stb.git
+    GIT_TAG master
+)
+FetchContent_MakeAvailable(stb)
+
+target_include_directories(urpg_core PUBLIC 
+    ${CMAKE_CURRENT_SOURCE_DIR}
+    ${stb_SOURCE_DIR}
+)
+
+find_package(OpenGL REQUIRED)
+
+if(TARGET SDL2::SDL2)
+    set(URPG_SDL_TARGET SDL2::SDL2)
+elseif(TARGET SDL2)
+    set(URPG_SDL_TARGET SDL2)
+endif()
+
+target_link_libraries(urpg_core PUBLIC 
+    nlohmann_json::nlohmann_json 
+    ${URPG_SDL_TARGET}
+    OpenGL::GL
+)
+
 add_executable(urpg_migrate
     tools/migrate/migrate_cli.cpp
 )
@@ -82,6 +150,8 @@ target_link_libraries(urpg_migrate PRIVATE urpg_core)
 target_include_directories(urpg_migrate PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
 
 add_executable(urpg_tests
+    tests/unit/test_engine_shell.cpp
+    tests/unit/test_global_state.cpp
     tests/unit/test_semver.cpp
     tests/unit/test_fixed32.cpp
     tests/unit/test_frame_budget.cpp
@@ -94,21 +164,35 @@ add_executable(urpg_tests
     tests/unit/test_canonical_json.cpp
     tests/unit/test_migration_runner.cpp
     tests/unit/test_source_authority.cpp
+    tests/unit/test_diagnostics_facade.cpp
+    tests/unit/test_save_catalog.cpp
+    tests/unit/test_save_inspector_model.cpp
+    tests/unit/test_save_inspector_panel.cpp
     tests/unit/test_save_recovery.cpp
     tests/unit/test_save_runtime.cpp
+    tests/unit/test_save_serialization.cpp
+    tests/unit/test_engine_shell.cpp
     tests/unit/test_event_edit_guard.cpp
     tests/unit/test_event_authority_diagnostics.cpp
     tests/unit/test_event_authority_panel.cpp
+    tests/unit/test_diagnostics_workspace.cpp
     tests/unit/test_event_runtime.cpp
     tests/unit/test_debug_session.cpp
     tests/unit/test_quickjs_runtime.cpp
     tests/unit/test_window_compat.cpp
     tests/unit/test_compat_report_panel.cpp
     tests/unit/test_battlemgr.cpp
+    tests/unit/test_battle_scene_native.cpp
     tests/unit/test_data_manager.cpp
     tests/unit/test_audio_manager.cpp
     tests/unit/test_input_manager.cpp
     tests/unit/test_plugin_manager.cpp
+    tests/unit/test_menu_core.cpp
+    tests/unit/test_input_core.cpp
+    tests/unit/test_audio_core.cpp
+    tests/unit/test_scene_manager.cpp
+    tests/engine/core/test_render_assets.cpp
+    tests/engine/core/test_engine_shell.cpp
 )
 
 target_link_libraries(urpg_tests PRIVATE urpg_core Catch2::Catch2WithMain)

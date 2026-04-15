@@ -328,6 +328,7 @@ public:
     
     // Model access (for integration with compat layer)
     CompatReportModel& getModel() { return model_; }
+    const CompatReportModel& getModel() const { return model_; }
     
     // UI rendering
     void render();

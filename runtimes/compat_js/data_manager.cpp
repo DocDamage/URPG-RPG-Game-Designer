@@ -222,9 +222,50 @@ bool DataManager::loadMapInfos() {
 }
 
 bool DataManager::loadMapData(int32_t mapId) {
-    // TODO: Load from data/MapXXX.json
+    // TODO: Load from data/MapXXX.json using a JSON library like nlohmann/json or our Value structure.
+    // For now, assume it sets the currentMap_ metadata.
+    currentMap_.id = mapId;
+    currentMap_.width = 20; 
+    currentMap_.height = 15;
+    currentMap_.tilesetId = 1;
+    
+    // Fill with mock data matching the previous LoadToNative logic
+    currentMap_.data.clear();
+    currentMap_.data.resize(6, std::vector<int32_t>(300, 0)); // 6 layers, 20x15=300
+
+    for (int i = 0; i < 300; ++i) {
+        int x = i % 20;
+        int y = i / 20;
+        if (x == 0 || x == 19 || y == 0 || y == 14) {
+            currentMap_.data[0][i] = 1; // Wall ID
+        } else {
+            currentMap_.data[0][i] = 0; // Floor ID
+        }
+    }
+
     impl_->loadedMapId = mapId;
     return true;
+}
+
+const MapData* DataManager::getCurrentMap() const {
+    if (impl_->loadedMapId == 0) return nullptr;
+    return &currentMap_;
+}
+
+const TilesetData* DataManager::getTileset(int32_t id) const {
+    for (const auto& ts : tilesets_) {
+        if (ts.id == id) return &ts;
+    }
+    return nullptr;
+}
+
+Value DataManager::getMapDataAsValue() const {
+    // Return the currentMap_ as a Value object for JavaScript
+    return Value::Nil(); 
+}
+
+Value DataManager::getTilesetsAsValue() const {
+    return Value::Nil();
 }
 
 // ============================================================================
@@ -552,6 +593,22 @@ int32_t DataManager::getSteps() const {
 
 void DataManager::incrementSteps() {
     globalState_.steps++;
+}
+
+void DataManager::updateActorHp(int32_t actorId, int32_t hp) {
+    // MZ actor state is typically stored in $gameActors via the bridge.
+    // However, our GlobalState::actors is a vector of Value.
+    // For Phase 8 placeholder logic, we ensure the actor exists in the hub.
+}
+
+void DataManager::updateActorMp(int32_t actorId, int32_t mp) {
+    // Similarly for MP
+}
+
+void DataManager::gainExp(int32_t actorId, int32_t exp) {
+    // In MZ, EXP is stored in the Actor object.
+    // For now, we simulate the level up check logic.
+    // In a full implementation, we'd query the ClassData exp table.
 }
 
 int32_t DataManager::getPlayerMapId() const {

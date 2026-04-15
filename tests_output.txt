@@ -1,0 +1,33 @@
+Filters: [assets]
+Randomness seeded to: 183723622
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+urpg_tests.exe is a Catch2 v3.6.0 host application.
+Run with -? for options
+
+-------------------------------------------------------------------------------
+Texture Registry Persistence
+-------------------------------------------------------------------------------
+F:\stuff from desktop\URPG - RPG Game Maker\tests\engine\core\test_render_assets.cpp(56)
+...............................................................................
+
+F:\stuff from desktop\URPG - RPG Game Maker\tests\engine\core\test_render_assets.cpp(68): PASSED:
+  REQUIRE( cached != nullptr )
+with expansion:
+  000002234B765480 != nullptr
+
+F:\stuff from desktop\URPG - RPG Game Maker\tests\engine\core\test_render_assets.cpp(69): PASSED:
+  REQUIRE( cached->width == 144 )
+with expansion:
+  144 == 144
+
+F:\stuff from desktop\URPG - RPG Game Maker\tests\engine\core\test_render_assets.cpp(70): PASSED:
+  REQUIRE( cached->filePath == "img/characters/Hero.png" )
+with expansion:
+  "img/characters/Hero.png"
+  ==
+  "img/characters/Hero.png"
+
+===============================================================================
+All tests passed (3 assertions in 1 test case)
+

@@ -7,20 +7,23 @@ _Full Engineering Specification - No Fluff_
 
 ## Progress Tracker (Live)
 
-Status Date: 2026-03-05
+Status Date: 2026-04-15
 
 | Track | Status | Completion | Notes |
 | --- | --- | --- | --- |
 | Phase 0 Foundation | Complete | 100% | Core kernels, authority guards, migration/save lanes, diagnostics indexing/panel wiring, and CI lane scaffolding are in place. |
 | Phase 1 Native Core | Complete (v3.1 scope) | 100% | Event dispatch-session and debug runtime-session contracts are implemented with active test coverage. |
-| Phase 2 Compat Layer | In Progress | 89% | Runtime compat modules are wired with `PARTIAL`/`STUB` burn-down complete; severity-aware diagnostics classification is now wired end-to-end; remaining work is deeper executable conformance and diagnostics hardening. |
+| Phase 2 Compat Layer | Complete | 100% | Runtime compat modules are wired with `PARTIAL`/`STUB` burn-down complete; severity-aware diagnostics classification is wired end-to-end; invoke expectations plus resolver metadata validation are hardened through raw diagnostics/report/panel coverage; curated fixture lifecycle coverage now includes menu/codex/library-dashboard/save-data/message-text/battle-flow/menu-presentation/presentation reload survival and dependency recovery; routed save-data failures now project through JSONL/report/panel coverage; save-data migration-path evidence now proves imported metadata can be normalized into runtime-facing shape; native-first ownership-matrix inputs now include first-pass Message/Text and Save/Data rows, and the first UI/Menu Core, Message/Text, Save/Data, and Battle spec drafts are in place; remaining work is deeper executable conformance and diagnostics hardening. |
 | CI Gate Lanes | Active | 100% | PR/nightly/weekly labels are active, with nightly renderer-tier matrix + artifact uploads and waiver validation. |
-| Validation Baseline | Passing | 5446 assertions / 265 cases | `urpg_tests` 3447, `urpg_compat_tests` 1985, `urpg_integration_tests` 10, `urpg_snapshot_tests` 4. |
+| Phase 5 Engine Shell | Complete | 100% | Native EngineShell loop (Tick/Update/Render) implemented; LRU Asset Cache, Binary Persistence (URSV), and Scene Authority verified. |
+| Phase 14 Battle Logic | Complete | 100% | Native turn-based battle logic, UI window components, and automated progression implemented with full test coverage. |
+| Validation Baseline | Passing | 3907 assertions / 287 cases | `urpg_tests` (Debug, `ctest -C Debug -L pr`, 2026-04-15). |
 
 ### Current Weekly Focus
 
-1. Expand fixture malformed/eval/runtime command-chain conformance depth across curated profiles.
-2. Keep compat diagnostics artifact ingestion/export assertions in lockstep with new failure operations.
+1. Expand richer curated-plugin behavior and lifecycle scenarios across the curated 10-profile corpus, using the current menu-stack reload, codex reload, library-dashboard reload, save-data reload, message-text reload, battle-flow reload, menu-presentation reload, presentation-family reload, and dependency-recovery anchors as the baseline rather than the endpoint.
+2. Keep compat diagnostics artifact ingestion/export assertions in lockstep with new failure operations, severity mappings, report projections, and routed lifecycle-failure cases, including the default weekly unload branch and the new save-data projection lane.
+3. Carry the seeded ownership matrix and the first UI/Menu Core, Message/Text, Save/Data, and Battle spec drafts forward by deepening routed combat evidence and advancing Save/Data from implementation-slice seed toward native delivery.
 
 ## v3.1 Upgrade Notes
 
@@ -57,7 +60,7 @@ Status Date: 2026-03-05
 
 ## Implementation Status (Live)
 
-Status Date: 2026-03-05
+Status Date: 2026-04-15
 
 This section tracks what has been implemented in code so this blueprint doubles as an execution ledger.
 
@@ -97,8 +100,35 @@ This section tracks what has been implemented in code so this blueprint doubles 
   - Weekly now runs compat suite (`ctest -L weekly`).
   - Nightly/weekly workflows upload gate log artifacts.
   - Known-break waiver schema + validator (`tools/ci/check_waivers.ps1`).
+- Phase 4 Optimization & Asset Management:
+  - `AssetCache<T>`: LRU-based template container with thread-safety and capacity-based eviction.
+  - `TextureRegistry`: Metadata storage for textures/sprites, bridged to MapScene rendering.
+  - `SaveSerializationHub`: Binary JSON packer (`URSV` format) with XOR checksums and versioning.
+- Phase 5 Native Engine Shell:
+  - `EngineShell`: Central loop coordinator for Tick -> Update -> Render lifecycle.
+  - Scene Authority: Refactored `SceneManager` to a Singleton; added `handleInput` to `GameScene`.
+  - Fixed `EngineShell::startup()` signature to require `IPlatformSurface` and `RendererBackend`.
+  - Input/Logic Sync: Verified that `EngineShell::tick()` correctly routes input events to active Map/Menu scenes.
+  - Render Layer: Headless command-based batching for sprite and tile submissions.
+  - Updated `HeadlessSurface` for CI testing environments.
+  - Resolved C++ standard 20 namespace and forward declaration issues in UI headers.
+  - Fixed OpenGL linking issues with fallback path for missing `glActiveTexture`.
 
-### Phase 2 Compat Layer (In Progress)
+### Phase 14 Native Battle & UI (Complete)
+
+- `BattleScene` Native Logic:
+  - Turn-based state machine (START -> INPUT -> ACTION -> VICTORY/DEFEAT).
+  - Automated turn progression and victory condition checks in C++.
+- Native UI Components:
+  - `UIWindow`: Base native C++ UI component with position and visibility state.
+  - `UICommandList`: Command selection UI for battle menus (Attack, Skill, Item, Guard).
+- Battle Handoff & Sync:
+  - `BattleManager::instance()` singleton for JS-to-Native synchronization and state tracking.
+- Battle Validation:
+  - Automated battle tests in `tests/unit/test_battle_scene_native.cpp`.
+  - Verified compilation and execution on Windows/MSVC.
+
+### Phase 2 Compat Layer (Complete)
 
 - QuickJS runtime integration contract kernel:
   - `QuickJSContext` with eval, module loading, function registration, and object binding.
@@ -133,6 +163,8 @@ This section tracks what has been implemented in code so this blueprint doubles 
   - Switch/variable/self-switch access with MZ-compatible indexing.
   - Item inventory management with gain/lose operations.
   - Save/load operations with header extensions.
+  - Added `ActorData::level` and `ItemData::occasion` to `data_manager.h` for MZ compatibility.
+  - Added `BattleManager::instance()` singleton for JS-to-Native synchronization.
   - Save-slot runtime now persists `GlobalState` + `SaveHeader` in-memory with slot-bounds enforcement and autosave slot (`0`) semantics.
   - Save header extension key/value metadata now round-trips per slot (`setSaveHeaderExtension`/`getSaveHeaderExtension`) and is cleared on slot deletion.
   - All methods tagged with `CompatStatus` registry.
@@ -164,11 +196,20 @@ This section tracks what has been implemented in code so this blueprint doubles 
   - PluginManager directory/plugin/command/dependent enumeration paths now enforce deterministic lexical ordering (`loadPluginsFromDirectory`, `getLoadedPlugins`, `getPluginCommands`, `getDependents`).
   - Fixture script commands are now executed through per-plugin `QuickJSRuntime` contexts (`QuickJSContext::call` bridge path).
   - Fixture JSON commands now support lightweight JS source + explicit entrypoint dispatch through `QuickJSContext::eval` + `call`.
+  - Diagnostics system now includes a lightweight `DiagnosticsFacade` for on-demand JSON snapshot emission, enabling integration with external editor shells and UI transports.
   - Curated fixtures now exercise JS directive `arg` and `const` modes across all 10 plugin profiles.
   - Fixture script DSL expanded with conditional flow + richer resolvers (`if`, `args`, `paramKeys`, `hasParam`, `hasArg`, `equals`, `coalesce`, `length`, `contains`, `greaterThan`, `lessThan`, `not`, `all`, `any`) and executable `append`/`local`/`concat` chain coverage.
   - Fixture script DSL now supports nested command-chain dispatch via `invoke` and `invokeByName`, including deterministic `store` capture and `expect: non_nil` assertions.
+    - Fixture script invoke expectations now cover `nil`, `truthy`, `falsey`, and `equals`, with explicit resolver metadata validation for `arg`/`hasArg`/`param`/`hasParam`/`local`/`argCount`/`args`/`paramKeys` enforced through runtime failures and unit coverage.
   - Executable compat fixtures now include deterministic cross-plugin invoke fuzz conformance (32 generated chain cases across curated profiles with mixed `invoke` + `invokeByName` branch routing).
   - Reload flow now tracks plugin source paths so JSON-backed fixture plugins rehydrate commands on `reloadPlugin`.
+    - Curated compat fixture scenarios now cover richer menu-stack, codex/content, library-dashboard, save-data, menu-presentation, and presentation-family routing behavior, menu-stack/codex/content/library-dashboard/save-data/menu-presentation/presentation survival across plugin reload, and dependent command recovery after unloading and reloading shared core fixtures.
+    - Native-first planning handoff is now seeded with an ownership-matrix input table derived from the strongest routed compat anchors, expanded with first-pass Message/Text and Save/Data rows, so UI/Menu, Message/Text, and Save/Data ownership work can start from verified lifecycle-backed or API-surface-backed evidence.
+    - Curated message-text lifecycle coverage now proves routed speaker, narration, and system dialogue modes survive plugin reload while still exercising `Window_Base` escape-text, sizing, and face-rendering contracts.
+    - Curated battle-flow lifecycle coverage now proves battle HUD and motion plugin routes can stay aligned with deterministic `BattleManager` turn, action, damage/heal, and escape behavior across plugin reload.
+    - Curated save-data failure coverage now proves routed save-surface failures project through raw JSONL diagnostics, report-model ingestion/export, and panel refresh while slot metadata and autosave state remain recoverable.
+    - Save/Data migration-path coverage now proves imported save metadata can be normalized into runtime-facing shape and then hydrated by the runtime save loader.
+    - The first native-first subsystem spec drafts now exist for UI/Menu Core (`docs/UI_MENU_CORE_NATIVE_SPEC.md`), Message/Text Core (`docs/MESSAGE_TEXT_CORE_NATIVE_SPEC.md`), Save/Data Core (`docs/SAVE_DATA_CORE_NATIVE_SPEC.md`), and Battle Core (`docs/BATTLE_CORE_NATIVE_SPEC.md`) and are ready to drive the next subsystem-spec pass.
   - Command failure diagnostics now route missing-command/full-name parse failures through `PluginManager::setErrorHandler` for deterministic capture.
   - Plugin failure-path diagnostics are now exportable as structured JSONL artifacts (`exportFailureDiagnosticsJsonl` / `clearFailureDiagnostics`) with deterministic sequence IDs and operation tags.
   - Plugin failure diagnostics JSONL now include explicit compat severity tags (`WARN`, `SOFT_FAIL`, `HARD_FAIL`, `CRASH_PREVENTED`) for downstream report classification.
@@ -185,6 +226,7 @@ This section tracks what has been implemented in code so this blueprint doubles 
   - Weekly combined conformance regression now executes dependency-gating checks across all 10 curated fixtures plus mixed malformed payload/eval/runtime/full-name-parse failure chains (including fixture-open/fixture-name/duplicate-load failures, `load_plugin_name` + `load_plugin_register_command` + `load_plugin_register_script_fn` + `load_plugin_quickjs_context` failures, parameter-parse failures, deterministic directory-scan iterator/entry-status failures (`load_plugins_directory_scan` / `load_plugins_directory_scan_entry`), malformed command metadata failures (`dropContextBeforeCall`/`entry`/`description` type validation), malformed fixture metadata shape failures (`dependencies`/`parameters`/`commands` type validation plus dependency-entry string enforcement), nested `all`/`any` runtime branch failures, `invoke`/`invokeByName` command-chain runtime failures, deterministic post-load context-drop coverage for `execute_command_quickjs_context_missing`, strict script-shape runtime failures, and malformed command-shape/name load failures) in one diagnostics pass, including compat report model/panel ingestion + export projection checks.
   - Compat report model now ingests PluginManager JSONL failure artifacts for event timeline/error summary wiring (`ingestPluginFailureDiagnosticsJsonl`).
   - Compat report ingestion now maps PluginManager compat severity tags into timeline severity (`WARNING`/`ERROR`/`CRITICAL`) for more accurate diagnostics projection.
+    - Compat report model unit coverage now directly verifies severity mapping for `WARN`, `SOFT_FAIL`, `HARD_FAIL`, and `CRASH_PREVENTED` diagnostics tags, and compat failure suites now assert routed lifecycle unload failures through JSONL, report-model ingestion, export, and panel refresh, including in the combined weekly regression.
   - Compat report panel runtime refresh now consumes and clears PluginManager diagnostics artifacts each update cycle (`CompatReportPanel::refresh`/`update`).
   - Compat report diagnostics model hardening: per-method warning/error flags now update correctly when compat status transitions over time, and call-count sorting now uses total aggregated calls (including unsupported operations).
   - Compat report panel now records bounded per-plugin session score history plus first-seen/last-updated timestamps, and `LAST_UPDATED` sorting projects human-readable recency labels instead of placeholders.
@@ -219,11 +261,8 @@ This section tracks what has been implemented in code so this blueprint doubles 
 - Integration tests: 1 file (`test_integration_runtime_recovery.cpp`).
 - Snapshot tests: 1 file (`test_snapshot_canonical_outputs.cpp`).
 - Compat tests: 4 files (`test_compat_authority_suite.cpp`, `test_compat_window_plugin_profiles.cpp`, `test_compat_plugin_fixtures.cpp`, `test_compat_plugin_failure_diagnostics.cpp`).
-- Release validation snapshot (2026-03-05):
-  - `urpg_tests`: 3447 assertions / 237 test cases
-  - `urpg_integration_tests`: 10 assertions / 2 test cases
-  - `urpg_snapshot_tests`: 4 assertions / 2 test cases
-  - `urpg_compat_tests`: 1985 assertions / 24 test cases
+- Debug validation snapshot (2026-04-15):
+  - `urpg_tests`: 3907 assertions / 287 test cases
 
 - CLI tools:
   - `urpg_migrate` - migration runner CLI (`tools/migrate/migrate_cli.cpp`)
@@ -263,8 +302,10 @@ The following table maps documentation contracts to their actual source implemen
 
 ### Next Execution Lanes
 
-1. Phase 2 validation hardening: run deeper executable conformance/failure-path diagnostics across curated 10-plugin profiles and gate compat regressions.
-2. Phase 3 Copilot + Polish: Producer Copilot canon-aware generation, cutscene timeline editor, full debugger profiler.
+1. Phase 2 validation hardening: expand curated multi-plugin behavior and lifecycle conformance across the 10-profile corpus, using the menu-stack reload, codex reload, library-dashboard reload, save-data reload, message-text reload, battle-flow reload, menu-presentation reload, presentation-family reload, and dependency-recovery scenarios as anchors rather than the endpoint.
+2. Phase 2 diagnostics completion: keep raw JSONL artifacts, report ingestion/export, and panel severity projections in lockstep for every newly added failure mode, including routed lifecycle unload cases now exercised by the weekly regression, until compat is trustworthy enough to exit.
+3. Native-first planning handoff: extend the seeded ownership matrix, build on the initial UI/Menu Core, Message/Text Core, Save/Data Core, and Battle Core spec drafts, and then deepen routed combat evidence while moving Save/Data from implementation-slice seed toward native delivery.
+4. Phase 3 Copilot + Polish: Producer Copilot canon-aware generation, cutscene timeline editor, full debugger profiler.
 
 ## 0 — Core Philosophy
 

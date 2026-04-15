@@ -54,6 +54,19 @@ enum class BattleSubjectType : uint8_t {
     ENEMY = 1
 };
 
+struct BattleStateEffect {
+    int32_t stateId = 0;
+    int32_t turnsRemaining = 0;
+    int32_t hpDeltaPerTurn = 0;
+    int32_t mpDeltaPerTurn = 0;
+};
+
+struct BattleModifierEffect {
+    int32_t paramId = 0;
+    int32_t stages = 0;
+    int32_t turnsRemaining = 0;
+};
+
 // Battle subject reference (actor or enemy)
 struct BattleSubject {
     BattleSubjectType type = BattleSubjectType::ACTOR;
@@ -78,6 +91,8 @@ struct BattleSubject {
     int32_t targetIndex = -1;   // -1 = no target, -2 = random
     int32_t skillId = 0;
     int32_t itemId = 0;
+    std::vector<BattleStateEffect> states;
+    std::vector<BattleModifierEffect> modifiers;
 };
 
 // Battle action being executed
@@ -116,6 +131,9 @@ public:
     // Non-copyable
     BattleManager(const BattleManager&) = delete;
     BattleManager& operator=(const BattleManager&) = delete;
+
+    // Singleton access for compatibility.
+    static BattleManager& instance();
     
     // ========================================================================
     // Initialization and Setup
@@ -192,6 +210,8 @@ public:
     // Status: FULL - Get specific subject
     BattleSubject* getActor(int32_t index);
     BattleSubject* getEnemy(int32_t index);
+    void addActorSubject(const BattleSubject& subject);
+    void addEnemySubject(const BattleSubject& subject);
     
     // Status: FULL - Get all battle members (actors + enemies)
     std::vector<BattleSubject*> getAllSubjects();
@@ -261,9 +281,19 @@ public:
     
     // Status: FULL - Apply item effect
     void applyItem(BattleSubject* user, BattleSubject* target, int32_t itemId);
+
+    // Status: FULL - Add/remove/query state effects
+    bool addState(BattleSubject* subject, int32_t stateId, int32_t turnsRemaining = 1,
+                  int32_t hpDeltaPerTurn = 0, int32_t mpDeltaPerTurn = 0);
+    bool removeState(BattleSubject* subject, int32_t stateId);
+    bool hasState(const BattleSubject* subject, int32_t stateId) const;
+    bool addBuff(BattleSubject* subject, int32_t paramId, int32_t turnsRemaining = 1, int32_t stages = 1);
+    bool addDebuff(BattleSubject* subject, int32_t paramId, int32_t turnsRemaining = 1, int32_t stages = 1);
+    int32_t getModifierStage(const BattleSubject* subject, int32_t paramId) const;
     
     // Status: FULL - Check and apply states
     void applyStateEffects(BattleSubject* subject);
+    void applyTurnEndEffects(BattleSubject* subject);
     
     // Status: FULL - Play animation
     void playAnimation(int32_t animationId, BattleSubject* target);

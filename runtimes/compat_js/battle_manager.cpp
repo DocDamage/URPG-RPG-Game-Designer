@@ -15,6 +15,40 @@ std::unordered_map<std::string, std::string> BattleManager::methodDeviations_;
 
 namespace {
 
+BattleStateEffect* findStateEffect(BattleSubject* subject, int32_t stateId) {
+    if (!subject) {
+        return nullptr;
+    }
+
+    auto it = std::find_if(subject->states.begin(), subject->states.end(),
+                           [stateId](const BattleStateEffect& effect) {
+                               return effect.stateId == stateId;
+                           });
+    if (it == subject->states.end()) {
+        return nullptr;
+    }
+    return &(*it);
+}
+
+BattleModifierEffect* findModifierEffect(BattleSubject* subject, int32_t paramId) {
+    if (!subject) {
+        return nullptr;
+    }
+
+    auto it = std::find_if(subject->modifiers.begin(), subject->modifiers.end(),
+                           [paramId](const BattleModifierEffect& effect) {
+                               return effect.paramId == paramId;
+                           });
+    if (it == subject->modifiers.end()) {
+        return nullptr;
+    }
+    return &(*it);
+}
+
+int32_t clampModifierStage(int32_t stage) {
+    return std::clamp(stage, -2, 2);
+}
+
 double normalizeAgility(int32_t actionSpeed) {
     return static_cast<double>(std::max(1, actionSpeed));
 }
@@ -66,6 +100,89 @@ double nextEscapeRoll(uint32_t& state) {
     return static_cast<double>(state) / static_cast<double>(UINT32_MAX);
 }
 
+constexpr int32_t kAttackParamId = 2;
+constexpr int32_t kDefenseParamId = 3;
+constexpr int32_t kRecoveryParamId = 4;
+constexpr int32_t kAgilityParamId = 6;
+
+int32_t getModifierStage(const BattleSubject* subject, int32_t paramId) {
+    if (!subject || paramId < 0) {
+        return 0;
+    }
+
+    const auto it = std::find_if(subject->modifiers.begin(), subject->modifiers.end(),
+                                 [paramId](const BattleModifierEffect& effect) {
+                                     return effect.paramId == paramId;
+                                 });
+    if (it == subject->modifiers.end()) {
+        return 0;
+    }
+
+    return it->stages;
+}
+
+double modifierMultiplier(int32_t stage) {
+    if (stage >= 0) {
+        return 1.0 + (0.25 * static_cast<double>(stage));
+    }
+    return 1.0 / (1.0 + (0.25 * static_cast<double>(-stage)));
+}
+
+int32_t scaleMagnitude(int32_t amount, int32_t stage) {
+    return std::max(0, static_cast<int32_t>(std::lround(static_cast<double>(amount) * modifierMultiplier(stage))));
+}
+
+int32_t resolveAttackDamage(const BattleSubject* subject, const BattleSubject* target, int32_t baseDamage) {
+    const double attackMultiplier = modifierMultiplier(getModifierStage(subject, kAttackParamId));
+    const double defenseMultiplier = modifierMultiplier(getModifierStage(target, kDefenseParamId));
+    return std::max(1, static_cast<int32_t>(std::lround(
+        static_cast<double>(baseDamage) * (attackMultiplier / defenseMultiplier))));
+}
+
+double targetPriorityScore(const BattleSubject* target) {
+    const int32_t missingHp = std::max(0, target->mhp - target->hp);
+    const int32_t defenseStage = getModifierStage(target, kDefenseParamId);
+    const int32_t agilityStage = getModifierStage(target, kAgilityParamId);
+    return static_cast<double>(missingHp) +
+           (4.0 * static_cast<double>(-defenseStage)) +
+           (2.0 * static_cast<double>(-agilityStage));
+}
+
+BattleSubject* resolveActionTarget(BattleManager* manager, const BattleAction& action) {
+    if (!action.subject || !manager) {
+        return nullptr;
+    }
+
+    if (action.subject->type == BattleSubjectType::ACTOR) {
+        if (action.targetIndex >= 0) {
+            return manager->getEnemy(action.targetIndex);
+        }
+        auto enemies = manager->getActiveEnemies();
+        if (enemies.empty()) {
+            return nullptr;
+        }
+
+        return *std::max_element(enemies.begin(), enemies.end(),
+                                 [](const BattleSubject* lhs, const BattleSubject* rhs) {
+                                     return targetPriorityScore(lhs) < targetPriorityScore(rhs);
+                                 });
+    }
+
+    if (action.targetIndex >= 0) {
+        return manager->getActor(action.targetIndex);
+    }
+
+    auto actors = manager->getActiveActors();
+    if (actors.empty()) {
+        return nullptr;
+    }
+
+    return *std::max_element(actors.begin(), actors.end(),
+                             [](const BattleSubject* lhs, const BattleSubject* rhs) {
+                                 return targetPriorityScore(lhs) < targetPriorityScore(rhs);
+                             });
+}
+
 } // namespace
 
 // Internal implementation
@@ -105,6 +222,8 @@ BattleManager::BattleManager()
         methodStatus_["getEnemies"] = CompatStatus::FULL;
         methodStatus_["getActor"] = CompatStatus::FULL;
         methodStatus_["getEnemy"] = CompatStatus::FULL;
+        methodStatus_["addActorSubject"] = CompatStatus::FULL;
+        methodStatus_["addEnemySubject"] = CompatStatus::FULL;
         methodStatus_["getAllSubjects"] = CompatStatus::FULL;
         methodStatus_["getActiveActors"] = CompatStatus::FULL;
         methodStatus_["getActiveEnemies"] = CompatStatus::FULL;
@@ -124,7 +243,14 @@ BattleManager::BattleManager()
         methodStatus_["applyHeal"] = CompatStatus::FULL;
         methodStatus_["applySkill"] = CompatStatus::FULL;
         methodStatus_["applyItem"] = CompatStatus::FULL;
+        methodStatus_["addState"] = CompatStatus::FULL;
+        methodStatus_["removeState"] = CompatStatus::FULL;
+        methodStatus_["hasState"] = CompatStatus::FULL;
+        methodStatus_["addBuff"] = CompatStatus::FULL;
+        methodStatus_["addDebuff"] = CompatStatus::FULL;
+        methodStatus_["getModifierStage"] = CompatStatus::FULL;
         methodStatus_["applyStateEffects"] = CompatStatus::FULL;
+        methodStatus_["applyTurnEndEffects"] = CompatStatus::FULL;
         methodStatus_["playAnimation"] = CompatStatus::FULL;
         methodStatus_["playAnimationOnSubject"] = CompatStatus::FULL;
         methodStatus_["startBattleEvent"] = CompatStatus::FULL;
@@ -144,6 +270,11 @@ BattleManager::BattleManager()
 }
 
 BattleManager::~BattleManager() = default;
+
+BattleManager& BattleManager::instance() {
+    static BattleManager instance;
+    return instance;
+}
 
 // ============================================================================
 // Initialization and Setup
@@ -301,6 +432,17 @@ void BattleManager::startTurn() {
 }
 
 void BattleManager::endTurn() {
+    for (auto& actor : actors_) {
+        if (!actor.hidden && actor.hp > 0) {
+            applyTurnEndEffects(&actor);
+        }
+    }
+    for (auto& enemy : enemies_) {
+        if (!enemy.hidden && enemy.hp > 0) {
+            applyTurnEndEffects(&enemy);
+        }
+    }
+
     triggerHook(HookPoint::ON_TURN_END, {Value::Int(turnCount_)});
     incrementTurn();
     
@@ -354,6 +496,14 @@ BattleSubject* BattleManager::getEnemy(int32_t index) {
         return nullptr;
     }
     return &enemies_[static_cast<size_t>(index)];
+}
+
+void BattleManager::addActorSubject(const BattleSubject& subject) {
+    actors_.push_back(subject);
+}
+
+void BattleManager::addEnemySubject(const BattleSubject& subject) {
+    enemies_.push_back(subject);
 }
 
 std::vector<BattleSubject*> BattleManager::getAllSubjects() {
@@ -466,15 +616,9 @@ void BattleManager::processAction(BattleAction* action) {
     // Process action based on type
     switch (action->type) {
         case BattleActionType::ATTACK: {
-            BattleSubject* target = nullptr;
-            if (action->subject->type == BattleSubjectType::ACTOR) {
-                target = getEnemy(action->targetIndex);
-            } else {
-                target = getActor(action->targetIndex);
-            }
+            BattleSubject* target = resolveActionTarget(this, *action);
             if (target) {
-                // TODO: Calculate and apply damage
-                applyDamage(target, 10, true); // Stub damage
+                applyDamage(target, resolveAttackDamage(action->subject, target, 10), true);
             }
             break;
         }
@@ -550,11 +694,13 @@ void BattleManager::autoBattleActor(int32_t actorIndex) {
     BattleSubject* actor = getActor(actorIndex);
     if (!actor || actor->acted) return;
     
-    // Simple auto-battle: attack random enemy
     auto enemies = getActiveEnemies();
     if (!enemies.empty()) {
-        std::uniform_int_distribution<size_t> dist(0, enemies.size() - 1);
-        int32_t targetIndex = static_cast<int32_t>(dist(impl_->rng));
+        const auto bestTarget = *std::max_element(enemies.begin(), enemies.end(),
+                                                  [](const BattleSubject* lhs, const BattleSubject* rhs) {
+                                                      return targetPriorityScore(lhs) < targetPriorityScore(rhs);
+                                                  });
+        int32_t targetIndex = bestTarget->index;
         setActorAction(actorIndex, BattleActionType::ATTACK, targetIndex);
     }
 }
@@ -588,16 +734,18 @@ void BattleManager::applyDamage(BattleSubject* subject, int32_t damage, bool isH
 
 void BattleManager::applyHeal(BattleSubject* subject, int32_t amount, bool isHp) {
     if (!subject) return;
+
+    const int32_t resolvedAmount = scaleMagnitude(amount, getModifierStage(subject, kRecoveryParamId));
     
     if (isHp) {
-        subject->hp = std::min(subject->mhp, subject->hp + amount);
+        subject->hp = std::min(subject->mhp, subject->hp + resolvedAmount);
         triggerHook(HookPoint::ON_HEAL, {
             Value::Int(static_cast<int32_t>(subject->type)),
             Value::Int(subject->index),
-            Value::Int(amount)
+            Value::Int(resolvedAmount)
         });
     } else {
-        subject->mp = std::min(subject->mmp, subject->mp + amount);
+        subject->mp = std::min(subject->mmp, subject->mp + resolvedAmount);
     }
 }
 
@@ -611,9 +759,163 @@ void BattleManager::applyItem(BattleSubject* user, BattleSubject* target, int32_
     (void)user; (void)target; (void)itemId;
 }
 
+bool BattleManager::addState(BattleSubject* subject, int32_t stateId, int32_t turnsRemaining,
+                             int32_t hpDeltaPerTurn, int32_t mpDeltaPerTurn) {
+    if (!subject || stateId <= 0) {
+        return false;
+    }
+
+    BattleStateEffect* existing = findStateEffect(subject, stateId);
+    if (existing != nullptr) {
+        existing->turnsRemaining = std::max(0, turnsRemaining);
+        existing->hpDeltaPerTurn = hpDeltaPerTurn;
+        existing->mpDeltaPerTurn = mpDeltaPerTurn;
+        return true;
+    }
+
+    BattleStateEffect effect;
+    effect.stateId = stateId;
+    effect.turnsRemaining = std::max(0, turnsRemaining);
+    effect.hpDeltaPerTurn = hpDeltaPerTurn;
+    effect.mpDeltaPerTurn = mpDeltaPerTurn;
+    subject->states.push_back(effect);
+
+    triggerHook(HookPoint::ON_STATE_ADDED, {
+        Value::Int(static_cast<int32_t>(subject->type)),
+        Value::Int(subject->index),
+        Value::Int(stateId)
+    });
+    return true;
+}
+
+bool BattleManager::removeState(BattleSubject* subject, int32_t stateId) {
+    if (!subject || stateId <= 0) {
+        return false;
+    }
+
+    const auto it = std::find_if(subject->states.begin(), subject->states.end(),
+                                 [stateId](const BattleStateEffect& effect) {
+                                     return effect.stateId == stateId;
+                                 });
+    if (it == subject->states.end()) {
+        return false;
+    }
+
+    subject->states.erase(it);
+    triggerHook(HookPoint::ON_STATE_REMOVED, {
+        Value::Int(static_cast<int32_t>(subject->type)),
+        Value::Int(subject->index),
+        Value::Int(stateId)
+    });
+    return true;
+}
+
+bool BattleManager::hasState(const BattleSubject* subject, int32_t stateId) const {
+    if (!subject || stateId <= 0) {
+        return false;
+    }
+
+    return std::any_of(subject->states.begin(), subject->states.end(),
+                       [stateId](const BattleStateEffect& effect) {
+                           return effect.stateId == stateId;
+                       });
+}
+
+bool BattleManager::addBuff(BattleSubject* subject, int32_t paramId, int32_t turnsRemaining, int32_t stages) {
+    if (!subject || paramId < 0 || stages <= 0) {
+        return false;
+    }
+
+    BattleModifierEffect* existing = findModifierEffect(subject, paramId);
+    if (existing != nullptr) {
+        existing->stages = clampModifierStage(existing->stages + stages);
+        existing->turnsRemaining = std::max(existing->turnsRemaining, std::max(0, turnsRemaining));
+        return true;
+    }
+
+    BattleModifierEffect effect;
+    effect.paramId = paramId;
+    effect.stages = clampModifierStage(stages);
+    effect.turnsRemaining = std::max(0, turnsRemaining);
+    subject->modifiers.push_back(effect);
+    return true;
+}
+
+bool BattleManager::addDebuff(BattleSubject* subject, int32_t paramId, int32_t turnsRemaining, int32_t stages) {
+    if (!subject || paramId < 0 || stages <= 0) {
+        return false;
+    }
+
+    BattleModifierEffect* existing = findModifierEffect(subject, paramId);
+    if (existing != nullptr) {
+        existing->stages = clampModifierStage(existing->stages - stages);
+        existing->turnsRemaining = std::max(existing->turnsRemaining, std::max(0, turnsRemaining));
+        return true;
+    }
+
+    BattleModifierEffect effect;
+    effect.paramId = paramId;
+    effect.stages = clampModifierStage(-stages);
+    effect.turnsRemaining = std::max(0, turnsRemaining);
+    subject->modifiers.push_back(effect);
+    return true;
+}
+
+int32_t BattleManager::getModifierStage(const BattleSubject* subject, int32_t paramId) const {
+    return compat::getModifierStage(subject, paramId);
+}
+
 void BattleManager::applyStateEffects(BattleSubject* subject) {
-    // TODO: Apply state tick effects (poison damage, regen, etc.)
-    (void)subject;
+    if (!subject) {
+        return;
+    }
+
+    std::vector<int32_t> expiredStates;
+    for (auto& effect : subject->states) {
+        if (effect.hpDeltaPerTurn > 0) {
+            applyHeal(subject, effect.hpDeltaPerTurn, true);
+        } else if (effect.hpDeltaPerTurn < 0) {
+            applyDamage(subject, -effect.hpDeltaPerTurn, true);
+        }
+
+        if (effect.mpDeltaPerTurn > 0) {
+            applyHeal(subject, effect.mpDeltaPerTurn, false);
+        } else if (effect.mpDeltaPerTurn < 0) {
+            applyDamage(subject, -effect.mpDeltaPerTurn, false);
+        }
+
+        if (effect.turnsRemaining > 0) {
+            --effect.turnsRemaining;
+            if (effect.turnsRemaining == 0) {
+                expiredStates.push_back(effect.stateId);
+            }
+        }
+    }
+
+    for (int32_t stateId : expiredStates) {
+        removeState(subject, stateId);
+    }
+}
+
+void BattleManager::applyTurnEndEffects(BattleSubject* subject) {
+    if (!subject) {
+        return;
+    }
+
+    applyStateEffects(subject);
+
+    auto it = subject->modifiers.begin();
+    while (it != subject->modifiers.end()) {
+        if (it->turnsRemaining > 0) {
+            --it->turnsRemaining;
+        }
+
+        if (it->turnsRemaining == 0 || it->stages == 0) {
+            it = subject->modifiers.erase(it);
+            continue;
+        }
+        ++it;
+    }
 }
 
 void BattleManager::playAnimation(int32_t animationId, BattleSubject* target) {
