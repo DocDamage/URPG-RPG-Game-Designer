@@ -25,6 +25,33 @@ struct Vector2i {
 };
 
 /**
+ * @brief Simple floating point vector for positions.
+ */
+struct Vector2f {
+    float x = 0.0f;
+    float y = 0.0f;
+
+    Vector2f() = default;
+    Vector2f(float _x, float _y) : x(_x), y(_y) {}
+
+    bool operator==(const Vector2f& other) const {
+        return x == other.x && y == other.y;
+    }
+
+    bool operator!=(const Vector2f& other) const {
+        return !(*this == other);
+    }
+
+    Vector2f operator+(const Vector2f& other) const {
+        return { x + other.x, y + other.y };
+    }
+
+    Vector2f operator-(const Vector2f& other) const {
+        return { x - other.x, y - other.y };
+    }
+};
+
+/**
  * @brief Direction constants matching MZ order (2=Down, 4=Left, 6=Right, 8=Up).
  */
 enum class Direction : uint8_t {

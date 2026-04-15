@@ -1,13 +1,16 @@
 #include <catch2/catch_test_macros.hpp>
 #include "engine/core/engine_shell.h"
 #include "engine/core/scene/map_scene.h"
+#include "engine/core/platform/headless_surface.h"
+#include "engine/core/platform/headless_renderer.h"
 
 using namespace urpg;
 using namespace urpg::scene;
 
 TEST_CASE("EngineShell Tick Loop", "[engine_shell][core]") {
     auto& shell = EngineShell::getInstance();
-    shell.startup();
+    auto surface = std::make_unique<HeadlessSurface>();
+    shell.startup(std::move(surface), std::make_unique<HeadlessRenderer>());
     
     // Create a mock scene
     auto map = std::make_shared<MapScene>("ShellTest", 10, 10);
@@ -28,11 +31,10 @@ TEST_CASE("EngineShell Tick Loop", "[engine_shell][core]") {
 
 TEST_CASE("EngineShell Delta Time Clamp", "[engine][core]") {
     auto& shell = EngineShell::getInstance();
-    shell.startup();
+    auto surface = std::make_unique<HeadlessSurface>();
+    shell.startup(std::move(surface), std::make_unique<HeadlessRenderer>());
     
     // Simulate a massive delay (e.g. breakpoint)
-    // We can't easily fake the internal clock, but we can verify the tick logic 
-    // by calling tick twice and checking if it handles state.
     shell.tick();
     
     // This is more of a smoke test for the shell's stability

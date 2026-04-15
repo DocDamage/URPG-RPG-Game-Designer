@@ -51,14 +51,24 @@ public:
      * @brief Processes a raw key event from the OS/Platform layer.
      */
     void processKeyEvent(int32_t keyCode, ActionState state) {
+        // Fallback or explicit mapping? 
+        // For MZ compatibility, we typically map certain keys to core actions by default.
         if (auto it = m_keyMaps.find(keyCode); it != m_keyMaps.end()) {
             InputAction action = it->second;
-            m_actionStates[action] = state;
-            
-            // Invoke handlers
-            for (auto& handler : m_handlers) {
-                handler(action, state);
-            }
+            updateActionState(action, state);
+        } else {
+            // Try default MZ mapping for keys that aren't explicitly mapped yet
+            // This allows the EngineShell to start simple.
+        }
+    }
+
+    /**
+     * @brief Provides a way to manually update an action state (e.g., from a mapping function).
+     */
+    void updateActionState(InputAction action, ActionState state) {
+        m_actionStates[action] = state;
+        for (auto& handler : m_handlers) {
+            handler(action, state);
         }
     }
 

@@ -5,6 +5,8 @@
 #include <vector>
 #include <memory>
 
+namespace urpg { class SpriteBatcher; }
+
 namespace urpg::scene {
 
 /**
@@ -34,6 +36,7 @@ public:
     virtual void onStart() {}
     virtual void onUpdate(float deltaTime) {}
     virtual void handleInput(const urpg::input::InputCore& input) {}
+    virtual void draw(urpg::SpriteBatcher& batcher) {}
     virtual void onStop() {}
     virtual void onDestroy() {}
 

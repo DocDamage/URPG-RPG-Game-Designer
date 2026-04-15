@@ -1,5 +1,7 @@
 #include <catch2/catch_test_macros.hpp>
 #include "engine/core/engine_shell.h"
+#include "engine/core/platform/headless_surface.h"
+#include "engine/core/platform/headless_renderer.h"
 #include <thread>
 #include <chrono>
 
@@ -12,7 +14,9 @@ TEST_CASE("Engine Shell: Basic Lifecycle", "[shell_unit]") {
     REQUIRE(shell.isRunning() == false);
     
     // Startup
-    shell.startup();
+    auto surface = std::make_unique<HeadlessSurface>();
+    auto renderer = std::make_unique<HeadlessRenderer>();
+    shell.startup(std::move(surface), std::move(renderer));
     REQUIRE(shell.isRunning() == true);
     
     // Tick with measurable delay for delta time calculation
@@ -26,7 +30,9 @@ TEST_CASE("Engine Shell: Basic Lifecycle", "[shell_unit]") {
 
 TEST_CASE("Engine Shell: Delta Time Calculation", "[engine][shell]") {
     auto& shell = EngineShell::getInstance();
-    shell.startup();
+    auto surface = std::make_unique<HeadlessSurface>();
+    auto renderer = std::make_unique<HeadlessRenderer>();
+    shell.startup(std::move(surface), std::move(renderer));
     
     // Perform two ticks to establish a meaningful delta
     shell.tick();
