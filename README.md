@@ -2,6 +2,19 @@
 
 Bootstrap workspace aligned to URPG Master Blueprint v3.1.
 
+## Status snapshot (2026-04-15)
+
+- Planning + execution branch has been merged into `main` (`PR #5`).
+- `main` and `plan/native-feature-absorption-20260413` are aligned to the same latest commit.
+- `main` is protected (PR required, 1 approval, conversation resolution, required checks: `gate1-pr` and `gitleaks`).
+- Dependabot version-update branch churn is disabled in `.github/dependabot.yml`.
+- Latest local gate snapshot:
+  - `ctest --test-dir build/dev-ninja-debug -L pr --output-on-failure` => 289/289 passed
+  - `ctest --test-dir build/dev-ninja-debug -L weekly --output-on-failure` => 42/42 passed
+- Native roadmap has been rewritten into one integrated execution plan:
+  - `docs/NATIVE_FEATURE_ABSORPTION_PLAN.md` (Wave 1 core ownership + Wave 2 advanced capability expansion)
+- Canonical progress + remaining-work checklist: `docs/PROGRAM_COMPLETION_STATUS.md`.
+
 ## Current scope
 
 - Documentation sync:
@@ -107,9 +120,11 @@ Bootstrap workspace aligned to URPG Master Blueprint v3.1.
 
 ## Immediate next steps
 
-1. Expand compat lifecycle and multi-plugin conformance beyond the current menu-stack reload, codex reload, library-dashboard reload, save-data reload, message-text reload, battle-flow reload, menu-presentation reload, presentation-family reload, and dependency-recovery anchors so more of the curated 10-profile corpus is exercised through realistic routed behavior instead of isolated command checks.
-2. Keep every new compat failure mode locked to raw JSONL diagnostics, report-model ingestion/export, and panel severity projection assertions, following the routed lifecycle-failure pattern now exercised directly in the weekly diagnostics lane for presentation and save-data surfaces rather than only direct command probes.
-3. Keep extending the seeded native-first ownership matrix, use `docs/UI_MENU_CORE_NATIVE_SPEC.md`, `docs/MESSAGE_TEXT_CORE_NATIVE_SPEC.md`, `docs/SAVE_DATA_CORE_NATIVE_SPEC.md`, and `docs/BATTLE_CORE_NATIVE_SPEC.md` as the first subsystem templates, and then deepen battle-specific routed combat evidence while carrying Save/Data from implementation-slice seed toward native delivery.
+1. Close compat-lane exit criteria for trustworthy import, diagnostics, and migration confidence.
+2. Move Wave 1 native ownership from seeded slices to concrete runtime ownership in UI/Menu, Message/Text, Battle, and Save/Data.
+3. Ship editor inspectors/previews/diagnostics for the same Wave 1 subsystems.
+4. Begin Wave 2 advanced capability implementation (ability framework, pattern editor, modular level assembly, sprite pipeline, procedural toolkit, optional 2.5D lane, timeline orchestration, and editor utilities).
+5. Execute the full remaining checklist in `docs/PROGRAM_COMPLETION_STATUS.md` to drive completion to 100% for the current program scope.
 
 ## Build
 
@@ -239,9 +254,7 @@ pre-commit run --all-files
 
 ## Next lane
 
-Implement the next blueprint-critical contracts:
+Primary execution source of truth:
 
-1. Complete Phase 2 Compat Layer validation:
-  - Expand executable conformance/failure-path depth across curated 10-plugin fixtures (additional malformed/eval/runtime command chains).
-2. Expand plugin conformance depth:
-  - Expand fixture script DSL coverage and report artifact depth over real JS plugin execution paths + compat report exports.
+1. `docs/PROGRAM_COMPLETION_STATUS.md`
+2. `docs/NATIVE_FEATURE_ABSORPTION_PLAN.md`

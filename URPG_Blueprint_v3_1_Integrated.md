@@ -13,7 +13,9 @@ Status Date: 2026-04-15
 | --- | --- | --- | --- |
 | Phase 0 Foundation | Complete | 100% | Core kernels, authority guards, migration/save lanes, diagnostics indexing/panel wiring, and CI lane scaffolding are in place. |
 | Phase 1 Native Core | Complete (v3.1 scope) | 100% | Event dispatch-session and debug runtime-session contracts are implemented with active test coverage. |
-| Phase 2 Compat Layer | Complete | 100% | Runtime compat modules are wired with `PARTIAL`/`STUB` burn-down complete; severity-aware diagnostics classification is wired end-to-end; invoke expectations plus resolver metadata validation are hardened through raw diagnostics/report/panel coverage; curated fixture lifecycle coverage now includes menu/codex/library-dashboard/save-data/message-text/battle-flow/menu-presentation/presentation reload survival and dependency recovery; routed save-data failures now project through JSONL/report/panel coverage; save-data migration-path evidence now proves imported metadata can be normalized into runtime-facing shape; native-first ownership-matrix inputs now include first-pass Message/Text and Save/Data rows, and the first UI/Menu Core, Message/Text, Save/Data, and Battle spec drafts are in place; remaining work is deeper executable conformance and diagnostics hardening. |
+| Phase 2 Compat Layer | Hardening exit | ~96% | Runtime compat modules are wired with `PARTIAL`/`STUB` burn-down complete; severity-aware diagnostics classification is wired end-to-end; invoke expectations plus resolver metadata validation are hardened through raw diagnostics/report/panel coverage; curated fixture lifecycle coverage now includes menu/codex/library-dashboard/save-data/message-text/battle-flow/menu-presentation/presentation reload survival and dependency recovery; routed save-data failures now project through JSONL/report/panel coverage; save-data migration-path evidence now proves imported metadata can be normalized into runtime-facing shape; remaining work is explicit exit-criteria sign-off plus deeper routed conformance and diagnostics closure. |
+| Native Feature Absorption Wave 1 | In progress | ~20% | Direction is merged to `main`; first subsystem specs (UI/Menu, Message/Text, Save/Data, Battle) are in place; first execution slices are landed (native shell and scene scaffolding, battle/data bridge expansion, save descriptor projection, tactical routed battle fixture); runtime/editor/schema completion still remaining. |
+| Native Capability Expansion Wave 2 | Planning baseline | ~5% | Integrated roadmap is active in `docs/NATIVE_FEATURE_ABSORPTION_PLAN.md`; capability tracks are defined for gameplay abilities, visual patterns, modular level assembly, sprite pipeline, procedural generation, optional 2.5D presentation, timeline orchestration, and editor utilities; implementation work remains ahead. |
 | CI Gate Lanes | Active | 100% | PR/nightly/weekly labels are active, with nightly renderer-tier matrix + artifact uploads and waiver validation. |
 | Phase 5 Engine Shell | Complete | 100% | Native EngineShell loop (Tick/Update/Render) implemented; LRU Asset Cache, Binary Persistence (URSV), and Scene Authority verified. |
 | Phase 14 Battle Logic | Complete | 100% | Native turn-based battle logic, UI window components, and automated progression implemented with full test coverage. |
@@ -21,9 +23,11 @@ Status Date: 2026-04-15
 
 ### Current Weekly Focus
 
-1. Expand richer curated-plugin behavior and lifecycle scenarios across the curated 10-profile corpus, using the current menu-stack reload, codex reload, library-dashboard reload, save-data reload, message-text reload, battle-flow reload, menu-presentation reload, presentation-family reload, and dependency-recovery anchors as the baseline rather than the endpoint.
-2. Keep compat diagnostics artifact ingestion/export assertions in lockstep with new failure operations, severity mappings, report projections, and routed lifecycle-failure cases, including the default weekly unload branch and the new save-data projection lane.
-3. Carry the seeded ownership matrix and the first UI/Menu Core, Message/Text, Save/Data, and Battle spec drafts forward by deepening routed combat evidence and advancing Save/Data from implementation-slice seed toward native delivery.
+1. Close compat exit criteria: expand remaining routed conformance depth across the curated 10-profile corpus and lock each new failure mode to JSONL/report/panel assertions.
+2. Execute Wave 1 native ownership: move UI/Menu, Message/Text, Battle, and Save/Data from spec-plus-seed into runtime ownership implementation.
+3. Ship Wave 1 editor + schema productization: inspectors, previews, diagnostics, and migration-aware import upgrade paths.
+4. Begin Wave 2 advanced capability implementation tracks from `docs/NATIVE_FEATURE_ABSORPTION_PLAN.md`.
+5. Track completion against `docs/PROGRAM_COMPLETION_STATUS.md` until all checklist items are complete.
 
 ## v3.1 Upgrade Notes
 
@@ -302,10 +306,11 @@ The following table maps documentation contracts to their actual source implemen
 
 ### Next Execution Lanes
 
-1. Phase 2 validation hardening: expand curated multi-plugin behavior and lifecycle conformance across the 10-profile corpus, using the menu-stack reload, codex reload, library-dashboard reload, save-data reload, message-text reload, battle-flow reload, menu-presentation reload, presentation-family reload, and dependency-recovery scenarios as anchors rather than the endpoint.
-2. Phase 2 diagnostics completion: keep raw JSONL artifacts, report ingestion/export, and panel severity projections in lockstep for every newly added failure mode, including routed lifecycle unload cases now exercised by the weekly regression, until compat is trustworthy enough to exit.
-3. Native-first planning handoff: extend the seeded ownership matrix, build on the initial UI/Menu Core, Message/Text Core, Save/Data Core, and Battle Core spec drafts, and then deepen routed combat evidence while moving Save/Data from implementation-slice seed toward native delivery.
-4. Phase 3 Copilot + Polish: Producer Copilot canon-aware generation, cutscene timeline editor, full debugger profiler.
+1. Compat exit hardening: complete remaining curated routed conformance and diagnostics closure until explicit exit criteria are met.
+2. Native Feature Absorption Wave 1 runtime delivery: implement native ownership for UI/Menu, Message/Text, Battle, and Save/Data.
+3. Wave 1 editor and schema delivery: ship subsystem inspectors, previews, diagnostics, schema finalization, and migration upgrade paths.
+4. Native Capability Expansion Wave 2 delivery: implement the advanced capability baseline (ability framework, pattern editor, modular level assembly, sprite pipeline, procedural toolkit, optional 2.5D lane, timeline orchestration, editor utilities).
+5. Phase 3 Copilot + Polish: Producer Copilot canon-aware generation, cutscene timeline editor, full debugger profiler.
 
 ## 0 — Core Philosophy
 

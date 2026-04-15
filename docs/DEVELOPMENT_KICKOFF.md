@@ -1,6 +1,6 @@
 # URPG Development Status (v3.1)
 
-Snapshot Date: 2026-03-05
+Snapshot Date: 2026-04-15
 
 This repository is bootstrapped to the blueprint's canonical structure and now includes core + compat kernels with active CI gate wiring.
 
@@ -8,7 +8,18 @@ This repository is bootstrapped to the blueprint's canonical structure and now i
 
 - Phase 0 Foundation: 100% complete.
 - Phase 1 Native Core: 100% complete for v3.1 kickoff/continuation/integration contracts.
-- Phase 2 Compat Layer: in progress (~89%; runtime module wiring + status burn-down complete, with current focus on executable validation depth and diagnostics hardening).
+- Phase 2 Compat Layer: hardening exit (~96%; runtime module wiring + status burn-down are complete, with remaining work on executable conformance depth and diagnostics exit criteria).
+- Native Feature Absorption Wave 1: in progress (~20%; subsystem specs are drafted and first implementation slices are landed, with runtime/editor/schema delivery still remaining).
+- Native Capability Expansion Wave 2: planning baseline (~5%; integrated tracks are defined in `docs/NATIVE_FEATURE_ABSORPTION_PLAN.md`, implementation pending).
+
+## Where we are now (2026-04-15)
+
+- PR `#5` native-first direction is merged into `main`.
+- Branch model is now intentionally minimal: `main` plus one work branch (`plan/native-feature-absorption-20260413`), aligned to the same tip commit.
+- `main` is protected with PR-required flow and required checks (`gate1-pr`, `gitleaks`).
+- Dependabot version-update branch churn is disabled.
+- Active roadmap has been rewritten as one integrated execution plan (`docs/NATIVE_FEATURE_ABSORPTION_PLAN.md`) including Wave 2 advanced capability tracks.
+- Canonical completion checklist (done + remaining to 100%): `docs/PROGRAM_COMPLETION_STATUS.md`.
 
 ## Completed now
 
@@ -48,11 +59,11 @@ This repository is bootstrapped to the blueprint's canonical structure and now i
 - Phase 1 Native Core integration follow-up implemented:
    - Runtime dispatch-session wiring over event timeline/reentrancy contracts (`EventDispatchSession`).
    - Runtime debug-session wiring over breakpoints/watches/call-stack/step controls (`DebugRuntimeSession`).
-- Test baseline added and passing (Release snapshot):
-  - `urpg_tests`: 3447 assertions / 237 test cases
-  - `urpg_integration_tests`: 10 assertions / 2 test cases
-  - `urpg_snapshot_tests`: 4 assertions / 2 test cases
-  - `urpg_compat_tests`: 1985 assertions / 24 test cases
+- Test baseline added and passing (Debug snapshot, 2026-04-15):
+  - `urpg_tests`: 3907 assertions / 287 test cases
+  - Latest local gate snapshot:
+    - `ctest --test-dir build/dev-ninja-debug -L pr --output-on-failure`: 289/289 passed
+    - `ctest --test-dir build/dev-ninja-debug -L weekly --output-on-failure`: 42/42 passed
 - Phase 2 compat expansion implemented in active targets:
    - WindowCompat surface expansion for `Window_Base`, `Window_Selectable`, and `Window_Command` API registration.
    - WindowCompat method call-count tracking surfaced in compat reports.
@@ -91,6 +102,8 @@ This repository is bootstrapped to the blueprint's canonical structure and now i
    - DataManager save/load compat lane now persists per-slot `GlobalState` + `SaveHeader` in-memory (including autosave slot `0`) with slot bounds validation.
    - DataManager header-extension compat APIs now round-trip per-slot plugin metadata and clear extension state on save-slot deletion.
    - DataManager transfer semantics now track reserved transfers and apply them via `processTransfer`.
+   - `SaveSessionCoordinator` now loads `save_slots.json` descriptors and projects slot labels into save-inspector rows when map names are absent.
+   - Compat routed battle-flow evidence now includes a tactical reload-survival fixture scenario.
    - Burned down selected compat statuses: `Window_Base.drawItemName`, `Window_Base.textWidth`, `Window_Base.textSize` from `STUB` to `PARTIAL`; `TouchInput.worldX/worldY` from `STUB` to `FULL`; `Window_Base.drawActorHp/drawActorMp/drawActorTp` from `PARTIAL` to `FULL`.
    - Burned down WindowCompat text-surface statuses: `drawTextEx`, `textWidth`, `textSize` from `PARTIAL` to `FULL` using escape-token parity and compat renderer-backed measurement/layout flow.
    - Burned down additional WindowCompat statuses: `drawItemName` from `PARTIAL` to `FULL` (DataManager-backed icon+label semantics) and `Sprite_Actor.startEffect` from `PARTIAL` to `FULL` (deterministic effect-duration lifecycle).
@@ -108,10 +121,16 @@ This repository is bootstrapped to the blueprint's canonical structure and now i
 
 ## Immediate next implementation lanes
 
-1. Complete Phase 2 validation depth
-   - Expand executable conformance/failure-path scenarios across curated 10-plugin fixtures (additional malformed/eval/runtime command chains).
-2. Deepen compat validation
-   - Expand fixture script DSL + report artifact coverage for real JS plugin execution paths and compat report exports.
+1. Compat exit completion
+   - Finish remaining routed conformance/failure depth and lock every new failure mode to JSONL/report/panel assertions until explicit exit criteria are satisfied.
+2. Wave 1 native runtime ownership
+   - Implement native subsystem ownership for UI/Menu, Message/Text, Battle, and Save/Data beyond the current seeded slices.
+3. Wave 1 editor + schema productization
+   - Ship subsystem inspectors/previews/diagnostics and finalize migration-safe schemas/import upgrade paths.
+4. Wave 2 advanced capability delivery
+   - Start implementation tracks for ability framework, pattern editor, modular level assembly, sprite pipeline, procedural toolkit, optional 2.5D lane, timeline orchestration, and editor utilities.
+5. Completion tracking
+   - Execute and maintain `docs/PROGRAM_COMPLETION_STATUS.md` as the source of truth for remaining work to 100% completion in this program scope.
 
 ## Build/test
 

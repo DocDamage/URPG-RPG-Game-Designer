@@ -1,250 +1,235 @@
-# URPG Planning Addendum — Native Feature Absorption Strategy
+# URPG Native Capability Expansion Plan
 
-Date: 2026-04-13  
-Status: approved direction / pending execution  
-Scope: engine, editor, runtime, data model, and compat planning
+Date: 2026-04-15  
+Status: active execution  
+Scope: native runtime, editor workflows, schema/migration, compat bridge exit, and advanced capability expansion
 
-This addendum updates the working plan for URPG.
+This plan replaces the previous addendum and becomes the single roadmap for turning URPG into a high-power engine for multiple game styles, while preserving import and migration trust for RPG Maker content.
 
-## Strategic decision
+## Strategic position
 
-URPG will absorb high-value feature sets commonly delivered by large RPG Maker plugin ecosystems into the core product as first-class engine/editor/runtime systems.
+URPG's core value is native ownership, not plugin accumulation.
 
-The goal is **not** to recreate a giant plugin stack as the main user-facing solution.
-The goal is to make URPG itself natively capable enough that advanced menu, message, battle, save, HUD, event, and data features feel built in.
+- Compat exists to import, verify, migrate, and contain risk.
+- Native systems own long-term product capability.
+- Extensions remain optional for edge behavior, not required for core power.
 
-Compat and plugin work still matter, but they are now a supporting lane rather than the primary product destination.
+## Planning goals
 
-## What this changes
+1. Keep current native-first Wave 1 (UI/Menu, Message/Text, Battle, Save/Data) as the execution baseline.
+2. Expand the roadmap to support broader game styles through additional high-leverage systems.
+3. Integrate external-repo-inspired capabilities as first-class native tracks, not side appendices.
 
-- Compat remains important for import, validation, behavior study, migration, and regression detection.
-- Compat is no longer the intended end-state delivery model for core gameplay and editor capability.
-- Native subsystem ownership becomes the main roadmap target after the current compat hardening lane is stable enough.
-- Core UX and gameplay power should not require a third-party plugin layer to feel complete.
+## Integrated capability model
 
-## Core rule change
+### Tier A: Core ownership (must ship as native)
 
-From this point forward, "plugin parity" is measured by one of these outcomes:
-
-1. Native URPG subsystem ownership with editor/runtime support.
-2. Compat/import support used as a bridge for migrated projects.
-3. Extension hooks for optional or project-specific behavior.
-
-It is **not** measured by whether URPG ships a one-for-one plugin clone set.
-
-## Native-first capability absorption targets
-
-These are the feature families URPG should absorb into the product itself.
-
-### Priority 1 — foundation systems
-
-- UI / Menu Core
-  - advanced command windows
-  - dynamic menu composition
-  - actor panes, categories, command injection, state-aware visibility
-  - reusable layout regions and skinning hooks
-- Message / Text Core
-  - rich text, escapes, portraits/faces, name boxes, timing controls
-  - message flow control, choice UX, formatting parity where needed
-  - editor preview and localization-aware text inspection
+- UI/Menu Core
+- Message/Text Core
 - Battle Core
-  - action sequencing hooks
-  - targeting rules
-  - damage/formula extension points
-  - turn/phase pipelines
-  - state/buff/debuff lifecycle ownership
-  - battle UI integration points
-- Save / Data Core
-  - extensible save metadata
-  - slot presentation and integrity layers
-  - native schema-owned extension data
-  - migration-safe serialization paths
+- Save/Data Core
 
-### Priority 2 — gameplay authoring systems
+### Tier B: Advanced power systems (planned native lanes)
 
-- Event Command Expansion Framework
-- HUD / Overlay Framework
-- Skills / States / Items / Equipment rule framework
-- Map / Movement / interaction framework
-- Animation / effects orchestration framework
-- Audio behavior and UX hooks exposed as native authoring controls
+- Gameplay Ability Framework (tags, abilities, conditions, state machines)
+- Visual Pattern Authoring (painted coordinate patterns for AoE, inventory-like footprints, rule masks)
+- Modular Level Assembly (snap/connect block authoring with import helpers)
+- Sprite Pipeline Toolkit (atlas packing, crop/trim, animation preview/tuning)
+- Procedural Content Toolkit (dungeon generation, FOV, encounter scaffolding)
+- Optional 2.5D Presentation Lane (raycast camera/runtime mode for specific project styles)
+- Timeline/Animation Orchestration (keyframes, temporary animated effects, event-driven animation control)
+- Editor Productivity and Debug Utilities (selected high-value authoring helpers)
 
-### Priority 3 — editor-facing productization
+### Tier C: Optional extension lane
 
-- subsystem inspectors instead of plugin parameter walls
-- live previews for UI/message/battle presentation
-- validation and diagnostics built into editor workflows
-- conflict detection expressed at the system/data-contract level
-- import upgrade wizards for migrated MZ content
+- thin scripting API
+- project-specific add-ons
+- experiment-only modules
 
-### Priority 4 — extension surface
+## Repository-informed capability seeds
 
-- thin scripting API for edge cases
-- project-specific extensions
-- community add-ons
-- optional experimental systems
-- compatibility shims and translators
+These projects informed what to absorb. We treat them as design references first, and only reuse code when licensing/fit is explicitly approved.
 
-## Revised role of compat and plugins
+| Source repo | Capability seed | URPG native target |
+| --- | --- | --- |
+| `Leshy/GAS4Godot` | Gameplay ability/tag/state architecture | `Gameplay Ability Framework` runtime + editor inspectors |
+| `theNullinator/pattern_field_2d` | Painted pattern authoring UX | `Pattern Field Editor` resource + inspector widgets |
+| `patatabravajocs/hippodamos` | Snap connector level authoring | `Modular Level Assembly` tools and import contracts |
+| `slundi/spriters` | Sprite atlas/crop pipeline | `Sprite Pipeline Toolkit` CLI + editor hooks |
+| `MajorMcDoom/cozy-cube-godot-addons` | Practical editor utility patterns | `Editor Productivity` module set |
+| `fleton/dungeon-of-doom` | Dungeon/FOV/roguelike loop patterns | `Procedural Content Toolkit` |
+| `juanfgs/raycaster` | Raycast runtime and map tooling concepts | `Optional 2.5D Presentation Lane` |
+| `Dahie/sprite-spicifier` | Animation preview/tuning workflow | `Sprite Animation Preview` panel |
+| `matoymush/ExtendedTAS` | Temporary animated sprite spawning | `Transient FX/Animation Events` in timeline lane |
+| `loopier/animatron` | Live animation/timeline orchestration ideas | `Timeline/Animation Orchestration` layer |
 
-### Compat lane responsibilities
+## Ownership boundaries
 
-Compat should now exist to:
+### Native systems own
 
-- import MZ projects with trustworthy behavior capture
-- validate expected behavior against curated fixtures
-- identify missing native subsystem coverage
-- provide migration confidence during project upgrade
-- isolate foreign behavior without degrading native URPG systems
+- authoritative runtime behavior
+- editor authoring workflows
+- schema/data contracts
+- diagnostics and validation
+- migration mapping from compat/import
 
-### Plugin lane responsibilities
+### Compat lane owns
 
-Plugins/extensions should now exist for:
+- import behavior capture
+- regression verification
+- migration confidence evidence
+- controlled fallback when native mapping is incomplete
 
-- optional mods
-- experimental or niche systems
-- project-local scripting
-- third-party integrations
-- non-core feature packs
+### Extension lane owns
 
-Plugins should **not** be the main answer for features that URPG needs in order to feel complete as a product.
+- optional customization points only
+- no hidden authority over core save/state/combat/menu/message contracts
 
-## Revised execution lanes
+## Execution roadmap
 
-### Lane 1 — finish current compat hardening enough to be trustworthy
+## Lane 1: Compat bridge exit (in progress)
 
-Complete the current Phase 2 work to the point where compat is reliable for:
+Goal: complete trustworthy import/verification/migration bridge and define explicit exit criteria.
 
-- import confidence
-- fixture-based behavior verification
-- diagnostics and regression tracking
-- migration support for real-world MZ projects
+Deliverables:
 
-This lane is about trustworthiness and containment, not about making compat the permanent product center.
+- expand routed conformance depth over curated profiles
+- keep JSONL/report/panel diagnostics in lockstep for all new failures
+- publish signed compat exit checklist
 
-### Lane 2 — start the Native Feature Absorption Program
+## Lane 2: Wave 1 native ownership (in progress)
 
-Begin formal native ownership work for these subsystems:
+Goal: convert existing seeded slices into full native delivery.
 
-1. UI / Menu Core  
-2. Message / Text Core  
-3. Battle Core  
-4. Save / Data Core
+Subsystem targets:
 
-Each subsystem must define:
+1. UI/Menu Core
+2. Message/Text Core
+3. Battle Core
+4. Save/Data Core
 
-- runtime owner
-- editor surface
-- schema/data contract
-- migration/import rules
-- deterministic test coverage
-- extension points
+Required outcomes per subsystem:
 
-### Lane 3 — connect native systems to editor workflows
+- runtime owner implemented
+- editor surface implemented
+- schema contracts finalized
+- migration mapping implemented
+- tests + diagnostics complete
 
-For each absorbed feature family, the editor must expose:
+## Lane 3: Wave 2 advanced power systems (new integrated lane)
 
-- inspectors
-- previews
-- validation
-- diagnostics
-- authoring affordances
-- migration-aware upgrade tools
+Goal: expand engine power for multi-genre projects while preserving deterministic core behavior.
 
-### Lane 4 — reduce dependence on plugin-shaped thinking
+### 3.1 Gameplay Ability Framework
 
-Do not frame major roadmap progress as "what plugin do we need next?"
-Frame it as:
+- ability definitions, activation/cooldown/cost pipelines
+- gameplay tags and condition queries
+- state machines and transition guards
+- ability/effect diagnostics and replay-safe execution
 
-- what subsystem should own this behavior?
-- what editor workflow should expose it?
-- what schema should define it?
-- what compat evidence is needed to verify it?
+### 3.2 Pattern Field Editor
 
-## Immediate planning consequences
+- painted 2D/3D pattern resources
+- reusable pattern presets for skills, items, placement, and interaction masks
+- pattern validation and preview in inspectors
 
-- Native subsystem design must take priority over building a huge URPG-side plugin catalog.
-- High-value behaviors inspired by advanced MZ plugin ecosystems should be redesigned as first-class URPG capabilities.
-- Compat fixtures should be used as behavior references and regression anchors, not as proof that plugin-shaped delivery is the target architecture.
-- Any proposed "core plugin" should be challenged first: should this actually be a built-in system?
+### 3.3 Modular Level Assembly
 
-## Acceptance criteria for absorbed capabilities
+- snap-connector block placement system
+- block libraries and thumbnail generation
+- importer conventions for connector metadata
+- deterministic placement validation
 
-A capability is not considered successfully absorbed unless it has all of the following:
+### 3.4 Sprite Pipeline Toolkit
 
-- native runtime implementation
-- explicit editor surface
-- data/schema representation
-- tests covering expected behavior
-- diagnostics when misconfigured
-- extension points for non-core customization
-- migration story from compat/imported content when relevant
+- atlas generation/packing and trim/crop tooling
+- duplicate detection hooks and packing diagnostics
+- animation-sheet preview/tuning panel
+- build-time artifact generation for runtime consumption
 
-## Near-term deliverables
+### 3.5 Procedural Content Toolkit
 
-### Deliverable A — native-first ownership matrix
+- dungeon/room/corridor generation primitives
+- FOV and visibility systems
+- encounter/scenario generators tied to deterministic seeds
 
-Create a matrix mapping:
+### 3.6 Optional 2.5D Presentation Lane
 
-- capability family
-- current compat/plugin source of truth
-- future URPG subsystem owner
-- editor panel/inspector owner
-- runtime module owner
-- migration/import notes
-- test anchor location
+- raycast camera/runtime mode as opt-in project mode
+- map authoring adapters for 2.5D projects
+- strict isolation from core 2D native contracts
 
-Initial seeded inputs from current routed compat anchors:
+### 3.7 Timeline/Animation Orchestration
 
-| Capability slice | Routed compat evidence | Current compat source of truth | Future URPG subsystem owner | Editor surface owner | Runtime owner | Migration/import notes | Test anchor location |
-| --- | --- | --- | --- | --- | --- | --- | --- |
-| Menu composition and command routing | Menu-stack reload plus menu-presentation reload verify `openMenu`, `openOptions`, command-window refresh, and routed layout/HUD branches survive reload | `VisuStella_MainMenuCore_MZ`, `VisuStella_OptionsCore_MZ`, `CGMZ_MenuCommandWindow`, `AltMenuScreen_MZ`, `MOG_BattleHud_MZ` fixture commands | UI / Menu Core | Scene/menu inspector plus command-window layout inspector | Native menu scene graph plus command registry | Imported menu plugins should map command injection, command visibility rules, and default-route settings into native menu schema instead of opaque plugin params | `tests/compat/test_compat_plugin_fixtures.cpp` routed reload anchors for menu-stack and menu-presentation |
-| Menu presentation layout and dashboard chrome | Menu-presentation reload and library-dashboard reload show menu command chrome coexisting with alt-menu layout and content-entry routes | `CGMZ_MenuCommandWindow`, `AltMenuScreen_MZ` and routed dashboard fixture wiring | UI / Menu Core | Menu layout composer, panel docking rules, style/skin preview | Native menu presenter layer with deterministic region/layout contracts | Compat import should split visual layout concerns from command wiring so imported projects can upgrade presentation without preserving plugin-specific parameter walls | `tests/compat/test_compat_plugin_fixtures.cpp` library-dashboard and menu-presentation reload anchors |
-| Library / codex navigation surfaces | Codex reload plus library-dashboard reload verify encyclopedia, book, and quest routes remain addressable after reload and route through shared dashboard entry points | `CGMZ_Encyclopedia`, `EliMZ_Book`, `Galv_QuestLog_MZ` routed fixture commands | UI / Menu Core first, with later content/codex extension hooks | Codex/library inspector, quest-log inspector, route preview surface | Native codex/query runtime under menu scene ownership | Imported encyclopedia/book/quest plugins should become native content-view definitions with preserved route IDs and fallback compat shims only for unsupported custom commands | `tests/compat/test_compat_plugin_fixtures.cpp` codex and library-dashboard reload anchors |
-| Presentation overlays tied to routed state | Presentation-family reload plus menu-presentation reload keep layout, HUD, and motion routes callable across reload boundaries | `AltMenuScreen_MZ`, `MOG_BattleHud_MZ`, `MOG_CharacterMotion_MZ` fixture commands | UI / Menu Core for layout and HUD, Battle Core for battle HUD state, later presentation FX layer for motion hooks | Menu preview, HUD preview, battle overlay inspector | Native HUD/layout presenter plus battle presentation adapter | Import should preserve overlay intent and routing while translating display primitives into native presenter contracts rather than plugin command names | `tests/compat/test_compat_plugin_fixtures.cpp` presentation and menu-presentation reload anchors |
-| Message flow, text layout, and dialogue chrome | Message-text reload anchor now verifies routed speaker, narration, and system dialogue modes survive plugin reload while still driving `drawTextEx`, `textWidth`, `textSize`, and face rendering parity through `Window_Base` | `Window_Base` text/face compat surfaces plus routed message-text fixture wiring | Message / Text Core | Dialogue inspector, rich-text preview, face/namebox layout preview, localization-aware validation | Native message runner plus text layout engine | Import should translate escape codes, timing rules, portraits/faces, and message-box variants into native dialogue schema with a compat fallback only for unsupported control flows | `tests/compat/test_compat_plugin_fixtures.cpp` message-text reload anchor, `tests/unit/test_window_compat.cpp`, and blueprint message/text contracts |
-| Save slot metadata, autosave routing, and recovery UX | Save-data reload anchor verifies slot metadata and autosave flows stay aligned with routed menu/dashboard entry points across plugin reload, save-data lifecycle failure coverage projects routed dashboard failures through JSONL/report/panel while authoritative slot data remains intact, and migration-path evidence now proves imported save metadata can be normalized into runtime-facing shape | `DataManager` compat save/header APIs plus routed save-data fixture wiring | Save / Data Core | Save-slot inspector, save metadata panel, recovery diagnostics view, template save-policy settings | Native save catalog, metadata index, and recovery orchestrator | Imported save plugins should map slot presentation, header-extension metadata, autosave affordances, and recovery flags into native save schema rather than opaque plugin config | `tests/compat/test_compat_plugin_fixtures.cpp` save-data reload anchor, `tests/compat/test_compat_plugin_failure_diagnostics.cpp` save-data failure projection, `tests/unit/test_data_manager.cpp`, `tests/unit/test_migration_runner.cpp`, and save runtime/recovery tests |
-| Lifecycle dependency recovery and reload safety | Core reload recovery and weekly routed unload diagnostics prove command availability, dependency gating, and unload warnings are first-class behavior references | `VisuStella_CoreEngine_MZ` dependency contract plus routed unload diagnostics in failure fixtures | Shared runtime lifecycle manager supporting UI / Menu Core, Battle Core, and Save / Data Core | Diagnostics panels and subsystem health views | Plugin/runtime lifecycle coordinator with deterministic reload policy | Native absorption work should preserve explicit dependency health signals and routed failure reporting so imports can fail closed during upgrade | `tests/compat/test_compat_plugin_fixtures.cpp` dependency recovery anchor and `tests/compat/test_compat_plugin_failure_diagnostics.cpp` routed unload regressions |
+- keyframe/timeline authoring for scene and UI animation
+- transient animated effect spawning hooks
+- deterministic event-to-animation bindings
 
-Near-term interpretation:
+### 3.8 Editor Productivity Utilities
 
-- The strongest routed anchors already justify starting UI / Menu Core ownership design immediately.
-- Battle Core ownership should treat HUD state as a routed presentation client, not the owner of menu/dashboard composition.
-- Message / Text Core now has a first routed anchor, but it still needs deeper choice-flow, timing-control, and failure-path evidence before the subsystem is fully specified.
-- Save / Data Core now has routed reload, routed diagnostics projection, and migration-path evidence, so it is ready to move from initial draft into an implementation slice.
-- Battle Core ownership now has a first routed battle-flow anchor in addition to deterministic battle-flow tests and HUD/presentation client evidence, but it still needs broader routed combat coverage over time.
+- selective adoption of high-value editor utilities
+- focus on maintainability and ownership fit, not bulk addon import
 
-### Deliverable B — first absorption wave specs
+## Lane 4: Productization and release hardening
 
-Write subsystem design docs for:
+Goal: convert delivered systems into stable production paths.
 
-- UI / Menu Core
-  - Initial draft: `docs/UI_MENU_CORE_NATIVE_SPEC.md`
-- Message / Text Core
-  - Initial draft: `docs/MESSAGE_TEXT_CORE_NATIVE_SPEC.md`
-- Battle Core
-  - Initial draft: `docs/BATTLE_CORE_NATIVE_SPEC.md`
-- Save / Data Core
-  - Initial draft: `docs/SAVE_DATA_CORE_NATIVE_SPEC.md`
+Deliverables:
 
-### Deliverable C — roadmap rewiring
+- migration wizard flow for imported projects
+- release-readiness matrix by subsystem
+- gate reports proving stability for native + compat lanes
 
-Update execution planning so that post-compat work is tracked as native subsystem delivery, not as plugin-count growth.
+## Milestone framing
+
+### Milestone M1 (current)
+
+- Lane 1 near-exit hardening
+- Lane 2 Wave 1 runtime ownership delivery start
+
+### Milestone M2
+
+- Wave 1 editor/schema/migration closure
+- Lane 3 tracks 3.1 to 3.4 seeded and partially implemented
+
+### Milestone M3
+
+- Lane 3 tracks 3.5 to 3.8 implemented to production baseline
+- cross-lane integration validation complete
+
+### Milestone M4
+
+- Lane 4 release hardening complete
+- full program completion report published
+
+## Definition of complete (100% for this plan)
+
+This plan is complete when:
+
+1. Compat bridge exit criteria are signed off.
+2. Wave 1 subsystems are fully native across runtime/editor/schema/migration/test/diagnostics.
+3. Wave 2 advanced power systems are delivered at production baseline.
+4. Release gates validate native and compat stability with published evidence.
+
+## Acceptance rules for external-source-inspired work
+
+1. Default rule: absorb architecture patterns and behavior ideas first.
+2. Code reuse only after explicit license and compatibility review.
+3. No direct import of third-party code that conflicts with URPG licensing strategy.
+4. Every adopted capability must map to a named native owner and test anchor.
 
 ## Non-goals
 
-These are specifically **not** the goal of this direction update:
+- shipping a giant one-for-one plugin clone catalog
+- making extension stacks mandatory for core capability
+- treating imported plugin parameter sheets as long-term authoring UX
+- bypassing native schema ownership for convenience
 
-- shipping a one-for-one clone catalog of commercial plugin ecosystems
-- depending on external plugin stacks for core URPG value
-- treating plugin parameter sheets as the primary UX model for advanced engine features
-- letting compat become the permanent architecture center of the product
+## Execution references
 
-## Summary
-
-URPG should not become "RPG Maker plus a bigger plugin list."
-
-URPG should become a stronger native RPG creation product where the most valuable advanced capabilities are part of the engine, part of the editor, and part of the runtime by default.
-
-Compat remains essential, but as an adapter, validation, and migration lane.
-Native subsystem ownership is now the main path.
+- Program status and remaining checklist: `docs/PROGRAM_COMPLETION_STATUS.md`
+- Wave 1 specs:
+  - `docs/UI_MENU_CORE_NATIVE_SPEC.md`
+  - `docs/MESSAGE_TEXT_CORE_NATIVE_SPEC.md`
+  - `docs/SAVE_DATA_CORE_NATIVE_SPEC.md`
+  - `docs/BATTLE_CORE_NATIVE_SPEC.md`
