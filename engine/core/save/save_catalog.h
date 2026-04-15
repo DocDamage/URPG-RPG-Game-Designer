@@ -6,6 +6,7 @@
 #include "engine/core/save/save_types.h"
 
 #include <filesystem>
+#include <optional>
 #include <string>
 #include <unordered_map>
 #include <vector>
@@ -35,6 +36,13 @@ struct SaveRetentionPolicy {
     size_t max_quicksave_slots = 3;
     size_t max_manual_slots = 20;
     bool prune_excess_on_save = true;
+};
+
+struct SaveSlotDescriptor {
+    int32_t slot_id = -1;
+    SaveSlotCategory category = SaveSlotCategory::Manual;
+    std::string label;
+    bool reserved = false;
 };
 
 class SaveCatalog {
@@ -95,9 +103,12 @@ public:
     void setRetentionPolicy(const SaveRetentionPolicy& policy);
 
     bool loadSavePolicies(const std::filesystem::path& path);
+    bool loadSaveSlots(const std::filesystem::path& path);
 
     const SaveMetadataRegistry& metadataRegistry() const { return metadata_registry_; }
     SaveMetadataRegistry& metadataRegistry() { return metadata_registry_; }
+    const std::vector<SaveSlotDescriptor>& slotDescriptors() const { return slot_descriptors_; }
+    std::optional<SaveSlotDescriptor> slotDescriptor(int32_t slot_id) const;
 
     bool canAutosave() const;
     int32_t autosaveSlot() const;
@@ -111,6 +122,7 @@ private:
 
     SaveCatalog& catalog_;
     SaveMetadataRegistry metadata_registry_;
+    std::vector<SaveSlotDescriptor> slot_descriptors_;
     SaveAutosavePolicy autosave_policy_;
     SaveRetentionPolicy retention_policy_;
     uint64_t next_save_sequence_ = 1;
