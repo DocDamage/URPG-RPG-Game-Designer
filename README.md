@@ -102,12 +102,8 @@ Bootstrap workspace aligned to URPG Master Blueprint v3.1.
   - Nightly renderer-tier matrix (`basic`, `standard`, `advanced`) + test log artifacts in CI
   - Known-break waiver validation via `tools/ci/check_waivers.ps1`
 - Migration CLI: `urpg_migrate`
-- Catch2/CTest baseline (Debug snapshot, 2026-04-14):
-  - `urpg_tests`: 3516 assertions / 240 test cases
-  - `urpg_integration_tests`: 10 assertions / 2 test cases
-  - `urpg_snapshot_tests`: 4 assertions / 2 test cases
-  - `urpg_compat_tests`: 2834 assertions / 40 test cases
-  - Total: 6364 assertions / 284 test cases
+- Catch2/CTest baseline (Debug snapshot, 2026-04-15):
+  - `urpg_tests`: 3907 assertions / 287 test cases
 
 ## Immediate next steps
 
