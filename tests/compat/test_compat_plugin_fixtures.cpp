@@ -2450,6 +2450,189 @@ TEST_CASE("Compat fixtures: curated battle outcome-status scenarios survive plug
     std::filesystem::remove(reloadFixture, ec);
 }
 
+TEST_CASE("Compat fixtures: curated battle tactical-routing scenarios survive plugin reload",
+          "[compat][fixtures]") {
+    PluginManager& pm = PluginManager::instance();
+    pm.unloadAllPlugins();
+    pm.clearFailureDiagnostics();
+
+    REQUIRE(pm.loadPlugin(fixturePath("VisuStella_CoreEngine_MZ").string()));
+    REQUIRE(pm.loadPlugin(fixturePath("MOG_BattleHud_MZ").string()));
+    REQUIRE(pm.loadPlugin(fixturePath("MOG_CharacterMotion_MZ").string()));
+
+    const auto reloadFixture = uniqueTempFixturePath("urpg_curated_battle_tactical_reload_fixture");
+    writeTextFile(
+        reloadFixture,
+        R"({
+    "name": "CuratedBattleTacticalReloadFixture",
+    "parameters": {
+    "defaultRoute": "tactical",
+    "defaultMotion": "feint"
+    },
+    "commands": [
+    {
+        "name": "execute",
+        "script": [
+        {"op": "invoke", "plugin": "VisuStella_CoreEngine_MZ", "command": "boot", "args": [{"from": "arg", "index": 0, "default": "battle_tactical_boot"}], "store": "boot", "expect": "non_nil"},
+        {"op": "set", "key": "route", "value": {"from": "coalesce", "values": [{"from": "arg", "index": 1}, {"from": "param", "name": "defaultRoute"}]}},
+        {"op": "set", "key": "motionName", "value": {"from": "arg", "index": 2, "default": {"from": "param", "name": "defaultMotion"}}},
+        {"op": "invoke", "plugin": "MOG_BattleHud_MZ", "command": "showHud", "store": "hud", "expect": "non_nil"},
+        {"op": "invoke", "plugin": "MOG_CharacterMotion_MZ", "command": "startMotion", "args": [{"from": "local", "name": "motionName"}], "store": "motion", "expect": "non_nil"},
+        {"op": "if", "condition": {"from": "equals", "left": {"from": "local", "name": "route"}, "right": "forced"},
+            "then": [{"op": "set", "key": "routeToken", "value": "forced:queue"}],
+            "else": [{"op": "set", "key": "routeToken", "value": "tactical:queue"}]
+        },
+        {"op": "returnObject"}
+        ]
+    }
+    ]
+})"
+    );
+
+    REQUIRE(pm.loadPlugin(reloadFixture.string()));
+
+    auto verifyTacticalRoute = [&](const Value& value,
+                                   const std::string& expectedBoot,
+                                   const std::string& expectedRoute,
+                                   const std::string& expectedToken,
+                                   const std::string& expectedMotion) {
+        REQUIRE(std::holds_alternative<Object>(value.v));
+        const auto& object = std::get<Object>(value.v);
+        REQUIRE(std::get<std::string>(std::get<Object>(object.at("boot").v).at("firstArg").v) == expectedBoot);
+        REQUIRE(std::get<std::string>(object.at("route").v) == expectedRoute);
+        REQUIRE(std::get<std::string>(object.at("routeToken").v) == expectedToken);
+        REQUIRE(std::get<std::string>(object.at("motionName").v) == expectedMotion);
+        REQUIRE(std::get<std::string>(std::get<Object>(object.at("hud").v).at("profile").v) == "battle_hud");
+        REQUIRE(std::get<std::string>(std::get<Object>(object.at("motion").v).at("profile").v) == "character_motion");
+
+        BattleManager battle;
+        int actionStartCount = 0;
+        int actionEndCount = 0;
+        int damageCount = 0;
+        battle.registerHook(BattleManager::HookPoint::ON_ACTION_START, "battle_tactical_anchor", [&actionStartCount](const std::vector<Value>&) {
+            ++actionStartCount;
+            return Value::Nil();
+        });
+        battle.registerHook(BattleManager::HookPoint::ON_ACTION_END, "battle_tactical_anchor", [&actionEndCount](const std::vector<Value>&) {
+            ++actionEndCount;
+            return Value::Nil();
+        });
+        battle.registerHook(BattleManager::HookPoint::ON_DAMAGE, "battle_tactical_anchor", [&damageCount](const std::vector<Value>&) {
+            ++damageCount;
+            return Value::Nil();
+        });
+
+        BattleSubject actor;
+        actor.type = BattleSubjectType::ACTOR;
+        actor.index = 0;
+        actor.hp = 120;
+        actor.mhp = 120;
+        actor.actionSpeed = 16;
+
+        BattleSubject enemy;
+        enemy.type = BattleSubjectType::ENEMY;
+        enemy.index = 0;
+        enemy.hp = 100;
+        enemy.mhp = 100;
+        enemy.actionSpeed = 8;
+
+        battle.setup(31, true, false);
+        battle.addActorSubject(actor);
+        battle.addEnemySubject(enemy);
+        BattleSubject* seededActor = battle.getActor(0);
+        BattleSubject* seededEnemy = battle.getEnemy(0);
+        REQUIRE(seededActor != nullptr);
+        REQUIRE(seededEnemy != nullptr);
+        REQUIRE(battle.addBuff(seededActor, 2, 2, 2));
+        REQUIRE(battle.addDebuff(seededEnemy, 3, 2, 1));
+
+        battle.startBattle();
+        battle.startTurn();
+        REQUIRE(battle.getPhase() == BattlePhase::TURN);
+
+        battle.setActorAction(0, BattleActionType::ATTACK, -1);
+        battle.forceAction(0, BattleSubjectType::ACTOR, BattleActionType::ATTACK, -1);
+        battle.sortActionsBySpeed();
+
+        int processedActions = 0;
+        while (BattleAction* action = battle.getNextAction()) {
+            battle.processAction(action);
+            ++processedActions;
+        }
+        REQUIRE(processedActions == 2);
+        REQUIRE(actionStartCount == 2);
+        REQUIRE(actionEndCount == 2);
+        REQUIRE(damageCount == 2);
+        REQUIRE(seededEnemy->hp < 100);
+        REQUIRE(battle.getModifierStage(seededActor, 2) == 2);
+        REQUIRE(battle.getModifierStage(seededEnemy, 3) == -1);
+
+        REQUIRE(battle.calculateExp() == 10);
+        REQUIRE(battle.calculateGold() == 5);
+
+        auto computeDrops = []() {
+            BattleManager dropsBattle;
+            dropsBattle.setup(37, true, false);
+            for (int i = 0; i < 3; ++i) {
+                BattleSubject enemyDrop;
+                enemyDrop.type = BattleSubjectType::ENEMY;
+                enemyDrop.index = i;
+                enemyDrop.hp = 30;
+                enemyDrop.mhp = 30;
+                dropsBattle.addEnemySubject(enemyDrop);
+            }
+            return dropsBattle.calculateDrops();
+        };
+        REQUIRE(computeDrops() == computeDrops());
+
+        battle.endTurn();
+        REQUIRE(battle.getTurnCount() == 1);
+        REQUIRE(battle.getPhase() == BattlePhase::INPUT);
+    };
+
+    Value beforeReloadBoot;
+    beforeReloadBoot.v = std::string("before_reload_battle_tactical");
+    const Value beforeReload =
+        pm.executeCommand("CuratedBattleTacticalReloadFixture", "execute", {beforeReloadBoot});
+    verifyTacticalRoute(beforeReload,
+                        "before_reload_battle_tactical",
+                        "tactical",
+                        "tactical:queue",
+                        "feint");
+
+    REQUIRE(pm.reloadPlugin("VisuStella_CoreEngine_MZ"));
+    REQUIRE(pm.reloadPlugin("MOG_BattleHud_MZ"));
+    REQUIRE(pm.reloadPlugin("MOG_CharacterMotion_MZ"));
+    REQUIRE(pm.reloadPlugin("CuratedBattleTacticalReloadFixture"));
+
+    REQUIRE(pm.hasCommand("CuratedBattleTacticalReloadFixture", "execute"));
+    REQUIRE(pm.hasCommand("MOG_BattleHud_MZ", "showHud"));
+    REQUIRE(pm.hasCommand("MOG_CharacterMotion_MZ", "startMotion"));
+
+    Value afterReloadBoot;
+    afterReloadBoot.v = std::string("after_reload_battle_tactical");
+    Value forcedRoute;
+    forcedRoute.v = std::string("forced");
+    Value forcedMotion;
+    forcedMotion.v = std::string("parry");
+    const Value afterReload =
+        pm.executeCommandByName("CuratedBattleTacticalReloadFixture_execute",
+                                {afterReloadBoot, forcedRoute, forcedMotion});
+    verifyTacticalRoute(afterReload,
+                        "after_reload_battle_tactical",
+                        "forced",
+                        "forced:queue",
+                        "parry");
+
+    REQUIRE(pm.exportFailureDiagnosticsJsonl().empty());
+
+    pm.clearFailureDiagnostics();
+    pm.unloadAllPlugins();
+
+    std::error_code ec;
+    std::filesystem::remove(reloadFixture, ec);
+}
+
 TEST_CASE("Compat fixtures: curated menu-stack scenarios survive plugin reload",
                     "[compat][fixtures]") {
         PluginManager& pm = PluginManager::instance();
