@@ -74,7 +74,6 @@ add_library(urpg_core
     engine/core/clock.cpp
     engine/core/semver.cpp
     engine/core/threading/thread_roles.cpp
-    engine/core/scene/map_scene.cpp
     engine/core/events/event_edit_guard.cpp
     engine/core/events/event_runtime.cpp
     engine/core/format/canonical_json.cpp
@@ -108,9 +107,7 @@ add_library(urpg_core
     editor/ability/ability_inspector_panel.cpp
     editor/ability/pattern_field_model.cpp
     editor/ability/pattern_field_panel.cpp
-    engine/core/ability/gameplay_tags.cpp
     engine/core/ability/gameplay_ability.cpp
-    engine/core/ability/ability_system_component.cpp
     engine/core/ability/ability_state_machine.cpp
     engine/core/ui/menu_serializer.cpp
     engine/core/scene/battle_scene.cpp
@@ -156,6 +153,7 @@ endif()
 target_link_libraries(urpg_core PUBLIC nlohmann_json::nlohmann_json)
 
 # Platform Dependencies (SDL2, OpenGL)
+option(URPG_SKIP_OPENGL "Skip OpenGL requirement (for headless CI builds)" OFF)
 set(SDL2_DISABLE_INSTALL ON CACHE BOOL "" FORCE)
 set(SDL2_TESTS OFF CACHE BOOL "" FORCE)
 find_package(SDL2 QUIET)
@@ -183,7 +181,9 @@ target_include_directories(urpg_core PUBLIC
     ${stb_SOURCE_DIR}
 )
 
-find_package(OpenGL REQUIRED)
+if(NOT URPG_SKIP_OPENGL)
+    find_package(OpenGL REQUIRED)
+endif()
 
 if(TARGET SDL2::SDL2)
     set(URPG_SDL_TARGET SDL2::SDL2)
@@ -194,8 +194,14 @@ endif()
 target_link_libraries(urpg_core PUBLIC 
     nlohmann_json::nlohmann_json 
     ${URPG_SDL_TARGET}
-    OpenGL::GL
 )
+
+if(NOT URPG_SKIP_OPENGL)
+    target_link_libraries(urpg_core PUBLIC OpenGL::GL)
+else()
+    target_compile_definitions(urpg_core PUBLIC URPG_HEADLESS=1)
+    message(STATUS "URPG: Building in HEADLESS mode (OpenGL skipped)")
+endif()
 
 add_executable(urpg_migrate
     tools/migrate/migrate_cli.cpp
