@@ -39,15 +39,21 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y sccache
+      - name: sccache stats (before build)
+        if: matrix.language == 'cpp'
+        run: sccache --show-stats || true
       - name: Initialize CodeQL
         uses: github/codeql-action/init@v3
         with:
           languages: ${{ matrix.language }}
       - name: Configure (C++)
         if: matrix.language == 'cpp'
-        run: cmake --preset ci -DURPG_SKIP_OPENGL=ON
+        run: cmake --preset ci
       - name: Build (C++)
         if: matrix.language == 'cpp'
         run: cmake --build --preset ci-release
+      - name: sccache stats (after build)
+        if: always() && matrix.language == 'cpp'
+        run: sccache --show-stats || true
       - name: Analyze
         uses: github/codeql-action/analyze@v3
