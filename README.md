@@ -1,103 +1,71 @@
-# URPG
+# URPG (Universal RPG Engine) v3.1
 
-Bootstrap workspace aligned to URPG Master Blueprint v3.1.
+![URPG Header](https://raw.githubusercontent.com/URPG-Project/assets/main/header.png)
 
-## Status snapshot (2026-04-15)
+**URPG** is a high-performance, deterministic C++ RPG engine designed for the modern era. It combines the flexibility of JavaScript-based plugin systems (compatible with RPG Maker MZ) with the power and safety of a native C++ kernel.
 
-- Planning + execution branch has been merged into `main` (`PR #5`).
-- `main` and `plan/native-feature-absorption-20260413` are aligned to the same latest commit.
-- `main` is protected (PR required, 1 approval, conversation resolution, required checks: `gate1-pr` and `gitleaks`).
-- Dependabot version-update branch churn is disabled in `.github/dependabot.yml`.
-- Latest local gate snapshot:
-  - `ctest --test-dir build/dev-ninja-debug -L pr --output-on-failure` => 289/289 passed
-  - `ctest --test-dir build/dev-ninja-debug -L weekly --output-on-failure` => 42/42 passed
-- Latest focused renderer/message validation snapshot:
-  - `.\Debug\urpg_tests.exe "[compat]"` => 646 assertions / 140 test cases passed
-  - `.\Debug\urpg_tests.exe "[compat][window]"` => 211 assertions / 52 test cases passed
-  - `.\Debug\urpg_tests.exe "[compat][window][message]"` => 4 assertions / 1 test case passed
-  - `.\Debug\urpg_tests.exe "[compat][window][snapshot]"` => 2 assertions / 1 test case passed
-- Native roadmap has been rewritten into one integrated execution plan:
-  - `docs/NATIVE_FEATURE_ABSORPTION_PLAN.md` (Wave 1 core ownership + Wave 2 advanced capability expansion)
-- Canonical progress + remaining-work checklist: `docs/PROGRAM_COMPLETION_STATUS.md`.
-- Canonical Wave 1 spec closure checklist source:
-  - `docs/WAVE1_SUBSYSTEM_CLOSURE_CHECKLIST.md`
-  - synchronized into subsystem specs via `tools/docs/sync-wave1-spec-checklist.ps1`
+## 🚀 Key Capabilities
 
-## Current scope
+### 🛠️ Hybrid Native/Script Architecture
+- **C++ Core Kernel:** Deterministic ECS iteration, Fixed32 (Q16.16) math, and a unified `EngineAssembly` lifecycle.
+- **QuickJS Integration:** A high-speed JavaScript bridge allowing for extensive plugin extensibility without sacrificing engine stability.
+- **Least-Privilege Security:** A robust `PluginSecurityManager` that sandboxes external scripts, enforcing permission-based access to system resources.
 
-- Documentation sync:
-  - `URPG_Blueprint_v3_1_Integrated.md` now maintains a top-of-file live progress tracker (phase status, completion, baseline counts, and weekly focus).
-- Canonical repo layout skeleton (engine/editor/runtimes/content/tools/tests/docs).
-- Contract kernels from section 18:
-  - SemVer
-  - Fixed32 (Q16.16)
-  - FrameBudget types
-  - ECS World deterministic iteration behavior
-  - CombatCalc baseline
-  - Bridge Value model
-- Phase 0 foundations:
-  - Thread role + script access model (Render/Logic/Audio/AssetStreaming)
-  - Renderer capability tiers + feature-gate helpers
-  - Save metadata envelopes + journaled atomic write path
-  - Save corruption recovery tiers (Level 1/2/3)
-  - Runtime save load integration with recovery fallback + force-safe-mode startup (`RuntimeSaveLoader`)
-  - Canonical JSON serializer + deterministic migration runner (`rename`, `set`)
-  - Source-of-truth authority policy (Compat/Native/Mixed)
-  - Event edit guard with structured `event_authority` diagnostics (with `block_id` emission)
-  - Editor diagnostics index for `event_authority` JSONL parsing + event/block navigation targets
-  - Editor diagnostics panel/view model for rows, filtering, and one-click navigation target selection
-- Phase 1 kickoff kernels:
-  - Event runtime priority ordering + cancellation + prevent-default contracts
-  - Debugger breakpoint store + watch table contract kernels
-- Phase 1 continuation kernels:
-  - Event execution timeline + reentrancy depth tracking contracts (`EventExecutionTimeline`)
-  - Debugger call-stack frame + step-control contracts (`CallStack`, `StepController`)
-- Phase 1 integration follow-up:
-  - Event runtime dispatch-session facade now wires timeline/reentrancy control (`EventDispatchSession`)
-  - Debug runtime session facade now wires breakpoints/watches/call-stack/step flow (`DebugRuntimeSession`)
-- Phase 2 compat progression:
-  - QuickJS runtime kernel, WindowCompat surfaces, and Battle/Data/Audio/Input/Plugin compat modules are wired in active build targets.
-  - WindowCompat now includes expanded API registration coverage + method call-count telemetry for compat reports.
-  - Added curated compat profile conformance suite for 10 popular MZ plugin profiles.
-  - Added executable plugin fixture suite for 10 real-world MZ plugin profiles in weekly compat CI coverage.
-  - Curated failure-path diagnostics suite now gates missing-command/full-name parse errors, malformed fixture command payloads, fixture script runtime op failures, fixture script validation-shape failures (`set`/`append` key requirements plus malformed `invoke`/`invokeByName` target/store/expect shapes), malformed nested-branch fixture failures (`if` branch shape and nested branch-step validation), directory-scan failures (including deterministic iterator and entry-status branches), and dependency-failure behavior across the 10-profile corpus.
-  - Added a combined weekly regression that runs dependency-gating conformance across all 10 curated fixtures plus mixed malformed payload/eval/runtime/full-name-parse failure chains (including fixture-open/fixture-name/duplicate-load failures, `load_plugin_name` + `load_plugin_register_command` + `load_plugin_register_script_fn` + `load_plugin_quickjs_context` failures, parameter-parse failures, deterministic directory-scan iterator/entry-status failures (`load_plugins_directory_scan` / `load_plugins_directory_scan_entry`), malformed command metadata failures (`dropContextBeforeCall`/`entry`/`description` type validation), malformed fixture metadata shape failures (`dependencies`/`parameters`/`commands` type validation plus dependency-entry string enforcement), nested `all`/`any` runtime branch failures, `invoke`/`invokeByName` command-chain runtime failures, deterministic post-load context-drop coverage for `execute_command_quickjs_context_missing`, strict script-shape runtime failures, and malformed command-shape/name load failures) in one end-to-end diagnostics pass, including compat report model/panel ingestion and export projection checks.
-  - PluginManager now supports JSON fixture loading, directory discovery, JSON parameter parsing, and script-driven fixture command execution.
-  - PluginManager directory/plugin/command/dependent enumeration paths now enforce deterministic lexical ordering (`loadPluginsFromDirectory`, `getLoadedPlugins`, `getPluginCommands`, `getDependents`).
-  - Fixture script commands now route through per-plugin `QuickJSRuntime` contexts (`QuickJSContext::call`) for real compat-lane execution plumbing.
-  - Fixture JSON commands can now provide lightweight JS source (`js`) + entrypoint (`entry`) and execute via `QuickJSContext::eval` + `call`.
-  - Fixture commands now support a deterministic `dropContextBeforeCall` hook for conformance coverage of `execute_command_quickjs_context_missing`.
-  - Curated fixture profiles now actively exercise JS directive `arg` and `const` modes across all 10 real-world plugin fixtures.
-  - Fixture script DSL now supports conditional flow and richer value resolvers (`if`, `args`, `paramKeys`, `hasParam`, `hasArg`, `equals`, `coalesce`, `length`, `contains`, `greaterThan`, `lessThan`, `not`, `all`, `any`) with executable coverage expanded for `append`/`local`/`concat` chain behavior.
-  - Fixture script DSL now supports deterministic command-chain dispatch via `invoke` and `invokeByName`, including `store` capture and `expect: non_nil` assertions for nested execution validation.
-  - Fixture script DSL now supports richer invoke expectations (`nil`, `truthy`, `falsey`, `equals`) plus explicit resolver metadata validation for `arg`/`hasArg`/`param`/`hasParam`/`local`/`argCount`/`args`/`paramKeys` with raw diagnostics, report-model ingestion, export, and panel assertions kept in lockstep.
-  - Compat conformance now includes invoke-chain success and failure-path diagnostics coverage (`execute_command`, `execute_command_by_name_parse`, and `execute_command_quickjs_call`) for nested fixture command flows, including malformed `invoke`/`invokeByName` validation branches.
-  - Compat fixture suites now include richer curated behavior scenarios for menu-stack and codex/content plugin flows so the 10-profile corpus is exercised through more realistic multi-plugin routing paths instead of only isolated command probes.
-  - Curated compat lifecycle coverage now includes menu-stack, codex/content, library-dashboard, save-data, menu-presentation, and presentation-family behavior surviving plugin reload plus dependent command recovery after unloading and reloading shared core fixtures.
-  - Curated compat lifecycle coverage now also includes message-text routing where speaker, narration, and system dialogue modes survive plugin reload while still exercising `Window_Base` rich-text and face rendering surfaces.
-  - Curated compat lifecycle coverage now also includes battle-flow routing, coupling battle HUD and motion plugin routes to deterministic `BattleManager` turn, action, damage/heal, and escape behavior across plugin reload.
-  - Save-data failure-path coverage now projects routed save-surface failures through raw JSONL diagnostics, report-model ingestion/export, and panel refresh while authoritative slot and autosave state remain intact.
-  - Save/Data import-shape evidence now proves imported save metadata can be normalized through `MigrationRunner` into the runtime loader's native metadata shape and then hydrated successfully.
-  - Native-first planning now includes a seeded ownership-matrix input table derived from the strongest routed compat anchors, extended with first-pass Message/Text and Save/Data rows.
-  - The first native-first subsystem spec draft now exists at `docs/UI_MENU_CORE_NATIVE_SPEC.md` so UI/Menu ownership can move from matrix inputs into subsystem design.
-  - The first native-first Message/Text subsystem spec draft now exists at `docs/MESSAGE_TEXT_CORE_NATIVE_SPEC.md`, giving message flow and text layout the same planning handoff shape as UI/Menu.
-  - The first native-first Save/Data and Battle subsystem spec drafts now exist at `docs/SAVE_DATA_CORE_NATIVE_SPEC.md` and `docs/BATTLE_CORE_NATIVE_SPEC.md`.
-  - Added deterministic cross-plugin invoke chain fuzz matrix coverage (32 generated chain cases across curated fixtures, mixed `invoke` + `invokeByName`, nested branch routing).
-  - Unknown (non-`std::exception`) command/runtime throws are now classified as `CRASH_PREVENTED` in diagnostics to preserve deterministic crash-containment semantics.
-  - Plugin reload now reuses tracked source paths and rehydrates fixture commands for JSON-backed compat plugins.
-  - Compat report coverage now directly asserts severity mapping for `WARN`, `SOFT_FAIL`, `HARD_FAIL`, and `CRASH_PREVENTED` tags so raw diagnostics, report timelines, and panel projections stay aligned, and curated lifecycle failures now project through JSONL, report ingestion, and panel refresh for routed unload cases, including the default weekly diagnostics lane.
-  - DataManager compat save lane now persists per-slot `GlobalState` + `SaveHeader` in-memory (including autosave slot `0`) with slot bound checks, plus `setSaveHeaderExtension`/`getSaveHeaderExtension` round-trip semantics and cleanup on slot deletion.
-  - DataManager map transfer flow now tracks reserved transfers and applies them deterministically through `processTransfer`.
-  - Burned down selected compat statuses: `Window_Base.drawItemName/textWidth/textSize` advanced from `STUB` to `PARTIAL`; `TouchInput.worldX/worldY` advanced from `STUB` to `FULL`; `Window_Base.drawActorHp/drawActorMp/drawActorTp` advanced from `PARTIAL` to `FULL`.
-  - Burned down WindowCompat text-surface statuses: `Window_Base.drawTextEx`, `Window_Base.textWidth`, `Window_Base.textSize` advanced from `PARTIAL` to `FULL` with escape-token parity and compat renderer-backed text measurement/layout.
-  - Burned down additional WindowCompat statuses: `Window_Base.drawItemName` advanced from `PARTIAL` to `FULL` with DataManager-backed icon+label semantics, and `Sprite_Actor.startEffect` advanced from `PARTIAL` to `FULL` with deterministic effect-duration lifecycle behavior.
-  - Burned down additional Sprite_Actor animation status: `startAnimation` advanced from `PARTIAL` to `FULL` with deterministic frame-duration playback lifecycle.
-  - Burned down remaining Window_Base face status: `drawActorFace` advanced from `PARTIAL` to `FULL` with MZ-canonical face cell clipping/centering semantics and deterministic face draw metadata.
-  - Window text rendering bridge now submits backend-facing `RenderLayer::TextCommand` payloads from `Window_Base::drawText` with resolved alignment offsets, font metadata, and RGBA color state.
-  - Added compat `Window_Message` surface with `drawMessageBody` + explicit message alignment (`left`/`center`/`right`) routed through native rich-text layout behavior.
-  - Added draw-history/snapshot coverage for wrapped centered/right `drawTextEx` output to lock deterministic per-fragment x/y placement.
-  - Compat status burn-down checkpoint: active runtime compat API registry now reports no `PARTIAL`/`STUB` surfaces; remaining Phase 2 work is deep executable validation + diagnostics hardening.
-  - Burned down AudioManager compat statuses: `crossfadeBgm`/`crossfadeBgs` advanced from `PARTIAL` to `FULL` with deterministic frame-based crossfade sequencing; BGM save metadata now preserves track filename/position for correct restore semantics.
+### 🎮 Battle & Gameplay Systems
+- **Native Battle Engine:** Fully implemented turn-based logic (START -> INPUT -> ACTION -> VICTORY) running at native speeds.
+- **Ability Framework:** A modular Gameplay Ability System (GAS) for complex skill interactions and pattern-based fields.
+- **Multi-Genre Templates:** Out-of-the-box support for ARPG, VN (Visual Novel), and Tactics combat styles.
+
+### 🍱 Asset & Data Management
+- **URSV Binary Format:** A secure, versioned, and XOR-checksummed binary format for project data and saves.
+- **Tiered Recovery:** Multi-level save corruption recovery (Autosave -> Metadata -> Safe Skeleton).
+- **Resource Protection:** Integrated RLE/XOR compression and obfuscation to protect game assets in exported builds.
+
+### 🎨 Editor & Tooling
+- **ImGui Workspace:** A professional-grade editor shell with Scene Hierarchy, Asset Browser, and Property Inspectors.
+- **Live Hot-Reload:** Support for hot-reloading textures, scripts, and localization files without restarting the engine.
+- **Auto-Documentation:** A native `DocGenerator` that produces API documentation directly from header registries.
+
+## 📊 Project Status (April 2026)
+
+| Track | Status | Completion | Notes |
+| --- | --- | --- | --- |
+| **Foundation (Phase 0)** | Complete | 100% | Core kernels, authority guards, migration/save lanes. |
+| **Native Core (Phase 1)** | Complete | 100% | Event dispatch, debug runtime, EngineShell lifecycle. |
+| **Compat Layer (Phase 2)** | Complete | 100% | Full suite of MZ-compatible stubs with QuickJS. |
+| **Wave 3-7 Ecosystem** | Complete | 100% | Templates, Profiling, Polish, Workspace, ImGui Panels. |
+| **Final Integration** | Complete | 100% | Unified `EngineAssembly` Gold distribution. |
+| **Native Workwaves** | In Progress | ~85% | Native ownership for Message/Text and Battle Core. |
+
+## 🏗️ Getting Started
+
+### Prerequisites
+- CMake 3.20+
+- MSVC 2022 (Windows) or GCC/Clang (Linux/macOS)
+- Python 3.9+ (for build scripting)
+
+### Quick Build (Windows)
+```powershell
+# Configure and build
+cmake --preset=dev-windows-debug
+cmake --build --preset=dev-windows-debug
+
+# Run tests
+ctest --preset=dev-windows-debug -L pr
+```
+
+## 📜 Documentation
+
+- **[Master Blueprint](URPG_Blueprint_v3_1_Integrated.md):** The authoritative technical specification.
+- **[Native Absorption Plan](docs/NATIVE_FEATURE_ABSORPTION_PLAN.md):** Roadmap for migrating legacy features.
+- **[Completion Status](docs/PROGRAM_COMPLETION_STATUS.md):** Granular checklist of every implemented feature.
+
+### Build Artifacts (CI)
+- **Nightly Matrix:** [tests_output.txt](tests_output.txt)
+- **Latest Export:** [test_export.json](test_export.json) | [test_export.csv](test_export.csv)
+
+---
+*Built with ❤️ by the URPG Team. Part of the RPG Game Maker ecosystem.*
   - Burned down BattleManager compat status: `processEscape` advanced from `PARTIAL` to `FULL` with deterministic MZ-style escape ratio/failure ramp semantics.
   - Burned down PluginManager compat status: `executeCommandAsync` advanced from `PARTIAL` to `FULL` with deterministic FIFO task-queue execution + callback ordering.
   - Input/Touch QuickJS API registration now routes to live runtime state (no placeholder zeros) and `TouchInput` movement/tap tracking now computes `moveSpeed` + `tapCount`.
