@@ -43,6 +43,11 @@ jobs:
       - name: Validate known-break waivers
         shell: pwsh
         run: ./tools/ci/check_waivers.ps1
+      - name: Verify sccache
+        run: |
+          which sccache
+          sccache --version
+          sccache --zero-stats || true
       - name: Configure
         run: cmake --preset ci
       - name: Build
@@ -83,6 +88,11 @@ jobs:
       - name: Validate known-break waivers
         shell: pwsh
         run: ./tools/ci/check_waivers.ps1
+      - name: Verify sccache
+        run: |
+          which sccache
+          sccache --version
+          sccache --zero-stats || true
       - name: Configure
         run: cmake --preset ci
       - name: Build
@@ -130,6 +140,11 @@ jobs:
       - name: Validate known-break waivers
         shell: pwsh
         run: ./tools/ci/check_waivers.ps1
+      - name: Verify sccache
+        run: |
+          which sccache
+          sccache --version
+          sccache --zero-stats || true
       - name: Configure
         run: cmake --preset ci
       - name: Build
