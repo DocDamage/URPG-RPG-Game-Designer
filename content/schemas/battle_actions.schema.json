@@ -1,0 +1,37 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "URPG Battle Action Schema",
+  "description": "Native contract for skill and item execution in battle.",
+  "type": "object",
+  "required": ["id", "effects", "scope", "cost"],
+  "properties": {
+    "id": { "type": "string" },
+    "name": { "type": "string" },
+    "description": { "type": "string" },
+    "scope": { 
+      "enum": ["all_enemies", "all_allies", "single_enemy", "single_ally", "user", "none", "random"]
+    },
+    "cost": {
+      "type": "object",
+      "properties": {
+        "hp": { "type": "integer", "default": 0 },
+        "mp": { "type": "integer", "default": 0 },
+        "tp": { "type": "integer", "default": 0 }
+      }
+    },
+    "effects": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["type", "formula"],
+        "properties": {
+          "type": { "enum": ["damage", "recover_hp", "recover_mp", "add_state", "remove_state"] },
+          "formula": { "type": "string" },
+          "variance": { "type": "integer", "default": 10 },
+          "drain": { "type": "boolean", "default": false }
+        }
+      }
+    },
+    "animation_id": { "type": "string" }
+  }
+}

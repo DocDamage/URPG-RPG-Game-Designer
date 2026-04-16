@@ -102,8 +102,20 @@ add_library(urpg_core
     editor/battle/battle_inspector_panel.cpp
     editor/message/message_inspector_model.cpp
     editor/message/message_inspector_panel.cpp
+    editor/ui/menu_inspector_model.cpp
+    editor/ui/menu_inspector_panel.cpp
+    editor/ability/ability_inspector_model.cpp
+    editor/ability/ability_inspector_panel.cpp
+    editor/ability/pattern_field_model.cpp
+    editor/ability/pattern_field_panel.cpp
+    engine/core/ability/gameplay_tags.cpp
+    engine/core/ability/gameplay_ability.cpp
+    engine/core/ability/ability_system_component.cpp
+    engine/core/ability/ability_state_machine.cpp
+    engine/core/ui/menu_serializer.cpp
     engine/core/scene/battle_scene.cpp
     engine/core/scene/map_scene.cpp
+    engine/core/scene/menu_scene.cpp
     runtimes/compat_js/quickjs_runtime.cpp
     runtimes/compat_js/window_compat.cpp
     runtimes/compat_js/global_state_bridge.cpp
@@ -242,6 +254,9 @@ add_executable(urpg_tests
     tests/unit/test_message_schema_contracts.cpp
     tests/unit/test_message_inspector_model.cpp
     tests/unit/test_message_inspector_panel.cpp
+    tests/unit/test_menu_inspector_model.cpp
+    tests/unit/test_menu_legacy_import.cpp
+    tests/unit/test_state_audio_sync.cpp
     tests/unit/test_scene_manager.cpp
     tests/engine/core/test_render_assets.cpp
     tests/engine/core/test_engine_shell.cpp

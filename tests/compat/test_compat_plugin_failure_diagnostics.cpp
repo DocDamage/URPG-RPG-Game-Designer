@@ -4274,6 +4274,29 @@ TEST_CASE("Compat fixtures: missing directory scan failure is captured in diagno
     const auto diagnostics = parseJsonl(pm.exportFailureDiagnosticsJsonl());
     REQUIRE(diagnostics.size() == 1);
     REQUIRE(diagnostics.front().value("operation", "") == "load_plugins_directory");
+    REQUIRE(diagnostics.front().value("plugin", "").empty());
+    REQUIRE(diagnostics.front().value("command", "").empty());
+    REQUIRE(diagnostics.front().value("severity", "") == "HARD_FAIL");
+
+    const std::string diagnosticsJsonl = pm.exportFailureDiagnosticsJsonl();
+    urpg::editor::CompatReportModel reportModel;
+    reportModel.ingestPluginFailureDiagnosticsJsonl(diagnosticsJsonl);
+
+    const auto reportEvents = reportModel.getPluginEvents("");
+    REQUIRE(reportEvents.size() == 1);
+    REQUIRE(reportEvents.front().methodName == "load_plugins_directory");
+    REQUIRE(reportEvents.front().severity == urpg::editor::CompatEvent::Severity::ERROR);
+    REQUIRE(reportEvents.front().message.find("Plugin directory not found:") == 0);
+    const std::string exportedReport = reportModel.exportAsJson();
+    REQUIRE(exportedReport.find("load_plugins_directory") != std::string::npos);
+
+    urpg::editor::CompatReportPanel panel;
+    panel.refresh();
+    REQUIRE(pm.exportFailureDiagnosticsJsonl().empty());
+    const auto panelEvents = panel.getModel().getPluginEvents("");
+    REQUIRE(panelEvents.size() == 1);
+    REQUIRE(panelEvents.front().methodName == "load_plugins_directory");
+    REQUIRE(panelEvents.front().severity == urpg::editor::CompatEvent::Severity::ERROR);
 
     pm.clearFailureDiagnostics();
     REQUIRE(pm.exportFailureDiagnosticsJsonl().empty());
@@ -4298,6 +4321,29 @@ TEST_CASE("Compat fixtures: deterministic directory iterator scan failure is cap
     const auto diagnostics = parseJsonl(pm.exportFailureDiagnosticsJsonl());
     REQUIRE(diagnostics.size() == 1);
     REQUIRE(diagnostics.front().value("operation", "") == "load_plugins_directory_scan");
+    REQUIRE(diagnostics.front().value("plugin", "").empty());
+    REQUIRE(diagnostics.front().value("command", "").empty());
+    REQUIRE(diagnostics.front().value("severity", "") == "HARD_FAIL");
+
+    const std::string diagnosticsJsonl = pm.exportFailureDiagnosticsJsonl();
+    urpg::editor::CompatReportModel reportModel;
+    reportModel.ingestPluginFailureDiagnosticsJsonl(diagnosticsJsonl);
+
+    const auto reportEvents = reportModel.getPluginEvents("");
+    REQUIRE(reportEvents.size() == 1);
+    REQUIRE(reportEvents.front().methodName == "load_plugins_directory_scan");
+    REQUIRE(reportEvents.front().severity == urpg::editor::CompatEvent::Severity::ERROR);
+    REQUIRE(reportEvents.front().message.find("Failed scanning plugin directory: ") == 0);
+    const std::string exportedReport = reportModel.exportAsJson();
+    REQUIRE(exportedReport.find("load_plugins_directory_scan") != std::string::npos);
+
+    urpg::editor::CompatReportPanel panel;
+    panel.refresh();
+    REQUIRE(pm.exportFailureDiagnosticsJsonl().empty());
+    const auto panelEvents = panel.getModel().getPluginEvents("");
+    REQUIRE(panelEvents.size() == 1);
+    REQUIRE(panelEvents.front().methodName == "load_plugins_directory_scan");
+    REQUIRE(panelEvents.front().severity == urpg::editor::CompatEvent::Severity::ERROR);
 
     pm.clearFailureDiagnostics();
     pm.unloadAllPlugins();
@@ -4330,6 +4376,30 @@ TEST_CASE("Compat fixtures: deterministic directory entry status failure is capt
     REQUIRE(diagnostics.front().value("operation", "") == "load_plugins_directory_scan_entry");
     REQUIRE(diagnostics.front().value("message", "").find(
                 "__urpg_fail_directory_entry_status___marker.json") != std::string::npos);
+    REQUIRE(diagnostics.front().value("plugin", "").empty());
+    REQUIRE(diagnostics.front().value("command", "").empty());
+    REQUIRE(diagnostics.front().value("severity", "") == "HARD_FAIL");
+
+    const std::string diagnosticsJsonl = pm.exportFailureDiagnosticsJsonl();
+    urpg::editor::CompatReportModel reportModel;
+    reportModel.ingestPluginFailureDiagnosticsJsonl(diagnosticsJsonl);
+
+    const auto reportEvents = reportModel.getPluginEvents("");
+    REQUIRE(reportEvents.size() == 1);
+    REQUIRE(reportEvents.front().methodName == "load_plugins_directory_scan_entry");
+    REQUIRE(reportEvents.front().severity == urpg::editor::CompatEvent::Severity::ERROR);
+    REQUIRE(reportEvents.front().message.find(
+                "__urpg_fail_directory_entry_status___marker.json") != std::string::npos);
+    const std::string exportedReport = reportModel.exportAsJson();
+    REQUIRE(exportedReport.find("load_plugins_directory_scan_entry") != std::string::npos);
+
+    urpg::editor::CompatReportPanel panel;
+    panel.refresh();
+    REQUIRE(pm.exportFailureDiagnosticsJsonl().empty());
+    const auto panelEvents = panel.getModel().getPluginEvents("");
+    REQUIRE(panelEvents.size() == 1);
+    REQUIRE(panelEvents.front().methodName == "load_plugins_directory_scan_entry");
+    REQUIRE(panelEvents.front().severity == urpg::editor::CompatEvent::Severity::ERROR);
 
     pm.clearFailureDiagnostics();
     pm.unloadAllPlugins();

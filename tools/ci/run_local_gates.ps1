@@ -9,6 +9,9 @@ $ErrorActionPreference = "Stop"
 Write-Host "== Validate waivers ==" -ForegroundColor Cyan
 & "$PSScriptRoot\check_waivers.ps1"
 
+Write-Host "== Validate Wave 1 subsystem checklist sync ==" -ForegroundColor Cyan
+& "$PSScriptRoot\check_wave1_spec_checklists.ps1"
+
 Write-Host "== Configure: $ConfigurePreset ==" -ForegroundColor Cyan
 cmake --preset $ConfigurePreset
 

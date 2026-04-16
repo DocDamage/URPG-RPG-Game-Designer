@@ -1,8 +1,29 @@
 # UI / Menu Core Native-First Spec
 
 Date: 2026-04-14  
-Status: initial draft  
+Status: active implementation baseline (runtime core slices landed; editor/schema/migration/release closure pending)  
 Scope: runtime ownership, editor ownership, schema, migration, diagnostics, and test anchors for native UI/Menu Core absorption
+
+## Last landed progress (2026-04-15)
+
+- Native runtime interaction slices are active in:
+  - `engine/core/ui/menu_command_registry.h` (state-aware visibility/enabled evaluation)
+  - `engine/core/ui/menu_route_resolver.h` (primary->fallback route behavior)
+  - `engine/core/ui/menu_scene_graph.h` (confirm/cancel/focus traversal/recovery/blocked-command metadata)
+- Registry helper integration path is active (`setCommandStateFromRegistry`) for switch/variable-driven command state.
+- Unit coverage expanded in `tests/unit/test_menu_core.cpp` for command activation, focus traversal, blocked command reasons, and recovery behavior.
+- Focused validation lane is active:
+  - `ctest --test-dir build/dev-ninja-debug -R "MenuSceneGraph|MenuRouteResolver|MenuCommandRegistry" --output-on-failure`
+
+## Next steps
+
+- Ship menu authoring/editor surfaces with production workflows:
+  - menu structure inspector
+  - layout composer
+  - command inspector
+  - live preview panel
+- Finalize schema + import mapping for fallback-route and state-rule migration from compat evidence.
+- Add integration anchors beyond unit checks for runtime+editor behavior parity.
 
 ## Purpose
 
@@ -188,6 +209,36 @@ Phase 1 of UI / Menu Core absorption should deliver:
 - options and codex route descriptors
 - editor structure inspector and preview panel
 - import mapping for the current strongest compat menu anchors
+
+<!-- WAVE1_CHECKLIST_START -->
+## Wave 1 Closure Checklist (Canonical)
+
+_Managed by `tools/docs/sync-wave1-spec-checklist.ps1`. Do not edit manually._
+_Canonical source: [WAVE1_SUBSYSTEM_CLOSURE_CHECKLIST.md](WAVE1_SUBSYSTEM_CLOSURE_CHECKLIST.md)_
+
+### Universal closure gates
+
+- [ ] Runtime ownership is authoritative and compat behavior for this subsystem is bridge-only.
+- [ ] Editor productization is complete (inspect/edit/preview/validate) with diagnostics surfaced.
+- [ ] Schema contracts and migration/import paths are explicit, versioned, and test-backed.
+- [ ] Deterministic validation exists (unit + integration + snapshot where layout/presentation applies).
+- [ ] Failure-path diagnostics and safe-mode/bounded fallback behavior are explicitly documented and tested.
+- [ ] Release evidence is published in status docs and gate snapshots are recorded.
+
+### UI / Menu Core specific closure gates
+
+- [ ] Menu runtime route/command ownership is authoritative and no plugin command string owns route resolution.
+- [ ] Menu authoring surface (structure/layout/command/preview) supports inspect/edit/validate workflows.
+- [ ] Fallback routes and command-state migration paths are schema-defined and test-backed.
+
+### Closure sign-off artifact checklist
+
+- [ ] Runtime owner files listed (header + source).
+- [ ] Editor owner files listed.
+- [ ] Schema and migration files listed.
+- [ ] Latest deterministic test outputs recorded.
+- [ ] README.md, docs/PROGRAM_COMPLETION_STATUS.md, and URPG_Blueprint_v3_1_Integrated.md updated.
+<!-- WAVE1_CHECKLIST_END -->
 
 ## Non-goals for this slice
 

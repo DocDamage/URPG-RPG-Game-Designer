@@ -18,6 +18,14 @@ const char* TabName(DiagnosticsTab tab) {
         return "message_text";
     case DiagnosticsTab::Battle:
         return "battle";
+    case DiagnosticsTab::Menu:
+        return "menu";
+    case DiagnosticsTab::Audio:
+        return "audio";
+    case DiagnosticsTab::MigrationWizard:
+        return "migration_wizard";
+    case DiagnosticsTab::Abilities:
+        return "abilities";
     }
     return "compat";
 }
@@ -68,6 +76,38 @@ const BattleInspectorPanel& DiagnosticsWorkspace::battlePanel() const {
     return battle_panel_;
 }
 
+MenuInspectorPanel& DiagnosticsWorkspace::menuPanel() {
+    return menu_panel_;
+}
+
+const MenuInspectorPanel& DiagnosticsWorkspace::menuPanel() const {
+    return menu_panel_;
+}
+
+AudioInspectorPanel& DiagnosticsWorkspace::audioPanel() {
+    return audio_panel_;
+}
+
+const AudioInspectorPanel& DiagnosticsWorkspace::audioPanel() const {
+    return audio_panel_;
+}
+
+MigrationWizardPanel& DiagnosticsWorkspace::migrationWizardPanel() {
+    return migration_wizard_panel_;
+}
+
+const MigrationWizardPanel& DiagnosticsWorkspace::migrationWizardPanel() const {
+    return migration_wizard_panel_;
+}
+
+AbilityInspectorPanel& DiagnosticsWorkspace::abilityPanel() {
+    return ability_panel_;
+}
+
+const AbilityInspectorPanel& DiagnosticsWorkspace::abilityPanel() const {
+    return ability_panel_;
+}
+
 void DiagnosticsWorkspace::bindSaveRuntime(const urpg::SaveCatalog& catalog,
                                            const urpg::SaveSessionCoordinator& coordinator) {
     save_panel_.bindRuntime(catalog, coordinator);
@@ -93,6 +133,33 @@ void DiagnosticsWorkspace::bindBattleRuntime(const urpg::battle::BattleFlowContr
 
 void DiagnosticsWorkspace::clearBattleRuntime() {
     battle_panel_.clearRuntime();
+}
+
+void DiagnosticsWorkspace::bindMenuRuntime(const urpg::ui::MenuSceneGraph& scene_graph,
+                                           const urpg::ui::MenuCommandRegistry& registry,
+                                           const urpg::ui::MenuCommandRegistry::SwitchState& switches,
+                                           const urpg::ui::MenuCommandRegistry::VariableState& variables) {
+    menu_panel_.bindRuntime(scene_graph, registry, switches, variables);
+}
+
+void DiagnosticsWorkspace::clearMenuRuntime() {
+    menu_panel_.clearRuntime();
+}
+
+void DiagnosticsWorkspace::bindAudioRuntime(const urpg::audio::AudioCore& core) {
+    audio_panel_.onRefreshRequested(core);
+}
+
+void DiagnosticsWorkspace::clearAudioRuntime() {
+    // Audio core is often global, but we can clear the projected model
+}
+
+void DiagnosticsWorkspace::bindAbilityRuntime(const urpg::AbilitySystemComponent& asc) {
+    ability_panel_.update(asc);
+}
+
+void DiagnosticsWorkspace::clearAbilityRuntime() {
+    // Could clear model if needed
 }
 
 void DiagnosticsWorkspace::ingestEventAuthorityDiagnosticsJsonl(std::string_view diagnostics_jsonl) {
@@ -174,6 +241,33 @@ DiagnosticsTabSummary DiagnosticsWorkspace::tabSummary(DiagnosticsTab tab) const
         summary.has_data = model_summary.active || model_summary.total_actions > 0 || model_summary.turn_count > 0;
         break;
     }
+    case DiagnosticsTab::Menu: {
+        const auto& model_summary = menu_panel_.getModel().Summary();
+        summary.item_count = model_summary.total_commands;
+        summary.issue_count = model_summary.issue_count;
+        summary.has_data = !model_summary.active_scene_id.empty() || model_summary.total_panes > 0;
+        break;
+    }
+    case DiagnosticsTab::Audio: {
+        const auto& model_summary = audio_panel_.getModel()->getSummary();
+        summary.item_count = model_summary.activeCount;
+        summary.issue_count = model_summary.issueCount;
+        summary.has_data = model_summary.activeCount > 0;
+        break;
+    }
+    case DiagnosticsTab::MigrationWizard: {
+        const auto& report = migration_wizard_panel_.getModel()->getReport();
+        summary.item_count = report.total_files_processed;
+        summary.issue_count = report.warning_count + report.error_count;
+        summary.has_data = report.is_complete || report.total_files_processed > 0;
+        break;
+    }
+    case DiagnosticsTab::Abilities: {
+        summary.item_count = ability_panel_.getModel().getAbilities().size();
+        summary.issue_count = 0;
+        summary.has_data = !ability_panel_.getModel().getAbilities().empty() || !ability_panel_.getModel().getActiveTags().empty();
+        break;
+    }
     }
 
     return summary;
@@ -186,6 +280,10 @@ std::vector<DiagnosticsTabSummary> DiagnosticsWorkspace::allTabSummaries() const
         tabSummary(DiagnosticsTab::EventAuthority),
         tabSummary(DiagnosticsTab::MessageText),
         tabSummary(DiagnosticsTab::Battle),
+        tabSummary(DiagnosticsTab::Menu),
+        tabSummary(DiagnosticsTab::Audio),
+        tabSummary(DiagnosticsTab::MigrationWizard),
+        tabSummary(DiagnosticsTab::Abilities),
     };
 }
 
@@ -221,8 +319,16 @@ void DiagnosticsWorkspace::render() {
         event_authority_panel_.render();
     } else if (active_tab_ == DiagnosticsTab::MessageText) {
         message_panel_.render();
-    } else {
+    } else if (active_tab_ == DiagnosticsTab::Battle) {
         battle_panel_.render();
+    } else if (active_tab_ == DiagnosticsTab::Menu) {
+        menu_panel_.render();
+    } else if (active_tab_ == DiagnosticsTab::Audio) {
+        // audio_panel_.render();
+    } else if (active_tab_ == DiagnosticsTab::MigrationWizard) {
+        // migration_wizard_panel_.render();
+    } else if (active_tab_ == DiagnosticsTab::Abilities) {
+        ability_panel_.render();
     }
 }
 
@@ -232,6 +338,9 @@ void DiagnosticsWorkspace::refresh() {
     event_authority_panel_.refresh();
     message_panel_.refresh();
     battle_panel_.refresh();
+    menu_panel_.refresh();
+    // audio_panel_.refresh();
+    // ability_panel_.refresh();
     syncPanelVisibility();
 }
 
@@ -241,6 +350,9 @@ void DiagnosticsWorkspace::update() {
     event_authority_panel_.update();
     message_panel_.update();
     battle_panel_.update();
+    menu_panel_.update();
+    // audio_panel_.update();
+    // ability_panel_.update();
     syncPanelVisibility();
 }
 
@@ -250,6 +362,10 @@ void DiagnosticsWorkspace::syncPanelVisibility() {
     event_authority_panel_.setVisible(visible_ && active_tab_ == DiagnosticsTab::EventAuthority);
     message_panel_.setVisible(visible_ && active_tab_ == DiagnosticsTab::MessageText);
     battle_panel_.setVisible(visible_ && active_tab_ == DiagnosticsTab::Battle);
+    menu_panel_.setVisible(visible_ && active_tab_ == DiagnosticsTab::Menu);
+    audio_panel_.setVisible(visible_ && active_tab_ == DiagnosticsTab::Audio);
+    migration_wizard_panel_.setVisible(visible_ && active_tab_ == DiagnosticsTab::MigrationWizard);
+    ability_panel_.setVisible(visible_ && active_tab_ == DiagnosticsTab::Abilities);
 }
 
 } // namespace urpg::editor

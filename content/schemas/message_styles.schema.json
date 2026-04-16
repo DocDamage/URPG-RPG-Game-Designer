@@ -34,6 +34,26 @@
               "width": { "type": "integer", "minimum": 0 },
               "height": { "type": "integer", "minimum": 0 }
             }
+          },
+          "window": {
+            "type": "object",
+            "required": ["skin", "opacity", "padding"],
+            "properties": {
+              "skin": { "type": "string", "description": "Asset path to the windowskin image (default: img/system/Window.png)" },
+              "opacity": { "type": "integer", "minimum": 0, "maximum": 255 },
+              "padding": { "type": "integer", "minimum": 0 },
+              "line_height": { "type": "integer", "minimum": 1 },
+              "font_size": { "type": "integer", "minimum": 1 }
+            }
+          },
+          "audio": {
+            "type": "object",
+            "properties": {
+              "typing_se": { "type": "string", "description": "Sound effect played during text character reveal" },
+              "typing_pitch": { "type": "integer", "minimum": 50, "maximum": 150 },
+              "open_se": { "type": "string" },
+              "close_se": { "type": "string" }
+            }
           }
         }
       }

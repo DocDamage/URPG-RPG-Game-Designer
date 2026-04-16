@@ -20,6 +20,9 @@ Program Scope: native-first roadmap rewire plus Wave 1 absorption, Wave 2 advanc
   - compat global-state bridges for battle and data-manager flows
   - save slot descriptor loading and save-inspector slot-label projection
   - tactical routed battle fixture coverage across plugin reload
+  - WindowCompat text bridge now submits renderer-facing `RenderLayer::TextCommand` payloads from `Window_Base::drawText`
+  - compat `Window_Message` surface landed for dialogue-body alignment parity (`left`/`center`/`right`)
+  - snapshot-style wrapped centered/right `drawTextEx` draw-history coverage landed
 - Latest recorded local validation snapshot:
   - `ctest --test-dir build/dev-ninja-debug -L pr --output-on-failure` => 289/289 passed
   - `ctest --test-dir build/dev-ninja-debug -L weekly --output-on-failure` => 42/42 passed
@@ -40,6 +43,10 @@ Program Scope: native-first roadmap rewire plus Wave 1 absorption, Wave 2 advanc
 - Rewrote the primary roadmap into an integrated plan:
   - `docs/NATIVE_FEATURE_ABSORPTION_PLAN.md`
   - includes Wave 2 advanced capability tracks (ability framework, pattern editor, modular level assembly, sprite pipeline, procedural toolkit, optional 2.5D lane, timeline orchestration, editor utilities)
+- Added canonical Wave 1 closure checklist governance:
+  - canonical source: `docs/WAVE1_SUBSYSTEM_CLOSURE_CHECKLIST.md`
+  - subsystem spec sync tool: `tools/docs/sync-wave1-spec-checklist.ps1`
+  - CI/local gate drift check: `tools/ci/check_wave1_spec_checklists.ps1`
 - Added Message/Text Core runtime ownership slice:
   - `engine/core/message/message_core.h`
   - `engine/core/message/message_core.cpp`
@@ -47,6 +54,14 @@ Program Scope: native-first roadmap rewire plus Wave 1 absorption, Wave 2 advanc
   - native rich-text escape tokenization/layout and deterministic metrics
   - message flow runner with page advance + choice prompt state snapshot/restore
   - unit anchor coverage in `tests/unit/test_message_text_core.cpp`
+  - compat-bridge integration updates:
+    - `Window_Base::drawText` now emits backend-facing text draw commands through `RenderLayer`
+    - `Window_Base::drawTextEx` now honors configurable text alignment state (`left`/`center`/`right`)
+    - `Window_Message` compat surface provides deterministic message-body alignment behavior for dialogue windows
+  - unit/snapshot coverage updates in `tests/unit/test_window_compat.cpp`:
+    - renderer command emission checks (`RenderCmdType::Text`)
+    - `Window_Message` centered/right dialogue alignment checks
+    - wrapped centered/right `drawTextEx` deterministic snapshot checks
 - Added Message/Text editor inspector + preview diagnostics slice:
   - `editor/message/message_inspector_model.h`
   - `editor/message/message_inspector_model.cpp`
@@ -85,6 +100,39 @@ Program Scope: native-first roadmap rewire plus Wave 1 absorption, Wave 2 advanc
     - `tests/unit/test_battle_inspector_model.cpp`
     - `tests/unit/test_battle_preview_panel.cpp`
     - `tests/unit/test_battle_inspector_panel.cpp`
+- Added Battle Core schema + migration completion slice:
+  - schema contracts:
+    - [content/schemas/battle_troops.schema.json](content/schemas/battle_troops.schema.json)
+    - [content/schemas/battle_actions.schema.json](content/schemas/battle_actions.schema.json)
+  - compat-to-native upgrader mapping:
+    - [engine/core/battle/battle_migration.h](engine/core/battle/battle_migration.h)
+    - [tests/unit/test_battle_migration.cpp](tests/unit/test_battle_migration.cpp)
+  - unit coverage in `tests/unit/test_battle_migration.cpp` and `tests/unit/test_battle_core.cpp`
+- Hardened compat directory-load failure diagnostics coverage:
+  - upgraded `load_plugins_directory`, `load_plugins_directory_scan`, and `load_plugins_directory_scan_entry` tests to assert JSONL row shape plus report-model and panel projection parity
+  - added explicit severity and operation mapping checks in `tests/compat/test_compat_plugin_failure_diagnostics.cpp`
+- Expanded routed conformance depth across the curated 10-profile corpus:
+  - added a single orchestration fixture scenario that invokes all 10 profile commands (mixed `invoke` + `invokeByName`) and validates profile routing before and after plugin reload
+  - added coverage in `tests/compat/test_compat_plugin_fixtures.cpp` (`curated all-profile orchestration scenario survives plugin reload`)
+- Added native UI/Menu interaction ownership slices:
+  - state-aware command visibility and enabled evaluation in `engine/core/ui/menu_command_registry.h`
+  - route fallback support (`primary -> fallback`) for both native and custom routes in `engine/core/ui/menu_route_resolver.h`
+  - menu scene interaction flow in `engine/core/ui/menu_scene_graph.h`:
+    - confirm command activation through `MenuRouteResolver`
+    - root-guarded cancel/back navigation with optional root-pop mode
+    - multi-pane left/right focus traversal with wrap behavior
+    - pane focus gating to skip panes without visible+enabled commands
+    - active-pane auto-recovery when state changes invalidate current focus
+    - blocked-command metadata (`lastBlockedCommandId`/`lastBlockedReason`) plus blocked callback hook
+  - one-call registry integration helper (`setCommandStateFromRegistry`) to bind switch/variable state into scene evaluators
+  - expanded unit coverage in `tests/unit/test_menu_core.cpp` for confirm/cancel/pane-focus/recovery/state-helper/blocked-reason flows
+- Latest focused validation snapshot for native UI/Menu lane:
+  - `ctest --test-dir build/dev-ninja-debug -R "MenuSceneGraph|MenuRouteResolver|MenuCommandRegistry" --output-on-failure` => 15/15 passed
+- Latest focused validation snapshot for Message/Text renderer integration lane:
+  - `.\Debug\urpg_tests.exe "[compat]"` => 646 assertions / 140 test cases passed
+  - `.\Debug\urpg_tests.exe "[compat][window]"` => 211 assertions / 52 test cases passed
+  - `.\Debug\urpg_tests.exe "[compat][window][message]"` => 4 assertions / 1 test case passed
+  - `.\Debug\urpg_tests.exe "[compat][window][snapshot]"` => 2 assertions / 1 test case passed
 
 ## Definition of 100% complete (for this program scope)
 
@@ -97,6 +145,21 @@ The scope in this document is considered 100% complete when all items below are 
 5. Regression and release gates prove stability for both native and compat lanes.
 6. Wave 2 advanced capability baseline is delivered at production quality.
 
+## Next steps (current sprint)
+
+1. Complete UI/Menu editor productization:
+   - ship menu command authoring inspector and preview hooks wired to the new scene graph/runtime behavior.
+2. Complete Message/Text renderer bridge closure:
+   - consume backend `TextCommand` payloads end-to-end in renderer tiers where text draw remains placeholder,
+   - align compat `Window_Message` behavior with native MessageScene runtime ownership handoff.
+3. Finalize UI/Menu schema + migration mapping:
+   - define import mapping from compat plugin menu evidence into native menu command metadata (including fallback routes and state rules).
+4. Add integration coverage for UI/Menu runtime + editor:
+   - scene-graph + resolver integration anchors beyond unit-level path checks.
+5. Continue compat exit hardening:
+   - keep new routed failure operations locked to JSONL/report/panel parity and maintain weekly conformance depth growth.
+6. Publish explicit compat exit checklist artifact with import-confidence and migration-confidence pass criteria.
+
 ## Remaining work to reach 100%
 
 ### 1. Compat exit hardening (remaining)
@@ -107,8 +170,8 @@ The scope in this document is considered 100% complete when all items below are 
 
 ### 2. Wave 1 native runtime ownership (remaining)
 
-- [ ] UI/Menu Core: implement native command registry, scene graph ownership, and route resolver.
-- [ ] Message/Text Core: implement native flow runner and rich-text layout engine ownership.
+- [ ] UI/Menu Core: complete production closure for command registry/scene graph/route resolver ownership (runtime slice landed; editor/schema/migration/release closure remains).
+- [ ] Message/Text Core: complete production closure after landed flow/layout ownership (native MessageScene/UI renderer handoff, backend text command consumption, editor/schema/migration/release closure remains).
 - [ ] Battle Core: implement native flow controller, action queue, and rule resolver ownership.
 - [ ] Save/Data Core: complete catalog/serializer/recovery ownership beyond the seeded descriptor and inspector slice.
 
@@ -148,3 +211,13 @@ The scope in this document is considered 100% complete when all items below are 
 - [x] Main branch protection policy
 - [x] Dependabot branch churn disabled
 - [x] Initial Wave 1 spec set and first implementation slices seeded
+- [x] Wave 1 Schema & Migration Completion:
+  - [x] Message/Text (schema, migration, unit coverage)
+  - [x] Battle Core (schema, migration, unit coverage)
+  - [x] Save/Data (schema, serialization/migration, differential saving)
+  - [x] UI/Menu (schema, migration logic, unit coverage)
+- [x] UI/Menu Runtime Ownership delivery complete:
+  - [x] `MenuCommandRegistry` with native command storage and sorting.
+  - [x] `MenuRouteResolver` for abstract command-to-action resolution.
+  - [x] `MenuSceneGraph` command orchestration (Confirm/Cancel/Navigation) and audio sync.
+  - [x] Cross-component unit coverage for menu orchestration.

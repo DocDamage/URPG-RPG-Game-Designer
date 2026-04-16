@@ -4,6 +4,8 @@
 #include <cstdint>
 #include <string>
 #include <memory>
+#include <nlohmann/json.hpp>
+#include "../global_state_hub.h"
 
 namespace urpg::save {
 
@@ -13,6 +15,60 @@ namespace urpg::save {
  */
 class SaveSerializationHub {
 public:
+    /**
+     * @brief Creates a JSON snapshot of the current GlobalStateHub for saving.
+     * @param hub The hub to snapshot.
+     * @param differential If true, only save state that differs from the project baseline.
+     */
+    static std::string snapshotGlobalState(const GlobalStateHub& hub, bool differential = false) {
+        nlohmann::json root;
+        
+        // Serialize Switches
+        root["switches"] = differential ? hub.getDiffSwitches() : hub.getAllSwitches();
+        root["differential"] = differential;
+        
+        // Serialize Variables
+        nlohmann::json variables = nlohmann::json::object();
+        auto vars = differential ? hub.getDiffVariables() : hub.getAllVariables();
+        for (const auto& [id, value] : vars) {
+            std::visit([&](auto&& arg) {
+                variables[id] = arg;
+            }, value);
+        }
+        root["variables"] = variables;
+
+        return root.dump();
+    }
+
+    /**
+     * @brief Restores GlobalStateHub from a JSON snapshot.
+     */
+    static void restoreGlobalState(GlobalStateHub& hub, const std::string& json) {
+        auto root = nlohmann::json::parse(json, nullptr, false);
+        if (root.is_discarded()) return;
+
+        bool differential = root.value("differential", false);
+        if (!differential) {
+            hub.clearSessionState();
+        }
+
+        if (root.contains("switches") && root["switches"].is_object()) {
+            for (auto it = root["switches"].begin(); it != root["switches"].end(); ++it) {
+                hub.setSwitch(it.key(), it.value().get<bool>());
+            }
+        }
+
+        if (root.contains("variables") && root["variables"].is_object()) {
+            for (auto it = root["variables"].begin(); it != root["variables"].end(); ++it) {
+                auto& val = it.value();
+                if (val.is_boolean()) hub.setVariable(it.key(), val.get<bool>());
+                else if (val.is_number_integer()) hub.setVariable(it.key(), val.get<int32_t>());
+                else if (val.is_number_float()) hub.setVariable(it.key(), val.get<float>());
+                else if (val.is_string()) hub.setVariable(it.key(), val.get<std::string>());
+            }
+        }
+    }
+
     /**
      * @brief High-level compression levels for save files.
      */

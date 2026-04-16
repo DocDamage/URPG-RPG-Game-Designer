@@ -87,6 +87,58 @@ TEST_CASE("RichTextLayoutEngine expands escapes and measures deterministic layou
     const auto multi = layout.layout("Line1\n\\{Line2\\}");
     REQUIRE(multi.metrics.line_count == 2);
     REQUIRE(multi.metrics.height > multi.metrics.line_height);
+
+    SECTION("resolveEscapes expands variables without full tokenize") {
+        const std::string text = "Points: \\V[2]";
+        const std::string expanded = layout.resolveEscapes(text);
+        REQUIRE(expanded == "Points: 777");
+    }
+
+    SECTION("setMaxWidth enables word-wrapping") {
+        RichTextLayoutEngine rapping_layout;
+        rapping_layout.setBaseFontSize(10); // small font
+        
+        // Long text should wrap
+        rapping_layout.setMaxWidth(50); // very narrow
+        const auto wrapped = rapping_layout.layout("This is a very long text that should definitely wrap multiple times.");
+        REQUIRE(wrapped.metrics.line_count > 1);
+        REQUIRE(wrapped.metrics.width <= 70); // allow slight overflow for long words
+    }
+
+    SECTION("setAlignment adds LineOffset tokens for non-zero offsets") {
+        RichTextLayoutEngine alignment_layout;
+        alignment_layout.setBaseFontSize(10);
+        alignment_layout.setMaxWidth(200);
+
+        const std::string text = "Centered line";
+        const int32_t text_w = alignment_layout.textWidth(text);
+
+        alignment_layout.setAlignment(MessageAlignment::Center);
+        const auto centered = alignment_layout.layout(text);
+        
+        bool has_offset = false;
+        for (const auto& token : centered.tokens) {
+            if (token.type == RichTextTokenType::LineOffset) {
+                has_offset = true;
+                const int32_t expected_offset = (200 - text_w) / 2;
+                REQUIRE(token.value == expected_offset);
+            }
+        }
+        REQUIRE(has_offset);
+
+        alignment_layout.setAlignment(MessageAlignment::Right);
+        const auto right = alignment_layout.layout(text);
+        
+        has_offset = false;
+        for (const auto& token : right.tokens) {
+            if (token.type == RichTextTokenType::LineOffset) {
+                has_offset = true;
+                const int32_t expected_offset = (200 - text_w);
+                REQUIRE(token.value == expected_offset);
+            }
+        }
+        REQUIRE(has_offset);
+    }
 }
 
 TEST_CASE("ChoicePromptState skips disabled options and confirms selected route", "[message][choice]") {

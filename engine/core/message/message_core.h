@@ -111,12 +111,19 @@ enum class RichTextTokenType : uint8_t {
     FontBigger = 3,
     FontSmaller = 4,
     NewLine = 5,
+    LineOffset = 6, // Horizontal pixel offset for a line (used for alignment)
 };
 
 struct RichTextToken {
     RichTextTokenType type = RichTextTokenType::Text;
     std::string text;
     int32_t value = 0;
+};
+
+enum class MessageAlignment : uint8_t {
+    Left = 0,
+    Center = 1,
+    Right = 2,
 };
 
 struct RichTextLayoutMetrics {
@@ -144,9 +151,17 @@ public:
     void setCurrencyUnit(std::string unit);
     void setBaseFontSize(int32_t size);
     void setLineHeight(int32_t height);
+    void setMaxWidth(int32_t max_width);
+    void setAlignment(MessageAlignment alignment);
 
     [[nodiscard]] RichTextLayoutResult layout(const std::string& text) const;
     [[nodiscard]] int32_t textWidth(const std::string& text) const;
+
+    /**
+     * @brief Resolves all escapes in the text (variables, actor names, etc.) 
+     * but does NOT tokenize or layout. Used for simple string expansion.
+     */
+    [[nodiscard]] std::string resolveEscapes(const std::string& text) const;
 
 private:
     std::vector<RichTextToken> tokenize(const std::string& text) const;
@@ -158,6 +173,8 @@ private:
     std::string currency_unit_ = "G";
     int32_t base_font_size_ = 22;
     int32_t line_height_ = 36;
+    int32_t max_width_ = 0;
+    MessageAlignment alignment_ = MessageAlignment::Left;
 };
 
 struct DialoguePage {

@@ -50,6 +50,8 @@ struct MenuCommandMeta {
     std::string icon_id;               // Optional icon reference
     MenuRouteTarget route = MenuRouteTarget::None;
     std::string custom_route_id;       // Used if route is Custom
+    MenuRouteTarget fallback_route = MenuRouteTarget::None;
+    std::string fallback_custom_route_id; // Used if fallback_route is Custom
     
     std::vector<MenuCommandCondition> visibility_rules;
     std::vector<MenuCommandCondition> enable_rules;

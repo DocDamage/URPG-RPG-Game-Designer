@@ -6,6 +6,7 @@
 #include "runtimes/compat_js/window_compat.h"
 #include "runtimes/compat_js/quickjs_runtime.h"
 #include "runtimes/compat_js/data_manager.h"
+#include "engine/core/render/render_layer.h"
 #include <catch2/catch_test_macros.hpp>
 
 using namespace urpg::compat;
@@ -224,6 +225,61 @@ TEST_CASE("Window_Base textSize uses compat layout metrics", "[compat][window]")
     REQUIRE(withFontEscape.height >= window.lineHeight());
 }
 
+TEST_CASE("Window_Base drawText records centered and right-aligned pixel offsets", "[compat][window]") {
+    Window_Base window(Window_Base::CreateParams{});
+
+    const std::string text = "Align";
+    const int32_t maxWidth = 240;
+    const int32_t measured = window.textWidth(text);
+
+    window.drawText(text, 32, 18, maxWidth, "center");
+    const auto centered = window.getLastTextDraw();
+    REQUIRE(centered.has_value());
+    REQUIRE(centered->measuredWidth == measured);
+    REQUIRE(centered->resolvedX == 32 + ((maxWidth - measured) / 2));
+    REQUIRE(centered->resolvedY == 18);
+
+    window.drawText(text, 32, 18, maxWidth, "right");
+    const auto right = window.getLastTextDraw();
+    REQUIRE(right.has_value());
+    REQUIRE(right->measuredWidth == measured);
+    REQUIRE(right->resolvedX == 32 + (maxWidth - measured));
+    REQUIRE(right->resolvedY == 18);
+}
+
+TEST_CASE("Window_Base drawText submits renderer TextCommand", "[compat][window]") {
+    auto& layer = urpg::RenderLayer::getInstance();
+    layer.flush();
+
+    Window_Base::CreateParams params;
+    params.rect = Rect{20, 30, 320, 180};
+    Window_Base window(params);
+    window.setPadding(12);
+    window.setFontFace("TestFace");
+    window.setFontSize(20);
+    window.changeTextColor(Color{8, 16, 24, 255});
+
+    window.drawText("Renderer call", 10, 18, 180, "center");
+    const auto info = window.getLastTextDraw();
+    REQUIRE(info.has_value());
+
+    const auto& commands = layer.getCommands();
+    REQUIRE_FALSE(commands.empty());
+    REQUIRE(commands.back()->type == urpg::RenderCmdType::Text);
+    auto textCmd = std::dynamic_pointer_cast<urpg::TextCommand>(commands.back());
+    REQUIRE(textCmd != nullptr);
+    REQUIRE(textCmd->text == "Renderer call");
+    REQUIRE(textCmd->fontFace == "TestFace");
+    REQUIRE(textCmd->fontSize == 20);
+    REQUIRE(textCmd->maxWidth == 180);
+    REQUIRE(textCmd->r == 8);
+    REQUIRE(textCmd->g == 16);
+    REQUIRE(textCmd->b == 24);
+    REQUIRE(textCmd->a == 255);
+    REQUIRE(textCmd->x == static_cast<float>(20 + 12 + info->resolvedX));
+    REQUIRE(textCmd->y == static_cast<float>(30 + 12 + info->resolvedY));
+}
+
 TEST_CASE("Window_Base drawItemName emits icon + label draw calls", "[compat][window]") {
     Window_Base window(Window_Base::CreateParams{});
 
@@ -341,6 +397,65 @@ TEST_CASE("Window_Base drawTextEx processes escape codes", "[compat][window]") {
 
     REQUIRE(window.textWidth("A\\I[5]B") > window.textWidth("AB"));
     REQUIRE(window.textWidth("\\V[2]") > window.textWidth("0"));
+}
+
+TEST_CASE("Window_Message dialogue body supports centered and right alignment", "[compat][window][message]") {
+    auto& layer = urpg::RenderLayer::getInstance();
+    layer.flush();
+
+    Window_Message::CreateParams params;
+    params.rect = Rect{0, 0, 400, 220};
+    params.messageX = 0;
+    params.messageY = 0;
+    params.messageWidth = 220;
+    Window_Message messageWindow(params);
+    messageWindow.setMessageText("Dialogue body");
+
+    messageWindow.setMessageAlignment("center");
+    messageWindow.drawMessageBody();
+    const auto centerHistory = messageWindow.getTextDrawHistory();
+    REQUIRE_FALSE(centerHistory.empty());
+    const int32_t centerX = centerHistory.front().resolvedX;
+
+    messageWindow.setMessageAlignment("right");
+    messageWindow.drawMessageBody();
+    const auto rightHistory = messageWindow.getTextDrawHistory();
+    REQUIRE_FALSE(rightHistory.empty());
+    const int32_t rightX = rightHistory.front().resolvedX;
+
+    REQUIRE(centerX > 0);
+    REQUIRE(rightX > centerX);
+}
+
+TEST_CASE("Snapshot: drawTextEx wrapped centered and right alignment remains stable", "[compat][window][snapshot]") {
+    Window_Base::CreateParams params;
+    params.rect = Rect{0, 0, 420, 240};
+    Window_Base window(params);
+
+    const std::string wrappedText = "Alpha beta gamma delta epsilon zeta eta theta";
+    const int32_t x = 24;
+    const int32_t y = 30;
+    const int32_t width = 170;
+
+    window.clearTextDrawHistory();
+    window.setTextAlignment("center");
+    window.drawTextEx(wrappedText, x, y, width);
+    const auto centered = window.getTextDrawHistory();
+    std::string centeredSnapshot;
+    for (const auto& entry : centered) {
+        centeredSnapshot += entry.text + "@" + std::to_string(entry.resolvedX) + "," + std::to_string(entry.resolvedY) + "|";
+    }
+    REQUIRE(centeredSnapshot == "Alpha @46,30|beta @116,30|gamma @41,66|delta @109,66|epsilon @35,102|zeta @127,102|eta @57,138|theta@101,138|");
+
+    window.clearTextDrawHistory();
+    window.setTextAlignment("right");
+    window.drawTextEx(wrappedText, x, y, width);
+    const auto right = window.getTextDrawHistory();
+    std::string rightSnapshot;
+    for (const auto& entry : right) {
+        rightSnapshot += entry.text + "@" + std::to_string(entry.resolvedX) + "," + std::to_string(entry.resolvedY) + "|";
+    }
+    REQUIRE(rightSnapshot == "Alpha @68,30|beta @138,30|gamma @58,66|delta @126,66|epsilon @46,102|zeta @138,102|eta @90,138|theta@134,138|");
 }
 
 TEST_CASE("Window_Base getMethodStatus for extended methods", "[compat][window]") {

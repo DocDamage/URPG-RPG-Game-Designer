@@ -1,0 +1,29 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "URPG Menu Command Schema",
+  "description": "Native contract for individual menu command entries and their rules.",
+  "type": "object",
+  "required": ["id", "symbol", "name"],
+  "properties": {
+    "id": { "type": "string" },
+    "symbol": { "type": "string" },
+    "name": { "type": "string" },
+    "help_text": { "type": "string" },
+    "enabled_by": {
+      "type": "object",
+      "properties": {
+        "switch_id": { "type": "string" },
+        "variable_id": { "type": "string" },
+        "compare": { "enum": ["==", "!=", ">", "<", ">=", "<="] },
+        "value": { "type": ["boolean", "number", "string"] }
+      }
+    },
+    "visible_by": {
+      "type": "object",
+      "properties": {
+        "switch_id": { "type": "string" }
+      }
+    },
+    "handler_route": { "type": "string" }
+  }
+}

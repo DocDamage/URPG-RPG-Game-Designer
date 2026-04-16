@@ -9,7 +9,7 @@ This repository is bootstrapped to the blueprint's canonical structure and now i
 - Phase 0 Foundation: 100% complete.
 - Phase 1 Native Core: 100% complete for v3.1 kickoff/continuation/integration contracts.
 - Phase 2 Compat Layer: hardening exit (~96%; runtime module wiring + status burn-down are complete, with remaining work on executable conformance depth and diagnostics exit criteria).
-- Native Feature Absorption Wave 1: in progress (~20%; subsystem specs are drafted and first implementation slices are landed, with runtime/editor/schema delivery still remaining).
+- Native Feature Absorption Wave 1: in progress (~63%; UI/Menu and Message/Text runtime slices are substantially landed, with remaining closure in renderer handoff, editor/schema/migration productization, and integration depth).
 - Native Capability Expansion Wave 2: planning baseline (~5%; integrated tracks are defined in `docs/NATIVE_FEATURE_ABSORPTION_PLAN.md`, implementation pending).
 
 ## Where we are now (2026-04-15)
@@ -20,6 +20,8 @@ This repository is bootstrapped to the blueprint's canonical structure and now i
 - Dependabot version-update branch churn is disabled.
 - Active roadmap has been rewritten as one integrated execution plan (`docs/NATIVE_FEATURE_ABSORPTION_PLAN.md`) including Wave 2 advanced capability tracks.
 - Canonical completion checklist (done + remaining to 100%): `docs/PROGRAM_COMPLETION_STATUS.md`.
+- Canonical Wave 1 subsystem closure checklist source: `docs/WAVE1_SUBSYSTEM_CLOSURE_CHECKLIST.md`.
+- Subsystem checklist sync is automated via `tools/docs/sync-wave1-spec-checklist.ps1` and verified by `tools/ci/check_wave1_spec_checklists.ps1`.
 
 ## Completed now
 
@@ -106,6 +108,9 @@ This repository is bootstrapped to the blueprint's canonical structure and now i
    - Compat routed battle-flow evidence now includes a tactical reload-survival fixture scenario.
    - Burned down selected compat statuses: `Window_Base.drawItemName`, `Window_Base.textWidth`, `Window_Base.textSize` from `STUB` to `PARTIAL`; `TouchInput.worldX/worldY` from `STUB` to `FULL`; `Window_Base.drawActorHp/drawActorMp/drawActorTp` from `PARTIAL` to `FULL`.
    - Burned down WindowCompat text-surface statuses: `drawTextEx`, `textWidth`, `textSize` from `PARTIAL` to `FULL` using escape-token parity and compat renderer-backed measurement/layout flow.
+   - `Window_Base.drawText` now submits backend-facing `RenderLayer::TextCommand` payloads using resolved alignment offsets and active font/color state.
+   - Added compat `Window_Message` surface (`drawMessageBody`) with deterministic dialogue-body alignment behavior (`left`/`center`/`right`).
+   - Added snapshot-style wrapped centered/right `drawTextEx` history coverage to lock deterministic placement semantics.
    - Burned down additional WindowCompat statuses: `drawItemName` from `PARTIAL` to `FULL` (DataManager-backed icon+label semantics) and `Sprite_Actor.startEffect` from `PARTIAL` to `FULL` (deterministic effect-duration lifecycle).
    - Burned down additional Sprite_Actor animation status: `startAnimation` from `PARTIAL` to `FULL` with deterministic frame-duration playback lifecycle.
    - Burned down remaining Window_Base face status: `drawActorFace` from `PARTIAL` to `FULL` with MZ-canonical face cell clipping/centering semantics and deterministic face draw metadata.
@@ -123,13 +128,15 @@ This repository is bootstrapped to the blueprint's canonical structure and now i
 
 1. Compat exit completion
    - Finish remaining routed conformance/failure depth and lock every new failure mode to JSONL/report/panel assertions until explicit exit criteria are satisfied.
-2. Wave 1 native runtime ownership
-   - Implement native subsystem ownership for UI/Menu, Message/Text, Battle, and Save/Data beyond the current seeded slices.
-3. Wave 1 editor + schema productization
+2. Message/Text renderer closure
+   - Complete backend text-command consumption and native MessageScene handoff from compat `Window_Message` bridge behavior.
+3. Wave 1 native runtime ownership
+   - Complete native subsystem ownership for UI/Menu, Message/Text, Battle, and Save/Data beyond currently landed slices.
+4. Wave 1 editor + schema productization
    - Ship subsystem inspectors/previews/diagnostics and finalize migration-safe schemas/import upgrade paths.
-4. Wave 2 advanced capability delivery
+5. Wave 2 advanced capability delivery
    - Start implementation tracks for ability framework, pattern editor, modular level assembly, sprite pipeline, procedural toolkit, optional 2.5D lane, timeline orchestration, and editor utilities.
-5. Completion tracking
+6. Completion tracking
    - Execute and maintain `docs/PROGRAM_COMPLETION_STATUS.md` as the source of truth for remaining work to 100% completion in this program scope.
 
 ## Build/test

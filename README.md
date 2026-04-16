@@ -11,9 +11,17 @@ Bootstrap workspace aligned to URPG Master Blueprint v3.1.
 - Latest local gate snapshot:
   - `ctest --test-dir build/dev-ninja-debug -L pr --output-on-failure` => 289/289 passed
   - `ctest --test-dir build/dev-ninja-debug -L weekly --output-on-failure` => 42/42 passed
+- Latest focused renderer/message validation snapshot:
+  - `.\Debug\urpg_tests.exe "[compat]"` => 646 assertions / 140 test cases passed
+  - `.\Debug\urpg_tests.exe "[compat][window]"` => 211 assertions / 52 test cases passed
+  - `.\Debug\urpg_tests.exe "[compat][window][message]"` => 4 assertions / 1 test case passed
+  - `.\Debug\urpg_tests.exe "[compat][window][snapshot]"` => 2 assertions / 1 test case passed
 - Native roadmap has been rewritten into one integrated execution plan:
   - `docs/NATIVE_FEATURE_ABSORPTION_PLAN.md` (Wave 1 core ownership + Wave 2 advanced capability expansion)
 - Canonical progress + remaining-work checklist: `docs/PROGRAM_COMPLETION_STATUS.md`.
+- Canonical Wave 1 spec closure checklist source:
+  - `docs/WAVE1_SUBSYSTEM_CLOSURE_CHECKLIST.md`
+  - synchronized into subsystem specs via `tools/docs/sync-wave1-spec-checklist.ps1`
 
 ## Current scope
 
@@ -85,6 +93,9 @@ Bootstrap workspace aligned to URPG Master Blueprint v3.1.
   - Burned down additional WindowCompat statuses: `Window_Base.drawItemName` advanced from `PARTIAL` to `FULL` with DataManager-backed icon+label semantics, and `Sprite_Actor.startEffect` advanced from `PARTIAL` to `FULL` with deterministic effect-duration lifecycle behavior.
   - Burned down additional Sprite_Actor animation status: `startAnimation` advanced from `PARTIAL` to `FULL` with deterministic frame-duration playback lifecycle.
   - Burned down remaining Window_Base face status: `drawActorFace` advanced from `PARTIAL` to `FULL` with MZ-canonical face cell clipping/centering semantics and deterministic face draw metadata.
+  - Window text rendering bridge now submits backend-facing `RenderLayer::TextCommand` payloads from `Window_Base::drawText` with resolved alignment offsets, font metadata, and RGBA color state.
+  - Added compat `Window_Message` surface with `drawMessageBody` + explicit message alignment (`left`/`center`/`right`) routed through native rich-text layout behavior.
+  - Added draw-history/snapshot coverage for wrapped centered/right `drawTextEx` output to lock deterministic per-fragment x/y placement.
   - Compat status burn-down checkpoint: active runtime compat API registry now reports no `PARTIAL`/`STUB` surfaces; remaining Phase 2 work is deep executable validation + diagnostics hardening.
   - Burned down AudioManager compat statuses: `crossfadeBgm`/`crossfadeBgs` advanced from `PARTIAL` to `FULL` with deterministic frame-based crossfade sequencing; BGM save metadata now preserves track filename/position for correct restore semantics.
   - Burned down BattleManager compat status: `processEscape` advanced from `PARTIAL` to `FULL` with deterministic MZ-style escape ratio/failure ramp semantics.
@@ -121,10 +132,16 @@ Bootstrap workspace aligned to URPG Master Blueprint v3.1.
 ## Immediate next steps
 
 1. Close compat-lane exit criteria for trustworthy import, diagnostics, and migration confidence.
-2. Move Wave 1 native ownership from seeded slices to concrete runtime ownership in UI/Menu, Message/Text, Battle, and Save/Data.
-3. Ship editor inspectors/previews/diagnostics for the same Wave 1 subsystems.
-4. Begin Wave 2 advanced capability implementation (ability framework, pattern editor, modular level assembly, sprite pipeline, procedural toolkit, optional 2.5D lane, timeline orchestration, and editor utilities).
-5. Execute the full remaining checklist in `docs/PROGRAM_COMPLETION_STATUS.md` to drive completion to 100% for the current program scope.
+2. Finish Message/Text renderer closure after the landed bridge:
+   - consume `RenderLayer::TextCommand` in backend tiers where text command rendering is still placeholder,
+   - connect `Window_Message` parity behavior to native message scene runtime ownership path.
+3. Finish UI/Menu Wave 1 closure after the landed runtime interaction slices:
+   - ship menu authoring/preview editor surfaces,
+   - finalize schema + import mapping for route fallback/state rules,
+   - add integration anchors beyond unit tests.
+4. Continue Wave 1 runtime/editor/schema closure for Message/Text, Battle, and Save/Data.
+5. Begin Wave 2 advanced capability implementation (ability framework, pattern editor, modular level assembly, sprite pipeline, procedural toolkit, optional 2.5D lane, timeline orchestration, and editor utilities).
+6. Execute the full remaining checklist in `docs/PROGRAM_COMPLETION_STATUS.md` to drive completion to 100% for the current program scope.
 
 ## Build
 
@@ -159,6 +176,13 @@ git lfs track
 
 ```powershell
 .\tools\ci\run_local_gates.ps1
+```
+
+## Wave 1 spec checklist sync
+
+```powershell
+.\tools\docs\sync-wave1-spec-checklist.ps1
+.\tools\docs\sync-wave1-spec-checklist.ps1 -Check
 ```
 
 ## CodeMunch Pro Workflow

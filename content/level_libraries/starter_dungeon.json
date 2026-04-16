@@ -1,0 +1,23 @@
+{
+  "libraryName": "Starter Dungeon Kit",
+  "blocks": [
+    {
+      "id": "hallway_straight",
+      "displayName": "Straight Hallway",
+      "prefabPath": "content/prefabs/hallway_straight.json",
+      "connectors": [
+        { "side": "North", "type": "Hallway", "offset": [0, 0, 10] },
+        { "side": "South", "type": "Hallway", "offset": [0, 0, -10] }
+      ]
+    },
+    {
+      "id": "hallway_corner",
+      "displayName": "Corner Hallway",
+      "prefabPath": "content/prefabs/hallway_corner.json",
+      "connectors": [
+        { "side": "South", "type": "Hallway", "offset": [0, 0, -10] },
+        { "side": "East", "type": "Hallway", "offset": [10, 0, 0] }
+      ]
+    }
+  ]
+}

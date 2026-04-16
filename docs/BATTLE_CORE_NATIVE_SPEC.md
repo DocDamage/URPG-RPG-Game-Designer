@@ -1,8 +1,35 @@
 # Battle Core Native-First Spec
 
 Date: 2026-04-14
-Status: initial draft
+Status: active implementation baseline (runtime/inspector slices landed; schema/migration/release closure pending)
 Scope: runtime ownership, editor ownership, schema, migration, diagnostics, and test anchors for native Battle Core absorption
+
+## Last landed progress (2026-04-15)
+
+- Native battle runtime ownership slices are active in:
+  - `engine/core/battle/battle_core.*`
+  - deterministic flow controller, action queue ordering, and rule resolver baselines
+- Battle editor/preview slices are active in:
+  - `editor/battle/battle_inspector_model.*`
+  - `editor/battle/battle_preview_panel.*`
+  - `editor/battle/battle_inspector_panel.*`
+  - diagnostics workspace `battle` tab wiring
+- Compat battle confidence anchors are active:
+  - tactical routed battle fixture coverage across plugin reload
+  - deterministic escape lifecycle parity in compat tests
+- Validation anchors are active in:
+  - `tests/unit/test_battle_core.cpp`
+  - `tests/unit/test_battle_inspector_model.cpp`
+  - `tests/unit/test_battle_preview_panel.cpp`
+  - `tests/unit/test_battle_inspector_panel.cpp`
+  - `tests/unit/test_battlemgr.cpp`
+
+## Next steps
+
+- Finalize schema + migration contracts for battle flows/actions/rules/hooks from compat evidence into native typed records.
+- Add deeper integration coverage for runtime+editor battle ownership and HUD bridge parity.
+- Close release-readiness for deterministic battle behavior and diagnostics/reporting paths.
+- Continue narrowing compat battle behavior to import/verification bridge-only ownership.
 
 ## Purpose
 
@@ -186,6 +213,36 @@ Phase 1 of Battle Core absorption should deliver:
 - deterministic escape and result policies
 - battle flow inspector and preview panel
 - HUD bridge contracts for current routed battle presentation anchors
+
+<!-- WAVE1_CHECKLIST_START -->
+## Wave 1 Closure Checklist (Canonical)
+
+_Managed by `tools/docs/sync-wave1-spec-checklist.ps1`. Do not edit manually._
+_Canonical source: [WAVE1_SUBSYSTEM_CLOSURE_CHECKLIST.md](WAVE1_SUBSYSTEM_CLOSURE_CHECKLIST.md)_
+
+### Universal closure gates
+
+- [ ] Runtime ownership is authoritative and compat behavior for this subsystem is bridge-only.
+- [ ] Editor productization is complete (inspect/edit/preview/validate) with diagnostics surfaced.
+- [ ] Schema contracts and migration/import paths are explicit, versioned, and test-backed.
+- [ ] Deterministic validation exists (unit + integration + snapshot where layout/presentation applies).
+- [ ] Failure-path diagnostics and safe-mode/bounded fallback behavior are explicitly documented and tested.
+- [ ] Release evidence is published in status docs and gate snapshots are recorded.
+
+### Battle Core specific closure gates
+
+- [ ] Battle flow/action/rule ownership is authoritative; HUD and overlays consume battle state only.
+- [ ] Deterministic turn/escape/action outcomes are preserved under runtime and preview validation anchors.
+- [ ] Battle schema + migration + diagnostics closure is complete and release-evidence-backed.
+
+### Closure sign-off artifact checklist
+
+- [ ] Runtime owner files listed (header + source).
+- [ ] Editor owner files listed.
+- [ ] Schema and migration files listed.
+- [ ] Latest deterministic test outputs recorded.
+- [ ] README.md, docs/PROGRAM_COMPLETION_STATUS.md, and URPG_Blueprint_v3_1_Integrated.md updated.
+<!-- WAVE1_CHECKLIST_END -->
 
 ## Non-goals for this slice
 

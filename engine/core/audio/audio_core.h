@@ -5,6 +5,7 @@
 #include <map>
 #include <memory>
 #include <atomic>
+#include "../global_state_hub.h"
 
 namespace urpg::audio {
 
@@ -36,6 +37,19 @@ public:
         AudioCategory category = AudioCategory::System;
     };
 
+    AudioCore() {
+        // Sync initial volumes and subscribe to changes
+        m_stateHandle = GlobalStateHub::getInstance().subscribe("audio.*", [this](const std::string& key, const GlobalStateHub::Value& value) {
+            this->onConfigChanged(key, value);
+        });
+        
+        syncVolumes();
+    }
+
+    ~AudioCore() {
+        GlobalStateHub::getInstance().unsubscribe(m_stateHandle);
+    }
+
     /**
      * @brief Plays a sound effect or system sound.
      */
@@ -56,6 +70,7 @@ public:
 
     void setCategoryVolume(AudioCategory category, float volume) {
         m_categoryVolumes[category] = volume;
+        // In a real engine, this would update active channel gains
     }
 
     float getCategoryVolume(AudioCategory category) const {
@@ -71,7 +86,29 @@ public:
     }
 
 private:
+    void syncVolumes() {
+        auto& hub = GlobalStateHub::getInstance();
+        setCategoryVolume(AudioCategory::BGM, std::stof(hub.getConfig("audio.bgm_volume", "1.0")));
+        setCategoryVolume(AudioCategory::BGS, std::stof(hub.getConfig("audio.bgs_volume", "1.0")));
+        setCategoryVolume(AudioCategory::SE, std::stof(hub.getConfig("audio.se_volume", "1.0")));
+        setCategoryVolume(AudioCategory::ME, std::stof(hub.getConfig("audio.me_volume", "1.0")));
+        setCategoryVolume(AudioCategory::System, std::stof(hub.getConfig("audio.system_volume", "1.0")));
+    }
+
+    void onConfigChanged(const std::string& key, const GlobalStateHub::Value& value) {
+        if (!std::holds_alternative<std::string>(value)) return;
+        const std::string& valStr = std::get<std::string>(value);
+        float volume = std::stof(valStr);
+
+        if (key == "audio.bgm_volume") setCategoryVolume(AudioCategory::BGM, volume);
+        else if (key == "audio.bgs_volume") setCategoryVolume(AudioCategory::BGS, volume);
+        else if (key == "audio.se_volume") setCategoryVolume(AudioCategory::SE, volume);
+        else if (key == "audio.me_volume") setCategoryVolume(AudioCategory::ME, volume);
+        else if (key == "audio.system_volume") setCategoryVolume(AudioCategory::System, volume);
+    }
+
     std::atomic<AudioHandle> m_handleCounter{0};
+    uint32_t m_stateHandle = 0;
     std::map<AudioHandle, ChannelState> m_activeSources;
     std::map<AudioCategory, float> m_categoryVolumes;
     std::string m_currentBGM;

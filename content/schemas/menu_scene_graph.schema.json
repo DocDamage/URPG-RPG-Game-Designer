@@ -1,0 +1,83 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "URPG Menu Scene Graph",
+  "description": "Native scene graph structure for URPG UI/Menu systems, supporting hierarchical panes and routed commands.",
+  "type": "object",
+  "required": ["scene_id", "panes"],
+  "properties": {
+    "scene_id": {
+      "type": "string",
+      "description": "Unique identifier for the menu scene."
+    },
+    "panes": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/menu_pane"
+      }
+    }
+  },
+  "definitions": {
+    "menu_pane": {
+      "type": "object",
+      "required": ["id", "commands"],
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "label": {
+          "type": "string"
+        },
+        "rect": {
+          "type": "object",
+          "properties": {
+            "x": { "type": "integer" },
+            "y": { "type": "integer" },
+            "w": { "type": "integer" },
+            "h": { "type": "integer" }
+          }
+        },
+        "commands": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/menu_command"
+          }
+        }
+      }
+    },
+    "menu_command": {
+      "type": "object",
+      "required": ["id"],
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "label": {
+          "type": "string"
+        },
+        "icon_id": {
+          "type": "string"
+        },
+        "route": {
+          "type": "string",
+          "enum": ["None", "Back", "Close", "Custom"],
+          "default": "None"
+        },
+        "custom_route_id": {
+          "type": "string"
+        },
+        "fallback_route": {
+          "type": "string",
+          "enum": ["None", "Back", "Close", "Custom"],
+          "default": "None"
+        },
+        "fallback_custom_route_id": {
+          "type": "string"
+        },
+        "priority": {
+          "type": "integer",
+          "default": 0
+        }
+      }
+    }
+  }
+}

@@ -1,10 +1,13 @@
 #pragma once
 
 #include "ui_types.h"
+#include "../global_state_hub.h"
 #include <map>
 #include <string>
 #include <vector>
 #include <algorithm>
+#include <cstdint>
+#include <unordered_map>
 #include <nlohmann/json.hpp>
 
 namespace urpg::ui {
@@ -17,6 +20,26 @@ namespace urpg::ui {
  */
 class MenuCommandRegistry {
 public:
+    using SwitchState = std::unordered_map<std::string, bool>;
+    using VariableState = std::unordered_map<std::string, int32_t>;
+
+    /**
+     * @brief Helper to capture current global state into SwitchState/VariableState maps.
+     * 
+     * Wave 2: This bridges the GlobalStateHub to the Menu evaluators.
+     */
+    static void captureGlobalState(SwitchState& outSwitches, VariableState& outVariables) {
+        const auto& hub = GlobalStateHub::getInstance();
+        for (const auto& [id, value] : hub.getAllSwitches()) {
+            outSwitches[id] = value;
+        }
+        for (const auto& [id, value] : hub.getAllVariables()) {
+            if (std::holds_alternative<int32_t>(value)) {
+                outVariables[id] = std::get<int32_t>(value);
+            }
+        }
+    }
+
     void registerCommand(const MenuCommandMeta& command) {
         _commands[command.id] = command;
     }
@@ -36,6 +59,45 @@ public:
             (void)id;
             list.push_back(cmd);
         }
+        std::sort(list.begin(), list.end(), [](const auto& a, const auto& b) {
+            if (a.priority != b.priority) return a.priority < b.priority;
+            return a.id < b.id;
+        });
+        return list;
+    }
+
+    /**
+     * @brief Evaluates whether a command is visible for the provided runtime state.
+     */
+    bool isVisible(const MenuCommandMeta& command,
+                   const SwitchState& switches,
+                   const VariableState& variables) const {
+        return evaluateRuleSet(command.visibility_rules, switches, variables);
+    }
+
+    /**
+     * @brief Evaluates whether a command is enabled for the provided runtime state.
+     */
+    bool isEnabled(const MenuCommandMeta& command,
+                   const SwitchState& switches,
+                   const VariableState& variables) const {
+        return evaluateRuleSet(command.enable_rules, switches, variables);
+    }
+
+    /**
+     * @brief Returns visible commands sorted by priority for the provided runtime state.
+     */
+    std::vector<MenuCommandMeta> listCommandsForState(const SwitchState& switches,
+                                                      const VariableState& variables) const {
+        std::vector<MenuCommandMeta> list;
+        list.reserve(_commands.size());
+        for (const auto& [id, cmd] : _commands) {
+            (void)id;
+            if (isVisible(cmd, switches, variables)) {
+                list.push_back(cmd);
+            }
+        }
+
         std::sort(list.begin(), list.end(), [](const auto& a, const auto& b) {
             if (a.priority != b.priority) return a.priority < b.priority;
             return a.id < b.id;
@@ -71,6 +133,11 @@ public:
             if (cmd.route == MenuRouteTarget::Custom) {
                 cmd.custom_route_id = item.value("custom_route_id", "");
             }
+            std::string fallback_route_str = item.value("fallback_route", "none");
+            cmd.fallback_route = parseRoute(fallback_route_str);
+            if (cmd.fallback_route == MenuRouteTarget::Custom) {
+                cmd.fallback_custom_route_id = item.value("fallback_custom_route_id", "");
+            }
 
             registerCommand(cmd);
         }
@@ -78,6 +145,40 @@ public:
     }
 
 private:
+    static bool evaluateRule(const MenuCommandCondition& rule,
+                             const SwitchState& switches,
+                             const VariableState& variables) {
+        bool pass = true;
+
+        if (!rule.switch_id.empty()) {
+            const auto switchIt = switches.find(rule.switch_id);
+            const bool switchValue = switchIt != switches.end() ? switchIt->second : false;
+            pass = pass && switchValue;
+        }
+
+        if (!rule.variable_id.empty()) {
+            const auto variableIt = variables.find(rule.variable_id);
+            const int32_t variableValue = variableIt != variables.end() ? variableIt->second : 0;
+            pass = pass && (variableValue >= rule.variable_threshold);
+        }
+
+        if (rule.invert) {
+            pass = !pass;
+        }
+        return pass;
+    }
+
+    static bool evaluateRuleSet(const std::vector<MenuCommandCondition>& rules,
+                                const SwitchState& switches,
+                                const VariableState& variables) {
+        for (const auto& rule : rules) {
+            if (!evaluateRule(rule, switches, variables)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     static MenuRouteTarget parseRoute(const std::string& str) {
         if (str == "item")         return MenuRouteTarget::Item;
         if (str == "skill")        return MenuRouteTarget::Skill;

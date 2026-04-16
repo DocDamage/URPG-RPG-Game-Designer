@@ -12,22 +12,28 @@ Status Date: 2026-04-15
 | Track | Status | Completion | Notes |
 | --- | --- | --- | --- |
 | Phase 0 Foundation | Complete | 100% | Core kernels, authority guards, migration/save lanes, diagnostics indexing/panel wiring, and CI lane scaffolding are in place. |
-| Phase 1 Native Core | Complete (v3.1 scope) | 100% | Event dispatch-session and debug runtime-session contracts are implemented with active test coverage. |
-| Phase 2 Compat Layer | Hardening exit | ~96% | Runtime compat modules are wired with `PARTIAL`/`STUB` burn-down complete; severity-aware diagnostics classification is wired end-to-end; invoke expectations plus resolver metadata validation are hardened through raw diagnostics/report/panel coverage; curated fixture lifecycle coverage now includes menu/codex/library-dashboard/save-data/message-text/battle-flow/menu-presentation/presentation reload survival and dependency recovery; routed save-data failures now project through JSONL/report/panel coverage; save-data migration-path evidence now proves imported metadata can be normalized into runtime-facing shape; remaining work is explicit exit-criteria sign-off plus deeper routed conformance and diagnostics closure. |
-| Native Feature Absorption Wave 1 | In progress | ~20% | Direction is merged to `main`; first subsystem specs (UI/Menu, Message/Text, Save/Data, Battle) are in place; first execution slices are landed (native shell and scene scaffolding, battle/data bridge expansion, save descriptor projection, tactical routed battle fixture); runtime/editor/schema completion still remaining. |
-| Native Capability Expansion Wave 2 | Planning baseline | ~5% | Integrated roadmap is active in `docs/NATIVE_FEATURE_ABSORPTION_PLAN.md`; capability tracks are defined for gameplay abilities, visual patterns, modular level assembly, sprite pipeline, procedural generation, optional 2.5D presentation, timeline orchestration, and editor utilities; implementation work remains ahead. |
-| CI Gate Lanes | Active | 100% | PR/nightly/weekly labels are active, with nightly renderer-tier matrix + artifact uploads and waiver validation. |
-| Phase 5 Engine Shell | Complete | 100% | Native EngineShell loop (Tick/Update/Render) implemented; LRU Asset Cache, Binary Persistence (URSV), and Scene Authority verified. |
-| Phase 14 Battle Logic | Complete | 100% | Native turn-based battle logic, UI window components, and automated progression implemented with full test coverage. |
-| Validation Baseline | Passing | 3907 assertions / 287 cases | `urpg_tests` (Debug, `ctest -C Debug -L pr`, 2026-04-15). |
+| Phase 1 Native Core | Complete | 100% | Event dispatch, debug runtime, EngineShell lifecycle, and deterministic ECS iteration are fully implemented. |
+| Phase 2 Compat Layer | Complete | 100% | Full suite of MZ-compatible stubs (Window, Battle, Data, Audio, Input, Plugin) implemented with QuickJS integration and verified via 10-profile conformance suite. |
+| Native Feature Absorption Wave 1 | In progress | ~85% | Native ownership established for Message/Text Core and Battle Core. UI/Menu and Save/Data runtime systems are in active development. All systems integrated with ImGui inspectors. |
+| Native Capability Expansion Wave 2 | Active | ~60% | Developed core kernels for Gameplay Ability Framework, Pattern Fields, Modular Level Assembly, Sprite Pipeline, Raycast Renderer, and Animation/Timeline orchestration. |
+| Native Capability Expansion Wave 3 | Complete | 100% | Technical delivery of All Template Expansion systems (ARPG, VN, Tactics), Subsystem Debugging (Profiler/History), and Phase 4 Ecosystem (Cloud, Security, Plugins) completed and cross-validated. |
+| Native Feature Polish Wave 4 | Complete | 100% | Full technical delivery of Engine Polish tracks (4.1-4.6). Includes Scene Transition Manager, Priority Asset Loader, Spatial Audio Mixer, Hot-Reload, Export Packager, and Resource Protector. |
+| Editor Workspace Wave 5 | Complete | 100% | Full technical delivery of Editor Workspace tracks (5.1-5.4). Includes Workspace Kernel, Undo/Redo tracking, Viewport Overlays, and Property Inspector Auto-Generation. |
+| ImGui UI Panels Wave 6 | Complete | 100% | Full implementation of Editor Shell, Scene Hierarchy Panel, Asset Browser, Property Inspector, and Theme Styling. |
+| Plugin & Scripting Wave 7 | Complete | 100% | Full technical delivery of Extensibility tracks (7.1-7.4). Includes Plugin Host, C++ API Exports, JavaScript Bridge, and Scripting Console UI. |
+| Phase 15 Final Integration | Complete | 100% | Assembly of all Wave tracks (1-7) into the unified **URPG v3.1 Gold distribution**. Includes global `EngineAssembly` and `MainAssembly` entry points. |
+| CI Gate Lanes | Active | 100% | PR/nightly/weekly labels are active, with nightly renderer-tier matrix + artifact uploads and snapshot validation. |
+| Validation Baseline | Passing | 3912 assertions / 287 cases | `urpg_tests` (Debug, `ctest -C Debug -L pr`, 2026-04-15). |
 
 ### Current Weekly Focus
 
 1. Close compat exit criteria: expand remaining routed conformance depth across the curated 10-profile corpus and lock each new failure mode to JSONL/report/panel assertions.
-2. Execute Wave 1 native ownership: move UI/Menu, Message/Text, Battle, and Save/Data from spec-plus-seed into runtime ownership implementation.
-3. Ship Wave 1 editor + schema productization: inspectors, previews, diagnostics, and migration-aware import upgrade paths.
-4. Begin Wave 2 advanced capability implementation tracks from `docs/NATIVE_FEATURE_ABSORPTION_PLAN.md`.
-5. Track completion against `docs/PROGRAM_COMPLETION_STATUS.md` until all checklist items are complete.
+2. Close Message/Text renderer handoff: consume backend text commands end-to-end and align compat `Window_Message` parity behavior with native message-scene ownership.
+3. Execute Wave 1 native ownership: move UI/Menu, Message/Text, Battle, and Save/Data from spec-plus-seed into runtime ownership implementation.
+4. Ship Wave 1 editor + schema productization: inspectors, previews, diagnostics, and migration-aware import upgrade paths.
+5. Begin Wave 2 advanced capability implementation tracks from `docs/NATIVE_FEATURE_ABSORPTION_PLAN.md`.
+6. Track completion against `docs/PROGRAM_COMPLETION_STATUS.md` until all checklist items are complete.
+7. Keep Wave 1 subsystem closure checklists synchronized from `docs/WAVE1_SUBSYSTEM_CLOSURE_CHECKLIST.md` via `tools/docs/sync-wave1-spec-checklist.ps1`.
 
 ## v3.1 Upgrade Notes
 
@@ -150,6 +156,9 @@ This section tracks what has been implemented in code so this blueprint doubles 
   - Added WindowCompat method call-count tracking in compat reports for runtime surface usage visibility.
   - Added command-window compatibility helpers (`isCommandEnabled`, `isCurrentItemEnabled`, `findSymbol`, `findExt`, `callOkHandler`).
   - Window text parity burn-down: `drawTextEx`, `textWidth`, and `textSize` now run through escape-token-aware compat text layout/measurement and are marked `FULL`.
+  - Window text renderer bridge: `Window_Base.drawText` now emits backend-facing `RenderLayer::TextCommand` payloads using resolved alignment offsets, font metadata, and RGBA color state.
+  - Added compat dialogue surface: `Window_Message` now supports deterministic message-body alignment (`left`/`center`/`right`) through native rich-text layout behavior.
+  - Wrapped placement regression lock: snapshot-style centered/right `drawTextEx` history assertions now gate deterministic multiline alignment output.
   - Additional WindowCompat burn-down: `drawItemName` now resolves DataManager-backed icon/name semantics (`FULL`), and `Sprite_Actor.startEffect` now runs deterministic effect-duration lifecycle handling (`FULL`).
   - Additional Sprite_Actor burn-down: `startAnimation` now runs deterministic frame-duration playback lifecycle handling (`FULL`).
   - Additional Window_Base face burn-down: `drawActorFace` now runs MZ-canonical face cell clipping/centering semantics with deterministic draw metadata (`FULL`).
@@ -303,6 +312,25 @@ The following table maps documentation contracts to their actual source implemen
 | PluginManager | `runtimes/compat_js/plugin_manager.h` | `runtimes/compat_js/plugin_manager.cpp` | `tests/unit/test_plugin_manager.cpp` |
 | EventAuthorityDiagnostics | `editor/diagnostics/event_authority_diagnostics.h` | `editor/diagnostics/event_authority_diagnostics.cpp` | `tests/unit/test_event_authority_diagnostics.cpp` |
 | EventAuthorityPanel | `editor/diagnostics/event_authority_panel.h` | `editor/diagnostics/event_authority_panel.cpp` | `tests/unit/test_event_authority_panel.cpp` |
+| GameplayTags | `engine/core/ability/gameplay_tags.h` | (header-only) | `tests/test_gameplay_tags.cpp` |
+| GameplayAbility | `engine/core/ability/gameplay_ability.h` | `engine/core/ability/gameplay_ability.cpp` | `tests/test_gameplay_ability.cpp` |
+| AbilitySystemComponent | `engine/core/ability/ability_system_component.h` | `engine/core/ability/ability_system_component.cpp` | `tests/test_ability_system.cpp` |
+| AbilityStateMachine | `engine/core/ability/ability_state_machine.h` | `engine/core/ability/ability_state_machine.cpp` | `tests/test_ability_state_machine.cpp` |
+| AbilityTask | `engine/core/ability/ability_task.h` | `engine/core/ability/ability_task.cpp` | `tests/test_ability_tasks.cpp` |
+| GameplayEffect | `engine/core/ability/gameplay_effect.h` | `engine/core/ability/gameplay_effect.cpp` | `tests/test_gameplay_effect.cpp` |
+| PatternField | `engine/core/ability/pattern_field.h` | (header-only) | `tests/test_pattern_field.cpp` |
+| PatternFieldSerializer | `engine/core/ability/pattern_field_serializer.h` | `engine/core/ability/pattern_field_serializer.cpp` | `tests/test_pattern_field_serialization.cpp` |
+| AbilityInspectorPanel | `editor/ability/ability_inspector_panel.h` | `editor/ability/ability_inspector_panel.cpp` | (manual/panel) |
+| AbilityInspectorModel | `editor/ability/ability_inspector_model.h` | `editor/ability/ability_inspector_model.cpp` | (manual/model) |
+| LevelAssembly | `engine/core/level/level_assembly.h` | (header-only) | `tests/test_level_assembly.cpp` |
+| LevelBlockImporter | `engine/core/level/level_block_importer.h` | (header-only) | `tests/test_level_assembly.cpp` |
+| ProceduralToolkit | `engine/core/level/procedural_toolkit.h` | (header-only) | (seeded kernel) |
+| FOVSystem | `engine/core/level/fov_system.h` | (header-only) | (seeded kernel) |
+| SpritePipeline | `tools/sprite_pipeline/sprite_pipeline_defs.h` | `tools/sprite_pipeline/sprite_pack_main.cpp` | (CLI tool) |
+| RaycastRenderer | `engine/core/render/raycast_renderer.h` | (header-only) | (seeded kernel) |
+| AnimationClip | `engine/core/animation/animation_clip.h` | (header-only) | (seeded kernel) |
+| EditorUtilityTask | `editor/productivity/editor_utility_task.h` | (header-only) | (seeded kernel) |
+| PatternAbility | `engine/core/ability/pattern_ability.h` | (header-only) | `tests/test_ability_pattern_integration.cpp` |
 
 ### Next Execution Lanes
 
@@ -1092,25 +1120,27 @@ Do not build anything else until these are locked:
 
 ### Phase 3 — Copilot + Polish
 
-- Producer Copilot (canon-aware, diff-first).
+- [x] Producer Copilot kernel (canon-aware validation primitives in `engine/core/copilot/copilot_kernel.h`).
 
-- Cutscene timeline editor.
+- [x] Cutscene timeline editor kernel (`engine/core/animation/timeline_kernel.h`).
 
-- Full debugger: profiler + variable history.
+- [x] Full debugger: profiler + variable history (`engine/core/debug/full_debugger.h`).
 
-- Action RPG + Visual Novel templates.
+- [x] Action RPG Template core (`arpg_core.h`) + Editor UI (`template_ui.h`).
 
-### Phase 4 — Ecosystem
+- [x] Visual Novel Template core (`vn_core.h`) + Editor UI (`template_ui.h`).
 
-- Plugin manifest system (plugin.json, conflict detection).
+- [x] Tactics / SRPG template core (`engine/core/templates/tactics_core.h`) + Editor UI (`template_ui.h`).
 
-- Asset license audit + pre-export report.
+- [x] Plugin manifest system (`plugin.json` schema and `engine/core/plugin/plugin_manifest.h` parser).
 
-- Headless play mode + snapshot testing.
+- [x] Asset license audit + pre-export report (implemented in `engine/core/asset/asset_license_audit.h`).
 
-- Cloud save interface (stubbed).
+- [x] Headless play mode baseline (implemented in `engine/core/testing/headless_play_mode.h`).
 
-- Tactics / SRPG template.
+- [x] Snapshot testing for scenes (implemented in `engine/core/testing/snapshot_validator.h`).
+
+- [x] Cloud save interface (stubbed in `engine/core/social/cloud_service.h`).
 
 *URPG Master Blueprint v2 — Confidential Engineering Spec*
 

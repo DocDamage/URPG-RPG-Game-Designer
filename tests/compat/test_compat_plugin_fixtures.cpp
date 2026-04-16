@@ -290,6 +290,140 @@ TEST_CASE("Compat fixtures: directory loader discovers and loads all fixture plu
     pm.unloadAllPlugins();
 }
 
+TEST_CASE("Compat fixtures: curated all-profile orchestration scenario survives plugin reload",
+          "[compat][fixtures]") {
+    PluginManager& pm = PluginManager::instance();
+    pm.unloadAllPlugins();
+    pm.clearFailureDiagnostics();
+
+    const auto& specs = fixtureSpecs();
+    for (const auto& spec : specs) {
+        INFO("Load fixture plugin: " << spec.pluginName);
+        REQUIRE(pm.loadPlugin(fixturePath(spec.pluginName).string()));
+    }
+
+    const auto orchestrationFixture =
+        uniqueTempFixturePath("urpg_curated_all_profiles_orchestration_fixture");
+
+    nlohmann::json fixture;
+    fixture["name"] = "CuratedAllProfilesOrchestrationFixture";
+    fixture["commands"] = nlohmann::json::array();
+
+    nlohmann::json script = nlohmann::json::array();
+    for (size_t i = 0; i < specs.size(); ++i) {
+        const auto& spec = specs[i];
+        const std::string storeKey = "step_" + std::to_string(i);
+        const nlohmann::json args = nlohmann::json::array(
+            {nlohmann::json{
+                {"from", "arg"},
+                {"index", 0},
+                {"default", "orchestration_seed"},
+            }}
+        );
+
+        if ((i % 2) == 0) {
+            script.push_back(
+                {
+                    {"op", "invoke"},
+                    {"plugin", spec.pluginName},
+                    {"command", spec.commandName},
+                    {"args", args},
+                    {"store", storeKey},
+                    {"expect", "non_nil"},
+                }
+            );
+        } else {
+            script.push_back(
+                {
+                    {"op", "invokeByName"},
+                    {"name", spec.pluginName + "_" + spec.commandName},
+                    {"args", args},
+                    {"store", storeKey},
+                    {"expect", "non_nil"},
+                }
+            );
+        }
+    }
+    script.push_back({{"op", "returnObject"}});
+
+    fixture["commands"].push_back(
+        {
+            {"name", "runAll"},
+            {"script", std::move(script)},
+        }
+    );
+
+    writeTextFile(orchestrationFixture, fixture.dump(2));
+    REQUIRE(pm.loadPlugin(orchestrationFixture.string()));
+
+    const auto verifyRun = [&](const Value& runResult, const std::string& expectedSeed) {
+        REQUIRE(std::holds_alternative<Object>(runResult.v));
+        const auto& runObject = std::get<Object>(runResult.v);
+
+        for (size_t i = 0; i < specs.size(); ++i) {
+            const auto& spec = specs[i];
+            const std::string storeKey = "step_" + std::to_string(i);
+
+            INFO("Verify step: " << storeKey << " -> " << spec.pluginName << "." << spec.commandName);
+            REQUIRE(runObject.find(storeKey) != runObject.end());
+            REQUIRE(std::holds_alternative<Object>(runObject.at(storeKey).v));
+
+            const auto& stepObject = std::get<Object>(runObject.at(storeKey).v);
+
+            REQUIRE(stepObject.find("plugin") != stepObject.end());
+            REQUIRE(std::holds_alternative<std::string>(stepObject.at("plugin").v));
+            REQUIRE(std::get<std::string>(stepObject.at("plugin").v) == spec.pluginName);
+
+            REQUIRE(stepObject.find("command") != stepObject.end());
+            REQUIRE(std::holds_alternative<std::string>(stepObject.at("command").v));
+            REQUIRE(std::get<std::string>(stepObject.at("command").v) == spec.commandName);
+
+            REQUIRE(stepObject.find("profile") != stepObject.end());
+            REQUIRE(std::holds_alternative<std::string>(stepObject.at("profile").v));
+            REQUIRE(std::get<std::string>(stepObject.at("profile").v) == spec.expectedProfile);
+
+            const auto firstArgIt = stepObject.find("firstArg");
+            if (firstArgIt != stepObject.end()) {
+                REQUIRE(std::holds_alternative<std::string>(firstArgIt->second.v));
+                REQUIRE(std::get<std::string>(firstArgIt->second.v) == expectedSeed);
+            }
+        }
+    };
+
+    Value beforeReloadSeed;
+    beforeReloadSeed.v = std::string("all_profiles_before_reload");
+    const Value beforeReload =
+        pm.executeCommand("CuratedAllProfilesOrchestrationFixture", "runAll", {beforeReloadSeed});
+    verifyRun(beforeReload, "all_profiles_before_reload");
+
+    for (const auto& spec : specs) {
+        INFO("Reload fixture plugin: " << spec.pluginName);
+        REQUIRE(pm.reloadPlugin(spec.pluginName));
+    }
+    REQUIRE(pm.reloadPlugin("CuratedAllProfilesOrchestrationFixture"));
+    REQUIRE(pm.hasCommand("CuratedAllProfilesOrchestrationFixture", "runAll"));
+
+    Value afterReloadSeed;
+    afterReloadSeed.v = std::string("all_profiles_after_reload");
+    const Value afterReload =
+        pm.executeCommand("CuratedAllProfilesOrchestrationFixture", "runAll", {afterReloadSeed});
+    verifyRun(afterReload, "all_profiles_after_reload");
+
+    const Value byNameAfterReload = pm.executeCommandByName(
+        "CuratedAllProfilesOrchestrationFixture_runAll",
+        {afterReloadSeed}
+    );
+    verifyRun(byNameAfterReload, "all_profiles_after_reload");
+
+    REQUIRE(pm.exportFailureDiagnosticsJsonl().empty());
+
+    pm.clearFailureDiagnostics();
+    pm.unloadAllPlugins();
+
+    std::error_code ec;
+    std::filesystem::remove(orchestrationFixture, ec);
+}
+
 TEST_CASE("Compat fixtures: fixture script DSL supports branching/comparison/contains/logical flows",
           "[compat][fixtures]") {
     PluginManager& pm = PluginManager::instance();

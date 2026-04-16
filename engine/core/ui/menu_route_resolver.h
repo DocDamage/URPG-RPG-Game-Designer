@@ -36,23 +36,40 @@ public:
      * @brief Executes a jump to a specific route determined by the command.
      */
     bool resolve(const MenuCommandMeta& command) const {
-        if (command.route == MenuRouteTarget::Custom) {
-            auto it = _custom_routes.find(command.custom_route_id);
-            if (it != _custom_routes.end()) {
-                it->second(command);
-                return true;
-            }
-        } else {
-            auto it = _native_routes.find(command.route);
-            if (it != _native_routes.end()) {
-                it->second(command);
-                return true;
-            }
+        if (resolveTarget(command, command.route, command.custom_route_id)) {
+            return true;
+        }
+        if (resolveTarget(command, command.fallback_route, command.fallback_custom_route_id)) {
+            return true;
         }
         return false;
     }
 
 private:
+    bool resolveTarget(const MenuCommandMeta& command,
+                       MenuRouteTarget target,
+                       const std::string& customRouteId) const {
+        if (target == MenuRouteTarget::None) {
+            return false;
+        }
+
+        if (target == MenuRouteTarget::Custom) {
+            const auto it = _custom_routes.find(customRouteId);
+            if (it != _custom_routes.end()) {
+                it->second(command);
+                return true;
+            }
+            return false;
+        }
+
+        const auto it = _native_routes.find(target);
+        if (it != _native_routes.end()) {
+            it->second(command);
+            return true;
+        }
+        return false;
+    }
+
     std::map<MenuRouteTarget, RouteCallback> _native_routes;
     std::map<std::string, RouteCallback> _custom_routes;
 };

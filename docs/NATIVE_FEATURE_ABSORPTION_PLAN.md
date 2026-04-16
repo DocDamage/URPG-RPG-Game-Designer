@@ -101,6 +101,13 @@ Deliverables:
 
 Goal: convert existing seeded slices into full native delivery.
 
+Latest landed progress (2026-04-15):
+
+- Message/Text runtime ownership slice is active with native rich-text layout and message flow core.
+- WindowCompat bridge now emits backend-facing text draw commands (`RenderLayer::TextCommand`) from `Window_Base::drawText`.
+- Compat `Window_Message` parity surface and deterministic centered/right wrapped snapshot tests are active.
+- Remaining closure is MessageScene-native renderer ownership handoff and full backend text-command consumption across renderer tiers.
+
 Subsystem targets:
 
 1. UI/Menu Core
@@ -122,53 +129,58 @@ Goal: expand engine power for multi-genre projects while preserving deterministi
 
 ### 3.1 Gameplay Ability Framework
 
-- ability definitions, activation/cooldown/cost pipelines
-- gameplay tags and condition queries
-- state machines and transition guards
-- ability/effect diagnostics and replay-safe execution
+- [x] Gameplay tags and condition queries (hierarchical tag support implemented in `engine/core/ability/gameplay_tags.h`).
+- [x] Ability definitions, activation/cooldown/cost pipelines (implemented in `engine/core/ability/gameplay_ability.h` and `ability_system_component.h`).
+- [x] State machines and transition guards (implemented in `engine/core/ability/ability_state_machine.h`).
+- [x] Ability Inspector UI (implemented in `editor/ability/ability_inspector_panel.h`).
+- [x] Ability Tasks for async execution (loops/delays implemented in `engine/core/ability/ability_task.h`).
+- [x] Effect Modifiers and attribute math (implemented in `engine/core/ability/gameplay_effect.h`).
+- [ ] Ability/effect diagnostics and replay-safe execution.
 
 ### 3.2 Pattern Field Editor
 
-- painted 2D/3D pattern resources
-- reusable pattern presets for skills, items, placement, and interaction masks
-- pattern validation and preview in inspectors
+- [x] Painted 2D/3D pattern resources with JSON serialization.
+- [x] Reusable pattern presets (implemented in `engine/core/ability/pattern_field.h`).
+- [ ] Reusable pattern presets for skills, items, placement, and interaction masks
+- [ ] pattern validation and preview in inspectors
 
 ### 3.3 Modular Level Assembly
 
-- snap-connector block placement system
-- block libraries and thumbnail generation
-- importer conventions for connector metadata
-- deterministic placement validation
+- [x] Snap-connector block placement system (kernel implemented in `engine/core/level/level_assembly.h`).
+- [ ] block libraries and thumbnail generation
+- [ ] importer conventions for connector metadata
+- [ ] deterministic placement validation
 
 ### 3.4 Sprite Pipeline Toolkit
 
-- atlas generation/packing and trim/crop tooling
-- duplicate detection hooks and packing diagnostics
-- animation-sheet preview/tuning panel
-- build-time artifact generation for runtime consumption
+- [x] Atlas generation/packing and trim/crop tooling (CLI utility implemented in `tools/sprite_pipeline/`).
+- [x] Schema definition for atlas metadata (implemented in `content/schemas/sprite_atlas.schema.json`).
+- [ ] animation-sheet preview/tuning panel
+- [ ] build-time artifact generation for runtime consumption
 
 ### 3.5 Procedural Content Toolkit
 
-- dungeon/room/corridor generation primitives
-- FOV and visibility systems
-- encounter/scenario generators tied to deterministic seeds
+- [x] Dungeon/room/corridor generation primitives (baseline implemented in `engine/core/level/procedural_toolkit.h`).
+- [x] FOV and visibility systems (baseline implemented in `engine/core/level/fov_system.h`).
+- [ ] encounter/scenario generators tied to deterministic seeds
 
 ### 3.6 Optional 2.5D Presentation Lane
 
-- raycast camera/runtime mode as opt-in project mode
-- map authoring adapters for 2.5D projects
-- strict isolation from core 2D native contracts
+- [x] Raycast camera/runtime mode (baseline implemented in `engine/core/render/raycast_renderer.h`).
+- [ ] map authoring adapters for 2.5D projects
+- [ ] strict isolation from core 2D native contracts
 
 ### 3.7 Timeline/Animation Orchestration
 
-- keyframe/timeline authoring for scene and UI animation
-- transient animated effect spawning hooks
-- deterministic event-to-animation bindings
+- [x] Keyframe/timeline data model (implemented in `engine/core/animation/animation_clip.h`).
+- [ ] keyframe/timeline authoring for scene and UI animation
+- [ ] transient animated effect spawning hooks
+- [ ] deterministic event-to-animation bindings
 
 ### 3.8 Editor Productivity Utilities
 
-- selective adoption of high-value editor utilities
-- focus on maintainability and ownership fit, not bulk addon import
+- [x] Selective adoption of high-value editor utilities (implemented `editor/productivity/editor_utility_task.h`).
+- [ ] focus on maintainability and ownership fit, not bulk addon import
 
 ## Lane 4: Productization and release hardening
 
@@ -176,9 +188,9 @@ Goal: convert delivered systems into stable production paths.
 
 Deliverables:
 
-- migration wizard flow for imported projects
-- release-readiness matrix by subsystem
-- gate reports proving stability for native + compat lanes
+- [x] Migration wizard flow for imported projects (implemented as `MigrationWizardPanel` with subsystem-agnostic orchestration).
+- [ ] Release-readiness matrix by subsystem.
+- [ ] Gate reports proving stability for native + compat lanes.
 
 ## Milestone framing
 

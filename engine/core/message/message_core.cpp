@@ -332,58 +332,131 @@ void RichTextLayoutEngine::setLineHeight(int32_t height) {
     line_height_ = std::max(1, height);
 }
 
+void RichTextLayoutEngine::setMaxWidth(int32_t max_width) {
+    // 0 or negative means infinite/no wrapping
+    max_width_ = max_width; 
+}
+
+void RichTextLayoutEngine::setAlignment(MessageAlignment alignment) {
+    alignment_ = alignment;
+}
+
 RichTextLayoutResult RichTextLayoutEngine::layout(const std::string& text) const {
     RichTextLayoutResult result;
-    result.tokens = tokenize(text);
-    result.metrics.line_height = line_height_;
-
-    if (result.tokens.empty()) {
-        result.metrics.width = 0;
-        result.metrics.height = line_height_;
+    if (text.empty()) {
         result.metrics.line_count = 1;
+        result.metrics.height = line_height_;
         return result;
     }
 
-    int32_t line_width = 0;
-    int32_t line_height = line_height_;
+    auto raw_tokens = tokenize(text);
+    std::vector<RichTextToken> wrapped;
+    int32_t current_x = 0;
     int32_t font_size = base_font_size_;
-    int32_t total_height = 0;
-    int32_t line_count = 1;
 
-    for (const auto& token : result.tokens) {
-        switch (token.type) {
-            case RichTextTokenType::Text:
-                line_width += measurePlainText(token.text, font_size);
-                line_height = std::max(line_height, font_size + 8);
-                result.metrics.width = std::max(result.metrics.width, line_width);
-                break;
-            case RichTextTokenType::Icon:
-                line_width += kIconWidth + kIconSpacing;
-                line_height = std::max(line_height, kIconWidth);
-                result.metrics.width = std::max(result.metrics.width, line_width);
-                break;
-            case RichTextTokenType::Color:
-                break;
-            case RichTextTokenType::FontBigger:
-                font_size = std::min(kFontSizeMax, font_size + kFontStep);
-                line_height = std::max(line_height, font_size + 8);
-                break;
-            case RichTextTokenType::FontSmaller:
-                font_size = std::max(kFontSizeMin, font_size - kFontStep);
-                line_height = std::max(line_height, font_size + 8);
-                break;
-            case RichTextTokenType::NewLine:
-                total_height += line_height;
-                line_width = 0;
-                line_height = line_height_;
-                ++line_count;
-                break;
+    for (const auto& token : raw_tokens) {
+        if (token.type == RichTextTokenType::NewLine) {
+            wrapped.push_back(token);
+            current_x = 0;
+            continue;
+        }
+
+        if (token.type == RichTextTokenType::Text) {
+            std::string remaining = token.text;
+            while (!remaining.empty()) {
+                size_t cursor = 0;
+                int32_t word_w = 0;
+                while (cursor < remaining.size()) {
+                    const char32_t cp = decodeUtf8Codepoint(remaining, cursor);
+                    word_w += glyphAdvance(cp, font_size);
+                    if (cp == U' ' || cp == U'\t') break;
+                }
+                if (max_width_ > 0 && current_x + word_w > max_width_ && current_x > 0) {
+                    wrapped.push_back({RichTextTokenType::NewLine, "", 0});
+                    current_x = 0;
+                }
+                wrapped.push_back({RichTextTokenType::Text, remaining.substr(0, cursor), 0});
+                current_x += word_w;
+                remaining = remaining.substr(cursor);
+            }
+        } else if (token.type == RichTextTokenType::Icon) {
+            int32_t icon_w = kIconWidth + kIconSpacing;
+            if (max_width_ > 0 && current_x + icon_w > max_width_ && current_x > 0) {
+                wrapped.push_back({RichTextTokenType::NewLine, "", 0});
+                current_x = 0;
+            }
+            wrapped.push_back(token);
+            current_x += icon_w;
+        } else {
+            if (token.type == RichTextTokenType::FontBigger) font_size = std::min(kFontSizeMax, font_size + kFontStep);
+            else if (token.type == RichTextTokenType::FontSmaller) font_size = std::max(kFontSizeMin, font_size - kFontStep);
+            wrapped.push_back(token);
         }
     }
 
-    result.metrics.width = std::max(result.metrics.width, line_width);
-    result.metrics.height = total_height + line_height;
+    font_size = base_font_size_;
+    int32_t line_w = 0;
+    int32_t line_h = line_height_;
+    int32_t max_w = 0;
+    int32_t total_h = 0;
+    int32_t line_count = 0;
+    size_t line_start = 0;
+
+    const auto flush_line = [&](size_t end) {
+        max_w = std::max(max_w, line_w);
+        int32_t offset = 0;
+        if (max_width_ > 0) {
+            if (alignment_ == MessageAlignment::Center) offset = (max_width_ - line_w) / 2;
+            else if (alignment_ == MessageAlignment::Right) offset = max_width_ - line_w;
+        }
+        if (offset != 0) result.tokens.push_back({RichTextTokenType::LineOffset, "", offset});
+        for (size_t i = line_start; i < end; ++i) result.tokens.push_back(wrapped[i]);
+        total_h += line_h;
+        line_count++;
+    };
+
+    for (size_t i = 0; i < wrapped.size(); ++i) {
+        if (wrapped[i].type == RichTextTokenType::NewLine) {
+            flush_line(i);
+            result.tokens.push_back(wrapped[i]);
+            line_start = i + 1;
+            line_w = 0;
+            line_h = line_height_;
+            continue;
+        }
+        const auto& t = wrapped[i];
+        if (t.type == RichTextTokenType::Text) {
+            size_t cursor = 0;
+            while (cursor < t.text.size()) {
+                line_w += glyphAdvance(decodeUtf8Codepoint(t.text, cursor), font_size);
+            }
+        } else if (t.type == RichTextTokenType::Icon) {
+            line_w += kIconWidth + kIconSpacing;
+            line_h = std::max(line_h, (int32_t)kIconWidth);
+        } else if (t.type == RichTextTokenType::FontBigger) {
+            font_size = std::min(kFontSizeMax, font_size + kFontStep);
+            line_h = std::max(line_h, font_size + 8);
+        } else if (t.type == RichTextTokenType::FontSmaller) {
+            font_size = std::max(kFontSizeMin, font_size - kFontStep);
+            line_h = std::max(line_h, font_size + 8);
+        }
+    }
+
+    if (line_start < wrapped.size()) {
+        flush_line(wrapped.size());
+    } else if (wrapped.empty()) {
+        flush_line(0);
+    } else if (!wrapped.empty() && wrapped.back().type == RichTextTokenType::NewLine) {
+        // Ends on a newline, it already flushed in the loop.
+        // But RPG Maker usually considers a trailing newline as a new empty line.
+        // Let's check if we should add an empty line.
+        // For now, let's keep it consistent with the loop.
+    }
+
+    result.metrics.width = max_w;
+    result.metrics.height = total_h;
     result.metrics.line_count = line_count;
+    result.metrics.line_height = line_height_;
     return result;
 }
 
@@ -526,6 +599,54 @@ std::string RichTextLayoutEngine::resolveEscape(char command, int32_t arg) const
             break;
     }
     return "";
+}
+
+std::string RichTextLayoutEngine::resolveEscapes(const std::string& text) const {
+    std::string result;
+    size_t i = 0;
+    while (i < text.size()) {
+        const char ch = text[i];
+        if (ch != '\\') {
+            result.push_back(ch);
+            i++;
+            continue;
+        }
+
+        if (i + 1 >= text.size()) {
+            result.push_back('\\');
+            i++;
+            continue;
+        }
+
+        const char raw_command = text[i + 1];
+        if (raw_command == '\\') {
+            result.push_back('\\');
+            i += 2;
+            continue;
+        }
+
+        const char command = static_cast<char>(std::toupper(static_cast<unsigned char>(raw_command)));
+        size_t cursor = i + 2;
+        int32_t arg = 0;
+
+        if (command == 'V' || command == 'N' || command == 'P') {
+            if (parseBracketedInt(text, cursor, arg)) {
+                result += resolveEscape(command, arg);
+                i = cursor;
+                continue;
+            }
+        } else if (command == 'G') {
+            result += resolveEscape('G', 0);
+            i += 2;
+            continue;
+        }
+
+        // Keep other escapes as-is
+        result.push_back('\\');
+        result.push_back(raw_command);
+        i += 2;
+    }
+    return result;
 }
 
 void MessageFlowRunner::begin(std::vector<DialoguePage> pages) {

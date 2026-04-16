@@ -1,8 +1,30 @@
 # Message / Text Core Native-First Spec
 
 Date: 2026-04-14
-Status: initial draft
+Status: active implementation baseline (runtime/renderer bridge slices landed; editor/schema/migration/release closure pending)
 Scope: runtime ownership, editor ownership, schema, migration, diagnostics, and test anchors for native Message/Text Core absorption
+
+## Last landed progress (2026-04-15)
+
+- Native message/text runtime ownership slices are active in:
+  - `engine/core/message/message_core.*` (`MessageFlowRunner`, `RichTextLayoutEngine`, presentation variants, choice state)
+- Compat renderer bridge slices are active in:
+  - `runtimes/compat_js/window_compat.*`
+  - `Window_Base.drawText` emits backend-facing `RenderLayer::TextCommand` payloads
+  - `Window_Message.drawMessageBody` supports deterministic dialogue-body alignment parity (`left`/`center`/`right`)
+- Deterministic wrapped centered/right text placement snapshots are active in:
+  - `tests/unit/test_window_compat.cpp` (`[compat][window][snapshot]`)
+- Message editor and schema/migration slices are active in:
+  - `editor/message/message_inspector_*`
+  - `content/schemas/message_styles.schema.json` and related message schemas
+  - `engine/core/message/message_migration.*`
+
+## Next steps
+
+- Complete native MessageScene renderer ownership handoff so compat `Window_Message` is no longer the authoritative runtime path.
+- Complete backend text-command consumption across renderer tiers where text draw remains placeholder.
+- Finalize editor/schema/migration productization and add integration anchors beyond unit/snapshot checks.
+- Continue narrowing compat message behavior to import/verification bridge-only ownership.
 
 ## Purpose
 
@@ -18,6 +40,8 @@ Primary evidence currently comes from:
 - `Window_Base.drawTextEx` escape handling
 - `Window_Base.textWidth` and `Window_Base.textSize`
 - `Window_Base.drawActorFace`
+- `Window_Base.drawText` renderer command bridge (`RenderLayer::TextCommand`)
+- `Window_Message.drawMessageBody` centered/right alignment parity behavior
 
 These anchors show that the product needs first-class ownership of:
 
@@ -26,6 +50,7 @@ These anchors show that the product needs first-class ownership of:
 - portrait/face placement and clipping
 - namebox and message chrome rules
 - reload-safe message presentation state
+- backend text command emission with deterministic placement semantics
 
 ## Ownership boundary
 
@@ -170,6 +195,9 @@ The subsystem should inherit and later replace these evidence paths:
   - `textWidth`
   - `textSize`
   - `drawActorFace`
+  - `drawText` backend command emission
+  - `Window_Message` centered/right alignment parity
+  - wrapped centered/right `drawTextEx` snapshot-style placement assertions
 - future native tests should add:
   - dialogue schema migration tests
   - localized overflow snapshot tests
@@ -181,11 +209,46 @@ The subsystem should inherit and later replace these evidence paths:
 
 Phase 1 of Message / Text Core absorption should deliver:
 
-- native rich-text layout engine
-- native dialogue presentation variants for speaker, narration, and system text
-- portrait/namebox layout model
-- dialogue inspector and preview panel
-- import mapping for current Window parity and routed message-text anchor behavior
+- [x] native rich-text layout engine
+- [x] native dialogue presentation variants for speaker, narration, and system text
+- [x] portrait/namebox layout model
+- [x] dialogue inspector and preview panel
+- [x] import mapping for current Window parity and routed message-text anchor behavior
+- [x] compat renderer bridge from `Window_Base.drawText` to backend-facing text commands
+- [x] compat `Window_Message` parity slice for centered/right dialogue body alignment
+- [x] wrapped centered/right multiline placement snapshot coverage in WindowCompat tests
+- [ ] native MessageScene UI renderer ownership replacing compat-window bridge as the authoritative runtime path
+- [ ] renderer-tier implementation closure for backend text command consumption where still placeholder
+
+<!-- WAVE1_CHECKLIST_START -->
+## Wave 1 Closure Checklist (Canonical)
+
+_Managed by `tools/docs/sync-wave1-spec-checklist.ps1`. Do not edit manually._
+_Canonical source: [WAVE1_SUBSYSTEM_CLOSURE_CHECKLIST.md](WAVE1_SUBSYSTEM_CLOSURE_CHECKLIST.md)_
+
+### Universal closure gates
+
+- [ ] Runtime ownership is authoritative and compat behavior for this subsystem is bridge-only.
+- [ ] Editor productization is complete (inspect/edit/preview/validate) with diagnostics surfaced.
+- [ ] Schema contracts and migration/import paths are explicit, versioned, and test-backed.
+- [ ] Deterministic validation exists (unit + integration + snapshot where layout/presentation applies).
+- [ ] Failure-path diagnostics and safe-mode/bounded fallback behavior are explicitly documented and tested.
+- [ ] Release evidence is published in status docs and gate snapshots are recorded.
+
+### Message / Text Core specific closure gates
+
+- [ ] MessageScene-native renderer ownership is authoritative (compat window bridge no longer primary).
+- [ ] Text layout + alignment behavior is deterministic across runtime and preview, including wrapped snapshot anchors.
+- [ ] Escape/token/schema migration and diagnostics remain explicit, typed, and test-backed.
+
+### Closure sign-off artifact checklist
+
+- [ ] Runtime owner files listed (header + source).
+- [ ] Editor owner files listed.
+- [ ] Schema and migration files listed.
+- [ ] Latest deterministic test outputs recorded.
+- [ ] README.md, docs/PROGRAM_COMPLETION_STATUS.md, and URPG_Blueprint_v3_1_Integrated.md updated.
+<!-- WAVE1_CHECKLIST_END -->
 
 ## Non-goals for this slice
 

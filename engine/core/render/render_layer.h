@@ -4,6 +4,7 @@
 #include <string>
 #include <memory>
 #include <unordered_map>
+#include <cstdint>
 
 namespace urpg {
 
@@ -22,6 +23,7 @@ enum class RenderCmdType : uint8_t {
  * @brief Base structure for a generic render command.
  */
 struct RenderCommand {
+    virtual ~RenderCommand() = default;
     RenderCmdType type;
     int32_t zOrder = 0;
     float x = 0.0f;
@@ -48,6 +50,21 @@ struct TileCommand : public RenderCommand {
     TileCommand() { type = RenderCmdType::Tile; }
     std::string tilesetId;
     int32_t tileIndex = 0;
+};
+
+/**
+ * @brief Command to draw text via the renderer backend.
+ */
+struct TextCommand : public RenderCommand {
+    TextCommand() { type = RenderCmdType::Text; }
+    std::string text;
+    std::string fontFace;
+    int32_t fontSize = 22;
+    int32_t maxWidth = 0;
+    uint8_t r = 255;
+    uint8_t g = 255;
+    uint8_t b = 255;
+    uint8_t a = 255;
 };
 
 /**
