@@ -30,6 +30,7 @@ public:
         
         world_.AddComponent(id, TransformComponent{});
         world_.AddComponent(id, VisualComponent{});
+        world_.AddComponent(id, VelocityComponent{});
         
         return id;
     }
@@ -37,10 +38,18 @@ public:
     /**
      * @brief Set location of an actor.
      */
-    void SetActorPosition(EntityID id, int32_t x, int32_t y) {
+    void SetActorPosition(EntityID id, Fixed32 x, Fixed32 y, Fixed32 z = Fixed32::FromInt(0)) {
         if (auto* transform = world_.GetComponent<TransformComponent>(id)) {
-            transform->x = x;
-            transform->y = y;
+            transform->position = {x, y, z};
+        }
+    }
+
+    /**
+     * @brief Set velocity of an actor.
+     */
+    void SetActorVelocity(EntityID id, Fixed32 vx, Fixed32 vy, Fixed32 vz = Fixed32::FromInt(0)) {
+        if (auto* velocity = world_.GetComponent<VelocityComponent>(id)) {
+            velocity->linear = {vx, vy, vz};
         }
     }
 

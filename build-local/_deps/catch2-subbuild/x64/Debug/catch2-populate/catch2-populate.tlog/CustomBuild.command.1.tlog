@@ -1,0 +1,150 @@
+^C:\USERS\DFERR\DEV\URPG - RPG GAME MAKER\BUILD-LOCAL\_DEPS\CATCH2-SUBBUILD\CMAKEFILES\6DBD3A801F7EB89C09347CDC6297407D\CATCH2-POPULATE-MKDIR.RULE
+setlocal
+"C:\Program Files\CMake\bin\cmake.exe" -Dcfgdir=/Debug -P "C:/Users/dferr/dev/URPG - RPG Game Maker/build-local/_deps/catch2-subbuild/catch2-populate-prefix/tmp/catch2-populate-mkdirs.cmake"
+if %errorlevel% neq 0 goto :cmEnd
+"C:\Program Files\CMake\bin\cmake.exe" -E touch "C:/Users/dferr/dev/URPG - RPG Game Maker/build-local/_deps/catch2-subbuild/catch2-populate-prefix/src/catch2-populate-stamp/Debug/catch2-populate-mkdir"
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
+^C:\USERS\DFERR\DEV\URPG - RPG GAME MAKER\BUILD-LOCAL\_DEPS\CATCH2-SUBBUILD\CMAKEFILES\6DBD3A801F7EB89C09347CDC6297407D\CATCH2-POPULATE-DOWNLOAD.RULE
+setlocal
+cd "C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\_deps"
+if %errorlevel% neq 0 goto :cmEnd
+C:
+if %errorlevel% neq 0 goto :cmEnd
+"C:\Program Files\CMake\bin\cmake.exe" -DCMAKE_MESSAGE_LOG_LEVEL=VERBOSE -P "C:/Users/dferr/dev/URPG - RPG Game Maker/build-local/_deps/catch2-subbuild/catch2-populate-prefix/tmp/catch2-populate-gitclone.cmake"
+if %errorlevel% neq 0 goto :cmEnd
+"C:\Program Files\CMake\bin\cmake.exe" -E touch "C:/Users/dferr/dev/URPG - RPG Game Maker/build-local/_deps/catch2-subbuild/catch2-populate-prefix/src/catch2-populate-stamp/Debug/catch2-populate-download"
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
+^C:\USERS\DFERR\DEV\URPG - RPG GAME MAKER\BUILD-LOCAL\_DEPS\CATCH2-SUBBUILD\CMAKEFILES\6DBD3A801F7EB89C09347CDC6297407D\CATCH2-POPULATE-UPDATE.RULE
+setlocal
+cd "C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\_deps\catch2-src"
+if %errorlevel% neq 0 goto :cmEnd
+C:
+if %errorlevel% neq 0 goto :cmEnd
+"C:\Program Files\CMake\bin\cmake.exe" -Dcan_fetch=YES -DCMAKE_MESSAGE_LOG_LEVEL=VERBOSE -P "C:/Users/dferr/dev/URPG - RPG Game Maker/build-local/_deps/catch2-subbuild/catch2-populate-prefix/tmp/catch2-populate-gitupdate.cmake"
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
+^C:\USERS\DFERR\DEV\URPG - RPG GAME MAKER\BUILD-LOCAL\_DEPS\CATCH2-SUBBUILD\CMAKEFILES\6DBD3A801F7EB89C09347CDC6297407D\CATCH2-POPULATE-PATCH.RULE
+setlocal
+"C:\Program Files\CMake\bin\cmake.exe" -E echo_append
+if %errorlevel% neq 0 goto :cmEnd
+"C:\Program Files\CMake\bin\cmake.exe" -E touch "C:/Users/dferr/dev/URPG - RPG Game Maker/build-local/_deps/catch2-subbuild/catch2-populate-prefix/src/catch2-populate-stamp/Debug/catch2-populate-patch"
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
+^C:\USERS\DFERR\DEV\URPG - RPG GAME MAKER\BUILD-LOCAL\_DEPS\CATCH2-SUBBUILD\CMAKEFILES\6DBD3A801F7EB89C09347CDC6297407D\CATCH2-POPULATE-CONFIGURE.RULE
+setlocal
+cd "C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\_deps\catch2-build"
+if %errorlevel% neq 0 goto :cmEnd
+C:
+if %errorlevel% neq 0 goto :cmEnd
+"C:\Program Files\CMake\bin\cmake.exe" -E echo_append
+if %errorlevel% neq 0 goto :cmEnd
+"C:\Program Files\CMake\bin\cmake.exe" -E touch "C:/Users/dferr/dev/URPG - RPG Game Maker/build-local/_deps/catch2-subbuild/catch2-populate-prefix/src/catch2-populate-stamp/Debug/catch2-populate-configure"
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
+^C:\USERS\DFERR\DEV\URPG - RPG GAME MAKER\BUILD-LOCAL\_DEPS\CATCH2-SUBBUILD\CMAKEFILES\6DBD3A801F7EB89C09347CDC6297407D\CATCH2-POPULATE-BUILD.RULE
+setlocal
+cd "C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\_deps\catch2-build"
+if %errorlevel% neq 0 goto :cmEnd
+C:
+if %errorlevel% neq 0 goto :cmEnd
+"C:\Program Files\CMake\bin\cmake.exe" -E echo_append
+if %errorlevel% neq 0 goto :cmEnd
+"C:\Program Files\CMake\bin\cmake.exe" -E touch "C:/Users/dferr/dev/URPG - RPG Game Maker/build-local/_deps/catch2-subbuild/catch2-populate-prefix/src/catch2-populate-stamp/Debug/catch2-populate-build"
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
+^C:\USERS\DFERR\DEV\URPG - RPG GAME MAKER\BUILD-LOCAL\_DEPS\CATCH2-SUBBUILD\CMAKEFILES\6DBD3A801F7EB89C09347CDC6297407D\CATCH2-POPULATE-INSTALL.RULE
+setlocal
+cd "C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\_deps\catch2-build"
+if %errorlevel% neq 0 goto :cmEnd
+C:
+if %errorlevel% neq 0 goto :cmEnd
+"C:\Program Files\CMake\bin\cmake.exe" -E echo_append
+if %errorlevel% neq 0 goto :cmEnd
+"C:\Program Files\CMake\bin\cmake.exe" -E touch "C:/Users/dferr/dev/URPG - RPG Game Maker/build-local/_deps/catch2-subbuild/catch2-populate-prefix/src/catch2-populate-stamp/Debug/catch2-populate-install"
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
+^C:\USERS\DFERR\DEV\URPG - RPG GAME MAKER\BUILD-LOCAL\_DEPS\CATCH2-SUBBUILD\CMAKEFILES\6DBD3A801F7EB89C09347CDC6297407D\CATCH2-POPULATE-TEST.RULE
+setlocal
+cd "C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\_deps\catch2-build"
+if %errorlevel% neq 0 goto :cmEnd
+C:
+if %errorlevel% neq 0 goto :cmEnd
+"C:\Program Files\CMake\bin\cmake.exe" -E echo_append
+if %errorlevel% neq 0 goto :cmEnd
+"C:\Program Files\CMake\bin\cmake.exe" -E touch "C:/Users/dferr/dev/URPG - RPG Game Maker/build-local/_deps/catch2-subbuild/catch2-populate-prefix/src/catch2-populate-stamp/Debug/catch2-populate-test"
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
+^C:\USERS\DFERR\DEV\URPG - RPG GAME MAKER\BUILD-LOCAL\_DEPS\CATCH2-SUBBUILD\CMAKEFILES\3F3B760D30ABB7902B9F3497DA7BE7F3\CATCH2-POPULATE-COMPLETE.RULE
+setlocal
+"C:\Program Files\CMake\bin\cmake.exe" -E make_directory "C:/Users/dferr/dev/URPG - RPG Game Maker/build-local/_deps/catch2-subbuild/CMakeFiles/Debug"
+if %errorlevel% neq 0 goto :cmEnd
+"C:\Program Files\CMake\bin\cmake.exe" -E touch "C:/Users/dferr/dev/URPG - RPG Game Maker/build-local/_deps/catch2-subbuild/CMakeFiles/Debug/catch2-populate-complete"
+if %errorlevel% neq 0 goto :cmEnd
+"C:\Program Files\CMake\bin\cmake.exe" -E touch "C:/Users/dferr/dev/URPG - RPG Game Maker/build-local/_deps/catch2-subbuild/catch2-populate-prefix/src/catch2-populate-stamp/Debug/catch2-populate-done"
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
+^C:\USERS\DFERR\DEV\URPG - RPG GAME MAKER\BUILD-LOCAL\_DEPS\CATCH2-SUBBUILD\CMAKEFILES\6D9957CE5F483241B951F56162F8C8E3\CATCH2-POPULATE.RULE
+setlocal
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
+^C:\USERS\DFERR\DEV\URPG - RPG GAME MAKER\BUILD-LOCAL\_DEPS\CATCH2-SUBBUILD\CMAKELISTS.TXT
+setlocal
+"C:\Program Files\CMake\bin\cmake.exe" "-SC:/Users/dferr/dev/URPG - RPG Game Maker/build-local/_deps/catch2-subbuild" "-BC:/Users/dferr/dev/URPG - RPG Game Maker/build-local/_deps/catch2-subbuild" --check-stamp-file "C:/Users/dferr/dev/URPG - RPG Game Maker/build-local/_deps/catch2-subbuild/CMakeFiles/generate.stamp"
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd

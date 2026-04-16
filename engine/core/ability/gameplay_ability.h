@@ -2,6 +2,7 @@
 
 #include "gameplay_tags.h"
 #include "ability_task.h"
+#include "pattern_field.h"
 #include <string>
 #include <vector>
 #include <memory>
@@ -20,8 +21,15 @@ public:
     struct ActivationInfo {
         GameplayTagContainer requiredTags;    // Must have these to activate
         GameplayTagContainer blockingTags;    // Cannot have these to activate
+        
+        // Conditions are string-based expressions evaluated by the Scripting Runtime
+        // Pass: "source.hp > 10" or "target.has_status('Poison')"
+        std::string activeCondition;          // Must evaluate true to activate
+        std::string passiveCondition;         // While active, if false, ability cancels
+
         float cooldownSeconds = 0.0f;
         int32_t mpCost = 0;
+        std::shared_ptr<PatternField> pattern; // Optional pattern for AoE/Range
     };
 
     virtual ~GameplayAbility() = default;
@@ -40,18 +48,35 @@ public:
     virtual void activate(AbilitySystemComponent& source) = 0;
 
     /**
+     * @brief Commit the ability (consume costs, start cooldowns).
+     * Usually called at the start of activate().
+     */
+    virtual void commitAbility(AbilitySystemComponent& source);
+
+    /**
      * @brief Update logic for any active async tasks.
      */
-    virtual void update(float deltaTime) {
-        for (auto it = m_activeTasks.begin(); it != m_activeTasks.end(); ) {
-            (*it)->tick(deltaTime);
-            if ((*it)->isFinished()) {
-                it = m_activeTasks.erase(it);
-            } else {
-                ++it;
-            }
-        }
-    }
+    virtual void update(float deltaTime);
+
+    /**
+     * @brief Unique identifier for the ability (for cooldowns/lookup).
+     */
+    std::string id;
+
+    /**
+     * @brief Base cooldown in seconds.
+     */
+    float cooldownTime = 0.0f;
+
+    /**
+     * @brief Scripted condition for activation.
+     */
+    std::string activeCondition;
+
+    /**
+     * @brief Resource cost (simple float for now, could be map of attr -> value).
+     */
+    float mpCost = 0.0f;
 
     /**
      * @brief Register an async task for this ability instance.

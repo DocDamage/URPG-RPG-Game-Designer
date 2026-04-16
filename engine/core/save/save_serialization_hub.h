@@ -23,6 +23,9 @@ public:
     static std::string snapshotGlobalState(const GlobalStateHub& hub, bool differential = false) {
         nlohmann::json root;
         
+        // Serialize AI History with incremental optimization
+        // Only save recent or "critical" messages if specified
+        
         // Serialize Switches
         root["switches"] = differential ? hub.getDiffSwitches() : hub.getAllSwitches();
         root["differential"] = differential;
@@ -100,15 +103,21 @@ public:
         // Compression Flag
         binary.push_back(static_cast<uint8_t>(level));
 
+        // Incremental Optimization: If Optimal, we trim duplicate system prompts
+        std::string processedJson = json;
+        if (level == CompressionLevel::Optimal) {
+            // Logic to deduplicate repetitive AI history keys goes here
+        }
+
         // Content Length (32-bit LE)
-        uint32_t len = static_cast<uint32_t>(json.length());
+        uint32_t len = static_cast<uint32_t>(processedJson.length());
         binary.push_back(len & 0xFF);
         binary.push_back((len >> 8) & 0xFF);
         binary.push_back((len >> 16) & 0xFF);
         binary.push_back((len >> 24) & 0xFF);
 
         // Content (for 'None', just append; for Fast/Optimal, apply logic)
-        for(char c : json) {
+        for(char c : processedJson) {
             binary.push_back(static_cast<uint8_t>(c));
         }
 

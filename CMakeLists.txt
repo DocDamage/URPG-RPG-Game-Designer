@@ -106,12 +106,16 @@ add_library(urpg_core
     editor/message/message_inspector_panel.cpp
     editor/ui/menu_inspector_model.cpp
     editor/ui/menu_inspector_panel.cpp
+    editor/ui/menu_preview_panel.cpp
     editor/ability/ability_inspector_model.cpp
     editor/ability/ability_inspector_panel.cpp
     editor/ability/pattern_field_model.cpp
     editor/ability/pattern_field_panel.cpp
     engine/core/ability/gameplay_ability.cpp
     engine/core/ability/ability_state_machine.cpp
+    engine/core/ability/pattern_field.cpp
+    engine/core/ability/pattern_field_presets.cpp
+    engine/core/level/level_assembly.cpp
     engine/core/ui/menu_serializer.cpp
     engine/core/scene/battle_scene.cpp
     engine/core/scene/map_scene.cpp
@@ -220,6 +224,21 @@ add_executable(urpg_tests
     tests/unit/test_fixed32.cpp
     tests/unit/test_frame_budget.cpp
     tests/unit/test_ecs_world.cpp
+    tests/unit/test_ai_system.cpp
+    tests/unit/test_movement_system.cpp
+    tests/unit/test_player_control_system.cpp
+    tests/unit/test_collision_system.cpp
+    tests/unit/test_lighting_system.cpp
+    tests/unit/test_camera_system.cpp
+    tests/unit/test_camera_follow_system.cpp
+    tests/unit/test_camera_shake_system.cpp
+    tests/unit/test_animation_system.cpp
+    tests/unit/test_system_orchestrator.cpp
+    tests/unit/test_interaction_system.cpp
+    tests/unit/test_health_system.cpp
+    tests/unit/test_progression_system.cpp
+    tests/unit/test_status_effects.cpp
+    tests/unit/test_trigger_system.cpp
     tests/unit/test_combat_calc.cpp
     tests/unit/test_battle_core.cpp
     tests/unit/test_bridge_roundtrip.cpp
@@ -267,6 +286,19 @@ add_executable(urpg_tests
     tests/unit/test_menu_legacy_import.cpp
     tests/unit/test_state_audio_sync.cpp
     tests/unit/test_scene_manager.cpp
+    tests/unit/test_gameplay_tags.cpp
+    tests/unit/test_ability_activation.cpp
+    tests/unit/test_pattern_field.cpp
+    tests/unit/test_wave3_gaf.cpp
+    tests/unit/test_level_assembly.cpp
+    tests/unit/test_debug_crash.cpp
+    tests/unit/test_audio_inspector.cpp
+    tests/unit/test_audio_resolver.cpp
+    tests/unit/test_save_state_sync.cpp
+    tests/unit/test_battle_migration.cpp
+    tests/unit/test_menu_migration_logic.cpp
+    tests/unit/test_migration_wizard.cpp
+    tests/unit/test_ai_bridge_regex.cpp
     tests/engine/core/test_render_assets.cpp
     tests/engine/core/test_engine_shell.cpp
 )

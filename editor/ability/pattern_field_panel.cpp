@@ -35,9 +35,9 @@ void PatternFieldPanel::render() {
         for (int x = bounds.minX; x <= bounds.maxX; ++x) {
             bool isActive = m_model.isPointSelected(x, y);
             if (x == 0 && y == 0) {
-                std::cout << (isActive ? "[O]" : "[.]");
+                std::cout << (isActive ? " [O]" : " [.]");
             } else {
-                std::cout << (isActive ? "[X]" : "[ ]");
+                std::cout << (isActive ? " [X]" : " [ ]");
             }
         }
         std::cout << "\n";

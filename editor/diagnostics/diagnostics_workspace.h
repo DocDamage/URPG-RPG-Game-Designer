@@ -73,7 +73,7 @@ public:
     void clearMenuRuntime();
     void bindAudioRuntime(const urpg::audio::AudioCore& core);
     void clearAudioRuntime();
-    void bindAbilityRuntime(const urpg::AbilitySystemComponent& asc);
+    void bindAbilityRuntime(const urpg::ability::AbilitySystemComponent& asc);
     void clearAbilityRuntime();
     void ingestEventAuthorityDiagnosticsJsonl(std::string_view diagnostics_jsonl);
     void clearEventAuthorityDiagnostics();
@@ -100,7 +100,10 @@ private:
     urpg::EventAuthorityPanel event_authority_panel_;
     MessageInspectorPanel message_panel_;
     BattleInspectorPanel battle_panel_;
-    MenuInspectorPanel menu_panel_;
+    
+    std::shared_ptr<MenuInspectorModel> menu_model_;
+    std::unique_ptr<MenuInspectorPanel> menu_panel_;
+
     AudioInspectorPanel audio_panel_;
     AbilityInspectorPanel ability_panel_;
     MigrationWizardPanel migration_wizard_panel_;

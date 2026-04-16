@@ -1,0 +1,262 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="17.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_engine_shell.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_global_state.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_semver.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_fixed32.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_frame_budget.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_ecs_world.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_ai_system.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_movement_system.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_player_control_system.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_collision_system.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_lighting_system.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_camera_system.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_camera_follow_system.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_camera_shake_system.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_animation_system.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_system_orchestrator.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_interaction_system.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_health_system.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_progression_system.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_status_effects.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_trigger_system.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_combat_calc.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_battle_core.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_bridge_roundtrip.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_thread_roles.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_render_tier.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_save_journal.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_canonical_json.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_migration_runner.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_source_authority.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_diagnostics_facade.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_save_catalog.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_save_inspector_model.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_save_inspector_panel.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_save_recovery.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_save_runtime.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_save_serialization.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_battle_inspector_model.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_battle_preview_panel.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_battle_inspector_panel.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_event_edit_guard.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_event_authority_diagnostics.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_event_authority_panel.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_diagnostics_workspace.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_event_runtime.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_debug_session.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_quickjs_runtime.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_window_compat.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_compat_report_panel.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_battlemgr.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_battle_scene_native.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_data_manager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_audio_manager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_input_manager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_plugin_manager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_menu_core.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_input_core.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_audio_core.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_message_text_core.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_message_migration.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_message_schema_contracts.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_message_inspector_model.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_message_inspector_panel.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_menu_inspector_model.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_menu_legacy_import.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_state_audio_sync.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_scene_manager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_gameplay_tags.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_ability_activation.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_pattern_field.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_wave3_gaf.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_level_assembly.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_debug_crash.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_audio_inspector.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_audio_resolver.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_save_state_sync.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_battle_migration.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_menu_migration_logic.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_migration_wizard.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_ai_bridge_regex.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\engine\core\test_render_assets.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\engine\core\test_engine_shell.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="C:\Users\dferr\dev\URPG - RPG Game Maker\CMakeLists.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Natvis Include="C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\_deps\nlohmann_json-src\nlohmann_json.natvis" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{F0EFE517-62A7-3DFB-A636-BA1FD15D248F}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

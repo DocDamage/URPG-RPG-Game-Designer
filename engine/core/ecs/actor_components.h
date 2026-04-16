@@ -1,5 +1,6 @@
 #pragma once
 
+#include "engine/core/math/vector3.h"
 #include <string>
 #include <vector>
 #include <cstdint>
@@ -33,11 +34,20 @@ struct ActorComponent {
 };
 
 /**
- * @brief Component for position on the map (tiles).
+ * @brief Component for velocity for entities that move.
+ */
+struct VelocityComponent {
+    Vector3 linear;
+    Vector3 angular;
+};
+
+/**
+ * @brief Component for position on the map (tiles or world-space).
  */
 struct TransformComponent {
-    int32_t x = 0;
-    int32_t y = 0;
+    Vector3 position;
+    Vector3 rotation;
+    Vector3 scale = {Fixed32::FromInt(1), Fixed32::FromInt(1), Fixed32::FromInt(1)};
 };
 
 /**

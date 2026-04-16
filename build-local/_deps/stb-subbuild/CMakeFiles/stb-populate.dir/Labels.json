@@ -1,0 +1,46 @@
+{
+	"sources" : 
+	[
+		{
+			"file" : "C:/Users/dferr/dev/URPG - RPG Game Maker/build-local/_deps/stb-subbuild/CMakeFiles/stb-populate"
+		},
+		{
+			"file" : "C:/Users/dferr/dev/URPG - RPG Game Maker/build-local/_deps/stb-subbuild/CMakeFiles/5d8c9cd3775eb5024ab13e27a724b28e/stb-populate.rule"
+		},
+		{
+			"file" : "C:/Users/dferr/dev/URPG - RPG Game Maker/build-local/_deps/stb-subbuild/CMakeFiles/0d16ecf196b16f13ba9aeba749619185/stb-populate-complete.rule"
+		},
+		{
+			"file" : "C:/Users/dferr/dev/URPG - RPG Game Maker/build-local/_deps/stb-subbuild/CMakeFiles/925e552210f8958f89bf049cbe5b1f93/stb-populate-build.rule"
+		},
+		{
+			"file" : "C:/Users/dferr/dev/URPG - RPG Game Maker/build-local/_deps/stb-subbuild/CMakeFiles/925e552210f8958f89bf049cbe5b1f93/stb-populate-configure.rule"
+		},
+		{
+			"file" : "C:/Users/dferr/dev/URPG - RPG Game Maker/build-local/_deps/stb-subbuild/CMakeFiles/925e552210f8958f89bf049cbe5b1f93/stb-populate-download.rule"
+		},
+		{
+			"file" : "C:/Users/dferr/dev/URPG - RPG Game Maker/build-local/_deps/stb-subbuild/CMakeFiles/925e552210f8958f89bf049cbe5b1f93/stb-populate-install.rule"
+		},
+		{
+			"file" : "C:/Users/dferr/dev/URPG - RPG Game Maker/build-local/_deps/stb-subbuild/CMakeFiles/925e552210f8958f89bf049cbe5b1f93/stb-populate-mkdir.rule"
+		},
+		{
+			"file" : "C:/Users/dferr/dev/URPG - RPG Game Maker/build-local/_deps/stb-subbuild/CMakeFiles/925e552210f8958f89bf049cbe5b1f93/stb-populate-patch.rule"
+		},
+		{
+			"file" : "C:/Users/dferr/dev/URPG - RPG Game Maker/build-local/_deps/stb-subbuild/CMakeFiles/925e552210f8958f89bf049cbe5b1f93/stb-populate-test.rule"
+		},
+		{
+			"file" : "C:/Users/dferr/dev/URPG - RPG Game Maker/build-local/_deps/stb-subbuild/CMakeFiles/925e552210f8958f89bf049cbe5b1f93/stb-populate-update.rule"
+		}
+	],
+	"target" : 
+	{
+		"labels" : 
+		[
+			"stb-populate"
+		],
+		"name" : "stb-populate"
+	}
+}

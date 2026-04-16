@@ -3,8 +3,10 @@
 #include "platform_surface.h"
 #include "engine/core/render/render_tier.h"
 #include "engine/core/sprite_batcher.h"
+#include "engine/core/render/render_layer.h"
 #include <vector>
 #include <string>
+#include <memory>
 
 namespace urpg {
 
@@ -42,6 +44,11 @@ public:
      * @brief End the current frame. Swaps buffers.
      */
     virtual void endFrame() = 0;
+
+    /**
+     * @brief Processes a list of generic render commands (sprites, text, etc.).
+     */
+    virtual void processCommands(const std::vector<std::shared_ptr<RenderCommand>>& commands) = 0;
 
     /**
      * @brief Shuts down the renderer and releases resources.

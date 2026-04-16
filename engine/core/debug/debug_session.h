@@ -101,6 +101,16 @@ public:
 
     const CallStack& Stack() const;
 
+    /**
+     * @brief Snapshots the current call stack for AI/External analysis.
+     */
+    std::vector<DebugFrame> SnapshotStack() const { return stack_.Frames(); }
+
+    /**
+     * @brief Snapshots the current watch table for AI/External analysis.
+     */
+    std::vector<WatchValue> SnapshotWatches() const { return watches_.SnapshotSorted(); }
+
 private:
     BreakpointStore breakpoints_;
     WatchTable watches_;

@@ -7,7 +7,9 @@
 
 namespace urpg {
 
-class AbilitySystemComponent;
+namespace ability {
+    class AbilitySystemComponent;
+}
 
 /**
  * Base class for asynchronous actions during an ability (e.g., waiting for time, an input, or an event).
@@ -16,7 +18,7 @@ class AbilityTask {
 public:
     virtual ~AbilityTask() = default;
 
-    virtual void activate(AbilitySystemComponent& asc) = 0;
+    virtual void activate(ability::AbilitySystemComponent& asc) = 0;
     virtual void tick(float deltaTime) = 0;
     virtual bool isFinished() const = 0;
 
@@ -30,7 +32,7 @@ class AbilityTask_WaitTime : public AbilityTask {
 public:
     AbilityTask_WaitTime(float duration) : m_duration(duration) {}
 
-    void activate(AbilitySystemComponent& asc) override {
+    void activate(ability::AbilitySystemComponent& asc) override {
         m_elapsed = 0.0f;
     }
 

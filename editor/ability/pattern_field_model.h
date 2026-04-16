@@ -3,6 +3,11 @@
 #include "engine/core/ability/pattern_field.h"
 #include <vector>
 #include <memory>
+#include <string>
+
+namespace urpg {
+    class PatternField;
+}
 
 namespace urpg::editor {
 
@@ -23,9 +28,11 @@ public:
 
     void togglePoint(int32_t x, int32_t y);
     void clearPattern();
+    void resizeViewport(int32_t newSize);
+    void setName(const std::string& name);
 
     GridBounds getViewportBounds() const;
-    void setViewportSize(int32_t size); // e.g. 5x5, 7x7
+    int32_t getViewportSize() const { return m_viewportSize; }
 
     bool isPointSelected(int32_t x, int32_t y) const;
 

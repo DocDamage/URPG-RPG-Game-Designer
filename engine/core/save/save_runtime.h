@@ -32,6 +32,7 @@ struct RuntimeSaveLoadResult {
 class RuntimeSaveLoader {
 public:
     static RuntimeSaveLoadResult Load(const RuntimeSaveLoadRequest& request);
+    static bool Save(const RuntimeSaveLoadRequest& request, const std::string& payload);
 };
 
 } // namespace urpg

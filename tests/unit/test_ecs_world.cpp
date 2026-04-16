@@ -36,11 +36,11 @@ TEST_CASE("ActorManager can create and modify actors", "[ecs][actor]") {
     }
 
     SECTION("Actor components can be modified") {
-        actorMgr.SetActorPosition(heroId, 10, 20);
+        actorMgr.SetActorPosition(heroId, urpg::Fixed32::FromInt(10), urpg::Fixed32::FromInt(20));
         auto* transform = world.GetComponent<urpg::TransformComponent>(heroId);
         REQUIRE(transform != nullptr);
-        REQUIRE(transform->x == 10);
-        REQUIRE(transform->y == 20);
+        REQUIRE(transform->position.x == urpg::Fixed32::FromInt(10));
+        REQUIRE(transform->position.y == urpg::Fixed32::FromInt(20));
     }
 }
 

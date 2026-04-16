@@ -34,13 +34,9 @@ public:
     void beginFrame() override;
     void renderBatches(const std::vector<SpriteDrawData>& batches) override;
     void endFrame() override;
+    void processCommands(const std::vector<std::shared_ptr<RenderCommand>>& commands) override;
     void shutdown() override;
     void onResize(int width, int height) override;
-
-    /**
-     * @brief Processes the current frame's RenderLayer commands.
-     */
-    void processCommands(const std::vector<std::shared_ptr<RenderCommand>>& commands);
 
     /**
      * @brief Loads a texture file into GPU memory and returns a registry reference.

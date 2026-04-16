@@ -805,6 +805,12 @@ void MessageFlowRunner::enterCurrentPage() {
         state_ = MessageFlowState::Completed;
         return;
     }
+
+    const auto& page = pages_[page_index_];
+    if (!page.command.empty() && command_executor_) {
+        command_executor_(page.command);
+    }
+
     state_ = MessageFlowState::Presenting;
 }
 

@@ -17,8 +17,11 @@ Scope: runtime ownership, editor ownership, schema, migration, diagnostics, and 
 - Message editor and schema/migration slices are active in:
   - `editor/message/message_inspector_*`
   - `content/schemas/message_styles.schema.json` and related message schemas
-  - `engine/core/message/message_migration.*`
-
+  - `engine/core/message/message_migration.*`- **Native AI Chatbot Infrastructure landed (2026-04-16):**
+  - `ChatbotComponent` (multi-provider connectivity, streaming, and tool-calling)
+  - `WorldKnowledgeBridge` (narrative and world state context serialization)
+  - `PersonalityRegistry` (NPC behavioral prompt templates)
+  - `ChatWindow` (native word-wrapped streaming chat UI)
 ## Next steps
 
 - Complete native MessageScene renderer ownership handoff so compat `Window_Message` is no longer the authoritative runtime path.

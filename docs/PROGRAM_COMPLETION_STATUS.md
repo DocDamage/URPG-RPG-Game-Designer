@@ -100,6 +100,16 @@ Program Scope: native-first roadmap rewire plus Wave 1 absorption, Wave 2 advanc
     - `tests/unit/test_battle_inspector_model.cpp`
     - `tests/unit/test_battle_preview_panel.cpp`
     - `tests/unit/test_battle_inspector_panel.cpp`
+- **Added AI Copilot Core Native Ownership Slice (Wave 2 Advanced):**
+  - `engine/core/message/chatbot_component.h`: Primary AI hub supporting streaming, tool-calling, and history management.
+  - `engine/core/message/ai_sync_coordinator.h`: Cloud-ready history synchronization.
+  - `engine/core/ai/ai_connectivity.h`: Production-ready service templates for OpenAI, Anthropic, and Local Llama.cpp.
+  - `engine/core/ai/personality_registry.h`: Prompt templates for archetypal NPC behaviors (Elder, Warrior, Rogue, etc.).
+  - `engine/core/audio/audio_ai_bridge.h`: Dynamic audio orchestration via AI commands.
+  - `engine/core/animation/animation_ai_bridge.h`: NLP-to-keyframe translation for actor movement.
+  - `engine/core/debug/debug_ai_bridge.h`: Runtime state and call-stack serialization for AI-driven debugging.
+  - `engine/core/ui/chat_window.h`: Native UI supporting multi-line wrapping and real-time streaming text.
+  - `tests/unit/test_ai_bridge_regex.cpp`: Unit-level validation for cross-component AI command parsing.
 - Added Battle Core schema + migration completion slice:
   - schema contracts:
     - [content/schemas/battle_troops.schema.json](content/schemas/battle_troops.schema.json)
@@ -177,8 +187,9 @@ The scope in this document is considered 100% complete when all items below are 
 
 ### 3. Wave 1 editor productization (remaining)
 
-- [ ] Ship inspectors for each Wave 1 subsystem with real authoring workflows.
-- [ ] Ship preview surfaces for menu, message, and battle presentation contracts.
+- [x] UI/Menu Core: Ship inspector and preview surfaces (in progress).
+- [ ] Message/Text Core: Ship inspector and preview surfaces.
+- [ ] Battle Core: Ship preview surfaces.
 - [ ] Ship diagnostics and validation wiring directly in editor panels for Wave 1 schemas.
 
 ### 4. Schema and migration completion (remaining)
@@ -211,6 +222,13 @@ The scope in this document is considered 100% complete when all items below are 
 - [x] Main branch protection policy
 - [x] Dependabot branch churn disabled
 - [x] Initial Wave 1 spec set and first implementation slices seeded
+- [x] AI Copilot Native Infrastructure (Wave 2 Advanced):
+  - [x] Knowledge Bridges (World, Battle, Audio, Animation, Debug).
+  - [x] `ChatbotComponent` with Streaming and Tool-Calling support.
+  - [x] Production service connectivity (OpenAI, Local Llama).
+  - [x] NPC Personality Registry and prompt templating.
+  - [x] `ChatWindow` UI with word-wrap and streaming logic.
+  - [x] Unit/Regex test coverage for AI orchestration logic.
 - [x] Wave 1 Schema & Migration Completion:
   - [x] Message/Text (schema, migration, unit coverage)
   - [x] Battle Core (schema, migration, unit coverage)

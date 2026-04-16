@@ -3,6 +3,7 @@
 #include <vector>
 #include <string>
 #include <cstdint>
+#include <nlohmann/json_fwd.hpp>
 
 namespace urpg {
 
@@ -20,51 +21,43 @@ public:
     PatternField() = default;
     PatternField(const std::string& name) : m_name(name) {}
 
-    void addPoint(int32_t x, int32_t y) {
-        if (!hasPoint(x, y)) {
-            m_points.push_back({x, y});
-        }
-    }
-
-    void removePoint(int32_t x, int32_t y) {
-        for (auto it = m_points.begin(); it != m_points.end(); ++it) {
-            if (it->x == x && it->y == y) {
-                m_points.erase(it);
-                return;
-            }
-        }
-    }
-
-    bool hasPoint(int32_t x, int32_t y) const {
-        for (const auto& p : m_points) {
-            if (p.x == x && p.y == y) return true;
-        }
-        return false;
-    }
+    void addPoint(int32_t x, int32_t y);
+    void removePoint(int32_t x, int32_t y);
+    bool hasPoint(int32_t x, int32_t y) const;
 
     const std::vector<Point>& getPoints() const { return m_points; }
     
     const std::string& getName() const { return m_name; }
     void setName(const std::string& name) { m_name = name; }
 
-    void getBounds(int32_t& minX, int32_t& minY, int32_t& maxX, int32_t& maxY) const {
-        if (m_points.empty()) {
-            minX = minY = maxX = maxY = 0;
-            return;
-        }
-        minX = maxX = m_points[0].x;
-        minY = maxY = m_points[0].y;
-        for (const auto& p : m_points) {
-            if (p.x < minX) minX = p.x;
-            if (p.y < minY) minY = p.y;
-            if (p.x > maxX) maxX = p.x;
-            if (p.y > maxY) maxY = p.y;
-        }
-    }
+    void getBounds(int32_t& minX, int32_t& minY, int32_t& maxX, int32_t& maxY) const;
 
 private:
     std::string m_name;
     std::vector<Point> m_points;
 };
+
+/**
+ * @brief Utility for validating PatternField resources.
+ * Part of Wave 2 Pattern Field Editor completion.
+ */
+class PatternValidator {
+public:
+    struct ValidationResult {
+        bool isValid = true;
+        std::vector<std::string> issues;
+    };
+
+    /**
+     * @brief Check for common issues (empty, too large, out of bounds).
+     */
+    static ValidationResult Validate(const PatternField& pattern, int32_t maxRadius = 10);
+};
+
+// JSON conversion declarations
+void to_json(nlohmann::json& j, const PatternField::Point& p);
+void from_json(const nlohmann::json& j, PatternField::Point& p);
+void to_json(nlohmann::json& j, const PatternField& p);
+void from_json(const nlohmann::json& j, PatternField& p);
 
 } // namespace urpg

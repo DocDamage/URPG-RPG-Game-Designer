@@ -1,0 +1,5 @@
+if(NOT CTEST_CONFIGURATION_TYPE)
+  message("No configuration for testing specified, use '-C <cfg>'.")
+else()
+  include("C:/Users/dferr/dev/URPG - RPG Game Maker/build-local/urpg_compat_tests-b12d07c_include-${CTEST_CONFIGURATION_TYPE}.cmake")
+endif()

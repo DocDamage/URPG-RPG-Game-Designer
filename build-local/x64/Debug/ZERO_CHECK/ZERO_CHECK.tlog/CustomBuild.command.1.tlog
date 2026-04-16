@@ -1,0 +1,10 @@
+^C:\USERS\DFERR\DEV\URPG - RPG GAME MAKER\BUILD-LOCAL\CMAKEFILES\635B0E2C7646CFA02BCF5060059A1CE4\GENERATE.STAMP.RULE
+setlocal
+"C:\Program Files\CMake\bin\cmake.exe" "-SC:/Users/dferr/dev/URPG - RPG Game Maker" "-BC:/Users/dferr/dev/URPG - RPG Game Maker/build-local" --check-stamp-list CMakeFiles/generate.stamp.list --vs-solution-file "C:/Users/dferr/dev/URPG - RPG Game Maker/build-local/urpg.sln"
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd

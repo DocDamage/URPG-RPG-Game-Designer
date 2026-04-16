@@ -32,6 +32,7 @@ URPG's core value is native ownership, not plugin accumulation.
 ### Tier B: Advanced power systems (planned native lanes)
 
 - Gameplay Ability Framework (tags, abilities, conditions, state machines)
+- AI Copilot Core (knowledge bridges, streaming services, tool-calling, orchestration) [Landed 2026-04-16]
 - Visual Pattern Authoring (painted coordinate patterns for AoE, inventory-like footprints, rule masks)
 - Modular Level Assembly (snap/connect block authoring with import helpers)
 - Sprite Pipeline Toolkit (atlas packing, crop/trim, animation preview/tuning)

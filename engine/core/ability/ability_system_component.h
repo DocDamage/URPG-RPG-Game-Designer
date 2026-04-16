@@ -29,9 +29,19 @@ public:
     const GameplayTagContainer& getTags() const { return m_tags; }
 
     /**
+     * @brief Checks if effect has required tags and no blocking tags on the source.
+     */
+    bool canApplyEffect(const GameplayEffect& effect) const;
+
+    /**
      * @brief Check if the owner can activate the given ability.
      */
     bool canActivateAbility(const GameplayAbility& ability) const;
+
+    /**
+     * @brief Validates if the target is within the ability's pattern from specified source.
+     */
+    bool isTargetInPattern(const GameplayAbility& ability, int32_t sourceX, int32_t sourceY, int32_t targetX, int32_t targetY) const;
 
     /**
      * @brief Track cooldowns (in seconds).
@@ -46,9 +56,33 @@ public:
     }
 
     /**
-     * @brief Apply a temporary or permanent effect.
+     * @brief Apply a temporary or permanent effect. 
+     * Handles stacking and refresh logic based on policy.
      */
     void applyEffect(const GameplayEffect& effect) {
+        if (!canApplyEffect(effect)) return;
+
+        // Check for existing instance with same ID
+        if (!effect.id.empty()) {
+            for (auto& active : m_activeEffects) {
+                if (active.id == effect.id && !active.isExpired) {
+                    switch (effect.stackingPolicy) {
+                        case GameplayEffectStackingPolicy::Refresh:
+                            active.elapsed = 0.0f;
+                            return;
+                        case GameplayEffectStackingPolicy::Stack:
+                            if (active.stackCount < active.maxStacks) {
+                                active.stackCount++;
+                            }
+                            active.elapsed = 0.0f;
+                            return;
+                        default:
+                            break;
+                    }
+                }
+            }
+        }
+
         m_activeEffects.push_back(effect);
     }
 
@@ -66,15 +100,22 @@ public:
             for (const auto& mod : effect.modifiers) {
                 if (mod.attributeName == attr) {
                     // Check if modifier requirements are met
-                    if (!mod.requiredTag.empty() && !m_tags.hasTag(mod.requiredTag)) {
+                    if (!mod.requiredTag.empty() && !m_tags.hasTag(GameplayTag(mod.requiredTag))) {
                         continue;
                     }
 
+                    float stackedValue = mod.value * effect.stackCount;
+
                     switch (mod.operation) {
-                        case ModifierOp::Add: totalAdd += mod.value; break;
-                        case ModifierOp::Multiply: totalMult *= mod.value; break;
+                        case ModifierOp::Add: totalAdd += stackedValue; break;
+                        case ModifierOp::Multiply: 
+                            // Compounding vs Additive multiplication is an architectual choice.
+                            // Here we assume modifiers within a stack compound if it's a multiplier.
+                            // But usually, multipliers add to a sum (1.0 + 0.1 + 0.1).
+                            totalMult += (mod.value - 1.0f) * effect.stackCount; 
+                            break;
                         case ModifierOp::Override: 
-                            overrideValue = mod.value; 
+                            overrideValue = mod.value; // Override doesn't stack usually
                             hasOverride = true; 
                             break;
                     }
@@ -84,6 +125,32 @@ public:
         
         if (hasOverride) return overrideValue;
         return (baseValue + totalAdd) * totalMult;
+    }
+
+    /**
+     * @brief Manages granting and revoking abilities.
+     */
+    void grantAbility(std::shared_ptr<GameplayAbility> ability) {
+        if (ability) m_abilities.push_back(ability);
+    }
+
+    const std::vector<std::shared_ptr<GameplayAbility>>& getAbilities() const {
+        return m_abilities;
+    }
+
+    /**
+     * @brief Returns a reference to the cooldown map.
+     */
+    const std::unordered_map<std::string, float>& getActiveCooldowns() const {
+        return m_cooldowns;
+    }
+
+    /**
+     * @brief Manual attribute setter for cost deduction (mock implementation).
+     * In a real ECS system, this would write to the Actor's Stat component.
+     */
+    void modifyAttribute(const std::string& attr, float delta) {
+        // Placeholder: Needs integration with whichever component stores base stats.
     }
 
     /**
@@ -119,6 +186,7 @@ public:
 
 private:
     GameplayTagContainer m_tags;
+    std::vector<std::shared_ptr<GameplayAbility>> m_abilities;
     std::unordered_map<std::string, float> m_cooldowns;
     std::vector<GameplayEffect> m_activeEffects;
 };

@@ -15,12 +15,17 @@ Scope: runtime ownership, editor ownership, schema, migration, diagnostics, and 
   - imported metadata normalization through `MigrationRunner`
   - runtime hydration after migrated metadata
 - Save descriptor projection into inspector slot labels is active.
-- Validation anchors are active in:
+- **AI-Ready Save Infrastructure landed (2026-04-16):**
+  - `AISyncCoordinator` (cloud-synced AI history serialization)
+  - `CompressionLevel::Optimal` (incremental space-optimized history saving)
+- validation anchors are active in:
   - `tests/unit/test_data_manager.cpp`
   - `tests/unit/test_save_runtime.cpp`
   - `tests/unit/test_save_recovery.cpp`
   - `tests/compat/test_compat_plugin_fixtures.cpp`
   - `tests/compat/test_compat_plugin_failure_diagnostics.cpp`
+  - `tests/unit/test_save_serialization.cpp`
+  - `tests/unit/test_save_state_sync.cpp`
 
 ## Next steps
 

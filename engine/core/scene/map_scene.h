@@ -6,6 +6,10 @@
 #include "engine/core/render/render_layer.h"
 #include "engine/core/render/tilemap_renderer.h"
 #include "engine/core/render/sprite_animator.h"
+#include "engine/core/message/message_core.h"
+#include "engine/core/message/dialogue_registry.h"
+#include "engine/core/message/chatbot_component.h"
+#include "engine/core/ui/chat_window.h"
 #include <vector>
 #include <cstdint>
 #include <string>
@@ -83,6 +87,46 @@ public:
     int getWidth() const { return m_width; }
     int getHeight() const { return m_height; }
 
+    /**
+     * @brief Triggers a dialogue flow in this scene.
+     */
+    void startDialogue(const std::vector<urpg::message::DialoguePage>& pages);
+
+    /**
+     * @brief Starts a chatbot-driven conversation.
+     */
+    void startChatbot(const std::string& systemPrompt, std::shared_ptr<urpg::ai::IChatService> service);
+
+    /**
+     * @brief Opens the 'Ask AI' input modal.
+     */
+    void openChatInput();
+
+    /**
+     * @brief Injects the AI audio bridge into the scene logic.
+     */
+    void processAiAudioCommands(const std::string& aiResponse);
+
+    /**
+     * @brief Injects the AI animation bridge into the scene logic.
+     */
+    void processAiAnimationCommands(const std::string& aiResponse);
+
+    /**
+     * @brief Performs a manual save of the current world state.
+     */
+    bool saveGame(int slotId = 0);
+
+    /**
+     * @brief Attempts to load a saved game state.
+     */
+    bool loadGame(int slotId = 0);
+
+    /**
+     * @brief Checks if a dialogue is currently active, blocking movement.
+     */
+    bool isDialogueActive() const { return m_messageRunner.isActive() || m_isChatInputOpen; }
+
 private:
     std::string m_mapId;
     int m_width;
@@ -93,6 +137,13 @@ private:
     urpg::MovementComponent m_playerMovement;
     std::unique_ptr<TilemapRenderer> m_renderer;
     std::unique_ptr<SpriteAnimator> m_playerAnimator;
+
+    // Dialogue & AI Runtime
+    urpg::message::MessageFlowRunner m_messageRunner;
+    std::unique_ptr<urpg::ai::ChatbotComponent> m_activeChatbot;
+    std::unique_ptr<urpg::ui::ChatWindow> m_chatUI;
+    bool m_isChatInputOpen = false;
+    std::string m_currentInputBuffer;
 };
 
 } // namespace urpg::scene

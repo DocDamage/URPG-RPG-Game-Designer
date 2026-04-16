@@ -184,6 +184,7 @@ struct DialoguePage {
     bool wait_for_advance = true;
     std::vector<ChoiceOption> choices;
     int32_t default_choice_index = 0;
+    std::string command; // Hook for "tool usage"
 };
 
 enum class MessageFlowState : uint8_t {
@@ -202,8 +203,12 @@ struct MessageFlowSnapshot {
 
 class MessageFlowRunner {
 public:
+    using CommandExecutor = std::function<void(const std::string&)>;
+
     void begin(std::vector<DialoguePage> pages);
     void cancel();
+
+    void setCommandExecutor(CommandExecutor executor) { command_executor_ = std::move(executor); }
 
     [[nodiscard]] bool isActive() const;
     [[nodiscard]] MessageFlowState state() const { return state_; }
@@ -229,6 +234,7 @@ private:
     size_t page_index_ = 0;
     MessageFlowState state_ = MessageFlowState::Idle;
     ChoicePromptState choice_prompt_;
+    CommandExecutor command_executor_;
 };
 
 } // namespace urpg::message

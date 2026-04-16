@@ -32,6 +32,10 @@ public:
         // No-op for headless mode.
     }
 
+    void processCommands(const std::vector<std::shared_ptr<RenderCommand>>& /*commands*/) override {
+        // No-op for headless mode.
+    }
+
     void shutdown() override {
         // No resources to clean up.
     }

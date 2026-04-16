@@ -96,6 +96,9 @@ public:
     // Evaluate a script string
     ScriptResult eval(const std::string& code, const std::string& filename = "<eval>");
 
+    // Evaluate a script string within a specific local scope (e.g. for ability conditions)
+    ScriptResult evalWithScope(const std::string& code, const std::map<std::string, Value>& scope, const std::string& filename = "<eval>");
+
     // Load and evaluate a module
     ScriptResult evalModule(const std::string& filename);
 

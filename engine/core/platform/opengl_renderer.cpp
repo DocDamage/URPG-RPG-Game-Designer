@@ -96,6 +96,16 @@ void OpenGLRenderer::processCommands(const std::vector<std::shared_ptr<RenderCom
                 // glClear(...)
                 break;
             }
+            case RenderCmdType::Text: {
+                auto textCmd = std::static_pointer_cast<TextCommand>(cmd);
+                // In TIER_BASIC placeholder, we just log text draw intent
+                // In real implementation:
+                // 1. Get or Generate Glyph Atlas for fontFace/fontSize
+                // 2. Map string into quad stream with UVs from atlas
+                // 3. Draw quads with text-specific shader (alpha masking)
+                std::cout << "[URPG][Renderer] DrawText: \"" << textCmd->text << "\" at (" << textCmd->x << ", " << textCmd->y << ") color: " << (int)textCmd->r << "," << (int)textCmd->g << "," << (int)textCmd->b << "\n";
+                break;
+            }
             default:
                 break;
         }

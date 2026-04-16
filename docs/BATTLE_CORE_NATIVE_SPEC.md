@@ -22,8 +22,9 @@ Scope: runtime ownership, editor ownership, schema, migration, diagnostics, and 
   - `tests/unit/test_battle_inspector_model.cpp`
   - `tests/unit/test_battle_preview_panel.cpp`
   - `tests/unit/test_battle_inspector_panel.cpp`
-  - `tests/unit/test_battlemgr.cpp`
-
+  - `tests/unit/test_battlemgr.cpp`- **Native AI Battle Tactics Bridge landed (2026-04-16):**
+  - `BattleKnowledgeBridge` (HP, MP, Weakness serialization for LLMs)
+  - Real-time tactical advice pipeline via `ChatbotComponent`
 ## Next steps
 
 - Finalize schema + migration contracts for battle flows/actions/rules/hooks from compat evidence into native typed records.

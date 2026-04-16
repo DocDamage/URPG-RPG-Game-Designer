@@ -13,8 +13,8 @@ Scope: runtime ownership, editor ownership, schema, migration, diagnostics, and 
 - Registry helper integration path is active (`setCommandStateFromRegistry`) for switch/variable-driven command state.
 - Unit coverage expanded in `tests/unit/test_menu_core.cpp` for command activation, focus traversal, blocked command reasons, and recovery behavior.
 - Focused validation lane is active:
-  - `ctest --test-dir build/dev-ninja-debug -R "MenuSceneGraph|MenuRouteResolver|MenuCommandRegistry" --output-on-failure`
-
+  - `ctest --test-dir build/dev-ninja-debug -R "MenuSceneGraph|MenuRouteResolver|MenuCommandRegistry" --output-on-failure`- **AI Chat Window UI landed (2026-04-16):**
+  - `ChatWindow` (Native UI for LLM interactions with streaming and word-wrap)
 ## Next steps
 
 - Ship menu authoring/editor surfaces with production workflows:

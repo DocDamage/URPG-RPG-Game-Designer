@@ -152,4 +152,22 @@ RuntimeSaveLoadResult RuntimeSaveLoader::Load(const RuntimeSaveLoadRequest& requ
     return result;
 }
 
+bool RuntimeSaveLoader::Save(const RuntimeSaveLoadRequest& request, const std::string& payload) {
+    if (request.primary_save_path.empty()) {
+        return false;
+    }
+
+    try {
+        std::filesystem::create_directories(request.primary_save_path.parent_path());
+        std::ofstream out(request.primary_save_path, std::ios::binary);
+        if (!out) {
+            return false;
+        }
+        out.write(payload.data(), payload.size());
+        return true;
+    } catch (...) {
+        return false;
+    }
+}
+
 } // namespace urpg

@@ -8,7 +8,12 @@
 
 namespace urpg {
 
-class AbilitySystemComponent;
+namespace ability {
+    class AbilitySystemComponent;
+    class GameplayTagContainer;
+}
+
+using namespace urpg::ability;
 
 enum class AbilityStateStatus {
     Ready,
@@ -49,7 +54,7 @@ public:
     void start(AbilitySystemComponent& asc);
     void update(AbilitySystemComponent& asc, float deltaTime);
     
-    bool isRunning() const { return m_status == AbilityStateStatus.Running; }
+    bool isRunning() const { return m_status == AbilityStateStatus::Running; }
     AbilityStateStatus getStatus() const { return m_status; }
     const std::string& getCurrentStateName() const;
 
@@ -57,7 +62,7 @@ private:
     std::string m_abilityName;
     std::vector<AbilityState> m_states;
     size_t m_currentStateIndex = 0;
-    AbilityStateStatus m_status = AbilityStateStatus.Ready;
+    AbilityStateStatus m_status = AbilityStateStatus::Ready;
     
     void transitionTo(size_t index, AbilitySystemComponent& asc);
 };

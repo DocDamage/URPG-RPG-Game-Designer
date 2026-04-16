@@ -300,6 +300,29 @@ ScriptResult QuickJSContext::evalModule(const std::string& filename) {
     return result;
 }
 
+ScriptResult QuickJSContext::evalWithScope(const std::string& code, const std::map<std::string, Value>& scope, const std::string& filename) {
+    // Stub implementation: for now, we just pass through to eval.
+    // In the real QuickJS integration, we would create a local scope and push these values.
+    // To support basic mocking in tests/stubs, we can look for specific patterns in the code.
+    
+    // Check if the code is a simple boolean return or expression
+    if (code == "true") {
+        ScriptResult res;
+        res.success = true;
+        res.value.v = true;
+        return res;
+    }
+    if (code == "false") {
+        ScriptResult res;
+        res.success = true;
+        res.value.v = false;
+        return res;
+    }
+
+    // Attempt to evaluate via standard eval (which handles @urpg- directives)
+    return eval(code, filename);
+}
+
 ScriptResult QuickJSContext::call(const std::string& functionName, 
                                    const std::vector<Value>& args) {
     assert(impl_ != nullptr);

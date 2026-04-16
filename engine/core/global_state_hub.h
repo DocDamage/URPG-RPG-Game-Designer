@@ -86,6 +86,14 @@ public:
     }
 
     /**
+     * @brief Retrieves all active switches for world knowledge serialization.
+     */
+    std::unordered_map<std::string, bool> getAllSwitches() const {
+        std::lock_guard<std::mutex> lock(m_mutex);
+        return m_switches;
+    }
+
+    /**
      * @brief Sets a global variable.
      */
     void setVariable(const std::string& id, Value value) {

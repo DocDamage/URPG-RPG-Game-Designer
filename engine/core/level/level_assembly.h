@@ -44,6 +44,39 @@ private:
 };
 
 /**
+ * @brief An instance of a block placed in the world.
+ */
+struct PlacedBlock {
+    std::string blockId;
+    int32_t x, y, z; // Grid coordinates
+};
+
+/**
+ * @brief Authoritative workspace for modular level assembly.
+ * Manages placed blocks and enforces deterministic placement rules.
+ */
+class LevelAssemblyWorkspace {
+public:
+    /**
+     * @brief Attempt to place a block at specific grid coordinates.
+     * @return true if placement is valid (no collisions, valid connectors if required).
+     */
+    bool placeBlock(const std::string& blockId, int32_t x, int32_t y, int32_t z = 0);
+
+    /**
+     * @brief Check for a block at specific coordinates.
+     */
+    bool hasBlockAt(int32_t x, int32_t y, int32_t z = 0) const;
+
+    const std::vector<PlacedBlock>& getPlacedBlocks() const { return m_placedBlocks; }
+
+    void clear() { m_placedBlocks.clear(); }
+
+private:
+    std::vector<PlacedBlock> m_placedBlocks;
+};
+
+/**
  * @brief Logic for validating if two blocks can snap together.
  */
 class SnapLogic {
