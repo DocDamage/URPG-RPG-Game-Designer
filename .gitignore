@@ -40,3 +40,4 @@ itch/archives/
 .memorybridge/sync-state.json
 .env
 .env.*
+.aider*

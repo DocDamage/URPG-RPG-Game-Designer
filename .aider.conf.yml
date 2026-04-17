@@ -1,0 +1,23 @@
+# Repo-local aider defaults for URPG.
+# Keep this conservative because the worktree is often already dirty.
+
+git: true
+gitignore: true
+show-diffs: true
+
+auto-commits: false
+dirty-commits: false
+attribute-author: false
+attribute-committer: false
+attribute-co-authored-by: false
+
+map-tokens: 4096
+map-refresh: auto
+
+auto-lint: false
+auto-test: false
+test-cmd: powershell -NoProfile -ExecutionPolicy Bypass -File .\\tools\\workflow\\run-aider-tests.ps1
+
+analytics-disable: true
+check-update: false
+suggest-shell-commands: false
