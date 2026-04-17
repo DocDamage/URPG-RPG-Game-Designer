@@ -10,13 +10,19 @@ namespace urpg {
 
 struct ActorStats {
     int32_t level = 1;
+    int32_t hp = 0;
+    int32_t maxHp = 0;
+    int32_t mp = 0;
+    int32_t maxMp = 0;
     Fixed32 atk = Fixed32::FromInt(0);
     Fixed32 def = Fixed32::FromInt(0);
+    int32_t agility = 0;
+    int32_t luck = 0;
     
     // Wave 3 Additions: Element, Weakness, and Resistances
-    // std::string element = "None"; 
-    // std::unordered_map<std::string, float> weaknesses; 
-    // std::unordered_map<std::string, float> resistances;
+    std::string element = "None";
+    std::unordered_map<std::string, float> weaknesses;
+    std::unordered_map<std::string, float> resistances;
 };
 
 struct DamageResult {
@@ -31,6 +37,10 @@ public:
     
     // Wave 3: Advanced Damage calculation including elemental bonuses
     DamageResult CalculateDamage(const ActorStats& a, const ActorStats& d, uint32_t variance_seed) const;
+    DamageResult CalculateDamage(const ActorStats& a,
+                                 const ActorStats& d,
+                                 uint32_t variance_seed,
+                                 const std::string& skill_id) const;
 };
 
 } // namespace urpg

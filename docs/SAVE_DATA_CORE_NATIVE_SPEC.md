@@ -16,7 +16,7 @@ Scope: runtime ownership, editor ownership, schema, migration, diagnostics, and 
   - runtime hydration after migrated metadata
 - Save descriptor projection into inspector slot labels is active.
 - **AI-Ready Save Infrastructure landed (2026-04-16):**
-  - `AISyncCoordinator` (cloud-synced AI history serialization)
+  - `AISyncCoordinator` (cloud-service-backed AI history serialization; currently exercised via the in-memory stub path)
   - `CompressionLevel::Optimal` (incremental space-optimized history saving)
 - validation anchors are active in:
   - `tests/unit/test_data_manager.cpp`

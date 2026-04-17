@@ -8,7 +8,7 @@
 
 ### 🛠️ Hybrid Native/Script Architecture
 - **C++ Core Kernel:** Deterministic ECS iteration, Fixed32 (Q16.16) math, and a unified `EngineAssembly` lifecycle.
-- **QuickJS Integration:** A high-speed JavaScript bridge allowing for extensive plugin extensibility without sacrificing engine stability.
+- **QuickJS Compat Harness:** A fixture-backed JavaScript contract bridge for validating MZ plugin surfaces while the live runtime path is still being hardened.
 - **Least-Privilege Security:** A robust `PluginSecurityManager` that sandboxes external scripts, enforcing permission-based access to system resources.
 
 ### 🎮 Battle & Gameplay Systems
@@ -32,10 +32,10 @@
 | --- | --- | --- | --- |
 | **Foundation (Phase 0)** | Complete | 100% | Core kernels, authority guards, migration/save lanes. |
 | **Native Core (Phase 1)** | Complete | 100% | Event dispatch, debug runtime, EngineShell lifecycle. |
-| **Compat Layer (Phase 2)** | Complete | 100% | Full suite of MZ-compatible stubs with QuickJS. |
+| **Compat Layer (Phase 2)** | In Progress | ~96% | Compat surface is wired and test-heavy, but several areas remain fixture-, stub-, or placeholder-backed. |
 | **Wave 3-7 Ecosystem** | Complete | 100% | Templates, Profiling, Polish, Workspace, ImGui Panels. |
 | **Final Integration** | Complete | 100% | Unified `EngineAssembly` Gold distribution. |
-| **Native Workwaves** | In Progress | ~85% | Native ownership for Message/Text and Battle Core. |
+| **Native Workwaves** | In Progress | ~92% | Native ownership for Message/Text, Battle Core, and Spatial Presentation. |
 
 ## 🏗️ Getting Started
 
@@ -66,14 +66,14 @@ ctest --preset=dev-windows-debug -L pr
 
 ---
 *Built with ❤️ by the URPG Team. Part of the RPG Game Maker ecosystem.*
-  - Burned down BattleManager compat status: `processEscape` advanced from `PARTIAL` to `FULL` with deterministic MZ-style escape ratio/failure ramp semantics.
-  - Burned down PluginManager compat status: `executeCommandAsync` advanced from `PARTIAL` to `FULL` with deterministic FIFO task-queue execution + callback ordering.
+  - `processEscape` remains one of the few battle compat paths that is genuinely `FULL`; broader battle setup, event, animation, and reward paths are still partial or stubbed.
+  - Async plugin dispatch remains deterministic FIFO, but its status is now tracked as `PARTIAL` because callbacks run on the worker thread and the JS bridge is still fixture-backed.
   - Input/Touch QuickJS API registration now routes to live runtime state (no placeholder zeros) and `TouchInput` movement/tap tracking now computes `moveSpeed` + `tapCount`.
   - PluginManager failure-path diagnostics now emit deterministic JSONL artifacts (`exportFailureDiagnosticsJsonl` / `clearFailureDiagnostics`) with operation tags + sequence IDs.
   - PluginManager diagnostics JSONL now include compat severity tags (`WARN`, `SOFT_FAIL`, `HARD_FAIL`, `CRASH_PREVENTED`) for downstream report classification.
   - PluginManager failure diagnostics export now enforces bounded retention (last 2048 events) while preserving monotonic sequence IDs across trims; coverage is gated in unit tests.
   - `executeCommandByName` now routes through exact registered full keys (supports underscore-heavy command names) and rejects missing plugin/command segments via deterministic `execute_command_by_name_parse` diagnostics.
-  - QuickJS stub lane now supports explicit eval failure directives (`@urpg-fail-eval`), explicit runtime call-failure directives (`@urpg-fail-call`), deterministic context-init failure marker support (`__urpg_fail_context_init__`), and evalModule failure propagation tests for deterministic conformance.
+  - QuickJS compat harness now supports explicit eval failure directives (`@urpg-fail-eval`), explicit call-failure directives (`@urpg-fail-call`), deterministic context-init failure marker support (`__urpg_fail_context_init__`), and evalModule failure propagation tests for deterministic conformance.
   - Fixture command validation now fails malformed payloads deterministically (`js` must be string, `script` must be array, `dropContextBeforeCall` must be boolean, optional `entry`/`description`/`mode` metadata must be strings, `mode` values are restricted to `const` or `arg_count`, and commands cannot declare both `js` and `script`) with exported diagnostics operation tags.
   - Fixture metadata shape validation now fails malformed `dependencies`/`parameters`/`commands` containers and non-string dependency entries deterministically with exported diagnostics operation tags.
   - Fixture script runtime now supports explicit `error` op and unknown-op hard-fail behavior, surfaced through deterministic `execute_command_quickjs_call` diagnostics artifacts.
@@ -85,7 +85,7 @@ ctest --preset=dev-windows-debug -L pr
   - Compat report panel now records bounded per-plugin session score history plus first-seen/last-updated timestamps, and `LAST_UPDATED` sorting now projects human-readable recency labels.
   - Compat module unit suites (`test_battlemgr`, `test_data_manager`, `test_audio_manager`, `test_input_manager`, `test_plugin_manager`) are active in `urpg_tests`.
 - Active build wiring snapshot:
-  - `urpg_core` currently builds core kernels + editor diagnostics/panel + compat report panel + QuickJS + WindowCompat + Battle/Data/Audio/Input/Plugin compat modules.
+  - `urpg_core` currently builds core kernels + editor diagnostics/panel + compat report panel + the QuickJS compat harness + WindowCompat + Battle/Data/Audio/Input/Plugin compat modules.
   - `urpg_tests` includes the full compat unit slice in active CMake targets.
 - CI gate suites:
   - Gate 1 (PR): `ctest -L pr`

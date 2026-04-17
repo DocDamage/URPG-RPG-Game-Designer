@@ -32,4 +32,21 @@ TEST_CASE("GlobalStateHub Persistence and Access", "[core][global_state]") {
         REQUIRE(hub.getSwitch("1") == false);
         REQUIRE(hub.getConfig("ui.scale") == "1.5");
     }
+
+    SECTION("Diff-First update triggers notifications only on change") {
+        hub.resetAll();
+        int notifyCount = 0;
+        hub.subscribe("test_key", [&](const std::string&, const GlobalStateHub::Value&) {
+            notifyCount++;
+        });
+
+        hub.updateState("test_key", 10);
+        REQUIRE(notifyCount == 1);
+
+        hub.updateState("test_key", 10); // Same value
+        REQUIRE(notifyCount == 1);
+
+        hub.updateState("test_key", 20); // New value
+        REQUIRE(notifyCount == 2);
+    }
 }

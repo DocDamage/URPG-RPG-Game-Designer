@@ -139,16 +139,16 @@ public:
     // Initialization and Setup
     // ========================================================================
     
-    // Status: FULL - Setup battle with troop ID
+    // Status: PARTIAL - Battle state initializes, but troop loading and party seeding are still TODO
     void setup(int32_t troopId, bool canEscape = true, bool canLose = false);
     
-    // Status: FULL - Set battle transition type
+    // Status: STUB - Transition type is accepted but not routed to runtime output
     void setBattleTransition(int32_t type);
     
-    // Status: FULL - Set battle background
+    // Status: STUB - Background selection is accepted but not routed to runtime output
     void setBattleBackground(const std::string& name);
     
-    // Status: FULL - Set battle BGM/BGS
+    // Status: STUB - Audio metadata is accepted but not routed to playback
     void setBattleBgm(const std::string& name, double volume = 90.0, double pitch = 100.0);
     void setVictoryMe(const std::string& name, double volume = 90.0, double pitch = 100.0);
     void setDefeatMe(const std::string& name, double volume = 90.0, double pitch = 100.0);
@@ -276,10 +276,10 @@ public:
     // Status: FULL - Apply healing to subject
     void applyHeal(BattleSubject* subject, int32_t amount, bool isHp = true);
     
-    // Status: FULL - Apply skill effect
+    // Status: STUB - Placeholder path; does not resolve skill database effects
     void applySkill(BattleSubject* user, BattleSubject* target, int32_t skillId);
     
-    // Status: FULL - Apply item effect
+    // Status: STUB - Placeholder path; does not resolve item database effects
     void applyItem(BattleSubject* user, BattleSubject* target, int32_t itemId);
 
     // Status: FULL - Add/remove/query state effects
@@ -295,7 +295,7 @@ public:
     void applyStateEffects(BattleSubject* subject);
     void applyTurnEndEffects(BattleSubject* subject);
     
-    // Status: FULL - Play animation
+    // Status: STUB - Animation intent is recorded, but playback is still TODO
     void playAnimation(int32_t animationId, BattleSubject* target);
     void playAnimationOnSubject(int32_t animationId, BattleSubject* subject);
     
@@ -303,12 +303,12 @@ public:
     // Event Integration
     // ========================================================================
     
-    // Status: FULL - Battle events
+    // Status: PARTIAL - Event state toggles exist, but interpreter execution is still TODO
     void startBattleEvent(int32_t eventId);
     void updateBattleEvents();
     bool isBattleEventActive() const;
     
-    // Status: FULL - Event conditions
+    // Status: PARTIAL/STUB - Turn and HP checks are live; switch checks still fall back
     bool checkTurnCondition(int32_t turn, int32_t span);
     bool checkEnemyHpCondition(int32_t enemyIndex, int32_t percent);
     bool checkActorHpCondition(int32_t actorIndex, int32_t percent);
@@ -351,12 +351,12 @@ public:
     // Drop/Exp/Gold
     // ========================================================================
     
-    // Status: FULL - Calculate rewards
+    // Status: PARTIAL - Reward math still relies on seeded subject data and stub drops
     int32_t calculateExp() const;
     int32_t calculateGold() const;
     std::vector<int32_t> calculateDrops() const;
     
-    // Status: FULL - Apply rewards
+    // Status: STUB - Reward application into party progression/inventory is still TODO
     void applyExp();
     void applyGold();
     void applyDrops();

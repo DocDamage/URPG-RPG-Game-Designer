@@ -39,7 +39,7 @@ public:
 
     AudioCore() {
         // Sync initial volumes and subscribe to changes
-        m_stateHandle = GlobalStateHub::getInstance().subscribe("audio.*", [this](const std::string& key, const GlobalStateHub::Value& value) {
+        m_stateHandle = GlobalStateHub::getInstance().subscribe("*", [this](const std::string& key, const GlobalStateHub::Value& value) {
             this->onConfigChanged(key, value);
         });
         
@@ -96,6 +96,9 @@ private:
     }
 
     void onConfigChanged(const std::string& key, const GlobalStateHub::Value& value) {
+        if (key.rfind("audio.", 0) != 0) {
+            return;
+        }
         if (!std::holds_alternative<std::string>(value)) return;
         const std::string& valStr = std::get<std::string>(value);
         float volume = std::stof(valStr);

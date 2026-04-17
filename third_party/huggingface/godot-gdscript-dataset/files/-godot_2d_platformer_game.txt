@@ -1,0 +1,242 @@
+Godot project
+### Name: -godot_2d_platformer_game
+
+### Godot version: 3
+
+### Directory structure:
+├── .import/
+│   ├── .gdignore
+│   ├── character_0000.png-48ae89fd6b3cc598e404e36ebc8f8abd.md5
+│   ├── character_0000.png-48ae89fd6b3cc598e404e36ebc8f8abd.stex
+│   ├── character_0001.png-2a5b426d2663edb9564bfd87ae307807.md5
+│   ├── character_0001.png-2a5b426d2663edb9564bfd87ae307807.stex
+│   ├── character_0015.png-a832de77c82899dfdd08b20f4fa01787.md5
+│   ├── character_0015.png-a832de77c82899dfdd08b20f4fa01787.stex
+│   ├── character_0016.png-792dd30410bd91523a1fe5567ca521d3.md5
+│   ├── character_0016.png-792dd30410bd91523a1fe5567ca521d3.stex
+│   ├── character_0017.png-361f37276e7fba7dae33543a7c903215.md5
+│   ├── character_0017.png-361f37276e7fba7dae33543a7c903215.stex
+│   ├── icon.png-487276ed1e3a0c39cad0279d744ee560.md5
+│   ├── icon.png-487276ed1e3a0c39cad0279d744ee560.stex
+│   ├── tile_0068.png-47c3e3533eafe785252ea0e0db9b26d0.md5
+│   ├── tile_0068.png-47c3e3533eafe785252ea0e0db9b26d0.stex
+│   ├── tile_0151.png-f3dd36848fabe79ac2f8196b44743512.md5
+│   ├── tile_0151.png-f3dd36848fabe79ac2f8196b44743512.stex
+│   ├── tile_0152.png-5b3de5fb0e7587eab83d0f255735c3ee.md5
+│   ├── tile_0152.png-5b3de5fb0e7587eab83d0f255735c3ee.stex
+│   ├── tiles_packed.png-b5efa6f182dc1cdf4a54c3c9a8baab78.md5
+│   ├── tiles_packed.png-b5efa6f182dc1cdf4a54c3c9a8baab78.stex
+├── assets/
+│   ├── coin/
+│   │   ├── tile_0151.png
+│   │   ├── tile_0151.png.import
+│   │   ├── tile_0152.png
+│   │   ├── tile_0152.png.import
+│   ├── enemy/
+│   │   ├── character_0015.png
+│   │   ├── character_0015.png.import
+│   │   ├── character_0016.png
+│   │   ├── character_0016.png.import
+│   │   ├── character_0017.png
+│   │   ├── character_0017.png.import
+│   ├── player/
+│   │   ├── character_0000.png
+│   │   ├── character_0000.png.import
+│   │   ├── character_0001.png
+│   │   ├── character_0001.png.import
+│   ├── spikes/
+│   │   ├── tile_0068.png
+│   │   ├── tile_0068.png.import
+│   ├── tiles/
+│   │   ├── tiles_packed.png
+│   │   ├── tiles_packed.png.import
+├── default_env.tres
+├── icon.png
+├── icon.png.import
+├── project.godot
+├── resourses/
+│   ├── tiles.tres
+├── scenes/
+│   ├── BaseLevel.gd
+│   ├── BaseLevel.tscn
+│   ├── Coin.gd
+│   ├── Coin.tscn
+│   ├── Enemy.gd
+│   ├── Enemy.tscn
+│   ├── EnemyGoal.tscn
+│   ├── GameCamera.gd
+│   ├── GameCamera.tscn
+│   ├── Main.tscn
+│   ├── Player.gd
+│   ├── Player.tscn
+│   ├── Spikes.tscn
+
+### Files:
+File name: scenes/BaseLevel.gd
+```gdscript
+extends Node
+
+var playerScene = preload("res://scenes/Player.tscn")
+var spawnPosition = Vector2.ZERO
+var currentPlayerNode = null
+
+func _ready():
+	spawnPosition = $Player.global_position
+	register_player($Player)
+
+func register_player(player):
+	currentPlayerNode = player
+	currentPlayerNode.connect("died", self, "on_player_died", [], CONNECT_DEFERRED)
+	
+func create_player():
+	var playerInstance = playerScene.instance()
+	add_child_below_node(currentPlayerNode, playerInstance)
+	playerInstance.global_position = spawnPosition
+	register_player(playerInstance)
+
+func on_player_died():
+	currentPlayerNode.queue_free()
+	create_player()
+```
+
+
+File name: scenes/Coin.gd
+```gdscript
+extends Node2D
+
+
+func _ready():
+	$Area2D.connect("area_entered",self,"on_area_entered")
+
+func on_area_entered(area2d):
+	$AnimationPlayer.play("pickup")
+	call_deferred("disable_pickup")
+
+func disable_pickup():
+	$Area2D/CollisionShape2D.disabled = true
+```
+
+
+File name: scenes/Enemy.gd
+```gdscript
+extends KinematicBody2D
+
+enum Direction { RIGHT, LEFT }
+export(Direction) var startDirection
+
+var maxSpeed = 25
+var velocity = Vector2.ZERO
+var direction = Vector2.ZERO
+var gravity = 500
+
+func _ready():
+	direction = Vector2.RIGHT if startDirection == Direction.RIGHT else Vector2.LEFT
+	$GoalDetector.connect("area_entered", self, "on_goal_entered")
+
+func _process(delta):
+	velocity.x = (direction * maxSpeed). x
+	
+	velocity.y += gravity * delta
+	velocity = move_and_slide(velocity, Vector2.UP)
+	
+	$AnimatedSprite.flip_h = true if direction.x > 0 else false
+
+func on_goal_entered(_area2d):
+	direction *= -1;
+```
+
+
+File name: scenes/GameCamera.gd
+```gdscript
+extends Camera2D
+
+var targetposition = Vector2.ZERO
+
+export(Color, RGB) var backgroundColor
+
+func _ready():
+	VisualServer.set_default_clear_color(backgroundColor)
+
+func _process(delta):
+	acquire_target_position()
+	
+	global_position = lerp(targetposition, global_position, pow(2, -25 * delta))
+
+func acquire_target_position():
+	var players = get_tree().get_nodes_in_group("player")
+	if(players.size() > 0):
+		var player = players[0]
+		targetposition = player.global_position
+```
+
+
+File name: scenes/Player.gd
+```gdscript
+extends KinematicBody2D
+
+signal died
+
+var gravity = 1000
+var velocity = Vector2.ZERO
+var maxHorizontalSpeed = 140
+var horizontalAcceleration = 2000
+var jumpSpeed = 360
+var jumpTerminationMultiplier = 4
+var hasDoubleJump = false
+
+func _ready():
+	$HazardArea.connect("area_entered", self, "on_hazard_area_entered")
+
+func _process(delta):
+	var moveVector = get_movement_vector()
+	velocity.x += moveVector.x * horizontalAcceleration * delta
+	if(moveVector.x == 0):
+		velocity.x = lerp(0, velocity.x, pow(2, -50 * delta))
+	
+	velocity.x = clamp(velocity.x, -maxHorizontalSpeed, maxHorizontalSpeed)
+	
+	if(moveVector.y < 0 && (is_on_floor() || $CoyoteTimer.is_stopped() || hasDoubleJump)):
+		velocity.y = moveVector.y * jumpSpeed
+		if(!is_on_floor() && $CoyoteTimer.is_stopped()):
+			hasDoubleJump = false
+		$CoyoteTimer.stop()
+
+	if(velocity.y < 0 && ! Input.is_action_pressed("jump")):
+		velocity.y += gravity * jumpTerminationMultiplier * delta
+	else :
+		velocity.y += gravity * delta
+		
+	var wasOnFloor = is_on_floor()
+	velocity = move_and_slide(velocity, Vector2.UP)
+	
+	if(wasOnFloor && !is_on_floor()):
+		$CoyoteTimer.start()
+	
+	if(is_on_floor()):
+		hasDoubleJump = true
+	
+	update_animation()
+
+func get_movement_vector():
+	var moveVector = Vector2.ZERO
+	moveVector.x = Input.get_action_strength("move_right") - Input.get_action_strength("move_left")
+	moveVector.y = -1 if Input.is_action_just_pressed("jump") else 0
+	return moveVector
+
+func update_animation():
+	var moveVec = get_movement_vector()
+	
+	if(!is_on_floor()):
+		$AnimatedSprite.play("jump")
+	elif(moveVec.x != 0):
+		$AnimatedSprite.play("run")
+	else:
+		$AnimatedSprite.play("idle")
+		
+	if(moveVec.x != 0):
+		$AnimatedSprite.flip_h = true if moveVec.x > 0 else false
+	
+
+func on_hazard_area_entered(area2d):
+	emit_signal("died")
+```

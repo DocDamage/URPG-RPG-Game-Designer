@@ -26,10 +26,13 @@ public:
             return;
         }
 
-        auto& inv = world.GetComponent<InventoryComponent>(looter);
-        auto& loot = world.GetComponent<LootableComponent>(target);
+        auto* inv = world.GetComponent<InventoryComponent>(looter);
+        auto* loot = world.GetComponent<LootableComponent>(target);
+        if (!inv || !loot) {
+            return;
+        }
 
-        if (inv.addItem(loot.itemId, loot.amount)) {
+        if (inv->addItem(loot->itemId, loot->amount)) {
             world.DestroyEntity(target);
         }
     }

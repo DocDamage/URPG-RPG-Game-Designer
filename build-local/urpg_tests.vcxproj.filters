@@ -166,6 +166,9 @@
     <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_plugin_manager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_plugin_api.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_menu_core.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -203,6 +206,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_gameplay_tags.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_spatial_editor.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_huggingface_curated_assets.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_ability_activation.cpp">

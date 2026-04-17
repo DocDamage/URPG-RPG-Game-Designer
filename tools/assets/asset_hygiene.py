@@ -41,6 +41,7 @@ def sha256_file(path: Path) -> str:
 def preference_score(path_rel: str) -> tuple[int, int, str]:
     checks = [
         "third_party/rpgmaker-mz/steam-dlc/packs/",
+        "third_party/huggingface/",
         "third_party/itch-assets/packs/",
         "third_party/rpgmaker-mz/",
         "third_party/",

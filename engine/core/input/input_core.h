@@ -82,6 +82,16 @@ public:
         return false;
     }
 
+    /**
+     * @brief Checks whether an action was newly pressed on the current input tick.
+     */
+    bool isActionJustPressed(InputAction action) const {
+        if (auto it = m_actionStates.find(action); it != m_actionStates.end()) {
+            return it->second == ActionState::Pressed;
+        }
+        return false;
+    }
+
     void addHandler(ActionHandler handler) {
         m_handlers.push_back(std::move(handler));
     }

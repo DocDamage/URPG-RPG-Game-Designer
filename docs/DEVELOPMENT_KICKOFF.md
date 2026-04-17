@@ -114,10 +114,10 @@ This repository is bootstrapped to the blueprint's canonical structure and now i
    - Burned down additional WindowCompat statuses: `drawItemName` from `PARTIAL` to `FULL` (DataManager-backed icon+label semantics) and `Sprite_Actor.startEffect` from `PARTIAL` to `FULL` (deterministic effect-duration lifecycle).
    - Burned down additional Sprite_Actor animation status: `startAnimation` from `PARTIAL` to `FULL` with deterministic frame-duration playback lifecycle.
    - Burned down remaining Window_Base face status: `drawActorFace` from `PARTIAL` to `FULL` with MZ-canonical face cell clipping/centering semantics and deterministic face draw metadata.
-   - Compat status burn-down checkpoint: runtime compat API registry now reports no `PARTIAL`/`STUB` surfaces.
+   - Earlier compat burn-down work materially improved several surfaces, but a follow-up audit is still required because some runtime registries continue to overclaim `FULL` on stub-, fixture-, or placeholder-backed paths.
    - Burned down AudioManager compat statuses: `crossfadeBgm`/`crossfadeBgs` from `PARTIAL` to `FULL` via deterministic frame-based crossfade sequencing; BGM save/restore metadata now retains true track filename/position.
    - Burned down BattleManager compat status: `processEscape` from `PARTIAL` to `FULL` with deterministic MZ-style escape ratio + fail-ramp handling.
-   - Burned down PluginManager compat status: `executeCommandAsync` from `PARTIAL` to `FULL` with deterministic FIFO task queue execution and callback order guarantees.
+   - `executeCommandAsync` now has deterministic FIFO task queue execution and callback ordering, but the surface still remains `PARTIAL` because callbacks run on the worker thread and the JS bridge is fixture-backed.
    - Input/Touch QuickJS API registration now returns live runtime state and `TouchInput` movement telemetry now tracks `moveSpeed` and `tapCount`.
 - Migration and schema anchors added:
   - `tools/migrate/migration_op.json`

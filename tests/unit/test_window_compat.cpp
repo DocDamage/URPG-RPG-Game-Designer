@@ -120,7 +120,7 @@ TEST_CASE("Window_Base content rect calculation", "[compat][window]") {
 
 TEST_CASE("Window_Base getMethodStatus returns correct values", "[compat][window]") {
     REQUIRE(Window_Base::getMethodStatus("drawText") == CompatStatus::FULL);
-    REQUIRE(Window_Base::getMethodStatus("drawIcon") == CompatStatus::FULL);
+    REQUIRE(Window_Base::getMethodStatus("drawIcon") == CompatStatus::PARTIAL);
     REQUIRE(Window_Base::getMethodStatus("drawActorFace") == CompatStatus::FULL);
     REQUIRE(Window_Base::getMethodStatus("drawItemName") == CompatStatus::FULL);
     REQUIRE(Window_Base::getMethodStatus("unknownMethod") == CompatStatus::UNSUPPORTED);
@@ -130,6 +130,7 @@ TEST_CASE("Window_Base getMethodDeviation returns notes", "[compat][window]") {
     REQUIRE(Window_Base::getMethodDeviation("drawActorFace") == "");
     REQUIRE(Window_Base::getMethodDeviation("drawActorHp") == "");
     REQUIRE(Window_Base::getMethodDeviation("drawText") == "");  // FULL, no deviation
+    REQUIRE(Window_Base::getMethodDeviation("drawIcon").find("icon-set bitmap rendering") != std::string::npos);
 }
 
 TEST_CASE("Window_Base drawActorFace records canonical source and destination rects", "[compat][window]") {

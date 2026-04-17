@@ -28,19 +28,17 @@ DamageResult CombatCalc::CalculateDamage(const ActorStats& a, const ActorStats& 
     // Elemental Weakness & Resistance
     float elementRate = 1.0f;
 
-    /*
     // Check resistances (e.g. 0.5 for 50% dmg, 2.0 for 200% dmg)
     auto it_res = d.resistances.find(a.element);
     if (it_res != d.resistances.end()) {
         elementRate *= it_res->second;
     }
 
-    // Check deprecated weaknesses map for backwards compat
+    // Check weaknesses map for multiplicative bonus.
     auto it_weak = d.weaknesses.find(a.element);
     if (it_weak != d.weaknesses.end()) {
         elementRate *= it_weak->second;
     }
-    */
 
     // Variance
     int32_t variance_percent = 0;
@@ -55,6 +53,14 @@ DamageResult CombatCalc::CalculateDamage(const ActorStats& a, const ActorStats& 
     result.critical = false;
     result.weak = elementRate > 1.0f;
     return result;
+}
+
+DamageResult CombatCalc::CalculateDamage(const ActorStats& a,
+                                         const ActorStats& d,
+                                         uint32_t variance_seed,
+                                         const std::string& skill_id) const {
+    (void)skill_id;
+    return CalculateDamage(a, d, variance_seed);
 }
 
 } // namespace urpg

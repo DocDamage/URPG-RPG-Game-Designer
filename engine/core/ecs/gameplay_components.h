@@ -1,5 +1,6 @@
 #pragma once
 
+#include "engine/core/gameplay/inventory_components.h"
 #include "engine/core/math/fixed32.h"
 #include <string>
 
@@ -10,14 +11,6 @@ namespace urpg {
  */
 struct TagComponent {
     std::string tag;
-};
-
-/**
- * @brief Component for an entity that acts as an "Inventory" or "Item Container".
- */
-struct InventoryComponent {
-    uint32_t capacity = 20;
-    std::vector<std::string> itemIds;
 };
 
 /**

@@ -16,8 +16,8 @@
 Provide a unified, thread-safe mechanism for synchronizing global game state (Switches, Variables, Inventory) with the Audio Mixer and Scene Graph.
 
 ### 1. Global State Hub (State Sync)
-- [ ] Implement `engine/core/global_state_hub.h` as the source of truth for dynamic runtime state.
-- [ ] Support "Diff-First" state updates to trigger audio/UI events only when values change via subscribers.
+- [x] Implement `engine/core/global_state_hub.h` as the source of truth for dynamic runtime state.
+- [x] Support "Diff-First" state updates to trigger audio/UI events only when values change via subscribers.
 - [ ] Integrate transaction-based state locks for multi-threaded scene updates.
 
 ### 2. Audio Orchestration (Wave 2 Expansion)

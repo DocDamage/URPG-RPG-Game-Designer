@@ -86,21 +86,29 @@ TEST_CASE("DiagnosticsWorkspace - Refresh updates compat and save tabs", "[edito
     REQUIRE(battleSummary.issue_count >= 1);
     REQUIRE(battleSummary.has_data);
 
+    const auto menuSummary = workspace.tabSummary(urpg::editor::DiagnosticsTab::Menu);
+    REQUIRE_FALSE(menuSummary.active);
+
+    const auto abilitiesSummary = workspace.tabSummary(urpg::editor::DiagnosticsTab::Abilities);
+    REQUIRE_FALSE(abilitiesSummary.active);
+
     const auto allSummaries = workspace.allTabSummaries();
-    REQUIRE(allSummaries.size() == 5);
+    REQUIRE(allSummaries.size() == 7);
 
     urpg::editor::DiagnosticsFacade facade(workspace);
     const auto exportedJson = nlohmann::json::parse(facade.emitSnapshot());
     REQUIRE(exportedJson["active_tab"] == "compat");
     REQUIRE(exportedJson["visible"] == true);
     REQUIRE(exportedJson["tabs"].is_array());
-    REQUIRE(exportedJson["tabs"].size() == 5);
+    REQUIRE(exportedJson["tabs"].size() == 7);
     REQUIRE(exportedJson["tabs"][0]["name"] == "compat");
     REQUIRE(exportedJson["tabs"][0]["item_count"] == 1);
     REQUIRE(exportedJson["tabs"][1]["name"] == "save");
     REQUIRE(exportedJson["tabs"][2]["name"] == "event_authority");
     REQUIRE(exportedJson["tabs"][3]["name"] == "message_text");
     REQUIRE(exportedJson["tabs"][4]["name"] == "battle");
+    REQUIRE(exportedJson["tabs"][5]["name"] == "menu");
+    REQUIRE(exportedJson["tabs"][6]["name"] == "abilities");
 
     REQUIRE(workspace.activeTab() == urpg::editor::DiagnosticsTab::Compat);
     REQUIRE(workspace.compatPanel().isVisible());

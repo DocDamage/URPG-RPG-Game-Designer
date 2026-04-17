@@ -82,10 +82,10 @@ public:
      * @brief Executes a tool/function requested by the AI.
      */
     void executeTool(const std::string& command) {
-        // High-level integration with DialogueCommandProcessor
-        auto& processor = urpg::message::DialogueCommandProcessor(); // Re-use global processor or specialized one
-        // Simulating the execution of tool commands like "GIVE_ITEM:potion"
-        // In full impl, this would resolve to native C++ function calls
+        // Tool routing is still scaffolding; keep the hook explicit without
+        // pretending there is a shared command registry wired yet.
+        urpg::message::DialogueCommandProcessor processor;
+        processor.execute(command);
     }
 
     /**

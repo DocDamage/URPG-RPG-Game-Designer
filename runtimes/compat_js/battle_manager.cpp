@@ -198,12 +198,29 @@ BattleManager::BattleManager()
 {
     // Initialize method status registry
     if (methodStatus_.empty()) {
-        methodStatus_["setup"] = CompatStatus::FULL;
-        methodStatus_["setBattleTransition"] = CompatStatus::FULL;
-        methodStatus_["setBattleBackground"] = CompatStatus::FULL;
-        methodStatus_["setBattleBgm"] = CompatStatus::FULL;
-        methodStatus_["setVictoryMe"] = CompatStatus::FULL;
-        methodStatus_["setDefeatMe"] = CompatStatus::FULL;
+        const auto setStatus = [](const std::string& method,
+                                  CompatStatus status,
+                                  const std::string& deviation = "") {
+            methodStatus_[method] = status;
+            if (deviation.empty()) {
+                methodDeviations_.erase(method);
+            } else {
+                methodDeviations_[method] = deviation;
+            }
+        };
+
+        setStatus("setup", CompatStatus::PARTIAL,
+                  "Initializes battle state, but troop loading and party seeding are still TODO.");
+        setStatus("setBattleTransition", CompatStatus::STUB,
+                  "Transition selection is accepted but not applied to any runtime output.");
+        setStatus("setBattleBackground", CompatStatus::STUB,
+                  "Background selection is accepted but not applied to any runtime output.");
+        setStatus("setBattleBgm", CompatStatus::STUB,
+                  "Battle BGM metadata is accepted but not routed to audio playback.");
+        setStatus("setVictoryMe", CompatStatus::STUB,
+                  "Victory ME metadata is accepted but not routed to audio playback.");
+        setStatus("setDefeatMe", CompatStatus::STUB,
+                  "Defeat ME metadata is accepted but not routed to audio playback.");
         methodStatus_["startBattle"] = CompatStatus::FULL;
         methodStatus_["endBattle"] = CompatStatus::FULL;
         methodStatus_["abortBattle"] = CompatStatus::FULL;
@@ -241,8 +258,10 @@ BattleManager::BattleManager()
         methodStatus_["autoBattleActor"] = CompatStatus::FULL;
         methodStatus_["applyDamage"] = CompatStatus::FULL;
         methodStatus_["applyHeal"] = CompatStatus::FULL;
-        methodStatus_["applySkill"] = CompatStatus::FULL;
-        methodStatus_["applyItem"] = CompatStatus::FULL;
+        setStatus("applySkill", CompatStatus::STUB,
+                  "Skill application path is placeholder-only and does not resolve skill database effects.");
+        setStatus("applyItem", CompatStatus::STUB,
+                  "Item application path is placeholder-only and does not resolve item database effects.");
         methodStatus_["addState"] = CompatStatus::FULL;
         methodStatus_["removeState"] = CompatStatus::FULL;
         methodStatus_["hasState"] = CompatStatus::FULL;
@@ -251,21 +270,32 @@ BattleManager::BattleManager()
         methodStatus_["getModifierStage"] = CompatStatus::FULL;
         methodStatus_["applyStateEffects"] = CompatStatus::FULL;
         methodStatus_["applyTurnEndEffects"] = CompatStatus::FULL;
-        methodStatus_["playAnimation"] = CompatStatus::FULL;
-        methodStatus_["playAnimationOnSubject"] = CompatStatus::FULL;
-        methodStatus_["startBattleEvent"] = CompatStatus::FULL;
-        methodStatus_["updateBattleEvents"] = CompatStatus::FULL;
+        setStatus("playAnimation", CompatStatus::STUB,
+                  "Animation API is recorded only; target playback is still TODO.");
+        setStatus("playAnimationOnSubject", CompatStatus::STUB,
+                  "Animation API is recorded only; subject playback is still TODO.");
+        setStatus("startBattleEvent", CompatStatus::PARTIAL,
+                  "Battle-event state toggles on, but event interpreter execution is still TODO.");
+        setStatus("updateBattleEvents", CompatStatus::PARTIAL,
+                  "Battle-event state updates exist, but interpreter execution is still TODO.");
         methodStatus_["isBattleEventActive"] = CompatStatus::FULL;
         methodStatus_["checkTurnCondition"] = CompatStatus::FULL;
         methodStatus_["checkEnemyHpCondition"] = CompatStatus::FULL;
         methodStatus_["checkActorHpCondition"] = CompatStatus::FULL;
-        methodStatus_["checkSwitchCondition"] = CompatStatus::FULL;
-        methodStatus_["calculateExp"] = CompatStatus::FULL;
-        methodStatus_["calculateGold"] = CompatStatus::FULL;
-        methodStatus_["calculateDrops"] = CompatStatus::FULL;
-        methodStatus_["applyExp"] = CompatStatus::FULL;
-        methodStatus_["applyGold"] = CompatStatus::FULL;
-        methodStatus_["applyDrops"] = CompatStatus::FULL;
+        setStatus("checkSwitchCondition", CompatStatus::STUB,
+                  "Switch condition always falls back because game-switch lookup is still TODO.");
+        setStatus("calculateExp", CompatStatus::PARTIAL,
+                  "Reward math works only from seeded subject stats; enemy DB reward lookup is still TODO.");
+        setStatus("calculateGold", CompatStatus::PARTIAL,
+                  "Reward math works only from seeded subject stats; enemy DB reward lookup is still TODO.");
+        setStatus("calculateDrops", CompatStatus::PARTIAL,
+                  "Drops use a fixed 10% stub instead of database-driven drop tables.");
+        setStatus("applyExp", CompatStatus::STUB,
+                  "Reward application into party progression is still TODO.");
+        setStatus("applyGold", CompatStatus::STUB,
+                  "Reward application into party inventory/state is still TODO.");
+        setStatus("applyDrops", CompatStatus::STUB,
+                  "Reward application into party inventory/state is still TODO.");
     }
 }
 

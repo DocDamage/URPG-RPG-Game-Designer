@@ -2,6 +2,7 @@
 
 #include "engine/core/ecs/world.h"
 #include "engine/core/ecs/health_components.h"
+#include "engine/core/ecs/player_control_system.h"
 #include "engine/core/ecs/progression_components.h"
 #include <vector>
 

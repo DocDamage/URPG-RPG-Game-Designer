@@ -329,9 +329,13 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
     <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\engine\core\save\save_runtime.cpp" />
     <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\engine\core\battle\battle_core.cpp" />
     <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\engine\gameplay\combat\combat_calc.cpp" />
+    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\engine\core\audio\audio_ai_bridge.cpp" />
+    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\engine\core\animation\animation_ai_bridge.cpp" />
     <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\engine\core\ui\ui_window.cpp" />
+    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\engine\core\ui\chat_window.cpp" />
     <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\engine\core\ui\ui_command_list.cpp" />
     <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\engine\core\message\message_core.cpp" />
+    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\engine\core\message\dialogue_registry.cpp" />
     <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\engine\core\message\message_migration.cpp" />
     <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\editor\diagnostics\event_authority_diagnostics.cpp" />
     <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\editor\diagnostics\event_authority_panel.cpp" />
@@ -352,6 +356,7 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
     <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\editor\ability\ability_inspector_panel.cpp" />
     <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\editor\ability\pattern_field_model.cpp" />
     <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\editor\ability\pattern_field_panel.cpp" />
+    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\engine\core\editor\plugin_api.cpp" />
     <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\engine\core\ability\gameplay_ability.cpp" />
     <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\engine\core\ability\ability_state_machine.cpp" />
     <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\engine\core\ability\pattern_field.cpp" />

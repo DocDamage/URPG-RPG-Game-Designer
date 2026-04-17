@@ -278,49 +278,68 @@ void Window_Base::initializeMethodStatus() {
     static bool initialized = false;
     if (initialized) return;
     initialized = true;
+
+    const auto setStatus = [](const std::string& method,
+                              CompatStatus status,
+                              const std::string& deviation = "") {
+        methodStatus_[method] = status;
+        if (deviation.empty()) {
+            methodDeviations_.erase(method);
+        } else {
+            methodDeviations_[method] = deviation;
+        }
+    };
     
     // FULL status methods
-    methodStatus_["drawText"] = CompatStatus::FULL;
-    methodStatus_["drawIcon"] = CompatStatus::FULL;
-    methodStatus_["drawActorName"] = CompatStatus::FULL;
-    methodStatus_["drawActorLevel"] = CompatStatus::FULL;
-    methodStatus_["drawGauge"] = CompatStatus::FULL;
-    methodStatus_["drawCharacter"] = CompatStatus::FULL;
-    methodStatus_["lineHeight"] = CompatStatus::FULL;
-    methodStatus_["changeTextColor"] = CompatStatus::FULL;
-    methodStatus_["resetTextColor"] = CompatStatus::FULL;
-    methodStatus_["textColor"] = CompatStatus::FULL;
-    methodStatus_["systemColor"] = CompatStatus::FULL;
-    methodStatus_["resetFontSettings"] = CompatStatus::FULL;
-    methodStatus_["fontFace"] = CompatStatus::FULL;
-    methodStatus_["fontSize"] = CompatStatus::FULL;
-    methodStatus_["setFontFace"] = CompatStatus::FULL;
-    methodStatus_["setFontSize"] = CompatStatus::FULL;
-    methodStatus_["setTextAlignment"] = CompatStatus::FULL;
-    methodStatus_["textAlignment"] = CompatStatus::FULL;
-    methodStatus_["contents"] = CompatStatus::FULL;
-    methodStatus_["createContents"] = CompatStatus::FULL;
-    methodStatus_["destroyContents"] = CompatStatus::FULL;
-    methodStatus_["open"] = CompatStatus::FULL;
-    methodStatus_["close"] = CompatStatus::FULL;
-    methodStatus_["show"] = CompatStatus::FULL;
-    methodStatus_["hide"] = CompatStatus::FULL;
-    methodStatus_["update"] = CompatStatus::FULL;
-    methodStatus_["getContentRect"] = CompatStatus::FULL;
+    setStatus("drawText", CompatStatus::FULL);
+    setStatus("drawIcon", CompatStatus::PARTIAL,
+              "Tracks icon draw intent, but icon-set bitmap rendering is still TODO.");
+    setStatus("drawActorName", CompatStatus::PARTIAL,
+              "Falls back to text labels; actor-name rendering is not wired to full window visuals.");
+    setStatus("drawActorLevel", CompatStatus::PARTIAL,
+              "Falls back to text labels; actor-level rendering is not wired to full window visuals.");
+    setStatus("drawGauge", CompatStatus::PARTIAL,
+              "Records gauge semantics, but background/fill gradient rendering is still TODO.");
+    setStatus("drawCharacter", CompatStatus::PARTIAL,
+              "Tracks character draw intent, but character-sheet rendering is still TODO.");
+    setStatus("lineHeight", CompatStatus::FULL);
+    setStatus("changeTextColor", CompatStatus::FULL);
+    setStatus("resetTextColor", CompatStatus::FULL);
+    setStatus("textColor", CompatStatus::FULL);
+    setStatus("systemColor", CompatStatus::FULL);
+    setStatus("resetFontSettings", CompatStatus::FULL);
+    setStatus("fontFace", CompatStatus::FULL);
+    setStatus("fontSize", CompatStatus::FULL);
+    setStatus("setFontFace", CompatStatus::FULL);
+    setStatus("setFontSize", CompatStatus::FULL);
+    setStatus("setTextAlignment", CompatStatus::FULL);
+    setStatus("textAlignment", CompatStatus::FULL);
+    setStatus("contents", CompatStatus::STUB,
+              "Returns a placeholder handle; backing bitmap lifecycle is not implemented.");
+    setStatus("createContents", CompatStatus::STUB,
+              "Content bitmap allocation is still TODO.");
+    setStatus("destroyContents", CompatStatus::STUB,
+              "Content bitmap release is still TODO.");
+    setStatus("open", CompatStatus::FULL);
+    setStatus("close", CompatStatus::FULL);
+    setStatus("show", CompatStatus::FULL);
+    setStatus("hide", CompatStatus::FULL);
+    setStatus("update", CompatStatus::FULL);
+    setStatus("getContentRect", CompatStatus::FULL);
     
-    methodStatus_["drawActorFace"] = CompatStatus::FULL;
+    setStatus("drawActorFace", CompatStatus::FULL);
     
-    methodStatus_["drawActorHp"] = CompatStatus::FULL;
-    methodStatus_["drawActorMp"] = CompatStatus::FULL;
-    methodStatus_["drawActorTp"] = CompatStatus::FULL;
+    setStatus("drawActorHp", CompatStatus::FULL);
+    setStatus("drawActorMp", CompatStatus::FULL);
+    setStatus("drawActorTp", CompatStatus::FULL);
     
-    methodStatus_["drawTextEx"] = CompatStatus::FULL;
+    setStatus("drawTextEx", CompatStatus::FULL);
     
-    methodStatus_["drawItemName"] = CompatStatus::FULL;
+    setStatus("drawItemName", CompatStatus::FULL);
     
-    methodStatus_["textWidth"] = CompatStatus::FULL;
+    setStatus("textWidth", CompatStatus::FULL);
     
-    methodStatus_["textSize"] = CompatStatus::FULL;
+    setStatus("textSize", CompatStatus::FULL);
 
     for (const auto& [methodName, status] : methodStatus_) {
         (void)status;

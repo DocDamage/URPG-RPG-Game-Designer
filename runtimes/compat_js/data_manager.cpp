@@ -54,70 +54,93 @@ DataManager::DataManager()
 
     // Initialize method status registry
     if (methodStatus_.empty()) {
+        const auto setStatus = [](const std::string& method,
+                                  CompatStatus status,
+                                  const std::string& deviation = "") {
+            methodStatus_[method] = status;
+            if (deviation.empty()) {
+                methodDeviations_.erase(method);
+            } else {
+                methodDeviations_[method] = deviation;
+            }
+        };
+
         // Save/Load
-        methodStatus_["loadDatabase"] = CompatStatus::FULL;
-        methodStatus_["saveGame"] = CompatStatus::FULL;
-        methodStatus_["saveGameWithHeader"] = CompatStatus::FULL;
-        methodStatus_["loadGame"] = CompatStatus::FULL;
-        methodStatus_["deleteSaveFile"] = CompatStatus::FULL;
-        methodStatus_["doesSaveFileExist"] = CompatStatus::FULL;
-        methodStatus_["getMaxSaveFiles"] = CompatStatus::FULL;
-        methodStatus_["getSaveHeader"] = CompatStatus::FULL;
-        methodStatus_["getAllSaveHeaders"] = CompatStatus::FULL;
-        methodStatus_["saveAutosave"] = CompatStatus::FULL;
-        methodStatus_["loadAutosave"] = CompatStatus::FULL;
-        methodStatus_["isAutosaveEnabled"] = CompatStatus::FULL;
-        methodStatus_["setAutosaveEnabled"] = CompatStatus::FULL;
-        methodStatus_["setSaveHeaderExtension"] = CompatStatus::FULL;
-        methodStatus_["getSaveHeaderExtension"] = CompatStatus::FULL;
+        setStatus("loadDatabase", CompatStatus::PARTIAL,
+                  "Database load path still seeds empty containers; JSON database ingestion is TODO.");
+        setStatus("saveGame", CompatStatus::FULL);
+        setStatus("saveGameWithHeader", CompatStatus::FULL);
+        setStatus("loadGame", CompatStatus::FULL);
+        setStatus("deleteSaveFile", CompatStatus::FULL);
+        setStatus("doesSaveFileExist", CompatStatus::FULL);
+        setStatus("getMaxSaveFiles", CompatStatus::FULL);
+        setStatus("getSaveHeader", CompatStatus::FULL);
+        setStatus("getAllSaveHeaders", CompatStatus::FULL);
+        setStatus("saveAutosave", CompatStatus::FULL);
+        setStatus("loadAutosave", CompatStatus::FULL);
+        setStatus("isAutosaveEnabled", CompatStatus::FULL);
+        setStatus("setAutosaveEnabled", CompatStatus::FULL);
+        setStatus("setSaveHeaderExtension", CompatStatus::FULL);
+        setStatus("getSaveHeaderExtension", CompatStatus::FULL);
         
         // Database access
-        methodStatus_["getActors"] = CompatStatus::FULL;
-        methodStatus_["getSkills"] = CompatStatus::FULL;
-        methodStatus_["getItems"] = CompatStatus::FULL;
-        methodStatus_["getWeapons"] = CompatStatus::FULL;
-        methodStatus_["getArmors"] = CompatStatus::FULL;
-        methodStatus_["getEnemies"] = CompatStatus::FULL;
-        methodStatus_["getTroops"] = CompatStatus::FULL;
-        methodStatus_["getStates"] = CompatStatus::FULL;
-        methodStatus_["getActor"] = CompatStatus::FULL;
-        methodStatus_["getSkill"] = CompatStatus::FULL;
-        methodStatus_["getItem"] = CompatStatus::FULL;
+        setStatus("getActors", CompatStatus::PARTIAL,
+                  "Returns live containers, but loader currently populates no actor records.");
+        setStatus("getSkills", CompatStatus::PARTIAL,
+                  "Returns live containers, but loader currently populates no skill records.");
+        setStatus("getItems", CompatStatus::PARTIAL,
+                  "Returns live containers, but loader currently populates no item records.");
+        setStatus("getWeapons", CompatStatus::PARTIAL,
+                  "Returns live containers, but loader currently populates no weapon records.");
+        setStatus("getArmors", CompatStatus::PARTIAL,
+                  "Returns live containers, but loader currently populates no armor records.");
+        setStatus("getEnemies", CompatStatus::PARTIAL,
+                  "Returns live containers, but loader currently populates no enemy records.");
+        setStatus("getTroops", CompatStatus::PARTIAL,
+                  "Returns live containers, but loader currently populates no troop records.");
+        setStatus("getStates", CompatStatus::PARTIAL,
+                  "Returns live containers, but loader currently populates no state records.");
+        setStatus("getActor", CompatStatus::PARTIAL,
+                  "Actor lookup works against an in-memory list that is still loader-empty.");
+        setStatus("getSkill", CompatStatus::PARTIAL,
+                  "Skill lookup works against an in-memory list that is still loader-empty.");
+        setStatus("getItem", CompatStatus::PARTIAL,
+                  "Item lookup works against an in-memory list that is still loader-empty.");
         
         // Global state
-        methodStatus_["setupNewGame"] = CompatStatus::FULL;
-        methodStatus_["getPartySize"] = CompatStatus::FULL;
-        methodStatus_["getPartyMember"] = CompatStatus::FULL;
-        methodStatus_["getGold"] = CompatStatus::FULL;
-        methodStatus_["setGold"] = CompatStatus::FULL;
-        methodStatus_["gainGold"] = CompatStatus::FULL;
-        methodStatus_["loseGold"] = CompatStatus::FULL;
-        methodStatus_["getItemCount"] = CompatStatus::FULL;
-        methodStatus_["gainItem"] = CompatStatus::FULL;
-        methodStatus_["loseItem"] = CompatStatus::FULL;
-        methodStatus_["hasItem"] = CompatStatus::FULL;
-        methodStatus_["getSwitch"] = CompatStatus::FULL;
-        methodStatus_["setSwitch"] = CompatStatus::FULL;
-        methodStatus_["getVariable"] = CompatStatus::FULL;
-        methodStatus_["setVariable"] = CompatStatus::FULL;
-        methodStatus_["getSelfSwitch"] = CompatStatus::FULL;
-        methodStatus_["setSelfSwitch"] = CompatStatus::FULL;
-        methodStatus_["getPlaytime"] = CompatStatus::FULL;
-        methodStatus_["getPlaytimeString"] = CompatStatus::FULL;
-        methodStatus_["getSteps"] = CompatStatus::FULL;
-        methodStatus_["incrementSteps"] = CompatStatus::FULL;
-        methodStatus_["getPlayerMapId"] = CompatStatus::FULL;
-        methodStatus_["getPlayerX"] = CompatStatus::FULL;
-        methodStatus_["getPlayerY"] = CompatStatus::FULL;
-        methodStatus_["setPlayerPosition"] = CompatStatus::FULL;
-        methodStatus_["reserveTransfer"] = CompatStatus::FULL;
-        methodStatus_["isTransferring"] = CompatStatus::FULL;
-        methodStatus_["processTransfer"] = CompatStatus::FULL;
+        setStatus("setupNewGame", CompatStatus::FULL);
+        setStatus("getPartySize", CompatStatus::FULL);
+        setStatus("getPartyMember", CompatStatus::FULL);
+        setStatus("getGold", CompatStatus::FULL);
+        setStatus("setGold", CompatStatus::FULL);
+        setStatus("gainGold", CompatStatus::FULL);
+        setStatus("loseGold", CompatStatus::FULL);
+        setStatus("getItemCount", CompatStatus::FULL);
+        setStatus("gainItem", CompatStatus::FULL);
+        setStatus("loseItem", CompatStatus::FULL);
+        setStatus("hasItem", CompatStatus::FULL);
+        setStatus("getSwitch", CompatStatus::FULL);
+        setStatus("setSwitch", CompatStatus::FULL);
+        setStatus("getVariable", CompatStatus::FULL);
+        setStatus("setVariable", CompatStatus::FULL);
+        setStatus("getSelfSwitch", CompatStatus::FULL);
+        setStatus("setSelfSwitch", CompatStatus::FULL);
+        setStatus("getPlaytime", CompatStatus::FULL);
+        setStatus("getPlaytimeString", CompatStatus::FULL);
+        setStatus("getSteps", CompatStatus::FULL);
+        setStatus("incrementSteps", CompatStatus::FULL);
+        setStatus("getPlayerMapId", CompatStatus::FULL);
+        setStatus("getPlayerX", CompatStatus::FULL);
+        setStatus("getPlayerY", CompatStatus::FULL);
+        setStatus("setPlayerPosition", CompatStatus::FULL);
+        setStatus("reserveTransfer", CompatStatus::FULL);
+        setStatus("isTransferring", CompatStatus::FULL);
+        setStatus("processTransfer", CompatStatus::FULL);
         
         // Plugin commands
-        methodStatus_["registerPluginCommand"] = CompatStatus::FULL;
-        methodStatus_["unregisterPluginCommand"] = CompatStatus::FULL;
-        methodStatus_["executePluginCommand"] = CompatStatus::FULL;
+        setStatus("registerPluginCommand", CompatStatus::FULL);
+        setStatus("unregisterPluginCommand", CompatStatus::FULL);
+        setStatus("executePluginCommand", CompatStatus::FULL);
     }
 }
 

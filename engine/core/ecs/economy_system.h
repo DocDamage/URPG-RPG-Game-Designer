@@ -2,7 +2,7 @@
 
 #include "engine/core/ecs/world.h"
 #include "engine/core/ecs/economy_components.h"
-#include "engine/core/ecs/gameplay_components.h"
+#include "engine/core/gameplay/inventory_components.h"
 
 namespace urpg {
 
@@ -16,6 +16,10 @@ public:
         std::string message;
     };
 
+    void update(World&) {
+        // Merchant economy is currently transaction-driven; no per-frame step yet.
+    }
+
     TransactionResult buyItem(World& world, EntityID buyer, EntityID merchant, const std::string& itemId, uint32_t price) {
         auto* buyerCurrency = world.GetComponent<CurrencyComponent>(buyer);
         auto* buyerInventory = world.GetComponent<InventoryComponent>(buyer);
@@ -25,12 +29,12 @@ public:
             return {false, "Not enough gold"};
         }
 
-        if (!buyerInventory || buyerInventory->itemIds.size() >= buyerInventory->capacity) {
+        if (!buyerInventory || buyerInventory->slots.size() >= static_cast<size_t>(buyerInventory->maxSlots)) {
             return {false, "Inventory full"};
         }
 
         buyerCurrency->amount -= price;
-        buyerInventory->itemIds.push_back(itemId);
+        buyerInventory->addItem(itemId);
         
         return {true, "Purchase successful"};
     }

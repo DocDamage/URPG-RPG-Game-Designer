@@ -88,9 +88,13 @@ add_library(urpg_core
     engine/core/save/save_runtime.cpp
     engine/core/battle/battle_core.cpp
     engine/gameplay/combat/combat_calc.cpp
+    engine/core/audio/audio_ai_bridge.cpp
+    engine/core/animation/animation_ai_bridge.cpp
     engine/core/ui/ui_window.cpp
+    engine/core/ui/chat_window.cpp
     engine/core/ui/ui_command_list.cpp
     engine/core/message/message_core.cpp
+    engine/core/message/dialogue_registry.cpp
     engine/core/message/message_migration.cpp
     editor/diagnostics/event_authority_diagnostics.cpp
     editor/diagnostics/event_authority_panel.cpp
@@ -111,6 +115,7 @@ add_library(urpg_core
     editor/ability/ability_inspector_panel.cpp
     editor/ability/pattern_field_model.cpp
     editor/ability/pattern_field_panel.cpp
+    engine/core/editor/plugin_api.cpp
     engine/core/ability/gameplay_ability.cpp
     engine/core/ability/ability_state_machine.cpp
     engine/core/ability/pattern_field.cpp
@@ -274,6 +279,7 @@ add_executable(urpg_tests
     tests/unit/test_audio_manager.cpp
     tests/unit/test_input_manager.cpp
     tests/unit/test_plugin_manager.cpp
+    tests/unit/test_plugin_api.cpp
     tests/unit/test_menu_core.cpp
     tests/unit/test_input_core.cpp
     tests/unit/test_audio_core.cpp
@@ -287,6 +293,8 @@ add_executable(urpg_tests
     tests/unit/test_state_audio_sync.cpp
     tests/unit/test_scene_manager.cpp
     tests/unit/test_gameplay_tags.cpp
+    tests/unit/test_spatial_editor.cpp
+    tests/unit/test_huggingface_curated_assets.cpp
     tests/unit/test_ability_activation.cpp
     tests/unit/test_pattern_field.cpp
     tests/unit/test_wave3_gaf.cpp

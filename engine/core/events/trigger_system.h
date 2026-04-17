@@ -67,15 +67,23 @@ public:
 private:
     bool checkOverlap(const TransformComponent& tTrans, const CollisionBoxComponent& tBox,
                       const TransformComponent& aTrans, const CollisionBoxComponent& aBox) {
-        // Simple AABB overlap using existing Vector3 math logic
-        Vector3 tMin = tTrans.position + tBox.offset - (tBox.size * Fixed32::FromRaw(32768));
-        Vector3 tMax = tTrans.position + tBox.offset + (tBox.size * Fixed32::FromRaw(32768));
-        Vector3 aMin = aTrans.position + aBox.offset - (aBox.size * Fixed32::FromRaw(32768));
-        Vector3 aMax = aTrans.position + aBox.offset + (aBox.size * Fixed32::FromRaw(32768));
+        const float tHalfX = tBox.size.x.ToFloat() * 0.5f;
+        const float tHalfY = tBox.size.y.ToFloat() * 0.5f;
+        const float tHalfZ = tBox.size.z.ToFloat() * 0.5f;
+        const float aHalfX = aBox.size.x.ToFloat() * 0.5f;
+        const float aHalfY = aBox.size.y.ToFloat() * 0.5f;
+        const float aHalfZ = aBox.size.z.ToFloat() * 0.5f;
 
-        return (tMin.x < aMax.x && tMax.x > aMin.x) &&
-               (tMin.y < aMax.y && tMax.y > aMin.y) &&
-               (tMin.z < aMax.z && tMax.z > aMin.z);
+        const float tCenterX = (tTrans.position + tBox.offset).x.ToFloat();
+        const float tCenterY = (tTrans.position + tBox.offset).y.ToFloat();
+        const float tCenterZ = (tTrans.position + tBox.offset).z.ToFloat();
+        const float aCenterX = (aTrans.position + aBox.offset).x.ToFloat();
+        const float aCenterY = (aTrans.position + aBox.offset).y.ToFloat();
+        const float aCenterZ = (aTrans.position + aBox.offset).z.ToFloat();
+
+        return std::abs(tCenterX - aCenterX) < (tHalfX + aHalfX) &&
+               std::abs(tCenterY - aCenterY) < (tHalfY + aHalfY) &&
+               std::abs(tCenterZ - aCenterZ) < (tHalfZ + aHalfZ);
     }
 
     std::vector<PendingEvent> m_pendingEvents;

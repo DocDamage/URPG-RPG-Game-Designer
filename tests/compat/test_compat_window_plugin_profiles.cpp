@@ -30,7 +30,7 @@ std::vector<PluginProfile> buildCuratedProfiles() {
             "VisuStella_CoreEngine_MZ",
             {
                 {"Window_Base.drawText", CompatStatus::FULL},
-                {"Window_Base.drawIcon", CompatStatus::FULL},
+                {"Window_Base.drawIcon", CompatStatus::PARTIAL},
                 {"Window_Base.drawTextEx", CompatStatus::FULL},
                 {"Window_Base.lineHeight", CompatStatus::FULL},
             }
@@ -74,8 +74,8 @@ std::vector<PluginProfile> buildCuratedProfiles() {
             "EliMZ_Book",
             {
                 {"Window_Base.drawActorFace", CompatStatus::FULL},
-                {"Window_Base.drawActorName", CompatStatus::FULL},
-                {"Window_Base.drawActorLevel", CompatStatus::FULL},
+                {"Window_Base.drawActorName", CompatStatus::PARTIAL},
+                {"Window_Base.drawActorLevel", CompatStatus::PARTIAL},
                 {"Window_Base.drawActorHp", CompatStatus::FULL},
                 {"Window_Base.drawActorMp", CompatStatus::FULL},
             }

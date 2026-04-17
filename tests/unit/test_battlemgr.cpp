@@ -333,8 +333,10 @@ TEST_CASE("BattleManager: method status registry", "[battlemgr]") {
     BattleManager bm;
     (void)bm;
 
-    REQUIRE(BattleManager::getMethodStatus("setup") == CompatStatus::FULL);
+    REQUIRE(BattleManager::getMethodStatus("setup") == CompatStatus::PARTIAL);
     REQUIRE(BattleManager::getMethodStatus("processEscape") == CompatStatus::FULL);
+    REQUIRE(BattleManager::getMethodStatus("setBattleTransition") == CompatStatus::STUB);
+    REQUIRE(BattleManager::getMethodDeviation("setup").find("troop loading") != std::string::npos);
     REQUIRE(BattleManager::getMethodStatus("nonexistentMethod") == CompatStatus::UNSUPPORTED);
 }
 

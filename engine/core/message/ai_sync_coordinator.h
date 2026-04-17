@@ -8,9 +8,10 @@
 namespace urpg::ai {
 
 /**
- * @brief Coordinates the synchronization of AI conversation history and knowledge bases
- * across cloud providers (Steam, GOG, Epic, or Generic HTTP).
- * This ensures the 'Game Guide' remembers your questions even if you switch devices.
+ * @brief Coordinates AI history serialization through an injected cloud-service abstraction.
+ * The wiring is real, but cross-device persistence depends on the backing
+ * ICloudService implementation; with the in-tree CloudServiceStub this remains
+ * local in-memory test behavior rather than a live cloud sync path.
  */
 class AISyncCoordinator {
 public:
@@ -18,17 +19,17 @@ public:
     virtual ~AISyncCoordinator() = default;
 
     /**
-     * @brief Pushes current chatbot history to the cloud.
+     * @brief Pushes current chatbot history to the configured cloud-service backend.
      */
     bool syncHistoryToCloud(const std::string& profileId, const ChatbotComponent& chatbot);
 
     /**
-     * @brief Pulls chatbot history from the cloud and restores it.
+     * @brief Pulls chatbot history from the configured cloud-service backend and restores it.
      */
     bool restoreHistoryFromCloud(const std::string& profileId, ChatbotComponent& chatbot);
 
     /**
-     * @brief Checks if there are newer AI insights available in the cloud (e.g., from community wiki mirrors).
+     * @brief Placeholder hook for checking remote AI knowledge updates.
      */
     bool checkForRemoteKnowledgeUpdates(const std::string& projectId);
 

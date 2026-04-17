@@ -57,17 +57,17 @@ public:
 
         if (root.contains("switches") && root["switches"].is_object()) {
             for (auto it = root["switches"].begin(); it != root["switches"].end(); ++it) {
-                hub.setSwitch(it.key(), it.value().get<bool>());
+                hub.updateState(it.key(), it.value().get<bool>());
             }
         }
 
         if (root.contains("variables") && root["variables"].is_object()) {
             for (auto it = root["variables"].begin(); it != root["variables"].end(); ++it) {
                 auto& val = it.value();
-                if (val.is_boolean()) hub.setVariable(it.key(), val.get<bool>());
-                else if (val.is_number_integer()) hub.setVariable(it.key(), val.get<int32_t>());
-                else if (val.is_number_float()) hub.setVariable(it.key(), val.get<float>());
-                else if (val.is_string()) hub.setVariable(it.key(), val.get<std::string>());
+                if (val.is_boolean()) hub.updateState(it.key(), val.get<bool>());
+                else if (val.is_number_integer()) hub.updateState(it.key(), val.get<int32_t>());
+                else if (val.is_number_float()) hub.updateState(it.key(), val.get<float>());
+                else if (val.is_string()) hub.updateState(it.key(), val.get<std::string>());
             }
         }
     }

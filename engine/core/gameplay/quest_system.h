@@ -1,6 +1,7 @@
 #pragma once
 
 #include "engine/core/math/fixed32.h"
+#include "engine/core/ecs/world.h"
 #include <string>
 
 namespace urpg {

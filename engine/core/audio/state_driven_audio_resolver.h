@@ -24,18 +24,14 @@ public:
 
     StateDrivenAudioResolver(AudioCore& core) : m_core(core) {
         // Subscribe to changes in state that might trigger BGM swaps
-        m_subHandle = GlobalStateHub::getInstance().subscribe("map.*", [this](const std::string& key, const GlobalStateHub::Value& value) {
-            this->evaluateRules(key, value);
-        });
-        
-        m_subHandleBattle = GlobalStateHub::getInstance().subscribe("battle.*", [this](const std::string& key, const GlobalStateHub::Value& value) {
+        // Updated Pattern matching to use global listener for multi-prefix rules
+        m_subHandle = GlobalStateHub::getInstance().subscribe("*", [this](const std::string& key, const GlobalStateHub::Value& value) {
             this->evaluateRules(key, value);
         });
     }
 
     ~StateDrivenAudioResolver() {
         GlobalStateHub::getInstance().unsubscribe(m_subHandle);
-        GlobalStateHub::getInstance().unsubscribe(m_subHandleBattle);
     }
 
     void addRule(const Rule& rule) {
@@ -44,8 +40,15 @@ public:
 
 private:
     void evaluateRules(const std::string& key, const GlobalStateHub::Value& value) {
-        if (!std::holds_alternative<std::string>(value)) return;
-        const std::string& valStr = std::get<std::string>(value);
+        // Handle both string and int values for state rules (common for map IDs)
+        std::string valStr;
+        if (std::holds_alternative<std::string>(value)) {
+            valStr = std::get<std::string>(value);
+        } else if (std::holds_alternative<int32_t>(value)) {
+            valStr = std::to_string(std::get<int32_t>(value));
+        } else {
+            return;
+        }
 
         for (const auto& rule : m_rules) {
             if (rule.hubKey == key && rule.hubValue == valStr) {
@@ -58,7 +61,6 @@ private:
     AudioCore& m_core;
     std::vector<Rule> m_rules;
     uint32_t m_subHandle = 0;
-    uint32_t m_subHandleBattle = 0;
 };
 
 } // namespace urpg::audio

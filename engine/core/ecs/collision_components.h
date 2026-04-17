@@ -10,6 +10,12 @@ namespace urpg {
 struct CollisionBoxComponent {
     Vector3 offset; // Offset from transform position
     Vector3 size = {Fixed32::FromInt(1), Fixed32::FromInt(1), Fixed32::FromInt(1)};
+
+    CollisionBoxComponent() = default;
+    CollisionBoxComponent(Vector3 offsetValue, Vector3 sizeValue)
+        : offset(offsetValue), size(sizeValue) {}
+    CollisionBoxComponent(Vector3 offsetValue, Fixed32 uniformSize)
+        : offset(offsetValue), size{uniformSize, uniformSize, uniformSize} {}
 };
 
 /**

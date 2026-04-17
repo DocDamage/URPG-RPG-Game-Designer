@@ -1607,9 +1607,10 @@ TEST_CASE("PluginManager: Method status registry", "[plugin_manager]") {
         REQUIRE(status == CompatStatus::FULL);
     }
     
-    SECTION("GetMethodStatus returns FULL for async execution") {
+    SECTION("GetMethodStatus returns PARTIAL for async execution") {
         CompatStatus status = pm.getMethodStatus("executeCommandAsync");
-        REQUIRE(status == CompatStatus::FULL);
+        REQUIRE(status == CompatStatus::PARTIAL);
+        REQUIRE(pm.getMethodDeviation("executeCommandAsync").find("worker thread") != std::string::npos);
     }
     
     SECTION("GetMethodStatus returns UNSUPPORTED for unknown methods") {

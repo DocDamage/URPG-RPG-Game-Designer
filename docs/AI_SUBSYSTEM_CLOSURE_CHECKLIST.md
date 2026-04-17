@@ -22,7 +22,7 @@ This document tracks the detailed implementation status of the AI Copilot infras
 
 ### 4. Persistence & Security
 - [x] **Differential Snapshots**: History serialization avoids redundant system prompt blobs.
-- [x] **Encrypted Sync**: `AISyncCoordinator` ready for Cloud/ICloudService integration.
+- [x] **Encrypted Sync Plumbing**: `AISyncCoordinator` is wired for `ICloudService` integration, but the in-tree path still depends on an in-memory `CloudServiceStub` rather than a live cloud backend.
 
 ## Closure Checklist (Production Readiness)
 

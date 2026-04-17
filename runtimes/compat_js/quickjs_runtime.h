@@ -1,10 +1,11 @@
 #pragma once
 
-// QuickJS Runtime Integration Contract Kernel
+// QuickJS Compat Harness Contract Kernel
 // Phase 2 - Compat Layer
 //
-// This defines the contract for embedding QuickJS within URPG's MZ compatibility layer.
-// The runtime is isolated from native URPG systems per Invariant 1: "Compat never degrades Native."
+// This defines the fixture-backed QuickJS contract harness used by URPG's MZ compatibility layer.
+// It is intentionally scoped as a compat/import verification harness until a real QuickJS runtime is integrated.
+// The harness is isolated from native URPG systems per Invariant 1: "Compat never degrades Native."
 
 #include "engine/runtimes/bridge/value.h"
 #include <cstdint>
@@ -58,7 +59,7 @@ struct VFSMount {
     bool readOnly = true;                // Compat lane is read-only by default
 };
 
-// QuickJS runtime configuration
+// QuickJS harness configuration
 struct QuickJSConfig {
     bool enableMemoryLimit = true;
     uint32_t memoryLimitMB = 64;
@@ -68,16 +69,17 @@ struct QuickJSConfig {
     std::string moduleBasePath = "/js/";
 };
 
-// Forward declaration - actual QuickJS types are opaque to the contract
+// Forward declaration - real QuickJS state remains opaque to the contract when/if integrated
 class QuickJSContextImpl;
 
-// QuickJSContext - Contract kernel for QuickJS embedding
+// QuickJSContext - Contract kernel for the fixture-backed QuickJS compat harness
 // 
 // Design principles:
 // 1. All JS→C++ calls go through the Value bridge (no direct type exposure)
 // 2. File access is virtualized through VFSMounts (no direct disk access)
 // 3. Memory and CPU are budgeted and enforceable
 // 4. Errors are always caught and converted to ScriptResult (no exceptions cross boundary)
+// 5. Until real QuickJS integration lands, eval/call semantics are harness-driven rather than live-engine driven
 //
 class QuickJSContext {
 public:
@@ -90,16 +92,16 @@ public:
     QuickJSContext(QuickJSContext&&) noexcept;
     QuickJSContext& operator=(QuickJSContext&&) noexcept;
 
-    // Initialize with configuration
+    // Initialize the compat harness with configuration
     bool initialize(const QuickJSConfig& config);
 
-    // Evaluate a script string
+    // Evaluate harness-supported script directives or passthrough fixture text
     ScriptResult eval(const std::string& code, const std::string& filename = "<eval>");
 
-    // Evaluate a script string within a specific local scope (e.g. for ability conditions)
+    // Evaluate a script string within a specific local scope for harness/testing flows
     ScriptResult evalWithScope(const std::string& code, const std::map<std::string, Value>& scope, const std::string& filename = "<eval>");
 
-    // Load and evaluate a module
+    // Load and evaluate a module through the harness loader hook
     ScriptResult evalModule(const std::string& filename);
 
     // Call a global function with arguments
@@ -168,10 +170,10 @@ private:
     ModuleLoader moduleLoader_;
 };
 
-// QuickJSRuntime - Manages multiple isolated contexts
+// QuickJSRuntime - Manages multiple isolated compat-harness contexts
 //
-// Each MZ plugin can run in its own context for isolation.
-// The runtime manages context lifecycle and resource limits.
+// Each MZ plugin can run in its own isolated harness context for fixture-backed testing/import flows.
+// This does not imply live production JS execution support yet.
 //
 class QuickJSRuntime {
 public:
@@ -182,7 +184,7 @@ public:
     QuickJSRuntime(const QuickJSRuntime&) = delete;
     QuickJSRuntime& operator=(const QuickJSRuntime&) = delete;
 
-    // Initialize the runtime
+    // Initialize the compat harness runtime wrapper
     bool initialize();
 
     // Create a new isolated context for a plugin

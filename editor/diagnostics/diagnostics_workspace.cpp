@@ -279,8 +279,6 @@ std::vector<DiagnosticsTabSummary> DiagnosticsWorkspace::allTabSummaries() const
         tabSummary(DiagnosticsTab::MessageText),
         tabSummary(DiagnosticsTab::Battle),
         tabSummary(DiagnosticsTab::Menu),
-        tabSummary(DiagnosticsTab::Audio),
-        tabSummary(DiagnosticsTab::MigrationWizard),
         tabSummary(DiagnosticsTab::Abilities),
     };
 }

@@ -134,7 +134,7 @@ public:
 
     /**
      * @brief Subscribe to changes for a specific key or prefix.
-     * @param pattern The key to watch (exact match for now).
+     * @param pattern The key to watch (exact match for now), or "*" for all changes.
      * @return A subscription handle.
      */
     uint32_t subscribe(const std::string& pattern, ChangeCallback callback) {
@@ -142,6 +142,33 @@ public:
         uint32_t handle = m_nextHandle++;
         m_subscriptions.push_back({ handle, pattern, std::move(callback) });
         return handle;
+    }
+
+    /**
+     * @brief Diff-First state update for audio/UI sync.
+     * Triggers notifications ONLY if the value actually changed.
+     */
+    template<typename T>
+    void updateState(const std::string& id, T newValue) {
+        bool changed = false;
+        Value val(newValue);
+        {
+            std::lock_guard<std::mutex> lock(m_mutex);
+            if constexpr (std::is_same_v<T, bool>) {
+                if (!m_switches.count(id) || m_switches[id] != newValue) {
+                    m_switches[id] = newValue;
+                    changed = true;
+                }
+            } else {
+                if (!m_variables.count(id) || m_variables[id] != val) {
+                    m_variables[id] = val;
+                    changed = true;
+                }
+            }
+        }
+        if (changed) {
+            notify(id, val);
+        }
     }
 
     void unsubscribe(uint32_t handle) {
@@ -164,8 +191,10 @@ public:
     }
 
     // Accessors for serialization
-    const std::unordered_map<std::string, bool>& getAllSwitches() const { return m_switches; }
-    const std::unordered_map<std::string, Value>& getAllVariables() const { return m_variables; }
+    std::unordered_map<std::string, Value> getAllVariables() const {
+        std::lock_guard<std::mutex> lock(m_mutex);
+        return m_variables;
+    }
 
     /**
      * @brief Resets all internal state (switches, variables, configs, subscriptions).
@@ -190,7 +219,13 @@ private:
         {
             std::lock_guard<std::mutex> lock(m_mutex);
             for (const auto& sub : m_subscriptions) {
-                if (sub.pattern == id || sub.pattern == "*") {
+                const bool exact_match = sub.pattern == id;
+                const bool all_match = sub.pattern == "*";
+                const bool prefix_match =
+                    sub.pattern.size() > 1 &&
+                    sub.pattern.back() == '*' &&
+                    id.rfind(sub.pattern.substr(0, sub.pattern.size() - 1), 0) == 0;
+                if (exact_match || all_match || prefix_match) {
                     callbacks.push_back(sub.callback);
                 }
             }

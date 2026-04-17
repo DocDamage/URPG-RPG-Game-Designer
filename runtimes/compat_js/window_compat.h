@@ -83,23 +83,23 @@ public:
     virtual ~Window_Base();
     
     // MZ API: Core drawing operations
-    // Status: FULL - Behaves identically to MZ
+    // Status: FULL - Behaves identically to MZ for text layout and renderer command emission
     virtual void drawText(const std::string& text, int32_t x, int32_t y, 
                           int32_t maxWidth = 0, 
                           const std::string& align = "left");
     
-    // Status: FULL - Behaves identically to MZ
+    // Status: PARTIAL - Tracks draw intent, but icon-set bitmap rendering is still TODO
     virtual void drawIcon(int32_t iconIndex, int32_t x, int32_t y);
     
     // Status: FULL - MZ-canonical face cell clipping + destination centering semantics
     virtual void drawActorFace(int32_t actorId, int32_t x, int32_t y, 
                                int32_t width = 144, int32_t height = 144);
     
-    // Status: FULL
+    // Status: PARTIAL - Falls back to text labels; full actor-name window rendering is not wired yet
     virtual void drawActorName(int32_t actorId, int32_t x, int32_t y, 
                                int32_t width = 150);
     
-    // Status: FULL
+    // Status: PARTIAL - Falls back to text labels; full actor-level window rendering is not wired yet
     virtual void drawActorLevel(int32_t actorId, int32_t x, int32_t y);
     
     // Status: FULL - Uses MZ-compatible default gauge colors
@@ -114,11 +114,11 @@ public:
     virtual void drawActorTp(int32_t actorId, int32_t x, int32_t y, 
                              int32_t width = 128);
     
-    // Status: FULL
+    // Status: PARTIAL - Records gauge semantics, but background/fill gradient rendering is still TODO
     virtual void drawGauge(int32_t x, int32_t y, int32_t width,
                            double rate, const Color& color1, const Color& color2);
     
-    // Status: FULL
+    // Status: PARTIAL - Tracks character draw intent, but character-sheet rendering is still TODO
     virtual void drawCharacter(const std::string& characterName,
                                int32_t index, int32_t x, int32_t y);
     
@@ -162,7 +162,7 @@ public:
     virtual std::string textAlignment() const;
     
     // Contents bitmap
-    // Status: STUB - Returns placeholder
+    // Status: STUB - Returns a placeholder handle; backing bitmap lifecycle is not implemented
     virtual BitmapHandle contents() const;
     virtual void createContents();
     virtual void destroyContents();

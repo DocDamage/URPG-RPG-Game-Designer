@@ -1,7 +1,7 @@
 #include "map_scene.h"
 #include "engine/core/save/save_serialization_hub.h"
 #include "engine/core/save/save_runtime.h"
-#include "engine/core/asset/asset_loader.h"
+#include "engine/core/render/asset_loader.h"
 #include "engine/core/audio/audio_ai_bridge.h"
 #include "engine/core/audio/audio_core.h"
 #include "engine/core/animation/animation_ai_bridge.h"
@@ -90,15 +90,14 @@ void MapScene::handleInput(const urpg::input::InputCore& input) {
                 if (m_chatUI) m_chatUI->addMessage("Player", question);
 
                 // Submit to AI
-                m_activeChatbot->chat(question, 
-                    [this](const std::string& response) {
+                m_activeChatbot->getResponse(question,
+                    [this](urpg::message::DialoguePage page) {
+                        const std::string& response = page.body;
                         if (m_chatUI) {
                             m_chatUI->addMessage("Guide", response);
                         } else {
                             // Fallback to dialogue pages if UI is disabled
-                            urpg::message::DialoguePage page;
-                            page.text = response;
-                            page.speaker = "Game Guide";
+                            page.variant.speaker = "Game Guide";
                             this->startDialogue({page});
                         }
                         
@@ -196,8 +195,17 @@ void MapScene::draw(SpriteBatcher& batcher) {
     }
 
     if (m_playerAnimator) {
-        // ...
-        m_playerAnimator->draw(batcher, drawX, drawY, 48.0f, 48.0f, z);
+        constexpr float kTileSize = 48.0f;
+        float drawX = static_cast<float>(m_playerMovement.gridPos.x) * kTileSize;
+        float drawY = static_cast<float>(m_playerMovement.gridPos.y) * kTileSize;
+        if (m_playerMovement.isMoving) {
+            const float lastX = static_cast<float>(m_playerMovement.lastGridPos.x) * kTileSize;
+            const float lastY = static_cast<float>(m_playerMovement.lastGridPos.y) * kTileSize;
+            drawX = lastX + (drawX - lastX) * m_playerMovement.moveProgress;
+            drawY = lastY + (drawY - lastY) * m_playerMovement.moveProgress;
+        }
+
+        m_playerAnimator->draw(batcher, drawX, drawY, kTileSize, kTileSize, 1.0f);
     }
 
     // Draw UI components on top of the world

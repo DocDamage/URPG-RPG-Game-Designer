@@ -1,22 +1,22 @@
-// Unit tests for QuickJS Runtime Integration Contract Kernel
+// Unit tests for the QuickJS compat harness contract kernel
 // Phase 2 - Compat Layer
 //
-// These tests verify the contract kernel behavior without requiring
-// actual QuickJS linking. The stubs validate API surface and budget tracking.
+// These tests verify the fixture-backed harness behavior without requiring
+// actual QuickJS linking. They validate API surface, directive semantics, and budget tracking.
 
 #include "runtimes/compat_js/quickjs_runtime.h"
 #include <catch2/catch_test_macros.hpp>
 
 using namespace urpg::compat;
 
-TEST_CASE("QuickJSContext initializes with default config", "[compat][quickjs]") {
+TEST_CASE("QuickJSContext harness initializes with default config", "[compat][quickjs]") {
     QuickJSContext ctx;
     QuickJSConfig config;
     
     REQUIRE(ctx.initialize(config));
 }
 
-TEST_CASE("QuickJSContext eval returns success for stub", "[compat][quickjs]") {
+TEST_CASE("QuickJSContext eval returns harness success for non-directive input", "[compat][quickjs]") {
     QuickJSContext ctx;
     REQUIRE(ctx.initialize(QuickJSConfig{}));
     
@@ -272,7 +272,7 @@ TEST_CASE("QuickJSContext resetBudgetCounters clears flags", "[compat][quickjs]"
     REQUIRE_FALSE(budget.exceeded_memory);
 }
 
-TEST_CASE("QuickJSContext module loader", "[compat][quickjs]") {
+TEST_CASE("QuickJSContext harness module loader delegates through loader hook", "[compat][quickjs]") {
     QuickJSContext ctx;
     REQUIRE(ctx.initialize(QuickJSConfig{}));
     
@@ -320,12 +320,12 @@ TEST_CASE("QuickJSContext evalModule propagates module eval failure", "[compat][
     REQUIRE(result.sourceLocation == "broken_module:1");
 }
 
-TEST_CASE("QuickJSRuntime initializes", "[compat][quickjs]") {
+TEST_CASE("QuickJSRuntime harness initializes", "[compat][quickjs]") {
     QuickJSRuntime runtime;
     REQUIRE(runtime.initialize());
 }
 
-TEST_CASE("QuickJSRuntime creates isolated contexts", "[compat][quickjs]") {
+TEST_CASE("QuickJSRuntime harness creates isolated contexts", "[compat][quickjs]") {
     QuickJSRuntime runtime;
     REQUIRE(runtime.initialize());
     

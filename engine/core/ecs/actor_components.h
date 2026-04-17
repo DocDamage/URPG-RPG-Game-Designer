@@ -1,26 +1,12 @@
 #pragma once
 
 #include "engine/core/math/vector3.h"
+#include "engine/gameplay/combat/combat_calc.h"
 #include <string>
 #include <vector>
 #include <cstdint>
 
 namespace urpg {
-
-/**
- * @brief Core stats shared by all combat participants.
- */
-struct ActorStats {
-    int32_t hp = 0;
-    int32_t maxHp = 0;
-    int32_t mp = 0;
-    int32_t maxMp = 0;
-    
-    int32_t attack = 0;
-    int32_t defense = 0;
-    int32_t agility = 0;
-    int32_t luck = 0;
-};
 
 /**
  * @brief Component for identifying an entity as an Actor (PC or NPC).

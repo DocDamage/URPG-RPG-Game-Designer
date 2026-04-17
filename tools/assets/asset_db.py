@@ -20,6 +20,7 @@ DEFAULT_ROOTS = [
     "third_party/itch-assets/packs",
     "third_party/itch-assets/loose-files",
     "third_party/rpgmaker-mz",
+    "third_party/huggingface",
     "imports/root-drop/archives",
 ]
 EXCLUDED_DIRS = {".git", ".venv", "__pycache__", "node_modules", "packs-by-category", "unzipped"}
@@ -78,6 +79,11 @@ def infer_pack_category(path_rel: str) -> tuple[str | None, str | None]:
     if "visumz-sample-project" in parts and not category:
         category = "rpgmaker-mz-visustella-sample"
         pack = pack or "VisuMZ_Sample_Game_Project"
+    if "third_party" in parts and "huggingface" in parts:
+        i = parts.index("huggingface")
+        if i + 1 < len(parts) and parts[i + 1] != "README.md":
+            category = f"huggingface-{parts[i + 1]}"
+            pack = pack or parts[i + 1]
     return pack, category
 
 

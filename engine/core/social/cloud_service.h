@@ -29,8 +29,9 @@ namespace urpg::social {
     };
 
     /**
-     * @brief Core interface for the Producer Copilot to manage cloud saves/sync.
-     * Part of Phase 4 Ecosystem integration.
+     * @brief Cloud-sync abstraction consumed by AI/save orchestration layers.
+     * Part of Phase 4 Ecosystem integration, but production provider bindings are
+     * still pending; current in-tree usage is primarily exercised through the stub.
      */
     class ICloudService {
     public:
@@ -68,20 +69,22 @@ namespace urpg::social {
     };
 
     /**
-     * @brief Default implementation of the cloud service stub.
-     * Allows developers to test cloud functionality without a live connection.
+     * @brief In-memory cloud-service stub for local testing only.
+     * This implementation does not perform any real network transport, account
+     * authentication, or cross-device persistence, and should not be described as
+     * a production cloud integration path.
      */
     class CloudServiceStub : public ICloudService {
     public:
         CloudResult initialize(CloudProvider provider, const std::string& apiKey) override {
             m_provider = provider;
             m_online = true;
-            return {true, "Connected to provider stub.", 123456789};
+            return {true, "Connected to in-memory provider stub.", 123456789};
         }
 
         CloudResult syncToCloud(const std::string& key, const std::vector<uint8_t>& data) override {
             m_storage[key] = data;
-            return {true, "Data synced to memory stub.", 123456790};
+            return {true, "Data stored in local memory stub.", 123456790};
         }
 
         std::vector<uint8_t> fetchFromCloud(const std::string& key) override {
@@ -100,7 +103,7 @@ namespace urpg::social {
         }
 
         bool isOnline() const override { return m_online; }
-        CloudResult getStatus() const override { return {true, "Idle", 0}; }
+        CloudResult getStatus() const override { return {true, "Idle (memory stub)", 0}; }
 
     private:
         CloudProvider m_provider = CloudProvider::LocalSimulated;

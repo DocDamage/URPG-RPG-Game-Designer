@@ -143,6 +143,9 @@ TEST_CASE("AudioManager: method status registry", "[audio_manager]") {
     REQUIRE(AudioManager::getMethodStatus("playBgm") == CompatStatus::FULL);
     REQUIRE(AudioManager::getMethodStatus("crossfadeBgm") == CompatStatus::FULL);
     REQUIRE(AudioManager::getMethodStatus("crossfadeBgs") == CompatStatus::FULL);
+    REQUIRE(AudioManager::getMethodStatus("duckBgm") == CompatStatus::PARTIAL);
+    REQUIRE(AudioManager::getMethodStatus("getCurrentBgm") == CompatStatus::PARTIAL);
+    REQUIRE(AudioManager::getMethodDeviation("duckBgm").find("smooth") != std::string::npos);
     REQUIRE(AudioManager::getMethodStatus("nonexistentMethod") == CompatStatus::UNSUPPORTED);
 }
 

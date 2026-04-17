@@ -210,7 +210,7 @@ public:
     // Database Loading
     // ========================================================================
     
-    // Status: FULL - Load all database files
+    // Status: PARTIAL - Database path currently seeds empty containers; JSON ingestion is still TODO
     bool loadDatabase();
     
     // Status: FULL - Load specific data file
@@ -229,7 +229,7 @@ public:
     bool loadSystem();
     bool loadMapInfos();
     
-    // Status: FULL - Load map data
+    // Status: PARTIAL - Map metadata is seeded with mock data until JSON map ingestion lands
     bool loadMapData(int32_t mapId);
     
     // Status: FULL - Current map data access
@@ -240,7 +240,7 @@ public:
     // Database Accessors
     // ========================================================================
     
-    // Status: FULL - Get database arrays
+    // Status: PARTIAL - Accessors are live, but loaders currently populate empty database containers
     const std::vector<ActorData>& getActors() const;
     const std::vector<ClassData>& getClasses() const;
     const std::vector<SkillData>& getSkills() const;
@@ -253,7 +253,7 @@ public:
     const std::vector<AnimationData>& getAnimations() const;
     const std::vector<MapInfo>& getMapInfos() const;
     
-    // Status: FULL - Get by ID
+    // Status: PARTIAL - Lookup works against the in-memory containers, which are still loader-empty today
     const ActorData* getActor(int32_t id) const;
     const ClassData* getClass(int32_t id) const;
     const SkillData* getSkill(int32_t id) const;

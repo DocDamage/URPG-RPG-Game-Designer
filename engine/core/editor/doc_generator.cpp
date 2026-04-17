@@ -13,7 +13,8 @@ void DocGenerator::exportMarkdown(const std::string& filePath) {
     if (!out) return;
 
     out << "# URPG Plugin API Reference\n\n";
-    out << "This document outlines all public C++ and JS bridge exports for the URPG engine v3.1.\n\n";
+    out << "> Status note: this reference includes exported plugin and bridge symbols whose implementation is still partially stubbed or fixture-backed in the current engine.\n\n";
+    out << "This document outlines public C++ and JS bridge exports currently exposed by the URPG engine v3.1.\n\n";
 
     for (const auto& [category, entries] : m_entries) {
         out << "## " << category << "\n\n";
@@ -36,6 +37,7 @@ void DocGenerator::exportHtml(const std::string& filePath) {
     out << ".entry{background:#2a2a2a;padding:15px;margin:10px 0;border-left:4px solid #f58220;}";
     out << "code{color:#88ccff;}</style></head><body>";
     out << "<h1>URPG Plugin API Reference</h1>";
+    out << "<p><strong>Status note:</strong> this reference includes exported plugin and bridge symbols whose implementation is still partially stubbed or fixture-backed in the current engine.</p>";
 
     for (const auto& [category, entries] : m_entries) {
         out << "<h2 class='category'>" << category << "</h2>";

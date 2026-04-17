@@ -1175,59 +1175,76 @@ PluginManager& PluginManager::instance() {
 
 void PluginManager::initializeMethodStatus() {
     if (methodStatus_.empty()) {
+        const auto setStatus = [](const std::string& method,
+                                  CompatStatus status,
+                                  const std::string& deviation = "") {
+            methodStatus_[method] = status;
+            if (deviation.empty()) {
+                methodDeviations_.erase(method);
+            } else {
+                methodDeviations_[method] = deviation;
+            }
+        };
+
         // Plugin lifecycle
-        methodStatus_["loadPlugin"] = CompatStatus::FULL;
-        methodStatus_["unloadPlugin"] = CompatStatus::FULL;
-        methodStatus_["reloadPlugin"] = CompatStatus::FULL;
-        methodStatus_["loadPluginsFromDirectory"] = CompatStatus::FULL;
-        methodStatus_["unloadAllPlugins"] = CompatStatus::FULL;
+        setStatus("loadPlugin", CompatStatus::PARTIAL,
+                  "Loads fixture JSON plugins and stub JS contexts; live MZ plugin runtime loading is not implemented.");
+        setStatus("unloadPlugin", CompatStatus::FULL);
+        setStatus("reloadPlugin", CompatStatus::PARTIAL,
+                  "Reload works for tracked fixture-backed plugins, not a general live plugin runtime.");
+        setStatus("loadPluginsFromDirectory", CompatStatus::PARTIAL,
+                  "Directory scan loads fixture-backed plugin descriptors, not a live MZ plugin runtime.");
+        setStatus("unloadAllPlugins", CompatStatus::FULL);
         
         // Plugin registration
-        methodStatus_["registerPlugin"] = CompatStatus::FULL;
-        methodStatus_["unregisterPlugin"] = CompatStatus::FULL;
-        methodStatus_["isPluginLoaded"] = CompatStatus::FULL;
-        methodStatus_["getPluginInfo"] = CompatStatus::FULL;
-        methodStatus_["getLoadedPlugins"] = CompatStatus::FULL;
+        setStatus("registerPlugin", CompatStatus::FULL);
+        setStatus("unregisterPlugin", CompatStatus::FULL);
+        setStatus("isPluginLoaded", CompatStatus::FULL);
+        setStatus("getPluginInfo", CompatStatus::FULL);
+        setStatus("getLoadedPlugins", CompatStatus::FULL);
         
         // Command registration
-        methodStatus_["registerCommand"] = CompatStatus::FULL;
-        methodStatus_["unregisterCommand"] = CompatStatus::FULL;
-        methodStatus_["unregisterAllCommands"] = CompatStatus::FULL;
-        methodStatus_["hasCommand"] = CompatStatus::FULL;
-        methodStatus_["getCommandInfo"] = CompatStatus::FULL;
-        methodStatus_["getPluginCommands"] = CompatStatus::FULL;
+        setStatus("registerCommand", CompatStatus::FULL);
+        setStatus("unregisterCommand", CompatStatus::FULL);
+        setStatus("unregisterAllCommands", CompatStatus::FULL);
+        setStatus("hasCommand", CompatStatus::FULL);
+        setStatus("getCommandInfo", CompatStatus::FULL);
+        setStatus("getPluginCommands", CompatStatus::FULL);
         
         // Command execution
-        methodStatus_["executeCommand"] = CompatStatus::FULL;
-        methodStatus_["executeCommandByName"] = CompatStatus::FULL;
-        methodStatus_["executeCommandAsync"] = CompatStatus::FULL;
+        setStatus("executeCommand", CompatStatus::PARTIAL,
+                  "Execution is reliable for registered handlers and fixtures, but still depends on a fixture-backed JS bridge.");
+        setStatus("executeCommandByName", CompatStatus::PARTIAL,
+                  "Qualified-name routing is reliable for registered handlers and fixtures, but still depends on a fixture-backed JS bridge.");
+        setStatus("executeCommandAsync", CompatStatus::PARTIAL,
+                  "FIFO async dispatch works, but callbacks run on the worker thread and rely on the fixture-backed JS bridge.");
         
         // Parameter management
-        methodStatus_["setParameter"] = CompatStatus::FULL;
-        methodStatus_["getParameter"] = CompatStatus::FULL;
-        methodStatus_["getParameters"] = CompatStatus::FULL;
-        methodStatus_["parseParameters"] = CompatStatus::FULL;
+        setStatus("setParameter", CompatStatus::FULL);
+        setStatus("getParameter", CompatStatus::FULL);
+        setStatus("getParameters", CompatStatus::FULL);
+        setStatus("parseParameters", CompatStatus::FULL);
         
         // Dependencies
-        methodStatus_["checkDependencies"] = CompatStatus::FULL;
-        methodStatus_["getMissingDependencies"] = CompatStatus::FULL;
-        methodStatus_["getDependents"] = CompatStatus::FULL;
+        setStatus("checkDependencies", CompatStatus::FULL);
+        setStatus("getMissingDependencies", CompatStatus::FULL);
+        setStatus("getDependents", CompatStatus::FULL);
         
         // Event hooks
-        methodStatus_["registerEventHandler"] = CompatStatus::FULL;
-        methodStatus_["unregisterEventHandler"] = CompatStatus::FULL;
+        setStatus("registerEventHandler", CompatStatus::FULL);
+        setStatus("unregisterEventHandler", CompatStatus::FULL);
         
         // Execution context
-        methodStatus_["getCurrentContext"] = CompatStatus::FULL;
-        methodStatus_["isExecuting"] = CompatStatus::FULL;
-        methodStatus_["getCurrentPlugin"] = CompatStatus::FULL;
+        setStatus("getCurrentContext", CompatStatus::FULL);
+        setStatus("isExecuting", CompatStatus::FULL);
+        setStatus("getCurrentPlugin", CompatStatus::FULL);
         
         // Error handling
-        methodStatus_["getLastError"] = CompatStatus::FULL;
-        methodStatus_["clearLastError"] = CompatStatus::FULL;
-        methodStatus_["setErrorHandler"] = CompatStatus::FULL;
-        methodStatus_["exportFailureDiagnosticsJsonl"] = CompatStatus::FULL;
-        methodStatus_["clearFailureDiagnostics"] = CompatStatus::FULL;
+        setStatus("getLastError", CompatStatus::FULL);
+        setStatus("clearLastError", CompatStatus::FULL);
+        setStatus("setErrorHandler", CompatStatus::FULL);
+        setStatus("exportFailureDiagnosticsJsonl", CompatStatus::FULL);
+        setStatus("clearFailureDiagnostics", CompatStatus::FULL);
     }
 }
 

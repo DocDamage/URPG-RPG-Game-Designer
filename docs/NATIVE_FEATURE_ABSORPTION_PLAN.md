@@ -92,6 +92,11 @@ These projects informed what to absorb. We treat them as design references first
 
 Goal: complete trustworthy import/verification/migration bridge and define explicit exit criteria.
 
+Current scope note:
+
+- The QuickJS compat lane is still treated as a fixture-backed contract harness for import/verification work, not as a finished live JS runtime.
+- Compat surface labels must stay conservative until placeholder-backed runtime paths are actually closed.
+
 Deliverables:
 
 - expand routed conformance depth over curated profiles
@@ -115,6 +120,10 @@ Subsystem targets:
 2. Message/Text Core
 3. Battle Core
 4. Save/Data Core
+
+- [x] Wave 2 Audio State Sync: Implemented `GlobalStateHub` with "Diff-First" notifications and `StateDrivenAudioResolver` for automated BGM transitions. [Landed 2026-04-16]
+- [x] Spatial Presentation: Implemented `SpatialMapOverlay` with elevation sculpting, 3D prop placement, and cinematic camera profiles for battles. [Landed 2026-04-16]
+- [x] Editor Tooling: Launched `ElevationBrush` and `PropPlacement` native panels. [Landed 2026-04-16]
 
 Required outcomes per subsystem:
 

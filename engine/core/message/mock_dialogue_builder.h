@@ -16,44 +16,47 @@ public:
 
         // 1. Simple Introduction Conversation
         std::vector<DialogueNode> introNodes;
-        introNodes.push_back({
-            .id = "start",
-            .body = "Welcome to the world of URPG! Are you ready for an adventure?",
-            .variant = { .speaker = "Elder" },
-            .choices = { {"yes", "I am born ready!"}, {"no", "Maybe later..."} },
-            .next_node_id = "" // Terminal for this segment, logic handle branch
-        });
-        introNodes.push_back({
-            .id = "accept",
-            .body = "That's the spirit! Take this wooden sword.",
-            .variant = { .speaker = "Elder" },
-            .command = "GIVE_ITEM:wooden_sword",
-            .next_node_id = "end"
-        });
-        introNodes.push_back({
-            .id = "reject",
-            .body = "The fate of the world waits for no one...",
-            .variant = { .speaker = "Elder" },
-            .next_node_id = "end"
-        });
-        introNodes.push_back({
-            .id = "end",
-            .body = "Safe travels, young one.",
-            .variant = { .speaker = "Elder" }
-        });
+        DialogueNode introStart;
+        introStart.id = "start";
+        introStart.body = "Welcome to the world of URPG! Are you ready for an adventure?";
+        introStart.variant.speaker = "Elder";
+        introStart.choices = {{"yes", "I am born ready!"}, {"no", "Maybe later..."}};
+        introStart.next_node_id = ""; // Terminal for this segment, logic handles branch selection.
+        introNodes.push_back(introStart);
 
-        registry.registerDialogue("intro_elder", introNodes);
+        DialogueNode introAccept;
+        introAccept.id = "accept";
+        introAccept.body = "That's the spirit! Take this wooden sword.";
+        introAccept.variant.speaker = "Elder";
+        introAccept.next_node_id = "end";
+        introAccept.command = "GIVE_ITEM:wooden_sword";
+        introNodes.push_back(introAccept);
+
+        DialogueNode introReject;
+        introReject.id = "reject";
+        introReject.body = "The fate of the world waits for no one...";
+        introReject.variant.speaker = "Elder";
+        introReject.next_node_id = "end";
+        introNodes.push_back(introReject);
+
+        DialogueNode introEnd;
+        introEnd.id = "end";
+        introEnd.body = "Safe travels, young one.";
+        introEnd.variant.speaker = "Elder";
+        introNodes.push_back(introEnd);
+
+        registry.registerConversation("intro_elder", introNodes);
 
         // 2. Healing NPC
         std::vector<DialogueNode> healerNodes;
-        healerNodes.push_back({
-            .id = "healer_start",
-            .body = "You look wounded. Let me heal you.",
-            .variant = { .speaker = "Healer" },
-            .command = "HEAL_PLAYER:100"
-        });
+        DialogueNode healerStart;
+        healerStart.id = "healer_start";
+        healerStart.body = "You look wounded. Let me heal you.";
+        healerStart.variant.speaker = "Healer";
+        healerStart.command = "HEAL_PLAYER:100";
+        healerNodes.push_back(healerStart);
         
-        registry.registerDialogue("npc_healer", healerNodes);
+        registry.registerConversation("npc_healer", healerNodes);
     }
 };
 

@@ -76,13 +76,25 @@
     <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\engine\gameplay\combat\combat_calc.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\engine\core\audio\audio_ai_bridge.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\engine\core\animation\animation_ai_bridge.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\engine\core\ui\ui_window.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\engine\core\ui\chat_window.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\engine\core\ui\ui_command_list.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\engine\core\message\message_core.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\engine\core\message\dialogue_registry.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\engine\core\message\message_migration.cpp">
@@ -143,6 +155,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\editor\ability\pattern_field_panel.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\engine\core\editor\plugin_api.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\engine\core\ability\gameplay_ability.cpp">

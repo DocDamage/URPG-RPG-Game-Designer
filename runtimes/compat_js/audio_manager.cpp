@@ -154,46 +154,62 @@ AudioManager::AudioManager()
 {
     // Initialize method status registry
     if (methodStatus_.empty()) {
+        const auto setStatus = [](const std::string& method,
+                                  CompatStatus status,
+                                  const std::string& deviation = "") {
+            methodStatus_[method] = status;
+            if (deviation.empty()) {
+                methodDeviations_.erase(method);
+            } else {
+                methodDeviations_[method] = deviation;
+            }
+        };
+
         // BGM
-        methodStatus_["playBgm"] = CompatStatus::FULL;
-        methodStatus_["stopBgm"] = CompatStatus::FULL;
-        methodStatus_["pauseBgm"] = CompatStatus::FULL;
-        methodStatus_["resumeBgm"] = CompatStatus::FULL;
-        methodStatus_["crossfadeBgm"] = CompatStatus::FULL;
-        methodStatus_["saveBgmSettings"] = CompatStatus::FULL;
-        methodStatus_["restoreBgmSettings"] = CompatStatus::FULL;
-        methodStatus_["isBgmPlaying"] = CompatStatus::FULL;
-        methodStatus_["isBgmPaused"] = CompatStatus::FULL;
-        methodStatus_["getCurrentBgm"] = CompatStatus::FULL;
+        setStatus("playBgm", CompatStatus::FULL);
+        setStatus("stopBgm", CompatStatus::FULL);
+        setStatus("pauseBgm", CompatStatus::FULL);
+        setStatus("resumeBgm", CompatStatus::FULL);
+        setStatus("crossfadeBgm", CompatStatus::FULL);
+        setStatus("saveBgmSettings", CompatStatus::PARTIAL,
+                  "State snapshot round-trips filename/volume/pitch, but playback position does not advance yet.");
+        setStatus("restoreBgmSettings", CompatStatus::PARTIAL,
+                  "State restore round-trips filename/volume/pitch, but playback position does not advance yet.");
+        setStatus("isBgmPlaying", CompatStatus::FULL);
+        setStatus("isBgmPaused", CompatStatus::FULL);
+        setStatus("getCurrentBgm", CompatStatus::PARTIAL,
+                  "Reports channel metadata, but playback position remains static because timed progression is TODO.");
         
         // BGS
-        methodStatus_["playBgs"] = CompatStatus::FULL;
-        methodStatus_["stopBgs"] = CompatStatus::FULL;
-        methodStatus_["crossfadeBgs"] = CompatStatus::FULL;
+        setStatus("playBgs", CompatStatus::FULL);
+        setStatus("stopBgs", CompatStatus::FULL);
+        setStatus("crossfadeBgs", CompatStatus::FULL);
         
         // ME
-        methodStatus_["playMe"] = CompatStatus::FULL;
-        methodStatus_["stopMe"] = CompatStatus::FULL;
+        setStatus("playMe", CompatStatus::FULL);
+        setStatus("stopMe", CompatStatus::FULL);
         
         // SE
-        methodStatus_["playSe"] = CompatStatus::FULL;
-        methodStatus_["stopSe"] = CompatStatus::FULL;
+        setStatus("playSe", CompatStatus::FULL);
+        setStatus("stopSe", CompatStatus::FULL);
         
         // Volume
-        methodStatus_["setMasterVolume"] = CompatStatus::FULL;
-        methodStatus_["getMasterVolume"] = CompatStatus::FULL;
-        methodStatus_["setBusVolume"] = CompatStatus::FULL;
-        methodStatus_["getBusVolume"] = CompatStatus::FULL;
+        setStatus("setMasterVolume", CompatStatus::FULL);
+        setStatus("getMasterVolume", CompatStatus::FULL);
+        setStatus("setBusVolume", CompatStatus::FULL);
+        setStatus("getBusVolume", CompatStatus::FULL);
         
         // Ducking
-        methodStatus_["duckBgm"] = CompatStatus::FULL;
-        methodStatus_["unduckBgm"] = CompatStatus::FULL;
-        methodStatus_["isBgmDucked"] = CompatStatus::FULL;
+        setStatus("duckBgm", CompatStatus::PARTIAL,
+                  "Ducking applies immediately; smooth duration-based ducking is still TODO.");
+        setStatus("unduckBgm", CompatStatus::PARTIAL,
+                  "Unducking applies immediately; smooth duration-based restore is still TODO.");
+        setStatus("isBgmDucked", CompatStatus::FULL);
         
         // Channels
-        methodStatus_["createChannel"] = CompatStatus::FULL;
-        methodStatus_["destroyChannel"] = CompatStatus::FULL;
-        methodStatus_["getChannel"] = CompatStatus::FULL;
+        setStatus("createChannel", CompatStatus::FULL);
+        setStatus("destroyChannel", CompatStatus::FULL);
+        setStatus("getChannel", CompatStatus::FULL);
     }
 }
 

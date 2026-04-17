@@ -23,6 +23,7 @@ Program Scope: native-first roadmap rewire plus Wave 1 absorption, Wave 2 advanc
   - WindowCompat text bridge now submits renderer-facing `RenderLayer::TextCommand` payloads from `Window_Base::drawText`
   - compat `Window_Message` surface landed for dialogue-body alignment parity (`left`/`center`/`right`)
   - snapshot-style wrapped centered/right `drawTextEx` draw-history coverage landed
+  - compat status truth pass started: inflated `FULL` claims are being downgraded where behavior is still fixture-, stub-, or placeholder-backed
 - Latest recorded local validation snapshot:
   - `ctest --test-dir build/dev-ninja-debug -L pr --output-on-failure` => 289/289 passed
   - `ctest --test-dir build/dev-ninja-debug -L weekly --output-on-failure` => 42/42 passed
@@ -149,6 +150,7 @@ Program Scope: native-first roadmap rewire plus Wave 1 absorption, Wave 2 advanc
 The scope in this document is considered 100% complete when all items below are done:
 
 1. Compat lane is trustworthy as an import/validation bridge with explicit exit criteria satisfied.
+   This includes keeping the QuickJS lane explicitly scoped as a fixture-backed compat harness until a real runtime exists.
 2. Wave 1 subsystems have native runtime ownership and no longer rely on plugin-shaped core delivery.
 3. Wave 1 subsystems have first-class editor workflows (inspect, preview, diagnose, migrate).
 4. Native schemas and migration paths are production-ready for upgraded MZ projects.
@@ -177,6 +179,7 @@ The scope in this document is considered 100% complete when all items below are 
 - [ ] Expand routed conformance coverage beyond the current anchor scenarios across the curated 10-profile corpus.
 - [ ] Keep every new failure operation locked to JSONL artifacts, report ingestion/export, and panel projection assertions.
 - [ ] Complete explicit compat exit checklist with signed pass criteria for import confidence and migration confidence.
+- [ ] Keep runtime status labels and public docs aligned with actual implementation scope; do not relabel fixture-backed or placeholder-backed paths as `FULL` without closing the underlying TODOs.
 
 ### 2. Wave 1 native runtime ownership (remaining)
 

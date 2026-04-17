@@ -53,8 +53,8 @@ bool PluginHost::loadPlugin(const std::string& pluginId) {
 
     it->status = PluginStatus::Loading;
     
-    // Wave 7.2/7.3 will handle the actual DLL/JS loading here.
-    // For now, we simulate success for registered native instances.
+    // Live DLL/JS loading is not implemented here yet.
+    // For now, activation only succeeds for pre-registered native instances.
     if (m_activePlugins.count(pluginId)) {
         m_activePlugins[pluginId]->onInitialize();
         it->status = PluginStatus::Active;
