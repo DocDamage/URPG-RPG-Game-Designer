@@ -5,8 +5,10 @@
 #include <algorithm>
 #include <cassert>
 #include <chrono>
+#include <fstream>
 #include <sstream>
 #include <utility>
+#include <nlohmann/json.hpp>
 
 namespace urpg {
 namespace compat {
@@ -14,6 +16,18 @@ namespace compat {
 // Static member definitions
 std::unordered_map<std::string, CompatStatus> DataManager::methodStatus_;
 std::unordered_map<std::string, std::string> DataManager::methodDeviations_;
+std::string DataManager::dataDirectory_;
+
+void DataManager::setDataDirectory(const std::string& path) {
+    dataDirectory_ = path;
+    if (!dataDirectory_.empty() && dataDirectory_.back() != '/' && dataDirectory_.back() != '\\') {
+        dataDirectory_.push_back('\\');
+    }
+}
+
+const std::string& DataManager::getDataDirectory() {
+    return dataDirectory_;
+}
 
 namespace {
 constexpr int32_t kAutosaveSlot = 0;
@@ -21,6 +35,78 @@ constexpr int32_t kAutosaveSlot = 0;
 bool isValidSaveSlot(int32_t slot, int32_t maxSaveFiles) {
     return slot >= kAutosaveSlot && slot <= maxSaveFiles;
 }
+
+using json = nlohmann::json;
+
+Value jsonToValue(const json& j) {
+    if (j.is_null()) {
+        return Value::Nil();
+    } else if (j.is_boolean()) {
+        Value v; v.v = j.get<bool>(); return v;
+    } else if (j.is_number_integer()) {
+        return Value::Int(j.get<int64_t>());
+    } else if (j.is_number_float()) {
+        Value v; v.v = j.get<double>(); return v;
+    } else if (j.is_string()) {
+        Value v; v.v = j.get<std::string>(); return v;
+    } else if (j.is_array()) {
+        Array arr;
+        arr.reserve(j.size());
+        for (const auto& elem : j) {
+            arr.push_back(jsonToValue(elem));
+        }
+        return Value::Arr(std::move(arr));
+    } else if (j.is_object()) {
+        Object obj;
+        for (auto it = j.begin(); it != j.end(); ++it) {
+            obj[it.key()] = jsonToValue(it.value());
+        }
+        return Value::Obj(std::move(obj));
+    }
+    return Value::Nil();
+}
+
+std::optional<json> loadJsonFile(const std::string& path) {
+    std::ifstream file(path);
+    if (!file.is_open()) {
+        return std::nullopt;
+    }
+    try {
+        json j;
+        file >> j;
+        return j;
+    } catch (...) {
+        return std::nullopt;
+    }
+}
+
+std::optional<json> loadJsonArrayFile(const std::string& filename) {
+    if (DataManager::getDataDirectory().empty()) {
+        return std::nullopt;
+    }
+    auto j = loadJsonFile(DataManager::getDataDirectory() + filename);
+    if (!j || !j->is_array()) {
+        return std::nullopt;
+    }
+    return j;
+}
+
+void hydrateActorParamsFromClasses(std::vector<ActorData>& actors, const std::vector<ClassData>& classes) {
+    for (auto& actor : actors) {
+        if (!actor.params.empty() || actor.classId <= 0) {
+            continue;
+        }
+        if (static_cast<size_t>(actor.classId) > classes.size()) {
+            continue;
+        }
+
+        const auto& cls = classes[static_cast<size_t>(actor.classId - 1)];
+        if (!cls.params.empty()) {
+            actor.params = cls.params;
+        }
+    }
+}
+
 } // namespace
 
 // Internal implementation
@@ -159,6 +245,7 @@ bool DataManager::loadDatabase() {
     ok = loadCommonEvents() && ok;
     ok = loadSystem() && ok;
     ok = loadMapInfos() && ok;
+    hydrateActorParamsFromClasses(actors_, classes_);
     
     impl_->isDatabaseLoaded = ok;
     return ok;
@@ -166,6 +253,42 @@ bool DataManager::loadDatabase() {
 
 bool DataManager::loadActors() {
     actors_.clear();
+    if (auto j = loadJsonArrayFile("Actors.json")) {
+        for (const auto& elem : *j) {
+            if (elem.is_null()) continue;
+            ActorData actor;
+            actor.id = elem.value("id", 0);
+            actor.name = elem.value("name", "");
+            actor.nickname = elem.value("nickname", "");
+            actor.classId = elem.value("classId", 0);
+            actor.initialLevel = elem.value("initialLevel", 1);
+            actor.maxLevel = elem.value("maxLevel", 99);
+            actor.level = actor.initialLevel;
+            actor.faceName = elem.value("faceName", "");
+            actor.faceIndex = elem.value("faceIndex", 0);
+            actor.characterName = elem.value("characterName", "");
+            actor.characterIndex = elem.value("characterIndex", 0);
+            actor.battlerName = elem.value("battlerName", "");
+            actor.battlerIndex = 0;
+            if (elem.contains("params") && elem["params"].is_array()) {
+                for (const auto& row : elem["params"]) {
+                    std::vector<int32_t> r;
+                    for (const auto& v : row) {
+                        r.push_back(v.get<int32_t>());
+                    }
+                    actor.params.push_back(std::move(r));
+                }
+            }
+            if (actor.id > 0 && static_cast<size_t>(actor.id) > actors_.size()) {
+                actors_.resize(static_cast<size_t>(actor.id));
+            }
+            if (actor.id > 0) {
+                actors_[static_cast<size_t>(actor.id) - 1] = std::move(actor);
+            }
+        }
+        hydrateActorParamsFromClasses(actors_, classes_);
+        return true;
+    }
     ActorData hero;
     hero.id = 1;
     hero.name = "Hero";
@@ -181,20 +304,78 @@ bool DataManager::loadActors() {
     hero.battlerName = "Actor1_1";
     hero.battlerIndex = 0;
     actors_.push_back(std::move(hero));
+    hydrateActorParamsFromClasses(actors_, classes_);
     return true;
 }
 
 bool DataManager::loadClasses() {
     classes_.clear();
+    if (auto j = loadJsonArrayFile("Classes.json")) {
+        for (const auto& elem : *j) {
+            if (elem.is_null()) continue;
+            ClassData cls;
+            cls.id = elem.value("id", 0);
+            cls.name = elem.value("name", "");
+            if (elem.contains("learnings") && elem["learnings"].is_array()) {
+                for (const auto& ln : elem["learnings"]) {
+                    if (ln.contains("skillId")) {
+                        cls.learnings.push_back(ln["skillId"].get<int32_t>());
+                    }
+                }
+            }
+            if (elem.contains("params") && elem["params"].is_array()) {
+                for (const auto& row : elem["params"]) {
+                    std::vector<int32_t> r;
+                    for (const auto& v : row) {
+                        r.push_back(v.get<int32_t>());
+                    }
+                    cls.params.push_back(std::move(r));
+                }
+            }
+            if (cls.id > 0 && static_cast<size_t>(cls.id) > classes_.size()) {
+                classes_.resize(static_cast<size_t>(cls.id));
+            }
+            if (cls.id > 0) {
+                classes_[static_cast<size_t>(cls.id) - 1] = std::move(cls);
+            }
+        }
+        hydrateActorParamsFromClasses(actors_, classes_);
+        return true;
+    }
     ClassData warrior;
     warrior.id = 1;
     warrior.name = "Warrior";
     classes_.push_back(std::move(warrior));
+    hydrateActorParamsFromClasses(actors_, classes_);
     return true;
 }
 
 bool DataManager::loadSkills() {
     skills_.clear();
+    if (auto j = loadJsonArrayFile("Skills.json")) {
+        for (const auto& elem : *j) {
+            if (elem.is_null()) continue;
+            SkillData skill;
+            skill.id = elem.value("id", 0);
+            skill.name = elem.value("name", "");
+            skill.description = elem.value("description", "");
+            skill.typeId = elem.value("stypeId", 0);
+            skill.scope = elem.value("scope", 0);
+            skill.mpCost = elem.value("mpCost", 0);
+            skill.tpCost = elem.value("tpCost", 0);
+            skill.speed = elem.value("speed", 0);
+            skill.successRate = elem.value("successRate", 100);
+            skill.repeats = elem.value("repeats", 1);
+            skill.animationId = elem.value("animationId", 0);
+            if (skill.id > 0 && static_cast<size_t>(skill.id) > skills_.size()) {
+                skills_.resize(static_cast<size_t>(skill.id));
+            }
+            if (skill.id > 0) {
+                skills_[static_cast<size_t>(skill.id) - 1] = std::move(skill);
+            }
+        }
+        return true;
+    }
     SkillData heal;
     heal.id = 1;
     heal.name = "Heal";
@@ -213,6 +394,29 @@ bool DataManager::loadSkills() {
 
 bool DataManager::loadItems() {
     items_.clear();
+    if (auto j = loadJsonArrayFile("Items.json")) {
+        for (const auto& elem : *j) {
+            if (elem.is_null()) continue;
+            ItemData item;
+            item.id = elem.value("id", 0);
+            item.name = elem.value("name", "");
+            item.iconIndex = elem.value("iconIndex", 0);
+            item.description = elem.value("description", "");
+            item.typeId = elem.value("itypeId", 0);
+            item.occasion = elem.value("occasion", 0);
+            item.consumable = elem.value("consumable", true) ? 1 : 0;
+            item.price = elem.value("price", 0);
+            item.scope = elem.value("scope", 0);
+            item.animationId = elem.value("animationId", 0);
+            if (item.id > 0 && static_cast<size_t>(item.id) > items_.size()) {
+                items_.resize(static_cast<size_t>(item.id));
+            }
+            if (item.id > 0) {
+                items_[static_cast<size_t>(item.id) - 1] = std::move(item);
+            }
+        }
+        return true;
+    }
     ItemData potion;
     potion.id = 1;
     potion.name = "Potion";
@@ -230,36 +434,258 @@ bool DataManager::loadItems() {
 
 bool DataManager::loadWeapons() {
     weapons_.clear();
+    if (auto j = loadJsonArrayFile("Weapons.json")) {
+        for (const auto& elem : *j) {
+            if (elem.is_null()) continue;
+            ItemData weapon;
+            weapon.id = elem.value("id", 0);
+            weapon.name = elem.value("name", "");
+            weapon.iconIndex = elem.value("iconIndex", 0);
+            weapon.description = elem.value("description", "");
+            weapon.typeId = elem.value("wtypeId", 0);
+            weapon.occasion = 0;
+            weapon.consumable = 0;
+            weapon.price = elem.value("price", 0);
+            weapon.scope = 0;
+            weapon.animationId = elem.value("animationId", 0);
+            if (weapon.id > 0 && static_cast<size_t>(weapon.id) > weapons_.size()) {
+                weapons_.resize(static_cast<size_t>(weapon.id));
+            }
+            if (weapon.id > 0) {
+                weapons_[static_cast<size_t>(weapon.id) - 1] = std::move(weapon);
+            }
+        }
+        return true;
+    }
     return true;
 }
 
 bool DataManager::loadArmors() {
     armors_.clear();
+    if (auto j = loadJsonArrayFile("Armors.json")) {
+        for (const auto& elem : *j) {
+            if (elem.is_null()) continue;
+            ItemData armor;
+            armor.id = elem.value("id", 0);
+            armor.name = elem.value("name", "");
+            armor.iconIndex = elem.value("iconIndex", 0);
+            armor.description = elem.value("description", "");
+            armor.typeId = elem.value("atypeId", 0);
+            armor.occasion = 0;
+            armor.consumable = 0;
+            armor.price = elem.value("price", 0);
+            armor.scope = 0;
+            armor.animationId = 0;
+            if (armor.id > 0 && static_cast<size_t>(armor.id) > armors_.size()) {
+                armors_.resize(static_cast<size_t>(armor.id));
+            }
+            if (armor.id > 0) {
+                armors_[static_cast<size_t>(armor.id) - 1] = std::move(armor);
+            }
+        }
+        return true;
+    }
     return true;
 }
 
 bool DataManager::loadEnemies() {
     enemies_.clear();
+    if (auto j = loadJsonArrayFile("Enemies.json")) {
+        for (const auto& elem : *j) {
+            if (elem.is_null()) continue;
+            EnemyData enemy;
+            enemy.id = elem.value("id", 0);
+            enemy.name = elem.value("name", "");
+            enemy.battlerName = 0; // struct field is int32_t; JSON provides string
+            enemy.mhp = 100;
+            enemy.mmp = 100;
+            enemy.atk = 10;
+            enemy.def = 10;
+            enemy.mat = 10;
+            enemy.mdf = 10;
+            enemy.agi = 10;
+            enemy.luk = 10;
+            if (elem.contains("params") && elem["params"].is_array() && elem["params"].size() >= 8) {
+                enemy.mhp = elem["params"][0].get<int32_t>();
+                enemy.mmp = elem["params"][1].get<int32_t>();
+                enemy.atk = elem["params"][2].get<int32_t>();
+                enemy.def = elem["params"][3].get<int32_t>();
+                enemy.mat = elem["params"][4].get<int32_t>();
+                enemy.mdf = elem["params"][5].get<int32_t>();
+                enemy.agi = elem["params"][6].get<int32_t>();
+                enemy.luk = elem["params"][7].get<int32_t>();
+            }
+            enemy.exp = elem.value("exp", 0);
+            enemy.gold = elem.value("gold", 0);
+            if (enemy.id > 0 && static_cast<size_t>(enemy.id) > enemies_.size()) {
+                enemies_.resize(static_cast<size_t>(enemy.id));
+            }
+            if (enemy.id > 0) {
+                enemies_[static_cast<size_t>(enemy.id) - 1] = std::move(enemy);
+            }
+        }
+        return true;
+    }
+    EnemyData slime;
+    slime.id = 1;
+    slime.name = "Slime";
+    slime.mhp = 30;
+    slime.mmp = 0;
+    slime.atk = 8;
+    slime.def = 5;
+    slime.mat = 4;
+    slime.mdf = 4;
+    slime.agi = 10;
+    slime.luk = 6;
+    slime.exp = 12;
+    slime.gold = 5;
+    slime.dropItems = {1, 1}; // itemId 1, rate 1 (100%)
+    enemies_.push_back(std::move(slime));
+
+    EnemyData goblin;
+    goblin.id = 2;
+    goblin.name = "Goblin";
+    goblin.mhp = 50;
+    goblin.mmp = 0;
+    goblin.atk = 12;
+    goblin.def = 8;
+    goblin.mat = 4;
+    goblin.mdf = 4;
+    goblin.agi = 15;
+    goblin.luk = 8;
+    goblin.exp = 20;
+    goblin.gold = 10;
+    goblin.dropItems = {1, 1, 2, 2}; // item 1 (100%), item 2 (50%)
+    enemies_.push_back(std::move(goblin));
     return true;
 }
 
 bool DataManager::loadTroops() {
     troops_.clear();
+    if (auto j = loadJsonArrayFile("Troops.json")) {
+        for (const auto& elem : *j) {
+            if (elem.is_null()) continue;
+            TroopData troop;
+            troop.id = elem.value("id", 0);
+            troop.name = elem.value("name", "");
+            if (elem.contains("members") && elem["members"].is_array()) {
+                for (const auto& m : elem["members"]) {
+                    if (m.contains("enemyId")) {
+                        troop.members.push_back(m["enemyId"].get<int32_t>());
+                    }
+                }
+            }
+            if (elem.contains("pages")) {
+                troop.pages = jsonToValue(elem["pages"]);
+            }
+            if (troop.id > 0 && static_cast<size_t>(troop.id) > troops_.size()) {
+                troops_.resize(static_cast<size_t>(troop.id));
+            }
+            if (troop.id > 0) {
+                troops_[static_cast<size_t>(troop.id) - 1] = std::move(troop);
+            }
+        }
+        return true;
+    }
+    TroopData troop1;
+    troop1.id = 1;
+    troop1.name = "Slime x2";
+    troop1.members = {1, 1};
+    troops_.push_back(std::move(troop1));
+
+    TroopData troop2;
+    troop2.id = 2;
+    troop2.name = "Goblin";
+    troop2.members = {2};
+    troops_.push_back(std::move(troop2));
     return true;
 }
 
 bool DataManager::loadStates() {
     states_.clear();
+    if (auto j = loadJsonArrayFile("States.json")) {
+        for (const auto& elem : *j) {
+            if (elem.is_null()) continue;
+            StateData state;
+            state.id = elem.value("id", 0);
+            state.name = elem.value("name", "");
+            if (elem.contains("iconIndex")) {
+                if (elem["iconIndex"].is_number()) {
+                    state.iconIndex = std::to_string(elem["iconIndex"].get<int32_t>());
+                } else {
+                    state.iconIndex = elem.value("iconIndex", "");
+                }
+            }
+            state.priority = elem.value("priority", 0);
+            state.restriction = elem.value("restriction", 0);
+            state.autoRemovalTiming = elem.value("autoRemovalTiming", 0);
+            state.minTurns = elem.value("minTurns", 1);
+            state.maxTurns = elem.value("maxTurns", 1);
+            if (state.id > 0 && static_cast<size_t>(state.id) > states_.size()) {
+                states_.resize(static_cast<size_t>(state.id));
+            }
+            if (state.id > 0) {
+                states_[static_cast<size_t>(state.id) - 1] = std::move(state);
+            }
+        }
+        return true;
+    }
     return true;
 }
 
 bool DataManager::loadAnimations() {
     animations_.clear();
+    if (auto j = loadJsonArrayFile("Animations.json")) {
+        for (const auto& elem : *j) {
+            if (elem.is_null()) continue;
+            AnimationData anim;
+            anim.id = elem.value("id", 0);
+            anim.name = elem.value("name", "");
+            if (elem.contains("frames") && elem["frames"].is_array()) {
+                for (const auto& f : elem["frames"]) {
+                    anim.frames.push_back(jsonToValue(f));
+                }
+            }
+            if (anim.id > 0 && static_cast<size_t>(anim.id) > animations_.size()) {
+                animations_.resize(static_cast<size_t>(anim.id));
+            }
+            if (anim.id > 0) {
+                animations_[static_cast<size_t>(anim.id) - 1] = std::move(anim);
+            }
+        }
+        return true;
+    }
     return true;
 }
 
 bool DataManager::loadTilesets() {
     tilesets_.clear();
+    if (auto j = loadJsonArrayFile("Tilesets.json")) {
+        for (const auto& elem : *j) {
+            if (elem.is_null()) continue;
+            TilesetData ts;
+            ts.id = elem.value("id", 0);
+            ts.name = elem.value("name", "");
+            ts.mode = elem.value("mode", 0);
+            if (elem.contains("tilesetNames") && elem["tilesetNames"].is_array()) {
+                for (const auto& t : elem["tilesetNames"]) {
+                    ts.tilesetNames.push_back(t.get<std::string>());
+                }
+            }
+            if (elem.contains("flags") && elem["flags"].is_array()) {
+                for (const auto& f : elem["flags"]) {
+                    ts.flags.push_back(f.get<uint32_t>());
+                }
+            }
+            if (ts.id > 0 && static_cast<size_t>(ts.id) > tilesets_.size()) {
+                tilesets_.resize(static_cast<size_t>(ts.id));
+            }
+            if (ts.id > 0) {
+                tilesets_[static_cast<size_t>(ts.id) - 1] = std::move(ts);
+            }
+        }
+        return true;
+    }
     return true;
 }
 
@@ -268,6 +694,18 @@ bool DataManager::loadCommonEvents() {
 }
 
 bool DataManager::loadSystem() {
+    if (auto j = loadJsonFile(dataDirectory_ + "System.json")) {
+        startMapId_ = j->value("startMapId", 1);
+        startX_ = j->value("startX", 0);
+        startY_ = j->value("startY", 0);
+        startParty_.clear();
+        if (j->contains("partyMembers") && (*j)["partyMembers"].is_array()) {
+            for (const auto& m : (*j)["partyMembers"]) {
+                startParty_.push_back(m.get<int32_t>());
+            }
+        }
+        return true;
+    }
     startMapId_ = 1;
     startX_ = 8;
     startY_ = 6;
@@ -277,6 +715,24 @@ bool DataManager::loadSystem() {
 
 bool DataManager::loadMapInfos() {
     mapInfos_.clear();
+    if (auto j = loadJsonArrayFile("MapInfos.json")) {
+        for (const auto& elem : *j) {
+            if (elem.is_null()) continue;
+            MapInfo info;
+            info.id = elem.value("id", 0);
+            info.name = elem.value("name", "");
+            info.parentId = elem.value("parentId", 0);
+            info.order = elem.value("order", 0);
+            info.expanded = elem.value("expanded", false);
+            if (info.id > 0 && static_cast<size_t>(info.id) > mapInfos_.size()) {
+                mapInfos_.resize(static_cast<size_t>(info.id));
+            }
+            if (info.id > 0) {
+                mapInfos_[static_cast<size_t>(info.id) - 1] = std::move(info);
+            }
+        }
+        return true;
+    }
     return true;
 }
 
@@ -380,6 +836,42 @@ const ActorData* DataManager::getActor(int32_t id) const {
         return nullptr;
     }
     return &actors_[static_cast<size_t>(id - 1)];
+}
+
+int32_t DataManager::getActorParam(int32_t actorId, int32_t paramId, int32_t level) const {
+    const auto* actor = getActor(actorId);
+    if (actor == nullptr || paramId < 0) {
+        return 10;
+    }
+
+    const auto readParamTable = [paramId, level](const std::vector<std::vector<int32_t>>& table) -> std::optional<int32_t> {
+        if (paramId < 0 || static_cast<size_t>(paramId) >= table.size()) {
+            return std::nullopt;
+        }
+        const auto& row = table[static_cast<size_t>(paramId)];
+        if (row.empty()) {
+            return std::nullopt;
+        }
+
+        const size_t clampedLevel = static_cast<size_t>(std::clamp(level, 0, static_cast<int32_t>(row.size() - 1)));
+        return row[clampedLevel];
+    };
+
+    if (const auto actorParam = readParamTable(actor->params)) {
+        return *actorParam;
+    }
+
+    if (const auto* cls = getClass(actor->classId)) {
+        if (const auto classParam = readParamTable(cls->params)) {
+            return *classParam;
+        }
+    }
+
+    switch (paramId) {
+        case 0: return 100;
+        case 1: return 30;
+        default: return 10;
+    }
 }
 
 const ClassData* DataManager::getClass(int32_t id) const {

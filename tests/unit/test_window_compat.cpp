@@ -8,6 +8,7 @@
 #include "runtimes/compat_js/data_manager.h"
 #include "engine/core/render/render_layer.h"
 #include <catch2/catch_test_macros.hpp>
+#include <catch2/catch_approx.hpp>
 
 using namespace urpg::compat;
 
@@ -311,6 +312,89 @@ TEST_CASE("Window_Base drawActor gauges call drawGauge and drawText", "[compat][
 
     REQUIRE(Window_Base::getMethodCallCount("drawGauge") == gaugeBefore + 3);
     REQUIRE(Window_Base::getMethodCallCount("drawText") == textBefore + 3);
+}
+
+TEST_CASE("Window_Base drawActorName emits actor name via drawText", "[compat][window]") {
+    DataManager::instance().loadActors();
+    Window_Base window(Window_Base::CreateParams{});
+    window.clearTextDrawHistory();
+
+    window.drawActorName(1, 10, 20, 150);
+
+    const auto& history = window.getTextDrawHistory();
+    REQUIRE_FALSE(history.empty());
+    REQUIRE(history.back().text == "Hero");
+}
+
+TEST_CASE("Window_Base drawActorLevel emits level text via drawText", "[compat][window]") {
+    DataManager::instance().loadActors();
+    Window_Base window(Window_Base::CreateParams{});
+    window.clearTextDrawHistory();
+
+    window.drawActorLevel(1, 10, 20);
+
+    const auto& history = window.getTextDrawHistory();
+    REQUIRE_FALSE(history.empty());
+    REQUIRE(history.back().text == "Lv 1");
+}
+
+TEST_CASE("Window_Base drawGauge submits RectCommands", "[compat][window]") {
+    auto& layer = urpg::RenderLayer::getInstance();
+    layer.flush();
+
+    Window_Base::CreateParams params;
+    params.rect = Rect{0, 0, 200, 100};
+    Window_Base window(params);
+
+    window.drawGauge(10, 20, 100, 0.75, Color{255, 0, 0, 255}, Color{0, 255, 0, 255});
+
+    const auto& commands = layer.getCommands();
+    REQUIRE(commands.size() >= 2);
+    REQUIRE(commands[commands.size() - 2]->type == urpg::RenderCmdType::Rect);
+    REQUIRE(commands[commands.size() - 1]->type == urpg::RenderCmdType::Rect);
+
+    auto fillCmd = std::dynamic_pointer_cast<urpg::RectCommand>(commands.back());
+    REQUIRE(fillCmd != nullptr);
+    REQUIRE(fillCmd->w == 75.0f);
+}
+
+TEST_CASE("Window_Base drawCharacter submits SpriteCommand", "[compat][window]") {
+    auto& layer = urpg::RenderLayer::getInstance();
+    layer.flush();
+
+    Window_Base::CreateParams params;
+    params.rect = Rect{0, 0, 200, 100};
+    Window_Base window(params);
+
+    window.drawCharacter("Actor1", 2, 30, 40);
+
+    const auto& commands = layer.getCommands();
+    REQUIRE_FALSE(commands.empty());
+    REQUIRE(commands.back()->type == urpg::RenderCmdType::Sprite);
+
+    auto spriteCmd = std::dynamic_pointer_cast<urpg::SpriteCommand>(commands.back());
+    REQUIRE(spriteCmd != nullptr);
+    REQUIRE(spriteCmd->textureId == "Actor1");
+    REQUIRE(spriteCmd->srcX == 64); // index * 32
+}
+
+TEST_CASE("Window_Base registerAPI bindings route through default instance", "[compat][window]") {
+    Window_Base window(Window_Base::CreateParams{});
+    Window_Base::setDefaultInstance(&window);
+
+    QuickJSContext ctx;
+    REQUIRE(ctx.initialize(QuickJSConfig{}));
+    Window_Base::registerAPI(ctx);
+
+    urpg::Value textArg;
+    textArg.v = std::string("Hello");
+    auto result = ctx.callMethod("Window_Base", "drawText",
+        std::vector<urpg::Value>{textArg, urpg::Value::Int(0), urpg::Value::Int(0)});
+
+    REQUIRE(result.success);
+    REQUIRE_FALSE(std::holds_alternative<std::monostate>(result.value.v));
+
+    Window_Base::setDefaultInstance(nullptr);
 }
 
 TEST_CASE("Window_Base textColor change and reset", "[compat][window]") {

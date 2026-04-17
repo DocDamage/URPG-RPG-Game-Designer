@@ -203,6 +203,9 @@ public:
     // Register this class's API with a QuickJS context
     static void registerAPI(QuickJSContext& ctx);
     
+    // Default instance for JS bindings (minimal bridge until full object wrapper)
+    static void setDefaultInstance(Window_Base* instance);
+    
     // Get compat status for a method
     static CompatStatus getMethodStatus(const std::string& methodName);
     static std::string getMethodDeviation(const std::string& methodName);
@@ -255,6 +258,7 @@ protected:
     static std::unordered_map<std::string, CompatStatus> methodStatus_;
     static std::unordered_map<std::string, std::string> methodDeviations_;
     static std::unordered_map<std::string, uint32_t> methodCallCounts_;
+    static Window_Base* defaultInstance_;
     
     // Initialize static method status maps
     static void initializeMethodStatus();

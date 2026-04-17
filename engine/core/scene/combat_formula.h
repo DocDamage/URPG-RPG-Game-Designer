@@ -94,10 +94,7 @@ private:
                 default: return 10;
             }
         } else {
-            auto data = dm.getActor(participantId);
-            if (!data) return 10;
-            // Simplified: return level 1 param
-            return data->params[paramId][1];
+            return dm.getActorParam(participantId, paramId, 1);
         }
     }
 };

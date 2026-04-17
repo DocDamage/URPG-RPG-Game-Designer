@@ -361,6 +361,9 @@ public:
     void applyGold();
     void applyDrops();
     
+    // Test helper: seed the internal RNG for deterministic tests
+    void seedRng(uint32_t seed);
+    
     // ========================================================================
     // Compat Status
     // ========================================================================

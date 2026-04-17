@@ -87,7 +87,7 @@ struct ActorData {
     int32_t characterIndex = 0;
     std::string battlerName;
     int32_t battlerIndex = 0;
-    // Params: [level][param] - 0=mhp, 1=mmp, 2=atk, 3=def, 4=mat, 5=mdf, 6=agi, 7=luk
+    // Params: [param][level] - 0=mhp, 1=mmp, 2=atk, 3=def, 4=mat, 5=mdf, 6=agi, 7=luk
     std::vector<std::vector<int32_t>> params;
 };
 
@@ -164,7 +164,7 @@ struct ClassData {
     int32_t id = 0;
     std::string name;
     std::vector<int32_t> learnings; // Skill IDs by level
-    // Params similar to ActorData
+    // Params mirror RPG Maker's class table layout: [param][level]
     std::vector<std::vector<int32_t>> params;
 };
 
@@ -205,6 +205,10 @@ public:
 
     // Singleton access for compatibility.
     static DataManager& instance();
+    
+    // Configure the data directory path for JSON database loading.
+    static void setDataDirectory(const std::string& path);
+    static const std::string& getDataDirectory();
     
     // ========================================================================
     // Database Loading
@@ -255,6 +259,7 @@ public:
     
     // Status: PARTIAL - Lookup works against the in-memory containers, which are still loader-empty today
     const ActorData* getActor(int32_t id) const;
+    int32_t getActorParam(int32_t actorId, int32_t paramId, int32_t level = 1) const;
     const ClassData* getClass(int32_t id) const;
     const SkillData* getSkill(int32_t id) const;
     const ItemData* getItem(int32_t id) const;
@@ -462,6 +467,9 @@ private:
     
     // Event callback
     EventCallback eventCallback_;
+    
+    // Data directory path
+    static std::string dataDirectory_;
     
     // API status registry
     static std::unordered_map<std::string, CompatStatus> methodStatus_;

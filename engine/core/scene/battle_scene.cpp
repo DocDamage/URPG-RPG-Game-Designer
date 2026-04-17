@@ -304,9 +304,7 @@ void BattleScene::processTurn() {
                 const auto* enemy = dm.getEnemy(id);
                 return enemy ? enemy->agi : 1;
             }
-            // Actor AGI (level 1 simplified)
-            const auto* actor = dm.getActor(id);
-            return actor ? actor->params[6][1] : 1;
+            return dm.getActorParam(id, 6, 1);
         };
         return getAgi(a.subject) > getAgi(b.subject); // Higher AGI goes first
     });
@@ -726,8 +724,8 @@ void BattleScene::setupTroop(int32_t troopId) {
             float posX = actorBaseX - (i * 30.0f);
             float posY = actorBaseY + (i * 70.0f) - (state.partyMembers.size() / 2.0f * 70.0f);
 
-            int mhp = actorData->params[0][1];
-            int mmp = actorData->params[1][1];
+            int mhp = dm.getActorParam(actorId, 0, 1);
+            int mmp = dm.getActorParam(actorId, 1, 1);
             
             addActor(std::to_string(actorId), actorData->name, mhp, mmp, 
                      {posX, posY}, texture);

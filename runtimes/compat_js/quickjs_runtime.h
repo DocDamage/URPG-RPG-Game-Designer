@@ -3,8 +3,8 @@
 // QuickJS Compat Harness Contract Kernel
 // Phase 2 - Compat Layer
 //
-// This defines the fixture-backed QuickJS contract harness used by URPG's MZ compatibility layer.
-// It is intentionally scoped as a compat/import verification harness until a real QuickJS runtime is integrated.
+// This defines the fixture-backed compat-contract harness used by URPG's MZ compatibility layer.
+// This is a fixture-backed compat-contract harness ONLY; live QuickJS runtime integration is out of scope for this file.
 // The harness is isolated from native URPG systems per Invariant 1: "Compat never degrades Native."
 
 #include "engine/runtimes/bridge/value.h"

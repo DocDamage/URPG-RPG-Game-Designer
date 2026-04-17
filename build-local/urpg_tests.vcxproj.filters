@@ -259,7 +259,19 @@
     <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\engine\core\test_render_assets.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\engine\core\test_engine_shell.cpp">
+    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\test_asset_license_audit.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\test_copilot_kernel.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\test_headless_play_mode.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\test_plugin_manifest.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\test_snapshot_validator.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

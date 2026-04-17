@@ -1,4 +1,4 @@
-C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_engine_shell.cpp;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\urpg_tests.dir\Debug\tests\unit\test_engine_shell.cpp.obj
+C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_engine_shell.cpp;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\urpg_tests.dir\Debug\test_engine_shell.obj
 C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_global_state.cpp;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\urpg_tests.dir\Debug\test_global_state.obj
 C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_semver.cpp;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\urpg_tests.dir\Debug\test_semver.obj
 C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_fixed32.cpp;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\urpg_tests.dir\Debug\test_fixed32.obj
@@ -84,4 +84,8 @@ C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_menu_migration_logic.cp
 C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_migration_wizard.cpp;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\urpg_tests.dir\Debug\test_migration_wizard.obj
 C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_ai_bridge_regex.cpp;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\urpg_tests.dir\Debug\test_ai_bridge_regex.obj
 C:\Users\dferr\dev\URPG - RPG Game Maker\tests\engine\core\test_render_assets.cpp;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\urpg_tests.dir\Debug\test_render_assets.obj
-C:\Users\dferr\dev\URPG - RPG Game Maker\tests\engine\core\test_engine_shell.cpp;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\urpg_tests.dir\Debug\tests\engine\core\test_engine_shell.cpp.obj
+C:\Users\dferr\dev\URPG - RPG Game Maker\tests\test_asset_license_audit.cpp;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\urpg_tests.dir\Debug\test_asset_license_audit.obj
+C:\Users\dferr\dev\URPG - RPG Game Maker\tests\test_copilot_kernel.cpp;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\urpg_tests.dir\Debug\test_copilot_kernel.obj
+C:\Users\dferr\dev\URPG - RPG Game Maker\tests\test_headless_play_mode.cpp;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\urpg_tests.dir\Debug\test_headless_play_mode.obj
+C:\Users\dferr\dev\URPG - RPG Game Maker\tests\test_plugin_manifest.cpp;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\urpg_tests.dir\Debug\test_plugin_manifest.obj
+C:\Users\dferr\dev\URPG - RPG Game Maker\tests\test_snapshot_validator.cpp;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\urpg_tests.dir\Debug\test_snapshot_validator.obj

@@ -130,10 +130,7 @@ bool QuickJSContext::initialize(const QuickJSConfig& config) {
     budget_.cpu_slice_us = config.cpuBudgetUs;
     budget_.memory_limit_mb = config.memoryLimitMB;
     
-    // TODO: Initialize actual QuickJS runtime here when moving beyond the compat harness.
-    // JSRuntime* rt = JS_NewRuntime();
-    // JSContext* ctx = JS_NewContext(rt);
-    // Configure memory limits, etc.
+    // Note: Live QuickJS runtime initialization belongs in a separate runtime module, not this harness.
     
     impl_->initialized = true;
     impl_->config = config;
@@ -509,7 +506,7 @@ bool QuickJSContext::isCPUExceeded() const {
 
 void QuickJSContext::runGC() {
     assert(impl_ != nullptr);
-    // TODO: JS_RunGC(rt);
+    // Note: GC is a no-op in the harness; a real GC belongs in the separate runtime module.
 }
 
 size_t QuickJSContext::getHeapSize() const {

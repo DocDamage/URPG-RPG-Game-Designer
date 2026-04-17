@@ -1,6 +1,8 @@
 #include "runtimes/compat_js/battle_manager.h"
+#include "runtimes/compat_js/data_manager.h"
 
 #include <catch2/catch_test_macros.hpp>
+#include <algorithm>
 
 using namespace urpg::compat;
 
@@ -336,7 +338,7 @@ TEST_CASE("BattleManager: method status registry", "[battlemgr]") {
     REQUIRE(BattleManager::getMethodStatus("setup") == CompatStatus::PARTIAL);
     REQUIRE(BattleManager::getMethodStatus("processEscape") == CompatStatus::FULL);
     REQUIRE(BattleManager::getMethodStatus("setBattleTransition") == CompatStatus::STUB);
-    REQUIRE(BattleManager::getMethodDeviation("setup").find("troop loading") != std::string::npos);
+    REQUIRE(BattleManager::getMethodDeviation("setup").find("partial") != std::string::npos);
     REQUIRE(BattleManager::getMethodStatus("nonexistentMethod") == CompatStatus::UNSUPPORTED);
 }
 
@@ -373,6 +375,111 @@ TEST_CASE("BattleManager: turn condition cadence honors threshold and span", "[b
         bm.incrementTurn();
         REQUIRE(bm.checkTurnCondition(2, 2));
     }
+}
+
+TEST_CASE("BattleManager: troop setup creates enemies from DataManager", "[battlemgr]") {
+    DataManager::instance().loadDatabase();
+    DataManager::instance().setupNewGame();
+
+    BattleManager bm;
+    bm.setup(1, true, false);
+    REQUIRE(bm.getEnemiesConst().size() == 2); // Troop 1 has two Slimes
+    REQUIRE(bm.getActorsConst().size() == 1);  // Party has Hero (actor 1)
+}
+
+TEST_CASE("BattleManager: defeating all enemies yields expected gold and exp", "[battlemgr]") {
+    DataManager::instance().loadDatabase();
+    DataManager::instance().setupNewGame();
+
+    BattleManager bm;
+    bm.setup(2, true, false); // Troop 2 = one Goblin (20 exp, 10 gold)
+    REQUIRE(bm.getEnemiesConst().size() == 1);
+
+    BattleSubject* enemy = bm.getEnemy(0);
+    REQUIRE(enemy != nullptr);
+    bm.applyDamage(enemy, enemy->hp); // kill enemy
+
+    REQUIRE(bm.calculateExp() == 20);
+    REQUIRE(bm.calculateGold() == 10);
+
+    int32_t initialGold = DataManager::instance().getGold();
+    bm.applyGold();
+    REQUIRE(DataManager::instance().getGold() == initialGold + 10);
+
+    // applyExp calls gainExp which is stub; just ensure no crash
+    bm.applyExp();
+}
+
+TEST_CASE("BattleManager: drop logic handles probability", "[battlemgr]") {
+    DataManager::instance().loadDatabase();
+    DataManager::instance().setupNewGame();
+
+    BattleManager bm;
+    bm.setup(2, true, false); // Goblin drops: item 1 (rate 1 = 100%), item 2 (rate 2 = 50%)
+    BattleSubject* enemy = bm.getEnemy(0);
+    REQUIRE(enemy != nullptr);
+    bm.applyDamage(enemy, enemy->hp); // kill
+
+    // Seed RNG so that drop rolls are deterministic
+    bm.seedRng(12345);
+    auto drops = bm.calculateDrops();
+    // Item 1 should always be present because rate 1
+    REQUIRE(std::find(drops.begin(), drops.end(), 1) != drops.end());
+
+    // Re-seed to same value and apply drops; inventory change should match identical drop set
+    bm.seedRng(12345);
+    int32_t before1 = DataManager::instance().getItemCount(1);
+    int32_t before2 = DataManager::instance().getItemCount(2);
+    bm.applyDrops();
+    REQUIRE(DataManager::instance().getItemCount(1) == before1 + 1);
+    bool hasItem2 = std::find(drops.begin(), drops.end(), 2) != drops.end();
+    REQUIRE(DataManager::instance().getItemCount(2) == before2 + (hasItem2 ? 1 : 0));
+}
+
+TEST_CASE("BattleManager: victory and defeat switches are set correctly", "[battlemgr]") {
+    DataManager::instance().setupNewGame();
+
+    BattleManager bm;
+    bm.setup(1, true, false);
+    bm.startBattle();
+    bm.endBattle(BattleResult::WIN);
+    REQUIRE(DataManager::instance().getSwitch(101) == true);
+
+    DataManager::instance().setupNewGame(); // reset switches
+    bm.setup(1, true, true);
+    bm.startBattle();
+    bm.endBattle(BattleResult::DEFEAT);
+    REQUIRE(DataManager::instance().getSwitch(102) == true);
+
+    DataManager::instance().setupNewGame();
+    bm.setup(1, true, false);
+    bm.startBattle();
+    bool escaped = bm.processEscape();
+    if (escaped) {
+        REQUIRE(DataManager::instance().getSwitch(103) == true);
+    }
+}
+
+TEST_CASE("BattleManager: processAction resolves attack and advances queue", "[battlemgr]") {
+    DataManager::instance().loadDatabase();
+    DataManager::instance().setupNewGame();
+
+    BattleManager bm;
+    bm.setup(1, true, false); // 2 slimes
+    REQUIRE(bm.getEnemiesConst().size() == 2);
+
+    BattleSubject actor;
+    actor.type = BattleSubjectType::ACTOR;
+    actor.index = 0;
+    actor.hp = 100;
+    actor.mhp = 100;
+
+    bm.queueAction(&actor, BattleActionType::ATTACK, 0);
+    BattleAction* action = bm.getNextAction();
+    REQUIRE(action != nullptr);
+    bm.processAction(action);
+    REQUIRE(bm.getEnemy(0)->hp < bm.getEnemy(0)->mhp);
+    REQUIRE(bm.getNextAction() == nullptr);
 }
 
 TEST_CASE("Battle structs and enums", "[battlemgr]") {

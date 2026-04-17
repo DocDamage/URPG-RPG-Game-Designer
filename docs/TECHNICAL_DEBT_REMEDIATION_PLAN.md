@@ -145,6 +145,8 @@ Each finding is structured as: **Impact → Root Cause → Required Action → O
 
 ### P1-01 — QuickJS Layer Is A Stub Kernel, Not A Runtime
 
+**Status (2026-04-17):** Remediated via Path B. The QuickJS compat layer is now explicitly documented and tested as a fixture-backed compat-contract harness, not a production JS runtime.
+
 **Impact:** The compat JS subsystem cannot execute real scripts. Any feature or compat claim that depends on JS execution is fictitious until this is resolved or explicitly scoped as a test harness.
 
 **Root cause:**
@@ -163,6 +165,11 @@ Each finding is structured as: **Impact → Root Cause → Required Action → O
 - Path A: `eval()` executes real JS; initialization creates a live QuickJS context.
 - Path B: All references to "JS runtime support" in docs and status labels are updated to "fixture-backed contract harness."
 - No path treats the fixture lane as evidence of live runtime capability.
+
+**Progress evidence (2026-04-17):**
+- [quickjs_runtime.h](../runtimes/compat_js/quickjs_runtime.h) now labels the surface as a "fixture-backed compat-contract harness" with an explicit note that "live QuickJS runtime integration is out of scope for this file."
+- [quickjs_runtime.cpp](../runtimes/compat_js/quickjs_runtime.cpp) now uses scope-honest comments (`Note: Live QuickJS runtime initialization belongs in a separate runtime module, not this harness`) instead of TODOs that implied imminent real-JS integration.
+- [test_quickjs_runtime.cpp](../tests/unit/test_quickjs_runtime.cpp) already includes an explicit regression that proves `eval("1 + 1")` returns `Nil` rather than evaluating to `2`, documenting the harness-only semantics in test code.
 
 ---
 

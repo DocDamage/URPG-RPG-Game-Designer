@@ -8,12 +8,20 @@ using urpg::Array;
 
 TEST_CASE("DataManager: database loading and accessors", "[data_manager]") {
     DataManager dm;
+    DataManager::setDataDirectory(URPG_SOURCE_DIR "\\third_party\\rpgmaker-mz\\visumz-sample-project\\VisuMZ_Sample_Game_Project\\data");
 
     REQUIRE(dm.loadDatabase());
-    // loadDatabase now orchestrates sub-loaders and seeds real records
+    // loadDatabase now orchestrates sub-loaders and reads real MZ JSON files
     REQUIRE_FALSE(dm.getActors().empty());
     REQUIRE_FALSE(dm.getSkills().empty());
     REQUIRE_FALSE(dm.getItems().empty());
+    REQUIRE_FALSE(dm.getClasses().empty());
+    REQUIRE_FALSE(dm.getWeapons().empty());
+    REQUIRE_FALSE(dm.getArmors().empty());
+    REQUIRE_FALSE(dm.getEnemies().empty());
+    REQUIRE_FALSE(dm.getTroops().empty());
+    REQUIRE_FALSE(dm.getStates().empty());
+    REQUIRE_FALSE(dm.getMapInfos().empty());
 
     // Direct sub-loader calls are idempotent
     REQUIRE(dm.loadActors());
@@ -21,13 +29,50 @@ TEST_CASE("DataManager: database loading and accessors", "[data_manager]") {
     REQUIRE(dm.loadItems());
     REQUIRE(dm.loadEnemies());
 
-    // Verify seeded records are accessible
+    // Verify real records from VisuMZ sample project are loaded
     REQUIRE(dm.getActor(1) != nullptr);
-    REQUIRE(dm.getActor(1)->name == "Hero");
+    REQUIRE(dm.getActor(1)->name == "Reid");
+    REQUIRE(dm.getActor(2) != nullptr);
+    REQUIRE(dm.getActor(2)->name == "Priscilla");
+    REQUIRE(dm.getActor(1)->params.size() == 8);
+    REQUIRE(dm.getActor(1)->params[0].size() > 1);
+    REQUIRE(dm.getActor(1)->params[6].size() > 1);
+    REQUIRE(dm.getActor(1)->params[0][1] > 0);
+    REQUIRE(dm.getActor(1)->params[6][1] > 0);
+
     REQUIRE(dm.getSkill(1) != nullptr);
-    REQUIRE(dm.getSkill(1)->name == "Heal");
-    REQUIRE(dm.getItem(1) != nullptr);
-    REQUIRE(dm.getItem(1)->name == "Potion");
+    REQUIRE(dm.getSkill(1)->name == "Attack");
+    REQUIRE(dm.getSkill(52) != nullptr);
+    REQUIRE(dm.getSkill(52)->name == "Heal I");
+
+    REQUIRE(dm.getItem(7) != nullptr);
+    REQUIRE(dm.getItem(7)->name == "Potion");
+
+    REQUIRE(dm.getClass(1) != nullptr);
+    REQUIRE(dm.getClass(1)->name == "Swordsman");
+
+    REQUIRE(dm.getWeapon(1) != nullptr);
+    REQUIRE(dm.getWeapon(1)->name == "Short Sword");
+
+    REQUIRE(dm.getArmor(2) != nullptr);
+    REQUIRE(dm.getArmor(2)->name == "Linen Clothing");
+
+    REQUIRE(dm.getEnemy(1) != nullptr);
+    REQUIRE(dm.getEnemy(1)->name == "Goblin");
+
+    REQUIRE(dm.getTroop(1) != nullptr);
+    REQUIRE(dm.getTroop(1)->name == "Goblin x2");
+
+    REQUIRE(dm.getState(4) != nullptr);
+    REQUIRE(dm.getState(4)->name == "Poison");
+
+    REQUIRE(!dm.getMapInfos().empty());
+    REQUIRE(dm.getMapInfos()[0].name == "Debug Room");
+
+    REQUIRE(dm.getStartMapId() == 2);
+    REQUIRE(dm.getStartX() == 16);
+    REQUIRE(dm.getStartY() == 23);
+    REQUIRE(dm.getStartPartySize() == 8);
 
     REQUIRE(dm.getActor(999) == nullptr);
     REQUIRE(dm.getSkill(999) == nullptr);
@@ -35,6 +80,7 @@ TEST_CASE("DataManager: database loading and accessors", "[data_manager]") {
 }
 
 TEST_CASE("DataManager: global state and inventory", "[data_manager]") {
+    DataManager::setDataDirectory("");
     DataManager dm;
     dm.loadDatabase();
     dm.setupNewGame();
@@ -70,6 +116,21 @@ TEST_CASE("DataManager: global state and inventory", "[data_manager]") {
     dm.loseItem(1, 50);
     REQUIRE(dm.getItemCount(1) == 0);
     REQUIRE_FALSE(dm.hasItem(1));
+}
+
+TEST_CASE("DataManager: actor param access stays safe when only actor records are loaded", "[data_manager]") {
+    DataManager::setDataDirectory("");
+    DataManager dm;
+
+    REQUIRE(dm.loadActors());
+    REQUIRE(dm.getActor(1) != nullptr);
+    REQUIRE(dm.getActor(1)->params.empty());
+
+    REQUIRE(dm.getActorParam(1, 0, 1) == 100);
+    REQUIRE(dm.getActorParam(1, 1, 1) == 30);
+    REQUIRE(dm.getActorParam(1, 2, 1) == 10);
+    REQUIRE(dm.getActorParam(1, 6, 1) == 10);
+    REQUIRE(dm.getActorParam(999, 2, 1) == 10);
 }
 
 TEST_CASE("DataManager: switches, variables, and self switches", "[data_manager]") {

@@ -461,3 +461,61 @@ TEST_CASE("QuickJSContext eval does not execute real arithmetic in fixture-backe
     // Harness is fixture-backed, not a live JS runtime, so 1+1 should not evaluate to 2
     REQUIRE(std::holds_alternative<std::monostate>(result.value.v));
 }
+
+TEST_CASE("QuickJSContext eval of plain JS without directives returns Nil", "[compat][quickjs]") {
+    QuickJSContext ctx;
+    REQUIRE(ctx.initialize(QuickJSConfig{}));
+
+    auto result = ctx.eval("let x = 42; function foo() { return x; }", "plain.js");
+
+    REQUIRE(result.success);
+    // The harness does not execute plain JS; result is Nil/undefined
+    REQUIRE(std::holds_alternative<std::monostate>(result.value.v));
+}
+
+TEST_CASE("QuickJSContext module loader is fixture-driven and does not execute real JS", "[compat][quickjs]") {
+    QuickJSContext ctx;
+    REQUIRE(ctx.initialize(QuickJSConfig{}));
+
+    ctx.setModuleLoader([](const std::string&) -> std::optional<std::string> {
+        // Return plain JS without directives; harness should treat it as fixture text
+        return "const answer = 42;";
+    });
+
+    auto result = ctx.evalModule("fixture_module");
+    REQUIRE(result.success);
+    // Real JS execution is out of scope; the harness returns Nil for non-directive content
+    REQUIRE(std::holds_alternative<std::monostate>(result.value.v));
+}
+
+TEST_CASE("QuickJSContext call counts are harness-level features", "[compat][quickjs]") {
+    QuickJSContext ctx;
+    REQUIRE(ctx.initialize(QuickJSConfig{}));
+
+    ctx.registerAPIStatus("HarnessAPI.testCall", CompatStatus::STUB);
+
+    // Calling a stub method increments callCount at the harness level
+    auto result = ctx.callMethod("HarnessAPI", "testCall", {});
+    REQUIRE(result.success);
+
+    auto status = ctx.getAPIStatus("HarnessAPI.testCall");
+    REQUIRE(status.callCount == 1);
+    REQUIRE(status.failCount == 0);
+}
+
+TEST_CASE("QuickJSContext CPU budget is enforced at harness level", "[compat][quickjs]") {
+    QuickJSContext ctx;
+    QuickJSConfig config;
+    config.enableCPUBudget = true;
+    config.cpuBudgetUs = 0; // Force immediate exceeded
+
+    REQUIRE(ctx.initialize(config));
+    REQUIRE(ctx.registerFunction("dummy", [](const std::vector<urpg::Value>&) -> urpg::Value {
+        return urpg::Value::Nil();
+    }));
+
+    auto result = ctx.call("dummy", {});
+    REQUIRE_FALSE(result.success);
+    REQUIRE(result.error == "CPU budget exceeded");
+    REQUIRE(ctx.isCPUExceeded());
+}

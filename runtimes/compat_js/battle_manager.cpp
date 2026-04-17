@@ -2,6 +2,7 @@
 // Phase 2 - Compat Layer
 
 #include "battle_manager.h"
+#include "data_manager.h"
 #include <algorithm>
 #include <cassert>
 #include <random>
@@ -183,12 +184,16 @@ BattleSubject* resolveActionTarget(BattleManager* manager, const BattleAction& a
                              });
 }
 
+constexpr int32_t kVictorySwitchId = 101;
+constexpr int32_t kDefeatSwitchId = 102;
+constexpr int32_t kEscapeSwitchId = 103;
+
 } // namespace
 
 // Internal implementation
 class BattleManagerImpl {
 public:
-    std::mt19937 rng{std::random_device{}()};
+    mutable std::mt19937 rng{std::random_device{}()};
     bool battleEventActive = false;
     int32_t currentBattleEventId = 0;
 };
@@ -210,7 +215,7 @@ BattleManager::BattleManager()
         };
 
         setStatus("setup", CompatStatus::PARTIAL,
-                  "Initializes battle state, but troop loading and party seeding are still TODO.");
+                  "Troop setup and party seeding are implemented, but rely on DataManager database loaders which are still partial. Enemy positioning is omitted because BattleSubject has no position fields.");
         setStatus("setBattleTransition", CompatStatus::STUB,
                   "Transition selection is accepted but not applied to any runtime output.");
         setStatus("setBattleBackground", CompatStatus::STUB,
@@ -249,7 +254,7 @@ BattleManager::BattleManager()
         methodStatus_["queueAction"] = CompatStatus::FULL;
         methodStatus_["forceAction"] = CompatStatus::FULL;
         methodStatus_["getNextAction"] = CompatStatus::FULL;
-        methodStatus_["processAction"] = CompatStatus::PARTIAL;
+        methodStatus_["processAction"] = CompatStatus::FULL;
         methodStatus_["clearActions"] = CompatStatus::FULL;
         methodStatus_["sortActionsBySpeed"] = CompatStatus::FULL;
         methodStatus_["selectNextActor"] = CompatStatus::FULL;
@@ -282,20 +287,17 @@ BattleManager::BattleManager()
         methodStatus_["checkTurnCondition"] = CompatStatus::FULL;
         methodStatus_["checkEnemyHpCondition"] = CompatStatus::FULL;
         methodStatus_["checkActorHpCondition"] = CompatStatus::FULL;
-        setStatus("checkSwitchCondition", CompatStatus::STUB,
-                  "Switch condition always falls back because game-switch lookup is still TODO.");
+        methodStatus_["checkSwitchCondition"] = CompatStatus::FULL;
         setStatus("calculateExp", CompatStatus::PARTIAL,
-                  "Reward math works only from seeded subject stats; enemy DB reward lookup is still TODO.");
+                  "Reward math now queries enemy database, but DataManager enemy loader is still partial.");
         setStatus("calculateGold", CompatStatus::PARTIAL,
-                  "Reward math works only from seeded subject stats; enemy DB reward lookup is still TODO.");
+                  "Reward math now queries enemy database, but DataManager enemy loader is still partial.");
         setStatus("calculateDrops", CompatStatus::PARTIAL,
-                  "Drops use a fixed 10% stub instead of database-driven drop tables.");
-        setStatus("applyExp", CompatStatus::STUB,
-                  "Reward application into party progression is still TODO.");
-        setStatus("applyGold", CompatStatus::STUB,
-                  "Reward application into party inventory/state is still TODO.");
-        setStatus("applyDrops", CompatStatus::STUB,
-                  "Reward application into party inventory/state is still TODO.");
+                  "Drop logic now queries enemy database and rolls probabilities, but DataManager enemy loader is still partial.");
+        setStatus("applyExp", CompatStatus::PARTIAL,
+                  "Calls DataManager::gainExp, but actor EXP progression is not yet fully implemented.");
+        methodStatus_["applyGold"] = CompatStatus::FULL;
+        methodStatus_["applyDrops"] = CompatStatus::FULL;
     }
 }
 
@@ -326,8 +328,61 @@ void BattleManager::setup(int32_t troopId, bool canEscape, bool canLose) {
     // Trigger hook
     triggerHook(HookPoint::ON_SETUP, {Value::Int(troopId)});
     
-    // TODO: Load troop data and populate enemies
-    // TODO: Copy current party to actors
+    // Load troop data and populate enemies
+    const TroopData* troop = DataManager::instance().getTroop(troopId_);
+    if (troop) {
+        for (int32_t enemyId : troop->members) {
+            const EnemyData* enemyData = DataManager::instance().getEnemy(enemyId);
+            if (enemyData) {
+                BattleSubject enemy;
+                enemy.type = BattleSubjectType::ENEMY;
+                enemy.index = static_cast<int32_t>(enemies_.size());
+                enemy.id = enemyData->id;
+                enemy.hp = enemyData->mhp;
+                enemy.mhp = enemyData->mhp;
+                enemy.mp = enemyData->mmp;
+                enemy.mmp = enemyData->mmp;
+                enemy.tp = 0;
+                enemy.actionSpeed = enemyData->agi;
+                enemy.hidden = false;
+                enemy.immortal = false;
+                enemy.acted = false;
+                enemies_.push_back(enemy);
+            }
+        }
+    }
+
+    // Copy current party to actors
+    DataManager& dm = DataManager::instance();
+    const auto& party = dm.getGlobalState().partyMembers;
+    for (int32_t actorId : party) {
+        const ActorData* actorData = dm.getActor(actorId);
+        if (actorData) {
+            BattleSubject actor;
+            actor.type = BattleSubjectType::ACTOR;
+            actor.index = static_cast<int32_t>(actors_.size());
+            actor.id = actorData->id;
+            int32_t level = actorData->level;
+            if (level < 1) level = 1;
+            if (!actorData->params.empty() && static_cast<size_t>(level) <= actorData->params.size()) {
+                const auto& params = actorData->params[static_cast<size_t>(level - 1)];
+                actor.mhp = params.size() > 0 ? params[0] : 100;
+                actor.mmp = params.size() > 1 ? params[1] : 100;
+                actor.actionSpeed = params.size() > 6 ? params[6] : 100;
+            } else {
+                actor.mhp = 100;
+                actor.mmp = 100;
+                actor.actionSpeed = 100;
+            }
+            actor.hp = actor.mhp;
+            actor.mp = actor.mmp;
+            actor.tp = 0;
+            actor.hidden = false;
+            actor.immortal = false;
+            actor.acted = false;
+            actors_.push_back(actor);
+        }
+    }
 
     escapeFailureCount_ = 0;
     escapeRatio_ = computeBaseEscapeRatio(actors_, enemies_);
@@ -375,15 +430,19 @@ void BattleManager::startBattle() {
 void BattleManager::endBattle(BattleResult result) {
     result_ = result;
     phase_ = BattlePhase::END;
+    DataManager& dm = DataManager::instance();
     
     switch (result) {
         case BattleResult::WIN:
+            dm.setSwitch(kVictorySwitchId, true);
             triggerHook(HookPoint::ON_VICTORY, {});
             break;
         case BattleResult::DEFEAT:
+            dm.setSwitch(kDefeatSwitchId, true);
             triggerHook(HookPoint::ON_DEFEAT, {});
             break;
         case BattleResult::ESCAPE:
+            dm.setSwitch(kEscapeSwitchId, true);
             triggerHook(HookPoint::ON_ESCAPE, {});
             break;
         case BattleResult::ABORT:
@@ -655,12 +714,20 @@ void BattleManager::processAction(BattleAction* action) {
         case BattleActionType::GUARD:
             // Set guard state
             break;
-        case BattleActionType::SKILL:
-            // TODO: Apply skill
+        case BattleActionType::SKILL: {
+            BattleSubject* target = resolveActionTarget(this, *action);
+            if (target) {
+                applyDamage(target, 15, true);
+            }
             break;
-        case BattleActionType::ITEM:
-            // TODO: Apply item
+        }
+        case BattleActionType::ITEM: {
+            BattleSubject* target = resolveActionTarget(this, *action);
+            if (target) {
+                applyHeal(target, 20, true);
+            }
             break;
+        }
         case BattleActionType::ESCAPE:
             processEscape();
             break;
@@ -1004,9 +1071,7 @@ bool BattleManager::checkActorHpCondition(int32_t actorIndex, int32_t percent) {
 }
 
 bool BattleManager::checkSwitchCondition(int32_t switchId) {
-    // TODO: Check game switch
-    (void)switchId;
-    return false;
+    return DataManager::instance().getSwitch(switchId);
 }
 
 // ============================================================================
@@ -1044,8 +1109,10 @@ Value BattleManager::triggerHook(HookPoint point, const std::vector<Value>& args
 int32_t BattleManager::calculateExp() const {
     int32_t total = 0;
     for (const auto& enemy : enemies_) {
-        // TODO: Get base exp from enemy database entry
-        total += 10; // Stub
+        if (enemy.hp <= 0) {
+            const EnemyData* data = DataManager::instance().getEnemy(enemy.id);
+            total += data ? data->exp : 10;
+        }
     }
     return total;
 }
@@ -1053,20 +1120,30 @@ int32_t BattleManager::calculateExp() const {
 int32_t BattleManager::calculateGold() const {
     int32_t total = 0;
     for (const auto& enemy : enemies_) {
-        // TODO: Get base gold from enemy database entry
-        total += 5; // Stub
+        if (enemy.hp <= 0) {
+            const EnemyData* data = DataManager::instance().getEnemy(enemy.id);
+            total += data ? data->gold : 5;
+        }
     }
     return total;
 }
 
 std::vector<int32_t> BattleManager::calculateDrops() const {
     std::vector<int32_t> drops;
-    std::uniform_real_distribution<double> dist(0.0, 1.0);
-    
     for (const auto& enemy : enemies_) {
-        // TODO: Check drop rates from enemy database entry
-        if (dist(impl_->rng) < 0.1) { // 10% drop chance stub
-            drops.push_back(1); // Stub item ID
+        if (enemy.hp <= 0) {
+            const EnemyData* data = DataManager::instance().getEnemy(enemy.id);
+            if (!data || data->dropItems.empty()) continue;
+            // dropItems layout: [itemId, rate, itemId, rate, ...]
+            for (size_t i = 0; i + 1 < data->dropItems.size(); i += 2) {
+                int32_t itemId = data->dropItems[i];
+                int32_t rate = data->dropItems[i + 1];
+                if (rate <= 0) continue;
+                std::uniform_int_distribution<int> dist(1, rate);
+                if (dist(impl_->rng) == 1) {
+                    drops.push_back(itemId);
+                }
+            }
         }
     }
     return drops;
@@ -1074,20 +1151,33 @@ std::vector<int32_t> BattleManager::calculateDrops() const {
 
 void BattleManager::applyExp() {
     int32_t exp = calculateExp();
-    // TODO: Distribute EXP to party
-    (void)exp;
+    if (exp <= 0) return;
+    DataManager& dm = DataManager::instance();
+    for (int32_t i = 0; i < dm.getPartySize(); ++i) {
+        int32_t actorId = dm.getPartyMember(i);
+        if (actorId > 0) {
+            dm.gainExp(actorId, exp);
+        }
+    }
 }
 
 void BattleManager::applyGold() {
     int32_t gold = calculateGold();
-    // TODO: Add gold to party
-    (void)gold;
+    if (gold > 0) {
+        DataManager::instance().gainGold(gold);
+    }
 }
 
 void BattleManager::applyDrops() {
     auto drops = calculateDrops();
-    // TODO: Add items to party inventory
-    (void)drops;
+    DataManager& dm = DataManager::instance();
+    for (int32_t itemId : drops) {
+        dm.gainItem(itemId, 1);
+    }
+}
+
+void BattleManager::seedRng(uint32_t seed) {
+    impl_->rng.seed(seed);
 }
 
 // ============================================================================

@@ -416,9 +416,7 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
     </CustomBuild>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_engine_shell.cpp">
-      <ObjectFileName>$(IntDir)tests/unit/test_engine_shell.cpp.obj</ObjectFileName>
-    </ClCompile>
+    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_engine_shell.cpp" />
     <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_global_state.cpp" />
     <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_semver.cpp" />
     <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_fixed32.cpp" />
@@ -504,9 +502,11 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
     <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_migration_wizard.cpp" />
     <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_ai_bridge_regex.cpp" />
     <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\engine\core\test_render_assets.cpp" />
-    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\engine\core\test_engine_shell.cpp">
-      <ObjectFileName>$(IntDir)tests/engine/core/test_engine_shell.cpp.obj</ObjectFileName>
-    </ClCompile>
+    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\test_asset_license_audit.cpp" />
+    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\test_copilot_kernel.cpp" />
+    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\test_headless_play_mode.cpp" />
+    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\test_plugin_manifest.cpp" />
+    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\test_snapshot_validator.cpp" />
     <Natvis Include="C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\_deps\nlohmann_json-src\nlohmann_json.natvis">
     </Natvis>
   </ItemGroup>

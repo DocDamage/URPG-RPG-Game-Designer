@@ -272,6 +272,7 @@ int32_t lineOffsetForFirstLine(const std::vector<message::RichTextToken>& tokens
 std::unordered_map<std::string, CompatStatus> Window_Base::methodStatus_;
 std::unordered_map<std::string, std::string> Window_Base::methodDeviations_;
 std::unordered_map<std::string, uint32_t> Window_Base::methodCallCounts_;
+Window_Base* Window_Base::defaultInstance_ = nullptr;
 
 // Initialize static method status maps
 void Window_Base::initializeMethodStatus() {
@@ -295,13 +296,13 @@ void Window_Base::initializeMethodStatus() {
     setStatus("drawIcon", CompatStatus::PARTIAL,
               "Tracks icon draw intent, but icon-set bitmap rendering is still TODO.");
     setStatus("drawActorName", CompatStatus::PARTIAL,
-              "Falls back to text labels; actor-name rendering is not wired to full window visuals.");
+              "Actor-name lookup and text draw are wired; full window chrome is not implemented.");
     setStatus("drawActorLevel", CompatStatus::PARTIAL,
-              "Falls back to text labels; actor-level rendering is not wired to full window visuals.");
+              "Actor-level lookup and text draw are wired; full window chrome is not implemented.");
     setStatus("drawGauge", CompatStatus::PARTIAL,
-              "Records gauge semantics, but background/fill gradient rendering is still TODO.");
+              "Background and fill RectCommands are submitted; gradient fill is still TODO.");
     setStatus("drawCharacter", CompatStatus::PARTIAL,
-              "Tracks character draw intent, but character-sheet rendering is still TODO.");
+              "SpriteCommand is submitted; character-sheet index mapping is still TODO.");
     setStatus("lineHeight", CompatStatus::STUB);
     setStatus("changeTextColor", CompatStatus::FULL);
     setStatus("resetTextColor", CompatStatus::FULL);
@@ -443,19 +444,22 @@ void Window_Base::drawActorFace(int32_t actorId, int32_t x, int32_t y,
 
 void Window_Base::drawActorName(int32_t actorId, int32_t x, int32_t y, int32_t width) {
     recordMethodCall("drawActorName");
-    (void)x;
-    (void)y;
-    (void)width;
-    // TODO: Get actor name from database and draw
-    assert(actorId >= 0);
+    std::string name = "Actor " + std::to_string(std::max(0, actorId));
+    if (const auto* actor = DataManager::instance().getActor(actorId)) {
+        if (!actor->name.empty()) {
+            name = actor->name;
+        }
+    }
+    drawText(name, x, y, width);
 }
 
 void Window_Base::drawActorLevel(int32_t actorId, int32_t x, int32_t y) {
     recordMethodCall("drawActorLevel");
-    (void)x;
-    (void)y;
-    // TODO: Get actor level and draw with "Lv" prefix
-    assert(actorId >= 0);
+    int32_t level = 1;
+    if (const auto* actor = DataManager::instance().getActor(actorId)) {
+        level = actor->level;
+    }
+    drawText("Lv " + std::to_string(level), x, y);
 }
 
 void Window_Base::drawActorHp(int32_t actorId, int32_t x, int32_t y, int32_t width) {
@@ -488,27 +492,60 @@ void Window_Base::drawActorTp(int32_t actorId, int32_t x, int32_t y, int32_t wid
 void Window_Base::drawGauge(int32_t x, int32_t y, int32_t width,
                              double rate, const Color& color1, const Color& color2) {
     recordMethodCall("drawGauge");
-    (void)x;
-    (void)y;
-    (void)color1;
-    (void)color2;
-    // TODO: Draw gauge background and fill with gradient
     assert(width > 0);
     assert(rate >= 0.0 && rate <= 1.0);
-    
-    // Gauge height is typically 12 pixels
-    // Background: dark gray
-    // Fill: gradient from color1 to color2 based on rate
+
+    constexpr int32_t kGaugeHeight = 12;
+    const int32_t fillWidth = static_cast<int32_t>(static_cast<double>(width) * std::clamp(rate, 0.0, 1.0));
+    const float baseX = static_cast<float>(rect_.x + padding_ + x);
+    const float baseY = static_cast<float>(rect_.y + padding_ + y);
+
+    // Background rect
+    auto bgCmd = std::make_shared<urpg::RectCommand>();
+    bgCmd->x = baseX;
+    bgCmd->y = baseY;
+    bgCmd->w = static_cast<float>(width);
+    bgCmd->h = static_cast<float>(kGaugeHeight);
+    bgCmd->r = 0.2f;
+    bgCmd->g = 0.2f;
+    bgCmd->b = 0.2f;
+    bgCmd->a = 1.0f;
+    bgCmd->zOrder = 100;
+    urpg::RenderLayer::getInstance().submit(bgCmd);
+
+    // Fill rect (uses color1; gradient to color2 is TODO)
+    auto fillCmd = std::make_shared<urpg::RectCommand>();
+    fillCmd->x = baseX;
+    fillCmd->y = baseY;
+    fillCmd->w = static_cast<float>(fillWidth);
+    fillCmd->h = static_cast<float>(kGaugeHeight);
+    fillCmd->r = color1.r / 255.0f;
+    fillCmd->g = color1.g / 255.0f;
+    fillCmd->b = color1.b / 255.0f;
+    fillCmd->a = color1.a / 255.0f;
+    fillCmd->zOrder = 101;
+    urpg::RenderLayer::getInstance().submit(fillCmd);
+
+    (void)color2; // Gradient target reserved for future implementation
 }
 
 void Window_Base::drawCharacter(const std::string& characterName, 
                                  int32_t index, int32_t x, int32_t y) {
     recordMethodCall("drawCharacter");
-    (void)x;
-    (void)y;
-    // TODO: Draw character sprite from character sheet
     assert(!characterName.empty());
     assert(index >= 0);
+
+    auto spriteCmd = std::make_shared<urpg::SpriteCommand>();
+    spriteCmd->textureId = characterName;
+    spriteCmd->x = static_cast<float>(rect_.x + padding_ + x);
+    spriteCmd->y = static_cast<float>(rect_.y + padding_ + y);
+    spriteCmd->zOrder = 100;
+    // index: stored in srcX/srcY as a proxy until SpriteCommand gains an index field
+    spriteCmd->srcX = index * 32;
+    spriteCmd->srcY = 0;
+    spriteCmd->width = 32;
+    spriteCmd->height = 32;
+    urpg::RenderLayer::getInstance().submit(spriteCmd);
 }
 
 void Window_Base::drawItemName(int32_t itemId, int32_t x, int32_t y, int32_t width) {
@@ -794,33 +831,366 @@ std::vector<std::string> Window_Base::getTrackedMethods() {
     return methodNames;
 }
 
+void Window_Base::setDefaultInstance(Window_Base* instance) {
+    defaultInstance_ = instance;
+}
+
 void Window_Base::registerAPI(QuickJSContext& ctx) {
     initializeMethodStatus();  // Ensure initialized
 
-    static const std::vector<std::string> methodsToExpose = {
-        "drawText", "drawIcon", "drawActorFace", "drawActorName", "drawActorLevel",
-        "drawActorHp", "drawActorMp", "drawActorTp", "drawGauge", "drawCharacter",
-        "drawItemName", "drawTextEx", "lineHeight", "textWidth", "textSize",
-        "changeTextColor", "resetTextColor", "textColor", "systemColor",
-        "resetFontSettings", "fontFace", "fontSize", "setFontFace", "setFontSize",
-        "setTextAlignment", "textAlignment",
-        "contents", "createContents", "destroyContents", "open", "close",
-        "show", "hide", "update", "getContentRect"
+    auto getInt = [](const Value& v, int64_t defaultVal = 0) -> int64_t {
+        if (auto* p = std::get_if<int64_t>(&v.v)) return *p;
+        if (auto* p = std::get_if<double>(&v.v)) return static_cast<int64_t>(*p);
+        return defaultVal;
+    };
+    auto getDouble = [](const Value& v, double defaultVal = 0.0) -> double {
+        if (auto* p = std::get_if<double>(&v.v)) return *p;
+        if (auto* p = std::get_if<int64_t>(&v.v)) return static_cast<double>(*p);
+        return defaultVal;
+    };
+    auto getString = [](const Value& v, const std::string& defaultVal = "") -> std::string {
+        if (auto* p = std::get_if<std::string>(&v.v)) return *p;
+        return defaultVal;
+    };
+
+    auto dispatch = [](std::function<Value(Window_Base&)> fn) -> Value {
+        if (!defaultInstance_) return Value::Nil();
+        return fn(*defaultInstance_);
     };
 
     std::vector<QuickJSContext::MethodDef> methods;
-    methods.reserve(methodsToExpose.size());
-    for (const auto& methodName : methodsToExpose) {
+
+    auto add = [&](const std::string& name, std::function<Value(const std::vector<Value>&)> fn) {
         QuickJSContext::MethodDef method;
-        method.name = methodName;
-        method.fn = [](const std::vector<Value>&) -> Value {
-            // TODO: Bridge to actual instance
-            return Value::Nil();
-        };
-        method.status = getMethodStatus(methodName);
-        method.deviationNote = getMethodDeviation(methodName);
+        method.name = name;
+        method.fn = fn;
+        method.status = getMethodStatus(name);
+        method.deviationNote = getMethodDeviation(name);
         methods.push_back(method);
-    }
+    };
+
+    add("drawText", [&](const std::vector<Value>& args) -> Value {
+        return dispatch([&](Window_Base& w) {
+            const std::string text = args.size() > 0 ? getString(args[0]) : "";
+            const int32_t x = static_cast<int32_t>(args.size() > 1 ? getInt(args[1]) : 0);
+            const int32_t y = static_cast<int32_t>(args.size() > 2 ? getInt(args[2]) : 0);
+            const int32_t maxWidth = static_cast<int32_t>(args.size() > 3 ? getInt(args[3]) : 0);
+            const std::string align = args.size() > 4 ? getString(args[4]) : "left";
+            w.drawText(text, x, y, maxWidth, align);
+            return Value::Int(1);
+        });
+    });
+
+    add("drawIcon", [&](const std::vector<Value>& args) -> Value {
+        return dispatch([&](Window_Base& w) {
+            const int32_t iconIndex = static_cast<int32_t>(args.size() > 0 ? getInt(args[0]) : 0);
+            const int32_t x = static_cast<int32_t>(args.size() > 1 ? getInt(args[1]) : 0);
+            const int32_t y = static_cast<int32_t>(args.size() > 2 ? getInt(args[2]) : 0);
+            w.drawIcon(iconIndex, x, y);
+            return Value::Int(1);
+        });
+    });
+
+    add("drawActorFace", [&](const std::vector<Value>& args) -> Value {
+        return dispatch([&](Window_Base& w) {
+            const int32_t actorId = static_cast<int32_t>(args.size() > 0 ? getInt(args[0]) : 0);
+            const int32_t x = static_cast<int32_t>(args.size() > 1 ? getInt(args[1]) : 0);
+            const int32_t y = static_cast<int32_t>(args.size() > 2 ? getInt(args[2]) : 0);
+            const int32_t width = static_cast<int32_t>(args.size() > 3 ? getInt(args[3]) : 144);
+            const int32_t height = static_cast<int32_t>(args.size() > 4 ? getInt(args[4]) : 144);
+            w.drawActorFace(actorId, x, y, width, height);
+            return Value::Int(1);
+        });
+    });
+
+    add("drawActorName", [&](const std::vector<Value>& args) -> Value {
+        return dispatch([&](Window_Base& w) {
+            const int32_t actorId = static_cast<int32_t>(args.size() > 0 ? getInt(args[0]) : 0);
+            const int32_t x = static_cast<int32_t>(args.size() > 1 ? getInt(args[1]) : 0);
+            const int32_t y = static_cast<int32_t>(args.size() > 2 ? getInt(args[2]) : 0);
+            const int32_t width = static_cast<int32_t>(args.size() > 3 ? getInt(args[3]) : 150);
+            w.drawActorName(actorId, x, y, width);
+            return Value::Int(1);
+        });
+    });
+
+    add("drawActorLevel", [&](const std::vector<Value>& args) -> Value {
+        return dispatch([&](Window_Base& w) {
+            const int32_t actorId = static_cast<int32_t>(args.size() > 0 ? getInt(args[0]) : 0);
+            const int32_t x = static_cast<int32_t>(args.size() > 1 ? getInt(args[1]) : 0);
+            const int32_t y = static_cast<int32_t>(args.size() > 2 ? getInt(args[2]) : 0);
+            w.drawActorLevel(actorId, x, y);
+            return Value::Int(1);
+        });
+    });
+
+    add("drawActorHp", [&](const std::vector<Value>& args) -> Value {
+        return dispatch([&](Window_Base& w) {
+            const int32_t actorId = static_cast<int32_t>(args.size() > 0 ? getInt(args[0]) : 0);
+            const int32_t x = static_cast<int32_t>(args.size() > 1 ? getInt(args[1]) : 0);
+            const int32_t y = static_cast<int32_t>(args.size() > 2 ? getInt(args[2]) : 0);
+            const int32_t width = static_cast<int32_t>(args.size() > 3 ? getInt(args[3]) : 128);
+            w.drawActorHp(actorId, x, y, width);
+            return Value::Int(1);
+        });
+    });
+
+    add("drawActorMp", [&](const std::vector<Value>& args) -> Value {
+        return dispatch([&](Window_Base& w) {
+            const int32_t actorId = static_cast<int32_t>(args.size() > 0 ? getInt(args[0]) : 0);
+            const int32_t x = static_cast<int32_t>(args.size() > 1 ? getInt(args[1]) : 0);
+            const int32_t y = static_cast<int32_t>(args.size() > 2 ? getInt(args[2]) : 0);
+            const int32_t width = static_cast<int32_t>(args.size() > 3 ? getInt(args[3]) : 128);
+            w.drawActorMp(actorId, x, y, width);
+            return Value::Int(1);
+        });
+    });
+
+    add("drawActorTp", [&](const std::vector<Value>& args) -> Value {
+        return dispatch([&](Window_Base& w) {
+            const int32_t actorId = static_cast<int32_t>(args.size() > 0 ? getInt(args[0]) : 0);
+            const int32_t x = static_cast<int32_t>(args.size() > 1 ? getInt(args[1]) : 0);
+            const int32_t y = static_cast<int32_t>(args.size() > 2 ? getInt(args[2]) : 0);
+            const int32_t width = static_cast<int32_t>(args.size() > 3 ? getInt(args[3]) : 128);
+            w.drawActorTp(actorId, x, y, width);
+            return Value::Int(1);
+        });
+    });
+
+    add("drawGauge", [&](const std::vector<Value>& args) -> Value {
+        return dispatch([&](Window_Base& w) {
+            const int32_t x = static_cast<int32_t>(args.size() > 0 ? getInt(args[0]) : 0);
+            const int32_t y = static_cast<int32_t>(args.size() > 1 ? getInt(args[1]) : 0);
+            const int32_t width = static_cast<int32_t>(args.size() > 2 ? getInt(args[2]) : 0);
+            const double rate = args.size() > 3 ? getDouble(args[3]) : 0.0;
+            // Color parsing: expect hex integers or object with r/g/b/a
+            Color color1 = Color{255, 255, 255, 255};
+            Color color2 = Color{255, 255, 255, 255};
+            w.drawGauge(x, y, width, rate, color1, color2);
+            return Value::Int(1);
+        });
+    });
+
+    add("drawCharacter", [&](const std::vector<Value>& args) -> Value {
+        return dispatch([&](Window_Base& w) {
+            const std::string name = args.size() > 0 ? getString(args[0]) : "";
+            const int32_t index = static_cast<int32_t>(args.size() > 1 ? getInt(args[1]) : 0);
+            const int32_t x = static_cast<int32_t>(args.size() > 2 ? getInt(args[2]) : 0);
+            const int32_t y = static_cast<int32_t>(args.size() > 3 ? getInt(args[3]) : 0);
+            w.drawCharacter(name, index, x, y);
+            return Value::Int(1);
+        });
+    });
+
+    add("drawItemName", [&](const std::vector<Value>& args) -> Value {
+        return dispatch([&](Window_Base& w) {
+            const int32_t itemId = static_cast<int32_t>(args.size() > 0 ? getInt(args[0]) : 0);
+            const int32_t x = static_cast<int32_t>(args.size() > 1 ? getInt(args[1]) : 0);
+            const int32_t y = static_cast<int32_t>(args.size() > 2 ? getInt(args[2]) : 0);
+            const int32_t width = static_cast<int32_t>(args.size() > 3 ? getInt(args[3]) : 312);
+            w.drawItemName(itemId, x, y, width);
+            return Value::Int(1);
+        });
+    });
+
+    add("drawTextEx", [&](const std::vector<Value>& args) -> Value {
+        return dispatch([&](Window_Base& w) {
+            const std::string text = args.size() > 0 ? getString(args[0]) : "";
+            const int32_t x = static_cast<int32_t>(args.size() > 1 ? getInt(args[1]) : 0);
+            const int32_t y = static_cast<int32_t>(args.size() > 2 ? getInt(args[2]) : 0);
+            const int32_t width = static_cast<int32_t>(args.size() > 3 ? getInt(args[3]) : 0);
+            w.drawTextEx(text, x, y, width);
+            return Value::Int(1);
+        });
+    });
+
+    add("lineHeight", [&](const std::vector<Value>&) -> Value {
+        return dispatch([&](Window_Base& w) {
+            return Value::Int(w.lineHeight());
+        });
+    });
+
+    add("textWidth", [&](const std::vector<Value>& args) -> Value {
+        return dispatch([&](Window_Base& w) {
+            const std::string text = args.size() > 0 ? getString(args[0]) : "";
+            return Value::Int(w.textWidth(text));
+        });
+    });
+
+    add("textSize", [&](const std::vector<Value>& args) -> Value {
+        return dispatch([&](Window_Base& w) {
+            const std::string text = args.size() > 0 ? getString(args[0]) : "";
+            const Rect r = w.textSize(text);
+            urpg::Object obj;
+            obj["x"] = Value::Int(r.x);
+            obj["y"] = Value::Int(r.y);
+            obj["width"] = Value::Int(r.width);
+            obj["height"] = Value::Int(r.height);
+            return Value::Obj(std::move(obj));
+        });
+    });
+
+    add("changeTextColor", [&](const std::vector<Value>& args) -> Value {
+        return dispatch([&](Window_Base& w) {
+            if (args.size() > 0) {
+                if (auto* p = std::get_if<int64_t>(&args[0].v)) {
+                    w.changeTextColor(static_cast<int32_t>(*p));
+                } else {
+                    // TODO: parse color object
+                }
+            }
+            return Value::Int(1);
+        });
+    });
+
+    add("resetTextColor", [&](const std::vector<Value>&) -> Value {
+        return dispatch([&](Window_Base& w) {
+            w.resetTextColor();
+            return Value::Int(1);
+        });
+    });
+
+    add("textColor", [&](const std::vector<Value>&) -> Value {
+        return dispatch([&](Window_Base& w) {
+            const Color c = w.textColor();
+            urpg::Object obj;
+            obj["r"] = Value::Int(c.r);
+            obj["g"] = Value::Int(c.g);
+            obj["b"] = Value::Int(c.b);
+            obj["a"] = Value::Int(c.a);
+            return Value::Obj(std::move(obj));
+        });
+    });
+
+    add("systemColor", [&](const std::vector<Value>& args) -> Value {
+        return dispatch([&](Window_Base& w) {
+            const int32_t index = static_cast<int32_t>(args.size() > 0 ? getInt(args[0]) : 0);
+            const Color c = w.systemColor(index);
+            urpg::Object obj;
+            obj["r"] = Value::Int(c.r);
+            obj["g"] = Value::Int(c.g);
+            obj["b"] = Value::Int(c.b);
+            obj["a"] = Value::Int(c.a);
+            return Value::Obj(std::move(obj));
+        });
+    });
+
+    add("resetFontSettings", [&](const std::vector<Value>&) -> Value {
+        return dispatch([&](Window_Base& w) {
+            w.resetFontSettings();
+            return Value::Int(1);
+        });
+    });
+
+    add("fontFace", [&](const std::vector<Value>&) -> Value {
+        return dispatch([&](Window_Base& w) {
+            urpg::Value v;
+            v.v = w.fontFace();
+            return v;
+        });
+    });
+
+    add("fontSize", [&](const std::vector<Value>&) -> Value {
+        return dispatch([&](Window_Base& w) {
+            return Value::Int(w.fontSize());
+        });
+    });
+
+    add("setFontFace", [&](const std::vector<Value>& args) -> Value {
+        return dispatch([&](Window_Base& w) {
+            w.setFontFace(args.size() > 0 ? getString(args[0]) : "");
+            return Value::Int(1);
+        });
+    });
+
+    add("setFontSize", [&](const std::vector<Value>& args) -> Value {
+        return dispatch([&](Window_Base& w) {
+            w.setFontSize(static_cast<int32_t>(args.size() > 0 ? getInt(args[0]) : 22));
+            return Value::Int(1);
+        });
+    });
+
+    add("setTextAlignment", [&](const std::vector<Value>& args) -> Value {
+        return dispatch([&](Window_Base& w) {
+            w.setTextAlignment(args.size() > 0 ? getString(args[0]) : "left");
+            return Value::Int(1);
+        });
+    });
+
+    add("textAlignment", [&](const std::vector<Value>&) -> Value {
+        return dispatch([&](Window_Base& w) {
+            urpg::Value v;
+            v.v = w.textAlignment();
+            return v;
+        });
+    });
+
+    add("contents", [&](const std::vector<Value>&) -> Value {
+        return dispatch([&](Window_Base& w) {
+            return Value::Int(static_cast<int64_t>(w.contents()));
+        });
+    });
+
+    add("createContents", [&](const std::vector<Value>&) -> Value {
+        return dispatch([&](Window_Base& w) {
+            w.createContents();
+            return Value::Int(1);
+        });
+    });
+
+    add("destroyContents", [&](const std::vector<Value>&) -> Value {
+        return dispatch([&](Window_Base& w) {
+            w.destroyContents();
+            return Value::Int(1);
+        });
+    });
+
+    add("open", [&](const std::vector<Value>&) -> Value {
+        return dispatch([&](Window_Base& w) {
+            w.open();
+            return Value::Int(1);
+        });
+    });
+
+    add("close", [&](const std::vector<Value>&) -> Value {
+        return dispatch([&](Window_Base& w) {
+            w.close();
+            return Value::Int(1);
+        });
+    });
+
+    add("show", [&](const std::vector<Value>&) -> Value {
+        return dispatch([&](Window_Base& w) {
+            w.show();
+            return Value::Int(1);
+        });
+    });
+
+    add("hide", [&](const std::vector<Value>&) -> Value {
+        return dispatch([&](Window_Base& w) {
+            w.hide();
+            return Value::Int(1);
+        });
+    });
+
+    add("update", [&](const std::vector<Value>&) -> Value {
+        return dispatch([&](Window_Base& w) {
+            w.update();
+            return Value::Int(1);
+        });
+    });
+
+    add("getContentRect", [&](const std::vector<Value>&) -> Value {
+        return dispatch([&](Window_Base& w) {
+            const Rect r = w.getContentRect();
+            urpg::Object obj;
+            obj["x"] = Value::Int(r.x);
+            obj["y"] = Value::Int(r.y);
+            obj["width"] = Value::Int(r.width);
+            obj["height"] = Value::Int(r.height);
+            return Value::Obj(std::move(obj));
+        });
+    });
 
     ctx.registerObject("Window_Base", methods);
 }
