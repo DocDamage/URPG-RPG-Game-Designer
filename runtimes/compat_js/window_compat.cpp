@@ -302,11 +302,11 @@ void Window_Base::initializeMethodStatus() {
               "Records gauge semantics, but background/fill gradient rendering is still TODO.");
     setStatus("drawCharacter", CompatStatus::PARTIAL,
               "Tracks character draw intent, but character-sheet rendering is still TODO.");
-    setStatus("lineHeight", CompatStatus::FULL);
+    setStatus("lineHeight", CompatStatus::STUB);
     setStatus("changeTextColor", CompatStatus::FULL);
     setStatus("resetTextColor", CompatStatus::FULL);
     setStatus("textColor", CompatStatus::FULL);
-    setStatus("systemColor", CompatStatus::FULL);
+    setStatus("systemColor", CompatStatus::PARTIAL);
     setStatus("resetFontSettings", CompatStatus::FULL);
     setStatus("fontFace", CompatStatus::FULL);
     setStatus("fontSize", CompatStatus::FULL);
@@ -324,16 +324,16 @@ void Window_Base::initializeMethodStatus() {
     setStatus("close", CompatStatus::FULL);
     setStatus("show", CompatStatus::FULL);
     setStatus("hide", CompatStatus::FULL);
-    setStatus("update", CompatStatus::FULL);
+    setStatus("update", CompatStatus::STUB);
     setStatus("getContentRect", CompatStatus::FULL);
     
-    setStatus("drawActorFace", CompatStatus::FULL);
+    setStatus("drawActorFace", CompatStatus::PARTIAL);
     
-    setStatus("drawActorHp", CompatStatus::FULL);
-    setStatus("drawActorMp", CompatStatus::FULL);
-    setStatus("drawActorTp", CompatStatus::FULL);
+    setStatus("drawActorHp", CompatStatus::STUB);
+    setStatus("drawActorMp", CompatStatus::STUB);
+    setStatus("drawActorTp", CompatStatus::STUB);
     
-    setStatus("drawTextEx", CompatStatus::FULL);
+    setStatus("drawTextEx", CompatStatus::PARTIAL);
     
     setStatus("drawItemName", CompatStatus::FULL);
     
@@ -1035,7 +1035,7 @@ void Window_Selectable::registerAPI(QuickJSContext& ctx) {
     for (const auto& methodName : methodsToExpose) {
         methods.push_back({methodName, [](const std::vector<Value>&) -> Value {
             return Value::Nil();
-        }, CompatStatus::FULL});
+        }, CompatStatus::STUB});
     }
 
     ctx.registerObject("Window_Selectable", methods);
@@ -1169,43 +1169,43 @@ void Window_Command::registerAPI(QuickJSContext& ctx) {
     static const std::vector<QuickJSContext::MethodDef> methods = {
         {"addCommand", [](const std::vector<Value>&) -> Value {
             return Value::Nil();
-        }, CompatStatus::FULL},
+        }, CompatStatus::STUB},
         {"clearCommands", [](const std::vector<Value>&) -> Value {
             return Value::Nil();
-        }, CompatStatus::FULL},
+        }, CompatStatus::STUB},
         {"getCommandCount", [](const std::vector<Value>&) -> Value {
             return Value::Nil();
-        }, CompatStatus::FULL},
+        }, CompatStatus::STUB},
         {"isCommandEnabled", [](const std::vector<Value>&) -> Value {
             return Value::Nil();
-        }, CompatStatus::FULL},
+        }, CompatStatus::STUB},
         {"isCurrentItemEnabled", [](const std::vector<Value>&) -> Value {
             return Value::Nil();
-        }, CompatStatus::FULL},
+        }, CompatStatus::STUB},
         {"getCurrentSymbol", [](const std::vector<Value>&) -> Value {
             return Value::Nil();
-        }, CompatStatus::FULL},
+        }, CompatStatus::STUB},
         {"drawItem", [](const std::vector<Value>&) -> Value {
             return Value::Nil();
-        }, CompatStatus::FULL},
+        }, CompatStatus::STUB},
         {"drawAllItems", [](const std::vector<Value>&) -> Value {
             return Value::Nil();
-        }, CompatStatus::FULL},
+        }, CompatStatus::STUB},
         {"selectSymbol", [](const std::vector<Value>&) -> Value {
             return Value::Nil();
-        }, CompatStatus::FULL},
+        }, CompatStatus::STUB},
         {"selectExt", [](const std::vector<Value>&) -> Value {
             return Value::Nil();
-        }, CompatStatus::FULL},
+        }, CompatStatus::STUB},
         {"findSymbol", [](const std::vector<Value>&) -> Value {
             return Value::Nil();
-        }, CompatStatus::FULL},
+        }, CompatStatus::STUB},
         {"findExt", [](const std::vector<Value>&) -> Value {
             return Value::Nil();
-        }, CompatStatus::FULL},
+        }, CompatStatus::STUB},
         {"callOkHandler", [](const std::vector<Value>&) -> Value {
             return Value::Nil();
-        }, CompatStatus::FULL},
+        }, CompatStatus::STUB},
     };
 
     ctx.registerObject("Window_Command", methods);
@@ -1283,35 +1283,35 @@ void Sprite_Character::registerAPI(QuickJSContext& ctx) {
     
     methods.push_back({"setX", [](const std::vector<Value>&) -> Value {
         return Value::Nil();
-    }, CompatStatus::FULL});
+    }, CompatStatus::STUB});
     
     methods.push_back({"setY", [](const std::vector<Value>&) -> Value {
         return Value::Nil();
-    }, CompatStatus::FULL});
+    }, CompatStatus::STUB});
     
     methods.push_back({"setDirection", [](const std::vector<Value>&) -> Value {
         return Value::Nil();
-    }, CompatStatus::FULL});
+    }, CompatStatus::STUB});
     
     methods.push_back({"setPattern", [](const std::vector<Value>&) -> Value {
         return Value::Nil();
-    }, CompatStatus::FULL});
+    }, CompatStatus::STUB});
     
     methods.push_back({"setVisible", [](const std::vector<Value>&) -> Value {
         return Value::Nil();
-    }, CompatStatus::FULL});
+    }, CompatStatus::STUB});
     
     methods.push_back({"setBlendMode", [](const std::vector<Value>&) -> Value {
         return Value::Nil();
-    }, CompatStatus::FULL});
+    }, CompatStatus::STUB});
     
     methods.push_back({"setOpacity", [](const std::vector<Value>&) -> Value {
         return Value::Nil();
-    }, CompatStatus::FULL});
+    }, CompatStatus::STUB});
     
     methods.push_back({"setScale", [](const std::vector<Value>&) -> Value {
         return Value::Nil();
-    }, CompatStatus::FULL});
+    }, CompatStatus::STUB});
     
     ctx.registerObject("Sprite_Character", methods);
 }
@@ -1397,35 +1397,35 @@ void Sprite_Actor::registerAPI(QuickJSContext& ctx) {
     
     methods.push_back({"setMotion", [](const std::vector<Value>&) -> Value {
         return Value::Nil();
-    }, CompatStatus::FULL});
+    }, CompatStatus::STUB});
     
     methods.push_back({"startMotion", [](const std::vector<Value>&) -> Value {
         return Value::Nil();
-    }, CompatStatus::FULL});
+    }, CompatStatus::STUB});
     
     methods.push_back({"startAnimation", [](const std::vector<Value>&) -> Value {
         return Value::Nil();
-    }, CompatStatus::FULL});
+    }, CompatStatus::STUB});
 
     methods.push_back({"isAnimationPlaying", [](const std::vector<Value>&) -> Value {
         return Value::Nil();
-    }, CompatStatus::FULL});
+    }, CompatStatus::STUB});
     
     methods.push_back({"startEffect", [](const std::vector<Value>&) -> Value {
         return Value::Nil();
-    }, CompatStatus::FULL});
+    }, CompatStatus::STUB});
     
     methods.push_back({"setVisible", [](const std::vector<Value>&) -> Value {
         return Value::Nil();
-    }, CompatStatus::FULL});
+    }, CompatStatus::STUB});
     
     methods.push_back({"setBlendMode", [](const std::vector<Value>&) -> Value {
         return Value::Nil();
-    }, CompatStatus::FULL});
+    }, CompatStatus::STUB});
     
     methods.push_back({"setOpacity", [](const std::vector<Value>&) -> Value {
         return Value::Nil();
-    }, CompatStatus::FULL});
+    }, CompatStatus::STUB});
     
     ctx.registerObject("Sprite_Actor", methods);
 }

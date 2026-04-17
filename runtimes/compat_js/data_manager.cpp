@@ -68,20 +68,20 @@ DataManager::DataManager()
         // Save/Load
         setStatus("loadDatabase", CompatStatus::PARTIAL,
                   "Database load path still seeds empty containers; JSON database ingestion is TODO.");
-        setStatus("saveGame", CompatStatus::FULL);
-        setStatus("saveGameWithHeader", CompatStatus::FULL);
-        setStatus("loadGame", CompatStatus::FULL);
-        setStatus("deleteSaveFile", CompatStatus::FULL);
-        setStatus("doesSaveFileExist", CompatStatus::FULL);
-        setStatus("getMaxSaveFiles", CompatStatus::FULL);
-        setStatus("getSaveHeader", CompatStatus::FULL);
-        setStatus("getAllSaveHeaders", CompatStatus::FULL);
-        setStatus("saveAutosave", CompatStatus::FULL);
-        setStatus("loadAutosave", CompatStatus::FULL);
-        setStatus("isAutosaveEnabled", CompatStatus::FULL);
-        setStatus("setAutosaveEnabled", CompatStatus::FULL);
-        setStatus("setSaveHeaderExtension", CompatStatus::FULL);
-        setStatus("getSaveHeaderExtension", CompatStatus::FULL);
+        setStatus("saveGame", CompatStatus::PARTIAL);
+        setStatus("saveGameWithHeader", CompatStatus::PARTIAL);
+        setStatus("loadGame", CompatStatus::PARTIAL);
+        setStatus("deleteSaveFile", CompatStatus::PARTIAL);
+        setStatus("doesSaveFileExist", CompatStatus::PARTIAL);
+        setStatus("getMaxSaveFiles", CompatStatus::STUB);
+        setStatus("getSaveHeader", CompatStatus::PARTIAL);
+        setStatus("getAllSaveHeaders", CompatStatus::PARTIAL);
+        setStatus("saveAutosave", CompatStatus::PARTIAL);
+        setStatus("loadAutosave", CompatStatus::PARTIAL);
+        setStatus("isAutosaveEnabled", CompatStatus::PARTIAL);
+        setStatus("setAutosaveEnabled", CompatStatus::PARTIAL);
+        setStatus("setSaveHeaderExtension", CompatStatus::PARTIAL);
+        setStatus("getSaveHeaderExtension", CompatStatus::PARTIAL);
         
         // Database access
         setStatus("getActors", CompatStatus::PARTIAL,
@@ -108,34 +108,34 @@ DataManager::DataManager()
                   "Item lookup works against an in-memory list that is still loader-empty.");
         
         // Global state
-        setStatus("setupNewGame", CompatStatus::FULL);
-        setStatus("getPartySize", CompatStatus::FULL);
-        setStatus("getPartyMember", CompatStatus::FULL);
-        setStatus("getGold", CompatStatus::FULL);
-        setStatus("setGold", CompatStatus::FULL);
-        setStatus("gainGold", CompatStatus::FULL);
-        setStatus("loseGold", CompatStatus::FULL);
-        setStatus("getItemCount", CompatStatus::FULL);
-        setStatus("gainItem", CompatStatus::FULL);
-        setStatus("loseItem", CompatStatus::FULL);
-        setStatus("hasItem", CompatStatus::FULL);
-        setStatus("getSwitch", CompatStatus::FULL);
-        setStatus("setSwitch", CompatStatus::FULL);
-        setStatus("getVariable", CompatStatus::FULL);
-        setStatus("setVariable", CompatStatus::FULL);
-        setStatus("getSelfSwitch", CompatStatus::FULL);
-        setStatus("setSelfSwitch", CompatStatus::FULL);
-        setStatus("getPlaytime", CompatStatus::FULL);
-        setStatus("getPlaytimeString", CompatStatus::FULL);
-        setStatus("getSteps", CompatStatus::FULL);
-        setStatus("incrementSteps", CompatStatus::FULL);
-        setStatus("getPlayerMapId", CompatStatus::FULL);
-        setStatus("getPlayerX", CompatStatus::FULL);
-        setStatus("getPlayerY", CompatStatus::FULL);
-        setStatus("setPlayerPosition", CompatStatus::FULL);
-        setStatus("reserveTransfer", CompatStatus::FULL);
-        setStatus("isTransferring", CompatStatus::FULL);
-        setStatus("processTransfer", CompatStatus::FULL);
+        setStatus("setupNewGame", CompatStatus::PARTIAL);
+        setStatus("getPartySize", CompatStatus::PARTIAL);
+        setStatus("getPartyMember", CompatStatus::PARTIAL);
+        setStatus("getGold", CompatStatus::PARTIAL);
+        setStatus("setGold", CompatStatus::PARTIAL);
+        setStatus("gainGold", CompatStatus::PARTIAL);
+        setStatus("loseGold", CompatStatus::PARTIAL);
+        setStatus("getItemCount", CompatStatus::PARTIAL);
+        setStatus("gainItem", CompatStatus::PARTIAL);
+        setStatus("loseItem", CompatStatus::PARTIAL);
+        setStatus("hasItem", CompatStatus::PARTIAL);
+        setStatus("getSwitch", CompatStatus::PARTIAL);
+        setStatus("setSwitch", CompatStatus::PARTIAL);
+        setStatus("getVariable", CompatStatus::PARTIAL);
+        setStatus("setVariable", CompatStatus::PARTIAL);
+        setStatus("getSelfSwitch", CompatStatus::PARTIAL);
+        setStatus("setSelfSwitch", CompatStatus::PARTIAL);
+        setStatus("getPlaytime", CompatStatus::PARTIAL);
+        setStatus("getPlaytimeString", CompatStatus::PARTIAL);
+        setStatus("getSteps", CompatStatus::PARTIAL);
+        setStatus("incrementSteps", CompatStatus::PARTIAL);
+        setStatus("getPlayerMapId", CompatStatus::PARTIAL);
+        setStatus("getPlayerX", CompatStatus::PARTIAL);
+        setStatus("getPlayerY", CompatStatus::PARTIAL);
+        setStatus("setPlayerPosition", CompatStatus::PARTIAL);
+        setStatus("reserveTransfer", CompatStatus::PARTIAL);
+        setStatus("isTransferring", CompatStatus::PARTIAL);
+        setStatus("processTransfer", CompatStatus::PARTIAL);
         
         // Plugin commands
         setStatus("registerPluginCommand", CompatStatus::FULL);
@@ -912,66 +912,66 @@ void DataManager::registerAPI(QuickJSContext& ctx) {
     methods.push_back({"loadDatabase", [](const std::vector<Value>&) -> Value {
         // DataManager::instance().loadDatabase();
         return Value::Int(1);
-    }, CompatStatus::FULL});
+    }, CompatStatus::STUB});
     
     methods.push_back({"saveGame", [](const std::vector<Value>& args) -> Value {
         if (args.size() < 1) return Value::Int(0);
         // return Value::Int(DataManager::instance().saveGame(args[0].asInt()) ? 1 : 0);
         return Value::Int(1);
-    }, CompatStatus::FULL});
+    }, CompatStatus::STUB});
     
     methods.push_back({"loadGame", [](const std::vector<Value>& args) -> Value {
         if (args.size() < 1) return Value::Int(0);
         // return Value::Int(DataManager::instance().loadGame(args[0].asInt()) ? 1 : 0);
         return Value::Int(1);
-    }, CompatStatus::FULL});
+    }, CompatStatus::STUB});
     
     methods.push_back({"getGold", [](const std::vector<Value>&) -> Value {
         // return Value::Int(DataManager::instance().getGold());
         return Value::Int(0);
-    }, CompatStatus::FULL});
+    }, CompatStatus::STUB});
     
     methods.push_back({"setGold", [](const std::vector<Value>& args) -> Value {
         if (args.size() < 1) return Value::Nil();
         // DataManager::instance().setGold(args[0].asInt());
         return Value::Nil();
-    }, CompatStatus::FULL});
+    }, CompatStatus::STUB});
     
     methods.push_back({"getSwitch", [](const std::vector<Value>& args) -> Value {
         if (args.size() < 1) return Value::Int(0);
         // return Value::Int(DataManager::instance().getSwitch(args[0].asInt()) ? 1 : 0);
         return Value::Int(0);
-    }, CompatStatus::FULL});
+    }, CompatStatus::STUB});
     
     methods.push_back({"setSwitch", [](const std::vector<Value>& args) -> Value {
         if (args.size() < 2) return Value::Nil();
         // DataManager::instance().setSwitch(args[0].asInt(), args[1].asInt() != 0);
         return Value::Nil();
-    }, CompatStatus::FULL});
+    }, CompatStatus::STUB});
     
     methods.push_back({"getVariable", [](const std::vector<Value>& args) -> Value {
         if (args.size() < 1) return Value::Int(0);
         // return Value::Int(DataManager::instance().getVariable(args[0].asInt()));
         return Value::Int(0);
-    }, CompatStatus::FULL});
+    }, CompatStatus::STUB});
     
     methods.push_back({"setVariable", [](const std::vector<Value>& args) -> Value {
         if (args.size() < 2) return Value::Nil();
         // DataManager::instance().setVariable(args[0].asInt(), args[1].asInt());
         return Value::Nil();
-    }, CompatStatus::FULL});
+    }, CompatStatus::STUB});
     
     methods.push_back({"getItemCount", [](const std::vector<Value>& args) -> Value {
         if (args.size() < 1) return Value::Int(0);
         // return Value::Int(DataManager::instance().getItemCount(args[0].asInt()));
         return Value::Int(0);
-    }, CompatStatus::FULL});
+    }, CompatStatus::STUB});
     
     methods.push_back({"gainItem", [](const std::vector<Value>& args) -> Value {
         if (args.size() < 2) return Value::Nil();
         // DataManager::instance().gainItem(args[0].asInt(), args[1].asInt());
         return Value::Nil();
-    }, CompatStatus::FULL});
+    }, CompatStatus::STUB});
     
     ctx.registerObject("DataManager", methods);
 }

@@ -249,7 +249,7 @@ BattleManager::BattleManager()
         methodStatus_["queueAction"] = CompatStatus::FULL;
         methodStatus_["forceAction"] = CompatStatus::FULL;
         methodStatus_["getNextAction"] = CompatStatus::FULL;
-        methodStatus_["processAction"] = CompatStatus::FULL;
+        methodStatus_["processAction"] = CompatStatus::PARTIAL;
         methodStatus_["clearActions"] = CompatStatus::FULL;
         methodStatus_["sortActionsBySpeed"] = CompatStatus::FULL;
         methodStatus_["selectNextActor"] = CompatStatus::FULL;
@@ -1118,33 +1118,33 @@ void BattleManager::registerAPI(QuickJSContext& ctx) {
         if (args.size() < 1) return Value::Nil();
         // BattleManager::instance().setup(args[0].asInt());
         return Value::Nil();
-    }, CompatStatus::FULL});
+    }, CompatStatus::STUB});
     
     methods.push_back({"startBattle", [](const std::vector<Value>&) -> Value {
         // BattleManager::instance().startBattle();
         return Value::Nil();
-    }, CompatStatus::FULL});
+    }, CompatStatus::STUB});
     
     methods.push_back({"endBattle", [](const std::vector<Value>& args) -> Value {
         if (args.size() < 1) return Value::Nil();
         // BattleManager::instance().endBattle(static_cast<BattleResult>(args[0].asInt()));
         return Value::Nil();
-    }, CompatStatus::FULL});
+    }, CompatStatus::STUB});
     
     methods.push_back({"getPhase", [](const std::vector<Value>&) -> Value {
         // return Value::Int(static_cast<int32_t>(BattleManager::instance().getPhase()));
         return Value::Int(0);
-    }, CompatStatus::FULL});
+    }, CompatStatus::STUB});
     
     methods.push_back({"getTurnCount", [](const std::vector<Value>&) -> Value {
         // return Value::Int(BattleManager::instance().getTurnCount());
         return Value::Int(0);
-    }, CompatStatus::FULL});
+    }, CompatStatus::STUB});
     
     methods.push_back({"processEscape", [](const std::vector<Value>&) -> Value {
         // return Value::Int(BattleManager::instance().processEscape() ? 1 : 0);
         return Value::Int(0);
-    }, CompatStatus::FULL});
+    }, CompatStatus::STUB});
     
     ctx.registerObject("BattleManager", methods);
 }

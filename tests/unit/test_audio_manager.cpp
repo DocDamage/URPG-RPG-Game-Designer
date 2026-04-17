@@ -155,13 +155,38 @@ TEST_CASE("AudioManager: SE channels are reclaimed after playback completion", "
     REQUIRE(am.getChannel(expectedSeName) == nullptr);
 }
 
+TEST_CASE("AudioManager: SE channel growth is bounded across play/update cycles", "[audio_manager]") {
+    AudioManager& am = AudioManager::instance();
+    am.stopSe();
+
+    const uint32_t markerId = am.createChannel("se_growth_probe", AudioBus::SE);
+    am.destroyChannel(markerId);
+
+    const uint32_t baseNextId = markerId + 1;
+
+    // Play multiple SEs across several cycles; after each update all SE channels
+    // should be reclaimed because SE completes in one frame (P1-03 fix).
+    for (int cycle = 0; cycle < 4; ++cycle) {
+        am.playSe("cycle_se", 90.0, 100.0);
+        am.playSe("cycle_se", 90.0, 100.0);
+        am.playSe("cycle_se", 90.0, 100.0);
+        am.update();
+    }
+
+    // No SE channels from the cycles should remain
+    for (uint32_t i = 0; i < 12; ++i) {
+        const auto seName = "se_" + std::to_string(baseNextId + i);
+        REQUIRE(am.getChannel(seName) == nullptr);
+    }
+}
+
 TEST_CASE("AudioManager: method status registry", "[audio_manager]") {
     AudioManager& am = AudioManager::instance();
     (void)am;
 
-    REQUIRE(AudioManager::getMethodStatus("playBgm") == CompatStatus::FULL);
-    REQUIRE(AudioManager::getMethodStatus("crossfadeBgm") == CompatStatus::FULL);
-    REQUIRE(AudioManager::getMethodStatus("crossfadeBgs") == CompatStatus::FULL);
+    REQUIRE(AudioManager::getMethodStatus("playBgm") == CompatStatus::PARTIAL);
+    REQUIRE(AudioManager::getMethodStatus("crossfadeBgm") == CompatStatus::PARTIAL);
+    REQUIRE(AudioManager::getMethodStatus("crossfadeBgs") == CompatStatus::PARTIAL);
     REQUIRE(AudioManager::getMethodStatus("duckBgm") == CompatStatus::PARTIAL);
     REQUIRE(AudioManager::getMethodStatus("getCurrentBgm") == CompatStatus::PARTIAL);
     REQUIRE(AudioManager::getMethodDeviation("duckBgm").find("smooth") != std::string::npos);

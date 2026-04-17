@@ -124,8 +124,8 @@ Subsystem targets:
 4. Save/Data Core
 
 - [x] Wave 2 Audio State Sync: Implemented `GlobalStateHub` with "Diff-First" notifications and `StateDrivenAudioResolver` for automated BGM transitions. [Landed 2026-04-16]
-- [x] Spatial Presentation: Implemented `SpatialMapOverlay` with elevation sculpting, 3D prop placement, and cinematic camera profiles for battles. [Landed 2026-04-16]
-- [x] Editor Tooling: Launched `ElevationBrush` and `PropPlacement` native panels. [Landed 2026-04-16]
+- [ ] Spatial Presentation: `SpatialMapOverlay` headers and `test_spatial_editor.cpp` coverage exist, but `editor/spatial/*` panels are not yet registered as compiled sources in the build graph. Core presentation runtime (`presentation_runtime.cpp`, `release_validation.cpp`) is registered.
+- [ ] Editor Tooling: `ElevationBrushPanel` and `PropPlacementPanel` headers exist and are exercised by `test_spatial_editor.cpp`, but no `.cpp` implementation is registered in the build graph.
 
 Required outcomes per subsystem:
 

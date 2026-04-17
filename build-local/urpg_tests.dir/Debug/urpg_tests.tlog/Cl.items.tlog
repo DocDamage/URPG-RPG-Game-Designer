@@ -55,6 +55,7 @@ C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_input_manager.cpp;C:\Us
 C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_plugin_manager.cpp;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\urpg_tests.dir\Debug\test_plugin_manager.obj
 C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_plugin_api.cpp;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\urpg_tests.dir\Debug\test_plugin_api.obj
 C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_menu_core.cpp;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\urpg_tests.dir\Debug\test_menu_core.obj
+C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_menu_orchestration.cpp;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\urpg_tests.dir\Debug\test_menu_orchestration.obj
 C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_input_core.cpp;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\urpg_tests.dir\Debug\test_input_core.obj
 C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_audio_core.cpp;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\urpg_tests.dir\Debug\test_audio_core.obj
 C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_message_text_core.cpp;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\urpg_tests.dir\Debug\test_message_text_core.obj

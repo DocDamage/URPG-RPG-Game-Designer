@@ -172,6 +172,9 @@
     <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_menu_core.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_menu_orchestration.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_input_core.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>

@@ -78,6 +78,15 @@ TEST_CASE("MenuSceneGraph: Command Orchestration", "[ui][menu][orchestration]") 
 
     SECTION("Scene stack navigation") {
         auto subScene = std::make_shared<MenuScene>("sub_menu");
+        MenuPane subPane;
+        subPane.id = "sub_pane";
+        subPane.isActive = true;
+        MenuCommandMeta backCmd;
+        backCmd.id = "urpg.menu.back";
+        backCmd.label = "Back";
+        backCmd.route = MenuRouteTarget::Custom;
+        subPane.commands.push_back(backCmd);
+        subScene->addPane(subPane);
         graph.registerScene(subScene);
         
         REQUIRE(graph.getActiveScene()->getId() == "main_menu");

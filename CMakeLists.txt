@@ -272,7 +272,6 @@ add_executable(urpg_tests
     tests/unit/test_battle_inspector_model.cpp
     tests/unit/test_battle_preview_panel.cpp
     tests/unit/test_battle_inspector_panel.cpp
-    tests/unit/test_engine_shell.cpp
     tests/unit/test_event_edit_guard.cpp
     tests/unit/test_event_authority_diagnostics.cpp
     tests/unit/test_event_authority_panel.cpp
@@ -290,6 +289,7 @@ add_executable(urpg_tests
     tests/unit/test_plugin_manager.cpp
     tests/unit/test_plugin_api.cpp
     tests/unit/test_menu_core.cpp
+    tests/unit/test_menu_orchestration.cpp
     tests/unit/test_input_core.cpp
     tests/unit/test_audio_core.cpp
     tests/unit/test_message_text_core.cpp

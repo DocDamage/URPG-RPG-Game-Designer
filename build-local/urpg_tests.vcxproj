@@ -475,6 +475,7 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
     <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_plugin_manager.cpp" />
     <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_plugin_api.cpp" />
     <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_menu_core.cpp" />
+    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_menu_orchestration.cpp" />
     <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_input_core.cpp" />
     <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_audio_core.cpp" />
     <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_message_text_core.cpp" />

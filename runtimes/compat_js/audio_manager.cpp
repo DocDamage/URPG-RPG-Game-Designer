@@ -173,50 +173,50 @@ AudioManager::AudioManager()
         };
 
         // BGM
-        setStatus("playBgm", CompatStatus::FULL);
-        setStatus("stopBgm", CompatStatus::FULL);
-        setStatus("pauseBgm", CompatStatus::FULL);
-        setStatus("resumeBgm", CompatStatus::FULL);
-        setStatus("crossfadeBgm", CompatStatus::FULL);
+        setStatus("playBgm", CompatStatus::PARTIAL);
+        setStatus("stopBgm", CompatStatus::PARTIAL);
+        setStatus("pauseBgm", CompatStatus::PARTIAL);
+        setStatus("resumeBgm", CompatStatus::PARTIAL);
+        setStatus("crossfadeBgm", CompatStatus::PARTIAL);
         setStatus("saveBgmSettings", CompatStatus::PARTIAL,
                   "State snapshot round-trips filename/volume/pitch, but playback position does not advance yet.");
         setStatus("restoreBgmSettings", CompatStatus::PARTIAL,
                   "State restore round-trips filename/volume/pitch, but playback position does not advance yet.");
-        setStatus("isBgmPlaying", CompatStatus::FULL);
-        setStatus("isBgmPaused", CompatStatus::FULL);
+        setStatus("isBgmPlaying", CompatStatus::PARTIAL);
+        setStatus("isBgmPaused", CompatStatus::PARTIAL);
         setStatus("getCurrentBgm", CompatStatus::PARTIAL,
                   "Reports channel metadata, but playback position remains static because timed progression is TODO.");
         
         // BGS
-        setStatus("playBgs", CompatStatus::FULL);
-        setStatus("stopBgs", CompatStatus::FULL);
-        setStatus("crossfadeBgs", CompatStatus::FULL);
+        setStatus("playBgs", CompatStatus::PARTIAL);
+        setStatus("stopBgs", CompatStatus::PARTIAL);
+        setStatus("crossfadeBgs", CompatStatus::PARTIAL);
         
         // ME
-        setStatus("playMe", CompatStatus::FULL);
-        setStatus("stopMe", CompatStatus::FULL);
+        setStatus("playMe", CompatStatus::PARTIAL);
+        setStatus("stopMe", CompatStatus::PARTIAL);
         
         // SE
-        setStatus("playSe", CompatStatus::FULL);
-        setStatus("stopSe", CompatStatus::FULL);
+        setStatus("playSe", CompatStatus::PARTIAL);
+        setStatus("stopSe", CompatStatus::PARTIAL);
         
         // Volume
-        setStatus("setMasterVolume", CompatStatus::FULL);
-        setStatus("getMasterVolume", CompatStatus::FULL);
-        setStatus("setBusVolume", CompatStatus::FULL);
-        setStatus("getBusVolume", CompatStatus::FULL);
+        setStatus("setMasterVolume", CompatStatus::PARTIAL);
+        setStatus("getMasterVolume", CompatStatus::PARTIAL);
+        setStatus("setBusVolume", CompatStatus::PARTIAL);
+        setStatus("getBusVolume", CompatStatus::PARTIAL);
         
         // Ducking
         setStatus("duckBgm", CompatStatus::PARTIAL,
                   "Ducking applies immediately; smooth duration-based ducking is still TODO.");
         setStatus("unduckBgm", CompatStatus::PARTIAL,
                   "Unducking applies immediately; smooth duration-based restore is still TODO.");
-        setStatus("isBgmDucked", CompatStatus::FULL);
+        setStatus("isBgmDucked", CompatStatus::PARTIAL);
         
         // Channels
-        setStatus("createChannel", CompatStatus::FULL);
-        setStatus("destroyChannel", CompatStatus::FULL);
-        setStatus("getChannel", CompatStatus::FULL);
+        setStatus("createChannel", CompatStatus::PARTIAL);
+        setStatus("destroyChannel", CompatStatus::PARTIAL);
+        setStatus("getChannel", CompatStatus::PARTIAL);
     }
 }
 
@@ -591,38 +591,38 @@ void AudioManager::registerAPI(QuickJSContext& ctx) {
         if (args.size() < 1) return Value::Nil();
         // AudioManager::instance().playBgm(...);
         return Value::Nil();
-    }, CompatStatus::FULL});
+    }, CompatStatus::STUB});
     
     methods.push_back({"stopBgm", [](const std::vector<Value>&) -> Value {
         // AudioManager::instance().stopBgm();
         return Value::Nil();
-    }, CompatStatus::FULL});
+    }, CompatStatus::STUB});
     
     methods.push_back({"pauseBgm", [](const std::vector<Value>&) -> Value {
         // AudioManager::instance().pauseBgm();
         return Value::Nil();
-    }, CompatStatus::FULL});
+    }, CompatStatus::STUB});
     
     methods.push_back({"resumeBgm", [](const std::vector<Value>&) -> Value {
         // AudioManager::instance().resumeBgm();
         return Value::Nil();
-    }, CompatStatus::FULL});
+    }, CompatStatus::STUB});
     
     methods.push_back({"isBgmPlaying", [](const std::vector<Value>&) -> Value {
         // return Value::Int(AudioManager::instance().isBgmPlaying() ? 1 : 0);
         return Value::Int(0);
-    }, CompatStatus::FULL});
+    }, CompatStatus::STUB});
     
     methods.push_back({"playSe", [](const std::vector<Value>& args) -> Value {
         if (args.size() < 1) return Value::Nil();
         // AudioManager::instance().playSe(...);
         return Value::Nil();
-    }, CompatStatus::FULL});
+    }, CompatStatus::STUB});
     
     methods.push_back({"stopSe", [](const std::vector<Value>&) -> Value {
         // AudioManager::instance().stopSe();
         return Value::Nil();
-    }, CompatStatus::FULL});
+    }, CompatStatus::STUB});
     
     ctx.registerObject("AudioManager", methods);
 }

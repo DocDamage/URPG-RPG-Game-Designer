@@ -415,7 +415,7 @@ Do not leave the workspace counting tabs that do not render.
 
 **Root cause:**
 - [NATIVE_FEATURE_ABSORPTION_PLAN.md](./NATIVE_FEATURE_ABSORPTION_PLAN.md) and [PROGRAM_COMPLETION_STATUS.md](./PROGRAM_COMPLETION_STATUS.md) describe presentation and spatial work with stronger completion posture than the build graph supports.
-- [CMakeLists.txt](../CMakeLists.txt) includes [map_scene.cpp](../engine/core/scene/map_scene.cpp), [quickjs_runtime.cpp](../runtimes/compat_js/quickjs_runtime.cpp), and [audio_manager.cpp](../runtimes/compat_js/audio_manager.cpp), but there is no build registration for `engine/core/presentation/*`, `editor/spatial/*`, or [test_spatial_editor.cpp](../tests/unit/test_spatial_editor.cpp).
+- `editor/spatial/*` is not registered as compiled editor sources in [CMakeLists.txt](../CMakeLists.txt) (only header files exist). While `engine/core/presentation/presentation_runtime.cpp`, `engine/core/presentation/release_validation.cpp`, [test_presentation_runtime.cpp](../tests/unit/test_presentation_runtime.cpp), and [test_spatial_editor.cpp](../tests/unit/test_spatial_editor.cpp) are registered, the bulk of `engine/core/presentation/*` headers are not directly compiled, and no `editor/spatial/*.cpp` sources are built.
 
 **Required action:**
 - Make an explicit, recorded decision for `engine/core/presentation/*` and `editor/spatial/*`:

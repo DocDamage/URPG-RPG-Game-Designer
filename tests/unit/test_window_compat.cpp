@@ -121,7 +121,7 @@ TEST_CASE("Window_Base content rect calculation", "[compat][window]") {
 TEST_CASE("Window_Base getMethodStatus returns correct values", "[compat][window]") {
     REQUIRE(Window_Base::getMethodStatus("drawText") == CompatStatus::FULL);
     REQUIRE(Window_Base::getMethodStatus("drawIcon") == CompatStatus::PARTIAL);
-    REQUIRE(Window_Base::getMethodStatus("drawActorFace") == CompatStatus::FULL);
+    REQUIRE(Window_Base::getMethodStatus("drawActorFace") == CompatStatus::PARTIAL);
     REQUIRE(Window_Base::getMethodStatus("drawItemName") == CompatStatus::FULL);
     REQUIRE(Window_Base::getMethodStatus("unknownMethod") == CompatStatus::UNSUPPORTED);
 }
@@ -460,11 +460,11 @@ TEST_CASE("Snapshot: drawTextEx wrapped centered and right alignment remains sta
 }
 
 TEST_CASE("Window_Base getMethodStatus for extended methods", "[compat][window]") {
-    REQUIRE(Window_Base::getMethodStatus("lineHeight") == CompatStatus::FULL);
-    REQUIRE(Window_Base::getMethodStatus("drawTextEx") == CompatStatus::FULL);
-    REQUIRE(Window_Base::getMethodStatus("drawActorHp") == CompatStatus::FULL);
-    REQUIRE(Window_Base::getMethodStatus("drawActorMp") == CompatStatus::FULL);
-    REQUIRE(Window_Base::getMethodStatus("drawActorTp") == CompatStatus::FULL);
+    REQUIRE(Window_Base::getMethodStatus("lineHeight") == CompatStatus::STUB);
+    REQUIRE(Window_Base::getMethodStatus("drawTextEx") == CompatStatus::PARTIAL);
+    REQUIRE(Window_Base::getMethodStatus("drawActorHp") == CompatStatus::STUB);
+    REQUIRE(Window_Base::getMethodStatus("drawActorMp") == CompatStatus::STUB);
+    REQUIRE(Window_Base::getMethodStatus("drawActorTp") == CompatStatus::STUB);
     REQUIRE(Window_Base::getMethodStatus("textWidth") == CompatStatus::FULL);
     REQUIRE(Window_Base::getMethodStatus("textSize") == CompatStatus::FULL);
 }

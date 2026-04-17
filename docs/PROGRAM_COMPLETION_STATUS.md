@@ -8,9 +8,7 @@ Cross-cutting debt, truthfulness, and intake-governance source of truth: `docs/T
 ## Where we are now
 
 - Presentation planning is now aligned around **Phase 5 — Environment & Presentation Polish**:
-  - Task 41 (`Dynamic Light placement and shadow proxies`) is complete
-  - Task 42 (`Fog and Post-FX profile blending`) is complete
-  - Task 43 (`Screen-to-World coordinate projection for Prop Gizmos`) is complete
+  - Tasks 41–43 have unit-test coverage in `test_spatial_editor.cpp` and core presentation files (`presentation_runtime.cpp`, `release_validation.cpp`) are registered in the build, but `editor/spatial/*` panels are header-only and not yet compiled into product targets
 - Supporting enablement landed for curated Hugging Face fixture ingestion:
   - permissive TMX, Visual Novel Maker, and Godot samples are vendored under `third_party/huggingface/`
   - restrictive RPG Maker MV / XP corpora remain manifest-only due to license constraints
@@ -136,8 +134,8 @@ Cross-cutting debt, truthfulness, and intake-governance source of truth: `docs/T
     - `tests/unit/test_diagnostics_workspace.cpp`
 - **Added AI Copilot Core Native Ownership Slice (Wave 2 Advanced):**
   - `engine/core/message/chatbot_component.h`: Primary AI hub supporting streaming, tool-calling, and history management.
-  - `engine/core/message/ai_sync_coordinator.h`: Cloud-ready history synchronization.
-  - `engine/core/ai/ai_connectivity.h`: Production-ready service templates for OpenAI, Anthropic, and Local Llama.cpp.
+  - `engine/core/message/ai_sync_coordinator.h`: Local-memory sync plumbing only; operational cloud-ready history synchronization requires a non-stub `ICloudService` backend provided out of tree.
+  - `engine/core/ai/ai_connectivity.h`: Service interface scaffolding for OpenAI, Anthropic, and Local Llama.cpp; live connectivity requires out-of-tree backend integration.
   - `engine/core/ai/personality_registry.h`: Prompt templates for archetypal NPC behaviors (Elder, Warrior, Rogue, etc.).
   - `engine/core/audio/audio_ai_bridge.h`: Dynamic audio orchestration via AI commands.
   - `engine/core/animation/animation_ai_bridge.h`: NLP-to-keyframe translation for actor movement.
@@ -277,7 +275,7 @@ The scope in this document is considered 100% complete when all items below are 
 - [x] AI Copilot Native Infrastructure (Wave 2 Advanced):
   - [x] Knowledge Bridges (World, Battle, Audio, Animation, Debug).
   - [x] `ChatbotComponent` with Streaming and Tool-Calling support.
-  - [x] Production service connectivity (OpenAI, Local Llama).
+  - [x] Service interface scaffolding for OpenAI and Local Llama (live connectivity requires out-of-tree backend integration).
   - [x] NPC Personality Registry and prompt templating.
   - [x] `ChatWindow` UI with word-wrap and streaming logic.
   - [x] Unit/Regex test coverage for AI orchestration logic.
