@@ -4,6 +4,7 @@
 #include <vector>
 #include <map>
 #include <optional>
+#include <algorithm>
 #include <nlohmann/json.hpp>
 #include "../../engine/core/message/message_migration.h"
 #include "../../engine/core/battle/battle_migration.h"
@@ -42,99 +43,79 @@ public:
         m_report = {};
         selected_subsystem_id_.reset();
 
-        // 1. Migrate Messages
         if (project_data.contains("messages")) {
-            const auto message_result =
-                message::UpgradeCompatMessageDocument(project_data["messages"]);
+            auto result = runMessageMigration(project_data["messages"]);
             m_report.total_files_processed++;
-            SubsystemResult message_summary{
-                "message",
-                "Message",
-                1,
-                0,
-                0,
-                true,
-            };
-            for (const auto& diagnostic : message_result.diagnostics) {
-                if (diagnostic.severity == message::MessageMigrationSeverity::Error) {
-                    m_report.error_count++;
-                    message_summary.error_count++;
-                } else if (diagnostic.severity == message::MessageMigrationSeverity::Warning) {
-                    m_report.warning_count++;
-                    message_summary.warning_count++;
-                }
-            }
-            m_report.subsystem_results.push_back(message_summary);
-            m_report.subsystem_results.back().summary_line =
-                "Message migration: " +
-                std::to_string(message_result.dialogue_sequences.size()) +
-                " dialogue sequence(s), " +
-                std::to_string(message_result.diagnostics.size()) +
-                " diagnostic(s).";
-            m_report.summary_logs.push_back(
-                "Message migration: " +
-                std::to_string(message_result.dialogue_sequences.size()) +
-                " dialogue sequence(s), " +
-                std::to_string(message_result.diagnostics.size()) +
-                " diagnostic(s).");
+            m_report.warning_count += result.warning_count;
+            m_report.error_count += result.error_count;
+            m_report.subsystem_results.push_back(result);
         }
 
-        // 1. Migrate Menus
         if (project_data.contains("scenes")) {
-            ui::MenuMigration::Progress ui_progress;
-            ui::MenuMigration::MigrateCommandPanel("main", project_data["scenes"], ui_progress);
+            auto result = runMenuMigration(project_data["scenes"]);
             m_report.total_files_processed++;
-            m_report.warning_count += ui_progress.warnings.size();
-            m_report.error_count += ui_progress.errors.size();
-            m_report.subsystem_results.push_back({
-                "menu",
-                "Menu",
-                ui_progress.total_scenes,
-                ui_progress.warnings.size(),
-                ui_progress.errors.size(),
-                true,
-                "Menu migration: " + std::to_string(ui_progress.total_scenes) +
-                    " scene panel(s), " + std::to_string(ui_progress.total_commands) +
-                    " command(s).",
-            });
-            m_report.summary_logs.push_back(
-                "Menu migration: " + std::to_string(ui_progress.total_scenes) +
-                " scene panel(s), " + std::to_string(ui_progress.total_commands) +
-                " command(s).");
+            m_report.warning_count += result.warning_count;
+            m_report.error_count += result.error_count;
+            m_report.subsystem_results.push_back(result);
         }
 
-        // 3. Migrate Battle Troops/Actions
         if (project_data.contains("troops")) {
-            battle::BattleMigration::Progress b_progress;
-            for (const auto& troop : project_data["troops"]) {
-                battle::BattleMigration::migrateTroop(troop, b_progress);
-            }
+            auto result = runBattleMigration(project_data["troops"]);
             m_report.total_files_processed++;
-            m_report.warning_count += b_progress.warnings.size();
-            m_report.error_count += b_progress.errors.size();
-            m_report.subsystem_results.push_back({
-                "battle",
-                "Battle",
-                b_progress.total_troops,
-                b_progress.warnings.size(),
-                b_progress.errors.size(),
-                true,
-                "Battle migration: " + std::to_string(b_progress.total_troops) +
-                    " troop(s), " + std::to_string(b_progress.total_actions) +
-                    " action(s).",
-            });
-            m_report.summary_logs.push_back(
-                "Battle migration: " + std::to_string(b_progress.total_troops) +
-                " troop(s), " + std::to_string(b_progress.total_actions) +
-                " action(s).");
+            m_report.warning_count += result.warning_count;
+            m_report.error_count += result.error_count;
+            m_report.subsystem_results.push_back(result);
         }
 
         m_report.is_complete = true;
-        m_report.summary_logs.push_back("Migration wizard complete.");
+        rebuildSummaryLogs();
 
         if (!m_report.subsystem_results.empty()) {
             selected_subsystem_id_ = m_report.subsystem_results.front().subsystem_id;
         }
+    }
+
+    bool rerunSubsystem(std::string_view subsystem_id, const nlohmann::json& project_data) {
+        for (auto it = m_report.subsystem_results.begin(); it != m_report.subsystem_results.end(); ++it) {
+            if (it->subsystem_id == subsystem_id) {
+                m_report.total_files_processed = (m_report.total_files_processed > 0) ? m_report.total_files_processed - 1 : 0;
+                m_report.warning_count = (m_report.warning_count >= it->warning_count) ? m_report.warning_count - it->warning_count : 0;
+                m_report.error_count = (m_report.error_count >= it->error_count) ? m_report.error_count - it->error_count : 0;
+                m_report.subsystem_results.erase(it);
+                break;
+            }
+        }
+
+        SubsystemResult new_result;
+        bool ran = false;
+        if (subsystem_id == "message" && project_data.contains("messages")) {
+            new_result = runMessageMigration(project_data["messages"]);
+            ran = true;
+        } else if (subsystem_id == "menu" && project_data.contains("scenes")) {
+            new_result = runMenuMigration(project_data["scenes"]);
+            ran = true;
+        } else if (subsystem_id == "battle" && project_data.contains("troops")) {
+            new_result = runBattleMigration(project_data["troops"]);
+            ran = true;
+        }
+
+        if (!ran) {
+            rebuildSummaryLogs();
+            return false;
+        }
+
+        m_report.total_files_processed++;
+        m_report.warning_count += new_result.warning_count;
+        m_report.error_count += new_result.error_count;
+        m_report.subsystem_results.push_back(new_result);
+        m_report.is_complete = true;
+        rebuildSummaryLogs();
+
+        if (!selected_subsystem_id_.has_value() && !m_report.subsystem_results.empty()) {
+            selected_subsystem_id_ = m_report.subsystem_results.front().subsystem_id;
+        }
+
+        return true;
     }
 
     void clear() {
@@ -175,6 +156,78 @@ public:
     }
 
 private:
+    SubsystemResult runMessageMigration(const nlohmann::json& messages_data) {
+        const auto message_result = message::UpgradeCompatMessageDocument(messages_data);
+        SubsystemResult summary{
+            "message",
+            "Message",
+            1,
+            0,
+            0,
+            true,
+        };
+        for (const auto& diagnostic : message_result.diagnostics) {
+            if (diagnostic.severity == message::MessageMigrationSeverity::Error) {
+                summary.error_count++;
+            } else if (diagnostic.severity == message::MessageMigrationSeverity::Warning) {
+                summary.warning_count++;
+            }
+        }
+        summary.summary_line =
+            "Message migration: " +
+            std::to_string(message_result.dialogue_sequences.size()) +
+            " dialogue sequence(s), " +
+            std::to_string(message_result.diagnostics.size()) +
+            " diagnostic(s).";
+        return summary;
+    }
+
+    SubsystemResult runMenuMigration(const nlohmann::json& scenes_data) {
+        ui::MenuMigration::Progress ui_progress;
+        ui::MenuMigration::MigrateCommandPanel("main", scenes_data, ui_progress);
+        SubsystemResult summary{
+            "menu",
+            "Menu",
+            ui_progress.total_scenes,
+            ui_progress.warnings.size(),
+            ui_progress.errors.size(),
+            true,
+            "Menu migration: " + std::to_string(ui_progress.total_scenes) +
+                " scene panel(s), " + std::to_string(ui_progress.total_commands) +
+                " command(s).",
+        };
+        return summary;
+    }
+
+    SubsystemResult runBattleMigration(const nlohmann::json& troops_data) {
+        battle::BattleMigration::Progress b_progress;
+        for (const auto& troop : troops_data) {
+            battle::BattleMigration::migrateTroop(troop, b_progress);
+        }
+        SubsystemResult summary{
+            "battle",
+            "Battle",
+            b_progress.total_troops,
+            b_progress.warnings.size(),
+            b_progress.errors.size(),
+            true,
+            "Battle migration: " + std::to_string(b_progress.total_troops) +
+                " troop(s), " + std::to_string(b_progress.total_actions) +
+                " action(s).",
+        };
+        return summary;
+    }
+
+    void rebuildSummaryLogs() {
+        m_report.summary_logs.clear();
+        for (const auto& result : m_report.subsystem_results) {
+            m_report.summary_logs.push_back(result.summary_line);
+        }
+        if (m_report.is_complete || !m_report.subsystem_results.empty()) {
+            m_report.summary_logs.push_back("Migration wizard complete.");
+        }
+    }
+
     ProgressReport m_report;
     std::optional<std::string> selected_subsystem_id_;
 };

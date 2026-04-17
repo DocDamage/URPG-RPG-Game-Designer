@@ -552,6 +552,8 @@ Do not leave the workspace counting tabs that do not render.
 
 ### P3-02 — External Repository Intake Needs Canonical Governance
 
+**Status (2026-04-17):** Partially remediated. Canonical governance artifacts have been created and linked.
+
 **Impact:** External repositories can accelerate compat, import, localization, exporter, and editor work, but ungoverned ingestion would create new license ambiguity, fixture sprawl, architectural contamination, and false confidence. Without integrating intake into remediation, the program can "fix" debt while silently creating new debt.
 
 **Root cause:**
@@ -587,9 +589,17 @@ Do not leave the workspace counting tabs that do not render.
 - No external repository is copied, vendored, or mined into URPG product lanes without a recorded legal and technical disposition.
 - External-repo-derived fixtures, wrappers, and adoption decisions are visible planning inputs rather than ad hoc local experiments.
 
+**Progress evidence (2026-04-17):**
+- [docs/external-intake/repo-watchlist.md](./external-intake/repo-watchlist.md) created and linked from [URPG_repo_intake_plan.md](../URPG_repo_intake_plan.md).
+- [docs/external-intake/license-matrix.md](./external-intake/license-matrix.md) created and linked.
+- [docs/external-intake/repo-audit-template.md](./external-intake/repo-audit-template.md) created and linked.
+- [docs/external-intake/urpg_feature_adoption_matrix.md](./external-intake/urpg_feature_adoption_matrix.md) created and linked.
+
 ---
 
 ### P3-03 — Private-Use Asset Intake Needs Canonical Governance
+
+**Status (2026-04-17):** Partially remediated. Canonical governance artifacts have been created and linked.
 
 **Impact:** Private-use asset ingestion can quickly improve editor feedback and runtime realism, but without governance it would create provenance drift, noisy content roots, license/context confusion, and false confidence about how "real" those surfaces are. The project would appear more complete while becoming harder to audit, curate, or safely evolve.
 
@@ -628,6 +638,12 @@ Do not leave the workspace counting tabs that do not render.
 - Private-use assets are staged, normalized, and promoted through recorded provenance rather than ad hoc copies into runtime/editor trees.
 - Direct-ingest and discovery-source repos have distinct tracked handling paths.
 - At least one editor-facing path and one runtime-facing path consume promoted assets through the governed pipeline rather than through local-only drops.
+
+**Progress evidence (2026-04-17):**
+- [docs/asset_intake/ASSET_SOURCE_REGISTRY.md](./asset_intake/ASSET_SOURCE_REGISTRY.md) created and linked from [URPG_private_asset_intake_plan.md](../URPG_private_asset_intake_plan.md).
+- [docs/asset_intake/ASSET_PROMOTION_GUIDE.md](./asset_intake/ASSET_PROMOTION_GUIDE.md) created and linked.
+- [docs/asset_intake/ASSET_CATEGORY_GAPS.md](./asset_intake/ASSET_CATEGORY_GAPS.md) created and linked.
+- [`imports/staging/asset_intake/`](../imports/staging/asset_intake/), [`imports/normalized/`](../imports/normalized/), [`imports/manifests/`](../imports/manifests/), [`imports/reports/`](../imports/reports/), and [`third_party/github_assets/`](../third_party/github_assets/) scaffolded and referenced.
 
 ---
 

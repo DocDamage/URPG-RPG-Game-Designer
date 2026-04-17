@@ -95,6 +95,7 @@ TEST_CASE("MigrationWizardPanel: Visible render records migration snapshot", "[e
     REQUIRE(panel.lastRenderSnapshot().selected_subsystem_error_count == 0);
     REQUIRE(panel.lastRenderSnapshot().selected_subsystem_completed);
     REQUIRE(panel.lastRenderSnapshot().selected_subsystem_summary_line.find("Menu migration") != std::string::npos);
+    REQUIRE(panel.lastRenderSnapshot().can_rerun_selected_subsystem);
 }
 
 TEST_CASE("MigrationWizardPanel: Clear resets report and rendered snapshot", "[editor][diagnostics][wizard][panel][clear]") {
@@ -198,4 +199,106 @@ TEST_CASE("MigrationWizardPanel: render snapshot carries selected subsystem", "[
     REQUIRE(panel.lastRenderSnapshot().selected_subsystem_error_count == 0);
     REQUIRE(panel.lastRenderSnapshot().selected_subsystem_completed);
     REQUIRE(panel.lastRenderSnapshot().selected_subsystem_summary_line.find("Menu migration") != std::string::npos);
+}
+
+TEST_CASE("MigrationWizardModel: rerunSubsystem updates existing result", "[editor][diagnostics][wizard][rerun]") {
+    MigrationWizardModel model;
+
+    nlohmann::json project_data = {
+        {"messages", {
+            {"pages", {
+                {
+                    {"id", "speaker_a"},
+                    {"route", "speaker"},
+                    {"speaker", {{"actor_id", 1}, {"name", "Alyx"}}},
+                    {"text", {"Hello there."}}
+                }
+            }}
+        }},
+        {"scenes", {
+            {{"symbol", "item"}, {"name", "Items"}}
+        }}
+    };
+
+    model.runFullMigration(project_data);
+    REQUIRE(model.getReport().subsystem_results.size() == 2);
+    REQUIRE(model.getReport().subsystem_results[1].subsystem_id == "menu");
+    REQUIRE(model.getReport().subsystem_results[1].processed_count == 1);
+    REQUIRE(model.getReport().total_files_processed == 2);
+
+    project_data["scenes"].push_back({{"symbol", "equip"}, {"name", "Equip"}});
+    REQUIRE(model.rerunSubsystem("menu", project_data));
+    auto report = model.getReport();
+    REQUIRE(report.subsystem_results.size() == 2);
+    REQUIRE(report.subsystem_results[1].processed_count == 1);
+    REQUIRE(report.subsystem_results[1].summary_line.find("2 command(s)") != std::string::npos);
+    REQUIRE(report.total_files_processed == 2);
+    REQUIRE(report.summary_logs.size() == 3);
+    REQUIRE(report.summary_logs[0].find("Message migration") != std::string::npos);
+    REQUIRE(report.summary_logs[1].find("Menu migration") != std::string::npos);
+    REQUIRE(report.summary_logs[2] == "Migration wizard complete.");
+}
+
+TEST_CASE("MigrationWizardModel: rerunSubsystem on missing subsystem adds it", "[editor][diagnostics][wizard][rerun]") {
+    MigrationWizardModel model;
+
+    nlohmann::json project_data = {
+        {"messages", {
+            {"pages", {
+                {
+                    {"id", "speaker_a"},
+                    {"route", "speaker"},
+                    {"speaker", {{"actor_id", 1}, {"name", "Alyx"}}},
+                    {"text", {"Hello there."}}
+                }
+            }}
+        }},
+        {"scenes", {
+            {{"symbol", "item"}, {"name", "Items"}}
+        }}
+    };
+
+    model.runFullMigration(project_data);
+    REQUIRE(model.getReport().subsystem_results.size() == 2);
+
+    nlohmann::json battle_data = {
+        {"troops", {
+            {{"id", 1}, {"name", "Slime x2"}, {"members", {}}}
+        }}
+    };
+    REQUIRE(model.rerunSubsystem("battle", battle_data));
+    auto report = model.getReport();
+    REQUIRE(report.subsystem_results.size() == 3);
+    REQUIRE(report.subsystem_results[2].subsystem_id == "battle");
+    REQUIRE(report.subsystem_results[2].processed_count == 1);
+    REQUIRE(report.total_files_processed == 3);
+    REQUIRE(report.is_complete);
+    REQUIRE(report.summary_logs.size() == 4);
+    REQUIRE(report.summary_logs[2].find("Battle migration") != std::string::npos);
+    REQUIRE(report.summary_logs[3] == "Migration wizard complete.");
+}
+
+TEST_CASE("MigrationWizardPanel: rerun action reflected in render snapshot", "[editor][diagnostics][wizard][panel][rerun]") {
+    MigrationWizardPanel panel;
+
+    nlohmann::json project_data = {
+        {"scenes", {
+            {{"symbol", "item"}, {"name", "Items"}}
+        }}
+    };
+
+    panel.onProjectUpdateRequested(project_data);
+    panel.setVisible(true);
+    panel.render();
+
+    REQUIRE(panel.lastRenderSnapshot().can_rerun_selected_subsystem);
+    REQUIRE(panel.lastRenderSnapshot().subsystem_results[0].processed_count == 1);
+
+    project_data["scenes"].push_back({{"symbol", "equip"}, {"name", "Equip"}});
+    REQUIRE(panel.rerunSubsystem("menu", project_data));
+    panel.render();
+
+    REQUIRE(panel.lastRenderSnapshot().subsystem_results[0].processed_count == 1);
+    REQUIRE(panel.lastRenderSnapshot().subsystem_results[0].summary_line.find("2 command(s)") != std::string::npos);
+    REQUIRE(panel.lastRenderSnapshot().can_rerun_selected_subsystem);
 }

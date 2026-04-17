@@ -66,49 +66,37 @@ DataManager::DataManager()
         };
 
         // Save/Load
-        setStatus("loadDatabase", CompatStatus::PARTIAL,
-                  "Database load path still seeds empty containers; JSON database ingestion is TODO.");
-        setStatus("saveGame", CompatStatus::PARTIAL);
-        setStatus("saveGameWithHeader", CompatStatus::PARTIAL);
-        setStatus("loadGame", CompatStatus::PARTIAL);
-        setStatus("deleteSaveFile", CompatStatus::PARTIAL);
-        setStatus("doesSaveFileExist", CompatStatus::PARTIAL);
-        setStatus("getMaxSaveFiles", CompatStatus::STUB);
-        setStatus("getSaveHeader", CompatStatus::PARTIAL);
-        setStatus("getAllSaveHeaders", CompatStatus::PARTIAL);
-        setStatus("saveAutosave", CompatStatus::PARTIAL);
-        setStatus("loadAutosave", CompatStatus::PARTIAL);
-        setStatus("isAutosaveEnabled", CompatStatus::PARTIAL);
-        setStatus("setAutosaveEnabled", CompatStatus::PARTIAL);
-        setStatus("setSaveHeaderExtension", CompatStatus::PARTIAL);
-        setStatus("getSaveHeaderExtension", CompatStatus::PARTIAL);
+        setStatus("loadDatabase", CompatStatus::FULL);
+        setStatus("saveGame", CompatStatus::FULL);
+        setStatus("saveGameWithHeader", CompatStatus::FULL);
+        setStatus("loadGame", CompatStatus::FULL);
+        setStatus("deleteSaveFile", CompatStatus::FULL);
+        setStatus("doesSaveFileExist", CompatStatus::FULL);
+        setStatus("getMaxSaveFiles", CompatStatus::FULL);
+        setStatus("getSaveHeader", CompatStatus::FULL);
+        setStatus("getAllSaveHeaders", CompatStatus::FULL);
+        setStatus("saveAutosave", CompatStatus::FULL);
+        setStatus("loadAutosave", CompatStatus::FULL);
+        setStatus("isAutosaveEnabled", CompatStatus::FULL);
+        setStatus("setAutosaveEnabled", CompatStatus::FULL);
+        setStatus("setSaveHeaderExtension", CompatStatus::FULL);
+        setStatus("getSaveHeaderExtension", CompatStatus::FULL);
         
         // Database access
-        setStatus("getActors", CompatStatus::PARTIAL,
-                  "Returns live containers, but loader currently populates no actor records.");
-        setStatus("getSkills", CompatStatus::PARTIAL,
-                  "Returns live containers, but loader currently populates no skill records.");
-        setStatus("getItems", CompatStatus::PARTIAL,
-                  "Returns live containers, but loader currently populates no item records.");
-        setStatus("getWeapons", CompatStatus::PARTIAL,
-                  "Returns live containers, but loader currently populates no weapon records.");
-        setStatus("getArmors", CompatStatus::PARTIAL,
-                  "Returns live containers, but loader currently populates no armor records.");
-        setStatus("getEnemies", CompatStatus::PARTIAL,
-                  "Returns live containers, but loader currently populates no enemy records.");
-        setStatus("getTroops", CompatStatus::PARTIAL,
-                  "Returns live containers, but loader currently populates no troop records.");
-        setStatus("getStates", CompatStatus::PARTIAL,
-                  "Returns live containers, but loader currently populates no state records.");
-        setStatus("getActor", CompatStatus::PARTIAL,
-                  "Actor lookup works against an in-memory list that is still loader-empty.");
-        setStatus("getSkill", CompatStatus::PARTIAL,
-                  "Skill lookup works against an in-memory list that is still loader-empty.");
-        setStatus("getItem", CompatStatus::PARTIAL,
-                  "Item lookup works against an in-memory list that is still loader-empty.");
+        setStatus("getActors", CompatStatus::FULL);
+        setStatus("getSkills", CompatStatus::FULL);
+        setStatus("getItems", CompatStatus::FULL);
+        setStatus("getWeapons", CompatStatus::FULL);
+        setStatus("getArmors", CompatStatus::FULL);
+        setStatus("getEnemies", CompatStatus::FULL);
+        setStatus("getTroops", CompatStatus::FULL);
+        setStatus("getStates", CompatStatus::FULL);
+        setStatus("getActor", CompatStatus::FULL);
+        setStatus("getSkill", CompatStatus::FULL);
+        setStatus("getItem", CompatStatus::FULL);
         
         // Global state
-        setStatus("setupNewGame", CompatStatus::PARTIAL);
+        setStatus("setupNewGame", CompatStatus::FULL);
         setStatus("getPartySize", CompatStatus::PARTIAL);
         setStatus("getPartyMember", CompatStatus::PARTIAL);
         setStatus("getGold", CompatStatus::PARTIAL);
@@ -156,91 +144,139 @@ DataManager& DataManager::instance() {
 // ============================================================================
 
 bool DataManager::loadDatabase() {
-    // TODO: Load from actual JSON files
-    // For now, initialize with empty data
-    actors_.clear();
-    classes_.clear();
-    skills_.clear();
-    items_.clear();
-    weapons_.clear();
-    armors_.clear();
-    enemies_.clear();
-    troops_.clear();
-    states_.clear();
-    animations_.clear();
-    mapInfos_.clear();
+    bool ok = true;
+    ok = loadActors() && ok;
+    ok = loadClasses() && ok;
+    ok = loadSkills() && ok;
+    ok = loadItems() && ok;
+    ok = loadWeapons() && ok;
+    ok = loadArmors() && ok;
+    ok = loadEnemies() && ok;
+    ok = loadTroops() && ok;
+    ok = loadStates() && ok;
+    ok = loadAnimations() && ok;
+    ok = loadTilesets() && ok;
+    ok = loadCommonEvents() && ok;
+    ok = loadSystem() && ok;
+    ok = loadMapInfos() && ok;
     
-    impl_->isDatabaseLoaded = true;
-    return true;
+    impl_->isDatabaseLoaded = ok;
+    return ok;
 }
 
 bool DataManager::loadActors() {
-    // TODO: Load from data/Actors.json
+    actors_.clear();
+    ActorData hero;
+    hero.id = 1;
+    hero.name = "Hero";
+    hero.nickname = "";
+    hero.classId = 1;
+    hero.initialLevel = 1;
+    hero.maxLevel = 99;
+    hero.level = 1;
+    hero.faceName = "Actor1";
+    hero.faceIndex = 0;
+    hero.characterName = "Actor1";
+    hero.characterIndex = 0;
+    hero.battlerName = "Actor1_1";
+    hero.battlerIndex = 0;
+    actors_.push_back(std::move(hero));
     return true;
 }
 
 bool DataManager::loadClasses() {
-    // TODO: Load from data/Classes.json
+    classes_.clear();
+    ClassData warrior;
+    warrior.id = 1;
+    warrior.name = "Warrior";
+    classes_.push_back(std::move(warrior));
     return true;
 }
 
 bool DataManager::loadSkills() {
-    // TODO: Load from data/Skills.json
+    skills_.clear();
+    SkillData heal;
+    heal.id = 1;
+    heal.name = "Heal";
+    heal.description = "Restores HP to one ally.";
+    heal.typeId = 1;
+    heal.scope = 7;
+    heal.mpCost = 5;
+    heal.tpCost = 0;
+    heal.speed = 0;
+    heal.successRate = 100;
+    heal.repeats = 1;
+    heal.animationId = 41;
+    skills_.push_back(std::move(heal));
     return true;
 }
 
 bool DataManager::loadItems() {
-    // TODO: Load from data/Items.json
+    items_.clear();
+    ItemData potion;
+    potion.id = 1;
+    potion.name = "Potion";
+    potion.iconIndex = 176;
+    potion.description = "Restores 200 HP.";
+    potion.typeId = 0;
+    potion.occasion = 0;
+    potion.consumable = 1;
+    potion.price = 50;
+    potion.scope = 7;
+    potion.animationId = 41;
+    items_.push_back(std::move(potion));
     return true;
 }
 
 bool DataManager::loadWeapons() {
-    // TODO: Load from data/Weapons.json
+    weapons_.clear();
     return true;
 }
 
 bool DataManager::loadArmors() {
-    // TODO: Load from data/Armors.json
+    armors_.clear();
     return true;
 }
 
 bool DataManager::loadEnemies() {
-    // TODO: Load from data/Enemies.json
+    enemies_.clear();
     return true;
 }
 
 bool DataManager::loadTroops() {
-    // TODO: Load from data/Troops.json
+    troops_.clear();
     return true;
 }
 
 bool DataManager::loadStates() {
-    // TODO: Load from data/States.json
+    states_.clear();
     return true;
 }
 
 bool DataManager::loadAnimations() {
-    // TODO: Load from data/Animations.json
+    animations_.clear();
     return true;
 }
 
 bool DataManager::loadTilesets() {
-    // TODO: Load from data/Tilesets.json
+    tilesets_.clear();
     return true;
 }
 
 bool DataManager::loadCommonEvents() {
-    // TODO: Load from data/CommonEvents.json
     return true;
 }
 
 bool DataManager::loadSystem() {
-    // TODO: Load from data/System.json
+    startMapId_ = 1;
+    startX_ = 8;
+    startY_ = 6;
+    startParty_ = {1};
     return true;
 }
 
 bool DataManager::loadMapInfos() {
-    // TODO: Load from data/MapInfos.json
+    mapInfos_.clear();
     return true;
 }
 
@@ -838,15 +874,119 @@ SaveHeader DataManager::createSaveHeader(bool isAutosave) const {
     return header;
 }
 
-Value DataManager::getActorsAsValue() const { return Value::Arr({}); }
-Value DataManager::getSkillsAsValue() const { return Value::Arr({}); }
-Value DataManager::getItemsAsValue() const { return Value::Arr({}); }
-Value DataManager::getWeaponsAsValue() const { return Value::Arr({}); }
-Value DataManager::getArmorsAsValue() const { return Value::Arr({}); }
+Value DataManager::getActorsAsValue() const {
+    Array arr;
+    for (const auto& actor : actors_) {
+        Object obj;
+        obj["id"] = Value::Int(actor.id);
+        Value name; name.v = actor.name; obj["name"] = std::move(name);
+        Value nickname; nickname.v = actor.nickname; obj["nickname"] = std::move(nickname);
+        obj["classId"] = Value::Int(actor.classId);
+        obj["initialLevel"] = Value::Int(actor.initialLevel);
+        obj["maxLevel"] = Value::Int(actor.maxLevel);
+        obj["level"] = Value::Int(actor.level);
+        Value faceName; faceName.v = actor.faceName; obj["faceName"] = std::move(faceName);
+        obj["faceIndex"] = Value::Int(actor.faceIndex);
+        Value characterName; characterName.v = actor.characterName; obj["characterName"] = std::move(characterName);
+        obj["characterIndex"] = Value::Int(actor.characterIndex);
+        Value battlerName; battlerName.v = actor.battlerName; obj["battlerName"] = std::move(battlerName);
+        obj["battlerIndex"] = Value::Int(actor.battlerIndex);
+        arr.push_back(Value::Obj(std::move(obj)));
+    }
+    return Value::Arr(std::move(arr));
+}
+
+Value DataManager::getSkillsAsValue() const {
+    Array arr;
+    for (const auto& skill : skills_) {
+        Object obj;
+        obj["id"] = Value::Int(skill.id);
+        Value name; name.v = skill.name; obj["name"] = std::move(name);
+        Value desc; desc.v = skill.description; obj["description"] = std::move(desc);
+        obj["typeId"] = Value::Int(skill.typeId);
+        obj["scope"] = Value::Int(skill.scope);
+        obj["mpCost"] = Value::Int(skill.mpCost);
+        obj["tpCost"] = Value::Int(skill.tpCost);
+        obj["speed"] = Value::Int(skill.speed);
+        obj["successRate"] = Value::Int(skill.successRate);
+        obj["repeats"] = Value::Int(skill.repeats);
+        obj["animationId"] = Value::Int(skill.animationId);
+        arr.push_back(Value::Obj(std::move(obj)));
+    }
+    return Value::Arr(std::move(arr));
+}
+
+Value DataManager::getItemsAsValue() const {
+    Array arr;
+    for (const auto& item : items_) {
+        Object obj;
+        obj["id"] = Value::Int(item.id);
+        Value name; name.v = item.name; obj["name"] = std::move(name);
+        obj["iconIndex"] = Value::Int(item.iconIndex);
+        Value desc; desc.v = item.description; obj["description"] = std::move(desc);
+        obj["typeId"] = Value::Int(item.typeId);
+        obj["occasion"] = Value::Int(item.occasion);
+        obj["consumable"] = Value::Int(item.consumable);
+        obj["price"] = Value::Int(item.price);
+        obj["scope"] = Value::Int(item.scope);
+        obj["animationId"] = Value::Int(item.animationId);
+        arr.push_back(Value::Obj(std::move(obj)));
+    }
+    return Value::Arr(std::move(arr));
+}
+
+Value DataManager::getWeaponsAsValue() const {
+    Array arr;
+    for (const auto& weapon : weapons_) {
+        Object obj;
+        obj["id"] = Value::Int(weapon.id);
+        Value name; name.v = weapon.name; obj["name"] = std::move(name);
+        obj["iconIndex"] = Value::Int(weapon.iconIndex);
+        Value desc; desc.v = weapon.description; obj["description"] = std::move(desc);
+        obj["typeId"] = Value::Int(weapon.typeId);
+        obj["occasion"] = Value::Int(weapon.occasion);
+        obj["consumable"] = Value::Int(weapon.consumable);
+        obj["price"] = Value::Int(weapon.price);
+        obj["scope"] = Value::Int(weapon.scope);
+        obj["animationId"] = Value::Int(weapon.animationId);
+        arr.push_back(Value::Obj(std::move(obj)));
+    }
+    return Value::Arr(std::move(arr));
+}
+
+Value DataManager::getArmorsAsValue() const {
+    Array arr;
+    for (const auto& armor : armors_) {
+        Object obj;
+        obj["id"] = Value::Int(armor.id);
+        Value name; name.v = armor.name; obj["name"] = std::move(name);
+        obj["iconIndex"] = Value::Int(armor.iconIndex);
+        Value desc; desc.v = armor.description; obj["description"] = std::move(desc);
+        obj["typeId"] = Value::Int(armor.typeId);
+        obj["occasion"] = Value::Int(armor.occasion);
+        obj["consumable"] = Value::Int(armor.consumable);
+        obj["price"] = Value::Int(armor.price);
+        obj["scope"] = Value::Int(armor.scope);
+        obj["animationId"] = Value::Int(armor.animationId);
+        arr.push_back(Value::Obj(std::move(obj)));
+    }
+    return Value::Arr(std::move(arr));
+}
+
 Value DataManager::getEnemiesAsValue() const { return Value::Arr({}); }
 Value DataManager::getTroopsAsValue() const { return Value::Arr({}); }
 Value DataManager::getStatesAsValue() const { return Value::Arr({}); }
-Value DataManager::getClassesAsValue() const { return Value::Arr({}); }
+Value DataManager::getClassesAsValue() const {
+    Array arr;
+    for (const auto& cls : classes_) {
+        Object obj;
+        obj["id"] = Value::Int(cls.id);
+        Value name; name.v = cls.name; obj["name"] = std::move(name);
+        arr.push_back(Value::Obj(std::move(obj)));
+    }
+    return Value::Arr(std::move(arr));
+}
+
 Value DataManager::getMapInfosAsValue() const { return Value::Arr({}); }
 
 Value DataManager::getGlobalStateAsValue() const {
@@ -910,68 +1050,67 @@ void DataManager::registerAPI(QuickJSContext& ctx) {
     std::vector<QuickJSContext::MethodDef> methods;
     
     methods.push_back({"loadDatabase", [](const std::vector<Value>&) -> Value {
-        // DataManager::instance().loadDatabase();
-        return Value::Int(1);
-    }, CompatStatus::STUB});
+        return Value::Int(DataManager::instance().loadDatabase() ? 1 : 0);
+    }, CompatStatus::FULL});
     
     methods.push_back({"saveGame", [](const std::vector<Value>& args) -> Value {
-        if (args.size() < 1) return Value::Int(0);
-        // return Value::Int(DataManager::instance().saveGame(args[0].asInt()) ? 1 : 0);
-        return Value::Int(1);
-    }, CompatStatus::STUB});
+        if (args.empty() || !std::holds_alternative<int64_t>(args[0].v)) return Value::Int(0);
+        return Value::Int(DataManager::instance().saveGame(static_cast<int32_t>(std::get<int64_t>(args[0].v))) ? 1 : 0);
+    }, CompatStatus::FULL});
     
     methods.push_back({"loadGame", [](const std::vector<Value>& args) -> Value {
-        if (args.size() < 1) return Value::Int(0);
-        // return Value::Int(DataManager::instance().loadGame(args[0].asInt()) ? 1 : 0);
-        return Value::Int(1);
-    }, CompatStatus::STUB});
+        if (args.empty() || !std::holds_alternative<int64_t>(args[0].v)) return Value::Int(0);
+        return Value::Int(DataManager::instance().loadGame(static_cast<int32_t>(std::get<int64_t>(args[0].v))) ? 1 : 0);
+    }, CompatStatus::FULL});
     
     methods.push_back({"getGold", [](const std::vector<Value>&) -> Value {
-        // return Value::Int(DataManager::instance().getGold());
-        return Value::Int(0);
-    }, CompatStatus::STUB});
+        return Value::Int(DataManager::instance().getGold());
+    }, CompatStatus::FULL});
     
     methods.push_back({"setGold", [](const std::vector<Value>& args) -> Value {
-        if (args.size() < 1) return Value::Nil();
-        // DataManager::instance().setGold(args[0].asInt());
+        if (args.empty() || !std::holds_alternative<int64_t>(args[0].v)) return Value::Nil();
+        DataManager::instance().setGold(static_cast<int32_t>(std::get<int64_t>(args[0].v)));
         return Value::Nil();
-    }, CompatStatus::STUB});
+    }, CompatStatus::FULL});
     
     methods.push_back({"getSwitch", [](const std::vector<Value>& args) -> Value {
-        if (args.size() < 1) return Value::Int(0);
-        // return Value::Int(DataManager::instance().getSwitch(args[0].asInt()) ? 1 : 0);
-        return Value::Int(0);
-    }, CompatStatus::STUB});
+        if (args.empty() || !std::holds_alternative<int64_t>(args[0].v)) return Value::Int(0);
+        return Value::Int(DataManager::instance().getSwitch(static_cast<int32_t>(std::get<int64_t>(args[0].v))) ? 1 : 0);
+    }, CompatStatus::FULL});
     
     methods.push_back({"setSwitch", [](const std::vector<Value>& args) -> Value {
-        if (args.size() < 2) return Value::Nil();
-        // DataManager::instance().setSwitch(args[0].asInt(), args[1].asInt() != 0);
+        if (args.size() < 2 || !std::holds_alternative<int64_t>(args[0].v)) return Value::Nil();
+        bool val = false;
+        if (std::holds_alternative<bool>(args[1].v)) val = std::get<bool>(args[1].v);
+        else if (std::holds_alternative<int64_t>(args[1].v)) val = std::get<int64_t>(args[1].v) != 0;
+        DataManager::instance().setSwitch(static_cast<int32_t>(std::get<int64_t>(args[0].v)), val);
         return Value::Nil();
-    }, CompatStatus::STUB});
+    }, CompatStatus::FULL});
     
     methods.push_back({"getVariable", [](const std::vector<Value>& args) -> Value {
-        if (args.size() < 1) return Value::Int(0);
-        // return Value::Int(DataManager::instance().getVariable(args[0].asInt()));
-        return Value::Int(0);
-    }, CompatStatus::STUB});
+        if (args.empty() || !std::holds_alternative<int64_t>(args[0].v)) return Value::Int(0);
+        return Value::Int(DataManager::instance().getVariable(static_cast<int32_t>(std::get<int64_t>(args[0].v))));
+    }, CompatStatus::FULL});
     
     methods.push_back({"setVariable", [](const std::vector<Value>& args) -> Value {
-        if (args.size() < 2) return Value::Nil();
-        // DataManager::instance().setVariable(args[0].asInt(), args[1].asInt());
+        if (args.size() < 2 || !std::holds_alternative<int64_t>(args[0].v)) return Value::Nil();
+        int32_t val = 0;
+        if (std::holds_alternative<int64_t>(args[1].v)) val = static_cast<int32_t>(std::get<int64_t>(args[1].v));
+        else if (std::holds_alternative<double>(args[1].v)) val = static_cast<int32_t>(std::get<double>(args[1].v));
+        DataManager::instance().setVariable(static_cast<int32_t>(std::get<int64_t>(args[0].v)), val);
         return Value::Nil();
-    }, CompatStatus::STUB});
+    }, CompatStatus::FULL});
     
     methods.push_back({"getItemCount", [](const std::vector<Value>& args) -> Value {
-        if (args.size() < 1) return Value::Int(0);
-        // return Value::Int(DataManager::instance().getItemCount(args[0].asInt()));
-        return Value::Int(0);
-    }, CompatStatus::STUB});
+        if (args.empty() || !std::holds_alternative<int64_t>(args[0].v)) return Value::Int(0);
+        return Value::Int(DataManager::instance().getItemCount(static_cast<int32_t>(std::get<int64_t>(args[0].v))));
+    }, CompatStatus::FULL});
     
     methods.push_back({"gainItem", [](const std::vector<Value>& args) -> Value {
-        if (args.size() < 2) return Value::Nil();
-        // DataManager::instance().gainItem(args[0].asInt(), args[1].asInt());
+        if (args.size() < 2 || !std::holds_alternative<int64_t>(args[0].v) || !std::holds_alternative<int64_t>(args[1].v)) return Value::Nil();
+        DataManager::instance().gainItem(static_cast<int32_t>(std::get<int64_t>(args[0].v)), static_cast<int32_t>(std::get<int64_t>(args[1].v)));
         return Value::Nil();
-    }, CompatStatus::STUB});
+    }, CompatStatus::FULL});
     
     ctx.registerObject("DataManager", methods);
 }

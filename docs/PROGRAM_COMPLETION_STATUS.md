@@ -52,6 +52,16 @@ Cross-cutting debt, truthfulness, and intake-governance source of truth: `docs/T
   - aligned work branch and main tip
   - disabled Dependabot PR branch churn in `.github/dependabot.yml`
   - enforced `main` branch protection policy
+- Established external repository intake governance artifacts:
+  - [docs/external-intake/repo-watchlist.md](./external-intake/repo-watchlist.md)
+  - [docs/external-intake/license-matrix.md](./external-intake/license-matrix.md)
+  - [docs/external-intake/repo-audit-template.md](./external-intake/repo-audit-template.md)
+  - [docs/external-intake/urpg_feature_adoption_matrix.md](./external-intake/urpg_feature_adoption_matrix.md)
+- Established private-use asset intake governance artifacts:
+  - [docs/asset_intake/ASSET_SOURCE_REGISTRY.md](./asset_intake/ASSET_SOURCE_REGISTRY.md)
+  - [docs/asset_intake/ASSET_PROMOTION_GUIDE.md](./asset_intake/ASSET_PROMOTION_GUIDE.md)
+  - [docs/asset_intake/ASSET_CATEGORY_GAPS.md](./asset_intake/ASSET_CATEGORY_GAPS.md)
+  - Scaffolded [`imports/staging/asset_intake/`](../imports/staging/asset_intake/), [`imports/normalized/`](../imports/normalized/), [`imports/manifests/`](../imports/manifests/), [`imports/reports/`](../imports/reports/), and [`third_party/github_assets/`](../third_party/github_assets/)
 - Updated subsystem planning set:
   - `docs/UI_MENU_CORE_NATIVE_SPEC.md`
   - `docs/MESSAGE_TEXT_CORE_NATIVE_SPEC.md`
@@ -144,11 +154,11 @@ Cross-cutting debt, truthfulness, and intake-governance source of truth: `docs/T
   - `tests/unit/test_ai_bridge_regex.cpp`: Unit-level validation for cross-component AI command parsing.
 - Added Battle Core schema + migration completion slice:
   - schema contracts:
-    - [content/schemas/battle_troops.schema.json](content/schemas/battle_troops.schema.json)
-    - [content/schemas/battle_actions.schema.json](content/schemas/battle_actions.schema.json)
+    - [content/schemas/battle_troops.schema.json](../content/schemas/battle_troops.schema.json)
+    - [content/schemas/battle_actions.schema.json](../content/schemas/battle_actions.schema.json)
   - compat-to-native upgrader mapping:
-    - [engine/core/battle/battle_migration.h](engine/core/battle/battle_migration.h)
-    - [tests/unit/test_battle_migration.cpp](tests/unit/test_battle_migration.cpp)
+    - [engine/core/battle/battle_migration.h](../engine/core/battle/battle_migration.h)
+    - [tests/unit/test_battle_migration.cpp](../tests/unit/test_battle_migration.cpp)
   - unit coverage in `tests/unit/test_battle_migration.cpp` and `tests/unit/test_battle_core.cpp`
 - Hardened compat directory-load failure diagnostics coverage:
   - upgraded `load_plugins_directory`, `load_plugins_directory_scan`, and `load_plugins_directory_scan_entry` tests to assert JSONL row shape plus report-model and panel projection parity

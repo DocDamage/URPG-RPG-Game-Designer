@@ -76,6 +76,7 @@ public:
     void clearMenuRuntime();
     void bindAudioRuntime(const urpg::audio::AudioCore& core);
     void clearAudioRuntime();
+    void bindMigrationWizardRuntime(const nlohmann::json& project_data);
     void clearMigrationWizardRuntime();
     void bindAbilityRuntime(const urpg::ability::AbilitySystemComponent& asc);
     void clearAbilityRuntime();

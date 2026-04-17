@@ -176,6 +176,10 @@ void DiagnosticsWorkspace::clearAudioRuntime() {
     audio_panel_.clear();
 }
 
+void DiagnosticsWorkspace::bindMigrationWizardRuntime(const nlohmann::json& project_data) {
+    migration_wizard_panel_.onProjectUpdateRequested(project_data);
+}
+
 void DiagnosticsWorkspace::clearMigrationWizardRuntime() {
     migration_wizard_panel_.clear();
 }

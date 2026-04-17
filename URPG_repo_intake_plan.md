@@ -18,6 +18,26 @@ This is **not** a blind vendoring plan. The point is to extract leverage without
 
 Program linkage: this intake plan is governed at the program level by `docs/TECHNICAL_DEBT_REMEDIATION_PLAN.md` under `P3-02 — External Repository Intake Needs Canonical Governance` and `Phase 4 / Workstream 4.1`.
 
+## Governance Artifacts
+
+This plan is supported by the following canonical artifacts:
+
+- [Repo Watchlist](docs/external-intake/repo-watchlist.md)
+- [License Matrix](docs/external-intake/license-matrix.md)
+- [Repo Audit Template](docs/external-intake/repo-audit-template.md)
+- [Feature Adoption Matrix](docs/external-intake/urpg_feature_adoption_matrix.md)
+
+Cross-cutting private-use asset intake artifacts:
+
+- [Asset Source Registry](docs/asset_intake/ASSET_SOURCE_REGISTRY.md)
+- [Asset Promotion Guide](docs/asset_intake/ASSET_PROMOTION_GUIDE.md)
+- [Asset Category Gaps](docs/asset_intake/ASSET_CATEGORY_GAPS.md)
+- Staging root: [`imports/staging/asset_intake/`](imports/staging/asset_intake/)
+- Normalized root: [`imports/normalized/`](imports/normalized/)
+- Manifest roots: [`imports/manifests/`](imports/manifests/)
+- Report root: [`imports/reports/`](imports/reports/)
+- Direct-ingest asset mirrors: [`third_party/github_assets/`](third_party/github_assets/)
+
 ---
 
 ## Intake Set
@@ -128,7 +148,7 @@ Before any technical work begins, create a repo-by-repo compliance sheet with th
 | AsPJT/AsLib | Verify repo license | Read only until cleared |
 
 ### Deliverable
-`docs/external_repo_license_matrix.md`
+[`docs/external-intake/license-matrix.md`](docs/external-intake/license-matrix.md)
 
 Acceptance criteria:
 - every repo has a recorded legal disposition
@@ -154,6 +174,10 @@ third_party/
     drillup-drill-plugins/
     rgss-script-editor/
     aslib/
+  github_assets/
+    intersect-assets/
+    gdquest-game-sprites/
+    kenney-interface-sounds/
 
 imports/
   fixtures/
@@ -167,6 +191,23 @@ imports/
     command-signatures/
     text-corpora/
     map-previews/
+  staging/
+    asset_intake/
+      intersect-assets/
+      gdquest-game-sprites/
+      kenney-interface-sounds/
+  normalized/
+    ui_sfx/
+    prototype_sprites/
+    fantasy_environment/
+    placeholder_characters/
+    music/
+    vfx/
+  manifests/
+    asset_sources/
+    asset_bundles/
+  reports/
+    asset_intake/
 
 reports/
   external-repo-audit/
@@ -180,8 +221,14 @@ docs/
   external-intake/
     repo-watchlist.md
     license-matrix.md
+    repo-audit-template.md
+    urpg_feature_adoption_matrix.md
     fixture-corpus-plan.md
     implementation-notes/
+  asset_intake/
+    ASSET_SOURCE_REGISTRY.md
+    ASSET_PROMOTION_GUIDE.md
+    ASSET_CATEGORY_GAPS.md
 ```
 
 ---
@@ -198,9 +245,9 @@ docs/
 - prevent random copy-paste ingestion
 
 ### Tasks
-1. Create `docs/external-intake/repo-watchlist.md`
-2. Create `docs/external-intake/license-matrix.md`
-3. Create `docs/external-intake/repo-audit-template.md`
+1. Create [`docs/external-intake/repo-watchlist.md`](docs/external-intake/repo-watchlist.md)
+2. Create [`docs/external-intake/license-matrix.md`](docs/external-intake/license-matrix.md)
+3. Create [`docs/external-intake/repo-audit-template.md`](docs/external-intake/repo-audit-template.md)
 4. Create `third_party/external-repos/` structure
 5. Create `.gitignore`/LFS rules for heavy fixture and asset lanes
 6. Define asset attribution manifest schema
@@ -573,7 +620,7 @@ Convert raw repo intake into product changes.
 - whether it is direct integration, wrapper, or clean-room reimplementation
 
 ### Deliverable
-`docs/external-intake/urpg_feature_adoption_matrix.md`
+[`docs/external-intake/urpg_feature_adoption_matrix.md`](docs/external-intake/urpg_feature_adoption_matrix.md)
 
 ### Acceptance criteria
 - no repo remains “interesting” without a concrete adopt/defer/ignore decision

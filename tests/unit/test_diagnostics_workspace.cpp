@@ -74,7 +74,7 @@ TEST_CASE("DiagnosticsWorkspace - Refresh updates compat and save tabs", "[edito
     urpg::audio::AudioCore audioCore;
     audioCore.playSound("workspace_test_se", urpg::audio::AudioCategory::SE);
     workspace.bindAudioRuntime(audioCore);
-    workspace.migrationWizardPanel().onProjectUpdateRequested({
+    workspace.bindMigrationWizardRuntime(nlohmann::json{
         {"scenes", {
             {{"symbol", "item"}, {"name", "Items"}}
         }}

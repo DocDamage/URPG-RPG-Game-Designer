@@ -4,20 +4,30 @@
 #include <variant>
 
 using namespace urpg::compat;
+using urpg::Array;
 
 TEST_CASE("DataManager: database loading and accessors", "[data_manager]") {
     DataManager dm;
 
     REQUIRE(dm.loadDatabase());
+    // loadDatabase now orchestrates sub-loaders and seeds real records
+    REQUIRE_FALSE(dm.getActors().empty());
+    REQUIRE_FALSE(dm.getSkills().empty());
+    REQUIRE_FALSE(dm.getItems().empty());
+
+    // Direct sub-loader calls are idempotent
     REQUIRE(dm.loadActors());
     REQUIRE(dm.loadSkills());
     REQUIRE(dm.loadItems());
     REQUIRE(dm.loadEnemies());
 
-    REQUIRE(dm.getActors().empty());
-    REQUIRE(dm.getSkills().empty());
-    REQUIRE(dm.getItems().empty());
-    REQUIRE(dm.getEnemies().empty());
+    // Verify seeded records are accessible
+    REQUIRE(dm.getActor(1) != nullptr);
+    REQUIRE(dm.getActor(1)->name == "Hero");
+    REQUIRE(dm.getSkill(1) != nullptr);
+    REQUIRE(dm.getSkill(1)->name == "Heal");
+    REQUIRE(dm.getItem(1) != nullptr);
+    REQUIRE(dm.getItem(1)->name == "Potion");
 
     REQUIRE(dm.getActor(999) == nullptr);
     REQUIRE(dm.getSkill(999) == nullptr);
@@ -31,9 +41,11 @@ TEST_CASE("DataManager: global state and inventory", "[data_manager]") {
 
     GlobalState& state = dm.getGlobalState();
     REQUIRE(state.actors.empty());
-    REQUIRE(state.partyMembers.empty());
+    // setupNewGame now copies the start party (populated by loadDatabase)
+    REQUIRE_FALSE(state.partyMembers.empty());
 
-    REQUIRE(dm.getPartySize() == 0);
+    REQUIRE(dm.getPartySize() == 1);
+    REQUIRE(dm.getPartyMember(0) == 1);
     REQUIRE(dm.getGold() == 0);
 
     dm.setGold(1000);
@@ -219,11 +231,87 @@ TEST_CASE("DataManager: method status registry", "[data_manager]") {
     DataManager dm;
     (void)dm;
 
-    REQUIRE(DataManager::getMethodStatus("loadDatabase") == CompatStatus::PARTIAL);
-    REQUIRE(DataManager::getMethodStatus("setupNewGame") == CompatStatus::PARTIAL);
-    REQUIRE(DataManager::getMethodStatus("setSaveHeaderExtension") == CompatStatus::PARTIAL);
-    REQUIRE(DataManager::getMethodDeviation("loadDatabase").find("JSON database ingestion") != std::string::npos);
+    REQUIRE(DataManager::getMethodStatus("loadDatabase") == CompatStatus::FULL);
+    REQUIRE(DataManager::getMethodStatus("setupNewGame") == CompatStatus::FULL);
+    REQUIRE(DataManager::getMethodStatus("setSaveHeaderExtension") == CompatStatus::FULL);
+    REQUIRE(DataManager::getMethodDeviation("loadDatabase").empty());
     REQUIRE(DataManager::getMethodStatus("nonexistentMethod") == CompatStatus::UNSUPPORTED);
+}
+
+TEST_CASE("DataManager: database accessors as Value", "[data_manager]") {
+    DataManager dm;
+    dm.loadDatabase();
+
+    auto actors = dm.getActorsAsValue();
+    REQUIRE(std::holds_alternative<Array>(actors.v));
+    auto& actorArr = std::get<Array>(actors.v);
+    REQUIRE(!actorArr.empty());
+
+    auto items = dm.getItemsAsValue();
+    REQUIRE(std::holds_alternative<Array>(items.v));
+    auto& itemArr = std::get<Array>(items.v);
+    REQUIRE(!itemArr.empty());
+
+    auto skills = dm.getSkillsAsValue();
+    REQUIRE(std::holds_alternative<Array>(skills.v));
+    auto& skillArr = std::get<Array>(skills.v);
+    REQUIRE(!skillArr.empty());
+}
+
+TEST_CASE("DataManager: JS API bindings via registerAPI", "[data_manager]") {
+    DataManager dm;
+    dm.loadDatabase();
+    dm.setupNewGame();
+
+    QuickJSContext ctx;
+    QuickJSConfig config;
+    REQUIRE(ctx.initialize(config));
+
+    DataManager::registerAPI(ctx);
+
+    // getGold / setGold
+    auto getGoldResult = ctx.callMethod("DataManager", "getGold", {});
+    REQUIRE(getGoldResult.success);
+    REQUIRE(std::holds_alternative<int64_t>(getGoldResult.value.v));
+    REQUIRE(std::get<int64_t>(getGoldResult.value.v) == 0);
+
+    ctx.callMethod("DataManager", "setGold", {urpg::Value::Int(250)});
+    getGoldResult = ctx.callMethod("DataManager", "getGold", {});
+    REQUIRE(getGoldResult.success);
+    REQUIRE(std::get<int64_t>(getGoldResult.value.v) == 250);
+
+    // getSwitch / setSwitch
+    auto getSwitchResult = ctx.callMethod("DataManager", "getSwitch", {urpg::Value::Int(1)});
+    REQUIRE(getSwitchResult.success);
+    REQUIRE(std::holds_alternative<int64_t>(getSwitchResult.value.v));
+    REQUIRE(std::get<int64_t>(getSwitchResult.value.v) == 0);
+
+    ctx.callMethod("DataManager", "setSwitch", {urpg::Value::Int(1), urpg::Value::Int(1)});
+    getSwitchResult = ctx.callMethod("DataManager", "getSwitch", {urpg::Value::Int(1)});
+    REQUIRE(getSwitchResult.success);
+    REQUIRE(std::get<int64_t>(getSwitchResult.value.v) == 1);
+
+    // getVariable / setVariable
+    auto getVarResult = ctx.callMethod("DataManager", "getVariable", {urpg::Value::Int(5)});
+    REQUIRE(getVarResult.success);
+    REQUIRE(std::holds_alternative<int64_t>(getVarResult.value.v));
+    REQUIRE(std::get<int64_t>(getVarResult.value.v) == 0);
+
+    ctx.callMethod("DataManager", "setVariable", {urpg::Value::Int(5), urpg::Value::Int(99)});
+    getVarResult = ctx.callMethod("DataManager", "getVariable", {urpg::Value::Int(5)});
+    REQUIRE(getVarResult.success);
+    REQUIRE(std::get<int64_t>(getVarResult.value.v) == 99);
+
+    // getItemCount / gainItem
+    auto getItemResult = ctx.callMethod("DataManager", "getItemCount", {urpg::Value::Int(3)});
+    REQUIRE(getItemResult.success);
+    REQUIRE(std::holds_alternative<int64_t>(getItemResult.value.v));
+    REQUIRE(std::get<int64_t>(getItemResult.value.v) == 0);
+
+    ctx.callMethod("DataManager", "gainItem", {urpg::Value::Int(3), urpg::Value::Int(12)});
+    getItemResult = ctx.callMethod("DataManager", "getItemCount", {urpg::Value::Int(3)});
+    REQUIRE(getItemResult.success);
+    REQUIRE(std::get<int64_t>(getItemResult.value.v) == 12);
 }
 
 TEST_CASE("DataManager structs: defaults", "[data_manager]") {

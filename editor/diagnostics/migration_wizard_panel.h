@@ -28,6 +28,7 @@ public:
         size_t selected_subsystem_error_count = 0;
         bool selected_subsystem_completed = false;
         std::string selected_subsystem_summary_line;
+        bool can_rerun_selected_subsystem = false;
     };
 
     MigrationWizardPanel() : m_model(std::make_shared<MigrationWizardModel>()) {}
@@ -44,6 +45,10 @@ public:
 
     bool selectSubsystemResult(std::string_view subsystem_id) {
         return m_model->selectSubsystemResult(subsystem_id);
+    }
+
+    bool rerunSubsystem(std::string_view subsystem_id, const nlohmann::json& project_data) {
+        return m_model->rerunSubsystem(subsystem_id, project_data);
     }
 
     std::shared_ptr<MigrationWizardModel> getModel() const { return m_model; }
@@ -75,7 +80,8 @@ public:
             selected_result.has_value() ? selected_result->warning_count : 0,
             selected_result.has_value() ? selected_result->error_count : 0,
             selected_result.has_value() ? selected_result->completed : false,
-            selected_result.has_value() ? selected_result->summary_line : std::string{}
+            selected_result.has_value() ? selected_result->summary_line : std::string{},
+            m_model->selectedSubsystemId().has_value()
         };
         m_has_rendered_frame = true;
     }
