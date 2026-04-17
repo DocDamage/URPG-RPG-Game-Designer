@@ -5,6 +5,7 @@
 #include "presentation_schema.h"
 #include "render_pass_manager.h"
 #include "presentation_streaming.h"
+#include <algorithm>
 
 namespace urpg::presentation {
 
@@ -31,6 +32,7 @@ struct PresentationCommand {
     const FogProfile* fogProfile = nullptr;
     const PostFXProfile* postFXProfile = nullptr;
     const CameraProfile* cameraProfile = nullptr;
+    float blendWeight = 1.0f;
     LODLevel lodLevel = LODLevel::LOD0_High; // Section 20: LOD integration
 };
 
@@ -63,15 +65,17 @@ struct PresentationFrameIntent {
         commands.push_back(cmd);
     }
 
-    void AddFog(const FogProfile& fog) {
+    void AddFog(const FogProfile& fog, float blendWeight = 1.0f) {
         PresentationCommand cmd{PresentationCommand::Type::SetFog, 0, {0,0,0}, {0,0,0}, nullptr};
         cmd.fogProfile = &fog;
+        cmd.blendWeight = blendWeight;
         commands.push_back(cmd);
     }
 
-    void AddPostFX(const PostFXProfile& fx) {
+    void AddPostFX(const PostFXProfile& fx, float blendWeight = 1.0f) {
         PresentationCommand cmd{PresentationCommand::Type::SetPostFX, 0, {0,0,0}, {0,0,0}, nullptr};
         cmd.postFXProfile = &fx;
+        cmd.blendWeight = blendWeight;
         commands.push_back(cmd);
     }
 
@@ -102,45 +106,117 @@ public:
     PresentationRuntime() = default;
     ~PresentationRuntime() = default;
 
+    static FogProfile BlendFogProfiles(const std::vector<PresentationCommand>& commands) {
+        FogProfile blended{};
+        bool initialized = false;
+        float totalWeight = 0.0f;
+
+        for (const auto& cmd : commands) {
+            if (cmd.type != PresentationCommand::Type::SetFog || !cmd.fogProfile || cmd.blendWeight <= 0.0f) {
+                continue;
+            }
+
+            const float weight = cmd.blendWeight;
+            if (!initialized) {
+                blended = *cmd.fogProfile;
+                totalWeight = weight;
+                initialized = true;
+                continue;
+            }
+
+            const float combinedWeight = totalWeight + weight;
+            const float currentFactor = totalWeight / combinedWeight;
+            const float newFactor = weight / combinedWeight;
+            blended.density = blended.density * currentFactor + cmd.fogProfile->density * newFactor;
+            blended.startDist = blended.startDist * currentFactor + cmd.fogProfile->startDist * newFactor;
+            blended.endDist = blended.endDist * currentFactor + cmd.fogProfile->endDist * newFactor;
+            for (size_t i = 0; i < 3; ++i) {
+                blended.color[i] = blended.color[i] * currentFactor + cmd.fogProfile->color[i] * newFactor;
+            }
+            totalWeight = combinedWeight;
+        }
+
+        return blended;
+    }
+
+    static PostFXProfile BlendPostFXProfiles(const std::vector<PresentationCommand>& commands) {
+        PostFXProfile blended{};
+        bool initialized = false;
+        float totalWeight = 0.0f;
+
+        for (const auto& cmd : commands) {
+            if (cmd.type != PresentationCommand::Type::SetPostFX || !cmd.postFXProfile || cmd.blendWeight <= 0.0f) {
+                continue;
+            }
+
+            const float weight = cmd.blendWeight;
+            if (!initialized) {
+                blended = *cmd.postFXProfile;
+                totalWeight = weight;
+                initialized = true;
+                continue;
+            }
+
+            const float combinedWeight = totalWeight + weight;
+            const float currentFactor = totalWeight / combinedWeight;
+            const float newFactor = weight / combinedWeight;
+            blended.exposure = blended.exposure * currentFactor + cmd.postFXProfile->exposure * newFactor;
+            blended.bloomThreshold = blended.bloomThreshold * currentFactor + cmd.postFXProfile->bloomThreshold * newFactor;
+            blended.bloomIntensity = blended.bloomIntensity * currentFactor + cmd.postFXProfile->bloomIntensity * newFactor;
+            blended.saturation = blended.saturation * currentFactor + cmd.postFXProfile->saturation * newFactor;
+            totalWeight = combinedWeight;
+        }
+
+        return blended;
+    }
+
+    static void ResolveEnvironmentCommands(PresentationFrameIntent& intent) {
+        bool hasFog = false;
+        bool hasPostFX = false;
+        std::vector<PresentationCommand> retained;
+        retained.reserve(intent.commands.size());
+
+        for (const auto& cmd : intent.commands) {
+            if (cmd.type == PresentationCommand::Type::SetFog && cmd.fogProfile && cmd.blendWeight > 0.0f) {
+                hasFog = true;
+                continue;
+            }
+            if (cmd.type == PresentationCommand::Type::SetPostFX && cmd.postFXProfile && cmd.blendWeight > 0.0f) {
+                hasPostFX = true;
+                continue;
+            }
+            retained.push_back(cmd);
+        }
+
+        static FogProfile resolvedFog;
+        static PostFXProfile resolvedPostFX;
+
+        std::vector<PresentationCommand> resolved;
+        resolved.reserve(retained.size() + 2);
+        if (hasFog) {
+            resolvedFog = BlendFogProfiles(intent.commands);
+            PresentationCommand fogCmd{PresentationCommand::Type::SetFog, 0, {0,0,0}, {0,0,0}, nullptr};
+            fogCmd.fogProfile = &resolvedFog;
+            resolved.push_back(fogCmd);
+        }
+        if (hasPostFX) {
+            resolvedPostFX = BlendPostFXProfiles(intent.commands);
+            PresentationCommand postFxCmd{PresentationCommand::Type::SetPostFX, 0, {0,0,0}, {0,0,0}, nullptr};
+            postFxCmd.postFXProfile = &resolvedPostFX;
+            resolved.push_back(postFxCmd);
+        }
+
+        resolved.insert(resolved.end(), retained.begin(), retained.end());
+        intent.commands = std::move(resolved);
+    }
+
     /**
      * @brief The main spine function (Section 9.1).
      * ADR-009: Executed on the Game Thread only.
      */
     PresentationFrameIntent BuildPresentationFrame(
         const PresentationContext& context,
-        const PresentationAuthoringData& data) {
-        
-        PresentationFrameIntent intent;
-        intent.activeMode = context.activeMode;
-        intent.activeTier = context.activeTier;
-
-        // 1. Resolve Global Environment (Fog, Post-FX)
-        if (!data.mapOverlays.empty()) {
-            const auto& overlay = data.mapOverlays[0]; 
-            intent.AddFog(overlay.fog);
-            intent.AddPostFX(overlay.postFX);
-        }
-
-        // 2. Resolve Camera Profile (Default to project-standard)
-        CameraProfile defaultCam;
-        defaultCam.fov = 60.0f;
-        intent.SetCameraProfile(defaultCam);
-
-        // 3. Dispatch to Scene Translators (Section 10)
-        // Note: Real implementation would iterate over active scenes in context.
-        // We ensure all spatial and UI intents are collected into a single frame buffer.
-        
-        for (const auto& overlay : data.mapOverlays) {
-            // Placeholder: Translation of MapScene and BattleScene via their respective adapters
-            // translator->Translate(context, data, sceneState, intent);
-        }
-
-        // Emit final sorted render passes based on intent commands
-        intent.AddPass({"MainPass", RenderPassType::WorldSpatial, true, false, 0});
-        intent.AddPass({"UIPass", RenderPassType::UserInterface, false, true, 1});
-
-        return intent;
-    }
+        const PresentationAuthoringData& data);
 
     /**
      * @brief Access diagnostics collected during the last frame or load.

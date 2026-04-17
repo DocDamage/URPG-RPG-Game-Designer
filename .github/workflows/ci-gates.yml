@@ -43,6 +43,9 @@ jobs:
       - name: Validate known-break waivers
         shell: pwsh
         run: ./tools/ci/check_waivers.ps1
+      - name: Validate presentation docs links
+        shell: pwsh
+        run: ./tools/docs/check-presentation-doc-links.ps1
       - name: Verify sccache
         run: |
           which sccache
@@ -52,6 +55,9 @@ jobs:
         run: cmake --preset ci
       - name: Build
         run: cmake --build --preset ci-release
+      - name: Run focused presentation gate
+        shell: pwsh
+        run: ./tools/ci/run_presentation_gate.ps1 -BuildDirectory build/ci -Configuration Release -SkipBuild
       - name: sccache stats
         if: always()
         run: sccache --show-stats || true

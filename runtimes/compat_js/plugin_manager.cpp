@@ -1002,6 +1002,12 @@ public:
         uint64_t sequence = 0;
     };
 
+    struct CompletedAsyncCallbackTask {
+        std::function<void(const Value&)> callback;
+        Value result = Value::Nil();
+        uint64_t sequence = 0;
+    };
+
     // Plugin registry
     std::unordered_map<std::string, PluginInfo> plugins_;
     
@@ -1038,6 +1044,8 @@ public:
     std::mutex asyncMutex_;
     std::condition_variable asyncCv_;
     std::deque<AsyncCommandTask> asyncQueue_;
+    std::mutex completedAsyncMutex_;
+    std::deque<CompletedAsyncCallbackTask> completedAsyncCallbacks_;
     std::thread asyncWorker_;
     bool stopAsyncWorker_ = false;
     uint64_t nextAsyncSequence_ = 1;
@@ -1151,7 +1159,16 @@ PluginManager::PluginManager()
 
             const Value result = executeCommand(task.pluginName, task.commandName, task.args);
             if (task.callback) {
-                task.callback(result);
+                // Async command execution happens on the worker thread, but callback delivery
+                // is deferred until the owning thread explicitly drains the completed queue.
+                std::lock_guard<std::mutex> lock(impl_->completedAsyncMutex_);
+                impl_->completedAsyncCallbacks_.push_back(
+                    PluginManagerImpl::CompletedAsyncCallbackTask{
+                        .callback = std::move(task.callback),
+                        .result = result,
+                        .sequence = task.sequence,
+                    }
+                );
             }
         }
     });
@@ -1217,7 +1234,7 @@ void PluginManager::initializeMethodStatus() {
         setStatus("executeCommandByName", CompatStatus::PARTIAL,
                   "Qualified-name routing is reliable for registered handlers and fixtures, but still depends on a fixture-backed JS bridge.");
         setStatus("executeCommandAsync", CompatStatus::PARTIAL,
-                  "FIFO async dispatch works, but callbacks run on the worker thread and rely on the fixture-backed JS bridge.");
+                  "FIFO async dispatch works, but callbacks require explicit main-thread dispatch and still rely on the fixture-backed JS bridge.");
         
         // Parameter management
         setStatus("setParameter", CompatStatus::FULL);
@@ -2266,6 +2283,24 @@ void PluginManager::executeCommandAsync(const std::string& pluginName,
     task.args = args;
     task.callback = std::move(callback);
     impl_->enqueueAsyncTask(std::move(task));
+}
+
+int32_t PluginManager::dispatchPendingAsyncCallbacks() {
+    std::deque<PluginManagerImpl::CompletedAsyncCallbackTask> pending;
+    {
+        std::lock_guard<std::mutex> lock(impl_->completedAsyncMutex_);
+        pending.swap(impl_->completedAsyncCallbacks_);
+    }
+
+    int32_t dispatched = 0;
+    for (auto& task : pending) {
+        if (!task.callback) {
+            continue;
+        }
+        task.callback(task.result);
+        ++dispatched;
+    }
+    return dispatched;
 }
 
 // ============================================================================

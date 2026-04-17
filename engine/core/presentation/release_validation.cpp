@@ -50,8 +50,23 @@ void RunReleaseValidation() {
     PresentationFrameIntent intent = runtime.BuildPresentationFrame(context, data);
 
     // 3. Validation Logic
-    std::cout << "[CHECK] Command Count: " << intent.commands.size() << " (Expected: 100)" << std::endl;
-    assert(intent.commands.size() == 100);
+    size_t actorCommandCount = 0;
+    size_t fogCommandCount = 0;
+    size_t postFxCommandCount = 0;
+    for (const auto& cmd : intent.commands) {
+        if (cmd.type == PresentationCommand::Type::DrawActor) {
+            actorCommandCount++;
+        } else if (cmd.type == PresentationCommand::Type::SetFog) {
+            fogCommandCount++;
+        } else if (cmd.type == PresentationCommand::Type::SetPostFX) {
+            postFxCommandCount++;
+        }
+    }
+
+    std::cout << "[CHECK] Actor Command Count: " << actorCommandCount << " (Expected: 100)" << std::endl;
+    assert(actorCommandCount == 100);
+    assert(fogCommandCount <= 1);
+    assert(postFxCommandCount <= 1);
 
     // Verify Y-Position Resolution (Base 1.0 from level 2 + 0.5 from anchorOffset)
     for (const auto& cmd : intent.commands) {

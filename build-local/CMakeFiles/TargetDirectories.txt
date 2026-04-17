@@ -1,5 +1,6 @@
 C:/Users/dferr/dev/URPG - RPG Game Maker/build-local/CMakeFiles/urpg_core.dir
 C:/Users/dferr/dev/URPG - RPG Game Maker/build-local/CMakeFiles/urpg_migrate.dir
+C:/Users/dferr/dev/URPG - RPG Game Maker/build-local/CMakeFiles/urpg_presentation_release_validation.dir
 C:/Users/dferr/dev/URPG - RPG Game Maker/build-local/CMakeFiles/urpg_tests.dir
 C:/Users/dferr/dev/URPG - RPG Game Maker/build-local/CMakeFiles/urpg_integration_tests.dir
 C:/Users/dferr/dev/URPG - RPG Game Maker/build-local/CMakeFiles/urpg_snapshot_tests.dir

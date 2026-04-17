@@ -22,7 +22,9 @@ This document tracks the detailed implementation status of the AI Copilot infras
 
 ### 4. Persistence & Security
 - [x] **Differential Snapshots**: History serialization avoids redundant system prompt blobs.
-- [x] **Encrypted Sync Plumbing**: `AISyncCoordinator` is wired for `ICloudService` integration, but the in-tree path still depends on an in-memory `CloudServiceStub` rather than a live cloud backend.
+- [x] **Encrypted Sync Plumbing**: `AISyncCoordinator` is wired to the `ICloudService` abstraction, but the in-tree implementation remains the in-memory `CloudServiceStub`; this is plumbing coverage only, not a production cloud-sync capability.
+
+> Cloud-sync truthfulness note: no in-tree AI workflow currently provides operational cross-device persistence. Any real cloud sync claim requires a non-stub `ICloudService` implementation outside the current tree.
 
 ## Closure Checklist (Production Readiness)
 

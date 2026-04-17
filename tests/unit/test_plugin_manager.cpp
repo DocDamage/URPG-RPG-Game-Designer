@@ -461,7 +461,7 @@ TEST_CASE("PluginManager: Command execution", "[plugin_manager]") {
         pm.unregisterPlugin("ExecDependentPlugin");
     }
 
-    SECTION("Execute command asynchronously with FIFO callback order") {
+    SECTION("Execute command asynchronously with FIFO callback order after main-thread dispatch") {
         pm.registerPlugin({"AsyncPlugin", "1.0", "", ""});
         pm.registerCommand(
             "AsyncPlugin",
@@ -497,6 +497,18 @@ TEST_CASE("PluginManager: Command execution", "[plugin_manager]") {
                 }
             );
         }
+
+        {
+            std::unique_lock<std::mutex> lock(callbackMutex);
+            const bool workerExecutedWithoutDispatch = callbackCv.wait_for(
+                lock,
+                std::chrono::milliseconds(150),
+                [&]() { return completed > 0; }
+            );
+            REQUIRE_FALSE(workerExecutedWithoutDispatch);
+        }
+
+        REQUIRE(pm.dispatchPendingAsyncCallbacks() == 3);
 
         {
             std::unique_lock<std::mutex> lock(callbackMutex);
@@ -1610,7 +1622,7 @@ TEST_CASE("PluginManager: Method status registry", "[plugin_manager]") {
     SECTION("GetMethodStatus returns PARTIAL for async execution") {
         CompatStatus status = pm.getMethodStatus("executeCommandAsync");
         REQUIRE(status == CompatStatus::PARTIAL);
-        REQUIRE(pm.getMethodDeviation("executeCommandAsync").find("worker thread") != std::string::npos);
+        REQUIRE(pm.getMethodDeviation("executeCommandAsync").find("main-thread dispatch") != std::string::npos);
     }
     
     SECTION("GetMethodStatus returns UNSUPPORTED for unknown methods") {

@@ -4,6 +4,8 @@ Snapshot Date: 2026-04-15
 
 This repository is bootstrapped to the blueprint's canonical structure and now includes core + compat kernels with active CI gate wiring.
 
+Cross-cutting debt closure, documentation-truth alignment, and intake-governance tracking: `docs/TECHNICAL_DEBT_REMEDIATION_PLAN.md`.
+
 ## Progress tracker
 
 - Phase 0 Foundation: 100% complete.
@@ -20,6 +22,7 @@ This repository is bootstrapped to the blueprint's canonical structure and now i
 - Dependabot version-update branch churn is disabled.
 - Active roadmap has been rewritten as one integrated execution plan (`docs/NATIVE_FEATURE_ABSORPTION_PLAN.md`) including Wave 2 advanced capability tracks.
 - Canonical completion checklist (done + remaining to 100%): `docs/PROGRAM_COMPLETION_STATUS.md`.
+- Canonical debt/truthfulness/intake-governance tracker: `docs/TECHNICAL_DEBT_REMEDIATION_PLAN.md`.
 - Canonical Wave 1 subsystem closure checklist source: `docs/WAVE1_SUBSYSTEM_CLOSURE_CHECKLIST.md`.
 - Subsystem checklist sync is automated via `tools/docs/sync-wave1-spec-checklist.ps1` and verified by `tools/ci/check_wave1_spec_checklists.ps1`.
 
@@ -145,4 +148,16 @@ This repository is bootstrapped to the blueprint's canonical structure and now i
 cmake -S . -B build
 cmake --build build
 ctest --test-dir build -C Debug --output-on-failure
+```
+
+Focused presentation validation is also available through:
+
+```powershell
+pwsh -File .\tools\ci\run_presentation_gate.ps1
+```
+
+The broader local gate runner now invokes that focused presentation gate before the repo-wide labeled suites:
+
+```powershell
+pwsh -File .\tools\ci\run_local_gates.ps1
 ```

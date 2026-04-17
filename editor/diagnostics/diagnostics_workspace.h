@@ -9,6 +9,7 @@
 #include "editor/message/message_inspector_panel.h"
 #include "editor/save/save_inspector_panel.h"
 #include "editor/ui/menu_inspector_panel.h"
+#include "editor/ui/menu_preview_panel.h"
 
 namespace urpg::editor {
 
@@ -50,6 +51,8 @@ public:
     const BattleInspectorPanel& battlePanel() const;
     MenuInspectorPanel& menuPanel();
     const MenuInspectorPanel& menuPanel() const;
+    MenuPreviewPanel& menuPreviewPanel();
+    const MenuPreviewPanel& menuPreviewPanel() const;
     AudioInspectorPanel& audioPanel();
     const AudioInspectorPanel& audioPanel() const;
     AbilityInspectorPanel& abilityPanel();
@@ -103,6 +106,7 @@ private:
     
     std::shared_ptr<MenuInspectorModel> menu_model_;
     std::unique_ptr<MenuInspectorPanel> menu_panel_;
+    std::unique_ptr<MenuPreviewPanel> menu_preview_panel_;
 
     AudioInspectorPanel audio_panel_;
     AbilityInspectorPanel ability_panel_;

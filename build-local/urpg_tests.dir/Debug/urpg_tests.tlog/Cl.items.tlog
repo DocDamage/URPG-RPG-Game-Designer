@@ -67,6 +67,7 @@ C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_menu_legacy_import.cpp;
 C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_state_audio_sync.cpp;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\urpg_tests.dir\Debug\test_state_audio_sync.obj
 C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_scene_manager.cpp;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\urpg_tests.dir\Debug\test_scene_manager.obj
 C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_gameplay_tags.cpp;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\urpg_tests.dir\Debug\test_gameplay_tags.obj
+C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_presentation_runtime.cpp;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\urpg_tests.dir\Debug\test_presentation_runtime.obj
 C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_spatial_editor.cpp;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\urpg_tests.dir\Debug\test_spatial_editor.obj
 C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_huggingface_curated_assets.cpp;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\urpg_tests.dir\Debug\test_huggingface_curated_assets.obj
 C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_ability_activation.cpp;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\urpg_tests.dir\Debug\test_ability_activation.obj

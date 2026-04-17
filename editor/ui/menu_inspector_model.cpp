@@ -286,6 +286,16 @@ void MenuInspectorModel::LoadFromRuntime(
     RebuildVisibleRows();
 }
 
+void MenuInspectorModel::Clear() {
+    all_rows_.clear();
+    visible_rows_.clear();
+    issues_.clear();
+    selected_row_index_.reset();
+    command_id_filter_.reset();
+    show_issues_only_ = false;
+    summary_ = {};
+}
+
 void MenuInspectorModel::SetCommandIdFilter(std::optional<std::string> command_id_filter) {
     if (command_id_filter.has_value() && command_id_filter->empty()) {
         command_id_filter.reset();

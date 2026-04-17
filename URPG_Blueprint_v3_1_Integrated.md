@@ -9,6 +9,8 @@ _Full Engineering Specification - No Fluff_
 
 Status Date: 2026-04-15
 
+Cross-cutting debt closure, documentation-truth alignment, and intake-governance tracking: `docs/TECHNICAL_DEBT_REMEDIATION_PLAN.md`.
+
 | Track | Status | Completion | Notes |
 | --- | --- | --- | --- |
 | Phase 0 Foundation | Complete | 100% | Core kernels, authority guards, migration/save lanes, diagnostics indexing/panel wiring, and CI lane scaffolding are in place. |
@@ -34,6 +36,7 @@ Status Date: 2026-04-15
 5. Begin Wave 2 advanced capability implementation tracks from `docs/NATIVE_FEATURE_ABSORPTION_PLAN.md`.
 6. Track completion against `docs/PROGRAM_COMPLETION_STATUS.md` until all checklist items are complete.
 7. Keep Wave 1 subsystem closure checklists synchronized from `docs/WAVE1_SUBSYSTEM_CLOSURE_CHECKLIST.md` via `tools/docs/sync-wave1-spec-checklist.ps1`.
+8. Use `docs/TECHNICAL_DEBT_REMEDIATION_PLAN.md` as the canonical tracker for debt closure, truthfulness corrections, and external/private intake governance.
 
 ## v3.1 Upgrade Notes
 

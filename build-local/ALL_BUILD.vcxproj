@@ -214,6 +214,10 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
       <Project>{A301C017-68AF-33BA-8E42-F5E09EDC49DC}</Project>
       <Name>urpg_migrate</Name>
     </ProjectReference>
+    <ProjectReference Include="C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\urpg_presentation_release_validation.vcxproj">
+      <Project>{1D6E2441-03C6-3C3D-83CA-7F85937FFC79}</Project>
+      <Name>urpg_presentation_release_validation</Name>
+    </ProjectReference>
     <ProjectReference Include="C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\urpg_snapshot_tests.vcxproj">
       <Project>{D857EB2D-BB02-3EAD-BF0D-7ED46E149294}</Project>
       <Name>urpg_snapshot_tests</Name>

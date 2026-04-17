@@ -1,9 +1,23 @@
 # URPG Program Completion Status
 
-Status Date: 2026-04-15  
+Status Date: 2026-04-16  
 Program Scope: native-first roadmap rewire plus Wave 1 absorption, Wave 2 advanced capability expansion, and compat exit hardening
 
+Cross-cutting debt, truthfulness, and intake-governance source of truth: `docs/TECHNICAL_DEBT_REMEDIATION_PLAN.md`.
+
 ## Where we are now
+
+- Presentation planning is now aligned around **Phase 5 — Environment & Presentation Polish**:
+  - Task 41 (`Dynamic Light placement and shadow proxies`) is complete
+  - Task 42 (`Fog and Post-FX profile blending`) is complete
+  - Task 43 (`Screen-to-World coordinate projection for Prop Gizmos`) is complete
+- Supporting enablement landed for curated Hugging Face fixture ingestion:
+  - permissive TMX, Visual Novel Maker, and Godot samples are vendored under `third_party/huggingface/`
+  - restrictive RPG Maker MV / XP corpora remain manifest-only due to license constraints
+  - asset tooling now indexes and validates the Hugging Face fixture roots
+- Asset reality remains intentionally conservative:
+  - the repo has strong importer/test/reference corpora
+  - the repo does **not** yet have a serious license-cleared production asset library across tiles, portraits, UI, VFX, and audio
 
 - `main` is up to date and protected:
   - pull request required
@@ -27,6 +41,10 @@ Program Scope: native-first roadmap rewire plus Wave 1 absorption, Wave 2 advanc
 - Latest recorded local validation snapshot:
   - `ctest --test-dir build/dev-ninja-debug -L pr --output-on-failure` => 289/289 passed
   - `ctest --test-dir build/dev-ninja-debug -L weekly --output-on-failure` => 42/42 passed
+- Latest focused presentation validation snapshot:
+  - `ctest -C Debug -R "urpg_(presentation_(unit_lane|release_validation)|spatial_editor_lane)" --output-on-failure` => 3/3 passed
+  - includes the dedicated `[presentation]` unit lane, the standalone release-validation harness, and the spatial editor authoring lane
+  - CI `gate1-pr` now invokes the focused presentation gate explicitly via `tools/ci/run_presentation_gate.ps1` after the shared build step
 
 ## Progress made in this cycle
 
@@ -137,8 +155,21 @@ Program Scope: native-first roadmap rewire plus Wave 1 absorption, Wave 2 advanc
     - blocked-command metadata (`lastBlockedCommandId`/`lastBlockedReason`) plus blocked callback hook
   - one-call registry integration helper (`setCommandStateFromRegistry`) to bind switch/variable state into scene evaluators
   - expanded unit coverage in `tests/unit/test_menu_core.cpp` for confirm/cancel/pane-focus/recovery/state-helper/blocked-reason flows
+- Added UI/Menu editor/runtime integration hardening:
+  - `DiagnosticsWorkspace::bindMenuRuntime` / `clearMenuRuntime` now have integration coverage proving menu diagnostics bind, export, tab-switch, and clear without stale state
+  - `MenuInspectorModel::Clear()` now resets transient filters, selection, issues, and summary state for clean runtime rebinding
+  - `MenuPreviewPanel` is now surfaced through `DiagnosticsWorkspace` so the menu tab exposes both inspector and preview workflow surfaces instead of leaving preview tooling orphaned
+- Added richer UI/Menu legacy import mapping:
+  - `MenuSceneSerializer::ImportLegacy()` now preserves explicit `mainMenu.commands` route targets, fallback routes, custom route IDs, and visibility/enable rules when compat evidence provides them
+  - route parsing now accepts lower-case native route identifiers during menu legacy import
+  - unit coverage expanded in `tests/unit/test_menu_legacy_import.cpp`
+- Added UI/Menu round-trip serialization:
+  - `MenuSceneGraph` now exposes registered-scene enumeration needed for truthful export
+  - `MenuSceneSerializer::Serialize()` now emits a non-empty native scene definition for registered menu graphs
+  - round-trip coverage now serializes a native menu graph, deserializes it, and checks structural equivalence
 - Latest focused validation snapshot for native UI/Menu lane:
-  - `ctest --test-dir build/dev-ninja-debug -R "MenuSceneGraph|MenuRouteResolver|MenuCommandRegistry" --output-on-failure` => 15/15 passed
+  - `.\Debug\urpg_tests.exe "[ui][menu]"` => 102 assertions / 9 test cases passed
+  - `.\Debug\urpg_tests.exe "[editor][diagnostics][integration]"` => 98 assertions / 2 test cases passed
 - Latest focused validation snapshot for Message/Text renderer integration lane:
   - `.\Debug\urpg_tests.exe "[compat]"` => 646 assertions / 140 test cases passed
   - `.\Debug\urpg_tests.exe "[compat][window]"` => 211 assertions / 52 test cases passed
@@ -160,14 +191,14 @@ The scope in this document is considered 100% complete when all items below are 
 ## Next steps (current sprint)
 
 1. Complete UI/Menu editor productization:
-   - ship menu command authoring inspector and preview hooks wired to the new scene graph/runtime behavior.
+   - deepen authoring beyond the current inspector/diagnostics wiring with true edit/preview workflows.
 2. Complete Message/Text renderer bridge closure:
    - consume backend `TextCommand` payloads end-to-end in renderer tiers where text draw remains placeholder,
    - align compat `Window_Message` behavior with native MessageScene runtime ownership handoff.
 3. Finalize UI/Menu schema + migration mapping:
-   - define import mapping from compat plugin menu evidence into native menu command metadata (including fallback routes and state rules).
+   - extend the now-landed fallback/state-rule import coverage from direct menu metadata into broader compat plugin evidence paths.
 4. Add integration coverage for UI/Menu runtime + editor:
-   - scene-graph + resolver integration anchors beyond unit-level path checks.
+   - extend beyond the landed diagnostics-workspace/menu-import anchors into broader scene-graph + resolver parity checks.
 5. Continue compat exit hardening:
    - keep new routed failure operations locked to JSONL/report/panel parity and maintain weekly conformance depth growth.
 6. Publish explicit compat exit checklist artifact with import-confidence and migration-confidence pass criteria.

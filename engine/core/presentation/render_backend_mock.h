@@ -22,7 +22,13 @@ public:
     struct PipelineState {
         bool fogEnabled = false;
         bool postFxEnabled = false;
+        float fogDensity = 0.0f;
+        float fogStartDistance = 0.0f;
+        float fogEndDistance = 0.0f;
         float bloomIntensity = 0.0f;
+        float bloomThreshold = 0.0f;
+        float exposure = 1.0f;
+        float saturation = 1.0f;
     };
 
     /**
@@ -43,6 +49,9 @@ public:
                 case presentation::PresentationCommand::Type::SetFog:
                     m_state.fogEnabled = true;
                     if (cmd.fogProfile) {
+                        m_state.fogDensity = cmd.fogProfile->density;
+                        m_state.fogStartDistance = cmd.fogProfile->startDist;
+                        m_state.fogEndDistance = cmd.fogProfile->endDist;
                         std::cout << "[BACKEND] Applied Fog: Density=" << cmd.fogProfile->density << "\n";
                     }
                     break;
@@ -50,6 +59,9 @@ public:
                     m_state.postFxEnabled = true;
                     if (cmd.postFXProfile) {
                         m_state.bloomIntensity = cmd.postFXProfile->bloomIntensity;
+                        m_state.bloomThreshold = cmd.postFXProfile->bloomThreshold;
+                        m_state.exposure = cmd.postFXProfile->exposure;
+                        m_state.saturation = cmd.postFXProfile->saturation;
                         std::cout << "[BACKEND] Applied PostFX: Bloom=" << m_state.bloomIntensity << "\n";
                     }
                     break;

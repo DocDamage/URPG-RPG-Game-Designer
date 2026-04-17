@@ -28,22 +28,22 @@ void URPG_LogError(const char* message) {
 }
 
 uint64_t URPG_EntityCreate() {
-    // Returns synthetic IDs only; no entity is registered with a live ECS world yet.
+    // STUB: returns synthetic IDs only; no entity is registered with a live ECS world yet.
     static uint64_t s_nextId = 1000;
     return s_nextId++;
 }
 
 void URPG_EntityDestroy(uint64_t entityId) {
-    // Stub: entity destruction is not wired to a live ECS world yet.
+    // STUB: entity destruction is not wired to a live ECS world yet.
 }
 
 void URPG_EntityAddComponent(uint64_t entityId, const char* componentType) {
-    // Stub: component attachment is not wired to reflection or ECS storage yet.
+    // STUB: component attachment is not wired to reflection or ECS storage yet.
 }
 
 void URPG_SetGlobalVariable(const char* key, float value) {
     if (!key) return;
-    // Stores values in process-local scratch state rather than GlobalStateHub.
+    // STUB: stores values in process-local scratch state rather than GlobalStateHub.
     s_globals[key] = value;
 }
 
@@ -54,7 +54,7 @@ float URPG_GetGlobalVariable(const char* key) {
 
 void URPG_SetGlobalSwitch(const char* key, bool value) {
     if (!key) return;
-    // Stores values in process-local scratch state rather than engine save/runtime state.
+    // STUB: stores values in process-local scratch state rather than engine save/runtime state.
     s_switches[key] = value;
 }
 
@@ -64,12 +64,12 @@ bool URPG_GetGlobalSwitch(const char* key) {
 }
 
 bool URPG_IsKeyPressed(int keyCode) {
-    // Stub: input is not bridged to InputManager yet.
+    // STUB: input is not bridged to InputManager yet.
     return false;
 }
 
 void URPG_GetMousePosition(float* x, float* y) {
-    // Stub: pointer position is not bridged to the active platform window yet.
+    // STUB: pointer position is not bridged to the active platform window yet.
     if (x) *x = 0.0f;
     if (y) *y = 0.0f;
 }

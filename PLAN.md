@@ -2,7 +2,7 @@
 
 ## Status
 **Current Phase:** Phase 5 — Environment & Presentation Polish
-**Current Task:** 43. Screen-to-World coordinate projection for Prop Gizmos
+**Current Task:** Phase 5 presentation-polish milestone complete
 
 **Completed Milestones Since Initialization**
 - Phase 0 — Program Setup: Complete
@@ -14,6 +14,7 @@
 
 **Related Enablement**
 - Curated Hugging Face fixture ingestion is now in place for TMX, Visual Novel Maker, and Godot reference corpora, with manifest-driven refresh tooling under `tools/assets/`.
+- Cross-cutting debt, truthfulness, and intake-governance tracking lives in `docs/TECHNICAL_DEBT_REMEDIATION_PLAN.md`.
 
 ---
 
@@ -97,8 +98,8 @@
 | ID | Task | Status | Dependency |
 |---|---|---|---|
 | 41 | Dynamic Light placement and shadow proxies | Completed | 38, 39 |
-| 42 | Fog and Post-FX profile blending | In-Progress | 38 |
-| 43 | Screen-to-World coordinate projection for Prop Gizmos | Next | 37 |
+| 42 | Fog and Post-FX profile blending | Completed | 38 |
+| 43 | Screen-to-World coordinate projection for Prop Gizmos | Completed | 37 |
 
 ---
 

@@ -328,6 +328,7 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
     <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\engine\core\save\save_recovery.cpp" />
     <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\engine\core\save\save_runtime.cpp" />
     <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\engine\core\battle\battle_core.cpp" />
+    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\engine\core\presentation\presentation_runtime.cpp" />
     <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\engine\gameplay\combat\combat_calc.cpp" />
     <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\engine\core\audio\audio_ai_bridge.cpp" />
     <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\engine\core\animation\animation_ai_bridge.cpp" />

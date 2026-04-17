@@ -18,6 +18,12 @@ pre-commit install
 pre-commit run --all-files
 ```
 
+If your change touches presentation runtime, spatial editor tooling, or presentation-facing rendering behavior, also run:
+
+```powershell
+.\tools\ci\run_presentation_gate.ps1
+```
+
 If you are touching RPG Maker MZ DLC content, also run:
 
 ```powershell
@@ -29,6 +35,9 @@ If you are importing or reorganizing assets, also run:
 ```powershell
 python .\tools\assets\asset_hygiene.py --write-reports
 ```
+
+Use the PR checklist in `.github/PULL_REQUEST_TEMPLATE.md` when writing your verification summary.
+Presentation documentation links are validated automatically by `.\tools\ci\run_local_gates.ps1`.
 
 ## 3) Binary and asset policy
 

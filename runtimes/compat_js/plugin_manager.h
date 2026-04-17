@@ -165,10 +165,15 @@ public:
                               const std::vector<Value>& args);
     
     // Status: PARTIAL - FIFO worker queue is deterministic, but callbacks run on the worker thread
+    // Threading contract: command execution happens on the worker thread, but callbacks
+    // are deferred until dispatchPendingAsyncCallbacks() is called on the owning thread.
     void executeCommandAsync(const std::string& pluginName,
                             const std::string& commandName,
                             const std::vector<Value>& args,
                             std::function<void(const Value&)> callback);
+
+    // Status: PARTIAL - Drains deferred async callbacks on the caller thread in FIFO order
+    int32_t dispatchPendingAsyncCallbacks();
     
     // ========================================================================
     // Parameter Management

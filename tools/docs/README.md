@@ -37,3 +37,29 @@ Policy:
 2. Run sync script.
 3. Commit canonical + generated spec updates together.
 4. Treat `-Check` failures as required fixes before merge.
+
+## Presentation docs link validation
+
+Scope:
+
+- `docs/presentation/README.md`
+- `docs/presentation/VALIDATION.md`
+- `docs/presentation/test_matrix/README.md`
+
+Validation command:
+
+```powershell
+.\tools\docs\check-presentation-doc-links.ps1
+```
+
+Where it runs:
+
+- directly from the focused presentation gate: `.\tools\ci\run_presentation_gate.ps1`
+- from the broader local gates: `.\tools\ci\run_local_gates.ps1`
+- in CI inside `.github/workflows/ci-gates.yml`
+
+Policy:
+
+1. When adding or renaming presentation docs, update the presentation hubs first.
+2. Run the presentation docs link checker before merge.
+3. Treat missing-link failures as documentation drift that must be fixed with the same change.

@@ -5,6 +5,7 @@
 #include "engine/core/scene/map_loader.h"
 #include "engine/core/scene/tileset_registry.h"
 #include "engine/core/scene/movement_authority.h"
+#include "engine/core/audio/audio_core.h"
 
 using namespace urpg::scene;
 
@@ -137,6 +138,22 @@ TEST_CASE("MapScene: Coordinate and Collision Authority", "[scene][map]") {
         map.setTile(5, 5, 2, true);  // Floor
         REQUIRE(map.checkCollision(5, 5) == false);
     }
+}
+
+TEST_CASE("MapScene: AI audio commands use injected AudioCore service", "[scene][map][audio]") {
+    MapScene map("001", 10, 10);
+    auto audio = std::make_shared<urpg::audio::AudioCore>();
+    map.setAudioCore(audio);
+
+    map.processAiAudioCommands("[ACTION: CROSSFADE, ASSET: Boss_Dark, VOL: 0.8, FADE: 3.0]");
+    REQUIRE(audio->currentBGM() == "Boss_Dark");
+
+    map.processAiAudioCommands("[ACTION: PLAY_SE, ASSET: Confirm_01, VOL: 1.0, FADE: 0.0]");
+    REQUIRE(audio->activeSourceCount() == 1);
+
+    map.processAiAudioCommands("[ACTION: STOP, ASSET: anything, VOL: 0.0, FADE: 0.0]");
+    REQUIRE(audio->currentBGM().empty());
+    REQUIRE(audio->activeSourceCount() == 0);
 }
 
 class MockScene : public GameScene {

@@ -10,6 +10,7 @@
 #include "engine/core/message/dialogue_registry.h"
 #include "engine/core/message/chatbot_component.h"
 #include "engine/core/ui/chat_window.h"
+#include "engine/core/audio/audio_core.h"
 #include <vector>
 #include <cstdint>
 #include <string>
@@ -102,6 +103,8 @@ public:
      */
     void openChatInput();
 
+    void setAudioCore(std::shared_ptr<urpg::audio::AudioCore> audioCore) { m_audioCore = std::move(audioCore); }
+
     /**
      * @brief Injects the AI audio bridge into the scene logic.
      */
@@ -142,6 +145,7 @@ private:
     urpg::message::MessageFlowRunner m_messageRunner;
     std::unique_ptr<urpg::ai::ChatbotComponent> m_activeChatbot;
     std::unique_ptr<urpg::ui::ChatWindow> m_chatUI;
+    std::shared_ptr<urpg::audio::AudioCore> m_audioCore;
     bool m_isChatInputOpen = false;
     std::string m_currentInputBuffer;
 };

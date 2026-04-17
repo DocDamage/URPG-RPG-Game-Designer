@@ -36,6 +36,7 @@ const char* TabName(DiagnosticsTab tab) {
 DiagnosticsWorkspace::DiagnosticsWorkspace() {
     menu_model_ = std::make_shared<MenuInspectorModel>();
     menu_panel_ = std::make_unique<MenuInspectorPanel>(menu_model_);
+    menu_preview_panel_ = std::make_unique<MenuPreviewPanel>();
     syncPanelVisibility();
 }
 
@@ -85,6 +86,14 @@ MenuInspectorPanel& DiagnosticsWorkspace::menuPanel() {
 
 const MenuInspectorPanel& DiagnosticsWorkspace::menuPanel() const {
     return *menu_panel_;
+}
+
+MenuPreviewPanel& DiagnosticsWorkspace::menuPreviewPanel() {
+    return *menu_preview_panel_;
+}
+
+const MenuPreviewPanel& DiagnosticsWorkspace::menuPreviewPanel() const {
+    return *menu_preview_panel_;
 }
 
 AudioInspectorPanel& DiagnosticsWorkspace::audioPanel() {
@@ -145,10 +154,18 @@ void DiagnosticsWorkspace::bindMenuRuntime(const urpg::ui::MenuSceneGraph& scene
     if (menu_model_) {
         menu_model_->LoadFromRuntime(scene_graph, registry, switches, variables);
     }
+    if (menu_preview_panel_) {
+        menu_preview_panel_->bindRuntime(scene_graph);
+    }
 }
 
 void DiagnosticsWorkspace::clearMenuRuntime() {
-    // Could clear model if needed
+    if (menu_model_) {
+        menu_model_->Clear();
+    }
+    if (menu_preview_panel_) {
+        menu_preview_panel_->clearRuntime();
+    }
 }
 
 void DiagnosticsWorkspace::bindAudioRuntime(const urpg::audio::AudioCore& core) {
@@ -322,6 +339,9 @@ void DiagnosticsWorkspace::render() {
             urpg::FrameContext context;
             context.dt = 0.016f;
             menu_panel_->Render(context);
+            if (menu_preview_panel_) {
+                menu_preview_panel_->Render(context);
+            }
         }
     } else if (active_tab_ == DiagnosticsTab::Audio) {
         // audio_panel_.render();
@@ -338,6 +358,9 @@ void DiagnosticsWorkspace::refresh() {
     event_authority_panel_.refresh();
     message_panel_.refresh();
     battle_panel_.refresh();
+    if (menu_preview_panel_) {
+        menu_preview_panel_->refresh();
+    }
     syncPanelVisibility();
 }
 
@@ -347,6 +370,9 @@ void DiagnosticsWorkspace::update() {
     event_authority_panel_.update();
     message_panel_.update();
     battle_panel_.update();
+    if (menu_preview_panel_) {
+        menu_preview_panel_->update();
+    }
     syncPanelVisibility();
 }
 
@@ -358,6 +384,9 @@ void DiagnosticsWorkspace::syncPanelVisibility() {
     battle_panel_.setVisible(visible_ && active_tab_ == DiagnosticsTab::Battle);
     if (menu_panel_) {
         menu_panel_->SetVisible(visible_ && active_tab_ == DiagnosticsTab::Menu);
+    }
+    if (menu_preview_panel_) {
+        menu_preview_panel_->SetVisible(visible_ && active_tab_ == DiagnosticsTab::Menu);
     }
     audio_panel_.setVisible(visible_ && active_tab_ == DiagnosticsTab::Audio);
     migration_wizard_panel_.setVisible(visible_ && active_tab_ == DiagnosticsTab::MigrationWizard);

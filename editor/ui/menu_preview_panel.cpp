@@ -1,7 +1,6 @@
 #include "editor/ui/menu_preview_panel.h"
 #include "engine/core/engine_context.h"
 #include "engine/core/ui/menu_scene_graph.h"
-#include <utility>
 
 /**
  * NOTE: ImGui headers are expected to be provided by the editor environment.
@@ -12,8 +11,16 @@
 
 namespace urpg::editor {
 
-MenuPreviewPanel::MenuPreviewPanel(std::shared_ptr<urpg::ui::MenuSceneGraph> scene_graph)
-    : EditorPanel("Menu Preview"), scene_graph_(std::move(scene_graph)) {}
+MenuPreviewPanel::MenuPreviewPanel()
+    : EditorPanel("Menu Preview") {}
+
+void MenuPreviewPanel::bindRuntime(const urpg::ui::MenuSceneGraph& scene_graph) {
+    scene_graph_ = &scene_graph;
+}
+
+void MenuPreviewPanel::clearRuntime() {
+    scene_graph_ = nullptr;
+}
 
 void MenuPreviewPanel::Render(const urpg::FrameContext& context) {
     if (!m_visible) return;
@@ -74,6 +81,13 @@ void MenuPreviewPanel::Render(const urpg::FrameContext& context) {
 
     ImGui::End();
 #endif
+}
+
+void MenuPreviewPanel::refresh() {
+}
+
+void MenuPreviewPanel::update() {
+    refresh();
 }
 
 } // namespace urpg::editor

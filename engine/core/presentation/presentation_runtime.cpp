@@ -33,6 +33,8 @@ PresentationFrameIntent PresentationRuntime::BuildPresentationFrame(
         mapTranslator.Translate(context, data, context.mapState, intent);
     }
 
+    PresentationRuntime::ResolveEnvironmentCommands(intent);
+
     worldPass.commandCount = intent.commands.size() - worldPass.commandStartIndex;
     intent.AddPass(worldPass);
 

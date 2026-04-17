@@ -10,12 +10,17 @@ namespace urpg::editor {
 
 class MenuPreviewPanel : public EditorPanel {
 public:
-  explicit MenuPreviewPanel(std::shared_ptr<urpg::ui::MenuSceneGraph> scene_graph);
+  MenuPreviewPanel();
+
+  void bindRuntime(const urpg::ui::MenuSceneGraph& scene_graph);
+  void clearRuntime();
 
   void Render(const urpg::FrameContext &context) override;
+  void refresh();
+  void update();
 
 private:
-  std::shared_ptr<urpg::ui::MenuSceneGraph> scene_graph_;
+  const urpg::ui::MenuSceneGraph* scene_graph_ = nullptr;
 };
 
 } // namespace urpg::editor

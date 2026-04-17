@@ -2,6 +2,8 @@
 #include "editor/diagnostics/diagnostics_facade.h"
 #include "engine/core/battle/battle_core.h"
 #include "engine/core/message/message_core.h"
+#include "engine/core/ui/menu_command_registry.h"
+#include "engine/core/ui/menu_scene_graph.h"
 
 #include "runtimes/compat_js/plugin_manager.h"
 
@@ -186,4 +188,70 @@ TEST_CASE("DiagnosticsWorkspace - Refresh updates compat and save tabs", "[edito
     std::filesystem::remove_all(base);
     pluginManager.clearFailureDiagnostics();
     pluginManager.unloadAllPlugins();
+}
+
+TEST_CASE("DiagnosticsWorkspace - Menu runtime binding populates and clears menu diagnostics",
+          "[editor][diagnostics][integration][menu]") {
+    urpg::ui::MenuCommandRegistry registry;
+
+    urpg::MenuCommandMeta itemCommand;
+    itemCommand.id = "urpg.menu.item";
+    itemCommand.label = "Item";
+    itemCommand.route = urpg::MenuRouteTarget::Item;
+    registry.registerCommand(itemCommand);
+
+    urpg::MenuCommandMeta deadEndCommand;
+    deadEndCommand.id = "urpg.menu.dead_end";
+    deadEndCommand.label = "Dead End";
+    deadEndCommand.route = urpg::MenuRouteTarget::Custom;
+
+    auto menu = std::make_shared<urpg::ui::MenuScene>("MainMenu");
+
+    urpg::ui::MenuPane pane;
+    pane.id = "main_pane";
+    pane.displayName = "Main Menu";
+    pane.isVisible = true;
+    pane.isActive = true;
+    pane.commands = {itemCommand, deadEndCommand};
+
+    menu->addPane(pane);
+
+    urpg::ui::MenuSceneGraph graph;
+    graph.registerScene(menu);
+    graph.pushScene("MainMenu");
+
+    urpg::ui::MenuCommandRegistry::SwitchState switches;
+    urpg::ui::MenuCommandRegistry::VariableState variables;
+    graph.setCommandStateFromRegistry(registry, switches, variables);
+
+    urpg::editor::DiagnosticsWorkspace workspace;
+    workspace.bindMenuRuntime(graph, registry, switches, variables);
+
+    const auto menuSummary = workspace.tabSummary(urpg::editor::DiagnosticsTab::Menu);
+    REQUIRE(menuSummary.item_count == 2);
+    REQUIRE(menuSummary.issue_count == 2);
+    REQUIRE(menuSummary.has_data);
+
+    workspace.setActiveTab(urpg::editor::DiagnosticsTab::Menu);
+    workspace.update();
+
+    REQUIRE(workspace.tabSummary(urpg::editor::DiagnosticsTab::Menu).active);
+    REQUIRE(workspace.menuPanel().IsVisible());
+    REQUIRE(workspace.menuPreviewPanel().GetTitle() == "Menu Preview");
+    REQUIRE(workspace.menuPreviewPanel().IsVisible());
+
+    const auto menuSnapshot = nlohmann::json::parse(workspace.exportAsJson());
+    REQUIRE(menuSnapshot["active_tab"] == "menu");
+
+    workspace.clearMenuRuntime();
+
+    const auto clearedSummary = workspace.tabSummary(urpg::editor::DiagnosticsTab::Menu);
+    REQUIRE(clearedSummary.item_count == 0);
+    REQUIRE(clearedSummary.issue_count == 0);
+    REQUIRE_FALSE(clearedSummary.has_data);
+
+    workspace.setActiveTab(urpg::editor::DiagnosticsTab::Compat);
+    workspace.update();
+    REQUIRE_FALSE(workspace.menuPanel().IsVisible());
+    REQUIRE_FALSE(workspace.menuPreviewPanel().IsVisible());
 }

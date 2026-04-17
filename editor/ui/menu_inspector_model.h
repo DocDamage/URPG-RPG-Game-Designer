@@ -81,6 +81,7 @@ public:
         const urpg::ui::MenuCommandRegistry& registry,
         const urpg::ui::MenuCommandRegistry::SwitchState& switches,
         const urpg::ui::MenuCommandRegistry::VariableState& variables);
+    void Clear();
 
     void SetCommandIdFilter(std::optional<std::string> command_id_filter);
     void SetShowIssuesOnly(bool show_issues_only);

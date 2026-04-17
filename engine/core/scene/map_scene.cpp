@@ -12,6 +12,7 @@ MapScene::MapScene(const std::string& mapId, int width, int height)
     : m_mapId(mapId), m_width(width), m_height(height) {
     m_tiles.resize(width * height, {0, true});
     m_renderer = std::make_unique<TilemapRenderer>(width, height);
+    m_audioCore = std::make_shared<urpg::audio::AudioCore>();
     
     // Initialize player movement component
     m_playerMovement.gridPos = {0, 0};
@@ -252,20 +253,17 @@ void MapScene::openChatInput() {
 void MapScene::processAiAudioCommands(const std::string& aiResponse) {
     auto commands = urpg::ai::AudioKnowledgeBridge::parseAudioCommands(aiResponse);
     if (commands.empty()) return;
-
-    // This would ideally be accessed via a Service Locator or Engine Context
-    // For now, we simulate the interaction with AudioCore
-    static urpg::audio::AudioCore audioCore;
+    if (!m_audioCore) return;
 
     for (const auto& cmd : commands) {
         if (cmd.action == "PLAY_BGM") {
-            audioCore.playBGM(cmd.assetId, 0.0f); // Immediate
+            m_audioCore->playBGM(cmd.assetId, 0.0f); // Immediate
         } else if (cmd.action == "CROSSFADE") {
-            audioCore.playBGM(cmd.assetId, cmd.fadeTime);
+            m_audioCore->playBGM(cmd.assetId, cmd.fadeTime);
         } else if (cmd.action == "PLAY_SE") {
-            audioCore.playSound(cmd.assetId, urpg::audio::AudioCategory::SE);
+            m_audioCore->playSound(cmd.assetId, urpg::audio::AudioCategory::SE);
         } else if (cmd.action == "STOP") {
-            audioCore.stopAll();
+            m_audioCore->stopAll();
         }
     }
 }

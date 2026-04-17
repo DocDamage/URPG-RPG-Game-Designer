@@ -54,11 +54,25 @@ cmake --build --preset=dev-windows-debug
 ctest --preset=dev-windows-debug -L pr
 ```
 
+### Focused Presentation Validation
+```powershell
+# One-command focused presentation gate
+pwsh -File .\tools\ci\run_presentation_gate.ps1
+
+# Or run the combined presentation CTest gate directly
+ctest -C Debug -R "urpg_(presentation_(unit_lane|release_validation)|spatial_editor_lane)" --output-on-failure
+```
+
+This focused gate is also invoked by `tools/ci/run_local_gates.ps1` locally and by `.github/workflows/ci-gates.yml` in CI.
+
 ## 📜 Documentation
 
 - **[Master Blueprint](URPG_Blueprint_v3_1_Integrated.md):** The authoritative technical specification.
 - **[Native Absorption Plan](docs/NATIVE_FEATURE_ABSORPTION_PLAN.md):** Roadmap for migrating legacy features.
 - **[Completion Status](docs/PROGRAM_COMPLETION_STATUS.md):** Granular checklist of every implemented feature.
+- **[Technical Debt Remediation Plan](docs/TECHNICAL_DEBT_REMEDIATION_PLAN.md):** Canonical cross-cutting debt, truthfulness, intake-governance, and reconciliation plan.
+- **[Presentation Docs Hub](docs/presentation/README.md):** Index of presentation contracts, validation, tooling, budgets, and schema docs.
+- **[Presentation Validation Guide](docs/presentation/VALIDATION.md):** Focused runtime + spatial authoring validation commands and gate definitions.
 
 ### Build Artifacts (CI)
 - **Nightly Matrix:** [tests_output.txt](tests_output.txt)
@@ -226,6 +240,7 @@ llm-workflow-doctor -Provider auto -CheckContext -Strict
 ## Contributor guide
 
 See `CONTRIBUTING.md` for workflow, LFS policy, and asset hygiene checks.
+PR verification uses `.github/PULL_REQUEST_TEMPLATE.md`, including the focused presentation gate when presentation/spatial behavior is touched.
 
 ```powershell
 python .\tools\assets\asset_hygiene.py --write-reports --prune-junk

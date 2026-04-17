@@ -73,6 +73,9 @@
     <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\engine\core\battle\battle_core.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\engine\core\presentation\presentation_runtime.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\engine\gameplay\combat\combat_calc.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>

@@ -68,6 +68,14 @@ public:
         // Logic for crossfading would go here
     }
 
+    const std::string& currentBGM() const {
+        return m_currentBGM;
+    }
+
+    size_t activeSourceCount() const {
+        return m_activeSources.size();
+    }
+
     void setCategoryVolume(AudioCategory category, float volume) {
         m_categoryVolumes[category] = volume;
         // In a real engine, this would update active channel gains

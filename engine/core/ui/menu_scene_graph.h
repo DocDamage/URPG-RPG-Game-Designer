@@ -124,6 +124,10 @@ public:
         return (it != m_scenes.end()) ? it->second : nullptr;
     }
 
+    const std::map<std::string, std::shared_ptr<MenuScene>>& getRegisteredScenes() const {
+        return m_scenes;
+    }
+
     void handleInput(input::InputAction action, input::ActionState state) {
         if (state != input::ActionState::Pressed) return;
 

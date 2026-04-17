@@ -14,7 +14,7 @@ The primary hub for AI interaction. It handles the `IChatService` communication 
 - **Capabilities**:
   - **Streaming Support**: Processes partial AI responses in real-time for immediate UI feedback.
   - **Tool Calling**: Executes native C++ functions (e.g., `GIVE_ITEM`, `SET_SWITCH`) requested by the AI.
-  - **History Lifecycle**: Managed via `AISyncCoordinator`; live multi-device persistence still depends on a non-stub `ICloudService` backend.
+  - **History Lifecycle**: Managed via `AISyncCoordinator`; the in-tree path is stub-backed and only exercises local in-memory synchronization unless a real `ICloudService` backend is provided out of tree.
 
 ### 2. IChatService & Connectivity
 Engineers can plug in different AI providers using the specialized service classes in `engine/core/ai/ai_connectivity.h`:
@@ -71,7 +71,7 @@ AI histories are saved using `SaveSerializationHub::CompressionLevel::Optimal`, 
 
 1. **Structured Prompts**: Always use the `generatePrompt` methods in the Bridges to ensure the LLM receives the data in the optimized format.
 2. **Hidden Commands**: You can instruct the AI to include orchestration commands (like Audio or Animation) hidden in its response; the engine will parse them out before displaying the text to the player.
-3. **Cloud Sync**: Use `AISyncCoordinator` to route history serialization through `ICloudService`, but note that the in-tree `CloudServiceStub` only preserves data in local memory for test and harness scenarios.
+3. **Cloud Sync**: Treat `AISyncCoordinator` as cloud-sync plumbing only. In the current tree it routes through `CloudServiceStub`, which preserves data only in local process memory for tests and harness scenarios and is not an operational cross-device sync path.
 
 ## Debugging
 

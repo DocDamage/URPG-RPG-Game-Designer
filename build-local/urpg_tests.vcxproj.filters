@@ -208,6 +208,9 @@
     <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_gameplay_tags.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_presentation_runtime.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="C:\Users\dferr\dev\URPG - RPG Game Maker\tests\unit\test_spatial_editor.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>

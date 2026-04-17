@@ -22,6 +22,7 @@ C:\Users\dferr\dev\URPG - RPG Game Maker\engine\core\save\save_journal.cpp;C:\Us
 C:\Users\dferr\dev\URPG - RPG Game Maker\engine\core\save\save_recovery.cpp;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\urpg_core.dir\Debug\save_recovery.obj
 C:\Users\dferr\dev\URPG - RPG Game Maker\engine\core\save\save_runtime.cpp;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\urpg_core.dir\Debug\save_runtime.obj
 C:\Users\dferr\dev\URPG - RPG Game Maker\engine\core\battle\battle_core.cpp;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\urpg_core.dir\Debug\battle_core.obj
+C:\Users\dferr\dev\URPG - RPG Game Maker\engine\core\presentation\presentation_runtime.cpp;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\urpg_core.dir\Debug\presentation_runtime.obj
 C:\Users\dferr\dev\URPG - RPG Game Maker\engine\gameplay\combat\combat_calc.cpp;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\urpg_core.dir\Debug\combat_calc.obj
 C:\Users\dferr\dev\URPG - RPG Game Maker\engine\core\audio\audio_ai_bridge.cpp;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\urpg_core.dir\Debug\audio_ai_bridge.obj
 C:\Users\dferr\dev\URPG - RPG Game Maker\engine\core\animation\animation_ai_bridge.cpp;C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\urpg_core.dir\Debug\animation_ai_bridge.obj

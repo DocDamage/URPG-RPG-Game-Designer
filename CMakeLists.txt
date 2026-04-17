@@ -87,6 +87,7 @@ add_library(urpg_core
     engine/core/save/save_recovery.cpp
     engine/core/save/save_runtime.cpp
     engine/core/battle/battle_core.cpp
+    engine/core/presentation/presentation_runtime.cpp
     engine/gameplay/combat/combat_calc.cpp
     engine/core/audio/audio_ai_bridge.cpp
     engine/core/animation/animation_ai_bridge.cpp
@@ -222,6 +223,14 @@ add_executable(urpg_migrate
 target_link_libraries(urpg_migrate PRIVATE urpg_core)
 target_include_directories(urpg_migrate PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
 
+add_executable(urpg_presentation_release_validation
+    engine/core/presentation/release_validation.cpp
+)
+
+target_link_libraries(urpg_presentation_release_validation PRIVATE urpg_core)
+target_include_directories(urpg_presentation_release_validation PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+urpg_enable_windows_test_binary_unlock(urpg_presentation_release_validation)
+
 add_executable(urpg_tests
     tests/unit/test_engine_shell.cpp
     tests/unit/test_global_state.cpp
@@ -293,6 +302,7 @@ add_executable(urpg_tests
     tests/unit/test_state_audio_sync.cpp
     tests/unit/test_scene_manager.cpp
     tests/unit/test_gameplay_tags.cpp
+    tests/unit/test_presentation_runtime.cpp
     tests/unit/test_spatial_editor.cpp
     tests/unit/test_huggingface_curated_assets.cpp
     tests/unit/test_ability_activation.cpp
@@ -370,4 +380,31 @@ catch_discover_tests(
     urpg_compat_tests
     DISCOVERY_MODE PRE_TEST
     PROPERTIES LABELS "weekly"
+)
+
+add_test(
+    NAME urpg_presentation_release_validation
+    COMMAND urpg_presentation_release_validation
+)
+set_tests_properties(
+    urpg_presentation_release_validation
+    PROPERTIES LABELS "nightly;presentation"
+)
+
+add_test(
+    NAME urpg_presentation_unit_lane
+    COMMAND urpg_tests "[presentation]"
+)
+set_tests_properties(
+    urpg_presentation_unit_lane
+    PROPERTIES LABELS "pr;presentation"
+)
+
+add_test(
+    NAME urpg_spatial_editor_lane
+    COMMAND urpg_tests "[editor][spatial]"
+)
+set_tests_properties(
+    urpg_spatial_editor_lane
+    PROPERTIES LABELS "pr;presentation;editor"
 )
