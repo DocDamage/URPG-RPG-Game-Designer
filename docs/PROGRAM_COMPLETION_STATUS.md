@@ -18,6 +18,8 @@ Cross-cutting debt, truthfulness, and intake-governance source of truth: `docs/T
 - Asset reality remains intentionally conservative:
   - the repo has strong importer/test/reference corpora
   - the repo does **not** yet have a serious license-cleared production asset library across tiles, portraits, UI, VFX, and audio
+- **In Progress:** External repository intake governance is active. Canonical artifacts live in [`docs/external-intake/`](./external-intake/) and the execution plan is [`URPG_repo_intake_plan.md`](../URPG_repo_intake_plan.md).
+- **In Progress:** Private-use asset intake governance is active. Canonical artifacts live in [`docs/asset_intake/`](./asset_intake/) and the execution plan is [`URPG_private_asset_intake_plan.md`](../URPG_private_asset_intake_plan.md).
 
 - `main` is up to date and protected:
   - pull request required

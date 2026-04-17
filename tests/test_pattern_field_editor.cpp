@@ -1,3 +1,7 @@
+// INCUBATING TEST: This file contains a standalone main() and is not yet
+// integrated into the Catch2 test suite (urpg_tests). Do not register it in
+// CMakeLists.txt until it is converted to Catch2 TEST_CASE macros.
+//
 #include "editor/ability/pattern_field_model.h"
 #include "editor/ability/pattern_field_panel.h"
 #include "engine/core/ability/pattern_field.h"

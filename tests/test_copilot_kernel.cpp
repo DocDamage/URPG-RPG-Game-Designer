@@ -1,5 +1,5 @@
 #include <catch2/catch_test_macros.hpp>
-#include "copilot/copilot_kernel.h"
+#include "engine/core/copilot/copilot_kernel.h"
 
 using namespace urpg::copilot;
 

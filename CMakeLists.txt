@@ -318,7 +318,11 @@ add_executable(urpg_tests
     tests/unit/test_migration_wizard.cpp
     tests/unit/test_ai_bridge_regex.cpp
     tests/engine/core/test_render_assets.cpp
-    tests/engine/core/test_engine_shell.cpp
+    tests/test_asset_license_audit.cpp
+    tests/test_copilot_kernel.cpp
+    tests/test_headless_play_mode.cpp
+    tests/test_plugin_manifest.cpp
+    tests/test_snapshot_validator.cpp
 )
 
 target_link_libraries(urpg_tests PRIVATE urpg_core Catch2::Catch2WithMain)

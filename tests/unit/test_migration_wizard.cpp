@@ -2,6 +2,8 @@
 #include "editor/diagnostics/migration_wizard_panel.h"
 #include "editor/diagnostics/migration_wizard_model.h"
 #include <nlohmann/json.hpp>
+#include <filesystem>
+#include <fstream>
 
 using namespace urpg::editor;
 
@@ -541,4 +543,144 @@ TEST_CASE("MigrationWizardPanel: exportReportJson and snapshot export field", "[
     REQUIRE(parsed["total_files_processed"] == 1);
     REQUIRE(parsed["subsystem_results"].size() == 1);
     REQUIRE(parsed["subsystem_results"][0]["subsystem_id"] == "menu");
+}
+
+TEST_CASE("MigrationWizardModel: saveReportToFile writes getReportJson to disk", "[editor][diagnostics][wizard][file]") {
+    MigrationWizardModel model;
+    nlohmann::json project_data = {
+        {"scenes", {
+            {{"symbol", "item"}, {"name", "Items"}}
+        }}
+    };
+    model.runFullMigration(project_data);
+    const auto original_json = model.getReportJson();
+
+    const std::string temp_path = (std::filesystem::temp_directory_path() / "urpg_migration_wizard_save_test.json").string();
+    std::filesystem::remove(temp_path);
+
+    REQUIRE(model.saveReportToFile(temp_path));
+    REQUIRE(std::filesystem::exists(temp_path));
+
+    std::string file_content;
+    {
+        std::ifstream ifs(temp_path);
+        REQUIRE(ifs);
+        file_content = std::string((std::istreambuf_iterator<char>(ifs)), std::istreambuf_iterator<char>());
+    }
+    REQUIRE(file_content == original_json);
+
+    std::filesystem::remove(temp_path);
+}
+
+TEST_CASE("MigrationWizardModel: loadReportFromFile restores report state", "[editor][diagnostics][wizard][file]") {
+    MigrationWizardModel model;
+    nlohmann::json project_data = {
+        {"messages", {
+            {"pages", {
+                {
+                    {"id", "speaker_a"},
+                    {"route", "speaker"},
+                    {"speaker", {{"actor_id", 1}, {"name", "Alyx"}}},
+                    {"text", {"Hello there."}}
+                }
+            }}
+        }},
+        {"scenes", {
+            {{"symbol", "item"}, {"name", "Items"}}
+        }}
+    };
+    model.runFullMigration(project_data);
+    model.selectSubsystemResult("menu");
+
+    const auto original_report = model.getReport();
+    const auto original_selected = model.selectedSubsystemId();
+
+    const std::string temp_path = (std::filesystem::temp_directory_path() / "urpg_migration_wizard_load_test.json").string();
+    std::filesystem::remove(temp_path);
+    REQUIRE(model.saveReportToFile(temp_path));
+
+    MigrationWizardModel loaded_model;
+    REQUIRE(loaded_model.loadReportFromFile(temp_path));
+    const auto loaded_report = loaded_model.getReport();
+    REQUIRE(loaded_report.total_files_processed == original_report.total_files_processed);
+    REQUIRE(loaded_report.warning_count == original_report.warning_count);
+    REQUIRE(loaded_report.error_count == original_report.error_count);
+    REQUIRE(loaded_report.is_complete == original_report.is_complete);
+    REQUIRE(loaded_report.summary_logs.size() == original_report.summary_logs.size());
+    REQUIRE(loaded_report.subsystem_results.size() == original_report.subsystem_results.size());
+    for (size_t i = 0; i < loaded_report.subsystem_results.size(); ++i) {
+        REQUIRE(loaded_report.subsystem_results[i].subsystem_id == original_report.subsystem_results[i].subsystem_id);
+        REQUIRE(loaded_report.subsystem_results[i].display_name == original_report.subsystem_results[i].display_name);
+        REQUIRE(loaded_report.subsystem_results[i].processed_count == original_report.subsystem_results[i].processed_count);
+        REQUIRE(loaded_report.subsystem_results[i].warning_count == original_report.subsystem_results[i].warning_count);
+        REQUIRE(loaded_report.subsystem_results[i].error_count == original_report.subsystem_results[i].error_count);
+        REQUIRE(loaded_report.subsystem_results[i].completed == original_report.subsystem_results[i].completed);
+        REQUIRE(loaded_report.subsystem_results[i].summary_line == original_report.subsystem_results[i].summary_line);
+    }
+    REQUIRE(loaded_model.selectedSubsystemId() == original_selected);
+
+    std::filesystem::remove(temp_path);
+}
+
+TEST_CASE("MigrationWizardModel: loadReportFromFile with bad file returns false and clears model", "[editor][diagnostics][wizard][file]") {
+    MigrationWizardModel model;
+    nlohmann::json project_data = {
+        {"scenes", {
+            {{"symbol", "item"}, {"name", "Items"}}
+        }}
+    };
+    model.runFullMigration(project_data);
+    REQUIRE(model.getReport().total_files_processed > 0);
+
+    const std::string temp_path = (std::filesystem::temp_directory_path() / "urpg_migration_wizard_bad_test.json").string();
+    {
+        std::ofstream ofs(temp_path);
+        ofs << "this is not json";
+    }
+
+    REQUIRE_FALSE(model.loadReportFromFile(temp_path));
+    REQUIRE(model.getReport().total_files_processed == 0);
+    REQUIRE_FALSE(model.getReport().is_complete);
+    REQUIRE(model.getReport().subsystem_results.empty());
+    REQUIRE_FALSE(model.selectedSubsystemId().has_value());
+
+    std::filesystem::remove(temp_path);
+
+    const std::string nonexistent = (std::filesystem::temp_directory_path() / "urpg_migration_wizard_does_not_exist.json").string();
+    std::filesystem::remove(nonexistent);
+    REQUIRE_FALSE(model.loadReportFromFile(nonexistent));
+    REQUIRE(model.getReport().total_files_processed == 0);
+}
+
+TEST_CASE("MigrationWizardPanel: save/load report forwards to model and snapshot exposes flags", "[editor][diagnostics][wizard][panel][file]") {
+    MigrationWizardPanel panel;
+    nlohmann::json project_data = {
+        {"scenes", {
+            {{"symbol", "item"}, {"name", "Items"}}
+        }}
+    };
+    panel.onProjectUpdateRequested(project_data);
+    panel.setVisible(true);
+    panel.render();
+
+    REQUIRE(panel.lastRenderSnapshot().can_save_report);
+    REQUIRE(panel.lastRenderSnapshot().can_load_report);
+
+    const std::string temp_path = (std::filesystem::temp_directory_path() / "urpg_migration_wizard_panel_test.json").string();
+    std::filesystem::remove(temp_path);
+    REQUIRE(panel.saveReportToFile(temp_path));
+    REQUIRE(std::filesystem::exists(temp_path));
+
+    panel.clear();
+    panel.render();
+    REQUIRE_FALSE(panel.lastRenderSnapshot().can_save_report);
+    REQUIRE(panel.lastRenderSnapshot().can_load_report);
+
+    REQUIRE(panel.loadReportFromFile(temp_path));
+    panel.render();
+    REQUIRE(panel.lastRenderSnapshot().has_data);
+    REQUIRE(panel.lastRenderSnapshot().can_save_report);
+    REQUIRE(panel.lastRenderSnapshot().subsystem_results.size() == 1);
+
+    std::filesystem::remove(temp_path);
 }

@@ -5,6 +5,7 @@
 #include <map>
 #include <optional>
 #include <algorithm>
+#include <fstream>
 #include <nlohmann/json.hpp>
 #include "../../engine/core/message/message_migration.h"
 #include "../../engine/core/battle/battle_migration.h"
@@ -245,7 +246,87 @@ public:
             sub["summary_line"] = result.summary_line;
             root["subsystem_results"].push_back(sub);
         }
+        if (selected_subsystem_id_.has_value()) {
+            root["selected_subsystem_id"] = *selected_subsystem_id_;
+        } else {
+            root["selected_subsystem_id"] = nullptr;
+        }
         return root.dump();
+    }
+
+    bool saveReportToFile(const std::string& path) {
+        std::ofstream ofs(path);
+        if (!ofs) return false;
+        ofs << getReportJson();
+        return ofs.good();
+    }
+
+    bool loadReportFromFile(const std::string& path) {
+        clear();
+        std::ifstream ifs(path);
+        if (!ifs) return false;
+        try {
+            nlohmann::json root;
+            ifs >> root;
+
+            if (!root.contains("total_files_processed") || !root["total_files_processed"].is_number_unsigned())
+                return false;
+            if (!root.contains("warning_count") || !root["warning_count"].is_number_unsigned())
+                return false;
+            if (!root.contains("error_count") || !root["error_count"].is_number_unsigned())
+                return false;
+            if (!root.contains("is_complete") || !root["is_complete"].is_boolean())
+                return false;
+            if (!root.contains("summary_logs") || !root["summary_logs"].is_array())
+                return false;
+            if (!root.contains("subsystem_results") || !root["subsystem_results"].is_array())
+                return false;
+
+            m_report.total_files_processed = root["total_files_processed"].get<size_t>();
+            m_report.warning_count = root["warning_count"].get<size_t>();
+            m_report.error_count = root["error_count"].get<size_t>();
+            m_report.is_complete = root["is_complete"].get<bool>();
+            m_report.summary_logs = root["summary_logs"].get<std::vector<std::string>>();
+
+            for (const auto& item : root["subsystem_results"]) {
+                if (!item.contains("subsystem_id") || !item["subsystem_id"].is_string() ||
+                    !item.contains("display_name") || !item["display_name"].is_string() ||
+                    !item.contains("processed_count") || !item["processed_count"].is_number_unsigned() ||
+                    !item.contains("warning_count") || !item["warning_count"].is_number_unsigned() ||
+                    !item.contains("error_count") || !item["error_count"].is_number_unsigned() ||
+                    !item.contains("completed") || !item["completed"].is_boolean() ||
+                    !item.contains("summary_line") || !item["summary_line"].is_string()) {
+                    clear();
+                    return false;
+                }
+                SubsystemResult sr;
+                sr.subsystem_id = item["subsystem_id"].get<std::string>();
+                sr.display_name = item["display_name"].get<std::string>();
+                sr.processed_count = item["processed_count"].get<size_t>();
+                sr.warning_count = item["warning_count"].get<size_t>();
+                sr.error_count = item["error_count"].get<size_t>();
+                sr.completed = item["completed"].get<bool>();
+                sr.summary_line = item["summary_line"].get<std::string>();
+                m_report.subsystem_results.push_back(std::move(sr));
+            }
+
+            if (root.contains("selected_subsystem_id")) {
+                if (root["selected_subsystem_id"].is_string()) {
+                    selected_subsystem_id_ = root["selected_subsystem_id"].get<std::string>();
+                } else if (root["selected_subsystem_id"].is_null()) {
+                    selected_subsystem_id_.reset();
+                } else {
+                    clear();
+                    return false;
+                }
+            } else if (!m_report.subsystem_results.empty()) {
+                selected_subsystem_id_ = m_report.subsystem_results.front().subsystem_id;
+            }
+            return true;
+        } catch (...) {
+            clear();
+            return false;
+        }
     }
 
     std::optional<SubsystemResult> selectedSubsystemResult() const {

@@ -445,3 +445,19 @@ TEST_CASE("CompatStatus values are ordered", "[compat][quickjs]") {
     REQUIRE(static_cast<int>(CompatStatus::PARTIAL) < static_cast<int>(CompatStatus::STUB));
     REQUIRE(static_cast<int>(CompatStatus::STUB) < static_cast<int>(CompatStatus::UNSUPPORTED));
 }
+
+TEST_CASE("MethodDef default status is STUB to prevent silent status inflation", "[compat][quickjs]") {
+    QuickJSContext::MethodDef def;
+    REQUIRE(def.status == CompatStatus::STUB);
+}
+
+TEST_CASE("QuickJSContext eval does not execute real arithmetic in fixture-backed harness", "[compat][quickjs]") {
+    QuickJSContext ctx;
+    REQUIRE(ctx.initialize(QuickJSConfig{}));
+    
+    auto result = ctx.eval("1 + 1", "test.js");
+    
+    REQUIRE(result.success);
+    // Harness is fixture-backed, not a live JS runtime, so 1+1 should not evaluate to 2
+    REQUIRE(std::holds_alternative<std::monostate>(result.value.v));
+}

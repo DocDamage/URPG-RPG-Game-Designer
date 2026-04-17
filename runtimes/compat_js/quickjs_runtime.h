@@ -125,7 +125,7 @@ public:
     struct MethodDef {
         std::string name;
         HostFunction fn;
-        CompatStatus status = CompatStatus::FULL;
+        CompatStatus status = CompatStatus::STUB;
         std::string deviationNote;      // Required if status == PARTIAL
     };
     bool registerObject(const std::string& name, const std::vector<MethodDef>& methods);

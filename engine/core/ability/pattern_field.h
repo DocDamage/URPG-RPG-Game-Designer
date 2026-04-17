@@ -26,6 +26,7 @@ public:
     bool hasPoint(int32_t x, int32_t y) const;
 
     const std::vector<Point>& getPoints() const { return m_points; }
+    void setPoints(const std::vector<Point>& points) { m_points = points; }
     
     const std::string& getName() const { return m_name; }
     void setName(const std::string& name) { m_name = name; }

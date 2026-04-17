@@ -33,6 +33,8 @@ public:
         bool can_select_next_subsystem = false;
         bool can_select_previous_subsystem = false;
         std::string exported_report_json;
+        bool can_save_report = false;
+        bool can_load_report = false;
     };
 
     MigrationWizardPanel() : m_model(std::make_shared<MigrationWizardModel>()) {}
@@ -71,6 +73,14 @@ public:
         return m_model->getReportJson();
     }
 
+    bool saveReportToFile(const std::string& path) {
+        return m_model->saveReportToFile(path);
+    }
+
+    bool loadReportFromFile(const std::string& path) {
+        return m_model->loadReportFromFile(path);
+    }
+
     std::shared_ptr<MigrationWizardModel> getModel() const { return m_model; }
 
     bool isVisible() const { return m_visible; }
@@ -83,14 +93,15 @@ public:
 
         const auto& report = m_model->getReport();
         const auto selected_result = m_model->selectedSubsystemResult();
+        const bool has_data = report.total_files_processed > 0 || report.warning_count > 0 ||
+            report.error_count > 0 || report.is_complete;
         m_last_render_snapshot = {
             report.total_files_processed,
             report.warning_count,
             report.error_count,
             report.summary_logs.size(),
             report.is_complete,
-            report.total_files_processed > 0 || report.warning_count > 0 ||
-                report.error_count > 0 || report.is_complete,
+            has_data,
             report.summary_logs.empty() ? std::string{} : report.summary_logs.back(),
             report.summary_logs,
             report.subsystem_results,
@@ -105,7 +116,9 @@ public:
             m_model->selectedSubsystemId().has_value(),
             m_model->canSelectNextSubsystemResult(),
             m_model->canSelectPreviousSubsystemResult(),
-            exportReportJson()
+            exportReportJson(),
+            has_data,
+            m_visible
         };
         m_has_rendered_frame = true;
     }

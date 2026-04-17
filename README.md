@@ -73,6 +73,7 @@ This focused gate is also invoked by `tools/ci/run_local_gates.ps1` locally and 
 - **[Technical Debt Remediation Plan](docs/TECHNICAL_DEBT_REMEDIATION_PLAN.md):** Canonical cross-cutting debt, truthfulness, intake-governance, and reconciliation plan.
 - **[Presentation Docs Hub](docs/presentation/README.md):** Index of presentation contracts, validation, tooling, budgets, and schema docs.
 - **[Presentation Validation Guide](docs/presentation/VALIDATION.md):** Focused runtime + spatial authoring validation commands and gate definitions.
+- **[Intake Governance](docs/external-intake/):** External repository and private-use asset intake plans, watchlists, license matrices, and promotion guides.
 
 ### Build Artifacts (CI)
 - **Nightly Matrix:** [tests_output.txt](tests_output.txt)

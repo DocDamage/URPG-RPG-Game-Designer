@@ -1,14 +1,18 @@
 #include <catch2/catch_test_macros.hpp>
-#include "ability/pattern_ability.h"
-#include "ability/ability_system_component.h"
+// INCUBATING TEST: References an outdated PatternAbility API that no longer
+// matches the current codebase. Do not register in CMakeLists.txt until the
+// test is updated to use the current ability system interfaces.
+//
+#include "engine/core/ability/pattern_ability.h"
+#include "engine/core/ability/ability_system_component.h"
 #include <memory>
 
 using namespace urpg::ability;
 
 TEST_CASE("PatternAbility integrates with PatternField", "[ability][pattern]") {
     auto pattern = std::make_shared<PatternField>();
-    pattern->name = "Cross";
-    pattern->points = {{0,0}, {1,0}, {-1,0}, {0,1}, {0,-1}};
+    pattern->setName("Cross");
+    pattern->setPoints({{0,0}, {1,0}, {-1,0}, {0,1}, {0,-1}});
 
     PatternAbility ability("CrossStrike", pattern);
     AbilitySystemComponent owner;
