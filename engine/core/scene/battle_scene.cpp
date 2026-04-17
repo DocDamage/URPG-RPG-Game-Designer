@@ -6,6 +6,7 @@
 #include "engine/core/render/asset_loader.h"
 #include <algorithm>
 #include <ctime>
+#include <filesystem>
 
 namespace urpg::scene {
 
@@ -17,6 +18,15 @@ int parseDatabaseId(const std::string& rawId) {
     } catch (...) {
         return -1;
     }
+}
+
+std::shared_ptr<urpg::Texture> loadOptionalTexture(const std::string& path) {
+    std::error_code error;
+    if (!std::filesystem::exists(path, error) || error) {
+        return nullptr;
+    }
+
+    return AssetLoader::loadTexture(path);
 }
 
 } // namespace
@@ -74,7 +84,7 @@ void BattleScene::onStart() {
     // Phase 12: Load Background
     // In MZ, battle backgrounds are often determined by the map or troop.
     // Placeholder: load a default battleback
-    m_backgroundTexture = AssetLoader::loadTexture("img/battlebacks1/Grassland.png");
+    m_backgroundTexture = loadOptionalTexture("img/battlebacks1/Grassland.png");
 }
 
 void BattleScene::onUpdate(float dt) {

@@ -340,6 +340,41 @@ TEST_CASE("BattleManager: method status registry", "[battlemgr]") {
     REQUIRE(BattleManager::getMethodStatus("nonexistentMethod") == CompatStatus::UNSUPPORTED);
 }
 
+TEST_CASE("BattleManager: turn condition cadence honors threshold and span", "[battlemgr]") {
+    BattleManager bm;
+
+    SECTION("span 0 matches only the exact turn") {
+        REQUIRE_FALSE(bm.checkTurnCondition(2, 0));
+        bm.incrementTurn();
+        bm.incrementTurn();
+        REQUIRE(bm.checkTurnCondition(2, 0));
+        bm.incrementTurn();
+        REQUIRE_FALSE(bm.checkTurnCondition(2, 0));
+    }
+
+    SECTION("span 1 triggers on the threshold turn and every turn after") {
+        REQUIRE_FALSE(bm.checkTurnCondition(2, 1));
+        bm.incrementTurn();
+        REQUIRE_FALSE(bm.checkTurnCondition(2, 1));
+        bm.incrementTurn();
+        REQUIRE(bm.checkTurnCondition(2, 1));
+        bm.incrementTurn();
+        REQUIRE(bm.checkTurnCondition(2, 1));
+    }
+
+    SECTION("span 2 triggers on cadence after the threshold turn") {
+        REQUIRE_FALSE(bm.checkTurnCondition(2, 2));
+        bm.incrementTurn();
+        REQUIRE_FALSE(bm.checkTurnCondition(2, 2));
+        bm.incrementTurn();
+        REQUIRE(bm.checkTurnCondition(2, 2));
+        bm.incrementTurn();
+        REQUIRE_FALSE(bm.checkTurnCondition(2, 2));
+        bm.incrementTurn();
+        REQUIRE(bm.checkTurnCondition(2, 2));
+    }
+}
+
 TEST_CASE("Battle structs and enums", "[battlemgr]") {
     BattleSubject subject;
     REQUIRE(subject.type == BattleSubjectType::ACTOR);

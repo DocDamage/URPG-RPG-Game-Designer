@@ -173,6 +173,11 @@ void DiagnosticsWorkspace::bindAudioRuntime(const urpg::audio::AudioCore& core) 
 }
 
 void DiagnosticsWorkspace::clearAudioRuntime() {
+    audio_panel_.clear();
+}
+
+void DiagnosticsWorkspace::clearMigrationWizardRuntime() {
+    migration_wizard_panel_.clear();
 }
 
 void DiagnosticsWorkspace::bindAbilityRuntime(const urpg::ability::AbilitySystemComponent& asc) {
@@ -180,6 +185,7 @@ void DiagnosticsWorkspace::bindAbilityRuntime(const urpg::ability::AbilitySystem
 }
 
 void DiagnosticsWorkspace::clearAbilityRuntime() {
+    ability_panel_.clear();
 }
 
 void DiagnosticsWorkspace::ingestEventAuthorityDiagnosticsJsonl(std::string_view diagnostics_jsonl) {
@@ -296,6 +302,8 @@ std::vector<DiagnosticsTabSummary> DiagnosticsWorkspace::allTabSummaries() const
         tabSummary(DiagnosticsTab::MessageText),
         tabSummary(DiagnosticsTab::Battle),
         tabSummary(DiagnosticsTab::Menu),
+        tabSummary(DiagnosticsTab::Audio),
+        tabSummary(DiagnosticsTab::MigrationWizard),
         tabSummary(DiagnosticsTab::Abilities),
     };
 }
@@ -344,9 +352,9 @@ void DiagnosticsWorkspace::render() {
             }
         }
     } else if (active_tab_ == DiagnosticsTab::Audio) {
-        // audio_panel_.render();
+        audio_panel_.render();
     } else if (active_tab_ == DiagnosticsTab::MigrationWizard) {
-        // migration_wizard_panel_.render();
+        migration_wizard_panel_.render();
     } else if (active_tab_ == DiagnosticsTab::Abilities) {
         ability_panel_.render();
     }

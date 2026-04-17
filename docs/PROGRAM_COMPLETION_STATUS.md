@@ -1,6 +1,6 @@
 # URPG Program Completion Status
 
-Status Date: 2026-04-16  
+Status Date: 2026-04-17  
 Program Scope: native-first roadmap rewire plus Wave 1 absorption, Wave 2 advanced capability expansion, and compat exit hardening
 
 Cross-cutting debt, truthfulness, and intake-governance source of truth: `docs/TECHNICAL_DEBT_REMEDIATION_PLAN.md`.
@@ -119,6 +119,21 @@ Cross-cutting debt, truthfulness, and intake-governance source of truth: `docs/T
     - `tests/unit/test_battle_inspector_model.cpp`
     - `tests/unit/test_battle_preview_panel.cpp`
     - `tests/unit/test_battle_inspector_panel.cpp`
+- Continued diagnostics workspace productization and truthfulness closure:
+  - `event_authority` tab now renders through a panel-owned snapshot instead of refreshing silently
+  - audio diagnostics now project real `AudioCore` active-source rows rather than count-only placeholder state
+  - migration wizard diagnostics now support:
+    - message, menu, and battle migration execution reporting
+    - rendered summary text in panel snapshots
+    - clear/reset through both the panel and `DiagnosticsWorkspace`
+    - typed per-subsystem results
+    - selectable subsystem state with default selection after a run
+    - selected-subsystem detail, status, and summary fields in the render snapshot
+  - focused coverage expanded in:
+    - `tests/unit/test_event_authority_panel.cpp`
+    - `tests/unit/test_audio_inspector.cpp`
+    - `tests/unit/test_migration_wizard.cpp`
+    - `tests/unit/test_diagnostics_workspace.cpp`
 - **Added AI Copilot Core Native Ownership Slice (Wave 2 Advanced):**
   - `engine/core/message/chatbot_component.h`: Primary AI hub supporting streaming, tool-calling, and history management.
   - `engine/core/message/ai_sync_coordinator.h`: Cloud-ready history synchronization.
@@ -169,7 +184,10 @@ Cross-cutting debt, truthfulness, and intake-governance source of truth: `docs/T
   - round-trip coverage now serializes a native menu graph, deserializes it, and checks structural equivalence
 - Latest focused validation snapshot for native UI/Menu lane:
   - `.\Debug\urpg_tests.exe "[ui][menu]"` => 102 assertions / 9 test cases passed
-  - `.\Debug\urpg_tests.exe "[editor][diagnostics][integration]"` => 98 assertions / 2 test cases passed
+  - `.\Debug\urpg_tests.exe "[editor][diagnostics][integration]"` => 149 assertions / 4 test cases passed
+- Latest focused validation snapshot for migration wizard/editor diagnostics productization:
+  - `.\Debug\urpg_tests.exe "[editor][diagnostics][wizard]"` => 70 assertions / 5 test cases passed
+  - `.\Debug\urpg_tests.exe "[editor][diagnostics][integration]"` => 149 assertions / 4 test cases passed
 - Latest focused validation snapshot for Message/Text renderer integration lane:
   - `.\Debug\urpg_tests.exe "[compat]"` => 646 assertions / 140 test cases passed
   - `.\Debug\urpg_tests.exe "[compat][window]"` => 211 assertions / 52 test cases passed

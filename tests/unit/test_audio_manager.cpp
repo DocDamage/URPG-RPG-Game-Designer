@@ -136,6 +136,25 @@ TEST_CASE("AudioManager: SE/ME/BGS controls", "[audio_manager]") {
     am.stopBgs();
 }
 
+TEST_CASE("AudioManager: SE channels are reclaimed after playback completion", "[audio_manager]") {
+    AudioManager& am = AudioManager::instance();
+    am.stopSe();
+
+    const uint32_t markerId = am.createChannel("se_marker_probe", AudioBus::SE);
+    am.destroyChannel(markerId);
+
+    const auto expectedSeName = "se_" + std::to_string(markerId + 1);
+    am.playSe("cursor_cleanup", 90.0, 100.0);
+
+    AudioChannel* seChannel = am.getChannel(expectedSeName);
+    REQUIRE(seChannel != nullptr);
+    REQUIRE(seChannel->isPlaying());
+
+    am.update();
+
+    REQUIRE(am.getChannel(expectedSeName) == nullptr);
+}
+
 TEST_CASE("AudioManager: method status registry", "[audio_manager]") {
     AudioManager& am = AudioManager::instance();
     (void)am;

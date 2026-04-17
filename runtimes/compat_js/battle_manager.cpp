@@ -976,16 +976,19 @@ bool BattleManager::isBattleEventActive() const {
 }
 
 bool BattleManager::checkTurnCondition(int32_t turn, int32_t span) {
-    switch (span) {
-        case 0: // Turn
-            return isTurn(turn);
-        case 1: // Turn + X
-            return turnCount_ >= turn && (turnCount_ - turn) % 1 == 0;
-        case 2: // Turn + Y (every Y turns after turn X)
-            return turnCount_ >= turn;
-        default:
-            return false;
+    if (span < 0) {
+        return false;
     }
+
+    if (span == 0) {
+        return isTurn(turn);
+    }
+
+    if (turnCount_ < turn) {
+        return false;
+    }
+
+    return (turnCount_ - turn) % span == 0;
 }
 
 bool BattleManager::checkEnemyHpCondition(int32_t enemyIndex, int32_t percent) {

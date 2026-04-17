@@ -42,6 +42,14 @@ private:
 
 class EventAuthorityPanel {
 public:
+    struct RenderSnapshot {
+        size_t visible_rows = 0;
+        size_t warning_count = 0;
+        size_t error_count = 0;
+        bool has_selection = false;
+        bool has_data = false;
+    };
+
     EventAuthorityPanel() = default;
 
     EventAuthorityPanelModel& getModel() { return model_; }
@@ -60,11 +68,16 @@ public:
     void refresh();
     void update();
 
+    bool hasRenderedFrame() const { return has_rendered_frame_; }
+    const RenderSnapshot& lastRenderSnapshot() const { return last_render_snapshot_; }
+
 private:
     EventAuthorityPanelModel model_;
     std::string diagnostics_jsonl_;
     std::string event_id_filter_;
     bool visible_ = true;
+    bool has_rendered_frame_ = false;
+    RenderSnapshot last_render_snapshot_;
 };
 
 } // namespace urpg

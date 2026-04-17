@@ -1,5 +1,8 @@
 #include "editor/diagnostics/diagnostics_workspace.h"
 #include "editor/diagnostics/diagnostics_facade.h"
+#include "engine/core/ability/ability_system_component.h"
+#include "engine/core/ability/gameplay_ability.h"
+#include "engine/core/audio/audio_core.h"
 #include "engine/core/battle/battle_core.h"
 #include "engine/core/message/message_core.h"
 #include "engine/core/ui/menu_command_registry.h"
@@ -11,6 +14,25 @@
 #include <nlohmann/json.hpp>
 
 #include <filesystem>
+
+namespace {
+
+class WorkspaceAbility final : public urpg::ability::GameplayAbility {
+public:
+    explicit WorkspaceAbility(std::string ability_id) : ability_id_(std::move(ability_id)) {}
+
+    const std::string& getId() const override { return ability_id_; }
+    const ActivationInfo& getActivationInfo() const override { return info_; }
+    void activate([[maybe_unused]] urpg::ability::AbilitySystemComponent& source) override {}
+
+    ActivationInfo& editInfo() { return info_; }
+
+private:
+    std::string ability_id_;
+    ActivationInfo info_;
+};
+
+} // namespace
 
 TEST_CASE("DiagnosticsWorkspace - Refresh updates compat and save tabs", "[editor][diagnostics][integration]") {
     auto& pluginManager = urpg::compat::PluginManager::instance();
@@ -49,6 +71,14 @@ TEST_CASE("DiagnosticsWorkspace - Refresh updates compat and save tabs", "[edito
     battleQueue.enqueue({"actor_main", "enemy_0", "attack", 120, 0});
     battleQueue.enqueue({"", "enemy_0", "attack", 90, 0});
     workspace.bindBattleRuntime(battleFlow, battleQueue);
+    urpg::audio::AudioCore audioCore;
+    audioCore.playSound("workspace_test_se", urpg::audio::AudioCategory::SE);
+    workspace.bindAudioRuntime(audioCore);
+    workspace.migrationWizardPanel().onProjectUpdateRequested({
+        {"scenes", {
+            {{"symbol", "item"}, {"name", "Items"}}
+        }}
+    });
     workspace.ingestEventAuthorityDiagnosticsJsonl(
         "{\"ts\":\"2026-03-04T00:00:02Z\",\"level\":\"warn\",\"subsystem\":\"event_authority\",\"event\":\"edit_rejected\",\"event_id\":\"evt_workspace\",\"block_id\":\"blk_workspace\",\"mode\":\"compat\",\"operation\":\"edit_urpg_ast\",\"error_code\":\"read_only_derived_view\",\"message\":\"workspace test\"}"
     );
@@ -95,14 +125,14 @@ TEST_CASE("DiagnosticsWorkspace - Refresh updates compat and save tabs", "[edito
     REQUIRE_FALSE(abilitiesSummary.active);
 
     const auto allSummaries = workspace.allTabSummaries();
-    REQUIRE(allSummaries.size() == 7);
+    REQUIRE(allSummaries.size() == 9);
 
     urpg::editor::DiagnosticsFacade facade(workspace);
     const auto exportedJson = nlohmann::json::parse(facade.emitSnapshot());
     REQUIRE(exportedJson["active_tab"] == "compat");
     REQUIRE(exportedJson["visible"] == true);
     REQUIRE(exportedJson["tabs"].is_array());
-    REQUIRE(exportedJson["tabs"].size() == 7);
+    REQUIRE(exportedJson["tabs"].size() == 9);
     REQUIRE(exportedJson["tabs"][0]["name"] == "compat");
     REQUIRE(exportedJson["tabs"][0]["item_count"] == 1);
     REQUIRE(exportedJson["tabs"][1]["name"] == "save");
@@ -110,7 +140,9 @@ TEST_CASE("DiagnosticsWorkspace - Refresh updates compat and save tabs", "[edito
     REQUIRE(exportedJson["tabs"][3]["name"] == "message_text");
     REQUIRE(exportedJson["tabs"][4]["name"] == "battle");
     REQUIRE(exportedJson["tabs"][5]["name"] == "menu");
-    REQUIRE(exportedJson["tabs"][6]["name"] == "abilities");
+    REQUIRE(exportedJson["tabs"][6]["name"] == "audio");
+    REQUIRE(exportedJson["tabs"][7]["name"] == "migration_wizard");
+    REQUIRE(exportedJson["tabs"][8]["name"] == "abilities");
 
     REQUIRE(workspace.activeTab() == urpg::editor::DiagnosticsTab::Compat);
     REQUIRE(workspace.compatPanel().isVisible());
@@ -148,11 +180,15 @@ TEST_CASE("DiagnosticsWorkspace - Refresh updates compat and save tabs", "[edito
     REQUIRE_FALSE(workspace.battlePanel().isVisible());
 
     workspace.setActiveTab(urpg::editor::DiagnosticsTab::EventAuthority);
-    workspace.update();
+    workspace.render();
     REQUIRE(workspace.tabSummary(urpg::editor::DiagnosticsTab::EventAuthority).active);
     REQUIRE_FALSE(workspace.compatPanel().isVisible());
     REQUIRE_FALSE(workspace.savePanel().isVisible());
     REQUIRE(workspace.eventAuthorityPanel().isVisible());
+    REQUIRE(workspace.eventAuthorityPanel().hasRenderedFrame());
+    REQUIRE(workspace.eventAuthorityPanel().lastRenderSnapshot().visible_rows == 1);
+    REQUIRE(workspace.eventAuthorityPanel().lastRenderSnapshot().warning_count == 1);
+    REQUIRE(workspace.eventAuthorityPanel().lastRenderSnapshot().error_count == 0);
     REQUIRE_FALSE(workspace.messagePanel().isVisible());
     REQUIRE_FALSE(workspace.battlePanel().isVisible());
 
@@ -174,16 +210,45 @@ TEST_CASE("DiagnosticsWorkspace - Refresh updates compat and save tabs", "[edito
     REQUIRE_FALSE(workspace.messagePanel().isVisible());
     REQUIRE(workspace.battlePanel().isVisible());
 
+    workspace.setActiveTab(urpg::editor::DiagnosticsTab::Audio);
+    workspace.render();
+    REQUIRE(workspace.tabSummary(urpg::editor::DiagnosticsTab::Audio).active);
+    REQUIRE_FALSE(workspace.compatPanel().isVisible());
+    REQUIRE_FALSE(workspace.savePanel().isVisible());
+    REQUIRE_FALSE(workspace.eventAuthorityPanel().isVisible());
+    REQUIRE_FALSE(workspace.messagePanel().isVisible());
+    REQUIRE_FALSE(workspace.battlePanel().isVisible());
+    REQUIRE(workspace.audioPanel().isVisible());
+    REQUIRE(workspace.audioPanel().hasRenderedFrame());
+    REQUIRE(workspace.audioPanel().lastRenderSnapshot().master_volume == 1.0f);
+
+    workspace.setActiveTab(urpg::editor::DiagnosticsTab::MigrationWizard);
+    workspace.render();
+    REQUIRE(workspace.tabSummary(urpg::editor::DiagnosticsTab::MigrationWizard).active);
+    REQUIRE_FALSE(workspace.audioPanel().isVisible());
+    REQUIRE(workspace.migrationWizardPanel().isVisible());
+    REQUIRE(workspace.migrationWizardPanel().hasRenderedFrame());
+    REQUIRE(workspace.migrationWizardPanel().lastRenderSnapshot().total_files_processed == 1);
+    REQUIRE(workspace.migrationWizardPanel().lastRenderSnapshot().is_complete);
+    REQUIRE(workspace.migrationWizardPanel().lastRenderSnapshot().summary_log_count == 2);
+    REQUIRE(workspace.migrationWizardPanel().lastRenderSnapshot().headline == "Migration wizard complete.");
+    REQUIRE(workspace.migrationWizardPanel().lastRenderSnapshot().summary_logs.size() == 2);
+    REQUIRE(workspace.migrationWizardPanel().lastRenderSnapshot().summary_logs[0].find("Menu migration") != std::string::npos);
+    REQUIRE(workspace.migrationWizardPanel().lastRenderSnapshot().subsystem_results.size() == 1);
+    REQUIRE(workspace.migrationWizardPanel().lastRenderSnapshot().subsystem_results[0].subsystem_id == "menu");
+
     workspace.setVisible(false);
     workspace.update();
     const auto hiddenJson = nlohmann::json::parse(facade.emitSnapshot());
-    REQUIRE(hiddenJson["active_tab"] == "battle");
+    REQUIRE(hiddenJson["active_tab"] == "migration_wizard");
     REQUIRE(hiddenJson["visible"] == false);
     REQUIRE_FALSE(workspace.compatPanel().isVisible());
     REQUIRE_FALSE(workspace.savePanel().isVisible());
     REQUIRE_FALSE(workspace.eventAuthorityPanel().isVisible());
     REQUIRE_FALSE(workspace.messagePanel().isVisible());
     REQUIRE_FALSE(workspace.battlePanel().isVisible());
+    REQUIRE_FALSE(workspace.audioPanel().isVisible());
+    REQUIRE_FALSE(workspace.migrationWizardPanel().isVisible());
 
     std::filesystem::remove_all(base);
     pluginManager.clearFailureDiagnostics();
@@ -254,4 +319,87 @@ TEST_CASE("DiagnosticsWorkspace - Menu runtime binding populates and clears menu
     workspace.update();
     REQUIRE_FALSE(workspace.menuPanel().IsVisible());
     REQUIRE_FALSE(workspace.menuPreviewPanel().IsVisible());
+}
+
+TEST_CASE("DiagnosticsWorkspace - Audio and ability runtimes clear and rebind cleanly",
+          "[editor][diagnostics][integration][runtime_clear]") {
+    urpg::editor::DiagnosticsWorkspace workspace;
+
+    urpg::audio::AudioCore firstAudioCore;
+    firstAudioCore.playSound("first_audio", urpg::audio::AudioCategory::SE);
+    workspace.bindAudioRuntime(firstAudioCore);
+
+    const auto firstAudioSummary = workspace.tabSummary(urpg::editor::DiagnosticsTab::Audio);
+    REQUIRE(firstAudioSummary.item_count == 1);
+    REQUIRE(firstAudioSummary.has_data);
+
+    workspace.clearAudioRuntime();
+
+    const auto clearedAudioSummary = workspace.tabSummary(urpg::editor::DiagnosticsTab::Audio);
+    REQUIRE(clearedAudioSummary.item_count == 0);
+    REQUIRE_FALSE(clearedAudioSummary.has_data);
+
+    urpg::audio::AudioCore reboundAudioCore;
+    reboundAudioCore.playSound("rebound_audio_a", urpg::audio::AudioCategory::SE);
+    reboundAudioCore.playSound("rebound_audio_b", urpg::audio::AudioCategory::SE);
+    workspace.bindAudioRuntime(reboundAudioCore);
+
+    const auto reboundAudioSummary = workspace.tabSummary(urpg::editor::DiagnosticsTab::Audio);
+    REQUIRE(reboundAudioSummary.item_count == 2);
+    REQUIRE(reboundAudioSummary.has_data);
+
+    urpg::ability::AbilitySystemComponent firstAsc;
+    firstAsc.addTag(urpg::ability::GameplayTag("State.Empowered"));
+    auto firstAbility = std::make_shared<WorkspaceAbility>("skill.first");
+    firstAsc.grantAbility(firstAbility);
+    workspace.bindAbilityRuntime(firstAsc);
+
+    const auto firstAbilitySummary = workspace.tabSummary(urpg::editor::DiagnosticsTab::Abilities);
+    REQUIRE(firstAbilitySummary.item_count == 1);
+    REQUIRE(firstAbilitySummary.has_data);
+    REQUIRE(workspace.abilityPanel().getModel().getActiveTags().size() == 1);
+
+    workspace.clearAbilityRuntime();
+
+    const auto clearedAbilitySummary = workspace.tabSummary(urpg::editor::DiagnosticsTab::Abilities);
+    REQUIRE(clearedAbilitySummary.item_count == 0);
+    REQUIRE_FALSE(clearedAbilitySummary.has_data);
+    REQUIRE(workspace.abilityPanel().getModel().getActiveTags().empty());
+
+    urpg::ability::AbilitySystemComponent reboundAsc;
+    reboundAsc.addTag(urpg::ability::GameplayTag("State.Charged"));
+    auto reboundAbilityA = std::make_shared<WorkspaceAbility>("skill.rebound_a");
+    auto reboundAbilityB = std::make_shared<WorkspaceAbility>("skill.rebound_b");
+    reboundAsc.grantAbility(reboundAbilityA);
+    reboundAsc.grantAbility(reboundAbilityB);
+    workspace.bindAbilityRuntime(reboundAsc);
+
+    const auto reboundAbilitySummary = workspace.tabSummary(urpg::editor::DiagnosticsTab::Abilities);
+    REQUIRE(reboundAbilitySummary.item_count == 2);
+    REQUIRE(reboundAbilitySummary.has_data);
+    REQUIRE(workspace.abilityPanel().getModel().getActiveTags().size() == 1);
+}
+
+TEST_CASE("DiagnosticsWorkspace - Migration wizard state clears cleanly",
+          "[editor][diagnostics][integration][wizard_clear]") {
+    urpg::editor::DiagnosticsWorkspace workspace;
+
+    workspace.migrationWizardPanel().onProjectUpdateRequested({
+        {"scenes", {
+            {{"symbol", "item"}, {"name", "Items"}}
+        }}
+    });
+
+    const auto populatedSummary = workspace.tabSummary(urpg::editor::DiagnosticsTab::MigrationWizard);
+    REQUIRE(populatedSummary.item_count == 1);
+    REQUIRE(populatedSummary.has_data);
+
+    workspace.clearMigrationWizardRuntime();
+
+    const auto clearedSummary = workspace.tabSummary(urpg::editor::DiagnosticsTab::MigrationWizard);
+    REQUIRE(clearedSummary.item_count == 0);
+    REQUIRE_FALSE(clearedSummary.has_data);
+    REQUIRE(workspace.migrationWizardPanel().getModel()->getReport().summary_logs.empty());
+    REQUIRE(workspace.migrationWizardPanel().getModel()->getReport().subsystem_results.empty());
+    REQUIRE_FALSE(workspace.migrationWizardPanel().getModel()->getReport().is_complete);
 }

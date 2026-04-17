@@ -45,21 +45,12 @@ void MapScene::onUpdate(float deltaTime) {
     // 3. Keep RenderLayer in sync for scene/engine tests and headless render pipelines.
     auto& layer = urpg::RenderLayer::getInstance();
     layer.flush();
+    if (m_renderLayerDirty) {
+        rebuildTileRenderCache();
+    }
+    submitCachedTileCommands(layer);
 
     constexpr float kTileSize = 48.0f;
-    for (int y = 0; y < m_height; ++y) {
-        for (int x = 0; x < m_width; ++x) {
-            const auto& tile = m_tiles[static_cast<size_t>(y * m_width + x)];
-            auto tileCmd = std::make_shared<urpg::TileCommand>();
-            tileCmd->tilesetId = "default_tileset";
-            tileCmd->tileIndex = tile.tileId;
-            tileCmd->x = static_cast<float>(x) * kTileSize;
-            tileCmd->y = static_cast<float>(y) * kTileSize;
-            tileCmd->zOrder = 0;
-            layer.submit(tileCmd);
-        }
-    }
-
     float playerX = static_cast<float>(m_playerMovement.gridPos.x) * kTileSize;
     float playerY = static_cast<float>(m_playerMovement.gridPos.y) * kTileSize;
     if (m_playerMovement.isMoving) {
@@ -77,6 +68,34 @@ void MapScene::onUpdate(float deltaTime) {
     playerCmd->height = 48;
     playerCmd->zOrder = 1;
     layer.submit(playerCmd);
+}
+
+void MapScene::rebuildTileRenderCache() {
+    constexpr float kTileSize = 48.0f;
+
+    m_cachedTileCommands.clear();
+    m_cachedTileCommands.reserve(static_cast<size_t>(m_width * m_height));
+
+    for (int y = 0; y < m_height; ++y) {
+        for (int x = 0; x < m_width; ++x) {
+            const auto& tile = m_tiles[static_cast<size_t>(y * m_width + x)];
+            auto tileCmd = std::make_shared<urpg::TileCommand>();
+            tileCmd->tilesetId = "default_tileset";
+            tileCmd->tileIndex = tile.tileId;
+            tileCmd->x = static_cast<float>(x) * kTileSize;
+            tileCmd->y = static_cast<float>(y) * kTileSize;
+            tileCmd->zOrder = 0;
+            m_cachedTileCommands.push_back(tileCmd);
+        }
+    }
+
+    m_renderLayerDirty = false;
+}
+
+void MapScene::submitCachedTileCommands(urpg::RenderLayer& layer) const {
+    for (const auto& tileCmd : m_cachedTileCommands) {
+        layer.submit(tileCmd);
+    }
 }
 
 void MapScene::handleInput(const urpg::input::InputCore& input) {

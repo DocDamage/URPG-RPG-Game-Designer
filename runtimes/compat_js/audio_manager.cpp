@@ -31,6 +31,7 @@ void AudioChannel::play(const std::string& filename, double volume, double pitch
     state_ = AudioState::PLAYING;
     playing_ = true;
     paused_ = false;
+    framesUntilComplete_ = (bus_ == AudioBus::SE) ? 1 : -1;
 }
 
 void AudioChannel::stop() {
@@ -38,6 +39,7 @@ void AudioChannel::stop() {
     playing_ = false;
     paused_ = false;
     pos_ = 0;
+    framesUntilComplete_ = -1;
 }
 
 void AudioChannel::pause() {
@@ -92,7 +94,12 @@ AudioState AudioChannel::getState() const {
 
 void AudioChannel::update() {
     if (playing_ && !paused_) {
-        // TODO: Update audio playback position based on time
+        if (framesUntilComplete_ > 0) {
+            --framesUntilComplete_;
+            if (framesUntilComplete_ == 0) {
+                stop();
+            }
+        }
     }
 }
 

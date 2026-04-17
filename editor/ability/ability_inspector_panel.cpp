@@ -11,6 +11,10 @@ void AbilityInspectorPanel::update(const AbilitySystemComponent& asc) {
     m_model.refresh(asc);
 }
 
+void AbilityInspectorPanel::clear() {
+    m_model.clear();
+}
+
 void AbilityInspectorPanel::render() {
     if (!m_visible) return;
 

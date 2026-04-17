@@ -16,6 +16,7 @@ public:
     AbilityInspectorPanel() = default;
 
     void update(const AbilitySystemComponent& asc);
+    void clear();
     void render();
 
     const AbilityInspectorModel& getModel() const { return m_model; }

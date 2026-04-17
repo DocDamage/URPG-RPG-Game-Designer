@@ -98,6 +98,7 @@ private:
     int32_t pos_ = 0;
     bool playing_ = false;
     bool paused_ = false;
+    int32_t framesUntilComplete_ = -1;
 };
 
 // AudioManager - MZ compatibility layer for audio

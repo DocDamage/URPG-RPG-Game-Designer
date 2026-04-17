@@ -73,3 +73,23 @@ TEST_CASE("Event authority panel controller ingests diagnostics and applies filt
     panel.clearDiagnostics();
     REQUIRE(panel.getModel().VisibleRows().empty());
 }
+
+TEST_CASE("Event authority panel visible render records snapshot", "[events][panel][render]") {
+    const std::string jsonl =
+        "{\"ts\":\"2026-03-04T00:00:00Z\",\"level\":\"warn\",\"subsystem\":\"event_authority\",\"event\":\"edit_rejected\",\"event_id\":\"evt_a\",\"block_id\":\"block_1\",\"mode\":\"compat\",\"operation\":\"edit_urpg_ast\",\"error_code\":\"read_only_derived_view\",\"message\":\"ast is read-only\"}\n"
+        "{\"ts\":\"2026-03-04T00:00:01Z\",\"level\":\"error\",\"subsystem\":\"event_authority\",\"event\":\"edit_rejected\",\"event_id\":\"evt_b\",\"block_id\":\"block_2\",\"mode\":\"mixed\",\"operation\":\"edit_raw_command_list\",\"error_code\":\"invalid_for_mode\",\"message\":\"raw rejected\"}";
+
+    urpg::EventAuthorityPanel panel;
+    panel.ingestDiagnosticsJsonl(jsonl);
+    panel.refresh();
+    panel.setVisible(true);
+
+    panel.render();
+
+    REQUIRE(panel.hasRenderedFrame());
+    REQUIRE(panel.lastRenderSnapshot().visible_rows == 2);
+    REQUIRE(panel.lastRenderSnapshot().warning_count == 1);
+    REQUIRE(panel.lastRenderSnapshot().error_count == 1);
+    REQUIRE(panel.lastRenderSnapshot().has_selection == false);
+    REQUIRE(panel.lastRenderSnapshot().has_data);
+}

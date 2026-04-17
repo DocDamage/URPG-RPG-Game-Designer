@@ -76,6 +76,7 @@ public:
     void clearMenuRuntime();
     void bindAudioRuntime(const urpg::audio::AudioCore& core);
     void clearAudioRuntime();
+    void clearMigrationWizardRuntime();
     void bindAbilityRuntime(const urpg::ability::AbilitySystemComponent& asc);
     void clearAbilityRuntime();
     void ingestEventAuthorityDiagnosticsJsonl(std::string_view diagnostics_jsonl);

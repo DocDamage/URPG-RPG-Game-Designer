@@ -28,11 +28,24 @@ class AudioInspectorModel {
 public:
     void refresh(const urpg::audio::AudioCore& audio) {
         std::lock_guard<std::mutex> lock(m_mutex);
-        m_rows.clear();
-        
-        // Project active sources from AudioCore
-        // In a real implementation we would iterate the internal source map
-        // For now, we simulate projection based on the reported core state
+        m_master_volume = audio.getCategoryVolume(urpg::audio::AudioCategory::System);
+
+        const auto active_sources = audio.activeSources();
+        std::vector<AudioHandleRow> projected_rows;
+        projected_rows.reserve(active_sources.size());
+        for (const auto& source : active_sources) {
+            projected_rows.push_back({
+                source.handle,
+                source.asset_id,
+                source.category,
+                source.volume,
+                source.pitch,
+                source.isLooping,
+                true,
+            });
+        }
+        m_rows = std::move(projected_rows);
+        m_projected_active_count = m_rows.size();
         
         // Issue tracking
         m_issues.clear();
@@ -41,8 +54,23 @@ public:
         // Or "asset missing" if we had asset registry access
     }
 
-    const std::vector<AudioHandleRow>& getRows() const { return m_rows; }
-    const std::vector<std::string>& getIssues() const { return m_issues; }
+    void clear() {
+        std::lock_guard<std::mutex> lock(m_mutex);
+        m_rows.clear();
+        m_issues.clear();
+        m_projected_active_count = 0;
+        m_master_volume = 1.0f;
+    }
+
+    std::vector<AudioHandleRow> getRows() const {
+        std::lock_guard<std::mutex> lock(m_mutex);
+        return m_rows;
+    }
+
+    std::vector<std::string> getIssues() const {
+        std::lock_guard<std::mutex> lock(m_mutex);
+        return m_issues;
+    }
 
     struct Summary {
         size_t activeCount;
@@ -51,12 +79,15 @@ public:
     };
 
     Summary getSummary() const {
-        return { m_rows.size(), m_issues.size(), 1.0f };
+        std::lock_guard<std::mutex> lock(m_mutex);
+        return { m_projected_active_count, m_issues.size(), m_master_volume };
     }
 
 private:
     std::vector<AudioHandleRow> m_rows;
     std::vector<std::string> m_issues;
+    size_t m_projected_active_count = 0;
+    float m_master_volume = 1.0f;
     mutable std::mutex m_mutex;
 };
 

@@ -200,7 +200,14 @@ Goal: convert delivered systems into stable production paths.
 
 Deliverables:
 
-- [x] Migration wizard flow for imported projects (implemented as `MigrationWizardPanel` with subsystem-agnostic orchestration).
+- [x] Migration wizard flow for imported projects.
+  Implemented as `MigrationWizardPanel` plus `MigrationWizardModel` with:
+  - message, menu, and battle migration execution reporting
+  - typed per-subsystem results
+  - rendered summary text and headline snapshots
+  - clear/reset support
+  - default subsystem selection after a run
+  - selected-subsystem detail, status, and summary snapshot fields
 - [ ] Release-readiness matrix by subsystem.
 - [ ] Gate reports proving stability for native + compat lanes.
 

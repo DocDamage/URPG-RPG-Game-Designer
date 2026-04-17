@@ -2,6 +2,8 @@
 #include "runtimes/compat_js/data_manager.h"
 
 #include <catch2/catch_test_macros.hpp>
+#include <sstream>
+#include <iostream>
 
 using namespace urpg::scene;
 
@@ -35,6 +37,20 @@ TEST_CASE("BattleScene Logic: lifecycle and automated turn progression", "[battl
         battle->onUpdate(0.1f);
         REQUIRE(battle->getCurrentPhase() == BattlePhase::INPUT);
     }
+}
+
+TEST_CASE("BattleScene: missing default battleback stays quiet during startup", "[battle][scene][assets]") {
+    auto& dm = urpg::compat::DataManager::instance();
+    dm.setupNewGame();
+
+    auto battle = std::make_shared<BattleScene>(std::vector<std::string>{"1"});
+
+    std::ostringstream captured;
+    auto* originalBuffer = std::cerr.rdbuf(captured.rdbuf());
+    battle->onStart();
+    std::cerr.rdbuf(originalBuffer);
+
+    REQUIRE(captured.str().find("img/battlebacks1/Grassland.png") == std::string::npos);
 }
 
 TEST_CASE("BattleScene: Victory condition detection", "[battle][scene]") {

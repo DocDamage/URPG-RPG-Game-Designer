@@ -220,5 +220,117 @@
 - **Action**: Replaced `MapScene::processAiAudioCommands()` static-local `AudioCore` usage with a scene-owned audio service reference that can be overridden through `MapScene::setAudioCore()`.
 - **Action**: Added read-only `AudioCore` inspection accessors for current BGM and active-source count so scene/audio integration can be verified without reaching into private state.
 - **Action**: Added `MapScene` coverage proving AI audio commands drive the injected audio service and revalidated the broader `[scene]` and `[plugin_manager]` lanes afterward.
-- **Result**: P3-01 audio-service injection milestone is COMPLETE. The render-layer dirty-flag/incremental rebuild portion remains OPEN.
+- **Result**: P3-01 audio-service injection milestone is COMPLETE. The render-layer dirty-flag/incremental rebuild follow-on was closed later the same day.
 
+### 2026-04-16 — MapScene Render-Layer Dirty-Flag Cache
+- **Action**: Added a retained tile-command cache to `MapScene` so unchanged updates reuse existing tile render commands instead of rebuilding tile command objects every frame.
+- **Action**: Marked the retained tile cache dirty from `setTile()` and `setTilePassable()` so authored map edits rebuild the cached tile command set on the next update.
+- **Action**: Added scene coverage that proves unchanged frames keep the same tile render commands while a tile edit forces a rebuilt command with the updated tile index.
+- **Action**: Revalidated the broader `[scene]` lane after the render-cache change.
+- **Result**: P3-01 render-layer dirty-flag/incremental rebuild milestone is COMPLETE.
+
+### 2026-04-16 — AssetLoader Negative Cache for Missing Textures
+- **Action**: Added a missing-texture negative cache to `AssetLoader` so repeated requests for the same absent texture path return `nullptr` without logging the same warning over and over.
+- **Action**: Added asset coverage that captures `std::cerr` and proves a repeated missing-path lookup only emits a single loader warning.
+- **Action**: Revalidated the focused `[assets]` lane after the loader change.
+- **Result**: Missing-texture warning-spam reduction milestone is COMPLETE.
+
+### 2026-04-16 — Compat Report Duplicate Test Cleanup
+- **Action**: Removed the stale unregistered duplicate file `tests/unit/test_compat_reportPanel.cpp`, leaving `tests/unit/test_compat_report_panel.cpp` as the single active compat-report panel test surface referenced by `CMakeLists.txt`.
+- **Action**: Rechecked repo references so remediation/docs now point at a resolved duplicate-test cleanup instead of an active ambiguity in the tree.
+- **Result**: P2-04 stale duplicate compat-report test cleanup milestone is COMPLETE.
+
+### 2026-04-16 — BattleScene Optional Default Battleback
+- **Action**: Made the placeholder default battleback load in `BattleScene::onStart()` optional so headless/unit-test runs no longer ask `AssetLoader` to log a missing `Grassland.png` placeholder.
+- **Action**: Added battle-scene coverage that captures `std::cerr` and proves startup stays quiet when the default battleback asset is absent.
+- **Action**: Revalidated the focused `[battle][scene]` and broader `[scene]` lanes after the change.
+- **Result**: BattleScene startup warning cleanup milestone is COMPLETE.
+
+### 2026-04-16 — Diagnostics Workspace 9-Tab Export Alignment
+- **Action**: Expanded `DiagnosticsWorkspace::allTabSummaries()` so the exported workspace shape now includes the existing `audio` and `migration_wizard` tabs alongside the previously surfaced seven-tab set.
+- **Action**: Updated diagnostics integration coverage to assert the full 9-tab serialized workspace order (`compat`, `save`, `event_authority`, `message_text`, `battle`, `menu`, `audio`, `migration_wizard`, `abilities`).
+- **Action**: Revalidated the focused diagnostics integration lane after a clean rebuild to ensure the exported workspace shape matches the declared tab model.
+- **Result**: Diagnostics workspace export-shape alignment milestone is COMPLETE.
+
+### 2026-04-16 — AudioManager SE Channel Lifetime Fix
+- **Action**: Added a focused audio-manager regression that proves a one-shot SE channel is reclaimed after playback completes and `update()` runs, without requiring an explicit `stopSe()` call.
+- **Action**: Implemented deterministic one-shot SE completion inside `AudioChannel::update()` so compat audio cleanup can reclaim SE channels automatically.
+- **Action**: Revalidated the focused `AudioManager: SE channels are reclaimed after playback completion` regression and the broader `[audio_manager]` lane.
+- **Result**: P1-03 audio SE channel lifetime leak milestone is COMPLETE.
+
+### 2026-04-16 — BattleManager Turn-Condition Cadence Fix
+- **Action**: Reworked `BattleManager::checkTurnCondition()` so exact-turn checks stay exclusive to `span == 0`, negative spans fail fast, and positive spans use threshold-gated modulo cadence instead of the previous incorrect special cases.
+- **Action**: Added a focused battle-manager regression that walks turn progression and proves exact-turn, every-turn-after-threshold, and every-other-turn cadence behavior.
+- **Action**: Revalidated both the named cadence regression and the broader `[battlemgr]` lane after rebuilding `urpg_tests`.
+- **Result**: P1-04 battle turn-condition correctness milestone is COMPLETE.
+
+### 2026-04-16 — Diagnostics Audio/Migration Tab Render Reachability
+- **Action**: Restored `DiagnosticsWorkspace::render()` coverage for the `audio` and `migration_wizard` tabs so those exported tabs now participate in the active-tab render path instead of being commented out.
+- **Action**: Added lightweight render snapshots to `AudioInspectorPanel` and `MigrationWizardPanel` so workspace-level tests can prove those panels rendered when visible.
+- **Action**: Extended diagnostics, audio-inspector, and migration-wizard coverage to activate both tabs through the workspace and assert their rendered snapshots.
+- **Result**: P2-01 is PARTIALLY remediated: `audio` and `migration_wizard` now render honestly, while `event_authority` remains the open tab-body gap.
+
+### 2026-04-16 — Diagnostics Runtime Clear/Rebind Fix
+- **Action**: Implemented real `clearAudioRuntime()` and `clearAbilityRuntime()` reset paths so diagnostics detach clears projected runtime state instead of leaving stale audio/ability summaries behind.
+- **Action**: Tightened the audio inspector model to retain projected `AudioCore` active-source count and master volume, making audio runtime binding truthfully observable and resettable.
+- **Action**: Added a focused diagnostics workspace regression that clears and rebinds audio and ability runtimes, proving summaries and projected tag/ability state reset cleanly between bindings.
+- **Result**: P2-02 diagnostics runtime stale-state milestone is COMPLETE.
+
+### 2026-04-17 — Event Authority Diagnostics Render Reachability
+- **Action**: Added lightweight render snapshots to `EventAuthorityPanel` so the panel now records visible-row counts, severity counts, and selection presence when rendered while visible.
+- **Action**: Extended `test_event_authority_panel.cpp` with a focused visible-render regression and updated diagnostics workspace integration coverage to assert the `event_authority` tab really renders when active.
+- **Action**: Revalidated the focused `[events][panel]` and `[editor][diagnostics][integration]` lanes after rebuilding `urpg_tests`.
+- **Result**: P2-01 diagnostics workspace truthfulness milestone is COMPLETE. Remaining audio/migration/event-authority productization work stays tracked under P2-03.
+
+### 2026-04-17 — Audio Inspector Live Runtime Projection
+- **Action**: Added read-only active-source snapshots to `AudioCore` so editor diagnostics can inspect live handle, asset-id, category, and channel-state data without reaching into mixer internals.
+- **Action**: Reworked `AudioInspectorModel` to project real `AudioCore` active sources into `AudioHandleRow` entries instead of leaving the row list empty while only reporting aggregate counts.
+- **Action**: Upgraded `test_audio_inspector.cpp` to assert live row projection and revalidated the focused `[editor][audio]` and `[editor][diagnostics]` lanes after rebuilding `urpg_tests`.
+- **Result**: P2-03 audio inspector fidelity milestone is COMPLETE. Migration wizard productization remains the primary open diagnostics-scaffolding follow-on.
+
+### 2026-04-17 — Migration Wizard Subsystem Execution Reporting
+- **Action**: Extended `MigrationWizardModel` to run message migration alongside the existing menu and battle passes, accumulating per-subsystem summary logs instead of only emitting a generic completion message.
+- **Action**: Expanded `MigrationWizardPanel` render snapshots to surface summary-log count and a headline so workspace-level tests can verify which migration run completed.
+- **Action**: Upgraded `test_migration_wizard.cpp` and `test_diagnostics_workspace.cpp`, then revalidated the focused `[editor][diagnostics][wizard]` and `[editor][diagnostics][integration]` lanes after rebuilding `urpg_tests`.
+- **Result**: P2-03 migration wizard execution-reporting milestone is COMPLETE. Richer wizard workflow/productization remains the next follow-on.
+
+### 2026-04-17 — Migration Wizard Rendered Summary Text Surfaced
+- **Action**: Extended `MigrationWizardPanel::RenderSnapshot` to carry the rendered summary-log lines themselves, not just the log count and headline.
+- **Action**: Tightened the migration wizard and diagnostics workspace coverage to assert the rendered `Menu migration ...` summary text is present in the active wizard snapshot.
+- **Action**: Revalidated the focused `[editor][diagnostics][wizard]` and `[editor][diagnostics][integration]` lanes after rebuilding `urpg_tests`.
+- **Result**: P2-03 migration wizard rendered-summary milestone is COMPLETE. The remaining open work is deeper wizard interaction/product workflow rather than snapshot truthfulness.
+
+### 2026-04-17 — Migration Wizard Reset Path
+- **Action**: Added `MigrationWizardModel::clear()` and `MigrationWizardPanel::clear()` so the wizard can reset both its accumulated report and its rendered snapshot back to an empty state.
+- **Action**: Surfaced that reset through `DiagnosticsWorkspace::clearMigrationWizardRuntime()` so the top-level diagnostics workspace can clear wizard state consistently with other panel-backed runtimes.
+- **Action**: Added focused reset regressions in `test_migration_wizard.cpp` and `test_diagnostics_workspace.cpp`, then revalidated the `[editor][diagnostics][wizard]` and `[editor][diagnostics][integration]` lanes after rebuilding `urpg_tests`.
+- **Result**: P2-03 migration wizard resettable-state milestone is COMPLETE. Remaining work in this lane is now deeper interaction/workflow productization rather than reporting or reset truthfulness.
+
+### 2026-04-17 — Migration Wizard Structured Subsystem Results
+- **Action**: Added typed per-subsystem migration results to `MigrationWizardModel::ProgressReport` for the message, menu, and battle passes, including processed-count and warning/error totals.
+- **Action**: Threaded those structured subsystem results through `MigrationWizardPanel::RenderSnapshot` so future wizard UI/productization can consume typed state instead of parsing summary strings.
+- **Action**: Extended `test_migration_wizard.cpp` and `test_diagnostics_workspace.cpp`, then revalidated the `[editor][diagnostics][wizard]` and `[editor][diagnostics][integration]` lanes after rebuilding `urpg_tests`.
+- **Result**: P2-03 migration wizard structured-results milestone is COMPLETE. The remaining follow-on is richer interaction/workflow UI built on top of this now-typed wizard state.
+
+### 2026-04-17 — Migration Wizard Subsystem Selection State
+- **Action**: Added subsystem selection APIs to `MigrationWizardModel` so the wizard can select a typed subsystem result and resolve the current selected row back into structured state.
+- **Action**: Threaded the selected subsystem id through `MigrationWizardPanel::RenderSnapshot`, giving follow-on wizard UI a concrete interaction state to render.
+- **Action**: Extended `test_migration_wizard.cpp` and revalidated the `[editor][diagnostics][wizard]` plus `[editor][diagnostics][integration]` lanes after rebuilding `urpg_tests`.
+- **Result**: P2-03 migration wizard selection-state milestone is COMPLETE. The next follow-on is richer workflow UI built on top of the now-typed, selectable wizard state.
+
+### 2026-04-17 — Migration Wizard Default Selection and Detail Snapshot
+- **Action**: Updated `MigrationWizardModel` so a completed migration run auto-selects the first available subsystem result instead of leaving selection empty after successful work.
+- **Action**: Expanded `MigrationWizardPanel::RenderSnapshot` with selected-subsystem detail fields (`display_name`, `processed_count`) so a follow-on UI can render meaningful details immediately from the selected row.
+- **Action**: Extended `test_migration_wizard.cpp` and revalidated the `[editor][diagnostics][wizard]` plus `[editor][diagnostics][integration]` lanes after rebuilding `urpg_tests`.
+- **Result**: P2-03 migration wizard selected-detail milestone is COMPLETE. The next follow-on is fuller wizard workflow UI built on top of the now-typed, selectable, detail-bearing state.
+
+### 2026-04-17 — Migration Wizard Selected Status Snapshot
+- **Action**: Expanded `MigrationWizardPanel::RenderSnapshot` so the currently selected subsystem now carries warning-count, error-count, and completion-state fields alongside its identity and processed-count details.
+- **Action**: Tightened `test_migration_wizard.cpp` around the selected subsystem status payload and revalidated the `[editor][diagnostics][wizard]` plus `[editor][diagnostics][integration]` lanes after rebuilding `urpg_tests`.
+- **Result**: P2-03 migration wizard selected-status milestone is COMPLETE. The next follow-on is fuller workflow UI built on top of the now-typed, selectable, detail-and-status-bearing wizard state.
+
+### 2026-04-17 — Migration Wizard Typed Summary Lines
+- **Action**: Added a `summary_line` field directly to each typed `MigrationWizardModel::SubsystemResult`, so subsystem summaries now travel with the structured result instead of living only in the loose `summary_logs` list.
+- **Action**: Expanded `MigrationWizardPanel::RenderSnapshot` with the selected subsystem's own `summary_line`, so follow-on UI can render the selected summary directly from selected-state snapshot data.
+- **Action**: Tightened `test_migration_wizard.cpp` around typed subsystem summaries and revalidated the `[editor][diagnostics][wizard]` plus `[editor][diagnostics][integration]` lanes after rebuilding `urpg_tests`.
+- **Result**: P2-03 migration wizard typed-summary milestone is COMPLETE. The next follow-on is fuller workflow UI built on top of the now-typed, selectable, detail-, status-, and summary-bearing wizard state.

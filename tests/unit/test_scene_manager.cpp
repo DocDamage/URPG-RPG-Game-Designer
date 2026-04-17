@@ -6,6 +6,7 @@
 #include "engine/core/scene/tileset_registry.h"
 #include "engine/core/scene/movement_authority.h"
 #include "engine/core/audio/audio_core.h"
+#include "engine/core/render/render_layer.h"
 
 using namespace urpg::scene;
 
@@ -154,6 +155,40 @@ TEST_CASE("MapScene: AI audio commands use injected AudioCore service", "[scene]
     map.processAiAudioCommands("[ACTION: STOP, ASSET: anything, VOL: 0.0, FADE: 0.0]");
     REQUIRE(audio->currentBGM().empty());
     REQUIRE(audio->activeSourceCount() == 0);
+}
+
+TEST_CASE("MapScene: retained tile render commands only rebuild when map data changes", "[scene][map][render]") {
+    auto& layer = urpg::RenderLayer::getInstance();
+    layer.flush();
+
+    MapScene map("001", 2, 2);
+
+    map.onUpdate(0.0f);
+    const auto& firstFrame = layer.getCommands();
+    REQUIRE(firstFrame.size() == 5);
+
+    auto firstTile0 = firstFrame[0];
+    auto firstTile1 = firstFrame[1];
+    auto firstTile2 = firstFrame[2];
+    auto firstTile3 = firstFrame[3];
+
+    map.onUpdate(0.0f);
+    const auto& secondFrame = layer.getCommands();
+    REQUIRE(secondFrame.size() == 5);
+    REQUIRE(secondFrame[0] == firstTile0);
+    REQUIRE(secondFrame[1] == firstTile1);
+    REQUIRE(secondFrame[2] == firstTile2);
+    REQUIRE(secondFrame[3] == firstTile3);
+
+    map.setTile(1, 0, 7, true);
+    map.onUpdate(0.0f);
+    const auto& thirdFrame = layer.getCommands();
+    REQUIRE(thirdFrame.size() == 5);
+    REQUIRE(thirdFrame[1] != firstTile1);
+
+    auto changedTile = std::dynamic_pointer_cast<urpg::TileCommand>(thirdFrame[1]);
+    REQUIRE(changedTile != nullptr);
+    REQUIRE(changedTile->tileIndex == 7);
 }
 
 class MockScene : public GameScene {

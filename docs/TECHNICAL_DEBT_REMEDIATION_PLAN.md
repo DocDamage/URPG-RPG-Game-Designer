@@ -196,6 +196,8 @@ Each finding is structured as: **Impact → Root Cause → Required Action → O
 
 ### P1-03 — Audio SE Channel Lifetime Leak
 
+**Status (2026-04-16):** Remediated. SE channels now complete deterministically in compat audio updates and are reclaimed without requiring an explicit `stopSe()` call.
+
 **Impact:** Sound-effect channels accumulate indefinitely during normal gameplay, causing a real performance and resource leak. This is not a cosmetic TODO — it can degrade runtime behavior in any session that plays multiple sound effects.
 
 **Root cause:**
@@ -216,13 +218,18 @@ Each finding is structured as: **Impact → Root Cause → Required Action → O
 - `test_audio_manager.cpp` includes a channel-growth regression test.
 - No unbounded channel accumulation under repeated SE playback in integration scenarios.
 
+**Progress evidence (2026-04-16):**
+- [audio_manager.cpp](../runtimes/compat_js/audio_manager.cpp) now gives compat SE channels a deterministic completion path in `AudioChannel::update()` so the existing cleanup pass can reclaim them.
+- [audio_manager.h](../runtimes/compat_js/audio_manager.h) now tracks per-channel completion frames for one-shot compat audio playback.
+- [test_audio_manager.cpp](../tests/unit/test_audio_manager.cpp) now includes a regression that proves an `se_*` channel is gone after playback completes and `AudioManager::update()` runs.
+
 ---
 
 ### P1-04 — Battle Turn-Condition Correctness Bug
 
 **Impact:** `checkTurnCondition()` produces incorrect turn-cadence results in shipped battle logic, even in a green build. Span `1` always passes after the first threshold; periodic cadence for span `2` is not correctly modeled. This is a behavioral correctness bug, not missing content.
 
-**Root cause:** The cadence comparison logic in [battle_manager.cpp](../runtimes/compat_js/battle_manager.cpp) does not correctly model periodic intervals. The exact arithmetic error should be confirmed against the battle spec before fixing.
+**Root cause:** The cadence comparison logic in [battle_manager.cpp](../runtimes/compat_js/battle_manager.cpp) treated span values inconsistently, leaving periodic intervals effectively hard-coded instead of honoring the requested cadence once the turn threshold was reached.
 
 **Required action:**
 - Review `checkTurnCondition()` against [BATTLE_CORE_NATIVE_SPEC.md](./BATTLE_CORE_NATIVE_SPEC.md) to confirm the intended cadence semantics.
@@ -234,6 +241,12 @@ Each finding is structured as: **Impact → Root Cause → Required Action → O
 **Exit criteria:**
 - `checkTurnCondition()` matches the behavior described in the battle spec for all span values.
 - Regression tests cover at least: span 1 at first threshold, span 1 after first threshold, span 2 periodic cadence, and boundary turns.
+
+**Status (2026-04-16):** Remediated. `checkTurnCondition()` now treats `span == 0` as exact-turn matching, rejects negative spans, gates periodic checks on the threshold turn, and applies modulo cadence for positive spans so threshold and repeat-turn behavior align with the battle spec.
+
+**Progress evidence (2026-04-16):**
+- [battle_manager.cpp](../runtimes/compat_js/battle_manager.cpp) now uses one generalized cadence path for positive spans after the threshold turn instead of special-casing incorrect arithmetic for span `1` and span `2`.
+- [test_battlemgr.cpp](../tests/unit/test_battlemgr.cpp) now includes a focused regression that proves exact-turn, every-turn-after-threshold, and every-other-turn cadence behavior across successive turns.
 
 ---
 
@@ -260,6 +273,15 @@ Do not leave the workspace counting tabs that do not render.
 - Any tab without a body is either removed from the count or clearly labeled as unavailable.
 - `test_diagnostics_workspace.cpp` asserts the current, accurate workspace shape.
 
+**Status (2026-04-16):** Remediated at the workspace-truthfulness level. All tabs counted in workspace summaries now participate in the active-tab render path through panel-owned render snapshots, while deeper panel productization remains tracked separately under P2-03.
+
+**Progress evidence (2026-04-16):**
+- [diagnostics_workspace.cpp](../editor/diagnostics/diagnostics_workspace.cpp) now calls `audio_panel_.render()` and `migration_wizard_panel_.render()` instead of leaving those tabs commented out.
+- [audio_inspector_panel.h](../editor/audio/audio_inspector_panel.h) and [migration_wizard_panel.h](../editor/diagnostics/migration_wizard_panel.h) now expose testable render snapshots so the workspace can prove those tabs rendered when active and visible.
+- [test_diagnostics_workspace.cpp](../tests/unit/test_diagnostics_workspace.cpp), [test_audio_inspector.cpp](../tests/unit/test_audio_inspector.cpp), and [test_migration_wizard.cpp](../tests/unit/test_migration_wizard.cpp) now verify the workspace can activate and render both tabs and that their panel snapshots reflect the current model state.
+- [event_authority_panel.h](../editor/diagnostics/event_authority_panel.h) and [event_authority_panel.cpp](../editor/diagnostics/event_authority_panel.cpp) now expose and populate a render snapshot so the panel no longer refreshes data silently when visible.
+- [test_event_authority_panel.cpp](../tests/unit/test_event_authority_panel.cpp) and [test_diagnostics_workspace.cpp](../tests/unit/test_diagnostics_workspace.cpp) now verify the event-authority tab renders when active and surfaces the expected visible-row and severity counts.
+
 ---
 
 ### P2-02 — Diagnostics Runtime Binding Is One-Way and Leaves Stale State
@@ -283,6 +305,14 @@ Do not leave the workspace counting tabs that do not render.
 - Diagnostics tests cover the detach-then-rebind path and assert state freshness.
 - Stale data cannot persist in the workspace after a runtime change.
 
+**Status (2026-04-16):** Remediated. Audio and ability diagnostics now clear projected runtime state on detach, and focused workspace coverage proves detach/rebind cycles produce fresh summaries instead of stale carry-over data.
+
+**Progress evidence (2026-04-16):**
+- [diagnostics_workspace.cpp](../editor/diagnostics/diagnostics_workspace.cpp) now routes `clearAudioRuntime()` and `clearAbilityRuntime()` through concrete panel/model reset paths instead of leaving them as no-ops.
+- [audio_inspector_model.h](../editor/audio/audio_inspector_model.h) now retains projected `AudioCore` count/volume state and exposes a `clear()` path so audio summaries can both reflect bound runtime state and reset back to empty on detach.
+- [ability_inspector_model.h](../editor/ability/ability_inspector_model.h), [ability_inspector_model.cpp](../editor/ability/ability_inspector_model.cpp), and [ability_inspector_panel.cpp](../editor/ability/ability_inspector_panel.cpp) now expose a clear path for projected abilities and active tags.
+- [test_diagnostics_workspace.cpp](../tests/unit/test_diagnostics_workspace.cpp) now includes an explicit detach/rebind regression covering audio and ability runtimes across clear and rebind cycles.
+
 ---
 
 ### P2-03 — Audio and Migration Diagnostics Are Scaffolding, Not Product
@@ -290,10 +320,10 @@ Do not leave the workspace counting tabs that do not render.
 **Impact:** Tests for these subsystems validate scaffolding behavior (empty summaries, visibility toggles, model counts) rather than live behavior. This creates false confidence that these areas are verified when they are not.
 
 **Root cause:**
-- [audio_inspector_model.h](../editor/audio/audio_inspector_model.h) explicitly says it "simulates projection" rather than iterating real `AudioCore` state; [audio_inspector_model.cpp](../editor/audio/audio_inspector_model.cpp) adds no implementation.
-- [migration_wizard_model.h](../editor/diagnostics/migration_wizard_model.h) is header-only orchestration; [migration_wizard_panel.h](../editor/diagnostics/migration_wizard_panel.h) has no render path.
-- [test_audio_inspector.cpp](../tests/unit/test_audio_inspector.cpp) validates empty summaries and visibility toggles, not live handle projection or rendered behavior.
-- [test_migration_wizard.cpp](../tests/unit/test_migration_wizard.cpp) validates model counts, not workspace integration or UI behavior.
+- [migration_wizard_model.h](../editor/diagnostics/migration_wizard_model.h) is still header-only orchestration and only recently began surfacing per-subsystem execution summaries, so richer workflow/state behavior remains thin.
+- [migration_wizard_panel.h](../editor/diagnostics/migration_wizard_panel.h) exposes snapshot-backed render data, but it is still closer to a diagnostic summary than a fuller wizard workflow surface.
+- Audio inspector coverage used to stop at empty summaries and visibility toggles, leaving live row projection unverified until the model was taught to iterate `AudioCore` state directly.
+- Migration wizard tests now cover subsystem execution reporting, but they still do not exercise deeper user-facing workflow actions beyond snapshot/state truthfulness.
 
 **Required action:**
 - Replace simulated projection in `audio_inspector_model` with iteration over real `AudioCore` state, or document it explicitly as a simulation layer.
@@ -306,6 +336,22 @@ Do not leave the workspace counting tabs that do not render.
 - `audio_inspector_model` reflects real `AudioCore` state or is clearly labeled as a simulation layer in code and docs.
 - Tests for both subsystems assert the highest-fidelity behavior that exists, not the lowest.
 
+**Status (2026-04-17):** Partially remediated. The audio inspector now projects live `AudioCore` active-source rows, and the migration wizard now reports which subsystem migrations actually ran, including message migration, but richer wizard-product workflow remains the primary open slice under this finding.
+
+**Progress evidence (2026-04-17):**
+- [audio_core.h](../engine/core/audio/audio_core.h) now exposes read-only active-source snapshots, including asset id, category, and channel state, so editor diagnostics can inspect real runtime state without mutating the mixer.
+- [audio_inspector_model.h](../editor/audio/audio_inspector_model.h) now iterates those snapshots into real `AudioHandleRow` entries instead of reporting count-only placeholder state.
+- [test_audio_inspector.cpp](../tests/unit/test_audio_inspector.cpp) now asserts live handle projection, asset id, category, volume, pitch, and active-state fields rather than only empty summaries.
+- [migration_wizard_model.h](../editor/diagnostics/migration_wizard_model.h) now orchestrates message, menu, and battle migration passes and records per-subsystem summary logs instead of only emitting one generic completion line.
+- [migration_wizard_panel.h](../editor/diagnostics/migration_wizard_panel.h) now surfaces summary-log count, headline text, the rendered summary-log lines, and a concrete clear/reset path so the workspace can assert both completed runs and reset state.
+- [migration_wizard_model.h](../editor/diagnostics/migration_wizard_model.h) and [migration_wizard_panel.h](../editor/diagnostics/migration_wizard_panel.h) now carry structured per-subsystem results for message, menu, and battle migration, so deeper workflow/productization work can consume typed wizard state instead of parsing free-form log text.
+- [migration_wizard_model.h](../editor/diagnostics/migration_wizard_model.h) and [migration_wizard_panel.h](../editor/diagnostics/migration_wizard_panel.h) now carry selection state for subsystem results, giving follow-on wizard UI a concrete interaction model instead of only passive snapshots.
+- [migration_wizard_model.h](../editor/diagnostics/migration_wizard_model.h) now defaults selection to the first migrated subsystem after a run, and [migration_wizard_panel.h](../editor/diagnostics/migration_wizard_panel.h) now surfaces selected-subsystem detail fields so a follow-on UI can render meaningful details immediately instead of only an id.
+- [migration_wizard_panel.h](../editor/diagnostics/migration_wizard_panel.h) now carries the selected subsystem's warning count, error count, and completion state in the render snapshot, so follow-on UI can render a fuller selected-status card directly from snapshot data.
+- [migration_wizard_model.h](../editor/diagnostics/migration_wizard_model.h) now stores each subsystem result's own summary line, and [migration_wizard_panel.h](../editor/diagnostics/migration_wizard_panel.h) now carries that selected subsystem summary line directly in the snapshot, so follow-on UI does not need to infer it from the loose `summary_logs` list.
+- [diagnostics_workspace.h](../editor/diagnostics/diagnostics_workspace.h) and [diagnostics_workspace.cpp](../editor/diagnostics/diagnostics_workspace.cpp) now expose `clearMigrationWizardRuntime()` so the top-level diagnostics surface can reset wizard state consistently with the other panels.
+- [test_migration_wizard.cpp](../tests/unit/test_migration_wizard.cpp) and [test_diagnostics_workspace.cpp](../tests/unit/test_diagnostics_workspace.cpp) now verify structured subsystem results, subsystem execution reporting, default subsystem selection, selected-subsystem detail/status/summary fields, rendered wizard summary text, and clean reset behavior rather than only aggregate counts.
+
 ---
 
 ### P2-04 — Test and Build Registration Drift
@@ -313,15 +359,15 @@ Do not leave the workspace counting tabs that do not render.
 **Impact:** Tests that are not registered are not run. Tests that assert wrong counts or stale structure pass while hiding real regressions. Duplicate test files create confusion about what is actually tested.
 
 **Root cause:**
-- [test_diagnostics_workspace.cpp](../tests/unit/test_diagnostics_workspace.cpp) asserts five tabs; the workspace now reports nine.
-- [test_spatial_editor.cpp](../tests/unit/test_spatial_editor.cpp) exists but is not registered in [CMakeLists.txt](../CMakeLists.txt).
-- Both [test_compat_report_panel.cpp](../tests/unit/test_compat_report_panel.cpp) and [test_compat_reportPanel.cpp](../tests/unit/test_compat_reportPanel.cpp) exist; only one should.
+- [test_diagnostics_workspace.cpp](../tests/unit/test_diagnostics_workspace.cpp) now asserts the current 9-tab workspace/export shape, including `audio` and `migration_wizard` in the serialized diagnostics snapshot.
+- [test_spatial_editor.cpp](../tests/unit/test_spatial_editor.cpp) is now registered in [CMakeLists.txt](../CMakeLists.txt) and participates in the active `urpg_tests` lane plus the focused spatial/presentation gates.
+- Historical duplicate test drift has been resolved: [test_compat_report_panel.cpp](../tests/unit/test_compat_report_panel.cpp) is the single retained compat-report panel test surface and the stale unregistered `test_compat_reportPanel.cpp` file has been removed.
 - [test_audio_manager.cpp](../tests/unit/test_audio_manager.cpp) reinforces the `FULL` status story without covering channel growth or real playback completion semantics.
 
 **Required action:**
-- Update `test_diagnostics_workspace.cpp` to assert the current tab count.
-- Register `test_spatial_editor.cpp` in [CMakeLists.txt](../CMakeLists.txt) or explicitly delete it with a rationale.
-- Delete the stale duplicate (`test_compat_reportPanel.cpp` or `test_compat_report_panel.cpp`); record which one and why in the change log.
+- Keep `test_diagnostics_workspace.cpp` aligned with the current 9-tab workspace/export shape as diagnostics surfaces evolve.
+- Keep `test_spatial_editor.cpp` registered in [CMakeLists.txt](../CMakeLists.txt) and maintain its focused gate coverage as the active spatial editor regression surface.
+- Keep [test_compat_report_panel.cpp](../tests/unit/test_compat_report_panel.cpp) as the registered Catch test surface; the stale unregistered `test_compat_reportPanel.cpp` file has been removed.
 - Extend `test_audio_manager.cpp` to cover the channel-growth scenario (see P1-03).
 
 **Owner:** Respective subsystem maintainers; release owner for CMakeLists.txt audit.
@@ -478,7 +524,7 @@ Do not leave the workspace counting tabs that do not render.
 
 **Impact:** Static-local service instances and per-frame full rebuilds make testing harder, determinism unreliable, and performance tuning more expensive. These are not today's highest-risk issues, but they compound other debt over time.
 
-**Status (2026-04-16):** Partially remediated. The static-local `AudioCore` shortcut in `MapScene` is gone; render-layer full rebuild work remains open.
+**Status (2026-04-16):** Remediated. `MapScene` now uses an injected audio service and retains tile render commands behind a dirty-flagged cache so unchanged frames stop rebuilding tile command objects.
 
 **Root cause:**
 - [map_scene.cpp](../engine/core/scene/map_scene.cpp) uses a local `static AudioCore` in `processAiAudioCommands()` instead of a passed-in or engine-owned dependency.
@@ -498,7 +544,9 @@ Do not leave the workspace counting tabs that do not render.
 - [map_scene.h](../engine/core/scene/map_scene.h) now exposes `setAudioCore()` and stores the scene audio service as state instead of reaching for a static-local singleton.
 - [map_scene.cpp](../engine/core/scene/map_scene.cpp) now routes AI audio commands through the bound audio service.
 - [test_scene_manager.cpp](../tests/unit/test_scene_manager.cpp) now asserts AI audio commands mutate the injected `AudioCore`.
-- The per-frame full render-layer rebuild path in `MapScene::onUpdate()` still needs dirty-flag or incremental rebuild work before P3-01 can be considered fully resolved.
+- [map_scene.h](../engine/core/scene/map_scene.h) now tracks a dirty flag for retained tile render commands and invalidates that cache when map tile data changes.
+- [map_scene.cpp](../engine/core/scene/map_scene.cpp) now rebuilds cached tile render commands only when the map changes, then resubmits the retained commands plus the live player sprite each frame.
+- [test_scene_manager.cpp](../tests/unit/test_scene_manager.cpp) now asserts unchanged frames reuse the same retained tile commands while map edits force a rebuilt tile command with the new tile index.
 
 ---
 
@@ -703,7 +751,7 @@ These principles govern every remediation decision. When in doubt, refer back to
 **Effort estimate:** Medium–Large.
 
 **Scope:**
-- Implement real rendering for [event_authority_panel.cpp](../editor/diagnostics/event_authority_panel.cpp), the Audio tab, and the Migration Wizard tab (see P2-01, P2-03).
+- Maintain honest render reachability for [event_authority_panel.cpp](../editor/diagnostics/event_authority_panel.cpp), the Audio tab, and the Migration Wizard tab, then continue productizing those panels beyond snapshot-backed bodies (see P2-03).
 - Implement `clearMenuRuntime()`, `clearAudioRuntime()`, and `clearAbilityRuntime()` in [diagnostics_workspace.cpp](../editor/diagnostics/diagnostics_workspace.cpp) (see P2-02).
 - Replace one-shot bindings and simulated projections in [audio_inspector_model.h](../editor/audio/audio_inspector_model.h) and [migration_wizard_panel.h](../editor/diagnostics/migration_wizard_panel.h).
 - Verify menu and compat diagnostics surfaces are actionable, not just data-backed.
@@ -730,7 +778,7 @@ These principles govern every remediation decision. When in doubt, refer back to
 **Scope:**
 - Make an explicit productized vs. incubating decision for `engine/core/presentation/*` and `editor/spatial/*` and update [CMakeLists.txt](../CMakeLists.txt) accordingly (see P2-06).
 - Register or delete [test_spatial_editor.cpp](../tests/unit/test_spatial_editor.cpp) with rationale (see P2-04).
-- Delete the stale duplicate test file (`test_compat_reportPanel.cpp` or `test_compat_report_panel.cpp`) (see P2-04).
+- Keep the registered `test_compat_report_panel.cpp` surface and prevent reintroduction of stale duplicate compat-report test files (see P2-04).
 - Align plugin/cloud/export documentation with the actual routing state of [plugin_api.h](../engine/core/editor/plugin_api.h), [plugin_api.cpp](../engine/core/editor/plugin_api.cpp), and [cloud_service.h](../engine/core/social/cloud_service.h) (see P2-07, P2-08).
 - Stand up external repository intake governance from [URPG_repo_intake_plan.md](../URPG_repo_intake_plan.md) so future compat/import/export/editor improvements are sourced through an explicit legal, fixture, and adoption program rather than ad hoc repo ingestion (see P3-02).
 - Stand up private-use asset intake governance from [URPG_private_asset_intake_plan.md](../URPG_private_asset_intake_plan.md) so editor/runtime realism improvements, placeholder replacement, and vertical-slice asset upgrades are sourced through explicit staging, provenance, and promotion rules rather than ad hoc asset drops (see P3-03).

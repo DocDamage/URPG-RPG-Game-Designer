@@ -110,6 +110,26 @@ void EventAuthorityPanel::render() {
     if (!visible_) {
         return;
     }
+
+    size_t warning_count = 0;
+    size_t error_count = 0;
+    const auto& rows = model_.VisibleRows();
+    for (const auto& row : rows) {
+        if (row.level == "error") {
+            ++error_count;
+        } else {
+            ++warning_count;
+        }
+    }
+
+    last_render_snapshot_ = {
+        rows.size(),
+        warning_count,
+        error_count,
+        model_.SelectedNavigationTarget().has_value(),
+        !rows.empty()
+    };
+    has_rendered_frame_ = true;
 }
 
 void EventAuthorityPanel::refresh() {

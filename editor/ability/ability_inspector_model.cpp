@@ -44,4 +44,9 @@ void AbilityInspectorModel::refresh(const AbilitySystemComponent& asc) {
     }
 }
 
+void AbilityInspectorModel::clear() {
+    m_abilities.clear();
+    m_active_tags.clear();
+}
+
 } // namespace urpg::editor
