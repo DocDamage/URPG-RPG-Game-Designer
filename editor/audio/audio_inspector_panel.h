@@ -2,6 +2,7 @@
 
 #include "audio_inspector_model.h"
 #include <memory>
+#include <vector>
 
 namespace urpg::editor {
 
@@ -14,6 +15,7 @@ public:
         size_t active_count = 0;
         size_t issue_count = 0;
         float master_volume = 1.0f;
+        std::vector<AudioHandleRow> live_rows;
         bool has_data = false;
     };
 
@@ -40,12 +42,12 @@ public:
         }
 
         const auto summary = m_model->getSummary();
-        m_last_render_snapshot = {
-            summary.activeCount,
-            summary.issueCount,
-            summary.masterVolume,
-            summary.activeCount > 0 || summary.issueCount > 0
-        };
+        const auto rows = m_model->getRows();
+        m_last_render_snapshot.active_count = summary.activeCount;
+        m_last_render_snapshot.issue_count = summary.issueCount;
+        m_last_render_snapshot.master_volume = summary.masterVolume;
+        m_last_render_snapshot.live_rows = rows;
+        m_last_render_snapshot.has_data = summary.activeCount > 0 || summary.issueCount > 0;
         m_has_rendered_frame = true;
     }
 

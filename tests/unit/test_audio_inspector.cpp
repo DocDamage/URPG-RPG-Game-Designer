@@ -64,5 +64,24 @@ TEST_CASE("AudioInspectorPanel: Visibility", "[editor][audio][panel]") {
         REQUIRE(panel.lastRenderSnapshot().issue_count == 0);
         REQUIRE(panel.lastRenderSnapshot().master_volume == 1.0f);
         REQUIRE_FALSE(panel.lastRenderSnapshot().has_data);
+        REQUIRE(panel.lastRenderSnapshot().live_rows.empty());
+    }
+
+    SECTION("Visible render includes live handle rows") {
+        AudioCore core;
+        const auto handle = core.playSound("se_ui_ping", AudioCategory::SE);
+        panel.onRefreshRequested(core);
+        panel.setVisible(true);
+
+        panel.render();
+
+        REQUIRE(panel.hasRenderedFrame());
+        REQUIRE(panel.lastRenderSnapshot().active_count == 1);
+        REQUIRE(panel.lastRenderSnapshot().has_data);
+        REQUIRE(panel.lastRenderSnapshot().live_rows.size() == 1);
+        REQUIRE(panel.lastRenderSnapshot().live_rows[0].handle == handle);
+        REQUIRE(panel.lastRenderSnapshot().live_rows[0].assetId == "se_ui_ping");
+        REQUIRE(panel.lastRenderSnapshot().live_rows[0].category == AudioCategory::SE);
+        REQUIRE(panel.lastRenderSnapshot().live_rows[0].isActive);
     }
 }

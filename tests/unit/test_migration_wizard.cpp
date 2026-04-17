@@ -167,6 +167,58 @@ TEST_CASE("MigrationWizardModel: subsystem selection follows current results", "
     REQUIRE_FALSE(model.selectedSubsystemResult().has_value());
 }
 
+TEST_CASE("MigrationWizardModel: selection can move to adjacent subsystem results", "[editor][diagnostics][wizard][selection][navigation]") {
+    MigrationWizardModel model;
+
+    nlohmann::json project_data = {
+        {"messages", {
+            {"pages", {
+                {
+                    {"id", "speaker_a"},
+                    {"route", "speaker"},
+                    {"speaker", {{"actor_id", 1}, {"name", "Alyx"}}},
+                    {"text", {"Hello there."}}
+                }
+            }}
+        }},
+        {"scenes", {
+            {{"symbol", "item"}, {"name", "Items"}}
+        }},
+        {"troops", {
+            {{"id", 1}, {"name", "Slime x2"}, {"members", {}}}
+        }}
+    };
+
+    model.runFullMigration(project_data);
+
+    REQUIRE(model.selectedSubsystemId().has_value());
+    REQUIRE(*model.selectedSubsystemId() == "message");
+
+    REQUIRE(model.selectNextSubsystemResult());
+    REQUIRE(model.selectedSubsystemId().has_value());
+    REQUIRE(*model.selectedSubsystemId() == "menu");
+
+    REQUIRE(model.selectNextSubsystemResult());
+    REQUIRE(model.selectedSubsystemId().has_value());
+    REQUIRE(*model.selectedSubsystemId() == "battle");
+
+    REQUIRE_FALSE(model.selectNextSubsystemResult());
+    REQUIRE(model.selectedSubsystemId().has_value());
+    REQUIRE(*model.selectedSubsystemId() == "battle");
+
+    REQUIRE(model.selectPreviousSubsystemResult());
+    REQUIRE(model.selectedSubsystemId().has_value());
+    REQUIRE(*model.selectedSubsystemId() == "menu");
+
+    REQUIRE(model.selectPreviousSubsystemResult());
+    REQUIRE(model.selectedSubsystemId().has_value());
+    REQUIRE(*model.selectedSubsystemId() == "message");
+
+    REQUIRE_FALSE(model.selectPreviousSubsystemResult());
+    REQUIRE(model.selectedSubsystemId().has_value());
+    REQUIRE(*model.selectedSubsystemId() == "message");
+}
+
 TEST_CASE("MigrationWizardPanel: render snapshot carries selected subsystem", "[editor][diagnostics][wizard][panel][selection]") {
     MigrationWizardPanel panel;
 
@@ -199,6 +251,39 @@ TEST_CASE("MigrationWizardPanel: render snapshot carries selected subsystem", "[
     REQUIRE(panel.lastRenderSnapshot().selected_subsystem_error_count == 0);
     REQUIRE(panel.lastRenderSnapshot().selected_subsystem_completed);
     REQUIRE(panel.lastRenderSnapshot().selected_subsystem_summary_line.find("Menu migration") != std::string::npos);
+}
+
+TEST_CASE("MigrationWizardPanel: render snapshot exposes selection navigation state", "[editor][diagnostics][wizard][panel][selection][navigation]") {
+    MigrationWizardPanel panel;
+
+    nlohmann::json project_data = {
+        {"messages", {
+            {"pages", {
+                {
+                    {"id", "speaker_a"},
+                    {"route", "speaker"},
+                    {"speaker", {{"actor_id", 1}, {"name", "Alyx"}}},
+                    {"text", {"Hello there."}}
+                }
+            }}
+        }},
+        {"scenes", {
+            {{"symbol", "item"}, {"name", "Items"}}
+        }}
+    };
+
+    panel.onProjectUpdateRequested(project_data);
+    panel.setVisible(true);
+    panel.render();
+
+    REQUIRE_FALSE(panel.lastRenderSnapshot().can_select_previous_subsystem);
+    REQUIRE(panel.lastRenderSnapshot().can_select_next_subsystem);
+
+    REQUIRE(panel.selectNextSubsystemResult());
+    panel.render();
+
+    REQUIRE(panel.lastRenderSnapshot().can_select_previous_subsystem);
+    REQUIRE_FALSE(panel.lastRenderSnapshot().can_select_next_subsystem);
 }
 
 TEST_CASE("MigrationWizardModel: rerunSubsystem updates existing result", "[editor][diagnostics][wizard][rerun]") {

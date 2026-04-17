@@ -130,14 +130,15 @@ Cross-cutting debt, truthfulness, and intake-governance source of truth: `docs/T
     - `tests/unit/test_battle_preview_panel.cpp`
     - `tests/unit/test_battle_inspector_panel.cpp`
 - Continued diagnostics workspace productization and truthfulness closure:
-  - `event_authority` tab now renders through a panel-owned snapshot instead of refreshing silently
-  - audio diagnostics now project real `AudioCore` active-source rows rather than count-only placeholder state
+  - `event_authority` tab now renders through a panel-owned snapshot instead of refreshing silently, and that snapshot/export now carries the visible row body plus event-id/severity/mode filtering, selection, row-navigation, and selected-row detail state
+  - audio diagnostics now project real `AudioCore` active-source rows rather than count-only placeholder state, and the panel snapshot now carries those projected rows directly
   - migration wizard diagnostics now support:
     - message, menu, and battle migration execution reporting
     - rendered summary text in panel snapshots
     - clear/reset through both the panel and `DiagnosticsWorkspace`
     - typed per-subsystem results
     - selectable subsystem state with default selection after a run
+    - next/previous subsystem-result navigation with explicit can-navigate snapshot state
     - selected-subsystem detail, status, and summary fields in the render snapshot
   - focused coverage expanded in:
     - `tests/unit/test_event_authority_panel.cpp`
@@ -194,10 +195,13 @@ Cross-cutting debt, truthfulness, and intake-governance source of truth: `docs/T
   - round-trip coverage now serializes a native menu graph, deserializes it, and checks structural equivalence
 - Latest focused validation snapshot for native UI/Menu lane:
   - `.\Debug\urpg_tests.exe "[ui][menu]"` => 102 assertions / 9 test cases passed
-  - `.\Debug\urpg_tests.exe "[editor][diagnostics][integration]"` => 149 assertions / 4 test cases passed
+  - `.\Debug\urpg_tests.exe "[editor][diagnostics][integration]"` => 184 assertions / 4 test cases passed
 - Latest focused validation snapshot for migration wizard/editor diagnostics productization:
-  - `.\Debug\urpg_tests.exe "[editor][diagnostics][wizard]"` => 70 assertions / 5 test cases passed
-  - `.\Debug\urpg_tests.exe "[editor][diagnostics][integration]"` => 149 assertions / 4 test cases passed
+  - `.\Debug\urpg_tests.exe "[editor][diagnostics][wizard]"` => 170 assertions / 15 test cases passed
+  - `.\Debug\urpg_tests.exe "[editor][diagnostics][integration]"` => 186 assertions / 4 test cases passed
+  - `.\Debug\urpg_tests.exe "[events][panel]"` => 93 assertions / 11 test cases passed
+  - `.\Debug\urpg_tests.exe "[events][panel][render]"` => event-authority render snapshot body/filter/navigation coverage passed
+  - `.\Debug\urpg_tests.exe "[editor][audio][inspector]"` => audio inspector panel snapshot live-row coverage passed
 - Second agent swarm pass (2026-04-17):
   - Input manager status honesty: downgraded all 79 inflated `FULL` labels to `PARTIAL` in `runtimes/compat_js/input_manager.cpp`; aligned `tests/unit/test_input_manager.cpp`.
   - Migration wizard productization: added `rerunSubsystem(id, project_data)` to `MigrationWizardModel` and `MigrationWizardPanel`; exposed `can_rerun_selected_subsystem` in render snapshot; implemented `bindMigrationWizardRuntime()` in `DiagnosticsWorkspace`; added 3 new workflow tests.

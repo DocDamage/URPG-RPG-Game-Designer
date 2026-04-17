@@ -54,7 +54,8 @@ Cross-cutting debt closure, documentation-truth alignment, and intake-governance
    - Added editor diagnostics index to parse JSONL streams and resolve event/block navigation targets.
 - Editor diagnostics panel/view model implemented:
    - Row projection + summary strings for `event_authority` diagnostics.
-   - Event-id filtering and selected-row one-click navigation target resolution.
+  - Event-id, severity, and mode filtering plus selected-row one-click navigation target resolution.
+  - Visible-row body projection in event-authority panel snapshots and diagnostics workspace export.
 - Phase 1 Native Core kickoff implemented:
    - Event runtime kernels for deterministic priority ordering and cancellation/default behavior controls.
    - Debugger contract kernels for breakpoint storage and watch variable tables.

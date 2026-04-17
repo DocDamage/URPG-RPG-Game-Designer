@@ -158,6 +158,70 @@ public:
         return false;
     }
 
+    bool selectNextSubsystemResult() {
+        if (m_report.subsystem_results.empty()) {
+            return false;
+        }
+
+        if (!selected_subsystem_id_.has_value()) {
+            selected_subsystem_id_ = m_report.subsystem_results.front().subsystem_id;
+            return true;
+        }
+
+        const auto current_index = selectedSubsystemIndex();
+        if (!current_index.has_value() || *current_index + 1 >= m_report.subsystem_results.size()) {
+            return false;
+        }
+
+        selected_subsystem_id_ = m_report.subsystem_results[*current_index + 1].subsystem_id;
+        return true;
+    }
+
+    bool selectPreviousSubsystemResult() {
+        if (m_report.subsystem_results.empty()) {
+            return false;
+        }
+
+        if (!selected_subsystem_id_.has_value()) {
+            selected_subsystem_id_ = m_report.subsystem_results.back().subsystem_id;
+            return true;
+        }
+
+        const auto current_index = selectedSubsystemIndex();
+        if (!current_index.has_value() || *current_index == 0) {
+            return false;
+        }
+
+        selected_subsystem_id_ = m_report.subsystem_results[*current_index - 1].subsystem_id;
+        return true;
+    }
+
+    bool canSelectNextSubsystemResult() const {
+        if (m_report.subsystem_results.empty()) {
+            return false;
+        }
+
+        if (!selected_subsystem_id_.has_value()) {
+            return true;
+        }
+
+        const auto current_index = selectedSubsystemIndex();
+        return current_index.has_value() && *current_index + 1 < m_report.subsystem_results.size();
+    }
+
+    bool canSelectPreviousSubsystemResult() const {
+        if (m_report.subsystem_results.empty()) {
+            return false;
+        }
+
+        if (!selected_subsystem_id_.has_value()) {
+            return true;
+        }
+
+        const auto current_index = selectedSubsystemIndex();
+        return current_index.has_value() && *current_index > 0;
+    }
+
     std::optional<std::string> selectedSubsystemId() const {
         return selected_subsystem_id_;
     }
@@ -269,6 +333,20 @@ private:
         if (m_report.is_complete || !m_report.subsystem_results.empty()) {
             m_report.summary_logs.push_back("Migration wizard complete.");
         }
+    }
+
+    std::optional<size_t> selectedSubsystemIndex() const {
+        if (!selected_subsystem_id_.has_value()) {
+            return std::nullopt;
+        }
+
+        for (size_t index = 0; index < m_report.subsystem_results.size(); ++index) {
+            if (m_report.subsystem_results[index].subsystem_id == *selected_subsystem_id_) {
+                return index;
+            }
+        }
+
+        return std::nullopt;
     }
 
     ProgressReport m_report;

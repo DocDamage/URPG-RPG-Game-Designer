@@ -30,6 +30,8 @@ public:
         std::string selected_subsystem_summary_line;
         bool can_rerun_selected_subsystem = false;
         bool can_clear_selected_subsystem = false;
+        bool can_select_next_subsystem = false;
+        bool can_select_previous_subsystem = false;
         std::string exported_report_json;
     };
 
@@ -51,6 +53,14 @@ public:
 
     bool rerunSubsystem(std::string_view subsystem_id, const nlohmann::json& project_data) {
         return m_model->rerunSubsystem(subsystem_id, project_data);
+    }
+
+    bool selectNextSubsystemResult() {
+        return m_model->selectNextSubsystemResult();
+    }
+
+    bool selectPreviousSubsystemResult() {
+        return m_model->selectPreviousSubsystemResult();
     }
 
     bool clearSubsystemResult(std::string_view subsystem_id) {
@@ -93,6 +103,8 @@ public:
             selected_result.has_value() ? selected_result->summary_line : std::string{},
             m_model->selectedSubsystemId().has_value(),
             m_model->selectedSubsystemId().has_value(),
+            m_model->canSelectNextSubsystemResult(),
+            m_model->canSelectPreviousSubsystemResult(),
             exportReportJson()
         };
         m_has_rendered_frame = true;

@@ -335,6 +335,36 @@
 - **Action**: Tightened `test_migration_wizard.cpp` around typed subsystem summaries and revalidated the `[editor][diagnostics][wizard]` plus `[editor][diagnostics][integration]` lanes after rebuilding `urpg_tests`.
 - **Result**: P2-03 migration wizard typed-summary milestone is COMPLETE. The next follow-on is fuller workflow UI built on top of the now-typed, selectable, detail-, status-, and summary-bearing wizard state.
 
+### 2026-04-17 — Event Authority Snapshot Context and Wizard Result Navigation
+- **Action**: Expanded `EventAuthorityPanel` render snapshots with selection, filter, and navigation state so the tab now preserves its current browsing context instead of only severity counts.
+- **Action**: Threaded event-authority selection/filter state and richer active-tab detail through diagnostics workspace coverage, and extended audio workspace assertions to prove live handle rows survive through the rendered panel snapshot.
+- **Action**: Added next/previous subsystem-result navigation to `MigrationWizardModel` and `MigrationWizardPanel`, including explicit `can_select_next_subsystem` / `can_select_previous_subsystem` snapshot state and focused wizard navigation regressions.
+- **Result**: Phase 3 diagnostics productization advanced again: event-authority is more actionable at both panel and workspace levels, audio snapshot fidelity is asserted through the workspace, and migration wizard workflow now supports ordered result navigation.
+
+### 2026-04-17 — Event Authority Row Navigation and Selected-Row Detail
+- **Action**: Added next/previous row navigation to `EventAuthorityPanelModel` and `EventAuthorityPanel`, including explicit `canSelectNextRow()` / `canSelectPreviousRow()` behavior for filtered result sets.
+- **Action**: Expanded `EventAuthorityPanel::RenderSnapshot` and the `DiagnosticsWorkspace` event-authority export detail with the selected row's full detail payload (`event_id`, `block_id`, mode, operation, error code, message, summary) plus row-navigation state.
+- **Action**: Tightened `test_event_authority_panel.cpp` and `test_diagnostics_workspace.cpp`, then revalidated the focused `[events][panel]` and `[editor][diagnostics][integration]` lanes after rebuilding `urpg_tests`.
+- **Result**: Event-authority diagnostics now behave more like a browsable workflow surface rather than a count-only selection snapshot.
+
+### 2026-04-17 — Event Authority Visible-Row Body Surfaced
+- **Action**: Expanded `EventAuthorityPanel::RenderSnapshot` with the visible projected row entries themselves so the panel snapshot now carries a real row body, not just counts and selected-row metadata.
+- **Action**: Threaded those visible row entries through `DiagnosticsWorkspace::exportAsJson()` under the `event_authority` active-tab detail payload.
+- **Action**: Tightened `test_event_authority_panel.cpp` and `test_diagnostics_workspace.cpp`, then revalidated the focused `[events][panel]` and `[editor][diagnostics][integration]` lanes after rebuilding `urpg_tests`.
+- **Result**: Event-authority diagnostics now expose a fuller panel body for downstream UI/workflow consumers instead of only summary metadata.
+
+### 2026-04-17 — Event Authority Severity Filtering
+- **Action**: Added severity-level filtering (`warn` / `error`) to `EventAuthorityPanelModel` and `EventAuthorityPanel`, alongside the existing event-id filter.
+- **Action**: Surfaced the active severity filter through `EventAuthorityPanel::RenderSnapshot` and the `DiagnosticsWorkspace` event-authority export detail payload.
+- **Action**: Tightened `test_event_authority_panel.cpp` and `test_diagnostics_workspace.cpp`, then revalidated the focused `[events][panel]` and `[editor][diagnostics][integration]` lanes after rebuilding `urpg_tests`.
+- **Result**: Event-authority diagnostics now support a more practical browse-and-narrow workflow instead of forcing consumers to inspect the full mixed-severity row set.
+
+### 2026-04-17 — Event Authority Mode Filtering
+- **Action**: Added mode filtering (`compat` / `mixed`) to `EventAuthorityPanelModel` and `EventAuthorityPanel`, alongside the existing event-id and severity filters.
+- **Action**: Surfaced the active mode filter through `EventAuthorityPanel::RenderSnapshot` and the `DiagnosticsWorkspace` event-authority export detail payload.
+- **Action**: Tightened `test_event_authority_panel.cpp` and `test_diagnostics_workspace.cpp`, then revalidated the focused `[events][panel]` and `[editor][diagnostics][integration]` lanes after rebuilding `urpg_tests`.
+- **Result**: Event-authority diagnostics now support a fuller browse-and-narrow workflow across id, severity, and mode rather than a single mixed row set.
+
 ### 2026-04-17 — Agent Swarm Remediation Passes
 - **Action**: First agent swarm pass closed:
   - Compat status honesty downgraded inflated `FULL` claims to `PARTIAL`/`STUB` in `audio_manager.cpp`, `battle_manager.cpp`, `data_manager.cpp`, and `window_compat.cpp`.

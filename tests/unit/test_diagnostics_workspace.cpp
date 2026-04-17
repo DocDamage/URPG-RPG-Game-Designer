@@ -131,6 +131,11 @@ TEST_CASE("DiagnosticsWorkspace - Refresh updates compat and save tabs", "[edito
     const auto exportedJson = nlohmann::json::parse(facade.emitSnapshot());
     REQUIRE(exportedJson["active_tab"] == "compat");
     REQUIRE(exportedJson["visible"] == true);
+    REQUIRE(exportedJson.contains("active_tab_detail"));
+    REQUIRE(exportedJson["active_tab_detail"]["tab"] == "compat");
+    REQUIRE(exportedJson["active_tab_detail"]["plugins"].is_array());
+    REQUIRE(exportedJson["active_tab_detail"]["plugins"].size() == 1);
+    REQUIRE(exportedJson["active_tab_detail"]["plugins"][0]["pluginId"] == "MissingPlugin");
     REQUIRE(exportedJson["tabs"].is_array());
     REQUIRE(exportedJson["tabs"].size() == 9);
     REQUIRE(exportedJson["tabs"][0]["name"] == "compat");
@@ -180,6 +185,10 @@ TEST_CASE("DiagnosticsWorkspace - Refresh updates compat and save tabs", "[edito
     REQUIRE_FALSE(workspace.battlePanel().isVisible());
 
     workspace.setActiveTab(urpg::editor::DiagnosticsTab::EventAuthority);
+    workspace.eventAuthorityPanel().setFilter("evt_workspace");
+    workspace.eventAuthorityPanel().setLevelFilter("warn");
+    workspace.eventAuthorityPanel().setModeFilter("compat");
+    REQUIRE(workspace.eventAuthorityPanel().selectRow(0));
     workspace.render();
     REQUIRE(workspace.tabSummary(urpg::editor::DiagnosticsTab::EventAuthority).active);
     REQUIRE_FALSE(workspace.compatPanel().isVisible());
@@ -189,8 +198,39 @@ TEST_CASE("DiagnosticsWorkspace - Refresh updates compat and save tabs", "[edito
     REQUIRE(workspace.eventAuthorityPanel().lastRenderSnapshot().visible_rows == 1);
     REQUIRE(workspace.eventAuthorityPanel().lastRenderSnapshot().warning_count == 1);
     REQUIRE(workspace.eventAuthorityPanel().lastRenderSnapshot().error_count == 0);
+    REQUIRE(workspace.eventAuthorityPanel().lastRenderSnapshot().event_id_filter == "evt_workspace");
+    REQUIRE(workspace.eventAuthorityPanel().lastRenderSnapshot().level_filter == "warn");
+    REQUIRE(workspace.eventAuthorityPanel().lastRenderSnapshot().mode_filter == "compat");
+    REQUIRE_FALSE(workspace.eventAuthorityPanel().lastRenderSnapshot().can_select_next_row);
+    REQUIRE_FALSE(workspace.eventAuthorityPanel().lastRenderSnapshot().can_select_previous_row);
+    REQUIRE(workspace.eventAuthorityPanel().lastRenderSnapshot().selected_row_index.has_value());
+    REQUIRE(workspace.eventAuthorityPanel().lastRenderSnapshot().selected_row_index.value() == 0);
+    REQUIRE(workspace.eventAuthorityPanel().lastRenderSnapshot().selected_row.has_value());
+    REQUIRE(workspace.eventAuthorityPanel().lastRenderSnapshot().selected_row->event_id == "evt_workspace");
+    REQUIRE(workspace.eventAuthorityPanel().lastRenderSnapshot().selected_row->block_id == "blk_workspace");
+    REQUIRE(workspace.eventAuthorityPanel().lastRenderSnapshot().selected_navigation_target.has_value());
+    REQUIRE(workspace.eventAuthorityPanel().lastRenderSnapshot().selected_navigation_target->event_id == "evt_workspace");
     REQUIRE_FALSE(workspace.messagePanel().isVisible());
     REQUIRE_FALSE(workspace.battlePanel().isVisible());
+
+    const auto eventJson = nlohmann::json::parse(facade.emitSnapshot());
+    REQUIRE(eventJson["active_tab"] == "event_authority");
+    REQUIRE(eventJson["active_tab_detail"]["tab"] == "event_authority");
+    REQUIRE(eventJson["active_tab_detail"]["event_id_filter"] == "evt_workspace");
+    REQUIRE(eventJson["active_tab_detail"]["level_filter"] == "warn");
+    REQUIRE(eventJson["active_tab_detail"]["mode_filter"] == "compat");
+    REQUIRE(eventJson["active_tab_detail"]["visible_rows"] == 1);
+    REQUIRE(eventJson["active_tab_detail"]["visible_row_entries"].is_array());
+    REQUIRE(eventJson["active_tab_detail"]["visible_row_entries"].size() == 1);
+    REQUIRE(eventJson["active_tab_detail"]["visible_row_entries"][0]["event_id"] == "evt_workspace");
+    REQUIRE(eventJson["active_tab_detail"]["visible_row_entries"][0]["block_id"] == "blk_workspace");
+    REQUIRE(eventJson["active_tab_detail"]["has_selection"] == true);
+    REQUIRE(eventJson["active_tab_detail"]["can_select_next_row"] == false);
+    REQUIRE(eventJson["active_tab_detail"]["can_select_previous_row"] == false);
+    REQUIRE(eventJson["active_tab_detail"]["selected_row_index"] == 0);
+    REQUIRE(eventJson["active_tab_detail"]["selected_row"]["event_id"] == "evt_workspace");
+    REQUIRE(eventJson["active_tab_detail"]["selected_row"]["block_id"] == "blk_workspace");
+    REQUIRE(eventJson["active_tab_detail"]["selected_navigation_target"]["event_id"] == "evt_workspace");
 
     workspace.setActiveTab(urpg::editor::DiagnosticsTab::MessageText);
     workspace.update();
@@ -221,6 +261,8 @@ TEST_CASE("DiagnosticsWorkspace - Refresh updates compat and save tabs", "[edito
     REQUIRE(workspace.audioPanel().isVisible());
     REQUIRE(workspace.audioPanel().hasRenderedFrame());
     REQUIRE(workspace.audioPanel().lastRenderSnapshot().master_volume == 1.0f);
+    REQUIRE(workspace.audioPanel().lastRenderSnapshot().live_rows.size() == 1);
+    REQUIRE(workspace.audioPanel().lastRenderSnapshot().live_rows[0].assetId == "workspace_test_se");
 
     workspace.setActiveTab(urpg::editor::DiagnosticsTab::MigrationWizard);
     workspace.render();
