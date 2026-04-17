@@ -1206,27 +1206,27 @@ void PluginManager::initializeMethodStatus() {
         // Plugin lifecycle
         setStatus("loadPlugin", CompatStatus::PARTIAL,
                   "Loads fixture JSON plugins and stub JS contexts; live MZ plugin runtime loading is not implemented.");
-        setStatus("unloadPlugin", CompatStatus::FULL);
+        setStatus("unloadPlugin", CompatStatus::PARTIAL);
         setStatus("reloadPlugin", CompatStatus::PARTIAL,
                   "Reload works for tracked fixture-backed plugins, not a general live plugin runtime.");
         setStatus("loadPluginsFromDirectory", CompatStatus::PARTIAL,
                   "Directory scan loads fixture-backed plugin descriptors, not a live MZ plugin runtime.");
-        setStatus("unloadAllPlugins", CompatStatus::FULL);
+        setStatus("unloadAllPlugins", CompatStatus::PARTIAL);
         
         // Plugin registration
-        setStatus("registerPlugin", CompatStatus::FULL);
-        setStatus("unregisterPlugin", CompatStatus::FULL);
-        setStatus("isPluginLoaded", CompatStatus::FULL);
-        setStatus("getPluginInfo", CompatStatus::FULL);
-        setStatus("getLoadedPlugins", CompatStatus::FULL);
+        setStatus("registerPlugin", CompatStatus::PARTIAL);
+        setStatus("unregisterPlugin", CompatStatus::PARTIAL);
+        setStatus("isPluginLoaded", CompatStatus::PARTIAL);
+        setStatus("getPluginInfo", CompatStatus::PARTIAL);
+        setStatus("getLoadedPlugins", CompatStatus::PARTIAL);
         
         // Command registration
-        setStatus("registerCommand", CompatStatus::FULL);
-        setStatus("unregisterCommand", CompatStatus::FULL);
-        setStatus("unregisterAllCommands", CompatStatus::FULL);
-        setStatus("hasCommand", CompatStatus::FULL);
-        setStatus("getCommandInfo", CompatStatus::FULL);
-        setStatus("getPluginCommands", CompatStatus::FULL);
+        setStatus("registerCommand", CompatStatus::PARTIAL);
+        setStatus("unregisterCommand", CompatStatus::PARTIAL);
+        setStatus("unregisterAllCommands", CompatStatus::PARTIAL);
+        setStatus("hasCommand", CompatStatus::PARTIAL);
+        setStatus("getCommandInfo", CompatStatus::PARTIAL);
+        setStatus("getPluginCommands", CompatStatus::PARTIAL);
         
         // Command execution
         setStatus("executeCommand", CompatStatus::PARTIAL,
@@ -1237,31 +1237,31 @@ void PluginManager::initializeMethodStatus() {
                   "FIFO async dispatch works, but callbacks require explicit main-thread dispatch and still rely on the fixture-backed JS bridge.");
         
         // Parameter management
-        setStatus("setParameter", CompatStatus::FULL);
-        setStatus("getParameter", CompatStatus::FULL);
-        setStatus("getParameters", CompatStatus::FULL);
-        setStatus("parseParameters", CompatStatus::FULL);
+        setStatus("setParameter", CompatStatus::PARTIAL);
+        setStatus("getParameter", CompatStatus::PARTIAL);
+        setStatus("getParameters", CompatStatus::PARTIAL);
+        setStatus("parseParameters", CompatStatus::PARTIAL);
         
         // Dependencies
-        setStatus("checkDependencies", CompatStatus::FULL);
-        setStatus("getMissingDependencies", CompatStatus::FULL);
-        setStatus("getDependents", CompatStatus::FULL);
+        setStatus("checkDependencies", CompatStatus::PARTIAL);
+        setStatus("getMissingDependencies", CompatStatus::PARTIAL);
+        setStatus("getDependents", CompatStatus::PARTIAL);
         
         // Event hooks
-        setStatus("registerEventHandler", CompatStatus::FULL);
-        setStatus("unregisterEventHandler", CompatStatus::FULL);
+        setStatus("registerEventHandler", CompatStatus::PARTIAL);
+        setStatus("unregisterEventHandler", CompatStatus::PARTIAL);
         
         // Execution context
-        setStatus("getCurrentContext", CompatStatus::FULL);
-        setStatus("isExecuting", CompatStatus::FULL);
-        setStatus("getCurrentPlugin", CompatStatus::FULL);
+        setStatus("getCurrentContext", CompatStatus::PARTIAL);
+        setStatus("isExecuting", CompatStatus::PARTIAL);
+        setStatus("getCurrentPlugin", CompatStatus::PARTIAL);
         
         // Error handling
-        setStatus("getLastError", CompatStatus::FULL);
-        setStatus("clearLastError", CompatStatus::FULL);
-        setStatus("setErrorHandler", CompatStatus::FULL);
-        setStatus("exportFailureDiagnosticsJsonl", CompatStatus::FULL);
-        setStatus("clearFailureDiagnostics", CompatStatus::FULL);
+        setStatus("getLastError", CompatStatus::PARTIAL);
+        setStatus("clearLastError", CompatStatus::PARTIAL);
+        setStatus("setErrorHandler", CompatStatus::PARTIAL);
+        setStatus("exportFailureDiagnosticsJsonl", CompatStatus::PARTIAL);
+        setStatus("clearFailureDiagnostics", CompatStatus::PARTIAL);
     }
 }
 

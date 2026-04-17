@@ -8,7 +8,9 @@ Cross-cutting debt, truthfulness, and intake-governance source of truth: `docs/T
 ## Where we are now
 
 - Presentation planning is now aligned around **Phase 5 — Environment & Presentation Polish**:
-  - Tasks 41–43 have unit-test coverage in `test_spatial_editor.cpp` and core presentation files (`presentation_runtime.cpp`, `release_validation.cpp`) are registered in the build, but `editor/spatial/*` panels are header-only and not yet compiled into product targets
+  - **Incubating:** `editor/spatial/*` panels (`ElevationBrushPanel`, `PropPlacementPanel`) are header-only with no compiled `.cpp` sources registered in the build graph.
+  - **Incubating:** `engine/core/presentation/*` is predominantly header-only abstraction; only `presentation_runtime.cpp` and `release_validation.cpp` are actively compiled. `profile_arena.cpp` exists but is not registered in `urpg_core`.
+  - `test_spatial_editor.cpp` and `test_presentation_runtime.cpp` are registered and passing, anchoring the future productization path.
 - Supporting enablement landed for curated Hugging Face fixture ingestion:
   - permissive TMX, Visual Novel Maker, and Godot samples are vendored under `third_party/huggingface/`
   - restrictive RPG Maker MV / XP corpora remain manifest-only due to license constraints

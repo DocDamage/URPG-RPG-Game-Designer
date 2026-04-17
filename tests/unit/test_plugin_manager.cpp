@@ -1609,14 +1609,14 @@ TEST_CASE("PluginManager: Error handling", "[plugin_manager]") {
 TEST_CASE("PluginManager: Method status registry", "[plugin_manager]") {
     PluginManager& pm = PluginManager::instance();
     
-    SECTION("GetMethodStatus returns FULL for core methods") {
+    SECTION("GetMethodStatus returns PARTIAL for core methods") {
         CompatStatus status = pm.getMethodStatus("registerPlugin");
-        REQUIRE(status == CompatStatus::FULL);
+        REQUIRE(status == CompatStatus::PARTIAL);
     }
-    
-    SECTION("GetMethodStatus returns FULL for command methods") {
+
+    SECTION("GetMethodStatus returns PARTIAL for command methods") {
         CompatStatus status = pm.getMethodStatus("registerCommand");
-        REQUIRE(status == CompatStatus::FULL);
+        REQUIRE(status == CompatStatus::PARTIAL);
     }
     
     SECTION("GetMethodStatus returns PARTIAL for async execution") {

@@ -197,7 +197,9 @@ Each finding is structured as: **Impact → Root Cause → Required Action → O
 - [audio_manager.cpp](../runtimes/compat_js/audio_manager.cpp): playback/state registry labels downgraded from `FULL` to `PARTIAL`; JS bindings downgraded to `STUB`.
 - [battle_manager.cpp](../runtimes/compat_js/battle_manager.cpp): `processAction` downgraded to `PARTIAL`; stubbed JS bindings downgraded to `STUB`.
 - [window_compat.cpp](../runtimes/compat_js/window_compat.cpp): registry labels and stubbed JS bindings downgraded to `STUB`/`PARTIAL` where behavior is placeholder-backed.
-- Corresponding unit tests in `test_audio_manager.cpp`, `test_data_manager.cpp`, and `test_window_compat.cpp` updated to assert honest statuses.
+- [plugin_manager.cpp](../runtimes/compat_js/plugin_manager.cpp): 30 inflated `CompatStatus::FULL` labels downgraded to `PARTIAL` (plugin lifecycle, command registry, parameters, dependencies, event handlers, execution state, error handling, and diagnostics are all fixture-backed compat-bridge logic, not live engine integration).
+- [data_manager.cpp](../runtimes/compat_js/data_manager.cpp): all inflated `CompatStatus::FULL` labels downgraded to `PARTIAL` (`loadDatabase` and database accessors return hardcoded mock data; save/load is in-memory only; plugin commands are an in-memory callback map).
+- Corresponding unit tests in `test_audio_manager.cpp`, `test_data_manager.cpp`, `test_plugin_manager.cpp`, and `test_window_compat.cpp` updated to assert honest statuses.
 
 ---
 
@@ -359,6 +361,7 @@ Do not leave the workspace counting tabs that do not render.
 - [diagnostics_workspace.h](../editor/diagnostics/diagnostics_workspace.h) and [diagnostics_workspace.cpp](../editor/diagnostics/diagnostics_workspace.cpp) now expose `clearMigrationWizardRuntime()` so the top-level diagnostics surface can reset wizard state consistently with the other panels.
 - [test_migration_wizard.cpp](../tests/unit/test_migration_wizard.cpp) and [test_diagnostics_workspace.cpp](../tests/unit/test_diagnostics_workspace.cpp) now verify structured subsystem results, subsystem execution reporting, default subsystem selection, selected-subsystem detail/status/summary fields, rendered wizard summary text, and clean reset behavior rather than only aggregate counts.
 - (2026-04-17) Added `rerunSubsystem(id, project_data)` to [migration_wizard_model.h](../editor/diagnostics/migration_wizard_model.h) and [migration_wizard_panel.h](../editor/diagnostics/migration_wizard_panel.h), giving the wizard a concrete user-facing workflow action beyond passive snapshot truthfulness. Panel render snapshot now carries `can_rerun_selected_subsystem`. Added 3 new tests covering re-run of existing subsystems, adding missing subsystems via re-run, and snapshot reflection of the action.
+- (2026-04-17) Added `clearSubsystemResult(id)` and `getReportJson()` to [migration_wizard_model.h](../editor/diagnostics/migration_wizard_model.h) and [migration_wizard_panel.h](../editor/diagnostics/migration_wizard_panel.h), giving the wizard selective reset and structured export capabilities. Panel render snapshot now carries `can_clear_selected_subsystem` and `exported_report_json`. Added 5 new tests covering selective result clearing, selection updates on clear, JSON report serialization, and snapshot reflection of both actions.
 
 ---
 
@@ -442,6 +445,18 @@ Do not leave the workspace counting tabs that do not render.
 **Exit criteria:**
 - `engine/core/presentation/*` and `editor/spatial/*` are either built, registered, and tested — or explicitly documented as incubating.
 - Completion status documents no longer describe unbuilt or unregistered work as shipped.
+
+**Status (2026-04-17):** Remediated via documentation-truth alignment and ADR.
+
+**Decision:**
+- `editor/spatial/*` is **Incubating**. It contains only header files (`elevation_brush_panel.h`, `prop_placement_panel.h`) with no `.cpp` implementation registered in any build target. It cannot be treated as productized until compiled sources exist.
+- `engine/core/presentation/*` is **Incubating** as a subsystem. The actively compiled surfaces are `presentation_runtime.cpp` (in `urpg_core`) and `release_validation.cpp` (as standalone executable `urpg_presentation_release_validation`). `profile_arena.cpp` exists on disk but is intentionally not added to `urpg_core` while the subsystem remains header-heavy. The existing unit tests (`test_presentation_runtime.cpp`, `test_spatial_editor.cpp`) are retained and registered.
+
+**Progress evidence (2026-04-17):**
+- Updated [PROGRAM_COMPLETION_STATUS.md](./PROGRAM_COMPLETION_STATUS.md) to label `editor/spatial/*` and `engine/core/presentation/*` as incubating, with an explicit note that only `presentation_runtime.cpp` and `release_validation.cpp` are compiled.
+- Updated [NATIVE_FEATURE_ABSORPTION_PLAN.md](./NATIVE_FEATURE_ABSORPTION_PLAN.md) to label Spatial Presentation and Editor Tooling as **Incubating**.
+- Updated [SPATIAL_EDITOR_TOOLS.md](./presentation/SPATIAL_EDITOR_TOOLS.md) with an explicit incubating / header-only notice.
+- Recorded decision in [ADR-011-presentation-spatial-status.md](./adr/ADR-011-presentation-spatial-status.md).
 
 ---
 
@@ -1048,3 +1063,4 @@ A remediation item is **done only when all of the following are true**:
 | 2026-04-16 | Integrated the private-use asset intake program from [URPG_private_asset_intake_plan.md](../URPG_private_asset_intake_plan.md) into findings, Phase 4 governance work, ownership, documentation alignment, and Definition of Done. |
 | 2026-04-17 | Agent swarm pass 1: compat status honesty (P1-02), QuickJS scope clarity (P1-01), test/build registration drift fixes (P2-04), intake governance artifact creation (P3-02/P3-03), and documentation alignment (P2-06). |
 | 2026-04-17 | Agent swarm pass 2: input manager status honesty (P1-02), migration wizard productization with `rerunSubsystem` (P2-03), data manager runtime closure with real `loadDatabase()` and JS bindings (Phase 2), and doc sync/intake linking (P3-02/P3-03). |
+| 2026-04-17 | Agent swarm pass 3: plugin manager and data manager status honesty (P1-02), migration wizard further productization with `clearSubsystemResult` and `getReportJson` (P2-03), presentation/spatial incubation decision and ADR-011 (P2-06). |

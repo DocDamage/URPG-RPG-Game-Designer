@@ -1,5 +1,7 @@
 # Spatial Editor Tools Implementation (2026-04-16)
 
+> **Status: Incubating / Header-Only.** `editor/spatial/` currently contains only header files (`elevation_brush_panel.h`, `prop_placement_panel.h`). No `.cpp` implementations are registered in [CMakeLists.txt](../../CMakeLists.txt), so these panels are not compiled into product targets. They are exercised by `tests/unit/test_spatial_editor.cpp` as an anchored future productization path.
+
 ## Overview
 Added native editor panels to support the `SpatialMapOverlay` system as part of the Phase 3/7 presentation upgrade. These tools allow non-technical authors to modify elevation and place 3D props without editing JSON schemas directly.
 

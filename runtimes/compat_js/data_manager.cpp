@@ -66,37 +66,37 @@ DataManager::DataManager()
         };
 
         // Save/Load
-        setStatus("loadDatabase", CompatStatus::FULL);
-        setStatus("saveGame", CompatStatus::FULL);
-        setStatus("saveGameWithHeader", CompatStatus::FULL);
-        setStatus("loadGame", CompatStatus::FULL);
-        setStatus("deleteSaveFile", CompatStatus::FULL);
-        setStatus("doesSaveFileExist", CompatStatus::FULL);
-        setStatus("getMaxSaveFiles", CompatStatus::FULL);
-        setStatus("getSaveHeader", CompatStatus::FULL);
-        setStatus("getAllSaveHeaders", CompatStatus::FULL);
-        setStatus("saveAutosave", CompatStatus::FULL);
-        setStatus("loadAutosave", CompatStatus::FULL);
-        setStatus("isAutosaveEnabled", CompatStatus::FULL);
-        setStatus("setAutosaveEnabled", CompatStatus::FULL);
-        setStatus("setSaveHeaderExtension", CompatStatus::FULL);
-        setStatus("getSaveHeaderExtension", CompatStatus::FULL);
+        setStatus("loadDatabase", CompatStatus::PARTIAL);
+        setStatus("saveGame", CompatStatus::PARTIAL);
+        setStatus("saveGameWithHeader", CompatStatus::PARTIAL);
+        setStatus("loadGame", CompatStatus::PARTIAL);
+        setStatus("deleteSaveFile", CompatStatus::PARTIAL);
+        setStatus("doesSaveFileExist", CompatStatus::PARTIAL);
+        setStatus("getMaxSaveFiles", CompatStatus::PARTIAL);
+        setStatus("getSaveHeader", CompatStatus::PARTIAL);
+        setStatus("getAllSaveHeaders", CompatStatus::PARTIAL);
+        setStatus("saveAutosave", CompatStatus::PARTIAL);
+        setStatus("loadAutosave", CompatStatus::PARTIAL);
+        setStatus("isAutosaveEnabled", CompatStatus::PARTIAL);
+        setStatus("setAutosaveEnabled", CompatStatus::PARTIAL);
+        setStatus("setSaveHeaderExtension", CompatStatus::PARTIAL);
+        setStatus("getSaveHeaderExtension", CompatStatus::PARTIAL);
         
         // Database access
-        setStatus("getActors", CompatStatus::FULL);
-        setStatus("getSkills", CompatStatus::FULL);
-        setStatus("getItems", CompatStatus::FULL);
-        setStatus("getWeapons", CompatStatus::FULL);
-        setStatus("getArmors", CompatStatus::FULL);
-        setStatus("getEnemies", CompatStatus::FULL);
-        setStatus("getTroops", CompatStatus::FULL);
-        setStatus("getStates", CompatStatus::FULL);
-        setStatus("getActor", CompatStatus::FULL);
-        setStatus("getSkill", CompatStatus::FULL);
-        setStatus("getItem", CompatStatus::FULL);
+        setStatus("getActors", CompatStatus::PARTIAL);
+        setStatus("getSkills", CompatStatus::PARTIAL);
+        setStatus("getItems", CompatStatus::PARTIAL);
+        setStatus("getWeapons", CompatStatus::PARTIAL);
+        setStatus("getArmors", CompatStatus::PARTIAL);
+        setStatus("getEnemies", CompatStatus::PARTIAL);
+        setStatus("getTroops", CompatStatus::PARTIAL);
+        setStatus("getStates", CompatStatus::PARTIAL);
+        setStatus("getActor", CompatStatus::PARTIAL);
+        setStatus("getSkill", CompatStatus::PARTIAL);
+        setStatus("getItem", CompatStatus::PARTIAL);
         
         // Global state
-        setStatus("setupNewGame", CompatStatus::FULL);
+        setStatus("setupNewGame", CompatStatus::PARTIAL);
         setStatus("getPartySize", CompatStatus::PARTIAL);
         setStatus("getPartyMember", CompatStatus::PARTIAL);
         setStatus("getGold", CompatStatus::PARTIAL);
@@ -126,9 +126,9 @@ DataManager::DataManager()
         setStatus("processTransfer", CompatStatus::PARTIAL);
         
         // Plugin commands
-        setStatus("registerPluginCommand", CompatStatus::FULL);
-        setStatus("unregisterPluginCommand", CompatStatus::FULL);
-        setStatus("executePluginCommand", CompatStatus::FULL);
+        setStatus("registerPluginCommand", CompatStatus::PARTIAL);
+        setStatus("unregisterPluginCommand", CompatStatus::PARTIAL);
+        setStatus("executePluginCommand", CompatStatus::PARTIAL);
     }
 }
 
@@ -1051,32 +1051,32 @@ void DataManager::registerAPI(QuickJSContext& ctx) {
     
     methods.push_back({"loadDatabase", [](const std::vector<Value>&) -> Value {
         return Value::Int(DataManager::instance().loadDatabase() ? 1 : 0);
-    }, CompatStatus::FULL});
+    }, CompatStatus::PARTIAL});
     
     methods.push_back({"saveGame", [](const std::vector<Value>& args) -> Value {
         if (args.empty() || !std::holds_alternative<int64_t>(args[0].v)) return Value::Int(0);
         return Value::Int(DataManager::instance().saveGame(static_cast<int32_t>(std::get<int64_t>(args[0].v))) ? 1 : 0);
-    }, CompatStatus::FULL});
+    }, CompatStatus::PARTIAL});
     
     methods.push_back({"loadGame", [](const std::vector<Value>& args) -> Value {
         if (args.empty() || !std::holds_alternative<int64_t>(args[0].v)) return Value::Int(0);
         return Value::Int(DataManager::instance().loadGame(static_cast<int32_t>(std::get<int64_t>(args[0].v))) ? 1 : 0);
-    }, CompatStatus::FULL});
+    }, CompatStatus::PARTIAL});
     
     methods.push_back({"getGold", [](const std::vector<Value>&) -> Value {
         return Value::Int(DataManager::instance().getGold());
-    }, CompatStatus::FULL});
+    }, CompatStatus::PARTIAL});
     
     methods.push_back({"setGold", [](const std::vector<Value>& args) -> Value {
         if (args.empty() || !std::holds_alternative<int64_t>(args[0].v)) return Value::Nil();
         DataManager::instance().setGold(static_cast<int32_t>(std::get<int64_t>(args[0].v)));
         return Value::Nil();
-    }, CompatStatus::FULL});
+    }, CompatStatus::PARTIAL});
     
     methods.push_back({"getSwitch", [](const std::vector<Value>& args) -> Value {
         if (args.empty() || !std::holds_alternative<int64_t>(args[0].v)) return Value::Int(0);
         return Value::Int(DataManager::instance().getSwitch(static_cast<int32_t>(std::get<int64_t>(args[0].v))) ? 1 : 0);
-    }, CompatStatus::FULL});
+    }, CompatStatus::PARTIAL});
     
     methods.push_back({"setSwitch", [](const std::vector<Value>& args) -> Value {
         if (args.size() < 2 || !std::holds_alternative<int64_t>(args[0].v)) return Value::Nil();
@@ -1085,12 +1085,12 @@ void DataManager::registerAPI(QuickJSContext& ctx) {
         else if (std::holds_alternative<int64_t>(args[1].v)) val = std::get<int64_t>(args[1].v) != 0;
         DataManager::instance().setSwitch(static_cast<int32_t>(std::get<int64_t>(args[0].v)), val);
         return Value::Nil();
-    }, CompatStatus::FULL});
+    }, CompatStatus::PARTIAL});
     
     methods.push_back({"getVariable", [](const std::vector<Value>& args) -> Value {
         if (args.empty() || !std::holds_alternative<int64_t>(args[0].v)) return Value::Int(0);
         return Value::Int(DataManager::instance().getVariable(static_cast<int32_t>(std::get<int64_t>(args[0].v))));
-    }, CompatStatus::FULL});
+    }, CompatStatus::PARTIAL});
     
     methods.push_back({"setVariable", [](const std::vector<Value>& args) -> Value {
         if (args.size() < 2 || !std::holds_alternative<int64_t>(args[0].v)) return Value::Nil();
@@ -1099,18 +1099,18 @@ void DataManager::registerAPI(QuickJSContext& ctx) {
         else if (std::holds_alternative<double>(args[1].v)) val = static_cast<int32_t>(std::get<double>(args[1].v));
         DataManager::instance().setVariable(static_cast<int32_t>(std::get<int64_t>(args[0].v)), val);
         return Value::Nil();
-    }, CompatStatus::FULL});
+    }, CompatStatus::PARTIAL});
     
     methods.push_back({"getItemCount", [](const std::vector<Value>& args) -> Value {
         if (args.empty() || !std::holds_alternative<int64_t>(args[0].v)) return Value::Int(0);
         return Value::Int(DataManager::instance().getItemCount(static_cast<int32_t>(std::get<int64_t>(args[0].v))));
-    }, CompatStatus::FULL});
+    }, CompatStatus::PARTIAL});
     
     methods.push_back({"gainItem", [](const std::vector<Value>& args) -> Value {
         if (args.size() < 2 || !std::holds_alternative<int64_t>(args[0].v) || !std::holds_alternative<int64_t>(args[1].v)) return Value::Nil();
         DataManager::instance().gainItem(static_cast<int32_t>(std::get<int64_t>(args[0].v)), static_cast<int32_t>(std::get<int64_t>(args[1].v)));
         return Value::Nil();
-    }, CompatStatus::FULL});
+    }, CompatStatus::PARTIAL});
     
     ctx.registerObject("DataManager", methods);
 }

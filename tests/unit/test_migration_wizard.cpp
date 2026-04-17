@@ -302,3 +302,158 @@ TEST_CASE("MigrationWizardPanel: rerun action reflected in render snapshot", "[e
     REQUIRE(panel.lastRenderSnapshot().subsystem_results[0].summary_line.find("2 command(s)") != std::string::npos);
     REQUIRE(panel.lastRenderSnapshot().can_rerun_selected_subsystem);
 }
+
+TEST_CASE("MigrationWizardModel: clearSubsystemResult removes result and updates counts", "[editor][diagnostics][wizard][clear]") {
+    MigrationWizardModel model;
+
+    nlohmann::json project_data = {
+        {"messages", {
+            {"pages", {
+                {
+                    {"id", "speaker_a"},
+                    {"route", "speaker"},
+                    {"speaker", {{"actor_id", 1}, {"name", "Alyx"}}},
+                    {"text", {"Hello there."}}
+                }
+            }}
+        }},
+        {"scenes", {
+            {{"symbol", "item"}, {"name", "Items"}}
+        }},
+        {"troops", {
+            {{"id", 1}, {"name", "Slime x2"}, {"members", {}}}
+        }}
+    };
+
+    model.runFullMigration(project_data);
+    auto report = model.getReport();
+    REQUIRE(report.subsystem_results.size() == 3);
+    REQUIRE(report.total_files_processed == 3);
+    REQUIRE(model.selectedSubsystemId().has_value());
+
+    REQUIRE(model.clearSubsystemResult("menu"));
+    report = model.getReport();
+    REQUIRE(report.subsystem_results.size() == 2);
+    REQUIRE(report.total_files_processed == 2);
+    REQUIRE(report.summary_logs.size() == 3);
+    REQUIRE(report.summary_logs[0].find("Message migration") != std::string::npos);
+    REQUIRE(report.summary_logs[1].find("Battle migration") != std::string::npos);
+    REQUIRE(report.summary_logs[2] == "Migration wizard complete.");
+
+    REQUIRE_FALSE(model.clearSubsystemResult("menu"));
+}
+
+TEST_CASE("MigrationWizardModel: clearSubsystemResult updates selection when selected is cleared", "[editor][diagnostics][wizard][clear][selection]") {
+    MigrationWizardModel model;
+
+    nlohmann::json project_data = {
+        {"messages", {
+            {"pages", {
+                {
+                    {"id", "speaker_a"},
+                    {"route", "speaker"},
+                    {"speaker", {{"actor_id", 1}, {"name", "Alyx"}}},
+                    {"text", {"Hello there."}}
+                }
+            }}
+        }},
+        {"scenes", {
+            {{"symbol", "item"}, {"name", "Items"}}
+        }}
+    };
+
+    model.runFullMigration(project_data);
+    REQUIRE(model.selectedSubsystemId().has_value());
+    REQUIRE(*model.selectedSubsystemId() == "message");
+
+    REQUIRE(model.clearSubsystemResult("message"));
+    REQUIRE(model.selectedSubsystemId().has_value());
+    REQUIRE(*model.selectedSubsystemId() == "menu");
+
+    REQUIRE(model.clearSubsystemResult("menu"));
+    REQUIRE_FALSE(model.selectedSubsystemId().has_value());
+}
+
+TEST_CASE("MigrationWizardModel: getReportJson returns structured report", "[editor][diagnostics][wizard][export]") {
+    MigrationWizardModel model;
+
+    nlohmann::json project_data = {
+        {"scenes", {
+            {{"symbol", "item"}, {"name", "Items"}}
+        }}
+    };
+
+    model.runFullMigration(project_data);
+    const auto json_str = model.getReportJson();
+    const auto parsed = nlohmann::json::parse(json_str);
+
+    REQUIRE(parsed["total_files_processed"] == 1);
+    REQUIRE(parsed["warning_count"] == 0);
+    REQUIRE(parsed["error_count"] == 0);
+    REQUIRE(parsed["is_complete"] == true);
+    REQUIRE(parsed["summary_logs"].is_array());
+    REQUIRE(parsed["subsystem_results"].is_array());
+    REQUIRE(parsed["subsystem_results"].size() == 1);
+    REQUIRE(parsed["subsystem_results"][0]["subsystem_id"] == "menu");
+    REQUIRE(parsed["subsystem_results"][0]["display_name"] == "Menu");
+    REQUIRE(parsed["subsystem_results"][0]["completed"] == true);
+    REQUIRE(parsed["subsystem_results"][0]["summary_line"].get<std::string>().find("Menu migration") != std::string::npos);
+}
+
+TEST_CASE("MigrationWizardPanel: clear action reflected in render snapshot", "[editor][diagnostics][wizard][panel][clear]") {
+    MigrationWizardPanel panel;
+
+    nlohmann::json project_data = {
+        {"messages", {
+            {"pages", {
+                {
+                    {"id", "speaker_a"},
+                    {"route", "speaker"},
+                    {"speaker", {{"actor_id", 1}, {"name", "Alyx"}}},
+                    {"text", {"Hello there."}}
+                }
+            }}
+        }},
+        {"scenes", {
+            {{"symbol", "item"}, {"name", "Items"}}
+        }}
+    };
+
+    panel.onProjectUpdateRequested(project_data);
+    panel.setVisible(true);
+    panel.render();
+
+    REQUIRE(panel.lastRenderSnapshot().subsystem_results.size() == 2);
+    REQUIRE(panel.lastRenderSnapshot().can_clear_selected_subsystem);
+
+    REQUIRE(panel.clearSubsystemResult("message"));
+    panel.render();
+
+    REQUIRE(panel.lastRenderSnapshot().subsystem_results.size() == 1);
+    REQUIRE(panel.lastRenderSnapshot().subsystem_results[0].subsystem_id == "menu");
+    REQUIRE(panel.lastRenderSnapshot().can_clear_selected_subsystem);
+}
+
+TEST_CASE("MigrationWizardPanel: exportReportJson and snapshot export field", "[editor][diagnostics][wizard][panel][export]") {
+    MigrationWizardPanel panel;
+
+    nlohmann::json project_data = {
+        {"scenes", {
+            {{"symbol", "item"}, {"name", "Items"}}
+        }}
+    };
+
+    panel.onProjectUpdateRequested(project_data);
+    panel.setVisible(true);
+    panel.render();
+
+    const auto direct_export = panel.exportReportJson();
+    const auto snapshot_export = panel.lastRenderSnapshot().exported_report_json;
+    REQUIRE_FALSE(direct_export.empty());
+    REQUIRE(direct_export == snapshot_export);
+
+    const auto parsed = nlohmann::json::parse(snapshot_export);
+    REQUIRE(parsed["total_files_processed"] == 1);
+    REQUIRE(parsed["subsystem_results"].size() == 1);
+    REQUIRE(parsed["subsystem_results"][0]["subsystem_id"] == "menu");
+}

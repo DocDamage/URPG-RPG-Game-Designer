@@ -75,6 +75,27 @@ public:
         }
     }
 
+    bool clearSubsystemResult(std::string_view subsystem_id) {
+        for (auto it = m_report.subsystem_results.begin(); it != m_report.subsystem_results.end(); ++it) {
+            if (it->subsystem_id == subsystem_id) {
+                m_report.total_files_processed = (m_report.total_files_processed > 0) ? m_report.total_files_processed - 1 : 0;
+                m_report.warning_count = (m_report.warning_count >= it->warning_count) ? m_report.warning_count - it->warning_count : 0;
+                m_report.error_count = (m_report.error_count >= it->error_count) ? m_report.error_count - it->error_count : 0;
+                const bool was_selected = selected_subsystem_id_.has_value() && *selected_subsystem_id_ == subsystem_id;
+                m_report.subsystem_results.erase(it);
+                if (was_selected) {
+                    selected_subsystem_id_.reset();
+                    if (!m_report.subsystem_results.empty()) {
+                        selected_subsystem_id_ = m_report.subsystem_results.front().subsystem_id;
+                    }
+                }
+                rebuildSummaryLogs();
+                return true;
+            }
+        }
+        return false;
+    }
+
     bool rerunSubsystem(std::string_view subsystem_id, const nlohmann::json& project_data) {
         for (auto it = m_report.subsystem_results.begin(); it != m_report.subsystem_results.end(); ++it) {
             if (it->subsystem_id == subsystem_id) {
@@ -139,6 +160,28 @@ public:
 
     std::optional<std::string> selectedSubsystemId() const {
         return selected_subsystem_id_;
+    }
+
+    std::string getReportJson() const {
+        nlohmann::json root;
+        root["total_files_processed"] = m_report.total_files_processed;
+        root["warning_count"] = m_report.warning_count;
+        root["error_count"] = m_report.error_count;
+        root["is_complete"] = m_report.is_complete;
+        root["summary_logs"] = m_report.summary_logs;
+        root["subsystem_results"] = nlohmann::json::array();
+        for (const auto& result : m_report.subsystem_results) {
+            nlohmann::json sub;
+            sub["subsystem_id"] = result.subsystem_id;
+            sub["display_name"] = result.display_name;
+            sub["processed_count"] = result.processed_count;
+            sub["warning_count"] = result.warning_count;
+            sub["error_count"] = result.error_count;
+            sub["completed"] = result.completed;
+            sub["summary_line"] = result.summary_line;
+            root["subsystem_results"].push_back(sub);
+        }
+        return root.dump();
     }
 
     std::optional<SubsystemResult> selectedSubsystemResult() const {
