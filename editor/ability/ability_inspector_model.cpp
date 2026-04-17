@@ -24,8 +24,9 @@ void AbilityInspectorModel::refresh(const AbilitySystemComponent& asc) {
     // Project abilities from ASC
     for (const auto& ability : asc.getAbilities()) {
         AbilityInfo info;
-        info.name = ability->id;
-        info.cooldown_remaining = asc.getCooldownRemaining(ability->id);
+        const auto& abilityId = ability->getId();
+        info.name = abilityId;
+        info.cooldown_remaining = asc.getCooldownRemaining(abilityId);
         info.can_activate = ability->canActivate(asc);
         info.pattern = ability->getActivationInfo().pattern;
         

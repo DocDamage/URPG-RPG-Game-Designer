@@ -133,9 +133,20 @@ TEST_CASE("DiagnosticsWorkspace - Refresh updates compat and save tabs", "[edito
     REQUIRE(exportedJson["visible"] == true);
     REQUIRE(exportedJson.contains("active_tab_detail"));
     REQUIRE(exportedJson["active_tab_detail"]["tab"] == "compat");
+    REQUIRE(exportedJson["active_tab_detail"]["project_compatibility_score"] == 70);
+    REQUIRE(exportedJson["active_tab_detail"]["selected_plugin"] == nullptr);
+    REQUIRE(exportedJson["active_tab_detail"]["detail_view"] == false);
     REQUIRE(exportedJson["active_tab_detail"]["plugins"].is_array());
     REQUIRE(exportedJson["active_tab_detail"]["plugins"].size() == 1);
     REQUIRE(exportedJson["active_tab_detail"]["plugins"][0]["pluginId"] == "MissingPlugin");
+    REQUIRE(exportedJson["active_tab_detail"]["plugins"][0]["partialCount"] == 1);
+    REQUIRE(exportedJson["active_tab_detail"]["plugins"][0]["stubCount"] == 0);
+    REQUIRE(exportedJson["active_tab_detail"]["plugins"][0]["unsupportedCount"] == 0);
+    REQUIRE(exportedJson["active_tab_detail"]["plugins"][0]["scoreHistory"].is_array());
+    REQUIRE(exportedJson["active_tab_detail"]["recent_events"].is_array());
+    REQUIRE(exportedJson["active_tab_detail"]["recent_events"].size() == 1);
+    REQUIRE(exportedJson["active_tab_detail"]["recent_events"][0]["pluginId"] == "MissingPlugin");
+    REQUIRE(exportedJson["active_tab_detail"]["recent_events"][0]["severity"] == "WARNING");
     REQUIRE(exportedJson["tabs"].is_array());
     REQUIRE(exportedJson["tabs"].size() == 9);
     REQUIRE(exportedJson["tabs"][0]["name"] == "compat");
@@ -155,6 +166,12 @@ TEST_CASE("DiagnosticsWorkspace - Refresh updates compat and save tabs", "[edito
     REQUIRE_FALSE(workspace.messagePanel().isVisible());
     REQUIRE_FALSE(workspace.battlePanel().isVisible());
     REQUIRE(workspace.compatPanel().getModel().getPluginEvents("MissingPlugin").size() == 1);
+    workspace.compatPanel().selectPlugin("MissingPlugin");
+    const auto compatDetailJson = nlohmann::json::parse(facade.emitSnapshot());
+    REQUIRE(compatDetailJson["active_tab"] == "compat");
+    REQUIRE(compatDetailJson["active_tab_detail"]["selected_plugin"] == "MissingPlugin");
+    REQUIRE(compatDetailJson["active_tab_detail"]["detail_view"] == true);
+    REQUIRE(compatDetailJson["active_tab_detail"]["recent_events"][0]["methodName"] == "execute_command");
     REQUIRE(pluginManager.exportFailureDiagnosticsJsonl().empty());
 
     const auto& saveRows = workspace.savePanel().getModel().VisibleRows();
@@ -183,6 +200,20 @@ TEST_CASE("DiagnosticsWorkspace - Refresh updates compat and save tabs", "[edito
     REQUIRE_FALSE(workspace.eventAuthorityPanel().isVisible());
     REQUIRE_FALSE(workspace.messagePanel().isVisible());
     REQUIRE_FALSE(workspace.battlePanel().isVisible());
+    REQUIRE(workspace.savePanel().getModel().SelectRow(0));
+    const auto saveJson = nlohmann::json::parse(facade.emitSnapshot());
+    REQUIRE(saveJson["active_tab"] == "save");
+    REQUIRE(saveJson["active_tab_detail"]["tab"] == "save");
+    REQUIRE(saveJson["active_tab_detail"]["save_summary"]["total_slots"] == 1);
+    REQUIRE(saveJson["active_tab_detail"]["save_summary"]["manual_slots"] == 1);
+    REQUIRE(saveJson["active_tab_detail"]["save_summary"]["autosave_enabled"] == true);
+    REQUIRE(saveJson["active_tab_detail"]["selected_slot_id"] == 4);
+    REQUIRE(saveJson["active_tab_detail"]["visible_rows"].is_array());
+    REQUIRE(saveJson["active_tab_detail"]["visible_rows"].size() == 1);
+    REQUIRE(saveJson["active_tab_detail"]["visible_rows"][0]["slot_id"] == 4);
+    REQUIRE(saveJson["active_tab_detail"]["visible_rows"][0]["map_display_name"] == "Foundry");
+    REQUIRE(saveJson["active_tab_detail"]["visible_rows"][0]["reserved_slot"] == false);
+    REQUIRE(saveJson["active_tab_detail"]["visible_rows"][0]["corrupted"] == false);
 
     workspace.setActiveTab(urpg::editor::DiagnosticsTab::EventAuthority);
     workspace.eventAuthorityPanel().setFilter("evt_workspace");
@@ -240,6 +271,25 @@ TEST_CASE("DiagnosticsWorkspace - Refresh updates compat and save tabs", "[edito
     REQUIRE_FALSE(workspace.eventAuthorityPanel().isVisible());
     REQUIRE(workspace.messagePanel().isVisible());
     REQUIRE_FALSE(workspace.battlePanel().isVisible());
+    const auto messageJson = nlohmann::json::parse(facade.emitSnapshot());
+    REQUIRE(messageJson["active_tab"] == "message_text");
+    REQUIRE(messageJson["active_tab_detail"]["tab"] == "message_text");
+    REQUIRE(messageJson["active_tab_detail"]["message_summary"]["total_pages"] == 2);
+    REQUIRE(messageJson["active_tab_detail"]["message_summary"]["speaker_pages"] == 1);
+    REQUIRE(messageJson["active_tab_detail"]["message_summary"]["narration_pages"] == 1);
+    REQUIRE(messageJson["active_tab_detail"]["message_summary"]["issue_count"] == 1);
+    REQUIRE(messageJson["active_tab_detail"]["message_summary"]["has_active_flow"] == true);
+    REQUIRE(messageJson["active_tab_detail"]["message_summary"]["current_page_index"] == 0);
+    REQUIRE(messageJson["active_tab_detail"]["selected_page_id"] == nullptr);
+    REQUIRE(messageJson["active_tab_detail"]["visible_rows"].is_array());
+    REQUIRE(messageJson["active_tab_detail"]["visible_rows"].size() == 2);
+    REQUIRE(messageJson["active_tab_detail"]["visible_rows"][0]["page_id"] == "speaker_a");
+    REQUIRE(messageJson["active_tab_detail"]["visible_rows"][0]["speaker"] == "Alicia");
+    REQUIRE(messageJson["active_tab_detail"]["visible_rows"][0]["has_choices"] == false);
+    REQUIRE(messageJson["active_tab_detail"]["issues"].is_array());
+    REQUIRE(messageJson["active_tab_detail"]["issues"].size() == 1);
+    REQUIRE(messageJson["active_tab_detail"]["issues"][0]["severity"] == "warning");
+    REQUIRE(messageJson["active_tab_detail"]["issues"][0]["page_id"] == "narration_b");
 
     workspace.setActiveTab(urpg::editor::DiagnosticsTab::Battle);
     workspace.update();
@@ -249,6 +299,20 @@ TEST_CASE("DiagnosticsWorkspace - Refresh updates compat and save tabs", "[edito
     REQUIRE_FALSE(workspace.eventAuthorityPanel().isVisible());
     REQUIRE_FALSE(workspace.messagePanel().isVisible());
     REQUIRE(workspace.battlePanel().isVisible());
+    const auto battleJson = nlohmann::json::parse(facade.emitSnapshot());
+    REQUIRE(battleJson["active_tab"] == "battle");
+    REQUIRE(battleJson["active_tab_detail"]["tab"] == "battle");
+    REQUIRE(battleJson["active_tab_detail"]["battle_summary"]["phase"] == "action");
+    REQUIRE(battleJson["active_tab_detail"]["battle_summary"]["active"] == true);
+    REQUIRE(battleJson["active_tab_detail"]["battle_summary"]["total_actions"] == 2);
+    REQUIRE(battleJson["active_tab_detail"]["selected_subject_id"] == nullptr);
+    REQUIRE(battleJson["active_tab_detail"]["visible_rows"].is_array());
+    REQUIRE(battleJson["active_tab_detail"]["visible_rows"].size() == 2);
+    REQUIRE(battleJson["active_tab_detail"]["visible_rows"][0]["subject_id"] == "actor_main");
+    REQUIRE(battleJson["active_tab_detail"]["preview"]["phase"] == "action");
+    REQUIRE(battleJson["active_tab_detail"]["preview"]["can_escape"] == true);
+    REQUIRE(battleJson["active_tab_detail"]["preview"]["physical_damage"].get<int>() > 0);
+    REQUIRE(battleJson["active_tab_detail"]["preview_issues"].is_array());
 
     workspace.setActiveTab(urpg::editor::DiagnosticsTab::Audio);
     workspace.render();
@@ -263,6 +327,17 @@ TEST_CASE("DiagnosticsWorkspace - Refresh updates compat and save tabs", "[edito
     REQUIRE(workspace.audioPanel().lastRenderSnapshot().master_volume == 1.0f);
     REQUIRE(workspace.audioPanel().lastRenderSnapshot().live_rows.size() == 1);
     REQUIRE(workspace.audioPanel().lastRenderSnapshot().live_rows[0].assetId == "workspace_test_se");
+    const auto audioJson = nlohmann::json::parse(facade.emitSnapshot());
+    REQUIRE(audioJson["active_tab"] == "audio");
+    REQUIRE(audioJson["active_tab_detail"]["tab"] == "audio");
+    REQUIRE(audioJson["active_tab_detail"]["master_volume"] == 1.0);
+    REQUIRE(audioJson["active_tab_detail"]["active_count"] == 1);
+    REQUIRE(audioJson["active_tab_detail"]["issue_count"] == 0);
+    REQUIRE(audioJson["active_tab_detail"]["has_data"] == true);
+    REQUIRE(audioJson["active_tab_detail"]["live_rows"].is_array());
+    REQUIRE(audioJson["active_tab_detail"]["live_rows"].size() == 1);
+    REQUIRE(audioJson["active_tab_detail"]["live_rows"][0]["assetId"] == "workspace_test_se");
+    REQUIRE(audioJson["active_tab_detail"]["live_rows"][0]["category"] == "SE");
 
     workspace.setActiveTab(urpg::editor::DiagnosticsTab::MigrationWizard);
     workspace.render();
@@ -349,6 +424,20 @@ TEST_CASE("DiagnosticsWorkspace - Menu runtime binding populates and clears menu
 
     const auto menuSnapshot = nlohmann::json::parse(workspace.exportAsJson());
     REQUIRE(menuSnapshot["active_tab"] == "menu");
+    REQUIRE(menuSnapshot["active_tab_detail"]["tab"] == "menu");
+    REQUIRE(menuSnapshot["active_tab_detail"]["summary"]["item_count"] == 2);
+    REQUIRE(menuSnapshot["active_tab_detail"]["menu_summary"]["active_scene_id"] == "MainMenu");
+    REQUIRE(menuSnapshot["active_tab_detail"]["menu_summary"]["total_commands"] == 2);
+    REQUIRE(menuSnapshot["active_tab_detail"]["menu_summary"]["issue_count"] == 2);
+    REQUIRE(menuSnapshot["active_tab_detail"]["selected_command_id"] == nullptr);
+    REQUIRE(menuSnapshot["active_tab_detail"]["visible_rows"].is_array());
+    REQUIRE(menuSnapshot["active_tab_detail"]["visible_rows"].size() == 2);
+    REQUIRE(menuSnapshot["active_tab_detail"]["visible_rows"][0]["command_id"] == "urpg.menu.item");
+    REQUIRE(menuSnapshot["active_tab_detail"]["visible_rows"][1]["command_id"] == "urpg.menu.dead_end");
+    REQUIRE(menuSnapshot["active_tab_detail"]["issues"].is_array());
+    REQUIRE(menuSnapshot["active_tab_detail"]["issues"].size() == 2);
+    REQUIRE(menuSnapshot["active_tab_detail"]["preview"]["title"] == "Menu Preview");
+    REQUIRE(menuSnapshot["active_tab_detail"]["preview"]["visible"] == true);
 
     workspace.clearMenuRuntime();
 
@@ -400,6 +489,18 @@ TEST_CASE("DiagnosticsWorkspace - Audio and ability runtimes clear and rebind cl
     REQUIRE(firstAbilitySummary.item_count == 1);
     REQUIRE(firstAbilitySummary.has_data);
     REQUIRE(workspace.abilityPanel().getModel().getActiveTags().size() == 1);
+    workspace.setActiveTab(urpg::editor::DiagnosticsTab::Abilities);
+    workspace.update();
+    const auto firstAbilityJson = nlohmann::json::parse(workspace.exportAsJson());
+    REQUIRE(firstAbilityJson["active_tab"] == "abilities");
+    REQUIRE(firstAbilityJson["active_tab_detail"]["tab"] == "abilities");
+    REQUIRE(firstAbilityJson["active_tab_detail"]["abilities"].is_array());
+    REQUIRE(firstAbilityJson["active_tab_detail"]["abilities"].size() == 1);
+    REQUIRE(firstAbilityJson["active_tab_detail"]["abilities"][0]["name"] == "skill.first");
+    REQUIRE(firstAbilityJson["active_tab_detail"]["abilities"][0]["can_activate"] == true);
+    REQUIRE(firstAbilityJson["active_tab_detail"]["active_tags"].is_array());
+    REQUIRE(firstAbilityJson["active_tab_detail"]["active_tags"].size() == 1);
+    REQUIRE(firstAbilityJson["active_tab_detail"]["active_tags"][0]["tag"] == "State.Empowered");
 
     workspace.clearAbilityRuntime();
 
@@ -407,6 +508,12 @@ TEST_CASE("DiagnosticsWorkspace - Audio and ability runtimes clear and rebind cl
     REQUIRE(clearedAbilitySummary.item_count == 0);
     REQUIRE_FALSE(clearedAbilitySummary.has_data);
     REQUIRE(workspace.abilityPanel().getModel().getActiveTags().empty());
+    const auto clearedAbilityJson = nlohmann::json::parse(workspace.exportAsJson());
+    REQUIRE(clearedAbilityJson["active_tab"] == "abilities");
+    REQUIRE(clearedAbilityJson["active_tab_detail"]["abilities"].is_array());
+    REQUIRE(clearedAbilityJson["active_tab_detail"]["abilities"].empty());
+    REQUIRE(clearedAbilityJson["active_tab_detail"]["active_tags"].is_array());
+    REQUIRE(clearedAbilityJson["active_tab_detail"]["active_tags"].empty());
 
     urpg::ability::AbilitySystemComponent reboundAsc;
     reboundAsc.addTag(urpg::ability::GameplayTag("State.Charged"));
@@ -420,6 +527,14 @@ TEST_CASE("DiagnosticsWorkspace - Audio and ability runtimes clear and rebind cl
     REQUIRE(reboundAbilitySummary.item_count == 2);
     REQUIRE(reboundAbilitySummary.has_data);
     REQUIRE(workspace.abilityPanel().getModel().getActiveTags().size() == 1);
+    const auto reboundAbilityJson = nlohmann::json::parse(workspace.exportAsJson());
+    REQUIRE(reboundAbilityJson["active_tab"] == "abilities");
+    REQUIRE(reboundAbilityJson["active_tab_detail"]["abilities"].is_array());
+    REQUIRE(reboundAbilityJson["active_tab_detail"]["abilities"].size() == 2);
+    REQUIRE(reboundAbilityJson["active_tab_detail"]["abilities"][0]["name"] == "skill.rebound_a");
+    REQUIRE(reboundAbilityJson["active_tab_detail"]["abilities"][1]["name"] == "skill.rebound_b");
+    REQUIRE(reboundAbilityJson["active_tab_detail"]["active_tags"].size() == 1);
+    REQUIRE(reboundAbilityJson["active_tab_detail"]["active_tags"][0]["tag"] == "State.Charged");
 }
 
 TEST_CASE("DiagnosticsWorkspace - Migration wizard state clears cleanly",
@@ -444,4 +559,44 @@ TEST_CASE("DiagnosticsWorkspace - Migration wizard state clears cleanly",
     REQUIRE(workspace.migrationWizardPanel().getModel()->getReport().summary_logs.empty());
     REQUIRE(workspace.migrationWizardPanel().getModel()->getReport().subsystem_results.empty());
     REQUIRE_FALSE(workspace.migrationWizardPanel().getModel()->getReport().is_complete);
+}
+
+TEST_CASE("DiagnosticsWorkspace - Migration wizard export carries selected subsystem detail",
+          "[editor][diagnostics][integration][wizard_export]") {
+    urpg::editor::DiagnosticsWorkspace workspace;
+
+    workspace.bindMigrationWizardRuntime({
+        {"messages", {
+            {
+                {"id", "page_1"},
+                {"speaker", "Guide"},
+                {"text", "Welcome to URPG."}
+            }
+        }},
+        {"scenes", {
+            {{"symbol", "item"}, {"name", "Items"}}
+        }}
+    });
+
+    workspace.setActiveTab(urpg::editor::DiagnosticsTab::MigrationWizard);
+    workspace.render();
+
+    const auto exported = nlohmann::json::parse(workspace.exportAsJson());
+    REQUIRE(exported["active_tab"] == "migration_wizard");
+    REQUIRE(exported["active_tab_detail"]["tab"] == "migration_wizard");
+    REQUIRE(exported["active_tab_detail"]["summary"]["item_count"] == 2);
+    REQUIRE(exported["active_tab_detail"]["summary_logs"].is_array());
+    REQUIRE(exported["active_tab_detail"]["summary_logs"].size() == 3);
+    REQUIRE(exported["active_tab_detail"]["subsystem_results"].is_array());
+    REQUIRE(exported["active_tab_detail"]["subsystem_results"].size() == 2);
+    REQUIRE(exported["active_tab_detail"]["selected_subsystem_id"] == "message");
+    REQUIRE(exported["active_tab_detail"]["selected_subsystem_display_name"] == "Message");
+    REQUIRE(exported["active_tab_detail"]["selected_subsystem_processed_count"] == 1);
+    REQUIRE(exported["active_tab_detail"]["selected_subsystem_completed"] == true);
+    REQUIRE(exported["active_tab_detail"]["selected_subsystem_summary_line"].get<std::string>().find("Message migration") != std::string::npos);
+    REQUIRE(exported["active_tab_detail"]["can_rerun_selected_subsystem"] == true);
+    REQUIRE(exported["active_tab_detail"]["can_clear_selected_subsystem"] == true);
+    REQUIRE(exported["active_tab_detail"]["can_select_next_subsystem"] == true);
+    REQUIRE(exported["active_tab_detail"]["can_select_previous_subsystem"] == false);
+    REQUIRE(exported["active_tab_detail"]["exported_report_json"].is_string());
 }

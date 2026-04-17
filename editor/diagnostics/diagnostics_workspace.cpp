@@ -42,25 +42,77 @@ nlohmann::json TabSummaryJson(const DiagnosticsTabSummary& summary) {
 }
 
 nlohmann::json CompatPluginSummaryJson(const PluginCompatSummary& summary) {
+    nlohmann::json scoreHistory = nlohmann::json::array();
+    for (const auto score : summary.scoreHistory) {
+        scoreHistory.push_back(score);
+    }
     return {
         {"pluginId", summary.pluginId},
         {"pluginName", summary.pluginName},
+        {"version", summary.version},
+        {"fullCount", summary.fullCount},
+        {"partialCount", summary.partialCount},
+        {"stubCount", summary.stubCount},
+        {"unsupportedCount", summary.unsupportedCount},
         {"compatibilityScore", summary.compatibilityScore},
         {"warningCount", summary.warningCount},
         {"errorCount", summary.errorCount},
         {"totalCalls", summary.totalCalls},
+        {"totalDurationUs", summary.totalDurationUs},
+        {"scoreHistory", std::move(scoreHistory)},
+        {"firstSeenTimestamp", summary.firstSeenTimestamp},
+        {"lastUpdatedTimestamp", summary.lastUpdatedTimestamp},
+    };
+}
+
+nlohmann::json CompatEventJson(const CompatEvent& event) {
+    return {
+        {"timestamp", event.timestamp},
+        {"pluginId", event.pluginId},
+        {"className", event.className},
+        {"methodName", event.methodName},
+        {"severity", event.severityToString()},
+        {"message", event.message},
+        {"sourceFile", event.sourceFile},
+        {"sourceLine", event.sourceLine},
+        {"navigationTarget", event.navigationTarget},
     };
 }
 
 nlohmann::json SaveRowJson(const SaveInspectorRow& row) {
     return {
         {"slot_id", row.slot_id},
+        {"reserved_slot", row.reserved_slot},
+        {"autosave", row.autosave},
+        {"corrupted", row.corrupted},
+        {"loaded_from_recovery", row.loaded_from_recovery},
+        {"boot_safe_mode", row.boot_safe_mode},
+        {"slot_label", row.slot_label},
+        {"map_display_name", row.map_display_name},
         {"summary", row.summary},
         {"operation", row.operation},
         {"category_label", row.category_label},
         {"retention_label", row.retention_label},
         {"recovery_label", row.recovery_label},
         {"diagnostic", row.diagnostic},
+    };
+}
+
+nlohmann::json SaveInspectorSummaryJson(const SaveInspectorSummary& summary) {
+    return {
+        {"total_slots", summary.total_slots},
+        {"autosave_slots", summary.autosave_slots},
+        {"quicksave_slots", summary.quicksave_slots},
+        {"manual_slots", summary.manual_slots},
+        {"corrupted_slots", summary.corrupted_slots},
+        {"recovery_slots", summary.recovery_slots},
+        {"safe_mode_slots", summary.safe_mode_slots},
+        {"autosave_enabled", summary.autosave_enabled},
+        {"autosave_slot_id", summary.autosave_slot_id},
+        {"autosave_retention_limit", summary.autosave_retention_limit},
+        {"quicksave_retention_limit", summary.quicksave_retention_limit},
+        {"manual_retention_limit", summary.manual_retention_limit},
+        {"reserved_slots", summary.reserved_slots},
     };
 }
 
@@ -96,6 +148,272 @@ nlohmann::json EventAuthorityRowJson(const EventAuthorityPanelRow& row) {
         {"error_code", row.error_code},
         {"message", row.message},
         {"summary", row.summary},
+    };
+}
+
+nlohmann::json MigrationWizardSubsystemJson(const MigrationWizardModel::SubsystemResult& result) {
+    return {
+        {"subsystem_id", result.subsystem_id},
+        {"display_name", result.display_name},
+        {"processed_count", result.processed_count},
+        {"warning_count", result.warning_count},
+        {"error_count", result.error_count},
+        {"completed", result.completed},
+        {"summary_line", result.summary_line},
+    };
+}
+
+const char* AudioCategoryName(urpg::audio::AudioCategory category) {
+    switch (category) {
+    case urpg::audio::AudioCategory::BGM:
+        return "BGM";
+    case urpg::audio::AudioCategory::BGS:
+        return "BGS";
+    case urpg::audio::AudioCategory::SE:
+        return "SE";
+    case urpg::audio::AudioCategory::ME:
+        return "ME";
+    case urpg::audio::AudioCategory::System:
+        return "System";
+    }
+    return "System";
+}
+
+nlohmann::json AudioHandleRowJson(const AudioHandleRow& row) {
+    return {
+        {"handle", row.handle},
+        {"assetId", row.assetId},
+        {"category", AudioCategoryName(row.category)},
+        {"volume", row.volume},
+        {"pitch", row.pitch},
+        {"isLooping", row.isLooping},
+        {"isActive", row.isActive},
+    };
+}
+
+const char* MessageInspectorIssueSeverityName(MessageInspectorIssueSeverity severity) {
+    switch (severity) {
+    case MessageInspectorIssueSeverity::Info:
+        return "info";
+    case MessageInspectorIssueSeverity::Warning:
+        return "warning";
+    case MessageInspectorIssueSeverity::Error:
+        return "error";
+    }
+    return "info";
+}
+
+nlohmann::json MessageInspectorSummaryJson(const MessageInspectorSummary& summary) {
+    return {
+        {"total_pages", summary.total_pages},
+        {"speaker_pages", summary.speaker_pages},
+        {"narration_pages", summary.narration_pages},
+        {"system_pages", summary.system_pages},
+        {"choice_pages", summary.choice_pages},
+        {"issue_count", summary.issue_count},
+        {"max_preview_width", summary.max_preview_width},
+        {"has_active_flow", summary.has_active_flow},
+        {"current_page_index", summary.current_page_index},
+    };
+}
+
+nlohmann::json MessageInspectorRowJson(const MessageInspectorRow& row) {
+    return {
+        {"page_index", row.page_index},
+        {"page_id", row.page_id},
+        {"route", row.route},
+        {"tone", row.tone},
+        {"speaker", row.speaker},
+        {"face_actor_id", row.face_actor_id},
+        {"body_preview", row.body_preview},
+        {"line_count", row.line_count},
+        {"preview_width", row.preview_width},
+        {"preview_height", row.preview_height},
+        {"has_choices", row.has_choices},
+        {"choice_count", row.choice_count},
+        {"issue_count", row.issue_count},
+    };
+}
+
+nlohmann::json MessageInspectorIssueJson(const MessageInspectorIssue& issue) {
+    return {
+        {"severity", MessageInspectorIssueSeverityName(issue.severity)},
+        {"code", issue.code},
+        {"page_id", issue.page_id},
+        {"message", issue.message},
+    };
+}
+
+nlohmann::json AbilityInfoJson(const AbilityInfo& info) {
+    return {
+        {"name", info.name},
+        {"can_activate", info.can_activate},
+        {"cooldown_remaining", info.cooldown_remaining},
+        {"blocking_reason", info.blocking_reason},
+        {"has_pattern", static_cast<bool>(info.pattern)},
+    };
+}
+
+nlohmann::json ActiveTagInfoJson(const ActiveTagInfo& info) {
+    return {
+        {"tag", info.tag},
+        {"count", info.count},
+    };
+}
+
+const char* MenuInspectorIssueSeverityName(MenuInspectorIssueSeverity severity) {
+    switch (severity) {
+    case MenuInspectorIssueSeverity::Info:
+        return "info";
+    case MenuInspectorIssueSeverity::Warning:
+        return "warning";
+    case MenuInspectorIssueSeverity::Error:
+        return "error";
+    }
+    return "info";
+}
+
+nlohmann::json MenuInspectorSummaryJson(const MenuInspectorSummary& summary) {
+    return {
+        {"active_scene_id", summary.active_scene_id},
+        {"stack_depth", summary.stack_depth},
+        {"total_panes", summary.total_panes},
+        {"visible_panes", summary.visible_panes},
+        {"active_panes", summary.active_panes},
+        {"navigable_panes", summary.navigable_panes},
+        {"total_commands", summary.total_commands},
+        {"visible_commands", summary.visible_commands},
+        {"enabled_commands", summary.enabled_commands},
+        {"blocked_commands", summary.blocked_commands},
+        {"issue_count", summary.issue_count},
+        {"missing_registry_entries", summary.missing_registry_entries},
+        {"route_binding_issues", summary.route_binding_issues},
+        {"rule_validation_issues", summary.rule_validation_issues},
+        {"duplicate_command_ids", summary.duplicate_command_ids},
+    };
+}
+
+nlohmann::json MenuInspectorRowJson(const MenuInspectorRow& row) {
+    return {
+        {"scene_id", row.scene_id},
+        {"pane_index", row.pane_index},
+        {"pane_id", row.pane_id},
+        {"pane_label", row.pane_label},
+        {"command_index", row.command_index},
+        {"command_id", row.command_id},
+        {"command_label", row.command_label},
+        {"icon_id", row.icon_id},
+        {"route_label", row.route_label},
+        {"custom_route_id", row.custom_route_id},
+        {"fallback_route_label", row.fallback_route_label},
+        {"fallback_custom_route_id", row.fallback_custom_route_id},
+        {"priority", row.priority},
+        {"pane_visible", row.pane_visible},
+        {"pane_active", row.pane_active},
+        {"command_registered", row.command_registered},
+        {"command_visible", row.command_visible},
+        {"command_enabled", row.command_enabled},
+        {"row_navigable", row.row_navigable},
+        {"issue_count", row.issue_count},
+        {"summary", row.summary},
+    };
+}
+
+nlohmann::json MenuInspectorIssueJson(const MenuInspectorIssue& issue) {
+    nlohmann::json root{
+        {"severity", MenuInspectorIssueSeverityName(issue.severity)},
+        {"code", issue.code},
+        {"message", issue.message},
+        {"scene_id", issue.scene_id},
+        {"pane_id", issue.pane_id},
+        {"command_id", issue.command_id},
+    };
+    root["pane_index"] = issue.pane_index.has_value() ? nlohmann::json(*issue.pane_index) : nlohmann::json(nullptr);
+    root["command_index"] = issue.command_index.has_value() ? nlohmann::json(*issue.command_index) : nlohmann::json(nullptr);
+    return root;
+}
+
+const char* BattleInspectorIssueSeverityName(BattleInspectorIssueSeverity severity) {
+    switch (severity) {
+    case BattleInspectorIssueSeverity::Info:
+        return "info";
+    case BattleInspectorIssueSeverity::Warning:
+        return "warning";
+    case BattleInspectorIssueSeverity::Error:
+        return "error";
+    }
+    return "info";
+}
+
+const char* BattlePreviewIssueSeverityName(BattlePreviewIssueSeverity severity) {
+    switch (severity) {
+    case BattlePreviewIssueSeverity::Info:
+        return "info";
+    case BattlePreviewIssueSeverity::Warning:
+        return "warning";
+    case BattlePreviewIssueSeverity::Error:
+        return "error";
+    }
+    return "info";
+}
+
+nlohmann::json BattleInspectorSummaryJson(const BattleInspectorSummary& summary) {
+    return {
+        {"phase", summary.phase},
+        {"active", summary.active},
+        {"can_escape", summary.can_escape},
+        {"turn_count", summary.turn_count},
+        {"escape_failures", summary.escape_failures},
+        {"total_actions", summary.total_actions},
+        {"unique_subjects", summary.unique_subjects},
+        {"fastest_speed", summary.fastest_speed},
+        {"slowest_speed", summary.slowest_speed},
+        {"issue_count", summary.issue_count},
+    };
+}
+
+nlohmann::json BattleInspectorRowJson(const BattleInspectorActionRow& row) {
+    return {
+        {"action_order", row.action_order},
+        {"subject_id", row.subject_id},
+        {"target_id", row.target_id},
+        {"command", row.command},
+        {"speed", row.speed},
+        {"priority", row.priority},
+        {"issue_count", row.issue_count},
+        {"summary", row.summary},
+    };
+}
+
+nlohmann::json BattleInspectorIssueJson(const BattleInspectorIssue& issue) {
+    nlohmann::json root{
+        {"severity", BattleInspectorIssueSeverityName(issue.severity)},
+        {"code", issue.code},
+        {"message", issue.message},
+    };
+    root["action_order"] = issue.action_order.has_value() ? nlohmann::json(*issue.action_order) : nlohmann::json(nullptr);
+    return root;
+}
+
+nlohmann::json BattlePreviewSnapshotJson(const BattlePreviewSnapshot& snapshot) {
+    return {
+        {"phase", snapshot.phase},
+        {"can_escape", snapshot.can_escape},
+        {"physical_damage", snapshot.physical_damage},
+        {"guarded_damage", snapshot.guarded_damage},
+        {"critical_damage", snapshot.critical_damage},
+        {"magical_damage", snapshot.magical_damage},
+        {"escape_ratio_now", snapshot.escape_ratio_now},
+        {"escape_ratio_next_fail", snapshot.escape_ratio_next_fail},
+        {"issue_count", snapshot.issue_count},
+    };
+}
+
+nlohmann::json BattlePreviewIssueJson(const BattlePreviewIssue& issue) {
+    return {
+        {"severity", BattlePreviewIssueSeverityName(issue.severity)},
+        {"code", issue.code},
+        {"message", issue.message},
     };
 }
 
@@ -397,10 +715,23 @@ std::string DiagnosticsWorkspace::exportAsJson() const {
             plugins.push_back(CompatPluginSummaryJson(pluginSummary));
         }
         activeTabDetail["plugins"] = std::move(plugins);
-        activeTabDetail["recent_event_count"] = compat_panel_.getModel().getRecentEvents(1000).size();
+        activeTabDetail["project_compatibility_score"] = compat_panel_.getModel().getProjectCompatibilityScore();
+        activeTabDetail["selected_plugin"] =
+            compat_panel_.getSelectedPlugin().empty() ? nlohmann::json(nullptr) : nlohmann::json(compat_panel_.getSelectedPlugin());
+        activeTabDetail["detail_view"] = compat_panel_.isDetailView();
+        nlohmann::json recentEvents = nlohmann::json::array();
+        for (const auto& event : compat_panel_.getModel().getRecentEvents(1000)) {
+            recentEvents.push_back(CompatEventJson(event));
+        }
+        activeTabDetail["recent_events"] = std::move(recentEvents);
+        activeTabDetail["recent_event_count"] = activeTabDetail["recent_events"].size();
         break;
     }
     case DiagnosticsTab::Save: {
+        activeTabDetail["save_summary"] = SaveInspectorSummaryJson(save_panel_.getModel().Summary());
+        activeTabDetail["selected_slot_id"] =
+            save_panel_.getModel().SelectedSlotId().has_value() ? nlohmann::json(*save_panel_.getModel().SelectedSlotId())
+                                                                : nlohmann::json(nullptr);
         nlohmann::json rows = nlohmann::json::array();
         for (const auto& row : save_panel_.getModel().VisibleRows()) {
             rows.push_back(SaveRowJson(row));
@@ -434,6 +765,132 @@ std::string DiagnosticsWorkspace::exportAsJson() const {
             activeTabDetail["selected_navigation_target"] =
                 EventAuthorityTargetJson(snapshot.selected_navigation_target.value());
         }
+        break;
+    }
+    case DiagnosticsTab::MessageText: {
+        activeTabDetail["message_summary"] = MessageInspectorSummaryJson(message_panel_.getModel().Summary());
+        activeTabDetail["selected_page_id"] = message_panel_.getModel().SelectedPageId().has_value()
+                                                  ? nlohmann::json(*message_panel_.getModel().SelectedPageId())
+                                                  : nlohmann::json(nullptr);
+
+        nlohmann::json visibleRows = nlohmann::json::array();
+        for (const auto& row : message_panel_.getModel().VisibleRows()) {
+            visibleRows.push_back(MessageInspectorRowJson(row));
+        }
+        activeTabDetail["visible_rows"] = std::move(visibleRows);
+
+        nlohmann::json issues = nlohmann::json::array();
+        for (const auto& issue : message_panel_.getModel().Issues()) {
+            issues.push_back(MessageInspectorIssueJson(issue));
+        }
+        activeTabDetail["issues"] = std::move(issues);
+        break;
+    }
+    case DiagnosticsTab::MigrationWizard: {
+        const auto& snapshot = migration_wizard_panel_.lastRenderSnapshot();
+        activeTabDetail["headline"] = snapshot.headline;
+        activeTabDetail["has_data"] = snapshot.has_data;
+        activeTabDetail["is_complete"] = snapshot.is_complete;
+        activeTabDetail["summary_log_count"] = snapshot.summary_log_count;
+        activeTabDetail["summary_logs"] = snapshot.summary_logs;
+        activeTabDetail["selected_subsystem_id"] =
+            snapshot.selected_subsystem_id.has_value() ? nlohmann::json(*snapshot.selected_subsystem_id) : nlohmann::json(nullptr);
+        activeTabDetail["selected_subsystem_display_name"] = snapshot.selected_subsystem_display_name;
+        activeTabDetail["selected_subsystem_processed_count"] = snapshot.selected_subsystem_processed_count;
+        activeTabDetail["selected_subsystem_warning_count"] = snapshot.selected_subsystem_warning_count;
+        activeTabDetail["selected_subsystem_error_count"] = snapshot.selected_subsystem_error_count;
+        activeTabDetail["selected_subsystem_completed"] = snapshot.selected_subsystem_completed;
+        activeTabDetail["selected_subsystem_summary_line"] = snapshot.selected_subsystem_summary_line;
+        activeTabDetail["can_rerun_selected_subsystem"] = snapshot.can_rerun_selected_subsystem;
+        activeTabDetail["can_clear_selected_subsystem"] = snapshot.can_clear_selected_subsystem;
+        activeTabDetail["can_select_next_subsystem"] = snapshot.can_select_next_subsystem;
+        activeTabDetail["can_select_previous_subsystem"] = snapshot.can_select_previous_subsystem;
+        activeTabDetail["can_save_report"] = snapshot.can_save_report;
+        activeTabDetail["can_load_report"] = snapshot.can_load_report;
+        activeTabDetail["exported_report_json"] = snapshot.exported_report_json;
+        nlohmann::json subsystemResults = nlohmann::json::array();
+        for (const auto& result : snapshot.subsystem_results) {
+            subsystemResults.push_back(MigrationWizardSubsystemJson(result));
+        }
+        activeTabDetail["subsystem_results"] = std::move(subsystemResults);
+        break;
+    }
+    case DiagnosticsTab::Battle: {
+        activeTabDetail["battle_summary"] = BattleInspectorSummaryJson(battle_panel_.getModel().Summary());
+        activeTabDetail["selected_subject_id"] =
+            battle_panel_.getModel().SelectedSubjectId().has_value() ? nlohmann::json(*battle_panel_.getModel().SelectedSubjectId()) : nlohmann::json(nullptr);
+
+        nlohmann::json visibleRows = nlohmann::json::array();
+        for (const auto& row : battle_panel_.getModel().VisibleRows()) {
+            visibleRows.push_back(BattleInspectorRowJson(row));
+        }
+        activeTabDetail["visible_rows"] = std::move(visibleRows);
+
+        nlohmann::json issues = nlohmann::json::array();
+        for (const auto& issue : battle_panel_.getModel().Issues()) {
+            issues.push_back(BattleInspectorIssueJson(issue));
+        }
+        activeTabDetail["issues"] = std::move(issues);
+
+        activeTabDetail["preview"] = BattlePreviewSnapshotJson(battle_panel_.previewPanel().snapshot());
+        nlohmann::json previewIssues = nlohmann::json::array();
+        for (const auto& issue : battle_panel_.previewPanel().issues()) {
+            previewIssues.push_back(BattlePreviewIssueJson(issue));
+        }
+        activeTabDetail["preview_issues"] = std::move(previewIssues);
+        break;
+    }
+    case DiagnosticsTab::Audio: {
+        const auto& snapshot = audio_panel_.lastRenderSnapshot();
+        activeTabDetail["active_count"] = snapshot.active_count;
+        activeTabDetail["issue_count"] = snapshot.issue_count;
+        activeTabDetail["master_volume"] = snapshot.master_volume;
+        activeTabDetail["has_data"] = snapshot.has_data;
+        nlohmann::json liveRows = nlohmann::json::array();
+        for (const auto& row : snapshot.live_rows) {
+            liveRows.push_back(AudioHandleRowJson(row));
+        }
+        activeTabDetail["live_rows"] = std::move(liveRows);
+        break;
+    }
+    case DiagnosticsTab::Menu: {
+        if (menu_model_) {
+            activeTabDetail["menu_summary"] = MenuInspectorSummaryJson(menu_model_->Summary());
+            activeTabDetail["selected_command_id"] =
+                menu_model_->SelectedCommandId().has_value() ? nlohmann::json(*menu_model_->SelectedCommandId()) : nlohmann::json(nullptr);
+
+            nlohmann::json visibleRows = nlohmann::json::array();
+            for (const auto& row : menu_model_->VisibleRows()) {
+                visibleRows.push_back(MenuInspectorRowJson(row));
+            }
+            activeTabDetail["visible_rows"] = std::move(visibleRows);
+
+            nlohmann::json issues = nlohmann::json::array();
+            for (const auto& issue : menu_model_->Issues()) {
+                issues.push_back(MenuInspectorIssueJson(issue));
+            }
+            activeTabDetail["issues"] = std::move(issues);
+        }
+        if (menu_preview_panel_) {
+            activeTabDetail["preview"] = {
+                {"title", menu_preview_panel_->GetTitle()},
+                {"visible", menu_preview_panel_->IsVisible()},
+            };
+        }
+        break;
+    }
+    case DiagnosticsTab::Abilities: {
+        nlohmann::json abilities = nlohmann::json::array();
+        for (const auto& ability : ability_panel_.getModel().getAbilities()) {
+            abilities.push_back(AbilityInfoJson(ability));
+        }
+        activeTabDetail["abilities"] = std::move(abilities);
+
+        nlohmann::json activeTags = nlohmann::json::array();
+        for (const auto& tag : ability_panel_.getModel().getActiveTags()) {
+            activeTags.push_back(ActiveTagInfoJson(tag));
+        }
+        activeTabDetail["active_tags"] = std::move(activeTags);
         break;
     }
     default:
