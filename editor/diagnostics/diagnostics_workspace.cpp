@@ -79,6 +79,36 @@ nlohmann::json CompatEventJson(const CompatEvent& event) {
     };
 }
 
+const char* CompatStatusName(CompatStatus status) {
+    switch (status) {
+    case CompatStatus::FULL:
+        return "FULL";
+    case CompatStatus::PARTIAL:
+        return "PARTIAL";
+    case CompatStatus::STUB:
+        return "STUB";
+    case CompatStatus::UNSUPPORTED:
+        return "UNSUPPORTED";
+    default:
+        return "UNKNOWN";
+    }
+}
+
+nlohmann::json CompatCallRecordJson(const CompatCallRecord& record) {
+    return {
+        {"pluginId", record.pluginId},
+        {"className", record.className},
+        {"methodName", record.methodName},
+        {"status", CompatStatusName(record.status)},
+        {"deviationNote", record.deviationNote},
+        {"callCount", record.callCount},
+        {"totalDurationUs", record.totalDurationUs},
+        {"lastCallTimestamp", record.lastCallTimestamp},
+        {"hasWarning", record.hasWarning},
+        {"hasError", record.hasError},
+    };
+}
+
 nlohmann::json SaveRowJson(const SaveInspectorRow& row) {
     return {
         {"slot_id", row.slot_id},
@@ -725,6 +755,23 @@ std::string DiagnosticsWorkspace::exportAsJson() const {
         }
         activeTabDetail["recent_events"] = std::move(recentEvents);
         activeTabDetail["recent_event_count"] = activeTabDetail["recent_events"].size();
+        if (!compat_panel_.getSelectedPlugin().empty()) {
+            const auto selectedPlugin = compat_panel_.getSelectedPlugin();
+            activeTabDetail["selected_plugin_summary"] =
+                CompatPluginSummaryJson(compat_panel_.getModel().getPluginSummary(selectedPlugin));
+
+            nlohmann::json selectedCalls = nlohmann::json::array();
+            for (const auto& call : compat_panel_.getModel().getPluginCalls(selectedPlugin)) {
+                selectedCalls.push_back(CompatCallRecordJson(call));
+            }
+            activeTabDetail["selected_plugin_calls"] = std::move(selectedCalls);
+
+            nlohmann::json selectedEvents = nlohmann::json::array();
+            for (const auto& event : compat_panel_.getModel().getPluginEvents(selectedPlugin)) {
+                selectedEvents.push_back(CompatEventJson(event));
+            }
+            activeTabDetail["selected_plugin_events"] = std::move(selectedEvents);
+        }
         break;
     }
     case DiagnosticsTab::Save: {

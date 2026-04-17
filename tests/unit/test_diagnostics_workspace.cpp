@@ -171,7 +171,14 @@ TEST_CASE("DiagnosticsWorkspace - Refresh updates compat and save tabs", "[edito
     REQUIRE(compatDetailJson["active_tab"] == "compat");
     REQUIRE(compatDetailJson["active_tab_detail"]["selected_plugin"] == "MissingPlugin");
     REQUIRE(compatDetailJson["active_tab_detail"]["detail_view"] == true);
+    REQUIRE(compatDetailJson["active_tab_detail"]["selected_plugin_summary"]["pluginId"] == "MissingPlugin");
+    REQUIRE(compatDetailJson["active_tab_detail"]["selected_plugin_calls"].is_array());
+    REQUIRE(compatDetailJson["active_tab_detail"]["selected_plugin_calls"].size() == 1);
+    REQUIRE(compatDetailJson["active_tab_detail"]["selected_plugin_calls"][0]["className"] == "PluginManager");
     REQUIRE(compatDetailJson["active_tab_detail"]["recent_events"][0]["methodName"] == "execute_command");
+    REQUIRE(compatDetailJson["active_tab_detail"]["selected_plugin_events"].is_array());
+    REQUIRE(compatDetailJson["active_tab_detail"]["selected_plugin_events"].size() == 1);
+    REQUIRE(compatDetailJson["active_tab_detail"]["selected_plugin_events"][0]["pluginId"] == "MissingPlugin");
     REQUIRE(pluginManager.exportFailureDiagnosticsJsonl().empty());
 
     const auto& saveRows = workspace.savePanel().getModel().VisibleRows();
