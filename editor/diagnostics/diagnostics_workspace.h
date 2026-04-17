@@ -66,6 +66,10 @@ public:
     void bindMessageRuntime(const urpg::message::MessageFlowRunner& flow_runner,
                             const urpg::message::RichTextLayoutEngine& layout_engine);
     void clearMessageRuntime();
+    bool setMessageRouteFilter(std::optional<urpg::message::MessagePresentationMode> route_filter);
+    bool clearMessageRouteFilter();
+    bool setMessageShowIssuesOnly(bool show_issues_only);
+    bool selectMessageRow(size_t row_index);
     void bindBattleRuntime(const urpg::battle::BattleFlowController& flow_controller,
                            const urpg::battle::BattleActionQueue& action_queue);
     void clearBattleRuntime();
@@ -78,10 +82,25 @@ public:
     void clearAudioRuntime();
     void bindMigrationWizardRuntime(const nlohmann::json& project_data);
     void clearMigrationWizardRuntime();
+    bool selectMigrationWizardSubsystemResult(std::string_view subsystem_id);
+    bool selectNextMigrationWizardSubsystemResult();
+    bool selectPreviousMigrationWizardSubsystemResult();
+    bool rerunMigrationWizardSubsystem(std::string_view subsystem_id, const nlohmann::json& project_data);
+    bool clearMigrationWizardSubsystemResult(std::string_view subsystem_id);
+    std::string exportMigrationWizardReportJson() const;
+    bool saveMigrationWizardReportToFile(const std::string& path);
+    bool loadMigrationWizardReportFromFile(const std::string& path);
     void bindAbilityRuntime(const urpg::ability::AbilitySystemComponent& asc);
     void clearAbilityRuntime();
     void ingestEventAuthorityDiagnosticsJsonl(std::string_view diagnostics_jsonl);
     void clearEventAuthorityDiagnostics();
+    bool setEventAuthorityEventIdFilter(std::string_view event_id_filter);
+    bool setEventAuthorityLevelFilter(std::string_view level_filter);
+    bool setEventAuthorityModeFilter(std::string_view mode_filter);
+    bool clearEventAuthorityFilters();
+    bool selectEventAuthorityRow(size_t row_index);
+    bool selectNextEventAuthorityRow();
+    bool selectPreviousEventAuthorityRow();
 
     void setActiveTab(DiagnosticsTab tab);
     DiagnosticsTab activeTab() const;
@@ -99,6 +118,11 @@ public:
 
 private:
     void syncPanelVisibility();
+    void refreshActiveSnapshotBackedTabIfVisible();
+    void refreshEventAuthoritySnapshotIfActive();
+    void renderEventAuthoritySnapshotIfActive();
+    void refreshAudioSnapshotIfActive();
+    void refreshMigrationWizardSnapshotIfActive();
 
     CompatReportPanel compat_panel_;
     SaveInspectorPanel save_panel_;

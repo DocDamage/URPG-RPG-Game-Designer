@@ -45,6 +45,7 @@ std::string PreviewBody(std::string_view body, size_t max_chars = 120) {
 
 void MessageInspectorModel::LoadFromFlow(const urpg::message::MessageFlowRunner& flow_runner,
                                          const urpg::message::RichTextLayoutEngine& layout_engine) {
+    const auto previously_selected_page_id = SelectedPageId();
     all_rows_.clear();
     visible_rows_.clear();
     issues_.clear();
@@ -143,18 +144,21 @@ void MessageInspectorModel::LoadFromFlow(const urpg::message::MessageFlowRunner&
 
     summary_.issue_count = issues_.size();
     RebuildVisibleRows();
+    RestoreSelectionByPageId(previously_selected_page_id);
 }
 
 void MessageInspectorModel::SetRouteFilter(std::optional<urpg::message::MessagePresentationMode> route_filter) {
+    const auto previously_selected_page_id = SelectedPageId();
     route_filter_ = route_filter;
-    selected_row_index_.reset();
     RebuildVisibleRows();
+    RestoreSelectionByPageId(previously_selected_page_id);
 }
 
 void MessageInspectorModel::SetShowIssuesOnly(bool show_issues_only) {
+    const auto previously_selected_page_id = SelectedPageId();
     show_issues_only_ = show_issues_only;
-    selected_row_index_.reset();
     RebuildVisibleRows();
+    RestoreSelectionByPageId(previously_selected_page_id);
 }
 
 const MessageInspectorSummary& MessageInspectorModel::Summary() const {
@@ -200,6 +204,20 @@ void MessageInspectorModel::RebuildVisibleRows() {
             continue;
         }
         visible_rows_.push_back(row);
+    }
+}
+
+void MessageInspectorModel::RestoreSelectionByPageId(const std::optional<std::string>& page_id) {
+    selected_row_index_.reset();
+    if (!page_id.has_value()) {
+        return;
+    }
+
+    for (size_t index = 0; index < visible_rows_.size(); ++index) {
+        if (visible_rows_[index].page_id == *page_id) {
+            selected_row_index_ = index;
+            return;
+        }
     }
 }
 

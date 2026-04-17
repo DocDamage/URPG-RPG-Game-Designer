@@ -554,6 +554,26 @@ void DiagnosticsWorkspace::clearMessageRuntime() {
     message_panel_.clearRuntime();
 }
 
+bool DiagnosticsWorkspace::setMessageRouteFilter(std::optional<urpg::message::MessagePresentationMode> route_filter) {
+    message_panel_.setRouteFilter(route_filter);
+    message_panel_.update();
+    return true;
+}
+
+bool DiagnosticsWorkspace::clearMessageRouteFilter() {
+    return setMessageRouteFilter(std::nullopt);
+}
+
+bool DiagnosticsWorkspace::setMessageShowIssuesOnly(bool show_issues_only) {
+    message_panel_.setShowIssuesOnly(show_issues_only);
+    message_panel_.update();
+    return true;
+}
+
+bool DiagnosticsWorkspace::selectMessageRow(size_t row_index) {
+    return message_panel_.getModel().SelectRow(row_index);
+}
+
 void DiagnosticsWorkspace::bindBattleRuntime(const urpg::battle::BattleFlowController& flow_controller,
                                              const urpg::battle::BattleActionQueue& action_queue) {
     battle_panel_.bindRuntime(flow_controller, action_queue);
@@ -586,18 +606,76 @@ void DiagnosticsWorkspace::clearMenuRuntime() {
 
 void DiagnosticsWorkspace::bindAudioRuntime(const urpg::audio::AudioCore& core) {
     audio_panel_.onRefreshRequested(core);
+    refreshAudioSnapshotIfActive();
 }
 
 void DiagnosticsWorkspace::clearAudioRuntime() {
     audio_panel_.clear();
+    refreshAudioSnapshotIfActive();
 }
 
 void DiagnosticsWorkspace::bindMigrationWizardRuntime(const nlohmann::json& project_data) {
     migration_wizard_panel_.onProjectUpdateRequested(project_data);
+    refreshMigrationWizardSnapshotIfActive();
 }
 
 void DiagnosticsWorkspace::clearMigrationWizardRuntime() {
     migration_wizard_panel_.clear();
+    refreshMigrationWizardSnapshotIfActive();
+}
+
+bool DiagnosticsWorkspace::selectMigrationWizardSubsystemResult(std::string_view subsystem_id) {
+    const bool changed = migration_wizard_panel_.selectSubsystemResult(subsystem_id);
+    if (changed) {
+        refreshMigrationWizardSnapshotIfActive();
+    }
+    return changed;
+}
+
+bool DiagnosticsWorkspace::selectNextMigrationWizardSubsystemResult() {
+    const bool changed = migration_wizard_panel_.selectNextSubsystemResult();
+    if (changed) {
+        refreshMigrationWizardSnapshotIfActive();
+    }
+    return changed;
+}
+
+bool DiagnosticsWorkspace::selectPreviousMigrationWizardSubsystemResult() {
+    const bool changed = migration_wizard_panel_.selectPreviousSubsystemResult();
+    if (changed) {
+        refreshMigrationWizardSnapshotIfActive();
+    }
+    return changed;
+}
+
+bool DiagnosticsWorkspace::rerunMigrationWizardSubsystem(std::string_view subsystem_id, const nlohmann::json& project_data) {
+    const bool changed = migration_wizard_panel_.rerunSubsystem(subsystem_id, project_data);
+    if (changed) {
+        refreshMigrationWizardSnapshotIfActive();
+    }
+    return changed;
+}
+
+bool DiagnosticsWorkspace::clearMigrationWizardSubsystemResult(std::string_view subsystem_id) {
+    const bool changed = migration_wizard_panel_.clearSubsystemResult(subsystem_id);
+    if (changed) {
+        refreshMigrationWizardSnapshotIfActive();
+    }
+    return changed;
+}
+
+std::string DiagnosticsWorkspace::exportMigrationWizardReportJson() const {
+    return migration_wizard_panel_.getModel()->getReportJson();
+}
+
+bool DiagnosticsWorkspace::saveMigrationWizardReportToFile(const std::string& path) {
+    return migration_wizard_panel_.saveReportToFile(path);
+}
+
+bool DiagnosticsWorkspace::loadMigrationWizardReportFromFile(const std::string& path) {
+    const bool loaded = migration_wizard_panel_.loadReportFromFile(path);
+    refreshMigrationWizardSnapshotIfActive();
+    return loaded;
 }
 
 void DiagnosticsWorkspace::bindAbilityRuntime(const urpg::ability::AbilitySystemComponent& asc) {
@@ -610,15 +688,68 @@ void DiagnosticsWorkspace::clearAbilityRuntime() {
 
 void DiagnosticsWorkspace::ingestEventAuthorityDiagnosticsJsonl(std::string_view diagnostics_jsonl) {
     event_authority_panel_.ingestDiagnosticsJsonl(diagnostics_jsonl);
+    refreshEventAuthoritySnapshotIfActive();
 }
 
 void DiagnosticsWorkspace::clearEventAuthorityDiagnostics() {
     event_authority_panel_.clearDiagnostics();
+    refreshEventAuthoritySnapshotIfActive();
+}
+
+bool DiagnosticsWorkspace::setEventAuthorityEventIdFilter(std::string_view event_id_filter) {
+    event_authority_panel_.setFilter(event_id_filter);
+    refreshEventAuthoritySnapshotIfActive();
+    return true;
+}
+
+bool DiagnosticsWorkspace::setEventAuthorityLevelFilter(std::string_view level_filter) {
+    event_authority_panel_.setLevelFilter(level_filter);
+    refreshEventAuthoritySnapshotIfActive();
+    return true;
+}
+
+bool DiagnosticsWorkspace::setEventAuthorityModeFilter(std::string_view mode_filter) {
+    event_authority_panel_.setModeFilter(mode_filter);
+    refreshEventAuthoritySnapshotIfActive();
+    return true;
+}
+
+bool DiagnosticsWorkspace::clearEventAuthorityFilters() {
+    event_authority_panel_.setFilter({});
+    event_authority_panel_.setLevelFilter({});
+    event_authority_panel_.setModeFilter({});
+    refreshEventAuthoritySnapshotIfActive();
+    return true;
+}
+
+bool DiagnosticsWorkspace::selectEventAuthorityRow(size_t row_index) {
+    const bool changed = event_authority_panel_.selectRow(row_index);
+    if (changed) {
+        renderEventAuthoritySnapshotIfActive();
+    }
+    return changed;
+}
+
+bool DiagnosticsWorkspace::selectNextEventAuthorityRow() {
+    const bool changed = event_authority_panel_.selectNextRow();
+    if (changed) {
+        renderEventAuthoritySnapshotIfActive();
+    }
+    return changed;
+}
+
+bool DiagnosticsWorkspace::selectPreviousEventAuthorityRow() {
+    const bool changed = event_authority_panel_.selectPreviousRow();
+    if (changed) {
+        renderEventAuthoritySnapshotIfActive();
+    }
+    return changed;
 }
 
 void DiagnosticsWorkspace::setActiveTab(DiagnosticsTab tab) {
     active_tab_ = tab;
     syncPanelVisibility();
+    refreshActiveSnapshotBackedTabIfVisible();
 }
 
 DiagnosticsTab DiagnosticsWorkspace::activeTab() const {
@@ -628,6 +759,7 @@ DiagnosticsTab DiagnosticsWorkspace::activeTab() const {
 void DiagnosticsWorkspace::setVisible(bool visible) {
     visible_ = visible;
     syncPanelVisibility();
+    refreshActiveSnapshotBackedTabIfVisible();
 }
 
 bool DiagnosticsWorkspace::isVisible() const {
@@ -794,6 +926,7 @@ std::string DiagnosticsWorkspace::exportAsJson() const {
         activeTabDetail["visible_rows"] = snapshot.visible_rows;
         activeTabDetail["warning_count"] = snapshot.warning_count;
         activeTabDetail["error_count"] = snapshot.error_count;
+        activeTabDetail["has_data"] = snapshot.has_data;
         activeTabDetail["has_selection"] = snapshot.has_selection;
         activeTabDetail["can_select_next_row"] = snapshot.can_select_next_row;
         activeTabDetail["can_select_previous_row"] = snapshot.can_select_previous_row;
@@ -1025,6 +1158,51 @@ void DiagnosticsWorkspace::syncPanelVisibility() {
     audio_panel_.setVisible(visible_ && active_tab_ == DiagnosticsTab::Audio);
     migration_wizard_panel_.setVisible(visible_ && active_tab_ == DiagnosticsTab::MigrationWizard);
     ability_panel_.setVisible(visible_ && active_tab_ == DiagnosticsTab::Abilities);
+}
+
+void DiagnosticsWorkspace::refreshActiveSnapshotBackedTabIfVisible() {
+    if (!visible_) {
+        return;
+    }
+
+    switch (active_tab_) {
+    case DiagnosticsTab::EventAuthority:
+        refreshEventAuthoritySnapshotIfActive();
+        break;
+    case DiagnosticsTab::Audio:
+        refreshAudioSnapshotIfActive();
+        break;
+    case DiagnosticsTab::MigrationWizard:
+        refreshMigrationWizardSnapshotIfActive();
+        break;
+    default:
+        break;
+    }
+}
+
+void DiagnosticsWorkspace::refreshEventAuthoritySnapshotIfActive() {
+    if (visible_ && active_tab_ == DiagnosticsTab::EventAuthority) {
+        event_authority_panel_.refresh();
+        event_authority_panel_.render();
+    }
+}
+
+void DiagnosticsWorkspace::renderEventAuthoritySnapshotIfActive() {
+    if (visible_ && active_tab_ == DiagnosticsTab::EventAuthority) {
+        event_authority_panel_.render();
+    }
+}
+
+void DiagnosticsWorkspace::refreshAudioSnapshotIfActive() {
+    if (visible_ && active_tab_ == DiagnosticsTab::Audio) {
+        audio_panel_.render();
+    }
+}
+
+void DiagnosticsWorkspace::refreshMigrationWizardSnapshotIfActive() {
+    if (visible_ && active_tab_ == DiagnosticsTab::MigrationWizard) {
+        migration_wizard_panel_.render();
+    }
 }
 
 } // namespace urpg::editor

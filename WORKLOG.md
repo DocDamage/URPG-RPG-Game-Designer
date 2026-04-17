@@ -118,6 +118,58 @@
 
 ### 2026-04-16 — Local Gates Integration for Presentation
 - **Action**: Integrated the focused presentation gate into `tools/ci/run_local_gates.ps1` so broader local validation now has a subsystem-specific presentation check before the repo-wide labeled suites.
+
+### 2026-04-17 — Migration Wizard Workspace Actions
+- **Action**: Promoted migration wizard workflow actions up to `DiagnosticsWorkspace`, adding workspace-level forwarding for subsystem selection, next/previous navigation, re-run, selective clear, report export, and report save/load.
+- **Action**: Added focused integration coverage in `tests/unit/test_diagnostics_workspace.cpp` so the top-level diagnostics surface now proves it can drive the wizard workflow without reaching through panel internals.
+- **Result**: Migration wizard workspace-actions milestone is COMPLETE. The diagnostics workspace now exposes the richer wizard workflow state it already exports.
+
+### 2026-04-17 — Migration Wizard Snapshot Coherence
+- **Action**: Taught `DiagnosticsWorkspace` to refresh the migration wizard render snapshot immediately after workspace-driven wizard actions when the wizard tab is the active visible diagnostics surface.
+- **Action**: Added focused regression coverage proving that selection, rerun, selective clear, and full clear all update `exportAsJson()` without requiring a separate manual `render()` call.
+- **Result**: Migration wizard snapshot-coherence milestone is COMPLETE. Workspace-owned wizard actions now keep the exported diagnostics state truthful in the same interaction step.
+
+### 2026-04-17 — Migration Wizard Failed-Load Truthfulness
+- **Action**: Fixed `DiagnosticsWorkspace::loadMigrationWizardReportFromFile()` to refresh the active wizard snapshot after failed loads as well as successful ones, matching the model behavior that clears itself on invalid report input.
+- **Action**: Added focused integration coverage proving that a bad workspace-level wizard report import immediately clears the exported diagnostics snapshot instead of leaving stale migration state behind.
+- **Result**: Migration wizard failed-load truthfulness milestone is COMPLETE. Workspace export now stays aligned with the wizard model after invalid import attempts.
+
+### 2026-04-17 — Migration Wizard Workspace File Round-Trip Coverage
+- **Action**: Added focused `DiagnosticsWorkspace` integration coverage for the happy-path wizard report save/load round-trip, including selected-subsystem preservation and exported report JSON equality after reload.
+- **Result**: Migration wizard workspace file round-trip coverage is COMPLETE. The top-level diagnostics surface now has both success-path and failure-path regression anchors for wizard report I/O.
+
+### 2026-04-17 — Audio Snapshot Coherence
+- **Action**: Taught `DiagnosticsWorkspace` to refresh the audio inspector render snapshot immediately after workspace-driven audio bind/clear actions when the audio tab is the active visible diagnostics surface.
+- **Action**: Added focused regression coverage proving that active-tab audio exports update immediately after clear and rebind without requiring a separate manual `render()` call.
+- **Result**: Audio snapshot-coherence milestone is COMPLETE. Workspace-owned audio runtime actions now keep exported diagnostics state truthful in the same interaction step.
+
+### 2026-04-17 — Event Authority Snapshot Coherence
+- **Action**: Taught `DiagnosticsWorkspace` to refresh the event-authority panel snapshot immediately after workspace-driven diagnostics ingest/clear actions when the event-authority tab is the active visible diagnostics surface.
+- **Action**: Added the missing `has_data` field to the event-authority active-tab export payload so workspace JSON reflects the same truthfulness signal already present in the panel snapshot.
+- **Action**: Added focused regression coverage proving that active-tab event-authority exports update immediately after ingest and clear without requiring a separate manual `render()` call.
+- **Result**: Event-authority snapshot-coherence milestone is COMPLETE. Workspace-owned event diagnostics actions now keep exported state truthful in the same interaction step.
+
+### 2026-04-17 — Snapshot-Backed Tab Activation Truthfulness
+- **Action**: Added a workspace-level helper that refreshes snapshot-backed tabs (`event_authority`, `audio`, `migration_wizard`) immediately when they become the active visible tab.
+- **Action**: Updated `setActiveTab()` and `setVisible()` to invoke that helper, so switching onto a snapshot-backed tab no longer requires a later manual `render()` before `exportAsJson()` becomes truthful.
+- **Action**: Added focused integration coverage proving audio tab activation now exports fresh detail immediately after a tab switch.
+- **Result**: Snapshot-backed tab activation truthfulness is COMPLETE. Diagnostics workspace exports now stay honest across both workspace actions and tab activation for the snapshot-backed tabs currently in use.
+
+### 2026-04-17 — Hidden-to-Visible Snapshot Coverage
+- **Action**: Added focused integration coverage proving that a hidden active snapshot-backed tab refreshes its exported detail immediately when the workspace becomes visible again, without requiring a separate manual `render()` call.
+- **Result**: Hidden-to-visible snapshot coverage is COMPLETE. The generalized activation helper now has an explicit regression anchor for both tab switches and visibility restoration.
+
+### 2026-04-17 — Event Authority Workspace Actions
+- **Action**: Promoted event-authority workflow actions up to `DiagnosticsWorkspace`, adding workspace-level filtering, clear-filters, row selection, and next/previous row navigation instead of requiring callers to reach through the panel directly.
+- **Action**: Split event-authority snapshot updates into a refresh+render path for data/filter changes and a render-only path for selection/navigation so workspace-owned row selection preserves the user’s current selection instead of resetting it.
+- **Action**: Added focused integration coverage proving the top-level diagnostics surface can drive event-authority filters and row navigation while keeping exported state truthful.
+- **Result**: Event-authority workspace-actions milestone is COMPLETE. The diagnostics workspace now exposes a first-class event-authority workflow surface rather than only a panel escape hatch.
+
+### 2026-04-17 — Message Inspector Workspace Actions
+- **Action**: Promoted message-inspector workflow actions up to `DiagnosticsWorkspace`, adding workspace-level route filtering, “issues only” toggling, filter clearing, and visible-row selection.
+- **Action**: Updated `MessageInspectorModel` to preserve selected page id across filter and refresh rebuilds when the selected page remains visible, instead of always clearing selection on every filter change.
+- **Action**: Added focused integration coverage proving the top-level diagnostics surface can drive message filtering and page selection while keeping the exported `selected_page_id` truthful.
+- **Result**: Message-inspector workspace-actions milestone is COMPLETE. The diagnostics workspace now exposes a first-class message-inspector workflow surface, and message selection is more stable through normal filtering changes.
 - **Action**: Added an explicit `PresentationConfiguration` parameter and `SkipPresentationGate` escape hatch to keep the local gate runner configurable.
 - **Action**: Updated `docs/presentation/VALIDATION.md` and `docs/DEVELOPMENT_KICKOFF.md` to reflect the new relationship between `run_presentation_gate.ps1` and `run_local_gates.ps1`.
 - **Action**: Performed a parse-level sanity check on `run_local_gates.ps1` after the integration change.

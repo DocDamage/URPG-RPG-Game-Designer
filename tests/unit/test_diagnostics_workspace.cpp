@@ -607,3 +607,370 @@ TEST_CASE("DiagnosticsWorkspace - Migration wizard export carries selected subsy
     REQUIRE(exported["active_tab_detail"]["can_select_previous_subsystem"] == false);
     REQUIRE(exported["active_tab_detail"]["exported_report_json"].is_string());
 }
+
+TEST_CASE("DiagnosticsWorkspace - Migration wizard workflow actions are exposed at workspace level",
+          "[editor][diagnostics][integration][wizard_actions]") {
+    urpg::editor::DiagnosticsWorkspace workspace;
+
+    nlohmann::json project_data = {
+        {"messages", {
+            {
+                {"id", "page_1"},
+                {"speaker", "Guide"},
+                {"text", "Welcome to URPG."}
+            }
+        }},
+        {"scenes", {
+            {{"symbol", "item"}, {"name", "Items"}}
+        }}
+    };
+
+    workspace.bindMigrationWizardRuntime(project_data);
+    workspace.setActiveTab(urpg::editor::DiagnosticsTab::MigrationWizard);
+    workspace.render();
+
+    auto exported = nlohmann::json::parse(workspace.exportAsJson());
+    REQUIRE(exported["active_tab_detail"]["selected_subsystem_id"] == "message");
+    REQUIRE(exported["active_tab_detail"]["can_select_next_subsystem"] == true);
+
+    REQUIRE(workspace.selectNextMigrationWizardSubsystemResult());
+    workspace.render();
+
+    exported = nlohmann::json::parse(workspace.exportAsJson());
+    REQUIRE(exported["active_tab_detail"]["selected_subsystem_id"] == "menu");
+    REQUIRE(exported["active_tab_detail"]["can_select_previous_subsystem"] == true);
+    REQUIRE(exported["active_tab_detail"]["can_select_next_subsystem"] == false);
+
+    project_data["scenes"].push_back({{"symbol", "equip"}, {"name", "Equip"}});
+    REQUIRE(workspace.rerunMigrationWizardSubsystem("menu", project_data));
+    workspace.render();
+
+    exported = nlohmann::json::parse(workspace.exportAsJson());
+    REQUIRE(exported["active_tab_detail"]["selected_subsystem_id"] == "menu");
+    REQUIRE(exported["active_tab_detail"]["selected_subsystem_summary_line"].get<std::string>().find("2 command(s)") != std::string::npos);
+
+    const auto exported_report_json = workspace.exportMigrationWizardReportJson();
+    REQUIRE_FALSE(exported_report_json.empty());
+    const auto parsed_report = nlohmann::json::parse(exported_report_json);
+    REQUIRE(parsed_report["selected_subsystem_id"] == "menu");
+
+    REQUIRE(workspace.clearMigrationWizardSubsystemResult("menu"));
+    workspace.render();
+
+    exported = nlohmann::json::parse(workspace.exportAsJson());
+    REQUIRE(exported["active_tab_detail"]["selected_subsystem_id"] == "message");
+    REQUIRE(exported["active_tab_detail"]["subsystem_results"].size() == 1);
+}
+
+TEST_CASE("DiagnosticsWorkspace - Migration wizard actions keep exported snapshot current without manual render",
+          "[editor][diagnostics][integration][wizard_snapshot]") {
+    urpg::editor::DiagnosticsWorkspace workspace;
+
+    nlohmann::json project_data = {
+        {"messages", {
+            {
+                {"id", "page_1"},
+                {"speaker", "Guide"},
+                {"text", "Welcome to URPG."}
+            }
+        }},
+        {"scenes", {
+            {{"symbol", "item"}, {"name", "Items"}}
+        }}
+    };
+
+    workspace.bindMigrationWizardRuntime(project_data);
+    workspace.setActiveTab(urpg::editor::DiagnosticsTab::MigrationWizard);
+    workspace.render();
+
+    REQUIRE(workspace.selectNextMigrationWizardSubsystemResult());
+    auto exported = nlohmann::json::parse(workspace.exportAsJson());
+    REQUIRE(exported["active_tab_detail"]["selected_subsystem_id"] == "menu");
+
+    project_data["scenes"].push_back({{"symbol", "equip"}, {"name", "Equip"}});
+    REQUIRE(workspace.rerunMigrationWizardSubsystem("menu", project_data));
+    exported = nlohmann::json::parse(workspace.exportAsJson());
+    REQUIRE(exported["active_tab_detail"]["selected_subsystem_summary_line"].get<std::string>().find("2 command(s)") != std::string::npos);
+
+    REQUIRE(workspace.clearMigrationWizardSubsystemResult("menu"));
+    exported = nlohmann::json::parse(workspace.exportAsJson());
+    REQUIRE(exported["active_tab_detail"]["selected_subsystem_id"] == "message");
+
+    workspace.clearMigrationWizardRuntime();
+    exported = nlohmann::json::parse(workspace.exportAsJson());
+    REQUIRE(exported["active_tab_detail"]["has_data"] == false);
+    REQUIRE(exported["active_tab_detail"]["subsystem_results"].empty());
+}
+
+TEST_CASE("DiagnosticsWorkspace - Migration wizard failed load clears exported snapshot state",
+          "[editor][diagnostics][integration][wizard_file_failure]") {
+    urpg::editor::DiagnosticsWorkspace workspace;
+
+    workspace.bindMigrationWizardRuntime({
+        {"scenes", {
+            {{"symbol", "item"}, {"name", "Items"}}
+        }}
+    });
+    workspace.setActiveTab(urpg::editor::DiagnosticsTab::MigrationWizard);
+    workspace.render();
+
+    auto exported = nlohmann::json::parse(workspace.exportAsJson());
+    REQUIRE(exported["active_tab_detail"]["has_data"] == true);
+    REQUIRE(exported["active_tab_detail"]["subsystem_results"].size() == 1);
+
+    const auto temp_path = (std::filesystem::temp_directory_path() / "urpg_workspace_migration_wizard_bad_load.json").string();
+    {
+        std::ofstream ofs(temp_path);
+        REQUIRE(ofs);
+        ofs << "not valid json";
+    }
+
+    REQUIRE_FALSE(workspace.loadMigrationWizardReportFromFile(temp_path));
+
+    exported = nlohmann::json::parse(workspace.exportAsJson());
+    REQUIRE(exported["active_tab_detail"]["has_data"] == false);
+    REQUIRE(exported["active_tab_detail"]["summary_logs"].empty());
+    REQUIRE(exported["active_tab_detail"]["subsystem_results"].empty());
+    REQUIRE(exported["active_tab_detail"]["selected_subsystem_id"].is_null());
+
+    std::filesystem::remove(temp_path);
+}
+
+TEST_CASE("DiagnosticsWorkspace - Migration wizard save/load round-trip preserves exported workflow state",
+          "[editor][diagnostics][integration][wizard_file_roundtrip]") {
+    urpg::editor::DiagnosticsWorkspace workspace;
+
+    nlohmann::json project_data = {
+        {"messages", {
+            {
+                {"id", "page_1"},
+                {"speaker", "Guide"},
+                {"text", "Welcome to URPG."}
+            }
+        }},
+        {"scenes", {
+            {{"symbol", "item"}, {"name", "Items"}}
+        }}
+    };
+
+    workspace.bindMigrationWizardRuntime(project_data);
+    workspace.setActiveTab(urpg::editor::DiagnosticsTab::MigrationWizard);
+    workspace.render();
+    REQUIRE(workspace.selectNextMigrationWizardSubsystemResult());
+
+    const auto original_report_json = workspace.exportMigrationWizardReportJson();
+    const auto temp_path = (std::filesystem::temp_directory_path() / "urpg_workspace_migration_wizard_roundtrip.json").string();
+    std::filesystem::remove(temp_path);
+
+    REQUIRE(workspace.saveMigrationWizardReportToFile(temp_path));
+    REQUIRE(std::filesystem::exists(temp_path));
+
+    workspace.clearMigrationWizardRuntime();
+    auto exported = nlohmann::json::parse(workspace.exportAsJson());
+    REQUIRE(exported["active_tab_detail"]["has_data"] == false);
+    REQUIRE(exported["active_tab_detail"]["subsystem_results"].empty());
+
+    REQUIRE(workspace.loadMigrationWizardReportFromFile(temp_path));
+
+    exported = nlohmann::json::parse(workspace.exportAsJson());
+    REQUIRE(exported["active_tab_detail"]["has_data"] == true);
+    REQUIRE(exported["active_tab_detail"]["selected_subsystem_id"] == "menu");
+    REQUIRE(exported["active_tab_detail"]["subsystem_results"].size() == 2);
+    REQUIRE(exported["active_tab_detail"]["can_save_report"] == true);
+    REQUIRE(exported["active_tab_detail"]["can_load_report"] == true);
+
+    const auto reloaded_report_json = workspace.exportMigrationWizardReportJson();
+    REQUIRE(reloaded_report_json == original_report_json);
+
+    std::filesystem::remove(temp_path);
+}
+
+TEST_CASE("DiagnosticsWorkspace - Audio runtime actions keep exported snapshot current without manual render",
+          "[editor][diagnostics][integration][audio_snapshot]") {
+    urpg::editor::DiagnosticsWorkspace workspace;
+    workspace.setActiveTab(urpg::editor::DiagnosticsTab::Audio);
+
+    urpg::audio::AudioCore firstAudioCore;
+    firstAudioCore.playSound("first_audio", urpg::audio::AudioCategory::SE);
+    workspace.bindAudioRuntime(firstAudioCore);
+    workspace.render();
+
+    auto exported = nlohmann::json::parse(workspace.exportAsJson());
+    REQUIRE(exported["active_tab"] == "audio");
+    REQUIRE(exported["active_tab_detail"]["has_data"] == true);
+    REQUIRE(exported["active_tab_detail"]["live_rows"].size() == 1);
+    REQUIRE(exported["active_tab_detail"]["live_rows"][0]["assetId"] == "first_audio");
+
+    workspace.clearAudioRuntime();
+    exported = nlohmann::json::parse(workspace.exportAsJson());
+    REQUIRE(exported["active_tab_detail"]["has_data"] == false);
+    REQUIRE(exported["active_tab_detail"]["live_rows"].empty());
+
+    urpg::audio::AudioCore secondAudioCore;
+    secondAudioCore.playSound("second_audio_a", urpg::audio::AudioCategory::SE);
+    secondAudioCore.playSound("second_audio_b", urpg::audio::AudioCategory::BGS);
+    workspace.bindAudioRuntime(secondAudioCore);
+    exported = nlohmann::json::parse(workspace.exportAsJson());
+    REQUIRE(exported["active_tab_detail"]["has_data"] == true);
+    REQUIRE(exported["active_tab_detail"]["live_rows"].size() == 2);
+    REQUIRE(exported["active_tab_detail"]["live_rows"][0]["assetId"] == "second_audio_a");
+    REQUIRE(exported["active_tab_detail"]["live_rows"][1]["assetId"] == "second_audio_b");
+}
+
+TEST_CASE("DiagnosticsWorkspace - Event authority actions keep exported snapshot current without manual render",
+          "[editor][diagnostics][integration][event_authority_snapshot]") {
+    urpg::editor::DiagnosticsWorkspace workspace;
+    workspace.setActiveTab(urpg::editor::DiagnosticsTab::EventAuthority);
+
+    workspace.ingestEventAuthorityDiagnosticsJsonl(
+        "{\"ts\":\"2026-03-04T00:00:02Z\",\"level\":\"warn\",\"subsystem\":\"event_authority\",\"event\":\"edit_rejected\",\"event_id\":\"evt_alpha\",\"block_id\":\"blk_alpha\",\"mode\":\"compat\",\"operation\":\"edit_urpg_ast\",\"error_code\":\"read_only_derived_view\",\"message\":\"alpha\"}\n"
+        "{\"ts\":\"2026-03-04T00:00:03Z\",\"level\":\"error\",\"subsystem\":\"event_authority\",\"event\":\"edit_rejected\",\"event_id\":\"evt_beta\",\"block_id\":\"blk_beta\",\"mode\":\"mixed\",\"operation\":\"edit_raw_command_list\",\"error_code\":\"invalid_for_mode\",\"message\":\"beta\"}"
+    );
+    workspace.render();
+
+    auto exported = nlohmann::json::parse(workspace.exportAsJson());
+    REQUIRE(exported["active_tab"] == "event_authority");
+    REQUIRE(exported["active_tab_detail"]["visible_rows"] == 2);
+    REQUIRE(exported["active_tab_detail"]["visible_row_entries"].size() == 2);
+    REQUIRE(exported["active_tab_detail"]["has_data"] == true);
+
+    workspace.clearEventAuthorityDiagnostics();
+    exported = nlohmann::json::parse(workspace.exportAsJson());
+    REQUIRE(exported["active_tab_detail"]["visible_rows"] == 0);
+    REQUIRE(exported["active_tab_detail"]["visible_row_entries"].empty());
+    REQUIRE(exported["active_tab_detail"]["has_data"] == false);
+
+    workspace.ingestEventAuthorityDiagnosticsJsonl(
+        "{\"ts\":\"2026-03-04T00:00:04Z\",\"level\":\"warn\",\"subsystem\":\"event_authority\",\"event\":\"edit_rejected\",\"event_id\":\"evt_gamma\",\"block_id\":\"blk_gamma\",\"mode\":\"compat\",\"operation\":\"edit_urpg_ast\",\"error_code\":\"new_warning\",\"message\":\"gamma\"}"
+    );
+    exported = nlohmann::json::parse(workspace.exportAsJson());
+    REQUIRE(exported["active_tab_detail"]["visible_rows"] == 1);
+    REQUIRE(exported["active_tab_detail"]["visible_row_entries"].size() == 1);
+    REQUIRE(exported["active_tab_detail"]["visible_row_entries"][0]["event_id"] == "evt_gamma");
+}
+
+TEST_CASE("DiagnosticsWorkspace - Activating a snapshot-backed tab refreshes exported detail without manual render",
+          "[editor][diagnostics][integration][tab_switch_snapshot]") {
+    urpg::editor::DiagnosticsWorkspace workspace;
+
+    urpg::audio::AudioCore audioCore;
+    audioCore.playSound("tab_switch_audio", urpg::audio::AudioCategory::SE);
+    workspace.bindAudioRuntime(audioCore);
+
+    auto exported = nlohmann::json::parse(workspace.exportAsJson());
+    REQUIRE(exported["active_tab"] == "compat");
+
+    workspace.setActiveTab(urpg::editor::DiagnosticsTab::Audio);
+    exported = nlohmann::json::parse(workspace.exportAsJson());
+    REQUIRE(exported["active_tab"] == "audio");
+    REQUIRE(exported["active_tab_detail"]["has_data"] == true);
+    REQUIRE(exported["active_tab_detail"]["live_rows"].size() == 1);
+    REQUIRE(exported["active_tab_detail"]["live_rows"][0]["assetId"] == "tab_switch_audio");
+}
+
+TEST_CASE("DiagnosticsWorkspace - Revealing a hidden snapshot-backed tab refreshes exported detail without manual render",
+          "[editor][diagnostics][integration][visible_switch_snapshot]") {
+    urpg::editor::DiagnosticsWorkspace workspace;
+    workspace.setActiveTab(urpg::editor::DiagnosticsTab::Audio);
+    workspace.setVisible(false);
+
+    urpg::audio::AudioCore audioCore;
+    audioCore.playSound("visible_switch_audio", urpg::audio::AudioCategory::SE);
+    workspace.bindAudioRuntime(audioCore);
+
+    auto exported = nlohmann::json::parse(workspace.exportAsJson());
+    REQUIRE(exported["active_tab"] == "audio");
+    REQUIRE(exported["visible"] == false);
+
+    workspace.setVisible(true);
+    exported = nlohmann::json::parse(workspace.exportAsJson());
+    REQUIRE(exported["visible"] == true);
+    REQUIRE(exported["active_tab_detail"]["has_data"] == true);
+    REQUIRE(exported["active_tab_detail"]["live_rows"].size() == 1);
+    REQUIRE(exported["active_tab_detail"]["live_rows"][0]["assetId"] == "visible_switch_audio");
+}
+
+TEST_CASE("DiagnosticsWorkspace - Event authority workflow actions are exposed at workspace level",
+          "[editor][diagnostics][integration][event_authority_actions]") {
+    urpg::editor::DiagnosticsWorkspace workspace;
+    workspace.setActiveTab(urpg::editor::DiagnosticsTab::EventAuthority);
+
+    workspace.ingestEventAuthorityDiagnosticsJsonl(
+        "{\"ts\":\"2026-03-04T00:00:02Z\",\"level\":\"warn\",\"subsystem\":\"event_authority\",\"event\":\"edit_rejected\",\"event_id\":\"evt_alpha\",\"block_id\":\"blk_alpha\",\"mode\":\"compat\",\"operation\":\"edit_urpg_ast\",\"error_code\":\"read_only_derived_view\",\"message\":\"alpha\"}\n"
+        "{\"ts\":\"2026-03-04T00:00:03Z\",\"level\":\"error\",\"subsystem\":\"event_authority\",\"event\":\"edit_rejected\",\"event_id\":\"evt_beta\",\"block_id\":\"blk_beta\",\"mode\":\"mixed\",\"operation\":\"edit_raw_command_list\",\"error_code\":\"invalid_for_mode\",\"message\":\"beta\"}"
+    );
+
+    REQUIRE(workspace.setEventAuthorityEventIdFilter("evt_beta"));
+    REQUIRE(workspace.selectEventAuthorityRow(0));
+
+    auto exported = nlohmann::json::parse(workspace.exportAsJson());
+    REQUIRE(exported["active_tab_detail"]["event_id_filter"] == "evt_beta");
+    REQUIRE(exported["active_tab_detail"]["visible_rows"] == 1);
+    REQUIRE(exported["active_tab_detail"]["selected_row"]["event_id"] == "evt_beta");
+
+    REQUIRE(workspace.setEventAuthorityEventIdFilter(""));
+    REQUIRE(workspace.selectNextEventAuthorityRow());
+    exported = nlohmann::json::parse(workspace.exportAsJson());
+    REQUIRE(exported["active_tab_detail"]["selected_row"]["event_id"] == "evt_alpha");
+    REQUIRE(exported["active_tab_detail"]["can_select_next_row"] == true);
+
+    REQUIRE(workspace.selectNextEventAuthorityRow());
+    exported = nlohmann::json::parse(workspace.exportAsJson());
+    REQUIRE(exported["active_tab_detail"]["selected_row"]["event_id"] == "evt_beta");
+    REQUIRE(exported["active_tab_detail"]["can_select_next_row"] == false);
+    REQUIRE(exported["active_tab_detail"]["can_select_previous_row"] == true);
+
+    REQUIRE(workspace.setEventAuthorityLevelFilter("error"));
+    exported = nlohmann::json::parse(workspace.exportAsJson());
+    REQUIRE(exported["active_tab_detail"]["level_filter"] == "error");
+    REQUIRE(exported["active_tab_detail"]["visible_rows"] == 1);
+    REQUIRE(exported["active_tab_detail"]["visible_row_entries"][0]["event_id"] == "evt_beta");
+
+    REQUIRE(workspace.clearEventAuthorityFilters());
+    exported = nlohmann::json::parse(workspace.exportAsJson());
+    REQUIRE(exported["active_tab_detail"]["event_id_filter"] == "");
+    REQUIRE(exported["active_tab_detail"]["level_filter"] == "");
+    REQUIRE(exported["active_tab_detail"]["mode_filter"] == "");
+    REQUIRE(exported["active_tab_detail"]["visible_rows"] == 2);
+}
+
+TEST_CASE("DiagnosticsWorkspace - Message inspector workflow actions are exposed at workspace level",
+          "[editor][diagnostics][integration][message_actions]") {
+    urpg::editor::DiagnosticsWorkspace workspace;
+
+    urpg::message::MessageFlowRunner runner;
+    runner.begin({
+        {"speaker_a", "Welcome back.", urpg::message::variantFromCompatRoute("speaker", "Alicia", 3), true, {}, 0},
+        {"narration_b", "", urpg::message::variantFromCompatRoute("narration", "Alicia", 3), true, {}, 0},
+    });
+    urpg::message::RichTextLayoutEngine layout;
+
+    workspace.bindMessageRuntime(runner, layout);
+    workspace.setActiveTab(urpg::editor::DiagnosticsTab::MessageText);
+    workspace.update();
+
+    auto exported = nlohmann::json::parse(workspace.exportAsJson());
+    REQUIRE(exported["active_tab"] == "message_text");
+    REQUIRE(exported["active_tab_detail"]["visible_rows"].size() == 2);
+    REQUIRE(exported["active_tab_detail"]["selected_page_id"].is_null());
+
+    REQUIRE(workspace.setMessageShowIssuesOnly(true));
+    exported = nlohmann::json::parse(workspace.exportAsJson());
+    REQUIRE(exported["active_tab_detail"]["visible_rows"].size() == 1);
+    REQUIRE(exported["active_tab_detail"]["visible_rows"][0]["page_id"] == "narration_b");
+
+    REQUIRE(workspace.setMessageShowIssuesOnly(false));
+    REQUIRE(workspace.setMessageRouteFilter(urpg::message::MessagePresentationMode::Speaker));
+    exported = nlohmann::json::parse(workspace.exportAsJson());
+    REQUIRE(exported["active_tab_detail"]["visible_rows"].size() == 1);
+    REQUIRE(exported["active_tab_detail"]["visible_rows"][0]["page_id"] == "speaker_a");
+
+    REQUIRE(workspace.selectMessageRow(0));
+    exported = nlohmann::json::parse(workspace.exportAsJson());
+    REQUIRE(exported["active_tab_detail"]["selected_page_id"] == "speaker_a");
+
+    REQUIRE(workspace.clearMessageRouteFilter());
+    exported = nlohmann::json::parse(workspace.exportAsJson());
+    REQUIRE(exported["active_tab_detail"]["visible_rows"].size() == 2);
+    REQUIRE(exported["active_tab_detail"]["selected_page_id"] == "speaker_a");
+}

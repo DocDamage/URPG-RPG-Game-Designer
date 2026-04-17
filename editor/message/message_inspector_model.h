@@ -66,6 +66,7 @@ public:
 
 private:
     void RebuildVisibleRows();
+    void RestoreSelectionByPageId(const std::optional<std::string>& page_id);
 
     std::vector<MessageInspectorRow> all_rows_;
     std::vector<MessageInspectorRow> visible_rows_;
