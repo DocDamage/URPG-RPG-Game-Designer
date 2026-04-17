@@ -334,3 +334,17 @@
 - **Action**: Expanded `MigrationWizardPanel::RenderSnapshot` with the selected subsystem's own `summary_line`, so follow-on UI can render the selected summary directly from selected-state snapshot data.
 - **Action**: Tightened `test_migration_wizard.cpp` around typed subsystem summaries and revalidated the `[editor][diagnostics][wizard]` plus `[editor][diagnostics][integration]` lanes after rebuilding `urpg_tests`.
 - **Result**: P2-03 migration wizard typed-summary milestone is COMPLETE. The next follow-on is fuller workflow UI built on top of the now-typed, selectable, detail-, status-, and summary-bearing wizard state.
+
+### 2026-04-17 — Agent Swarm Remediation Passes
+- **Action**: First agent swarm pass closed:
+  - Compat status honesty downgraded inflated `FULL` claims to `PARTIAL`/`STUB` in `audio_manager.cpp`, `battle_manager.cpp`, `data_manager.cpp`, and `window_compat.cpp`.
+  - Verified QuickJS scope is explicitly documented as a fixture-backed compat harness.
+  - Fixed test/build registration drift: removed duplicate `test_engine_shell.cpp`, registered missing `test_menu_orchestration.cpp`, added SE channel-growth regression test, fixed scene-stack navigation test.
+  - Established external-repo intake governance (`docs/external-intake/`) and private-use asset intake governance (`docs/asset_intake/`) with scaffolded directory structure.
+  - Aligned documentation truth for presentation/spatial build graph and cloud-sync/plugin scaffolding claims.
+- **Action**: Second agent swarm pass closed:
+  - Downgraded all 79 inflated `FULL` labels to `PARTIAL` in `input_manager.cpp`.
+  - Deepened migration wizard productization with `rerunSubsystem(id, project_data)` action, panel snapshot exposure, and `bindMigrationWizardRuntime()` wiring.
+  - Implemented real `loadDatabase()` orchestration in `data_manager.cpp` with seeded records; wired up all stubbed JS bindings; implemented real `get*AsValue()` serializers.
+  - Synchronized intake governance artifacts into `URPG_repo_intake_plan.md`, `URPG_private_asset_intake_plan.md`, `TECHNICAL_DEBT_REMEDIATION_PLAN.md`, and `PROGRAM_COMPLETION_STATUS.md`.
+- **Result**: `urpg_core` builds cleanly; `urpg_tests` passes 400 test cases (5,098 assertions).

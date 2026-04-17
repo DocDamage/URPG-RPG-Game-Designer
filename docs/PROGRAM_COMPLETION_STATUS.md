@@ -196,6 +196,12 @@ Cross-cutting debt, truthfulness, and intake-governance source of truth: `docs/T
 - Latest focused validation snapshot for migration wizard/editor diagnostics productization:
   - `.\Debug\urpg_tests.exe "[editor][diagnostics][wizard]"` => 70 assertions / 5 test cases passed
   - `.\Debug\urpg_tests.exe "[editor][diagnostics][integration]"` => 149 assertions / 4 test cases passed
+- Second agent swarm pass (2026-04-17):
+  - Input manager status honesty: downgraded all 79 inflated `FULL` labels to `PARTIAL` in `runtimes/compat_js/input_manager.cpp`; aligned `tests/unit/test_input_manager.cpp`.
+  - Migration wizard productization: added `rerunSubsystem(id, project_data)` to `MigrationWizardModel` and `MigrationWizardPanel`; exposed `can_rerun_selected_subsystem` in render snapshot; implemented `bindMigrationWizardRuntime()` in `DiagnosticsWorkspace`; added 3 new workflow tests.
+  - Data manager runtime closure: implemented real `loadDatabase()` orchestration with seeded actor/class/skill/item records; wired up all stubbed JS bindings in `registerAPI` (loadDatabase, saveGame, loadGame, getGold, setGold, getSwitch, setSwitch, getVariable, setVariable, getItemCount, gainItem); implemented real `getActorsAsValue()`, `getItemsAsValue()`, `getSkillsAsValue()`, `getWeaponsAsValue()`, `getArmorsAsValue()`, `getClassesAsValue()` serializers.
+  - Doc sync: linked new intake governance artifacts into `URPG_repo_intake_plan.md`, `URPG_private_asset_intake_plan.md`, `TECHNICAL_DEBT_REMEDIATION_PLAN.md`, and `PROGRAM_COMPLETION_STATUS.md`; marked P3-02 and P3-03 as partially remediated.
+  - Latest recorded validation snapshot: `urpg_tests` => 400/400 passed (5,098 assertions).
 - Latest focused validation snapshot for Message/Text renderer integration lane:
   - `.\Debug\urpg_tests.exe "[compat]"` => 646 assertions / 140 test cases passed
   - `.\Debug\urpg_tests.exe "[compat][window]"` => 211 assertions / 52 test cases passed

@@ -192,6 +192,13 @@ Each finding is structured as: **Impact → Root Cause → Required Action → O
 - Compat reports are trustworthy inputs to planning decisions.
 - Docs stop conflating fixture scaffolding with live runtime support.
 
+**Progress evidence (2026-04-17):**
+- [input_manager.cpp](../runtimes/compat_js/input_manager.cpp): all 79 inflated `CompatStatus::FULL` labels downgraded to `PARTIAL` because the compat layer is fixture-backed (no OS/platform input polling behind the exposed MZ API).
+- [audio_manager.cpp](../runtimes/compat_js/audio_manager.cpp): playback/state registry labels downgraded from `FULL` to `PARTIAL`; JS bindings downgraded to `STUB`.
+- [battle_manager.cpp](../runtimes/compat_js/battle_manager.cpp): `processAction` downgraded to `PARTIAL`; stubbed JS bindings downgraded to `STUB`.
+- [window_compat.cpp](../runtimes/compat_js/window_compat.cpp): registry labels and stubbed JS bindings downgraded to `STUB`/`PARTIAL` where behavior is placeholder-backed.
+- Corresponding unit tests in `test_audio_manager.cpp`, `test_data_manager.cpp`, and `test_window_compat.cpp` updated to assert honest statuses.
+
 ---
 
 ### P1-03 — Audio SE Channel Lifetime Leak
@@ -351,6 +358,7 @@ Do not leave the workspace counting tabs that do not render.
 - [migration_wizard_model.h](../editor/diagnostics/migration_wizard_model.h) now stores each subsystem result's own summary line, and [migration_wizard_panel.h](../editor/diagnostics/migration_wizard_panel.h) now carries that selected subsystem summary line directly in the snapshot, so follow-on UI does not need to infer it from the loose `summary_logs` list.
 - [diagnostics_workspace.h](../editor/diagnostics/diagnostics_workspace.h) and [diagnostics_workspace.cpp](../editor/diagnostics/diagnostics_workspace.cpp) now expose `clearMigrationWizardRuntime()` so the top-level diagnostics surface can reset wizard state consistently with the other panels.
 - [test_migration_wizard.cpp](../tests/unit/test_migration_wizard.cpp) and [test_diagnostics_workspace.cpp](../tests/unit/test_diagnostics_workspace.cpp) now verify structured subsystem results, subsystem execution reporting, default subsystem selection, selected-subsystem detail/status/summary fields, rendered wizard summary text, and clean reset behavior rather than only aggregate counts.
+- (2026-04-17) Added `rerunSubsystem(id, project_data)` to [migration_wizard_model.h](../editor/diagnostics/migration_wizard_model.h) and [migration_wizard_panel.h](../editor/diagnostics/migration_wizard_panel.h), giving the wizard a concrete user-facing workflow action beyond passive snapshot truthfulness. Panel render snapshot now carries `can_rerun_selected_subsystem`. Added 3 new tests covering re-run of existing subsystems, adding missing subsystems via re-run, and snapshot reflection of the action.
 
 ---
 
@@ -363,6 +371,7 @@ Do not leave the workspace counting tabs that do not render.
 - [test_spatial_editor.cpp](../tests/unit/test_spatial_editor.cpp) is now registered in [CMakeLists.txt](../CMakeLists.txt) and participates in the active `urpg_tests` lane plus the focused spatial/presentation gates.
 - Historical duplicate test drift has been resolved: [test_compat_report_panel.cpp](../tests/unit/test_compat_report_panel.cpp) is the single retained compat-report panel test surface and the stale unregistered `test_compat_reportPanel.cpp` file has been removed.
 - [test_audio_manager.cpp](../tests/unit/test_audio_manager.cpp) reinforces the `FULL` status story without covering channel growth or real playback completion semantics.
+- `test_menu_orchestration.cpp` was present on disk but not registered in CMakeLists.txt.
 
 **Required action:**
 - Keep `test_diagnostics_workspace.cpp` aligned with the current 9-tab workspace/export shape as diagnostics surfaces evolve.
@@ -376,6 +385,11 @@ Do not leave the workspace counting tabs that do not render.
 - No registered test asserts a stale count or outdated structure.
 - No orphan test files exist outside CMakeLists.txt registration without explicit "incubating" documentation.
 - No duplicate test files for the same subject exist.
+
+**Progress evidence (2026-04-17):**
+- Removed duplicate `tests/unit/test_engine_shell.cpp` entry from [CMakeLists.txt](../CMakeLists.txt).
+- Registered missing `tests/unit/test_menu_orchestration.cpp` in [CMakeLists.txt](../CMakeLists.txt) and fixed its broken scene-stack navigation section.
+- Added SE channel-growth regression test to [test_audio_manager.cpp](../tests/unit/test_audio_manager.cpp) (see P1-03).
 
 ---
 
@@ -1032,3 +1046,5 @@ A remediation item is **done only when all of the following are true**:
 | 2026-04-16 | Fourth-pass improvement: added Table of Contents, Priority Legend, per-finding structured format (Impact/Root Cause/Action/Owner/Exit Criteria), Phase Summary and Dependency table, Risk Register, Ownership Matrix, effort estimates, explicit out-of-scope notes, and strengthened Definition of Done. |
 | 2026-04-16 | Integrated the external repository intake program from [URPG_repo_intake_plan.md](../URPG_repo_intake_plan.md) into findings, Phase 4 governance work, ownership, documentation alignment, and Definition of Done. |
 | 2026-04-16 | Integrated the private-use asset intake program from [URPG_private_asset_intake_plan.md](../URPG_private_asset_intake_plan.md) into findings, Phase 4 governance work, ownership, documentation alignment, and Definition of Done. |
+| 2026-04-17 | Agent swarm pass 1: compat status honesty (P1-02), QuickJS scope clarity (P1-01), test/build registration drift fixes (P2-04), intake governance artifact creation (P3-02/P3-03), and documentation alignment (P2-06). |
+| 2026-04-17 | Agent swarm pass 2: input manager status honesty (P1-02), migration wizard productization with `rerunSubsystem` (P2-03), data manager runtime closure with real `loadDatabase()` and JS bindings (Phase 2), and doc sync/intake linking (P3-02/P3-03). |

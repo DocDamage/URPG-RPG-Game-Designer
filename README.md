@@ -32,7 +32,7 @@
 | --- | --- | --- | --- |
 | **Foundation (Phase 0)** | Complete | 100% | Core kernels, authority guards, migration/save lanes. |
 | **Native Core (Phase 1)** | Complete | 100% | Event dispatch, debug runtime, EngineShell lifecycle. |
-| **Compat Layer (Phase 2)** | In Progress | ~96% | Compat surface is wired and test-heavy, but several areas remain fixture-, stub-, or placeholder-backed. |
+| **Compat Layer (Phase 2)** | In Progress | ~85% | Compat surface is wired and test-heavy, but large areas remain fixture-, stub-, or placeholder-backed; status labels and docs now reflect this truth. |
 | **Wave 3-7 Ecosystem** | Complete | 100% | Templates, Profiling, Polish, Workspace, ImGui Panels. |
 | **Final Integration** | Complete | 100% | Unified `EngineAssembly` Gold distribution. |
 | **Native Workwaves** | In Progress | ~92% | Native ownership for Message/Text, Battle Core, and Spatial Presentation. |

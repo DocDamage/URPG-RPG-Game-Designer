@@ -24,6 +24,7 @@ Provide a unified, thread-safe mechanism for synchronizing global game state (Sw
 - [x] Expand `AudioCore` to support BGM/BGS playlists and priority-based SE ducking.
 - [x] Implement `StateDrivenAudioResolver` to trigger BGM transitions based on map/battle state tags.
 - [x] Add editor `AudioInspectorPanel` to monitor active handles and category volumes.
+  - (2026-04-17) `audio_inspector_model` now projects live `AudioCore` active-source rows (asset id, category, volume, pitch, channel state) instead of count-only placeholder state.
 
 ### 3. Serialization Persistence
 - [x] Connect `SaveSerializationHub` to the `GlobalStateHub` for atomic snapshots.
