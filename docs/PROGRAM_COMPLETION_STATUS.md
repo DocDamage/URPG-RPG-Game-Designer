@@ -1,6 +1,6 @@
 ﻿# URPG Program Completion Status
 
-Status Date: 2026-04-17  
+Status Date: 2026-04-18  
 Program Scope: native-first roadmap rewire plus Wave 1 absorption, Wave 2 advanced capability expansion, and compat exit hardening
 
 Cross-cutting debt, truthfulness, and intake-governance source of truth: `docs/TECHNICAL_DEBT_REMEDIATION_PLAN.md`.
@@ -40,13 +40,16 @@ Cross-cutting debt, truthfulness, and intake-governance source of truth: `docs/T
   - compat `Window_Message` surface landed for dialogue-body alignment parity (`left`/`center`/`right`)
   - snapshot-style wrapped centered/right `drawTextEx` draw-history coverage landed
   - compat status truth pass started: inflated `FULL` claims are being downgraded where behavior is still fixture-, stub-, or placeholder-backed
+  - AudioManager compat closure advanced: deterministic playback position now advances during `update()`, duck/unduck ramps are frame-based, master/bus volume changes affect active playback, and the QuickJS `AudioManager` bridge now routes live compat state for BGM/BGS/ME/SE plus volume/ducking helpers
 - Latest recorded local validation snapshot:
-  - `ctest --test-dir build/dev-ninja-debug -L pr --output-on-failure` => 289/289 passed
-  - `ctest --test-dir build/dev-ninja-debug -L weekly --output-on-failure` => 42/42 passed
+  - recorded under the `dev-ninja-debug` preset: `ctest --test-dir build/dev-ninja-debug -L pr --output-on-failure` => 289/289 passed
+  - recorded under the `dev-ninja-debug` preset: `ctest --test-dir build/dev-ninja-debug -L weekly --output-on-failure` => 42/42 passed
 - Latest focused presentation validation snapshot:
   - `ctest -C Debug -R "urpg_(presentation_(unit_lane|release_validation)|spatial_editor_lane)" --output-on-failure` => 3/3 passed
   - includes the dedicated `[presentation]` unit lane, the standalone release-validation harness, and the spatial editor authoring lane
   - CI `gate1-pr` now invokes the focused presentation gate explicitly via `tools/ci/run_presentation_gate.ps1` after the shared build step
+- Latest focused audio validation snapshot:
+  - `.\build\dev-mingw-debug\urpg_tests.exe "[audio_manager]"` => 147 assertions / 12 test cases passed
 
 ## Progress made in this cycle
 
@@ -199,25 +202,28 @@ Cross-cutting debt, truthfulness, and intake-governance source of truth: `docs/T
   - `MenuSceneSerializer::Serialize()` now emits a non-empty native scene definition for registered menu graphs
   - round-trip coverage now serializes a native menu graph, deserializes it, and checks structural equivalence
 - Latest focused validation snapshot for native UI/Menu lane:
-  - `.\Debug\urpg_tests.exe "[ui][menu]"` => 102 assertions / 9 test cases passed
-  - `.\Debug\urpg_tests.exe "[editor][diagnostics][integration]"` => 184 assertions / 4 test cases passed
+  - `.\build\dev-mingw-debug\urpg_tests.exe "[ui][menu]"` => lane previously validated; rerun in the active local profile before treating as a fresh release snapshot
+  - `.\build\dev-mingw-debug\urpg_tests.exe "[editor][diagnostics][integration]"` => lane previously validated; rerun in the active local profile before treating as a fresh release snapshot
 - Latest focused validation snapshot for migration wizard/editor diagnostics productization:
-  - `.\Debug\urpg_tests.exe "[editor][diagnostics][wizard]"` => 170 assertions / 15 test cases passed
-  - `.\Debug\urpg_tests.exe "[editor][diagnostics][integration]"` => 186 assertions / 4 test cases passed
-  - `.\Debug\urpg_tests.exe "[events][panel]"` => 93 assertions / 11 test cases passed
-  - `.\Debug\urpg_tests.exe "[events][panel][render]"` => event-authority render snapshot body/filter/navigation coverage passed
-  - `.\Debug\urpg_tests.exe "[editor][audio][inspector]"` => audio inspector panel snapshot live-row coverage passed
+  - `.\build\dev-mingw-debug\urpg_tests.exe "[editor][diagnostics][wizard]"` => lane previously validated; rerun in the active local profile before treating as a fresh release snapshot
+  - `.\build\dev-mingw-debug\urpg_tests.exe "[editor][diagnostics][integration]"` => lane previously validated; rerun in the active local profile before treating as a fresh release snapshot
+  - `.\build\dev-mingw-debug\urpg_tests.exe "[events][panel]"` => lane previously validated; rerun in the active local profile before treating as a fresh release snapshot
+  - `.\build\dev-mingw-debug\urpg_tests.exe "[events][panel][render]"` => lane previously validated; rerun in the active local profile before treating as a fresh release snapshot
+  - `.\build\dev-mingw-debug\urpg_tests.exe "[editor][audio][inspector]"` => lane previously validated; rerun in the active local profile before treating as a fresh release snapshot
 - Second agent swarm pass (2026-04-17):
   - Input manager status honesty: downgraded all 79 inflated `FULL` labels to `PARTIAL` in `runtimes/compat_js/input_manager.cpp`; aligned `tests/unit/test_input_manager.cpp`.
   - Migration wizard productization: added `rerunSubsystem(id, project_data)` to `MigrationWizardModel` and `MigrationWizardPanel`; exposed `can_rerun_selected_subsystem` in render snapshot; implemented `bindMigrationWizardRuntime()` in `DiagnosticsWorkspace`; added 3 new workflow tests.
   - Data manager runtime closure: implemented real `loadDatabase()` orchestration with seeded actor/class/skill/item records; wired up all stubbed JS bindings in `registerAPI` (loadDatabase, saveGame, loadGame, getGold, setGold, getSwitch, setSwitch, getVariable, setVariable, getItemCount, gainItem); implemented real `getActorsAsValue()`, `getItemsAsValue()`, `getSkillsAsValue()`, `getWeaponsAsValue()`, `getArmorsAsValue()`, `getClassesAsValue()` serializers.
   - Doc sync: linked new intake governance artifacts into `URPG_repo_intake_plan.md`, `URPG_private_asset_intake_plan.md`, `TECHNICAL_DEBT_REMEDIATION_PLAN.md`, and `PROGRAM_COMPLETION_STATUS.md`; marked P3-02 and P3-03 as partially remediated.
   - Latest recorded validation snapshot: `urpg_tests` => 400/400 passed (5,098 assertions).
+- 2026-04-18 audio compat closure:
+  - `AudioManager` now advances deterministic playback position, applies deterministic duck/unduck ramps, applies master/bus volume scaling to active playback, and exposes live compat-state bindings through `AudioManager::registerAPI()`.
+  - Documentation truth was reconciled across `WORKLOG.md`, `docs/TECHNICAL_DEBT_REMEDIATION_PLAN.md`, `docs/DEVELOPMENT_KICKOFF.md`, and `docs/COMPAT_EXIT_CHECKLIST.md` so the audio lane is consistently described as deterministic harness-backed `PARTIAL` behavior rather than a `FULL` live-audio surface.
 - Latest focused validation snapshot for Message/Text renderer integration lane:
-  - `.\Debug\urpg_tests.exe "[compat]"` => 646 assertions / 140 test cases passed
-  - `.\Debug\urpg_tests.exe "[compat][window]"` => 211 assertions / 52 test cases passed
-  - `.\Debug\urpg_tests.exe "[compat][window][message]"` => 4 assertions / 1 test case passed
-  - `.\Debug\urpg_tests.exe "[compat][window][snapshot]"` => 2 assertions / 1 test case passed
+  - `.\build\dev-mingw-debug\urpg_tests.exe "[compat]"` => lane previously validated; rerun in the active local profile before treating as a fresh release snapshot
+  - `.\build\dev-mingw-debug\urpg_tests.exe "[compat][window]"` => lane previously validated; rerun in the active local profile before treating as a fresh release snapshot
+  - `.\build\dev-mingw-debug\urpg_tests.exe "[compat][window][message]"` => lane previously validated; rerun in the active local profile before treating as a fresh release snapshot
+  - `.\build\dev-mingw-debug\urpg_tests.exe "[compat][window][snapshot]"` => lane previously validated; rerun in the active local profile before treating as a fresh release snapshot
 
 ## Definition of 100% complete (for this program scope)
 
@@ -244,7 +250,7 @@ The scope in this document is considered 100% complete when all items below are 
    - extend beyond the landed diagnostics-workspace/menu-import anchors into broader scene-graph + resolver parity checks.
 5. Continue compat exit hardening:
    - keep new routed failure operations locked to JSONL/report/panel parity and maintain weekly conformance depth growth.
-6. ~~Publish explicit compat exit checklist artifact with import-confidence and migration-confidence pass criteria.~~ **DONE** — see docs/COMPAT_EXIT_CHECKLIST.md.
+6. ~~Publish explicit compat exit checklist artifact with import-confidence and migration-confidence pass criteria.~~ **DONE** — see [docs/COMPAT_EXIT_CHECKLIST.md](./COMPAT_EXIT_CHECKLIST.md).
 
 ## Remaining work to reach 100%
 
@@ -321,4 +327,3 @@ The scope in this document is considered 100% complete when all items below are 
   - [x] Visual Studio SDL discovery no longer imports MSYS2 MinGW headers into MSVC projects.
   - [x] Focused presentation gate helper now reconfigures stale local build trees before running.
   - [x] `urpg_core` and `urpg_tests` build in both `dev-vs2022` and `dev-mingw-debug`, with the focused presentation gate passing locally on the Visual Studio lane.
-

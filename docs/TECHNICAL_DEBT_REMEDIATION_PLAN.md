@@ -94,7 +94,7 @@ The debt picture is broader than "unfinished features." Four distinct categories
 
 **Stubbed subsystems described as complete.** [quickjs_runtime.cpp](../runtimes/compat_js/quickjs_runtime.cpp), large parts of [window_compat.cpp](../runtimes/compat_js/window_compat.cpp), and key slices of [data_manager.cpp](../runtimes/compat_js/data_manager.cpp) and [battle_manager.cpp](../runtimes/compat_js/battle_manager.cpp) are effectively stubs but are not described as such.
 
-**Partially functional subsystems that are oversold.** [audio_manager.cpp](../runtimes/compat_js/audio_manager.cpp) labels nearly everything `FULL` despite multiple incomplete playback behaviors.
+**Partially functional subsystems that are oversold.** [audio_manager.cpp](../runtimes/compat_js/audio_manager.cpp) is now honestly labeled `PARTIAL`, but it still remains a deterministic compat harness rather than a live audio backend and must continue to be described that way.
 
 **Editor scaffolding without a rendered product surface.** The Audio, Migration Wizard, and Event Authority panels have controller/model scaffolding but no usable, rendered body.
 
@@ -184,7 +184,7 @@ Each finding is structured as: **Impact â†’ Root Cause â†’ Required Ac
 | [data_manager.cpp](../runtimes/compat_js/data_manager.cpp) | Advertises broad `FULL` support while key database loaders are `TODO` and several accessors return nil, null, or canned values. |
 | [battle_manager.cpp](../runtimes/compat_js/battle_manager.cpp) | Troop loading, animation, battle-event processing, reward distribution, drop handling, and switch checks are unfinished. |
 | [window_compat.cpp](../runtimes/compat_js/window_compat.cpp) | Placeholder contents creation, icon drawing, actor metadata drawing, gauge rendering, character sprite rendering, input wiring, and bitmap lifecycle are incomplete. |
-| [audio_manager.h/.cpp](../runtimes/compat_js/audio_manager.cpp) | Labels nearly every method `FULL`; playback position updates, smooth ducking, and smooth unducking are still `TODO`. |
+| [audio_manager.h/.cpp](../runtimes/compat_js/audio_manager.cpp) | AudioManager is now honestly labeled `PARTIAL` and covers deterministic playback position, duck/unduck ramps, applied mix scaling, and live compat bindings, but it still models a deterministic harness rather than a live mixer/backend. |
 
 **Required action:**
 - Audit all `CompatStatus::FULL` claims in the files above plus [plugin_manager.cpp](../runtimes/compat_js/plugin_manager.cpp).
@@ -201,7 +201,7 @@ Each finding is structured as: **Impact â†’ Root Cause â†’ Required Ac
 
 **Progress evidence (2026-04-17):**
 - [input_manager.cpp](../runtimes/compat_js/input_manager.cpp): all 79 inflated `CompatStatus::FULL` labels downgraded to `PARTIAL` because the compat layer is fixture-backed (no OS/platform input polling behind the exposed MZ API).
-- [audio_manager.cpp](../runtimes/compat_js/audio_manager.cpp): playback/state registry labels downgraded from `FULL` to `PARTIAL`; JS bindings downgraded to `STUB`.
+- [audio_manager.cpp](../runtimes/compat_js/audio_manager.cpp): playback/state registry labels downgraded from `FULL` to `PARTIAL`; later 2026-04-18 closure work replaced the earlier stubbed QuickJS bindings with live deterministic compat dispatch while preserving honest `PARTIAL` deviations.
 - [battle_manager.cpp](../runtimes/compat_js/battle_manager.cpp): `processAction` downgraded to `PARTIAL`; stubbed JS bindings downgraded to `STUB`.
 - [window_compat.cpp](../runtimes/compat_js/window_compat.cpp): registry labels and stubbed JS bindings downgraded to `STUB`/`PARTIAL` where behavior is placeholder-backed.
 - [plugin_manager.cpp](../runtimes/compat_js/plugin_manager.cpp): 30 inflated `CompatStatus::FULL` labels downgraded to `PARTIAL` (plugin lifecycle, command registry, parameters, dependencies, event handlers, execution state, error handling, and diagnostics are all fixture-backed compat-bridge logic, not live engine integration).
@@ -238,6 +238,11 @@ Each finding is structured as: **Impact â†’ Root Cause â†’ Required Ac
 - [audio_manager.cpp](../runtimes/compat_js/audio_manager.cpp) now gives compat SE channels a deterministic completion path in `AudioChannel::update()` so the existing cleanup pass can reclaim them.
 - [audio_manager.h](../runtimes/compat_js/audio_manager.h) now tracks per-channel completion frames for one-shot compat audio playback.
 - [test_audio_manager.cpp](../tests/unit/test_audio_manager.cpp) now includes a regression that proves an `se_*` channel is gone after playback completes and `AudioManager::update()` runs.
+
+**Progress evidence (2026-04-18):**
+- [audio_manager.cpp](../runtimes/compat_js/audio_manager.cpp) now advances deterministic playback position during compat updates, applies frame-based duck/unduck ramps, and applies master/bus volume changes to active playback.
+- [audio_manager.cpp](../runtimes/compat_js/audio_manager.cpp) now exposes live QuickJS-facing compat bindings for BGM/BGS/ME/SE control, current-BGM metadata, mix volume, and ducking helpers instead of leaving those paths stubbed.
+- [test_audio_manager.cpp](../tests/unit/test_audio_manager.cpp) now covers playback-position progression, applied mix scaling, deterministic duck/unduck ramps, and expanded QuickJS bridge routing.
 
 ---
 
@@ -415,7 +420,7 @@ Do not leave the workspace counting tabs that do not render.
 - [test_diagnostics_workspace.cpp](../tests/unit/test_diagnostics_workspace.cpp) now asserts the current 9-tab workspace/export shape, including `audio` and `migration_wizard` in the serialized diagnostics snapshot.
 - [test_spatial_editor.cpp](../tests/unit/test_spatial_editor.cpp) is now registered in [CMakeLists.txt](../CMakeLists.txt) and participates in the active `urpg_tests` lane plus the focused spatial/presentation gates.
 - Historical duplicate test drift has been resolved: [test_compat_report_panel.cpp](../tests/unit/test_compat_report_panel.cpp) is the single retained compat-report panel test surface and the stale unregistered `test_compat_reportPanel.cpp` file has been removed.
-- [test_audio_manager.cpp](../tests/unit/test_audio_manager.cpp) reinforces the `FULL` status story without covering channel growth or real playback completion semantics.
+- [test_audio_manager.cpp](../tests/unit/test_audio_manager.cpp) now reinforces the honest `PARTIAL` status story with explicit regressions for channel growth, deterministic playback progression, applied mix scaling, ducking, and live QuickJS bridge routing.
 - `test_menu_orchestration.cpp` was present on disk but not registered in CMakeLists.txt.
 
 **Required action:**
@@ -437,7 +442,7 @@ Do not leave the workspace counting tabs that do not render.
 - Added SE channel-growth regression test to [test_audio_manager.cpp](../tests/unit/test_audio_manager.cpp) (see P1-03).
 
 **Progress evidence (2026-04-18):**
-- Published docs/COMPAT_EXIT_CHECKLIST.md with explicit import-confidence and migration-confidence pass criteria, signed-off-by section, and related-document links.
+- Published [docs/COMPAT_EXIT_CHECKLIST.md](./COMPAT_EXIT_CHECKLIST.md) with explicit import-confidence and migration-confidence pass criteria, signed-off-by section, and related-document links.
 
 ---
 
@@ -812,7 +817,7 @@ These principles govern every remediation decision. When in doubt, refer back to
 
 #### Workstream 2.3 â€” Audio Lifecycle Correctness (see P1-03)
 - Fix SE channel lifetime cleanup in [audio_manager.cpp](../runtimes/compat_js/audio_manager.cpp).
-- Downgrade or complete smooth ducking, unducking, and playback-position semantics.
+- Complete deterministic harness playback-position, duck/unduck, mix-scaling, and live compat-binding semantics without overstating them as live-backend parity.
 
 #### Workstream 2.4 â€” Data and Window Runtime Closure (see P1-02)
 - Replace empty or mock database loading in [data_manager.cpp](../runtimes/compat_js/data_manager.cpp).
@@ -918,7 +923,7 @@ These principles govern every remediation decision. When in doubt, refer back to
 - All decisions about presentation/spatial status are recorded (ADR if scope-changing).
 - External repository intake is governed by recorded legal and technical dispositions rather than ad hoc copying or local-only experiments.
 - Private-use asset intake is governed by recorded provenance, staging, normalization, and promotion rules rather than ad hoc drops into product-facing paths.
-- Compat exit checklist artifact (docs/COMPAT_EXIT_CHECKLIST.md) is published and satisfies part of the documentation-alignment exit criteria for the compat lane.
+- Compat exit checklist artifact ([docs/COMPAT_EXIT_CHECKLIST.md](./COMPAT_EXIT_CHECKLIST.md)) is published and satisfies part of the documentation-alignment exit criteria for the compat lane.
 
 **Related documentation:** [README](../README.md), [Master Blueprint](../URPG_Blueprint_v3_1_Integrated.md), [NATIVE_FEATURE_ABSORPTION_PLAN](./NATIVE_FEATURE_ABSORPTION_PLAN.md), [PROGRAM_COMPLETION_STATUS](./PROGRAM_COMPLETION_STATUS.md), [URPG_repo_intake_plan](../URPG_repo_intake_plan.md), [URPG_private_asset_intake_plan](../URPG_private_asset_intake_plan.md), [presentation/schema_changelog](./presentation/schema_changelog.md), [presentation/SPATIAL_EDITOR_TOOLS](./presentation/SPATIAL_EDITOR_TOOLS.md), [presentation/performance_budgets](./presentation/performance_budgets.md), [presentation/test_matrix/MapScene_Contract](./presentation/test_matrix/MapScene_Contract.md), [presentation/test_matrix/MenuScene_Contract](./presentation/test_matrix/MenuScene_Contract.md), [presentation/test_matrix/BattleScene_Contract](./presentation/test_matrix/BattleScene_Contract.md), [presentation/test_matrix/OverlayUI_Contract](./presentation/test_matrix/OverlayUI_Contract.md).
 
@@ -1113,4 +1118,4 @@ A remediation item is **done only when all of the following are true**:
 | 2026-04-17 | Continued Phase 3 diagnostics productization: event-authority panel gained row navigation, visible-row body export, severity filtering, and mode filtering, with corresponding workspace export and focused regression updates. |
 | 2026-04-17 | Local build hardening: constrained MinGW SDL discovery to the active compiler root, forced vendored SDL for MSVC to block MSYS header leakage, added missing standard headers surfaced by stricter toolchains, restored missing testing support headers, and hardened the presentation helper against stale local build trees. |
 | 2026-04-18 | Agent swarm pass 4: window compat rendering closure, battle manager runtime closure, message inspector panel productization, compat exit checklist publication. |
-
+| 2026-04-18 | Audio compat closure/documentation sync: deterministic playback-position, duck/unduck, mix-scaling, and live QuickJS AudioManager bindings landed; remediation/status/docs updated to keep the lane honestly `PARTIAL` and deterministic-harness-scoped. |

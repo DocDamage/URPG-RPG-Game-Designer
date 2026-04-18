@@ -109,8 +109,8 @@ This focused gate is also invoked by `tools/ci/run_local_gates.ps1` locally and 
   - Nightly renderer-tier matrix (`basic`, `standard`, `advanced`) + test log artifacts in CI
   - Known-break waiver validation via `tools/ci/check_waivers.ps1`
 - Migration CLI: `urpg_migrate`
-- Catch2/CTest baseline (Debug snapshot, 2026-04-15):
-  - `urpg_tests`: 3907 assertions / 287 test cases
+- Focused validation snapshots move faster than this README.
+  - See [docs/PROGRAM_COMPLETION_STATUS.md](./docs/PROGRAM_COMPLETION_STATUS.md) for the current status-date and the latest recorded focused validation commands/results.
 
 ## Immediate next steps
 

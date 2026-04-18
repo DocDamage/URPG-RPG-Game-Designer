@@ -4,9 +4,16 @@ Snapshot Date: 2026-04-15
 
 This repository is bootstrapped to the blueprint's canonical structure and now includes core + compat kernels with active CI gate wiring.
 
+This document is a kickoff snapshot, not the canonical current-status file.
+For current completion, remediation, and validation status, use:
+- `docs/PROGRAM_COMPLETION_STATUS.md`
+- `docs/TECHNICAL_DEBT_REMEDIATION_PLAN.md`
+
 Cross-cutting debt closure, documentation-truth alignment, and intake-governance tracking: `docs/TECHNICAL_DEBT_REMEDIATION_PLAN.md`.
 
 ## Progress tracker
+
+Historical kickoff snapshot values below are preserved for context. For current counts and active validation commands, use `docs/PROGRAM_COMPLETION_STATUS.md`.
 
 - Phase 0 Foundation: 100% complete.
 - Phase 1 Native Core: 100% complete for v3.1 kickoff/continuation/integration contracts.
@@ -66,10 +73,10 @@ Cross-cutting debt closure, documentation-truth alignment, and intake-governance
    - Runtime dispatch-session wiring over event timeline/reentrancy contracts (`EventDispatchSession`).
    - Runtime debug-session wiring over breakpoints/watches/call-stack/step controls (`DebugRuntimeSession`).
 - Test baseline added and passing (Debug snapshot, 2026-04-15):
-  - `urpg_tests`: 3907 assertions / 287 test cases
+  - historical kickoff snapshot: `urpg_tests` => 3907 assertions / 287 test cases
   - Latest local gate snapshot:
-    - `ctest --test-dir build/dev-ninja-debug -L pr --output-on-failure`: 289/289 passed
-    - `ctest --test-dir build/dev-ninja-debug -L weekly --output-on-failure`: 42/42 passed
+    - recorded under the `dev-ninja-debug` preset: `ctest --test-dir build/dev-ninja-debug -L pr --output-on-failure`: 289/289 passed
+    - recorded under the `dev-ninja-debug` preset: `ctest --test-dir build/dev-ninja-debug -L weekly --output-on-failure`: 42/42 passed
 - Phase 2 compat expansion implemented in active targets:
    - WindowCompat surface expansion for `Window_Base`, `Window_Selectable`, and `Window_Command` API registration.
    - WindowCompat method call-count tracking surfaced in compat reports.
@@ -119,7 +126,7 @@ Cross-cutting debt closure, documentation-truth alignment, and intake-governance
    - Burned down additional Sprite_Actor animation status: `startAnimation` from `PARTIAL` to `FULL` with deterministic frame-duration playback lifecycle.
    - Burned down remaining Window_Base face status: `drawActorFace` from `PARTIAL` to `FULL` with MZ-canonical face cell clipping/centering semantics and deterministic face draw metadata.
    - Earlier compat burn-down work materially improved several surfaces, but a follow-up audit is still required because some runtime registries continue to overclaim `FULL` on stub-, fixture-, or placeholder-backed paths.
-   - Burned down AudioManager compat statuses: `crossfadeBgm`/`crossfadeBgs` from `PARTIAL` to `FULL` via deterministic frame-based crossfade sequencing; BGM save/restore metadata now retains true track filename/position.
+   - AudioManager compat closure advanced without overstating parity: deterministic frame-based crossfade, playback-position progression, BGM save/restore metadata, duck/unduck ramps, active master/bus volume scaling, and live QuickJS `AudioManager` bindings are now covered, but the surface remains honestly `PARTIAL` because it is still a deterministic compat harness rather than a live mixer/backend.
    - Burned down BattleManager compat status: `processEscape` from `PARTIAL` to `FULL` with deterministic MZ-style escape ratio + fail-ramp handling.
    - `executeCommandAsync` now has deterministic FIFO task queue execution and callback ordering, but the surface still remains `PARTIAL` because callbacks run on the worker thread and the JS bridge is fixture-backed.
    - Input/Touch QuickJS API registration now returns live runtime state and `TouchInput` movement telemetry now tracks `moveSpeed` and `tapCount`.

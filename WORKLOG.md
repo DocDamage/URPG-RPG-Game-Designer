@@ -9,6 +9,15 @@
 
 ## Entries
 
+### 2026-04-18 — AudioManager Runtime Closure and Documentation Sync (Workstream 2.3)
+- **Action**: Added focused `AudioManager` regressions covering deterministic playback-position progression, duration-based duck/unduck ramps, applied master/bus volume scaling, and expanded QuickJS bridge routing.
+- **Action**: Implemented deterministic playback-position advancement in `AudioChannel::update()` and replaced immediate duck/unduck snaps with frame-based volume ramps.
+- **Action**: Applied master/bus volume changes to active BGM/BGS/ME/SE compat playback and separated source clip volume from effective mixed volume.
+- **Action**: Expanded `AudioManager::registerAPI()` so the QuickJS-facing `AudioManager` object now routes live compat state for BGM/BGS/ME/SE control, current-BGM metadata, master/bus volume, and ducking helpers instead of leaving those paths stubbed or absent.
+- **Action**: Reconciled `audio_manager.h/.cpp` comments, compat deviations, and linked docs so AudioManager now consistently describes a deterministic compat harness rather than a live mixer/backend.
+- **Action**: Published `docs/COMPAT_EXIT_CHECKLIST.md` and updated remediation/status docs to point at the real checklist artifact.
+- **Result**: `[audio_manager]` passes with expanded coverage, and the audio compat/doc truthfulness lane is materially more complete.
+
 ### 2026-04-18 — Battle Manager Runtime Debt Closure (Workstream 2.2)
 - **Action**: Implemented `DataManager::gainExp()` with real EXP progression: looks up actor/class data, adds EXP, handles level-up with carry-over, clamps to `maxLevel`, and learns new skills from `skillsToLearn`.
 - **Action**: Added minimal fields to data structures: `ActorData.exp`, `ActorData.skills`, `ClassData.maxLevel`, `ClassData.expTable`, `ClassData.skillsToLearn`, `SkillDamage`, `ItemDamage`, and `EffectData`.

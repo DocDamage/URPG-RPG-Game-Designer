@@ -4,6 +4,8 @@ Date: 2026-04-15
 Source basis: `docs/EXTERNAL_FEATURE_UPGRADE_SHORTLIST_2026-04-15.md` + external repo scan batches  
 Goal: concrete, implementation-ready tickets with scope, file ownership, and test gates
 
+This is a planning ticket set. Test commands below should be run against the active local debug build directory or matching CTest preset, not assumed to require one specific generated tree.
+
 ## Ticket Summary
 
 | Ticket | Priority | Lane | Effort | Status |
@@ -56,7 +58,7 @@ Ship deterministic pathfinding for map/event movement and tactical positioning w
 - Integration:
   - `tests/integration/test_integration_pathfinding_scene.cpp` (new)
 - Gate command:
-  - `ctest --test-dir build/dev-ninja-debug -R "pathfinding|path_request|integration_pathfinding" --output-on-failure`
+  - `ctest --test-dir <active-debug-build-dir> -R "pathfinding|path_request|integration_pathfinding" --output-on-failure`
 
 ### Acceptance Criteria
 
@@ -107,7 +109,7 @@ Enable text-first narrative authoring by compiling script text into native messa
 - Snapshot:
   - `tests/snapshot/test_snapshot_dialogue_roundtrip.cpp` (new)
 - Gate command:
-  - `ctest --test-dir build/dev-ninja-debug -R "dialogue_script|message_schema|snapshot_dialogue" --output-on-failure`
+  - `ctest --test-dir <active-debug-build-dir> -R "dialogue_script|message_schema|snapshot_dialogue" --output-on-failure`
 
 ### Acceptance Criteria
 
@@ -153,7 +155,7 @@ Add a deterministic behavior-tree execution lane for reactive AI in map and batt
 - Battle integration:
   - `tests/unit/test_battle_ai_behavior_tree.cpp` (new)
 - Gate command:
-  - `ctest --test-dir build/dev-ninja-debug -R "behavior_tree|behavior_blackboard|battle_ai" --output-on-failure`
+  - `ctest --test-dir <active-debug-build-dir> -R "behavior_tree|behavior_blackboard|battle_ai" --output-on-failure`
 
 ### Acceptance Criteria
 
@@ -197,7 +199,7 @@ Provide reproducible export packaging for desktop/web targets with optional encr
 - Integration:
   - `tests/integration/test_integration_export_packager.cpp` (new)
 - Gate command:
-  - `ctest --test-dir build/dev-ninja-debug -R "export_packager|integration_export_packager" --output-on-failure`
+  - `ctest --test-dir <active-debug-build-dir> -R "export_packager|integration_export_packager" --output-on-failure`
 
 ### Acceptance Criteria
 
@@ -246,7 +248,7 @@ Ship first-class localization operations: extract, edit, writeback, and validate
 - CI:
   - add lint validation step in local gates
 - Gate command:
-  - `ctest --test-dir build/dev-ninja-debug -R "localization_catalog|message_text_core" --output-on-failure`
+  - `ctest --test-dir <active-debug-build-dir> -R "localization_catalog|message_text_core" --output-on-failure`
 
 ### Acceptance Criteria
 
@@ -294,7 +296,7 @@ Unify runtime/editor crash and failure diagnostics into structured telemetry env
 - Compat:
   - extend `tests/compat/test_compat_plugin_failure_diagnostics.cpp`
 - Gate command:
-  - `ctest --test-dir build/dev-ninja-debug -R "telemetry|crash_envelope|compat_plugin_failure_diagnostics" --output-on-failure`
+  - `ctest --test-dir <active-debug-build-dir> -R "telemetry|crash_envelope|compat_plugin_failure_diagnostics" --output-on-failure`
 
 ### Acceptance Criteria
 

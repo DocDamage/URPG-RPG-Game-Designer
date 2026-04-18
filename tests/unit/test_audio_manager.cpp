@@ -52,6 +52,30 @@ TEST_CASE("AudioManager: BGM controls", "[audio_manager]") {
     REQUIRE_FALSE(am.isBgmPlaying());
 }
 
+TEST_CASE("AudioManager: BGM position advances while playing and pauses cleanly", "[audio_manager]") {
+    AudioManager& am = AudioManager::instance();
+    am.stopBgm();
+
+    am.playBgm("position_theme", 90.0, 100.0, 10);
+    REQUIRE(am.getCurrentBgm().pos == 10);
+
+    am.update();
+    REQUIRE(am.getCurrentBgm().pos == 11);
+
+    am.update();
+    REQUIRE(am.getCurrentBgm().pos == 12);
+
+    am.pauseBgm();
+    am.update();
+    REQUIRE(am.getCurrentBgm().pos == 12);
+
+    am.resumeBgm();
+    am.update();
+    REQUIRE(am.getCurrentBgm().pos == 13);
+
+    am.stopBgm();
+}
+
 TEST_CASE("AudioManager: deterministic crossfade progression", "[audio_manager]") {
     AudioManager& am = AudioManager::instance();
 
@@ -96,6 +120,10 @@ TEST_CASE("AudioManager: deterministic crossfade progression", "[audio_manager]"
 
 TEST_CASE("AudioManager: buses and ducking", "[audio_manager]") {
     AudioManager& am = AudioManager::instance();
+    am.stopBgm();
+    am.setMasterVolume(1.0);
+    am.setBusVolume(AudioBus::BGM, 1.0);
+    am.setBusVolume(AudioBus::SE, 1.0);
 
     am.setMasterVolume(0.8);
     REQUIRE(am.getMasterVolume() == Catch::Approx(0.8));
@@ -106,14 +134,86 @@ TEST_CASE("AudioManager: buses and ducking", "[audio_manager]") {
     am.setBusVolume(AudioBus::SE, -0.5);
     REQUIRE(am.getBusVolume(AudioBus::SE) == Catch::Approx(0.0));
 
-    am.playBgm("duck_test", 90.0, 100.0);
-    am.duckBgm(30.0);
-    REQUIRE(am.isBgmDucked());
+    am.setMasterVolume(1.0);
+    am.setBusVolume(AudioBus::BGM, 1.0);
 
-    am.unduckBgm();
+    am.playBgm("duck_test", 90.0, 100.0);
+    AudioChannel* bgm = am.getChannel("bgm");
+    REQUIRE(bgm != nullptr);
+    REQUIRE(bgm->getVolume() == Catch::Approx(0.9));
+
+    am.duckBgm(30.0, 3);
+    REQUIRE(am.isBgmDucked());
+    REQUIRE(bgm->getVolume() == Catch::Approx(0.9));
+
+    am.update();
+    REQUIRE(bgm->getVolume() == Catch::Approx(0.7));
+
+    am.update();
+    REQUIRE(bgm->getVolume() == Catch::Approx(0.5));
+
+    am.update();
+    REQUIRE(bgm->getVolume() == Catch::Approx(0.3));
+
+    am.unduckBgm(2);
+    am.update();
+    REQUIRE(bgm->getVolume() == Catch::Approx(0.6));
+
+    am.update();
+    REQUIRE(bgm->getVolume() == Catch::Approx(0.9));
     REQUIRE_FALSE(am.isBgmDucked());
 
     am.stopBgm();
+}
+
+TEST_CASE("AudioManager: master and bus volumes affect active playback", "[audio_manager]") {
+    AudioManager& am = AudioManager::instance();
+    am.stopBgm();
+    am.stopBgs();
+    am.stopSe();
+    am.setMasterVolume(1.0);
+    am.setBusVolume(AudioBus::BGM, 1.0);
+    am.setBusVolume(AudioBus::BGS, 1.0);
+    am.setBusVolume(AudioBus::SE, 1.0);
+
+    am.playBgm("mix_theme", 80.0, 100.0);
+    AudioChannel* bgm = am.getChannel("bgm");
+    REQUIRE(bgm != nullptr);
+    REQUIRE(bgm->getVolume() == Catch::Approx(0.8));
+
+    am.setMasterVolume(0.5);
+    REQUIRE(bgm->getVolume() == Catch::Approx(0.4));
+
+    am.setBusVolume(AudioBus::BGM, 0.25);
+    REQUIRE(bgm->getVolume() == Catch::Approx(0.1));
+
+    am.playBgs("mix_rain", 60.0, 100.0);
+    AudioChannel* bgs = am.getChannel("bgs");
+    REQUIRE(bgs != nullptr);
+    REQUIRE(bgs->getVolume() == Catch::Approx(0.3));
+
+    am.setBusVolume(AudioBus::BGS, 0.5);
+    REQUIRE(bgs->getVolume() == Catch::Approx(0.15));
+
+    const uint32_t markerId = am.createChannel("se_mix_probe", AudioBus::SE);
+    am.destroyChannel(markerId);
+    const auto expectedSeName = "se_" + std::to_string(markerId + 1);
+
+    am.playSe("mix_cursor", 50.0, 100.0);
+    AudioChannel* se = am.getChannel(expectedSeName);
+    REQUIRE(se != nullptr);
+    REQUIRE(se->getVolume() == Catch::Approx(0.25));
+
+    am.setBusVolume(AudioBus::SE, 0.2);
+    REQUIRE(se->getVolume() == Catch::Approx(0.05));
+
+    am.stopSe();
+    am.stopBgs();
+    am.stopBgm();
+    am.setMasterVolume(1.0);
+    am.setBusVolume(AudioBus::BGM, 1.0);
+    am.setBusVolume(AudioBus::BGS, 1.0);
+    am.setBusVolume(AudioBus::SE, 1.0);
 }
 
 TEST_CASE("AudioManager: SE/ME/BGS controls", "[audio_manager]") {
@@ -189,8 +289,127 @@ TEST_CASE("AudioManager: method status registry", "[audio_manager]") {
     REQUIRE(AudioManager::getMethodStatus("crossfadeBgs") == CompatStatus::PARTIAL);
     REQUIRE(AudioManager::getMethodStatus("duckBgm") == CompatStatus::PARTIAL);
     REQUIRE(AudioManager::getMethodStatus("getCurrentBgm") == CompatStatus::PARTIAL);
-    REQUIRE(AudioManager::getMethodDeviation("duckBgm").find("smooth") != std::string::npos);
+    REQUIRE(AudioManager::getMethodStatus("setMasterVolume") == CompatStatus::PARTIAL);
+    REQUIRE(AudioManager::getMethodStatus("createChannel") == CompatStatus::PARTIAL);
+    REQUIRE(AudioManager::getMethodDeviation("duckBgm").find("live mixer") != std::string::npos);
+    REQUIRE(AudioManager::getMethodDeviation("getCurrentBgm").find("deterministic harness") != std::string::npos);
+    REQUIRE(AudioManager::getMethodDeviation("playBgm").find("deterministic harness playback state") != std::string::npos);
+    REQUIRE(AudioManager::getMethodDeviation("setMasterVolume").find("mix scaling") != std::string::npos);
+    REQUIRE(AudioManager::getMethodDeviation("createChannel").find("harness channels") != std::string::npos);
     REQUIRE(AudioManager::getMethodStatus("nonexistentMethod") == CompatStatus::UNSUPPORTED);
+}
+
+TEST_CASE("AudioManager: QuickJS API routes into live audio state", "[audio_manager]") {
+    AudioManager& am = AudioManager::instance();
+    am.stopBgm();
+    am.stopBgs();
+    am.stopMe();
+    am.stopSe();
+    am.setMasterVolume(1.0);
+    am.setBusVolume(AudioBus::BGM, 1.0);
+    am.setBusVolume(AudioBus::BGS, 1.0);
+
+    QuickJSContext ctx;
+    QuickJSConfig config;
+    REQUIRE(ctx.initialize(config));
+
+    AudioManager::registerAPI(ctx);
+
+    urpg::Value playName;
+    playName.v = std::string("js_theme");
+
+    auto playResult = ctx.callMethod("AudioManager",
+                                     "playBgm",
+                                     {playName, urpg::Value::Int(80), urpg::Value::Int(100), urpg::Value::Int(7)});
+    REQUIRE(playResult.success);
+    REQUIRE(am.isBgmPlaying());
+    REQUIRE(am.getCurrentBgm().name == "js_theme");
+    REQUIRE(am.getCurrentBgm().volume == Catch::Approx(80.0));
+    REQUIRE(am.getCurrentBgm().pos == 7);
+
+    auto playingResult = ctx.callMethod("AudioManager", "isBgmPlaying", {});
+    REQUIRE(playingResult.success);
+    REQUIRE(std::get<int64_t>(playingResult.value.v) == 1);
+
+    auto currentBgmResult = ctx.callMethod("AudioManager", "getCurrentBgm", {});
+    REQUIRE(currentBgmResult.success);
+    REQUIRE(std::holds_alternative<urpg::Object>(currentBgmResult.value.v));
+    const auto& bgmObj = std::get<urpg::Object>(currentBgmResult.value.v);
+    REQUIRE(std::get<std::string>(bgmObj.at("name").v) == "js_theme");
+    REQUIRE(std::get<double>(bgmObj.at("volume").v) == Catch::Approx(80.0));
+    REQUIRE(std::get<int64_t>(bgmObj.at("pos").v) == 7);
+
+    auto pauseResult = ctx.callMethod("AudioManager", "pauseBgm", {});
+    REQUIRE(pauseResult.success);
+    REQUIRE(am.isBgmPaused());
+
+    auto resumeResult = ctx.callMethod("AudioManager", "resumeBgm", {});
+    REQUIRE(resumeResult.success);
+    REQUIRE(am.isBgmPlaying());
+
+    urpg::Value bgsName;
+    bgsName.v = std::string("js_rain");
+    auto playBgsResult = ctx.callMethod("AudioManager",
+                                        "playBgs",
+                                        {bgsName, urpg::Value::Int(70), urpg::Value::Int(100), urpg::Value::Int(2)});
+    REQUIRE(playBgsResult.success);
+    AudioChannel* bgs = am.getChannel("bgs");
+    REQUIRE(bgs != nullptr);
+    REQUIRE(bgs->getFilename() == "js_rain");
+    REQUIRE(bgs->getPosition() == 2);
+
+    auto stopBgsResult = ctx.callMethod("AudioManager", "stopBgs", {});
+    REQUIRE(stopBgsResult.success);
+    REQUIRE_FALSE(bgs->isPlaying());
+
+    urpg::Value meName;
+    meName.v = std::string("js_fanfare");
+    auto playMeResult = ctx.callMethod("AudioManager", "playMe", {meName, urpg::Value::Int(65), urpg::Value::Int(100)});
+    REQUIRE(playMeResult.success);
+    AudioChannel* me = am.getChannel("me");
+    REQUIRE(me != nullptr);
+    REQUIRE(me->isPlaying());
+
+    auto stopMeResult = ctx.callMethod("AudioManager", "stopMe", {});
+    REQUIRE(stopMeResult.success);
+    REQUIRE_FALSE(me->isPlaying());
+
+    auto setMasterResult = ctx.callMethod("AudioManager", "setMasterVolume", {urpg::Value::Int(50)});
+    REQUIRE(setMasterResult.success);
+    auto getMasterResult = ctx.callMethod("AudioManager", "getMasterVolume", {});
+    REQUIRE(getMasterResult.success);
+    REQUIRE(std::get<double>(getMasterResult.value.v) == Catch::Approx(0.5));
+
+    auto setBusResult = ctx.callMethod("AudioManager", "setBusVolume", {urpg::Value::Int(static_cast<int64_t>(AudioBus::BGM)), urpg::Value::Int(25)});
+    REQUIRE(setBusResult.success);
+    auto getBusResult = ctx.callMethod("AudioManager", "getBusVolume", {urpg::Value::Int(static_cast<int64_t>(AudioBus::BGM))});
+    REQUIRE(getBusResult.success);
+    REQUIRE(std::get<double>(getBusResult.value.v) == Catch::Approx(0.25));
+
+    auto duckResult = ctx.callMethod("AudioManager", "duckBgm", {urpg::Value::Int(30), urpg::Value::Int(2)});
+    REQUIRE(duckResult.success);
+    auto isDuckedResult = ctx.callMethod("AudioManager", "isBgmDucked", {});
+    REQUIRE(isDuckedResult.success);
+    REQUIRE(std::get<int64_t>(isDuckedResult.value.v) == 1);
+
+    auto unduckResult = ctx.callMethod("AudioManager", "unduckBgm", {urpg::Value::Int(1)});
+    REQUIRE(unduckResult.success);
+
+    urpg::Value seName;
+    seName.v = std::string("js_cursor");
+    auto playSeResult = ctx.callMethod("AudioManager", "playSe", {seName, urpg::Value::Int(90), urpg::Value::Int(100)});
+    REQUIRE(playSeResult.success);
+
+    auto stopResult = ctx.callMethod("AudioManager", "stopBgm", {});
+    REQUIRE(stopResult.success);
+    REQUIRE_FALSE(am.isBgmPlaying());
+
+    auto stopSeResult = ctx.callMethod("AudioManager", "stopSe", {});
+    REQUIRE(stopSeResult.success);
+    am.stopBgm();
+    am.stopBgs();
+    am.stopMe();
+    am.stopSe();
 }
 
 TEST_CASE("AudioChannel: state and controls", "[audio_manager]") {

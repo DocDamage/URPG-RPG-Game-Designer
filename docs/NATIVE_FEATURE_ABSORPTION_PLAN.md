@@ -4,6 +4,10 @@ Date: 2026-04-15
 Status: active execution  
 Scope: native runtime, editor workflows, schema/migration, compat bridge exit, and advanced capability expansion
 
+This is the roadmap document, not the canonical latest-status snapshot. For current completion, remediation, and validation state, use:
+- `docs/PROGRAM_COMPLETION_STATUS.md`
+- `docs/TECHNICAL_DEBT_REMEDIATION_PLAN.md`
+
 Cross-cutting debt closure, documentation-truth alignment, and intake-governance companion: `docs/TECHNICAL_DEBT_REMEDIATION_PLAN.md`.
 
 This plan replaces the previous addendum and becomes the single roadmap for turning URPG into a high-power engine for multiple game styles, while preserving import and migration trust for RPG Maker content.
