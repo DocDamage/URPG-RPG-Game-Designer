@@ -12,7 +12,7 @@
       "binaryDir": "${sourceDir}/build/${presetName}",
       "cacheVariables": {
         "URPG_FETCH_CATCH2": "ON",
-        "URPG_USE_SCCACHE": "ON"
+        "URPG_USE_SCCACHE": "OFF"
       }
     },
     {
@@ -27,6 +27,8 @@
       "inherits": "base",
       "generator": "Ninja",
       "cacheVariables": {
+        "CMAKE_C_COMPILER": "C:/Program Files/LLVM/bin/clang-cl.exe",
+        "CMAKE_CXX_COMPILER": "C:/Program Files/LLVM/bin/clang-cl.exe",
         "CMAKE_BUILD_TYPE": "Debug"
       }
     },
@@ -36,6 +38,8 @@
       "inherits": "base",
       "generator": "Ninja",
       "cacheVariables": {
+        "CMAKE_C_COMPILER": "C:/Program Files/LLVM/bin/clang-cl.exe",
+        "CMAKE_CXX_COMPILER": "C:/Program Files/LLVM/bin/clang-cl.exe",
         "CMAKE_BUILD_TYPE": "Release"
       }
     },
@@ -45,6 +49,8 @@
       "inherits": "base",
       "generator": "Ninja",
       "cacheVariables": {
+        "CMAKE_C_COMPILER": "C:/Program Files/LLVM/bin/clang-cl.exe",
+        "CMAKE_CXX_COMPILER": "C:/Program Files/LLVM/bin/clang-cl.exe",
         "CMAKE_BUILD_TYPE": "Release",
         "CMAKE_C_COMPILER_LAUNCHER": "sccache",
         "CMAKE_CXX_COMPILER_LAUNCHER": "sccache",

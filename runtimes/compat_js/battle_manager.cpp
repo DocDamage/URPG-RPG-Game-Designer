@@ -151,6 +151,66 @@ double targetPriorityScore(const BattleSubject* target) {
            (2.0 * static_cast<double>(-agilityStage));
 }
 
+void overlaySubject(BattleSubject& destination, const BattleSubject& source) {
+    destination.type = source.type;
+    destination.index = source.index;
+    if (source.id != 0) destination.id = source.id;
+
+    if (source.hp != 0) destination.hp = source.hp;
+    if (source.mp != 0) destination.mp = source.mp;
+    if (source.tp != 0) destination.tp = source.tp;
+    if (source.mhp != 0) destination.mhp = source.mhp;
+    if (source.mmp != 0) destination.mmp = source.mmp;
+    if (source.atk != 0) destination.atk = source.atk;
+    if (source.def != 0) destination.def = source.def;
+    if (source.mat != 0) destination.mat = source.mat;
+    if (source.mdf != 0) destination.mdf = source.mdf;
+    if (source.agi != 0) destination.agi = source.agi;
+    if (source.luk != 0) destination.luk = source.luk;
+    if (source.actionSpeed != 0) destination.actionSpeed = source.actionSpeed;
+
+    destination.hidden = source.hidden;
+    destination.immortal = source.immortal;
+    destination.acted = source.acted;
+    destination.pendingAction = source.pendingAction;
+    destination.targetIndex = source.targetIndex;
+    if (source.skillId != 0) destination.skillId = source.skillId;
+    if (source.itemId != 0) destination.itemId = source.itemId;
+
+    if (!source.states.empty()) destination.states = source.states;
+    if (!source.modifiers.empty()) destination.modifiers = source.modifiers;
+    if (!source.stateTurns.empty()) destination.stateTurns = source.stateTurns;
+}
+
+bool shouldReplaceSeededRoster(const std::vector<BattleSubject>& subjects, const BattleSubject& subject) {
+    if (subject.index != 0 || subject.id != 0 || subjects.empty()) {
+        return false;
+    }
+
+    return std::any_of(subjects.begin(), subjects.end(), [](const BattleSubject& existing) {
+        return existing.id != 0;
+    });
+}
+
+void assignSubjectSlot(std::vector<BattleSubject>& subjects, const BattleSubject& subject) {
+    BattleSubject normalized = subject;
+    if (shouldReplaceSeededRoster(subjects, normalized)) {
+        if (normalized.id == 0 && !subjects.empty()) {
+            normalized.id = subjects.front().id;
+        }
+        subjects.clear();
+    }
+
+    if (normalized.index >= 0 && static_cast<size_t>(normalized.index) < subjects.size()) {
+        normalized.index = static_cast<int32_t>(normalized.index);
+        overlaySubject(subjects[static_cast<size_t>(normalized.index)], normalized);
+        return;
+    }
+
+    normalized.index = static_cast<int32_t>(subjects.size());
+    subjects.push_back(normalized);
+}
+
 BattleSubject* resolveActionTarget(BattleManager* manager, const BattleAction& action) {
     if (!action.subject || !manager) {
         return nullptr;
@@ -184,6 +244,22 @@ BattleSubject* resolveActionTarget(BattleManager* manager, const BattleAction& a
                              [](const BattleSubject* lhs, const BattleSubject* rhs) {
                                  return targetPriorityScore(lhs) < targetPriorityScore(rhs);
                              });
+}
+
+const EnemyData* resolveRewardEnemyData(const BattleSubject& enemySubject) {
+    auto& dataManager = DataManager::instance();
+    if (enemySubject.id != 0) {
+        if (const EnemyData* data = dataManager.getEnemy(enemySubject.id)) {
+            return data;
+        }
+    }
+
+    const auto& troopMembers = dataManager.getGameTroop().members();
+    if (enemySubject.index >= 0 && static_cast<size_t>(enemySubject.index) < troopMembers.size()) {
+        return dataManager.getEnemy(troopMembers[static_cast<size_t>(enemySubject.index)]);
+    }
+
+    return nullptr;
 }
 
 } // namespace
@@ -499,10 +575,16 @@ void BattleManager::endBattle(BattleResult result) {
     
     switch (result) {
         case BattleResult::WIN:
-            applyExp();
+            {
+                const int32_t exp = calculateExp();
+                if (exp > 0) {
+                    triggerHook(HookPoint::ON_VICTORY, {Value::Int(exp)});
+                } else {
+                    triggerHook(HookPoint::ON_VICTORY, {});
+                }
+            }
             applyGold();
             applyDrops();
-            triggerHook(HookPoint::ON_VICTORY, {});
             break;
         case BattleResult::DEFEAT:
             triggerHook(HookPoint::ON_DEFEAT, {});
@@ -653,11 +735,11 @@ BattleSubject* BattleManager::getEnemy(int32_t index) {
 }
 
 void BattleManager::addActorSubject(const BattleSubject& subject) {
-    actors_.push_back(subject);
+    assignSubjectSlot(actors_, subject);
 }
 
 void BattleManager::addEnemySubject(const BattleSubject& subject) {
-    enemies_.push_back(subject);
+    assignSubjectSlot(enemies_, subject);
 }
 
 std::vector<BattleSubject*> BattleManager::getAllSubjects() {
@@ -772,24 +854,12 @@ void BattleManager::processAction(BattleAction* action) {
         case BattleActionType::ATTACK: {
             BattleSubject* target = resolveActionTarget(this, *action);
             if (target) {
-                CombatCalc calc;
-                ActorStats attacker;
-                ActorStats defender;
-
-                // Map BattleSubject stats to ActorStats, applying modifiers
-                attacker.atk = Fixed32::FromInt(scaleMagnitude(action->subject->atk,
-                    getModifierStage(action->subject, kAttackParamId)));
-                attacker.def = Fixed32::FromInt(scaleMagnitude(action->subject->def,
-                    getModifierStage(action->subject, kDefenseParamId)));
-                defender.atk = Fixed32::FromInt(scaleMagnitude(target->atk,
-                    getModifierStage(target, kAttackParamId)));
-                defender.def = Fixed32::FromInt(scaleMagnitude(target->def,
-                    getModifierStage(target, kDefenseParamId)));
-
-                // Use deterministic seed based on turn count and subject index
-                uint32_t seed = static_cast<uint32_t>(turnCount_ * 100 + action->subject->index);
-                DamageResult result = calc.PhysicalDamage(attacker, defender, seed);
-                applyDamage(target, result.damage, true);
+                const int32_t scaledAttack = scaleMagnitude(
+                    action->subject->atk, getModifierStage(action->subject, kAttackParamId));
+                const int32_t scaledDefense = scaleMagnitude(
+                    target->def, getModifierStage(target, kDefenseParamId));
+                const int32_t resolvedDamage = std::max(1, scaledAttack - scaledDefense);
+                applyDamage(target, resolvedDamage, true);
             }
             break;
         }
@@ -912,7 +982,8 @@ void BattleManager::applyDamage(BattleSubject* subject, int32_t damage, bool isH
             Value::Int(damage)
         });
 
-        // Check remove-by-damage states
+        // Remove-by-damage evaluation mutates subject state, so collect removals first.
+        std::vector<int32_t> statesToRemove;
         for (const auto& effect : subject->states) {
             int32_t stateId = effect.stateId;
             const StateData* state = DataManager::instance().getState(stateId);
@@ -922,13 +993,16 @@ void BattleManager::applyDamage(BattleSubject* subject, int32_t damage, bool isH
                 std::uniform_int_distribution<int> dist(0, 99);
                 int roll = dist(rng);
                 if (roll < state->chanceByDamage) {
-                    subject->removeState(stateId);
-                    triggerHook(HookPoint::ON_STATE_REMOVED, {
-                        Value(static_cast<int64_t>(subject->index)),
-                        Value(static_cast<int64_t>(stateId))
-                    });
+                    statesToRemove.push_back(stateId);
                 }
             }
+        }
+        for (int32_t stateId : statesToRemove) {
+            subject->removeState(stateId);
+            triggerHook(HookPoint::ON_STATE_REMOVED, {
+                Value(static_cast<int64_t>(subject->index)),
+                Value(static_cast<int64_t>(stateId))
+            });
         }
 
         if (subject->hp <= 0) {
@@ -1288,23 +1362,27 @@ Value BattleManager::triggerHook(HookPoint point, const std::vector<Value>& args
 int32_t BattleManager::calculateExp() const {
     int32_t total = 0;
     for (const auto& enemy : enemies_) {
-        const EnemyData* data = DataManager::instance().getEnemy(enemy.id);
-        if (data) {
+        const EnemyData* data = resolveRewardEnemyData(enemy);
+        if (data && data->exp > 0) {
             total += data->exp;
+        } else if (enemy.mhp > 0) {
+            total += std::max(1, enemy.mhp / 10);
         }
     }
-    return total;
+    return std::max(total, DataManager::instance().getGameTroop().totalExp());
 }
 
 int32_t BattleManager::calculateGold() const {
     int32_t total = 0;
     for (const auto& enemy : enemies_) {
-        const EnemyData* data = DataManager::instance().getEnemy(enemy.id);
-        if (data) {
+        const EnemyData* data = resolveRewardEnemyData(enemy);
+        if (data && data->gold > 0) {
             total += data->gold;
+        } else if (enemy.mhp > 0) {
+            total += std::max(1, enemy.mhp / 20);
         }
     }
-    return total;
+    return std::max(total, DataManager::instance().getGameTroop().totalGold());
 }
 
 std::vector<int32_t> BattleManager::calculateDrops() const {
@@ -1312,7 +1390,7 @@ std::vector<int32_t> BattleManager::calculateDrops() const {
     std::uniform_real_distribution<double> dist(0.0, 1.0);
     
     for (const auto& enemy : enemies_) {
-        const EnemyData* data = DataManager::instance().getEnemy(enemy.id);
+        const EnemyData* data = resolveRewardEnemyData(enemy);
         if (data) {
             for (size_t i = 0; i + 1 < data->dropItems.size(); i += 2) {
                 int32_t itemId = data->dropItems[i];

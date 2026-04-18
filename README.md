@@ -47,11 +47,11 @@
 ### Quick Build (Windows)
 ```powershell
 # Configure and build
-cmake --preset=dev-windows-debug
-cmake --build --preset=dev-windows-debug
+cmake --preset dev-ninja-debug
+cmake --build --preset dev-debug
 
 # Run tests
-ctest --preset=dev-windows-debug -L pr
+ctest --test-dir build/dev-ninja-debug -L pr --output-on-failure
 ```
 
 ### Focused Presentation Validation
@@ -140,12 +140,12 @@ On Windows, test executable relinks now automatically clear stale process locks 
 ```powershell
 $env:SCCACHE_DIR = "$PWD/.cache/sccache"
 sccache --zero-stats
-cmake --preset dev-ninja-debug
+cmake --preset dev-ninja-debug -DURPG_USE_SCCACHE=ON
 cmake --build --preset dev-debug
 sccache --show-stats
 ```
 
-`URPG_USE_SCCACHE` is enabled by default in `CMakePresets.json`.
+`URPG_USE_SCCACHE` is optional and defaults to `OFF` for local presets. Enable it explicitly only on machines where `sccache` is installed and available on `PATH`.
 
 ## Git LFS
 

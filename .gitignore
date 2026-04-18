@@ -1,4 +1,5 @@
 build/
+build-*/
 build-local/
 .vscode/
 .cache/
@@ -34,8 +35,8 @@ third_party/itch-assets/reports/
 imports/reports/
 itch/archives/
 .rex_db/
-.codemunch/last-index.json
-.contextlattice/orchestrator.env
+.codemunch/
+.contextlattice/
 .memorybridge/bridge.config.json
 .memorybridge/bridge.config.sample.json
 .memorybridge/sync-state.json

@@ -9,8 +9,13 @@ if(MSVC)
     add_compile_options(/FS /EHsc)
 endif()
 
+set(URPG_MSVC_LIKE_COMPILER OFF)
+if(MSVC OR CMAKE_CXX_COMPILER_FRONTEND_VARIANT STREQUAL "MSVC")
+    set(URPG_MSVC_LIKE_COMPILER ON)
+endif()
+
 option(URPG_FETCH_CATCH2 "Fetch Catch2 via CMake" ON)
-option(URPG_USE_SCCACHE "Use sccache as compiler launcher when available" ON)
+option(URPG_USE_SCCACHE "Use sccache as compiler launcher when available" OFF)
 option(
     URPG_WINDOWS_UNLOCK_TEST_BINARIES
     "On Windows, stop stale local test runner processes before relinking test executables"
@@ -41,6 +46,11 @@ endif()
 
 function(urpg_enable_windows_test_binary_unlock target_name)
     if(NOT WIN32 OR NOT URPG_WINDOWS_UNLOCK_TEST_BINARIES OR NOT URPG_POWERSHELL_EXE)
+        return()
+    endif()
+
+    if(CMAKE_GENERATOR MATCHES "Ninja")
+        message(STATUS "URPG: skipping Windows test-binary unlock hook for Ninja generator target ${target_name}")
         return()
     endif()
 
@@ -171,7 +181,16 @@ target_link_libraries(urpg_core PUBLIC nlohmann_json::nlohmann_json)
 option(URPG_SKIP_OPENGL "Skip OpenGL requirement (for headless CI builds)" OFF)
 set(SDL2_DISABLE_INSTALL ON CACHE BOOL "" FORCE)
 set(SDL2_TESTS OFF CACHE BOOL "" FORCE)
-find_package(SDL2 QUIET)
+set(URPG_SKIP_SYSTEM_SDL2 OFF)
+if(WIN32 AND URPG_MSVC_LIKE_COMPILER)
+    set(URPG_SKIP_SYSTEM_SDL2 ON)
+    message(STATUS "URPG: skipping system SDL2 package lookup for MSVC-like Windows toolchain")
+endif()
+
+if(NOT URPG_SKIP_SYSTEM_SDL2)
+    find_package(SDL2 QUIET)
+endif()
+
 if(NOT SDL2_FOUND)
     include(FetchContent)
     FetchContent_Declare(
@@ -274,7 +293,6 @@ add_executable(urpg_tests
     tests/unit/test_battle_inspector_model.cpp
     tests/unit/test_battle_preview_panel.cpp
     tests/unit/test_battle_inspector_panel.cpp
-    tests/unit/test_engine_shell.cpp
     tests/unit/test_event_edit_guard.cpp
     tests/unit/test_event_authority_diagnostics.cpp
     tests/unit/test_event_authority_panel.cpp

@@ -39,8 +39,8 @@ Cross-cutting debt, truthfulness, and intake-governance source of truth: `docs/T
   - snapshot-style wrapped centered/right `drawTextEx` draw-history coverage landed
   - compat status truth pass started: inflated `FULL` claims are being downgraded where behavior is still fixture-, stub-, or placeholder-backed
 - Latest recorded local validation snapshot:
-  - `ctest --test-dir build/dev-ninja-debug -L pr --output-on-failure` => 289/289 passed
-  - `ctest --test-dir build/dev-ninja-debug -L weekly --output-on-failure` => 42/42 passed
+  - `ctest --test-dir build/dev-ninja-debug -L pr --output-on-failure` => 458/458 passed
+  - `ctest --test-dir build/dev-ninja-debug -L weekly --output-on-failure` => 43/43 passed
 - Latest focused presentation validation snapshot:
   - `ctest -C Debug -R "urpg_(presentation_(unit_lane|release_validation)|spatial_editor_lane)" --output-on-failure` => 3/3 passed
   - includes the dedicated `[presentation]` unit lane, the standalone release-validation harness, and the spatial editor authoring lane

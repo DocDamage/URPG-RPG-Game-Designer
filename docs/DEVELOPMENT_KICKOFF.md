@@ -74,8 +74,8 @@ Cross-cutting debt closure, documentation-truth alignment, and intake-governance
 - Test baseline added and passing (Debug snapshot, 2026-04-15):
   - `urpg_tests`: 3907 assertions / 287 test cases
   - Latest local gate snapshot:
-    - `ctest --test-dir build/dev-ninja-debug -L pr --output-on-failure`: 289/289 passed
-    - `ctest --test-dir build/dev-ninja-debug -L weekly --output-on-failure`: 42/42 passed
+    - `ctest --test-dir build/dev-ninja-debug -L pr --output-on-failure`: 458/458 passed
+    - `ctest --test-dir build/dev-ninja-debug -L weekly --output-on-failure`: 43/43 passed
 - Phase 2 compat expansion implemented in active targets:
    - WindowCompat surface expansion for `Window_Base`, `Window_Selectable`, and `Window_Command` API registration.
    - WindowCompat method call-count tracking surfaced in compat reports.
