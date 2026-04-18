@@ -66,6 +66,12 @@ struct BattleSubject {
     int32_t tp = 0;
     int32_t mhp = 0;
     int32_t mmp = 0;
+    int32_t atk = 0;
+    int32_t def = 0;
+    int32_t mat = 0;
+    int32_t mdf = 0;
+    int32_t agi = 0;
+    int32_t luk = 0;
     
     // Battle state
     bool hidden = false;
@@ -78,6 +84,16 @@ struct BattleSubject {
     int32_t targetIndex = -1;   // -1 = no target, -2 = random
     int32_t skillId = 0;
     int32_t itemId = 0;
+    
+    // Active states (stateId -> remaining turns)
+    std::vector<int32_t> states;
+    std::unordered_map<int32_t, int32_t> stateTurns;
+    
+    void addState(int32_t stateId, int32_t turns = -1);
+    void removeState(int32_t stateId);
+    bool hasState(int32_t stateId) const;
+    void clearStates();
+    int32_t getStateTurns(int32_t stateId) const;
 };
 
 // Battle action being executed
@@ -117,6 +133,9 @@ public:
     BattleManager(const BattleManager&) = delete;
     BattleManager& operator=(const BattleManager&) = delete;
     
+    // Singleton access for compatibility.
+    static BattleManager& instance();
+    
     // ========================================================================
     // Initialization and Setup
     // ========================================================================
@@ -134,6 +153,12 @@ public:
     void setBattleBgm(const std::string& name, double volume = 90.0, double pitch = 100.0);
     void setVictoryMe(const std::string& name, double volume = 90.0, double pitch = 100.0);
     void setDefeatMe(const std::string& name, double volume = 90.0, double pitch = 100.0);
+    
+    // Status: FULL - Get battle transition type
+    int32_t getBattleTransition() const;
+    
+    // Status: FULL - Get battle background name
+    const std::string& getBattleBackground() const;
     
     // ========================================================================
     // Battle Flow Control
@@ -265,9 +290,21 @@ public:
     // Status: FULL - Check and apply states
     void applyStateEffects(BattleSubject* subject);
     
+    // Status: FULL - Remove expired states
+    void removeExpiredStates(BattleSubject* subject);
+    
     // Status: FULL - Play animation
     void playAnimation(int32_t animationId, BattleSubject* target);
     void playAnimationOnSubject(int32_t animationId, BattleSubject* subject);
+    
+    // Animation tracking (for testing / native renderer)
+    struct AnimationRequest {
+        int32_t animationId = 0;
+        int32_t targetType = 0; // 0=actor, 1=enemy
+        int32_t targetIndex = 0;
+    };
+    AnimationRequest getLastAnimationRequest() const { return lastAnimationRequest_; }
+    void clearLastAnimationRequest() { lastAnimationRequest_ = AnimationRequest{}; }
     
     // ========================================================================
     // Event Integration
@@ -363,6 +400,13 @@ private:
     // Actions
     std::vector<BattleAction> actionQueue_;
     int32_t currentActionIndex_ = -1;
+    
+    // Visual/Audio setup
+    int32_t battleTransitionType_ = 0;
+    std::string battleBackgroundName_;
+    
+    // Animation tracking
+    AnimationRequest lastAnimationRequest_;
     
     // Hooks
     std::unordered_map<HookPoint, std::unordered_map<std::string, BattleHookFn>> hooks_;

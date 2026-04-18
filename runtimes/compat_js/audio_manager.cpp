@@ -92,7 +92,7 @@ AudioState AudioChannel::getState() const {
 
 void AudioChannel::update() {
     if (playing_ && !paused_) {
-        // TODO: Update audio playback position based on time
+        pos_++;
     }
 }
 
@@ -112,6 +112,14 @@ struct PendingCrossfade {
     bool switchedTrack = false;
 };
 
+struct PendingDuck {
+    bool active = false;
+    double targetVolume = 1.0;
+    double sourceVolume = 1.0;
+    int32_t durationFrames = 0;
+    int32_t elapsedFrames = 0;
+};
+
 class AudioManagerImpl {
 public:
     std::vector<std::unique_ptr<AudioChannel>> channels_;
@@ -126,6 +134,7 @@ public:
     bool bgmDucked_ = false;
     double bgmDuckVolume_ = 1.0;
     PendingCrossfade bgmCrossfade_;
+    PendingDuck bgmDuck_;
 
     // BGS state
     AudioChannel* bgsChannel_ = nullptr;
@@ -461,8 +470,15 @@ void AudioManager::duckBgm(double volume, int32_t duration) {
     impl_->bgmDuckVolume_ = std::clamp(volume / 100.0, 0.0, 1.0);
     
     if (impl_->bgmChannel_) {
-        // TODO: Implement smooth ducking over duration
-        impl_->bgmChannel_->setVolume(impl_->bgmDuckVolume_);
+        if (duration > 0) {
+            impl_->bgmDuck_.active = true;
+            impl_->bgmDuck_.sourceVolume = impl_->bgmChannel_->getVolume();
+            impl_->bgmDuck_.targetVolume = impl_->bgmDuckVolume_;
+            impl_->bgmDuck_.durationFrames = duration;
+            impl_->bgmDuck_.elapsedFrames = 0;
+        } else {
+            impl_->bgmChannel_->setVolume(impl_->bgmDuckVolume_);
+        }
     }
 }
 
@@ -470,8 +486,15 @@ void AudioManager::unduckBgm(int32_t duration) {
     impl_->bgmDucked_ = false;
     
     if (impl_->bgmChannel_) {
-        // TODO: Implement smooth unducking over duration
-        impl_->bgmChannel_->setVolume(1.0);
+        if (duration > 0) {
+            impl_->bgmDuck_.active = true;
+            impl_->bgmDuck_.sourceVolume = impl_->bgmChannel_->getVolume();
+            impl_->bgmDuck_.targetVolume = 1.0;
+            impl_->bgmDuck_.durationFrames = duration;
+            impl_->bgmDuck_.elapsedFrames = 0;
+        } else {
+            impl_->bgmChannel_->setVolume(1.0);
+        }
     }
 }
 
@@ -523,6 +546,19 @@ void AudioManager::update() {
     stepCrossfade(impl_->bgmCrossfade_, impl_->bgmChannel_);
     stepCrossfade(impl_->bgsCrossfade_, impl_->bgsChannel_);
 
+    // Duck interpolation runs after crossfade so that ducking can override
+    // crossfade volume on the same frame.
+    if (impl_->bgmDuck_.active && impl_->bgmChannel_) {
+        auto& d = impl_->bgmDuck_;
+        d.elapsedFrames++;
+        const double t = std::min(1.0, static_cast<double>(d.elapsedFrames) / std::max(1, d.durationFrames));
+        const double vol = d.sourceVolume + (d.targetVolume - d.sourceVolume) * t;
+        impl_->bgmChannel_->setVolume(vol);
+        if (d.elapsedFrames >= d.durationFrames) {
+            d.active = false;
+        }
+    }
+
     // Update all channels
     for (auto& channel : impl_->channels_) {
         if (channel) {
@@ -561,43 +597,138 @@ std::string AudioManager::getMethodDeviation(const std::string& methodName) {
     return "";
 }
 
+namespace {
+
+int64_t valueToInt64(const urpg::Value& value, int64_t fallback = 0) {
+    if (const auto* integer = std::get_if<int64_t>(&value.v)) {
+        return *integer;
+    }
+    if (const auto* real = std::get_if<double>(&value.v)) {
+        return static_cast<int64_t>(std::llround(*real));
+    }
+    if (const auto* flag = std::get_if<bool>(&value.v)) {
+        return *flag ? 1 : 0;
+    }
+    if (const auto* text = std::get_if<std::string>(&value.v)) {
+        try {
+            size_t consumed = 0;
+            const int64_t parsed = std::stoll(*text, &consumed, 10);
+            if (consumed == text->size()) {
+                return parsed;
+            }
+        } catch (...) {
+        }
+        try {
+            size_t consumed = 0;
+            const double parsed = std::stod(*text, &consumed);
+            if (consumed == text->size()) {
+                return static_cast<int64_t>(std::llround(parsed));
+            }
+        } catch (...) {
+        }
+    }
+    return fallback;
+}
+
+std::string valueToString(const urpg::Value& value, const std::string& fallback = "") {
+    if (const auto* text = std::get_if<std::string>(&value.v)) {
+        return *text;
+    }
+    return fallback;
+}
+
+} // namespace
+
 void AudioManager::registerAPI(QuickJSContext& ctx) {
     std::vector<QuickJSContext::MethodDef> methods;
     
     methods.push_back({"playBgm", [](const std::vector<Value>& args) -> Value {
         if (args.size() < 1) return Value::Nil();
-        // AudioManager::instance().playBgm(...);
+        AudioManager::instance().playBgm(
+            valueToString(args[0]),
+            args.size() > 1 ? static_cast<double>(valueToInt64(args[1])) : 90.0,
+            args.size() > 2 ? static_cast<double>(valueToInt64(args[2])) : 100.0);
         return Value::Nil();
     }, CompatStatus::FULL});
     
     methods.push_back({"stopBgm", [](const std::vector<Value>&) -> Value {
-        // AudioManager::instance().stopBgm();
+        AudioManager::instance().stopBgm();
         return Value::Nil();
     }, CompatStatus::FULL});
     
     methods.push_back({"pauseBgm", [](const std::vector<Value>&) -> Value {
-        // AudioManager::instance().pauseBgm();
+        AudioManager::instance().pauseBgm();
         return Value::Nil();
     }, CompatStatus::FULL});
     
     methods.push_back({"resumeBgm", [](const std::vector<Value>&) -> Value {
-        // AudioManager::instance().resumeBgm();
+        AudioManager::instance().resumeBgm();
         return Value::Nil();
     }, CompatStatus::FULL});
     
     methods.push_back({"isBgmPlaying", [](const std::vector<Value>&) -> Value {
-        // return Value::Int(AudioManager::instance().isBgmPlaying() ? 1 : 0);
-        return Value::Int(0);
+        return Value::Int(AudioManager::instance().isBgmPlaying() ? 1 : 0);
     }, CompatStatus::FULL});
     
     methods.push_back({"playSe", [](const std::vector<Value>& args) -> Value {
         if (args.size() < 1) return Value::Nil();
-        // AudioManager::instance().playSe(...);
+        AudioManager::instance().playSe(
+            valueToString(args[0]),
+            args.size() > 1 ? static_cast<double>(valueToInt64(args[1])) : 90.0,
+            args.size() > 2 ? static_cast<double>(valueToInt64(args[2])) : 100.0);
         return Value::Nil();
     }, CompatStatus::FULL});
     
     methods.push_back({"stopSe", [](const std::vector<Value>&) -> Value {
-        // AudioManager::instance().stopSe();
+        AudioManager::instance().stopSe();
+        return Value::Nil();
+    }, CompatStatus::FULL});
+    
+    methods.push_back({"playBgs", [](const std::vector<Value>& args) -> Value {
+        if (args.size() < 1) return Value::Nil();
+        AudioManager::instance().playBgs(
+            valueToString(args[0]),
+            args.size() > 1 ? static_cast<double>(valueToInt64(args[1])) : 90.0,
+            args.size() > 2 ? static_cast<double>(valueToInt64(args[2])) : 100.0);
+        return Value::Nil();
+    }, CompatStatus::FULL});
+    
+    methods.push_back({"stopBgs", [](const std::vector<Value>&) -> Value {
+        AudioManager::instance().stopBgs();
+        return Value::Nil();
+    }, CompatStatus::FULL});
+    
+    methods.push_back({"playMe", [](const std::vector<Value>& args) -> Value {
+        if (args.size() < 1) return Value::Nil();
+        AudioManager::instance().playMe(
+            valueToString(args[0]),
+            args.size() > 1 ? static_cast<double>(valueToInt64(args[1])) : 90.0,
+            args.size() > 2 ? static_cast<double>(valueToInt64(args[2])) : 100.0);
+        return Value::Nil();
+    }, CompatStatus::FULL});
+    
+    methods.push_back({"stopMe", [](const std::vector<Value>&) -> Value {
+        AudioManager::instance().stopMe();
+        return Value::Nil();
+    }, CompatStatus::FULL});
+    
+    methods.push_back({"crossfadeBgm", [](const std::vector<Value>& args) -> Value {
+        if (args.size() < 1) return Value::Nil();
+        AudioManager::instance().crossfadeBgm(
+            valueToString(args[0]),
+            args.size() > 1 ? static_cast<double>(valueToInt64(args[1])) : 90.0,
+            args.size() > 2 ? static_cast<double>(valueToInt64(args[2])) : 100.0,
+            args.size() > 3 ? static_cast<int32_t>(valueToInt64(args[3])) : 60);
+        return Value::Nil();
+    }, CompatStatus::FULL});
+    
+    methods.push_back({"saveBgmSettings", [](const std::vector<Value>&) -> Value {
+        AudioManager::instance().saveBgmSettings();
+        return Value::Nil();
+    }, CompatStatus::FULL});
+    
+    methods.push_back({"restoreBgmSettings", [](const std::vector<Value>&) -> Value {
+        AudioManager::instance().restoreBgmSettings();
         return Value::Nil();
     }, CompatStatus::FULL});
     

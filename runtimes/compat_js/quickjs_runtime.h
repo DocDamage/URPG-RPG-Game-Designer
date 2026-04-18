@@ -6,6 +6,11 @@
 // This defines the contract for embedding QuickJS within URPG's MZ compatibility layer.
 // The runtime is isolated from native URPG systems per Invariant 1: "Compat never degrades Native."
 
+// Real QuickJS integration is gated behind URPG_HAS_QUICKJS.
+// When defined, the implementation links against the QuickJS C API.
+// When not defined, a deterministic stub runtime is used for testing.
+// #define URPG_HAS_QUICKJS
+
 #include "engine/runtimes/bridge/value.h"
 #include <cstdint>
 #include <functional>

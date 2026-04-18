@@ -41,6 +41,12 @@ struct Value {
         out.v = std::move(a);
         return out;
     }
+
+    static Value Str(std::string s) {
+        Value out;
+        out.v = std::move(s);
+        return out;
+    }
 };
 
 } // namespace urpg

@@ -6,7 +6,9 @@
 #include "runtimes/compat_js/window_compat.h"
 #include "runtimes/compat_js/quickjs_runtime.h"
 #include "runtimes/compat_js/data_manager.h"
+#include "runtimes/compat_js/input_manager.h"
 #include <catch2/catch_test_macros.hpp>
+#include <catch2/catch_approx.hpp>
 
 using namespace urpg::compat;
 
@@ -256,6 +258,138 @@ TEST_CASE("Window_Base drawActor gauges call drawGauge and drawText", "[compat][
     REQUIRE(Window_Base::getMethodCallCount("drawText") == textBefore + 3);
 }
 
+TEST_CASE("Window_Base drawActorName uses DataManager actor name", "[compat][window]") {
+    DataManager::instance().clearDatabase();
+#ifdef URPG_SOURCE_DIR
+    DataManager::instance().setDataPath(URPG_SOURCE_DIR "/tests/data/mz_data");
+#else
+    DataManager::instance().setDataPath("tests/data/mz_data");
+#endif
+    DataManager::instance().loadDatabase();
+
+    Window_Base window(Window_Base::CreateParams{});
+
+    // Valid actorId - should not crash and record drawText
+    const uint32_t drawTextBefore = Window_Base::getMethodCallCount("drawText");
+    window.drawActorName(1, 0, 0, 128);
+    REQUIRE(Window_Base::getMethodCallCount("drawText") == drawTextBefore + 1);
+
+    // Invalid actorId - should not crash and record drawText with fallback name
+    window.drawActorName(999, 0, 0, 128);
+    REQUIRE(Window_Base::getMethodCallCount("drawText") == drawTextBefore + 2);
+
+    DataManager::instance().clearDatabase();
+}
+
+TEST_CASE("Window_Base drawActorLevel uses DataManager actor level", "[compat][window]") {
+    DataManager::instance().clearDatabase();
+#ifdef URPG_SOURCE_DIR
+    DataManager::instance().setDataPath(URPG_SOURCE_DIR "/tests/data/mz_data");
+#else
+    DataManager::instance().setDataPath("tests/data/mz_data");
+#endif
+    DataManager::instance().loadDatabase();
+
+    Window_Base window(Window_Base::CreateParams{});
+
+    // Valid actorId - should not crash and record drawText
+    const uint32_t drawTextBefore = Window_Base::getMethodCallCount("drawText");
+    window.drawActorLevel(1, 0, 0);
+    REQUIRE(Window_Base::getMethodCallCount("drawText") == drawTextBefore + 1);
+
+    // Invalid actorId - should not crash and record drawText with fallback level
+    window.drawActorLevel(999, 0, 0);
+    REQUIRE(Window_Base::getMethodCallCount("drawText") == drawTextBefore + 2);
+
+    DataManager::instance().clearDatabase();
+}
+
+TEST_CASE("Window_Base drawActorHp computes rate from actor params", "[compat][window]") {
+    DataManager::instance().clearDatabase();
+#ifdef URPG_SOURCE_DIR
+    DataManager::instance().setDataPath(URPG_SOURCE_DIR "/tests/data/mz_data");
+#else
+    DataManager::instance().setDataPath("tests/data/mz_data");
+#endif
+    DataManager::instance().loadDatabase();
+    DataManager::instance().setupNewGame();
+
+    Window_Base window(Window_Base::CreateParams{});
+
+    // Valid actorId - should not crash and call drawGauge
+    const uint32_t gaugeBefore = Window_Base::getMethodCallCount("drawGauge");
+    window.drawActorHp(1, 0, 0, 128);
+    REQUIRE(Window_Base::getMethodCallCount("drawGauge") == gaugeBefore + 1);
+    double fullRate = window.getLastGaugeRate();
+    REQUIRE(fullRate == 1.0);
+
+    // Reduce HP and verify rate changes
+    DataManager::instance().setGameActorHp(1, DataManager::instance().getGameActor(1)->mhp / 2);
+    window.drawActorHp(1, 0, 0, 128);
+    double halfRate = window.getLastGaugeRate();
+    REQUIRE(halfRate == 0.5);
+
+    // Invalid actorId - should not crash and call drawGauge with default rate
+    window.drawActorHp(999, 0, 0, 128);
+    REQUIRE(Window_Base::getMethodCallCount("drawGauge") == gaugeBefore + 3);
+
+    DataManager::instance().clearDatabase();
+}
+
+TEST_CASE("Window_Base drawActorTp uses default mtp of 100", "[compat][window]") {
+    DataManager::instance().clearDatabase();
+    auto& actor = DataManager::instance().addTestActor();
+    actor.id = 1;
+    actor.initialLevel = 1;
+    actor.params = {{100, 100, 10, 10, 10, 10, 10, 10}};
+    DataManager::instance().setupGameActors();
+    DataManager::instance().setGameActorTp(1, 50);
+
+    Window_Base window(Window_Base::CreateParams{});
+    window.drawActorTp(1, 0, 0, 128);
+    // Default mtp is 100, so rate = 50/100 = 0.5
+    REQUIRE(window.getLastGaugeRate() == 0.5);
+
+    DataManager::instance().clearDatabase();
+}
+
+TEST_CASE("Window_Base drawActorTp respects custom mtp", "[compat][window]") {
+    DataManager::instance().clearDatabase();
+    InputManager::instance().clear();
+    auto& actor = DataManager::instance().addTestActor();
+    actor.id = 1;
+    actor.initialLevel = 1;
+    actor.params = {{100, 100, 10, 10, 10, 10, 10, 10}};
+    DataManager::instance().setupGameActors();
+    DataManager::instance().setGameActorTp(1, 50);
+    DataManager::instance().setGameActorMtp(1, 200);
+
+    Window_Base window(Window_Base::CreateParams{});
+    window.drawActorTp(1, 0, 0, 128);
+    // lastGaugeRate_ should be 50/200 = 0.25
+    REQUIRE(window.getLastGaugeRate() == 0.25);
+
+    DataManager::instance().clearDatabase();
+}
+
+TEST_CASE("Window_Base drawActorTp clamps rate to 1.0 when tp exceeds mtp", "[compat][window]") {
+    DataManager::instance().clearDatabase();
+    auto& actor = DataManager::instance().addTestActor();
+    actor.id = 1;
+    actor.initialLevel = 1;
+    actor.params = {{100, 100, 10, 10, 10, 10, 10, 10}};
+    DataManager::instance().setupGameActors();
+    DataManager::instance().setGameActorTp(1, 150);
+    DataManager::instance().setGameActorMtp(1, 100);
+
+    Window_Base window(Window_Base::CreateParams{});
+    window.drawActorTp(1, 0, 0, 128);
+    // rate should be clamped to 1.0
+    REQUIRE(window.getLastGaugeRate() == 1.0);
+
+    DataManager::instance().clearDatabase();
+}
+
 TEST_CASE("Window_Base textColor change and reset", "[compat][window]") {
     Window_Base window(Window_Base::CreateParams{});
     
@@ -292,6 +426,28 @@ TEST_CASE("Window_Base systemColor returns valid colors", "[compat][window]") {
     Color hp = window.systemColor(16);
     REQUIRE(hp.r == 255);
     REQUIRE(hp.g == 96);
+}
+
+TEST_CASE("Window_Base color helpers return expected colors", "[compat][window]") {
+    Window_Base window(Window_Base::CreateParams{});
+    
+    Color normal = window.normalColor();
+    REQUIRE(normal.r == window.systemColor(0).r);
+    REQUIRE(normal.g == window.systemColor(0).g);
+    REQUIRE(normal.b == window.systemColor(0).b);
+    REQUIRE(normal.a == window.systemColor(0).a);
+    
+    Color dim = window.dimColor();
+    REQUIRE(dim.r == 128);
+    REQUIRE(dim.g == 128);
+    REQUIRE(dim.b == 128);
+    REQUIRE(dim.a == 255);
+    
+    Color death = window.deathColor();
+    REQUIRE(death.r == 255);
+    REQUIRE(death.g == 0);
+    REQUIRE(death.b == 0);
+    REQUIRE(death.a == 255);
 }
 
 TEST_CASE("Window_Base font settings", "[compat][window]") {
@@ -559,6 +715,147 @@ TEST_CASE("Window_Selectable item width calculation", "[compat][window]") {
     REQUIRE(itemWidth < 100);
 }
 
+TEST_CASE("Window_Selectable processCursorMove reads InputManager dir4", "[compat][window]") {
+    InputManager::instance().clear();
+
+    Window_Selectable::CreateParams params;
+    params.maxCols = 2;
+    Window_Selectable window(params);
+    window.setMaxItems(10);
+
+    // DOWN: index 0 -> 2
+    window.setIndex(0);
+    InputManager::instance().setKeyPressed(InputKey::DOWN, true);
+    InputManager::instance().update();
+    window.update();
+    REQUIRE(window.getIndex() == 2);
+
+    // LEFT: index 1 -> 0
+    InputManager::instance().clear();
+    window.setIndex(1);
+    InputManager::instance().setKeyPressed(InputKey::LEFT, true);
+    InputManager::instance().update();
+    window.update();
+    REQUIRE(window.getIndex() == 0);
+
+    // RIGHT: index 0 -> 1
+    InputManager::instance().clear();
+    window.setIndex(0);
+    InputManager::instance().setKeyPressed(InputKey::RIGHT, true);
+    InputManager::instance().update();
+    window.update();
+    REQUIRE(window.getIndex() == 1);
+
+    // UP: index 2 -> 0
+    InputManager::instance().clear();
+    window.setIndex(2);
+    InputManager::instance().setKeyPressed(InputKey::UP, true);
+    InputManager::instance().update();
+    window.update();
+    REQUIRE(window.getIndex() == 0);
+
+    InputManager::instance().clear();
+}
+
+TEST_CASE("Window_Selectable processHandling triggers on OK", "[compat][window]") {
+    InputManager::instance().clear();
+
+    Window_Selectable window(Window_Selectable::CreateParams{});
+    window.setMaxItems(5);
+    window.setIndex(2);
+
+    int32_t callbackIndex = -999;
+    window.setOnSelect([&](int32_t index) {
+        callbackIndex = index;
+    });
+
+    InputManager::instance().setKeyPressed(InputKey::DECISION, true);
+    InputManager::instance().update();
+    window.update();
+
+    REQUIRE(callbackIndex == 2);
+
+    InputManager::instance().clear();
+}
+
+TEST_CASE("Window_Selectable hitTest maps coordinates to item index", "[compat][window]") {
+    Window_Selectable::CreateParams params;
+    params.rect = Rect{0, 0, 200, 200};
+    params.maxCols = 2;
+    params.itemHeight = 36;
+    params.numVisibleRows = 4;
+    Window_Selectable window(params);
+    window.setMaxItems(10);
+
+    // Padding is 12, content starts at local (12, 12)
+    // itemWidth = (176 - 8) / 2 = 84
+    // Item 0 at local (12, 12) -> rel (0, 0)
+    REQUIRE(window.hitTest(12, 12) == 0);
+    // Item 1 at local (104, 12) -> rel (92, 0), col=92/84=1
+    REQUIRE(window.hitTest(104, 12) == 1);
+    // Item 2 at local (12, 48) -> rel (0, 36), row=36/36=1
+    REQUIRE(window.hitTest(12, 48) == 2);
+    // Item 3 at local (104, 48) -> rel (92, 36)
+    REQUIRE(window.hitTest(104, 48) == 3);
+
+    // Out of bounds (inside padding)
+    REQUIRE(window.hitTest(0, 0) == -1);
+    REQUIRE(window.hitTest(11, 11) == -1);
+
+    // Out of bounds (beyond content)
+    REQUIRE(window.hitTest(200, 200) == -1);
+
+    // No items
+    window.setMaxItems(0);
+    REQUIRE(window.hitTest(12, 12) == -1);
+}
+
+TEST_CASE("Window_Selectable touch tap sets cursor index", "[compat][window]") {
+    InputManager::instance().clear();
+
+    Window_Selectable::CreateParams params;
+    params.rect = Rect{0, 0, 200, 200};
+    params.maxCols = 2;
+    params.itemHeight = 36;
+    params.numVisibleRows = 4;
+    Window_Selectable window(params);
+    window.setMaxItems(10);
+    window.setIndex(0);
+
+    // Touch at coordinate mapping to index 3
+    InputManager::instance().update(); // clear previous frame state
+    InputManager::instance().setTouchPosition(104, 48);
+    InputManager::instance().setTouchPressed(true);
+    window.update();
+
+    REQUIRE(window.getIndex() == 3);
+
+    InputManager::instance().clear();
+}
+
+TEST_CASE("Window_Selectable mouse click sets cursor index", "[compat][window]") {
+    InputManager::instance().clear();
+
+    Window_Selectable::CreateParams params;
+    params.rect = Rect{0, 0, 200, 200};
+    params.maxCols = 2;
+    params.itemHeight = 36;
+    params.numVisibleRows = 4;
+    Window_Selectable window(params);
+    window.setMaxItems(10);
+    window.setIndex(0);
+
+    // Mouse click at coordinate mapping to index 3
+    InputManager::instance().update(); // clear previous frame state
+    InputManager::instance().setMousePosition(104, 48);
+    InputManager::instance().setMousePressed(0, true);
+    window.update();
+
+    REQUIRE(window.getIndex() == 3);
+
+    InputManager::instance().clear();
+}
+
 // ============================================================================
 // Window_Command Tests
 // ============================================================================
@@ -724,6 +1021,67 @@ TEST_CASE("Window_Command getCommand bounds check", "[compat][window]") {
     auto& invalid = window.getCommand(100);
     REQUIRE(invalid.name.empty());
     REQUIRE_FALSE(invalid.enabled);
+}
+
+TEST_CASE("Window_Command onOk calls callOkHandler", "[compat][window]") {
+    InputManager::instance().clear();
+
+    Window_Command::CreateParams params;
+    params.commands = {
+        {"Item", "item", true, 0},
+        {"Skill", "skill", true, 0}
+    };
+    Window_Command window(params);
+    window.setIndex(1);
+
+    std::string lastSymbol;
+    window.setOnCommand([&](const std::string& symbol) {
+        lastSymbol = symbol;
+    });
+
+    InputManager::instance().setKeyPressed(InputKey::DECISION, true);
+    InputManager::instance().update();
+    window.update();
+
+    REQUIRE(lastSymbol == "skill");
+
+    InputManager::instance().clear();
+}
+
+TEST_CASE("Window_Command drawItem draws command text with color", "[compat][window]") {
+    Window_Command::CreateParams params;
+    params.rect = Rect{0, 0, 200, 200};
+    params.commands = {
+        {"Enabled", "enabled", true, 0},
+        {"Disabled", "disabled", false, 1}
+    };
+    Window_Command window(params);
+
+    const uint32_t drawItemBefore = Window_Base::getMethodCallCount("drawItem");
+    const uint32_t drawTextBefore = Window_Base::getMethodCallCount("drawText");
+
+    window.drawItem(0);
+    window.drawItem(1);
+
+    REQUIRE(Window_Base::getMethodCallCount("drawItem") == drawItemBefore + 2);
+    REQUIRE(Window_Base::getMethodCallCount("drawText") >= drawTextBefore + 2);
+}
+
+TEST_CASE("Window_Command drawAllItems draws all commands", "[compat][window]") {
+    Window_Command::CreateParams params;
+    params.rect = Rect{0, 0, 200, 200};
+    params.commands = {
+        {"One", "one", true, 0},
+        {"Two", "two", true, 0},
+        {"Three", "three", false, 0}
+    };
+    Window_Command window(params);
+
+    const uint32_t drawItemBefore = Window_Base::getMethodCallCount("drawItem");
+
+    window.drawAllItems();
+
+    REQUIRE(Window_Base::getMethodCallCount("drawItem") == drawItemBefore + 3);
 }
 
 // ============================================================================
@@ -926,6 +1284,52 @@ TEST_CASE("Sprite_Actor visibility and opacity", "[compat][sprite]") {
     REQUIRE(sprite.getOpacity() == 100);
 }
 
+TEST_CASE("Sprite_Character setCharacterName manages bitmap lifecycle", "[compat][sprite]") {
+    Sprite_Character sprite(Sprite_Character::CreateParams{});
+    
+    REQUIRE(sprite.getBitmap() == INVALID_BITMAP);
+    
+    sprite.setCharacterName("Actor1");
+    REQUIRE(sprite.getBitmap() != INVALID_BITMAP);
+    
+    sprite.setCharacterName("");
+    REQUIRE(sprite.getBitmap() == INVALID_BITMAP);
+}
+
+TEST_CASE("Sprite_Actor startMotion sets up animation state", "[compat][sprite]") {
+    Sprite_Actor sprite(Sprite_Actor::CreateParams{});
+    
+    sprite.startMotion(1); // walk
+    
+    REQUIRE(sprite.getMotion() == 1);
+    REQUIRE(sprite.isMotionPlaying());
+    REQUIRE(sprite.getMotionFramesRemaining() > 0);
+    
+    // Exhaust frames
+    for (int i = 0; i < 100; ++i) {
+        sprite.update();
+    }
+    REQUIRE_FALSE(sprite.isMotionPlaying());
+}
+
+TEST_CASE("Sprite_Actor update handles motion countdown", "[compat][sprite]") {
+    Sprite_Actor sprite(Sprite_Actor::CreateParams{});
+    
+    sprite.startMotion(4); // damage (24 frames)
+    
+    REQUIRE(sprite.getMotionFramesRemaining() == 24);
+    
+    for (int i = 0; i < 12; ++i) {
+        sprite.update();
+    }
+    REQUIRE(sprite.getMotionFramesRemaining() == 12);
+    
+    for (int i = 0; i < 12; ++i) {
+        sprite.update();
+    }
+    REQUIRE_FALSE(sprite.isMotionPlaying());
+}
+
 // ============================================================================
 // WindowCompatManager Tests
 // ============================================================================
@@ -1074,6 +1478,73 @@ TEST_CASE("WindowCompatManager registerAllAPIs", "[compat][manager]") {
     
     // Should not throw
     manager.registerAllAPIs(ctx);
+}
+
+TEST_CASE("Window_Base contents bitmap lifecycle", "[compat][window]") {
+    Window_Base window(Window_Base::CreateParams{});
+    
+    REQUIRE(window.contents() == INVALID_BITMAP);
+    
+    window.createContents();
+    REQUIRE(window.contents() != INVALID_BITMAP);
+    
+    window.destroyContents();
+    REQUIRE(window.contents() == INVALID_BITMAP);
+}
+
+TEST_CASE("Sprite_Character update advances pattern deterministically", "[compat][sprite]") {
+    Sprite_Character sprite(Sprite_Character::CreateParams{});
+    
+    REQUIRE(sprite.getPattern() == 0);
+    
+    sprite.update();
+    REQUIRE(sprite.getPattern() == 1);
+    
+    sprite.update();
+    REQUIRE(sprite.getPattern() == 2);
+    
+    sprite.update();
+    REQUIRE(sprite.getPattern() == 3);
+    
+    sprite.update();
+    REQUIRE(sprite.getPattern() == 0);
+    
+    sprite.update();
+    REQUIRE(sprite.getPattern() == 1);
+}
+
+TEST_CASE("Sprite_Actor update completes animation lifecycle", "[compat][sprite]") {
+    Sprite_Actor sprite(Sprite_Actor::CreateParams{});
+    
+    sprite.startAnimation(1);
+    REQUIRE(sprite.isAnimationPlaying());
+    
+    // Duration = 24 + ((1 % 5) * 6) = 30 frames
+    for (int i = 0; i < 29; ++i) {
+        REQUIRE(sprite.isAnimationPlaying());
+        sprite.update();
+    }
+    
+    REQUIRE(sprite.isAnimationPlaying());
+    sprite.update();
+    REQUIRE_FALSE(sprite.isAnimationPlaying());
+}
+
+TEST_CASE("Sprite_Actor update completes effect lifecycle", "[compat][sprite]") {
+    Sprite_Actor sprite(Sprite_Actor::CreateParams{});
+    
+    sprite.startEffect("whiten");
+    REQUIRE(sprite.isEffecting());
+    
+    // whiten = 16 frames
+    for (int i = 0; i < 15; ++i) {
+        REQUIRE(sprite.isEffecting());
+        sprite.update();
+    }
+    
+    REQUIRE(sprite.isEffecting());
+    sprite.update();
+    REQUIRE_FALSE(sprite.isEffecting());
 }
 
 // ============================================================================

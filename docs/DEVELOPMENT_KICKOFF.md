@@ -1,6 +1,6 @@
 # URPG Development Status (v3.1)
 
-Snapshot Date: 2026-03-05
+Snapshot Date: 2026-04-18 (Swarm 5 complete)
 
 This repository is bootstrapped to the blueprint's canonical structure and now includes core + compat kernels with active CI gate wiring.
 
@@ -8,7 +8,7 @@ This repository is bootstrapped to the blueprint's canonical structure and now i
 
 - Phase 0 Foundation: 100% complete.
 - Phase 1 Native Core: 100% complete for v3.1 kickoff/continuation/integration contracts.
-- Phase 2 Compat Layer: in progress (~89%; runtime module wiring + status burn-down complete, with current focus on executable validation depth and diagnostics hardening).
+- Phase 2 Compat Layer: in progress (~98%; runtime module wiring + status burn-down complete, DataManager JSON loading and BattleManager pipeline now wired, audio ducking/position tracking implemented, Window_Selectable input + touch tap wired, bitmap lifecycle + sprite updates implemented, QuickJS stub GC/heap simulation hardened, manager JS APIs wired to live singletons, DataManager-backed actor drawing implemented, CombatCalc integrated into battle actions, $gameActors runtime state implemented, Window_Command drawing + color system implemented, sprite motion animation implemented, battle state effects + animation recording implemented, state system end-to-end wired with slip damage/auto-removal/remove-by-damage, TP ceiling no longer hardcoded, GameParty/GameTroop runtime classes created, integration test coverage expanded).
 
 ## Completed now
 
@@ -49,10 +49,11 @@ This repository is bootstrapped to the blueprint's canonical structure and now i
    - Runtime dispatch-session wiring over event timeline/reentrancy contracts (`EventDispatchSession`).
    - Runtime debug-session wiring over breakpoints/watches/call-stack/step controls (`DebugRuntimeSession`).
 - Test baseline added and passing (Release snapshot):
-  - `urpg_tests`: 3447 assertions / 237 test cases
-  - `urpg_integration_tests`: 10 assertions / 2 test cases
+  - `urpg_tests`: 3911 assertions / 301 test cases
+  - `urpg_integration_tests`: 33 assertions / 6 test cases
   - `urpg_snapshot_tests`: 4 assertions / 2 test cases
   - `urpg_compat_tests`: 1985 assertions / 24 test cases
+  - **Total: 5933 assertions / 333 test cases**
 - Phase 2 compat expansion implemented in active targets:
    - WindowCompat surface expansion for `Window_Base`, `Window_Selectable`, and `Window_Command` API registration.
    - WindowCompat method call-count tracking surfaced in compat reports.
@@ -101,6 +102,23 @@ This repository is bootstrapped to the blueprint's canonical structure and now i
    - Burned down BattleManager compat status: `processEscape` from `PARTIAL` to `FULL` with deterministic MZ-style escape ratio + fail-ramp handling.
    - Burned down PluginManager compat status: `executeCommandAsync` from `PARTIAL` to `FULL` with deterministic FIFO task queue execution and callback order guarantees.
    - Input/Touch QuickJS API registration now returns live runtime state and `TouchInput` movement telemetry now tracks `moveSpeed` and `tapCount`.
+- **Technical debt burn-down (Agent Swarm 2026-04-18 — Swarm 1):**
+  - `DataManager` JSON loading implemented: all database files (Actors, Classes, Skills, Items, Weapons, Armors, Enemies, Troops, States, Animations, Tilesets, CommonEvents, System, MapInfos, MapXXX) now parse from MZ-format JSON via `nlohmann/json`. Includes `setDataPath()` API and file-existence guards.
+  - `DataManager` `getXxxAsValue()` methods now return actual parsed data as `Value` arrays/objects.
+  - `BattleManager` pipeline wired to `DataManager`: `setup()` loads troop data and populates enemies from `EnemyData`; copies party actors from `GlobalState`; `calculateExp()`/`calculateGold()`/`calculateDrops()` use real enemy stats; `applyGold()`/`applyDrops()` route through `DataManager`; `checkSwitchCondition()` reads live switches.
+  - `BattleManager` action processing: `SKILL` and `ITEM` actions now resolve targets and call `applySkill()`/`applyItem()` with `DataManager` lookups.
+  - `AudioManager` playback position tracking: `AudioChannel::update()` increments `pos_` deterministically per frame.
+  - `AudioManager` smooth ducking/unducking: frame-based volume interpolation over configurable duration; instant fallback for `duration <= 0`.
+  - Test hygiene: deleted orphan `tests/unit/test_compat_reportPanel.cpp` (only underscore-named file is referenced in CMake).
+  - Integration tests added: `tests/integration/test_integration_battle_data.cpp` validates DataManager + BattleManager end-to-end interaction (troop setup, victory rewards, switch conditions, skill lookup).
+  - Test data assets: `tests/data/mz_data/` sample JSON database files created for deterministic test loading.
+- **Technical debt burn-down (Agent Swarm 2026-04-18 — Swarm 2):**
+  - `Window_Selectable` input wiring: `processCursorMove()` now reads `InputManager::getDir4()`/`getDir8()` and drives `cursorDown/Up/Left/Right()`; `processHandling()` reads `InputManager::isTriggered(InputKey::DECISION/CANCEL)` and dispatches `onOk()`/`onCancel()`. `Window_Command::onOk()` delegates to `callOkHandler()`.
+  - WindowCompat bitmap lifecycle: added deterministic `BitmapHandle` allocator (`allocateBitmap`/`releaseBitmap`/`isValidBitmap`); `Window_Base::createContents()`/`destroyContents()` now manage real handles; destructors release bitmaps for `Window_Base`, `Sprite_Character`, `Sprite_Actor`.
+  - WindowCompat drawing stubs: replaced raw TODOs with compat-layer recording stubs (`drawText`, `drawIcon`, `drawGauge`, `drawCharacter`) that document native-renderer tier delegation.
+  - Sprite animation: `Sprite_Character::update()` advances `pattern_` deterministically (0→1→2→3 cycle); `Sprite_Actor::update()` decrements animation/effect frame counters to completion.
+  - `QuickJSRuntime` stub hardening: added `URPG_HAS_QUICKJS` compile-time gate; `runGC()` on stub path collects unreachable globals and recalculates simulated heap; `eval()`/`call()`/`registerFunction()`/`setGlobal()` increment simulated heap size deterministically; `isMemoryExceeded()` works against the simulated heap.
+  - Added 11 new test cases across window, sprite, and QuickJS test suites.
 - Migration and schema anchors added:
   - `tools/migrate/migration_op.json`
   - `tools/migrate/fuzz_migrate.cpp`
@@ -112,6 +130,10 @@ This repository is bootstrapped to the blueprint's canonical structure and now i
    - Expand executable conformance/failure-path scenarios across curated 10-plugin fixtures (additional malformed/eval/runtime command chains).
 2. Deepen compat validation
    - Expand fixture script DSL + report artifact coverage for real JS plugin execution paths and compat report exports.
+3. Remaining technical debt (next swarm)
+   - `WindowCompat` full software rasterization: actual text layout, icon atlas lookup, gauge gradient fill, character sheet slicing (currently recording stubs).
+   - `QuickJSRuntime` real QuickJS wiring: fetch QuickJS via CMake, link against C API, implement `URPG_HAS_QUICKJS` path.
+   - `$gameParty` / `$gameTroop` QuickJS global exposure: wire `GameParty`/`GameTroop` into `DataManager::registerAPI` as `$gameParty`/`$gameTroop`.
 
 ## Build/test
 

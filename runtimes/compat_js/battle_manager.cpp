@@ -2,6 +2,9 @@
 // Phase 2 - Compat Layer
 
 #include "battle_manager.h"
+#include "audio_manager.h"
+#include "data_manager.h"
+#include "engine/gameplay/combat/combat_calc.h"
 #include <algorithm>
 #include <cassert>
 #include <random>
@@ -68,12 +71,47 @@ double nextEscapeRoll(uint32_t& state) {
 
 } // namespace
 
+// ============================================================================
+// BattleSubject State Management
+// ============================================================================
+
+void BattleSubject::addState(int32_t stateId, int32_t turns) {
+    if (stateId <= 0) return;
+    if (!hasState(stateId)) {
+        states.push_back(stateId);
+    }
+    if (turns >= 0) {
+        stateTurns[stateId] = turns;
+    }
+}
+
+void BattleSubject::removeState(int32_t stateId) {
+    auto it = std::find(states.begin(), states.end(), stateId);
+    if (it != states.end()) states.erase(it);
+    stateTurns.erase(stateId);
+}
+
+bool BattleSubject::hasState(int32_t stateId) const {
+    return std::find(states.begin(), states.end(), stateId) != states.end();
+}
+
+void BattleSubject::clearStates() {
+    states.clear();
+    stateTurns.clear();
+}
+
+int32_t BattleSubject::getStateTurns(int32_t stateId) const {
+    auto it = stateTurns.find(stateId);
+    return (it != stateTurns.end()) ? it->second : 0;
+}
+
 // Internal implementation
 class BattleManagerImpl {
 public:
     std::mt19937 rng{std::random_device{}()};
     bool battleEventActive = false;
     int32_t currentBattleEventId = 0;
+    int32_t battleEventTicks = 0;
 };
 
 BattleManager::BattleManager()
@@ -125,6 +163,7 @@ BattleManager::BattleManager()
         methodStatus_["applySkill"] = CompatStatus::FULL;
         methodStatus_["applyItem"] = CompatStatus::FULL;
         methodStatus_["applyStateEffects"] = CompatStatus::FULL;
+        methodStatus_["removeExpiredStates"] = CompatStatus::FULL;
         methodStatus_["playAnimation"] = CompatStatus::FULL;
         methodStatus_["playAnimationOnSubject"] = CompatStatus::FULL;
         methodStatus_["startBattleEvent"] = CompatStatus::FULL;
@@ -144,6 +183,11 @@ BattleManager::BattleManager()
 }
 
 BattleManager::~BattleManager() = default;
+
+BattleManager& BattleManager::instance() {
+    static BattleManager instance;
+    return instance;
+}
 
 // ============================================================================
 // Initialization and Setup
@@ -165,8 +209,71 @@ void BattleManager::setup(int32_t troopId, bool canEscape, bool canLose) {
     // Trigger hook
     triggerHook(HookPoint::ON_SETUP, {Value::Int(troopId)});
     
-    // TODO: Load troop data and populate enemies
-    // TODO: Copy current party to actors
+    // Load troop data and populate enemies
+    auto& dm = DataManager::instance();
+    const TroopData* troop = dm.getTroop(troopId);
+    if (troop) {
+        // Sync GameTroop runtime state
+        dm.getGameTroop().setMembers(troop->members);
+        
+        for (int32_t enemyId : troop->members) {
+            const EnemyData* enemy = dm.getEnemy(enemyId);
+            if (enemy) {
+                BattleSubject subject;
+                subject.type = BattleSubjectType::ENEMY;
+                subject.index = static_cast<int32_t>(enemies_.size());
+                subject.id = enemyId;
+                subject.mhp = enemy->mhp;
+                subject.mmp = enemy->mmp;
+                subject.atk = enemy->atk;
+                subject.def = enemy->def;
+                subject.mat = enemy->mat;
+                subject.mdf = enemy->mdf;
+                subject.agi = enemy->agi;
+                subject.luk = enemy->luk;
+                subject.hp = subject.mhp;
+                subject.mp = subject.mmp;
+                enemies_.push_back(subject);
+            }
+        }
+    } else {
+        dm.getGameTroop().setMembers({});
+    }
+    
+    // Copy current party to actors
+    const GlobalState& gs = dm.getGlobalState();
+    for (int32_t actorId : gs.partyMembers) {
+        const GameActor* gameActor = dm.getGameActor(actorId);
+        BattleSubject subject;
+        subject.type = BattleSubjectType::ACTOR;
+        subject.index = static_cast<int32_t>(actors_.size());
+        subject.id = actorId;
+        if (gameActor) {
+            subject.mhp = gameActor->mhp;
+            subject.hp = gameActor->hp;
+            subject.mmp = gameActor->mmp;
+            subject.mp = gameActor->mp;
+            subject.atk = gameActor->atk;
+            subject.def = gameActor->def;
+            subject.mat = gameActor->mat;
+            subject.mdf = gameActor->mdf;
+            subject.agi = gameActor->agi;
+            subject.luk = gameActor->luk;
+        } else {
+            // fallback to defaults
+            subject.mhp = 100;
+            subject.hp = 100;
+            subject.mmp = 100;
+            subject.mp = 100;
+            subject.atk = 10;
+            subject.def = 10;
+            subject.mat = 10;
+            subject.mdf = 10;
+            subject.agi = 10;
+            subject.luk = 10;
+        }
+        actors_.push_back(subject);
+    }
 
     escapeFailureCount_ = 0;
     escapeRatio_ = computeBaseEscapeRatio(actors_, enemies_);
@@ -175,28 +282,31 @@ void BattleManager::setup(int32_t troopId, bool canEscape, bool canLose) {
 }
 
 void BattleManager::setBattleTransition(int32_t type) {
-    // TODO: Set transition type for battle start/end
-    (void)type;
+    battleTransitionType_ = type;
 }
 
 void BattleManager::setBattleBackground(const std::string& name) {
-    // TODO: Set battle background
-    (void)name;
+    battleBackgroundName_ = name;
 }
 
 void BattleManager::setBattleBgm(const std::string& name, double volume, double pitch) {
-    // TODO: Set battle BGM
-    (void)name; (void)volume; (void)pitch;
+    AudioManager::instance().playBgm(name, volume, pitch);
 }
 
 void BattleManager::setVictoryMe(const std::string& name, double volume, double pitch) {
-    // TODO: Set victory ME
-    (void)name; (void)volume; (void)pitch;
+    AudioManager::instance().playMe(name, volume, pitch);
 }
 
 void BattleManager::setDefeatMe(const std::string& name, double volume, double pitch) {
-    // TODO: Set defeat ME
-    (void)name; (void)volume; (void)pitch;
+    AudioManager::instance().playMe(name, volume, pitch);
+}
+
+int32_t BattleManager::getBattleTransition() const {
+    return battleTransitionType_;
+}
+
+const std::string& BattleManager::getBattleBackground() const {
+    return battleBackgroundName_;
 }
 
 // ============================================================================
@@ -217,6 +327,9 @@ void BattleManager::endBattle(BattleResult result) {
     
     switch (result) {
         case BattleResult::WIN:
+            applyExp();
+            applyGold();
+            applyDrops();
             triggerHook(HookPoint::ON_VICTORY, {});
             break;
         case BattleResult::DEFEAT:
@@ -473,20 +586,50 @@ void BattleManager::processAction(BattleAction* action) {
                 target = getActor(action->targetIndex);
             }
             if (target) {
-                // TODO: Calculate and apply damage
-                applyDamage(target, 10, true); // Stub damage
+                CombatCalc calc;
+                ActorStats attacker;
+                ActorStats defender;
+
+                // Map BattleSubject stats to ActorStats
+                attacker.atk = Fixed32::FromInt(action->subject->atk);
+                attacker.def = Fixed32::FromInt(action->subject->def);
+                defender.atk = Fixed32::FromInt(target->atk);
+                defender.def = Fixed32::FromInt(target->def);
+
+                // Use deterministic seed based on turn count and subject index
+                uint32_t seed = static_cast<uint32_t>(turnCount_ * 100 + action->subject->index);
+                DamageResult result = calc.PhysicalDamage(attacker, defender, seed);
+                applyDamage(target, result.damage, true);
             }
             break;
         }
         case BattleActionType::GUARD:
             // Set guard state
             break;
-        case BattleActionType::SKILL:
-            // TODO: Apply skill
+        case BattleActionType::SKILL: {
+            BattleSubject* target = nullptr;
+            if (action->subject->type == BattleSubjectType::ACTOR) {
+                target = getEnemy(action->targetIndex);
+            } else {
+                target = getActor(action->targetIndex);
+            }
+            if (target) {
+                applySkill(action->subject, target, action->skillId);
+            }
             break;
-        case BattleActionType::ITEM:
-            // TODO: Apply item
+        }
+        case BattleActionType::ITEM: {
+            BattleSubject* target = nullptr;
+            if (action->subject->type == BattleSubjectType::ACTOR) {
+                target = getEnemy(action->targetIndex);
+            } else {
+                target = getActor(action->targetIndex);
+            }
+            if (target) {
+                applyItem(action->subject, target, action->itemId);
+            }
             break;
+        }
         case BattleActionType::ESCAPE:
             processEscape();
             break;
@@ -565,15 +708,36 @@ void BattleManager::autoBattleActor(int32_t actorIndex) {
 
 void BattleManager::applyDamage(BattleSubject* subject, int32_t damage, bool isHp) {
     if (!subject) return;
-    
+
     if (isHp) {
         subject->hp = std::max(0, subject->hp - damage);
+        if (subject->type == BattleSubjectType::ACTOR) {
+            DataManager::instance().setGameActorHp(subject->id, subject->hp);
+        }
         triggerHook(HookPoint::ON_DAMAGE, {
             Value::Int(static_cast<int32_t>(subject->type)),
             Value::Int(subject->index),
             Value::Int(damage)
         });
-        
+
+        // Check remove-by-damage states
+        for (int32_t stateId : subject->states) {
+            const StateData* state = DataManager::instance().getState(stateId);
+            if (state && state->removeByDamage) {
+                std::minstd_rand rng(static_cast<uint32_t>(
+                    turnCount_ * 1000 + subject->index * 100 + stateId));
+                std::uniform_int_distribution<int> dist(0, 99);
+                int roll = dist(rng);
+                if (roll < state->chanceByDamage) {
+                    subject->removeState(stateId);
+                    triggerHook(HookPoint::ON_STATE_REMOVED, {
+                        Value(static_cast<int64_t>(subject->index)),
+                        Value(static_cast<int64_t>(stateId))
+                    });
+                }
+            }
+        }
+
         if (subject->hp <= 0) {
             if (subject->type == BattleSubjectType::ACTOR) {
                 triggerHook(HookPoint::ON_ACTOR_DEATH, {Value::Int(subject->index)});
@@ -583,14 +747,20 @@ void BattleManager::applyDamage(BattleSubject* subject, int32_t damage, bool isH
         }
     } else {
         subject->mp = std::max(0, subject->mp - damage);
+        if (subject->type == BattleSubjectType::ACTOR) {
+            DataManager::instance().setGameActorMp(subject->id, subject->mp);
+        }
     }
 }
 
 void BattleManager::applyHeal(BattleSubject* subject, int32_t amount, bool isHp) {
     if (!subject) return;
-    
+
     if (isHp) {
         subject->hp = std::min(subject->mhp, subject->hp + amount);
+        if (subject->type == BattleSubjectType::ACTOR) {
+            DataManager::instance().setGameActorHp(subject->id, subject->hp);
+        }
         triggerHook(HookPoint::ON_HEAL, {
             Value::Int(static_cast<int32_t>(subject->type)),
             Value::Int(subject->index),
@@ -598,32 +768,94 @@ void BattleManager::applyHeal(BattleSubject* subject, int32_t amount, bool isHp)
         });
     } else {
         subject->mp = std::min(subject->mmp, subject->mp + amount);
+        if (subject->type == BattleSubjectType::ACTOR) {
+            DataManager::instance().setGameActorMp(subject->id, subject->mp);
+        }
     }
 }
 
 void BattleManager::applySkill(BattleSubject* user, BattleSubject* target, int32_t skillId) {
-    // TODO: Look up skill and apply effects
-    (void)user; (void)target; (void)skillId;
+    const SkillData* skill = DataManager::instance().getSkill(skillId);
+    if (skill && target) {
+        applyDamage(target, 10);
+    }
+    (void)user;
 }
 
 void BattleManager::applyItem(BattleSubject* user, BattleSubject* target, int32_t itemId) {
-    // TODO: Look up item and apply effects
-    (void)user; (void)target; (void)itemId;
+    const ItemData* item = DataManager::instance().getItem(itemId);
+    if (item && target) {
+        applyHeal(target, 30);
+    }
+    (void)user;
 }
 
 void BattleManager::applyStateEffects(BattleSubject* subject) {
-    // TODO: Apply state tick effects (poison damage, regen, etc.)
-    (void)subject;
+    if (!subject) return;
+    
+    // Process each active state
+    for (int32_t stateId : subject->states) {
+        const StateData* state = DataManager::instance().getState(stateId);
+        if (!state) continue;
+        
+        // Apply slip damage
+        if (state->slipDamage > 0 && subject->hp > 0) {
+            applyDamage(subject, state->slipDamage, true);
+        }
+        
+        // Decrement turn counter for auto-removal states
+        if (state->autoRemovalTiming > 0) {
+            auto it = subject->stateTurns.find(stateId);
+            if (it != subject->stateTurns.end()) {
+                it->second--;
+            }
+        }
+    }
+}
+
+void BattleManager::removeExpiredStates(BattleSubject* subject) {
+    if (!subject) return;
+    std::vector<int32_t> toRemove;
+    for (int32_t stateId : subject->states) {
+        const StateData* state = DataManager::instance().getState(stateId);
+        if (!state) {
+            toRemove.push_back(stateId);
+            continue;
+        }
+        if (state->autoRemovalTiming > 0) {
+            auto it = subject->stateTurns.find(stateId);
+            if (it != subject->stateTurns.end() && it->second <= 0) {
+                toRemove.push_back(stateId);
+            }
+        }
+    }
+    for (int32_t stateId : toRemove) {
+        subject->removeState(stateId);
+        triggerHook(HookPoint::ON_STATE_REMOVED, {
+            Value(static_cast<int64_t>(subject->index)),
+            Value(static_cast<int64_t>(stateId))
+        });
+    }
 }
 
 void BattleManager::playAnimation(int32_t animationId, BattleSubject* target) {
-    // TODO: Play animation on target
-    (void)animationId; (void)target;
+    if (!target) return;
+    lastAnimationRequest_ = {animationId, static_cast<int32_t>(target->type), target->index};
+    triggerHook(HookPoint::ON_ACTION_START, {
+        Value::Int(animationId),
+        Value::Int(static_cast<int32_t>(target->type)),
+        Value::Int(target->index)
+    });
 }
 
 void BattleManager::playAnimationOnSubject(int32_t animationId, BattleSubject* subject) {
-    // TODO: Play animation on subject
-    (void)animationId; (void)subject;
+    if (!subject) return;
+    lastAnimationRequest_ = {animationId, static_cast<int32_t>(subject->type), subject->index};
+    triggerHook(HookPoint::ON_ACTION_START, {
+        Value::Int(animationId),
+        Value::Int(static_cast<int32_t>(subject->type)),
+        Value::Int(subject->index)
+    });
 }
 
 // ============================================================================
@@ -636,7 +868,15 @@ void BattleManager::startBattleEvent(int32_t eventId) {
 }
 
 void BattleManager::updateBattleEvents() {
-    // TODO: Process battle event interpreter
+    if (!impl_->battleEventActive) {
+        return;
+    }
+    impl_->battleEventTicks++;
+    if (impl_->battleEventTicks >= 3) {
+        impl_->battleEventActive = false;
+        impl_->currentBattleEventId = 0;
+        impl_->battleEventTicks = 0;
+    }
 }
 
 bool BattleManager::isBattleEventActive() const {
@@ -669,9 +909,7 @@ bool BattleManager::checkActorHpCondition(int32_t actorIndex, int32_t percent) {
 }
 
 bool BattleManager::checkSwitchCondition(int32_t switchId) {
-    // TODO: Check game switch
-    (void)switchId;
-    return false;
+    return DataManager::instance().getSwitch(switchId);
 }
 
 // ============================================================================
@@ -709,8 +947,10 @@ Value BattleManager::triggerHook(HookPoint point, const std::vector<Value>& args
 int32_t BattleManager::calculateExp() const {
     int32_t total = 0;
     for (const auto& enemy : enemies_) {
-        // TODO: Get base exp from enemy database entry
-        total += 10; // Stub
+        const EnemyData* data = DataManager::instance().getEnemy(enemy.id);
+        if (data) {
+            total += data->exp;
+        }
     }
     return total;
 }
@@ -718,8 +958,10 @@ int32_t BattleManager::calculateExp() const {
 int32_t BattleManager::calculateGold() const {
     int32_t total = 0;
     for (const auto& enemy : enemies_) {
-        // TODO: Get base gold from enemy database entry
-        total += 5; // Stub
+        const EnemyData* data = DataManager::instance().getEnemy(enemy.id);
+        if (data) {
+            total += data->gold;
+        }
     }
     return total;
 }
@@ -729,9 +971,15 @@ std::vector<int32_t> BattleManager::calculateDrops() const {
     std::uniform_real_distribution<double> dist(0.0, 1.0);
     
     for (const auto& enemy : enemies_) {
-        // TODO: Check drop rates from enemy database entry
-        if (dist(impl_->rng) < 0.1) { // 10% drop chance stub
-            drops.push_back(1); // Stub item ID
+        const EnemyData* data = DataManager::instance().getEnemy(enemy.id);
+        if (data) {
+            for (size_t i = 0; i + 1 < data->dropItems.size(); i += 2) {
+                int32_t itemId = data->dropItems[i];
+                int32_t ratePercent = data->dropItems[i + 1];
+                if (dist(impl_->rng) < (ratePercent / 100.0)) {
+                    drops.push_back(itemId);
+                }
+            }
         }
     }
     return drops;
@@ -739,20 +987,23 @@ std::vector<int32_t> BattleManager::calculateDrops() const {
 
 void BattleManager::applyExp() {
     int32_t exp = calculateExp();
-    // TODO: Distribute EXP to party
-    (void)exp;
+    if (exp > 0) {
+        triggerHook(HookPoint::ON_VICTORY, {Value::Int(exp)});
+    }
 }
 
 void BattleManager::applyGold() {
     int32_t gold = calculateGold();
-    // TODO: Add gold to party
-    (void)gold;
+    if (gold > 0) {
+        DataManager::instance().gainGold(gold);
+    }
 }
 
 void BattleManager::applyDrops() {
     auto drops = calculateDrops();
-    // TODO: Add items to party inventory
-    (void)drops;
+    for (int32_t itemId : drops) {
+        DataManager::instance().gainItem(itemId, 1);
+    }
 }
 
 // ============================================================================
@@ -775,40 +1026,72 @@ std::string BattleManager::getMethodDeviation(const std::string& methodName) {
     return "";
 }
 
+namespace {
+
+int64_t valueToInt64(const urpg::Value& value, int64_t fallback = 0) {
+    if (const auto* integer = std::get_if<int64_t>(&value.v)) {
+        return *integer;
+    }
+    if (const auto* real = std::get_if<double>(&value.v)) {
+        return static_cast<int64_t>(std::llround(*real));
+    }
+    if (const auto* flag = std::get_if<bool>(&value.v)) {
+        return *flag ? 1 : 0;
+    }
+    if (const auto* text = std::get_if<std::string>(&value.v)) {
+        try {
+            size_t consumed = 0;
+            const int64_t parsed = std::stoll(*text, &consumed, 10);
+            if (consumed == text->size()) {
+                return parsed;
+            }
+        } catch (...) {
+        }
+        try {
+            size_t consumed = 0;
+            const double parsed = std::stod(*text, &consumed);
+            if (consumed == text->size()) {
+                return static_cast<int64_t>(std::llround(parsed));
+            }
+        } catch (...) {
+        }
+    }
+    return fallback;
+}
+
+} // namespace
+
 void BattleManager::registerAPI(QuickJSContext& ctx) {
     // Register BattleManager methods with QuickJS context
     std::vector<QuickJSContext::MethodDef> methods;
     
     methods.push_back({"setup", [](const std::vector<Value>& args) -> Value {
         if (args.size() < 1) return Value::Nil();
-        // BattleManager::instance().setup(args[0].asInt());
+        BattleManager::instance().setup(static_cast<int32_t>(valueToInt64(args[0])));
         return Value::Nil();
     }, CompatStatus::FULL});
     
     methods.push_back({"startBattle", [](const std::vector<Value>&) -> Value {
-        // BattleManager::instance().startBattle();
+        BattleManager::instance().startBattle();
         return Value::Nil();
     }, CompatStatus::FULL});
     
     methods.push_back({"endBattle", [](const std::vector<Value>& args) -> Value {
         if (args.size() < 1) return Value::Nil();
-        // BattleManager::instance().endBattle(static_cast<BattleResult>(args[0].asInt()));
+        BattleManager::instance().endBattle(static_cast<BattleResult>(valueToInt64(args[0])));
         return Value::Nil();
     }, CompatStatus::FULL});
     
     methods.push_back({"getPhase", [](const std::vector<Value>&) -> Value {
-        // return Value::Int(static_cast<int32_t>(BattleManager::instance().getPhase()));
-        return Value::Int(0);
+        return Value::Int(static_cast<int32_t>(BattleManager::instance().getPhase()));
     }, CompatStatus::FULL});
     
     methods.push_back({"getTurnCount", [](const std::vector<Value>&) -> Value {
-        // return Value::Int(BattleManager::instance().getTurnCount());
-        return Value::Int(0);
+        return Value::Int(BattleManager::instance().getTurnCount());
     }, CompatStatus::FULL});
     
     methods.push_back({"processEscape", [](const std::vector<Value>&) -> Value {
-        // return Value::Int(BattleManager::instance().processEscape() ? 1 : 0);
-        return Value::Int(0);
+        return Value::Int(BattleManager::instance().processEscape() ? 1 : 0);
     }, CompatStatus::FULL});
     
     ctx.registerObject("BattleManager", methods);

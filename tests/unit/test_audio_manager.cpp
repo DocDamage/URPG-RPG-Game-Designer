@@ -178,3 +178,70 @@ TEST_CASE("AudioChannel: state and controls", "[audio_manager]") {
     channel.stop();
     REQUIRE(channel.getState() == AudioState::STOPPED);
 }
+
+TEST_CASE("AudioManager: BGM position increments on update", "[audio_manager]") {
+    AudioManager& am = AudioManager::instance();
+    am.playBgm("position_test", 100.0, 100.0, 0);
+    REQUIRE(am.getCurrentBgm().pos == 0);
+
+    for (int i = 0; i < 10; ++i) {
+        am.update();
+    }
+
+    REQUIRE(am.getCurrentBgm().pos == 10);
+    am.stopBgm();
+}
+
+TEST_CASE("AudioManager: duckBgm smoothly interpolates volume over frames", "[audio_manager]") {
+    AudioManager& am = AudioManager::instance();
+    am.playBgm("duck_smooth", 100.0, 100.0, 0);
+    REQUIRE(am.getCurrentBgm().volume == Catch::Approx(100.0));
+
+    am.duckBgm(50.0, 10);
+    REQUIRE(am.getCurrentBgm().volume == Catch::Approx(100.0));
+
+    for (int i = 0; i < 5; ++i) {
+        am.update();
+    }
+    REQUIRE(am.getCurrentBgm().volume == Catch::Approx(75.0));
+
+    for (int i = 0; i < 5; ++i) {
+        am.update();
+    }
+    REQUIRE(am.getCurrentBgm().volume == Catch::Approx(50.0));
+
+    am.stopBgm();
+}
+
+TEST_CASE("AudioManager: unduckBgm restores volume over frames", "[audio_manager]") {
+    AudioManager& am = AudioManager::instance();
+    am.playBgm("unduck_test", 100.0, 100.0, 0);
+    am.duckBgm(50.0, 10);
+    for (int i = 0; i < 10; ++i) {
+        am.update();
+    }
+    REQUIRE(am.getCurrentBgm().volume == Catch::Approx(50.0));
+    REQUIRE(am.isBgmDucked());
+
+    am.unduckBgm(10);
+    for (int i = 0; i < 5; ++i) {
+        am.update();
+    }
+    REQUIRE(am.getCurrentBgm().volume == Catch::Approx(75.0));
+
+    for (int i = 0; i < 5; ++i) {
+        am.update();
+    }
+    REQUIRE(am.getCurrentBgm().volume == Catch::Approx(100.0));
+    REQUIRE_FALSE(am.isBgmDucked());
+
+    am.stopBgm();
+}
+
+TEST_CASE("AudioManager: instant duck with duration 0 sets volume immediately", "[audio_manager]") {
+    AudioManager& am = AudioManager::instance();
+    am.playBgm("instant_duck", 100.0, 100.0, 0);
+    am.duckBgm(25.0, 0);
+    REQUIRE(am.getCurrentBgm().volume == Catch::Approx(25.0));
+    am.stopBgm();
+}

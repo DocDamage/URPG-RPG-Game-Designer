@@ -151,6 +151,11 @@ public:
     // Status: FULL
     virtual Color systemColor(int32_t index) const;
     
+    // Color helpers (MZ system colors)
+    virtual Color normalColor() const;
+    virtual Color dimColor() const;
+    virtual Color deathColor() const;
+    
     // Font management
     // Status: PARTIAL - Font changes not fully applied
     virtual void resetFontSettings();
@@ -216,6 +221,8 @@ public:
     };
     std::optional<FaceDrawInfo> getLastFaceDraw() const { return lastFaceDraw_; }
 
+    double getLastGaugeRate() const { return lastGaugeRate_; }
+
 protected:
     Rect rect_;
     bool isOpen_ = false;
@@ -231,7 +238,8 @@ protected:
     std::string fontFace_ = "Microsoft YaHei";
     int32_t fontSize_ = 22;
     std::optional<FaceDrawInfo> lastFaceDraw_;
-    
+    double lastGaugeRate_ = 0.0;
+
     // API status registry - must be public for static initialization
     static std::unordered_map<std::string, CompatStatus> methodStatus_;
     static std::unordered_map<std::string, std::string> methodDeviations_;
@@ -277,6 +285,9 @@ public:
     void setItemHeight(int32_t height);
     int32_t getItemWidth() const;
     
+    // Touch/mouse hit testing
+    int32_t hitTest(int32_t localX, int32_t localY) const;
+    
     // Navigation
     virtual void cursorDown(bool wrap = true);
     virtual void cursorUp(bool wrap = true);
@@ -304,6 +315,10 @@ public:
     virtual void processCursorMove();
     virtual void processPagedown();
     virtual void processPageup();
+    
+    // OK / Cancel handlers
+    virtual void onOk();
+    virtual void onCancel();
     
     // Callbacks
     using SelectHandler = std::function<void(int32_t index)>;
@@ -359,11 +374,16 @@ public:
     int32_t findSymbol(const std::string& symbol) const;
     int32_t findExt(int32_t ext) const;
     void callOkHandler();
+    void onOk() override;
     
     // Draw
     void drawItem(int32_t index);
     void drawAllItems();
     
+protected:
+    Rect itemRectForIndex(int32_t index) const;
+    
+public:
     // Selection by symbol
     void selectSymbol(const std::string& symbol);
     void selectExt(int32_t ext);
@@ -434,6 +454,9 @@ public:
     double getScaleY() const { return scaleY_; }
     void setScale(double x, double y) { scaleX_ = x; scaleY_ = y; }
     
+    // Bitmap
+    BitmapHandle getBitmap() const { return bitmap_; }
+    
     // Update
     void update();
     
@@ -502,6 +525,10 @@ public:
     bool isAnimationPlaying() const { return animationPlaying_; }
     int32_t getAnimationId() const { return animationId_; }
     
+    // Motion
+    bool isMotionPlaying() const { return motionPlaying_; }
+    int32_t getMotionFramesRemaining() const { return motionFramesRemaining_; }
+    
     // Effect (whiten, blink, collapse, bossCollapse, instantCollapse)
     void startEffect(const std::string& effect);
     bool isEffecting() const { return effecting_; }
@@ -527,6 +554,8 @@ private:
     std::string currentEffect_;
     int32_t effectDurationFrames_ = 0;
     BitmapHandle bitmap_ = INVALID_BITMAP;
+    bool motionPlaying_ = false;
+    int32_t motionFramesRemaining_ = 0;
 };
 
 // WindowCompatManager - Manages all window instances

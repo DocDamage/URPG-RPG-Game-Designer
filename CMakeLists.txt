@@ -43,6 +43,8 @@ add_library(urpg_core
     runtimes/compat_js/audio_manager.cpp
     runtimes/compat_js/input_manager.cpp
     runtimes/compat_js/plugin_manager.cpp
+    runtimes/compat_js/game_party.cpp
+    runtimes/compat_js/game_troop.cpp
 )
 
 target_include_directories(urpg_core PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
@@ -109,6 +111,7 @@ add_executable(urpg_tests
     tests/unit/test_audio_manager.cpp
     tests/unit/test_input_manager.cpp
     tests/unit/test_plugin_manager.cpp
+    tests/unit/test_game_party_troop.cpp
 )
 
 target_link_libraries(urpg_tests PRIVATE urpg_core Catch2::Catch2WithMain)
@@ -117,6 +120,7 @@ target_compile_definitions(urpg_tests PRIVATE URPG_SOURCE_DIR="${CMAKE_CURRENT_S
 
 add_executable(urpg_integration_tests
     tests/integration/test_integration_runtime_recovery.cpp
+    tests/integration/test_integration_battle_data.cpp
 )
 
 target_link_libraries(urpg_integration_tests PRIVATE urpg_core Catch2::Catch2WithMain)
