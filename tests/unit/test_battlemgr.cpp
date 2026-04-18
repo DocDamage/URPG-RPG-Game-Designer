@@ -153,6 +153,7 @@ TEST_CASE("BattleManager: damage and healing", "[battlemgr]") {
 }
 
 TEST_CASE("BattleManager: modifiers affect attack resolution and targeting priority", "[battlemgr]") {
+    DataManager::instance().clearDatabase();
     BattleManager bm;
     bm.setup(12, true, false);
 
@@ -161,18 +162,22 @@ TEST_CASE("BattleManager: modifiers affect attack resolution and targeting prior
     actor.index = 0;
     actor.hp = 40;
     actor.mhp = 40;
+    actor.atk = 16;
+    actor.def = 10;
 
     BattleSubject enemyA;
     enemyA.type = BattleSubjectType::ENEMY;
     enemyA.index = 0;
     enemyA.hp = 20;
     enemyA.mhp = 20;
+    enemyA.def = 10;
 
     BattleSubject enemyB;
     enemyB.type = BattleSubjectType::ENEMY;
     enemyB.index = 1;
     enemyB.hp = 20;
     enemyB.mhp = 20;
+    enemyB.def = 5;
 
     bm.addActorSubject(actor);
     bm.addEnemySubject(enemyA);
@@ -197,6 +202,7 @@ TEST_CASE("BattleManager: modifiers affect attack resolution and targeting prior
 
     bm.processAction(action);
     REQUIRE(seededEnemyA->hp == 20);
+    // Buffed atk (16 * 1.25 = 20) vs debuffed def (5 * 0.8 = 4) => 16 damage
     REQUIRE(seededEnemyB->hp == 4);
 }
 
@@ -810,8 +816,10 @@ TEST_CASE("BattleManager: removeExpiredStates removes expired states", "[battlem
 
     bm.applyStateEffects(es);
     REQUIRE(es->getStateTurns(state.id) == 0);
-    REQUIRE(es->hasState(state.id));
+    // applyStateEffects removes expired states immediately
+    REQUIRE_FALSE(es->hasState(state.id));
 
+    // removeExpiredStates is idempotent
     bm.removeExpiredStates(es);
     REQUIRE_FALSE(es->hasState(state.id));
 }
@@ -868,4 +876,79 @@ TEST_CASE("BattleManager: applyDamage keeps removeByDamage state on failed roll"
     bm.applyDamage(es, 10);
     REQUIRE(es->hasState(state.id));
     REQUIRE(es->hp == 90);
+}
+
+TEST_CASE("BattleManager: checkTurnCondition span 0 exact match", "[battlemgr]") {
+    DataManager::instance().clearDatabase();
+    BattleManager bm;
+    bm.setup(1);
+    bm.startBattle();
+
+    // turnCount_ == 0 after setup, before any increment
+    REQUIRE(bm.checkTurnCondition(0, 0));
+    REQUIRE_FALSE(bm.checkTurnCondition(1, 0));
+
+    bm.incrementTurn();
+    REQUIRE_FALSE(bm.checkTurnCondition(0, 0));
+    REQUIRE(bm.checkTurnCondition(1, 0));
+}
+
+TEST_CASE("BattleManager: checkTurnCondition span 1 every turn after threshold", "[battlemgr]") {
+    DataManager::instance().clearDatabase();
+    BattleManager bm;
+    bm.setup(1);
+    bm.startBattle();
+
+    // turnCount_ == 0
+    REQUIRE_FALSE(bm.checkTurnCondition(1, 1));
+
+    bm.incrementTurn(); // turn 1
+    REQUIRE(bm.checkTurnCondition(1, 1));
+
+    bm.incrementTurn(); // turn 2
+    REQUIRE(bm.checkTurnCondition(1, 1));
+
+    bm.incrementTurn(); // turn 3
+    REQUIRE(bm.checkTurnCondition(1, 1));
+}
+
+TEST_CASE("BattleManager: checkTurnCondition span 2 every two turns after threshold", "[battlemgr]") {
+    DataManager::instance().clearDatabase();
+    BattleManager bm;
+    bm.setup(1);
+    bm.startBattle();
+
+    // turnCount_ == 0
+    REQUIRE_FALSE(bm.checkTurnCondition(2, 2));
+
+    bm.incrementTurn(); // turn 1
+    REQUIRE_FALSE(bm.checkTurnCondition(2, 2));
+
+    bm.incrementTurn(); // turn 2
+    REQUIRE(bm.checkTurnCondition(2, 2));
+
+    bm.incrementTurn(); // turn 3
+    REQUIRE_FALSE(bm.checkTurnCondition(2, 2));
+
+    bm.incrementTurn(); // turn 4
+    REQUIRE(bm.checkTurnCondition(2, 2));
+
+    bm.incrementTurn(); // turn 5
+    REQUIRE_FALSE(bm.checkTurnCondition(2, 2));
+}
+
+TEST_CASE("BattleManager: checkTurnCondition boundary turns", "[battlemgr]") {
+    DataManager::instance().clearDatabase();
+    BattleManager bm;
+    bm.setup(1);
+    bm.startBattle();
+
+    // turnCount_ == 0, span 2 with threshold 0 should match
+    REQUIRE(bm.checkTurnCondition(0, 2));
+
+    bm.incrementTurn(); // turn 1
+    REQUIRE_FALSE(bm.checkTurnCondition(0, 2));
+
+    bm.incrementTurn(); // turn 2
+    REQUIRE(bm.checkTurnCondition(0, 2));
 }

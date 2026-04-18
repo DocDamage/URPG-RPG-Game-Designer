@@ -248,3 +248,43 @@ TEST_CASE("AudioManager: instant duck with duration 0 sets volume immediately", 
     REQUIRE(am.getCurrentBgm().volume == Catch::Approx(25.0));
     am.stopBgm();
 }
+
+TEST_CASE("AudioManager: SE channels do not grow unbounded under repeated playback", "[audio_manager]") {
+    AudioManager& am = AudioManager::instance();
+    am.stopSe();
+
+    // Play multiple SE without explicit stop
+    for (int i = 0; i < 5; ++i) {
+        am.playSe("cursor", 90.0, 100.0);
+    }
+
+    REQUIRE(am.getSeChannelCount() == 5);
+
+    // Simulate 120 frames (> 60 frame default SE duration)
+    for (int i = 0; i < 120; ++i) {
+        am.update();
+    }
+
+    // All SE channels should have been reclaimed automatically
+    REQUIRE(am.getSeChannelCount() == 0);
+}
+
+TEST_CASE("AudioChannel: finite duration auto-stops after elapsed frames", "[audio_manager]") {
+    AudioChannel channel("test_se", AudioBus::SE);
+    channel.play("sfx", 90.0, 100.0, 0);
+    REQUIRE(channel.isPlaying());
+    REQUIRE(channel.getDurationFrames() == 0);
+
+    channel.setDurationFrames(10);
+    REQUIRE(channel.getDurationFrames() == 10);
+
+    for (int i = 0; i < 9; ++i) {
+        channel.update();
+        REQUIRE(channel.isPlaying());
+        REQUIRE(channel.getElapsedFrames() == i + 1);
+    }
+
+    channel.update();
+    REQUIRE_FALSE(channel.isPlaying());
+    REQUIRE(channel.getState() == AudioState::STOPPED);
+}

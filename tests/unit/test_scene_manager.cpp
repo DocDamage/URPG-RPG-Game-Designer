@@ -73,6 +73,10 @@ TEST_CASE("MovementAuthority: Input Integration", "[scene][movement][input]") {
 }
 
 TEST_CASE("MapLoader: Bridge DataManager to MapScene", "[scene][map][loader]") {
+    // Ensure a clean DataManager state so the mock map path is used
+    urpg::compat::DataManager::instance().clearDatabase();
+    urpg::compat::DataManager::instance().setDataPath("");
+
     // 1. Setup tileset collision in the registry
     urpg::TilesetData ts;
     ts.id = 1;

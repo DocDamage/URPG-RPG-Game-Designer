@@ -82,6 +82,11 @@ public:
     const std::string& getName() const { return name_; }
     const std::string& getFilename() const { return filename_; }
     
+    // Duration control (0 = infinite, for BGM/BGS looping)
+    void setDurationFrames(int32_t frames);
+    int32_t getDurationFrames() const;
+    int32_t getElapsedFrames() const;
+    
     // Update (called each frame)
     void update();
     
@@ -98,6 +103,8 @@ private:
     int32_t pos_ = 0;
     bool playing_ = false;
     bool paused_ = false;
+    int32_t durationFrames_ = 0;
+    int32_t elapsedFrames_ = 0;
 };
 
 // AudioManager - MZ compatibility layer for audio
@@ -218,6 +225,9 @@ public:
     
     // Status: FULL - Update all channels (call each frame)
     void update();
+    
+    // Status: FULL - Get active SE channel count (for diagnostics/tests)
+    size_t getSeChannelCount() const;
     
     // ========================================================================
     // Compat Status

@@ -30,6 +30,7 @@ struct ActiveTagInfo {
 class AbilityInspectorModel {
 public:
     void refresh(const AbilitySystemComponent& asc);
+    void clear();
 
     const std::vector<AbilityInfo>& getAbilities() const { return m_abilities; }
     const std::vector<ActiveTagInfo>& getActiveTags() const { return m_active_tags; }

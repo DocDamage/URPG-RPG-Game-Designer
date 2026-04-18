@@ -776,11 +776,15 @@ void BattleManager::processAction(BattleAction* action) {
                 ActorStats attacker;
                 ActorStats defender;
 
-                // Map BattleSubject stats to ActorStats
-                attacker.atk = Fixed32::FromInt(action->subject->atk);
-                attacker.def = Fixed32::FromInt(action->subject->def);
-                defender.atk = Fixed32::FromInt(target->atk);
-                defender.def = Fixed32::FromInt(target->def);
+                // Map BattleSubject stats to ActorStats, applying modifiers
+                attacker.atk = Fixed32::FromInt(scaleMagnitude(action->subject->atk,
+                    getModifierStage(action->subject, kAttackParamId)));
+                attacker.def = Fixed32::FromInt(scaleMagnitude(action->subject->def,
+                    getModifierStage(action->subject, kDefenseParamId)));
+                defender.atk = Fixed32::FromInt(scaleMagnitude(target->atk,
+                    getModifierStage(target, kAttackParamId)));
+                defender.def = Fixed32::FromInt(scaleMagnitude(target->def,
+                    getModifierStage(target, kDefenseParamId)));
 
                 // Use deterministic seed based on turn count and subject index
                 uint32_t seed = static_cast<uint32_t>(turnCount_ * 100 + action->subject->index);
@@ -909,7 +913,8 @@ void BattleManager::applyDamage(BattleSubject* subject, int32_t damage, bool isH
         });
 
         // Check remove-by-damage states
-        for (int32_t stateId : subject->states) {
+        for (const auto& effect : subject->states) {
+            int32_t stateId = effect.stateId;
             const StateData* state = DataManager::instance().getState(stateId);
             if (state && state->removeByDamage) {
                 std::minstd_rand rng(static_cast<uint32_t>(
@@ -1226,16 +1231,10 @@ bool BattleManager::isBattleEventActive() const {
 }
 
 bool BattleManager::checkTurnCondition(int32_t turn, int32_t span) {
-    switch (span) {
-        case 0: // Turn
-            return isTurn(turn);
-        case 1: // Turn + X
-            return turnCount_ >= turn && (turnCount_ - turn) % 1 == 0;
-        case 2: // Turn + Y (every Y turns after turn X)
-            return turnCount_ >= turn;
-        default:
-            return false;
+    if (span <= 0) {
+        return isTurn(turn);
     }
+    return turnCount_ >= turn && (turnCount_ - turn) % span == 0;
 }
 
 bool BattleManager::checkEnemyHpCondition(int32_t enemyIndex, int32_t percent) {

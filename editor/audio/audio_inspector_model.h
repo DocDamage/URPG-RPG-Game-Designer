@@ -41,6 +41,12 @@ public:
         // Or "asset missing" if we had asset registry access
     }
 
+    void clear() {
+        std::lock_guard<std::mutex> lock(m_mutex);
+        m_rows.clear();
+        m_issues.clear();
+    }
+
     const std::vector<AudioHandleRow>& getRows() const { return m_rows; }
     const std::vector<std::string>& getIssues() const { return m_issues; }
 

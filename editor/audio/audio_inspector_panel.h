@@ -16,6 +16,10 @@ public:
         m_model->refresh(core);
     }
 
+    void clear() {
+        m_model->clear();
+    }
+
     std::shared_ptr<AudioInspectorModel> getModel() const { return m_model; }
 
     bool isVisible() const { return m_visible; }

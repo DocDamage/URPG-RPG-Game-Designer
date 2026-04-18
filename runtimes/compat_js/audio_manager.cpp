@@ -31,6 +31,7 @@ void AudioChannel::play(const std::string& filename, double volume, double pitch
     state_ = AudioState::PLAYING;
     playing_ = true;
     paused_ = false;
+    elapsedFrames_ = 0;
 }
 
 void AudioChannel::stop() {
@@ -90,9 +91,27 @@ AudioState AudioChannel::getState() const {
     return state_;
 }
 
+void AudioChannel::setDurationFrames(int32_t frames) {
+    durationFrames_ = std::max(0, frames);
+}
+
+int32_t AudioChannel::getDurationFrames() const {
+    return durationFrames_;
+}
+
+int32_t AudioChannel::getElapsedFrames() const {
+    return elapsedFrames_;
+}
+
 void AudioChannel::update() {
     if (playing_ && !paused_) {
         pos_++;
+        if (durationFrames_ > 0) {
+            elapsedFrames_++;
+            if (elapsedFrames_ >= durationFrames_) {
+                stop();
+            }
+        }
     }
 }
 
@@ -443,6 +462,7 @@ void AudioManager::playSe(const std::string& filename, double volume, double pit
     AudioChannel* channel = getChannel(id);
     if (channel) {
         channel->play(filename, volume, pitch);
+        channel->setDurationFrames(60); // Default SE duration: 60 frames (~1 sec at 60fps)
         impl_->seChannels_.push_back(channel);
     }
 }
@@ -521,6 +541,10 @@ bool AudioManager::isBgmDucked() const {
 // ============================================================================
 // Update
 // ============================================================================
+
+size_t AudioManager::getSeChannelCount() const {
+    return impl_->seChannels_.size();
+}
 
 void AudioManager::update() {
     auto stepCrossfade = [](PendingCrossfade& state, AudioChannel* channel) {

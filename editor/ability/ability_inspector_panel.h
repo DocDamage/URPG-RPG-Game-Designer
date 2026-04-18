@@ -17,6 +17,7 @@ public:
 
     void update(const AbilitySystemComponent& asc);
     void render();
+    void clear() { m_model.clear(); }
 
     const AbilityInspectorModel& getModel() const { return m_model; }
 

@@ -173,6 +173,7 @@ void DiagnosticsWorkspace::bindAudioRuntime(const urpg::audio::AudioCore& core) 
 }
 
 void DiagnosticsWorkspace::clearAudioRuntime() {
+    audio_panel_.clear();
 }
 
 void DiagnosticsWorkspace::bindAbilityRuntime(const urpg::ability::AbilitySystemComponent& asc) {
@@ -180,6 +181,7 @@ void DiagnosticsWorkspace::bindAbilityRuntime(const urpg::ability::AbilitySystem
 }
 
 void DiagnosticsWorkspace::clearAbilityRuntime() {
+    ability_panel_.clear();
 }
 
 void DiagnosticsWorkspace::ingestEventAuthorityDiagnosticsJsonl(std::string_view diagnostics_jsonl) {

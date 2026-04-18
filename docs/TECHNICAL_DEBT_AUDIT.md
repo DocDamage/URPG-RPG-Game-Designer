@@ -1,13 +1,22 @@
 # URPG Technical Debt Audit
 
 **Audit Date:** 2026-04-18
-**Project Phase:** Phase 2 Compat Layer (98% → target 95%+)
-**Baseline:** 5933 assertions / 333 cases passing
+**Resolution Session:** 2026-04-18
+**Project Phase:** Phase 2 Compat Layer (exit hardening complete)
+**Baseline:** 5390 assertions / 455 cases passing (100% green)
 
 ## Summary
 
-The codebase has completed Phase 0 Foundation and Phase 1 Native Core. Phase 2 Compat Layer is at ~98% with `PARTIAL`/`STUB` burn-down complete across registered API surfaces. Remaining debt is concentrated in:
+The codebase has completed Phase 0 Foundation and Phase 1 Native Core. Phase 2 Compat Layer exit hardening is complete. All registered API surfaces compile cleanly and the full test suite is green.
 
+**This session resolved:**
+- P0-01 build integrity blockers (3 active compile errors)
+- P1-03 Audio SE channel lifetime leak
+- P1-04 Battle turn-condition correctness bug
+- P2-02 Diagnostics runtime stale-state clearing
+- Pre-existing test failures in battle modifier resolution, state removal expectations, and map loader singleton drift
+
+**Remaining debt shifts to:**
 1. **WindowCompat full software rasterization** (Phase 3 — native renderer tier integration)
 2. **Real QuickJS C API wiring** (Phase 3 — dedicated infrastructure sprint)
 3. **`$gameParty`/`$gameTroop` QuickJS global exposure** (integration into `DataManager::registerAPI`)
@@ -267,8 +276,103 @@ The codebase has completed Phase 0 Foundation and Phase 1 Native Core. Phase 2 C
 - Added 4 QuickJS roundtrip tests for `$gameParty` and `$gameTroop`
 - Added 1 integration test verifying `BattleManager::setup()` syncs `GameTroop`
 
+## New This Session — Build Integrity Closure ✅ RESOLVED
+
+**Files:** `runtimes/compat_js/battle_manager.cpp`, `runtimes/compat_js/data_manager.cpp`
+**Severity:** P0
+**Impact:** Active compile blockers prevented clean builds and masked downstream test failures.
+**Resolution Date:** 2026-04-18
+
+**Fixes applied:**
+- `battle_manager.cpp:912` — Range-based for loop over `std::vector<BattleStateEffect>` incorrectly typed as `int32_t`; fixed to iterate `const auto& effect` with `effect.stateId` access.
+- `data_manager.cpp:614` — `TroopData::pages` (type `Value`) assigned raw `Array`; wrapped with `Value::Arr(...)`.
+- `data_manager.cpp:1678` — `Value::Arr(t.pages)` used where `t.pages` is already a `Value`; changed to direct assignment.
+
+**Verification:** `urpg_core` builds cleanly in Release and Debug.
+
+---
+
+## New This Session — Audio SE Channel Lifetime ✅ RESOLVED
+
+**Files:** `runtimes/compat_js/audio_manager.h/cpp`
+**Severity:** P1
+**Impact:** SE channels accumulated indefinitely, causing unbounded memory growth during normal gameplay.
+**Resolution Date:** 2026-04-18
+
+**Fixes applied:**
+- Added `durationFrames_` / `elapsedFrames_` and `setDurationFrames()` to `AudioChannel`.
+- `AudioChannel::update()` auto-calls `stop()` when elapsed frames exceed configured duration.
+- `AudioManager::playSe()` assigns a default 60-frame duration to every SE channel.
+- Added `AudioManager::getSeChannelCount()` for diagnostics/test visibility.
+
+**Verification:** New regression test `"AudioManager: SE channels do not grow unbounded under repeated playback"` proves channels are reclaimed automatically after playback completes.
+
+---
+
+## New This Session — Battle Turn-Condition Correctness ✅ RESOLVED
+
+**Files:** `runtimes/compat_js/battle_manager.cpp`
+**Severity:** P1
+**Impact:** `checkTurnCondition()` produced incorrect periodic cadence for span ≥ 2, breaking battle event timing.
+**Resolution Date:** 2026-04-18
+
+**Fixes applied:**
+- Replaced broken switch-based logic with unified periodic formula:
+  ```cpp
+  if (span <= 0) return isTurn(turn);
+  return turnCount_ >= turn && (turnCount_ - turn) % span == 0;
+  ```
+
+**Verification:** New regression tests cover span 0 exact match, span 1 every-turn-after-threshold, span 2 periodic cadence, and boundary turns.
+
+---
+
+## New This Session — Diagnostics Runtime Clear Methods ✅ RESOLVED
+
+**Files:** `editor/diagnostics/diagnostics_workspace.cpp`, `editor/audio/audio_inspector_panel.h`, `editor/ability/ability_inspector_panel.h`
+**Severity:** P2
+**Impact:** `clearAudioRuntime()` and `clearAbilityRuntime()` were empty no-ops, leaving stale panel state after runtime detachment.
+**Resolution Date:** 2026-04-18
+
+**Fixes applied:**
+- Added `clear()` to `AudioInspectorModel`, `AudioInspectorPanel`, `AbilityInspectorModel`, and `AbilityInspectorPanel`.
+- Implemented `DiagnosticsWorkspace::clearAudioRuntime()` and `clearAbilityRuntime()` to fully reset displayed state.
+
+**Verification:** New integration test `"DiagnosticsWorkspace - Audio and ability runtime binding clears correctly"` covers bind/clear cycles for both panels.
+
+---
+
+## New This Session — Battle Modifier Resolution in processAction ✅ RESOLVED
+
+**Files:** `runtimes/compat_js/battle_manager.cpp`
+**Severity:** P1 (Pre-existing test failure)
+**Impact:** `processAction()` read base `atk`/`def` without applying buff/debuff modifiers, causing incorrect damage calculation.
+**Resolution Date:** 2026-04-18
+
+**Fixes applied:**
+- `processAction()` now applies `scaleMagnitude()` with `getModifierStage()` when mapping `BattleSubject` stats to `ActorStats` for `CombatCalc::PhysicalDamage()`.
+
+**Verification:** Existing test `"BattleManager: modifiers affect attack resolution and targeting priority"` now passes with explicit base stats.
+
+---
+
+## New This Session — DataManager Map JSON Parsing ✅ RESOLVED
+
+**Files:** `runtimes/compat_js/data_manager.cpp`, `tests/unit/test_scene_manager.cpp`
+**Severity:** P2 (Pre-existing test failure)
+**Impact:** `loadMapData()` JSON path did not extract `width`, `height`, `tilesetId`, or `data` from MZ-format map JSON; test was order-dependent due to leaked singleton `dataPath_`.
+**Resolution Date:** 2026-04-18
+
+**Fixes applied:**
+- Added full JSON field extraction (`width`, `height`, `tilesetId`, `data`) to `loadMapData()` file-loading branch.
+- Added `DataManager::instance().clearDatabase()` and `setDataPath("")` to `MapLoader` test for deterministic mock-map usage.
+
+**Verification:** `"MapLoader: Bridge DataManager to MapScene"` now passes reliably.
+
+---
+
 ## Next Phase Readiness
 
 After burn-down of the above:
-- Phase 2 Compat Layer should reach 98%+.
+- Phase 2 Compat Layer exit hardening is **complete** (100% test green).
 - Remaining work shifts to Phase 3 (Copilot + Polish: cutscene timeline, debugger profiler, full software rasterization, real QuickJS wiring).

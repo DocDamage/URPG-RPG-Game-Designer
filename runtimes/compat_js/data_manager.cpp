@@ -611,7 +611,7 @@ bool DataManager::loadTroops() {
                 }
             }
             if (e.contains("pages") && e["pages"].is_array()) {
-                t.pages = parseValueArray(e["pages"]);
+                t.pages = Value::Arr(parseValueArray(e["pages"]));
             }
             troops_.push_back(std::move(t));
         }
@@ -840,6 +840,37 @@ bool DataManager::loadMapData(int32_t mapId) {
         json j = json::parse(file);
         impl_->loadedMapId = mapId;
         currentMap_.id = mapId;
+        if (j.contains("width") && j["width"].is_number()) {
+            currentMap_.width = j["width"].get<int>();
+        }
+        if (j.contains("height") && j["height"].is_number()) {
+            currentMap_.height = j["height"].get<int>();
+        }
+        if (j.contains("tilesetId") && j["tilesetId"].is_number()) {
+            currentMap_.tilesetId = j["tilesetId"].get<int>();
+        }
+        if (j.contains("data") && j["data"].is_array()) {
+            currentMap_.data.clear();
+            std::vector<int32_t> flatData;
+            for (const auto& v : j["data"]) {
+                if (v.is_number()) {
+                    flatData.push_back(v.get<int32_t>());
+                }
+            }
+            // RPG Maker stores data as a flat array of width*height per layer
+            // For simplicity, treat the first width*height as layer 0
+            if (!flatData.empty() && currentMap_.width > 0 && currentMap_.height > 0) {
+                size_t layerSize = static_cast<size_t>(currentMap_.width) * currentMap_.height;
+                size_t numLayers = flatData.size() / layerSize;
+                currentMap_.data.resize(numLayers);
+                for (size_t layer = 0; layer < numLayers; ++layer) {
+                    currentMap_.data[layer].reserve(layerSize);
+                    for (size_t i = 0; i < layerSize; ++i) {
+                        currentMap_.data[layer].push_back(flatData[layer * layerSize + i]);
+                    }
+                }
+            }
+        }
         return true;
     } catch (...) {
         impl_->loadedMapId = 0;
@@ -1675,7 +1706,7 @@ Value DataManager::getTroopsAsValue() const {
             members.push_back(Value::Int(m));
         }
         obj["members"] = Value::Arr(std::move(members));
-        obj["pages"] = Value::Arr(t.pages);
+        obj["pages"] = t.pages;
         arr.push_back(Value::Obj(std::move(obj)));
     }
     return Value::Arr(std::move(arr));

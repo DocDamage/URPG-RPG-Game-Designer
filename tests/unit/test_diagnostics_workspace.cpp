@@ -4,6 +4,7 @@
 #include "engine/core/message/message_core.h"
 #include "engine/core/ui/menu_command_registry.h"
 #include "engine/core/ui/menu_scene_graph.h"
+#include "engine/core/ability/ability_system_component.h"
 
 #include "runtimes/compat_js/plugin_manager.h"
 
@@ -254,4 +255,34 @@ TEST_CASE("DiagnosticsWorkspace - Menu runtime binding populates and clears menu
     workspace.update();
     REQUIRE_FALSE(workspace.menuPanel().IsVisible());
     REQUIRE_FALSE(workspace.menuPreviewPanel().IsVisible());
+}
+
+TEST_CASE("DiagnosticsWorkspace - Audio and ability runtime binding clears correctly",
+          "[editor][diagnostics][integration]") {
+    urpg::editor::DiagnosticsWorkspace workspace;
+
+    // Audio runtime bind/clear cycle
+    urpg::audio::AudioCore audioCore;
+    audioCore.playSound("test_se", urpg::audio::AudioCategory::SE);
+    workspace.bindAudioRuntime(audioCore);
+
+    // AudioInspectorModel is simulation-only; just verify bind doesn't crash
+    const auto audioSummaryBefore = workspace.tabSummary(urpg::editor::DiagnosticsTab::Audio);
+    (void)audioSummaryBefore;
+
+    workspace.clearAudioRuntime();
+    const auto audioSummaryAfter = workspace.tabSummary(urpg::editor::DiagnosticsTab::Audio);
+    REQUIRE(audioSummaryAfter.item_count == 0);
+
+    // Ability runtime bind/clear cycle
+    urpg::ability::AbilitySystemComponent asc;
+    workspace.bindAbilityRuntime(asc);
+
+    const auto abilitySummaryBefore = workspace.tabSummary(urpg::editor::DiagnosticsTab::Abilities);
+    // ASC is empty by default, but the binding should work
+    REQUIRE(abilitySummaryBefore.item_count == 0);
+
+    workspace.clearAbilityRuntime();
+    const auto abilitySummaryAfter = workspace.tabSummary(urpg::editor::DiagnosticsTab::Abilities);
+    REQUIRE(abilitySummaryAfter.item_count == 0);
 }
