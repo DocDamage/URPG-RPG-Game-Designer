@@ -1,0 +1,99 @@
+#pragma once
+
+#include "gameplay_tags.h"
+#include "ability_task.h"
+#include "pattern_field.h"
+#include <string>
+#include <vector>
+#include <memory>
+
+namespace urpg::ability {
+
+class AbilitySystemComponent;
+
+/**
+ * @brief Base class for all executable actions in the Gameplay Ability Framework.
+ * 
+ * Abilities use Tags to determine if they can be activated and what they block.
+ */
+class GameplayAbility {
+public:
+    struct ActivationInfo {
+        GameplayTagContainer requiredTags;    // Must have these to activate
+        GameplayTagContainer blockingTags;    // Cannot have these to activate
+        
+        // Conditions are string-based expressions evaluated by the Scripting Runtime
+        // Pass: "source.hp > 10" or "target.has_status('Poison')"
+        std::string activeCondition;          // Must evaluate true to activate
+        std::string passiveCondition;         // While active, if false, ability cancels
+
+        float cooldownSeconds = 0.0f;
+        int32_t mpCost = 0;
+        std::shared_ptr<PatternField> pattern; // Optional pattern for AoE/Range
+    };
+
+    virtual ~GameplayAbility() = default;
+
+    virtual const std::string& getId() const = 0;
+    virtual const ActivationInfo& getActivationInfo() const = 0;
+
+    /**
+     * @brief High-level check for activation feasibility.
+     */
+    virtual bool canActivate(const AbilitySystemComponent& source) const;
+
+    /**
+     * @brief Execution logic for the ability.
+     */
+    virtual void activate(AbilitySystemComponent& source) = 0;
+
+    /**
+     * @brief Commit the ability (consume costs, start cooldowns).
+     * Usually called at the start of activate().
+     */
+    virtual void commitAbility(AbilitySystemComponent& source);
+
+    /**
+     * @brief Update logic for any active async tasks.
+     */
+    virtual void update(float deltaTime);
+
+    /**
+     * @brief Unique identifier for the ability (for cooldowns/lookup).
+     */
+    std::string id;
+
+    /**
+     * @brief Base cooldown in seconds.
+     */
+    float cooldownTime = 0.0f;
+
+    /**
+     * @brief Scripted condition for activation.
+     */
+    std::string activeCondition;
+
+    /**
+     * @brief Resource cost (simple float for now, could be map of attr -> value).
+     */
+    float mpCost = 0.0f;
+
+    /**
+     * @brief Register an async task for this ability instance.
+     */
+    void addTask(std::shared_ptr<AbilityTask> task, AbilitySystemComponent& asc) {
+        task->activate(asc);
+        m_activeTasks.push_back(task);
+    }
+
+    /**
+     * @brief Tags applied to the owner while this ability is active.
+     */
+    virtual const GameplayTagContainer& getActiveTags() const { return m_activeTags; }
+
+protected:
+    GameplayTagContainer m_activeTags;
+    std::vector<std::shared_ptr<AbilityTask>> m_activeTasks;
+};
+
+} // namespace urpg::ability

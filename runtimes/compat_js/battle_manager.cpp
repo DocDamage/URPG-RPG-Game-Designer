@@ -18,6 +18,40 @@ std::unordered_map<std::string, std::string> BattleManager::methodDeviations_;
 
 namespace {
 
+BattleStateEffect* findStateEffect(BattleSubject* subject, int32_t stateId) {
+    if (!subject) {
+        return nullptr;
+    }
+
+    auto it = std::find_if(subject->states.begin(), subject->states.end(),
+                           [stateId](const BattleStateEffect& effect) {
+                               return effect.stateId == stateId;
+                           });
+    if (it == subject->states.end()) {
+        return nullptr;
+    }
+    return &(*it);
+}
+
+BattleModifierEffect* findModifierEffect(BattleSubject* subject, int32_t paramId) {
+    if (!subject) {
+        return nullptr;
+    }
+
+    auto it = std::find_if(subject->modifiers.begin(), subject->modifiers.end(),
+                           [paramId](const BattleModifierEffect& effect) {
+                               return effect.paramId == paramId;
+                           });
+    if (it == subject->modifiers.end()) {
+        return nullptr;
+    }
+    return &(*it);
+}
+
+int32_t clampModifierStage(int32_t stage) {
+    return std::clamp(stage, -2, 2);
+}
+
 double normalizeAgility(int32_t actionSpeed) {
     return static_cast<double>(std::max(1, actionSpeed));
 }
@@ -69,6 +103,89 @@ double nextEscapeRoll(uint32_t& state) {
     return static_cast<double>(state) / static_cast<double>(UINT32_MAX);
 }
 
+constexpr int32_t kAttackParamId = 2;
+constexpr int32_t kDefenseParamId = 3;
+constexpr int32_t kRecoveryParamId = 4;
+constexpr int32_t kAgilityParamId = 6;
+
+int32_t getModifierStage(const BattleSubject* subject, int32_t paramId) {
+    if (!subject || paramId < 0) {
+        return 0;
+    }
+
+    const auto it = std::find_if(subject->modifiers.begin(), subject->modifiers.end(),
+                                 [paramId](const BattleModifierEffect& effect) {
+                                     return effect.paramId == paramId;
+                                 });
+    if (it == subject->modifiers.end()) {
+        return 0;
+    }
+
+    return it->stages;
+}
+
+double modifierMultiplier(int32_t stage) {
+    if (stage >= 0) {
+        return 1.0 + (0.25 * static_cast<double>(stage));
+    }
+    return 1.0 / (1.0 + (0.25 * static_cast<double>(-stage)));
+}
+
+int32_t scaleMagnitude(int32_t amount, int32_t stage) {
+    return std::max(0, static_cast<int32_t>(std::lround(static_cast<double>(amount) * modifierMultiplier(stage))));
+}
+
+int32_t resolveAttackDamage(const BattleSubject* subject, const BattleSubject* target, int32_t baseDamage) {
+    const double attackMultiplier = modifierMultiplier(getModifierStage(subject, kAttackParamId));
+    const double defenseMultiplier = modifierMultiplier(getModifierStage(target, kDefenseParamId));
+    return std::max(1, static_cast<int32_t>(std::lround(
+        static_cast<double>(baseDamage) * (attackMultiplier / defenseMultiplier))));
+}
+
+double targetPriorityScore(const BattleSubject* target) {
+    const int32_t missingHp = std::max(0, target->mhp - target->hp);
+    const int32_t defenseStage = getModifierStage(target, kDefenseParamId);
+    const int32_t agilityStage = getModifierStage(target, kAgilityParamId);
+    return static_cast<double>(missingHp) +
+           (4.0 * static_cast<double>(-defenseStage)) +
+           (2.0 * static_cast<double>(-agilityStage));
+}
+
+BattleSubject* resolveActionTarget(BattleManager* manager, const BattleAction& action) {
+    if (!action.subject || !manager) {
+        return nullptr;
+    }
+
+    if (action.subject->type == BattleSubjectType::ACTOR) {
+        if (action.targetIndex >= 0) {
+            return manager->getEnemy(action.targetIndex);
+        }
+        auto enemies = manager->getActiveEnemies();
+        if (enemies.empty()) {
+            return nullptr;
+        }
+
+        return *std::max_element(enemies.begin(), enemies.end(),
+                                 [](const BattleSubject* lhs, const BattleSubject* rhs) {
+                                     return targetPriorityScore(lhs) < targetPriorityScore(rhs);
+                                 });
+    }
+
+    if (action.targetIndex >= 0) {
+        return manager->getActor(action.targetIndex);
+    }
+
+    auto actors = manager->getActiveActors();
+    if (actors.empty()) {
+        return nullptr;
+    }
+
+    return *std::max_element(actors.begin(), actors.end(),
+                             [](const BattleSubject* lhs, const BattleSubject* rhs) {
+                                 return targetPriorityScore(lhs) < targetPriorityScore(rhs);
+                             });
+}
+
 } // namespace
 
 // ============================================================================
@@ -78,7 +195,17 @@ double nextEscapeRoll(uint32_t& state) {
 void BattleSubject::addState(int32_t stateId, int32_t turns) {
     if (stateId <= 0) return;
     if (!hasState(stateId)) {
-        states.push_back(stateId);
+        BattleStateEffect effect;
+        effect.stateId = stateId;
+        effect.turnsRemaining = std::max(0, turns);
+        states.push_back(effect);
+    } else if (turns >= 0) {
+        for (auto& effect : states) {
+            if (effect.stateId == stateId) {
+                effect.turnsRemaining = std::max(0, turns);
+                break;
+            }
+        }
     }
     if (turns >= 0) {
         stateTurns[stateId] = turns;
@@ -86,13 +213,19 @@ void BattleSubject::addState(int32_t stateId, int32_t turns) {
 }
 
 void BattleSubject::removeState(int32_t stateId) {
-    auto it = std::find(states.begin(), states.end(), stateId);
+    auto it = std::find_if(states.begin(), states.end(),
+                           [stateId](const BattleStateEffect& effect) {
+                               return effect.stateId == stateId;
+                           });
     if (it != states.end()) states.erase(it);
     stateTurns.erase(stateId);
 }
 
 bool BattleSubject::hasState(int32_t stateId) const {
-    return std::find(states.begin(), states.end(), stateId) != states.end();
+    return std::find_if(states.begin(), states.end(),
+                        [stateId](const BattleStateEffect& effect) {
+                            return effect.stateId == stateId;
+                        }) != states.end();
 }
 
 void BattleSubject::clearStates() {
@@ -119,12 +252,29 @@ BattleManager::BattleManager()
 {
     // Initialize method status registry
     if (methodStatus_.empty()) {
-        methodStatus_["setup"] = CompatStatus::FULL;
-        methodStatus_["setBattleTransition"] = CompatStatus::FULL;
-        methodStatus_["setBattleBackground"] = CompatStatus::FULL;
-        methodStatus_["setBattleBgm"] = CompatStatus::FULL;
-        methodStatus_["setVictoryMe"] = CompatStatus::FULL;
-        methodStatus_["setDefeatMe"] = CompatStatus::FULL;
+        const auto setStatus = [](const std::string& method,
+                                  CompatStatus status,
+                                  const std::string& deviation = "") {
+            methodStatus_[method] = status;
+            if (deviation.empty()) {
+                methodDeviations_.erase(method);
+            } else {
+                methodDeviations_[method] = deviation;
+            }
+        };
+
+        setStatus("setup", CompatStatus::PARTIAL,
+                  "Initializes battle state, but troop loading and party seeding are still TODO.");
+        setStatus("setBattleTransition", CompatStatus::STUB,
+                  "Transition selection is accepted but not applied to any runtime output.");
+        setStatus("setBattleBackground", CompatStatus::STUB,
+                  "Background selection is accepted but not applied to any runtime output.");
+        setStatus("setBattleBgm", CompatStatus::STUB,
+                  "Battle BGM metadata is accepted but not routed to audio playback.");
+        setStatus("setVictoryMe", CompatStatus::STUB,
+                  "Victory ME metadata is accepted but not routed to audio playback.");
+        setStatus("setDefeatMe", CompatStatus::STUB,
+                  "Defeat ME metadata is accepted but not routed to audio playback.");
         methodStatus_["startBattle"] = CompatStatus::FULL;
         methodStatus_["endBattle"] = CompatStatus::FULL;
         methodStatus_["abortBattle"] = CompatStatus::FULL;
@@ -143,6 +293,8 @@ BattleManager::BattleManager()
         methodStatus_["getEnemies"] = CompatStatus::FULL;
         methodStatus_["getActor"] = CompatStatus::FULL;
         methodStatus_["getEnemy"] = CompatStatus::FULL;
+        methodStatus_["addActorSubject"] = CompatStatus::FULL;
+        methodStatus_["addEnemySubject"] = CompatStatus::FULL;
         methodStatus_["getAllSubjects"] = CompatStatus::FULL;
         methodStatus_["getActiveActors"] = CompatStatus::FULL;
         methodStatus_["getActiveEnemies"] = CompatStatus::FULL;
@@ -160,25 +312,45 @@ BattleManager::BattleManager()
         methodStatus_["autoBattleActor"] = CompatStatus::FULL;
         methodStatus_["applyDamage"] = CompatStatus::FULL;
         methodStatus_["applyHeal"] = CompatStatus::FULL;
-        methodStatus_["applySkill"] = CompatStatus::FULL;
-        methodStatus_["applyItem"] = CompatStatus::FULL;
+        setStatus("applySkill", CompatStatus::STUB,
+                  "Skill application path is placeholder-only and does not resolve skill database effects.");
+        setStatus("applyItem", CompatStatus::STUB,
+                  "Item application path is placeholder-only and does not resolve item database effects.");
+        methodStatus_["addState"] = CompatStatus::FULL;
+        methodStatus_["removeState"] = CompatStatus::FULL;
+        methodStatus_["hasState"] = CompatStatus::FULL;
+        methodStatus_["addBuff"] = CompatStatus::FULL;
+        methodStatus_["addDebuff"] = CompatStatus::FULL;
+        methodStatus_["getModifierStage"] = CompatStatus::FULL;
         methodStatus_["applyStateEffects"] = CompatStatus::FULL;
         methodStatus_["removeExpiredStates"] = CompatStatus::FULL;
-        methodStatus_["playAnimation"] = CompatStatus::FULL;
-        methodStatus_["playAnimationOnSubject"] = CompatStatus::FULL;
-        methodStatus_["startBattleEvent"] = CompatStatus::FULL;
-        methodStatus_["updateBattleEvents"] = CompatStatus::FULL;
+        methodStatus_["applyTurnEndEffects"] = CompatStatus::FULL;
+        setStatus("playAnimation", CompatStatus::STUB,
+                  "Animation API is recorded only; target playback is still TODO.");
+        setStatus("playAnimationOnSubject", CompatStatus::STUB,
+                  "Animation API is recorded only; subject playback is still TODO.");
+        setStatus("startBattleEvent", CompatStatus::PARTIAL,
+                  "Battle-event state toggles on, but event interpreter execution is still TODO.");
+        setStatus("updateBattleEvents", CompatStatus::PARTIAL,
+                  "Battle-event state updates exist, but interpreter execution is still TODO.");
         methodStatus_["isBattleEventActive"] = CompatStatus::FULL;
         methodStatus_["checkTurnCondition"] = CompatStatus::FULL;
         methodStatus_["checkEnemyHpCondition"] = CompatStatus::FULL;
         methodStatus_["checkActorHpCondition"] = CompatStatus::FULL;
-        methodStatus_["checkSwitchCondition"] = CompatStatus::FULL;
-        methodStatus_["calculateExp"] = CompatStatus::FULL;
-        methodStatus_["calculateGold"] = CompatStatus::FULL;
-        methodStatus_["calculateDrops"] = CompatStatus::FULL;
-        methodStatus_["applyExp"] = CompatStatus::FULL;
-        methodStatus_["applyGold"] = CompatStatus::FULL;
-        methodStatus_["applyDrops"] = CompatStatus::FULL;
+        setStatus("checkSwitchCondition", CompatStatus::STUB,
+                  "Switch condition always falls back because game-switch lookup is still TODO.");
+        setStatus("calculateExp", CompatStatus::PARTIAL,
+                  "Reward math works only from seeded subject stats; enemy DB reward lookup is still TODO.");
+        setStatus("calculateGold", CompatStatus::PARTIAL,
+                  "Reward math works only from seeded subject stats; enemy DB reward lookup is still TODO.");
+        setStatus("calculateDrops", CompatStatus::PARTIAL,
+                  "Drops use a fixed 10% stub instead of database-driven drop tables.");
+        setStatus("applyExp", CompatStatus::STUB,
+                  "Reward application into party progression is still TODO.");
+        setStatus("applyGold", CompatStatus::STUB,
+                  "Reward application into party inventory/state is still TODO.");
+        setStatus("applyDrops", CompatStatus::STUB,
+                  "Reward application into party inventory/state is still TODO.");
     }
 }
 
@@ -414,6 +586,17 @@ void BattleManager::startTurn() {
 }
 
 void BattleManager::endTurn() {
+    for (auto& actor : actors_) {
+        if (!actor.hidden && actor.hp > 0) {
+            applyTurnEndEffects(&actor);
+        }
+    }
+    for (auto& enemy : enemies_) {
+        if (!enemy.hidden && enemy.hp > 0) {
+            applyTurnEndEffects(&enemy);
+        }
+    }
+
     triggerHook(HookPoint::ON_TURN_END, {Value::Int(turnCount_)});
     incrementTurn();
     
@@ -467,6 +650,14 @@ BattleSubject* BattleManager::getEnemy(int32_t index) {
         return nullptr;
     }
     return &enemies_[static_cast<size_t>(index)];
+}
+
+void BattleManager::addActorSubject(const BattleSubject& subject) {
+    actors_.push_back(subject);
+}
+
+void BattleManager::addEnemySubject(const BattleSubject& subject) {
+    enemies_.push_back(subject);
 }
 
 std::vector<BattleSubject*> BattleManager::getAllSubjects() {
@@ -579,12 +770,7 @@ void BattleManager::processAction(BattleAction* action) {
     // Process action based on type
     switch (action->type) {
         case BattleActionType::ATTACK: {
-            BattleSubject* target = nullptr;
-            if (action->subject->type == BattleSubjectType::ACTOR) {
-                target = getEnemy(action->targetIndex);
-            } else {
-                target = getActor(action->targetIndex);
-            }
+            BattleSubject* target = resolveActionTarget(this, *action);
             if (target) {
                 CombatCalc calc;
                 ActorStats attacker;
@@ -693,11 +879,13 @@ void BattleManager::autoBattleActor(int32_t actorIndex) {
     BattleSubject* actor = getActor(actorIndex);
     if (!actor || actor->acted) return;
     
-    // Simple auto-battle: attack random enemy
     auto enemies = getActiveEnemies();
     if (!enemies.empty()) {
-        std::uniform_int_distribution<size_t> dist(0, enemies.size() - 1);
-        int32_t targetIndex = static_cast<int32_t>(dist(impl_->rng));
+        const auto bestTarget = *std::max_element(enemies.begin(), enemies.end(),
+                                                  [](const BattleSubject* lhs, const BattleSubject* rhs) {
+                                                      return targetPriorityScore(lhs) < targetPriorityScore(rhs);
+                                                  });
+        int32_t targetIndex = bestTarget->index;
         setActorAction(actorIndex, BattleActionType::ATTACK, targetIndex);
     }
 }
@@ -756,18 +944,20 @@ void BattleManager::applyDamage(BattleSubject* subject, int32_t damage, bool isH
 void BattleManager::applyHeal(BattleSubject* subject, int32_t amount, bool isHp) {
     if (!subject) return;
 
+    const int32_t resolvedAmount = scaleMagnitude(amount, getModifierStage(subject, kRecoveryParamId));
+    
     if (isHp) {
-        subject->hp = std::min(subject->mhp, subject->hp + amount);
+        subject->hp = std::min(subject->mhp, subject->hp + resolvedAmount);
         if (subject->type == BattleSubjectType::ACTOR) {
             DataManager::instance().setGameActorHp(subject->id, subject->hp);
         }
         triggerHook(HookPoint::ON_HEAL, {
             Value::Int(static_cast<int32_t>(subject->type)),
             Value::Int(subject->index),
-            Value::Int(amount)
+            Value::Int(resolvedAmount)
         });
     } else {
-        subject->mp = std::min(subject->mmp, subject->mp + amount);
+        subject->mp = std::min(subject->mmp, subject->mp + resolvedAmount);
         if (subject->type == BattleSubjectType::ACTOR) {
             DataManager::instance().setGameActorMp(subject->id, subject->mp);
         }
@@ -790,42 +980,173 @@ void BattleManager::applyItem(BattleSubject* user, BattleSubject* target, int32_
     (void)user;
 }
 
+bool BattleManager::addState(BattleSubject* subject, int32_t stateId, int32_t turnsRemaining,
+                             int32_t hpDeltaPerTurn, int32_t mpDeltaPerTurn) {
+    if (!subject || stateId <= 0) {
+        return false;
+    }
+
+    BattleStateEffect* existing = findStateEffect(subject, stateId);
+    if (existing != nullptr) {
+        existing->turnsRemaining = std::max(0, turnsRemaining);
+        existing->hpDeltaPerTurn = hpDeltaPerTurn;
+        existing->mpDeltaPerTurn = mpDeltaPerTurn;
+        return true;
+    }
+
+    BattleStateEffect effect;
+    effect.stateId = stateId;
+    effect.turnsRemaining = std::max(0, turnsRemaining);
+    effect.hpDeltaPerTurn = hpDeltaPerTurn;
+    effect.mpDeltaPerTurn = mpDeltaPerTurn;
+    subject->states.push_back(effect);
+
+    triggerHook(HookPoint::ON_STATE_ADDED, {
+        Value::Int(static_cast<int32_t>(subject->type)),
+        Value::Int(subject->index),
+        Value::Int(stateId)
+    });
+    return true;
+}
+
+bool BattleManager::removeState(BattleSubject* subject, int32_t stateId) {
+    if (!subject || stateId <= 0) {
+        return false;
+    }
+
+    const auto it = std::find_if(subject->states.begin(), subject->states.end(),
+                                 [stateId](const BattleStateEffect& effect) {
+                                     return effect.stateId == stateId;
+                                 });
+    if (it == subject->states.end()) {
+        return false;
+    }
+
+    subject->states.erase(it);
+    triggerHook(HookPoint::ON_STATE_REMOVED, {
+        Value::Int(static_cast<int32_t>(subject->type)),
+        Value::Int(subject->index),
+        Value::Int(stateId)
+    });
+    return true;
+}
+
+bool BattleManager::hasState(const BattleSubject* subject, int32_t stateId) const {
+    if (!subject || stateId <= 0) {
+        return false;
+    }
+
+    return std::any_of(subject->states.begin(), subject->states.end(),
+                       [stateId](const BattleStateEffect& effect) {
+                           return effect.stateId == stateId;
+                       });
+}
+
+bool BattleManager::addBuff(BattleSubject* subject, int32_t paramId, int32_t turnsRemaining, int32_t stages) {
+    if (!subject || paramId < 0 || stages <= 0) {
+        return false;
+    }
+
+    BattleModifierEffect* existing = findModifierEffect(subject, paramId);
+    if (existing != nullptr) {
+        existing->stages = clampModifierStage(existing->stages + stages);
+        existing->turnsRemaining = std::max(existing->turnsRemaining, std::max(0, turnsRemaining));
+        return true;
+    }
+
+    BattleModifierEffect effect;
+    effect.paramId = paramId;
+    effect.stages = clampModifierStage(stages);
+    effect.turnsRemaining = std::max(0, turnsRemaining);
+    subject->modifiers.push_back(effect);
+    return true;
+}
+
+bool BattleManager::addDebuff(BattleSubject* subject, int32_t paramId, int32_t turnsRemaining, int32_t stages) {
+    if (!subject || paramId < 0 || stages <= 0) {
+        return false;
+    }
+
+    BattleModifierEffect* existing = findModifierEffect(subject, paramId);
+    if (existing != nullptr) {
+        existing->stages = clampModifierStage(existing->stages - stages);
+        existing->turnsRemaining = std::max(existing->turnsRemaining, std::max(0, turnsRemaining));
+        return true;
+    }
+
+    BattleModifierEffect effect;
+    effect.paramId = paramId;
+    effect.stages = clampModifierStage(-stages);
+    effect.turnsRemaining = std::max(0, turnsRemaining);
+    subject->modifiers.push_back(effect);
+    return true;
+}
+
+int32_t BattleManager::getModifierStage(const BattleSubject* subject, int32_t paramId) const {
+    return compat::getModifierStage(subject, paramId);
+}
+
 void BattleManager::applyStateEffects(BattleSubject* subject) {
-    if (!subject) return;
-    
-    // Process each active state
-    for (int32_t stateId : subject->states) {
-        const StateData* state = DataManager::instance().getState(stateId);
-        if (!state) continue;
-        
-        // Apply slip damage
-        if (state->slipDamage > 0 && subject->hp > 0) {
+    if (!subject) {
+        return;
+    }
+
+    std::vector<int32_t> expiredStates;
+    for (auto& effect : subject->states) {
+        // Origin/main: hp/mp delta per turn
+        if (effect.hpDeltaPerTurn > 0) {
+            applyHeal(subject, effect.hpDeltaPerTurn, true);
+        } else if (effect.hpDeltaPerTurn < 0) {
+            applyDamage(subject, -effect.hpDeltaPerTurn, true);
+        }
+
+        if (effect.mpDeltaPerTurn > 0) {
+            applyHeal(subject, effect.mpDeltaPerTurn, false);
+        } else if (effect.mpDeltaPerTurn < 0) {
+            applyDamage(subject, -effect.mpDeltaPerTurn, false);
+        }
+
+        // HEAD: slip damage from StateData
+        const StateData* state = DataManager::instance().getState(effect.stateId);
+        if (state && state->slipDamage > 0 && subject->hp > 0) {
             applyDamage(subject, state->slipDamage, true);
         }
-        
-        // Decrement turn counter for auto-removal states
-        if (state->autoRemovalTiming > 0) {
-            auto it = subject->stateTurns.find(stateId);
+
+        // Decrement turn counters
+        if (effect.turnsRemaining > 0) {
+            --effect.turnsRemaining;
+            if (effect.turnsRemaining == 0) {
+                expiredStates.push_back(effect.stateId);
+            }
+        }
+
+        // HEAD: sync stateTurns map
+        if (state && state->autoRemovalTiming > 0) {
+            auto it = subject->stateTurns.find(effect.stateId);
             if (it != subject->stateTurns.end()) {
                 it->second--;
             }
         }
+    }
+
+    for (int32_t stateId : expiredStates) {
+        removeState(subject, stateId);
     }
 }
 
 void BattleManager::removeExpiredStates(BattleSubject* subject) {
     if (!subject) return;
     std::vector<int32_t> toRemove;
-    for (int32_t stateId : subject->states) {
-        const StateData* state = DataManager::instance().getState(stateId);
+    for (const auto& effect : subject->states) {
+        const StateData* state = DataManager::instance().getState(effect.stateId);
         if (!state) {
-            toRemove.push_back(stateId);
+            toRemove.push_back(effect.stateId);
             continue;
         }
         if (state->autoRemovalTiming > 0) {
-            auto it = subject->stateTurns.find(stateId);
+            auto it = subject->stateTurns.find(effect.stateId);
             if (it != subject->stateTurns.end() && it->second <= 0) {
-                toRemove.push_back(stateId);
+                toRemove.push_back(effect.stateId);
             }
         }
     }
@@ -835,6 +1156,27 @@ void BattleManager::removeExpiredStates(BattleSubject* subject) {
             Value(static_cast<int64_t>(subject->index)),
             Value(static_cast<int64_t>(stateId))
         });
+    }
+}
+
+void BattleManager::applyTurnEndEffects(BattleSubject* subject) {
+    if (!subject) {
+        return;
+    }
+
+    applyStateEffects(subject);
+
+    auto it = subject->modifiers.begin();
+    while (it != subject->modifiers.end()) {
+        if (it->turnsRemaining > 0) {
+            --it->turnsRemaining;
+        }
+
+        if (it->turnsRemaining == 0 || it->stages == 0) {
+            it = subject->modifiers.erase(it);
+            continue;
+        }
+        ++it;
     }
 }
 

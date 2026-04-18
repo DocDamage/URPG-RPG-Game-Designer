@@ -16,6 +16,7 @@ Robust local asset index for this repo using SQLite + FTS5.
   - `third_party/itch-assets/packs`
   - `third_party/itch-assets/loose-files`
   - `third_party/rpgmaker-mz`
+  - `third_party/huggingface`
   - `imports/root-drop/archives`
 
 ## Usage
@@ -30,7 +31,7 @@ python .\tools\assets\asset_db.py find --kind image --ext png --pack "Monster Me
 
 ## Custom roots
 ```powershell
-python .\tools\assets\asset_db.py index --roots third_party/itch-assets/packs imports/root-drop/archives
+python .\tools\assets\asset_db.py index --roots third_party/itch-assets/packs third_party/huggingface imports/root-drop/archives
 ```
 
 ## Convenience wrappers
@@ -53,6 +54,18 @@ Reports are written to `imports/reports/`:
 - `asset_hygiene_oversize.csv`
 - `asset_hygiene_junk.csv`
 - `asset_hygiene_hash_skips.csv`
+
+## Hugging Face curated imports
+Curated third-party samples and manifest-only references from selected Hugging Face datasets.
+
+```powershell
+.\tools\assets\ingest_huggingface_curated.ps1
+.\tools\assets\ingest_huggingface_curated.ps1 -Refresh
+```
+
+Inputs and reports:
+- `tools/assets/huggingface_curated_manifest.json`
+- `imports/reports/huggingface_curated_inventory.json`
 
 ## Safe duplicate prune wave
 Conservative duplicate cleanup for extracted working copies (`itch/unzipped`) when canonical copies already exist.

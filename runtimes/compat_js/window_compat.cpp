@@ -6,6 +6,8 @@
 #include "window_compat.h"
 #include "data_manager.h"
 #include "input_manager.h"
+#include "engine/core/message/message_core.h"
+#include "engine/core/render/render_layer.h"
 #include <algorithm>
 #include <cassert>
 #include <cctype>
@@ -17,6 +19,7 @@ namespace urpg {
 namespace compat {
 
 namespace {
+namespace message = urpg::message;
 
 constexpr int32_t kIconWidth = 32;
 constexpr int32_t kIconSpacing = 4;
@@ -27,74 +30,6 @@ constexpr int32_t kFaceSheetRows = 2;
 constexpr int32_t kFontStep = 12;
 constexpr int32_t kFontSizeMin = 12;
 constexpr int32_t kFontSizeMax = 96;
-constexpr const char* kCurrencyUnit = "G";
-
-enum class TextExTokenType : uint8_t {
-    Text = 0,
-    Icon = 1,
-    Color = 2,
-    FontBigger = 3,
-    FontSmaller = 4,
-    NewLine = 5
-};
-
-struct TextExToken {
-    TextExTokenType type = TextExTokenType::Text;
-    std::string text;
-    int32_t value = 0;
-};
-
-struct TextMeasureResult {
-    int32_t width = 0;
-    int32_t height = 0;
-};
-
-bool parseBracketedInt(const std::string& text, size_t& cursor, int32_t& value) {
-    if (cursor >= text.size() || text[cursor] != '[') {
-        return false;
-    }
-
-    size_t i = cursor + 1;
-    bool negative = false;
-    if (i < text.size() && text[i] == '-') {
-        negative = true;
-        ++i;
-    }
-    if (i >= text.size() || !std::isdigit(static_cast<unsigned char>(text[i]))) {
-        return false;
-    }
-
-    int64_t parsed = 0;
-    while (i < text.size() && std::isdigit(static_cast<unsigned char>(text[i]))) {
-        parsed = parsed * 10 + static_cast<int64_t>(text[i] - '0');
-        ++i;
-    }
-    if (i >= text.size() || text[i] != ']') {
-        return false;
-    }
-    ++i;
-
-    if (negative) {
-        parsed = -parsed;
-    }
-    value = static_cast<int32_t>(parsed);
-    cursor = i;
-    return true;
-}
-
-void appendTextToken(std::vector<TextExToken>& tokens, std::string_view text) {
-    if (text.empty()) {
-        return;
-    }
-    if (!tokens.empty() && tokens.back().type == TextExTokenType::Text) {
-        tokens.back().text.append(text.data(), text.size());
-        return;
-    }
-    TextExToken token;
-    token.type = TextExTokenType::Text;
-    token.text.assign(text.data(), text.size());
-    tokens.push_back(std::move(token));
-}
 
 char32_t decodeUtf8Codepoint(const std::string& text, size_t& cursor) {
     if (cursor >= text.size()) {
@@ -187,41 +122,6 @@ int32_t measurePlainTextRenderer(const std::string& text, int32_t fontSize) {
     return width;
 }
 
-std::string resolveEscapeText(char command, int32_t arg) {
-    DataManager& data = DataManager::instance();
-    switch (command) {
-        case 'V':
-            return std::to_string(data.getVariable(arg));
-        case 'N': {
-            if (const auto* actor = data.getActor(arg)) {
-                if (!actor->name.empty()) {
-                    return actor->name;
-                }
-            }
-            return "Actor " + std::to_string(std::max(0, arg));
-        }
-        case 'P': {
-            if (arg > 0) {
-                const int32_t actorId = data.getPartyMember(arg - 1);
-                if (actorId > 0) {
-                    if (const auto* actor = data.getActor(actorId)) {
-                        if (!actor->name.empty()) {
-                            return actor->name;
-                        }
-                    }
-                    return "Actor " + std::to_string(actorId);
-                }
-            }
-            return "";
-        }
-        case 'G':
-            return kCurrencyUnit;
-        default:
-            break;
-    }
-    return "";
-}
-
 const ItemData* resolveAnyItemById(DataManager& data, int32_t itemId) {
     if (const ItemData* item = data.getItem(itemId)) {
         return item;
@@ -301,166 +201,68 @@ std::string resolveActorFaceName(const ActorData* actor, int32_t actorId) {
     return "ActorFace_" + std::to_string(std::max(0, actorId));
 }
 
-std::vector<TextExToken> tokenizeTextEx(const std::string& text) {
-    std::vector<TextExToken> tokens;
-    std::string plainBuffer;
-    plainBuffer.reserve(text.size());
-
-    const auto flushPlainBuffer = [&]() {
-        if (!plainBuffer.empty()) {
-            appendTextToken(tokens, plainBuffer);
-            plainBuffer.clear();
-        }
-    };
-
-    size_t i = 0;
-    while (i < text.size()) {
-        const char ch = text[i];
-        if (ch == '\r') {
-            ++i;
-            continue;
-        }
-        if (ch == '\n') {
-            flushPlainBuffer();
-            TextExToken token;
-            token.type = TextExTokenType::NewLine;
-            tokens.push_back(token);
-            ++i;
-            continue;
-        }
-        if (ch != '\\') {
-            plainBuffer.push_back(ch);
-            ++i;
-            continue;
-        }
-
-        if (i + 1 >= text.size()) {
-            plainBuffer.push_back('\\');
-            ++i;
-            continue;
-        }
-
-        const char rawCommand = text[i + 1];
-        if (rawCommand == '\\') {
-            plainBuffer.push_back('\\');
-            i += 2;
-            continue;
-        }
-
-        const char command = static_cast<char>(std::toupper(static_cast<unsigned char>(rawCommand)));
-        size_t cursor = i + 2;
-        int32_t arg = 0;
-
-        const auto pushLiteralCommand = [&]() {
-            plainBuffer.push_back('\\');
-            plainBuffer.push_back(rawCommand);
-            i += 2;
-        };
-
-        if (command == '{') {
-            flushPlainBuffer();
-            TextExToken token;
-            token.type = TextExTokenType::FontBigger;
-            tokens.push_back(token);
-            i = cursor;
-            continue;
-        }
-        if (command == '}') {
-            flushPlainBuffer();
-            TextExToken token;
-            token.type = TextExTokenType::FontSmaller;
-            tokens.push_back(token);
-            i = cursor;
-            continue;
-        }
-        if (command == 'G') {
-            flushPlainBuffer();
-            appendTextToken(tokens, kCurrencyUnit);
-            i = cursor;
-            continue;
-        }
-
-        if (command == 'C' || command == 'I' || command == 'V' || command == 'N' || command == 'P') {
-            if (!parseBracketedInt(text, cursor, arg)) {
-                pushLiteralCommand();
-                continue;
-            }
-
-            flushPlainBuffer();
-            if (command == 'C') {
-                TextExToken token;
-                token.type = TextExTokenType::Color;
-                token.value = arg;
-                tokens.push_back(token);
-            } else if (command == 'I') {
-                TextExToken token;
-                token.type = TextExTokenType::Icon;
-                token.value = arg;
-                tokens.push_back(token);
-            } else {
-                appendTextToken(tokens, resolveEscapeText(command, arg));
-            }
-            i = cursor;
-            continue;
-        }
-
-        pushLiteralCommand();
+message::MessageAlignment parseMessageAlignment(const std::string& align) {
+    std::string normalized;
+    normalized.reserve(align.size());
+    for (const char ch : align) {
+        normalized.push_back(static_cast<char>(std::tolower(static_cast<unsigned char>(ch))));
     }
-
-    flushPlainBuffer();
-    return tokens;
+    if (normalized == "center") {
+        return message::MessageAlignment::Center;
+    }
+    if (normalized == "right") {
+        return message::MessageAlignment::Right;
+    }
+    return message::MessageAlignment::Left;
 }
 
-TextMeasureResult measureTextTokens(const std::vector<TextExToken>& tokens,
-                                    int32_t baseLineHeight,
-                                    int32_t baseFontSize) {
-    TextMeasureResult result;
-    int32_t lineWidth = 0;
-    int32_t lineHeight = std::max(1, baseLineHeight);
-    int32_t fontSize = std::max(1, baseFontSize);
-    bool sawAnyToken = false;
+std::string normalizeAlignmentString(const std::string& align) {
+    std::string normalized;
+    normalized.reserve(align.size());
+    for (const char ch : align) {
+        normalized.push_back(static_cast<char>(std::tolower(static_cast<unsigned char>(ch))));
+    }
+    if (normalized == "center" || normalized == "right") {
+        return normalized;
+    }
+    return "left";
+}
 
+message::RichTextLayoutEngine buildLayoutEngineForWindow(const Window_Base& window,
+                                                         int32_t maxWidth,
+                                                         message::MessageAlignment alignment) {
+    message::RichTextLayoutEngine layout;
+    layout.setBaseFontSize(window.fontSize());
+    layout.setLineHeight(window.lineHeight());
+    layout.setMaxWidth(maxWidth);
+    layout.setAlignment(alignment);
+    layout.setVariableResolver([](int32_t id) -> int32_t {
+        return DataManager::instance().getVariable(id);
+    });
+    layout.setActorNameResolver([](int32_t id) -> std::string {
+        if (const auto* actor = DataManager::instance().getActor(id)) {
+            if (!actor->name.empty()) {
+                return actor->name;
+            }
+        }
+        return "Actor " + std::to_string(std::max(0, id));
+    });
+    layout.setPartyMemberResolver([](int32_t index) -> int32_t {
+        return DataManager::instance().getPartyMember(index);
+    });
+    return layout;
+}
+
+int32_t lineOffsetForFirstLine(const std::vector<message::RichTextToken>& tokens) {
     for (const auto& token : tokens) {
-        sawAnyToken = true;
-        switch (token.type) {
-            case TextExTokenType::Text: {
-                lineWidth += measurePlainTextRenderer(token.text, fontSize);
-                lineHeight = std::max(lineHeight, std::max(baseLineHeight, fontSize + 8));
-                result.width = std::max(result.width, lineWidth);
-                break;
-            }
-            case TextExTokenType::Icon: {
-                lineWidth += kIconWidth + kIconSpacing;
-                lineHeight = std::max(lineHeight, std::max(baseLineHeight, kIconWidth));
-                result.width = std::max(result.width, lineWidth);
-                break;
-            }
-            case TextExTokenType::Color:
-                break;
-            case TextExTokenType::FontBigger:
-                fontSize = std::min(kFontSizeMax, fontSize + kFontStep);
-                lineHeight = std::max(lineHeight, std::max(baseLineHeight, fontSize + 8));
-                break;
-            case TextExTokenType::FontSmaller:
-                fontSize = std::max(kFontSizeMin, fontSize - kFontStep);
-                lineHeight = std::max(lineHeight, std::max(baseLineHeight, fontSize + 8));
-                break;
-            case TextExTokenType::NewLine:
-                result.height += lineHeight;
-                lineWidth = 0;
-                lineHeight = std::max(1, baseLineHeight);
-                break;
+        if (token.type == message::RichTextTokenType::LineOffset) {
+            return token.value;
+        }
+        if (token.type == message::RichTextTokenType::NewLine) {
+            break;
         }
     }
-
-    if (!sawAnyToken) {
-        result.height = std::max(1, baseLineHeight);
-        return result;
-    }
-
-    result.width = std::max(result.width, lineWidth);
-    result.height += lineHeight;
-    return result;
+    return 0;
 }
 
 uint32_t nextBitmapId = 1;
@@ -497,47 +299,68 @@ void Window_Base::initializeMethodStatus() {
     static bool initialized = false;
     if (initialized) return;
     initialized = true;
+
+    const auto setStatus = [](const std::string& method,
+                              CompatStatus status,
+                              const std::string& deviation = "") {
+        methodStatus_[method] = status;
+        if (deviation.empty()) {
+            methodDeviations_.erase(method);
+        } else {
+            methodDeviations_[method] = deviation;
+        }
+    };
     
     // FULL status methods
-    methodStatus_["drawText"] = CompatStatus::FULL;
-    methodStatus_["drawIcon"] = CompatStatus::FULL;
-    methodStatus_["drawActorName"] = CompatStatus::FULL;
-    methodStatus_["drawActorLevel"] = CompatStatus::FULL;
-    methodStatus_["drawGauge"] = CompatStatus::FULL;
-    methodStatus_["drawCharacter"] = CompatStatus::FULL;
-    methodStatus_["lineHeight"] = CompatStatus::FULL;
-    methodStatus_["changeTextColor"] = CompatStatus::FULL;
-    methodStatus_["resetTextColor"] = CompatStatus::FULL;
-    methodStatus_["textColor"] = CompatStatus::FULL;
-    methodStatus_["systemColor"] = CompatStatus::FULL;
-    methodStatus_["resetFontSettings"] = CompatStatus::FULL;
-    methodStatus_["fontFace"] = CompatStatus::FULL;
-    methodStatus_["fontSize"] = CompatStatus::FULL;
-    methodStatus_["setFontFace"] = CompatStatus::FULL;
-    methodStatus_["setFontSize"] = CompatStatus::FULL;
-    methodStatus_["contents"] = CompatStatus::FULL;
-    methodStatus_["createContents"] = CompatStatus::FULL;
-    methodStatus_["destroyContents"] = CompatStatus::FULL;
-    methodStatus_["open"] = CompatStatus::FULL;
-    methodStatus_["close"] = CompatStatus::FULL;
-    methodStatus_["show"] = CompatStatus::FULL;
-    methodStatus_["hide"] = CompatStatus::FULL;
-    methodStatus_["update"] = CompatStatus::FULL;
-    methodStatus_["getContentRect"] = CompatStatus::FULL;
+    setStatus("drawText", CompatStatus::FULL);
+    setStatus("drawIcon", CompatStatus::PARTIAL,
+              "Tracks icon draw intent, but icon-set bitmap rendering is still TODO.");
+    setStatus("drawActorName", CompatStatus::PARTIAL,
+              "Falls back to text labels; actor-name rendering is not wired to full window visuals.");
+    setStatus("drawActorLevel", CompatStatus::PARTIAL,
+              "Falls back to text labels; actor-level rendering is not wired to full window visuals.");
+    setStatus("drawGauge", CompatStatus::PARTIAL,
+              "Records gauge semantics, but background/fill gradient rendering is still TODO.");
+    setStatus("drawCharacter", CompatStatus::PARTIAL,
+              "Tracks character draw intent, but character-sheet rendering is still TODO.");
+    setStatus("lineHeight", CompatStatus::FULL);
+    setStatus("changeTextColor", CompatStatus::FULL);
+    setStatus("resetTextColor", CompatStatus::FULL);
+    setStatus("textColor", CompatStatus::FULL);
+    setStatus("systemColor", CompatStatus::FULL);
+    setStatus("resetFontSettings", CompatStatus::FULL);
+    setStatus("fontFace", CompatStatus::FULL);
+    setStatus("fontSize", CompatStatus::FULL);
+    setStatus("setFontFace", CompatStatus::FULL);
+    setStatus("setFontSize", CompatStatus::FULL);
+    setStatus("setTextAlignment", CompatStatus::FULL);
+    setStatus("textAlignment", CompatStatus::FULL);
+    setStatus("contents", CompatStatus::STUB,
+              "Returns a placeholder handle; backing bitmap lifecycle is not implemented.");
+    setStatus("createContents", CompatStatus::STUB,
+              "Content bitmap allocation is still TODO.");
+    setStatus("destroyContents", CompatStatus::STUB,
+              "Content bitmap release is still TODO.");
+    setStatus("open", CompatStatus::FULL);
+    setStatus("close", CompatStatus::FULL);
+    setStatus("show", CompatStatus::FULL);
+    setStatus("hide", CompatStatus::FULL);
+    setStatus("update", CompatStatus::FULL);
+    setStatus("getContentRect", CompatStatus::FULL);
     
-    methodStatus_["drawActorFace"] = CompatStatus::FULL;
+    setStatus("drawActorFace", CompatStatus::FULL);
     
-    methodStatus_["drawActorHp"] = CompatStatus::FULL;
-    methodStatus_["drawActorMp"] = CompatStatus::FULL;
-    methodStatus_["drawActorTp"] = CompatStatus::FULL;
+    setStatus("drawActorHp", CompatStatus::FULL);
+    setStatus("drawActorMp", CompatStatus::FULL);
+    setStatus("drawActorTp", CompatStatus::FULL);
     
-    methodStatus_["drawTextEx"] = CompatStatus::FULL;
+    setStatus("drawTextEx", CompatStatus::FULL);
     
-    methodStatus_["drawItemName"] = CompatStatus::FULL;
+    setStatus("drawItemName", CompatStatus::FULL);
     
-    methodStatus_["textWidth"] = CompatStatus::FULL;
+    setStatus("textWidth", CompatStatus::FULL);
     
-    methodStatus_["textSize"] = CompatStatus::FULL;
+    setStatus("textSize", CompatStatus::FULL);
     methodStatus_["normalColor"] = CompatStatus::FULL;
     methodStatus_["dimColor"] = CompatStatus::FULL;
     methodStatus_["deathColor"] = CompatStatus::FULL;
@@ -567,14 +390,44 @@ Window_Base::~Window_Base() {
 void Window_Base::drawText(const std::string& text, int32_t x, int32_t y, 
                             int32_t maxWidth, const std::string& align) {
     recordMethodCall("drawText");
-    // Compat layer: record that text was drawn at (x,y) with the given parameters.
-    // Actual rasterization is handled by the native renderer tier.
-    (void)text; (void)x; (void)y; (void)maxWidth; (void)align;
-    assert(!text.empty() || maxWidth >= 0);
+    const int32_t safeMaxWidth = std::max(0, maxWidth);
+    const std::string normalizedAlign = normalizeAlignmentString(align);
+    const message::MessageAlignment messageAlign = parseMessageAlignment(normalizedAlign);
+    message::RichTextLayoutEngine layout = buildLayoutEngineForWindow(*this, safeMaxWidth, messageAlign);
+    const message::RichTextLayoutResult result = layout.layout(text);
+    const int32_t offsetX = lineOffsetForFirstLine(result.tokens);
+
+    TextDrawInfo info;
+    info.text = text;
+    info.align = normalizedAlign;
+    info.requestedX = x;
+    info.requestedY = y;
+    info.resolvedX = x + offsetX;
+    info.resolvedY = y;
+    info.maxWidth = safeMaxWidth;
+    info.measuredWidth = result.metrics.width;
+    lastTextDraw_ = std::move(info);
+    textDrawHistory_.push_back(*lastTextDraw_);
+
+    auto textCmd = std::make_shared<urpg::TextCommand>();
+    textCmd->text = text;
+    textCmd->fontFace = fontFace_;
+    textCmd->fontSize = fontSize_;
+    textCmd->maxWidth = safeMaxWidth;
+    textCmd->x = static_cast<float>(rect_.x + padding_ + lastTextDraw_->resolvedX);
+    textCmd->y = static_cast<float>(rect_.y + padding_ + lastTextDraw_->resolvedY);
+    textCmd->zOrder = 100;
+    textCmd->r = textColor_.r;
+    textCmd->g = textColor_.g;
+    textCmd->b = textColor_.b;
+    textCmd->a = textColor_.a;
+    urpg::RenderLayer::getInstance().submit(textCmd);
+
+    assert(!text.empty() || safeMaxWidth >= 0);
     
     // MZ behavior: empty text with max width clears the area
-    if (text.empty() && maxWidth > 0) {
-        // Clear area at (x, y) with width maxWidth and height = lineHeight
+    if (text.empty() && safeMaxWidth > 0) {
+        // Clear area at (x, y) with width safeMaxWidth and height = lineHeight
     }
 }
 
@@ -783,7 +636,11 @@ void Window_Base::update() {
 
 void Window_Base::drawTextEx(const std::string& text, int32_t x, int32_t y, int32_t width) {
     recordMethodCall("drawTextEx");
-    const auto tokens = tokenizeTextEx(text);
+    const std::string activeAlign = normalizeAlignmentString(textAlignment_);
+    message::RichTextLayoutEngine layout =
+        buildLayoutEngineForWindow(*this, std::max(0, width), parseMessageAlignment(activeAlign));
+    const message::RichTextLayoutResult laidOut = layout.layout(text);
+    const auto& tokens = laidOut.tokens;
     const int32_t baseLineHeight = lineHeight();
     int32_t cursorX = x;
     int32_t cursorY = y;
@@ -791,43 +648,39 @@ void Window_Base::drawTextEx(const std::string& text, int32_t x, int32_t y, int3
     int32_t currentFontSize = std::max(1, fontSize_);
     const Color originalColor = textColor_;
 
-    const auto currentMaxWidth = [&]() -> int32_t {
-        if (width <= 0) {
-            return 0;
-        }
-        return std::max(0, width - (cursorX - x));
-    };
-
     for (const auto& token : tokens) {
         switch (token.type) {
-            case TextExTokenType::Text: {
+            case message::RichTextTokenType::Text: {
                 if (!token.text.empty()) {
-                    drawText(token.text, cursorX, cursorY, currentMaxWidth());
+                    drawText(token.text, cursorX, cursorY, 0, "left");
                     cursorX += measurePlainTextRenderer(token.text, currentFontSize);
                     currentLineHeight = std::max(currentLineHeight, std::max(baseLineHeight, currentFontSize + 8));
                 }
                 break;
             }
-            case TextExTokenType::Icon:
+            case message::RichTextTokenType::Icon:
                 drawIcon(token.value, cursorX, cursorY);
                 cursorX += kIconWidth + kIconSpacing;
                 currentLineHeight = std::max(currentLineHeight, std::max(baseLineHeight, kIconWidth));
                 break;
-            case TextExTokenType::Color:
+            case message::RichTextTokenType::Color:
                 changeTextColor(token.value);
                 break;
-            case TextExTokenType::FontBigger:
+            case message::RichTextTokenType::FontBigger:
                 currentFontSize = std::min(kFontSizeMax, currentFontSize + kFontStep);
                 currentLineHeight = std::max(currentLineHeight, std::max(baseLineHeight, currentFontSize + 8));
                 break;
-            case TextExTokenType::FontSmaller:
+            case message::RichTextTokenType::FontSmaller:
                 currentFontSize = std::max(kFontSizeMin, currentFontSize - kFontStep);
                 currentLineHeight = std::max(currentLineHeight, std::max(baseLineHeight, currentFontSize + 8));
                 break;
-            case TextExTokenType::NewLine:
+            case message::RichTextTokenType::NewLine:
                 cursorX = x;
                 cursorY += currentLineHeight;
                 currentLineHeight = std::max(1, baseLineHeight);
+                break;
+            case message::RichTextTokenType::LineOffset:
+                cursorX = x + token.value;
                 break;
         }
     }
@@ -843,16 +696,17 @@ int32_t Window_Base::lineHeight() const {
 
 int32_t Window_Base::textWidth(const std::string& text) const {
     methodCallCounts_["textWidth"]++;
-    const auto tokens = tokenizeTextEx(text);
-    const TextMeasureResult measured = measureTextTokens(tokens, lineHeight(), fontSize_);
-    return measured.width;
+    message::RichTextLayoutEngine layout =
+        buildLayoutEngineForWindow(*this, 0, message::MessageAlignment::Left);
+    return layout.textWidth(text);
 }
 
 Rect Window_Base::textSize(const std::string& text) const {
     methodCallCounts_["textSize"]++;
-    const auto tokens = tokenizeTextEx(text);
-    const TextMeasureResult measured = measureTextTokens(tokens, lineHeight(), fontSize_);
-    return Rect{0, 0, measured.width, measured.height};
+    message::RichTextLayoutEngine layout =
+        buildLayoutEngineForWindow(*this, 0, message::MessageAlignment::Left);
+    const message::RichTextLayoutResult result = layout.layout(text);
+    return Rect{0, 0, result.metrics.width, result.metrics.height};
 }
 
 void Window_Base::changeTextColor(const Color& color) {
@@ -950,6 +804,16 @@ void Window_Base::setFontSize(int32_t size) {
     fontSize_ = std::max(1, size);
 }
 
+void Window_Base::setTextAlignment(const std::string& align) {
+    recordMethodCall("setTextAlignment");
+    textAlignment_ = normalizeAlignmentString(align);
+}
+
+std::string Window_Base::textAlignment() const {
+    methodCallCounts_["textAlignment"]++;
+    return textAlignment_;
+}
+
 BitmapHandle Window_Base::contents() const {
     methodCallCounts_["contents"]++;
     return contents_;
@@ -1015,6 +879,7 @@ void Window_Base::registerAPI(QuickJSContext& ctx) {
         "drawItemName", "drawTextEx", "lineHeight", "textWidth", "textSize",
         "changeTextColor", "resetTextColor", "textColor", "systemColor",
         "resetFontSettings", "fontFace", "fontSize", "setFontFace", "setFontSize",
+        "setTextAlignment", "textAlignment",
         "contents", "createContents", "destroyContents", "open", "close",
         "show", "hide", "update", "getContentRect"
     };
@@ -1565,6 +1430,38 @@ void Window_Command::registerAPI(QuickJSContext& ctx) {
     ctx.registerObject("Window_Command", methods);
 }
 
+// ============================================================================
+// Window_Message Implementation
+// ============================================================================
+
+Window_Message::Window_Message(const CreateParams& params)
+    : Window_Base(params)
+    , messageX_(params.messageX)
+    , messageY_(params.messageY)
+    , messageWidth_(params.messageWidth) {
+}
+
+void Window_Message::setMessageRect(int32_t x, int32_t y, int32_t width) {
+    messageX_ = x;
+    messageY_ = y;
+    messageWidth_ = std::max(0, width);
+}
+
+void Window_Message::setMessageText(std::string text) {
+    messageText_ = std::move(text);
+}
+
+void Window_Message::setMessageAlignment(const std::string& align) {
+    setTextAlignment(align);
+}
+
+void Window_Message::drawMessageBody() {
+    clearTextDrawHistory();
+    const Rect content = getContentRect();
+    const int32_t width = messageWidth_ > 0 ? messageWidth_ : content.width;
+    drawTextEx(messageText_, messageX_, messageY_, width);
+}
+
 
 // ============================================================================
 // Sprite_Character Implementation
@@ -1806,6 +1703,12 @@ uint32_t WindowCompatManager::createWindowSelectable(const Window_Selectable::Cr
 uint32_t WindowCompatManager::createWindowCommand(const Window_Command::CreateParams& params) {
     uint32_t id = nextId_++;
     windows_[id] = std::make_unique<Window_Command>(params);
+    return id;
+}
+
+uint32_t WindowCompatManager::createWindowMessage(const Window_Message::CreateParams& params) {
+    uint32_t id = nextId_++;
+    windows_[id] = std::make_unique<Window_Message>(params);
     return id;
 }
 

@@ -1,14 +1,31 @@
 # URPG Development Status (v3.1)
 
-Snapshot Date: 2026-04-18 (Swarm 5 complete)
+Snapshot Date: 2026-04-18 (Swarm 5 complete) / 2026-04-15
 
 This repository is bootstrapped to the blueprint's canonical structure and now includes core + compat kernels with active CI gate wiring.
+
+Cross-cutting debt closure, documentation-truth alignment, and intake-governance tracking: `docs/TECHNICAL_DEBT_REMEDIATION_PLAN.md`.
 
 ## Progress tracker
 
 - Phase 0 Foundation: 100% complete.
 - Phase 1 Native Core: 100% complete for v3.1 kickoff/continuation/integration contracts.
 - Phase 2 Compat Layer: in progress (~98%; runtime module wiring + status burn-down complete, DataManager JSON loading and BattleManager pipeline now wired, audio ducking/position tracking implemented, Window_Selectable input + touch tap wired, bitmap lifecycle + sprite updates implemented, QuickJS stub GC/heap simulation hardened, manager JS APIs wired to live singletons, DataManager-backed actor drawing implemented, CombatCalc integrated into battle actions, $gameActors runtime state implemented, Window_Command drawing + color system implemented, sprite motion animation implemented, battle state effects + animation recording implemented, state system end-to-end wired with slip damage/auto-removal/remove-by-damage, TP ceiling no longer hardcoded, GameParty/GameTroop runtime classes created, integration test coverage expanded).
+- Phase 2 Compat Layer: hardening exit (~96%; runtime module wiring + status burn-down are complete, with remaining work on executable conformance depth and diagnostics exit criteria).
+- Native Feature Absorption Wave 1: in progress (~63%; UI/Menu and Message/Text runtime slices are substantially landed, with remaining closure in renderer handoff, editor/schema/migration productization, and integration depth).
+- Native Capability Expansion Wave 2: planning baseline (~5%; integrated tracks are defined in `docs/NATIVE_FEATURE_ABSORPTION_PLAN.md`, implementation pending).
+
+## Where we are now (2026-04-15)
+
+- PR `#5` native-first direction is merged into `main`.
+- Branch model is now intentionally minimal: `main` plus one work branch (`plan/native-feature-absorption-20260413`), aligned to the same tip commit.
+- `main` is protected with PR-required flow and required checks (`gate1-pr`, `gitleaks`).
+- Dependabot version-update branch churn is disabled.
+- Active roadmap has been rewritten as one integrated execution plan (`docs/NATIVE_FEATURE_ABSORPTION_PLAN.md`) including Wave 2 advanced capability tracks.
+- Canonical completion checklist (done + remaining to 100%): `docs/PROGRAM_COMPLETION_STATUS.md`.
+- Canonical debt/truthfulness/intake-governance tracker: `docs/TECHNICAL_DEBT_REMEDIATION_PLAN.md`.
+- Canonical Wave 1 subsystem closure checklist source: `docs/WAVE1_SUBSYSTEM_CLOSURE_CHECKLIST.md`.
+- Subsystem checklist sync is automated via `tools/docs/sync-wave1-spec-checklist.ps1` and verified by `tools/ci/check_wave1_spec_checklists.ps1`.
 
 ## Completed now
 
@@ -54,6 +71,11 @@ This repository is bootstrapped to the blueprint's canonical structure and now i
   - `urpg_snapshot_tests`: 4 assertions / 2 test cases
   - `urpg_compat_tests`: 1985 assertions / 24 test cases
   - **Total: 5933 assertions / 333 test cases**
+- Test baseline added and passing (Debug snapshot, 2026-04-15):
+  - `urpg_tests`: 3907 assertions / 287 test cases
+  - Latest local gate snapshot:
+    - `ctest --test-dir build/dev-ninja-debug -L pr --output-on-failure`: 289/289 passed
+    - `ctest --test-dir build/dev-ninja-debug -L weekly --output-on-failure`: 42/42 passed
 - Phase 2 compat expansion implemented in active targets:
    - WindowCompat surface expansion for `Window_Base`, `Window_Selectable`, and `Window_Command` API registration.
    - WindowCompat method call-count tracking surfaced in compat reports.
@@ -92,15 +114,20 @@ This repository is bootstrapped to the blueprint's canonical structure and now i
    - DataManager save/load compat lane now persists per-slot `GlobalState` + `SaveHeader` in-memory (including autosave slot `0`) with slot bounds validation.
    - DataManager header-extension compat APIs now round-trip per-slot plugin metadata and clear extension state on save-slot deletion.
    - DataManager transfer semantics now track reserved transfers and apply them via `processTransfer`.
+   - `SaveSessionCoordinator` now loads `save_slots.json` descriptors and projects slot labels into save-inspector rows when map names are absent.
+   - Compat routed battle-flow evidence now includes a tactical reload-survival fixture scenario.
    - Burned down selected compat statuses: `Window_Base.drawItemName`, `Window_Base.textWidth`, `Window_Base.textSize` from `STUB` to `PARTIAL`; `TouchInput.worldX/worldY` from `STUB` to `FULL`; `Window_Base.drawActorHp/drawActorMp/drawActorTp` from `PARTIAL` to `FULL`.
    - Burned down WindowCompat text-surface statuses: `drawTextEx`, `textWidth`, `textSize` from `PARTIAL` to `FULL` using escape-token parity and compat renderer-backed measurement/layout flow.
+   - `Window_Base.drawText` now submits backend-facing `RenderLayer::TextCommand` payloads using resolved alignment offsets and active font/color state.
+   - Added compat `Window_Message` surface (`drawMessageBody`) with deterministic dialogue-body alignment behavior (`left`/`center`/`right`).
+   - Added snapshot-style wrapped centered/right `drawTextEx` history coverage to lock deterministic placement semantics.
    - Burned down additional WindowCompat statuses: `drawItemName` from `PARTIAL` to `FULL` (DataManager-backed icon+label semantics) and `Sprite_Actor.startEffect` from `PARTIAL` to `FULL` (deterministic effect-duration lifecycle).
    - Burned down additional Sprite_Actor animation status: `startAnimation` from `PARTIAL` to `FULL` with deterministic frame-duration playback lifecycle.
    - Burned down remaining Window_Base face status: `drawActorFace` from `PARTIAL` to `FULL` with MZ-canonical face cell clipping/centering semantics and deterministic face draw metadata.
-   - Compat status burn-down checkpoint: runtime compat API registry now reports no `PARTIAL`/`STUB` surfaces.
+   - Earlier compat burn-down work materially improved several surfaces, but a follow-up audit is still required because some runtime registries continue to overclaim `FULL` on stub-, fixture-, or placeholder-backed paths.
    - Burned down AudioManager compat statuses: `crossfadeBgm`/`crossfadeBgs` from `PARTIAL` to `FULL` via deterministic frame-based crossfade sequencing; BGM save/restore metadata now retains true track filename/position.
    - Burned down BattleManager compat status: `processEscape` from `PARTIAL` to `FULL` with deterministic MZ-style escape ratio + fail-ramp handling.
-   - Burned down PluginManager compat status: `executeCommandAsync` from `PARTIAL` to `FULL` with deterministic FIFO task queue execution and callback order guarantees.
+   - `executeCommandAsync` now has deterministic FIFO task queue execution and callback ordering, but the surface still remains `PARTIAL` because callbacks run on the worker thread and the JS bridge is fixture-backed.
    - Input/Touch QuickJS API registration now returns live runtime state and `TouchInput` movement telemetry now tracks `moveSpeed` and `tapCount`.
 - **Technical debt burn-down (Agent Swarm 2026-04-18 — Swarm 1):**
   - `DataManager` JSON loading implemented: all database files (Actors, Classes, Skills, Items, Weapons, Armors, Enemies, Troops, States, Animations, Tilesets, CommonEvents, System, MapInfos, MapXXX) now parse from MZ-format JSON via `nlohmann/json`. Includes `setDataPath()` API and file-existence guards.
@@ -134,6 +161,18 @@ This repository is bootstrapped to the blueprint's canonical structure and now i
    - `WindowCompat` full software rasterization: actual text layout, icon atlas lookup, gauge gradient fill, character sheet slicing (currently recording stubs).
    - `QuickJSRuntime` real QuickJS wiring: fetch QuickJS via CMake, link against C API, implement `URPG_HAS_QUICKJS` path.
    - `$gameParty` / `$gameTroop` QuickJS global exposure: wire `GameParty`/`GameTroop` into `DataManager::registerAPI` as `$gameParty`/`$gameTroop`.
+4. Compat exit completion
+   - Finish remaining routed conformance/failure depth and lock every new failure mode to JSONL/report/panel assertions until explicit exit criteria are satisfied.
+5. Message/Text renderer closure
+   - Complete backend text-command consumption and native MessageScene handoff from compat `Window_Message` bridge behavior.
+6. Wave 1 native runtime ownership
+   - Complete native subsystem ownership for UI/Menu, Message/Text, Battle, and Save/Data beyond currently landed slices.
+7. Wave 1 editor + schema productization
+   - Ship subsystem inspectors/previews/diagnostics and finalize migration-safe schemas/import upgrade paths.
+8. Wave 2 advanced capability delivery
+   - Start implementation tracks for ability framework, pattern editor, modular level assembly, sprite pipeline, procedural toolkit, optional 2.5D lane, timeline orchestration, and editor utilities.
+9. Completion tracking
+   - Execute and maintain `docs/PROGRAM_COMPLETION_STATUS.md` as the source of truth for remaining work to 100% completion in this program scope.
 
 ## Build/test
 
@@ -141,4 +180,16 @@ This repository is bootstrapped to the blueprint's canonical structure and now i
 cmake -S . -B build
 cmake --build build
 ctest --test-dir build -C Debug --output-on-failure
+```
+
+Focused presentation validation is also available through:
+
+```powershell
+pwsh -File .\tools\ci\run_presentation_gate.ps1
+```
+
+The broader local gate runner now invokes that focused presentation gate before the repo-wide labeled suites:
+
+```powershell
+pwsh -File .\tools\ci\run_local_gates.ps1
 ```

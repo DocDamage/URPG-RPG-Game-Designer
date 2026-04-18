@@ -1,13 +1,21 @@
 param(
     [string]$ConfigurePreset = "ci",
     [string]$BuildPreset = "ci-release",
-    [switch]$SkipBuild
+    [string]$PresentationConfiguration = "Release",
+    [switch]$SkipBuild,
+    [switch]$SkipPresentationGate
 )
 
 $ErrorActionPreference = "Stop"
 
 Write-Host "== Validate waivers ==" -ForegroundColor Cyan
 & "$PSScriptRoot\check_waivers.ps1"
+
+Write-Host "== Validate Wave 1 subsystem checklist sync ==" -ForegroundColor Cyan
+& "$PSScriptRoot\check_wave1_spec_checklists.ps1"
+
+Write-Host "== Validate presentation docs links ==" -ForegroundColor Cyan
+& "$PSScriptRoot\..\docs\check-presentation-doc-links.ps1"
 
 Write-Host "== Configure: $ConfigurePreset ==" -ForegroundColor Cyan
 cmake --preset $ConfigurePreset
@@ -18,6 +26,14 @@ if (-not $SkipBuild) {
 }
 
 $testDir = "build/$ConfigurePreset"
+
+if (-not $SkipPresentationGate) {
+    Write-Host "== Focused presentation gate ==" -ForegroundColor Cyan
+    & "$PSScriptRoot\run_presentation_gate.ps1" `
+        -BuildDirectory $testDir `
+        -Configuration $PresentationConfiguration `
+        -SkipBuild
+}
 
 Write-Host "== Validate curated RPG Maker plugin drop-ins ==" -ForegroundColor Cyan
 & "$PSScriptRoot\..\rpgmaker\validate-plugin-dropins.ps1" `

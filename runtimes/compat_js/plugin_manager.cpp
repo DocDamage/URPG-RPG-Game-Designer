@@ -11,6 +11,7 @@
 #include <deque>
 #include <filesystem>
 #include <fstream>
+#include <initializer_list>
 #include <mutex>
 #include <nlohmann/json.hpp>
 #include <sstream>
@@ -99,6 +100,16 @@ std::string valueToString(const Value& value) {
         return "{object}";
     }
     return "";
+}
+
+std::string describeValue(const Value& value) {
+    if (std::holds_alternative<std::monostate>(value.v)) {
+        return "nil";
+    }
+    if (const auto* text = std::get_if<std::string>(&value.v)) {
+        return "\"" + *text + "\"";
+    }
+    return valueToString(value);
 }
 
 std::string compatSeverityToString(CompatSeverity severity) {
@@ -256,6 +267,160 @@ bool isNilValue(const Value& value) {
     return std::holds_alternative<std::monostate>(value.v);
 }
 
+[[noreturn]] void throwFixtureResolverError(const std::string& message) {
+    throw std::runtime_error("Fixture script resolver " + message);
+}
+
+void validateResolverAllowedFields(const nlohmann::json& node,
+                                   const std::string& source,
+                                   std::initializer_list<std::string_view> allowedFields) {
+    for (const auto& [key, value] : node.items()) {
+        (void)value;
+        if (key == "from") {
+            continue;
+        }
+
+        const auto allowedIt = std::find_if(
+            allowedFields.begin(),
+            allowedFields.end(),
+            [&](const std::string_view field) {
+                return key == field;
+            }
+        );
+        if (allowedIt == allowedFields.end()) {
+            throwFixtureResolverError(source + " does not accept field '" + key + "'");
+        }
+    }
+}
+
+template <typename Predicate>
+const nlohmann::json& requireResolverTypedField(const nlohmann::json& node,
+                                                const std::string& source,
+                                                const char* fieldName,
+                                                const char* typeName,
+                                                Predicate&& predicate) {
+    const auto it = node.find(fieldName);
+    if (it == node.end() || !predicate(*it)) {
+        throwFixtureResolverError(source + " requires " + typeName + " " + fieldName);
+    }
+    return *it;
+}
+
+const nlohmann::json& requireResolverArrayField(const nlohmann::json& node,
+                                                const std::string& source,
+                                                const char* fieldName) {
+    return requireResolverTypedField(
+        node,
+        source,
+        fieldName,
+        "array",
+        [](const nlohmann::json& field) {
+            return field.is_array();
+        }
+    );
+}
+
+int64_t requireResolverIntegerField(const nlohmann::json& node,
+                                    const std::string& source,
+                                    const char* fieldName) {
+    return requireResolverTypedField(
+               node,
+               source,
+               fieldName,
+               "integer",
+               [](const nlohmann::json& field) {
+                   return field.is_number_integer() || field.is_number_unsigned();
+               }
+           )
+        .get<int64_t>();
+}
+
+std::string requireResolverStringField(const nlohmann::json& node,
+                                       const std::string& source,
+                                       const char* fieldName) {
+    return requireResolverTypedField(
+               node,
+               source,
+               fieldName,
+               "string",
+               [](const nlohmann::json& field) {
+                   return field.is_string() && !field.get<std::string>().empty();
+               }
+           )
+        .get<std::string>();
+}
+
+void enforceFixtureInvokeExpectation(const nlohmann::json& expectNode,
+                                     const Value& invokeResult,
+                                     const FixtureScriptContext& ctx,
+                                     const std::string& op,
+                                     const std::string& target,
+                                     size_t stepIndex) {
+    const auto fail = [&](const std::string& message) {
+        throw std::runtime_error(
+            "Fixture script " + op + " op " + message + " for " + target +
+            " at index " + std::to_string(stepIndex)
+        );
+    };
+
+    if (expectNode.is_string()) {
+        const std::string expect = expectNode.get<std::string>();
+        if (expect == "non_nil") {
+            if (isNilValue(invokeResult)) {
+                fail("expected non-nil result");
+            }
+            return;
+        }
+        if (expect == "nil") {
+            if (!isNilValue(invokeResult)) {
+                fail("expected nil result but got " + describeValue(invokeResult));
+            }
+            return;
+        }
+        if (expect == "truthy") {
+            if (!isTruthy(invokeResult)) {
+                fail("expected truthy result but got " + describeValue(invokeResult));
+            }
+            return;
+        }
+        if (expect == "falsey" || expect == "falsy") {
+            if (isTruthy(invokeResult)) {
+                fail("expected falsey result but got " + describeValue(invokeResult));
+            }
+            return;
+        }
+
+        throw std::runtime_error(
+            "Fixture script " + op + " op unsupported expect value '" + expect +
+            "' at index " + std::to_string(stepIndex)
+        );
+    }
+
+    if (expectNode.is_object()) {
+        const auto equalsIt = expectNode.find("equals");
+        if (equalsIt == expectNode.end()) {
+            throw std::runtime_error(
+                "Fixture script " + op + " op requires supported expect object at index " +
+                std::to_string(stepIndex)
+            );
+        }
+
+        const Value expected = resolveFixtureScriptValue(*equalsIt, ctx);
+        if (!valuesEqual(invokeResult, expected)) {
+            fail(
+                "expected result equal to " + describeValue(expected) +
+                " but got " + describeValue(invokeResult)
+            );
+        }
+        return;
+    }
+
+    throw std::runtime_error(
+        "Fixture script " + op + " op requires string or object expect at index " +
+        std::to_string(stepIndex)
+    );
+}
+
 Value resolveValueWithDefault(const nlohmann::json& fromNode,
                               const nlohmann::json& containerNode,
                               const FixtureScriptContext& ctx) {
@@ -287,19 +452,23 @@ Value resolveFixtureScriptValue(const nlohmann::json& node, const FixtureScriptC
         const std::string source = fromIt->get<std::string>();
 
         if (source == "pluginName") {
+            validateResolverAllowedFields(node, source, {});
             Value value;
             value.v = ctx.pluginName;
             return value;
         }
         if (source == "commandName") {
+            validateResolverAllowedFields(node, source, {});
             Value value;
             value.v = ctx.commandName;
             return value;
         }
         if (source == "argCount") {
+            validateResolverAllowedFields(node, source, {});
             return Value::Int(static_cast<int64_t>(ctx.args.size()));
         }
         if (source == "args") {
+            validateResolverAllowedFields(node, source, {});
             Array array;
             array.reserve(ctx.args.size());
             for (const auto& arg : ctx.args) {
@@ -308,41 +477,47 @@ Value resolveFixtureScriptValue(const nlohmann::json& node, const FixtureScriptC
             return Value::Arr(std::move(array));
         }
         if (source == "arg") {
-            const int64_t index = node.value("index", static_cast<int64_t>(-1));
+            validateResolverAllowedFields(node, source, {"index", "default"});
+            const int64_t index = requireResolverIntegerField(node, source, "index");
             if (index >= 0 && static_cast<size_t>(index) < ctx.args.size()) {
                 return ctx.args[static_cast<size_t>(index)];
             }
             return resolveValueWithDefault(nlohmann::json{}, node, ctx);
         }
         if (source == "hasArg") {
-            const int64_t index = node.value("index", static_cast<int64_t>(-1));
+            validateResolverAllowedFields(node, source, {"index"});
+            const int64_t index = requireResolverIntegerField(node, source, "index");
             Value value;
             value.v = index >= 0 && static_cast<size_t>(index) < ctx.args.size();
             return value;
         }
         if (source == "param") {
-            const std::string name = node.value("name", "");
+            validateResolverAllowedFields(node, source, {"name", "default"});
+            const std::string name = requireResolverStringField(node, source, "name");
             const auto it = ctx.parameters.find(name);
-            if (!name.empty() && it != ctx.parameters.end()) {
+            if (it != ctx.parameters.end()) {
                 return it->second;
             }
             return resolveValueWithDefault(nlohmann::json{}, node, ctx);
         }
         if (source == "local") {
-            const std::string name = node.value("name", "");
+            validateResolverAllowedFields(node, source, {"name", "default"});
+            const std::string name = requireResolverStringField(node, source, "name");
             const auto it = ctx.locals.find(name);
-            if (!name.empty() && it != ctx.locals.end()) {
+            if (it != ctx.locals.end()) {
                 return it->second;
             }
             return resolveValueWithDefault(nlohmann::json{}, node, ctx);
         }
         if (source == "hasParam") {
-            const std::string name = node.value("name", "");
+            validateResolverAllowedFields(node, source, {"name"});
+            const std::string name = requireResolverStringField(node, source, "name");
             Value value;
-            value.v = !name.empty() && ctx.parameters.find(name) != ctx.parameters.end();
+            value.v = ctx.parameters.find(name) != ctx.parameters.end();
             return value;
         }
         if (source == "paramKeys") {
+            validateResolverAllowedFields(node, source, {});
             std::vector<std::string> keys;
             keys.reserve(ctx.parameters.size());
             for (const auto& [key, paramValue] : ctx.parameters) {
@@ -360,35 +535,37 @@ Value resolveFixtureScriptValue(const nlohmann::json& node, const FixtureScriptC
             return Value::Arr(std::move(array));
         }
         if (source == "equals") {
+            validateResolverAllowedFields(node, source, {"left", "right"});
             const auto leftIt = node.find("left");
             const auto rightIt = node.find("right");
+            if (leftIt == node.end() || rightIt == node.end()) {
+                throwFixtureResolverError("equals requires left and right");
+            }
             const Value lhs =
-                leftIt != node.end() ? resolveFixtureScriptValue(*leftIt, ctx) : Value::Nil();
+                resolveFixtureScriptValue(*leftIt, ctx);
             const Value rhs =
-                rightIt != node.end() ? resolveFixtureScriptValue(*rightIt, ctx) : Value::Nil();
+                resolveFixtureScriptValue(*rightIt, ctx);
             Value value;
             value.v = valuesEqual(lhs, rhs);
             return value;
         }
         if (source == "coalesce") {
-            if (const auto valuesIt = node.find("values");
-                valuesIt != node.end() && valuesIt->is_array()) {
-                for (const auto& valueNode : *valuesIt) {
-                    const Value candidate = resolveFixtureScriptValue(valueNode, ctx);
-                    if (!std::holds_alternative<std::monostate>(candidate.v)) {
-                        return candidate;
-                    }
+            validateResolverAllowedFields(node, source, {"values", "default"});
+            const auto& values = requireResolverArrayField(node, source, "values");
+            for (const auto& valueNode : values) {
+                const Value candidate = resolveFixtureScriptValue(valueNode, ctx);
+                if (!std::holds_alternative<std::monostate>(candidate.v)) {
+                    return candidate;
                 }
             }
             return resolveValueWithDefault(nlohmann::json{}, node, ctx);
         }
         if (source == "concat") {
+            validateResolverAllowedFields(node, source, {"parts"});
             std::string out;
-            if (const auto partsIt = node.find("parts");
-                partsIt != node.end() && partsIt->is_array()) {
-                for (const auto& part : *partsIt) {
-                    out += valueToString(resolveFixtureScriptValue(part, ctx));
-                }
+            const auto& parts = requireResolverArrayField(node, source, "parts");
+            for (const auto& part : parts) {
+                out += valueToString(resolveFixtureScriptValue(part, ctx));
             }
             Value value;
             value.v = std::move(out);
@@ -517,6 +694,8 @@ Value resolveFixtureScriptValue(const nlohmann::json& node, const FixtureScriptC
             }
             return resolveValueWithDefault(nlohmann::json{}, node, ctx);
         }
+
+        throwFixtureResolverError("unknown source '" + source + "'");
     }
 
     Object object;
@@ -726,26 +905,14 @@ FixtureScriptResult runFixtureScriptSteps(const nlohmann::json& script,
 
             if (const auto expectIt = step.find("expect");
                 expectIt != step.end()) {
-                if (!expectIt->is_string()) {
-                    throw std::runtime_error(
-                        "Fixture script " + op + " op requires string expect at index " +
-                        std::to_string(stepIndex)
-                    );
-                }
-                const std::string expect = expectIt->get<std::string>();
-                if (expect == "non_nil") {
-                    if (isNilValue(invokeResult)) {
-                        throw std::runtime_error(
-                            "Fixture script " + op + " op expected non-nil result for " +
-                            target + " at index " + std::to_string(stepIndex)
-                        );
-                    }
-                } else {
-                    throw std::runtime_error(
-                        "Fixture script " + op + " op unsupported expect value '" +
-                        expect + "' at index " + std::to_string(stepIndex)
-                    );
-                }
+                enforceFixtureInvokeExpectation(
+                    *expectIt,
+                    invokeResult,
+                    ctx,
+                    op,
+                    target,
+                    stepIndex
+                );
             }
 
             continue;
@@ -835,6 +1002,12 @@ public:
         uint64_t sequence = 0;
     };
 
+    struct CompletedAsyncCallbackTask {
+        std::function<void(const Value&)> callback;
+        Value result = Value::Nil();
+        uint64_t sequence = 0;
+    };
+
     // Plugin registry
     std::unordered_map<std::string, PluginInfo> plugins_;
     
@@ -871,6 +1044,8 @@ public:
     std::mutex asyncMutex_;
     std::condition_variable asyncCv_;
     std::deque<AsyncCommandTask> asyncQueue_;
+    std::mutex completedAsyncMutex_;
+    std::deque<CompletedAsyncCallbackTask> completedAsyncCallbacks_;
     std::thread asyncWorker_;
     bool stopAsyncWorker_ = false;
     uint64_t nextAsyncSequence_ = 1;
@@ -984,7 +1159,16 @@ PluginManager::PluginManager()
 
             const Value result = executeCommand(task.pluginName, task.commandName, task.args);
             if (task.callback) {
-                task.callback(result);
+                // Async command execution happens on the worker thread, but callback delivery
+                // is deferred until the owning thread explicitly drains the completed queue.
+                std::lock_guard<std::mutex> lock(impl_->completedAsyncMutex_);
+                impl_->completedAsyncCallbacks_.push_back(
+                    PluginManagerImpl::CompletedAsyncCallbackTask{
+                        .callback = std::move(task.callback),
+                        .result = result,
+                        .sequence = task.sequence,
+                    }
+                );
             }
         }
     });
@@ -1008,59 +1192,76 @@ PluginManager& PluginManager::instance() {
 
 void PluginManager::initializeMethodStatus() {
     if (methodStatus_.empty()) {
+        const auto setStatus = [](const std::string& method,
+                                  CompatStatus status,
+                                  const std::string& deviation = "") {
+            methodStatus_[method] = status;
+            if (deviation.empty()) {
+                methodDeviations_.erase(method);
+            } else {
+                methodDeviations_[method] = deviation;
+            }
+        };
+
         // Plugin lifecycle
-        methodStatus_["loadPlugin"] = CompatStatus::FULL;
-        methodStatus_["unloadPlugin"] = CompatStatus::FULL;
-        methodStatus_["reloadPlugin"] = CompatStatus::FULL;
-        methodStatus_["loadPluginsFromDirectory"] = CompatStatus::FULL;
-        methodStatus_["unloadAllPlugins"] = CompatStatus::FULL;
+        setStatus("loadPlugin", CompatStatus::PARTIAL,
+                  "Loads fixture JSON plugins and stub JS contexts; live MZ plugin runtime loading is not implemented.");
+        setStatus("unloadPlugin", CompatStatus::FULL);
+        setStatus("reloadPlugin", CompatStatus::PARTIAL,
+                  "Reload works for tracked fixture-backed plugins, not a general live plugin runtime.");
+        setStatus("loadPluginsFromDirectory", CompatStatus::PARTIAL,
+                  "Directory scan loads fixture-backed plugin descriptors, not a live MZ plugin runtime.");
+        setStatus("unloadAllPlugins", CompatStatus::FULL);
         
         // Plugin registration
-        methodStatus_["registerPlugin"] = CompatStatus::FULL;
-        methodStatus_["unregisterPlugin"] = CompatStatus::FULL;
-        methodStatus_["isPluginLoaded"] = CompatStatus::FULL;
-        methodStatus_["getPluginInfo"] = CompatStatus::FULL;
-        methodStatus_["getLoadedPlugins"] = CompatStatus::FULL;
+        setStatus("registerPlugin", CompatStatus::FULL);
+        setStatus("unregisterPlugin", CompatStatus::FULL);
+        setStatus("isPluginLoaded", CompatStatus::FULL);
+        setStatus("getPluginInfo", CompatStatus::FULL);
+        setStatus("getLoadedPlugins", CompatStatus::FULL);
         
         // Command registration
-        methodStatus_["registerCommand"] = CompatStatus::FULL;
-        methodStatus_["unregisterCommand"] = CompatStatus::FULL;
-        methodStatus_["unregisterAllCommands"] = CompatStatus::FULL;
-        methodStatus_["hasCommand"] = CompatStatus::FULL;
-        methodStatus_["getCommandInfo"] = CompatStatus::FULL;
-        methodStatus_["getPluginCommands"] = CompatStatus::FULL;
+        setStatus("registerCommand", CompatStatus::FULL);
+        setStatus("unregisterCommand", CompatStatus::FULL);
+        setStatus("unregisterAllCommands", CompatStatus::FULL);
+        setStatus("hasCommand", CompatStatus::FULL);
+        setStatus("getCommandInfo", CompatStatus::FULL);
+        setStatus("getPluginCommands", CompatStatus::FULL);
         
         // Command execution
-        methodStatus_["executeCommand"] = CompatStatus::FULL;
-        methodStatus_["executeCommandByName"] = CompatStatus::FULL;
-        methodStatus_["executeCommandAsync"] = CompatStatus::FULL;
+        setStatus("executeCommand", CompatStatus::PARTIAL,
+                  "Execution is reliable for registered handlers and fixtures, but still depends on a fixture-backed JS bridge.");
+        setStatus("executeCommandByName", CompatStatus::PARTIAL,
+                  "Qualified-name routing is reliable for registered handlers and fixtures, but still depends on a fixture-backed JS bridge.");
+        setStatus("executeCommandAsync", CompatStatus::PARTIAL,
+                  "FIFO async dispatch works, but callbacks require explicit main-thread dispatch and still rely on the fixture-backed JS bridge.");
         
         // Parameter management
-        methodStatus_["setParameter"] = CompatStatus::FULL;
-        methodStatus_["getParameter"] = CompatStatus::FULL;
-        methodStatus_["getParameters"] = CompatStatus::FULL;
-        methodStatus_["parseParameters"] = CompatStatus::FULL;
+        setStatus("setParameter", CompatStatus::FULL);
+        setStatus("getParameter", CompatStatus::FULL);
+        setStatus("getParameters", CompatStatus::FULL);
+        setStatus("parseParameters", CompatStatus::FULL);
         
         // Dependencies
-        methodStatus_["checkDependencies"] = CompatStatus::FULL;
-        methodStatus_["getMissingDependencies"] = CompatStatus::FULL;
-        methodStatus_["getDependents"] = CompatStatus::FULL;
+        setStatus("checkDependencies", CompatStatus::FULL);
+        setStatus("getMissingDependencies", CompatStatus::FULL);
+        setStatus("getDependents", CompatStatus::FULL);
         
         // Event hooks
-        methodStatus_["registerEventHandler"] = CompatStatus::FULL;
-        methodStatus_["unregisterEventHandler"] = CompatStatus::FULL;
+        setStatus("registerEventHandler", CompatStatus::FULL);
+        setStatus("unregisterEventHandler", CompatStatus::FULL);
         
         // Execution context
-        methodStatus_["getCurrentContext"] = CompatStatus::FULL;
-        methodStatus_["isExecuting"] = CompatStatus::FULL;
-        methodStatus_["getCurrentPlugin"] = CompatStatus::FULL;
+        setStatus("getCurrentContext", CompatStatus::FULL);
+        setStatus("isExecuting", CompatStatus::FULL);
+        setStatus("getCurrentPlugin", CompatStatus::FULL);
         
         // Error handling
-        methodStatus_["getLastError"] = CompatStatus::FULL;
-        methodStatus_["clearLastError"] = CompatStatus::FULL;
-        methodStatus_["setErrorHandler"] = CompatStatus::FULL;
-        methodStatus_["exportFailureDiagnosticsJsonl"] = CompatStatus::FULL;
-        methodStatus_["clearFailureDiagnostics"] = CompatStatus::FULL;
+        setStatus("getLastError", CompatStatus::FULL);
+        setStatus("clearLastError", CompatStatus::FULL);
+        setStatus("setErrorHandler", CompatStatus::FULL);
+        setStatus("exportFailureDiagnosticsJsonl", CompatStatus::FULL);
+        setStatus("clearFailureDiagnostics", CompatStatus::FULL);
     }
 }
 
@@ -2082,6 +2283,24 @@ void PluginManager::executeCommandAsync(const std::string& pluginName,
     task.args = args;
     task.callback = std::move(callback);
     impl_->enqueueAsyncTask(std::move(task));
+}
+
+int32_t PluginManager::dispatchPendingAsyncCallbacks() {
+    std::deque<PluginManagerImpl::CompletedAsyncCallbackTask> pending;
+    {
+        std::lock_guard<std::mutex> lock(impl_->completedAsyncMutex_);
+        pending.swap(impl_->completedAsyncCallbacks_);
+    }
+
+    int32_t dispatched = 0;
+    for (auto& task : pending) {
+        if (!task.callback) {
+            continue;
+        }
+        task.callback(task.result);
+        ++dispatched;
+    }
+    return dispatched;
 }
 
 // ============================================================================

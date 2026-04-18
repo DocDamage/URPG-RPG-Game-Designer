@@ -145,11 +145,11 @@ public:
     void crossfadeBgm(const std::string& filename, double volume = 90.0,
                        double pitch = 100.0, int32_t duration = 60);
     
-    // Status: FULL - Save/Restore BGM settings
+    // Status: PARTIAL - Saves metadata, but playback position does not advance yet
     void saveBgmSettings();
     void restoreBgmSettings();
     
-    // Status: FULL - Query BGM state
+    // Status: PARTIAL - Reports channel metadata, but playback position remains static
     bool isBgmPlaying() const;
     bool isBgmPaused() const;
     AudioInfo getCurrentBgm() const;
@@ -207,7 +207,7 @@ public:
     // Ducking
     // ========================================================================
     
-    // Status: FULL - Duck BGM (reduce volume temporarily)
+    // Status: PARTIAL - Ducking works, but smooth duration-based duck/unduck is still TODO
     void duckBgm(double volume = 50.0, int32_t duration = 30);
     void unduckBgm(int32_t duration = 30);
     bool isBgmDucked() const;

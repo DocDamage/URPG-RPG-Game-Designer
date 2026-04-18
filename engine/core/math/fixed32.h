@@ -15,6 +15,10 @@ struct Fixed32 {
         return Fixed32{r};
     }
 
+    static Fixed32 FromFloat(float v) {
+        return Fixed32{static_cast<int32_t>(v * 65536.0f)};
+    }
+
     float ToFloat() const {
         return static_cast<float>(raw) / 65536.0f;
     }
@@ -33,6 +37,22 @@ struct Fixed32 {
 
     friend constexpr bool operator<(Fixed32 a, Fixed32 b) {
         return a.raw < b.raw;
+    }
+
+    friend constexpr bool operator>(Fixed32 a, Fixed32 b) {
+        return a.raw > b.raw;
+    }
+
+    friend constexpr bool operator<=(Fixed32 a, Fixed32 b) {
+        return a.raw <= b.raw;
+    }
+
+    friend constexpr bool operator>=(Fixed32 a, Fixed32 b) {
+        return a.raw >= b.raw;
+    }
+
+    friend constexpr bool operator!=(Fixed32 a, Fixed32 b) {
+        return a.raw != b.raw;
     }
 
     friend constexpr bool operator==(Fixed32 a, Fixed32 b) {

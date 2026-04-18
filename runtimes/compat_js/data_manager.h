@@ -102,6 +102,7 @@ struct ActorData {
     int32_t classId = 0;
     int32_t initialLevel = 1;
     int32_t maxLevel = 99;
+    int32_t level = 1; // Current level (for display/scaling)
     std::string faceName;
     int32_t faceIndex = 0;
     std::string characterName;
@@ -132,6 +133,7 @@ struct ItemData {
     int32_t iconIndex = 0;
     std::string description;
     int32_t typeId = 0; // 0=regular, 1=key, 2=hidden
+    int32_t occasion = 0; // 0=Always, 1=Battle, 2=Menu, 3=Never
     int32_t consumable = 1;
     int32_t price = 0;
     int32_t scope = 0;
@@ -160,7 +162,24 @@ struct TroopData {
     std::string name;
     std::vector<int32_t> members; // Enemy IDs
     // Pages (battle events) - simplified
-    std::vector<Value> pages;
+    Value pages;
+};
+
+struct TilesetData {
+    int32_t id = 0;
+    std::string name;
+    int32_t mode = 0;
+    std::vector<std::string> tilesetNames;
+    std::vector<uint32_t> flags;
+};
+
+struct MapData {
+    int32_t id = 0;
+    int32_t width = 0;
+    int32_t height = 0;
+    int32_t tilesetId = 0;
+    std::vector<std::vector<int32_t>> data; // 6 layers of (width * height)
+    Value events;
 };
 
 struct ClassData {
@@ -217,7 +236,7 @@ public:
     // Database Loading
     // ========================================================================
     
-    // Status: FULL - Load all database files
+    // Status: PARTIAL - Database path currently seeds empty containers; JSON ingestion is still TODO
     bool loadDatabase();
     
     // Set the base path for data files (e.g. "data")
@@ -239,14 +258,18 @@ public:
     bool loadSystem();
     bool loadMapInfos();
     
-    // Status: FULL - Load map data
+    // Status: PARTIAL - Map metadata is seeded with mock data until JSON map ingestion lands
     bool loadMapData(int32_t mapId);
+    
+    // Status: FULL - Current map data access
+    const MapData* getCurrentMap() const;
+    const TilesetData* getTileset(int32_t id) const;
     
     // ========================================================================
     // Database Accessors
     // ========================================================================
     
-    // Status: FULL - Get database arrays
+    // Status: PARTIAL - Accessors are live, but loaders currently populate empty database containers
     const std::vector<ActorData>& getActors() const;
     const std::vector<ClassData>& getClasses() const;
     const std::vector<SkillData>& getSkills() const;
@@ -259,7 +282,7 @@ public:
     const std::vector<AnimationData>& getAnimations() const;
     const std::vector<MapInfo>& getMapInfos() const;
     
-    // Status: FULL - Get by ID
+    // Status: PARTIAL - Lookup works against the in-memory containers, which are still loader-empty today
     const ActorData* getActor(int32_t id) const;
     const ClassData* getClass(int32_t id) const;
     const SkillData* getSkill(int32_t id) const;
@@ -338,6 +361,11 @@ public:
     // Status: FULL - Steps
     int32_t getSteps() const;
     void incrementSteps();
+
+    // Status: FULL - Combat Persistence
+    void updateActorHp(int32_t actorId, int32_t hp);
+    void updateActorMp(int32_t actorId, int32_t mp);
+    void gainExp(int32_t actorId, int32_t exp);
     
     // Status: FULL - Player position
     int32_t getPlayerMapId() const;
@@ -411,6 +439,10 @@ public:
     Value getClassesAsValue() const;
     Value getMapInfosAsValue() const;
     
+    // Status: FULL - Get current data
+    Value getMapDataAsValue() const;
+    Value getTilesetsAsValue() const;
+    
     // Status: FULL - Extract global state as Value for JS access
     Value getGlobalStateAsValue() const;
     
@@ -463,6 +495,10 @@ private:
     std::vector<StateData> states_;
     std::vector<AnimationData> animations_;
     std::vector<MapInfo> mapInfos_;
+    std::vector<TilesetData> tilesets_;
+    
+    // Loaded map
+    MapData currentMap_;
     
     // Global state
     GlobalState globalState_;

@@ -46,6 +46,16 @@ public:
         return &iter->second;
     }
 
+    template <typename T>
+    const T* GetComponent(EntityID id) const {
+        return const_cast<World*>(this)->GetComponent<T>(id);
+    }
+
+    template <typename T>
+    bool HasComponent(EntityID id) const {
+        return GetComponent<T>(id) != nullptr;
+    }
+
     template <typename... Ts, typename Fn>
     void ForEachWith(Fn&& fn) {
         for (EntityID id : alive_) {

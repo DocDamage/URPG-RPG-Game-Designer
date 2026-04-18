@@ -12,6 +12,7 @@ SAFE_KEEP_PREFIXES = (
     "third_party/itch-assets/packs/",
     "third_party/itch-assets/loose-files/",
     "third_party/rpgmaker-mz/",
+    "third_party/huggingface/",
     "imports/root-drop/archives/",
 )
 

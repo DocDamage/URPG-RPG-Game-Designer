@@ -1,0 +1,51 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "URPG Battle Troop Schema",
+  "description": "Native contract for enemy groups and battle event triggers.",
+  "type": "object",
+  "required": ["id", "members", "phases"],
+  "properties": {
+    "id": { "type": "string" },
+    "name": { "type": "string" },
+    "members": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["enemy_id", "x", "y"],
+        "properties": {
+          "enemy_id": { "type": "string" },
+          "x": { "type": "integer" },
+          "y": { "type": "integer" },
+          "hidden": { "type": "boolean", "default": false }
+        }
+      }
+    },
+    "phases": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["condition", "effects"],
+        "properties": {
+          "condition": {
+            "type": "object",
+            "properties": {
+              "turn_count": { "type": "integer" },
+              "hp_below_percent": { "type": "integer" },
+              "switch_id": { "type": "string" }
+            }
+          },
+          "effects": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["type"],
+              "properties": {
+                "type": { "enum": ["message", "common_event", "state_change", "force_action"] }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

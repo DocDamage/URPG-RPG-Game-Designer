@@ -1,4 +1,5 @@
 build/
+build-local/
 .vscode/
 .cache/
 .venv/
@@ -13,6 +14,10 @@ __pycache__/
 *.suo
 *.tmp
 *.log
+build_log.txt
+build_output*.txt
+final_build_log*.txt
+final_error_check.txt
 *.obj
 *.pdb
 *.ilk

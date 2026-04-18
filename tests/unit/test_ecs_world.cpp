@@ -1,4 +1,6 @@
 #include "engine/core/ecs/world.h"
+#include "engine/core/ecs/actor_manager.h"
+#include "engine/core/ecs/actor_components.h"
 
 #include <catch2/catch_test_macros.hpp>
 
@@ -8,6 +10,38 @@ TEST_CASE("World creates monotonic EntityIDs", "[ecs]") {
     const auto second = world.CreateEntity();
 
     REQUIRE(first < second);
+}
+
+TEST_CASE("ActorManager can create and modify actors", "[ecs][actor]") {
+    urpg::World world;
+    urpg::ActorManager actorMgr(world);
+
+    const auto heroId = actorMgr.CreateActor("Hero", false);
+    const auto goblinId = actorMgr.CreateActor("Goblin", true);
+
+    SECTION("Actors are unique entities") {
+        REQUIRE(heroId != goblinId);
+    }
+
+    SECTION("Actor properties are preserved") {
+        auto* hero = actorMgr.GetActor(heroId);
+        REQUIRE(hero != nullptr);
+        REQUIRE(hero->name == "Hero");
+        REQUIRE(hero->isEnemy == false);
+
+        auto* goblin = actorMgr.GetActor(goblinId);
+        REQUIRE(goblin != nullptr);
+        REQUIRE(goblin->name == "Goblin");
+        REQUIRE(goblin->isEnemy == true);
+    }
+
+    SECTION("Actor components can be modified") {
+        actorMgr.SetActorPosition(heroId, urpg::Fixed32::FromInt(10), urpg::Fixed32::FromInt(20));
+        auto* transform = world.GetComponent<urpg::TransformComponent>(heroId);
+        REQUIRE(transform != nullptr);
+        REQUIRE(transform->position.x == urpg::Fixed32::FromInt(10));
+        REQUIRE(transform->position.y == urpg::Fixed32::FromInt(20));
+    }
 }
 
 TEST_CASE("ForEachWith iteration is deterministic by EntityID", "[ecs]") {

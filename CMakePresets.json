@@ -46,7 +46,10 @@
       "generator": "Ninja",
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Release",
-        "FETCHCONTENT_BASE_DIR": "${sourceDir}/.cache/fetchcontent"
+        "CMAKE_C_COMPILER_LAUNCHER": "sccache",
+        "CMAKE_CXX_COMPILER_LAUNCHER": "sccache",
+        "FETCHCONTENT_BASE_DIR": "${sourceDir}/.cache/fetchcontent",
+        "URPG_SKIP_OPENGL": "ON"
       }
     }
   ],

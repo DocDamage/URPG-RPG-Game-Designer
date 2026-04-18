@@ -1,0 +1,21 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Pattern Field",
+  "description": "Represents a 2D coordinate pattern for skills, items, or placement masks.",
+  "type": "object",
+  "properties": {
+    "name": { "type": "string" },
+    "points": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "x": { "type": "integer" },
+          "y": { "type": "integer" }
+        },
+        "required": ["x", "y"]
+      }
+    }
+  },
+  "required": ["name", "points"]
+}

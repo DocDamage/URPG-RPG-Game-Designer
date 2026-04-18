@@ -83,23 +83,23 @@ public:
     virtual ~Window_Base();
     
     // MZ API: Core drawing operations
-    // Status: FULL - Behaves identically to MZ
+    // Status: FULL - Behaves identically to MZ for text layout and renderer command emission
     virtual void drawText(const std::string& text, int32_t x, int32_t y, 
                           int32_t maxWidth = 0, 
                           const std::string& align = "left");
     
-    // Status: FULL - Behaves identically to MZ
+    // Status: PARTIAL - Tracks draw intent, but icon-set bitmap rendering is still TODO
     virtual void drawIcon(int32_t iconIndex, int32_t x, int32_t y);
     
     // Status: FULL - MZ-canonical face cell clipping + destination centering semantics
     virtual void drawActorFace(int32_t actorId, int32_t x, int32_t y, 
                                int32_t width = 144, int32_t height = 144);
     
-    // Status: FULL
+    // Status: PARTIAL - Falls back to text labels; full actor-name window rendering is not wired yet
     virtual void drawActorName(int32_t actorId, int32_t x, int32_t y, 
                                int32_t width = 150);
     
-    // Status: FULL
+    // Status: PARTIAL - Falls back to text labels; full actor-level window rendering is not wired yet
     virtual void drawActorLevel(int32_t actorId, int32_t x, int32_t y);
     
     // Status: FULL - Uses MZ-compatible default gauge colors
@@ -114,11 +114,11 @@ public:
     virtual void drawActorTp(int32_t actorId, int32_t x, int32_t y, 
                              int32_t width = 128);
     
-    // Status: FULL
+    // Status: PARTIAL - Records gauge semantics, but background/fill gradient rendering is still TODO
     virtual void drawGauge(int32_t x, int32_t y, int32_t width,
                            double rate, const Color& color1, const Color& color2);
     
-    // Status: FULL
+    // Status: PARTIAL - Tracks character draw intent, but character-sheet rendering is still TODO
     virtual void drawCharacter(const std::string& characterName,
                                int32_t index, int32_t x, int32_t y);
     
@@ -163,9 +163,11 @@ public:
     virtual int32_t fontSize() const;
     virtual void setFontFace(const std::string& face);
     virtual void setFontSize(int32_t size);
+    virtual void setTextAlignment(const std::string& align);
+    virtual std::string textAlignment() const;
     
     // Contents bitmap
-    // Status: STUB - Returns placeholder
+    // Status: STUB - Returns a placeholder handle; backing bitmap lifecycle is not implemented
     virtual BitmapHandle contents() const;
     virtual void createContents();
     virtual void destroyContents();
@@ -222,6 +224,20 @@ public:
     std::optional<FaceDrawInfo> getLastFaceDraw() const { return lastFaceDraw_; }
 
     double getLastGaugeRate() const { return lastGaugeRate_; }
+    
+    struct TextDrawInfo {
+        std::string text;
+        std::string align = "left";
+        int32_t requestedX = 0;
+        int32_t requestedY = 0;
+        int32_t resolvedX = 0;
+        int32_t resolvedY = 0;
+        int32_t maxWidth = 0;
+        int32_t measuredWidth = 0;
+    };
+    std::optional<TextDrawInfo> getLastTextDraw() const { return lastTextDraw_; }
+    const std::vector<TextDrawInfo>& getTextDrawHistory() const { return textDrawHistory_; }
+    void clearTextDrawHistory() { textDrawHistory_.clear(); }
 
 protected:
     Rect rect_;
@@ -237,8 +253,12 @@ protected:
     Color textColor_ = Color{255, 255, 255, 255};
     std::string fontFace_ = "Microsoft YaHei";
     int32_t fontSize_ = 22;
+    std::string textAlignment_ = "left";
     std::optional<FaceDrawInfo> lastFaceDraw_;
     double lastGaugeRate_ = 0.0;
+    std::optional<TextDrawInfo> lastTextDraw_;
+    std::vector<TextDrawInfo> textDrawHistory_;
+    
 
     // API status registry - must be public for static initialization
     static std::unordered_map<std::string, CompatStatus> methodStatus_;
@@ -398,6 +418,32 @@ public:
 protected:
     std::vector<CommandItem> commands_;
     CommandHandler onCommand_;
+};
+
+// Window_Message - Dialogue message window surface
+//
+// Minimal compat wrapper used for message-window rendering behavior.
+class Window_Message : public Window_Base {
+public:
+    struct CreateParams : Window_Base::CreateParams {
+        int32_t messageX = 0;
+        int32_t messageY = 0;
+        int32_t messageWidth = 0;
+    };
+
+    explicit Window_Message(const CreateParams& params);
+    ~Window_Message() override = default;
+
+    void setMessageRect(int32_t x, int32_t y, int32_t width);
+    void setMessageText(std::string text);
+    void setMessageAlignment(const std::string& align);
+    void drawMessageBody();
+
+private:
+    int32_t messageX_ = 0;
+    int32_t messageY_ = 0;
+    int32_t messageWidth_ = 0;
+    std::string messageText_;
 };
 
 // Sprite_Character - Map character sprite
@@ -572,6 +618,7 @@ public:
     uint32_t createWindowBase(const Window_Base::CreateParams& params);
     uint32_t createWindowSelectable(const Window_Selectable::CreateParams& params);
     uint32_t createWindowCommand(const Window_Command::CreateParams& params);
+    uint32_t createWindowMessage(const Window_Message::CreateParams& params);
     uint32_t createSpriteCharacter(const Sprite_Character::CreateParams& params);
     uint32_t createSpriteActor(const Sprite_Actor::CreateParams& params);
     

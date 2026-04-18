@@ -74,4 +74,53 @@ void EventAuthorityPanelModel::RebuildVisibleRows() {
     }
 }
 
+void EventAuthorityPanel::ingestDiagnosticsJsonl(std::string_view diagnostics_jsonl) {
+    if (diagnostics_jsonl.empty()) {
+        return;
+    }
+
+    if (!diagnostics_jsonl_.empty() && diagnostics_jsonl_.back() != '\n') {
+        diagnostics_jsonl_ += '\n';
+    }
+    diagnostics_jsonl_ += diagnostics_jsonl;
+}
+
+void EventAuthorityPanel::clearDiagnostics() {
+    diagnostics_jsonl_.clear();
+    model_.LoadFromJsonl({});
+    if (!event_id_filter_.empty()) {
+        model_.SetFilter(event_id_filter_);
+    }
+}
+
+void EventAuthorityPanel::setFilter(std::string_view event_id_filter) {
+    event_id_filter_ = std::string(event_id_filter);
+    model_.SetFilter(event_id_filter_);
+}
+
+void EventAuthorityPanel::setVisible(bool visible) {
+    visible_ = visible;
+}
+
+bool EventAuthorityPanel::isVisible() const {
+    return visible_;
+}
+
+void EventAuthorityPanel::render() {
+    if (!visible_) {
+        return;
+    }
+}
+
+void EventAuthorityPanel::refresh() {
+    model_.LoadFromJsonl(diagnostics_jsonl_);
+    if (!event_id_filter_.empty()) {
+        model_.SetFilter(event_id_filter_);
+    }
+}
+
+void EventAuthorityPanel::update() {
+    refresh();
+}
+
 } // namespace urpg

@@ -1,0 +1,229 @@
+#include <catch2/catch_approx.hpp>
+#include <catch2/catch_test_macros.hpp>
+#include "engine/core/presentation/dialogue_translator.h"
+#include "engine/core/presentation/presentation_bridge.h"
+#include "engine/core/presentation/presentation_runtime.h"
+#include "engine/core/presentation/render_backend_mock.h"
+#include "engine/core/scene/scene_manager.h"
+#include <memory>
+
+using namespace urpg::presentation;
+
+namespace {
+
+class MockPresentationScene final : public urpg::scene::GameScene {
+public:
+    urpg::scene::SceneType getType() const override { return urpg::scene::SceneType::MAP; }
+    std::string getName() const override { return "MockPresentationScene"; }
+};
+
+} // namespace
+
+TEST_CASE("Presentation runtime resolves weighted fog and PostFX blends", "[presentation][runtime]") {
+    PresentationFrameIntent intent;
+
+    FogProfile baseFog;
+    baseFog.density = 0.2f;
+    baseFog.startDist = 2.0f;
+    baseFog.endDist = 40.0f;
+
+    FogProfile overrideFog;
+    overrideFog.density = 0.5f;
+    overrideFog.startDist = 10.0f;
+    overrideFog.endDist = 100.0f;
+
+    PostFXProfile baseFx;
+    baseFx.exposure = 1.0f;
+    baseFx.bloomThreshold = 0.8f;
+    baseFx.bloomIntensity = 0.2f;
+    baseFx.saturation = 1.0f;
+
+    PostFXProfile overrideFx;
+    overrideFx.exposure = 1.6f;
+    overrideFx.bloomThreshold = 0.4f;
+    overrideFx.bloomIntensity = 0.8f;
+    overrideFx.saturation = 0.5f;
+
+    intent.AddFog(baseFog, 1.0f);
+    intent.AddFog(overrideFog, 0.5f);
+    intent.AddPostFX(baseFx, 1.0f);
+    intent.AddPostFX(overrideFx, 0.5f);
+    intent.AddShadowProxy(99, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f});
+
+    PresentationRuntime::ResolveEnvironmentCommands(intent);
+
+    size_t fogCount = 0;
+    size_t postFxCount = 0;
+    for (const auto& cmd : intent.commands) {
+        if (cmd.type == PresentationCommand::Type::SetFog) {
+            fogCount++;
+            REQUIRE(cmd.fogProfile != nullptr);
+            CHECK(cmd.fogProfile->density == Catch::Approx(0.3f));
+            CHECK(cmd.fogProfile->startDist == Catch::Approx(4.6666667f).margin(0.0001f));
+            CHECK(cmd.fogProfile->endDist == Catch::Approx(60.0f));
+        }
+        if (cmd.type == PresentationCommand::Type::SetPostFX) {
+            postFxCount++;
+            REQUIRE(cmd.postFXProfile != nullptr);
+            CHECK(cmd.postFXProfile->exposure == Catch::Approx(1.2f));
+            CHECK(cmd.postFXProfile->bloomThreshold == Catch::Approx(0.6666667f).margin(0.0001f));
+            CHECK(cmd.postFXProfile->bloomIntensity == Catch::Approx(0.4f));
+            CHECK(cmd.postFXProfile->saturation == Catch::Approx(0.8333333f).margin(0.0001f));
+        }
+    }
+
+    REQUIRE(fogCount == 1);
+    REQUIRE(postFxCount == 1);
+    REQUIRE(intent.commands.size() == 3);
+
+    urpg::render::RenderBackendMock backend;
+    backend.ConsumeFrame(intent);
+    CHECK(backend.GetCurrentState().fogDensity == Catch::Approx(0.3f));
+    CHECK(backend.GetCurrentState().bloomIntensity == Catch::Approx(0.4f));
+    CHECK(backend.GetCurrentState().saturation == Catch::Approx(0.8333333f).margin(0.0001f));
+}
+
+TEST_CASE("Presentation runtime builds map frame with resolved environment commands", "[presentation][runtime]") {
+    PresentationRuntime runtime;
+    PresentationContext context;
+    context.activeMode = PresentationMode::Spatial;
+    context.activeTier = CapabilityTier::Tier1_Standard;
+    context.mapState.mapId = "runtime_map";
+    context.mapState.actors.push_back({1, "hero", 2.0f, 3.0f, false});
+
+    PresentationAuthoringData data;
+    SpatialMapOverlay runtimeOverlay;
+    runtimeOverlay.mapId = "runtime_map";
+    runtimeOverlay.elevation.width = 8;
+    runtimeOverlay.elevation.height = 8;
+    runtimeOverlay.elevation.levels.assign(64, 2);
+    runtimeOverlay.fog.density = 0.25f;
+    runtimeOverlay.fog.startDist = 4.0f;
+    runtimeOverlay.fog.endDist = 60.0f;
+    runtimeOverlay.postFX.exposure = 1.2f;
+    runtimeOverlay.postFX.bloomThreshold = 0.6f;
+    runtimeOverlay.postFX.bloomIntensity = 0.4f;
+    runtimeOverlay.postFX.saturation = 0.85f;
+    data.mapOverlays.push_back(runtimeOverlay);
+    data.actorProfiles.push_back({"hero", {0.5f, 0.0f}, {0.0f, 0.25f, 0.0f}, true, 0.0f});
+
+    const PresentationFrameIntent intent = runtime.BuildPresentationFrame(context, data);
+
+    size_t fogCount = 0;
+    size_t postFxCount = 0;
+    size_t actorCount = 0;
+    for (const auto& cmd : intent.commands) {
+        if (cmd.type == PresentationCommand::Type::SetFog) {
+            fogCount++;
+            REQUIRE(cmd.fogProfile != nullptr);
+            CHECK(cmd.fogProfile->density == Catch::Approx(0.25f));
+        }
+        if (cmd.type == PresentationCommand::Type::SetPostFX) {
+            postFxCount++;
+            REQUIRE(cmd.postFXProfile != nullptr);
+            CHECK(cmd.postFXProfile->bloomIntensity == Catch::Approx(0.4f));
+            CHECK(cmd.postFXProfile->saturation == Catch::Approx(0.85f));
+        }
+        if (cmd.type == PresentationCommand::Type::DrawActor) {
+            actorCount++;
+            CHECK(cmd.position.y == Catch::Approx(1.25f));
+        }
+    }
+
+    REQUIRE(fogCount == 1);
+    REQUIRE(postFxCount == 1);
+    REQUIRE(actorCount == 1);
+    REQUIRE(intent.activePasses.size() == 3);
+    CHECK(intent.activePasses[1].passName == "WorldSpatial");
+}
+
+TEST_CASE("Dialogue readability overrides blend into resolved PostFX", "[presentation][runtime]") {
+    PresentationFrameIntent intent;
+
+    PostFXProfile worldFx;
+    worldFx.exposure = 1.0f;
+    worldFx.bloomThreshold = 1.0f;
+    worldFx.bloomIntensity = 0.2f;
+    worldFx.saturation = 1.0f;
+    intent.AddPostFX(worldFx);
+
+    DialogueTranslator dialogueTranslator;
+    DialogueState dialogueState;
+    dialogueState.isActive = true;
+    dialogueState.requireHighContrast = true;
+
+    DialoguePresentationConfig dialogueConfig;
+    dialogueConfig.sceneSaturationMultiplier = 0.4f;
+    dialogueConfig.contrastBgAlpha = 0.7f;
+    dialogueTranslator.ApplyReadability(dialogueState, dialogueConfig, intent);
+
+    PostFXProfile menuBlurFx;
+    menuBlurFx.exposure = 1.0f;
+    menuBlurFx.bloomThreshold = 0.05f;
+    menuBlurFx.bloomIntensity = 5.0f;
+    menuBlurFx.saturation = 1.0f;
+    intent.AddPostFX(menuBlurFx);
+
+    PresentationRuntime::ResolveEnvironmentCommands(intent);
+
+    size_t postFxCount = 0;
+    size_t shadowProxyCount = 0;
+    for (const auto& cmd : intent.commands) {
+        if (cmd.type == PresentationCommand::Type::SetPostFX) {
+            postFxCount++;
+            REQUIRE(cmd.postFXProfile != nullptr);
+            CHECK(cmd.postFXProfile->bloomIntensity == Catch::Approx((0.2f + 0.5f + 5.0f) / 3.0f).margin(0.0001f));
+            CHECK(cmd.postFXProfile->saturation == Catch::Approx(0.8f).margin(0.0001f));
+        }
+        if (cmd.type == PresentationCommand::Type::DrawShadowProxy) {
+            shadowProxyCount++;
+        }
+    }
+
+    REQUIRE(postFxCount == 1);
+    REQUIRE(shadowProxyCount == 1);
+}
+
+TEST_CASE("PresentationBridge builds frame for active scene using runtime", "[presentation][bridge]") {
+    auto runtime = std::make_shared<PresentationRuntime>();
+    auto authoringData = std::make_shared<PresentationAuthoringData>();
+
+    SpatialMapOverlay overlay;
+    overlay.mapId = "bridge_map";
+    overlay.elevation.width = 4;
+    overlay.elevation.height = 4;
+    overlay.elevation.levels.assign(16, 0);
+    overlay.fog.density = 0.15f;
+    authoringData->mapOverlays.push_back(overlay);
+    authoringData->actorProfiles.push_back({"hero", {0.5f, 0.0f}, {0.0f, 0.25f, 0.0f}, true, 0.0f});
+
+    PresentationBridge bridge(runtime, authoringData);
+
+    urpg::scene::SceneManager sceneManager;
+    sceneManager.pushScene(std::make_shared<MockPresentationScene>());
+
+    PresentationContext context;
+    context.activeMode = PresentationMode::Spatial;
+    context.activeTier = CapabilityTier::Tier1_Standard;
+    context.mapState.mapId = "bridge_map";
+    context.mapState.actors.push_back({7, "hero", 1.0f, 1.0f, false});
+
+    const PresentationFrameIntent intent = bridge.BuildFrameForActiveScene(sceneManager, context);
+
+    REQUIRE(intent.activeMode == PresentationMode::Spatial);
+    REQUIRE(intent.activePasses.size() == 3);
+
+    bool foundActor = false;
+    bool foundFog = false;
+    for (const auto& cmd : intent.commands) {
+        if (cmd.type == PresentationCommand::Type::DrawActor && cmd.id == 7) {
+            foundActor = true;
+        }
+        if (cmd.type == PresentationCommand::Type::SetFog && cmd.fogProfile && cmd.fogProfile->density == Catch::Approx(0.15f)) {
+            foundFog = true;
+        }
+    }
+
+    REQUIRE(foundActor);
+    REQUIRE(foundFog);
+}

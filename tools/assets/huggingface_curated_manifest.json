@@ -1,0 +1,71 @@
+{
+  "version": 1,
+  "datasets": [
+    {
+      "repo": "NintenHero/RPG-Maker-MV-Data",
+      "license": "cc-by-nc-sa-4.0",
+      "ingestMode": "manifest_only",
+      "targetRoot": "third_party/huggingface/rpg-maker-mv-data",
+      "notes": "RPG Maker MV project-data corpus. Kept manifest-only in this repo because the dataset license is non-commercial/share-alike.",
+      "files": [
+        "6ft Blunder/Map001.json",
+        "6ft Blunder/System.json",
+        "(not) Christmas in Karkatland/Tilesets.json"
+      ]
+    },
+    {
+      "repo": "NintenHero/RPG-Maker-XP-Data",
+      "license": "cc-by-nc-sa-4.0",
+      "ingestMode": "manifest_only",
+      "targetRoot": "third_party/huggingface/rpg-maker-xp-data",
+      "notes": "RPG Maker XP raw project-data corpus. Kept manifest-only in this repo because the dataset license is non-commercial/share-alike.",
+      "files": [
+        "Astray/Map001.rxdata",
+        "Astray/Scripts.rxdata",
+        "Do Us Part/System.rxdata"
+      ]
+    },
+    {
+      "repo": "NintenHero/Tiled-Map-Editor-TMX",
+      "license": "bsd-3-clause",
+      "ingestMode": "vendor_direct",
+      "targetRoot": "third_party/huggingface/tiled-map-editor-tmx",
+      "notes": "TMX map fixtures for importer, translator, and spatial-scene experiments.",
+      "files": [
+        "Bubblegum Bandit/rules1.tmx",
+        "Inexistence/chateau/Entree/entree.tmx",
+        "Inexistence/chateau/Hall/Hall.tmx",
+        "Titan Souls/FLOOR2/WOODS/a.tmx",
+        "Titan Souls/avarice.tmx"
+      ]
+    },
+    {
+      "repo": "NintenHero/Visual-Novel-Maker-Data",
+      "license": "apache-2.0",
+      "ingestMode": "vendor_direct",
+      "targetRoot": "third_party/huggingface/visual-novel-maker-data",
+      "notes": "Visual Novel Maker data fragments for future dialogue/script import work.",
+      "files": [
+        "My Boss Is Scaring Me/07DDA09123019333.json.js",
+        "My Boss Is Scaring Me/0680E2763533F740B54A6C139E537CF59C20.json.js",
+        "My Boss Is Scaring Me/158BCC5D580307477F6AE8A14D5278F56EE2.json.js",
+        "My Boss Is Scaring Me/232F08772D91E44D10380D14842B92CA796A.json.js",
+        "Aegis Dilemma Veritas Omnia Vincit/3C1AA2B2080628487718FB2335A24330F5F4.json.js"
+      ]
+    },
+    {
+      "repo": "wallstoneai/godot-gdscript-dataset",
+      "license": "apache-2.0",
+      "ingestMode": "vendor_direct",
+      "targetRoot": "third_party/huggingface/godot-gdscript-dataset",
+      "notes": "Reference corpus for import tools, script-analysis utilities, and cross-engine migration experiments.",
+      "files": [
+        "README.md",
+        "files/-godot_2d_platformer_game.txt",
+        "files/06-3D-RPG.txt",
+        "files/11-RPG.txt",
+        "files/Action-RPG.txt"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,56 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Level Block Library",
+  "description": "Definition for a library of modular level building blocks with snap connectors.",
+  "type": "object",
+  "properties": {
+    "libraryName": {
+      "type": "string"
+    },
+    "blocks": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "displayName": {
+            "type": "string"
+          },
+          "prefabPath": {
+            "type": "string"
+          },
+          "connectors": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "side": {
+                  "type": "string",
+                  "enum": ["North", "South", "East", "West", "Up", "Down"]
+                },
+                "type": {
+                  "type": "string"
+                },
+                "offset": {
+                  "type": "array",
+                  "items": { "type": "number" },
+                  "minItems": 3,
+                  "maxItems": 3
+                }
+              },
+              "required": ["side", "type"]
+            }
+          },
+          "tags": {
+            "type": "array",
+            "items": { "type": "string" }
+          }
+        },
+        "required": ["id", "prefabPath", "connectors"]
+      }
+    }
+  },
+  "required": ["libraryName", "blocks"]
+}

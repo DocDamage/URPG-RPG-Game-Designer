@@ -88,16 +88,16 @@ public:
     // Plugin Lifecycle
     // ========================================================================
     
-    // Status: FULL - Load plugin from file
+    // Status: PARTIAL - Loads fixture-backed plugin descriptors, not a live MZ runtime plugin
     bool loadPlugin(const std::string& path);
     
     // Status: FULL - Unload plugin by name
     bool unloadPlugin(const std::string& name);
     
-    // Status: FULL - Reload plugin by name
+    // Status: PARTIAL - Reload works for tracked fixture-backed plugins
     bool reloadPlugin(const std::string& name);
     
-    // Status: FULL - Load all plugins from directory
+    // Status: PARTIAL - Directory scan loads fixture-backed descriptors, not a live runtime plugin lane
     int32_t loadPluginsFromDirectory(const std::string& directory);
     
     // Status: FULL - Unload all plugins
@@ -155,20 +155,25 @@ public:
     // Command Execution
     // ========================================================================
     
-    // Status: FULL - Execute a plugin command
+    // Status: PARTIAL - Reliable for registered handlers/fixtures, but still fixture-bridge backed
     Value executeCommand(const std::string& pluginName,
                         const std::string& commandName,
                         const std::vector<Value>& args);
     
-    // Status: FULL - Execute command by full name (pluginName_commandName)
+    // Status: PARTIAL - Reliable for registered handlers/fixtures, but still fixture-bridge backed
     Value executeCommandByName(const std::string& fullName,
                               const std::vector<Value>& args);
     
-    // Status: FULL - Execute command asynchronously via deterministic FIFO task queue
+    // Status: PARTIAL - FIFO worker queue is deterministic, but callbacks run on the worker thread
+    // Threading contract: command execution happens on the worker thread, but callbacks
+    // are deferred until dispatchPendingAsyncCallbacks() is called on the owning thread.
     void executeCommandAsync(const std::string& pluginName,
                             const std::string& commandName,
                             const std::vector<Value>& args,
                             std::function<void(const Value&)> callback);
+
+    // Status: PARTIAL - Drains deferred async callbacks on the caller thread in FIFO order
+    int32_t dispatchPendingAsyncCallbacks();
     
     // ========================================================================
     // Parameter Management

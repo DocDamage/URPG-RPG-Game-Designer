@@ -1,4 +1,5 @@
 #include "editor/compat/compat_report_panel.h"
+#include "runtimes/compat_js/data_manager.h"
 #include "runtimes/compat_js/plugin_manager.h"
 
 #include <catch2/catch_test_macros.hpp>
@@ -15,6 +16,7 @@
 namespace {
 
 using urpg::compat::PluginManager;
+using urpg::compat::DataManager;
 
 struct FixtureSpec {
     std::string pluginName;
@@ -289,6 +291,340 @@ TEST_CASE(
 
     pm.clearFailureDiagnostics();
     pm.unloadAllPlugins();
+}
+
+TEST_CASE(
+    "Compat fixtures: curated presentation lifecycle failures project through diagnostics report and panel",
+    "[compat][fixtures][failure]") {
+    PluginManager& pm = PluginManager::instance();
+    pm.unloadAllPlugins();
+    pm.clearFailureDiagnostics();
+
+    REQUIRE(pm.loadPlugin(fixturePath("VisuStella_CoreEngine_MZ").string()));
+    REQUIRE(pm.loadPlugin(fixturePath("AltMenuScreen_MZ").string()));
+    REQUIRE(pm.loadPlugin(fixturePath("MOG_BattleHud_MZ").string()));
+    REQUIRE(pm.loadPlugin(fixturePath("MOG_CharacterMotion_MZ").string()));
+
+    const auto lifecycleFixture = uniqueTempFixturePath("urpg_curated_presentation_failure_fixture");
+    writeTextFile(
+        lifecycleFixture,
+        R"({
+  "name": "CuratedPresentationFailureFixture",
+  "parameters": {
+    "defaultRoute": "motion"
+  },
+  "commands": [
+    {
+      "name": "run",
+      "script": [
+        {"op": "set", "key": "route", "value": {"from": "coalesce", "values": [{"from": "arg", "index": 0}, {"from": "param", "name": "defaultRoute"}]}} ,
+        {"op": "set", "key": "motionName", "value": {"from": "arg", "index": 1, "default": "idle"}},
+        {"op": "if", "condition": {"from": "equals", "left": {"from": "local", "name": "route"}, "right": "layout"},
+          "then": [
+            {"op": "invoke", "plugin": "AltMenuScreen_MZ", "command": "applyLayout", "store": "routeResult"}
+          ],
+          "else": [
+            {"op": "if", "condition": {"from": "equals", "left": {"from": "local", "name": "route"}, "right": "hud"},
+              "then": [
+                {"op": "invoke", "plugin": "MOG_BattleHud_MZ", "command": "showHud", "store": "routeResult"}
+              ],
+              "else": [
+                {"op": "invoke", "plugin": "MOG_CharacterMotion_MZ", "command": "startMotion", "args": [{"from": "local", "name": "motionName"}], "store": "routeResult"}
+              ]
+            }
+          ]
+        },
+        {"op": "returnObject"}
+      ]
+    }
+  ]
+})"
+    );
+
+    REQUIRE(pm.loadPlugin(lifecycleFixture.string()));
+
+    urpg::Value motionRoute;
+    motionRoute.v = std::string("motion");
+    urpg::Value motionName;
+    motionName.v = std::string("dash");
+
+    const urpg::Value beforeUnload = pm.executeCommand(
+        "CuratedPresentationFailureFixture",
+        "run",
+      {motionRoute, motionName}
+    );
+    REQUIRE(std::holds_alternative<urpg::Object>(beforeUnload.v));
+    REQUIRE(pm.exportFailureDiagnosticsJsonl().empty());
+
+    REQUIRE(pm.unloadPlugin("MOG_CharacterMotion_MZ"));
+    REQUIRE_FALSE(pm.isPluginLoaded("MOG_CharacterMotion_MZ"));
+
+    const urpg::Value afterUnload = pm.executeCommand(
+        "CuratedPresentationFailureFixture",
+        "run",
+      {motionRoute, motionName}
+    );
+    REQUIRE(std::holds_alternative<urpg::Object>(afterUnload.v));
+    const auto& afterUnloadObject = std::get<urpg::Object>(afterUnload.v);
+    REQUIRE(std::get<std::string>(afterUnloadObject.at("route").v) == "motion");
+    REQUIRE(std::holds_alternative<std::monostate>(afterUnloadObject.at("routeResult").v));
+
+    const auto diagnostics = parseJsonl(pm.exportFailureDiagnosticsJsonl());
+    REQUIRE_FALSE(diagnostics.empty());
+    const auto motionMissingRow = std::find_if(
+        diagnostics.begin(),
+        diagnostics.end(),
+        [](const nlohmann::json& row) {
+            return row.value("operation", "") == "execute_command" &&
+                   row.value("plugin", "") == "MOG_CharacterMotion_MZ" &&
+                   row.value("command", "") == "startMotion" &&
+                   row.value("severity", "") == "WARN" &&
+                   row.value("message", "") ==
+                       "Command not found: MOG_CharacterMotion_MZ_startMotion";
+        }
+    );
+    REQUIRE(motionMissingRow != diagnostics.end());
+
+    const std::string diagnosticsJsonl = pm.exportFailureDiagnosticsJsonl();
+    urpg::editor::CompatReportModel reportModel;
+    reportModel.ingestPluginFailureDiagnosticsJsonl(diagnosticsJsonl);
+
+    const auto motionEvents = reportModel.getPluginEvents("MOG_CharacterMotion_MZ");
+    const auto motionEventIt = std::find_if(
+        motionEvents.begin(),
+        motionEvents.end(),
+        [](const urpg::editor::CompatEvent& event) {
+            return event.methodName == "execute_command" &&
+                   event.message == "Command not found: MOG_CharacterMotion_MZ_startMotion" &&
+                   event.severity == urpg::editor::CompatEvent::Severity::WARNING &&
+                   event.navigationTarget == "plugin://MOG_CharacterMotion_MZ#startMotion";
+        }
+    );
+    REQUIRE(motionEventIt != motionEvents.end());
+
+    const auto motionSummary = reportModel.getPluginSummary("MOG_CharacterMotion_MZ");
+    REQUIRE(motionSummary.warningCount == 1);
+    REQUIRE(motionSummary.errorCount == 0);
+    REQUIRE(motionSummary.totalCalls == 1);
+
+    const std::string exportedReport = reportModel.exportAsJson();
+    REQUIRE(exportedReport.find("MOG_CharacterMotion_MZ") != std::string::npos);
+    REQUIRE(exportedReport.find("Command not found: MOG_CharacterMotion_MZ_startMotion") != std::string::npos);
+
+    urpg::editor::CompatReportPanel panel;
+    panel.refresh();
+    REQUIRE(pm.exportFailureDiagnosticsJsonl().empty());
+
+    const auto panelMotionEvents = panel.getModel().getPluginEvents("MOG_CharacterMotion_MZ");
+    const auto panelMotionEventIt = std::find_if(
+        panelMotionEvents.begin(),
+        panelMotionEvents.end(),
+        [](const urpg::editor::CompatEvent& event) {
+            return event.methodName == "execute_command" &&
+                   event.message == "Command not found: MOG_CharacterMotion_MZ_startMotion" &&
+                   event.severity == urpg::editor::CompatEvent::Severity::WARNING;
+        }
+    );
+    REQUIRE(panelMotionEventIt != panelMotionEvents.end());
+
+    pm.clearFailureDiagnostics();
+    pm.unloadAllPlugins();
+
+    std::error_code ec;
+    std::filesystem::remove(lifecycleFixture, ec);
+}
+
+TEST_CASE(
+    "Compat fixtures: curated save-data lifecycle failures project through diagnostics report and panel",
+    "[compat][fixtures][failure]") {
+    PluginManager& pm = PluginManager::instance();
+    DataManager& data = DataManager::instance();
+    pm.unloadAllPlugins();
+    pm.clearFailureDiagnostics();
+
+    data.setupNewGame();
+    data.deleteSaveFile(0);
+    data.deleteSaveFile(1);
+
+    REQUIRE(pm.loadPlugin(fixturePath("VisuStella_CoreEngine_MZ").string()));
+    REQUIRE(pm.loadPlugin(fixturePath("VisuStella_MainMenuCore_MZ").string()));
+    REQUIRE(pm.loadPlugin(fixturePath("CGMZ_MenuCommandWindow").string()));
+
+    const auto lifecycleFixture = uniqueTempFixturePath("urpg_curated_save_data_failure_fixture");
+    writeTextFile(
+        lifecycleFixture,
+        R"({
+  "name": "CuratedSaveDataFailureFixture",
+  "parameters": {
+    "defaultRoute": "slot",
+    "defaultToken": "party"
+  },
+  "commands": [
+    {
+      "name": "open",
+      "script": [
+        {"op": "invoke", "plugin": "VisuStella_CoreEngine_MZ", "command": "boot", "args": [{"from": "arg", "index": 0, "default": "save_failure_boot"}], "store": "boot", "expect": "non_nil"},
+        {"op": "invokeByName", "name": "VisuStella_MainMenuCore_MZ_openMenu", "store": "menu"},
+        {"op": "invoke", "plugin": "CGMZ_MenuCommandWindow", "command": "refresh", "store": "dashboard"},
+        {"op": "set", "key": "route", "value": {"from": "coalesce", "values": [{"from": "arg", "index": 1}, {"from": "param", "name": "defaultRoute"}]}} ,
+        {"op": "if", "condition": {"from": "equals", "left": {"from": "local", "name": "route"}, "right": "autosave"},
+          "then": [
+            {"op": "set", "key": "routeToken", "value": {"from": "arg", "index": 2, "default": "autosave"}}
+          ],
+          "else": [
+            {"op": "set", "key": "routeToken", "value": {"from": "arg", "index": 2, "default": {"from": "param", "name": "defaultToken"}}}
+          ]
+        },
+        {"op": "returnObject"}
+      ]
+    }
+  ]
+})"
+    );
+
+    REQUIRE(pm.loadPlugin(lifecycleFixture.string()));
+
+    data.setGold(450);
+    data.gainItem(2, 7);
+    data.setVariable(4, 88);
+    data.setPlayerPosition(9, 10, 11);
+    data.setPlayerDirection(6);
+    REQUIRE(data.saveGame(1));
+
+    urpg::Value slotToken;
+    slotToken.v = std::string("party");
+    REQUIRE(data.setSaveHeaderExtension(1, "ui.tab", slotToken));
+
+    data.setAutosaveEnabled(true);
+    data.setVariable(8, 144);
+    REQUIRE(data.saveAutosave());
+
+    urpg::Value slotRoute;
+    slotRoute.v = std::string("slot");
+    urpg::Value autosaveRoute;
+    autosaveRoute.v = std::string("autosave");
+    urpg::Value beforeSlotBoot;
+    beforeSlotBoot.v = std::string("before_failure_slot");
+    urpg::Value beforeAutosaveBoot;
+    beforeAutosaveBoot.v = std::string("before_failure_autosave");
+    urpg::Value autosaveToken;
+    autosaveToken.v = std::string("autosave");
+
+    const urpg::Value beforeSlot = pm.executeCommand(
+        "CuratedSaveDataFailureFixture",
+        "open",
+        {beforeSlotBoot, slotRoute, slotToken}
+    );
+    REQUIRE(std::holds_alternative<urpg::Object>(beforeSlot.v));
+
+    const urpg::Value beforeAutosave = pm.executeCommandByName(
+        "CuratedSaveDataFailureFixture_open",
+        {beforeAutosaveBoot, autosaveRoute, autosaveToken}
+    );
+    REQUIRE(std::holds_alternative<urpg::Object>(beforeAutosave.v));
+    REQUIRE(pm.exportFailureDiagnosticsJsonl().empty());
+
+    REQUIRE(pm.unloadPlugin("CGMZ_MenuCommandWindow"));
+    REQUIRE_FALSE(pm.isPluginLoaded("CGMZ_MenuCommandWindow"));
+
+    urpg::Value afterSlotBoot;
+    afterSlotBoot.v = std::string("after_failure_slot");
+    const urpg::Value afterSlot = pm.executeCommand(
+        "CuratedSaveDataFailureFixture",
+        "open",
+        {afterSlotBoot, slotRoute, slotToken}
+    );
+    REQUIRE(std::holds_alternative<urpg::Object>(afterSlot.v));
+    const auto& afterSlotObject = std::get<urpg::Object>(afterSlot.v);
+    REQUIRE(std::get<std::string>(afterSlotObject.at("route").v) == "slot");
+    REQUIRE(std::get<std::string>(afterSlotObject.at("routeToken").v) == "party");
+    REQUIRE(std::holds_alternative<std::monostate>(afterSlotObject.at("dashboard").v));
+
+    urpg::Value afterAutosaveBoot;
+    afterAutosaveBoot.v = std::string("after_failure_autosave");
+    const urpg::Value afterAutosave = pm.executeCommandByName(
+        "CuratedSaveDataFailureFixture_open",
+        {afterAutosaveBoot, autosaveRoute, autosaveToken}
+    );
+    REQUIRE(std::holds_alternative<urpg::Object>(afterAutosave.v));
+    const auto& afterAutosaveObject = std::get<urpg::Object>(afterAutosave.v);
+    REQUIRE(std::get<std::string>(afterAutosaveObject.at("route").v) == "autosave");
+    REQUIRE(std::get<std::string>(afterAutosaveObject.at("routeToken").v) == "autosave");
+    REQUIRE(std::holds_alternative<std::monostate>(afterAutosaveObject.at("dashboard").v));
+
+    REQUIRE(data.loadGame(1));
+    REQUIRE(data.getGold() == 450);
+    REQUIRE(data.getItemCount(2) == 7);
+    REQUIRE(data.getVariable(4) == 88);
+    auto savedTab = data.getSaveHeaderExtension(1, "ui.tab");
+    REQUIRE(savedTab.has_value());
+    REQUIRE(std::holds_alternative<std::string>(savedTab->v));
+    REQUIRE(std::get<std::string>(savedTab->v) == "party");
+    REQUIRE(data.loadAutosave());
+    REQUIRE(data.getVariable(8) == 144);
+
+    const auto diagnostics = parseJsonl(pm.exportFailureDiagnosticsJsonl());
+    REQUIRE_FALSE(diagnostics.empty());
+    const auto dashboardRows = std::count_if(
+        diagnostics.begin(),
+        diagnostics.end(),
+        [](const nlohmann::json& row) {
+            return row.value("operation", "") == "execute_command" &&
+                   row.value("plugin", "") == "CGMZ_MenuCommandWindow" &&
+                   row.value("command", "") == "refresh" &&
+                   row.value("severity", "") == "WARN" &&
+                   row.value("message", "") ==
+                       "Command not found: CGMZ_MenuCommandWindow_refresh";
+        }
+    );
+    REQUIRE(dashboardRows == 2);
+
+    const std::string diagnosticsJsonl = pm.exportFailureDiagnosticsJsonl();
+    urpg::editor::CompatReportModel reportModel;
+    reportModel.ingestPluginFailureDiagnosticsJsonl(diagnosticsJsonl);
+
+    const auto dashboardEvents = reportModel.getPluginEvents("CGMZ_MenuCommandWindow");
+    REQUIRE(dashboardEvents.size() == 2);
+    for (const auto& event : dashboardEvents) {
+        REQUIRE(event.methodName == "execute_command");
+        REQUIRE(event.message == "Command not found: CGMZ_MenuCommandWindow_refresh");
+        REQUIRE(event.severity == urpg::editor::CompatEvent::Severity::WARNING);
+        REQUIRE(event.navigationTarget == "plugin://CGMZ_MenuCommandWindow#refresh");
+    }
+
+    const auto dashboardSummary = reportModel.getPluginSummary("CGMZ_MenuCommandWindow");
+    REQUIRE(dashboardSummary.warningCount == 1);
+    REQUIRE(dashboardSummary.errorCount == 0);
+    REQUIRE(dashboardSummary.totalCalls == 2);
+
+    const std::string exportedReport = reportModel.exportAsJson();
+    REQUIRE(exportedReport.find("CGMZ_MenuCommandWindow") != std::string::npos);
+    REQUIRE(exportedReport.find("Command not found: CGMZ_MenuCommandWindow_refresh") != std::string::npos);
+
+    urpg::editor::CompatReportPanel panel;
+    panel.refresh();
+    REQUIRE(pm.exportFailureDiagnosticsJsonl().empty());
+
+    const auto panelDashboardEvents = panel.getModel().getPluginEvents("CGMZ_MenuCommandWindow");
+    REQUIRE(panelDashboardEvents.size() == 2);
+    const auto panelDashboardEventCount = std::count_if(
+        panelDashboardEvents.begin(),
+        panelDashboardEvents.end(),
+        [](const urpg::editor::CompatEvent& event) {
+            return event.methodName == "execute_command" &&
+                   event.message == "Command not found: CGMZ_MenuCommandWindow_refresh" &&
+                   event.severity == urpg::editor::CompatEvent::Severity::WARNING;
+        }
+    );
+    REQUIRE(panelDashboardEventCount == 2);
+
+    data.deleteSaveFile(0);
+    data.deleteSaveFile(1);
+    pm.clearFailureDiagnostics();
+    pm.unloadAllPlugins();
+
+    std::error_code ec;
+    std::filesystem::remove(lifecycleFixture, ec);
 }
 
 TEST_CASE("Compat fixtures: malformed fixture load failures are exported as diagnostics artifacts",
@@ -923,6 +1259,12 @@ TEST_CASE(
       "script": [
         {"op": "invoke", "command": "seed", "expect": "unknown_expect"}
       ]
+    },
+    {
+      "name": "invokeMalformedExpectObject",
+      "script": [
+        {"op": "invoke", "command": "seed", "expect": {"unsupported": true}}
+      ]
     }
   ]
 })"
@@ -964,6 +1306,14 @@ TEST_CASE(
         "Host function error: Fixture script invoke op unsupported expect value "
         "'unknown_expect' at index 0"
     );
+
+      const urpg::Value invokeMalformedExpectObjectResult =
+        pm.executeCommand("BrokenInvokeChainFixture", "invokeMalformedExpectObject", {});
+      REQUIRE(std::holds_alternative<std::monostate>(invokeMalformedExpectObjectResult.v));
+      REQUIRE(
+        pm.getLastError() ==
+        "Host function error: Fixture script invoke op requires supported expect object at index 0"
+      );
 
     const auto diagnostics = parseJsonl(pm.exportFailureDiagnosticsJsonl());
     REQUIRE_FALSE(diagnostics.empty());
@@ -1045,6 +1395,19 @@ TEST_CASE(
         }
     );
     REQUIRE(invokeMalformedExpectRow != diagnostics.end());
+
+    const auto invokeMalformedExpectObjectRow = std::find_if(
+      diagnostics.begin(),
+      diagnostics.end(),
+      [](const nlohmann::json& row) {
+        return row.value("operation", "") == "execute_command_quickjs_call" &&
+             row.value("plugin", "") == "BrokenInvokeChainFixture" &&
+             row.value("command", "") == "invokeMalformedExpectObject" &&
+             row.value("message", "") ==
+               "Host function error: Fixture script invoke op requires supported expect object at index 0";
+      }
+    );
+    REQUIRE(invokeMalformedExpectObjectRow != diagnostics.end());
 
     pm.clearFailureDiagnostics();
     pm.unloadAllPlugins();
@@ -1154,7 +1517,7 @@ TEST_CASE(
         {"invokeBadStoreType",
          "Host function error: Fixture script invoke op requires string store at index 0"},
         {"invokeBadExpectType",
-         "Host function error: Fixture script invoke op requires string expect at index 0"},
+            "Host function error: Fixture script invoke op requires string or object expect at index 0"},
         {"errorDefaultMessage",
          "Host function error: Fixture script error op triggered at index 0"},
     };
@@ -1244,10 +1607,196 @@ TEST_CASE(
       ]
     },
     {
+      "name": "nestedInvokeMalformedStore",
+      "script": [
+        {"op": "if", "condition": true, "then": [
+          {"op": "invoke", "command": "seed", "store": 7}
+        ]}
+      ]
+    },
+    {
+      "name": "nestedInvokeMalformedExpectObject",
+      "script": [
+        {"op": "if", "condition": true, "then": [
+          {"op": "invoke", "command": "seed", "expect": {"unsupported": true}}
+        ]}
+      ]
+    },
+    {
       "name": "nestedInvokeByNameMissingName",
       "script": [
         {"op": "if", "condition": true, "then": [
           {"op": "invokeByName", "expect": "non_nil"}
+        ]}
+      ]
+    },
+    {
+      "name": "nestedInvokeByNameMalformedStore",
+      "script": [
+        {"op": "if", "condition": true, "then": [
+          {"op": "invokeByName", "name": "BrokenNestedBranchFixture_seed", "store": 7}
+        ]}
+      ]
+    },
+    {
+      "name": "nestedInvokeByNameMalformedExpectObject",
+      "script": [
+        {"op": "if", "condition": true, "then": [
+          {"op": "invokeByName", "name": "BrokenNestedBranchFixture_seed", "expect": {"unsupported": true}}
+        ]}
+      ]
+    },
+    {
+      "name": "nestedInvokeByNameBadResolverParts",
+      "script": [
+        {"op": "if", "condition": true, "then": [
+          {"op": "if", "condition": false, "then": [
+            {"op": "return", "value": "skip_then"}
+          ], "else": [
+            {"op": "invokeByName", "name": {"from": "concat", "parts": {"bad": "shape"}}, "expect": "non_nil"}
+          ]}
+        ]}
+      ]
+    },
+    {
+      "name": "nestedInvokeByNameUnknownResolverSource",
+      "script": [
+        {"op": "if", "condition": false, "then": [
+          {"op": "return", "value": "skip_else"}
+        ], "else": [
+          {"op": "if", "condition": true, "then": [
+            {"op": "invokeByName", "name": {"from": "unknown_resolver", "value": "seed"}, "expect": "non_nil"}
+          ]}
+        ]}
+      ]
+    },
+    {
+      "name": "nestedDeepConcatBadParts",
+      "script": [
+        {"op": "if", "condition": true, "then": [
+          {"op": "if", "condition": false, "then": [
+            {"op": "return", "value": "skip_then"}
+          ], "else": [
+            {"op": "append", "key": "trace", "value": {"from": "concat", "parts": {"bad": "shape"}}}
+          ]}
+        ]}
+      ]
+    },
+    {
+      "name": "nestedDeepCoalesceBadValues",
+      "script": [
+        {"op": "if", "condition": false, "then": [
+          {"op": "return", "value": "skip_else"}
+        ], "else": [
+          {"op": "if", "condition": true, "then": [
+            {"op": "set", "key": "coalesced", "value": {"from": "coalesce", "values": {"bad": "shape"}}}
+          ]}
+        ]}
+      ]
+    },
+    {
+      "name": "nestedDeepEqualsMissingRight",
+      "script": [
+        {"op": "if", "condition": true, "then": [
+          {"op": "if", "condition": {"from": "equals", "left": {"from": "arg", "index": 0}}, "then": [
+            {"op": "return", "value": "unreachable"}
+          ], "else": [
+            {"op": "return", "value": "also_unreachable"}
+          ]}
+        ]}
+      ]
+    },
+    {
+      "name": "nestedDeepArgBadIndex",
+      "script": [
+        {"op": "if", "condition": true, "then": [
+          {"op": "if", "condition": false, "then": [
+            {"op": "return", "value": "skip_then"}
+          ], "else": [
+            {"op": "set", "key": "badArg", "value": {"from": "arg", "index": "bad"}}
+          ]}
+        ]}
+      ]
+    },
+    {
+      "name": "nestedDeepParamBadName",
+      "script": [
+        {"op": "if", "condition": false, "then": [
+          {"op": "return", "value": "skip_else"}
+        ], "else": [
+          {"op": "if", "condition": true, "then": [
+            {"op": "set", "key": "badParam", "value": {"from": "param", "name": 7}}
+          ]}
+        ]}
+      ]
+    },
+    {
+      "name": "nestedDeepLocalBadName",
+      "script": [
+        {"op": "if", "condition": true, "then": [
+          {"op": "if", "condition": true, "then": [
+            {"op": "set", "key": "badLocal", "value": {"from": "local", "name": false}}
+          ], "else": [
+            {"op": "return", "value": "unused"}
+          ]}
+        ]}
+      ]
+    },
+    {
+      "name": "nestedDeepHasArgBadIndex",
+      "script": [
+        {"op": "if", "condition": true, "then": [
+          {"op": "if", "condition": false, "then": [
+            {"op": "return", "value": "skip_then"}
+          ], "else": [
+            {"op": "set", "key": "badHasArg", "value": {"from": "hasArg", "index": "bad"}}
+          ]}
+        ]}
+      ]
+    },
+    {
+      "name": "nestedDeepHasParamBadName",
+      "script": [
+        {"op": "if", "condition": false, "then": [
+          {"op": "return", "value": "skip_else"}
+        ], "else": [
+          {"op": "if", "condition": true, "then": [
+            {"op": "set", "key": "badHasParam", "value": {"from": "hasParam", "name": 7}}
+          ]}
+        ]}
+      ]
+    },
+    {
+      "name": "nestedDeepArgCountUnexpectedField",
+      "script": [
+        {"op": "if", "condition": true, "then": [
+          {"op": "if", "condition": true, "then": [
+            {"op": "set", "key": "badArgCount", "value": {"from": "argCount", "index": 0}}
+          ]}
+        ]}
+      ]
+    },
+    {
+      "name": "nestedDeepArgsUnexpectedField",
+      "script": [
+        {"op": "if", "condition": false, "then": [
+          {"op": "return", "value": "skip_else"}
+        ], "else": [
+          {"op": "if", "condition": true, "then": [
+            {"op": "set", "key": "badArgs", "value": {"from": "args", "name": "bad"}}
+          ]}
+        ]}
+      ]
+    },
+    {
+      "name": "nestedDeepParamKeysUnexpectedField",
+      "script": [
+        {"op": "if", "condition": true, "then": [
+          {"op": "if", "condition": false, "then": [
+            {"op": "return", "value": "skip_then"}
+          ], "else": [
+            {"op": "set", "key": "badParamKeys", "value": {"from": "paramKeys", "index": 0}}
+          ]}
         ]}
       ]
     },
@@ -1274,8 +1823,42 @@ TEST_CASE(
          "Host function error: Fixture script step missing op at index 0"},
         {"nestedInvokeMalformedArgs",
          "Host function error: Fixture script invoke op requires array args at index 0"},
+        {"nestedInvokeMalformedStore",
+         "Host function error: Fixture script invoke op requires string store at index 0"},
+        {"nestedInvokeMalformedExpectObject",
+         "Host function error: Fixture script invoke op requires supported expect object at index 0"},
         {"nestedInvokeByNameMissingName",
          "Host function error: Fixture script invokeByName op requires name at index 0"},
+        {"nestedInvokeByNameMalformedStore",
+         "Host function error: Fixture script invokeByName op requires string store at index 0"},
+        {"nestedInvokeByNameMalformedExpectObject",
+         "Host function error: Fixture script invokeByName op requires supported expect object at index 0"},
+        {"nestedInvokeByNameBadResolverParts",
+            "Host function error: Fixture script resolver concat requires array parts"},
+        {"nestedInvokeByNameUnknownResolverSource",
+            "Host function error: Fixture script resolver unknown source 'unknown_resolver'"},
+           {"nestedDeepConcatBadParts",
+            "Host function error: Fixture script resolver concat requires array parts"},
+           {"nestedDeepCoalesceBadValues",
+            "Host function error: Fixture script resolver coalesce requires array values"},
+           {"nestedDeepEqualsMissingRight",
+            "Host function error: Fixture script resolver equals requires left and right"},
+          {"nestedDeepArgBadIndex",
+           "Host function error: Fixture script resolver arg requires integer index"},
+          {"nestedDeepParamBadName",
+           "Host function error: Fixture script resolver param requires string name"},
+          {"nestedDeepLocalBadName",
+           "Host function error: Fixture script resolver local requires string name"},
+          {"nestedDeepHasArgBadIndex",
+           "Host function error: Fixture script resolver hasArg requires integer index"},
+          {"nestedDeepHasParamBadName",
+           "Host function error: Fixture script resolver hasParam requires string name"},
+           {"nestedDeepArgCountUnexpectedField",
+            "Host function error: Fixture script resolver argCount does not accept field 'index'"},
+           {"nestedDeepArgsUnexpectedField",
+            "Host function error: Fixture script resolver args does not accept field 'name'"},
+           {"nestedDeepParamKeysUnexpectedField",
+            "Host function error: Fixture script resolver paramKeys does not accept field 'index'"},
         {"nestedSetMissingKey",
          "Host function error: Fixture script set op requires key at index 0"},
     };
@@ -1371,6 +1954,74 @@ TEST_CASE(
             ("Missing dependencies for " + probePlugin + "_probe: " + spec.pluginName)
         );
     }
+
+    REQUIRE(pm.loadPlugin(fixturePath("VisuStella_CoreEngine_MZ").string()));
+    REQUIRE(pm.loadPlugin(fixturePath("CGMZ_MenuCommandWindow").string()));
+    REQUIRE(pm.loadPlugin(fixturePath("EliMZ_Book").string()));
+
+    const auto weeklyLifecycleFixture =
+        uniqueTempFixturePath("urpg_mixed_chain_weekly_lifecycle_fixture");
+    writeTextFile(
+        weeklyLifecycleFixture,
+        R"({
+  "name": "MixedChainWeeklyLifecycleFixture",
+  "parameters": {
+    "defaultRoute": "book"
+  },
+  "commands": [
+    {
+      "name": "open",
+      "script": [
+        {"op": "set", "key": "route", "value": {"from": "coalesce", "values": [{"from": "arg", "index": 0}, {"from": "param", "name": "defaultRoute"}]}} ,
+        {"op": "invoke", "plugin": "VisuStella_CoreEngine_MZ", "command": "boot", "args": [{"from": "arg", "index": 1, "default": "weekly_lifecycle_boot"}], "store": "boot", "expect": "non_nil"},
+        {"op": "if", "condition": {"from": "equals", "left": {"from": "local", "name": "route"}, "right": "book"},
+          "then": [
+            {"op": "invokeByName", "name": "EliMZ_Book_openBook", "args": [{"from": "arg", "index": 2, "default": 12}], "store": "routeResult"},
+            {"op": "invoke", "plugin": "CGMZ_MenuCommandWindow", "command": "refresh", "store": "dashboard", "expect": "non_nil"}
+          ],
+          "else": [
+            {"op": "invoke", "plugin": "CGMZ_MenuCommandWindow", "command": "refresh", "store": "dashboard", "expect": "non_nil"}
+          ]
+        },
+        {"op": "returnObject"}
+      ]
+    }
+  ]
+})"
+    );
+    REQUIRE(pm.loadPlugin(weeklyLifecycleFixture.string()));
+
+    urpg::Value weeklyBookRoute;
+    weeklyBookRoute.v = std::string("book");
+    urpg::Value weeklyBootArg;
+    weeklyBootArg.v = std::string("weekly_lifecycle_before_unload");
+
+    const urpg::Value weeklyLifecycleBeforeUnload = pm.executeCommand(
+        "MixedChainWeeklyLifecycleFixture",
+        "open",
+        {weeklyBookRoute, weeklyBootArg, urpg::Value::Int(24)}
+    );
+    REQUIRE(std::holds_alternative<urpg::Object>(weeklyLifecycleBeforeUnload.v));
+    REQUIRE(pm.exportFailureDiagnosticsJsonl().find("MixedChainWeeklyLifecycleFixture") ==
+            std::string::npos);
+
+    REQUIRE(pm.unloadPlugin("EliMZ_Book"));
+
+    const urpg::Value weeklyLifecycleAfterUnload = pm.executeCommand(
+        "MixedChainWeeklyLifecycleFixture",
+        "open",
+        {weeklyBookRoute, weeklyBootArg, urpg::Value::Int(24)}
+    );
+    REQUIRE(std::holds_alternative<urpg::Object>(weeklyLifecycleAfterUnload.v));
+    const auto& weeklyLifecycleObject = std::get<urpg::Object>(weeklyLifecycleAfterUnload.v);
+    REQUIRE(std::get<std::string>(weeklyLifecycleObject.at("route").v) == "book");
+    REQUIRE(std::holds_alternative<std::monostate>(weeklyLifecycleObject.at("routeResult").v));
+    REQUIRE(std::holds_alternative<urpg::Object>(weeklyLifecycleObject.at("dashboard").v));
+    REQUIRE(
+        std::get<std::string>(
+            std::get<urpg::Object>(weeklyLifecycleObject.at("dashboard").v).at("profile").v
+        ) == "command_window"
+    );
 
     const auto malformedFixture = uniqueTempFixturePath("urpg_mixed_chain_malformed_fixture");
     writeTextFile(malformedFixture, "{\"name\":");
@@ -1801,6 +2452,324 @@ TEST_CASE(
       ]
     },
     {
+      "name": "runtimeNestedInvokeMalformedStore",
+      "script": [
+        {
+          "op": "if",
+          "condition": true,
+          "then": [
+            {"op": "invoke", "command": "runtimeSeed", "store": 7}
+          ]
+        }
+      ]
+    },
+    {
+      "name": "runtimeNestedInvokeMalformedExpectObject",
+      "script": [
+        {
+          "op": "if",
+          "condition": true,
+          "then": [
+            {"op": "invoke", "command": "runtimeSeed", "expect": {"unsupported": true}}
+          ]
+        }
+      ]
+    },
+    {
+      "name": "runtimeNestedInvokeByNameMalformedStore",
+      "script": [
+        {
+          "op": "if",
+          "condition": true,
+          "then": [
+            {"op": "invokeByName", "name": "MixedChainRuntimeFixture_runtimeSeed", "store": 7}
+          ]
+        }
+      ]
+    },
+    {
+      "name": "runtimeNestedInvokeByNameMalformedExpectObject",
+      "script": [
+        {
+          "op": "if",
+          "condition": true,
+          "then": [
+            {"op": "invokeByName", "name": "MixedChainRuntimeFixture_runtimeSeed", "expect": {"unsupported": true}}
+          ]
+        }
+      ]
+    },
+    {
+      "name": "runtimeDeepMixedInvokeByNameBadResolverParts",
+      "script": [
+        {
+          "op": "if",
+          "condition": true,
+          "then": [
+            {
+              "op": "if",
+              "condition": false,
+              "then": [
+                {"op": "return", "value": "skip_then"}
+              ],
+              "else": [
+                {"op": "invokeByName", "name": {"from": "concat", "parts": {"bad": "shape"}}, "expect": "non_nil"}
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "runtimeDeepMixedInvokeByNameUnknownResolverSource",
+      "script": [
+        {
+          "op": "if",
+          "condition": false,
+          "then": [
+            {"op": "return", "value": "skip_else"}
+          ],
+          "else": [
+            {
+              "op": "if",
+              "condition": true,
+              "then": [
+                {"op": "invokeByName", "name": {"from": "unknown_resolver", "value": "runtimeSeed"}, "expect": "non_nil"}
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "runtimeDeepMixedConcatBadParts",
+      "script": [
+        {
+          "op": "if",
+          "condition": true,
+          "then": [
+            {
+              "op": "if",
+              "condition": false,
+              "then": [
+                {"op": "return", "value": "skip_then"}
+              ],
+              "else": [
+                {"op": "append", "key": "trace", "value": {"from": "concat", "parts": {"bad": "shape"}}}
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "runtimeDeepMixedCoalesceBadValues",
+      "script": [
+        {
+          "op": "if",
+          "condition": false,
+          "then": [
+            {"op": "return", "value": "skip_else"}
+          ],
+          "else": [
+            {
+              "op": "if",
+              "condition": true,
+              "then": [
+                {"op": "set", "key": "coalesced", "value": {"from": "coalesce", "values": {"bad": "shape"}}}
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "runtimeDeepMixedEqualsMissingRight",
+      "script": [
+        {
+          "op": "if",
+          "condition": true,
+          "then": [
+            {
+              "op": "if",
+              "condition": {"from": "equals", "left": {"from": "arg", "index": 0}},
+              "then": [
+                {"op": "return", "value": "unreachable"}
+              ],
+              "else": [
+                {"op": "return", "value": "still_unreachable"}
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "runtimeDeepMixedArgBadIndex",
+      "script": [
+        {
+          "op": "if",
+          "condition": true,
+          "then": [
+            {
+              "op": "if",
+              "condition": false,
+              "then": [
+                {"op": "return", "value": "skip_then"}
+              ],
+              "else": [
+                {"op": "set", "key": "badArg", "value": {"from": "arg", "index": "bad"}}
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "runtimeDeepMixedParamBadName",
+      "script": [
+        {
+          "op": "if",
+          "condition": false,
+          "then": [
+            {"op": "return", "value": "skip_else"}
+          ],
+          "else": [
+            {
+              "op": "if",
+              "condition": true,
+              "then": [
+                {"op": "set", "key": "badParam", "value": {"from": "param", "name": 7}}
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "runtimeDeepMixedLocalBadName",
+      "script": [
+        {
+          "op": "if",
+          "condition": true,
+          "then": [
+            {
+              "op": "if",
+              "condition": true,
+              "then": [
+                {"op": "set", "key": "badLocal", "value": {"from": "local", "name": false}}
+              ],
+              "else": [
+                {"op": "return", "value": "unused"}
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "runtimeDeepMixedHasArgBadIndex",
+      "script": [
+        {
+          "op": "if",
+          "condition": true,
+          "then": [
+            {
+              "op": "if",
+              "condition": false,
+              "then": [
+                {"op": "return", "value": "skip_then"}
+              ],
+              "else": [
+                {"op": "set", "key": "badHasArg", "value": {"from": "hasArg", "index": "bad"}}
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "runtimeDeepMixedHasParamBadName",
+      "script": [
+        {
+          "op": "if",
+          "condition": false,
+          "then": [
+            {"op": "return", "value": "skip_else"}
+          ],
+          "else": [
+            {
+              "op": "if",
+              "condition": true,
+              "then": [
+                {"op": "set", "key": "badHasParam", "value": {"from": "hasParam", "name": 7}}
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "runtimeDeepMixedArgCountUnexpectedField",
+      "script": [
+        {
+          "op": "if",
+          "condition": true,
+          "then": [
+            {
+              "op": "if",
+              "condition": true,
+              "then": [
+                {"op": "set", "key": "badArgCount", "value": {"from": "argCount", "index": 0}}
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "runtimeDeepMixedArgsUnexpectedField",
+      "script": [
+        {
+          "op": "if",
+          "condition": false,
+          "then": [
+            {"op": "return", "value": "skip_else"}
+          ],
+          "else": [
+            {
+              "op": "if",
+              "condition": true,
+              "then": [
+                {"op": "set", "key": "badArgs", "value": {"from": "args", "name": "bad"}}
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "runtimeDeepMixedParamKeysUnexpectedField",
+      "script": [
+        {
+          "op": "if",
+          "condition": true,
+          "then": [
+            {
+              "op": "if",
+              "condition": false,
+              "then": [
+                {"op": "return", "value": "skip_then"}
+              ],
+              "else": [
+                {"op": "set", "key": "badParamKeys", "value": {"from": "paramKeys", "index": 0}}
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
       "name": "runtimeScriptUnknown",
       "script": [
         {"op": "set", "key": "stage", "value": "pre"},
@@ -1952,6 +2921,206 @@ TEST_CASE(
         "'unknown_expect' at index 0"
     );
 
+    const urpg::Value runtimeNestedInvokeMalformedStore =
+      pm.executeCommand("MixedChainRuntimeFixture", "runtimeNestedInvokeMalformedStore", {});
+    REQUIRE(std::holds_alternative<std::monostate>(runtimeNestedInvokeMalformedStore.v));
+    REQUIRE(
+      pm.getLastError() ==
+      "Host function error: Fixture script invoke op requires string store at index 0"
+    );
+
+    const urpg::Value runtimeNestedInvokeMalformedExpectObject =
+      pm.executeCommand(
+        "MixedChainRuntimeFixture",
+        "runtimeNestedInvokeMalformedExpectObject",
+        {}
+      );
+    REQUIRE(std::holds_alternative<std::monostate>(runtimeNestedInvokeMalformedExpectObject.v));
+    REQUIRE(
+      pm.getLastError() ==
+      "Host function error: Fixture script invoke op requires supported expect object at index 0"
+    );
+
+    const urpg::Value runtimeNestedInvokeByNameMalformedStore =
+      pm.executeCommand(
+        "MixedChainRuntimeFixture",
+        "runtimeNestedInvokeByNameMalformedStore",
+        {}
+      );
+    REQUIRE(std::holds_alternative<std::monostate>(runtimeNestedInvokeByNameMalformedStore.v));
+    REQUIRE(
+      pm.getLastError() ==
+      "Host function error: Fixture script invokeByName op requires string store at index 0"
+    );
+
+    const urpg::Value runtimeNestedInvokeByNameMalformedExpectObject =
+      pm.executeCommand(
+        "MixedChainRuntimeFixture",
+        "runtimeNestedInvokeByNameMalformedExpectObject",
+        {}
+      );
+    REQUIRE(std::holds_alternative<std::monostate>(runtimeNestedInvokeByNameMalformedExpectObject.v));
+    REQUIRE(
+      pm.getLastError() ==
+      "Host function error: Fixture script invokeByName op requires supported expect object at index 0"
+    );
+
+    const urpg::Value runtimeDeepMixedInvokeByNameBadResolverParts =
+      pm.executeCommand(
+        "MixedChainRuntimeFixture",
+        "runtimeDeepMixedInvokeByNameBadResolverParts",
+        {}
+      );
+    REQUIRE(std::holds_alternative<std::monostate>(runtimeDeepMixedInvokeByNameBadResolverParts.v));
+    REQUIRE(
+      pm.getLastError() ==
+      "Host function error: Fixture script resolver concat requires array parts"
+    );
+
+    const urpg::Value runtimeDeepMixedInvokeByNameUnknownResolverSource =
+      pm.executeCommand(
+        "MixedChainRuntimeFixture",
+        "runtimeDeepMixedInvokeByNameUnknownResolverSource",
+        {}
+      );
+    REQUIRE(std::holds_alternative<std::monostate>(runtimeDeepMixedInvokeByNameUnknownResolverSource.v));
+    REQUIRE(
+      pm.getLastError() ==
+      "Host function error: Fixture script resolver unknown source 'unknown_resolver'"
+    );
+
+    const urpg::Value runtimeDeepMixedConcatBadParts =
+      pm.executeCommand(
+        "MixedChainRuntimeFixture",
+        "runtimeDeepMixedConcatBadParts",
+        {}
+      );
+    REQUIRE(std::holds_alternative<std::monostate>(runtimeDeepMixedConcatBadParts.v));
+    REQUIRE(
+      pm.getLastError() ==
+      "Host function error: Fixture script resolver concat requires array parts"
+    );
+
+    const urpg::Value runtimeDeepMixedCoalesceBadValues =
+      pm.executeCommand(
+        "MixedChainRuntimeFixture",
+        "runtimeDeepMixedCoalesceBadValues",
+        {}
+      );
+    REQUIRE(std::holds_alternative<std::monostate>(runtimeDeepMixedCoalesceBadValues.v));
+    REQUIRE(
+      pm.getLastError() ==
+      "Host function error: Fixture script resolver coalesce requires array values"
+    );
+
+    const urpg::Value runtimeDeepMixedEqualsMissingRight =
+      pm.executeCommand(
+        "MixedChainRuntimeFixture",
+        "runtimeDeepMixedEqualsMissingRight",
+        {}
+      );
+    REQUIRE(std::holds_alternative<std::monostate>(runtimeDeepMixedEqualsMissingRight.v));
+    REQUIRE(
+      pm.getLastError() ==
+      "Host function error: Fixture script resolver equals requires left and right"
+    );
+
+    const urpg::Value runtimeDeepMixedArgBadIndex =
+      pm.executeCommand(
+        "MixedChainRuntimeFixture",
+        "runtimeDeepMixedArgBadIndex",
+        {}
+      );
+    REQUIRE(std::holds_alternative<std::monostate>(runtimeDeepMixedArgBadIndex.v));
+    REQUIRE(
+      pm.getLastError() ==
+      "Host function error: Fixture script resolver arg requires integer index"
+    );
+
+    const urpg::Value runtimeDeepMixedParamBadName =
+      pm.executeCommand(
+        "MixedChainRuntimeFixture",
+        "runtimeDeepMixedParamBadName",
+        {}
+      );
+    REQUIRE(std::holds_alternative<std::monostate>(runtimeDeepMixedParamBadName.v));
+    REQUIRE(
+      pm.getLastError() ==
+      "Host function error: Fixture script resolver param requires string name"
+    );
+
+    const urpg::Value runtimeDeepMixedLocalBadName =
+      pm.executeCommand(
+        "MixedChainRuntimeFixture",
+        "runtimeDeepMixedLocalBadName",
+        {}
+      );
+    REQUIRE(std::holds_alternative<std::monostate>(runtimeDeepMixedLocalBadName.v));
+    REQUIRE(
+      pm.getLastError() ==
+      "Host function error: Fixture script resolver local requires string name"
+    );
+
+    const urpg::Value runtimeDeepMixedHasArgBadIndex =
+      pm.executeCommand(
+        "MixedChainRuntimeFixture",
+        "runtimeDeepMixedHasArgBadIndex",
+        {}
+      );
+    REQUIRE(std::holds_alternative<std::monostate>(runtimeDeepMixedHasArgBadIndex.v));
+    REQUIRE(
+      pm.getLastError() ==
+      "Host function error: Fixture script resolver hasArg requires integer index"
+    );
+
+    const urpg::Value runtimeDeepMixedHasParamBadName =
+      pm.executeCommand(
+        "MixedChainRuntimeFixture",
+        "runtimeDeepMixedHasParamBadName",
+        {}
+      );
+    REQUIRE(std::holds_alternative<std::monostate>(runtimeDeepMixedHasParamBadName.v));
+    REQUIRE(
+      pm.getLastError() ==
+      "Host function error: Fixture script resolver hasParam requires string name"
+    );
+
+    const urpg::Value runtimeDeepMixedArgCountUnexpectedField =
+      pm.executeCommand(
+        "MixedChainRuntimeFixture",
+        "runtimeDeepMixedArgCountUnexpectedField",
+        {}
+      );
+    REQUIRE(std::holds_alternative<std::monostate>(runtimeDeepMixedArgCountUnexpectedField.v));
+    REQUIRE(
+      pm.getLastError() ==
+      "Host function error: Fixture script resolver argCount does not accept field 'index'"
+    );
+
+    const urpg::Value runtimeDeepMixedArgsUnexpectedField =
+      pm.executeCommand(
+        "MixedChainRuntimeFixture",
+        "runtimeDeepMixedArgsUnexpectedField",
+        {}
+      );
+    REQUIRE(std::holds_alternative<std::monostate>(runtimeDeepMixedArgsUnexpectedField.v));
+    REQUIRE(
+      pm.getLastError() ==
+      "Host function error: Fixture script resolver args does not accept field 'name'"
+    );
+
+    const urpg::Value runtimeDeepMixedParamKeysUnexpectedField =
+      pm.executeCommand(
+        "MixedChainRuntimeFixture",
+        "runtimeDeepMixedParamKeysUnexpectedField",
+        {}
+      );
+    REQUIRE(std::holds_alternative<std::monostate>(runtimeDeepMixedParamKeysUnexpectedField.v));
+    REQUIRE(
+      pm.getLastError() ==
+      "Host function error: Fixture script resolver paramKeys does not accept field 'index'"
+    );
+
     const urpg::Value runtimeScriptUnknown =
         pm.executeCommand("MixedChainRuntimeFixture", "runtimeScriptUnknown", {});
     REQUIRE(std::holds_alternative<std::monostate>(runtimeScriptUnknown.v));
@@ -2065,7 +3234,7 @@ TEST_CASE(
     REQUIRE(countOperation("load_plugin_js_eval") >= 1);
     REQUIRE(countOperation("parse_parameters_name") >= 1);
     REQUIRE(countOperation("parse_parameters_json") >= 1);
-    REQUIRE(countOperation("execute_command") >= 1);
+    REQUIRE(countOperation("execute_command") >= 2);
     REQUIRE(countOperation("execute_command_quickjs_call") >= 12);
     REQUIRE(countOperation("execute_command_quickjs_context_missing") >= 1);
     REQUIRE(countOperation("execute_command_by_name_parse") >= 4);
@@ -2166,6 +3335,20 @@ TEST_CASE(
     );
     REQUIRE(invokeMissingCommandRow != diagnostics.end());
 
+    const auto weeklyLifecycleMissingRow = std::find_if(
+      diagnostics.begin(),
+      diagnostics.end(),
+      [](const nlohmann::json& row) {
+        return row.value("operation", "") == "execute_command" &&
+             row.value("plugin", "") == "EliMZ_Book" &&
+             row.value("command", "") == "openBook" &&
+             row.value("severity", "") == "WARN" &&
+             row.value("message", "") ==
+               "Command not found: EliMZ_Book_openBook";
+      }
+    );
+    REQUIRE(weeklyLifecycleMissingRow != diagnostics.end());
+
     const auto invokeByNameParseRow = std::find_if(
         diagnostics.begin(),
         diagnostics.end(),
@@ -2230,6 +3413,232 @@ TEST_CASE(
         }
     );
     REQUIRE(invokeMalformedExpectRow != diagnostics.end());
+
+      const auto nestedInvokeMalformedStoreRow = std::find_if(
+        diagnostics.begin(),
+        diagnostics.end(),
+        [](const nlohmann::json& row) {
+          return row.value("operation", "") == "execute_command_quickjs_call" &&
+               row.value("plugin", "") == "MixedChainRuntimeFixture" &&
+               row.value("command", "") == "runtimeNestedInvokeMalformedStore" &&
+               row.value("message", "") ==
+                 "Host function error: Fixture script invoke op requires string store at index 0";
+        }
+      );
+      REQUIRE(nestedInvokeMalformedStoreRow != diagnostics.end());
+
+      const auto nestedInvokeMalformedExpectObjectRow = std::find_if(
+        diagnostics.begin(),
+        diagnostics.end(),
+        [](const nlohmann::json& row) {
+          return row.value("operation", "") == "execute_command_quickjs_call" &&
+               row.value("plugin", "") == "MixedChainRuntimeFixture" &&
+               row.value("command", "") == "runtimeNestedInvokeMalformedExpectObject" &&
+               row.value("message", "") ==
+                 "Host function error: Fixture script invoke op requires supported expect object at index 0";
+        }
+      );
+      REQUIRE(nestedInvokeMalformedExpectObjectRow != diagnostics.end());
+
+      const auto nestedInvokeByNameMalformedStoreRow = std::find_if(
+        diagnostics.begin(),
+        diagnostics.end(),
+        [](const nlohmann::json& row) {
+          return row.value("operation", "") == "execute_command_quickjs_call" &&
+               row.value("plugin", "") == "MixedChainRuntimeFixture" &&
+               row.value("command", "") == "runtimeNestedInvokeByNameMalformedStore" &&
+               row.value("message", "") ==
+                 "Host function error: Fixture script invokeByName op requires string store at index 0";
+        }
+      );
+      REQUIRE(nestedInvokeByNameMalformedStoreRow != diagnostics.end());
+
+      const auto nestedInvokeByNameMalformedExpectObjectRow = std::find_if(
+        diagnostics.begin(),
+        diagnostics.end(),
+        [](const nlohmann::json& row) {
+          return row.value("operation", "") == "execute_command_quickjs_call" &&
+               row.value("plugin", "") == "MixedChainRuntimeFixture" &&
+               row.value("command", "") == "runtimeNestedInvokeByNameMalformedExpectObject" &&
+               row.value("message", "") ==
+                 "Host function error: Fixture script invokeByName op requires supported expect object at index 0";
+        }
+      );
+      REQUIRE(nestedInvokeByNameMalformedExpectObjectRow != diagnostics.end());
+
+      const auto deepMixedInvokeByNameBadResolverPartsRow = std::find_if(
+        diagnostics.begin(),
+        diagnostics.end(),
+        [](const nlohmann::json& row) {
+          return row.value("operation", "") == "execute_command_quickjs_call" &&
+               row.value("plugin", "") == "MixedChainRuntimeFixture" &&
+               row.value("command", "") == "runtimeDeepMixedInvokeByNameBadResolverParts" &&
+               row.value("message", "") ==
+                 "Host function error: Fixture script resolver concat requires array parts";
+        }
+      );
+      REQUIRE(deepMixedInvokeByNameBadResolverPartsRow != diagnostics.end());
+
+      const auto deepMixedInvokeByNameUnknownResolverSourceRow = std::find_if(
+        diagnostics.begin(),
+        diagnostics.end(),
+        [](const nlohmann::json& row) {
+          return row.value("operation", "") == "execute_command_quickjs_call" &&
+               row.value("plugin", "") == "MixedChainRuntimeFixture" &&
+               row.value("command", "") == "runtimeDeepMixedInvokeByNameUnknownResolverSource" &&
+               row.value("message", "") ==
+                 "Host function error: Fixture script resolver unknown source 'unknown_resolver'";
+        }
+      );
+      REQUIRE(deepMixedInvokeByNameUnknownResolverSourceRow != diagnostics.end());
+
+      const auto deepMixedConcatBadPartsRow = std::find_if(
+        diagnostics.begin(),
+        diagnostics.end(),
+        [](const nlohmann::json& row) {
+          return row.value("operation", "") == "execute_command_quickjs_call" &&
+               row.value("plugin", "") == "MixedChainRuntimeFixture" &&
+               row.value("command", "") == "runtimeDeepMixedConcatBadParts" &&
+               row.value("message", "") ==
+                 "Host function error: Fixture script resolver concat requires array parts";
+        }
+      );
+      REQUIRE(deepMixedConcatBadPartsRow != diagnostics.end());
+
+      const auto deepMixedCoalesceBadValuesRow = std::find_if(
+        diagnostics.begin(),
+        diagnostics.end(),
+        [](const nlohmann::json& row) {
+          return row.value("operation", "") == "execute_command_quickjs_call" &&
+               row.value("plugin", "") == "MixedChainRuntimeFixture" &&
+               row.value("command", "") == "runtimeDeepMixedCoalesceBadValues" &&
+               row.value("message", "") ==
+                 "Host function error: Fixture script resolver coalesce requires array values";
+        }
+      );
+      REQUIRE(deepMixedCoalesceBadValuesRow != diagnostics.end());
+
+      const auto deepMixedEqualsMissingRightRow = std::find_if(
+        diagnostics.begin(),
+        diagnostics.end(),
+        [](const nlohmann::json& row) {
+          return row.value("operation", "") == "execute_command_quickjs_call" &&
+               row.value("plugin", "") == "MixedChainRuntimeFixture" &&
+               row.value("command", "") == "runtimeDeepMixedEqualsMissingRight" &&
+               row.value("message", "") ==
+                 "Host function error: Fixture script resolver equals requires left and right";
+        }
+      );
+      REQUIRE(deepMixedEqualsMissingRightRow != diagnostics.end());
+
+      const auto deepMixedArgBadIndexRow = std::find_if(
+        diagnostics.begin(),
+        diagnostics.end(),
+        [](const nlohmann::json& row) {
+          return row.value("operation", "") == "execute_command_quickjs_call" &&
+               row.value("plugin", "") == "MixedChainRuntimeFixture" &&
+               row.value("command", "") == "runtimeDeepMixedArgBadIndex" &&
+               row.value("message", "") ==
+                 "Host function error: Fixture script resolver arg requires integer index";
+        }
+      );
+      REQUIRE(deepMixedArgBadIndexRow != diagnostics.end());
+
+      const auto deepMixedParamBadNameRow = std::find_if(
+        diagnostics.begin(),
+        diagnostics.end(),
+        [](const nlohmann::json& row) {
+          return row.value("operation", "") == "execute_command_quickjs_call" &&
+               row.value("plugin", "") == "MixedChainRuntimeFixture" &&
+               row.value("command", "") == "runtimeDeepMixedParamBadName" &&
+               row.value("message", "") ==
+                 "Host function error: Fixture script resolver param requires string name";
+        }
+      );
+      REQUIRE(deepMixedParamBadNameRow != diagnostics.end());
+
+      const auto deepMixedLocalBadNameRow = std::find_if(
+        diagnostics.begin(),
+        diagnostics.end(),
+        [](const nlohmann::json& row) {
+          return row.value("operation", "") == "execute_command_quickjs_call" &&
+               row.value("plugin", "") == "MixedChainRuntimeFixture" &&
+               row.value("command", "") == "runtimeDeepMixedLocalBadName" &&
+               row.value("message", "") ==
+                 "Host function error: Fixture script resolver local requires string name";
+        }
+      );
+      REQUIRE(deepMixedLocalBadNameRow != diagnostics.end());
+
+      const auto deepMixedHasArgBadIndexRow = std::find_if(
+        diagnostics.begin(),
+        diagnostics.end(),
+        [](const nlohmann::json& row) {
+          return row.value("operation", "") == "execute_command_quickjs_call" &&
+               row.value("plugin", "") == "MixedChainRuntimeFixture" &&
+               row.value("command", "") == "runtimeDeepMixedHasArgBadIndex" &&
+               row.value("message", "") ==
+                 "Host function error: Fixture script resolver hasArg requires integer index" &&
+               row.value("severity", "") == "HARD_FAIL";
+        }
+      );
+      REQUIRE(deepMixedHasArgBadIndexRow != diagnostics.end());
+
+      const auto deepMixedHasParamBadNameRow = std::find_if(
+        diagnostics.begin(),
+        diagnostics.end(),
+        [](const nlohmann::json& row) {
+          return row.value("operation", "") == "execute_command_quickjs_call" &&
+               row.value("plugin", "") == "MixedChainRuntimeFixture" &&
+               row.value("command", "") == "runtimeDeepMixedHasParamBadName" &&
+               row.value("message", "") ==
+                 "Host function error: Fixture script resolver hasParam requires string name" &&
+               row.value("severity", "") == "HARD_FAIL";
+        }
+      );
+      REQUIRE(deepMixedHasParamBadNameRow != diagnostics.end());
+
+      const auto deepMixedArgCountUnexpectedFieldRow = std::find_if(
+        diagnostics.begin(),
+        diagnostics.end(),
+        [](const nlohmann::json& row) {
+          return row.value("operation", "") == "execute_command_quickjs_call" &&
+               row.value("plugin", "") == "MixedChainRuntimeFixture" &&
+               row.value("command", "") == "runtimeDeepMixedArgCountUnexpectedField" &&
+               row.value("message", "") ==
+                 "Host function error: Fixture script resolver argCount does not accept field 'index'" &&
+               row.value("severity", "") == "HARD_FAIL";
+        }
+      );
+      REQUIRE(deepMixedArgCountUnexpectedFieldRow != diagnostics.end());
+
+      const auto deepMixedArgsUnexpectedFieldRow = std::find_if(
+        diagnostics.begin(),
+        diagnostics.end(),
+        [](const nlohmann::json& row) {
+          return row.value("operation", "") == "execute_command_quickjs_call" &&
+               row.value("plugin", "") == "MixedChainRuntimeFixture" &&
+               row.value("command", "") == "runtimeDeepMixedArgsUnexpectedField" &&
+               row.value("message", "") ==
+                 "Host function error: Fixture script resolver args does not accept field 'name'" &&
+               row.value("severity", "") == "HARD_FAIL";
+        }
+      );
+      REQUIRE(deepMixedArgsUnexpectedFieldRow != diagnostics.end());
+
+      const auto deepMixedParamKeysUnexpectedFieldRow = std::find_if(
+        diagnostics.begin(),
+        diagnostics.end(),
+        [](const nlohmann::json& row) {
+          return row.value("operation", "") == "execute_command_quickjs_call" &&
+               row.value("plugin", "") == "MixedChainRuntimeFixture" &&
+               row.value("command", "") == "runtimeDeepMixedParamKeysUnexpectedField" &&
+               row.value("message", "") ==
+                 "Host function error: Fixture script resolver paramKeys does not accept field 'index'" &&
+               row.value("severity", "") == "HARD_FAIL";
+        }
+      );
+      REQUIRE(deepMixedParamKeysUnexpectedFieldRow != diagnostics.end());
 
     const auto commandShapeRow = std::find_if(
         diagnostics.begin(),
@@ -2479,7 +3888,7 @@ TEST_CASE(
     }
 
     const auto mixedRuntimeEvents = reportModel.getPluginEvents("MixedChainRuntimeFixture");
-    REQUIRE(mixedRuntimeEvents.size() == 14);
+    REQUIRE(mixedRuntimeEvents.size() == 31);
     size_t quickjsCallEvents = 0;
     size_t quickjsContextMissingEvents = 0;
     size_t executeCommandWarnEvents = 0;
@@ -2499,7 +3908,7 @@ TEST_CASE(
         }
         FAIL("Unexpected runtime mixed-chain event method: " + event.methodName);
     }
-    REQUIRE(quickjsCallEvents == 12);
+    REQUIRE(quickjsCallEvents == 29);
     REQUIRE(quickjsContextMissingEvents == 1);
     REQUIRE(executeCommandWarnEvents == 1);
 
@@ -2508,7 +3917,7 @@ TEST_CASE(
     REQUIRE(mixedRuntimeSummary.unsupportedCount == 2);
     REQUIRE(mixedRuntimeSummary.warningCount == 1);
     REQUIRE(mixedRuntimeSummary.errorCount == 2);
-    REQUIRE(mixedRuntimeSummary.totalCalls == 14);
+    REQUIRE(mixedRuntimeSummary.totalCalls == 31);
 
     const auto mixedPayloadSummary = reportModel.getPluginSummary("MixedChainPayloadFixture");
     REQUIRE(mixedPayloadSummary.unsupportedCount == 1);
@@ -2626,6 +4035,12 @@ TEST_CASE(
     REQUIRE(mixedEvalSummary.errorCount == 1);
     REQUIRE(mixedEvalSummary.totalCalls == 1);
 
+    const auto weeklyLifecycleBookSummary = reportModel.getPluginSummary("EliMZ_Book");
+    REQUIRE(weeklyLifecycleBookSummary.partialCount == 1);
+    REQUIRE(weeklyLifecycleBookSummary.warningCount == 1);
+    REQUIRE(weeklyLifecycleBookSummary.errorCount == 0);
+    REQUIRE(weeklyLifecycleBookSummary.totalCalls == 1);
+
     const auto malformedFixtureSummary =
         reportModel.getPluginSummary(malformedFixture.stem().string());
     REQUIRE(malformedFixtureSummary.unsupportedCount == 1);
@@ -2635,19 +4050,142 @@ TEST_CASE(
     const std::string exportedReport = reportModel.exportAsJson();
     REQUIRE(exportedReport.find("execute_command_dependency_missing") != std::string::npos);
     REQUIRE(exportedReport.find("MixedChainRuntimeFixture") != std::string::npos);
+    REQUIRE(exportedReport.find("Fixture script resolver arg requires integer index") != std::string::npos);
+    REQUIRE(exportedReport.find("Fixture script resolver hasArg requires integer index") != std::string::npos);
+    REQUIRE(exportedReport.find("Fixture script resolver param requires string name") != std::string::npos);
+    REQUIRE(exportedReport.find("Fixture script resolver hasParam requires string name") != std::string::npos);
+    REQUIRE(exportedReport.find("Fixture script resolver local requires string name") != std::string::npos);
+    REQUIRE(exportedReport.find("Fixture script resolver argCount does not accept field 'index'") != std::string::npos);
+    REQUIRE(exportedReport.find("Fixture script resolver args does not accept field 'name'") != std::string::npos);
+    REQUIRE(exportedReport.find("Fixture script resolver paramKeys does not accept field 'index'") != std::string::npos);
+    REQUIRE(exportedReport.find("Fixture script resolver concat requires array parts") != std::string::npos);
+    REQUIRE(exportedReport.find("Fixture script resolver coalesce requires array values") != std::string::npos);
+    REQUIRE(exportedReport.find("Fixture script resolver equals requires left and right") != std::string::npos);
+    REQUIRE(exportedReport.find("Command not found: EliMZ_Book_openBook") != std::string::npos);
 
     urpg::editor::CompatReportPanel panel;
     panel.refresh();
     REQUIRE(pm.exportFailureDiagnosticsJsonl().empty());
 
     const auto panelRuntimeEvents = panel.getModel().getPluginEvents("MixedChainRuntimeFixture");
-    REQUIRE(panelRuntimeEvents.size() == 14);
+    REQUIRE(panelRuntimeEvents.size() == 31);
+    const auto hasArgResolverMessage = std::any_of(
+      panelRuntimeEvents.begin(),
+      panelRuntimeEvents.end(),
+      [](const urpg::editor::CompatEvent& event) {
+        return event.message == "Host function error: Fixture script resolver arg requires integer index" &&
+             event.severity == urpg::editor::CompatEvent::Severity::ERROR;
+      }
+    );
+    REQUIRE(hasArgResolverMessage);
+    const auto hasHasArgResolverMessage = std::any_of(
+      panelRuntimeEvents.begin(),
+      panelRuntimeEvents.end(),
+      [](const urpg::editor::CompatEvent& event) {
+        return event.message == "Host function error: Fixture script resolver hasArg requires integer index" &&
+             event.severity == urpg::editor::CompatEvent::Severity::ERROR;
+      }
+    );
+    REQUIRE(hasHasArgResolverMessage);
+    const auto hasParamResolverMessage = std::any_of(
+      panelRuntimeEvents.begin(),
+      panelRuntimeEvents.end(),
+      [](const urpg::editor::CompatEvent& event) {
+        return event.message == "Host function error: Fixture script resolver param requires string name" &&
+             event.severity == urpg::editor::CompatEvent::Severity::ERROR;
+      }
+    );
+    REQUIRE(hasParamResolverMessage);
+    const auto hasHasParamResolverMessage = std::any_of(
+      panelRuntimeEvents.begin(),
+      panelRuntimeEvents.end(),
+      [](const urpg::editor::CompatEvent& event) {
+        return event.message == "Host function error: Fixture script resolver hasParam requires string name" &&
+             event.severity == urpg::editor::CompatEvent::Severity::ERROR;
+      }
+    );
+    REQUIRE(hasHasParamResolverMessage);
+    const auto hasLocalResolverMessage = std::any_of(
+      panelRuntimeEvents.begin(),
+      panelRuntimeEvents.end(),
+      [](const urpg::editor::CompatEvent& event) {
+        return event.message == "Host function error: Fixture script resolver local requires string name" &&
+             event.severity == urpg::editor::CompatEvent::Severity::ERROR;
+      }
+    );
+    REQUIRE(hasLocalResolverMessage);
+    const auto hasArgCountResolverMessage = std::any_of(
+      panelRuntimeEvents.begin(),
+      panelRuntimeEvents.end(),
+      [](const urpg::editor::CompatEvent& event) {
+        return event.message == "Host function error: Fixture script resolver argCount does not accept field 'index'" &&
+             event.severity == urpg::editor::CompatEvent::Severity::ERROR;
+      }
+    );
+    REQUIRE(hasArgCountResolverMessage);
+    const auto hasArgsResolverMessage = std::any_of(
+      panelRuntimeEvents.begin(),
+      panelRuntimeEvents.end(),
+      [](const urpg::editor::CompatEvent& event) {
+        return event.message == "Host function error: Fixture script resolver args does not accept field 'name'" &&
+             event.severity == urpg::editor::CompatEvent::Severity::ERROR;
+      }
+    );
+    REQUIRE(hasArgsResolverMessage);
+    const auto hasParamKeysResolverMessage = std::any_of(
+      panelRuntimeEvents.begin(),
+      panelRuntimeEvents.end(),
+      [](const urpg::editor::CompatEvent& event) {
+        return event.message == "Host function error: Fixture script resolver paramKeys does not accept field 'index'" &&
+             event.severity == urpg::editor::CompatEvent::Severity::ERROR;
+      }
+    );
+    REQUIRE(hasParamKeysResolverMessage);
+    const auto hasConcatResolverMessage = std::any_of(
+      panelRuntimeEvents.begin(),
+      panelRuntimeEvents.end(),
+      [](const urpg::editor::CompatEvent& event) {
+        return event.message == "Host function error: Fixture script resolver concat requires array parts" &&
+             event.severity == urpg::editor::CompatEvent::Severity::ERROR;
+      }
+    );
+    REQUIRE(hasConcatResolverMessage);
+    const auto hasCoalesceResolverMessage = std::any_of(
+      panelRuntimeEvents.begin(),
+      panelRuntimeEvents.end(),
+      [](const urpg::editor::CompatEvent& event) {
+        return event.message == "Host function error: Fixture script resolver coalesce requires array values" &&
+             event.severity == urpg::editor::CompatEvent::Severity::ERROR;
+      }
+    );
+    REQUIRE(hasCoalesceResolverMessage);
+    const auto hasEqualsResolverMessage = std::any_of(
+      panelRuntimeEvents.begin(),
+      panelRuntimeEvents.end(),
+      [](const urpg::editor::CompatEvent& event) {
+        return event.message == "Host function error: Fixture script resolver equals requires left and right" &&
+             event.severity == urpg::editor::CompatEvent::Severity::ERROR;
+      }
+    );
+    REQUIRE(hasEqualsResolverMessage);
 
     const auto panelProbeEvents = panel.getModel().getPluginEvents(
         "DependencyGateProbe_" + specs.front().pluginName
     );
     REQUIRE(panelProbeEvents.size() == 1);
     REQUIRE(panelProbeEvents[0].methodName == "execute_command_dependency_missing");
+
+    const auto panelWeeklyLifecycleBookEvents = panel.getModel().getPluginEvents("EliMZ_Book");
+    const auto panelWeeklyLifecycleBookEventIt = std::find_if(
+      panelWeeklyLifecycleBookEvents.begin(),
+      panelWeeklyLifecycleBookEvents.end(),
+      [](const urpg::editor::CompatEvent& event) {
+        return event.methodName == "execute_command" &&
+             event.message == "Command not found: EliMZ_Book_openBook" &&
+             event.severity == urpg::editor::CompatEvent::Severity::WARNING;
+      }
+    );
+    REQUIRE(panelWeeklyLifecycleBookEventIt != panelWeeklyLifecycleBookEvents.end());
 
     const auto panelGenericEvents = panel.getModel().getPluginEvents("");
     REQUIRE(panelGenericEvents.size() == 8);
@@ -2714,6 +4252,7 @@ TEST_CASE(
     std::filesystem::remove(commandShapeFixture, ec);
     std::filesystem::remove(commandNameFixture, ec);
     std::filesystem::remove(dropContextFlagFixture, ec);
+    std::filesystem::remove(weeklyLifecycleFixture, ec);
     std::filesystem::remove(entryTypeFixture, ec);
     std::filesystem::remove(commandDescriptionFixture, ec);
     std::filesystem::remove(unsupportedModeFixture, ec);
@@ -2735,6 +4274,29 @@ TEST_CASE("Compat fixtures: missing directory scan failure is captured in diagno
     const auto diagnostics = parseJsonl(pm.exportFailureDiagnosticsJsonl());
     REQUIRE(diagnostics.size() == 1);
     REQUIRE(diagnostics.front().value("operation", "") == "load_plugins_directory");
+    REQUIRE(diagnostics.front().value("plugin", "").empty());
+    REQUIRE(diagnostics.front().value("command", "").empty());
+    REQUIRE(diagnostics.front().value("severity", "") == "HARD_FAIL");
+
+    const std::string diagnosticsJsonl = pm.exportFailureDiagnosticsJsonl();
+    urpg::editor::CompatReportModel reportModel;
+    reportModel.ingestPluginFailureDiagnosticsJsonl(diagnosticsJsonl);
+
+    const auto reportEvents = reportModel.getPluginEvents("");
+    REQUIRE(reportEvents.size() == 1);
+    REQUIRE(reportEvents.front().methodName == "load_plugins_directory");
+    REQUIRE(reportEvents.front().severity == urpg::editor::CompatEvent::Severity::ERROR);
+    REQUIRE(reportEvents.front().message.find("Plugin directory not found:") == 0);
+    const std::string exportedReport = reportModel.exportAsJson();
+    REQUIRE(exportedReport.find("load_plugins_directory") != std::string::npos);
+
+    urpg::editor::CompatReportPanel panel;
+    panel.refresh();
+    REQUIRE(pm.exportFailureDiagnosticsJsonl().empty());
+    const auto panelEvents = panel.getModel().getPluginEvents("");
+    REQUIRE(panelEvents.size() == 1);
+    REQUIRE(panelEvents.front().methodName == "load_plugins_directory");
+    REQUIRE(panelEvents.front().severity == urpg::editor::CompatEvent::Severity::ERROR);
 
     pm.clearFailureDiagnostics();
     REQUIRE(pm.exportFailureDiagnosticsJsonl().empty());
@@ -2759,6 +4321,29 @@ TEST_CASE("Compat fixtures: deterministic directory iterator scan failure is cap
     const auto diagnostics = parseJsonl(pm.exportFailureDiagnosticsJsonl());
     REQUIRE(diagnostics.size() == 1);
     REQUIRE(diagnostics.front().value("operation", "") == "load_plugins_directory_scan");
+    REQUIRE(diagnostics.front().value("plugin", "").empty());
+    REQUIRE(diagnostics.front().value("command", "").empty());
+    REQUIRE(diagnostics.front().value("severity", "") == "HARD_FAIL");
+
+    const std::string diagnosticsJsonl = pm.exportFailureDiagnosticsJsonl();
+    urpg::editor::CompatReportModel reportModel;
+    reportModel.ingestPluginFailureDiagnosticsJsonl(diagnosticsJsonl);
+
+    const auto reportEvents = reportModel.getPluginEvents("");
+    REQUIRE(reportEvents.size() == 1);
+    REQUIRE(reportEvents.front().methodName == "load_plugins_directory_scan");
+    REQUIRE(reportEvents.front().severity == urpg::editor::CompatEvent::Severity::ERROR);
+    REQUIRE(reportEvents.front().message.find("Failed scanning plugin directory: ") == 0);
+    const std::string exportedReport = reportModel.exportAsJson();
+    REQUIRE(exportedReport.find("load_plugins_directory_scan") != std::string::npos);
+
+    urpg::editor::CompatReportPanel panel;
+    panel.refresh();
+    REQUIRE(pm.exportFailureDiagnosticsJsonl().empty());
+    const auto panelEvents = panel.getModel().getPluginEvents("");
+    REQUIRE(panelEvents.size() == 1);
+    REQUIRE(panelEvents.front().methodName == "load_plugins_directory_scan");
+    REQUIRE(panelEvents.front().severity == urpg::editor::CompatEvent::Severity::ERROR);
 
     pm.clearFailureDiagnostics();
     pm.unloadAllPlugins();
@@ -2791,6 +4376,30 @@ TEST_CASE("Compat fixtures: deterministic directory entry status failure is capt
     REQUIRE(diagnostics.front().value("operation", "") == "load_plugins_directory_scan_entry");
     REQUIRE(diagnostics.front().value("message", "").find(
                 "__urpg_fail_directory_entry_status___marker.json") != std::string::npos);
+    REQUIRE(diagnostics.front().value("plugin", "").empty());
+    REQUIRE(diagnostics.front().value("command", "").empty());
+    REQUIRE(diagnostics.front().value("severity", "") == "HARD_FAIL");
+
+    const std::string diagnosticsJsonl = pm.exportFailureDiagnosticsJsonl();
+    urpg::editor::CompatReportModel reportModel;
+    reportModel.ingestPluginFailureDiagnosticsJsonl(diagnosticsJsonl);
+
+    const auto reportEvents = reportModel.getPluginEvents("");
+    REQUIRE(reportEvents.size() == 1);
+    REQUIRE(reportEvents.front().methodName == "load_plugins_directory_scan_entry");
+    REQUIRE(reportEvents.front().severity == urpg::editor::CompatEvent::Severity::ERROR);
+    REQUIRE(reportEvents.front().message.find(
+                "__urpg_fail_directory_entry_status___marker.json") != std::string::npos);
+    const std::string exportedReport = reportModel.exportAsJson();
+    REQUIRE(exportedReport.find("load_plugins_directory_scan_entry") != std::string::npos);
+
+    urpg::editor::CompatReportPanel panel;
+    panel.refresh();
+    REQUIRE(pm.exportFailureDiagnosticsJsonl().empty());
+    const auto panelEvents = panel.getModel().getPluginEvents("");
+    REQUIRE(panelEvents.size() == 1);
+    REQUIRE(panelEvents.front().methodName == "load_plugins_directory_scan_entry");
+    REQUIRE(panelEvents.front().severity == urpg::editor::CompatEvent::Severity::ERROR);
 
     pm.clearFailureDiagnostics();
     pm.unloadAllPlugins();
