@@ -9,6 +9,13 @@
 
 ## Entries
 
+### 2026-04-18 — Canonical Planning Linkage Sync
+- **Action**: Updated `docs/TECHNICAL_DEBT_REMEDIATION_PLAN.md` to absorb PGMMV/native-absorption planning governance, including canonical roadmap-alignment requirements and Definition-of-Done hooks.
+- **Action**: Updated `docs/PROGRAM_COMPLETION_STATUS.md` and `docs/NATIVE_FEATURE_ABSORPTION_PLAN.md` to publish the canonical planning chain and identify standalone PGMMV/native-absorption files as planning annexes rather than parallel authorities.
+- **Action**: Updated `README.md` documentation links so remediation, roadmap, status, and detailed planning annexes are distinguished clearly.
+- **Action**: Re-labeled `URPG_MASTER_NATIVE_ABSORPTION_AND_PGMMV_ROADMAP_2026-04-18.md`, `URPG_PGMMV_SUPPORT_PLAN.md`, and `URPG_NATIVE_ABSORPTION_ROADMAP_2026-04-18.md` as execution-detail/reference planning inputs that route back through the remediation hub.
+- **Result**: The planning/status/remediation authority chain is now explicit across the repo instead of being split across parallel roadmap files.
+
 ### 2026-04-18 — AudioManager Runtime Closure and Documentation Sync (Workstream 2.3)
 - **Action**: Added focused `AudioManager` regressions covering deterministic playback-position progression, duration-based duck/unduck ramps, applied master/bus volume scaling, and expanded QuickJS bridge routing.
 - **Action**: Implemented deterministic playback-position advancement in `AudioChannel::update()` and replaced immediate duck/unduck snaps with frame-based volume ramps.

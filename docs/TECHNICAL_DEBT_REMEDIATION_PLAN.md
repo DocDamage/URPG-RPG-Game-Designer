@@ -1,7 +1,8 @@
 ﻿# Technical Debt Remediation Plan
 
-> **Document status:** Third-pass revision â€” canonical remediation hub as of 2026-04-16.
+> **Document status:** Fifth-pass revision â€” canonical remediation hub as of 2026-04-18.
 > Incorporates stale-state debt, placeholder export-surface debt, documentation/test drift findings, the external-repository intake program defined in [URPG_repo_intake_plan.md](../URPG_repo_intake_plan.md), and the private-use asset intake program defined in [URPG_private_asset_intake_plan.md](../URPG_private_asset_intake_plan.md).
+> This revision also absorbs the newly added PGMMV and native-absorption planning inputs into the remediation program so roadmap expansion, truthfulness, and execution governance share one canonical hub.
 
 ---
 
@@ -26,6 +27,7 @@
    - [P2-07 â€” Native Plugin API Is A Mock Bridge, Not A Real Integration](#p2-07--native-plugin-api-is-a-mock-bridge-not-a-real-integration)
    - [P2-08 â€” Cloud Sync Documentation Overstates Implementation Readiness](#p2-08--cloud-sync-documentation-overstates-implementation-readiness)
    - [P2-09 â€” Async Plugin Callbacks Lack Thread-Affinity Guarantees](#p2-09--async-plugin-callbacks-lack-thread-affinity-guarantees)
+   - [P2-10 â€” Native-Absorption And PGMMV Planning Drift Sits Outside Canonical Remediation Governance](#p2-10--native-absorption-and-pgmmv-planning-drift-sits-outside-canonical-remediation-governance)
    - [P3-01 â€” Hidden Ownership Shortcuts in Runtime Services](#p3-01--hidden-ownership-shortcuts-in-runtime-services)
    - [P3-02 â€” External Repository Intake Needs Canonical Governance](#p3-02--external-repository-intake-needs-canonical-governance)
    - [P3-03 â€” Private-Use Asset Intake Needs Canonical Governance](#p3-03--private-use-asset-intake-needs-canonical-governance)
@@ -36,7 +38,7 @@
    - [Phase 1 â€” Make Status Labels and Surface Claims Honest](#phase-1--make-status-labels-and-surface-claims-honest)
    - [Phase 2 â€” Fix Correctness and Runtime Closure in the Highest-Value Paths](#phase-2--fix-correctness-and-runtime-closure-in-the-highest-value-paths)
    - [Phase 3 â€” Make Editor and Diagnostics Surfaces Truthful, Stateful, and Usable](#phase-3--make-editor-and-diagnostics-surfaces-truthful-stateful-and-usable)
-   - [Phase 4 â€” Reconcile Build Graph, Tests, Docs, and Exported Surfaces](#phase-4--reconcile-build-graph-tests-docs-and-exported-surfaces)
+   - [Phase 4 â€” Reconcile Build Graph, Tests, Docs, Exported Surfaces, and Canonical Planning](#phase-4--reconcile-build-graph-tests-docs-exported-surfaces-and-canonical-planning)
    - [Phase 5 â€” Harden Ownership, Concurrency, and Performance](#phase-5--harden-ownership-concurrency-and-performance)
 9. [Phase Summary and Dependencies](#phase-summary-and-dependencies)
 10. [Verification Plan](#verification-plan)
@@ -60,12 +62,13 @@ This plan is the single source of truth for technical debt remediation across th
 - Prioritize debt that affects **correctness, reachability, and trust** over cosmetic placeholder cleanup.
 - Ensure external repositories are evaluated through a governed intake path before they influence URPG runtime, fixtures, tooling, or asset lanes.
 - Ensure private-use asset acceleration happens through a governed provenance-preserving intake path so editor/runtime realism improves without reintroducing licensing, source-traceability, or content-root drift.
+- Ensure newly introduced roadmap scope - especially PGMMV intake, native absorption, HD-2D / 2.5D, authoring UX, accessibility, localization, and product-glue tracks - enters execution through the same truthfulness and Definition-of-Done gates as every other remediation lane.
 
 ---
 
 ## Audit Method
 
-This revision reflects three audit passes across:
+This revision reflects five audit passes across:
 
 - Build blockers and active compile paths.
 - `TODO`, stub, and placeholder-heavy runtime and editor code.
@@ -74,6 +77,7 @@ This revision reflects three audit passes across:
 - UI surfaces that exist in summaries/models but are not actually rendered or kept fresh.
 - Exported, plugin, and cloud-facing interfaces that claim more than they currently route.
 - Documentation that claims completion ahead of build, test, or product evidence.
+- Newly added roadmap and support plans whose scope affects execution ordering, status vocabulary, and release claims.
 
 ---
 
@@ -103,6 +107,8 @@ The debt picture is broader than "unfinished features." Four distinct categories
 **External repositories with real leverage but no canonical intake gate in the remediation program.** [URPG_repo_intake_plan.md](../URPG_repo_intake_plan.md) now defines the repo-watchlist, legal, fixture, and adoption workflow for twelve external repositories. That work must be treated as part of debt remediation because ungoverned ingestion would create new trust, licensing, and architecture drift immediately.
 
 **Private-use asset acceleration without an integrated governance lane would create a second intake blind spot.** [URPG_private_asset_intake_plan.md](../URPG_private_asset_intake_plan.md) now defines a structured path for staging, normalizing, promoting, and documenting private-use assets from both direct-ingest and discovery repositories. That work also belongs inside remediation because ad hoc asset drops would pollute fixtures, blur provenance, and make "more realistic" editor/runtime surfaces less trustworthy rather than more complete.
+
+**Planning authority is now at risk of splitting across multiple documents.** [URPG_MASTER_NATIVE_ABSORPTION_AND_PGMMV_ROADMAP_2026-04-18.md](../URPG_MASTER_NATIVE_ABSORPTION_AND_PGMMV_ROADMAP_2026-04-18.md) and [URPG_PGMMV_SUPPORT_PLAN.md](../URPG_PGMMV_SUPPORT_PLAN.md) add real scope, but until that scope is normalized into this remediation hub and the canonical status docs, the repo has parallel phase vocabularies, parallel truthfulness rules, and no shared Definition-of-Done hooks for the new work.
 
 **What this plan does NOT cover:**
 - New feature development not related to closing existing gaps.
@@ -599,6 +605,40 @@ Do not leave the workspace counting tabs that do not render.
 
 ---
 
+### P2-10 â€” Native-Absorption And PGMMV Planning Drift Sits Outside Canonical Remediation Governance
+
+**Impact:** The repo now contains legitimate new execution scope for PGMMV intake, native feature absorption, HD-2D / 2.5D, authoring UX, accessibility, localization, and product-glue systems, but that scope currently lives beside the remediation hub instead of inside it. That creates parallel planning authorities, inconsistent status vocabulary, and a real risk that roadmap claims outrun build, test, migration, and documentation truth gates.
+
+**Root cause:**
+- [URPG_MASTER_NATIVE_ABSORPTION_AND_PGMMV_ROADMAP_2026-04-18.md](../URPG_MASTER_NATIVE_ABSORPTION_AND_PGMMV_ROADMAP_2026-04-18.md) introduces a broad integrated roadmap with new phases, tracks, and status rules.
+- [URPG_PGMMV_SUPPORT_PLAN.md](../URPG_PGMMV_SUPPORT_PLAN.md) defines a full PGMMV intake/migration lane with its own milestones, acceptance matrix, and issue breakdown.
+- This remediation hub, [PROGRAM_COMPLETION_STATUS.md](./PROGRAM_COMPLETION_STATUS.md), and [NATIVE_FEATURE_ABSORPTION_PLAN.md](./NATIVE_FEATURE_ABSORPTION_PLAN.md) did not previously absorb that scope into one canonical governance chain.
+- The result is not just duplicate docs; it is duplicate execution logic for planning, truthfulness, and release readiness.
+
+**Required action:**
+- Treat the new roadmap files as planning-input documents, not parallel long-term authorities.
+- Fold their substantive scope into the canonical remediation/status/roadmap set so phases, tracks, and exit criteria line up across:
+  - this remediation hub
+  - [PROGRAM_COMPLETION_STATUS.md](./PROGRAM_COMPLETION_STATUS.md)
+  - [NATIVE_FEATURE_ABSORPTION_PLAN.md](./NATIVE_FEATURE_ABSORPTION_PLAN.md)
+- Assign explicit remediation-governed placement for the newly added lanes:
+  - PGMMV intake and migration truthfulness
+  - plugin-evidence scanning and native replacement mapping
+  - HD-2D / 2.5D presentation productization
+  - authoring UX
+  - accessibility and localization
+  - RPG glue systems
+- Require any standalone roadmap doc that introduces new execution scope to be either absorbed into canonical docs or marked as superseded/reference-only in the same change.
+
+**Owner:** Tech lead or release owner (planning governance), with engine/editor/runtime/domain leads for the affected lanes.
+
+**Exit criteria:**
+- Remediation, status, and roadmap docs share one phase vocabulary, one truthfulness model, and one execution-order story.
+- PGMMV/native-absorption scope is represented in remediation phases, documentation-alignment tasks, and Definition of Done instead of sitting outside them.
+- No new roadmap document can introduce execution scope without canonical ownership, doc-alignment hooks, and release-truth gates.
+
+---
+
 ### P3-01 â€” Hidden Ownership Shortcuts in Runtime Services
 
 **Impact:** Static-local service instances and per-frame full rebuilds make testing harder, determinism unreliable, and performance tuning more expensive. These are not today's highest-risk issues, but they compound other debt over time.
@@ -735,6 +775,7 @@ These findings revise the execution order compared to earlier audit passes:
 - **The QuickJS lane** should be explicitly scoped as fixture-backed compat scaffolding until real runtime integration exists. Treating it as a runtime while it is a test harness inflates every compat claim that depends on it.
 - **Diagnostics debt** is not just a visibility problem â€” it is a state freshness and truthfulness problem. Treat it as such.
 - **Plugin API and cloud-sync surfaces** are documentation-truth and export-surface debt, not silently deferrable "future work." They need honest labels now, even if real routing comes later.
+- **Native-absorption and PGMMV roadmap expansion** is not a sidecar planning exercise once it lands in-repo. It becomes remediation-governed truthfulness work immediately and must be normalized before wide execution begins.
 
 ---
 
@@ -748,6 +789,7 @@ These principles govern every remediation decision. When in doubt, refer back to
 4. UI summaries and exported diagnostics must reflect what the UI can actually render and keep current.
 5. Tests should prove live behavior where product claims are strong. Placeholder-normalizing tests must not be mistaken for closure.
 6. Any remaining placeholder behavior must be documented as an intentional waiver. Silent acceptance of placeholder behavior is not done.
+7. New roadmap scope is not canonical until remediation, status, and roadmap docs agree on phase placement, truthfulness language, and release gates.
 
 ---
 
@@ -862,7 +904,7 @@ These principles govern every remediation decision. When in doubt, refer back to
 
 ---
 
-### Phase 4 â€” Reconcile Build Graph, Tests, Docs, and Exported Surfaces
+### Phase 4 â€” Reconcile Build Graph, Tests, Docs, Exported Surfaces, and Canonical Planning
 
 **Goal:** Eliminate drift between what exists in source control, what is compiled, what is tested, what is exported, and what the docs claim.
 
@@ -877,6 +919,7 @@ These principles govern every remediation decision. When in doubt, refer back to
 - Align plugin/cloud/export documentation with the actual routing state of [plugin_api.h](../engine/core/editor/plugin_api.h), [plugin_api.cpp](../engine/core/editor/plugin_api.cpp), and [cloud_service.h](../engine/core/social/cloud_service.h) (see P2-07, P2-08).
 - Stand up external repository intake governance from [URPG_repo_intake_plan.md](../URPG_repo_intake_plan.md) so future compat/import/export/editor improvements are sourced through an explicit legal, fixture, and adoption program rather than ad hoc repo ingestion (see P3-02).
 - Stand up private-use asset intake governance from [URPG_private_asset_intake_plan.md](../URPG_private_asset_intake_plan.md) so editor/runtime realism improvements, placeholder replacement, and vertical-slice asset upgrades are sourced through explicit staging, provenance, and promotion rules rather than ad hoc asset drops (see P3-03).
+- Reconcile the newly added PGMMV/native-absorption roadmap inputs with the canonical remediation/status/roadmap set so the repo does not carry parallel execution authorities (see P2-10).
 
 #### Workstream 4.1 â€” External Repository Intake Governance (see P3-02)
 - Treat [URPG_repo_intake_plan.md](../URPG_repo_intake_plan.md) as the detailed execution plan for external intake.
@@ -916,6 +959,19 @@ These principles govern every remediation decision. When in doubt, refer back to
   - curated fantasy-environment vertical slices
   - future asset gap reporting and promotion decisions
 
+#### Workstream 4.3 â€” Canonical Roadmap Integration And Planning Governance (see P2-10)
+- Treat [URPG_MASTER_NATIVE_ABSORPTION_AND_PGMMV_ROADMAP_2026-04-18.md](../URPG_MASTER_NATIVE_ABSORPTION_AND_PGMMV_ROADMAP_2026-04-18.md) and [URPG_PGMMV_SUPPORT_PLAN.md](../URPG_PGMMV_SUPPORT_PLAN.md) as execution-detail inputs that must be absorbed into canonical docs, not left as parallel planning authorities.
+- Normalize the phase story across this remediation hub, [PROGRAM_COMPLETION_STATUS.md](./PROGRAM_COMPLETION_STATUS.md), and [NATIVE_FEATURE_ABSORPTION_PLAN.md](./NATIVE_FEATURE_ABSORPTION_PLAN.md) so new lanes inherit the same build/test/doc/release truth gates.
+- Pull the newly added roadmap obligations into canonical remediation ownership:
+  - PGMMV intake and migration truthfulness
+  - plugin-evidence scanning and native replacement mapping
+  - HD-2D / 2.5D productization
+  - authoring UX parity
+  - accessibility and localization
+  - item-instance / equipment individuality and RPG glue systems
+- Record which plan files remain authoritative, which become execution-detail references, and which are superseded once the canonical docs absorb their content.
+- Make documentation alignment explicit for any future plan doc that adds phases, tracks, or acceptance criteria.
+
 **Exit criteria:**
 - Docs no longer describe unbuilt, unregistered, or stub-exported work as shipped.
 - No stale duplicate tests remain.
@@ -923,9 +979,10 @@ These principles govern every remediation decision. When in doubt, refer back to
 - All decisions about presentation/spatial status are recorded (ADR if scope-changing).
 - External repository intake is governed by recorded legal and technical dispositions rather than ad hoc copying or local-only experiments.
 - Private-use asset intake is governed by recorded provenance, staging, normalization, and promotion rules rather than ad hoc drops into product-facing paths.
+- Newly added roadmap/support plans have been absorbed into the canonical remediation/status/roadmap stack or explicitly marked as superseded/reference-only inputs.
 - Compat exit checklist artifact ([docs/COMPAT_EXIT_CHECKLIST.md](./COMPAT_EXIT_CHECKLIST.md)) is published and satisfies part of the documentation-alignment exit criteria for the compat lane.
 
-**Related documentation:** [README](../README.md), [Master Blueprint](../URPG_Blueprint_v3_1_Integrated.md), [NATIVE_FEATURE_ABSORPTION_PLAN](./NATIVE_FEATURE_ABSORPTION_PLAN.md), [PROGRAM_COMPLETION_STATUS](./PROGRAM_COMPLETION_STATUS.md), [URPG_repo_intake_plan](../URPG_repo_intake_plan.md), [URPG_private_asset_intake_plan](../URPG_private_asset_intake_plan.md), [presentation/schema_changelog](./presentation/schema_changelog.md), [presentation/SPATIAL_EDITOR_TOOLS](./presentation/SPATIAL_EDITOR_TOOLS.md), [presentation/performance_budgets](./presentation/performance_budgets.md), [presentation/test_matrix/MapScene_Contract](./presentation/test_matrix/MapScene_Contract.md), [presentation/test_matrix/MenuScene_Contract](./presentation/test_matrix/MenuScene_Contract.md), [presentation/test_matrix/BattleScene_Contract](./presentation/test_matrix/BattleScene_Contract.md), [presentation/test_matrix/OverlayUI_Contract](./presentation/test_matrix/OverlayUI_Contract.md).
+**Related documentation:** [README](../README.md), [Master Blueprint](../URPG_Blueprint_v3_1_Integrated.md), [NATIVE_FEATURE_ABSORPTION_PLAN](./NATIVE_FEATURE_ABSORPTION_PLAN.md), [PROGRAM_COMPLETION_STATUS](./PROGRAM_COMPLETION_STATUS.md), [URPG_MASTER_NATIVE_ABSORPTION_AND_PGMMV_ROADMAP_2026-04-18](../URPG_MASTER_NATIVE_ABSORPTION_AND_PGMMV_ROADMAP_2026-04-18.md), [URPG_PGMMV_SUPPORT_PLAN](../URPG_PGMMV_SUPPORT_PLAN.md), [URPG_repo_intake_plan](../URPG_repo_intake_plan.md), [URPG_private_asset_intake_plan](../URPG_private_asset_intake_plan.md), [presentation/schema_changelog](./presentation/schema_changelog.md), [presentation/SPATIAL_EDITOR_TOOLS](./presentation/SPATIAL_EDITOR_TOOLS.md), [presentation/performance_budgets](./presentation/performance_budgets.md), [presentation/test_matrix/MapScene_Contract](./presentation/test_matrix/MapScene_Contract.md), [presentation/test_matrix/MenuScene_Contract](./presentation/test_matrix/MenuScene_Contract.md), [presentation/test_matrix/BattleScene_Contract](./presentation/test_matrix/BattleScene_Contract.md), [presentation/test_matrix/OverlayUI_Contract](./presentation/test_matrix/OverlayUI_Contract.md).
 
 **Architecture Decision Records:** [ADR-001](./adr/ADR-001.md) through [ADR-010-presentation-completion](./adr/ADR-010-presentation-completion.md).
 
@@ -963,7 +1020,7 @@ These principles govern every remediation decision. When in doubt, refer back to
 | 1 | Honest labels | Phase 0 | Medium | Compat/runtime + Tech lead |
 | 2 | Correctness & runtime closure | Phase 0 (Phase 1 recommended) | Large | Compat/runtime |
 | 3 | Editor/diagnostics truth | Phases 0â€“2 recommended | Medâ€“Large | Editor |
-| 4 | Build/test/doc reconciliation + external and private asset intake governance | Phases 0â€“3 | Medium | Tech lead/release owner |
+| 4 | Build/test/doc reconciliation + roadmap alignment + external and private asset intake governance | Phases 0â€“3 | Medium | Tech lead/release owner |
 | 5 | Ownership & concurrency hardening | Phases 0â€“4 | Medium | Engine/core + Compat/runtime |
 
 **Dependency diagram:**
@@ -1051,6 +1108,8 @@ The following documents must be updated whenever remediation work lands in the a
 - [AI_SUBSYSTEM_CLOSURE_CHECKLIST](./AI_SUBSYSTEM_CLOSURE_CHECKLIST.md)
 - [URPG_repo_intake_plan](../URPG_repo_intake_plan.md)
 - [URPG_private_asset_intake_plan](../URPG_private_asset_intake_plan.md)
+- [URPG_MASTER_NATIVE_ABSORPTION_AND_PGMMV_ROADMAP_2026-04-18](../URPG_MASTER_NATIVE_ABSORPTION_AND_PGMMV_ROADMAP_2026-04-18.md)
+- [URPG_PGMMV_SUPPORT_PLAN](../URPG_PGMMV_SUPPORT_PLAN.md)
 - `docs/external-intake/*`
 - `docs/asset_intake/*`
 - Subsystem specs under [docs](.)
@@ -1068,6 +1127,7 @@ The following documents must be updated whenever remediation work lands in the a
 | Diagnostics workspace, Event Authority, Audio inspector, Migration Wizard, compat surfaces | Editor maintainers | P2-01, P2-02, P2-03 |
 | Completion-state truthfulness, waiver review, doc alignment, exported-surface scoping, presentation/spatial decision | Tech lead or release owner | P2-06, P2-07, P2-08, Phase 4 overall |
 | Test registration and stale test cleanup | Respective subsystem maintainer + release owner for CMakeLists.txt | P2-04 |
+| Canonical roadmap integration, phase vocabulary, and PGMMV/native-absorption truthfulness | Tech lead or release owner + affected domain leads | P2-10, Phase 4.3 |
 | External repository intake governance, legal disposition, fixture/adoption quarantine | Tech lead/release owner + content/pipeline lead + affected subsystem owner | P3-02, Phase 4.1 |
 | Private-use asset intake governance, provenance retention, staging/normalization/promotion discipline | Tech lead/release owner + content/pipeline lead + asset/tooling owners + affected editor/runtime owner | P3-03, Phase 4.2 |
 
@@ -1083,6 +1143,7 @@ A remediation item is **done only when all of the following are true**:
 - [ ] Status labels and completion docs match real behavior â€” updated in the **same commit or PR** as the implementation.
 - [ ] Surfaced editor/runtime functionality is actually reachable in the product via a documented entry point.
 - [ ] Exported, plugin, and cloud-facing surfaces are scoped honestly in headers and docs.
+- [ ] Any new plan or roadmap document introduced by the change is either absorbed into the canonical remediation/status/roadmap set or explicitly marked as execution-detail/reference-only in the same PR.
 - [ ] External code, fixtures, and assets are not adopted unless they have a recorded disposition under [URPG_repo_intake_plan.md](../URPG_repo_intake_plan.md) and the corresponding intake artifacts.
 - [ ] Private-use assets are not promoted into editor/runtime product lanes unless they have recorded provenance, source/bundle manifests, and promotion records under [URPG_private_asset_intake_plan.md](../URPG_private_asset_intake_plan.md) and the corresponding intake artifacts.
 - [ ] Any remaining placeholder behavior is documented as an explicit, intentional waiver â€” not silently accepted as complete.
@@ -1119,3 +1180,4 @@ A remediation item is **done only when all of the following are true**:
 | 2026-04-17 | Local build hardening: constrained MinGW SDL discovery to the active compiler root, forced vendored SDL for MSVC to block MSYS header leakage, added missing standard headers surfaced by stricter toolchains, restored missing testing support headers, and hardened the presentation helper against stale local build trees. |
 | 2026-04-18 | Agent swarm pass 4: window compat rendering closure, battle manager runtime closure, message inspector panel productization, compat exit checklist publication. |
 | 2026-04-18 | Audio compat closure/documentation sync: deterministic playback-position, duck/unduck, mix-scaling, and live QuickJS AudioManager bindings landed; remediation/status/docs updated to keep the lane honestly `PARTIAL` and deterministic-harness-scoped. |
+| 2026-04-18 | Integrated the newly added PGMMV/native-absorption planning scope into the remediation hub via canonical-planning governance, Phase 4 roadmap-alignment work, documentation-alignment hooks, and Definition-of-Done requirements. |

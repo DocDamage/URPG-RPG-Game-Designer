@@ -68,9 +68,10 @@ This focused gate is also invoked by `tools/ci/run_local_gates.ps1` locally and 
 ## 📜 Documentation
 
 - **[Master Blueprint](URPG_Blueprint_v3_1_Integrated.md):** The authoritative technical specification.
-- **[Native Absorption Plan](docs/NATIVE_FEATURE_ABSORPTION_PLAN.md):** Roadmap for migrating legacy features.
-- **[Completion Status](docs/PROGRAM_COMPLETION_STATUS.md):** Granular checklist of every implemented feature.
-- **[Technical Debt Remediation Plan](docs/TECHNICAL_DEBT_REMEDIATION_PLAN.md):** Canonical cross-cutting debt, truthfulness, intake-governance, and reconciliation plan.
+- **[Technical Debt Remediation Plan](docs/TECHNICAL_DEBT_REMEDIATION_PLAN.md):** Canonical cross-cutting debt, truthfulness, intake-governance, roadmap-alignment, and reconciliation plan.
+- **[Native Absorption Plan](docs/NATIVE_FEATURE_ABSORPTION_PLAN.md):** Canonical product roadmap.
+- **[Completion Status](docs/PROGRAM_COMPLETION_STATUS.md):** Canonical latest-status snapshot and remaining checklist.
+- **Detailed Planning Annexes:** [PGMMV + Native Absorption v2](URPG_MASTER_NATIVE_ABSORPTION_AND_PGMMV_ROADMAP_2026-04-18.md), [PGMMV Support Plan](URPG_PGMMV_SUPPORT_PLAN.md), and [earlier native absorption roadmap](URPG_NATIVE_ABSORPTION_ROADMAP_2026-04-18.md) are retained as traceability/reference inputs and route back through the remediation plan for canonical adoption.
 - **[Presentation Docs Hub](docs/presentation/README.md):** Index of presentation contracts, validation, tooling, budgets, and schema docs.
 - **[Presentation Validation Guide](docs/presentation/VALIDATION.md):** Focused runtime + spatial authoring validation commands and gate definitions.
 - **[Intake Governance](docs/external-intake/):** External repository and private-use asset intake plans, watchlists, license matrices, and promotion guides.

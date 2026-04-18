@@ -5,6 +5,12 @@ Program Scope: native-first roadmap rewire plus Wave 1 absorption, Wave 2 advanc
 
 Cross-cutting debt, truthfulness, and intake-governance source of truth: `docs/TECHNICAL_DEBT_REMEDIATION_PLAN.md`.
 
+Canonical planning chain:
+- `docs/TECHNICAL_DEBT_REMEDIATION_PLAN.md` governs cross-cutting truthfulness, reconciliation, and Definition-of-Done requirements.
+- `docs/NATIVE_FEATURE_ABSORPTION_PLAN.md` is the canonical product roadmap.
+- `docs/PROGRAM_COMPLETION_STATUS.md` is the canonical latest-status snapshot.
+- `URPG_MASTER_NATIVE_ABSORPTION_AND_PGMMV_ROADMAP_2026-04-18.md`, `URPG_PGMMV_SUPPORT_PLAN.md`, and `URPG_NATIVE_ABSORPTION_ROADMAP_2026-04-18.md` are detailed planning inputs retained for traceability until their remaining deltas are absorbed into the canonical docs above.
+
 ## Where we are now
 
 - Presentation planning is now aligned around **Phase 5 â€” Environment & Presentation Polish**:
@@ -20,6 +26,7 @@ Cross-cutting debt, truthfulness, and intake-governance source of truth: `docs/T
   - the repo does **not** yet have a serious license-cleared production asset library across tiles, portraits, UI, VFX, and audio
 - **In Progress:** External repository intake governance is active. Canonical artifacts live in [`docs/external-intake/`](./external-intake/) and the execution plan is [`URPG_repo_intake_plan.md`](../URPG_repo_intake_plan.md).
 - **In Progress:** Private-use asset intake governance is active. Canonical artifacts live in [`docs/asset_intake/`](./asset_intake/) and the execution plan is [`URPG_private_asset_intake_plan.md`](../URPG_private_asset_intake_plan.md).
+- **Planning Governance:** standalone PGMMV/native-absorption roadmap files are now treated as reference annexes under [`docs/TECHNICAL_DEBT_REMEDIATION_PLAN.md`](./TECHNICAL_DEBT_REMEDIATION_PLAN.md), not parallel execution authorities.
 
 - `main` is up to date and protected:
   - pull request required
@@ -77,6 +84,9 @@ Cross-cutting debt, truthfulness, and intake-governance source of truth: `docs/T
 - Rewrote the primary roadmap into an integrated plan:
   - `docs/NATIVE_FEATURE_ABSORPTION_PLAN.md`
   - includes Wave 2 advanced capability tracks (ability framework, pattern editor, modular level assembly, sprite pipeline, procedural toolkit, optional 2.5D lane, timeline orchestration, editor utilities)
+- Normalized planning authority for PGMMV/native-absorption scope:
+  - `docs/TECHNICAL_DEBT_REMEDIATION_PLAN.md` now governs roadmap-alignment and truthfulness requirements for newly added planning scope
+  - `URPG_MASTER_NATIVE_ABSORPTION_AND_PGMMV_ROADMAP_2026-04-18.md`, `URPG_PGMMV_SUPPORT_PLAN.md`, and `URPG_NATIVE_ABSORPTION_ROADMAP_2026-04-18.md` are now linked as detailed planning inputs rather than canonical status/roadmap authorities
 - Added canonical Wave 1 closure checklist governance:
   - canonical source: `docs/WAVE1_SUBSYSTEM_CLOSURE_CHECKLIST.md`
   - subsystem spec sync tool: `tools/docs/sync-wave1-spec-checklist.ps1`
