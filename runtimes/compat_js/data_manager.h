@@ -81,6 +81,7 @@ struct ActorData {
     int32_t initialLevel = 1;
     int32_t maxLevel = 99;
     int32_t level = 1; // Current level (for display/scaling)
+    int32_t exp = 0;
     std::string faceName;
     int32_t faceIndex = 0;
     std::string characterName;
@@ -89,6 +90,32 @@ struct ActorData {
     int32_t battlerIndex = 0;
     // Params: [param][level] - 0=mhp, 1=mmp, 2=atk, 3=def, 4=mat, 5=mdf, 6=agi, 7=luk
     std::vector<std::vector<int32_t>> params;
+    std::vector<int32_t> skills;
+};
+
+struct SkillDamage {
+    int32_t type = 0;
+    int32_t elementId = 0;
+    std::string formula;
+    int32_t variance = 20;
+    bool canCrit = false;
+    int32_t power = 10;
+};
+
+struct ItemDamage {
+    int32_t type = 0;
+    int32_t elementId = 0;
+    std::string formula;
+    int32_t variance = 20;
+    bool canCrit = false;
+    int32_t power = 10;
+};
+
+struct EffectData {
+    int32_t code = 0;
+    int32_t dataId = 0;
+    double value1 = 0.0;
+    double value2 = 0.0;
 };
 
 struct SkillData {
@@ -103,6 +130,8 @@ struct SkillData {
     int32_t successRate = 100;
     int32_t repeats = 1;
     int32_t animationId = 0;
+    SkillDamage damage;
+    std::vector<EffectData> effects;
 };
 
 struct ItemData {
@@ -116,6 +145,8 @@ struct ItemData {
     int32_t price = 0;
     int32_t scope = 0;
     int32_t animationId = 0;
+    ItemDamage damage;
+    std::vector<EffectData> effects;
 };
 
 struct EnemyData {
@@ -163,7 +194,10 @@ struct MapData {
 struct ClassData {
     int32_t id = 0;
     std::string name;
+    int32_t maxLevel = 99;
     std::vector<int32_t> learnings; // Skill IDs by level
+    std::vector<int32_t> expTable; // Exp required to reach next level (index 0 = level 1->2)
+    std::vector<std::pair<int32_t, int32_t>> skillsToLearn; // {level, skillId}
     // Params mirror RPG Maker's class table layout: [param][level]
     std::vector<std::vector<int32_t>> params;
 };
@@ -259,10 +293,14 @@ public:
     
     // Status: PARTIAL - Lookup works against the in-memory containers, which are still loader-empty today
     const ActorData* getActor(int32_t id) const;
+    ActorData* getActor(int32_t id);
     int32_t getActorParam(int32_t actorId, int32_t paramId, int32_t level = 1) const;
     const ClassData* getClass(int32_t id) const;
+    ClassData* getClass(int32_t id);
     const SkillData* getSkill(int32_t id) const;
+    SkillData* getSkill(int32_t id);
     const ItemData* getItem(int32_t id) const;
+    ItemData* getItem(int32_t id);
     const ItemData* getWeapon(int32_t id) const;
     const ItemData* getArmor(int32_t id) const;
     const EnemyData* getEnemy(int32_t id) const;

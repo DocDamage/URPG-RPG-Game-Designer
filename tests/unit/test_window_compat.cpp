@@ -129,9 +129,9 @@ TEST_CASE("Window_Base getMethodStatus returns correct values", "[compat][window
 
 TEST_CASE("Window_Base getMethodDeviation returns notes", "[compat][window]") {
     REQUIRE(Window_Base::getMethodDeviation("drawActorFace") == "");
-    REQUIRE(Window_Base::getMethodDeviation("drawActorHp") == "");
+    REQUIRE(Window_Base::getMethodDeviation("drawActorHp").find("gauge background") != std::string::npos);
     REQUIRE(Window_Base::getMethodDeviation("drawText") == "");  // FULL, no deviation
-    REQUIRE(Window_Base::getMethodDeviation("drawIcon").find("icon-set bitmap rendering") != std::string::npos);
+    REQUIRE(Window_Base::getMethodDeviation("drawIcon").find("SpriteCommand") != std::string::npos);
 }
 
 TEST_CASE("Window_Base drawActorFace records canonical source and destination rects", "[compat][window]") {
@@ -375,7 +375,35 @@ TEST_CASE("Window_Base drawCharacter submits SpriteCommand", "[compat][window]")
     auto spriteCmd = std::dynamic_pointer_cast<urpg::SpriteCommand>(commands.back());
     REQUIRE(spriteCmd != nullptr);
     REQUIRE(spriteCmd->textureId == "Actor1");
-    REQUIRE(spriteCmd->srcX == 64); // index * 32
+    // MZ standard sheet: 4 cols × 2 rows of characters, 48×48 cells.
+    // Character 2 standing frame: col=2, row=0, offset (+1, +0) within 3×4 block.
+    REQUIRE(spriteCmd->srcX == ((2 % 4) * 3 + 1) * 48); // 336
+    REQUIRE(spriteCmd->srcY == (2 / 4) * 4 * 48);       // 0
+    REQUIRE(spriteCmd->width == 48);
+    REQUIRE(spriteCmd->height == 48);
+}
+
+TEST_CASE("Window_Base drawIcon emits SpriteCommand with correct source rect", "[compat][window]") {
+    auto& layer = urpg::RenderLayer::getInstance();
+    layer.flush();
+
+    Window_Base::CreateParams params;
+    params.rect = Rect{0, 0, 200, 100};
+    Window_Base window(params);
+
+    window.drawIcon(5, 10, 20);
+
+    const auto& commands = layer.getCommands();
+    REQUIRE_FALSE(commands.empty());
+    REQUIRE(commands.back()->type == urpg::RenderCmdType::Sprite);
+
+    auto spriteCmd = std::dynamic_pointer_cast<urpg::SpriteCommand>(commands.back());
+    REQUIRE(spriteCmd != nullptr);
+    REQUIRE(spriteCmd->textureId == "IconSet");
+    REQUIRE(spriteCmd->srcX == (5 % 16) * 32);
+    REQUIRE(spriteCmd->srcY == (5 / 16) * 32);
+    REQUIRE(spriteCmd->width == 32);
+    REQUIRE(spriteCmd->height == 32);
 }
 
 TEST_CASE("Window_Base registerAPI bindings route through default instance", "[compat][window]") {
@@ -544,11 +572,11 @@ TEST_CASE("Snapshot: drawTextEx wrapped centered and right alignment remains sta
 }
 
 TEST_CASE("Window_Base getMethodStatus for extended methods", "[compat][window]") {
-    REQUIRE(Window_Base::getMethodStatus("lineHeight") == CompatStatus::STUB);
+    REQUIRE(Window_Base::getMethodStatus("lineHeight") == CompatStatus::PARTIAL);
     REQUIRE(Window_Base::getMethodStatus("drawTextEx") == CompatStatus::PARTIAL);
-    REQUIRE(Window_Base::getMethodStatus("drawActorHp") == CompatStatus::STUB);
-    REQUIRE(Window_Base::getMethodStatus("drawActorMp") == CompatStatus::STUB);
-    REQUIRE(Window_Base::getMethodStatus("drawActorTp") == CompatStatus::STUB);
+    REQUIRE(Window_Base::getMethodStatus("drawActorHp") == CompatStatus::PARTIAL);
+    REQUIRE(Window_Base::getMethodStatus("drawActorMp") == CompatStatus::PARTIAL);
+    REQUIRE(Window_Base::getMethodStatus("drawActorTp") == CompatStatus::PARTIAL);
     REQUIRE(Window_Base::getMethodStatus("textWidth") == CompatStatus::FULL);
     REQUIRE(Window_Base::getMethodStatus("textSize") == CompatStatus::FULL);
 }
@@ -926,6 +954,27 @@ TEST_CASE("Window_Command getCommand bounds check", "[compat][window]") {
     REQUIRE_FALSE(invalid.enabled);
 }
 
+TEST_CASE("Window_Command drawItem calls drawText", "[compat][window]") {
+    Window_Command::CreateParams params;
+    params.rect = Rect{0, 0, 200, 100};
+    params.commands = {
+        {"Enabled", "ok", true, 0},
+        {"Disabled", "no", false, 1}
+    };
+    Window_Command window(params);
+
+    const uint32_t drawTextBefore = Window_Base::getMethodCallCount("drawText");
+    const uint32_t changeColorBefore = Window_Base::getMethodCallCount("changeTextColor");
+
+    window.drawItem(0);
+    REQUIRE(Window_Base::getMethodCallCount("drawText") == drawTextBefore + 1);
+    REQUIRE(Window_Base::getMethodCallCount("changeTextColor") == changeColorBefore + 1);
+
+    window.drawItem(1);
+    REQUIRE(Window_Base::getMethodCallCount("drawText") == drawTextBefore + 2);
+    REQUIRE(Window_Base::getMethodCallCount("changeTextColor") == changeColorBefore + 2);
+}
+
 // ============================================================================
 // Sprite_Character Tests
 // ============================================================================
@@ -1274,6 +1323,68 @@ TEST_CASE("WindowCompatManager registerAllAPIs", "[compat][manager]") {
     
     // Should not throw
     manager.registerAllAPIs(ctx);
+}
+
+TEST_CASE("Window_Selectable JS bindings return non-nil values", "[compat][window]") {
+    Window_Selectable window(Window_Selectable::CreateParams{});
+    window.setMaxItems(5);
+    Window_Base::setDefaultInstance(&window);
+
+    QuickJSContext ctx;
+    REQUIRE(ctx.initialize(QuickJSConfig{}));
+    Window_Selectable::registerAPI(ctx);
+
+    auto result = ctx.callMethod("Window_Selectable", "index", {});
+    REQUIRE(result.success);
+    REQUIRE_FALSE(std::holds_alternative<std::monostate>(result.value.v));
+
+    result = ctx.callMethod("Window_Selectable", "maxItems", {});
+    REQUIRE(result.success);
+    REQUIRE_FALSE(std::holds_alternative<std::monostate>(result.value.v));
+
+    result = ctx.callMethod("Window_Selectable", "select", {urpg::Value::Int(2)});
+    REQUIRE(result.success);
+    REQUIRE_FALSE(std::holds_alternative<std::monostate>(result.value.v));
+    REQUIRE(window.getIndex() == 2);
+
+    result = ctx.callMethod("Window_Selectable", "topRow", {});
+    REQUIRE(result.success);
+    REQUIRE_FALSE(std::holds_alternative<std::monostate>(result.value.v));
+
+    result = ctx.callMethod("Window_Selectable", "itemWidth", {});
+    REQUIRE(result.success);
+    REQUIRE_FALSE(std::holds_alternative<std::monostate>(result.value.v));
+
+    Window_Base::setDefaultInstance(nullptr);
+}
+
+TEST_CASE("Window_Command JS bindings return non-nil values", "[compat][window]") {
+    Window_Command::CreateParams params;
+    params.commands = {
+        {"Item", "item", true, 10}
+    };
+    Window_Command window(params);
+    Window_Base::setDefaultInstance(&window);
+
+    QuickJSContext ctx;
+    REQUIRE(ctx.initialize(QuickJSConfig{}));
+    Window_Command::registerAPI(ctx);
+
+    urpg::Value strArg;
+    strArg.v = std::string("item");
+    auto result = ctx.callMethod("Window_Command", "findSymbol", {strArg});
+    REQUIRE(result.success);
+    REQUIRE_FALSE(std::holds_alternative<std::monostate>(result.value.v));
+
+    result = ctx.callMethod("Window_Command", "selectSymbol", {strArg});
+    REQUIRE(result.success);
+    REQUIRE_FALSE(std::holds_alternative<std::monostate>(result.value.v));
+
+    result = ctx.callMethod("Window_Command", "ext", {});
+    REQUIRE(result.success);
+    REQUIRE_FALSE(std::holds_alternative<std::monostate>(result.value.v));
+
+    Window_Base::setDefaultInstance(nullptr);
 }
 
 // ============================================================================

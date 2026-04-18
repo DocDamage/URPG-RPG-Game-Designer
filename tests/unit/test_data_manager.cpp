@@ -375,6 +375,43 @@ TEST_CASE("DataManager: JS API bindings via registerAPI", "[data_manager]") {
     REQUIRE(std::get<int64_t>(getItemResult.value.v) == 12);
 }
 
+TEST_CASE("DataManager: gainExp triggers level-up and skill learning", "[data_manager]") {
+    DataManager::setDataDirectory("");
+    DataManager dm;
+    dm.loadDatabase();
+    dm.setupNewGame();
+
+    ActorData* actor = dm.getActor(1);
+    ClassData* cls = dm.getClass(1);
+    REQUIRE(actor != nullptr);
+    REQUIRE(cls != nullptr);
+
+    actor->level = 1;
+    actor->exp = 0;
+    actor->skills.clear();
+    cls->expTable = {15, 30, 60};
+    cls->skillsToLearn = {{2, 1}, {3, 2}};
+    cls->maxLevel = 99;
+
+    dm.gainExp(1, 10);
+    REQUIRE(actor->level == 1);
+    REQUIRE(actor->exp == 10);
+
+    dm.gainExp(1, 10);
+    REQUIRE(actor->level == 2);
+    REQUIRE(actor->exp == 5);
+    REQUIRE(std::find(actor->skills.begin(), actor->skills.end(), 1) != actor->skills.end());
+
+    dm.gainExp(1, 100);
+    REQUIRE(actor->level == 4);
+    REQUIRE(actor->exp == 15);
+    REQUIRE(std::find(actor->skills.begin(), actor->skills.end(), 2) != actor->skills.end());
+
+    cls->maxLevel = 4;
+    dm.gainExp(1, 9999);
+    REQUIRE(actor->level == 4);
+}
+
 TEST_CASE("DataManager structs: defaults", "[data_manager]") {
     SaveHeader header;
     REQUIRE(header.version == 0);

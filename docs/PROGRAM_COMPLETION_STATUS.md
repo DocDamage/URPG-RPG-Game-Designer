@@ -1,4 +1,4 @@
-# URPG Program Completion Status
+﻿# URPG Program Completion Status
 
 Status Date: 2026-04-17  
 Program Scope: native-first roadmap rewire plus Wave 1 absorption, Wave 2 advanced capability expansion, and compat exit hardening
@@ -7,7 +7,7 @@ Cross-cutting debt, truthfulness, and intake-governance source of truth: `docs/T
 
 ## Where we are now
 
-- Presentation planning is now aligned around **Phase 5 — Environment & Presentation Polish**:
+- Presentation planning is now aligned around **Phase 5 â€” Environment & Presentation Polish**:
   - **Incubating:** `editor/spatial/*` panels (`ElevationBrushPanel`, `PropPlacementPanel`) are header-only with no compiled `.cpp` sources registered in the build graph.
   - **Incubating:** `engine/core/presentation/*` is predominantly header-only abstraction; only `presentation_runtime.cpp` and `release_validation.cpp` are actively compiled. `profile_arena.cpp` exists but is not registered in `urpg_core`.
   - `test_spatial_editor.cpp` and `test_presentation_runtime.cpp` are registered and passing, anchoring the future productization path.
@@ -244,7 +244,7 @@ The scope in this document is considered 100% complete when all items below are 
    - extend beyond the landed diagnostics-workspace/menu-import anchors into broader scene-graph + resolver parity checks.
 5. Continue compat exit hardening:
    - keep new routed failure operations locked to JSONL/report/panel parity and maintain weekly conformance depth growth.
-6. Publish explicit compat exit checklist artifact with import-confidence and migration-confidence pass criteria.
+6. ~~Publish explicit compat exit checklist artifact with import-confidence and migration-confidence pass criteria.~~ **DONE** — see docs/COMPAT_EXIT_CHECKLIST.md.
 
 ## Remaining work to reach 100%
 
@@ -252,7 +252,7 @@ The scope in this document is considered 100% complete when all items below are 
 
 - [ ] Expand routed conformance coverage beyond the current anchor scenarios across the curated 10-profile corpus.
 - [ ] Keep every new failure operation locked to JSONL artifacts, report ingestion/export, and panel projection assertions.
-- [ ] Complete explicit compat exit checklist with signed pass criteria for import confidence and migration confidence.
+- [x] Complete explicit compat exit checklist with signed pass criteria for import confidence and migration confidence.
 - [ ] Keep runtime status labels and public docs aligned with actual implementation scope; do not relabel fixture-backed or placeholder-backed paths as `FULL` without closing the underlying TODOs.
 
 ### 2. Wave 1 native runtime ownership (remaining)
@@ -321,3 +321,4 @@ The scope in this document is considered 100% complete when all items below are 
   - [x] Visual Studio SDL discovery no longer imports MSYS2 MinGW headers into MSVC projects.
   - [x] Focused presentation gate helper now reconfigures stale local build trees before running.
   - [x] `urpg_core` and `urpg_tests` build in both `dev-vs2022` and `dev-mingw-debug`, with the focused presentation gate passing locally on the Visual Studio lane.
+

@@ -279,6 +279,10 @@ TEST_CASE("DiagnosticsWorkspace - Refresh updates compat and save tabs", "[edito
     REQUIRE_FALSE(workspace.eventAuthorityPanel().isVisible());
     REQUIRE(workspace.messagePanel().isVisible());
     REQUIRE_FALSE(workspace.battlePanel().isVisible());
+    REQUIRE(workspace.messagePanel().hasRenderedFrame());
+    REQUIRE(workspace.messagePanel().lastRenderSnapshot().has_data);
+    REQUIRE(workspace.messagePanel().lastRenderSnapshot().total_pages == 2);
+    REQUIRE(workspace.messagePanel().lastRenderSnapshot().visible_row_count == 2);
     const auto messageJson = nlohmann::json::parse(facade.emitSnapshot());
     REQUIRE(messageJson["active_tab"] == "message_text");
     REQUIRE(messageJson["active_tab_detail"]["tab"] == "message_text");
@@ -1675,6 +1679,9 @@ TEST_CASE("DiagnosticsWorkspace - Message inspector workflow actions are exposed
     workspace.setActiveTab(urpg::editor::DiagnosticsTab::MessageText);
     workspace.update();
 
+    REQUIRE(workspace.messagePanel().hasRenderedFrame());
+    REQUIRE(workspace.messagePanel().lastRenderSnapshot().has_data);
+    REQUIRE(workspace.messagePanel().lastRenderSnapshot().visible_row_count == 2);
     auto exported = nlohmann::json::parse(workspace.exportAsJson());
     REQUIRE(exported["active_tab"] == "message_text");
     REQUIRE(exported["active_tab_detail"]["visible_rows"].size() == 2);
@@ -1699,4 +1706,40 @@ TEST_CASE("DiagnosticsWorkspace - Message inspector workflow actions are exposed
     exported = nlohmann::json::parse(workspace.exportAsJson());
     REQUIRE(exported["active_tab_detail"]["visible_rows"].size() == 2);
     REQUIRE(exported["active_tab_detail"]["selected_page_id"] == "speaker_a");
+}
+
+TEST_CASE("DiagnosticsWorkspace - Message inspector actions keep exported snapshot current without manual render",
+          "[editor][diagnostics][integration][message_snapshot]") {
+    urpg::editor::DiagnosticsWorkspace workspace;
+    workspace.setActiveTab(urpg::editor::DiagnosticsTab::MessageText);
+
+    urpg::message::MessageFlowRunner runner;
+    runner.begin({
+        {"speaker_a", "Welcome back.", urpg::message::variantFromCompatRoute("speaker", "Alicia", 3), true, {}, 0},
+        {"narration_b", "", urpg::message::variantFromCompatRoute("narration", "Alicia", 3), true, {}, 0},
+    });
+    urpg::message::RichTextLayoutEngine layout;
+    workspace.bindMessageRuntime(runner, layout);
+    workspace.render();
+
+    auto exported = nlohmann::json::parse(workspace.exportAsJson());
+    REQUIRE(exported["active_tab"] == "message_text");
+    REQUIRE(exported["active_tab_detail"]["has_data"] == true);
+    REQUIRE(exported["active_tab_detail"]["visible_rows"].size() == 2);
+    REQUIRE(exported["active_tab_detail"]["visible_rows"][0]["page_id"] == "speaker_a");
+
+    workspace.clearMessageRuntime();
+    exported = nlohmann::json::parse(workspace.exportAsJson());
+    REQUIRE(exported["active_tab_detail"]["has_data"] == false);
+    REQUIRE(exported["active_tab_detail"]["visible_rows"].empty());
+
+    urpg::message::MessageFlowRunner runner2;
+    runner2.begin({
+        {"page_c", "Hello.", urpg::message::variantFromCompatRoute("speaker", "Bob", 1), true, {}, 0},
+    });
+    workspace.bindMessageRuntime(runner2, layout);
+    exported = nlohmann::json::parse(workspace.exportAsJson());
+    REQUIRE(exported["active_tab_detail"]["has_data"] == true);
+    REQUIRE(exported["active_tab_detail"]["visible_rows"].size() == 1);
+    REQUIRE(exported["active_tab_detail"]["visible_rows"][0]["page_id"] == "page_c");
 }

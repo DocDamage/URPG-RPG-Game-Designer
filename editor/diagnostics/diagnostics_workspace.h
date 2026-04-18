@@ -133,6 +133,7 @@ private:
     void renderEventAuthoritySnapshotIfActive();
     void refreshMenuSnapshotIfActive();
     void refreshAudioSnapshotIfActive();
+    void refreshMessageInspectorSnapshotIfActive();
     void refreshMigrationWizardSnapshotIfActive();
 
     CompatReportPanel compat_panel_;

@@ -3,7 +3,7 @@
 namespace urpg::editor {
 
 void MessageInspectorPanel::bindRuntime(const urpg::message::MessageFlowRunner& flow_runner,
-                                        const urpg::message::RichTextLayoutEngine& layout_engine) {
+                                         const urpg::message::RichTextLayoutEngine& layout_engine) {
     flow_runner_ = &flow_runner;
     layout_engine_ = &layout_engine;
 }
@@ -44,6 +44,28 @@ void MessageInspectorPanel::render() {
     if (!visible_) {
         return;
     }
+
+    const auto& summary = model_.Summary();
+    const auto& rows = model_.VisibleRows();
+    const auto& issues = model_.Issues();
+
+    last_render_snapshot_.summary = summary;
+    last_render_snapshot_.has_data = summary.total_pages > 0 || !issues.empty();
+    last_render_snapshot_.total_pages = summary.total_pages;
+    last_render_snapshot_.visible_row_count = rows.size();
+    last_render_snapshot_.issue_count = issues.size();
+    last_render_snapshot_.visible_rows = rows;
+    last_render_snapshot_.issues = issues;
+    last_render_snapshot_.route_filter = route_filter_;
+    last_render_snapshot_.show_issues_only = show_issues_only_;
+
+    if (model_.SelectedPageId().has_value()) {
+        last_render_snapshot_.selected_page_id = *model_.SelectedPageId();
+    } else {
+        last_render_snapshot_.selected_page_id.clear();
+    }
+
+    has_rendered_frame_ = true;
 }
 
 void MessageInspectorPanel::refresh() {
@@ -58,6 +80,19 @@ void MessageInspectorPanel::refresh() {
 
 void MessageInspectorPanel::update() {
     refresh();
+}
+
+void MessageInspectorPanel::clear() {
+    has_rendered_frame_ = false;
+    last_render_snapshot_ = {};
+}
+
+bool MessageInspectorPanel::hasRenderedFrame() const {
+    return has_rendered_frame_;
+}
+
+const MessageInspectorPanel::RenderSnapshot& MessageInspectorPanel::lastRenderSnapshot() const {
+    return last_render_snapshot_;
 }
 
 } // namespace urpg::editor

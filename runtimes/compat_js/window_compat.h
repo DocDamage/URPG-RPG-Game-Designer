@@ -151,6 +151,10 @@ public:
     // Status: FULL
     virtual Color systemColor(int32_t index) const;
     
+    // Status: FULL
+    virtual Color normalColor() const;
+    virtual Color dimColor() const;
+    
     // Font management
     // Status: PARTIAL - Font changes not fully applied
     virtual void resetFontSettings();
@@ -328,6 +332,12 @@ public:
     virtual void processPagedown();
     virtual void processPageup();
     
+    // Cursor / input
+    virtual bool isCursorMovable() const;
+    virtual bool isHandled(const std::string& symbol) const;
+    virtual void processOk();
+    virtual void processCancel();
+    
     // Callbacks
     using SelectHandler = std::function<void(int32_t index)>;
     void setOnSelect(SelectHandler handler) { onSelect_ = std::move(handler); }
@@ -382,6 +392,11 @@ public:
     int32_t findSymbol(const std::string& symbol) const;
     int32_t findExt(int32_t ext) const;
     void callOkHandler();
+    
+    // Extension
+    int32_t getCurrentExt() const;
+    virtual void makeCommandList();
+    virtual void processOk();
     
     // Draw
     void drawItem(int32_t index);

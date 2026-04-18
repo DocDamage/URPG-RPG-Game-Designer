@@ -6,6 +6,19 @@ namespace urpg::editor {
 
 class MessageInspectorPanel {
 public:
+    struct RenderSnapshot {
+        bool has_data = false;
+        size_t total_pages = 0;
+        size_t visible_row_count = 0;
+        size_t issue_count = 0;
+        std::string selected_page_id;
+        std::vector<MessageInspectorRow> visible_rows;
+        std::vector<MessageInspectorIssue> issues;
+        std::optional<urpg::message::MessagePresentationMode> route_filter;
+        bool show_issues_only = false;
+        MessageInspectorSummary summary;
+    };
+
     MessageInspectorPanel() = default;
 
     void bindRuntime(const urpg::message::MessageFlowRunner& flow_runner,
@@ -24,6 +37,10 @@ public:
     void render();
     void refresh();
     void update();
+    void clear();
+
+    bool hasRenderedFrame() const;
+    const RenderSnapshot& lastRenderSnapshot() const;
 
 private:
     const urpg::message::MessageFlowRunner* flow_runner_ = nullptr;
@@ -32,6 +49,8 @@ private:
     bool visible_ = true;
     std::optional<urpg::message::MessagePresentationMode> route_filter_;
     bool show_issues_only_ = false;
+    bool has_rendered_frame_ = false;
+    RenderSnapshot last_render_snapshot_;
 };
 
 } // namespace urpg::editor

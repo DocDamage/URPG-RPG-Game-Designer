@@ -3,6 +3,7 @@
 
 #include <catch2/catch_test_macros.hpp>
 #include <algorithm>
+#include <variant>
 
 using namespace urpg::compat;
 
@@ -480,6 +481,128 @@ TEST_CASE("BattleManager: processAction resolves attack and advances queue", "[b
     bm.processAction(action);
     REQUIRE(bm.getEnemy(0)->hp < bm.getEnemy(0)->mhp);
     REQUIRE(bm.getNextAction() == nullptr);
+}
+
+TEST_CASE("BattleManager: applySkill deals expected damage and healing", "[battlemgr]") {
+    DataManager::instance().loadDatabase();
+    DataManager::instance().setupNewGame();
+    BattleManager bm;
+    bm.setup(1, true, false);
+
+    BattleSubject* enemy = bm.getEnemy(0);
+    REQUIRE(enemy != nullptr);
+    int32_t initialHp = enemy->hp;
+
+    bm.applySkill(nullptr, enemy, 2); // Fire skill (damage.type=1, power=25)
+    REQUIRE(enemy->hp < initialHp);
+
+    BattleSubject actor;
+    actor.type = BattleSubjectType::ACTOR;
+    actor.index = 0;
+    actor.hp = 10;
+    actor.mhp = 100;
+    bm.addActorSubject(actor);
+    BattleSubject* seededActor = bm.getActor(bm.getActorsConst().size() - 1);
+    REQUIRE(seededActor != nullptr);
+    bm.applySkill(nullptr, seededActor, 1); // Heal skill (damage.type=3, power=30)
+    REQUIRE(seededActor->hp == 40);
+}
+
+TEST_CASE("BattleManager: applyItem heals or damages correctly", "[battlemgr]") {
+    DataManager::instance().loadDatabase();
+    DataManager::instance().setupNewGame();
+    BattleManager bm;
+    bm.setup(1, true, false);
+
+    BattleSubject actor;
+    actor.type = BattleSubjectType::ACTOR;
+    actor.index = 0;
+    actor.hp = 20;
+    actor.mhp = 100;
+    bm.addActorSubject(actor);
+    BattleSubject* seededActor = bm.getActor(bm.getActorsConst().size() - 1);
+    REQUIRE(seededActor != nullptr);
+
+    bm.applyItem(nullptr, seededActor, 1); // Potion (effect code 11, value2=200)
+    REQUIRE(seededActor->hp == 100); // capped at max
+
+    BattleSubject* enemy = bm.getEnemy(0);
+    REQUIRE(enemy != nullptr);
+    int32_t initialHp = enemy->hp;
+    bm.applyItem(nullptr, enemy, 999); // non-existent item
+    REQUIRE(enemy->hp == initialHp);
+}
+
+TEST_CASE("BattleManager: applyExp after battle triggers level-up", "[battlemgr]") {
+    DataManager::instance().loadDatabase();
+    DataManager::instance().setupNewGame();
+
+    ActorData* actor = DataManager::instance().getActor(1);
+    ClassData* cls = DataManager::instance().getClass(actor->classId);
+    REQUIRE(actor != nullptr);
+    REQUIRE(cls != nullptr);
+    actor->level = 1;
+    actor->exp = 0;
+    actor->skills.clear();
+    cls->expTable = {15};
+    cls->skillsToLearn = {{2, 1}};
+    cls->maxLevel = 99;
+
+    BattleManager bm;
+    bm.setup(2, true, false); // Goblin gives 20 exp
+    bm.getEnemy(0)->hp = 0; // kill
+    bm.applyExp();
+
+    REQUIRE(actor->level == 2);
+    REQUIRE(actor->exp == 5);
+    REQUIRE(std::find(actor->skills.begin(), actor->skills.end(), 1) != actor->skills.end());
+}
+
+TEST_CASE("BattleManager: JS bindings return non-default values", "[battlemgr]") {
+    BattleManager::instance().setup(1, true, false);
+    BattleManager::instance().startBattle();
+
+    QuickJSContext ctx;
+    QuickJSConfig config;
+    REQUIRE(ctx.initialize(config));
+
+    BattleManager::registerAPI(ctx);
+
+    auto phaseResult = ctx.callMethod("BattleManager", "getPhase", {});
+    REQUIRE(phaseResult.success);
+    REQUIRE(std::holds_alternative<int64_t>(phaseResult.value.v));
+    REQUIRE(std::get<int64_t>(phaseResult.value.v) == static_cast<int32_t>(BattlePhase::INPUT));
+
+    auto canEscapeResult = ctx.callMethod("BattleManager", "canEscape", {});
+    REQUIRE(canEscapeResult.success);
+    REQUIRE(std::get<int64_t>(canEscapeResult.value.v) == 1);
+
+    auto canLoseResult = ctx.callMethod("BattleManager", "canLose", {});
+    REQUIRE(canLoseResult.success);
+    REQUIRE(std::get<int64_t>(canLoseResult.value.v) == 0);
+
+    auto isBattleTestResult = ctx.callMethod("BattleManager", "isBattleTest", {});
+    REQUIRE(isBattleTestResult.success);
+    REQUIRE(std::get<int64_t>(isBattleTestResult.value.v) == 0);
+
+    auto turnResult = ctx.callMethod("BattleManager", "getTurnCount", {});
+    REQUIRE(turnResult.success);
+    REQUIRE(std::get<int64_t>(turnResult.value.v) == 0);
+
+    auto checkResult = ctx.callMethod("BattleManager", "checkTurnCondition", {urpg::Value::Int(1), urpg::Value::Int(0)});
+    REQUIRE(checkResult.success);
+    REQUIRE(std::get<int64_t>(checkResult.value.v) == 0);
+
+    BattleManager::instance().queueActionByIndices(0, BattleSubjectType::ACTOR, BattleActionType::ATTACK, 0, 0, 0);
+    auto nextActionResult = ctx.callMethod("BattleManager", "getNextAction", {});
+    REQUIRE(nextActionResult.success);
+    REQUIRE(std::holds_alternative<urpg::Object>(nextActionResult.value.v));
+    auto& obj = std::get<urpg::Object>(nextActionResult.value.v);
+    REQUIRE(obj.find("type") != obj.end());
+    const auto& typeValue = obj.at("type");
+    const auto* typePtr = std::get_if<int64_t>(&typeValue.v);
+    REQUIRE(typePtr != nullptr);
+    REQUIRE(*typePtr == static_cast<int32_t>(BattleActionType::ATTACK));
 }
 
 TEST_CASE("Battle structs and enums", "[battlemgr]") {

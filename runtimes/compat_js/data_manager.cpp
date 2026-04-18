@@ -297,6 +297,7 @@ bool DataManager::loadActors() {
     hero.initialLevel = 1;
     hero.maxLevel = 99;
     hero.level = 1;
+    hero.exp = 0;
     hero.faceName = "Actor1";
     hero.faceIndex = 0;
     hero.characterName = "Actor1";
@@ -316,11 +317,37 @@ bool DataManager::loadClasses() {
             ClassData cls;
             cls.id = elem.value("id", 0);
             cls.name = elem.value("name", "");
+            cls.maxLevel = elem.value("maxLevel", 99);
             if (elem.contains("learnings") && elem["learnings"].is_array()) {
                 for (const auto& ln : elem["learnings"]) {
-                    if (ln.contains("skillId")) {
+                    if (ln.is_object()) {
+                        int32_t level = ln.value("level", 1);
+                        int32_t skillId = 0;
+                        if (ln.contains("skillId")) {
+                            if (ln["skillId"].is_number()) skillId = ln["skillId"].get<int32_t>();
+                        }
+                        cls.skillsToLearn.push_back({level, skillId});
+                        if (skillId > 0) {
+                            cls.learnings.push_back(skillId);
+                        }
+                    } else if (ln.contains("skillId")) {
                         cls.learnings.push_back(ln["skillId"].get<int32_t>());
                     }
+                }
+            }
+            if (elem.contains("expParams") && elem["expParams"].is_array() && elem["expParams"].size() >= 4) {
+                int32_t base = elem["expParams"][0].get<int32_t>();
+                int32_t extra = elem["expParams"][1].get<int32_t>();
+                int32_t accA = elem["expParams"][2].get<int32_t>();
+                int32_t accB = elem["expParams"][3].get<int32_t>();
+                for (int32_t lvl = 1; lvl < cls.maxLevel; ++lvl) {
+                    int32_t nextExp = base + (extra * lvl) + (accA * lvl * lvl / 100) + (accB * lvl * lvl * lvl / 10000);
+                    if (nextExp < 1) nextExp = 1;
+                    cls.expTable.push_back(nextExp);
+                }
+            } else {
+                for (int32_t lvl = 1; lvl < cls.maxLevel; ++lvl) {
+                    cls.expTable.push_back(50 + lvl * 15);
                 }
             }
             if (elem.contains("params") && elem["params"].is_array()) {
@@ -345,6 +372,10 @@ bool DataManager::loadClasses() {
     ClassData warrior;
     warrior.id = 1;
     warrior.name = "Warrior";
+    warrior.maxLevel = 99;
+    for (int32_t lvl = 1; lvl < warrior.maxLevel; ++lvl) {
+        warrior.expTable.push_back(50 + lvl * 15);
+    }
     classes_.push_back(std::move(warrior));
     hydrateActorParamsFromClasses(actors_, classes_);
     return true;
@@ -367,6 +398,26 @@ bool DataManager::loadSkills() {
             skill.successRate = elem.value("successRate", 100);
             skill.repeats = elem.value("repeats", 1);
             skill.animationId = elem.value("animationId", 0);
+            if (elem.contains("damage") && elem["damage"].is_object()) {
+                auto& d = elem["damage"];
+                skill.damage.type = d.value("type", 0);
+                skill.damage.elementId = d.value("elementId", 0);
+                skill.damage.formula = d.value("formula", "");
+                skill.damage.variance = d.value("variance", 20);
+                skill.damage.canCrit = d.value("critical", false);
+            }
+            if (elem.contains("effects") && elem["effects"].is_array()) {
+                for (const auto& e : elem["effects"]) {
+                    if (e.is_object()) {
+                        EffectData eff;
+                        eff.code = e.value("code", 0);
+                        eff.dataId = e.value("dataId", 0);
+                        eff.value1 = e.value("value1", 0.0);
+                        eff.value2 = e.value("value2", 0.0);
+                        skill.effects.push_back(eff);
+                    }
+                }
+            }
             if (skill.id > 0 && static_cast<size_t>(skill.id) > skills_.size()) {
                 skills_.resize(static_cast<size_t>(skill.id));
             }
@@ -388,7 +439,25 @@ bool DataManager::loadSkills() {
     heal.successRate = 100;
     heal.repeats = 1;
     heal.animationId = 41;
+    heal.damage.type = 3;
+    heal.damage.power = 30;
     skills_.push_back(std::move(heal));
+
+    SkillData fire;
+    fire.id = 2;
+    fire.name = "Fire";
+    fire.description = "Deals fire damage to one enemy.";
+    fire.typeId = 1;
+    fire.scope = 1;
+    fire.mpCost = 5;
+    fire.tpCost = 0;
+    fire.speed = 0;
+    fire.successRate = 100;
+    fire.repeats = 1;
+    fire.animationId = 67;
+    fire.damage.type = 1;
+    fire.damage.power = 25;
+    skills_.push_back(std::move(fire));
     return true;
 }
 
@@ -408,6 +477,26 @@ bool DataManager::loadItems() {
             item.price = elem.value("price", 0);
             item.scope = elem.value("scope", 0);
             item.animationId = elem.value("animationId", 0);
+            if (elem.contains("damage") && elem["damage"].is_object()) {
+                auto& d = elem["damage"];
+                item.damage.type = d.value("type", 0);
+                item.damage.elementId = d.value("elementId", 0);
+                item.damage.formula = d.value("formula", "");
+                item.damage.variance = d.value("variance", 20);
+                item.damage.canCrit = d.value("critical", false);
+            }
+            if (elem.contains("effects") && elem["effects"].is_array()) {
+                for (const auto& e : elem["effects"]) {
+                    if (e.is_object()) {
+                        EffectData eff;
+                        eff.code = e.value("code", 0);
+                        eff.dataId = e.value("dataId", 0);
+                        eff.value1 = e.value("value1", 0.0);
+                        eff.value2 = e.value("value2", 0.0);
+                        item.effects.push_back(eff);
+                    }
+                }
+            }
             if (item.id > 0 && static_cast<size_t>(item.id) > items_.size()) {
                 items_.resize(static_cast<size_t>(item.id));
             }
@@ -428,6 +517,10 @@ bool DataManager::loadItems() {
     potion.price = 50;
     potion.scope = 7;
     potion.animationId = 41;
+    EffectData potionEff;
+    potionEff.code = 11;
+    potionEff.value2 = 200.0;
+    potion.effects.push_back(potionEff);
     items_.push_back(std::move(potion));
     return true;
 }
@@ -838,6 +931,10 @@ const ActorData* DataManager::getActor(int32_t id) const {
     return &actors_[static_cast<size_t>(id - 1)];
 }
 
+ActorData* DataManager::getActor(int32_t id) {
+    return const_cast<ActorData*>(static_cast<const DataManager*>(this)->getActor(id));
+}
+
 int32_t DataManager::getActorParam(int32_t actorId, int32_t paramId, int32_t level) const {
     const auto* actor = getActor(actorId);
     if (actor == nullptr || paramId < 0) {
@@ -881,6 +978,10 @@ const ClassData* DataManager::getClass(int32_t id) const {
     return &classes_[static_cast<size_t>(id - 1)];
 }
 
+ClassData* DataManager::getClass(int32_t id) {
+    return const_cast<ClassData*>(static_cast<const DataManager*>(this)->getClass(id));
+}
+
 const SkillData* DataManager::getSkill(int32_t id) const {
     if (id <= 0 || static_cast<size_t>(id) > skills_.size()) {
         return nullptr;
@@ -888,11 +989,19 @@ const SkillData* DataManager::getSkill(int32_t id) const {
     return &skills_[static_cast<size_t>(id - 1)];
 }
 
+SkillData* DataManager::getSkill(int32_t id) {
+    return const_cast<SkillData*>(static_cast<const DataManager*>(this)->getSkill(id));
+}
+
 const ItemData* DataManager::getItem(int32_t id) const {
     if (id <= 0 || static_cast<size_t>(id) > items_.size()) {
         return nullptr;
     }
     return &items_[static_cast<size_t>(id - 1)];
+}
+
+ItemData* DataManager::getItem(int32_t id) {
+    return const_cast<ItemData*>(static_cast<const DataManager*>(this)->getItem(id));
 }
 
 const ItemData* DataManager::getWeapon(int32_t id) const {
@@ -1157,9 +1266,34 @@ void DataManager::updateActorMp(int32_t actorId, int32_t mp) {
 }
 
 void DataManager::gainExp(int32_t actorId, int32_t exp) {
-    // In MZ, EXP is stored in the Actor object.
-    // For now, we simulate the level up check logic.
-    // In a full implementation, we'd query the ClassData exp table.
+    auto* actor = getActor(actorId);
+    if (!actor) return;
+
+    actor->exp += exp;
+
+    const auto* cls = getClass(actor->classId);
+    if (!cls) return;
+
+    const int32_t maxLv = std::min(actor->maxLevel, cls->maxLevel);
+    while (actor->level < maxLv) {
+        const int32_t nextLevel = actor->level + 1;
+        const int32_t required = (nextLevel - 2 >= 0 && nextLevel - 2 < static_cast<int32_t>(cls->expTable.size()))
+                                     ? cls->expTable[nextLevel - 2]
+                                     : nextLevel * 10; // fallback curve
+        if (actor->exp < required) {
+            break;
+        }
+        actor->exp -= required;
+        actor->level = nextLevel;
+        // Learn skills for this level
+        for (const auto& pair : cls->skillsToLearn) {
+            if (pair.first == actor->level) {
+                if (std::find(actor->skills.begin(), actor->skills.end(), pair.second) == actor->skills.end()) {
+                    actor->skills.push_back(pair.second);
+                }
+            }
+        }
+    }
 }
 
 int32_t DataManager::getPlayerMapId() const {
@@ -1383,6 +1517,12 @@ Value DataManager::getActorsAsValue() const {
         obj["characterIndex"] = Value::Int(actor.characterIndex);
         Value battlerName; battlerName.v = actor.battlerName; obj["battlerName"] = std::move(battlerName);
         obj["battlerIndex"] = Value::Int(actor.battlerIndex);
+        obj["exp"] = Value::Int(actor.exp);
+        Array skillsArr;
+        for (int32_t sid : actor.skills) {
+            skillsArr.push_back(Value::Int(sid));
+        }
+        obj["skills"] = Value::Arr(std::move(skillsArr));
         arr.push_back(Value::Obj(std::move(obj)));
     }
     return Value::Arr(std::move(arr));

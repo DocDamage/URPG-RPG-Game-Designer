@@ -276,10 +276,10 @@ public:
     // Status: FULL - Apply healing to subject
     void applyHeal(BattleSubject* subject, int32_t amount, bool isHp = true);
     
-    // Status: STUB - Placeholder path; does not resolve skill database effects
+    // Status: PARTIAL - Resolves skill database record and applies damage/healing/state effects; full formula parsing is not yet implemented
     void applySkill(BattleSubject* user, BattleSubject* target, int32_t skillId);
     
-    // Status: STUB - Placeholder path; does not resolve item database effects
+    // Status: PARTIAL - Resolves item database record and applies damage/healing/state effects; full formula parsing is not yet implemented
     void applyItem(BattleSubject* user, BattleSubject* target, int32_t itemId);
 
     // Status: FULL - Add/remove/query state effects
@@ -363,6 +363,37 @@ public:
     
     // Test helper: seed the internal RNG for deterministic tests
     void seedRng(uint32_t seed);
+    
+    // ========================================================================
+    // JS-friendly helpers
+    // ========================================================================
+    
+    // Status: FULL - Battle test flag (always false in compat harness)
+    bool isBattleTest() const;
+    
+    // Status: FULL - Check if battle can be lost
+    bool canLose() const;
+    
+    // Status: FULL - Escape callbacks
+    void onEscapeSuccess();
+    void onEscapeFailure();
+    
+    // Status: STUB - Background/Audio metadata setters (routed to existing setters; playback still TODO)
+    void changeBattleBackground(const std::string& name);
+    void changeBattleBgm(const std::string& name, double volume = 90.0, double pitch = 100.0);
+    void changeVictoryMe(const std::string& name, double volume = 90.0, double pitch = 100.0);
+    void changeDefeatMe(const std::string& name, double volume = 90.0, double pitch = 100.0);
+    
+    // Status: FULL - Alias for hasState
+    bool isStateActive(const BattleSubject* subject, int32_t stateId) const;
+    
+    // Status: FULL - Process next queued action (parameterless overload)
+    void processAction();
+    
+    // Status: FULL - Queue action by subject indices (JS-friendly)
+    void queueActionByIndices(int32_t subjectIndex, BattleSubjectType subjectType,
+                              BattleActionType type, int32_t targetIndex,
+                              int32_t skillId = 0, int32_t itemId = 0);
     
     // ========================================================================
     // Compat Status

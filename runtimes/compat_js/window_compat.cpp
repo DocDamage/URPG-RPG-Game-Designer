@@ -294,16 +294,17 @@ void Window_Base::initializeMethodStatus() {
     // FULL status methods
     setStatus("drawText", CompatStatus::FULL);
     setStatus("drawIcon", CompatStatus::PARTIAL,
-              "Tracks icon draw intent, but icon-set bitmap rendering is still TODO.");
+              "SpriteCommand is submitted with correct source rect; texture path is hardcoded to IconSet.");
     setStatus("drawActorName", CompatStatus::PARTIAL,
               "Actor-name lookup and text draw are wired; full window chrome is not implemented.");
     setStatus("drawActorLevel", CompatStatus::PARTIAL,
               "Actor-level lookup and text draw are wired; full window chrome is not implemented.");
     setStatus("drawGauge", CompatStatus::PARTIAL,
-              "Background and fill RectCommands are submitted; gradient fill is still TODO.");
+              "Background and fill RectCommands are submitted; gradient fill is pending a GradientRectCommand primitive.");
     setStatus("drawCharacter", CompatStatus::PARTIAL,
-              "SpriteCommand is submitted; character-sheet index mapping is still TODO.");
-    setStatus("lineHeight", CompatStatus::STUB);
+              "SpriteCommand is submitted with proper MZ 48×48 standing-frame source rect.");
+    setStatus("lineHeight", CompatStatus::PARTIAL,
+              "Returns hardcoded MZ default 36.");
     setStatus("changeTextColor", CompatStatus::FULL);
     setStatus("resetTextColor", CompatStatus::FULL);
     setStatus("textColor", CompatStatus::FULL);
@@ -330,9 +331,12 @@ void Window_Base::initializeMethodStatus() {
     
     setStatus("drawActorFace", CompatStatus::PARTIAL);
     
-    setStatus("drawActorHp", CompatStatus::STUB);
-    setStatus("drawActorMp", CompatStatus::STUB);
-    setStatus("drawActorTp", CompatStatus::STUB);
+    setStatus("drawActorHp", CompatStatus::PARTIAL,
+              "Draws gauge background+fill and HP label; does not read live actor HP.");
+    setStatus("drawActorMp", CompatStatus::PARTIAL,
+              "Draws gauge background+fill and MP label; does not read live actor MP.");
+    setStatus("drawActorTp", CompatStatus::PARTIAL,
+              "Draws gauge background+fill and TP label; does not read live actor TP.");
     
     setStatus("drawTextEx", CompatStatus::PARTIAL);
     
@@ -403,11 +407,25 @@ void Window_Base::drawText(const std::string& text, int32_t x, int32_t y,
 
 void Window_Base::drawIcon(int32_t iconIndex, int32_t x, int32_t y) {
     recordMethodCall("drawIcon");
-    (void)x;
-    (void)y;
-    // TODO: Draw icon from icon set
-    // Icon is 32x32 in MZ default
     assert(iconIndex >= 0);
+
+    // MZ icon set layout: 16 icons per row, each 32×32, on a 512×512 sheet.
+    constexpr int32_t kIconsPerRow = 16;
+    constexpr int32_t kIconSize = 32;
+
+    const int32_t iconX = (iconIndex % kIconsPerRow) * kIconSize;
+    const int32_t iconY = (iconIndex / kIconsPerRow) * kIconSize;
+
+    auto spriteCmd = std::make_shared<urpg::SpriteCommand>();
+    spriteCmd->textureId = "IconSet";
+    spriteCmd->srcX = iconX;
+    spriteCmd->srcY = iconY;
+    spriteCmd->width = kIconSize;
+    spriteCmd->height = kIconSize;
+    spriteCmd->x = static_cast<float>(rect_.x + padding_ + x);
+    spriteCmd->y = static_cast<float>(rect_.y + padding_ + y);
+    spriteCmd->zOrder = 100;
+    urpg::RenderLayer::getInstance().submit(spriteCmd);
 }
 
 void Window_Base::drawActorFace(int32_t actorId, int32_t x, int32_t y, 
@@ -513,7 +531,9 @@ void Window_Base::drawGauge(int32_t x, int32_t y, int32_t width,
     bgCmd->zOrder = 100;
     urpg::RenderLayer::getInstance().submit(bgCmd);
 
-    // Fill rect (uses color1; gradient to color2 is TODO)
+    // Fill rect uses color1. Gradient to color2 is pending: the engine
+    // does not yet expose GradientRectCommand, so color2 is intentionally
+    // ignored until a gradient primitive is available.
     auto fillCmd = std::make_shared<urpg::RectCommand>();
     fillCmd->x = baseX;
     fillCmd->y = baseY;
@@ -529,22 +549,31 @@ void Window_Base::drawGauge(int32_t x, int32_t y, int32_t width,
     (void)color2; // Gradient target reserved for future implementation
 }
 
-void Window_Base::drawCharacter(const std::string& characterName, 
+void Window_Base::drawCharacter(const std::string& characterName,
                                  int32_t index, int32_t x, int32_t y) {
     recordMethodCall("drawCharacter");
     assert(!characterName.empty());
     assert(index >= 0);
+
+    // MZ standard character sheet: 4 columns × 2 rows of characters.
+    // Each character occupies a 3×4 block of 48×48 cells on a 576×384 sheet
+    // (12 cells wide × 8 cells tall). The standing frame is at offset
+    // (+1, +0) within the character block.
+    constexpr int32_t kCharSheetCols = 4;
+    constexpr int32_t kCharCellWidth = 48;
+    constexpr int32_t kCharCellHeight = 48;
+    const int32_t srcX = ((index % kCharSheetCols) * 3 + 1) * kCharCellWidth;
+    const int32_t srcY = (index / kCharSheetCols) * 4 * kCharCellHeight;
 
     auto spriteCmd = std::make_shared<urpg::SpriteCommand>();
     spriteCmd->textureId = characterName;
     spriteCmd->x = static_cast<float>(rect_.x + padding_ + x);
     spriteCmd->y = static_cast<float>(rect_.y + padding_ + y);
     spriteCmd->zOrder = 100;
-    // index: stored in srcX/srcY as a proxy until SpriteCommand gains an index field
-    spriteCmd->srcX = index * 32;
-    spriteCmd->srcY = 0;
-    spriteCmd->width = 32;
-    spriteCmd->height = 32;
+    spriteCmd->srcX = srcX;
+    spriteCmd->srcY = srcY;
+    spriteCmd->width = kCharCellWidth;
+    spriteCmd->height = kCharCellHeight;
     urpg::RenderLayer::getInstance().submit(spriteCmd);
 }
 
@@ -737,6 +766,14 @@ Color Window_Base::systemColor(int32_t index) const {
         return systemColors[index];
     }
     return Color{255, 255, 255, 255};  // Default white
+}
+
+Color Window_Base::normalColor() const {
+    return systemColor(0);
+}
+
+Color Window_Base::dimColor() const {
+    return Color{128, 128, 128, 255};
 }
 
 void Window_Base::resetFontSettings() {
@@ -1389,24 +1426,241 @@ void Window_Selectable::processPageup() {
     cursorPageup();
 }
 
+bool Window_Selectable::isCursorMovable() const {
+    return isOpen() && isActive() && maxItems_ > 0;
+}
+
+bool Window_Selectable::isHandled(const std::string& symbol) const {
+    (void)symbol;
+    return false;
+}
+
+void Window_Selectable::processOk() {
+    // Base implementation: nothing
+}
+
+void Window_Selectable::processCancel() {
+    // Base implementation: nothing
+}
+
 void Window_Selectable::registerAPI(QuickJSContext& ctx) {
     // First register Window_Base methods
     Window_Base::registerAPI(ctx);
-    
-    // Add Window_Selectable specific methods
-    std::vector<QuickJSContext::MethodDef> methods;
-    static const std::vector<std::string> methodsToExpose = {
-        "setIndex", "setMaxItems", "setMaxCols", "getItemWidth",
-        "cursorDown", "cursorUp", "cursorLeft", "cursorRight",
-        "cursorPagedown", "cursorPageup", "getRow", "getCol",
-        "setTopRow", "getTopRow", "processPagedown", "processPageup"
+
+    auto getInt = [](const Value& v, int64_t defaultVal = 0) -> int64_t {
+        if (auto* p = std::get_if<int64_t>(&v.v)) return *p;
+        if (auto* p = std::get_if<double>(&v.v)) return static_cast<int64_t>(*p);
+        return defaultVal;
     };
-    methods.reserve(methodsToExpose.size());
-    for (const auto& methodName : methodsToExpose) {
-        methods.push_back({methodName, [](const std::vector<Value>&) -> Value {
-            return Value::Nil();
-        }, CompatStatus::STUB});
-    }
+    auto getString = [](const Value& v, const std::string& defaultVal = "") -> std::string {
+        if (auto* p = std::get_if<std::string>(&v.v)) return *p;
+        return defaultVal;
+    };
+
+    auto dispatchSelectable = [&](std::function<Value(Window_Selectable&)> fn) -> Value {
+        if (!defaultInstance_) return Value::Nil();
+        auto* sel = dynamic_cast<Window_Selectable*>(defaultInstance_);
+        if (!sel) return Value::Nil();
+        return fn(*sel);
+    };
+
+    std::vector<QuickJSContext::MethodDef> methods;
+
+    auto add = [&](const std::string& name, std::function<Value(const std::vector<Value>&)> fn) {
+        QuickJSContext::MethodDef method;
+        method.name = name;
+        method.fn = fn;
+        method.status = CompatStatus::FULL;
+        methods.push_back(method);
+    };
+
+    add("index", [&](const std::vector<Value>&) -> Value {
+        return dispatchSelectable([](Window_Selectable& w) {
+            return Value::Int(w.getIndex());
+        });
+    });
+
+    add("select", [&](const std::vector<Value>& args) -> Value {
+        return dispatchSelectable([&](Window_Selectable& w) {
+            const int32_t idx = static_cast<int32_t>(args.size() > 0 ? getInt(args[0]) : 0);
+            w.select(idx);
+            return Value::Int(1);
+        });
+    });
+
+    add("topRow", [&](const std::vector<Value>&) -> Value {
+        return dispatchSelectable([](Window_Selectable& w) {
+            return Value::Int(w.getTopRow());
+        });
+    });
+
+    add("maxItems", [&](const std::vector<Value>&) -> Value {
+        return dispatchSelectable([](Window_Selectable& w) {
+            return Value::Int(w.getMaxItems());
+        });
+    });
+
+    add("maxCols", [&](const std::vector<Value>&) -> Value {
+        return dispatchSelectable([](Window_Selectable& w) {
+            return Value::Int(w.getMaxCols());
+        });
+    });
+
+    add("itemHeight", [&](const std::vector<Value>&) -> Value {
+        return dispatchSelectable([](Window_Selectable& w) {
+            return Value::Int(w.getItemHeight());
+        });
+    });
+
+    add("itemWidth", [&](const std::vector<Value>&) -> Value {
+        return dispatchSelectable([](Window_Selectable& w) {
+            return Value::Int(w.getItemWidth());
+        });
+    });
+
+    add("cursorDown", [&](const std::vector<Value>& args) -> Value {
+        return dispatchSelectable([&](Window_Selectable& w) {
+            const bool wrap = args.size() > 0 ? (getInt(args[0]) != 0) : true;
+            w.cursorDown(wrap);
+            return Value::Int(1);
+        });
+    });
+
+    add("cursorUp", [&](const std::vector<Value>& args) -> Value {
+        return dispatchSelectable([&](Window_Selectable& w) {
+            const bool wrap = args.size() > 0 ? (getInt(args[0]) != 0) : true;
+            w.cursorUp(wrap);
+            return Value::Int(1);
+        });
+    });
+
+    add("cursorRight", [&](const std::vector<Value>& args) -> Value {
+        return dispatchSelectable([&](Window_Selectable& w) {
+            const bool wrap = args.size() > 0 ? (getInt(args[0]) != 0) : true;
+            w.cursorRight(wrap);
+            return Value::Int(1);
+        });
+    });
+
+    add("cursorLeft", [&](const std::vector<Value>& args) -> Value {
+        return dispatchSelectable([&](Window_Selectable& w) {
+            const bool wrap = args.size() > 0 ? (getInt(args[0]) != 0) : true;
+            w.cursorLeft(wrap);
+            return Value::Int(1);
+        });
+    });
+
+    add("isCursorMovable", [&](const std::vector<Value>&) -> Value {
+        return dispatchSelectable([](Window_Selectable& w) {
+            return Value::Int(w.isCursorMovable() ? 1 : 0);
+        });
+    });
+
+    add("isHandled", [&](const std::vector<Value>& args) -> Value {
+        return dispatchSelectable([&](Window_Selectable& w) {
+            const std::string symbol = args.size() > 0 ? getString(args[0]) : "";
+            return Value::Int(w.isHandled(symbol) ? 1 : 0);
+        });
+    });
+
+    add("processOk", [&](const std::vector<Value>&) -> Value {
+        return dispatchSelectable([](Window_Selectable& w) {
+            w.processOk();
+            return Value::Int(1);
+        });
+    });
+
+    add("processCancel", [&](const std::vector<Value>&) -> Value {
+        return dispatchSelectable([](Window_Selectable& w) {
+            w.processCancel();
+            return Value::Int(1);
+        });
+    });
+
+    // Legacy / helper bindings
+    add("setIndex", [&](const std::vector<Value>& args) -> Value {
+        return dispatchSelectable([&](Window_Selectable& w) {
+            const int32_t idx = static_cast<int32_t>(args.size() > 0 ? getInt(args[0]) : 0);
+            w.setIndex(idx);
+            return Value::Int(1);
+        });
+    });
+
+    add("setMaxItems", [&](const std::vector<Value>& args) -> Value {
+        return dispatchSelectable([&](Window_Selectable& w) {
+            const int32_t count = static_cast<int32_t>(args.size() > 0 ? getInt(args[0]) : 0);
+            w.setMaxItems(count);
+            return Value::Int(1);
+        });
+    });
+
+    add("setMaxCols", [&](const std::vector<Value>& args) -> Value {
+        return dispatchSelectable([&](Window_Selectable& w) {
+            const int32_t cols = static_cast<int32_t>(args.size() > 0 ? getInt(args[0]) : 1);
+            w.setMaxCols(cols);
+            return Value::Int(1);
+        });
+    });
+
+    add("getItemWidth", [&](const std::vector<Value>&) -> Value {
+        return dispatchSelectable([](Window_Selectable& w) {
+            return Value::Int(w.getItemWidth());
+        });
+    });
+
+    add("cursorPagedown", [&](const std::vector<Value>&) -> Value {
+        return dispatchSelectable([](Window_Selectable& w) {
+            w.cursorPagedown();
+            return Value::Int(1);
+        });
+    });
+
+    add("cursorPageup", [&](const std::vector<Value>&) -> Value {
+        return dispatchSelectable([](Window_Selectable& w) {
+            w.cursorPageup();
+            return Value::Int(1);
+        });
+    });
+
+    add("getRow", [&](const std::vector<Value>&) -> Value {
+        return dispatchSelectable([](Window_Selectable& w) {
+            return Value::Int(w.getRow());
+        });
+    });
+
+    add("getCol", [&](const std::vector<Value>&) -> Value {
+        return dispatchSelectable([](Window_Selectable& w) {
+            return Value::Int(w.getCol());
+        });
+    });
+
+    add("setTopRow", [&](const std::vector<Value>& args) -> Value {
+        return dispatchSelectable([&](Window_Selectable& w) {
+            const int32_t row = static_cast<int32_t>(args.size() > 0 ? getInt(args[0]) : 0);
+            w.setTopRow(row);
+            return Value::Int(1);
+        });
+    });
+
+    add("getTopRow", [&](const std::vector<Value>&) -> Value {
+        return dispatchSelectable([](Window_Selectable& w) {
+            return Value::Int(w.getTopRow());
+        });
+    });
+
+    add("processPagedown", [&](const std::vector<Value>&) -> Value {
+        return dispatchSelectable([](Window_Selectable& w) {
+            w.processPagedown();
+            return Value::Int(1);
+        });
+    });
+
+    add("processPageup", [&](const std::vector<Value>&) -> Value {
+        return dispatchSelectable([](Window_Selectable& w) {
+            w.processPageup();
+            return Value::Int(1);
+        });
+    });
 
     ctx.registerObject("Window_Selectable", methods);
 }
@@ -1500,17 +1754,18 @@ void Window_Command::drawItem(int32_t index) {
     }
     
     const auto& cmd = commands_[index];
-    (void)cmd;
+    const int32_t maxCols = std::max(1, getMaxCols());
     Rect itemRect{
-        0,  // Will be calculated based on row/col
-        (index / getMaxCols()) * getItemHeight(),
+        (index % maxCols) * getItemWidth(),
+        (index / maxCols) * getItemHeight(),
         getItemWidth(),
         getItemHeight()
     };
-    (void)itemRect;
     
-    // TODO: Draw text with appropriate color based on enabled state
-    // Color: normalColor() if enabled, dimColor() if disabled
+    const Color color = cmd.enabled ? normalColor() : dimColor();
+    changeTextColor(color);
+    drawText(cmd.name, itemRect.x, itemRect.y, itemRect.width, "left");
+    resetTextColor();
 }
 
 void Window_Command::drawAllItems() {
@@ -1533,50 +1788,170 @@ void Window_Command::selectExt(int32_t ext) {
     }
 }
 
+int32_t Window_Command::getCurrentExt() const {
+    return getCurrentCommand().ext;
+}
+
+void Window_Command::makeCommandList() {
+    // Override in subclasses to populate commands
+}
+
+void Window_Command::processOk() {
+    callOkHandler();
+}
+
 void Window_Command::registerAPI(QuickJSContext& ctx) {
     Window_Selectable::registerAPI(ctx);
-    
-    static const std::vector<QuickJSContext::MethodDef> methods = {
-        {"addCommand", [](const std::vector<Value>&) -> Value {
-            return Value::Nil();
-        }, CompatStatus::STUB},
-        {"clearCommands", [](const std::vector<Value>&) -> Value {
-            return Value::Nil();
-        }, CompatStatus::STUB},
-        {"getCommandCount", [](const std::vector<Value>&) -> Value {
-            return Value::Nil();
-        }, CompatStatus::STUB},
-        {"isCommandEnabled", [](const std::vector<Value>&) -> Value {
-            return Value::Nil();
-        }, CompatStatus::STUB},
-        {"isCurrentItemEnabled", [](const std::vector<Value>&) -> Value {
-            return Value::Nil();
-        }, CompatStatus::STUB},
-        {"getCurrentSymbol", [](const std::vector<Value>&) -> Value {
-            return Value::Nil();
-        }, CompatStatus::STUB},
-        {"drawItem", [](const std::vector<Value>&) -> Value {
-            return Value::Nil();
-        }, CompatStatus::STUB},
-        {"drawAllItems", [](const std::vector<Value>&) -> Value {
-            return Value::Nil();
-        }, CompatStatus::STUB},
-        {"selectSymbol", [](const std::vector<Value>&) -> Value {
-            return Value::Nil();
-        }, CompatStatus::STUB},
-        {"selectExt", [](const std::vector<Value>&) -> Value {
-            return Value::Nil();
-        }, CompatStatus::STUB},
-        {"findSymbol", [](const std::vector<Value>&) -> Value {
-            return Value::Nil();
-        }, CompatStatus::STUB},
-        {"findExt", [](const std::vector<Value>&) -> Value {
-            return Value::Nil();
-        }, CompatStatus::STUB},
-        {"callOkHandler", [](const std::vector<Value>&) -> Value {
-            return Value::Nil();
-        }, CompatStatus::STUB},
+
+    auto getInt = [](const Value& v, int64_t defaultVal = 0) -> int64_t {
+        if (auto* p = std::get_if<int64_t>(&v.v)) return *p;
+        if (auto* p = std::get_if<double>(&v.v)) return static_cast<int64_t>(*p);
+        return defaultVal;
     };
+    auto getString = [](const Value& v, const std::string& defaultVal = "") -> std::string {
+        if (auto* p = std::get_if<std::string>(&v.v)) return *p;
+        return defaultVal;
+    };
+    auto getBool = [](const Value& v, bool defaultVal = false) -> bool {
+        if (auto* p = std::get_if<bool>(&v.v)) return *p;
+        if (auto* p = std::get_if<int64_t>(&v.v)) return *p != 0;
+        return defaultVal;
+    };
+
+    auto dispatchCommand = [&](std::function<Value(Window_Command&)> fn) -> Value {
+        if (!defaultInstance_) return Value::Nil();
+        auto* cmd = dynamic_cast<Window_Command*>(defaultInstance_);
+        if (!cmd) return Value::Nil();
+        return fn(*cmd);
+    };
+
+    std::vector<QuickJSContext::MethodDef> methods;
+
+    auto add = [&](const std::string& name, std::function<Value(const std::vector<Value>&)> fn) {
+        QuickJSContext::MethodDef method;
+        method.name = name;
+        method.fn = fn;
+        method.status = CompatStatus::FULL;
+        methods.push_back(method);
+    };
+
+    add("addCommand", [&](const std::vector<Value>& args) -> Value {
+        return dispatchCommand([&](Window_Command& w) {
+            const std::string name = args.size() > 0 ? getString(args[0]) : "";
+            const std::string symbol = args.size() > 1 ? getString(args[1]) : "";
+            const bool enabled = args.size() > 2 ? getBool(args[2]) : true;
+            const int32_t ext = static_cast<int32_t>(args.size() > 3 ? getInt(args[3]) : 0);
+            w.addCommand(name, symbol, enabled, ext);
+            return Value::Int(1);
+        });
+    });
+
+    add("clearCommandList", [&](const std::vector<Value>&) -> Value {
+        return dispatchCommand([](Window_Command& w) {
+            w.clearCommands();
+            return Value::Int(1);
+        });
+    });
+
+    add("clearCommands", [&](const std::vector<Value>&) -> Value {
+        return dispatchCommand([](Window_Command& w) {
+            w.clearCommands();
+            return Value::Int(1);
+        });
+    });
+
+    add("selectSymbol", [&](const std::vector<Value>& args) -> Value {
+        return dispatchCommand([&](Window_Command& w) {
+            const std::string symbol = args.size() > 0 ? getString(args[0]) : "";
+            w.selectSymbol(symbol);
+            return Value::Int(1);
+        });
+    });
+
+    add("findSymbol", [&](const std::vector<Value>& args) -> Value {
+        return dispatchCommand([&](Window_Command& w) {
+            const std::string symbol = args.size() > 0 ? getString(args[0]) : "";
+            return Value::Int(w.findSymbol(symbol));
+        });
+    });
+
+    add("ext", [&](const std::vector<Value>&) -> Value {
+        return dispatchCommand([](Window_Command& w) {
+            return Value::Int(w.getCurrentExt());
+        });
+    });
+
+    add("makeCommandList", [&](const std::vector<Value>&) -> Value {
+        return dispatchCommand([](Window_Command& w) {
+            w.makeCommandList();
+            return Value::Int(1);
+        });
+    });
+
+    // Helper bindings
+    add("getCommandCount", [&](const std::vector<Value>&) -> Value {
+        return dispatchCommand([](Window_Command& w) {
+            return Value::Int(w.getCommandCount());
+        });
+    });
+
+    add("isCommandEnabled", [&](const std::vector<Value>& args) -> Value {
+        return dispatchCommand([&](Window_Command& w) {
+            const int32_t idx = static_cast<int32_t>(args.size() > 0 ? getInt(args[0]) : 0);
+            return Value::Int(w.isCommandEnabled(idx) ? 1 : 0);
+        });
+    });
+
+    add("isCurrentItemEnabled", [&](const std::vector<Value>&) -> Value {
+        return dispatchCommand([](Window_Command& w) {
+            return Value::Int(w.isCurrentItemEnabled() ? 1 : 0);
+        });
+    });
+
+    add("getCurrentSymbol", [&](const std::vector<Value>&) -> Value {
+        return dispatchCommand([](Window_Command& w) {
+            urpg::Value v;
+            v.v = w.getCurrentSymbol();
+            return v;
+        });
+    });
+
+    add("drawItem", [&](const std::vector<Value>& args) -> Value {
+        return dispatchCommand([&](Window_Command& w) {
+            const int32_t idx = static_cast<int32_t>(args.size() > 0 ? getInt(args[0]) : 0);
+            w.drawItem(idx);
+            return Value::Int(1);
+        });
+    });
+
+    add("drawAllItems", [&](const std::vector<Value>&) -> Value {
+        return dispatchCommand([](Window_Command& w) {
+            w.drawAllItems();
+            return Value::Int(1);
+        });
+    });
+
+    add("selectExt", [&](const std::vector<Value>& args) -> Value {
+        return dispatchCommand([&](Window_Command& w) {
+            const int32_t ext = static_cast<int32_t>(args.size() > 0 ? getInt(args[0]) : 0);
+            w.selectExt(ext);
+            return Value::Int(1);
+        });
+    });
+
+    add("findExt", [&](const std::vector<Value>& args) -> Value {
+        return dispatchCommand([&](Window_Command& w) {
+            const int32_t ext = static_cast<int32_t>(args.size() > 0 ? getInt(args[0]) : 0);
+            return Value::Int(w.findExt(ext));
+        });
+    });
+
+    add("callOkHandler", [&](const std::vector<Value>&) -> Value {
+        return dispatchCommand([](Window_Command& w) {
+            w.callOkHandler();
+            return Value::Int(1);
+        });
+    });
 
     ctx.registerObject("Window_Command", methods);
 }
