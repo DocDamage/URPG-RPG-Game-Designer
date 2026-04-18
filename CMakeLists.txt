@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 3.23)
 project(urpg LANGUAGES CXX)
 
+include(CheckCXXSourceCompiles)
+
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
@@ -8,6 +10,30 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 if(MSVC)
     add_compile_options(/FS /EHsc)
 endif()
+
+function(urpg_normalize_path out_var input_path)
+    if(NOT input_path)
+        set(${out_var} "" PARENT_SCOPE)
+        return()
+    endif()
+
+    file(TO_CMAKE_PATH "${input_path}" _normalized_path)
+    string(REGEX REPLACE "/+$" "" _normalized_path "${_normalized_path}")
+    string(TOLOWER "${_normalized_path}" _normalized_path)
+    set(${out_var} "${_normalized_path}" PARENT_SCOPE)
+endfunction()
+
+function(urpg_get_compiler_root out_var)
+    if(NOT CMAKE_CXX_COMPILER)
+        set(${out_var} "" PARENT_SCOPE)
+        return()
+    endif()
+
+    get_filename_component(_compiler_bin_dir "${CMAKE_CXX_COMPILER}" DIRECTORY)
+    get_filename_component(_compiler_root "${_compiler_bin_dir}" DIRECTORY)
+    urpg_normalize_path(_compiler_root "${_compiler_root}")
+    set(${out_var} "${_compiler_root}" PARENT_SCOPE)
+endfunction()
 
 option(URPG_FETCH_CATCH2 "Fetch Catch2 via CMake" ON)
 option(URPG_USE_SCCACHE "Use sccache as compiler launcher when available" ON)
@@ -169,8 +195,75 @@ target_link_libraries(urpg_core PUBLIC nlohmann_json::nlohmann_json)
 option(URPG_SKIP_OPENGL "Skip OpenGL requirement (for headless CI builds)" OFF)
 set(SDL2_DISABLE_INSTALL ON CACHE BOOL "" FORCE)
 set(SDL2_TESTS OFF CACHE BOOL "" FORCE)
-find_package(SDL2 QUIET)
+set(URPG_DISABLE_VENDORED_SDL_WINDOWS_JOYSTICK_STACK OFF)
+
+if(MINGW)
+    check_cxx_source_compiles(
+        "
+        #include <windows.h>
+        #include <xinput.h>
+        int main(void) {
+            XINPUT_CAPABILITIES_EX capabilities = {0};
+            return (int)capabilities.ProductId;
+        }
+        "
+        URPG_MINGW_XINPUT_HEADER_HAS_CAPABILITIES_EX
+    )
+
+    if(URPG_MINGW_XINPUT_HEADER_HAS_CAPABILITIES_EX)
+        set(SDL_XINPUT OFF CACHE BOOL
+            "Disable vendored SDL XInput backend on MinGW toolchains whose headers already define XINPUT_CAPABILITIES_EX"
+            FORCE
+        )
+        set(URPG_DISABLE_VENDORED_SDL_WINDOWS_JOYSTICK_STACK ON)
+        message(STATUS
+            "URPG: disabling vendored SDL XInput backend for MinGW because the active xinput.h "
+            "already defines XINPUT_CAPABILITIES_EX and SDL 2.30.0's fallback typedef would conflict.")
+    endif()
+endif()
+
+if(MINGW)
+    urpg_get_compiler_root(URPG_MINGW_COMPILER_ROOT)
+    if(URPG_MINGW_COMPILER_ROOT)
+        message(STATUS "URPG: probing SDL2 under MinGW compiler root: ${URPG_MINGW_COMPILER_ROOT}")
+        find_package(
+            SDL2 QUIET CONFIG
+            PATHS
+                "${URPG_MINGW_COMPILER_ROOT}"
+                "${URPG_MINGW_COMPILER_ROOT}/lib/cmake"
+                "${URPG_MINGW_COMPILER_ROOT}/lib"
+            NO_DEFAULT_PATH
+        )
+        if(NOT SDL2_FOUND)
+            message(STATUS
+                "URPG: SDL2 was not found under compiler root ${URPG_MINGW_COMPILER_ROOT}; "
+                "falling back to FetchContent to avoid mixed-toolchain headers/libraries.")
+        endif()
+    endif()
+elseif(MSVC)
+    message(STATUS
+        "URPG: skipping host SDL2 package discovery for MSVC to avoid mixing MinGW/MSYS headers into "
+        "Visual Studio builds; using vendored SDL instead.")
+elseif(NOT SDL2_FOUND)
+    find_package(SDL2 QUIET)
+endif()
+
 if(NOT SDL2_FOUND)
+    if(MINGW AND URPG_DISABLE_VENDORED_SDL_WINDOWS_JOYSTICK_STACK)
+        set(SDL_JOYSTICK OFF CACHE BOOL
+            "Disable vendored SDL joystick stack on MinGW when XInput compatibility shims are unavailable"
+            FORCE
+        )
+        set(SDL_HAPTIC OFF CACHE BOOL
+            "Disable vendored SDL haptic stack on MinGW when joystick backends are unavailable"
+            FORCE
+        )
+        message(STATUS
+            "URPG: disabling vendored SDL joystick/haptic support for the MinGW fallback build because "
+            "SDL 2.30.0's Windows joystick sources still assume XInput helpers that are not available "
+            "with this header set. Install SDL2 into the active MinGW root to restore controller support.")
+    endif()
+
     include(FetchContent)
     FetchContent_Declare(
         SDL2
@@ -297,7 +390,9 @@ add_executable(urpg_tests
     tests/unit/test_message_schema_contracts.cpp
     tests/unit/test_message_inspector_model.cpp
     tests/unit/test_message_inspector_panel.cpp
+    tests/unit/test_menu_inspector_panel.cpp
     tests/unit/test_menu_inspector_model.cpp
+    tests/unit/test_menu_preview_panel.cpp
     tests/unit/test_menu_legacy_import.cpp
     tests/unit/test_state_audio_sync.cpp
     tests/unit/test_scene_manager.cpp

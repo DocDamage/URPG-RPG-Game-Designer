@@ -217,3 +217,94 @@ TEST_CASE("Menu inspector model filters issue rows and command id search",
     REQUIRE_FALSE(model.SelectRow(9));
     REQUIRE_FALSE(model.SelectedCommandId().has_value());
 }
+
+TEST_CASE("Menu inspector model preserves selected command across filter rebuilds when still visible",
+          "[ui][editor][menu_inspector][model]") {
+    urpg::ui::MenuCommandRegistry registry;
+
+    auto visibleCommand = MakeCommand("urpg.menu.item", "Item", urpg::MenuRouteTarget::Item, 10);
+    registry.registerCommand(visibleCommand);
+
+    auto issueCommand = MakeCommand("urpg.menu.dead_end", "Dead End", urpg::MenuRouteTarget::Custom, 20);
+
+    auto menu = std::make_shared<urpg::ui::MenuScene>("FilterMenu");
+
+    urpg::ui::MenuPane pane;
+    pane.id = "filter_pane";
+    pane.displayName = "Filter Pane";
+    pane.isVisible = true;
+    pane.isActive = true;
+    pane.commands = {visibleCommand, issueCommand};
+    menu->addPane(pane);
+
+    urpg::ui::MenuSceneGraph graph;
+    graph.registerScene(menu);
+    graph.pushScene("FilterMenu");
+
+    urpg::ui::MenuCommandRegistry::SwitchState switches;
+    urpg::ui::MenuCommandRegistry::VariableState variables;
+
+    urpg::editor::MenuInspectorModel model;
+    model.LoadFromRuntime(graph, registry, switches, variables);
+
+    REQUIRE(model.SelectRow(1));
+    REQUIRE(model.SelectedCommandId() == std::optional<std::string>{"urpg.menu.dead_end"});
+
+    model.SetShowIssuesOnly(true);
+    REQUIRE(model.SelectedCommandId() == std::optional<std::string>{"urpg.menu.dead_end"});
+
+    model.SetCommandIdFilter(std::string("dead_end"));
+    REQUIRE(model.SelectedCommandId() == std::optional<std::string>{"urpg.menu.dead_end"});
+
+    model.SetCommandIdFilter(std::nullopt);
+    REQUIRE(model.SelectedCommandId() == std::optional<std::string>{"urpg.menu.dead_end"});
+}
+
+TEST_CASE("Menu inspector model preserves selected hidden command identity across filter clear",
+          "[ui][editor][menu_inspector][model]") {
+    urpg::ui::MenuCommandRegistry registry;
+
+    auto visibleCommand = MakeCommand("urpg.menu.item", "Item", urpg::MenuRouteTarget::Item, 10);
+    registry.registerCommand(visibleCommand);
+
+    auto hiddenCommand = MakeCommand("urpg.menu.hidden", "Hidden", urpg::MenuRouteTarget::Options, 20);
+    hiddenCommand.visibility_rules = {
+        urpg::MenuCommandCondition{
+            .switch_id = "",
+            .variable_id = "secret_level",
+            .variable_threshold = 1,
+            .invert = false,
+        },
+    };
+    registry.registerCommand(hiddenCommand);
+
+    auto menu = std::make_shared<urpg::ui::MenuScene>("HiddenSelectionMenu");
+
+    urpg::ui::MenuPane pane;
+    pane.id = "hidden_selection_pane";
+    pane.displayName = "Hidden Selection Pane";
+    pane.isVisible = true;
+    pane.isActive = true;
+    pane.commands = {visibleCommand, hiddenCommand};
+    menu->addPane(pane);
+
+    urpg::ui::MenuSceneGraph graph;
+    graph.registerScene(menu);
+    graph.pushScene("HiddenSelectionMenu");
+
+    urpg::ui::MenuCommandRegistry::SwitchState switches;
+    urpg::ui::MenuCommandRegistry::VariableState variables;
+
+    urpg::editor::MenuInspectorModel model;
+    model.LoadFromRuntime(graph, registry, switches, variables);
+
+    model.SetCommandIdFilter(std::string("hidden"));
+    REQUIRE(model.SelectRow(0));
+    REQUIRE(model.SelectedCommandId() == std::optional<std::string>{"urpg.menu.hidden"});
+
+    model.SetCommandIdFilter(std::nullopt);
+    REQUIRE(model.SelectedCommandId() == std::optional<std::string>{"urpg.menu.hidden"});
+    REQUIRE(model.SelectedRow().has_value());
+    REQUIRE(model.SelectedRow()->command_id == "urpg.menu.hidden");
+    REQUIRE_FALSE(model.SelectedRow()->command_visible);
+}

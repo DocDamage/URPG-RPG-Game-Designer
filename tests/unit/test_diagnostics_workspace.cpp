@@ -4,6 +4,7 @@
 #include "engine/core/ability/gameplay_ability.h"
 #include "engine/core/audio/audio_core.h"
 #include "engine/core/battle/battle_core.h"
+#include "engine/core/input/input_core.h"
 #include "engine/core/message/message_core.h"
 #include "engine/core/ui/menu_command_registry.h"
 #include "engine/core/ui/menu_scene_graph.h"
@@ -409,6 +410,10 @@ TEST_CASE("DiagnosticsWorkspace - Menu runtime binding populates and clears menu
     graph.registerScene(menu);
     graph.pushScene("MainMenu");
 
+    urpg::ui::MenuRouteResolver resolver;
+    resolver.bindRoute(urpg::MenuRouteTarget::Item, [](const urpg::MenuCommandMeta&) {});
+    graph.setRouteResolver(&resolver);
+
     urpg::ui::MenuCommandRegistry::SwitchState switches;
     urpg::ui::MenuCommandRegistry::VariableState variables;
     graph.setCommandStateFromRegistry(registry, switches, variables);
@@ -445,6 +450,12 @@ TEST_CASE("DiagnosticsWorkspace - Menu runtime binding populates and clears menu
     REQUIRE(menuSnapshot["active_tab_detail"]["issues"].size() == 2);
     REQUIRE(menuSnapshot["active_tab_detail"]["preview"]["title"] == "Menu Preview");
     REQUIRE(menuSnapshot["active_tab_detail"]["preview"]["visible"] == true);
+    REQUIRE(menuSnapshot["active_tab_detail"]["preview"]["has_data"] == true);
+    REQUIRE(menuSnapshot["active_tab_detail"]["preview"]["active_scene_id"] == "MainMenu");
+    REQUIRE(menuSnapshot["active_tab_detail"]["preview"]["visible_panes"].is_array());
+    REQUIRE(menuSnapshot["active_tab_detail"]["preview"]["visible_panes"].size() == 1);
+    REQUIRE(menuSnapshot["active_tab_detail"]["preview"]["visible_panes"][0]["pane_id"] == "main_pane");
+    REQUIRE(menuSnapshot["active_tab_detail"]["preview"]["visible_panes"][0]["selected_command_id"] == "urpg.menu.item");
 
     workspace.clearMenuRuntime();
 
@@ -457,6 +468,176 @@ TEST_CASE("DiagnosticsWorkspace - Menu runtime binding populates and clears menu
     workspace.update();
     REQUIRE_FALSE(workspace.menuPanel().IsVisible());
     REQUIRE_FALSE(workspace.menuPreviewPanel().IsVisible());
+}
+
+TEST_CASE("DiagnosticsWorkspace - Menu workflow actions are exposed at workspace level",
+          "[editor][diagnostics][integration][menu_actions]") {
+    urpg::ui::MenuCommandRegistry registry;
+
+    urpg::MenuCommandMeta itemCommand;
+    itemCommand.id = "urpg.menu.item";
+    itemCommand.label = "Item";
+    itemCommand.route = urpg::MenuRouteTarget::Item;
+    registry.registerCommand(itemCommand);
+
+    urpg::MenuCommandMeta hiddenCommand;
+    hiddenCommand.id = "urpg.menu.hidden";
+    hiddenCommand.label = "Hidden";
+    hiddenCommand.route = urpg::MenuRouteTarget::Options;
+    hiddenCommand.visibility_rules = {
+        urpg::MenuCommandCondition{
+            .switch_id = "",
+            .variable_id = "secret_level",
+            .variable_threshold = 1,
+            .invert = false,
+        },
+    };
+    registry.registerCommand(hiddenCommand);
+
+    urpg::MenuCommandMeta deadEndCommand;
+    deadEndCommand.id = "urpg.menu.dead_end";
+    deadEndCommand.label = "Dead End";
+    deadEndCommand.route = urpg::MenuRouteTarget::Custom;
+
+    auto menu = std::make_shared<urpg::ui::MenuScene>("MainMenu");
+
+    urpg::ui::MenuPane pane;
+    pane.id = "main_pane";
+    pane.displayName = "Main Menu";
+    pane.isVisible = true;
+    pane.isActive = true;
+    pane.commands = {itemCommand, hiddenCommand, deadEndCommand};
+
+    menu->addPane(pane);
+
+    urpg::ui::MenuSceneGraph graph;
+    graph.registerScene(menu);
+    graph.pushScene("MainMenu");
+
+    urpg::ui::MenuRouteResolver resolver;
+    resolver.bindRoute(urpg::MenuRouteTarget::Item, [](const urpg::MenuCommandMeta&) {});
+    graph.setRouteResolver(&resolver);
+
+    urpg::ui::MenuCommandRegistry::SwitchState switches;
+    urpg::ui::MenuCommandRegistry::VariableState variables;
+
+    urpg::editor::DiagnosticsWorkspace workspace;
+    workspace.bindMenuRuntime(graph, registry, switches, variables);
+    workspace.setActiveTab(urpg::editor::DiagnosticsTab::Menu);
+    workspace.update();
+
+    auto exported = nlohmann::json::parse(workspace.exportAsJson());
+    REQUIRE(exported["active_tab"] == "menu");
+    REQUIRE(exported["active_tab_detail"]["selected_command_id"].is_null());
+    REQUIRE(exported["active_tab_detail"]["command_id_filter"] == "");
+    REQUIRE(exported["active_tab_detail"]["show_issues_only"] == false);
+    REQUIRE(exported["active_tab_detail"]["visible_rows"].size() == 2);
+
+    REQUIRE(workspace.setMenuCommandIdFilter("hidden"));
+    exported = nlohmann::json::parse(workspace.exportAsJson());
+    REQUIRE(exported["active_tab_detail"]["command_id_filter"] == "hidden");
+    REQUIRE(exported["active_tab_detail"]["visible_rows"].size() == 1);
+    REQUIRE(exported["active_tab_detail"]["visible_rows"][0]["command_id"] == "urpg.menu.hidden");
+
+    REQUIRE(workspace.selectMenuRow(0));
+    exported = nlohmann::json::parse(workspace.exportAsJson());
+    REQUIRE(exported["active_tab_detail"]["selected_command_id"] == "urpg.menu.hidden");
+    REQUIRE(exported["active_tab_detail"]["selected_row"]["command_id"] == "urpg.menu.hidden");
+    REQUIRE(exported["active_tab_detail"]["selected_row"]["command_visible"] == false);
+    REQUIRE(exported["active_tab_detail"]["selected_row"]["issue_count"].get<size_t>() >= 1);
+    REQUIRE(exported["active_tab_detail"]["preview"]["visible_panes"][0]["selected_command_id"] == "urpg.menu.hidden");
+
+    REQUIRE(workspace.clearMenuCommandIdFilter());
+    exported = nlohmann::json::parse(workspace.exportAsJson());
+    REQUIRE(exported["active_tab_detail"]["command_id_filter"] == "");
+    REQUIRE(exported["active_tab_detail"]["visible_rows"].size() == 2);
+    REQUIRE(exported["active_tab_detail"]["selected_command_id"] == "urpg.menu.hidden");
+
+    REQUIRE(workspace.setMenuShowIssuesOnly(true));
+    exported = nlohmann::json::parse(workspace.exportAsJson());
+    REQUIRE(exported["active_tab_detail"]["show_issues_only"] == true);
+    REQUIRE(exported["active_tab_detail"]["visible_rows"].size() == 2);
+
+    REQUIRE(workspace.setMenuShowIssuesOnly(false));
+    exported = nlohmann::json::parse(workspace.exportAsJson());
+    REQUIRE(exported["active_tab_detail"]["show_issues_only"] == false);
+}
+
+TEST_CASE("DiagnosticsWorkspace - Menu preview actions drive runtime selection and blocked-command export",
+          "[editor][diagnostics][integration][menu_preview_actions]") {
+    urpg::ui::MenuCommandRegistry registry;
+
+    urpg::MenuCommandMeta itemCommand;
+    itemCommand.id = "urpg.menu.item";
+    itemCommand.label = "Item";
+    itemCommand.route = urpg::MenuRouteTarget::Item;
+    registry.registerCommand(itemCommand);
+
+    urpg::MenuCommandMeta deadEndCommand;
+    deadEndCommand.id = "urpg.menu.dead_end";
+    deadEndCommand.label = "Dead End";
+    deadEndCommand.route = urpg::MenuRouteTarget::Custom;
+
+    auto menu = std::make_shared<urpg::ui::MenuScene>("MainMenu");
+
+    urpg::ui::MenuPane mainPane;
+    mainPane.id = "main_pane";
+    mainPane.displayName = "Main Pane";
+    mainPane.isVisible = true;
+    mainPane.isActive = true;
+    mainPane.commands = {itemCommand, deadEndCommand};
+
+    urpg::ui::MenuPane sidePane;
+    sidePane.id = "side_pane";
+    sidePane.displayName = "Side Pane";
+    sidePane.isVisible = true;
+    sidePane.isActive = false;
+    sidePane.commands = {itemCommand};
+
+    menu->addPane(mainPane);
+    menu->addPane(sidePane);
+
+    urpg::ui::MenuSceneGraph graph;
+    graph.registerScene(menu);
+    graph.pushScene("MainMenu");
+
+    urpg::ui::MenuRouteResolver resolver;
+    resolver.bindRoute(urpg::MenuRouteTarget::Item, [](const urpg::MenuCommandMeta&) {});
+    graph.setRouteResolver(&resolver);
+
+    urpg::ui::MenuCommandRegistry::SwitchState switches;
+    urpg::ui::MenuCommandRegistry::VariableState variables;
+
+    urpg::editor::DiagnosticsWorkspace workspace;
+    workspace.bindMenuRuntime(graph, registry, switches, variables);
+    workspace.setActiveTab(urpg::editor::DiagnosticsTab::Menu);
+    workspace.update();
+
+    auto exported = nlohmann::json::parse(workspace.exportAsJson());
+    REQUIRE(exported["active_tab_detail"]["preview"]["visible_panes"][0]["selected_command_id"] == "urpg.menu.item");
+    REQUIRE(exported["active_tab_detail"]["preview"]["visible_panes"][0]["pane_active"] == true);
+    REQUIRE(exported["active_tab_detail"]["preview"]["visible_panes"][1]["pane_active"] == false);
+    REQUIRE(exported["active_tab_detail"]["preview"]["last_blocked_command_id"] == "");
+    REQUIRE(exported["active_tab_detail"]["preview"]["last_blocked_reason"] == "");
+
+    REQUIRE(workspace.dispatchMenuPreviewAction(urpg::input::InputAction::MoveDown));
+    exported = nlohmann::json::parse(workspace.exportAsJson());
+    REQUIRE(exported["active_tab_detail"]["preview"]["visible_panes"][0]["selected_command_id"] == "urpg.menu.dead_end");
+    REQUIRE(exported["active_tab_detail"]["selected_command_id"] == "urpg.menu.dead_end");
+    REQUIRE(exported["active_tab_detail"]["selected_row"]["command_id"] == "urpg.menu.dead_end");
+
+    REQUIRE(workspace.dispatchMenuPreviewAction(urpg::input::InputAction::Confirm));
+    exported = nlohmann::json::parse(workspace.exportAsJson());
+    REQUIRE(exported["active_tab_detail"]["preview"]["last_blocked_command_id"] == "urpg.menu.dead_end");
+    REQUIRE(exported["active_tab_detail"]["preview"]["last_blocked_reason"] == "No route resolved for command.");
+
+    REQUIRE(workspace.dispatchMenuPreviewAction(urpg::input::InputAction::MoveRight));
+    exported = nlohmann::json::parse(workspace.exportAsJson());
+    REQUIRE(exported["active_tab_detail"]["preview"]["visible_panes"][0]["pane_active"] == false);
+    REQUIRE(exported["active_tab_detail"]["preview"]["visible_panes"][1]["pane_active"] == true);
+    REQUIRE(exported["active_tab_detail"]["selected_command_id"] == "urpg.menu.item");
+    REQUIRE(exported["active_tab_detail"]["selected_row"]["pane_id"] == "side_pane");
+    REQUIRE(exported["active_tab_detail"]["selected_row"]["command_id"] == "urpg.menu.item");
 }
 
 TEST_CASE("DiagnosticsWorkspace - Audio and ability runtimes clear and rebind cleanly",
@@ -592,6 +773,12 @@ TEST_CASE("DiagnosticsWorkspace - Migration wizard export carries selected subsy
     REQUIRE(exported["active_tab"] == "migration_wizard");
     REQUIRE(exported["active_tab_detail"]["tab"] == "migration_wizard");
     REQUIRE(exported["active_tab_detail"]["summary"]["item_count"] == 2);
+    REQUIRE(exported["active_tab_detail"].contains("total_files_processed"));
+    REQUIRE(exported["active_tab_detail"].contains("warning_count"));
+    REQUIRE(exported["active_tab_detail"].contains("error_count"));
+    REQUIRE(exported["active_tab_detail"]["total_files_processed"] == 2);
+    REQUIRE(exported["active_tab_detail"]["warning_count"] == 2);
+    REQUIRE(exported["active_tab_detail"]["error_count"] == 1);
     REQUIRE(exported["active_tab_detail"]["summary_logs"].is_array());
     REQUIRE(exported["active_tab_detail"]["summary_logs"].size() == 3);
     REQUIRE(exported["active_tab_detail"]["subsystem_results"].is_array());
@@ -606,6 +793,68 @@ TEST_CASE("DiagnosticsWorkspace - Migration wizard export carries selected subsy
     REQUIRE(exported["active_tab_detail"]["can_select_next_subsystem"] == true);
     REQUIRE(exported["active_tab_detail"]["can_select_previous_subsystem"] == false);
     REQUIRE(exported["active_tab_detail"]["exported_report_json"].is_string());
+}
+
+TEST_CASE("DiagnosticsWorkspace - Migration wizard export carries aggregate counts from loaded reports",
+          "[editor][diagnostics][integration][wizard_export_counts]") {
+    urpg::editor::DiagnosticsWorkspace workspace;
+    workspace.setActiveTab(urpg::editor::DiagnosticsTab::MigrationWizard);
+    workspace.render();
+
+    const auto temp_path =
+        (std::filesystem::temp_directory_path() / "urpg_workspace_migration_wizard_export_counts.json").string();
+    std::filesystem::remove(temp_path);
+
+    nlohmann::json report_json = {
+        {"total_files_processed", 2},
+        {"warning_count", 3},
+        {"error_count", 1},
+        {"is_complete", true},
+        {"summary_logs", {
+            "Message migration: 1 dialogue sequence(s), 2 diagnostic(s).",
+            "Menu migration: 1 scene panel(s), 1 command(s).",
+            "Migration wizard complete."
+        }},
+        {"subsystem_results", {
+            {
+                {"subsystem_id", "message"},
+                {"display_name", "Message"},
+                {"processed_count", 1},
+                {"warning_count", 2},
+                {"error_count", 0},
+                {"completed", true},
+                {"summary_line", "Message migration: 1 dialogue sequence(s), 2 diagnostic(s)."}
+            },
+            {
+                {"subsystem_id", "menu"},
+                {"display_name", "Menu"},
+                {"processed_count", 1},
+                {"warning_count", 1},
+                {"error_count", 1},
+                {"completed", true},
+                {"summary_line", "Menu migration: 1 scene panel(s), 1 command(s)."}
+            }
+        }},
+        {"selected_subsystem_id", "message"}
+    };
+
+    {
+        std::ofstream ofs(temp_path);
+        REQUIRE(ofs);
+        ofs << report_json.dump();
+    }
+
+    REQUIRE(workspace.loadMigrationWizardReportFromFile(temp_path));
+
+    const auto exported = nlohmann::json::parse(workspace.exportAsJson());
+    REQUIRE(exported["active_tab_detail"].contains("total_files_processed"));
+    REQUIRE(exported["active_tab_detail"].contains("warning_count"));
+    REQUIRE(exported["active_tab_detail"].contains("error_count"));
+    REQUIRE(exported["active_tab_detail"]["total_files_processed"] == 2);
+    REQUIRE(exported["active_tab_detail"]["warning_count"] == 3);
+    REQUIRE(exported["active_tab_detail"]["error_count"] == 1);
+
+    std::filesystem::remove(temp_path);
 }
 
 TEST_CASE("DiagnosticsWorkspace - Migration wizard workflow actions are exposed at workspace level",
@@ -662,6 +911,184 @@ TEST_CASE("DiagnosticsWorkspace - Migration wizard workflow actions are exposed 
     REQUIRE(exported["active_tab_detail"]["subsystem_results"].size() == 1);
 }
 
+TEST_CASE("DiagnosticsWorkspace - Migration wizard export carries a rendered workflow body",
+          "[editor][diagnostics][integration][wizard_rendered_workflow]") {
+    urpg::editor::DiagnosticsWorkspace workspace;
+
+    nlohmann::json project_data = {
+        {"messages", {
+            {
+                {"id", "page_1"},
+                {"speaker", "Guide"},
+                {"text", "Welcome to URPG."}
+            }
+        }},
+        {"scenes", {
+            {{"symbol", "item"}, {"name", "Items"}}
+        }}
+    };
+
+    workspace.bindMigrationWizardRuntime(project_data);
+    workspace.setActiveTab(urpg::editor::DiagnosticsTab::MigrationWizard);
+    workspace.render();
+
+    auto exported = nlohmann::json::parse(workspace.exportAsJson());
+    REQUIRE(exported["active_tab_detail"]["workflow_sections"].is_array());
+    REQUIRE(exported["active_tab_detail"]["workflow_sections"].size() >= 5);
+    REQUIRE(exported["active_tab_detail"]["workflow_sections"][0] == "overview");
+    REQUIRE(exported["active_tab_detail"]["workflow_sections"][1] == "actions");
+    REQUIRE(exported["active_tab_detail"]["workflow_sections"][2] == "subsystems");
+    REQUIRE(exported["active_tab_detail"]["workflow_sections"][3] == "report_io");
+    REQUIRE(exported["active_tab_detail"]["workflow_sections"][4] == "bound_runtime");
+
+    REQUIRE(exported["active_tab_detail"]["primary_actions"]["run_migration"]["enabled"] == true);
+    REQUIRE(exported["active_tab_detail"]["primary_actions"]["rerun_selected_subsystem"]["enabled"] == true);
+    REQUIRE(exported["active_tab_detail"]["primary_actions"]["clear_selected_subsystem"]["enabled"] == true);
+    REQUIRE(exported["active_tab_detail"]["primary_actions"]["next_subsystem"]["enabled"] == true);
+    REQUIRE(exported["active_tab_detail"]["primary_actions"]["previous_subsystem"]["enabled"] == false);
+
+    REQUIRE(exported["active_tab_detail"]["subsystem_cards"].is_array());
+    REQUIRE(exported["active_tab_detail"]["subsystem_cards"].size() == 2);
+    REQUIRE(exported["active_tab_detail"]["subsystem_cards"][0]["subsystem_id"] == "message");
+    REQUIRE(exported["active_tab_detail"]["subsystem_cards"][0]["is_selected"] == true);
+    REQUIRE(exported["active_tab_detail"]["subsystem_cards"][1]["subsystem_id"] == "menu");
+    REQUIRE(exported["active_tab_detail"]["subsystem_cards"][1]["is_selected"] == false);
+
+    REQUIRE(exported["active_tab_detail"]["selected_subsystem_card"]["subsystem_id"] == "message");
+    REQUIRE(exported["active_tab_detail"]["selected_subsystem_card"]["can_rerun"] == true);
+    REQUIRE(exported["active_tab_detail"]["selected_subsystem_card"]["can_clear"] == true);
+
+    REQUIRE(exported["active_tab_detail"]["report_io"]["save"]["enabled"] == true);
+    REQUIRE(exported["active_tab_detail"]["report_io"]["load"]["enabled"] == true);
+    REQUIRE(exported["active_tab_detail"]["report_io"]["exported_report_json"].get<std::string>().empty() == false);
+
+    REQUIRE(exported["active_tab_detail"]["bound_runtime_actions"]["has_bound_project_data"] == true);
+    REQUIRE(exported["active_tab_detail"]["bound_runtime_actions"]["rerun_migration"]["enabled"] == true);
+    REQUIRE(exported["active_tab_detail"]["bound_runtime_actions"]["rerun_selected_subsystem"]["enabled"] == true);
+}
+
+TEST_CASE("DiagnosticsWorkspace - Migration wizard empty export still carries rendered workflow shell",
+          "[editor][diagnostics][integration][wizard_rendered_workflow_empty]") {
+    urpg::editor::DiagnosticsWorkspace workspace;
+    workspace.setActiveTab(urpg::editor::DiagnosticsTab::MigrationWizard);
+    workspace.render();
+
+    const auto exported = nlohmann::json::parse(workspace.exportAsJson());
+    REQUIRE(exported["active_tab"] == "migration_wizard");
+    REQUIRE(exported["active_tab_detail"]["workflow_sections"].is_array());
+    REQUIRE(exported["active_tab_detail"]["workflow_sections"].size() >= 5);
+    REQUIRE(exported["active_tab_detail"]["primary_actions"]["run_migration"]["enabled"] == false);
+    REQUIRE(exported["active_tab_detail"]["primary_actions"]["rerun_selected_subsystem"]["enabled"] == false);
+    REQUIRE(exported["active_tab_detail"]["primary_actions"]["clear_selected_subsystem"]["enabled"] == false);
+    REQUIRE(exported["active_tab_detail"]["subsystem_cards"].empty());
+    REQUIRE(exported["active_tab_detail"]["selected_subsystem_card"].is_null());
+    REQUIRE(exported["active_tab_detail"]["report_io"]["save"]["enabled"] == false);
+    REQUIRE(exported["active_tab_detail"]["report_io"]["load"]["enabled"] == true);
+    REQUIRE(exported["active_tab_detail"]["bound_runtime_actions"]["has_bound_project_data"] == false);
+    REQUIRE(exported["active_tab_detail"]["bound_runtime_actions"]["rerun_migration"]["enabled"] == false);
+    REQUIRE(exported["active_tab_detail"]["bound_runtime_actions"]["rerun_selected_subsystem"]["enabled"] == false);
+}
+
+TEST_CASE("DiagnosticsWorkspace - Migration wizard selected-subsystem actions are exposed at workspace level",
+          "[editor][diagnostics][integration][wizard_selected_actions]") {
+    urpg::editor::DiagnosticsWorkspace workspace;
+
+    nlohmann::json project_data = {
+        {"messages", {
+            {
+                {"id", "page_1"},
+                {"speaker", "Guide"},
+                {"text", "Welcome to URPG."}
+            }
+        }},
+        {"scenes", {
+            {{"symbol", "item"}, {"name", "Items"}}
+        }}
+    };
+
+    workspace.bindMigrationWizardRuntime(project_data);
+    workspace.setActiveTab(urpg::editor::DiagnosticsTab::MigrationWizard);
+    workspace.render();
+
+    REQUIRE(workspace.selectNextMigrationWizardSubsystemResult());
+    auto exported = nlohmann::json::parse(workspace.exportAsJson());
+    REQUIRE(exported["active_tab_detail"]["selected_subsystem_id"] == "menu");
+    REQUIRE(exported["active_tab_detail"]["can_rerun_selected_subsystem"] == true);
+    REQUIRE(exported["active_tab_detail"]["can_clear_selected_subsystem"] == true);
+
+    project_data["scenes"].push_back({{"symbol", "equip"}, {"name", "Equip"}});
+    REQUIRE(workspace.rerunSelectedMigrationWizardSubsystem(project_data));
+    exported = nlohmann::json::parse(workspace.exportAsJson());
+    REQUIRE(exported["active_tab_detail"]["selected_subsystem_id"] == "menu");
+    REQUIRE(exported["active_tab_detail"]["selected_subsystem_summary_line"].get<std::string>().find("2 command(s)") != std::string::npos);
+
+    REQUIRE(workspace.clearSelectedMigrationWizardSubsystemResult());
+    exported = nlohmann::json::parse(workspace.exportAsJson());
+    REQUIRE(exported["active_tab_detail"]["selected_subsystem_id"] == "message");
+
+    REQUIRE(workspace.clearSelectedMigrationWizardSubsystemResult());
+    exported = nlohmann::json::parse(workspace.exportAsJson());
+    REQUIRE(exported["active_tab_detail"]["selected_subsystem_id"].is_null());
+    REQUIRE(exported["active_tab_detail"]["can_rerun_selected_subsystem"] == false);
+    REQUIRE(exported["active_tab_detail"]["can_clear_selected_subsystem"] == false);
+
+    REQUIRE_FALSE(workspace.clearSelectedMigrationWizardSubsystemResult());
+    REQUIRE_FALSE(workspace.rerunSelectedMigrationWizardSubsystem(project_data));
+}
+
+TEST_CASE("DiagnosticsWorkspace - Migration wizard bound-runtime rerun actions are exposed at workspace level",
+          "[editor][diagnostics][integration][wizard_bound_runtime]") {
+    urpg::editor::DiagnosticsWorkspace workspace;
+
+    nlohmann::json project_data = {
+        {"messages", {
+            {
+                {"id", "page_1"},
+                {"speaker", "Guide"},
+                {"text", "Welcome to URPG."}
+            }
+        }},
+        {"scenes", {
+            {{"symbol", "item"}, {"name", "Items"}}
+        }}
+    };
+
+    workspace.bindMigrationWizardRuntime(project_data);
+    workspace.setActiveTab(urpg::editor::DiagnosticsTab::MigrationWizard);
+    workspace.render();
+
+    auto exported = nlohmann::json::parse(workspace.exportAsJson());
+    REQUIRE(exported["active_tab_detail"]["has_bound_project_data"] == true);
+    REQUIRE(exported["active_tab_detail"]["can_rerun_bound_migration"] == true);
+    REQUIRE(exported["active_tab_detail"]["can_rerun_bound_selected_subsystem"] == true);
+    REQUIRE(exported["active_tab_detail"]["bound_runtime_actions"]["has_bound_project_data"] == true);
+    REQUIRE(exported["active_tab_detail"]["bound_runtime_actions"]["rerun_migration"]["enabled"] == true);
+    REQUIRE(exported["active_tab_detail"]["bound_runtime_actions"]["rerun_selected_subsystem"]["enabled"] == true);
+
+    REQUIRE(workspace.clearMigrationWizardSubsystemResult("menu"));
+    exported = nlohmann::json::parse(workspace.exportAsJson());
+    REQUIRE(exported["active_tab_detail"]["subsystem_results"].size() == 1);
+
+    REQUIRE(workspace.rerunBoundMigrationWizard());
+    exported = nlohmann::json::parse(workspace.exportAsJson());
+    REQUIRE(exported["active_tab_detail"]["subsystem_results"].size() == 2);
+    REQUIRE(exported["active_tab_detail"]["selected_subsystem_id"] == "message");
+
+    REQUIRE(workspace.selectMigrationWizardSubsystemResult("menu"));
+    REQUIRE(workspace.rerunBoundSelectedMigrationWizardSubsystem());
+    exported = nlohmann::json::parse(workspace.exportAsJson());
+    REQUIRE(exported["active_tab_detail"]["selected_subsystem_id"] == "menu");
+
+    workspace.clearMigrationWizardRuntime();
+    exported = nlohmann::json::parse(workspace.exportAsJson());
+    REQUIRE(exported["active_tab_detail"]["has_bound_project_data"] == false);
+    REQUIRE(exported["active_tab_detail"]["can_rerun_bound_migration"] == false);
+    REQUIRE(exported["active_tab_detail"]["can_rerun_bound_selected_subsystem"] == false);
+    REQUIRE(exported["active_tab_detail"]["bound_runtime_actions"]["has_bound_project_data"] == false);
+    REQUIRE(exported["active_tab_detail"]["bound_runtime_actions"]["rerun_migration"]["enabled"] == false);
+    REQUIRE(exported["active_tab_detail"]["bound_runtime_actions"]["rerun_selected_subsystem"]["enabled"] == false);
+}
+
 TEST_CASE("DiagnosticsWorkspace - Migration wizard actions keep exported snapshot current without manual render",
           "[editor][diagnostics][integration][wizard_snapshot]") {
     urpg::editor::DiagnosticsWorkspace workspace;
@@ -702,6 +1129,77 @@ TEST_CASE("DiagnosticsWorkspace - Migration wizard actions keep exported snapsho
     REQUIRE(exported["active_tab_detail"]["subsystem_results"].empty());
 }
 
+TEST_CASE("DiagnosticsWorkspace - Migration wizard rendered workflow updates across workspace actions",
+          "[editor][diagnostics][integration][wizard_rendered_workflow_actions]") {
+    urpg::editor::DiagnosticsWorkspace workspace;
+
+    nlohmann::json project_data = {
+        {"messages", {
+            {
+                {"id", "page_1"},
+                {"speaker", "Guide"},
+                {"text", "Welcome to URPG."}
+            }
+        }},
+        {"scenes", {
+            {{"symbol", "item"}, {"name", "Items"}}
+        }}
+    };
+
+    workspace.bindMigrationWizardRuntime(project_data);
+    workspace.setActiveTab(urpg::editor::DiagnosticsTab::MigrationWizard);
+    workspace.render();
+
+    REQUIRE(workspace.selectNextMigrationWizardSubsystemResult());
+    auto exported = nlohmann::json::parse(workspace.exportAsJson());
+    REQUIRE(exported["active_tab_detail"]["selected_subsystem_card"]["subsystem_id"] == "menu");
+    REQUIRE(exported["active_tab_detail"]["primary_actions"]["previous_subsystem"]["enabled"] == true);
+    REQUIRE(exported["active_tab_detail"]["primary_actions"]["next_subsystem"]["enabled"] == false);
+
+    project_data["scenes"].push_back({{"symbol", "equip"}, {"name", "Equip"}});
+    REQUIRE(workspace.rerunSelectedMigrationWizardSubsystem(project_data));
+    exported = nlohmann::json::parse(workspace.exportAsJson());
+    REQUIRE(exported["active_tab_detail"]["selected_subsystem_card"]["subsystem_id"] == "menu");
+    REQUIRE(exported["active_tab_detail"]["selected_subsystem_card"]["summary_line"].get<std::string>().find("2 command(s)") != std::string::npos);
+    REQUIRE(exported["active_tab_detail"]["subsystem_cards"][1]["summary_line"].get<std::string>().find("2 command(s)") != std::string::npos);
+
+    REQUIRE(workspace.clearSelectedMigrationWizardSubsystemResult());
+    exported = nlohmann::json::parse(workspace.exportAsJson());
+    REQUIRE(exported["active_tab_detail"]["selected_subsystem_card"]["subsystem_id"] == "message");
+    REQUIRE(exported["active_tab_detail"]["primary_actions"]["previous_subsystem"]["enabled"] == false);
+    REQUIRE(exported["active_tab_detail"]["primary_actions"]["next_subsystem"]["enabled"] == false);
+}
+
+TEST_CASE("DiagnosticsWorkspace - Clearing the last migration wizard subsystem clears exported active-tab detail",
+          "[editor][diagnostics][integration][wizard_clear_last]") {
+    urpg::editor::DiagnosticsWorkspace workspace;
+
+    workspace.bindMigrationWizardRuntime({
+        {"scenes", {
+            {{"symbol", "item"}, {"name", "Items"}}
+        }}
+    });
+    workspace.setActiveTab(urpg::editor::DiagnosticsTab::MigrationWizard);
+    workspace.render();
+
+    auto exported = nlohmann::json::parse(workspace.exportAsJson());
+    REQUIRE(exported["active_tab_detail"]["has_data"] == true);
+    REQUIRE(exported["active_tab_detail"]["is_complete"] == true);
+    REQUIRE(exported["active_tab_detail"]["subsystem_results"].size() == 1);
+    REQUIRE(exported["active_tab_detail"]["selected_subsystem_id"] == "menu");
+
+    REQUIRE(workspace.clearMigrationWizardSubsystemResult("menu"));
+
+    exported = nlohmann::json::parse(workspace.exportAsJson());
+    REQUIRE(exported["active_tab_detail"]["has_data"] == false);
+    REQUIRE(exported["active_tab_detail"]["is_complete"] == false);
+    REQUIRE(exported["active_tab_detail"]["summary_logs"].empty());
+    REQUIRE(exported["active_tab_detail"]["subsystem_results"].empty());
+    REQUIRE(exported["active_tab_detail"]["selected_subsystem_id"].is_null());
+    REQUIRE(exported["active_tab_detail"]["can_clear_selected_subsystem"] == false);
+    REQUIRE(exported["active_tab_detail"]["can_save_report"] == false);
+}
+
 TEST_CASE("DiagnosticsWorkspace - Migration wizard failed load clears exported snapshot state",
           "[editor][diagnostics][integration][wizard_file_failure]") {
     urpg::editor::DiagnosticsWorkspace workspace;
@@ -732,6 +1230,16 @@ TEST_CASE("DiagnosticsWorkspace - Migration wizard failed load clears exported s
     REQUIRE(exported["active_tab_detail"]["summary_logs"].empty());
     REQUIRE(exported["active_tab_detail"]["subsystem_results"].empty());
     REQUIRE(exported["active_tab_detail"]["selected_subsystem_id"].is_null());
+    REQUIRE(exported["active_tab_detail"]["has_bound_project_data"] == false);
+    REQUIRE(exported["active_tab_detail"]["can_rerun_bound_migration"] == false);
+    REQUIRE(exported["active_tab_detail"]["can_rerun_bound_selected_subsystem"] == false);
+    REQUIRE(exported["active_tab_detail"]["report_io"]["save"]["enabled"] == false);
+    REQUIRE(exported["active_tab_detail"]["report_io"]["load"]["enabled"] == true);
+    REQUIRE(exported["active_tab_detail"]["bound_runtime_actions"]["has_bound_project_data"] == false);
+    REQUIRE(exported["active_tab_detail"]["bound_runtime_actions"]["rerun_migration"]["enabled"] == false);
+    REQUIRE(exported["active_tab_detail"]["bound_runtime_actions"]["rerun_selected_subsystem"]["enabled"] == false);
+    REQUIRE_FALSE(workspace.rerunBoundMigrationWizard());
+    REQUIRE_FALSE(workspace.rerunBoundSelectedMigrationWizardSubsystem());
 
     std::filesystem::remove(temp_path);
 }
@@ -769,6 +1277,8 @@ TEST_CASE("DiagnosticsWorkspace - Migration wizard save/load round-trip preserve
     auto exported = nlohmann::json::parse(workspace.exportAsJson());
     REQUIRE(exported["active_tab_detail"]["has_data"] == false);
     REQUIRE(exported["active_tab_detail"]["subsystem_results"].empty());
+    REQUIRE(exported["active_tab_detail"]["report_io"]["save"]["enabled"] == false);
+    REQUIRE(exported["active_tab_detail"]["report_io"]["load"]["enabled"] == true);
 
     REQUIRE(workspace.loadMigrationWizardReportFromFile(temp_path));
 
@@ -778,9 +1288,225 @@ TEST_CASE("DiagnosticsWorkspace - Migration wizard save/load round-trip preserve
     REQUIRE(exported["active_tab_detail"]["subsystem_results"].size() == 2);
     REQUIRE(exported["active_tab_detail"]["can_save_report"] == true);
     REQUIRE(exported["active_tab_detail"]["can_load_report"] == true);
+    REQUIRE(exported["active_tab_detail"]["report_io"]["save"]["enabled"] == true);
+    REQUIRE(exported["active_tab_detail"]["report_io"]["load"]["enabled"] == true);
+    REQUIRE(exported["active_tab_detail"]["selected_subsystem_card"]["subsystem_id"] == "menu");
 
     const auto reloaded_report_json = workspace.exportMigrationWizardReportJson();
     REQUIRE(reloaded_report_json == original_report_json);
+
+    std::filesystem::remove(temp_path);
+}
+
+TEST_CASE("DiagnosticsWorkspace - Migration wizard loaded report exports rendered cards without bound runtime",
+          "[editor][diagnostics][integration][wizard_rendered_workflow_loaded_report]") {
+    urpg::editor::DiagnosticsWorkspace workspace;
+    workspace.setActiveTab(urpg::editor::DiagnosticsTab::MigrationWizard);
+    workspace.render();
+
+    const auto temp_path =
+        (std::filesystem::temp_directory_path() / "urpg_workspace_migration_wizard_loaded_workflow.json").string();
+    std::filesystem::remove(temp_path);
+
+    nlohmann::json report_json = {
+        {"total_files_processed", 2},
+        {"warning_count", 1},
+        {"error_count", 0},
+        {"is_complete", true},
+        {"summary_logs", {
+            "Message migration: 1 dialogue sequence(s), 1 diagnostic(s).",
+            "Menu migration: 1 scene panel(s), 1 command(s).",
+            "Migration wizard complete."
+        }},
+        {"subsystem_results", {
+            {
+                {"subsystem_id", "message"},
+                {"display_name", "Message"},
+                {"processed_count", 1},
+                {"warning_count", 1},
+                {"error_count", 0},
+                {"completed", true},
+                {"summary_line", "Message migration: 1 dialogue sequence(s), 1 diagnostic(s)."}
+            },
+            {
+                {"subsystem_id", "menu"},
+                {"display_name", "Menu"},
+                {"processed_count", 1},
+                {"warning_count", 0},
+                {"error_count", 0},
+                {"completed", true},
+                {"summary_line", "Menu migration: 1 scene panel(s), 1 command(s)."}
+            }
+        }},
+        {"selected_subsystem_id", "menu"}
+    };
+
+    {
+        std::ofstream ofs(temp_path);
+        REQUIRE(ofs);
+        ofs << report_json.dump();
+    }
+
+    REQUIRE(workspace.loadMigrationWizardReportFromFile(temp_path));
+
+    const auto exported = nlohmann::json::parse(workspace.exportAsJson());
+    REQUIRE(exported["active_tab_detail"]["has_data"] == true);
+    REQUIRE(exported["active_tab_detail"]["subsystem_cards"].size() == 2);
+    REQUIRE(exported["active_tab_detail"]["subsystem_cards"][0]["subsystem_id"] == "message");
+    REQUIRE(exported["active_tab_detail"]["subsystem_cards"][0]["is_selected"] == false);
+    REQUIRE(exported["active_tab_detail"]["subsystem_cards"][1]["subsystem_id"] == "menu");
+    REQUIRE(exported["active_tab_detail"]["subsystem_cards"][1]["is_selected"] == true);
+    REQUIRE(exported["active_tab_detail"]["selected_subsystem_card"]["subsystem_id"] == "menu");
+    REQUIRE(exported["active_tab_detail"]["report_io"]["save"]["enabled"] == true);
+    REQUIRE(exported["active_tab_detail"]["report_io"]["load"]["enabled"] == true);
+    REQUIRE(exported["active_tab_detail"]["bound_runtime_actions"]["has_bound_project_data"] == false);
+    REQUIRE(exported["active_tab_detail"]["bound_runtime_actions"]["rerun_migration"]["enabled"] == false);
+    REQUIRE(exported["active_tab_detail"]["bound_runtime_actions"]["rerun_selected_subsystem"]["enabled"] == false);
+
+    std::filesystem::remove(temp_path);
+}
+
+TEST_CASE("DiagnosticsWorkspace - Migration wizard load repairs orphaned selected subsystem ids in exported detail",
+          "[editor][diagnostics][integration][wizard_file_selection_repair]") {
+    urpg::editor::DiagnosticsWorkspace workspace;
+    workspace.setActiveTab(urpg::editor::DiagnosticsTab::MigrationWizard);
+    workspace.render();
+
+    const auto temp_path =
+        (std::filesystem::temp_directory_path() / "urpg_workspace_migration_wizard_orphan_selection.json").string();
+    std::filesystem::remove(temp_path);
+
+    nlohmann::json report_json = {
+        {"total_files_processed", 1},
+        {"warning_count", 0},
+        {"error_count", 0},
+        {"is_complete", true},
+        {"summary_logs", {"Menu migration: 1 scene panel(s), 1 command(s).", "Migration wizard complete."}},
+        {"subsystem_results", {
+            {
+                {"subsystem_id", "menu"},
+                {"display_name", "Menu"},
+                {"processed_count", 1},
+                {"warning_count", 0},
+                {"error_count", 0},
+                {"completed", true},
+                {"summary_line", "Menu migration: 1 scene panel(s), 1 command(s)."}
+            }
+        }},
+        {"selected_subsystem_id", "missing"}
+    };
+
+    {
+        std::ofstream ofs(temp_path);
+        REQUIRE(ofs);
+        ofs << report_json.dump();
+    }
+
+    REQUIRE(workspace.loadMigrationWizardReportFromFile(temp_path));
+
+    const auto exported = nlohmann::json::parse(workspace.exportAsJson());
+    REQUIRE(exported["active_tab_detail"]["selected_subsystem_id"] == "menu");
+    REQUIRE(exported["active_tab_detail"]["selected_subsystem_display_name"] == "Menu");
+    REQUIRE(exported["active_tab_detail"]["can_rerun_selected_subsystem"] == true);
+    REQUIRE(exported["active_tab_detail"]["can_clear_selected_subsystem"] == true);
+    REQUIRE(exported["active_tab_detail"]["selected_subsystem_card"]["subsystem_id"] == "menu");
+    REQUIRE(exported["active_tab_detail"]["selected_subsystem_card"]["can_rerun"] == true);
+    REQUIRE(exported["active_tab_detail"]["selected_subsystem_card"]["can_clear"] == true);
+
+    std::filesystem::remove(temp_path);
+}
+
+TEST_CASE("DiagnosticsWorkspace - Migration wizard file load clears previously bound runtime affordances",
+          "[editor][diagnostics][integration][wizard_file_bound_runtime]") {
+    urpg::editor::DiagnosticsWorkspace workspace;
+    workspace.setActiveTab(urpg::editor::DiagnosticsTab::MigrationWizard);
+
+    workspace.bindMigrationWizardRuntime({
+        {"scenes", {
+            {{"symbol", "item"}, {"name", "Items"}}
+        }}
+    });
+    workspace.render();
+
+    auto exported = nlohmann::json::parse(workspace.exportAsJson());
+    REQUIRE(exported["active_tab_detail"]["has_bound_project_data"] == true);
+    REQUIRE(exported["active_tab_detail"]["can_rerun_bound_migration"] == true);
+
+    const auto temp_path =
+        (std::filesystem::temp_directory_path() / "urpg_workspace_migration_wizard_load_clears_binding.json").string();
+    std::filesystem::remove(temp_path);
+
+    nlohmann::json report_json = {
+        {"total_files_processed", 1},
+        {"warning_count", 0},
+        {"error_count", 0},
+        {"is_complete", true},
+        {"summary_logs", {"Menu migration: 1 scene panel(s), 1 command(s).", "Migration wizard complete."}},
+        {"subsystem_results", {
+            {
+                {"subsystem_id", "menu"},
+                {"display_name", "Menu"},
+                {"processed_count", 1},
+                {"warning_count", 0},
+                {"error_count", 0},
+                {"completed", true},
+                {"summary_line", "Menu migration: 1 scene panel(s), 1 command(s)."}
+            }
+        }},
+        {"selected_subsystem_id", "menu"}
+    };
+
+    {
+        std::ofstream ofs(temp_path);
+        REQUIRE(ofs);
+        ofs << report_json.dump();
+    }
+
+    REQUIRE(workspace.loadMigrationWizardReportFromFile(temp_path));
+
+    exported = nlohmann::json::parse(workspace.exportAsJson());
+    REQUIRE(exported["active_tab_detail"]["has_bound_project_data"] == false);
+    REQUIRE(exported["active_tab_detail"]["can_rerun_bound_migration"] == false);
+    REQUIRE(exported["active_tab_detail"]["can_rerun_bound_selected_subsystem"] == false);
+    REQUIRE(exported["active_tab_detail"]["bound_runtime_actions"]["has_bound_project_data"] == false);
+    REQUIRE(exported["active_tab_detail"]["bound_runtime_actions"]["rerun_migration"]["enabled"] == false);
+    REQUIRE(exported["active_tab_detail"]["bound_runtime_actions"]["rerun_selected_subsystem"]["enabled"] == false);
+    REQUIRE_FALSE(workspace.rerunBoundMigrationWizard());
+    REQUIRE_FALSE(workspace.rerunBoundSelectedMigrationWizardSubsystem());
+
+    std::filesystem::remove(temp_path);
+}
+
+TEST_CASE("DiagnosticsWorkspace - Migration wizard save preserves bound runtime affordances",
+          "[editor][diagnostics][integration][wizard_file_save_binding]") {
+    urpg::editor::DiagnosticsWorkspace workspace;
+    workspace.setActiveTab(urpg::editor::DiagnosticsTab::MigrationWizard);
+    workspace.bindMigrationWizardRuntime({
+        {"scenes", {
+            {{"symbol", "item"}, {"name", "Items"}}
+        }}
+    });
+    workspace.render();
+
+    auto exported = nlohmann::json::parse(workspace.exportAsJson());
+    REQUIRE(exported["active_tab_detail"]["has_bound_project_data"] == true);
+    REQUIRE(exported["active_tab_detail"]["can_rerun_bound_migration"] == true);
+    REQUIRE(exported["active_tab_detail"]["can_rerun_bound_selected_subsystem"] == true);
+
+    const auto temp_path =
+        (std::filesystem::temp_directory_path() / "urpg_workspace_migration_wizard_save_preserves_binding.json").string();
+    std::filesystem::remove(temp_path);
+
+    REQUIRE(workspace.saveMigrationWizardReportToFile(temp_path));
+
+    exported = nlohmann::json::parse(workspace.exportAsJson());
+    REQUIRE(exported["active_tab_detail"]["has_bound_project_data"] == true);
+    REQUIRE(exported["active_tab_detail"]["can_rerun_bound_migration"] == true);
+    REQUIRE(exported["active_tab_detail"]["can_rerun_bound_selected_subsystem"] == true);
+    REQUIRE(exported["active_tab_detail"]["bound_runtime_actions"]["has_bound_project_data"] == true);
+    REQUIRE(exported["active_tab_detail"]["bound_runtime_actions"]["rerun_migration"]["enabled"] == true);
+    REQUIRE(exported["active_tab_detail"]["bound_runtime_actions"]["rerun_selected_subsystem"]["enabled"] == true);
+    REQUIRE(workspace.rerunBoundMigrationWizard());
 
     std::filesystem::remove(temp_path);
 }

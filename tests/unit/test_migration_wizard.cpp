@@ -100,6 +100,78 @@ TEST_CASE("MigrationWizardPanel: Visible render records migration snapshot", "[e
     REQUIRE(panel.lastRenderSnapshot().can_rerun_selected_subsystem);
 }
 
+TEST_CASE("MigrationWizardPanel: render snapshot exposes a rendered workflow body",
+          "[editor][diagnostics][wizard][panel][workflow]") {
+    MigrationWizardPanel panel;
+
+    nlohmann::json project_data = {
+        {"messages", {
+            {"pages", {
+                {
+                    {"id", "speaker_a"},
+                    {"route", "speaker"},
+                    {"speaker", {{"actor_id", 1}, {"name", "Alyx"}}},
+                    {"text", {"Hello there."}}
+                }
+            }}
+        }},
+        {"scenes", {
+            {{"symbol", "item"}, {"name", "Items"}}
+        }},
+        {"troops", {
+            {{"id", 1}, {"name", "Slime x2"}, {"members", {}}}
+        }}
+    };
+
+    panel.onProjectUpdateRequested(project_data);
+    panel.setVisible(true);
+    panel.render();
+
+    const auto& snapshot = panel.lastRenderSnapshot();
+    REQUIRE(snapshot.workflow_sections.size() >= 5);
+    REQUIRE(snapshot.workflow_sections[0] == "overview");
+    REQUIRE(snapshot.workflow_sections[1] == "actions");
+    REQUIRE(snapshot.workflow_sections[2] == "subsystems");
+    REQUIRE(snapshot.workflow_sections[3] == "report_io");
+    REQUIRE(snapshot.workflow_sections[4] == "bound_runtime");
+
+    REQUIRE(snapshot.primary_actions.run_migration.visible);
+    REQUIRE(snapshot.primary_actions.run_migration.enabled);
+    REQUIRE(snapshot.primary_actions.rerun_selected_subsystem.visible);
+    REQUIRE(snapshot.primary_actions.rerun_selected_subsystem.enabled);
+    REQUIRE(snapshot.primary_actions.clear_selected_subsystem.visible);
+    REQUIRE(snapshot.primary_actions.clear_selected_subsystem.enabled);
+    REQUIRE(snapshot.primary_actions.next_subsystem.visible);
+    REQUIRE(snapshot.primary_actions.next_subsystem.enabled);
+    REQUIRE(snapshot.primary_actions.previous_subsystem.visible);
+    REQUIRE_FALSE(snapshot.primary_actions.previous_subsystem.enabled);
+
+    REQUIRE(snapshot.subsystem_cards.size() == 3);
+    REQUIRE(snapshot.subsystem_cards[0].subsystem_id == "message");
+    REQUIRE(snapshot.subsystem_cards[0].is_selected);
+    REQUIRE(snapshot.subsystem_cards[1].subsystem_id == "menu");
+    REQUIRE_FALSE(snapshot.subsystem_cards[1].is_selected);
+    REQUIRE(snapshot.subsystem_cards[2].subsystem_id == "battle");
+
+    REQUIRE(snapshot.selected_subsystem_card.has_value());
+    REQUIRE(snapshot.selected_subsystem_card->subsystem_id == "message");
+    REQUIRE(snapshot.selected_subsystem_card->display_name == "Message");
+    REQUIRE(snapshot.selected_subsystem_card->can_rerun);
+    REQUIRE(snapshot.selected_subsystem_card->can_clear);
+
+    REQUIRE(snapshot.report_io.save.visible);
+    REQUIRE(snapshot.report_io.save.enabled);
+    REQUIRE(snapshot.report_io.load.visible);
+    REQUIRE(snapshot.report_io.load.enabled);
+    REQUIRE_FALSE(snapshot.report_io.exported_report_json.empty());
+
+    REQUIRE(snapshot.bound_runtime_actions.has_bound_project_data);
+    REQUIRE(snapshot.bound_runtime_actions.rerun_migration.visible);
+    REQUIRE(snapshot.bound_runtime_actions.rerun_migration.enabled);
+    REQUIRE(snapshot.bound_runtime_actions.rerun_selected_subsystem.visible);
+    REQUIRE(snapshot.bound_runtime_actions.rerun_selected_subsystem.enabled);
+}
+
 TEST_CASE("MigrationWizardPanel: Clear resets report and rendered snapshot", "[editor][diagnostics][wizard][panel][clear]") {
     MigrationWizardPanel panel;
 
@@ -130,6 +202,47 @@ TEST_CASE("MigrationWizardPanel: Clear resets report and rendered snapshot", "[e
     REQUIRE_FALSE(panel.lastRenderSnapshot().has_data);
     REQUIRE(panel.lastRenderSnapshot().summary_logs.empty());
     REQUIRE(panel.lastRenderSnapshot().subsystem_results.empty());
+}
+
+TEST_CASE("MigrationWizardPanel: empty render still exposes workflow shell with disabled actions",
+          "[editor][diagnostics][wizard][panel][workflow][empty]") {
+    MigrationWizardPanel panel;
+    panel.setVisible(true);
+
+    panel.render();
+
+    const auto& snapshot = panel.lastRenderSnapshot();
+    REQUIRE(snapshot.workflow_sections.size() >= 5);
+    REQUIRE(snapshot.workflow_sections[0] == "overview");
+    REQUIRE(snapshot.workflow_sections[1] == "actions");
+    REQUIRE(snapshot.workflow_sections[2] == "subsystems");
+    REQUIRE(snapshot.workflow_sections[3] == "report_io");
+    REQUIRE(snapshot.workflow_sections[4] == "bound_runtime");
+
+    REQUIRE(snapshot.primary_actions.run_migration.visible);
+    REQUIRE_FALSE(snapshot.primary_actions.run_migration.enabled);
+    REQUIRE(snapshot.primary_actions.rerun_selected_subsystem.visible);
+    REQUIRE_FALSE(snapshot.primary_actions.rerun_selected_subsystem.enabled);
+    REQUIRE(snapshot.primary_actions.clear_selected_subsystem.visible);
+    REQUIRE_FALSE(snapshot.primary_actions.clear_selected_subsystem.enabled);
+    REQUIRE(snapshot.primary_actions.next_subsystem.visible);
+    REQUIRE_FALSE(snapshot.primary_actions.next_subsystem.enabled);
+    REQUIRE(snapshot.primary_actions.previous_subsystem.visible);
+    REQUIRE_FALSE(snapshot.primary_actions.previous_subsystem.enabled);
+
+    REQUIRE(snapshot.subsystem_cards.empty());
+    REQUIRE_FALSE(snapshot.selected_subsystem_card.has_value());
+
+    REQUIRE(snapshot.report_io.save.visible);
+    REQUIRE_FALSE(snapshot.report_io.save.enabled);
+    REQUIRE(snapshot.report_io.load.visible);
+    REQUIRE(snapshot.report_io.load.enabled);
+
+    REQUIRE_FALSE(snapshot.bound_runtime_actions.has_bound_project_data);
+    REQUIRE(snapshot.bound_runtime_actions.rerun_migration.visible);
+    REQUIRE_FALSE(snapshot.bound_runtime_actions.rerun_migration.enabled);
+    REQUIRE(snapshot.bound_runtime_actions.rerun_selected_subsystem.visible);
+    REQUIRE_FALSE(snapshot.bound_runtime_actions.rerun_selected_subsystem.enabled);
 }
 
 TEST_CASE("MigrationWizardModel: subsystem selection follows current results", "[editor][diagnostics][wizard][selection]") {
@@ -288,6 +401,60 @@ TEST_CASE("MigrationWizardPanel: render snapshot exposes selection navigation st
     REQUIRE_FALSE(panel.lastRenderSnapshot().can_select_next_subsystem);
 }
 
+TEST_CASE("MigrationWizardPanel: rendered workflow body tracks selection and action state",
+          "[editor][diagnostics][wizard][panel][workflow][actions]") {
+    MigrationWizardPanel panel;
+
+    nlohmann::json project_data = {
+        {"messages", {
+            {"pages", {
+                {
+                    {"id", "speaker_a"},
+                    {"route", "speaker"},
+                    {"speaker", {{"actor_id", 1}, {"name", "Alyx"}}},
+                    {"text", {"Hello there."}}
+                }
+            }}
+        }},
+        {"scenes", {
+            {{"symbol", "item"}, {"name", "Items"}}
+        }}
+    };
+
+    panel.onProjectUpdateRequested(project_data);
+    panel.setVisible(true);
+    panel.render();
+
+    REQUIRE(panel.selectNextSubsystemResult());
+    panel.render();
+
+    auto snapshot = panel.lastRenderSnapshot();
+    REQUIRE(snapshot.selected_subsystem_card.has_value());
+    REQUIRE(snapshot.selected_subsystem_card->subsystem_id == "menu");
+    REQUIRE(snapshot.primary_actions.previous_subsystem.enabled);
+    REQUIRE_FALSE(snapshot.primary_actions.next_subsystem.enabled);
+
+    project_data["scenes"].push_back({{"symbol", "equip"}, {"name", "Equip"}});
+    REQUIRE(panel.rerunSelectedSubsystem(project_data));
+    panel.render();
+
+    snapshot = panel.lastRenderSnapshot();
+    REQUIRE(snapshot.selected_subsystem_card.has_value());
+    REQUIRE(snapshot.selected_subsystem_card->subsystem_id == "menu");
+    REQUIRE(snapshot.selected_subsystem_card->summary_line.find("2 command(s)") != std::string::npos);
+    REQUIRE(snapshot.subsystem_cards.size() == 2);
+    REQUIRE(snapshot.subsystem_cards[1].summary_line.find("2 command(s)") != std::string::npos);
+
+    REQUIRE(panel.clearSelectedSubsystemResult());
+    panel.render();
+
+    snapshot = panel.lastRenderSnapshot();
+    REQUIRE(snapshot.selected_subsystem_card.has_value());
+    REQUIRE(snapshot.selected_subsystem_card->subsystem_id == "message");
+    REQUIRE_FALSE(snapshot.primary_actions.previous_subsystem.enabled);
+    REQUIRE_FALSE(snapshot.primary_actions.next_subsystem.enabled);
+}
+
 TEST_CASE("MigrationWizardModel: rerunSubsystem updates existing result", "[editor][diagnostics][wizard][rerun]") {
     MigrationWizardModel model;
 
@@ -365,6 +532,48 @@ TEST_CASE("MigrationWizardModel: rerunSubsystem on missing subsystem adds it", "
     REQUIRE(report.summary_logs[3] == "Migration wizard complete.");
 }
 
+TEST_CASE("MigrationWizardModel: selected-subsystem actions operate on the current selection",
+          "[editor][diagnostics][wizard][selected_actions]") {
+    MigrationWizardModel model;
+
+    nlohmann::json project_data = {
+        {"messages", {
+            {"pages", {
+                {
+                    {"id", "speaker_a"},
+                    {"route", "speaker"},
+                    {"speaker", {{"actor_id", 1}, {"name", "Alyx"}}},
+                    {"text", {"Hello there."}}
+                }
+            }}
+        }},
+        {"scenes", {
+            {{"symbol", "item"}, {"name", "Items"}}
+        }}
+    };
+
+    model.runFullMigration(project_data);
+    REQUIRE(model.selectedSubsystemId().has_value());
+    REQUIRE(*model.selectedSubsystemId() == "message");
+    REQUIRE(model.selectSubsystemResult("menu"));
+
+    project_data["scenes"].push_back({{"symbol", "equip"}, {"name", "Equip"}});
+    REQUIRE(model.rerunSelectedSubsystem(project_data));
+    REQUIRE(model.selectedSubsystemId().has_value());
+    REQUIRE(*model.selectedSubsystemId() == "menu");
+    REQUIRE(model.selectedSubsystemResult().has_value());
+    REQUIRE(model.selectedSubsystemResult()->summary_line.find("2 command(s)") != std::string::npos);
+
+    REQUIRE(model.clearSelectedSubsystemResult());
+    REQUIRE(model.selectedSubsystemId().has_value());
+    REQUIRE(*model.selectedSubsystemId() == "message");
+
+    REQUIRE(model.clearSelectedSubsystemResult());
+    REQUIRE_FALSE(model.selectedSubsystemId().has_value());
+    REQUIRE_FALSE(model.clearSelectedSubsystemResult());
+    REQUIRE_FALSE(model.rerunSelectedSubsystem(project_data));
+}
+
 TEST_CASE("MigrationWizardPanel: rerun action reflected in render snapshot", "[editor][diagnostics][wizard][panel][rerun]") {
     MigrationWizardPanel panel;
 
@@ -388,6 +597,100 @@ TEST_CASE("MigrationWizardPanel: rerun action reflected in render snapshot", "[e
     REQUIRE(panel.lastRenderSnapshot().subsystem_results[0].processed_count == 1);
     REQUIRE(panel.lastRenderSnapshot().subsystem_results[0].summary_line.find("2 command(s)") != std::string::npos);
     REQUIRE(panel.lastRenderSnapshot().can_rerun_selected_subsystem);
+}
+
+TEST_CASE("MigrationWizardPanel: selected-subsystem actions follow the current selection",
+          "[editor][diagnostics][wizard][panel][selected_actions]") {
+    MigrationWizardPanel panel;
+
+    nlohmann::json project_data = {
+        {"messages", {
+            {"pages", {
+                {
+                    {"id", "speaker_a"},
+                    {"route", "speaker"},
+                    {"speaker", {{"actor_id", 1}, {"name", "Alyx"}}},
+                    {"text", {"Hello there."}}
+                }
+            }}
+        }},
+        {"scenes", {
+            {{"symbol", "item"}, {"name", "Items"}}
+        }}
+    };
+
+    panel.onProjectUpdateRequested(project_data);
+    REQUIRE(panel.selectSubsystemResult("menu"));
+    panel.setVisible(true);
+    panel.render();
+
+    REQUIRE(panel.lastRenderSnapshot().selected_subsystem_id.has_value());
+    REQUIRE(*panel.lastRenderSnapshot().selected_subsystem_id == "menu");
+    REQUIRE(panel.lastRenderSnapshot().can_rerun_selected_subsystem);
+    REQUIRE(panel.lastRenderSnapshot().can_clear_selected_subsystem);
+
+    project_data["scenes"].push_back({{"symbol", "equip"}, {"name", "Equip"}});
+    REQUIRE(panel.rerunSelectedSubsystem(project_data));
+    panel.render();
+    REQUIRE(panel.lastRenderSnapshot().selected_subsystem_id.has_value());
+    REQUIRE(*panel.lastRenderSnapshot().selected_subsystem_id == "menu");
+    REQUIRE(panel.lastRenderSnapshot().selected_subsystem_summary_line.find("2 command(s)") != std::string::npos);
+
+    REQUIRE(panel.clearSelectedSubsystemResult());
+    panel.render();
+    REQUIRE(panel.lastRenderSnapshot().selected_subsystem_id.has_value());
+    REQUIRE(*panel.lastRenderSnapshot().selected_subsystem_id == "message");
+
+    REQUIRE(panel.clearSelectedSubsystemResult());
+    panel.render();
+    REQUIRE_FALSE(panel.lastRenderSnapshot().selected_subsystem_id.has_value());
+    REQUIRE_FALSE(panel.lastRenderSnapshot().can_rerun_selected_subsystem);
+    REQUIRE_FALSE(panel.lastRenderSnapshot().can_clear_selected_subsystem);
+}
+
+TEST_CASE("MigrationWizardPanel: bound runtime enables no-arg rerun actions",
+          "[editor][diagnostics][wizard][panel][bound_runtime]") {
+    MigrationWizardPanel panel;
+
+    nlohmann::json project_data = {
+        {"messages", {
+            {"pages", {
+                {
+                    {"id", "speaker_a"},
+                    {"route", "speaker"},
+                    {"speaker", {{"actor_id", 1}, {"name", "Alyx"}}},
+                    {"text", {"Hello there."}}
+                }
+            }}
+        }},
+        {"scenes", {
+            {{"symbol", "item"}, {"name", "Items"}}
+        }}
+    };
+
+    panel.onProjectUpdateRequested(project_data);
+    panel.setVisible(true);
+    panel.render();
+
+    REQUIRE(panel.lastRenderSnapshot().has_bound_project_data);
+    REQUIRE(panel.lastRenderSnapshot().can_rerun_bound_migration);
+    REQUIRE(panel.lastRenderSnapshot().can_rerun_bound_selected_subsystem);
+
+    REQUIRE(panel.clearSubsystemResult("menu"));
+    panel.render();
+    REQUIRE(panel.lastRenderSnapshot().subsystem_results.size() == 1);
+
+    REQUIRE(panel.rerunBoundProject());
+    panel.render();
+    REQUIRE(panel.lastRenderSnapshot().subsystem_results.size() == 2);
+    REQUIRE(panel.lastRenderSnapshot().selected_subsystem_id.has_value());
+    REQUIRE(*panel.lastRenderSnapshot().selected_subsystem_id == "message");
+
+    REQUIRE(panel.selectSubsystemResult("menu"));
+    REQUIRE(panel.rerunBoundSelectedSubsystem());
+    panel.render();
+    REQUIRE(panel.lastRenderSnapshot().selected_subsystem_id.has_value());
+    REQUIRE(*panel.lastRenderSnapshot().selected_subsystem_id == "menu");
 }
 
 TEST_CASE("MigrationWizardModel: clearSubsystemResult removes result and updates counts", "[editor][diagnostics][wizard][clear]") {
@@ -461,6 +764,33 @@ TEST_CASE("MigrationWizardModel: clearSubsystemResult updates selection when sel
     REQUIRE_FALSE(model.selectedSubsystemId().has_value());
 }
 
+TEST_CASE("MigrationWizardModel: clearing the last subsystem result resets the wizard to empty state",
+          "[editor][diagnostics][wizard][clear][last_result]") {
+    MigrationWizardModel model;
+
+    nlohmann::json project_data = {
+        {"scenes", {
+            {{"symbol", "item"}, {"name", "Items"}}
+        }}
+    };
+
+    model.runFullMigration(project_data);
+    REQUIRE(model.getReport().total_files_processed == 1);
+    REQUIRE(model.getReport().is_complete);
+    REQUIRE(model.getReport().subsystem_results.size() == 1);
+
+    REQUIRE(model.clearSubsystemResult("menu"));
+
+    const auto& report = model.getReport();
+    REQUIRE(report.total_files_processed == 0);
+    REQUIRE(report.warning_count == 0);
+    REQUIRE(report.error_count == 0);
+    REQUIRE_FALSE(report.is_complete);
+    REQUIRE(report.summary_logs.empty());
+    REQUIRE(report.subsystem_results.empty());
+    REQUIRE_FALSE(model.selectedSubsystemId().has_value());
+}
+
 TEST_CASE("MigrationWizardModel: getReportJson returns structured report", "[editor][diagnostics][wizard][export]") {
     MigrationWizardModel model;
 
@@ -519,6 +849,37 @@ TEST_CASE("MigrationWizardPanel: clear action reflected in render snapshot", "[e
     REQUIRE(panel.lastRenderSnapshot().subsystem_results.size() == 1);
     REQUIRE(panel.lastRenderSnapshot().subsystem_results[0].subsystem_id == "menu");
     REQUIRE(panel.lastRenderSnapshot().can_clear_selected_subsystem);
+}
+
+TEST_CASE("MigrationWizardPanel: clearing the last subsystem result yields an empty snapshot",
+          "[editor][diagnostics][wizard][panel][clear][last_result]") {
+    MigrationWizardPanel panel;
+
+    nlohmann::json project_data = {
+        {"scenes", {
+            {{"symbol", "item"}, {"name", "Items"}}
+        }}
+    };
+
+    panel.onProjectUpdateRequested(project_data);
+    panel.setVisible(true);
+    panel.render();
+
+    REQUIRE(panel.lastRenderSnapshot().has_data);
+    REQUIRE(panel.lastRenderSnapshot().can_clear_selected_subsystem);
+    REQUIRE(panel.lastRenderSnapshot().subsystem_results.size() == 1);
+
+    REQUIRE(panel.clearSubsystemResult("menu"));
+    panel.render();
+
+    REQUIRE_FALSE(panel.lastRenderSnapshot().has_data);
+    REQUIRE_FALSE(panel.lastRenderSnapshot().is_complete);
+    REQUIRE(panel.lastRenderSnapshot().summary_logs.empty());
+    REQUIRE(panel.lastRenderSnapshot().subsystem_results.empty());
+    REQUIRE_FALSE(panel.lastRenderSnapshot().selected_subsystem_id.has_value());
+    REQUIRE_FALSE(panel.lastRenderSnapshot().can_clear_selected_subsystem);
+    REQUIRE_FALSE(panel.lastRenderSnapshot().can_save_report);
+    REQUIRE(panel.lastRenderSnapshot().can_load_report);
 }
 
 TEST_CASE("MigrationWizardPanel: exportReportJson and snapshot export field", "[editor][diagnostics][wizard][panel][export]") {
@@ -622,6 +983,48 @@ TEST_CASE("MigrationWizardModel: loadReportFromFile restores report state", "[ed
     std::filesystem::remove(temp_path);
 }
 
+TEST_CASE("MigrationWizardModel: loadReportFromFile repairs orphaned selected subsystem ids",
+          "[editor][diagnostics][wizard][file][selection]") {
+    const std::string temp_path =
+        (std::filesystem::temp_directory_path() / "urpg_migration_wizard_orphan_selection_test.json").string();
+    std::filesystem::remove(temp_path);
+
+    nlohmann::json report_json = {
+        {"total_files_processed", 1},
+        {"warning_count", 0},
+        {"error_count", 0},
+        {"is_complete", true},
+        {"summary_logs", {"Menu migration: 1 scene panel(s), 1 command(s).", "Migration wizard complete."}},
+        {"subsystem_results", {
+            {
+                {"subsystem_id", "menu"},
+                {"display_name", "Menu"},
+                {"processed_count", 1},
+                {"warning_count", 0},
+                {"error_count", 0},
+                {"completed", true},
+                {"summary_line", "Menu migration: 1 scene panel(s), 1 command(s)."}
+            }
+        }},
+        {"selected_subsystem_id", "missing"}
+    };
+
+    {
+        std::ofstream ofs(temp_path);
+        REQUIRE(ofs);
+        ofs << report_json.dump();
+    }
+
+    MigrationWizardModel model;
+    REQUIRE(model.loadReportFromFile(temp_path));
+    REQUIRE(model.selectedSubsystemId().has_value());
+    REQUIRE(*model.selectedSubsystemId() == "menu");
+    REQUIRE(model.selectedSubsystemResult().has_value());
+    REQUIRE(model.selectedSubsystemResult()->display_name == "Menu");
+
+    std::filesystem::remove(temp_path);
+}
+
 TEST_CASE("MigrationWizardModel: loadReportFromFile with bad file returns false and clears model", "[editor][diagnostics][wizard][file]") {
     MigrationWizardModel model;
     nlohmann::json project_data = {
@@ -652,6 +1055,48 @@ TEST_CASE("MigrationWizardModel: loadReportFromFile with bad file returns false 
     REQUIRE(model.getReport().total_files_processed == 0);
 }
 
+TEST_CASE("MigrationWizardPanel: failed load clears previously bound runtime affordances",
+          "[editor][diagnostics][wizard][panel][file][failure][bound_runtime]") {
+    MigrationWizardPanel panel;
+    panel.setVisible(true);
+    panel.onProjectUpdateRequested({
+        {"scenes", {
+            {{"symbol", "item"}, {"name", "Items"}}
+        }}
+    });
+    panel.render();
+
+    REQUIRE(panel.lastRenderSnapshot().has_bound_project_data);
+    REQUIRE(panel.lastRenderSnapshot().can_rerun_bound_migration);
+    REQUIRE(panel.lastRenderSnapshot().can_rerun_bound_selected_subsystem);
+
+    const std::string temp_path =
+        (std::filesystem::temp_directory_path() / "urpg_migration_wizard_panel_bad_load_clears_binding.json").string();
+    {
+        std::ofstream ofs(temp_path);
+        REQUIRE(ofs);
+        ofs << "not valid json";
+    }
+
+    REQUIRE_FALSE(panel.loadReportFromFile(temp_path));
+    panel.render();
+
+    REQUIRE_FALSE(panel.lastRenderSnapshot().has_bound_project_data);
+    REQUIRE_FALSE(panel.lastRenderSnapshot().can_rerun_bound_migration);
+    REQUIRE_FALSE(panel.lastRenderSnapshot().can_rerun_bound_selected_subsystem);
+    REQUIRE(panel.lastRenderSnapshot().report_io.load.enabled);
+    REQUIRE_FALSE(panel.lastRenderSnapshot().report_io.save.enabled);
+    REQUIRE_FALSE(panel.lastRenderSnapshot().bound_runtime_actions.has_bound_project_data);
+    REQUIRE_FALSE(panel.lastRenderSnapshot().bound_runtime_actions.rerun_migration.enabled);
+    REQUIRE_FALSE(panel.lastRenderSnapshot().bound_runtime_actions.rerun_selected_subsystem.enabled);
+    REQUIRE_FALSE(panel.rerunBoundProject());
+    REQUIRE_FALSE(panel.rerunBoundSelectedSubsystem());
+    REQUIRE_FALSE(panel.lastRenderSnapshot().has_data);
+    REQUIRE(panel.lastRenderSnapshot().subsystem_results.empty());
+
+    std::filesystem::remove(temp_path);
+}
+
 TEST_CASE("MigrationWizardPanel: save/load report forwards to model and snapshot exposes flags", "[editor][diagnostics][wizard][panel][file]") {
     MigrationWizardPanel panel;
     nlohmann::json project_data = {
@@ -675,12 +1120,235 @@ TEST_CASE("MigrationWizardPanel: save/load report forwards to model and snapshot
     panel.render();
     REQUIRE_FALSE(panel.lastRenderSnapshot().can_save_report);
     REQUIRE(panel.lastRenderSnapshot().can_load_report);
+    REQUIRE_FALSE(panel.lastRenderSnapshot().report_io.save.enabled);
+    REQUIRE(panel.lastRenderSnapshot().report_io.load.enabled);
 
     REQUIRE(panel.loadReportFromFile(temp_path));
     panel.render();
     REQUIRE(panel.lastRenderSnapshot().has_data);
     REQUIRE(panel.lastRenderSnapshot().can_save_report);
+    REQUIRE(panel.lastRenderSnapshot().report_io.save.enabled);
+    REQUIRE(panel.lastRenderSnapshot().report_io.load.enabled);
     REQUIRE(panel.lastRenderSnapshot().subsystem_results.size() == 1);
+
+    std::filesystem::remove(temp_path);
+}
+
+TEST_CASE("MigrationWizardPanel: saving a report preserves bound runtime affordances",
+          "[editor][diagnostics][wizard][panel][file][save_binding]") {
+    MigrationWizardPanel panel;
+    panel.setVisible(true);
+    panel.onProjectUpdateRequested({
+        {"scenes", {
+            {{"symbol", "item"}, {"name", "Items"}}
+        }}
+    });
+    panel.render();
+
+    REQUIRE(panel.lastRenderSnapshot().has_bound_project_data);
+    REQUIRE(panel.lastRenderSnapshot().can_rerun_bound_migration);
+    REQUIRE(panel.lastRenderSnapshot().can_rerun_bound_selected_subsystem);
+
+    const std::string temp_path =
+        (std::filesystem::temp_directory_path() / "urpg_migration_wizard_panel_save_preserves_binding.json").string();
+    std::filesystem::remove(temp_path);
+
+    REQUIRE(panel.saveReportToFile(temp_path));
+    panel.render();
+
+    REQUIRE(panel.lastRenderSnapshot().has_bound_project_data);
+    REQUIRE(panel.lastRenderSnapshot().can_rerun_bound_migration);
+    REQUIRE(panel.lastRenderSnapshot().can_rerun_bound_selected_subsystem);
+    REQUIRE(panel.lastRenderSnapshot().bound_runtime_actions.has_bound_project_data);
+    REQUIRE(panel.lastRenderSnapshot().bound_runtime_actions.rerun_migration.enabled);
+    REQUIRE(panel.lastRenderSnapshot().bound_runtime_actions.rerun_selected_subsystem.enabled);
+    REQUIRE(panel.rerunBoundProject());
+
+    std::filesystem::remove(temp_path);
+}
+
+TEST_CASE("MigrationWizardPanel: load report repairs orphaned selected subsystem ids in snapshot",
+          "[editor][diagnostics][wizard][panel][file][selection]") {
+    MigrationWizardPanel panel;
+    panel.setVisible(true);
+
+    const std::string temp_path =
+        (std::filesystem::temp_directory_path() / "urpg_migration_wizard_panel_orphan_selection_test.json").string();
+    std::filesystem::remove(temp_path);
+
+    nlohmann::json report_json = {
+        {"total_files_processed", 1},
+        {"warning_count", 0},
+        {"error_count", 0},
+        {"is_complete", true},
+        {"summary_logs", {"Menu migration: 1 scene panel(s), 1 command(s).", "Migration wizard complete."}},
+        {"subsystem_results", {
+            {
+                {"subsystem_id", "menu"},
+                {"display_name", "Menu"},
+                {"processed_count", 1},
+                {"warning_count", 0},
+                {"error_count", 0},
+                {"completed", true},
+                {"summary_line", "Menu migration: 1 scene panel(s), 1 command(s)."}
+            }
+        }},
+        {"selected_subsystem_id", "missing"}
+    };
+
+    {
+        std::ofstream ofs(temp_path);
+        REQUIRE(ofs);
+        ofs << report_json.dump();
+    }
+
+    REQUIRE(panel.loadReportFromFile(temp_path));
+    panel.render();
+
+    REQUIRE(panel.lastRenderSnapshot().selected_subsystem_id.has_value());
+    REQUIRE(*panel.lastRenderSnapshot().selected_subsystem_id == "menu");
+    REQUIRE(panel.lastRenderSnapshot().selected_subsystem_display_name == "Menu");
+    REQUIRE(panel.lastRenderSnapshot().can_rerun_selected_subsystem);
+    REQUIRE(panel.lastRenderSnapshot().can_clear_selected_subsystem);
+    REQUIRE(panel.lastRenderSnapshot().selected_subsystem_card.has_value());
+    REQUIRE(panel.lastRenderSnapshot().selected_subsystem_card->subsystem_id == "menu");
+    REQUIRE(panel.lastRenderSnapshot().selected_subsystem_card->can_rerun);
+    REQUIRE(panel.lastRenderSnapshot().selected_subsystem_card->can_clear);
+    REQUIRE_FALSE(panel.lastRenderSnapshot().has_bound_project_data);
+    REQUIRE_FALSE(panel.lastRenderSnapshot().can_rerun_bound_migration);
+    REQUIRE_FALSE(panel.lastRenderSnapshot().can_rerun_bound_selected_subsystem);
+    REQUIRE_FALSE(panel.lastRenderSnapshot().bound_runtime_actions.has_bound_project_data);
+    REQUIRE_FALSE(panel.lastRenderSnapshot().bound_runtime_actions.rerun_migration.enabled);
+    REQUIRE_FALSE(panel.lastRenderSnapshot().bound_runtime_actions.rerun_selected_subsystem.enabled);
+
+    std::filesystem::remove(temp_path);
+}
+
+TEST_CASE("MigrationWizardPanel: loading a saved report renders workflow cards without bound runtime",
+          "[editor][diagnostics][wizard][panel][file][workflow]") {
+    MigrationWizardPanel panel;
+    panel.setVisible(true);
+
+    const std::string temp_path =
+        (std::filesystem::temp_directory_path() / "urpg_migration_wizard_panel_loaded_workflow.json").string();
+    std::filesystem::remove(temp_path);
+
+    nlohmann::json report_json = {
+        {"total_files_processed", 2},
+        {"warning_count", 1},
+        {"error_count", 0},
+        {"is_complete", true},
+        {"summary_logs", {
+            "Message migration: 1 dialogue sequence(s), 1 diagnostic(s).",
+            "Menu migration: 1 scene panel(s), 1 command(s).",
+            "Migration wizard complete."
+        }},
+        {"subsystem_results", {
+            {
+                {"subsystem_id", "message"},
+                {"display_name", "Message"},
+                {"processed_count", 1},
+                {"warning_count", 1},
+                {"error_count", 0},
+                {"completed", true},
+                {"summary_line", "Message migration: 1 dialogue sequence(s), 1 diagnostic(s)."}
+            },
+            {
+                {"subsystem_id", "menu"},
+                {"display_name", "Menu"},
+                {"processed_count", 1},
+                {"warning_count", 0},
+                {"error_count", 0},
+                {"completed", true},
+                {"summary_line", "Menu migration: 1 scene panel(s), 1 command(s)."}
+            }
+        }},
+        {"selected_subsystem_id", "menu"}
+    };
+
+    {
+        std::ofstream ofs(temp_path);
+        REQUIRE(ofs);
+        ofs << report_json.dump();
+    }
+
+    REQUIRE(panel.loadReportFromFile(temp_path));
+    panel.render();
+
+    const auto& snapshot = panel.lastRenderSnapshot();
+    REQUIRE(snapshot.has_data);
+    REQUIRE(snapshot.subsystem_cards.size() == 2);
+    REQUIRE(snapshot.subsystem_cards[0].subsystem_id == "message");
+    REQUIRE_FALSE(snapshot.subsystem_cards[0].is_selected);
+    REQUIRE(snapshot.subsystem_cards[1].subsystem_id == "menu");
+    REQUIRE(snapshot.subsystem_cards[1].is_selected);
+    REQUIRE(snapshot.selected_subsystem_card.has_value());
+    REQUIRE(snapshot.selected_subsystem_card->subsystem_id == "menu");
+    REQUIRE(snapshot.selected_subsystem_card->summary_line.find("Menu migration") != std::string::npos);
+    REQUIRE(snapshot.report_io.save.enabled);
+    REQUIRE(snapshot.report_io.load.enabled);
+    REQUIRE_FALSE(snapshot.bound_runtime_actions.has_bound_project_data);
+    REQUIRE_FALSE(snapshot.bound_runtime_actions.rerun_migration.enabled);
+    REQUIRE_FALSE(snapshot.bound_runtime_actions.rerun_selected_subsystem.enabled);
+
+    std::filesystem::remove(temp_path);
+}
+
+TEST_CASE("MigrationWizardPanel: loading a report clears any previously bound runtime",
+          "[editor][diagnostics][wizard][panel][file][bound_runtime]") {
+    MigrationWizardPanel panel;
+    panel.setVisible(true);
+
+    panel.onProjectUpdateRequested({
+        {"scenes", {
+            {{"symbol", "item"}, {"name", "Items"}}
+        }}
+    });
+    panel.render();
+    REQUIRE(panel.lastRenderSnapshot().has_bound_project_data);
+    REQUIRE(panel.lastRenderSnapshot().can_rerun_bound_migration);
+
+    const std::string temp_path =
+        (std::filesystem::temp_directory_path() / "urpg_migration_wizard_panel_load_clears_binding.json").string();
+    std::filesystem::remove(temp_path);
+
+    nlohmann::json report_json = {
+        {"total_files_processed", 1},
+        {"warning_count", 0},
+        {"error_count", 0},
+        {"is_complete", true},
+        {"summary_logs", {"Menu migration: 1 scene panel(s), 1 command(s).", "Migration wizard complete."}},
+        {"subsystem_results", {
+            {
+                {"subsystem_id", "menu"},
+                {"display_name", "Menu"},
+                {"processed_count", 1},
+                {"warning_count", 0},
+                {"error_count", 0},
+                {"completed", true},
+                {"summary_line", "Menu migration: 1 scene panel(s), 1 command(s)."}
+            }
+        }},
+        {"selected_subsystem_id", "menu"}
+    };
+
+    {
+        std::ofstream ofs(temp_path);
+        REQUIRE(ofs);
+        ofs << report_json.dump();
+    }
+
+    REQUIRE(panel.loadReportFromFile(temp_path));
+    panel.render();
+
+    REQUIRE_FALSE(panel.lastRenderSnapshot().has_bound_project_data);
+    REQUIRE_FALSE(panel.lastRenderSnapshot().can_rerun_bound_migration);
+    REQUIRE_FALSE(panel.lastRenderSnapshot().can_rerun_bound_selected_subsystem);
+    REQUIRE_FALSE(panel.lastRenderSnapshot().bound_runtime_actions.has_bound_project_data);
+    REQUIRE_FALSE(panel.lastRenderSnapshot().bound_runtime_actions.rerun_migration.enabled);
+    REQUIRE_FALSE(panel.lastRenderSnapshot().bound_runtime_actions.rerun_selected_subsystem.enabled);
+    REQUIRE_FALSE(panel.rerunBoundProject());
+    REQUIRE_FALSE(panel.rerunBoundSelectedSubsystem());
 
     std::filesystem::remove(temp_path);
 }

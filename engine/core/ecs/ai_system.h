@@ -1,5 +1,7 @@
 #pragma once
 
+#include <cmath>
+
 #include "engine/core/ecs/world.h"
 #include "engine/core/ecs/actor_components.h"
 #include "engine/core/ecs/ai_components.h"

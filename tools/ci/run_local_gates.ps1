@@ -1,12 +1,28 @@
 param(
-    [string]$ConfigurePreset = "ci",
-    [string]$BuildPreset = "ci-release",
-    [string]$PresentationConfiguration = "Release",
+    [string]$ConfigurePreset,
+    [string]$BuildPreset,
+    [string]$PresentationConfiguration,
     [switch]$SkipBuild,
     [switch]$SkipPresentationGate
 )
 
 $ErrorActionPreference = "Stop"
+. "$PSScriptRoot\resolve-local-cmake-profile.ps1"
+
+if ([string]::IsNullOrWhiteSpace($ConfigurePreset) -or
+    [string]::IsNullOrWhiteSpace($BuildPreset) -or
+    [string]::IsNullOrWhiteSpace($PresentationConfiguration)) {
+    $localProfile = Get-UrpgLocalBuildProfile
+    if ([string]::IsNullOrWhiteSpace($ConfigurePreset)) {
+        $ConfigurePreset = $localProfile.ConfigurePreset
+    }
+    if ([string]::IsNullOrWhiteSpace($BuildPreset)) {
+        $BuildPreset = $localProfile.BuildPreset
+    }
+    if ([string]::IsNullOrWhiteSpace($PresentationConfiguration)) {
+        $PresentationConfiguration = $localProfile.Configuration
+    }
+}
 
 Write-Host "== Validate waivers ==" -ForegroundColor Cyan
 & "$PSScriptRoot\check_waivers.ps1"

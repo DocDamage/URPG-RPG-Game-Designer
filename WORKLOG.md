@@ -430,3 +430,110 @@
   - Implemented real `loadDatabase()` orchestration in `data_manager.cpp` with seeded records; wired up all stubbed JS bindings; implemented real `get*AsValue()` serializers.
   - Synchronized intake governance artifacts into `URPG_repo_intake_plan.md`, `URPG_private_asset_intake_plan.md`, `TECHNICAL_DEBT_REMEDIATION_PLAN.md`, and `PROGRAM_COMPLETION_STATUS.md`.
 - **Result**: `urpg_core` builds cleanly; `urpg_tests` passes 400 test cases (5,098 assertions).
+
+### 2026-04-17 â€” Menu Diagnostics Workspace Actions
+- **Action**: Promoted menu-inspector workflow actions up to `DiagnosticsWorkspace`, adding workspace-level command-id filtering, filter clearing, “issues only” toggling, and row selection instead of requiring callers to reach through the menu model directly.
+- **Action**: Updated `MenuInspectorModel` to preserve the selected command across filter rebuilds when that command remains visible, so workspace-driven narrowing no longer drops selection unnecessarily.
+- **Action**: Expanded `DiagnosticsWorkspace::exportAsJson()` for the `menu` tab to include `command_id_filter`, `show_issues_only`, and a structured `selected_row` payload alongside the existing summary, visible rows, issues, and preview state.
+- **Result**: Menu diagnostics now expose a first-class workspace workflow surface rather than only passive export data plus placeholder panel chrome.
+
+### 2026-04-17 - Local Toolchain Hardening
+- **Action**: Hardened SDL resolution in `CMakeLists.txt` so MinGW only accepts SDL2 from the active compiler root, falls back to vendored SDL when that package is missing, and disables the broken vendored Windows joystick/haptic stack on MinGW header sets that already define `XINPUT_CAPABILITIES_EX`.
+- **Action**: Hardened the MSVC lane to skip host `find_package(SDL2)` discovery entirely, preventing MSYS2 MinGW headers from leaking into Visual Studio projects through an incompatible SDL package.
+- **Action**: Added missing standard-library includes surfaced by stricter toolchains (`<cstdint>` in frame/plugin headers and `<cmath>` in `AISystem`), and restored the missing test support headers `engine/core/testing/headless_play_mode.h` and `engine/core/testing/snapshot_validator.h`.
+- **Action**: Hardened `tools/ci/run_presentation_gate.ps1` so it reconfigures stale local build trees when the cached generator no longer matches the selected local profile.
+- **Result**: `urpg_core` now builds in both `dev-mingw-debug` and `dev-vs2022`, `urpg_tests` builds in both lanes, and the focused presentation gate passes locally on the Visual Studio profile without MSYS header contamination.
+
+### 2026-04-17 — Menu Diagnostics Panel Snapshot and Hidden-Selection Persistence
+- **Action**: Added `MenuInspectorPanel::RenderSnapshot` plus focused panel coverage so the menu diagnostics surface now records rendered summary, visible rows, issues, filter state, and selected-command detail instead of relying on placeholder panel sections.
+- **Action**: Replaced the remaining placeholder registry, scene-graph, and selection sections in `MenuInspectorPanel` with model-backed detail, including selected-command state and actionable row-level detail.
+- **Action**: Updated `MenuInspectorModel` to preserve selected command identity even when a selected command becomes filtered or hidden, then refreshed `DiagnosticsWorkspace` menu export from the panel snapshot so workspace JSON stays aligned with the rendered surface.
+- **Action**: Revalidated the focused `[ui][editor][menu_inspector]` and `[editor][diagnostics][integration]` lanes after rebuilding `urpg_tests`.
+- **Result**: Phase 3 menu diagnostics moved past export-only plumbing; the menu tab now has a verified rendered snapshot and retains actionable selection context across filter changes.
+
+### 2026-04-17 — Menu Preview Snapshot Export
+- **Action**: Added `MenuPreviewPanel::RenderSnapshot` plus focused preview-panel coverage so the menu workflow tab now records active scene id, visible pane state, selected command ids, and pane command lists instead of exposing preview only as title/visibility chrome.
+- **Action**: Updated `DiagnosticsWorkspace::exportAsJson()` and active-menu snapshot refresh so the `menu.preview` payload comes from the rendered preview snapshot rather than a stub shell.
+- **Action**: Revalidated the focused `[ui][editor][menu_preview][panel]`, `[ui][editor][menu_inspector]`, and `[editor][diagnostics][integration]` lanes after rebuilding `urpg_tests`.
+- **Result**: The menu diagnostics tab now exposes both inspector and preview workflow state as real, test-backed rendered surfaces instead of pairing one actionable panel with one mostly opaque preview shell.
+
+### 2026-04-17 — Menu Preview Workspace Actions
+- **Action**: Added `DiagnosticsWorkspace::dispatchMenuPreviewAction(InputAction)` so the menu diagnostics tab can drive preview-side `MoveUp`/`MoveDown`/`MoveLeft`/`MoveRight`/`Confirm`/`Cancel` flows against the bound `MenuSceneGraph` instead of only reading preview state.
+- **Action**: Rebound the menu preview path to a mutable `MenuSceneGraph`, refreshed the menu inspector model after preview actions, and extended `MenuPreviewPanel::RenderSnapshot`/workspace export with `last_blocked_command_id` and `last_blocked_reason`.
+- **Action**: Added focused diagnostics coverage proving workspace-level preview actions update selected commands, switch active panes, and surface blocked confirm reasons through exported preview state.
+- **Action**: Revalidated the focused `[editor][diagnostics][integration][menu_preview_actions]`, broader `[editor][diagnostics][integration]`, and `[ui][editor][menu_preview][panel]` lanes after rebuilding `urpg_tests`.
+- **Result**: The menu diagnostics tab is now actionable on both sides: the inspector can filter/select rows and the preview can be driven through real navigation/confirm flows with blocked-command diagnostics exported from the live graph.
+
+### 2026-04-17 — Menu Inspector/Preview Selection Sync
+- **Action**: Added `MenuInspectorModel::SelectCommandById()` so inspector selection can follow a command id directly instead of depending only on a current visible-row index.
+- **Action**: Updated `DiagnosticsWorkspace` to reselect the live active preview command in the inspector after preview-side navigation, keeping exported `selected_command_id` and `selected_row` aligned with the mutable `MenuSceneGraph`.
+- **Action**: Tightened diagnostics integration coverage so preview-side `MoveDown` now must also update the inspector-side selected command export instead of leaving it null.
+- **Action**: Revalidated the focused `[editor][diagnostics][integration][menu_preview_actions]`, broader `[editor][diagnostics][integration]`, and `[ui][editor][menu_inspector]` lanes after rebuilding `urpg_tests`.
+- **Result**: The two halves of the menu diagnostics tab now stay synchronized under preview-driven navigation rather than behaving like independent observers of the same graph.
+
+### 2026-04-17 — Menu Inspector-to-Preview Reverse Sync
+- **Action**: Updated `DiagnosticsWorkspace::selectMenuRow()` to project the selected inspector row back into the bound `MenuSceneGraph`, activating the corresponding pane and command in the live preview workflow.
+- **Action**: Cleared stale blocked-command state on inspector-driven selection changes so preview export reflects the new selected command rather than a prior blocked confirm.
+- **Action**: Tightened the existing menu workspace-actions regression so inspector-side row selection must also update the exported preview `selected_command_id`.
+- **Action**: Revalidated the focused `[editor][diagnostics][integration][menu_actions]`, `[editor][diagnostics][integration][menu_preview_actions]`, and broader `[editor][diagnostics][integration]` lanes after rebuilding `urpg_tests`.
+- **Result**: The menu diagnostics tab now has bidirectional coherence: preview actions update inspector selection, and inspector selection updates the live preview state.
+
+### 2026-04-17 — Menu Duplicate-Command Pane Disambiguation
+- **Action**: Added `MenuInspectorModel::SelectCommandRow(pane_id, command_id)` so workspace sync can target a concrete pane/command pair instead of ambiguously matching only on command id.
+- **Action**: Updated preview-to-inspector synchronization in `DiagnosticsWorkspace` to use the active preview pane id together with the selected command id, fixing the case where multiple panes share the same command id.
+- **Action**: Tightened the menu preview-actions regression so pane navigation must now select the `side_pane` inspector row after `MoveRight`, not the first matching `main_pane` row.
+- **Action**: Revalidated the focused `[editor][diagnostics][integration][menu_preview_actions]`, broader `[editor][diagnostics][integration]`, and `[ui][editor][menu_inspector]` lanes after rebuilding `urpg_tests`.
+- **Result**: Menu diagnostics selection sync is now stable even when the same command id appears in multiple panes.
+
+### 2026-04-17 — Migration Wizard Last-Result Clear Truthfulness
+- **Action**: Fixed `MigrationWizardModel::clearSubsystemResult()` so clearing the final remaining subsystem result routes through a full model reset instead of leaving the wizard marked complete with zero subsystem results.
+- **Action**: Added focused wizard and diagnostics-workspace regressions covering the “clear last remaining subsystem” path, including empty-state snapshot/export expectations and disabled save/clear affordances.
+- **Action**: Revalidated the focused `[editor][diagnostics][wizard]`, `[editor][diagnostics][integration][wizard_actions]`, `[editor][diagnostics][integration][wizard_snapshot]`, and `[editor][diagnostics][integration][wizard_file_roundtrip]` lanes after rebuilding `urpg_tests`.
+- **Result**: Migration wizard selective clear is now truthful at both model and workspace levels; removing the last subsystem no longer leaves behind a fake completed report shell.
+
+### 2026-04-17 — Migration Wizard Selection-Scoped Actions
+- **Action**: Added `rerunSelectedSubsystem(project_data)` and `clearSelectedSubsystemResult()` to `MigrationWizardModel` and forwarded them through `MigrationWizardPanel` plus `DiagnosticsWorkspace`, so the wizard can act directly on its current selected subsystem instead of forcing callers to pass the selected id back in manually.
+- **Action**: Hardened the model wrappers to copy the selected subsystem id before dispatching into mutating id-based operations, avoiding aliasing against selection state that can be reset during the action.
+- **Action**: Added focused wizard and workspace regressions covering selection-scoped rerun/clear behavior, including selection fallback to the remaining subsystem and empty-state affordances after the last selected subsystem is cleared.
+- **Action**: Revalidated the focused `[selected_actions]`, `[wizard_selected_actions]`, `[editor][diagnostics][wizard]`, `[editor][diagnostics][integration][wizard_actions]`, `[editor][diagnostics][integration][wizard_snapshot]`, and `[editor][diagnostics][integration][wizard_file_roundtrip]` lanes after rebuilding `urpg_tests`.
+- **Result**: Migration wizard workflow actions now match the selected-state surface they expose; callers can operate on the active subsystem directly without reconstructing ids from snapshot state.
+
+### 2026-04-17 — Migration Wizard Imported-Selection Repair
+- **Action**: Fixed `MigrationWizardModel::loadReportFromFile()` to repair orphaned `selected_subsystem_id` values when a saved report references a subsystem that is not present in the loaded `subsystem_results`.
+- **Action**: Added focused model, panel, and diagnostics-workspace regressions covering this stale-selection import path so snapshots/export now fall back to the first real subsystem instead of exposing a fake selected id with no backing result.
+- **Action**: Revalidated the focused orphan-selection regressions plus `[editor][diagnostics][wizard][file]`, `[editor][diagnostics][integration][wizard_file_failure]`, and `[editor][diagnostics][integration][wizard_file_roundtrip]` after rebuilding `urpg_tests`.
+- **Result**: Migration wizard report import is now selection-safe; stale saved selections no longer leave the wizard exporting impossible selected-subsystem state after load.
+
+### 2026-04-17 — Migration Wizard Aggregate Export Fidelity
+- **Action**: Updated `DiagnosticsWorkspace::exportAsJson()` so the `migration_wizard` active-tab detail now includes the panel snapshot's aggregate `total_files_processed`, `warning_count`, and `error_count` fields instead of forcing consumers to infer them from tab summary or subsystem rows.
+- **Action**: Added focused diagnostics-workspace regressions covering both the live-run export path and the loaded-report export path for those aggregate counts.
+- **Action**: Forced a clean rebuild of `test_diagnostics_workspace.cpp.obj` / `urpg_tests.exe` after an incremental-build stale-object issue, then revalidated the focused wizard export and file-related integration lanes.
+- **Result**: Migration wizard workspace export now carries the same top-level aggregate counts the panel snapshot already had, for both freshly run and report-loaded wizard states.
+
+### 2026-04-17 — Migration Wizard Bound-Runtime Rerun Flow
+- **Action**: Taught `MigrationWizardPanel` to retain bound project data from `onProjectUpdateRequested(...)` and expose no-argument rerun actions (`rerunBoundProject()`, `rerunBoundSelectedSubsystem()`), replacing part of the prior one-shot wrapper behavior.
+- **Action**: Surfaced that retained-binding state through `MigrationWizardPanel::RenderSnapshot` with `has_bound_project_data`, `can_rerun_bound_migration`, and `can_rerun_bound_selected_subsystem`, then exported the same fields from `DiagnosticsWorkspace`.
+- **Action**: Added workspace-level forwards `rerunBoundMigrationWizard()` and `rerunBoundSelectedMigrationWizardSubsystem()`, plus focused panel/workspace regressions proving that a cleared subsystem can be rebuilt from the retained bound runtime without resupplying project JSON.
+- **Action**: Revalidated the focused `[bound_runtime]`, `[wizard_bound_runtime]`, `[editor][diagnostics][wizard]`, `[editor][diagnostics][integration][wizard_actions]`, `[editor][diagnostics][integration][wizard_selected_actions]`, and `[editor][diagnostics][integration][wizard_file_roundtrip]` lanes after rebuilding `urpg_tests`.
+- **Result**: The migration wizard is no longer only a one-shot `project_data` trigger; its bound runtime can now drive real rerun workflow actions directly through the panel and diagnostics workspace.
+
+### 2026-04-17 — Migration Wizard File-Load Runtime Detachment
+- **Action**: Updated `MigrationWizardPanel::loadReportFromFile()` to clear any previously retained bound project data before importing a report file, so file-loaded wizard state does not inherit stale bound-runtime affordances from an earlier live binding.
+- **Action**: Added focused panel and diagnostics-workspace regressions proving that `has_bound_project_data`, `can_rerun_bound_migration`, and `can_rerun_bound_selected_subsystem` all drop to `false` after loading a file on top of a previously bound wizard, and that bound rerun actions then fail as expected.
+- **Action**: Forced a clean rebuild of the wizard-related test objects and `urpg_tests.exe` after another stale incremental-build issue, then revalidated the focused file/bound-runtime cases plus the broader wizard file lanes.
+- **Result**: Migration wizard file import now cleanly detaches from prior live bindings; loaded reports no longer advertise impossible bound-runtime rerun affordances.
+
+### 2026-04-17 — Migration Wizard Failed-Load Bound-Runtime Coverage
+- **Action**: Tightened the existing `wizard_file_failure` diagnostics-workspace regression so an invalid report load must also clear the exported bound-runtime affordances and make bound rerun actions fail, not only clear report rows.
+- **Action**: Revalidated the focused wizard file-failure, file-roundtrip, and file-selection-repair integration lanes after rebuilding `urpg_tests`.
+- **Result**: The failed-load path is now explicitly covered for both empty-report state and bound-runtime detachment, closing the remaining test gap in that file-import branch.
+
+### 2026-04-17 — Migration Wizard Save-Preserves-Binding Coverage
+- **Action**: Added focused panel and diagnostics-workspace regressions proving that `saveReportToFile()` is non-destructive with respect to the retained bound runtime: save leaves `has_bound_project_data` and the bound rerun affordances intact, and bound rerun actions still succeed immediately afterward.
+- **Action**: Revalidated the focused `[save_binding]`, `[wizard_file_save_binding]`, and broader wizard file integration lanes after rebuilding `urpg_tests`.
+- **Result**: The wizard file workflow is now explicitly covered as asymmetric in the intended way: save preserves bound runtime, while load/failed-load detach it.
+
+### 2026-04-17 — Migration Wizard Panel Failed-Load Binding Coverage
+- **Action**: Added a focused panel-level regression proving that `MigrationWizardPanel::loadReportFromFile()` clears retained bound-runtime affordances on invalid input, not only through the workspace export path.
+- **Action**: Revalidated the broader `[editor][diagnostics][wizard][file]` and `[editor][diagnostics][integration][wizard_file_failure]` lanes after rebuilding `urpg_tests`.
+- **Result**: The wizard's failed-load detachment contract is now covered at both panel and workspace levels, closing the last obvious panel-local gap in the file/binding lane.

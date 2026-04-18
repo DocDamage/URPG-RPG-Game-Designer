@@ -7,6 +7,65 @@ namespace urpg::editor {
 
 namespace {
 
+std::optional<std::pair<std::string, std::string>> ActiveMenuPreviewSelection(const urpg::ui::MenuSceneGraph* scene_graph) {
+    if (!scene_graph) {
+        return std::nullopt;
+    }
+
+    const auto active_scene = scene_graph->getActiveScene();
+    if (!active_scene) {
+        return std::nullopt;
+    }
+
+    for (const auto& pane : active_scene->getPanes()) {
+        if (!pane.isActive) {
+            continue;
+        }
+
+        const auto* selected_command = pane.getSelectedCommand();
+        if (!selected_command) {
+            return std::nullopt;
+        }
+
+        return std::make_pair(pane.id, selected_command->id);
+    }
+
+    return std::nullopt;
+}
+
+bool ApplyMenuInspectorSelectionToGraph(urpg::ui::MenuSceneGraph* scene_graph,
+                                        const std::optional<urpg::editor::MenuInspectorRow>& selected_row) {
+    if (!scene_graph || !selected_row.has_value()) {
+        return false;
+    }
+
+    const auto active_scene = scene_graph->getActiveScene();
+    if (!active_scene) {
+        return false;
+    }
+
+    auto pane_handle = active_scene->getPane(selected_row->pane_id);
+    if (!pane_handle.has_value() || !(*pane_handle)) {
+        return false;
+    }
+
+    auto& panes = const_cast<std::vector<urpg::ui::MenuPane>&>(active_scene->getPanes());
+    for (auto& pane : panes) {
+        pane.isActive = (pane.id == selected_row->pane_id);
+    }
+
+    auto* pane = *pane_handle;
+    for (size_t command_index = 0; command_index < pane->commands.size(); ++command_index) {
+        if (pane->commands[command_index].id == selected_row->command_id) {
+            pane->selectedCommandIndex = static_cast<int>(command_index);
+            scene_graph->clearLastBlockedCommand();
+            return true;
+        }
+    }
+
+    return false;
+}
+
 const char* TabName(DiagnosticsTab tab) {
     switch (tab) {
     case DiagnosticsTab::Compat:
@@ -193,6 +252,80 @@ nlohmann::json MigrationWizardSubsystemJson(const MigrationWizardModel::Subsyste
     };
 }
 
+nlohmann::json MigrationWizardWorkflowActionJson(const MigrationWizardPanel::WorkflowActionState& action) {
+    return {
+        {"id", action.id},
+        {"label", action.label},
+        {"visible", action.visible},
+        {"enabled", action.enabled},
+    };
+}
+
+nlohmann::json MigrationWizardWorkflowSubsystemCardJson(const MigrationWizardPanel::WorkflowSubsystemCard& card) {
+    return {
+        {"subsystem_id", card.subsystem_id},
+        {"display_name", card.display_name},
+        {"processed_count", card.processed_count},
+        {"warning_count", card.warning_count},
+        {"error_count", card.error_count},
+        {"completed", card.completed},
+        {"summary_line", card.summary_line},
+        {"is_selected", card.is_selected},
+        {"can_rerun", card.can_rerun},
+        {"can_clear", card.can_clear},
+    };
+}
+
+nlohmann::json MigrationWizardWorkflowPrimaryActionsJson(const MigrationWizardPanel::WorkflowPrimaryActions& actions) {
+    return {
+        {"run_migration", MigrationWizardWorkflowActionJson(actions.run_migration)},
+        {"rerun_selected_subsystem", MigrationWizardWorkflowActionJson(actions.rerun_selected_subsystem)},
+        {"clear_selected_subsystem", MigrationWizardWorkflowActionJson(actions.clear_selected_subsystem)},
+        {"next_subsystem", MigrationWizardWorkflowActionJson(actions.next_subsystem)},
+        {"previous_subsystem", MigrationWizardWorkflowActionJson(actions.previous_subsystem)},
+    };
+}
+
+nlohmann::json MigrationWizardWorkflowReportIoJson(const MigrationWizardPanel::WorkflowReportIoState& report_io) {
+    return {
+        {"save", MigrationWizardWorkflowActionJson(report_io.save)},
+        {"load", MigrationWizardWorkflowActionJson(report_io.load)},
+        {"exported_report_json", report_io.exported_report_json},
+    };
+}
+
+nlohmann::json MigrationWizardWorkflowBoundRuntimeJson(const MigrationWizardPanel::WorkflowBoundRuntimeActions& actions) {
+    return {
+        {"has_bound_project_data", actions.has_bound_project_data},
+        {"rerun_migration", MigrationWizardWorkflowActionJson(actions.rerun_migration)},
+        {"rerun_selected_subsystem", MigrationWizardWorkflowActionJson(actions.rerun_selected_subsystem)},
+    };
+}
+
+nlohmann::json MigrationWizardSubsystemResultsJson(
+    const std::vector<MigrationWizardModel::SubsystemResult>& subsystem_results) {
+    nlohmann::json subsystemResults = nlohmann::json::array();
+    for (const auto& result : subsystem_results) {
+        subsystemResults.push_back(MigrationWizardSubsystemJson(result));
+    }
+    return subsystemResults;
+}
+
+nlohmann::json MigrationWizardSubsystemCardsJson(
+    const std::vector<MigrationWizardPanel::WorkflowSubsystemCard>& subsystem_cards) {
+    nlohmann::json subsystemCards = nlohmann::json::array();
+    for (const auto& card : subsystem_cards) {
+        subsystemCards.push_back(MigrationWizardWorkflowSubsystemCardJson(card));
+    }
+    return subsystemCards;
+}
+
+nlohmann::json MigrationWizardSelectedSubsystemCardJson(
+    const std::optional<MigrationWizardPanel::WorkflowSubsystemCard>& selected_subsystem_card) {
+    return selected_subsystem_card.has_value() ? MigrationWizardWorkflowSubsystemCardJson(*selected_subsystem_card)
+                                               : nlohmann::json(nullptr);
+}
+
 const char* AudioCategoryName(urpg::audio::AudioCategory category) {
     switch (category) {
     case urpg::audio::AudioCategory::BGM:
@@ -361,6 +494,17 @@ nlohmann::json MenuInspectorIssueJson(const MenuInspectorIssue& issue) {
     root["pane_index"] = issue.pane_index.has_value() ? nlohmann::json(*issue.pane_index) : nlohmann::json(nullptr);
     root["command_index"] = issue.command_index.has_value() ? nlohmann::json(*issue.command_index) : nlohmann::json(nullptr);
     return root;
+}
+
+nlohmann::json MenuPreviewPaneJson(const MenuPreviewPanel::PaneSnapshot& pane) {
+    return {
+        {"pane_id", pane.pane_id},
+        {"pane_label", pane.pane_label},
+        {"pane_active", pane.pane_active},
+        {"selected_command_id", pane.selected_command_id.has_value() ? nlohmann::json(*pane.selected_command_id)
+                                                                     : nlohmann::json(nullptr)},
+        {"command_ids", pane.command_ids},
+    };
 }
 
 const char* BattleInspectorIssueSeverityName(BattleInspectorIssueSeverity severity) {
@@ -583,25 +727,94 @@ void DiagnosticsWorkspace::clearBattleRuntime() {
     battle_panel_.clearRuntime();
 }
 
-void DiagnosticsWorkspace::bindMenuRuntime(const urpg::ui::MenuSceneGraph& scene_graph,
+void DiagnosticsWorkspace::bindMenuRuntime(urpg::ui::MenuSceneGraph& scene_graph,
                                            const urpg::ui::MenuCommandRegistry& registry,
                                            const urpg::ui::MenuCommandRegistry::SwitchState& switches,
                                            const urpg::ui::MenuCommandRegistry::VariableState& variables) {
+    menu_scene_graph_ = &scene_graph;
+    menu_registry_ = &registry;
+    menu_switches_ = switches;
+    menu_variables_ = variables;
     if (menu_model_) {
         menu_model_->LoadFromRuntime(scene_graph, registry, switches, variables);
     }
     if (menu_preview_panel_) {
-        menu_preview_panel_->bindRuntime(scene_graph);
+        menu_preview_panel_->bindRuntime(*menu_scene_graph_);
     }
+    refreshMenuSnapshotIfActive();
 }
 
 void DiagnosticsWorkspace::clearMenuRuntime() {
+    menu_scene_graph_ = nullptr;
+    menu_registry_ = nullptr;
+    menu_switches_.clear();
+    menu_variables_.clear();
     if (menu_model_) {
         menu_model_->Clear();
     }
     if (menu_preview_panel_) {
         menu_preview_panel_->clearRuntime();
     }
+    refreshMenuSnapshotIfActive();
+}
+
+bool DiagnosticsWorkspace::setMenuCommandIdFilter(std::string_view command_id_filter) {
+    if (!menu_model_) {
+        return false;
+    }
+
+    menu_model_->SetCommandIdFilter(std::string(command_id_filter));
+    refreshMenuSnapshotIfActive();
+    return true;
+}
+
+bool DiagnosticsWorkspace::clearMenuCommandIdFilter() {
+    if (!menu_model_) {
+        return false;
+    }
+
+    menu_model_->SetCommandIdFilter(std::nullopt);
+    refreshMenuSnapshotIfActive();
+    return true;
+}
+
+bool DiagnosticsWorkspace::setMenuShowIssuesOnly(bool show_issues_only) {
+    if (!menu_model_) {
+        return false;
+    }
+
+    menu_model_->SetShowIssuesOnly(show_issues_only);
+    refreshMenuSnapshotIfActive();
+    return true;
+}
+
+bool DiagnosticsWorkspace::selectMenuRow(size_t row_index) {
+    if (!menu_model_) {
+        return false;
+    }
+
+    const bool changed = menu_model_->SelectRow(row_index);
+    if (changed) {
+        ApplyMenuInspectorSelectionToGraph(menu_scene_graph_, menu_model_->SelectedRow());
+        refreshMenuSnapshotIfActive();
+    }
+    return changed;
+}
+
+bool DiagnosticsWorkspace::dispatchMenuPreviewAction(urpg::input::InputAction action) {
+    if (!menu_scene_graph_) {
+        return false;
+    }
+
+    menu_scene_graph_->handleInput(action, urpg::input::ActionState::Pressed);
+    if (menu_model_ && menu_registry_) {
+        menu_model_->LoadFromRuntime(*menu_scene_graph_, *menu_registry_, menu_switches_, menu_variables_);
+        if (const auto selected_row = ActiveMenuPreviewSelection(menu_scene_graph_); selected_row.has_value()) {
+            menu_model_->SelectCommandRow(selected_row->first, selected_row->second);
+        }
+    }
+    refreshMenuSnapshotIfActive();
+    return true;
 }
 
 void DiagnosticsWorkspace::bindAudioRuntime(const urpg::audio::AudioCore& core) {
@@ -648,6 +861,14 @@ bool DiagnosticsWorkspace::selectPreviousMigrationWizardSubsystemResult() {
     return changed;
 }
 
+bool DiagnosticsWorkspace::rerunBoundMigrationWizard() {
+    const bool changed = migration_wizard_panel_.rerunBoundProject();
+    if (changed) {
+        refreshMigrationWizardSnapshotIfActive();
+    }
+    return changed;
+}
+
 bool DiagnosticsWorkspace::rerunMigrationWizardSubsystem(std::string_view subsystem_id, const nlohmann::json& project_data) {
     const bool changed = migration_wizard_panel_.rerunSubsystem(subsystem_id, project_data);
     if (changed) {
@@ -656,8 +877,32 @@ bool DiagnosticsWorkspace::rerunMigrationWizardSubsystem(std::string_view subsys
     return changed;
 }
 
+bool DiagnosticsWorkspace::rerunBoundSelectedMigrationWizardSubsystem() {
+    const bool changed = migration_wizard_panel_.rerunBoundSelectedSubsystem();
+    if (changed) {
+        refreshMigrationWizardSnapshotIfActive();
+    }
+    return changed;
+}
+
+bool DiagnosticsWorkspace::rerunSelectedMigrationWizardSubsystem(const nlohmann::json& project_data) {
+    const bool changed = migration_wizard_panel_.rerunSelectedSubsystem(project_data);
+    if (changed) {
+        refreshMigrationWizardSnapshotIfActive();
+    }
+    return changed;
+}
+
 bool DiagnosticsWorkspace::clearMigrationWizardSubsystemResult(std::string_view subsystem_id) {
     const bool changed = migration_wizard_panel_.clearSubsystemResult(subsystem_id);
+    if (changed) {
+        refreshMigrationWizardSnapshotIfActive();
+    }
+    return changed;
+}
+
+bool DiagnosticsWorkspace::clearSelectedMigrationWizardSubsystemResult() {
+    const bool changed = migration_wizard_panel_.clearSelectedSubsystemResult();
     if (changed) {
         refreshMigrationWizardSnapshotIfActive();
     }
@@ -968,6 +1213,9 @@ std::string DiagnosticsWorkspace::exportAsJson() const {
     }
     case DiagnosticsTab::MigrationWizard: {
         const auto& snapshot = migration_wizard_panel_.lastRenderSnapshot();
+        activeTabDetail["total_files_processed"] = snapshot.total_files_processed;
+        activeTabDetail["warning_count"] = snapshot.warning_count;
+        activeTabDetail["error_count"] = snapshot.error_count;
         activeTabDetail["headline"] = snapshot.headline;
         activeTabDetail["has_data"] = snapshot.has_data;
         activeTabDetail["is_complete"] = snapshot.is_complete;
@@ -985,14 +1233,19 @@ std::string DiagnosticsWorkspace::exportAsJson() const {
         activeTabDetail["can_clear_selected_subsystem"] = snapshot.can_clear_selected_subsystem;
         activeTabDetail["can_select_next_subsystem"] = snapshot.can_select_next_subsystem;
         activeTabDetail["can_select_previous_subsystem"] = snapshot.can_select_previous_subsystem;
+        activeTabDetail["has_bound_project_data"] = snapshot.has_bound_project_data;
+        activeTabDetail["can_rerun_bound_migration"] = snapshot.can_rerun_bound_migration;
+        activeTabDetail["can_rerun_bound_selected_subsystem"] = snapshot.can_rerun_bound_selected_subsystem;
         activeTabDetail["can_save_report"] = snapshot.can_save_report;
         activeTabDetail["can_load_report"] = snapshot.can_load_report;
         activeTabDetail["exported_report_json"] = snapshot.exported_report_json;
-        nlohmann::json subsystemResults = nlohmann::json::array();
-        for (const auto& result : snapshot.subsystem_results) {
-            subsystemResults.push_back(MigrationWizardSubsystemJson(result));
-        }
-        activeTabDetail["subsystem_results"] = std::move(subsystemResults);
+        activeTabDetail["workflow_sections"] = snapshot.workflow_sections;
+        activeTabDetail["primary_actions"] = MigrationWizardWorkflowPrimaryActionsJson(snapshot.primary_actions);
+        activeTabDetail["report_io"] = MigrationWizardWorkflowReportIoJson(snapshot.report_io);
+        activeTabDetail["bound_runtime_actions"] = MigrationWizardWorkflowBoundRuntimeJson(snapshot.bound_runtime_actions);
+        activeTabDetail["subsystem_results"] = MigrationWizardSubsystemResultsJson(snapshot.subsystem_results);
+        activeTabDetail["subsystem_cards"] = MigrationWizardSubsystemCardsJson(snapshot.subsystem_cards);
+        activeTabDetail["selected_subsystem_card"] = MigrationWizardSelectedSubsystemCardJson(snapshot.selected_subsystem_card);
         break;
     }
     case DiagnosticsTab::Battle: {
@@ -1034,28 +1287,51 @@ std::string DiagnosticsWorkspace::exportAsJson() const {
         break;
     }
     case DiagnosticsTab::Menu: {
-        if (menu_model_) {
-            activeTabDetail["menu_summary"] = MenuInspectorSummaryJson(menu_model_->Summary());
+        if (menu_panel_ && menu_panel_->hasRenderedFrame()) {
+            const auto& snapshot = menu_panel_->lastRenderSnapshot();
+            activeTabDetail["menu_summary"] = MenuInspectorSummaryJson(snapshot.summary);
+            activeTabDetail["command_id_filter"] = snapshot.command_id_filter;
+            activeTabDetail["show_issues_only"] = snapshot.show_issues_only;
+            activeTabDetail["has_data"] = snapshot.has_data;
             activeTabDetail["selected_command_id"] =
-                menu_model_->SelectedCommandId().has_value() ? nlohmann::json(*menu_model_->SelectedCommandId()) : nlohmann::json(nullptr);
+                snapshot.selected_command_id.has_value() ? nlohmann::json(*snapshot.selected_command_id) : nlohmann::json(nullptr);
 
             nlohmann::json visibleRows = nlohmann::json::array();
-            for (const auto& row : menu_model_->VisibleRows()) {
+            for (const auto& row : snapshot.visible_rows) {
                 visibleRows.push_back(MenuInspectorRowJson(row));
             }
             activeTabDetail["visible_rows"] = std::move(visibleRows);
 
+            if (snapshot.selected_row.has_value()) {
+                activeTabDetail["selected_row"] = MenuInspectorRowJson(*snapshot.selected_row);
+            }
+
             nlohmann::json issues = nlohmann::json::array();
-            for (const auto& issue : menu_model_->Issues()) {
+            for (const auto& issue : snapshot.issues) {
                 issues.push_back(MenuInspectorIssueJson(issue));
             }
             activeTabDetail["issues"] = std::move(issues);
+        } else if (menu_model_) {
+            activeTabDetail["menu_summary"] = MenuInspectorSummaryJson(menu_model_->Summary());
         }
         if (menu_preview_panel_) {
-            activeTabDetail["preview"] = {
+            nlohmann::json preview{
                 {"title", menu_preview_panel_->GetTitle()},
                 {"visible", menu_preview_panel_->IsVisible()},
             };
+            if (menu_preview_panel_->hasRenderedFrame()) {
+                const auto& snapshot = menu_preview_panel_->lastRenderSnapshot();
+                preview["has_data"] = snapshot.has_data;
+                preview["active_scene_id"] = snapshot.active_scene_id;
+                preview["last_blocked_command_id"] = snapshot.last_blocked_command_id;
+                preview["last_blocked_reason"] = snapshot.last_blocked_reason;
+                nlohmann::json visiblePanes = nlohmann::json::array();
+                for (const auto& pane : snapshot.visible_panes) {
+                    visiblePanes.push_back(MenuPreviewPaneJson(pane));
+                }
+                preview["visible_panes"] = std::move(visiblePanes);
+            }
+            activeTabDetail["preview"] = std::move(preview);
         }
         break;
     }
@@ -1125,6 +1401,9 @@ void DiagnosticsWorkspace::refresh() {
     event_authority_panel_.refresh();
     message_panel_.refresh();
     battle_panel_.refresh();
+    if (menu_panel_) {
+        menu_panel_->refresh();
+    }
     if (menu_preview_panel_) {
         menu_preview_panel_->refresh();
     }
@@ -1137,6 +1416,9 @@ void DiagnosticsWorkspace::update() {
     event_authority_panel_.update();
     message_panel_.update();
     battle_panel_.update();
+    if (menu_panel_) {
+        menu_panel_->update();
+    }
     if (menu_preview_panel_) {
         menu_preview_panel_->update();
     }
@@ -1172,6 +1454,9 @@ void DiagnosticsWorkspace::refreshActiveSnapshotBackedTabIfVisible() {
     case DiagnosticsTab::Audio:
         refreshAudioSnapshotIfActive();
         break;
+    case DiagnosticsTab::Menu:
+        refreshMenuSnapshotIfActive();
+        break;
     case DiagnosticsTab::MigrationWizard:
         refreshMigrationWizardSnapshotIfActive();
         break;
@@ -1196,6 +1481,16 @@ void DiagnosticsWorkspace::renderEventAuthoritySnapshotIfActive() {
 void DiagnosticsWorkspace::refreshAudioSnapshotIfActive() {
     if (visible_ && active_tab_ == DiagnosticsTab::Audio) {
         audio_panel_.render();
+    }
+}
+
+void DiagnosticsWorkspace::refreshMenuSnapshotIfActive() {
+    if (visible_ && active_tab_ == DiagnosticsTab::Menu && menu_panel_) {
+        urpg::FrameContext context{0.016f, 0};
+        menu_panel_->Render(context);
+        if (menu_preview_panel_) {
+            menu_preview_panel_->Render(context);
+        }
     }
 }
 

@@ -89,17 +89,24 @@ public:
     const MenuInspectorSummary& Summary() const;
     const std::vector<MenuInspectorRow>& VisibleRows() const;
     const std::vector<MenuInspectorIssue>& Issues() const;
+    std::optional<std::string> CommandIdFilter() const;
+    bool ShowIssuesOnly() const;
 
     bool SelectRow(size_t row_index);
+    bool SelectCommandById(std::string_view command_id);
+    bool SelectCommandRow(std::string_view pane_id, std::string_view command_id);
     std::optional<std::string> SelectedCommandId() const;
+    std::optional<MenuInspectorRow> SelectedRow() const;
 
 private:
     void RebuildVisibleRows();
+    void RestoreSelectionByCommandId(const std::optional<std::string>& command_id);
 
     std::vector<MenuInspectorRow> all_rows_;
     std::vector<MenuInspectorRow> visible_rows_;
     std::vector<MenuInspectorIssue> issues_;
     std::optional<size_t> selected_row_index_;
+    std::optional<std::string> selected_command_id_;
     std::optional<std::string> command_id_filter_;
     bool show_issues_only_ = false;
     MenuInspectorSummary summary_;

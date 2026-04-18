@@ -10,6 +10,7 @@
 #include "editor/save/save_inspector_panel.h"
 #include "editor/ui/menu_inspector_panel.h"
 #include "editor/ui/menu_preview_panel.h"
+#include "engine/core/input/input_core.h"
 
 namespace urpg::editor {
 
@@ -73,11 +74,16 @@ public:
     void bindBattleRuntime(const urpg::battle::BattleFlowController& flow_controller,
                            const urpg::battle::BattleActionQueue& action_queue);
     void clearBattleRuntime();
-    void bindMenuRuntime(const urpg::ui::MenuSceneGraph& scene_graph,
+    void bindMenuRuntime(urpg::ui::MenuSceneGraph& scene_graph,
                          const urpg::ui::MenuCommandRegistry& registry,
                          const urpg::ui::MenuCommandRegistry::SwitchState& switches,
                          const urpg::ui::MenuCommandRegistry::VariableState& variables);
     void clearMenuRuntime();
+    bool setMenuCommandIdFilter(std::string_view command_id_filter);
+    bool clearMenuCommandIdFilter();
+    bool setMenuShowIssuesOnly(bool show_issues_only);
+    bool selectMenuRow(size_t row_index);
+    bool dispatchMenuPreviewAction(urpg::input::InputAction action);
     void bindAudioRuntime(const urpg::audio::AudioCore& core);
     void clearAudioRuntime();
     void bindMigrationWizardRuntime(const nlohmann::json& project_data);
@@ -85,8 +91,12 @@ public:
     bool selectMigrationWizardSubsystemResult(std::string_view subsystem_id);
     bool selectNextMigrationWizardSubsystemResult();
     bool selectPreviousMigrationWizardSubsystemResult();
+    bool rerunBoundMigrationWizard();
     bool rerunMigrationWizardSubsystem(std::string_view subsystem_id, const nlohmann::json& project_data);
+    bool rerunBoundSelectedMigrationWizardSubsystem();
+    bool rerunSelectedMigrationWizardSubsystem(const nlohmann::json& project_data);
     bool clearMigrationWizardSubsystemResult(std::string_view subsystem_id);
+    bool clearSelectedMigrationWizardSubsystemResult();
     std::string exportMigrationWizardReportJson() const;
     bool saveMigrationWizardReportToFile(const std::string& path);
     bool loadMigrationWizardReportFromFile(const std::string& path);
@@ -121,6 +131,7 @@ private:
     void refreshActiveSnapshotBackedTabIfVisible();
     void refreshEventAuthoritySnapshotIfActive();
     void renderEventAuthoritySnapshotIfActive();
+    void refreshMenuSnapshotIfActive();
     void refreshAudioSnapshotIfActive();
     void refreshMigrationWizardSnapshotIfActive();
 
@@ -133,6 +144,10 @@ private:
     std::shared_ptr<MenuInspectorModel> menu_model_;
     std::unique_ptr<MenuInspectorPanel> menu_panel_;
     std::unique_ptr<MenuPreviewPanel> menu_preview_panel_;
+    urpg::ui::MenuSceneGraph* menu_scene_graph_ = nullptr;
+    const urpg::ui::MenuCommandRegistry* menu_registry_ = nullptr;
+    urpg::ui::MenuCommandRegistry::SwitchState menu_switches_;
+    urpg::ui::MenuCommandRegistry::VariableState menu_variables_;
 
     AudioInspectorPanel audio_panel_;
     AbilityInspectorPanel ability_panel_;

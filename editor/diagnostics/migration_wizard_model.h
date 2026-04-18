@@ -90,11 +90,25 @@ public:
                         selected_subsystem_id_ = m_report.subsystem_results.front().subsystem_id;
                     }
                 }
+
+                if (m_report.subsystem_results.empty()) {
+                    clear();
+                    return true;
+                }
+
                 rebuildSummaryLogs();
                 return true;
             }
         }
         return false;
+    }
+
+    bool clearSelectedSubsystemResult() {
+        if (!selected_subsystem_id_.has_value()) {
+            return false;
+        }
+        const std::string selected_subsystem_id = *selected_subsystem_id_;
+        return clearSubsystemResult(selected_subsystem_id);
     }
 
     bool rerunSubsystem(std::string_view subsystem_id, const nlohmann::json& project_data) {
@@ -138,6 +152,14 @@ public:
         }
 
         return true;
+    }
+
+    bool rerunSelectedSubsystem(const nlohmann::json& project_data) {
+        if (!selected_subsystem_id_.has_value()) {
+            return false;
+        }
+        const std::string selected_subsystem_id = *selected_subsystem_id_;
+        return rerunSubsystem(selected_subsystem_id, project_data);
     }
 
     void clear() {
@@ -321,6 +343,14 @@ public:
                 }
             } else if (!m_report.subsystem_results.empty()) {
                 selected_subsystem_id_ = m_report.subsystem_results.front().subsystem_id;
+            }
+
+            if (selected_subsystem_id_.has_value() && !selectedSubsystemResult().has_value()) {
+                if (!m_report.subsystem_results.empty()) {
+                    selected_subsystem_id_ = m_report.subsystem_results.front().subsystem_id;
+                } else {
+                    selected_subsystem_id_.reset();
+                }
             }
             return true;
         } catch (...) {

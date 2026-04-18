@@ -187,6 +187,9 @@ Cross-cutting debt, truthfulness, and intake-governance source of truth: `docs/T
   - `DiagnosticsWorkspace::bindMenuRuntime` / `clearMenuRuntime` now have integration coverage proving menu diagnostics bind, export, tab-switch, and clear without stale state
   - `MenuInspectorModel::Clear()` now resets transient filters, selection, issues, and summary state for clean runtime rebinding
   - `MenuPreviewPanel` is now surfaced through `DiagnosticsWorkspace` so the menu tab exposes both inspector and preview workflow surfaces instead of leaving preview tooling orphaned
+  - `DiagnosticsWorkspace` now exposes menu workflow actions directly at the workspace layer (`setMenuCommandIdFilter`, `clearMenuCommandIdFilter`, `setMenuShowIssuesOnly`, `selectMenuRow`) instead of requiring callers to reach through the menu model
+  - `MenuInspectorModel` now preserves selected command state across filter rebuilds when the selected command remains visible
+  - menu active-tab export now includes `command_id_filter`, `show_issues_only`, and a structured `selected_row` payload so the workspace snapshot carries real menu workflow context instead of only row lists and issue arrays
 - Added richer UI/Menu legacy import mapping:
   - `MenuSceneSerializer::ImportLegacy()` now preserves explicit `mainMenu.commands` route targets, fallback routes, custom route IDs, and visibility/enable rules when compat evidence provides them
   - route parsing now accepts lower-case native route identifiers during menu legacy import
@@ -313,3 +316,8 @@ The scope in this document is considered 100% complete when all items below are 
   - [x] `MenuRouteResolver` for abstract command-to-action resolution.
   - [x] `MenuSceneGraph` command orchestration (Confirm/Cancel/Navigation) and audio sync.
   - [x] Cross-component unit coverage for menu orchestration.
+- [x] Local build-environment hardening baseline:
+  - [x] MinGW SDL resolution constrained to the active compiler root, with a safe vendored fallback when no compatible package is installed.
+  - [x] Visual Studio SDL discovery no longer imports MSYS2 MinGW headers into MSVC projects.
+  - [x] Focused presentation gate helper now reconfigures stale local build trees before running.
+  - [x] `urpg_core` and `urpg_tests` build in both `dev-vs2022` and `dev-mingw-debug`, with the focused presentation gate passing locally on the Visual Studio lane.

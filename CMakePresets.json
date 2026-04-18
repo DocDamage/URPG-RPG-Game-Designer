@@ -22,6 +22,26 @@
       "generator": "Visual Studio 17 2022"
     },
     {
+      "name": "dev-mingw-debug",
+      "displayName": "Dev (MinGW Debug)",
+      "inherits": "base",
+      "generator": "MinGW Makefiles",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "URPG_USE_SCCACHE": "OFF"
+      }
+    },
+    {
+      "name": "dev-mingw-release",
+      "displayName": "Dev (MinGW Release)",
+      "inherits": "base",
+      "generator": "MinGW Makefiles",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release",
+        "URPG_USE_SCCACHE": "OFF"
+      }
+    },
+    {
       "name": "dev-ninja-debug",
       "displayName": "Dev (Ninja Debug)",
       "inherits": "base",
@@ -55,12 +75,30 @@
   ],
   "buildPresets": [
     {
+      "name": "dev-vs2022-debug",
+      "configurePreset": "dev-vs2022",
+      "configuration": "Debug"
+    },
+    {
+      "name": "dev-vs2022-release",
+      "configurePreset": "dev-vs2022",
+      "configuration": "Release"
+    },
+    {
       "name": "dev-debug",
       "configurePreset": "dev-ninja-debug"
     },
     {
       "name": "dev-release",
       "configurePreset": "dev-ninja-release"
+    },
+    {
+      "name": "dev-mingw-debug-build",
+      "configurePreset": "dev-mingw-debug"
+    },
+    {
+      "name": "dev-mingw-release-build",
+      "configurePreset": "dev-mingw-release"
     },
     {
       "name": "ci-release",

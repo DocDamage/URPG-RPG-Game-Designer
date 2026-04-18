@@ -75,6 +75,7 @@ void MenuInspectorModel::LoadFromRuntime(
     const urpg::ui::MenuCommandRegistry& registry,
     const urpg::ui::MenuCommandRegistry::SwitchState& switches,
     const urpg::ui::MenuCommandRegistry::VariableState& variables) {
+    const auto previously_selected_command_id = SelectedCommandId();
     all_rows_.clear();
     visible_rows_.clear();
     issues_.clear();
@@ -284,6 +285,7 @@ void MenuInspectorModel::LoadFromRuntime(
 
     summary_.issue_count = issues_.size();
     RebuildVisibleRows();
+    RestoreSelectionByCommandId(previously_selected_command_id);
 }
 
 void MenuInspectorModel::Clear() {
@@ -291,24 +293,27 @@ void MenuInspectorModel::Clear() {
     visible_rows_.clear();
     issues_.clear();
     selected_row_index_.reset();
+    selected_command_id_.reset();
     command_id_filter_.reset();
     show_issues_only_ = false;
     summary_ = {};
 }
 
 void MenuInspectorModel::SetCommandIdFilter(std::optional<std::string> command_id_filter) {
+    const auto previously_selected_command_id = SelectedCommandId();
     if (command_id_filter.has_value() && command_id_filter->empty()) {
         command_id_filter.reset();
     }
     command_id_filter_ = std::move(command_id_filter);
-    selected_row_index_.reset();
     RebuildVisibleRows();
+    RestoreSelectionByCommandId(previously_selected_command_id);
 }
 
 void MenuInspectorModel::SetShowIssuesOnly(bool show_issues_only) {
+    const auto previously_selected_command_id = SelectedCommandId();
     show_issues_only_ = show_issues_only;
-    selected_row_index_.reset();
     RebuildVisibleRows();
+    RestoreSelectionByCommandId(previously_selected_command_id);
 }
 
 const MenuInspectorSummary& MenuInspectorModel::Summary() const {
@@ -323,22 +328,100 @@ const std::vector<MenuInspectorIssue>& MenuInspectorModel::Issues() const {
     return issues_;
 }
 
+std::optional<std::string> MenuInspectorModel::CommandIdFilter() const {
+    return command_id_filter_;
+}
+
+bool MenuInspectorModel::ShowIssuesOnly() const {
+    return show_issues_only_;
+}
+
 bool MenuInspectorModel::SelectRow(size_t row_index) {
     if (row_index >= visible_rows_.size()) {
         selected_row_index_.reset();
+        selected_command_id_.reset();
         return false;
     }
 
     selected_row_index_ = row_index;
+    selected_command_id_ = visible_rows_[row_index].command_id;
     return true;
 }
 
+bool MenuInspectorModel::SelectCommandById(std::string_view command_id) {
+    if (command_id.empty()) {
+        selected_row_index_.reset();
+        selected_command_id_.reset();
+        return false;
+    }
+
+    selected_command_id_ = std::string(command_id);
+    selected_row_index_.reset();
+
+    for (size_t index = 0; index < visible_rows_.size(); ++index) {
+        if (visible_rows_[index].command_id == command_id) {
+            selected_row_index_ = index;
+            return true;
+        }
+    }
+
+    for (const auto& row : all_rows_) {
+        if (row.command_id == command_id) {
+            return true;
+        }
+    }
+
+    selected_command_id_.reset();
+    return false;
+}
+
+bool MenuInspectorModel::SelectCommandRow(std::string_view pane_id, std::string_view command_id) {
+    if (pane_id.empty() || command_id.empty()) {
+        selected_row_index_.reset();
+        selected_command_id_.reset();
+        return false;
+    }
+
+    selected_command_id_ = std::string(command_id);
+    selected_row_index_.reset();
+
+    for (size_t index = 0; index < visible_rows_.size(); ++index) {
+        if (visible_rows_[index].pane_id == pane_id && visible_rows_[index].command_id == command_id) {
+            selected_row_index_ = index;
+            return true;
+        }
+    }
+
+    for (const auto& row : all_rows_) {
+        if (row.pane_id == pane_id && row.command_id == command_id) {
+            return true;
+        }
+    }
+
+    selected_command_id_.reset();
+    return false;
+}
+
 std::optional<std::string> MenuInspectorModel::SelectedCommandId() const {
-    if (!selected_row_index_.has_value()) {
+    return selected_command_id_;
+}
+
+std::optional<MenuInspectorRow> MenuInspectorModel::SelectedRow() const {
+    if (selected_row_index_.has_value() && selected_row_index_.value() < visible_rows_.size()) {
+        return visible_rows_[selected_row_index_.value()];
+    }
+
+    if (!selected_command_id_.has_value()) {
         return std::nullopt;
     }
 
-    return visible_rows_[selected_row_index_.value()].command_id;
+    for (const auto& row : all_rows_) {
+        if (row.command_id == *selected_command_id_) {
+            return row;
+        }
+    }
+
+    return std::nullopt;
 }
 
 void MenuInspectorModel::RebuildVisibleRows() {
@@ -360,6 +443,21 @@ void MenuInspectorModel::RebuildVisibleRows() {
             continue;
         }
         visible_rows_.push_back(row);
+    }
+}
+
+void MenuInspectorModel::RestoreSelectionByCommandId(const std::optional<std::string>& command_id) {
+    selected_command_id_ = command_id;
+    selected_row_index_.reset();
+    if (!command_id.has_value()) {
+        return;
+    }
+
+    for (size_t index = 0; index < visible_rows_.size(); ++index) {
+        if (visible_rows_[index].command_id == *command_id) {
+            selected_row_index_ = index;
+            return;
+        }
     }
 }
 
