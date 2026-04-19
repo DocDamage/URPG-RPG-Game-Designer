@@ -12,7 +12,7 @@
 ### 2026-04-19 — Phase 2 Runtime Closure Docs Reconciliation
 - **Action**: Reconciled the canonical Phase 2 docs for battle reward/event and switch coverage, seeded `DataManager::loadDatabase()` truthfulness, `Window_Base::contents()` lifecycle truthfulness, and harness-backed audio semantics.
 - **Action**: Recorded the focused verification gate used for the closure pass: `ctest --test-dir build/dev-mingw-debug --output-on-failure -R "BattleManager:|Window_Base contents lifecycle allocates and rotates deterministic handles|DataManager loadDatabase populates seeded database containers|AudioManager:"`.
-- **Result**: The focused Phase 2 lane was re-run after the doc edits and stayed green at 42/42 passed, and the docs now match the validated runtime posture.
+- **Result**: The focused Phase 2 lane was re-run after the doc edits and stayed green at 42/42 passed on the exact focused subset (`BattleManager:` and `AudioManager:` suites plus one `DataManager` case and one `Window_Base` case), and the docs now match the validated runtime posture.
 
 ### 2026-04-18 — Window Compat Pointer/Input and Contents Metadata Closure
 - **Action**: Extended `Window_Selectable` input handling from simple selection to real pointer press/drag/release semantics, including drag retargeting, drag-scroll at the content edges, and release-triggered OK dispatch.

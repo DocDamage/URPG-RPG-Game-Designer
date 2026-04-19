@@ -60,7 +60,7 @@ Canonical planning chain:
 - Latest focused audio validation snapshot:
   - `.\build\dev-mingw-debug\urpg_tests.exe "[audio_manager]"` => 147 assertions / 12 test cases passed
 - Latest focused Phase 2 validation snapshot:
-  - re-run after the 2026-04-19 doc edits: `ctest --test-dir build/dev-mingw-debug --output-on-failure -R "BattleManager:|Window_Base contents lifecycle allocates and rotates deterministic handles|DataManager loadDatabase populates seeded database containers|AudioManager:"` => 42/42 passed
+  - re-run after the 2026-04-19 doc edits: `ctest --test-dir build/dev-mingw-debug --output-on-failure -R "BattleManager:|Window_Base contents lifecycle allocates and rotates deterministic handles|DataManager loadDatabase populates seeded database containers|AudioManager:"` => 42/42 passed on the exact focused subset (`BattleManager:` and `AudioManager:` suites plus one `DataManager` case and one `Window_Base` case)
 
 ## Progress made in this cycle
 
