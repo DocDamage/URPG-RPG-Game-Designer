@@ -2,12 +2,18 @@
 
 ## Current Status
 **Phase:** Post-Phase-2 documentation/governance follow-through
-**Active Task:** Task 1 — canonical current-state documentation truth reconciliation
+**Active Task:** Task 4 — final repo-wide documentation truth-reconciliation sweep and close-out
 **Cross-Cutting Governance:** cross-program debt, truthfulness, and intake-governance tracking lives in `docs/TECHNICAL_DEBT_REMEDIATION_PLAN.md`
 
 ---
 
 ## Entries
+
+### 2026-04-19 — Final Documentation Truth-Reconciliation Sweep (Task 4)
+- **Action**: Ran the required repo-wide documentation sweep across `README.md`, `PLAN.md`, `WORKLOG.md`, and `docs/` to review residual status/authority wording after Tasks 1-3.
+- **Action**: Corrected the remaining execution-risking live-task pointers so `PLAN.md` and `WORKLOG.md` no longer advertise the already-finished Task 1 pass as current work.
+- **Action**: Cleaned two residual usability issues found during the sweep: restored the `README.md` footer to the actual end of the document and fixed a malformed progress bullet in `docs/BATTLE_CORE_NATIVE_SPEC.md` so the status block reads cleanly.
+- **Result**: The final docs sweep found no additional authority conflicts requiring broader edits; live navigation docs now point at the completed close-out pass, and the remaining residual hits are historical, scoped, or intentionally current.
 
 ### 2026-04-19 — Canonical Current-State Docs Truth Reconciliation (Task 1)
 - **Action**: Reconciled `README.md`, `PLAN.md`, `WORKLOG.md`, `docs/TECHNICAL_DEBT_REMEDIATION_PLAN.md`, `docs/PROGRAM_COMPLETION_STATUS.md`, `docs/COMPAT_EXIT_CHECKLIST.md`, and `docs/DEVELOPMENT_KICKOFF.md` so they all treat the 2026-04-19 Phase 2 runtime closure as complete.

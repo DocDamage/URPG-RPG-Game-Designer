@@ -83,9 +83,8 @@ This focused gate is also invoked by `tools/ci/run_local_gates.ps1` locally and 
 - **Nightly Matrix:** [tests_output.txt](tests_output.txt)
 - **Latest Export:** [test_export.json](test_export.json) | [test_export.csv](test_export.csv)
 
----
-*Built with ❤️ by the URPG Team. Part of the RPG Game Maker ecosystem.*
-  - Battle reward distribution, switch checks, and battle-event cadence are now closed in the compat lane; troop setup and drop logic remain honest later compat slices.
+### Current Runtime And Compat Notes
+- Battle reward distribution, switch checks, and battle-event cadence are now closed in the compat lane; troop setup and drop logic remain honest later compat slices.
   - Async plugin dispatch remains deterministic FIFO, but its status is now tracked as `PARTIAL` because callbacks run on the worker thread and the JS bridge is still fixture-backed.
   - Input/Touch QuickJS API registration now routes to live runtime state (no placeholder zeros) and `TouchInput` movement/tap tracking now computes `moveSpeed` + `tapCount`.
   - PluginManager failure-path diagnostics now emit deterministic JSONL artifacts (`exportFailureDiagnosticsJsonl` / `clearFailureDiagnostics`) with operation tags + sequence IDs.
@@ -274,3 +273,6 @@ Primary execution source of truth:
 
 1. `docs/PROGRAM_COMPLETION_STATUS.md`
 2. `docs/NATIVE_FEATURE_ABSORPTION_PLAN.md`
+
+---
+*Built with ❤️ by the URPG Team. Part of the RPG Game Maker ecosystem.*

@@ -2,7 +2,7 @@
 
 ## Status
 **Current Phase:** Post-Phase-2 documentation and governance follow-through
-**Current Task:** Task 1 — reconcile canonical current-state docs after the 2026-04-19 Phase 2 runtime closure
+**Current Task:** Task 4 — final repo-wide documentation truth-reconciliation sweep and close-out
 
 **Completed Milestones Since Initialization**
 - Phase 0 — Program Setup: Complete
