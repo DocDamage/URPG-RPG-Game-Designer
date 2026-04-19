@@ -172,14 +172,25 @@ TEST_CASE("AudioManager: duck and unduck preserve deterministic BGM state", "[au
     am.setMasterVolume(1.0);
     am.setBusVolume(AudioBus::BGM, 1.0);
     am.playBgm("phase2_theme", 80.0, 100.0, 4);
+    REQUIRE(am.getCurrentBgm().name == "phase2_theme");
+    REQUIRE(am.getCurrentBgm().volume == Catch::Approx(80.0));
+
+    am.setMasterVolume(0.5);
+    REQUIRE(am.getCurrentBgm().volume == Catch::Approx(40.0));
+
+    am.setBusVolume(AudioBus::BGM, 0.25);
+    REQUIRE(am.getCurrentBgm().volume == Catch::Approx(10.0));
 
     am.duckBgm(30.0, 2);
     REQUIRE(am.isBgmDucked());
     REQUIRE(am.getCurrentBgm().name == "phase2_theme");
+    REQUIRE(am.getCurrentBgm().volume == Catch::Approx(10.0));
 
+    am.update();
     am.unduckBgm(1);
     am.update();
     REQUIRE_FALSE(am.isBgmDucked());
+    REQUIRE(am.getCurrentBgm().volume == Catch::Approx(10.0));
 
     am.stopBgm();
 }

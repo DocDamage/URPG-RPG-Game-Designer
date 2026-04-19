@@ -288,7 +288,7 @@ AudioManager::AudioManager()
         setStatus("isBgmPaused", CompatStatus::PARTIAL,
                   "Reflects deterministic harness playback state rather than a live audio backend.");
         setStatus("getCurrentBgm", CompatStatus::PARTIAL,
-                  "Reports deterministic harness playback metadata rather than querying a live audio backend.");
+                  "Reports deterministic harness playback metadata and mix-scaled BGM state through the compat API rather than querying a live audio backend.");
         
         // BGS
         setStatus("playBgs", CompatStatus::PARTIAL,
@@ -322,11 +322,11 @@ AudioManager::AudioManager()
         
         // Ducking
         setStatus("duckBgm", CompatStatus::PARTIAL,
-                  "Ducking is deterministic in the compat harness, but it does not drive a live mixer/backend.");
+                  "Deterministic ducking updates observable compat BGM state through the API, but it still does not drive a live mixer/backend.");
         setStatus("unduckBgm", CompatStatus::PARTIAL,
-                  "Unducking is deterministic in the compat harness, but it does not drive a live mixer/backend.");
+                  "Deterministic unducking restores observable compat BGM state through the API, but it still does not drive a live mixer/backend.");
         setStatus("isBgmDucked", CompatStatus::PARTIAL,
-                  "Reflects deterministic harness ducking state rather than a live mixer/backend.");
+                  "Reflects deterministic harness ducking state exposed through the compat API rather than a live mixer/backend.");
         
         // Channels
         setStatus("createChannel", CompatStatus::PARTIAL,
@@ -645,7 +645,7 @@ void AudioManager::duckBgm(double volume, int32_t duration) {
 void AudioManager::unduckBgm(int32_t duration) {
     if (impl_->bgmChannel_) {
         impl_->bgmVolumeRamp_.startVolume = impl_->bgmChannel_->getVolume();
-        impl_->bgmVolumeRamp_.targetVolume = impl_->bgmBaseVolume_;
+        impl_->bgmVolumeRamp_.targetVolume = ComputeEffectiveVolume(*impl_, *impl_->bgmChannel_);
         impl_->bgmVolumeRamp_.durationFrames = std::max(1, duration);
         impl_->bgmVolumeRamp_.elapsedFrames = 0;
         impl_->bgmVolumeRamp_.active = true;
@@ -712,7 +712,7 @@ void AudioManager::update() {
         if (ramp.elapsedFrames >= ramp.durationFrames) {
             ramp.active = false;
             impl_->bgmChannel_->setVolume(ramp.targetVolume);
-            if (std::abs(ramp.targetVolume - impl_->bgmBaseVolume_) < 0.0001) {
+            if (std::abs(ramp.targetVolume - ComputeEffectiveVolume(*impl_, *impl_->bgmChannel_)) < 0.0001) {
                 impl_->bgmDucked_ = false;
             }
         }
