@@ -106,6 +106,21 @@ struct BattleAction {
     bool forced = false;
 };
 
+struct BattleAudioCue {
+    std::string name;
+    double volume = 90.0;
+    double pitch = 100.0;
+};
+
+struct BattleAnimationPlayback {
+    int32_t animationId = 0;
+    BattleSubjectType targetType = BattleSubjectType::ACTOR;
+    int32_t targetIndex = 0;
+    int32_t targetId = 0;
+    int32_t framesRemaining = 0;
+    bool subjectAnimation = false;
+};
+
 // Battle result
 enum class BattleResult : uint8_t {
     NONE = 0,
@@ -142,16 +157,19 @@ public:
     // Status: PARTIAL - Battle state initializes, but troop loading and party seeding are still TODO
     void setup(int32_t troopId, bool canEscape = true, bool canLose = false);
     
-    // Status: STUB - Transition type is accepted but not routed to runtime output
+    // Status: PARTIAL - Transition/background/audio metadata is retained, but not yet routed to scene/audio playback
     void setBattleTransition(int32_t type);
-    
-    // Status: STUB - Background selection is accepted but not routed to runtime output
     void setBattleBackground(const std::string& name);
-    
-    // Status: STUB - Audio metadata is accepted but not routed to playback
     void setBattleBgm(const std::string& name, double volume = 90.0, double pitch = 100.0);
     void setVictoryMe(const std::string& name, double volume = 90.0, double pitch = 100.0);
     void setDefeatMe(const std::string& name, double volume = 90.0, double pitch = 100.0);
+
+    // Status: PARTIAL - Returns retained compat metadata rather than live scene/audio backend state
+    int32_t getBattleTransition() const;
+    const std::string& getBattleBackground() const;
+    const BattleAudioCue& getBattleBgm() const;
+    const BattleAudioCue& getVictoryMe() const;
+    const BattleAudioCue& getDefeatMe() const;
     
     // ========================================================================
     // Battle Flow Control
@@ -295,9 +313,11 @@ public:
     void applyStateEffects(BattleSubject* subject);
     void applyTurnEndEffects(BattleSubject* subject);
     
-    // Status: STUB - Animation intent is recorded, but playback is still TODO
+    // Status: FULL - Deterministic animation playback queue backed by loaded compat animation data
     void playAnimation(int32_t animationId, BattleSubject* target);
     void playAnimationOnSubject(int32_t animationId, BattleSubject* subject);
+    bool isAnimationPlaying() const;
+    const std::vector<BattleAnimationPlayback>& getActiveAnimations() const;
     
     // ========================================================================
     // Event Integration
@@ -378,7 +398,7 @@ public:
     void onEscapeSuccess();
     void onEscapeFailure();
     
-    // Status: STUB - Background/Audio metadata setters (routed to existing setters; playback still TODO)
+    // Status: PARTIAL - Background/Audio metadata setters retain compat state; playback still TODO
     void changeBattleBackground(const std::string& name);
     void changeBattleBgm(const std::string& name, double volume = 90.0, double pitch = 100.0);
     void changeVictoryMe(const std::string& name, double volume = 90.0, double pitch = 100.0);
@@ -419,6 +439,12 @@ private:
     double escapeRatio_ = 0.5;
     int32_t escapeFailureCount_ = 0;
     uint32_t escapeRngState_ = 0;
+    int32_t battleTransitionType_ = 0;
+    std::string battleBackground_;
+    BattleAudioCue battleBgm_;
+    BattleAudioCue victoryMe_;
+    BattleAudioCue defeatMe_;
+    std::vector<BattleAnimationPlayback> activeAnimations_;
     
     // Subjects
     std::vector<BattleSubject> actors_;

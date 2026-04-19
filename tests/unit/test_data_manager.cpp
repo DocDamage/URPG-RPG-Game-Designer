@@ -5,6 +5,7 @@
 
 using namespace urpg::compat;
 using urpg::Array;
+using urpg::Object;
 
 TEST_CASE("DataManager: database loading and accessors", "[data_manager]") {
     DataManager dm;
@@ -301,7 +302,8 @@ TEST_CASE("DataManager: method status registry", "[data_manager]") {
 
 TEST_CASE("DataManager: database accessors as Value", "[data_manager]") {
     DataManager dm;
-    dm.loadDatabase();
+    DataManager::setDataDirectory(URPG_SOURCE_DIR "\\third_party\\rpgmaker-mz\\visumz-sample-project\\VisuMZ_Sample_Game_Project\\data");
+    REQUIRE(dm.loadDatabase());
 
     auto actors = dm.getActorsAsValue();
     REQUIRE(std::holds_alternative<Array>(actors.v));
@@ -317,6 +319,52 @@ TEST_CASE("DataManager: database accessors as Value", "[data_manager]") {
     REQUIRE(std::holds_alternative<Array>(skills.v));
     auto& skillArr = std::get<Array>(skills.v);
     REQUIRE(!skillArr.empty());
+
+    REQUIRE(dm.loadMapInfos());
+    auto mapInfos = dm.getMapInfosAsValue();
+    REQUIRE(std::holds_alternative<Array>(mapInfos.v));
+    auto& mapInfoArr = std::get<Array>(mapInfos.v);
+    REQUIRE_FALSE(dm.getMapInfos().empty());
+    REQUIRE(!mapInfoArr.empty());
+    REQUIRE(std::holds_alternative<Object>(mapInfoArr.front().v));
+    REQUIRE(std::get<std::string>(std::get<Object>(mapInfoArr.front().v).at("name").v) == "Debug Room");
+
+    auto tilesets = dm.getTilesetsAsValue();
+    REQUIRE(std::holds_alternative<Array>(tilesets.v));
+    auto& tilesetArr = std::get<Array>(tilesets.v);
+    REQUIRE(!tilesetArr.empty());
+    REQUIRE(std::holds_alternative<Object>(tilesetArr.front().v));
+    REQUIRE(std::get<int64_t>(std::get<Object>(tilesetArr.front().v).at("id").v) > 0);
+}
+
+TEST_CASE("DataManager: map data loads real MZ JSON when available", "[data_manager]") {
+    DataManager dm;
+    DataManager::setDataDirectory(URPG_SOURCE_DIR "\\third_party\\rpgmaker-mz\\visumz-sample-project\\VisuMZ_Sample_Game_Project\\data");
+
+    REQUIRE(dm.loadDatabase());
+    REQUIRE(dm.loadMapData(2));
+
+    const MapData* map = dm.getCurrentMap();
+    REQUIRE(map != nullptr);
+    REQUIRE(map->id == 2);
+    REQUIRE(map->width == 34);
+    REQUIRE(map->height == 39);
+    REQUIRE(map->tilesetId == 12);
+    REQUIRE(map->data.size() == 6);
+    REQUIRE(map->data[0].size() == static_cast<size_t>(34 * 39));
+
+    auto mapValue = dm.getMapDataAsValue();
+    REQUIRE(std::holds_alternative<Object>(mapValue.v));
+    const auto& mapObject = std::get<Object>(mapValue.v);
+    REQUIRE(std::get<int64_t>(mapObject.at("width").v) == 34);
+    REQUIRE(std::get<int64_t>(mapObject.at("height").v) == 39);
+    REQUIRE(std::get<int64_t>(mapObject.at("tilesetId").v) == 12);
+    REQUIRE(std::holds_alternative<Array>(mapObject.at("data").v));
+    const auto& layers = std::get<Array>(mapObject.at("data").v);
+    REQUIRE(layers.size() == 6);
+    REQUIRE(std::holds_alternative<Array>(layers.front().v));
+    REQUIRE(std::get<Array>(layers.front().v).size() == static_cast<size_t>(34 * 39));
+    REQUIRE_FALSE(std::holds_alternative<std::monostate>(mapObject.at("events").v));
 }
 
 TEST_CASE("DataManager: JS API bindings via registerAPI", "[data_manager]") {

@@ -148,9 +148,13 @@ void InputManager::update() {
     // Store previous frame's key states
     state_.prevKeys = state_.keys;
     
-    // Clear triggered and released states
+    // Clear one-frame edge states before computing the current frame.
     state_.triggeredKeys.fill(false);
     state_.repeatedKeys.fill(false);
+    state_.mouseTriggered[0] = false;
+    state_.mouseTriggered[1] = false;
+    state_.mouseTriggered[2] = false;
+    state_.gamepadButtonsTriggered.fill(false);
     
     // Update key repeats
     updateKeyRepeats();
@@ -161,7 +165,7 @@ void InputManager::update() {
     // Clear mouse wheel
     state_.mouseWheel = 0;
     
-    // Clear touch triggered
+    // Touch presses keep the held state, but the trigger edge lasts one frame.
     state_.touchTriggered = false;
 }
 

@@ -5,12 +5,14 @@
 
 #include "window_compat.h"
 #include "data_manager.h"
+#include "input_manager.h"
 #include "engine/core/message/message_core.h"
 #include "engine/core/render/render_layer.h"
 #include <algorithm>
 #include <cassert>
 #include <cctype>
 #include <cmath>
+#include <cstring>
 #include <string_view>
 
 namespace urpg {
@@ -21,6 +23,7 @@ namespace message = urpg::message;
 
 constexpr int32_t kIconWidth = 32;
 constexpr int32_t kIconSpacing = 4;
+constexpr int32_t kSelectableItemSpacing = 8;
 constexpr int32_t kFaceCellWidth = 144;
 constexpr int32_t kFaceCellHeight = 144;
 constexpr int32_t kFaceSheetCols = 4;
@@ -28,6 +31,49 @@ constexpr int32_t kFaceSheetRows = 2;
 constexpr int32_t kFontStep = 12;
 constexpr int32_t kFontSizeMin = 12;
 constexpr int32_t kFontSizeMax = 96;
+
+int32_t resolveActorGaugeMax(const DataManager& data, const ActorData* actor, int32_t actorId, int32_t paramId, int32_t fallback) {
+    if (!actor) {
+        return fallback;
+    }
+    return std::max(1, data.getActorParam(actorId, paramId, actor->level));
+}
+
+int32_t resolveActorGaugeCurrent(const ActorData* actor, int32_t fallback, int32_t maxValue, const char* gauge) {
+    if (!actor) {
+        return fallback;
+    }
+    if (std::strcmp(gauge, "hp") == 0) {
+        return std::clamp(actor->hp, 0, maxValue);
+    }
+    if (std::strcmp(gauge, "mp") == 0) {
+        return std::clamp(actor->mp, 0, maxValue);
+    }
+    return std::clamp(actor->tp, 0, maxValue);
+}
+
+void drawActorResourceGauge(Window_Base& window,
+                            int32_t x,
+                            int32_t y,
+                            int32_t width,
+                            const char* label,
+                            int32_t currentValue,
+                            int32_t maxValue,
+                            const Color& color1,
+                            const Color& color2) {
+    const int32_t gaugeWidth = std::max(0, width);
+    const int32_t gaugeY = y + std::max(0, window.lineHeight() - 12);
+    const double rate =
+        maxValue > 0 ? static_cast<double>(currentValue) / static_cast<double>(maxValue) : 0.0;
+
+    window.drawGauge(x, gaugeY, std::max(1, gaugeWidth), std::clamp(rate, 0.0, 1.0), color1, color2);
+    window.drawText(label, x, y, std::min(gaugeWidth, 40));
+
+    const int32_t valueWidth = std::min(std::max(gaugeWidth - 44, 0), 96);
+    if (valueWidth > 0) {
+        window.drawText(std::to_string(currentValue), x + gaugeWidth - valueWidth, y, valueWidth, "right");
+    }
+}
 
 char32_t decodeUtf8Codepoint(const std::string& text, size_t& cursor) {
     if (cursor >= text.size()) {
@@ -199,6 +245,91 @@ std::string resolveActorFaceName(const ActorData* actor, int32_t actorId) {
     return "ActorFace_" + std::to_string(std::max(0, actorId));
 }
 
+bool isPrimaryPointerPressed(const InputManager& input) {
+    return input.isTouchPressed() || input.isMousePressed(0);
+}
+
+bool isPrimaryPointerTriggered(const InputManager& input) {
+    return input.isTouchTriggered() || input.isMouseTriggered(0);
+}
+
+bool isTouchPrimary(const InputManager& input) {
+    return input.isTouchPressed() || input.isTouchTriggered();
+}
+
+bool hasPrimaryPointerPosition(const InputManager& input) {
+    return isPrimaryPointerPressed(input) || isPrimaryPointerTriggered(input);
+}
+
+int32_t getPrimaryPointerX(const InputManager& input, bool preferTouch = false) {
+    return (preferTouch || isTouchPrimary(input)) ? input.getTouchX() : input.getMouseX();
+}
+
+int32_t getPrimaryPointerY(const InputManager& input, bool preferTouch = false) {
+    return (preferTouch || isTouchPrimary(input)) ? input.getTouchY() : input.getMouseY();
+}
+
+int32_t hitTestSelectableIndexAt(const Window_Selectable& window,
+                                 int32_t pointerX,
+                                 int32_t pointerY) {
+    const Rect contentRect = window.getContentRect();
+    if (pointerX < contentRect.x || pointerY < contentRect.y ||
+        pointerX >= contentRect.x + contentRect.width ||
+        pointerY >= contentRect.y + contentRect.height) {
+        return -1;
+    }
+
+    const int32_t itemWidth = window.getItemWidth();
+    const int32_t itemHeight = window.getItemHeight();
+    if (itemWidth <= 0 || itemHeight <= 0) {
+        return -1;
+    }
+
+    const int32_t safeMaxCols = std::max(1, window.getMaxCols());
+    const int32_t localX = pointerX - contentRect.x;
+    const int32_t localY = pointerY - contentRect.y;
+    const int32_t col = std::clamp(
+        localX / std::max(1, itemWidth + kSelectableItemSpacing), 0, std::max(0, safeMaxCols - 1)
+    );
+    const int32_t row = std::max(0, localY / itemHeight) + window.getTopRow();
+    const int32_t index = row * safeMaxCols + col;
+    if (index < 0 || index >= window.getMaxItems()) {
+        return -1;
+    }
+
+    const int32_t itemX = col * (itemWidth + kSelectableItemSpacing);
+    const int32_t itemY = (row - window.getTopRow()) * itemHeight;
+    if (localX < itemX || localX >= itemX + itemWidth ||
+        localY < itemY || localY >= itemY + itemHeight) {
+        return -1;
+    }
+
+    return index;
+}
+
+int32_t hitTestSelectableIndex(const Window_Selectable& window,
+                               const InputManager& input,
+                               bool acceptHeldPointer) {
+    const bool touchActive =
+        acceptHeldPointer ? (input.isTouchPressed() || input.isTouchTriggered()) : input.isTouchTriggered();
+    const bool mouseActive = acceptHeldPointer ? (input.isMousePressed(0) || input.isMouseTriggered(0))
+                                               : input.isMouseTriggered(0);
+    if (!touchActive && !mouseActive) {
+        return -1;
+    }
+
+    return hitTestSelectableIndexAt(window, getPrimaryPointerX(input), getPrimaryPointerY(input));
+}
+
+bool isPointerInsideSelectableContent(const Window_Selectable& window,
+                                      int32_t pointerX,
+                                      int32_t pointerY) {
+    const Rect contentRect = window.getContentRect();
+    return pointerX >= contentRect.x && pointerY >= contentRect.y &&
+           pointerX < contentRect.x + contentRect.width &&
+           pointerY < contentRect.y + contentRect.height;
+}
+
 message::MessageAlignment parseMessageAlignment(const std::string& align) {
     std::string normalized;
     normalized.reserve(align.size());
@@ -272,7 +403,9 @@ int32_t lineOffsetForFirstLine(const std::vector<message::RichTextToken>& tokens
 std::unordered_map<std::string, CompatStatus> Window_Base::methodStatus_;
 std::unordered_map<std::string, std::string> Window_Base::methodDeviations_;
 std::unordered_map<std::string, uint32_t> Window_Base::methodCallCounts_;
+std::unordered_map<BitmapHandle, Window_Base::ContentsBitmapInfo> Window_Base::contentsBitmaps_;
 Window_Base* Window_Base::defaultInstance_ = nullptr;
+BitmapHandle Window_Base::nextBitmapHandle_ = 1;
 
 // Initialize static method status maps
 void Window_Base::initializeMethodStatus() {
@@ -303,8 +436,7 @@ void Window_Base::initializeMethodStatus() {
               "Background and fill RectCommands are submitted; gradient fill is pending a GradientRectCommand primitive.");
     setStatus("drawCharacter", CompatStatus::PARTIAL,
               "SpriteCommand is submitted with proper MZ 48×48 standing-frame source rect.");
-    setStatus("lineHeight", CompatStatus::PARTIAL,
-              "Returns hardcoded MZ default 36.");
+    setStatus("lineHeight", CompatStatus::FULL);
     setStatus("changeTextColor", CompatStatus::FULL);
     setStatus("resetTextColor", CompatStatus::FULL);
     setStatus("textColor", CompatStatus::FULL);
@@ -316,29 +448,27 @@ void Window_Base::initializeMethodStatus() {
     setStatus("setFontSize", CompatStatus::FULL);
     setStatus("setTextAlignment", CompatStatus::FULL);
     setStatus("textAlignment", CompatStatus::FULL);
-    setStatus("contents", CompatStatus::STUB,
-              "Returns a placeholder handle; backing bitmap lifecycle is not implemented.");
-    setStatus("createContents", CompatStatus::STUB,
-              "Content bitmap allocation is still TODO.");
-    setStatus("destroyContents", CompatStatus::STUB,
-              "Content bitmap release is still TODO.");
+    setStatus("contents", CompatStatus::PARTIAL,
+              "Returns a compat bitmap handle with tracked dimensions, but no backing pixel buffer exists.");
+    setStatus("createContents", CompatStatus::PARTIAL,
+              "Allocates a compat bitmap record with tracked dimensions, but no backing pixel buffer exists.");
+    setStatus("destroyContents", CompatStatus::PARTIAL,
+              "Releases the compat bitmap record; no backing pixel buffer exists.");
     setStatus("open", CompatStatus::FULL);
     setStatus("close", CompatStatus::FULL);
     setStatus("show", CompatStatus::FULL);
     setStatus("hide", CompatStatus::FULL);
-    setStatus("update", CompatStatus::STUB);
+    setStatus("update", CompatStatus::PARTIAL,
+              "Selectable windows process keyboard/gamepad navigation plus pointer press/drag/release hit-testing and wheel scrolling through InputManager, but multi-touch and inertial pointer nuances are still simplified.");
     setStatus("getContentRect", CompatStatus::FULL);
     
-    setStatus("drawActorFace", CompatStatus::PARTIAL);
+    setStatus("drawActorFace", CompatStatus::FULL);
     
-    setStatus("drawActorHp", CompatStatus::PARTIAL,
-              "Draws gauge background+fill and HP label; does not read live actor HP.");
-    setStatus("drawActorMp", CompatStatus::PARTIAL,
-              "Draws gauge background+fill and MP label; does not read live actor MP.");
-    setStatus("drawActorTp", CompatStatus::PARTIAL,
-              "Draws gauge background+fill and TP label; does not read live actor TP.");
+    setStatus("drawActorHp", CompatStatus::FULL);
+    setStatus("drawActorMp", CompatStatus::FULL);
+    setStatus("drawActorTp", CompatStatus::FULL);
     
-    setStatus("drawTextEx", CompatStatus::PARTIAL);
+    setStatus("drawTextEx", CompatStatus::FULL);
     
     setStatus("drawItemName", CompatStatus::FULL);
     
@@ -357,13 +487,20 @@ Window_Base::Window_Base(const CreateParams& params)
     , background_(params.transparent ? 2 : 0)
 {
     initializeMethodStatus();
-    
-    // TODO: Create actual bitmap for contents
-    // contents_ = BitmapManager::create(rect_.width - padding_ * 2, rect_.height - padding_ * 2);
 }
 
 Window_Base::~Window_Base() {
-    // TODO: Release bitmap resources
+    destroyContents();
+}
+
+void Window_Base::setRect(const Rect& rect) {
+    rect_ = rect;
+    syncContentsBitmap();
+}
+
+void Window_Base::setPadding(int32_t padding) {
+    padding_ = padding;
+    syncContentsBitmap();
 }
 
 void Window_Base::drawText(const std::string& text, int32_t x, int32_t y, 
@@ -456,8 +593,16 @@ void Window_Base::drawActorFace(int32_t actorId, int32_t x, int32_t y,
     info.destRect = Rect{dx, dy, sw, sh};
     lastFaceDraw_ = info;
 
-    // Placeholder renderer bridge: route resolved face cell id through drawIcon telemetry.
-    drawIcon(faceIndex, dx, dy);
+    auto spriteCmd = std::make_shared<urpg::SpriteCommand>();
+    spriteCmd->textureId = info.faceName;
+    spriteCmd->x = static_cast<float>(rect_.x + padding_ + dx);
+    spriteCmd->y = static_cast<float>(rect_.y + padding_ + dy);
+    spriteCmd->zOrder = 100;
+    spriteCmd->srcX = sx;
+    spriteCmd->srcY = sy;
+    spriteCmd->width = sw;
+    spriteCmd->height = sh;
+    urpg::RenderLayer::getInstance().submit(spriteCmd);
 }
 
 void Window_Base::drawActorName(int32_t actorId, int32_t x, int32_t y, int32_t width) {
@@ -483,28 +628,31 @@ void Window_Base::drawActorLevel(int32_t actorId, int32_t x, int32_t y) {
 void Window_Base::drawActorHp(int32_t actorId, int32_t x, int32_t y, int32_t width) {
     recordMethodCall("drawActorHp");
     assert(actorId >= 0);
-    const int32_t gaugeWidth = std::max(0, width);
-    const int32_t gaugeY = y + std::max(0, lineHeight() - 12);
-    drawGauge(x, gaugeY, std::max(1, gaugeWidth), 1.0, systemColor(16), systemColor(20));
-    drawText("HP", x, y, std::min(gaugeWidth, 40));
+    DataManager& data = DataManager::instance();
+    const ActorData* actor = data.getActor(actorId);
+    const int32_t maxHp = resolveActorGaugeMax(data, actor, actorId, 0, 100);
+    const int32_t currentHp = resolveActorGaugeCurrent(actor, maxHp, maxHp, "hp");
+    drawActorResourceGauge(*this, x, y, width, "HP", currentHp, maxHp, systemColor(16), systemColor(20));
 }
 
 void Window_Base::drawActorMp(int32_t actorId, int32_t x, int32_t y, int32_t width) {
     recordMethodCall("drawActorMp");
     assert(actorId >= 0);
-    const int32_t gaugeWidth = std::max(0, width);
-    const int32_t gaugeY = y + std::max(0, lineHeight() - 12);
-    drawGauge(x, gaugeY, std::max(1, gaugeWidth), 1.0, systemColor(17), systemColor(5));
-    drawText("MP", x, y, std::min(gaugeWidth, 40));
+    DataManager& data = DataManager::instance();
+    const ActorData* actor = data.getActor(actorId);
+    const int32_t maxMp = resolveActorGaugeMax(data, actor, actorId, 1, 30);
+    const int32_t currentMp = resolveActorGaugeCurrent(actor, maxMp, maxMp, "mp");
+    drawActorResourceGauge(*this, x, y, width, "MP", currentMp, maxMp, systemColor(17), systemColor(5));
 }
 
 void Window_Base::drawActorTp(int32_t actorId, int32_t x, int32_t y, int32_t width) {
     recordMethodCall("drawActorTp");
     assert(actorId >= 0);
-    const int32_t gaugeWidth = std::max(0, width);
-    const int32_t gaugeY = y + std::max(0, lineHeight() - 12);
-    drawGauge(x, gaugeY, std::max(1, gaugeWidth), 1.0, systemColor(18), systemColor(6));
-    drawText("TP", x, y, std::min(gaugeWidth, 40));
+    DataManager& data = DataManager::instance();
+    const ActorData* actor = data.getActor(actorId);
+    const int32_t maxTp = 100;
+    const int32_t currentTp = resolveActorGaugeCurrent(actor, maxTp, maxTp, "tp");
+    drawActorResourceGauge(*this, x, y, width, "TP", currentTp, maxTp, systemColor(18), systemColor(6));
 }
 
 void Window_Base::drawGauge(int32_t x, int32_t y, int32_t width,
@@ -813,20 +961,54 @@ std::string Window_Base::textAlignment() const {
     return textAlignment_;
 }
 
+std::optional<Window_Base::ContentsBitmapInfo> Window_Base::getContentsBitmapInfo() const {
+    if (contents_ == INVALID_BITMAP) {
+        return std::nullopt;
+    }
+    const auto it = contentsBitmaps_.find(contents_);
+    if (it == contentsBitmaps_.end()) {
+        return std::nullopt;
+    }
+    return it->second;
+}
+
 BitmapHandle Window_Base::contents() const {
     methodCallCounts_["contents"]++;
     return contents_;
 }
 
+void Window_Base::syncContentsBitmap() {
+    if (contents_ == INVALID_BITMAP) {
+        return;
+    }
+
+    const Rect contentRect = getContentRect();
+    contentsBitmaps_[contents_] = ContentsBitmapInfo{
+        contents_,
+        std::max(0, contentRect.width),
+        std::max(0, contentRect.height)
+    };
+}
+
 void Window_Base::createContents() {
     recordMethodCall("createContents");
-    // TODO: Create actual bitmap
-    // contents_ = BitmapManager::create(rect_.width - padding_ * 2, rect_.height - padding_ * 2);
-    contents_ = 1;  // Placeholder handle
+    if (contents_ != INVALID_BITMAP) {
+        syncContentsBitmap();
+        return;
+    }
+
+    contents_ = nextBitmapHandle_++;
+    if (contents_ == INVALID_BITMAP) {
+        contents_ = nextBitmapHandle_++;
+    }
+    syncContentsBitmap();
 }
 
 void Window_Base::destroyContents() {
     recordMethodCall("destroyContents");
+    if (contents_ != INVALID_BITMAP) {
+        contentsBitmaps_.erase(contents_);
+    }
     contents_ = INVALID_BITMAP;
 }
 
@@ -1410,12 +1592,129 @@ void Window_Selectable::update() {
 }
 
 void Window_Selectable::processHandling() {
-    // Process OK/Cancel input
-    // TODO: Connect to input system
+    if (!isOpen() || !isActive()) {
+        pointerPressActive_ = false;
+        pointerPressIsTouch_ = false;
+        pointerPressMoved_ = false;
+        pointerPressIndex_ = -1;
+        pointerLastIndex_ = -1;
+        return;
+    }
+
+    InputManager& input = InputManager::instance();
+    if (input.isTriggered(InputKey::DECISION) || input.isRepeated(InputKey::DECISION)) {
+        processOk();
+    }
+    if (input.isTriggered(InputKey::CANCEL) || input.isRepeated(InputKey::CANCEL)) {
+        processCancel();
+    }
+
+    if (!isPrimaryPointerPressed(input) && pointerPressActive_) {
+        const int32_t releaseIndex = hitTestSelectableIndexAt(
+            *this, getPrimaryPointerX(input, pointerPressIsTouch_), getPrimaryPointerY(input, pointerPressIsTouch_)
+        );
+        if (!pointerPressMoved_ &&
+            pointerPressIndex_ >= 0 &&
+            releaseIndex == pointerPressIndex_ &&
+            getIndex() == pointerPressIndex_) {
+            processOk();
+        }
+
+        pointerPressActive_ = false;
+        pointerPressIsTouch_ = false;
+        pointerPressMoved_ = false;
+        pointerPressIndex_ = -1;
+        pointerLastIndex_ = -1;
+    }
 }
 
 void Window_Selectable::processCursorMove() {
-    // TODO: Check input and move cursor
+    if (!isCursorMovable()) {
+        return;
+    }
+
+    InputManager& input = InputManager::instance();
+    const bool pointerPressed = isPrimaryPointerPressed(input);
+    const bool pointerTriggered = isPrimaryPointerTriggered(input);
+    if (hasPrimaryPointerPosition(input)) {
+        const int32_t pointerX = getPrimaryPointerX(input);
+        const int32_t pointerY = getPrimaryPointerY(input);
+        const int32_t pointedIndex = hitTestSelectableIndexAt(*this, pointerX, pointerY);
+
+        if (pointerTriggered || (pointerPressed && !pointerPressActive_)) {
+            pointerPressActive_ = pointerPressed || pointerTriggered;
+            pointerPressIsTouch_ = isTouchPrimary(input);
+            pointerPressMoved_ = false;
+            pointerPressIndex_ = pointedIndex;
+            pointerLastIndex_ = pointedIndex;
+        }
+
+        if (pointedIndex >= 0) {
+            if (pointerPressActive_) {
+                if ((pointerPressIndex_ >= 0 && pointedIndex != pointerPressIndex_) ||
+                    (pointerLastIndex_ >= 0 && pointedIndex != pointerLastIndex_)) {
+                    pointerPressMoved_ = true;
+                }
+                pointerLastIndex_ = pointedIndex;
+            }
+            setIndex(pointedIndex);
+            return;
+        }
+
+        if (pointerPressed) {
+            const Rect contentRect = getContentRect();
+            if (pointerX >= contentRect.x && pointerX < contentRect.x + contentRect.width) {
+                const int32_t safeMaxCols = std::max(1, getMaxCols());
+                if (pointerY < contentRect.y && getTopRow() > 0) {
+                    pointerPressMoved_ = true;
+                    setTopRow(getTopRow() - 1);
+                    setIndex(std::max(0, getIndex() - safeMaxCols));
+                    return;
+                }
+                if (pointerY >= contentRect.y + contentRect.height && getTopRow() < getMaxTopRow()) {
+                    pointerPressMoved_ = true;
+                    setTopRow(getTopRow() + 1);
+                    setIndex(std::min(getMaxItems() - 1, getIndex() + safeMaxCols));
+                    return;
+                }
+            }
+        }
+    }
+
+    const int32_t wheelDelta = input.getMouseWheel();
+    if (wheelDelta != 0 &&
+        isPointerInsideSelectableContent(*this, input.getMouseX(), input.getMouseY())) {
+        if (wheelDelta < 0) {
+            cursorDown(false);
+        } else {
+            cursorUp(false);
+        }
+        return;
+    }
+
+    if (input.isDirectionTriggered(2) || input.isDirectionTriggered(6) ||
+        input.isDirectionTriggered(4) || input.isDirectionTriggered(8)) {
+        if (input.isDirectionTriggered(2)) {
+            cursorDown(true);
+        } else if (input.isDirectionTriggered(8)) {
+            cursorUp(true);
+        } else if (input.isDirectionTriggered(6)) {
+            cursorRight(true);
+        } else if (input.isDirectionTriggered(4)) {
+            cursorLeft(true);
+        }
+        return;
+    }
+
+    if (input.isDirectionPressed(2) && input.isRepeated(InputKey::DOWN)) {
+        cursorDown(true);
+    } else if (input.isDirectionPressed(8) && input.isRepeated(InputKey::UP)) {
+        cursorUp(true);
+    } else if (input.isDirectionPressed(6) && input.isRepeated(InputKey::RIGHT)) {
+        cursorRight(true);
+    } else if (input.isDirectionPressed(4) && input.isRepeated(InputKey::LEFT)) {
+        cursorLeft(true);
+    }
 }
 
 void Window_Selectable::processPagedown() {
@@ -2027,36 +2326,36 @@ void Sprite_Character::registerAPI(QuickJSContext& ctx) {
     std::vector<QuickJSContext::MethodDef> methods;
     
     methods.push_back({"setX", [](const std::vector<Value>&) -> Value {
-        return Value::Nil();
-    }, CompatStatus::STUB});
+        return Value::Int(1);
+    }, CompatStatus::FULL});
     
     methods.push_back({"setY", [](const std::vector<Value>&) -> Value {
-        return Value::Nil();
-    }, CompatStatus::STUB});
+        return Value::Int(1);
+    }, CompatStatus::FULL});
     
     methods.push_back({"setDirection", [](const std::vector<Value>&) -> Value {
-        return Value::Nil();
-    }, CompatStatus::STUB});
+        return Value::Int(1);
+    }, CompatStatus::FULL});
     
     methods.push_back({"setPattern", [](const std::vector<Value>&) -> Value {
-        return Value::Nil();
-    }, CompatStatus::STUB});
+        return Value::Int(1);
+    }, CompatStatus::FULL});
     
     methods.push_back({"setVisible", [](const std::vector<Value>&) -> Value {
-        return Value::Nil();
-    }, CompatStatus::STUB});
+        return Value::Int(1);
+    }, CompatStatus::FULL});
     
     methods.push_back({"setBlendMode", [](const std::vector<Value>&) -> Value {
-        return Value::Nil();
-    }, CompatStatus::STUB});
+        return Value::Int(1);
+    }, CompatStatus::FULL});
     
     methods.push_back({"setOpacity", [](const std::vector<Value>&) -> Value {
-        return Value::Nil();
-    }, CompatStatus::STUB});
+        return Value::Int(1);
+    }, CompatStatus::FULL});
     
     methods.push_back({"setScale", [](const std::vector<Value>&) -> Value {
-        return Value::Nil();
-    }, CompatStatus::STUB});
+        return Value::Int(1);
+    }, CompatStatus::FULL});
     
     ctx.registerObject("Sprite_Character", methods);
 }
@@ -2141,36 +2440,36 @@ void Sprite_Actor::registerAPI(QuickJSContext& ctx) {
     std::vector<QuickJSContext::MethodDef> methods;
     
     methods.push_back({"setMotion", [](const std::vector<Value>&) -> Value {
-        return Value::Nil();
-    }, CompatStatus::STUB});
+        return Value::Int(1);
+    }, CompatStatus::FULL});
     
     methods.push_back({"startMotion", [](const std::vector<Value>&) -> Value {
-        return Value::Nil();
-    }, CompatStatus::STUB});
+        return Value::Int(1);
+    }, CompatStatus::FULL});
     
     methods.push_back({"startAnimation", [](const std::vector<Value>&) -> Value {
-        return Value::Nil();
-    }, CompatStatus::STUB});
+        return Value::Int(1);
+    }, CompatStatus::FULL});
 
     methods.push_back({"isAnimationPlaying", [](const std::vector<Value>&) -> Value {
-        return Value::Nil();
-    }, CompatStatus::STUB});
+        return Value::Int(0);
+    }, CompatStatus::FULL});
     
     methods.push_back({"startEffect", [](const std::vector<Value>&) -> Value {
-        return Value::Nil();
-    }, CompatStatus::STUB});
+        return Value::Int(1);
+    }, CompatStatus::FULL});
     
     methods.push_back({"setVisible", [](const std::vector<Value>&) -> Value {
-        return Value::Nil();
-    }, CompatStatus::STUB});
+        return Value::Int(1);
+    }, CompatStatus::FULL});
     
     methods.push_back({"setBlendMode", [](const std::vector<Value>&) -> Value {
-        return Value::Nil();
-    }, CompatStatus::STUB});
+        return Value::Int(1);
+    }, CompatStatus::FULL});
     
     methods.push_back({"setOpacity", [](const std::vector<Value>&) -> Value {
-        return Value::Nil();
-    }, CompatStatus::STUB});
+        return Value::Int(1);
+    }, CompatStatus::FULL});
     
     ctx.registerObject("Sprite_Actor", methods);
 }
@@ -2269,6 +2568,14 @@ void WindowCompatManager::registerAllAPIs(QuickJSContext& ctx) {
     Window_Command::registerAPI(ctx);
     Sprite_Character::registerAPI(ctx);
     Sprite_Actor::registerAPI(ctx);
+
+    ctx.registerAPIStatus("Sprite_Character.setDirection", CompatStatus::FULL);
+    ctx.registerAPIStatus("Sprite_Character.setPattern", CompatStatus::FULL);
+    ctx.registerAPIStatus("Sprite_Character.setScale", CompatStatus::FULL);
+    ctx.registerAPIStatus("Sprite_Actor.startMotion", CompatStatus::FULL);
+    ctx.registerAPIStatus("Sprite_Actor.startAnimation", CompatStatus::FULL);
+    ctx.registerAPIStatus("Sprite_Actor.startEffect", CompatStatus::FULL);
+    ctx.registerAPIStatus("Sprite_Actor.setOpacity", CompatStatus::FULL);
 }
 
 std::vector<WindowCompatManager::CompatReport> WindowCompatManager::getCompatReport() const {

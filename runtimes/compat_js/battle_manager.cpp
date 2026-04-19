@@ -16,6 +16,92 @@ std::unordered_map<std::string, std::string> BattleManager::methodDeviations_;
 
 namespace {
 
+Value battleAudioCueToValue(const BattleAudioCue& cue) {
+    Object obj;
+    obj["name"].v = cue.name;
+    obj["volume"].v = cue.volume;
+    obj["pitch"].v = cue.pitch;
+    return Value::Obj(std::move(obj));
+}
+
+const AnimationData* findAnimationData(int32_t animationId) {
+    if (animationId <= 0) {
+        return nullptr;
+    }
+
+    const auto& animations = DataManager::instance().getAnimations();
+    if (animations.empty()) {
+        return nullptr;
+    }
+
+    const size_t index = static_cast<size_t>(animationId - 1);
+    if (index < animations.size() && animations[index].id == animationId) {
+        return &animations[index];
+    }
+
+    for (const auto& animation : animations) {
+        if (animation.id == animationId) {
+            return &animation;
+        }
+    }
+
+    return nullptr;
+}
+
+int32_t resolveAnimationDurationFrames(int32_t animationId) {
+    const AnimationData* animation = findAnimationData(animationId);
+    if (!animation) {
+        return 0;
+    }
+
+    if (!animation->frames.empty()) {
+        return std::max(1, static_cast<int32_t>(animation->frames.size()) * 4);
+    }
+
+    constexpr int32_t baseFrames = 24;
+    constexpr int32_t stepFrames = 6;
+    constexpr int32_t variationCount = 5;
+    return baseFrames + ((animationId % variationCount) * stepFrames);
+}
+
+const Object* asObject(const Value& value) {
+    return std::get_if<Object>(&value.v);
+}
+
+const Array* asArray(const Value& value) {
+    return std::get_if<Array>(&value.v);
+}
+
+int32_t valueToInt(const Value& value, int32_t fallback = 0) {
+    if (const auto* asInt = std::get_if<int64_t>(&value.v)) {
+        return static_cast<int32_t>(*asInt);
+    }
+    if (const auto* asDouble = std::get_if<double>(&value.v)) {
+        return static_cast<int32_t>(*asDouble);
+    }
+    if (const auto* asBool = std::get_if<bool>(&value.v)) {
+        return *asBool ? 1 : 0;
+    }
+    return fallback;
+}
+
+bool valueToBool(const Value& value, bool fallback = false) {
+    if (const auto* asBool = std::get_if<bool>(&value.v)) {
+        return *asBool;
+    }
+    if (const auto* asInt = std::get_if<int64_t>(&value.v)) {
+        return *asInt != 0;
+    }
+    return fallback;
+}
+
+std::string valueToString(const Value& value, const std::string& fallback = "") {
+    if (const auto* asString = std::get_if<std::string>(&value.v)) {
+        return *asString;
+    }
+    return fallback;
+}
+
 BattleStateEffect* findStateEffect(BattleSubject* subject, int32_t stateId) {
     if (!subject) {
         return nullptr;
@@ -184,6 +270,45 @@ BattleSubject* resolveActionTarget(BattleManager* manager, const BattleAction& a
                              });
 }
 
+template <typename Fn>
+int32_t accumulateRewardFromEligibleEnemies(const std::vector<BattleSubject>& enemies, Fn&& rewardForEnemy) {
+    const bool hasDefeatedEnemy = std::any_of(
+        enemies.begin(),
+        enemies.end(),
+        [](const BattleSubject& enemy) { return enemy.hp <= 0; }
+    );
+
+    int32_t total = 0;
+    for (const auto& enemy : enemies) {
+        if (hasDefeatedEnemy) {
+            if (enemy.hp > 0) {
+                continue;
+            }
+        } else if (enemy.hidden) {
+            continue;
+        }
+
+        total += rewardForEnemy(enemy);
+    }
+
+    return total;
+}
+
+void syncActorSubjectToDataManager(const BattleSubject* subject) {
+    if (!subject || subject->type != BattleSubjectType::ACTOR) {
+        return;
+    }
+
+    auto* actor = DataManager::instance().getActor(subject->id);
+    if (!actor) {
+        return;
+    }
+
+    actor->hp = std::clamp(subject->hp, 0, subject->mhp);
+    actor->mp = std::clamp(subject->mp, 0, subject->mmp);
+    actor->tp = std::clamp(subject->tp, 0, 100);
+}
+
 constexpr int32_t kVictorySwitchId = 101;
 constexpr int32_t kDefeatSwitchId = 102;
 constexpr int32_t kEscapeSwitchId = 103;
@@ -193,9 +318,19 @@ constexpr int32_t kEscapeSwitchId = 103;
 // Internal implementation
 class BattleManagerImpl {
 public:
+    struct BattleEventPageState {
+        bool ranThisBattle = false;
+        int32_t lastTriggeredTurn = -1;
+        int64_t lastTriggeredTick = -1;
+    };
+
     mutable std::mt19937 rng{std::random_device{}()};
     bool battleEventActive = false;
     int32_t currentBattleEventId = 0;
+    bool manualActorsOverride = false;
+    bool manualEnemiesOverride = false;
+    int64_t battleEventTick = 0;
+    std::vector<BattleEventPageState> pageStates;
 };
 
 BattleManager::BattleManager()
@@ -216,16 +351,24 @@ BattleManager::BattleManager()
 
         setStatus("setup", CompatStatus::PARTIAL,
                   "Troop setup and party seeding are implemented, but rely on DataManager database loaders which are still partial. Enemy positioning is omitted because BattleSubject has no position fields.");
-        setStatus("setBattleTransition", CompatStatus::STUB,
-                  "Transition selection is accepted but not applied to any runtime output.");
-        setStatus("setBattleBackground", CompatStatus::STUB,
-                  "Background selection is accepted but not applied to any runtime output.");
-        setStatus("setBattleBgm", CompatStatus::STUB,
-                  "Battle BGM metadata is accepted but not routed to audio playback.");
-        setStatus("setVictoryMe", CompatStatus::STUB,
-                  "Victory ME metadata is accepted but not routed to audio playback.");
-        setStatus("setDefeatMe", CompatStatus::STUB,
-                  "Defeat ME metadata is accepted but not routed to audio playback.");
+        setStatus("setBattleTransition", CompatStatus::PARTIAL,
+                  "Transition/background/audio metadata is retained for compat readback, but scene/audio backend routing is still TODO.");
+        setStatus("setBattleBackground", CompatStatus::PARTIAL,
+                  "Transition/background/audio metadata is retained for compat readback, but scene/audio backend routing is still TODO.");
+        setStatus("setBattleBgm", CompatStatus::PARTIAL,
+                  "Transition/background/audio metadata is retained for compat readback, but scene/audio backend routing is still TODO.");
+        setStatus("setVictoryMe", CompatStatus::PARTIAL,
+                  "Transition/background/audio metadata is retained for compat readback, but scene/audio backend routing is still TODO.");
+        setStatus("setDefeatMe", CompatStatus::PARTIAL,
+                  "Transition/background/audio metadata is retained for compat readback, but scene/audio backend routing is still TODO.");
+        setStatus("changeBattleBackground", CompatStatus::PARTIAL,
+                  "Transition/background/audio metadata is retained for compat readback, but scene/audio backend routing is still TODO.");
+        setStatus("changeBattleBgm", CompatStatus::PARTIAL,
+                  "Transition/background/audio metadata is retained for compat readback, but scene/audio backend routing is still TODO.");
+        setStatus("changeVictoryMe", CompatStatus::PARTIAL,
+                  "Transition/background/audio metadata is retained for compat readback, but scene/audio backend routing is still TODO.");
+        setStatus("changeDefeatMe", CompatStatus::PARTIAL,
+                  "Transition/background/audio metadata is retained for compat readback, but scene/audio backend routing is still TODO.");
         methodStatus_["startBattle"] = CompatStatus::FULL;
         methodStatus_["endBattle"] = CompatStatus::FULL;
         methodStatus_["abortBattle"] = CompatStatus::FULL;
@@ -275,14 +418,12 @@ BattleManager::BattleManager()
         methodStatus_["getModifierStage"] = CompatStatus::FULL;
         methodStatus_["applyStateEffects"] = CompatStatus::FULL;
         methodStatus_["applyTurnEndEffects"] = CompatStatus::FULL;
-        setStatus("playAnimation", CompatStatus::STUB,
-                  "Animation API is recorded only; target playback is still TODO.");
-        setStatus("playAnimationOnSubject", CompatStatus::STUB,
-                  "Animation API is recorded only; subject playback is still TODO.");
+        methodStatus_["playAnimation"] = CompatStatus::FULL;
+        methodStatus_["playAnimationOnSubject"] = CompatStatus::FULL;
         setStatus("startBattleEvent", CompatStatus::PARTIAL,
-                  "Battle-event state toggles on, but event interpreter execution is still TODO.");
+                  "Troop page conditions and a bounded command subset execute against live compat state, but full MZ battle interpreter coverage is still TODO.");
         setStatus("updateBattleEvents", CompatStatus::PARTIAL,
-                  "Battle-event state updates exist, but interpreter execution is still TODO.");
+                  "Battle-event updates advance deterministic animations and run troop page conditions plus a bounded command subset, but full MZ battle interpreter coverage is still TODO.");
         methodStatus_["isBattleEventActive"] = CompatStatus::FULL;
         methodStatus_["checkTurnCondition"] = CompatStatus::FULL;
         methodStatus_["checkEnemyHpCondition"] = CompatStatus::FULL;
@@ -313,6 +454,14 @@ BattleManager& BattleManager::instance() {
 // ============================================================================
 
 void BattleManager::setup(int32_t troopId, bool canEscape, bool canLose) {
+    DataManager& dm = DataManager::instance();
+    if (dm.getActors().empty() && dm.getEnemies().empty() && dm.getTroops().empty()) {
+        dm.loadDatabase();
+    }
+    if (dm.getPartySize() == 0 && dm.getStartPartySize() > 0) {
+        dm.setupNewGame();
+    }
+
     troopId_ = troopId;
     canEscape_ = canEscape;
     canLose_ = canLose;
@@ -324,6 +473,12 @@ void BattleManager::setup(int32_t troopId, bool canEscape, bool canLose) {
     actors_.clear();
     enemies_.clear();
     actionQueue_.clear();
+    impl_->manualActorsOverride = false;
+    impl_->manualEnemiesOverride = false;
+    impl_->battleEventActive = false;
+    impl_->currentBattleEventId = 0;
+    impl_->battleEventTick = 0;
+    impl_->pageStates.clear();
     
     // Trigger hook
     triggerHook(HookPoint::ON_SETUP, {Value::Int(troopId)});
@@ -331,6 +486,9 @@ void BattleManager::setup(int32_t troopId, bool canEscape, bool canLose) {
     // Load troop data and populate enemies
     const TroopData* troop = DataManager::instance().getTroop(troopId_);
     if (troop) {
+        if (const auto* pages = asArray(troop->pages)) {
+            impl_->pageStates.resize(pages->size());
+        }
         for (int32_t enemyId : troop->members) {
             const EnemyData* enemyData = DataManager::instance().getEnemy(enemyId);
             if (enemyData) {
@@ -353,7 +511,6 @@ void BattleManager::setup(int32_t troopId, bool canEscape, bool canLose) {
     }
 
     // Copy current party to actors
-    DataManager& dm = DataManager::instance();
     const auto& party = dm.getGlobalState().partyMembers;
     for (int32_t actorId : party) {
         const ActorData* actorData = dm.getActor(actorId);
@@ -374,9 +531,9 @@ void BattleManager::setup(int32_t troopId, bool canEscape, bool canLose) {
                 actor.mmp = 100;
                 actor.actionSpeed = 100;
             }
-            actor.hp = actor.mhp;
-            actor.mp = actor.mmp;
-            actor.tp = 0;
+            actor.hp = std::clamp(actorData->hp, 0, actor.mhp);
+            actor.mp = std::clamp(actorData->mp, 0, actor.mmp);
+            actor.tp = std::clamp(actorData->tp, 0, 100);
             actor.hidden = false;
             actor.immortal = false;
             actor.acted = false;
@@ -391,28 +548,49 @@ void BattleManager::setup(int32_t troopId, bool canEscape, bool canLose) {
 }
 
 void BattleManager::setBattleTransition(int32_t type) {
-    // TODO: Set transition type for battle start/end
-    (void)type;
+    battleTransitionType_ = type;
 }
 
 void BattleManager::setBattleBackground(const std::string& name) {
-    // TODO: Set battle background
-    (void)name;
+    battleBackground_ = name;
 }
 
 void BattleManager::setBattleBgm(const std::string& name, double volume, double pitch) {
-    // TODO: Set battle BGM
-    (void)name; (void)volume; (void)pitch;
+    battleBgm_.name = name;
+    battleBgm_.volume = std::clamp(volume, 0.0, 100.0);
+    battleBgm_.pitch = std::clamp(pitch, 50.0, 200.0);
 }
 
 void BattleManager::setVictoryMe(const std::string& name, double volume, double pitch) {
-    // TODO: Set victory ME
-    (void)name; (void)volume; (void)pitch;
+    victoryMe_.name = name;
+    victoryMe_.volume = std::clamp(volume, 0.0, 100.0);
+    victoryMe_.pitch = std::clamp(pitch, 50.0, 200.0);
 }
 
 void BattleManager::setDefeatMe(const std::string& name, double volume, double pitch) {
-    // TODO: Set defeat ME
-    (void)name; (void)volume; (void)pitch;
+    defeatMe_.name = name;
+    defeatMe_.volume = std::clamp(volume, 0.0, 100.0);
+    defeatMe_.pitch = std::clamp(pitch, 50.0, 200.0);
+}
+
+int32_t BattleManager::getBattleTransition() const {
+    return battleTransitionType_;
+}
+
+const std::string& BattleManager::getBattleBackground() const {
+    return battleBackground_;
+}
+
+const BattleAudioCue& BattleManager::getBattleBgm() const {
+    return battleBgm_;
+}
+
+const BattleAudioCue& BattleManager::getVictoryMe() const {
+    return victoryMe_;
+}
+
+const BattleAudioCue& BattleManager::getDefeatMe() const {
+    return defeatMe_;
 }
 
 // ============================================================================
@@ -588,10 +766,18 @@ BattleSubject* BattleManager::getEnemy(int32_t index) {
 }
 
 void BattleManager::addActorSubject(const BattleSubject& subject) {
+    if (!impl_->manualActorsOverride) {
+        actors_.clear();
+        impl_->manualActorsOverride = true;
+    }
     actors_.push_back(subject);
 }
 
 void BattleManager::addEnemySubject(const BattleSubject& subject) {
+    if (!impl_->manualEnemiesOverride) {
+        enemies_.clear();
+        impl_->manualEnemiesOverride = true;
+    }
     enemies_.push_back(subject);
 }
 
@@ -811,6 +997,7 @@ void BattleManager::applyDamage(BattleSubject* subject, int32_t damage, bool isH
     
     if (isHp) {
         subject->hp = std::max(0, subject->hp - damage);
+        syncActorSubjectToDataManager(subject);
         triggerHook(HookPoint::ON_DAMAGE, {
             Value::Int(static_cast<int32_t>(subject->type)),
             Value::Int(subject->index),
@@ -826,6 +1013,7 @@ void BattleManager::applyDamage(BattleSubject* subject, int32_t damage, bool isH
         }
     } else {
         subject->mp = std::max(0, subject->mp - damage);
+        syncActorSubjectToDataManager(subject);
     }
 }
 
@@ -836,6 +1024,7 @@ void BattleManager::applyHeal(BattleSubject* subject, int32_t amount, bool isHp)
     
     if (isHp) {
         subject->hp = std::min(subject->mhp, subject->hp + resolvedAmount);
+        syncActorSubjectToDataManager(subject);
         triggerHook(HookPoint::ON_HEAL, {
             Value::Int(static_cast<int32_t>(subject->type)),
             Value::Int(subject->index),
@@ -843,6 +1032,7 @@ void BattleManager::applyHeal(BattleSubject* subject, int32_t amount, bool isHp)
         });
     } else {
         subject->mp = std::min(subject->mmp, subject->mp + resolvedAmount);
+        syncActorSubjectToDataManager(subject);
     }
 }
 
@@ -850,6 +1040,9 @@ void BattleManager::applySkill(BattleSubject* user, BattleSubject* target, int32
     if (!target) return;
     const SkillData* skill = DataManager::instance().getSkill(skillId);
     if (!skill) return;
+    if (skill->animationId > 0) {
+        playAnimation(skill->animationId, target);
+    }
     const int32_t dmgType = skill->damage.type;
     if (dmgType == 1 || dmgType == 2) {
         int32_t amount = resolveAttackDamage(user, target, skill->damage.power);
@@ -874,6 +1067,9 @@ void BattleManager::applyItem(BattleSubject* user, BattleSubject* target, int32_
     if (!target) return;
     const ItemData* item = DataManager::instance().getItem(itemId);
     if (!item) return;
+    if (item->animationId > 0) {
+        playAnimation(item->animationId, target);
+    }
     const int32_t dmgType = item->damage.type;
     if (dmgType == 1 || dmgType == 2) {
         int32_t amount = resolveAttackDamage(user, target, item->damage.power);
@@ -1054,13 +1250,51 @@ void BattleManager::applyTurnEndEffects(BattleSubject* subject) {
 }
 
 void BattleManager::playAnimation(int32_t animationId, BattleSubject* target) {
-    // TODO: Play animation on target
-    (void)animationId; (void)target;
+    if (!target) {
+        return;
+    }
+
+    const int32_t durationFrames = resolveAnimationDurationFrames(animationId);
+    if (durationFrames <= 0) {
+        return;
+    }
+
+    BattleAnimationPlayback playback;
+    playback.animationId = animationId;
+    playback.targetType = target->type;
+    playback.targetIndex = target->index;
+    playback.targetId = target->id;
+    playback.framesRemaining = durationFrames;
+    playback.subjectAnimation = false;
+    activeAnimations_.push_back(std::move(playback));
 }
 
 void BattleManager::playAnimationOnSubject(int32_t animationId, BattleSubject* subject) {
-    // TODO: Play animation on subject
-    (void)animationId; (void)subject;
+    if (!subject) {
+        return;
+    }
+
+    const int32_t durationFrames = resolveAnimationDurationFrames(animationId);
+    if (durationFrames <= 0) {
+        return;
+    }
+
+    BattleAnimationPlayback playback;
+    playback.animationId = animationId;
+    playback.targetType = subject->type;
+    playback.targetIndex = subject->index;
+    playback.targetId = subject->id;
+    playback.framesRemaining = durationFrames;
+    playback.subjectAnimation = true;
+    activeAnimations_.push_back(std::move(playback));
+}
+
+bool BattleManager::isAnimationPlaying() const {
+    return !activeAnimations_.empty();
+}
+
+const std::vector<BattleAnimationPlayback>& BattleManager::getActiveAnimations() const {
+    return activeAnimations_;
 }
 
 // ============================================================================
@@ -1068,12 +1302,280 @@ void BattleManager::playAnimationOnSubject(int32_t animationId, BattleSubject* s
 // ============================================================================
 
 void BattleManager::startBattleEvent(int32_t eventId) {
+    const TroopData* troop = DataManager::instance().getTroop(troopId_);
+    if (!troop) {
+        impl_->currentBattleEventId = 0;
+        impl_->battleEventActive = false;
+        return;
+    }
+
+    const auto* pages = asArray(troop->pages);
+    if (!pages || eventId <= 0 || static_cast<size_t>(eventId) > pages->size()) {
+        impl_->currentBattleEventId = 0;
+        impl_->battleEventActive = false;
+        return;
+    }
+
     impl_->currentBattleEventId = eventId;
     impl_->battleEventActive = true;
 }
 
 void BattleManager::updateBattleEvents() {
-    // TODO: Process battle event interpreter
+    ++impl_->battleEventTick;
+
+    for (auto& animation : activeAnimations_) {
+        if (animation.framesRemaining > 0) {
+            --animation.framesRemaining;
+        }
+    }
+
+    activeAnimations_.erase(
+        std::remove_if(activeAnimations_.begin(), activeAnimations_.end(),
+                       [](const BattleAnimationPlayback& animation) {
+                           return animation.framesRemaining <= 0;
+                       }),
+        activeAnimations_.end());
+
+    const TroopData* troop = DataManager::instance().getTroop(troopId_);
+    const auto* pages = troop ? asArray(troop->pages) : nullptr;
+    if (!pages || pages->empty()) {
+        impl_->battleEventActive = false;
+        impl_->currentBattleEventId = 0;
+        return;
+    }
+
+    if (impl_->pageStates.size() != pages->size()) {
+        impl_->pageStates.resize(pages->size());
+    }
+
+    const auto findActorIndexById = [this](int32_t actorId) -> int32_t {
+        for (size_t i = 0; i < actors_.size(); ++i) {
+            if (actors_[i].id == actorId) {
+                return static_cast<int32_t>(i);
+            }
+        }
+        return -1;
+    };
+
+    const auto isPageConditionMet = [this, &findActorIndexById](const Object& pageObject) -> bool {
+        const auto conditionsIt = pageObject.find("conditions");
+        if (conditionsIt == pageObject.end()) {
+            return true;
+        }
+
+        const auto* conditions = asObject(conditionsIt->second);
+        if (!conditions) {
+            return true;
+        }
+
+        if (valueToBool(conditions->at("turnValid"), false)) {
+            const int32_t turnA = valueToInt(conditions->at("turnA"), 0);
+            const int32_t turnB = valueToInt(conditions->at("turnB"), 0);
+            if (!checkTurnCondition(turnA, turnB)) {
+                return false;
+            }
+        }
+
+        if (valueToBool(conditions->at("switchValid"), false)) {
+            if (!checkSwitchCondition(valueToInt(conditions->at("switchId"), 0))) {
+                return false;
+            }
+        }
+
+        if (valueToBool(conditions->at("enemyValid"), false)) {
+            if (!checkEnemyHpCondition(valueToInt(conditions->at("enemyIndex"), 0),
+                                       valueToInt(conditions->at("enemyHp"), 100))) {
+                return false;
+            }
+        }
+
+        if (valueToBool(conditions->at("actorValid"), false)) {
+            const int32_t actorIndex = findActorIndexById(valueToInt(conditions->at("actorId"), 0));
+            if (actorIndex < 0 ||
+                !checkActorHpCondition(actorIndex, valueToInt(conditions->at("actorHp"), 100))) {
+                return false;
+            }
+        }
+
+        if (valueToBool(conditions->at("turnEnding"), false) && phase_ != BattlePhase::TURN) {
+            return false;
+        }
+
+        return true;
+    };
+
+    if (!impl_->battleEventActive) {
+        for (size_t pageIndex = 0; pageIndex < pages->size(); ++pageIndex) {
+            const auto* pageObject = asObject((*pages)[pageIndex]);
+            if (!pageObject || !isPageConditionMet(*pageObject)) {
+                continue;
+            }
+
+            const int32_t span = valueToInt(pageObject->at("span"), 0);
+            auto& pageState = impl_->pageStates[pageIndex];
+            bool shouldTrigger = false;
+            if (span == 0) {
+                shouldTrigger = !pageState.ranThisBattle;
+            } else if (span == 1) {
+                shouldTrigger = pageState.lastTriggeredTurn != turnCount_;
+            } else {
+                shouldTrigger = pageState.lastTriggeredTick != impl_->battleEventTick;
+            }
+
+            if (shouldTrigger) {
+                startBattleEvent(static_cast<int32_t>(pageIndex + 1));
+                pageState.ranThisBattle = true;
+                pageState.lastTriggeredTurn = turnCount_;
+                pageState.lastTriggeredTick = impl_->battleEventTick;
+                break;
+            }
+        }
+    }
+
+    if (!impl_->battleEventActive) {
+        return;
+    }
+
+    const size_t activePageIndex = static_cast<size_t>(impl_->currentBattleEventId - 1);
+    if (activePageIndex >= pages->size()) {
+        impl_->battleEventActive = false;
+        impl_->currentBattleEventId = 0;
+        return;
+    }
+
+    const auto* pageObject = asObject((*pages)[activePageIndex]);
+    if (!pageObject) {
+        impl_->battleEventActive = false;
+        impl_->currentBattleEventId = 0;
+        return;
+    }
+
+    const auto listIt = pageObject->find("list");
+    const auto* commands = (listIt != pageObject->end()) ? asArray(listIt->second) : nullptr;
+    if (!commands) {
+        impl_->battleEventActive = false;
+        impl_->currentBattleEventId = 0;
+        return;
+    }
+
+    std::vector<bool> branchStack;
+    const auto isParentBranchActive = [&branchStack]() -> bool {
+        return std::all_of(branchStack.begin(), branchStack.end(), [](bool active) { return active; });
+    };
+    const auto evaluateConditional = [this](const Array& params) -> bool {
+        if (params.empty()) {
+            return false;
+        }
+
+        const int32_t mode = valueToInt(params[0], -1);
+        if (mode == 0 && params.size() >= 3) {
+            const int32_t switchId = valueToInt(params[1], 0);
+            const bool expected = valueToInt(params[2], 0) == 0;
+            return DataManager::instance().getSwitch(switchId) == expected;
+        }
+
+        if (mode == 12 && params.size() >= 2) {
+            return valueToString(params[1]) == "BattleManager.isBattleTest()" && isBattleTest();
+        }
+
+        return false;
+    };
+
+    for (const auto& commandValue : *commands) {
+        const auto* command = asObject(commandValue);
+        if (!command) {
+            continue;
+        }
+
+        const int32_t code = valueToInt(command->at("code"), 0);
+        const auto paramsIt = command->find("parameters");
+        const Array emptyParams;
+        const Array* params = (paramsIt != command->end()) ? asArray(paramsIt->second) : &emptyParams;
+
+        if (code == 111) {
+            const bool parentActive = isParentBranchActive();
+            const bool conditionMet = parentActive && params && evaluateConditional(*params);
+            branchStack.push_back(conditionMet);
+            continue;
+        }
+
+        if (code == 411) {
+            if (!branchStack.empty()) {
+                const bool previous = branchStack.back();
+                branchStack.pop_back();
+                const bool parentActive = isParentBranchActive();
+                branchStack.push_back(parentActive && !previous);
+            }
+            continue;
+        }
+
+        if (code == 412) {
+            if (!branchStack.empty()) {
+                branchStack.pop_back();
+            }
+            continue;
+        }
+
+        if (!isParentBranchActive()) {
+            continue;
+        }
+
+        switch (code) {
+            case 0:
+            case 108:
+            case 408:
+                break;
+            case 121:
+                if (params && params->size() >= 3) {
+                    const int32_t startId = valueToInt((*params)[0], 0);
+                    const int32_t endId = valueToInt((*params)[1], startId);
+                    const bool value = valueToInt((*params)[2], 0) == 0;
+                    for (int32_t switchId = startId; switchId <= endId; ++switchId) {
+                        DataManager::instance().setSwitch(switchId, value);
+                    }
+                }
+                break;
+            case 122:
+                if (params && params->size() >= 5) {
+                    const int32_t startId = valueToInt((*params)[0], 0);
+                    const int32_t endId = valueToInt((*params)[1], startId);
+                    const int32_t operation = valueToInt((*params)[2], 0);
+                    const int32_t operandType = valueToInt((*params)[3], 0);
+                    const int32_t operand = (operandType == 0) ? valueToInt((*params)[4], 0) : 0;
+                    for (int32_t variableId = startId; variableId <= endId; ++variableId) {
+                        int32_t current = DataManager::instance().getVariable(variableId);
+                        switch (operation) {
+                            case 0: current = operand; break;
+                            case 1: current += operand; break;
+                            case 2: current -= operand; break;
+                            case 3: current *= operand; break;
+                            case 4: if (operand != 0) current /= operand; break;
+                            case 5: if (operand != 0) current %= operand; break;
+                            default: break;
+                        }
+                        DataManager::instance().setVariable(variableId, current);
+                    }
+                }
+                break;
+            case 125:
+                if (params && params->size() >= 3) {
+                    const int32_t operation = valueToInt((*params)[0], 0);
+                    const int32_t operandType = valueToInt((*params)[1], 0);
+                    const int32_t amount = (operandType == 0) ? valueToInt((*params)[2], 0) : 0;
+                    if (operation == 0) {
+                        DataManager::instance().gainGold(amount);
+                    } else {
+                        DataManager::instance().loseGold(amount);
+                    }
+                }
+                break;
+            default:
+                break;
+        }
+    }
+
+    impl_->battleEventActive = false;
+    impl_->currentBattleEventId = 0;
 }
 
 bool BattleManager::isBattleEventActive() const {
@@ -1145,25 +1647,17 @@ Value BattleManager::triggerHook(HookPoint point, const std::vector<Value>& args
 // ============================================================================
 
 int32_t BattleManager::calculateExp() const {
-    int32_t total = 0;
-    for (const auto& enemy : enemies_) {
-        if (enemy.hp <= 0) {
-            const EnemyData* data = DataManager::instance().getEnemy(enemy.id);
-            total += data ? data->exp : 10;
-        }
-    }
-    return total;
+    return accumulateRewardFromEligibleEnemies(enemies_, [](const BattleSubject& enemy) {
+        const EnemyData* data = DataManager::instance().getEnemy(enemy.id);
+        return data ? data->exp : 10;
+    });
 }
 
 int32_t BattleManager::calculateGold() const {
-    int32_t total = 0;
-    for (const auto& enemy : enemies_) {
-        if (enemy.hp <= 0) {
-            const EnemyData* data = DataManager::instance().getEnemy(enemy.id);
-            total += data ? data->gold : 5;
-        }
-    }
-    return total;
+    return accumulateRewardFromEligibleEnemies(enemies_, [](const BattleSubject& enemy) {
+        const EnemyData* data = DataManager::instance().getEnemy(enemy.id);
+        return data ? data->gold : 5;
+    });
 }
 
 std::vector<int32_t> BattleManager::calculateDrops() const {
@@ -1360,7 +1854,7 @@ void BattleManager::registerAPI(QuickJSContext& ctx) {
             BattleManager::instance().changeBattleBackground(std::get<std::string>(args[0].v));
         }
         return Value::Nil();
-    }, CompatStatus::STUB});
+    }, CompatStatus::PARTIAL});
     
     methods.push_back({"changeBattleBgm", [](const std::vector<Value>& args) -> Value {
         std::string name;
@@ -1373,7 +1867,7 @@ void BattleManager::registerAPI(QuickJSContext& ctx) {
         else if (args.size() > 2 && std::holds_alternative<int64_t>(args[2].v)) pitch = static_cast<double>(std::get<int64_t>(args[2].v));
         BattleManager::instance().changeBattleBgm(name, volume, pitch);
         return Value::Nil();
-    }, CompatStatus::STUB});
+    }, CompatStatus::PARTIAL});
     
     methods.push_back({"changeVictoryMe", [](const std::vector<Value>& args) -> Value {
         std::string name;
@@ -1386,7 +1880,7 @@ void BattleManager::registerAPI(QuickJSContext& ctx) {
         else if (args.size() > 2 && std::holds_alternative<int64_t>(args[2].v)) pitch = static_cast<double>(std::get<int64_t>(args[2].v));
         BattleManager::instance().changeVictoryMe(name, volume, pitch);
         return Value::Nil();
-    }, CompatStatus::STUB});
+    }, CompatStatus::PARTIAL});
     
     methods.push_back({"changeDefeatMe", [](const std::vector<Value>& args) -> Value {
         std::string name;
@@ -1399,7 +1893,29 @@ void BattleManager::registerAPI(QuickJSContext& ctx) {
         else if (args.size() > 2 && std::holds_alternative<int64_t>(args[2].v)) pitch = static_cast<double>(std::get<int64_t>(args[2].v));
         BattleManager::instance().changeDefeatMe(name, volume, pitch);
         return Value::Nil();
-    }, CompatStatus::STUB});
+    }, CompatStatus::PARTIAL});
+
+    methods.push_back({"getBattleTransition", [](const std::vector<Value>&) -> Value {
+        return Value::Int(BattleManager::instance().getBattleTransition());
+    }, CompatStatus::PARTIAL});
+
+    methods.push_back({"getBattleBackground", [](const std::vector<Value>&) -> Value {
+        Value background;
+        background.v = BattleManager::instance().getBattleBackground();
+        return background;
+    }, CompatStatus::PARTIAL});
+
+    methods.push_back({"getBattleBgm", [](const std::vector<Value>&) -> Value {
+        return battleAudioCueToValue(BattleManager::instance().getBattleBgm());
+    }, CompatStatus::PARTIAL});
+
+    methods.push_back({"getVictoryMe", [](const std::vector<Value>&) -> Value {
+        return battleAudioCueToValue(BattleManager::instance().getVictoryMe());
+    }, CompatStatus::PARTIAL});
+
+    methods.push_back({"getDefeatMe", [](const std::vector<Value>&) -> Value {
+        return battleAudioCueToValue(BattleManager::instance().getDefeatMe());
+    }, CompatStatus::PARTIAL});
     
     methods.push_back({"getPhase", [](const std::vector<Value>&) -> Value {
         return Value::Int(static_cast<int32_t>(BattleManager::instance().getPhase()));

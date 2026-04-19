@@ -71,7 +71,8 @@ This focused gate is also invoked by `tools/ci/run_local_gates.ps1` locally and 
 - **[Technical Debt Remediation Plan](docs/TECHNICAL_DEBT_REMEDIATION_PLAN.md):** Canonical cross-cutting debt, truthfulness, intake-governance, roadmap-alignment, and reconciliation plan.
 - **[Native Absorption Plan](docs/NATIVE_FEATURE_ABSORPTION_PLAN.md):** Canonical product roadmap.
 - **[Completion Status](docs/PROGRAM_COMPLETION_STATUS.md):** Canonical latest-status snapshot and remaining checklist.
-- **Detailed Planning Annexes:** [PGMMV + Native Absorption v2](URPG_MASTER_NATIVE_ABSORPTION_AND_PGMMV_ROADMAP_2026-04-18.md), [PGMMV Support Plan](URPG_PGMMV_SUPPORT_PLAN.md), and [earlier native absorption roadmap](URPG_NATIVE_ABSORPTION_ROADMAP_2026-04-18.md) are retained as traceability/reference inputs and route back through the remediation plan for canonical adoption.
+- **[Archive Index](docs/archive/README.md):** Superseded/reference-only planning material retained for traceability.
+- **Detailed Planning Annexes:** [PGMMV + Native Absorption v2](docs/archive/planning/URPG_MASTER_NATIVE_ABSORPTION_AND_PGMMV_ROADMAP_2026-04-18.md), [PGMMV Support Plan](docs/archive/planning/URPG_PGMMV_SUPPORT_PLAN.md), and [earlier native absorption roadmap](docs/archive/planning/URPG_NATIVE_ABSORPTION_ROADMAP_2026-04-18.md) are retained as traceability/reference inputs and route back through the remediation plan for canonical adoption.
 - **[Presentation Docs Hub](docs/presentation/README.md):** Index of presentation contracts, validation, tooling, budgets, and schema docs.
 - **[Presentation Validation Guide](docs/presentation/VALIDATION.md):** Focused runtime + spatial authoring validation commands and gate definitions.
 - **[Intake Governance](docs/external-intake/):** External repository and private-use asset intake plans, watchlists, license matrices, and promotion guides.
@@ -102,6 +103,7 @@ This focused gate is also invoked by `tools/ci/run_local_gates.ps1` locally and 
   - Compat module unit suites (`test_battlemgr`, `test_data_manager`, `test_audio_manager`, `test_input_manager`, `test_plugin_manager`) are active in `urpg_tests`.
 - Active build wiring snapshot:
   - `urpg_core` currently builds core kernels + editor diagnostics/panel + compat report panel + the QuickJS compat harness + WindowCompat + Battle/Data/Audio/Input/Plugin compat modules.
+  - WindowCompat currently includes renderer command emission, selectable-window keyboard/gamepad navigation, richer pointer press/drag/release behavior, mouse-wheel scrolling, and contents-backed bitmap metadata tracking.
   - `urpg_tests` includes the full compat unit slice in active CMake targets.
 - CI gate suites:
   - Gate 1 (PR): `ctest -L pr`

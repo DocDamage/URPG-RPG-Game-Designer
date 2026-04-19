@@ -166,7 +166,7 @@ public:
     virtual std::string textAlignment() const;
     
     // Contents bitmap
-    // Status: STUB - Returns a placeholder handle; backing bitmap lifecycle is not implemented
+    // Status: PARTIAL - Exposes deterministic handle allocation/release, but no backing pixel buffer
     virtual BitmapHandle contents() const;
     virtual void createContents();
     virtual void destroyContents();
@@ -184,7 +184,7 @@ public:
     
     // Position and size
     Rect getRect() const { return rect_; }
-    void setRect(const Rect& rect) { rect_ = rect; }
+    void setRect(const Rect& rect);
     
     // Content area (inside padding)
     Rect getContentRect() const;
@@ -199,7 +199,7 @@ public:
     
     // Padding
     int32_t getPadding() const { return padding_; }
-    void setPadding(int32_t padding) { padding_ = padding; }
+    void setPadding(int32_t padding);
     
     // Update called each frame
     virtual void update();
@@ -239,6 +239,13 @@ public:
     const std::vector<TextDrawInfo>& getTextDrawHistory() const { return textDrawHistory_; }
     void clearTextDrawHistory() { textDrawHistory_.clear(); }
 
+    struct ContentsBitmapInfo {
+        BitmapHandle handle = INVALID_BITMAP;
+        int32_t width = 0;
+        int32_t height = 0;
+    };
+    std::optional<ContentsBitmapInfo> getContentsBitmapInfo() const;
+
 protected:
     Rect rect_;
     bool isOpen_ = false;
@@ -262,11 +269,14 @@ protected:
     static std::unordered_map<std::string, CompatStatus> methodStatus_;
     static std::unordered_map<std::string, std::string> methodDeviations_;
     static std::unordered_map<std::string, uint32_t> methodCallCounts_;
+    static std::unordered_map<BitmapHandle, ContentsBitmapInfo> contentsBitmaps_;
     static Window_Base* defaultInstance_;
+    static BitmapHandle nextBitmapHandle_;
     
     // Initialize static method status maps
     static void initializeMethodStatus();
     static void recordMethodCall(const std::string& methodName);
+    void syncContentsBitmap();
 };
 
 // Window_Selectable - Base for menus with selectable items
@@ -352,6 +362,11 @@ protected:
     int32_t itemHeight_ = 36;
     int32_t topRow_ = 0;
     int32_t numVisibleRows_ = 4;
+    bool pointerPressActive_ = false;
+    bool pointerPressIsTouch_ = false;
+    bool pointerPressMoved_ = false;
+    int32_t pointerPressIndex_ = -1;
+    int32_t pointerLastIndex_ = -1;
     SelectHandler onSelect_;
 };
 

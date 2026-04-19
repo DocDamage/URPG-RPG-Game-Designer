@@ -3,9 +3,28 @@
 
 #include <catch2/catch_test_macros.hpp>
 #include <algorithm>
+#include <filesystem>
+#include <fstream>
 #include <variant>
+#include <nlohmann/json.hpp>
 
 using namespace urpg::compat;
+namespace fs = std::filesystem;
+
+namespace {
+
+fs::path writeBattleEventTroopsFixture(const nlohmann::json& troops) {
+    const fs::path fixtureDir = fs::temp_directory_path() / "urpg_battle_event_fixture";
+    fs::create_directories(fixtureDir);
+
+    std::ofstream out(fixtureDir / "Troops.json", std::ios::binary | std::ios::trunc);
+    out << troops.dump();
+    out.close();
+
+    return fixtureDir;
+}
+
+}
 
 TEST_CASE("BattleManager: setup and flow", "[battlemgr]") {
     BattleManager bm;
@@ -332,13 +351,273 @@ TEST_CASE("BattleManager: turn-end status ordering and buff durations", "[battle
     REQUIRE(bm.getModifierStage(seededActor, 6) == 0);
 }
 
+TEST_CASE("BattleManager: battle environment metadata is retained through JS helpers", "[battlemgr]") {
+    QuickJSContext ctx;
+    QuickJSConfig config;
+    REQUIRE(ctx.initialize(config));
+
+    BattleManager::registerAPI(ctx);
+
+    urpg::Value ruinsNight;
+    ruinsNight.v = std::string("ruins_night");
+
+    auto setBackground = ctx.callMethod("BattleManager", "changeBattleBackground",
+                                        std::vector<urpg::Value>{ruinsNight});
+    REQUIRE(setBackground.success);
+
+    urpg::Value battleTheme;
+    battleTheme.v = std::string("battle_theme");
+    urpg::Value bgmVolume;
+    bgmVolume.v = 72.5;
+    urpg::Value bgmPitch;
+    bgmPitch.v = 108.0;
+    auto setBgm = ctx.callMethod("BattleManager", "changeBattleBgm",
+                                 std::vector<urpg::Value>{battleTheme, bgmVolume, bgmPitch});
+    REQUIRE(setBgm.success);
+
+    urpg::Value victoryName;
+    victoryName.v = std::string("victory_fanfare");
+    auto setVictoryMe = ctx.callMethod("BattleManager", "changeVictoryMe",
+                                       std::vector<urpg::Value>{victoryName,
+                                                                 urpg::Value::Int(80),
+                                                                 urpg::Value::Int(105)});
+    REQUIRE(setVictoryMe.success);
+
+    urpg::Value defeatName;
+    defeatName.v = std::string("defeat_dirge");
+    auto setDefeatMe = ctx.callMethod("BattleManager", "changeDefeatMe",
+                                      std::vector<urpg::Value>{defeatName,
+                                                                urpg::Value::Int(60),
+                                                                urpg::Value::Int(95)});
+    REQUIRE(setDefeatMe.success);
+
+    auto backgroundResult = ctx.callMethod("BattleManager", "getBattleBackground", {});
+    REQUIRE(backgroundResult.success);
+    REQUIRE(std::get<std::string>(backgroundResult.value.v) == "ruins_night");
+
+    auto bgmResult = ctx.callMethod("BattleManager", "getBattleBgm", {});
+    REQUIRE(bgmResult.success);
+    REQUIRE(std::holds_alternative<urpg::Object>(bgmResult.value.v));
+    const auto& bgm = std::get<urpg::Object>(bgmResult.value.v);
+    REQUIRE(std::get<std::string>(bgm.at("name").v) == "battle_theme");
+    REQUIRE(std::get<double>(bgm.at("volume").v) == 72.5);
+    REQUIRE(std::get<double>(bgm.at("pitch").v) == 108.0);
+
+    auto victoryResult = ctx.callMethod("BattleManager", "getVictoryMe", {});
+    REQUIRE(victoryResult.success);
+    REQUIRE(std::holds_alternative<urpg::Object>(victoryResult.value.v));
+    const auto& victory = std::get<urpg::Object>(victoryResult.value.v);
+    REQUIRE(std::get<std::string>(victory.at("name").v) == "victory_fanfare");
+    REQUIRE(std::get<double>(victory.at("volume").v) == 80.0);
+    REQUIRE(std::get<double>(victory.at("pitch").v) == 105.0);
+
+    auto defeatResult = ctx.callMethod("BattleManager", "getDefeatMe", {});
+    REQUIRE(defeatResult.success);
+    REQUIRE(std::holds_alternative<urpg::Object>(defeatResult.value.v));
+    const auto& defeat = std::get<urpg::Object>(defeatResult.value.v);
+    REQUIRE(std::get<std::string>(defeat.at("name").v) == "defeat_dirge");
+    REQUIRE(std::get<double>(defeat.at("volume").v) == 60.0);
+    REQUIRE(std::get<double>(defeat.at("pitch").v) == 95.0);
+}
+
+TEST_CASE("BattleManager: direct animation playback runs deterministic lifecycle", "[battlemgr]") {
+    DataManager::instance().loadDatabase();
+
+    BattleManager bm;
+    BattleSubject actor;
+    actor.type = BattleSubjectType::ACTOR;
+    actor.index = 0;
+    actor.hp = 100;
+    actor.mhp = 100;
+
+    bm.playAnimation(0, &actor);
+    REQUIRE_FALSE(bm.isAnimationPlaying());
+    REQUIRE(bm.getActiveAnimations().empty());
+
+    bm.playAnimation(41, &actor);
+    REQUIRE(bm.isAnimationPlaying());
+    REQUIRE(bm.getActiveAnimations().size() == 1);
+    REQUIRE(bm.getActiveAnimations()[0].animationId == 41);
+    REQUIRE(bm.getActiveAnimations()[0].targetType == BattleSubjectType::ACTOR);
+    REQUIRE(bm.getActiveAnimations()[0].targetIndex == 0);
+    REQUIRE_FALSE(bm.getActiveAnimations()[0].subjectAnimation);
+
+    const int32_t frames = bm.getActiveAnimations()[0].framesRemaining;
+    REQUIRE(frames > 0);
+    for (int32_t i = 0; i < frames - 1; ++i) {
+        REQUIRE(bm.isAnimationPlaying());
+        bm.updateBattleEvents();
+    }
+
+    REQUIRE(bm.isAnimationPlaying());
+    bm.updateBattleEvents();
+    REQUIRE_FALSE(bm.isAnimationPlaying());
+    REQUIRE(bm.getActiveAnimations().empty());
+}
+
+TEST_CASE("BattleManager: skills and items enqueue their configured animations", "[battlemgr]") {
+    DataManager::instance().loadDatabase();
+    DataManager::instance().setupNewGame();
+
+    BattleManager bm;
+    bm.setup(1, true, false);
+
+    BattleSubject actor;
+    actor.type = BattleSubjectType::ACTOR;
+    actor.index = 0;
+    actor.hp = 40;
+    actor.mhp = 100;
+    bm.addActorSubject(actor);
+    BattleSubject* seededActor = bm.getActor(static_cast<int32_t>(bm.getActorsConst().size() - 1));
+    BattleSubject* enemy = bm.getEnemy(0);
+    REQUIRE(seededActor != nullptr);
+    REQUIRE(enemy != nullptr);
+
+    bm.applySkill(nullptr, enemy, 2);
+    REQUIRE(bm.isAnimationPlaying());
+    REQUIRE(bm.getActiveAnimations().size() == 1);
+    REQUIRE(bm.getActiveAnimations()[0].animationId == 67);
+    REQUIRE(bm.getActiveAnimations()[0].targetType == BattleSubjectType::ENEMY);
+    REQUIRE(bm.getActiveAnimations()[0].targetIndex == enemy->index);
+
+    bm.applyItem(nullptr, seededActor, 1);
+    REQUIRE(bm.getActiveAnimations().size() == 2);
+    REQUIRE(bm.getActiveAnimations()[1].animationId == 41);
+    REQUIRE(bm.getActiveAnimations()[1].targetType == BattleSubjectType::ACTOR);
+    REQUIRE(bm.getActiveAnimations()[1].targetIndex == seededActor->index);
+}
+
+TEST_CASE("BattleManager: troop battle events execute real page conditions and commands", "[battlemgr]") {
+    const nlohmann::json troops = nlohmann::json::array({
+        nullptr,
+        {
+            {"id", 1},
+            {"name", "Event Troop"},
+            {"members", nlohmann::json::array({
+                {{"enemyId", 1}}
+            })},
+            {"pages", nlohmann::json::array({
+                {
+                    {"conditions", {
+                        {"actorHp", 50},
+                        {"actorId", 1},
+                        {"actorValid", false},
+                        {"enemyHp", 50},
+                        {"enemyIndex", 0},
+                        {"enemyValid", false},
+                        {"switchId", 1},
+                        {"switchValid", false},
+                        {"turnA", 0},
+                        {"turnB", 0},
+                        {"turnEnding", false},
+                        {"turnValid", true}
+                    }},
+                    {"list", nlohmann::json::array({
+                        {{"code", 121}, {"indent", 0}, {"parameters", nlohmann::json::array({1, 1, 0})}},
+                        {{"code", 122}, {"indent", 0}, {"parameters", nlohmann::json::array({2, 2, 0, 0, 7})}},
+                        {{"code", 125}, {"indent", 0}, {"parameters", nlohmann::json::array({0, 0, 50})}},
+                        {{"code", 0}, {"indent", 0}, {"parameters", nlohmann::json::array()}}
+                    })},
+                    {"span", 0}
+                }
+            })}
+        }
+    });
+
+    const fs::path fixtureDir = writeBattleEventTroopsFixture(troops);
+    DataManager::setDataDirectory(fixtureDir.string());
+    REQUIRE(DataManager::instance().loadDatabase());
+    DataManager::instance().setupNewGame();
+
+    BattleManager bm;
+    bm.setup(1, true, false);
+    bm.startBattle();
+
+    REQUIRE_FALSE(DataManager::instance().getSwitch(1));
+    REQUIRE(DataManager::instance().getVariable(2) == 0);
+    REQUIRE(DataManager::instance().getGold() == 0);
+
+    bm.updateBattleEvents();
+    REQUIRE(DataManager::instance().getSwitch(1));
+    REQUIRE(DataManager::instance().getVariable(2) == 7);
+    REQUIRE(DataManager::instance().getGold() == 50);
+    REQUIRE_FALSE(bm.isBattleEventActive());
+
+    bm.updateBattleEvents();
+    REQUIRE(DataManager::instance().getGold() == 50);
+
+    fs::remove_all(fixtureDir);
+    DataManager::setDataDirectory("");
+}
+
+TEST_CASE("BattleManager: turn-span battle events rerun on later eligible turns", "[battlemgr]") {
+    const nlohmann::json troops = nlohmann::json::array({
+        nullptr,
+        {
+            {"id", 1},
+            {"name", "Turn Event Troop"},
+            {"members", nlohmann::json::array({
+                {{"enemyId", 1}}
+            })},
+            {"pages", nlohmann::json::array({
+                {
+                    {"conditions", {
+                        {"actorHp", 50},
+                        {"actorId", 1},
+                        {"actorValid", false},
+                        {"enemyHp", 50},
+                        {"enemyIndex", 0},
+                        {"enemyValid", false},
+                        {"switchId", 1},
+                        {"switchValid", false},
+                        {"turnA", 1},
+                        {"turnB", 1},
+                        {"turnEnding", false},
+                        {"turnValid", true}
+                    }},
+                    {"list", nlohmann::json::array({
+                        {{"code", 122}, {"indent", 0}, {"parameters", nlohmann::json::array({3, 3, 1, 0, 2})}},
+                        {{"code", 0}, {"indent", 0}, {"parameters", nlohmann::json::array()}}
+                    })},
+                    {"span", 1}
+                }
+            })}
+        }
+    });
+
+    const fs::path fixtureDir = writeBattleEventTroopsFixture(troops);
+    DataManager::setDataDirectory(fixtureDir.string());
+    REQUIRE(DataManager::instance().loadDatabase());
+    DataManager::instance().setupNewGame();
+
+    BattleManager bm;
+    bm.setup(1, true, false);
+    bm.startBattle();
+
+    bm.updateBattleEvents();
+    REQUIRE(DataManager::instance().getVariable(3) == 0);
+
+    bm.endTurn();
+    bm.updateBattleEvents();
+    REQUIRE(DataManager::instance().getVariable(3) == 2);
+
+    bm.endTurn();
+    bm.updateBattleEvents();
+    REQUIRE(DataManager::instance().getVariable(3) == 4);
+
+    fs::remove_all(fixtureDir);
+    DataManager::setDataDirectory("");
+}
+
 TEST_CASE("BattleManager: method status registry", "[battlemgr]") {
     BattleManager bm;
     (void)bm;
 
     REQUIRE(BattleManager::getMethodStatus("setup") == CompatStatus::PARTIAL);
     REQUIRE(BattleManager::getMethodStatus("processEscape") == CompatStatus::FULL);
-    REQUIRE(BattleManager::getMethodStatus("setBattleTransition") == CompatStatus::STUB);
+    REQUIRE(BattleManager::getMethodStatus("setBattleTransition") == CompatStatus::PARTIAL);
+    REQUIRE(BattleManager::getMethodStatus("changeBattleBgm") == CompatStatus::PARTIAL);
+    REQUIRE(BattleManager::getMethodStatus("playAnimation") == CompatStatus::FULL);
     REQUIRE(BattleManager::getMethodDeviation("setup").find("partial") != std::string::npos);
     REQUIRE(BattleManager::getMethodStatus("nonexistentMethod") == CompatStatus::UNSUPPORTED);
 }

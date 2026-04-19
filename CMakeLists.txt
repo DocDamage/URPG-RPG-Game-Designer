@@ -36,6 +36,11 @@ function(urpg_get_compiler_root out_var)
 endfunction()
 
 option(URPG_FETCH_CATCH2 "Fetch Catch2 via CMake" ON)
+option(
+    URPG_MINGW_VENDORED_SDL_SHARED
+    "Build vendored SDL shared libraries on MinGW fallback toolchains"
+    ON
+)
 option(URPG_USE_SCCACHE "Use sccache as compiler launcher when available" ON)
 option(
     URPG_WINDOWS_UNLOCK_TEST_BINARIES
@@ -65,8 +70,54 @@ if(WIN32 AND URPG_WINDOWS_UNLOCK_TEST_BINARIES)
     endif()
 endif()
 
+if(MINGW)
+    find_package(Python3 REQUIRED COMPONENTS Interpreter)
+    set(URPG_WINDRES_WRAPPER_CMD
+        "${CMAKE_BINARY_DIR}/urpg-windres-wrapper.cmd"
+    )
+    get_filename_component(URPG_MINGW_BIN_DIR "${CMAKE_CXX_COMPILER}" DIRECTORY)
+    set(URPG_REAL_WINDRES "${URPG_MINGW_BIN_DIR}/windres.exe")
+    if(NOT EXISTS "${URPG_REAL_WINDRES}")
+        unset(URPG_REAL_WINDRES)
+        find_program(
+            URPG_REAL_WINDRES
+            NAMES windres
+            HINTS "${URPG_MINGW_BIN_DIR}"
+            NO_CACHE
+        )
+    endif()
+
+    if(URPG_REAL_WINDRES)
+        set(URPG_REAL_WINDRES_COMPILER "${URPG_REAL_WINDRES}" CACHE INTERNAL
+            "Underlying MinGW windres compiler path"
+        )
+        string(CONCAT URPG_WINDRES_WRAPPER_CONTENT
+            "@echo off\r\n"
+            "\"${Python3_EXECUTABLE}\" "
+            "\"${CMAKE_CURRENT_SOURCE_DIR}/tools/ci/windres_wrapper.py\" "
+            "\"${URPG_REAL_WINDRES_COMPILER}\" %*\r\n"
+        )
+        file(GENERATE OUTPUT "${URPG_WINDRES_WRAPPER_CMD}" CONTENT "${URPG_WINDRES_WRAPPER_CONTENT}")
+        set(CMAKE_RC_COMPILER "${URPG_WINDRES_WRAPPER_CMD}" CACHE FILEPATH
+            "MinGW RC compiler wrapper for path-safe windres invocations"
+            FORCE
+        )
+        unset(CMAKE_RC_COMPILER_ARG1 CACHE)
+        unset(CMAKE_RC_COMPILER_LAUNCHER CACHE)
+        message(STATUS
+            "URPG: wrapping windres so MinGW resource builds remain path-safe in workspaces with spaces.")
+    endif()
+endif()
+
 function(urpg_enable_windows_test_binary_unlock target_name)
     if(NOT WIN32 OR NOT URPG_WINDOWS_UNLOCK_TEST_BINARIES OR NOT URPG_POWERSHELL_EXE)
+        return()
+    endif()
+
+    if(MINGW AND CMAKE_BINARY_DIR MATCHES " ")
+        message(STATUS
+            "URPG: skipping Windows test-binary unlock hooks for ${target_name} because "
+            "CMake/Ninja emits a broken PRE_LINK cmd wrapper under MinGW when the build path contains spaces.")
         return()
     endif()
 
@@ -263,7 +314,16 @@ if(NOT SDL2_FOUND)
             "SDL 2.30.0's Windows joystick sources still assume XInput helpers that are not available "
             "with this header set. Install SDL2 into the active MinGW root to restore controller support.")
     endif()
-
+    if(MINGW)
+        set(SDL_SHARED ${URPG_MINGW_VENDORED_SDL_SHARED} CACHE BOOL
+            "Build a shared version of the library"
+            FORCE
+        )
+        set(SDL_STATIC ON CACHE BOOL
+            "Build a static version of the library"
+            FORCE
+        )
+    endif()
     include(FetchContent)
     FetchContent_Declare(
         SDL2
@@ -295,6 +355,10 @@ if(TARGET SDL2::SDL2)
     set(URPG_SDL_TARGET SDL2::SDL2)
 elseif(TARGET SDL2)
     set(URPG_SDL_TARGET SDL2)
+elseif(TARGET SDL2::SDL2-static)
+    set(URPG_SDL_TARGET SDL2::SDL2-static)
+elseif(TARGET SDL2-static)
+    set(URPG_SDL_TARGET SDL2-static)
 endif()
 
 target_link_libraries(urpg_core PUBLIC 

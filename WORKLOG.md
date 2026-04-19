@@ -9,11 +9,21 @@
 
 ## Entries
 
+### 2026-04-18 — Window Compat Pointer/Input and Contents Metadata Closure
+- **Action**: Extended `Window_Selectable` input handling from simple selection to real pointer press/drag/release semantics, including drag retargeting, drag-scroll at the content edges, and release-triggered OK dispatch.
+- **Action**: Added mouse-wheel scrolling through `InputManager` when the pointer is over selectable content.
+- **Action**: Fixed `InputManager` one-frame edge semantics for mouse and gamepad trigger state so pointer/gamepad triggers do not remain sticky across updates.
+- **Action**: Replaced the old handle-only `Window_Base::contents()` model with a compat bitmap registry that tracks allocated handle, width, and height, and keeps bitmap dimensions synchronized with live rect/padding changes.
+- **Action**: Expanded `tests/unit/test_window_compat.cpp` and `tests/unit/test_input_manager.cpp` coverage for touch release semantics, drag retarget suppression, drag-scroll, mouse-wheel scrolling, and contents-bitmap dimension synchronization.
+- **Action**: Reconciled `docs/PROGRAM_COMPLETION_STATUS.md` and `docs/TECHNICAL_DEBT_REMEDIATION_PLAN.md` so the canonical status/docs describe `window_compat` as a richer partial implementation rather than a mostly placeholder surface.
+- **Result**: Focused compat window/input lanes pass, and the repo-wide validation snapshot is green at `ctest --preset dev-all --output-on-failure` => 564/564 passed.
+
 ### 2026-04-18 — Canonical Planning Linkage Sync
 - **Action**: Updated `docs/TECHNICAL_DEBT_REMEDIATION_PLAN.md` to absorb PGMMV/native-absorption planning governance, including canonical roadmap-alignment requirements and Definition-of-Done hooks.
 - **Action**: Updated `docs/PROGRAM_COMPLETION_STATUS.md` and `docs/NATIVE_FEATURE_ABSORPTION_PLAN.md` to publish the canonical planning chain and identify standalone PGMMV/native-absorption files as planning annexes rather than parallel authorities.
 - **Action**: Updated `README.md` documentation links so remediation, roadmap, status, and detailed planning annexes are distinguished clearly.
-- **Action**: Re-labeled `URPG_MASTER_NATIVE_ABSORPTION_AND_PGMMV_ROADMAP_2026-04-18.md`, `URPG_PGMMV_SUPPORT_PLAN.md`, and `URPG_NATIVE_ABSORPTION_ROADMAP_2026-04-18.md` as execution-detail/reference planning inputs that route back through the remediation hub.
+- **Action**: Archived superseded planning inputs under `docs/archive/planning/`, including `URPG_MASTER_NATIVE_ABSORPTION_AND_PGMMV_ROADMAP_2026-04-18.md`, `URPG_PGMMV_SUPPORT_PLAN.md`, `URPG_NATIVE_ABSORPTION_ROADMAP_2026-04-18.md`, and `urpg_first_class_presentation_architecture_plan_v2.md`.
+- **Action**: Rescanned the remediation hub after the sixth-pass rewrite and synchronized live status notes so the new finding-status dashboard, expanded documentation tree, and added planning-governance risks are reflected in the canonical status layer.
 - **Result**: The planning/status/remediation authority chain is now explicit across the repo instead of being split across parallel roadmap files.
 
 ### 2026-04-18 — AudioManager Runtime Closure and Documentation Sync (Workstream 2.3)

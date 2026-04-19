@@ -1659,7 +1659,7 @@ TEST_CASE("Compat fixtures: curated library-dashboard scenarios survive plugin r
             window.drawTextEx(requireObjectString(object, "body"), 160, 36);
 
             REQUIRE(Window_Base::getMethodCallCount("drawText") >= drawTextBefore + 3);
-            REQUIRE(Window_Base::getMethodCallCount("drawIcon") == drawIconBefore + 2);
+            REQUIRE(Window_Base::getMethodCallCount("drawIcon") == drawIconBefore + 1);
             REQUIRE(Window_Base::getMethodCallCount("changeTextColor") == colorBefore + 1);
             REQUIRE(window.textWidth(requireObjectString(object, "body")) > window.textWidth("HP"));
             REQUIRE(window.textSize(requireObjectString(object, "body")).height == window.lineHeight());

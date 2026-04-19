@@ -9,7 +9,7 @@ Canonical planning chain:
 - `docs/TECHNICAL_DEBT_REMEDIATION_PLAN.md` governs cross-cutting truthfulness, reconciliation, and Definition-of-Done requirements.
 - `docs/NATIVE_FEATURE_ABSORPTION_PLAN.md` is the canonical product roadmap.
 - `docs/PROGRAM_COMPLETION_STATUS.md` is the canonical latest-status snapshot.
-- `URPG_MASTER_NATIVE_ABSORPTION_AND_PGMMV_ROADMAP_2026-04-18.md`, `URPG_PGMMV_SUPPORT_PLAN.md`, and `URPG_NATIVE_ABSORPTION_ROADMAP_2026-04-18.md` are detailed planning inputs retained for traceability until their remaining deltas are absorbed into the canonical docs above.
+- `docs/archive/planning/URPG_MASTER_NATIVE_ABSORPTION_AND_PGMMV_ROADMAP_2026-04-18.md`, `docs/archive/planning/URPG_PGMMV_SUPPORT_PLAN.md`, and `docs/archive/planning/URPG_NATIVE_ABSORPTION_ROADMAP_2026-04-18.md` are detailed planning inputs retained for traceability until their remaining deltas are absorbed into the canonical docs above.
 
 ## Where we are now
 
@@ -26,7 +26,7 @@ Canonical planning chain:
   - the repo does **not** yet have a serious license-cleared production asset library across tiles, portraits, UI, VFX, and audio
 - **In Progress:** External repository intake governance is active. Canonical artifacts live in [`docs/external-intake/`](./external-intake/) and the execution plan is [`URPG_repo_intake_plan.md`](../URPG_repo_intake_plan.md).
 - **In Progress:** Private-use asset intake governance is active. Canonical artifacts live in [`docs/asset_intake/`](./asset_intake/) and the execution plan is [`URPG_private_asset_intake_plan.md`](../URPG_private_asset_intake_plan.md).
-- **Planning Governance:** standalone PGMMV/native-absorption roadmap files are now treated as reference annexes under [`docs/TECHNICAL_DEBT_REMEDIATION_PLAN.md`](./TECHNICAL_DEBT_REMEDIATION_PLAN.md), not parallel execution authorities.
+- **Planning Governance:** standalone PGMMV/native-absorption roadmap files are now treated as reference annexes under [`docs/TECHNICAL_DEBT_REMEDIATION_PLAN.md`](./TECHNICAL_DEBT_REMEDIATION_PLAN.md) and indexed in [`docs/archive/README.md`](./archive/README.md), not parallel execution authorities.
 
 - `main` is up to date and protected:
   - pull request required
@@ -46,11 +46,12 @@ Canonical planning chain:
   - WindowCompat text bridge now submits renderer-facing `RenderLayer::TextCommand` payloads from `Window_Base::drawText`
   - compat `Window_Message` surface landed for dialogue-body alignment parity (`left`/`center`/`right`)
   - snapshot-style wrapped centered/right `drawTextEx` draw-history coverage landed
+  - `Window_Selectable` pointer semantics now cover press/drag/release hit-testing, drag retargeting, drag-scroll, and mouse-wheel scrolling through `InputManager`
+  - `Window_Base::contents()` now allocates compat bitmap records with tracked dimensions that stay synchronized with rect/padding changes instead of exposing handle-only state
   - compat status truth pass started: inflated `FULL` claims are being downgraded where behavior is still fixture-, stub-, or placeholder-backed
   - AudioManager compat closure advanced: deterministic playback position now advances during `update()`, duck/unduck ramps are frame-based, master/bus volume changes affect active playback, and the QuickJS `AudioManager` bridge now routes live compat state for BGM/BGS/ME/SE plus volume/ducking helpers
 - Latest recorded local validation snapshot:
-  - recorded under the `dev-ninja-debug` preset: `ctest --test-dir build/dev-ninja-debug -L pr --output-on-failure` => 289/289 passed
-  - recorded under the `dev-ninja-debug` preset: `ctest --test-dir build/dev-ninja-debug -L weekly --output-on-failure` => 42/42 passed
+  - recorded under the `dev-ninja-debug` preset: `ctest --preset dev-all --output-on-failure` => 564/564 passed
 - Latest focused presentation validation snapshot:
   - `ctest -C Debug -R "urpg_(presentation_(unit_lane|release_validation)|spatial_editor_lane)" --output-on-failure` => 3/3 passed
   - includes the dedicated `[presentation]` unit lane, the standalone release-validation harness, and the spatial editor authoring lane
@@ -86,7 +87,8 @@ Canonical planning chain:
   - includes Wave 2 advanced capability tracks (ability framework, pattern editor, modular level assembly, sprite pipeline, procedural toolkit, optional 2.5D lane, timeline orchestration, editor utilities)
 - Normalized planning authority for PGMMV/native-absorption scope:
   - `docs/TECHNICAL_DEBT_REMEDIATION_PLAN.md` now governs roadmap-alignment and truthfulness requirements for newly added planning scope
-  - `URPG_MASTER_NATIVE_ABSORPTION_AND_PGMMV_ROADMAP_2026-04-18.md`, `URPG_PGMMV_SUPPORT_PLAN.md`, and `URPG_NATIVE_ABSORPTION_ROADMAP_2026-04-18.md` are now linked as detailed planning inputs rather than canonical status/roadmap authorities
+  - `docs/archive/planning/URPG_MASTER_NATIVE_ABSORPTION_AND_PGMMV_ROADMAP_2026-04-18.md`, `docs/archive/planning/URPG_PGMMV_SUPPORT_PLAN.md`, and `docs/archive/planning/URPG_NATIVE_ABSORPTION_ROADMAP_2026-04-18.md` are now linked as detailed planning inputs rather than canonical status/roadmap authorities
+  - the remediation hub now also carries a finding-status dashboard, expanded documentation tree, and additional planning-governance risks so execution/state review can start from one document
 - Added canonical Wave 1 closure checklist governance:
   - canonical source: `docs/WAVE1_SUBSYSTEM_CLOSURE_CHECKLIST.md`
   - subsystem spec sync tool: `tools/docs/sync-wave1-spec-checklist.ps1`
@@ -229,9 +231,13 @@ Canonical planning chain:
 - 2026-04-18 audio compat closure:
   - `AudioManager` now advances deterministic playback position, applies deterministic duck/unduck ramps, applies master/bus volume scaling to active playback, and exposes live compat-state bindings through `AudioManager::registerAPI()`.
   - Documentation truth was reconciled across `WORKLOG.md`, `docs/TECHNICAL_DEBT_REMEDIATION_PLAN.md`, `docs/DEVELOPMENT_KICKOFF.md`, and `docs/COMPAT_EXIT_CHECKLIST.md` so the audio lane is consistently described as deterministic harness-backed `PARTIAL` behavior rather than a `FULL` live-audio surface.
+- 2026-04-18 window compat closure follow-through:
+  - `Window_Selectable` now supports keyboard/gamepad navigation, pointer press/drag/release hit-testing, drag retargeting, drag-scroll, and mouse-wheel scrolling through `InputManager`.
+  - `Window_Base::contents()` now tracks compat bitmap metadata (handle, width, height) and keeps that metadata synchronized with rect/padding changes.
+  - Focused validation now passes through the active local profile with `urpg_tests.exe "[input_manager],[compat][window]"` and repo-wide validation passes with `ctest --preset dev-all --output-on-failure`.
 - Latest focused validation snapshot for Message/Text renderer integration lane:
   - `.\build\dev-mingw-debug\urpg_tests.exe "[compat]"` => lane previously validated; rerun in the active local profile before treating as a fresh release snapshot
-  - `.\build\dev-mingw-debug\urpg_tests.exe "[compat][window]"` => lane previously validated; rerun in the active local profile before treating as a fresh release snapshot
+  - `.\build\dev-mingw-debug\urpg_tests.exe "[compat][window]"` => active local lane now includes richer pointer/release semantics and contents-bitmap metadata coverage; rerun in the active local profile before treating as a fresh release snapshot
   - `.\build\dev-mingw-debug\urpg_tests.exe "[compat][window][message]"` => lane previously validated; rerun in the active local profile before treating as a fresh release snapshot
   - `.\build\dev-mingw-debug\urpg_tests.exe "[compat][window][snapshot]"` => lane previously validated; rerun in the active local profile before treating as a fresh release snapshot
 

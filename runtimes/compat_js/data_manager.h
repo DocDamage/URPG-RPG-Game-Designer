@@ -88,6 +88,9 @@ struct ActorData {
     int32_t characterIndex = 0;
     std::string battlerName;
     int32_t battlerIndex = 0;
+    int32_t hp = 100;
+    int32_t mp = 30;
+    int32_t tp = 0;
     // Params: [param][level] - 0=mhp, 1=mmp, 2=atk, 3=def, 4=mat, 5=mdf, 6=agi, 7=luk
     std::vector<std::vector<int32_t>> params;
     std::vector<int32_t> skills;
@@ -267,7 +270,7 @@ public:
     bool loadSystem();
     bool loadMapInfos();
     
-    // Status: PARTIAL - Map metadata is seeded with mock data until JSON map ingestion lands
+    // Status: PARTIAL - Prefers real MZ map JSON when available, but still falls back to deterministic mock geometry without a data root
     bool loadMapData(int32_t mapId);
     
     // Status: FULL - Current map data access

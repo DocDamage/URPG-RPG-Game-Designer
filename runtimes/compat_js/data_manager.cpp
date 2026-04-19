@@ -6,6 +6,8 @@
 #include <cassert>
 #include <chrono>
 #include <fstream>
+#include <iomanip>
+#include <optional>
 #include <sstream>
 #include <utility>
 #include <nlohmann/json.hpp>
@@ -91,6 +93,70 @@ std::optional<json> loadJsonArrayFile(const std::string& filename) {
     return j;
 }
 
+std::string buildMapFilename(int32_t mapId) {
+    std::ostringstream filename;
+    filename << "Map" << std::setw(3) << std::setfill('0') << mapId << ".json";
+    return filename.str();
+}
+
+std::vector<std::vector<int32_t>> convertMapLayers(const json& data, int32_t width, int32_t height) {
+    const int32_t cellCount = std::max(0, width * height);
+    if (!data.is_array() || cellCount <= 0) {
+        return {};
+    }
+
+    const size_t totalEntries = data.size();
+    const size_t layerCount = static_cast<size_t>(std::max<int32_t>(1, static_cast<int32_t>(totalEntries / std::max(1, cellCount))));
+    std::vector<std::vector<int32_t>> layers(layerCount, std::vector<int32_t>(static_cast<size_t>(cellCount), 0));
+
+    for (size_t index = 0; index < totalEntries; ++index) {
+        const size_t layer = index / static_cast<size_t>(cellCount);
+        const size_t offset = index % static_cast<size_t>(cellCount);
+        if (layer >= layers.size()) {
+            break;
+        }
+        if (data[index].is_number_integer()) {
+            layers[layer][offset] = data[index].get<int32_t>();
+        }
+    }
+
+    return layers;
+}
+
+Object mapInfoToObject(const MapInfo& info) {
+    Object obj;
+    obj["id"] = Value::Int(info.id);
+    obj["name"].v = info.name;
+    obj["parentId"] = Value::Int(info.parentId);
+    obj["order"] = Value::Int(info.order);
+    obj["expanded"].v = info.expanded;
+    return obj;
+}
+
+Object tilesetToObject(const TilesetData& tileset) {
+    Object obj;
+    obj["id"] = Value::Int(tileset.id);
+    obj["name"].v = tileset.name;
+    obj["mode"] = Value::Int(tileset.mode);
+
+    Array tilesetNames;
+    tilesetNames.reserve(tileset.tilesetNames.size());
+    for (const auto& name : tileset.tilesetNames) {
+        Value value;
+        value.v = name;
+        tilesetNames.push_back(std::move(value));
+    }
+    obj["tilesetNames"] = Value::Arr(std::move(tilesetNames));
+
+    Array flags;
+    flags.reserve(tileset.flags.size());
+    for (uint32_t flag : tileset.flags) {
+        flags.push_back(Value::Int(static_cast<int64_t>(flag)));
+    }
+    obj["flags"] = Value::Arr(std::move(flags));
+    return obj;
+}
+
 void hydrateActorParamsFromClasses(std::vector<ActorData>& actors, const std::vector<ClassData>& classes) {
     for (auto& actor : actors) {
         if (!actor.params.empty() || actor.classId <= 0) {
@@ -104,6 +170,29 @@ void hydrateActorParamsFromClasses(std::vector<ActorData>& actors, const std::ve
         if (!cls.params.empty()) {
             actor.params = cls.params;
         }
+    }
+}
+
+void seedActorResourceState(std::vector<ActorData>& actors) {
+    const auto readParamAtLevel = [](const ActorData& actor, int32_t paramId, int32_t fallback) -> int32_t {
+        if (paramId < 0 || static_cast<size_t>(paramId) >= actor.params.size()) {
+            return fallback;
+        }
+        const auto& row = actor.params[static_cast<size_t>(paramId)];
+        if (row.empty()) {
+            return fallback;
+        }
+
+        const int32_t levelIndex = std::clamp(actor.level, 0, static_cast<int32_t>(row.size() - 1));
+        return std::max(1, row[static_cast<size_t>(levelIndex)]);
+    };
+
+    for (auto& actor : actors) {
+        const int32_t maxHp = readParamAtLevel(actor, 0, 100);
+        const int32_t maxMp = readParamAtLevel(actor, 1, 30);
+        actor.hp = std::clamp(actor.hp, 0, maxHp);
+        actor.mp = std::clamp(actor.mp, 0, maxMp);
+        actor.tp = std::clamp(actor.tp, 0, 100);
     }
 }
 
@@ -306,6 +395,7 @@ bool DataManager::loadActors() {
     hero.battlerIndex = 0;
     actors_.push_back(std::move(hero));
     hydrateActorParamsFromClasses(actors_, classes_);
+    seedActorResourceState(actors_);
     return true;
 }
 
@@ -367,6 +457,7 @@ bool DataManager::loadClasses() {
             }
         }
         hydrateActorParamsFromClasses(actors_, classes_);
+        seedActorResourceState(actors_);
         return true;
     }
     ClassData warrior;
@@ -378,6 +469,7 @@ bool DataManager::loadClasses() {
     }
     classes_.push_back(std::move(warrior));
     hydrateActorParamsFromClasses(actors_, classes_);
+    seedActorResourceState(actors_);
     return true;
 }
 
@@ -748,6 +840,18 @@ bool DataManager::loadAnimations() {
         }
         return true;
     }
+    auto addFallbackAnimation = [this](int32_t id, const std::string& name, int32_t frameCount) {
+        AnimationData anim;
+        anim.id = id;
+        anim.name = name;
+        anim.frames.resize(static_cast<size_t>(std::max(1, frameCount)), Value::Nil());
+        if (static_cast<size_t>(id) > animations_.size()) {
+            animations_.resize(static_cast<size_t>(id));
+        }
+        animations_[static_cast<size_t>(id) - 1] = std::move(anim);
+    };
+    addFallbackAnimation(41, "Heal", 10);
+    addFallbackAnimation(67, "Fire", 12);
     return true;
 }
 
@@ -830,25 +934,40 @@ bool DataManager::loadMapInfos() {
 }
 
 bool DataManager::loadMapData(int32_t mapId) {
-    // TODO: Load from data/MapXXX.json using a JSON library like nlohmann/json or our Value structure.
-    // For now, assume it sets the currentMap_ metadata.
+    currentMap_ = MapData{};
     currentMap_.id = mapId;
-    currentMap_.width = 20; 
+
+    if (mapId > 0) {
+        const std::string filename = buildMapFilename(mapId);
+        if (auto j = loadJsonFile(dataDirectory_ + filename)) {
+            currentMap_.width = j->value("width", 0);
+            currentMap_.height = j->value("height", 0);
+            currentMap_.tilesetId = j->value("tilesetId", 0);
+            if (j->contains("data")) {
+                currentMap_.data = convertMapLayers((*j)["data"], currentMap_.width, currentMap_.height);
+            }
+            if (j->contains("events")) {
+                currentMap_.events = jsonToValue((*j)["events"]);
+            } else {
+                currentMap_.events = Value::Arr({});
+            }
+
+            impl_->loadedMapId = mapId;
+            return true;
+        }
+    }
+
+    currentMap_.width = 20;
     currentMap_.height = 15;
     currentMap_.tilesetId = 1;
-    
-    // Fill with mock data matching the previous LoadToNative logic
-    currentMap_.data.clear();
-    currentMap_.data.resize(6, std::vector<int32_t>(300, 0)); // 6 layers, 20x15=300
+    currentMap_.events = Value::Arr({});
 
+    currentMap_.data.clear();
+    currentMap_.data.resize(6, std::vector<int32_t>(300, 0));
     for (int i = 0; i < 300; ++i) {
-        int x = i % 20;
-        int y = i / 20;
-        if (x == 0 || x == 19 || y == 0 || y == 14) {
-            currentMap_.data[0][i] = 1; // Wall ID
-        } else {
-            currentMap_.data[0][i] = 0; // Floor ID
-        }
+        const int x = i % 20;
+        const int y = i / 20;
+        currentMap_.data[0][i] = (x == 0 || x == 19 || y == 0 || y == 14) ? 1 : 0;
     }
 
     impl_->loadedMapId = mapId;
@@ -868,12 +987,40 @@ const TilesetData* DataManager::getTileset(int32_t id) const {
 }
 
 Value DataManager::getMapDataAsValue() const {
-    // Return the currentMap_ as a Value object for JavaScript
-    return Value::Nil(); 
+    if (impl_->loadedMapId == 0) {
+        return Value::Nil();
+    }
+
+    Object obj;
+    obj["id"] = Value::Int(currentMap_.id);
+    obj["width"] = Value::Int(currentMap_.width);
+    obj["height"] = Value::Int(currentMap_.height);
+    obj["tilesetId"] = Value::Int(currentMap_.tilesetId);
+
+    Array layers;
+    layers.reserve(currentMap_.data.size());
+    for (const auto& layer : currentMap_.data) {
+        Array layerValues;
+        layerValues.reserve(layer.size());
+        for (int32_t tileId : layer) {
+            layerValues.push_back(Value::Int(tileId));
+        }
+        layers.push_back(Value::Arr(std::move(layerValues)));
+    }
+    obj["data"] = Value::Arr(std::move(layers));
+    obj["events"] = currentMap_.events;
+    return Value::Obj(std::move(obj));
 }
 
 Value DataManager::getTilesetsAsValue() const {
-    return Value::Nil();
+    Array arr;
+    for (const auto& tileset : tilesets_) {
+        if (tileset.id <= 0) {
+            continue;
+        }
+        arr.push_back(Value::Obj(tilesetToObject(tileset)));
+    }
+    return Value::Arr(std::move(arr));
 }
 
 // ============================================================================
@@ -1256,13 +1403,17 @@ void DataManager::incrementSteps() {
 }
 
 void DataManager::updateActorHp(int32_t actorId, int32_t hp) {
-    // MZ actor state is typically stored in $gameActors via the bridge.
-    // However, our GlobalState::actors is a vector of Value.
-    // For Phase 8 placeholder logic, we ensure the actor exists in the hub.
+    auto* actor = getActor(actorId);
+    if (!actor) return;
+    const int32_t maxHp = std::max(1, getActorParam(actorId, 0, actor->level));
+    actor->hp = std::clamp(hp, 0, maxHp);
 }
 
 void DataManager::updateActorMp(int32_t actorId, int32_t mp) {
-    // Similarly for MP
+    auto* actor = getActor(actorId);
+    if (!actor) return;
+    const int32_t maxMp = std::max(0, getActorParam(actorId, 1, actor->level));
+    actor->mp = std::clamp(mp, 0, maxMp);
 }
 
 void DataManager::gainExp(int32_t actorId, int32_t exp) {
@@ -1619,7 +1770,16 @@ Value DataManager::getClassesAsValue() const {
     return Value::Arr(std::move(arr));
 }
 
-Value DataManager::getMapInfosAsValue() const { return Value::Arr({}); }
+Value DataManager::getMapInfosAsValue() const {
+    Array arr;
+    for (const auto& info : mapInfos_) {
+        if (info.id <= 0) {
+            continue;
+        }
+        arr.push_back(Value::Obj(mapInfoToObject(info)));
+    }
+    return Value::Arr(std::move(arr));
+}
 
 Value DataManager::getGlobalStateAsValue() const {
     Object obj;

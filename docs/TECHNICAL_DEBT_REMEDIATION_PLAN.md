@@ -1,6 +1,6 @@
-﻿# Technical Debt Remediation Plan
+# Technical Debt Remediation Plan
 
-> **Document status:** Fifth-pass revision â€” canonical remediation hub as of 2026-04-18.
+> **Document status:** Sixth-pass revision — canonical remediation hub as of 2026-04-18.
 > Incorporates stale-state debt, placeholder export-surface debt, documentation/test drift findings, the external-repository intake program defined in [URPG_repo_intake_plan.md](../URPG_repo_intake_plan.md), and the private-use asset intake program defined in [URPG_private_asset_intake_plan.md](../URPG_private_asset_intake_plan.md).
 > This revision also absorbs the newly added PGMMV and native-absorption planning inputs into the remediation program so roadmap expansion, truthfulness, and execution governance share one canonical hub.
 
@@ -11,43 +11,45 @@
 1. [Purpose](#purpose)
 2. [Audit Method](#audit-method)
 3. [Priority Legend](#priority-legend)
-4. [Current State Summary](#current-state-summary)
-5. [Priority Findings](#priority-findings)
-   - [P0-01 â€” Build Integrity: Active Compile Blockers](#p0-01--build-integrity-active-compile-blockers)
-   - [P1-01 â€” QuickJS Layer Is A Stub Kernel, Not A Runtime](#p1-01--quickjs-layer-is-a-stub-kernel-not-a-runtime)
-   - [P1-02 â€” Compat Status Inflation Across Multiple Subsystems](#p1-02--compat-status-inflation-across-multiple-subsystems)
-   - [P1-03 â€” Audio SE Channel Lifetime Leak](#p1-03--audio-se-channel-lifetime-leak)
-   - [P1-04 â€” Battle Turn-Condition Correctness Bug](#p1-04--battle-turn-condition-correctness-bug)
-   - [P2-01 â€” Diagnostics Workspace Reports More Than It Renders](#p2-01--diagnostics-workspace-reports-more-than-it-renders)
-   - [P2-02 â€” Diagnostics Runtime Binding Is One-Way and Leaves Stale State](#p2-02--diagnostics-runtime-binding-is-one-way-and-leaves-stale-state)
-   - [P2-03 â€” Audio and Migration Diagnostics Are Scaffolding, Not Product](#p2-03--audio-and-migration-diagnostics-are-scaffolding-not-product)
-   - [P2-04 â€” Test and Build Registration Drift](#p2-04--test-and-build-registration-drift)
-   - [P2-05 â€” Menu Serialization Is Import-Only, Not Round-Trippable](#p2-05--menu-serialization-is-import-only-not-round-trippable)
-   - [P2-06 â€” Presentation and Spatial Claims Exceed Build Graph Evidence](#p2-06--presentation-and-spatial-claims-exceed-build-graph-evidence)
-   - [P2-07 â€” Native Plugin API Is A Mock Bridge, Not A Real Integration](#p2-07--native-plugin-api-is-a-mock-bridge-not-a-real-integration)
-   - [P2-08 â€” Cloud Sync Documentation Overstates Implementation Readiness](#p2-08--cloud-sync-documentation-overstates-implementation-readiness)
-   - [P2-09 â€” Async Plugin Callbacks Lack Thread-Affinity Guarantees](#p2-09--async-plugin-callbacks-lack-thread-affinity-guarantees)
-   - [P2-10 â€” Native-Absorption And PGMMV Planning Drift Sits Outside Canonical Remediation Governance](#p2-10--native-absorption-and-pgmmv-planning-drift-sits-outside-canonical-remediation-governance)
-   - [P3-01 â€” Hidden Ownership Shortcuts in Runtime Services](#p3-01--hidden-ownership-shortcuts-in-runtime-services)
-   - [P3-02 â€” External Repository Intake Needs Canonical Governance](#p3-02--external-repository-intake-needs-canonical-governance)
-   - [P3-03 â€” Private-Use Asset Intake Needs Canonical Governance](#p3-03--private-use-asset-intake-needs-canonical-governance)
-6. [Findings That Change Prioritization](#findings-that-change-prioritization)
-7. [Remediation Principles](#remediation-principles)
-8. [Phase Plan](#phase-plan)
-   - [Phase 0 â€” Restore Build Integrity and Baseline Truth](#phase-0--restore-build-integrity-and-baseline-truth)
-   - [Phase 1 â€” Make Status Labels and Surface Claims Honest](#phase-1--make-status-labels-and-surface-claims-honest)
-   - [Phase 2 â€” Fix Correctness and Runtime Closure in the Highest-Value Paths](#phase-2--fix-correctness-and-runtime-closure-in-the-highest-value-paths)
-   - [Phase 3 â€” Make Editor and Diagnostics Surfaces Truthful, Stateful, and Usable](#phase-3--make-editor-and-diagnostics-surfaces-truthful-stateful-and-usable)
-   - [Phase 4 â€” Reconcile Build Graph, Tests, Docs, Exported Surfaces, and Canonical Planning](#phase-4--reconcile-build-graph-tests-docs-exported-surfaces-and-canonical-planning)
-   - [Phase 5 â€” Harden Ownership, Concurrency, and Performance](#phase-5--harden-ownership-concurrency-and-performance)
-9. [Phase Summary and Dependencies](#phase-summary-and-dependencies)
-10. [Verification Plan](#verification-plan)
-11. [Risk Register](#risk-register)
-12. [Documentation Alignment Tasks](#documentation-alignment-tasks)
-13. [Ownership Matrix](#ownership-matrix)
-14. [Definition of Done](#definition-of-done)
-15. [Recommended Execution Order](#recommended-execution-order)
-16. [Change Log](#change-log)
+4. [Finding Status at a Glance](#finding-status-at-a-glance)
+5. [Current State Summary](#current-state-summary)
+6. [Priority Findings](#priority-findings)
+   - [P0-01 — Build Integrity: Active Compile Blockers](#p0-01--build-integrity-active-compile-blockers)
+   - [P1-01 — QuickJS Layer Is A Stub Kernel, Not A Runtime](#p1-01--quickjs-layer-is-a-stub-kernel-not-a-runtime)
+   - [P1-02 — Compat Status Inflation Across Multiple Subsystems](#p1-02--compat-status-inflation-across-multiple-subsystems)
+   - [P1-03 — Audio SE Channel Lifetime Leak](#p1-03--audio-se-channel-lifetime-leak)
+   - [P1-04 — Battle Turn-Condition Correctness Bug](#p1-04--battle-turn-condition-correctness-bug)
+   - [P2-01 — Diagnostics Workspace Reports More Than It Renders](#p2-01--diagnostics-workspace-reports-more-than-it-renders)
+   - [P2-02 — Diagnostics Runtime Binding Is One-Way and Leaves Stale State](#p2-02--diagnostics-runtime-binding-is-one-way-and-leaves-stale-state)
+   - [P2-03 — Audio and Migration Diagnostics Are Scaffolding, Not Product](#p2-03--audio-and-migration-diagnostics-are-scaffolding-not-product)
+   - [P2-04 — Test and Build Registration Drift](#p2-04--test-and-build-registration-drift)
+   - [P2-05 — Menu Serialization Is Import-Only, Not Round-Trippable](#p2-05--menu-serialization-is-import-only-not-round-trippable)
+   - [P2-06 — Presentation and Spatial Claims Exceed Build Graph Evidence](#p2-06--presentation-and-spatial-claims-exceed-build-graph-evidence)
+   - [P2-07 — Native Plugin API Is A Mock Bridge, Not A Real Integration](#p2-07--native-plugin-api-is-a-mock-bridge-not-a-real-integration)
+   - [P2-08 — Cloud Sync Documentation Overstates Implementation Readiness](#p2-08--cloud-sync-documentation-overstates-implementation-readiness)
+   - [P2-09 — Async Plugin Callbacks Lack Thread-Affinity Guarantees](#p2-09--async-plugin-callbacks-lack-thread-affinity-guarantees)
+   - [P2-10 — Native-Absorption And PGMMV Planning Drift Sits Outside Canonical Remediation Governance](#p2-10--native-absorption-and-pgmmv-planning-drift-sits-outside-canonical-remediation-governance)
+   - [P3-01 — Hidden Ownership Shortcuts in Runtime Services](#p3-01--hidden-ownership-shortcuts-in-runtime-services)
+   - [P3-02 — External Repository Intake Needs Canonical Governance](#p3-02--external-repository-intake-needs-canonical-governance)
+   - [P3-03 — Private-Use Asset Intake Needs Canonical Governance](#p3-03--private-use-asset-intake-needs-canonical-governance)
+7. [Findings That Change Prioritization](#findings-that-change-prioritization)
+8. [Remediation Principles](#remediation-principles)
+9. [Phase Plan](#phase-plan)
+   - [Phase 0 — Restore Build Integrity and Baseline Truth](#phase-0--restore-build-integrity-and-baseline-truth)
+   - [Phase 1 — Make Status Labels and Surface Claims Honest](#phase-1--make-status-labels-and-surface-claims-honest)
+   - [Phase 2 — Fix Correctness and Runtime Closure in the Highest-Value Paths](#phase-2--fix-correctness-and-runtime-closure-in-the-highest-value-paths)
+   - [Phase 3 — Make Editor and Diagnostics Surfaces Truthful, Stateful, and Usable](#phase-3--make-editor-and-diagnostics-surfaces-truthful-stateful-and-usable)
+   - [Phase 4 — Reconcile Build Graph, Tests, Docs, Exported Surfaces, and Canonical Planning](#phase-4--reconcile-build-graph-tests-docs-exported-surfaces-and-canonical-planning)
+   - [Phase 5 — Harden Ownership, Concurrency, and Performance](#phase-5--harden-ownership-concurrency-and-performance)
+10. [Phase Summary and Dependencies](#phase-summary-and-dependencies)
+11. [Verification Plan](#verification-plan)
+12. [Risk Register](#risk-register)
+13. [Documentation Alignment Tasks](#documentation-alignment-tasks)
+14. [Documentation File Tree](#documentation-file-tree)
+15. [Ownership Matrix](#ownership-matrix)
+16. [Definition of Done](#definition-of-done)
+17. [Recommended Execution Order](#recommended-execution-order)
+18. [Change Log](#change-log)
 
 ---
 
@@ -92,11 +94,41 @@ This revision reflects five audit passes across:
 
 ---
 
+## Finding Status at a Glance
+
+Quick-reference table for current finding status. Use this to assess open work without reading each finding in full.
+
+| ID | Title | Status | Phase |
+|----|-------|--------|-------|
+| P0-01 | Build Integrity: Active Compile Blockers | ⚠ Open | Phase 0 |
+| P1-01 | QuickJS Layer Is A Stub Kernel, Not A Runtime | ✅ Remediated (Path B) | Phase 2 WS 2.1 |
+| P1-02 | Compat Status Inflation Across Multiple Subsystems | ✅ Remediated | Phase 1 |
+| P1-03 | Audio SE Channel Lifetime Leak | ✅ Remediated | Phase 2 WS 2.3 |
+| P1-04 | Battle Turn-Condition Correctness Bug | ✅ Remediated | Phase 2 WS 2.2 |
+| P2-01 | Diagnostics Workspace Reports More Than It Renders | ✅ Remediated | Phase 3 |
+| P2-02 | Diagnostics Runtime Binding Is One-Way and Leaves Stale State | ✅ Remediated | Phase 3 |
+| P2-03 | Audio and Migration Diagnostics Are Scaffolding, Not Product | ⚠ Partially Remediated | Phase 3 |
+| P2-04 | Test and Build Registration Drift | ✅ Remediated | Phase 4 |
+| P2-05 | Menu Serialization Is Import-Only, Not Round-Trippable | ✅ Remediated | Phase 2 WS 2.5 |
+| P2-06 | Presentation and Spatial Claims Exceed Build Graph Evidence | ✅ Remediated (Incubating declared) | Phase 4 |
+| P2-07 | Native Plugin API Is A Mock Bridge, Not A Real Integration | ✅ Remediated (stub-labeled) | Phase 1 / Phase 5 |
+| P2-08 | Cloud Sync Documentation Overstates Implementation Readiness | ✅ Remediated | Phase 1 |
+| P2-09 | Async Plugin Callbacks Lack Thread-Affinity Guarantees | ✅ Remediated | Phase 5 |
+| P2-10 | Native-Absorption and PGMMV Planning Drift Sits Outside Canonical Remediation Governance | ⚠ Partially Remediated | Phase 4.3 |
+| P3-01 | Hidden Ownership Shortcuts in Runtime Services | ✅ Remediated | Phase 5 |
+| P3-02 | External Repository Intake Needs Canonical Governance | ⚠ Partially Remediated | Phase 4.1 |
+| P3-03 | Private-Use Asset Intake Needs Canonical Governance | ⚠ Partially Remediated | Phase 4.2 |
+
+**Legend:** ✅ Remediated — work is complete and verified. ⚠ Open or Partially Remediated — work is in progress or not yet started.
+
+
+---
+
 ## Current State Summary
 
 The debt picture is broader than "unfinished features." Four distinct categories are present simultaneously:
 
-**Stubbed subsystems described as complete.** [quickjs_runtime.cpp](../runtimes/compat_js/quickjs_runtime.cpp), large parts of [window_compat.cpp](../runtimes/compat_js/window_compat.cpp), and key slices of [data_manager.cpp](../runtimes/compat_js/data_manager.cpp) and [battle_manager.cpp](../runtimes/compat_js/battle_manager.cpp) are effectively stubs but are not described as such.
+**Stubbed subsystems described as complete.** [quickjs_runtime.cpp](../runtimes/compat_js/quickjs_runtime.cpp) and key slices of [data_manager.cpp](../runtimes/compat_js/data_manager.cpp) and [battle_manager.cpp](../runtimes/compat_js/battle_manager.cpp) were the highest-risk examples at audit time. [window_compat.cpp](../runtimes/compat_js/window_compat.cpp) has since moved materially beyond the earlier placeholder/input-stub state, but it still remains a compat-layer partial implementation rather than a production-native UI runtime.
 
 **Partially functional subsystems that are oversold.** [audio_manager.cpp](../runtimes/compat_js/audio_manager.cpp) is now honestly labeled `PARTIAL`, but it still remains a deterministic compat harness rather than a live audio backend and must continue to be described that way.
 
@@ -108,7 +140,7 @@ The debt picture is broader than "unfinished features." Four distinct categories
 
 **Private-use asset acceleration without an integrated governance lane would create a second intake blind spot.** [URPG_private_asset_intake_plan.md](../URPG_private_asset_intake_plan.md) now defines a structured path for staging, normalizing, promoting, and documenting private-use assets from both direct-ingest and discovery repositories. That work also belongs inside remediation because ad hoc asset drops would pollute fixtures, blur provenance, and make "more realistic" editor/runtime surfaces less trustworthy rather than more complete.
 
-**Planning authority is now at risk of splitting across multiple documents.** [URPG_MASTER_NATIVE_ABSORPTION_AND_PGMMV_ROADMAP_2026-04-18.md](../URPG_MASTER_NATIVE_ABSORPTION_AND_PGMMV_ROADMAP_2026-04-18.md) and [URPG_PGMMV_SUPPORT_PLAN.md](../URPG_PGMMV_SUPPORT_PLAN.md) add real scope, but until that scope is normalized into this remediation hub and the canonical status docs, the repo has parallel phase vocabularies, parallel truthfulness rules, and no shared Definition-of-Done hooks for the new work.
+**Planning authority is now at risk of splitting across multiple documents.** [URPG_MASTER_NATIVE_ABSORPTION_AND_PGMMV_ROADMAP_2026-04-18.md](./archive/planning/URPG_MASTER_NATIVE_ABSORPTION_AND_PGMMV_ROADMAP_2026-04-18.md) and [URPG_PGMMV_SUPPORT_PLAN.md](./archive/planning/URPG_PGMMV_SUPPORT_PLAN.md) add real scope, but until that scope is normalized into this remediation hub and the canonical status docs, the repo has parallel phase vocabularies, parallel truthfulness rules, and no shared Definition-of-Done hooks for the new work.
 
 **What this plan does NOT cover:**
 - New feature development not related to closing existing gaps.
@@ -121,11 +153,11 @@ The debt picture is broader than "unfinished features." Four distinct categories
 
 ## Priority Findings
 
-Each finding is structured as: **Impact â†’ Root Cause â†’ Required Action â†’ Owner â†’ Exit Criteria.**
+Each finding is structured as: **Impact → Root Cause → Required Action → Owner → Exit Criteria.**
 
 ---
 
-### P0-01 â€” Build Integrity: Active Compile Blockers
+### P0-01 — Build Integrity: Active Compile Blockers
 
 **Impact:** The current tree does not build cleanly. Until `urpg_core` compiles, every downstream remediation finding is partially speculative because the repo cannot prove regressions or closure.
 
@@ -149,7 +181,7 @@ Each finding is structured as: **Impact â†’ Root Cause â†’ Required Ac
 
 ---
 
-### P1-01 â€” QuickJS Layer Is A Stub Kernel, Not A Runtime
+### P1-01 — QuickJS Layer Is A Stub Kernel, Not A Runtime
 
 **Status (2026-04-17):** Remediated via Path B. The QuickJS compat layer is now explicitly documented and tested as a fixture-backed compat-contract harness, not a production JS runtime.
 
@@ -179,18 +211,18 @@ Each finding is structured as: **Impact â†’ Root Cause â†’ Required Ac
 
 ---
 
-### P1-02 â€” Compat Status Inflation Across Multiple Subsystems
+### P1-02 — Compat Status Inflation Across Multiple Subsystems
 
 **Impact:** `CompatStatus::FULL` labels on stub or placeholder methods cause downstream code and planning documents to treat these subsystems as production-ready. This makes bugs harder to triage and planning harder to trust.
 
-**Root cause â€” per file:**
+**Root cause — per file:**
 
 | File | Problem |
 |------|---------|
 | [data_manager.cpp](../runtimes/compat_js/data_manager.cpp) | Advertises broad `FULL` support while key database loaders are `TODO` and several accessors return nil, null, or canned values. |
 | [battle_manager.cpp](../runtimes/compat_js/battle_manager.cpp) | Troop loading, animation, battle-event processing, reward distribution, drop handling, and switch checks are unfinished. |
-| [window_compat.cpp](../runtimes/compat_js/window_compat.cpp) | Placeholder contents creation, icon drawing, actor metadata drawing, gauge rendering, character sprite rendering, input wiring, and bitmap lifecycle are incomplete. |
-| [audio_manager.h/.cpp](../runtimes/compat_js/audio_manager.cpp) | AudioManager is now honestly labeled `PARTIAL` and covers deterministic playback position, duck/unduck ramps, applied mix scaling, and live compat bindings, but it still models a deterministic harness rather than a live mixer/backend. |
+| [window_compat.cpp](../runtimes/compat_js/window_compat.cpp) | Renderer command emission, selectable-window pointer semantics, and compat bitmap metadata are now real, but the contents bitmap still has no pixel buffer and some drag/multi-touch nuances remain simplified. |
+| [audio_manager.cpp](../runtimes/compat_js/audio_manager.cpp) | AudioManager is now honestly labeled `PARTIAL` and covers deterministic playback position, duck/unduck ramps, applied mix scaling, and live compat bindings, but it still models a deterministic harness rather than a live mixer/backend. |
 
 **Required action:**
 - Audit all `CompatStatus::FULL` claims in the files above plus [plugin_manager.cpp](../runtimes/compat_js/plugin_manager.cpp).
@@ -213,14 +245,15 @@ Each finding is structured as: **Impact â†’ Root Cause â†’ Required Ac
 - [plugin_manager.cpp](../runtimes/compat_js/plugin_manager.cpp): 30 inflated `CompatStatus::FULL` labels downgraded to `PARTIAL` (plugin lifecycle, command registry, parameters, dependencies, event handlers, execution state, error handling, and diagnostics are all fixture-backed compat-bridge logic, not live engine integration).
 - [data_manager.cpp](../runtimes/compat_js/data_manager.cpp): all inflated `CompatStatus::FULL` labels downgraded to `PARTIAL` (`loadDatabase` and database accessors return hardcoded mock data; save/load is in-memory only; plugin commands are an in-memory callback map).
 - Corresponding unit tests in `test_audio_manager.cpp`, `test_data_manager.cpp`, `test_plugin_manager.cpp`, and `test_window_compat.cpp` updated to assert honest statuses.
+- Continued 2026-04-18 closure in [window_compat.cpp](../runtimes/compat_js/window_compat.cpp): `Window_Selectable` now supports keyboard/gamepad navigation, pointer press/drag/release hit-testing, drag retargeting, drag-scroll, and mouse-wheel scrolling through `InputManager`; `Window_Base::contents()` now allocates compat bitmap metadata records whose dimensions stay synchronized with live rect/padding state.
 
 ---
 
-### P1-03 â€” Audio SE Channel Lifetime Leak
+### P1-03 — Audio SE Channel Lifetime Leak
 
 **Status (2026-04-16):** Remediated. SE channels now complete deterministically in compat audio updates and are reclaimed without requiring an explicit `stopSe()` call.
 
-**Impact:** Sound-effect channels accumulate indefinitely during normal gameplay, causing a real performance and resource leak. This is not a cosmetic TODO â€” it can degrade runtime behavior in any session that plays multiple sound effects.
+**Impact:** Sound-effect channels accumulate indefinitely during normal gameplay, causing a real performance and resource leak. This is not a cosmetic TODO — it can degrade runtime behavior in any session that plays multiple sound effects.
 
 **Root cause:**
 - [audio_manager.cpp](../runtimes/compat_js/audio_manager.cpp) creates a fresh SE channel for every sound effect.
@@ -252,7 +285,7 @@ Each finding is structured as: **Impact â†’ Root Cause â†’ Required Ac
 
 ---
 
-### P1-04 â€” Battle Turn-Condition Correctness Bug
+### P1-04 — Battle Turn-Condition Correctness Bug
 
 **Impact:** `checkTurnCondition()` produces incorrect turn-cadence results in shipped battle logic, even in a green build. Span `1` always passes after the first threshold; periodic cadence for span `2` is not correctly modeled. This is a behavioral correctness bug, not missing content.
 
@@ -277,7 +310,7 @@ Each finding is structured as: **Impact â†’ Root Cause â†’ Required Ac
 
 ---
 
-### P2-01 â€” Diagnostics Workspace Reports More Than It Renders
+### P2-01 — Diagnostics Workspace Reports More Than It Renders
 
 **Impact:** The workspace claims nine usable diagnostic tabs, but several tabs either render nothing or are commented out. This misleads users and planning documents about actual editor capability.
 
@@ -313,7 +346,7 @@ Do not leave the workspace counting tabs that do not render.
 
 ---
 
-### P2-02 â€” Diagnostics Runtime Binding Is One-Way and Leaves Stale State
+### P2-02 — Diagnostics Runtime Binding Is One-Way and Leaves Stale State
 
 **Impact:** Diagnostics can report outdated or incorrect runtime state after a runtime has changed or been detached, even without a crash. This erodes trust in the workspace as a diagnostic tool over time.
 
@@ -345,7 +378,7 @@ Do not leave the workspace counting tabs that do not render.
 
 ---
 
-### P2-03 â€” Audio and Migration Diagnostics Are Scaffolding, Not Product
+### P2-03 — Audio and Migration Diagnostics Are Scaffolding, Not Product
 
 **Impact:** Tests for these subsystems validate scaffolding behavior (empty summaries, visibility toggles, model counts) rather than live behavior. This creates false confidence that these areas are verified when they are not.
 
@@ -389,7 +422,7 @@ Do not leave the workspace counting tabs that do not render.
 - (2026-04-17) [diagnostics_workspace.cpp](../editor/diagnostics/diagnostics_workspace.cpp) now refreshes the migration wizard render snapshot immediately after workspace-driven wizard actions when the wizard tab is active and visible, so [`exportAsJson()`](../editor/diagnostics/diagnostics_workspace.cpp) stays truthful without requiring a separate manual render step. [test_diagnostics_workspace.cpp](../tests/unit/test_diagnostics_workspace.cpp) now asserts this snapshot-coherence behavior for selection, rerun, selective clear, and full clear.
 - (2026-04-17) [diagnostics_workspace.cpp](../editor/diagnostics/diagnostics_workspace.cpp) now refreshes the migration wizard snapshot after failed report loads too, so invalid workspace-level imports do not leave stale wizard state in the exported diagnostics snapshot after the model clears itself. [test_diagnostics_workspace.cpp](../tests/unit/test_diagnostics_workspace.cpp) now asserts this failed-load truthfulness path.
 - (2026-04-17) [test_diagnostics_workspace.cpp](../tests/unit/test_diagnostics_workspace.cpp) now also covers the happy-path `DiagnosticsWorkspace` wizard report save/load round-trip, asserting that selected-subsystem state and exported report JSON survive a workspace-level file round-trip rather than only model/panel-local file I/O.
-- (2026-04-17) [migration_wizard_model.h](../editor/diagnostics/migration_wizard_model.h) now treats â€œclear the last remaining subsystem resultâ€ as a full reset, so selective clear no longer leaves a zero-result wizard falsely marked complete. [test_migration_wizard.cpp](../tests/unit/test_migration_wizard.cpp) and [test_diagnostics_workspace.cpp](../tests/unit/test_diagnostics_workspace.cpp) now assert the empty-state panel/workspace snapshot after that last-result clear path, including disabled save/clear affordances.
+- (2026-04-17) [migration_wizard_model.h](../editor/diagnostics/migration_wizard_model.h) now treats “clear the last remaining subsystem result” as a full reset, so selective clear no longer leaves a zero-result wizard falsely marked complete. [test_migration_wizard.cpp](../tests/unit/test_migration_wizard.cpp) and [test_diagnostics_workspace.cpp](../tests/unit/test_diagnostics_workspace.cpp) now assert the empty-state panel/workspace snapshot after that last-result clear path, including disabled save/clear affordances.
 - (2026-04-17) [migration_wizard_model.h](../editor/diagnostics/migration_wizard_model.h), [migration_wizard_panel.h](../editor/diagnostics/migration_wizard_panel.h), and [diagnostics_workspace.h](../editor/diagnostics/diagnostics_workspace.h) now expose selection-scoped wizard actions (`rerunSelectedSubsystem(...)`, `clearSelectedSubsystemResult()` and workspace forwards), so the richer wizard workflow can act directly on the current selected subsystem instead of requiring consumers to feed the selected id back into id-based actions. The model wrappers now copy the selected id before mutating selection-backed state, and [test_migration_wizard.cpp](../tests/unit/test_migration_wizard.cpp) plus [test_diagnostics_workspace.cpp](../tests/unit/test_diagnostics_workspace.cpp) now cover those selected-action flows.
 - (2026-04-17) [migration_wizard_model.h](../editor/diagnostics/migration_wizard_model.h) now repairs orphaned `selected_subsystem_id` values during report import when the saved selection does not exist in the loaded `subsystem_results`, falling back to the first real subsystem instead of exporting an impossible selected-id shell. [test_migration_wizard.cpp](../tests/unit/test_migration_wizard.cpp) and [test_diagnostics_workspace.cpp](../tests/unit/test_diagnostics_workspace.cpp) now cover this stale-selection import path at the model, panel snapshot, and workspace export layers.
 - (2026-04-17) [diagnostics_workspace.cpp](../editor/diagnostics/diagnostics_workspace.cpp) now exports the migration wizard panel snapshot's aggregate `total_files_processed`, `warning_count`, and `error_count` fields through the top-level `migration_wizard` active-tab detail instead of leaving consumers to infer them from tab summary or subsystem rows. [test_diagnostics_workspace.cpp](../tests/unit/test_diagnostics_workspace.cpp) now verifies those aggregate counts for both a live migration run and a loaded wizard report.
@@ -403,10 +436,10 @@ Do not leave the workspace counting tabs that do not render.
 - (2026-04-17) [diagnostics_workspace.cpp](../editor/diagnostics/diagnostics_workspace.cpp) now refreshes snapshot-backed tabs immediately when they become the active visible diagnostics tab, covering at least `event_authority`, `audio`, and `migration_wizard`. This closes the remaining activation-time stale-export gap for panels whose workspace export reads `lastRenderSnapshot()` rather than direct model state. [test_diagnostics_workspace.cpp](../tests/unit/test_diagnostics_workspace.cpp) now asserts this activation-time snapshot truthfulness path.
 - (2026-04-17) [test_diagnostics_workspace.cpp](../tests/unit/test_diagnostics_workspace.cpp) now also covers hidden-to-visible restoration for a snapshot-backed tab, proving the same activation helper keeps exported detail truthful when the workspace is re-shown, not only when the active tab changes.
 - (2026-04-17) [diagnostics_workspace.h](../editor/diagnostics/diagnostics_workspace.h) and [diagnostics_workspace.cpp](../editor/diagnostics/diagnostics_workspace.cpp) now expose event-authority workflow actions directly at the workspace layer: event-id/level/mode filters, clear-filters, row selection, and next/previous row navigation. The workspace now uses refresh+render for data/filter changes but render-only for selection/navigation so exported event-authority state stays truthful without wiping the current row selection. [test_diagnostics_workspace.cpp](../tests/unit/test_diagnostics_workspace.cpp) now verifies this workspace-level event-authority workflow surface.
-- (2026-04-17) [diagnostics_workspace.h](../editor/diagnostics/diagnostics_workspace.h) and [diagnostics_workspace.cpp](../editor/diagnostics/diagnostics_workspace.cpp) now expose message-inspector workflow actions directly at the workspace layer: route filtering, clear-route-filter, â€œissues onlyâ€ toggling, and row selection. [message_inspector_model.cpp](../editor/message/message_inspector_model.cpp) now preserves selected page id across filter/rebuild cycles when the selected page remains visible, preventing workspace-driven filter changes from dropping `selected_page_id` unnecessarily. [test_diagnostics_workspace.cpp](../tests/unit/test_diagnostics_workspace.cpp) now verifies this workspace-level message workflow surface.
+- (2026-04-17) [diagnostics_workspace.h](../editor/diagnostics/diagnostics_workspace.h) and [diagnostics_workspace.cpp](../editor/diagnostics/diagnostics_workspace.cpp) now expose message-inspector workflow actions directly at the workspace layer: route filtering, clear-route-filter, “issues only” toggling, and row selection. [message_inspector_model.cpp](../editor/message/message_inspector_model.cpp) now preserves selected page id across filter/rebuild cycles when the selected page remains visible, preventing workspace-driven filter changes from dropping `selected_page_id` unnecessarily. [test_diagnostics_workspace.cpp](../tests/unit/test_diagnostics_workspace.cpp) now verifies this workspace-level message workflow surface.
 - (2026-04-17) [diagnostics_workspace.cpp](../editor/diagnostics/diagnostics_workspace.cpp) now exports audio active-tab detail through the same diagnostics JSON snapshot, including master volume and live handle rows from the audio inspector panel snapshot. [test_diagnostics_workspace.cpp](../tests/unit/test_diagnostics_workspace.cpp) now asserts that the `audio` tab exports live row/category data instead of only the tab summary shell.
 - (2026-04-17) [diagnostics_workspace.cpp](../editor/diagnostics/diagnostics_workspace.cpp) now exports menu active-tab detail through the same diagnostics JSON snapshot, including menu inspector summary counts, visible rows, structured issues, selected command id, and menu preview visibility/title state. [test_diagnostics_workspace.cpp](../tests/unit/test_diagnostics_workspace.cpp) now asserts that the `menu` tab exports inspector and preview state instead of only the active-tab name.
-- (2026-04-17) [diagnostics_workspace.h](../editor/diagnostics/diagnostics_workspace.h) and [diagnostics_workspace.cpp](../editor/diagnostics/diagnostics_workspace.cpp) now expose menu-inspector workflow actions directly at the workspace layer: command-id filtering, clear-filter, â€œissues onlyâ€ toggling, and row selection. [menu_inspector_model.cpp](../editor/ui/menu_inspector_model.cpp) now preserves selected command id across filter rebuilds when the selected command remains visible, and the `menu` active-tab export now includes `command_id_filter`, `show_issues_only`, and a structured `selected_row` payload. [test_diagnostics_workspace.cpp](../tests/unit/test_diagnostics_workspace.cpp) now verifies this workspace-level menu workflow surface.
+- (2026-04-17) [diagnostics_workspace.h](../editor/diagnostics/diagnostics_workspace.h) and [diagnostics_workspace.cpp](../editor/diagnostics/diagnostics_workspace.cpp) now expose menu-inspector workflow actions directly at the workspace layer: command-id filtering, clear-filter, “issues only” toggling, and row selection. [menu_inspector_model.cpp](../editor/ui/menu_inspector_model.cpp) now preserves selected command id across filter rebuilds when the selected command remains visible, and the `menu` active-tab export now includes `command_id_filter`, `show_issues_only`, and a structured `selected_row` payload. [test_diagnostics_workspace.cpp](../tests/unit/test_diagnostics_workspace.cpp) now verifies this workspace-level menu workflow surface.
 - (2026-04-17) [menu_inspector_panel.h](../editor/ui/menu_inspector_panel.h) and [menu_inspector_panel.cpp](../editor/ui/menu_inspector_panel.cpp) now capture a real render snapshot for the menu diagnostics surface, replacing the remaining placeholder registry/scene/selection sections with model-backed panel state and selected-command detail. [menu_inspector_model.cpp](../editor/ui/menu_inspector_model.cpp) now preserves selected command identity even when the selected command is filtered or hidden, so workspace-driven menu filtering stays actionable instead of dropping selection state. [diagnostics_workspace.cpp](../editor/diagnostics/diagnostics_workspace.cpp) now refreshes and exports the `menu` tab from that rendered snapshot when active, and [test_menu_inspector_panel.cpp](../tests/unit/test_menu_inspector_panel.cpp), [test_menu_inspector_model.cpp](../tests/unit/test_menu_inspector_model.cpp), and [test_diagnostics_workspace.cpp](../tests/unit/test_diagnostics_workspace.cpp) now verify the panel snapshot, hidden-selection persistence, and snapshot-backed workspace export path.
 - (2026-04-17) [menu_preview_panel.h](../editor/ui/menu_preview_panel.h) and [menu_preview_panel.cpp](../editor/ui/menu_preview_panel.cpp) now capture a real menu-preview render snapshot, including active scene id, visible pane entries, selected-command ids, and pane command lists instead of exposing only panel title/visibility. [diagnostics_workspace.cpp](../editor/diagnostics/diagnostics_workspace.cpp) now refreshes and exports that preview snapshot through the `menu` tab's `preview` payload when active, and [test_menu_preview_panel.cpp](../tests/unit/test_menu_preview_panel.cpp) plus [test_diagnostics_workspace.cpp](../tests/unit/test_diagnostics_workspace.cpp) now verify the richer preview workflow surface.
 - (2026-04-17) [diagnostics_workspace.h](../editor/diagnostics/diagnostics_workspace.h) and [diagnostics_workspace.cpp](../editor/diagnostics/diagnostics_workspace.cpp) now expose `dispatchMenuPreviewAction(InputAction)` at the workspace layer, allowing the diagnostics menu tab to drive preview-side navigation/confirm flows instead of only observing state. The workspace now keeps both [menu_inspector_model.cpp](../editor/ui/menu_inspector_model.cpp) and [menu_preview_panel.cpp](../editor/ui/menu_preview_panel.cpp) coherent from the same mutable `MenuSceneGraph`, and the preview snapshot/export now carries `last_blocked_command_id` and `last_blocked_reason` so blocked confirm behavior is diagnosable from the surfaced workflow. [test_diagnostics_workspace.cpp](../tests/unit/test_diagnostics_workspace.cpp) now verifies command navigation, pane navigation, and blocked-command export through the workspace-level preview action surface.
@@ -418,16 +451,16 @@ Do not leave the workspace counting tabs that do not render.
 
 ---
 
-### P2-04 â€” Test and Build Registration Drift
+### P2-04 — Test and Build Registration Drift
 
 **Impact:** Tests that are not registered are not run. Tests that assert wrong counts or stale structure pass while hiding real regressions. Duplicate test files create confusion about what is actually tested.
 
 **Root cause:**
-- [test_diagnostics_workspace.cpp](../tests/unit/test_diagnostics_workspace.cpp) now asserts the current 9-tab workspace/export shape, including `audio` and `migration_wizard` in the serialized diagnostics snapshot.
-- [test_spatial_editor.cpp](../tests/unit/test_spatial_editor.cpp) is now registered in [CMakeLists.txt](../CMakeLists.txt) and participates in the active `urpg_tests` lane plus the focused spatial/presentation gates.
-- Historical duplicate test drift has been resolved: [test_compat_report_panel.cpp](../tests/unit/test_compat_report_panel.cpp) is the single retained compat-report panel test surface and the stale unregistered `test_compat_reportPanel.cpp` file has been removed.
-- [test_audio_manager.cpp](../tests/unit/test_audio_manager.cpp) now reinforces the honest `PARTIAL` status story with explicit regressions for channel growth, deterministic playback progression, applied mix scaling, ducking, and live QuickJS bridge routing.
-- `test_menu_orchestration.cpp` was present on disk but not registered in CMakeLists.txt.
+- No enforcement mechanism existed to ensure every test file on disk was registered in [CMakeLists.txt](../CMakeLists.txt), allowing tests to silently go unrun.
+- Manually maintained registration lists drift over time as files are added, renamed, or split without a corresponding CMakeLists.txt update.
+- Duplicate test files accumulate when new coverage is added alongside rather than replacing old test files (e.g., `test_compat_reportPanel.cpp` vs `test_compat_report_panel.cpp`).
+- Test assertions against workspace shape or tab counts are not automatically updated when the workspace structure changes, so they silently pass while covering a stale surface.
+- `test_menu_orchestration.cpp` was present on disk but not registered in [CMakeLists.txt](../CMakeLists.txt) and therefore never executed.
 
 **Required action:**
 - Keep `test_diagnostics_workspace.cpp` aligned with the current 9-tab workspace/export shape as diagnostics surfaces evolve.
@@ -452,7 +485,7 @@ Do not leave the workspace counting tabs that do not render.
 
 ---
 
-### P2-05 â€” Menu Serialization Is Import-Only, Not Round-Trippable
+### P2-05 — Menu Serialization Is Import-Only, Not Round-Trippable
 
 **Impact:** Menu authoring is a one-way lane. Menus can be imported but not exported, which prevents round-trip tooling, integration testing, and any workflow that depends on save-reload fidelity.
 
@@ -472,17 +505,17 @@ Do not leave the workspace counting tabs that do not render.
 
 **Exit criteria:**
 - `Serialize()` produces non-empty output for at least one registered menu structure.
-- A round-trip test (serialize â†’ deserialize â†’ compare) passes.
+- A round-trip test (serialize → deserialize → compare) passes.
 - The preview panel is either surfaced in a workflow or removed with rationale.
 
 **Resolution evidence (2026-04-16):**
 - `MenuSceneGraph` now exposes registered-scene enumeration and `MenuSceneSerializer::Serialize()` emits a non-empty native menu scene definition.
-- `tests/unit/test_menu_legacy_import.cpp` now includes serialize â†’ deserialize round-trip coverage for native menu graphs.
+- `tests/unit/test_menu_legacy_import.cpp` now includes serialize → deserialize round-trip coverage for native menu graphs.
 - `MenuPreviewPanel` is now surfaced through `DiagnosticsWorkspace`, and menu diagnostics integration coverage asserts the panel is visible on the menu workflow tab.
 
 ---
 
-### P2-06 â€” Presentation and Spatial Claims Exceed Build Graph Evidence
+### P2-06 — Presentation and Spatial Claims Exceed Build Graph Evidence
 
 **Impact:** Documentation describes presentation and spatial work at a higher completion level than the build graph supports. This makes it impossible to trust project status documents as planning inputs.
 
@@ -499,7 +532,7 @@ Do not leave the workspace counting tabs that do not render.
 **Owner:** Tech lead or release owner.
 
 **Exit criteria:**
-- `engine/core/presentation/*` and `editor/spatial/*` are either built, registered, and tested â€” or explicitly documented as incubating.
+- `engine/core/presentation/*` and `editor/spatial/*` are either built, registered, and tested — or explicitly documented as incubating.
 - Completion status documents no longer describe unbuilt or unregistered work as shipped.
 
 **Status (2026-04-17):** Remediated via documentation-truth alignment and ADR.
@@ -516,7 +549,7 @@ Do not leave the workspace counting tabs that do not render.
 
 ---
 
-### P2-07 â€” Native Plugin API Is A Mock Bridge, Not A Real Integration
+### P2-07 — Native Plugin API Is A Mock Bridge, Not A Real Integration
 
 **Impact:** Third-party plugin developers relying on [plugin_api.h](../engine/core/editor/plugin_api.h) will encounter an API surface that looks stable but behaves like a mock. This is a trust and integration correctness risk for any external plugin work.
 
@@ -546,7 +579,7 @@ Do not leave the workspace counting tabs that do not render.
 
 ---
 
-### P2-08 â€” Cloud Sync Documentation Overstates Implementation Readiness
+### P2-08 — Cloud Sync Documentation Overstates Implementation Readiness
 
 **Impact:** Documentation describes cloud sync as a live workflow path. Developers and stakeholders reading this documentation may plan or build against a capability that does not exist.
 
@@ -576,7 +609,7 @@ Do not leave the workspace counting tabs that do not render.
 
 ---
 
-### P2-09 â€” Async Plugin Callbacks Lack Thread-Affinity Guarantees
+### P2-09 — Async Plugin Callbacks Lack Thread-Affinity Guarantees
 
 **Impact:** Callbacks from the async worker thread in [plugin_manager.cpp](../runtimes/compat_js/plugin_manager.cpp) may touch editor or gameplay state that assumes a main-thread context, creating a latent race condition or reentrancy risk.
 
@@ -605,13 +638,13 @@ Do not leave the workspace counting tabs that do not render.
 
 ---
 
-### P2-10 â€” Native-Absorption And PGMMV Planning Drift Sits Outside Canonical Remediation Governance
+### P2-10 — Native-Absorption And PGMMV Planning Drift Sits Outside Canonical Remediation Governance
 
 **Impact:** The repo now contains legitimate new execution scope for PGMMV intake, native feature absorption, HD-2D / 2.5D, authoring UX, accessibility, localization, and product-glue systems, but that scope currently lives beside the remediation hub instead of inside it. That creates parallel planning authorities, inconsistent status vocabulary, and a real risk that roadmap claims outrun build, test, migration, and documentation truth gates.
 
 **Root cause:**
-- [URPG_MASTER_NATIVE_ABSORPTION_AND_PGMMV_ROADMAP_2026-04-18.md](../URPG_MASTER_NATIVE_ABSORPTION_AND_PGMMV_ROADMAP_2026-04-18.md) introduces a broad integrated roadmap with new phases, tracks, and status rules.
-- [URPG_PGMMV_SUPPORT_PLAN.md](../URPG_PGMMV_SUPPORT_PLAN.md) defines a full PGMMV intake/migration lane with its own milestones, acceptance matrix, and issue breakdown.
+- [URPG_MASTER_NATIVE_ABSORPTION_AND_PGMMV_ROADMAP_2026-04-18.md](./archive/planning/URPG_MASTER_NATIVE_ABSORPTION_AND_PGMMV_ROADMAP_2026-04-18.md) introduces a broad integrated roadmap with new phases, tracks, and status rules.
+- [URPG_PGMMV_SUPPORT_PLAN.md](./archive/planning/URPG_PGMMV_SUPPORT_PLAN.md) defines a full PGMMV intake/migration lane with its own milestones, acceptance matrix, and issue breakdown.
 - This remediation hub, [PROGRAM_COMPLETION_STATUS.md](./PROGRAM_COMPLETION_STATUS.md), and [NATIVE_FEATURE_ABSORPTION_PLAN.md](./NATIVE_FEATURE_ABSORPTION_PLAN.md) did not previously absorb that scope into one canonical governance chain.
 - The result is not just duplicate docs; it is duplicate execution logic for planning, truthfulness, and release readiness.
 
@@ -639,7 +672,7 @@ Do not leave the workspace counting tabs that do not render.
 
 ---
 
-### P3-01 â€” Hidden Ownership Shortcuts in Runtime Services
+### P3-01 — Hidden Ownership Shortcuts in Runtime Services
 
 **Impact:** Static-local service instances and per-frame full rebuilds make testing harder, determinism unreliable, and performance tuning more expensive. These are not today's highest-risk issues, but they compound other debt over time.
 
@@ -669,7 +702,7 @@ Do not leave the workspace counting tabs that do not render.
 
 ---
 
-### P3-02 â€” External Repository Intake Needs Canonical Governance
+### P3-02 — External Repository Intake Needs Canonical Governance
 
 **Status (2026-04-17):** Partially remediated. Canonical governance artifacts have been created and linked.
 
@@ -716,7 +749,7 @@ Do not leave the workspace counting tabs that do not render.
 
 ---
 
-### P3-03 â€” Private-Use Asset Intake Needs Canonical Governance
+### P3-03 — Private-Use Asset Intake Needs Canonical Governance
 
 **Status (2026-04-17):** Partially remediated. Canonical governance artifacts have been created and linked.
 
@@ -771,9 +804,9 @@ Do not leave the workspace counting tabs that do not render.
 These findings revise the execution order compared to earlier audit passes:
 
 - **[save_runtime.cpp](../engine/core/save/save_runtime.cpp)** should be treated as a verification-and-alignment target, not a full rewrite target. It has real file I/O, recovery-tier handling, and metadata hydration already.
-- **[audio_manager.cpp](../runtimes/compat_js/audio_manager.cpp)** should be split into two tracks: status honesty and lifecycle correctness now (Phase 1â€“2), richer playback semantics later.
+- **[audio_manager.cpp](../runtimes/compat_js/audio_manager.cpp)** should be split into two tracks: status honesty and lifecycle correctness now (Phase 1–2), richer playback semantics later.
 - **The QuickJS lane** should be explicitly scoped as fixture-backed compat scaffolding until real runtime integration exists. Treating it as a runtime while it is a test harness inflates every compat claim that depends on it.
-- **Diagnostics debt** is not just a visibility problem â€” it is a state freshness and truthfulness problem. Treat it as such.
+- **Diagnostics debt** is not just a visibility problem — it is a state freshness and truthfulness problem. Treat it as such.
 - **Plugin API and cloud-sync surfaces** are documentation-truth and export-surface debt, not silently deferrable "future work." They need honest labels now, even if real routing comes later.
 - **Native-absorption and PGMMV roadmap expansion** is not a sidecar planning exercise once it lands in-repo. It becomes remediation-governed truthfulness work immediately and must be normalized before wide execution begins.
 
@@ -790,18 +823,19 @@ These principles govern every remediation decision. When in doubt, refer back to
 5. Tests should prove live behavior where product claims are strong. Placeholder-normalizing tests must not be mistaken for closure.
 6. Any remaining placeholder behavior must be documented as an intentional waiver. Silent acceptance of placeholder behavior is not done.
 7. New roadmap scope is not canonical until remediation, status, and roadmap docs agree on phase placement, truthfulness language, and release gates.
+8. A test that asserts placeholder or scaffolding behavior must be explicitly labeled as such. It may complement, but never substitute for, a test that asserts live product behavior.
 
 ---
 
 ## Phase Plan
 
-### Phase 0 â€” Restore Build Integrity and Baseline Truth
+### Phase 0 — Restore Build Integrity and Baseline Truth
 
 **Goal:** Get the repo compiling cleanly. Stop documentation from assuming closure while the build is broken.
 
 **Depends on:** Nothing. This phase is the prerequisite for all others.
 
-**Effort estimate:** Smallâ€“Medium (hours to a day or two, depending on declaration conflict complexity).
+**Effort estimate:** Small–Medium (hours to a day or two, depending on declaration conflict complexity).
 
 **Scope:**
 - Fix active compile blockers in [global_state_hub.h](../engine/core/global_state_hub.h) (see P0-01).
@@ -818,7 +852,7 @@ These principles govern every remediation decision. When in doubt, refer back to
 
 ---
 
-### Phase 1 â€” Make Status Labels and Surface Claims Honest
+### Phase 1 — Make Status Labels and Surface Claims Honest
 
 **Goal:** Stop overstating compat, editor, export, and completion coverage. Every label and doc claim should be a reliable signal, not noise.
 
@@ -842,7 +876,7 @@ These principles govern every remediation decision. When in doubt, refer back to
 
 ---
 
-### Phase 2 â€” Fix Correctness and Runtime Closure in the Highest-Value Paths
+### Phase 2 — Fix Correctness and Runtime Closure in the Highest-Value Paths
 
 **Goal:** Close the runtime debt that causes incorrect behavior, resource leaks, or feature failure even after the build is green.
 
@@ -850,22 +884,22 @@ These principles govern every remediation decision. When in doubt, refer back to
 
 **Effort estimate:** Large (multiple workstreams; each can proceed independently after Phase 0).
 
-#### Workstream 2.1 â€” QuickJS Scope Clarity (see P1-01)
+#### Workstream 2.1 — QuickJS Scope Clarity (see P1-01)
 - Either integrate a real QuickJS execution path in [quickjs_runtime.cpp](../runtimes/compat_js/quickjs_runtime.cpp), or document it explicitly as a fixture/runtime-contract harness.
 
-#### Workstream 2.2 â€” Battle Correctness (see P1-04)
+#### Workstream 2.2 — Battle Correctness (see P1-04)
 - Fix `checkTurnCondition()` cadence semantics in [battle_manager.cpp](../runtimes/compat_js/battle_manager.cpp).
 - Close troop setup, event processing, reward distribution, switch checks, and drop logic debt.
 
-#### Workstream 2.3 â€” Audio Lifecycle Correctness (see P1-03)
+#### Workstream 2.3 — Audio Lifecycle Correctness (see P1-03)
 - Fix SE channel lifetime cleanup in [audio_manager.cpp](../runtimes/compat_js/audio_manager.cpp).
 - Complete deterministic harness playback-position, duck/unduck, mix-scaling, and live compat-binding semantics without overstating them as live-backend parity.
 
-#### Workstream 2.4 â€” Data and Window Runtime Closure (see P1-02)
+#### Workstream 2.4 — Data and Window Runtime Closure (see P1-02)
 - Replace empty or mock database loading in [data_manager.cpp](../runtimes/compat_js/data_manager.cpp).
-- Finish placeholder rendering and input wiring in [window_compat.cpp](../runtimes/compat_js/window_compat.cpp).
+- Continue shrinking the remaining gap in [window_compat.cpp](../runtimes/compat_js/window_compat.cpp): contents-backed draw accumulation and richer multi-touch/pointer nuance still remain after the now-landed rendering, pointer, and bitmap-metadata closure work.
 
-#### Workstream 2.5 â€” Menu Round-Trip Closure (see P2-05)
+#### Workstream 2.5 — Menu Round-Trip Closure (see P2-05)
 - Implement real serialization in [menu_serializer.cpp](../engine/core/ui/menu_serializer.cpp).
 - Ensure menu authoring supports a complete import/export/reload cycle.
 
@@ -879,13 +913,13 @@ These principles govern every remediation decision. When in doubt, refer back to
 
 ---
 
-### Phase 3 â€” Make Editor and Diagnostics Surfaces Truthful, Stateful, and Usable
+### Phase 3 — Make Editor and Diagnostics Surfaces Truthful, Stateful, and Usable
 
 **Goal:** Bring the editor/diagnostics surface in line with what the workspace claims to offer, and keep those views fresh as runtime state changes.
 
 **Depends on:** Phase 0 (build). Phases 1 and 2 are recommended prior to maximize the usefulness of real runtime data in the workspace.
 
-**Effort estimate:** Mediumâ€“Large.
+**Effort estimate:** Medium–Large.
 
 **Scope:**
 - Maintain honest render reachability for [event_authority_panel.cpp](../editor/diagnostics/event_authority_panel.cpp), the Audio tab, and the Migration Wizard tab, then continue productizing those panels beyond snapshot-backed bodies (see P2-03).
@@ -904,11 +938,11 @@ These principles govern every remediation decision. When in doubt, refer back to
 
 ---
 
-### Phase 4 â€” Reconcile Build Graph, Tests, Docs, Exported Surfaces, and Canonical Planning
+### Phase 4 — Reconcile Build Graph, Tests, Docs, Exported Surfaces, and Canonical Planning
 
 **Goal:** Eliminate drift between what exists in source control, what is compiled, what is tested, what is exported, and what the docs claim.
 
-**Depends on:** Phases 0â€“3 (surface area must be stabilized before a final reconciliation is accurate).
+**Depends on:** Phases 0–3 (surface area must be stabilized before a final reconciliation is accurate).
 
 **Effort estimate:** Medium (primarily audit and cleanup rather than new implementation).
 
@@ -921,7 +955,7 @@ These principles govern every remediation decision. When in doubt, refer back to
 - Stand up private-use asset intake governance from [URPG_private_asset_intake_plan.md](../URPG_private_asset_intake_plan.md) so editor/runtime realism improvements, placeholder replacement, and vertical-slice asset upgrades are sourced through explicit staging, provenance, and promotion rules rather than ad hoc asset drops (see P3-03).
 - Reconcile the newly added PGMMV/native-absorption roadmap inputs with the canonical remediation/status/roadmap set so the repo does not carry parallel execution authorities (see P2-10).
 
-#### Workstream 4.1 â€” External Repository Intake Governance (see P3-02)
+#### Workstream 4.1 — External Repository Intake Governance (see P3-02)
 - Treat [URPG_repo_intake_plan.md](../URPG_repo_intake_plan.md) as the detailed execution plan for external intake.
 - Create and maintain the canonical intake artifacts it calls for:
   - `docs/external-intake/repo-watchlist.md`
@@ -938,7 +972,7 @@ These principles govern every remediation decision. When in doubt, refer back to
   - asset/reference pack handling
   - editor UX reference mining
 
-#### Workstream 4.2 â€” Private-Use Asset Intake Governance (see P3-03)
+#### Workstream 4.2 — Private-Use Asset Intake Governance (see P3-03)
 - Treat [URPG_private_asset_intake_plan.md](../URPG_private_asset_intake_plan.md) as the detailed execution plan for private-use asset intake.
 - Create and maintain the canonical intake artifacts it calls for:
   - `third_party/github_assets/*`
@@ -959,8 +993,8 @@ These principles govern every remediation decision. When in doubt, refer back to
   - curated fantasy-environment vertical slices
   - future asset gap reporting and promotion decisions
 
-#### Workstream 4.3 â€” Canonical Roadmap Integration And Planning Governance (see P2-10)
-- Treat [URPG_MASTER_NATIVE_ABSORPTION_AND_PGMMV_ROADMAP_2026-04-18.md](../URPG_MASTER_NATIVE_ABSORPTION_AND_PGMMV_ROADMAP_2026-04-18.md) and [URPG_PGMMV_SUPPORT_PLAN.md](../URPG_PGMMV_SUPPORT_PLAN.md) as execution-detail inputs that must be absorbed into canonical docs, not left as parallel planning authorities.
+#### Workstream 4.3 — Canonical Roadmap Integration And Planning Governance (see P2-10)
+- Treat [URPG_MASTER_NATIVE_ABSORPTION_AND_PGMMV_ROADMAP_2026-04-18.md](./archive/planning/URPG_MASTER_NATIVE_ABSORPTION_AND_PGMMV_ROADMAP_2026-04-18.md) and [URPG_PGMMV_SUPPORT_PLAN.md](./archive/planning/URPG_PGMMV_SUPPORT_PLAN.md) as execution-detail inputs that must be absorbed into canonical docs, not left as parallel planning authorities.
 - Normalize the phase story across this remediation hub, [PROGRAM_COMPLETION_STATUS.md](./PROGRAM_COMPLETION_STATUS.md), and [NATIVE_FEATURE_ABSORPTION_PLAN.md](./NATIVE_FEATURE_ABSORPTION_PLAN.md) so new lanes inherit the same build/test/doc/release truth gates.
 - Pull the newly added roadmap obligations into canonical remediation ownership:
   - PGMMV intake and migration truthfulness
@@ -982,17 +1016,17 @@ These principles govern every remediation decision. When in doubt, refer back to
 - Newly added roadmap/support plans have been absorbed into the canonical remediation/status/roadmap stack or explicitly marked as superseded/reference-only inputs.
 - Compat exit checklist artifact ([docs/COMPAT_EXIT_CHECKLIST.md](./COMPAT_EXIT_CHECKLIST.md)) is published and satisfies part of the documentation-alignment exit criteria for the compat lane.
 
-**Related documentation:** [README](../README.md), [Master Blueprint](../URPG_Blueprint_v3_1_Integrated.md), [NATIVE_FEATURE_ABSORPTION_PLAN](./NATIVE_FEATURE_ABSORPTION_PLAN.md), [PROGRAM_COMPLETION_STATUS](./PROGRAM_COMPLETION_STATUS.md), [URPG_MASTER_NATIVE_ABSORPTION_AND_PGMMV_ROADMAP_2026-04-18](../URPG_MASTER_NATIVE_ABSORPTION_AND_PGMMV_ROADMAP_2026-04-18.md), [URPG_PGMMV_SUPPORT_PLAN](../URPG_PGMMV_SUPPORT_PLAN.md), [URPG_repo_intake_plan](../URPG_repo_intake_plan.md), [URPG_private_asset_intake_plan](../URPG_private_asset_intake_plan.md), [presentation/schema_changelog](./presentation/schema_changelog.md), [presentation/SPATIAL_EDITOR_TOOLS](./presentation/SPATIAL_EDITOR_TOOLS.md), [presentation/performance_budgets](./presentation/performance_budgets.md), [presentation/test_matrix/MapScene_Contract](./presentation/test_matrix/MapScene_Contract.md), [presentation/test_matrix/MenuScene_Contract](./presentation/test_matrix/MenuScene_Contract.md), [presentation/test_matrix/BattleScene_Contract](./presentation/test_matrix/BattleScene_Contract.md), [presentation/test_matrix/OverlayUI_Contract](./presentation/test_matrix/OverlayUI_Contract.md).
+**Related documentation:** [README](../README.md), [Master Blueprint](../URPG_Blueprint_v3_1_Integrated.md), [Archive Index](./archive/README.md), [NATIVE_FEATURE_ABSORPTION_PLAN](./NATIVE_FEATURE_ABSORPTION_PLAN.md), [PROGRAM_COMPLETION_STATUS](./PROGRAM_COMPLETION_STATUS.md), [URPG_MASTER_NATIVE_ABSORPTION_AND_PGMMV_ROADMAP_2026-04-18](./archive/planning/URPG_MASTER_NATIVE_ABSORPTION_AND_PGMMV_ROADMAP_2026-04-18.md), [URPG_PGMMV_SUPPORT_PLAN](./archive/planning/URPG_PGMMV_SUPPORT_PLAN.md), [URPG_repo_intake_plan](../URPG_repo_intake_plan.md), [URPG_private_asset_intake_plan](../URPG_private_asset_intake_plan.md), [presentation/schema_changelog](./presentation/schema_changelog.md), [presentation/SPATIAL_EDITOR_TOOLS](./presentation/SPATIAL_EDITOR_TOOLS.md), [presentation/performance_budgets](./presentation/performance_budgets.md), [presentation/test_matrix/MapScene_Contract](./presentation/test_matrix/MapScene_Contract.md), [presentation/test_matrix/MenuScene_Contract](./presentation/test_matrix/MenuScene_Contract.md), [presentation/test_matrix/BattleScene_Contract](./presentation/test_matrix/BattleScene_Contract.md), [presentation/test_matrix/OverlayUI_Contract](./presentation/test_matrix/OverlayUI_Contract.md).
 
 **Architecture Decision Records:** [ADR-001](./adr/ADR-001.md) through [ADR-010-presentation-completion](./adr/ADR-010-presentation-completion.md).
 
 ---
 
-### Phase 5 â€” Harden Ownership, Concurrency, and Performance
+### Phase 5 — Harden Ownership, Concurrency, and Performance
 
 **Goal:** Pay down the structural debt that will keep the system brittle even after feature closure.
 
-**Depends on:** Phases 0â€“4 (all functional and surface debt should be resolved first so hardening targets stable, real code).
+**Depends on:** Phases 0–4 (all functional and surface debt should be resolved first so hardening targets stable, real code).
 
 **Effort estimate:** Medium.
 
@@ -1005,7 +1039,7 @@ These principles govern every remediation decision. When in doubt, refer back to
 
 **Exit criteria:**
 - Async callback paths have documented and enforced thread-affinity rules.
-- Runtime services are passed through clear ownership boundaries â€” no static-local service instances in scene code.
+- Runtime services are passed through clear ownership boundaries — no static-local service instances in scene code.
 - Per-frame render work is proportional to scene delta.
 
 **Related documentation:** [presentation/performance_budgets](./presentation/performance_budgets.md), [RISKS](../RISKS.md), [RELEASE_CHECKLIST](../RELEASE_CHECKLIST.md).
@@ -1016,30 +1050,30 @@ These principles govern every remediation decision. When in doubt, refer back to
 
 | Phase | Goal | Depends On | Effort | Primary Owner |
 |-------|------|-----------|--------|---------------|
-| 0 | Build integrity | â€” | Smallâ€“Med | Engine/core |
+| 0 | Build integrity | — | Small–Med | Engine/core |
 | 1 | Honest labels | Phase 0 | Medium | Compat/runtime + Tech lead |
 | 2 | Correctness & runtime closure | Phase 0 (Phase 1 recommended) | Large | Compat/runtime |
-| 3 | Editor/diagnostics truth | Phases 0â€“2 recommended | Medâ€“Large | Editor |
-| 4 | Build/test/doc reconciliation + roadmap alignment + external and private asset intake governance | Phases 0â€“3 | Medium | Tech lead/release owner |
-| 5 | Ownership & concurrency hardening | Phases 0â€“4 | Medium | Engine/core + Compat/runtime |
+| 3 | Editor/diagnostics truth | Phases 0–2 recommended | Med–Large | Editor |
+| 4 | Build/test/doc reconciliation + roadmap alignment + external and private asset intake governance | Phases 0–3 | Medium | Tech lead/release owner |
+| 5 | Ownership & concurrency hardening | Phases 0–4 | Medium | Engine/core + Compat/runtime |
 
 **Dependency diagram:**
 
 ```
-Phase 0 â”€â”€â–º Phase 1 â”€â”€â–º Phase 2 â”€â”€â–º Phase 3 â”€â”€â–º Phase 4 â”€â”€â–º Phase 5
-              â”‚                         â”‚
-              â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
+Phase 0 ──► Phase 1 ──► Phase 2 ──► Phase 3 ──► Phase 4 ──► Phase 5
+              │                         │
+              └─────────────────────────┘
               (Phase 1 recommended before Phase 2,
                both recommended before Phase 3)
 ```
 
-Workstreams within Phase 2 (2.1â€“2.5) are **independent** and can proceed in parallel after Phase 0 is complete.
+Workstreams within Phase 2 (2.1–2.5) are **independent** and can proceed in parallel after Phase 0 is complete.
 
 ---
 
 ## Verification Plan
 
-Every remediation phase must update the **verification surface** â€” not just the implementation.
+Every remediation phase must update the **verification surface** — not just the implementation.
 
 ### Build Verification
 
@@ -1056,10 +1090,10 @@ Add or repair focused regressions for:
 | Battle turn-condition cadence | [test_battlemgr.cpp](../tests/unit/test_battlemgr.cpp) | Span 1 and span 2 cadence; first-threshold edge case |
 | SE channel cleanup and audio lifecycle | [test_audio_manager.cpp](../tests/unit/test_audio_manager.cpp) | Channel count stable under repeated SE playback |
 | Diagnostics workspace tab count and render availability | [test_diagnostics_workspace.cpp](../tests/unit/test_diagnostics_workspace.cpp) | Correct count; all tabs render; runtime clear resets state |
-| Menu serialization round-trip | [test_menu_core.cpp](../tests/unit/test_menu_core.cpp) | Serialize â†’ deserialize â†’ structural equivalence |
+| Menu serialization round-trip | [test_menu_core.cpp](../tests/unit/test_menu_core.cpp) | Serialize → deserialize → structural equivalence |
 | QuickJS scope truth | [test_quickjs_runtime.cpp](../tests/unit/test_quickjs_runtime.cpp) | Reflects whether fixture-backed or real-runtime-backed |
-| Plugin API routing truth | [test_plugin_api.cpp](../tests/unit/) | Methods are labeled correctly; no silent mock behavior |
-| Cloud service scoping | â€” | `CloudServiceStub` annotation visible in header |
+| Plugin API routing truth | [test_plugin_api.cpp](../tests/unit/test_plugin_api.cpp) | Methods are labeled correctly; no silent mock behavior |
+| Cloud service scoping | — | `CloudServiceStub` annotation visible in header |
 
 ### Candidate Test Files
 
@@ -1075,7 +1109,7 @@ Add or repair focused regressions for:
 - [test_event_authority_panel.cpp](../tests/unit/test_event_authority_panel.cpp)
 - [test_audio_inspector.cpp](../tests/unit/test_audio_inspector.cpp)
 - [test_migration_wizard.cpp](../tests/unit/test_migration_wizard.cpp)
-- [test_spatial_editor.cpp](../tests/unit/test_spatial_editor.cpp) *(register or delete â€” see P2-04)*
+- [test_spatial_editor.cpp](../tests/unit/test_spatial_editor.cpp) *(register or delete — see P2-04)*
 
 ---
 
@@ -1091,12 +1125,14 @@ These are risks **to the remediation effort itself**, distinct from the technica
 | R4 | Diagnostics runtime binding fixes (Phase 3) expose further stale-state bugs not currently visible | Medium | Medium | Treat as expected discovery, not scope creep. Log new findings in a Phase 3 addendum. |
 | R5 | Plugin manager threading issues (P2-09) are more widespread than current audit reveals | Low | High | Run a targeted thread-safety audit of all plugin callback invocation sites before closing Phase 5. |
 | R6 | Documentation alignment tasks (Phase 4) are deprioritized after feature work lands | High | Medium | Require documentation updates as part of the Definition of Done for every finding closure (see below). |
+| R7 | New planning documents (roadmaps, support plans, ADRs) are added faster than they can be absorbed into the canonical doc set, re-introducing the parallel-planning-authority problem closed by P2-10 | Medium | Medium | Require any new plan doc to include a `canonical-placement` field in its header (absorbed / reference-only / superseded) before merge. Enforce at PR review. |
+| R8 | QuickJS Path A (real runtime) is chosen late in Phase 2, after compat fixture tests have been written against Path B semantics, requiring significant test rework | Low | High | Document the Path A vs. Path B decision as a time-boxed milestone at the start of Phase 2, not an open question deferrable to mid-phase. Assign the decision explicitly to the Compat/runtime tech lead. |
 
 ---
 
 ## Documentation Alignment Tasks
 
-The following documents must be updated whenever remediation work lands in the area they describe. Documentation updates are **not optional post-merge tasks** â€” they are part of the Definition of Done.
+The following documents must be updated whenever remediation work lands in the area they describe. Documentation updates are **not optional post-merge tasks** — they are part of the Definition of Done.
 
 - [README](../README.md)
 - [Master Blueprint](../URPG_Blueprint_v3_1_Integrated.md)
@@ -1108,13 +1144,112 @@ The following documents must be updated whenever remediation work lands in the a
 - [AI_SUBSYSTEM_CLOSURE_CHECKLIST](./AI_SUBSYSTEM_CLOSURE_CHECKLIST.md)
 - [URPG_repo_intake_plan](../URPG_repo_intake_plan.md)
 - [URPG_private_asset_intake_plan](../URPG_private_asset_intake_plan.md)
-- [URPG_MASTER_NATIVE_ABSORPTION_AND_PGMMV_ROADMAP_2026-04-18](../URPG_MASTER_NATIVE_ABSORPTION_AND_PGMMV_ROADMAP_2026-04-18.md)
-- [URPG_PGMMV_SUPPORT_PLAN](../URPG_PGMMV_SUPPORT_PLAN.md)
+- [Archive README](./archive/README.md)
+- [URPG_MASTER_NATIVE_ABSORPTION_AND_PGMMV_ROADMAP_2026-04-18](./archive/planning/URPG_MASTER_NATIVE_ABSORPTION_AND_PGMMV_ROADMAP_2026-04-18.md)
+- [URPG_PGMMV_SUPPORT_PLAN](./archive/planning/URPG_PGMMV_SUPPORT_PLAN.md)
 - `docs/external-intake/*`
 - `docs/asset_intake/*`
 - Subsystem specs under [docs](.)
 - [WORKLOG](../WORKLOG.md)
 - This remediation plan
+
+---
+
+## Documentation File Tree
+
+This is the current documentation and planning file tree for the repo. It is intentionally limited to human-facing governance, roadmap, status, specification, checklist, architecture, and archived planning material so remediation work has one linked index for document alignment.
+
+### Repo root
+
+- [README.md](../README.md) — public repo overview, build entrypoints, and top-level documentation index.
+- [CONTRIBUTING.md](../CONTRIBUTING.md) — contributor workflow, hygiene rules, and PR expectations.
+- [PLAN.md](../PLAN.md) — active presentation-core project plan and task state.
+- [RELEASE_CHECKLIST.md](../RELEASE_CHECKLIST.md) — release-readiness checklist with presentation and remediation references.
+- [RISKS.md](../RISKS.md) — active risk register derived from the archived presentation architecture plan.
+- [WORKLOG.md](../WORKLOG.md) — chronological execution log and documentation sync history.
+- [URPG_Blueprint_v3_1_Integrated.md](../URPG_Blueprint_v3_1_Integrated.md) — master product/technical blueprint.
+- [URPG_Blueprint_v3_1_Integrated.docx](../URPG_Blueprint_v3_1_Integrated.docx) — binary Word copy of the master blueprint.
+- [URPG_repo_intake_plan.md](../URPG_repo_intake_plan.md) — external-repository intake execution plan governed under P3-02 / Phase 4.1.
+- [URPG_private_asset_intake_plan.md](../URPG_private_asset_intake_plan.md) — private-use asset intake execution plan governed under P3-03 / Phase 4.2.
+
+### `docs/`
+
+- [AI_COPILOT_GUIDE.md](./AI_COPILOT_GUIDE.md) — AI copilot usage and in-tree capability guidance.
+- [AI_SUBSYSTEM_CLOSURE_CHECKLIST.md](./AI_SUBSYSTEM_CLOSURE_CHECKLIST.md) — closure checklist for the AI subsystem.
+- [BATTLE_CORE_NATIVE_SPEC.md](./BATTLE_CORE_NATIVE_SPEC.md) — battle-core native ownership specification.
+- [COMPAT_EXIT_CHECKLIST.md](./COMPAT_EXIT_CHECKLIST.md) — compat-lane exit criteria and sign-off checklist.
+- [DEVELOPMENT_KICKOFF.md](./DEVELOPMENT_KICKOFF.md) — execution kickoff status and canonical-doc entry guidance.
+- [EXTERNAL_FEATURE_UPGRADE_SHORTLIST_2026-04-15.md](./EXTERNAL_FEATURE_UPGRADE_SHORTLIST_2026-04-15.md) — external feature upgrade shortlist.
+- [EXTERNAL_FEATURE_UPGRADE_TICKETS_2026-04-15.md](./EXTERNAL_FEATURE_UPGRADE_TICKETS_2026-04-15.md) — ticket breakdown for external feature upgrades.
+- [HUGGINGFACE_CURATED_IMPORTS.md](./HUGGINGFACE_CURATED_IMPORTS.md) — curated Hugging Face import/governance notes.
+- [KNOWN_BREAK_WAIVERS.md](./KNOWN_BREAK_WAIVERS.md) — documented waivers for accepted breaks or temporary deviations.
+- [MESSAGE_TEXT_CORE_NATIVE_SPEC.md](./MESSAGE_TEXT_CORE_NATIVE_SPEC.md) — message/text native ownership specification.
+- [NATIVE_FEATURE_ABSORPTION_PLAN.md](./NATIVE_FEATURE_ABSORPTION_PLAN.md) — canonical product roadmap.
+- [PROGRAM_COMPLETION_STATUS.md](./PROGRAM_COMPLETION_STATUS.md) — canonical latest-status snapshot and remaining work checklist.
+- [SAVE_DATA_CORE_NATIVE_SPEC.md](./SAVE_DATA_CORE_NATIVE_SPEC.md) — save/data native ownership specification.
+- [TECHNICAL_DEBT_REMEDIATION_PLAN.md](./TECHNICAL_DEBT_REMEDIATION_PLAN.md) — canonical remediation, truthfulness, governance, and documentation-alignment hub.
+- [UI_MENU_CORE_NATIVE_SPEC.md](./UI_MENU_CORE_NATIVE_SPEC.md) — UI/menu native ownership specification.
+- [WAVE1_SUBSYSTEM_CLOSURE_CHECKLIST.md](./WAVE1_SUBSYSTEM_CLOSURE_CHECKLIST.md) — Wave 1 subsystem closure checklist.
+- [WAVE2_AUDIO_STATE_SYNC_PLAN.md](./WAVE2_AUDIO_STATE_SYNC_PLAN.md) — Wave 2 audio state synchronization plan.
+
+### `docs/adr/`
+
+- [ADR-001.md](./adr/ADR-001.md) — architecture decision record.
+- [ADR-002.md](./adr/ADR-002.md) — architecture decision record.
+- [ADR-003.md](./adr/ADR-003.md) — architecture decision record.
+- [ADR-004.md](./adr/ADR-004.md) — architecture decision record.
+- [ADR-005.md](./adr/ADR-005.md) — architecture decision record.
+- [ADR-006.md](./adr/ADR-006.md) — architecture decision record.
+- [ADR-007.md](./adr/ADR-007.md) — architecture decision record.
+- [ADR-008.md](./adr/ADR-008.md) — architecture decision record.
+- [ADR-009.md](./adr/ADR-009.md) — architecture decision record.
+- [ADR-010.md](./adr/ADR-010.md) — architecture decision record.
+- [ADR-010-presentation-completion.md](./adr/ADR-010-presentation-completion.md) — presentation completion ADR.
+- [ADR-011-presentation-spatial-status.md](./adr/ADR-011-presentation-spatial-status.md) — presentation/spatial status and truthfulness ADR.
+
+### `docs/archive/`
+
+- [README.md](./archive/README.md) — archive index and canonical-vs-archived authority guidance.
+
+### `docs/archive/planning/`
+
+- [URPG_MASTER_NATIVE_ABSORPTION_AND_PGMMV_ROADMAP_2026-04-18.md](./archive/planning/URPG_MASTER_NATIVE_ABSORPTION_AND_PGMMV_ROADMAP_2026-04-18.md) — archived planning annex for PGMMV/native absorption v2.
+- [URPG_NATIVE_ABSORPTION_ROADMAP_2026-04-18.md](./archive/planning/URPG_NATIVE_ABSORPTION_ROADMAP_2026-04-18.md) — superseded native-absorption planning input retained for traceability.
+- [URPG_PGMMV_SUPPORT_PLAN.md](./archive/planning/URPG_PGMMV_SUPPORT_PLAN.md) — archived PGMMV support planning annex.
+- [urpg_first_class_presentation_architecture_plan_v2.md](./archive/planning/urpg_first_class_presentation_architecture_plan_v2.md) — archived presentation architecture source plan.
+
+### `docs/asset_intake/`
+
+- [ASSET_CATEGORY_GAPS.md](./asset_intake/ASSET_CATEGORY_GAPS.md) — asset-gap inventory and sourcing gaps.
+- [ASSET_PROMOTION_GUIDE.md](./asset_intake/ASSET_PROMOTION_GUIDE.md) — promotion/staging guidance for private-use assets.
+- [ASSET_SOURCE_REGISTRY.md](./asset_intake/ASSET_SOURCE_REGISTRY.md) — asset-source provenance registry.
+
+### `docs/external-intake/`
+
+- [license-matrix.md](./external-intake/license-matrix.md) — external-repo license tracking matrix.
+- [repo-audit-template.md](./external-intake/repo-audit-template.md) — audit template for external repositories.
+- [repo-watchlist.md](./external-intake/repo-watchlist.md) — tracked external repositories and intake watchlist.
+- [urpg_feature_adoption_matrix.md](./external-intake/urpg_feature_adoption_matrix.md) — disposition matrix for external feature adoption.
+
+### `docs/presentation/`
+
+- [README.md](./presentation/README.md) — presentation-docs hub.
+- [performance_budgets.md](./presentation/performance_budgets.md) — presentation performance budgets and targets.
+- [schema_changelog.md](./presentation/schema_changelog.md) — presentation schema change log.
+- [SPATIAL_EDITOR_TOOLS.md](./presentation/SPATIAL_EDITOR_TOOLS.md) — spatial editor tools documentation.
+- [VALIDATION.md](./presentation/VALIDATION.md) — presentation validation commands and gate definitions.
+
+### `docs/presentation/test_matrix/`
+
+- [README.md](./presentation/test_matrix/README.md) — presentation contract-test matrix index.
+- [BattleScene_Contract.md](./presentation/test_matrix/BattleScene_Contract.md) — battle-scene contract.
+- [MapScene_Contract.md](./presentation/test_matrix/MapScene_Contract.md) — map-scene contract.
+- [MenuScene_Contract.md](./presentation/test_matrix/MenuScene_Contract.md) — menu-scene contract.
+- [OverlayUI_Contract.md](./presentation/test_matrix/OverlayUI_Contract.md) — overlay UI contract.
+
+### `docs/superpowers/plans/`
+
+- [2026-04-17-migration-wizard-rendered-workflow.md](./superpowers/plans/2026-04-17-migration-wizard-rendered-workflow.md) — generated implementation plan retained for execution traceability.
 
 ---
 
@@ -1140,13 +1275,13 @@ A remediation item is **done only when all of the following are true**:
 - [ ] The code compiles cleanly (no suppressed warnings that mask the fix).
 - [ ] The relevant tests are registered in [CMakeLists.txt](../CMakeLists.txt) and passing.
 - [ ] If existing tests were changed, the rationale for the change is recorded in the commit message or PR description.
-- [ ] Status labels and completion docs match real behavior â€” updated in the **same commit or PR** as the implementation.
+- [ ] Status labels and completion docs match real behavior — updated in the **same commit or PR** as the implementation.
 - [ ] Surfaced editor/runtime functionality is actually reachable in the product via a documented entry point.
 - [ ] Exported, plugin, and cloud-facing surfaces are scoped honestly in headers and docs.
 - [ ] Any new plan or roadmap document introduced by the change is either absorbed into the canonical remediation/status/roadmap set or explicitly marked as execution-detail/reference-only in the same PR.
 - [ ] External code, fixtures, and assets are not adopted unless they have a recorded disposition under [URPG_repo_intake_plan.md](../URPG_repo_intake_plan.md) and the corresponding intake artifacts.
 - [ ] Private-use assets are not promoted into editor/runtime product lanes unless they have recorded provenance, source/bundle manifests, and promotion records under [URPG_private_asset_intake_plan.md](../URPG_private_asset_intake_plan.md) and the corresponding intake artifacts.
-- [ ] Any remaining placeholder behavior is documented as an explicit, intentional waiver â€” not silently accepted as complete.
+- [ ] Any remaining placeholder behavior is documented as an explicit, intentional waiver — not silently accepted as complete.
 - [ ] No new P0 or P1 findings are introduced by the change (or if they are, they are logged as new findings in this document).
 - [ ] The tech lead or release owner has signed off that documentation alignment is complete for the changed area.
 
@@ -1154,12 +1289,12 @@ A remediation item is **done only when all of the following are true**:
 
 ## Recommended Execution Order
 
-1. **Phase 0** â€” Restore build integrity and baseline truth. *(Prerequisite for everything.)*
-2. **Phase 1** â€” Make status labels and surface claims honest. *(Clarifies scope for Phase 2.)*
-3. **Phase 2** â€” Fix correctness and runtime closure in the highest-value paths. *(Workstreams 2.1â€“2.5 can run in parallel.)*
-4. **Phase 3** â€” Make editor and diagnostics surfaces truthful, stateful, and usable.
-5. **Phase 4** â€” Reconcile build graph, tests, docs, exported surfaces, and stand up both external repository intake governance and private-use asset intake governance.
-6. **Phase 5** â€” Harden ownership, concurrency, performance, and only then admit production-candidate external integrations and promoted private-use asset lanes through governed wrappers/facades and provenance-preserving promotion paths.
+1. **Phase 0** — Restore build integrity and baseline truth. *(Prerequisite for everything.)*
+2. **Phase 1** — Make status labels and surface claims honest. *(Clarifies scope for Phase 2.)*
+3. **Phase 2** — Fix correctness and runtime closure in the highest-value paths. *(Workstreams 2.1–2.5 can run in parallel.)*
+4. **Phase 3** — Make editor and diagnostics surfaces truthful, stateful, and usable.
+5. **Phase 4** — Reconcile build graph, tests, docs, exported surfaces, and stand up both external repository intake governance and private-use asset intake governance.
+6. **Phase 5** — Harden ownership, concurrency, performance, and only then admit production-candidate external integrations and promoted private-use asset lanes through governed wrappers/facades and provenance-preserving promotion paths.
 
 ---
 
@@ -1180,4 +1315,6 @@ A remediation item is **done only when all of the following are true**:
 | 2026-04-17 | Local build hardening: constrained MinGW SDL discovery to the active compiler root, forced vendored SDL for MSVC to block MSYS header leakage, added missing standard headers surfaced by stricter toolchains, restored missing testing support headers, and hardened the presentation helper against stale local build trees. |
 | 2026-04-18 | Agent swarm pass 4: window compat rendering closure, battle manager runtime closure, message inspector panel productization, compat exit checklist publication. |
 | 2026-04-18 | Audio compat closure/documentation sync: deterministic playback-position, duck/unduck, mix-scaling, and live QuickJS AudioManager bindings landed; remediation/status/docs updated to keep the lane honestly `PARTIAL` and deterministic-harness-scoped. |
+| 2026-04-18 | Window compat follow-through: landed `Window_Selectable` pointer press/drag/release semantics, drag-scroll, mouse-wheel scrolling, and contents-backed compat bitmap metadata with synchronized dimensions; updated status/remediation docs to reflect the narrower remaining gap. |
 | 2026-04-18 | Integrated the newly added PGMMV/native-absorption planning scope into the remediation hub via canonical-planning governance, Phase 4 roadmap-alignment work, documentation-alignment hooks, and Definition-of-Done requirements. |
+| 2026-04-18 | Sixth-pass improvement: fixed UTF-8/cp1252 encoding artifacts throughout document; added Finding Status at a Glance dashboard; added R7 (planning-doc sprawl) and R8 (QuickJS path decision timing) to Risk Register; corrected P2-04 root cause description; fixed incomplete test path in Verification Plan; fixed P1-02 source file table entry; added Principle 8 on test coverage honesty; updated Change Log. |
