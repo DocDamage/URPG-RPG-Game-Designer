@@ -371,7 +371,7 @@ public:
     // Drop/Exp/Gold
     // ========================================================================
     
-    // Status: PARTIAL - Reward math still relies on seeded subject data and stub drops
+    // Status: PARTIAL - Reward math uses live compat state with seeded deterministic drops, but full MZ parity is still incomplete
     int32_t calculateExp() const;
     int32_t calculateGold() const;
     std::vector<int32_t> calculateDrops() const;
