@@ -27,3 +27,14 @@ Cross-cutting readiness waivers, truthfulness corrections, and intake-governance
 - [ ] License-cleared starter asset coverage exists for tiles, portraits, UI, VFX, and audio, or those gaps are explicitly waived
 - [ ] AI tooling boundary policy is documented before editor-side AI assist features are treated as release-ready
 - [ ] Presentation validation commands and ownership are documented in `docs/presentation/VALIDATION.md`
+
+## Phase 5 Hardening Closure Evidence
+
+- [x] Focused plugin callback audit lane passes:
+  - `ctest --test-dir build/dev-mingw-debug --output-on-failure -R "PluginManager: Command execution|MapScene:|SceneManager:"`
+- [x] Focused presentation hardening gate passes:
+  - `ctest --test-dir build/dev-mingw-debug -C Debug -R "urpg_(presentation_(unit_lane|release_validation)|spatial_editor_lane)" --output-on-failure`
+- [x] Phase 4 intake-governance validation passes with wrapper/facade and provenance checks:
+  - `powershell -ExecutionPolicy Bypass -File tools/ci/check_phase4_intake_governance.ps1`
+- [x] Repo-wide regression pass is green for the closure snapshot:
+  - `ctest --preset dev-all --output-on-failure`

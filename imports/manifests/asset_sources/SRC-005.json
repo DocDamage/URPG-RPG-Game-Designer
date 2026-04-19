@@ -1,0 +1,25 @@
+{
+  "source_id": "SRC-005",
+  "repo_name": "HotpotDesign/Game-Assets-And-Resources",
+  "source_url": "https://github.com/HotpotDesign/Game-Assets-And-Resources",
+  "capture_state": "cataloged_not_mirrored",
+  "snapshot_commit": null,
+  "snapshot_date": null,
+  "source_type": "discovery_index",
+  "category_tags": [
+    "broad_directory",
+    "source_discovery"
+  ],
+  "intended_use": [
+    "Find category-specific asset sources",
+    "Locate emergency fill-ins for missing content classes",
+    "Maintain a future acquisition backlog"
+  ],
+  "handling_path": "discovery_backlog_only",
+  "legal_disposition": "reference_index_only_no_direct_asset_ingest",
+  "promotion_status": "not_started",
+  "notes": [
+    "This source is a discovery directory, not a direct-ingest asset pack.",
+    "Targets sourced here must be registered separately before any capture."
+  ]
+}

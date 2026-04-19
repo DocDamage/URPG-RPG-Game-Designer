@@ -17,22 +17,22 @@
 
 ## Direct-Ingest Sources
 
-These repos may be staged, audited, normalized, and promoted into URPG product lanes.
+These repos are approved for controlled capture when source-capture work starts. As of 2026-04-19 they are cataloged but not yet mirrored, staged, or normalized.
 
-| # | Source ID | Repo Name | Source URL | Snapshot Commit | Snapshot Date | Type | Category Tags | Intended Use | Status |
-|---|-----------|-----------|------------|-----------------|---------------|------|---------------|--------------|--------|
-| 1 | `SRC-001` | AscensionGameDev/Intersect-Assets | `https://github.com/AscensionGameDev/Intersect-Assets` | `TBD` | `TBD` | `direct_asset_pack` | tilesets, characters, animations, UI, sounds, music, tools | Environment kit bootstrapping; character placeholder coverage; UI prototyping; audio resolver testing; animation/VFX placeholder coverage | Staged |
-| 2 | `SRC-002` | GDQuest/game-sprites | `https://github.com/GDQuest/game-sprites` | `TBD` | `TBD` | `direct_asset_pack` | sprites, items, grid actors | Combat prototype actors; inventory/item placeholders; grid-based and interaction tests; early map/entity validation | Staged |
-| 3 | `SRC-003` | Calinou/kenney-interface-sounds | `https://github.com/Calinou/kenney-interface-sounds` | `TBD` | `TBD` | `direct_asset_pack` | UI SFX, feedback sounds | Menu confirm/cancel; button hover/click; panel open/close; inventory and notification feedback; editor shell feedback sounds | Staged |
+| # | Source ID | Repo Name | Source URL | Snapshot Commit | Snapshot Date | Type | Category Tags | Intended Use | Capture State | Handling Path | Legal Disposition | Promotion Status |
+|---|-----------|-----------|------------|-----------------|---------------|------|---------------|--------------|---------------|---------------|-------------------|------------------|
+| 1 | `SRC-001` | AscensionGameDev/Intersect-Assets | `https://github.com/AscensionGameDev/Intersect-Assets` | `—` | `—` | `direct_asset_pack` | tilesets, characters, animations, UI, sounds, music, tools | Environment kit bootstrapping; character placeholder coverage; UI prototyping; audio resolver testing; animation/VFX placeholder coverage | `cataloged_not_mirrored` | `direct_ingest_when_captured` | `mixed_asset_pack_reference_only_until_per-asset_attribution_is_captured` | `not_started` |
+| 2 | `SRC-002` | GDQuest/game-sprites | `https://github.com/GDQuest/game-sprites` | `—` | `—` | `direct_asset_pack` | sprites, items, grid actors | Combat prototype actors; inventory/item placeholders; grid-based and interaction tests; early map/entity validation | `cataloged_not_mirrored` | `direct_ingest_when_captured` | `cc0_candidate_recorded_for_private_use_intake` | `not_started` |
+| 3 | `SRC-003` | Calinou/kenney-interface-sounds | `https://github.com/Calinou/kenney-interface-sounds` | `—` | `—` | `direct_asset_pack` | UI SFX, feedback sounds | Menu confirm/cancel; button hover/click; panel open/close; inventory and notification feedback; editor shell feedback sounds | `cataloged_not_mirrored` | `direct_ingest_when_captured` | `cc0_candidate_recorded_for_private_use_intake` | `not_started` |
 
 ## Discovery / Source-Mining Sources
 
 These repos are indexes and directories. They feed the acquisition backlog, not the direct-import lane.
 
-| # | Source ID | Repo Name | Source URL | Type | Category Tags | Intended Use | Status |
-|---|-----------|-----------|------------|------|---------------|--------------|--------|
-| 4 | `SRC-004` | madjin/awesome-cc0 | `https://github.com/madjin/awesome-cc0` | `discovery_index` | textures, materials, HDRIs, 3D models, CC0 sources | Sourcing environment materials; finding future UI/icon/audio/3D references; building a vetted internal source list | Backlog |
-| 5 | `SRC-005` | HotpotDesign/Game-Assets-And-Resources | `https://github.com/HotpotDesign/Game-Assets-And-Resources` | `discovery_index` | broad directory | Finding category-specific asset sources; locating emergency fill-ins for missing content classes; maintaining a future acquisition backlog | Backlog |
+| # | Source ID | Repo Name | Source URL | Type | Category Tags | Intended Use | Capture State | Handling Path | Status |
+|---|-----------|-----------|------------|------|---------------|--------------|---------------|---------------|--------|
+| 4 | `SRC-004` | madjin/awesome-cc0 | `https://github.com/madjin/awesome-cc0` | `discovery_index` | textures, materials, HDRIs, 3D models, CC0 sources | Sourcing environment materials; finding future UI/icon/audio/3D references; building a vetted internal source list | `cataloged_not_mirrored` | `discovery_backlog_only` | Acquisition backlog source |
+| 5 | `SRC-005` | HotpotDesign/Game-Assets-And-Resources | `https://github.com/HotpotDesign/Game-Assets-And-Resources` | `discovery_index` | broad directory | Finding category-specific asset sources; locating emergency fill-ins for missing content classes; maintaining a future acquisition backlog | `cataloged_not_mirrored` | `discovery_backlog_only` | Acquisition backlog source |
 
 ---
 
@@ -40,33 +40,44 @@ These repos are indexes and directories. They feed the acquisition backlog, not 
 
 Targets mined from `awesome-cc0` and `Game-Assets-And-Resources` for future intake.
 
-| Priority | Category | Candidate Source | Notes | Status |
-|----------|----------|------------------|-------|--------|
-| P1 | Environment textures/materials | TBD | To be mined from `awesome-cc0` | Backlog |
-| P1 | Icon packs | TBD | To be mined from `awesome-cc0` | Backlog |
-| P2 | Fantasy UI frames | TBD | To be mined from discovery indexes | Backlog |
-| P2 | Battle VFX sheets | TBD | To be mined from discovery indexes | Backlog |
-| P2 | Ambient/background audio | TBD | To be mined from discovery indexes | Backlog |
-| P3 | 3D materials/references | TBD | To be mined from `awesome-cc0` | Backlog |
+| Priority | Category | Candidate Source Class | Notes | Status |
+|----------|----------|------------------------|-------|--------|
+| P1 | Environment textures/materials | `awesome-cc0` material and texture candidates | Register each selected downstream source under a new `SRC-*` record before capture | Discovery backlog only |
+| P1 | Icon packs | `awesome-cc0` UI/icon candidates | Prefer permissive packs with clear attribution metadata | Discovery backlog only |
+| P2 | Fantasy UI frames | Discovery-index UI pack candidates | Require style-fit review before any capture | Discovery backlog only |
+| P2 | Battle VFX sheets | Discovery-index VFX candidates | Capture only after bundle manifest and promotion path exist | Discovery backlog only |
+| P2 | Ambient/background audio | Discovery-index audio candidates | Favor small curated subsets over broad dumps | Discovery backlog only |
+| P3 | 3D materials/references | `awesome-cc0` 3D material candidates | Presentation experiments only until a product lane requests them | Discovery backlog only |
 
 ---
 
 ## Manifest Schema
 
-Each direct-ingest source must have a manifest under `imports/manifests/asset_sources/<source_id>.json`:
+Each direct-ingest source must have a manifest under `imports/manifests/asset_sources/<source_id>.json` and conform to `imports/manifests/asset_sources/asset_source.schema.json`:
 
 ```json
 {
   "source_id": "SRC-001",
   "repo_name": "AscensionGameDev/Intersect-Assets",
-  "snapshot_commit": "abc1234",
-  "snapshot_date": "2026-04-17",
+  "source_url": "https://github.com/example/example-assets",
+  "capture_state": "cataloged_not_mirrored",
+  "snapshot_commit": null,
+  "snapshot_date": null,
   "source_type": "direct_asset_pack",
   "category_tags": ["tilesets", "characters", "ui", "sfx", "music", "vfx"],
-  "intended_use": "Environment kit bootstrapping and placeholder coverage",
-  "internal_notes": "Do not ingest entire repo as flat dump; promote curated subsets only."
+  "intended_use": ["Environment kit bootstrapping and placeholder coverage"],
+  "handling_path": "direct_ingest_when_captured",
+  "legal_disposition": "mixed_asset_pack_reference_only_until_per-asset_attribution_is_captured",
+  "promotion_status": "not_started",
+  "notes": ["Do not ingest entire repo as flat dump; promote curated subsets only."]
 }
 ```
+
+## Current Capture Snapshot
+
+- Canonical source manifests: `imports/manifests/asset_sources/SRC-001.json` through `SRC-005.json`
+- Canonical status report: `imports/reports/asset_intake/source_capture_status.json`
+- Current recorded state: 5 cataloged sources, 0 mirrored, 0 staged, 0 normalized
 
 ---
 
@@ -75,3 +86,4 @@ Each direct-ingest source must have a manifest under `imports/manifests/asset_so
 | Date | Change |
 |------|--------|
 | 2026-04-17 | Initial registry created from `URPG_private_asset_intake_plan.md` |
+| 2026-04-19 | Replaced placeholder staged-state rows with concrete capture-state, handling-path, legal-disposition, and promotion-status records linked to the canonical manifests and intake report. |

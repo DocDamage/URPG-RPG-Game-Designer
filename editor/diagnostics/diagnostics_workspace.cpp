@@ -283,6 +283,8 @@ nlohmann::json MigrationWizardWorkflowPrimaryActionsJson(const MigrationWizardPa
         {"clear_selected_subsystem", MigrationWizardWorkflowActionJson(actions.clear_selected_subsystem)},
         {"next_subsystem", MigrationWizardWorkflowActionJson(actions.next_subsystem)},
         {"previous_subsystem", MigrationWizardWorkflowActionJson(actions.previous_subsystem)},
+        {"next_issue_subsystem", MigrationWizardWorkflowActionJson(actions.next_issue_subsystem)},
+        {"previous_issue_subsystem", MigrationWizardWorkflowActionJson(actions.previous_issue_subsystem)},
     };
 }
 
@@ -837,6 +839,22 @@ void DiagnosticsWorkspace::clearAudioRuntime() {
     refreshAudioSnapshotIfActive();
 }
 
+bool DiagnosticsWorkspace::selectNextAudioRow() {
+    const bool changed = audio_panel_.getModel()->selectNextRow();
+    if (changed) {
+        refreshAudioSnapshotIfActive();
+    }
+    return changed;
+}
+
+bool DiagnosticsWorkspace::selectPreviousAudioRow() {
+    const bool changed = audio_panel_.getModel()->selectPreviousRow();
+    if (changed) {
+        refreshAudioSnapshotIfActive();
+    }
+    return changed;
+}
+
 void DiagnosticsWorkspace::bindMigrationWizardRuntime(const nlohmann::json& project_data) {
     migration_wizard_panel_.onProjectUpdateRequested(project_data);
     refreshMigrationWizardSnapshotIfActive();
@@ -865,6 +883,22 @@ bool DiagnosticsWorkspace::selectNextMigrationWizardSubsystemResult() {
 
 bool DiagnosticsWorkspace::selectPreviousMigrationWizardSubsystemResult() {
     const bool changed = migration_wizard_panel_.selectPreviousSubsystemResult();
+    if (changed) {
+        refreshMigrationWizardSnapshotIfActive();
+    }
+    return changed;
+}
+
+bool DiagnosticsWorkspace::selectNextMigrationWizardIssueSubsystemResult() {
+    const bool changed = migration_wizard_panel_.selectNextIssueSubsystemResult();
+    if (changed) {
+        refreshMigrationWizardSnapshotIfActive();
+    }
+    return changed;
+}
+
+bool DiagnosticsWorkspace::selectPreviousMigrationWizardIssueSubsystemResult() {
+    const bool changed = migration_wizard_panel_.selectPreviousIssueSubsystemResult();
     if (changed) {
         refreshMigrationWizardSnapshotIfActive();
     }
@@ -1266,6 +1300,8 @@ std::string DiagnosticsWorkspace::exportAsJson() const {
         activeTabDetail["can_clear_selected_subsystem"] = snapshot.can_clear_selected_subsystem;
         activeTabDetail["can_select_next_subsystem"] = snapshot.can_select_next_subsystem;
         activeTabDetail["can_select_previous_subsystem"] = snapshot.can_select_previous_subsystem;
+        activeTabDetail["can_select_next_issue_subsystem"] = snapshot.can_select_next_issue_subsystem;
+        activeTabDetail["can_select_previous_issue_subsystem"] = snapshot.can_select_previous_issue_subsystem;
         activeTabDetail["has_bound_project_data"] = snapshot.has_bound_project_data;
         activeTabDetail["can_rerun_bound_migration"] = snapshot.can_rerun_bound_migration;
         activeTabDetail["can_rerun_bound_selected_subsystem"] = snapshot.can_rerun_bound_selected_subsystem;
@@ -1312,11 +1348,17 @@ std::string DiagnosticsWorkspace::exportAsJson() const {
         activeTabDetail["issue_count"] = snapshot.issue_count;
         activeTabDetail["master_volume"] = snapshot.master_volume;
         activeTabDetail["has_data"] = snapshot.has_data;
+        activeTabDetail["selected_handle"] =
+            snapshot.selected_handle.has_value() ? nlohmann::json(*snapshot.selected_handle) : nlohmann::json(nullptr);
+        activeTabDetail["can_select_next_row"] = snapshot.can_select_next_row;
+        activeTabDetail["can_select_previous_row"] = snapshot.can_select_previous_row;
         nlohmann::json liveRows = nlohmann::json::array();
         for (const auto& row : snapshot.live_rows) {
             liveRows.push_back(AudioHandleRowJson(row));
         }
         activeTabDetail["live_rows"] = std::move(liveRows);
+        activeTabDetail["selected_row"] =
+            snapshot.selected_row.has_value() ? AudioHandleRowJson(*snapshot.selected_row) : nlohmann::json(nullptr);
         break;
     }
     case DiagnosticsTab::Menu: {

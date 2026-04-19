@@ -13,6 +13,8 @@ Canonical planning chain:
 
 Phase 2 runtime closure is complete as of 2026-04-19. Remaining compat work in this document is post-closure exit hardening, corpus depth, and ongoing truth-maintenance work, not unfinished baseline closure of the audited Phase 2 runtime slice.
 
+Phase 3 diagnostics productization is complete as of 2026-04-19, Phase 4 governance/reconciliation closure is complete as of 2026-04-19, and Phase 5 hardening closure is also complete as of 2026-04-19. Remaining work in this document is post-closure compat hardening depth, roadmap execution, and ongoing truth-maintenance work rather than an unfinished remediation phase.
+
 ## Where we are now
 
 - Phase 2 runtime closure is complete:
@@ -20,6 +22,10 @@ Phase 2 runtime closure is complete as of 2026-04-19. Remaining compat work in t
   - `DataManager::loadDatabase()` seeded-container behavior is explicitly exercised
   - `Window_Base::contents()` lifecycle truthfulness is explicitly exercised
   - AudioManager remains honestly `PARTIAL` as a deterministic harness-backed surface with live compat-state observability
+- Phase 3 diagnostics surfaces are complete:
+  - audio diagnostics project live `AudioCore` state and now expose selected-row navigation through the workspace export surface
+  - migration wizard diagnostics expose rendered workflow actions, selected-result detail, issue-focused navigation, report save/load, and bound-runtime rerun flows
+  - event-authority, menu, message, battle, and ability diagnostics remain snapshot/export truthful alongside their current workflow surfaces
 - Presentation planning is now aligned around **Phase 5 â€” Environment & Presentation Polish**:
   - **Incubating:** `editor/spatial/*` panels (`ElevationBrushPanel`, `PropPlacementPanel`) are header-only with no compiled `.cpp` sources registered in the build graph.
   - **Incubating:** `engine/core/presentation/*` is predominantly header-only abstraction; only `presentation_runtime.cpp` and `release_validation.cpp` are actively compiled. `profile_arena.cpp` exists but is not registered in `urpg_core`.
@@ -31,8 +37,14 @@ Phase 2 runtime closure is complete as of 2026-04-19. Remaining compat work in t
 - Asset reality remains intentionally conservative:
   - the repo has strong importer/test/reference corpora
   - the repo does **not** yet have a serious license-cleared production asset library across tiles, portraits, UI, VFX, and audio
-- **In Progress:** External repository intake governance is active. Canonical artifacts live in [`docs/external-intake/`](./external-intake/) and the execution plan is [`URPG_repo_intake_plan.md`](../URPG_repo_intake_plan.md).
-- **In Progress:** Private-use asset intake governance is active. Canonical artifacts live in [`docs/asset_intake/`](./asset_intake/) and the execution plan is [`URPG_private_asset_intake_plan.md`](../URPG_private_asset_intake_plan.md).
+- Phase 4 governance/reconciliation closure is complete:
+  - external repository intake governance now has recorded repo dispositions, fixture/attribution schemas, and a dedicated validation gate under [`docs/external-intake/`](./external-intake/) and [`tools/ci/check_phase4_intake_governance.ps1`](../tools/ci/check_phase4_intake_governance.ps1)
+  - private-use asset intake governance now has schema-backed source manifests, truthful capture-state reporting, and reconciled asset-gap records under [`docs/asset_intake/`](./asset_intake/), [`imports/manifests/`](../imports/manifests/), and [`imports/reports/asset_intake/`](../imports/reports/asset_intake/)
+- Phase 5 hardening closure is complete:
+  - async plugin callbacks are now deferred, FIFO, owning-thread-only, and covered by focused queue-integrity and stale-error-clearing regressions
+  - `MapScene` audio ownership is now explicit and observable instead of relying on a constructor-created service instance
+  - retained tile render commands are now explicitly documented and verified as pointer-stable across unchanged frames
+  - the Phase 4 governance gate now enforces wrapper/facade-only production-candidate adoption plus provenance-preserving asset-promotion records
 - **Planning Governance:** standalone PGMMV/native-absorption roadmap files are now treated as reference annexes under [`docs/TECHNICAL_DEBT_REMEDIATION_PLAN.md`](./TECHNICAL_DEBT_REMEDIATION_PLAN.md) and indexed in [`docs/archive/README.md`](./archive/README.md), not parallel execution authorities.
 
 - `main` is up to date and protected:
@@ -58,10 +70,14 @@ Phase 2 runtime closure is complete as of 2026-04-19. Remaining compat work in t
   - compat status truth pass is now reflected in the canonical docs; remaining work is to keep those labels and docs aligned as post-closure hardening continues
   - AudioManager compat closure advanced: deterministic playback position now advances during `update()`, duck/unduck ramps are frame-based, master/bus volume changes affect active playback, and the QuickJS `AudioManager` bridge now routes live compat state for BGM/BGS/ME/SE plus volume/ducking helpers
   - 2026-04-19 Phase 2 runtime closure reconciled the battle reward/event and switch coverage, window `contents()` lifecycle truthfulness, `DataManager::loadDatabase()` seeded-container behavior, and audio semantics documentation against the focused dev-mingw-debug verification lane
+  - 2026-04-19 Phase 4 governance closure reconciled external-repo dispositions, private-asset source manifests, asset-gap truthfulness, and canonical status docs, and added a local validation gate for the intake-governance lane
 - Latest recorded local validation snapshot:
-  - recorded under the `dev-ninja-debug` preset: `ctest --preset dev-all --output-on-failure` => 564/564 passed
+  - recorded under the `dev-ninja-debug` preset: `ctest --preset dev-all --output-on-failure` => 569/569 passed
+- Latest focused Phase 5 hardening validation snapshot:
+  - `ctest --test-dir build/dev-mingw-debug --output-on-failure -R "PluginManager: Command execution|MapScene:|SceneManager:"` => 8/8 passed
+  - `powershell -ExecutionPolicy Bypass -File tools/ci/check_phase4_intake_governance.ps1` => passed
 - Latest focused presentation validation snapshot:
-  - `ctest -C Debug -R "urpg_(presentation_(unit_lane|release_validation)|spatial_editor_lane)" --output-on-failure` => 3/3 passed
+  - `ctest --test-dir build/dev-mingw-debug -C Debug -R "urpg_(presentation_(unit_lane|release_validation)|spatial_editor_lane)" --output-on-failure` => 3/3 passed
   - includes the dedicated `[presentation]` unit lane, the standalone release-validation harness, and the spatial editor authoring lane
   - CI `gate1-pr` now invokes the focused presentation gate explicitly via `tools/ci/run_presentation_gate.ps1` after the shared build step
 - Latest focused audio validation snapshot:

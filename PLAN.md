@@ -1,8 +1,8 @@
 # Presentation Core - Project Plan (PLAN.md)
 
 ## Status
-**Current Phase:** Post-Phase-2 documentation and governance follow-through
-**Current Task:** Task 4 — final repo-wide documentation truth-reconciliation sweep and close-out
+**Current Phase:** Post-Phase-4 hardening follow-through
+**Current Task:** Phase 5 hardening and residual truth-maintenance work
 
 **Completed Milestones Since Initialization**
 - Phase 0 — Program Setup: Complete
@@ -18,7 +18,7 @@
 
 **Current framing note**
 - The historical presentation-core backlog below remains accurate as a planning reference.
-- Active repo-wide execution has moved beyond the Phase 5 milestone and the closed Phase 2 runtime lane; current truth and remaining work are tracked canonically in `docs/PROGRAM_COMPLETION_STATUS.md` and `docs/TECHNICAL_DEBT_REMEDIATION_PLAN.md`.
+- Active repo-wide execution has moved beyond the closed Phase 2 runtime lane, the closed Phase 3 diagnostics lane, and the closed Phase 4 governance/reconciliation lane; current truth and remaining work are tracked canonically in `docs/PROGRAM_COMPLETION_STATUS.md` and `docs/TECHNICAL_DEBT_REMEDIATION_PLAN.md`.
 
 ---
 

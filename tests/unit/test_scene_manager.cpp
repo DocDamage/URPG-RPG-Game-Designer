@@ -157,6 +157,32 @@ TEST_CASE("MapScene: AI audio commands use injected AudioCore service", "[scene]
     REQUIRE(audio->activeSourceCount() == 0);
 }
 
+TEST_CASE("MapScene: injected AudioCore can be replaced without stale state leakage", "[scene][map][audio]") {
+    MapScene map("001", 10, 10);
+    auto firstAudio = std::make_shared<urpg::audio::AudioCore>();
+    auto secondAudio = std::make_shared<urpg::audio::AudioCore>();
+
+    map.setAudioCore(firstAudio);
+    map.processAiAudioCommands("[ACTION: CROSSFADE, ASSET: Boss_Dark, VOL: 0.8, FADE: 3.0]");
+    REQUIRE(firstAudio->currentBGM() == "Boss_Dark");
+
+    map.setAudioCore(secondAudio);
+    map.processAiAudioCommands("[ACTION: PLAY_SE, ASSET: Confirm_01, VOL: 1.0, FADE: 0.0]");
+
+    REQUIRE(firstAudio->activeSourceCount() == 0);
+    REQUIRE(secondAudio->activeSourceCount() == 1);
+}
+
+TEST_CASE("MapScene: audio service binding is explicit and observable", "[scene][map][audio]") {
+    MapScene map("001", 10, 10);
+    REQUIRE(map.audioCore() == nullptr);
+
+    auto audio = std::make_shared<urpg::audio::AudioCore>();
+    map.setAudioCore(audio);
+
+    REQUIRE(map.audioCore() == audio);
+}
+
 TEST_CASE("MapScene: retained tile render commands only rebuild when map data changes", "[scene][map][render]") {
     auto& layer = urpg::RenderLayer::getInstance();
     layer.flush();
@@ -189,6 +215,25 @@ TEST_CASE("MapScene: retained tile render commands only rebuild when map data ch
     auto changedTile = std::dynamic_pointer_cast<urpg::TileCommand>(thirdFrame[1]);
     REQUIRE(changedTile != nullptr);
     REQUIRE(changedTile->tileIndex == 7);
+}
+
+TEST_CASE("MapScene: retained tile commands stay pointer-stable across unchanged frames", "[scene][map][render]") {
+    auto& layer = urpg::RenderLayer::getInstance();
+    layer.flush();
+
+    MapScene map("001", 2, 2);
+
+    map.onUpdate(0.0f);
+    const auto firstFrame = layer.getCommands();
+    REQUIRE(firstFrame.size() == 5);
+
+    map.onUpdate(0.0f);
+    const auto secondFrame = layer.getCommands();
+    REQUIRE(secondFrame.size() == firstFrame.size());
+
+    for (size_t i = 0; i < 4; ++i) {
+        REQUIRE(secondFrame[i].get() == firstFrame[i].get());
+    }
 }
 
 class MockScene : public GameScene {

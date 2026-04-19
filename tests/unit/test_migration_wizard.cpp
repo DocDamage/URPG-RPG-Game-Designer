@@ -1352,3 +1352,172 @@ TEST_CASE("MigrationWizardPanel: loading a report clears any previously bound ru
 
     std::filesystem::remove(temp_path);
 }
+
+TEST_CASE("MigrationWizardModel: issue navigation skips clean subsystem results",
+          "[editor][diagnostics][wizard][selection][issues]") {
+    const std::string temp_path =
+        (std::filesystem::temp_directory_path() / "urpg_migration_wizard_issue_navigation_model.json").string();
+    std::filesystem::remove(temp_path);
+
+    nlohmann::json report_json = {
+        {"total_files_processed", 3},
+        {"warning_count", 2},
+        {"error_count", 1},
+        {"is_complete", true},
+        {"summary_logs", {
+            "Message migration: 1 dialogue sequence(s), 2 diagnostic(s).",
+            "Menu migration: 1 scene panel(s), 1 command(s).",
+            "Battle migration: 1 troop(s), 3 action(s).",
+            "Migration wizard complete."
+        }},
+        {"subsystem_results", {
+            {
+                {"subsystem_id", "message"},
+                {"display_name", "Message"},
+                {"processed_count", 1},
+                {"warning_count", 2},
+                {"error_count", 0},
+                {"completed", true},
+                {"summary_line", "Message migration: 1 dialogue sequence(s), 2 diagnostic(s)."}
+            },
+            {
+                {"subsystem_id", "menu"},
+                {"display_name", "Menu"},
+                {"processed_count", 1},
+                {"warning_count", 0},
+                {"error_count", 0},
+                {"completed", true},
+                {"summary_line", "Menu migration: 1 scene panel(s), 1 command(s)."}
+            },
+            {
+                {"subsystem_id", "battle"},
+                {"display_name", "Battle"},
+                {"processed_count", 1},
+                {"warning_count", 0},
+                {"error_count", 1},
+                {"completed", true},
+                {"summary_line", "Battle migration: 1 troop(s), 3 action(s)."}
+            }
+        }},
+        {"selected_subsystem_id", "message"}
+    };
+
+    {
+        std::ofstream ofs(temp_path);
+        REQUIRE(ofs);
+        ofs << report_json.dump();
+    }
+
+    MigrationWizardModel model;
+    REQUIRE(model.loadReportFromFile(temp_path));
+    REQUIRE(model.selectedSubsystemId().has_value());
+    REQUIRE(*model.selectedSubsystemId() == "message");
+    REQUIRE(model.canSelectNextIssueSubsystemResult());
+    REQUIRE_FALSE(model.canSelectPreviousIssueSubsystemResult());
+
+    REQUIRE(model.selectNextIssueSubsystemResult());
+    REQUIRE(model.selectedSubsystemId().has_value());
+    REQUIRE(*model.selectedSubsystemId() == "battle");
+    REQUIRE_FALSE(model.canSelectNextIssueSubsystemResult());
+    REQUIRE(model.canSelectPreviousIssueSubsystemResult());
+
+    REQUIRE(model.selectPreviousIssueSubsystemResult());
+    REQUIRE(model.selectedSubsystemId().has_value());
+    REQUIRE(*model.selectedSubsystemId() == "message");
+    REQUIRE_FALSE(model.selectPreviousIssueSubsystemResult());
+
+    REQUIRE(model.selectSubsystemResult("menu"));
+    REQUIRE(model.canSelectNextIssueSubsystemResult());
+    REQUIRE(model.canSelectPreviousIssueSubsystemResult());
+    REQUIRE(model.selectNextIssueSubsystemResult());
+    REQUIRE(model.selectedSubsystemId().has_value());
+    REQUIRE(*model.selectedSubsystemId() == "battle");
+    REQUIRE(model.selectPreviousIssueSubsystemResult());
+    REQUIRE(model.selectedSubsystemId().has_value());
+    REQUIRE(*model.selectedSubsystemId() == "message");
+
+    std::filesystem::remove(temp_path);
+}
+
+TEST_CASE("MigrationWizardPanel: render snapshot exposes issue-focused navigation actions",
+          "[editor][diagnostics][wizard][panel][workflow][issues]") {
+    MigrationWizardPanel panel;
+    panel.setVisible(true);
+
+    const std::string temp_path =
+        (std::filesystem::temp_directory_path() / "urpg_migration_wizard_issue_navigation_panel.json").string();
+    std::filesystem::remove(temp_path);
+
+    nlohmann::json report_json = {
+        {"total_files_processed", 3},
+        {"warning_count", 1},
+        {"error_count", 1},
+        {"is_complete", true},
+        {"summary_logs", {
+            "Message migration: 1 dialogue sequence(s), 1 diagnostic(s).",
+            "Menu migration: 1 scene panel(s), 1 command(s).",
+            "Battle migration: 1 troop(s), 3 action(s).",
+            "Migration wizard complete."
+        }},
+        {"subsystem_results", {
+            {
+                {"subsystem_id", "message"},
+                {"display_name", "Message"},
+                {"processed_count", 1},
+                {"warning_count", 1},
+                {"error_count", 0},
+                {"completed", true},
+                {"summary_line", "Message migration: 1 dialogue sequence(s), 1 diagnostic(s)."}
+            },
+            {
+                {"subsystem_id", "menu"},
+                {"display_name", "Menu"},
+                {"processed_count", 1},
+                {"warning_count", 0},
+                {"error_count", 0},
+                {"completed", true},
+                {"summary_line", "Menu migration: 1 scene panel(s), 1 command(s)."}
+            },
+            {
+                {"subsystem_id", "battle"},
+                {"display_name", "Battle"},
+                {"processed_count", 1},
+                {"warning_count", 0},
+                {"error_count", 1},
+                {"completed", true},
+                {"summary_line", "Battle migration: 1 troop(s), 3 action(s)."}
+            }
+        }},
+        {"selected_subsystem_id", "message"}
+    };
+
+    {
+        std::ofstream ofs(temp_path);
+        REQUIRE(ofs);
+        ofs << report_json.dump();
+    }
+
+    REQUIRE(panel.loadReportFromFile(temp_path));
+    panel.render();
+
+    auto snapshot = panel.lastRenderSnapshot();
+    REQUIRE(snapshot.can_select_next_issue_subsystem);
+    REQUIRE_FALSE(snapshot.can_select_previous_issue_subsystem);
+    REQUIRE(snapshot.primary_actions.next_issue_subsystem.visible);
+    REQUIRE(snapshot.primary_actions.next_issue_subsystem.enabled);
+    REQUIRE(snapshot.primary_actions.previous_issue_subsystem.visible);
+    REQUIRE_FALSE(snapshot.primary_actions.previous_issue_subsystem.enabled);
+
+    REQUIRE(panel.selectNextIssueSubsystemResult());
+    panel.render();
+
+    snapshot = panel.lastRenderSnapshot();
+    REQUIRE(snapshot.selected_subsystem_id.has_value());
+    REQUIRE(*snapshot.selected_subsystem_id == "battle");
+    REQUIRE_FALSE(snapshot.can_select_next_issue_subsystem);
+    REQUIRE(snapshot.can_select_previous_issue_subsystem);
+    REQUIRE_FALSE(snapshot.primary_actions.next_issue_subsystem.enabled);
+    REQUIRE(snapshot.primary_actions.previous_issue_subsystem.enabled);
+
+    std::filesystem::remove(temp_path);
+}

@@ -1,13 +1,40 @@
 ﻿# Presentation Core - Work Log (WORKLOG.md)
 
 ## Current Status
-**Phase:** Post-Phase-2 documentation/governance follow-through
-**Active Task:** Task 4 — final repo-wide documentation truth-reconciliation sweep and close-out
+**Phase:** Post-Phase-5 closure follow-through
+**Active Task:** Keep post-closure validation evidence and status docs aligned while roadmap work continues
 **Cross-Cutting Governance:** cross-program debt, truthfulness, and intake-governance tracking lives in `docs/TECHNICAL_DEBT_REMEDIATION_PLAN.md`
 
 ---
 
 ## Entries
+
+### 2026-04-19 — Phase 5 Hardening Closure
+- **Action**: Expanded the `PluginManager` async callback audit with queue-preservation and stale-error-clearing regressions, then cleared stale thread-affinity errors on successful owning-thread dispatch.
+- **Action**: Made `MapScene` audio-service ownership explicit and observable by removing the constructor-created `AudioCore` instance and adding focused scene regressions for rebinding and explicit binding state.
+- **Action**: Added retained-render pointer-stability coverage for unchanged `MapScene` frames, expanded presentation release validation to report the environment-command envelope, and documented the retained-render contract in `docs/presentation/performance_budgets.md`.
+- **Action**: Hardened `tools/ci/check_phase4_intake_governance.ps1` so the gate now enforces wrapper/facade-only production-candidate adoption plus provenance-preserving asset-promotion records, then updated the canonical intake docs to satisfy those checks.
+- **Action**: Re-ran the focused plugin/scene lane, the focused presentation gate, the governance gate, and the repo-wide `ctest --preset dev-all --output-on-failure` lane before reconciling the canonical status docs and release checklist.
+- **Result**: Phase 5 is now CLOSED. Final validation is green at `ctest --test-dir build/dev-mingw-debug --output-on-failure -R "PluginManager: Command execution|MapScene:|SceneManager:"` => 8/8 passed, `ctest --test-dir build/dev-mingw-debug -C Debug -R "urpg_(presentation_(unit_lane|release_validation)|spatial_editor_lane)" --output-on-failure` => 3/3 passed, `powershell -ExecutionPolicy Bypass -File tools/ci/check_phase4_intake_governance.ps1` => passed, and `ctest --preset dev-all --output-on-failure` => 569/569 passed.
+
+### 2026-04-19 — Phase 5 Plugin Callback Thread-Affinity Enforcement
+- **Action**: Added a focused `PluginManager` regression proving deferred async callbacks must not be drainable from a foreign thread and that the callback queue remains intact until the owning thread dispatches it.
+- **Action**: Hardened `runtimes/compat_js/plugin_manager.cpp` so `dispatchPendingAsyncCallbacks()` now enforces the owning-thread contract instead of silently allowing cross-thread callback delivery.
+- **Action**: Updated the remediation hub evidence for `P2-09` so the Phase 5 audit record reflects both deferred callback delivery and owning-thread-only dispatch enforcement.
+- **Result**: Focused `PluginManager: Command execution` verification is green after rebuild with 158 assertions passing.
+
+### 2026-04-19 — Phase 4 Governance/Reconciliation Closure
+- **Action**: Replaced the remaining Phase 4 placeholder intake states with explicit governance records: external repo dispositions in `docs/external-intake/license-matrix.md`, schema-backed attribution and fixture-metadata artifacts in `docs/external-intake/`, and schema-backed asset source manifests plus source-capture reporting under `imports/manifests/` and `imports/reports/asset_intake/`.
+- **Action**: Reconciled `docs/asset_intake/ASSET_SOURCE_REGISTRY.md` and `docs/asset_intake/ASSET_CATEGORY_GAPS.md` so they describe the truthful current state: sources are cataloged but not yet mirrored, staged, normalized, or promoted.
+- **Action**: Added the Phase 4 validation gate in `tools/ci/check_phase4_intake_governance.ps1` and updated `docs/TECHNICAL_DEBT_REMEDIATION_PLAN.md`, `docs/PROGRAM_COMPLETION_STATUS.md`, `PLAN.md`, and the worklog header so the canonical status stack now treats `P3-02`, `P3-03`, and Phase 4 as closed.
+- **Result**: Phase 4 is now CLOSED. Remaining remediation focus moved to Phase 5 hardening work until the later 2026-04-19 closure pass completed that lane as well.
+
+### 2026-04-19 — Phase 3 Diagnostics Productization Closure
+- **Action**: Added issue-focused migration-wizard subsystem navigation so the diagnostics workflow can jump directly between warning/error-bearing subsystem results instead of only stepping linearly through all results.
+- **Action**: Added audio-inspector row selection/navigation workflow state so the audio tab now exports selected live-handle detail plus next/previous row affordances instead of only a passive live-row list.
+- **Action**: Forwarded both workflow slices through `DiagnosticsWorkspace` and expanded focused regressions in `test_migration_wizard.cpp`, `test_audio_inspector.cpp`, and `test_diagnostics_workspace.cpp`.
+- **Action**: Reconciled `docs/TECHNICAL_DEBT_REMEDIATION_PLAN.md`, `docs/PROGRAM_COMPLETION_STATUS.md`, and the worklog header so the canonical status stack now treats `P2-03` and Phase 3 as closed and points the next active remediation lane at Phase 4 governance/reconciliation work.
+- **Result**: Phase 3 is now CLOSED. Focused diagnostics verification passed for `ctest --test-dir build/dev-mingw-debug --output-on-failure -R "DiagnosticsWorkspace|AudioInspector|MigrationWizard"` with 68/68 tests green.
 
 ### 2026-04-19 — Final Documentation Truth-Reconciliation Sweep (Task 4)
 - **Action**: Ran the required repo-wide documentation sweep across `README.md`, `PLAN.md`, `WORKLOG.md`, and `docs/` to review residual status/authority wording after Tasks 1-3.

@@ -9,6 +9,12 @@
 
 This document defines the canonical workflow for moving external assets from capture into URPG product lanes while preserving provenance, avoiding content-root drift, and maintaining license clarity.
 
+Every promoted asset subset must retain a provenance chain made of:
+- source manifest
+- bundle manifest
+- promotion record
+- attribution/provenance linkage back to the captured source
+
 ---
 
 ## Phase A — Source Capture
@@ -72,6 +78,7 @@ This document defines the canonical workflow for moving external assets from cap
 - Normalized roots exist with clean substructure.
 - Promoted assets are not anonymous.
 - Source-to-target mapping is explicit.
+- Every promoted subset has a promotion record that links the source manifest and bundle manifest entries used to justify promotion.
 
 ### Promotion Manifest Schema Example
 

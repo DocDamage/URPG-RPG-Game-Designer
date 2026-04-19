@@ -86,11 +86,15 @@ public:
     bool dispatchMenuPreviewAction(urpg::input::InputAction action);
     void bindAudioRuntime(const urpg::audio::AudioCore& core);
     void clearAudioRuntime();
+    bool selectNextAudioRow();
+    bool selectPreviousAudioRow();
     void bindMigrationWizardRuntime(const nlohmann::json& project_data);
     void clearMigrationWizardRuntime();
     bool selectMigrationWizardSubsystemResult(std::string_view subsystem_id);
     bool selectNextMigrationWizardSubsystemResult();
     bool selectPreviousMigrationWizardSubsystemResult();
+    bool selectNextMigrationWizardIssueSubsystemResult();
+    bool selectPreviousMigrationWizardIssueSubsystemResult();
     bool rerunBoundMigrationWizard();
     bool rerunMigrationWizardSubsystem(std::string_view subsystem_id, const nlohmann::json& project_data);
     bool rerunBoundSelectedMigrationWizardSubsystem();

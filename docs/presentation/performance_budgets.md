@@ -32,6 +32,13 @@
 - **Streaming Latency**: < 8.0ms (Tier 0: 32.0ms synchronous)
 - **LOD Factor**: Linear steps (0.25x density per Tier drop)
 
+### MapScene Retained Render Contract
+- Tile render commands are retained between frames and only rebuilt when tile or passability data changes.
+- Unchanged `MapScene` frames must reuse the existing retained tile command objects instead of rebuilding equivalent commands.
+- Focused evidence:
+  - `tests/unit/test_scene_manager.cpp` proves unchanged frames keep pointer-stable retained tile commands.
+  - `engine/core/presentation/release_validation.cpp` reports the current environment-command envelope alongside actor command counts for the Phase 5 presentation lane.
+
 ### BattleScene
 - **Max Emitters**: 64 total (Tier 0: 4)
 - **Post-FX Override**: Linear Desaturate (0.5ms fixed)

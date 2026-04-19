@@ -107,7 +107,7 @@ Quick-reference table for current finding status. Use this to assess open work w
 | P1-04 | Battle Turn-Condition Correctness Bug | ✅ Remediated | Phase 2 WS 2.2 |
 | P2-01 | Diagnostics Workspace Reports More Than It Renders | ✅ Remediated | Phase 3 |
 | P2-02 | Diagnostics Runtime Binding Is One-Way and Leaves Stale State | ✅ Remediated | Phase 3 |
-| P2-03 | Audio and Migration Diagnostics Are Scaffolding, Not Product | ⚠ Partially Remediated | Phase 3 |
+| P2-03 | Audio and Migration Diagnostics Are Scaffolding, Not Product | ✅ Remediated | Phase 3 |
 | P2-04 | Test and Build Registration Drift | ✅ Remediated | Phase 4 |
 | P2-05 | Menu Serialization Is Import-Only, Not Round-Trippable | ✅ Remediated | Phase 2 WS 2.5 |
 | P2-06 | Presentation and Spatial Claims Exceed Build Graph Evidence | ✅ Remediated (Incubating declared) | Phase 4 |
@@ -116,8 +116,8 @@ Quick-reference table for current finding status. Use this to assess open work w
 | P2-09 | Async Plugin Callbacks Lack Thread-Affinity Guarantees | ✅ Remediated | Phase 5 |
 | P2-10 | Native-Absorption and PGMMV Planning Drift Sits Outside Canonical Remediation Governance | ✅ Remediated | Phase 4.3 |
 | P3-01 | Hidden Ownership Shortcuts in Runtime Services | ✅ Remediated | Phase 5 |
-| P3-02 | External Repository Intake Needs Canonical Governance | ⚠ Partially Remediated | Phase 4.1 |
-| P3-03 | Private-Use Asset Intake Needs Canonical Governance | ⚠ Partially Remediated | Phase 4.2 |
+| P3-02 | External Repository Intake Needs Canonical Governance | ✅ Remediated | Phase 4.1 |
+| P3-03 | Private-Use Asset Intake Needs Canonical Governance | ✅ Remediated | Phase 4.2 |
 
 **Legend:** ✅ Remediated — work is complete and verified. ⚠ Open or Partially Remediated — work is in progress or not yet started.
 
@@ -132,11 +132,11 @@ The debt picture is narrower than it was at initial audit, but several cross-cut
 
 **Phase 2 runtime closure is complete, but compat work is not "done forever."** [quickjs_runtime.cpp](../runtimes/compat_js/quickjs_runtime.cpp) remains intentionally scoped as a fixture-backed compat harness, and [audio_manager.cpp](../runtimes/compat_js/audio_manager.cpp), [data_manager.cpp](../runtimes/compat_js/data_manager.cpp), [battle_manager.cpp](../runtimes/compat_js/battle_manager.cpp), and [window_compat.cpp](../runtimes/compat_js/window_compat.cpp) remain honest `PARTIAL` surfaces where residual limits still exist. The remaining compat work is post-closure exit hardening, corpus depth, and truth maintenance, not unfinished baseline runtime closure for the audited Phase 2 lane.
 
-**Editor diagnostics surfaces now render real bodies, but workflow depth still varies by lane.** The Audio, Migration Wizard, and Event Authority surfaces are no longer mere scaffolding; the remaining gap under P2-03 is richer workflow polish and productization depth.
+**Phase 3 diagnostics productization is now closed.** The Audio, Migration Wizard, and Event Authority surfaces now render real bodies, export snapshot-backed workflow state, and expose actionable navigation/selection flows through `DiagnosticsWorkspace` rather than only summary shells.
 
 **Some exported interfaces still route to placeholders.** [plugin_api.cpp](../engine/core/editor/plugin_api.cpp) and [cloud_service.h](../engine/core/social/cloud_service.h) still need to be described and governed as scratch-state/stub-backed surfaces rather than production-integrated systems.
 
-**Intake governance is active but still intentionally partial.** [URPG_repo_intake_plan.md](../URPG_repo_intake_plan.md) and [URPG_private_asset_intake_plan.md](../URPG_private_asset_intake_plan.md) now provide canonical governance lanes; the remaining work is operational follow-through and disposition discipline, not the absence of a governing framework.
+**Phase 4 intake governance is now concretized and closed as a remediation lane.** [URPG_repo_intake_plan.md](../URPG_repo_intake_plan.md) and [URPG_private_asset_intake_plan.md](../URPG_private_asset_intake_plan.md) are now backed by explicit dispositions, schemas, manifests, source-capture reporting, and a local validation gate so future external-repo and private-asset work enters through governed records instead of placeholder templates.
 
 **Planning authority is centralized, and the remaining risk is regression to drift.** Archived PGMMV/native-absorption roadmap inputs are now reference-only annexes routed through this remediation hub and the canonical status stack. The remaining governance work is to keep future plan docs from reintroducing parallel authority.
 
@@ -408,7 +408,7 @@ Do not leave the workspace counting tabs that do not render.
 - `audio_inspector_model` reflects real `AudioCore` state or is clearly labeled as a simulation layer in code and docs.
 - Tests for both subsystems assert the highest-fidelity behavior that exists, not the lowest.
 
-**Status (2026-04-17):** Partially remediated. The audio inspector now projects live `AudioCore` active-source rows, and the migration wizard now reports which subsystem migrations actually ran, including message migration, but richer wizard-product workflow remains the primary open slice under this finding.
+**Status (2026-04-19):** Remediated. The audio inspector now projects live `AudioCore` state through selectable workflow rows, and the migration wizard now exposes rendered workflow actions, selected-result detail, issue-focused navigation, report I/O, and bound-runtime rerun flows through both the panel snapshot and `DiagnosticsWorkspace`.
 
 **Progress evidence (2026-04-17):**
 - [audio_core.h](../engine/core/audio/audio_core.h) now exposes read-only active-source snapshots, including asset id, category, and channel state, so editor diagnostics can inspect real runtime state without mutating the mixer.
@@ -447,6 +447,7 @@ Do not leave the workspace counting tabs that do not render.
 - (2026-04-17) [diagnostics_workspace.h](../editor/diagnostics/diagnostics_workspace.h) and [diagnostics_workspace.cpp](../editor/diagnostics/diagnostics_workspace.cpp) now expose event-authority workflow actions directly at the workspace layer: event-id/level/mode filters, clear-filters, row selection, and next/previous row navigation. The workspace now uses refresh+render for data/filter changes but render-only for selection/navigation so exported event-authority state stays truthful without wiping the current row selection. [test_diagnostics_workspace.cpp](../tests/unit/test_diagnostics_workspace.cpp) now verifies this workspace-level event-authority workflow surface.
 - (2026-04-17) [diagnostics_workspace.h](../editor/diagnostics/diagnostics_workspace.h) and [diagnostics_workspace.cpp](../editor/diagnostics/diagnostics_workspace.cpp) now expose message-inspector workflow actions directly at the workspace layer: route filtering, clear-route-filter, “issues only” toggling, and row selection. [message_inspector_model.cpp](../editor/message/message_inspector_model.cpp) now preserves selected page id across filter/rebuild cycles when the selected page remains visible, preventing workspace-driven filter changes from dropping `selected_page_id` unnecessarily. [test_diagnostics_workspace.cpp](../tests/unit/test_diagnostics_workspace.cpp) now verifies this workspace-level message workflow surface.
 - (2026-04-17) [diagnostics_workspace.cpp](../editor/diagnostics/diagnostics_workspace.cpp) now exports audio active-tab detail through the same diagnostics JSON snapshot, including master volume and live handle rows from the audio inspector panel snapshot. [test_diagnostics_workspace.cpp](../tests/unit/test_diagnostics_workspace.cpp) now asserts that the `audio` tab exports live row/category data instead of only the tab summary shell.
+- (2026-04-19) [audio_inspector_model.h](../editor/audio/audio_inspector_model.h) and [audio_inspector_panel.h](../editor/audio/audio_inspector_panel.h) now expose selection-backed live-row workflow state for the audio inspector, including selected-handle detail plus next/previous row navigation semantics; [diagnostics_workspace.h](../editor/diagnostics/diagnostics_workspace.h) and [diagnostics_workspace.cpp](../editor/diagnostics/diagnostics_workspace.cpp) now forward those audio row actions and export the selected-row workflow state through the top-level diagnostics snapshot. [test_audio_inspector.cpp](../tests/unit/test_audio_inspector.cpp) and [test_diagnostics_workspace.cpp](../tests/unit/test_diagnostics_workspace.cpp) now verify the richer audio workflow surface directly.
 - (2026-04-17) [diagnostics_workspace.cpp](../editor/diagnostics/diagnostics_workspace.cpp) now exports menu active-tab detail through the same diagnostics JSON snapshot, including menu inspector summary counts, visible rows, structured issues, selected command id, and menu preview visibility/title state. [test_diagnostics_workspace.cpp](../tests/unit/test_diagnostics_workspace.cpp) now asserts that the `menu` tab exports inspector and preview state instead of only the active-tab name.
 - (2026-04-17) [diagnostics_workspace.h](../editor/diagnostics/diagnostics_workspace.h) and [diagnostics_workspace.cpp](../editor/diagnostics/diagnostics_workspace.cpp) now expose menu-inspector workflow actions directly at the workspace layer: command-id filtering, clear-filter, “issues only” toggling, and row selection. [menu_inspector_model.cpp](../editor/ui/menu_inspector_model.cpp) now preserves selected command id across filter rebuilds when the selected command remains visible, and the `menu` active-tab export now includes `command_id_filter`, `show_issues_only`, and a structured `selected_row` payload. [test_diagnostics_workspace.cpp](../tests/unit/test_diagnostics_workspace.cpp) now verifies this workspace-level menu workflow surface.
 - (2026-04-17) [menu_inspector_panel.h](../editor/ui/menu_inspector_panel.h) and [menu_inspector_panel.cpp](../editor/ui/menu_inspector_panel.cpp) now capture a real render snapshot for the menu diagnostics surface, replacing the remaining placeholder registry/scene/selection sections with model-backed panel state and selected-command detail. [menu_inspector_model.cpp](../editor/ui/menu_inspector_model.cpp) now preserves selected command identity even when the selected command is filtered or hidden, so workspace-driven menu filtering stays actionable instead of dropping selection state. [diagnostics_workspace.cpp](../editor/diagnostics/diagnostics_workspace.cpp) now refreshes and exports the `menu` tab from that rendered snapshot when active, and [test_menu_inspector_panel.cpp](../tests/unit/test_menu_inspector_panel.cpp), [test_menu_inspector_model.cpp](../tests/unit/test_menu_inspector_model.cpp), and [test_diagnostics_workspace.cpp](../tests/unit/test_diagnostics_workspace.cpp) now verify the panel snapshot, hidden-selection persistence, and snapshot-backed workspace export path.
@@ -622,7 +623,7 @@ Do not leave the workspace counting tabs that do not render.
 
 **Impact:** Callbacks from the async worker thread in [plugin_manager.cpp](../runtimes/compat_js/plugin_manager.cpp) may touch editor or gameplay state that assumes a main-thread context, creating a latent race condition or reentrancy risk.
 
-**Status (2026-04-16):** Remediated via explicit deferred callback dispatch.
+**Status (2026-04-19):** Remediated via explicit deferred callback dispatch plus owning-thread-only callback delivery.
 
 **Root cause:**
 - [plugin_manager.cpp](../runtimes/compat_js/plugin_manager.cpp) runs an async worker thread and directly invokes plugin callbacks from that thread.
@@ -640,10 +641,11 @@ Do not leave the workspace counting tabs that do not render.
 - Callbacks that touch main-thread state are marshalled correctly.
 - No direct cross-thread invocations of UI or gameplay state exist in [plugin_manager.cpp](../runtimes/compat_js/plugin_manager.cpp).
 
-**Resolution evidence (2026-04-16):**
+**Resolution evidence (2026-04-19):**
 - [plugin_manager.h](../runtimes/compat_js/plugin_manager.h) now documents that async command execution is worker-threaded while callback delivery is deferred until `dispatchPendingAsyncCallbacks()` is called on the owning thread.
 - [plugin_manager.cpp](../runtimes/compat_js/plugin_manager.cpp) now queues completed async callbacks and no longer invokes them directly from the worker thread.
-- [test_plugin_manager.cpp](../tests/unit/test_plugin_manager.cpp) now asserts callbacks do not fire before dispatch and still execute in FIFO order after main-thread dispatch.
+- [plugin_manager.cpp](../runtimes/compat_js/plugin_manager.cpp) now rejects `dispatchPendingAsyncCallbacks()` calls from non-owning threads, leaves the completed queue intact, and reports the contract violation through `lastError_`.
+- [test_plugin_manager.cpp](../tests/unit/test_plugin_manager.cpp) now asserts callbacks do not fire before dispatch, still execute in FIFO order after owning-thread dispatch, and are rejected when a foreign thread attempts to drain the callback queue.
 
 ---
 
@@ -710,7 +712,7 @@ Do not leave the workspace counting tabs that do not render.
 
 ### P3-02 — External Repository Intake Needs Canonical Governance
 
-**Status (2026-04-17):** Partially remediated. Canonical governance artifacts have been created and linked.
+**Status (2026-04-19):** Remediated. Canonical governance artifacts now include explicit repo dispositions, schema-backed intake records, and a validation gate that prevents Phase 4 from regressing back to placeholder governance.
 
 **Impact:** External repositories can accelerate compat, import, localization, exporter, and editor work, but ungoverned ingestion would create new license ambiguity, fixture sprawl, architectural contamination, and false confidence. Without integrating intake into remediation, the program can "fix" debt while silently creating new debt.
 
@@ -747,17 +749,19 @@ Do not leave the workspace counting tabs that do not render.
 - No external repository is copied, vendored, or mined into URPG product lanes without a recorded legal and technical disposition.
 - External-repo-derived fixtures, wrappers, and adoption decisions are visible planning inputs rather than ad hoc local experiments.
 
-**Progress evidence (2026-04-17):**
+**Progress evidence (2026-04-19):**
 - [docs/external-intake/repo-watchlist.md](./external-intake/repo-watchlist.md) created and linked from [URPG_repo_intake_plan.md](../URPG_repo_intake_plan.md).
-- [docs/external-intake/license-matrix.md](./external-intake/license-matrix.md) created and linked.
+- [docs/external-intake/license-matrix.md](./external-intake/license-matrix.md) now records explicit dispositions for all twelve repositories and blocks direct adoption when upstream terms are not yet re-verified in canonical intake records.
 - [docs/external-intake/repo-audit-template.md](./external-intake/repo-audit-template.md) created and linked.
 - [docs/external-intake/urpg_feature_adoption_matrix.md](./external-intake/urpg_feature_adoption_matrix.md) created and linked.
+- [docs/external-intake/asset-attribution.schema.json](./external-intake/asset-attribution.schema.json), [docs/external-intake/plugin-fixture-metadata.schema.json](./external-intake/plugin-fixture-metadata.schema.json), and [docs/external-intake/reference-note-template.md](./external-intake/reference-note-template.md) now anchor attribution, fixture-metadata, and idea-extraction records instead of leaving those artifacts implicit.
+- [tools/ci/check_phase4_intake_governance.ps1](../tools/ci/check_phase4_intake_governance.ps1) now verifies required artifacts, rejects placeholder vocabulary in canonical docs, and asserts that the remediation hub records `P3-02` and `P3-03` as closed.
 
 ---
 
 ### P3-03 — Private-Use Asset Intake Needs Canonical Governance
 
-**Status (2026-04-17):** Partially remediated. Canonical governance artifacts have been created and linked.
+**Status (2026-04-19):** Remediated. Canonical governance artifacts now include schema-backed source manifests, source-capture reporting, and truthful asset-gap records that distinguish cataloged sources from mirrored or promoted content.
 
 **Impact:** Private-use asset ingestion can quickly improve editor feedback and runtime realism, but without governance it would create provenance drift, noisy content roots, license/context confusion, and false confidence about how "real" those surfaces are. The project would appear more complete while becoming harder to audit, curate, or safely evolve.
 
@@ -797,11 +801,14 @@ Do not leave the workspace counting tabs that do not render.
 - Direct-ingest and discovery-source repos have distinct tracked handling paths.
 - At least one editor-facing path and one runtime-facing path consume promoted assets through the governed pipeline rather than through local-only drops.
 
-**Progress evidence (2026-04-17):**
-- [docs/asset_intake/ASSET_SOURCE_REGISTRY.md](./asset_intake/ASSET_SOURCE_REGISTRY.md) created and linked from [URPG_private_asset_intake_plan.md](../URPG_private_asset_intake_plan.md).
-- [docs/asset_intake/ASSET_PROMOTION_GUIDE.md](./asset_intake/ASSET_PROMOTION_GUIDE.md) created and linked.
-- [docs/asset_intake/ASSET_CATEGORY_GAPS.md](./asset_intake/ASSET_CATEGORY_GAPS.md) created and linked.
-- [`imports/staging/asset_intake/`](../imports/staging/asset_intake/), [`imports/normalized/`](../imports/normalized/), [`imports/manifests/`](../imports/manifests/), [`imports/reports/`](../imports/reports/), and [`third_party/github_assets/`](../third_party/github_assets/) scaffolded and referenced.
+**Progress evidence (2026-04-19):**
+- [docs/asset_intake/ASSET_SOURCE_REGISTRY.md](./asset_intake/ASSET_SOURCE_REGISTRY.md) now records explicit capture state, handling path, legal disposition, and promotion status instead of placeholder staged-state rows.
+- [docs/asset_intake/ASSET_PROMOTION_GUIDE.md](./asset_intake/ASSET_PROMOTION_GUIDE.md) remains the canonical promotion procedure.
+- [docs/asset_intake/ASSET_CATEGORY_GAPS.md](./asset_intake/ASSET_CATEGORY_GAPS.md) now reflects cataloged-not-mirrored reality and frames fast-win lanes as governed future capture/promote work rather than already-staged content.
+- [`imports/staging/asset_intake/`](../imports/staging/asset_intake/), [`imports/normalized/`](../imports/normalized/), [`imports/manifests/`](../imports/manifests/), [`imports/reports/`](../imports/reports/), and [`third_party/github_assets/`](../third_party/github_assets/) remain the governed content roots for future capture/promotion work.
+- [imports/manifests/asset_sources/asset_source.schema.json](../imports/manifests/asset_sources/asset_source.schema.json), [imports/manifests/asset_bundles/asset_bundle.schema.json](../imports/manifests/asset_bundles/asset_bundle.schema.json), and [imports/manifests/asset_sources/SRC-001.json](../imports/manifests/asset_sources/SRC-001.json) through [SRC-005.json](../imports/manifests/asset_sources/SRC-005.json) now make the five governed source records concrete.
+- [imports/reports/asset_intake/source_capture_status.json](../imports/reports/asset_intake/source_capture_status.json) now reports the truthful current state: five cataloged sources, zero mirrored, zero staged, and zero normalized.
+- [tools/ci/check_phase4_intake_governance.ps1](../tools/ci/check_phase4_intake_governance.ps1) validates the required asset-governance artifacts alongside the Phase 4 closure status.
 
 ---
 
@@ -1033,6 +1040,8 @@ These principles govern every remediation decision. When in doubt, refer back to
 
 **Goal:** Pay down the structural debt that will keep the system brittle even after feature closure.
 
+**Status (2026-04-19):** Closed.
+
 **Depends on:** Phases 0–4 (all functional and surface debt should be resolved first so hardening targets stable, real code).
 
 **Effort estimate:** Medium.
@@ -1048,6 +1057,19 @@ These principles govern every remediation decision. When in doubt, refer back to
 - Async callback paths have documented and enforced thread-affinity rules.
 - Runtime services are passed through clear ownership boundaries — no static-local service instances in scene code.
 - Per-frame render work is proportional to scene delta.
+
+**Closure evidence (2026-04-19):**
+- [plugin_manager.cpp](../runtimes/compat_js/plugin_manager.cpp) now enforces owning-thread-only callback delivery, preserves queued callbacks after rejected foreign-thread drains, and clears stale thread-affinity errors after a successful owning-thread drain.
+- [test_plugin_manager.cpp](../tests/unit/test_plugin_manager.cpp) now proves deferred FIFO callback delivery, foreign-thread rejection, queue preservation, and stale-error clearing for the async callback lane.
+- [map_scene.cpp](../engine/core/scene/map_scene.cpp) no longer self-creates a hidden `AudioCore`; [map_scene.h](../engine/core/scene/map_scene.h) now exposes explicit audio-service binding state, and [test_scene_manager.cpp](../tests/unit/test_scene_manager.cpp) verifies rebinding and explicit ownership.
+- [test_scene_manager.cpp](../tests/unit/test_scene_manager.cpp) now proves retained tile commands stay pointer-stable across unchanged frames, and [presentation/performance_budgets.md](./presentation/performance_budgets.md) now documents that retained-render contract explicitly.
+- [release_validation.cpp](../engine/core/presentation/release_validation.cpp) now reports the environment-command envelope alongside actor counts, matching the current Phase 5 presentation lane.
+- [check_phase4_intake_governance.ps1](../tools/ci/check_phase4_intake_governance.ps1) now enforces wrapper/facade-only production-candidate adoption and provenance-preserving asset-promotion requirements from [license-matrix.md](./external-intake/license-matrix.md) and [ASSET_PROMOTION_GUIDE.md](./asset_intake/ASSET_PROMOTION_GUIDE.md).
+- Final closure verification is green for:
+  - `ctest --test-dir build/dev-mingw-debug --output-on-failure -R "PluginManager: Command execution|MapScene:|SceneManager:"`
+  - `ctest --test-dir build/dev-mingw-debug -C Debug -R "urpg_(presentation_(unit_lane|release_validation)|spatial_editor_lane)" --output-on-failure`
+  - `powershell -ExecutionPolicy Bypass -File tools/ci/check_phase4_intake_governance.ps1`
+  - `ctest --preset dev-all --output-on-failure`
 
 **Related documentation:** [presentation/performance_budgets](./presentation/performance_budgets.md), [RISKS](../RISKS.md), [RELEASE_CHECKLIST](../RELEASE_CHECKLIST.md).
 

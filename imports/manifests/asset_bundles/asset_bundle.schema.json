@@ -1,0 +1,74 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://urpg.local/schemas/intake/asset_bundle.schema.json",
+  "title": "URPG Asset Bundle Manifest",
+  "type": "object",
+  "required": [
+    "bundle_id",
+    "bundle_name",
+    "source_id",
+    "bundle_state",
+    "assets"
+  ],
+  "properties": {
+    "bundle_id": {
+      "type": "string",
+      "pattern": "^BND-[0-9]{3}$"
+    },
+    "bundle_name": {
+      "type": "string",
+      "minLength": 1
+    },
+    "source_id": {
+      "type": "string",
+      "pattern": "^SRC-[0-9]{3}$"
+    },
+    "bundle_state": {
+      "type": "string",
+      "enum": [
+        "planned",
+        "normalized",
+        "promoted"
+      ]
+    },
+    "assets": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "original_relative_path",
+          "promoted_relative_path",
+          "category",
+          "status"
+        ],
+        "properties": {
+          "original_relative_path": {
+            "type": "string",
+            "minLength": 1
+          },
+          "promoted_relative_path": {
+            "type": "string",
+            "minLength": 1
+          },
+          "category": {
+            "type": "string",
+            "minLength": 1
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "planned",
+              "normalized",
+              "promoted"
+            ]
+          },
+          "notes": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false
+}

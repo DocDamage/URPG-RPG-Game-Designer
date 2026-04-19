@@ -245,6 +245,34 @@ public:
         return current_index.has_value() && *current_index > 0;
     }
 
+    bool selectNextIssueSubsystemResult() {
+        const auto next_index = adjacentIssueSubsystemIndex(/*forward=*/true);
+        if (!next_index.has_value()) {
+            return false;
+        }
+
+        selected_subsystem_id_ = m_report.subsystem_results[*next_index].subsystem_id;
+        return true;
+    }
+
+    bool selectPreviousIssueSubsystemResult() {
+        const auto previous_index = adjacentIssueSubsystemIndex(/*forward=*/false);
+        if (!previous_index.has_value()) {
+            return false;
+        }
+
+        selected_subsystem_id_ = m_report.subsystem_results[*previous_index].subsystem_id;
+        return true;
+    }
+
+    bool canSelectNextIssueSubsystemResult() const {
+        return adjacentIssueSubsystemIndex(/*forward=*/true).has_value();
+    }
+
+    bool canSelectPreviousIssueSubsystemResult() const {
+        return adjacentIssueSubsystemIndex(/*forward=*/false).has_value();
+    }
+
     std::optional<std::string> selectedSubsystemId() const {
         return selected_subsystem_id_;
     }
@@ -454,6 +482,48 @@ private:
         for (size_t index = 0; index < m_report.subsystem_results.size(); ++index) {
             if (m_report.subsystem_results[index].subsystem_id == *selected_subsystem_id_) {
                 return index;
+            }
+        }
+
+        return std::nullopt;
+    }
+
+    static bool subsystemHasIssues(const SubsystemResult& result) {
+        return result.warning_count > 0 || result.error_count > 0;
+    }
+
+    std::optional<size_t> adjacentIssueSubsystemIndex(bool forward) const {
+        if (m_report.subsystem_results.empty()) {
+            return std::nullopt;
+        }
+
+        if (!selected_subsystem_id_.has_value()) {
+            const auto it = std::find_if(m_report.subsystem_results.begin(),
+                                         m_report.subsystem_results.end(),
+                                         subsystemHasIssues);
+            if (it == m_report.subsystem_results.end()) {
+                return std::nullopt;
+            }
+            return static_cast<size_t>(std::distance(m_report.subsystem_results.begin(), it));
+        }
+
+        const auto current_index = selectedSubsystemIndex();
+        if (!current_index.has_value()) {
+            return std::nullopt;
+        }
+
+        if (forward) {
+            for (size_t index = *current_index + 1; index < m_report.subsystem_results.size(); ++index) {
+                if (subsystemHasIssues(m_report.subsystem_results[index])) {
+                    return index;
+                }
+            }
+            return std::nullopt;
+        }
+
+        for (size_t index = *current_index; index > 0; --index) {
+            if (subsystemHasIssues(m_report.subsystem_results[index - 1])) {
+                return index - 1;
             }
         }
 

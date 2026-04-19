@@ -1,0 +1,27 @@
+{
+  "source_id": "SRC-002",
+  "repo_name": "GDQuest/game-sprites",
+  "source_url": "https://github.com/GDQuest/game-sprites",
+  "capture_state": "cataloged_not_mirrored",
+  "snapshot_commit": null,
+  "snapshot_date": null,
+  "source_type": "direct_asset_pack",
+  "category_tags": [
+    "sprites",
+    "items",
+    "grid_actors"
+  ],
+  "intended_use": [
+    "Combat prototype actors",
+    "Inventory and item placeholders",
+    "Grid-based and interaction tests",
+    "Early map and entity validation"
+  ],
+  "handling_path": "direct_ingest_when_captured",
+  "legal_disposition": "cc0_candidate_recorded_for_private_use_intake",
+  "promotion_status": "not_started",
+  "notes": [
+    "Governance record created before any mirror or staging pull.",
+    "Preferred first direct-ingest source once source capture work begins."
+  ]
+}

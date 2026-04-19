@@ -53,6 +53,7 @@ void RunReleaseValidation() {
     size_t actorCommandCount = 0;
     size_t fogCommandCount = 0;
     size_t postFxCommandCount = 0;
+    size_t lightCommandCount = 0;
     for (const auto& cmd : intent.commands) {
         if (cmd.type == PresentationCommand::Type::DrawActor) {
             actorCommandCount++;
@@ -60,10 +61,15 @@ void RunReleaseValidation() {
             fogCommandCount++;
         } else if (cmd.type == PresentationCommand::Type::SetPostFX) {
             postFxCommandCount++;
+        } else if (cmd.type == PresentationCommand::Type::SetLight) {
+            lightCommandCount++;
         }
     }
 
     std::cout << "[CHECK] Actor Command Count: " << actorCommandCount << " (Expected: 100)" << std::endl;
+    std::cout << "[CHECK] Environment Command Envelope: fog=" << fogCommandCount
+              << ", postfx=" << postFxCommandCount
+              << ", lights=" << lightCommandCount << std::endl;
     assert(actorCommandCount == 100);
     assert(fogCommandCount <= 1);
     assert(postFxCommandCount <= 1);

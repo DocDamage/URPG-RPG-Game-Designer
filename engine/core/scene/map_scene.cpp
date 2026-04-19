@@ -12,7 +12,6 @@ MapScene::MapScene(const std::string& mapId, int width, int height)
     : m_mapId(mapId), m_width(width), m_height(height) {
     m_tiles.resize(width * height, {0, true});
     m_renderer = std::make_unique<TilemapRenderer>(width, height);
-    m_audioCore = std::make_shared<urpg::audio::AudioCore>();
     
     // Initialize player movement component
     m_playerMovement.gridPos = {0, 0};

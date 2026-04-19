@@ -21,15 +21,15 @@
 
 | Category | Status | Coverage Notes | Target Source(s) | Priority |
 |----------|--------|----------------|------------------|----------|
-| UI sounds | `placeholder` | `kenney-interface-sounds` staged; needs promotion and audio-layer wiring | `SRC-003` | P0 |
-| Prototype sprites | `placeholder` | `GDQuest/game-sprites` staged; needs normalization and atlas testing | `SRC-002` | P0 |
-| Fantasy environment tilesets | `fixture_only` | `Intersect-Assets` staged; needs curated subset promotion | `SRC-001` | P1 |
-| Placeholder characters / monsters | `fixture_only` | `Intersect-Assets` staged; needs curated subset promotion | `SRC-001` | P1 |
-| Placeholder UI frames / chrome | `fixture_only` | `Intersect-Assets` staged; promote only if visual fit is acceptable | `SRC-001` | P1 |
-| VFX / animation sheets | `fixture_only` | `Intersect-Assets` staged; needs pipeline validation | `SRC-001` | P2 |
-| Environmental SFX / ambient audio | `fixture_only` | `Intersect-Assets` staged; needs curation | `SRC-001` | P2 |
-| Background music (BGM) | `fixture_only` | `Intersect-Assets` staged; evaluate for vertical-slice use | `SRC-001` | P2 |
-| Icon packs | `empty` | Mine from `awesome-cc0` and discovery indexes | `SRC-004`, `SRC-005` | P2 |
+| UI sounds | `fixture_only` | Existing repo coverage is still synthetic/reference-only; `SRC-003` is cataloged for future capture but not yet mirrored or promoted | `SRC-003` | P0 |
+| Prototype sprites | `fixture_only` | Existing repo coverage is still fixture/reference-only; `SRC-002` is cataloged for future capture but not yet mirrored or normalized | `SRC-002` | P0 |
+| Fantasy environment tilesets | `fixture_only` | Existing environment coverage remains test/reference-oriented; `SRC-001` is cataloged for curated future capture | `SRC-001` | P1 |
+| Placeholder characters / monsters | `fixture_only` | Existing character coverage remains fixture/reference-oriented; `SRC-001` is cataloged for curated future capture | `SRC-001` | P1 |
+| Placeholder UI frames / chrome | `fixture_only` | No promoted pack exists; `SRC-001` is only a cataloged future source candidate | `SRC-001` | P1 |
+| VFX / animation sheets | `fixture_only` | Pipeline realism still depends on future source capture and curated promotion from `SRC-001` | `SRC-001` | P2 |
+| Environmental SFX / ambient audio | `fixture_only` | No governed promoted library exists yet; only future source candidates are cataloged | `SRC-001` | P2 |
+| Background music (BGM) | `fixture_only` | No governed promoted BGM library exists yet; any future use depends on capture plus attribution review | `SRC-001` | P2 |
+| Icon packs | `empty` | No direct source is captured; discovery indexes only point to future candidate mining | `SRC-004`, `SRC-005` | P2 |
 | Fantasy UI skin (cohesive) | `empty` | No unified visual identity; requires future art direction | Discovery backlog | P3 |
 | Character portrait art (cohesive) | `empty` | No final-quality portrait set exists | Discovery backlog | P3 |
 | Polished VFX identity | `empty` | No finalized VFX style guide or master sheet set | Discovery backlog | P3 |
@@ -41,11 +41,11 @@
 
 ## Fast-Win Targets
 
-These are the immediate promotion targets to move URPG beyond fixture-only content:
+These are the immediate governed promotion targets once source capture begins:
 
-1. **UI Sound Pass** — Promote `kenney-interface-sounds` → `imports/normalized/ui_sfx/` and wire into editor/runtime audio events.
-2. **Prototype Sprite Pass** — Promote `GDQuest/game-sprites` → `imports/normalized/prototype_sprites/` and wire into map/battle test scenes.
-3. **Fantasy Environment Vertical Slice** — Promote one curated tileset bundle and one character subset from `Intersect-Assets` into a representative scene.
+1. **UI Sound Pass** — Capture and normalize a small `kenney-interface-sounds` subset into `imports/normalized/ui_sfx/`, then wire it into editor/runtime audio events.
+2. **Prototype Sprite Pass** — Capture and normalize a curated `GDQuest/game-sprites` subset into `imports/normalized/prototype_sprites/`, then wire it into map/battle test scenes.
+3. **Fantasy Environment Vertical Slice** — Capture one curated tileset bundle and one character subset from `Intersect-Assets`, record attribution manifests, and promote them into a representative scene.
 
 ---
 
@@ -75,3 +75,4 @@ Categories to mine from `awesome-cc0` and `Game-Assets-And-Resources`:
 | Date | Change |
 |------|--------|
 | 2026-04-17 | Initial gap map created from `URPG_private_asset_intake_plan.md` |
+| 2026-04-19 | Replaced misleading staged-state wording with cataloged-not-mirrored reality and rewrote fast-win targets as governed future capture/promote work. |

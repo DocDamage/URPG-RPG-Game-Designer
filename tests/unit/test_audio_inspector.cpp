@@ -84,4 +84,32 @@ TEST_CASE("AudioInspectorPanel: Visibility", "[editor][audio][panel]") {
         REQUIRE(panel.lastRenderSnapshot().live_rows[0].category == AudioCategory::SE);
         REQUIRE(panel.lastRenderSnapshot().live_rows[0].isActive);
     }
+
+    SECTION("Visible render carries selected live row workflow state") {
+        AudioCore core;
+        const auto first_handle = core.playSound("se_ui_ping", AudioCategory::SE);
+        const auto second_handle = core.playSound("bgm_field", AudioCategory::BGM);
+        panel.onRefreshRequested(core);
+        REQUIRE(panel.getModel()->selectNextRow());
+        panel.setVisible(true);
+
+        panel.render();
+
+        REQUIRE(panel.lastRenderSnapshot().selected_handle.has_value());
+        REQUIRE(*panel.lastRenderSnapshot().selected_handle == first_handle);
+        REQUIRE(panel.lastRenderSnapshot().selected_row.has_value());
+        REQUIRE(panel.lastRenderSnapshot().selected_row->assetId == "se_ui_ping");
+        REQUIRE(panel.lastRenderSnapshot().can_select_next_row);
+        REQUIRE_FALSE(panel.lastRenderSnapshot().can_select_previous_row);
+
+        REQUIRE(panel.getModel()->selectNextRow());
+        panel.render();
+
+        REQUIRE(panel.lastRenderSnapshot().selected_handle.has_value());
+        REQUIRE(*panel.lastRenderSnapshot().selected_handle == second_handle);
+        REQUIRE(panel.lastRenderSnapshot().selected_row.has_value());
+        REQUIRE(panel.lastRenderSnapshot().selected_row->assetId == "bgm_field");
+        REQUIRE_FALSE(panel.lastRenderSnapshot().can_select_next_row);
+        REQUIRE(panel.lastRenderSnapshot().can_select_previous_row);
+    }
 }

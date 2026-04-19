@@ -106,6 +106,7 @@ public:
     void openChatInput();
 
     void setAudioCore(std::shared_ptr<urpg::audio::AudioCore> audioCore) { m_audioCore = std::move(audioCore); }
+    std::shared_ptr<urpg::audio::AudioCore> audioCore() const { return m_audioCore; }
 
     /**
      * @brief Injects the AI audio bridge into the scene logic.

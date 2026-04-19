@@ -1,0 +1,32 @@
+{
+  "source_id": "SRC-001",
+  "repo_name": "AscensionGameDev/Intersect-Assets",
+  "source_url": "https://github.com/AscensionGameDev/Intersect-Assets",
+  "capture_state": "cataloged_not_mirrored",
+  "snapshot_commit": null,
+  "snapshot_date": null,
+  "source_type": "direct_asset_pack",
+  "category_tags": [
+    "tilesets",
+    "characters",
+    "animations",
+    "ui",
+    "sounds",
+    "music",
+    "tools"
+  ],
+  "intended_use": [
+    "Environment kit bootstrapping",
+    "Character placeholder coverage",
+    "UI prototyping",
+    "Audio resolver testing",
+    "Animation and VFX placeholder coverage"
+  ],
+  "handling_path": "direct_ingest_when_captured",
+  "legal_disposition": "mixed_asset_pack_reference_only_until_per-asset_attribution_is_captured",
+  "promotion_status": "not_started",
+  "notes": [
+    "Governance record created before any mirror or staging pull.",
+    "Mixed upstream asset licenses require per-asset attribution capture before promotion."
+  ]
+}

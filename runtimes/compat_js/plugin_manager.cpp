@@ -1049,6 +1049,7 @@ public:
     std::thread asyncWorker_;
     bool stopAsyncWorker_ = false;
     uint64_t nextAsyncSequence_ = 1;
+    std::thread::id owningThreadId_ = std::this_thread::get_id();
 
     PluginManagerImpl()
         : runtimeInitialized_(runtime_.initialize()) {}
@@ -1234,7 +1235,7 @@ void PluginManager::initializeMethodStatus() {
         setStatus("executeCommandByName", CompatStatus::PARTIAL,
                   "Qualified-name routing is reliable for registered handlers and fixtures, but still depends on a fixture-backed JS bridge.");
         setStatus("executeCommandAsync", CompatStatus::PARTIAL,
-                  "FIFO async dispatch works, but callbacks require explicit main-thread dispatch and still rely on the fixture-backed JS bridge.");
+                  "FIFO async dispatch works with owning-thread-only callback delivery, but still relies on the fixture-backed JS bridge.");
         
         // Parameter management
         setStatus("setParameter", CompatStatus::PARTIAL);
@@ -2286,6 +2287,13 @@ void PluginManager::executeCommandAsync(const std::string& pluginName,
 }
 
 int32_t PluginManager::dispatchPendingAsyncCallbacks() {
+    if (std::this_thread::get_id() != impl_->owningThreadId_) {
+        impl_->lastError_ = "dispatchPendingAsyncCallbacks must be called on the owning thread";
+        return 0;
+    }
+
+    impl_->lastError_.clear();
+
     std::deque<PluginManagerImpl::CompletedAsyncCallbackTask> pending;
     {
         std::lock_guard<std::mutex> lock(impl_->completedAsyncMutex_);

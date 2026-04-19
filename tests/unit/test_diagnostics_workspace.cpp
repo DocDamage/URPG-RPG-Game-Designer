@@ -1547,6 +1547,39 @@ TEST_CASE("DiagnosticsWorkspace - Audio runtime actions keep exported snapshot c
     REQUIRE(exported["active_tab_detail"]["live_rows"][1]["assetId"] == "second_audio_b");
 }
 
+TEST_CASE("DiagnosticsWorkspace - Audio row navigation is exposed at workspace level",
+          "[editor][diagnostics][integration][audio_actions]") {
+    urpg::editor::DiagnosticsWorkspace workspace;
+    workspace.setActiveTab(urpg::editor::DiagnosticsTab::Audio);
+
+    urpg::audio::AudioCore audioCore;
+    audioCore.playSound("audio_a", urpg::audio::AudioCategory::SE);
+    audioCore.playSound("audio_b", urpg::audio::AudioCategory::BGS);
+    workspace.bindAudioRuntime(audioCore);
+
+    auto exported = nlohmann::json::parse(workspace.exportAsJson());
+    REQUIRE(exported["active_tab_detail"]["selected_handle"].is_null());
+    REQUIRE(exported["active_tab_detail"]["selected_row"].is_null());
+    REQUIRE(exported["active_tab_detail"]["can_select_next_row"] == true);
+    REQUIRE(exported["active_tab_detail"]["can_select_previous_row"] == false);
+
+    REQUIRE(workspace.selectNextAudioRow());
+    exported = nlohmann::json::parse(workspace.exportAsJson());
+    REQUIRE(exported["active_tab_detail"]["selected_row"]["assetId"] == "audio_a");
+    REQUIRE(exported["active_tab_detail"]["can_select_next_row"] == true);
+    REQUIRE(exported["active_tab_detail"]["can_select_previous_row"] == false);
+
+    REQUIRE(workspace.selectNextAudioRow());
+    exported = nlohmann::json::parse(workspace.exportAsJson());
+    REQUIRE(exported["active_tab_detail"]["selected_row"]["assetId"] == "audio_b");
+    REQUIRE(exported["active_tab_detail"]["can_select_next_row"] == false);
+    REQUIRE(exported["active_tab_detail"]["can_select_previous_row"] == true);
+
+    REQUIRE(workspace.selectPreviousAudioRow());
+    exported = nlohmann::json::parse(workspace.exportAsJson());
+    REQUIRE(exported["active_tab_detail"]["selected_row"]["assetId"] == "audio_a");
+}
+
 TEST_CASE("DiagnosticsWorkspace - Event authority actions keep exported snapshot current without manual render",
           "[editor][diagnostics][integration][event_authority_snapshot]") {
     urpg::editor::DiagnosticsWorkspace workspace;
@@ -1618,6 +1651,90 @@ TEST_CASE("DiagnosticsWorkspace - Revealing a hidden snapshot-backed tab refresh
     REQUIRE(exported["active_tab_detail"]["has_data"] == true);
     REQUIRE(exported["active_tab_detail"]["live_rows"].size() == 1);
     REQUIRE(exported["active_tab_detail"]["live_rows"][0]["assetId"] == "visible_switch_audio");
+}
+
+TEST_CASE("DiagnosticsWorkspace - Migration wizard issue-navigation actions are exposed at workspace level",
+          "[editor][diagnostics][integration][migration_wizard_issue_actions]") {
+    urpg::editor::DiagnosticsWorkspace workspace;
+    workspace.setVisible(true);
+    workspace.setActiveTab(urpg::editor::DiagnosticsTab::MigrationWizard);
+
+    const std::string temp_path =
+        (std::filesystem::temp_directory_path() / "urpg_workspace_migration_wizard_issue_navigation.json").string();
+    std::filesystem::remove(temp_path);
+
+    nlohmann::json report_json = {
+        {"total_files_processed", 3},
+        {"warning_count", 1},
+        {"error_count", 1},
+        {"is_complete", true},
+        {"summary_logs", {
+            "Message migration: 1 dialogue sequence(s), 1 diagnostic(s).",
+            "Menu migration: 1 scene panel(s), 1 command(s).",
+            "Battle migration: 1 troop(s), 3 action(s).",
+            "Migration wizard complete."
+        }},
+        {"subsystem_results", {
+            {
+                {"subsystem_id", "message"},
+                {"display_name", "Message"},
+                {"processed_count", 1},
+                {"warning_count", 1},
+                {"error_count", 0},
+                {"completed", true},
+                {"summary_line", "Message migration: 1 dialogue sequence(s), 1 diagnostic(s)."}
+            },
+            {
+                {"subsystem_id", "menu"},
+                {"display_name", "Menu"},
+                {"processed_count", 1},
+                {"warning_count", 0},
+                {"error_count", 0},
+                {"completed", true},
+                {"summary_line", "Menu migration: 1 scene panel(s), 1 command(s)."}
+            },
+            {
+                {"subsystem_id", "battle"},
+                {"display_name", "Battle"},
+                {"processed_count", 1},
+                {"warning_count", 0},
+                {"error_count", 1},
+                {"completed", true},
+                {"summary_line", "Battle migration: 1 troop(s), 3 action(s)."}
+            }
+        }},
+        {"selected_subsystem_id", "message"}
+    };
+
+    {
+        std::ofstream ofs(temp_path);
+        REQUIRE(ofs);
+        ofs << report_json.dump();
+    }
+
+    REQUIRE(workspace.loadMigrationWizardReportFromFile(temp_path));
+
+    auto exported = nlohmann::json::parse(workspace.exportAsJson());
+    REQUIRE(exported["active_tab_detail"]["can_select_next_issue_subsystem"] == true);
+    REQUIRE(exported["active_tab_detail"]["can_select_previous_issue_subsystem"] == false);
+    REQUIRE(exported["active_tab_detail"]["primary_actions"]["next_issue_subsystem"]["visible"] == true);
+    REQUIRE(exported["active_tab_detail"]["primary_actions"]["next_issue_subsystem"]["enabled"] == true);
+    REQUIRE(exported["active_tab_detail"]["primary_actions"]["previous_issue_subsystem"]["visible"] == true);
+    REQUIRE(exported["active_tab_detail"]["primary_actions"]["previous_issue_subsystem"]["enabled"] == false);
+
+    REQUIRE(workspace.selectNextMigrationWizardIssueSubsystemResult());
+    exported = nlohmann::json::parse(workspace.exportAsJson());
+    REQUIRE(exported["active_tab_detail"]["selected_subsystem_id"] == "battle");
+    REQUIRE(exported["active_tab_detail"]["can_select_next_issue_subsystem"] == false);
+    REQUIRE(exported["active_tab_detail"]["can_select_previous_issue_subsystem"] == true);
+    REQUIRE(exported["active_tab_detail"]["primary_actions"]["next_issue_subsystem"]["enabled"] == false);
+    REQUIRE(exported["active_tab_detail"]["primary_actions"]["previous_issue_subsystem"]["enabled"] == true);
+
+    REQUIRE(workspace.selectPreviousMigrationWizardIssueSubsystemResult());
+    exported = nlohmann::json::parse(workspace.exportAsJson());
+    REQUIRE(exported["active_tab_detail"]["selected_subsystem_id"] == "message");
+
+    std::filesystem::remove(temp_path);
 }
 
 TEST_CASE("DiagnosticsWorkspace - Event authority workflow actions are exposed at workspace level",

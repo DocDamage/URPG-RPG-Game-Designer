@@ -529,6 +529,215 @@ TEST_CASE("PluginManager: Command execution", "[plugin_manager]") {
         pm.unregisterPlugin("AsyncPlugin");
     }
 
+    SECTION("Async callbacks reject dispatch from non-owning thread") {
+        pm.registerPlugin({"AsyncPlugin", "1.0", "", ""});
+        pm.registerCommand(
+            "AsyncPlugin",
+            "echoInt",
+            [](const std::vector<urpg::Value>& args) -> urpg::Value {
+                if (args.empty()) {
+                    return urpg::Value::Int(-1);
+                }
+                return args.front();
+            }
+        );
+
+        std::mutex callbackMutex;
+        std::condition_variable callbackCv;
+        int32_t completed = 0;
+        int32_t workerDispatchCount = -1;
+
+        pm.executeCommandAsync(
+            "AsyncPlugin",
+            "echoInt",
+            {urpg::Value::Int(42)},
+            [&](const urpg::Value&) {
+                std::lock_guard<std::mutex> lock(callbackMutex);
+                ++completed;
+                callbackCv.notify_one();
+            }
+        );
+
+        std::this_thread::sleep_for(std::chrono::milliseconds(150));
+
+        std::thread foreignDispatcher([&]() {
+            workerDispatchCount = pm.dispatchPendingAsyncCallbacks();
+        });
+        foreignDispatcher.join();
+
+        REQUIRE(workerDispatchCount == 0);
+        REQUIRE(
+            pm.getLastError() ==
+            "dispatchPendingAsyncCallbacks must be called on the owning thread"
+        );
+
+        {
+            std::unique_lock<std::mutex> lock(callbackMutex);
+            REQUIRE_FALSE(callbackCv.wait_for(
+                lock,
+                std::chrono::milliseconds(150),
+                [&]() { return completed > 0; }
+            ));
+        }
+
+        REQUIRE(pm.dispatchPendingAsyncCallbacks() == 1);
+
+        {
+            std::unique_lock<std::mutex> lock(callbackMutex);
+            REQUIRE(callbackCv.wait_for(
+                lock,
+                std::chrono::seconds(2),
+                [&]() { return completed == 1; }
+            ));
+        }
+
+        pm.unregisterPlugin("AsyncPlugin");
+    }
+
+    SECTION("Async callbacks remain queued after rejected foreign-thread drain until owning thread dispatches them") {
+        pm.registerPlugin({"AsyncPlugin", "1.0", "", ""});
+        pm.registerCommand(
+            "AsyncPlugin",
+            "echoInt",
+            [](const std::vector<urpg::Value>& args) -> urpg::Value {
+                if (args.empty()) {
+                    return urpg::Value::Int(-1);
+                }
+                return args.front();
+            }
+        );
+
+        std::mutex callbackMutex;
+        std::condition_variable callbackCv;
+        std::vector<int64_t> callbackValues;
+        bool callbackTypeMismatch = false;
+
+        pm.executeCommandAsync(
+            "AsyncPlugin",
+            "echoInt",
+            {urpg::Value::Int(7)},
+            [&](const urpg::Value& result) {
+                std::lock_guard<std::mutex> lock(callbackMutex);
+                if (std::holds_alternative<int64_t>(result.v)) {
+                    callbackValues.push_back(std::get<int64_t>(result.v));
+                } else {
+                    callbackTypeMismatch = true;
+                }
+                callbackCv.notify_one();
+            }
+        );
+        pm.executeCommandAsync(
+            "AsyncPlugin",
+            "echoInt",
+            {urpg::Value::Int(8)},
+            [&](const urpg::Value& result) {
+                std::lock_guard<std::mutex> lock(callbackMutex);
+                if (std::holds_alternative<int64_t>(result.v)) {
+                    callbackValues.push_back(std::get<int64_t>(result.v));
+                } else {
+                    callbackTypeMismatch = true;
+                }
+                callbackCv.notify_one();
+            }
+        );
+
+        std::this_thread::sleep_for(std::chrono::milliseconds(150));
+
+        int32_t workerDispatchCount = -1;
+        std::thread foreignDispatcher([&]() {
+            workerDispatchCount = pm.dispatchPendingAsyncCallbacks();
+        });
+        foreignDispatcher.join();
+
+        REQUIRE(workerDispatchCount == 0);
+        REQUIRE(
+            pm.getLastError() ==
+            "dispatchPendingAsyncCallbacks must be called on the owning thread"
+        );
+
+        {
+            std::unique_lock<std::mutex> lock(callbackMutex);
+            REQUIRE_FALSE(callbackCv.wait_for(
+                lock,
+                std::chrono::milliseconds(150),
+                [&]() { return !callbackValues.empty(); }
+            ));
+        }
+
+        REQUIRE(pm.dispatchPendingAsyncCallbacks() == 2);
+
+        {
+            std::unique_lock<std::mutex> lock(callbackMutex);
+            REQUIRE(callbackCv.wait_for(
+                lock,
+                std::chrono::seconds(2),
+                [&]() { return callbackValues.size() == 2; }
+            ));
+        }
+
+        REQUIRE_FALSE(callbackTypeMismatch);
+        REQUIRE(callbackValues.size() == 2);
+        REQUIRE(callbackValues[0] == 7);
+        REQUIRE(callbackValues[1] == 8);
+
+        pm.unregisterPlugin("AsyncPlugin");
+    }
+
+    SECTION("Async callback dispatch clears stale foreign-thread error after successful owning-thread drain") {
+        pm.registerPlugin({"AsyncPlugin", "1.0", "", ""});
+        pm.registerCommand(
+            "AsyncPlugin",
+            "echoInt",
+            [](const std::vector<urpg::Value>& args) -> urpg::Value {
+                if (args.empty()) {
+                    return urpg::Value::Int(-1);
+                }
+                return args.front();
+            }
+        );
+
+        std::mutex callbackMutex;
+        std::condition_variable callbackCv;
+        int32_t completed = 0;
+
+        pm.executeCommandAsync(
+            "AsyncPlugin",
+            "echoInt",
+            {urpg::Value::Int(9)},
+            [&](const urpg::Value&) {
+                std::lock_guard<std::mutex> lock(callbackMutex);
+                ++completed;
+                callbackCv.notify_one();
+            }
+        );
+
+        std::this_thread::sleep_for(std::chrono::milliseconds(150));
+
+        std::thread foreignDispatcher([&]() {
+            REQUIRE(pm.dispatchPendingAsyncCallbacks() == 0);
+        });
+        foreignDispatcher.join();
+
+        REQUIRE(
+            pm.getLastError() ==
+            "dispatchPendingAsyncCallbacks must be called on the owning thread"
+        );
+
+        REQUIRE(pm.dispatchPendingAsyncCallbacks() == 1);
+        REQUIRE(pm.getLastError().empty());
+
+        {
+            std::unique_lock<std::mutex> lock(callbackMutex);
+            REQUIRE(callbackCv.wait_for(
+                lock,
+                std::chrono::seconds(2),
+                [&]() { return completed == 1; }
+            ));
+        }
+
+        pm.unregisterPlugin("AsyncPlugin");
+    }
+
     SECTION("Fixture script command supports invoke and invokeByName chaining") {
         pm.unloadAllPlugins();
         pm.clearFailureDiagnostics();

@@ -1,0 +1,63 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://urpg.local/schemas/intake/plugin-fixture-metadata.schema.json",
+  "title": "URPG Plugin Fixture Metadata",
+  "type": "object",
+  "required": [
+    "fixture_id",
+    "source_repo",
+    "plugin_name",
+    "source_relative_path",
+    "disposition",
+    "usage_lane"
+  ],
+  "properties": {
+    "fixture_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "source_repo": {
+      "type": "string",
+      "minLength": 1
+    },
+    "plugin_name": {
+      "type": "string",
+      "minLength": 1
+    },
+    "source_relative_path": {
+      "type": "string",
+      "minLength": 1
+    },
+    "license_status": {
+      "type": "string",
+      "enum": [
+        "verified",
+        "mixed",
+        "unverified"
+      ]
+    },
+    "disposition": {
+      "type": "string",
+      "enum": [
+        "reference_only",
+        "fixture_only",
+        "production_candidate",
+        "asset_reference"
+      ]
+    },
+    "usage_lane": {
+      "type": "string",
+      "enum": [
+        "compat",
+        "importer",
+        "localization",
+        "exporter",
+        "editor"
+      ]
+    },
+    "notes": {
+      "type": "string"
+    }
+  },
+  "additionalProperties": false
+}

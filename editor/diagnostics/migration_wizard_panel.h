@@ -24,6 +24,8 @@ public:
         WorkflowActionState clear_selected_subsystem;
         WorkflowActionState next_subsystem;
         WorkflowActionState previous_subsystem;
+        WorkflowActionState next_issue_subsystem;
+        WorkflowActionState previous_issue_subsystem;
     };
 
     struct WorkflowSubsystemCard {
@@ -72,6 +74,8 @@ public:
         bool can_clear_selected_subsystem = false;
         bool can_select_next_subsystem = false;
         bool can_select_previous_subsystem = false;
+        bool can_select_next_issue_subsystem = false;
+        bool can_select_previous_issue_subsystem = false;
         bool has_bound_project_data = false;
         bool can_rerun_bound_migration = false;
         bool can_rerun_bound_selected_subsystem = false;
@@ -135,6 +139,14 @@ public:
         return m_model->selectPreviousSubsystemResult();
     }
 
+    bool selectNextIssueSubsystemResult() {
+        return m_model->selectNextIssueSubsystemResult();
+    }
+
+    bool selectPreviousIssueSubsystemResult() {
+        return m_model->selectPreviousIssueSubsystemResult();
+    }
+
     bool clearSubsystemResult(std::string_view subsystem_id) {
         return m_model->clearSubsystemResult(subsystem_id);
     }
@@ -192,6 +204,8 @@ public:
             m_model->selectedSubsystemId().has_value(),
             m_model->canSelectNextSubsystemResult(),
             m_model->canSelectPreviousSubsystemResult(),
+            m_model->canSelectNextIssueSubsystemResult(),
+            m_model->canSelectPreviousIssueSubsystemResult(),
             has_bound_project_data,
             has_bound_project_data,
             has_bound_project_data && m_model->selectedSubsystemId().has_value(),
@@ -256,6 +270,8 @@ private:
             makeActionState("clear_selected_subsystem", "Clear selected subsystem", m_model->selectedSubsystemId().has_value()),
             makeActionState("next_subsystem", "Next subsystem", m_model->canSelectNextSubsystemResult()),
             makeActionState("previous_subsystem", "Previous subsystem", m_model->canSelectPreviousSubsystemResult()),
+            makeActionState("next_issue_subsystem", "Next issue subsystem", m_model->canSelectNextIssueSubsystemResult()),
+            makeActionState("previous_issue_subsystem", "Previous issue subsystem", m_model->canSelectPreviousIssueSubsystemResult()),
         };
     }
 
