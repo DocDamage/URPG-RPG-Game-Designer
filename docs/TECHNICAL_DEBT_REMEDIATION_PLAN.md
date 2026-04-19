@@ -102,8 +102,8 @@ Quick-reference table for current finding status. Use this to assess open work w
 |----|-------|--------|-------|
 | P0-01 | Build Integrity: Active Compile Blockers | ⚠ Open | Phase 0 |
 | P1-01 | QuickJS Layer Is A Stub Kernel, Not A Runtime | ✅ Remediated (Path B) | Phase 2 WS 2.1 |
-| P1-02 | Compat Status Inflation Across Multiple Subsystems | ✅ Remediated | Phase 1 |
-| P1-03 | Audio SE Channel Lifetime Leak | ✅ Remediated | Phase 2 WS 2.3 |
+| P1-02 | Compat Status Inflation Across Multiple Subsystems | ⚠ Partially Remediated | Phase 1 |
+| P1-03 | Audio SE Channel Lifetime Leak | ⚠ Partially Remediated | Phase 2 WS 2.3 |
 | P1-04 | Battle Turn-Condition Correctness Bug | ✅ Remediated | Phase 2 WS 2.2 |
 | P2-01 | Diagnostics Workspace Reports More Than It Renders | ✅ Remediated | Phase 3 |
 | P2-02 | Diagnostics Runtime Binding Is One-Way and Leaves Stale State | ✅ Remediated | Phase 3 |
@@ -240,7 +240,7 @@ Each finding is structured as: **Impact → Root Cause → Required Action → O
 **Status (2026-04-19):** Partially remediated. `loadDatabase()` now seeds compat containers and `Window_Base::contents()` lifecycle behavior is covered by explicit tests, but the lane remains `PARTIAL` because there is still no pixel buffer and no full project-data parity.
 
 **Progress evidence (2026-04-19):**
-- The focused Phase 2 verification lane in `build/dev-mingw-debug` passed with battle, window/data, and audio coverage all green under `ctest --test-dir build/dev-mingw-debug --output-on-failure -R "BattleManager:|Window_Base contents lifecycle allocates and rotates deterministic handles|DataManager loadDatabase populates seeded database containers|AudioManager:"`.
+- The focused Phase 2 verification lane in `build/dev-mingw-debug` was re-run after the doc edits and passed with battle, window/data, and audio coverage all green under `ctest --test-dir build/dev-mingw-debug --output-on-failure -R "BattleManager:|Window_Base contents lifecycle allocates and rotates deterministic handles|DataManager loadDatabase populates seeded database containers|AudioManager:"`.
 - [input_manager.cpp](../runtimes/compat_js/input_manager.cpp): all 79 inflated `CompatStatus::FULL` labels downgraded to `PARTIAL` because the compat layer is fixture-backed (no OS/platform input polling behind the exposed MZ API).
 - [audio_manager.cpp](../runtimes/compat_js/audio_manager.cpp): playback/state registry labels downgraded from `FULL` to `PARTIAL`; later 2026-04-18 closure work replaced the earlier stubbed QuickJS bindings with live deterministic compat dispatch while preserving honest `PARTIAL` deviations.
 - [battle_manager.cpp](../runtimes/compat_js/battle_manager.cpp): `processAction` downgraded to `PARTIAL`; stubbed JS bindings downgraded to `STUB`.

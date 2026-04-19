@@ -60,12 +60,12 @@ Canonical planning chain:
 - Latest focused audio validation snapshot:
   - `.\build\dev-mingw-debug\urpg_tests.exe "[audio_manager]"` => 147 assertions / 12 test cases passed
 - Latest focused Phase 2 validation snapshot:
-  - `ctest --test-dir build/dev-mingw-debug --output-on-failure -R "BattleManager:|Window_Base contents lifecycle allocates and rotates deterministic handles|DataManager loadDatabase populates seeded database containers|AudioManager:"` => 42/42 passed
+  - re-run after the 2026-04-19 doc edits: `ctest --test-dir build/dev-mingw-debug --output-on-failure -R "BattleManager:|Window_Base contents lifecycle allocates and rotates deterministic handles|DataManager loadDatabase populates seeded database containers|AudioManager:"` => 42/42 passed
 
 ## Progress made in this cycle
 
 - Merged native-first direction and follow-up execution commits into `main`.
-- 2026-04-19 closure note: battle reward distribution, switch checks, and battle-event cadence coverage are now closed in the compat lane; `Window_Base::contents()` lifecycle truthfulness and seeded `loadDatabase()` behavior are explicitly tested; AudioManager remains honestly `PARTIAL` while deterministic harness semantics stay documented and verified.
+- 2026-04-19 closure note: battle reward distribution, switch checks, and battle-event cadence coverage are now closed in the compat lane; `Window_Base::contents()` lifecycle truthfulness and seeded `loadDatabase()` behavior are explicitly tested; AudioManager remains honestly `PARTIAL` while deterministic harness semantics stay documented and verified. The focused Phase 2 lane was re-run after the doc edits and stayed green.
 - Finished repo governance cleanup:
   - removed extra remote branches
   - aligned work branch and main tip
