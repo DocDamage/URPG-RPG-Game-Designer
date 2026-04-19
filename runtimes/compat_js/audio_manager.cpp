@@ -714,9 +714,11 @@ void AudioManager::update() {
 
         if (ramp.elapsedFrames >= ramp.durationFrames) {
             ramp.active = false;
-            impl_->bgmChannel_->setVolume(ramp.targetVolume);
             if (ramp.clearDuckStateOnComplete) {
+                impl_->bgmChannel_->setVolume(ComputeEffectiveVolume(*impl_, *impl_->bgmChannel_));
                 impl_->bgmDucked_ = false;
+            } else {
+                impl_->bgmChannel_->setVolume(ramp.targetVolume);
             }
             ramp.clearDuckStateOnComplete = false;
         }
