@@ -190,6 +190,7 @@ struct PendingVolumeRamp {
     double targetVolume = 1.0;
     int32_t durationFrames = 0;
     int32_t elapsedFrames = 0;
+    bool clearDuckStateOnComplete = false;
 };
 
 class AudioManagerImpl {
@@ -205,7 +206,6 @@ public:
     AudioInfo savedBgm_;
     bool bgmDucked_ = false;
     double bgmDuckVolume_ = 1.0;
-    double bgmBaseVolume_ = 1.0;
     PendingCrossfade bgmCrossfade_;
     PendingVolumeRamp bgmVolumeRamp_;
 
@@ -408,8 +408,8 @@ AudioChannel* AudioManager::getChannel(uint32_t id) {
 void AudioManager::playBgm(const std::string& filename, double volume, double pitch, int32_t pos) {
     impl_->bgmCrossfade_.active = false;
     impl_->bgmVolumeRamp_.active = false;
+    impl_->bgmVolumeRamp_.clearDuckStateOnComplete = false;
     impl_->bgmDucked_ = false;
-    impl_->bgmBaseVolume_ = std::clamp(volume / 100.0, 0.0, 1.0);
     if (!impl_->bgmChannel_) {
         createChannel("bgm", AudioBus::BGM);
         impl_->bgmChannel_ = getChannel("bgm");
@@ -424,6 +424,7 @@ void AudioManager::playBgm(const std::string& filename, double volume, double pi
 void AudioManager::stopBgm() {
     impl_->bgmCrossfade_.active = false;
     impl_->bgmVolumeRamp_.active = false;
+    impl_->bgmVolumeRamp_.clearDuckStateOnComplete = false;
     impl_->bgmDucked_ = false;
     if (impl_->bgmChannel_) {
         impl_->bgmChannel_->stop();
@@ -457,7 +458,6 @@ void AudioManager::crossfadeBgm(const std::string& filename, double volume, doub
     impl_->bgmCrossfade_.elapsedFrames = 0;
     impl_->bgmCrossfade_.sourceVolume = std::clamp(impl_->bgmChannel_->getVolume(), 0.0, 1.0);
     impl_->bgmCrossfade_.switchedTrack = false;
-    impl_->bgmBaseVolume_ = std::clamp(volume / 100.0, 0.0, 1.0);
 }
 
 void AudioManager::saveBgmSettings() {
@@ -639,6 +639,7 @@ void AudioManager::duckBgm(double volume, int32_t duration) {
         impl_->bgmVolumeRamp_.durationFrames = std::max(1, duration);
         impl_->bgmVolumeRamp_.elapsedFrames = 0;
         impl_->bgmVolumeRamp_.active = true;
+        impl_->bgmVolumeRamp_.clearDuckStateOnComplete = false;
     }
 }
 
@@ -649,8 +650,10 @@ void AudioManager::unduckBgm(int32_t duration) {
         impl_->bgmVolumeRamp_.durationFrames = std::max(1, duration);
         impl_->bgmVolumeRamp_.elapsedFrames = 0;
         impl_->bgmVolumeRamp_.active = true;
+        impl_->bgmVolumeRamp_.clearDuckStateOnComplete = true;
     } else {
         impl_->bgmDucked_ = false;
+        impl_->bgmVolumeRamp_.clearDuckStateOnComplete = false;
     }
 }
 
@@ -712,9 +715,10 @@ void AudioManager::update() {
         if (ramp.elapsedFrames >= ramp.durationFrames) {
             ramp.active = false;
             impl_->bgmChannel_->setVolume(ramp.targetVolume);
-            if (std::abs(ramp.targetVolume - ComputeEffectiveVolume(*impl_, *impl_->bgmChannel_)) < 0.0001) {
+            if (ramp.clearDuckStateOnComplete) {
                 impl_->bgmDucked_ = false;
             }
+            ramp.clearDuckStateOnComplete = false;
         }
     }
 
