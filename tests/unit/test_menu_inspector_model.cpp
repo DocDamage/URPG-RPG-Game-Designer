@@ -2,6 +2,8 @@
 
 #include <catch2/catch_test_macros.hpp>
 
+static const char* kEditTestMarker = "EDIT_TEST_MARKER_2026_04_19_UNIQUE_STRING";
+
 namespace {
 
 urpg::MenuCommandMeta MakeCommand(const std::string& id,
@@ -307,4 +309,161 @@ TEST_CASE("Menu inspector model preserves selected hidden command identity acros
     REQUIRE(model.SelectedRow().has_value());
     REQUIRE(model.SelectedRow()->command_id == "urpg.menu.hidden");
     REQUIRE_FALSE(model.SelectedRow()->command_visible);
+}
+
+TEST_CASE("MenuInspectorModel supports editing command labels and syncing to runtime",
+          "[ui][editor][menu_inspector][model][edit]") {
+    urpg::ui::MenuCommandRegistry registry;
+
+    auto itemCommand = MakeCommand("urpg.menu.item", "Item", urpg::MenuRouteTarget::Item, 10);
+    registry.registerCommand(itemCommand);
+
+    auto saveCommand = MakeCommand("urpg.menu.save", "Save", urpg::MenuRouteTarget::Save, 20);
+    registry.registerCommand(saveCommand);
+
+    auto menu = std::make_shared<urpg::ui::MenuScene>("EditMenu");
+
+    urpg::ui::MenuPane pane;
+    pane.id = "main_pane";
+    pane.displayName = "Main Pane";
+    pane.isVisible = true;
+    pane.isActive = true;
+    pane.commands = {itemCommand, saveCommand};
+    menu->addPane(pane);
+
+    urpg::ui::MenuSceneGraph graph;
+    graph.registerScene(menu);
+    graph.pushScene("EditMenu");
+
+    urpg::ui::MenuCommandRegistry::SwitchState switches;
+    urpg::ui::MenuCommandRegistry::VariableState variables;
+
+    urpg::editor::MenuInspectorModel model;
+    model.LoadFromRuntime(graph, registry, switches, variables);
+
+    REQUIRE(model.UpdateCommandLabel(0, "New Item Name"));
+    REQUIRE(model.VisibleRows()[0].command_label == "New Item Name");
+
+    REQUIRE(model.UpdateCommandLabel(1, "New Save Name"));
+    REQUIRE(model.VisibleRows()[1].command_label == "New Save Name");
+
+    REQUIRE(model.ApplyToRuntime(graph));
+    REQUIRE(graph.getActiveScene()->getPanes()[0].commands[0].label == "New Item Name");
+    REQUIRE(graph.getActiveScene()->getPanes()[0].commands[1].label == "New Save Name");
+}
+
+TEST_CASE("MenuInspectorModel supports editing command routes and applying to runtime",
+          "[ui][editor][menu_inspector][model][edit]") {
+    urpg::ui::MenuCommandRegistry registry;
+
+    auto deadEnd = MakeCommand("urpg.menu.dead_end", "Dead End", urpg::MenuRouteTarget::Custom, 10);
+
+    auto menu = std::make_shared<urpg::ui::MenuScene>("RouteEditMenu");
+
+    urpg::ui::MenuPane pane;
+    pane.id = "main_pane";
+    pane.displayName = "Main Pane";
+    pane.isVisible = true;
+    pane.isActive = true;
+    pane.commands = {deadEnd};
+    menu->addPane(pane);
+
+    urpg::ui::MenuSceneGraph graph;
+    graph.registerScene(menu);
+    graph.pushScene("RouteEditMenu");
+
+    urpg::editor::MenuInspectorModel model;
+    model.LoadFromRuntime(graph, registry, {}, {});
+
+    REQUIRE(model.VisibleRows()[0].route == urpg::MenuRouteTarget::Custom);
+    REQUIRE(model.VisibleRows()[0].route_label == "custom:<missing>");
+
+    REQUIRE(model.UpdateCommandRoute(0, urpg::MenuRouteTarget::Item, ""));
+    REQUIRE(model.VisibleRows()[0].route == urpg::MenuRouteTarget::Item);
+    REQUIRE(model.VisibleRows()[0].route_label == "item");
+
+    REQUIRE(model.ApplyToRuntime(graph));
+    REQUIRE(graph.getActiveScene()->getPanes()[0].commands[0].route == urpg::MenuRouteTarget::Item);
+}
+
+TEST_CASE("MenuInspectorModel supports removing and adding commands",
+          "[ui][editor][menu_inspector][model][edit]") {
+    urpg::ui::MenuCommandRegistry registry;
+
+    auto itemCommand = MakeCommand("urpg.menu.item", "Item", urpg::MenuRouteTarget::Item, 10);
+    registry.registerCommand(itemCommand);
+
+    auto saveCommand = MakeCommand("urpg.menu.save", "Save", urpg::MenuRouteTarget::Save, 20);
+    registry.registerCommand(saveCommand);
+
+    auto menu = std::make_shared<urpg::ui::MenuScene>("AddRemoveMenu");
+
+    urpg::ui::MenuPane pane;
+    pane.id = "main_pane";
+    pane.displayName = "Main Pane";
+    pane.isVisible = true;
+    pane.isActive = true;
+    pane.commands = {itemCommand, saveCommand};
+    menu->addPane(pane);
+
+    urpg::ui::MenuSceneGraph graph;
+    graph.registerScene(menu);
+    graph.pushScene("AddRemoveMenu");
+
+    urpg::editor::MenuInspectorModel model;
+    model.LoadFromRuntime(graph, registry, {}, {});
+
+    REQUIRE(model.VisibleRows().size() == 2);
+
+    REQUIRE(model.RemoveCommand(1));
+    REQUIRE(model.VisibleRows().size() == 1);
+    REQUIRE(model.VisibleRows()[0].command_id == "urpg.menu.item");
+
+    REQUIRE(model.ApplyToRuntime(graph));
+    REQUIRE(graph.getActiveScene()->getPanes()[0].commands.size() == 1);
+
+    auto newCommand = MakeCommand("urpg.menu.load", "Load", urpg::MenuRouteTarget::Load, 30);
+    REQUIRE(model.AddCommand(0, newCommand));
+    REQUIRE(model.VisibleRows().size() == 2);
+    REQUIRE(model.VisibleRows()[1].command_id == "urpg.menu.load");
+
+    REQUIRE(model.ApplyToRuntime(graph));
+    REQUIRE(graph.getActiveScene()->getPanes()[0].commands.size() == 2);
+    REQUIRE(graph.getActiveScene()->getPanes()[0].commands[1].id == "urpg.menu.load");
+}
+
+TEST_CASE("MenuInspectorModel edit preserves selection when still visible",
+          "[ui][editor][menu_inspector][model][edit]") {
+    urpg::ui::MenuCommandRegistry registry;
+
+    auto itemCommand = MakeCommand("urpg.menu.item", "Item", urpg::MenuRouteTarget::Item, 10);
+    registry.registerCommand(itemCommand);
+
+    auto saveCommand = MakeCommand("urpg.menu.save", "Save", urpg::MenuRouteTarget::Save, 20);
+    registry.registerCommand(saveCommand);
+
+    auto menu = std::make_shared<urpg::ui::MenuScene>("SelectionPreserveMenu");
+
+    urpg::ui::MenuPane pane;
+    pane.id = "main_pane";
+    pane.displayName = "Main Pane";
+    pane.isVisible = true;
+    pane.isActive = true;
+    pane.commands = {itemCommand, saveCommand};
+    menu->addPane(pane);
+
+    urpg::ui::MenuSceneGraph graph;
+    graph.registerScene(menu);
+    graph.pushScene("SelectionPreserveMenu");
+
+    urpg::editor::MenuInspectorModel model;
+    model.LoadFromRuntime(graph, registry, {}, {});
+
+    REQUIRE(model.SelectRow(1));
+    REQUIRE(model.SelectedCommandId() == std::optional<std::string>{"urpg.menu.save"});
+
+    REQUIRE(model.UpdateCommandLabel(1, "Updated Save"));
+    REQUIRE(model.SelectedCommandId() == std::optional<std::string>{"urpg.menu.save"});
+    REQUIRE(model.SelectedRow().has_value());
+    REQUIRE(model.SelectedRow()->command_label == "Updated Save");
 }

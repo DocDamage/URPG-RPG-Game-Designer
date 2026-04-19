@@ -9,6 +9,14 @@
 
 ## Entries
 
+### 2026-04-19 — Task 1: UI/Menu Editor Productization Closure
+- **Action**: Added true edit authoring to `MenuInspectorModel`: `UpdateCommandLabel`, `UpdateCommandRoute`, `RemoveCommand`, `AddCommand`, and `ApplyToRuntime` so the inspector can mutate menu structure and sync back to the runtime graph.
+- **Action**: Added `getPanesMutable()` to `MenuScene` to support clean edit round-trips.
+- **Action**: Enhanced `MenuPreviewPanel::PaneSnapshot` with `command_labels` and `command_enabled` arrays so the preview exposes human-readable labels and state.
+- **Action**: Added 6 focused tests: command label editing, route editing, remove/add commands, selection preservation across edits, preview refresh after runtime edits, and preview panel clear behavior.
+- **Action**: Re-ran repo-wide validation: `ctest --preset dev-all --output-on-failure` => 581/581 passed.
+- **Result**: UI/Menu editor productization is CLOSED. The inspector now supports read/write authoring workflows, the preview reflects edits, and all 35 focused menu tests pass.
+
 ### 2026-04-19 — Final Remediation Finding Closure
 - **Action**: Closed `P1-02` by reconciling the remaining public compat truth surfaces with the already-honest runtime registries: `input_manager.h` and `plugin_manager.h` now label fixture-backed compat behavior as `PARTIAL`, and focused status-registry coverage in `test_input_manager.cpp` and `test_plugin_manager.cpp` now locks those representative entries down.
 - **Action**: Updated `docs/COMPAT_EXIT_CHECKLIST.md`, `docs/DEVELOPMENT_KICKOFF.md`, `docs/PROGRAM_COMPLETION_STATUS.md`, `README.md`, and `docs/TECHNICAL_DEBT_REMEDIATION_PLAN.md` so the canonical stack now states plainly that the audited remediation findings are fully closed.

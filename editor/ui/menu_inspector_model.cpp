@@ -81,6 +81,11 @@ void MenuInspectorModel::LoadFromRuntime(
     issues_.clear();
     selected_row_index_.reset();
     summary_ = {};
+    panes_.clear();
+    scene_id_.clear();
+    registry_ = &registry;
+    switches_ = switches;
+    variables_ = variables;
 
     summary_.stack_depth = scene_graph.stackSize();
     const auto active_scene = scene_graph.getActiveScene();
@@ -97,10 +102,19 @@ void MenuInspectorModel::LoadFromRuntime(
         return;
     }
 
-    summary_.active_scene_id = active_scene->getId();
+    scene_id_ = active_scene->getId();
+    panes_ = active_scene->getPanes();
+    RebuildFromPanes();
+    summary_.stack_depth = scene_graph.stackSize();
+    RestoreSelectionByCommandId(previously_selected_command_id);
+}
 
-    const auto& panes = active_scene->getPanes();
-    summary_.total_panes = panes.size();
+void MenuInspectorModel::RebuildFromPanes() {
+    all_rows_.clear();
+    issues_.clear();
+    summary_ = {};
+    summary_.active_scene_id = scene_id_;
+    summary_.total_panes = panes_.size();
 
     std::vector<size_t> issue_count_by_row;
     std::unordered_map<std::string, std::vector<size_t>> row_indexes_by_command_id;
@@ -114,7 +128,7 @@ void MenuInspectorModel::LoadFromRuntime(
                               std::string pane_id,
                               std::string command_id,
                               std::string message) {
-                    const std::string issue_code = code;
+        const std::string issue_code = code;
         MenuInspectorIssue issue;
         issue.severity = severity;
         issue.code = std::move(code);
@@ -142,8 +156,8 @@ void MenuInspectorModel::LoadFromRuntime(
         }
     };
 
-    for (size_t pane_index = 0; pane_index < panes.size(); ++pane_index) {
-        const auto& pane = panes[pane_index];
+    for (size_t pane_index = 0; pane_index < panes_.size(); ++pane_index) {
+        const auto& pane = panes_[pane_index];
         const std::string pane_id = PaneFallbackLabel(pane, pane_index);
         const std::string pane_label = PaneDisplayLabel(pane, pane_index);
 
@@ -159,7 +173,7 @@ void MenuInspectorModel::LoadFromRuntime(
         for (size_t command_index = 0; command_index < pane.commands.size(); ++command_index) {
             const auto& command = pane.commands[command_index];
             MenuInspectorRow row;
-            row.scene_id = summary_.active_scene_id;
+            row.scene_id = scene_id_;
             row.pane_index = pane_index;
             row.pane_id = pane_id;
             row.pane_label = pane_label;
@@ -180,9 +194,13 @@ void MenuInspectorModel::LoadFromRuntime(
             row.priority = command.priority;
             row.pane_visible = pane.isVisible;
             row.pane_active = pane.isActive;
-            row.command_registered = registry.getCommand(command.id) != nullptr;
-            row.command_visible = pane.isVisible && registry.isVisible(command, switches, variables);
-            row.command_enabled = pane.isVisible && registry.isEnabled(command, switches, variables);
+            row.command_registered = registry_ ? registry_->getCommand(command.id) != nullptr : false;
+            row.command_visible = pane.isVisible && registry_
+                                      ? registry_->isVisible(command, switches_, variables_)
+                                      : pane.isVisible;
+            row.command_enabled = pane.isVisible && registry_
+                                      ? registry_->isEnabled(command, switches_, variables_)
+                                      : pane.isVisible;
             row.row_navigable = row.command_visible && row.command_enabled;
 
             ++summary_.total_commands;
@@ -235,13 +253,13 @@ void MenuInspectorModel::LoadFromRuntime(
                                  std::string(scope) + " rule " + std::to_string(rule_index) +
                                      " has no switch or variable constraint.");
                     }
-                    if (!rule.switch_id.empty() && switches.find(rule.switch_id) == switches.end()) {
+                    if (!rule.switch_id.empty() && switches_.find(rule.switch_id) == switches_.end()) {
                         addIssue(row_index, pane_index, command_index, MenuInspectorIssueSeverity::Warning,
                                  "missing_switch_state", row.scene_id, row.pane_id, row.command_id,
                                  std::string(scope) + " rule " + std::to_string(rule_index) +
                                      " references missing switch state: " + rule.switch_id);
                     }
-                    if (!rule.variable_id.empty() && variables.find(rule.variable_id) == variables.end()) {
+                    if (!rule.variable_id.empty() && variables_.find(rule.variable_id) == variables_.end()) {
                         addIssue(row_index, pane_index, command_index, MenuInspectorIssueSeverity::Warning,
                                  "missing_variable_state", row.scene_id, row.pane_id, row.command_id,
                                  std::string(scope) + " rule " + std::to_string(rule_index) +
@@ -285,7 +303,6 @@ void MenuInspectorModel::LoadFromRuntime(
 
     summary_.issue_count = issues_.size();
     RebuildVisibleRows();
-    RestoreSelectionByCommandId(previously_selected_command_id);
 }
 
 void MenuInspectorModel::Clear() {
@@ -297,6 +314,11 @@ void MenuInspectorModel::Clear() {
     command_id_filter_.reset();
     show_issues_only_ = false;
     summary_ = {};
+    panes_.clear();
+    scene_id_.clear();
+    registry_ = nullptr;
+    switches_.clear();
+    variables_.clear();
 }
 
 void MenuInspectorModel::SetCommandIdFilter(std::optional<std::string> command_id_filter) {
@@ -422,6 +444,79 @@ std::optional<MenuInspectorRow> MenuInspectorModel::SelectedRow() const {
     }
 
     return std::nullopt;
+}
+
+bool MenuInspectorModel::UpdateCommandLabel(size_t row_index, std::string label) {
+    if (row_index >= all_rows_.size()) {
+        return false;
+    }
+    const auto& row = all_rows_[row_index];
+    if (row.pane_index >= panes_.size()) {
+        return false;
+    }
+    auto& pane = panes_[row.pane_index];
+    if (row.command_index >= pane.commands.size()) {
+        return false;
+    }
+    pane.commands[row.command_index].label = std::move(label);
+    RebuildFromPanes();
+    return true;
+}
+
+bool MenuInspectorModel::UpdateCommandRoute(size_t row_index, urpg::MenuRouteTarget route, std::string custom_route_id) {
+    if (row_index >= all_rows_.size()) {
+        return false;
+    }
+    const auto& row = all_rows_[row_index];
+    if (row.pane_index >= panes_.size()) {
+        return false;
+    }
+    auto& pane = panes_[row.pane_index];
+    if (row.command_index >= pane.commands.size()) {
+        return false;
+    }
+    pane.commands[row.command_index].route = route;
+    pane.commands[row.command_index].custom_route_id = std::move(custom_route_id);
+    RebuildFromPanes();
+    return true;
+}
+
+bool MenuInspectorModel::RemoveCommand(size_t row_index) {
+    if (row_index >= all_rows_.size()) {
+        return false;
+    }
+    const auto& row = all_rows_[row_index];
+    if (row.pane_index >= panes_.size()) {
+        return false;
+    }
+    auto& pane = panes_[row.pane_index];
+    if (row.command_index >= pane.commands.size()) {
+        return false;
+    }
+    pane.commands.erase(pane.commands.begin() + static_cast<int64_t>(row.command_index));
+    RebuildFromPanes();
+    return true;
+}
+
+bool MenuInspectorModel::AddCommand(size_t pane_index, urpg::MenuCommandMeta command) {
+    if (pane_index >= panes_.size()) {
+        return false;
+    }
+    panes_[pane_index].commands.push_back(std::move(command));
+    RebuildFromPanes();
+    return true;
+}
+
+bool MenuInspectorModel::ApplyToRuntime(urpg::ui::MenuSceneGraph& scene_graph) const {
+    if (scene_id_.empty()) {
+        return false;
+    }
+    const auto active_scene = scene_graph.getActiveScene();
+    if (!active_scene || active_scene->getId() != scene_id_) {
+        return false;
+    }
+    active_scene->getPanesMutable() = panes_;
+    return true;
 }
 
 void MenuInspectorModel::RebuildVisibleRows() {

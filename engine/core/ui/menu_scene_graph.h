@@ -70,6 +70,7 @@ public:
     }
 
     const std::vector<MenuPane>& getPanes() const { return m_panes; }
+    std::vector<MenuPane>& getPanesMutable() { return m_panes; }
 
     std::optional<MenuPane*> getPane(const std::string& paneId) {
         for (auto& pane : m_panes) {

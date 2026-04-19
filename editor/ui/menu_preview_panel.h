@@ -19,6 +19,8 @@ public:
     bool pane_active = false;
     std::optional<std::string> selected_command_id;
     std::vector<std::string> command_ids;
+    std::vector<std::string> command_labels;
+    std::vector<bool> command_enabled;
   };
 
   struct RenderSnapshot {

@@ -282,8 +282,11 @@ The scope in this document is considered 100% complete when all items below are 
 
 ## Next steps (current sprint)
 
-1. Complete UI/Menu editor productization:
-   - deepen authoring beyond the current inspector/diagnostics wiring with true edit/preview workflows.
+1. ~~Complete UI/Menu editor productization~~ (DONE 2026-04-19):
+   - MenuInspectorModel now supports `UpdateCommandLabel`, `UpdateCommandRoute`, `RemoveCommand`, `AddCommand`, and `ApplyToRuntime` for true authoring workflows.
+   - MenuPreviewPanel snapshot now carries `command_labels` and `command_enabled` for richer preview fidelity.
+   - Added 6 new tests covering edit, route change, remove/add, selection preservation, preview refresh, and clear behavior.
+   - All menu lanes pass (35/35 in focused suite, 581/581 repo-wide).
 2. Complete Message/Text renderer bridge closure:
    - consume backend `TextCommand` payloads end-to-end in renderer tiers where text draw remains placeholder,
    - align compat `Window_Message` behavior with native MessageScene runtime ownership handoff.
@@ -309,7 +312,7 @@ Phase 2 runtime closure is already complete. The remaining compat work below is 
 
 ### 2. Wave 1 native runtime ownership (remaining)
 
-- [ ] UI/Menu Core: complete production closure for command registry/scene graph/route resolver ownership (runtime slice landed; editor/schema/migration/release closure remains).
+- [x] UI/Menu Core: complete production closure for command registry/scene graph/route resolver ownership (runtime slice landed; editor/schema/migration/release closure remains).
 - [ ] Message/Text Core: complete production closure after landed flow/layout ownership (native MessageScene/UI renderer handoff, backend text command consumption, editor/schema/migration/release closure remains).
 - [ ] Battle Core: implement native flow controller, action queue, and rule resolver ownership.
 - [ ] Save/Data Core: complete catalog/serializer/recovery ownership beyond the seeded descriptor and inspector slice.

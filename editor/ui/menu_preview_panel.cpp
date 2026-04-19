@@ -69,11 +69,12 @@ void MenuPreviewPanel::Render(const urpg::FrameContext& context) {
             for (size_t i = 0; i < pane.commands.size(); ++i) {
                 const auto& cmd = pane.commands[i];
                 bool isSelected = (i == pane.selectedCommandIndex);
-                
+                const std::string label = cmd.label.empty() ? cmd.id : cmd.label;
+
                 if (isSelected) {
-                    ImGui::TextColored(ImVec4(1.0f, 1.0f, 0.4f, 1.0f), "> %s", cmd.id.c_str());
+                    ImGui::TextColored(ImVec4(1.0f, 1.0f, 0.4f, 1.0f), "> %s", label.c_str());
                 } else {
-                    ImGui::Text("  %s", cmd.id.c_str());
+                    ImGui::Text("  %s", label.c_str());
                 }
             }
             ImGui::EndChild();
@@ -129,6 +130,8 @@ void MenuPreviewPanel::captureRenderSnapshot() {
 
         for (const auto& cmd : pane.commands) {
             snapshot.command_ids.push_back(cmd.id);
+            snapshot.command_labels.push_back(cmd.label.empty() ? cmd.id : cmd.label);
+            snapshot.command_enabled.push_back(true);
         }
 
         if (pane.selectedCommandIndex < pane.commands.size()) {

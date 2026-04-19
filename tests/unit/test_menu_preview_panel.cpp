@@ -55,4 +55,49 @@ TEST_CASE("MenuPreviewPanel - Render snapshot exposes active scene and pane comm
     REQUIRE(panel.lastRenderSnapshot().visible_panes[0].command_ids.size() == 2);
     REQUIRE(panel.lastRenderSnapshot().visible_panes[0].command_ids[0] == "urpg.menu.item");
     REQUIRE(panel.lastRenderSnapshot().visible_panes[0].command_ids[1] == "urpg.menu.save");
+    REQUIRE(panel.lastRenderSnapshot().visible_panes[0].command_labels[0] == "Item");
+    REQUIRE(panel.lastRenderSnapshot().visible_panes[0].command_labels[1] == "Save");
+    REQUIRE(panel.lastRenderSnapshot().visible_panes[0].command_enabled.size() == 2);
+    REQUIRE(panel.lastRenderSnapshot().visible_panes[0].command_enabled[0] == true);
+    REQUIRE(panel.lastRenderSnapshot().visible_panes[0].command_enabled[1] == true);
+}
+
+TEST_CASE("MenuPreviewPanel reflects runtime edits and clear behavior",
+          "[ui][editor][menu_preview][panel][edit]") {
+    auto menu = std::make_shared<urpg::ui::MenuScene>("EditPreviewMenu");
+
+    urpg::ui::MenuPane mainPane;
+    mainPane.id = "main_pane";
+    mainPane.displayName = "Main Pane";
+    mainPane.isVisible = true;
+    mainPane.isActive = true;
+
+    urpg::MenuCommandMeta itemCommand;
+    itemCommand.id = "urpg.menu.item";
+    itemCommand.label = "Item";
+    itemCommand.route = urpg::MenuRouteTarget::Item;
+
+    mainPane.commands = {itemCommand};
+    menu->addPane(mainPane);
+
+    urpg::ui::MenuSceneGraph graph;
+    graph.registerScene(menu);
+    graph.pushScene("EditPreviewMenu");
+
+    urpg::editor::MenuPreviewPanel panel;
+    panel.bindRuntime(graph);
+    panel.SetVisible(true);
+
+    urpg::FrameContext context{0.016f, 1};
+    panel.Render(context);
+
+    REQUIRE(panel.lastRenderSnapshot().visible_panes[0].command_labels[0] == "Item");
+
+    graph.getActiveScene()->getPanesMutable()[0].commands[0].label = "Updated Item";
+    panel.refresh();
+    REQUIRE(panel.lastRenderSnapshot().visible_panes[0].command_labels[0] == "Updated Item");
+
+    panel.clearRuntime();
+    REQUIRE_FALSE(panel.hasRenderedFrame());
+    REQUIRE(panel.lastRenderSnapshot().has_data == false);
 }
