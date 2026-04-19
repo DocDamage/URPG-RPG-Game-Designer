@@ -376,7 +376,7 @@ public:
     int32_t calculateGold() const;
     std::vector<int32_t> calculateDrops() const;
     
-    // Status: FULL - Reward application mutates live DataManager state
+    // Status: PARTIAL - Reward application mutates live DataManager state, but full MZ parity is still incomplete
     void applyExp();
     void applyGold();
     void applyDrops();

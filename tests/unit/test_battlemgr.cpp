@@ -731,6 +731,15 @@ TEST_CASE("BattleManager: defeating all enemies yields expected gold and exp", "
     DataManager::instance().loadDatabase();
     DataManager::instance().setupNewGame();
 
+    ActorData* actor = DataManager::instance().getActor(1);
+    ClassData* cls = DataManager::instance().getClass(actor ? actor->classId : 0);
+    REQUIRE(actor != nullptr);
+    REQUIRE(cls != nullptr);
+    actor->level = 1;
+    actor->exp = 0;
+    cls->expTable = {9999, 9999, 9999};
+    cls->maxLevel = 99;
+
     BattleManager bm;
     bm.setup(2, true, false); // Troop 2 = one Goblin (20 exp, 10 gold)
     REQUIRE(bm.getEnemiesConst().size() == 1);
@@ -746,10 +755,9 @@ TEST_CASE("BattleManager: defeating all enemies yields expected gold and exp", "
     bm.applyGold();
     REQUIRE(DataManager::instance().getGold() == initialGold + 10);
 
+    int32_t initialExp = actor->exp;
     bm.applyExp();
-    ActorData* actor = DataManager::instance().getActor(1);
-    REQUIRE(actor != nullptr);
-    REQUIRE(actor->exp >= 20);
+    REQUIRE(actor->exp == initialExp + 20);
 }
 
 TEST_CASE("BattleManager: drop logic handles probability", "[battlemgr]") {

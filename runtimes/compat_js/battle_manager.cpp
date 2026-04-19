@@ -1688,11 +1688,11 @@ void BattleManager::applyExp() {
     }
 
     auto& dm = DataManager::instance();
-    for (const auto& actorSubject : actors_) {
-        if (actorSubject.id <= 0) {
-            continue;
+    for (int32_t i = 0; i < dm.getPartySize(); ++i) {
+        const int32_t actorId = dm.getPartyMember(i);
+        if (actorId > 0) {
+            dm.gainExp(actorId, totalExp);
         }
-        dm.gainExp(actorSubject.id, totalExp);
     }
 }
 
