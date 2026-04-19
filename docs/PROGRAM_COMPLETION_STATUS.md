@@ -305,7 +305,7 @@ Phase 2 runtime closure is already complete. The remaining compat work below is 
 - [ ] Expand routed conformance coverage beyond the current anchor scenarios across the curated 10-profile corpus.
 - [ ] Keep every new failure operation locked to JSONL artifacts, report ingestion/export, and panel projection assertions.
 - [x] Complete explicit compat exit checklist with signed pass criteria for import confidence and migration confidence.
-- [ ] Keep runtime status labels and public docs aligned with actual implementation scope; do not relabel fixture-backed or placeholder-backed paths as `FULL` without closing the underlying TODOs.
+- [x] Keep runtime status labels and public docs aligned with actual implementation scope; do not relabel fixture-backed or placeholder-backed paths as `FULL` without closing the underlying TODOs.
 
 ### 2. Wave 1 native runtime ownership (remaining)
 

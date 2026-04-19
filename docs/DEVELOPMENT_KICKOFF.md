@@ -119,7 +119,7 @@ Historical kickoff snapshot values below are preserved for context. For current 
    - DataManager transfer semantics now track reserved transfers and apply them via `processTransfer`.
    - `SaveSessionCoordinator` now loads `save_slots.json` descriptors and projects slot labels into save-inspector rows when map names are absent.
    - Compat routed battle-flow evidence now includes a tactical reload-survival fixture scenario.
-   - Burned down selected compat statuses: `Window_Base.drawItemName`, `Window_Base.textWidth`, `Window_Base.textSize` from `STUB` to `PARTIAL`; `TouchInput.worldX/worldY` from `STUB` to `FULL`; `Window_Base.drawActorHp/drawActorMp/drawActorTp` from `PARTIAL` to `FULL`.
+   - Burned down selected compat statuses: `Window_Base.drawItemName`, `Window_Base.textWidth`, and `Window_Base.textSize` moved off `STUB`; `TouchInput.worldX/worldY` now route live compat runtime state but remain honestly `PARTIAL`; `Window_Base.drawActorHp/drawActorMp/drawActorTp` closed to `FULL`.
    - Burned down WindowCompat text-surface statuses: `drawTextEx`, `textWidth`, `textSize` from `PARTIAL` to `FULL` using escape-token parity and compat renderer-backed measurement/layout flow.
    - `Window_Base.drawText` now submits backend-facing `RenderLayer::TextCommand` payloads using resolved alignment offsets and active font/color state.
    - Added compat `Window_Message` surface (`drawMessageBody`) with deterministic dialogue-body alignment behavior (`left`/`center`/`right`).
@@ -127,7 +127,7 @@ Historical kickoff snapshot values below are preserved for context. For current 
    - Burned down additional WindowCompat statuses: `drawItemName` from `PARTIAL` to `FULL` (DataManager-backed icon+label semantics) and `Sprite_Actor.startEffect` from `PARTIAL` to `FULL` (deterministic effect-duration lifecycle).
    - Burned down additional Sprite_Actor animation status: `startAnimation` from `PARTIAL` to `FULL` with deterministic frame-duration playback lifecycle.
    - Burned down remaining Window_Base face status: `drawActorFace` from `PARTIAL` to `FULL` with MZ-canonical face cell clipping/centering semantics and deterministic face draw metadata.
-   - Earlier compat burn-down work materially improved several surfaces, but a follow-up audit is still required because some runtime registries continue to overclaim `FULL` on stub-, fixture-, or placeholder-backed paths.
+   - The follow-up compat status audit is now closed: public compat headers, runtime registries, and canonical docs now agree that fixture-backed, stub-backed, or placeholder-backed paths stay `PARTIAL`/`STUB` unless the underlying TODOs are actually closed.
    - AudioManager compat closure advanced without overstating parity: deterministic frame-based crossfade, playback-position progression, BGM save/restore metadata, duck/unduck ramps, active master/bus volume scaling, and live QuickJS `AudioManager` bindings are now covered, but the surface remains honestly `PARTIAL` because it is still a deterministic compat harness rather than a live mixer/backend.
    - Burned down BattleManager compat status: `processEscape` from `PARTIAL` to `FULL` with deterministic MZ-style escape ratio + fail-ramp handling.
    - `executeCommandAsync` now has deterministic FIFO task queue execution and callback ordering, but the surface still remains `PARTIAL` because callbacks run on the worker thread and the JS bridge is fixture-backed.

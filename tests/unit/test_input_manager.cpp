@@ -150,6 +150,8 @@ TEST_CASE("InputManager: method status registry", "[input_manager]") {
 
     REQUIRE(InputManager::getMethodStatus("isPressed") == CompatStatus::PARTIAL);
     REQUIRE(InputManager::getMethodStatus("dir4") == CompatStatus::PARTIAL);
+    REQUIRE(InputManager::getMethodStatus("initialize") == CompatStatus::PARTIAL);
+    REQUIRE(InputManager::getMethodStatus("clear") == CompatStatus::PARTIAL);
     REQUIRE(InputManager::getMethodStatus("nonexistentMethod") == CompatStatus::UNSUPPORTED);
 }
 
@@ -224,6 +226,8 @@ TEST_CASE("TouchInput: method status and constants", "[input_manager]") {
     REQUIRE(TouchInput::getMethodStatus("isPressed") == CompatStatus::PARTIAL);
     REQUIRE(TouchInput::getMethodStatus("worldX") == CompatStatus::PARTIAL);
     REQUIRE(TouchInput::getMethodStatus("worldY") == CompatStatus::PARTIAL);
+    REQUIRE(TouchInput::getMethodStatus("moveSpeed") == CompatStatus::PARTIAL);
+    REQUIRE(TouchInput::getMethodStatus("clear") == CompatStatus::PARTIAL);
 
     REQUIRE(InputKey::DOWN == 2);
     REQUIRE(InputKey::LEFT == 4);

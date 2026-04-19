@@ -1827,11 +1827,17 @@ TEST_CASE("PluginManager: Method status registry", "[plugin_manager]") {
         CompatStatus status = pm.getMethodStatus("registerCommand");
         REQUIRE(status == CompatStatus::PARTIAL);
     }
+
+    SECTION("GetMethodStatus returns PARTIAL for lifecycle and diagnostics methods") {
+        REQUIRE(pm.getMethodStatus("unloadPlugin") == CompatStatus::PARTIAL);
+        REQUIRE(pm.getMethodStatus("getLastError") == CompatStatus::PARTIAL);
+        REQUIRE(pm.getMethodStatus("exportFailureDiagnosticsJsonl") == CompatStatus::PARTIAL);
+    }
     
     SECTION("GetMethodStatus returns PARTIAL for async execution") {
         CompatStatus status = pm.getMethodStatus("executeCommandAsync");
         REQUIRE(status == CompatStatus::PARTIAL);
-        REQUIRE(pm.getMethodDeviation("executeCommandAsync").find("main-thread dispatch") != std::string::npos);
+        REQUIRE(pm.getMethodDeviation("executeCommandAsync").find("owning-thread-only") != std::string::npos);
     }
     
     SECTION("GetMethodStatus returns UNSUPPORTED for unknown methods") {

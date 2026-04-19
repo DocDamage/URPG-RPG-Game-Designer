@@ -102,7 +102,7 @@ Quick-reference table for current finding status. Use this to assess open work w
 |----|-------|--------|-------|
 | P0-01 | Build Integrity: Active Compile Blockers | ✅ Remediated | Phase 0 |
 | P1-01 | QuickJS Layer Is A Stub Kernel, Not A Runtime | ✅ Remediated (Path B) | Phase 2 WS 2.1 |
-| P1-02 | Compat Status Inflation Across Multiple Subsystems | ⚠ Partially Remediated | Phase 1 |
+| P1-02 | Compat Status Inflation Across Multiple Subsystems | ✅ Remediated | Phase 1 |
 | P1-03 | Audio SE Channel Lifetime Leak | ✅ Remediated | Phase 2 WS 2.3 |
 | P1-04 | Battle Turn-Condition Correctness Bug | ✅ Remediated | Phase 2 WS 2.2 |
 | P2-01 | Diagnostics Workspace Reports More Than It Renders | ✅ Remediated | Phase 3 |
@@ -241,7 +241,7 @@ Each finding is structured as: **Impact → Root Cause → Required Action → O
 - Compat reports are trustworthy inputs to planning decisions.
 - Docs stop conflating fixture scaffolding with live runtime support.
 
-**Status (2026-04-19):** Partially remediated. `loadDatabase()` now seeds compat containers and `Window_Base::contents()` lifecycle behavior is covered by explicit tests, but the lane remains `PARTIAL` because there is still no pixel buffer and no full project-data parity.
+**Status (2026-04-19):** Remediated. The remaining inflated runtime labels were already burned down in the compat registries; the final closure pass aligned the public compat headers, exit checklist, kickoff docs, and current-status docs so fixture-backed and placeholder-backed surfaces no longer overclaim `FULL`.
 
 **Progress evidence (2026-04-19):**
 - The focused Phase 2 verification lane in `build/dev-mingw-debug` was re-run after the doc edits and passed on the exact focused subset exercised by `ctest --test-dir build/dev-mingw-debug --output-on-failure -R "BattleManager:|Window_Base contents lifecycle allocates and rotates deterministic handles|DataManager loadDatabase populates seeded database containers|AudioManager:"` (`BattleManager:` and `AudioManager:` suites plus one focused `DataManager` case and one focused `Window_Base` case).
@@ -253,6 +253,7 @@ Each finding is structured as: **Impact → Root Cause → Required Action → O
 - [data_manager.cpp](../runtimes/compat_js/data_manager.cpp): all inflated `CompatStatus::FULL` labels downgraded to `PARTIAL` (`loadDatabase()` now seeds compat containers and the accessors return live seeded data where available; save/load is in-memory only; plugin commands are an in-memory callback map).
 - Corresponding unit tests in `test_audio_manager.cpp`, `test_data_manager.cpp`, `test_plugin_manager.cpp`, and `test_window_compat.cpp` updated to assert honest statuses.
 - Continued 2026-04-18/2026-04-19 closure in [window_compat.cpp](../runtimes/compat_js/window_compat.cpp): `Window_Selectable` now supports keyboard/gamepad navigation, pointer press/drag/release hit-testing, drag retargeting, drag-scroll, and mouse-wheel scrolling through `InputManager`; `Window_Base::contents()` now allocates compat bitmap metadata records whose dimensions stay synchronized with live rect/padding state and is now backed by explicit deterministic-handle tests.
+- Final truth-surface closure (2026-04-19): [input_manager.h](../runtimes/compat_js/input_manager.h) and [plugin_manager.h](../runtimes/compat_js/plugin_manager.h) now match their runtime registries by labeling fixture-backed compat behavior as `PARTIAL` instead of `FULL`; [test_input_manager.cpp](../tests/unit/test_input_manager.cpp) and [test_plugin_manager.cpp](../tests/unit/test_plugin_manager.cpp) now cover representative lifecycle/diagnostic status entries; [COMPAT_EXIT_CHECKLIST.md](./COMPAT_EXIT_CHECKLIST.md), [PROGRAM_COMPLETION_STATUS.md](./PROGRAM_COMPLETION_STATUS.md), and [DEVELOPMENT_KICKOFF.md](./DEVELOPMENT_KICKOFF.md) now describe the audit as complete instead of still pending.
 
 ---
 
