@@ -168,6 +168,15 @@ TEST_CASE("AudioManager: buses and ducking", "[audio_manager]") {
 
 TEST_CASE("AudioManager: duck and unduck preserve deterministic BGM state", "[audio_manager]") {
     AudioManager& am = AudioManager::instance();
+    struct AudioStateCleanupGuard {
+        AudioManager& am;
+        ~AudioStateCleanupGuard() {
+            am.stopBgm();
+            am.setMasterVolume(1.0);
+            am.setBusVolume(AudioBus::BGM, 1.0);
+        }
+    } cleanup{am};
+
     am.stopBgm();
     am.setMasterVolume(1.0);
     am.setBusVolume(AudioBus::BGM, 1.0);
@@ -189,16 +198,16 @@ TEST_CASE("AudioManager: duck and unduck preserve deterministic BGM state", "[au
     am.update();
     REQUIRE(am.getCurrentBgm().volume == Catch::Approx(20.0));
 
-    am.unduckBgm(1);
+    am.unduckBgm(2);
     am.setMasterVolume(0.75);
     am.setBusVolume(AudioBus::BGM, 0.5);
     am.update();
+    REQUIRE(am.isBgmDucked());
+    REQUIRE(am.getCurrentBgm().volume == Catch::Approx(15.0));
+
+    am.update();
     REQUIRE_FALSE(am.isBgmDucked());
     REQUIRE(am.getCurrentBgm().volume == Catch::Approx(30.0));
-
-    am.stopBgm();
-    am.setMasterVolume(1.0);
-    am.setBusVolume(AudioBus::BGM, 1.0);
 }
 
 TEST_CASE("AudioManager: master and bus volumes affect active playback", "[audio_manager]") {
