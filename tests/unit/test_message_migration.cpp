@@ -117,3 +117,128 @@ TEST_CASE("Message migration diagnostics export emits JSONL stream", "[message][
     REQUIRE(first.contains("code"));
     REQUIRE(first.contains("page_id"));
 }
+
+TEST_CASE("MessageMigration maps defaultChoiceIndex to native default_choice_index", "[message][migration]") {
+    const json compat = {
+        {"id", "seq_with_default_choice"},
+        {"pages",
+         json::array({{
+             {"id", "page_with_default"},
+             {"route", "speaker"},
+             {"speaker", "Guide"},
+             {"body", "Choose wisely."},
+             {"choices", json::array({{{"id", "opt_a"}, {"label", "A"}}, {{"id", "opt_b"}, {"label", "B"}}})},
+             {"defaultChoiceIndex", 1},
+         }})},
+    };
+
+    const auto migrated = urpg::message::UpgradeCompatMessageDocument(compat);
+    const auto& page = migrated.dialogue_sequences["sequences"][0]["pages"][0];
+    REQUIRE(page.contains("default_choice_index"));
+    REQUIRE(page["default_choice_index"] == 1);
+}
+
+TEST_CASE("MessageMigration maps command tool hook", "[message][migration]") {
+    const json compat = {
+        {"id", "seq_with_command"},
+        {"pages",
+         json::array({{
+             {"id", "page_with_command"},
+             {"route", "narration"},
+             {"body", "A command fires."},
+             {"command", "fire_event"},
+         }})},
+    };
+
+    const auto migrated = urpg::message::UpgradeCompatMessageDocument(compat);
+    const auto& page = migrated.dialogue_sequences["sequences"][0]["pages"][0];
+    REQUIRE(page.contains("command"));
+    REQUIRE(page["command"] == "fire_event");
+}
+
+TEST_CASE("MessageMigration maps window style fields", "[message][migration]") {
+    const json compat = {
+        {"id", "seq_with_window_style"},
+        {"pages",
+         json::array({{
+             {"id", "page_window_style"},
+             {"route", "speaker"},
+             {"speaker", "NPC"},
+             {"body", "Styled window."},
+             {"windowSkin", "img/system/CustomWindow.png"},
+             {"windowOpacity", 200},
+             {"padding", 12},
+             {"fontSize", 18},
+             {"lineHeight", 28},
+         }})},
+    };
+
+    const auto migrated = urpg::message::UpgradeCompatMessageDocument(compat);
+    const auto& styles = migrated.message_styles["styles"];
+    const auto it = std::find_if(styles.begin(), styles.end(), [](const json& s) { return s["id"] == "default"; });
+    REQUIRE(it != styles.end());
+    REQUIRE((*it).contains("window"));
+    const auto& window = (*it)["window"];
+    REQUIRE(window["skin"] == "img/system/CustomWindow.png");
+    REQUIRE(window["opacity"] == 200);
+    REQUIRE(window["padding"] == 12);
+    REQUIRE(window["font_size"] == 18);
+    REQUIRE(window["line_height"] == 28);
+}
+
+TEST_CASE("MessageMigration maps audio style fields", "[message][migration]") {
+    const json compat = {
+        {"id", "seq_with_audio_style"},
+        {"pages",
+         json::array({{
+             {"id", "page_audio_style"},
+             {"route", "narration"},
+             {"body", "Audio styled."},
+             {"typing_se", "se/type.wav"},
+             {"open_se", "se/open.wav"},
+             {"close_se", "se/close.wav"},
+         }})},
+    };
+
+    const auto migrated = urpg::message::UpgradeCompatMessageDocument(compat);
+    const auto& styles = migrated.message_styles["styles"];
+    const auto it = std::find_if(styles.begin(), styles.end(), [](const json& s) { return s["id"] == "default"; });
+    REQUIRE(it != styles.end());
+    REQUIRE((*it).contains("audio"));
+    const auto& audio = (*it)["audio"];
+    REQUIRE(audio["typing_se"] == "se/type.wav");
+    REQUIRE(audio["open_se"] == "se/open.wav");
+    REQUIRE(audio["close_se"] == "se/close.wav");
+}
+
+TEST_CASE("MessageMigration output conforms to dialogue_sequences schema", "[message][migration]") {
+    const json compat = {
+        {"id", "conformance_seq"},
+        {"pages",
+         json::array({{
+             {"id", "conformance_page"},
+             {"route", "speaker"},
+             {"speaker", "Tester"},
+             {"body", "Conformance check."},
+             {"waitForAdvance", true},
+             {"defaultChoiceIndex", 0},
+         }})},
+    };
+
+    const auto migrated = urpg::message::UpgradeCompatMessageDocument(compat);
+    const auto& page = migrated.dialogue_sequences["sequences"][0]["pages"][0];
+
+    // Structural check for required / expected page fields
+    REQUIRE(page.contains("id"));
+    REQUIRE(page.contains("style_id"));
+    REQUIRE(page.contains("presentation_mode"));
+    REQUIRE(page.contains("tone"));
+    REQUIRE(page.contains("body"));
+    REQUIRE(page.contains("wait_for_advance"));
+    REQUIRE(page.contains("default_choice_index"));
+    REQUIRE(page["id"] == "conformance_page");
+    REQUIRE(page["presentation_mode"] == "speaker");
+    REQUIRE(page["body"] == "Conformance check.");
+    REQUIRE(page["wait_for_advance"] == true);
+    REQUIRE(page["default_choice_index"] == 0);
+}

@@ -1994,3 +1994,107 @@ TEST_CASE("DiagnosticsWorkspace - Menu save and load round-trip", "[editor][diag
 
     std::filesystem::remove(temp_path);
 }
+
+TEST_CASE("DiagnosticsWorkspace - Message edit round-trip through workspace",
+          "[editor][diagnostics][integration][message_actions]") {
+    urpg::editor::DiagnosticsWorkspace workspace;
+    workspace.setActiveTab(urpg::editor::DiagnosticsTab::MessageText);
+
+    urpg::message::MessageFlowRunner runner;
+    runner.begin({
+        {"page_a", "Hello world.", urpg::message::variantFromCompatRoute("speaker", "Alice", 1), true, {}, 0},
+        {"page_b", "Goodbye.", urpg::message::variantFromCompatRoute("narration", "", 0), true, {}, 0},
+    });
+    urpg::message::RichTextLayoutEngine layout;
+    workspace.bindMessageRuntime(runner, layout);
+    workspace.update();
+
+    REQUIRE(workspace.updateMessagePageBody(0, "Updated body."));
+    REQUIRE(workspace.updateMessagePageSpeaker(0, "Bob"));
+    REQUIRE(workspace.removeMessagePage(1));
+
+    urpg::message::DialoguePage newPage;
+    newPage.id = "page_c";
+    newPage.body = "New page content.";
+    newPage.variant = urpg::message::variantFromCompatRoute("speaker", "Carol", 2);
+    newPage.wait_for_advance = true;
+    REQUIRE(workspace.addMessagePage(newPage));
+
+    REQUIRE(workspace.applyMessageChangesToRuntime(runner));
+
+    const auto& pages = runner.pages();
+    REQUIRE(pages.size() == 2);
+    REQUIRE(pages[0].body == "Updated body.");
+    REQUIRE(pages[0].variant.speaker == "Bob");
+    REQUIRE(pages[1].id == "page_c");
+    REQUIRE(pages[1].body == "New page content.");
+    REQUIRE(pages[1].variant.speaker == "Carol");
+}
+
+TEST_CASE("DiagnosticsWorkspace - Message state export and import round-trip",
+          "[editor][diagnostics][integration][message_actions]") {
+    urpg::editor::DiagnosticsWorkspace workspace;
+    workspace.setActiveTab(urpg::editor::DiagnosticsTab::MessageText);
+
+    urpg::message::MessageFlowRunner runner;
+    runner.begin({
+        {"page_a", "Hello world.", urpg::message::variantFromCompatRoute("speaker", "Alice", 1), true, {}, 0},
+    });
+    urpg::message::RichTextLayoutEngine layout;
+    workspace.bindMessageRuntime(runner, layout);
+    workspace.update();
+
+    const auto jsonStr = workspace.exportMessageStateJson();
+    const auto json = nlohmann::json::parse(jsonStr);
+    REQUIRE(json.is_array());
+    REQUIRE(json.size() == 1);
+    REQUIRE(json[0]["id"] == "page_a");
+    REQUIRE(json[0]["body"] == "Hello world.");
+    REQUIRE(json[0]["speaker"] == "Alice");
+    REQUIRE(json[0]["mode"] == "speaker");
+    REQUIRE(json[0]["wait_for_advance"] == true);
+
+    const auto temp_path = (std::filesystem::temp_directory_path() / "urpg_workspace_message_state.json").string();
+    std::filesystem::remove(temp_path);
+
+    REQUIRE(workspace.saveMessageStateToFile(temp_path));
+    REQUIRE(std::filesystem::exists(temp_path));
+
+    urpg::message::MessageFlowRunner loadedRunner;
+    urpg::editor::DiagnosticsWorkspace loadWorkspace;
+    loadWorkspace.setActiveTab(urpg::editor::DiagnosticsTab::MessageText);
+    loadWorkspace.bindMessageRuntime(loadedRunner, layout);
+    REQUIRE(loadWorkspace.loadMessageStateFromFile(temp_path, loadedRunner));
+
+    const auto& loadedPages = loadedRunner.pages();
+    REQUIRE(loadedPages.size() == 1);
+    REQUIRE(loadedPages[0].id == "page_a");
+    REQUIRE(loadedPages[0].body == "Hello world.");
+    REQUIRE(loadedPages[0].variant.speaker == "Alice");
+    REQUIRE(loadedPages[0].variant.mode == urpg::message::MessagePresentationMode::Speaker);
+
+    std::filesystem::remove(temp_path);
+}
+
+TEST_CASE("DiagnosticsWorkspace - Message workspace actions keep snapshot current after edits",
+          "[editor][diagnostics][integration][message_actions]") {
+    urpg::editor::DiagnosticsWorkspace workspace;
+    workspace.setActiveTab(urpg::editor::DiagnosticsTab::MessageText);
+
+    urpg::message::MessageFlowRunner runner;
+    runner.begin({
+        {"page_a", "Hello world.", urpg::message::variantFromCompatRoute("speaker", "Alice", 1), true, {}, 0},
+    });
+    urpg::message::RichTextLayoutEngine layout;
+    workspace.bindMessageRuntime(runner, layout);
+    workspace.update();
+
+    REQUIRE(workspace.updateMessagePageBody(0, "Updated body."));
+    REQUIRE(workspace.applyMessageChangesToRuntime(runner));
+    workspace.refresh();
+
+    auto exported = nlohmann::json::parse(workspace.exportAsJson());
+    REQUIRE(exported["active_tab_detail"]["visible_rows"].size() == 1);
+    REQUIRE(exported["active_tab_detail"]["visible_rows"][0]["page_id"] == "page_a");
+    REQUIRE(exported["active_tab_detail"]["visible_rows"][0]["body_preview"] == "Updated body.");
+}

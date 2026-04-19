@@ -87,6 +87,22 @@ void MessageInspectorPanel::clear() {
     last_render_snapshot_ = {};
 }
 
+bool MessageInspectorPanel::updatePageBody(size_t row, const std::string& body) {
+    return model_.updatePageBody(row, body);
+}
+
+bool MessageInspectorPanel::addPage(const urpg::message::DialoguePage& page) {
+    return model_.addPage(page);
+}
+
+bool MessageInspectorPanel::removePage(size_t row) {
+    return model_.removePage(row);
+}
+
+bool MessageInspectorPanel::applyToRuntime(urpg::message::MessageFlowRunner& runner) {
+    return model_.applyToRuntime(runner);
+}
+
 bool MessageInspectorPanel::hasRenderedFrame() const {
     return has_rendered_frame_;
 }

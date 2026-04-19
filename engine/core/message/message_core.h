@@ -206,6 +206,7 @@ public:
     using CommandExecutor = std::function<void(const std::string&)>;
 
     void begin(std::vector<DialoguePage> pages);
+    void resetWithPages(std::vector<DialoguePage> pages);
     void cancel();
 
     void setCommandExecutor(CommandExecutor executor) { command_executor_ = std::move(executor); }

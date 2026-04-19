@@ -9,6 +9,21 @@
 
 ## Entries
 
+### 2026-04-19 — Task 5: Message/Text Editor and Migration Productization
+- **Action**: Added mutable `pages_` buffer to `MessageInspectorModel` with full authoring APIs: `updatePageBody`, `updatePageSpeaker`, `updatePageMode`, `addPage`, `removePage`, `applyToRuntime`, `clear`, `selectPageById`, `selectedPage`. Selection is preserved across edits by page ID.
+- **Action**: Added `MessageFlowRunner::resetWithPages()` to reconstruct runner state from mutated pages.
+- **Action**: Added `MessageInspectorPanel` delegation methods for `updatePageBody`, `addPage`, `removePage`, `applyToRuntime`.
+- **Action**: Extended `MessageMigration` to map `defaultChoiceIndex` → `default_choice_index`, `command` → `command`, window style fields (`windowSkin`, `windowOpacity`, `padding`, `fontSize`, `lineHeight`) → `styles[].window`, audio style fields (`typing_se`, `open_se`, `close_se`) → `styles[].audio`.
+- **Action**: Updated `dialogue_sequences.schema.json` to include `default_choice_index` and `command` in page definition.
+- **Action**: Added `unsupported_style_field` diagnostic for unmapped compat style fields.
+- **Action**: Added `DiagnosticsWorkspace` message mutation wrappers: `updateMessagePageBody`, `updateMessagePageSpeaker`, `removeMessagePage`, `addMessagePage`, `applyMessageChangesToRuntime`, plus `exportMessageStateJson`, `saveMessageStateToFile`, `loadMessageStateFromFile`.
+- **Action**: Added 13 focused tests: 5 model edit tests, 1 panel delegation test, 5 migration field tests, 1 schema contract test, 3 workspace integration tests.
+- **Action**: Re-ran repo-wide validation: `ctest --preset dev-all --output-on-failure` => 561/561 passed (4 NOT_BUILT placeholders are expected).
+- **Result**: Message/Text editor and migration productization is CLOSED. All acceptance criteria pass:
+  - `[message][editor]` => 11 cases / 85 assertions
+  - `[message][migration]` => 8 cases / 66 assertions
+  - `[editor][diagnostics][integration][message_actions]` => 4 cases / 49 assertions
+
 ### 2026-04-19 — Task 4: Message/Text Runtime and Renderer Closure
 - **Action**: Added explicit `RectCommand` handling to `OpenGLRenderer::processCommands()` (TIER_BASIC placeholder logging) so the renderer no longer silently drops rect draw intents.
 - **Action**: Wired `MapScene::onUpdate()` to submit `TextCommand` (current page body) and `RectCommand` (message window background) to `RenderLayer` when `m_messageRunner.isActive()`, closing the native message runtime → renderer handoff gap.

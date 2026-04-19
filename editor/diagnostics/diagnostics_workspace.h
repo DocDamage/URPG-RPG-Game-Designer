@@ -71,6 +71,14 @@ public:
     bool clearMessageRouteFilter();
     bool setMessageShowIssuesOnly(bool show_issues_only);
     bool selectMessageRow(size_t row_index);
+    bool updateMessagePageBody(size_t row_index, const std::string& new_body);
+    bool updateMessagePageSpeaker(size_t row_index, const std::string& new_speaker);
+    bool removeMessagePage(size_t row_index);
+    bool addMessagePage(const urpg::message::DialoguePage& page);
+    bool applyMessageChangesToRuntime(urpg::message::MessageFlowRunner& runner);
+    std::string exportMessageStateJson() const;
+    bool saveMessageStateToFile(const std::string& path) const;
+    bool loadMessageStateFromFile(const std::string& path, urpg::message::MessageFlowRunner& runner);
     void bindBattleRuntime(const urpg::battle::BattleFlowController& flow_controller,
                            const urpg::battle::BattleActionQueue& action_queue);
     void clearBattleRuntime();

@@ -96,3 +96,30 @@ TEST_CASE("MessageInspectorPanel - clear resets snapshot state", "[message][edit
     REQUIRE(panel.lastRenderSnapshot().issues.empty());
     REQUIRE(panel.lastRenderSnapshot().total_pages == 0);
 }
+
+TEST_CASE("MessageInspectorPanel delegates page mutations to model", "[message][editor]") {
+    urpg::message::MessageFlowRunner runner;
+    runner.begin({
+        {"speaker_a", "Hello.", urpg::message::variantFromCompatRoute("speaker", "Alicia", 3), true, {}, 0},
+    });
+    urpg::message::RichTextLayoutEngine layout;
+
+    urpg::editor::MessageInspectorPanel panel;
+    panel.bindRuntime(runner, layout);
+    panel.refresh();
+    panel.render();
+
+    REQUIRE(panel.lastRenderSnapshot().total_pages == 1);
+
+    urpg::message::DialoguePage new_page;
+    new_page.id = "speaker_b";
+    new_page.body = "World.";
+    new_page.variant = urpg::message::variantFromCompatRoute("speaker", "Bob", 2);
+    panel.addPage(new_page);
+    panel.render();
+
+    const auto& snapshot = panel.lastRenderSnapshot();
+    REQUIRE(snapshot.total_pages == 2);
+    REQUIRE(snapshot.visible_row_count == 2);
+    REQUIRE(snapshot.visible_rows[1].page_id == "speaker_b");
+}

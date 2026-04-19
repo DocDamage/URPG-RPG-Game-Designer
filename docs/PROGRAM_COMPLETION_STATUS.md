@@ -318,14 +318,14 @@ Phase 2 runtime closure is already complete. The remaining compat work below is 
 ### 2. Wave 1 native runtime ownership (remaining)
 
 - [x] UI/Menu Core: complete production closure for command registry/scene graph/route resolver ownership (runtime, editor, schema, and migration are now closed).
-- [ ] Message/Text Core: runtime renderer handoff is closed; remaining work is editor productization, schema finalization, and release-readiness proof (Task 5).
+- [x] Message/Text Core: runtime renderer handoff AND editor productization are closed. Schema and migration field coverage is complete. Remaining work is release-readiness proof (Task 10).
 - [ ] Battle Core: implement native flow controller, action queue, and rule resolver ownership.
 - [ ] Save/Data Core: complete catalog/serializer/recovery ownership beyond the seeded descriptor and inspector slice.
 
 ### 3. Wave 1 editor productization (remaining)
 
 - [x] UI/Menu Core: inspector and preview surfaces are shipped; remaining work is deeper authoring/productization beyond the landed diagnostics workflow.
-- [ ] Message/Text Core: Ship inspector and preview surfaces.
+- [x] Message/Text Core: Ship inspector and preview surfaces.
 - [ ] Battle Core: Ship preview surfaces.
 - [ ] Ship diagnostics and validation wiring directly in editor panels for Wave 1 schemas.
 

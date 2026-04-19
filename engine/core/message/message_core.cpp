@@ -660,6 +660,18 @@ void MessageFlowRunner::begin(std::vector<DialoguePage> pages) {
     enterCurrentPage();
 }
 
+void MessageFlowRunner::resetWithPages(std::vector<DialoguePage> pages) {
+    pages_ = std::move(pages);
+    page_index_ = 0;
+    choice_prompt_.close();
+    state_ = MessageFlowState::Idle;
+    if (!pages_.empty()) {
+        enterCurrentPage();
+    } else {
+        state_ = MessageFlowState::Completed;
+    }
+}
+
 void MessageFlowRunner::cancel() {
     pages_.clear();
     page_index_ = 0;

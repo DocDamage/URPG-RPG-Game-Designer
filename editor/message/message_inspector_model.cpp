@@ -46,13 +46,26 @@ std::string PreviewBody(std::string_view body, size_t max_chars = 120) {
 void MessageInspectorModel::LoadFromFlow(const urpg::message::MessageFlowRunner& flow_runner,
                                          const urpg::message::RichTextLayoutEngine& layout_engine) {
     const auto previously_selected_page_id = SelectedPageId();
+    pages_ = flow_runner.pages();
+    layout_engine_ = &layout_engine;
+    RebuildAll();
+    summary_.has_active_flow = flow_runner.isActive();
+    summary_.current_page_index = flow_runner.currentPageIndex();
+    RestoreSelectionByPageId(previously_selected_page_id);
+}
+
+void MessageInspectorModel::RebuildAll() {
     all_rows_.clear();
     visible_rows_.clear();
     issues_.clear();
     selected_row_index_.reset();
     summary_ = {};
-    summary_.has_active_flow = flow_runner.isActive();
-    summary_.current_page_index = flow_runner.currentPageIndex();
+    summary_.has_active_flow = !pages_.empty();
+    summary_.current_page_index = 0;
+
+    if (!layout_engine_) {
+        return;
+    }
 
     std::unordered_map<std::string, size_t> issue_count_by_page_id;
 
@@ -67,15 +80,14 @@ void MessageInspectorModel::LoadFromFlow(const urpg::message::MessageFlowRunner&
         issues_.push_back(std::move(issue));
     };
 
-    const auto& pages = flow_runner.pages();
-    summary_.total_pages = pages.size();
-    all_rows_.reserve(pages.size());
+    summary_.total_pages = pages_.size();
+    all_rows_.reserve(pages_.size());
 
-    for (size_t index = 0; index < pages.size(); ++index) {
-        const auto& page = pages[index];
+    for (size_t index = 0; index < pages_.size(); ++index) {
+        const auto& page = pages_[index];
         const std::string fallback_page_id = "page_" + std::to_string(index);
         const std::string row_page_id = page.id.empty() ? fallback_page_id : page.id;
-        const auto layout = layout_engine.layout(page.body);
+        const auto layout = layout_engine_->layout(page.body);
 
         MessageInspectorRow row;
         row.page_index = index;
@@ -144,7 +156,110 @@ void MessageInspectorModel::LoadFromFlow(const urpg::message::MessageFlowRunner&
 
     summary_.issue_count = issues_.size();
     RebuildVisibleRows();
+}
+
+bool MessageInspectorModel::updatePageBody(size_t row_index, const std::string& new_body) {
+    if (row_index >= visible_rows_.size()) {
+        return false;
+    }
+    const auto page_index = visible_rows_[row_index].page_index;
+    if (page_index >= pages_.size()) {
+        return false;
+    }
+    const auto previously_selected_page_id = SelectedPageId();
+    pages_[page_index].body = new_body;
+    RebuildAll();
     RestoreSelectionByPageId(previously_selected_page_id);
+    return true;
+}
+
+bool MessageInspectorModel::updatePageSpeaker(size_t row_index, const std::string& new_speaker) {
+    if (row_index >= visible_rows_.size()) {
+        return false;
+    }
+    const auto page_index = visible_rows_[row_index].page_index;
+    if (page_index >= pages_.size()) {
+        return false;
+    }
+    const auto previously_selected_page_id = SelectedPageId();
+    pages_[page_index].variant.speaker = new_speaker;
+    RebuildAll();
+    RestoreSelectionByPageId(previously_selected_page_id);
+    return true;
+}
+
+bool MessageInspectorModel::updatePageMode(size_t row_index, urpg::message::MessagePresentationMode new_mode) {
+    if (row_index >= visible_rows_.size()) {
+        return false;
+    }
+    const auto page_index = visible_rows_[row_index].page_index;
+    if (page_index >= pages_.size()) {
+        return false;
+    }
+    const auto previously_selected_page_id = SelectedPageId();
+    pages_[page_index].variant.mode = new_mode;
+    RebuildAll();
+    RestoreSelectionByPageId(previously_selected_page_id);
+    return true;
+}
+
+bool MessageInspectorModel::addPage(const urpg::message::DialoguePage& page) {
+    const auto previously_selected_page_id = SelectedPageId();
+    pages_.push_back(page);
+    RebuildAll();
+    RestoreSelectionByPageId(previously_selected_page_id);
+    return true;
+}
+
+bool MessageInspectorModel::removePage(size_t row_index) {
+    if (row_index >= visible_rows_.size()) {
+        return false;
+    }
+    const auto page_index = visible_rows_[row_index].page_index;
+    if (page_index >= pages_.size()) {
+        return false;
+    }
+    const auto previously_selected_page_id = SelectedPageId();
+    pages_.erase(pages_.begin() + static_cast<std::ptrdiff_t>(page_index));
+    RebuildAll();
+    RestoreSelectionByPageId(previously_selected_page_id);
+    return true;
+}
+
+bool MessageInspectorModel::applyToRuntime(urpg::message::MessageFlowRunner& runner) {
+    runner.resetWithPages(pages_);
+    return true;
+}
+
+void MessageInspectorModel::clear() {
+    pages_.clear();
+    all_rows_.clear();
+    visible_rows_.clear();
+    issues_.clear();
+    selected_row_index_.reset();
+    summary_ = {};
+    layout_engine_ = nullptr;
+}
+
+bool MessageInspectorModel::selectPageById(const std::string& page_id) {
+    for (size_t index = 0; index < visible_rows_.size(); ++index) {
+        if (visible_rows_[index].page_id == page_id) {
+            selected_row_index_ = index;
+            return true;
+        }
+    }
+    return false;
+}
+
+const urpg::message::DialoguePage* MessageInspectorModel::selectedPage() const {
+    if (!selected_row_index_.has_value() || *selected_row_index_ >= visible_rows_.size()) {
+        return nullptr;
+    }
+    const auto page_index = visible_rows_[*selected_row_index_].page_index;
+    if (page_index >= pages_.size()) {
+        return nullptr;
+    }
+    return &pages_[page_index];
 }
 
 void MessageInspectorModel::SetRouteFilter(std::optional<urpg::message::MessagePresentationMode> route_filter) {
@@ -187,6 +302,10 @@ std::optional<std::string> MessageInspectorModel::SelectedPageId() const {
         return std::nullopt;
     }
     return visible_rows_[selected_row_index_.value()].page_id;
+}
+
+const std::vector<urpg::message::DialoguePage>& MessageInspectorModel::pages() const {
+    return pages_;
 }
 
 void MessageInspectorModel::RebuildVisibleRows() {

@@ -39,6 +39,11 @@ public:
     void update();
     void clear();
 
+    bool updatePageBody(size_t row, const std::string& body);
+    bool addPage(const urpg::message::DialoguePage& page);
+    bool removePage(size_t row);
+    bool applyToRuntime(urpg::message::MessageFlowRunner& runner);
+
     bool hasRenderedFrame() const;
     const RenderSnapshot& lastRenderSnapshot() const;
 
