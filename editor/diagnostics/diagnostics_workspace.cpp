@@ -1,7 +1,9 @@
 #include "editor/diagnostics/diagnostics_workspace.h"
 #include "engine/core/engine_context.h"
+#include "engine/core/ui/menu_serializer.h"
 #include <nlohmann/json.hpp>
 #include <iostream>
+#include <fstream>
 
 namespace urpg::editor {
 
@@ -827,6 +829,100 @@ bool DiagnosticsWorkspace::dispatchMenuPreviewAction(urpg::input::InputAction ac
     }
     refreshMenuSnapshotIfActive();
     return true;
+}
+
+bool DiagnosticsWorkspace::updateMenuCommandLabel(size_t row_index, std::string_view label) {
+    if (!menu_model_) {
+        return false;
+    }
+    const bool changed = menu_model_->UpdateCommandLabel(row_index, std::string(label));
+    if (changed) {
+        refreshMenuSnapshotIfActive();
+    }
+    return changed;
+}
+
+bool DiagnosticsWorkspace::updateMenuCommandRoute(size_t row_index, urpg::MenuRouteTarget route, std::string_view custom_route_id) {
+    if (!menu_model_) {
+        return false;
+    }
+    const bool changed = menu_model_->UpdateCommandRoute(row_index, route, std::string(custom_route_id));
+    if (changed) {
+        refreshMenuSnapshotIfActive();
+    }
+    return changed;
+}
+
+bool DiagnosticsWorkspace::removeMenuCommand(size_t row_index) {
+    if (!menu_model_) {
+        return false;
+    }
+    const bool changed = menu_model_->RemoveCommand(row_index);
+    if (changed) {
+        refreshMenuSnapshotIfActive();
+    }
+    return changed;
+}
+
+bool DiagnosticsWorkspace::addMenuCommand(size_t pane_index, const urpg::MenuCommandMeta& command) {
+    if (!menu_model_) {
+        return false;
+    }
+    const bool changed = menu_model_->AddCommand(pane_index, command);
+    if (changed) {
+        refreshMenuSnapshotIfActive();
+    }
+    return changed;
+}
+
+bool DiagnosticsWorkspace::applyMenuChangesToRuntime() {
+    if (!menu_model_ || !menu_scene_graph_) {
+        return false;
+    }
+    const bool applied = menu_model_->ApplyToRuntime(*menu_scene_graph_);
+    if (applied) {
+        refreshMenuSnapshotIfActive();
+    }
+    return applied;
+}
+
+std::string DiagnosticsWorkspace::exportMenuStateJson() const {
+    if (!menu_scene_graph_) {
+        return "{}";
+    }
+    return urpg::ui::MenuSceneSerializer::SerializeGraph(*menu_scene_graph_).dump();
+}
+
+bool DiagnosticsWorkspace::saveMenuStateToFile(const std::string& path) {
+    if (!menu_scene_graph_) {
+        return false;
+    }
+    std::ofstream ofs(path);
+    if (!ofs) {
+        return false;
+    }
+    ofs << urpg::ui::MenuSceneSerializer::SerializeGraph(*menu_scene_graph_).dump(2);
+    return ofs.good();
+}
+
+bool DiagnosticsWorkspace::loadMenuStateFromFile(const std::string& path) {
+    std::ifstream ifs(path);
+    if (!ifs) {
+        return false;
+    }
+    nlohmann::json j;
+    try {
+        ifs >> j;
+    } catch (...) {
+        return false;
+    }
+    if (!menu_scene_graph_) {
+        return false;
+    }
+    if (j.contains("scenes") && j["scenes"].is_array()) {
+        return urpg::ui::MenuSceneSerializer::DeserializeGraph(j, *menu_scene_graph_);
+    }
+    return urpg::ui::MenuSceneSerializer::Deserialize(j, *menu_scene_graph_);
 }
 
 void DiagnosticsWorkspace::bindAudioRuntime(const urpg::audio::AudioCore& core) {

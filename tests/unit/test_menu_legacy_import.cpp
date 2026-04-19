@@ -214,3 +214,72 @@ TEST_CASE("MenuSceneSerializer: Serialize round-trips visibility and enable rule
     REQUIRE(commands[0].enable_rules[0].variable_id == "player_level");
     REQUIRE(commands[0].enable_rules[0].variable_threshold == 10);
 }
+
+
+TEST_CASE("MenuSceneSerializer: SerializeGraph round-trips multi-scene graphs", "[ui][menu][serialize][parity]") {
+    MenuSceneGraph graph;
+
+    auto mainScene = std::make_shared<MenuScene>("MainMenu");
+    MenuPane mainPane;
+    mainPane.id = "main";
+    mainPane.displayName = "Main";
+    urpg::MenuCommandMeta itemCmd;
+    itemCmd.id = "item";
+    itemCmd.label = "Items";
+    itemCmd.route = urpg::MenuRouteTarget::Item;
+    mainPane.commands.push_back(itemCmd);
+    mainScene->addPane(mainPane);
+    graph.registerScene(mainScene);
+
+    auto settingsScene = std::make_shared<MenuScene>("Settings");
+    MenuPane settingsPane;
+    settingsPane.id = "settings";
+    settingsPane.displayName = "Settings";
+    urpg::MenuCommandMeta audioCmd;
+    audioCmd.id = "audio";
+    audioCmd.label = "Audio";
+    audioCmd.route = urpg::MenuRouteTarget::Options;
+    settingsPane.commands.push_back(audioCmd);
+    settingsScene->addPane(settingsPane);
+    graph.registerScene(settingsScene);
+
+    const auto serialized = MenuSceneSerializer::SerializeGraph(graph);
+    REQUIRE(serialized.contains("scenes"));
+    REQUIRE(serialized["scenes"].is_array());
+    REQUIRE(serialized["scenes"].size() == 2);
+
+    // Verify both scenes are present
+    bool foundMain = false;
+    bool foundSettings = false;
+    for (const auto& scene_json : serialized["scenes"]) {
+        if (scene_json["scene_id"] == "MainMenu") {
+            foundMain = true;
+            REQUIRE(scene_json["panes"].size() == 1);
+            REQUIRE(scene_json["panes"][0]["commands"][0]["id"] == "item");
+        }
+        if (scene_json["scene_id"] == "Settings") {
+            foundSettings = true;
+            REQUIRE(scene_json["panes"].size() == 1);
+            REQUIRE(scene_json["panes"][0]["commands"][0]["id"] == "audio");
+        }
+    }
+    REQUIRE(foundMain);
+    REQUIRE(foundSettings);
+
+    // Verify round-trip via DeserializeGraph
+    MenuSceneGraph restored;
+    REQUIRE(MenuSceneSerializer::DeserializeGraph(serialized, restored));
+    REQUIRE(restored.getRegisteredScenes().size() == 2);
+
+    restored.pushScene("MainMenu");
+    auto active = restored.getActiveScene();
+    REQUIRE(active != nullptr);
+    REQUIRE(active->getId() == "MainMenu");
+    REQUIRE(active->getPanes()[0].commands[0].id == "item");
+
+    restored.pushScene("Settings");
+    active = restored.getActiveScene();
+    REQUIRE(active != nullptr);
+    REQUIRE(active->getId() == "Settings");
+    REQUIRE(active->getPanes()[0].commands[0].id == "audio");
+}

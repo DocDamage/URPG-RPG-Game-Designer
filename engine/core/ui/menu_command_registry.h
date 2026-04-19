@@ -139,9 +139,43 @@ public:
                 cmd.fallback_custom_route_id = item.value("fallback_custom_route_id", "");
             }
 
+            cmd.visibility_rules = parseRules(item, "visibility_rules");
+            cmd.enable_rules = parseRules(item, "enable_rules");
+
             registerCommand(cmd);
         }
         return true;
+    }
+
+    /**
+     * @brief Saves commands to a JSON schema (for menu_commands.json).
+     */
+    nlohmann::json saveToSchema() const {
+        nlohmann::json root;
+        root["commands"] = nlohmann::json::array();
+        for (const auto& cmd : listCommands()) {
+            nlohmann::json item;
+            item["id"] = cmd.id;
+            item["label"] = cmd.label;
+            item["icon"] = cmd.icon_id;
+            item["priority"] = cmd.priority;
+            item["route"] = routeToString(cmd.route);
+            if (cmd.route == MenuRouteTarget::Custom) {
+                item["custom_route_id"] = cmd.custom_route_id;
+            }
+            item["fallback_route"] = routeToString(cmd.fallback_route);
+            if (cmd.fallback_route == MenuRouteTarget::Custom) {
+                item["fallback_custom_route_id"] = cmd.fallback_custom_route_id;
+            }
+            if (!cmd.visibility_rules.empty()) {
+                item["visibility_rules"] = serializeRules(cmd.visibility_rules);
+            }
+            if (!cmd.enable_rules.empty()) {
+                item["enable_rules"] = serializeRules(cmd.enable_rules);
+            }
+            root["commands"].push_back(std::move(item));
+        }
+        return root;
     }
 
 private:
@@ -194,6 +228,53 @@ private:
         if (str == "encyclopedia") return MenuRouteTarget::Encyclopedia;
         if (str == "custom")       return MenuRouteTarget::Custom;
         return MenuRouteTarget::None;
+    }
+
+    static std::string routeToString(MenuRouteTarget target) {
+        switch (target) {
+        case MenuRouteTarget::Item:        return "item";
+        case MenuRouteTarget::Skill:       return "skill";
+        case MenuRouteTarget::Equip:       return "equip";
+        case MenuRouteTarget::Status:      return "status";
+        case MenuRouteTarget::Formation:   return "formation";
+        case MenuRouteTarget::Save:        return "save";
+        case MenuRouteTarget::Load:        return "load";
+        case MenuRouteTarget::Options:     return "options";
+        case MenuRouteTarget::GameEnd:     return "game_end";
+        case MenuRouteTarget::Codex:       return "codex";
+        case MenuRouteTarget::QuestLog:    return "quest_log";
+        case MenuRouteTarget::Encyclopedia:return "encyclopedia";
+        case MenuRouteTarget::Custom:      return "custom";
+        default:                           return "none";
+        }
+    }
+
+    static std::vector<urpg::MenuCommandCondition> parseRules(const nlohmann::json& parent, const char* field) {
+        std::vector<urpg::MenuCommandCondition> rules;
+        if (!parent.contains(field) || !parent[field].is_array()) return rules;
+        for (const auto& r : parent[field]) {
+            if (!r.is_object()) continue;
+            urpg::MenuCommandCondition cond;
+            cond.switch_id = r.value("switch_id", "");
+            cond.variable_id = r.value("variable_id", "");
+            cond.variable_threshold = r.value("variable_threshold", 0);
+            cond.invert = r.value("invert", false);
+            rules.push_back(std::move(cond));
+        }
+        return rules;
+    }
+
+    static nlohmann::json serializeRules(const std::vector<urpg::MenuCommandCondition>& rules) {
+        nlohmann::json arr = nlohmann::json::array();
+        for (const auto& rule : rules) {
+            nlohmann::json r;
+            r["switch_id"] = rule.switch_id;
+            r["variable_id"] = rule.variable_id;
+            r["variable_threshold"] = rule.variable_threshold;
+            r["invert"] = rule.invert;
+            arr.push_back(std::move(r));
+        }
+        return arr;
     }
 
     std::map<std::string, MenuCommandMeta> _commands;

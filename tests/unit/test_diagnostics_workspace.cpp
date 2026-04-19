@@ -1860,3 +1860,137 @@ TEST_CASE("DiagnosticsWorkspace - Message inspector actions keep exported snapsh
     REQUIRE(exported["active_tab_detail"]["visible_rows"].size() == 1);
     REQUIRE(exported["active_tab_detail"]["visible_rows"][0]["page_id"] == "page_c");
 }
+
+
+TEST_CASE("DiagnosticsWorkspace - Menu edit and export round-trip", "[editor][diagnostics][integration][menu_parity]") {
+    urpg::ui::MenuCommandRegistry registry;
+
+    urpg::MenuCommandMeta itemCommand;
+    itemCommand.id = "urpg.menu.item";
+    itemCommand.label = "Item";
+    itemCommand.route = urpg::MenuRouteTarget::Item;
+    registry.registerCommand(itemCommand);
+
+    urpg::MenuCommandMeta deadEndCommand;
+    deadEndCommand.id = "urpg.menu.dead_end";
+    deadEndCommand.label = "Dead End";
+    deadEndCommand.route = urpg::MenuRouteTarget::Custom;
+
+    auto menu = std::make_shared<urpg::ui::MenuScene>("MainMenu");
+
+    urpg::ui::MenuPane pane;
+    pane.id = "main_pane";
+    pane.displayName = "Main Menu";
+    pane.isVisible = true;
+    pane.isActive = true;
+    pane.commands = {itemCommand, deadEndCommand};
+
+    menu->addPane(pane);
+
+    urpg::ui::MenuSceneGraph graph;
+    graph.registerScene(menu);
+    graph.pushScene("MainMenu");
+
+    urpg::ui::MenuRouteResolver resolver;
+    resolver.bindRoute(urpg::MenuRouteTarget::Item, [](const urpg::MenuCommandMeta&) {});
+    graph.setRouteResolver(&resolver);
+
+    urpg::ui::MenuCommandRegistry::SwitchState switches;
+    urpg::ui::MenuCommandRegistry::VariableState variables;
+    graph.setCommandStateFromRegistry(registry, switches, variables);
+
+    urpg::editor::DiagnosticsWorkspace workspace;
+    workspace.bindMenuRuntime(graph, registry, switches, variables);
+    workspace.setActiveTab(urpg::editor::DiagnosticsTab::Menu);
+    workspace.update();
+
+    // Edit a command label through the workspace
+    REQUIRE(workspace.updateMenuCommandLabel(1, "New Label"));
+    auto exported = nlohmann::json::parse(workspace.exportAsJson());
+    REQUIRE(exported["active_tab_detail"]["visible_rows"][1]["command_label"] == "New Label");
+
+    // Apply changes to runtime
+    REQUIRE(workspace.applyMenuChangesToRuntime());
+
+    // Export menu state JSON and verify the change persisted in runtime
+    const auto menuStateJson = nlohmann::json::parse(workspace.exportMenuStateJson());
+    REQUIRE(menuStateJson["scenes"].size() == 1);
+    REQUIRE(menuStateJson["scenes"][0]["panes"][0]["commands"][1]["label"] == "New Label");
+
+    // Edit route
+    REQUIRE(workspace.updateMenuCommandRoute(1, urpg::MenuRouteTarget::Options, ""));
+    REQUIRE(workspace.applyMenuChangesToRuntime());
+    const auto routeStateJson = nlohmann::json::parse(workspace.exportMenuStateJson());
+    REQUIRE(routeStateJson["scenes"][0]["panes"][0]["commands"][1]["route"] == "Options");
+
+    // Remove command
+    REQUIRE(workspace.removeMenuCommand(1));
+    REQUIRE(workspace.applyMenuChangesToRuntime());
+    const auto removedStateJson = nlohmann::json::parse(workspace.exportMenuStateJson());
+    REQUIRE(removedStateJson["scenes"][0]["panes"][0]["commands"].size() == 1);
+
+    // Add command back
+    urpg::MenuCommandMeta newCmd;
+    newCmd.id = "urpg.menu.new";
+    newCmd.label = "New Command";
+    newCmd.route = urpg::MenuRouteTarget::Save;
+    REQUIRE(workspace.addMenuCommand(0, newCmd));
+    REQUIRE(workspace.applyMenuChangesToRuntime());
+    const auto addedStateJson = nlohmann::json::parse(workspace.exportMenuStateJson());
+    REQUIRE(addedStateJson["scenes"][0]["panes"][0]["commands"].size() == 2);
+    REQUIRE(addedStateJson["scenes"][0]["panes"][0]["commands"][1]["id"] == "urpg.menu.new");
+}
+
+TEST_CASE("DiagnosticsWorkspace - Menu save and load round-trip", "[editor][diagnostics][integration][menu_parity]") {
+    urpg::ui::MenuCommandRegistry registry;
+
+    urpg::MenuCommandMeta itemCommand;
+    itemCommand.id = "urpg.menu.item";
+    itemCommand.label = "Item";
+    itemCommand.route = urpg::MenuRouteTarget::Item;
+    registry.registerCommand(itemCommand);
+
+    auto menu = std::make_shared<urpg::ui::MenuScene>("MainMenu");
+    urpg::ui::MenuPane pane;
+    pane.id = "main_pane";
+    pane.displayName = "Main Menu";
+    pane.isVisible = true;
+    pane.isActive = true;
+    pane.commands = {itemCommand};
+    menu->addPane(pane);
+
+    urpg::ui::MenuSceneGraph graph;
+    graph.registerScene(menu);
+    graph.pushScene("MainMenu");
+
+    urpg::ui::MenuRouteResolver resolver;
+    resolver.bindRoute(urpg::MenuRouteTarget::Item, [](const urpg::MenuCommandMeta&) {});
+    graph.setRouteResolver(&resolver);
+
+    urpg::ui::MenuCommandRegistry::SwitchState switches;
+    urpg::ui::MenuCommandRegistry::VariableState variables;
+    graph.setCommandStateFromRegistry(registry, switches, variables);
+
+    urpg::editor::DiagnosticsWorkspace workspace;
+    workspace.bindMenuRuntime(graph, registry, switches, variables);
+
+    const auto temp_path = (std::filesystem::temp_directory_path() / "urpg_workspace_menu_state.json").string();
+    std::filesystem::remove(temp_path);
+
+    REQUIRE(workspace.saveMenuStateToFile(temp_path));
+    REQUIRE(std::filesystem::exists(temp_path));
+
+    // Create a fresh graph and load into it
+    urpg::ui::MenuSceneGraph loadedGraph;
+    urpg::editor::DiagnosticsWorkspace loadWorkspace;
+    loadWorkspace.bindMenuRuntime(loadedGraph, registry, switches, variables);
+    REQUIRE(loadWorkspace.loadMenuStateFromFile(temp_path));
+
+    const auto loadedJson = nlohmann::json::parse(loadWorkspace.exportMenuStateJson());
+    REQUIRE(loadedJson["scenes"].size() == 1);
+    REQUIRE(loadedJson["scenes"][0]["scene_id"] == "MainMenu");
+    REQUIRE(loadedJson["scenes"][0]["panes"][0]["commands"].size() == 1);
+    REQUIRE(loadedJson["scenes"][0]["panes"][0]["commands"][0]["id"] == "urpg.menu.item");
+
+    std::filesystem::remove(temp_path);
+}

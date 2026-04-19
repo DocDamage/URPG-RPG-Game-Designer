@@ -84,6 +84,14 @@ public:
     bool setMenuShowIssuesOnly(bool show_issues_only);
     bool selectMenuRow(size_t row_index);
     bool dispatchMenuPreviewAction(urpg::input::InputAction action);
+    bool updateMenuCommandLabel(size_t row_index, std::string_view label);
+    bool updateMenuCommandRoute(size_t row_index, urpg::MenuRouteTarget route, std::string_view custom_route_id);
+    bool removeMenuCommand(size_t row_index);
+    bool addMenuCommand(size_t pane_index, const urpg::MenuCommandMeta& command);
+    bool applyMenuChangesToRuntime();
+    std::string exportMenuStateJson() const;
+    bool saveMenuStateToFile(const std::string& path);
+    bool loadMenuStateFromFile(const std::string& path);
     void bindAudioRuntime(const urpg::audio::AudioCore& core);
     void clearAudioRuntime();
     bool selectNextAudioRow();
