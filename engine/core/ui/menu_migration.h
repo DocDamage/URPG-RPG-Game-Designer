@@ -49,13 +49,29 @@ public:
             native_cmd["name"] = cmd.value("name", "Unknown Command");
             native_cmd["handler_route"] = MapCommandRoute(symbol);
             
+            // Fallback route mapping
+            if (cmd.contains("fallback_symbol")) {
+                std::string fallback = cmd.value("fallback_symbol", "");
+                if (!fallback.empty()) {
+                    native_cmd["fallback_route"] = MapCommandRoute(fallback);
+                }
+            }
+            
             // Basic visibility mapping
             if (cmd.contains("enabled")) {
                 native_cmd["enabled_by"] = {
-                    {"switch_id", ""}, // RM often uses local flags, which we map to GlobalStateHub null patterns
+                    {"switch_id", ""},
                     {"compare", "=="},
                     {"value", cmd["enabled"].get<bool>()}
                 };
+            }
+            
+            // Rich rule mapping from plugin evidence
+            if (cmd.contains("visibility_rules") && cmd["visibility_rules"].is_array()) {
+                native_cmd["visibility_rules"] = cmd["visibility_rules"];
+            }
+            if (cmd.contains("enable_rules") && cmd["enable_rules"].is_array()) {
+                native_cmd["enable_rules"] = cmd["enable_rules"];
             }
             
             commands.push_back(native_cmd);

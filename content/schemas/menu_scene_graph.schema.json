@@ -59,7 +59,7 @@
         },
         "route": {
           "type": "string",
-          "enum": ["None", "Back", "Close", "Custom"],
+          "enum": ["None", "Item", "Skill", "Equip", "Status", "Formation", "Options", "Save", "Load", "GameEnd", "Codex", "QuestLog", "Encyclopedia", "Custom"],
           "default": "None"
         },
         "custom_route_id": {
@@ -67,7 +67,7 @@
         },
         "fallback_route": {
           "type": "string",
-          "enum": ["None", "Back", "Close", "Custom"],
+          "enum": ["None", "Item", "Skill", "Equip", "Status", "Formation", "Options", "Save", "Load", "GameEnd", "Codex", "QuestLog", "Encyclopedia", "Custom"],
           "default": "None"
         },
         "fallback_custom_route_id": {
@@ -76,7 +76,28 @@
         "priority": {
           "type": "integer",
           "default": 0
+        },
+        "visibility_rules": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/menu_command_condition"
+          }
+        },
+        "enable_rules": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/menu_command_condition"
+          }
         }
+      }
+    },
+    "menu_command_condition": {
+      "type": "object",
+      "properties": {
+        "switch_id": { "type": "string" },
+        "variable_id": { "type": "string" },
+        "variable_threshold": { "type": "integer", "default": 0 },
+        "invert": { "type": "boolean", "default": false }
       }
     }
   }

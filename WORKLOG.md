@@ -9,6 +9,13 @@
 
 ## Entries
 
+### 2026-04-19 — Task 2: UI/Menu Schema and Migration Closure
+- **Action**: Aligned `menu_scene_graph.schema.json` and `menu_commands.schema.json` with the full runtime route enum (`Item`, `Skill`, `Equip`, `Status`, `Formation`, `Options`, `Save`, `Load`, `GameEnd`, `Codex`, `QuestLog`, `Encyclopedia`, `Custom`, `None`) and added `menu_command_condition` definitions for `visibility_rules` and `enable_rules`.
+- **Action**: Extended `MenuSceneSerializer::Serialize` to emit `visibility_rules` and `enable_rules` arrays, and `Deserialize` to restore them.
+- **Action**: Extended `MenuMigration::MigrateCommandPanel` to preserve `fallback_route`, `visibility_rules`, and `enable_rules` from compat/plugin evidence.
+- **Action**: Added 3 focused tests: serializer rule round-trip, migration fallback+rule mapping, and migration safe-fallback diagnostics.
+- **Result**: UI/Menu schema and migration closure is COMPLETE. All 584 repo-wide tests pass.
+
 ### 2026-04-19 — Task 1: UI/Menu Editor Productization Closure
 - **Action**: Added true edit authoring to `MenuInspectorModel`: `UpdateCommandLabel`, `UpdateCommandRoute`, `RemoveCommand`, `AddCommand`, and `ApplyToRuntime` so the inspector can mutate menu structure and sync back to the runtime graph.
 - **Action**: Added `getPanesMutable()` to `MenuScene` to support clean edit round-trips.

@@ -290,8 +290,11 @@ The scope in this document is considered 100% complete when all items below are 
 2. Complete Message/Text renderer bridge closure:
    - consume backend `TextCommand` payloads end-to-end in renderer tiers where text draw remains placeholder,
    - align compat `Window_Message` behavior with native MessageScene runtime ownership handoff.
-3. Finalize UI/Menu schema + migration mapping:
-   - extend the now-landed fallback/state-rule import coverage from direct menu metadata into broader compat plugin evidence paths.
+3. ~~Finalize UI/Menu schema + migration mapping~~ (DONE 2026-04-19):
+   - Updated `menu_scene_graph.schema.json` and `menu_commands.schema.json` to match runtime routes and include `visibility_rules`/`enable_rules` definitions.
+   - `MenuSceneSerializer::Serialize` now emits rules arrays; `Deserialize` now restores them.
+   - `MenuMigration::MigrateCommandPanel` now maps fallback routes and preserves rich visibility/enable rules from plugin evidence.
+   - Added focused tests for rule round-tripping and migration fallback/rule coverage.
 4. Add integration coverage for UI/Menu runtime + editor:
    - extend beyond the landed diagnostics-workspace/menu-import anchors into broader scene-graph + resolver parity checks.
 5. Continue post-Phase-2 compat exit hardening:
@@ -312,7 +315,7 @@ Phase 2 runtime closure is already complete. The remaining compat work below is 
 
 ### 2. Wave 1 native runtime ownership (remaining)
 
-- [x] UI/Menu Core: complete production closure for command registry/scene graph/route resolver ownership (runtime slice landed; editor/schema/migration/release closure remains).
+- [x] UI/Menu Core: complete production closure for command registry/scene graph/route resolver ownership (runtime, editor, schema, and migration are now closed).
 - [ ] Message/Text Core: complete production closure after landed flow/layout ownership (native MessageScene/UI renderer handoff, backend text command consumption, editor/schema/migration/release closure remains).
 - [ ] Battle Core: implement native flow controller, action queue, and rule resolver ownership.
 - [ ] Save/Data Core: complete catalog/serializer/recovery ownership beyond the seeded descriptor and inspector slice.

@@ -9,6 +9,18 @@
     "symbol": { "type": "string" },
     "name": { "type": "string" },
     "help_text": { "type": "string" },
+    "icon_id": { "type": "string" },
+    "route": {
+      "type": "string",
+      "enum": ["None", "Item", "Skill", "Equip", "Status", "Formation", "Options", "Save", "Load", "GameEnd", "Codex", "QuestLog", "Encyclopedia", "Custom"]
+    },
+    "custom_route_id": { "type": "string" },
+    "fallback_route": {
+      "type": "string",
+      "enum": ["None", "Item", "Skill", "Equip", "Status", "Formation", "Options", "Save", "Load", "GameEnd", "Codex", "QuestLog", "Encyclopedia", "Custom"]
+    },
+    "fallback_custom_route_id": { "type": "string" },
+    "priority": { "type": "integer", "default": 0 },
     "enabled_by": {
       "type": "object",
       "properties": {
@@ -21,9 +33,36 @@
     "visible_by": {
       "type": "object",
       "properties": {
-        "switch_id": { "type": "string" }
+        "switch_id": { "type": "string" },
+        "variable_id": { "type": "string" },
+        "compare": { "enum": ["==", "!=", ">", "<", ">=", "<="] },
+        "value": { "type": ["boolean", "number", "string"] }
       }
     },
-    "handler_route": { "type": "string" }
+    "handler_route": { "type": "string" },
+    "visibility_rules": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "switch_id": { "type": "string" },
+          "variable_id": { "type": "string" },
+          "variable_threshold": { "type": "integer", "default": 0 },
+          "invert": { "type": "boolean", "default": false }
+        }
+      }
+    },
+    "enable_rules": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "switch_id": { "type": "string" },
+          "variable_id": { "type": "string" },
+          "variable_threshold": { "type": "integer", "default": 0 },
+          "invert": { "type": "boolean", "default": false }
+        }
+      }
+    }
   }
 }

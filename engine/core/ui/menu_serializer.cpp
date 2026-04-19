@@ -130,6 +130,8 @@ bool MenuSceneSerializer::Deserialize(const nlohmann::json& j, MenuSceneGraph& g
                     cmd.fallback_route = ParseRoute(j_cmd.value("fallback_route", "None"));
                     cmd.fallback_custom_route_id = j_cmd.value("fallback_custom_route_id", "");
                     cmd.priority = j_cmd.value("priority", 0);
+                    cmd.visibility_rules = ParseRules(j_cmd, "visibility_rules");
+                    cmd.enable_rules = ParseRules(j_cmd, "enable_rules");
                     pane.commands.push_back(std::move(cmd));
                 }
             }
@@ -173,6 +175,27 @@ nlohmann::json MenuSceneSerializer::Serialize(const MenuSceneGraph& graph) {
             command_json["fallback_route"] = RouteToString(command.fallback_route);
             command_json["fallback_custom_route_id"] = command.fallback_custom_route_id;
             command_json["priority"] = command.priority;
+
+            auto serializeRules = [](const std::vector<urpg::MenuCommandCondition>& rules) {
+                nlohmann::json arr = nlohmann::json::array();
+                for (const auto& rule : rules) {
+                    nlohmann::json r;
+                    r["switch_id"] = rule.switch_id;
+                    r["variable_id"] = rule.variable_id;
+                    r["variable_threshold"] = rule.variable_threshold;
+                    r["invert"] = rule.invert;
+                    arr.push_back(std::move(r));
+                }
+                return arr;
+            };
+
+            if (!command.visibility_rules.empty()) {
+                command_json["visibility_rules"] = serializeRules(command.visibility_rules);
+            }
+            if (!command.enable_rules.empty()) {
+                command_json["enable_rules"] = serializeRules(command.enable_rules);
+            }
+
             pane_json["commands"].push_back(std::move(command_json));
         }
 

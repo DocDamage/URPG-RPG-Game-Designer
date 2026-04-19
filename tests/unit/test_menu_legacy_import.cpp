@@ -164,3 +164,53 @@ TEST_CASE("MenuSceneSerializer: Serialize round-trips native menu scene graphs",
     REQUIRE(panes[0].commands[1].custom_route_id == "codex_root");
     REQUIRE(panes[0].commands[1].fallback_route == urpg::MenuRouteTarget::Options);
 }
+
+TEST_CASE("MenuSceneSerializer: Serialize round-trips visibility and enable rules", "[ui][menu][serialize]") {
+    MenuSceneGraph graph;
+
+    auto scene = std::make_shared<MenuScene>("RuleMenu");
+
+    MenuPane pane;
+    pane.id = "main";
+    pane.displayName = "Main Pane";
+
+    urpg::MenuCommandMeta cmd;
+    cmd.id = "secret";
+    cmd.label = "Secret";
+    cmd.route = urpg::MenuRouteTarget::Custom;
+    cmd.custom_route_id = "secret_scene";
+    cmd.visibility_rules = {
+        urpg::MenuCommandCondition{.switch_id = "reveal_secret", .variable_id = "", .variable_threshold = 0, .invert = false}
+    };
+    cmd.enable_rules = {
+        urpg::MenuCommandCondition{.variable_id = "player_level", .variable_threshold = 10, .invert = false}
+    };
+
+    pane.commands = {cmd};
+    scene->addPane(pane);
+    graph.registerScene(scene);
+
+    const auto serialized = MenuSceneSerializer::Serialize(graph);
+    REQUIRE(serialized["panes"][0]["commands"][0].contains("visibility_rules"));
+    REQUIRE(serialized["panes"][0]["commands"][0]["visibility_rules"].size() == 1);
+    REQUIRE(serialized["panes"][0]["commands"][0]["visibility_rules"][0]["switch_id"] == "reveal_secret");
+    REQUIRE(serialized["panes"][0]["commands"][0].contains("enable_rules"));
+    REQUIRE(serialized["panes"][0]["commands"][0]["enable_rules"].size() == 1);
+    REQUIRE(serialized["panes"][0]["commands"][0]["enable_rules"][0]["variable_id"] == "player_level");
+    REQUIRE(serialized["panes"][0]["commands"][0]["enable_rules"][0]["variable_threshold"] == 10);
+
+    MenuSceneGraph restored;
+    REQUIRE(MenuSceneSerializer::Deserialize(serialized, restored));
+
+    restored.pushScene("RuleMenu");
+    auto active = restored.getActiveScene();
+    REQUIRE(active != nullptr);
+
+    const auto& commands = active->getPanes()[0].commands;
+    REQUIRE(commands.size() == 1);
+    REQUIRE(commands[0].visibility_rules.size() == 1);
+    REQUIRE(commands[0].visibility_rules[0].switch_id == "reveal_secret");
+    REQUIRE(commands[0].enable_rules.size() == 1);
+    REQUIRE(commands[0].enable_rules[0].variable_id == "player_level");
+    REQUIRE(commands[0].enable_rules[0].variable_threshold == 10);
+}
