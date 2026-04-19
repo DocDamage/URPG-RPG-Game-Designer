@@ -323,7 +323,7 @@ public:
     // Event Integration
     // ========================================================================
     
-    // Status: PARTIAL - Event state toggles exist, but interpreter execution is still TODO
+    // Status: PARTIAL - Troop page conditions and a bounded command subset execute against live compat state, but full MZ battle interpreter coverage remains out of scope
     void startBattleEvent(int32_t eventId);
     void updateBattleEvents();
     bool isBattleEventActive() const;
