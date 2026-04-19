@@ -166,7 +166,7 @@ public:
     virtual std::string textAlignment() const;
     
     // Contents bitmap
-    // Status: PARTIAL - Exposes deterministic handle allocation/release, but no backing pixel buffer
+    // Status: PARTIAL - Exposes deterministic contents-handle lifecycle and draw-command accumulation, but not a pixel-backed bitmap buffer
     virtual BitmapHandle contents() const;
     virtual void createContents();
     virtual void destroyContents();

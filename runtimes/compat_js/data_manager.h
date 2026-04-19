@@ -251,7 +251,7 @@ public:
     // Database Loading
     // ========================================================================
     
-    // Status: PARTIAL - Database path currently seeds empty containers; JSON ingestion is still TODO
+    // Status: PARTIAL - Loads seeded compat records and real JSON data when a data root is configured; full project parity is still out of scope
     bool loadDatabase();
     
     // Status: FULL - Load specific data file
@@ -281,7 +281,7 @@ public:
     // Database Accessors
     // ========================================================================
     
-    // Status: PARTIAL - Accessors are live, but loaders currently populate empty database containers
+    // Status: PARTIAL - Accessors return live seeded/loaded compat containers; coverage still depends on available project data
     const std::vector<ActorData>& getActors() const;
     const std::vector<ClassData>& getClasses() const;
     const std::vector<SkillData>& getSkills() const;
@@ -294,7 +294,7 @@ public:
     const std::vector<AnimationData>& getAnimations() const;
     const std::vector<MapInfo>& getMapInfos() const;
     
-    // Status: PARTIAL - Lookup works against the in-memory containers, which are still loader-empty today
+    // Status: PARTIAL - Lookup works against the in-memory seeded/loaded containers
     const ActorData* getActor(int32_t id) const;
     ActorData* getActor(int32_t id);
     int32_t getActorParam(int32_t actorId, int32_t paramId, int32_t level = 1) const;

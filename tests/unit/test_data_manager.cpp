@@ -80,6 +80,16 @@ TEST_CASE("DataManager: database loading and accessors", "[data_manager]") {
     REQUIRE(dm.getItem(999) == nullptr);
 }
 
+TEST_CASE("DataManager loadDatabase populates seeded database containers", "[data_manager]") {
+    DataManager::setDataDirectory("");
+    DataManager dm;
+
+    REQUIRE(dm.loadDatabase());
+    REQUIRE_FALSE(dm.getActors().empty());
+    REQUIRE_FALSE(dm.getSkills().empty());
+    REQUIRE(dm.getActor(1) != nullptr);
+}
+
 TEST_CASE("DataManager: global state and inventory", "[data_manager]") {
     DataManager::setDataDirectory("");
     DataManager dm;

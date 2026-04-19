@@ -523,6 +523,19 @@ TEST_CASE("Window_Base contents management", "[compat][window]") {
     REQUIRE_FALSE(window.getContentsBitmapInfo().has_value());
 }
 
+TEST_CASE("Window_Base contents lifecycle allocates and rotates deterministic handles", "[compat][window]") {
+    Window_Base window(Window_Base::CreateParams{});
+
+    const auto before = window.contents();
+    window.createContents();
+    const auto created = window.contents();
+    REQUIRE(created != 0);
+    REQUIRE(created != before);
+
+    window.destroyContents();
+    REQUIRE(window.contents() == 0);
+}
+
 TEST_CASE("Window_Base contents handles are unique per allocation", "[compat][window]") {
     Window_Base::CreateParams firstParams;
     firstParams.rect = Rect{0, 0, 200, 100};
