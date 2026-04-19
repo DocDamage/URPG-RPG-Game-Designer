@@ -204,6 +204,60 @@ TEST_CASE("MessageFlowRunner drives presentation, advance, and choice lifecycle"
     REQUIRE_FALSE(runner.isActive());
 }
 
+TEST_CASE("MessageFlowRunner advance on final page transitions to Completed", "[message][flow]") {
+    MessageFlowRunner runner;
+    runner.begin({
+        {"p1", "Only page", variantFromCompatRoute("speaker", "Alicia", 3), true, {}, 0},
+    });
+
+    REQUIRE(runner.isActive());
+    REQUIRE(runner.currentPage() != nullptr);
+    REQUIRE(runner.currentPage()->id == "p1");
+    REQUIRE(runner.state() == MessageFlowState::Presenting);
+
+    REQUIRE(runner.markPagePresented());
+    REQUIRE(runner.state() == MessageFlowState::AwaitingAdvance);
+
+    REQUIRE(runner.advance());
+    REQUIRE(runner.state() == MessageFlowState::Completed);
+    REQUIRE_FALSE(runner.isActive());
+    REQUIRE(runner.currentPage() == nullptr);
+}
+
+TEST_CASE("MessageFlowRunner cancel resets to Idle", "[message][flow]") {
+    MessageFlowRunner runner;
+    runner.begin({
+        {"p1", "Page one", variantFromCompatRoute("speaker", "Alicia", 3), true, {}, 0},
+        {"p2", "Page two", variantFromCompatRoute("speaker", "Alicia", 3), true, {}, 0},
+    });
+
+    REQUIRE(runner.isActive());
+    REQUIRE(runner.state() == MessageFlowState::Presenting);
+
+    runner.cancel();
+    REQUIRE(runner.state() == MessageFlowState::Idle);
+    REQUIRE_FALSE(runner.isActive());
+    REQUIRE(runner.currentPage() == nullptr);
+    REQUIRE(runner.pages().empty());
+}
+
+TEST_CASE("ChoicePromptState with all disabled options cannot confirm", "[message][choice]") {
+    ChoicePromptState choices;
+    choices.open({
+        {"a", "A", false, "reason_a"},
+        {"b", "B", false, "reason_b"},
+    });
+
+    REQUIRE(choices.isOpen());
+    REQUIRE(choices.optionCount() == 2);
+    REQUIRE(choices.selectedOption() != nullptr);
+    REQUIRE_FALSE(choices.selectedOption()->enabled);
+    REQUIRE_FALSE(choices.canConfirm());
+    REQUIRE(choices.confirmSelection() == std::nullopt);
+    REQUIRE_FALSE(choices.moveNext());
+    REQUIRE_FALSE(choices.movePrev());
+}
+
 TEST_CASE("MessageFlowRunner snapshot and restore keeps in-flight choice state", "[message][flow][snapshot]") {
     MessageFlowRunner runner;
     const std::vector<DialoguePage> pages = {

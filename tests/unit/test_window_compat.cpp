@@ -631,6 +631,33 @@ TEST_CASE("Window_Message dialogue body supports centered and right alignment", 
     REQUIRE(rightX > centerX);
 }
 
+TEST_CASE("Window_Message drawMessageBody emits RenderLayer text commands", "[compat][window][message]") {
+    auto& layer = urpg::RenderLayer::getInstance();
+    layer.flush();
+
+    Window_Message::CreateParams params;
+    params.rect = Rect{0, 0, 400, 220};
+    params.messageX = 10;
+    params.messageY = 10;
+    params.messageWidth = 380;
+    Window_Message messageWindow(params);
+    messageWindow.setMessageText("RenderLayer test body");
+
+    messageWindow.drawMessageBody();
+
+    const auto& commands = layer.getCommands();
+    std::string accumulated;
+    for (const auto& cmd : commands) {
+        if (cmd->type == urpg::RenderCmdType::Text) {
+            auto textCmd = std::dynamic_pointer_cast<urpg::TextCommand>(cmd);
+            if (textCmd) {
+                accumulated += textCmd->text;
+            }
+        }
+    }
+    REQUIRE(accumulated == "RenderLayer test body");
+}
+
 TEST_CASE("Snapshot: drawTextEx wrapped centered and right alignment remains stable", "[compat][window][snapshot]") {
     Window_Base::CreateParams params;
     params.rect = Rect{0, 0, 420, 240};

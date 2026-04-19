@@ -72,7 +72,7 @@ Phase 3 diagnostics productization is complete as of 2026-04-19, Phase 4 governa
   - 2026-04-19 Phase 2 runtime closure reconciled the battle reward/event and switch coverage, window `contents()` lifecycle truthfulness, `DataManager::loadDatabase()` seeded-container behavior, and audio semantics documentation against the focused dev-mingw-debug verification lane
   - 2026-04-19 Phase 4 governance closure reconciled external-repo dispositions, private-asset source manifests, asset-gap truthfulness, and canonical status docs, and added a local validation gate for the intake-governance lane
 - Latest recorded local validation snapshot:
-  - recorded under the `dev-ninja-debug` preset: `ctest --preset dev-all --output-on-failure` => 569/569 passed
+  - recorded under the `dev-ninja-debug` preset: `ctest --preset dev-all --output-on-failure` => 594/594 passed
 - Latest focused Phase 5 hardening validation snapshot:
   - `ctest --test-dir build/dev-mingw-debug --output-on-failure -R "PluginManager: Command execution|MapScene:|SceneManager:"` => 8/8 passed
   - `powershell -ExecutionPolicy Bypass -File tools/ci/check_phase4_intake_governance.ps1` => passed
@@ -287,9 +287,11 @@ The scope in this document is considered 100% complete when all items below are 
    - MenuPreviewPanel snapshot now carries `command_labels` and `command_enabled` for richer preview fidelity.
    - Added 6 new tests covering edit, route change, remove/add, selection preservation, preview refresh, and clear behavior.
    - All menu lanes pass (35/35 in focused suite, 581/581 repo-wide).
-2. Complete Message/Text renderer bridge closure:
-   - consume backend `TextCommand` payloads end-to-end in renderer tiers where text draw remains placeholder,
-   - align compat `Window_Message` behavior with native MessageScene runtime ownership handoff.
+2. ~~Complete Message/Text renderer bridge closure~~ (DONE 2026-04-19):
+   - `OpenGLRenderer::processCommands()` now explicitly handles `RectCommand` (TIER_BASIC placeholder logging).
+   - `MapScene::onUpdate()` now submits `TextCommand` and `RectCommand` to `RenderLayer` when `m_messageRunner.isActive()`.
+   - Added 5 focused tests: MessageFlowRunner advance-to-Completed, cancel-to-Idle, all-disabled choice rejection, MapScene render command submission during dialogue, and Window_Message RenderLayer emission verification.
+   - All message lanes pass (`[message]` 22 cases, `[compat][window][message]` 2 cases, `MapScene:` 7 cases).
 3. ~~Finalize UI/Menu schema + migration mapping~~ (DONE 2026-04-19):
    - Updated `menu_scene_graph.schema.json` and `menu_commands.schema.json` to match runtime routes and include `visibility_rules`/`enable_rules` definitions.
    - `MenuSceneSerializer::Serialize` now emits rules arrays; `Deserialize` now restores them.
@@ -316,7 +318,7 @@ Phase 2 runtime closure is already complete. The remaining compat work below is 
 ### 2. Wave 1 native runtime ownership (remaining)
 
 - [x] UI/Menu Core: complete production closure for command registry/scene graph/route resolver ownership (runtime, editor, schema, and migration are now closed).
-- [ ] Message/Text Core: complete production closure after landed flow/layout ownership (native MessageScene/UI renderer handoff, backend text command consumption, editor/schema/migration/release closure remains).
+- [ ] Message/Text Core: runtime renderer handoff is closed; remaining work is editor productization, schema finalization, and release-readiness proof (Task 5).
 - [ ] Battle Core: implement native flow controller, action queue, and rule resolver ownership.
 - [ ] Save/Data Core: complete catalog/serializer/recovery ownership beyond the seeded descriptor and inspector slice.
 

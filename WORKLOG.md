@@ -9,6 +9,15 @@
 
 ## Entries
 
+### 2026-04-19 — Task 4: Message/Text Runtime and Renderer Closure
+- **Action**: Added explicit `RectCommand` handling to `OpenGLRenderer::processCommands()` (TIER_BASIC placeholder logging) so the renderer no longer silently drops rect draw intents.
+- **Action**: Wired `MapScene::onUpdate()` to submit `TextCommand` (current page body) and `RectCommand` (message window background) to `RenderLayer` when `m_messageRunner.isActive()`, closing the native message runtime → renderer handoff gap.
+- **Action**: Added `MessageFlowRunner` edge-case tests: advance on final page transitions to `Completed`, cancel resets to `Idle`, and `ChoicePromptState` with all-disabled options correctly rejects confirm/move.
+- **Action**: Added `MapScene` handoff test verifying `RenderLayer` receives both `TextCommand` and `RectCommand` after `startDialogue()` + `onUpdate()`.
+- **Action**: Added `Window_Message` render emission test verifying `drawMessageBody()` produces observable `RenderLayer` text commands.
+- **Action**: Re-ran repo-wide validation: `ctest --preset dev-all --output-on-failure` => 594/594 passed.
+- **Result**: Message/Text runtime renderer handoff is CLOSED. Native message flow is now renderer-consumed end-to-end. Remaining Message/Text work (editor productization, schema finalization) is scoped to Task 5.
+
 ### 2026-04-19 — Task 2: UI/Menu Schema and Migration Closure
 - **Action**: Aligned `menu_scene_graph.schema.json` and `menu_commands.schema.json` with the full runtime route enum (`Item`, `Skill`, `Equip`, `Status`, `Formation`, `Options`, `Save`, `Load`, `GameEnd`, `Codex`, `QuestLog`, `Encyclopedia`, `Custom`, `None`) and added `menu_command_condition` definitions for `visibility_rules` and `enable_rules`.
 - **Action**: Extended `MenuSceneSerializer::Serialize` to emit `visibility_rules` and `enable_rules` arrays, and `Deserialize` to restore them.

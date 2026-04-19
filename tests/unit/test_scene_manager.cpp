@@ -236,6 +236,44 @@ TEST_CASE("MapScene: retained tile commands stay pointer-stable across unchanged
     }
 }
 
+TEST_CASE("MapScene: message runner submits render commands during dialogue", "[scene][map][message]") {
+    using namespace urpg::message;
+
+    auto& layer = urpg::RenderLayer::getInstance();
+    layer.flush();
+
+    MapScene map("001", 2, 2);
+
+    map.startDialogue({
+        {"page_1", "Hello from native message", variantFromCompatRoute("speaker", "Elder", 1), true, {}, 0},
+    });
+
+    REQUIRE(map.isDialogueActive());
+
+    map.onUpdate(0.0f);
+    const auto& commands = layer.getCommands();
+
+    bool hasTextCmd = false;
+    bool hasRectCmd = false;
+    for (const auto& cmd : commands) {
+        if (cmd->type == urpg::RenderCmdType::Text) {
+            auto textCmd = std::dynamic_pointer_cast<urpg::TextCommand>(cmd);
+            if (textCmd && textCmd->text == "Hello from native message") {
+                hasTextCmd = true;
+            }
+        }
+        if (cmd->type == urpg::RenderCmdType::Rect) {
+            auto rectCmd = std::dynamic_pointer_cast<urpg::RectCommand>(cmd);
+            if (rectCmd && rectCmd->w > 0.0f && rectCmd->h > 0.0f) {
+                hasRectCmd = true;
+            }
+        }
+    }
+
+    REQUIRE(hasTextCmd);
+    REQUIRE(hasRectCmd);
+}
+
 class MockScene : public GameScene {
 public:
     MockScene(SceneType type, const std::string& name) : m_type(type), m_name(name) {}

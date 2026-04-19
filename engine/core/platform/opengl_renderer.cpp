@@ -106,6 +106,17 @@ void OpenGLRenderer::processCommands(const std::vector<std::shared_ptr<RenderCom
                 std::cout << "[URPG][Renderer] DrawText: \"" << textCmd->text << "\" at (" << textCmd->x << ", " << textCmd->y << ") color: " << (int)textCmd->r << "," << (int)textCmd->g << "," << (int)textCmd->b << "\n";
                 break;
             }
+            case RenderCmdType::Rect: {
+                auto rectCmd = std::static_pointer_cast<RectCommand>(cmd);
+                // In TIER_BASIC placeholder, we just log rect draw intent
+                // In real implementation:
+                // 1. Build a quad from (x,y) to (x+w, y+h)
+                // 2. Draw with a solid-color shader
+                std::cout << "[URPG][Renderer] DrawRect: (" << rectCmd->x << ", " << rectCmd->y << ") "
+                          << rectCmd->w << "x" << rectCmd->h << " color: "
+                          << rectCmd->r << "," << rectCmd->g << "," << rectCmd->b << "," << rectCmd->a << "\n";
+                break;
+            }
             default:
                 break;
         }
