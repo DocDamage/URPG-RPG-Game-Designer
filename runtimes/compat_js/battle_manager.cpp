@@ -1682,14 +1682,17 @@ std::vector<int32_t> BattleManager::calculateDrops() const {
 }
 
 void BattleManager::applyExp() {
-    int32_t exp = calculateExp();
-    if (exp <= 0) return;
-    DataManager& dm = DataManager::instance();
-    for (int32_t i = 0; i < dm.getPartySize(); ++i) {
-        int32_t actorId = dm.getPartyMember(i);
-        if (actorId > 0) {
-            dm.gainExp(actorId, exp);
+    const int32_t totalExp = calculateExp();
+    if (totalExp <= 0) {
+        return;
+    }
+
+    auto& dm = DataManager::instance();
+    for (const auto& actorSubject : actors_) {
+        if (actorSubject.id <= 0) {
+            continue;
         }
+        dm.gainExp(actorSubject.id, totalExp);
     }
 }
 

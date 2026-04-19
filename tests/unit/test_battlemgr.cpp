@@ -686,8 +686,10 @@ TEST_CASE("BattleManager: defeating all enemies yields expected gold and exp", "
     bm.applyGold();
     REQUIRE(DataManager::instance().getGold() == initialGold + 10);
 
-    // applyExp calls gainExp which is stub; just ensure no crash
     bm.applyExp();
+    ActorData* actor = DataManager::instance().getActor(1);
+    REQUIRE(actor != nullptr);
+    REQUIRE(actor->exp >= 20);
 }
 
 TEST_CASE("BattleManager: drop logic handles probability", "[battlemgr]") {
@@ -835,6 +837,16 @@ TEST_CASE("BattleManager: applyExp after battle triggers level-up", "[battlemgr]
     REQUIRE(actor->level == 2);
     REQUIRE(actor->exp == 5);
     REQUIRE(std::find(actor->skills.begin(), actor->skills.end(), 1) != actor->skills.end());
+}
+
+TEST_CASE("BattleManager: switch condition reads live DataManager state", "[battlemgr]") {
+    DataManager::instance().setupNewGame();
+
+    BattleManager bm;
+
+    REQUIRE_FALSE(bm.checkSwitchCondition(33));
+    DataManager::instance().setSwitch(33, true);
+    REQUIRE(bm.checkSwitchCondition(33));
 }
 
 TEST_CASE("BattleManager: JS bindings return non-default values", "[battlemgr]") {

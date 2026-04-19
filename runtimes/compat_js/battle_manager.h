@@ -328,7 +328,7 @@ public:
     void updateBattleEvents();
     bool isBattleEventActive() const;
     
-    // Status: PARTIAL/STUB - Turn and HP checks are live; switch checks still fall back
+    // Status: FULL - Turn, HP, and switch checks read live compat state
     bool checkTurnCondition(int32_t turn, int32_t span);
     bool checkEnemyHpCondition(int32_t enemyIndex, int32_t percent);
     bool checkActorHpCondition(int32_t actorIndex, int32_t percent);
@@ -376,7 +376,7 @@ public:
     int32_t calculateGold() const;
     std::vector<int32_t> calculateDrops() const;
     
-    // Status: STUB - Reward application into party progression/inventory is still TODO
+    // Status: FULL - Reward application mutates live DataManager state
     void applyExp();
     void applyGold();
     void applyDrops();
