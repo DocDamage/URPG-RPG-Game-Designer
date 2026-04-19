@@ -707,6 +707,9 @@ void AudioManager::update() {
 
     if (impl_->bgmVolumeRamp_.active && impl_->bgmChannel_) {
         auto& ramp = impl_->bgmVolumeRamp_;
+        if (ramp.clearDuckStateOnComplete) {
+            ramp.targetVolume = ComputeEffectiveVolume(*impl_, *impl_->bgmChannel_);
+        }
         ramp.elapsedFrames = std::min(ramp.durationFrames, ramp.elapsedFrames + 1);
         const double t = static_cast<double>(ramp.elapsedFrames) / std::max(1, ramp.durationFrames);
         const double volume = ramp.startVolume + ((ramp.targetVolume - ramp.startVolume) * t);

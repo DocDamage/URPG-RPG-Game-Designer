@@ -190,21 +190,36 @@ TEST_CASE("AudioManager: duck and unduck preserve deterministic BGM state", "[au
     am.setBusVolume(AudioBus::BGM, 0.25);
     REQUIRE(am.getCurrentBgm().volume == Catch::Approx(10.0));
 
-    am.duckBgm(30.0, 2);
+    am.setMasterVolume(1.0);
+    am.setBusVolume(AudioBus::BGM, 1.0);
+    REQUIRE(am.getCurrentBgm().volume == Catch::Approx(80.0));
+
+    am.duckBgm(30.0, 3);
     REQUIRE(am.isBgmDucked());
     REQUIRE(am.getCurrentBgm().name == "phase2_theme");
-    REQUIRE(am.getCurrentBgm().volume == Catch::Approx(10.0));
+    REQUIRE(am.getCurrentBgm().volume == Catch::Approx(80.0));
 
-    am.update();
-    REQUIRE(am.getCurrentBgm().volume == Catch::Approx(20.0));
-
-    am.unduckBgm(2);
-    am.setMasterVolume(0.75);
-    am.setBusVolume(AudioBus::BGM, 0.5);
     am.update();
     REQUIRE(am.isBgmDucked());
-    REQUIRE(am.getCurrentBgm().volume == Catch::Approx(15.0));
+    REQUIRE(am.getCurrentBgm().volume == Catch::Approx(63.3333333333));
 
+    am.update();
+    REQUIRE(am.isBgmDucked());
+    REQUIRE(am.getCurrentBgm().volume == Catch::Approx(46.6666666667));
+
+    am.update();
+    REQUIRE(am.isBgmDucked());
+    REQUIRE(am.getCurrentBgm().volume == Catch::Approx(30.0));
+
+    am.setMasterVolume(0.5);
+    am.setBusVolume(AudioBus::BGM, 0.25);
+    am.unduckBgm(2);
+    am.update();
+    REQUIRE(am.isBgmDucked());
+    REQUIRE(am.getCurrentBgm().volume == Catch::Approx(10.0));
+
+    am.setMasterVolume(0.75);
+    am.setBusVolume(AudioBus::BGM, 0.5);
     am.update();
     REQUIRE_FALSE(am.isBgmDucked());
     REQUIRE(am.getCurrentBgm().volume == Catch::Approx(30.0));
