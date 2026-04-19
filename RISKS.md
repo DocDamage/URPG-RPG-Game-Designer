@@ -1,6 +1,6 @@
 # Presentation Core - Risk Register (RISKS.md)
 
-Derived from `urpg_first_class_presentation_architecture_plan_v2.md` Section 26.
+Derived from `docs/archive/planning/urpg_first_class_presentation_architecture_plan_v2.md` Section 26.
 
 ## Risks Overview
 

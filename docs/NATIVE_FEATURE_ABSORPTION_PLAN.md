@@ -11,9 +11,9 @@ This is the roadmap document, not the canonical latest-status snapshot. For curr
 Cross-cutting debt closure, documentation-truth alignment, and intake-governance companion: `docs/TECHNICAL_DEBT_REMEDIATION_PLAN.md`.
 
 Planning-input annexes for this roadmap:
-- `../URPG_MASTER_NATIVE_ABSORPTION_AND_PGMMV_ROADMAP_2026-04-18.md` - detailed PGMMV/native-absorption expansion input retained for traceability
-- `../URPG_PGMMV_SUPPORT_PLAN.md` - detailed PGMMV intake/migration input retained for traceability
-- `../URPG_NATIVE_ABSORPTION_ROADMAP_2026-04-18.md` - earlier native-absorption planning input retained as superseded reference
+- `./archive/planning/URPG_MASTER_NATIVE_ABSORPTION_AND_PGMMV_ROADMAP_2026-04-18.md` - detailed PGMMV/native-absorption expansion input retained for traceability
+- `./archive/planning/URPG_PGMMV_SUPPORT_PLAN.md` - detailed PGMMV intake/migration input retained for traceability
+- `./archive/planning/URPG_NATIVE_ABSORPTION_ROADMAP_2026-04-18.md` - earlier native-absorption planning input retained as superseded reference
 
 These annexes are not parallel execution authorities. New phase, status, and release-gate claims become canonical only after they are absorbed into this roadmap, `docs/PROGRAM_COMPLETION_STATUS.md`, and `docs/TECHNICAL_DEBT_REMEDIATION_PLAN.md`.
 
@@ -271,10 +271,11 @@ This plan is complete when:
 
 - Cross-cutting truthfulness, intake governance, and roadmap-alignment requirements: `docs/TECHNICAL_DEBT_REMEDIATION_PLAN.md`
 - Program status and remaining checklist: `docs/PROGRAM_COMPLETION_STATUS.md`
+- Archive index: `docs/archive/README.md`
 - Detailed planning annexes:
-  - `URPG_MASTER_NATIVE_ABSORPTION_AND_PGMMV_ROADMAP_2026-04-18.md`
-  - `URPG_PGMMV_SUPPORT_PLAN.md`
-  - `URPG_NATIVE_ABSORPTION_ROADMAP_2026-04-18.md`
+  - `docs/archive/planning/URPG_MASTER_NATIVE_ABSORPTION_AND_PGMMV_ROADMAP_2026-04-18.md`
+  - `docs/archive/planning/URPG_PGMMV_SUPPORT_PLAN.md`
+  - `docs/archive/planning/URPG_NATIVE_ABSORPTION_ROADMAP_2026-04-18.md`
 - Wave 1 specs:
   - `docs/UI_MENU_CORE_NATIVE_SPEC.md`
   - `docs/MESSAGE_TEXT_CORE_NATIVE_SPEC.md`

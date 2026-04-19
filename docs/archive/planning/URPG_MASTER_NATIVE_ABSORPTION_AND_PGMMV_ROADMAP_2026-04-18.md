@@ -5,16 +5,16 @@ Status: detailed planning annex / execution-detail input (v2 planning-closure up
 Scope: unify **PGMMV support**, **native absorption of plugin-driven demand**, and **HD-2D / 2.5D productization** into one repo-ready planning input with phases, file targets, issue breakdowns, acceptance criteria, and release gates.
 
 Canonical governance and current execution authority live in:
-- `docs/TECHNICAL_DEBT_REMEDIATION_PLAN.md`
-- `docs/NATIVE_FEATURE_ABSORPTION_PLAN.md`
-- `docs/PROGRAM_COMPLETION_STATUS.md`
+- `../../TECHNICAL_DEBT_REMEDIATION_PLAN.md`
+- `../../NATIVE_FEATURE_ABSORPTION_PLAN.md`
+- `../../PROGRAM_COMPLETION_STATUS.md`
 
 Use this file as a detailed planning annex, not as a parallel status or release-readiness authority. Its deltas become canonical only after they are absorbed into the documents above.
 
 Derived from and superseding earlier raw planning inputs:
 - `URPG_PGMMV_SUPPORT_PLAN.md`
 - `URPG_NATIVE_ABSORPTION_ROADMAP_2026-04-18.md`
-- `docs/WAVE1_SUBSYSTEM_CLOSURE_CHECKLIST.md`
+- `../../WAVE1_SUBSYSTEM_CLOSURE_CHECKLIST.md`
 
 ---
 

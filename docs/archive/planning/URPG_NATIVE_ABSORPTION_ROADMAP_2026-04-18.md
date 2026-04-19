@@ -5,9 +5,9 @@ Status: superseded planning input retained for traceability
 Scope: convert the plugin-ecosystem research brief into a repo-ready, native-first execution plan with phases, file targets, issue breakdowns, acceptance criteria, and release gates.
 
 Canonical governance and current execution authority live in:
-- `docs/TECHNICAL_DEBT_REMEDIATION_PLAN.md`
-- `docs/NATIVE_FEATURE_ABSORPTION_PLAN.md`
-- `docs/PROGRAM_COMPLETION_STATUS.md`
+- `../../TECHNICAL_DEBT_REMEDIATION_PLAN.md`
+- `../../NATIVE_FEATURE_ABSORPTION_PLAN.md`
+- `../../PROGRAM_COMPLETION_STATUS.md`
 - `URPG_MASTER_NATIVE_ABSORPTION_AND_PGMMV_ROADMAP_2026-04-18.md`
 
 This file is retained as an earlier native-absorption planning input. It is no longer a standalone execution authority; planning, status, and release-truth updates must route through the documents above.
