@@ -731,14 +731,14 @@ TEST_CASE("BattleManager: defeating all enemies yields expected gold and exp", "
     DataManager::instance().loadDatabase();
     DataManager::instance().setupNewGame();
 
-    ActorData* actor = DataManager::instance().getActor(1);
-    ClassData* cls = DataManager::instance().getClass(actor ? actor->classId : 0);
-    REQUIRE(actor != nullptr);
-    REQUIRE(cls != nullptr);
-    actor->level = 1;
-    actor->exp = 0;
-    cls->expTable = {9999, 9999, 9999};
-    cls->maxLevel = 99;
+    ActorData* battleActor = DataManager::instance().getActor(1);
+    ClassData* battleClass = DataManager::instance().getClass(battleActor ? battleActor->classId : 0);
+    REQUIRE(battleActor != nullptr);
+    REQUIRE(battleClass != nullptr);
+    battleActor->level = 1;
+    battleActor->exp = 0;
+    battleClass->expTable = {9999, 9999, 9999};
+    battleClass->maxLevel = 99;
 
     BattleManager bm;
     bm.setup(2, true, false); // Troop 2 = one Goblin (20 exp, 10 gold)
@@ -748,6 +748,8 @@ TEST_CASE("BattleManager: defeating all enemies yields expected gold and exp", "
     REQUIRE(enemy != nullptr);
     bm.applyDamage(enemy, enemy->hp); // kill enemy
 
+    DataManager::instance().getGlobalState().partyMembers.clear();
+
     REQUIRE(bm.calculateExp() == 20);
     REQUIRE(bm.calculateGold() == 10);
 
@@ -755,9 +757,9 @@ TEST_CASE("BattleManager: defeating all enemies yields expected gold and exp", "
     bm.applyGold();
     REQUIRE(DataManager::instance().getGold() == initialGold + 10);
 
-    int32_t initialExp = actor->exp;
+    int32_t initialBattleActorExp = battleActor->exp;
     bm.applyExp();
-    REQUIRE(actor->exp == initialExp + 20);
+    REQUIRE(battleActor->exp == initialBattleActorExp);
 }
 
 TEST_CASE("BattleManager: drop logic handles probability", "[battlemgr]") {

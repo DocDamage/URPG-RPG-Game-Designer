@@ -323,9 +323,11 @@ public:
     // Event Integration
     // ========================================================================
     
-    // Status: PARTIAL - Troop page conditions and a bounded command subset execute against live compat state, but full MZ battle interpreter coverage remains out of scope
+    // Status: PARTIAL - Troop page entry and execution remain partially implemented
     void startBattleEvent(int32_t eventId);
+    // Status: PARTIAL - Troop page conditions and a bounded command subset execute against live compat state, but full MZ battle interpreter coverage remains out of scope
     void updateBattleEvents();
+    // Status: FULL - Battle event active state is tracked in live compat state
     bool isBattleEventActive() const;
     
     // Status: FULL - Turn, HP, and switch checks read live compat state
@@ -376,9 +378,11 @@ public:
     int32_t calculateGold() const;
     std::vector<int32_t> calculateDrops() const;
     
-    // Status: PARTIAL - Reward application mutates live DataManager state, but full MZ parity is still incomplete
+    // Status: PARTIAL - EXP application is simplified, but it mutates live DataManager party members
     void applyExp();
+    // Status: FULL - Gold application mutates live DataManager state
     void applyGold();
+    // Status: FULL - Drop application mutates live DataManager inventory
     void applyDrops();
     
     // Test helper: seed the internal RNG for deterministic tests
