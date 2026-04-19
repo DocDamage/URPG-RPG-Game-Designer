@@ -156,9 +156,11 @@ public:
     void saveBgmSettings();
     void restoreBgmSettings();
     
-    // Status: PARTIAL - Reports deterministic harness playback metadata and mix-scaled BGM state through the compat API rather than live backend state
+    // Status: PARTIAL - Reflects deterministic harness playback state rather than live backend state
     bool isBgmPlaying() const;
+    // Status: PARTIAL - Reflects deterministic harness playback state rather than live backend state
     bool isBgmPaused() const;
+    // Status: PARTIAL - Reports deterministic harness playback metadata and mix-scaled BGM state through the compat API rather than live backend state
     AudioInfo getCurrentBgm() const;
     
     // ========================================================================
