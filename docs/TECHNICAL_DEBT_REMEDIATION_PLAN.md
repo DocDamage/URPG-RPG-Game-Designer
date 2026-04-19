@@ -219,10 +219,10 @@ Each finding is structured as: **Impact → Root Cause → Required Action → O
 
 | File | Problem |
 |------|---------|
-| [data_manager.cpp](../runtimes/compat_js/data_manager.cpp) | Advertises broad `FULL` support while key database loaders are `TODO` and several accessors return nil, null, or canned values. |
-| [battle_manager.cpp](../runtimes/compat_js/battle_manager.cpp) | Troop loading, animation, battle-event processing, reward distribution, drop handling, and switch checks are unfinished. |
-| [window_compat.cpp](../runtimes/compat_js/window_compat.cpp) | Renderer command emission, selectable-window pointer semantics, and compat bitmap metadata are now real, but the contents bitmap still has no pixel buffer and some drag/multi-touch nuances remain simplified. |
-| [audio_manager.cpp](../runtimes/compat_js/audio_manager.cpp) | AudioManager is now honestly labeled `PARTIAL` and covers deterministic playback position, duck/unduck ramps, applied mix scaling, and live compat bindings, but it still models a deterministic harness rather than a live mixer/backend. |
+| [data_manager.cpp](../runtimes/compat_js/data_manager.cpp) | `loadDatabase()` now seeds compat containers and accessors return live seeded data where available, but full project-data parity and save/load persistence remain out of scope. |
+| [battle_manager.cpp](../runtimes/compat_js/battle_manager.cpp) | Troop loading and drop handling remain unfinished, but reward distribution, battle-event cadence, and switch checks are now closed in the compat lane and backed by focused tests. |
+| [window_compat.cpp](../runtimes/compat_js/window_compat.cpp) | Renderer command emission, selectable-window pointer semantics, and compat bitmap metadata are now real; `Window_Base::contents()` lifecycle truthfulness is explicitly test-backed, but the contents bitmap still has no pixel buffer and some drag/multi-touch nuances remain simplified. |
+| [audio_manager.cpp](../runtimes/compat_js/audio_manager.cpp) | AudioManager is honestly labeled `PARTIAL` and covers deterministic playback position, duck/unduck ramps, applied mix scaling, current-BGM observability, and live compat bindings, but it still models a deterministic harness rather than a live mixer/backend. |
 
 **Required action:**
 - Audit all `CompatStatus::FULL` claims in the files above plus [plugin_manager.cpp](../runtimes/compat_js/plugin_manager.cpp).
@@ -237,21 +237,24 @@ Each finding is structured as: **Impact → Root Cause → Required Action → O
 - Compat reports are trustworthy inputs to planning decisions.
 - Docs stop conflating fixture scaffolding with live runtime support.
 
-**Progress evidence (2026-04-17):**
+**Status (2026-04-19):** Partially remediated. `loadDatabase()` now seeds compat containers and `Window_Base::contents()` lifecycle behavior is covered by explicit tests, but the lane remains `PARTIAL` because there is still no pixel buffer and no full project-data parity.
+
+**Progress evidence (2026-04-19):**
+- The focused Phase 2 verification lane in `build/dev-mingw-debug` passed with battle, window/data, and audio coverage all green under `ctest --test-dir build/dev-mingw-debug --output-on-failure -R "BattleManager:|Window_Base contents lifecycle allocates and rotates deterministic handles|DataManager loadDatabase populates seeded database containers|AudioManager:"`.
 - [input_manager.cpp](../runtimes/compat_js/input_manager.cpp): all 79 inflated `CompatStatus::FULL` labels downgraded to `PARTIAL` because the compat layer is fixture-backed (no OS/platform input polling behind the exposed MZ API).
 - [audio_manager.cpp](../runtimes/compat_js/audio_manager.cpp): playback/state registry labels downgraded from `FULL` to `PARTIAL`; later 2026-04-18 closure work replaced the earlier stubbed QuickJS bindings with live deterministic compat dispatch while preserving honest `PARTIAL` deviations.
 - [battle_manager.cpp](../runtimes/compat_js/battle_manager.cpp): `processAction` downgraded to `PARTIAL`; stubbed JS bindings downgraded to `STUB`.
 - [window_compat.cpp](../runtimes/compat_js/window_compat.cpp): registry labels and stubbed JS bindings downgraded to `STUB`/`PARTIAL` where behavior is placeholder-backed.
 - [plugin_manager.cpp](../runtimes/compat_js/plugin_manager.cpp): 30 inflated `CompatStatus::FULL` labels downgraded to `PARTIAL` (plugin lifecycle, command registry, parameters, dependencies, event handlers, execution state, error handling, and diagnostics are all fixture-backed compat-bridge logic, not live engine integration).
-- [data_manager.cpp](../runtimes/compat_js/data_manager.cpp): all inflated `CompatStatus::FULL` labels downgraded to `PARTIAL` (`loadDatabase` and database accessors return hardcoded mock data; save/load is in-memory only; plugin commands are an in-memory callback map).
+- [data_manager.cpp](../runtimes/compat_js/data_manager.cpp): all inflated `CompatStatus::FULL` labels downgraded to `PARTIAL` (`loadDatabase()` now seeds compat containers and the accessors return live seeded data where available; save/load is in-memory only; plugin commands are an in-memory callback map).
 - Corresponding unit tests in `test_audio_manager.cpp`, `test_data_manager.cpp`, `test_plugin_manager.cpp`, and `test_window_compat.cpp` updated to assert honest statuses.
-- Continued 2026-04-18 closure in [window_compat.cpp](../runtimes/compat_js/window_compat.cpp): `Window_Selectable` now supports keyboard/gamepad navigation, pointer press/drag/release hit-testing, drag retargeting, drag-scroll, and mouse-wheel scrolling through `InputManager`; `Window_Base::contents()` now allocates compat bitmap metadata records whose dimensions stay synchronized with live rect/padding state.
+- Continued 2026-04-18/2026-04-19 closure in [window_compat.cpp](../runtimes/compat_js/window_compat.cpp): `Window_Selectable` now supports keyboard/gamepad navigation, pointer press/drag/release hit-testing, drag retargeting, drag-scroll, and mouse-wheel scrolling through `InputManager`; `Window_Base::contents()` now allocates compat bitmap metadata records whose dimensions stay synchronized with live rect/padding state and is now backed by explicit deterministic-handle tests.
 
 ---
 
 ### P1-03 — Audio SE Channel Lifetime Leak
 
-**Status (2026-04-16):** Remediated. SE channels now complete deterministically in compat audio updates and are reclaimed without requiring an explicit `stopSe()` call.
+**Status (2026-04-19):** Partially remediated. SE channels now complete deterministically in compat audio updates and are reclaimed without requiring an explicit `stopSe()` call, but the lane remains a deterministic compat harness rather than a live backend.
 
 **Impact:** Sound-effect channels accumulate indefinitely during normal gameplay, causing a real performance and resource leak. This is not a cosmetic TODO — it can degrade runtime behavior in any session that plays multiple sound effects.
 
@@ -278,10 +281,10 @@ Each finding is structured as: **Impact → Root Cause → Required Action → O
 - [audio_manager.h](../runtimes/compat_js/audio_manager.h) now tracks per-channel completion frames for one-shot compat audio playback.
 - [test_audio_manager.cpp](../tests/unit/test_audio_manager.cpp) now includes a regression that proves an `se_*` channel is gone after playback completes and `AudioManager::update()` runs.
 
-**Progress evidence (2026-04-18):**
-- [audio_manager.cpp](../runtimes/compat_js/audio_manager.cpp) now advances deterministic playback position during compat updates, applies frame-based duck/unduck ramps, and applies master/bus volume changes to active playback.
+**Progress evidence (2026-04-19):**
+- [audio_manager.cpp](../runtimes/compat_js/audio_manager.cpp) now advances deterministic playback position during compat updates, applies frame-based duck/unduck ramps, applies master/bus volume changes to active playback, and surfaces current-BGM metadata through the compat API.
 - [audio_manager.cpp](../runtimes/compat_js/audio_manager.cpp) now exposes live QuickJS-facing compat bindings for BGM/BGS/ME/SE control, current-BGM metadata, mix volume, and ducking helpers instead of leaving those paths stubbed.
-- [test_audio_manager.cpp](../tests/unit/test_audio_manager.cpp) now covers playback-position progression, applied mix scaling, deterministic duck/unduck ramps, and expanded QuickJS bridge routing.
+- [test_audio_manager.cpp](../tests/unit/test_audio_manager.cpp) now covers playback-position progression, applied mix scaling, deterministic duck/unduck ramps, current-BGM observability, and expanded QuickJS bridge routing.
 
 ---
 
@@ -307,6 +310,7 @@ Each finding is structured as: **Impact → Root Cause → Required Action → O
 **Progress evidence (2026-04-16):**
 - [battle_manager.cpp](../runtimes/compat_js/battle_manager.cpp) now uses one generalized cadence path for positive spans after the threshold turn instead of special-casing incorrect arithmetic for span `1` and span `2`.
 - [test_battlemgr.cpp](../tests/unit/test_battlemgr.cpp) now includes a focused regression that proves exact-turn, every-turn-after-threshold, and every-other-turn cadence behavior across successive turns.
+- (2026-04-19) The focused `BattleManager:` compatibility lane now also covers reward distribution, switch checks, and battle-event cadence under `ctest --test-dir build/dev-mingw-debug --output-on-failure -R "BattleManager:|Window_Base contents lifecycle allocates and rotates deterministic handles|DataManager loadDatabase populates seeded database containers|AudioManager:"`; drop logic remains a separate open slice.
 
 ---
 
@@ -889,25 +893,27 @@ These principles govern every remediation decision. When in doubt, refer back to
 
 #### Workstream 2.2 — Battle Correctness (see P1-04)
 - Fix `checkTurnCondition()` cadence semantics in [battle_manager.cpp](../runtimes/compat_js/battle_manager.cpp).
-- Close troop setup, event processing, reward distribution, switch checks, and drop logic debt.
+- Battle reward distribution, switch checks, and battle-event cadence/switch coverage are now closed in the compat lane; troop setup and drop logic remain the open battle slices.
 
 #### Workstream 2.3 — Audio Lifecycle Correctness (see P1-03)
 - Fix SE channel lifetime cleanup in [audio_manager.cpp](../runtimes/compat_js/audio_manager.cpp).
-- Complete deterministic harness playback-position, duck/unduck, mix-scaling, and live compat-binding semantics without overstating them as live-backend parity.
+- Deterministic duck/unduck, mix-scaling, current-BGM API observability, and live compat bindings are covered, but the lane remains harness-backed `PARTIAL` behavior rather than live-backend parity.
 
 #### Workstream 2.4 — Data and Window Runtime Closure (see P1-02)
-- Replace empty or mock database loading in [data_manager.cpp](../runtimes/compat_js/data_manager.cpp).
-- Continue shrinking the remaining gap in [window_compat.cpp](../runtimes/compat_js/window_compat.cpp): contents-backed draw accumulation and richer multi-touch/pointer nuance still remain after the now-landed rendering, pointer, and bitmap-metadata closure work.
+- `loadDatabase()` in [data_manager.cpp](../runtimes/compat_js/data_manager.cpp) is no longer empty or mock; it seeds compat containers that focused tests now exercise directly.
+- [window_compat.cpp](../runtimes/compat_js/window_compat.cpp) is still partial because there is no pixel buffer, but `Window_Base::contents()` lifecycle truthfulness is now backed by explicit deterministic-handle tests.
 
 #### Workstream 2.5 — Menu Round-Trip Closure (see P2-05)
 - Implement real serialization in [menu_serializer.cpp](../engine/core/ui/menu_serializer.cpp).
 - Ensure menu authoring supports a complete import/export/reload cycle.
 
 **Exit criteria:**
-- Battle events behave correctly under cadence tests for all span values.
-- Audio SE channels do not grow unbounded under repeated playback.
+- Battle reward distribution, battle-event cadence, and switch checks are covered by focused compat tests.
+- Audio SE channels do not grow unbounded under repeated playback, and the lane stays honestly labeled `PARTIAL`.
+- `loadDatabase()` and `Window_Base::contents()` lifecycle behavior are backed by explicit tests; the remaining window pixel-buffer gap stays documented.
 - Menu definitions round-trip through serialization.
 - Runtime bridges act on real engine state or are honestly labeled otherwise.
+- Verification gate for this task: `ctest --test-dir build/dev-mingw-debug --output-on-failure -R "BattleManager:|Window_Base contents lifecycle allocates and rotates deterministic handles|DataManager loadDatabase populates seeded database containers|AudioManager:"`
 
 **Related documentation:** [BATTLE_CORE_NATIVE_SPEC](./BATTLE_CORE_NATIVE_SPEC.md), [SAVE_DATA_CORE_NATIVE_SPEC](./SAVE_DATA_CORE_NATIVE_SPEC.md), [MESSAGE_TEXT_CORE_NATIVE_SPEC](./MESSAGE_TEXT_CORE_NATIVE_SPEC.md), [UI_MENU_CORE_NATIVE_SPEC](./UI_MENU_CORE_NATIVE_SPEC.md), [WAVE1_SUBSYSTEM_CLOSURE_CHECKLIST](./WAVE1_SUBSYSTEM_CLOSURE_CHECKLIST.md), [WAVE2_AUDIO_STATE_SYNC_PLAN](./WAVE2_AUDIO_STATE_SYNC_PLAN.md).
 

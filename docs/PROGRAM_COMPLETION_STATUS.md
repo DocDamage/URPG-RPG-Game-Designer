@@ -1,6 +1,6 @@
 ﻿# URPG Program Completion Status
 
-Status Date: 2026-04-18  
+Status Date: 2026-04-19  
 Program Scope: native-first roadmap rewire plus Wave 1 absorption, Wave 2 advanced capability expansion, and compat exit hardening
 
 Cross-cutting debt, truthfulness, and intake-governance source of truth: `docs/TECHNICAL_DEBT_REMEDIATION_PLAN.md`.
@@ -50,6 +50,7 @@ Canonical planning chain:
   - `Window_Base::contents()` now allocates compat bitmap records with tracked dimensions that stay synchronized with rect/padding changes instead of exposing handle-only state
   - compat status truth pass started: inflated `FULL` claims are being downgraded where behavior is still fixture-, stub-, or placeholder-backed
   - AudioManager compat closure advanced: deterministic playback position now advances during `update()`, duck/unduck ramps are frame-based, master/bus volume changes affect active playback, and the QuickJS `AudioManager` bridge now routes live compat state for BGM/BGS/ME/SE plus volume/ducking helpers
+  - 2026-04-19 Phase 2 runtime closure reconciled the battle reward/event and switch coverage, window `contents()` lifecycle truthfulness, `DataManager::loadDatabase()` seeded-container behavior, and audio semantics documentation against the focused dev-mingw-debug verification lane
 - Latest recorded local validation snapshot:
   - recorded under the `dev-ninja-debug` preset: `ctest --preset dev-all --output-on-failure` => 564/564 passed
 - Latest focused presentation validation snapshot:
@@ -58,10 +59,13 @@ Canonical planning chain:
   - CI `gate1-pr` now invokes the focused presentation gate explicitly via `tools/ci/run_presentation_gate.ps1` after the shared build step
 - Latest focused audio validation snapshot:
   - `.\build\dev-mingw-debug\urpg_tests.exe "[audio_manager]"` => 147 assertions / 12 test cases passed
+- Latest focused Phase 2 validation snapshot:
+  - `ctest --test-dir build/dev-mingw-debug --output-on-failure -R "BattleManager:|Window_Base contents lifecycle allocates and rotates deterministic handles|DataManager loadDatabase populates seeded database containers|AudioManager:"` => 42/42 passed
 
 ## Progress made in this cycle
 
 - Merged native-first direction and follow-up execution commits into `main`.
+- 2026-04-19 closure note: battle reward distribution, switch checks, and battle-event cadence coverage are now closed in the compat lane; `Window_Base::contents()` lifecycle truthfulness and seeded `loadDatabase()` behavior are explicitly tested; AudioManager remains honestly `PARTIAL` while deterministic harness semantics stay documented and verified.
 - Finished repo governance cleanup:
   - removed extra remote branches
   - aligned work branch and main tip
