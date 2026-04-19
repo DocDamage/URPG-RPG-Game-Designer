@@ -123,19 +123,19 @@ Deliverables:
 
 Goal: convert existing seeded slices into full native delivery.
 
-Latest landed progress (2026-04-15):
+Latest landed progress (2026-04-19):
 
-- Message/Text runtime ownership slice is active with native rich-text layout and message flow core.
+- **UI/Menu Core** — CLOSED. Runtime ownership (`MenuSceneGraph`, `MenuCommandRegistry`, `MenuRouteResolver`), editor productization (`MenuInspectorModel` edit workflows, `MenuPreviewPanel` fidelity), schema/migration (full route enums, visibility/enable rules, fallback preservation), and diagnostics workspace integration (edit/export/save/load round-trips) are all landed and validated.
+- **Message/Text Core** — CLOSED. Runtime ownership (`MessageFlowRunner`, `RichTextLayoutEngine`, `ChoicePromptState`, `PortraitBindingRegistry`), renderer handoff (`MapScene` submits `TextCommand`/`RectCommand`, `OpenGLRenderer` consumes both), editor productization (`MessageInspectorModel` edit workflows, `MessageInspectorPanel` delegation), schema/migration (`default_choice_index`, `command`, window/audio style field mapping), and diagnostics workspace integration (mutation/export/save/load round-trips) are all landed and validated.
 - WindowCompat bridge now emits backend-facing text draw commands (`RenderLayer::TextCommand`) from `Window_Base::drawText`.
 - Compat `Window_Message` parity surface and deterministic centered/right wrapped snapshot tests are active.
-- Remaining closure is MessageScene-native renderer ownership handoff and full backend text-command consumption across renderer tiers.
 
 Subsystem targets:
 
-1. UI/Menu Core
-2. Message/Text Core
-3. Battle Core
-4. Save/Data Core
+1. UI/Menu Core — CLOSED
+2. Message/Text Core — CLOSED
+3. Battle Core — remaining
+4. Save/Data Core — remaining
 
 - [x] Wave 2 Audio State Sync: Implemented `GlobalStateHub` with "Diff-First" notifications and `StateDrivenAudioResolver` for automated BGM transitions. [Landed 2026-04-16]
 - [ ] Spatial Presentation: **Incubating.** `SpatialMapOverlay` headers and `test_spatial_editor.cpp` coverage exist, but `editor/spatial/*` panels are not yet registered as compiled sources in the build graph. Core presentation runtime (`presentation_runtime.cpp`, `release_validation.cpp`) is registered.
@@ -234,7 +234,11 @@ Deliverables:
 
 ### Milestone M2
 
-- Wave 1 editor/schema/migration closure
+- Wave 1 editor/schema/migration closure:
+  - UI/Menu Core — CLOSED 2026-04-19
+  - Message/Text Core — CLOSED 2026-04-19
+  - Battle Core — in progress
+  - Save/Data Core — in progress
 - Lane 3 tracks 3.1 to 3.4 seeded and partially implemented
 
 ### Milestone M3

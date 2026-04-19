@@ -120,18 +120,24 @@ This focused gate is also invoked by `tools/ci/run_local_gates.ps1` locally and 
 
 ## Immediate next steps
 
-1. Finish UI/Menu Wave 1 closure after the landed runtime interaction slices:
-   - ship menu authoring/preview editor surfaces,
-   - finalize schema + import mapping for route fallback/state rules,
-   - add integration anchors beyond unit tests.
-2. Finish Message/Text renderer closure after the landed bridge:
-   - consume `RenderLayer::TextCommand` in backend tiers where text command rendering is still placeholder,
-   - connect `Window_Message` parity behavior to native message scene runtime ownership path.
-3. Continue Wave 1 runtime/editor/schema closure for Message/Text, Battle, and Save/Data.
-4. Maintain post-Phase-2 compat exit hardening:
+1. ~~Finish UI/Menu Wave 1 closure~~ (DONE 2026-04-19):
+   - menu authoring/preview editor surfaces shipped with true edit workflows,
+   - schema + import mapping finalized for route fallback and state rules,
+   - integration anchors added for runtime+editor parity.
+2. ~~Finish Message/Text renderer closure~~ (DONE 2026-04-19):
+   - native `MapScene` message runner now submits `TextCommand`/`RectCommand` to `RenderLayer`,
+   - `OpenGLRenderer` handles `RectCommand` explicitly,
+   - `Window_Message` compat parity verified with RenderLayer emission tests.
+3. ~~Finish Message/Text editor and migration productization~~ (DONE 2026-04-19):
+   - `MessageInspectorModel` now supports page body/speaker/mode editing, add/remove, and apply-to-runtime,
+   - `DiagnosticsWorkspace` exposes message edit, export, save/load round-trips,
+   - migration maps `defaultChoiceIndex`, `command`, window/audio style fields,
+   - schema updated with `default_choice_index` and `command`.
+4. Continue Wave 1 runtime/editor/schema closure for **Battle** and **Save/Data**.
+5. Maintain post-Phase-2 compat exit hardening:
    - keep conformance depth, JSONL/report/panel parity, and status/document truthfulness aligned with the current harness-backed scope.
-5. Begin Wave 2 advanced capability implementation (ability framework, pattern editor, modular level assembly, sprite pipeline, procedural toolkit, optional 2.5D lane, timeline orchestration, and editor utilities).
-6. Execute the full remaining checklist in `docs/PROGRAM_COMPLETION_STATUS.md` to drive completion to 100% for the current program scope.
+6. Begin Wave 2 advanced capability implementation (ability framework, pattern editor, modular level assembly, sprite pipeline, procedural toolkit, optional 2.5D lane, timeline orchestration, and editor utilities).
+7. Execute the full remaining checklist in `docs/PROGRAM_COMPLETION_STATUS.md` to drive completion to 100% for the current program scope.
 
 ## Build
 

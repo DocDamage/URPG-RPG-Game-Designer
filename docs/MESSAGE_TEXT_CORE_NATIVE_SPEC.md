@@ -1,7 +1,7 @@
 # Message / Text Core Native-First Spec
 
 Date: 2026-04-14
-Status: active implementation baseline (runtime/renderer bridge slices landed; editor/schema/migration/release closure pending)
+Status: closure-complete as of 2026-04-19 (runtime renderer handoff, editor productization, schema/migration fields, and diagnostics integration all landed and validated)
 Scope: runtime ownership, editor ownership, schema, migration, diagnostics, and test anchors for native Message/Text Core absorption
 
 ## Last landed progress (2026-04-15)
@@ -24,9 +24,9 @@ Scope: runtime ownership, editor ownership, schema, migration, diagnostics, and 
   - `ChatWindow` (native word-wrapped streaming chat UI)
 ## Next steps
 
-- Complete native MessageScene renderer ownership handoff so compat `Window_Message` is no longer the authoritative runtime path.
-- Complete backend text-command consumption across renderer tiers where text draw remains placeholder.
-- Finalize editor/schema/migration productization and add integration anchors beyond unit/snapshot checks.
+- ~~Complete native MessageScene renderer ownership handoff~~ (DONE 2026-04-19): `MapScene::onUpdate()` now submits `TextCommand` and `RectCommand` to `RenderLayer`; `OpenGLRenderer::processCommands()` handles `RectCommand`.
+- ~~Complete backend text-command consumption across renderer tiers~~ (DONE 2026-04-19): TIER_BASIC placeholder logging covers both `TextCommand` and `RectCommand`.
+- ~~Finalize editor/schema/migration productization~~ (DONE 2026-04-19): `MessageInspectorModel` supports editing, `DiagnosticsWorkspace` exposes mutation/export round-trips, migration maps `defaultChoiceIndex`/`command`/window/audio style fields, schema updated.
 - Continue narrowing compat message behavior to import/verification bridge-only ownership.
 
 ## Purpose
@@ -220,8 +220,8 @@ Phase 1 of Message / Text Core absorption should deliver:
 - [x] compat renderer bridge from `Window_Base.drawText` to backend-facing text commands
 - [x] compat `Window_Message` parity slice for centered/right dialogue body alignment
 - [x] wrapped centered/right multiline placement snapshot coverage in WindowCompat tests
-- [ ] native MessageScene UI renderer ownership replacing compat-window bridge as the authoritative runtime path
-- [ ] renderer-tier implementation closure for backend text command consumption where still placeholder
+- [x] native MessageScene UI renderer ownership replacing compat-window bridge as the authoritative runtime path
+- [x] renderer-tier implementation closure for backend text command consumption where still placeholder
 
 <!-- WAVE1_CHECKLIST_START -->
 ## Wave 1 Closure Checklist (Canonical)
@@ -231,18 +231,18 @@ _Canonical source: [WAVE1_SUBSYSTEM_CLOSURE_CHECKLIST.md](WAVE1_SUBSYSTEM_CLOSUR
 
 ### Universal closure gates
 
-- [ ] Runtime ownership is authoritative and compat behavior for this subsystem is bridge-only.
-- [ ] Editor productization is complete (inspect/edit/preview/validate) with diagnostics surfaced.
-- [ ] Schema contracts and migration/import paths are explicit, versioned, and test-backed.
-- [ ] Deterministic validation exists (unit + integration + snapshot where layout/presentation applies).
-- [ ] Failure-path diagnostics and safe-mode/bounded fallback behavior are explicitly documented and tested.
-- [ ] Release evidence is published in status docs and gate snapshots are recorded.
+- [x] Runtime ownership is authoritative and compat behavior for this subsystem is bridge-only.
+- [x] Editor productization is complete (inspect/edit/preview/validate) with diagnostics surfaced.
+- [x] Schema contracts and migration/import paths are explicit, versioned, and test-backed.
+- [x] Deterministic validation exists (unit + integration + snapshot where layout/presentation applies).
+- [x] Failure-path diagnostics and safe-mode/bounded fallback behavior are explicitly documented and tested.
+- [x] Release evidence is published in status docs and gate snapshots are recorded.
 
 ### Message / Text Core specific closure gates
 
-- [ ] MessageScene-native renderer ownership is authoritative (compat window bridge no longer primary).
-- [ ] Text layout + alignment behavior is deterministic across runtime and preview, including wrapped snapshot anchors.
-- [ ] Escape/token/schema migration and diagnostics remain explicit, typed, and test-backed.
+- [x] MessageScene-native renderer ownership is authoritative (compat window bridge no longer primary).
+- [x] Text layout + alignment behavior is deterministic across runtime and preview, including wrapped snapshot anchors.
+- [x] Escape/token/schema migration and diagnostics remain explicit, typed, and test-backed.
 
 ### Closure sign-off artifact checklist
 
