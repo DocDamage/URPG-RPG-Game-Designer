@@ -1,7 +1,7 @@
 # URPG Master Native Absorption and PGMMV Roadmap v2
 
 Date: 2026-04-18  
-Status: detailed planning annex / execution-detail input (v2 planning-closure update)  
+Status: detailed planning annex / historical execution-detail input (v2 planning-closure update)  
 Scope: unify **PGMMV support**, **native absorption of plugin-driven demand**, and **HD-2D / 2.5D productization** into one repo-ready planning input with phases, file targets, issue breakdowns, acceptance criteria, and release gates.
 
 Canonical governance and current execution authority live in:
@@ -9,7 +9,7 @@ Canonical governance and current execution authority live in:
 - `../../NATIVE_FEATURE_ABSORPTION_PLAN.md`
 - `../../PROGRAM_COMPLETION_STATUS.md`
 
-Use this file as a detailed planning annex, not as a parallel status or release-readiness authority. Its deltas become canonical only after they are absorbed into the documents above.
+Use this file as a detailed historical planning annex, not as a parallel status or release-readiness authority. Its deltas only mattered once they were absorbed into the documents above.
 
 Derived from and superseding earlier raw planning inputs:
 - `URPG_PGMMV_SUPPORT_PLAN.md`
@@ -139,7 +139,7 @@ All major visual and gameplay systems added by this roadmap must be evaluated fo
 
 This roadmap is split into 10 execution phases:
 
-- Phase 0: Governance, taxonomy, and authoritative planning alignment
+- Phase 0: Governance, taxonomy, and planning-alignment work recorded at draft time
 - Phase 1: Shared substrate and project-mode foundation
 - Phase 2: PGMMV intake and normalized import foundation
 - Phase 3: Core native absorption suites I — Battle / UI / Dialogue
@@ -195,7 +195,7 @@ These are the native product lanes URPG will absorb and/or map imported evidence
 
 ---
 
-# 7. Phase 0 — Governance, taxonomy, and authoritative planning alignment
+# 7. Phase 0 — Governance, taxonomy, and planning-alignment work
 
 ## Goal
 Replace split planning with one canonical execution structure and define how source-engine intake and plugin-demand absorption map into native URPG ownership.
@@ -249,7 +249,7 @@ Acceptance criteria:
 - produces phase ordering without hand-waving,
 - is reproducible and documented.
 
-### Issue 0.4 — Create authoritative status and truthfulness policy
+### Issue 0.4 — Create status and truthfulness policy
 Acceptance criteria:
 - status labels are defined once and used everywhere,
 - public docs cannot claim `FULL` without all required ownership pillars,
@@ -1052,7 +1052,7 @@ Acceptance criteria:
 - Phase 1 must land before Phases 3–8 can scale cleanly.
 - Phase 2 should begin immediately after Phase 1 starts because PGMMV intake needs the shared diagnostics/report substrate.
 - Phase 3 should begin before Phase 7 is treated as strategic, because HD-2D / 2.5D without battle/UI/dialogue parity becomes renderer theater.
-- Phase 5 must begin before broader PGMMV compatibility claims are made.
+- The draft sequencing expected Phase 5 to begin before broader PGMMV compatibility claims would be made.
 - Phase 6 must substantially land before Phase 7 can be called real.
 - Phase 8 should begin once Phase 2 and Phase 3 have real vertical slices, not at the very end.
 - Phase 9 must run continuously once the first real import and first real absorption slice exist.
@@ -1254,7 +1254,7 @@ This roadmap is complete when:
 
 ---
 
-# 22. Immediate next actions
+# 22. Draft next actions recorded at the time
 
 ## Doc actions
 1. Copy this file into `docs/MASTER_NATIVE_ABSORPTION_AND_PGMMV_ROADMAP.md`
@@ -1369,7 +1369,7 @@ These additions exist because native runtime ownership alone is not enough. URPG
 - recurring **RPG glue systems** that users historically buy as plugin packs,
 - and explicit **accessibility / localization** foundations so late-stage productization does not become a rewrite.
 
-These additions are now part of the authoritative plan.
+These additions were being proposed as part of the then-current planning direction; they are preserved here as historical inputs, not current authority.
 
 ## 25.1 New mandatory cross-cutting track
 
@@ -1768,7 +1768,7 @@ Planning is **not** allowed to freeze until the roadmap explicitly covers all of
 7. Accessibility and localization have runtime, editor, schema, report, and release-readiness coverage.
 8. Release matrices include native replacement coverage, accessibility readiness, and localization readiness.
 
-## 25.7 Immediate next actions after this v2 update
+## 25.7 Draft next actions after this v2 update
 
 1. Replace the in-repo master roadmap with this v2 text.
 2. Add Epic 10 through Epic 16 to the GitHub planning structure.

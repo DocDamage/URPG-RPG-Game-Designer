@@ -1,7 +1,7 @@
 # URPG Pixel Game Maker MV Support Plan
 
 Date: 2026-04-18  
-Status: detailed planning annex / execution-detail input  
+Status: detailed planning annex / historical execution-detail input  
 Scope: add Pixel Game Maker MV (PGMMV) project support to URPG as a native import, migration, diagnostics, and editor workflow lane
 
 Canonical governance and current execution authority live in:
@@ -10,11 +10,11 @@ Canonical governance and current execution authority live in:
 - `../../PROGRAM_COMPLETION_STATUS.md`
 - `URPG_MASTER_NATIVE_ABSORPTION_AND_PGMMV_ROADMAP_2026-04-18.md`
 
-Use this file as a detailed PGMMV planning annex, not as a parallel status or release-readiness authority. Its deltas become canonical only after they are absorbed into the documents above.
+Use this file as a detailed historical PGMMV planning annex, not as a parallel status or release-readiness authority. Its deltas only mattered once they were absorbed into the documents above.
 
 ## 1. Executive summary
 
-This plan adds **Pixel Game Maker MV** support to URPG without compromising URPG’s native-first direction.
+This plan proposed adding **Pixel Game Maker MV** support to URPG without compromising URPG’s native-first direction.
 
 The support model is **not** full PGMMV runtime emulation and **not** a forced extension of the existing RPG Maker MZ JavaScript compatibility lane. Instead, PGMMV becomes a **separate source-engine intake path** that:
 
@@ -1245,7 +1245,7 @@ This plan is complete when:
 
 ---
 
-## 23. Immediate next steps
+## 23. Draft next steps recorded at the time
 
 1. Create `docs/PIXEL_GAME_MAKER_MV_SUPPORT_PLAN.md` in the repo.
 2. Open an epic for “PGMMV intake foundation.”

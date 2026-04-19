@@ -29,7 +29,7 @@ URPG should absorb the **highest-value plugin demand centers** as **native engin
 4. make HD-2D / 2.5D / action-hybrid projects a deliberate product capability,
 5. preserve truthfulness about what is fully native, approximated, imported, or unsupported.
 
-This roadmap turns the research findings into a staged product plan.
+This roadmap captured how the research findings were being turned into a staged product plan at the time.
 
 ---
 
@@ -922,7 +922,7 @@ Acceptance criteria:
 
 ## Critical prerequisites
 
-- Phase 1 must start before Phases 2–7 can scale cleanly.
+- The draft dependency order expected Phase 1 to start before Phases 2–7 could scale cleanly.
 - Phases 2, 3, and 4 should overlap because battle/UI/dialogue share major infrastructure.
 - Phase 6 should begin before Phase 7 is considered “real,” because HD-2D/2.5D without action/presentation groundwork becomes a renderer-only gimmick.
 - Phase 8 should begin in parallel once Phase 2 starts landing, not at the very end.
@@ -1084,16 +1084,16 @@ This roadmap is complete when:
 
 ---
 
-# Immediate next actions
+# Draft next actions recorded at the time
 
-## Next doc actions
+## Draft doc actions
 
 1. Copy this file into `docs/PLUGIN_NATIVE_ABSORPTION_ROADMAP.md`
 2. Add it to the README documentation index
 3. Link it from `docs/NATIVE_FEATURE_ABSORPTION_PLAN.md`
 4. Link it from `docs/PROGRAM_COMPLETION_STATUS.md` under next-lane planning
 
-## Next implementation actions
+## Draft implementation actions
 
 1. Execute Phase 0 Issue 0.1 and 0.2 immediately
 2. Create the new import evidence schemas

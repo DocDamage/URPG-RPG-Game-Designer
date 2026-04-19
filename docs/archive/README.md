@@ -1,6 +1,6 @@
 # Archive
 
-This folder holds superseded or reference-only planning material that is kept for traceability but is no longer part of the canonical execution chain.
+This folder holds superseded or reference-only planning material that is kept for traceability. It preserves historical planning and decision context, but it is not a source of current execution truth for this branch.
 
 Canonical document chain:
 - `../TECHNICAL_DEBT_REMEDIATION_PLAN.md` - cross-cutting governance, truthfulness, and Definition-of-Done authority
@@ -13,4 +13,4 @@ Archived planning inputs:
 - `planning/URPG_NATIVE_ABSORPTION_ROADMAP_2026-04-18.md`
 - `planning/urpg_first_class_presentation_architecture_plan_v2.md`
 
-These files should not be used as standalone execution authorities without first absorbing their remaining deltas into the canonical documents above.
+If an archived file conflicts with the current branch state, follow the canonical documents above. Archived files should only be used as historical/reference inputs, and any surviving delta must be absorbed into the canonical docs before it influences active execution.

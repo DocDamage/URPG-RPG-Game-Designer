@@ -3,8 +3,10 @@
 
 **Date:** 2026-04-16  
 **Version:** 2.0  
-**Status:** Proposed execution-grade architecture and delivery plan  
+**Status:** Historical architecture/delivery planning input retained for traceability  
 **Supersedes:** v1.0 (2026-04-16)
+
+This archived plan preserves the architecture program as it was being drafted on 2026-04-16. It is not a current implementation authority for this branch; current execution truth must route through the canonical program/remediation docs and any later ADR corrections.
 
 ---
 
@@ -168,14 +170,14 @@ Authors must be able to modify authoring data and see results without restarting
 
 ## 6. Decision Record Requirement
 
-Before major implementation begins, the program must create formal ADRs for the following. Each ADR must include: context, decision, rationale, alternatives considered, and consequences.
+At draft time, the program expected the following ADRs to be created before major implementation began. Each ADR was expected to include: context, decision, rationale, alternatives considered, and consequences.
 
 ### ADR-001 — Presentation Core ownership model
 **Must answer:** What are the authoritative domain boundaries? What constitutes a boundary violation? How is leakage detected in code review?
 
 **Skeleton:**
 - Context: Presentation logic is currently scattered across renderer, map code, and editor hacks.
-- Decision: [TBD — define ownership table]
+- Historical draft state: ownership table decision had not yet been finalized in this plan.
 - Consequences: Any presentation semantic in renderer code is a review blocker.
 
 ---
@@ -185,7 +187,7 @@ Before major implementation begins, the program must create formal ADRs for the 
 
 **Skeleton:**
 - Context: Some scenes (e.g., battle intros) may need to override the project-level mode temporarily.
-- Decision: [TBD — define mode scope hierarchy]
+- Historical draft state: mode scope hierarchy decision had not yet been finalized in this plan.
 - Consequences: Affects schema design, migration logic, and editor mode-switching UI.
 
 ---
@@ -195,7 +197,7 @@ Before major implementation begins, the program must create formal ADRs for the 
 
 **Skeleton:**
 - Context: Spatial data needs to be authorable, diff-friendly, and round-trip stable.
-- Decision: [TBD — define representation format]
+- Historical draft state: representation format decision had not yet been finalized in this plan.
 - Consequences: Schema choice determines asset pipeline requirements and editor tool design.
 
 ---
@@ -205,7 +207,7 @@ Before major implementation begins, the program must create formal ADRs for the 
 
 **Skeleton:**
 - Context: Devices vary widely; the same project must degrade gracefully.
-- Decision: [TBD — define capability matrix structure]
+- Historical draft state: capability matrix structure decision had not yet been finalized in this plan.
 - Consequences: Every new feature must specify its tier assignment before merge.
 
 ---
@@ -215,7 +217,7 @@ Before major implementation begins, the program must create formal ADRs for the 
 
 **Skeleton:**
 - Context: MapScene will ship first; without contracts, other scenes will be left behind.
-- Decision: [TBD — define per-family minimum feature table]
+- Historical draft state: per-family minimum feature table had not yet been finalized in this plan.
 - Consequences: Contracts must be met before any scene adapter is considered shippable.
 
 ---
@@ -225,7 +227,7 @@ Before major implementation begins, the program must create formal ADRs for the 
 
 **Skeleton:**
 - Context: Legacy projects must have a real upgrade path without faking completeness.
-- Decision: [TBD — define migration stages and reversibility rules]
+- Historical draft state: migration stages and reversibility rules had not yet been finalized in this plan.
 - Consequences: Migration tooling must generate reviewable output, never silently complete.
 
 ---
@@ -235,7 +237,7 @@ Before major implementation begins, the program must create formal ADRs for the 
 
 **Skeleton:**
 - Context: A spatial presentation path requires structured pass ordering that the backend cannot improvise.
-- Decision: [TBD — define initial pass architecture]
+- Historical draft state: initial pass architecture had not yet been finalized in this plan.
 - Consequences: Render command families are tied to pass assignment; adding a new pass family is an architectural change.
 
 ---
@@ -245,7 +247,7 @@ Before major implementation begins, the program must create formal ADRs for the 
 
 **Skeleton:**
 - Context: Spatial presentation makes asset metadata load-bearing in a way Classic2D did not.
-- Decision: [TBD — define metadata contract and enforcement points]
+- Historical draft state: metadata contract and enforcement points had not yet been finalized in this plan.
 - Consequences: Classic2D-safe assets must continue to work in Classic mode without spatial claims.
 
 ---
@@ -255,7 +257,7 @@ Before major implementation begins, the program must create formal ADRs for the 
 
 **Skeleton:**
 - Context: Presentation Core must not introduce new race conditions or prohibit future parallelism.
-- Decision: [TBD — define thread ownership per subsystem]
+- Historical draft state: thread ownership per subsystem had not yet been finalized in this plan.
 - Consequences: All public API calls must document their thread requirement. See Section 18.
 
 ---
@@ -265,7 +267,7 @@ Before major implementation begins, the program must create formal ADRs for the 
 
 **Skeleton:**
 - Context: Frame-by-frame allocation strategy must not become a regression source at scale.
-- Decision: [TBD — define allocation strategy]
+- Historical draft state: allocation strategy had not yet been finalized in this plan.
 - Consequences: Allocation approach must be profiled as part of Phase 1 exit criteria. See Section 19.
 
 ---
@@ -1664,7 +1666,7 @@ If a phase or a bounded task produces a result that cannot be brought to a passi
 
 ### Rollback procedure
 
-1. stop all work in the current phase
+1. stop all work in the affected phase under this draft program
 2. revert to the last known-good state (last passing CI + last confirmed `WORKLOG.md` entry)
 3. document the failure in `WORKLOG.md` with the exact failure mode and what was learned
 4. update `RISKS.md` with the risk that was realized

@@ -4,6 +4,8 @@
 **Date:** 2026-04-17  
 **Supersedes / Clarifies:** ADR-010-presentation-completion (architectural patterns approved; build coverage and productization status explicitly downscoped)
 
+Historical note: this ADR preserves the status correction recorded on 2026-04-17. For current execution and release truth, defer to the canonical program/remediation documents.
+
 ## Context
 
 ADR-010 established the architectural patterns for the Presentation Core (scene-to-intent translation, capability tiers, spatial overlays, and registry hot-reloading). However, the build graph does not reflect the completion posture implied by that architecture and by recent program-status documents. Specifically:
@@ -15,7 +17,7 @@ ADR-010 established the architectural patterns for the Presentation Core (scene-
   - `profile_arena.cpp` — **not** registered in any build target
 - The majority of `engine/core/presentation/` is header-only abstraction (translators, states, routers, adapters). Until those abstractions are backed by compiled implementation and linked into runtime/editor targets, the subsystem cannot be considered productized.
 
-This ADR makes an explicit, recorded decision about the status of these directories so that planning documents remain trustworthy.
+This ADR recorded an explicit status correction for these directories so the planning set at that time would remain trustworthy.
 
 ## Decision
 
@@ -29,7 +31,7 @@ This ADR makes an explicit, recorded decision about the status of these director
      - `presentation_runtime.cpp` (part of `urpg_core`)
      - `release_validation.cpp` (standalone validation executable)
    - `profile_arena.cpp` is intentionally left out of `urpg_core` while the subsystem remains in incubation.
-   - The existing registered tests (`test_presentation_runtime.cpp`, `test_spatial_editor.cpp`) are retained and passing; they anchor the future productization path.
+   - The existing registered tests (`test_presentation_runtime.cpp`, `test_spatial_editor.cpp`) were retained as anchor points for the future productization path.
 
 ## Rationale
 
