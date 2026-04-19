@@ -9,6 +9,11 @@
 
 ## Entries
 
+### 2026-04-19 — Final Remediation Finding Closure
+- **Action**: Closed `P1-02` by reconciling the remaining public compat truth surfaces with the already-honest runtime registries: `input_manager.h` and `plugin_manager.h` now label fixture-backed compat behavior as `PARTIAL`, and focused status-registry coverage in `test_input_manager.cpp` and `test_plugin_manager.cpp` now locks those representative entries down.
+- **Action**: Updated `docs/COMPAT_EXIT_CHECKLIST.md`, `docs/DEVELOPMENT_KICKOFF.md`, `docs/PROGRAM_COMPLETION_STATUS.md`, `README.md`, and `docs/TECHNICAL_DEBT_REMEDIATION_PLAN.md` so the canonical stack now states plainly that the audited remediation findings are fully closed.
+- **Result**: The remediation findings table is fully green. Focused verification passed for `ctest --test-dir build/dev-mingw-debug --output-on-failure -R "InputManager:|TouchInput:|PluginManager: Method status registry"` with 14/14 tests green.
+
 ### 2026-04-19 — Phase 5 Hardening Closure
 - **Action**: Expanded the `PluginManager` async callback audit with queue-preservation and stale-error-clearing regressions, then cleared stale thread-affinity errors on successful owning-thread dispatch.
 - **Action**: Made `MapScene` audio-service ownership explicit and observable by removing the constructor-created `AudioCore` instance and adding focused scene regressions for rebinding and explicit binding state.

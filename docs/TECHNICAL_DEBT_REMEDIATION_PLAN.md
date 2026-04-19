@@ -1,6 +1,6 @@
 # Technical Debt Remediation Plan
 
-> **Document status:** Seventh-pass revision — canonical remediation hub as of 2026-04-19.
+> **Document status:** Eighth-pass revision — canonical remediation hub as of 2026-04-19.
 > Incorporates stale-state debt, placeholder export-surface debt, documentation/test drift findings, the external-repository intake program defined in [URPG_repo_intake_plan.md](../URPG_repo_intake_plan.md), and the private-use asset intake program defined in [URPG_private_asset_intake_plan.md](../URPG_private_asset_intake_plan.md).
 > This revision also absorbs the newly added PGMMV and native-absorption planning inputs into the remediation program so roadmap expansion, truthfulness, and execution governance share one canonical hub.
 

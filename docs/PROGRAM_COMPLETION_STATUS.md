@@ -13,7 +13,7 @@ Canonical planning chain:
 
 Phase 2 runtime closure is complete as of 2026-04-19. Remaining compat work in this document is post-closure exit hardening, corpus depth, and ongoing truth-maintenance work, not unfinished baseline closure of the audited Phase 2 runtime slice.
 
-Phase 3 diagnostics productization is complete as of 2026-04-19, Phase 4 governance/reconciliation closure is complete as of 2026-04-19, and Phase 5 hardening closure is also complete as of 2026-04-19. Remaining work in this document is post-closure compat hardening depth, roadmap execution, and ongoing truth-maintenance work rather than an unfinished remediation phase.
+Phase 3 diagnostics productization is complete as of 2026-04-19, Phase 4 governance/reconciliation closure is complete as of 2026-04-19, and Phase 5 hardening closure is also complete as of 2026-04-19. The canonical remediation findings table is now fully green. Remaining work in this document is post-closure compat hardening depth, roadmap execution, and ongoing truth-maintenance work rather than an unfinished remediation phase.
 
 ## Where we are now
 

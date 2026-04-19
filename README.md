@@ -39,6 +39,8 @@
 
 Phase 2 runtime closure is complete as of 2026-04-19. Current repo work sits in Wave 1 native productization, Wave 2 planning-to-implementation follow-through, and post-closure compat exit hardening tracked in the canonical status docs.
 
+Canonical remediation status: the audited remediation findings tracked in `docs/TECHNICAL_DEBT_REMEDIATION_PLAN.md` are now fully closed; remaining repo work is roadmap/product execution and post-closure confidence depth rather than open remediation findings.
+
 ## 🏗️ Getting Started
 
 ### Prerequisites
