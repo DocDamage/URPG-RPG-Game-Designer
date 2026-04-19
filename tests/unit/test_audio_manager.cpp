@@ -166,6 +166,24 @@ TEST_CASE("AudioManager: buses and ducking", "[audio_manager]") {
     am.stopBgm();
 }
 
+TEST_CASE("AudioManager: duck and unduck preserve deterministic BGM state", "[audio_manager]") {
+    AudioManager& am = AudioManager::instance();
+    am.stopBgm();
+    am.setMasterVolume(1.0);
+    am.setBusVolume(AudioBus::BGM, 1.0);
+    am.playBgm("phase2_theme", 80.0, 100.0, 4);
+
+    am.duckBgm(30.0, 2);
+    REQUIRE(am.isBgmDucked());
+    REQUIRE(am.getCurrentBgm().name == "phase2_theme");
+
+    am.unduckBgm(1);
+    am.update();
+    REQUIRE_FALSE(am.isBgmDucked());
+
+    am.stopBgm();
+}
+
 TEST_CASE("AudioManager: master and bus volumes affect active playback", "[audio_manager]") {
     AudioManager& am = AudioManager::instance();
     am.stopBgm();

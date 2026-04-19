@@ -214,7 +214,7 @@ public:
     // Ducking
     // ========================================================================
     
-    // Status: PARTIAL - Deterministic duck/unduck works, but this still does not drive a live mixer/backend
+    // Status: PARTIAL - Deterministic duck/unduck and current BGM state remain observable through the compat API, but this still does not drive a live mixer/backend
     void duckBgm(double volume = 50.0, int32_t duration = 30);
     void unduckBgm(int32_t duration = 30);
     bool isBgmDucked() const;
