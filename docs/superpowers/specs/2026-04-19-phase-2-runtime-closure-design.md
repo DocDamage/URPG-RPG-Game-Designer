@@ -1,49 +1,52 @@
 # Phase 2 Runtime Closure Design
 
 **Date:** 2026-04-19
+**Status:** Completed reference material. Phase 2 runtime closure landed on 2026-04-19; this document is retained as historical design context, not as current execution authority.
 
 **Goal**
 
-Close Phase 2 of the technical debt remediation plan by finishing the remaining high-value runtime-closure work in the compat layer, verifying it with focused tests, and reconciling stale labels and documentation so Phase 2 status reflects the actual codebase.
+Record the design for the Phase 2 technical debt remediation closure pass that finished the remaining high-value compat runtime work, verified it with focused tests, and reconciled stale labels and documentation so the canonical docs could reflect the actual codebase.
+
+For current status, closure boundaries, and post-closure hardening work, use `docs/PROGRAM_COMPLETION_STATUS.md` and `docs/TECHNICAL_DEBT_REMEDIATION_PLAN.md`.
 
 ## Scope
 
-This design covers the four approved Phase 2 lanes:
+This design covered the four approved Phase 2 lanes:
 
 1. Battle correctness and reward application
 2. Window and data runtime closure
 3. Audio semantics reconciliation
 4. Final Phase 2 reconciliation across tests, status labels, and docs
 
-This design does not introduce a live QuickJS runtime, replace the deterministic compat harness with a production backend, or expand scope into Phase 3 diagnostics productization or Phase 5 hardening.
+This design did not introduce a live QuickJS runtime, replace the deterministic compat harness with a production backend, or expand scope into Phase 3 diagnostics productization or later hardening lanes.
 
 ## Current Repo Reality
 
-The remediation document still describes some older Phase 2 gaps that no longer match the repository:
+At design time, the remediation document still described some older Phase 2 gaps that no longer matched the repository:
 
 - QuickJS is already explicitly scoped as a fixture-backed compat harness rather than a live runtime.
 - Menu serialization already has native round-trip coverage and should be treated as verification/alignment work, not a rewrite.
 - Data loading is materially more capable than older header comments suggest.
-- Audio already has deterministic harness-side SE cleanup and live binding coverage, but the remaining semantics still need a reconciliation pass.
+- Audio already had deterministic harness-side SE cleanup and live binding coverage, but the remaining semantics still needed a reconciliation pass.
 
-The remaining Phase 2 work is therefore not a single rewrite. It is a targeted closure pass across the runtime surfaces that still have behavior gaps, stale labels, or weak tests.
+The remaining Phase 2 work was therefore not a single rewrite. It was a targeted closure pass across the runtime surfaces that still had behavior gaps, stale labels, or weak tests.
 
 ## Approach
 
-Phase 2 should be completed sequentially in four lanes. Each lane follows the same pattern:
+Phase 2 was completed sequentially in four lanes. Each lane followed the same pattern:
 
 1. Add or tighten tests around the audited claim.
 2. Implement the minimum runtime behavior needed to satisfy the claim.
 3. Reconcile method-status comments and exported labels with the code that now exists.
 4. Re-run the focused test lane before moving to the next lane.
 
-This keeps the work bounded and avoids reopening already-closed surfaces.
+This kept the work bounded and avoided reopening already-closed surfaces.
 
 ## Lane 1: Battle Correctness and Reward Application
 
 ### Problem
 
-The battle lane still contains the clearest unresolved runtime debt:
+At design time, the battle lane still contained the clearest unresolved runtime debt:
 
 - reward application methods remain documented as stubbed
 - tests still contain at least one "no crash" style assertion where stateful behavior should be proven
@@ -57,15 +60,15 @@ The battle lane still contains the clearest unresolved runtime debt:
 
 ### Design
 
-Battle closure will focus on deterministic live-state mutation rather than broad battle-system expansion.
+Battle closure focused on deterministic live-state mutation rather than broad battle-system expansion.
 
-The implementation should:
+The implementation was expected to:
 
 - make `applyExp()` mutate party or actor progression state in a deterministic, testable way
 - make `applyGold()` mutate party gold in live compat state
 - make `applyDrops()` route deterministic drops into party inventory
 - tighten `checkSwitchCondition()` and related battle-event checks so they read real compat state where that state already exists
-- preserve honest `PARTIAL` labels where formula interpretation, full interpreter coverage, or full MZ parity still do not exist
+- preserve honest `PARTIAL` labels where formula interpretation, full interpreter coverage, or full MZ parity still did not exist
 
 ### Acceptance criteria
 
@@ -78,7 +81,7 @@ The implementation should:
 
 ### Problem
 
-The window/data lane has a mix of real progress and stale claims:
+At design time, the window/data lane had a mix of real progress and stale claims:
 
 - some `Window_Base` comments still describe "tracks intent only" behavior that may no longer match the runtime
 - `contents()` and draw-related semantics need clearer closure or tighter labels
@@ -95,9 +98,9 @@ The window/data lane has a mix of real progress and stale claims:
 
 ### Design
 
-This lane should not attempt a full pixel-buffer renderer or full MZ asset pipeline. It should close the highest-value deterministic runtime gaps and make the remaining limits explicit.
+This lane did not attempt a full pixel-buffer renderer or full MZ asset pipeline. It closed the highest-value deterministic runtime gaps and made the remaining limits explicit.
 
-The implementation should:
+The implementation was expected to:
 
 - verify whether `contents()` and contents lifecycle behavior are truly deterministic runtime features or still mere handle allocation
 - improve draw accumulation semantics where current behavior is weaker than the audit exit criteria require
@@ -115,7 +118,7 @@ The implementation should:
 
 ### Problem
 
-Audio is further along than the original audit description, but the lane still needs a close-out pass so the remaining limitations are explicit and tested against current behavior.
+Audio was further along than the original audit description, but the lane still needed a close-out pass so the remaining limitations were explicit and tested against current behavior.
 
 ### Files in scope
 
@@ -125,9 +128,9 @@ Audio is further along than the original audit description, but the lane still n
 
 ### Design
 
-This lane is primarily verification and truthfulness work. It should not chase full live-backend parity. It should ensure the deterministic harness semantics now implemented are the semantics documented and tested.
+This lane was primarily verification and truthfulness work. It did not chase full live-backend parity. It ensured the deterministic harness semantics already implemented were the semantics documented and tested.
 
-The implementation should:
+The implementation was expected to:
 
 - verify the current behavior for playback position, duck/unduck, mix scaling, and QuickJS bindings
 - add focused tests only where the current semantics are still under-specified
@@ -143,7 +146,7 @@ The implementation should:
 
 ### Problem
 
-Even after runtime work lands, Phase 2 is not complete until tests, comments, and canonical docs agree on what was actually closed.
+Even after runtime work landed, Phase 2 was not complete until tests, comments, and canonical docs agreed on what was actually closed.
 
 ### Files in scope
 
@@ -155,9 +158,9 @@ Additional files may be touched if status labels or comments in runtime headers 
 
 ### Design
 
-This lane is the truthfulness close-out pass.
+This lane was the truthfulness close-out pass.
 
-The implementation should:
+The implementation was expected to:
 
 - run the focused battle, window, data, and audio test lanes
 - update remediation/status docs to reflect what actually closed in this pass
@@ -172,7 +175,7 @@ The implementation should:
 
 ## Testing Strategy
 
-Testing should stay lane-local and deterministic.
+Testing stayed lane-local and deterministic.
 
 - Battle: extend `tests/unit/test_battlemgr.cpp` with reward-application and event-condition assertions.
 - Window: extend `tests/unit/test_window_compat.cpp` for contents lifecycle and draw accumulation behavior.
@@ -206,13 +209,12 @@ Control: restrict work to deterministic compat runtime semantics and tested expo
 - Full battle interpreter coverage
 - Full pixel-backed window rendering
 - Phase 3 diagnostics workspace productization
-- Phase 5 threading, ownership, or performance hardening
+- Later hardening lanes covering threading, ownership, performance, or compat exit follow-through
 
 ## Completion Definition
 
-Phase 2 is complete when:
+Phase 2 was complete when:
 
 - the remaining runtime-closure gaps in battle, window/data, and audio have either been implemented or precisely bounded
 - the relevant focused tests prove live deterministic behavior rather than only non-crash behavior
 - runtime comments, compat labels, and canonical docs agree on what the engine actually supports
-

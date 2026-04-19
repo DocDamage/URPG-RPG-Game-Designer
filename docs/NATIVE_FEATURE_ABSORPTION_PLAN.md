@@ -1,7 +1,7 @@
 # URPG Native Capability Expansion Plan
 
 Date: 2026-04-15  
-Status: active execution  
+Status: active roadmap  
 Scope: native runtime, editor workflows, schema/migration, compat bridge exit, and advanced capability expansion
 
 This is the roadmap document, not the canonical latest-status snapshot. For current completion, remediation, and validation state, use:
@@ -9,6 +9,8 @@ This is the roadmap document, not the canonical latest-status snapshot. For curr
 - `docs/TECHNICAL_DEBT_REMEDIATION_PLAN.md`
 
 Cross-cutting debt closure, documentation-truth alignment, and intake-governance companion: `docs/TECHNICAL_DEBT_REMEDIATION_PLAN.md`.
+
+Phase/remediation vocabulary note: Phase 2 runtime closure completed on 2026-04-19 in the canonical remediation/status docs. This roadmap remains the product roadmap; compat follow-up work belongs to later hardening and exit lanes unless the canonical docs explicitly re-open a Phase 2 slice.
 
 Planning-input annexes for this roadmap:
 - `./archive/planning/URPG_MASTER_NATIVE_ABSORPTION_AND_PGMMV_ROADMAP_2026-04-18.md` - detailed PGMMV/native-absorption expansion input retained for traceability
@@ -101,12 +103,13 @@ These projects informed what to absorb. We treat them as design references first
 
 ## Execution roadmap
 
-## Lane 1: Compat bridge exit (in progress)
+## Lane 1: Compat bridge exit and post-closure hardening
 
-Goal: complete trustworthy import/verification/migration bridge and define explicit exit criteria.
+Goal: continue trustworthy import/verification/migration bridge hardening after the 2026-04-19 Phase 2 runtime closure, and define explicit exit criteria for the remaining compat lane.
 
 Current scope note:
 
+- Phase 2 runtime closure is already complete; this lane is the post-closure compat hardening and exit track.
 - The QuickJS compat lane is still treated as a fixture-backed contract harness for import/verification work, not as a finished live JS runtime.
 - Compat surface labels must stay conservative until placeholder-backed runtime paths are actually closed.
 
@@ -224,9 +227,9 @@ Deliverables:
 
 ## Milestone framing
 
-### Milestone M1 (current)
+### Milestone M1 (current roadmap baseline)
 
-- Lane 1 near-exit hardening
+- Lane 1 post-closure near-exit hardening
 - Lane 2 Wave 1 runtime ownership delivery start
 
 ### Milestone M2

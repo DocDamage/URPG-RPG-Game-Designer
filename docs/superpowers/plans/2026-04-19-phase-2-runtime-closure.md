@@ -1,12 +1,16 @@
 # Phase 2 Runtime Closure Implementation Plan
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+> Historical execution record for the 2026-04-19 Phase 2 runtime closure pass. Retained for traceability and reference; not a current implementation instruction source.
 
-**Goal:** Close the remaining Phase 2 runtime debt in battle rewards/events, window/data runtime truth, audio semantics reconciliation, and canonical Phase 2 status docs.
+**Status:** Completed reference material. This plan records the 2026-04-19 Phase 2 runtime closure pass and is no longer live execution authority.
 
-**Architecture:** Work lane-by-lane, starting from failing focused tests and only then tightening runtime behavior or stale status text. Keep the deterministic compat harness model intact; implement live compat-state mutation where the runtime already owns the state, and preserve `PARTIAL` where backend or full-MZ parity still does not exist.
+**Goal:** Record the work that closed the remaining Phase 2 runtime debt in battle rewards/events, window/data runtime truth, audio semantics reconciliation, and canonical Phase 2 status docs.
+
+**Architecture:** The closure pass ran lane-by-lane, starting from focused tests and only then tightening runtime behavior or stale status text. The deterministic compat harness model remained intact; work only implemented live compat-state mutation where the runtime already owned the state, and preserved `PARTIAL` where backend or full-MZ parity did not exist.
 
 **Tech Stack:** C++17, Catch2, CMake, nlohmann::json, URPG compat/runtime layer
+
+For current status, closure boundaries, and post-closure compat work, use `docs/PROGRAM_COMPLETION_STATUS.md` and `docs/TECHNICAL_DEBT_REMEDIATION_PLAN.md`.
 
 ---
 
@@ -39,16 +43,16 @@
 - `WORKLOG.md`
   Narrative record of the landed Phase 2 closure work.
 
-### Task 1: Close Battle Reward and Event Semantics
+### Task 1: Closed Battle Reward and Event Semantics
 
-**Files:**
-- Modify: `runtimes/compat_js/battle_manager.cpp`
-- Modify: `runtimes/compat_js/battle_manager.h`
-- Test: `tests/unit/test_battlemgr.cpp`
+**Files touched during the closure pass:**
+- Modified: `runtimes/compat_js/battle_manager.cpp`
+- Modified: `runtimes/compat_js/battle_manager.h`
+- Modified and verified: `tests/unit/test_battlemgr.cpp`
 
-- [ ] **Step 1: Write the failing tests**
+- [x] **Step 1: Added the failing tests**
 
-Add assertions to `tests/unit/test_battlemgr.cpp` that require reward application and switch checks to mutate real compat state instead of merely not crashing.
+Assertions were added to `tests/unit/test_battlemgr.cpp` so reward application and switch checks had to mutate real compat state instead of merely not crashing.
 
 ```cpp
 TEST_CASE("BattleManager: defeating all enemies yields expected gold and exp", "[battlemgr]") {
@@ -84,15 +88,15 @@ TEST_CASE("BattleManager: switch condition reads live DataManager state", "[batt
 }
 ```
 
-- [ ] **Step 2: Run the focused battle tests to verify the gap**
+- [x] **Step 2: Ran the focused battle tests to verify the gap**
 
-Run: `ctest --test-dir build --output-on-failure -R test_battlemgr`
+Command used: `ctest --test-dir build --output-on-failure -R test_battlemgr`
 
-Expected: at least one battle reward or switch-condition assertion fails, or the existing reward test still only proves non-crash behavior.
+Recorded expectation at the time: at least one battle reward or switch-condition assertion fails, or the existing reward test still only proves non-crash behavior.
 
-- [ ] **Step 3: Write the minimal implementation**
+- [x] **Step 3: Wrote the minimal implementation**
 
-Update `runtimes/compat_js/battle_manager.cpp` so reward application writes through `DataManager` and switch conditions read current compat state.
+`runtimes/compat_js/battle_manager.cpp` was updated so reward application wrote through `DataManager` and switch conditions read current compat state.
 
 ```cpp
 void BattleManager::applyExp() {
@@ -130,31 +134,33 @@ bool BattleManager::checkSwitchCondition(int32_t switchId) {
 }
 ```
 
-- [ ] **Step 4: Run the focused battle tests to verify they pass**
+- [x] **Step 4: Re-ran the focused battle tests to verify they pass**
 
-Run: `ctest --test-dir build --output-on-failure -R test_battlemgr`
+Command used: `ctest --test-dir build --output-on-failure -R test_battlemgr`
 
-Expected: PASS for the reward, level-up, cadence, and switch-condition cases in `test_battlemgr.cpp`.
+Recorded expectation at the time: PASS for the reward, level-up, cadence, and switch-condition cases in `test_battlemgr.cpp`.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Recorded the commit**
+
+Command record from the closure pass:
 
 ```bash
 git add runtimes/compat_js/battle_manager.cpp runtimes/compat_js/battle_manager.h tests/unit/test_battlemgr.cpp
 git commit -m "fix: close compat battle reward application"
 ```
 
-### Task 2: Tighten Window Contents and Data Truthfulness
+### Task 2: Tightened Window Contents and Data Truthfulness
 
-**Files:**
-- Modify: `runtimes/compat_js/window_compat.cpp`
-- Modify: `runtimes/compat_js/window_compat.h`
-- Test: `tests/unit/test_window_compat.cpp`
-- Modify: `runtimes/compat_js/data_manager.h`
-- Test: `tests/unit/test_data_manager.cpp`
+**Files touched during the closure pass:**
+- Modified: `runtimes/compat_js/window_compat.cpp`
+- Modified: `runtimes/compat_js/window_compat.h`
+- Modified and verified: `tests/unit/test_window_compat.cpp`
+- Modified: `runtimes/compat_js/data_manager.h`
+- Modified and verified: `tests/unit/test_data_manager.cpp`
 
-- [ ] **Step 1: Write the failing tests**
+- [x] **Step 1: Added the failing tests**
 
-Add tests that prove the actual contents lifecycle and current data-loader behavior instead of only checking status enums.
+Tests were added to prove the actual contents lifecycle and current data-loader behavior instead of only checking status enums.
 
 ```cpp
 TEST_CASE("Window_Base contents lifecycle allocates and rotates deterministic handles", "[compat][window]") {
@@ -179,15 +185,15 @@ TEST_CASE("DataManager loadDatabase populates seeded database containers", "[dat
 }
 ```
 
-- [ ] **Step 2: Run the focused window/data tests to verify the gap**
+- [x] **Step 2: Ran the focused window/data tests to verify the gap**
 
-Run: `ctest --test-dir build --output-on-failure -R "test_window_compat|test_data_manager"`
+Command used: `ctest --test-dir build --output-on-failure -R "test_window_compat|test_data_manager"`
 
-Expected: either a lifecycle assertion fails, or the tests reveal that comments still describe behavior the code no longer has.
+Recorded expectation at the time: either a lifecycle assertion fails, or the tests reveal that comments still describe behavior the code no longer has.
 
-- [ ] **Step 3: Write the minimal implementation and comment reconciliation**
+- [x] **Step 3: Wrote the minimal implementation and comment reconciliation**
 
-Update `runtimes/compat_js/window_compat.cpp` only if the lifecycle tests expose a real bug; otherwise update comments in `runtimes/compat_js/window_compat.h` and `runtimes/compat_js/data_manager.h` so they describe the current deterministic runtime.
+The closure pass updated `runtimes/compat_js/window_compat.cpp` only if the lifecycle tests exposed a real bug; otherwise the work reconciled comments in `runtimes/compat_js/window_compat.h` and `runtimes/compat_js/data_manager.h` so they described the current deterministic runtime.
 
 ```cpp
 // Example comment updates in runtimes/compat_js/data_manager.h
@@ -204,28 +210,30 @@ virtual void createContents();
 virtual void destroyContents();
 ```
 
-- [ ] **Step 4: Run the focused window/data tests to verify they pass**
+- [x] **Step 4: Re-ran the focused window/data tests to verify they pass**
 
-Run: `ctest --test-dir build --output-on-failure -R "test_window_compat|test_data_manager"`
+Command used: `ctest --test-dir build --output-on-failure -R "test_window_compat|test_data_manager"`
 
-Expected: PASS for the new contents lifecycle and data-loader assertions, with no regressions in the existing window/data cases.
+Recorded expectation at the time: PASS for the new contents lifecycle and data-loader assertions, with no regressions in the existing window/data cases.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Recorded the commit**
+
+Command record from the closure pass:
 
 ```bash
 git add runtimes/compat_js/window_compat.cpp runtimes/compat_js/window_compat.h runtimes/compat_js/data_manager.h tests/unit/test_window_compat.cpp tests/unit/test_data_manager.cpp
 git commit -m "fix: align compat window and data runtime truth"
 ```
 
-### Task 3: Reconcile Audio Harness Semantics
+### Task 3: Reconciled Audio Harness Semantics
 
-**Files:**
-- Modify: `runtimes/compat_js/audio_manager.h`
-- Test: `tests/unit/test_audio_manager.cpp`
+**Files touched during the closure pass:**
+- Modified: `runtimes/compat_js/audio_manager.h`
+- Modified and verified: `tests/unit/test_audio_manager.cpp`
 
-- [ ] **Step 1: Write the failing tests**
+- [x] **Step 1: Added the failing tests**
 
-Add a focused test that proves the deterministic harness semantics the comments claim: duck/unduck state and mix scaling remain observable through the current API.
+A focused test was added to prove the deterministic harness semantics the comments claimed: duck/unduck state and mix scaling remained observable through the current API.
 
 ```cpp
 TEST_CASE("AudioManager: duck and unduck preserve deterministic BGM state", "[audio_manager]") {
@@ -244,15 +252,15 @@ TEST_CASE("AudioManager: duck and unduck preserve deterministic BGM state", "[au
 }
 ```
 
-- [ ] **Step 2: Run the focused audio tests to verify the gap**
+- [x] **Step 2: Ran the focused audio tests to verify the gap**
 
-Run: `ctest --test-dir build --output-on-failure -R test_audio_manager`
+Command used: `ctest --test-dir build --output-on-failure -R test_audio_manager`
 
-Expected: either the new test exposes a semantic mismatch, or the implementation passes and only comment/deviation text remains stale.
+Recorded expectation at the time: either the new test exposes a semantic mismatch, or the implementation passes and only comment/deviation text remains stale.
 
-- [ ] **Step 3: Write the minimal implementation or comment reconciliation**
+- [x] **Step 3: Wrote the minimal implementation or comment reconciliation**
 
-If the test fails, fix the smallest possible semantic bug in `runtimes/compat_js/audio_manager.cpp`. If it passes, update `runtimes/compat_js/audio_manager.h` deviation comments so they describe the now-proven harness behavior precisely.
+If the test exposed a semantic bug, the closure pass fixed the smallest possible issue in `runtimes/compat_js/audio_manager.cpp`. If it already passed, the work updated `runtimes/compat_js/audio_manager.h` deviation comments so they described the now-proven harness behavior precisely.
 
 ```cpp
 // Example comment updates in runtimes/compat_js/audio_manager.h
@@ -264,40 +272,42 @@ void unduckBgm(int32_t duration = 0);
 AudioData getCurrentBgm() const;
 ```
 
-- [ ] **Step 4: Run the focused audio tests to verify they pass**
+- [x] **Step 4: Re-ran the focused audio tests to verify they pass**
 
-Run: `ctest --test-dir build --output-on-failure -R test_audio_manager`
+Command used: `ctest --test-dir build --output-on-failure -R test_audio_manager`
 
-Expected: PASS for the new duck/unduck semantics case and the existing JS-binding and SE-cleanup coverage.
+Recorded expectation at the time: PASS for the new duck/unduck semantics case and the existing JS-binding and SE-cleanup coverage.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Recorded the commit**
+
+Command record from the closure pass:
 
 ```bash
 git add runtimes/compat_js/audio_manager.h tests/unit/test_audio_manager.cpp
 git commit -m "docs: reconcile compat audio semantics"
 ```
 
-### Task 4: Reconcile Canonical Phase 2 Docs
+### Task 4: Reconciled Canonical Phase 2 Docs
 
-**Files:**
-- Modify: `docs/TECHNICAL_DEBT_REMEDIATION_PLAN.md`
-- Modify: `docs/PROGRAM_COMPLETION_STATUS.md`
-- Modify: `WORKLOG.md`
+**Files touched during the closure pass:**
+- Modified: `docs/TECHNICAL_DEBT_REMEDIATION_PLAN.md`
+- Modified: `docs/PROGRAM_COMPLETION_STATUS.md`
+- Modified: `WORKLOG.md`
 
-- [ ] **Step 1: Write the failing verification target**
+- [x] **Step 1: Recorded the verification target**
 
-Define the verification set in the docs task itself so the final documentation claims are gated by the exact tests used during implementation.
+The verification set was defined in the docs task itself so the final documentation claims were gated by the exact tests used during implementation.
 
 ```text
-Required verification commands:
+Recorded verification commands:
 - ctest --test-dir build --output-on-failure -R test_battlemgr
 - ctest --test-dir build --output-on-failure -R "test_window_compat|test_data_manager"
 - ctest --test-dir build --output-on-failure -R test_audio_manager
 ```
 
-- [ ] **Step 2: Run the full Phase 2 focused verification**
+- [x] **Step 2: Ran the full Phase 2 focused verification**
 
-Run:
+Commands used:
 
 ```bash
 ctest --test-dir build --output-on-failure -R test_battlemgr
@@ -305,11 +315,11 @@ ctest --test-dir build --output-on-failure -R "test_window_compat|test_data_mana
 ctest --test-dir build --output-on-failure -R test_audio_manager
 ```
 
-Expected: all targeted Phase 2 lanes pass before any docs claim closure.
+Recorded expectation at the time: all targeted Phase 2 lanes pass before any docs claim closure.
 
-- [ ] **Step 3: Write the minimal documentation updates**
+- [x] **Step 3: Wrote the minimal documentation updates**
 
-Update the canonical docs so they reflect the actual post-test state and residual limitations.
+The canonical docs were updated to reflect the actual post-test state and residual limitations.
 
 ```md
 <!-- docs/TECHNICAL_DEBT_REMEDIATION_PLAN.md -->
@@ -327,9 +337,9 @@ Update the canonical docs so they reflect the actual post-test state and residua
 - Tightened audio harness semantics coverage and aligned status text.
 ```
 
-- [ ] **Step 4: Re-run the focused verification after doc updates**
+- [x] **Step 4: Re-ran the focused verification after doc updates**
 
-Run:
+Commands used:
 
 ```bash
 ctest --test-dir build --output-on-failure -R test_battlemgr
@@ -337,9 +347,11 @@ ctest --test-dir build --output-on-failure -R "test_window_compat|test_data_mana
 ctest --test-dir build --output-on-failure -R test_audio_manager
 ```
 
-Expected: PASS again, confirming the final docs were written against a still-green Phase 2 state.
+Recorded expectation at the time: PASS again, confirming the final docs were written against a still-green Phase 2 state.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Recorded the commit**
+
+Command record from the closure pass:
 
 ```bash
 git add docs/TECHNICAL_DEBT_REMEDIATION_PLAN.md docs/PROGRAM_COMPLETION_STATUS.md WORKLOG.md
