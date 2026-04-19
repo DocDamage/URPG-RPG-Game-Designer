@@ -550,6 +550,66 @@ TEST_CASE("BattleManager: troop battle events execute real page conditions and c
     DataManager::setDataDirectory("");
 }
 
+TEST_CASE("BattleManager: troop battle events honor live switch state through updateBattleEvents", "[battlemgr]") {
+    const nlohmann::json troops = nlohmann::json::array({
+        nullptr,
+        {
+            {"id", 1},
+            {"name", "Switch Event Troop"},
+            {"members", nlohmann::json::array({
+                {{"enemyId", 1}}
+            })},
+            {"pages", nlohmann::json::array({
+                {
+                    {"conditions", {
+                        {"actorHp", 50},
+                        {"actorId", 1},
+                        {"actorValid", false},
+                        {"enemyHp", 50},
+                        {"enemyIndex", 0},
+                        {"enemyValid", false},
+                        {"switchId", 33},
+                        {"switchValid", true},
+                        {"turnA", 0},
+                        {"turnB", 0},
+                        {"turnEnding", false},
+                        {"turnValid", false}
+                    }},
+                    {"list", nlohmann::json::array({
+                        {{"code", 122}, {"indent", 0}, {"parameters", nlohmann::json::array({9, 9, 0, 0, 4})}},
+                        {{"code", 0}, {"indent", 0}, {"parameters", nlohmann::json::array()}}
+                    })},
+                    {"span", 0}
+                }
+            })}
+        }
+    });
+
+    const fs::path fixtureDir = writeBattleEventTroopsFixture(troops);
+    DataManager::setDataDirectory(fixtureDir.string());
+    REQUIRE(DataManager::instance().loadDatabase());
+    DataManager::instance().setupNewGame();
+
+    BattleManager bm;
+    bm.setup(1, true, false);
+    bm.startBattle();
+
+    REQUIRE_FALSE(DataManager::instance().getSwitch(33));
+    REQUIRE(DataManager::instance().getVariable(9) == 0);
+
+    bm.updateBattleEvents();
+    REQUIRE_FALSE(bm.isBattleEventActive());
+    REQUIRE(DataManager::instance().getVariable(9) == 0);
+
+    DataManager::instance().setSwitch(33, true);
+    bm.updateBattleEvents();
+    REQUIRE(DataManager::instance().getVariable(9) == 4);
+    REQUIRE_FALSE(bm.isBattleEventActive());
+
+    fs::remove_all(fixtureDir);
+    DataManager::setDataDirectory("");
+}
+
 TEST_CASE("BattleManager: turn-span battle events rerun on later eligible turns", "[battlemgr]") {
     const nlohmann::json troops = nlohmann::json::array({
         nullptr,
