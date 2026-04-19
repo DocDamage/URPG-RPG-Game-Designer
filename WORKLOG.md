@@ -1,13 +1,20 @@
 ﻿# Presentation Core - Work Log (WORKLOG.md)
 
 ## Current Status
-**Phase:** 5
-**Active Task:** Phase 5 presentation-polish milestone complete
+**Phase:** Post-Phase-2 documentation/governance follow-through
+**Active Task:** Task 1 — canonical current-state documentation truth reconciliation
 **Cross-Cutting Governance:** cross-program debt, truthfulness, and intake-governance tracking lives in `docs/TECHNICAL_DEBT_REMEDIATION_PLAN.md`
 
 ---
 
 ## Entries
+
+### 2026-04-19 — Canonical Current-State Docs Truth Reconciliation (Task 1)
+- **Action**: Reconciled `README.md`, `PLAN.md`, `WORKLOG.md`, `docs/TECHNICAL_DEBT_REMEDIATION_PLAN.md`, `docs/PROGRAM_COMPLETION_STATUS.md`, `docs/COMPAT_EXIT_CHECKLIST.md`, and `docs/DEVELOPMENT_KICKOFF.md` so they all treat the 2026-04-19 Phase 2 runtime closure as complete.
+- **Action**: Reframed remaining compat work as post-closure exit hardening, corpus depth, and ongoing documentation/status discipline rather than unresolved Phase 2 runtime closure.
+- **Action**: Updated the remediation hub to reflect closed build-integrity/planning-authority findings and removed stale descriptions that still treated rendered diagnostics surfaces or compile blockers as open truth.
+- **Action**: Ran the required owned-doc status grep after the edits to confirm the canonical docs no longer contradict each other on the targeted status vocabulary.
+- **Result**: The canonical current-state docs now agree on the present story: Phase 2 runtime closure is complete, later-phase Wave 1/native and governance work remains active, and residual compat work is honest about being post-closure hardening rather than unfinished baseline closure.
 
 ### 2026-04-19 — Phase 2 Runtime Closure Docs Reconciliation
 - **Action**: Reconciled the canonical Phase 2 docs for battle reward/event and switch coverage, seeded `DataManager::loadDatabase()` truthfulness, `Window_Base::contents()` lifecycle truthfulness, and harness-backed audio semantics.

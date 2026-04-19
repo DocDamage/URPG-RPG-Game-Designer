@@ -8,7 +8,7 @@
 
 ### 🛠️ Hybrid Native/Script Architecture
 - **C++ Core Kernel:** Deterministic ECS iteration, Fixed32 (Q16.16) math, and a unified `EngineAssembly` lifecycle.
-- **QuickJS Compat Harness:** A fixture-backed JavaScript contract bridge for validating MZ plugin surfaces while the live runtime path is still being hardened.
+- **QuickJS Compat Harness:** A fixture-backed JavaScript contract bridge for validating MZ plugin surfaces while post-Phase-2 compat exit hardening continues.
 - **Least-Privilege Security:** A robust `PluginSecurityManager` that sandboxes external scripts, enforcing permission-based access to system resources.
 
 ### 🎮 Battle & Gameplay Systems
@@ -32,10 +32,12 @@
 | --- | --- | --- | --- |
 | **Foundation (Phase 0)** | Complete | 100% | Core kernels, authority guards, migration/save lanes. |
 | **Native Core (Phase 1)** | Complete | 100% | Event dispatch, debug runtime, EngineShell lifecycle. |
-| **Compat Layer (Phase 2)** | In Progress | ~85% | Compat surface is wired and test-heavy, but large areas remain fixture-, stub-, or placeholder-backed; status labels and docs now reflect this truth. |
+| **Compat Layer (Phase 2 Closure)** | Complete | Runtime closure done | Runtime closure completed on 2026-04-19. Residual compat work remains in post-closure exit hardening, corpus depth, and honest `PARTIAL` surface maintenance. |
 | **Wave 3-7 Ecosystem** | Complete | 100% | Templates, Profiling, Polish, Workspace, ImGui Panels. |
 | **Final Integration** | Complete | 100% | Unified `EngineAssembly` Gold distribution. |
-| **Native Workwaves** | In Progress | ~92% | Native ownership for Message/Text, Battle Core, and Spatial Presentation. |
+| **Native Workwaves** | In Progress | ~92% | Current active work is Wave 1 productization and later-phase governance beyond the closed Phase 2 runtime lane. |
+
+Phase 2 runtime closure is complete as of 2026-04-19. Current repo work sits in Wave 1 native productization, Wave 2 planning-to-implementation follow-through, and post-closure compat exit hardening tracked in the canonical status docs.
 
 ## 🏗️ Getting Started
 
@@ -83,7 +85,7 @@ This focused gate is also invoked by `tools/ci/run_local_gates.ps1` locally and 
 
 ---
 *Built with ❤️ by the URPG Team. Part of the RPG Game Maker ecosystem.*
-  - `processEscape` remains one of the few battle compat paths that is genuinely `FULL`; broader battle setup, event, animation, and reward paths are still partial or stubbed.
+  - Battle reward distribution, switch checks, and battle-event cadence are now closed in the compat lane; troop setup and drop logic remain honest later compat slices.
   - Async plugin dispatch remains deterministic FIFO, but its status is now tracked as `PARTIAL` because callbacks run on the worker thread and the JS bridge is still fixture-backed.
   - Input/Touch QuickJS API registration now routes to live runtime state (no placeholder zeros) and `TouchInput` movement/tap tracking now computes `moveSpeed` + `tapCount`.
   - PluginManager failure-path diagnostics now emit deterministic JSONL artifacts (`exportFailureDiagnosticsJsonl` / `clearFailureDiagnostics`) with operation tags + sequence IDs.
@@ -117,15 +119,16 @@ This focused gate is also invoked by `tools/ci/run_local_gates.ps1` locally and 
 
 ## Immediate next steps
 
-1. Close compat-lane exit criteria for trustworthy import, diagnostics, and migration confidence.
-2. Finish Message/Text renderer closure after the landed bridge:
-   - consume `RenderLayer::TextCommand` in backend tiers where text command rendering is still placeholder,
-   - connect `Window_Message` parity behavior to native message scene runtime ownership path.
-3. Finish UI/Menu Wave 1 closure after the landed runtime interaction slices:
+1. Finish UI/Menu Wave 1 closure after the landed runtime interaction slices:
    - ship menu authoring/preview editor surfaces,
    - finalize schema + import mapping for route fallback/state rules,
    - add integration anchors beyond unit tests.
-4. Continue Wave 1 runtime/editor/schema closure for Message/Text, Battle, and Save/Data.
+2. Finish Message/Text renderer closure after the landed bridge:
+   - consume `RenderLayer::TextCommand` in backend tiers where text command rendering is still placeholder,
+   - connect `Window_Message` parity behavior to native message scene runtime ownership path.
+3. Continue Wave 1 runtime/editor/schema closure for Message/Text, Battle, and Save/Data.
+4. Maintain post-Phase-2 compat exit hardening:
+   - keep conformance depth, JSONL/report/panel parity, and status/document truthfulness aligned with the current harness-backed scope.
 5. Begin Wave 2 advanced capability implementation (ability framework, pattern editor, modular level assembly, sprite pipeline, procedural toolkit, optional 2.5D lane, timeline orchestration, and editor utilities).
 6. Execute the full remaining checklist in `docs/PROGRAM_COMPLETION_STATUS.md` to drive completion to 100% for the current program scope.
 

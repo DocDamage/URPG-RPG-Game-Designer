@@ -1,10 +1,12 @@
 # Compat Exit Checklist
 
-Status Date: 2026-04-18
+Status Date: 2026-04-19
 
 This checklist is the canonical pass/fail artifact for deciding whether the compat lane is trustworthy enough to serve as an import, validation, and migration bridge without overstating runtime parity.
 
 Cross-cutting source of truth: [TECHNICAL_DEBT_REMEDIATION_PLAN.md](./TECHNICAL_DEBT_REMEDIATION_PLAN.md)
+
+Phase 2 runtime closure completed on 2026-04-19. The unchecked items below are post-closure import/migration confidence gates and ongoing truth-maintenance requirements, not evidence that the baseline Phase 2 runtime closure is still open.
 
 ## Purpose
 
@@ -46,12 +48,16 @@ Evidence anchors:
 
 ## Current Notes
 
+- Phase 2 runtime closure completed on 2026-04-19:
+  - battle reward/event cadence and switch coverage are closed in the compat lane
+  - `DataManager::loadDatabase()` seeded-container behavior is explicitly covered
+  - `Window_Base::contents()` lifecycle truthfulness is explicitly covered
+  - AudioManager remains honestly `PARTIAL` because the surface still models deterministic harness behavior rather than a live mixer/backend
 - AudioManager compat closure advanced on 2026-04-18:
   - deterministic playback position now advances during `update()`
   - deterministic duck/unduck ramps are covered by focused tests
   - master/bus volume changes now affect active compat playback
   - the QuickJS `AudioManager` object now routes live compat state for BGM/BGS/ME/SE, volume, and ducking helpers
-  - status labels remain `PARTIAL` because the surface still models deterministic harness behavior rather than a live mixer/backend
 - Update this checklist whenever a compat surface changes status, link location, or exit evidence.
 
 ## Signed Off By

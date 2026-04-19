@@ -1,7 +1,7 @@
 ﻿# URPG Program Completion Status
 
 Status Date: 2026-04-19  
-Program Scope: native-first roadmap rewire plus Wave 1 absorption, Wave 2 advanced capability expansion, and compat exit hardening
+Program Scope: native-first roadmap rewire plus Wave 1 absorption, Wave 2 advanced capability expansion, and post-Phase-2 compat exit hardening
 
 Cross-cutting debt, truthfulness, and intake-governance source of truth: `docs/TECHNICAL_DEBT_REMEDIATION_PLAN.md`.
 
@@ -11,8 +11,15 @@ Canonical planning chain:
 - `docs/PROGRAM_COMPLETION_STATUS.md` is the canonical latest-status snapshot.
 - `docs/archive/planning/URPG_MASTER_NATIVE_ABSORPTION_AND_PGMMV_ROADMAP_2026-04-18.md`, `docs/archive/planning/URPG_PGMMV_SUPPORT_PLAN.md`, and `docs/archive/planning/URPG_NATIVE_ABSORPTION_ROADMAP_2026-04-18.md` are detailed planning inputs retained for traceability until their remaining deltas are absorbed into the canonical docs above.
 
+Phase 2 runtime closure is complete as of 2026-04-19. Remaining compat work in this document is post-closure exit hardening, corpus depth, and ongoing truth-maintenance work, not unfinished baseline closure of the audited Phase 2 runtime slice.
+
 ## Where we are now
 
+- Phase 2 runtime closure is complete:
+  - battle reward/event cadence and switch coverage are closed in the compat lane
+  - `DataManager::loadDatabase()` seeded-container behavior is explicitly exercised
+  - `Window_Base::contents()` lifecycle truthfulness is explicitly exercised
+  - AudioManager remains honestly `PARTIAL` as a deterministic harness-backed surface with live compat-state observability
 - Presentation planning is now aligned around **Phase 5 â€” Environment & Presentation Polish**:
   - **Incubating:** `editor/spatial/*` panels (`ElevationBrushPanel`, `PropPlacementPanel`) are header-only with no compiled `.cpp` sources registered in the build graph.
   - **Incubating:** `engine/core/presentation/*` is predominantly header-only abstraction; only `presentation_runtime.cpp` and `release_validation.cpp` are actively compiled. `profile_arena.cpp` exists but is not registered in `urpg_core`.
@@ -48,7 +55,7 @@ Canonical planning chain:
   - snapshot-style wrapped centered/right `drawTextEx` draw-history coverage landed
   - `Window_Selectable` pointer semantics now cover press/drag/release hit-testing, drag retargeting, drag-scroll, and mouse-wheel scrolling through `InputManager`
   - `Window_Base::contents()` now allocates compat bitmap records with tracked dimensions that stay synchronized with rect/padding changes instead of exposing handle-only state
-  - compat status truth pass started: inflated `FULL` claims are being downgraded where behavior is still fixture-, stub-, or placeholder-backed
+  - compat status truth pass is now reflected in the canonical docs; remaining work is to keep those labels and docs aligned as post-closure hardening continues
   - AudioManager compat closure advanced: deterministic playback position now advances during `update()`, duck/unduck ramps are frame-based, master/bus volume changes affect active playback, and the QuickJS `AudioManager` bridge now routes live compat state for BGM/BGS/ME/SE plus volume/ducking helpers
   - 2026-04-19 Phase 2 runtime closure reconciled the battle reward/event and switch coverage, window `contents()` lifecycle truthfulness, `DataManager::loadDatabase()` seeded-container behavior, and audio semantics documentation against the focused dev-mingw-debug verification lane
 - Latest recorded local validation snapshot:
@@ -268,13 +275,16 @@ The scope in this document is considered 100% complete when all items below are 
    - extend the now-landed fallback/state-rule import coverage from direct menu metadata into broader compat plugin evidence paths.
 4. Add integration coverage for UI/Menu runtime + editor:
    - extend beyond the landed diagnostics-workspace/menu-import anchors into broader scene-graph + resolver parity checks.
-5. Continue compat exit hardening:
+5. Continue post-Phase-2 compat exit hardening:
    - keep new routed failure operations locked to JSONL/report/panel parity and maintain weekly conformance depth growth.
-6. ~~Publish explicit compat exit checklist artifact with import-confidence and migration-confidence pass criteria.~~ **DONE** — see [docs/COMPAT_EXIT_CHECKLIST.md](./COMPAT_EXIT_CHECKLIST.md).
+6. Keep canonical status/docs aligned with current validation evidence:
+   - update README/remediation/kickoff/checklist language whenever closure state or residual compat scope changes.
 
 ## Remaining work to reach 100%
 
-### 1. Compat exit hardening (remaining)
+### 1. Compat exit hardening (post-Phase-2 remaining work)
+
+Phase 2 runtime closure is already complete. The remaining compat work below is about confidence depth, ongoing evidence, and truthful residual scoping.
 
 - [ ] Expand routed conformance coverage beyond the current anchor scenarios across the curated 10-profile corpus.
 - [ ] Keep every new failure operation locked to JSONL artifacts, report ingestion/export, and panel projection assertions.
@@ -290,7 +300,7 @@ The scope in this document is considered 100% complete when all items below are 
 
 ### 3. Wave 1 editor productization (remaining)
 
-- [x] UI/Menu Core: Ship inspector and preview surfaces (in progress).
+- [x] UI/Menu Core: inspector and preview surfaces are shipped; remaining work is deeper authoring/productization beyond the landed diagnostics workflow.
 - [ ] Message/Text Core: Ship inspector and preview surfaces.
 - [ ] Battle Core: Ship preview surfaces.
 - [ ] Ship diagnostics and validation wiring directly in editor panels for Wave 1 schemas.

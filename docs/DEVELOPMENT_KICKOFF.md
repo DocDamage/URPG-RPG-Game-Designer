@@ -11,13 +11,15 @@ For current completion, remediation, and validation status, use:
 
 Cross-cutting debt closure, documentation-truth alignment, and intake-governance tracking: `docs/TECHNICAL_DEBT_REMEDIATION_PLAN.md`.
 
+Historical note: Phase 2 runtime closure completed later on 2026-04-19. Any remaining compat work referenced here should be read as post-closure hardening unless the canonical status docs say otherwise.
+
 ## Progress tracker
 
 Historical kickoff snapshot values below are preserved for context. For current counts and active validation commands, use `docs/PROGRAM_COMPLETION_STATUS.md`.
 
 - Phase 0 Foundation: 100% complete.
 - Phase 1 Native Core: 100% complete for v3.1 kickoff/continuation/integration contracts.
-- Phase 2 Compat Layer: hardening exit (~96%; runtime module wiring + status burn-down are complete, with remaining work on executable conformance depth and diagnostics exit criteria).
+- Phase 2 Compat Layer: runtime closure completed on 2026-04-19; remaining work is post-closure compat exit hardening (conformance depth, diagnostics exit criteria, and status-discipline maintenance).
 - Native Feature Absorption Wave 1: in progress (~63%; UI/Menu and Message/Text runtime slices are substantially landed, with remaining closure in renderer handoff, editor/schema/migration productization, and integration depth).
 - Native Capability Expansion Wave 2: planning baseline (~5%; integrated tracks are defined in `docs/NATIVE_FEATURE_ABSORPTION_PLAN.md`, implementation pending).
 

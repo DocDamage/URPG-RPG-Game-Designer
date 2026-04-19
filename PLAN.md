@@ -1,8 +1,8 @@
 # Presentation Core - Project Plan (PLAN.md)
 
 ## Status
-**Current Phase:** Phase 5 — Environment & Presentation Polish
-**Current Task:** Phase 5 presentation-polish milestone complete
+**Current Phase:** Post-Phase-2 documentation and governance follow-through
+**Current Task:** Task 1 — reconcile canonical current-state docs after the 2026-04-19 Phase 2 runtime closure
 
 **Completed Milestones Since Initialization**
 - Phase 0 — Program Setup: Complete
@@ -15,6 +15,10 @@
 **Related Enablement**
 - Curated Hugging Face fixture ingestion is now in place for TMX, Visual Novel Maker, and Godot reference corpora, with manifest-driven refresh tooling under `tools/assets/`.
 - Cross-cutting debt, truthfulness, and intake-governance tracking lives in `docs/TECHNICAL_DEBT_REMEDIATION_PLAN.md`.
+
+**Current framing note**
+- The historical presentation-core backlog below remains accurate as a planning reference.
+- Active repo-wide execution has moved beyond the Phase 5 milestone and the closed Phase 2 runtime lane; current truth and remaining work are tracked canonically in `docs/PROGRAM_COMPLETION_STATUS.md` and `docs/TECHNICAL_DEBT_REMEDIATION_PLAN.md`.
 
 ---
 
@@ -93,7 +97,7 @@
 
 ---
 
-## Phase 5 — Environment & Presentation Polish (Next)
+## Phase 5 — Environment & Presentation Polish
 
 | ID | Task | Status | Dependency |
 |---|---|---|---|

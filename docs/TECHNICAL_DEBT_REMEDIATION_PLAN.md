@@ -1,6 +1,6 @@
 # Technical Debt Remediation Plan
 
-> **Document status:** Sixth-pass revision — canonical remediation hub as of 2026-04-18.
+> **Document status:** Seventh-pass revision — canonical remediation hub as of 2026-04-19.
 > Incorporates stale-state debt, placeholder export-surface debt, documentation/test drift findings, the external-repository intake program defined in [URPG_repo_intake_plan.md](../URPG_repo_intake_plan.md), and the private-use asset intake program defined in [URPG_private_asset_intake_plan.md](../URPG_private_asset_intake_plan.md).
 > This revision also absorbs the newly added PGMMV and native-absorption planning inputs into the remediation program so roadmap expansion, truthfulness, and execution governance share one canonical hub.
 
@@ -100,7 +100,7 @@ Quick-reference table for current finding status. Use this to assess open work w
 
 | ID | Title | Status | Phase |
 |----|-------|--------|-------|
-| P0-01 | Build Integrity: Active Compile Blockers | ⚠ Open | Phase 0 |
+| P0-01 | Build Integrity: Active Compile Blockers | ✅ Remediated | Phase 0 |
 | P1-01 | QuickJS Layer Is A Stub Kernel, Not A Runtime | ✅ Remediated (Path B) | Phase 2 WS 2.1 |
 | P1-02 | Compat Status Inflation Across Multiple Subsystems | ⚠ Partially Remediated | Phase 1 |
 | P1-03 | Audio SE Channel Lifetime Leak | ✅ Remediated | Phase 2 WS 2.3 |
@@ -114,7 +114,7 @@ Quick-reference table for current finding status. Use this to assess open work w
 | P2-07 | Native Plugin API Is A Mock Bridge, Not A Real Integration | ✅ Remediated (stub-labeled) | Phase 1 / Phase 5 |
 | P2-08 | Cloud Sync Documentation Overstates Implementation Readiness | ✅ Remediated | Phase 1 |
 | P2-09 | Async Plugin Callbacks Lack Thread-Affinity Guarantees | ✅ Remediated | Phase 5 |
-| P2-10 | Native-Absorption and PGMMV Planning Drift Sits Outside Canonical Remediation Governance | ⚠ Partially Remediated | Phase 4.3 |
+| P2-10 | Native-Absorption and PGMMV Planning Drift Sits Outside Canonical Remediation Governance | ✅ Remediated | Phase 4.3 |
 | P3-01 | Hidden Ownership Shortcuts in Runtime Services | ✅ Remediated | Phase 5 |
 | P3-02 | External Repository Intake Needs Canonical Governance | ⚠ Partially Remediated | Phase 4.1 |
 | P3-03 | Private-Use Asset Intake Needs Canonical Governance | ⚠ Partially Remediated | Phase 4.2 |
@@ -126,21 +126,19 @@ Quick-reference table for current finding status. Use this to assess open work w
 
 ## Current State Summary
 
-The debt picture is broader than "unfinished features." Four distinct categories are present simultaneously:
+The debt picture is narrower than it was at initial audit, but several cross-cutting categories still matter:
 
-**Stubbed subsystems described as complete.** [quickjs_runtime.cpp](../runtimes/compat_js/quickjs_runtime.cpp) and key slices of [data_manager.cpp](../runtimes/compat_js/data_manager.cpp) and [battle_manager.cpp](../runtimes/compat_js/battle_manager.cpp) were the highest-risk examples at audit time. [window_compat.cpp](../runtimes/compat_js/window_compat.cpp) has since moved materially beyond the earlier placeholder/input-stub state, but it still remains a compat-layer partial implementation rather than a production-native UI runtime.
+**Build integrity is no longer the primary blocker.** The specific compile issues that originally anchored P0-01 are closed; the ongoing requirement is to keep build/test evidence and documentation aligned so new blockers are treated as regressions immediately.
 
-**Partially functional subsystems that are oversold.** [audio_manager.cpp](../runtimes/compat_js/audio_manager.cpp) is now honestly labeled `PARTIAL`, but it still remains a deterministic compat harness rather than a live audio backend and must continue to be described that way.
+**Phase 2 runtime closure is complete, but compat work is not "done forever."** [quickjs_runtime.cpp](../runtimes/compat_js/quickjs_runtime.cpp) remains intentionally scoped as a fixture-backed compat harness, and [audio_manager.cpp](../runtimes/compat_js/audio_manager.cpp), [data_manager.cpp](../runtimes/compat_js/data_manager.cpp), [battle_manager.cpp](../runtimes/compat_js/battle_manager.cpp), and [window_compat.cpp](../runtimes/compat_js/window_compat.cpp) remain honest `PARTIAL` surfaces where residual limits still exist. The remaining compat work is post-closure exit hardening, corpus depth, and truth maintenance, not unfinished baseline runtime closure for the audited Phase 2 lane.
 
-**Editor scaffolding without a rendered product surface.** The Audio, Migration Wizard, and Event Authority panels have controller/model scaffolding but no usable, rendered body.
+**Editor diagnostics surfaces now render real bodies, but workflow depth still varies by lane.** The Audio, Migration Wizard, and Event Authority surfaces are no longer mere scaffolding; the remaining gap under P2-03 is richer workflow polish and productization depth.
 
-**Exported interfaces that route to placeholders.** [plugin_api.cpp](../engine/core/editor/plugin_api.cpp) and [cloud_service.h](../engine/core/social/cloud_service.h) look stable from headers and docs but route to local scratch state or stubs.
+**Some exported interfaces still route to placeholders.** [plugin_api.cpp](../engine/core/editor/plugin_api.cpp) and [cloud_service.h](../engine/core/social/cloud_service.h) still need to be described and governed as scratch-state/stub-backed surfaces rather than production-integrated systems.
 
-**External repositories with real leverage but no canonical intake gate in the remediation program.** [URPG_repo_intake_plan.md](../URPG_repo_intake_plan.md) now defines the repo-watchlist, legal, fixture, and adoption workflow for twelve external repositories. That work must be treated as part of debt remediation because ungoverned ingestion would create new trust, licensing, and architecture drift immediately.
+**Intake governance is active but still intentionally partial.** [URPG_repo_intake_plan.md](../URPG_repo_intake_plan.md) and [URPG_private_asset_intake_plan.md](../URPG_private_asset_intake_plan.md) now provide canonical governance lanes; the remaining work is operational follow-through and disposition discipline, not the absence of a governing framework.
 
-**Private-use asset acceleration without an integrated governance lane would create a second intake blind spot.** [URPG_private_asset_intake_plan.md](../URPG_private_asset_intake_plan.md) now defines a structured path for staging, normalizing, promoting, and documenting private-use assets from both direct-ingest and discovery repositories. That work also belongs inside remediation because ad hoc asset drops would pollute fixtures, blur provenance, and make "more realistic" editor/runtime surfaces less trustworthy rather than more complete.
-
-**Planning authority is now at risk of splitting across multiple documents.** [URPG_MASTER_NATIVE_ABSORPTION_AND_PGMMV_ROADMAP_2026-04-18.md](./archive/planning/URPG_MASTER_NATIVE_ABSORPTION_AND_PGMMV_ROADMAP_2026-04-18.md) and [URPG_PGMMV_SUPPORT_PLAN.md](./archive/planning/URPG_PGMMV_SUPPORT_PLAN.md) add real scope, but until that scope is normalized into this remediation hub and the canonical status docs, the repo has parallel phase vocabularies, parallel truthfulness rules, and no shared Definition-of-Done hooks for the new work.
+**Planning authority is centralized, and the remaining risk is regression to drift.** Archived PGMMV/native-absorption roadmap inputs are now reference-only annexes routed through this remediation hub and the canonical status stack. The remaining governance work is to keep future plan docs from reintroducing parallel authority.
 
 **What this plan does NOT cover:**
 - New feature development not related to closing existing gaps.
@@ -159,18 +157,18 @@ Each finding is structured as: **Impact → Root Cause → Required Action → O
 
 ### P0-01 — Build Integrity: Active Compile Blockers
 
-**Impact:** The current tree does not build cleanly. Until `urpg_core` compiles, every downstream remediation finding is partially speculative because the repo cannot prove regressions or closure.
+**Status (2026-04-19):** Remediated. The compile blockers that originally opened this finding are no longer present, current validation snapshots are green, and the build-integrity concern has shifted from "unblock the tree" to "do not regress build truthfulness."
 
-**Root cause:**
+**Impact:** At audit time, the tree did not build cleanly. Until `urpg_core` compiled, every downstream remediation finding was partially speculative because the repo could not prove regressions or closure.
+
+**Root cause (historical):**
 - Conflicting `getAllSwitches()` declarations in [global_state_hub.h](../engine/core/global_state_hub.h).
-- [map_scene.cpp](../engine/core/scene/map_scene.cpp) calls `m_activeChatbot->chat(...)`, but [chatbot_component.h](../engine/core/message/chatbot_component.h) only exposes `getResponse` and `streamResponse`.
-- [map_scene.cpp](../engine/core/scene/map_scene.cpp) references undefined draw-path variables `drawX`, `drawY`, and `z`.
+- [map_scene.cpp](../engine/core/scene/map_scene.cpp) called `m_activeChatbot->chat(...)`, but [chatbot_component.h](../engine/core/message/chatbot_component.h) only exposed `getResponse` and `streamResponse`.
+- [map_scene.cpp](../engine/core/scene/map_scene.cpp) referenced undefined draw-path variables `drawX`, `drawY`, and `z`.
 
-**Required action:**
-- Resolve conflicting declarations in [global_state_hub.h](../engine/core/global_state_hub.h).
-- Align the chatbot call site in [map_scene.cpp](../engine/core/scene/map_scene.cpp) with the interface exposed by [chatbot_component.h](../engine/core/message/chatbot_component.h).
-- Remove or define undefined draw-path variables in [map_scene.cpp](../engine/core/scene/map_scene.cpp).
-- Add a mandatory CI build gate for `urpg_core` and all registered tests.
+**Required action going forward:**
+- Keep `urpg_core` and registered test targets under mandatory CI/build validation so compile blockers are caught as regressions, not rediscovered by documentation audit.
+- Treat any reintroduction of interface drift or undefined draw-path variables as a new build-integrity regression, not as tolerated debt.
 
 **Owner:** Engine/core maintainers.
 
@@ -178,6 +176,12 @@ Each finding is structured as: **Impact → Root Cause → Required Action → O
 - `urpg_core` builds locally and in CI without warnings-as-errors suppressions.
 - The map/chat path compiles against real, agreed-upon interfaces.
 - CI gate enforces this going forward.
+
+**Progress evidence (2026-04-19):**
+- [global_state_hub.h](../engine/core/global_state_hub.h) now exposes a single in-class `getAllSwitches()` definition instead of the earlier conflicting declaration set.
+- [map_scene.cpp](../engine/core/scene/map_scene.cpp) no longer calls `m_activeChatbot->chat(...)`; the audited bad call site is gone.
+- [map_scene.cpp](../engine/core/scene/map_scene.cpp) now defines `drawX` and `drawY` locally in the player draw path rather than referencing undefined symbols.
+- Canonical status docs record passing build/test snapshots instead of describing the tree as blocked.
 
 ---
 
@@ -645,28 +649,20 @@ Do not leave the workspace counting tabs that do not render.
 
 ### P2-10 — Native-Absorption And PGMMV Planning Drift Sits Outside Canonical Remediation Governance
 
-**Impact:** The repo now contains legitimate new execution scope for PGMMV intake, native feature absorption, HD-2D / 2.5D, authoring UX, accessibility, localization, and product-glue systems, but that scope currently lives beside the remediation hub instead of inside it. That creates parallel planning authorities, inconsistent status vocabulary, and a real risk that roadmap claims outrun build, test, migration, and documentation truth gates.
+**Status (2026-04-19):** Remediated. Canonical planning authority is now explicit across the remediation hub, status docs, README, and kickoff guidance, while archived roadmap files are treated as reference-only planning inputs rather than parallel execution authorities.
 
-**Root cause:**
+**Impact:** If left unresolved, legitimate new execution scope for PGMMV intake, native feature absorption, HD-2D / 2.5D, authoring UX, accessibility, localization, and product-glue systems would live beside the remediation hub instead of inside it. That would create parallel planning authorities, inconsistent status vocabulary, and a real risk that roadmap claims outrun build, test, migration, and documentation truth gates.
+
+**Root cause (historical):**
 - [URPG_MASTER_NATIVE_ABSORPTION_AND_PGMMV_ROADMAP_2026-04-18.md](./archive/planning/URPG_MASTER_NATIVE_ABSORPTION_AND_PGMMV_ROADMAP_2026-04-18.md) introduces a broad integrated roadmap with new phases, tracks, and status rules.
 - [URPG_PGMMV_SUPPORT_PLAN.md](./archive/planning/URPG_PGMMV_SUPPORT_PLAN.md) defines a full PGMMV intake/migration lane with its own milestones, acceptance matrix, and issue breakdown.
 - This remediation hub, [PROGRAM_COMPLETION_STATUS.md](./PROGRAM_COMPLETION_STATUS.md), and [NATIVE_FEATURE_ABSORPTION_PLAN.md](./NATIVE_FEATURE_ABSORPTION_PLAN.md) did not previously absorb that scope into one canonical governance chain.
 - The result is not just duplicate docs; it is duplicate execution logic for planning, truthfulness, and release readiness.
 
-**Required action:**
-- Treat the new roadmap files as planning-input documents, not parallel long-term authorities.
-- Fold their substantive scope into the canonical remediation/status/roadmap set so phases, tracks, and exit criteria line up across:
-  - this remediation hub
-  - [PROGRAM_COMPLETION_STATUS.md](./PROGRAM_COMPLETION_STATUS.md)
-  - [NATIVE_FEATURE_ABSORPTION_PLAN.md](./NATIVE_FEATURE_ABSORPTION_PLAN.md)
-- Assign explicit remediation-governed placement for the newly added lanes:
-  - PGMMV intake and migration truthfulness
-  - plugin-evidence scanning and native replacement mapping
-  - HD-2D / 2.5D presentation productization
-  - authoring UX
-  - accessibility and localization
-  - RPG glue systems
-- Require any standalone roadmap doc that introduces new execution scope to be either absorbed into canonical docs or marked as superseded/reference-only in the same change.
+**Required action going forward:**
+- Maintain the archived roadmap files as planning-input/reference documents rather than letting them regain parallel-authority status.
+- Keep the canonical remediation/status/roadmap set synchronized whenever new execution scope is introduced.
+- Require any standalone roadmap doc that adds phases, tracks, or acceptance criteria to declare canonical placement in the same change.
 
 **Owner:** Tech lead or release owner (planning governance), with engine/editor/runtime/domain leads for the affected lanes.
 
@@ -674,6 +670,11 @@ Do not leave the workspace counting tabs that do not render.
 - Remediation, status, and roadmap docs share one phase vocabulary, one truthfulness model, and one execution-order story.
 - PGMMV/native-absorption scope is represented in remediation phases, documentation-alignment tasks, and Definition of Done instead of sitting outside them.
 - No new roadmap document can introduce execution scope without canonical ownership, doc-alignment hooks, and release-truth gates.
+
+**Progress evidence (2026-04-19):**
+- [PROGRAM_COMPLETION_STATUS.md](./PROGRAM_COMPLETION_STATUS.md), [README](../README.md), [DEVELOPMENT_KICKOFF.md](./DEVELOPMENT_KICKOFF.md), and [COMPAT_EXIT_CHECKLIST.md](./COMPAT_EXIT_CHECKLIST.md) now share the same current-state framing: Phase 2 runtime closure is complete, current work is beyond that closure, and archived planning docs are reference inputs rather than parallel authorities.
+- The canonical planning chain is explicitly published in [PROGRAM_COMPLETION_STATUS.md](./PROGRAM_COMPLETION_STATUS.md), with this remediation hub named as the cross-cutting truthfulness and reconciliation owner.
+- Archived planning inputs remain indexed under [archive/README.md](./archive/README.md) and referenced as traceability inputs rather than current execution authorities.
 
 ---
 
@@ -1001,17 +1002,16 @@ These principles govern every remediation decision. When in doubt, refer back to
   - future asset gap reporting and promotion decisions
 
 #### Workstream 4.3 — Canonical Roadmap Integration And Planning Governance (see P2-10)
-- Treat [URPG_MASTER_NATIVE_ABSORPTION_AND_PGMMV_ROADMAP_2026-04-18.md](./archive/planning/URPG_MASTER_NATIVE_ABSORPTION_AND_PGMMV_ROADMAP_2026-04-18.md) and [URPG_PGMMV_SUPPORT_PLAN.md](./archive/planning/URPG_PGMMV_SUPPORT_PLAN.md) as execution-detail inputs that must be absorbed into canonical docs, not left as parallel planning authorities.
-- Normalize the phase story across this remediation hub, [PROGRAM_COMPLETION_STATUS.md](./PROGRAM_COMPLETION_STATUS.md), and [NATIVE_FEATURE_ABSORPTION_PLAN.md](./NATIVE_FEATURE_ABSORPTION_PLAN.md) so new lanes inherit the same build/test/doc/release truth gates.
-- Pull the newly added roadmap obligations into canonical remediation ownership:
+- Maintain [URPG_MASTER_NATIVE_ABSORPTION_AND_PGMMV_ROADMAP_2026-04-18.md](./archive/planning/URPG_MASTER_NATIVE_ABSORPTION_AND_PGMMV_ROADMAP_2026-04-18.md) and [URPG_PGMMV_SUPPORT_PLAN.md](./archive/planning/URPG_PGMMV_SUPPORT_PLAN.md) as execution-detail/reference inputs rather than letting them drift back into parallel-authority status.
+- Keep the phase story aligned across this remediation hub, [PROGRAM_COMPLETION_STATUS.md](./PROGRAM_COMPLETION_STATUS.md), and [NATIVE_FEATURE_ABSORPTION_PLAN.md](./NATIVE_FEATURE_ABSORPTION_PLAN.md) so new lanes inherit the same build/test/doc/release truth gates.
+- Preserve explicit canonical placement for the absorbed roadmap obligations:
   - PGMMV intake and migration truthfulness
   - plugin-evidence scanning and native replacement mapping
   - HD-2D / 2.5D productization
   - authoring UX parity
   - accessibility and localization
   - item-instance / equipment individuality and RPG glue systems
-- Record which plan files remain authoritative, which become execution-detail references, and which are superseded once the canonical docs absorb their content.
-- Make documentation alignment explicit for any future plan doc that adds phases, tracks, or acceptance criteria.
+- Keep documentation alignment explicit for any future plan doc that adds phases, tracks, or acceptance criteria.
 
 **Exit criteria:**
 - Docs no longer describe unbuilt, unregistered, or stub-exported work as shipped.
@@ -1325,3 +1325,4 @@ A remediation item is **done only when all of the following are true**:
 | 2026-04-18 | Window compat follow-through: landed `Window_Selectable` pointer press/drag/release semantics, drag-scroll, mouse-wheel scrolling, and contents-backed compat bitmap metadata with synchronized dimensions; updated status/remediation docs to reflect the narrower remaining gap. |
 | 2026-04-18 | Integrated the newly added PGMMV/native-absorption planning scope into the remediation hub via canonical-planning governance, Phase 4 roadmap-alignment work, documentation-alignment hooks, and Definition-of-Done requirements. |
 | 2026-04-18 | Sixth-pass improvement: fixed UTF-8/cp1252 encoding artifacts throughout document; added Finding Status at a Glance dashboard; added R7 (planning-doc sprawl) and R8 (QuickJS path decision timing) to Risk Register; corrected P2-04 root cause description; fixed incomplete test path in Verification Plan; fixed P1-02 source file table entry; added Principle 8 on test coverage honesty; updated Change Log. |
+| 2026-04-19 | Seventh-pass improvement: reconciled the canonical current-state docs after the Phase 2 runtime closure, updated P0-01 and P2-10 to remediated status, refreshed stale current-state language, and aligned the remediation hub with README/status/kickoff/compat-checklist truth. |
