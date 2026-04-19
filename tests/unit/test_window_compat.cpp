@@ -528,12 +528,17 @@ TEST_CASE("Window_Base contents lifecycle allocates and rotates deterministic ha
 
     const auto before = window.contents();
     window.createContents();
-    const auto created = window.contents();
-    REQUIRE(created != 0);
-    REQUIRE(created != before);
+    const auto firstCreated = window.contents();
+    REQUIRE(firstCreated != 0);
+    REQUIRE(firstCreated != before);
 
     window.destroyContents();
     REQUIRE(window.contents() == 0);
+
+    window.createContents();
+    const auto secondCreated = window.contents();
+    REQUIRE(secondCreated != 0);
+    REQUIRE(secondCreated != firstCreated);
 }
 
 TEST_CASE("Window_Base contents handles are unique per allocation", "[compat][window]") {

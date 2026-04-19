@@ -87,7 +87,23 @@ TEST_CASE("DataManager loadDatabase populates seeded database containers", "[dat
     REQUIRE(dm.loadDatabase());
     REQUIRE_FALSE(dm.getActors().empty());
     REQUIRE_FALSE(dm.getSkills().empty());
+    REQUIRE_FALSE(dm.getItems().empty());
+    REQUIRE_FALSE(dm.getClasses().empty());
+    REQUIRE_FALSE(dm.getEnemies().empty());
+    REQUIRE_FALSE(dm.getTroops().empty());
+    REQUIRE_FALSE(dm.getAnimations().empty());
     REQUIRE(dm.getActor(1) != nullptr);
+    REQUIRE(dm.getActor(1)->name == "Hero");
+    REQUIRE(dm.getSkill(1) != nullptr);
+    REQUIRE(dm.getSkill(1)->name == "Heal");
+    REQUIRE(dm.getItem(1) != nullptr);
+    REQUIRE(dm.getItem(1)->name == "Potion");
+    REQUIRE(dm.getClass(1) != nullptr);
+    REQUIRE(dm.getClass(1)->name == "Warrior");
+    REQUIRE(dm.getEnemy(1) != nullptr);
+    REQUIRE(dm.getEnemy(1)->name == "Slime");
+    REQUIRE(dm.getTroop(1) != nullptr);
+    REQUIRE(dm.getTroop(1)->name == "Slime x2");
 }
 
 TEST_CASE("DataManager: global state and inventory", "[data_manager]") {
