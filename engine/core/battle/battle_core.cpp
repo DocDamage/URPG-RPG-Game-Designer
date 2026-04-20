@@ -40,7 +40,7 @@ int32_t ClampRatioPercent(int32_t value) {
 void BattleFlowController::beginBattle(bool can_escape) {
     phase_ = BattleFlowPhase::Start;
     allow_escape_ = can_escape;
-    turn_count_ = 0;
+    turn_count_ = 1;
     escape_failures_ = 0;
 }
 
@@ -62,8 +62,8 @@ void BattleFlowController::endTurn() {
     if (IsBattleTerminal(phase_)) {
         return;
     }
-    ++turn_count_;
     phase_ = BattleFlowPhase::TurnEnd;
+    ++turn_count_;
 }
 
 void BattleFlowController::markVictory() {

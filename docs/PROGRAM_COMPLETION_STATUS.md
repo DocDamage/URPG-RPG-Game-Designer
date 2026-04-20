@@ -160,7 +160,9 @@ Phase 3 diagnostics productization is complete as of 2026-04-19, Phase 4 governa
   - deterministic `BattleFlowController` phase/turn/escape state owner
   - deterministic `BattleActionQueue` ordering owner (speed + priority + stable tie-break)
   - deterministic `BattleRuleResolver` owner (damage + escape ratio baselines)
-  - unit coverage in `tests/unit/test_battle_core.cpp`
+  - live `BattleScene` routing now sends phase progression, ordered action draining, and damage resolution through Battle Core rather than a parallel scene-local authority
+  - `PresentationBridge` now derives battle presentation state from an active `BattleScene` so battle translator/HUD clients can consume native battle participants without a manually populated `PresentationContext::battleState`
+  - unit coverage in `tests/unit/test_battle_core.cpp` and `tests/unit/test_battle_scene_native.cpp`
 - Added Battle Core editor inspector + preview diagnostics slice:
   - `editor/battle/battle_inspector_model.h`
   - `editor/battle/battle_inspector_model.cpp`
@@ -169,10 +171,13 @@ Phase 3 diagnostics productization is complete as of 2026-04-19, Phase 4 governa
   - `editor/battle/battle_inspector_panel.h`
   - `editor/battle/battle_inspector_panel.cpp`
   - diagnostics workspace `battle` tab wiring
+  - battle diagnostics live-scene parity path now accepts a runtime exposing `flowController()`, `nativeActionQueue()`, and optional `buildDiagnosticsPreview()` preview data so preview/export state can mirror the live scene snapshot instead of only default preview inputs
   - unit coverage in:
     - `tests/unit/test_battle_inspector_model.cpp`
     - `tests/unit/test_battle_preview_panel.cpp`
     - `tests/unit/test_battle_inspector_panel.cpp`
+    - `tests/unit/test_diagnostics_workspace.cpp`
+    - `tests/unit/test_presentation_runtime.cpp`
 - Continued diagnostics workspace productization and truthfulness closure:
   - `event_authority` tab now renders through a panel-owned snapshot instead of refreshing silently, and that snapshot/export now carries the visible row body plus event-id/severity/mode filtering, selection, row-navigation, and selected-row detail state
   - audio diagnostics now project real `AudioCore` active-source rows rather than count-only placeholder state, and the panel snapshot now carries those projected rows directly
@@ -206,7 +211,9 @@ Phase 3 diagnostics productization is complete as of 2026-04-19, Phase 4 governa
   - compat-to-native upgrader mapping:
     - [engine/core/battle/battle_migration.h](../engine/core/battle/battle_migration.h)
     - [tests/unit/test_battle_migration.cpp](../tests/unit/test_battle_migration.cpp)
-  - unit coverage in `tests/unit/test_battle_migration.cpp` and `tests/unit/test_battle_core.cpp`
+  - unsupported troop page/phase scripts and unsupported action scope/effect payloads now emit migration warnings while preserving schema-shaped fallback output
+  - migration wizard battle summaries now count those warnings through `MigrationWizardModel`
+  - unit coverage in `tests/unit/test_battle_migration.cpp`, `tests/unit/test_battle_core.cpp`, and `tests/unit/test_migration_wizard.cpp`
 - Hardened compat directory-load failure diagnostics coverage:
   - upgraded `load_plugins_directory`, `load_plugins_directory_scan`, and `load_plugins_directory_scan_entry` tests to assert JSONL row shape plus report-model and panel projection parity
   - added explicit severity and operation mapping checks in `tests/compat/test_compat_plugin_failure_diagnostics.cpp`
@@ -249,6 +256,15 @@ Phase 3 diagnostics productization is complete as of 2026-04-19, Phase 4 governa
   - `.\build\dev-mingw-debug\urpg_tests.exe "[events][panel]"` => lane previously validated; rerun in the active local profile before treating as a fresh release snapshot
   - `.\build\dev-mingw-debug\urpg_tests.exe "[events][panel][render]"` => lane previously validated; rerun in the active local profile before treating as a fresh release snapshot
   - `.\build\dev-mingw-debug\urpg_tests.exe "[editor][audio][inspector]"` => lane previously validated; rerun in the active local profile before treating as a fresh release snapshot
+- Latest focused validation snapshot for Battle Core native runtime/editor/migration closure:
+  - `C:\dev\urpg-battle-build\urpg_tests.exe "[battle][scene][diagnostics],[battle][editor][panel],[editor][diagnostics][integration][battle_preview]" --reporter compact` => 67 assertions / 5 test cases passed
+  - `C:\dev\urpg-battle-build\urpg_tests.exe "[presentation][bridge],[presentation][runtime]" --reporter compact` => 40 assertions / 5 test cases passed
+  - `C:\dev\urpg-battle-build\urpg_tests.exe "[editor][diagnostics][wizard],[battle][migration]" --reporter compact` => 521 assertions / 40 test cases passed
+  - `ctest --test-dir C:\dev\urpg-battle-build --output-on-failure -R "PresentationBridge derives battle frame from active BattleScene|PresentationBridge builds frame for active scene using runtime|BattleScene builds diagnostics preview from the next ordered queued action|Battle inspector panel binds live scene diagnostics preview payload|DiagnosticsWorkspace - Battle tab exports live scene diagnostics preview payload|BattleMigration:|MigrationWizardModel: battle migration warnings propagate from unsupported troop phase/page data|MigrationWizardModel: Batch Orchestration"` => 11/11 passed
+- Latest focused validation snapshot for Save/Data schema and runtime/catalog lanes:
+  - `C:\dev\urpg-battle-build\urpg_tests.exe "[save][schema],[save][catalog],[save][runtime],[save][editor],[save][panel][integration],[save][metadata],[editor][diagnostics][integration][save_actions]" --reporter compact` => 370 assertions / 24 test cases passed
+  - `C:\dev\urpg-battle-build\urpg_integration_tests.exe "[integration][save]" --reporter compact` => 10 assertions / 2 test cases passed
+  - Save/Data diagnostics export now includes runtime-owned `recovery_diagnostics` and `serialization_schema` payloads from the bound save inspector seam, plus live policy draft/validation/apply workflow coverage through the save inspector panel and diagnostics workspace.
 - Second agent swarm pass (2026-04-17):
   - Input manager status honesty: downgraded all 79 inflated `FULL` labels to `PARTIAL` in `runtimes/compat_js/input_manager.cpp`; aligned `tests/unit/test_input_manager.cpp`.
   - Migration wizard productization: added `rerunSubsystem(id, project_data)` to `MigrationWizardModel` and `MigrationWizardPanel`; exposed `can_rerun_selected_subsystem` in render snapshot; implemented `bindMigrationWizardRuntime()` in `DiagnosticsWorkspace`; added 3 new workflow tests.
@@ -297,12 +313,13 @@ The scope in this document is considered 100% complete when all items below are 
    - `MenuSceneSerializer::Serialize` now emits rules arrays; `Deserialize` now restores them.
    - `MenuMigration::MigrateCommandPanel` now maps fallback routes and preserves rich visibility/enable rules from plugin evidence.
    - Added focused tests for rule round-tripping and migration fallback/rule coverage.
-4. Add integration coverage for UI/Menu runtime + editor:
-   - extend beyond the landed diagnostics-workspace/menu-import anchors into broader scene-graph + resolver parity checks.
-5. Continue post-Phase-2 compat exit hardening:
+4. Continue post-Phase-2 compat exit hardening:
    - keep new routed failure operations locked to JSONL/report/panel parity and maintain weekly conformance depth growth.
-6. Keep canonical status/docs aligned with current validation evidence:
+5. Keep canonical status/docs aligned with current validation evidence:
    - update README/remediation/kickoff/checklist language whenever closure state or residual compat scope changes.
+6. Finish remaining Wave 1 release-readiness and importer closure:
+   - Save/Data compat importer/upgrader completion and release evidence.
+   - Battle release-evidence publication and any remaining checklist reconciliation.
 
 ## Remaining work to reach 100%
 
@@ -319,15 +336,15 @@ Phase 2 runtime closure is already complete. The remaining compat work below is 
 
 - [x] UI/Menu Core: complete production closure for command registry/scene graph/route resolver ownership (runtime, editor, schema, and migration are now closed).
 - [x] Message/Text Core: runtime renderer handoff AND editor productization are closed. Schema and migration field coverage is complete. Remaining work is release-readiness proof (Task 10).
-- [ ] Battle Core: implement native flow controller, action queue, and rule resolver ownership.
-- [ ] Save/Data Core: complete catalog/serializer/recovery ownership beyond the seeded descriptor and inspector slice.
+- [ ] Battle Core: remaining work is release evidence and final closure-checklist reconciliation; native flow, queue, rule resolution, live scene routing, diagnostics preview parity, and migration warnings are landed.
+- [ ] Save/Data Core: remaining work is importer/upgrader closure and release evidence; catalog/serializer/recovery ownership now includes inspector/runtime-seam export of recovery diagnostics and serialization schema summaries plus live policy authoring/validation/apply workflow.
 
 ### 3. Wave 1 editor productization (remaining)
 
 - [x] UI/Menu Core: inspector and preview surfaces are shipped; remaining work is deeper authoring/productization beyond the landed diagnostics workflow.
 - [x] Message/Text Core: Ship inspector and preview surfaces.
-- [ ] Battle Core: Ship preview surfaces.
-- [ ] Ship diagnostics and validation wiring directly in editor panels for Wave 1 schemas.
+- [x] Battle Core: Ship preview surfaces.
+- [x] Ship diagnostics and validation wiring directly in editor panels for Wave 1 schemas.
 
 ### 4. Schema and migration completion (remaining)
 

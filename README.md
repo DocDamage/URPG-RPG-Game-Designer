@@ -87,6 +87,8 @@ This focused gate is also invoked by `tools/ci/run_local_gates.ps1` locally and 
 
 ### Current Runtime And Compat Notes
 - Battle reward distribution, switch checks, and battle-event cadence are now closed in the compat lane; troop setup and drop logic remain honest later compat slices.
+  - Native Battle Core now owns live `BattleScene` phase/action/rule flow, battle diagnostics can bind real scene preview state, the presentation bridge can derive battle participants from an active `BattleScene`, and battle migration emits warnings for unsupported troop-page/action payloads instead of silently dropping them.
+  - Save/Data now has explicit native schema artifacts for save policies, slot descriptors, metadata, and migrations, and the diagnostics save tab now exposes workspace-level save actions plus autosave policy, retention limits, metadata-registry fields, slot descriptors, recovery diagnostics, serialization schema summaries, selected-row state, and live policy draft/validation/apply workflow from the native runtime path.
   - Async plugin dispatch remains deterministic FIFO, but its status is now tracked as `PARTIAL` because callbacks run on the worker thread and the JS bridge is still fixture-backed.
   - Input/Touch QuickJS API registration now routes to live runtime state (no placeholder zeros) and `TouchInput` movement/tap tracking now computes `moveSpeed` + `tapCount`.
   - PluginManager failure-path diagnostics now emit deterministic JSONL artifacts (`exportFailureDiagnosticsJsonl` / `clearFailureDiagnostics`) with operation tags + sequence IDs.
@@ -133,7 +135,9 @@ This focused gate is also invoked by `tools/ci/run_local_gates.ps1` locally and 
    - `DiagnosticsWorkspace` exposes message edit, export, save/load round-trips,
    - migration maps `defaultChoiceIndex`, `command`, window/audio style fields,
    - schema updated with `default_choice_index` and `command`.
-4. Continue Wave 1 runtime/editor/schema closure for **Battle** and **Save/Data**.
+4. Finish the remaining Wave 1 closure work for **Battle** and **Save/Data**:
+   - Save/Data compat import/migration closure and release-readiness proof.
+   - Battle release-readiness proof and any remaining status-doc/checklist reconciliation.
 5. Maintain post-Phase-2 compat exit hardening:
    - keep conformance depth, JSONL/report/panel parity, and status/document truthfulness aligned with the current harness-backed scope.
 6. Begin Wave 2 advanced capability implementation (ability framework, pattern editor, modular level assembly, sprite pipeline, procedural toolkit, optional 2.5D lane, timeline orchestration, and editor utilities).

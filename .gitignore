@@ -3,6 +3,8 @@ build/
 .cache/
 .venv/
 Testing/
+!engine/core/testing/
+!engine/core/testing/**
 __pycache__/
 *.pyc
 .ruff_cache/

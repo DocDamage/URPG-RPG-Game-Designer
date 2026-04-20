@@ -100,6 +100,41 @@ TEST_CASE("MigrationWizardPanel: Visible render records migration snapshot", "[e
     REQUIRE(panel.lastRenderSnapshot().can_rerun_selected_subsystem);
 }
 
+TEST_CASE("MigrationWizardModel: battle migration warnings propagate from unsupported troop phase/page data",
+          "[editor][diagnostics][wizard][battle][warnings]") {
+    MigrationWizardModel model;
+
+    nlohmann::json project_data = {
+        {"troops", {
+            {
+                {"id", 7},
+                {"name", "Page-heavy troop"},
+                {"members", {
+                    {{"enemyId", 1}, {"x", 120}, {"y", 180}, {"hidden", false}}
+                }},
+                {"pages", {
+                    {
+                        {"conditions", {{"turnEnding", true}}},
+                        {"list", {{{"code", 101}}}}
+                    }
+                }}
+            }
+        }}
+    };
+
+    model.runFullMigration(project_data);
+    const auto& report = model.getReport();
+
+    REQUIRE(report.is_complete);
+    REQUIRE(report.total_files_processed == 1);
+    REQUIRE(report.warning_count > 0);
+    REQUIRE(report.error_count == 0);
+    REQUIRE(report.subsystem_results.size() == 1);
+    REQUIRE(report.subsystem_results[0].subsystem_id == "battle");
+    REQUIRE(report.subsystem_results[0].warning_count > 0);
+    REQUIRE(report.subsystem_results[0].summary_line.find("Battle migration") != std::string::npos);
+}
+
 TEST_CASE("MigrationWizardPanel: render snapshot exposes a rendered workflow body",
           "[editor][diagnostics][wizard][panel][workflow]") {
     MigrationWizardPanel panel;

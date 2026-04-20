@@ -51,3 +51,64 @@ TEST_CASE("BattleMigration: Action Mapping", "[battle][migration][action]") {
     REQUIRE(native["effects"][0]["formula"] == "a.mat * 4 - b.mdf * 2");
     REQUIRE(native["animation_id"] == "ANI_50");
 }
+
+TEST_CASE("BattleMigration: Troop Mapping warns when troop pages are dropped", "[battle][migration][troop]") {
+    nlohmann::json rm_troop = {
+        {"id", 2},
+        {"name", "Goblin Ambush"},
+        {"members", {
+            {{"enemyId", 3}, {"x", 140}, {"y", 210}, {"hidden", true}}
+        }},
+        {"pages", {
+            {
+                {"conditions", {{"turnEnding", true}}},
+                {"list", {{{"code", 101}}}}
+            }
+        }}
+    };
+
+    BattleMigration::Progress progress;
+    auto native = BattleMigration::migrateTroop(rm_troop, progress);
+
+    REQUIRE(native["id"] == "TRP_2");
+    REQUIRE(native["members"].size() == 1);
+    REQUIRE(native["phases"].is_array());
+    REQUIRE(native["phases"].empty());
+    REQUIRE(progress.total_troops == 1);
+    REQUIRE(progress.warnings.size() == 1);
+    REQUIRE(progress.warnings[0].find("pages") != std::string::npos);
+}
+
+TEST_CASE("BattleMigration: Action Mapping warns on unsupported scope and effects", "[battle][migration][action]") {
+    nlohmann::json rm_skill = {
+        {"id", 11},
+        {"name", "Chaos Burst"},
+        {"description", "Unstable effect payload."},
+        {"scope", 99},
+        {"mpCost", 9},
+        {"tpCost", 3},
+        {"damage", {
+            {"formula", "a.atk * 2"},
+            {"variance", 15},
+            {"critical", false}
+        }},
+        {"effects", {
+            {{"code", 21}, {"dataId", 4}, {"value1", 1.0}}
+        }},
+        {"animationId", 12}
+    };
+
+    BattleMigration::Progress progress;
+    auto native = BattleMigration::migrateAction(rm_skill, false, progress);
+
+    REQUIRE(native["id"] == "SKL_11");
+    REQUIRE(native["scope"] == "none");
+    REQUIRE(native["cost"]["mp"] == 9);
+    REQUIRE(native["cost"]["tp"] == 3);
+    REQUIRE(native["effects"].size() == 1);
+    REQUIRE(native["effects"][0]["type"] == "damage");
+    REQUIRE(progress.total_actions == 1);
+    REQUIRE(progress.warnings.size() == 2);
+    REQUIRE(progress.warnings[0].find("scope") != std::string::npos);
+    REQUIRE(progress.warnings[1].find("effects") != std::string::npos);
+}

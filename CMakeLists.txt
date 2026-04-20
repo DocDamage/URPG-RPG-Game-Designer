@@ -452,6 +452,7 @@ add_executable(urpg_tests
     tests/unit/test_message_text_core.cpp
     tests/unit/test_message_migration.cpp
     tests/unit/test_message_schema_contracts.cpp
+    tests/unit/test_save_schema_contracts.cpp
     tests/unit/test_message_inspector_model.cpp
     tests/unit/test_message_inspector_panel.cpp
     tests/unit/test_menu_inspector_panel.cpp

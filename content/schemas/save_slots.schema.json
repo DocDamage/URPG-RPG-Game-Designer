@@ -1,0 +1,47 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://urpg.dev/schemas/save_slots.schema.json",
+  "title": "URPG Save Slots Schema",
+  "description": "Native contract for stable save slot descriptors and presentation labels.",
+  "type": "object",
+  "required": [
+    "_urpg_format_version",
+    "slots"
+  ],
+  "properties": {
+    "_urpg_format_version": {
+      "type": "string"
+    },
+    "slots": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "slot_id"
+        ],
+        "properties": {
+          "slot_id": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "category": {
+            "type": "string",
+            "enum": [
+              "autosave",
+              "quicksave",
+              "manual"
+            ],
+            "default": "manual"
+          },
+          "label": {
+            "type": "string"
+          },
+          "reserved": {
+            "type": "boolean",
+            "default": false
+          }
+        }
+      }
+    }
+  }
+}

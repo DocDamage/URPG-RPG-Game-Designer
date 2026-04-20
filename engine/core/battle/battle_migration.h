@@ -35,12 +35,18 @@ public:
             native_mem["y"] = mem.value("y", 0);
             native_mem["hidden"] = mem.value("hidden", false);
             members.push_back(native_mem);
+            progress.total_enemies++;
         }
         native["members"] = members;
 
         // Note: phases/pages mapping is complex due to event commands, 
         // we map the structure but not the full command script here.
         native["phases"] = nlohmann::json::array(); 
+        if ((rm_troop.contains("pages") && rm_troop["pages"].is_array() && !rm_troop["pages"].empty()) ||
+            (rm_troop.contains("phases") && rm_troop["phases"].is_array() && !rm_troop["phases"].empty())) {
+            progress.warnings.push_back(
+                "Battle troop pages/phases are not yet migrated; emitted an empty native phases array fallback.");
+        }
         
         progress.total_troops++;
         return native;
@@ -64,7 +70,11 @@ public:
             case 7: native["scope"] = "single_ally"; break;
             case 8: native["scope"] = "all_allies"; break;
             case 11: native["scope"] = "user"; break;
-            default: native["scope"] = "none"; break;
+            default:
+                native["scope"] = "none";
+                progress.warnings.push_back(
+                    "Battle action scope " + std::to_string(scope) + " is unsupported; falling back to 'none'.");
+                break;
         }
 
         // Map Cost
@@ -85,6 +95,10 @@ public:
             dmg_effect["variance"] = damage.value("variance", 20);
             dmg_effect["critical"] = damage.value("critical", false);
             effects.push_back(dmg_effect);
+        }
+        if (rm_action.contains("effects") && rm_action["effects"].is_array() && !rm_action["effects"].empty()) {
+            progress.warnings.push_back(
+                "Battle action effects payload contains unsupported non-damage effect records; preserving only mapped native effects.");
         }
         native["effects"] = effects;
         native["animation_id"] = "ANI_" + std::to_string(rm_action.value("animationId", 0));

@@ -38,3 +38,22 @@ Cross-cutting readiness waivers, truthfulness corrections, and intake-governance
   - `powershell -ExecutionPolicy Bypass -File tools/ci/check_phase4_intake_governance.ps1`
 - [x] Repo-wide regression pass is green for the closure snapshot:
   - `ctest --preset dev-all --output-on-failure`
+
+## Battle Core Focused Evidence
+
+- [x] Native battle runtime/editor diagnostics parity passes:
+  - `C:\dev\urpg-battle-build\urpg_tests.exe "[battle][scene][diagnostics],[battle][editor][panel],[editor][diagnostics][integration][battle_preview]" --reporter compact`
+- [x] Battle presentation bridge consumes active `BattleScene` state:
+  - `C:\dev\urpg-battle-build\urpg_tests.exe "[presentation][bridge],[presentation][runtime]" --reporter compact`
+- [x] Battle migration warnings and wizard reporting stay green:
+  - `C:\dev\urpg-battle-build\urpg_tests.exe "[editor][diagnostics][wizard],[battle][migration]" --reporter compact`
+- [x] Focused Battle Core CTest subset is green:
+  - `ctest --test-dir C:\dev\urpg-battle-build --output-on-failure -R "PresentationBridge derives battle frame from active BattleScene|PresentationBridge builds frame for active scene using runtime|BattleScene builds diagnostics preview from the next ordered queued action|Battle inspector panel binds live scene diagnostics preview payload|DiagnosticsWorkspace - Battle tab exports live scene diagnostics preview payload|BattleMigration:|MigrationWizardModel: battle migration warnings propagate from unsupported troop phase/page data|MigrationWizardModel: Batch Orchestration"`
+
+## Save/Data Focused Evidence
+
+- [x] Save schema contract files and catalog/runtime unit lanes pass:
+  - `C:\dev\urpg-battle-build\urpg_tests.exe "[save][schema],[save][catalog],[save][runtime],[save][editor],[save][panel][integration],[save][metadata],[editor][diagnostics][integration][save_actions]" --reporter compact`
+  - includes runtime-owned `recovery_diagnostics` and `serialization_schema` export coverage plus live save-policy draft/validation/apply coverage through the save inspector and diagnostics workspace
+- [x] Save integration recovery lane passes:
+  - `C:\dev\urpg-battle-build\urpg_integration_tests.exe "[integration][save]" --reporter compact`

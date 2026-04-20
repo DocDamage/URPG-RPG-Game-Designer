@@ -14,6 +14,7 @@ Scope: runtime ownership, editor ownership, schema, migration, diagnostics, and 
   - `editor/battle/battle_preview_panel.*`
   - `editor/battle/battle_inspector_panel.*`
   - diagnostics workspace `battle` tab wiring
+  - live scene diagnostics binding parity via `flowController()`, `nativeActionQueue()`, and `buildDiagnosticsPreview()` preview payload consumption
 - Compat battle confidence anchors are active:
   - tactical routed battle fixture coverage across plugin reload
   - deterministic escape lifecycle parity in compat tests
@@ -36,6 +37,16 @@ Scope: runtime ownership, editor ownership, schema, migration, diagnostics, and 
 ## Purpose
 
 Battle Core becomes the native owner for battle flow, action sequencing, targeting, result handling, and battle-state hooks that currently appear across BattleManager compat tests and routed presentation anchors.
+
+The live BattleScene path now routes phase progression, ordered action draining, and damage resolution through Battle Core instead of maintaining a parallel scene-local authority.
+
+Battle diagnostics now also support a live-scene binding seam: the inspector/workspace can consume `flowController()`, `nativeActionQueue()`, and an optional `buildDiagnosticsPreview()` payload so preview/export state stays aligned with the runtime battle scene when a usable queued action exists, while the existing flow+queue-only binding remains valid.
+
+This seam is now covered by focused native tests for scene preview construction, inspector binding, and diagnostics workspace export parity against a real `BattleScene`.
+
+The presentation bridge now also projects battle presentation state from an active `BattleScene`, so battle HUD/presentation clients can consume native battle participants through the existing battle translator path instead of relying on manually seeded `PresentationContext::battleState`.
+
+Battle migration now emits explicit warnings for unsupported troop page/phase scripts and unsupported action scope/effect payloads while still returning schema-shaped fallback native JSON, and those warning counts propagate through the migration wizard reporting path.
 
 The subsystem should absorb the deterministic behavior already proven in compat tests while keeping HUD and overlay presentation as clients of battle state instead of turning battle logic into a plugin-command-driven surface.
 

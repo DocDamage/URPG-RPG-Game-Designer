@@ -6,9 +6,11 @@
 #include "engine/core/battle/battle_core.h"
 #include "engine/core/input/input_core.h"
 #include "engine/core/message/message_core.h"
+#include "engine/core/scene/battle_scene.h"
 #include "engine/core/ui/menu_command_registry.h"
 #include "engine/core/ui/menu_scene_graph.h"
 
+#include "runtimes/compat_js/data_manager.h"
 #include "runtimes/compat_js/plugin_manager.h"
 
 #include <catch2/catch_test_macros.hpp>
@@ -32,6 +34,15 @@ private:
     std::string ability_id_;
     ActivationInfo info_;
 };
+
+urpg::scene::BattleParticipant* findParticipant(std::vector<urpg::scene::BattleParticipant>& participants, bool is_enemy) {
+    for (auto& participant : participants) {
+        if (participant.isEnemy == is_enemy) {
+            return &participant;
+        }
+    }
+    return nullptr;
+}
 
 } // namespace
 
@@ -216,6 +227,19 @@ TEST_CASE("DiagnosticsWorkspace - Refresh updates compat and save tabs", "[edito
     REQUIRE(saveJson["active_tab_detail"]["save_summary"]["manual_slots"] == 1);
     REQUIRE(saveJson["active_tab_detail"]["save_summary"]["autosave_enabled"] == true);
     REQUIRE(saveJson["active_tab_detail"]["selected_slot_id"] == 4);
+    REQUIRE(saveJson["active_tab_detail"]["autosave_policy"]["enabled"] == true);
+    REQUIRE(saveJson["active_tab_detail"]["autosave_policy"]["slot_id"] == 0);
+    REQUIRE(saveJson["active_tab_detail"]["retention_policy"]["max_manual_slots"] == 20);
+    REQUIRE(saveJson["active_tab_detail"]["retention_policy"]["prune_excess_on_save"] == true);
+    REQUIRE(saveJson["active_tab_detail"]["recovery_diagnostics"]["total_recovery_slots"] == 0);
+    REQUIRE(saveJson["active_tab_detail"]["recovery_diagnostics"]["safe_mode_recovery_slots"] == 0);
+    REQUIRE(saveJson["active_tab_detail"]["serialization_schema"]["format_magic"] == "URSV");
+    REQUIRE(saveJson["active_tab_detail"]["serialization_schema"]["differential_supported"] == true);
+    REQUIRE(saveJson["active_tab_detail"]["serialization_schema"]["compression_modes"].size() == 3);
+    REQUIRE(saveJson["active_tab_detail"]["metadata_fields"].is_array());
+    REQUIRE(saveJson["active_tab_detail"]["metadata_fields"].size() == 0);
+    REQUIRE(saveJson["active_tab_detail"]["slot_descriptors"].is_array());
+    REQUIRE(saveJson["active_tab_detail"]["slot_descriptors"].size() == 0);
     REQUIRE(saveJson["active_tab_detail"]["visible_rows"].is_array());
     REQUIRE(saveJson["active_tab_detail"]["visible_rows"].size() == 1);
     REQUIRE(saveJson["active_tab_detail"]["visible_rows"][0]["slot_id"] == 4);
@@ -565,6 +589,114 @@ TEST_CASE("DiagnosticsWorkspace - Menu workflow actions are exposed at workspace
     REQUIRE(workspace.setMenuShowIssuesOnly(false));
     exported = nlohmann::json::parse(workspace.exportAsJson());
     REQUIRE(exported["active_tab_detail"]["show_issues_only"] == false);
+}
+
+TEST_CASE("DiagnosticsWorkspace - Save workflow actions are exposed at workspace level",
+          "[editor][diagnostics][integration][save_actions]") {
+    const auto base = std::filesystem::temp_directory_path() / "urpg_diagnostics_workspace_save_actions";
+    std::filesystem::create_directories(base);
+
+    urpg::SaveCatalog catalog;
+    urpg::SaveSessionCoordinator coordinator(catalog);
+    coordinator.setAutosavePolicy({true, 0});
+    coordinator.setRetentionPolicy({1, 2, 20, true});
+    coordinator.metadataRegistry().registerField({"difficulty", "Difficulty", false, "Normal"});
+
+    urpg::SaveCatalogEntry autosave;
+    autosave.meta.slot_id = 0;
+    autosave.meta.flags.autosave = true;
+    autosave.meta.category = urpg::SaveSlotCategory::Autosave;
+    autosave.meta.retention_class = urpg::SaveRetentionClass::Autosave;
+    autosave.meta.map_display_name = "Autosave Camp";
+    autosave.last_operation = "save";
+    REQUIRE(catalog.upsert(autosave));
+
+    urpg::SaveCatalogEntry problem;
+    problem.meta.slot_id = 6;
+    problem.meta.category = urpg::SaveSlotCategory::Manual;
+    problem.meta.retention_class = urpg::SaveRetentionClass::Manual;
+    problem.meta.flags.corrupted = true;
+    problem.meta.map_display_name = "Broken Tower";
+    problem.last_operation = "load";
+    problem.last_recovery_tier = urpg::SaveRecoveryTier::Level3SafeSkeleton;
+    problem.diagnostic = "safe_mode_triggered";
+    REQUIRE(catalog.upsert(problem));
+
+    urpg::editor::DiagnosticsWorkspace workspace;
+    workspace.bindSaveRuntime(catalog, coordinator);
+    workspace.setActiveTab(urpg::editor::DiagnosticsTab::Save);
+    workspace.update();
+
+    auto exported = nlohmann::json::parse(workspace.exportAsJson());
+    REQUIRE(exported["active_tab"] == "save");
+    REQUIRE(exported["active_tab_detail"]["selected_slot_id"].is_null());
+    REQUIRE(exported["active_tab_detail"]["show_problem_slots_only"] == false);
+    REQUIRE(exported["active_tab_detail"]["include_autosave"] == true);
+    REQUIRE(exported["active_tab_detail"]["policy_draft"]["autosave_enabled"] == true);
+    REQUIRE(exported["active_tab_detail"]["policy_draft"]["autosave_slot_id"] == 0);
+    REQUIRE(exported["active_tab_detail"]["policy_validation"]["can_apply"] == true);
+    REQUIRE(exported["active_tab_detail"]["policy_issues"].size() == 0);
+    REQUIRE(exported["active_tab_detail"]["metadata_fields"].size() == 1);
+    REQUIRE(exported["active_tab_detail"]["visible_rows"].size() == 2);
+
+    REQUIRE(workspace.setSaveShowProblemSlotsOnly(true));
+    exported = nlohmann::json::parse(workspace.exportAsJson());
+    REQUIRE(exported["active_tab_detail"]["show_problem_slots_only"] == true);
+    REQUIRE(exported["active_tab_detail"]["visible_rows"].size() == 1);
+    REQUIRE(exported["active_tab_detail"]["visible_rows"][0]["slot_id"] == 6);
+
+    REQUIRE(workspace.selectSaveRow(0));
+    exported = nlohmann::json::parse(workspace.exportAsJson());
+    REQUIRE(exported["active_tab_detail"]["selected_slot_id"] == 6);
+    REQUIRE(exported["active_tab_detail"]["selected_row"]["slot_id"] == 6);
+    REQUIRE(exported["active_tab_detail"]["selected_row"]["boot_safe_mode"] == true);
+    REQUIRE(exported["active_tab_detail"]["selected_row"]["diagnostic"] == "safe_mode_triggered");
+    REQUIRE(exported["active_tab_detail"]["recovery_diagnostics"]["total_recovery_slots"] == 1);
+    REQUIRE(exported["active_tab_detail"]["recovery_diagnostics"]["safe_mode_recovery_slots"] == 1);
+
+    REQUIRE(workspace.setSaveIncludeAutosave(false));
+    exported = nlohmann::json::parse(workspace.exportAsJson());
+    REQUIRE(exported["active_tab_detail"]["include_autosave"] == false);
+    REQUIRE(exported["active_tab_detail"]["visible_rows"].size() == 1);
+    REQUIRE(exported["active_tab_detail"]["selected_slot_id"] == 6);
+
+    REQUIRE(workspace.setSaveShowProblemSlotsOnly(false));
+    exported = nlohmann::json::parse(workspace.exportAsJson());
+    REQUIRE(exported["active_tab_detail"]["show_problem_slots_only"] == false);
+    REQUIRE(exported["active_tab_detail"]["visible_rows"].size() == 1);
+    REQUIRE(exported["active_tab_detail"]["visible_rows"][0]["slot_id"] == 6);
+
+    REQUIRE(workspace.setSavePolicyAutosaveEnabled(false));
+    REQUIRE(workspace.setSavePolicyAutosaveSlotId(3));
+    REQUIRE(workspace.setSavePolicyRetentionLimits(2, 4, 18, false));
+    exported = nlohmann::json::parse(workspace.exportAsJson());
+    REQUIRE(exported["active_tab_detail"]["policy_draft"]["autosave_enabled"] == false);
+    REQUIRE(exported["active_tab_detail"]["policy_draft"]["autosave_slot_id"] == 3);
+    REQUIRE(exported["active_tab_detail"]["policy_draft"]["max_autosave_slots"] == 2);
+    REQUIRE(exported["active_tab_detail"]["policy_draft"]["max_quicksave_slots"] == 4);
+    REQUIRE(exported["active_tab_detail"]["policy_draft"]["max_manual_slots"] == 18);
+    REQUIRE(exported["active_tab_detail"]["policy_draft"]["prune_excess_on_save"] == false);
+    REQUIRE(exported["active_tab_detail"]["policy_validation"]["can_apply"] == true);
+    REQUIRE(workspace.applySavePolicyChanges());
+    REQUIRE(coordinator.autosavePolicy().enabled == false);
+    REQUIRE(coordinator.autosavePolicy().slot_id == 3);
+    REQUIRE(coordinator.retentionPolicy().max_autosave_slots == 2);
+    REQUIRE(coordinator.retentionPolicy().max_quicksave_slots == 4);
+    REQUIRE(coordinator.retentionPolicy().max_manual_slots == 18);
+    REQUIRE(coordinator.retentionPolicy().prune_excess_on_save == false);
+
+    REQUIRE(workspace.setSavePolicyAutosaveEnabled(true));
+    REQUIRE(workspace.setSavePolicyAutosaveSlotId(-1));
+    REQUIRE(workspace.setSavePolicyRetentionLimits(0, 4, 18, false));
+    exported = nlohmann::json::parse(workspace.exportAsJson());
+    REQUIRE(exported["active_tab_detail"]["policy_validation"]["can_apply"] == false);
+    REQUIRE(exported["active_tab_detail"]["policy_validation"]["error_count"] == 2);
+    REQUIRE(exported["active_tab_detail"]["policy_issues"].size() == 2);
+    REQUIRE_FALSE(workspace.applySavePolicyChanges());
+    REQUIRE(coordinator.autosavePolicy().enabled == false);
+    REQUIRE(coordinator.autosavePolicy().slot_id == 3);
+
+    std::filesystem::remove_all(base);
 }
 
 TEST_CASE("DiagnosticsWorkspace - Menu preview actions drive runtime selection and blocked-command export",
@@ -2097,4 +2229,58 @@ TEST_CASE("DiagnosticsWorkspace - Message workspace actions keep snapshot curren
     REQUIRE(exported["active_tab_detail"]["visible_rows"].size() == 1);
     REQUIRE(exported["active_tab_detail"]["visible_rows"][0]["page_id"] == "page_a");
     REQUIRE(exported["active_tab_detail"]["visible_rows"][0]["body_preview"] == "Updated body.");
+}
+
+TEST_CASE("DiagnosticsWorkspace - Battle tab exports live scene diagnostics preview payload",
+          "[editor][diagnostics][integration][battle_preview]") {
+    auto& data_manager = urpg::compat::DataManager::instance();
+    REQUIRE(data_manager.loadDatabase());
+    data_manager.setupNewGame();
+
+    urpg::scene::BattleScene battle({"2"});
+    battle.onStart();
+    battle.addActor("1", "Hero", 100, 20, {0, 0}, nullptr);
+    battle.addEnemy("2", "Goblin", 50, 0, {100, 100}, nullptr);
+    battle.setPhase(urpg::scene::BattlePhase::ACTION);
+    battle.flowController().noteEscapeFailure();
+
+    auto& participants = const_cast<std::vector<urpg::scene::BattleParticipant>&>(battle.getParticipants());
+    auto* hero = findParticipant(participants, false);
+    auto* goblin = findParticipant(participants, true);
+    REQUIRE(hero != nullptr);
+    REQUIRE(goblin != nullptr);
+
+    urpg::scene::BattleScene::BattleAction attack{};
+    attack.subject = hero;
+    attack.target = goblin;
+    attack.command = "attack";
+    battle.addActionToQueue(attack);
+
+    const auto preview = battle.buildDiagnosticsPreview();
+    REQUIRE(preview.has_value());
+
+    const auto expected_physical_damage = urpg::battle::BattleRuleResolver::resolveDamage(preview->physical_preview);
+    const auto expected_magical_damage = urpg::battle::BattleRuleResolver::resolveDamage(preview->magical_preview);
+    const auto expected_escape_ratio_now = urpg::battle::BattleRuleResolver::resolveEscapeRatio(
+        preview->party_agi, preview->troop_agi, battle.flowController().escapeFailures());
+    const auto expected_escape_ratio_next = urpg::battle::BattleRuleResolver::resolveEscapeRatio(
+        preview->party_agi, preview->troop_agi, battle.flowController().escapeFailures() + 1);
+
+    urpg::editor::DiagnosticsWorkspace workspace;
+    workspace.bindBattleRuntime(battle);
+    workspace.setActiveTab(urpg::editor::DiagnosticsTab::Battle);
+    workspace.update();
+
+    const auto exported = nlohmann::json::parse(workspace.exportAsJson());
+    REQUIRE(exported["active_tab"] == "battle");
+    REQUIRE(exported["active_tab_detail"]["tab"] == "battle");
+    REQUIRE(exported["active_tab_detail"]["battle_summary"]["phase"] == "action");
+    REQUIRE(exported["active_tab_detail"]["battle_summary"]["total_actions"] == 1);
+    REQUIRE(exported["active_tab_detail"]["visible_rows"].size() == 1);
+    REQUIRE(exported["active_tab_detail"]["visible_rows"][0]["subject_id"] == "1");
+    REQUIRE(exported["active_tab_detail"]["visible_rows"][0]["target_id"] == "2");
+    REQUIRE(exported["active_tab_detail"]["preview"]["physical_damage"] == expected_physical_damage);
+    REQUIRE(exported["active_tab_detail"]["preview"]["magical_damage"] == expected_magical_damage);
+    REQUIRE(exported["active_tab_detail"]["preview"]["escape_ratio_now"] == expected_escape_ratio_now);
+    REQUIRE(exported["active_tab_detail"]["preview"]["escape_ratio_next_fail"] == expected_escape_ratio_next);
 }

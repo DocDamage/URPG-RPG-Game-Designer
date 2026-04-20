@@ -7,6 +7,7 @@
 #include <algorithm>
 #include <ctime>
 #include <filesystem>
+#include <optional>
 
 namespace urpg::scene {
 
@@ -27,6 +28,165 @@ std::shared_ptr<urpg::Texture> loadOptionalTexture(const std::string& path) {
     }
 
     return AssetLoader::loadTexture(path);
+}
+
+int resolveParticipantParam(const BattleParticipant& participant, int32_t param_index) {
+    auto& dm = compat::DataManager::instance();
+    const int id = parseDatabaseId(participant.id);
+    if (id <= 0) {
+        return 1;
+    }
+
+    if (participant.isEnemy) {
+        const auto* enemy = dm.getEnemy(id);
+        if (enemy == nullptr) {
+            return 1;
+        }
+
+        switch (param_index) {
+        case 0:
+            return enemy->mhp;
+        case 1:
+            return enemy->mmp;
+        case 2:
+            return enemy->atk;
+        case 3:
+            return enemy->def;
+        case 4:
+            return enemy->mat;
+        case 5:
+            return enemy->mdf;
+        case 6:
+            return enemy->agi;
+        case 7:
+            return enemy->luk;
+        default:
+            return 1;
+        }
+    }
+
+    return dm.getActorParam(id, param_index, 1);
+}
+
+int resolveActionPriority(const BattleScene::BattleAction& action) {
+    if (action.command == "guard") {
+        return -10;
+    }
+    return 0;
+}
+
+urpg::battle::BattleDamageContext buildDamageContext(const BattleScene::BattleAction& action,
+                                                     const BattleParticipant& subject,
+                                                     const BattleParticipant& target) {
+    urpg::battle::BattleDamageContext context;
+    context.subject.hp = subject.hp;
+    context.subject.mhp = subject.maxHp;
+    context.subject.atk = resolveParticipantParam(subject, 2);
+    context.subject.def = resolveParticipantParam(subject, 3);
+    context.subject.mat = resolveParticipantParam(subject, 4);
+    context.subject.mdf = resolveParticipantParam(subject, 5);
+    context.subject.agi = resolveParticipantParam(subject, 6);
+    context.subject.luk = resolveParticipantParam(subject, 7);
+
+    context.target.hp = target.hp;
+    context.target.mhp = target.maxHp;
+    context.target.atk = resolveParticipantParam(target, 2);
+    context.target.def = resolveParticipantParam(target, 3);
+    context.target.mat = resolveParticipantParam(target, 4);
+    context.target.mdf = resolveParticipantParam(target, 5);
+    context.target.agi = resolveParticipantParam(target, 6);
+    context.target.luk = resolveParticipantParam(target, 7);
+    context.target.guarding = target.isGuarding;
+
+    if (action.isSkill) {
+        const auto* skill = compat::DataManager::instance().getSkill(action.skillId);
+        if (skill != nullptr) {
+            context.power = skill->damage.power;
+            context.variance_percent = skill->damage.variance;
+            context.critical = skill->damage.canCrit;
+            context.magical = skill->damage.type == 2;
+        }
+    } else if (action.isItem) {
+        const auto* item = compat::DataManager::instance().getItem(action.itemId);
+        if (item != nullptr) {
+            context.power = item->damage.power;
+            context.variance_percent = item->damage.variance;
+            context.critical = item->damage.canCrit;
+            context.magical = item->damage.type == 2;
+        }
+    }
+
+    return context;
+}
+
+std::optional<BattleScene::BattleAction> popResolvedAction(std::vector<BattleScene::BattleAction>& staged_actions,
+                                                           urpg::battle::BattleActionQueue& native_queue) {
+    const auto next = native_queue.popNext();
+    if (!next.has_value()) {
+        return std::nullopt;
+    }
+
+    auto matches = [&](const BattleScene::BattleAction& action) {
+        if (action.command != next->command || action.subject == nullptr) {
+            return false;
+        }
+        if (action.subject->id != next->subject_id) {
+            return false;
+        }
+
+        const std::string target_id = action.target != nullptr ? action.target->id : std::string();
+        if (target_id != next->target_id) {
+            return false;
+        }
+        return true;
+    };
+
+    const auto it = std::find_if(staged_actions.begin(), staged_actions.end(), matches);
+    if (it == staged_actions.end()) {
+        return std::nullopt;
+    }
+
+    BattleScene::BattleAction resolved = *it;
+    staged_actions.erase(it);
+    return resolved;
+}
+
+std::optional<BattleScene::BattleAction> findOrderedAction(const std::vector<BattleScene::BattleAction>& staged_actions,
+                                                           const urpg::battle::BattleActionQueue& native_queue) {
+    const auto ordered = native_queue.snapshotOrdered();
+    if (ordered.empty()) {
+        return std::nullopt;
+    }
+
+    const auto& next = ordered.front();
+    auto matches = [&](const BattleScene::BattleAction& action) {
+        if (action.command != next.command || action.subject == nullptr) {
+            return false;
+        }
+        if (action.subject->id != next.subject_id) {
+            return false;
+        }
+
+        const std::string target_id = action.target != nullptr ? action.target->id : std::string();
+        return target_id == next.target_id;
+    };
+
+    const auto it = std::find_if(staged_actions.begin(), staged_actions.end(), matches);
+    if (it == staged_actions.end()) {
+        return std::nullopt;
+    }
+    return *it;
+}
+
+int sumAgility(const std::vector<BattleParticipant>& participants, bool is_enemy) {
+    int total = 0;
+    for (const auto& participant : participants) {
+        if (participant.isEnemy != is_enemy || participant.hp <= 0) {
+            continue;
+        }
+        total += resolveParticipantParam(participant, 6);
+    }
+    return std::max(total, 1);
 }
 
 } // namespace
@@ -77,14 +237,79 @@ BattleScene::BattleScene(const std::vector<std::string>& enemyIds)
 }
 
 void BattleScene::onStart() {
+    m_flowController.beginBattle(true);
     m_currentPhase = BattlePhase::START;
-    m_turnCount = 1;
+    m_turnCount = m_flowController.turnCount();
+    m_actionQueue.clear();
+    m_nativeActionQueue.clear();
     m_commandWindow->setVisible(false);
 
     // Phase 12: Load Background
     // In MZ, battle backgrounds are often determined by the map or troop.
     // Placeholder: load a default battleback
     m_backgroundTexture = loadOptionalTexture("img/battlebacks1/Grassland.png");
+}
+
+void BattleScene::setPhase(BattlePhase phase) {
+    m_currentPhase = phase;
+    switch (phase) {
+    case BattlePhase::START:
+        break;
+    case BattlePhase::INPUT:
+        m_flowController.enterInput();
+        break;
+    case BattlePhase::ACTION:
+        m_flowController.enterAction();
+        break;
+    case BattlePhase::TURN_END:
+        m_flowController.endTurn();
+        m_turnCount = m_flowController.turnCount();
+        break;
+    case BattlePhase::VICTORY:
+        m_flowController.markVictory();
+        break;
+    case BattlePhase::DEFEAT:
+        m_flowController.markDefeat();
+        break;
+    }
+}
+
+urpg::battle::BattleQueuedAction BattleScene::makeQueuedAction(const BattleAction& action) const {
+    urpg::battle::BattleQueuedAction queued;
+    queued.subject_id = action.subject != nullptr ? action.subject->id : std::string();
+    queued.target_id = action.target != nullptr ? action.target->id : std::string();
+    queued.command = action.command;
+    queued.speed = action.subject != nullptr ? resolveParticipantParam(*action.subject, 6) : 0;
+    queued.priority = resolveActionPriority(action);
+    return queued;
+}
+
+void BattleScene::addActionToQueue(const BattleAction& action) {
+    m_actionQueue.push_back(action);
+    m_nativeActionQueue.enqueue(makeQueuedAction(action));
+}
+
+std::optional<BattleDiagnosticsPreview> BattleScene::buildDiagnosticsPreview() const {
+    const auto action = findOrderedAction(m_actionQueue, m_nativeActionQueue);
+    if (!action.has_value() || action->subject == nullptr) {
+        return std::nullopt;
+    }
+
+    const BattleParticipant* target = action->target;
+    if (target == nullptr || target->hp <= 0) {
+        return std::nullopt;
+    }
+
+    BattleDiagnosticsPreview preview;
+    preview.physical_preview = buildDamageContext(*action, *action->subject, *target);
+    preview.physical_preview.magical = false;
+
+    preview.magical_preview = buildDamageContext(*action, *action->subject, *target);
+    preview.magical_preview.magical = true;
+
+    preview.party_agi = sumAgility(m_participants, false);
+    preview.troop_agi = sumAgility(m_participants, true);
+    return preview;
 }
 
 void BattleScene::onUpdate(float dt) {
@@ -136,13 +361,19 @@ void BattleScene::onUpdate(float dt) {
                     setPhase(nextPhase);
                     m_phaseTimer = 2.0f;
                     m_actionQueue.clear();
+                    m_nativeActionQueue.clear();
                     break;
                 }
 
-                if (!m_actionQueue.empty()) {
-                    auto& action = m_actionQueue.front();
-                    executeAction(action);
-                    m_actionQueue.erase(m_actionQueue.begin());
+                if (!m_nativeActionQueue.empty()) {
+                    auto action = popResolvedAction(m_actionQueue, m_nativeActionQueue);
+                    if (!action.has_value()) {
+                        setPhase(BattlePhase::TURN_END);
+                        m_phaseTimer = 0.5f;
+                        break;
+                    }
+
+                    executeAction(*action);
                     
                     // Check for victory/defeat after each action
                     BattlePhase nextPhase = checkEndCondition();
@@ -150,6 +381,7 @@ void BattleScene::onUpdate(float dt) {
                         setPhase(nextPhase);
                         m_phaseTimer = 2.0f; // Brief pause to show victory/defeat msg
                         m_actionQueue.clear();
+                        m_nativeActionQueue.clear();
                     } else {
                         m_phaseTimer = 1.0f; // 1 second between actions
                     }
@@ -180,10 +412,10 @@ void BattleScene::onUpdate(float dt) {
 
         case BattlePhase::TURN_END:
             if (m_phaseTimer <= 0) {
-                nextTurn();
                 setPhase(BattlePhase::INPUT);
                 m_currentActorIndex = 0;
                 m_actionQueue.clear();
+                m_nativeActionQueue.clear();
                 m_commandWindow->setVisible(true);
             }
             break;
@@ -287,27 +519,6 @@ void BattleScene::draw(urpg::SpriteBatcher& batcher) {
 void BattleScene::processTurn() {
     // Phase 13: Signal Turn Start Hook
     compat::BattleManager::instance().triggerHook(compat::BattleManager::HookPoint::ON_TURN_START, {});
-
-    // Phase 9: AGI-based Sequential Turn Order
-    // Sort action queue by subject agility
-    std::sort(m_actionQueue.begin(), m_actionQueue.end(), [](const BattleAction& a, const BattleAction& b) {
-        auto& dm = compat::DataManager::instance();
-        auto getAgi = [&](BattleParticipant* p) {
-            if (p == nullptr) {
-                return 1;
-            }
-            const int id = parseDatabaseId(p->id);
-            if (id <= 0) {
-                return 1;
-            }
-            if (p->isEnemy) {
-                const auto* enemy = dm.getEnemy(id);
-                return enemy ? enemy->agi : 1;
-            }
-            return dm.getActorParam(id, 6, 1);
-        };
-        return getAgi(a.subject) > getAgi(b.subject); // Higher AGI goes first
-    });
 
     setPhase(BattlePhase::ACTION);
     m_phaseTimer = 0.5f;
@@ -436,7 +647,7 @@ void BattleScene::openTargetWindow(bool targetEnemies) {
 
 void BattleScene::onTargetSelected(BattleParticipant* target) {
     m_pendingAction.target = target;
-    m_actionQueue.push_back(m_pendingAction);
+    addActionToQueue(m_pendingAction);
     
     m_skillWindow->setVisible(false);
     m_itemWindow->setVisible(false);
@@ -526,17 +737,19 @@ void BattleScene::executeAction(const BattleAction& action) {
 
     // 2. Execute on all targets
     for (auto* target : currentTargets) {
-        combat::CombatFormula::Context ctx;
-        ctx.subject = action.subject;
-        ctx.target = target;
-        ctx.skill = skillData;
-        ctx.item = itemData;
-        
-        int32_t damage = combat::CombatFormula::evaluateDamage(ctx);
-
-        // Apply Guarding mitigation
-        if (target->isGuarding && damage > 0) {
-            damage /= 2;
+        int32_t damage = 0;
+        if (action.command == "attack" || action.isSkill || action.isItem) {
+            damage = urpg::battle::BattleRuleResolver::resolveDamage(buildDamageContext(action, *action.subject, *target));
+        } else {
+            combat::CombatFormula::Context ctx;
+            ctx.subject = action.subject;
+            ctx.target = target;
+            ctx.skill = skillData;
+            ctx.item = itemData;
+            damage = combat::CombatFormula::evaluateDamage(ctx);
+            if (target->isGuarding && damage > 0) {
+                damage /= 2;
+            }
         }
 
         // 3. Apply Damage/HP change

@@ -4,6 +4,7 @@
 #include "engine/core/presentation/presentation_bridge.h"
 #include "engine/core/presentation/presentation_runtime.h"
 #include "engine/core/presentation/render_backend_mock.h"
+#include "engine/core/scene/battle_scene.h"
 #include "engine/core/scene/scene_manager.h"
 #include <memory>
 
@@ -226,4 +227,55 @@ TEST_CASE("PresentationBridge builds frame for active scene using runtime", "[pr
 
     REQUIRE(foundActor);
     REQUIRE(foundFog);
+}
+
+TEST_CASE("PresentationBridge derives battle frame from active BattleScene", "[presentation][bridge][battle]") {
+    auto runtime = std::make_shared<PresentationRuntime>();
+    auto authoringData = std::make_shared<PresentationAuthoringData>();
+    authoringData->actorProfiles.push_back({"1", {0.5f, 0.0f}, {0.0f, 0.25f, 0.0f}, true, 0.0f});
+    authoringData->actorProfiles.push_back({"2", {0.5f, 0.0f}, {0.0f, 0.5f, 0.0f}, true, 0.0f});
+    authoringData->battleConfig.useDynamicCineCamera = true;
+    authoringData->battleConfig.formation.type = BattleFormation::LayoutType::Staged;
+    authoringData->battleConfig.formation.spreadWidth = 1.5f;
+    authoringData->battleConfig.formation.depthSpacing = 2.0f;
+
+    PresentationBridge bridge(runtime, authoringData);
+
+    auto battleScene = std::make_shared<urpg::scene::BattleScene>(std::vector<std::string>{"2"});
+    battleScene->addActor("1", "Hero", 120, 30, {0.0f, 0.0f}, nullptr);
+    battleScene->addEnemy("2", "Slime", 40, 0, {100.0f, 0.0f}, nullptr);
+
+    urpg::scene::SceneManager sceneManager;
+    sceneManager.pushScene(battleScene);
+
+    PresentationContext context;
+    context.activeMode = PresentationMode::Spatial;
+    context.activeTier = CapabilityTier::Tier1_Standard;
+    REQUIRE(context.battleState.battleArenaId.empty());
+
+    const PresentationFrameIntent intent = bridge.BuildFrameForActiveScene(sceneManager, context);
+
+    size_t drawActorCount = 0;
+    bool foundHero = false;
+    bool foundEnemy = false;
+    bool foundCamera = false;
+    for (const auto& cmd : intent.commands) {
+        if (cmd.type == PresentationCommand::Type::DrawActor) {
+            drawActorCount++;
+            if (cmd.id == 1) {
+                foundHero = true;
+            }
+            if (cmd.id == 2) {
+                foundEnemy = true;
+            }
+        }
+        if (cmd.type == PresentationCommand::Type::SetCamera && cmd.cameraProfile != nullptr) {
+            foundCamera = true;
+        }
+    }
+
+    REQUIRE(drawActorCount == 2);
+    REQUIRE(foundHero);
+    REQUIRE(foundEnemy);
+    REQUIRE(foundCamera);
 }

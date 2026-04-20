@@ -11,6 +11,18 @@ public:
 
     void bindRuntime(const urpg::battle::BattleFlowController& flow_controller,
                      const urpg::battle::BattleActionQueue& action_queue);
+
+    template <typename SceneLike>
+    requires requires(const SceneLike& battle_scene) {
+        battle_scene.flowController();
+        battle_scene.nativeActionQueue();
+        battle_scene.buildDiagnosticsPreview();
+    }
+    void bindRuntime(const SceneLike& battle_scene) {
+        bindRuntime(battle_scene.flowController(), battle_scene.nativeActionQueue());
+        setPreviewOverride(battle_scene.buildDiagnosticsPreview());
+    }
+
     void clearRuntime();
 
     BattleInspectorModel& getModel();
@@ -30,8 +42,33 @@ public:
     void update();
 
 private:
+    struct PreviewOverride {
+        urpg::battle::BattleDamageContext physical_preview;
+        urpg::battle::BattleDamageContext magical_preview;
+        int32_t party_agi = 100;
+        int32_t troop_agi = 100;
+    };
+
+    void applyDefaultPreviewBinding();
+    void applyPreviewBinding();
+
+    template <typename OptionalPreview>
+    void setPreviewOverride(OptionalPreview&& preview) {
+        if (preview.has_value()) {
+            preview_override_ = PreviewOverride{
+                preview->physical_preview,
+                preview->magical_preview,
+                preview->party_agi,
+                preview->troop_agi,
+            };
+            return;
+        }
+        preview_override_.reset();
+    }
+
     const urpg::battle::BattleFlowController* flow_controller_ = nullptr;
     const urpg::battle::BattleActionQueue* action_queue_ = nullptr;
+    std::optional<PreviewOverride> preview_override_;
     BattleInspectorModel model_;
     BattlePreviewPanel preview_panel_;
     bool visible_ = true;

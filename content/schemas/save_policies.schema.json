@@ -1,0 +1,81 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://urpg.dev/schemas/save_policies.schema.json",
+  "title": "URPG Save Policies Schema",
+  "description": "Native contract for autosave, retention, and save metadata field policy.",
+  "type": "object",
+  "required": [
+    "_urpg_format_version",
+    "metadata_fields",
+    "retention",
+    "autosave"
+  ],
+  "properties": {
+    "_urpg_format_version": {
+      "type": "string"
+    },
+    "metadata_fields": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "key"
+        ],
+        "properties": {
+          "key": {
+            "type": "string"
+          },
+          "display_label": {
+            "type": "string"
+          },
+          "required": {
+            "type": "boolean",
+            "default": false
+          },
+          "default_value": {
+            "type": "string",
+            "default": ""
+          }
+        }
+      }
+    },
+    "retention": {
+      "type": "object",
+      "properties": {
+        "max_autosave_slots": {
+          "type": "integer",
+          "minimum": 0,
+          "default": 1
+        },
+        "max_quicksave_slots": {
+          "type": "integer",
+          "minimum": 0,
+          "default": 3
+        },
+        "max_manual_slots": {
+          "type": "integer",
+          "minimum": 0,
+          "default": 20
+        },
+        "prune_excess_on_save": {
+          "type": "boolean",
+          "default": true
+        }
+      }
+    },
+    "autosave": {
+      "type": "object",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "default": true
+        },
+        "slot_id": {
+          "type": "integer",
+          "minimum": 0,
+          "default": 0
+        }
+      }
+    }
+  }
+}

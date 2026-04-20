@@ -1,7 +1,7 @@
 # Save / Data Core Native-First Spec
 
 Date: 2026-04-14
-Status: active implementation baseline (core slices landed; editor/schema/migration/release closure pending)
+Status: active implementation baseline (core runtime/editor/schema slices landed; release closure pending)
 Scope: runtime ownership, editor ownership, schema, migration, diagnostics, and test anchors for native Save/Data Core absorption
 
 ## Last landed progress (2026-04-15)
@@ -15,6 +15,8 @@ Scope: runtime ownership, editor ownership, schema, migration, diagnostics, and 
   - imported metadata normalization through `MigrationRunner`
   - runtime hydration after migrated metadata
 - Save descriptor projection into inspector slot labels is active.
+- Save diagnostics/workspace export now also projects native autosave policy, retention limits, metadata-registry fields, slot descriptors, recovery diagnostics summaries, and serialization schema summaries alongside save slot rows.
+- Save workflow actions are now exposed at the diagnostics workspace layer for problem-slot filtering, autosave visibility toggling, slot selection, live save-policy drafting, deterministic policy validation, and policy apply-to-runtime flows, with selected-row export staying stable across runtime-backed refreshes and recovery-state/schema export remaining runtime-owned.
 - **AI-Ready Save Infrastructure landed (2026-04-16):**
   - `AISyncCoordinator` (cloud-service-backed AI history serialization; currently exercised via the in-memory stub path)
   - `CompressionLevel::Optimal` (incremental space-optimized history saving)
@@ -31,11 +33,7 @@ Scope: runtime ownership, editor ownership, schema, migration, diagnostics, and 
 
 - Complete native save catalog + serializer ownership closure beyond seeded slices.
 - Finalize schema contracts and importer/upgrader mapping for compat save metadata into native typed records.
-- Ship editor productization surfaces:
-  - save slot inspector
-  - save policy panel
-  - recovery diagnostics view
-  - serialization schema panel
+- Finish compat importer/upgrader closure and release evidence around the landed runtime/editor policy workflow.
 - Add native integration anchors for autosave policy, recovery escalation, and routed save-panel projection parity.
 
 ## Purpose
@@ -124,13 +122,13 @@ Save / Data Core should ship with these editor owners:
 
 ### Required schemas
 
-- `save_policies.json`
+- `save_policies.schema.json`
   - autosave rules, retention policy, recovery preferences, and safe-mode defaults
-- `save_slots.json`
+- `save_slots.schema.json`
   - slot IDs, categories, presentation metadata, and reserved routes
-- `save_metadata_schema.json`
+- `save_metadata.schema.json`
   - typed metadata fields, extension mappings, migration notes, and validation rules
-- `save_migrations.json`
+- `save_migrations.schema.json`
   - version upgrade rules, recovery hints, and compatibility transforms
 
 ### Schema rules
@@ -210,6 +208,15 @@ The subsystem should inherit and later replace these evidence paths:
   - runtime loader, migrated metadata hydration, and recovery-tier contracts
 - `tests/unit/test_save_recovery.cpp`
   - recovery-path and malformed-save behavior
+- `tests/unit/test_save_schema_contracts.cpp`
+  - save schema contract file existence and required-root validation
+- `tests/unit/test_save_inspector_model.cpp`
+  - save inspector policy/metadata/descriptor/recovery/schema projection
+- `tests/unit/test_save_inspector_panel.cpp`
+  - save policy draft validation and apply-to-runtime coverage
+- `tests/unit/test_diagnostics_workspace.cpp`
+  - save diagnostics workspace export parity for policy, recovery, and schema state
+  - save workflow action parity, save policy authoring/apply parity, and selected-row export stability
 - future native tests should add:
   - save schema migration tests
   - recovery diagnostics snapshot tests
@@ -244,7 +251,7 @@ _Canonical source: [WAVE1_SUBSYSTEM_CLOSURE_CHECKLIST.md](WAVE1_SUBSYSTEM_CLOSUR
 ### Save / Data Core specific closure gates
 
 - [ ] Save catalog/serializer/recovery ownership is authoritative and separate from UI presentation concerns.
-- [ ] Autosave, recovery tier escalation, and safe-mode behavior are policy-owned and diagnostics-backed.
+- [x] Autosave, recovery tier escalation, and safe-mode behavior are policy-owned and diagnostics-backed.
 - [ ] Compat metadata/import upgrade mappings are typed, versioned, and test-backed.
 
 ### Closure sign-off artifact checklist

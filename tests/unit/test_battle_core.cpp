@@ -13,7 +13,7 @@ TEST_CASE("BattleFlowController transitions deterministically across phases", "[
     REQUIRE(flow.phase() == BattleFlowPhase::Start);
     REQUIRE(flow.isActive());
     REQUIRE(flow.canEscape());
-    REQUIRE(flow.turnCount() == 0);
+    REQUIRE(flow.turnCount() == 1);
     REQUIRE(flow.escapeFailures() == 0);
 
     flow.enterInput();
@@ -28,7 +28,7 @@ TEST_CASE("BattleFlowController transitions deterministically across phases", "[
 
     flow.endTurn();
     REQUIRE(flow.phase() == BattleFlowPhase::TurnEnd);
-    REQUIRE(flow.turnCount() == 1);
+    REQUIRE(flow.turnCount() == 2);
 
     flow.markVictory();
     REQUIRE(flow.phase() == BattleFlowPhase::Victory);
@@ -95,6 +95,23 @@ TEST_CASE("BattleRuleResolver resolves damage with guard, crit, and variance rul
     magical.magical = true;
     const int32_t magical_damage = BattleRuleResolver::resolveDamage(magical);
     REQUIRE(magical_damage > 0);
+}
+
+TEST_CASE("BattleRuleResolver resolves guarded scene attacks without exceeding current HP", "[battle][core][rules]") {
+    BattleDamageContext context;
+    context.subject.atk = 12;
+    context.target.hp = 20;
+    context.target.def = 4;
+    context.target.guarding = true;
+    context.power = 6;
+
+    const int32_t guarded = BattleRuleResolver::resolveDamage(context);
+    context.target.guarding = false;
+    const int32_t normal = BattleRuleResolver::resolveDamage(context);
+
+    REQUIRE(guarded > 0);
+    REQUIRE(normal > guarded);
+    REQUIRE(normal <= 20);
 }
 
 TEST_CASE("BattleRuleResolver escape ratio ramps with failed attempts", "[battle][core][rules]") {

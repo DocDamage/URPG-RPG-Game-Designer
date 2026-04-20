@@ -203,7 +203,85 @@ nlohmann::json SaveInspectorSummaryJson(const SaveInspectorSummary& summary) {
         {"autosave_retention_limit", summary.autosave_retention_limit},
         {"quicksave_retention_limit", summary.quicksave_retention_limit},
         {"manual_retention_limit", summary.manual_retention_limit},
+        {"prune_excess_on_save", summary.prune_excess_on_save},
         {"reserved_slots", summary.reserved_slots},
+    };
+}
+
+nlohmann::json SaveMetadataFieldJson(const SaveInspectorMetadataFieldRow& field) {
+    return {
+        {"key", field.key},
+        {"display_label", field.display_label},
+        {"required", field.required},
+        {"default_value", field.default_value},
+    };
+}
+
+nlohmann::json SaveSlotDescriptorJson(const urpg::SaveSlotDescriptor& descriptor) {
+    return {
+        {"slot_id", descriptor.slot_id},
+        {"category", ToString(descriptor.category)},
+        {"label", descriptor.label},
+        {"reserved", descriptor.reserved},
+    };
+}
+
+nlohmann::json SaveRecoveryDiagnosticsJson(const SaveRecoveryDiagnosticsSummary& summary) {
+    return {
+        {"total_recovery_slots", summary.total_recovery_slots},
+        {"autosave_recovery_slots", summary.autosave_recovery_slots},
+        {"metadata_variables_recovery_slots", summary.metadata_variables_recovery_slots},
+        {"safe_mode_recovery_slots", summary.safe_mode_recovery_slots},
+        {"corrupted_slots", summary.corrupted_slots},
+        {"diagnostic_rows", summary.diagnostic_rows},
+    };
+}
+
+nlohmann::json SaveSerializationSchemaJson(const SaveSerializationSchemaSummary& summary) {
+    return {
+        {"format_magic", summary.format_magic},
+        {"version_major", summary.version_major},
+        {"version_minor", summary.version_minor},
+        {"differential_supported", summary.differential_supported},
+        {"compression_modes", summary.compression_modes},
+    };
+}
+
+const char* SavePolicyIssueSeverityName(SavePolicyIssueSeverity severity) {
+    switch (severity) {
+    case SavePolicyIssueSeverity::Warning:
+        return "warning";
+    case SavePolicyIssueSeverity::Error:
+        return "error";
+    }
+    return "warning";
+}
+
+nlohmann::json SavePolicyDraftJson(const SavePolicyDraft& draft) {
+    return {
+        {"autosave_enabled", draft.autosave_enabled},
+        {"autosave_slot_id", draft.autosave_slot_id},
+        {"max_autosave_slots", draft.max_autosave_slots},
+        {"max_quicksave_slots", draft.max_quicksave_slots},
+        {"max_manual_slots", draft.max_manual_slots},
+        {"prune_excess_on_save", draft.prune_excess_on_save},
+    };
+}
+
+nlohmann::json SavePolicyIssueJson(const SavePolicyIssue& issue) {
+    return {
+        {"severity", SavePolicyIssueSeverityName(issue.severity)},
+        {"code", issue.code},
+        {"message", issue.message},
+    };
+}
+
+nlohmann::json SavePolicyValidationJson(const SavePolicyValidationSummary& summary) {
+    return {
+        {"issue_count", summary.issue_count},
+        {"warning_count", summary.warning_count},
+        {"error_count", summary.error_count},
+        {"can_apply", summary.can_apply},
     };
 }
 
@@ -685,12 +763,52 @@ const AbilityInspectorPanel& DiagnosticsWorkspace::abilityPanel() const {
 }
 
 void DiagnosticsWorkspace::bindSaveRuntime(const urpg::SaveCatalog& catalog,
-                                           const urpg::SaveSessionCoordinator& coordinator) {
+                                           urpg::SaveSessionCoordinator& coordinator) {
     save_panel_.bindRuntime(catalog, coordinator);
 }
 
 void DiagnosticsWorkspace::clearSaveRuntime() {
     save_panel_.clearRuntime();
+}
+
+bool DiagnosticsWorkspace::setSaveShowProblemSlotsOnly(bool show_problem_slots_only) {
+    save_panel_.setShowProblemSlotsOnly(show_problem_slots_only);
+    save_panel_.update();
+    return true;
+}
+
+bool DiagnosticsWorkspace::setSaveIncludeAutosave(bool include_autosave) {
+    save_panel_.setIncludeAutosave(include_autosave);
+    save_panel_.update();
+    return true;
+}
+
+bool DiagnosticsWorkspace::selectSaveRow(size_t row_index) {
+    return save_panel_.getModel().SelectRow(row_index);
+}
+
+bool DiagnosticsWorkspace::setSavePolicyAutosaveEnabled(bool autosave_enabled) {
+    return save_panel_.setPolicyAutosaveEnabled(autosave_enabled);
+}
+
+bool DiagnosticsWorkspace::setSavePolicyAutosaveSlotId(int32_t autosave_slot_id) {
+    return save_panel_.setPolicyAutosaveSlotId(autosave_slot_id);
+}
+
+bool DiagnosticsWorkspace::setSavePolicyRetentionLimits(size_t max_autosave_slots,
+                                                        size_t max_quicksave_slots,
+                                                        size_t max_manual_slots,
+                                                        bool prune_excess_on_save) {
+    return save_panel_.setPolicyRetentionLimits(
+        max_autosave_slots, max_quicksave_slots, max_manual_slots, prune_excess_on_save);
+}
+
+bool DiagnosticsWorkspace::applySavePolicyChanges() {
+    const bool applied = save_panel_.applyPolicyToRuntime();
+    if (applied) {
+        save_panel_.update();
+    }
+    return applied;
 }
 
 void DiagnosticsWorkspace::bindMessageRuntime(const urpg::message::MessageFlowRunner& flow_runner,
@@ -1401,8 +1519,9 @@ DiagnosticsTabSummary DiagnosticsWorkspace::tabSummary(DiagnosticsTab tab) const
     case DiagnosticsTab::Save: {
         const auto& saveSummary = save_panel_.getModel().Summary();
         summary.item_count = saveSummary.total_slots;
-        summary.issue_count = saveSummary.corrupted_slots + saveSummary.recovery_slots;
-        summary.has_data = summary.item_count > 0;
+        summary.issue_count = saveSummary.corrupted_slots + saveSummary.recovery_slots +
+                              save_panel_.getModel().PolicyValidation().error_count;
+        summary.has_data = summary.item_count > 0 || save_panel_.getModel().PolicyValidation().issue_count > 0;
         break;
     }
     case DiagnosticsTab::EventAuthority: {
@@ -1522,12 +1641,50 @@ std::string DiagnosticsWorkspace::exportAsJson() const {
     }
     case DiagnosticsTab::Save: {
         activeTabDetail["save_summary"] = SaveInspectorSummaryJson(save_panel_.getModel().Summary());
+        activeTabDetail["show_problem_slots_only"] = save_panel_.showProblemSlotsOnly();
+        activeTabDetail["include_autosave"] = save_panel_.includeAutosave();
+        activeTabDetail["autosave_policy"] = {
+            {"enabled", save_panel_.getModel().Summary().autosave_enabled},
+            {"slot_id", save_panel_.getModel().Summary().autosave_slot_id},
+        };
+        activeTabDetail["retention_policy"] = {
+            {"max_autosave_slots", save_panel_.getModel().Summary().autosave_retention_limit},
+            {"max_quicksave_slots", save_panel_.getModel().Summary().quicksave_retention_limit},
+            {"max_manual_slots", save_panel_.getModel().Summary().manual_retention_limit},
+            {"prune_excess_on_save", save_panel_.getModel().Summary().prune_excess_on_save},
+        };
+        activeTabDetail["policy_draft"] = SavePolicyDraftJson(save_panel_.getModel().PolicyDraft());
+        activeTabDetail["policy_validation"] = SavePolicyValidationJson(save_panel_.getModel().PolicyValidation());
         activeTabDetail["selected_slot_id"] =
             save_panel_.getModel().SelectedSlotId().has_value() ? nlohmann::json(*save_panel_.getModel().SelectedSlotId())
                                                                 : nlohmann::json(nullptr);
+        activeTabDetail["selected_row"] = nullptr;
+        nlohmann::json policyIssues = nlohmann::json::array();
+        for (const auto& issue : save_panel_.getModel().PolicyIssues()) {
+            policyIssues.push_back(SavePolicyIssueJson(issue));
+        }
+        activeTabDetail["policy_issues"] = std::move(policyIssues);
+        nlohmann::json metadataFields = nlohmann::json::array();
+        for (const auto& field : save_panel_.getModel().MetadataFields()) {
+            metadataFields.push_back(SaveMetadataFieldJson(field));
+        }
+        activeTabDetail["metadata_fields"] = std::move(metadataFields);
+        nlohmann::json slotDescriptors = nlohmann::json::array();
+        for (const auto& descriptor : save_panel_.getModel().SlotDescriptors()) {
+            slotDescriptors.push_back(SaveSlotDescriptorJson(descriptor));
+        }
+        activeTabDetail["slot_descriptors"] = std::move(slotDescriptors);
+        activeTabDetail["recovery_diagnostics"] =
+            SaveRecoveryDiagnosticsJson(save_panel_.getModel().RecoveryDiagnostics());
+        activeTabDetail["serialization_schema"] =
+            SaveSerializationSchemaJson(save_panel_.getModel().SerializationSchema());
         nlohmann::json rows = nlohmann::json::array();
         for (const auto& row : save_panel_.getModel().VisibleRows()) {
             rows.push_back(SaveRowJson(row));
+            if (save_panel_.getModel().SelectedSlotId().has_value() &&
+                row.slot_id == *save_panel_.getModel().SelectedSlotId()) {
+                activeTabDetail["selected_row"] = SaveRowJson(row);
+            }
         }
         activeTabDetail["visible_rows"] = std::move(rows);
         break;

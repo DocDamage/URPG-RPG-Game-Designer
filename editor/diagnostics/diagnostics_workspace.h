@@ -62,8 +62,18 @@ public:
     const MigrationWizardPanel& migrationWizardPanel() const;
 
     void bindSaveRuntime(const urpg::SaveCatalog& catalog,
-                         const urpg::SaveSessionCoordinator& coordinator);
+                         urpg::SaveSessionCoordinator& coordinator);
     void clearSaveRuntime();
+    bool setSaveShowProblemSlotsOnly(bool show_problem_slots_only);
+    bool setSaveIncludeAutosave(bool include_autosave);
+    bool selectSaveRow(size_t row_index);
+    bool setSavePolicyAutosaveEnabled(bool autosave_enabled);
+    bool setSavePolicyAutosaveSlotId(int32_t autosave_slot_id);
+    bool setSavePolicyRetentionLimits(size_t max_autosave_slots,
+                                      size_t max_quicksave_slots,
+                                      size_t max_manual_slots,
+                                      bool prune_excess_on_save);
+    bool applySavePolicyChanges();
     void bindMessageRuntime(const urpg::message::MessageFlowRunner& flow_runner,
                             const urpg::message::RichTextLayoutEngine& layout_engine);
     void clearMessageRuntime();
@@ -81,6 +91,17 @@ public:
     bool loadMessageStateFromFile(const std::string& path, urpg::message::MessageFlowRunner& runner);
     void bindBattleRuntime(const urpg::battle::BattleFlowController& flow_controller,
                            const urpg::battle::BattleActionQueue& action_queue);
+
+    template <typename SceneLike>
+    requires requires(const SceneLike& battle_scene) {
+        battle_scene.flowController();
+        battle_scene.nativeActionQueue();
+        battle_scene.buildDiagnosticsPreview();
+    }
+    void bindBattleRuntime(const SceneLike& battle_scene) {
+        battle_panel_.bindRuntime(battle_scene);
+    }
+
     void clearBattleRuntime();
     void bindMenuRuntime(urpg::ui::MenuSceneGraph& scene_graph,
                          const urpg::ui::MenuCommandRegistry& registry,
