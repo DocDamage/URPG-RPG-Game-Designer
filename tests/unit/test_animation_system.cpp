@@ -77,3 +77,37 @@ TEST_CASE("TimelineKernel triggers deterministic transient events", "[animation]
     REQUIRE(triggered[1].type == urpg::animation::TimelineEventType::TriggerVFX);
     REQUIRE(triggered[1].payload == "slash_fx");
 }
+
+TEST_CASE("TimelineKernel supports scene and UI authoring workflows", "[animation][timeline]") {
+    urpg::animation::TimelineKernel kernel;
+
+    SECTION("Authoring APIs create and sort scene tracks deterministically") {
+        kernel.ensureTrack("scene_camera", urpg::animation::TimelineTrackKind::Scene);
+        kernel.addEvent("scene_camera", {1.0f, urpg::animation::TimelineEventType::SetCamera, "camera", "close_up", 0.0f});
+        kernel.addEvent("scene_camera", {0.25f, urpg::animation::TimelineEventType::MoveEntity, "hero", "step_forward", 0.5f});
+
+        const auto* track = kernel.findTrack("scene_camera");
+        REQUIRE(track != nullptr);
+        REQUIRE(track->kind == urpg::animation::TimelineTrackKind::Scene);
+        REQUIRE(track->events.size() == 2);
+        REQUIRE(track->events[0].timestamp == 0.25f);
+        REQUIRE(track->events[1].timestamp == 1.0f);
+    }
+
+    SECTION("Authoring APIs update and remove UI events by stable key") {
+        kernel.ensureTrack("ui_overlay", urpg::animation::TimelineTrackKind::UI);
+        kernel.addEvent("ui_overlay", {0.5f, urpg::animation::TimelineEventType::Dialogue, "hud", "show_banner", 1.0f});
+
+        REQUIRE(kernel.updateEvent("ui_overlay", 0, {0.75f, urpg::animation::TimelineEventType::Dialogue, "hud", "show_prompt", 1.5f}));
+
+        const auto* track = kernel.findTrack("ui_overlay");
+        REQUIRE(track != nullptr);
+        REQUIRE(track->kind == urpg::animation::TimelineTrackKind::UI);
+        REQUIRE(track->events.size() == 1);
+        REQUIRE(track->events[0].timestamp == 0.75f);
+        REQUIRE(track->events[0].payload == "show_prompt");
+
+        REQUIRE(kernel.removeEvent("ui_overlay", 0));
+        REQUIRE(track->events.empty());
+    }
+}

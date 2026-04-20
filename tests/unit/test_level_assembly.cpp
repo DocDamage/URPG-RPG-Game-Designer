@@ -162,10 +162,82 @@ TEST_CASE("LevelBlockImporter loads JSON library", "[level]") {
     auto blocks = LevelBlockImporter::importLibrary(testFile);
     REQUIRE(blocks.size() == 1);
     REQUIRE(blocks[0].getId() == "b1");
+    REQUIRE(blocks[0].getPrefabPath() == "p1");
     REQUIRE(blocks[0].getConnectors().size() == 1);
     REQUIRE(blocks[0].getConnectors()[0].side == ConnectorSide::North);
     REQUIRE(blocks[0].getConnectors()[0].type == "T1");
     REQUIRE(blocks[0].getConnectors()[0].localX == 1.0f);
+
+    std::remove(testFile);
+}
+
+TEST_CASE("LevelBlockLibrary builds deterministic thumbnails and registers block definitions", "[level][assembly]") {
+    LevelBlock room("room_a");
+    room.setPrefabPath("prefabs/room_a.scene");
+    room.addConnector({"Hall", ConnectorSide::North, 0, 0, 0});
+    room.addConnector({"Hall", ConnectorSide::South, 0, 0, 0});
+    room.addConnector({"Hall", ConnectorSide::East, 0, 0, 0});
+    room.addConnector({"Hall", ConnectorSide::West, 0, 0, 0});
+
+    LevelBlock stair("stairs_up");
+    stair.setPrefabPath("prefabs/stairs_up.scene");
+    stair.addConnector({"Lift", ConnectorSide::Up, 0, 0, 0});
+    stair.addConnector({"Lift", ConnectorSide::Down, 0, 0, 0});
+
+    LevelBlockLibrary library("Dungeon Starters");
+    library.addBlock(room);
+    library.addBlock(stair);
+
+    const auto thumbnails = library.buildThumbnails();
+    REQUIRE(thumbnails.size() == 2);
+    REQUIRE(thumbnails[0].blockId == "room_a");
+    REQUIRE(thumbnails[0].prefabPath == "prefabs/room_a.scene");
+    REQUIRE(thumbnails[0].connectorCount == 4);
+    REQUIRE(thumbnails[0].rows.size() == 5);
+    REQUIRE(thumbnails[0].rows[0][2] == 'N');
+    REQUIRE(thumbnails[0].rows[2][0] == 'W');
+    REQUIRE(thumbnails[0].rows[2][2] == 'R');
+    REQUIRE(thumbnails[0].rows[2][4] == 'E');
+    REQUIRE(thumbnails[0].rows[4][2] == 'S');
+    REQUIRE(thumbnails[1].rows[1][2] == 'U');
+    REQUIRE(thumbnails[1].rows[3][2] == 'D');
+
+    LevelAssemblyWorkspace workspace;
+    workspace.registerLibrary(library);
+    REQUIRE(workspace.findBlockDefinition("room_a") != nullptr);
+    REQUIRE(workspace.findBlockDefinition("stairs_up") != nullptr);
+}
+
+TEST_CASE("LevelBlockImporter loads library metadata and thumbnail-ready prefab paths", "[level][assembly]") {
+    const char* testFile = "test_level_library_metadata.json";
+    {
+        std::ofstream out(testFile);
+        out << R"({
+          "libraryName": "Imported Library",
+          "blocks": [
+            {
+              "id": "hub",
+              "prefabPath": "prefabs/hub.scene",
+              "connectors": [
+                { "side": "North", "type": "Hall", "offset": [0, 0, 0] },
+                { "side": "East", "type": "Hall", "offset": [0, 0, 0] }
+              ]
+            }
+          ]
+        })";
+    }
+
+    const auto library = LevelBlockImporter::importLibraryDefinition(testFile);
+    REQUIRE(library.getName() == "Imported Library");
+    REQUIRE(library.getBlocks().size() == 1);
+    REQUIRE(library.getBlocks()[0].getId() == "hub");
+    REQUIRE(library.getBlocks()[0].getPrefabPath() == "prefabs/hub.scene");
+
+    const auto thumbnails = library.buildThumbnails();
+    REQUIRE(thumbnails.size() == 1);
+    REQUIRE(thumbnails[0].blockId == "hub");
+    REQUIRE(thumbnails[0].rows[0][2] == 'N');
+    REQUIRE(thumbnails[0].rows[2][4] == 'E');
 
     std::remove(testFile);
 }

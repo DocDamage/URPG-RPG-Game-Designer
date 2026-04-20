@@ -1,5 +1,7 @@
 #include "engine/core/render/raycast_renderer.h"
 #include "editor/productivity/editor_utility_task.h"
+#include "engine/core/presentation/presentation_migrate.h"
+#include "engine/core/presentation/presentation_schema.h"
 #include "engine/core/presentation/presentation_types.h"
 
 #include <catch2/catch_test_macros.hpp>
@@ -35,6 +37,43 @@ TEST_CASE("Raycast renderer stays behind explicit presentation gating", "[render
         config.presentationMode = urpg::presentation::PresentationMode::Spatial;
         const auto results = urpg::render::RaycastRenderer::castFrame(camera, config, isBlocking);
         REQUIRE(results.size() == static_cast<size_t>(config.screenWidth));
+    }
+
+    SECTION("Spatial overlays can be adapted into a raycast-ready authored map") {
+        urpg::presentation::SpatialMapOverlay overlay;
+        overlay.elevation.width = 4;
+        overlay.elevation.height = 4;
+        overlay.elevation.levels = {
+            0, 0, 0, 0,
+            0, 2, 0, 0,
+            0, 0, 0, 0,
+            0, 0, 0, 0
+        };
+
+        const auto adapter = urpg::render::RaycastRenderer::buildAuthoringAdapter(overlay);
+        REQUIRE(adapter.width == 4);
+        REQUIRE(adapter.height == 4);
+        REQUIRE(adapter.isBlocking(1, 1));
+        REQUIRE_FALSE(adapter.isBlocking(0, 0));
+    }
+
+    SECTION("Migrated legacy maps produce deterministic 2.5D blocking adapters") {
+        urpg::presentation::PresentationMigrationTool::LegacyMapData legacy;
+        legacy.id = "legacy_castle";
+        legacy.width = 4;
+        legacy.height = 4;
+        legacy.tileData = {
+            0, 0, 0, 0,
+            0, 150, 0, 0,
+            0, 0, 0, 0,
+            0, 0, 0, 0
+        };
+
+        const auto overlay = urpg::presentation::PresentationMigrationTool::MigrateMap(legacy);
+        const auto adapter = urpg::render::RaycastRenderer::buildAuthoringAdapter(overlay);
+        REQUIRE(adapter.mapId == "legacy_castle");
+        REQUIRE(adapter.isBlocking(1, 1));
+        REQUIRE_FALSE(adapter.isBlocking(0, 0));
     }
 }
 

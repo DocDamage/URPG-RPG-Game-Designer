@@ -1,9 +1,11 @@
 #pragma once
 
 #include "engine/core/ability/pattern_field.h"
+#include "engine/core/ability/pattern_field_presets.h"
 #include <vector>
 #include <memory>
 #include <string>
+#include <optional>
 
 namespace urpg {
     class PatternField;
@@ -28,6 +30,12 @@ public:
         std::vector<std::string> grid_rows;
     };
 
+    struct AvailablePreset {
+        std::string id;
+        std::string display_name;
+        urpg::PatternFieldPresets::Usage usage = urpg::PatternFieldPresets::Usage::Skill;
+    };
+
     PatternFieldModel();
 
     void setCurrentPattern(std::shared_ptr<PatternField> pattern);
@@ -38,6 +46,8 @@ public:
     void resizeViewport(int32_t newSize);
     void setName(const std::string& name);
     void applyPreset(const std::string& presetId);
+    std::vector<AvailablePreset> availablePresets(
+        std::optional<urpg::PatternFieldPresets::Usage> usage = std::nullopt) const;
 
     GridBounds getViewportBounds() const;
     int32_t getViewportSize() const { return m_viewportSize; }

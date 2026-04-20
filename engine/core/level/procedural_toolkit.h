@@ -24,6 +24,23 @@ struct GeneratedBlock {
     int32_t z = 0;
 };
 
+struct GeneratedEncounter {
+    std::string encounterId;
+    std::string anchorBlockId;
+    int32_t x = 0;
+    int32_t y = 0;
+    int32_t z = 0;
+    int32_t difficultyTier = 1;
+    std::string role;
+};
+
+struct ScenarioBundle {
+    uint32_t seed = 0;
+    std::string scenarioId;
+    std::vector<GeneratedBlock> layout;
+    std::vector<GeneratedEncounter> encounters;
+};
+
 /**
  * @brief Base toolkit for procedural content generation.
  */
@@ -131,6 +148,42 @@ public:
         }
 
         return layout;
+    }
+
+    static ScenarioBundle generateScenario(const std::vector<LevelBlock>& library, const GenParams& params) {
+        ScenarioBundle bundle;
+        bundle.seed = params.seed;
+        bundle.scenarioId = "scenario_" + std::to_string(params.seed);
+        bundle.layout = generateDungeon(library, params);
+
+        if (bundle.layout.empty()) {
+            return bundle;
+        }
+
+        bundle.encounters.push_back({
+            "encounter_" + std::to_string(params.seed) + "_entry",
+            bundle.layout.front().blockId,
+            bundle.layout.front().x,
+            bundle.layout.front().y,
+            bundle.layout.front().z,
+            1,
+            "entry_guard"
+        });
+
+        if (bundle.layout.size() > 1) {
+            const GeneratedBlock& goal = bundle.layout.back();
+            bundle.encounters.push_back({
+                "encounter_" + std::to_string(params.seed) + "_goal",
+                goal.blockId,
+                goal.x,
+                goal.y,
+                goal.z,
+                2,
+                "goal_guard"
+            });
+        }
+
+        return bundle;
     }
 
 private:

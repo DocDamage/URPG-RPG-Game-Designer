@@ -22,9 +22,17 @@ TEST_CASE("Spatial Editor Tooling Integration", "[editor][spatial]") {
     SECTION("ElevationBrush modifies grid data") {
         ElevationBrushPanel brush;
         brush.SetTarget(&overlay);
+        brush.SetBrushSize(2);
+        brush.SetBrushHeight(3.0f);
         
         brush.ApplyBrush(5, 5, 2);
         REQUIRE(overlay.elevation.levels[5 * 10 + 5] == 2);
+        REQUIRE(overlay.elevation.levels[4 * 10 + 4] == 2);
+        REQUIRE(brush.lastRenderSnapshot().has_target);
+        REQUIRE(brush.lastRenderSnapshot().grid_width == 10);
+        REQUIRE(brush.lastRenderSnapshot().grid_height == 10);
+        REQUIRE(brush.lastRenderSnapshot().brush_size == 2);
+        REQUIRE(brush.lastRenderSnapshot().brush_height == Catch::Approx(3.0f));
         
         // Out of bounds safety
         brush.ApplyBrush(20, 20, 5); 
@@ -34,11 +42,16 @@ TEST_CASE("Spatial Editor Tooling Integration", "[editor][spatial]") {
     SECTION("PropPlacement adds instances") {
         PropPlacementPanel placement;
         placement.SetTarget(&overlay);
+        placement.SetSelectedAssetId("rock_01");
         
         placement.AddProp("rock_01", 1.5f, 0.0f, 2.5f);
         REQUIRE(overlay.props.size() == 1);
         REQUIRE(overlay.props[0].assetId == "rock_01");
         REQUIRE(overlay.props[0].posX == 1.5f);
+        REQUIRE(placement.lastRenderSnapshot().has_target);
+        REQUIRE(placement.lastRenderSnapshot().selected_asset_id == "rock_01");
+        REQUIRE(placement.lastRenderSnapshot().prop_count == 1);
+        REQUIRE(placement.lastRenderSnapshot().last_added_asset_id == std::optional<std::string>{"rock_01"});
     }
 
     SECTION("PropPlacement projects viewport center to camera-centered world position") {

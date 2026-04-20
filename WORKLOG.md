@@ -9,6 +9,70 @@
 
 ## Entries
 
+### 2026-04-20 — Spatial Panel Build Registration
+- **Action**: Converted `editor/spatial/elevation_brush_panel.h` and `editor/spatial/prop_placement_panel.h` from header-only stubs into compiled panel sources with `editor/spatial/elevation_brush_panel.cpp` and `editor/spatial/prop_placement_panel.cpp`.
+- **Action**: Added lightweight render snapshots for both spatial panels and expanded `tests/unit/test_spatial_editor.cpp` to assert compiled tool-state projection alongside the existing authoring behavior checks.
+- **Action**: Registered the new spatial panel sources in `CMakeLists.txt` and re-ran the focused spatial editor lane:
+  - `.\build\Debug\urpg_tests.exe "[editor][spatial]" --reporter compact` => 51 assertions / 1 test case passed
+- **Result**: The remaining roadmap incubation items for spatial presentation/editor tooling build registration are now covered on this branch.
+
+### 2026-04-20 — Roadmap Truthfulness Reconciliation
+- **Action**: Reconciled `docs/NATIVE_FEATURE_ABSORPTION_PLAN.md` against the already-landed Wave 2 ability diagnostics work and the recorded program-level release-evidence bundle.
+- **Action**: Closed stale unchecked roadmap items for ability/effect replay-safe diagnostics plus the release-readiness matrix and native/compat gate-report proofs, since those were already backed by `docs/PROGRAM_COMPLETION_STATUS.md`, `RELEASE_CHECKLIST.md`, and the active local validation snapshots on this branch.
+- **Result**: The roadmap now reflects the actual implemented/evidenced branch state instead of leaving already-complete work marked open.
+
+### 2026-04-20 — Pattern Preset Domain Catalog
+- **Action**: Extended `engine/core/ability/pattern_field_presets.*` with a categorized preset catalog for skills, items, placement footprints, and interaction masks, plus deterministic lookup by preset id.
+- **Action**: Updated `editor/ability/pattern_field_model.*` so the editor can filter available presets by usage domain and apply categorized presets directly through the model.
+- **Action**: Expanded `tests/unit/test_pattern_field.cpp` with focused coverage for preset-domain lookup, domain-filtered model catalogs, and categorized preset application.
+- **Action**: Rebuilt the active local Debug test binary and re-ran the focused pattern lane:
+  - `.\build\Debug\urpg_tests.exe "[ability][pattern]" --reporter compact` => 76 assertions / 8 test cases passed
+- **Result**: The remaining roadmap item for reusable pattern presets across skills, items, placement, and interaction masks is now covered on this branch.
+
+### 2026-04-20 — Level Block Libraries and Thumbnails
+- **Action**: Extended `engine/core/level/level_assembly.*` with `LevelBlockLibrary`, deterministic thumbnail generation, and workspace library registration so modular block catalogs are first-class data instead of ad hoc vectors.
+- **Action**: Updated `engine/core/level/level_block_importer.h` to preserve `libraryName` and `prefabPath` metadata through a thumbnail-ready `importLibraryDefinition()` path while keeping the legacy vector-return helper intact.
+- **Action**: Expanded `tests/unit/test_level_assembly.cpp` with focused coverage for prefab-path preservation, deterministic thumbnail layout, and library registration.
+- **Action**: Rebuilt the active local Debug test binary and re-ran the focused level-assembly lane:
+  - `.\build\Debug\urpg_tests.exe "[level][assembly]" --reporter compact` => 36 assertions / 2 test cases passed
+- **Result**: The remaining roadmap item for modular level block libraries and thumbnail generation is now covered on this branch.
+
+### 2026-04-20 — Sprite Animation Preview/Tuning Panel
+- **Action**: Added `editor/sprite/sprite_animation_preview_panel.*` so packed atlas metadata now has a native editor surface for deterministic clip selection, playback stepping, active-frame inspection, and frame-duration/loop tuning.
+- **Action**: Registered the new panel in the build graph and added focused regressions in `tests/unit/test_sprite_animation_preview_panel.cpp`.
+- **Action**: Rebuilt the active local Debug test binary and re-ran the focused panel lane:
+  - `.\build\Debug\urpg_tests.exe "[sprite][editor][panel]" --reporter compact` => 31 assertions / 3 test cases passed
+- **Result**: The remaining roadmap item for the sprite animation-sheet preview/tuning panel is now covered on this branch.
+
+### 2026-04-20 — Compat Focused Validation Snapshot Refresh
+- **Action**: Built the dedicated compat test binary in the active local Debug lane to eliminate stale `NOT_BUILT` CTest placeholder noise for the focused compat evidence pass.
+- **Action**: Re-ran the real compat suite directly:
+  - `.\build\Debug\urpg_compat_tests.exe --reporter compact` => 3375 assertions / 43 test cases passed
+- **Action**: Updated the compat exit checklist and canonical status snapshot so the active-local compat gate is now recorded as current evidence instead of an unchecked stale item.
+- **Result**: The compat checklist item for “Focused compat suites pass in the active local build lane” is now closed on this branch. Remaining compat work is corpus/failure-path depth, not a failing active suite.
+
+### 2026-04-20 — 2.5D Map Authoring Adapter
+- **Action**: Extended `engine/core/render/raycast_renderer.h` with `AuthoringAdapter` and `buildAuthoringAdapter()` so authored `SpatialMapOverlay` data can be converted into a deterministic raycast blocking grid for optional 2.5D projects.
+- **Action**: Expanded `tests/unit/test_optional_lanes.cpp` to cover adapter generation from both directly-authored overlays and migrated legacy map overlays.
+- **Action**: Rebuilt the active local Debug test binary and re-ran the focused optional-lane gate:
+  - `.\build\Debug\urpg_tests.exe "[render][optional],[editor][utility]" --reporter compact` => 12 assertions / 2 test cases passed
+- **Result**: The remaining roadmap item for 2.5D map authoring adapters is now covered on this branch.
+
+### 2026-04-20 — Timeline Scene/UI Authoring APIs
+- **Action**: Extended `engine/core/animation/timeline_kernel.h` with `TimelineTrackKind` plus authoring-oriented APIs (`ensureTrack`, `findTrack`, `addEvent`, `updateEvent`, `removeEvent`) so scene and UI animation timelines can be edited through a stable kernel surface instead of only loaded as raw tracks.
+- **Action**: Expanded `tests/unit/test_animation_system.cpp` to cover deterministic scene-track creation/sorting and UI-track event update/removal workflows.
+- **Action**: Rebuilt the active local Debug test binary and re-ran the focused animation lane:
+  - `.\build\Debug\urpg_tests.exe "[animation]" --reporter compact` => 26 assertions / 4 test cases passed
+- **Result**: The remaining roadmap item for scene/UI timeline authoring is now covered on this branch.
+
+### 2026-04-20 — Procedural Toolkit Scenario Bundles
+- **Action**: Extended `engine/core/level/procedural_toolkit.h` with `GeneratedEncounter` and `ScenarioBundle` so the procedural lane now produces deterministic encounter/scenario bundles instead of only seeded block layouts.
+- **Action**: Added `ProceduralToolkit::generateScenario()` to derive stable scenario IDs plus entry/goal encounter anchors from the seeded dungeon layout.
+- **Action**: Expanded `tests/unit/test_procedural_toolkit.cpp` to cover same-seed scenario reproducibility, different-seed scenario identity changes, encounter role assignment, and deterministic goal anchoring.
+- **Action**: Rebuilt the active local Debug test binary and re-ran the focused procedural lane:
+  - `.\build\Debug\urpg_tests.exe "[procedural][level]" --reporter compact` => 31 assertions / 1 test case passed
+- **Result**: The remaining procedural roadmap item for deterministic encounter/scenario generators is now covered on this branch.
+
 ### 2026-04-20 — Wave 2 Opening: Optional 2.5D and Editor Utility Gating
 - **Action**: Added explicit presentation-mode gating to `engine/core/render/raycast_renderer.h` so the optional raycast lane returns no frame data unless the project is intentionally running in `Spatial` mode.
 - **Action**: Extended `editor/productivity/editor_utility_task.h` with mode requirements and runnable-task filtering so utilities can declare whether they are safe for any project, Classic 2D only, or Spatial-only execution.
@@ -769,3 +833,20 @@
 - **Action**: Message inspector panel productization: RenderSnapshot, render(), workspace snapshot coherence.
 - **Action**: Compat exit checklist publication: created docs/COMPAT_EXIT_CHECKLIST.md with import-confidence and migration-confidence pass criteria, signed-off-by section, and related-document links.
 - **Result**: Compat exit checklist artifact is published. Documentation alignment updates applied to docs/PROGRAM_COMPLETION_STATUS.md, docs/TECHNICAL_DEBT_REMEDIATION_PLAN.md, and WORKLOG.md.
+## 2026-04-20 - Compat Failure-Parity Checklist Reconciliation
+
+- **Context**: The compat exit checklist still left failure-path parity unchecked even though the mixed-chain diagnostics suite was already asserting JSONL export, report-model ingestion/export, and panel projection across the active plugin failure matrix.
+- **Action**: Re-audited `tests/compat/test_compat_plugin_failure_diagnostics.cpp` and reconciled the compat checklist/status docs so the remaining work list no longer treats failure-path parity as an open item.
+- **Result**: Compat status now truthfully reflects that failure operations are anchored through JSONL artifacts, report ingestion/export, and panel projection parity, leaving the curated corpus and recurring regression cadence as the primary remaining compat hardening items.
+
+## 2026-04-20 - Compat Weekly Regression Runner
+
+- **Context**: The weekly compat lane already existed in labels/tests, but there was no dedicated `tools/ci` runner to keep the regression cadence concrete and repeatable outside the broad local gate script.
+- **Action**: Added `tools/ci/run_compat_weekly_regression.ps1` to configure/build the compat target and execute the CTest `weekly` lane as a stable maintenance command, then reconciled the remaining-status docs against that runner.
+- **Result**: Weekly compat regression is now an explicit maintained workflow rather than only a documented intent, and the remaining 100% tracker no longer leaves that cadence item open.
+
+## 2026-04-20 - Curated Compat Corpus Checklist Reconciliation
+
+- **Context**: The compat exit checklist still left curated-corpus coverage open even though the active fixture corpus already spans 10 plugin/import profiles and the weekly lane exercises orchestration and reload-survival across them.
+- **Action**: Re-audited `fixtureSpecs()` plus the curated orchestration/reload tests in `tests/compat/test_compat_plugin_fixtures.cpp`, then reconciled the compat checklist and remaining-work tracker to reflect that shipped coverage.
+- **Result**: The remaining compat hardening tracker no longer treats 10-profile corpus coverage as unfinished work; the open compat follow-through is now limited to sign-off/ongoing truth-maintenance rather than missing routed coverage.

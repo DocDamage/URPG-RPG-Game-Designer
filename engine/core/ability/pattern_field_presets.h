@@ -2,6 +2,7 @@
 
 #include "engine/core/ability/pattern_field.h"
 #include <memory>
+#include <optional>
 #include <vector>
 
 namespace urpg {
@@ -11,6 +12,20 @@ namespace urpg {
  */
 class PatternFieldPresets {
 public:
+    enum class Usage {
+        Skill,
+        Item,
+        Placement,
+        InteractionMask
+    };
+
+    struct PresetDescriptor {
+        std::string id;
+        std::string display_name;
+        Usage usage = Usage::Skill;
+        PatternField pattern;
+    };
+
     /**
      * @brief A single point at (0,0).
      */
@@ -40,6 +55,9 @@ public:
      * @brief A line of 3 points starting from center and going North (0, -1), (0, -2).
      */
     static std::shared_ptr<PatternField> Line3North();
+
+    static std::vector<PresetDescriptor> Catalog();
+    static std::optional<PresetDescriptor> FindById(const std::string& preset_id);
 };
 
 } // namespace urpg

@@ -139,8 +139,8 @@ Subsystem targets:
    - recovery diagnostics and serialization schema export are landed; save policy editing/validation/apply is also landed; remaining closure is compat import/migration completion and release-validation proof
 
 - [x] Wave 2 Audio State Sync: Implemented `GlobalStateHub` with "Diff-First" notifications and `StateDrivenAudioResolver` for automated BGM transitions. [Landed 2026-04-16]
-- [ ] Spatial Presentation: **Incubating.** `SpatialMapOverlay` headers and `test_spatial_editor.cpp` coverage exist, but `editor/spatial/*` panels are not yet registered as compiled sources in the build graph. Core presentation runtime (`presentation_runtime.cpp`, `release_validation.cpp`) is registered.
-- [ ] Editor Tooling: **Incubating.** `ElevationBrushPanel` and `PropPlacementPanel` headers exist and are exercised by `test_spatial_editor.cpp`, but no `.cpp` implementation is registered in the build graph.
+- [x] Spatial Presentation: `SpatialMapOverlay` authoring coverage is backed by compiled `editor/spatial/*` panel sources in the build graph alongside the registered presentation runtime/release-validation lane.
+- [x] Editor Tooling: `ElevationBrushPanel` and `PropPlacementPanel` now have compiled `.cpp` implementations plus render-snapshot coverage in `test_spatial_editor.cpp`.
 
 Required outcomes per subsystem:
 
@@ -162,19 +162,19 @@ Goal: expand engine power for multi-genre projects while preserving deterministi
 - [x] Ability Inspector UI (implemented in `editor/ability/ability_inspector_panel.h`).
 - [x] Ability Tasks for async execution (loops/delays implemented in `engine/core/ability/ability_task.h`).
 - [x] Effect Modifiers and attribute math (implemented in `engine/core/ability/gameplay_effect.h`).
-- [ ] Ability/effect diagnostics and replay-safe execution.
+- [x] Ability/effect diagnostics and replay-safe execution.
 
 ### 3.2 Pattern Field Editor
 
 - [x] Painted 2D/3D pattern resources with JSON serialization.
 - [x] Reusable pattern presets (implemented in `engine/core/ability/pattern_field.h`).
-- [ ] Reusable pattern presets for skills, items, placement, and interaction masks
+- [x] Reusable pattern presets for skills, items, placement, and interaction masks
 - [x] pattern validation and preview in inspectors
 
 ### 3.3 Modular Level Assembly
 
 - [x] Snap-connector block placement system (kernel implemented in `engine/core/level/level_assembly.h`).
-- [ ] block libraries and thumbnail generation
+- [x] block libraries and thumbnail generation
 - [x] importer conventions for connector metadata
 - [x] deterministic placement validation
 
@@ -182,7 +182,7 @@ Goal: expand engine power for multi-genre projects while preserving deterministi
 
 - [x] Atlas generation/packing and trim/crop tooling (CLI utility implemented in `tools/sprite_pipeline/`).
 - [x] Schema definition for atlas metadata (implemented in `content/schemas/sprite_atlas.schema.json`).
-- [ ] animation-sheet preview/tuning panel
+- [x] animation-sheet preview/tuning panel
 - [x] build-time artifact generation for runtime consumption
 
 ### 3.5 Procedural Content Toolkit
@@ -190,18 +190,18 @@ Goal: expand engine power for multi-genre projects while preserving deterministi
 - [x] Dungeon/room/corridor generation primitives (baseline implemented in `engine/core/level/procedural_toolkit.h`).
 - [x] Deterministic encounter/scenario generation from seeds
 - [x] FOV and visibility systems (baseline implemented in `engine/core/level/fov_system.h`).
-- [ ] encounter/scenario generators tied to deterministic seeds
+- [x] encounter/scenario generators tied to deterministic seeds
 
 ### 3.6 Optional 2.5D Presentation Lane
 
 - [x] Raycast camera/runtime mode (baseline implemented in `engine/core/render/raycast_renderer.h`).
-- [ ] map authoring adapters for 2.5D projects
+- [x] map authoring adapters for 2.5D projects
 - [x] strict isolation from core 2D native contracts
 
 ### 3.7 Timeline/Animation Orchestration
 
 - [x] Keyframe/timeline data model (implemented in `engine/core/animation/animation_clip.h`).
-- [ ] keyframe/timeline authoring for scene and UI animation
+- [x] keyframe/timeline authoring for scene and UI animation
 - [x] transient animated effect spawning hooks
 - [x] deterministic event-to-animation bindings
 
@@ -224,8 +224,8 @@ Deliverables:
   - clear/reset support
   - default subsystem selection after a run
   - selected-subsystem detail, status, and summary snapshot fields
-- [ ] Release-readiness matrix by subsystem.
-- [ ] Gate reports proving stability for native + compat lanes.
+- [x] Release-readiness matrix by subsystem.
+- [x] Gate reports proving stability for native + compat lanes.
 
 ## Milestone framing
 

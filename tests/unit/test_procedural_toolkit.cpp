@@ -40,6 +40,30 @@ bool layoutsMatch(const std::vector<GeneratedBlock>& lhs, const std::vector<Gene
     return true;
 }
 
+bool scenariosMatch(const ScenarioBundle& lhs, const ScenarioBundle& rhs) {
+    if (!layoutsMatch(lhs.layout, rhs.layout)) {
+        return false;
+    }
+
+    if (lhs.encounters.size() != rhs.encounters.size()) {
+        return false;
+    }
+
+    for (size_t index = 0; index < lhs.encounters.size(); ++index) {
+        const auto& a = lhs.encounters[index];
+        const auto& b = rhs.encounters[index];
+        if (a.encounterId != b.encounterId ||
+            a.anchorBlockId != b.anchorBlockId ||
+            a.x != b.x || a.y != b.y || a.z != b.z ||
+            a.difficultyTier != b.difficultyTier ||
+            a.role != b.role) {
+            return false;
+        }
+    }
+
+    return lhs.seed == rhs.seed && lhs.scenarioId == rhs.scenarioId;
+}
+
 } // namespace
 
 TEST_CASE("ProceduralToolkit generates deterministic seeded scenarios", "[procedural][level]") {
@@ -98,5 +122,41 @@ TEST_CASE("ProceduralToolkit generates deterministic seeded scenarios", "[proced
         REQUIRE(layout[0].x == 0);
         REQUIRE(layout[0].y == 0);
         REQUIRE(layout[0].z == 0);
+    }
+
+    SECTION("Scenario generation is deterministic for layout and encounter anchors") {
+        GenParams params;
+        params.seed = 5;
+        params.maxBlocks = 4;
+
+        const auto first = ProceduralToolkit::generateScenario(library, params);
+        const auto second = ProceduralToolkit::generateScenario(library, params);
+
+        REQUIRE(scenariosMatch(first, second));
+        REQUIRE(first.scenarioId == "scenario_5");
+        REQUIRE(first.layout.size() == 4);
+        REQUIRE(first.encounters.size() == 2);
+        REQUIRE(first.encounters[0].role == "entry_guard");
+        REQUIRE(first.encounters[0].anchorBlockId == first.layout.front().blockId);
+        REQUIRE(first.encounters[0].difficultyTier == 1);
+        REQUIRE(first.encounters[1].role == "goal_guard");
+        REQUIRE(first.encounters[1].anchorBlockId == first.layout.back().blockId);
+        REQUIRE(first.encounters[1].difficultyTier == 2);
+    }
+
+    SECTION("Different seeds produce different deterministic scenario identities") {
+        GenParams firstParams;
+        firstParams.seed = 3;
+        firstParams.maxBlocks = 4;
+
+        GenParams secondParams;
+        secondParams.seed = 9;
+        secondParams.maxBlocks = 4;
+
+        const auto first = ProceduralToolkit::generateScenario(library, firstParams);
+        const auto second = ProceduralToolkit::generateScenario(library, secondParams);
+
+        REQUIRE(first.scenarioId != second.scenarioId);
+        REQUIRE_FALSE(scenariosMatch(first, second));
     }
 }

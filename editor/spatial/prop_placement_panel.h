@@ -25,20 +25,22 @@ public:
         bool rejectOutOfBounds = true;
     };
 
+    struct RenderSnapshot {
+        bool visible = true;
+        bool has_target = false;
+        std::string selected_asset_id;
+        size_t prop_count = 0;
+        std::optional<std::string> last_added_asset_id;
+        std::optional<float> last_added_x;
+        std::optional<float> last_added_y;
+        std::optional<float> last_added_z;
+    };
+
     PropPlacementPanel() : EditorPanel("Prop Placement") {}
 
-    void Render(const urpg::FrameContext& context) override {
-        if (!m_visible) return;
+    void Render(const urpg::FrameContext& context) override;
 
-        // Note: Real ImGui calls would go here.
-        // This simulates the logic exposed to the UI.
-    }
-
-    void AddProp(const std::string& assetId, float x, float y, float z) {
-        if (m_targetOverlay) {
-            m_targetOverlay->props.push_back({assetId, x, y, z, 0.0f, 1.0f});
-        }
-    }
+    void AddProp(const std::string& assetId, float x, float y, float z);
 
     static bool TryProjectScreenToGround(
         const urpg::presentation::SpatialMapOverlay& overlay,
@@ -163,13 +165,17 @@ public:
         return true;
     }
 
-    void SetTarget(urpg::presentation::SpatialMapOverlay* overlay) {
-        m_targetOverlay = overlay;
-    }
+    void SetTarget(urpg::presentation::SpatialMapOverlay* overlay);
+    void SetSelectedAssetId(const std::string& asset_id);
+
+    const RenderSnapshot& lastRenderSnapshot() const { return last_render_snapshot_; }
 
 private:
+    void captureRenderSnapshot();
+
     urpg::presentation::SpatialMapOverlay* m_targetOverlay = nullptr;
     std::string m_selectedAssetId = "tree_01";
+    RenderSnapshot last_render_snapshot_;
 };
 
 } // namespace urpg::editor

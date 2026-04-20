@@ -15,49 +15,38 @@ namespace urpg::editor {
  */
 class ElevationBrushPanel : public EditorPanel {
 public:
+    struct RenderSnapshot {
+        bool visible = true;
+        bool has_target = false;
+        uint32_t grid_width = 0;
+        uint32_t grid_height = 0;
+        int brush_size = 1;
+        float brush_height = 1.0f;
+        int8_t sampled_level = 0;
+    };
+
     ElevationBrushPanel() : EditorPanel("Elevation Brush") {}
 
-    void Render(const urpg::FrameContext& context) override {
-        if (!m_visible) return;
-
-        // Note: Real ImGui calls would go here.
-        // This simulates the logic exposed to the UI.
-    }
+    void Render(const urpg::FrameContext& context) override;
 
     /**
      * @brief Applies the elevation brush at a specific grid coordinate.
      */
-    void ApplyBrush(uint32_t x, uint32_t y, int8_t level) {
-        if (!m_targetOverlay) return;
+    void ApplyBrush(uint32_t x, uint32_t y, int8_t level);
 
-        auto& grid = m_targetOverlay->elevation;
-        if (x < grid.width && y < grid.height) {
-            grid.levels[y * grid.width + x] = level;
-            
-            // Interpolate neighbors if brush size > 1
-            if (m_brushSize > 1) {
-                for (int dy = -m_brushSize; dy <= m_brushSize; ++dy) {
-                    for (int dx = -m_brushSize; dx <= m_brushSize; ++dx) {
-                        uint32_t nx = (uint32_t)((int)x + dx);
-                        uint32_t ny = (uint32_t)((int)y + dy);
-                        if (nx < grid.width && ny < grid.height) {
-                            // Simple linear falloff or just direct set for now
-                            grid.levels[ny * grid.width + nx] = level;
-                        }
-                    }
-                }
-            }
-        }
-    }
+    void SetTarget(urpg::presentation::SpatialMapOverlay* overlay);
+    void SetBrushSize(int brush_size);
+    void SetBrushHeight(float brush_height);
 
-    void SetTarget(urpg::presentation::SpatialMapOverlay* overlay) {
-        m_targetOverlay = overlay;
-    }
+    const RenderSnapshot& lastRenderSnapshot() const { return last_render_snapshot_; }
 
 private:
+    void captureRenderSnapshot();
+
     urpg::presentation::SpatialMapOverlay* m_targetOverlay = nullptr;
     float m_brushHeight = 1.0f;
     int m_brushSize = 1;
+    RenderSnapshot last_render_snapshot_;
 };
 
 } // namespace urpg::editor

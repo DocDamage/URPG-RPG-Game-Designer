@@ -4,7 +4,9 @@
 #include <cmath>
 #include <algorithm>
 #include <cstdint>
+#include <string>
 #include "engine/core/presentation/presentation_types.h"
+#include "engine/core/presentation/presentation_schema.h"
 
 namespace urpg::render {
 
@@ -14,6 +16,21 @@ namespace urpg::render {
  */
 class RaycastRenderer {
 public:
+    struct AuthoringAdapter {
+        std::string mapId;
+        int32_t width = 0;
+        int32_t height = 0;
+        std::vector<uint8_t> blockingCells;
+
+        bool isBlocking(int32_t x, int32_t y) const {
+            if (x < 0 || y < 0 || x >= width || y >= height) {
+                return true;
+            }
+            const size_t index = static_cast<size_t>(y * width + x);
+            return index < blockingCells.size() && blockingCells[index] != 0;
+        }
+    };
+
     struct Config {
         int32_t screenWidth = 640;
         int32_t screenHeight = 480;
@@ -106,6 +123,25 @@ public:
             results.push_back({x, mapX, mapY, side, perpWallDist});
         }
         return results;
+    }
+
+    static AuthoringAdapter buildAuthoringAdapter(const presentation::SpatialMapOverlay& overlay) {
+        AuthoringAdapter adapter;
+        adapter.mapId = overlay.mapId;
+        adapter.width = static_cast<int32_t>(overlay.elevation.width);
+        adapter.height = static_cast<int32_t>(overlay.elevation.height);
+        adapter.blockingCells.assign(static_cast<size_t>(adapter.width * adapter.height), 0);
+
+        for (int32_t y = 0; y < adapter.height; ++y) {
+            for (int32_t x = 0; x < adapter.width; ++x) {
+                const size_t index = static_cast<size_t>(y * adapter.width + x);
+                if (index < overlay.elevation.levels.size() && overlay.elevation.levels[index] > 0) {
+                    adapter.blockingCells[index] = 1;
+                }
+            }
+        }
+
+        return adapter;
     }
 };
 

@@ -58,4 +58,63 @@ std::shared_ptr<PatternField> PatternFieldPresets::Line3North() {
     return p;
 }
 
+std::vector<PatternFieldPresets::PresetDescriptor> PatternFieldPresets::Catalog() {
+    std::vector<PresetDescriptor> presets;
+
+    presets.push_back(PresetDescriptor{
+        "skill_cross_small",
+        "Skill Cross Small",
+        Usage::Skill,
+        *Cross()
+    });
+
+    presets.push_back(PresetDescriptor{
+        "item_blast_square",
+        "Item Blast Square",
+        Usage::Item,
+        *Square3x3()
+    });
+
+    PatternField placement("Placement Pad");
+    placement.addPoint(0, 0);
+    placement.addPoint(1, 0);
+    placement.addPoint(0, 1);
+    placement.addPoint(1, 1);
+    presets.push_back(PresetDescriptor{
+        "placement_pad",
+        "Placement Pad",
+        Usage::Placement,
+        placement
+    });
+
+    PatternField interaction("Interaction Doorway");
+    interaction.addPoint(-1, 0);
+    interaction.addPoint(0, 0);
+    interaction.addPoint(1, 0);
+    presets.push_back(PresetDescriptor{
+        "interaction_mask_doorway",
+        "Interaction Doorway",
+        Usage::InteractionMask,
+        interaction
+    });
+
+    return presets;
+}
+
+std::optional<PatternFieldPresets::PresetDescriptor> PatternFieldPresets::FindById(const std::string& preset_id) {
+    const auto catalog = Catalog();
+    const auto it = std::find_if(
+        catalog.begin(),
+        catalog.end(),
+        [&](const PresetDescriptor& descriptor) {
+            return descriptor.id == preset_id;
+        }
+    );
+    if (it == catalog.end()) {
+        return std::nullopt;
+    }
+
+    return *it;
+}
+
 } // namespace urpg

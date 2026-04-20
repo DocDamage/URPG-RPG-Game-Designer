@@ -194,6 +194,9 @@ add_library(urpg_core
     editor/ability/ability_inspector_panel.cpp
     editor/ability/pattern_field_model.cpp
     editor/ability/pattern_field_panel.cpp
+    editor/spatial/elevation_brush_panel.cpp
+    editor/spatial/prop_placement_panel.cpp
+    editor/sprite/sprite_animation_preview_panel.cpp
     engine/core/editor/plugin_api.cpp
     engine/core/ability/gameplay_ability.cpp
     engine/core/ability/ability_state_machine.cpp
@@ -472,6 +475,7 @@ add_executable(urpg_tests
     tests/unit/test_wave3_gaf.cpp
     tests/unit/test_level_assembly.cpp
     tests/unit/test_sprite_animator.cpp
+    tests/unit/test_sprite_animation_preview_panel.cpp
     tests/unit/test_procedural_toolkit.cpp
     tests/unit/test_optional_lanes.cpp
     tests/unit/test_debug_crash.cpp

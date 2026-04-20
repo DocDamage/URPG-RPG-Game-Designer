@@ -1,7 +1,102 @@
 #include "engine/core/level/level_assembly.h"
 #include <algorithm>
+#include <cctype>
 
 namespace urpg::level {
+
+namespace {
+
+char sideGlyph(ConnectorSide side) {
+    switch (side) {
+    case ConnectorSide::North:
+        return 'N';
+    case ConnectorSide::South:
+        return 'S';
+    case ConnectorSide::East:
+        return 'E';
+    case ConnectorSide::West:
+        return 'W';
+    case ConnectorSide::Up:
+        return 'U';
+    case ConnectorSide::Down:
+        return 'D';
+    }
+
+    return '?';
+}
+
+void placeGlyph(std::vector<std::string>& rows, size_t row, size_t column, char glyph) {
+    if (row >= rows.size() || column >= rows[row].size()) {
+        return;
+    }
+
+    char& target = rows[row][column];
+    if (target != '.' && target != glyph) {
+        target = '*';
+        return;
+    }
+
+    target = glyph;
+}
+
+} // namespace
+
+std::vector<LevelBlockThumbnail> LevelBlockLibrary::buildThumbnails() const {
+    std::vector<LevelBlockThumbnail> thumbnails;
+    thumbnails.reserve(m_blocks.size());
+
+    for (const auto& block : m_blocks) {
+        LevelBlockThumbnail thumbnail;
+        thumbnail.blockId = block.getId();
+        thumbnail.prefabPath = block.getPrefabPath();
+        thumbnail.connectorCount = block.getConnectors().size();
+        thumbnail.rows = {
+            ".....",
+            ".....",
+            ".....",
+            ".....",
+            "....."
+        };
+
+        const char centerGlyph = block.getId().empty()
+            ? '#'
+            : static_cast<char>(std::toupper(static_cast<unsigned char>(block.getId().front())));
+        thumbnail.rows[2][2] = centerGlyph;
+
+        for (const auto& connector : block.getConnectors()) {
+            switch (connector.side) {
+            case ConnectorSide::North:
+                placeGlyph(thumbnail.rows, 0, 2, sideGlyph(connector.side));
+                break;
+            case ConnectorSide::South:
+                placeGlyph(thumbnail.rows, 4, 2, sideGlyph(connector.side));
+                break;
+            case ConnectorSide::West:
+                placeGlyph(thumbnail.rows, 2, 0, sideGlyph(connector.side));
+                break;
+            case ConnectorSide::East:
+                placeGlyph(thumbnail.rows, 2, 4, sideGlyph(connector.side));
+                break;
+            case ConnectorSide::Up:
+                placeGlyph(thumbnail.rows, 1, 2, sideGlyph(connector.side));
+                break;
+            case ConnectorSide::Down:
+                placeGlyph(thumbnail.rows, 3, 2, sideGlyph(connector.side));
+                break;
+            }
+        }
+
+        thumbnails.push_back(std::move(thumbnail));
+    }
+
+    return thumbnails;
+}
+
+void LevelAssemblyWorkspace::registerLibrary(const LevelBlockLibrary& library) {
+    for (const auto& block : library.getBlocks()) {
+        registerBlockDefinition(block);
+    }
+}
 
 const LevelBlock* LevelAssemblyWorkspace::findBlockDefinition(const std::string& blockId) const {
     auto it = std::find_if(m_blockDefinitions.begin(), m_blockDefinitions.end(), [&](const LevelBlock& block) {

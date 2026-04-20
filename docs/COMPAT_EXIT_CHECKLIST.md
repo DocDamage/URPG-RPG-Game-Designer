@@ -1,6 +1,6 @@
 # Compat Exit Checklist
 
-Status Date: 2026-04-19
+Status Date: 2026-04-20
 
 This checklist is the canonical pass/fail artifact for deciding whether the compat lane is trustworthy enough to serve as an import, validation, and migration bridge without overstating runtime parity.
 
@@ -19,11 +19,11 @@ It is intentionally narrower than full native-feature completion:
 
 ## Import Confidence
 
-- [ ] Curated compat corpus covers the active plugin/import profiles that matter for migration planning.
-- [ ] New failure operations are locked to JSONL export, report ingestion, and panel projection parity.
+- [x] Curated compat corpus covers the active plugin/import profiles that matter for migration planning.
+- [x] New failure operations are locked to JSONL export, report ingestion, and panel projection parity.
 - [x] QuickJS is still documented as a fixture-backed compat harness everywhere it is referenced.
 - [x] Runtime status labels remain aligned with actual bridge behavior; fixture-backed or placeholder-backed paths are not labeled `FULL` without evidence.
-- [ ] Focused compat suites pass in the active local build lane.
+- [x] Focused compat suites pass in the active local build lane.
 
 Evidence anchors:
 - [TECHNICAL_DEBT_REMEDIATION_PLAN.md](./TECHNICAL_DEBT_REMEDIATION_PLAN.md)
@@ -58,6 +58,16 @@ Evidence anchors:
   - deterministic duck/unduck ramps are covered by focused tests
   - master/bus volume changes now affect active compat playback
   - the QuickJS `AudioManager` object now routes live compat state for BGM/BGS/ME/SE, volume, and ducking helpers
+- Active local compat snapshot refreshed on 2026-04-20:
+  - `.\build\Debug\urpg_compat_tests.exe --reporter compact` => 3375 assertions / 43 test cases passed
+- Failure-path parity reconciled on 2026-04-20:
+  - `test_compat_plugin_failure_diagnostics.cpp` already proves mixed-chain failure operations survive JSONL export, report-model ingestion/export, and compat report panel projection
+  - parity anchors include `execute_command_dependency_missing`, `execute_command_quickjs_call`, `execute_command_quickjs_context_missing`, `execute_command_by_name_parse`, `load_plugins_directory_scan`, and `load_plugins_directory_scan_entry`
+- Weekly compat runner stabilized on 2026-04-20:
+  - `tools/ci/run_compat_weekly_regression.ps1` now configures/builds `urpg_compat_tests` and runs the CTest `weekly` lane as a dedicated maintenance command
+- Curated compat corpus reconciled on 2026-04-20:
+  - the active fixture corpus already covers 10 curated plugin/import profiles through `fixtureSpecs()` plus all-profile orchestration and reload-survival scenarios in `test_compat_plugin_fixtures.cpp`
+  - the same corpus is exercised in the compat weekly lane and missing-command/failure diagnostics coverage
 - Update this checklist whenever a compat surface changes status, link location, or exit evidence.
 
 ## Signed Off By

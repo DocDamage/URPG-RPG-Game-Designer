@@ -27,9 +27,9 @@ Phase 3 diagnostics productization is complete as of 2026-04-19, Phase 4 governa
   - migration wizard diagnostics expose rendered workflow actions, selected-result detail, issue-focused navigation, report save/load, and bound-runtime rerun flows
   - event-authority, menu, message, battle, and ability diagnostics remain snapshot/export truthful alongside their current workflow surfaces
 - Presentation planning is now aligned around **Phase 5 â€” Environment & Presentation Polish**:
-  - **Incubating:** `editor/spatial/*` panels (`ElevationBrushPanel`, `PropPlacementPanel`) are header-only with no compiled `.cpp` sources registered in the build graph.
-  - **Incubating:** `engine/core/presentation/*` is predominantly header-only abstraction; only `presentation_runtime.cpp` and `release_validation.cpp` are actively compiled. `profile_arena.cpp` exists but is not registered in `urpg_core`.
-  - `test_spatial_editor.cpp` and `test_presentation_runtime.cpp` are registered and passing, anchoring the future productization path.
+  - `editor/spatial/*` panels (`ElevationBrushPanel`, `PropPlacementPanel`) now have compiled `.cpp` sources registered in the build graph and expose lightweight render snapshots through the spatial editor lane.
+  - `engine/core/presentation/*` still remains mostly header-oriented abstraction, but the registered runtime/release-validation lane is stable and the spatial authoring surfaces are no longer just header-only scaffolding.
+  - `test_spatial_editor.cpp` and `test_presentation_runtime.cpp` are registered and passing, anchoring the now-compiled spatial authoring path.
 - Supporting enablement landed for curated Hugging Face fixture ingestion:
   - permissive TMX, Visual Novel Maker, and Godot samples are vendored under `third_party/huggingface/`
   - restrictive RPG Maker MV / XP corpora remain manifest-only due to license constraints
@@ -86,6 +86,8 @@ Phase 3 diagnostics productization is complete as of 2026-04-19, Phase 4 governa
   - `ctest --test-dir build -C Debug -R "urpg_(presentation_(unit_lane|release_validation)|spatial_editor_lane)" --output-on-failure` => 3/3 passed
   - `powershell -ExecutionPolicy Bypass -File tools/ci/check_phase4_intake_governance.ps1` => passed
   - `ctest --preset dev-all --output-on-failure` => 630/630 passed
+- Latest focused compat validation snapshot:
+  - `.\build\Debug\urpg_compat_tests.exe --reporter compact` => 3375 assertions / 43 test cases passed
 - Latest focused audio validation snapshot:
   - `.\build\dev-mingw-debug\urpg_tests.exe "[audio_manager]"` => 147 assertions / 12 test cases passed
 - Latest focused Phase 2 validation snapshot:
@@ -333,8 +335,8 @@ The scope in this document is considered 100% complete when all items below are 
 
 Phase 2 runtime closure is already complete. The remaining compat work below is about confidence depth, ongoing evidence, and truthful residual scoping.
 
-- [ ] Expand routed conformance coverage beyond the current anchor scenarios across the curated 10-profile corpus.
-- [ ] Keep every new failure operation locked to JSONL artifacts, report ingestion/export, and panel projection assertions.
+- [x] Expand routed conformance coverage beyond the current anchor scenarios across the curated 10-profile corpus.
+- [x] Keep every new failure operation locked to JSONL artifacts, report ingestion/export, and panel projection assertions.
 - [x] Complete explicit compat exit checklist with signed pass criteria for import confidence and migration confidence.
 - [x] Keep runtime status labels and public docs aligned with actual implementation scope; do not relabel fixture-backed or placeholder-backed paths as `FULL` without closing the underlying TODOs.
 
@@ -361,7 +363,7 @@ Phase 2 runtime closure is already complete. The remaining compat work below is 
 ### 5. Validation and release readiness (remaining)
 
 - [x] Add native-first test suites for each Wave 1 subsystem (unit plus integration anchors).
-- [ ] Maintain weekly compat regression while Wave 1 native ownership replaces plugin-shaped behavior.
+- [x] Maintain weekly compat regression while Wave 1 native ownership replaces plugin-shaped behavior.
 - [x] Publish a release-readiness pass report proving gate stability and migration safety.
 
 ### 6. Wave 2 advanced capability baseline (remaining)
@@ -408,19 +410,22 @@ Phase 2 runtime closure is already complete. The remaining compat work below is 
 - [x] Wave 2 opening slice: pattern validation and inspector preview
 - [x] Wave 2 opening slice: modular level assembly validation
   - `PatternField` now normalizes point ordering, validates origin-presence/radius bounds, exposes reusable preset application, and surfaces preview snapshots through the model/panel path with focused `[pattern]` coverage.
+  - `PatternFieldPresets` now exposes reusable categorized presets for skills, items, placement, and interaction masks, and `PatternFieldModel` can filter/apply them through a deterministic preset catalog.
   - `LevelAssemblyWorkspace` and `SnapLogic` now treat connector offsets as authored metadata, require registered blocks to attach through connector-backed neighbors after seeding, and reject offset-mismatched snaps with focused `[level][assembly]` coverage.
+  - `LevelBlockLibrary` now provides deterministic block-library registration and ASCII thumbnail generation, while `LevelBlockImporter` preserves library names plus prefab paths for thumbnail-ready imported block catalogs.
 - [x] Wave 2 opening slice: sprite pipeline runtime artifacts
   - `SpriteAnimator` now supports authored atlas clips in addition to legacy grid sheets, exposing normalized frame views from metadata-backed animations for focused runtime consumption tests.
   - `tools/sprite_pipeline` now emits animation and preview metadata (`preview_loop`, ordered frame IDs, frame count) so packed atlas JSON includes a deterministic runtime/preview contract, with focused `[sprite]` coverage.
+  - `SpriteAnimationPreviewPanel` now exposes deterministic clip selection, playback stepping, and frame-duration/loop tuning from packed atlas metadata, with focused `[sprite][editor][panel]` coverage.
 - [x] Wave 2 opening slice: procedural toolkit scenario generation
   - `ProceduralToolkit` now exposes a dedicated `GeneratedBlock` scenario output, selects deterministic seed openers, and expands connector-backed layouts while preferring continuation-capable blocks so seeded generation stays reproducible and budget-bounded.
-  - Focused `[procedural][level]` coverage now locks same-seed reproduction, different-seed divergence, and max-block budget behavior.
+  - `ProceduralToolkit::generateScenario()` now emits deterministic scenario/encounter bundles anchored to the seeded layout, and focused `[procedural][level]` coverage locks same-seed reproduction, different-seed divergence, encounter roles, and max-block budget behavior.
 - [x] Wave 2 opening slice: timeline and animation orchestration
   - `AnimationSystem` now binds authored `AnimationClip` tracks into `AnimationComponent` playback and performs deterministic interpolation instead of stopping at the previous keyframe.
-  - `TimelineKernel` now sorts track events on ingest and records triggered transient events in playback order, while `AnimationKnowledgeBridge` normalizes parsed keyframe order so clip/timeline playback remains deterministic under test.
+  - `TimelineKernel` now supports scene/UI track authoring (`ensureTrack`, `addEvent`, `updateEvent`, `removeEvent`), sorts track events on ingest, and records triggered transient events in playback order, while `AnimationKnowledgeBridge` normalizes parsed keyframe order so clip/timeline playback remains deterministic under test.
 - [x] Wave 2 opening slice: optional 2.5D and editor utility gating
   - `RaycastRenderer` now requires an explicit spatial presentation-mode opt-in before the optional 2.5D lane runs, so classic 2D projects cannot drift into raycast behavior by accident.
-  - `EditorUtilityTask` now declares per-mode requirements and `EditorUtilityManager` only surfaces runnable tasks for the active presentation mode, keeping spatial-only utilities isolated from classic projects.
+  - `RaycastRenderer::buildAuthoringAdapter()` now converts authored `SpatialMapOverlay` elevation data into a deterministic raycast blocking grid, and `EditorUtilityTask` declares per-mode requirements so spatial-only utilities stay isolated from classic projects.
   - [x] `AbilitySystemComponent` now records bounded deterministic execution history for blocked, executed, and state-machine transition outcomes.
   - [x] `GameplayAbility` activation checks now return structured reasons instead of only boolean pass/fail state.
   - [x] `AbilityStateMachine` now records deterministic entered/failed/finished transition diagnostics through the shared ability execution history.

@@ -8,6 +8,11 @@
 
 namespace urpg::animation {
 
+    enum class TimelineTrackKind {
+        Scene,
+        UI
+    };
+
     /**
      * @brief Types of events that can occur on the timeline.
      */
@@ -36,6 +41,7 @@ namespace urpg::animation {
      */
     struct TimelineTrack {
         std::string trackName;
+        TimelineTrackKind kind = TimelineTrackKind::Scene;
         std::vector<TimelineEvent> events;
 
         void sortEvents() {
@@ -76,6 +82,63 @@ namespace urpg::animation {
             TimelineTrack sortedTrack = track;
             sortedTrack.sortEvents();
             m_tracks.push_back(sortedTrack);
+        }
+
+        void ensureTrack(const std::string& trackName, TimelineTrackKind kind) {
+            if (findTrack(trackName) != nullptr) {
+                return;
+            }
+
+            TimelineTrack track;
+            track.trackName = trackName;
+            track.kind = kind;
+            addTrack(track);
+        }
+
+        const TimelineTrack* findTrack(const std::string& trackName) const {
+            const auto it = std::find_if(m_tracks.begin(), m_tracks.end(), [&](const TimelineTrack& track) {
+                return track.trackName == trackName;
+            });
+            return it == m_tracks.end() ? nullptr : &(*it);
+        }
+
+        TimelineTrack* findTrack(const std::string& trackName) {
+            const auto it = std::find_if(m_tracks.begin(), m_tracks.end(), [&](const TimelineTrack& track) {
+                return track.trackName == trackName;
+            });
+            return it == m_tracks.end() ? nullptr : &(*it);
+        }
+
+        bool addEvent(const std::string& trackName, const TimelineEvent& event) {
+            TimelineTrack* track = findTrack(trackName);
+            if (track == nullptr) {
+                return false;
+            }
+
+            track->events.push_back(event);
+            track->sortEvents();
+            return true;
+        }
+
+        bool updateEvent(const std::string& trackName, size_t eventIndex, const TimelineEvent& event) {
+            TimelineTrack* track = findTrack(trackName);
+            if (track == nullptr || eventIndex >= track->events.size()) {
+                return false;
+            }
+
+            track->events[eventIndex] = event;
+            track->sortEvents();
+            return true;
+        }
+
+        bool removeEvent(const std::string& trackName, size_t eventIndex) {
+            TimelineTrack* track = findTrack(trackName);
+            if (track == nullptr || eventIndex >= track->events.size()) {
+                return false;
+            }
+
+            track->events.erase(track->events.begin() + static_cast<std::ptrdiff_t>(eventIndex));
+            return true;
         }
         
         void play() { m_isPlaying = true; }

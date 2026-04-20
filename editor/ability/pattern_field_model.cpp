@@ -54,7 +54,28 @@ void PatternFieldModel::applyPreset(const std::string& presetId) {
         *m_currentPattern = PatternField::MakeLine("Line Long Horizontal", 3, true);
     } else if (presetId == "line_long_vertical") {
         *m_currentPattern = PatternField::MakeLine("Line Long Vertical", 3, false);
+    } else if (const auto preset = PatternFieldPresets::FindById(presetId); preset.has_value()) {
+        *m_currentPattern = preset->pattern;
+        m_currentPattern->setName(preset->display_name);
     }
+}
+
+std::vector<PatternFieldModel::AvailablePreset> PatternFieldModel::availablePresets(
+    std::optional<urpg::PatternFieldPresets::Usage> usage) const {
+    std::vector<AvailablePreset> presets;
+    for (const auto& preset : PatternFieldPresets::Catalog()) {
+        if (usage.has_value() && preset.usage != *usage) {
+            continue;
+        }
+
+        presets.push_back(AvailablePreset{
+            preset.id,
+            preset.display_name,
+            preset.usage
+        });
+    }
+
+    return presets;
 }
 
 PatternFieldModel::GridBounds PatternFieldModel::getViewportBounds() const {

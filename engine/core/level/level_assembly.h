@@ -28,6 +28,13 @@ struct SnapConnector {
     float localX, localY, localZ;
 };
 
+struct LevelBlockThumbnail {
+    std::string blockId;
+    std::string prefabPath;
+    size_t connectorCount = 0;
+    std::vector<std::string> rows;
+};
+
 /**
  * @brief Asset definition for a reusable modular level block.
  */
@@ -38,10 +45,30 @@ public:
     const std::string& getId() const { return m_id; }
     void addConnector(const SnapConnector& connector) { m_connectors.push_back(connector); }
     const std::vector<SnapConnector>& getConnectors() const { return m_connectors; }
+    void setPrefabPath(const std::string& prefab_path) { m_prefab_path = prefab_path; }
+    const std::string& getPrefabPath() const { return m_prefab_path; }
 
 private:
     std::string m_id;
+    std::string m_prefab_path;
     std::vector<SnapConnector> m_connectors;
+};
+
+class LevelBlockLibrary {
+public:
+    explicit LevelBlockLibrary(std::string name = {}) : m_name(std::move(name)) {}
+
+    const std::string& getName() const { return m_name; }
+    void setName(const std::string& name) { m_name = name; }
+
+    void addBlock(const LevelBlock& block) { m_blocks.push_back(block); }
+    const std::vector<LevelBlock>& getBlocks() const { return m_blocks; }
+
+    std::vector<LevelBlockThumbnail> buildThumbnails() const;
+
+private:
+    std::string m_name;
+    std::vector<LevelBlock> m_blocks;
 };
 
 /**
@@ -67,6 +94,7 @@ public:
     void registerBlockDefinition(const LevelBlock& block) {
         m_blockDefinitions.push_back(block);
     }
+    void registerLibrary(const LevelBlockLibrary& library);
 
     const LevelBlock* findBlockDefinition(const std::string& blockId) const;
 
