@@ -4,7 +4,7 @@
 **Date:** 2026-04-17  
 **Supersedes / Clarifies:** ADR-010-presentation-completion (architectural patterns approved; build coverage and productization status explicitly downscoped)
 
-Historical note: this ADR preserves the status correction recorded on 2026-04-17. For current execution and release truth, defer to the canonical program/remediation documents.
+Historical note: this ADR preserves the status correction recorded on 2026-04-17. The specific `editor/spatial/*` header-only limitation described below was later remediated on 2026-04-20 when compiled `.cpp` panel sources were added and registered in the build graph. For current execution and release truth, defer to the canonical program/remediation documents.
 
 ## Context
 

@@ -35,9 +35,9 @@
 | **Compat Layer (Phase 2 Closure)** | Complete | Runtime closure done | Runtime closure completed on 2026-04-19. Residual compat work remains in post-closure exit hardening, corpus depth, and honest `PARTIAL` surface maintenance. |
 | **Wave 3-7 Ecosystem** | Complete | 100% | Templates, Profiling, Polish, Workspace, ImGui Panels. |
 | **Final Integration** | Complete | 100% | Unified `EngineAssembly` Gold distribution. |
-| **Native Workwaves** | In Progress | ~94% | Wave 1 closure evidence and broader release-readiness proof are now recorded; current active work shifts to Wave 2 opening plus ongoing compat hardening. |
+| **Native Workwaves** | Complete (current tracked scope) | 100% | Wave 1 closure evidence, Wave 2 roadmap follow-through, spatial/editor build registration, and broader release-readiness proof are now recorded on this branch. |
 
-Phase 2 runtime closure is complete as of 2026-04-19. Broader Wave 1/program release-readiness proof is now recorded as of 2026-04-20. Current repo work sits in Wave 2 implementation follow-through and post-closure compat exit hardening tracked in the canonical status docs.
+Phase 2 runtime closure is complete as of 2026-04-19. Broader Wave 1/program release-readiness proof and the tracked Wave 2 roadmap follow-through are now recorded as of 2026-04-20. Canonical status docs currently show the tracked program scope as checklist-green on this branch.
 
 Canonical remediation status: the audited remediation findings tracked in `docs/TECHNICAL_DEBT_REMEDIATION_PLAN.md` are now fully closed; remaining repo work is roadmap/product execution and post-closure confidence depth rather than open remediation findings.
 
@@ -142,8 +142,8 @@ This focused gate is also invoked by `tools/ci/run_local_gates.ps1` locally and 
    - `ctest --preset dev-all --output-on-failure` passed at 630/630 after reconciling the stale Battle inspector turn-count expectation with the current native flow contract.
 5. Maintain post-Phase-2 compat exit hardening:
    - keep conformance depth, JSONL/report/panel parity, and status/document truthfulness aligned with the current harness-backed scope.
-6. Begin Wave 2 advanced capability implementation (ability framework, pattern editor, modular level assembly, sprite pipeline, procedural toolkit, optional 2.5D lane, timeline orchestration, and editor utilities).
-7. Execute the remaining checklist in `docs/PROGRAM_COMPLETION_STATUS.md` to drive completion to 100% for the current program scope.
+6. Keep post-closure compat truthfulness, sign-off, and evidence snapshots current as the harness evolves.
+7. Use `docs/PROGRAM_COMPLETION_STATUS.md` to define any new roadmap scope beyond the now-complete tracked baseline.
 
 ## Build
 

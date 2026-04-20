@@ -27,7 +27,7 @@ It is a presentation-specific reference hub, not the canonical authority for ove
 
 ## Notes
 - Use this folder as the source-of-truth hub for presentation-specific operational docs.
-- Presence of a presentation document or contract here does not by itself mean the corresponding runtime/editor surface is fully productized or registered in the build graph.
-- Incubating presentation and spatial-authoring surfaces must continue to be described with the same conservative status used in the canonical docs.
+- Presence of a presentation document or contract here does not by itself mean the corresponding runtime/editor surface is fully productized or release-ready.
+- Spatial authoring panels are now compiled and test-registered; broader presentation surfaces should still follow the same conservative status language used in the canonical docs when they remain partial.
 - When adding a new presentation document, link it here so the subsystem stays discoverable from one place.
 - Link integrity for the main presentation docs surfaces can be checked with `tools/docs/check-presentation-doc-links.ps1`.

@@ -546,17 +546,16 @@ Do not leave the workspace counting tabs that do not render.
 - `engine/core/presentation/*` and `editor/spatial/*` are either built, registered, and tested — or explicitly documented as incubating.
 - Completion status documents no longer describe unbuilt or unregistered work as shipped.
 
-**Status (2026-04-17):** Remediated via documentation-truth alignment and ADR.
+**Status (2026-04-20):** Remediated. The earlier documentation-truth correction is preserved, and the spatial/editor panel sources are now compiled and registered in the build graph.
 
 **Decision:**
-- `editor/spatial/*` is **Incubating**. It contains only header files (`elevation_brush_panel.h`, `prop_placement_panel.h`) with no `.cpp` implementation registered in any build target. It cannot be treated as productized until compiled sources exist.
-- `engine/core/presentation/*` is **Incubating** as a subsystem. The actively compiled surfaces are `presentation_runtime.cpp` (in `urpg_core`) and `release_validation.cpp` (as standalone executable `urpg_presentation_release_validation`). `profile_arena.cpp` exists on disk but is intentionally not added to `urpg_core` while the subsystem remains header-heavy. The existing unit tests (`test_presentation_runtime.cpp`, `test_spatial_editor.cpp`) are retained and registered.
+- `editor/spatial/*` now has compiled panel sources (`elevation_brush_panel.cpp`, `prop_placement_panel.cpp`) registered in `CMakeLists.txt`, with the spatial editor lane covering render-snapshot/editor-tool behavior. The earlier “incubating/header-only” status is preserved only as historical provenance.
+- `engine/core/presentation/*` remains conservative as a subsystem: `presentation_runtime.cpp` and `release_validation.cpp` are still the core compiled runtime anchors, while the broader directory remains architecture-heavy. The registered tests (`test_presentation_runtime.cpp`, `test_spatial_editor.cpp`) continue to anchor the path truthfully.
 
-**Progress evidence (2026-04-17):**
-- Updated [PROGRAM_COMPLETION_STATUS.md](./PROGRAM_COMPLETION_STATUS.md) to label `editor/spatial/*` and `engine/core/presentation/*` as incubating, with an explicit note that only `presentation_runtime.cpp` and `release_validation.cpp` are compiled.
-- Updated [NATIVE_FEATURE_ABSORPTION_PLAN.md](./NATIVE_FEATURE_ABSORPTION_PLAN.md) to label Spatial Presentation and Editor Tooling as **Incubating**.
-- Updated [SPATIAL_EDITOR_TOOLS.md](./presentation/SPATIAL_EDITOR_TOOLS.md) with an explicit incubating / header-only notice.
-- Recorded decision in [ADR-011-presentation-spatial-status.md](./adr/ADR-011-presentation-spatial-status.md).
+**Progress evidence:**
+- (2026-04-17) Updated [PROGRAM_COMPLETION_STATUS.md](./PROGRAM_COMPLETION_STATUS.md), [NATIVE_FEATURE_ABSORPTION_PLAN.md](./NATIVE_FEATURE_ABSORPTION_PLAN.md), and [SPATIAL_EDITOR_TOOLS.md](./presentation/SPATIAL_EDITOR_TOOLS.md) to label the spatial/editor lane as incubating while it remained header-only.
+- (2026-04-20) Added compiled `editor/spatial/elevation_brush_panel.cpp` and `editor/spatial/prop_placement_panel.cpp`, registered both in [CMakeLists.txt](../CMakeLists.txt), expanded [test_spatial_editor.cpp](../tests/unit/test_spatial_editor.cpp), and re-ran the focused spatial editor lane (`.\\build\\Debug\\urpg_tests.exe "[editor][spatial]" --reporter compact` => 51 assertions / 1 test case passed).
+- Recorded the original status correction in [ADR-011-presentation-spatial-status.md](./adr/ADR-011-presentation-spatial-status.md), which remains historical rather than canonical current status.
 
 ---
 

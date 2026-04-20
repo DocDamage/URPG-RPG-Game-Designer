@@ -21,7 +21,7 @@ Historical kickoff snapshot values below are preserved for context. For current 
 - Phase 1 Native Core: 100% complete for v3.1 kickoff/continuation/integration contracts.
 - Phase 2 Compat Layer: runtime closure completed on 2026-04-19; remaining work is post-closure compat exit hardening (conformance depth, diagnostics exit criteria, and status-discipline maintenance).
 - Native Feature Absorption Wave 1: in progress (~63%; UI/Menu and Message/Text runtime slices are substantially landed, with remaining closure in renderer handoff, editor/schema/migration productization, and integration depth).
-- Native Capability Expansion Wave 2: planning baseline (~5%; integrated tracks are defined in `docs/NATIVE_FEATURE_ABSORPTION_PLAN.md`, implementation pending).
+- Native Capability Expansion Wave 2: historical planning baseline preserved here; the tracked baseline and roadmap follow-through later landed on 2026-04-20 in the canonical status docs.
 
 ## Where we are now (2026-04-15)
 
@@ -139,18 +139,20 @@ Historical kickoff snapshot values below are preserved for context. For current 
 
 ## Immediate next implementation lanes
 
+Historical kickoff snapshot only: the sequencing below reflects the program state when this document was authored. The tracked closure of these lanes later landed on 2026-04-20. For current execution truth and any new follow-on scope, use [PROGRAM_COMPLETION_STATUS.md](./PROGRAM_COMPLETION_STATUS.md) instead of treating this section as a live roadmap.
+
 1. Compat exit completion
-   - Finish remaining routed conformance/failure depth and lock every new failure mode to JSONL/report/panel assertions until explicit exit criteria are satisfied.
+   - Historical kickoff focus: deepen routed conformance/failure coverage and lock new failure modes to JSONL/report/panel assertions until explicit exit criteria are satisfied.
 2. Message/Text renderer closure
-   - Complete backend text-command consumption and native MessageScene handoff from compat `Window_Message` bridge behavior.
+   - Historical kickoff focus: complete backend text-command consumption and native `MessageScene` handoff from compat `Window_Message` bridge behavior.
 3. Wave 1 native runtime ownership
-   - Complete native subsystem ownership for UI/Menu, Message/Text, Battle, and Save/Data beyond currently landed slices.
+   - Historical kickoff focus: complete native subsystem ownership for UI/Menu, Message/Text, Battle, and Save/Data beyond the slices landed at kickoff time.
 4. Wave 1 editor + schema productization
-   - Ship subsystem inspectors/previews/diagnostics and finalize migration-safe schemas/import upgrade paths.
+   - Historical kickoff focus: ship subsystem inspectors/previews/diagnostics and finalize migration-safe schemas/import upgrade paths.
 5. Wave 2 advanced capability delivery
-   - Start implementation tracks for ability framework, pattern editor, modular level assembly, sprite pipeline, procedural toolkit, optional 2.5D lane, timeline orchestration, and editor utilities.
+   - Historical kickoff focus: begin implementation tracks for the ability framework, pattern editor, modular level assembly, sprite pipeline, procedural toolkit, optional 2.5D lane, timeline orchestration, and editor utilities.
 6. Completion tracking
-   - Execute and maintain `docs/PROGRAM_COMPLETION_STATUS.md` as the source of truth for remaining work to 100% completion in this program scope.
+   - Canonical current source of truth remains `docs/PROGRAM_COMPLETION_STATUS.md`.
 
 ## Build/test
 

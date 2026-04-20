@@ -14,5 +14,5 @@ These contracts are reference material for translator/runtime behavior. They are
 ## Recommended Use
 - Read these contracts before changing translator behavior or presentation-runtime assumptions for a scene family.
 - Use them alongside the focused presentation validation gate in [../VALIDATION.md](../VALIDATION.md).
-- Keep incubating status explicit where the canonical docs still describe a scene-family surface or authoring path as partial or build-graph-limited.
+- Keep conservative status explicit where the canonical docs still describe a scene-family surface or authoring path as partial or not yet release-ready.
 - When a new scene-family contract is added, link it here and from the parent [presentation docs hub](../README.md).
