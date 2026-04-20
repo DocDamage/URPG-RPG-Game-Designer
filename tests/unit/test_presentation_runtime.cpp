@@ -77,11 +77,69 @@ TEST_CASE("Presentation runtime resolves weighted fog and PostFX blends", "[pres
     REQUIRE(postFxCount == 1);
     REQUIRE(intent.commands.size() == 3);
 
+    const FogProfile* resolvedFogProfile = intent.commands.front().fogProfile;
+    const PostFXProfile* resolvedPostFxProfile = nullptr;
+    for (const auto& cmd : intent.commands) {
+        if (cmd.type == PresentationCommand::Type::SetPostFX) {
+            resolvedPostFxProfile = cmd.postFXProfile;
+            break;
+        }
+    }
+
+    REQUIRE(resolvedFogProfile != nullptr);
+    REQUIRE(resolvedPostFxProfile != nullptr);
+
     urpg::render::RenderBackendMock backend;
     backend.ConsumeFrame(intent);
     CHECK(backend.GetCurrentState().fogDensity == Catch::Approx(0.3f));
     CHECK(backend.GetCurrentState().bloomIntensity == Catch::Approx(0.4f));
     CHECK(backend.GetCurrentState().saturation == Catch::Approx(0.8333333f).margin(0.0001f));
+
+    PresentationFrameIntent secondIntent;
+    secondIntent.AddFog(overrideFog, 1.0f);
+    secondIntent.AddPostFX(overrideFx, 1.0f);
+    PresentationRuntime::ResolveEnvironmentCommands(secondIntent);
+
+    REQUIRE(secondIntent.commands.front().fogProfile != nullptr);
+    REQUIRE(secondIntent.commands.back().postFXProfile != nullptr);
+    CHECK(secondIntent.commands.front().fogProfile != resolvedFogProfile);
+    CHECK(secondIntent.commands.back().postFXProfile != resolvedPostFxProfile);
+    CHECK(resolvedFogProfile->density == Catch::Approx(0.3f));
+    CHECK(resolvedPostFxProfile->exposure == Catch::Approx(1.2f));
+}
+
+TEST_CASE("Presentation runtime preserves effect commands when resolving environment commands", "[presentation][runtime][effects]") {
+    PresentationFrameIntent intent;
+
+    FogProfile fog;
+    fog.density = 0.2f;
+    intent.AddFog(fog);
+    intent.AddWorldEffect(101, {0.0f, 1.0f, 0.0f}, 7, 2.0f, 0.25f, 1.0f, {1.0f, 1.0f, 1.0f, 1.0f});
+    intent.AddOverlayEffect(201, {3.0f, 4.0f, 5.0f}, 2, 0.08f, 1.0f, 1.0f, {1.0f, 1.0f, 1.0f, 1.0f}, 1.0f);
+
+    PresentationRuntime::ResolveEnvironmentCommands(intent);
+
+    bool foundWorld = false;
+    bool foundOverlay = false;
+    for (const auto& cmd : intent.commands) {
+        if (cmd.type == PresentationCommand::Type::DrawWorldEffect && cmd.effectOwnerId == 7) {
+            foundWorld = true;
+        }
+        if (cmd.type == PresentationCommand::Type::DrawOverlayEffect && cmd.effectOwnerId == 2) {
+            foundOverlay = true;
+            CHECK(cmd.position.x == Catch::Approx(3.0f));
+            CHECK(cmd.position.y == Catch::Approx(4.0f));
+            CHECK(cmd.position.z == Catch::Approx(5.0f));
+        }
+    }
+
+    REQUIRE(foundWorld);
+    REQUIRE(foundOverlay);
+
+    urpg::render::RenderBackendMock backend;
+    backend.ConsumeFrame(intent);
+    CHECK(backend.GetCurrentState().worldEffectCount == 1);
+    CHECK(backend.GetCurrentState().overlayEffectCount == 1);
 }
 
 TEST_CASE("Presentation runtime builds map frame with resolved environment commands", "[presentation][runtime]") {
@@ -278,4 +336,147 @@ TEST_CASE("PresentationBridge derives battle frame from active BattleScene", "[p
     REQUIRE(foundHero);
     REQUIRE(foundEnemy);
     REQUIRE(foundCamera);
+}
+
+TEST_CASE("PresentationBridge derives battle effect commands from active BattleScene", "[presentation][bridge][battle][effects]") {
+    auto runtime = std::make_shared<PresentationRuntime>();
+    auto authoringData = std::make_shared<PresentationAuthoringData>();
+    authoringData->actorProfiles.push_back({"1", {0.5f, 0.0f}, {0.0f, 0.25f, 0.0f}, true, 0.0f});
+    authoringData->actorProfiles.push_back({"2", {0.5f, 0.0f}, {0.0f, 0.5f, 0.0f}, true, 0.0f});
+    authoringData->battleConfig.formation.type = BattleFormation::LayoutType::Staged;
+    authoringData->battleConfig.formation.spreadWidth = 1.5f;
+    authoringData->battleConfig.formation.depthSpacing = 2.0f;
+    PresentationBridge bridge(runtime, authoringData);
+
+    auto battleScene = std::make_shared<urpg::scene::BattleScene>(std::vector<std::string>{"2"});
+    battleScene->addActor("1", "Hero", 100, 20, {0.0f, 0.0f}, nullptr);
+    battleScene->addEnemy("2", "Slime", 30, 0, {100.0f, 0.0f}, nullptr);
+
+    urpg::scene::SceneManager sceneManager;
+    sceneManager.pushScene(battleScene);
+
+    urpg::presentation::effects::EffectCue ownerCue;
+    ownerCue.frameTick = 0;
+    ownerCue.kind = urpg::presentation::effects::EffectCueKind::Gameplay;
+    ownerCue.anchorMode = urpg::presentation::effects::EffectAnchorMode::Owner;
+    ownerCue.sourceId = 1;
+    ownerCue.ownerId = 1;
+    ownerCue.intensity = {1.0f};
+    battleScene->enqueueEffectCue(ownerCue);
+
+    urpg::presentation::effects::EffectCue targetCue;
+    targetCue.frameTick = 0;
+    targetCue.kind = urpg::presentation::effects::EffectCueKind::Gameplay;
+    targetCue.anchorMode = urpg::presentation::effects::EffectAnchorMode::Target;
+    targetCue.sourceId = 1;
+    targetCue.ownerId = (1ull << 63) | 2ull;
+    targetCue.overlayEmphasis = {1.0f};
+    targetCue.intensity = {1.5f};
+    battleScene->enqueueEffectCue(targetCue);
+
+    PresentationContext context;
+    context.activeMode = PresentationMode::Spatial;
+    context.activeTier = CapabilityTier::Tier1_Standard;
+
+    const PresentationFrameIntent intent = bridge.BuildFrameForActiveScene(sceneManager, context);
+
+    std::optional<Vec3> heroPosition;
+    std::optional<Vec3> enemyPosition;
+    std::optional<Vec3> ownerEffectPosition;
+    std::optional<Vec3> targetEffectPosition;
+    bool foundOverlayEffect = false;
+    for (const auto& cmd : intent.commands) {
+        if (cmd.type == PresentationCommand::Type::DrawActor && cmd.id == 1) {
+            heroPosition = cmd.position;
+        }
+        if (cmd.type == PresentationCommand::Type::DrawActor && cmd.id == 2) {
+            enemyPosition = cmd.position;
+        }
+        if (cmd.type == PresentationCommand::Type::DrawWorldEffect) {
+            if (cmd.effectOwnerId == 1) {
+                ownerEffectPosition = cmd.position;
+            }
+            if (cmd.effectOwnerId == ((1ull << 63) | 2ull)) {
+                targetEffectPosition = cmd.position;
+            }
+        }
+        if (cmd.type == PresentationCommand::Type::DrawOverlayEffect) {
+            foundOverlayEffect = true;
+        }
+    }
+
+    REQUIRE(heroPosition.has_value());
+    REQUIRE(enemyPosition.has_value());
+    REQUIRE(ownerEffectPosition.has_value());
+    REQUIRE(targetEffectPosition.has_value());
+    REQUIRE(foundOverlayEffect);
+    CHECK(ownerEffectPosition->x == Catch::Approx(heroPosition->x));
+    CHECK(ownerEffectPosition->y == Catch::Approx(heroPosition->y));
+    CHECK(ownerEffectPosition->z == Catch::Approx(heroPosition->z));
+    CHECK(targetEffectPosition->x == Catch::Approx(enemyPosition->x));
+    CHECK(targetEffectPosition->y == Catch::Approx(enemyPosition->y));
+    CHECK(targetEffectPosition->z == Catch::Approx(enemyPosition->z));
+    CHECK((ownerEffectPosition->x != Catch::Approx(0.0f)
+        || ownerEffectPosition->y != Catch::Approx(0.0f)
+        || ownerEffectPosition->z != Catch::Approx(0.0f)));
+    CHECK((targetEffectPosition->x != Catch::Approx(0.0f)
+        || targetEffectPosition->y != Catch::Approx(0.0f)
+        || targetEffectPosition->z != Catch::Approx(0.0f)));
+}
+
+TEST_CASE("PresentationBridge does not replay consumed battle effect commands on consecutive frames", "[presentation][bridge][battle][effects]") {
+    auto runtime = std::make_shared<PresentationRuntime>();
+    auto authoringData = std::make_shared<PresentationAuthoringData>();
+    PresentationBridge bridge(runtime, authoringData);
+
+    auto battleScene = std::make_shared<urpg::scene::BattleScene>(std::vector<std::string>{"2"});
+    battleScene->addActor("1", "Hero", 100, 20, {0.0f, 0.0f}, nullptr);
+    battleScene->addEnemy("2", "Slime", 30, 0, {100.0f, 0.0f}, nullptr);
+
+    urpg::scene::SceneManager sceneManager;
+    sceneManager.pushScene(battleScene);
+
+    urpg::presentation::effects::EffectCue cue;
+    cue.frameTick = 0;
+    cue.kind = urpg::presentation::effects::EffectCueKind::Gameplay;
+    cue.anchorMode = urpg::presentation::effects::EffectAnchorMode::Target;
+    cue.sourceId = 1;
+    cue.ownerId = 2;
+    cue.overlayEmphasis = {1.0f};
+    cue.intensity = {1.5f};
+    battleScene->enqueueEffectCue(cue);
+
+    PresentationContext context;
+    context.activeMode = PresentationMode::Spatial;
+    context.activeTier = CapabilityTier::Tier1_Standard;
+
+    const PresentationFrameIntent firstIntent = bridge.BuildFrameForActiveScene(sceneManager, context);
+    const PresentationFrameIntent secondIntent = bridge.BuildFrameForActiveScene(sceneManager, context);
+
+    size_t firstWorldEffectCount = 0;
+    size_t firstOverlayEffectCount = 0;
+    for (const auto& cmd : firstIntent.commands) {
+        if (cmd.type == PresentationCommand::Type::DrawWorldEffect) {
+            firstWorldEffectCount++;
+        }
+        if (cmd.type == PresentationCommand::Type::DrawOverlayEffect) {
+            firstOverlayEffectCount++;
+        }
+    }
+
+    size_t secondWorldEffectCount = 0;
+    size_t secondOverlayEffectCount = 0;
+    for (const auto& cmd : secondIntent.commands) {
+        if (cmd.type == PresentationCommand::Type::DrawWorldEffect) {
+            secondWorldEffectCount++;
+        }
+        if (cmd.type == PresentationCommand::Type::DrawOverlayEffect) {
+            secondOverlayEffectCount++;
+        }
+    }
+
+    REQUIRE(firstWorldEffectCount >= 1);
+    REQUIRE(firstOverlayEffectCount >= 1);
+    REQUIRE(secondWorldEffectCount == 0);
+    REQUIRE(secondOverlayEffectCount == 0);
 }

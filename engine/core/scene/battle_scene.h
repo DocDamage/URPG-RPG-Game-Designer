@@ -3,6 +3,7 @@
 #include "scene_manager.h"
 #include "engine/core/battle/battle_core.h"
 #include "engine/core/math/vector2.h"
+#include "engine/core/presentation/effects/effect_cue.h"
 #include "engine/core/ui/ui_window.h"
 #include "engine/core/ui/ui_command_list.h"
 #include "engine/core/render/sprite_animator.h"
@@ -125,6 +126,9 @@ public:
     const urpg::battle::BattleFlowController& flowController() const { return m_flowController; }
     urpg::battle::BattleActionQueue& nativeActionQueue() { return m_nativeActionQueue; }
     const urpg::battle::BattleActionQueue& nativeActionQueue() const { return m_nativeActionQueue; }
+    void enqueueEffectCue(const urpg::presentation::effects::EffectCue& cue);
+    const std::vector<urpg::presentation::effects::EffectCue>& effectCues() const { return m_effectCues; }
+    void clearEffectCues() { m_effectCues.clear(); }
     std::optional<BattleDiagnosticsPreview> buildDiagnosticsPreview() const;
 
 private:
@@ -143,6 +147,8 @@ private:
     std::vector<BattleAction> m_actionQueue;
     urpg::battle::BattleFlowController m_flowController;
     urpg::battle::BattleActionQueue m_nativeActionQueue;
+    uint32_t m_effectSequence = 0;
+    std::vector<urpg::presentation::effects::EffectCue> m_effectCues;
 
     // Background
     std::shared_ptr<urpg::Texture> m_backgroundTexture;

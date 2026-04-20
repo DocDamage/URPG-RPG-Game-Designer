@@ -140,6 +140,7 @@ Subsystem targets:
 
 - [x] Wave 2 Audio State Sync: Implemented `GlobalStateHub` with "Diff-First" notifications and `StateDrivenAudioResolver` for automated BGM transitions. [Landed 2026-04-16]
 - [x] Spatial Presentation: `SpatialMapOverlay` authoring coverage is backed by compiled `editor/spatial/*` panel sources in the build graph alongside the registered presentation runtime/release-validation lane.
+- [x] Runtime VFX cue pipeline baseline: battle emits shared deterministic effect cues, and the presentation runtime now resolves newly-emitted cues through the shared resolver/translator path into world/overlay effect commands under focused battle bridge/runtime coverage.
 - [x] Editor Tooling: `ElevationBrushPanel` and `PropPlacementPanel` now have compiled `.cpp` implementations plus render-snapshot coverage in `test_spatial_editor.cpp`.
 
 Required outcomes per subsystem:

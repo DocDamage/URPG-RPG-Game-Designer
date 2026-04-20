@@ -166,6 +166,9 @@ add_library(urpg_core
     engine/core/save/save_runtime.cpp
     engine/core/battle/battle_core.cpp
     engine/core/presentation/presentation_runtime.cpp
+    engine/core/presentation/effects/effect_catalog.cpp
+    engine/core/presentation/effects/effect_resolver.cpp
+    engine/core/presentation/effects/effect_translator.cpp
     engine/gameplay/combat/combat_calc.cpp
     engine/core/audio/audio_ai_bridge.cpp
     engine/core/animation/animation_ai_bridge.cpp
@@ -444,6 +447,7 @@ add_executable(urpg_tests
     tests/unit/test_window_compat.cpp
     tests/unit/test_compat_report_panel.cpp
     tests/unit/test_battlemgr.cpp
+    tests/unit/test_battle_effect_cues.cpp
     tests/unit/test_battle_scene_native.cpp
     tests/unit/test_data_manager.cpp
     tests/unit/test_audio_manager.cpp
@@ -468,10 +472,13 @@ add_executable(urpg_tests
     tests/unit/test_scene_manager.cpp
     tests/unit/test_gameplay_tags.cpp
     tests/unit/test_presentation_runtime.cpp
+    tests/unit/test_presentation_effect_translation.cpp
+    tests/unit/test_effect_cue.cpp
     tests/unit/test_spatial_editor.cpp
     tests/unit/test_huggingface_curated_assets.cpp
     tests/unit/test_ability_activation.cpp
     tests/unit/test_pattern_field.cpp
+    tests/unit/test_effect_resolver.cpp
     tests/unit/test_wave3_gaf.cpp
     tests/unit/test_level_assembly.cpp
     tests/unit/test_sprite_animator.cpp

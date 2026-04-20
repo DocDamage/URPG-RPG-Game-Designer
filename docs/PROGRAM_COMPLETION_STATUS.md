@@ -68,6 +68,7 @@ Phase 3 diagnostics productization is complete as of 2026-04-19, Phase 4 governa
   - snapshot-style wrapped centered/right `drawTextEx` draw-history coverage landed
   - `Window_Selectable` pointer semantics now cover press/drag/release hit-testing, drag retargeting, drag-scroll, and mouse-wheel scrolling through `InputManager`
   - `Window_Base::contents()` now allocates compat bitmap records with tracked dimensions that stay synchronized with rect/padding changes instead of exposing handle-only state
+  - runtime VFX cue pipeline baseline landed: active `BattleScene` cues now flow through the shared resolver/translator path into one-shot world/overlay presentation effect commands, with focused bridge/runtime coverage plus a sample release-validation effect-command envelope check
   - compat status truth pass is now reflected in the canonical docs; remaining work is to keep those labels and docs aligned as post-closure hardening continues
   - AudioManager compat closure advanced: deterministic playback position now advances during `update()`, duck/unduck ramps are frame-based, master/bus volume changes affect active playback, and the QuickJS `AudioManager` bridge now routes live compat state for BGM/BGS/ME/SE plus volume/ducking helpers
   - 2026-04-19 Phase 2 runtime closure reconciled the battle reward/event and switch coverage, window `contents()` lifecycle truthfulness, `DataManager::loadDatabase()` seeded-container behavior, and audio semantics documentation against the focused dev-mingw-debug verification lane
@@ -326,8 +327,8 @@ The scope in this document is considered 100% complete when all items below are 
    - keep new routed failure operations locked to JSONL/report/panel parity and maintain weekly conformance depth growth.
 5. Keep canonical status/docs aligned with current validation evidence:
    - update README/remediation/kickoff/checklist language whenever closure state or residual compat scope changes.
-6. Begin strict Wave 2 opening work:
-   - The strict Wave 2 baseline opening order is now advanced through the optional 2.5D/editor-utility gate on this branch; the next useful work is broader reconciliation, validation, and any remaining per-lane productization depth.
+6. Strict Wave 2 opening work:
+   - The strict Wave 2 baseline opening order and roadmap follow-through items tracked on this branch are marked complete in the current status docs; any further expansion should be treated as new scope unless fresh validation reopens baseline gaps.
 
 ## Remaining work to reach 100%
 

@@ -1,6 +1,8 @@
 #pragma once
 
+#include "effects/effect_cue.h"
 #include "presentation_types.h"
+#include <cstdint>
 #include <vector>
 #include <string>
 
@@ -15,6 +17,9 @@ struct BattleParticipantState {
     int32_t formationIndex; // Position index within the formation
     bool isEnemy;
     float currentHPPulse;   // Visual feedback for health
+    std::uint64_t cueId = 0;
+    Vec3 anchorPosition = {0.0f, 0.0f, 0.0f};
+    bool hasAnchorPosition = false;
 };
 
 /**
@@ -23,6 +28,7 @@ struct BattleParticipantState {
 struct BattleSceneState {
     std::string battleArenaId;
     std::vector<BattleParticipantState> participants;
+    std::vector<effects::EffectCue> effectCues;
 };
 
 } // namespace urpg::presentation

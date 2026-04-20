@@ -21,6 +21,21 @@ int parseDatabaseId(const std::string& rawId) {
     }
 }
 
+std::uint64_t participantCueId(const BattleParticipant* participant) {
+    if (participant == nullptr) {
+        return 0;
+    }
+
+    const int id = parseDatabaseId(participant->id);
+    if (id <= 0) {
+        return 0;
+    }
+
+    constexpr std::uint64_t kEnemyCueDomainBit = 1ull << 63;
+    const std::uint64_t cueId = static_cast<std::uint64_t>(id);
+    return participant->isEnemy ? (cueId | kEnemyCueDomainBit) : cueId;
+}
+
 std::shared_ptr<urpg::Texture> loadOptionalTexture(const std::string& path) {
     std::error_code error;
     if (!std::filesystem::exists(path, error) || error) {
@@ -242,6 +257,8 @@ void BattleScene::onStart() {
     m_turnCount = m_flowController.turnCount();
     m_actionQueue.clear();
     m_nativeActionQueue.clear();
+    m_effectSequence = 0;
+    m_effectCues.clear();
     m_commandWindow->setVisible(false);
 
     // Phase 12: Load Background
@@ -287,6 +304,12 @@ urpg::battle::BattleQueuedAction BattleScene::makeQueuedAction(const BattleActio
 void BattleScene::addActionToQueue(const BattleAction& action) {
     m_actionQueue.push_back(action);
     m_nativeActionQueue.enqueue(makeQueuedAction(action));
+}
+
+void BattleScene::enqueueEffectCue(const urpg::presentation::effects::EffectCue& cue) {
+    auto ordered = cue;
+    ordered.sequenceIndex = m_effectSequence++;
+    m_effectCues.push_back(ordered);
 }
 
 std::optional<BattleDiagnosticsPreview> BattleScene::buildDiagnosticsPreview() const {
@@ -735,6 +758,18 @@ void BattleScene::executeAction(const BattleAction& action) {
         if (m_logWindow) m_logWindow->setText(action.subject->name + " attacks!");
     }
 
+    if (action.command == "attack" || action.isSkill || action.isItem) {
+        urpg::presentation::effects::EffectCue castCue;
+        castCue.frameTick = static_cast<std::uint64_t>(std::max(m_turnCount, 0));
+        castCue.kind = urpg::presentation::effects::EffectCueKind::Gameplay;
+        castCue.anchorMode = urpg::presentation::effects::EffectAnchorMode::Owner;
+        castCue.sourceId = participantCueId(action.subject);
+        castCue.ownerId = participantCueId(action.subject);
+        castCue.overlayEmphasis = {0.0f};
+        castCue.intensity = {1.0f};
+        enqueueEffectCue(castCue);
+    }
+
     // 2. Execute on all targets
     for (auto* target : currentTargets) {
         int32_t damage = 0;
@@ -763,6 +798,18 @@ void BattleScene::executeAction(const BattleAction& action) {
             target->DamagePopupValue = (float)-damage;
             target->DamagePopupTimer = 1.0f;
             target->DamagePopupColor = 0x00FF00FF;
+        }
+
+        if (action.command == "attack" || action.isSkill || action.isItem) {
+            urpg::presentation::effects::EffectCue resultCue;
+            resultCue.frameTick = static_cast<std::uint64_t>(std::max(m_turnCount, 0));
+            resultCue.kind = urpg::presentation::effects::EffectCueKind::Gameplay;
+            resultCue.anchorMode = urpg::presentation::effects::EffectAnchorMode::Target;
+            resultCue.sourceId = participantCueId(action.subject);
+            resultCue.ownerId = participantCueId(target);
+            resultCue.overlayEmphasis = {damage > 0 ? 1.0f : 0.0f};
+            resultCue.intensity = {damage > 20 ? 1.5f : (damage > 0 ? 1.0f : 0.5f)};
+            enqueueEffectCue(resultCue);
         }
 
         // 3a. Persist state

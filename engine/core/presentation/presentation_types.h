@@ -27,6 +27,7 @@ enum class PresentationMode {
  */
 enum class CapabilityTier {
     Tier0_Baseline,    // Guaranteed on all hardware (2D only)
+    Tier0_Basic = Tier0_Baseline,
     Tier1_Standard,    // Basic Spatial features
     Tier2_Enhanced,    // Advanced lighting/particles
     Tier3_Full,        // Maximum fidelity

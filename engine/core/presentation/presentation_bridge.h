@@ -28,6 +28,7 @@ public:
                                                      const PresentationContext& context) {
         auto activeScene = sceneManager.getActiveScene();
         if (!activeScene) {
+            resetBattleCueCursor();
             return PresentationFrameIntent{PresentationMode::Classic2D, CapabilityTier::Tier0_Baseline};
         }
 
@@ -36,6 +37,8 @@ public:
             if (const auto* battleScene = dynamic_cast<const scene::BattleScene*>(activeScene.get())) {
                 effectiveContext.battleState = BuildBattleSceneState(*battleScene);
             }
+        } else {
+            resetBattleCueCursor();
         }
 
         return m_runtime->BuildPresentationFrame(effectiveContext, *m_authoringData);
@@ -47,6 +50,16 @@ public:
     std::shared_ptr<PresentationRuntime> GetRuntime() const { return m_runtime; }
 
 private:
+    struct BattleCueCursor {
+        uint32_t nextSequenceIndex = 0;
+        size_t observedCueCount = 0;
+    };
+
+    void resetBattleCueCursor() {
+        m_activeBattleScene = nullptr;
+        m_battleCueCursor = {};
+    }
+
     static uint32_t parseParticipantId(const std::string& id, uint32_t fallback) {
         uint32_t parsed = fallback;
         const auto* begin = id.data();
@@ -58,9 +71,43 @@ private:
         return parsed;
     }
 
-    static BattleSceneState BuildBattleSceneState(const scene::BattleScene& battleScene) {
+    static std::uint64_t parseParticipantCueId(const std::string& id, bool isEnemy) {
+        std::uint64_t parsed = 0;
+        const auto* begin = id.data();
+        const auto* end = begin + id.size();
+        const auto result = std::from_chars(begin, end, parsed);
+        if (result.ec != std::errc{} || result.ptr != end || parsed == 0) {
+            return 0;
+        }
+
+        constexpr std::uint64_t kEnemyCueDomainBit = 1ull << 63;
+        return isEnemy ? (parsed | kEnemyCueDomainBit) : parsed;
+    }
+
+    BattleSceneState BuildBattleSceneState(const scene::BattleScene& battleScene) {
         BattleSceneState state;
         state.battleArenaId = battleScene.getName();
+
+        if (m_activeBattleScene != &battleScene) {
+            m_activeBattleScene = &battleScene;
+            m_battleCueCursor = {};
+        }
+
+        const auto& sceneCues = battleScene.effectCues();
+        if (!sceneCues.empty()) {
+            if (sceneCues.size() < m_battleCueCursor.observedCueCount) {
+                m_battleCueCursor.nextSequenceIndex = 0;
+            }
+
+            for (const auto& cue : sceneCues) {
+                if (cue.sequenceIndex >= m_battleCueCursor.nextSequenceIndex) {
+                    state.effectCues.push_back(cue);
+                }
+            }
+
+            m_battleCueCursor.nextSequenceIndex = sceneCues.back().sequenceIndex + 1;
+        }
+        m_battleCueCursor.observedCueCount = sceneCues.size();
 
         uint32_t actorFormationIndex = 0;
         uint32_t enemyFormationIndex = 0;
@@ -74,6 +121,7 @@ private:
             presentationParticipant.isEnemy = participant.isEnemy;
             presentationParticipant.currentHPPulse =
                 participant.maxHp > 0 ? static_cast<float>(participant.hp) / static_cast<float>(participant.maxHp) : 0.0f;
+            presentationParticipant.cueId = parseParticipantCueId(participant.id, participant.isEnemy);
             state.participants.push_back(std::move(presentationParticipant));
         }
 
@@ -82,6 +130,8 @@ private:
 
     std::shared_ptr<PresentationRuntime> m_runtime;
     std::shared_ptr<PresentationAuthoringData> m_authoringData;
+    const scene::BattleScene* m_activeBattleScene = nullptr;
+    BattleCueCursor m_battleCueCursor;
 };
 
 } // namespace urpg::presentation

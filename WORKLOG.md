@@ -2,12 +2,20 @@
 
 ## Current Status
 **Phase:** Post-Phase-5 closure follow-through
-**Active Task:** Execute Wave 2 opening order while keeping validation evidence and status docs aligned
+**Active Task:** Maintain documentation truthfulness and verified branch state after Wave 2 roadmap follow-through closure
 **Cross-Cutting Governance:** cross-program debt, truthfulness, and intake-governance tracking lives in `docs/TECHNICAL_DEBT_REMEDIATION_PLAN.md`
 
 ---
 
 ## Entries
+
+### 2026-04-20 — Runtime VFX Cue Pipeline Baseline
+- **Action**: Extended the presentation bridge/runtime path so newly-emitted `BattleScene` effect cues are projected into presentation battle state and resolved through the shared runtime effect resolver/translator path during frame build.
+- **Action**: Expanded `tests/unit/test_presentation_runtime.cpp` with active-battle coverage that checks battle effect cues appear in emitted frames as world and overlay effect commands and that world cues align with the resolved battler anchors.
+- **Action**: Added consecutive-frame coverage proving consumed one-shot battle cues are not replayed on later frame builds from the same active scene.
+- **Action**: Expanded `engine/core/presentation/release_validation.cpp` with a sample battle effect-command envelope check covering shared-cue translation in the runtime harness.
+- **Action**: Reconciled `docs/PROGRAM_COMPLETION_STATUS.md` and `docs/NATIVE_FEATURE_ABSORPTION_PLAN.md` so the landed runtime VFX cue baseline is recorded truthfully.
+- **Result**: The battle-first runtime VFX cue pipeline baseline now has focused bridge/runtime and release-harness coverage, including one-shot cue consumption and battle-anchor resolution checks, without claiming broader runtime validation than those lanes demonstrate.
 
 ### 2026-04-20 — Spatial Panel Build Registration
 - **Action**: Converted `editor/spatial/elevation_brush_panel.h` and `editor/spatial/prop_placement_panel.h` from header-only stubs into compiled panel sources with `editor/spatial/elevation_brush_panel.cpp` and `editor/spatial/prop_placement_panel.cpp`.

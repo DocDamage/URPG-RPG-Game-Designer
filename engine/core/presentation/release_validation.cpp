@@ -94,6 +94,51 @@ void RunReleaseValidation() {
     }
     std::cout << "[CHECK] Fallback Flattening (Tier 0): PASSED" << std::endl;
 
+    // 5. Battle Effect Cue Envelope Validation
+    PresentationContext battleContext;
+    battleContext.activeMode = PresentationMode::Spatial;
+    battleContext.activeTier = CapabilityTier::Tier1_Standard;
+    battleContext.battleState.battleArenaId = "validation_arena";
+    battleContext.battleState.participants.push_back({1, "1", 0, false, 1.0f});
+    battleContext.battleState.participants.push_back({2, "2", 0, true, 1.0f});
+
+    urpg::presentation::effects::EffectCue battleCue;
+    battleCue.frameTick = 0;
+    battleCue.kind = urpg::presentation::effects::EffectCueKind::Gameplay;
+    battleCue.anchorMode = urpg::presentation::effects::EffectAnchorMode::Target;
+    battleCue.sourceId = 1;
+    battleCue.ownerId = 2;
+    battleCue.overlayEmphasis = {1.0f};
+    battleCue.intensity = {1.5f};
+    battleContext.battleState.effectCues.push_back(battleCue);
+
+    PresentationAuthoringData battleData;
+    battleData.actorProfiles.push_back({"1", {0.5f, 0.0f}, {0.0f, 0.25f, 0.0f}, true, 0.0f});
+    battleData.actorProfiles.push_back({"2", {0.5f, 0.0f}, {0.0f, 0.50f, 0.0f}, true, 0.0f});
+    battleData.battleConfig.useDynamicCineCamera = true;
+    battleData.battleConfig.formation.type = BattleFormation::LayoutType::Staged;
+    battleData.battleConfig.formation.spreadWidth = 1.5f;
+    battleData.battleConfig.formation.depthSpacing = 2.0f;
+
+    PresentationFrameIntent battleIntent = runtime.BuildPresentationFrame(battleContext, battleData);
+
+    size_t worldEffectCommandCount = 0;
+    size_t overlayEffectCommandCount = 0;
+    for (const auto& cmd : battleIntent.commands) {
+        if (cmd.type == PresentationCommand::Type::DrawWorldEffect) {
+            worldEffectCommandCount++;
+        } else if (cmd.type == PresentationCommand::Type::DrawOverlayEffect) {
+            overlayEffectCommandCount++;
+        }
+    }
+
+    std::cout << "[CHECK] Battle Effect Command Sample Envelope: world=" << worldEffectCommandCount
+              << ", overlay=" << overlayEffectCommandCount << std::endl;
+    assert(worldEffectCommandCount >= 1);
+    assert(overlayEffectCommandCount >= 1);
+    assert(worldEffectCommandCount <= 16);
+    assert(overlayEffectCommandCount <= 16);
+
     std::cout << "[SUCCESS] Release Validation Suite: ALL TESTS PASSED" << std::endl;
 }
 
