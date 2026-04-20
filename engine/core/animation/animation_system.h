@@ -3,6 +3,7 @@
 #include "engine/core/ecs/world.h"
 #include "engine/core/ecs/actor_components.h"
 #include "engine/core/animation/animation_components.h"
+#include "engine/core/animation/animation_clip.h"
 
 namespace urpg {
 
@@ -11,6 +12,25 @@ namespace urpg {
  */
 class AnimationSystem {
 public:
+    static AnimationComponent bindClip(const animation::AnimationClip& clip) {
+        AnimationComponent component;
+        component.duration = Fixed32::FromFloat(clip.duration);
+        component.isLooping = false;
+        component.isPlaying = true;
+
+        const std::vector<float> times = clip.collectKeyframeTimes();
+        for (float sampleTime : times) {
+            AnimationKeyframe keyframe;
+            keyframe.time = Fixed32::FromFloat(sampleTime);
+            keyframe.value.x = Fixed32::FromFloat(clip.evaluate("positionX", sampleTime));
+            keyframe.value.y = Fixed32::FromFloat(clip.evaluate("positionY", sampleTime));
+            keyframe.value.z = Fixed32::FromFloat(clip.evaluate("positionZ", sampleTime));
+            component.positionTrack.push_back(keyframe);
+        }
+
+        return component;
+    }
+
     void update(World& world, float deltaTime) {
         Fixed32 dt = Fixed32::FromRaw(static_cast<int32_t>(deltaTime * 65536.0f));
 
@@ -49,11 +69,16 @@ private:
                 
                 // Simple linear interpolation
                 Fixed32 range = k2.time - k1.time;
-                Fixed32 t = (time - k1.time) * Fixed32::FromRaw(65536 / range.ToFloat()); // This is a bit simplified for fixed point
-                
-                // For proper fixed point lerp: (k1.value * (1-t) + k2.value * t)
-                // Just using k1 for now to verify system flow
-                return k1.value; 
+                if (range.raw == 0) {
+                    return k2.value;
+                }
+
+                const float t = (time - k1.time).ToFloat() / range.ToFloat();
+                Vector3 value;
+                value.x = Fixed32::FromFloat(k1.value.x.ToFloat() + (k2.value.x.ToFloat() - k1.value.x.ToFloat()) * t);
+                value.y = Fixed32::FromFloat(k1.value.y.ToFloat() + (k2.value.y.ToFloat() - k1.value.y.ToFloat()) * t);
+                value.z = Fixed32::FromFloat(k1.value.z.ToFloat() + (k2.value.z.ToFloat() - k1.value.z.ToFloat()) * t);
+                return value;
             }
         }
         return track.back().value;

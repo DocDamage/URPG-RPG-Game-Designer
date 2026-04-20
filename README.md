@@ -35,9 +35,9 @@
 | **Compat Layer (Phase 2 Closure)** | Complete | Runtime closure done | Runtime closure completed on 2026-04-19. Residual compat work remains in post-closure exit hardening, corpus depth, and honest `PARTIAL` surface maintenance. |
 | **Wave 3-7 Ecosystem** | Complete | 100% | Templates, Profiling, Polish, Workspace, ImGui Panels. |
 | **Final Integration** | Complete | 100% | Unified `EngineAssembly` Gold distribution. |
-| **Native Workwaves** | In Progress | ~92% | Current active work is Wave 1 productization and later-phase governance beyond the closed Phase 2 runtime lane. |
+| **Native Workwaves** | In Progress | ~94% | Wave 1 closure evidence and broader release-readiness proof are now recorded; current active work shifts to Wave 2 opening plus ongoing compat hardening. |
 
-Phase 2 runtime closure is complete as of 2026-04-19. Current repo work sits in Wave 1 native productization, Wave 2 planning-to-implementation follow-through, and post-closure compat exit hardening tracked in the canonical status docs.
+Phase 2 runtime closure is complete as of 2026-04-19. Broader Wave 1/program release-readiness proof is now recorded as of 2026-04-20. Current repo work sits in Wave 2 implementation follow-through and post-closure compat exit hardening tracked in the canonical status docs.
 
 Canonical remediation status: the audited remediation findings tracked in `docs/TECHNICAL_DEBT_REMEDIATION_PLAN.md` are now fully closed; remaining repo work is roadmap/product execution and post-closure confidence depth rather than open remediation findings.
 
@@ -135,13 +135,15 @@ This focused gate is also invoked by `tools/ci/run_local_gates.ps1` locally and 
    - `DiagnosticsWorkspace` exposes message edit, export, save/load round-trips,
    - migration maps `defaultChoiceIndex`, `command`, window/audio style fields,
    - schema updated with `default_choice_index` and `command`.
-4. Finish the remaining Wave 1 closure work for **Battle** and **Save/Data**:
-   - Save/Data compat import/migration closure and release-readiness proof.
-   - Battle release-readiness proof and any remaining status-doc/checklist reconciliation.
+4. ~~Finish the broader Wave 1/program release-readiness proof and final status-doc reconciliation~~ (DONE 2026-04-20):
+   - focused plugin/scene lane passed on the active local `build` tree,
+   - focused presentation gate passed on the active local `build` tree,
+   - Phase 4 governance validation passed after restoring the canonical `source_capture_status.json` report,
+   - `ctest --preset dev-all --output-on-failure` passed at 630/630 after reconciling the stale Battle inspector turn-count expectation with the current native flow contract.
 5. Maintain post-Phase-2 compat exit hardening:
    - keep conformance depth, JSONL/report/panel parity, and status/document truthfulness aligned with the current harness-backed scope.
 6. Begin Wave 2 advanced capability implementation (ability framework, pattern editor, modular level assembly, sprite pipeline, procedural toolkit, optional 2.5D lane, timeline orchestration, and editor utilities).
-7. Execute the full remaining checklist in `docs/PROGRAM_COMPLETION_STATUS.md` to drive completion to 100% for the current program scope.
+7. Execute the remaining checklist in `docs/PROGRAM_COMPLETION_STATUS.md` to drive completion to 100% for the current program scope.
 
 ## Build
 

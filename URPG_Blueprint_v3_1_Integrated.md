@@ -16,7 +16,7 @@ Cross-cutting debt closure, documentation-truth alignment, and intake-governance
 | Phase 0 Foundation | Complete | 100% | Core kernels, authority guards, migration/save lanes, diagnostics indexing/panel wiring, and CI lane scaffolding are in place. |
 | Phase 1 Native Core | Complete | 100% | Event dispatch, debug runtime, EngineShell lifecycle, and deterministic ECS iteration are fully implemented. |
 | Phase 2 Compat Layer | In Progress | ~85% | Large compat surface is wired and test-heavy, but significant areas remain fixture-, stub-, or placeholder-backed; status labels and docs now reflect this truth. |
-| Native Feature Absorption Wave 1 | In progress | ~85% | Native ownership established for Message/Text Core and Battle Core. UI/Menu and Save/Data runtime systems are in active development. All systems integrated with ImGui inspectors. |
+| Native Feature Absorption Wave 1 | In progress | ~99% | UI/Menu, Message/Text, Save/Data, and Battle closure evidence are recorded. Remaining work is the broader Wave 1/program release close-out. |
 | Native Capability Expansion Wave 2 | Active | ~60% | Developed core kernels for Gameplay Ability Framework, Pattern Fields, Modular Level Assembly, Sprite Pipeline, Raycast Renderer, and Animation/Timeline orchestration. |
 | Native Capability Expansion Wave 3 | Complete | 100% | Technical delivery of All Template Expansion systems (ARPG, VN, Tactics), Subsystem Debugging (Profiler/History), and Phase 4 Ecosystem (Cloud, Security, Plugins) completed and cross-validated. |
 | Native Feature Polish Wave 4 | Complete | 100% | Full technical delivery of Engine Polish tracks (4.1-4.6). Includes Scene Transition Manager, Priority Asset Loader, Spatial Audio Mixer, Hot-Reload, Export Packager, and Resource Protector. |
@@ -31,7 +31,7 @@ Cross-cutting debt closure, documentation-truth alignment, and intake-governance
 
 1. Close compat exit criteria: expand remaining routed conformance depth across the curated 10-profile corpus and lock each new failure mode to JSONL/report/panel assertions.
 2. Close Message/Text renderer handoff: consume backend text commands end-to-end and align compat `Window_Message` parity behavior with native message-scene ownership.
-3. Execute Wave 1 native ownership: move UI/Menu, Message/Text, Battle, and Save/Data from spec-plus-seed into runtime ownership implementation.
+3. Execute the remaining Wave 1 closure proof: publish the broader Wave 1/program release evidence and final reconciliation.
 4. Ship Wave 1 editor + schema productization: inspectors, previews, diagnostics, and migration-aware import upgrade paths.
 5. Begin Wave 2 advanced capability implementation tracks from `docs/NATIVE_FEATURE_ABSORPTION_PLAN.md`.
 6. Track completion against `docs/PROGRAM_COMPLETION_STATUS.md` until all checklist items are complete.

@@ -161,6 +161,7 @@ add_library(urpg_core
     engine/core/sync/source_authority.cpp
     engine/core/save/save_catalog.cpp
     engine/core/save/save_journal.cpp
+    engine/core/save/save_migration.cpp
     engine/core/save/save_recovery.cpp
     engine/core/save/save_runtime.cpp
     engine/core/battle/battle_core.cpp
@@ -425,6 +426,7 @@ add_executable(urpg_tests
     tests/unit/test_save_inspector_panel.cpp
     tests/unit/test_save_recovery.cpp
     tests/unit/test_save_runtime.cpp
+    tests/unit/test_save_migration.cpp
     tests/unit/test_save_serialization.cpp
     tests/unit/test_battle_inspector_model.cpp
     tests/unit/test_battle_preview_panel.cpp
@@ -469,6 +471,9 @@ add_executable(urpg_tests
     tests/unit/test_pattern_field.cpp
     tests/unit/test_wave3_gaf.cpp
     tests/unit/test_level_assembly.cpp
+    tests/unit/test_sprite_animator.cpp
+    tests/unit/test_procedural_toolkit.cpp
+    tests/unit/test_optional_lanes.cpp
     tests/unit/test_debug_crash.cpp
     tests/unit/test_audio_inspector.cpp
     tests/unit/test_audio_resolver.cpp

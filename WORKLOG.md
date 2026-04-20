@@ -2,12 +2,99 @@
 
 ## Current Status
 **Phase:** Post-Phase-5 closure follow-through
-**Active Task:** Keep post-closure validation evidence and status docs aligned while roadmap work continues
+**Active Task:** Execute Wave 2 opening order while keeping validation evidence and status docs aligned
 **Cross-Cutting Governance:** cross-program debt, truthfulness, and intake-governance tracking lives in `docs/TECHNICAL_DEBT_REMEDIATION_PLAN.md`
 
 ---
 
 ## Entries
+
+### 2026-04-20 — Wave 2 Opening: Optional 2.5D and Editor Utility Gating
+- **Action**: Added explicit presentation-mode gating to `engine/core/render/raycast_renderer.h` so the optional raycast lane returns no frame data unless the project is intentionally running in `Spatial` mode.
+- **Action**: Extended `editor/productivity/editor_utility_task.h` with mode requirements and runnable-task filtering so utilities can declare whether they are safe for any project, Classic 2D only, or Spatial-only execution.
+- **Action**: Added focused regressions in `tests/unit/test_optional_lanes.cpp` for raycast opt-in isolation and mode-aware editor utility visibility, and registered that lane in the build graph.
+- **Action**: Rebuilt the active local Debug test binary and re-ran the focused optional-lane gate:
+  - `.\build\Debug\urpg_tests.exe "[render][optional],[editor][utility]" --reporter compact` => 5 assertions / 2 test cases passed
+- **Result**: Task 17 is now advanced with explicit project-mode isolation for the optional 2.5D lane and selected editor utilities. The strict Wave 2 baseline order in the execution plan is now covered on this branch.
+
+### 2026-04-20 — Wave 2 Opening: Timeline and Animation Orchestration
+- **Action**: Added `AnimationSystem::bindClip` in `engine/core/animation/animation_system.h` so authored `AnimationClip` property tracks can be converted into runtime `AnimationComponent` playback without hand-building transform tracks in callers.
+- **Action**: Replaced the placeholder previous-keyframe return path in `AnimationSystem` with deterministic interpolated transform sampling.
+- **Action**: Extended `engine/core/animation/animation_clip.h` with keyframe-time collection helpers, and updated `engine/core/animation/timeline_kernel.h` so timeline tracks sort on ingest and triggered transient events are recorded for inspection in playback order.
+- **Action**: Normalized parsed AI keyframe order in `engine/core/animation/animation_ai_bridge.cpp` and expanded `tests/unit/test_animation_system.cpp` with clip-binding interpolation and transient VFX/sound playback checks.
+- **Action**: Rebuilt the active local Debug test binary and re-ran the focused animation lane:
+  - `.\build\Debug\urpg_tests.exe "[animation]" --reporter compact` => 13 assertions / 3 test cases passed
+- **Result**: Task 16 is now advanced with deterministic clip binding and transient event orchestration. The next plan-accurate Wave 2 slice is the optional 2.5D/editor-utility gate.
+
+### 2026-04-20 — Wave 2 Opening: Procedural Toolkit Scenario Generation
+- **Action**: Replaced the old conflicting `PlacedBlock` stub in `engine/core/level/procedural_toolkit.h` with a dedicated `GeneratedBlock` scenario output so the procedural lane has a real runtime-facing result shape instead of a namespace collision with level assembly.
+- **Action**: Implemented deterministic seeded dungeon generation that registers the block library with `LevelAssemblyWorkspace`, selects a seed opener deterministically from the input seed, and expands connector-backed layouts while preferring continuation-capable blocks until the requested budget is reached.
+- **Action**: Added focused regressions in `tests/unit/test_procedural_toolkit.cpp` for same-seed reproducibility, different-seed divergence, and max-block budget enforcement, and registered that lane in the build graph.
+- **Action**: Rebuilt the active local Debug test binary and re-ran the focused procedural lane:
+  - `.\build\Debug\urpg_tests.exe "[procedural][level]" --reporter compact` => 19 assertions / 1 test case passed
+- **Result**: Task 15 is now advanced with deterministic seeded scenario generation. The next plan-accurate Wave 2 slice is Timeline/Animation orchestration.
+
+### 2026-04-20 — Wave 2 Opening: Sprite Pipeline Runtime Artifacts
+- **Action**: Added atlas-backed animation metadata support to `engine/core/render/sprite_animator.*` so runtime animation can consume authored frame rectangles and clip order instead of assuming only a uniform sheet grid.
+- **Action**: Added `FrameView` inspection and authored atlas clip selection APIs in `SpriteAnimator`, then covered them with focused unit tests in `tests/unit/test_sprite_animator.cpp`.
+- **Action**: Extended `tools/sprite_pipeline/sprite_pipeline_defs.h`, `tools/sprite_pipeline/sprite_pack_main.cpp`, and `content/schemas/sprite_atlas.schema.json` so packed atlas metadata now includes `animations` plus a deterministic `preview` artifact bundle (`preview_loop`, ordered frame IDs, frame count).
+- **Action**: Rebuilt the active local Debug test binary and re-ran the focused sprite lane:
+  - `.\build\Debug\urpg_tests.exe "[sprite]" --reporter compact` => 128 assertions / 19 test cases passed
+- **Result**: Task 14 is now advanced with runtime-consumable atlas metadata and generated preview artifacts. The next plan-accurate Wave 2 slice is Procedural Toolkit deterministic scenario generation.
+
+### 2026-04-20 — Wave 2 Opening: Pattern Preview and Level Assembly Validation
+- **Action**: Completed the Pattern Field validation/preview slice in `engine/core/ability/pattern_field.*`, `engine/core/ability/pattern_field_serializer.h`, and `editor/ability/pattern_field_*` so authored patterns now normalize deterministically, require an origin point, expose reusable presets, and surface preview/validation snapshots through the editor panel path.
+- **Action**: Tightened the schema contract in `content/schemas/pattern_field.schema.json` and expanded `tests/unit/test_pattern_field.cpp` to cover presets, inspector preview state, missing-origin rejection, and deterministic serializer ordering.
+- **Action**: Hardened modular level assembly validation in `engine/core/level/level_assembly.*` so snap acceptance now requires matching connector metadata offsets and registered blocks must attach through connector-backed neighbors after the seed placement.
+- **Action**: Expanded `tests/unit/test_level_assembly.cpp` to cover connector-offset mismatch rejection, authored metadata matching in `SnapLogic`, and detached registered-block rejection.
+- **Action**: Rebuilt the active local Debug test binary and re-ran the focused Wave 2 lanes:
+  - `.\build\Debug\urpg_tests.exe "[pattern]" --reporter compact` => 25 assertions / 3 test cases passed
+  - `.\build\Debug\urpg_tests.exe "[level][assembly]" --reporter compact` => 36 assertions / 2 test cases passed
+- **Result**: Tasks 12 and 13 are now advanced with current local evidence. The next plan-accurate Wave 2 slice is Sprite Pipeline runtime consumption and preview artifacts.
+
+### 2026-04-20 — Wave 2 Opening: Gameplay Ability Replay-Safe Diagnostics
+- **Action**: Added structured activation evaluation in `engine/core/ability/gameplay_ability.*` so ability checks now return deterministic blocked reasons (`missing_required_tags`, `blocking_tags_present`, `cooldown_active`, `insufficient_mp`) instead of only pass/fail booleans.
+- **Action**: Added bounded deterministic ability execution history to `engine/core/ability/ability_system_component.h`, including blocked/executed activation rows, cooldown/MP snapshots, and post-activation effect counts.
+- **Action**: Upgraded `AbilitySystemComponent` attribute handling so tests and runtime code can set and mutate authoritative base attributes instead of relying on the old no-op `modifyAttribute()` stub.
+- **Action**: Wired `engine/core/ability/ability_state_machine.*` into the same replay-safe diagnostics stream so entered/failed/finished state transitions are recorded in deterministic sequence order.
+- **Action**: Added `AbilityInspectorPanel::RenderSnapshot` in `editor/ability/ability_inspector_panel.*` so the panel exposes replay-log-oriented diagnostic lines and latest outcome metadata alongside the existing model projection.
+- **Action**: Added focused regressions in `tests/unit/test_ability_activation.cpp` for blocked/executed activation history, deterministic effect application snapshots, panel diagnostic export, and state-machine transition logging.
+- **Action**: Rebuilt the active local Debug test binary and re-ran the focused ability lane:
+  - `.\build\Debug\urpg_tests.exe "[ability]" --reporter compact` => 49 assertions / 8 test cases passed
+- **Result**: Task 11 is now advanced with concrete replay-safe diagnostics and deterministic execution evidence. The next plan-accurate Wave 2 slice is Pattern Field validation and inspector preview.
+
+### 2026-04-20 — Broader Wave 1 Release-Readiness Proof
+- **Action**: Restored the canonical Phase 4 asset-intake report at `imports/reports/asset_intake/source_capture_status.json` and updated the local report README so the governance lane reflects the already-documented truthful capture state.
+- **Action**: Rebuilt the active local presentation validation harness and re-ran the broader release-proof stack:
+  - `ctest --test-dir build -C Debug --output-on-failure -R "PluginManager: Command execution|MapScene:|SceneManager:"` => 9/9 passed
+  - `ctest --test-dir build -C Debug -R "urpg_(presentation_(unit_lane|release_validation)|spatial_editor_lane)" --output-on-failure` => 3/3 passed
+  - `powershell -ExecutionPolicy Bypass -File tools/ci/check_phase4_intake_governance.ps1` => passed
+  - `ctest --preset dev-all --output-on-failure` => 630/630 passed
+- **Action**: Fixed the stale `BattleInspectorModel` regression expectation in `tests/unit/test_battle_inspector_model.cpp` so the inspector test now matches the current native `BattleFlowController` turn-count contract (`beginBattle()` starts at turn 1), which was already the contract asserted by the core battle lane.
+- **Action**: Reconciled `RELEASE_CHECKLIST.md`, `README.md`, and `docs/PROGRAM_COMPLETION_STATUS.md` so they now record the broader Wave 1/program release proof instead of leaving that close-out work marked pending.
+- **Result**: Wave 1 subsystem closure is now backed by a current broader program-level release-proof snapshot on this branch. The next plan-accurate work is Wave 2 opening order plus ongoing compat hardening depth.
+
+### 2026-04-20 — Save/Data Importer Upgrader Ownership Follow-Through
+- **Action**: Added native `SaveMigration` ownership in `engine/core/save/save_migration.h` and `engine/core/save/save_migration.cpp` so compat save-metadata upgrade behavior no longer lives only as generic migration specs embedded in tests.
+- **Action**: Implemented typed Save/Data migration diagnostics plus JSONL export, and preserved unmapped compat/plugin-header fields as `_compat_mapping_notes` instead of dropping them silently.
+- **Action**: Updated `tests/unit/test_save_runtime.cpp` so imported metadata hydration flows through the new Save/Data migration owner.
+- **Action**: Added focused regressions in `tests/unit/test_save_migration.cpp` and registered them in the local build graph.
+- **Action**: Wired Save/Data into `MigrationWizardModel` as a first-class `save` subsystem so importer/upgrader diagnostics now participate in batch migration reports and rerun flows.
+- **Action**: Re-ran the active local Save/Data evidence bundle:
+  - `.\build\Debug\urpg_tests.exe "[save][schema],[save][catalog],[save][runtime],[save][editor],[save][panel][integration],[save][metadata],[editor][diagnostics][integration][save_actions]" --reporter compact` => 378 assertions / 25 test cases passed
+  - `.\build\Debug\urpg_integration_tests.exe "[integration][save]" --reporter compact` => 10 assertions / 2 test cases passed
+  - `ctest --test-dir build -C Debug --output-on-failure -R "Save migration|Runtime save loader hydrates metadata after imported save migration|Migration runner upgrades imported save metadata into URPG runtime shape|MigrationWizard"` => 42/42 passed
+- **Action**: Reconciled the Save/Data closure checklist and canonical status/docs so the subsystem now reflects recorded closure evidence instead of a still-open importer/upgrader or release-evidence gap.
+- **Result**: Save/Data Wave 1 scope is now closure-complete on this branch and the branch has an active local Save/Data release-evidence snapshot recorded in the canonical docs.
+
+### 2026-04-20 — Battle Release Evidence Reconciliation
+- **Action**: Re-ran the active local Battle evidence bundle:
+  - `.\build\Debug\urpg_tests.exe "[battle][scene][diagnostics],[battle][editor][panel],[editor][diagnostics][integration][battle_preview]" --reporter compact` => 67 assertions / 5 test cases passed
+  - `.\build\Debug\urpg_tests.exe "[presentation][bridge],[presentation][runtime]" --reporter compact` => 40 assertions / 5 test cases passed
+  - `.\build\Debug\urpg_tests.exe "[editor][diagnostics][wizard],[battle][migration]" --reporter compact` => 533 assertions / 41 test cases passed
+  - `ctest --test-dir build -C Debug --output-on-failure -R "PresentationBridge derives battle frame from active BattleScene|PresentationBridge builds frame for active scene using runtime|BattleScene builds diagnostics preview from the next ordered queued action|Battle inspector panel binds live scene diagnostics preview payload|DiagnosticsWorkspace - Battle tab exports live scene diagnostics preview payload|BattleMigration:|MigrationWizardModel: battle migration warnings propagate from unsupported troop phase/page data|MigrationWizardModel: Batch Orchestration"` => 11/11 passed
+- **Action**: Reconciled the Battle closure checklist and canonical status/docs so Battle no longer reads as missing release evidence on this branch.
+- **Result**: Battle Wave 1 scope is now closure-complete on this branch. Remaining work has narrowed to the broader Wave 1/program-level release pass.
 
 ### 2026-04-19 — Task 5: Message/Text Editor and Migration Productization
 - **Action**: Added mutable `pages_` buffer to `MessageInspectorModel` with full authoring APIs: `updatePageBody`, `updatePageSpeaker`, `updatePageMode`, `addPage`, `removePage`, `applyToRuntime`, `clear`, `selectPageById`, `selectedPage`. Selection is preserved across edits by page ID.

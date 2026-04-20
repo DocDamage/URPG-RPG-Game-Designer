@@ -13,6 +13,7 @@ void AbilityStateMachine::addState(const AbilityState& state) {
 void AbilityStateMachine::start(AbilitySystemComponent& asc) {
     if (m_states.empty()) {
         m_status = AbilityStateStatus::Finished;
+        asc.recordAbilityExecution(m_abilityName, "state_machine", "finished", "no_states", "", 0.0f, 0.0f, 0.0f, 0);
         return;
     }
 
@@ -26,6 +27,7 @@ void AbilityStateMachine::update(AbilitySystemComponent& asc, float deltaTime) {
 
     if (m_currentStateIndex >= m_states.size()) {
         m_status = AbilityStateStatus::Finished;
+        asc.recordAbilityExecution(m_abilityName, "state_machine", "finished", "state_index_out_of_range", "", 0.0f, 0.0f, 0.0f, 0);
         return;
     }
 
@@ -48,6 +50,7 @@ void AbilityStateMachine::update(AbilitySystemComponent& asc, float deltaTime) {
                 asc.removeTag(tag);
             }
             m_status = AbilityStateStatus::Finished;
+            asc.recordAbilityExecution(m_abilityName, "state_machine", "finished", "", activeState.name, 0.0f, 0.0f, 0.0f, 0);
         }
     }
 }
@@ -66,6 +69,7 @@ void AbilityStateMachine::transitionTo(size_t index, AbilitySystemComponent& asc
     // 2. Validate entry (for dynamic skipping if needed, though usually sequential)
     if (newState.canEnter && !newState.canEnter(asc)) {
         m_status = AbilityStateStatus::Failed;
+        asc.recordAbilityExecution(m_abilityName, "state_machine", "failed", "state_gate_blocked", newState.name, 0.0f, 0.0f, 0.0f, 0);
         return;
     }
 
@@ -78,6 +82,8 @@ void AbilityStateMachine::transitionTo(size_t index, AbilitySystemComponent& asc
     if (newState.onEnter) {
         newState.onEnter(asc);
     }
+
+    asc.recordAbilityExecution(m_abilityName, "state_machine", "entered", "", newState.name, 0.0f, 0.0f, 0.0f, 0);
 }
 
 const std::string& AbilityStateMachine::getCurrentStateName() const {

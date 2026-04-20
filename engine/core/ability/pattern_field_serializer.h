@@ -25,9 +25,11 @@ public:
     static PatternField fromJson(const nlohmann::json& j) {
         PatternField pattern(j.value("name", "Unnamed Pattern"));
         if (j.contains("points") && j["points"].is_array()) {
+            std::vector<PatternField::Point> points;
             for (const auto& pj : j["points"]) {
-                pattern.addPoint(pj.value("x", 0), pj.value("y", 0));
+                points.push_back({pj.value("x", 0), pj.value("y", 0)});
             }
+            pattern.setPoints(points);
         }
         return pattern;
     }

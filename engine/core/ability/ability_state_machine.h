@@ -57,6 +57,7 @@ public:
     bool isRunning() const { return m_status == AbilityStateStatus::Running; }
     AbilityStateStatus getStatus() const { return m_status; }
     const std::string& getCurrentStateName() const;
+    const std::string& getAbilityName() const { return m_abilityName; }
 
 private:
     std::string m_abilityName;

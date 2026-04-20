@@ -4,6 +4,7 @@
 #include <cmath>
 #include <algorithm>
 #include <cstdint>
+#include "engine/core/presentation/presentation_types.h"
 
 namespace urpg::render {
 
@@ -17,6 +18,7 @@ public:
         int32_t screenWidth = 640;
         int32_t screenHeight = 480;
         float fov = 0.66f; // Field of view
+        presentation::PresentationMode presentationMode = presentation::PresentationMode::Classic2D;
     };
 
     struct Camera {
@@ -37,6 +39,10 @@ public:
      */
     static std::vector<CastResult> castFrame(const Camera& cam, const Config& config, const auto& isBlocking) {
         std::vector<CastResult> results;
+        if (config.presentationMode != presentation::PresentationMode::Spatial) {
+            return results;
+        }
+
         results.reserve(config.screenWidth);
 
         for (int x = 0; x < config.screenWidth; ++x) {

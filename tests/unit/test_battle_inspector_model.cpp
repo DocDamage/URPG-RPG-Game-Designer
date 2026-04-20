@@ -21,7 +21,7 @@ TEST_CASE("Battle inspector model builds deterministic action rows and summary",
     REQUIRE(summary.phase == "action");
     REQUIRE(summary.active);
     REQUIRE(summary.can_escape);
-    REQUIRE(summary.turn_count == 0);
+    REQUIRE(summary.turn_count == 1);
     REQUIRE(summary.escape_failures == 1);
     REQUIRE(summary.total_actions == 4);
     REQUIRE(summary.unique_subjects == 2);

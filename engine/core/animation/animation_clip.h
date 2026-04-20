@@ -32,6 +32,20 @@ public:
     float duration;
     std::vector<AnimationTrack> tracks;
 
+    std::vector<float> collectKeyframeTimes() const {
+        std::vector<float> times;
+        for (const auto& track : tracks) {
+            for (const auto& keyframe : track.keyframes) {
+                if (std::find(times.begin(), times.end(), keyframe.time) == times.end()) {
+                    times.push_back(keyframe.time);
+                }
+            }
+        }
+
+        std::sort(times.begin(), times.end());
+        return times;
+    }
+
     float evaluate(const std::string& propertyName, float time) const {
         for (const auto& track : tracks) {
             if (track.propertyName == propertyName) {

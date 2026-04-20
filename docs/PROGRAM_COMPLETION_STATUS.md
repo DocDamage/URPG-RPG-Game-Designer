@@ -1,6 +1,6 @@
 ﻿# URPG Program Completion Status
 
-Status Date: 2026-04-19  
+Status Date: 2026-04-20  
 Program Scope: native-first roadmap rewire plus Wave 1 absorption, Wave 2 advanced capability expansion, and post-Phase-2 compat exit hardening
 
 Cross-cutting debt, truthfulness, and intake-governance source of truth: `docs/TECHNICAL_DEBT_REMEDIATION_PLAN.md`.
@@ -13,7 +13,7 @@ Canonical planning chain:
 
 Phase 2 runtime closure is complete as of 2026-04-19. Remaining compat work in this document is post-closure exit hardening, corpus depth, and ongoing truth-maintenance work, not unfinished baseline closure of the audited Phase 2 runtime slice.
 
-Phase 3 diagnostics productization is complete as of 2026-04-19, Phase 4 governance/reconciliation closure is complete as of 2026-04-19, and Phase 5 hardening closure is also complete as of 2026-04-19. The canonical remediation findings table is now fully green. Remaining work in this document is post-closure compat hardening depth, roadmap execution, and ongoing truth-maintenance work rather than an unfinished remediation phase.
+Phase 3 diagnostics productization is complete as of 2026-04-19, Phase 4 governance/reconciliation closure is complete as of 2026-04-19, and Phase 5 hardening closure is also complete as of 2026-04-19. The canonical remediation findings table is now fully green, and the broader Wave 1/program release-readiness proof is now recorded as of 2026-04-20. Remaining work in this document is post-closure compat hardening depth, Wave 2 roadmap execution, and ongoing truth-maintenance work rather than an unfinished remediation phase.
 
 ## Where we are now
 
@@ -58,6 +58,7 @@ Phase 3 diagnostics productization is complete as of 2026-04-19, Phase 4 governa
   - `plan/native-feature-absorption-20260413`
 - PR `#5` (native-first absorption plan) is merged into `main`.
 - Recent execution slices landed:
+  - Save/Data importer/upgrader ownership follow-through now lives under `engine/core/save/save_migration.*`, with typed diagnostics/JSONL export and preserved `_compat_mapping_notes` for unmapped compat metadata fields
   - native shell loop and scene scaffolding
   - compat global-state bridges for battle and data-manager flows
   - save slot descriptor loading and save-inspector slot-label projection
@@ -72,14 +73,19 @@ Phase 3 diagnostics productization is complete as of 2026-04-19, Phase 4 governa
   - 2026-04-19 Phase 2 runtime closure reconciled the battle reward/event and switch coverage, window `contents()` lifecycle truthfulness, `DataManager::loadDatabase()` seeded-container behavior, and audio semantics documentation against the focused dev-mingw-debug verification lane
   - 2026-04-19 Phase 4 governance closure reconciled external-repo dispositions, private-asset source manifests, asset-gap truthfulness, and canonical status docs, and added a local validation gate for the intake-governance lane
 - Latest recorded local validation snapshot:
-  - recorded under the `dev-ninja-debug` preset: `ctest --preset dev-all --output-on-failure` => 594/594 passed
+  - recorded under the `dev-ninja-debug` preset: `ctest --preset dev-all --output-on-failure` => 630/630 passed
 - Latest focused Phase 5 hardening validation snapshot:
-  - `ctest --test-dir build/dev-mingw-debug --output-on-failure -R "PluginManager: Command execution|MapScene:|SceneManager:"` => 8/8 passed
+  - `ctest --test-dir build -C Debug --output-on-failure -R "PluginManager: Command execution|MapScene:|SceneManager:"` => 9/9 passed
   - `powershell -ExecutionPolicy Bypass -File tools/ci/check_phase4_intake_governance.ps1` => passed
 - Latest focused presentation validation snapshot:
-  - `ctest --test-dir build/dev-mingw-debug -C Debug -R "urpg_(presentation_(unit_lane|release_validation)|spatial_editor_lane)" --output-on-failure` => 3/3 passed
+  - `ctest --test-dir build -C Debug -R "urpg_(presentation_(unit_lane|release_validation)|spatial_editor_lane)" --output-on-failure` => 3/3 passed
   - includes the dedicated `[presentation]` unit lane, the standalone release-validation harness, and the spatial editor authoring lane
   - CI `gate1-pr` now invokes the focused presentation gate explicitly via `tools/ci/run_presentation_gate.ps1` after the shared build step
+- Latest broader Wave 1/program release-readiness snapshot (2026-04-20):
+  - `ctest --test-dir build -C Debug --output-on-failure -R "PluginManager: Command execution|MapScene:|SceneManager:"` => 9/9 passed
+  - `ctest --test-dir build -C Debug -R "urpg_(presentation_(unit_lane|release_validation)|spatial_editor_lane)" --output-on-failure` => 3/3 passed
+  - `powershell -ExecutionPolicy Bypass -File tools/ci/check_phase4_intake_governance.ps1` => passed
+  - `ctest --preset dev-all --output-on-failure` => 630/630 passed
 - Latest focused audio validation snapshot:
   - `.\build\dev-mingw-debug\urpg_tests.exe "[audio_manager]"` => 147 assertions / 12 test cases passed
 - Latest focused Phase 2 validation snapshot:
@@ -262,8 +268,9 @@ Phase 3 diagnostics productization is complete as of 2026-04-19, Phase 4 governa
   - `C:\dev\urpg-battle-build\urpg_tests.exe "[editor][diagnostics][wizard],[battle][migration]" --reporter compact` => 521 assertions / 40 test cases passed
   - `ctest --test-dir C:\dev\urpg-battle-build --output-on-failure -R "PresentationBridge derives battle frame from active BattleScene|PresentationBridge builds frame for active scene using runtime|BattleScene builds diagnostics preview from the next ordered queued action|Battle inspector panel binds live scene diagnostics preview payload|DiagnosticsWorkspace - Battle tab exports live scene diagnostics preview payload|BattleMigration:|MigrationWizardModel: battle migration warnings propagate from unsupported troop phase/page data|MigrationWizardModel: Batch Orchestration"` => 11/11 passed
 - Latest focused validation snapshot for Save/Data schema and runtime/catalog lanes:
-  - `C:\dev\urpg-battle-build\urpg_tests.exe "[save][schema],[save][catalog],[save][runtime],[save][editor],[save][panel][integration],[save][metadata],[editor][diagnostics][integration][save_actions]" --reporter compact` => 370 assertions / 24 test cases passed
-  - `C:\dev\urpg-battle-build\urpg_integration_tests.exe "[integration][save]" --reporter compact` => 10 assertions / 2 test cases passed
+  - `.\build\Debug\urpg_tests.exe "[save][schema],[save][catalog],[save][runtime],[save][editor],[save][panel][integration],[save][metadata],[editor][diagnostics][integration][save_actions]" --reporter compact` => 378 assertions / 25 test cases passed
+  - `.\build\Debug\urpg_integration_tests.exe "[integration][save]" --reporter compact` => 10 assertions / 2 test cases passed
+  - `ctest --test-dir build -C Debug --output-on-failure -R "Save migration|Runtime save loader hydrates metadata after imported save migration|Migration runner upgrades imported save metadata into URPG runtime shape|MigrationWizard"` => 42/42 passed
   - Save/Data diagnostics export now includes runtime-owned `recovery_diagnostics` and `serialization_schema` payloads from the bound save inspector seam, plus live policy draft/validation/apply workflow coverage through the save inspector panel and diagnostics workspace.
 - Second agent swarm pass (2026-04-17):
   - Input manager status honesty: downgraded all 79 inflated `FULL` labels to `PARTIAL` in `runtimes/compat_js/input_manager.cpp`; aligned `tests/unit/test_input_manager.cpp`.
@@ -317,9 +324,8 @@ The scope in this document is considered 100% complete when all items below are 
    - keep new routed failure operations locked to JSONL/report/panel parity and maintain weekly conformance depth growth.
 5. Keep canonical status/docs aligned with current validation evidence:
    - update README/remediation/kickoff/checklist language whenever closure state or residual compat scope changes.
-6. Finish remaining Wave 1 release-readiness and importer closure:
-   - Save/Data compat importer/upgrader completion and release evidence.
-   - Battle release-evidence publication and any remaining checklist reconciliation.
+6. Begin strict Wave 2 opening work:
+   - The strict Wave 2 baseline opening order is now advanced through the optional 2.5D/editor-utility gate on this branch; the next useful work is broader reconciliation, validation, and any remaining per-lane productization depth.
 
 ## Remaining work to reach 100%
 
@@ -336,8 +342,8 @@ Phase 2 runtime closure is already complete. The remaining compat work below is 
 
 - [x] UI/Menu Core: complete production closure for command registry/scene graph/route resolver ownership (runtime, editor, schema, and migration are now closed).
 - [x] Message/Text Core: runtime renderer handoff AND editor productization are closed. Schema and migration field coverage is complete. Remaining work is release-readiness proof (Task 10).
-- [ ] Battle Core: remaining work is release evidence and final closure-checklist reconciliation; native flow, queue, rule resolution, live scene routing, diagnostics preview parity, and migration warnings are landed.
-- [ ] Save/Data Core: remaining work is importer/upgrader closure and release evidence; catalog/serializer/recovery ownership now includes inspector/runtime-seam export of recovery diagnostics and serialization schema summaries plus live policy authoring/validation/apply workflow.
+- [x] Battle Core: runtime, editor, schema, migration, diagnostics, preview parity, and active local release evidence are now reconciled and recorded.
+- [x] Save/Data Core: runtime, editor, schema, migration, diagnostics, recovery, importer/upgrader ownership, and active local release evidence are now reconciled and recorded.
 
 ### 3. Wave 1 editor productization (remaining)
 
@@ -348,26 +354,26 @@ Phase 2 runtime closure is already complete. The remaining compat work below is 
 
 ### 4. Schema and migration completion (remaining)
 
-- [ ] Finalize Wave 1 schema contracts for runtime and editor ownership boundaries.
-- [ ] Implement importer/upgrader mapping from compat/plugin evidence into native schemas.
-- [ ] Add migration diagnostics and safe fallback paths for unsupported constructs.
+- [x] Finalize Wave 1 schema contracts for runtime and editor ownership boundaries.
+- [x] Implement importer/upgrader mapping from compat/plugin evidence into native schemas.
+- [x] Add migration diagnostics and safe fallback paths for unsupported constructs.
 
 ### 5. Validation and release readiness (remaining)
 
-- [ ] Add native-first test suites for each Wave 1 subsystem (unit plus integration anchors).
+- [x] Add native-first test suites for each Wave 1 subsystem (unit plus integration anchors).
 - [ ] Maintain weekly compat regression while Wave 1 native ownership replaces plugin-shaped behavior.
-- [ ] Publish a release-readiness pass report proving gate stability and migration safety.
+- [x] Publish a release-readiness pass report proving gate stability and migration safety.
 
 ### 6. Wave 2 advanced capability baseline (remaining)
 
-- [ ] Gameplay Ability Framework delivered with tags, conditions, and state-machine-integrated execution.
-- [ ] Pattern Field Editor delivered for visual coordinate/pattern authoring.
-- [ ] Modular Level Assembly lane delivered for connector-based block workflows.
-- [ ] Sprite Pipeline Toolkit delivered (atlas/crop/preview).
-- [ ] Procedural Content Toolkit delivered (generation + FOV baseline).
-- [ ] Optional 2.5D presentation lane delivered behind explicit project-mode boundaries.
-- [ ] Timeline/Animation orchestration and transient effect events delivered.
-- [ ] Selected editor productivity utilities delivered and stabilized.
+- [x] Gameplay Ability Framework delivered with tags, conditions, and state-machine-integrated execution.
+- [x] Pattern Field Editor delivered for visual coordinate/pattern authoring.
+- [x] Modular Level Assembly lane delivered for connector-based block workflows.
+- [x] Sprite Pipeline Toolkit delivered (atlas/crop/preview baseline with runtime artifacts).
+- [x] Procedural Content Toolkit delivered (generation + FOV baseline).
+- [x] Optional 2.5D presentation lane delivered behind explicit project-mode boundaries.
+- [x] Timeline/Animation orchestration and transient effect events delivered.
+- [x] Selected editor productivity utilities delivered and stabilized.
 
 ## Work complete, not remaining
 
@@ -398,3 +404,25 @@ Phase 2 runtime closure is already complete. The remaining compat work below is 
   - [x] Visual Studio SDL discovery no longer imports MSYS2 MinGW headers into MSVC projects.
   - [x] Focused presentation gate helper now reconfigures stale local build trees before running.
   - [x] `urpg_core` and `urpg_tests` build in both `dev-vs2022` and `dev-mingw-debug`, with the focused presentation gate passing locally on the Visual Studio lane.
+- [x] Wave 2 opening slice: gameplay ability replay-safe diagnostics
+- [x] Wave 2 opening slice: pattern validation and inspector preview
+- [x] Wave 2 opening slice: modular level assembly validation
+  - `PatternField` now normalizes point ordering, validates origin-presence/radius bounds, exposes reusable preset application, and surfaces preview snapshots through the model/panel path with focused `[pattern]` coverage.
+  - `LevelAssemblyWorkspace` and `SnapLogic` now treat connector offsets as authored metadata, require registered blocks to attach through connector-backed neighbors after seeding, and reject offset-mismatched snaps with focused `[level][assembly]` coverage.
+- [x] Wave 2 opening slice: sprite pipeline runtime artifacts
+  - `SpriteAnimator` now supports authored atlas clips in addition to legacy grid sheets, exposing normalized frame views from metadata-backed animations for focused runtime consumption tests.
+  - `tools/sprite_pipeline` now emits animation and preview metadata (`preview_loop`, ordered frame IDs, frame count) so packed atlas JSON includes a deterministic runtime/preview contract, with focused `[sprite]` coverage.
+- [x] Wave 2 opening slice: procedural toolkit scenario generation
+  - `ProceduralToolkit` now exposes a dedicated `GeneratedBlock` scenario output, selects deterministic seed openers, and expands connector-backed layouts while preferring continuation-capable blocks so seeded generation stays reproducible and budget-bounded.
+  - Focused `[procedural][level]` coverage now locks same-seed reproduction, different-seed divergence, and max-block budget behavior.
+- [x] Wave 2 opening slice: timeline and animation orchestration
+  - `AnimationSystem` now binds authored `AnimationClip` tracks into `AnimationComponent` playback and performs deterministic interpolation instead of stopping at the previous keyframe.
+  - `TimelineKernel` now sorts track events on ingest and records triggered transient events in playback order, while `AnimationKnowledgeBridge` normalizes parsed keyframe order so clip/timeline playback remains deterministic under test.
+- [x] Wave 2 opening slice: optional 2.5D and editor utility gating
+  - `RaycastRenderer` now requires an explicit spatial presentation-mode opt-in before the optional 2.5D lane runs, so classic 2D projects cannot drift into raycast behavior by accident.
+  - `EditorUtilityTask` now declares per-mode requirements and `EditorUtilityManager` only surfaces runnable tasks for the active presentation mode, keeping spatial-only utilities isolated from classic projects.
+  - [x] `AbilitySystemComponent` now records bounded deterministic execution history for blocked, executed, and state-machine transition outcomes.
+  - [x] `GameplayAbility` activation checks now return structured reasons instead of only boolean pass/fail state.
+  - [x] `AbilityStateMachine` now records deterministic entered/failed/finished transition diagnostics through the shared ability execution history.
+  - [x] `AbilityInspectorPanel` now exposes replay-log-oriented render snapshot data for the current ability runtime history.
+  - [x] Focused verification: `.\build\Debug\urpg_tests.exe "[ability]" --reporter compact` => 49 assertions / 8 test cases passed.

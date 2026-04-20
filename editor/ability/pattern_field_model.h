@@ -21,6 +21,13 @@ public:
         int32_t minX, minY, maxX, maxY;
     };
 
+    struct PreviewSnapshot {
+        std::string name;
+        bool is_valid = true;
+        std::vector<std::string> issues;
+        std::vector<std::string> grid_rows;
+    };
+
     PatternFieldModel();
 
     void setCurrentPattern(std::shared_ptr<PatternField> pattern);
@@ -30,11 +37,13 @@ public:
     void clearPattern();
     void resizeViewport(int32_t newSize);
     void setName(const std::string& name);
+    void applyPreset(const std::string& presetId);
 
     GridBounds getViewportBounds() const;
     int32_t getViewportSize() const { return m_viewportSize; }
 
     bool isPointSelected(int32_t x, int32_t y) const;
+    PreviewSnapshot buildPreviewSnapshot() const;
 
 private:
     std::shared_ptr<PatternField> m_currentPattern;

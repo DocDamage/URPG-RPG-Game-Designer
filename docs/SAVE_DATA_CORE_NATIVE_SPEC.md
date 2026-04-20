@@ -1,8 +1,19 @@
 # Save / Data Core Native-First Spec
 
 Date: 2026-04-14
-Status: active implementation baseline (core runtime/editor/schema slices landed; release closure pending)
+Status: closure evidence and broader Wave 1 release proof recorded on 2026-04-20; Save/Data Wave 1 scope is complete
 Scope: runtime ownership, editor ownership, schema, migration, diagnostics, and test anchors for native Save/Data Core absorption
+
+## Last landed progress (2026-04-20)
+
+- Added native save importer/upgrader ownership in:
+  - `engine/core/save/save_migration.h`
+  - `engine/core/save/save_migration.cpp`
+- Save metadata migration now emits typed diagnostics plus JSONL export and preserves unmapped compat/plugin-header fields as `_compat_mapping_notes` instead of leaving those upgrade rules embedded only in generic migration-runner tests.
+- `tests/unit/test_save_runtime.cpp` now exercises imported metadata hydration through the native Save/Data migration owner.
+- validation anchors are active in:
+  - `tests/unit/test_save_migration.cpp`
+  - `tests/unit/test_save_runtime.cpp`
 
 ## Last landed progress (2026-04-15)
 
@@ -29,12 +40,48 @@ Scope: runtime ownership, editor ownership, schema, migration, diagnostics, and 
   - `tests/unit/test_save_serialization.cpp`
   - `tests/unit/test_save_state_sync.cpp`
 
-## Next steps
+## Closure evidence bundle
 
-- Complete native save catalog + serializer ownership closure beyond seeded slices.
-- Finalize schema contracts and importer/upgrader mapping for compat save metadata into native typed records.
-- Finish compat importer/upgrader closure and release evidence around the landed runtime/editor policy workflow.
-- Add native integration anchors for autosave policy, recovery escalation, and routed save-panel projection parity.
+### Runtime owner files
+
+- `engine/core/save/save_catalog.h`
+- `engine/core/save/save_catalog.cpp`
+- `engine/core/save/save_runtime.h`
+- `engine/core/save/save_runtime.cpp`
+- `engine/core/save/save_recovery.h`
+- `engine/core/save/save_recovery.cpp`
+- `engine/core/save/save_serialization_hub.h`
+- `engine/core/save/save_metadata_registry.h`
+- `engine/core/save/save_migration.h`
+- `engine/core/save/save_migration.cpp`
+
+### Editor owner files
+
+- `editor/save/save_inspector_model.h`
+- `editor/save/save_inspector_model.cpp`
+- `editor/save/save_inspector_panel.h`
+- `editor/save/save_inspector_panel.cpp`
+- `editor/diagnostics/diagnostics_workspace.cpp`
+
+### Schema and migration files
+
+- `content/schemas/save_policies.schema.json`
+- `content/schemas/save_slots.schema.json`
+- `content/schemas/save_metadata.schema.json`
+- `content/schemas/save_migrations.schema.json`
+- `engine/core/migrate/migration_runner.h`
+- `engine/core/migrate/migration_runner.cpp`
+- `engine/core/save/save_migration.h`
+- `engine/core/save/save_migration.cpp`
+
+### Latest deterministic test outputs
+
+- `.\build\Debug\urpg_tests.exe "[save][schema],[save][catalog],[save][runtime],[save][editor],[save][panel][integration],[save][metadata],[editor][diagnostics][integration][save_actions]" --reporter compact`
+  - `378 assertions / 25 test cases passed`
+- `.\build\Debug\urpg_integration_tests.exe "[integration][save]" --reporter compact`
+  - `10 assertions / 2 test cases passed`
+- `ctest --test-dir build -C Debug --output-on-failure -R "Save migration|Runtime save loader hydrates metadata after imported save migration|Migration runner upgrades imported save metadata into URPG runtime shape|MigrationWizard"`
+  - `42/42 tests passed`
 
 ## Purpose
 
@@ -241,26 +288,26 @@ _Canonical source: [WAVE1_SUBSYSTEM_CLOSURE_CHECKLIST.md](WAVE1_SUBSYSTEM_CLOSUR
 
 ### Universal closure gates
 
-- [ ] Runtime ownership is authoritative and compat behavior for this subsystem is bridge-only.
-- [ ] Editor productization is complete (inspect/edit/preview/validate) with diagnostics surfaced.
-- [ ] Schema contracts and migration/import paths are explicit, versioned, and test-backed.
-- [ ] Deterministic validation exists (unit + integration + snapshot where layout/presentation applies).
-- [ ] Failure-path diagnostics and safe-mode/bounded fallback behavior are explicitly documented and tested.
-- [ ] Release evidence is published in status docs and gate snapshots are recorded.
+- [x] Runtime ownership is authoritative and compat behavior for this subsystem is bridge-only.
+- [x] Editor productization is complete (inspect/edit/preview/validate) with diagnostics surfaced.
+- [x] Schema contracts and migration/import paths are explicit, versioned, and test-backed.
+- [x] Deterministic validation exists (unit + integration + snapshot where layout/presentation applies).
+- [x] Failure-path diagnostics and safe-mode/bounded fallback behavior are explicitly documented and tested.
+- [x] Release evidence is published in status docs and gate snapshots are recorded.
 
 ### Save / Data Core specific closure gates
 
-- [ ] Save catalog/serializer/recovery ownership is authoritative and separate from UI presentation concerns.
+- [x] Save catalog/serializer/recovery ownership is authoritative and separate from UI presentation concerns.
 - [x] Autosave, recovery tier escalation, and safe-mode behavior are policy-owned and diagnostics-backed.
-- [ ] Compat metadata/import upgrade mappings are typed, versioned, and test-backed.
+- [x] Compat metadata/import upgrade mappings are typed, versioned, and test-backed.
 
 ### Closure sign-off artifact checklist
 
-- [ ] Runtime owner files listed (header + source).
-- [ ] Editor owner files listed.
-- [ ] Schema and migration files listed.
-- [ ] Latest deterministic test outputs recorded.
-- [ ] README.md, docs/PROGRAM_COMPLETION_STATUS.md, and URPG_Blueprint_v3_1_Integrated.md updated.
+- [x] Runtime owner files listed (header + source).
+- [x] Editor owner files listed.
+- [x] Schema and migration files listed.
+- [x] Latest deterministic test outputs recorded.
+- [x] README.md, docs/PROGRAM_COMPLETION_STATUS.md, and URPG_Blueprint_v3_1_Integrated.md updated.
 <!-- WAVE1_CHECKLIST_END -->
 
 ## Non-goals for this slice

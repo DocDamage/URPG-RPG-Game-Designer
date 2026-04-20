@@ -72,18 +72,25 @@ namespace urpg::animation {
             }
         }
 
-        void addTrack(const TimelineTrack& track) { m_tracks.push_back(track); }
+        void addTrack(const TimelineTrack& track) {
+            TimelineTrack sortedTrack = track;
+            sortedTrack.sortEvents();
+            m_tracks.push_back(sortedTrack);
+        }
         
         void play() { m_isPlaying = true; }
         void pause() { m_isPlaying = false; }
         void seek(float time) { m_currentTime = std::clamp(time, 0.0f, m_duration); }
+        void setDuration(float duration) { m_duration = std::max(0.0f, duration); }
+        const std::vector<TimelineEvent>& getTriggeredEvents() const { return m_triggeredEvents; }
 
     private:
         void triggerEvent(const TimelineEvent& ev) {
-            // Signal to engine systems (Renderer, Audio, etc.)
+            m_triggeredEvents.push_back(ev);
         }
 
         std::vector<TimelineTrack> m_tracks;
+        std::vector<TimelineEvent> m_triggeredEvents;
         float m_currentTime = 0.0f;
         float m_duration = 10.0f;
         float m_playbackSpeed = 1.0f;

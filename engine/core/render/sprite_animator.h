@@ -2,6 +2,7 @@
 
 #include <memory>
 #include <string>
+#include <vector>
 #include "engine/core/platform/gl_texture.h"
 #include "engine/core/sprite_batcher.h"
 #include "engine/core/math/vector2.h"
@@ -14,6 +15,39 @@ namespace urpg {
  */
 class SpriteAnimator {
 public:
+    struct AtlasFrame {
+        std::string id;
+        int x = 0;
+        int y = 0;
+        int width = 0;
+        int height = 0;
+    };
+
+    struct AtlasAnimation {
+        std::string id;
+        std::vector<std::string> frameIds;
+        float frameDuration = 0.15f;
+        bool loop = true;
+    };
+
+    struct AtlasDefinition {
+        int width = 0;
+        int height = 0;
+        std::vector<AtlasFrame> frames;
+        std::vector<AtlasAnimation> animations;
+    };
+
+    struct FrameView {
+        bool usingAtlas = false;
+        std::string frameId;
+        float u1 = 0.0f;
+        float v1 = 0.0f;
+        float u2 = 0.0f;
+        float v2 = 0.0f;
+        int pixelWidth = 0;
+        int pixelHeight = 0;
+    };
+
     struct AnimationConfig {
         int framesX = 3;      // Frames per row
         int framesY = 4;      // Frames per column (directions)
@@ -22,6 +56,9 @@ public:
 
     SpriteAnimator(const std::shared_ptr<Texture>& texture);
     SpriteAnimator(const std::shared_ptr<Texture>& texture, const AnimationConfig& config);
+    SpriteAnimator(const std::shared_ptr<Texture>& texture,
+                   const AtlasDefinition& atlas,
+                   const std::string& animationId);
     ~SpriteAnimator() = default;
 
     /**
@@ -58,6 +95,17 @@ public:
     void reset();
 
     /**
+     * @brief Switch to an authored atlas animation clip.
+     * @return true if the animation exists and was selected.
+     */
+    bool setAnimation(const std::string& animationId);
+
+    /**
+     * @brief Return the current frame as normalized UVs.
+     */
+    FrameView getCurrentFrameView() const;
+
+    /**
      * @brief Submits the current frame to the batcher.
      */
     void draw(SpriteBatcher& batcher, float x, float y, float w, float h, float z = 0.0f);
@@ -70,13 +118,21 @@ public:
 private:
     std::shared_ptr<Texture> m_texture;
     AnimationConfig m_config;
+    AtlasDefinition m_atlas;
     
     int m_currentRow = 0;
     int m_currentFrame = 0;
+    int m_currentAtlasFrameIndex = 0;
     float m_elapsedTime = 0.0f;
 
     bool m_isLooping = true;
     bool m_isWalking = false;
+    bool m_usesAtlas = false;
+    std::string m_currentAnimationId;
+
+    const AtlasAnimation* findAnimation(const std::string& animationId) const;
+    const AtlasAnimation* currentAnimation() const;
+    const AtlasFrame* findFrame(const std::string& frameId) const;
 };
 
 } // namespace urpg

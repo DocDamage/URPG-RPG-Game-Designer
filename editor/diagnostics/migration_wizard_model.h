@@ -9,6 +9,7 @@
 #include <nlohmann/json.hpp>
 #include "../../engine/core/message/message_migration.h"
 #include "../../engine/core/battle/battle_migration.h"
+#include "../../engine/core/save/save_migration.h"
 #include "../../engine/core/ui/menu_migration.h"
 
 namespace urpg::editor {
@@ -62,6 +63,14 @@ public:
 
         if (project_data.contains("troops")) {
             auto result = runBattleMigration(project_data["troops"]);
+            m_report.total_files_processed++;
+            m_report.warning_count += result.warning_count;
+            m_report.error_count += result.error_count;
+            m_report.subsystem_results.push_back(result);
+        }
+
+        if (project_data.contains("save")) {
+            auto result = runSaveMigration(project_data["save"]);
             m_report.total_files_processed++;
             m_report.warning_count += result.warning_count;
             m_report.error_count += result.error_count;
@@ -132,6 +141,9 @@ public:
             ran = true;
         } else if (subsystem_id == "battle" && project_data.contains("troops")) {
             new_result = runBattleMigration(project_data["troops"]);
+            ran = true;
+        } else if (subsystem_id == "save" && project_data.contains("save")) {
+            new_result = runSaveMigration(project_data["save"]);
             ran = true;
         }
 
@@ -460,6 +472,31 @@ private:
             "Battle migration: " + std::to_string(b_progress.total_troops) +
                 " troop(s), " + std::to_string(b_progress.total_actions) +
                 " action(s).",
+        };
+        return summary;
+    }
+
+    SubsystemResult runSaveMigration(const nlohmann::json& save_data) {
+        const auto save_result = save::UpgradeCompatSaveMetadataDocument(save_data);
+        size_t warning_count = 0;
+        size_t error_count = 0;
+        for (const auto& diagnostic : save_result.diagnostics) {
+            if (diagnostic.severity == save::SaveMigrationSeverity::Error) {
+                error_count++;
+            } else if (diagnostic.severity == save::SaveMigrationSeverity::Warning) {
+                warning_count++;
+            }
+        }
+
+        SubsystemResult summary{
+            "save",
+            "Save",
+            1,
+            warning_count,
+            error_count,
+            true,
+            "Save migration: 1 metadata document, " + std::to_string(save_result.diagnostics.size()) +
+                " diagnostic(s).",
         };
         return summary;
     }

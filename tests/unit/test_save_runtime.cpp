@@ -1,5 +1,5 @@
+#include "engine/core/save/save_migration.h"
 #include "engine/core/save/save_runtime.h"
-#include "engine/core/migrate/migration_runner.h"
 
 #include <catch2/catch_test_macros.hpp>
 
@@ -123,25 +123,13 @@ TEST_CASE("Runtime save loader hydrates metadata after imported save migration",
         {"thumbnailHash", "thumb-save-6"}
     };
 
-    nlohmann::json migrationSpec = {
-        {"from", "mz_compat_1"},
-        {"to", "1.0"},
-        {"ops", nlohmann::json::array({
-            {{"op", "rename"}, {"fromPath", "/slotId"}, {"toPath", "/_slot_id"}},
-            {{"op", "rename"}, {"fromPath", "/mapName"}, {"toPath", "/_map_display_name"}},
-            {{"op", "rename"}, {"fromPath", "/playtimeSeconds"}, {"toPath", "/_playtime_seconds"}},
-            {{"op", "rename"}, {"fromPath", "/saveVersion"}, {"toPath", "/_save_version"}},
-            {{"op", "rename"}, {"fromPath", "/thumbnailHash"}, {"toPath", "/_thumbnail_hash"}}
-        })}
-    };
-
-    const auto migrationError = urpg::MigrationRunner::Apply(migrationSpec, legacyMeta);
-    REQUIRE_FALSE(migrationError.has_value());
+    const auto migrationResult = urpg::save::UpgradeCompatSaveMetadataDocument(legacyMeta);
+    REQUIRE(migrationResult.diagnostics.empty());
 
     const auto primary = base / "slot_006.json";
     const auto meta = base / "meta.json";
     WriteText(primary, "{\"state\":\"migrated_primary\"}");
-    WriteText(meta, legacyMeta.dump());
+    WriteText(meta, migrationResult.migrated_metadata.dump());
 
     urpg::RuntimeSaveLoadRequest request;
     request.primary_save_path = primary;

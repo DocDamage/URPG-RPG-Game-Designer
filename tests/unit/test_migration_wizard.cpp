@@ -26,6 +26,14 @@ TEST_CASE("MigrationWizardModel: Batch Orchestration", "[editor][diagnostics][wi
         }},
         {"troops", {
             {{"id", 1}, {"name", "Slime x2"}, {"members", {}}}
+        }},
+        {"save", {
+            {"_urpg_format_version", "mz_compat_1"},
+            {"meta", {
+                {"slotId", 4},
+                {"mapName", "Archivist Vault"},
+                {"playtimeSeconds", 222}
+            }}
         }}
     };
 
@@ -40,8 +48,8 @@ TEST_CASE("MigrationWizardModel: Batch Orchestration", "[editor][diagnostics][wi
         auto report = model.getReport();
         
         REQUIRE(report.is_complete);
-        REQUIRE(report.total_files_processed == 3); // messages, scenes/menus, troops
-        REQUIRE(report.subsystem_results.size() == 3);
+        REQUIRE(report.total_files_processed == 4); // messages, scenes/menus, troops, save metadata
+        REQUIRE(report.subsystem_results.size() == 4);
         REQUIRE(report.subsystem_results[0].subsystem_id == "message");
         REQUIRE(report.subsystem_results[0].processed_count == 1);
         REQUIRE(report.subsystem_results[0].summary_line.find("Message migration") != std::string::npos);
@@ -51,14 +59,50 @@ TEST_CASE("MigrationWizardModel: Batch Orchestration", "[editor][diagnostics][wi
         REQUIRE(report.subsystem_results[2].subsystem_id == "battle");
         REQUIRE(report.subsystem_results[2].processed_count == 1);
         REQUIRE(report.subsystem_results[2].summary_line.find("Battle migration") != std::string::npos);
-        REQUIRE(report.summary_logs.size() == 4);
+        REQUIRE(report.subsystem_results[3].subsystem_id == "save");
+        REQUIRE(report.subsystem_results[3].processed_count == 1);
+        REQUIRE(report.subsystem_results[3].summary_line.find("Save migration") != std::string::npos);
+        REQUIRE(report.summary_logs.size() == 5);
         REQUIRE(report.summary_logs[0].find("Message migration") != std::string::npos);
         REQUIRE(report.summary_logs[1].find("Menu migration") != std::string::npos);
         REQUIRE(report.summary_logs[2].find("Battle migration") != std::string::npos);
-        REQUIRE(report.summary_logs[3] == "Migration wizard complete.");
+        REQUIRE(report.summary_logs[3].find("Save migration") != std::string::npos);
+        REQUIRE(report.summary_logs[4] == "Migration wizard complete.");
         REQUIRE(model.selectedSubsystemId().has_value());
         REQUIRE(*model.selectedSubsystemId() == "message");
     }
+}
+
+TEST_CASE("MigrationWizardModel: save migration warnings propagate from unmapped compat save fields",
+          "[editor][diagnostics][wizard][save][warnings]") {
+    MigrationWizardModel model;
+
+    nlohmann::json project_data = {
+        {"save", {
+            {"_urpg_format_version", "mz_compat_1"},
+            {"meta", {
+                {"slotId", 9},
+                {"mapName", "Signal Spire"},
+                {"customBadge", "nightmare"}
+            }},
+            {"pluginHeader", {
+                {"uiTab", "system"},
+                {"theme", "violet"}
+            }}
+        }}
+    };
+
+    model.runFullMigration(project_data);
+    const auto& report = model.getReport();
+
+    REQUIRE(report.is_complete);
+    REQUIRE(report.total_files_processed == 1);
+    REQUIRE(report.warning_count > 0);
+    REQUIRE(report.error_count == 0);
+    REQUIRE(report.subsystem_results.size() == 1);
+    REQUIRE(report.subsystem_results[0].subsystem_id == "save");
+    REQUIRE(report.subsystem_results[0].warning_count > 0);
+    REQUIRE(report.subsystem_results[0].summary_line.find("Save migration") != std::string::npos);
 }
 
 TEST_CASE("MigrationWizardPanel: Visible render records migration snapshot", "[editor][diagnostics][wizard][panel]") {

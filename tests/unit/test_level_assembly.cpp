@@ -9,6 +9,9 @@ TEST_CASE("LevelAssembly: Snap Logic", "[level][assembly]") {
     SnapConnector hallNorth = {"Hall", ConnectorSide::North, 0, 0, 0};
     SnapConnector hallSouth = {"Hall", ConnectorSide::South, 0, 0, 0};
     SnapConnector wallNorth = {"Wall", ConnectorSide::North, 0, 0, 0};
+    SnapConnector hallNorthOffset = {"Hall", ConnectorSide::North, 1, 0, 0};
+    SnapConnector hallSouthOffsetMatch = {"Hall", ConnectorSide::South, 1, 0, 0};
+    SnapConnector hallSouthOffsetMismatch = {"Hall", ConnectorSide::South, 0, 0, 0};
 
     SECTION("Opposite sides of same type can snap") {
         REQUIRE(SnapLogic::canSnap(hallNorth, hallSouth));
@@ -20,6 +23,14 @@ TEST_CASE("LevelAssembly: Snap Logic", "[level][assembly]") {
 
     SECTION("Different types cannot snap") {
         REQUIRE_FALSE(SnapLogic::canSnap(hallNorth, wallNorth));
+    }
+
+    SECTION("Matching connector metadata can snap") {
+        REQUIRE(SnapLogic::canSnap(hallNorthOffset, hallSouthOffsetMatch));
+    }
+
+    SECTION("Different connector offsets cannot snap") {
+        REQUIRE_FALSE(SnapLogic::canSnap(hallNorthOffset, hallSouthOffsetMismatch));
     }
 }
 
@@ -42,6 +53,91 @@ TEST_CASE("LevelAssembly: Workspace Placement", "[level][assembly]") {
         REQUIRE(workspace.placeBlock("Floor_2", 0, 0, 1));
         REQUIRE(workspace.hasBlockAt(0, 0, 0));
         REQUIRE(workspace.hasBlockAt(0, 0, 1));
+    }
+
+    SECTION("Registered blocks require matching connectors when placed against neighbors") {
+        LevelBlock roomA("Room_A");
+        roomA.addConnector({"Hall", ConnectorSide::East, 0, 0, 0});
+
+        LevelBlock roomB("Room_B");
+        roomB.addConnector({"Hall", ConnectorSide::West, 0, 0, 0});
+
+        workspace.registerBlockDefinition(roomA);
+        workspace.registerBlockDefinition(roomB);
+
+        REQUIRE(workspace.placeBlock("Room_A", 0, 0, 0));
+
+        const auto validation = workspace.validatePlacement("Room_B", 1, 0, 0);
+        REQUIRE(validation.allowed);
+        REQUIRE(validation.reason == "matched_connector");
+        REQUIRE(validation.matching_connections == 1);
+
+        REQUIRE(workspace.placeBlock("Room_B", 1, 0, 0));
+    }
+
+    SECTION("Registered blocks reject connector mismatches against occupied neighbors") {
+        LevelBlock roomA("Room_A");
+        roomA.addConnector({"Hall", ConnectorSide::East, 0, 0, 0});
+
+        LevelBlock roomC("Room_C");
+        roomC.addConnector({"Door", ConnectorSide::West, 0, 0, 0});
+
+        workspace.registerBlockDefinition(roomA);
+        workspace.registerBlockDefinition(roomC);
+
+        REQUIRE(workspace.placeBlock("Room_A", 0, 0, 0));
+
+        const auto validation = workspace.validatePlacement("Room_C", 1, 0, 0);
+        REQUIRE_FALSE(validation.allowed);
+        REQUIRE(validation.reason == "connector_mismatch");
+        REQUIRE(validation.matching_connections == 0);
+
+        REQUIRE_FALSE(workspace.placeBlock("Room_C", 1, 0, 0));
+    }
+
+    SECTION("Registered blocks reject neighbor placements when touching connector offsets do not match") {
+        LevelBlock roomA("Room_A");
+        roomA.addConnector({"Hall", ConnectorSide::East, 1, 0, 0});
+
+        LevelBlock roomB("Room_B");
+        roomB.addConnector({"Hall", ConnectorSide::West, 0, 0, 0});
+
+        workspace.registerBlockDefinition(roomA);
+        workspace.registerBlockDefinition(roomB);
+
+        REQUIRE(workspace.placeBlock("Room_A", 0, 0, 0));
+
+        const auto validation = workspace.validatePlacement("Room_B", 1, 0, 0);
+        REQUIRE_FALSE(validation.allowed);
+        REQUIRE(validation.reason == "connector_mismatch");
+        REQUIRE(validation.matching_connections == 0);
+        REQUIRE_FALSE(workspace.placeBlock("Room_B", 1, 0, 0));
+    }
+
+    SECTION("Registered blocks require a connector-backed attachment after the seed placement") {
+        LevelBlock roomA("Room_A");
+        roomA.addConnector({"Hall", ConnectorSide::East, 0, 0, 0});
+
+        LevelBlock roomB("Room_B");
+        roomB.addConnector({"Hall", ConnectorSide::West, 0, 0, 0});
+
+        workspace.registerBlockDefinition(roomA);
+        workspace.registerBlockDefinition(roomB);
+
+        REQUIRE(workspace.placeBlock("Room_A", 0, 0, 0));
+
+        const auto validation = workspace.validatePlacement("Room_B", 3, 0, 0);
+        REQUIRE_FALSE(validation.allowed);
+        REQUIRE(validation.reason == "detached_registered_block");
+        REQUIRE(validation.matching_connections == 0);
+        REQUIRE_FALSE(workspace.placeBlock("Room_B", 3, 0, 0));
+    }
+
+    SECTION("Unregistered blocks remain placeable for detached bootstrap workflows") {
+        const auto validation = workspace.validatePlacement("Loose_Block", 3, 4, 0);
+        REQUIRE(validation.allowed);
+        REQUIRE(validation.reason == "unregistered_block");
+        REQUIRE(workspace.placeBlock("Loose_Block", 3, 4, 0));
     }
 }
 

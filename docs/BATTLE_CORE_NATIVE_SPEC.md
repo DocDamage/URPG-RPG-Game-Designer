@@ -1,7 +1,7 @@
 # Battle Core Native-First Spec
 
 Date: 2026-04-14
-Status: active implementation baseline (runtime/inspector slices landed; schema/migration/release closure pending)
+Status: closure evidence and broader Wave 1 release proof recorded on 2026-04-20; Battle Wave 1 scope is complete
 Scope: runtime ownership, editor ownership, schema, migration, diagnostics, and test anchors for native Battle Core absorption
 
 ## Last landed progress (2026-04-15)
@@ -27,12 +27,43 @@ Scope: runtime ownership, editor ownership, schema, migration, diagnostics, and 
 - **Native AI Battle Tactics Bridge landed (2026-04-16):**
   - `BattleKnowledgeBridge` (HP, MP, Weakness serialization for LLMs)
   - Real-time tactical advice pipeline via `ChatbotComponent`
-## Next steps
 
-- Finalize schema + migration contracts for battle flows/actions/rules/hooks from compat evidence into native typed records.
-- Add deeper integration coverage for runtime+editor battle ownership and HUD bridge parity.
-- Close release-readiness for deterministic battle behavior and diagnostics/reporting paths.
-- Continue narrowing compat battle behavior to import/verification bridge-only ownership.
+## Closure evidence bundle
+
+### Runtime owner files
+
+- `engine/core/battle/battle_core.h`
+- `engine/core/battle/battle_core.cpp`
+- `engine/core/scene/battle_scene.h`
+- `engine/core/scene/battle_scene.cpp`
+- `engine/core/battle/battle_migration.h`
+
+### Editor owner files
+
+- `editor/battle/battle_inspector_model.h`
+- `editor/battle/battle_inspector_model.cpp`
+- `editor/battle/battle_preview_panel.h`
+- `editor/battle/battle_preview_panel.cpp`
+- `editor/battle/battle_inspector_panel.h`
+- `editor/battle/battle_inspector_panel.cpp`
+- `editor/diagnostics/diagnostics_workspace.cpp`
+
+### Schema and migration files
+
+- `content/schemas/battle_troops.schema.json`
+- `content/schemas/battle_actions.schema.json`
+- `engine/core/battle/battle_migration.h`
+
+### Latest deterministic test outputs
+
+- `.\build\Debug\urpg_tests.exe "[battle][scene][diagnostics],[battle][editor][panel],[editor][diagnostics][integration][battle_preview]" --reporter compact`
+  - `67 assertions / 5 test cases passed`
+- `.\build\Debug\urpg_tests.exe "[presentation][bridge],[presentation][runtime]" --reporter compact`
+  - `40 assertions / 5 test cases passed`
+- `.\build\Debug\urpg_tests.exe "[editor][diagnostics][wizard],[battle][migration]" --reporter compact`
+  - `533 assertions / 41 test cases passed`
+- `ctest --test-dir build -C Debug --output-on-failure -R "PresentationBridge derives battle frame from active BattleScene|PresentationBridge builds frame for active scene using runtime|BattleScene builds diagnostics preview from the next ordered queued action|Battle inspector panel binds live scene diagnostics preview payload|DiagnosticsWorkspace - Battle tab exports live scene diagnostics preview payload|BattleMigration:|MigrationWizardModel: battle migration warnings propagate from unsupported troop phase/page data|MigrationWizardModel: Batch Orchestration"`
+  - `11/11 tests passed`
 
 ## Purpose
 
@@ -235,26 +266,26 @@ _Canonical source: [WAVE1_SUBSYSTEM_CLOSURE_CHECKLIST.md](WAVE1_SUBSYSTEM_CLOSUR
 
 ### Universal closure gates
 
-- [ ] Runtime ownership is authoritative and compat behavior for this subsystem is bridge-only.
-- [ ] Editor productization is complete (inspect/edit/preview/validate) with diagnostics surfaced.
-- [ ] Schema contracts and migration/import paths are explicit, versioned, and test-backed.
-- [ ] Deterministic validation exists (unit + integration + snapshot where layout/presentation applies).
-- [ ] Failure-path diagnostics and safe-mode/bounded fallback behavior are explicitly documented and tested.
-- [ ] Release evidence is published in status docs and gate snapshots are recorded.
+- [x] Runtime ownership is authoritative and compat behavior for this subsystem is bridge-only.
+- [x] Editor productization is complete (inspect/edit/preview/validate) with diagnostics surfaced.
+- [x] Schema contracts and migration/import paths are explicit, versioned, and test-backed.
+- [x] Deterministic validation exists (unit + integration + snapshot where layout/presentation applies).
+- [x] Failure-path diagnostics and safe-mode/bounded fallback behavior are explicitly documented and tested.
+- [x] Release evidence is published in status docs and gate snapshots are recorded.
 
 ### Battle Core specific closure gates
 
-- [ ] Battle flow/action/rule ownership is authoritative; HUD and overlays consume battle state only.
-- [ ] Deterministic turn/escape/action outcomes are preserved under runtime and preview validation anchors.
-- [ ] Battle schema + migration + diagnostics closure is complete and release-evidence-backed.
+- [x] Battle flow/action/rule ownership is authoritative; HUD and overlays consume battle state only.
+- [x] Deterministic turn/escape/action outcomes are preserved under runtime and preview validation anchors.
+- [x] Battle schema + migration + diagnostics closure is complete and release-evidence-backed.
 
 ### Closure sign-off artifact checklist
 
-- [ ] Runtime owner files listed (header + source).
-- [ ] Editor owner files listed.
-- [ ] Schema and migration files listed.
-- [ ] Latest deterministic test outputs recorded.
-- [ ] README.md, docs/PROGRAM_COMPLETION_STATUS.md, and URPG_Blueprint_v3_1_Integrated.md updated.
+- [x] Runtime owner files listed (header + source).
+- [x] Editor owner files listed.
+- [x] Schema and migration files listed.
+- [x] Latest deterministic test outputs recorded.
+- [x] README.md, docs/PROGRAM_COMPLETION_STATUS.md, and URPG_Blueprint_v3_1_Integrated.md updated.
 <!-- WAVE1_CHECKLIST_END -->
 
 ## Non-goals for this slice

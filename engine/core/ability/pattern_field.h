@@ -21,12 +21,15 @@ public:
     PatternField() = default;
     PatternField(const std::string& name) : m_name(name) {}
 
+    static PatternField MakeCross(const std::string& name, int32_t radius);
+    static PatternField MakeLine(const std::string& name, int32_t length, bool horizontal);
+
     void addPoint(int32_t x, int32_t y);
     void removePoint(int32_t x, int32_t y);
     bool hasPoint(int32_t x, int32_t y) const;
 
     const std::vector<Point>& getPoints() const { return m_points; }
-    void setPoints(const std::vector<Point>& points) { m_points = points; }
+    void setPoints(const std::vector<Point>& points);
     
     const std::string& getName() const { return m_name; }
     void setName(const std::string& name) { m_name = name; }
@@ -34,6 +37,8 @@ public:
     void getBounds(int32_t& minX, int32_t& minY, int32_t& maxX, int32_t& maxY) const;
 
 private:
+    void normalize();
+
     std::string m_name;
     std::vector<Point> m_points;
 };

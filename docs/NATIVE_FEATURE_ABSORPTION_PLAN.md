@@ -169,25 +169,26 @@ Goal: expand engine power for multi-genre projects while preserving deterministi
 - [x] Painted 2D/3D pattern resources with JSON serialization.
 - [x] Reusable pattern presets (implemented in `engine/core/ability/pattern_field.h`).
 - [ ] Reusable pattern presets for skills, items, placement, and interaction masks
-- [ ] pattern validation and preview in inspectors
+- [x] pattern validation and preview in inspectors
 
 ### 3.3 Modular Level Assembly
 
 - [x] Snap-connector block placement system (kernel implemented in `engine/core/level/level_assembly.h`).
 - [ ] block libraries and thumbnail generation
-- [ ] importer conventions for connector metadata
-- [ ] deterministic placement validation
+- [x] importer conventions for connector metadata
+- [x] deterministic placement validation
 
 ### 3.4 Sprite Pipeline Toolkit
 
 - [x] Atlas generation/packing and trim/crop tooling (CLI utility implemented in `tools/sprite_pipeline/`).
 - [x] Schema definition for atlas metadata (implemented in `content/schemas/sprite_atlas.schema.json`).
 - [ ] animation-sheet preview/tuning panel
-- [ ] build-time artifact generation for runtime consumption
+- [x] build-time artifact generation for runtime consumption
 
 ### 3.5 Procedural Content Toolkit
 
 - [x] Dungeon/room/corridor generation primitives (baseline implemented in `engine/core/level/procedural_toolkit.h`).
+- [x] Deterministic encounter/scenario generation from seeds
 - [x] FOV and visibility systems (baseline implemented in `engine/core/level/fov_system.h`).
 - [ ] encounter/scenario generators tied to deterministic seeds
 
@@ -195,19 +196,19 @@ Goal: expand engine power for multi-genre projects while preserving deterministi
 
 - [x] Raycast camera/runtime mode (baseline implemented in `engine/core/render/raycast_renderer.h`).
 - [ ] map authoring adapters for 2.5D projects
-- [ ] strict isolation from core 2D native contracts
+- [x] strict isolation from core 2D native contracts
 
 ### 3.7 Timeline/Animation Orchestration
 
 - [x] Keyframe/timeline data model (implemented in `engine/core/animation/animation_clip.h`).
 - [ ] keyframe/timeline authoring for scene and UI animation
-- [ ] transient animated effect spawning hooks
-- [ ] deterministic event-to-animation bindings
+- [x] transient animated effect spawning hooks
+- [x] deterministic event-to-animation bindings
 
 ### 3.8 Editor Productivity Utilities
 
 - [x] Selective adoption of high-value editor utilities (implemented `editor/productivity/editor_utility_task.h`).
-- [ ] focus on maintainability and ownership fit, not bulk addon import
+- [x] focus on maintainability and ownership fit, not bulk addon import
 
 ## Lane 4: Productization and release hardening
 
