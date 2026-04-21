@@ -250,11 +250,17 @@ TEST_CASE("Project audit CLI emits parseable JSON from the default repo data", "
     REQUIRE(report["governance"].contains("projectSchema"));
     REQUIRE(report["governance"].contains("localizationArtifacts"));
     REQUIRE(report["governance"].contains("exportArtifacts"));
+    REQUIRE(report["governance"].contains("accessibilityArtifacts"));
+    REQUIRE(report["governance"].contains("audioArtifacts"));
+    REQUIRE(report["governance"].contains("performanceArtifacts"));
     REQUIRE(report["governance"]["assetReport"].is_object());
     REQUIRE(report["governance"]["schema"].is_object());
     REQUIRE(report["governance"]["projectSchema"].is_object());
     REQUIRE(report["governance"]["localizationArtifacts"].is_object());
     REQUIRE(report["governance"]["exportArtifacts"].is_object());
+    REQUIRE(report["governance"]["accessibilityArtifacts"].is_object());
+    REQUIRE(report["governance"]["audioArtifacts"].is_object());
+    REQUIRE(report["governance"]["performanceArtifacts"].is_object());
 
     REQUIRE(report["governance"]["assetReport"].contains("available"));
     REQUIRE(report["governance"]["assetReport"].contains("usable"));
@@ -276,14 +282,23 @@ TEST_CASE("Project audit CLI emits parseable JSON from the default repo data", "
     requireGovernanceSectionShape(report["governance"], "localizationArtifacts", true);
     requireGovernanceSectionShape(report["governance"], "exportArtifacts", true);
     requireGovernanceSectionShape(report["governance"], "inputArtifacts", true);
+    requireGovernanceSectionShape(report["governance"], "accessibilityArtifacts", true);
+    requireGovernanceSectionShape(report["governance"], "audioArtifacts", true);
+    requireGovernanceSectionShape(report["governance"], "performanceArtifacts", true);
 
     requireIssueCountConsistencyIfPresent(report, "inputArtifactIssueCount", "inputArtifacts");
+    requireIssueCountConsistencyIfPresent(report, "accessibilityArtifactIssueCount", "accessibilityArtifacts");
+    requireIssueCountConsistencyIfPresent(report, "audioArtifactIssueCount", "audioArtifacts");
+    requireIssueCountConsistencyIfPresent(report, "performanceArtifactIssueCount", "performanceArtifacts");
 
     if (report["assetGovernanceIssueCount"].get<std::size_t>() > 0 ||
         report["schemaGovernanceIssueCount"].get<std::size_t>() > 0 ||
         hasPositiveIssueCount(report["governance"]["localizationArtifacts"]) ||
         hasPositiveIssueCount(report["governance"]["exportArtifacts"]) ||
-        (report["governance"].contains("inputArtifacts") && hasPositiveIssueCount(report["governance"]["inputArtifacts"]))) {
+        (report["governance"].contains("inputArtifacts") && hasPositiveIssueCount(report["governance"]["inputArtifacts"])) ||
+        hasPositiveIssueCount(report["governance"]["accessibilityArtifacts"]) ||
+        hasPositiveIssueCount(report["governance"]["audioArtifacts"]) ||
+        hasPositiveIssueCount(report["governance"]["performanceArtifacts"])) {
         CHECK(report["summary"].get<std::string>().find("Asset governance issues:") != std::string::npos);
         CHECK(report["summary"].get<std::string>().find("Schema governance issues:") != std::string::npos);
         if (hasPositiveIssueCount(report["governance"]["localizationArtifacts"])) {
@@ -294,6 +309,15 @@ TEST_CASE("Project audit CLI emits parseable JSON from the default repo data", "
         }
         if (report["governance"].contains("inputArtifacts") && hasPositiveIssueCount(report["governance"]["inputArtifacts"])) {
             CHECK(report["summary"].get<std::string>().find("Input artifact issues:") != std::string::npos);
+        }
+        if (hasPositiveIssueCount(report["governance"]["accessibilityArtifacts"])) {
+            CHECK(report["summary"].get<std::string>().find("Accessibility artifact issues:") != std::string::npos);
+        }
+        if (hasPositiveIssueCount(report["governance"]["audioArtifacts"])) {
+            CHECK(report["summary"].get<std::string>().find("Audio artifact issues:") != std::string::npos);
+        }
+        if (hasPositiveIssueCount(report["governance"]["performanceArtifacts"])) {
+            CHECK(report["summary"].get<std::string>().find("Performance artifact issues:") != std::string::npos);
         }
     }
 }
@@ -395,6 +419,9 @@ TEST_CASE("Project audit CLI keeps governance shape stable for conservative arti
     REQUIRE(report["governance"].contains("projectSchema"));
     REQUIRE(report["governance"].contains("localizationArtifacts"));
     REQUIRE(report["governance"].contains("exportArtifacts"));
+    REQUIRE(report["governance"].contains("accessibilityArtifacts"));
+    REQUIRE(report["governance"].contains("audioArtifacts"));
+    REQUIRE(report["governance"].contains("performanceArtifacts"));
 
     requireGovernanceSectionShape(report["governance"], "assetReport", true);
     requireGovernanceSectionShape(report["governance"], "schema", false);
@@ -402,8 +429,14 @@ TEST_CASE("Project audit CLI keeps governance shape stable for conservative arti
     requireGovernanceSectionShape(report["governance"], "localizationArtifacts", true);
     requireGovernanceSectionShape(report["governance"], "exportArtifacts", true);
     requireGovernanceSectionShape(report["governance"], "inputArtifacts", true);
+    requireGovernanceSectionShape(report["governance"], "accessibilityArtifacts", true);
+    requireGovernanceSectionShape(report["governance"], "audioArtifacts", true);
+    requireGovernanceSectionShape(report["governance"], "performanceArtifacts", true);
 
     requireIssueCountConsistencyIfPresent(report, "inputArtifactIssueCount", "inputArtifacts");
+    requireIssueCountConsistencyIfPresent(report, "accessibilityArtifactIssueCount", "accessibilityArtifacts");
+    requireIssueCountConsistencyIfPresent(report, "audioArtifactIssueCount", "audioArtifacts");
+    requireIssueCountConsistencyIfPresent(report, "performanceArtifactIssueCount", "performanceArtifacts");
 
     CHECK(report["summary"].get<std::string>().find("Selected template artifact-template is PARTIAL.") != std::string::npos);
     CHECK(report["issues"].is_array());

@@ -65,9 +65,10 @@
     {
       "id": "compat_bridge_exit",
       "status": "PARTIAL",
-      "summary": "Compat bridge exit has truthful Phase 2 closure evidence, weekly regression cadence, and diagnostics/export parity for the bounded import and verification lane.",
+      "summary": "Compat bridge exit has truthful Phase 2 closure evidence, weekly regression cadence, diagnostics/export parity for the bounded import and verification lane, and an explicit signoff artifact; promotion to READY requires human review of residual gaps.",
       "mainGaps": [
-        "Exit sign-off, curated corpus maintenance, and ongoing truth upkeep remain future work"
+        "Compat bridge exit signoff exists; promotion to READY requires human review of residual gaps",
+        "Curated corpus maintenance and ongoing truth upkeep remain future work"
       ],
       "evidence": {
         "runtimeOwner": true,
@@ -113,9 +114,9 @@
     {
       "id": "governance_foundation",
       "status": "PARTIAL",
-      "summary": "Governance foundation has first-slice artifacts landed: breaking-change detection, enhanced readiness checks, template specs, and bidirectional readiness/truth drift detection.",
+      "summary": "Governance foundation has first-slice artifacts landed: breaking-change detection, enhanced readiness checks, template specs, bidirectional readiness/truth drift detection, and project-audit artifact checks for accessibility, audio, and performance.",
       "mainGaps": [
-        "Full release-signoff enforcement beyond the current first-slice drift/date/status checks remains future work"
+        "Diagnostics/export parity and full release-signoff enforcement beyond the current artifact-backed governance checks remain future work"
       ],
       "evidence": {
         "runtimeOwner": false,

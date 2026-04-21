@@ -28,6 +28,8 @@ The following must agree:
 - template readiness labels
 - major public-facing completion language
 - project-audit blocker vocabulary
+- project-audit governance section coverage for the shipped contract
+- signoff-artifact presence and human-review-gated wording for subsystems that depend on signoff-based promotion language
 - schema/version governance expectations
 
 If a document or diagnostics surface needs nuance, it may be more conservative than the readiness records, but never more optimistic.

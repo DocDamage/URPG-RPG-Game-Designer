@@ -71,6 +71,9 @@ TEST_CASE("ProjectAuditPanel captures governance details when present", "[editor
         {"assetGovernanceIssueCount", 3},
         {"schemaGovernanceIssueCount", 2},
         {"projectArtifactIssueCount", 4},
+        {"accessibilityArtifactIssueCount", 1},
+        {"audioArtifactIssueCount", 2},
+        {"performanceArtifactIssueCount", 3},
         {"templateContext", {{"id", "jrpg"}, {"status", "READY"}}},
         {"governance", {
             {"assetReport", {
@@ -106,6 +109,21 @@ TEST_CASE("ProjectAuditPanel captures governance details when present", "[editor
                 {"path", "exports/project_audit/export_manifest.json"},
                 {"present", true},
                 {"issueCount", 2}
+            }},
+            {"accessibilityArtifacts", {
+                {"path", "content/schemas/accessibility_report.schema.json"},
+                {"available", true},
+                {"issueCount", 1}
+            }},
+            {"audioArtifacts", {
+                {"path", "content/schemas/audio_mix_presets.schema.json"},
+                {"available", true},
+                {"issueCount", 2}
+            }},
+            {"performanceArtifacts", {
+                {"path", "docs/presentation/performance_budgets.md"},
+                {"available", true},
+                {"issueCount", 3}
             }}
         }},
         {"issues", nlohmann::json::array()}
@@ -121,9 +139,15 @@ TEST_CASE("ProjectAuditPanel captures governance details when present", "[editor
     REQUIRE(snapshot.asset_governance_issue_count);
     REQUIRE(snapshot.schema_governance_issue_count);
     REQUIRE(snapshot.project_artifact_issue_count);
+    REQUIRE(snapshot.accessibility_artifact_issue_count);
+    REQUIRE(snapshot.audio_artifact_issue_count);
+    REQUIRE(snapshot.performance_artifact_issue_count);
     REQUIRE(*snapshot.asset_governance_issue_count == 3);
     REQUIRE(*snapshot.schema_governance_issue_count == 2);
     REQUIRE(*snapshot.project_artifact_issue_count == 4);
+    REQUIRE(*snapshot.accessibility_artifact_issue_count == 1);
+    REQUIRE(*snapshot.audio_artifact_issue_count == 2);
+    REQUIRE(*snapshot.performance_artifact_issue_count == 3);
 
     REQUIRE(snapshot.asset_report.has_value());
     REQUIRE(snapshot.asset_report->path == "imports/reports/asset_intake/source_capture_status.json");
@@ -173,6 +197,27 @@ TEST_CASE("ProjectAuditPanel captures governance details when present", "[editor
     REQUIRE(*snapshot.export_artifacts->available);
     REQUIRE(snapshot.export_artifacts->issue_count.has_value());
     REQUIRE(*snapshot.export_artifacts->issue_count == 2);
+
+    REQUIRE(snapshot.accessibility_artifacts.has_value());
+    REQUIRE(snapshot.accessibility_artifacts->path == "content/schemas/accessibility_report.schema.json");
+    REQUIRE(snapshot.accessibility_artifacts->available.has_value());
+    REQUIRE(*snapshot.accessibility_artifacts->available);
+    REQUIRE(snapshot.accessibility_artifacts->issue_count.has_value());
+    REQUIRE(*snapshot.accessibility_artifacts->issue_count == 1);
+
+    REQUIRE(snapshot.audio_artifacts.has_value());
+    REQUIRE(snapshot.audio_artifacts->path == "content/schemas/audio_mix_presets.schema.json");
+    REQUIRE(snapshot.audio_artifacts->available.has_value());
+    REQUIRE(*snapshot.audio_artifacts->available);
+    REQUIRE(snapshot.audio_artifacts->issue_count.has_value());
+    REQUIRE(*snapshot.audio_artifacts->issue_count == 2);
+
+    REQUIRE(snapshot.performance_artifacts.has_value());
+    REQUIRE(snapshot.performance_artifacts->path == "docs/presentation/performance_budgets.md");
+    REQUIRE(snapshot.performance_artifacts->available.has_value());
+    REQUIRE(*snapshot.performance_artifacts->available);
+    REQUIRE(snapshot.performance_artifacts->issue_count.has_value());
+    REQUIRE(*snapshot.performance_artifacts->issue_count == 3);
 }
 
 TEST_CASE("ProjectAuditPanel derives blocker counts from issue flags when report counts are absent",

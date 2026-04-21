@@ -913,3 +913,51 @@
 - **Context**: `docs/COMPAT_EXIT_CHECKLIST.md` still showed migration-confidence evidence as open even though the compat status registries and diagnostics/export surfaces already had most of the required coverage.
 - **Action**: Tightened the focused compat truth anchors by renaming the QuickJS audio bridge test to deterministic compat-state wording, adding representative `PARTIAL` battle/window registry assertions plus deviation-string coverage, and reconciling the compat exit checklist against the existing diagnostics/export parity tests.
 - **Result**: The compat exit checklist now reflects shipped evidence rather than stale unchecked boxes, while keeping human signoff explicitly separate from code/test closure.
+
+## 2026-04-21 - Sprint 02 Project Audit Cross-Cutting Governance Checks
+
+- **Context**: Sprint 02 opens in the governance/template-readiness depth lane, and `urpg_project_audit` was still only surfacing first-slice localization/input/export artifact checks even though the canonical template rules also depend on accessibility, audio, and performance bars.
+- **Action**: Expanded `tools/audit/urpg_project_audit.cpp` to emit explicit `accessibilityArtifacts`, `audioArtifacts`, and `performanceArtifacts` governance sections with matching top-level issue counts, then updated `ProjectAuditPanel` and focused CLI/panel tests to consume and verify the richer contract.
+- **Action**: Rebuilt the `dev-debug` preset and revalidated the focused `.\build\dev-ninja-debug\urpg_tests.exe "[project_audit]" --reporter compact` and `.\build\dev-ninja-debug\urpg_tests.exe "[project_audit_cli]" --reporter compact` lanes.
+- **Result**: Project audit now reports the first cross-cutting governance artifact checks for accessibility, audio, and performance instead of leaving those bars implicit in matrix prose; Sprint 02 now resumes at diagnostics/export parity (`S02-T02`).
+
+## 2026-04-21 - Sprint 02 Project Audit Diagnostics Export Parity
+
+- **Context**: After `S02-T01`, the CLI and panel snapshot knew about accessibility/audio/performance governance sections, but `DiagnosticsWorkspace::exportAsJson()` still dropped those newer fields from the active-tab export surface.
+- **Action**: Extended the project-audit export branch in `editor/diagnostics/diagnostics_workspace.cpp` to emit the new top-level counts and governance sections for accessibility, audio, and performance, then updated the workspace integration regression to bind and assert the full richer contract.
+- **Action**: Rebuilt `dev-debug` and revalidated `.\build\dev-ninja-debug\urpg_tests.exe "[project_audit],[editor][diagnostics][integration][project_audit]" --reporter compact` plus `.\build\dev-ninja-debug\urpg_tests.exe "[project_audit_cli]" --reporter compact`.
+- **Result**: The diagnostics export boundary now stays in parity with the richer project-audit panel/CLI contract; Sprint 02 resumes at governance-depth CI enforcement (`S02-T03`).
+
+## 2026-04-21 - Sprint 02 Governance-Depth Readiness Enforcement
+
+- **Context**: After the audit contract deepened, the readiness gates were still only enforcing date/matrix/truth drift and could not prove the richer `urpg_project_audit` surface was actually present in the built tree.
+- **Action**: Updated `tools/ci/check_release_readiness.ps1` to locate the built `urpg_project_audit` executable, run it against the canonical readiness dataset, and require the richer governance sections and issue-count fields in the emitted JSON contract.
+- **Action**: Updated `tools/ci/truth_reconciler.ps1` to include `docs/PROJECT_AUDIT.md` in the status-date alignment chain and require project-audit wording that reflects the shipped richer governance coverage; reconciled `docs/PROJECT_AUDIT.md`, `docs/RELEASE_READINESS_MATRIX.md`, and `docs/TRUTH_ALIGNMENT_RULES.md` to match that enforcement.
+- **Action**: Revalidated `powershell -ExecutionPolicy Bypass -File tools/ci/check_release_readiness.ps1` and `powershell -ExecutionPolicy Bypass -File tools/ci/truth_reconciler.ps1`.
+- **Result**: Governance-depth readiness enforcement now validates the live project-audit contract instead of only the surrounding docs, and Sprint 02 now resumes at truth reconciliation and closeout (`S02-T04`).
+
+## 2026-04-21 - Sprint 02 Closeout
+
+- **Context**: All four Sprint 02 tickets were implemented, and the remaining work was to prove the sprint state cleanly with a broad PR-lane validation plus the governance-depth readiness gates.
+- **Action**: Ran `ctest --test-dir build/dev-ninja-debug -L pr --output-on-failure`, `powershell -ExecutionPolicy Bypass -File tools/ci/check_release_readiness.ps1`, and `powershell -ExecutionPolicy Bypass -File tools/ci/truth_reconciler.ps1`, then updated the Sprint 02 task board closeout checklist and resume note to the closed state.
+- **Result**: Sprint 02 is closed with the governance-depth audit contract, diagnostics/export parity, and readiness/truth enforcement all validated on the current tree.
+
+## 2026-04-21 - Sprint 03 Compat Bridge Exit Signoff Artifact
+
+- **Context**: `compat_bridge_exit` was still the one major human-review-gated subsystem lane without a dedicated signoff artifact, even though Battle Core and Save/Data Core already used explicit closure signoff docs and the readiness matrix still described compat signoff as future work.
+- **Action**: Added `docs/COMPAT_BRIDGE_EXIT_SIGNOFF.md`, reconciled compat readiness/checklist language so the lane now explicitly records its bounded scope and residual gaps through that artifact, and updated `check_release_readiness.ps1` to require the compat signoff doc alongside the existing battle/save signoff artifacts.
+- **Action**: Extended `truth_reconciler.ps1` to verify the compat signoff doc’s expected signoff-language pattern and updated the canonical status/remediation/worklog surfaces to reflect the new governed artifact.
+- **Result**: Compat bridge exit now follows the same explicit signoff-artifact pattern as the existing Wave 1 closure lanes, and the readiness/truth chain enforces that artifact’s presence instead of treating compat signoff as prose-only future work.
+
+## 2026-04-21 - Sprint 03 Generalized Signoff Governance
+
+- **Context**: After `S03-T01`, compat had the strongest signoff enforcement, but battle/save were still only partially governed because the scripts proved artifact existence without also proving the expected human-review wording remained aligned.
+- **Action**: Generalized `check_release_readiness.ps1` so every current signoff-governed subsystem must carry signoff/human-review wording in both `readiness_status.json` and the release matrix row text, and generalized `truth_reconciler.ps1` so all current signoff docs are checked for the same conservative non-promoting pattern.
+- **Action**: Added the corresponding canonical rule to `SUBSYSTEM_STATUS_RULES.md` and recorded the broader signoff-governance slice in the status/remediation docs.
+- **Result**: Battle Core, Save/Data Core, and Compat Bridge Exit now share one governed signoff discipline instead of compat being the only script-checked signoff lane.
+
+## 2026-04-21 - Sprint 03 Closeout
+
+- **Context**: With the compat signoff artifact and generalized signoff-governance enforcement in place, the remaining Sprint 03 work was to prove the governed subsystem set still passed the broad PR lane and both readiness/truth gates.
+- **Action**: Ran `ctest --test-dir build/dev-ninja-debug -L pr --output-on-failure`, `powershell -ExecutionPolicy Bypass -File tools/ci/check_release_readiness.ps1`, and `powershell -ExecutionPolicy Bypass -File tools/ci/truth_reconciler.ps1`, then updated the Sprint 03 board to the closed state.
+- **Result**: Sprint 03 is closed with battle/save/compat signoff governance enforced and validated on the current tree.

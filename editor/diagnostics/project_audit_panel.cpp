@@ -244,9 +244,30 @@ void populateGovernanceSnapshot(const nlohmann::json& report, ProjectAuditPanel:
         snapshot.export_artifacts = std::move(export_section);
     }
 
+    if (const auto* accessibility_artifacts = findObjectMember(governance, "accessibilityArtifacts", "accessibility_artifacts")) {
+        ProjectAuditArtifactGovernanceSnapshot accessibility{};
+        populateArtifactSectionSnapshot(*accessibility_artifacts, accessibility);
+        snapshot.accessibility_artifacts = std::move(accessibility);
+    }
+
+    if (const auto* audio_artifacts = findObjectMember(governance, "audioArtifacts", "audio_artifacts")) {
+        ProjectAuditArtifactGovernanceSnapshot audio{};
+        populateArtifactSectionSnapshot(*audio_artifacts, audio);
+        snapshot.audio_artifacts = std::move(audio);
+    }
+
+    if (const auto* performance_artifacts = findObjectMember(governance, "performanceArtifacts", "performance_artifacts")) {
+        ProjectAuditArtifactGovernanceSnapshot performance{};
+        populateArtifactSectionSnapshot(*performance_artifacts, performance);
+        snapshot.performance_artifacts = std::move(performance);
+    }
+
     populateOptionalCount<size_t>(report, "assetGovernanceIssueCount", snapshot.asset_governance_issue_count);
     populateOptionalCount<size_t>(report, "schemaGovernanceIssueCount", snapshot.schema_governance_issue_count);
     populateOptionalCount<size_t>(report, "projectArtifactIssueCount", snapshot.project_artifact_issue_count);
+    populateOptionalCount<size_t>(report, "accessibilityArtifactIssueCount", snapshot.accessibility_artifact_issue_count);
+    populateOptionalCount<size_t>(report, "audioArtifactIssueCount", snapshot.audio_artifact_issue_count);
+    populateOptionalCount<size_t>(report, "performanceArtifactIssueCount", snapshot.performance_artifact_issue_count);
 }
 
 } // namespace

@@ -62,11 +62,11 @@ Reference implementation surfaces:
 
 ## Session Start Checklist
 
-- [ ] Read the canonical sources above.
-- [ ] Open `docs/superpowers/plans/2026-04-21-sprint-01-task-board.md`.
-- [ ] Mark exactly one ticket as `IN PROGRESS`.
-- [ ] Reconfirm the active local build profile.
-- [ ] Run the preflight command block:
+- [x] Read the canonical sources above.
+- [x] Open `docs/superpowers/plans/2026-04-21-sprint-01-task-board.md`.
+- [x] Mark exactly one ticket as `IN PROGRESS`.
+- [x] Reconfirm the active local build profile.
+- [x] Run the preflight command block:
 
 ```powershell
 cmake --preset dev-ninja-debug

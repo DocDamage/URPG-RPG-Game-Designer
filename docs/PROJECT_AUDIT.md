@@ -1,6 +1,6 @@
 # Project Audit
 
-Status Date: 2026-04-20
+Status Date: 2026-04-21
 
 `urpg_project_audit` is the current conservative project-facing audit command for answering a simple question:
 
@@ -30,7 +30,7 @@ The first shipped slice is a conservative readiness-derived scanner, not a full 
 That means:
 
 - the CLI now reads the canonical readiness dataset and emits a real audit report
-- the diagnostics surfaces can render the emitted report model, including the governance detail the CLI now carries for asset-report, schema/changelog, and any canonical input/localization/export artifact-path checks the scanner adds when those roadmap-defined paths are missing
+- the diagnostics surfaces can render the emitted report model, including the governance detail the CLI now carries for asset-report, schema/changelog, canonical input/localization/export artifact-path checks, and first-slice accessibility/audio/performance artifact-governance sections
 - the output model remains intentionally small and conservative
 - asset-intake and schema/changelog governance can affect the reported result only where those concerns are already represented in the canonical readiness/template governance records
 
@@ -57,6 +57,7 @@ The audit report is expected to carry:
 - export blocker count
 - template status context
 - governance detail for asset report, readiness schema/changelog, and project schema presence checks
+- governance detail for canonical input/localization/export and accessibility/audio/performance artifact-governance sections
 
 That governance detail is intended to stay in parity between the CLI/report model and the diagnostics rendering path. It still does **not** change the core truth constraint: rendering richer governance detail does not make this a full project scanner.
 

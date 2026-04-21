@@ -1967,6 +1967,15 @@ std::string DiagnosticsWorkspace::exportAsJson() const {
         if (snapshot.project_artifact_issue_count.has_value()) {
             activeTabDetail["project_artifact_issue_count"] = *snapshot.project_artifact_issue_count;
         }
+        if (snapshot.accessibility_artifact_issue_count.has_value()) {
+            activeTabDetail["accessibility_artifact_issue_count"] = *snapshot.accessibility_artifact_issue_count;
+        }
+        if (snapshot.audio_artifact_issue_count.has_value()) {
+            activeTabDetail["audio_artifact_issue_count"] = *snapshot.audio_artifact_issue_count;
+        }
+        if (snapshot.performance_artifact_issue_count.has_value()) {
+            activeTabDetail["performance_artifact_issue_count"] = *snapshot.performance_artifact_issue_count;
+        }
         nlohmann::json governance = nlohmann::json::object();
         if (snapshot.asset_report.has_value()) {
             nlohmann::json assetReport = nlohmann::json::object();
@@ -2031,6 +2040,17 @@ std::string DiagnosticsWorkspace::exportAsJson() const {
         }
         if (snapshot.export_artifacts.has_value()) {
             governance["export_artifacts"] = ProjectAuditArtifactGovernanceJson(*snapshot.export_artifacts);
+        }
+        if (snapshot.accessibility_artifacts.has_value()) {
+            governance["accessibility_artifacts"] =
+                ProjectAuditArtifactGovernanceJson(*snapshot.accessibility_artifacts);
+        }
+        if (snapshot.audio_artifacts.has_value()) {
+            governance["audio_artifacts"] = ProjectAuditArtifactGovernanceJson(*snapshot.audio_artifacts);
+        }
+        if (snapshot.performance_artifacts.has_value()) {
+            governance["performance_artifacts"] =
+                ProjectAuditArtifactGovernanceJson(*snapshot.performance_artifacts);
         }
         if (!governance.empty()) {
             activeTabDetail["governance"] = std::move(governance);

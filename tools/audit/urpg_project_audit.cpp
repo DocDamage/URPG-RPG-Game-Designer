@@ -839,6 +839,153 @@ void addInputArtifactGovernance(const TemplateContext& templateContext,
         governanceReport);
 }
 
+void addAccessibilityArtifactGovernance(const TemplateContext& templateContext,
+                                        std::vector<AuditIssue>& issues,
+                                        std::size_t& accessibilityArtifactIssueCount,
+                                        json& governanceReport) {
+    const bool enabled = templateBarNeedsProjectArtifact(templateContext, "accessibility") || !isReadyStatus(templateContext.status);
+    const std::vector<CanonicalArtifactSpec> artifacts = {
+        {
+            "accessibility_artifact.schema_missing",
+            "Canonical accessibility report schema missing",
+            "Accessibility",
+            fs::path("content") / "schemas" / "accessibility_report.schema.json",
+        },
+        {
+            "accessibility_artifact.runtime_header_missing",
+            "Canonical accessibility auditor header missing",
+            "Accessibility",
+            fs::path("engine") / "core" / "accessibility" / "accessibility_auditor.h",
+        },
+        {
+            "accessibility_artifact.runtime_source_missing",
+            "Canonical accessibility auditor source missing",
+            "Accessibility",
+            fs::path("engine") / "core" / "accessibility" / "accessibility_auditor.cpp",
+        },
+        {
+            "accessibility_artifact.panel_header_missing",
+            "Canonical accessibility panel header missing",
+            "Accessibility",
+            fs::path("editor") / "accessibility" / "accessibility_panel.h",
+        },
+        {
+            "accessibility_artifact.panel_source_missing",
+            "Canonical accessibility panel source missing",
+            "Accessibility",
+            fs::path("editor") / "accessibility" / "accessibility_panel.cpp",
+        },
+    };
+
+    addCanonicalArtifactSection(
+        templateContext,
+        "accessibilityArtifacts",
+        "accessibility governance",
+        enabled,
+        artifacts,
+        issues,
+        accessibilityArtifactIssueCount,
+        governanceReport);
+}
+
+void addAudioArtifactGovernance(const TemplateContext& templateContext,
+                                std::vector<AuditIssue>& issues,
+                                std::size_t& audioArtifactIssueCount,
+                                json& governanceReport) {
+    const bool enabled = templateBarNeedsProjectArtifact(templateContext, "audio") || !isReadyStatus(templateContext.status);
+    const std::vector<CanonicalArtifactSpec> artifacts = {
+        {
+            "audio_artifact.schema_missing",
+            "Canonical audio mix schema missing",
+            "Audio",
+            fs::path("content") / "schemas" / "audio_mix_presets.schema.json",
+        },
+        {
+            "audio_artifact.runtime_header_missing",
+            "Canonical audio mix preset runtime header missing",
+            "Audio",
+            fs::path("engine") / "core" / "audio" / "audio_mix_presets.h",
+        },
+        {
+            "audio_artifact.runtime_source_missing",
+            "Canonical audio mix preset runtime source missing",
+            "Audio",
+            fs::path("engine") / "core" / "audio" / "audio_mix_presets.cpp",
+        },
+        {
+            "audio_artifact.panel_header_missing",
+            "Canonical audio mix panel header missing",
+            "Audio",
+            fs::path("editor") / "audio" / "audio_mix_panel.h",
+        },
+        {
+            "audio_artifact.panel_source_missing",
+            "Canonical audio mix panel source missing",
+            "Audio",
+            fs::path("editor") / "audio" / "audio_mix_panel.cpp",
+        },
+    };
+
+    addCanonicalArtifactSection(
+        templateContext,
+        "audioArtifacts",
+        "audio governance",
+        enabled,
+        artifacts,
+        issues,
+        audioArtifactIssueCount,
+        governanceReport);
+}
+
+void addPerformanceArtifactGovernance(const TemplateContext& templateContext,
+                                      std::vector<AuditIssue>& issues,
+                                      std::size_t& performanceArtifactIssueCount,
+                                      json& governanceReport) {
+    const bool enabled = templateBarNeedsProjectArtifact(templateContext, "performance") || !isReadyStatus(templateContext.status);
+    const std::vector<CanonicalArtifactSpec> artifacts = {
+        {
+            "performance_artifact.runtime_header_missing",
+            "Canonical performance profiler header missing",
+            "Performance",
+            fs::path("engine") / "core" / "perf" / "perf_profiler.h",
+        },
+        {
+            "performance_artifact.runtime_source_missing",
+            "Canonical performance profiler source missing",
+            "Performance",
+            fs::path("engine") / "core" / "perf" / "perf_profiler.cpp",
+        },
+        {
+            "performance_artifact.panel_header_missing",
+            "Canonical performance diagnostics panel header missing",
+            "Performance",
+            fs::path("editor") / "perf" / "perf_diagnostics_panel.h",
+        },
+        {
+            "performance_artifact.panel_source_missing",
+            "Canonical performance diagnostics panel source missing",
+            "Performance",
+            fs::path("editor") / "perf" / "perf_diagnostics_panel.cpp",
+        },
+        {
+            "performance_artifact.budget_doc_missing",
+            "Canonical performance budget doc missing",
+            "Performance",
+            fs::path("docs") / "presentation" / "performance_budgets.md",
+        },
+    };
+
+    addCanonicalArtifactSection(
+        templateContext,
+        "performanceArtifacts",
+        "performance governance",
+        enabled,
+        artifacts,
+        issues,
+        performanceArtifactIssueCount,
+        governanceReport);
+}
+
 json buildReport(const json& readiness,
                  const TemplateContext& templateContext,
                  const AssetReportContext& assetReportContext,
@@ -852,6 +999,9 @@ json buildReport(const json& readiness,
     std::size_t localizationArtifactIssueCount = 0;
     std::size_t exportArtifactIssueCount = 0;
     std::size_t inputArtifactIssueCount = 0;
+    std::size_t accessibilityArtifactIssueCount = 0;
+    std::size_t audioArtifactIssueCount = 0;
+    std::size_t performanceArtifactIssueCount = 0;
     json governanceReport = json::object();
 
     addSubsystemIssues(readiness, templateContext, issues, releaseBlockerCount, exportBlockerCount);
@@ -863,6 +1013,9 @@ json buildReport(const json& readiness,
     addLocalizationArtifactGovernance(templateContext, issues, localizationArtifactIssueCount, governanceReport);
     addExportArtifactGovernance(templateContext, issues, exportArtifactIssueCount, governanceReport);
     addInputArtifactGovernance(templateContext, issues, inputArtifactIssueCount, governanceReport);
+    addAccessibilityArtifactGovernance(templateContext, issues, accessibilityArtifactIssueCount, governanceReport);
+    addAudioArtifactGovernance(templateContext, issues, audioArtifactIssueCount, governanceReport);
+    addPerformanceArtifactGovernance(templateContext, issues, performanceArtifactIssueCount, governanceReport);
 
     json issueArray = json::array();
     for (const auto& issue : issues) {
@@ -885,6 +1038,15 @@ json buildReport(const json& readiness,
     }
     if (inputArtifactIssueCount > 0) {
         summary << " Input artifact issues: " << inputArtifactIssueCount << ".";
+    }
+    if (accessibilityArtifactIssueCount > 0) {
+        summary << " Accessibility artifact issues: " << accessibilityArtifactIssueCount << ".";
+    }
+    if (audioArtifactIssueCount > 0) {
+        summary << " Audio artifact issues: " << audioArtifactIssueCount << ".";
+    }
+    if (performanceArtifactIssueCount > 0) {
+        summary << " Performance artifact issues: " << performanceArtifactIssueCount << ".";
     }
 
     return json{
@@ -914,11 +1076,17 @@ json buildReport(const json& readiness,
                 {"localizationArtifacts", governanceReport["localizationArtifacts"]},
                 {"exportArtifacts", governanceReport["exportArtifacts"]},
                 {"inputArtifacts", governanceReport["inputArtifacts"]},
+                {"accessibilityArtifacts", governanceReport["accessibilityArtifacts"]},
+                {"audioArtifacts", governanceReport["audioArtifacts"]},
+                {"performanceArtifacts", governanceReport["performanceArtifacts"]},
             }},
         {"assetGovernanceIssueCount", assetGovernanceIssueCount},
         {"schemaGovernanceIssueCount", schemaGovernanceIssueCount},
         {"projectArtifactIssueCount", projectArtifactIssueCount},
         {"inputArtifactIssueCount", inputArtifactIssueCount},
+        {"accessibilityArtifactIssueCount", accessibilityArtifactIssueCount},
+        {"audioArtifactIssueCount", audioArtifactIssueCount},
+        {"performanceArtifactIssueCount", performanceArtifactIssueCount},
         {"issues", issueArray},
     };
 }

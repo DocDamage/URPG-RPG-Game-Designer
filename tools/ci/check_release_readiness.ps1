@@ -5,6 +5,12 @@ $readinessPath = Join-Path $repoRoot "content\readiness\readiness_status.json"
 $matrixPath = Join-Path $repoRoot "docs\RELEASE_READINESS_MATRIX.md"
 $templateMatrixPath = Join-Path $repoRoot "docs\TEMPLATE_READINESS_MATRIX.md"
 $truthRulesPath = Join-Path $repoRoot "docs\TRUTH_ALIGNMENT_RULES.md"
+$projectAuditDocPath = Join-Path $repoRoot "docs\PROJECT_AUDIT.md"
+$signoffDocPaths = @{
+    "battle_core" = Join-Path $repoRoot "docs\BATTLE_CORE_CLOSURE_SIGNOFF.md"
+    "save_data_core" = Join-Path $repoRoot "docs\SAVE_DATA_CORE_CLOSURE_SIGNOFF.md"
+    "compat_bridge_exit" = Join-Path $repoRoot "docs\COMPAT_BRIDGE_EXIT_SIGNOFF.md"
+}
 
 if (-not (Test-Path $readinessPath)) {
     throw "Missing readiness dataset: $readinessPath"
@@ -17,6 +23,9 @@ if (-not (Test-Path $templateMatrixPath)) {
 }
 if (-not (Test-Path $truthRulesPath)) {
     throw "Missing truth alignment rules: $truthRulesPath"
+}
+if (-not (Test-Path $projectAuditDocPath)) {
+    throw "Missing project audit doc: $projectAuditDocPath"
 }
 
 $readiness = Get-Content -Raw -Path $readinessPath | ConvertFrom-Json
@@ -66,6 +75,45 @@ function Get-MatrixRows {
     return $rows
 }
 
+function Get-MatrixRowText {
+    param(
+        [string]$Text,
+        [string]$Id
+    )
+
+    foreach ($line in ($Text -split "`r?`n")) {
+        if ($line -match ('^\| `' + [regex]::Escape($Id) + '` \|')) {
+            return $line
+        }
+    }
+
+    return $null
+}
+
+function Get-ProjectAuditExecutable {
+    param(
+        [string]$RepoRoot
+    )
+
+    $buildRoot = Join-Path $RepoRoot "build"
+    if (-not (Test-Path $buildRoot)) {
+        throw "Missing build directory: $buildRoot. Build the repo before running check_release_readiness.ps1."
+    }
+
+    $matches = Get-ChildItem -Path $buildRoot -Recurse -File | Where-Object {
+        $_.BaseName -eq "urpg_project_audit" -and ($_.Extension -eq ".exe" -or [string]::IsNullOrEmpty($_.Extension))
+    } | Sort-Object -Property @(
+        @{ Expression = "LastWriteTime"; Descending = $true },
+        @{ Expression = "FullName"; Descending = $false }
+    )
+
+    if ($matches) {
+        return ($matches | Select-Object -First 1).FullName
+    }
+
+    throw "Could not find urpg_project_audit executable under $buildRoot. Build the repo before running check_release_readiness.ps1."
+}
+
 if (-not $readiness.schemaVersion) {
     throw "Readiness dataset must include schemaVersion."
 }
@@ -90,15 +138,18 @@ foreach ($entry in $readiness.templates) {
 $matrixText = Get-Content -Raw -Path $matrixPath
 $templateMatrixText = Get-Content -Raw -Path $templateMatrixPath
 $truthRulesText = Get-Content -Raw -Path $truthRulesPath
+$projectAuditDocText = Get-Content -Raw -Path $projectAuditDocPath
 
 $releaseMatrixDate = Get-StatusDateFromText -Text $matrixText -Label "Release readiness matrix"
 $templateMatrixDate = Get-StatusDateFromText -Text $templateMatrixText -Label "Template readiness matrix"
 $truthRulesDate = Get-StatusDateFromText -Text $truthRulesText -Label "Truth alignment rules"
+$projectAuditDocDate = Get-StatusDateFromText -Text $projectAuditDocText -Label "Project audit doc"
 
 foreach ($docDate in @(
         @{ Label = "Release readiness matrix"; Value = $releaseMatrixDate },
         @{ Label = "Template readiness matrix"; Value = $templateMatrixDate },
-        @{ Label = "Truth alignment rules"; Value = $truthRulesDate }
+        @{ Label = "Truth alignment rules"; Value = $truthRulesDate },
+        @{ Label = "Project audit doc"; Value = $projectAuditDocDate }
     )) {
     if ($docDate.Value -ne $readiness.statusDate) {
         throw "$($docDate.Label) status date '$($docDate.Value)' does not match readiness_status.json date '$($readiness.statusDate)'."
@@ -167,8 +218,85 @@ foreach ($entry in $readiness.templates) {
     }
 }
 
+foreach ($subsystemId in $signoffDocPaths.Keys) {
+    if (-not (Test-Path $signoffDocPaths[$subsystemId])) {
+        throw "Missing required signoff artifact for subsystem '$subsystemId': $($signoffDocPaths[$subsystemId])"
+    }
+
+    $readinessEntry = $readiness.subsystems | Where-Object { $_.id -eq $subsystemId } | Select-Object -First 1
+    if (-not $readinessEntry) {
+        throw "Signoff-governed subsystem '$subsystemId' is missing from readiness_status.json."
+    }
+
+    $summaryText = [string]$readinessEntry.summary
+    $mainGapText = (($readinessEntry.mainGaps | ForEach-Object { [string]$_ }) -join " ")
+    if ($summaryText -notmatch "signoff|human review") {
+        throw "Signoff-governed subsystem '$subsystemId' must mention signoff or human review in readiness_status.json summary."
+    }
+    if ($mainGapText -notmatch "signoff|human review") {
+        throw "Signoff-governed subsystem '$subsystemId' must mention signoff or human review in readiness_status.json mainGaps."
+    }
+
+    $rowText = Get-MatrixRowText -Text $matrixText -Id $subsystemId
+    if (-not $rowText) {
+        throw "Release readiness matrix row text for signoff-governed subsystem '$subsystemId' could not be found."
+    }
+    if ($rowText -notmatch "signoff|human review") {
+        throw "Release readiness matrix row for signoff-governed subsystem '$subsystemId' must mention signoff or human review."
+    }
+}
+
+$projectAuditExecutable = Get-ProjectAuditExecutable -RepoRoot $repoRoot
+$projectAuditJson = & $projectAuditExecutable --json --input $readinessPath 2>$null | Out-String
+if (-not $projectAuditJson.Trim()) {
+    throw "urpg_project_audit did not emit JSON output."
+}
+
+$projectAuditReport = $projectAuditJson | ConvertFrom-Json
+foreach ($field in @("schemaVersion", "statusDate", "headline", "summary", "releaseBlockerCount", "exportBlockerCount", "templateContext", "governance", "issues")) {
+    if (-not ($projectAuditReport.PSObject.Properties.Name -contains $field)) {
+        throw "urpg_project_audit JSON is missing required top-level field '$field'."
+    }
+}
+
+if ($projectAuditReport.statusDate -ne $readiness.statusDate) {
+    throw "urpg_project_audit statusDate '$($projectAuditReport.statusDate)' does not match readiness_status.json date '$($readiness.statusDate)'."
+}
+
+foreach ($section in @(
+        "assetReport",
+        "schema",
+        "projectSchema",
+        "localizationArtifacts",
+        "inputArtifacts",
+        "exportArtifacts",
+        "accessibilityArtifacts",
+        "audioArtifacts",
+        "performanceArtifacts"
+    )) {
+    if (-not ($projectAuditReport.governance.PSObject.Properties.Name -contains $section)) {
+        throw "urpg_project_audit governance is missing section '$section'."
+    }
+}
+
+foreach ($countField in @(
+        "assetGovernanceIssueCount",
+        "schemaGovernanceIssueCount",
+        "projectArtifactIssueCount",
+        "inputArtifactIssueCount",
+        "accessibilityArtifactIssueCount",
+        "audioArtifactIssueCount",
+        "performanceArtifactIssueCount"
+    )) {
+    if (-not ($projectAuditReport.PSObject.Properties.Name -contains $countField)) {
+        throw "urpg_project_audit JSON is missing count field '$countField'."
+    }
+}
+
 Write-Host "Release readiness records and matrices are present and minimally aligned."
 Write-Host "Status dates match across readiness_status.json and canonical readiness docs."
 Write-Host "Release/template matrix rows match readiness_status.json in both coverage and status."
 Write-Host "All READY subsystem evidence fields are true."
 Write-Host "All READY/PARTIAL template required subsystems are known."
+Write-Host "Required signoff artifacts exist for human-review-gated subsystems."
+Write-Host "urpg_project_audit JSON contract includes the required governance sections and issue counts."

@@ -8,6 +8,8 @@ $changelogPath = Join-Path $repoRoot "docs/SCHEMA_CHANGELOG.md"
 $truthRulesPath = Join-Path $repoRoot "docs/TRUTH_ALIGNMENT_RULES.md"
 $templateLabelRulesPath = Join-Path $repoRoot "docs/TEMPLATE_LABEL_RULES.md"
 $subsystemStatusRulesPath = Join-Path $repoRoot "docs/SUBSYSTEM_STATUS_RULES.md"
+$projectAuditDocPath = Join-Path $repoRoot "docs/PROJECT_AUDIT.md"
+$compatSignoffPath = Join-Path $repoRoot "docs/COMPAT_BRIDGE_EXIT_SIGNOFF.md"
 $docsDir = Join-Path $repoRoot "docs"
 $schemasDir = Join-Path $repoRoot "content/schemas"
 
@@ -18,7 +20,9 @@ foreach ($file in @(
         $changelogPath,
         $truthRulesPath,
         $templateLabelRulesPath,
-        $subsystemStatusRulesPath
+        $subsystemStatusRulesPath,
+        $projectAuditDocPath,
+        $compatSignoffPath
     )) {
     if (-not (Test-Path $file)) {
         throw "Missing required file: $file"
@@ -32,6 +36,12 @@ $changelogText = Get-Content -Raw -Path $changelogPath
 $truthRulesText = Get-Content -Raw -Path $truthRulesPath
 $templateLabelRulesText = Get-Content -Raw -Path $templateLabelRulesPath
 $subsystemStatusRulesText = Get-Content -Raw -Path $subsystemStatusRulesPath
+$projectAuditDocText = Get-Content -Raw -Path $projectAuditDocPath
+$compatSignoffText = Get-Content -Raw -Path $compatSignoffPath
+$battleSignoffPath = Join-Path $repoRoot "docs/BATTLE_CORE_CLOSURE_SIGNOFF.md"
+$saveSignoffPath = Join-Path $repoRoot "docs/SAVE_DATA_CORE_CLOSURE_SIGNOFF.md"
+$battleSignoffText = Get-Content -Raw -Path $battleSignoffPath
+$saveSignoffText = Get-Content -Raw -Path $saveSignoffPath
 
 $tick = [string][char]96
 $mismatches = @()
@@ -80,7 +90,8 @@ $docDates = @(
     @{ Label = "TEMPLATE_READINESS_MATRIX.md"; Value = (Get-StatusDateFromText -Text $templateMatrixText -Label "TEMPLATE_READINESS_MATRIX.md") },
     @{ Label = "TRUTH_ALIGNMENT_RULES.md"; Value = (Get-StatusDateFromText -Text $truthRulesText -Label "TRUTH_ALIGNMENT_RULES.md") },
     @{ Label = "TEMPLATE_LABEL_RULES.md"; Value = (Get-StatusDateFromText -Text $templateLabelRulesText -Label "TEMPLATE_LABEL_RULES.md") },
-    @{ Label = "SUBSYSTEM_STATUS_RULES.md"; Value = (Get-StatusDateFromText -Text $subsystemStatusRulesText -Label "SUBSYSTEM_STATUS_RULES.md") }
+    @{ Label = "SUBSYSTEM_STATUS_RULES.md"; Value = (Get-StatusDateFromText -Text $subsystemStatusRulesText -Label "SUBSYSTEM_STATUS_RULES.md") },
+    @{ Label = "PROJECT_AUDIT.md"; Value = (Get-StatusDateFromText -Text $projectAuditDocText -Label "PROJECT_AUDIT.md") }
 )
 
 foreach ($docDate in $docDates) {
@@ -211,6 +222,36 @@ $schemaFiles = Get-ChildItem -Path $schemasDir -Filter "*.schema.json" -File
 foreach ($schemaFile in $schemaFiles) {
     if ($changelogText -notmatch [regex]::Escape($schemaFile.Name)) {
         $mismatches += "Schema file '$($schemaFile.Name)' is not mentioned in SCHEMA_CHANGELOG.md."
+    }
+}
+
+# ---------------------------------------------------------------------------
+# g. PROJECT_AUDIT.md must describe the shipped richer governance sections
+# ---------------------------------------------------------------------------
+foreach ($requiredPhrase in @(
+        "accessibility",
+        "audio",
+        "performance",
+        "input/localization/export",
+        "governance detail"
+    )) {
+    if ($projectAuditDocText -notmatch [regex]::Escape($requiredPhrase)) {
+        $mismatches += "PROJECT_AUDIT.md is missing expected governance phrase '$requiredPhrase'."
+    }
+}
+
+# ---------------------------------------------------------------------------
+# h. Signoff artifacts must match the shipped human-review-gated pattern
+# ---------------------------------------------------------------------------
+foreach ($signoffDoc in @(
+        @{ Name = "BATTLE_CORE_CLOSURE_SIGNOFF.md"; Text = $battleSignoffText; RequiredPhrases = @("Human review is required", "residual gaps", "PARTIAL") },
+        @{ Name = "SAVE_DATA_CORE_CLOSURE_SIGNOFF.md"; Text = $saveSignoffText; RequiredPhrases = @("Human review is required", "residual gaps", "PARTIAL") },
+        @{ Name = "COMPAT_BRIDGE_EXIT_SIGNOFF.md"; Text = $compatSignoffText; RequiredPhrases = @("Compat Bridge Exit", "Human review is required", "compat bridge exit", "residual gaps", "PARTIAL") }
+    )) {
+    foreach ($requiredPhrase in $signoffDoc.RequiredPhrases) {
+        if ($signoffDoc.Text -notmatch [regex]::Escape($requiredPhrase)) {
+            $mismatches += "$($signoffDoc.Name) is missing expected phrase '$requiredPhrase'."
+        }
     }
 }
 

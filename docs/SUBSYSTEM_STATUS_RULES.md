@@ -47,3 +47,4 @@ Use `PLANNED` when:
 - A passing focused test lane does not automatically imply subsystem-wide `READY`.
 - A design doc or plan is not evidence of readiness by itself.
 - A subsystem can be `READY` for a bounded scope while future expansions remain `PLANNED`.
+- If a subsystem's readiness language says promotion still requires human review, a signoff artifact must exist and stay explicitly non-promoting until that review happens.

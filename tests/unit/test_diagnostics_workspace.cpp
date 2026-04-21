@@ -100,6 +100,9 @@ TEST_CASE("DiagnosticsWorkspace - Refresh updates compat and save tabs", "[edito
         {"assetGovernanceIssueCount", 2},
         {"schemaGovernanceIssueCount", 1},
         {"projectArtifactIssueCount", 3},
+        {"accessibilityArtifactIssueCount", 1},
+        {"audioArtifactIssueCount", 2},
+        {"performanceArtifactIssueCount", 3},
         {"templateContext", {{"id", "jrpg"}, {"status", "PARTIAL"}}},
         {"governance", {
             {"assetReport", {
@@ -125,6 +128,21 @@ TEST_CASE("DiagnosticsWorkspace - Refresh updates compat and save tabs", "[edito
                 {"path", "content/input/input_bindings.json"},
                 {"exists", true},
                 {"issueCount", 2}
+            }},
+            {"accessibilityArtifacts", {
+                {"path", "content/schemas/accessibility_report.schema.json"},
+                {"available", true},
+                {"issueCount", 1}
+            }},
+            {"audioArtifacts", {
+                {"path", "content/schemas/audio_mix_presets.schema.json"},
+                {"available", true},
+                {"issueCount", 2}
+            }},
+            {"performanceArtifacts", {
+                {"path", "docs/presentation/performance_budgets.md"},
+                {"available", true},
+                {"issueCount", 3}
             }}
         }},
         {"issues", {
@@ -420,12 +438,24 @@ TEST_CASE("DiagnosticsWorkspace - Refresh updates compat and save tabs", "[edito
     REQUIRE(workspace.projectAuditPanel().lastRenderSnapshot().asset_governance_issue_count == 2);
     REQUIRE(workspace.projectAuditPanel().lastRenderSnapshot().schema_governance_issue_count == 1);
     REQUIRE(workspace.projectAuditPanel().lastRenderSnapshot().project_artifact_issue_count == 3);
+    REQUIRE(workspace.projectAuditPanel().lastRenderSnapshot().accessibility_artifact_issue_count == 1);
+    REQUIRE(workspace.projectAuditPanel().lastRenderSnapshot().audio_artifact_issue_count == 2);
+    REQUIRE(workspace.projectAuditPanel().lastRenderSnapshot().performance_artifact_issue_count == 3);
     REQUIRE(workspace.projectAuditPanel().lastRenderSnapshot().asset_report.has_value());
     REQUIRE(workspace.projectAuditPanel().lastRenderSnapshot().schema_governance.has_value());
     REQUIRE(workspace.projectAuditPanel().lastRenderSnapshot().project_schema_governance.has_value());
     REQUIRE(workspace.projectAuditPanel().lastRenderSnapshot().input_artifacts.has_value());
     REQUIRE(workspace.projectAuditPanel().lastRenderSnapshot().input_artifacts->path ==
             "content/input/input_bindings.json");
+    REQUIRE(workspace.projectAuditPanel().lastRenderSnapshot().accessibility_artifacts.has_value());
+    REQUIRE(workspace.projectAuditPanel().lastRenderSnapshot().accessibility_artifacts->path ==
+            "content/schemas/accessibility_report.schema.json");
+    REQUIRE(workspace.projectAuditPanel().lastRenderSnapshot().audio_artifacts.has_value());
+    REQUIRE(workspace.projectAuditPanel().lastRenderSnapshot().audio_artifacts->path ==
+            "content/schemas/audio_mix_presets.schema.json");
+    REQUIRE(workspace.projectAuditPanel().lastRenderSnapshot().performance_artifacts.has_value());
+    REQUIRE(workspace.projectAuditPanel().lastRenderSnapshot().performance_artifacts->path ==
+            "docs/presentation/performance_budgets.md");
     REQUIRE(workspace.projectAuditPanel().lastRenderSnapshot().issues.size() == 2);
     const auto auditJson = nlohmann::json::parse(facade.emitSnapshot());
     REQUIRE(auditJson["active_tab"] == "project_audit");
@@ -440,6 +470,9 @@ TEST_CASE("DiagnosticsWorkspace - Refresh updates compat and save tabs", "[edito
     REQUIRE(auditJson["active_tab_detail"]["asset_governance_issue_count"] == 2);
     REQUIRE(auditJson["active_tab_detail"]["schema_governance_issue_count"] == 1);
     REQUIRE(auditJson["active_tab_detail"]["project_artifact_issue_count"] == 3);
+    REQUIRE(auditJson["active_tab_detail"]["accessibility_artifact_issue_count"] == 1);
+    REQUIRE(auditJson["active_tab_detail"]["audio_artifact_issue_count"] == 2);
+    REQUIRE(auditJson["active_tab_detail"]["performance_artifact_issue_count"] == 3);
     REQUIRE(auditJson["active_tab_detail"]["governance"]["asset_report"]["path"] == "imports/reports/asset_audit.json");
     REQUIRE(auditJson["active_tab_detail"]["governance"]["asset_report"]["available"] == true);
     REQUIRE(auditJson["active_tab_detail"]["governance"]["asset_report"]["usable"] == false);
@@ -457,6 +490,18 @@ TEST_CASE("DiagnosticsWorkspace - Refresh updates compat and save tabs", "[edito
             "content/input/input_bindings.json");
     REQUIRE(auditJson["active_tab_detail"]["governance"]["input_artifacts"]["available"] == true);
     REQUIRE(auditJson["active_tab_detail"]["governance"]["input_artifacts"]["issue_count"] == 2);
+    REQUIRE(auditJson["active_tab_detail"]["governance"]["accessibility_artifacts"]["path"] ==
+            "content/schemas/accessibility_report.schema.json");
+    REQUIRE(auditJson["active_tab_detail"]["governance"]["accessibility_artifacts"]["available"] == true);
+    REQUIRE(auditJson["active_tab_detail"]["governance"]["accessibility_artifacts"]["issue_count"] == 1);
+    REQUIRE(auditJson["active_tab_detail"]["governance"]["audio_artifacts"]["path"] ==
+            "content/schemas/audio_mix_presets.schema.json");
+    REQUIRE(auditJson["active_tab_detail"]["governance"]["audio_artifacts"]["available"] == true);
+    REQUIRE(auditJson["active_tab_detail"]["governance"]["audio_artifacts"]["issue_count"] == 2);
+    REQUIRE(auditJson["active_tab_detail"]["governance"]["performance_artifacts"]["path"] ==
+            "docs/presentation/performance_budgets.md");
+    REQUIRE(auditJson["active_tab_detail"]["governance"]["performance_artifacts"]["available"] == true);
+    REQUIRE(auditJson["active_tab_detail"]["governance"]["performance_artifacts"]["issue_count"] == 3);
     REQUIRE(auditJson["active_tab_detail"]["issues"].is_array());
     REQUIRE(auditJson["active_tab_detail"]["issues"].size() == 2);
     REQUIRE(auditJson["active_tab_detail"]["issues"][0]["code"] == "missing_localization_key");

@@ -68,9 +68,15 @@ public:
         std::optional<ProjectAuditArtifactGovernanceSnapshot> localization_artifacts;
         std::optional<ProjectAuditArtifactGovernanceSnapshot> input_artifacts;
         std::optional<ProjectAuditArtifactGovernanceSnapshot> export_artifacts;
+        std::optional<ProjectAuditArtifactGovernanceSnapshot> accessibility_artifacts;
+        std::optional<ProjectAuditArtifactGovernanceSnapshot> audio_artifacts;
+        std::optional<ProjectAuditArtifactGovernanceSnapshot> performance_artifacts;
         std::optional<size_t> asset_governance_issue_count;
         std::optional<size_t> schema_governance_issue_count;
         std::optional<size_t> project_artifact_issue_count;
+        std::optional<size_t> accessibility_artifact_issue_count;
+        std::optional<size_t> audio_artifact_issue_count;
+        std::optional<size_t> performance_artifact_issue_count;
         std::vector<ProjectAuditIssue> issues;
     };
 

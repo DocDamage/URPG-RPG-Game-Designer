@@ -75,6 +75,7 @@ Evidence anchors:
   - the active fixture corpus already covers 10 curated plugin/import profiles through `fixtureSpecs()` plus all-profile orchestration and reload-survival scenarios in `test_compat_plugin_fixtures.cpp`
   - the same corpus is exercised in the compat weekly lane and missing-command/failure diagnostics coverage
 - Update this checklist whenever a compat surface changes status, link location, or exit evidence.
+- Compat bridge exit signoff evidence now also lives in [COMPAT_BRIDGE_EXIT_SIGNOFF.md](./COMPAT_BRIDGE_EXIT_SIGNOFF.md); the checkboxes below remain human-owned and must not be auto-checked by governance automation.
 
 ## Signed Off By
 
@@ -86,5 +87,6 @@ Evidence anchors:
 
 - [PROGRAM_COMPLETION_STATUS.md](./PROGRAM_COMPLETION_STATUS.md)
 - [TECHNICAL_DEBT_REMEDIATION_PLAN.md](./TECHNICAL_DEBT_REMEDIATION_PLAN.md)
+- [COMPAT_BRIDGE_EXIT_SIGNOFF.md](./COMPAT_BRIDGE_EXIT_SIGNOFF.md)
 - [DEVELOPMENT_KICKOFF.md](./DEVELOPMENT_KICKOFF.md)
 - [WORKLOG.md](../WORKLOG.md)

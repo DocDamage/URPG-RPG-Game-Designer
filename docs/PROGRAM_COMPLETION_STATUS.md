@@ -78,7 +78,7 @@ Phase 3 diagnostics productization is complete as of 2026-04-19, Phase 4 governa
   - template readiness matrix and template-claim guardrails are still not landed as full template signoff governance; the repo currently has a first-slice canonical matrix and conservative claim checks
   - subsystem-wide release-readiness and template-readiness governance now have canonical docs plus a machine-readable readiness record, but they are still a first-slice governance baseline rather than a complete product-readiness proof
   - template-claim guardrails, subsystem badge checks, and truth-alignment checks now exist, but they currently enforce conservative documentation discipline rather than a full release-signoff workflow
-  - the project audit command and diagnostics tab now exist as a conservative readiness-derived scanner/scaffold, and the reported blockers can now reflect asset-intake, schema/changelog, project-schema, and missing canonical input/localization/export artifact governance only where those concerns are represented by the current readiness records or roadmap-defined canonical paths; the audit engine is not yet a full project scanner
+  - the project audit command and diagnostics tab now exist as a conservative readiness-derived scanner/scaffold, and the reported blockers can now reflect asset-intake, schema/changelog, project-schema, missing canonical input/localization/export artifact governance, and first-slice accessibility/audio/performance artifact governance where those concerns are represented by the current readiness records or roadmap-defined canonical paths; the audit engine is not yet a full project scanner
   - schema versioning/changelog governance and focused CI/doc enforcement now exist; a first-slice breaking-change detection script (`tools/ci/check_breaking_changes.ps1`) is now landed and validates schema `$id`/`title` presence, changelog freshness, and schema/changelog alignment
   - cross-cutting minimum bars for accessibility, localization completeness, input remapping, audio governance, and performance budgets are now canonical governance bars first, and first-slice implementations are landed for input remapping (`InputRemapStore`), localization completeness (`LocaleCatalog` + `CompletenessChecker`), and performance budget profiling (`PerfProfiler` + diagnostics panel)
 - The 2026-04-20 validation snapshot should not be read as full product readiness:
@@ -194,6 +194,34 @@ Phase 3 diagnostics productization is complete as of 2026-04-19, Phase 4 governa
   - Common compat payload fields (`gold`, `mapId`, player position/direction, party, switches, variables) now map into native runtime-owned save state, while unsupported plugin blobs and unmapped payload fields are retained explicitly under `_compat_payload_retained`.
   - Focused save migration diagnostics now cover lossy field mapping, missing actor references, invalid-but-recoverable payload fields, and unsupported plugin-owned payload blobs.
   - Runtime validation now includes a real `.rpgsave` read/import/write/load round-trip proving imported RPG Maker save data can flow through the normal native runtime load path without structural corruption.
+- Sprint 02 execution slice (2026-04-21): ProjectAudit cross-cutting governance artifact checks
+  - `urpg_project_audit` now emits explicit `accessibilityArtifacts`, `audioArtifacts`, and `performanceArtifacts` governance sections plus matching top-level issue counts in addition to the earlier localization/input/export sections.
+  - `ProjectAuditPanel::RenderSnapshot` now captures those new governance sections and counts so diagnostics consumers can render the richer project-audit contract without inferring it from prose.
+  - Focused CLI and panel tests now assert the expanded audit JSON shape and summary strings for accessibility/audio/performance governance evidence.
+- Sprint 02 execution slice (2026-04-21): ProjectAudit diagnostics/export parity
+  - `DiagnosticsWorkspace::exportAsJson()` now carries the richer project-audit governance contract through active-tab export, including top-level accessibility/audio/performance artifact issue counts and the corresponding governance sections beside the earlier localization/input/export data.
+  - The workspace integration regression now binds a report containing all seven governance sections and verifies both the rendered panel snapshot and the exported diagnostics JSON stay in parity for those fields.
+  - Focused verification passed via `.\build\dev-ninja-debug\urpg_tests.exe "[project_audit],[editor][diagnostics][integration][project_audit]" --reporter compact` plus the CLI audit lane.
+- Sprint 02 execution slice (2026-04-21): Governance-depth readiness enforcement
+  - `check_release_readiness.ps1` now validates the emitted `urpg_project_audit` JSON contract directly, including the richer `accessibilityArtifacts`, `audioArtifacts`, and `performanceArtifacts` governance sections plus their top-level issue counts, instead of only checking doc/date/matrix drift.
+  - `truth_reconciler.ps1` now includes `docs/PROJECT_AUDIT.md` in the status-date alignment chain and verifies the project-audit doc still describes the shipped richer governance contract.
+  - `docs/PROJECT_AUDIT.md`, `docs/RELEASE_READINESS_MATRIX.md`, and `docs/TRUTH_ALIGNMENT_RULES.md` were reconciled so the governance-foundation wording matches the now-enforced audit depth.
+- Sprint 02 closeout snapshot (2026-04-21)
+  - `ctest --test-dir build/dev-ninja-debug -L pr --output-on-failure` => 835/835 passed
+  - `powershell -ExecutionPolicy Bypass -File tools/ci/check_release_readiness.ps1` => passed
+  - `powershell -ExecutionPolicy Bypass -File tools/ci/truth_reconciler.ps1` => passed
+- Sprint 03 execution slice (2026-04-21): Compat bridge exit signoff artifact
+  - Added `docs/COMPAT_BRIDGE_EXIT_SIGNOFF.md` so `compat_bridge_exit` now has the same explicit evidence-gathering signoff pattern already used by `battle_core` and `save_data_core`.
+  - `check_release_readiness.ps1` now requires signoff artifacts for human-review-gated subsystems (`battle_core`, `save_data_core`, `compat_bridge_exit`) instead of relying only on matrix prose.
+  - `truth_reconciler.ps1`, `RELEASE_READINESS_MATRIX.md`, `COMPAT_EXIT_CHECKLIST.md`, and `readiness_status.json` were reconciled so compat signoff language and residual gaps stay aligned with that governed artifact.
+- Sprint 03 execution slice (2026-04-21): Generalized signoff-governance enforcement
+  - `check_release_readiness.ps1` now verifies that every currently signoff-governed subsystem row carries signoff/human-review wording in both `readiness_status.json` and the release matrix row text, instead of only checking for artifact existence.
+  - `truth_reconciler.ps1` now validates the conservative content pattern for all current signoff artifacts (`battle_core`, `save_data_core`, `compat_bridge_exit`) rather than only the compat signoff doc.
+  - `SUBSYSTEM_STATUS_RULES.md` and `TRUTH_ALIGNMENT_RULES.md` now state the canonical rule directly: human-review-gated readiness language requires an explicit non-promoting signoff artifact.
+- Sprint 03 closeout snapshot (2026-04-21)
+  - `ctest --test-dir build/dev-ninja-debug -L pr --output-on-failure` => 835/835 passed
+  - `powershell -ExecutionPolicy Bypass -File tools/ci/check_release_readiness.ps1` => passed
+  - `powershell -ExecutionPolicy Bypass -File tools/ci/truth_reconciler.ps1` => passed
 - Latest recorded local validation snapshot:
   - recorded under the `dev-ninja-debug` preset: `ctest --preset dev-all --output-on-failure` => 869/869 passed (includes all previous lanes plus Wave 1 closure integration, presentation bridge, incubating test conversion, cmake-completeness-governance, save-policy-governance, battle-migration-residual-gaps, achievement-trigger-integration, character-identity-ecs, and save-binary-format-loader lanes)
 - Latest focused Phase 5 hardening validation snapshot:
