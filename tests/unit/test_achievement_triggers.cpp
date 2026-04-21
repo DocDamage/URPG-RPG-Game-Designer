@@ -166,6 +166,37 @@ TEST_CASE("AchievementTriggerResolver handles parameterized item collect event",
     REQUIRE(registry.getProgress("ach_collect_potion")->unlocked);
 }
 
+TEST_CASE("AchievementTriggerResolver does not unlock parameterized target early", "[achievement][trigger]") {
+    AchievementRegistry registry;
+    AchievementEventBus bus;
+    AchievementTriggerResolver resolver;
+
+    AchievementDef def;
+    def.id = "ach_collect_potion";
+    def.title = "Potion Hoarder";
+    def.unlockCondition = "item_collect:item_id=1:count=3";
+    def.iconId = "icon_potion";
+    registry.registerAchievement(def);
+
+    resolver.bindRegistry(&registry);
+    resolver.bindEventBus(&bus);
+
+    std::unordered_map<std::string, std::string> params;
+    params["item_id"] = "1";
+
+    bus.emit(AchievementEvent{"item_collect", params, 1});
+    auto progress = registry.getProgress("ach_collect_potion");
+    REQUIRE(progress.has_value());
+    REQUIRE(progress->target == 3);
+    REQUIRE(progress->current == 1);
+    REQUIRE_FALSE(progress->unlocked);
+
+    bus.emit(AchievementEvent{"item_collect", params, 2});
+    progress = registry.getProgress("ach_collect_potion");
+    REQUIRE(progress->current == 3);
+    REQUIRE(progress->unlocked);
+}
+
 TEST_CASE("AchievementTriggerResolver handles multiple achievements", "[achievement][trigger]") {
     AchievementRegistry registry;
     AchievementEventBus bus;
@@ -219,6 +250,55 @@ TEST_CASE("AchievementTriggerResolver refreshAll fills short progress for unlock
     // refreshAll should not change anything since not unlocked
     resolver.refreshAll();
     REQUIRE(registry.getProgress("ach_test")->current == 2);
+}
+
+TEST_CASE("AchievementTriggerResolver rebinding same bus does not double count events", "[achievement][trigger]") {
+    AchievementRegistry registry;
+    AchievementEventBus bus;
+    AchievementTriggerResolver resolver;
+
+    AchievementDef def;
+    def.id = "ach_step_2";
+    def.title = "Walker";
+    def.unlockCondition = "step_count_2";
+    def.iconId = "icon_boot";
+    registry.registerAchievement(def);
+
+    resolver.bindRegistry(&registry);
+    resolver.bindEventBus(&bus);
+    resolver.bindEventBus(&bus);
+
+    bus.emit(AchievementEvent{"step_count", {}, 1});
+
+    auto progress = registry.getProgress("ach_step_2");
+    REQUIRE(progress.has_value());
+    REQUIRE(progress->current == 1);
+    REQUIRE_FALSE(progress->unlocked);
+}
+
+TEST_CASE("AchievementTriggerResolver ignores events after resolver destruction", "[achievement][trigger]") {
+    AchievementRegistry registry;
+    AchievementEventBus bus;
+
+    AchievementDef def;
+    def.id = "ach_kill_1";
+    def.title = "First Blood";
+    def.unlockCondition = "kill_count_1";
+    def.iconId = "icon_sword";
+    registry.registerAchievement(def);
+
+    {
+        AchievementTriggerResolver resolver;
+        resolver.bindRegistry(&registry);
+        resolver.bindEventBus(&bus);
+    }
+
+    bus.emit(AchievementEvent{"kill_count", {}, 1});
+
+    auto progress = registry.getProgress("ach_kill_1");
+    REQUIRE(progress.has_value());
+    REQUIRE(progress->current == 0);
+    REQUIRE_FALSE(progress->unlocked);
 }
 
 TEST_CASE("AchievementDef explicit target overrides parsed target", "[achievement][trigger]") {

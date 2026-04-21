@@ -2,6 +2,7 @@
 
 #include <cstdint>
 #include <functional>
+#include <memory>
 #include <optional>
 #include <string>
 #include <unordered_map>
@@ -66,6 +67,13 @@ private:
  */
 class AchievementTriggerResolver {
 public:
+    AchievementTriggerResolver() = default;
+    AchievementTriggerResolver(const AchievementTriggerResolver&) = delete;
+    AchievementTriggerResolver& operator=(const AchievementTriggerResolver&) = delete;
+    AchievementTriggerResolver(AchievementTriggerResolver&&) = delete;
+    AchievementTriggerResolver& operator=(AchievementTriggerResolver&&) = delete;
+    ~AchievementTriggerResolver();
+
     void bindRegistry(class AchievementRegistry* registry);
     void bindEventBus(AchievementEventBus* bus);
 
@@ -77,6 +85,8 @@ private:
 
     AchievementRegistry* registry_ = nullptr;
     AchievementEventBus* bus_ = nullptr;
+    std::shared_ptr<bool> alive_ = std::make_shared<bool>(true);
+    std::shared_ptr<uint64_t> bindingGeneration_ = std::make_shared<uint64_t>(0);
 };
 
 } // namespace urpg::achievement

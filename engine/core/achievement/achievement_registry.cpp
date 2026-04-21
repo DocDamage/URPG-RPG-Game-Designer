@@ -1,21 +1,10 @@
 #include "engine/core/achievement/achievement_registry.h"
+#include "engine/core/achievement/achievement_trigger.h"
 
 #include <algorithm>
 #include <cstdlib>
 
 namespace urpg::achievement {
-
-static std::optional<uint32_t> parseTargetFromCondition(const std::string& condition) {
-    auto pos = condition.rfind('_');
-    if (pos == std::string::npos || pos + 1 >= condition.size()) {
-        return std::nullopt;
-    }
-    try {
-        return static_cast<uint32_t>(std::stoul(condition.substr(pos + 1)));
-    } catch (...) {
-        return std::nullopt;
-    }
-}
 
 void AchievementRegistry::registerAchievement(const AchievementDef& def) {
     m_definitions[def.id] = def;
@@ -23,8 +12,8 @@ void AchievementRegistry::registerAchievement(const AchievementDef& def) {
         AchievementProgress progress;
         if (def.target > 0) {
             progress.target = def.target;
-        } else if (auto target = parseTargetFromCondition(def.unlockCondition)) {
-            progress.target = *target;
+        } else {
+            progress.target = AchievementTrigger::parse(def.unlockCondition).target;
         }
         m_progress[def.id] = progress;
     }

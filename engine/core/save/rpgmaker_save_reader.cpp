@@ -81,18 +81,18 @@ RPGMakerSaveReadResult RPGMakerSaveFileReader::readFile(const std::string& fileP
         return result;
     }
 
-    // Detect format
-    result.format = detectFormat(rawBytes);
-    if (result.format == RPGMakerSaveFormat::Unknown) {
-        result.errors.push_back("Unable to detect RPG Maker save format from file contents.");
-        return result;
-    }
-
     // Apply XOR decryption if key provided
     std::vector<uint8_t> decryptedBytes = rawBytes;
     if (!encryptionKey.empty()) {
         decryptedBytes = decryptXOR(rawBytes, encryptionKey);
         result.warnings.push_back("XOR decryption applied with provided key.");
+    }
+
+    // Detect format after decryption so encrypted Base64 payloads can be recognized.
+    result.format = detectFormat(decryptedBytes);
+    if (result.format == RPGMakerSaveFormat::Unknown) {
+        result.errors.push_back("Unable to detect RPG Maker save format from file contents.");
+        return result;
     }
 
     // Convert bytes to string for LZString decompression

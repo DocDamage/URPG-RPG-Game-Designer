@@ -117,3 +117,25 @@ TEST_CASE("RPGMakerSaveFileReader reads larger JSON payload", "[save][rpgmaker]"
 
     std::filesystem::remove_all(tempDir);
 }
+
+TEST_CASE("RPGMakerSaveFileReader reads XOR encrypted save file with key", "[save][rpgmaker]") {
+    const auto tempDir = std::filesystem::temp_directory_path() / "urpg_save_test_encrypted";
+    std::filesystem::create_directories(tempDir);
+    auto filePath = tempDir / "file1.rpgsave";
+
+    const std::string key = "secret";
+    const std::string compressed = "N4IgdghgtgpiBcIAuMDOSQBoQBsYDcYcEBWAXyA=";
+    std::vector<uint8_t> encryptedBytes(compressed.begin(), compressed.end());
+    encryptedBytes = RPGMakerSaveFileReader::decryptXOR(encryptedBytes, key);
+    WriteFile(filePath, std::string(encryptedBytes.begin(), encryptedBytes.end()));
+
+    auto result = RPGMakerSaveFileReader::readFile(filePath.string(), key);
+
+    REQUIRE(result.success == true);
+    REQUIRE(result.format == RPGMakerSaveFormat::RPGMakerMV);
+    REQUIRE(result.data.is_object());
+    REQUIRE(result.data["name"] == "test");
+    REQUIRE(result.data["level"] == 5);
+
+    std::filesystem::remove_all(tempDir);
+}

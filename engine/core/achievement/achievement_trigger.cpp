@@ -95,17 +95,31 @@ void AchievementEventBus::emit(const AchievementEvent& event) {
 
 // --- AchievementTriggerResolver ---
 
+AchievementTriggerResolver::~AchievementTriggerResolver() {
+    *alive_ = false;
+    *bindingGeneration_ += 1;
+}
+
 void AchievementTriggerResolver::bindRegistry(AchievementRegistry* registry) {
     registry_ = registry;
 }
 
 void AchievementTriggerResolver::bindEventBus(AchievementEventBus* bus) {
-    if (bus_) {
-        // No unsubscription needed; listeners_ is append-only in this simple bus.
-        // Rebinding is supported by just updating the pointer.
-    }
+    *bindingGeneration_ += 1;
     bus_ = bus;
-    bus_->addListener([this](const AchievementEvent& event) { onEvent(event); });
+    if (!bus_) {
+        return;
+    }
+
+    const auto activeGeneration = *bindingGeneration_;
+    const auto alive = alive_;
+    const auto generation = bindingGeneration_;
+    bus_->addListener([this, alive, generation, activeGeneration](const AchievementEvent& event) {
+        if (!*alive || *generation != activeGeneration) {
+            return;
+        }
+        onEvent(event);
+    });
 }
 
 void AchievementTriggerResolver::refreshAll() {
