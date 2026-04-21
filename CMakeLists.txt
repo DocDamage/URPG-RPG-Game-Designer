@@ -456,6 +456,7 @@ add_executable(urpg_tests
     tests/unit/test_camera_shake_system.cpp
     tests/unit/test_character_identity.cpp
     tests/unit/test_character_identity_ecs.cpp
+    tests/unit/test_character_creator_model.cpp
     tests/unit/test_character_creator_panel.cpp
     tests/unit/test_animation_system.cpp
     tests/unit/test_system_orchestrator.cpp

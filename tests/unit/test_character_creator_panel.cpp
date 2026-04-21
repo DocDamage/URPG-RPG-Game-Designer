@@ -32,6 +32,9 @@ TEST_CASE("CharacterCreatorPanel snapshot reflects identity after model load", "
     REQUIRE(snapshot["identity_summary"]["name"] == "Marcus");
     REQUIRE(snapshot["identity_summary"]["class_id"] == "class_paladin");
     REQUIRE(snapshot["appearance_token_count"] == 2);
+    REQUIRE(snapshot.contains("preview_card"));
+    REQUIRE(snapshot.contains("validation_summary"));
+    REQUIRE(snapshot.contains("workflow_actions"));
 }
 
 TEST_CASE("CharacterCreatorPanel dirty flag transitions correctly", "[character][editor][panel]") {
@@ -59,4 +62,22 @@ TEST_CASE("CharacterCreatorPanel dirty flag transitions correctly", "[character]
     model.loadIdentity(identity);
     panel.render();
     REQUIRE(panel.lastRenderSnapshot()["is_dirty"] == false);
+}
+
+TEST_CASE("CharacterCreatorPanel exposes workflow readiness details", "[character][editor][panel]") {
+    CharacterCreatorModel model;
+    model.setName("Kara");
+    model.applyClassPreset("class_warrior");
+    model.setBodySpriteId("sprite_warrior_body");
+    model.setPortraitId("portrait_warrior_01");
+    model.addAppearanceToken("armor_steel");
+
+    CharacterCreatorPanel panel;
+    panel.bindModel(&model);
+    panel.render();
+
+    const auto& snapshot = panel.lastRenderSnapshot();
+    REQUIRE(snapshot["validation_summary"]["is_valid"] == true);
+    REQUIRE(snapshot["workflow_actions"]["can_spawn"] == true);
+    REQUIRE(snapshot["preview_card"]["primary_attribute"] == "STR");
 }

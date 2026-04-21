@@ -23,6 +23,9 @@ void CharacterCreatorPanel::render() {
         {"body_sprite_id", identity.getBodySpriteId()}
     };
     m_snapshot["appearance_token_count"] = identity.getAppearanceTokens().size();
+    m_snapshot["preview_card"] = m_snapshot["preview"];
+    m_snapshot["validation_summary"] = m_snapshot["validation"];
+    m_snapshot["workflow_actions"] = m_snapshot["workflow"];
 }
 
 } // namespace urpg::editor
