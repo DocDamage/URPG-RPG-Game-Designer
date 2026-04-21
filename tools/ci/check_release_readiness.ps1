@@ -53,4 +53,35 @@ foreach ($entry in $readiness.templates) {
     }
 }
 
+# Verify all READY subsystems have fully true evidence
+foreach ($entry in $readiness.subsystems) {
+    if ($entry.status -eq "READY") {
+        $evidenceFields = @("runtimeOwner", "editorSurface", "schemaMigration", "diagnostics", "testsValidation", "docsAligned")
+        foreach ($field in $evidenceFields) {
+            if ($entry.evidence.$field -ne $true) {
+                throw "Subsystem '$($entry.id)' is marked READY but evidence field '$field' is not true."
+            }
+        }
+    }
+}
+
+# Build lookup of known subsystem IDs
+$knownSubsystemIds = @{}
+foreach ($entry in $readiness.subsystems) {
+    $knownSubsystemIds[$entry.id] = $true
+}
+
+# Verify READY and PARTIAL templates reference only known subsystems
+foreach ($entry in $readiness.templates) {
+    if ($entry.status -eq "READY" -or $entry.status -eq "PARTIAL") {
+        foreach ($requiredId in $entry.requiredSubsystems) {
+            if (-not $knownSubsystemIds.ContainsKey($requiredId)) {
+                throw "Template '$($entry.id)' requires unknown subsystem '$requiredId'."
+            }
+        }
+    }
+}
+
 Write-Host "Release readiness records and matrices are present and minimally aligned."
+Write-Host "All READY subsystem evidence fields are true."
+Write-Host "All READY/PARTIAL template required subsystems are known."

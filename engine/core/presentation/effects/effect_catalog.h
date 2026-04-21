@@ -22,6 +22,10 @@ public:
     static const EffectPreset& castSmall();
     static const EffectPreset& impactHeavy();
     static const EffectPreset& critBurst();
+    static const EffectPreset& healGlow();
+    static const EffectPreset& missSweep();
+    static const EffectPreset& defeatFade();
+    static const EffectPreset& phaseBanner();
 };
 
 } // namespace urpg::presentation::effects

@@ -87,7 +87,34 @@ std::vector<ResolvedEffectInstance> EffectResolver::resolve(const EffectCue& cue
                                                             const urpg::presentation::BattleSceneState* battleState) const {
     std::vector<ResolvedEffectInstance> resolved;
 
-    const bool critical = isCriticalCue(cue);
+    switch (cue.kind) {
+    case EffectCueKind::HealPulse:
+        resolved.push_back(makeInstance(cue, EffectCatalog::healGlow(), battleState, EffectPlacement::World, -1.0f));
+        return resolved;
+    case EffectCueKind::MissSweep:
+        resolved.push_back(makeInstance(cue, EffectCatalog::missSweep(), battleState, EffectPlacement::World, -1.0f));
+        return resolved;
+    case EffectCueKind::DefeatFade:
+        resolved.push_back(makeInstance(cue, EffectCatalog::defeatFade(), battleState, std::nullopt, -1.0f));
+        return resolved;
+    case EffectCueKind::PhaseBanner:
+        resolved.push_back(makeInstance(cue, EffectCatalog::phaseBanner(), battleState, std::nullopt, -1.0f));
+        return resolved;
+    case EffectCueKind::CastStart:
+        resolved.push_back(makeInstance(cue, EffectCatalog::castSmall(), battleState, EffectPlacement::World, -1.0f));
+        return resolved;
+    case EffectCueKind::GuardClash:
+        resolved.push_back(makeInstance(cue, EffectCatalog::impactHeavy(), battleState, EffectPlacement::World, -1.0f));
+        return resolved;
+    case EffectCueKind::CriticalHit:
+    case EffectCueKind::HitConfirm:
+    case EffectCueKind::Gameplay:
+    case EffectCueKind::Status:
+    case EffectCueKind::System:
+        break;
+    }
+
+    const bool critical = (cue.kind == EffectCueKind::CriticalHit) || isCriticalCue(cue);
     const bool heavy = isHeavyCue(cue);
     const bool lowTier = tier == urpg::presentation::CapabilityTier::Tier0_Baseline;
 

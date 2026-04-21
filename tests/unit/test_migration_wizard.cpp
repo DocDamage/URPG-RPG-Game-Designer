@@ -159,7 +159,10 @@ TEST_CASE("MigrationWizardModel: battle migration warnings propagate from unsupp
                 {"pages", {
                     {
                         {"conditions", {{"turnEnding", true}}},
-                        {"list", {{{"code", 101}}}}
+                        {"list", {
+                            {{"code", 101}, {"parameters", {"Hello!"}}},
+                            {{"code", 999}, {"parameters", {}}}
+                        }}
                     }
                 }}
             }

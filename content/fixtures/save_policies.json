@@ -1,0 +1,33 @@
+{
+  "_urpg_format_version": "1.0.0",
+  "metadata_fields": [
+    {
+      "key": "chapter",
+      "display_label": "Current Chapter",
+      "required": true,
+      "default_value": "Prologue"
+    },
+    {
+      "key": "difficulty",
+      "display_label": "Difficulty",
+      "required": false,
+      "default_value": "Normal"
+    },
+    {
+      "key": "play_time",
+      "display_label": "Play Time",
+      "required": false,
+      "default_value": "00:00:00"
+    }
+  ],
+  "retention": {
+    "max_autosave_slots": 3,
+    "max_quicksave_slots": 5,
+    "max_manual_slots": 50,
+    "prune_excess_on_save": true
+  },
+  "autosave": {
+    "enabled": true,
+    "slot_id": 0
+  }
+}

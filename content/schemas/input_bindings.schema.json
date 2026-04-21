@@ -1,0 +1,43 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "InputBindings",
+  "description": "Schema for URPG input binding configuration emitted by InputRemapStore::saveToJson().",
+  "type": "object",
+  "required": ["version", "bindings"],
+  "properties": {
+    "version": {
+      "type": "string",
+      "description": "Schema version. Currently '1.0.0'.",
+      "const": "1.0.0"
+    },
+    "bindings": {
+      "type": "array",
+      "description": "List of key-code to action mappings.",
+      "items": {
+        "type": "object",
+        "required": ["keyCode", "action"],
+        "properties": {
+          "keyCode": {
+            "type": "integer",
+            "description": "Raw key code from the windowing system."
+          },
+          "action": {
+            "type": "string",
+            "description": "Name of the InputAction enum value.",
+            "enum": [
+              "None",
+              "MoveUp",
+              "MoveDown",
+              "MoveLeft",
+              "MoveRight",
+              "Confirm",
+              "Cancel",
+              "Menu",
+              "Debug"
+            ]
+          }
+        }
+      }
+    }
+  }
+}

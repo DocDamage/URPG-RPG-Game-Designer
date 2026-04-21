@@ -33,9 +33,9 @@
     {
       "id": "battle_core",
       "status": "PARTIAL",
-      "summary": "Battle has real native ownership and diagnostics, but Wave 1 closure is not complete.",
+      "summary": "Battle has real native ownership and diagnostics. Wave 1 closure signoff exists; promotion to READY requires human review of residual gaps.",
       "mainGaps": [
-        "Wave 1 closure not complete"
+        "Wave 1 closure signoff exists; promotion to READY requires human review of residual gaps"
       ],
       "evidence": {
         "runtimeOwner": true,
@@ -49,9 +49,9 @@
     {
       "id": "save_data_core",
       "status": "PARTIAL",
-      "summary": "Save/data runtime and diagnostics are real, but closure remains open.",
+      "summary": "Save/data runtime, diagnostics, and RPG Maker MV/MZ binary save format loader are landed. Wave 1 closure signoff exists; promotion to READY requires human review of residual gaps.",
       "mainGaps": [
-        "Compat import and migration closure remains open"
+        "Wave 1 closure signoff exists; promotion to READY requires human review of residual gaps"
       ],
       "evidence": {
         "runtimeOwner": true,
@@ -80,17 +80,145 @@
     },
     {
       "id": "governance_foundation",
-      "status": "PLANNED",
-      "summary": "Canonical governance-foundation lane is defined but not yet landed.",
+      "status": "PARTIAL",
+      "summary": "Governance foundation has first-slice artifacts landed: breaking-change detection, enhanced readiness checks, and template specs.",
       "mainGaps": [
-        "Readiness matrices and checks are still being introduced"
+        "Full release-signoff enforcement and cross-doc drift detection remain future work"
       ],
       "evidence": {
         "runtimeOwner": false,
         "editorSurface": false,
         "schemaMigration": true,
         "diagnostics": false,
-        "testsValidation": false,
+        "testsValidation": true,
+        "docsAligned": true
+      }
+    },
+    {
+      "id": "character_identity",
+      "status": "PARTIAL",
+      "summary": "Character identity runtime, editor creator panel, ECS component/system integration, and deterministic spawner are landed with schema and focused tests.",
+      "mainGaps": [
+        "Full Create-a-Character workflow (runtime character creation UI, appearance preview pipeline) remain future work"
+      ],
+      "evidence": {
+        "runtimeOwner": true,
+        "editorSurface": true,
+        "schemaMigration": true,
+        "diagnostics": false,
+        "testsValidation": true,
+        "docsAligned": true
+      }
+    },
+    {
+      "id": "achievement_registry",
+      "status": "PARTIAL",
+      "summary": "Achievement registry with progress tracking, unlock conditions, trigger parsing, event-bus auto-unlock, and editor panel are landed.",
+      "mainGaps": [
+        "Full trophy export pipeline and platform-specific achievement backend integration remain future work"
+      ],
+      "evidence": {
+        "runtimeOwner": true,
+        "editorSurface": true,
+        "schemaMigration": true,
+        "diagnostics": false,
+        "testsValidation": true,
+        "docsAligned": true
+      }
+    },
+    {
+      "id": "accessibility_auditor",
+      "status": "PARTIAL",
+      "summary": "Accessibility auditor with missing-label, focus-order, contrast, and navigation rules is landed.",
+      "mainGaps": [
+        "Full UI ingestion pipeline from live editor surfaces and automated CI enforcement remain future work"
+      ],
+      "evidence": {
+        "runtimeOwner": true,
+        "editorSurface": true,
+        "schemaMigration": true,
+        "diagnostics": false,
+        "testsValidation": true,
+        "docsAligned": true
+      }
+    },
+    {
+      "id": "visual_regression_harness",
+      "status": "PARTIAL",
+      "summary": "Visual regression harness with golden file management, diff heatmaps, and approval tooling is landed.",
+      "mainGaps": [
+        "Integration with real render output capture and CI golden gate remain future work"
+      ],
+      "evidence": {
+        "runtimeOwner": true,
+        "editorSurface": false,
+        "schemaMigration": false,
+        "diagnostics": false,
+        "testsValidation": true,
+        "docsAligned": true
+      }
+    },
+    {
+      "id": "audio_mix_presets",
+      "status": "PARTIAL",
+      "summary": "Audio mix preset bank with default profiles, category volume mapping, ducking rules, and editor panel is landed.",
+      "mainGaps": [
+        "Live audio backend integration beyond the current compat-truth harness remains future work"
+      ],
+      "evidence": {
+        "runtimeOwner": true,
+        "editorSurface": true,
+        "schemaMigration": true,
+        "diagnostics": false,
+        "testsValidation": true,
+        "docsAligned": true
+      }
+    },
+    {
+      "id": "export_validator",
+      "status": "PARTIAL",
+      "summary": "Platform-specific export validator with per-target requirement checking and PowerShell CI script is landed.",
+      "mainGaps": [
+        "Integration with real export artifact pipeline and automated CI gate remain future work"
+      ],
+      "evidence": {
+        "runtimeOwner": true,
+        "editorSurface": false,
+        "schemaMigration": true,
+        "diagnostics": false,
+        "testsValidation": true,
+        "docsAligned": true
+      }
+    },
+    {
+      "id": "mod_registry",
+      "status": "PARTIAL",
+      "summary": "Mod registry with manifest registration, dependency resolution, load-order topology, and editor manager panel is landed.",
+      "mainGaps": [
+        "Live mod loading, sandboxed script execution, and mod-store integration remain future work"
+      ],
+      "evidence": {
+        "runtimeOwner": true,
+        "editorSurface": true,
+        "schemaMigration": true,
+        "diagnostics": false,
+        "testsValidation": true,
+        "docsAligned": true
+      }
+    },
+    {
+      "id": "analytics_dispatcher",
+      "status": "PARTIAL",
+      "summary": "Opt-in analytics dispatcher with deterministic tick counters, event buffering, circular drop, and editor panel is landed.",
+      "mainGaps": [
+        "Telemetry upload pipeline, session aggregation, and privacy audit workflow remain future work"
+      ],
+      "evidence": {
+        "runtimeOwner": true,
+        "editorSurface": true,
+        "schemaMigration": true,
+        "diagnostics": false,
+        "testsValidation": true,
         "docsAligned": true
       }
     }
@@ -106,10 +234,10 @@
         "save_data_core"
       ],
       "bars": {
-        "accessibility": "PLANNED",
+        "accessibility": "PARTIAL",
         "audio": "PARTIAL",
         "input": "PARTIAL",
-        "localization": "PLANNED",
+        "localization": "PARTIAL",
         "performance": "PARTIAL"
       },
       "safeScope": "Wave 1 native-first baseline with truthful residual gaps.",
@@ -126,10 +254,10 @@
         "save_data_core"
       ],
       "bars": {
-        "accessibility": "PLANNED",
+        "accessibility": "PARTIAL",
         "audio": "PARTIAL",
         "input": "PARTIAL",
-        "localization": "PLANNED",
+        "localization": "PARTIAL",
         "performance": "PARTIAL"
       },
       "safeScope": "Dialogue-heavy projects within current native message and save scope.",
@@ -175,6 +303,87 @@
       "safeScope": "Roadmap-aligned experimentation only.",
       "mainBlockers": [
         "Template-specific closure visibility remains missing"
+      ]
+    },
+    {
+      "id": "monster_collector_rpg",
+      "status": "PLANNED",
+      "requiredSubsystems": [
+        "ui_menu_core",
+        "message_text_core",
+        "battle_core",
+        "save_data_core",
+        "gameplay_ability_framework"
+      ],
+      "bars": {
+        "accessibility": "PARTIAL",
+        "audio": "PARTIAL",
+        "input": "PARTIAL",
+        "localization": "PARTIAL",
+        "performance": "PARTIAL"
+      },
+      "safeScope": "Exploration of collection-driven combat and party assembly using landed Wave 1 + ability framework.",
+      "mainBlockers": [
+        "Dedicated collection schema, capture mechanics, and template-grade governance remain future work"
+      ]
+    },
+    {
+      "id": "cozy_life_rpg",
+      "status": "PLANNED",
+      "requiredSubsystems": [
+        "ui_menu_core",
+        "message_text_core",
+        "save_data_core"
+      ],
+      "bars": {
+        "accessibility": "PARTIAL",
+        "audio": "PARTIAL",
+        "input": "PARTIAL",
+        "localization": "PARTIAL",
+        "performance": "PARTIAL"
+      },
+      "safeScope": "Dialogue-heavy life-sim exploration within current message/save/menu scope.",
+      "mainBlockers": [
+        "Scheduling system, social relationship mechanics, and crafting/economy lanes remain future work"
+      ]
+    },
+    {
+      "id": "metroidvania_lite",
+      "status": "PLANNED",
+      "requiredSubsystems": [
+        "presentation_runtime",
+        "save_data_core",
+        "gameplay_ability_framework"
+      ],
+      "bars": {
+        "accessibility": "PLANNED",
+        "audio": "PLANNED",
+        "input": "PARTIAL",
+        "localization": "PLANNED",
+        "performance": "PARTIAL"
+      },
+      "safeScope": "2D action exploration using presentation runtime and ability framework.",
+      "mainBlockers": [
+        "Traversal mechanics (dash, wall-jump), map unlock system, and ability-gated progression remain future work"
+      ]
+    },
+    {
+      "id": "2_5d_rpg",
+      "status": "PLANNED",
+      "requiredSubsystems": [
+        "presentation_runtime",
+        "save_data_core"
+      ],
+      "bars": {
+        "accessibility": "PLANNED",
+        "audio": "PLANNED",
+        "input": "PARTIAL",
+        "localization": "PLANNED",
+        "performance": "PARTIAL"
+      },
+      "safeScope": "Raycast-mode exploration demos using the optional 2.5D lane.",
+      "mainBlockers": [
+        "Raycast art pipeline, map authoring adapters at production grade, and template-specific export validation remain future work"
       ]
     }
   ]

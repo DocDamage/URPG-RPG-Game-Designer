@@ -11,7 +11,15 @@ namespace urpg::presentation::effects {
 enum class EffectCueKind {
     Gameplay,
     Status,
-    System
+    System,
+    CastStart,
+    HitConfirm,
+    CriticalHit,
+    GuardClash,
+    MissSweep,
+    HealPulse,
+    DefeatFade,
+    PhaseBanner
 };
 
 enum class EffectAnchorMode {

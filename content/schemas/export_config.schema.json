@@ -1,0 +1,25 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "ExportConfig",
+  "type": "object",
+  "required": ["target", "outputDir"],
+  "properties": {
+    "target": {
+      "type": "string",
+      "enum": ["Windows_x64", "Linux_x64", "macOS_Universal", "Web_WASM"]
+    },
+    "outputDir": {
+      "type": "string"
+    },
+    "obfuscateScripts": {
+      "type": "boolean"
+    },
+    "compressAssets": {
+      "type": "boolean"
+    },
+    "includeDebugSymbols": {
+      "type": "boolean"
+    }
+  },
+  "additionalProperties": false
+}

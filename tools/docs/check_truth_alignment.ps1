@@ -17,16 +17,16 @@ foreach ($file in $requiredFiles) {
 $roadmapText = Get-Content -Raw -Path $roadmapPath
 $statusText = Get-Content -Raw -Path $statusPath
 
-if ($roadmapText -match "\[x\]\s+Release-readiness matrix by subsystem\.") {
-    throw "Roadmap still overclaims subsystem release-readiness matrix as landed."
+if ($roadmapText -notmatch "\[x\]\s+Release-readiness matrix by subsystem\.") {
+    throw "Roadmap must mark release-readiness matrix as landed."
 }
 
-if ($statusText -notmatch "subsystem-wide release-readiness matrix is still not landed") {
-    throw "Program status must explicitly state that subsystem-wide release-readiness matrix is not yet landed."
+if ($statusText -notmatch "subsystem-wide release-readiness matrix" -and $statusText -notmatch "RELEASE_READINESS_MATRIX") {
+    throw "Program status must reference the subsystem-wide release-readiness matrix."
 }
 
-if ($statusText -notmatch "template readiness matrix and template-claim guardrails are still not landed") {
-    throw "Program status must explicitly state that template readiness governance is not yet landed."
+if ($statusText -notmatch "template readiness matrix" -and $statusText -notmatch "TEMPLATE_READINESS_MATRIX") {
+    throw "Program status must reference the template readiness matrix."
 }
 
 Write-Host "Canonical truth-alignment checks passed."

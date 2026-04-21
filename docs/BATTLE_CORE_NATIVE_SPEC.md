@@ -266,26 +266,26 @@ _Canonical source: [WAVE1_SUBSYSTEM_CLOSURE_CHECKLIST.md](WAVE1_SUBSYSTEM_CLOSUR
 
 ### Universal closure gates
 
-- [x] Runtime ownership is authoritative and compat behavior for this subsystem is bridge-only.
-- [x] Editor productization is complete (inspect/edit/preview/validate) with diagnostics surfaced.
-- [x] Schema contracts and migration/import paths are explicit, versioned, and test-backed.
-- [x] Deterministic validation exists (unit + integration + snapshot where layout/presentation applies).
-- [x] Failure-path diagnostics and safe-mode/bounded fallback behavior are explicitly documented and tested.
-- [x] Release evidence is published in status docs and gate snapshots are recorded.
+- [ ] Runtime ownership is authoritative and compat behavior for this subsystem is bridge-only.
+- [ ] Editor productization is complete (inspect/edit/preview/validate) with diagnostics surfaced.
+- [ ] Schema contracts and migration/import paths are explicit, versioned, and test-backed.
+- [ ] Deterministic validation exists (unit + integration + snapshot where layout/presentation applies).
+- [ ] Failure-path diagnostics and safe-mode/bounded fallback behavior are explicitly documented and tested.
+- [ ] Release evidence is published in status docs and gate snapshots are recorded.
 
 ### Battle Core specific closure gates
 
-- [x] Battle flow/action/rule ownership is authoritative; HUD and overlays consume battle state only.
-- [x] Deterministic turn/escape/action outcomes are preserved under runtime and preview validation anchors.
-- [x] Battle schema + migration + diagnostics closure is complete and release-evidence-backed.
+- [ ] Battle flow/action/rule ownership is authoritative; HUD and overlays consume battle state only.
+- [ ] Deterministic turn/escape/action outcomes are preserved under runtime and preview validation anchors.
+- [ ] Battle schema + migration + diagnostics closure is complete and release-evidence-backed.
 
 ### Closure sign-off artifact checklist
 
-- [x] Runtime owner files listed (header + source).
-- [x] Editor owner files listed.
-- [x] Schema and migration files listed.
-- [x] Latest deterministic test outputs recorded.
-- [x] README.md, docs/PROGRAM_COMPLETION_STATUS.md, and URPG_Blueprint_v3_1_Integrated.md updated.
+- [ ] Runtime owner files listed (header + source).
+- [ ] Editor owner files listed.
+- [ ] Schema and migration files listed.
+- [ ] Latest deterministic test outputs recorded.
+- [ ] README.md, docs/PROGRAM_COMPLETION_STATUS.md, and URPG_Blueprint_v3_1_Integrated.md updated.
 <!-- WAVE1_CHECKLIST_END -->
 
 ## Non-goals for this slice

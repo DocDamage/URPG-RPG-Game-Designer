@@ -133,3 +133,104 @@ TEST_CASE("EffectResolver anchors owner and target world cues to battle particip
     CHECK(targetResolved.front().position[1] == Catch::Approx(0.5f));
     CHECK(targetResolved.front().position[2] == Catch::Approx(0.0f));
 }
+
+TEST_CASE("EffectResolver routes HealPulse through healGlow preset", "[presentation][effects][resolver]") {
+    EffectCue cue;
+    cue.kind = EffectCueKind::HealPulse;
+    cue.sourceId = 1;
+    cue.ownerId = 2;
+
+    EffectResolver resolver;
+    const auto resolved = resolver.resolve(cue, CapabilityTier::Tier1_Standard);
+
+    REQUIRE(resolved.size() == 1);
+    CHECK(resolved[0].placement == EffectPlacement::World);
+    CHECK(resolved[0].color[1] > resolved[0].color[0]);
+    CHECK(resolved[0].color[1] > resolved[0].color[2]);
+}
+
+TEST_CASE("EffectResolver routes MissSweep through missSweep preset", "[presentation][effects][resolver]") {
+    EffectCue cue;
+    cue.kind = EffectCueKind::MissSweep;
+    cue.sourceId = 1;
+    cue.ownerId = 2;
+
+    EffectResolver resolver;
+    const auto resolved = resolver.resolve(cue, CapabilityTier::Tier1_Standard);
+
+    REQUIRE(resolved.size() == 1);
+    CHECK(resolved[0].placement == EffectPlacement::World);
+    CHECK(resolved[0].scale < 1.0f);
+}
+
+TEST_CASE("EffectResolver routes DefeatFade through defeatFade preset", "[presentation][effects][resolver]") {
+    EffectCue cue;
+    cue.kind = EffectCueKind::DefeatFade;
+    cue.sourceId = 1;
+    cue.ownerId = 2;
+
+    EffectResolver resolver;
+    const auto resolved = resolver.resolve(cue, CapabilityTier::Tier1_Standard);
+
+    REQUIRE(resolved.size() == 1);
+    CHECK(resolved[0].placement == EffectPlacement::Overlay);
+    CHECK(resolved[0].duration > 0.3f);
+}
+
+TEST_CASE("EffectResolver routes PhaseBanner through phaseBanner preset", "[presentation][effects][resolver]") {
+    EffectCue cue;
+    cue.kind = EffectCueKind::PhaseBanner;
+    cue.sourceId = 1;
+    cue.ownerId = 2;
+
+    EffectResolver resolver;
+    const auto resolved = resolver.resolve(cue, CapabilityTier::Tier1_Standard);
+
+    REQUIRE(resolved.size() == 1);
+    CHECK(resolved[0].placement == EffectPlacement::Overlay);
+    CHECK(resolved[0].overlayEmphasis.value >= 0.8f);
+}
+
+TEST_CASE("EffectResolver routes CastStart through castSmall preset", "[presentation][effects][resolver]") {
+    EffectCue cue;
+    cue.kind = EffectCueKind::CastStart;
+    cue.sourceId = 1;
+    cue.ownerId = 2;
+
+    EffectResolver resolver;
+    const auto resolved = resolver.resolve(cue, CapabilityTier::Tier1_Standard);
+
+    REQUIRE(resolved.size() == 1);
+    CHECK(resolved[0].placement == EffectPlacement::World);
+    CHECK(resolved[0].color[2] > resolved[0].color[0]);
+    CHECK(resolved[0].color[2] > resolved[0].color[1]);
+}
+
+TEST_CASE("EffectResolver routes CriticalHit through critBurst preset", "[presentation][effects][resolver]") {
+    EffectCue cue;
+    cue.kind = EffectCueKind::CriticalHit;
+    cue.sourceId = 1;
+    cue.ownerId = 2;
+
+    EffectResolver resolver;
+    const auto resolved = resolver.resolve(cue, CapabilityTier::Tier1_Standard);
+
+    REQUIRE(resolved.size() == 2);
+    CHECK(resolved[0].placement == EffectPlacement::World);
+    CHECK(resolved[0].color[0] > resolved[0].color[1]);
+    CHECK(resolved[0].color[0] > resolved[0].color[2]);
+    CHECK(resolved[1].placement == EffectPlacement::Overlay);
+}
+
+TEST_CASE("EffectResolver routes GuardClash as single world impact", "[presentation][effects][resolver]") {
+    EffectCue cue;
+    cue.kind = EffectCueKind::GuardClash;
+    cue.sourceId = 1;
+    cue.ownerId = 2;
+
+    EffectResolver resolver;
+    const auto resolved = resolver.resolve(cue, CapabilityTier::Tier1_Standard);
+
+    REQUIRE(resolved.size() == 1);
+    CHECK(resolved[0].placement == EffectPlacement::World);
+}

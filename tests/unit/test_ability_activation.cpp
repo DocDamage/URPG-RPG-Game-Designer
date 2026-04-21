@@ -13,7 +13,9 @@ public:
 
     const std::string& getId() const override { return m_id; }
     const ActivationInfo& getActivationInfo() const override { return m_info; }
-    void activate([[maybe_unused]] AbilitySystemComponent& source) override {}
+    void activate(AbilitySystemComponent& source) override {
+        commitAbility(source);
+    }
 
     ActivationInfo& editInfo() { return m_info; }
 

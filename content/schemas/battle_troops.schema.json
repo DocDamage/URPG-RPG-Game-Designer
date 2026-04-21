@@ -31,7 +31,9 @@
             "properties": {
               "turn_count": { "type": "integer" },
               "hp_below_percent": { "type": "integer" },
-              "switch_id": { "type": "string" }
+              "switch_id": { "type": "string" },
+              "enemy_index": { "type": "integer", "minimum": 0 },
+              "actor_id": { "type": "string" }
             }
           },
           "effects": {
@@ -40,7 +42,7 @@
               "type": "object",
               "required": ["type"],
               "properties": {
-                "type": { "enum": ["message", "common_event", "state_change", "force_action"] }
+                "type": { "enum": ["message", "common_event", "state_change", "force_action", "change_gold", "change_items", "change_weapons", "change_armors", "transfer_player", "game_over"] }
               }
             }
           }

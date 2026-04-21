@@ -270,8 +270,16 @@ void BattleScene::onStart() {
 void BattleScene::setPhase(BattlePhase phase) {
     m_currentPhase = phase;
     switch (phase) {
-    case BattlePhase::START:
+    case BattlePhase::START: {
+        urpg::presentation::effects::EffectCue banner;
+        banner.frameTick = static_cast<std::uint64_t>(std::max(m_turnCount, 0));
+        banner.kind = urpg::presentation::effects::EffectCueKind::PhaseBanner;
+        banner.anchorMode = urpg::presentation::effects::EffectAnchorMode::Screen;
+        banner.overlayEmphasis = {0.80f};
+        banner.intensity = {1.5f};
+        enqueueEffectCue(banner);
         break;
+    }
     case BattlePhase::INPUT:
         m_flowController.enterInput();
         break;
@@ -761,7 +769,11 @@ void BattleScene::executeAction(const BattleAction& action) {
     if (action.command == "attack" || action.isSkill || action.isItem) {
         urpg::presentation::effects::EffectCue castCue;
         castCue.frameTick = static_cast<std::uint64_t>(std::max(m_turnCount, 0));
-        castCue.kind = urpg::presentation::effects::EffectCueKind::Gameplay;
+        if (action.isSkill || action.isItem) {
+            castCue.kind = urpg::presentation::effects::EffectCueKind::CastStart;
+        } else {
+            castCue.kind = urpg::presentation::effects::EffectCueKind::HitConfirm;
+        }
         castCue.anchorMode = urpg::presentation::effects::EffectAnchorMode::Owner;
         castCue.sourceId = participantCueId(action.subject);
         castCue.ownerId = participantCueId(action.subject);
@@ -803,12 +815,36 @@ void BattleScene::executeAction(const BattleAction& action) {
         if (action.command == "attack" || action.isSkill || action.isItem) {
             urpg::presentation::effects::EffectCue resultCue;
             resultCue.frameTick = static_cast<std::uint64_t>(std::max(m_turnCount, 0));
-            resultCue.kind = urpg::presentation::effects::EffectCueKind::Gameplay;
             resultCue.anchorMode = urpg::presentation::effects::EffectAnchorMode::Target;
             resultCue.sourceId = participantCueId(action.subject);
             resultCue.ownerId = participantCueId(target);
-            resultCue.overlayEmphasis = {damage > 0 ? 1.0f : 0.0f};
-            resultCue.intensity = {damage > 20 ? 1.5f : (damage > 0 ? 1.0f : 0.5f)};
+
+            if (target->hp <= 0) {
+                resultCue.kind = urpg::presentation::effects::EffectCueKind::DefeatFade;
+                resultCue.overlayEmphasis = {0.40f};
+                resultCue.intensity = {1.2f};
+            } else if (damage < 0) {
+                resultCue.kind = urpg::presentation::effects::EffectCueKind::HealPulse;
+                resultCue.overlayEmphasis = {0.0f};
+                resultCue.intensity = {0.8f};
+            } else if (damage == 0 && target->isGuarding) {
+                resultCue.kind = urpg::presentation::effects::EffectCueKind::GuardClash;
+                resultCue.overlayEmphasis = {0.30f};
+                resultCue.intensity = {1.1f};
+            } else if (damage == 0) {
+                resultCue.kind = urpg::presentation::effects::EffectCueKind::MissSweep;
+                resultCue.overlayEmphasis = {0.0f};
+                resultCue.intensity = {0.5f};
+            } else if (damage > 20) {
+                resultCue.kind = urpg::presentation::effects::EffectCueKind::CriticalHit;
+                resultCue.overlayEmphasis = {0.95f};
+                resultCue.intensity = {2.0f};
+            } else {
+                resultCue.kind = urpg::presentation::effects::EffectCueKind::HitConfirm;
+                resultCue.overlayEmphasis = {damage > 0 ? 1.0f : 0.0f};
+                resultCue.intensity = {damage > 20 ? 1.5f : (damage > 0 ? 1.0f : 0.5f)};
+            }
+
             enqueueEffectCue(resultCue);
         }
 

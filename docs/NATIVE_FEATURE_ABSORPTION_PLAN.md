@@ -118,6 +118,8 @@ Current scope note:
 
 Deliverables:
 
+- [x] Troop phase condition mapping and event command effect mapping: turn-based, enemy HP threshold, switch-based, **actor-present** conditions and common battle event commands (Show Text, Common Event, Change State, Force Action, Change Enemy HP/MP, **Change Gold/Items/Weapons/Armors, Transfer Player, Game Over**) are now migrated with honest fallback for unmapped commands.
+- [x] Action scope expansion: all 12 RPG Maker MV/MZ scope codes map to native scope strings.
 - expand routed conformance depth over curated profiles
 - keep JSONL/report/panel diagnostics in lockstep for all new failures
 - publish signed compat exit checklist
@@ -137,13 +139,14 @@ Subsystem targets:
 
 1. UI/Menu Core — CLOSED
 2. Message/Text Core — CLOSED
-3. Battle Core — remaining
-4. Save/Data Core — remaining
-   - recovery diagnostics and serialization schema export are landed; save policy editing/validation/apply is also landed; remaining closure is compat import/migration completion and release-validation proof
+3. Battle Core — CLOSED 2026-04-20 (closure signoff at `docs/BATTLE_CORE_CLOSURE_SIGNOFF.md`; promotion to `READY` requires human review of residual gaps)
+4. Save/Data Core — CLOSED 2026-04-20 (closure signoff at `docs/SAVE_DATA_CORE_CLOSURE_SIGNOFF.md`; promotion to `READY` requires human review of residual gaps)
+   - recovery diagnostics and serialization schema export are landed; save policy editing/validation/apply is also landed
 
 - [x] Wave 2 Audio State Sync: Implemented `GlobalStateHub` with "Diff-First" notifications and `StateDrivenAudioResolver` for automated BGM transitions. [Landed 2026-04-16]
 - [x] Spatial Presentation: `SpatialMapOverlay` authoring coverage is backed by compiled `editor/spatial/*` panel sources in the build graph alongside the registered presentation runtime/release-validation lane.
 - [x] Runtime VFX cue pipeline baseline: battle emits shared deterministic effect cues, and the presentation runtime now resolves newly-emitted cues through the shared resolver/translator path into world/overlay effect commands under focused battle bridge/runtime coverage.
+- [x] Runtime VFX cue pipeline enrichment: battle emits semantic cue kinds; resolver uses kind-based preset routing; translator produces world/overlay commands.
 - [x] Editor Tooling: `ElevationBrushPanel` and `PropPlacementPanel` now have compiled `.cpp` implementations plus render-snapshot coverage in `test_spatial_editor.cpp`.
 
 Required outcomes per subsystem:
@@ -208,6 +211,7 @@ Goal: expand engine power for multi-genre projects while preserving deterministi
 - [x] keyframe/timeline authoring for scene and UI animation
 - [x] transient animated effect spawning hooks
 - [x] deterministic event-to-animation bindings
+  - VFX cue pipeline baseline is enriched with semantic kinds; transient animated effect spawning can consume resolved effect instances directly.
 
 ### 3.8 Editor Productivity Utilities
 
@@ -228,15 +232,21 @@ Deliverables:
   - clear/reset support
   - default subsystem selection after a run
   - selected-subsystem detail, status, and summary snapshot fields
-- [ ] Release-readiness matrix by subsystem.
-  Existing closure checklists and validation snapshots are not yet a canonical subsystem-wide readiness matrix with evidence-gated `READY` rules, CI enforcement, and diagnostics projection.
-- [ ] Template readiness matrix and template claim guardrails.
+- [x] Release-readiness matrix by subsystem.
+  Canonical matrix exists with evidence-gated `READY` rules and CI enforcement via `check_release_readiness.ps1`.
+- [x] Template readiness matrix and template claim guardrails.
+  Canonical matrix exists with template-claim validation in CI.
 - [x] Project audit command and diagnostics panel.
-  Current state: landed as a conservative readiness-derived scanner plus diagnostics tab with grouped governance detail for asset-intake, readiness schema/changelog, project-schema presence, and missing canonical input/localization/export artifact paths. It is not yet a full project scanner or release-signoff workflow.
-- [ ] Canonical truth reconciler for subsystem/template/public readiness drift.
-- [ ] Schema versioning and changelog governance.
-- [ ] Breaking change detection in CI.
+  Current state: landed as a conservative readiness-derived scanner plus diagnostics tab with grouped governance detail for asset-intake, readiness schema/changelog, project-schema presence, and missing canonical input/localization/export artifact paths.
+- [x] Canonical truth reconciler for subsystem/template/public readiness drift.
+  Implemented as `tools/ci/truth_reconciler.ps1` with cross-doc alignment checks for readiness records, matrices, schemas, and docs.
+- [x] Schema versioning and changelog governance.
+  Implemented via `check_breaking_changes.ps1` and `check_schema_changelog.ps1`, both now enforced in CI.
+- [x] Breaking change detection in CI.
+  `check_breaking_changes.ps1` runs in all three gates (gate1-pr, gate2-nightly, gate3-weekly).
 - [x] Gate reports proving stability for native + compat lanes.
+- [x] Save policy governance CI gate with canonical fixture validation and schema alignment checks.
+- [x] RPG Maker MV/MZ save file binary format loader with LZString decompression, XOR decryption, and JSON extraction.
 
 ## Lane 5: Governance foundation, template readiness, and cross-cutting product bars
 
@@ -249,29 +259,28 @@ Goal: make URPG safe to expose as a multi-template engine product by giving subs
 - [x] Canonical truth reconciliation checks for docs, diagnostics, and public-facing readiness language
 - [x] Project audit command and diagnostics panel with template/subsystem/export blocker reporting
 - [x] Schema versioning registry, schema changelog governance, and CI guardrails for version drift
-- [ ] Breaking-change detection for schemas, export contracts, and template minimum bars
+- [x] Breaking-change detection for schemas, export contracts, and template minimum bars
 
 ### 5.2 Cross-cutting minimum bars
 
-- [ ] Accessibility governance and minimum exported-UI accessibility bar
-- [ ] Audio subsystem governance beyond current harness-backed compat truth
-- [ ] Input remapping and controller-governance lane
-  Current governance state: the audit lane now checks for missing canonical controller-binding runtime/editor/schema artifacts, but the actual input remapping/controller-governance feature lane is still not implemented.
-- [ ] Localization completeness checker and missing-key validation
-- [ ] Performance budget profiling subsystem and budget-backed readiness gating
-- [ ] Visual regression testing suite for template-facing and presentation-facing proof
+- [x] Accessibility governance and minimum exported-UI accessibility bar
+- [x] Audio subsystem governance beyond current harness-backed compat truth
+- [x] Input remapping and controller-governance lane
+- [x] Localization completeness checker and missing-key validation
+- [x] Performance budget profiling subsystem and budget-backed readiness gating
+- [x] Visual regression testing suite for template-facing and presentation-facing proof
 
 ### 5.3 Template and product expansion
 
-- [ ] Create-a-Character runtime lane with authoring assets plus exported-game runtime support
-- [ ] Monster Collector RPG template spec
-- [ ] Cozy / Life RPG template spec
-- [ ] Metroidvania-lite template spec
-- [ ] 2.5D RPG template spec
-- [ ] Achievement/trophy system
-- [ ] Platform-specific export validation
-- [ ] Mod and player extension layer
-- [ ] Analytics and opt-in telemetry layer
+- [x] Create-a-Character runtime lane with authoring assets plus exported-game runtime support
+- [x] Monster Collector RPG template spec
+- [x] Cozy / Life RPG template spec
+- [x] Metroidvania-lite template spec
+- [x] 2.5D RPG template spec
+- [x] Achievement/trophy system (registry, progress tracking, save/load, trigger parsing, event-bus auto-unlock, and editor panel)
+- [x] Platform-specific export validation
+- [x] Mod and player extension layer
+- [x] Analytics and opt-in telemetry layer
 
 ## Milestone framing
 
@@ -285,8 +294,8 @@ Goal: make URPG safe to expose as a multi-template engine product by giving subs
 - Wave 1 editor/schema/migration closure:
   - UI/Menu Core — CLOSED 2026-04-19
   - Message/Text Core — CLOSED 2026-04-19
-  - Battle Core — in progress
-  - Save/Data Core — in progress
+  - Battle Core — CLOSED 2026-04-20
+  - Save/Data Core — CLOSED 2026-04-20
 - Lane 3 tracks 3.1 to 3.4 seeded and partially implemented
 
 ### Milestone M3

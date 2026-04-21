@@ -219,18 +219,18 @@ _Canonical source: [WAVE1_SUBSYSTEM_CLOSURE_CHECKLIST.md](WAVE1_SUBSYSTEM_CLOSUR
 
 ### Universal closure gates
 
-- [x] Runtime ownership is authoritative and compat behavior for this subsystem is bridge-only.
-- [x] Editor productization is complete (inspect/edit/preview/validate) with diagnostics surfaced.
-- [x] Schema contracts and migration/import paths are explicit, versioned, and test-backed.
-- [x] Deterministic validation exists (unit + integration + snapshot where layout/presentation applies).
-- [x] Failure-path diagnostics and safe-mode/bounded fallback behavior are explicitly documented and tested.
-- [x] Release evidence is published in status docs and gate snapshots are recorded.
+- [ ] Runtime ownership is authoritative and compat behavior for this subsystem is bridge-only.
+- [ ] Editor productization is complete (inspect/edit/preview/validate) with diagnostics surfaced.
+- [ ] Schema contracts and migration/import paths are explicit, versioned, and test-backed.
+- [ ] Deterministic validation exists (unit + integration + snapshot where layout/presentation applies).
+- [ ] Failure-path diagnostics and safe-mode/bounded fallback behavior are explicitly documented and tested.
+- [ ] Release evidence is published in status docs and gate snapshots are recorded.
 
 ### UI / Menu Core specific closure gates
 
-- [x] Menu runtime route/command ownership is authoritative and no plugin command string owns route resolution.
-- [x] Menu authoring surface (structure/layout/command/preview) supports inspect/edit/validate workflows.
-- [x] Fallback routes and command-state migration paths are schema-defined and test-backed.
+- [ ] Menu runtime route/command ownership is authoritative and no plugin command string owns route resolution.
+- [ ] Menu authoring surface (structure/layout/command/preview) supports inspect/edit/validate workflows.
+- [ ] Fallback routes and command-state migration paths are schema-defined and test-backed.
 
 ### Closure sign-off artifact checklist
 

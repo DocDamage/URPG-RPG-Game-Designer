@@ -14,6 +14,19 @@ Canonical planning chain:
 2026-04-20 planning absorption note:
 - `../URPG_MISSING_FEATURES_GOVERNANCE_AND_TEMPLATE_EXPANSION_PLAN_v2.md` is now treated as a planning-input addendum, not a parallel authority.
 - Its approved deltas are being absorbed into the canonical roadmap/status/remediation stack as planned work.
+- The absorbed scope from that addendum is now reflected here as explicit program-level remaining work, including:
+  - schema versioning and changelog governance
+  - breaking-change detection in CI
+  - localization completeness checking
+  - performance budget profiling and readiness gating
+  - visual regression testing
+  - accessibility governance
+  - audio governance beyond the current compat-truth slice
+  - input remapping and controller-governance
+  - platform-specific export validation
+  - achievement/trophy, mod-extension, and opt-in analytics layers
+  - Create-a-Character runtime expansion
+  - expanded template-readiness coverage for Monster Collector RPG, Cozy/Life RPG, Metroidvania-lite, and 2.5D RPG
 - Its presence does **not** mean the proposed governance foundation, template matrices, or cross-cutting minimum bars are already landed.
 - The first canonical governance artifacts for this lane now exist under:
   - [`docs/RELEASE_READINESS_MATRIX.md`](./RELEASE_READINESS_MATRIX.md)
@@ -63,8 +76,8 @@ Phase 3 diagnostics productization is complete as of 2026-04-19, Phase 4 governa
   - subsystem-wide release-readiness and template-readiness governance now have canonical docs plus a machine-readable readiness record, but they are still a first-slice governance baseline rather than a complete product-readiness proof
   - template-claim guardrails, subsystem badge checks, and truth-alignment checks now exist, but they currently enforce conservative documentation discipline rather than a full release-signoff workflow
   - the project audit command and diagnostics tab now exist as a conservative readiness-derived scanner/scaffold, and the reported blockers can now reflect asset-intake, schema/changelog, project-schema, and missing canonical input/localization/export artifact governance only where those concerns are represented by the current readiness records or roadmap-defined canonical paths; the audit engine is not yet a full project scanner
-  - schema versioning/changelog governance and focused CI/doc enforcement now exist, but broader breaking-change automation and full repo-wide scanner coverage remain future work
-  - cross-cutting minimum bars for accessibility, localization completeness, input remapping, audio governance, and performance budgets are now canonical governance bars first, not evidence that those subsystems are fully delivered
+  - schema versioning/changelog governance and focused CI/doc enforcement now exist; a first-slice breaking-change detection script (`tools/ci/check_breaking_changes.ps1`) is now landed and validates schema `$id`/`title` presence, changelog freshness, and schema/changelog alignment
+  - cross-cutting minimum bars for accessibility, localization completeness, input remapping, audio governance, and performance budgets are now canonical governance bars first, and first-slice implementations are landed for input remapping (`InputRemapStore`), localization completeness (`LocaleCatalog` + `CompletenessChecker`), and performance budget profiling (`PerfProfiler` + diagnostics panel)
 - The 2026-04-20 validation snapshot should not be read as full product readiness:
   - it proves the currently exercised Wave 1/program lanes are green
   - it does not by itself satisfy the proposed subsystem/template readiness matrices or cross-cutting governance bars
@@ -98,8 +111,73 @@ Phase 3 diagnostics productization is complete as of 2026-04-19, Phase 4 governa
   - AudioManager compat closure advanced: deterministic playback position now advances during `update()`, duck/unduck ramps are frame-based, master/bus volume changes affect active playback, and the QuickJS `AudioManager` bridge now routes live compat state for BGM/BGS/ME/SE plus volume/ducking helpers
   - 2026-04-19 Phase 2 runtime closure reconciled the battle reward/event and switch coverage, window `contents()` lifecycle truthfulness, `DataManager::loadDatabase()` seeded-container behavior, and audio semantics documentation against the focused dev-mingw-debug verification lane
   - 2026-04-19 Phase 4 governance closure reconciled external-repo dispositions, private-asset source manifests, asset-gap truthfulness, and canonical status docs, and added a local validation gate for the intake-governance lane
+- Agent swarm execution slice (2026-04-20): governance foundation and cross-cutting minimum bars expanded
+  - `InputRemapStore` landed with MZ-compatible defaults, JSON persistence, version validation, and unsaved-changes tracking; schema `input_bindings.schema.json` and focused `[input][remap]` tests are registered and passing
+  - `LocaleCatalog` and `CompletenessChecker` landed with bundle loading, merge, missing-key detection, coverage-percent reporting, and bundle JSON schema; focused `[localization]` tests are registered and passing
+  - `PerfProfiler` landed with frame-time circular buffer, budget-violation detection, named section timings, and JSON summary export; `PerfDiagnosticsModel`/`PerfDiagnosticsPanel` provide diagnostics-workspace-ready snapshot integration; focused `[perf]` tests are registered and passing
+  - `tools/ci/check_release_readiness.ps1` hardened with evidence-gated `READY` validation and template required-subsystem cross-checks
+  - `tools/ci/check_breaking_changes.ps1` created for schema-breaking-change governance (validates schema identity, changelog freshness, and schema/changelog alignment)
+  - Template spec docs created for `monster_collector_rpg`, `cozy_life_rpg`, `metroidvania_lite`, and `2_5d_rpg` under `docs/templates/`
+  - `content/readiness/readiness_status.json` updated with new template entries; `docs/RELEASE_READINESS_MATRIX.md` and `docs/TEMPLATE_READINESS_MATRIX.md` updated to reflect `governance_foundation` promotion to `PARTIAL` and new template rows
+- Agent swarm execution slice (2026-04-20 continued): Wave 2 advanced capabilities and remaining cross-cutting bars
+  - `CharacterIdentity` runtime landed with name/portrait/body/class/attributes/appearance tokens, JSON round-trip, schema `character_identity.schema.json`, editor `CharacterCreatorModel`/`CharacterCreatorPanel`, and focused `[character]` tests
+  - `AchievementRegistry` landed with `AchievementDef`/`AchievementProgress`, unlock-condition tokens, progress tracking, save/load JSON, schema `achievements.schema.json`, editor `AchievementPanel`, and focused `[achievement]` tests
+  - `AccessibilityAuditor` landed with missing-label, focus-order, contrast, and navigation audit rules, schema `accessibility_report.schema.json`, editor `AccessibilityPanel`, and focused `[accessibility]` tests
+  - `VisualRegressionHarness` landed with golden file load/save, `SnapshotValidator`-backed comparison, diff heatmap generation, JSON report export, PowerShell approval script `tools/visual_regression/approve_golden.ps1`, and focused `[testing][visual_regression]` tests
+  - Fixed pre-existing test bug in `tests/unit/test_ability_activation.cpp` (`MockAbility::activate` now calls `commitAbility` so cooldown blocking is exercised)
+  - Fixed pre-existing script bug in `tools/ci/run_presentation_gate.ps1` (`cmake --build --preset` was incorrectly run from inside the build directory)
+- Third agent swarm execution slice (2026-04-20): platform export validation, mod extension, and analytics telemetry
+  - `AudioMixPresetBank` landed with default presets (Default, Battle, Cinematic), category volume mapping, ducking rules, JSON serialization, schema `audio_mix_presets.schema.json`, editor `AudioMixPanel`, and focused `[audio][mix]` tests
+  - `ExportValidator` landed with per-target requirement definitions (Windows, Linux, macOS, Web), `<filesystem>` existence checks, JSON report export, schema `export_validation_report.schema.json`, PowerShell CI script `tools/ci/check_platform_exports.ps1`, and focused `[export][validation]` tests
+  - `ModRegistry` landed with manifest registration, Kahn's-algorithm dependency resolution, load-order topology, activate/deactivate state tracking, JSON save/load, schema `mod_manifest.schema.json`, editor `ModManagerPanel`, and focused `[mod]` tests
+  - `AnalyticsDispatcher` landed with opt-in gating, deterministic tick counters, 1000-event circular buffer, JSON buffer snapshot, schema `analytics_config.schema.json`, editor `AnalyticsPanel`, and focused `[analytics]` tests
+  - Fixed pre-existing header bug in `engine/core/tools/export_packager.h` (removed non-existent `#include` paths that were never exercised because the header was header-only and uncompiled)
+  - `content/readiness/readiness_status.json` updated with new subsystem entries: `audio_mix_presets`, `export_validator`, `mod_registry`, `analytics_dispatcher`
+  - `docs/SCHEMA_CHANGELOG.md` backfilled with entries for the 10 schema artifacts introduced across the second and third agent swarms
+- Fourth agent swarm execution slice (2026-04-20): Lane 4 release hardening and cross-subsystem integration
+  - `ExportPackager` converted from header-only to compiled `.cpp` with `validateBeforeExport` integration against `ExportValidator`, editor `ExportDiagnosticsPanel`, schema `export_config.schema.json`, and focused `[export][packager]` tests
+  - `test_battle_save_integration.cpp` added to `urpg_integration_tests` with 4 cross-subsystem tests covering battle state serialization, save metadata preservation, post-battle map transition, and combined migration wizard reporting
+  - `tools/ci/truth_reconciler.ps1` created for canonical truth reconciliation across readiness records, release/template matrices, schemas, and docs; added to `gate1-pr` in `.github/workflows/ci-gates.yml`
+  - `tools/ci/check_cmake_completeness.ps1` created to validate no orphaned `.cpp` or test files exist outside `CMakeLists.txt`; added to `gate1-pr` and `gate2-nightly` in `.github/workflows/ci-gates.yml`
+  - `tools/ci/check_breaking_changes.ps1` registered in all three CI gates and fixed for cross-platform path separators
+  - `docs/NATIVE_FEATURE_ABSORPTION_PLAN.md` Lane 4 and Lane 5.1 checkboxes marked complete: breaking-change detection in CI, canonical truth reconciler, schema versioning governance, release/template readiness matrix enforcement
+- Fifth agent swarm execution slice (2026-04-20): Wave 1 closure signoffs, presentation bridge, and incubating test hardening
+  - `test_wave1_closure_integration.cpp` added to `urpg_integration_tests` with 4 cross-subsystem tests and 39 assertions covering battle-save-menu-message boundaries, migration wizard batch orchestration, and diagnostics workspace export parity
+  - `BATTLE_CORE_CLOSURE_SIGNOFF.md` and `SAVE_DATA_CORE_CLOSURE_SIGNOFF.md` created as evidence-gathering artifacts for Wave 1 closure review
+  - `PresentationBridge` extracted from header-only to compiled `engine/core/presentation/presentation_bridge.cpp` with `BuildFrameForActiveScene` and `BuildBattleSceneState` implementations
+  - `test_presentation_bridge.cpp` added to `urpg_tests` with frame-building and battle-scene-state translation coverage
+  - Incubating standalone tests (`test_ability_inspector.cpp`, `test_ability_pattern_integration.cpp`, `test_ability_state_machine.cpp`, `test_ability_tasks.cpp`, `test_effect_modifiers.cpp`, `test_pattern_field_editor.cpp`, `test_pattern_serialization.cpp`) converted from `int main()` to Catch2 and registered in `CMakeLists.txt`
+  - Fixed `check_truth_alignment.ps1` stale check that was incorrectly throwing on roadmap release-readiness matrix claims
+  - Fixed engine editor source compilation issues: `security_manager.h` missing includes, `cloud_service.h` broken include, 6 orphaned `.cpp` files registered in `CMakeLists.txt`
+  - VFX cue pipeline enriched: `BattleScene` now emits semantic `EffectCueKind` values (`CastStart`, `HitConfirm`, `CriticalHit`, `GuardClash`, `MissSweep`, `HealPulse`, `DefeatFade`, `PhaseBanner`); `EffectResolver` routes kinds to dedicated presets (`healGlow`, `missSweep`, `defeatFade`, `phaseBanner`, `castSmall`, `critBurst`, `impactHeavy`); focused integration tests cover kind-based resolution and battle-scene emission.
+- Sixth agent swarm execution slice (2026-04-20): BattleMigration troop phase condition mapping
+  - BattleMigration troop phase condition mapping: `migrateTroop()` now maps turn-based, enemy HP threshold, and switch-based conditions from RPG Maker MV/MZ troop pages into native `phases[].condition` objects. Event command lists remain unmapped with honest warnings. Focused tests cover turn_count, hp_below_percent, switch_id, enemy_index, actor-condition warnings, and multi-page mapping.
+  - BattleMigration action scope expansion: all 12 RPG Maker MV/MZ scope codes now map to native scope strings (single/random/all enemy/ally/dead/user combinations).
+  - BattleMigration troop page event command mapping: common battle event commands (Show Text, Common Event, Change State, Force Action, Change Enemy HP/MP) now map to native phase effects. Unmapped commands are collected into a fallback effect with honest warnings.
+  - Save/Data policy governance CI gate: `tools/ci/check_save_policy_governance.ps1` created to validate canonical save policy fixture against schema, enforce non-negative retention limits and autosave slot invariants, and verify changelog coverage. Wired into `gate1-pr` in `.github/workflows/ci-gates.yml`. Focused tests prove `SaveSessionCoordinator` can load the canonical fixture and produce expected runtime state.
+- Seventh agent swarm execution slice (2026-04-20): BattleMigration residual gap closure
+  - BattleMigration actor-based condition mapping: `migrateTroop()` now maps `actorValid` + `actorId` RPG Maker MV/MZ troop page conditions to native `phases[].condition.actor_id` strings. Previously emitted a warning; now produces mapped output.
+  - BattleMigration non-battle event command mapping: `migrateTroop()` now maps Change Gold (code 125), Change Items (126), Change Weapons (127), Change Armors (128), Transfer Player (201), and Game Over (353) to native phase effects with operation/value parameters where applicable.
+  - `battle_troops.schema.json` updated to accept `actor_id` in condition properties and new effect type enum values (`change_gold`, `change_items`, `change_weapons`, `change_armors`, `transfer_player`, `game_over`).
+  - 7 new focused tests cover actor condition mapping, each new event command type, and mixed mapped/unmapped command lists.
+- Eighth agent swarm execution slice (2026-04-20): Achievement trigger integration
+  - `AchievementTrigger` struct with structured unlock condition parsing supporting legacy underscore format (`kill_count_10`) and parameterized format (`item_collect:item_id=5:count=3`).
+  - `AchievementEventBus` lightweight pub/sub for gameplay events.
+  - `AchievementTriggerResolver` binds registry + event bus and auto-reports progress when emitted events match registered achievement triggers.
+  - `AchievementDef` now supports explicit `target` override field for conditions where the target cannot be parsed from the condition string.
+  - 11 focused tests cover trigger parsing, event matching, bus emission, resolver auto-reporting, parameterized events, and explicit target override.
+- Ninth agent swarm execution slice (2026-04-20): Character Identity ECS integration
+  - `CharacterIdentityComponent` ECS component wraps `CharacterIdentity` and attaches to entities with a dirty flag for sync tracking.
+  - `CharacterIdentitySystem` propagates identity fields (name, classId, bodySpriteId) into `ActorComponent` and `VisualComponent` on update, respecting dirty flags and skipping empty fields.
+  - `CharacterSpawner` deterministic helper creates actor entities from `CharacterSpawnRequest` with position, enemy flag, and immediate identity sync.
+  - `ActorManager::CreateActorFromIdentity()` convenience method for spawning actors with identity pre-attached.
+  - 8 focused tests cover component attachment, system sync propagation, empty-field preservation, dirty-flag gating, spawner positioning, enemy flag, and identity round-trip through ECS.
+- Tenth agent swarm execution slice (2026-04-20): Save binary format loader
+  - `LZString` decompressor implemented in C++ with `decompressFromBase64()` supporting the Base64 variant used by RPG Maker MV/MZ save files.
+  - `RPGMakerSaveFileReader` class handles format detection (MV vs MZ heuristic), optional XOR decryption, LZString decompression, and JSON parsing.
+  - 9 focused tests cover LZString decompression against known vectors (empty, single char, words, sentences, JSON payloads), format detection, XOR round-trip, file-not-found handling, invalid format handling, and end-to-end JSON payload reading.
 - Latest recorded local validation snapshot:
-  - recorded under the `dev-ninja-debug` preset: `ctest --preset dev-all --output-on-failure` => 630/630 passed
+  - recorded under the `dev-ninja-debug` preset: `ctest --preset dev-all --output-on-failure` => 869/869 passed (includes all previous lanes plus Wave 1 closure integration, presentation bridge, incubating test conversion, cmake-completeness-governance, save-policy-governance, battle-migration-residual-gaps, achievement-trigger-integration, character-identity-ecs, and save-binary-format-loader lanes)
 - Latest focused Phase 5 hardening validation snapshot:
   - `ctest --test-dir build -C Debug --output-on-failure -R "PluginManager: Command execution|MapScene:|SceneManager:"` => 9/9 passed
   - `powershell -ExecutionPolicy Bypass -File tools/ci/check_phase4_intake_governance.ps1` => passed
@@ -111,7 +189,7 @@ Phase 3 diagnostics productization is complete as of 2026-04-19, Phase 4 governa
   - `ctest --test-dir build -C Debug --output-on-failure -R "PluginManager: Command execution|MapScene:|SceneManager:"` => 9/9 passed
   - `ctest --test-dir build -C Debug -R "urpg_(presentation_(unit_lane|release_validation)|spatial_editor_lane)" --output-on-failure` => 3/3 passed
   - `powershell -ExecutionPolicy Bypass -File tools/ci/check_phase4_intake_governance.ps1` => passed
-  - `ctest --preset dev-all --output-on-failure` => 630/630 passed
+  - `ctest --preset dev-all --output-on-failure` => 790/790 passed
 - Latest focused compat validation snapshot:
   - `.\build\Debug\urpg_compat_tests.exe --reporter compact` => 3375 assertions / 43 test cases passed
 - Latest focused audio validation snapshot:
@@ -370,8 +448,8 @@ Phase 2 runtime closure is already complete. The remaining compat work below is 
 
 - [x] UI/Menu Core: complete production closure for command registry/scene graph/route resolver ownership (runtime, editor, schema, and migration are now closed).
 - [x] Message/Text Core: runtime renderer handoff AND editor productization are closed. Schema and migration field coverage is complete. Remaining work is release-readiness proof (Task 10).
-- [x] Battle Core: runtime, editor, schema, migration, diagnostics, preview parity, and active local release evidence are now reconciled and recorded.
-- [x] Save/Data Core: runtime, editor, schema, migration, diagnostics, recovery, importer/upgrader ownership, and active local release evidence are now reconciled and recorded.
+- [x] Battle Core: runtime, editor, schema, migration, diagnostics, preview parity, and active local release evidence are now reconciled and recorded. Wave 1 closure signoff exists at `docs/BATTLE_CORE_CLOSURE_SIGNOFF.md`.
+- [x] Save/Data Core: runtime, editor, schema, migration, diagnostics, recovery, importer/upgrader ownership, and active local release evidence are now reconciled and recorded. Wave 1 closure signoff exists at `docs/SAVE_DATA_CORE_CLOSURE_SIGNOFF.md`.
 
 ### 3. Wave 1 editor productization (remaining)
 

@@ -141,8 +141,10 @@ endfunction()
 
 add_library(urpg_core
     engine/core/debug/debug_session.cpp
+    engine/core/debug/debug_ai_bridge.cpp
     engine/core/engine_shell.cpp
     engine/core/global_state_hub.cpp
+    engine/core/input/input_remap_store.cpp
     engine/core/platform/opengl_renderer.cpp
     engine/core/platform/sdl_surface.cpp
     engine/core/platform/gl_shader.cpp
@@ -152,7 +154,11 @@ add_library(urpg_core
     engine/core/render/sprite_animator.cpp
     engine/core/sprite_batcher.cpp
     engine/core/clock.cpp
+    engine/core/perf/perf_profiler.cpp
+    engine/core/testing/visual_regression_harness.cpp
+    engine/core/analytics/analytics_dispatcher.cpp
     engine/core/semver.cpp
+    engine/core/asset_compressor.cpp
     engine/core/threading/thread_roles.cpp
     engine/core/events/event_edit_guard.cpp
     engine/core/events/event_runtime.cpp
@@ -164,26 +170,43 @@ add_library(urpg_core
     engine/core/save/save_migration.cpp
     engine/core/save/save_recovery.cpp
     engine/core/save/save_runtime.cpp
+    engine/core/save/lzstring_decompressor.cpp
+    engine/core/save/rpgmaker_save_reader.cpp
     engine/core/battle/battle_core.cpp
+    engine/core/battle/battle_ai_bridge.cpp
+    engine/core/character/character_identity.cpp
+    engine/core/character/character_identity_system.cpp
+    engine/core/achievement/achievement_registry.cpp
+    engine/core/achievement/achievement_trigger.cpp
+    engine/core/presentation/presentation_bridge.cpp
     engine/core/presentation/presentation_runtime.cpp
     engine/core/presentation/effects/effect_catalog.cpp
     engine/core/presentation/effects/effect_resolver.cpp
     engine/core/presentation/effects/effect_translator.cpp
     engine/gameplay/combat/combat_calc.cpp
     engine/core/audio/audio_ai_bridge.cpp
+    engine/core/audio/audio_mix_presets.cpp
     engine/core/animation/animation_ai_bridge.cpp
     engine/core/ui/ui_window.cpp
     engine/core/ui/chat_window.cpp
     engine/core/ui/ui_command_list.cpp
     engine/core/message/message_core.cpp
+    engine/core/message/ai_sync_coordinator.cpp
     engine/core/message/dialogue_registry.cpp
     engine/core/message/message_migration.cpp
+    engine/core/localization/locale_catalog.cpp
+    engine/core/localization/completeness_checker.cpp
+    engine/core/accessibility/accessibility_auditor.cpp
     editor/diagnostics/event_authority_diagnostics.cpp
     editor/diagnostics/event_authority_panel.cpp
     editor/diagnostics/diagnostics_workspace.cpp
     editor/diagnostics/diagnostics_facade.cpp
     editor/diagnostics/project_audit_panel.cpp
+    editor/export/export_diagnostics_panel.cpp
     editor/compat/compat_report_panel.cpp
+    editor/character/character_creator_model.cpp
+    editor/character/character_creator_panel.cpp
+    editor/achievement/achievement_panel.cpp
     editor/save/save_inspector_model.cpp
     editor/save/save_inspector_panel.cpp
     editor/battle/battle_inspector_model.cpp
@@ -198,14 +221,25 @@ add_library(urpg_core
     editor/ability/ability_inspector_panel.cpp
     editor/ability/pattern_field_model.cpp
     editor/ability/pattern_field_panel.cpp
+    editor/perf/perf_diagnostics_model.cpp
+    editor/perf/perf_diagnostics_panel.cpp
     editor/spatial/elevation_brush_panel.cpp
     editor/spatial/prop_placement_panel.cpp
     editor/sprite/sprite_animation_preview_panel.cpp
+    editor/accessibility/accessibility_panel.cpp
+    editor/audio/audio_mix_panel.cpp
+    editor/audio/audio_inspector_model.cpp
+    editor/analytics/analytics_panel.cpp
+    editor/mod/mod_manager_panel.cpp
     engine/core/editor/plugin_api.cpp
+    engine/core/editor/security_manager.cpp
     engine/core/ability/gameplay_ability.cpp
     engine/core/ability/ability_state_machine.cpp
     engine/core/ability/pattern_field.cpp
     engine/core/ability/pattern_field_presets.cpp
+    engine/core/mod/mod_registry.cpp
+    engine/core/export/export_validator.cpp
+    engine/core/tools/export_packager.cpp
     engine/core/level/level_assembly.cpp
     engine/core/ui/menu_serializer.cpp
     engine/core/scene/battle_scene.cpp
@@ -409,6 +443,8 @@ add_executable(urpg_tests
     tests/unit/test_semver.cpp
     tests/unit/test_fixed32.cpp
     tests/unit/test_frame_budget.cpp
+    tests/unit/test_perf_profiler.cpp
+    tests/unit/test_perf_diagnostics_panel.cpp
     tests/unit/test_ecs_world.cpp
     tests/unit/test_ai_system.cpp
     tests/unit/test_movement_system.cpp
@@ -418,6 +454,9 @@ add_executable(urpg_tests
     tests/unit/test_camera_system.cpp
     tests/unit/test_camera_follow_system.cpp
     tests/unit/test_camera_shake_system.cpp
+    tests/unit/test_character_identity.cpp
+    tests/unit/test_character_identity_ecs.cpp
+    tests/unit/test_character_creator_panel.cpp
     tests/unit/test_animation_system.cpp
     tests/unit/test_system_orchestrator.cpp
     tests/unit/test_interaction_system.cpp
@@ -439,6 +478,8 @@ add_executable(urpg_tests
     tests/unit/test_save_catalog.cpp
     tests/unit/test_save_inspector_model.cpp
     tests/unit/test_save_inspector_panel.cpp
+    tests/unit/test_lzstring_decompressor.cpp
+    tests/unit/test_rpgmaker_save_reader.cpp
     tests/unit/test_save_recovery.cpp
     tests/unit/test_save_runtime.cpp
     tests/unit/test_save_migration.cpp
@@ -456,6 +497,8 @@ add_executable(urpg_tests
     tests/unit/test_window_compat.cpp
     tests/unit/test_compat_report_panel.cpp
     tests/unit/test_battlemgr.cpp
+    tests/unit/test_mod_registry.cpp
+    tests/unit/test_mod_manager_panel.cpp
     tests/unit/test_battle_effect_cues.cpp
     tests/unit/test_battle_scene_native.cpp
     tests/unit/test_data_manager.cpp
@@ -466,11 +509,16 @@ add_executable(urpg_tests
     tests/unit/test_menu_core.cpp
     tests/unit/test_menu_orchestration.cpp
     tests/unit/test_input_core.cpp
+    tests/unit/test_input_remap_store.cpp
     tests/unit/test_audio_core.cpp
+    tests/unit/test_audio_mix_presets.cpp
     tests/unit/test_message_text_core.cpp
     tests/unit/test_message_migration.cpp
     tests/unit/test_message_schema_contracts.cpp
+    tests/unit/test_locale_catalog.cpp
+    tests/unit/test_completeness_checker.cpp
     tests/unit/test_save_schema_contracts.cpp
+    tests/unit/test_save_policy_governance.cpp
     tests/unit/test_message_inspector_model.cpp
     tests/unit/test_message_inspector_panel.cpp
     tests/unit/test_menu_inspector_panel.cpp
@@ -480,6 +528,7 @@ add_executable(urpg_tests
     tests/unit/test_state_audio_sync.cpp
     tests/unit/test_scene_manager.cpp
     tests/unit/test_gameplay_tags.cpp
+    tests/unit/test_presentation_bridge.cpp
     tests/unit/test_presentation_runtime.cpp
     tests/unit/test_presentation_effect_translation.cpp
     tests/unit/test_project_audit_cli.cpp
@@ -503,12 +552,31 @@ add_executable(urpg_tests
     tests/unit/test_menu_migration_logic.cpp
     tests/unit/test_migration_wizard.cpp
     tests/unit/test_ai_bridge_regex.cpp
+    tests/unit/test_achievement_registry.cpp
+    tests/unit/test_achievement_panel.cpp
+    tests/unit/test_achievement_triggers.cpp
+    tests/unit/test_accessibility_auditor.cpp
+    tests/unit/test_accessibility_panel.cpp
+    tests/unit/test_export_validator.cpp
+    tests/unit/test_export_packager.cpp
+    tests/unit/test_export_diagnostics_panel.cpp
+    tests/unit/test_visual_regression_harness.cpp
+    tests/unit/test_truth_reconciler.cpp
+    tests/unit/test_analytics_dispatcher.cpp
+    tests/unit/test_analytics_panel.cpp
     tests/engine/core/test_render_assets.cpp
     tests/test_asset_license_audit.cpp
     tests/test_copilot_kernel.cpp
     tests/test_headless_play_mode.cpp
     tests/test_plugin_manifest.cpp
     tests/test_snapshot_validator.cpp
+    tests/test_ability_inspector.cpp
+    tests/test_ability_pattern_integration.cpp
+    tests/test_ability_state_machine.cpp
+    tests/test_ability_tasks.cpp
+    tests/test_effect_modifiers.cpp
+    tests/test_pattern_field_editor.cpp
+    tests/test_pattern_serialization.cpp
 )
 
 target_link_libraries(urpg_tests PRIVATE urpg_core Catch2::Catch2WithMain)
@@ -519,6 +587,8 @@ urpg_enable_windows_test_binary_unlock(urpg_tests)
 
 add_executable(urpg_integration_tests
     tests/integration/test_integration_runtime_recovery.cpp
+    tests/integration/test_battle_save_integration.cpp
+    tests/integration/test_wave1_closure_integration.cpp
 )
 
 target_link_libraries(urpg_integration_tests PRIVATE urpg_core Catch2::Catch2WithMain)

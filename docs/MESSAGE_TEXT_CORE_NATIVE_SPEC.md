@@ -231,18 +231,18 @@ _Canonical source: [WAVE1_SUBSYSTEM_CLOSURE_CHECKLIST.md](WAVE1_SUBSYSTEM_CLOSUR
 
 ### Universal closure gates
 
-- [x] Runtime ownership is authoritative and compat behavior for this subsystem is bridge-only.
-- [x] Editor productization is complete (inspect/edit/preview/validate) with diagnostics surfaced.
-- [x] Schema contracts and migration/import paths are explicit, versioned, and test-backed.
-- [x] Deterministic validation exists (unit + integration + snapshot where layout/presentation applies).
-- [x] Failure-path diagnostics and safe-mode/bounded fallback behavior are explicitly documented and tested.
-- [x] Release evidence is published in status docs and gate snapshots are recorded.
+- [ ] Runtime ownership is authoritative and compat behavior for this subsystem is bridge-only.
+- [ ] Editor productization is complete (inspect/edit/preview/validate) with diagnostics surfaced.
+- [ ] Schema contracts and migration/import paths are explicit, versioned, and test-backed.
+- [ ] Deterministic validation exists (unit + integration + snapshot where layout/presentation applies).
+- [ ] Failure-path diagnostics and safe-mode/bounded fallback behavior are explicitly documented and tested.
+- [ ] Release evidence is published in status docs and gate snapshots are recorded.
 
 ### Message / Text Core specific closure gates
 
-- [x] MessageScene-native renderer ownership is authoritative (compat window bridge no longer primary).
-- [x] Text layout + alignment behavior is deterministic across runtime and preview, including wrapped snapshot anchors.
-- [x] Escape/token/schema migration and diagnostics remain explicit, typed, and test-backed.
+- [ ] MessageScene-native renderer ownership is authoritative (compat window bridge no longer primary).
+- [ ] Text layout + alignment behavior is deterministic across runtime and preview, including wrapped snapshot anchors.
+- [ ] Escape/token/schema migration and diagnostics remain explicit, typed, and test-backed.
 
 ### Closure sign-off artifact checklist
 
