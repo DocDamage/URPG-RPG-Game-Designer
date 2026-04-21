@@ -1,6 +1,6 @@
 # Template Label Rules
 
-Status Date: 2026-04-20
+Status Date: 2026-04-21
 
 This document defines when a template may be labeled `READY`, `PARTIAL`, `EXPERIMENTAL`, `BLOCKED`, or `PLANNED`.
 

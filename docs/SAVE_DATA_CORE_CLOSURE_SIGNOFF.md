@@ -46,7 +46,7 @@ Native JSON schemas are enforced under `content/schemas/`:
 
 Two migration paths are available:
 
-- **`SaveMigration`** (`engine/core/save/save_migration.h`) — `UpgradeCompatSaveMetadataDocument()` upgrades legacy compat save metadata to native format, with severity-graded diagnostics and safe-fallback support.
+- **`SaveMigration`** (`engine/core/save/save_migration.h`) — `UpgradeCompatSaveMetadataDocument()` upgrades legacy compat save metadata to native format, and `ImportCompatSaveDocument()` imports full compat save payloads into native runtime-owned save JSON plus migrated metadata, with severity-graded diagnostics and safe-fallback support.
 - **`MigrationRunner`** (`engine/core/migrate/migration_runner.h`) — Generic JSON Patch-like runner (`rename`, `move`, etc.) used for save payload upgrades. Battle metadata and other subsystem blobs are preserved during unrelated ops.
 - **Save Policy Governance**: Canonical save policy fixture at `content/fixtures/save_policies.json` validates against `save_policies.schema.json` via `tools/ci/check_save_policy_governance.ps1`, enforced in Gate 1 CI.
 
@@ -71,13 +71,14 @@ Key cross-subsystem assertions include:
 - Migration output can be loaded through the runtime recovery path.
 - Missing primary saves fall back to Level 2 metadata + variables.
 - Battle metadata is not dropped during save payload migration.
+- Real RPG Maker `.rpgsave` payloads can be read, imported into native payload + metadata, and loaded through the normal runtime path.
 - Menu and message runtime states survive save/load boundaries.
 
 ---
 
 ## 7. Remaining Residual Gaps (Honest Scope Limits)
 
-1. **Compat import/migration completion**: While `SaveMigration` and `MigrationRunner` handle structural upgrades, full end-to-end project migration that includes save data import from RPG Maker MV/MZ binary formats is not yet complete. This is tracked as "Compat import and migration closure remains open" in `readiness_status.json`.
+1. **Compat import/migration completion**: `SaveMigration`, `RPGMakerSaveFileReader`, and `MigrationRunner` now cover end-to-end compat save import through native payload + metadata generation, including a focused `.rpgsave` round-trip. Remaining work is limited to deeper plugin-specific save semantics and any future compat payload fields that still require explicit fallback handling. This specific compat import/migration item is complete; only unrelated residual gaps remain in `readiness_status.json`.
 2. **Automated CI policy gates**: ~~Save policy validation runs in-editor and in-unit tests, but an automated CI gate that rejects builds on policy drift is not yet wired.~~ **RESOLVED**: `tools/ci/check_save_policy_governance.ps1` now validates the canonical fixture against the schema and enforces retention/autosave invariants in Gate 1 CI.
 3. **Cloud / cross-device sync**: Not in Wave 1 scope.
 

@@ -86,3 +86,88 @@ TEST_CASE("Save migration diagnostics export emits JSONL stream", "[save][migrat
     REQUIRE(first.contains("code"));
     REQUIRE(first.contains("field_path"));
 }
+
+TEST_CASE("Save migration imports compat payload into native runtime shape", "[save][migration][import]") {
+    const json compat = {
+        {"_urpg_format_version", "mz_compat_1"},
+        {"meta", {
+            {"slotId", 8},
+            {"mapName", "Moonwell"},
+            {"playtimeSeconds", 333}
+        }},
+        {"gold", 500},
+        {"mapId", 3},
+        {"playerX", 9},
+        {"playerY", 14},
+        {"direction", 6},
+        {"party", {
+            {{"actorId", 1}, {"name", "Ari"}, {"level", 12}, {"hp", 220}, {"mhp", 300}},
+            {{"actorId", 2}, {"name", "Beck"}, {"level", 10}, {"hp", 180}, {"mhp", 240}}
+        }},
+        {"switches", {{"boss_defeated", true}}},
+        {"variables", {{"gold_total", 500}}},
+        {"pluginData", {{"craftingPlus", {{"rank", 4}}}}}
+    };
+
+    const auto imported = urpg::save::ImportCompatSaveDocument(compat);
+
+    REQUIRE(imported.native_payload["_urpg_format_version"] == "1.0");
+    REQUIRE(imported.native_payload["player"]["gold"] == 500);
+    REQUIRE(imported.native_payload["player"]["x"] == 9);
+    REQUIRE(imported.native_payload["player"]["y"] == 14);
+    REQUIRE(imported.native_payload["player"]["direction"] == 6);
+    REQUIRE(imported.native_payload["map_id"] == 3);
+    REQUIRE(imported.native_payload["party"].is_array());
+    REQUIRE(imported.native_payload["party"].size() == 2);
+    REQUIRE(imported.native_payload["party"][0]["actor_id"] == 1);
+    REQUIRE(imported.native_payload["switches"]["boss_defeated"] == true);
+    REQUIRE(imported.native_payload["variables"]["gold_total"] == 500);
+    REQUIRE(imported.native_payload["_compat_payload_retained"]["/pluginData"]["craftingPlus"]["rank"] == 4);
+
+    REQUIRE(imported.migrated_metadata["_slot_id"] == 8);
+    REQUIRE(imported.migrated_metadata["_map_display_name"] == "Moonwell");
+    REQUIRE(imported.migrated_metadata["_party_snapshot"].size() == 2);
+    REQUIRE(imported.migrated_metadata["_party_snapshot"][0]["name"] == "Ari");
+    REQUIRE(imported.used_safe_fallback);
+
+    const auto has_code = [&](std::string_view code) {
+        return std::any_of(
+            imported.diagnostics.begin(),
+            imported.diagnostics.end(),
+            [&](const urpg::save::SaveMigrationDiagnostic& diagnostic) { return diagnostic.code == code; });
+    };
+    REQUIRE(has_code("unsupported_plugin_blob"));
+}
+
+TEST_CASE("Save migration retains lossy compat payload fields with diagnostics", "[save][migration][import]") {
+    const json compat = {
+        {"gold", "bad"},
+        {"party", {
+            {{"name", "NoActor"}},
+            "broken"
+        }},
+        {"customBlob", {{"chapter", 7}}}
+    };
+
+    const auto imported = urpg::save::ImportCompatSaveDocument(compat);
+
+    REQUIRE_FALSE(imported.native_payload.contains("map_id"));
+    REQUIRE(imported.native_payload.contains("party"));
+    REQUIRE(imported.native_payload["party"].is_array());
+    REQUIRE(imported.native_payload["party"].empty());
+    REQUIRE(imported.native_payload["_compat_payload_retained"]["/party/0"]["name"] == "NoActor");
+    REQUIRE(imported.native_payload["_compat_payload_retained"]["/party/1"] == "broken");
+    REQUIRE(imported.native_payload["_compat_payload_retained"]["/customBlob"]["chapter"] == 7);
+    REQUIRE(imported.used_safe_fallback);
+
+    const auto has_code = [&](std::string_view code) {
+        return std::any_of(
+            imported.diagnostics.begin(),
+            imported.diagnostics.end(),
+            [&](const urpg::save::SaveMigrationDiagnostic& diagnostic) { return diagnostic.code == code; });
+    };
+    REQUIRE(has_code("invalid_gold_field"));
+    REQUIRE(has_code("missing_actor_reference"));
+    REQUIRE(has_code("invalid_party_member"));
+    REQUIRE(has_code("retained_compat_payload_field"));
+}

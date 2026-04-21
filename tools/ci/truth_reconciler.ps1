@@ -5,10 +5,21 @@ $readinessPath = Join-Path $repoRoot "content/readiness/readiness_status.json"
 $releaseMatrixPath = Join-Path $repoRoot "docs/RELEASE_READINESS_MATRIX.md"
 $templateMatrixPath = Join-Path $repoRoot "docs/TEMPLATE_READINESS_MATRIX.md"
 $changelogPath = Join-Path $repoRoot "docs/SCHEMA_CHANGELOG.md"
+$truthRulesPath = Join-Path $repoRoot "docs/TRUTH_ALIGNMENT_RULES.md"
+$templateLabelRulesPath = Join-Path $repoRoot "docs/TEMPLATE_LABEL_RULES.md"
+$subsystemStatusRulesPath = Join-Path $repoRoot "docs/SUBSYSTEM_STATUS_RULES.md"
 $docsDir = Join-Path $repoRoot "docs"
 $schemasDir = Join-Path $repoRoot "content/schemas"
 
-foreach ($file in @($readinessPath, $releaseMatrixPath, $templateMatrixPath, $changelogPath)) {
+foreach ($file in @(
+        $readinessPath,
+        $releaseMatrixPath,
+        $templateMatrixPath,
+        $changelogPath,
+        $truthRulesPath,
+        $templateLabelRulesPath,
+        $subsystemStatusRulesPath
+    )) {
     if (-not (Test-Path $file)) {
         throw "Missing required file: $file"
     }
@@ -18,17 +29,79 @@ $readiness = Get-Content -Raw -Path $readinessPath | ConvertFrom-Json
 $releaseMatrixText = Get-Content -Raw -Path $releaseMatrixPath
 $templateMatrixText = Get-Content -Raw -Path $templateMatrixPath
 $changelogText = Get-Content -Raw -Path $changelogPath
+$truthRulesText = Get-Content -Raw -Path $truthRulesPath
+$templateLabelRulesText = Get-Content -Raw -Path $templateLabelRulesPath
+$subsystemStatusRulesText = Get-Content -Raw -Path $subsystemStatusRulesPath
 
 $tick = [string][char]96
 $mismatches = @()
+
+function Get-StatusDateFromText {
+    param(
+        [string]$Text,
+        [string]$Label
+    )
+
+    $match = [regex]::Match($Text, 'Status Date:\s*(\d{4}-\d{2}-\d{2})')
+    if (-not $match.Success) {
+        $script:mismatches += "$Label is missing a Status Date."
+        return $null
+    }
+    return $match.Groups[1].Value
+}
+
+function Get-MatrixRows {
+    param(
+        [string]$Text
+    )
+
+    $rows = @{}
+    $seenCurrentMatrix = $false
+    foreach ($line in ($Text -split "`r?`n")) {
+        if ($line -match '^## Current Matrix') {
+            $seenCurrentMatrix = $true
+            continue
+        }
+        if (-not $seenCurrentMatrix) {
+            continue
+        }
+        if ($line -match '^## ') {
+            break
+        }
+        if ($line -match '^\| `([^`]+)` \| `([^`]+)` \|') {
+            $rows[$matches[1]] = $matches[2]
+        }
+    }
+    return $rows
+}
+
+$docDates = @(
+    @{ Label = "RELEASE_READINESS_MATRIX.md"; Value = (Get-StatusDateFromText -Text $releaseMatrixText -Label "RELEASE_READINESS_MATRIX.md") },
+    @{ Label = "TEMPLATE_READINESS_MATRIX.md"; Value = (Get-StatusDateFromText -Text $templateMatrixText -Label "TEMPLATE_READINESS_MATRIX.md") },
+    @{ Label = "TRUTH_ALIGNMENT_RULES.md"; Value = (Get-StatusDateFromText -Text $truthRulesText -Label "TRUTH_ALIGNMENT_RULES.md") },
+    @{ Label = "TEMPLATE_LABEL_RULES.md"; Value = (Get-StatusDateFromText -Text $templateLabelRulesText -Label "TEMPLATE_LABEL_RULES.md") },
+    @{ Label = "SUBSYSTEM_STATUS_RULES.md"; Value = (Get-StatusDateFromText -Text $subsystemStatusRulesText -Label "SUBSYSTEM_STATUS_RULES.md") }
+)
+
+foreach ($docDate in $docDates) {
+    if ($docDate.Value -and $docDate.Value -ne $readiness.statusDate) {
+        $mismatches += "$($docDate.Label) status date '$($docDate.Value)' does not match readiness_status.json date '$($readiness.statusDate)'."
+    }
+}
+
+$releaseRows = Get-MatrixRows -Text $releaseMatrixText
+$templateRows = Get-MatrixRows -Text $templateMatrixText
 
 # ---------------------------------------------------------------------------
 # a. Every subsystem in readiness_status.json has a row in RELEASE_READINESS_MATRIX.md
 # ---------------------------------------------------------------------------
 foreach ($entry in $readiness.subsystems) {
-    $pattern = [regex]::Escape($tick + $entry.id + $tick)
-    if ($releaseMatrixText -notmatch $pattern) {
+    if (-not $releaseRows.ContainsKey($entry.id)) {
         $mismatches += "Subsystem '$($entry.id)' is missing from RELEASE_READINESS_MATRIX.md."
+        continue
+    }
+    if ($releaseRows[$entry.id] -ne $entry.status) {
+        $mismatches += "Subsystem '$($entry.id)' has status '$($entry.status)' in readiness_status.json but '$($releaseRows[$entry.id])' in RELEASE_READINESS_MATRIX.md."
     }
 }
 
@@ -36,9 +109,27 @@ foreach ($entry in $readiness.subsystems) {
 # b. Every template in readiness_status.json has a row in TEMPLATE_READINESS_MATRIX.md
 # ---------------------------------------------------------------------------
 foreach ($entry in $readiness.templates) {
-    $pattern = [regex]::Escape($tick + $entry.id + $tick)
-    if ($templateMatrixText -notmatch $pattern) {
+    if (-not $templateRows.ContainsKey($entry.id)) {
         $mismatches += "Template '$($entry.id)' is missing from TEMPLATE_READINESS_MATRIX.md."
+        continue
+    }
+    if ($templateRows[$entry.id] -ne $entry.status) {
+        $mismatches += "Template '$($entry.id)' has status '$($entry.status)' in readiness_status.json but '$($templateRows[$entry.id])' in TEMPLATE_READINESS_MATRIX.md."
+    }
+}
+
+# ---------------------------------------------------------------------------
+# b2. Matrices must not contain rows absent from readiness_status.json
+# ---------------------------------------------------------------------------
+foreach ($matrixId in $releaseRows.Keys) {
+    if (-not ($readiness.subsystems | Where-Object { $_.id -eq $matrixId })) {
+        $mismatches += "RELEASE_READINESS_MATRIX.md contains extra subsystem row '$matrixId' not present in readiness_status.json."
+    }
+}
+
+foreach ($matrixId in $templateRows.Keys) {
+    if (-not ($readiness.templates | Where-Object { $_.id -eq $matrixId })) {
+        $mismatches += "TEMPLATE_READINESS_MATRIX.md contains extra template row '$matrixId' not present in readiness_status.json."
     }
 }
 

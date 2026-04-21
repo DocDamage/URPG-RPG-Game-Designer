@@ -674,11 +674,21 @@ TEST_CASE("BattleManager: method status registry", "[battlemgr]") {
     (void)bm;
 
     REQUIRE(BattleManager::getMethodStatus("setup") == CompatStatus::PARTIAL);
+    REQUIRE(BattleManager::getMethodStatus("applySkill") == CompatStatus::PARTIAL);
+    REQUIRE(BattleManager::getMethodStatus("applyItem") == CompatStatus::PARTIAL);
+    REQUIRE(BattleManager::getMethodStatus("startBattleEvent") == CompatStatus::PARTIAL);
+    REQUIRE(BattleManager::getMethodStatus("updateBattleEvents") == CompatStatus::PARTIAL);
+    REQUIRE(BattleManager::getMethodStatus("calculateExp") == CompatStatus::PARTIAL);
     REQUIRE(BattleManager::getMethodStatus("processEscape") == CompatStatus::FULL);
     REQUIRE(BattleManager::getMethodStatus("setBattleTransition") == CompatStatus::PARTIAL);
     REQUIRE(BattleManager::getMethodStatus("changeBattleBgm") == CompatStatus::PARTIAL);
     REQUIRE(BattleManager::getMethodStatus("playAnimation") == CompatStatus::FULL);
     REQUIRE(BattleManager::getMethodDeviation("setup").find("partial") != std::string::npos);
+    REQUIRE(BattleManager::getMethodDeviation("applySkill").find("formula parsing") != std::string::npos);
+    REQUIRE(BattleManager::getMethodDeviation("applyItem").find("formula parsing") != std::string::npos);
+    REQUIRE(BattleManager::getMethodDeviation("startBattleEvent").find("bounded command subset") != std::string::npos);
+    REQUIRE(BattleManager::getMethodDeviation("updateBattleEvents").find("bounded command subset") != std::string::npos);
+    REQUIRE(BattleManager::getMethodDeviation("calculateExp").find("enemy loader is still partial") != std::string::npos);
     REQUIRE(BattleManager::getMethodStatus("nonexistentMethod") == CompatStatus::UNSUPPORTED);
 }
 

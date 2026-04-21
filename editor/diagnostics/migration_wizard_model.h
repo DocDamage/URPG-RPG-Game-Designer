@@ -477,7 +477,7 @@ private:
     }
 
     SubsystemResult runSaveMigration(const nlohmann::json& save_data) {
-        const auto save_result = save::UpgradeCompatSaveMetadataDocument(save_data);
+        const auto save_result = save::ImportCompatSaveDocument(save_data);
         size_t warning_count = 0;
         size_t error_count = 0;
         for (const auto& diagnostic : save_result.diagnostics) {
@@ -495,7 +495,7 @@ private:
             warning_count,
             error_count,
             true,
-            "Save migration: 1 metadata document, " + std::to_string(save_result.diagnostics.size()) +
+            "Save migration: 1 compat save document, " + std::to_string(save_result.diagnostics.size()) +
                 " diagnostic(s).",
         };
         return summary;

@@ -147,3 +147,60 @@ TEST_CASE("Runtime save loader hydrates metadata after imported save migration",
 
     std::filesystem::remove_all(base);
 }
+
+TEST_CASE("Runtime save loader consumes imported compat save payload through native path", "[save][runtime][import]") {
+    const auto base = std::filesystem::temp_directory_path() / "urpg_save_runtime_imported_payload";
+    std::filesystem::create_directories(base);
+
+    nlohmann::json compatSave = {
+        {"_urpg_format_version", "mz_compat_1"},
+        {"meta", {
+            {"slotId", 12},
+            {"mapName", "Signal Spire"},
+            {"playtimeSeconds", 4444}
+        }},
+        {"gold", 875},
+        {"mapId", 5},
+        {"playerX", 22},
+        {"playerY", 11},
+        {"direction", 4},
+        {"party", {
+            {{"actorId", 1}, {"name", "Iris"}, {"level", 14}, {"hp", 310}, {"mhp", 360}}
+        }},
+        {"switches", {{"boss_gate_open", true}}},
+        {"variables", {{"chapter", 3}}},
+        {"pluginData", {{"campfire", {{"enabled", true}}}}}
+    };
+
+    const auto imported = urpg::save::ImportCompatSaveDocument(compatSave);
+    REQUIRE_FALSE(imported.diagnostics.empty());
+
+    const auto primary = base / "slot_012.json";
+    const auto meta = base / "meta.json";
+    WriteText(primary, imported.native_payload.dump());
+    WriteText(meta, imported.migrated_metadata.dump());
+
+    urpg::RuntimeSaveLoadRequest request;
+    request.primary_save_path = primary;
+    request.metadata_path = meta;
+
+    const auto result = urpg::RuntimeSaveLoader::Load(request);
+    REQUIRE(result.ok);
+    REQUIRE_FALSE(result.loaded_from_recovery);
+    REQUIRE(result.active_meta.slot_id == 12);
+    REQUIRE(result.active_meta.map_display_name == "Signal Spire");
+    REQUIRE(result.active_meta.playtime_seconds == 4444);
+
+    const auto payload = nlohmann::json::parse(result.payload);
+    REQUIRE(payload["player"]["gold"] == 875);
+    REQUIRE(payload["player"]["x"] == 22);
+    REQUIRE(payload["player"]["direction"] == 4);
+    REQUIRE(payload["map_id"] == 5);
+    REQUIRE(payload["party"].size() == 1);
+    REQUIRE(payload["party"][0]["actor_id"] == 1);
+    REQUIRE(payload["switches"]["boss_gate_open"] == true);
+    REQUIRE(payload["variables"]["chapter"] == 3);
+    REQUIRE(payload["_compat_payload_retained"]["/pluginData"]["campfire"]["enabled"] == true);
+
+    std::filesystem::remove_all(base);
+}

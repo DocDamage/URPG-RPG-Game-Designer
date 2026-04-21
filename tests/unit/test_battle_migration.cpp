@@ -250,6 +250,168 @@ TEST_CASE("BattleMigration: Troop with multiple pages maps multiple phases", "[b
     REQUIRE(native["phases"][1]["condition"]["turn_count"] == 5);
 }
 
+TEST_CASE("BattleMigration: Single leaf condition remains unchanged", "[battle][migration][troop]") {
+    nlohmann::json rm_troop = {
+        {"id", 70},
+        {"name", "Single Leaf"},
+        {"members", {{{"enemyId", 1}, {"x", 100}, {"y", 200}}}},
+        {"pages", {
+            {
+                {"conditions", {{"switchValid", true}, {"switchId", 8}}},
+                {"list", {{{"code", 0}}}},
+                {"span", 0}
+            }
+        }}
+    };
+
+    BattleMigration::Progress progress;
+    auto native = BattleMigration::migrateTroop(rm_troop, progress);
+
+    REQUIRE(native["phases"].size() == 1);
+    REQUIRE(native["phases"][0]["condition"] == nlohmann::json{{"switch_id", "SW_8"}});
+    REQUIRE_FALSE(native["phases"][0].contains("_compat_condition_fallbacks"));
+    REQUIRE(progress.warnings.empty());
+}
+
+TEST_CASE("BattleMigration: Legacy multi-leaf conditions migrate as AND group", "[battle][migration][troop]") {
+    nlohmann::json rm_troop = {
+        {"id", 71},
+        {"name", "Legacy Group"},
+        {"members", {{{"enemyId", 1}, {"x", 100}, {"y", 200}}}},
+        {"pages", {
+            {
+                {"conditions", {
+                    {"turnValid", true},
+                    {"turnA", 2},
+                    {"switchValid", true},
+                    {"switchId", 9}
+                }},
+                {"list", {{{"code", 0}}}},
+                {"span", 0}
+            }
+        }}
+    };
+
+    BattleMigration::Progress progress;
+    auto native = BattleMigration::migrateTroop(rm_troop, progress);
+
+    REQUIRE(native["phases"].size() == 1);
+    const auto& condition = native["phases"][0]["condition"];
+    REQUIRE(condition["op"] == "and");
+    REQUIRE(condition["children"].is_array());
+    REQUIRE(condition["children"].size() == 2);
+    REQUIRE(condition["children"][0]["turn_count"] == 2);
+    REQUIRE(condition["children"][1]["switch_id"] == "SW_9");
+    REQUIRE(progress.warnings.empty());
+}
+
+TEST_CASE("BattleMigration: Explicit OR condition group is preserved", "[battle][migration][troop]") {
+    nlohmann::json rm_troop = {
+        {"id", 72},
+        {"name", "OR Group"},
+        {"members", {{{"enemyId", 1}, {"x", 100}, {"y", 200}}}},
+        {"pages", {
+            {
+                {"conditions", {
+                    {"op", "or"},
+                    {"children", nlohmann::json::array({
+                        nlohmann::json{{"turnValid", true}, {"turnA", 2}},
+                        nlohmann::json{{"switchValid", true}, {"switchId", 9}}
+                    })}
+                }},
+                {"list", {{{"code", 0}}}},
+                {"span", 0}
+            }
+        }}
+    };
+
+    BattleMigration::Progress progress;
+    auto native = BattleMigration::migrateTroop(rm_troop, progress);
+
+    REQUIRE(native["phases"].size() == 1);
+    const auto& condition = native["phases"][0]["condition"];
+    REQUIRE(condition["op"] == "or");
+    REQUIRE(condition["children"].size() == 2);
+    REQUIRE(condition["children"][0]["turn_count"] == 2);
+    REQUIRE(condition["children"][1]["switch_id"] == "SW_9");
+    REQUIRE(progress.warnings.empty());
+}
+
+TEST_CASE("BattleMigration: Nested AND OR condition tree is preserved", "[battle][migration][troop]") {
+    nlohmann::json rm_troop = {
+        {"id", 73},
+        {"name", "Nested Group"},
+        {"members", {{{"enemyId", 1}, {"x", 100}, {"y", 200}}}},
+        {"pages", {
+            {
+                {"conditions", {
+                    {"op", "and"},
+                    {"children", nlohmann::json::array({
+                        nlohmann::json{
+                            {"op", "or"},
+                            {"children", nlohmann::json::array({
+                                nlohmann::json{{"switchValid", true}, {"switchId", 4}},
+                                nlohmann::json{{"actorValid", true}, {"actorId", 2}}
+                            })}
+                        },
+                        nlohmann::json{{"enemyValid", true}, {"enemyHp", 25}, {"enemyIndex", 1}}
+                    })}
+                }},
+                {"list", {{{"code", 0}}}},
+                {"span", 0}
+            }
+        }}
+    };
+
+    BattleMigration::Progress progress;
+    auto native = BattleMigration::migrateTroop(rm_troop, progress);
+
+    REQUIRE(native["phases"].size() == 1);
+    const auto& condition = native["phases"][0]["condition"];
+    REQUIRE(condition["op"] == "and");
+    REQUIRE(condition["children"].size() == 2);
+    REQUIRE(condition["children"][0]["op"] == "or");
+    REQUIRE(condition["children"][0]["children"][0]["switch_id"] == "SW_4");
+    REQUIRE(condition["children"][0]["children"][1]["actor_id"] == "ACT_2");
+    REQUIRE(condition["children"][1]["hp_below_percent"] == 25);
+    REQUIRE(condition["children"][1]["enemy_index"] == 1);
+    REQUIRE(progress.warnings.empty());
+}
+
+TEST_CASE("BattleMigration: Unsupported condition tree shape emits warning and fallback record", "[battle][migration][troop]") {
+    nlohmann::json rm_troop = {
+        {"id", 74},
+        {"name", "Unsupported Tree"},
+        {"members", {{{"enemyId", 1}, {"x", 100}, {"y", 200}}}},
+        {"pages", {
+            {
+                {"conditions", {
+                    {"op", "xor"},
+                    {"children", nlohmann::json::array({
+                        nlohmann::json{{"switchValid", true}, {"switchId", 1}},
+                        nlohmann::json{{"actorValid", true}, {"actorId", 7}}
+                    })}
+                }},
+                {"list", {{{"code", 0}}}},
+                {"span", 0}
+            }
+        }}
+    };
+
+    BattleMigration::Progress progress;
+    auto native = BattleMigration::migrateTroop(rm_troop, progress);
+
+    REQUIRE(native["phases"].size() == 1);
+    REQUIRE(native["phases"][0]["condition"].empty());
+    REQUIRE(native["phases"][0].contains("_compat_condition_fallbacks"));
+    REQUIRE(native["phases"][0]["_compat_condition_fallbacks"].size() == 1);
+    REQUIRE(native["phases"][0]["_compat_condition_fallbacks"][0]["type"] == "unsupported_condition_tree");
+    REQUIRE(native["phases"][0]["_compat_condition_fallbacks"][0]["reason"] == "unsupported_operator");
+    REQUIRE(native["phases"][0]["_compat_condition_fallbacks"][0]["source_operator"] == "xor");
+    REQUIRE(progress.warnings.size() == 1);
+    REQUIRE(progress.warnings[0].find("battle_condition_tree_unsupported_shape") != std::string::npos);
+}
+
 
 TEST_CASE("BattleMigration: Action scope random enemy is mapped", "[battle][migration][action]") {
     nlohmann::json rm_skill = {
@@ -417,13 +579,106 @@ TEST_CASE("BattleMigration: Troop page unmapped commands emit partial warning", 
     auto native = BattleMigration::migrateTroop(rm_troop, progress);
 
     REQUIRE(native["phases"].size() == 1);
-    // First effect is the mapped message
     REQUIRE(native["phases"][0]["effects"][0]["type"] == "message");
-    // Second effect is the unmapped fallback
-    REQUIRE(native["phases"][0]["effects"][1]["type"] == "common_event");
-    REQUIRE(native["phases"][0]["effects"][1]["note"] == "unmapped_commands");
+    REQUIRE(native["phases"][0]["effects"][1]["type"] == "unsupported_command");
+    REQUIRE(native["phases"][0]["effects"][1]["code"] == 999);
+    REQUIRE(native["phases"][0]["effects"][1]["reason"] == "unmapped_command");
     REQUIRE(progress.warnings.size() == 1);
-    REQUIRE(progress.warnings[0].find("unmapped") != std::string::npos);
+    REQUIRE(progress.warnings[0].find("battle_event_command_unsupported") != std::string::npos);
+}
+
+TEST_CASE("BattleMigration: Troop page Change Switches command is mapped", "[battle][migration][troop]") {
+    nlohmann::json rm_troop = {
+        {"id", 20},
+        {"name", "Switch Boss"},
+        {"members", {{{"enemyId", 1}, {"x", 100}, {"y", 200}}}},
+        {"pages", {
+            {
+                {"conditions", {{"turnValid", true}, {"turnA", 1}}},
+                {"list", {
+                    {{"code", 121}, {"parameters", {1, 3, 0}}},
+                    {{"code", 0}}
+                }},
+                {"span", 0}
+            }
+        }}
+    };
+
+    BattleMigration::Progress progress;
+    auto native = BattleMigration::migrateTroop(rm_troop, progress);
+
+    REQUIRE(native["phases"].size() == 1);
+    REQUIRE(native["phases"][0]["effects"].size() == 1);
+    REQUIRE(native["phases"][0]["effects"][0]["type"] == "change_switches");
+    REQUIRE(native["phases"][0]["effects"][0]["start_switch_id"] == "SW_1");
+    REQUIRE(native["phases"][0]["effects"][0]["end_switch_id"] == "SW_3");
+    REQUIRE(native["phases"][0]["effects"][0]["value"] == true);
+    REQUIRE(progress.warnings.empty());
+}
+
+TEST_CASE("BattleMigration: Troop page Change Variables command is mapped", "[battle][migration][troop]") {
+    nlohmann::json rm_troop = {
+        {"id", 21},
+        {"name", "Variable Boss"},
+        {"members", {{{"enemyId", 1}, {"x", 100}, {"y", 200}}}},
+        {"pages", {
+            {
+                {"conditions", {{"turnValid", true}, {"turnA", 1}}},
+                {"list", {
+                    {{"code", 122}, {"parameters", {2, 4, 1, 0, 7}}},
+                    {{"code", 0}}
+                }},
+                {"span", 0}
+            }
+        }}
+    };
+
+    BattleMigration::Progress progress;
+    auto native = BattleMigration::migrateTroop(rm_troop, progress);
+
+    REQUIRE(native["phases"].size() == 1);
+    REQUIRE(native["phases"][0]["effects"].size() == 1);
+    REQUIRE(native["phases"][0]["effects"][0]["type"] == "change_variables");
+    REQUIRE(native["phases"][0]["effects"][0]["start_variable_id"] == "VAR_2");
+    REQUIRE(native["phases"][0]["effects"][0]["end_variable_id"] == "VAR_4");
+    REQUIRE(native["phases"][0]["effects"][0]["operation"] == "add");
+    REQUIRE(native["phases"][0]["effects"][0]["constant_value"] == 7);
+    REQUIRE(progress.warnings.empty());
+}
+
+TEST_CASE("BattleMigration: Conditional branch commands become structured unsupported artifacts", "[battle][migration][troop]") {
+    nlohmann::json rm_troop = {
+        {"id", 22},
+        {"name", "Branch Boss"},
+        {"members", {{{"enemyId", 1}, {"x", 100}, {"y", 200}}}},
+        {"pages", {
+            {
+                {"conditions", {{"turnValid", true}, {"turnA", 1}}},
+                {"list", {
+                    {{"code", 111}, {"indent", 0}, {"parameters", {12, "BattleManager.isBattleTest()"}}},
+                    {{"code", 326}, {"indent", 1}, {"parameters", {0, 0, 0, 0, 50}}},
+                    {{"code", 125}, {"indent", 1}, {"parameters", {0, 0, 9999999}}},
+                    {{"code", 412}, {"indent", 0}, {"parameters", {}}},
+                    {{"code", 0}, {"indent", 0}, {"parameters", {}}}
+                }},
+                {"span", 0}
+            }
+        }}
+    };
+
+    BattleMigration::Progress progress;
+    auto native = BattleMigration::migrateTroop(rm_troop, progress);
+
+    REQUIRE(native["phases"].size() == 1);
+    REQUIRE(native["phases"][0]["effects"].size() == 1);
+    REQUIRE(native["phases"][0]["effects"][0]["type"] == "unsupported_command");
+    REQUIRE(native["phases"][0]["effects"][0]["code"] == 111);
+    REQUIRE(native["phases"][0]["effects"][0]["reason"] == "conditional_branch");
+    REQUIRE(native["phases"][0]["effects"][0]["source_commands"].is_array());
+    REQUIRE(native["phases"][0]["effects"][0]["source_commands"].size() == 4);
+    REQUIRE(native["phases"][0]["effects"][0]["source_commands"][1]["code"] == 326);
+    REQUIRE(progress.warnings.size() == 1);
+    REQUIRE(progress.warnings[0].find("111") != std::string::npos);
 }
 
 TEST_CASE("BattleMigration: Troop page Change Gold command is mapped", "[battle][migration][troop]") {
@@ -623,8 +878,9 @@ TEST_CASE("BattleMigration: Troop page mixed mapped and unmapped commands", "[ba
     REQUIRE(native["phases"][0]["effects"].size() == 3);
     REQUIRE(native["phases"][0]["effects"][0]["type"] == "change_gold");
     REQUIRE(native["phases"][0]["effects"][1]["type"] == "game_over");
-    REQUIRE(native["phases"][0]["effects"][2]["type"] == "common_event");
-    REQUIRE(native["phases"][0]["effects"][2]["note"] == "unmapped_commands");
+    REQUIRE(native["phases"][0]["effects"][2]["type"] == "unsupported_command");
+    REQUIRE(native["phases"][0]["effects"][2]["code"] == 999);
+    REQUIRE(native["phases"][0]["effects"][2]["reason"] == "unmapped_command");
     REQUIRE(progress.warnings.size() == 1);
-    REQUIRE(progress.warnings[0].find("unmapped") != std::string::npos);
+    REQUIRE(progress.warnings[0].find("battle_event_command_unsupported") != std::string::npos);
 }

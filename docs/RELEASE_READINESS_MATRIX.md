@@ -1,6 +1,6 @@
 # Release Readiness Matrix
 
-Status Date: 2026-04-20  
+Status Date: 2026-04-21  
 Authority: canonical subsystem readiness reference for release-facing status labels
 
 This matrix governs whether a subsystem can be described as `READY`, `PARTIAL`, `EXPERIMENTAL`, `BLOCKED`, or `PLANNED`.
@@ -38,12 +38,12 @@ Every subsystem row is evaluated against these fields:
 | `message_text_core` | `READY` | Yes | Yes | Yes | Yes | Yes | Yes | Wave 1 closure recorded with native runtime, preview/inspector workflows, schema/migration, and renderer handoff evidence. | None recorded for claimed scope. |
 | `battle_core` | `PARTIAL` | Yes | Yes | Yes | Yes | Yes | Yes | Native battle flow owner, diagnostics, migration contracts, and runtime VFX baseline are landed. | Wave 1 closure signoff exists; promotion to `READY` requires human review of residual gaps. |
 | `save_data_core` | `PARTIAL` | Yes | Yes | Yes | Yes | Yes | Yes | Save runtime, recovery, migration, inspection, and policy editing are landed and validated. | Wave 1 closure signoff exists; promotion to `READY` requires human review of residual gaps. |
-| `compat_bridge_exit` | `PARTIAL` | Yes | N/A | Yes | Yes | Yes | Yes | Phase 2 closure is complete and weekly compat cadence exists. | Remaining work is exit sign-off, corpus maintenance, and truth upkeep. |
+| `compat_bridge_exit` | `PARTIAL` | Yes | N/A | Yes | Yes | Yes | Yes | Compat bridge exit has truthful Phase 2 closure evidence, weekly regression cadence, and diagnostics/export parity for the bounded import and verification lane. | Exit sign-off, curated corpus maintenance, and ongoing truth upkeep remain future work. |
 | `presentation_runtime` | `PARTIAL` | Yes | Partial | Partial | Partial | Yes | Yes | Registered runtime/release-validation lanes and compiled spatial panels are in tree. | Product-wide readiness matrix, richer authoring proof, and broader polish governance are still missing. |
-| `gameplay_ability_framework` | `PARTIAL` | Yes | Yes | Partial | Partial | Yes | Yes | Core runtime pieces and inspector surfaces are landed. | Release-facing closure and product bars are not yet formally signed off. |
-| `governance_foundation` | `PARTIAL` | No | No | Partial | No | Yes | Yes | Breaking-change detection, enhanced readiness checks, and template specs are now landed. | Full release-signoff enforcement and cross-doc drift detection remain future work. |
-| `character_identity` | `PARTIAL` | Yes | Yes | Yes | No | Yes | Yes | Character identity runtime and editor creator panel are landed with schema and focused tests. | Integration with ECS/ActorManager and full Create-a-Character workflow remain future work. |
-| `achievement_registry` | `PARTIAL` | Yes | Yes | Yes | No | Yes | Yes | Achievement registry with progress tracking, unlock conditions, and editor panel are landed. | Trigger integration with gameplay events and full trophy export pipeline remain future work. |
+| `gameplay_ability_framework` | `PARTIAL` | Yes | Yes | Partial | Partial | Yes | Yes | Gameplay ability runtime pieces and inspector/editor surfaces are landed with focused tests. | Release-facing closure evidence and broader product bars remain future work. |
+| `governance_foundation` | `PARTIAL` | No | No | Partial | No | Yes | Yes | Breaking-change detection, enhanced readiness checks, template specs, and bidirectional readiness/truth drift detection are now landed. | Full release-signoff enforcement beyond the current first-slice drift/date/status checks remains future work. |
+| `character_identity` | `PARTIAL` | Yes | Yes | Yes | No | Yes | Yes | Character identity runtime, editor creator panel, ECS component/system integration, and deterministic spawner are landed with schema and focused tests. | Full Create-a-Character workflow (runtime character creation UI and appearance preview pipeline) remains future work. |
+| `achievement_registry` | `PARTIAL` | Yes | Yes | Yes | No | Yes | Yes | Achievement registry with progress tracking, unlock conditions, trigger parsing, event-bus auto-unlock, and editor panel is landed. | Full trophy export pipeline and platform-specific achievement backend integration remain future work. |
 | `accessibility_auditor` | `PARTIAL` | Yes | Yes | Yes | No | Yes | Yes | Accessibility auditor with missing-label, focus-order, contrast, and navigation rules is landed. | Full UI ingestion pipeline from live editor surfaces and automated CI enforcement remain future work. |
 | `visual_regression_harness` | `PARTIAL` | Yes | No | No | No | Yes | Yes | Visual regression harness with golden file management, diff heatmaps, and approval tooling is landed. | Integration with real render output capture and CI golden gate remain future work. |
 | `audio_mix_presets` | `PARTIAL` | Yes | Yes | Yes | No | Yes | Yes | Audio mix preset bank with default profiles, category volume mapping, ducking rules, and editor panel is landed. | Live audio backend integration beyond the current compat-truth harness remains future work. |

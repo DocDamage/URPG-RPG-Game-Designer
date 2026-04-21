@@ -1,19 +1,71 @@
 #include "plugin_api.h"
+#include "engine/core/ecs/actor_components.h"
+#include "engine/core/ecs/player_control_system.h"
+#include "engine/core/ecs/world.h"
+#include "engine/core/global_state_hub.h"
+#include "runtimes/compat_js/input_manager.h"
+
+#include <cmath>
 #include <iostream>
-#include <map>
 #include <string>
+#include <type_traits>
 
-// Internal placeholder for engine-side implementations of the Plugin API.
-// This file currently provides fixture-backed scratch state and no-op hooks,
-// not a production-ready bridge into ECSWorld, input, or editor runtime systems.
+namespace {
 
-namespace urpg::editor {
-    // Scratch storage used to keep plugin fixture tests deterministic.
-    static std::map<std::string, float> s_globals;
-    static std::map<std::string, bool> s_switches;
+urpg::World* g_plugin_api_world = nullptr;
+
+float GlobalValueToFloat(const urpg::GlobalStateHub::Value& value) {
+    return std::visit(
+        [](const auto& current) -> float {
+            using T = std::decay_t<decltype(current)>;
+            if constexpr (std::is_same_v<T, bool>) {
+                return current ? 1.0f : 0.0f;
+            } else if constexpr (std::is_same_v<T, int32_t>) {
+                return static_cast<float>(current);
+            } else if constexpr (std::is_same_v<T, float>) {
+                return current;
+            } else if constexpr (std::is_same_v<T, std::string>) {
+                try {
+                    size_t consumed = 0;
+                    const float parsed = std::stof(current, &consumed);
+                    if (consumed == current.size()) {
+                        return parsed;
+                    }
+                } catch (...) {
+                }
+                return 0.0f;
+            }
+        },
+        value);
 }
 
-using namespace urpg::editor;
+void AddNamedComponent(urpg::World& world, urpg::EntityID entity_id, const std::string& component_type) {
+    if (component_type == "Transform") {
+        world.AddComponent(entity_id, urpg::TransformComponent{});
+    } else if (component_type == "Velocity") {
+        world.AddComponent(entity_id, urpg::VelocityComponent{});
+    } else if (component_type == "Visual") {
+        world.AddComponent(entity_id, urpg::VisualComponent{});
+    } else if (component_type == "Actor") {
+        world.AddComponent(entity_id, urpg::ActorComponent{});
+    } else if (component_type == "PlayerControl") {
+        world.AddComponent(entity_id, urpg::PlayerControlComponent{});
+    }
+}
+
+} // namespace
+
+namespace urpg::editor {
+
+void BindPluginAPIWorld(World* world) {
+    g_plugin_api_world = world;
+}
+
+void UnbindPluginAPIWorld() {
+    g_plugin_api_world = nullptr;
+}
+
+} // namespace urpg::editor
 
 extern "C" {
 
@@ -28,50 +80,54 @@ void URPG_LogError(const char* message) {
 }
 
 uint64_t URPG_EntityCreate() {
-    // STUB: returns synthetic IDs only; no entity is registered with a live ECS world yet.
-    static uint64_t s_nextId = 1000;
-    return s_nextId++;
+    if (g_plugin_api_world == nullptr) {
+        return 0;
+    }
+    return static_cast<uint64_t>(g_plugin_api_world->CreateEntity());
 }
 
 void URPG_EntityDestroy(uint64_t entityId) {
-    // STUB: entity destruction is not wired to a live ECS world yet.
+    if (g_plugin_api_world == nullptr || entityId == 0) {
+        return;
+    }
+    g_plugin_api_world->DestroyEntity(static_cast<urpg::EntityID>(entityId));
 }
 
 void URPG_EntityAddComponent(uint64_t entityId, const char* componentType) {
-    // STUB: component attachment is not wired to reflection or ECS storage yet.
+    if (g_plugin_api_world == nullptr || entityId == 0 || componentType == nullptr) {
+        return;
+    }
+    AddNamedComponent(*g_plugin_api_world, static_cast<urpg::EntityID>(entityId), componentType);
 }
 
 void URPG_SetGlobalVariable(const char* key, float value) {
     if (!key) return;
-    // STUB: stores values in process-local scratch state rather than GlobalStateHub.
-    s_globals[key] = value;
+    urpg::GlobalStateHub::getInstance().setVariable(key, value);
 }
 
 float URPG_GetGlobalVariable(const char* key) {
-    if (!key || s_globals.find(key) == s_globals.end()) return 0.0f;
-    return s_globals[key];
+    if (!key) return 0.0f;
+    return GlobalValueToFloat(urpg::GlobalStateHub::getInstance().getVariable(key));
 }
 
 void URPG_SetGlobalSwitch(const char* key, bool value) {
     if (!key) return;
-    // STUB: stores values in process-local scratch state rather than engine save/runtime state.
-    s_switches[key] = value;
+    urpg::GlobalStateHub::getInstance().setSwitch(key, value);
 }
 
 bool URPG_GetGlobalSwitch(const char* key) {
-    if (!key || s_switches.find(key) == s_switches.end()) return false;
-    return s_switches[key];
+    if (!key) return false;
+    return urpg::GlobalStateHub::getInstance().getSwitch(key);
 }
 
 bool URPG_IsKeyPressed(int keyCode) {
-    // STUB: input is not bridged to InputManager yet.
-    return false;
+    return urpg::compat::InputManager::instance().isPressed(keyCode);
 }
 
 void URPG_GetMousePosition(float* x, float* y) {
-    // STUB: pointer position is not bridged to the active platform window yet.
-    if (x) *x = 0.0f;
-    if (y) *y = 0.0f;
+    auto& input = urpg::compat::InputManager::instance();
+    if (x) *x = static_cast<float>(input.getMouseX());
+    if (y) *y = static_cast<float>(input.getMouseY());
 }
 
 } // extern "C"

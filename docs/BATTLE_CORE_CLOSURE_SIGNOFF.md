@@ -40,7 +40,7 @@ Native JSON schemas are enforced under `content/schemas/`:
 - **`battle_troops.schema.json`** — Contract for enemy groups, member placement, and phase triggers.
 - **`battle_actions.schema.json`** — Contract for skill/item execution, scope, cost, and effects.
 
-Both schemas define required fields, enumerated scope values, and effect type constraints.
+Both schemas define required fields, enumerated scope values, and effect type constraints. `battle_troops.schema.json` now also accepts recursive grouped phase conditions (`and` / `or`) plus `_compat_condition_fallbacks` records when a source condition tree cannot be represented exactly.
 
 ---
 
@@ -48,7 +48,7 @@ Both schemas define required fields, enumerated scope values, and effect type co
 
 `BattleMigration` (`engine/core/battle/battle_migration.h`) provides static migration helpers:
 
-- `migrateTroop()` — Maps RPG Maker MV/MZ troop JSON to native `TRP_*` format with member positioning, phase condition mapping (turn-based, enemy HP threshold, switch-based, **actor-present**), and **event command effect mapping** (Show Text → message, Common Event → common_event, Change State → state_change, Force Action → force_action, Change Enemy HP/MP → state_change, **Change Gold → change_gold, Change Items → change_items, Change Weapons → change_weapons, Change Armors → change_armors, Transfer Player → transfer_player, Game Over → game_over**). Event command lists with unmapped codes emit partial-mapping warnings.
+- `migrateTroop()` — Maps RPG Maker MV/MZ troop JSON to native `TRP_*` format with member positioning, phase condition mapping (turn-based, enemy HP threshold, switch-based, **actor-present**, and grouped boolean `and` / `or` trees), and **event command effect mapping** (Show Text → message, Common Event → common_event, Change State → state_change, Force Action → force_action, Change Enemy HP/MP → state_change, **Change Switches → change_switches, Change Variables → change_variables, Change Gold → change_gold, Change Items → change_items, Change Weapons → change_weapons, Change Armors → change_armors, Transfer Player → transfer_player, Game Over → game_over**). Unsupported condition-tree nodes and unsupported event commands now emit explicit structured warnings/effects, and unrepresentable condition branches are preserved in `_compat_condition_fallbacks`.
 - `migrateAction()` — Maps MV/MZ skill/item records to native battle actions with scope translation and cost mapping. **Scope mapping now covers all 12 RPG Maker scope codes** (single/random/all enemy/ally/dead/user combinations).
 
 Progress tracking (`total_enemies`, `total_troops`, `total_actions`, `warnings`, `errors`) is surfaced for diagnostics.
@@ -58,7 +58,7 @@ Progress tracking (`total_enemies`, `total_troops`, `total_actions`, `warnings`,
 ## 5. Diagnostics Integration
 
 - **Live scene diagnostics preview**: `BattleInspectorPanel` binds directly to a live `BattleFlowController` and `BattleActionQueue`, enabling real-time action order validation and damage preview.
-- **Migration warnings**: `BattleMigration` emits honest warnings for unmapped scopes and unsupported non-damage effects, which propagate into the `MigrationWizardModel` report.
+- **Migration warnings**: `BattleMigration` emits honest warnings for unmapped scopes, unsupported troop event commands, and unsupported non-damage effects, which propagate into the `MigrationWizardModel` report.
 
 ---
 
@@ -78,7 +78,7 @@ Key cross-subsystem assertions include:
 
 ## 7. Remaining Residual Gaps (Honest Scope Limits)
 
-1. **Compat import/migration completion**: `BattleMigration` maps troop structure, member placement, phase conditions (turn, enemy HP, switch, **actor present**), event commands (Show Text, Common Event, Change State, Force Action, Change Enemy HP/MP, **Change Gold, Change Items/Weapons/Armors, Transfer Player, Game Over**), and action scopes. Complex multi-condition trees with OR semantics and remaining niche event commands are not yet migrated. This is tracked as "Compat import/migration completion remains open" in `readiness_status.json`.
+1. **Compat import/migration completion**: `BattleMigration` maps troop structure, member placement, phase conditions (turn, enemy HP, switch, **actor present**, grouped boolean `and` / `or` trees), event commands (Show Text, Common Event, Change State, Force Action, Change Enemy HP/MP, **Change Switches, Change Variables, Change Gold, Change Items/Weapons/Armors, Transfer Player, Game Over**), and action scopes. Remaining work is now limited to niche event commands and control-flow/plugin-specific troop-page constructs that still require explicit fallback handling. This is tracked as "Compat import/migration completion remains open" in `readiness_status.json`.
 2. **Plugin authority validation**: Battle-specific RPG Maker MZ plugins are validated at the manifest level, but deep behavioral sandbox tests for every battle plugin variant are not yet at 100 % coverage.
 3. **Networked / async battle**: Not in Wave 1 scope.
 

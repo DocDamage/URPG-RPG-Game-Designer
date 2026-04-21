@@ -1,6 +1,6 @@
 # Technical Debt Remediation Plan
 
-> **Document status:** Ninth-pass revision — canonical remediation hub as of 2026-04-20.
+> **Document status:** Ninth-pass revision — canonical remediation hub as of 2026-04-21.
 > Incorporates stale-state debt, placeholder export-surface debt, documentation/test drift findings, the external-repository intake program defined in [URPG_repo_intake_plan.md](../URPG_repo_intake_plan.md), and the private-use asset intake program defined in [URPG_private_asset_intake_plan.md](../URPG_private_asset_intake_plan.md).
 > This revision also absorbs the newly added PGMMV, native-absorption, and governance/template-expansion planning inputs into the remediation program so roadmap expansion, truthfulness, and execution governance share one canonical hub.
 
@@ -111,7 +111,7 @@ Quick-reference table for current finding status. Use this to assess open work w
 | P2-04 | Test and Build Registration Drift | ✅ Remediated | Phase 4 |
 | P2-05 | Menu Serialization Is Import-Only, Not Round-Trippable | ✅ Remediated | Phase 2 WS 2.5 |
 | P2-06 | Presentation and Spatial Claims Exceed Build Graph Evidence | ✅ Remediated (Incubating declared) | Phase 4 |
-| P2-07 | Native Plugin API Is A Mock Bridge, Not A Real Integration | ✅ Remediated (stub-labeled) | Phase 1 / Phase 5 |
+| P2-07 | Native Plugin API Is A Mock Bridge, Not A Real Integration | ✅ Remediated (live-routed for claimed surfaces) | Phase 1 / Phase 5 |
 | P2-08 | Cloud Sync Documentation Overstates Implementation Readiness | ✅ Remediated | Phase 1 |
 | P2-09 | Async Plugin Callbacks Lack Thread-Affinity Guarantees | ✅ Remediated | Phase 5 |
 | P2-10 | Native-Absorption and PGMMV Planning Drift Sits Outside Canonical Remediation Governance | ✅ Remediated | Phase 4.3 |
@@ -132,15 +132,17 @@ The debt picture is narrower than it was at initial audit, but several cross-cut
 
 **Phase 2 runtime closure is complete, but compat work is not "done forever."** [quickjs_runtime.cpp](../runtimes/compat_js/quickjs_runtime.cpp) remains intentionally scoped as a fixture-backed compat harness, and [audio_manager.cpp](../runtimes/compat_js/audio_manager.cpp), [data_manager.cpp](../runtimes/compat_js/data_manager.cpp), [battle_manager.cpp](../runtimes/compat_js/battle_manager.cpp), and [window_compat.cpp](../runtimes/compat_js/window_compat.cpp) remain honest `PARTIAL` surfaces where residual limits still exist. The remaining compat work is post-closure exit hardening, corpus depth, and truth maintenance, not unfinished baseline runtime closure for the audited Phase 2 lane.
 
+**Compat exit evidence is now explicitly anchored.** The compat exit checklist is no longer waiting on stale unchecked evidence for migration-confidence items: focused status-registry tests now pin representative `PARTIAL` battle/window/data/audio claims and diagnostics/export parity remains backed by workspace/report regressions instead of checklist-only assertions.
+
 **Phase 3 diagnostics productization is now closed.** The Audio, Migration Wizard, and Event Authority surfaces now render real bodies, export snapshot-backed workflow state, and expose actionable navigation/selection flows through `DiagnosticsWorkspace` rather than only summary shells.
 
-**Some exported interfaces still route to placeholders.** [plugin_api.cpp](../engine/core/editor/plugin_api.cpp) and [cloud_service.h](../engine/core/social/cloud_service.h) still need to be described and governed as scratch-state/stub-backed surfaces rather than production-integrated systems.
+**Some exported interfaces still route to placeholders.** [cloud_service.h](../engine/core/social/cloud_service.h) still needs to be described and governed as a stub-backed surface rather than a production-integrated system. [plugin_api.cpp](../engine/core/editor/plugin_api.cpp) now live-routes the surfaces it claims to expose.
 
 **Phase 4 intake governance is now concretized and closed as a remediation lane.** [URPG_repo_intake_plan.md](../URPG_repo_intake_plan.md) and [URPG_private_asset_intake_plan.md](../URPG_private_asset_intake_plan.md) are now backed by explicit dispositions, schemas, manifests, source-capture reporting, and a local validation gate so future external-repo and private-asset work enters through governed records instead of placeholder templates.
 
 **Planning authority is centralized, and the remaining risk is regression to drift.** Archived PGMMV/native-absorption roadmap inputs and the 2026-04-20 governance/template-expansion addendum are now reference-only planning inputs routed through this remediation hub and the canonical status stack. The remaining governance work is to keep future plan docs from reintroducing parallel authority and to prevent subsystem/template readiness language from outrunning evidence.
 
-**The newly absorbed gap list sharpens a real remaining product risk.** The remediation findings table is green, but product-readiness governance is not "done." Canonical subsystem readiness matrices, template readiness matrices, schema-version/changelog enforcement, and project-audit surfaces now exist as first-slice governance artifacts, but fuller release-signoff enforcement, cross-doc/path drift detection, and the underlying product lanes for accessibility, localization completeness, input remapping, audio governance, and performance budgets still remain roadmap work that must pass through the same truth gates before they can be marketed as complete.
+**The newly absorbed gap list sharpens a real remaining product risk.** The remediation findings table is green, but product-readiness governance is not "done." Canonical subsystem readiness matrices, template readiness matrices, schema-version/changelog enforcement, project-audit surfaces, and first-slice cross-doc drift/date/status checks now exist as governance artifacts, but fuller release-signoff enforcement and the underlying product lanes for accessibility, localization completeness, input remapping, audio governance, and performance budgets still remain roadmap work that must pass through the same truth gates before they can be marketed as complete.
 
 **What this plan does NOT cover:**
 - New feature development not related to closing existing gaps.
@@ -565,13 +567,13 @@ Do not leave the workspace counting tabs that do not render.
 
 **Impact:** Third-party plugin developers relying on [plugin_api.h](../engine/core/editor/plugin_api.h) will encounter an API surface that looks stable but behaves like a mock. This is a trust and integration correctness risk for any external plugin work.
 
-**Status (2026-04-16):** Remediated via explicit stub labeling. Routing remains stub-backed by design.
+**Status (2026-04-21):** Remediated. The claimed PluginAPI surfaces now route to live engine-owned state instead of scratch-state placeholders.
 
 **Root cause:**
 - [plugin_api.h](../engine/core/editor/plugin_api.h) presents a stable C-style plugin API.
-- [plugin_api.cpp](../engine/core/editor/plugin_api.cpp) routes global variables and switches into local static maps, not real engine state.
-- Entity creation uses a local incrementing counter; ECS operations are comments.
-- Key input always returns `false`; mouse position always returns `(0, 0)`.
+- [plugin_api.cpp](../engine/core/editor/plugin_api.cpp) originally routed global variables and switches into local static maps instead of real engine state.
+- Entity creation originally used a local incrementing counter, while ECS operations were comments.
+- Key input originally always returned `false`; mouse position always returned `(0, 0)`.
 
 **Required action:**
 - Either route plugin API calls to real engine state, or add prominent `STUB` or `NOT_YET_ROUTED` annotations to every method that does not.
@@ -584,10 +586,10 @@ Do not leave the workspace counting tabs that do not render.
 - Every method in [plugin_api.cpp](../engine/core/editor/plugin_api.cpp) either routes to real engine state or is labeled `STUB` in both implementation and documentation.
 - Plugin-facing documentation does not describe mock behavior as production-ready.
 
-**Resolution evidence (2026-04-16):**
-- [plugin_api.h](../engine/core/editor/plugin_api.h) now labels entity, global-state, and input sections as `STUB` or scratch-state-only behavior.
-- [plugin_api.cpp](../engine/core/editor/plugin_api.cpp) now uses explicit `STUB` comments at each disconnected export site.
-- [test_plugin_api.cpp](../tests/unit/test_plugin_api.cpp) continues to lock the scratch-state and placeholder-backed behavior in unit coverage.
+**Resolution evidence (2026-04-21):**
+- [plugin_api.h](../engine/core/editor/plugin_api.h) now describes the bridge as bounded live integration, with entity exports operating on a caller-bound `World`.
+- [plugin_api.cpp](../engine/core/editor/plugin_api.cpp) now routes variables/switches into [global_state_hub.h](../engine/core/global_state_hub.h), key/mouse queries into [input_manager.h](../runtimes/compat_js/input_manager.h), and entity lifecycle/component attachment into a bound ECS world instead of process-local scratch state.
+- [test_plugin_api.cpp](../tests/unit/test_plugin_api.cpp) now proves the live routing behavior for global state, compat input, and bound-world entity operations.
 
 ---
 
@@ -1356,3 +1358,5 @@ A remediation item is **done only when all of the following are true**:
 | 2026-04-20 | Tenth-pass improvement: expanded BattleMigration with troop phase condition mapping (turn-based, enemy HP, switch triggers); updated battle_troops.schema.json with enemy_index; added focused migration tests; narrowed Battle Core residual gap from "troop structure and basic actions" to "event-command scripting and actor-based conditions." |
 | 2026-04-20 | Eleventh-pass improvement: completed BattleMigration action scope coverage (all 12 RM scope codes) and troop page event command effect mapping (codes 101, 117, 313, 332, 311, 312, 315, 334); added focused tests for scope mapping and event command translation; further narrowed Battle Core residual gap. |
 | 2026-04-20 | Twelfth-pass improvement: implemented save policy governance CI gate (`check_save_policy_governance.ps1`) with canonical fixture validation, schema alignment checks, and runtime load verification; wired into Gate 1 CI; narrowed Save/Data Core residual gap by closing the automated policy-gate item. |
+| 2026-04-21 | Sprint 01 improvement: BattleMigration now preserves grouped boolean troop conditions, maps battle-page `Change Switches` (121) and `Change Variables` (122), and emits structured `unsupported_command` artifacts for unsupported troop event commands/control-flow blocks instead of a generic unmapped bucket. |
+| 2026-04-21 | Sprint 01 improvement: SaveMigration now imports full compat save payloads into native runtime-owned save JSON plus migrated metadata, retains unsupported plugin/unmapped payload blobs explicitly, and is covered by a real `.rpgsave` read/import/load integration path. |

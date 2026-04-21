@@ -1,6 +1,6 @@
 # Compat Exit Checklist
 
-Status Date: 2026-04-20
+Status Date: 2026-04-21
 
 This checklist is the canonical pass/fail artifact for deciding whether the compat lane is trustworthy enough to serve as an import, validation, and migration bridge without overstating runtime parity.
 
@@ -33,11 +33,11 @@ Evidence anchors:
 
 ## Migration Confidence
 
-- [ ] Wave 1 migration targets have schema/import/export anchors or explicit waivers.
-- [ ] Diagnostics/export surfaces reflect what the editor can actually render today.
-- [ ] Compat subsystems with strong planning weight have regression anchors for their current claimed scope.
-- [ ] Audio, battle, data, and window compat lanes no longer rely on silently stale status metadata.
-- [ ] Remaining partial behavior is documented as deterministic harness behavior rather than live backend parity.
+- [x] Wave 1 migration targets have schema/import/export anchors or explicit waivers.
+- [x] Diagnostics/export surfaces reflect what the editor can actually render today.
+- [x] Compat subsystems with strong planning weight have regression anchors for their current claimed scope.
+- [x] Audio, battle, data, and window compat lanes no longer rely on silently stale status metadata.
+- [x] Remaining partial behavior is documented as deterministic harness behavior rather than live backend parity.
 
 Evidence anchors:
 - [WAVE1_SUBSYSTEM_CLOSURE_CHECKLIST.md](./WAVE1_SUBSYSTEM_CLOSURE_CHECKLIST.md)
@@ -45,6 +45,8 @@ Evidence anchors:
 - [test_battlemgr.cpp](../tests/unit/test_battlemgr.cpp)
 - [test_data_manager.cpp](../tests/unit/test_data_manager.cpp)
 - [test_window_compat.cpp](../tests/unit/test_window_compat.cpp)
+- [test_diagnostics_workspace.cpp](../tests/unit/test_diagnostics_workspace.cpp)
+- [test_compat_plugin_failure_diagnostics.cpp](../tests/compat/test_compat_plugin_failure_diagnostics.cpp)
 
 ## Current Notes
 
@@ -60,6 +62,10 @@ Evidence anchors:
   - the QuickJS `AudioManager` object now routes live compat state for BGM/BGS/ME/SE, volume, and ducking helpers
 - Active local compat snapshot refreshed on 2026-04-20:
   - `.\build\Debug\urpg_compat_tests.exe --reporter compact` => 3375 assertions / 43 test cases passed
+- Migration-confidence evidence refreshed on 2026-04-21:
+  - `test_audio_manager.cpp` now names the QuickJS bridge as deterministic compat audio state rather than live backend audio state
+  - `test_battlemgr.cpp`, `test_data_manager.cpp`, and `test_window_compat.cpp` pin representative `PARTIAL` registry entries plus deviation strings for the current claimed compat scope
+  - `test_diagnostics_workspace.cpp` and `test_compat_plugin_failure_diagnostics.cpp` already prove that export/snapshot/report surfaces stay aligned with what the editor can actually render today
 - Failure-path parity reconciled on 2026-04-20:
   - `test_compat_plugin_failure_diagnostics.cpp` already proves mixed-chain failure operations survive JSONL export, report-model ingestion/export, and compat report panel projection
   - parity anchors include `execute_command_dependency_missing`, `execute_command_quickjs_call`, `execute_command_quickjs_context_missing`, `execute_command_by_name_parse`, `load_plugins_directory_scan`, and `load_plugins_directory_scan_entry`

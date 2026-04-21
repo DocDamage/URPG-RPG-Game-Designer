@@ -1,6 +1,10 @@
 #pragma once
 
 #include <nlohmann/json.hpp>
+
+#include <algorithm>
+#include <cctype>
+#include <cstddef>
 #include <string>
 #include <vector>
 
@@ -48,31 +52,23 @@ public:
                 const auto& page = pages[i];
                 nlohmann::json native_phase;
                 nlohmann::json condition = nlohmann::json::object();
+                nlohmann::json condition_fallbacks = nlohmann::json::array();
                 if (page.contains("conditions")) {
-                    const auto& cond = page["conditions"];
-                    if (cond.value("turnValid", false) && cond.value("turnA", 0) > 0) {
-                        condition["turn_count"] = cond.value("turnA", 0);
-                    }
-                    if (cond.value("enemyValid", false) && cond.value("enemyHp", 0) > 0) {
-                        condition["hp_below_percent"] = cond.value("enemyHp", 0);
-                        if (cond.value("enemyIndex", -1) >= 0) {
-                            condition["enemy_index"] = cond.value("enemyIndex", -1);
-                        }
-                    }
-                    if (cond.value("switchValid", false) && cond.value("switchId", 0) > 0) {
-                        condition["switch_id"] = "SW_" + std::to_string(cond.value("switchId", 0));
-                    }
-                    if (cond.value("actorValid", false) && cond.value("actorId", 0) > 0) {
-                        condition["actor_id"] = "ACT_" + std::to_string(cond.value("actorId", 0));
-                    }
+                    const auto migrated_condition = migrateConditionTree(page["conditions"], i, progress);
+                    condition = migrated_condition.condition;
+                    condition_fallbacks = migrated_condition.fallbacks;
                 }
                 native_phase["condition"] = condition;
+                if (!condition_fallbacks.empty()) {
+                    native_phase["_compat_condition_fallbacks"] = condition_fallbacks;
+                }
                 nlohmann::json effects = nlohmann::json::array();
-                std::vector<int> unmapped_codes;
                 bool has_non_terminator = false;
 
                 if (page.contains("list") && page["list"].is_array()) {
-                    for (const auto& cmd : page["list"]) {
+                    const auto& commands = page["list"];
+                    for (size_t command_index = 0; command_index < commands.size(); ++command_index) {
+                        const auto& cmd = commands[command_index];
                         int code = cmd.value("code", 0);
                         if (code == 0) continue;
                         has_non_terminator = true;
@@ -86,6 +82,42 @@ public:
                         };
 
                         switch (code) {
+                            case 108:
+                                appendUnsupportedCommandEffect(
+                                    effects, progress, i, code, "comment_command", params);
+                                break;
+                            case 111: {
+                                const auto branch_capture = captureConditionalBranch(commands, command_index);
+                                appendUnsupportedCommandEffect(
+                                    effects, progress, i, code, "conditional_branch", params, branch_capture.source_commands);
+                                command_index = branch_capture.end_index;
+                                break;
+                            }
+                            case 121: {
+                                nlohmann::json effect;
+                                effect["type"] = "change_switches";
+                                effect["start_switch_id"] = "SW_" + std::to_string(param_int(0, 0));
+                                effect["end_switch_id"] = "SW_" + std::to_string(param_int(1, param_int(0, 0)));
+                                effect["value"] = param_int(2, 0) == 0;
+                                effects.push_back(effect);
+                                break;
+                            }
+                            case 122: {
+                                const int operand_type = param_int(3, 0);
+                                if (operand_type != 0) {
+                                    appendUnsupportedCommandEffect(
+                                        effects, progress, i, code, "variable_operand_type_not_supported", params);
+                                    break;
+                                }
+                                nlohmann::json effect;
+                                effect["type"] = "change_variables";
+                                effect["start_variable_id"] = "VAR_" + std::to_string(param_int(0, 0));
+                                effect["end_variable_id"] = "VAR_" + std::to_string(param_int(1, param_int(0, 0)));
+                                effect["operation"] = mapVariableOperation(param_int(2, 0));
+                                effect["constant_value"] = param_int(4, 0);
+                                effects.push_back(effect);
+                                break;
+                            }
                             case 101: {
                                 nlohmann::json effect;
                                 effect["type"] = "message";
@@ -206,8 +238,17 @@ public:
                                 effects.push_back(effect);
                                 break;
                             }
+                            case 408:
+                                appendUnsupportedCommandEffect(
+                                    effects, progress, i, code, "comment_continuation", params);
+                                break;
+                            case 412:
+                                appendUnsupportedCommandEffect(
+                                    effects, progress, i, code, "unexpected_branch_end", params);
+                                break;
                             default:
-                                unmapped_codes.push_back(code);
+                                appendUnsupportedCommandEffect(
+                                    effects, progress, i, code, "unmapped_command", params);
                                 break;
                         }
                     }
@@ -218,20 +259,6 @@ public:
                     placeholder["type"] = "common_event";
                     placeholder["note"] = "unmapped_event_commands";
                     effects.push_back(placeholder);
-                } else if (!unmapped_codes.empty()) {
-                    nlohmann::json fallback;
-                    fallback["type"] = "common_event";
-                    fallback["note"] = "unmapped_commands";
-                    fallback["codes"] = unmapped_codes;
-                    effects.push_back(fallback);
-
-                    std::string codes_str;
-                    for (size_t j = 0; j < unmapped_codes.size(); ++j) {
-                        if (j > 0) codes_str += ", ";
-                        codes_str += std::to_string(unmapped_codes[j]);
-                    }
-                    progress.warnings.push_back(
-                        "Troop page " + std::to_string(i) + " contains unmapped event commands (codes: " + codes_str + "); mapped effects are partial.");
                 }
 
                 native_phase["effects"] = effects;
@@ -303,6 +330,241 @@ public:
 
         progress.total_actions++;
         return native;
+    }
+
+private:
+    struct ConditionMigrationResult {
+        nlohmann::json condition = nlohmann::json::object();
+        nlohmann::json fallbacks = nlohmann::json::array();
+    };
+
+    struct BranchCaptureResult {
+        size_t end_index = 0;
+        nlohmann::json source_commands = nlohmann::json::array();
+    };
+
+    static bool isExplicitConditionGroup(const nlohmann::json& cond) {
+        return cond.is_object() &&
+               (cond.contains("children") || cond.contains("op") || cond.contains("operator") ||
+                cond.contains("allOf") || cond.contains("anyOf"));
+    }
+
+    static std::string normalizeGroupOperator(std::string op) {
+        std::transform(op.begin(), op.end(), op.begin(), [](unsigned char ch) {
+            return static_cast<char>(std::tolower(ch));
+        });
+        return op;
+    }
+
+    static nlohmann::json makeConditionFallback(const std::string& reason,
+                                                size_t page_index,
+                                                const nlohmann::json& source,
+                                                const std::string& source_operator = "") {
+        nlohmann::json fallback = {
+            {"type", "unsupported_condition_tree"},
+            {"reason", reason},
+            {"page_index", page_index},
+            {"source", source},
+        };
+        if (!source_operator.empty()) {
+            fallback["source_operator"] = source_operator;
+        }
+        return fallback;
+    }
+
+    static void appendTypedConditionWarning(Progress& progress,
+                                            size_t page_index,
+                                            const std::string& reason,
+                                            const std::string& detail = "") {
+        std::string warning = "[battle_condition_tree_unsupported_shape] Troop page " +
+                              std::to_string(page_index) +
+                              " condition tree uses unsupported shape (" + reason + ")";
+        if (!detail.empty()) {
+            warning += ": " + detail;
+        }
+        warning += "; fallback record preserved.";
+        progress.warnings.push_back(warning);
+    }
+
+    static std::vector<nlohmann::json> extractLegacyConditionLeaves(const nlohmann::json& cond) {
+        std::vector<nlohmann::json> leaves;
+
+        if (!cond.is_object()) {
+            return leaves;
+        }
+
+        if (cond.value("turnValid", false) && cond.value("turnA", 0) > 0) {
+            leaves.push_back({{"turn_count", cond.value("turnA", 0)}});
+        }
+        if (cond.value("enemyValid", false) && cond.value("enemyHp", 0) > 0) {
+            nlohmann::json leaf = {{"hp_below_percent", cond.value("enemyHp", 0)}};
+            if (cond.value("enemyIndex", -1) >= 0) {
+                leaf["enemy_index"] = cond.value("enemyIndex", -1);
+            }
+            leaves.push_back(std::move(leaf));
+        }
+        if (cond.value("switchValid", false) && cond.value("switchId", 0) > 0) {
+            leaves.push_back({{"switch_id", "SW_" + std::to_string(cond.value("switchId", 0))}});
+        }
+        if (cond.value("actorValid", false) && cond.value("actorId", 0) > 0) {
+            leaves.push_back({{"actor_id", "ACT_" + std::to_string(cond.value("actorId", 0))}});
+        }
+
+        return leaves;
+    }
+
+    static std::string mapVariableOperation(const int operation) {
+        switch (operation) {
+            case 0: return "set";
+            case 1: return "add";
+            case 2: return "subtract";
+            case 3: return "multiply";
+            case 4: return "divide";
+            case 5: return "modulo";
+            default: return "set";
+        }
+    }
+
+    static void appendUnsupportedCommandEffect(nlohmann::json& effects,
+                                               Progress& progress,
+                                               size_t page_index,
+                                               int code,
+                                               const std::string& reason,
+                                               const nlohmann::json& params,
+                                               const nlohmann::json& source_commands = nlohmann::json()) {
+        nlohmann::json effect = {
+            {"type", "unsupported_command"},
+            {"code", code},
+            {"reason", reason},
+            {"parameters", params},
+        };
+        if (!source_commands.is_null() && !source_commands.empty()) {
+            effect["source_commands"] = source_commands;
+        }
+        effects.push_back(effect);
+
+        progress.warnings.push_back(
+            "[battle_event_command_unsupported] Troop page " + std::to_string(page_index) +
+            " contains command " + std::to_string(code) + " with reason '" + reason + "'.");
+    }
+
+    static BranchCaptureResult captureConditionalBranch(const nlohmann::json& commands, size_t start_index) {
+        BranchCaptureResult result;
+        result.end_index = start_index;
+
+        if (!commands.is_array() || start_index >= commands.size()) {
+            return result;
+        }
+
+        const int32_t start_indent = commands[start_index].value("indent", 0);
+        for (size_t cursor = start_index; cursor < commands.size(); ++cursor) {
+            const auto& command = commands[cursor];
+            result.source_commands.push_back(command);
+            result.end_index = cursor;
+
+            const int code = command.value("code", 0);
+            const int32_t indent = command.value("indent", 0);
+            if (cursor > start_index && code == 412 && indent == start_indent) {
+                break;
+            }
+        }
+
+        return result;
+    }
+
+    static ConditionMigrationResult migrateConditionTree(const nlohmann::json& cond,
+                                                         size_t page_index,
+                                                         Progress& progress) {
+        ConditionMigrationResult result;
+
+        if (!cond.is_object()) {
+            appendTypedConditionWarning(progress, page_index, "non_object_node");
+            result.fallbacks.push_back(makeConditionFallback("non_object_node", page_index, cond));
+            return result;
+        }
+
+        if (!isExplicitConditionGroup(cond)) {
+            const auto leaves = extractLegacyConditionLeaves(cond);
+            if (leaves.empty()) {
+                return result;
+            }
+            if (leaves.size() == 1) {
+                result.condition = leaves.front();
+                return result;
+            }
+
+            result.condition = {
+                {"op", "and"},
+                {"children", nlohmann::json::array()},
+            };
+            for (const auto& leaf : leaves) {
+                result.condition["children"].push_back(leaf);
+            }
+            return result;
+        }
+
+        bool has_all_of = cond.contains("allOf");
+        bool has_any_of = cond.contains("anyOf");
+        bool has_children = cond.contains("children");
+
+        std::string op;
+        nlohmann::json children = nlohmann::json::array();
+
+        if ((has_all_of && has_any_of) || ((has_all_of || has_any_of) && has_children)) {
+            appendTypedConditionWarning(progress, page_index, "ambiguous_group_shape");
+            result.fallbacks.push_back(makeConditionFallback("ambiguous_group_shape", page_index, cond));
+            return result;
+        }
+
+        if (has_all_of) {
+            op = "and";
+            children = cond["allOf"];
+        } else if (has_any_of) {
+            op = "or";
+            children = cond["anyOf"];
+        } else {
+            op = normalizeGroupOperator(cond.value("op", cond.value("operator", "")));
+            if (op != "and" && op != "or") {
+                appendTypedConditionWarning(progress, page_index, "unsupported_operator", op);
+                result.fallbacks.push_back(makeConditionFallback("unsupported_operator", page_index, cond, op));
+                return result;
+            }
+            children = cond.value("children", nlohmann::json::array());
+        }
+
+        if (!children.is_array() || children.empty()) {
+            appendTypedConditionWarning(progress, page_index, "missing_children");
+            result.fallbacks.push_back(makeConditionFallback("missing_children", page_index, cond, op));
+            return result;
+        }
+
+        nlohmann::json migrated_children = nlohmann::json::array();
+        for (const auto& child : children) {
+            const auto child_result = migrateConditionTree(child, page_index, progress);
+            if (!child_result.condition.empty()) {
+                migrated_children.push_back(child_result.condition);
+            }
+            for (const auto& fallback : child_result.fallbacks) {
+                result.fallbacks.push_back(fallback);
+            }
+        }
+
+        if (migrated_children.empty()) {
+            appendTypedConditionWarning(progress, page_index, "no_mappable_children", op);
+            result.fallbacks.push_back(makeConditionFallback("no_mappable_children", page_index, cond, op));
+            return result;
+        }
+
+        if (migrated_children.size() == 1) {
+            result.condition = migrated_children.front();
+            return result;
+        }
+
+        result.condition = {
+            {"op", op},
+            {"children", migrated_children},
+        };
+        return result;
     }
 };
 

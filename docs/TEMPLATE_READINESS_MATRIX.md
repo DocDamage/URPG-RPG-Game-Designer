@@ -1,6 +1,6 @@
 # Template Readiness Matrix
 
-Status Date: 2026-04-20  
+Status Date: 2026-04-21  
 Authority: canonical template readiness reference for product-facing template labels
 
 This matrix answers a narrower question than the roadmap: which game templates are currently safe to describe as `READY`, `PARTIAL`, `EXPERIMENTAL`, `BLOCKED`, or `PLANNED`.
@@ -33,14 +33,14 @@ These bars apply to template promotion and are tracked conservatively:
 
 | Template | Status | Required Subsystems | Accessibility | Audio | Input | Localization | Performance | Safe Scope Today | Main Blockers |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| `jrpg` | `PARTIAL` | `ui_menu_core`, `message_text_core`, `battle_core`, `save_data_core` | Partial | Partial | Partial | Partial | Partial | Native-first Wave 1 gameplay and authoring slices with truthful residual gaps. | Battle and save Wave 1 closure signoffs exist; cross-cutting bars are not complete.
-| `turn_based_rpg` | `PARTIAL` | `message_text_core`, `battle_core`, `save_data_core` | Partial | Partial | Partial | Partial | Partial | Similar to `jrpg`, but without implying full template productization. | Same as JRPG plus no dedicated template governance row was previously enforced. |
-| `visual_novel` | `PARTIAL` | `message_text_core`, `save_data_core` | Partial | Partial | Partial | Partial | Partial | Dialogue-heavy projects within today's native message and save scope. | Template-grade readiness rules and cross-cutting bars are still missing. |
-| `tactics_rpg` | `EXPERIMENTAL` | `battle_core`, `presentation_runtime`, `save_data_core` | Partial | Planned | Partial | Partial | Partial | Exploration and roadmap-aligned experimentation. | Template-specific scenario authoring and release bars are missing. |
-| `arpg` | `EXPERIMENTAL` | `presentation_runtime`, `save_data_core`, future action/combat lanes | Partial | Planned | Partial | Partial | Partial | Conceptual roadmap support only. | Runtime/editor closure visibility and cross-cutting bars are still missing. |
+| `jrpg` | `PARTIAL` | `ui_menu_core`, `message_text_core`, `battle_core`, `save_data_core` | Partial | Partial | Partial | Partial | Partial | Wave 1 native-first baseline with truthful residual gaps. | Battle and save closure remain open; cross-cutting bars are not complete. |
+| `turn_based_rpg` | `PARTIAL` | `message_text_core`, `battle_core`, `save_data_core` | Partial | Partial | Partial | Partial | Partial | A conservative turn-based template slice similar to `jrpg` without implying broader productization. | Cross-cutting readiness bars and dedicated template governance remain incomplete. |
+| `visual_novel` | `PARTIAL` | `message_text_core`, `save_data_core` | Partial | Partial | Partial | Partial | Partial | Dialogue-heavy projects within current native message and save scope. | Template-grade governance is not complete. |
+| `tactics_rpg` | `EXPERIMENTAL` | `battle_core`, `presentation_runtime`, `save_data_core` | Planned | Planned | Partial | Planned | Partial | Exploration and bounded experimentation only. | Template-specific scenario authoring remains missing; cross-cutting readiness bars are not complete. |
+| `arpg` | `EXPERIMENTAL` | `presentation_runtime`, `save_data_core` | Planned | Planned | Partial | Planned | Partial | Roadmap-aligned experimentation only. | Template-specific closure visibility remains missing. |
 | `monster_collector_rpg` | `PLANNED` | `ui_menu_core`, `message_text_core`, `battle_core`, `save_data_core`, `gameplay_ability_framework` | Partial | Partial | Partial | Partial | Partial | Exploration of collection-driven combat and party assembly using landed Wave 1 + ability framework. | Dedicated collection schema, capture mechanics, and template-grade governance remain future work. |
 | `cozy_life_rpg` | `PLANNED` | `ui_menu_core`, `message_text_core`, `save_data_core` | Partial | Partial | Partial | Partial | Partial | Dialogue-heavy life-sim exploration within current message/save/menu scope. | Scheduling system, social relationship mechanics, and crafting/economy lanes remain future work. |
-| `metroidvania_lite` | `PLANNED` | `presentation_runtime`, `save_data_core`, `gameplay_ability_framework` | Partial | Planned | Partial | Partial | Partial | 2D action exploration using presentation runtime and ability framework. | Traversal mechanics (dash, wall-jump), map unlock system, and ability-gated progression remain future work. |
+| `metroidvania_lite` | `PLANNED` | `presentation_runtime`, `save_data_core`, `gameplay_ability_framework` | Planned | Planned | Partial | Planned | Partial | 2D action exploration using presentation runtime and ability framework. | Traversal mechanics (dash, wall-jump), map unlock system, and ability-gated progression remain future work. |
 | `2_5d_rpg` | `PLANNED` | `presentation_runtime`, `save_data_core` | Partial | Planned | Partial | Partial | Partial | Raycast-mode exploration demos using the optional 2.5D lane. | Raycast art pipeline, map authoring adapters at production grade, and template-specific export validation remain future work. |
 
 ## Promotion Rules

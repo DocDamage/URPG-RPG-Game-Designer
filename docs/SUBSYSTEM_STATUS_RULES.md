@@ -1,6 +1,6 @@
 # Subsystem Status Rules
 
-Status Date: 2026-04-20
+Status Date: 2026-04-21
 
 This document defines when a subsystem may be labeled `READY`, `PARTIAL`, `EXPERIMENTAL`, `BLOCKED`, or `PLANNED`.
 

@@ -1,6 +1,6 @@
 ﻿# URPG Program Completion Status
 
-Status Date: 2026-04-20  
+Status Date: 2026-04-21  
 Program Scope: native-first roadmap rewire plus Wave 1 absorption, Wave 2 advanced capability expansion, post-Phase-2 compat exit hardening, and governance/template-readiness consolidation
 
 Cross-cutting debt, truthfulness, and intake-governance source of truth: `docs/TECHNICAL_DEBT_REMEDIATION_PLAN.md`.
@@ -46,6 +46,7 @@ Phase 3 diagnostics productization is complete as of 2026-04-19, Phase 4 governa
   - `DataManager::loadDatabase()` seeded-container behavior is explicitly exercised
   - `Window_Base::contents()` lifecycle truthfulness is explicitly exercised
   - AudioManager remains honestly `PARTIAL` as a deterministic harness-backed surface with live compat-state observability
+  - compat exit checklist evidence is refreshed through regression anchors for `PARTIAL` battle/window/data/audio truth surfaces plus diagnostics/export parity
 - Phase 3 diagnostics surfaces are complete:
   - audio diagnostics project live `AudioCore` state and now expose selected-row navigation through the workspace export surface
   - migration wizard diagnostics expose rendered workflow actions, selected-result detail, issue-focused navigation, report save/load, and bound-runtime rerun flows
@@ -64,11 +65,13 @@ Phase 3 diagnostics productization is complete as of 2026-04-19, Phase 4 governa
 - Phase 4 governance/reconciliation closure is complete:
   - external repository intake governance now has recorded repo dispositions, fixture/attribution schemas, and a dedicated validation gate under [`docs/external-intake/`](./external-intake/) and [`tools/ci/check_phase4_intake_governance.ps1`](../tools/ci/check_phase4_intake_governance.ps1)
   - private-use asset intake governance now has schema-backed source manifests, truthful capture-state reporting, and reconciled asset-gap records under [`docs/asset_intake/`](./asset_intake/), [`imports/manifests/`](../imports/manifests/), and [`imports/reports/asset_intake/`](../imports/reports/asset_intake/)
+  - release-readiness and truth-reconciliation gates now enforce bidirectional matrix/readiness coverage plus canonical status-date alignment across the core readiness docs
 - Phase 5 hardening closure is complete:
   - async plugin callbacks are now deferred, FIFO, owning-thread-only, and covered by focused queue-integrity and stale-error-clearing regressions
   - `MapScene` audio ownership is now explicit and observable instead of relying on a constructor-created service instance
   - retained tile render commands are now explicitly documented and verified as pointer-stable across unchanged frames
   - the Phase 4 governance gate now enforces wrapper/facade-only production-candidate adoption plus provenance-preserving asset-promotion records
+  - the native `PluginAPI` bridge now routes globals into `GlobalStateHub`, input queries into compat `InputManager` state, and entity lifecycle into a caller-bound ECS world instead of scratch-state placeholders
 - **Planning Governance:** standalone PGMMV/native-absorption roadmap files are now treated as reference annexes under [`docs/TECHNICAL_DEBT_REMEDIATION_PLAN.md`](./TECHNICAL_DEBT_REMEDIATION_PLAN.md) and indexed in [`docs/archive/README.md`](./archive/README.md), not parallel execution authorities.
 - The current program-level risk has shifted from baseline closure to governance drift:
   - subsystem-wide release-readiness matrix is still not landed as a full product-readiness signoff system; the repo currently has a first-slice canonical matrix plus machine-readable readiness records
@@ -151,7 +154,7 @@ Phase 3 diagnostics productization is complete as of 2026-04-19, Phase 4 governa
   - Fixed engine editor source compilation issues: `security_manager.h` missing includes, `cloud_service.h` broken include, 6 orphaned `.cpp` files registered in `CMakeLists.txt`
   - VFX cue pipeline enriched: `BattleScene` now emits semantic `EffectCueKind` values (`CastStart`, `HitConfirm`, `CriticalHit`, `GuardClash`, `MissSweep`, `HealPulse`, `DefeatFade`, `PhaseBanner`); `EffectResolver` routes kinds to dedicated presets (`healGlow`, `missSweep`, `defeatFade`, `phaseBanner`, `castSmall`, `critBurst`, `impactHeavy`); focused integration tests cover kind-based resolution and battle-scene emission.
 - Sixth agent swarm execution slice (2026-04-20): BattleMigration troop phase condition mapping
-  - BattleMigration troop phase condition mapping: `migrateTroop()` now maps turn-based, enemy HP threshold, and switch-based conditions from RPG Maker MV/MZ troop pages into native `phases[].condition` objects. Event command lists remain unmapped with honest warnings. Focused tests cover turn_count, hp_below_percent, switch_id, enemy_index, actor-condition warnings, and multi-page mapping.
+  - BattleMigration troop phase condition mapping: `migrateTroop()` now maps turn-based, enemy HP threshold, and switch-based conditions from RPG Maker MV/MZ troop pages into native `phases[].condition` objects. Focused tests cover turn_count, hp_below_percent, switch_id, enemy_index, actor-condition warnings, and multi-page mapping.
   - BattleMigration action scope expansion: all 12 RPG Maker MV/MZ scope codes now map to native scope strings (single/random/all enemy/ally/dead/user combinations).
   - BattleMigration troop page event command mapping: common battle event commands (Show Text, Common Event, Change State, Force Action, Change Enemy HP/MP) now map to native phase effects. Unmapped commands are collected into a fallback effect with honest warnings.
   - Save/Data policy governance CI gate: `tools/ci/check_save_policy_governance.ps1` created to validate canonical save policy fixture against schema, enforce non-negative retention limits and autosave slot invariants, and verify changelog coverage. Wired into `gate1-pr` in `.github/workflows/ci-gates.yml`. Focused tests prove `SaveSessionCoordinator` can load the canonical fixture and produce expected runtime state.
@@ -160,6 +163,16 @@ Phase 3 diagnostics productization is complete as of 2026-04-19, Phase 4 governa
   - BattleMigration non-battle event command mapping: `migrateTroop()` now maps Change Gold (code 125), Change Items (126), Change Weapons (127), Change Armors (128), Transfer Player (201), and Game Over (353) to native phase effects with operation/value parameters where applicable.
   - `battle_troops.schema.json` updated to accept `actor_id` in condition properties and new effect type enum values (`change_gold`, `change_items`, `change_weapons`, `change_armors`, `transfer_player`, `game_over`).
   - 7 new focused tests cover actor condition mapping, each new event command type, and mixed mapped/unmapped command lists.
+- Sprint 01 execution slice (2026-04-21): BattleMigration boolean condition tree preservation
+  - `BattleMigration::migrateTroop()` now preserves grouped troop-page condition logic as explicit recursive `and` / `or` trees under `phases[].condition.children` instead of flattening multi-leaf logic.
+  - Legacy RPG Maker pages with multiple enabled condition flags now migrate to explicit `and` groups, while single-leaf pages keep the existing flat condition shape for compatibility.
+  - Unsupported or malformed condition-tree nodes now emit typed warnings (`battle_condition_tree_unsupported_shape`) and preserve `_compat_condition_fallbacks` records on the migrated phase so no source branch is silently dropped.
+  - `battle_troops.schema.json` now models recursive grouped conditions plus `_compat_condition_fallbacks`, and focused tests cover single-leaf, `and`, `or`, nested, and unsupported-tree scenarios.
+- Sprint 01 execution slice (2026-04-21): BattleMigration remaining event-command coverage
+  - `BattleMigration::migrateTroop()` now maps RPG Maker troop-page `Change Switches` (121) and `Change Variables` (122) commands into native `change_switches` and `change_variables` effects.
+  - Unsupported troop-page commands now emit per-command structured `unsupported_command` effects carrying command code, reason, and preserved parameters instead of a single generic unmapped bucket.
+  - Conditional branches (`111`) are now preserved as explicit unsupported artifacts with captured nested source commands so branch-scoped bodies are not misrepresented as unconditional native effects.
+  - `battle_troops.schema.json` now accepts `change_switches`, `change_variables`, and `unsupported_command` effect types, and focused tests cover new mappings plus branch/unknown-command fallback behavior.
 - Eighth agent swarm execution slice (2026-04-20): Achievement trigger integration
   - `AchievementTrigger` struct with structured unlock condition parsing supporting legacy underscore format (`kill_count_10`) and parameterized format (`item_collect:item_id=5:count=3`).
   - `AchievementEventBus` lightweight pub/sub for gameplay events.
@@ -176,6 +189,11 @@ Phase 3 diagnostics productization is complete as of 2026-04-19, Phase 4 governa
   - `LZString` decompressor implemented in C++ with `decompressFromBase64()` supporting the Base64 variant used by RPG Maker MV/MZ save files.
   - `RPGMakerSaveFileReader` class handles format detection (MV vs MZ heuristic), optional XOR decryption, LZString decompression, and JSON parsing.
   - 9 focused tests cover LZString decompression against known vectors (empty, single char, words, sentences, JSON payloads), format detection, XOR round-trip, file-not-found handling, invalid format handling, and end-to-end JSON payload reading.
+- Sprint 01 execution slice (2026-04-21): Save/Data compat import closure follow-through
+  - `SaveMigration` now includes `ImportCompatSaveDocument()` for end-to-end compat save import, producing native runtime payload JSON plus migrated metadata and severity-graded diagnostics from a single compat save document.
+  - Common compat payload fields (`gold`, `mapId`, player position/direction, party, switches, variables) now map into native runtime-owned save state, while unsupported plugin blobs and unmapped payload fields are retained explicitly under `_compat_payload_retained`.
+  - Focused save migration diagnostics now cover lossy field mapping, missing actor references, invalid-but-recoverable payload fields, and unsupported plugin-owned payload blobs.
+  - Runtime validation now includes a real `.rpgsave` read/import/write/load round-trip proving imported RPG Maker save data can flow through the normal native runtime load path without structural corruption.
 - Latest recorded local validation snapshot:
   - recorded under the `dev-ninja-debug` preset: `ctest --preset dev-all --output-on-failure` => 869/869 passed (includes all previous lanes plus Wave 1 closure integration, presentation bridge, incubating test conversion, cmake-completeness-governance, save-policy-governance, battle-migration-residual-gaps, achievement-trigger-integration, character-identity-ecs, and save-binary-format-loader lanes)
 - Latest focused Phase 5 hardening validation snapshot:

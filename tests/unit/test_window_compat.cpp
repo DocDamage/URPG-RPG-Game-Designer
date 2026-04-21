@@ -697,9 +697,16 @@ TEST_CASE("Window_Base getMethodStatus for extended methods", "[compat][window]"
     REQUIRE(Window_Base::getMethodStatus("drawActorTp") == CompatStatus::FULL);
     REQUIRE(Window_Base::getMethodStatus("textWidth") == CompatStatus::FULL);
     REQUIRE(Window_Base::getMethodStatus("textSize") == CompatStatus::FULL);
+    REQUIRE(Window_Base::getMethodStatus("systemColor") == CompatStatus::PARTIAL);
     REQUIRE(Window_Base::getMethodStatus("contents") == CompatStatus::PARTIAL);
     REQUIRE(Window_Base::getMethodStatus("createContents") == CompatStatus::PARTIAL);
     REQUIRE(Window_Base::getMethodStatus("destroyContents") == CompatStatus::PARTIAL);
+    REQUIRE(Window_Base::getMethodStatus("update") == CompatStatus::PARTIAL);
+    REQUIRE(Window_Base::getMethodDeviation("contents").find("no backing pixel buffer exists") != std::string::npos);
+    REQUIRE(Window_Base::getMethodDeviation("createContents").find("no backing pixel buffer exists") != std::string::npos);
+    REQUIRE(Window_Base::getMethodDeviation("destroyContents").find("no backing pixel buffer exists") != std::string::npos);
+    REQUIRE(Window_Base::getMethodDeviation("update").find("multi-touch") != std::string::npos);
+    REQUIRE(Window_Base::getMethodStatus("nonexistentMethod") == CompatStatus::UNSUPPORTED);
 }
 
 // ============================================================================

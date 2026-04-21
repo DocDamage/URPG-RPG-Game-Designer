@@ -9,6 +9,27 @@
 
 ## Entries
 
+### 2026-04-21 — Sprint 01 Ticket S01-T03: Save Compat Import Closure
+- **Action**: Extended `engine/core/save/save_migration.*` with `ImportCompatSaveDocument()` so compat save import now produces both native runtime payload JSON and migrated metadata from a single compat save document.
+- **Action**: Mapped common compat save fields (`gold`, `mapId`, player position/direction, party, switches, variables`) into native runtime-owned state while retaining unsupported plugin blobs and unmapped payload fields explicitly under `_compat_payload_retained`.
+- **Action**: Updated `MigrationWizardModel` to count diagnostics from the fuller save import path instead of metadata-only upgrade flow.
+- **Action**: Added focused unit coverage for imported payload mapping, lossy/recoverable payload diagnostics, runtime load of imported compat payloads, and a real `.rpgsave` read/import/write/load integration round-trip.
+- **Result**: Save/Data now has an end-to-end compat import path that preserves lossy/plugin-owned data explicitly and can feed the normal native runtime load seam.
+
+### 2026-04-21 — Sprint 01 Ticket S01-T02: Battle Event Command Coverage
+- **Action**: Extended `engine/core/battle/battle_migration.h` so troop-page `Change Switches` (121) and `Change Variables` (122) now map to native `change_switches` and `change_variables` effects.
+- **Action**: Replaced the old generic unmapped-command bucket with per-command `unsupported_command` artifacts carrying code, reason, and preserved parameters.
+- **Action**: Treated conditional-branch pages as explicit unsupported artifacts with captured nested source commands so branch-scoped bodies are not flattened into unconditional native effects.
+- **Action**: Updated `content/schemas/battle_troops.schema.json`, `docs/SCHEMA_CHANGELOG.md`, `docs/PROGRAM_COMPLETION_STATUS.md`, `docs/BATTLE_CORE_CLOSURE_SIGNOFF.md`, and `docs/TECHNICAL_DEBT_REMEDIATION_PLAN.md` to match the stronger event-command contract.
+- **Result**: Battle compat migration now covers the real high-value command gaps exercised by the current test lane and preserves unsupported troop-page command structures explicitly instead of dropping them into a vague fallback.
+
+### 2026-04-21 — Sprint 01 Ticket S01-T01: Battle Condition Tree Preservation
+- **Action**: Extended `engine/core/battle/battle_migration.h` so troop-page condition migration now preserves grouped boolean logic as recursive native `and` / `or` trees instead of flattening multi-leaf source logic.
+- **Action**: Kept legacy single-condition output stable for simple pages, but upgraded multi-leaf legacy RPG Maker page conditions to explicit `and` groups so conjunction semantics remain truthful.
+- **Action**: Added `_compat_condition_fallbacks` preservation plus typed `battle_condition_tree_unsupported_shape` warnings for malformed or unsupported source tree nodes.
+- **Action**: Updated `content/schemas/battle_troops.schema.json`, `docs/SCHEMA_CHANGELOG.md`, `docs/PROGRAM_COMPLETION_STATUS.md`, and `docs/BATTLE_CORE_CLOSURE_SIGNOFF.md` to match the new grouped-condition contract.
+- **Result**: Battle compat migration no longer silently flattens grouped condition logic; unsupported branches are preserved explicitly for diagnostics and follow-up mapping.
+
 ### 2026-04-20 — Governance and Template Readiness Foundation
 - **Action**: Added canonical governance/readiness docs for subsystem readiness, template readiness, truth-alignment rules, subsystem/template label rules, schema changelog governance, and the first project-audit contract.
 - **Action**: Added machine-readable readiness artifacts at `content/readiness/readiness_status.json` and `content/schemas/readiness_status.schema.json`.
@@ -557,6 +578,18 @@
 - **Action**: Updated `engine/core/editor/plugin_api.cpp` inline comments so the disconnected routing behavior is called out at each stubbed export site.
 - **Result**: Plugin API public-surface truthfulness milestone is COMPLETE.
 
+## 2026-04-21 - Plugin API Live Wiring Closure
+
+- **Context**: Sprint ticket `S01-T05` required replacing the remaining scratch-state/synthetic-id PluginAPI bridge behavior with real engine wiring for the surfaces the API already claimed to expose.
+- **Action**: Routed PluginAPI global variables and switches into `GlobalStateHub`, key and mouse queries into compat `InputManager`, and entity lifecycle/component attachment into a caller-bound ECS `World` via explicit bind/unbind helpers. Updated the focused PluginAPI unit coverage to assert live routing rather than placeholder behavior.
+- **Result**: The native PluginAPI bridge is no longer placeholder-backed for its claimed global-state, input, and entity-lifecycle surfaces.
+
+## 2026-04-21 - Release Readiness Enforcement Hardening
+
+- **Context**: The release-readiness and truth-reconciliation gates were only checking one-way row presence, so stale status dates and extra matrix rows could drift without failing CI.
+- **Action**: Hardened `tools/ci/check_release_readiness.ps1` and `tools/ci/truth_reconciler.ps1` to enforce canonical status-date alignment plus bidirectional readiness/matrix coverage and status matching, then reconciled `readiness_status.json`, the readiness matrices, and the label/truth rules docs to the stricter checks.
+- **Result**: The first-slice governance lane now catches missing or extra matrix rows, stale readiness dates, and matrix/readiness status mismatches instead of silently accepting them.
+
 ### 2026-04-16 â€” Cloud Sync Documentation Truthfulness Pass
 - **Action**: Updated `docs/AI_COPILOT_GUIDE.md` so `AISyncCoordinator` and cloud-sync guidance are described as stub-backed plumbing rather than an operational cross-device persistence path.
 - **Action**: Updated `docs/AI_SUBSYSTEM_CLOSURE_CHECKLIST.md` with an explicit note that the in-tree `CloudServiceStub` only covers local in-memory plumbing and does not constitute production cloud sync.
@@ -874,3 +907,9 @@
 - **Context**: `URPG_MISSING_FEATURES_GOVERNANCE_AND_TEMPLATE_EXPANSION_PLAN_v2.md` introduced a broader governance/template-readiness gap list that was not yet absorbed into the canonical roadmap/status stack.
 - **Action**: Folded the addendum into the canonical planning chain as reference input, updated the roadmap/status/remediation docs to treat subsystem readiness, template readiness, schema-version governance, cross-cutting minimum bars, and Create-a-Character/template expansion as explicit planned work, and corrected the roadmap's prior overstatement that a subsystem-wide release-readiness matrix had already landed.
 - **Result**: The canonical docs now distinguish clearly between what is implemented and validated today versus the governance/productization foundation still needed for trustworthy multi-template product claims.
+
+## 2026-04-21 - Compat Exit Checklist Evidence Closure
+
+- **Context**: `docs/COMPAT_EXIT_CHECKLIST.md` still showed migration-confidence evidence as open even though the compat status registries and diagnostics/export surfaces already had most of the required coverage.
+- **Action**: Tightened the focused compat truth anchors by renaming the QuickJS audio bridge test to deterministic compat-state wording, adding representative `PARTIAL` battle/window registry assertions plus deviation-string coverage, and reconciling the compat exit checklist against the existing diagnostics/export parity tests.
+- **Result**: The compat exit checklist now reflects shipped evidence rather than stale unchecked boxes, while keeping human signoff explicitly separate from code/test closure.

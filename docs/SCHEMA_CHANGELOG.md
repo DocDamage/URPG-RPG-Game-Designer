@@ -102,11 +102,11 @@ Each governed schema entry should include:
 
 ### `battle_troops` (`battle_troops.schema.json`)
 
-- Version: `1.1.0`
-- Date: `2026-04-20`
-- Summary: battle troop contract schema for enemy groups, member placement, and phase triggers
-- Changes: added `actor_id` to condition properties; expanded effect `type` enum to include `change_gold`, `change_items`, `change_weapons`, `change_armors`, `transfer_player`, `game_over`
-- Migration Impact: additive only; existing 1.0.0 documents remain valid
+- Version: `1.3.0`
+- Date: `2026-04-21`
+- Summary: battle troop contract schema for enemy groups, member placement, phase triggers, and grouped condition trees
+- Changes: added recursive grouped condition support via `op` + `children`; documented `_compat_condition_fallbacks` for unrepresentable source condition nodes; added `change_switches`, `change_variables`, and `unsupported_command` effect types; retained prior additive condition/effect expansions (`actor_id`, `change_gold`, `change_items`, `change_weapons`, `change_armors`, `transfer_player`, `game_over`)
+- Migration Impact: additive only; existing 1.2.0 documents remain valid
 
 ### `choice_prompts` (`choice_prompts.schema.json`)
 

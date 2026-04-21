@@ -356,7 +356,7 @@ TEST_CASE("AudioManager: method status registry", "[audio_manager]") {
     REQUIRE(AudioManager::getMethodStatus("nonexistentMethod") == CompatStatus::UNSUPPORTED);
 }
 
-TEST_CASE("AudioManager: QuickJS API routes into live audio state", "[audio_manager]") {
+TEST_CASE("AudioManager: QuickJS API routes into deterministic compat audio state", "[audio_manager]") {
     AudioManager& am = AudioManager::instance();
     am.stopBgm();
     am.stopBgs();
