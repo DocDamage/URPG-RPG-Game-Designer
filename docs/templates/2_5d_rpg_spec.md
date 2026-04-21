@@ -5,7 +5,7 @@ Authority: canonical template spec for `2_5d_rpg`
 
 ## Purpose
 
-The `2_5d_rpg` template covers games that use a raycast-based or faux-3D presentation mode layered over 2D RPG mechanics. It depends on the optional 2.5D presentation lane and is intended for projects that want depth-cue exploration without a full 3D engine.
+The `2_5d_rpg` template covers games that use a raycast-based or faux-3D presentation mode layered over 2D RPG mechanics. It depends on the 2.5D presentation lane and is a mandatory first-class template target for projects that want depth-cue exploration without a full 3D engine.
 
 ## Required Subsystems
 
@@ -13,7 +13,7 @@ The `2_5d_rpg` template covers games that use a raycast-based or faux-3D present
 | --- | --- |
 | `presentation_runtime` | Raycast rendering, camera, and spatial updates for the 2.5D mode. |
 | `save_data_core` | Persistent progression, settings, and session recovery. |
-| `2_5d_mode` *(optional / future)* | Raycast art pipeline, depth-cue rendering, and mode-specific camera contracts. |
+| `2_5d_mode` *(planned / required lane)* | Raycast art pipeline, depth-cue rendering, and mode-specific camera contracts. |
 
 ## Cross-Cutting Minimum Bars
 
@@ -27,7 +27,7 @@ The `2_5d_rpg` template covers games that use a raycast-based or faux-3D present
 
 ## Safe Scope Today
 
-Raycast-mode exploration demos using the optional 2.5D lane within `presentation_runtime`. Bounded technical demonstrations that leverage landed presentation surfaces for faux-3D exploration are safe, provided they do not claim production-grade map authoring or export validation.
+Early first-class 2.5D projects using the raycast-capable presentation stack within `presentation_runtime`. Current evidence supports bounded faux-3D gameplay slices, but production-grade map authoring and export validation are still required before broader release-facing claims.
 
 ## Main Blockers
 

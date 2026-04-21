@@ -846,6 +846,9 @@ SITE:STRING=DocDamage
 //Fetch Catch2 via CMake
 URPG_FETCH_CATCH2:BOOL=ON
 
+//Build vendored SDL shared libraries on MinGW fallback toolchains
+URPG_MINGW_VENDORED_SDL_SHARED:BOOL=ON
+
 //Path to a program.
 URPG_POWERSHELL_EXE:FILEPATH=C:/Program Files/PowerShell/7/pwsh.exe
 
@@ -1177,7 +1180,7 @@ Catch2_GUID_CMAKE:INTERNAL=8d538cbe-01bf-4a2e-a98a-6c368fdf13d7
 //ADVANCED property for variable: DART_TESTING_TIMEOUT
 DART_TESTING_TIMEOUT-ADVANCED:INTERNAL=1
 //Details about finding Git
-FIND_PACKAGE_MESSAGE_DETAILS_Git:INTERNAL=[C:/Program Files/Git/cmd/git.exe][v2.53.0.windows.2()]
+FIND_PACKAGE_MESSAGE_DETAILS_Git:INTERNAL=[C:/Program Files/Git/cmd/git.exe][v2.53.0.windows.3()]
 //Details about finding OpenGL
 FIND_PACKAGE_MESSAGE_DETAILS_OpenGL:INTERNAL=[opengl32][ ][v()]
 //Details about finding PkgConfig

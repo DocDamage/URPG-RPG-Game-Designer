@@ -77,7 +77,7 @@ Phase 3 diagnostics productization is complete as of 2026-04-19, Phase 4 governa
   - subsystem-wide release-readiness matrix is still not landed as a full product-readiness signoff system; the repo currently has a first-slice canonical matrix plus machine-readable readiness records
   - template readiness matrix and template-claim guardrails are still not landed as full template signoff governance; the repo currently has a first-slice canonical matrix and conservative claim checks
   - subsystem-wide release-readiness and template-readiness governance now have canonical docs plus a machine-readable readiness record, but they are still a first-slice governance baseline rather than a complete product-readiness proof
-  - template-claim guardrails, subsystem badge checks, and truth-alignment checks now exist, but they currently enforce conservative documentation discipline rather than a full release-signoff workflow
+  - template-claim guardrails, subsystem badge checks, truth-alignment checks, and a canonical release-signoff workflow artifact now exist, but they still stop short of full release-signoff enforcement
   - the project audit command and diagnostics tab now exist as a conservative readiness-derived scanner/scaffold, and the reported blockers can now reflect asset-intake, schema/changelog, project-schema, missing canonical input/localization/export artifact governance, and first-slice accessibility/audio/performance artifact governance where those concerns are represented by the current readiness records or roadmap-defined canonical paths; the audit engine is not yet a full project scanner
   - schema versioning/changelog governance and focused CI/doc enforcement now exist; a first-slice breaking-change detection script (`tools/ci/check_breaking_changes.ps1`) is now landed and validates schema `$id`/`title` presence, changelog freshness, and schema/changelog alignment
   - cross-cutting minimum bars for accessibility, localization completeness, input remapping, audio governance, and performance budgets are now canonical governance bars first, and first-slice implementations are landed for input remapping (`InputRemapStore`), localization completeness (`LocaleCatalog` + `CompletenessChecker`), and performance budget profiling (`PerfProfiler` + diagnostics panel)
@@ -222,6 +222,30 @@ Phase 3 diagnostics productization is complete as of 2026-04-19, Phase 4 governa
   - `ctest --test-dir build/dev-ninja-debug -L pr --output-on-failure` => 835/835 passed
   - `powershell -ExecutionPolicy Bypass -File tools/ci/check_release_readiness.ps1` => passed
   - `powershell -ExecutionPolicy Bypass -File tools/ci/truth_reconciler.ps1` => passed
+- Sprint 04 execution slice (2026-04-21): Canonical release-signoff workflow artifact
+  - Added `docs/RELEASE_SIGNOFF_WORKFLOW.md` as the canonical non-promoting workflow artifact for governed release-signoff discipline across readiness/signoff lanes.
+  - `check_release_readiness.ps1` and `truth_reconciler.ps1` now require that workflow doc, align its status date with the readiness stack, and verify its expected non-promoting workflow language.
+  - `RELEASE_READINESS_MATRIX.md`, `TRUTH_ALIGNMENT_RULES.md`, and `readiness_status.json` now record that the governance foundation includes a canonical release-signoff workflow artifact, while keeping full release-signoff enforcement honestly below `READY`.
+- Sprint 04 execution slice (2026-04-21): Project-audit release-signoff workflow parity
+  - `urpg_project_audit` now emits a dedicated `releaseSignoffWorkflow` governance section plus `releaseSignoffWorkflowIssueCount`, so the audit contract can surface the canonical release-signoff workflow artifact instead of leaving it implicit in the readiness/truth gates.
+  - `ProjectAuditPanel` and `DiagnosticsWorkspace` now preserve and export that workflow-governance section through the diagnostics path, with focused panel/workspace/CLI coverage keeping the contract aligned end to end.
+- Sprint 04 closeout snapshot (2026-04-21)
+  - `.\build\dev-ninja-debug\urpg_tests.exe "[project_audit],[project_audit_cli],[editor][diagnostics][integration][project_audit]" --reporter compact` => 368 assertions / 10 test cases passed
+  - `powershell -ExecutionPolicy Bypass -File tools/ci/check_release_readiness.ps1` => passed
+  - `powershell -ExecutionPolicy Bypass -File tools/ci/truth_reconciler.ps1` => passed
+  - `ctest --test-dir build/dev-ninja-debug -L pr --output-on-failure` => 835/835 passed
+- Sprint 05 execution slice (2026-04-21): Compat corpus directory re-import depth
+  - `test_compat_plugin_fixtures.cpp` now includes a weekly-lane anchor proving the curated all-profile orchestration fixture survives directory-based corpus import, full unload, directory re-import, and by-name rerun without failure diagnostics.
+  - `COMPAT_EXIT_CHECKLIST.md` now records that the weekly compat lane covers directory import plus orchestration rerun, narrowing the remaining compat maintenance gap to future corpus growth and new failure-path parity rather than a missing import-style depth anchor.
+- Sprint 05 execution slice (2026-04-21): Compat by-name dependency-gating parity
+  - `test_compat_plugin_failure_diagnostics.cpp` now proves real curated by-name dispatch emits the same deterministic dependency-missing diagnostics as direct command dispatch when a dependent profile loses `VisuStella_CoreEngine_MZ`.
+  - `COMPAT_EXIT_CHECKLIST.md` now records that the failure-parity lane covers both direct and by-name invocation surfaces for this dependency-gating path, narrowing the remaining compat maintenance work to future failure-operation growth and routine truth upkeep.
+- Sprint 05 closeout snapshot (2026-04-21)
+  - `ctest --test-dir build/dev-ninja-debug --output-on-failure -R "Compat fixtures: curated all-profile orchestration scenario survives directory re-import|Compat fixtures: dependent command execution is gated with diagnostics when core dependency is missing"` => 2/2 passed
+  - `ctest --test-dir build/dev-ninja-debug -L weekly --output-on-failure` => 44/44 passed
+  - `ctest --test-dir build/dev-ninja-debug -L pr --output-on-failure` => 835/835 passed
+  - `powershell -ExecutionPolicy Bypass -File tools/ci/check_release_readiness.ps1` => passed
+  - `powershell -ExecutionPolicy Bypass -File tools/ci/truth_reconciler.ps1` => passed
 - Latest recorded local validation snapshot:
   - recorded under the `dev-ninja-debug` preset: `ctest --preset dev-all --output-on-failure` => 869/869 passed (includes all previous lanes plus Wave 1 closure integration, presentation bridge, incubating test conversion, cmake-completeness-governance, save-policy-governance, battle-migration-residual-gaps, achievement-trigger-integration, character-identity-ecs, and save-binary-format-loader lanes)
 - Latest focused Phase 5 hardening validation snapshot:
@@ -269,7 +293,7 @@ Phase 3 diagnostics productization is complete as of 2026-04-19, Phase 4 governa
   - `docs/BATTLE_CORE_NATIVE_SPEC.md`
 - Rewrote the primary roadmap into an integrated plan:
   - `docs/NATIVE_FEATURE_ABSORPTION_PLAN.md`
-  - includes Wave 2 advanced capability tracks (ability framework, pattern editor, modular level assembly, sprite pipeline, procedural toolkit, optional 2.5D lane, timeline orchestration, editor utilities)
+  - includes Wave 2 advanced capability tracks (ability framework, pattern editor, modular level assembly, sprite pipeline, procedural toolkit, 2.5D presentation lane, timeline orchestration, editor utilities)
 - Normalized planning authority for PGMMV/native-absorption scope:
   - `docs/TECHNICAL_DEBT_REMEDIATION_PLAN.md` now governs roadmap-alignment and truthfulness requirements for newly added planning scope
   - `docs/archive/planning/URPG_MASTER_NATIVE_ABSORPTION_AND_PGMMV_ROADMAP_2026-04-18.md`, `docs/archive/planning/URPG_PGMMV_SUPPORT_PLAN.md`, and `docs/archive/planning/URPG_NATIVE_ABSORPTION_ROADMAP_2026-04-18.md` are now linked as detailed planning inputs rather than canonical status/roadmap authorities
@@ -472,12 +496,14 @@ The scope in this document is considered 100% complete when all items below are 
    - `MenuSceneSerializer::Serialize` now emits rules arrays; `Deserialize` now restores them.
    - `MenuMigration::MigrateCommandPanel` now maps fallback routes and preserves rich visibility/enable rules from plugin evidence.
    - Added focused tests for rule round-tripping and migration fallback/rule coverage.
-4. Continue post-Phase-2 compat exit hardening:
+4. Continue post-Phase-2 compat exit hardening through Sprint 05:
+   - Sprint 05 opens the explicit compat maintenance lane for curated corpus depth, new failure-path parity, and truth-maintenance follow-through.
    - keep new routed failure operations locked to JSONL/report/panel parity and maintain weekly conformance depth growth.
 5. Keep canonical status/docs aligned with current validation evidence:
    - update README/remediation/kickoff/checklist language whenever closure state or residual compat scope changes.
-6. Strict Wave 2 opening work:
-   - The strict Wave 2 baseline opening order and roadmap follow-through items tracked on this branch are marked complete in the current status docs; any further expansion should be treated as new scope unless fresh validation reopens baseline gaps.
+6. Wave 2 roadmap execution:
+   - The initial Wave 2 baseline slices tracked on this branch are landed, but the documented Wave 2 roadmap remains mandatory first-class scope.
+   - Any documented Wave 2 lane that is not yet product-complete must be treated as required execution work, not optional follow-on scope.
 
 ## Remaining work to reach 100%
 
@@ -523,7 +549,7 @@ Phase 2 runtime closure is already complete. The remaining compat work below is 
 - [x] Modular Level Assembly lane delivered for connector-based block workflows.
 - [x] Sprite Pipeline Toolkit delivered (atlas/crop/preview baseline with runtime artifacts).
 - [x] Procedural Content Toolkit delivered (generation + FOV baseline).
-- [x] Optional 2.5D presentation lane delivered behind explicit project-mode boundaries.
+- [x] 2.5D presentation lane delivered behind explicit project-mode boundaries.
 - [x] Timeline/Animation orchestration and transient effect events delivered.
 - [x] Selected editor productivity utilities delivered and stabilized.
 
@@ -573,8 +599,8 @@ Phase 2 runtime closure is already complete. The remaining compat work below is 
 - [x] Wave 2 opening slice: timeline and animation orchestration
   - `AnimationSystem` now binds authored `AnimationClip` tracks into `AnimationComponent` playback and performs deterministic interpolation instead of stopping at the previous keyframe.
   - `TimelineKernel` now supports scene/UI track authoring (`ensureTrack`, `addEvent`, `updateEvent`, `removeEvent`), sorts track events on ingest, and records triggered transient events in playback order, while `AnimationKnowledgeBridge` normalizes parsed keyframe order so clip/timeline playback remains deterministic under test.
-- [x] Wave 2 opening slice: optional 2.5D and editor utility gating
-  - `RaycastRenderer` now requires an explicit spatial presentation-mode opt-in before the optional 2.5D lane runs, so classic 2D projects cannot drift into raycast behavior by accident.
+- [x] Wave 2 opening slice: 2.5D and editor utility gating
+  - `RaycastRenderer` now requires an explicit spatial presentation-mode opt-in before the 2.5D lane runs, so classic 2D projects cannot drift into raycast behavior by accident.
   - `RaycastRenderer::buildAuthoringAdapter()` now converts authored `SpatialMapOverlay` elevation data into a deterministic raycast blocking grid, and `EditorUtilityTask` declares per-mode requirements so spatial-only utilities stay isolated from classic projects.
   - [x] `AbilitySystemComponent` now records bounded deterministic execution history for blocked, executed, and state-machine transition outcomes.
   - [x] `GameplayAbility` activation checks now return structured reasons instead of only boolean pass/fail state.

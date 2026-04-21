@@ -150,7 +150,7 @@ Historical kickoff snapshot only: the sequencing below reflects the program stat
 4. Wave 1 editor + schema productization
    - Historical kickoff focus: ship subsystem inspectors/previews/diagnostics and finalize migration-safe schemas/import upgrade paths.
 5. Wave 2 advanced capability delivery
-   - Historical kickoff focus: begin implementation tracks for the ability framework, pattern editor, modular level assembly, sprite pipeline, procedural toolkit, optional 2.5D lane, timeline orchestration, and editor utilities.
+   - Historical kickoff focus: begin implementation tracks for the ability framework, pattern editor, modular level assembly, sprite pipeline, procedural toolkit, 2.5D presentation lane, timeline orchestration, and editor utilities.
 6. Completion tracking
    - Canonical current source of truth remains `docs/PROGRAM_COMPLETION_STATUS.md`.
 

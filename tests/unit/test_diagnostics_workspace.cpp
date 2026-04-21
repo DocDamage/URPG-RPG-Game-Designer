@@ -103,6 +103,7 @@ TEST_CASE("DiagnosticsWorkspace - Refresh updates compat and save tabs", "[edito
         {"accessibilityArtifactIssueCount", 1},
         {"audioArtifactIssueCount", 2},
         {"performanceArtifactIssueCount", 3},
+        {"releaseSignoffWorkflowIssueCount", 0},
         {"templateContext", {{"id", "jrpg"}, {"status", "PARTIAL"}}},
         {"governance", {
             {"assetReport", {
@@ -143,6 +144,11 @@ TEST_CASE("DiagnosticsWorkspace - Refresh updates compat and save tabs", "[edito
                 {"path", "docs/presentation/performance_budgets.md"},
                 {"available", true},
                 {"issueCount", 3}
+            }},
+            {"releaseSignoffWorkflow", {
+                {"path", "docs/RELEASE_SIGNOFF_WORKFLOW.md"},
+                {"available", true},
+                {"issueCount", 0}
             }}
         }},
         {"issues", {
@@ -441,6 +447,7 @@ TEST_CASE("DiagnosticsWorkspace - Refresh updates compat and save tabs", "[edito
     REQUIRE(workspace.projectAuditPanel().lastRenderSnapshot().accessibility_artifact_issue_count == 1);
     REQUIRE(workspace.projectAuditPanel().lastRenderSnapshot().audio_artifact_issue_count == 2);
     REQUIRE(workspace.projectAuditPanel().lastRenderSnapshot().performance_artifact_issue_count == 3);
+    REQUIRE(workspace.projectAuditPanel().lastRenderSnapshot().release_signoff_workflow_issue_count == 0);
     REQUIRE(workspace.projectAuditPanel().lastRenderSnapshot().asset_report.has_value());
     REQUIRE(workspace.projectAuditPanel().lastRenderSnapshot().schema_governance.has_value());
     REQUIRE(workspace.projectAuditPanel().lastRenderSnapshot().project_schema_governance.has_value());
@@ -456,6 +463,9 @@ TEST_CASE("DiagnosticsWorkspace - Refresh updates compat and save tabs", "[edito
     REQUIRE(workspace.projectAuditPanel().lastRenderSnapshot().performance_artifacts.has_value());
     REQUIRE(workspace.projectAuditPanel().lastRenderSnapshot().performance_artifacts->path ==
             "docs/presentation/performance_budgets.md");
+    REQUIRE(workspace.projectAuditPanel().lastRenderSnapshot().release_signoff_workflow.has_value());
+    REQUIRE(workspace.projectAuditPanel().lastRenderSnapshot().release_signoff_workflow->path ==
+            "docs/RELEASE_SIGNOFF_WORKFLOW.md");
     REQUIRE(workspace.projectAuditPanel().lastRenderSnapshot().issues.size() == 2);
     const auto auditJson = nlohmann::json::parse(facade.emitSnapshot());
     REQUIRE(auditJson["active_tab"] == "project_audit");
@@ -473,6 +483,7 @@ TEST_CASE("DiagnosticsWorkspace - Refresh updates compat and save tabs", "[edito
     REQUIRE(auditJson["active_tab_detail"]["accessibility_artifact_issue_count"] == 1);
     REQUIRE(auditJson["active_tab_detail"]["audio_artifact_issue_count"] == 2);
     REQUIRE(auditJson["active_tab_detail"]["performance_artifact_issue_count"] == 3);
+    REQUIRE(auditJson["active_tab_detail"]["release_signoff_workflow_issue_count"] == 0);
     REQUIRE(auditJson["active_tab_detail"]["governance"]["asset_report"]["path"] == "imports/reports/asset_audit.json");
     REQUIRE(auditJson["active_tab_detail"]["governance"]["asset_report"]["available"] == true);
     REQUIRE(auditJson["active_tab_detail"]["governance"]["asset_report"]["usable"] == false);
@@ -502,6 +513,10 @@ TEST_CASE("DiagnosticsWorkspace - Refresh updates compat and save tabs", "[edito
             "docs/presentation/performance_budgets.md");
     REQUIRE(auditJson["active_tab_detail"]["governance"]["performance_artifacts"]["available"] == true);
     REQUIRE(auditJson["active_tab_detail"]["governance"]["performance_artifacts"]["issue_count"] == 3);
+    REQUIRE(auditJson["active_tab_detail"]["governance"]["release_signoff_workflow"]["path"] ==
+            "docs/RELEASE_SIGNOFF_WORKFLOW.md");
+    REQUIRE(auditJson["active_tab_detail"]["governance"]["release_signoff_workflow"]["available"] == true);
+    REQUIRE(auditJson["active_tab_detail"]["governance"]["release_signoff_workflow"]["issue_count"] == 0);
     REQUIRE(auditJson["active_tab_detail"]["issues"].is_array());
     REQUIRE(auditJson["active_tab_detail"]["issues"].size() == 2);
     REQUIRE(auditJson["active_tab_detail"]["issues"][0]["code"] == "missing_localization_key");

@@ -6,6 +6,7 @@ $matrixPath = Join-Path $repoRoot "docs\RELEASE_READINESS_MATRIX.md"
 $templateMatrixPath = Join-Path $repoRoot "docs\TEMPLATE_READINESS_MATRIX.md"
 $truthRulesPath = Join-Path $repoRoot "docs\TRUTH_ALIGNMENT_RULES.md"
 $projectAuditDocPath = Join-Path $repoRoot "docs\PROJECT_AUDIT.md"
+$releaseSignoffWorkflowPath = Join-Path $repoRoot "docs\RELEASE_SIGNOFF_WORKFLOW.md"
 $signoffDocPaths = @{
     "battle_core" = Join-Path $repoRoot "docs\BATTLE_CORE_CLOSURE_SIGNOFF.md"
     "save_data_core" = Join-Path $repoRoot "docs\SAVE_DATA_CORE_CLOSURE_SIGNOFF.md"
@@ -26,6 +27,9 @@ if (-not (Test-Path $truthRulesPath)) {
 }
 if (-not (Test-Path $projectAuditDocPath)) {
     throw "Missing project audit doc: $projectAuditDocPath"
+}
+if (-not (Test-Path $releaseSignoffWorkflowPath)) {
+    throw "Missing release signoff workflow doc: $releaseSignoffWorkflowPath"
 }
 
 $readiness = Get-Content -Raw -Path $readinessPath | ConvertFrom-Json
@@ -139,17 +143,20 @@ $matrixText = Get-Content -Raw -Path $matrixPath
 $templateMatrixText = Get-Content -Raw -Path $templateMatrixPath
 $truthRulesText = Get-Content -Raw -Path $truthRulesPath
 $projectAuditDocText = Get-Content -Raw -Path $projectAuditDocPath
+$releaseSignoffWorkflowText = Get-Content -Raw -Path $releaseSignoffWorkflowPath
 
 $releaseMatrixDate = Get-StatusDateFromText -Text $matrixText -Label "Release readiness matrix"
 $templateMatrixDate = Get-StatusDateFromText -Text $templateMatrixText -Label "Template readiness matrix"
 $truthRulesDate = Get-StatusDateFromText -Text $truthRulesText -Label "Truth alignment rules"
 $projectAuditDocDate = Get-StatusDateFromText -Text $projectAuditDocText -Label "Project audit doc"
+$releaseSignoffWorkflowDate = Get-StatusDateFromText -Text $releaseSignoffWorkflowText -Label "Release signoff workflow doc"
 
 foreach ($docDate in @(
         @{ Label = "Release readiness matrix"; Value = $releaseMatrixDate },
         @{ Label = "Template readiness matrix"; Value = $templateMatrixDate },
         @{ Label = "Truth alignment rules"; Value = $truthRulesDate },
-        @{ Label = "Project audit doc"; Value = $projectAuditDocDate }
+        @{ Label = "Project audit doc"; Value = $projectAuditDocDate },
+        @{ Label = "Release signoff workflow doc"; Value = $releaseSignoffWorkflowDate }
     )) {
     if ($docDate.Value -ne $readiness.statusDate) {
         throw "$($docDate.Label) status date '$($docDate.Value)' does not match readiness_status.json date '$($readiness.statusDate)'."
@@ -246,6 +253,18 @@ foreach ($subsystemId in $signoffDocPaths.Keys) {
     }
 }
 
+foreach ($requiredPhrase in @(
+        "canonical workflow",
+        "does not grant release approval",
+        "human review",
+        "check_release_readiness.ps1",
+        "truth_reconciler.ps1"
+    )) {
+    if ($releaseSignoffWorkflowText -notmatch [regex]::Escape($requiredPhrase)) {
+        throw "RELEASE_SIGNOFF_WORKFLOW.md is missing expected phrase '$requiredPhrase'."
+    }
+}
+
 $projectAuditExecutable = Get-ProjectAuditExecutable -RepoRoot $repoRoot
 $projectAuditJson = & $projectAuditExecutable --json --input $readinessPath 2>$null | Out-String
 if (-not $projectAuditJson.Trim()) {
@@ -272,7 +291,8 @@ foreach ($section in @(
         "exportArtifacts",
         "accessibilityArtifacts",
         "audioArtifacts",
-        "performanceArtifacts"
+        "performanceArtifacts",
+        "releaseSignoffWorkflow"
     )) {
     if (-not ($projectAuditReport.governance.PSObject.Properties.Name -contains $section)) {
         throw "urpg_project_audit governance is missing section '$section'."
@@ -286,7 +306,8 @@ foreach ($countField in @(
         "inputArtifactIssueCount",
         "accessibilityArtifactIssueCount",
         "audioArtifactIssueCount",
-        "performanceArtifactIssueCount"
+        "performanceArtifactIssueCount",
+        "releaseSignoffWorkflowIssueCount"
     )) {
     if (-not ($projectAuditReport.PSObject.Properties.Name -contains $countField)) {
         throw "urpg_project_audit JSON is missing count field '$countField'."
@@ -299,4 +320,5 @@ Write-Host "Release/template matrix rows match readiness_status.json in both cov
 Write-Host "All READY subsystem evidence fields are true."
 Write-Host "All READY/PARTIAL template required subsystems are known."
 Write-Host "Required signoff artifacts exist for human-review-gated subsystems."
+Write-Host "Release signoff workflow artifact is present and carries the expected non-promoting workflow language."
 Write-Host "urpg_project_audit JSON contract includes the required governance sections and issue counts."

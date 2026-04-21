@@ -69,11 +69,17 @@ Evidence anchors:
 - Failure-path parity reconciled on 2026-04-20:
   - `test_compat_plugin_failure_diagnostics.cpp` already proves mixed-chain failure operations survive JSONL export, report-model ingestion/export, and compat report panel projection
   - parity anchors include `execute_command_dependency_missing`, `execute_command_quickjs_call`, `execute_command_quickjs_context_missing`, `execute_command_by_name_parse`, `load_plugins_directory_scan`, and `load_plugins_directory_scan_entry`
+- Failure-path invocation-surface parity expanded on 2026-04-21:
+  - `test_compat_plugin_failure_diagnostics.cpp` now proves real curated by-name dispatch also enforces dependency gating and emits the same deterministic dependency-missing diagnostics as direct command dispatch
+  - this closes a previous blind spot where by-name invocation was exercised heavily in happy-path/reload scenarios but only parse failures were covered on the failure side
 - Weekly compat runner stabilized on 2026-04-20:
   - `tools/ci/run_compat_weekly_regression.ps1` now configures/builds `urpg_compat_tests` and runs the CTest `weekly` lane as a dedicated maintenance command
 - Curated compat corpus reconciled on 2026-04-20:
   - the active fixture corpus already covers 10 curated plugin/import profiles through `fixtureSpecs()` plus all-profile orchestration and reload-survival scenarios in `test_compat_plugin_fixtures.cpp`
   - the same corpus is exercised in the compat weekly lane and missing-command/failure diagnostics coverage
+- Curated compat corpus depth expanded on 2026-04-21:
+  - `test_compat_plugin_fixtures.cpp` now proves the curated all-profile orchestration path survives directory-based corpus re-import, not only explicit per-plugin reload calls
+  - the weekly lane now includes a named anchor for directory discovery/import plus orchestration rerun and by-name dispatch after re-import
 - Update this checklist whenever a compat surface changes status, link location, or exit evidence.
 - Compat bridge exit signoff evidence now also lives in [COMPAT_BRIDGE_EXIT_SIGNOFF.md](./COMPAT_BRIDGE_EXIT_SIGNOFF.md); the checkboxes below remain human-owned and must not be auto-checked by governance automation.
 

@@ -262,12 +262,19 @@ void populateGovernanceSnapshot(const nlohmann::json& report, ProjectAuditPanel:
         snapshot.performance_artifacts = std::move(performance);
     }
 
+    if (const auto* release_signoff_workflow = findObjectMember(governance, "releaseSignoffWorkflow", "release_signoff_workflow")) {
+        ProjectAuditArtifactGovernanceSnapshot workflow{};
+        populateArtifactSectionSnapshot(*release_signoff_workflow, workflow);
+        snapshot.release_signoff_workflow = std::move(workflow);
+    }
+
     populateOptionalCount<size_t>(report, "assetGovernanceIssueCount", snapshot.asset_governance_issue_count);
     populateOptionalCount<size_t>(report, "schemaGovernanceIssueCount", snapshot.schema_governance_issue_count);
     populateOptionalCount<size_t>(report, "projectArtifactIssueCount", snapshot.project_artifact_issue_count);
     populateOptionalCount<size_t>(report, "accessibilityArtifactIssueCount", snapshot.accessibility_artifact_issue_count);
     populateOptionalCount<size_t>(report, "audioArtifactIssueCount", snapshot.audio_artifact_issue_count);
     populateOptionalCount<size_t>(report, "performanceArtifactIssueCount", snapshot.performance_artifact_issue_count);
+    populateOptionalCount<size_t>(report, "releaseSignoffWorkflowIssueCount", snapshot.release_signoff_workflow_issue_count);
 }
 
 } // namespace

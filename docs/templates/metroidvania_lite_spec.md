@@ -29,7 +29,7 @@ The `metroidvania_lite` template covers 2D action-exploration games with ability
 
 ## Safe Scope Today
 
-2D action exploration using `presentation_runtime` and `gameplay_ability_framework` within bounded demos. Projects that leverage landed presentation and ability surfaces for real-time movement and simple combat are safe, provided they do not claim production-grade traversal or map-gating mechanics.
+Early first-class metroidvania work using `presentation_runtime` and `gameplay_ability_framework`. Current evidence supports real-time movement and simple combat slices, but production-grade traversal, map-gating, and progression contracts are still required before broader release-facing claims.
 
 ## Main Blockers
 

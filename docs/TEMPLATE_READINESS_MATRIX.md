@@ -13,7 +13,7 @@ Template support is not implied solely by subsystem composition. A template can 
 | --- | --- |
 | `READY` | Safe for release-facing template claims within the documented scope. |
 | `PARTIAL` | Real support exists, but important required bars are still missing. |
-| `EXPERIMENTAL` | Useful for bounded exploration or internal demos only. |
+| `EXPERIMENTAL` | A documented first-class template lane has early implementation or validation anchors, but it is not yet safe for release-facing product claims. |
 | `BLOCKED` | Core prerequisites are missing or contradicted by current evidence. |
 | `PLANNED` | Explicit roadmap intent exists, but no readiness-grade claim should be made yet. |
 
@@ -36,12 +36,12 @@ These bars apply to template promotion and are tracked conservatively:
 | `jrpg` | `PARTIAL` | `ui_menu_core`, `message_text_core`, `battle_core`, `save_data_core` | Partial | Partial | Partial | Partial | Partial | Wave 1 native-first baseline with truthful residual gaps. | Battle and save closure remain open; cross-cutting bars are not complete. |
 | `turn_based_rpg` | `PARTIAL` | `message_text_core`, `battle_core`, `save_data_core` | Partial | Partial | Partial | Partial | Partial | A conservative turn-based template slice similar to `jrpg` without implying broader productization. | Cross-cutting readiness bars and dedicated template governance remain incomplete. |
 | `visual_novel` | `PARTIAL` | `message_text_core`, `save_data_core` | Partial | Partial | Partial | Partial | Partial | Dialogue-heavy projects within current native message and save scope. | Template-grade governance is not complete. |
-| `tactics_rpg` | `EXPERIMENTAL` | `battle_core`, `presentation_runtime`, `save_data_core` | Planned | Planned | Partial | Planned | Partial | Exploration and bounded experimentation only. | Template-specific scenario authoring remains missing; cross-cutting readiness bars are not complete. |
-| `arpg` | `EXPERIMENTAL` | `presentation_runtime`, `save_data_core` | Planned | Planned | Partial | Planned | Partial | Roadmap-aligned experimentation only. | Template-specific closure visibility remains missing. |
+| `tactics_rpg` | `EXPERIMENTAL` | `battle_core`, `presentation_runtime`, `save_data_core` | Planned | Planned | Partial | Planned | Partial | First-class tactics template lane with early implementation anchors in battle, presentation, and save systems. | Template-specific scenario authoring remains missing; cross-cutting readiness bars are not complete. |
+| `arpg` | `EXPERIMENTAL` | `presentation_runtime`, `save_data_core` | Planned | Planned | Partial | Planned | Partial | First-class action-RPG template lane with early implementation anchors in presentation and save systems. | Template-specific closure visibility remains missing. |
 | `monster_collector_rpg` | `PLANNED` | `ui_menu_core`, `message_text_core`, `battle_core`, `save_data_core`, `gameplay_ability_framework` | Partial | Partial | Partial | Partial | Partial | Exploration of collection-driven combat and party assembly using landed Wave 1 + ability framework. | Dedicated collection schema, capture mechanics, and template-grade governance remain future work. |
 | `cozy_life_rpg` | `PLANNED` | `ui_menu_core`, `message_text_core`, `save_data_core` | Partial | Partial | Partial | Partial | Partial | Dialogue-heavy life-sim exploration within current message/save/menu scope. | Scheduling system, social relationship mechanics, and crafting/economy lanes remain future work. |
 | `metroidvania_lite` | `PLANNED` | `presentation_runtime`, `save_data_core`, `gameplay_ability_framework` | Planned | Planned | Partial | Planned | Partial | 2D action exploration using presentation runtime and ability framework. | Traversal mechanics (dash, wall-jump), map unlock system, and ability-gated progression remain future work. |
-| `2_5d_rpg` | `PLANNED` | `presentation_runtime`, `save_data_core` | Partial | Planned | Partial | Partial | Partial | Raycast-mode exploration demos using the optional 2.5D lane. | Raycast art pipeline, map authoring adapters at production grade, and template-specific export validation remain future work. |
+| `2_5d_rpg` | `PLANNED` | `presentation_runtime`, `save_data_core` | Partial | Planned | Partial | Partial | Partial | Mandatory 2.5D template lane built around the raycast-capable presentation stack and save integration. | Raycast art pipeline, map authoring adapters at production grade, and template-specific export validation remain future work. |
 
 ## Promotion Rules
 
@@ -56,5 +56,5 @@ A template may be promoted to `READY` only when:
 ## Notes
 
 - `PARTIAL` does not mean unsafe. It means the template is not yet eligible for full product-facing readiness language.
-- `EXPERIMENTAL` should be used when the engine demonstrates a direction, not when it demonstrates full productization.
+- `EXPERIMENTAL` should be used when a first-class template lane has early implementation anchors but not enough evidence for release-facing productization.
 - `PLANNED` should be preferred over inflated implied readiness.

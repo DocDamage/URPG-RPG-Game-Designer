@@ -756,7 +756,7 @@ git add engine/core/animation/animation_clip.h engine/core/animation/animation_s
 git commit -m "feat: finish timeline animation orchestration"
 ```
 
-### Task 17: Optional 2.5D and Editor Utilities
+### Task 17: 2.5D and Editor Utilities
 
 **Starting files:**
 - Modify: `engine/core/render/raycast_renderer.h`

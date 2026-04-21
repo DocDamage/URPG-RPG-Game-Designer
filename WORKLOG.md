@@ -961,3 +961,43 @@
 - **Context**: With the compat signoff artifact and generalized signoff-governance enforcement in place, the remaining Sprint 03 work was to prove the governed subsystem set still passed the broad PR lane and both readiness/truth gates.
 - **Action**: Ran `ctest --test-dir build/dev-ninja-debug -L pr --output-on-failure`, `powershell -ExecutionPolicy Bypass -File tools/ci/check_release_readiness.ps1`, and `powershell -ExecutionPolicy Bypass -File tools/ci/truth_reconciler.ps1`, then updated the Sprint 03 board to the closed state.
 - **Result**: Sprint 03 is closed with battle/save/compat signoff governance enforced and validated on the current tree.
+
+## 2026-04-21 - Sprint 04 Canonical Release Signoff Workflow
+
+- **Context**: The main remaining `governance_foundation` gap in the canonical matrix was fuller release-signoff enforcement. The repo had audit/signoff artifacts and gates, but no single canonical workflow artifact tying that discipline together.
+- **Action**: Added `docs/RELEASE_SIGNOFF_WORKFLOW.md` as the canonical non-promoting release-signoff workflow, then updated `tools/ci/check_release_readiness.ps1` and `tools/ci/truth_reconciler.ps1` to require the workflow doc, its date alignment, and its expected non-promoting wording.
+- **Action**: Reconciled `content/readiness/readiness_status.json`, `docs/RELEASE_READINESS_MATRIX.md`, `docs/TRUTH_ALIGNMENT_RULES.md`, `docs/PROGRAM_COMPLETION_STATUS.md`, and `docs/TECHNICAL_DEBT_REMEDIATION_PLAN.md` so the governance-foundation lane now truthfully reflects that workflow artifact.
+- **Result**: Governance foundation now has an explicit release-signoff workflow artifact in the canonical stack, narrowing the remaining gap to deeper enforcement and broader productization rather than a missing workflow definition.
+
+## 2026-04-21 - Sprint 04 Project Audit Release-Signoff Workflow Parity
+
+- **Context**: After the workflow artifact landed, the readiness/truth gates knew about it but `urpg_project_audit` and the diagnostics export path still could not surface that governance artifact explicitly.
+- **Action**: Added a dedicated `releaseSignoffWorkflow` governance section plus `releaseSignoffWorkflowIssueCount` to `urpg_project_audit`, then carried that contract through `ProjectAuditPanel` and `DiagnosticsWorkspace` with focused CLI, panel, and diagnostics-workspace coverage.
+- **Action**: Updated `docs/PROJECT_AUDIT.md`, `tools/ci/check_release_readiness.ps1`, and `tools/ci/truth_reconciler.ps1` so the canonical docs and governance gates require the richer audit contract instead of leaving release-signoff workflow parity as an implied future step.
+- **Result**: The project-audit and diagnostics surfaces now stay in parity with the canonical release-signoff workflow artifact, keeping governance_foundation evidence consistent across audit, docs, and readiness/truth enforcement.
+
+## 2026-04-21 - Sprint 04 Closeout
+
+- **Context**: With the workflow artifact and audit-surface parity both landed, the remaining work was to prove the sprint cleanly against the focused audit lanes, readiness/truth gates, and the broad PR lane.
+- **Action**: Ran `.\build\dev-ninja-debug\urpg_tests.exe "[project_audit],[project_audit_cli],[editor][diagnostics][integration][project_audit]" --reporter compact`, `powershell -ExecutionPolicy Bypass -File tools/ci/check_release_readiness.ps1`, `powershell -ExecutionPolicy Bypass -File tools/ci/truth_reconciler.ps1`, and `ctest --test-dir build/dev-ninja-debug -L pr --output-on-failure`, then updated the Sprint 04 board and execution pack to the closed state.
+- **Result**: Sprint 04 is closed with a canonical release-signoff workflow artifact, audit/diagnostics parity for that workflow, and full PR-lane validation on the current tree.
+
+## 2026-04-21 - Sprint 05 Compat Corpus Directory Re-Import Depth
+
+- **Context**: Sprint 05 opened on compat maintenance, and the weakest corpus-depth gap was that the docs implied weekly coverage proved import-style corpus reload/orchestration depth even though the existing evidence split directory import and orchestration reload across separate tests.
+- **Action**: Added a weekly-lane compat fixture test that loads the curated corpus through `loadPluginsFromDirectory(...)`, runs the all-profile orchestration fixture, unloads everything, re-imports the corpus through the same directory path, reruns orchestration, and verifies by-name execution plus empty failure diagnostics.
+- **Action**: Updated `docs/COMPAT_EXIT_CHECKLIST.md`, `docs/PROGRAM_COMPLETION_STATUS.md`, and `docs/TECHNICAL_DEBT_REMEDIATION_PLAN.md` so the recorded compat evidence matches the new import-style corpus-depth anchor.
+- **Result**: The weekly compat lane now has an explicit directory re-import plus orchestration rerun anchor, tightening the honest corpus-depth claim for the curated import/migration profiles.
+
+## 2026-04-21 - Sprint 05 Compat By-Name Dependency-Gating Parity
+
+- **Context**: After the corpus-depth fix, the next compat hardening gap was invocation-surface asymmetry: curated reload/orchestration scenarios used `executeCommandByName(...)` heavily on happy paths, but the failure lane only covered parse failures and direct dependency-gating.
+- **Action**: Extended `test_compat_plugin_failure_diagnostics.cpp` so the same dependency-missing scenario now exercises both direct command dispatch and real curated by-name dispatch against `VisuStella_MainMenuCore_MZ_openMenu`, while asserting the same deterministic `execute_command_dependency_missing` diagnostics payload.
+- **Action**: Updated `docs/COMPAT_EXIT_CHECKLIST.md`, `docs/PROGRAM_COMPLETION_STATUS.md`, and `docs/TECHNICAL_DEBT_REMEDIATION_PLAN.md` so the recorded failure-parity claim matches the now-covered direct and by-name invocation surfaces.
+- **Result**: Compat failure-parity evidence now covers the real by-name invocation surface used by the curated corpus, reducing the chance of a regression that only breaks one dispatch path while leaving happy-path reload scenarios looking healthy.
+
+## 2026-04-21 - Sprint 05 Closeout
+
+- **Context**: With both compat maintenance slices landed, the remaining work was to prove the updated corpus-depth and failure-parity anchors held up under the compat weekly lane, the broad PR lane, and the current readiness/truth governance gates.
+- **Action**: Ran `ctest --test-dir build/dev-ninja-debug --output-on-failure -R "Compat fixtures: curated all-profile orchestration scenario survives directory re-import|Compat fixtures: dependent command execution is gated with diagnostics when core dependency is missing"`, `ctest --test-dir build/dev-ninja-debug -L weekly --output-on-failure`, `ctest --test-dir build/dev-ninja-debug -L pr --output-on-failure`, `powershell -ExecutionPolicy Bypass -File tools/ci/check_release_readiness.ps1`, and `powershell -ExecutionPolicy Bypass -File tools/ci/truth_reconciler.ps1`, then updated the Sprint 05 board and execution pack to the closed state.
+- **Result**: Sprint 05 is closed with stronger honest compat corpus-depth evidence, stronger by-name failure-parity evidence, and clean validation across compat, PR, and governance lanes.

@@ -25,7 +25,7 @@ Use `PARTIAL` when:
 
 Use `EXPERIMENTAL` when:
 
-- there is meaningful implementation or validation seed work
+- there is meaningful implementation or validation seed work for a documented first-class lane
 - the subsystem is not yet safe for broad product claims
 
 ## `BLOCKED`

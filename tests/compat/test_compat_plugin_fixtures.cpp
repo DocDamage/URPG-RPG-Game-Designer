@@ -424,6 +424,139 @@ TEST_CASE("Compat fixtures: curated all-profile orchestration scenario survives 
     std::filesystem::remove(orchestrationFixture, ec);
 }
 
+TEST_CASE("Compat fixtures: curated all-profile orchestration scenario survives directory re-import",
+          "[compat][fixtures][weekly]") {
+    PluginManager& pm = PluginManager::instance();
+    pm.unloadAllPlugins();
+    pm.clearFailureDiagnostics();
+
+    const auto fixturesRoot = fixtureDir();
+    REQUIRE(std::filesystem::exists(fixturesRoot));
+
+    const auto loadedCount = pm.loadPluginsFromDirectory(fixturesRoot.string());
+    REQUIRE(loadedCount == static_cast<int32_t>(fixtureSpecs().size()));
+
+    const auto& specs = fixtureSpecs();
+    const auto orchestrationFixture =
+        uniqueTempFixturePath("urpg_curated_all_profiles_directory_reimport_fixture");
+
+    nlohmann::json fixture;
+    fixture["name"] = "CuratedAllProfilesDirectoryReimportFixture";
+    fixture["commands"] = nlohmann::json::array();
+
+    nlohmann::json script = nlohmann::json::array();
+    for (size_t i = 0; i < specs.size(); ++i) {
+        const auto& spec = specs[i];
+        const std::string storeKey = "step_" + std::to_string(i);
+        const nlohmann::json args = nlohmann::json::array(
+            {nlohmann::json{
+                {"from", "arg"},
+                {"index", 0},
+                {"default", "directory_reimport_seed"},
+            }}
+        );
+
+        if ((i % 2) == 0) {
+            script.push_back(
+                {
+                    {"op", "invoke"},
+                    {"plugin", spec.pluginName},
+                    {"command", spec.commandName},
+                    {"args", args},
+                    {"store", storeKey},
+                    {"expect", "non_nil"},
+                }
+            );
+        } else {
+            script.push_back(
+                {
+                    {"op", "invokeByName"},
+                    {"name", spec.pluginName + "_" + spec.commandName},
+                    {"args", args},
+                    {"store", storeKey},
+                    {"expect", "non_nil"},
+                }
+            );
+        }
+    }
+    script.push_back({{"op", "returnObject"}});
+
+    fixture["commands"].push_back(
+        {
+            {"name", "runAll"},
+            {"script", std::move(script)},
+        }
+    );
+
+    writeTextFile(orchestrationFixture, fixture.dump(2));
+    REQUIRE(pm.loadPlugin(orchestrationFixture.string()));
+
+    const auto verifyRun = [&](const Value& runResult, const std::string& expectedSeed) {
+        REQUIRE(std::holds_alternative<Object>(runResult.v));
+        const auto& runObject = std::get<Object>(runResult.v);
+
+        for (size_t i = 0; i < specs.size(); ++i) {
+            const auto& spec = specs[i];
+            const std::string storeKey = "step_" + std::to_string(i);
+
+            INFO("Verify reimport step: " << storeKey << " -> " << spec.pluginName << "." << spec.commandName);
+            REQUIRE(runObject.find(storeKey) != runObject.end());
+            REQUIRE(std::holds_alternative<Object>(runObject.at(storeKey).v));
+
+            const auto& stepObject = std::get<Object>(runObject.at(storeKey).v);
+            REQUIRE(std::get<std::string>(stepObject.at("plugin").v) == spec.pluginName);
+            REQUIRE(std::get<std::string>(stepObject.at("command").v) == spec.commandName);
+            REQUIRE(std::get<std::string>(stepObject.at("profile").v) == spec.expectedProfile);
+
+            const auto firstArgIt = stepObject.find("firstArg");
+            if (firstArgIt != stepObject.end()) {
+                REQUIRE(std::holds_alternative<std::string>(firstArgIt->second.v));
+                REQUIRE(std::get<std::string>(firstArgIt->second.v) == expectedSeed);
+            }
+        }
+    };
+
+    Value beforeReimportSeed;
+    beforeReimportSeed.v = std::string("all_profiles_before_reimport");
+    const Value beforeReimport = pm.executeCommand(
+        "CuratedAllProfilesDirectoryReimportFixture",
+        "runAll",
+        {beforeReimportSeed}
+    );
+    verifyRun(beforeReimport, "all_profiles_before_reimport");
+
+    pm.unloadAllPlugins();
+    pm.clearFailureDiagnostics();
+
+    const auto reimportedCount = pm.loadPluginsFromDirectory(fixturesRoot.string());
+    REQUIRE(reimportedCount == static_cast<int32_t>(fixtureSpecs().size()));
+    REQUIRE(pm.loadPlugin(orchestrationFixture.string()));
+    REQUIRE(pm.hasCommand("CuratedAllProfilesDirectoryReimportFixture", "runAll"));
+
+    Value afterReimportSeed;
+    afterReimportSeed.v = std::string("all_profiles_after_reimport");
+    const Value afterReimport = pm.executeCommand(
+        "CuratedAllProfilesDirectoryReimportFixture",
+        "runAll",
+        {afterReimportSeed}
+    );
+    verifyRun(afterReimport, "all_profiles_after_reimport");
+
+    const Value byNameAfterReimport = pm.executeCommandByName(
+        "CuratedAllProfilesDirectoryReimportFixture_runAll",
+        {afterReimportSeed}
+    );
+    verifyRun(byNameAfterReimport, "all_profiles_after_reimport");
+
+    REQUIRE(pm.exportFailureDiagnosticsJsonl().empty());
+
+    pm.clearFailureDiagnostics();
+    pm.unloadAllPlugins();
+
+    std::error_code ec;
+    std::filesystem::remove(orchestrationFixture, ec);
+}
+
 TEST_CASE("Compat fixtures: fixture script DSL supports branching/comparison/contains/logical flows",
           "[compat][fixtures]") {
     PluginManager& pm = PluginManager::instance();

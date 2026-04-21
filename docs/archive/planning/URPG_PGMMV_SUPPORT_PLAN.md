@@ -49,7 +49,7 @@ PGMMV projects commonly lean toward action/platforming and hybrid 2D gameplay st
 - modular level assembly,
 - procedural toolkit,
 - timeline/animation orchestration,
-- optional 2.5D presentation,
+- 2.5D presentation,
 - editor productivity tooling.
 
 Those systems are a better long-term home for PGMMV project behavior than any source-engine-emulation layer.

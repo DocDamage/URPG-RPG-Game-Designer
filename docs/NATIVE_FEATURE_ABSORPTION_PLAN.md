@@ -28,7 +28,7 @@ URPG's core value is native ownership, not plugin accumulation.
 
 - Compat exists to import, verify, migrate, and contain risk.
 - Native systems own long-term product capability.
-- Extensions remain optional for edge behavior, not required for core power.
+- Extension and customization infrastructure are first-class product lanes that must be governed explicitly, even when they are not the core delivery vehicle for a feature.
 
 ## Planning goals
 
@@ -54,16 +54,16 @@ URPG's core value is native ownership, not plugin accumulation.
 - Modular Level Assembly (snap/connect block authoring with import helpers)
 - Sprite Pipeline Toolkit (atlas packing, crop/trim, animation preview/tuning)
 - Procedural Content Toolkit (dungeon generation, FOV, encounter scaffolding)
-- Optional 2.5D Presentation Lane (raycast camera/runtime mode for specific project styles)
+- 2.5D Presentation Lane (raycast camera/runtime mode for supported project styles)
 - Timeline/Animation Orchestration (keyframes, temporary animated effects, event-driven animation control)
 - Editor Productivity and Debug Utilities (selected high-value authoring helpers)
 - Character Identity / Create-a-Character Runtime Lane (authoring assets plus exported-game runtime support)
 
-### Tier C: Optional extension lane
+### Tier C: Extension and customization lane
 
 - thin scripting API
 - project-specific add-ons
-- experiment-only modules
+- staged customization modules
 
 ## Repository-informed capability seeds
 
@@ -77,7 +77,7 @@ These projects informed what to absorb. We treat them as design references first
 | `slundi/spriters` | Sprite atlas/crop pipeline | `Sprite Pipeline Toolkit` CLI + editor hooks |
 | `MajorMcDoom/cozy-cube-godot-addons` | Practical editor utility patterns | `Editor Productivity` module set |
 | `fleton/dungeon-of-doom` | Dungeon/FOV/roguelike loop patterns | `Procedural Content Toolkit` |
-| `juanfgs/raycaster` | Raycast runtime and map tooling concepts | `Optional 2.5D Presentation Lane` |
+| `juanfgs/raycaster` | Raycast runtime and map tooling concepts | `2.5D Presentation Lane` |
 | `Dahie/sprite-spicifier` | Animation preview/tuning workflow | `Sprite Animation Preview` panel |
 | `matoymush/ExtendedTAS` | Temporary animated sprite spawning | `Transient FX/Animation Events` in timeline lane |
 | `loopier/animatron` | Live animation/timeline orchestration ideas | `Timeline/Animation Orchestration` layer |
@@ -101,7 +101,7 @@ These projects informed what to absorb. We treat them as design references first
 
 ### Extension lane owns
 
-- optional customization points only
+- governed customization points and extension contracts
 - no hidden authority over core save/state/combat/menu/message contracts
 
 ## Execution roadmap
@@ -199,7 +199,7 @@ Goal: expand engine power for multi-genre projects while preserving deterministi
 - [x] FOV and visibility systems (baseline implemented in `engine/core/level/fov_system.h`).
 - [x] encounter/scenario generators tied to deterministic seeds
 
-### 3.6 Optional 2.5D Presentation Lane
+### 3.6 2.5D Presentation Lane
 
 - [x] Raycast camera/runtime mode (baseline implemented in `engine/core/render/raycast_renderer.h`).
 - [x] map authoring adapters for 2.5D projects

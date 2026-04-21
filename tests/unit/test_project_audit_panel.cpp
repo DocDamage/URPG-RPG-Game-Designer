@@ -74,6 +74,7 @@ TEST_CASE("ProjectAuditPanel captures governance details when present", "[editor
         {"accessibilityArtifactIssueCount", 1},
         {"audioArtifactIssueCount", 2},
         {"performanceArtifactIssueCount", 3},
+        {"releaseSignoffWorkflowIssueCount", 0},
         {"templateContext", {{"id", "jrpg"}, {"status", "READY"}}},
         {"governance", {
             {"assetReport", {
@@ -124,6 +125,11 @@ TEST_CASE("ProjectAuditPanel captures governance details when present", "[editor
                 {"path", "docs/presentation/performance_budgets.md"},
                 {"available", true},
                 {"issueCount", 3}
+            }},
+            {"releaseSignoffWorkflow", {
+                {"path", "docs/RELEASE_SIGNOFF_WORKFLOW.md"},
+                {"available", true},
+                {"issueCount", 0}
             }}
         }},
         {"issues", nlohmann::json::array()}
@@ -142,12 +148,14 @@ TEST_CASE("ProjectAuditPanel captures governance details when present", "[editor
     REQUIRE(snapshot.accessibility_artifact_issue_count);
     REQUIRE(snapshot.audio_artifact_issue_count);
     REQUIRE(snapshot.performance_artifact_issue_count);
+    REQUIRE(snapshot.release_signoff_workflow_issue_count);
     REQUIRE(*snapshot.asset_governance_issue_count == 3);
     REQUIRE(*snapshot.schema_governance_issue_count == 2);
     REQUIRE(*snapshot.project_artifact_issue_count == 4);
     REQUIRE(*snapshot.accessibility_artifact_issue_count == 1);
     REQUIRE(*snapshot.audio_artifact_issue_count == 2);
     REQUIRE(*snapshot.performance_artifact_issue_count == 3);
+    REQUIRE(*snapshot.release_signoff_workflow_issue_count == 0);
 
     REQUIRE(snapshot.asset_report.has_value());
     REQUIRE(snapshot.asset_report->path == "imports/reports/asset_intake/source_capture_status.json");
@@ -218,6 +226,13 @@ TEST_CASE("ProjectAuditPanel captures governance details when present", "[editor
     REQUIRE(*snapshot.performance_artifacts->available);
     REQUIRE(snapshot.performance_artifacts->issue_count.has_value());
     REQUIRE(*snapshot.performance_artifacts->issue_count == 3);
+
+    REQUIRE(snapshot.release_signoff_workflow.has_value());
+    REQUIRE(snapshot.release_signoff_workflow->path == "docs/RELEASE_SIGNOFF_WORKFLOW.md");
+    REQUIRE(snapshot.release_signoff_workflow->available.has_value());
+    REQUIRE(*snapshot.release_signoff_workflow->available);
+    REQUIRE(snapshot.release_signoff_workflow->issue_count.has_value());
+    REQUIRE(*snapshot.release_signoff_workflow->issue_count == 0);
 }
 
 TEST_CASE("ProjectAuditPanel derives blocker counts from issue flags when report counts are absent",

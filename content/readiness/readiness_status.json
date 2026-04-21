@@ -114,9 +114,9 @@
     {
       "id": "governance_foundation",
       "status": "PARTIAL",
-      "summary": "Governance foundation has first-slice artifacts landed: breaking-change detection, enhanced readiness checks, template specs, bidirectional readiness/truth drift detection, and project-audit artifact checks for accessibility, audio, and performance.",
+      "summary": "Governance foundation has first-slice artifacts landed: breaking-change detection, enhanced readiness checks, template specs, bidirectional readiness/truth drift detection, project-audit artifact checks for accessibility, audio, and performance, and a canonical release-signoff workflow artifact.",
       "mainGaps": [
-        "Diagnostics/export parity and full release-signoff enforcement beyond the current artifact-backed governance checks remain future work"
+        "Diagnostics/export parity and full release-signoff enforcement beyond the current artifact-backed governance workflow remain future work"
       ],
       "evidence": {
         "runtimeOwner": false,
@@ -333,7 +333,7 @@
         "localization": "PLANNED",
         "performance": "PARTIAL"
       },
-      "safeScope": "Exploration and bounded experimentation only.",
+      "safeScope": "First-class tactics template lane with early implementation anchors in battle, presentation, and save systems.",
       "mainBlockers": [
         "Template-specific scenario authoring remains missing",
         "Cross-cutting readiness bars are not complete"
@@ -353,7 +353,7 @@
         "localization": "PLANNED",
         "performance": "PARTIAL"
       },
-      "safeScope": "Roadmap-aligned experimentation only.",
+      "safeScope": "First-class action-RPG template lane with early implementation anchors in presentation and save systems.",
       "mainBlockers": [
         "Template-specific closure visibility remains missing"
       ]
@@ -434,7 +434,7 @@
         "localization": "PLANNED",
         "performance": "PARTIAL"
       },
-      "safeScope": "Raycast-mode exploration demos using the optional 2.5D lane.",
+      "safeScope": "Mandatory 2.5D template lane built around the raycast-capable presentation stack and save integration.",
       "mainBlockers": [
         "Raycast art pipeline, map authoring adapters at production grade, and template-specific export validation remain future work"
       ]

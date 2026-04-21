@@ -10,6 +10,7 @@ $templateLabelRulesPath = Join-Path $repoRoot "docs/TEMPLATE_LABEL_RULES.md"
 $subsystemStatusRulesPath = Join-Path $repoRoot "docs/SUBSYSTEM_STATUS_RULES.md"
 $projectAuditDocPath = Join-Path $repoRoot "docs/PROJECT_AUDIT.md"
 $compatSignoffPath = Join-Path $repoRoot "docs/COMPAT_BRIDGE_EXIT_SIGNOFF.md"
+$releaseSignoffWorkflowPath = Join-Path $repoRoot "docs/RELEASE_SIGNOFF_WORKFLOW.md"
 $docsDir = Join-Path $repoRoot "docs"
 $schemasDir = Join-Path $repoRoot "content/schemas"
 
@@ -22,7 +23,8 @@ foreach ($file in @(
         $templateLabelRulesPath,
         $subsystemStatusRulesPath,
         $projectAuditDocPath,
-        $compatSignoffPath
+        $compatSignoffPath,
+        $releaseSignoffWorkflowPath
     )) {
     if (-not (Test-Path $file)) {
         throw "Missing required file: $file"
@@ -38,6 +40,7 @@ $templateLabelRulesText = Get-Content -Raw -Path $templateLabelRulesPath
 $subsystemStatusRulesText = Get-Content -Raw -Path $subsystemStatusRulesPath
 $projectAuditDocText = Get-Content -Raw -Path $projectAuditDocPath
 $compatSignoffText = Get-Content -Raw -Path $compatSignoffPath
+$releaseSignoffWorkflowText = Get-Content -Raw -Path $releaseSignoffWorkflowPath
 $battleSignoffPath = Join-Path $repoRoot "docs/BATTLE_CORE_CLOSURE_SIGNOFF.md"
 $saveSignoffPath = Join-Path $repoRoot "docs/SAVE_DATA_CORE_CLOSURE_SIGNOFF.md"
 $battleSignoffText = Get-Content -Raw -Path $battleSignoffPath
@@ -91,7 +94,8 @@ $docDates = @(
     @{ Label = "TRUTH_ALIGNMENT_RULES.md"; Value = (Get-StatusDateFromText -Text $truthRulesText -Label "TRUTH_ALIGNMENT_RULES.md") },
     @{ Label = "TEMPLATE_LABEL_RULES.md"; Value = (Get-StatusDateFromText -Text $templateLabelRulesText -Label "TEMPLATE_LABEL_RULES.md") },
     @{ Label = "SUBSYSTEM_STATUS_RULES.md"; Value = (Get-StatusDateFromText -Text $subsystemStatusRulesText -Label "SUBSYSTEM_STATUS_RULES.md") },
-    @{ Label = "PROJECT_AUDIT.md"; Value = (Get-StatusDateFromText -Text $projectAuditDocText -Label "PROJECT_AUDIT.md") }
+    @{ Label = "PROJECT_AUDIT.md"; Value = (Get-StatusDateFromText -Text $projectAuditDocText -Label "PROJECT_AUDIT.md") },
+    @{ Label = "RELEASE_SIGNOFF_WORKFLOW.md"; Value = (Get-StatusDateFromText -Text $releaseSignoffWorkflowText -Label "RELEASE_SIGNOFF_WORKFLOW.md") }
 )
 
 foreach ($docDate in $docDates) {
@@ -233,7 +237,8 @@ foreach ($requiredPhrase in @(
         "audio",
         "performance",
         "input/localization/export",
-        "governance detail"
+        "governance detail",
+        "release-signoff workflow"
     )) {
     if ($projectAuditDocText -notmatch [regex]::Escape($requiredPhrase)) {
         $mismatches += "PROJECT_AUDIT.md is missing expected governance phrase '$requiredPhrase'."
@@ -241,7 +246,22 @@ foreach ($requiredPhrase in @(
 }
 
 # ---------------------------------------------------------------------------
-# h. Signoff artifacts must match the shipped human-review-gated pattern
+# h. Release signoff workflow doc must match the shipped workflow pattern
+# ---------------------------------------------------------------------------
+foreach ($requiredPhrase in @(
+        "does **not** grant release approval",
+        "human review",
+        "check_release_readiness.ps1",
+        "truth_reconciler.ps1",
+        "signoff artifact"
+    )) {
+    if ($releaseSignoffWorkflowText -notmatch [regex]::Escape($requiredPhrase)) {
+        $mismatches += "RELEASE_SIGNOFF_WORKFLOW.md is missing expected phrase '$requiredPhrase'."
+    }
+}
+
+# ---------------------------------------------------------------------------
+# i. Signoff artifacts must match the shipped human-review-gated pattern
 # ---------------------------------------------------------------------------
 foreach ($signoffDoc in @(
         @{ Name = "BATTLE_CORE_CLOSURE_SIGNOFF.md"; Text = $battleSignoffText; RequiredPhrases = @("Human review is required", "residual gaps", "PARTIAL") },

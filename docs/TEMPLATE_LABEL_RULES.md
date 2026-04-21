@@ -26,8 +26,8 @@ Use `PARTIAL` when:
 
 Use `EXPERIMENTAL` when:
 
-- there is a real technical direction or prototype basis
-- the engine can demonstrate some of the template shape
+- the template is a documented first-class lane with real implementation or validation seed work
+- the engine can already demonstrate some of the template shape
 - release-facing productization, auditability, or cross-cutting bars are not yet in place
 
 ## `BLOCKED`

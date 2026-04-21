@@ -1967,6 +1967,10 @@ std::string DiagnosticsWorkspace::exportAsJson() const {
         if (snapshot.project_artifact_issue_count.has_value()) {
             activeTabDetail["project_artifact_issue_count"] = *snapshot.project_artifact_issue_count;
         }
+        if (snapshot.release_signoff_workflow_issue_count.has_value()) {
+            activeTabDetail["release_signoff_workflow_issue_count"] =
+                *snapshot.release_signoff_workflow_issue_count;
+        }
         if (snapshot.accessibility_artifact_issue_count.has_value()) {
             activeTabDetail["accessibility_artifact_issue_count"] = *snapshot.accessibility_artifact_issue_count;
         }
@@ -2051,6 +2055,10 @@ std::string DiagnosticsWorkspace::exportAsJson() const {
         if (snapshot.performance_artifacts.has_value()) {
             governance["performance_artifacts"] =
                 ProjectAuditArtifactGovernanceJson(*snapshot.performance_artifacts);
+        }
+        if (snapshot.release_signoff_workflow.has_value()) {
+            governance["release_signoff_workflow"] =
+                ProjectAuditArtifactGovernanceJson(*snapshot.release_signoff_workflow);
         }
         if (!governance.empty()) {
             activeTabDetail["governance"] = std::move(governance);

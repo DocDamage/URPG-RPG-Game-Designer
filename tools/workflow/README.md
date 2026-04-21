@@ -88,3 +88,21 @@ llm-workflow-check -Provider glm -ContextSearchAttempts 120 -ContextSearchDelayS
 llm-workflow-up -DeepCheck -RequireSearchHit
 llm-workflow-doctor -Provider auto -CheckContext -Strict
 ```
+
+## Sprint handoff packs
+
+For repo-local sprint execution where one LLM session may hand off to another, keep the active sprint plan and task board in-repo and point the next session at them first.
+
+Current sprint pack:
+
+- `docs/superpowers/plans/2026-04-21-sprint-01-closure-execution-pack.md`
+- `docs/superpowers/plans/2026-04-21-sprint-01-task-board.md`
+- `tools/workflow/SPRINT_AGENT_HANDOFF_TEMPLATE.md`
+
+Suggested pattern:
+
+1. Open the execution pack.
+2. Mark one ticket `IN PROGRESS` in the task board.
+3. Run the ticket-local verification command before editing.
+4. Update docs and readiness records in the same change as code.
+5. Leave a resume note in the task board before ending the session.

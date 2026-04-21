@@ -986,6 +986,30 @@ void addPerformanceArtifactGovernance(const TemplateContext& templateContext,
         governanceReport);
 }
 
+void addReleaseSignoffWorkflowGovernance(const TemplateContext& templateContext,
+                                         std::vector<AuditIssue>& issues,
+                                         std::size_t& releaseSignoffWorkflowIssueCount,
+                                         json& governanceReport) {
+    const std::vector<CanonicalArtifactSpec> artifacts = {
+        {
+            "release_signoff_workflow.missing",
+            "Canonical release signoff workflow artifact missing",
+            "Release-signoff workflow",
+            fs::path("docs") / "RELEASE_SIGNOFF_WORKFLOW.md",
+        },
+    };
+
+    addCanonicalArtifactSection(
+        templateContext,
+        "releaseSignoffWorkflow",
+        "release-signoff workflow governance",
+        true,
+        artifacts,
+        issues,
+        releaseSignoffWorkflowIssueCount,
+        governanceReport);
+}
+
 json buildReport(const json& readiness,
                  const TemplateContext& templateContext,
                  const AssetReportContext& assetReportContext,
@@ -1002,6 +1026,7 @@ json buildReport(const json& readiness,
     std::size_t accessibilityArtifactIssueCount = 0;
     std::size_t audioArtifactIssueCount = 0;
     std::size_t performanceArtifactIssueCount = 0;
+    std::size_t releaseSignoffWorkflowIssueCount = 0;
     json governanceReport = json::object();
 
     addSubsystemIssues(readiness, templateContext, issues, releaseBlockerCount, exportBlockerCount);
@@ -1016,6 +1041,7 @@ json buildReport(const json& readiness,
     addAccessibilityArtifactGovernance(templateContext, issues, accessibilityArtifactIssueCount, governanceReport);
     addAudioArtifactGovernance(templateContext, issues, audioArtifactIssueCount, governanceReport);
     addPerformanceArtifactGovernance(templateContext, issues, performanceArtifactIssueCount, governanceReport);
+    addReleaseSignoffWorkflowGovernance(templateContext, issues, releaseSignoffWorkflowIssueCount, governanceReport);
 
     json issueArray = json::array();
     for (const auto& issue : issues) {
@@ -1048,6 +1074,9 @@ json buildReport(const json& readiness,
     if (performanceArtifactIssueCount > 0) {
         summary << " Performance artifact issues: " << performanceArtifactIssueCount << ".";
     }
+    if (releaseSignoffWorkflowIssueCount > 0) {
+        summary << " Release-signoff workflow issues: " << releaseSignoffWorkflowIssueCount << ".";
+    }
 
     return json{
         {"schemaVersion", getString(readiness, "schemaVersion", "1.0.0")},
@@ -1079,6 +1108,7 @@ json buildReport(const json& readiness,
                 {"accessibilityArtifacts", governanceReport["accessibilityArtifacts"]},
                 {"audioArtifacts", governanceReport["audioArtifacts"]},
                 {"performanceArtifacts", governanceReport["performanceArtifacts"]},
+                {"releaseSignoffWorkflow", governanceReport["releaseSignoffWorkflow"]},
             }},
         {"assetGovernanceIssueCount", assetGovernanceIssueCount},
         {"schemaGovernanceIssueCount", schemaGovernanceIssueCount},
@@ -1087,6 +1117,7 @@ json buildReport(const json& readiness,
         {"accessibilityArtifactIssueCount", accessibilityArtifactIssueCount},
         {"audioArtifactIssueCount", audioArtifactIssueCount},
         {"performanceArtifactIssueCount", performanceArtifactIssueCount},
+        {"releaseSignoffWorkflowIssueCount", releaseSignoffWorkflowIssueCount},
         {"issues", issueArray},
     };
 }
