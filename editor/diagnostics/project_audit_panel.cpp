@@ -130,6 +130,161 @@ void populateArtifactSectionSnapshot(const nlohmann::json& section, SnapshotT& s
     }
 }
 
+void populateSignoffContractSnapshot(const nlohmann::json& value, ProjectAuditSignoffContractSnapshot& snapshot) {
+    if (const auto required = readBool(value, "required")) {
+        snapshot.required = *required;
+    }
+    if (const auto artifact_path = readString(value, "artifactPath")) {
+        snapshot.artifact_path = *artifact_path;
+    }
+    if (const auto promotion_requires_human_review = readBool(value, "promotionRequiresHumanReview")) {
+        snapshot.promotion_requires_human_review = *promotion_requires_human_review;
+    }
+    if (const auto workflow = readString(value, "workflow")) {
+        snapshot.workflow = *workflow;
+    }
+    if (const auto contract_ok = readBool(value, "contractOk")) {
+        snapshot.contract_ok = *contract_ok;
+    }
+}
+
+void populateExpectedArtifactSnapshot(const nlohmann::json& value, ProjectAuditExpectedArtifactSnapshot& snapshot) {
+    if (const auto subsystem_id = readString(value, "subsystemId")) {
+        snapshot.subsystem_id = *subsystem_id;
+    }
+    if (const auto title = readString(value, "title")) {
+        snapshot.title = *title;
+    }
+    if (const auto path = readString(value, "path")) {
+        snapshot.path = *path;
+    }
+    if (const auto required = readBool(value, "required")) {
+        snapshot.required = *required;
+    }
+    if (const auto exists = readBool(value, "exists")) {
+        snapshot.exists = *exists;
+    }
+    if (const auto is_regular_file = readBool(value, "isRegularFile")) {
+        snapshot.is_regular_file = *is_regular_file;
+    }
+    if (const auto status = readString(value, "status")) {
+        snapshot.status = *status;
+    }
+    if (const auto wording_ok = readBool(value, "wordingOk")) {
+        snapshot.wording_ok = *wording_ok;
+    }
+    if (const auto template_id_matches = readBool(value, "templateIdMatches")) {
+        snapshot.template_id_matches = *template_id_matches;
+    }
+    if (const auto required_subsystems_match = readBool(value, "requiredSubsystemsMatch")) {
+        snapshot.required_subsystems_match = *required_subsystems_match;
+    }
+    if (const auto bars_match = readBool(value, "barsMatch")) {
+        snapshot.bars_match = *bars_match;
+    }
+    const auto missing_phrases = value.find("missingPhrases");
+    if (missing_phrases != value.end() && missing_phrases->is_array()) {
+        for (const auto& phrase : *missing_phrases) {
+            if (phrase.is_string()) {
+                snapshot.missing_phrases.push_back(phrase.get<std::string>());
+            }
+        }
+    }
+    const auto missing_required_subsystems = value.find("missingRequiredSubsystems");
+    if (missing_required_subsystems != value.end() && missing_required_subsystems->is_array()) {
+        for (const auto& subsystem : *missing_required_subsystems) {
+            if (subsystem.is_string()) {
+                snapshot.missing_required_subsystems.push_back(subsystem.get<std::string>());
+            }
+        }
+    }
+    const auto unexpected_required_subsystems = value.find("unexpectedRequiredSubsystems");
+    if (unexpected_required_subsystems != value.end() && unexpected_required_subsystems->is_array()) {
+        for (const auto& subsystem : *unexpected_required_subsystems) {
+            if (subsystem.is_string()) {
+                snapshot.unexpected_required_subsystems.push_back(subsystem.get<std::string>());
+            }
+        }
+    }
+    const auto bar_mismatches = value.find("barMismatches");
+    if (bar_mismatches != value.end() && bar_mismatches->is_array()) {
+        snapshot.bar_mismatches = *bar_mismatches;
+    }
+    const auto signoff_contract = value.find("signoffContract");
+    if (signoff_contract != value.end() && signoff_contract->is_object()) {
+        ProjectAuditSignoffContractSnapshot contract_snapshot{};
+        populateSignoffContractSnapshot(*signoff_contract, contract_snapshot);
+        snapshot.signoff_contract = std::move(contract_snapshot);
+    }
+}
+
+void populateRichArtifactSectionSnapshot(const nlohmann::json& section,
+                                         ProjectAuditRichArtifactGovernanceSnapshot& snapshot) {
+    populateArtifactSectionSnapshot(section, snapshot);
+    if (const auto enabled = readBool(section, "enabled")) {
+        snapshot.enabled = *enabled;
+    }
+    if (const auto dependency = readString(section, "dependency")) {
+        snapshot.dependency = *dependency;
+    }
+    if (const auto summary = readString(section, "summary")) {
+        snapshot.summary = *summary;
+    }
+    const auto expected_artifacts = section.find("expectedArtifacts");
+    if (expected_artifacts != section.end() && expected_artifacts->is_array()) {
+        for (const auto& artifact_json : *expected_artifacts) {
+            if (!artifact_json.is_object()) {
+                continue;
+            }
+            ProjectAuditExpectedArtifactSnapshot artifact_snapshot{};
+            populateExpectedArtifactSnapshot(artifact_json, artifact_snapshot);
+            snapshot.expected_artifacts.push_back(std::move(artifact_snapshot));
+        }
+    }
+}
+
+void populateLocalizationEvidenceSnapshot(const nlohmann::json& section,
+                                          ProjectAuditLocalizationEvidenceSnapshot& snapshot) {
+    populateArtifactSectionSnapshot(section, snapshot);
+    if (const auto enabled = readBool(section, "enabled")) {
+        snapshot.enabled = *enabled;
+    }
+    if (const auto usable = readBool(section, "usable")) {
+        snapshot.usable = *usable;
+    }
+    if (const auto dependency = readString(section, "dependency")) {
+        snapshot.dependency = *dependency;
+    }
+    if (const auto summary = readString(section, "summary")) {
+        snapshot.summary = *summary;
+    }
+    if (const auto status = readString(section, "status")) {
+        snapshot.status = *status;
+    }
+    if (const auto has_bundles = readBool(section, "hasBundles")) {
+        snapshot.has_bundles = *has_bundles;
+    }
+    if (const auto bundle_count = readCount(section, "bundleCount")) {
+        snapshot.bundle_count = *bundle_count;
+    }
+    if (const auto missing_locale_count = readCount(section, "missingLocaleCount")) {
+        snapshot.missing_locale_count = *missing_locale_count;
+    }
+    if (const auto missing_key_count = readCount(section, "missingKeyCount")) {
+        snapshot.missing_key_count = *missing_key_count;
+    }
+    if (const auto extra_key_count = readCount(section, "extraKeyCount")) {
+        snapshot.extra_key_count = *extra_key_count;
+    }
+    if (const auto master_locale = readString(section, "masterLocale")) {
+        snapshot.master_locale = *master_locale;
+    }
+    const auto bundles = section.find("bundles");
+    if (bundles != section.end() && bundles->is_array()) {
+        snapshot.bundles = *bundles;
+    }
+}
+
 const nlohmann::json* findObjectMember(const nlohmann::json& value,
                                        const char* primary,
                                        const char* alternate = nullptr) {
@@ -232,6 +387,12 @@ void populateGovernanceSnapshot(const nlohmann::json& report, ProjectAuditPanel:
         snapshot.localization_artifacts = std::move(localization);
     }
 
+    if (const auto* localization_evidence = findObjectMember(governance, "localizationEvidence", "localization_evidence")) {
+        ProjectAuditLocalizationEvidenceSnapshot localization{};
+        populateLocalizationEvidenceSnapshot(*localization_evidence, localization);
+        snapshot.localization_evidence = std::move(localization);
+    }
+
     if (const auto* input_artifacts = findObjectMember(governance, "inputArtifacts", "input_artifacts")) {
         ProjectAuditArtifactGovernanceSnapshot input{};
         populateArtifactSectionSnapshot(*input_artifacts, input);
@@ -268,13 +429,28 @@ void populateGovernanceSnapshot(const nlohmann::json& report, ProjectAuditPanel:
         snapshot.release_signoff_workflow = std::move(workflow);
     }
 
+    if (const auto* signoff_artifacts = findObjectMember(governance, "signoffArtifacts", "signoff_artifacts")) {
+        ProjectAuditRichArtifactGovernanceSnapshot signoff{};
+        populateRichArtifactSectionSnapshot(*signoff_artifacts, signoff);
+        snapshot.signoff_artifacts = std::move(signoff);
+    }
+
+    if (const auto* template_spec_artifacts = findObjectMember(governance, "templateSpecArtifacts", "template_spec_artifacts")) {
+        ProjectAuditRichArtifactGovernanceSnapshot template_specs{};
+        populateRichArtifactSectionSnapshot(*template_spec_artifacts, template_specs);
+        snapshot.template_spec_artifacts = std::move(template_specs);
+    }
+
     populateOptionalCount<size_t>(report, "assetGovernanceIssueCount", snapshot.asset_governance_issue_count);
     populateOptionalCount<size_t>(report, "schemaGovernanceIssueCount", snapshot.schema_governance_issue_count);
     populateOptionalCount<size_t>(report, "projectArtifactIssueCount", snapshot.project_artifact_issue_count);
+    populateOptionalCount<size_t>(report, "localizationEvidenceIssueCount", snapshot.localization_evidence_issue_count);
     populateOptionalCount<size_t>(report, "accessibilityArtifactIssueCount", snapshot.accessibility_artifact_issue_count);
     populateOptionalCount<size_t>(report, "audioArtifactIssueCount", snapshot.audio_artifact_issue_count);
     populateOptionalCount<size_t>(report, "performanceArtifactIssueCount", snapshot.performance_artifact_issue_count);
     populateOptionalCount<size_t>(report, "releaseSignoffWorkflowIssueCount", snapshot.release_signoff_workflow_issue_count);
+    populateOptionalCount<size_t>(report, "signoffArtifactIssueCount", snapshot.signoff_artifact_issue_count);
+    populateOptionalCount<size_t>(report, "templateSpecArtifactIssueCount", snapshot.template_spec_artifact_issue_count);
 }
 
 } // namespace

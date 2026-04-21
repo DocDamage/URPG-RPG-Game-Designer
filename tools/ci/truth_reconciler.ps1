@@ -45,6 +45,12 @@ $battleSignoffPath = Join-Path $repoRoot "docs/BATTLE_CORE_CLOSURE_SIGNOFF.md"
 $saveSignoffPath = Join-Path $repoRoot "docs/SAVE_DATA_CORE_CLOSURE_SIGNOFF.md"
 $battleSignoffText = Get-Content -Raw -Path $battleSignoffPath
 $saveSignoffText = Get-Content -Raw -Path $saveSignoffPath
+$releaseSignoffWorkflowRelativePath = "docs/RELEASE_SIGNOFF_WORKFLOW.md"
+$signoffArtifactMap = @{
+    "battle_core" = "docs/BATTLE_CORE_CLOSURE_SIGNOFF.md"
+    "save_data_core" = "docs/SAVE_DATA_CORE_CLOSURE_SIGNOFF.md"
+    "compat_bridge_exit" = "docs/COMPAT_BRIDGE_EXIT_SIGNOFF.md"
+}
 
 $tick = [string][char]96
 $mismatches = @()
@@ -237,6 +243,7 @@ foreach ($requiredPhrase in @(
         "audio",
         "performance",
         "input/localization/export",
+        "localization consistency report",
         "governance detail",
         "release-signoff workflow"
     )) {
@@ -272,6 +279,38 @@ foreach ($signoffDoc in @(
         if ($signoffDoc.Text -notmatch [regex]::Escape($requiredPhrase)) {
             $mismatches += "$($signoffDoc.Name) is missing expected phrase '$requiredPhrase'."
         }
+    }
+}
+
+# ---------------------------------------------------------------------------
+# j. Structured signoff contracts must exist for all signoff-governed subsystem lanes
+# ---------------------------------------------------------------------------
+foreach ($subsystemId in $signoffArtifactMap.Keys) {
+    $entry = $readiness.subsystems | Where-Object { $_.id -eq $subsystemId } | Select-Object -First 1
+    if (-not $entry) {
+        $mismatches += "Signoff-governed subsystem '$subsystemId' is missing from readiness_status.json."
+        continue
+    }
+
+    if (-not ($entry.PSObject.Properties.Name -contains "signoff")) {
+        $mismatches += "Signoff-governed subsystem '$subsystemId' is missing structured signoff contract data in readiness_status.json."
+        continue
+    }
+
+    if ($entry.signoff.required -ne $true) {
+        $mismatches += "Subsystem '$subsystemId' must set signoff.required to true."
+    }
+
+    if ([string]$entry.signoff.artifactPath -ne $signoffArtifactMap[$subsystemId]) {
+        $mismatches += "Subsystem '$subsystemId' signoff.artifactPath must be '$($signoffArtifactMap[$subsystemId])'."
+    }
+
+    if ($entry.signoff.promotionRequiresHumanReview -ne $true) {
+        $mismatches += "Subsystem '$subsystemId' must keep signoff.promotionRequiresHumanReview set to true."
+    }
+
+    if ([string]$entry.signoff.workflow -ne $releaseSignoffWorkflowRelativePath) {
+        $mismatches += "Subsystem '$subsystemId' signoff.workflow must be '$releaseSignoffWorkflowRelativePath'."
     }
 }
 

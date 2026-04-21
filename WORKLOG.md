@@ -9,6 +9,61 @@
 
 ## Entries
 
+### 2026-04-21 — Sprint 08 Opening: Release-Signoff Enforcement And Product Bars
+- **Action**: Used an agent swarm to choose the next bounded sprint after Sprint 07, weighing template-governance follow-through against broader release-signoff/product-risk sequencing.
+- **Action**: Activated Sprint 08 at `docs/superpowers/plans/2026-04-21-sprint-08-release-signoff-enforcement-and-product-bars-execution-pack.md` with the paired task board at `docs/superpowers/plans/2026-04-21-s08-task-board.md`, and moved `ACTIVE_SPRINT.md` to the new sprint.
+- **Result**: The active sprint now targets the repo's highest remaining systemic governance risk: bounded machine-checked release-signoff enforcement, one executable product-bar gate, and truthful audit/status follow-through.
+
+### 2026-04-21 — Sprint 08 Ticket S08-T01: Release-Signoff Contract Encoding
+- **Action**: Added a narrow structured `signoff` contract to the currently human-review-gated subsystem rows in `content/readiness/readiness_status.json`, recording only required artifact path, workflow path, and the non-promoting human-review requirement.
+- **Action**: Updated `tools/ci/check_release_readiness.ps1` and `tools/ci/truth_reconciler.ps1` so the governed signoff lanes now fail if that structured contract drifts from the canonical artifact/workflow paths or drops the human-review requirement.
+- **Action**: Extended `tools/audit/urpg_project_audit.cpp` and `tests/unit/test_project_audit_cli.cpp` so the existing `signoffArtifacts` governance section now surfaces structured signoff-contract state rather than relying only on artifact presence and conservative wording.
+- **Result**: The release-signoff discipline for the current governed subsystem set is now machine-checked as an explicit contract, while still staying below any claim that a human approval happened or that promotion to `READY` is automatic.
+
+### 2026-04-21 — Sprint 08 Ticket S08-T02: Visual Regression Executable Gate
+- **Action**: Added an approval-path regression in `tests/unit/test_visual_regression_harness.cpp` proving `tools/visual_regression/approve_golden.ps1` can write a golden JSON file that `VisualRegressionHarness` then loads and compares successfully.
+- **Action**: Added `tools/ci/check_visual_regression_harness.ps1` as a focused executable gate for the file-backed visual-regression harness contract and wired it into `tools/ci/run_local_gates.ps1` after the build step.
+- **Action**: Reconciled `content/readiness/readiness_status.json`, `docs/RELEASE_READINESS_MATRIX.md`, `docs/PROGRAM_COMPLETION_STATUS.md`, and `docs/TECHNICAL_DEBT_REMEDIATION_PLAN.md` so the visual-regression lane now claims the landed file-backed gate while still explicitly leaving real render-output capture and a full CI golden pipeline below the current scope.
+- **Result**: The visual-regression lane now has a truthful executable gate around the harness and approval workflow without overstating it as a renderer-capture or full product-visual regression system.
+
+### 2026-04-21 — Sprint 07 Ticket S07-T02: Template-Spec Audit Parity Enforcement
+- **Action**: Extended `tools/audit/urpg_project_audit.cpp` so `templateSpecArtifacts` now checks the selected template spec artifact for the expected authority line, required subsystem rows, and cross-cutting bar rows instead of only checking that the markdown file exists.
+- **Action**: Added focused CLI regressions in `tests/unit/test_project_audit_cli.cpp` for template-spec bar drift and required-subsystem drift, keeping the enforcement bounded to conservative governance mismatches rather than feature claims.
+- **Action**: Reconciled `docs/templates/monster_collector_rpg_spec.md`, `docs/templates/2_5d_rpg_spec.md`, `docs/TEMPLATE_READINESS_MATRIX.md`, `docs/PROJECT_AUDIT.md`, `docs/PROGRAM_COMPLETION_STATUS.md`, and `docs/TECHNICAL_DEBT_REMEDIATION_PLAN.md` so the canonical template-facing docs match the current readiness truth.
+- **Result**: `urpg_project_audit` can now catch real template-spec/readiness drift for selected templates, and the live `monster_collector_rpg` / `2_5d_rpg` audit path stays green for template-spec governance while preserving the existing blocker language from the broader readiness record.
+
+### 2026-04-21 — Sprint 07 Ticket S07-T03: Governance Truth Maintenance And Closeout
+- **Action**: Updated the Sprint 07 task board, `ACTIVE_SPRINT.md`, `PROGRAM_COMPLETION_STATUS.md`, and `TECHNICAL_DEBT_REMEDIATION_PLAN.md` so the canonical sprint/control docs reflect the landed template-spec parity enforcement instead of leaving Sprint 07 mid-flight.
+- **Action**: Ran the broader PR lane after the focused audit checks to verify the sprint closeout against the full local `pr` label, not just the project-audit subset.
+- **Result**: Sprint 07 is now closed with truthful sprint artifacts, updated canonical status language, and a green validation snapshot spanning the focused audit lane, governance scripts, and the broader PR test lane.
+
+### 2026-04-21 — Sprint 07 Ticket S07-T01: ProjectAudit Signoff Artifact Governance
+- **Action**: Extended `tools/audit/urpg_project_audit.cpp` with a new `signoffArtifacts` governance section that checks the canonical Battle Core, Save/Data Core, and Compat Bridge Exit signoff docs for both file presence and conservative required wording.
+- **Action**: Threaded the new `signoffArtifacts` section plus `signoffArtifactIssueCount` through `ProjectAuditPanel`, `DiagnosticsWorkspace` export JSON, and the focused CLI/panel/workspace audit tests.
+- **Action**: Updated `docs/PROJECT_AUDIT.md` so the documented audit contract now includes human-review-gated subsystem signoff artifacts alongside the release-signoff workflow artifact.
+- **Result**: `urpg_project_audit` now checks the actual governed signoff artifacts in addition to the workflow doc, and the richer governance section stays in parity across CLI output and diagnostics rendering/export.
+
+### 2026-04-21 — Sprint 07 Opening: Governance Audit Follow-Through
+- **Action**: Used an agent swarm to evaluate the next bounded sprint after Sprint 06, with one explorer mining canonical roadmap/status docs and another inspecting the current worktree/sprint artifacts.
+- **Action**: Activated Sprint 07 at `docs/superpowers/plans/2026-04-21-sprint-07-governance-audit-followthrough-execution-pack.md` with the task board at `docs/superpowers/plans/2026-04-21-s07-task-board.md`, and moved `ACTIVE_SPRINT.md` to the new governance-focused sprint.
+- **Result**: The active sprint now targets the clearest repo-level remaining risk from the canonical docs: deeper `ProjectAudit` coverage, stronger release-signoff/readiness enforcement, and template-specific audit execution.
+
+### 2026-04-21 — Sprint 06 Closeout: Active Sprint Workflow And Wave 2 Ability Hardening
+- **Action**: Created and activated Sprint 06 control artifacts at `docs/superpowers/plans/2026-04-21-sprint-06-wave2-handoff-hardening-execution-pack.md`, `docs/superpowers/plans/2026-04-21-s06-task-board.md`, and `docs/superpowers/plans/ACTIVE_SPRINT.md`.
+- **Action**: Re-ran the focused Wave 2 ability checks and then completed broader sprint validation with `ctest -L pr --output-on-failure`, `tools/ci/check_release_readiness.ps1`, and `tools/ci/truth_reconciler.ps1`.
+- **Result**: Sprint 06 is now closed with a green local validation snapshot, reusable multi-session sprint scaffolding in-tree, and the bounded Wave 2 ability hardening slice recorded as landed work on the current branch state.
+
+### 2026-04-21 — Sprint Workflow Scaffolding for Multi-Session LLM Execution
+- **Action**: Added reusable sprint-pack templates plus `tools/workflow/new-sprint-pack.ps1` so a new bounded sprint can be scaffolded into dated execution-pack and task-board files without copy-pasting old sprint artifacts.
+- **Action**: Added `docs/superpowers/plans/ACTIVE_SPRINT.md` as a stable pointer file that any LLM session can open first to find the current sprint control surfaces.
+- **Action**: Updated the workflow README and sprint handoff template to use the active-sprint pointer instead of hardcoding Sprint 01.
+- **Result**: The repo now has a repeatable setup for one LLM or multiple handoff sessions to work through an entire sprint with a shared control file, paired plan/task artifacts, and a consistent resume protocol.
+
+### 2026-04-21 — Wave 2 Continuation: Ability Runtime Ownership Hardening
+- **Action**: Added a lightweight `AbilitySystemComponent::getActiveEffectCount()` accessor so focused runtime tests can verify refresh/stack behavior without piercing private engine state.
+- **Action**: Replaced the remaining stub-style expectations in `tests/unit/test_wave3_gaf.cpp` with real runtime assertions for insufficient MP rejection, commit-time MP deduction, cooldown progression, and effect-refresh expiry reset behavior.
+- **Result**: The gameplay ability lane now has direct coverage for concrete runtime ownership behavior instead of preserving placeholder comments about stubbed attribute handling.
+
 ### 2026-04-21 — Sprint 01 Ticket S01-T03: Save Compat Import Closure
 - **Action**: Extended `engine/core/save/save_migration.*` with `ImportCompatSaveDocument()` so compat save import now produces both native runtime payload JSON and migrated metadata from a single compat save document.
 - **Action**: Mapped common compat save fields (`gold`, `mapId`, player position/direction, party, switches, variables`) into native runtime-owned state while retaining unsupported plugin blobs and unmapped payload fields explicitly under `_compat_payload_retained`.
@@ -1001,3 +1056,117 @@
 - **Context**: With both compat maintenance slices landed, the remaining work was to prove the updated corpus-depth and failure-parity anchors held up under the compat weekly lane, the broad PR lane, and the current readiness/truth governance gates.
 - **Action**: Ran `ctest --test-dir build/dev-ninja-debug --output-on-failure -R "Compat fixtures: curated all-profile orchestration scenario survives directory re-import|Compat fixtures: dependent command execution is gated with diagnostics when core dependency is missing"`, `ctest --test-dir build/dev-ninja-debug -L weekly --output-on-failure`, `ctest --test-dir build/dev-ninja-debug -L pr --output-on-failure`, `powershell -ExecutionPolicy Bypass -File tools/ci/check_release_readiness.ps1`, and `powershell -ExecutionPolicy Bypass -File tools/ci/truth_reconciler.ps1`, then updated the Sprint 05 board and execution pack to the closed state.
 - **Result**: Sprint 05 is closed with stronger honest compat corpus-depth evidence, stronger by-name failure-parity evidence, and clean validation across compat, PR, and governance lanes.
+
+## 2026-04-21 - Sprint 08 Release-Signoff Contract Encoding
+
+- **Context**: Sprint 08 opened to deepen governance enforcement without widening roadmap scope. The repo already had human-review-gated signoff artifacts and a workflow doc, but the canonical readiness records did not yet encode a machine-checked signoff contract for the governed subsystem lanes.
+- **Action**: Added a structured `signoff` contract to the governed `battle_core`, `save_data_core`, and `compat_bridge_exit` readiness records, then updated `tools/ci/check_release_readiness.ps1`, `tools/ci/truth_reconciler.ps1`, and `tools/audit/urpg_project_audit.cpp` to enforce and surface that contract alongside the existing artifact checks.
+- **Action**: Added focused CLI regression coverage in `tests/unit/test_project_audit_cli.cpp` and reconciled the canonical release-signoff/readiness/truth docs so the contract is described conservatively and does not imply automatic promotion to `READY`.
+- **Result**: The governed signoff lanes now carry a machine-checked human-review contract that is enforced across readiness, truth reconciliation, and ProjectAudit output.
+
+## 2026-04-21 - Sprint 08 Visual Regression Executable Gate
+
+- **Context**: The `visual_regression_harness` row already had helper tooling and focused unit tests, but it still lacked a bounded executable gate that proved the approval-script path generated goldens the harness could actually consume.
+- **Action**: Added a focused approval-script regression in `tests/unit/test_visual_regression_harness.cpp`, introduced `tools/ci/check_visual_regression_harness.ps1`, wired that gate into `tools/ci/run_local_gates.ps1`, and fixed `tools/visual_regression/approve_golden.ps1` so its `param(...)` block executes correctly under PowerShell.
+- **Action**: Reconciled readiness/status docs so the lane now truthfully claims a file-backed executable gate while preserving the explicit remaining gap around real render-output capture and a true CI golden pipeline.
+- **Result**: The visual regression harness now has a real executable gate through the approval-script path without overclaiming full renderer-backed visual regression coverage.
+
+## 2026-04-21 - Sprint 08 Closeout
+
+- **Context**: After the two implementation slices landed, Sprint 08 closeout needed to prove the PR lane and governance gates on the current tree and leave the active-sprint handoff state clean for the next session.
+- **Action**: Fixed a ProjectAudit serialization bug in `tools/audit/urpg_project_audit.cpp` so signoff contract drift updates the emitted `expectedArtifacts[*].status` to `contract_mismatch` instead of leaving the pushed JSON entry stale at `present`, then rebuilt `urpg_project_audit` and `urpg_tests`.
+- **Action**: Ran `.\build\dev-ninja-debug\urpg_tests.exe "Project audit CLI reports structured signoff contract drift for governed subsystem artifacts" --reporter compact`, `.\build\dev-ninja-debug\urpg_tests.exe "[testing][visual_regression]" --reporter compact`, `powershell -ExecutionPolicy Bypass -File tools/ci/check_visual_regression_harness.ps1`, `ctest --test-dir build/dev-ninja-debug -L pr --output-on-failure`, `powershell -ExecutionPolicy Bypass -File tools/ci/check_release_readiness.ps1`, and `powershell -ExecutionPolicy Bypass -File tools/ci/truth_reconciler.ps1`, then updated the Sprint 08 task board and active-sprint pointer to the closed state.
+- **Result**: Sprint 08 is closed with structured release-signoff contract enforcement, a file-backed visual regression executable gate, and a clean validation snapshot across the PR lane plus the readiness/truth governance gates.
+
+## 2026-04-21 - Sprint 09 Opened For ProjectAudit Governance Parity
+
+- **Context**: Sprint 08 closed cleanly, so the next bounded swarm recommendation was to address a narrower truth gap: `urpg_project_audit` now emits richer nested governance detail for signoff and template-spec artifacts than the diagnostics panel/workspace snapshot types obviously preserve, while `docs/PROJECT_AUDIT.md` already claims that parity.
+- **Action**: Opened Sprint 09 with a dedicated execution pack and task board focused on ProjectAudit governance parity, activated it in `ACTIVE_SPRINT.md`, and scoped the first ticket to carry the richer `signoffArtifacts` payload through `ProjectAuditPanel` and `DiagnosticsWorkspace` before moving on to template-spec parity.
+- **Result**: The repo now has an active Sprint 09 control surface aimed at closing the ProjectAudit CLI-versus-diagnostics governance-parity gap without widening scanner scope or opening a broad new roadmap lane.
+
+## 2026-04-21 - Sprint 09 ProjectAudit Rich Governance Parity
+
+- **Context**: `urpg_project_audit` already emitted richer nested governance payloads for `signoffArtifacts` and `templateSpecArtifacts`, but the diagnostics path still flattened those sections down to coarse summary fields even though the canonical ProjectAudit doc already claimed richer parity.
+- **Action**: Extended `ProjectAuditPanel` and `DiagnosticsWorkspace` to preserve and export the nested signoff expected-artifact rows, including structured signoff-contract state, and the nested template-spec expected-artifact rows, including conservative required-subsystem and cross-cutting-bar parity detail.
+- **Action**: Added focused panel/workspace regressions that bind CLI-shaped nested governance payloads and assert the richer diagnostics/export contract, then revalidated with `.\build\dev-ninja-debug\urpg_tests.exe "[project_audit_cli]" --reporter compact`, `.\build\dev-ninja-debug\urpg_tests.exe "[editor][diagnostics][project_audit]" --reporter compact`, and `.\build\dev-ninja-debug\urpg_tests.exe "[editor][diagnostics][integration][project_audit]" --reporter compact`.
+- **Result**: The ProjectAudit diagnostics path now stays in parity with the richer CLI governance detail for signoff and template-spec artifact sections instead of silently flattening those payloads at the panel/export boundary.
+
+## 2026-04-21 - Sprint 09 Closeout
+
+- **Context**: After the richer ProjectAudit parity slice landed, the remaining Sprint 09 work was to reconcile the canonical audit/status stack and prove the broader PR lane plus governance gates still held on the current tree.
+- **Action**: Updated `docs/PROJECT_AUDIT.md`, `docs/PROGRAM_COMPLETION_STATUS.md`, `docs/TECHNICAL_DEBT_REMEDIATION_PLAN.md`, and the Sprint 09 task board to describe the landed diagnostics parity truthfully, then ran `ctest --test-dir build/dev-ninja-debug -L pr --output-on-failure`, `powershell -ExecutionPolicy Bypass -File tools/ci/check_release_readiness.ps1`, and `powershell -ExecutionPolicy Bypass -File tools/ci/truth_reconciler.ps1`.
+- **Result**: Sprint 09 is closed with richer ProjectAudit CLI-to-diagnostics parity for signoff and template-spec governance detail, plus a clean validation snapshot across the PR lane and the readiness/truth governance gates.
+
+## 2026-04-21 - Sprint 10 Opened For Export Validation Pipeline Hardening
+
+- **Context**: After Sprint 09 closed, the next swarm recommendation was to shift from governance-only tightening to an already-landed executable partial lane with a truthful remaining gap. `export_validator` fits that shape: runtime code, packager integration, diagnostics surface, focused tests, and a CI script already exist, while the release matrix still keeps the lane honestly below a real export-artifact pipeline.
+- **Action**: Opened Sprint 10 with an execution pack and task board focused on export validation pipeline hardening, activated it in `ACTIVE_SPRINT.md`, and scoped the first ticket to sharpen the validator-to-packager executable gate on synthetic export-root fixtures before moving to diagnostics parity and closeout wording.
+- **Result**: The repo now has an active Sprint 10 control surface aimed at hardening the export validation path without overclaiming full export-pipeline readiness.
+
+## 2026-04-21 - Sprint 10 Export Validator And Packager Gate
+
+- **Context**: The export validation lane already had a validator, packager integration hook, focused tests, and a PowerShell CI script, but `ExportPackager::runExport()` still bypassed pre-export validation and the focused tests did not yet prove the validator and packager agreed across shared synthetic target fixtures.
+- **Action**: Updated `ExportPackager::runExport()` to fail fast when `validateBeforeExport()` reports missing required artifacts, then expanded the focused export tests so validator and packager share synthetic fixture coverage across the supported targets instead of only the earlier narrow Windows-path checks.
+- **Action**: Revalidated with `.\build\dev-ninja-debug\urpg_tests.exe "[export][validation]" --reporter compact`, `.\build\dev-ninja-debug\urpg_tests.exe "[export][packager]" --reporter compact`, and a focused `check_platform_exports.ps1` run against a synthetic Windows export fixture.
+- **Result**: The export packager no longer silently proceeds past invalid export roots, and the validator-to-packager gate now has sharper executable proof on the current tree without overclaiming a full real export pipeline.
+
+## 2026-04-21 - Sprint 10 Export Diagnostics Parity
+
+- **Context**: After the validator-to-packager gate was hardened, `ExportDiagnosticsPanel` still called `ExportValidator` directly instead of reflecting the same pre-export seam the packager now enforces.
+- **Action**: Updated `ExportDiagnosticsPanel` to use `ExportPackager::validateBeforeExport()` as its validation source, surfaced that source explicitly in the snapshot, and added focused panel coverage for both the existing Windows cases and a passing Web export fixture.
+- **Action**: Revalidated with `.\build\dev-ninja-debug\urpg_tests.exe "[export][editor][panel]" --reporter compact`, `.\build\dev-ninja-debug\urpg_tests.exe "[export][validation]" --reporter compact`, and `.\build\dev-ninja-debug\urpg_tests.exe "[export][packager]" --reporter compact`.
+- **Result**: The export diagnostics surface now reflects the same packager preflight contract the runtime export path uses instead of drifting onto a parallel validator-only path.
+
+## 2026-04-21 - Sprint 10 Closeout
+
+- **Context**: With the export validator/packager seam hardened and the diagnostics surface aligned to the same preflight path, the remaining Sprint 10 work was to reconcile the canonical export wording and prove the broader PR plus governance validation snapshot on the current tree.
+- **Action**: Updated `docs/RELEASE_READINESS_MATRIX.md`, `docs/PROGRAM_COMPLETION_STATUS.md`, `docs/TECHNICAL_DEBT_REMEDIATION_PLAN.md`, and the Sprint 10 task board to describe the landed export evidence conservatively, then ran `ctest --test-dir build/dev-ninja-debug -L pr --output-on-failure`, `powershell -ExecutionPolicy Bypass -File tools/ci/check_release_readiness.ps1`, and `powershell -ExecutionPolicy Bypass -File tools/ci/truth_reconciler.ps1`.
+- **Result**: Sprint 10 is closed with sharper executable proof for the export validation lane, aligned export diagnostics parity, and a clean validation snapshot across the PR lane and the readiness/truth governance gates.
+
+## 2026-04-21 - Sprint 11 Opened For Localization Completeness Gate
+
+- **Context**: After Sprint 10 closed, the next swarm recommendation was to target another already-landed partial lane with a missing executable gate. Localization completeness fit that shape: `LocaleCatalog` and `CompletenessChecker` already exist with focused tests, `urpg_project_audit` already references `tools/ci/check_localization_consistency.ps1`, and `run_local_gates.ps1` still lacks that lane entirely.
+- **Action**: Opened Sprint 11 with a dedicated execution pack and task board focused on localization completeness enforcement, activated it in `ACTIVE_SPRINT.md`, and scoped the first ticket to implement the missing localization consistency gate before threading that same evidence into ProjectAudit and the canonical status docs.
+- **Result**: The repo now has an active Sprint 11 control surface aimed at turning localization completeness from a documented runtime helper into a real enforced gate without widening ProjectAudit into a full project scanner.
+
+## 2026-04-21 - Sprint 11 Localization Consistency Gate
+
+- **Context**: The localization lane already had `LocaleCatalog`, `CompletenessChecker`, and focused tests, but the executable CI check had a stale handoff story and the shipped PowerShell implementation was not actually compatible with the shell baseline used by `powershell -File`.
+- **Action**: Reworked `tools/ci/check_localization_consistency.ps1` into a canonical executable gate that validates the bounded bundle/schema contract, avoids `ConvertFrom-Json -AsHashtable`, and writes the canonical evidence artifact at `imports/reports/localization/localization_consistency_report.json` on every run.
+- **Result**: Localization completeness is now enforced by a real repo-local gate, and the current repo truth remains green with a conservative `no_bundles` report because no `content/localization` corpus exists yet.
+
+## 2026-04-21 - Sprint 11 ProjectAudit Localization Evidence
+
+- **Context**: `urpg_project_audit` could only report whether localization artifact paths existed, not what the landed localization gate actually found.
+- **Action**: Added canonical localization report loading to `urpg_project_audit`, surfaced a dedicated `governance.localizationEvidence` section plus `localizationEvidenceIssueCount`, added focused CLI regressions for missing-key drift and clean evidence states, and updated `PROJECT_AUDIT.md` to document the bounded report-driven contract.
+- **Result**: ProjectAudit now consumes the same canonical localization evidence artifact the CI gate writes, exposing missing-key drift truthfully without widening into a full localization crawler.
+
+## 2026-04-21 - Sprint 11 Closeout
+
+- **Context**: With the executable localization gate landed and ProjectAudit consuming the same bounded evidence, the remaining Sprint 11 work was to reconcile the canonical status stack and prove the broader validation snapshot still held on the current tree.
+- **Action**: Updated `docs/PROGRAM_COMPLETION_STATUS.md`, `docs/TECHNICAL_DEBT_REMEDIATION_PLAN.md`, `docs/PROJECT_AUDIT.md`, `ACTIVE_SPRINT.md`, and the Sprint 11 task board, then ran `ctest --test-dir build/dev-ninja-debug -L pr --output-on-failure`, `powershell -ExecutionPolicy Bypass -File tools/ci/check_release_readiness.ps1`, and `powershell -ExecutionPolicy Bypass -File tools/ci/truth_reconciler.ps1`.
+- **Result**: Sprint 11 is closed with a real localization completeness gate, bounded ProjectAudit localization evidence, and a clean PR-lane plus readiness/truth validation snapshot.
+
+## 2026-04-21 - Sprint 12 Opened For Governance Foundation Release Signoff Enforcement
+
+- **Context**: After Sprint 11 closed, the next ranked backlog lane was `governance_foundation`. The swarm-backed read of the live tree says the clean remaining seam is stronger release-signoff enforcement rather than reopening already-landed diagnostics/export parity work.
+- **Action**: Opened Sprint 12 with an execution pack and task board focused on release-signoff enforcement inside governance_foundation, activated it in `ACTIVE_SPRINT.md`, and scoped the first ticket to encode one bounded prose-only release-signoff rule into the readiness/truth gates before carrying that contract through ProjectAudit parity.
+- **Result**: The repo now has an active Sprint 12 control surface aimed at tightening machine-checked release-signoff discipline without widening ProjectAudit into a full product scanner.
+
+## 2026-04-21 - Sprint 12 ProjectAudit Contract Lock-In
+
+- **Context**: The swarm found a smaller real governance hole than the broader sprint shell: `urpg_project_audit` already ships newer governance contract fields like `localizationEvidence`, `signoffArtifacts`, and `templateSpecArtifacts`, but `check_release_readiness.ps1` was still not requiring all of those shipped sections and count fields, and the truth gate was not explicitly pinning the localization-consistency-report wording in `PROJECT_AUDIT.md`.
+- **Action**: Tightened `check_release_readiness.ps1` so the readiness gate now requires `localizationEvidence`, `signoffArtifacts`, and `templateSpecArtifacts` plus their shipped top-level issue counts, then updated `truth_reconciler.ps1` so `PROJECT_AUDIT.md` must explicitly mention the canonical localization consistency report as part of the governance contract.
+- **Result**: The shipped ProjectAudit contract is now machine-checked by the readiness/truth gates instead of partially relying on CLI-only expectations, and Sprint 12 now rolls forward to the remaining `localizationEvidence` diagnostics-parity seam.
+
+## 2026-04-21 - Sprint 12 Localization Evidence Diagnostics Parity
+
+- **Context**: After the readiness and truth gates were locked to the shipped ProjectAudit contract, the remaining real Sprint 12 gap was diagnostics parity: the CLI already emitted `governance.localizationEvidence` and `localizationEvidenceIssueCount`, but the ProjectAudit panel snapshot and workspace export still dropped that richer bounded evidence.
+- **Action**: Added a dedicated localization-evidence snapshot model to `ProjectAuditPanel`, parsed `localizationEvidence` and `localizationEvidenceIssueCount` in `project_audit_panel.cpp`, exported the same bounded evidence through `diagnostics_workspace.cpp`, and extended the focused panel/workspace tests to cover the carried issue count, status, counters, and bundle payload.
+- **Result**: The diagnostics path now stays in parity with the shipped CLI contract for bounded localization evidence, and Sprint 12 rolls forward to governance/status reconciliation plus closeout validation.
+
+## 2026-04-21 - Sprint 12 Closeout
+
+- **Context**: With the ProjectAudit contract lock-in and localization-evidence diagnostics parity slices landed, the remaining Sprint 12 work was to reconcile the canonical status stack and prove the broader PR plus readiness/truth lanes on the current tree.
+- **Action**: Updated `docs/PROGRAM_COMPLETION_STATUS.md`, `docs/TECHNICAL_DEBT_REMEDIATION_PLAN.md`, `ACTIVE_SPRINT.md`, and the Sprint 12 task board, then ran `ctest --test-dir build/dev-ninja-debug -L pr --output-on-failure`, `powershell -ExecutionPolicy Bypass -File tools/ci/check_release_readiness.ps1`, and `powershell -ExecutionPolicy Bypass -File tools/ci/truth_reconciler.ps1`.
+- **Result**: Sprint 12 is closed with the richer ProjectAudit contract machine-checked by the governance gates, bounded localization-evidence parity across CLI and diagnostics, and a clean validation snapshot across the PR lane plus the readiness/truth gates.

@@ -523,6 +523,141 @@ nlohmann::json ProjectAuditArtifactGovernanceJson(const SnapshotT& snapshot) {
     return artifact;
 }
 
+nlohmann::json ProjectAuditSignoffContractJson(const ProjectAuditSignoffContractSnapshot& snapshot) {
+    nlohmann::json contract = nlohmann::json::object();
+    if (snapshot.required.has_value()) {
+        contract["required"] = *snapshot.required;
+    }
+    if (snapshot.artifact_path.has_value()) {
+        contract["artifact_path"] = *snapshot.artifact_path;
+    }
+    if (snapshot.promotion_requires_human_review.has_value()) {
+        contract["promotion_requires_human_review"] = *snapshot.promotion_requires_human_review;
+    }
+    if (snapshot.workflow.has_value()) {
+        contract["workflow"] = *snapshot.workflow;
+    }
+    if (snapshot.contract_ok.has_value()) {
+        contract["contract_ok"] = *snapshot.contract_ok;
+    }
+    return contract;
+}
+
+nlohmann::json ProjectAuditExpectedArtifactJson(const ProjectAuditExpectedArtifactSnapshot& snapshot) {
+    nlohmann::json artifact = nlohmann::json::object();
+    if (snapshot.subsystem_id.has_value()) {
+        artifact["subsystem_id"] = *snapshot.subsystem_id;
+    }
+    if (snapshot.title.has_value()) {
+        artifact["title"] = *snapshot.title;
+    }
+    if (snapshot.path.has_value()) {
+        artifact["path"] = *snapshot.path;
+    }
+    if (snapshot.required.has_value()) {
+        artifact["required"] = *snapshot.required;
+    }
+    if (snapshot.exists.has_value()) {
+        artifact["exists"] = *snapshot.exists;
+    }
+    if (snapshot.is_regular_file.has_value()) {
+        artifact["is_regular_file"] = *snapshot.is_regular_file;
+    }
+    if (snapshot.status.has_value()) {
+        artifact["status"] = *snapshot.status;
+    }
+    if (snapshot.wording_ok.has_value()) {
+        artifact["wording_ok"] = *snapshot.wording_ok;
+    }
+    if (snapshot.template_id_matches.has_value()) {
+        artifact["template_id_matches"] = *snapshot.template_id_matches;
+    }
+    if (snapshot.required_subsystems_match.has_value()) {
+        artifact["required_subsystems_match"] = *snapshot.required_subsystems_match;
+    }
+    if (snapshot.bars_match.has_value()) {
+        artifact["bars_match"] = *snapshot.bars_match;
+    }
+    if (!snapshot.missing_phrases.empty()) {
+        artifact["missing_phrases"] = snapshot.missing_phrases;
+    }
+    if (!snapshot.missing_required_subsystems.empty()) {
+        artifact["missing_required_subsystems"] = snapshot.missing_required_subsystems;
+    }
+    if (!snapshot.unexpected_required_subsystems.empty()) {
+        artifact["unexpected_required_subsystems"] = snapshot.unexpected_required_subsystems;
+    }
+    if (snapshot.bar_mismatches.has_value()) {
+        artifact["bar_mismatches"] = *snapshot.bar_mismatches;
+    }
+    if (snapshot.signoff_contract.has_value()) {
+        artifact["signoff_contract"] = ProjectAuditSignoffContractJson(*snapshot.signoff_contract);
+    }
+    return artifact;
+}
+
+nlohmann::json ProjectAuditRichArtifactGovernanceJson(const ProjectAuditRichArtifactGovernanceSnapshot& snapshot) {
+    nlohmann::json artifact = ProjectAuditArtifactGovernanceJson(snapshot);
+    if (snapshot.enabled.has_value()) {
+        artifact["enabled"] = *snapshot.enabled;
+    }
+    if (snapshot.dependency.has_value()) {
+        artifact["dependency"] = *snapshot.dependency;
+    }
+    if (snapshot.summary.has_value()) {
+        artifact["summary"] = *snapshot.summary;
+    }
+    if (!snapshot.expected_artifacts.empty()) {
+        nlohmann::json expected_artifacts = nlohmann::json::array();
+        for (const auto& expected_artifact : snapshot.expected_artifacts) {
+            expected_artifacts.push_back(ProjectAuditExpectedArtifactJson(expected_artifact));
+        }
+        artifact["expected_artifacts"] = std::move(expected_artifacts);
+    }
+    return artifact;
+}
+
+nlohmann::json ProjectAuditLocalizationEvidenceJson(const ProjectAuditLocalizationEvidenceSnapshot& snapshot) {
+    nlohmann::json artifact = ProjectAuditArtifactGovernanceJson(snapshot);
+    if (snapshot.enabled.has_value()) {
+        artifact["enabled"] = *snapshot.enabled;
+    }
+    if (snapshot.usable.has_value()) {
+        artifact["usable"] = *snapshot.usable;
+    }
+    if (snapshot.dependency.has_value()) {
+        artifact["dependency"] = *snapshot.dependency;
+    }
+    if (snapshot.summary.has_value()) {
+        artifact["summary"] = *snapshot.summary;
+    }
+    if (snapshot.status.has_value()) {
+        artifact["status"] = *snapshot.status;
+    }
+    if (snapshot.has_bundles.has_value()) {
+        artifact["has_bundles"] = *snapshot.has_bundles;
+    }
+    if (snapshot.bundle_count.has_value()) {
+        artifact["bundle_count"] = *snapshot.bundle_count;
+    }
+    if (snapshot.missing_locale_count.has_value()) {
+        artifact["missing_locale_count"] = *snapshot.missing_locale_count;
+    }
+    if (snapshot.missing_key_count.has_value()) {
+        artifact["missing_key_count"] = *snapshot.missing_key_count;
+    }
+    if (snapshot.extra_key_count.has_value()) {
+        artifact["extra_key_count"] = *snapshot.extra_key_count;
+    }
+    if (snapshot.master_locale.has_value()) {
+        artifact["master_locale"] = *snapshot.master_locale;
+    }
+    if (snapshot.bundles.has_value()) {
+        artifact["bundles"] = *snapshot.bundles;
+    }
+    return artifact;
+}
+
 const char* MenuInspectorIssueSeverityName(MenuInspectorIssueSeverity severity) {
     switch (severity) {
     case MenuInspectorIssueSeverity::Info:
@@ -1967,9 +2102,18 @@ std::string DiagnosticsWorkspace::exportAsJson() const {
         if (snapshot.project_artifact_issue_count.has_value()) {
             activeTabDetail["project_artifact_issue_count"] = *snapshot.project_artifact_issue_count;
         }
+        if (snapshot.localization_evidence_issue_count.has_value()) {
+            activeTabDetail["localization_evidence_issue_count"] = *snapshot.localization_evidence_issue_count;
+        }
         if (snapshot.release_signoff_workflow_issue_count.has_value()) {
             activeTabDetail["release_signoff_workflow_issue_count"] =
                 *snapshot.release_signoff_workflow_issue_count;
+        }
+        if (snapshot.signoff_artifact_issue_count.has_value()) {
+            activeTabDetail["signoff_artifact_issue_count"] = *snapshot.signoff_artifact_issue_count;
+        }
+        if (snapshot.template_spec_artifact_issue_count.has_value()) {
+            activeTabDetail["template_spec_artifact_issue_count"] = *snapshot.template_spec_artifact_issue_count;
         }
         if (snapshot.accessibility_artifact_issue_count.has_value()) {
             activeTabDetail["accessibility_artifact_issue_count"] = *snapshot.accessibility_artifact_issue_count;
@@ -2039,6 +2183,10 @@ std::string DiagnosticsWorkspace::exportAsJson() const {
             governance["localization_artifacts"] =
                 ProjectAuditArtifactGovernanceJson(*snapshot.localization_artifacts);
         }
+        if (snapshot.localization_evidence.has_value()) {
+            governance["localization_evidence"] =
+                ProjectAuditLocalizationEvidenceJson(*snapshot.localization_evidence);
+        }
         if (snapshot.input_artifacts.has_value()) {
             governance["input_artifacts"] = ProjectAuditArtifactGovernanceJson(*snapshot.input_artifacts);
         }
@@ -2059,6 +2207,14 @@ std::string DiagnosticsWorkspace::exportAsJson() const {
         if (snapshot.release_signoff_workflow.has_value()) {
             governance["release_signoff_workflow"] =
                 ProjectAuditArtifactGovernanceJson(*snapshot.release_signoff_workflow);
+        }
+        if (snapshot.signoff_artifacts.has_value()) {
+            governance["signoff_artifacts"] =
+                ProjectAuditRichArtifactGovernanceJson(*snapshot.signoff_artifacts);
+        }
+        if (snapshot.template_spec_artifacts.has_value()) {
+            governance["template_spec_artifacts"] =
+                ProjectAuditRichArtifactGovernanceJson(*snapshot.template_spec_artifacts);
         }
         if (!governance.empty()) {
             activeTabDetail["governance"] = std::move(governance);

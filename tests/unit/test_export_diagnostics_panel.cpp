@@ -45,6 +45,7 @@ TEST_CASE("ExportDiagnosticsPanel snapshot reflects validation errors for missin
     const auto& snapshot = panel.lastRenderSnapshot();
     REQUIRE(snapshot["target"] == "Windows_x64");
     REQUIRE(snapshot["outputDir"] == base.string());
+    REQUIRE(snapshot["validationSource"] == "packager_preflight");
     REQUIRE(snapshot["validationPassed"] == false);
     REQUIRE(snapshot["readyToExport"] == false);
     REQUIRE(snapshot["errors"].is_array());
@@ -71,6 +72,35 @@ TEST_CASE("ExportDiagnosticsPanel snapshot shows ready-to-export true when valid
     const auto& snapshot = panel.lastRenderSnapshot();
     REQUIRE(snapshot["target"] == "Windows_x64");
     REQUIRE(snapshot["outputDir"] == base.string());
+    REQUIRE(snapshot["validationSource"] == "packager_preflight");
+    REQUIRE(snapshot["validationPassed"] == true);
+    REQUIRE(snapshot["readyToExport"] == true);
+    REQUIRE(snapshot["errors"].is_array());
+    REQUIRE(snapshot["errors"].empty());
+
+    std::filesystem::remove_all(base);
+}
+
+TEST_CASE("ExportDiagnosticsPanel mirrors packager preflight for web exports", "[export][editor][panel]") {
+    const auto base = std::filesystem::temp_directory_path() / "urpg_export_diagnostics_web";
+    std::filesystem::remove_all(base);
+    std::filesystem::create_directories(base);
+
+    WriteFile(base / "index.html", "html");
+    WriteFile(base / "game.wasm", "wasm");
+    WriteFile(base / "game.js", "js");
+    WriteFile(base / "data.pck", "pck");
+
+    ExportDiagnosticsPanel panel;
+    ExportConfig config{};
+    config.target = ExportTarget::Web_WASM;
+    config.outputDir = base.string();
+    panel.setExportConfig(config);
+    panel.render();
+
+    const auto& snapshot = panel.lastRenderSnapshot();
+    REQUIRE(snapshot["target"] == "Web_WASM");
+    REQUIRE(snapshot["validationSource"] == "packager_preflight");
     REQUIRE(snapshot["validationPassed"] == true);
     REQUIRE(snapshot["readyToExport"] == true);
     REQUIRE(snapshot["errors"].is_array());

@@ -2,14 +2,17 @@
 
 Use this template to start or resume a sprint-focused LLM session in this repo.
 
+Start from the active sprint pointer:
+
+- `docs/superpowers/plans/ACTIVE_SPRINT.md`
+
 ## Fresh Session Prompt
 
 ```text
-You are continuing Sprint 01 in the URPG repository.
+You are continuing the active sprint in the URPG repository.
 
 Follow these files first:
-- docs/superpowers/plans/2026-04-21-sprint-01-closure-execution-pack.md
-- docs/superpowers/plans/2026-04-21-sprint-01-task-board.md
+- docs/superpowers/plans/ACTIVE_SPRINT.md
 - docs/PROGRAM_COMPLETION_STATUS.md
 - docs/TECHNICAL_DEBT_REMEDIATION_PLAN.md
 - content/readiness/readiness_status.json
@@ -27,7 +30,7 @@ Rules:
   - any blockers
 
 Start by:
-1. reading the execution pack and task board
+1. reading ACTIVE_SPRINT.md, then the execution pack and task board it points to
 2. marking the active ticket IN PROGRESS
 3. running the listed verification command for that ticket
 4. implementing the ticket end-to-end if feasible in this session
@@ -36,10 +39,9 @@ Start by:
 ## Mid-Sprint Resume Prompt
 
 ```text
-Resume the active sprint from docs/superpowers/plans/2026-04-21-sprint-01-task-board.md.
+Resume the active sprint from docs/superpowers/plans/ACTIVE_SPRINT.md.
 
-Use the execution pack as the authority for ordering and acceptance criteria:
-- docs/superpowers/plans/2026-04-21-sprint-01-closure-execution-pack.md
+Use the execution pack named there as the authority for ordering and acceptance criteria.
 
 Before coding:
 - read the Resume From Here section

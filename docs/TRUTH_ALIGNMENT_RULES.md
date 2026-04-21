@@ -30,6 +30,7 @@ The following must agree:
 - project-audit blocker vocabulary
 - project-audit governance section coverage for the shipped contract
 - signoff-artifact presence and human-review-gated wording for subsystems that depend on signoff-based promotion language
+- structured signoff-contract fields for subsystems that depend on signoff-based promotion language
 - release-signoff workflow artifact presence and wording for the governed readiness stack
 - schema/version governance expectations
 

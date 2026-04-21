@@ -44,11 +44,29 @@ struct ProjectSchemaContext {
     std::optional<std::string> loadWarning;
 };
 
+struct LocalizationReportContext {
+    fs::path path;
+    bool explicitPath = false;
+    std::optional<json> report;
+    std::optional<std::string> loadWarning;
+};
+
 struct CanonicalArtifactSpec {
     std::string code;
     std::string title;
     std::string detailPrefix;
     fs::path path;
+};
+
+struct SignoffArtifactSpec {
+    std::string subsystemId;
+    std::string missingCode;
+    std::string wordingCode;
+    std::string contractCode;
+    std::string title;
+    std::string detailPrefix;
+    fs::path path;
+    std::vector<std::string> requiredPhrases;
 };
 
 std::string readFile(const fs::path& path) {
@@ -82,6 +100,136 @@ std::vector<std::string> getStringArray(const json& value, const std::string& ke
     }
 
     return items;
+}
+
+std::string trim(const std::string& text) {
+    const auto begin = text.find_first_not_of(" \t\r\n");
+    if (begin == std::string::npos) {
+        return "";
+    }
+
+    const auto end = text.find_last_not_of(" \t\r\n");
+    return text.substr(begin, end - begin + 1);
+}
+
+bool startsWith(const std::string& value, const std::string& prefix) {
+    return value.size() >= prefix.size() && value.compare(0, prefix.size(), prefix) == 0;
+}
+
+std::optional<std::string> extractBacktickValue(const std::string& line) {
+    const auto firstTick = line.find('`');
+    if (firstTick == std::string::npos) {
+        return std::nullopt;
+    }
+
+    const auto secondTick = line.find('`', firstTick + 1);
+    if (secondTick == std::string::npos || secondTick <= firstTick + 1) {
+        return std::nullopt;
+    }
+
+    return line.substr(firstTick + 1, secondTick - firstTick - 1);
+}
+
+std::string templateBarDisplayName(const std::string& barName) {
+    if (barName == "accessibility") {
+        return "Accessibility";
+    }
+    if (barName == "audio") {
+        return "Audio";
+    }
+    if (barName == "input") {
+        return "Input";
+    }
+    if (barName == "localization") {
+        return "Localization";
+    }
+    if (barName == "performance") {
+        return "Performance";
+    }
+    return barName;
+}
+
+std::vector<std::string> extractTemplateSpecRequiredSubsystems(const std::string& text) {
+    std::vector<std::string> subsystems;
+    std::istringstream stream(text);
+    std::string line;
+    bool inRequiredSubsystems = false;
+
+    while (std::getline(stream, line)) {
+        const std::string trimmedLine = trim(line);
+        if (startsWith(trimmedLine, "## ")) {
+            inRequiredSubsystems = trimmedLine == "## Required Subsystems";
+            continue;
+        }
+
+        if (!inRequiredSubsystems || !startsWith(trimmedLine, "| `")) {
+            continue;
+        }
+
+        const auto subsystem = extractBacktickValue(trimmedLine);
+        if (subsystem.has_value()) {
+            subsystems.push_back(*subsystem);
+        }
+    }
+
+    std::sort(subsystems.begin(), subsystems.end());
+    subsystems.erase(std::unique(subsystems.begin(), subsystems.end()), subsystems.end());
+    return subsystems;
+}
+
+json extractTemplateSpecBars(const std::string& text) {
+    json bars = json::object();
+    std::istringstream stream(text);
+    std::string line;
+    bool inCrossCuttingBars = false;
+
+    while (std::getline(stream, line)) {
+        const std::string trimmedLine = trim(line);
+        if (startsWith(trimmedLine, "## ")) {
+            inCrossCuttingBars = trimmedLine == "## Cross-Cutting Minimum Bars";
+            continue;
+        }
+
+        if (!inCrossCuttingBars || !startsWith(trimmedLine, "| ")) {
+            continue;
+        }
+
+        const auto firstSeparator = trimmedLine.find('|', 2);
+        if (firstSeparator == std::string::npos) {
+            continue;
+        }
+
+        const std::string barLabel = trim(trimmedLine.substr(2, firstSeparator - 2));
+        const auto statusValue = extractBacktickValue(trimmedLine);
+        if (!statusValue.has_value()) {
+            continue;
+        }
+
+        if (barLabel == "Accessibility") {
+            bars["accessibility"] = *statusValue;
+        } else if (barLabel == "Audio") {
+            bars["audio"] = *statusValue;
+        } else if (barLabel == "Input") {
+            bars["input"] = *statusValue;
+        } else if (barLabel == "Localization") {
+            bars["localization"] = *statusValue;
+        } else if (barLabel == "Performance") {
+            bars["performance"] = *statusValue;
+        }
+    }
+
+    return bars;
+}
+
+std::string joinItems(const std::vector<std::string>& items) {
+    std::ostringstream buffer;
+    for (std::size_t i = 0; i < items.size(); ++i) {
+        if (i > 0) {
+            buffer << ", ";
+        }
+        buffer << items[i];
+    }
+    return buffer.str();
 }
 
 std::optional<std::int64_t> getInteger(const json& value, const std::string& key) {
@@ -170,6 +318,41 @@ ProjectSchemaContext loadProjectSchema(const fs::path& path) {
     return context;
 }
 
+LocalizationReportContext loadLocalizationReport(const fs::path& path, bool explicitPath) {
+    LocalizationReportContext context;
+    context.path = path;
+    context.explicitPath = explicitPath;
+
+    if (!fs::exists(path)) {
+        if (explicitPath) {
+            throw std::runtime_error("Localization report not found: " + path.string());
+        }
+
+        return context;
+    }
+
+    if (!fs::is_regular_file(path)) {
+        if (explicitPath) {
+            throw std::runtime_error("Localization report path is not a file: " + path.string());
+        }
+
+        context.loadWarning = "Localization report path is not a file: " + path.string();
+        return context;
+    }
+
+    try {
+        context.report = json::parse(readFile(path));
+    } catch (const std::exception& ex) {
+        if (explicitPath) {
+            throw std::runtime_error("Failed to read localization report " + path.string() + ": " + ex.what());
+        }
+
+        context.loadWarning = "Failed to read localization report " + path.string() + ": " + ex.what();
+    }
+
+    return context;
+}
+
 const json* findTemplateById(const json& readiness, const std::string& templateId) {
     if (!readiness.contains("templates") || !readiness.at("templates").is_array()) {
         return nullptr;
@@ -177,6 +360,20 @@ const json* findTemplateById(const json& readiness, const std::string& templateI
 
     for (const auto& candidate : readiness.at("templates")) {
         if (candidate.is_object() && getString(candidate, "id") == templateId) {
+            return &candidate;
+        }
+    }
+
+    return nullptr;
+}
+
+const json* findSubsystemById(const json& readiness, const std::string& subsystemId) {
+    if (!readiness.contains("subsystems") || !readiness.at("subsystems").is_array()) {
+        return nullptr;
+    }
+
+    for (const auto& candidate : readiness.at("subsystems")) {
+        if (candidate.is_object() && getString(candidate, "id") == subsystemId) {
             return &candidate;
         }
     }
@@ -759,6 +956,164 @@ void addLocalizationArtifactGovernance(const TemplateContext& templateContext,
         governanceReport);
 }
 
+void addLocalizationEvidenceIssues(const TemplateContext& templateContext,
+                                   const LocalizationReportContext& localizationReportContext,
+                                   std::vector<AuditIssue>& issues,
+                                   std::size_t& localizationEvidenceIssueCount,
+                                   json& governanceReport) {
+    const bool enabled = templateBarNeedsProjectArtifact(templateContext, "localization");
+    json section = {
+        {"enabled", enabled},
+        {"dependency", "localization completeness evidence"},
+        {"path", localizationReportContext.path.string()},
+        {"explicit", localizationReportContext.explicitPath},
+        {"available", localizationReportContext.report.has_value() || localizationReportContext.loadWarning.has_value()},
+        {"usable", false},
+        {"issueCount", 0},
+        {"summary", enabled
+                ? "Checking localization consistency evidence for selected template " + templateContext.id + "."
+                : "Selected template " + templateContext.id + " does not currently depend on localization evidence."},
+    };
+
+    if (!enabled) {
+        governanceReport["localizationEvidence"] = std::move(section);
+        return;
+    }
+
+    if (localizationReportContext.loadWarning.has_value()) {
+        issues.push_back({
+            "localization_report.unavailable",
+            "Localization consistency report unavailable",
+            *localizationReportContext.loadWarning,
+            "warning",
+            false,
+            false,
+        });
+        ++localizationEvidenceIssueCount;
+        section["issueCount"] = localizationEvidenceIssueCount;
+        governanceReport["localizationEvidence"] = std::move(section);
+        return;
+    }
+
+    if (!localizationReportContext.report.has_value()) {
+        issues.push_back({
+            "localization_report.missing",
+            "Localization consistency report missing",
+            "Expected localization consistency evidence at " + localizationReportContext.path.string() +
+                " was not found. Run tools/ci/check_localization_consistency.ps1 to refresh the canonical report.",
+            "warning",
+            false,
+            false,
+        });
+        ++localizationEvidenceIssueCount;
+        section["issueCount"] = localizationEvidenceIssueCount;
+        governanceReport["localizationEvidence"] = std::move(section);
+        return;
+    }
+
+    const json& report = *localizationReportContext.report;
+    if (!report.is_object()) {
+        if (localizationReportContext.explicitPath) {
+            throw std::runtime_error("Localization report is not a JSON object: " + localizationReportContext.path.string());
+        }
+
+        issues.push_back({
+            "localization_report.malformed",
+            "Localization consistency report malformed",
+            "Localization report is not a JSON object: " + localizationReportContext.path.string(),
+            "warning",
+            false,
+            false,
+        });
+        ++localizationEvidenceIssueCount;
+        section["issueCount"] = localizationEvidenceIssueCount;
+        governanceReport["localizationEvidence"] = std::move(section);
+        return;
+    }
+
+    if (!report.contains("summary") || !report.at("summary").is_object()) {
+        if (localizationReportContext.explicitPath) {
+            throw std::runtime_error("Localization report summary missing or malformed: " +
+                                     localizationReportContext.path.string());
+        }
+
+        issues.push_back({
+            "localization_report.summary.malformed",
+            "Localization consistency summary malformed",
+            "The localization report summary block is missing or not an object: " +
+                localizationReportContext.path.string(),
+            "warning",
+            false,
+            false,
+        });
+        ++localizationEvidenceIssueCount;
+        section["issueCount"] = localizationEvidenceIssueCount;
+        governanceReport["localizationEvidence"] = std::move(section);
+        return;
+    }
+
+    const json& summary = report.at("summary");
+    const std::optional<std::int64_t> bundleCount = getInteger(summary, "bundleCount");
+    const std::optional<std::int64_t> missingLocaleCount = getInteger(summary, "missingLocaleCount");
+    const std::optional<std::int64_t> missingKeyCount = getInteger(summary, "missingKeyCount");
+    const std::optional<std::int64_t> extraKeyCount = getInteger(summary, "extraKeyCount");
+    const bool summaryHasBundles = summary.contains("hasBundles") && summary.at("hasBundles").is_boolean();
+
+    if (!bundleCount.has_value() || !missingLocaleCount.has_value() || !missingKeyCount.has_value() ||
+        !extraKeyCount.has_value() || !summaryHasBundles) {
+        if (localizationReportContext.explicitPath) {
+            throw std::runtime_error("Localization report summary counters missing or malformed: " +
+                                     localizationReportContext.path.string());
+        }
+
+        issues.push_back({
+            "localization_report.summary.counters_missing",
+            "Localization consistency summary counters missing",
+            "The localization report summary does not expose the expected bundle and completeness counters: " +
+                localizationReportContext.path.string(),
+            "warning",
+            false,
+            false,
+        });
+        ++localizationEvidenceIssueCount;
+        section["issueCount"] = localizationEvidenceIssueCount;
+        governanceReport["localizationEvidence"] = std::move(section);
+        return;
+    }
+
+    section["usable"] = true;
+    section["status"] = getString(report, "status", "unknown");
+    section["hasBundles"] = summary.at("hasBundles");
+    section["bundleCount"] = *bundleCount;
+    section["missingLocaleCount"] = *missingLocaleCount;
+    section["missingKeyCount"] = *missingKeyCount;
+    section["extraKeyCount"] = *extraKeyCount;
+    if (summary.contains("masterLocale")) {
+        section["masterLocale"] = summary.at("masterLocale");
+    }
+
+    if (report.contains("bundles") && report.at("bundles").is_array()) {
+        section["bundles"] = report.at("bundles");
+    }
+
+    if (*missingKeyCount > 0) {
+        issues.push_back({
+            "localization_report.missing_keys",
+            "Localization bundles are missing master keys",
+            "Localization consistency report " + localizationReportContext.path.string() +
+                " records " + std::to_string(*missingKeyCount) + " missing keys across " +
+                std::to_string(*missingLocaleCount) + " locale bundles.",
+            "warning",
+            false,
+            false,
+        });
+        ++localizationEvidenceIssueCount;
+    }
+
+    section["issueCount"] = localizationEvidenceIssueCount;
+    governanceReport["localizationEvidence"] = std::move(section);
+}
+
 void addExportArtifactGovernance(const TemplateContext& templateContext,
                                  std::vector<AuditIssue>& issues,
                                  std::size_t& exportArtifactIssueCount,
@@ -1010,10 +1365,385 @@ void addReleaseSignoffWorkflowGovernance(const TemplateContext& templateContext,
         governanceReport);
 }
 
+void addTemplateSpecArtifactGovernance(const TemplateContext& templateContext,
+                                       std::vector<AuditIssue>& issues,
+                                       std::size_t& templateSpecArtifactIssueCount,
+                                       json& governanceReport) {
+    const bool enabled = templateContext.id != "unknown" && templateContext.data.is_object() && !templateContext.data.empty();
+    const std::vector<CanonicalArtifactSpec> artifacts = {
+        {
+            "template_spec_artifact.missing",
+            "Canonical template spec artifact missing",
+            "Template spec",
+            fs::path("docs") / "templates" / (templateContext.id + "_spec.md"),
+        },
+    };
+
+    json section = json::object();
+    section["enabled"] = enabled;
+    section["dependency"] = "template-spec governance";
+    section["issueCount"] = 0;
+    section["expectedArtifacts"] = json::array();
+    section["summary"] = enabled
+        ? "Checking canonical template-spec artifacts and conservative readiness parity for selected template " + templateContext.id + "."
+        : "Selected template " + templateContext.id + " does not currently depend on template-spec governance.";
+
+    for (const auto& artifact : artifacts) {
+        const bool exists = fs::exists(artifact.path);
+        const bool regularFile = exists && fs::is_regular_file(artifact.path);
+        const bool required = enabled;
+        std::string status = !enabled ? "not_checked" : (regularFile ? "present" : (exists ? "invalid" : "missing"));
+        json artifactEntry = {
+            {"code", artifact.code},
+            {"title", artifact.title},
+            {"path", artifact.path.string()},
+            {"required", required},
+            {"exists", exists},
+            {"isRegularFile", regularFile},
+            {"status", status},
+        };
+
+        if (!enabled) {
+            section["expectedArtifacts"].push_back(std::move(artifactEntry));
+            continue;
+        }
+
+        if (!regularFile) {
+            ++templateSpecArtifactIssueCount;
+            issues.push_back({
+                artifact.code,
+                artifact.title,
+                artifact.detailPrefix + " canonical artifact expected at " + artifact.path.string() +
+                    " is " + (exists ? "present but not a regular file" : "missing") +
+                    "; this is a governance gap, not proof the feature is absent.",
+                "warning",
+                false,
+                false,
+            });
+            section["expectedArtifacts"].push_back(std::move(artifactEntry));
+            continue;
+        }
+
+        try {
+            const std::string text = readFile(artifact.path);
+            const std::string expectedAuthority = "Authority: canonical template spec for `" + templateContext.id + "`";
+            const bool templateIdMatches = text.find(expectedAuthority) != std::string::npos;
+            artifactEntry["templateIdMatches"] = templateIdMatches;
+
+            const std::vector<std::string> expectedSubsystems = getStringArray(templateContext.data, "requiredSubsystems");
+            std::vector<std::string> specSubsystems = extractTemplateSpecRequiredSubsystems(text);
+            std::sort(specSubsystems.begin(), specSubsystems.end());
+
+            std::vector<std::string> sortedExpectedSubsystems = expectedSubsystems;
+            std::sort(sortedExpectedSubsystems.begin(), sortedExpectedSubsystems.end());
+
+            std::vector<std::string> missingSubsystems;
+            std::vector<std::string> unexpectedSubsystems;
+            std::set_difference(sortedExpectedSubsystems.begin(),
+                                sortedExpectedSubsystems.end(),
+                                specSubsystems.begin(),
+                                specSubsystems.end(),
+                                std::back_inserter(missingSubsystems));
+            std::set_difference(specSubsystems.begin(),
+                                specSubsystems.end(),
+                                sortedExpectedSubsystems.begin(),
+                                sortedExpectedSubsystems.end(),
+                                std::back_inserter(unexpectedSubsystems));
+
+            const bool requiredSubsystemsMatch = missingSubsystems.empty() && unexpectedSubsystems.empty();
+            artifactEntry["requiredSubsystemsMatch"] = requiredSubsystemsMatch;
+            if (!missingSubsystems.empty()) {
+                artifactEntry["missingRequiredSubsystems"] = missingSubsystems;
+            }
+            if (!unexpectedSubsystems.empty()) {
+                artifactEntry["unexpectedRequiredSubsystems"] = unexpectedSubsystems;
+            }
+
+            const json specBars = extractTemplateSpecBars(text);
+            json barMismatches = json::array();
+            bool barsMatch = true;
+            if (templateContext.data.contains("bars") && templateContext.data.at("bars").is_object()) {
+                for (const auto& [barName, barValue] : templateContext.data.at("bars").items()) {
+                    if (!barValue.is_string()) {
+                        continue;
+                    }
+
+                    const std::string expectedStatus = barValue.get<std::string>();
+                    const std::string specStatus = specBars.contains(barName) && specBars.at(barName).is_string()
+                        ? specBars.at(barName).get<std::string>()
+                        : "missing";
+                    if (specStatus != expectedStatus) {
+                        barsMatch = false;
+                        barMismatches.push_back({
+                            {"bar", barName},
+                            {"label", templateBarDisplayName(barName)},
+                            {"expectedStatus", expectedStatus},
+                            {"specStatus", specStatus},
+                        });
+                    }
+                }
+            }
+
+            artifactEntry["barsMatch"] = barsMatch;
+            if (!barMismatches.empty()) {
+                artifactEntry["barMismatches"] = barMismatches;
+            }
+
+            if (!templateIdMatches) {
+                ++templateSpecArtifactIssueCount;
+                issues.push_back({
+                    "template_spec_artifact.template_id_mismatch",
+                    "Canonical template spec artifact names the wrong template",
+                    artifact.detailPrefix + " canonical artifact at " + artifact.path.string() +
+                        " does not contain the expected authority line for template " + templateContext.id +
+                        "; keep template-facing docs aligned with the selected readiness context.",
+                    "warning",
+                    false,
+                    false,
+                });
+            }
+
+            if (!requiredSubsystemsMatch) {
+                ++templateSpecArtifactIssueCount;
+                issues.push_back({
+                    "template_spec_artifact.required_subsystems_mismatch",
+                    "Canonical template spec required subsystems drift from readiness",
+                    artifact.detailPrefix + " canonical artifact at " + artifact.path.string() +
+                        " does not match readiness requiredSubsystems for template " + templateContext.id +
+                        ". Missing from spec: [" + joinItems(missingSubsystems) + "]. Unexpected in spec: [" +
+                        joinItems(unexpectedSubsystems) + "].",
+                    "warning",
+                    false,
+                    false,
+                });
+            }
+
+            if (!barsMatch) {
+                std::ostringstream detail;
+                detail << artifact.detailPrefix << " canonical artifact at " << artifact.path.string()
+                       << " does not match readiness cross-cutting bar statuses for template " << templateContext.id
+                       << ".";
+                for (const auto& mismatch : barMismatches) {
+                    detail << " " << mismatch.at("label").get<std::string>() << " expected "
+                           << mismatch.at("expectedStatus").get<std::string>() << " but spec shows "
+                           << mismatch.at("specStatus").get<std::string>() << ".";
+                }
+
+                ++templateSpecArtifactIssueCount;
+                issues.push_back({
+                    "template_spec_artifact.bars_mismatch",
+                    "Canonical template spec bar statuses drift from readiness",
+                    detail.str(),
+                    "warning",
+                    false,
+                    false,
+                });
+            }
+
+            if (!templateIdMatches || !requiredSubsystemsMatch || !barsMatch) {
+                status = "parity_mismatch";
+                artifactEntry["status"] = status;
+            }
+        } catch (const std::exception&) {
+            ++templateSpecArtifactIssueCount;
+            artifactEntry["status"] = "unreadable";
+            issues.push_back({
+                "template_spec_artifact.unreadable",
+                "Canonical template spec artifact unreadable",
+                artifact.detailPrefix + " canonical artifact at " + artifact.path.string() +
+                    " could not be read for template-governance parity checks.",
+                "warning",
+                false,
+                false,
+            });
+        }
+
+        section["expectedArtifacts"].push_back(std::move(artifactEntry));
+    }
+
+    section["issueCount"] = templateSpecArtifactIssueCount;
+    governanceReport["templateSpecArtifacts"] = std::move(section);
+}
+
+void addSignoffArtifactGovernance(const json& readiness,
+                                  std::vector<AuditIssue>& issues,
+                                  std::size_t& signoffArtifactIssueCount,
+                                  json& governanceReport) {
+    const std::vector<SignoffArtifactSpec> artifacts = {
+        {
+            "battle_core",
+            "signoff_artifact.battle_missing",
+            "signoff_artifact.battle_wording_mismatch",
+            "signoff_artifact.battle_contract_mismatch",
+            "Battle Core signoff artifact missing or non-conservative",
+            "Battle Core signoff",
+            fs::path("docs") / "BATTLE_CORE_CLOSURE_SIGNOFF.md",
+            {"Human review is required", "residual gaps", "PARTIAL"},
+        },
+        {
+            "save_data_core",
+            "signoff_artifact.save_missing",
+            "signoff_artifact.save_wording_mismatch",
+            "signoff_artifact.save_contract_mismatch",
+            "Save/Data Core signoff artifact missing or non-conservative",
+            "Save/Data Core signoff",
+            fs::path("docs") / "SAVE_DATA_CORE_CLOSURE_SIGNOFF.md",
+            {"Human review is required", "residual gaps", "PARTIAL"},
+        },
+        {
+            "compat_bridge_exit",
+            "signoff_artifact.compat_missing",
+            "signoff_artifact.compat_wording_mismatch",
+            "signoff_artifact.compat_contract_mismatch",
+            "Compat Bridge Exit signoff artifact missing or non-conservative",
+            "Compat Bridge Exit signoff",
+            fs::path("docs") / "COMPAT_BRIDGE_EXIT_SIGNOFF.md",
+            {"Compat Bridge Exit", "Human review is required", "compat bridge exit", "residual gaps", "PARTIAL"},
+        },
+    };
+
+    json section = json::object();
+    section["enabled"] = true;
+    section["dependency"] = "human-review-gated subsystem signoff artifacts";
+    section["issueCount"] = 0;
+    section["summary"] =
+        "Checking required subsystem signoff artifacts, conservative wording, and structured human-review signoff contracts for governed lanes.";
+    section["expectedArtifacts"] = json::array();
+
+    for (const auto& artifact : artifacts) {
+        const json* subsystem = findSubsystemById(readiness, artifact.subsystemId);
+        const bool exists = fs::exists(artifact.path);
+        const bool regularFile = exists && fs::is_regular_file(artifact.path);
+        bool wordingOk = false;
+        bool contractOk = false;
+        json missingPhrases = json::array();
+        std::string status = regularFile ? "present" : (exists ? "invalid" : "missing");
+        json contractEntry = json::object();
+
+        if (subsystem != nullptr && subsystem->contains("signoff") && subsystem->at("signoff").is_object()) {
+            const auto& signoff = subsystem->at("signoff");
+            const bool required = signoff.contains("required") && signoff.at("required").is_boolean() &&
+                signoff.at("required").get<bool>();
+            const std::string artifactPath = getString(signoff, "artifactPath", "");
+            const bool promotionRequiresHumanReview =
+                signoff.contains("promotionRequiresHumanReview") &&
+                signoff.at("promotionRequiresHumanReview").is_boolean() &&
+                signoff.at("promotionRequiresHumanReview").get<bool>();
+            const std::string workflow = getString(signoff, "workflow", "");
+
+            contractOk = required && artifactPath == artifact.path.generic_string() &&
+                promotionRequiresHumanReview && workflow == (fs::path("docs") / "RELEASE_SIGNOFF_WORKFLOW.md").generic_string();
+
+            contractEntry = {
+                {"required", required},
+                {"artifactPath", artifactPath},
+                {"promotionRequiresHumanReview", promotionRequiresHumanReview},
+                {"workflow", workflow},
+                {"contractOk", contractOk},
+            };
+        } else {
+            contractEntry = {
+                {"required", false},
+                {"artifactPath", ""},
+                {"promotionRequiresHumanReview", false},
+                {"workflow", ""},
+                {"contractOk", false},
+            };
+        }
+
+        if (regularFile) {
+            try {
+                const std::string text = readFile(artifact.path);
+                wordingOk = true;
+                for (const auto& phrase : artifact.requiredPhrases) {
+                    if (text.find(phrase) == std::string::npos) {
+                        wordingOk = false;
+                        missingPhrases.push_back(phrase);
+                    }
+                }
+                if (!wordingOk) {
+                    status = "wording_mismatch";
+                }
+            } catch (const std::exception&) {
+                wordingOk = false;
+                status = "unreadable";
+            }
+        }
+
+        json artifactEntry = {
+            {"subsystemId", artifact.subsystemId},
+            {"title", artifact.title},
+            {"path", artifact.path.string()},
+            {"required", true},
+            {"exists", exists},
+            {"isRegularFile", regularFile},
+            {"status", status},
+            {"signoffContract", contractEntry},
+        };
+        if (regularFile) {
+            artifactEntry["wordingOk"] = wordingOk;
+        }
+        if (!missingPhrases.empty()) {
+            artifactEntry["missingPhrases"] = std::move(missingPhrases);
+        }
+
+        if (!exists || !regularFile) {
+            ++signoffArtifactIssueCount;
+            issues.push_back({
+                artifact.missingCode,
+                artifact.title,
+                artifact.detailPrefix + " canonical artifact expected at " + artifact.path.string() +
+                    " is " + (exists ? "present but not a regular file" : "missing") +
+                    "; this is a governance gap, not proof the subsystem is absent.",
+                "warning",
+                false,
+                false,
+            });
+            continue;
+        }
+
+        if (!wordingOk) {
+            ++signoffArtifactIssueCount;
+            issues.push_back({
+                artifact.wordingCode,
+                artifact.title,
+                artifact.detailPrefix + " canonical artifact at " + artifact.path.string() +
+                    " is missing one or more required conservative signoff phrases; update the wording to keep the audit below promotion language.",
+                "warning",
+                false,
+                false,
+            });
+        }
+
+        if (!contractOk) {
+            ++signoffArtifactIssueCount;
+            if (status == "present") {
+                status = "contract_mismatch";
+                artifactEntry["status"] = status;
+            }
+            issues.push_back({
+                artifact.contractCode,
+                artifact.title,
+                artifact.detailPrefix + " readiness record is missing the expected structured signoff contract for " +
+                    artifact.subsystemId + "; keep the artifact path, workflow path, and human-review requirement aligned.",
+                "warning",
+                false,
+                false,
+            });
+        }
+
+        section["expectedArtifacts"].push_back(std::move(artifactEntry));
+    }
+
+    section["issueCount"] = signoffArtifactIssueCount;
+    governanceReport["signoffArtifacts"] = std::move(section);
+}
+
 json buildReport(const json& readiness,
                  const TemplateContext& templateContext,
                  const AssetReportContext& assetReportContext,
-                 const ProjectSchemaContext& projectSchemaContext) {
+                 const ProjectSchemaContext& projectSchemaContext,
+                 const LocalizationReportContext& localizationReportContext) {
     std::vector<AuditIssue> issues;
     std::size_t releaseBlockerCount = 0;
     std::size_t exportBlockerCount = 0;
@@ -1021,12 +1751,15 @@ json buildReport(const json& readiness,
     std::size_t schemaGovernanceIssueCount = 0;
     std::size_t projectArtifactIssueCount = 0;
     std::size_t localizationArtifactIssueCount = 0;
+    std::size_t localizationEvidenceIssueCount = 0;
     std::size_t exportArtifactIssueCount = 0;
     std::size_t inputArtifactIssueCount = 0;
     std::size_t accessibilityArtifactIssueCount = 0;
     std::size_t audioArtifactIssueCount = 0;
     std::size_t performanceArtifactIssueCount = 0;
     std::size_t releaseSignoffWorkflowIssueCount = 0;
+    std::size_t signoffArtifactIssueCount = 0;
+    std::size_t templateSpecArtifactIssueCount = 0;
     json governanceReport = json::object();
 
     addSubsystemIssues(readiness, templateContext, issues, releaseBlockerCount, exportBlockerCount);
@@ -1036,12 +1769,15 @@ json buildReport(const json& readiness,
     addSchemaGovernanceIssues(readiness, issues, schemaGovernanceIssueCount, governanceReport);
     addProjectArtifactIssues(templateContext, projectSchemaContext, issues, projectArtifactIssueCount, governanceReport);
     addLocalizationArtifactGovernance(templateContext, issues, localizationArtifactIssueCount, governanceReport);
+    addLocalizationEvidenceIssues(templateContext, localizationReportContext, issues, localizationEvidenceIssueCount, governanceReport);
     addExportArtifactGovernance(templateContext, issues, exportArtifactIssueCount, governanceReport);
     addInputArtifactGovernance(templateContext, issues, inputArtifactIssueCount, governanceReport);
     addAccessibilityArtifactGovernance(templateContext, issues, accessibilityArtifactIssueCount, governanceReport);
     addAudioArtifactGovernance(templateContext, issues, audioArtifactIssueCount, governanceReport);
     addPerformanceArtifactGovernance(templateContext, issues, performanceArtifactIssueCount, governanceReport);
     addReleaseSignoffWorkflowGovernance(templateContext, issues, releaseSignoffWorkflowIssueCount, governanceReport);
+    addSignoffArtifactGovernance(readiness, issues, signoffArtifactIssueCount, governanceReport);
+    addTemplateSpecArtifactGovernance(templateContext, issues, templateSpecArtifactIssueCount, governanceReport);
 
     json issueArray = json::array();
     for (const auto& issue : issues) {
@@ -1058,8 +1794,9 @@ json buildReport(const json& readiness,
                 << ". Schema governance issues: " << schemaGovernanceIssueCount
                 << ". Project artifact issues: " << projectArtifactIssueCount << ".";
     }
-    if (localizationArtifactIssueCount > 0 || exportArtifactIssueCount > 0) {
+    if (localizationArtifactIssueCount > 0 || localizationEvidenceIssueCount > 0 || exportArtifactIssueCount > 0) {
         summary << " Localization artifact issues: " << localizationArtifactIssueCount
+                << ". Localization evidence issues: " << localizationEvidenceIssueCount
                 << ". Export artifact issues: " << exportArtifactIssueCount << ".";
     }
     if (inputArtifactIssueCount > 0) {
@@ -1076,6 +1813,12 @@ json buildReport(const json& readiness,
     }
     if (releaseSignoffWorkflowIssueCount > 0) {
         summary << " Release-signoff workflow issues: " << releaseSignoffWorkflowIssueCount << ".";
+    }
+    if (signoffArtifactIssueCount > 0) {
+        summary << " Signoff artifact issues: " << signoffArtifactIssueCount << ".";
+    }
+    if (templateSpecArtifactIssueCount > 0) {
+        summary << " Template-spec artifact issues: " << templateSpecArtifactIssueCount << ".";
     }
 
     return json{
@@ -1103,21 +1846,27 @@ json buildReport(const json& readiness,
                 {"schema", governanceReport["schema"]},
                 {"projectSchema", governanceReport["projectSchema"]},
                 {"localizationArtifacts", governanceReport["localizationArtifacts"]},
+                {"localizationEvidence", governanceReport["localizationEvidence"]},
                 {"exportArtifacts", governanceReport["exportArtifacts"]},
                 {"inputArtifacts", governanceReport["inputArtifacts"]},
                 {"accessibilityArtifacts", governanceReport["accessibilityArtifacts"]},
                 {"audioArtifacts", governanceReport["audioArtifacts"]},
                 {"performanceArtifacts", governanceReport["performanceArtifacts"]},
                 {"releaseSignoffWorkflow", governanceReport["releaseSignoffWorkflow"]},
+                {"signoffArtifacts", governanceReport["signoffArtifacts"]},
+                {"templateSpecArtifacts", governanceReport["templateSpecArtifacts"]},
             }},
         {"assetGovernanceIssueCount", assetGovernanceIssueCount},
         {"schemaGovernanceIssueCount", schemaGovernanceIssueCount},
         {"projectArtifactIssueCount", projectArtifactIssueCount},
+        {"localizationEvidenceIssueCount", localizationEvidenceIssueCount},
         {"inputArtifactIssueCount", inputArtifactIssueCount},
         {"accessibilityArtifactIssueCount", accessibilityArtifactIssueCount},
         {"audioArtifactIssueCount", audioArtifactIssueCount},
         {"performanceArtifactIssueCount", performanceArtifactIssueCount},
         {"releaseSignoffWorkflowIssueCount", releaseSignoffWorkflowIssueCount},
+        {"signoffArtifactIssueCount", signoffArtifactIssueCount},
+        {"templateSpecArtifactIssueCount", templateSpecArtifactIssueCount},
         {"issues", issueArray},
     };
 }
@@ -1131,6 +1880,8 @@ void printHelp() {
         << "    --input <path>    Read readiness data from the given file.\n"
         << "    --asset-report <path>\n"
         << "                      Read the asset intake report from the given file.\n"
+        << "    --localization-report <path>\n"
+        << "                      Read the localization consistency report from the given file.\n"
         << "    --template <id>   Select a template context by id.\n"
         << "    --help, -h        Show this help.\n";
 }
@@ -1141,7 +1892,10 @@ int main(int argc, char** argv) {
     bool outputJson = false;
     fs::path inputPath = fs::path("content") / "readiness" / "readiness_status.json";
     fs::path assetReportPath = fs::path("imports") / "reports" / "asset_intake" / "source_capture_status.json";
+    fs::path localizationReportPath =
+        fs::path("imports") / "reports" / "localization" / "localization_consistency_report.json";
     bool assetReportExplicit = false;
+    bool localizationReportExplicit = false;
     std::optional<std::string> requestedTemplate;
 
     for (int i = 1; i < argc; ++i) {
@@ -1188,6 +1942,17 @@ int main(int argc, char** argv) {
             continue;
         }
 
+        if (arg == "--localization-report") {
+            if (i + 1 >= argc) {
+                std::cerr << "Missing path after --localization-report\n";
+                return 1;
+            }
+
+            localizationReportPath = fs::path(argv[++i]);
+            localizationReportExplicit = true;
+            continue;
+        }
+
         std::cerr << "Unknown argument: " << arg << "\n";
         return 1;
     }
@@ -1208,7 +1973,10 @@ int main(int argc, char** argv) {
         const AssetReportContext assetReportContext = loadAssetReport(assetReportPath, assetReportExplicit);
         const ProjectSchemaContext projectSchemaContext =
             loadProjectSchema(fs::path("content") / "schemas" / "project.schema.json");
-        const json report = buildReport(readiness, templateContext, assetReportContext, projectSchemaContext);
+        const LocalizationReportContext localizationReportContext =
+            loadLocalizationReport(localizationReportPath, localizationReportExplicit);
+        const json report =
+            buildReport(readiness, templateContext, assetReportContext, projectSchemaContext, localizationReportContext);
 
         if (outputJson) {
             std::cout << report.dump(2) << "\n";

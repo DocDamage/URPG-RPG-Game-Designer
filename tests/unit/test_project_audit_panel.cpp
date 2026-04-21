@@ -71,10 +71,13 @@ TEST_CASE("ProjectAuditPanel captures governance details when present", "[editor
         {"assetGovernanceIssueCount", 3},
         {"schemaGovernanceIssueCount", 2},
         {"projectArtifactIssueCount", 4},
+        {"localizationEvidenceIssueCount", 1},
         {"accessibilityArtifactIssueCount", 1},
         {"audioArtifactIssueCount", 2},
         {"performanceArtifactIssueCount", 3},
         {"releaseSignoffWorkflowIssueCount", 0},
+        {"signoffArtifactIssueCount", 1},
+        {"templateSpecArtifactIssueCount", 1},
         {"templateContext", {{"id", "jrpg"}, {"status", "READY"}}},
         {"governance", {
             {"assetReport", {
@@ -100,6 +103,34 @@ TEST_CASE("ProjectAuditPanel captures governance details when present", "[editor
                 {"path", "content/localization/en-US.json"},
                 {"available", true},
                 {"issueCount", 1}
+            }},
+            {"localizationEvidence", {
+                {"path", "imports/reports/localization/localization_consistency_report.json"},
+                {"available", true},
+                {"enabled", true},
+                {"usable", true},
+                {"dependency", "template localization coverage evidence"},
+                {"summary", "Checking canonical localization consistency evidence for selected template jrpg."},
+                {"status", "missing_keys"},
+                {"issueCount", 1},
+                {"hasBundles", true},
+                {"bundleCount", 2},
+                {"missingLocaleCount", 1},
+                {"missingKeyCount", 2},
+                {"extraKeyCount", 1},
+                {"masterLocale", "en"},
+                {"bundles", {
+                    {
+                        {"path", "content/localization/en.json"},
+                        {"locale", "en"},
+                        {"keyCount", 3}
+                    },
+                    {
+                        {"path", "content/localization/fr.json"},
+                        {"locale", "fr"},
+                        {"keyCount", 2}
+                    }
+                }}
             }},
             {"inputArtifacts", {
                 {"path", "content/input/input_bindings.json"},
@@ -130,6 +161,57 @@ TEST_CASE("ProjectAuditPanel captures governance details when present", "[editor
                 {"path", "docs/RELEASE_SIGNOFF_WORKFLOW.md"},
                 {"available", true},
                 {"issueCount", 0}
+            }},
+            {"signoffArtifacts", {
+                {"enabled", true},
+                {"dependency", "human-review-gated subsystem signoff artifacts"},
+                {"summary", "Checking required subsystem signoff artifacts, conservative wording, and structured human-review signoff contracts for governed lanes."},
+                {"available", true},
+                {"issueCount", 1},
+                {"expectedArtifacts", {
+                    {
+                        {"subsystemId", "battle_core"},
+                        {"title", "Battle Core signoff"},
+                        {"path", "docs/BATTLE_CORE_CLOSURE_SIGNOFF.md"},
+                        {"required", true},
+                        {"exists", true},
+                        {"isRegularFile", true},
+                        {"status", "contract_mismatch"},
+                        {"wordingOk", true},
+                        {"signoffContract", {
+                            {"required", true},
+                            {"artifactPath", "docs/BATTLE_CORE_CLOSURE_SIGNOFF.md"},
+                            {"promotionRequiresHumanReview", false},
+                            {"workflow", "docs/RELEASE_SIGNOFF_WORKFLOW.md"},
+                            {"contractOk", false}
+                        }}
+                    }
+                }}
+            }},
+            {"templateSpecArtifacts", {
+                {"enabled", true},
+                {"path", "docs/templates/jrpg_spec.md"},
+                {"available", true},
+                {"issueCount", 1},
+                {"expectedArtifacts", {
+                    {
+                        {"path", "docs/templates/jrpg_spec.md"},
+                        {"status", "parity_mismatch"},
+                        {"templateIdMatches", true},
+                        {"requiredSubsystemsMatch", false},
+                        {"barsMatch", false},
+                        {"missingRequiredSubsystems", {"save_data_core"}},
+                        {"unexpectedRequiredSubsystems", {"2_5d_mode"}},
+                        {"barMismatches", {
+                            {
+                                {"bar", "accessibility"},
+                                {"label", "Accessibility"},
+                                {"expectedStatus", "PARTIAL"},
+                                {"specStatus", "PLANNED"}
+                            }
+                        }}
+                    }
+                }}
             }}
         }},
         {"issues", nlohmann::json::array()}
@@ -145,17 +227,23 @@ TEST_CASE("ProjectAuditPanel captures governance details when present", "[editor
     REQUIRE(snapshot.asset_governance_issue_count);
     REQUIRE(snapshot.schema_governance_issue_count);
     REQUIRE(snapshot.project_artifact_issue_count);
+    REQUIRE(snapshot.localization_evidence_issue_count);
     REQUIRE(snapshot.accessibility_artifact_issue_count);
     REQUIRE(snapshot.audio_artifact_issue_count);
     REQUIRE(snapshot.performance_artifact_issue_count);
     REQUIRE(snapshot.release_signoff_workflow_issue_count);
+    REQUIRE(snapshot.signoff_artifact_issue_count);
+    REQUIRE(snapshot.template_spec_artifact_issue_count);
     REQUIRE(*snapshot.asset_governance_issue_count == 3);
     REQUIRE(*snapshot.schema_governance_issue_count == 2);
     REQUIRE(*snapshot.project_artifact_issue_count == 4);
+    REQUIRE(*snapshot.localization_evidence_issue_count == 1);
     REQUIRE(*snapshot.accessibility_artifact_issue_count == 1);
     REQUIRE(*snapshot.audio_artifact_issue_count == 2);
     REQUIRE(*snapshot.performance_artifact_issue_count == 3);
     REQUIRE(*snapshot.release_signoff_workflow_issue_count == 0);
+    REQUIRE(*snapshot.signoff_artifact_issue_count == 1);
+    REQUIRE(*snapshot.template_spec_artifact_issue_count == 1);
 
     REQUIRE(snapshot.asset_report.has_value());
     REQUIRE(snapshot.asset_report->path == "imports/reports/asset_intake/source_capture_status.json");
@@ -191,6 +279,31 @@ TEST_CASE("ProjectAuditPanel captures governance details when present", "[editor
     REQUIRE(*snapshot.localization_artifacts->available);
     REQUIRE(snapshot.localization_artifacts->issue_count.has_value());
     REQUIRE(*snapshot.localization_artifacts->issue_count == 1);
+
+    REQUIRE(snapshot.localization_evidence.has_value());
+    REQUIRE(snapshot.localization_evidence->path == "imports/reports/localization/localization_consistency_report.json");
+    REQUIRE(snapshot.localization_evidence->available.has_value());
+    REQUIRE(*snapshot.localization_evidence->available);
+    REQUIRE(snapshot.localization_evidence->enabled.has_value());
+    REQUIRE(*snapshot.localization_evidence->enabled);
+    REQUIRE(snapshot.localization_evidence->usable.has_value());
+    REQUIRE(*snapshot.localization_evidence->usable);
+    REQUIRE(snapshot.localization_evidence->dependency == "template localization coverage evidence");
+    REQUIRE(snapshot.localization_evidence->summary ==
+            "Checking canonical localization consistency evidence for selected template jrpg.");
+    REQUIRE(snapshot.localization_evidence->status == "missing_keys");
+    REQUIRE(snapshot.localization_evidence->issue_count.has_value());
+    REQUIRE(*snapshot.localization_evidence->issue_count == 1);
+    REQUIRE(snapshot.localization_evidence->has_bundles.has_value());
+    REQUIRE(*snapshot.localization_evidence->has_bundles);
+    REQUIRE(snapshot.localization_evidence->bundle_count == 2);
+    REQUIRE(snapshot.localization_evidence->missing_locale_count == 1);
+    REQUIRE(snapshot.localization_evidence->missing_key_count == 2);
+    REQUIRE(snapshot.localization_evidence->extra_key_count == 1);
+    REQUIRE(snapshot.localization_evidence->master_locale == "en");
+    REQUIRE(snapshot.localization_evidence->bundles.has_value());
+    REQUIRE(snapshot.localization_evidence->bundles->is_array());
+    REQUIRE((*snapshot.localization_evidence->bundles)[0]["locale"] == "en");
 
     REQUIRE(snapshot.input_artifacts.has_value());
     REQUIRE(snapshot.input_artifacts->path == "content/input/input_bindings.json");
@@ -233,6 +346,43 @@ TEST_CASE("ProjectAuditPanel captures governance details when present", "[editor
     REQUIRE(*snapshot.release_signoff_workflow->available);
     REQUIRE(snapshot.release_signoff_workflow->issue_count.has_value());
     REQUIRE(*snapshot.release_signoff_workflow->issue_count == 0);
+
+    REQUIRE(snapshot.signoff_artifacts.has_value());
+    REQUIRE(snapshot.signoff_artifacts->enabled.has_value());
+    REQUIRE(*snapshot.signoff_artifacts->enabled);
+    REQUIRE(snapshot.signoff_artifacts->dependency == "human-review-gated subsystem signoff artifacts");
+    REQUIRE(snapshot.signoff_artifacts->summary ==
+            "Checking required subsystem signoff artifacts, conservative wording, and structured human-review signoff contracts for governed lanes.");
+    REQUIRE(snapshot.signoff_artifacts->available.has_value());
+    REQUIRE(*snapshot.signoff_artifacts->available);
+    REQUIRE(snapshot.signoff_artifacts->issue_count.has_value());
+    REQUIRE(*snapshot.signoff_artifacts->issue_count == 1);
+    REQUIRE(snapshot.signoff_artifacts->expected_artifacts.size() == 1);
+    REQUIRE(snapshot.signoff_artifacts->expected_artifacts[0].subsystem_id == "battle_core");
+    REQUIRE(snapshot.signoff_artifacts->expected_artifacts[0].status == "contract_mismatch");
+    REQUIRE(snapshot.signoff_artifacts->expected_artifacts[0].signoff_contract.has_value());
+    REQUIRE(snapshot.signoff_artifacts->expected_artifacts[0].signoff_contract->contract_ok == false);
+    REQUIRE(snapshot.signoff_artifacts->expected_artifacts[0].signoff_contract->artifact_path ==
+            "docs/BATTLE_CORE_CLOSURE_SIGNOFF.md");
+
+    REQUIRE(snapshot.template_spec_artifacts.has_value());
+    REQUIRE(snapshot.template_spec_artifacts->enabled.has_value());
+    REQUIRE(*snapshot.template_spec_artifacts->enabled);
+    REQUIRE(snapshot.template_spec_artifacts->path == "docs/templates/jrpg_spec.md");
+    REQUIRE(snapshot.template_spec_artifacts->available.has_value());
+    REQUIRE(*snapshot.template_spec_artifacts->available);
+    REQUIRE(snapshot.template_spec_artifacts->issue_count.has_value());
+    REQUIRE(*snapshot.template_spec_artifacts->issue_count == 1);
+    REQUIRE(snapshot.template_spec_artifacts->expected_artifacts.size() == 1);
+    REQUIRE(snapshot.template_spec_artifacts->expected_artifacts[0].status == "parity_mismatch");
+    REQUIRE(snapshot.template_spec_artifacts->expected_artifacts[0].required_subsystems_match == false);
+    REQUIRE(snapshot.template_spec_artifacts->expected_artifacts[0].bars_match == false);
+    REQUIRE(snapshot.template_spec_artifacts->expected_artifacts[0].missing_required_subsystems.size() == 1);
+    REQUIRE(snapshot.template_spec_artifacts->expected_artifacts[0].missing_required_subsystems[0] == "save_data_core");
+    REQUIRE(snapshot.template_spec_artifacts->expected_artifacts[0].unexpected_required_subsystems.size() == 1);
+    REQUIRE(snapshot.template_spec_artifacts->expected_artifacts[0].unexpected_required_subsystems[0] == "2_5d_mode");
+    REQUIRE(snapshot.template_spec_artifacts->expected_artifacts[0].bar_mismatches.has_value());
+    REQUIRE((*snapshot.template_spec_artifacts->expected_artifacts[0].bar_mismatches)[0]["bar"] == "accessibility");
 }
 
 TEST_CASE("ProjectAuditPanel derives blocker counts from issue flags when report counts are absent",

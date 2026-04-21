@@ -56,6 +56,12 @@ if (-not $SkipBuild) {
     cmake --build --preset $BuildPreset
 }
 
+Write-Host "== Validate visual regression harness ==" -ForegroundColor Cyan
+& "$PSScriptRoot\check_visual_regression_harness.ps1"
+
+Write-Host "== Validate localization consistency ==" -ForegroundColor Cyan
+& "$PSScriptRoot\check_localization_consistency.ps1"
+
 $testDir = "build/$ConfigurePreset"
 
 if (-not $SkipPresentationGate) {

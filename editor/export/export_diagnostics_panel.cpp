@@ -1,6 +1,7 @@
 #include "editor/export/export_diagnostics_panel.h"
 
 #include "engine/core/export/export_validator.h"
+#include "engine/core/tools/export_packager.h"
 
 namespace urpg::editor {
 
@@ -20,14 +21,16 @@ void ExportDiagnosticsPanel::render() {
     const auto& cfg = *config_;
 
     urpg::exporting::ExportValidator validator;
+    urpg::tools::ExportPackager packager;
     snapshot["target"] = validator.buildReportJson({}, cfg.target)["target"];
     snapshot["outputDir"] = cfg.outputDir;
 
-    auto errors = validator.validateExportDirectory(cfg.outputDir, cfg.target);
+    const auto validation = packager.validateBeforeExport(cfg);
 
-    snapshot["validationPassed"] = errors.empty();
-    snapshot["errors"] = errors;
-    snapshot["readyToExport"] = errors.empty();
+    snapshot["validationPassed"] = validation.passed;
+    snapshot["errors"] = validation.errors;
+    snapshot["readyToExport"] = validation.passed;
+    snapshot["validationSource"] = "packager_preflight";
 
     last_render_snapshot_ = std::move(snapshot);
 }

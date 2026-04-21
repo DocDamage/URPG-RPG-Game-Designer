@@ -37,6 +37,7 @@ Release-signoff discipline for the current governed stack should include:
 
 - a canonical readiness record
 - aligned release/template matrix rows where applicable
+- a structured signoff contract in `content/readiness/readiness_status.json` for each human-review-gated subsystem lane
 - a signoff artifact for each human-review-gated subsystem lane
 - current validation evidence
 - canonical docs that stay below promotion language until human review actually happens
@@ -53,3 +54,14 @@ The current machine-enforced hooks for this canonical workflow are:
 - `tools/ci/truth_reconciler.ps1`
 
 Those checks enforce artifact presence, status-date alignment, and conservative wording. They do not fabricate approvals or claim that a review happened when it did not.
+
+## Structured Contract Rule
+
+For the currently human-review-gated subsystem lanes, the machine-checked readiness record must also carry a narrow structured signoff contract:
+
+- `required: true`
+- the canonical `artifactPath`
+- `promotionRequiresHumanReview: true`
+- the canonical workflow path `docs/RELEASE_SIGNOFF_WORKFLOW.md`
+
+This contract exists to keep artifact paths and non-promoting review requirements aligned across readiness, audit, and gates. It does **not** record that a human review happened, and it does not grant release approval.

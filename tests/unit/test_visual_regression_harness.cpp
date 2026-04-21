@@ -2,6 +2,7 @@
 
 #include <catch2/catch_test_macros.hpp>
 
+#include <cstdlib>
 #include <filesystem>
 #include <fstream>
 
@@ -158,4 +159,56 @@ TEST_CASE("VisualRegressionHarness buildReportJson contains expected fields", "[
     REQUIRE(report["testName"] == "MyTest");
     REQUIRE(report["matches"] == false);
     REQUIRE(report["errorPercentage"] == 12.5f);
+}
+
+TEST_CASE("VisualRegressionHarness approval script writes a golden consumable by the harness",
+          "[testing][visual_regression]") {
+    const std::filesystem::path tempRoot = std::filesystem::temp_directory_path() / "urpg_visual_regression_approval";
+    std::filesystem::remove_all(tempRoot);
+    std::filesystem::create_directories(tempRoot);
+
+    const std::filesystem::path sourcePath = tempRoot / "candidate.golden.json";
+    const std::filesystem::path goldenRoot = tempRoot / "goldens";
+    const std::filesystem::path scriptPath =
+        std::filesystem::path(URPG_SOURCE_DIR) / "tools" / "visual_regression" / "approve_golden.ps1";
+
+    std::ofstream source(sourcePath);
+    REQUIRE(source.good());
+    source << R"({
+  "width": 2,
+  "height": 2,
+  "pixels": [
+    { "r": 255, "g": 0, "b": 0, "a": 255 },
+    { "r": 0, "g": 255, "b": 0, "a": 255 },
+    { "r": 0, "g": 0, "b": 255, "a": 255 },
+    { "r": 255, "g": 255, "b": 255, "a": 255 }
+  ]
+})";
+    source.close();
+
+    const std::string command =
+        "powershell -ExecutionPolicy Bypass -File \"" + scriptPath.string() +
+        "\" -TestName \"ApprovalScriptTest\" -SnapshotId \"snapshot_01\" -SourcePath \"" + sourcePath.string() +
+        "\" -GoldenRoot \"" + goldenRoot.string() + "\"";
+    REQUIRE(std::system(command.c_str()) == 0);
+
+    VisualRegressionHarness harness;
+    harness.setGoldenRoot(goldenRoot.string());
+
+    auto loaded = harness.loadGolden("ApprovalScriptTest", "snapshot_01");
+    REQUIRE(loaded.has_value());
+    REQUIRE(loaded->width == 2);
+    REQUIRE(loaded->height == 2);
+    REQUIRE(loaded->pixels.size() == 4);
+
+    SceneSnapshot current;
+    current.width = 2;
+    current.height = 2;
+    current.pixels = loaded->pixels;
+
+    const auto result = harness.compareAgainstGolden("ApprovalScriptTest", "snapshot_01", current);
+    REQUIRE(result.matches);
+    REQUIRE(result.errorPercentage == 0.0f);
+
+    std::filesystem::remove_all(tempRoot);
 }

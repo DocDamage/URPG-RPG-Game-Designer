@@ -100,10 +100,13 @@ TEST_CASE("DiagnosticsWorkspace - Refresh updates compat and save tabs", "[edito
         {"assetGovernanceIssueCount", 2},
         {"schemaGovernanceIssueCount", 1},
         {"projectArtifactIssueCount", 3},
+        {"localizationEvidenceIssueCount", 1},
         {"accessibilityArtifactIssueCount", 1},
         {"audioArtifactIssueCount", 2},
         {"performanceArtifactIssueCount", 3},
         {"releaseSignoffWorkflowIssueCount", 0},
+        {"signoffArtifactIssueCount", 1},
+        {"templateSpecArtifactIssueCount", 1},
         {"templateContext", {{"id", "jrpg"}, {"status", "PARTIAL"}}},
         {"governance", {
             {"assetReport", {
@@ -124,6 +127,34 @@ TEST_CASE("DiagnosticsWorkspace - Refresh updates compat and save tabs", "[edito
                 {"hasLocalizationSection", true},
                 {"hasInputSection", false},
                 {"hasExportSection", true}
+            }},
+            {"localizationEvidence", {
+                {"path", "imports/reports/localization/localization_consistency_report.json"},
+                {"available", true},
+                {"enabled", true},
+                {"usable", true},
+                {"dependency", "template localization coverage evidence"},
+                {"summary", "Checking canonical localization consistency evidence for selected template jrpg."},
+                {"status", "missing_keys"},
+                {"issueCount", 1},
+                {"hasBundles", true},
+                {"bundleCount", 2},
+                {"missingLocaleCount", 1},
+                {"missingKeyCount", 2},
+                {"extraKeyCount", 1},
+                {"masterLocale", "en"},
+                {"bundles", {
+                    {
+                        {"path", "content/localization/en.json"},
+                        {"locale", "en"},
+                        {"keyCount", 3}
+                    },
+                    {
+                        {"path", "content/localization/fr.json"},
+                        {"locale", "fr"},
+                        {"keyCount", 2}
+                    }
+                }}
             }},
             {"inputArtifacts", {
                 {"path", "content/input/input_bindings.json"},
@@ -149,6 +180,57 @@ TEST_CASE("DiagnosticsWorkspace - Refresh updates compat and save tabs", "[edito
                 {"path", "docs/RELEASE_SIGNOFF_WORKFLOW.md"},
                 {"available", true},
                 {"issueCount", 0}
+            }},
+            {"signoffArtifacts", {
+                {"enabled", true},
+                {"dependency", "human-review-gated subsystem signoff artifacts"},
+                {"summary", "Checking required subsystem signoff artifacts, conservative wording, and structured human-review signoff contracts for governed lanes."},
+                {"available", true},
+                {"issueCount", 1},
+                {"expectedArtifacts", {
+                    {
+                        {"subsystemId", "battle_core"},
+                        {"title", "Battle Core signoff"},
+                        {"path", "docs/BATTLE_CORE_CLOSURE_SIGNOFF.md"},
+                        {"required", true},
+                        {"exists", true},
+                        {"isRegularFile", true},
+                        {"status", "contract_mismatch"},
+                        {"wordingOk", true},
+                        {"signoffContract", {
+                            {"required", true},
+                            {"artifactPath", "docs/BATTLE_CORE_CLOSURE_SIGNOFF.md"},
+                            {"promotionRequiresHumanReview", false},
+                            {"workflow", "docs/RELEASE_SIGNOFF_WORKFLOW.md"},
+                            {"contractOk", false}
+                        }}
+                    }
+                }}
+            }},
+            {"templateSpecArtifacts", {
+                {"enabled", true},
+                {"path", "docs/templates/jrpg_spec.md"},
+                {"available", true},
+                {"issueCount", 1},
+                {"expectedArtifacts", {
+                    {
+                        {"path", "docs/templates/jrpg_spec.md"},
+                        {"status", "parity_mismatch"},
+                        {"templateIdMatches", true},
+                        {"requiredSubsystemsMatch", false},
+                        {"barsMatch", false},
+                        {"missingRequiredSubsystems", {"save_data_core"}},
+                        {"unexpectedRequiredSubsystems", {"2_5d_mode"}},
+                        {"barMismatches", {
+                            {
+                                {"bar", "accessibility"},
+                                {"label", "Accessibility"},
+                                {"expectedStatus", "PARTIAL"},
+                                {"specStatus", "PLANNED"}
+                            }
+                        }}
+                    }
+                }}
             }}
         }},
         {"issues", {
@@ -444,16 +526,26 @@ TEST_CASE("DiagnosticsWorkspace - Refresh updates compat and save tabs", "[edito
     REQUIRE(workspace.projectAuditPanel().lastRenderSnapshot().asset_governance_issue_count == 2);
     REQUIRE(workspace.projectAuditPanel().lastRenderSnapshot().schema_governance_issue_count == 1);
     REQUIRE(workspace.projectAuditPanel().lastRenderSnapshot().project_artifact_issue_count == 3);
+    REQUIRE(workspace.projectAuditPanel().lastRenderSnapshot().localization_evidence_issue_count == 1);
     REQUIRE(workspace.projectAuditPanel().lastRenderSnapshot().accessibility_artifact_issue_count == 1);
     REQUIRE(workspace.projectAuditPanel().lastRenderSnapshot().audio_artifact_issue_count == 2);
     REQUIRE(workspace.projectAuditPanel().lastRenderSnapshot().performance_artifact_issue_count == 3);
     REQUIRE(workspace.projectAuditPanel().lastRenderSnapshot().release_signoff_workflow_issue_count == 0);
+    REQUIRE(workspace.projectAuditPanel().lastRenderSnapshot().signoff_artifact_issue_count == 1);
+    REQUIRE(workspace.projectAuditPanel().lastRenderSnapshot().template_spec_artifact_issue_count == 1);
     REQUIRE(workspace.projectAuditPanel().lastRenderSnapshot().asset_report.has_value());
     REQUIRE(workspace.projectAuditPanel().lastRenderSnapshot().schema_governance.has_value());
     REQUIRE(workspace.projectAuditPanel().lastRenderSnapshot().project_schema_governance.has_value());
     REQUIRE(workspace.projectAuditPanel().lastRenderSnapshot().input_artifacts.has_value());
     REQUIRE(workspace.projectAuditPanel().lastRenderSnapshot().input_artifacts->path ==
             "content/input/input_bindings.json");
+    REQUIRE(workspace.projectAuditPanel().lastRenderSnapshot().localization_evidence.has_value());
+    REQUIRE(workspace.projectAuditPanel().lastRenderSnapshot().localization_evidence->path ==
+            "imports/reports/localization/localization_consistency_report.json");
+    REQUIRE(workspace.projectAuditPanel().lastRenderSnapshot().localization_evidence->usable == true);
+    REQUIRE(workspace.projectAuditPanel().lastRenderSnapshot().localization_evidence->status == "missing_keys");
+    REQUIRE(workspace.projectAuditPanel().lastRenderSnapshot().localization_evidence->missing_key_count == 2);
+    REQUIRE(workspace.projectAuditPanel().lastRenderSnapshot().localization_evidence->bundles.has_value());
     REQUIRE(workspace.projectAuditPanel().lastRenderSnapshot().accessibility_artifacts.has_value());
     REQUIRE(workspace.projectAuditPanel().lastRenderSnapshot().accessibility_artifacts->path ==
             "content/schemas/accessibility_report.schema.json");
@@ -466,6 +558,21 @@ TEST_CASE("DiagnosticsWorkspace - Refresh updates compat and save tabs", "[edito
     REQUIRE(workspace.projectAuditPanel().lastRenderSnapshot().release_signoff_workflow.has_value());
     REQUIRE(workspace.projectAuditPanel().lastRenderSnapshot().release_signoff_workflow->path ==
             "docs/RELEASE_SIGNOFF_WORKFLOW.md");
+    REQUIRE(workspace.projectAuditPanel().lastRenderSnapshot().signoff_artifacts.has_value());
+    REQUIRE(workspace.projectAuditPanel().lastRenderSnapshot().signoff_artifacts->issue_count == 1);
+    REQUIRE(workspace.projectAuditPanel().lastRenderSnapshot().signoff_artifacts->expected_artifacts.size() == 1);
+    REQUIRE(workspace.projectAuditPanel().lastRenderSnapshot().signoff_artifacts->expected_artifacts[0].subsystem_id ==
+            "battle_core");
+    REQUIRE(workspace.projectAuditPanel().lastRenderSnapshot().signoff_artifacts->expected_artifacts[0].signoff_contract.has_value());
+    REQUIRE(workspace.projectAuditPanel().lastRenderSnapshot().signoff_artifacts->expected_artifacts[0].signoff_contract->contract_ok ==
+            false);
+    REQUIRE(workspace.projectAuditPanel().lastRenderSnapshot().template_spec_artifacts.has_value());
+    REQUIRE(workspace.projectAuditPanel().lastRenderSnapshot().template_spec_artifacts->path == "docs/templates/jrpg_spec.md");
+    REQUIRE(workspace.projectAuditPanel().lastRenderSnapshot().template_spec_artifacts->expected_artifacts.size() == 1);
+    REQUIRE(workspace.projectAuditPanel().lastRenderSnapshot().template_spec_artifacts->expected_artifacts[0].required_subsystems_match ==
+            false);
+    REQUIRE(workspace.projectAuditPanel().lastRenderSnapshot().template_spec_artifacts->expected_artifacts[0].bars_match ==
+            false);
     REQUIRE(workspace.projectAuditPanel().lastRenderSnapshot().issues.size() == 2);
     const auto auditJson = nlohmann::json::parse(facade.emitSnapshot());
     REQUIRE(auditJson["active_tab"] == "project_audit");
@@ -480,10 +587,13 @@ TEST_CASE("DiagnosticsWorkspace - Refresh updates compat and save tabs", "[edito
     REQUIRE(auditJson["active_tab_detail"]["asset_governance_issue_count"] == 2);
     REQUIRE(auditJson["active_tab_detail"]["schema_governance_issue_count"] == 1);
     REQUIRE(auditJson["active_tab_detail"]["project_artifact_issue_count"] == 3);
+    REQUIRE(auditJson["active_tab_detail"]["localization_evidence_issue_count"] == 1);
     REQUIRE(auditJson["active_tab_detail"]["accessibility_artifact_issue_count"] == 1);
     REQUIRE(auditJson["active_tab_detail"]["audio_artifact_issue_count"] == 2);
     REQUIRE(auditJson["active_tab_detail"]["performance_artifact_issue_count"] == 3);
     REQUIRE(auditJson["active_tab_detail"]["release_signoff_workflow_issue_count"] == 0);
+    REQUIRE(auditJson["active_tab_detail"]["signoff_artifact_issue_count"] == 1);
+    REQUIRE(auditJson["active_tab_detail"]["template_spec_artifact_issue_count"] == 1);
     REQUIRE(auditJson["active_tab_detail"]["governance"]["asset_report"]["path"] == "imports/reports/asset_audit.json");
     REQUIRE(auditJson["active_tab_detail"]["governance"]["asset_report"]["available"] == true);
     REQUIRE(auditJson["active_tab_detail"]["governance"]["asset_report"]["usable"] == false);
@@ -497,6 +607,19 @@ TEST_CASE("DiagnosticsWorkspace - Refresh updates compat and save tabs", "[edito
     REQUIRE(auditJson["active_tab_detail"]["governance"]["project_schema"]["has_localization_section"] == true);
     REQUIRE(auditJson["active_tab_detail"]["governance"]["project_schema"]["has_input_section"] == false);
     REQUIRE(auditJson["active_tab_detail"]["governance"]["project_schema"]["has_export_section"] == true);
+    REQUIRE(auditJson["active_tab_detail"]["governance"]["localization_evidence"]["path"] ==
+            "imports/reports/localization/localization_consistency_report.json");
+    REQUIRE(auditJson["active_tab_detail"]["governance"]["localization_evidence"]["available"] == true);
+    REQUIRE(auditJson["active_tab_detail"]["governance"]["localization_evidence"]["enabled"] == true);
+    REQUIRE(auditJson["active_tab_detail"]["governance"]["localization_evidence"]["usable"] == true);
+    REQUIRE(auditJson["active_tab_detail"]["governance"]["localization_evidence"]["status"] == "missing_keys");
+    REQUIRE(auditJson["active_tab_detail"]["governance"]["localization_evidence"]["bundle_count"] == 2);
+    REQUIRE(auditJson["active_tab_detail"]["governance"]["localization_evidence"]["missing_locale_count"] == 1);
+    REQUIRE(auditJson["active_tab_detail"]["governance"]["localization_evidence"]["missing_key_count"] == 2);
+    REQUIRE(auditJson["active_tab_detail"]["governance"]["localization_evidence"]["extra_key_count"] == 1);
+    REQUIRE(auditJson["active_tab_detail"]["governance"]["localization_evidence"]["master_locale"] == "en");
+    REQUIRE(auditJson["active_tab_detail"]["governance"]["localization_evidence"]["bundles"].is_array());
+    REQUIRE(auditJson["active_tab_detail"]["governance"]["localization_evidence"]["bundles"][0]["locale"] == "en");
     REQUIRE(auditJson["active_tab_detail"]["governance"]["input_artifacts"]["path"] ==
             "content/input/input_bindings.json");
     REQUIRE(auditJson["active_tab_detail"]["governance"]["input_artifacts"]["available"] == true);
@@ -517,6 +640,39 @@ TEST_CASE("DiagnosticsWorkspace - Refresh updates compat and save tabs", "[edito
             "docs/RELEASE_SIGNOFF_WORKFLOW.md");
     REQUIRE(auditJson["active_tab_detail"]["governance"]["release_signoff_workflow"]["available"] == true);
     REQUIRE(auditJson["active_tab_detail"]["governance"]["release_signoff_workflow"]["issue_count"] == 0);
+    REQUIRE(auditJson["active_tab_detail"]["governance"]["signoff_artifacts"]["available"] == true);
+    REQUIRE(auditJson["active_tab_detail"]["governance"]["signoff_artifacts"]["issue_count"] == 1);
+    REQUIRE(auditJson["active_tab_detail"]["governance"]["signoff_artifacts"]["enabled"] == true);
+    REQUIRE(auditJson["active_tab_detail"]["governance"]["signoff_artifacts"]["dependency"] ==
+            "human-review-gated subsystem signoff artifacts");
+    REQUIRE(auditJson["active_tab_detail"]["governance"]["signoff_artifacts"]["expected_artifacts"].is_array());
+    REQUIRE(auditJson["active_tab_detail"]["governance"]["signoff_artifacts"]["expected_artifacts"].size() == 1);
+    REQUIRE(auditJson["active_tab_detail"]["governance"]["signoff_artifacts"]["expected_artifacts"][0]["subsystem_id"] ==
+            "battle_core");
+    REQUIRE(auditJson["active_tab_detail"]["governance"]["signoff_artifacts"]["expected_artifacts"][0]["status"] ==
+            "contract_mismatch");
+    REQUIRE(auditJson["active_tab_detail"]["governance"]["signoff_artifacts"]["expected_artifacts"][0]["signoff_contract"]["artifact_path"] ==
+            "docs/BATTLE_CORE_CLOSURE_SIGNOFF.md");
+    REQUIRE(auditJson["active_tab_detail"]["governance"]["signoff_artifacts"]["expected_artifacts"][0]["signoff_contract"]["contract_ok"] ==
+            false);
+    REQUIRE(auditJson["active_tab_detail"]["governance"]["template_spec_artifacts"]["path"] == "docs/templates/jrpg_spec.md");
+    REQUIRE(auditJson["active_tab_detail"]["governance"]["template_spec_artifacts"]["available"] == true);
+    REQUIRE(auditJson["active_tab_detail"]["governance"]["template_spec_artifacts"]["issue_count"] == 1);
+    REQUIRE(auditJson["active_tab_detail"]["governance"]["template_spec_artifacts"]["enabled"] == true);
+    REQUIRE(auditJson["active_tab_detail"]["governance"]["template_spec_artifacts"]["expected_artifacts"].is_array());
+    REQUIRE(auditJson["active_tab_detail"]["governance"]["template_spec_artifacts"]["expected_artifacts"].size() == 1);
+    REQUIRE(auditJson["active_tab_detail"]["governance"]["template_spec_artifacts"]["expected_artifacts"][0]["status"] ==
+            "parity_mismatch");
+    REQUIRE(auditJson["active_tab_detail"]["governance"]["template_spec_artifacts"]["expected_artifacts"][0]["required_subsystems_match"] ==
+            false);
+    REQUIRE(auditJson["active_tab_detail"]["governance"]["template_spec_artifacts"]["expected_artifacts"][0]["bars_match"] ==
+            false);
+    REQUIRE(auditJson["active_tab_detail"]["governance"]["template_spec_artifacts"]["expected_artifacts"][0]["missing_required_subsystems"][0] ==
+            "save_data_core");
+    REQUIRE(auditJson["active_tab_detail"]["governance"]["template_spec_artifacts"]["expected_artifacts"][0]["unexpected_required_subsystems"][0] ==
+            "2_5d_mode");
+    REQUIRE(auditJson["active_tab_detail"]["governance"]["template_spec_artifacts"]["expected_artifacts"][0]["bar_mismatches"][0]["bar"] ==
+            "accessibility");
     REQUIRE(auditJson["active_tab_detail"]["issues"].is_array());
     REQUIRE(auditJson["active_tab_detail"]["issues"].size() == 2);
     REQUIRE(auditJson["active_tab_detail"]["issues"][0]["code"] == "missing_localization_key");

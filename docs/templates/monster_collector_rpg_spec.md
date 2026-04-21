@@ -21,10 +21,10 @@ The `monster_collector_rpg` template covers games where players explore a world,
 
 | Bar | Status | Notes |
 | --- | --- | --- |
-| Accessibility | `PLANNED` | No template-grade accessibility governance yet. |
+| Accessibility | `PARTIAL` | Baseline accessibility governance exists, but collection-specific expectations are not fully defined. |
 | Audio | `PARTIAL` | Basic audio hooks exist; collection-specific audio bars are undefined. |
 | Input | `PARTIAL` | Menu and battle input are covered; collection-specific interactions are not. |
-| Localization | `PLANNED` | Planned once message and menu localization patterns are finalized. |
+| Localization | `PARTIAL` | Baseline message/menu localization patterns exist, but collection-specific completeness remains bounded. |
 | Performance | `PARTIAL` | General RPG budgets apply; large collection scaling is untested. |
 
 ## Safe Scope Today

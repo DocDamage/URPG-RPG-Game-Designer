@@ -37,6 +37,12 @@
       "mainGaps": [
         "Wave 1 closure signoff exists; promotion to READY requires human review of residual gaps"
       ],
+      "signoff": {
+        "required": true,
+        "artifactPath": "docs/BATTLE_CORE_CLOSURE_SIGNOFF.md",
+        "promotionRequiresHumanReview": true,
+        "workflow": "docs/RELEASE_SIGNOFF_WORKFLOW.md"
+      },
       "evidence": {
         "runtimeOwner": true,
         "editorSurface": true,
@@ -53,6 +59,12 @@
       "mainGaps": [
         "Wave 1 closure signoff exists; promotion to READY requires human review of residual gaps"
       ],
+      "signoff": {
+        "required": true,
+        "artifactPath": "docs/SAVE_DATA_CORE_CLOSURE_SIGNOFF.md",
+        "promotionRequiresHumanReview": true,
+        "workflow": "docs/RELEASE_SIGNOFF_WORKFLOW.md"
+      },
       "evidence": {
         "runtimeOwner": true,
         "editorSurface": true,
@@ -70,6 +82,12 @@
         "Compat bridge exit signoff exists; promotion to READY requires human review of residual gaps",
         "Curated corpus maintenance and ongoing truth upkeep remain future work"
       ],
+      "signoff": {
+        "required": true,
+        "artifactPath": "docs/COMPAT_BRIDGE_EXIT_SIGNOFF.md",
+        "promotionRequiresHumanReview": true,
+        "workflow": "docs/RELEASE_SIGNOFF_WORKFLOW.md"
+      },
       "evidence": {
         "runtimeOwner": true,
         "editorSurface": false,
@@ -178,7 +196,7 @@
     {
       "id": "visual_regression_harness",
       "status": "PARTIAL",
-      "summary": "Visual regression harness with golden file management, diff heatmaps, and approval tooling is landed.",
+      "summary": "Visual regression harness with golden file management, diff heatmaps, approval tooling, and a file-backed executable harness gate is landed.",
       "mainGaps": [
         "Integration with real render output capture and CI golden gate remain future work"
       ],

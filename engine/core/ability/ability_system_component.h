@@ -213,6 +213,10 @@ public:
         return m_executionHistory;
     }
 
+    size_t getActiveEffectCount() const {
+        return m_activeEffects.size();
+    }
+
     void recordAbilityExecution(const std::string& abilityId,
                                 const std::string& stage,
                                 const std::string& outcome,

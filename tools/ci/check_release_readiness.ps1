@@ -12,6 +12,7 @@ $signoffDocPaths = @{
     "save_data_core" = Join-Path $repoRoot "docs\SAVE_DATA_CORE_CLOSURE_SIGNOFF.md"
     "compat_bridge_exit" = Join-Path $repoRoot "docs\COMPAT_BRIDGE_EXIT_SIGNOFF.md"
 }
+$releaseSignoffWorkflowRelativePath = "docs/RELEASE_SIGNOFF_WORKFLOW.md"
 
 if (-not (Test-Path $readinessPath)) {
     throw "Missing readiness dataset: $readinessPath"
@@ -251,6 +252,34 @@ foreach ($subsystemId in $signoffDocPaths.Keys) {
     if ($rowText -notmatch "signoff|human review") {
         throw "Release readiness matrix row for signoff-governed subsystem '$subsystemId' must mention signoff or human review."
     }
+
+    if (-not ($readinessEntry.PSObject.Properties.Name -contains "signoff")) {
+        throw "Signoff-governed subsystem '$subsystemId' must declare a structured signoff contract in readiness_status.json."
+    }
+
+    $signoff = $readinessEntry.signoff
+    if ($signoff.required -ne $true) {
+        throw "Signoff-governed subsystem '$subsystemId' must set signoff.required to true."
+    }
+
+    $expectedRelativePath = $signoffDocPaths[$subsystemId].Substring($repoRoot.Path.Length).TrimStart('\', '/').Replace('\', '/')
+    $actualArtifactPath = [string]$signoff.artifactPath
+    if ($actualArtifactPath -ne $expectedRelativePath) {
+        throw "Subsystem '$subsystemId' signoff.artifactPath must be '$expectedRelativePath' but was '$actualArtifactPath'."
+    }
+
+    if ($signoff.promotionRequiresHumanReview -ne $true) {
+        throw "Subsystem '$subsystemId' must keep signoff.promotionRequiresHumanReview set to true."
+    }
+
+    $actualWorkflowPath = [string]$signoff.workflow
+    if ($actualWorkflowPath -ne $releaseSignoffWorkflowRelativePath) {
+        throw "Subsystem '$subsystemId' signoff.workflow must be '$releaseSignoffWorkflowRelativePath' but was '$actualWorkflowPath'."
+    }
+
+    if ($readinessEntry.status -eq "READY") {
+        throw "Signoff-governed subsystem '$subsystemId' cannot be marked READY while the machine-checked signoff contract still requires human review."
+    }
 }
 
 foreach ($requiredPhrase in @(
@@ -287,12 +316,15 @@ foreach ($section in @(
         "schema",
         "projectSchema",
         "localizationArtifacts",
+        "localizationEvidence",
         "inputArtifacts",
         "exportArtifacts",
         "accessibilityArtifacts",
         "audioArtifacts",
         "performanceArtifacts",
-        "releaseSignoffWorkflow"
+        "releaseSignoffWorkflow",
+        "signoffArtifacts",
+        "templateSpecArtifacts"
     )) {
     if (-not ($projectAuditReport.governance.PSObject.Properties.Name -contains $section)) {
         throw "urpg_project_audit governance is missing section '$section'."
@@ -303,11 +335,14 @@ foreach ($countField in @(
         "assetGovernanceIssueCount",
         "schemaGovernanceIssueCount",
         "projectArtifactIssueCount",
+        "localizationEvidenceIssueCount",
         "inputArtifactIssueCount",
         "accessibilityArtifactIssueCount",
         "audioArtifactIssueCount",
         "performanceArtifactIssueCount",
-        "releaseSignoffWorkflowIssueCount"
+        "releaseSignoffWorkflowIssueCount",
+        "signoffArtifactIssueCount",
+        "templateSpecArtifactIssueCount"
     )) {
     if (-not ($projectAuditReport.PSObject.Properties.Name -contains $countField)) {
         throw "urpg_project_audit JSON is missing count field '$countField'."

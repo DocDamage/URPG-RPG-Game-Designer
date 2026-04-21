@@ -1,5 +1,3 @@
-$ErrorActionPreference = "Stop"
-
 param(
     [Parameter(Mandatory = $true)]
     [string]$TestName,
@@ -12,6 +10,8 @@ param(
 
     [string]$GoldenRoot = "tests/snapshot/goldens/"
 )
+
+$ErrorActionPreference = "Stop"
 
 $destinationFileName = "{0}_{1}.golden.json" -f $TestName, $SnapshotId
 $destinationPath = Join-Path $GoldenRoot $destinationFileName

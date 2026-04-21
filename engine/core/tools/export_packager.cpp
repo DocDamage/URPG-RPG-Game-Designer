@@ -8,6 +8,15 @@ ExportPackager::ExportResult ExportPackager::runExport(const ExportConfig& confi
     std::string log;
     log += "Starting export for target: " + targetToString(config.target) + "\n";
 
+    const auto validation = validateBeforeExport(config);
+    if (!validation.passed) {
+        log += "Pre-export validation failed.\n";
+        for (const auto& error : validation.errors) {
+            log += " - " + error + "\n";
+        }
+        return { false, log, {} };
+    }
+
     // 1. License Audit (Phase 4 Security Gate)
     if (!runLicenseAudit(log)) {
         return { false, log, {} };
