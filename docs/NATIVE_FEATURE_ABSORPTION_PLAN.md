@@ -1,8 +1,8 @@
 # URPG Native Capability Expansion Plan
 
-Date: 2026-04-15  
+Date: 2026-04-20  
 Status: active roadmap  
-Scope: native runtime, editor workflows, schema/migration, compat bridge exit, and advanced capability expansion
+Scope: native runtime, editor workflows, schema/migration, compat bridge exit, advanced capability expansion, and template/governance productization
 
 This is the roadmap document, not the canonical latest-status snapshot. For current completion, remediation, and validation state, use:
 - `docs/PROGRAM_COMPLETION_STATUS.md`
@@ -16,6 +16,7 @@ Planning-input annexes for this roadmap:
 - `./archive/planning/URPG_MASTER_NATIVE_ABSORPTION_AND_PGMMV_ROADMAP_2026-04-18.md` - detailed PGMMV/native-absorption expansion input retained for traceability
 - `./archive/planning/URPG_PGMMV_SUPPORT_PLAN.md` - detailed PGMMV intake/migration input retained for traceability
 - `./archive/planning/URPG_NATIVE_ABSORPTION_ROADMAP_2026-04-18.md` - earlier native-absorption planning input retained as superseded reference
+- `../URPG_MISSING_FEATURES_GOVERNANCE_AND_TEMPLATE_EXPANSION_PLAN_v2.md` - governance/template expansion addendum retained as planning input while its approved deltas are absorbed into this roadmap and the canonical status stack
 
 These annexes are not parallel execution authorities. New phase, status, and release-gate claims become canonical only after they are absorbed into this roadmap, `docs/PROGRAM_COMPLETION_STATUS.md`, and `docs/TECHNICAL_DEBT_REMEDIATION_PLAN.md`.
 
@@ -34,6 +35,7 @@ URPG's core value is native ownership, not plugin accumulation.
 1. Keep current native-first Wave 1 (UI/Menu, Message/Text, Battle, Save/Data) as the execution baseline.
 2. Expand the roadmap to support broader game styles through additional high-leverage systems.
 3. Integrate external-repo-inspired capabilities as first-class native tracks, not side appendices.
+4. Add explicit governance, readiness, and cross-cutting minimum-bar lanes so subsystem and template claims stay evidence-gated.
 
 ## Integrated capability model
 
@@ -55,6 +57,7 @@ URPG's core value is native ownership, not plugin accumulation.
 - Optional 2.5D Presentation Lane (raycast camera/runtime mode for specific project styles)
 - Timeline/Animation Orchestration (keyframes, temporary animated effects, event-driven animation control)
 - Editor Productivity and Debug Utilities (selected high-value authoring helpers)
+- Character Identity / Create-a-Character Runtime Lane (authoring assets plus exported-game runtime support)
 
 ### Tier C: Optional extension lane
 
@@ -225,8 +228,50 @@ Deliverables:
   - clear/reset support
   - default subsystem selection after a run
   - selected-subsystem detail, status, and summary snapshot fields
-- [x] Release-readiness matrix by subsystem.
+- [ ] Release-readiness matrix by subsystem.
+  Existing closure checklists and validation snapshots are not yet a canonical subsystem-wide readiness matrix with evidence-gated `READY` rules, CI enforcement, and diagnostics projection.
+- [ ] Template readiness matrix and template claim guardrails.
+- [x] Project audit command and diagnostics panel.
+  Current state: landed as a conservative readiness-derived scanner plus diagnostics tab with grouped governance detail for asset-intake, readiness schema/changelog, project-schema presence, and missing canonical input/localization/export artifact paths. It is not yet a full project scanner or release-signoff workflow.
+- [ ] Canonical truth reconciler for subsystem/template/public readiness drift.
+- [ ] Schema versioning and changelog governance.
+- [ ] Breaking change detection in CI.
 - [x] Gate reports proving stability for native + compat lanes.
+
+## Lane 5: Governance foundation, template readiness, and cross-cutting product bars
+
+Goal: make URPG safe to expose as a multi-template engine product by giving subsystem readiness, template readiness, and cross-cutting release bars explicit owners and verification paths.
+
+### 5.1 Governance foundation
+
+- [x] Release-readiness matrix, subsystem badge rules, and evidence-backed first-slice `READY` promotion flow
+- [x] Template readiness matrix, template label rules, and safe-scope/export-confidence reporting
+- [x] Canonical truth reconciliation checks for docs, diagnostics, and public-facing readiness language
+- [x] Project audit command and diagnostics panel with template/subsystem/export blocker reporting
+- [x] Schema versioning registry, schema changelog governance, and CI guardrails for version drift
+- [ ] Breaking-change detection for schemas, export contracts, and template minimum bars
+
+### 5.2 Cross-cutting minimum bars
+
+- [ ] Accessibility governance and minimum exported-UI accessibility bar
+- [ ] Audio subsystem governance beyond current harness-backed compat truth
+- [ ] Input remapping and controller-governance lane
+  Current governance state: the audit lane now checks for missing canonical controller-binding runtime/editor/schema artifacts, but the actual input remapping/controller-governance feature lane is still not implemented.
+- [ ] Localization completeness checker and missing-key validation
+- [ ] Performance budget profiling subsystem and budget-backed readiness gating
+- [ ] Visual regression testing suite for template-facing and presentation-facing proof
+
+### 5.3 Template and product expansion
+
+- [ ] Create-a-Character runtime lane with authoring assets plus exported-game runtime support
+- [ ] Monster Collector RPG template spec
+- [ ] Cozy / Life RPG template spec
+- [ ] Metroidvania-lite template spec
+- [ ] 2.5D RPG template spec
+- [ ] Achievement/trophy system
+- [ ] Platform-specific export validation
+- [ ] Mod and player extension layer
+- [ ] Analytics and opt-in telemetry layer
 
 ## Milestone framing
 
@@ -252,6 +297,12 @@ Deliverables:
 ### Milestone M4
 
 - Lane 4 release hardening complete
+- Lane 5 governance foundation started
+
+### Milestone M5
+
+- Lane 5 governance foundation and cross-cutting minimum bars complete
+- template-readiness contracts published for supported game types
 - full program completion report published
 
 ## Definition of complete (100% for this plan)
@@ -261,7 +312,9 @@ This plan is complete when:
 1. Compat bridge exit criteria are signed off.
 2. Wave 1 subsystems are fully native across runtime/editor/schema/migration/test/diagnostics.
 3. Wave 2 advanced power systems are delivered at production baseline.
-4. Release gates validate native and compat stability with published evidence.
+4. Governance foundation artifacts exist for subsystem readiness, template readiness, schema/version change control, and truth reconciliation.
+5. Cross-cutting release bars for accessibility, localization, input, audio governance, and performance are defined and enforced where claimed.
+6. Release gates validate native and compat stability with published evidence.
 
 ## Acceptance rules for external-source-inspired work
 
@@ -281,11 +334,18 @@ This plan is complete when:
 
 - Cross-cutting truthfulness, intake governance, and roadmap-alignment requirements: `docs/TECHNICAL_DEBT_REMEDIATION_PLAN.md`
 - Program status and remaining checklist: `docs/PROGRAM_COMPLETION_STATUS.md`
+- Governance foundation references:
+  - `docs/RELEASE_READINESS_MATRIX.md`
+  - `docs/TEMPLATE_READINESS_MATRIX.md`
+  - `docs/TRUTH_ALIGNMENT_RULES.md`
+  - `docs/TEMPLATE_LABEL_RULES.md`
+  - `docs/SUBSYSTEM_STATUS_RULES.md`
 - Archive index: `docs/archive/README.md`
 - Detailed planning annexes:
   - `docs/archive/planning/URPG_MASTER_NATIVE_ABSORPTION_AND_PGMMV_ROADMAP_2026-04-18.md`
   - `docs/archive/planning/URPG_PGMMV_SUPPORT_PLAN.md`
   - `docs/archive/planning/URPG_NATIVE_ABSORPTION_ROADMAP_2026-04-18.md`
+  - `URPG_MISSING_FEATURES_GOVERNANCE_AND_TEMPLATE_EXPANSION_PLAN_v2.md`
 - Wave 1 specs:
   - `docs/UI_MENU_CORE_NATIVE_SPEC.md`
   - `docs/MESSAGE_TEXT_CORE_NATIVE_SPEC.md`

@@ -35,11 +35,11 @@
 | **Compat Layer (Phase 2 Closure)** | Complete | Runtime closure done | Runtime closure completed on 2026-04-19. Residual compat work remains in post-closure exit hardening, corpus depth, and honest `PARTIAL` surface maintenance. |
 | **Wave 3-7 Ecosystem** | Complete | 100% | Templates, Profiling, Polish, Workspace, ImGui Panels. |
 | **Final Integration** | Complete | 100% | Unified `EngineAssembly` Gold distribution. |
-| **Native Workwaves** | Complete (current tracked scope) | 100% | Wave 1 closure evidence, Wave 2 roadmap follow-through, spatial/editor build registration, and broader release-readiness proof are now recorded on this branch. |
+| **Native Workwaves** | Complete (current tracked scope) | 100% | Wave 1 closure evidence, Wave 2 roadmap follow-through, spatial/editor build registration, and the first governance/readiness foundation slice are now recorded on this branch. |
 
-Phase 2 runtime closure is complete as of 2026-04-19. Broader Wave 1/program release-readiness proof and the tracked Wave 2 roadmap follow-through are now recorded as of 2026-04-20. Canonical status docs currently show the tracked program scope as checklist-green on this branch.
+Phase 2 runtime closure is complete as of 2026-04-19. Broader Wave 1/program release-readiness proof, the tracked Wave 2 roadmap follow-through, and the first governance/readiness foundation slice are now recorded as of 2026-04-20. Canonical status docs currently show the previously tracked baseline as green, while also recording remaining product-readiness governance follow-through.
 
-Canonical remediation status: the audited remediation findings tracked in `docs/TECHNICAL_DEBT_REMEDIATION_PLAN.md` are now fully closed; remaining repo work is roadmap/product execution and post-closure confidence depth rather than open remediation findings.
+Canonical remediation status: the audited remediation findings tracked in `docs/TECHNICAL_DEBT_REMEDIATION_PLAN.md` are now fully closed; remaining repo work is roadmap/product execution, governance/readiness buildout, and post-closure confidence depth rather than open remediation findings.
 
 ## 🏗️ Getting Started
 
@@ -69,12 +69,22 @@ ctest -C Debug -R "urpg_(presentation_(unit_lane|release_validation)|spatial_edi
 
 This focused gate is also invoked by `tools/ci/run_local_gates.ps1` locally and by `.github/workflows/ci-gates.yml` in CI.
 
+The broader local gate now also runs the readiness/truth governance checks:
+- `tools/ci/check_release_readiness.ps1`
+- `tools/ci/check_schema_changelog.ps1`
+- `tools/docs/check_truth_alignment.ps1`
+- `tools/docs/check_template_claims.ps1`
+- `tools/docs/check_subsystem_badges.ps1`
+
 ## 📜 Documentation
 
 - **[Master Blueprint](URPG_Blueprint_v3_1_Integrated.md):** The authoritative technical specification.
 - **[Technical Debt Remediation Plan](docs/TECHNICAL_DEBT_REMEDIATION_PLAN.md):** Canonical cross-cutting debt, truthfulness, intake-governance, roadmap-alignment, and reconciliation plan.
 - **[Native Absorption Plan](docs/NATIVE_FEATURE_ABSORPTION_PLAN.md):** Canonical product roadmap.
 - **[Completion Status](docs/PROGRAM_COMPLETION_STATUS.md):** Canonical latest-status snapshot and remaining checklist.
+- **[Release Readiness Matrix](docs/RELEASE_READINESS_MATRIX.md):** Canonical subsystem readiness records and evidence vocabulary.
+- **[Template Readiness Matrix](docs/TEMPLATE_READINESS_MATRIX.md):** Canonical template readiness records and dependency expectations.
+- **[Project Audit](docs/PROJECT_AUDIT.md):** Conservative readiness-derived audit contract for release/export blockers and overclaims, with explicit governance visibility for asset-intake, readiness schema/changelog, project-schema presence, and missing canonical input/localization/export artifact paths where the roadmap already defines those artifacts.
 - **[Archive Index](docs/archive/README.md):** Superseded/reference-only planning material retained for traceability.
 - **Detailed Planning Annexes:** [PGMMV + Native Absorption v2](docs/archive/planning/URPG_MASTER_NATIVE_ABSORPTION_AND_PGMMV_ROADMAP_2026-04-18.md), [PGMMV Support Plan](docs/archive/planning/URPG_PGMMV_SUPPORT_PLAN.md), and [earlier native absorption roadmap](docs/archive/planning/URPG_NATIVE_ABSORPTION_ROADMAP_2026-04-18.md) are retained as traceability/reference inputs and route back through the remediation plan for canonical adoption.
 - **[Presentation Docs Hub](docs/presentation/README.md):** Index of presentation contracts, validation, tooling, budgets, and schema docs.
@@ -143,7 +153,8 @@ This focused gate is also invoked by `tools/ci/run_local_gates.ps1` locally and 
 5. Maintain post-Phase-2 compat exit hardening:
    - keep conformance depth, JSONL/report/panel parity, and status/document truthfulness aligned with the current harness-backed scope.
 6. Keep post-closure compat truthfulness, sign-off, and evidence snapshots current as the harness evolves.
-7. Use `docs/PROGRAM_COMPLETION_STATUS.md` to define any new roadmap scope beyond the now-complete tracked baseline.
+7. Expand the governance/readiness foundation from first-slice records and checks into fuller project-audit scanning, release-signoff enforcement, and template-specific readiness execution.
+8. Use `docs/PROGRAM_COMPLETION_STATUS.md` to define any new roadmap scope beyond the now-complete tracked baseline.
 
 ## Build
 

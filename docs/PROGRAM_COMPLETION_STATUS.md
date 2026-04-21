@@ -1,7 +1,7 @@
 ﻿# URPG Program Completion Status
 
 Status Date: 2026-04-20  
-Program Scope: native-first roadmap rewire plus Wave 1 absorption, Wave 2 advanced capability expansion, and post-Phase-2 compat exit hardening
+Program Scope: native-first roadmap rewire plus Wave 1 absorption, Wave 2 advanced capability expansion, post-Phase-2 compat exit hardening, and governance/template-readiness consolidation
 
 Cross-cutting debt, truthfulness, and intake-governance source of truth: `docs/TECHNICAL_DEBT_REMEDIATION_PLAN.md`.
 
@@ -11,9 +11,20 @@ Canonical planning chain:
 - `docs/PROGRAM_COMPLETION_STATUS.md` is the canonical latest-status snapshot.
 - `docs/archive/planning/URPG_MASTER_NATIVE_ABSORPTION_AND_PGMMV_ROADMAP_2026-04-18.md`, `docs/archive/planning/URPG_PGMMV_SUPPORT_PLAN.md`, and `docs/archive/planning/URPG_NATIVE_ABSORPTION_ROADMAP_2026-04-18.md` are detailed planning inputs retained for traceability until their remaining deltas are absorbed into the canonical docs above.
 
+2026-04-20 planning absorption note:
+- `../URPG_MISSING_FEATURES_GOVERNANCE_AND_TEMPLATE_EXPANSION_PLAN_v2.md` is now treated as a planning-input addendum, not a parallel authority.
+- Its approved deltas are being absorbed into the canonical roadmap/status/remediation stack as planned work.
+- Its presence does **not** mean the proposed governance foundation, template matrices, or cross-cutting minimum bars are already landed.
+- The first canonical governance artifacts for this lane now exist under:
+  - [`docs/RELEASE_READINESS_MATRIX.md`](./RELEASE_READINESS_MATRIX.md)
+  - [`docs/TEMPLATE_READINESS_MATRIX.md`](./TEMPLATE_READINESS_MATRIX.md)
+  - [`docs/TRUTH_ALIGNMENT_RULES.md`](./TRUTH_ALIGNMENT_RULES.md)
+  - [`docs/TEMPLATE_LABEL_RULES.md`](./TEMPLATE_LABEL_RULES.md)
+  - [`docs/SUBSYSTEM_STATUS_RULES.md`](./SUBSYSTEM_STATUS_RULES.md)
+
 Phase 2 runtime closure is complete as of 2026-04-19. Remaining compat work in this document is post-closure exit hardening, corpus depth, and ongoing truth-maintenance work, not unfinished baseline closure of the audited Phase 2 runtime slice.
 
-Phase 3 diagnostics productization is complete as of 2026-04-19, Phase 4 governance/reconciliation closure is complete as of 2026-04-19, and Phase 5 hardening closure is also complete as of 2026-04-19. The canonical remediation findings table is now fully green, and the broader Wave 1/program release-readiness proof is now recorded as of 2026-04-20. Remaining work in this document is post-closure compat hardening depth, Wave 2 roadmap execution, and ongoing truth-maintenance work rather than an unfinished remediation phase.
+Phase 3 diagnostics productization is complete as of 2026-04-19, Phase 4 governance/reconciliation closure is complete as of 2026-04-19, and Phase 5 hardening closure is also complete as of 2026-04-19. The canonical remediation findings table is now fully green, and focused Wave 1/program validation proof is recorded as of 2026-04-20. Remaining work in this document is post-closure compat hardening depth, Wave 2 roadmap execution, governance-foundation buildout, and ongoing truth-maintenance work rather than an unfinished remediation phase.
 
 ## Where we are now
 
@@ -46,6 +57,17 @@ Phase 3 diagnostics productization is complete as of 2026-04-19, Phase 4 governa
   - retained tile render commands are now explicitly documented and verified as pointer-stable across unchanged frames
   - the Phase 4 governance gate now enforces wrapper/facade-only production-candidate adoption plus provenance-preserving asset-promotion records
 - **Planning Governance:** standalone PGMMV/native-absorption roadmap files are now treated as reference annexes under [`docs/TECHNICAL_DEBT_REMEDIATION_PLAN.md`](./TECHNICAL_DEBT_REMEDIATION_PLAN.md) and indexed in [`docs/archive/README.md`](./archive/README.md), not parallel execution authorities.
+- The current program-level risk has shifted from baseline closure to governance drift:
+  - subsystem-wide release-readiness matrix is still not landed as a full product-readiness signoff system; the repo currently has a first-slice canonical matrix plus machine-readable readiness records
+  - template readiness matrix and template-claim guardrails are still not landed as full template signoff governance; the repo currently has a first-slice canonical matrix and conservative claim checks
+  - subsystem-wide release-readiness and template-readiness governance now have canonical docs plus a machine-readable readiness record, but they are still a first-slice governance baseline rather than a complete product-readiness proof
+  - template-claim guardrails, subsystem badge checks, and truth-alignment checks now exist, but they currently enforce conservative documentation discipline rather than a full release-signoff workflow
+  - the project audit command and diagnostics tab now exist as a conservative readiness-derived scanner/scaffold, and the reported blockers can now reflect asset-intake, schema/changelog, project-schema, and missing canonical input/localization/export artifact governance only where those concerns are represented by the current readiness records or roadmap-defined canonical paths; the audit engine is not yet a full project scanner
+  - schema versioning/changelog governance and focused CI/doc enforcement now exist, but broader breaking-change automation and full repo-wide scanner coverage remain future work
+  - cross-cutting minimum bars for accessibility, localization completeness, input remapping, audio governance, and performance budgets are now canonical governance bars first, not evidence that those subsystems are fully delivered
+- The 2026-04-20 validation snapshot should not be read as full product readiness:
+  - it proves the currently exercised Wave 1/program lanes are green
+  - it does not by itself satisfy the proposed subsystem/template readiness matrices or cross-cutting governance bars
 
 - `main` is up to date and protected:
   - pull request required
@@ -69,6 +91,9 @@ Phase 3 diagnostics productization is complete as of 2026-04-19, Phase 4 governa
   - `Window_Selectable` pointer semantics now cover press/drag/release hit-testing, drag retargeting, drag-scroll, and mouse-wheel scrolling through `InputManager`
   - `Window_Base::contents()` now allocates compat bitmap records with tracked dimensions that stay synchronized with rect/padding changes instead of exposing handle-only state
   - runtime VFX cue pipeline baseline landed: active `BattleScene` cues now flow through the shared resolver/translator path into one-shot world/overlay presentation effect commands, with focused bridge/runtime coverage plus a sample release-validation effect-command envelope check
+  - governance/template expansion addendum is now absorbed as planning input, and the canonical docs now treat subsystem readiness, template readiness, schema/version governance, and cross-cutting minimum bars as explicit remaining roadmap work rather than implied closure
+  - governance foundation baseline landed: canonical release/template readiness matrices, truth/label rules, readiness schema data, focused CI/doc checks, and a first `ProjectAudit` CLI plus diagnostics tab scaffold are now part of the active tree
+  - the current `ProjectAudit` slice remains readiness-derived first; asset-intake and schema/changelog governance affect the scan only where they have already been folded into canonical readiness/template blocker records, and the scanner now also surfaces missing canonical input/localization/export artifact paths where the roadmap already defines them
   - compat status truth pass is now reflected in the canonical docs; remaining work is to keep those labels and docs aligned as post-closure hardening continues
   - AudioManager compat closure advanced: deterministic playback position now advances during `update()`, duck/unduck ramps are frame-based, master/bus volume changes affect active playback, and the QuickJS `AudioManager` bridge now routes live compat state for BGM/BGS/ME/SE plus volume/ducking helpers
   - 2026-04-19 Phase 2 runtime closure reconciled the battle reward/event and switch coverage, window `contents()` lifecycle truthfulness, `DataManager::loadDatabase()` seeded-container behavior, and audio semantics documentation against the focused dev-mingw-debug verification lane

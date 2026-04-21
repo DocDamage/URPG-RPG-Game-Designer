@@ -91,6 +91,61 @@ TEST_CASE("DiagnosticsWorkspace - Refresh updates compat and save tabs", "[edito
             {{"symbol", "item"}, {"name", "Items"}}
         }}
     });
+    workspace.bindProjectAuditReport(nlohmann::json{
+        {"schemaVersion", "1.0.0"},
+        {"headline", "Workspace audit"},
+        {"summary", "One release blocker and one export blocker."},
+        {"releaseBlockerCount", 1},
+        {"exportBlockerCount", 1},
+        {"assetGovernanceIssueCount", 2},
+        {"schemaGovernanceIssueCount", 1},
+        {"projectArtifactIssueCount", 3},
+        {"templateContext", {{"id", "jrpg"}, {"status", "PARTIAL"}}},
+        {"governance", {
+            {"assetReport", {
+                {"path", "imports/reports/asset_audit.json"},
+                {"available", true},
+                {"usable", false},
+                {"issueCount", 2}
+            }},
+            {"schema", {
+                {"schemaExists", true},
+                {"changelogExists", false},
+                {"mentionsSchemaVersion", true},
+                {"schemaVersion", "2.1.0"}
+            }},
+            {"projectSchema", {
+                {"path", "schemas/project.schema.json"},
+                {"available", true},
+                {"hasLocalizationSection", true},
+                {"hasInputSection", false},
+                {"hasExportSection", true}
+            }},
+            {"inputArtifacts", {
+                {"path", "content/input/input_bindings.json"},
+                {"exists", true},
+                {"issueCount", 2}
+            }}
+        }},
+        {"issues", {
+            {
+                {"code", "missing_localization_key"},
+                {"title", "Missing localization key"},
+                {"detail", "menu.start is missing from one locale."},
+                {"severity", "warning"},
+                {"blocksRelease", true},
+                {"blocksExport", false}
+            },
+            {
+                {"code", "missing_input_binding"},
+                {"title", "Missing input binding"},
+                {"detail", "confirm action is not bound for controller."},
+                {"severity", "error"},
+                {"blocksRelease", false},
+                {"blocksExport", true}
+            }
+        }}
+    });
     workspace.ingestEventAuthorityDiagnosticsJsonl(
         "{\"ts\":\"2026-03-04T00:00:02Z\",\"level\":\"warn\",\"subsystem\":\"event_authority\",\"event\":\"edit_rejected\",\"event_id\":\"evt_workspace\",\"block_id\":\"blk_workspace\",\"mode\":\"compat\",\"operation\":\"edit_urpg_ast\",\"error_code\":\"read_only_derived_view\",\"message\":\"workspace test\"}"
     );
@@ -136,8 +191,14 @@ TEST_CASE("DiagnosticsWorkspace - Refresh updates compat and save tabs", "[edito
     const auto abilitiesSummary = workspace.tabSummary(urpg::editor::DiagnosticsTab::Abilities);
     REQUIRE_FALSE(abilitiesSummary.active);
 
+    const auto auditSummary = workspace.tabSummary(urpg::editor::DiagnosticsTab::ProjectAudit);
+    REQUIRE_FALSE(auditSummary.active);
+    REQUIRE(auditSummary.item_count == 2);
+    REQUIRE(auditSummary.issue_count == 2);
+    REQUIRE(auditSummary.has_data);
+
     const auto allSummaries = workspace.allTabSummaries();
-    REQUIRE(allSummaries.size() == 9);
+    REQUIRE(allSummaries.size() == 10);
 
     urpg::editor::DiagnosticsFacade facade(workspace);
     const auto exportedJson = nlohmann::json::parse(facade.emitSnapshot());
@@ -160,7 +221,7 @@ TEST_CASE("DiagnosticsWorkspace - Refresh updates compat and save tabs", "[edito
     REQUIRE(exportedJson["active_tab_detail"]["recent_events"][0]["pluginId"] == "MissingPlugin");
     REQUIRE(exportedJson["active_tab_detail"]["recent_events"][0]["severity"] == "WARNING");
     REQUIRE(exportedJson["tabs"].is_array());
-    REQUIRE(exportedJson["tabs"].size() == 9);
+    REQUIRE(exportedJson["tabs"].size() == 10);
     REQUIRE(exportedJson["tabs"][0]["name"] == "compat");
     REQUIRE(exportedJson["tabs"][0]["item_count"] == 1);
     REQUIRE(exportedJson["tabs"][1]["name"] == "save");
@@ -171,6 +232,7 @@ TEST_CASE("DiagnosticsWorkspace - Refresh updates compat and save tabs", "[edito
     REQUIRE(exportedJson["tabs"][6]["name"] == "audio");
     REQUIRE(exportedJson["tabs"][7]["name"] == "migration_wizard");
     REQUIRE(exportedJson["tabs"][8]["name"] == "abilities");
+    REQUIRE(exportedJson["tabs"][9]["name"] == "project_audit");
 
     REQUIRE(workspace.activeTab() == urpg::editor::DiagnosticsTab::Compat);
     REQUIRE(workspace.compatPanel().isVisible());
@@ -338,6 +400,69 @@ TEST_CASE("DiagnosticsWorkspace - Refresh updates compat and save tabs", "[edito
     const auto battleJson = nlohmann::json::parse(facade.emitSnapshot());
     REQUIRE(battleJson["active_tab"] == "battle");
     REQUIRE(battleJson["active_tab_detail"]["tab"] == "battle");
+
+    workspace.setActiveTab(urpg::editor::DiagnosticsTab::ProjectAudit);
+    workspace.render();
+    REQUIRE(workspace.tabSummary(urpg::editor::DiagnosticsTab::ProjectAudit).active);
+    REQUIRE_FALSE(workspace.compatPanel().isVisible());
+    REQUIRE_FALSE(workspace.savePanel().isVisible());
+    REQUIRE_FALSE(workspace.eventAuthorityPanel().isVisible());
+    REQUIRE_FALSE(workspace.messagePanel().isVisible());
+    REQUIRE_FALSE(workspace.battlePanel().isVisible());
+    REQUIRE(workspace.projectAuditPanel().isVisible());
+    REQUIRE(workspace.projectAuditPanel().hasRenderedFrame());
+    REQUIRE(workspace.projectAuditPanel().lastRenderSnapshot().headline == "Workspace audit");
+    REQUIRE(workspace.projectAuditPanel().lastRenderSnapshot().issue_count == 2);
+    REQUIRE(workspace.projectAuditPanel().lastRenderSnapshot().release_blocker_count == 1);
+    REQUIRE(workspace.projectAuditPanel().lastRenderSnapshot().export_blocker_count == 1);
+    REQUIRE(workspace.projectAuditPanel().lastRenderSnapshot().template_id == "jrpg");
+    REQUIRE(workspace.projectAuditPanel().lastRenderSnapshot().template_status == "PARTIAL");
+    REQUIRE(workspace.projectAuditPanel().lastRenderSnapshot().asset_governance_issue_count == 2);
+    REQUIRE(workspace.projectAuditPanel().lastRenderSnapshot().schema_governance_issue_count == 1);
+    REQUIRE(workspace.projectAuditPanel().lastRenderSnapshot().project_artifact_issue_count == 3);
+    REQUIRE(workspace.projectAuditPanel().lastRenderSnapshot().asset_report.has_value());
+    REQUIRE(workspace.projectAuditPanel().lastRenderSnapshot().schema_governance.has_value());
+    REQUIRE(workspace.projectAuditPanel().lastRenderSnapshot().project_schema_governance.has_value());
+    REQUIRE(workspace.projectAuditPanel().lastRenderSnapshot().input_artifacts.has_value());
+    REQUIRE(workspace.projectAuditPanel().lastRenderSnapshot().input_artifacts->path ==
+            "content/input/input_bindings.json");
+    REQUIRE(workspace.projectAuditPanel().lastRenderSnapshot().issues.size() == 2);
+    const auto auditJson = nlohmann::json::parse(facade.emitSnapshot());
+    REQUIRE(auditJson["active_tab"] == "project_audit");
+    REQUIRE(auditJson["active_tab_detail"]["tab"] == "project_audit");
+    REQUIRE(auditJson["active_tab_detail"]["headline"] == "Workspace audit");
+    REQUIRE(auditJson["active_tab_detail"]["summary_text"] == "One release blocker and one export blocker.");
+    REQUIRE(auditJson["active_tab_detail"]["issue_count"] == 2);
+    REQUIRE(auditJson["active_tab_detail"]["release_blocker_count"] == 1);
+    REQUIRE(auditJson["active_tab_detail"]["export_blocker_count"] == 1);
+    REQUIRE(auditJson["active_tab_detail"]["template_id"] == "jrpg");
+    REQUIRE(auditJson["active_tab_detail"]["template_status"] == "PARTIAL");
+    REQUIRE(auditJson["active_tab_detail"]["asset_governance_issue_count"] == 2);
+    REQUIRE(auditJson["active_tab_detail"]["schema_governance_issue_count"] == 1);
+    REQUIRE(auditJson["active_tab_detail"]["project_artifact_issue_count"] == 3);
+    REQUIRE(auditJson["active_tab_detail"]["governance"]["asset_report"]["path"] == "imports/reports/asset_audit.json");
+    REQUIRE(auditJson["active_tab_detail"]["governance"]["asset_report"]["available"] == true);
+    REQUIRE(auditJson["active_tab_detail"]["governance"]["asset_report"]["usable"] == false);
+    REQUIRE(auditJson["active_tab_detail"]["governance"]["asset_report"]["issue_count"] == 2);
+    REQUIRE(auditJson["active_tab_detail"]["governance"]["schema"]["schema_exists"] == true);
+    REQUIRE(auditJson["active_tab_detail"]["governance"]["schema"]["changelog_exists"] == false);
+    REQUIRE(auditJson["active_tab_detail"]["governance"]["schema"]["mentions_schema_version"] == true);
+    REQUIRE(auditJson["active_tab_detail"]["governance"]["schema"]["schema_version"] == "2.1.0");
+    REQUIRE(auditJson["active_tab_detail"]["governance"]["project_schema"]["path"] == "schemas/project.schema.json");
+    REQUIRE(auditJson["active_tab_detail"]["governance"]["project_schema"]["available"] == true);
+    REQUIRE(auditJson["active_tab_detail"]["governance"]["project_schema"]["has_localization_section"] == true);
+    REQUIRE(auditJson["active_tab_detail"]["governance"]["project_schema"]["has_input_section"] == false);
+    REQUIRE(auditJson["active_tab_detail"]["governance"]["project_schema"]["has_export_section"] == true);
+    REQUIRE(auditJson["active_tab_detail"]["governance"]["input_artifacts"]["path"] ==
+            "content/input/input_bindings.json");
+    REQUIRE(auditJson["active_tab_detail"]["governance"]["input_artifacts"]["available"] == true);
+    REQUIRE(auditJson["active_tab_detail"]["governance"]["input_artifacts"]["issue_count"] == 2);
+    REQUIRE(auditJson["active_tab_detail"]["issues"].is_array());
+    REQUIRE(auditJson["active_tab_detail"]["issues"].size() == 2);
+    REQUIRE(auditJson["active_tab_detail"]["issues"][0]["code"] == "missing_localization_key");
+    REQUIRE(auditJson["active_tab_detail"]["issues"][0]["blocks_release"] == true);
+    REQUIRE(auditJson["active_tab_detail"]["issues"][1]["code"] == "missing_input_binding");
+    REQUIRE(auditJson["active_tab_detail"]["issues"][1]["blocks_export"] == true);
     REQUIRE(battleJson["active_tab_detail"]["battle_summary"]["phase"] == "action");
     REQUIRE(battleJson["active_tab_detail"]["battle_summary"]["active"] == true);
     REQUIRE(battleJson["active_tab_detail"]["battle_summary"]["total_actions"] == 2);
@@ -406,6 +531,105 @@ TEST_CASE("DiagnosticsWorkspace - Refresh updates compat and save tabs", "[edito
     std::filesystem::remove_all(base);
     pluginManager.clearFailureDiagnostics();
     pluginManager.unloadAllPlugins();
+}
+
+TEST_CASE("DiagnosticsWorkspace - Project audit derives blocker counts from issue flags",
+          "[editor][diagnostics][integration][project_audit]") {
+    urpg::editor::DiagnosticsWorkspace workspace;
+    workspace.bindProjectAuditReport(nlohmann::json{
+        {"schemaVersion", "1.0.0"},
+        {"headline", "Fallback audit"},
+        {"summary", "Derived blocker counts should come from issue flags."},
+        {"templateContext", {{"id", "jrpg"}, {"status", "PARTIAL"}}},
+        {"issues", {
+            {
+                {"code", "missing_localization_key"},
+                {"title", "Missing localization key"},
+                {"detail", "menu.start is missing from one locale."},
+                {"severity", "warning"},
+                {"blocksRelease", true},
+                {"blocksExport", false}
+            },
+            {
+                {"code", "missing_input_binding"},
+                {"title", "Missing input binding"},
+                {"detail", "confirm action is not bound for controller."},
+                {"severity", "error"},
+                {"blocksRelease", false},
+                {"blocksExport", true}
+            },
+            {
+                {"code", "missing_console_profile"},
+                {"title", "Missing console profile"},
+                {"detail", "console export profile is incomplete."},
+                {"severity", "error"},
+                {"blocksRelease", true},
+                {"blocksExport", true}
+            }
+        }},
+        {"governance", {
+            {"localizationArtifacts", {
+                {"path", "content/localization/en-US.json"},
+                {"available", true},
+                {"issueCount", 1}
+            }},
+            {"exportArtifacts", {
+                {"path", "exports/project_audit/export_manifest.json"},
+                {"present", true},
+                {"issueCount", 2}
+            }}
+        }}
+    });
+
+    workspace.refresh();
+
+    const auto auditSummary = workspace.tabSummary(urpg::editor::DiagnosticsTab::ProjectAudit);
+    REQUIRE_FALSE(auditSummary.active);
+    REQUIRE(auditSummary.item_count == 3);
+    REQUIRE(auditSummary.issue_count == 4);
+    REQUIRE(auditSummary.has_data);
+
+    workspace.setActiveTab(urpg::editor::DiagnosticsTab::ProjectAudit);
+    workspace.render();
+
+    REQUIRE(workspace.projectAuditPanel().isVisible());
+    REQUIRE(workspace.projectAuditPanel().hasRenderedFrame());
+    REQUIRE(workspace.projectAuditPanel().lastRenderSnapshot().headline == "Fallback audit");
+    REQUIRE(workspace.projectAuditPanel().lastRenderSnapshot().issue_count == 3);
+    REQUIRE(workspace.projectAuditPanel().lastRenderSnapshot().release_blocker_count == 2);
+    REQUIRE(workspace.projectAuditPanel().lastRenderSnapshot().export_blocker_count == 2);
+    REQUIRE(workspace.projectAuditPanel().lastRenderSnapshot().issues.size() == 3);
+    REQUIRE(workspace.projectAuditPanel().lastRenderSnapshot().localization_artifacts.has_value());
+    REQUIRE(workspace.projectAuditPanel().lastRenderSnapshot().export_artifacts.has_value());
+    REQUIRE(workspace.projectAuditPanel().lastRenderSnapshot().localization_artifacts->path ==
+            "content/localization/en-US.json");
+    REQUIRE(workspace.projectAuditPanel().lastRenderSnapshot().export_artifacts->path ==
+            "exports/project_audit/export_manifest.json");
+
+    urpg::editor::DiagnosticsFacade facade(workspace);
+    const auto auditJson = nlohmann::json::parse(facade.emitSnapshot());
+    REQUIRE(auditJson["active_tab"] == "project_audit");
+    REQUIRE(auditJson["active_tab_detail"]["tab"] == "project_audit");
+    REQUIRE(auditJson["active_tab_detail"]["headline"] == "Fallback audit");
+    REQUIRE(auditJson["active_tab_detail"]["issue_count"] == 3);
+    REQUIRE(auditJson["active_tab_detail"]["release_blocker_count"] == 2);
+    REQUIRE(auditJson["active_tab_detail"]["export_blocker_count"] == 2);
+    REQUIRE(auditJson["active_tab_detail"]["issues"].is_array());
+    REQUIRE(auditJson["active_tab_detail"]["issues"].size() == 3);
+    REQUIRE(auditJson["active_tab_detail"]["issues"][0]["blocks_release"] == true);
+    REQUIRE(auditJson["active_tab_detail"]["issues"][0]["blocks_export"] == false);
+    REQUIRE(auditJson["active_tab_detail"]["issues"][1]["blocks_release"] == false);
+    REQUIRE(auditJson["active_tab_detail"]["issues"][1]["blocks_export"] == true);
+    REQUIRE(auditJson["active_tab_detail"]["issues"][2]["blocks_release"] == true);
+    REQUIRE(auditJson["active_tab_detail"]["issues"][2]["blocks_export"] == true);
+    REQUIRE(auditJson["active_tab_detail"]["governance"]["localization_artifacts"]["path"] ==
+            "content/localization/en-US.json");
+    REQUIRE(auditJson["active_tab_detail"]["governance"]["localization_artifacts"]["available"] == true);
+    REQUIRE(auditJson["active_tab_detail"]["governance"]["localization_artifacts"]["issue_count"] == 1);
+    REQUIRE(auditJson["active_tab_detail"]["governance"]["export_artifacts"]["path"] ==
+            "exports/project_audit/export_manifest.json");
+    REQUIRE(auditJson["active_tab_detail"]["governance"]["export_artifacts"]["available"] == true);
+    REQUIRE(auditJson["active_tab_detail"]["governance"]["export_artifacts"]["issue_count"] == 2);
 }
 
 TEST_CASE("DiagnosticsWorkspace - Menu runtime binding populates and clears menu diagnostics",

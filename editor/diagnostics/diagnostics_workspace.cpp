@@ -88,6 +88,8 @@ const char* TabName(DiagnosticsTab tab) {
         return "migration_wizard";
     case DiagnosticsTab::Abilities:
         return "abilities";
+    case DiagnosticsTab::ProjectAudit:
+        return "project_audit";
     }
     return "compat";
 }
@@ -506,6 +508,21 @@ nlohmann::json ActiveTagInfoJson(const ActiveTagInfo& info) {
     };
 }
 
+template <typename SnapshotT>
+nlohmann::json ProjectAuditArtifactGovernanceJson(const SnapshotT& snapshot) {
+    nlohmann::json artifact = nlohmann::json::object();
+    if (snapshot.path.has_value()) {
+        artifact["path"] = *snapshot.path;
+    }
+    if (snapshot.available.has_value()) {
+        artifact["available"] = *snapshot.available;
+    }
+    if (snapshot.issue_count.has_value()) {
+        artifact["issue_count"] = *snapshot.issue_count;
+    }
+    return artifact;
+}
+
 const char* MenuInspectorIssueSeverityName(MenuInspectorIssueSeverity severity) {
     switch (severity) {
     case MenuInspectorIssueSeverity::Info:
@@ -760,6 +777,14 @@ AbilityInspectorPanel& DiagnosticsWorkspace::abilityPanel() {
 
 const AbilityInspectorPanel& DiagnosticsWorkspace::abilityPanel() const {
     return ability_panel_;
+}
+
+ProjectAuditPanel& DiagnosticsWorkspace::projectAuditPanel() {
+    return project_audit_panel_;
+}
+
+const ProjectAuditPanel& DiagnosticsWorkspace::projectAuditPanel() const {
+    return project_audit_panel_;
 }
 
 void DiagnosticsWorkspace::bindSaveRuntime(const urpg::SaveCatalog& catalog,
@@ -1418,6 +1443,16 @@ void DiagnosticsWorkspace::clearAbilityRuntime() {
     ability_panel_.clear();
 }
 
+void DiagnosticsWorkspace::bindProjectAuditReport(const nlohmann::json& report) {
+    project_audit_panel_.setReportJson(report);
+    refreshActiveSnapshotBackedTabIfVisible();
+}
+
+void DiagnosticsWorkspace::clearProjectAuditReport() {
+    project_audit_panel_.clear();
+    refreshActiveSnapshotBackedTabIfVisible();
+}
+
 void DiagnosticsWorkspace::ingestEventAuthorityDiagnosticsJsonl(std::string_view diagnostics_jsonl) {
     event_authority_panel_.ingestDiagnosticsJsonl(diagnostics_jsonl);
     refreshEventAuthoritySnapshotIfActive();
@@ -1574,6 +1609,12 @@ DiagnosticsTabSummary DiagnosticsWorkspace::tabSummary(DiagnosticsTab tab) const
         summary.has_data = !ability_panel_.getModel().getAbilities().empty() || !ability_panel_.getModel().getActiveTags().empty();
         break;
     }
+    case DiagnosticsTab::ProjectAudit: {
+        summary.item_count = project_audit_panel_.currentIssueCount();
+        summary.issue_count = project_audit_panel_.currentReleaseBlockerCount() + project_audit_panel_.currentExportBlockerCount();
+        summary.has_data = project_audit_panel_.hasReportData();
+        break;
+    }
     }
 
     return summary;
@@ -1590,6 +1631,7 @@ std::vector<DiagnosticsTabSummary> DiagnosticsWorkspace::allTabSummaries() const
         tabSummary(DiagnosticsTab::Audio),
         tabSummary(DiagnosticsTab::MigrationWizard),
         tabSummary(DiagnosticsTab::Abilities),
+        tabSummary(DiagnosticsTab::ProjectAudit),
     };
 }
 
@@ -1906,6 +1948,119 @@ std::string DiagnosticsWorkspace::exportAsJson() const {
         activeTabDetail["active_tags"] = std::move(activeTags);
         break;
     }
+    case DiagnosticsTab::ProjectAudit: {
+        const auto& snapshot = project_audit_panel_.lastRenderSnapshot();
+        activeTabDetail["headline"] = snapshot.headline;
+        activeTabDetail["summary_text"] = snapshot.summary;
+        activeTabDetail["has_data"] = snapshot.has_data;
+        activeTabDetail["issue_count"] = snapshot.issue_count;
+        activeTabDetail["release_blocker_count"] = snapshot.release_blocker_count;
+        activeTabDetail["export_blocker_count"] = snapshot.export_blocker_count;
+        activeTabDetail["template_id"] = snapshot.template_id;
+        activeTabDetail["template_status"] = snapshot.template_status;
+        if (snapshot.asset_governance_issue_count.has_value()) {
+            activeTabDetail["asset_governance_issue_count"] = *snapshot.asset_governance_issue_count;
+        }
+        if (snapshot.schema_governance_issue_count.has_value()) {
+            activeTabDetail["schema_governance_issue_count"] = *snapshot.schema_governance_issue_count;
+        }
+        if (snapshot.project_artifact_issue_count.has_value()) {
+            activeTabDetail["project_artifact_issue_count"] = *snapshot.project_artifact_issue_count;
+        }
+        nlohmann::json governance = nlohmann::json::object();
+        if (snapshot.asset_report.has_value()) {
+            nlohmann::json assetReport = nlohmann::json::object();
+            if (snapshot.asset_report->path.has_value()) {
+                assetReport["path"] = *snapshot.asset_report->path;
+            }
+            if (snapshot.asset_report->available.has_value()) {
+                assetReport["available"] = *snapshot.asset_report->available;
+            }
+            if (snapshot.asset_report->usable.has_value()) {
+                assetReport["usable"] = *snapshot.asset_report->usable;
+            }
+            if (snapshot.asset_report->issue_count.has_value()) {
+                assetReport["issue_count"] = *snapshot.asset_report->issue_count;
+            }
+            governance["asset_report"] = std::move(assetReport);
+        }
+        if (snapshot.schema_governance.has_value()) {
+            nlohmann::json schemaGovernance = nlohmann::json::object();
+            if (snapshot.schema_governance->schema_exists.has_value()) {
+                schemaGovernance["schema_exists"] = *snapshot.schema_governance->schema_exists;
+            }
+            if (snapshot.schema_governance->changelog_exists.has_value()) {
+                schemaGovernance["changelog_exists"] = *snapshot.schema_governance->changelog_exists;
+            }
+            if (snapshot.schema_governance->mentions_schema_version.has_value()) {
+                schemaGovernance["mentions_schema_version"] = *snapshot.schema_governance->mentions_schema_version;
+            }
+            if (snapshot.schema_governance->schema_version.has_value()) {
+                schemaGovernance["schema_version"] = *snapshot.schema_governance->schema_version;
+            }
+            governance["schema"] = std::move(schemaGovernance);
+        }
+        if (snapshot.project_schema_governance.has_value()) {
+            nlohmann::json projectSchemaGovernance = nlohmann::json::object();
+            if (snapshot.project_schema_governance->path.has_value()) {
+                projectSchemaGovernance["path"] = *snapshot.project_schema_governance->path;
+            }
+            if (snapshot.project_schema_governance->available.has_value()) {
+                projectSchemaGovernance["available"] = *snapshot.project_schema_governance->available;
+            }
+            if (snapshot.project_schema_governance->has_localization_section.has_value()) {
+                projectSchemaGovernance["has_localization_section"] =
+                    *snapshot.project_schema_governance->has_localization_section;
+            }
+            if (snapshot.project_schema_governance->has_input_section.has_value()) {
+                projectSchemaGovernance["has_input_section"] =
+                    *snapshot.project_schema_governance->has_input_section;
+            }
+            if (snapshot.project_schema_governance->has_export_section.has_value()) {
+                projectSchemaGovernance["has_export_section"] =
+                    *snapshot.project_schema_governance->has_export_section;
+            }
+            governance["project_schema"] = std::move(projectSchemaGovernance);
+        }
+        if (snapshot.localization_artifacts.has_value()) {
+            governance["localization_artifacts"] =
+                ProjectAuditArtifactGovernanceJson(*snapshot.localization_artifacts);
+        }
+        if (snapshot.input_artifacts.has_value()) {
+            governance["input_artifacts"] = ProjectAuditArtifactGovernanceJson(*snapshot.input_artifacts);
+        }
+        if (snapshot.export_artifacts.has_value()) {
+            governance["export_artifacts"] = ProjectAuditArtifactGovernanceJson(*snapshot.export_artifacts);
+        }
+        if (!governance.empty()) {
+            activeTabDetail["governance"] = std::move(governance);
+        }
+        nlohmann::json issues = nlohmann::json::array();
+        for (const auto& issue : snapshot.issues) {
+            const char* severity = "info";
+            switch (issue.severity) {
+            case ProjectAuditSeverity::Warning:
+                severity = "warning";
+                break;
+            case ProjectAuditSeverity::Error:
+                severity = "error";
+                break;
+            case ProjectAuditSeverity::Info:
+            default:
+                break;
+            }
+            issues.push_back({
+                {"code", issue.code},
+                {"title", issue.title},
+                {"detail", issue.detail},
+                {"severity", severity},
+                {"blocks_release", issue.blocks_release},
+                {"blocks_export", issue.blocks_export},
+            });
+        }
+        activeTabDetail["issues"] = std::move(issues);
+        break;
+    }
     default:
         break;
     }
@@ -1949,6 +2104,8 @@ void DiagnosticsWorkspace::render() {
         migration_wizard_panel_.render();
     } else if (active_tab_ == DiagnosticsTab::Abilities) {
         ability_panel_.render();
+    } else if (active_tab_ == DiagnosticsTab::ProjectAudit) {
+        project_audit_panel_.render();
     }
 }
 
@@ -1997,6 +2154,7 @@ void DiagnosticsWorkspace::syncPanelVisibility() {
     audio_panel_.setVisible(visible_ && active_tab_ == DiagnosticsTab::Audio);
     migration_wizard_panel_.setVisible(visible_ && active_tab_ == DiagnosticsTab::MigrationWizard);
     ability_panel_.setVisible(visible_ && active_tab_ == DiagnosticsTab::Abilities);
+    project_audit_panel_.setVisible(visible_ && active_tab_ == DiagnosticsTab::ProjectAudit);
 }
 
 void DiagnosticsWorkspace::refreshActiveSnapshotBackedTabIfVisible() {
@@ -2016,6 +2174,11 @@ void DiagnosticsWorkspace::refreshActiveSnapshotBackedTabIfVisible() {
         break;
     case DiagnosticsTab::MigrationWizard:
         refreshMigrationWizardSnapshotIfActive();
+        break;
+    case DiagnosticsTab::ProjectAudit:
+        if (visible_ && active_tab_ == DiagnosticsTab::ProjectAudit) {
+            project_audit_panel_.render();
+        }
         break;
     case DiagnosticsTab::MessageText:
         refreshMessageInspectorSnapshotIfActive();

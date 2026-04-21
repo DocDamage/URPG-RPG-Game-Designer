@@ -46,6 +46,21 @@ jobs:
       - name: Validate presentation docs links
         shell: pwsh
         run: ./tools/docs/check-presentation-doc-links.ps1
+      - name: Validate release readiness records
+        shell: pwsh
+        run: ./tools/ci/check_release_readiness.ps1
+      - name: Validate schema changelog governance
+        shell: pwsh
+        run: ./tools/ci/check_schema_changelog.ps1
+      - name: Validate truth alignment
+        shell: pwsh
+        run: ./tools/docs/check_truth_alignment.ps1
+      - name: Validate template claims
+        shell: pwsh
+        run: ./tools/docs/check_template_claims.ps1
+      - name: Validate subsystem badges
+        shell: pwsh
+        run: ./tools/docs/check_subsystem_badges.ps1
       - name: Verify sccache
         run: |
           which sccache

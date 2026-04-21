@@ -33,6 +33,21 @@ Write-Host "== Validate Wave 1 subsystem checklist sync ==" -ForegroundColor Cya
 Write-Host "== Validate presentation docs links ==" -ForegroundColor Cyan
 & "$PSScriptRoot\..\docs\check-presentation-doc-links.ps1"
 
+Write-Host "== Validate release readiness records ==" -ForegroundColor Cyan
+& "$PSScriptRoot\check_release_readiness.ps1"
+
+Write-Host "== Validate schema changelog governance ==" -ForegroundColor Cyan
+& "$PSScriptRoot\check_schema_changelog.ps1"
+
+Write-Host "== Validate truth alignment ==" -ForegroundColor Cyan
+& "$PSScriptRoot\..\docs\check_truth_alignment.ps1"
+
+Write-Host "== Validate template claims ==" -ForegroundColor Cyan
+& "$PSScriptRoot\..\docs\check_template_claims.ps1"
+
+Write-Host "== Validate subsystem badges ==" -ForegroundColor Cyan
+& "$PSScriptRoot\..\docs\check_subsystem_badges.ps1"
+
 Write-Host "== Configure: $ConfigurePreset ==" -ForegroundColor Cyan
 cmake --preset $ConfigurePreset
 

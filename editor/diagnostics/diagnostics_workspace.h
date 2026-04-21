@@ -6,6 +6,7 @@
 #include "editor/compat/compat_report_panel.h"
 #include "editor/diagnostics/event_authority_panel.h"
 #include "editor/diagnostics/migration_wizard_panel.h"
+#include "editor/diagnostics/project_audit_panel.h"
 #include "editor/message/message_inspector_panel.h"
 #include "editor/save/save_inspector_panel.h"
 #include "editor/ui/menu_inspector_panel.h"
@@ -24,6 +25,7 @@ enum class DiagnosticsTab : uint8_t {
     Audio = 6,
     MigrationWizard = 7,
     Abilities = 8,
+    ProjectAudit = 9,
 };
 
 struct DiagnosticsTabSummary {
@@ -60,6 +62,8 @@ public:
     const AbilityInspectorPanel& abilityPanel() const;
     MigrationWizardPanel& migrationWizardPanel();
     const MigrationWizardPanel& migrationWizardPanel() const;
+    ProjectAuditPanel& projectAuditPanel();
+    const ProjectAuditPanel& projectAuditPanel() const;
 
     void bindSaveRuntime(const urpg::SaveCatalog& catalog,
                          urpg::SaveSessionCoordinator& coordinator);
@@ -143,6 +147,8 @@ public:
     bool loadMigrationWizardReportFromFile(const std::string& path);
     void bindAbilityRuntime(const urpg::ability::AbilitySystemComponent& asc);
     void clearAbilityRuntime();
+    void bindProjectAuditReport(const nlohmann::json& report);
+    void clearProjectAuditReport();
     void ingestEventAuthorityDiagnosticsJsonl(std::string_view diagnostics_jsonl);
     void clearEventAuthorityDiagnostics();
     bool setEventAuthorityEventIdFilter(std::string_view event_id_filter);
@@ -194,6 +200,7 @@ private:
     AudioInspectorPanel audio_panel_;
     AbilityInspectorPanel ability_panel_;
     MigrationWizardPanel migration_wizard_panel_;
+    ProjectAuditPanel project_audit_panel_;
     DiagnosticsTab active_tab_ = DiagnosticsTab::Compat;
     bool visible_ = true;
 };

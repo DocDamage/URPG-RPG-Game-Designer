@@ -2,12 +2,22 @@
 
 ## Current Status
 **Phase:** Post-Phase-5 closure follow-through
-**Active Task:** Maintain documentation truthfulness and verified branch state after Wave 2 roadmap follow-through closure
+**Active Task:** Maintain documentation truthfulness and verified branch state while extending the governance-driven project-audit scanner
 **Cross-Cutting Governance:** cross-program debt, truthfulness, and intake-governance tracking lives in `docs/TECHNICAL_DEBT_REMEDIATION_PLAN.md`
 
 ---
 
 ## Entries
+
+### 2026-04-20 — Governance and Template Readiness Foundation
+- **Action**: Added canonical governance/readiness docs for subsystem readiness, template readiness, truth-alignment rules, subsystem/template label rules, schema changelog governance, and the first project-audit contract.
+- **Action**: Added machine-readable readiness artifacts at `content/readiness/readiness_status.json` and `content/schemas/readiness_status.schema.json`.
+- **Action**: Added focused governance enforcement scripts in `tools/ci/` and `tools/docs/` for release readiness, schema changelog coverage, truth alignment, template claims, and subsystem badge discipline.
+- **Action**: Added a first `urpg_project_audit` CLI that now derives conservative audit output from the canonical readiness dataset, plus a `ProjectAuditPanel` wired into `DiagnosticsWorkspace`, and expanded diagnostics/panel tests around the new tab.
+- **Action**: Reconciled audit wording so the scanner is described honestly as readiness-derived first, while noting that asset-intake and schema/changelog governance can influence reported blockers only where those concerns are already represented in the canonical readiness/template governance records.
+- **Action**: Integrated the new governance checks into `tools/ci/run_local_gates.ps1` and reconciled the canonical status docs and README so they describe this lane as landed governance scaffolding rather than still-planned work.
+- **Action**: Expanded `urpg_project_audit` and the diagnostics export path so the current conservative scanner now also reports grouped governance detail for project-schema gaps plus missing canonical localization, export, and input/controller-governance artifact paths defined by the roadmap, while keeping those findings explicitly worded as governance gaps rather than proof of full feature absence.
+- **Result**: URPG now has a first canonical governance foundation for product-readiness truth, along with local validation hooks and a diagnostics entry point, without overstating the current slice as a full release-signoff system or a full-project scanner.
 
 ### 2026-04-20 — Runtime VFX Cue Pipeline Baseline
 - **Action**: Extended the presentation bridge/runtime path so newly-emitted `BattleScene` effect cues are projected into presentation battle state and resolved through the shared runtime effect resolver/translator path during frame build.
@@ -858,3 +868,9 @@
 - **Context**: The compat exit checklist still left curated-corpus coverage open even though the active fixture corpus already spans 10 plugin/import profiles and the weekly lane exercises orchestration and reload-survival across them.
 - **Action**: Re-audited `fixtureSpecs()` plus the curated orchestration/reload tests in `tests/compat/test_compat_plugin_fixtures.cpp`, then reconciled the compat checklist and remaining-work tracker to reflect that shipped coverage.
 - **Result**: The remaining compat hardening tracker no longer treats 10-profile corpus coverage as unfinished work; the open compat follow-through is now limited to sign-off/ongoing truth-maintenance rather than missing routed coverage.
+
+## 2026-04-20 - Governance and Template Expansion Consolidation
+
+- **Context**: `URPG_MISSING_FEATURES_GOVERNANCE_AND_TEMPLATE_EXPANSION_PLAN_v2.md` introduced a broader governance/template-readiness gap list that was not yet absorbed into the canonical roadmap/status stack.
+- **Action**: Folded the addendum into the canonical planning chain as reference input, updated the roadmap/status/remediation docs to treat subsystem readiness, template readiness, schema-version governance, cross-cutting minimum bars, and Create-a-Character/template expansion as explicit planned work, and corrected the roadmap's prior overstatement that a subsystem-wide release-readiness matrix had already landed.
+- **Result**: The canonical docs now distinguish clearly between what is implemented and validated today versus the governance/productization foundation still needed for trustworthy multi-template product claims.

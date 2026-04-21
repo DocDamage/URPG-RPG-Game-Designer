@@ -1,8 +1,8 @@
 # Technical Debt Remediation Plan
 
-> **Document status:** Eighth-pass revision — canonical remediation hub as of 2026-04-19.
+> **Document status:** Ninth-pass revision — canonical remediation hub as of 2026-04-20.
 > Incorporates stale-state debt, placeholder export-surface debt, documentation/test drift findings, the external-repository intake program defined in [URPG_repo_intake_plan.md](../URPG_repo_intake_plan.md), and the private-use asset intake program defined in [URPG_private_asset_intake_plan.md](../URPG_private_asset_intake_plan.md).
-> This revision also absorbs the newly added PGMMV and native-absorption planning inputs into the remediation program so roadmap expansion, truthfulness, and execution governance share one canonical hub.
+> This revision also absorbs the newly added PGMMV, native-absorption, and governance/template-expansion planning inputs into the remediation program so roadmap expansion, truthfulness, and execution governance share one canonical hub.
 
 ---
 
@@ -138,7 +138,9 @@ The debt picture is narrower than it was at initial audit, but several cross-cut
 
 **Phase 4 intake governance is now concretized and closed as a remediation lane.** [URPG_repo_intake_plan.md](../URPG_repo_intake_plan.md) and [URPG_private_asset_intake_plan.md](../URPG_private_asset_intake_plan.md) are now backed by explicit dispositions, schemas, manifests, source-capture reporting, and a local validation gate so future external-repo and private-asset work enters through governed records instead of placeholder templates.
 
-**Planning authority is centralized, and the remaining risk is regression to drift.** Archived PGMMV/native-absorption roadmap inputs are now reference-only annexes routed through this remediation hub and the canonical status stack. The remaining governance work is to keep future plan docs from reintroducing parallel authority.
+**Planning authority is centralized, and the remaining risk is regression to drift.** Archived PGMMV/native-absorption roadmap inputs and the 2026-04-20 governance/template-expansion addendum are now reference-only planning inputs routed through this remediation hub and the canonical status stack. The remaining governance work is to keep future plan docs from reintroducing parallel authority and to prevent subsystem/template readiness language from outrunning evidence.
+
+**The newly absorbed gap list sharpens a real remaining product risk.** The remediation findings table is green, but product-readiness governance is not "done." Canonical subsystem readiness matrices, template readiness matrices, schema-version/changelog enforcement, and project-audit surfaces now exist as first-slice governance artifacts, but fuller release-signoff enforcement, cross-doc/path drift detection, and the underlying product lanes for accessibility, localization completeness, input remapping, audio governance, and performance budgets still remain roadmap work that must pass through the same truth gates before they can be marketed as complete.
 
 **What this plan does NOT cover:**
 - New feature development not related to closing existing gaps.
@@ -968,7 +970,7 @@ These principles govern every remediation decision. When in doubt, refer back to
 - Align plugin/cloud/export documentation with the actual routing state of [plugin_api.h](../engine/core/editor/plugin_api.h), [plugin_api.cpp](../engine/core/editor/plugin_api.cpp), and [cloud_service.h](../engine/core/social/cloud_service.h) (see P2-07, P2-08).
 - Stand up external repository intake governance from [URPG_repo_intake_plan.md](../URPG_repo_intake_plan.md) so future compat/import/export/editor improvements are sourced through an explicit legal, fixture, and adoption program rather than ad hoc repo ingestion (see P3-02).
 - Stand up private-use asset intake governance from [URPG_private_asset_intake_plan.md](../URPG_private_asset_intake_plan.md) so editor/runtime realism improvements, placeholder replacement, and vertical-slice asset upgrades are sourced through explicit staging, provenance, and promotion rules rather than ad hoc asset drops (see P3-03).
-- Reconcile the newly added PGMMV/native-absorption roadmap inputs with the canonical remediation/status/roadmap set so the repo does not carry parallel execution authorities (see P2-10).
+- Reconcile the newly added PGMMV/native-absorption roadmap inputs and governance/template-expansion addendum with the canonical remediation/status/roadmap set so the repo does not carry parallel execution authorities (see P2-10).
 
 #### Workstream 4.1 — External Repository Intake Governance (see P3-02)
 - Treat [URPG_repo_intake_plan.md](../URPG_repo_intake_plan.md) as the detailed execution plan for external intake.
@@ -1009,7 +1011,7 @@ These principles govern every remediation decision. When in doubt, refer back to
   - future asset gap reporting and promotion decisions
 
 #### Workstream 4.3 — Canonical Roadmap Integration And Planning Governance (see P2-10)
-- Maintain [URPG_MASTER_NATIVE_ABSORPTION_AND_PGMMV_ROADMAP_2026-04-18.md](./archive/planning/URPG_MASTER_NATIVE_ABSORPTION_AND_PGMMV_ROADMAP_2026-04-18.md) and [URPG_PGMMV_SUPPORT_PLAN.md](./archive/planning/URPG_PGMMV_SUPPORT_PLAN.md) as execution-detail/reference inputs rather than letting them drift back into parallel-authority status.
+- Maintain [URPG_MASTER_NATIVE_ABSORPTION_AND_PGMMV_ROADMAP_2026-04-18.md](./archive/planning/URPG_MASTER_NATIVE_ABSORPTION_AND_PGMMV_ROADMAP_2026-04-18.md), [URPG_PGMMV_SUPPORT_PLAN.md](./archive/planning/URPG_PGMMV_SUPPORT_PLAN.md), and [URPG_MISSING_FEATURES_GOVERNANCE_AND_TEMPLATE_EXPANSION_PLAN_v2.md](../URPG_MISSING_FEATURES_GOVERNANCE_AND_TEMPLATE_EXPANSION_PLAN_v2.md) as execution-detail/reference inputs rather than letting them drift back into parallel-authority status.
 - Keep the phase story aligned across this remediation hub, [PROGRAM_COMPLETION_STATUS.md](./PROGRAM_COMPLETION_STATUS.md), and [NATIVE_FEATURE_ABSORPTION_PLAN.md](./NATIVE_FEATURE_ABSORPTION_PLAN.md) so new lanes inherit the same build/test/doc/release truth gates.
 - Preserve explicit canonical placement for the absorbed roadmap obligations:
   - PGMMV intake and migration truthfulness
@@ -1348,3 +1350,4 @@ A remediation item is **done only when all of the following are true**:
 | 2026-04-18 | Integrated the newly added PGMMV/native-absorption planning scope into the remediation hub via canonical-planning governance, Phase 4 roadmap-alignment work, documentation-alignment hooks, and Definition-of-Done requirements. |
 | 2026-04-18 | Sixth-pass improvement: fixed UTF-8/cp1252 encoding artifacts throughout document; added Finding Status at a Glance dashboard; added R7 (planning-doc sprawl) and R8 (QuickJS path decision timing) to Risk Register; corrected P2-04 root cause description; fixed incomplete test path in Verification Plan; fixed P1-02 source file table entry; added Principle 8 on test coverage honesty; updated Change Log. |
 | 2026-04-19 | Seventh-pass improvement: reconciled the canonical current-state docs after the Phase 2 runtime closure, updated P0-01 and P2-10 to remediated status, refreshed stale current-state language, and aligned the remediation hub with README/status/kickoff/compat-checklist truth. |
+| 2026-04-20 | Absorbed the governance/template-expansion addendum into the canonical planning chain as reference input, clarified that release-readiness/template-readiness governance remains roadmap work rather than landed remediation, and aligned the roadmap/status stack around those explicit remaining bars. |

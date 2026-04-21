@@ -182,6 +182,7 @@ add_library(urpg_core
     editor/diagnostics/event_authority_panel.cpp
     editor/diagnostics/diagnostics_workspace.cpp
     editor/diagnostics/diagnostics_facade.cpp
+    editor/diagnostics/project_audit_panel.cpp
     editor/compat/compat_report_panel.cpp
     editor/save/save_inspector_model.cpp
     editor/save/save_inspector_panel.cpp
@@ -387,6 +388,13 @@ add_executable(urpg_migrate
 target_link_libraries(urpg_migrate PRIVATE urpg_core)
 target_include_directories(urpg_migrate PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
 
+add_executable(urpg_project_audit
+    tools/audit/urpg_project_audit.cpp
+)
+
+target_link_libraries(urpg_project_audit PRIVATE urpg_core)
+target_include_directories(urpg_project_audit PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+
 add_executable(urpg_presentation_release_validation
     engine/core/presentation/release_validation.cpp
 )
@@ -427,6 +435,7 @@ add_executable(urpg_tests
     tests/unit/test_migration_runner.cpp
     tests/unit/test_source_authority.cpp
     tests/unit/test_diagnostics_facade.cpp
+    tests/unit/test_project_audit_panel.cpp
     tests/unit/test_save_catalog.cpp
     tests/unit/test_save_inspector_model.cpp
     tests/unit/test_save_inspector_panel.cpp
@@ -473,6 +482,7 @@ add_executable(urpg_tests
     tests/unit/test_gameplay_tags.cpp
     tests/unit/test_presentation_runtime.cpp
     tests/unit/test_presentation_effect_translation.cpp
+    tests/unit/test_project_audit_cli.cpp
     tests/unit/test_effect_cue.cpp
     tests/unit/test_spatial_editor.cpp
     tests/unit/test_huggingface_curated_assets.cpp
@@ -504,6 +514,7 @@ add_executable(urpg_tests
 target_link_libraries(urpg_tests PRIVATE urpg_core Catch2::Catch2WithMain)
 target_include_directories(urpg_tests PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
 target_compile_definitions(urpg_tests PRIVATE URPG_SOURCE_DIR="${CMAKE_CURRENT_SOURCE_DIR}")
+add_dependencies(urpg_tests urpg_project_audit)
 urpg_enable_windows_test_binary_unlock(urpg_tests)
 
 add_executable(urpg_integration_tests

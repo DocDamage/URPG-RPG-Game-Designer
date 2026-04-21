@@ -1,0 +1,181 @@
+{
+  "schemaVersion": "1.0.0",
+  "statusDate": "2026-04-20",
+  "subsystems": [
+    {
+      "id": "ui_menu_core",
+      "status": "READY",
+      "summary": "Wave 1 native menu ownership is closed for the claimed scope.",
+      "mainGaps": [],
+      "evidence": {
+        "runtimeOwner": true,
+        "editorSurface": true,
+        "schemaMigration": true,
+        "diagnostics": true,
+        "testsValidation": true,
+        "docsAligned": true
+      }
+    },
+    {
+      "id": "message_text_core",
+      "status": "READY",
+      "summary": "Wave 1 native message/text ownership is closed for the claimed scope.",
+      "mainGaps": [],
+      "evidence": {
+        "runtimeOwner": true,
+        "editorSurface": true,
+        "schemaMigration": true,
+        "diagnostics": true,
+        "testsValidation": true,
+        "docsAligned": true
+      }
+    },
+    {
+      "id": "battle_core",
+      "status": "PARTIAL",
+      "summary": "Battle has real native ownership and diagnostics, but Wave 1 closure is not complete.",
+      "mainGaps": [
+        "Wave 1 closure not complete"
+      ],
+      "evidence": {
+        "runtimeOwner": true,
+        "editorSurface": true,
+        "schemaMigration": true,
+        "diagnostics": true,
+        "testsValidation": true,
+        "docsAligned": true
+      }
+    },
+    {
+      "id": "save_data_core",
+      "status": "PARTIAL",
+      "summary": "Save/data runtime and diagnostics are real, but closure remains open.",
+      "mainGaps": [
+        "Compat import and migration closure remains open"
+      ],
+      "evidence": {
+        "runtimeOwner": true,
+        "editorSurface": true,
+        "schemaMigration": true,
+        "diagnostics": true,
+        "testsValidation": true,
+        "docsAligned": true
+      }
+    },
+    {
+      "id": "presentation_runtime",
+      "status": "PARTIAL",
+      "summary": "Presentation runtime and focused lanes are real, but product-wide readiness is not signed off.",
+      "mainGaps": [
+        "Broader productization and readiness governance still missing"
+      ],
+      "evidence": {
+        "runtimeOwner": true,
+        "editorSurface": true,
+        "schemaMigration": false,
+        "diagnostics": false,
+        "testsValidation": true,
+        "docsAligned": true
+      }
+    },
+    {
+      "id": "governance_foundation",
+      "status": "PLANNED",
+      "summary": "Canonical governance-foundation lane is defined but not yet landed.",
+      "mainGaps": [
+        "Readiness matrices and checks are still being introduced"
+      ],
+      "evidence": {
+        "runtimeOwner": false,
+        "editorSurface": false,
+        "schemaMigration": true,
+        "diagnostics": false,
+        "testsValidation": false,
+        "docsAligned": true
+      }
+    }
+  ],
+  "templates": [
+    {
+      "id": "jrpg",
+      "status": "PARTIAL",
+      "requiredSubsystems": [
+        "ui_menu_core",
+        "message_text_core",
+        "battle_core",
+        "save_data_core"
+      ],
+      "bars": {
+        "accessibility": "PLANNED",
+        "audio": "PARTIAL",
+        "input": "PARTIAL",
+        "localization": "PLANNED",
+        "performance": "PARTIAL"
+      },
+      "safeScope": "Wave 1 native-first baseline with truthful residual gaps.",
+      "mainBlockers": [
+        "Battle and save closure remain open",
+        "Cross-cutting readiness bars are not complete"
+      ]
+    },
+    {
+      "id": "visual_novel",
+      "status": "PARTIAL",
+      "requiredSubsystems": [
+        "message_text_core",
+        "save_data_core"
+      ],
+      "bars": {
+        "accessibility": "PLANNED",
+        "audio": "PARTIAL",
+        "input": "PARTIAL",
+        "localization": "PLANNED",
+        "performance": "PARTIAL"
+      },
+      "safeScope": "Dialogue-heavy projects within current native message and save scope.",
+      "mainBlockers": [
+        "Template-grade governance is not complete"
+      ]
+    },
+    {
+      "id": "tactics_rpg",
+      "status": "EXPERIMENTAL",
+      "requiredSubsystems": [
+        "battle_core",
+        "presentation_runtime",
+        "save_data_core"
+      ],
+      "bars": {
+        "accessibility": "PLANNED",
+        "audio": "PLANNED",
+        "input": "PARTIAL",
+        "localization": "PLANNED",
+        "performance": "PARTIAL"
+      },
+      "safeScope": "Exploration and bounded experimentation only.",
+      "mainBlockers": [
+        "Template-specific scenario authoring remains missing",
+        "Cross-cutting readiness bars are not complete"
+      ]
+    },
+    {
+      "id": "arpg",
+      "status": "EXPERIMENTAL",
+      "requiredSubsystems": [
+        "presentation_runtime",
+        "save_data_core"
+      ],
+      "bars": {
+        "accessibility": "PLANNED",
+        "audio": "PLANNED",
+        "input": "PARTIAL",
+        "localization": "PLANNED",
+        "performance": "PARTIAL"
+      },
+      "safeScope": "Roadmap-aligned experimentation only.",
+      "mainBlockers": [
+        "Template-specific closure visibility remains missing"
+      ]
+    }
+  ]
+}
