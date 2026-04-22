@@ -1,10 +1,11 @@
-# ADR-011: Presentation and Spatial Subsystem Status — Incubating
+# ADR-011: Presentation and Spatial Subsystem Status — Productized with Residual Gaps
 
 **Status:** Approved  
 **Date:** 2026-04-17  
+**Updated:** 2026-04-21  
 **Supersedes / Clarifies:** ADR-010-presentation-completion (architectural patterns approved; build coverage and productization status explicitly downscoped)
 
-Historical note: this ADR preserves the status correction recorded on 2026-04-17. The specific `editor/spatial/*` header-only limitation described below was later remediated on 2026-04-20 when compiled `.cpp` panel sources were added and registered in the build graph. For current execution and release truth, defer to the canonical program/remediation documents.
+Historical note: this ADR preserves the status correction recorded on 2026-04-17. The specific `editor/spatial/*` header-only limitation described in the original Context was remediated on 2026-04-20 when compiled `.cpp` panel sources were added and registered in the build graph. The subsystem was further productized on 2026-04-21 with a runtime-backed spatial-authoring→presentation-consumption proof path. For current execution and release truth, defer to the canonical program/remediation documents.
 
 ## Context
 
@@ -21,24 +22,25 @@ This ADR recorded an explicit status correction for these directories so the pla
 
 ## Decision
 
-1. **`editor/spatial/` — Incubating**
-   - The spatial editor panels (`ElevationBrushPanel`, `PropPlacementPanel`) exist as design headers and are exercised by `tests/unit/test_spatial_editor.cpp`, but they have no compiled `.cpp` implementation in the build graph.
-   - They are **not** productized. They will be labeled incubating in all program documentation until `.cpp` sources are written, registered in `CMakeLists.txt`, and linked into an editor target.
+1. **`editor/spatial/` — Productized for compiled panel scope**
+   - The spatial editor panels (`ElevationBrushPanel`, `PropPlacementPanel`) have compiled `.cpp` implementations registered in `CMakeLists.txt` and linked into `urpg_core`.
+   - They are exercised by `tests/unit/test_spatial_editor.cpp` and the new `tests/unit/test_spatial_editor.cpp` `[presentation][spatial][e2e]` test proving authoring output flows into `PresentationRuntime` frame generation.
+   - Residual gap: deeper prop library integration and real renderer-backend preview remain future work.
 
-2. **`engine/core/presentation/` — Incubating as a subsystem**
-   - The directory is predominantly header-only architectural scaffolding.
-   - The only actively compiled surfaces are:
-     - `presentation_runtime.cpp` (part of `urpg_core`)
-     - `release_validation.cpp` (standalone validation executable)
-   - `profile_arena.cpp` is intentionally left out of `urpg_core` while the subsystem remains in incubation.
-   - The existing registered tests (`test_presentation_runtime.cpp`, `test_spatial_editor.cpp`) were retained as anchor points for the future productization path.
+2. **`engine/core/presentation/` — Productized with residual gaps**
+   - The directory now has actively compiled and tested surfaces:
+     - `presentation_runtime.cpp` (part of `urpg_core`, tested by `[presentation][runtime]` and `[presentation][spatial][e2e]`)
+     - `presentation_bridge.cpp` (part of `urpg_core`, tested by `[presentation][bridge]`)
+     - `release_validation.cpp` (standalone validation executable, now covers spatial-authoring→runtime consumption)
+   - `profile_arena.cpp` remains intentionally out of `urpg_core` until the profile hot-reload path is fully implemented.
+   - The renderer backend consumed by the presentation intent is still a mock/stub (`RenderBackendMock`); real OpenGL backend integration is a residual gap.
 
 ## Rationale
 
-A subsystem is not considered landed in URPG unless it is built, test-registered, and reachable from a real runtime or editor entry point (see Remediation Principle #2 in `TECHNICAL_DEBT_REMEDIATION_PLAN.md`). Because the bulk of the presentation/spatial code is headers-only and the editor panels are not compiled, claiming productized status would overstate completion and undermine planning trust. Retaining the compiled runtime surface (`presentation_runtime.cpp`) and the standalone release validator keeps the anchor points alive without misrepresenting the maturity of the overall subsystem.
+A subsystem is considered landed in URPG when it is built, test-registered, and reachable from a real runtime or editor entry point (see Remediation Principle #2 in `TECHNICAL_DEBT_REMEDIATION_PLAN.md`). The presentation/spatial subsystem now meets these criteria: compiled panels, compiled runtime and bridge, end-to-end authoring→runtime tests, and release-validation coverage. The remaining gaps (mock renderer backend, unregistered `profile_arena.cpp`) are explicitly scoped as residual future work rather than blocking productization claims.
 
 ## Consequences
 
-- **Positive:** Program status documents now accurately reflect build-graph evidence. Stakeholders can plan around the need for future implementation work rather than assuming the spatial editor is already shipped.
-- **Neutral:** The architectural direction from ADR-010 remains valid; this ADR only changes the claimed productization status.
-- **Negative:** None. The headers, tests, and compiled surfaces remain untouched. When `.cpp` implementations are added and registered, the status can be upgraded to productized via a follow-up ADR or checklist closure.
+- **Positive:** Program status documents now accurately reflect build-graph evidence including the compiled spatial panels, runtime-backed tests, and end-to-end authoring proof path.
+- **Neutral:** The architectural direction from ADR-010 remains valid; this ADR updates the claimed productization status to match the current evidence.
+- **Negative:** None. The honest residual gaps (mock renderer, profile arena) are documented and do not silently overclaim.

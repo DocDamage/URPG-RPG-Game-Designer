@@ -5,7 +5,9 @@ param(
 
     [Parameter(Mandatory = $true)]
     [ValidateSet("Windows_x64", "Linux_x64", "macOS_Universal", "Web_WASM")]
-    [string]$Target
+    [string]$Target,
+
+    [switch]$Json
 )
 
 $ErrorActionPreference = "Stop"
@@ -78,8 +80,20 @@ foreach ($req in $requirements) {
     }
 }
 
-if ($missing.Count -gt 0) {
-    throw "Platform export validation failed for $Target. Missing required files: $($missing -join ', ')"
+$report = @{
+    target = $Target
+    passed = $missing.Count -eq 0
+    errors = @($missing | ForEach-Object { "Missing required file: $_" })
 }
 
-Write-Host "Platform export validation passed for $Target"
+if ($Json) {
+    $report | ConvertTo-Json -Compress
+    if (-not $report.passed) {
+        exit 1
+    }
+} else {
+    if ($missing.Count -gt 0) {
+        throw "Platform export validation failed for $Target. Missing required files: $($missing -join ', ')"
+    }
+    Write-Host "Platform export validation passed for $Target"
+}

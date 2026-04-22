@@ -35,6 +35,8 @@ public:
     nlohmann::json toJson() const;
     void fromJson(const nlohmann::json& j);
 
+    const std::map<std::string, MixPreset>& presets() const { return m_presets; }
+
 private:
     std::map<std::string, MixPreset> m_presets;
 };

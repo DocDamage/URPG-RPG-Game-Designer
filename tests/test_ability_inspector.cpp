@@ -52,3 +52,49 @@ TEST_CASE("Ability Inspector UI Projection", "[ability][editor]") {
 
     REQUIRE(asc.getCooldownRemaining("Firebolt") == 0.0f);
 }
+
+TEST_CASE("Ability Inspector Diagnostics Snapshot", "[ability][editor]") {
+    AbilitySystemComponent asc;
+    AbilityInspectorPanel panel;
+
+    FireboltAbility firebolt;
+    asc.addTag(GameplayTag("State.Mana.High"));
+    asc.grantAbility(std::make_shared<FireboltAbility>(firebolt));
+
+    SECTION("Diagnostics snapshot is coherent before activation") {
+        auto snap = panel.getDiagnosticsSnapshot(asc);
+        REQUIRE(snap.ability_count == 1);
+        REQUIRE(snap.active_cooldown_count == 0);
+        REQUIRE(snap.last_execution_sequence_id == 0);
+        REQUIRE(snap.ability_states.size() == 1);
+        REQUIRE(snap.ability_states[0].id == "Firebolt");
+        REQUIRE(snap.ability_states[0].can_activate);
+        REQUIRE(snap.ability_states[0].blocking_reason.empty());
+    }
+
+    SECTION("Diagnostics snapshot reflects cooldown and history after activation") {
+        asc.tryActivateAbility(firebolt);
+        panel.update(asc);
+
+        auto snap = panel.getDiagnosticsSnapshot(asc);
+        REQUIRE(snap.ability_count == 1);
+        REQUIRE(snap.active_cooldown_count == 1);
+        REQUIRE(snap.last_execution_sequence_id == 1);
+        REQUIRE(snap.ability_states.size() == 1);
+        REQUIRE(snap.ability_states[0].id == "Firebolt");
+        REQUIRE_FALSE(snap.ability_states[0].can_activate);
+        REQUIRE(snap.ability_states[0].cooldown_remaining > 0.0f);
+        REQUIRE(snap.ability_states[0].blocking_reason.find("Cooldown") != std::string::npos);
+    }
+
+    SECTION("Diagnostics snapshot reflects cooldown decay") {
+        asc.tryActivateAbility(firebolt);
+        asc.update(5.0f);
+        panel.update(asc);
+
+        auto snap = panel.getDiagnosticsSnapshot(asc);
+        REQUIRE(snap.active_cooldown_count == 0);
+        REQUIRE(snap.ability_states[0].can_activate);
+        REQUIRE(snap.ability_states[0].blocking_reason.empty());
+    }
+}

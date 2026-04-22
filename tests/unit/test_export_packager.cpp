@@ -136,6 +136,65 @@ TEST_CASE("ExportPackager::validateBeforeExport matches validator contract acros
     }
 }
 
+TEST_CASE("ExportPackager emits a valid export tree that passes post-export validation", "[export][packager]") {
+    const auto base = std::filesystem::temp_directory_path() / "urpg_export_packager_emit_valid";
+    CreateExportFixture(base, ExportTarget::Windows_x64);
+
+    ExportPackager packager;
+    ExportConfig config{};
+    config.target = ExportTarget::Windows_x64;
+    config.outputDir = base.string();
+    config.compressAssets = true;
+
+    auto result = packager.runExport(config);
+
+    INFO(result.log);
+    REQUIRE(result.success);
+    REQUIRE_FALSE(result.generatedFiles.empty());
+
+    // Verify emitted files exist on disk
+    REQUIRE(std::filesystem::exists(base / "data.pck"));
+    REQUIRE(std::filesystem::exists(base / "game.exe"));
+
+    // Post-export validation must pass
+    ExportValidator validator;
+    auto errors = validator.validateExportDirectory(base.string(), ExportTarget::Windows_x64);
+    REQUIRE(errors.empty());
+
+    std::filesystem::remove_all(base);
+}
+
+TEST_CASE("ExportPackager emits valid export trees for all supported targets", "[export][packager]") {
+    const std::vector<ExportTarget> targets = {
+        ExportTarget::Windows_x64,
+        ExportTarget::Linux_x64,
+        ExportTarget::macOS_Universal,
+        ExportTarget::Web_WASM,
+    };
+
+    ExportPackager packager;
+    ExportValidator validator;
+
+    for (const auto target : targets) {
+        const auto base = std::filesystem::temp_directory_path() /
+            ("urpg_export_packager_emit_target_" + std::to_string(static_cast<int>(target)));
+        CreateExportFixture(base, target);
+
+        ExportConfig config{};
+        config.target = target;
+        config.outputDir = base.string();
+
+        auto result = packager.runExport(config);
+        INFO(result.log);
+        REQUIRE(result.success);
+
+        auto errors = validator.validateExportDirectory(base.string(), target);
+        REQUIRE(errors.empty());
+
+        std::filesystem::remove_all(base);
+    }
+}
+
 TEST_CASE("ExportPackager::runExport fails when pre-export validation fails", "[export][packager]") {
     const auto base = std::filesystem::temp_directory_path() / "urpg_export_packager_run_invalid";
     std::filesystem::remove_all(base);

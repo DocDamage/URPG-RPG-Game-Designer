@@ -32,6 +32,25 @@ void ExportDiagnosticsPanel::render() {
     snapshot["readyToExport"] = validation.passed;
     snapshot["validationSource"] = "packager_preflight";
 
+    // Post-export validation: if the output directory already contains an emitted tree,
+    // validate it and surface the emitted artifacts in the snapshot.
+    const auto postExportErrors = validator.validateExportDirectory(cfg.outputDir, cfg.target);
+    snapshot["postExportValidationPassed"] = postExportErrors.empty();
+    if (postExportErrors.empty()) {
+        snapshot["emittedArtifacts"] = nlohmann::json::array();
+        std::filesystem::path outDir(cfg.outputDir);
+        if (std::filesystem::exists(outDir) && std::filesystem::is_directory(outDir)) {
+            for (const auto& entry : std::filesystem::directory_iterator(outDir)) {
+                std::string name = entry.path().filename().string();
+                if (entry.is_regular_file()) {
+                    snapshot["emittedArtifacts"].push_back(name);
+                } else if (entry.is_directory() && name.size() > 4 && name.substr(name.size() - 4) == ".app") {
+                    snapshot["emittedArtifacts"].push_back(name);
+                }
+            }
+        }
+    }
+
     last_render_snapshot_ = std::move(snapshot);
 }
 

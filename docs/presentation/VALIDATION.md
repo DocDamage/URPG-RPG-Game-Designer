@@ -24,6 +24,7 @@ This document records the focused validation lanes for the native presentation s
   - prop gizmo screen-to-world projection
   - camera-aware placement against elevation grids
   - spatial editor schema round-trip and environment-command authoring assertions
+  - spatial authoring output flowing into `PresentationRuntime` frame generation (`[presentation][spatial][e2e]`)
 
 ### Presentation Release Validation Harness
 - **CTest name**: `urpg_presentation_release_validation`

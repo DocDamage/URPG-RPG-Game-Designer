@@ -100,15 +100,17 @@
     {
       "id": "presentation_runtime",
       "status": "PARTIAL",
-      "summary": "Presentation runtime and focused lanes are real, but product-wide readiness is not signed off.",
+      "summary": "Presentation runtime, bridge, compiled spatial editor panels, end-to-end authoring\u00e2\u2020\u2019runtime proof path, and release validation harness are landed. Promotion to READY requires human review of residual gaps.",
       "mainGaps": [
-        "Broader productization and readiness governance still missing"
+        "Real renderer backend integration (currently mock-backed) remains future work",
+        "Profile arena hot-reload path remains unregistered",
+        "Promotion to READY requires human review of residual gaps"
       ],
       "evidence": {
         "runtimeOwner": true,
         "editorSurface": true,
         "schemaMigration": false,
-        "diagnostics": false,
+        "diagnostics": true,
         "testsValidation": true,
         "docsAligned": true
       }
@@ -116,15 +118,23 @@
     {
       "id": "gameplay_ability_framework",
       "status": "PARTIAL",
-      "summary": "Gameplay ability runtime pieces and inspector/editor surfaces are landed with focused tests, but full release-facing closure and product bars are not signed off.",
+      "summary": "Gameplay ability runtime, inspector/editor surfaces, structured diagnostics snapshot, end-to-end release-grade test, and closure signoff artifact are landed. Promotion to READY requires human review of residual gaps.",
       "mainGaps": [
-        "Release-facing closure evidence and broader product bars remain future work"
+        "Schema contracts and compat-to-native migration mapping remain future work",
+        "Real gameplay loop integration into BattleScene/MapScene ability command queue remains future work",
+        "Promotion to READY requires human review of residual gaps"
       ],
+      "signoff": {
+        "required": true,
+        "artifactPath": "docs/GAF_CLOSURE_SIGNOFF.md",
+        "promotionRequiresHumanReview": true,
+        "workflow": "docs/RELEASE_SIGNOFF_WORKFLOW.md"
+      },
       "evidence": {
         "runtimeOwner": true,
         "editorSurface": true,
         "schemaMigration": false,
-        "diagnostics": false,
+        "diagnostics": true,
         "testsValidation": true,
         "docsAligned": true
       }
@@ -166,13 +176,14 @@
       "status": "PARTIAL",
       "summary": "Achievement registry with progress tracking, unlock conditions, trigger parsing, event-bus auto-unlock, and editor panel are landed.",
       "mainGaps": [
-        "Full trophy export pipeline and platform-specific achievement backend integration remain future work"
+        "Achievement validator is landed with EmptyId, EmptyTitle, EmptyUnlockCondition, ZeroTarget, DuplicateId, and EmptyIconId checks.",
+        "Trophy export pipeline and platform-specific achievement backend integration remain future work."
       ],
       "evidence": {
         "runtimeOwner": true,
         "editorSurface": true,
         "schemaMigration": true,
-        "diagnostics": false,
+        "diagnostics": true,
         "testsValidation": true,
         "docsAligned": true
       }
@@ -182,13 +193,14 @@
       "status": "PARTIAL",
       "summary": "Accessibility auditor with missing-label, focus-order, contrast, and navigation rules is landed.",
       "mainGaps": [
-        "Full UI ingestion pipeline from live editor surfaces and automated CI enforcement remain future work"
+        "Menu inspector live-ingestion adapter is landed; additional editor surfaces (spatial, audio, battle) still require dedicated adapters.",
+        "Automated CI enforcement of accessibility report artifacts is validated by check_accessibility_governance.ps1."
       ],
       "evidence": {
         "runtimeOwner": true,
         "editorSurface": true,
         "schemaMigration": true,
-        "diagnostics": false,
+        "diagnostics": true,
         "testsValidation": true,
         "docsAligned": true
       }
@@ -214,13 +226,14 @@
       "status": "PARTIAL",
       "summary": "Audio mix preset bank with default profiles, category volume mapping, ducking rules, and editor panel is landed.",
       "mainGaps": [
-        "Live audio backend integration beyond the current compat-truth harness remains future work"
+        "Audio mix preset validator is landed with MissingDefaultPreset, ConflictingDuckRules, VolumeOutOfRange, and EmptyCategoryVolumes checks.",
+        "Live audio backend integration beyond the current compat-truth harness remains future work."
       ],
       "evidence": {
         "runtimeOwner": true,
         "editorSurface": true,
         "schemaMigration": true,
-        "diagnostics": false,
+        "diagnostics": true,
         "testsValidation": true,
         "docsAligned": true
       }
@@ -228,15 +241,15 @@
     {
       "id": "export_validator",
       "status": "PARTIAL",
-      "summary": "Platform-specific export validator with per-target requirement checking and PowerShell CI script is landed.",
+      "summary": "Platform-specific export validator with per-target requirement checking, synthetic pack-and-validate pipeline, PowerShell CI script with JSON output, and diagnostics panel with post-export artifact surfacing is landed.",
       "mainGaps": [
-        "Integration with real export artifact pipeline and automated CI gate remain future work"
+        "Real asset bundling and binary synthesis remain stubbed; synthetic emitted tree is used for validation"
       ],
       "evidence": {
         "runtimeOwner": true,
-        "editorSurface": false,
+        "editorSurface": true,
         "schemaMigration": true,
-        "diagnostics": false,
+        "diagnostics": true,
         "testsValidation": true,
         "docsAligned": true
       }

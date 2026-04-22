@@ -175,3 +175,68 @@ TEST_CASE("ExportValidator: supported target fixtures satisfy all required artif
         std::filesystem::remove_all(base);
     }
 }
+
+TEST_CASE("check_platform_exports.ps1 -Json emits matching validator result shape for valid export", "[export][validation]") {
+    const auto base = std::filesystem::temp_directory_path() / "urpg_export_ps1_json_valid";
+    CreateExportFixture(base, ExportTarget::Windows_x64);
+
+    const std::filesystem::path scriptPath =
+        std::filesystem::path(URPG_SOURCE_DIR) / "tools" / "ci" / "check_platform_exports.ps1";
+    const auto outputPath = std::filesystem::temp_directory_path() / "urpg_export_ps1_json_valid_out.json";
+
+    const std::string command =
+        "powershell -ExecutionPolicy Bypass -File \"" + scriptPath.string() +
+        "\" -ExportDir \"" + base.string() +
+        "\" -Target Windows_x64 -Json > \"" + outputPath.string() + "\"";
+
+    REQUIRE(std::system(command.c_str()) == 0);
+
+    std::ifstream resultFile(outputPath);
+    REQUIRE(resultFile.good());
+    nlohmann::json result;
+    resultFile >> result;
+    resultFile.close();
+
+    REQUIRE(result["target"] == "Windows_x64");
+    REQUIRE(result["passed"] == true);
+    REQUIRE(result["errors"].is_array());
+    REQUIRE(result["errors"].empty());
+
+    std::filesystem::remove(outputPath);
+    std::filesystem::remove_all(base);
+}
+
+TEST_CASE("check_platform_exports.ps1 -Json emits matching validator result shape for invalid export", "[export][validation]") {
+    const auto base = std::filesystem::temp_directory_path() / "urpg_export_ps1_json_invalid";
+    std::filesystem::remove_all(base);
+    std::filesystem::create_directories(base);
+    WriteFile(base / "data.pck", "pck");
+
+    const std::filesystem::path scriptPath =
+        std::filesystem::path(URPG_SOURCE_DIR) / "tools" / "ci" / "check_platform_exports.ps1";
+    const auto outputPath = std::filesystem::temp_directory_path() / "urpg_export_ps1_json_invalid_out.json";
+
+    const std::string command =
+        "powershell -ExecutionPolicy Bypass -File \"" + scriptPath.string() +
+        "\" -ExportDir \"" + base.string() +
+        "\" -Target Windows_x64 -Json > \"" + outputPath.string() + "\" 2>nul";
+
+    const int exitCode = std::system(command.c_str());
+    // The script exits with 1 on failure when -Json is present, but std::system
+    // on Windows returns the raw exit code. We accept non-zero.
+    (void)exitCode;
+
+    std::ifstream resultFile(outputPath);
+    REQUIRE(resultFile.good());
+    nlohmann::json result;
+    resultFile >> result;
+    resultFile.close();
+
+    REQUIRE(result["target"] == "Windows_x64");
+    REQUIRE(result["passed"] == false);
+    REQUIRE(result["errors"].is_array());
+    REQUIRE_FALSE(result["errors"].empty());
+
+    std::filesystem::remove(outputPath);
+    std::filesystem::remove_all(base);
+}

@@ -1230,6 +1230,30 @@ void addAccessibilityArtifactGovernance(const TemplateContext& templateContext,
             "Accessibility",
             fs::path("editor") / "accessibility" / "accessibility_panel.cpp",
         },
+        {
+            "accessibility_artifact.menu_adapter_header_missing",
+            "Canonical accessibility menu adapter header missing",
+            "Accessibility",
+            fs::path("editor") / "accessibility" / "accessibility_menu_adapter.h",
+        },
+        {
+            "accessibility_artifact.menu_adapter_source_missing",
+            "Canonical accessibility menu adapter source missing",
+            "Accessibility",
+            fs::path("editor") / "accessibility" / "accessibility_menu_adapter.cpp",
+        },
+        {
+            "accessibility_artifact.governance_script_missing",
+            "Canonical accessibility governance script missing",
+            "Accessibility",
+            fs::path("tools") / "ci" / "check_accessibility_governance.ps1",
+        },
+        {
+            "accessibility_artifact.fixture_missing",
+            "Canonical accessibility report fixture missing",
+            "Accessibility",
+            fs::path("content") / "fixtures" / "accessibility_report_fixture.json",
+        },
     };
 
     addCanonicalArtifactSection(
@@ -1279,6 +1303,30 @@ void addAudioArtifactGovernance(const TemplateContext& templateContext,
             "Audio",
             fs::path("editor") / "audio" / "audio_mix_panel.cpp",
         },
+        {
+            "audio_artifact.validator_header_missing",
+            "Canonical audio mix validator header missing",
+            "Audio",
+            fs::path("engine") / "core" / "audio" / "audio_mix_validator.h",
+        },
+        {
+            "audio_artifact.validator_source_missing",
+            "Canonical audio mix validator source missing",
+            "Audio",
+            fs::path("engine") / "core" / "audio" / "audio_mix_validator.cpp",
+        },
+        {
+            "audio_artifact.governance_script_missing",
+            "Canonical audio governance script missing",
+            "Audio",
+            fs::path("tools") / "ci" / "check_audio_governance.ps1",
+        },
+        {
+            "audio_artifact.fixture_missing",
+            "Canonical audio mix preset fixture missing",
+            "Audio",
+            fs::path("content") / "fixtures" / "audio_mix_presets_fixture.json",
+        },
     };
 
     addCanonicalArtifactSection(
@@ -1289,6 +1337,79 @@ void addAudioArtifactGovernance(const TemplateContext& templateContext,
         artifacts,
         issues,
         audioArtifactIssueCount,
+        governanceReport);
+}
+
+void addAchievementArtifactGovernance(const TemplateContext& templateContext,
+                                      std::vector<AuditIssue>& issues,
+                                      std::size_t& achievementArtifactIssueCount,
+                                      json& governanceReport) {
+    const bool enabled = templateBarNeedsProjectArtifact(templateContext, "achievement") || !isReadyStatus(templateContext.status);
+    const std::vector<CanonicalArtifactSpec> artifacts = {
+        {
+            "achievement_artifact.schema_missing",
+            "Canonical achievement schema missing",
+            "Achievement",
+            fs::path("content") / "schemas" / "achievements.schema.json",
+        },
+        {
+            "achievement_artifact.runtime_header_missing",
+            "Canonical achievement registry header missing",
+            "Achievement",
+            fs::path("engine") / "core" / "achievement" / "achievement_registry.h",
+        },
+        {
+            "achievement_artifact.runtime_source_missing",
+            "Canonical achievement registry source missing",
+            "Achievement",
+            fs::path("engine") / "core" / "achievement" / "achievement_registry.cpp",
+        },
+        {
+            "achievement_artifact.validator_header_missing",
+            "Canonical achievement validator header missing",
+            "Achievement",
+            fs::path("engine") / "core" / "achievement" / "achievement_validator.h",
+        },
+        {
+            "achievement_artifact.validator_source_missing",
+            "Canonical achievement validator source missing",
+            "Achievement",
+            fs::path("engine") / "core" / "achievement" / "achievement_validator.cpp",
+        },
+        {
+            "achievement_artifact.panel_header_missing",
+            "Canonical achievement panel header missing",
+            "Achievement",
+            fs::path("editor") / "achievement" / "achievement_panel.h",
+        },
+        {
+            "achievement_artifact.panel_source_missing",
+            "Canonical achievement panel source missing",
+            "Achievement",
+            fs::path("editor") / "achievement" / "achievement_panel.cpp",
+        },
+        {
+            "achievement_artifact.governance_script_missing",
+            "Canonical achievement governance script missing",
+            "Achievement",
+            fs::path("tools") / "ci" / "check_achievement_governance.ps1",
+        },
+        {
+            "achievement_artifact.fixture_missing",
+            "Canonical achievement registry fixture missing",
+            "Achievement",
+            fs::path("content") / "fixtures" / "achievement_registry_fixture.json",
+        },
+    };
+
+    addCanonicalArtifactSection(
+        templateContext,
+        "achievementArtifacts",
+        "achievement governance",
+        enabled,
+        artifacts,
+        issues,
+        achievementArtifactIssueCount,
         governanceReport);
 }
 
@@ -1756,6 +1877,7 @@ json buildReport(const json& readiness,
     std::size_t inputArtifactIssueCount = 0;
     std::size_t accessibilityArtifactIssueCount = 0;
     std::size_t audioArtifactIssueCount = 0;
+    std::size_t achievementArtifactIssueCount = 0;
     std::size_t performanceArtifactIssueCount = 0;
     std::size_t releaseSignoffWorkflowIssueCount = 0;
     std::size_t signoffArtifactIssueCount = 0;
@@ -1774,6 +1896,7 @@ json buildReport(const json& readiness,
     addInputArtifactGovernance(templateContext, issues, inputArtifactIssueCount, governanceReport);
     addAccessibilityArtifactGovernance(templateContext, issues, accessibilityArtifactIssueCount, governanceReport);
     addAudioArtifactGovernance(templateContext, issues, audioArtifactIssueCount, governanceReport);
+    addAchievementArtifactGovernance(templateContext, issues, achievementArtifactIssueCount, governanceReport);
     addPerformanceArtifactGovernance(templateContext, issues, performanceArtifactIssueCount, governanceReport);
     addReleaseSignoffWorkflowGovernance(templateContext, issues, releaseSignoffWorkflowIssueCount, governanceReport);
     addSignoffArtifactGovernance(readiness, issues, signoffArtifactIssueCount, governanceReport);
@@ -1807,6 +1930,9 @@ json buildReport(const json& readiness,
     }
     if (audioArtifactIssueCount > 0) {
         summary << " Audio artifact issues: " << audioArtifactIssueCount << ".";
+    }
+    if (achievementArtifactIssueCount > 0) {
+        summary << " Achievement artifact issues: " << achievementArtifactIssueCount << ".";
     }
     if (performanceArtifactIssueCount > 0) {
         summary << " Performance artifact issues: " << performanceArtifactIssueCount << ".";
@@ -1851,6 +1977,7 @@ json buildReport(const json& readiness,
                 {"inputArtifacts", governanceReport["inputArtifacts"]},
                 {"accessibilityArtifacts", governanceReport["accessibilityArtifacts"]},
                 {"audioArtifacts", governanceReport["audioArtifacts"]},
+                {"achievementArtifacts", governanceReport["achievementArtifacts"]},
                 {"performanceArtifacts", governanceReport["performanceArtifacts"]},
                 {"releaseSignoffWorkflow", governanceReport["releaseSignoffWorkflow"]},
                 {"signoffArtifacts", governanceReport["signoffArtifacts"]},
@@ -1863,6 +1990,7 @@ json buildReport(const json& readiness,
         {"inputArtifactIssueCount", inputArtifactIssueCount},
         {"accessibilityArtifactIssueCount", accessibilityArtifactIssueCount},
         {"audioArtifactIssueCount", audioArtifactIssueCount},
+        {"achievementArtifactIssueCount", achievementArtifactIssueCount},
         {"performanceArtifactIssueCount", performanceArtifactIssueCount},
         {"releaseSignoffWorkflowIssueCount", releaseSignoffWorkflowIssueCount},
         {"signoffArtifactIssueCount", signoffArtifactIssueCount},

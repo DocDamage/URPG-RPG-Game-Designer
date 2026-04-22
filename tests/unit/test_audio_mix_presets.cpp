@@ -2,9 +2,16 @@
 #include <catch2/matchers/catch_matchers_vector.hpp>
 #include "engine/core/audio/audio_mix_presets.h"
 #include "engine/core/audio/audio_core.h"
+#include "engine/core/audio/audio_mix_validator.h"
+#include <nlohmann/json.hpp>
+#include <cstdlib>
+#include <filesystem>
+#include <fstream>
+#include <string>
 
 using namespace urpg::audio;
 using Catch::Matchers::Equals;
+using nlohmann::json;
 
 TEST_CASE("AudioMixPresetBank default presets exist", "[audio][mix]") {
     AudioMixPresetBank bank;
@@ -114,4 +121,105 @@ TEST_CASE("AudioMixPresetBank fromJson throws on invalid version", "[audio][mix]
     badJson["presets"] = nlohmann::json::array();
 
     REQUIRE_THROWS(bank.fromJson(badJson));
+}
+
+TEST_CASE("AudioMixValidator: Default bank has no issues", "[audio][mix][validation]") {
+    AudioMixPresetBank bank;
+    AudioMixValidator validator;
+    auto issues = validator.validate(bank);
+    REQUIRE(issues.empty());
+}
+
+TEST_CASE("AudioMixValidator: Missing default preset is an error", "[audio][mix][validation]") {
+    AudioMixPresetBank bank;
+    bank.removePreset("Default");
+    AudioMixValidator validator;
+    auto issues = validator.validate(bank);
+
+    REQUIRE(issues.size() == 1);
+    REQUIRE(issues[0].severity == AudioMixIssueSeverity::Error);
+    REQUIRE(issues[0].category == AudioMixIssueCategory::MissingDefaultPreset);
+}
+
+TEST_CASE("AudioMixValidator: Conflicting duck rules are warnings", "[audio][mix][validation]") {
+    AudioMixPresetBank bank;
+
+    MixPreset badDuckEnabled;
+    badDuckEnabled.name = "BadDuckEnabled";
+    badDuckEnabled.duckBGMOnSE = true;
+    badDuckEnabled.duckAmount = 0.0f;
+    badDuckEnabled.categoryVolumes[AudioCategory::BGM] = 1.0f;
+    bank.savePreset(badDuckEnabled);
+
+    MixPreset badDuckDisabled;
+    badDuckDisabled.name = "BadDuckDisabled";
+    badDuckDisabled.duckBGMOnSE = false;
+    badDuckDisabled.duckAmount = 0.5f;
+    badDuckDisabled.categoryVolumes[AudioCategory::BGM] = 1.0f;
+    bank.savePreset(badDuckDisabled);
+
+    AudioMixValidator validator;
+    auto issues = validator.validate(bank);
+
+    REQUIRE(issues.size() == 2);
+    for (const auto& issue : issues) {
+        REQUIRE(issue.severity == AudioMixIssueSeverity::Warning);
+        REQUIRE(issue.category == AudioMixIssueCategory::ConflictingDuckRules);
+    }
+}
+
+TEST_CASE("AudioMixValidator: Volume out of range is an error", "[audio][mix][validation]") {
+    AudioMixPresetBank bank;
+
+    MixPreset badVol;
+    badVol.name = "BadVolume";
+    badVol.categoryVolumes[AudioCategory::BGM] = -0.5f;
+    badVol.categoryVolumes[AudioCategory::SE] = 2.5f;
+    bank.savePreset(badVol);
+
+    AudioMixValidator validator;
+    auto issues = validator.validate(bank);
+
+    auto rangeIssues = std::count_if(issues.begin(), issues.end(),
+        [](const AudioMixIssue& i) { return i.category == AudioMixIssueCategory::VolumeOutOfRange; });
+    REQUIRE(rangeIssues == 2);
+}
+
+TEST_CASE("AudioMixValidator: Empty category volumes is a warning", "[audio][mix][validation]") {
+    AudioMixPresetBank bank;
+
+    MixPreset emptyCats;
+    emptyCats.name = "EmptyCats";
+    bank.savePreset(emptyCats);
+
+    AudioMixValidator validator;
+    auto issues = validator.validate(bank);
+
+    auto emptyIssues = std::count_if(issues.begin(), issues.end(),
+        [](const AudioMixIssue& i) { return i.category == AudioMixIssueCategory::EmptyCategoryVolumes; });
+    REQUIRE(emptyIssues == 1);
+}
+
+TEST_CASE("AudioMixValidator: CI governance script validates artifacts", "[audio][mix][validation][project_audit_cli]") {
+    const auto repoRoot = std::filesystem::path(__FILE__).parent_path().parent_path().parent_path();
+    const auto scriptPath = repoRoot / "tools" / "ci" / "check_audio_governance.ps1";
+    const auto outputPath = std::filesystem::temp_directory_path() / "urpg_audio_gov_out.json";
+
+    const std::string command =
+        "powershell -ExecutionPolicy Bypass -File \"" + scriptPath.string() +
+        "\" > \"" + outputPath.string() + "\"";
+
+    REQUIRE(std::system(command.c_str()) == 0);
+
+    std::ifstream resultFile(outputPath);
+    REQUIRE(resultFile.is_open());
+
+    std::string jsonStr((std::istreambuf_iterator<char>(resultFile)),
+                         std::istreambuf_iterator<char>());
+    resultFile.close();
+
+    auto result = json::parse(jsonStr);
+    REQUIRE(result["passed"].get<bool>() == true);
+    REQUIRE(result["errors"].is_array());
+    REQUIRE(result["errors"].empty());
 }

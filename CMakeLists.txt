@@ -178,6 +178,7 @@ add_library(urpg_core
     engine/core/character/character_identity_system.cpp
     engine/core/achievement/achievement_registry.cpp
     engine/core/achievement/achievement_trigger.cpp
+    engine/core/achievement/achievement_validator.cpp
     engine/core/presentation/presentation_bridge.cpp
     engine/core/presentation/presentation_runtime.cpp
     engine/core/presentation/effects/effect_catalog.cpp
@@ -186,6 +187,7 @@ add_library(urpg_core
     engine/gameplay/combat/combat_calc.cpp
     engine/core/audio/audio_ai_bridge.cpp
     engine/core/audio/audio_mix_presets.cpp
+    engine/core/audio/audio_mix_validator.cpp
     engine/core/animation/animation_ai_bridge.cpp
     engine/core/ui/ui_window.cpp
     engine/core/ui/chat_window.cpp
@@ -227,6 +229,7 @@ add_library(urpg_core
     editor/spatial/prop_placement_panel.cpp
     editor/sprite/sprite_animation_preview_panel.cpp
     editor/accessibility/accessibility_panel.cpp
+    editor/accessibility/accessibility_menu_adapter.cpp
     editor/audio/audio_mix_panel.cpp
     editor/audio/audio_inspector_model.cpp
     editor/analytics/analytics_panel.cpp
@@ -537,6 +540,7 @@ add_executable(urpg_tests
     tests/unit/test_spatial_editor.cpp
     tests/unit/test_huggingface_curated_assets.cpp
     tests/unit/test_ability_activation.cpp
+    tests/unit/test_ability_e2e.cpp
     tests/unit/test_pattern_field.cpp
     tests/unit/test_effect_resolver.cpp
     tests/unit/test_wave3_gaf.cpp

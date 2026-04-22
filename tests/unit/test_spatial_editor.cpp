@@ -8,6 +8,7 @@
 #include "engine/core/presentation/presentation_schema.h"
 #include "engine/core/presentation/spatial_projection.h"
 #include "engine/core/presentation/dialogue_translator.h"
+#include "engine/core/presentation/presentation_runtime.h"
 
 using namespace urpg::editor;
 using namespace urpg::presentation;
@@ -345,4 +346,73 @@ TEST_CASE("Spatial Editor Tooling Integration", "[editor][spatial]") {
         CHECK(hit->y == Catch::Approx(2.0f).margin(0.05f));
         CHECK(hit->z == Catch::Approx(3.5f).margin(0.1f));
     }
+}
+
+TEST_CASE("Spatial authoring output flows into presentation runtime frame generation", "[presentation][spatial][e2e]") {
+    // 1. Set up a spatial map overlay with a flat 8x8 grid
+    SpatialMapOverlay overlay;
+    overlay.mapId = "e2e_village";
+    overlay.elevation.width = 8;
+    overlay.elevation.height = 8;
+    overlay.elevation.stepHeight = 0.5f;
+    overlay.elevation.levels.assign(64, 0);
+    overlay.fog.density = 0.1f;
+    overlay.postFX.exposure = 1.0f;
+
+    // 2. Use ElevationBrushPanel to raise a hill at (4,4)
+    ElevationBrushPanel brush;
+    brush.SetTarget(&overlay);
+    brush.SetBrushSize(1);
+    brush.ApplyBrush(4, 4, 4); // level 4 => 2.0 world units
+
+    // Verify the hill was applied
+    REQUIRE(overlay.elevation.levels[4 * 8 + 4] == 4);
+    REQUIRE(overlay.elevation.GetWorldHeight(4, 4) == 2.0f);
+
+    // 3. Use PropPlacementPanel to place a prop on the hill
+    PropPlacementPanel placement;
+    placement.SetTarget(&overlay);
+    const float hillHeight = overlay.elevation.GetWorldHeight(4, 4);
+    placement.AddProp("house_01", 4.5f, hillHeight, 4.5f);
+
+    REQUIRE(overlay.props.size() == 1);
+    REQUIRE(overlay.props[0].assetId == "house_01");
+    // Prop Y should reflect the edited elevation
+    REQUIRE(overlay.props[0].posY == Catch::Approx(2.0f));
+
+    // 4. Feed into PresentationAuthoringData
+    PresentationAuthoringData data;
+    data.mapOverlays.push_back(overlay);
+    data.actorProfiles.push_back({"hero", {0.5f, 0.0f}, {0.0f, 0.25f, 0.0f}, true, 0.0f});
+
+    // 5. Set up PresentationContext with an actor standing on the hill
+    PresentationContext context;
+    context.activeMode = PresentationMode::Spatial;
+    context.activeTier = CapabilityTier::Tier1_Standard;
+    context.mapState.mapId = "e2e_village";
+    context.mapState.actors.push_back({1, "hero", 4.0f, 4.0f, false});
+
+    // 6. Build the presentation frame
+    PresentationRuntime runtime;
+    const PresentationFrameIntent intent = runtime.BuildPresentationFrame(context, data);
+
+    // 7. Verify the frame contains commands with elevation-resolved Y positions
+    bool foundActor = false;
+    bool foundProp = false;
+    for (const auto& cmd : intent.commands) {
+        if (cmd.type == PresentationCommand::Type::DrawActor && cmd.id == 1) {
+            foundActor = true;
+            // Actor standing on tile (4,4) with elevation level 4 => 2.0 world units + 0.25 anchor offset
+            CHECK(cmd.position.y == Catch::Approx(2.25f));
+        }
+        if (cmd.type == PresentationCommand::Type::DrawProp && cmd.id == 1) {
+            // Prop id is index+1 in the translator; first prop has id==1
+            foundProp = true;
+            CHECK(cmd.position.y == Catch::Approx(2.0f));
+        }
+    }
+
+    REQUIRE(foundActor);
+    REQUIRE(foundProp);
+    REQUIRE(intent.activePasses.size() == 3);
 }

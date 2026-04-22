@@ -1,8 +1,15 @@
 #include "engine/core/achievement/achievement_registry.h"
+#include "engine/core/achievement/achievement_validator.h"
 
 #include <catch2/catch_test_macros.hpp>
+#include <nlohmann/json.hpp>
+#include <cstdlib>
+#include <filesystem>
+#include <fstream>
+#include <string>
 
 using namespace urpg::achievement;
+using nlohmann::json;
 
 TEST_CASE("AchievementRegistry register and retrieve", "[achievement]") {
     AchievementRegistry registry;
@@ -165,4 +172,123 @@ TEST_CASE("AchievementRegistry unknown id in load is ignored", "[achievement]") 
 
     auto unknown = registry.getProgress("ach_unknown");
     REQUIRE_FALSE(unknown.has_value());
+}
+
+TEST_CASE("AchievementValidator: Valid definitions produce no issues", "[achievement][validation]") {
+    AchievementValidator validator;
+    std::vector<AchievementDef> defs = {
+        {"ach_001", "First Blood", "Defeat your first enemy.", false, "kill_count_1", "icon_sword", 0},
+        {"ach_010", "Decimator", "Defeat ten enemies.", false, "kill_count_10", "icon_axe", 0}
+    };
+
+    auto issues = validator.validate(defs);
+    REQUIRE(issues.empty());
+}
+
+TEST_CASE("AchievementValidator: Empty id is an error", "[achievement][validation]") {
+    AchievementValidator validator;
+    std::vector<AchievementDef> defs = {
+        {"", "No ID", "Missing id.", false, "count_1", "icon", 0}
+    };
+
+    auto issues = validator.validate(defs);
+    REQUIRE(issues.size() == 1);
+    REQUIRE(issues[0].severity == AchievementIssueSeverity::Error);
+    REQUIRE(issues[0].category == AchievementIssueCategory::EmptyId);
+}
+
+TEST_CASE("AchievementValidator: Duplicate id is an error", "[achievement][validation]") {
+    AchievementValidator validator;
+    std::vector<AchievementDef> defs = {
+        {"ach_dup", "First", "First desc.", false, "count_1", "icon1", 0},
+        {"ach_dup", "Second", "Second desc.", false, "count_2", "icon2", 0}
+    };
+
+    auto issues = validator.validate(defs);
+
+    auto dupIssues = std::count_if(issues.begin(), issues.end(),
+        [](const AchievementIssue& i) { return i.category == AchievementIssueCategory::DuplicateId; });
+    REQUIRE(dupIssues == 1);
+    REQUIRE(std::find_if(issues.begin(), issues.end(),
+        [](const AchievementIssue& i) { return i.category == AchievementIssueCategory::EmptyTitle; }) == issues.end());
+}
+
+TEST_CASE("AchievementValidator: Empty title is an error", "[achievement][validation]") {
+    AchievementValidator validator;
+    std::vector<AchievementDef> defs = {
+        {"ach_001", "", "No title.", false, "count_1", "icon", 0}
+    };
+
+    auto issues = validator.validate(defs);
+
+    auto titleIssues = std::count_if(issues.begin(), issues.end(),
+        [](const AchievementIssue& i) { return i.category == AchievementIssueCategory::EmptyTitle; });
+    REQUIRE(titleIssues == 1);
+}
+
+TEST_CASE("AchievementValidator: Empty unlock condition is an error", "[achievement][validation]") {
+    AchievementValidator validator;
+    std::vector<AchievementDef> defs = {
+        {"ach_001", "Bad Condition", "No condition.", false, "", "icon", 0}
+    };
+
+    auto issues = validator.validate(defs);
+
+    auto condIssues = std::count_if(issues.begin(), issues.end(),
+        [](const AchievementIssue& i) { return i.category == AchievementIssueCategory::EmptyUnlockCondition; });
+    REQUIRE(condIssues == 1);
+}
+
+TEST_CASE("AchievementValidator: Zero target is a warning", "[achievement][validation]") {
+    AchievementValidator validator;
+    std::vector<AchievementDef> defs = {
+        {"ach_001", "Zero Target", "Condition with explicit target 0.", false, "kill_count_0", "icon", 0}
+    };
+
+    auto issues = validator.validate(defs);
+
+    auto targetIssues = std::count_if(issues.begin(), issues.end(),
+        [](const AchievementIssue& i) { return i.category == AchievementIssueCategory::ZeroTarget; });
+    REQUIRE(targetIssues == 1);
+    REQUIRE(std::find_if(issues.begin(), issues.end(),
+        [](const AchievementIssue& i) { return i.category == AchievementIssueCategory::ZeroTarget; })->severity == AchievementIssueSeverity::Warning);
+}
+
+TEST_CASE("AchievementValidator: Empty iconId is a warning", "[achievement][validation]") {
+    AchievementValidator validator;
+    std::vector<AchievementDef> defs = {
+        {"ach_001", "No Icon", "Missing icon.", false, "count_1", "", 0}
+    };
+
+    auto issues = validator.validate(defs);
+
+    auto iconIssues = std::count_if(issues.begin(), issues.end(),
+        [](const AchievementIssue& i) { return i.category == AchievementIssueCategory::EmptyIconId; });
+    REQUIRE(iconIssues == 1);
+    REQUIRE(std::find_if(issues.begin(), issues.end(),
+        [](const AchievementIssue& i) { return i.category == AchievementIssueCategory::EmptyIconId; })->severity == AchievementIssueSeverity::Warning);
+}
+
+TEST_CASE("AchievementValidator: CI governance script validates artifacts", "[achievement][validation][project_audit_cli]") {
+    const auto repoRoot = std::filesystem::path(__FILE__).parent_path().parent_path().parent_path();
+    const auto scriptPath = repoRoot / "tools" / "ci" / "check_achievement_governance.ps1";
+    const auto outputPath = std::filesystem::temp_directory_path() / "urpg_achievement_gov_out.json";
+
+    const std::string command =
+        "powershell -ExecutionPolicy Bypass -File \"" + scriptPath.string() +
+        "\" > \"" + outputPath.string() + "\"";
+
+    REQUIRE(std::system(command.c_str()) == 0);
+
+    std::ifstream resultFile(outputPath);
+    REQUIRE(resultFile.is_open());
+
+    std::string jsonStr((std::istreambuf_iterator<char>(resultFile)),
+                         std::istreambuf_iterator<char>());
+    resultFile.close();
+
+    auto result = json::parse(jsonStr);
+    REQUIRE(result["passed"].get<bool>() == true);
+    REQUIRE(result["errors"].is_array());
+    REQUIRE(result["errors"].empty());
 }

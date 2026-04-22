@@ -3,8 +3,11 @@
 #include <cassert>
 #include "presentation_runtime.h"
 #include "map_scene_translator.h"
+#include "editor/spatial/elevation_brush_panel.h"
+#include "editor/spatial/prop_placement_panel.h"
 
 using namespace urpg::presentation;
+using namespace urpg::editor;
 
 /**
  * @brief Stress test for the Presentation Core logic.
@@ -138,6 +141,71 @@ void RunReleaseValidation() {
     assert(overlayEffectCommandCount >= 1);
     assert(worldEffectCommandCount <= 16);
     assert(overlayEffectCommandCount <= 16);
+
+    // 6. Spatial Authoring -> Runtime Consumption Validation
+    std::cout << "[INFO] Starting Spatial Authoring -> Runtime Consumption Validation..." << std::endl;
+    {
+        SpatialMapOverlay overlay;
+        overlay.mapId = "validation_village";
+        overlay.elevation.width = 8;
+        overlay.elevation.height = 8;
+        overlay.elevation.stepHeight = 0.5f;
+        overlay.elevation.levels.assign(64, 0);
+        overlay.fog.density = 0.1f;
+        overlay.postFX.exposure = 1.0f;
+
+        // Edit elevation via brush
+        ElevationBrushPanel brush;
+        brush.SetTarget(&overlay);
+        brush.SetBrushSize(1);
+        brush.ApplyBrush(4, 4, 4); // level 4 => 2.0 world units
+
+        assert(overlay.elevation.levels[4 * 8 + 4] == 4);
+        assert(overlay.elevation.GetWorldHeight(4, 4) == 2.0f);
+
+        // Place prop on the hill
+        PropPlacementPanel placement;
+        placement.SetTarget(&overlay);
+        const float hillHeight = overlay.elevation.GetWorldHeight(4, 4);
+        placement.AddProp("house_01", 4.5f, hillHeight, 4.5f);
+
+        assert(overlay.props.size() == 1);
+        assert(overlay.props[0].assetId == "house_01");
+        assert(overlay.props[0].posY == 2.0f);
+
+        // Feed into presentation runtime
+        PresentationAuthoringData spatialData;
+        spatialData.mapOverlays.push_back(overlay);
+        spatialData.actorProfiles.push_back({"hero", {0.5f, 0.0f}, {0.0f, 0.25f, 0.0f}, true, 0.0f});
+
+        PresentationContext spatialContext;
+        spatialContext.activeMode = PresentationMode::Spatial;
+        spatialContext.activeTier = CapabilityTier::Tier1_Standard;
+        spatialContext.mapState.mapId = "validation_village";
+        spatialContext.mapState.actors.push_back({1, "hero", 4.0f, 4.0f, false});
+
+        PresentationRuntime spatialRuntime;
+        PresentationFrameIntent spatialIntent = spatialRuntime.BuildPresentationFrame(spatialContext, spatialData);
+
+        bool foundActor = false;
+        bool foundProp = false;
+        for (const auto& cmd : spatialIntent.commands) {
+            if (cmd.type == PresentationCommand::Type::DrawActor && cmd.id == 1) {
+                foundActor = true;
+                // Actor on tile (4,4) with elevation level 4 => 2.0 world units + 0.25 anchor offset
+                assert(cmd.position.y == 2.25f);
+            }
+            if (cmd.type == PresentationCommand::Type::DrawProp && cmd.id == 1) {
+                foundProp = true;
+                assert(cmd.position.y == 2.0f);
+            }
+        }
+
+        assert(foundActor);
+        assert(foundProp);
+        assert(spatialIntent.activePasses.size() == 3);
+        std::cout << "[CHECK] Spatial Authoring -> Runtime Consumption: PASSED" << std::endl;
+    }
 
     std::cout << "[SUCCESS] Release Validation Suite: ALL TESTS PASSED" << std::endl;
 }

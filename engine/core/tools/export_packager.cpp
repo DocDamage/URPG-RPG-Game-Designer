@@ -2,6 +2,9 @@
 
 #include "engine/core/export/export_validator.h"
 
+#include <filesystem>
+#include <fstream>
+
 namespace urpg::tools {
 
 ExportPackager::ExportResult ExportPackager::runExport(const ExportConfig& config) {
@@ -30,6 +33,8 @@ ExportPackager::ExportResult ExportPackager::runExport(const ExportConfig& confi
 
     // 4. Binary Synthesis
     log += "Synthesizing final executable...\n";
+    auto executableFiles = synthesizeExecutable(config, log);
+    bundles.insert(bundles.end(), executableFiles.begin(), executableFiles.end());
 
     return { true, log, bundles };
 }
@@ -48,6 +53,10 @@ bool ExportPackager::runLicenseAudit(std::string& log) {
 
 std::vector<std::string> ExportPackager::bundleAssets(const ExportConfig& config, std::string& log) {
     log += "Bundling assets (Compression: " + std::string(config.compressAssets ? "ON" : "OFF") + ")...\n";
+    std::filesystem::path outDir(config.outputDir);
+    std::filesystem::path pckPath = outDir / "data.pck";
+    std::ofstream pck(pckPath, std::ios::binary);
+    pck << "URPG_SYNTHETIC_ASSET_BUNDLE\n";
     return { "data.pck" };
 }
 
@@ -55,6 +64,53 @@ void ExportPackager::packScripts(const ExportConfig& config, std::string& log) {
     if (config.obfuscateScripts) {
         log += "Applying script obfuscation (Phase 4.6)...\n";
     }
+}
+
+std::vector<std::string> ExportPackager::synthesizeExecutable(const ExportConfig& config, std::string& log) {
+    std::filesystem::path outDir(config.outputDir);
+    std::vector<std::string> files;
+
+    switch (config.target) {
+        case ExportTarget::Windows_x64: {
+            std::filesystem::path exePath = outDir / "game.exe";
+            std::ofstream exe(exePath, std::ios::binary);
+            exe << "MZ synthetic windows executable\n";
+            files.push_back("game.exe");
+            break;
+        }
+        case ExportTarget::Linux_x64: {
+            std::filesystem::path exePath = outDir / "game";
+            std::ofstream exe(exePath, std::ios::binary);
+            exe << "ELF synthetic linux executable\n";
+            files.push_back("game");
+            break;
+        }
+        case ExportTarget::macOS_Universal: {
+            std::filesystem::path appPath = outDir / "MyGame.app";
+            std::filesystem::create_directories(appPath);
+            std::filesystem::path exePath = appPath / "Contents" / "MacOS" / "MyGame";
+            std::filesystem::create_directories(exePath.parent_path());
+            std::ofstream exe(exePath, std::ios::binary);
+            exe << "MACH-O synthetic macos executable\n";
+            files.push_back("MyGame.app");
+            break;
+        }
+        case ExportTarget::Web_WASM: {
+            std::ofstream html(outDir / "index.html", std::ios::binary);
+            html << "<html></html>\n";
+            std::ofstream wasm(outDir / "game.wasm", std::ios::binary);
+            wasm << "WASM synthetic module\n";
+            std::ofstream js(outDir / "game.js", std::ios::binary);
+            js << "// JS loader\n";
+            files.push_back("index.html");
+            files.push_back("game.wasm");
+            files.push_back("game.js");
+            break;
+        }
+    }
+
+    log += "Synthesized " + std::to_string(files.size()) + " executable artifact(s).\n";
+    return files;
 }
 
 std::string ExportPackager::targetToString(ExportTarget t) {

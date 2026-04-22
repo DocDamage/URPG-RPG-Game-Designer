@@ -4,10 +4,10 @@ This file tells any LLM session which sprint artifacts to open first.
 
 ## Active Sprint
 
-- Sprint ID: S12
+- Sprint ID: S18
 - Status: closed
-- Execution pack: C:\Users\dferr\dev\URPG - RPG Game Maker\docs\superpowers\plans\2026-04-21-sprint-12-governance-foundation-release-signoff-enforcement-execution-pack.md
-- Task board: C:\Users\dferr\dev\URPG - RPG Game Maker\docs\superpowers\plans\2026-04-21-s12-task-board.md
+- Execution pack: C:\Users\dferr\dev\URPG - RPG Game Maker\docs\superpowers\plans\2026-04-21-sprint-18-achievement-registry-validation-execution-pack.md
+- Task board: C:\Users\dferr\dev\URPG - RPG Game Maker\docs\superpowers\plans\2026-04-21-s18-task-board.md
 
 ## Start Order
 

@@ -60,6 +60,7 @@ namespace urpg::tools {
         bool runLicenseAudit(std::string& log);
         std::vector<std::string> bundleAssets(const ExportConfig& config, std::string& log);
         void packScripts(const ExportConfig& config, std::string& log);
+        std::vector<std::string> synthesizeExecutable(const ExportConfig& config, std::string& log);
         std::string targetToString(ExportTarget t);
     };
 

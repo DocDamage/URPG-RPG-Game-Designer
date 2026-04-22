@@ -39,6 +39,15 @@ Write-Host "== Validate release readiness records ==" -ForegroundColor Cyan
 Write-Host "== Validate schema changelog governance ==" -ForegroundColor Cyan
 & "$PSScriptRoot\check_schema_changelog.ps1"
 
+Write-Host "== Validate accessibility governance ==" -ForegroundColor Cyan
+& "$PSScriptRoot\check_accessibility_governance.ps1"
+
+Write-Host "== Validate audio governance ==" -ForegroundColor Cyan
+& "$PSScriptRoot\check_audio_governance.ps1"
+
+Write-Host "== Validate achievement governance ==" -ForegroundColor Cyan
+& "$PSScriptRoot\check_achievement_governance.ps1"
+
 Write-Host "== Validate truth alignment ==" -ForegroundColor Cyan
 & "$PSScriptRoot\..\docs\check_truth_alignment.ps1"
 

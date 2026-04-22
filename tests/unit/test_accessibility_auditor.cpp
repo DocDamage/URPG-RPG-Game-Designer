@@ -1,7 +1,13 @@
 #include <catch2/catch_test_macros.hpp>
 #include "engine/core/accessibility/accessibility_auditor.h"
+#include <nlohmann/json.hpp>
+#include <cstdlib>
+#include <filesystem>
+#include <fstream>
+#include <string>
 
 using namespace urpg::accessibility;
+using nlohmann::json;
 
 TEST_CASE("AccessibilityAuditor: Empty ingest returns no issues", "[accessibility]") {
     AccessibilityAuditor auditor;
@@ -77,4 +83,28 @@ TEST_CASE("AccessibilityAuditor: Clear resets issues", "[accessibility]") {
 
     auditor.clear();
     REQUIRE(auditor.getIssueCount() == 0);
+}
+
+TEST_CASE("AccessibilityAuditor: CI governance script validates artifacts", "[accessibility][project_audit_cli]") {
+    const auto repoRoot = std::filesystem::path(__FILE__).parent_path().parent_path().parent_path();
+    const auto scriptPath = repoRoot / "tools" / "ci" / "check_accessibility_governance.ps1";
+    const auto outputPath = std::filesystem::temp_directory_path() / "urpg_accessibility_gov_out.json";
+
+    const std::string command =
+        "powershell -ExecutionPolicy Bypass -File \"" + scriptPath.string() +
+        "\" > \"" + outputPath.string() + "\"";
+
+    REQUIRE(std::system(command.c_str()) == 0);
+
+    std::ifstream resultFile(outputPath);
+    REQUIRE(resultFile.is_open());
+
+    std::string jsonStr((std::istreambuf_iterator<char>(resultFile)),
+                         std::istreambuf_iterator<char>());
+    resultFile.close();
+
+    auto result = json::parse(jsonStr);
+    REQUIRE(result["passed"].get<bool>() == true);
+    REQUIRE(result["errors"].is_array());
+    REQUIRE(result["errors"].empty());
 }

@@ -108,3 +108,57 @@ TEST_CASE("ExportDiagnosticsPanel mirrors packager preflight for web exports", "
 
     std::filesystem::remove_all(base);
 }
+
+TEST_CASE("ExportDiagnosticsPanel surfaces emittedArtifacts when post-export tree is present", "[export][editor][panel]") {
+    const auto base = std::filesystem::temp_directory_path() / "urpg_export_diagnostics_emitted";
+    std::filesystem::remove_all(base);
+    std::filesystem::create_directories(base);
+
+    WriteFile(base / "game.exe", "exe");
+    WriteFile(base / "data.pck", "pck");
+
+    ExportDiagnosticsPanel panel;
+    ExportConfig config{};
+    config.target = ExportTarget::Windows_x64;
+    config.outputDir = base.string();
+    panel.setExportConfig(config);
+    panel.render();
+
+    const auto& snapshot = panel.lastRenderSnapshot();
+    REQUIRE(snapshot["postExportValidationPassed"] == true);
+    REQUIRE(snapshot["emittedArtifacts"].is_array());
+    REQUIRE_FALSE(snapshot["emittedArtifacts"].empty());
+
+    bool foundExe = false;
+    bool foundPck = false;
+    for (const auto& item : snapshot["emittedArtifacts"]) {
+        if (item == "game.exe") foundExe = true;
+        if (item == "data.pck") foundPck = true;
+    }
+    REQUIRE(foundExe);
+    REQUIRE(foundPck);
+
+    std::filesystem::remove_all(base);
+}
+
+TEST_CASE("ExportDiagnosticsPanel post-export validation fails when emitted tree is incomplete", "[export][editor][panel]") {
+    const auto base = std::filesystem::temp_directory_path() / "urpg_export_diagnostics_incomplete";
+    std::filesystem::remove_all(base);
+    std::filesystem::create_directories(base);
+
+    WriteFile(base / "data.pck", "pck");
+
+    ExportDiagnosticsPanel panel;
+    ExportConfig config{};
+    config.target = ExportTarget::Windows_x64;
+    config.outputDir = base.string();
+    panel.setExportConfig(config);
+    panel.render();
+
+    const auto& snapshot = panel.lastRenderSnapshot();
+    REQUIRE(snapshot["validationPassed"] == false); // preflight fails
+    REQUIRE(snapshot["postExportValidationPassed"] == false);
+    REQUIRE(snapshot.contains("emittedArtifacts") == false);
+
+    std::filesystem::remove_all(base);
+}
