@@ -1,8 +1,8 @@
 # Technical Debt Audit
 
 **Status Date:** 2026-04-22  
-**Document version:** v3  
-**Supersedes:** v2 (2026-04-21)
+**Document version:** v4  
+**Supersedes:** v3 (2026-04-22)
 
 This rewrite is based on a fresh code-first audit of the current tree.
 
@@ -25,9 +25,12 @@ This pass reviewed:
 
 ```
 powershell -ExecutionPolicy Bypass -File tools/ci/check_cmake_completeness.ps1
-ctest --test-dir build/dev-ninja-debug -N -L pr
+cmake --build --preset dev-debug --target urpg_integration_tests urpg_snapshot_tests urpg_compat_tests urpg_presentation_release_validation
 ctest --test-dir build/dev-ninja-debug -N -L "^pr$"
-ctest --test-dir build/dev-ninja-debug -N -L nightly
+ctest --test-dir build/dev-ninja-debug -N -L "^nightly$"
+ctest --test-dir build/dev-ninja-debug -N -L "^weekly$"
+ctest --test-dir build/dev-ninja-debug --output-on-failure -R "^urpg_presentation_release_validation$"
+ctest --test-dir build/dev-ninja-debug --output-on-failure -R "^Integration:"
 ```
 
 Targeted `rg` scans for `TODO`, `stub`, `placeholder`, raw ownership, render-command allocation sites, and threading/global-state patterns.
@@ -47,9 +50,20 @@ Targeted `rg` scans for `TODO`, `stub`, `placeholder`, raw ownership, render-com
 ## Verification Snapshot
 
 - `check_cmake_completeness.ps1` passes, and the remaining hardcoded whitelist is now limited to the standalone `engine/core/presentation/profile_arena.cpp` profiling tool.
-- `ctest -N -L pr` enumerates **892** tests.
-- `ctest -N -L "^pr$"` enumerates **891** tests — the one-test delta is label-regex bleed (see TD-07).
-- `ctest -N -L nightly` enumerates **14** tests, including `urpg_presentation_release_validation`.
+- Fresh exact-label discovery in the current debug tree enumerates **918** `pr` tests, **18** `nightly` tests, **44** `weekly` tests, and **980** tests total.
+- A targeted build of `urpg_integration_tests`, `urpg_snapshot_tests`, `urpg_compat_tests`, and `urpg_presentation_release_validation` succeeds locally.
+- Focused execution of `urpg_presentation_release_validation` and all 11 integration tests passes.
+- That same targeted build surfaces **11 unique compiler warnings** across presentation translator interfaces, compat window overrides, aggregate initialization, and unused test/audio helpers.
+
+**Marker snapshot (code/docs under active tree, excluding archives/planning mirrors/build artifacts):**
+
+| Marker | Count |
+|---|---|
+| `TODO` | 20 |
+| `placeholder` | 25 |
+| `stub` | 28 |
+| `not implemented` | 7 |
+| `NOT LIVE` | 12 |
 
 **Largest code hotspots:**
 
@@ -58,10 +72,12 @@ Targeted `rg` scans for `TODO`, `stub`, `placeholder`, raw ownership, render-com
 | `tests/compat/test_compat_plugin_failure_diagnostics.cpp` | 4,033 | Scope sprawl |
 | `tests/compat/test_compat_plugin_fixtures.cpp` | 2,859 | Scope sprawl |
 | `tests/unit/test_diagnostics_workspace.cpp` | 2,376 | Scope sprawl |
+| `runtimes/compat_js/window_compat.cpp` | 2,370 | Harness complexity |
 | `runtimes/compat_js/plugin_manager.cpp` | 2,350 | Harness complexity |
-| `runtimes/compat_js/window_compat.cpp` | 2,275 | Harness complexity |
-| `editor/diagnostics/diagnostics_workspace.cpp` | 2,198 | Domain mixing |
 | `tools/audit/urpg_project_audit.cpp` | 2,183 | Domain mixing |
+| `editor/diagnostics/diagnostics_workspace.cpp` | 1,972 | Domain mixing |
+| `runtimes/compat_js/battle_manager.cpp` | 1,921 | Harness complexity |
+| `runtimes/compat_js/data_manager.cpp` | 1,744 | Harness complexity |
 
 ---
 
@@ -72,6 +88,7 @@ These items were open in the previous pass and are now closed. They are recorded
 | ID | Title | Resolution |
 |---|---|---|
 | TD-R01 | AudioManager SE-channel leak | `runtimes/compat_js/audio_manager.cpp:737-745` now destroys finished SE channels during `update()`. Confirmed closed by code inspection. |
+| TD-R02 | CopilotKernel predicate gap | `engine/core/copilot/copilot_kernel.h` now uses registered predicates, and `tests/test_copilot_kernel.cpp` proves real predicate-based rejection instead of substring mocks. |
 
 > **Pattern to replicate:** The SE fix used a clear ownership model (destroy on `update()`). Apply this same "ownership contract finalized at bounded lifecycle point" pattern to the sprite handle and asset cache issues in TD-05.
 
@@ -82,8 +99,9 @@ This audit remains a valid snapshot of what was open on 2026-04-21, but several 
 **Session highlights:**
 
 - **TD-07 quick wins landed:** `stb` is pinned, repo-wide warning flags are enabled through a shared warnings target, Gate label filters were anchored to `^pr$`, `^nightly$`, and `^weekly$`, and `tools/ci/run_local_gates.ps1` now includes `check_save_policy_governance.ps1`, `check_breaking_changes.ps1`, and `check_cmake_completeness.ps1`.
+- **Fresh build-quality finding:** once the missing nightly/weekly targets were built in the current debug tree, the tree exposed 11 unique warnings instead of failing cleanly. The current debt is no longer "warning policy missing"; it is "warning backlog now visible."
 - **TD-01 audit noise reduced:** `check_cmake_completeness.ps1` no longer exempts seven ability/editor tests that are already compiled into `urpg_tests`, and the stale `plugin_host.*`, `script_bridge.*`, `scripting_console.*`, `doc_generator.*`, and `battle_tactics_window.*` surfaces have all been relocated into explicit incubator paths under `tools/`; the remaining whitelist is now limited to the standalone `engine/core/presentation/profile_arena.cpp` profiling tool.
-- **TD-01 truthfulness improved:** the stale `EngineAssembly` and `MainAssembly` seam now lives under `tools/incubator/runtime/` with `EngineShell` as the live entry point, and the stale editor/plugin seam no longer hides behind completeness-script exemptions.
+- **TD-01 truthfulness improved, but not fully collapsed:** the stale `EngineAssembly` and `MainAssembly` seam now lives under explicit incubator paths with `EngineShell` as the live entry point, but the fresh sweep found duplicate copies under both `tools/incubator/runtime/` and `tools/incubator/core/`.
 - **TD-02 first slice landed:** `RenderLayer` now owns frame commands as value payloads, `EngineShell` submits the frame-owned buffer through `RendererBackend::processFrameCommands()`, common runtime/compat callers no longer need heap-backed per-frame command storage, and `OpenGLRenderer` / `HeadlessRenderer` now accept frame-owned commands without reboxing the hot path back into `shared_ptr` vectors.
 - **TD-02 second slice landed:** `OpenGLRenderer` now turns `RectCommand` into immediate-color triangle draws and `TextCommand` into bounded `stb_easy_font` triangle batches, while focused tests pin both frame-owned/legacy command intake and the pre-init no-op contract before a live GL context exists.
 - **TD-04 bounded parity is now more explicit:** missing battlebacks emit a named `MISSING_BATTLEBACK` diagnostic; unsupported migrated action `effects[]` are preserved in `_compat_effect_fallbacks`; `CombatFormula` now supports a bounded arithmetic/stat subset with named fallback reasons; compat `BattleManager` uses that subset and surfaces unsupported formulas in `PARTIAL` status text; troop battle events now support variable conditional branches against live DataManager state.
@@ -96,7 +114,10 @@ This audit remains a valid snapshot of what was open on 2026-04-21, but several 
 **Focused verification completed this session:**
 
 - `cmake --build --preset dev-debug --target urpg_tests`
+- `cmake --build --preset dev-debug --target urpg_integration_tests urpg_snapshot_tests urpg_compat_tests urpg_presentation_release_validation`
 - Focused `ctest --test-dir build/dev-ninja-debug --output-on-failure -R ...` lanes covering Copilot, battle scene, AssetLoader, ThreadRegistry, Plugin API, compat sprites, battle migration, combat formulas, DataManager, BattleManager formula fallback, ResourceProtector, and troop event variable-branch behavior all passed.
+- `ctest --test-dir build/dev-ninja-debug --output-on-failure -R "^urpg_presentation_release_validation$"` passed.
+- `ctest --test-dir build/dev-ninja-debug --output-on-failure -R "^Integration:"` passed all 11 integration tests.
 
 ### Session Checklist — 2026-04-22
 
@@ -130,16 +151,18 @@ This audit remains a valid snapshot of what was open on 2026-04-21, but several 
 
 **Still needed**
 
-- [x] TD-01: Resolve the remaining non-canonical `EngineAssembly` / `MainAssembly` top-level seam in production-looking paths
-- [x] TD-01: Eliminate the `check_cmake_completeness.ps1` orphan whitelist for stale non-canonical seams
-- [x] TD-02: Redesign the render command path away from heap-backed per-frame `shared_ptr<RenderCommand>`
-- [x] TD-02: Implement bounded real text and rect rendering in `OpenGLRenderer`
+- [ ] TD-01: Collapse duplicate incubator copies of `EngineAssembly` / `MainAssembly` into one clearly named non-canonical path
+- [ ] TD-01: Remove or archive the broken-include `tools/incubator/runtime/engine_assembly.h` variant instead of letting duplicate stale seams drift
+- [ ] TD-02: Collect allocator or profiler evidence that the frame-owned render path actually removed hot-loop heap churn under scene load
 - [ ] TD-03: Make the keep/delete strategy decision for the compat/plugin/editor harness path
 - [ ] TD-04: Decide and document the long-term formula strategy beyond the bounded subset
-- [ ] TD-04: Close remaining partial battle parity gaps, especially transition/audio routing and broader troop-page coverage
-- [x] TD-05: Document the final `AssetLoader` cache management contract, including clear/eviction expectations
+- [ ] TD-04: Close remaining partial battle parity gaps, especially transition/audio routing, broader troop-page coverage, and battle-scene visual placeholders
+- [ ] TD-05: Either document `AssetLoader` as single-thread-only or synchronize its remaining process-global caches
+- [ ] TD-05: Close the remaining compat sprite semantics TODOs (`characterIndex` source rects, sprite update animation state, actor motions)
 - [x] TD-06: Add at least one real export smoke path
 - [x] TD-06: Add at least one renderer-backed visual capture path once TD-02 lands
+- [ ] TD-07: Burn down the currently visible warning backlog and decide whether to gate a focused lane with warnings-as-errors
+- [ ] TD-09: Decide whether scripted ability conditions will gain a real evaluator or remain permanently unsupported-but-explicit
 - [ ] TD-10: Decide whether the AI/cloud layer is being cut or wired to real transport
 - [ ] TD-10: Either add a real chat/cloud provider or finish restricting the remaining local-only cloud surfaces beyond the renamed in-memory double
 - [ ] TD-08: Split oversized compat and diagnostics files along domain boundaries
@@ -148,18 +171,20 @@ This audit remains a valid snapshot of what was open on 2026-04-21, but several 
 
 ## Executive Summary
 
-URPG is still stronger on documentation honesty and automated governance than on runtime closure. The most important debt is no longer "the repo is chaotic." It is that the **living, test-validated path and the public-looking top-level path are still not the same thing.**
+URPG is materially healthier than the 2026-04-21 snapshot, but the remaining debt is now tighter and more specific. The biggest problem is no longer broad repository chaos; it is that several public-looking or semi-public seams still sit beside the real, test-validated path and can still mislead contributors about what is live.
 
-The live path is `EngineShell` plus a bounded set of native and compat subsystems. Around that core, the tree still carries:
+The live path is `EngineShell` plus a bounded native/compat slice. Around that core, the tree still carries:
 
-- A stale top-level assembly/editor/plugin stack that is not part of the real build graph
-- A render path whose hottest ownership debt is materially reduced, but which still needs allocator proof, textured sprite/tile follow-through, and broader visual validation hardening
+- Duplicate stale top-level assembly seams under `tools/incubator/core/` and `tools/incubator/runtime/`
+- A render path whose hottest ownership debt is materially reduced, but which still needs allocator proof plus textured sprite/tile/UI follow-through
 - Compat/runtime surfaces that are honestly labeled `PARTIAL`, but still do not amount to live MZ-equivalent execution
-- Synthetic export, security, and visual-validation lanes that prove contract shape more than production behavior
-- Cache and lifetime patterns that are not yet hardened for long-running or multi-threaded use
-- A Gameplay Ability Framework where scripted activation and passive conditions are declared in every ability's data model but silently bypassed at runtime — abilities that should fail scripted gates always pass
-- An AI/cloud connectivity layer (`OpenAIChatService`, `LlamaLocalService`, `AISyncCoordinator`, `LocalInMemoryCloudService`) with no live HTTP transport, commented-out callbacks, and only a local in-memory provider path in tree
-- A CopilotKernel "canon validator" whose constraint enforcement amounts to searching the proposal description string for the word `"violate"` — tests pass against mock behavior, not real predicate logic
+- Bounded export, security, and visual-validation lanes that prove contract shape more than shipping behavior
+- A smaller ownership backlog now concentrated in process-global caches and unfinished compat sprite semantics
+- A Gameplay Ability Framework whose scripted conditions are now explicit and test-backed, but still not actually evaluated
+- An AI/cloud connectivity layer (`OpenAIChatService`, `LlamaLocalService`, `AISyncCoordinator`, `LocalInMemoryCloudService`) that is clearly marked `NOT LIVE` but still exposed as production-looking types
+- A repo-wide warning policy that now exposes a real warning-cleanup backlog
+
+`CopilotKernel` is no longer an active debt leader in the current tree; the predicate-enforcement gap is closed.
 
 ---
 
@@ -170,36 +195,31 @@ The live path is `EngineShell` plus a bounded set of native and compat subsystem
 
 | ID | Severity | Effort | Risk | Blocks | Title |
 |---|---|---|---|---|---|
-| TD-01 | `P1` | M | Medium | TD-03, TD-07 | Stale top-level assembly/editor path is not build-real |
-| TD-02 | `P2` | L | Medium | — | Render-path redesign is materially landed, but allocator proof and textured sprite/tile follow-through remain open |
+| TD-01 | `P1` | M | Medium | TD-03 | Duplicate stale top-level assembly seams remain non-build-real |
+| TD-02 | `P2` | L | Medium | — | Render-path redesign is materially landed, but allocator proof and textured/UI follow-through remain open |
 | TD-03 | `P2` | XL | Medium | — | JS/plugin/editor compat stack is harness-first, not live |
-| TD-04 | `P2` | L | High | — | Battle and formula parity bounded by partial interpreters |
-| TD-05 | `P2` | M | High | — | Memory-growth and lifetime ownership debt in caches and globals |
+| TD-04 | `P2` | L | High | — | Battle parity remains bounded by a subset evaluator, placeholder visuals, and partial routing |
+| TD-05 | `P3` | S | Medium | — | Remaining ownership debt is concentrated in global cache/thread-affinity assumptions and compat sprite TODOs |
 | TD-06 | `P2` | M | Low | — | Export, security, and visual validation are synthetic |
-| TD-07 | `P3` | S | Low | — | Build reproducibility and CI fidelity below baseline |
+| TD-07 | `P3` | S | Low | — | Warning policy landed, but warning cleanup and stricter gate posture still lag |
 | TD-08 | `P3` | L | Low | — | Complexity concentrated in oversized compat/diagnostics files |
-| TD-09 | `P2` | M | High | — | GAF scripted conditions are declared but never evaluated |
+| TD-09 | `P2` | M | Medium | — | GAF scripted conditions are explicit and test-backed, but still unsupported |
 | TD-10 | `P2` | M | Medium | — | AI/cloud connectivity layer is entirely simulated with no live transport |
-| TD-11 | `P3` | S | Low | — | CopilotKernel canon validation uses substring matching, not predicates |
 
-> **Highest-urgency combination:** TD-04, TD-05, and TD-09 carry the most correctness and stability risk and are not blocked by anything else. They should run in parallel with TD-01.
+> **Highest-urgency combination:** TD-04, TD-03, and TD-10 now define the biggest "what is actually real?" product risk, while TD-01 and TD-07 remain trust multipliers around them.
 
 ---
 
-## ⚡ Quick Wins (< 1 Day Each)
+## ⚡ Next Quick Wins (< 1 Day Each)
 
-These items have a high signal-to-effort ratio and can be landed without touching risky code paths:
+The original eight quick wins from v3 are landed. The highest-signal next sub-day fixes are now warning cleanup and stale-seam collapse:
 
-1. **Pin `stb` to a specific `GIT_TAG`** — one line in `CMakeLists.txt`. Eliminates floating dependency risk immediately. (TD-07)
-2. **Add `/W4` (MSVC) and `-Wall -Wextra` (GCC/Clang) to `CMakeLists.txt`** — a single `target_compile_options` block. Begins surfacing latent issues without touching logic. (TD-07)
-3. **Add `check_save_policy_governance.ps1` and `check_cmake_completeness.ps1` to `run_local_gates.ps1`** — closes the local/CI parity gap with a few lines of script. (TD-07)
-4. **Anchor ctest label regex** — change `-L pr` to `-L "^pr$"` everywhere in CI and docs to eliminate the 1-test bleed. (TD-07)
-5. **Add a single-sentence doc comment to `EngineAssembly` and `MainAssembly`** declaring them non-canonical until repaired, with a pointer to `EngineShell`. Lowers onboarding risk at zero code cost. (TD-01)
-6. **Replace `BattleScene::initBattle()` hardcoded `"img/battlebacks1/Grassland.png"` fallback** with a named `MISSING_BATTLEBACK` diagnostic log when no troop/map configuration provides a battleback. The silent fallback masks content configuration errors. (TD-04)
-7. **Add a `// NOT LIVE — simulated only` banner comment to `OpenAIChatService::requestResponse()` and `LlamaLocalService::requestResponse()`** — both functions have commented-out callbacks and do nothing when called. This is a one-line comment that prevents future callers from assuming live behavior. (TD-10)
-8. **Rename `CopilotKernel::validateProposal()` internal logic** to make it explicit that the current constraint check is a string-search mock, not predicate evaluation. One comment or renamed internal variable prevents the test from being read as production canon enforcement. (TD-11)
-
-**Status on 2026-04-22:** all eight quick wins above are now landed, although TD-01, TD-04, TD-10, and TD-11 still have broader follow-through open beyond the quick-win slice.
+1. **Align `scene_adapters.h` translator declarations with `scene_translator.h`** — fixes the current mismatched-tag and hidden-overload warning cluster in the presentation surface. (TD-07)
+2. **Mark `Window_Command::processOk()` as `override`** in `runtimes/compat_js/window_compat.h`. (TD-07)
+3. **Initialize `summary_line` explicitly in `MigrationWizardModel::SubsystemResult` construction** so aggregate-init warnings stop surfacing through integration builds. (TD-07)
+4. **Remove the unused `WriteText()` helper and explicitly consume or annotate `fadeSeconds`** in the currently warning-producing integration/audio code. (TD-07)
+5. **Collapse the duplicate incubator `EngineAssembly` / `MainAssembly` copies into one clearly named path** under `tools/incubator/`. (TD-01)
+6. **Add an explicit thread-affinity contract or synchronization note to `AssetLoader`'s static caches** so the remaining ownership assumptions are visible in code. (TD-05)
 
 ---
 
@@ -208,17 +228,17 @@ These items have a high signal-to-effort ratio and can be landed without touchin
 ```
           │ Low Effort │ High Effort
 ──────────┼────────────┼────────────
-High Risk │  TD-05*    │  TD-04
-          │  TD-09**   │  TD-03
+High Risk │  TD-09*    │  TD-04
+          │            │  TD-03
 ──────────┼────────────┼────────────
-Low Risk  │  TD-07     │  TD-02
-          │  TD-06     │  TD-01
-          │  TD-08***  │  TD-10
-          │  TD-11     │
+Low Risk  │  TD-05     │  TD-02
+          │  TD-07**   │  TD-01
+          │  TD-06     │  TD-10
+          │  TD-08***  │
 ```
 
-\* TD-05 is moderate effort but the cache and global issues are the most likely to silently become bugs.  
-\*\* TD-09 (GAF scripted conditions) is moderate effort but causes silent ability misbehavior in any content that uses condition strings.  
+\* TD-09 is no longer silent, but content that depends on scripted conditions still cannot actually use them.  
+\*\* TD-07 is low-severity debt, but the new warning baseline is only useful if the surfaced warnings are actually burned down.  
 \*\*\* TD-08 (file size) is low risk *today* but compounds the cost of every other fix.
 
 ---
@@ -227,47 +247,41 @@ Low Risk  │  TD-07     │  TD-02
 
 ### Phase 1 — Immediate (This Sprint)
 
-**Goal:** Eliminate the most misleading surfaces and close the cheapest governance gaps. Nothing here requires a major architecture decision, but some items do touch runtime code.
+**Goal:** Close the newly narrowed trust and hygiene gaps around the otherwise healthier tree.
 
 | Action | Items | Owner |
 |---|---|---|
-| Declare `EngineShell` the only canonical top-level runtime in docs and a header comment | TD-01 | — |
-| Add all eight Quick Wins above | TD-07, TD-01, TD-04, TD-10, TD-11 | — |
-| Replace `AssetLoader`'s unbounded static caches with a size-bounded structure or route through existing `AssetCache` | TD-05 | — |
-| Add at least one concurrent `ThreadRegistry` registration test | TD-05 | — |
-| Replace the `"active_condition_unimplemented"` silent bypass in GAF with a named diagnostic log | TD-09 | — |
-| Tighten audit and docs to reflect `synthetic pipeline intact ≠ shipping pipeline proven` language for export/security/visual validation | TD-06 | — |
+| Collapse duplicate incubator `EngineAssembly` / `MainAssembly` copies and keep `EngineShell` as the only canonical runtime entry point | TD-01 | — |
+| Burn down the currently visible targeted-build warnings and decide whether to add a warnings-as-errors lane once clean | TD-07 | — |
+| Add an explicit thread-affinity contract or synchronization to `AssetLoader`, and close the remaining compat sprite semantics TODOs | TD-05 | — |
+| Keep docs and headers explicit that synthetic export/security/AI/cloud lanes are bounded and not shipping-equivalent | TD-06, TD-10 | — |
+| Record the long-term stance on scripted ability conditions now that the unsupported path is explicit | TD-09 | — |
 
 ### Phase 2 — Near-Term (Next 2–4 Weeks)
 
-**Goal:** Close the render allocation loop, finish the most critical ownership contracts, and resolve the GAF scripted condition wiring.
+**Goal:** Decide which partial surfaces are being expanded versus permanently bounded.
 
 | Action | Items | Owner |
 |---|---|---|
-| Redesign `RenderLayer` to use value-type or arena-backed frame command storage instead of `shared_ptr<RenderCommand>` | TD-02 | — |
-| Update `renderer_backend.h` abstraction to accept frame-owned command view, not heap-backed vector | TD-02 | — |
-| Implement bounded real text and rect draw paths in `OpenGLRenderer` (landed) | TD-02 | — |
-| Remove or relocate stale `EngineAssembly` / `MainAssembly` / `EditorShell` / `PluginHost` / `ScriptBridge` from production-looking paths | TD-01 | done |
-| Burn down the stale-seam `check_cmake_completeness.ps1` orphan whitelist | TD-01 | — |
-| Replace raw global `World*` in `plugin_api.cpp` with scoped RAII binding or explicit context passing | TD-05 | — |
-| Finish sprite-handle ownership (`Sprite_Character`, `Sprite_Actor` release/reload TODOs) | TD-05 | — |
-| Wire `resolveActiveCondition()` and `passiveCondition` to scripting runtime or native evaluator | TD-09 | — |
+| Collect allocator/profiler evidence for the new frame-owned render path and decide how far textured/UI follow-through should go | TD-02 | — |
+| Make the TD-03 scripting/plugin keep/delete decision and align file layout accordingly | TD-03 | — |
+| Decide formula scope beyond the current bounded subset and keep unsupported cases explicit in migration/runtime output | TD-04 | — |
+| Decide whether `activeCondition` / `passiveCondition` will gain a real evaluator or remain deliberately unsupported | TD-09 | — |
 | Make the TD-10 AI/cloud keep/cut decision and align code layout accordingly | TD-10 | — |
-| Make unsupported formula categories and troop-page gaps explicit in migration output (even if not yet fixed) | TD-04 | — |
+| Start splitting `DiagnosticsWorkspace` and `urpg_project_audit` by domain now that the largest ownership/truth gaps are smaller | TD-08 | — |
 
 ### Phase 3 — Medium-Term (4–8 Weeks)
 
-**Goal:** Close correctness gaps, reduce structural complexity, and productize or delete simulation facades.
+**Goal:** Expand only the surfaces the project actually intends to ship and delete or quarantine the rest.
 
 | Action | Items | Owner |
 |---|---|---|
-| Implement a real expression evaluator for formula strings and wire it into damage resolution | TD-04 | — |
-| Decide: live JS/plugin runtime or permanently bounded harness. Align code layout accordingly | TD-03 | — |
+| Expand battle/runtime parity only where the product roadmap actually needs it: formula features, troop-page breadth, transition/audio routing, and battle-scene placeholder visuals | TD-04 | — |
+| If TD-03 stays harness-first, rename/relocate uniformly and delete dead editor/plugin bridge seams; if not, wire a real runtime | TD-03 | — |
 | If harness: rename, relocate, and document as a harness everywhere; delete dead `ScriptBridge`/`PluginHost` paths | TD-03 | — |
 | If live: complete QuickJS integration and retire fixture-backed execution | TD-03 | — |
-| Wire GAF scripted conditions to the chosen runtime (TD-03 or native evaluator) | TD-09 | — |
+| Wire GAF scripted conditions to the chosen evaluator or permanently scope them out of authored data | TD-09 | — |
 | Implement a real `ICloudService` provider or remove the simulation layer from production-facing headers | TD-10 | — |
-| Replace `CopilotKernel` string-match constraints with a real predicate/rule system | TD-11 | — |
 | Expand beyond the first real export smoke path and first renderer-backed visual capture path | TD-06 | — |
 | Implement real `ResourceProtector::compress()` or remove it from the API surface | TD-06 | — |
 | Begin splitting oversized compat manager files by responsibility boundary (not just size) | TD-08 | — |
@@ -277,40 +291,43 @@ Low Risk  │  TD-07     │  TD-02
 
 ## Detailed Findings
 
-### TD-01 — `P1` Stale top-level assembly/editor path is still present and not build-real
+### TD-01 — `P1` Duplicate stale top-level assembly/editor seams still exist and are not build-real
 
 **Effort:** M | **Risk:** Medium | **Blocks:** TD-03, TD-07
 
-The repo still exposes a public-looking engine/editor assembly layer that is neither current nor part of the real runtime path.
+The repo no longer exposes these seams from production-looking engine/editor paths, but it still carries duplicate non-canonical assembly copies that are neither current nor part of the real runtime path.
 
 **Evidence:**
 
-- `tools/incubator/runtime/engine_assembly.h:28-37` calls `ThreadRoles::instance()`, `ScriptBridge::instance().startup()`, `PluginHost::instance().discoverPlugins("plugins/")`, and `EditorShell::instance().startup()`.
-- `engine/core/editor/editor_shell.h:32-50` does not provide `instance()`, `startup()`, `shutdown()`, `update()`, or `render()`. It only manages panel storage and `renderUI()`.
-- `engine/core/threading/thread_roles.h:35-40` defines `ThreadRegistry`, not `ThreadRoles`; the `.cpp` implements only `RegisterCurrentThread`, `IsCurrentThread`, `CurrentScriptAccess`, and `CanRunScriptDirectly`.
-- `tools/incubator/runtime/main_assembly.h:22-41` still uses a synthetic loop with a 10-frame cutoff and placeholder termination logic.
+- `tools/incubator/runtime/engine_assembly.h` and `tools/incubator/core/engine_assembly.h` both still declare `EngineAssembly`; the same duplicate pattern exists for `main_assembly.h`.
+- `tools/incubator/runtime/engine_assembly.h:3` includes `../../../editor/editor_shell.h`, but the live header is `engine/core/editor/editor_shell.h`. The runtime incubator copy therefore drifts even harder than the core incubator copy.
+- Both incubator copies still call `core::threading::ThreadRoles::instance()` plus `editor::EditorShell::instance().startup()/update()/render()`, but the live tree exposes `ThreadRegistry`, not `ThreadRoles`, and `EditorShell` does not provide that singleton lifecycle API.
+- `tools/incubator/runtime/main_assembly.h:22-41` and `tools/incubator/core/main_assembly.h:22-41` both keep the same synthetic loop with a 10-frame cutoff and placeholder termination logic.
 - `tools/ci/check_cmake_completeness.ps1` no longer needs orphan exemptions for the stale plugin/script harness seam after `plugin_host.*`, `script_bridge.*`, and `scripting_console.*` were relocated into `tools/incubator/editor/`; `doc_generator.*` and `battle_tactics_window.*` were already relocated into `tools/docs/incubator/` and `tools/incubator/ui/` so they no longer present as production engine/editor/UI orphans. The only remaining whitelist entry is the standalone `engine/core/presentation/profile_arena.cpp` profiling tool.
-- `CMakeLists.txt:426-663` registers tools, tests, and `urpg_presentation_release_validation`, but no target that compiles the incubating `EngineAssembly` or `MainAssembly` seam.
+- `CMakeLists.txt:426-685` registers tools, tests, and `urpg_presentation_release_validation`, but no target that compiles either incubating `EngineAssembly` or `MainAssembly` seam.
 
 **Why it matters:**
 
-- New contributors can still choose the wrong top-level seam.
+- New contributors can still choose the wrong top-level seam, and there are now two nearly identical wrong places to do it.
 - CI green does not mean all public-looking runtime or editor entry points are alive.
-- The completeness gate is now much more truthful about stale runtime/editor seams, but it still does not prove that the remaining non-canonical top-level assembly headers are live.
+- The completeness gate is now much more truthful about stale runtime/editor seams, but it still does not prove that the remaining non-canonical assembly headers are singular, coherent, or retired.
 
 **Recommended direction:**
 
 - Declare `EngineShell` the only canonical top-level runtime surface.
-- Remove or relocate the remaining stale assembly code from production-looking paths.
+- Collapse the duplicate incubator copies into one clearly named non-canonical location.
+- Remove or archive the broken-include runtime copy instead of letting both versions drift.
 - Keep the completeness whitelist limited to genuine standalone tools, not stale runtime/editor seams.
 - Gate: `check_cmake_completeness.ps1` passes with no production-looking seam exemptions.
 
 **Definition of Done:**
 
-- [x] `EngineAssembly` and `MainAssembly` are relocated into an explicit incubator path under `tools/` with a pointer to `EngineShell`
+- [x] `EngineAssembly` and `MainAssembly` are relocated into an explicit incubator area under `tools/` with a pointer to `EngineShell`
 - [x] Production-looking editor/plugin assembly surfaces are either compiled as real targets or moved out of canonical runtime/editor paths
 - [x] `check_cmake_completeness.ps1` passes with no stale production-seam whitelist entries
+- [ ] Only one incubator location remains for the stale assembly seam
 - [ ] All CI and local gates reference `EngineShell` as the single top-level entry point in comments
+- [ ] Broken include / nonexistent API references inside the incubator seam are removed or archived instead of silently drifting
 
 ---
 
@@ -394,45 +411,43 @@ The compat runtime is better documented than before, but it is still a harness, 
 
 ---
 
-### TD-04 — `P2` Battle and formula parity still bounded by partial interpreters and fallback logic
+### TD-04 — `P2` Battle parity remains bounded by a subset evaluator, placeholder visuals, and partial routing
 
 **Effort:** L | **Risk:** High | **Depends on:** nothing for baseline correctness; TD-03 only matters for full live-script parity
 
-The deterministic native and compat battle slice has improved, but full RPG Maker-style formula and event parity is still not there.
+The deterministic native and compat battle slice has improved substantially, but full RPG Maker-style formula, event, transition, and visual parity is still not there.
 
 **Evidence:**
 
-- `runtimes/compat_js/battle_manager.h:160-167,297-300,326-328,405` marks transition/audio routing, formula parsing, troop-page execution, and playback as `PARTIAL`.
+- `runtimes/compat_js/battle_manager.h:138-146,260-262,284-291,405` marks transition/audio routing, formula breadth, troop-page execution breadth, and playback as `PARTIAL`.
 - `runtimes/compat_js/battle_manager.cpp:355-371` retains battle transition/background/audio state for readback but does not route it to live scene/audio backends.
-- `runtimes/compat_js/battle_manager.cpp:424-426` limits troop page execution to a bounded command subset.
-- `engine/core/scene/combat_formula.h:38-49` performs token replacement then falls back to `evaluateDamage()` instead of evaluating the formula string.
-- `engine/core/scene/battle_scene.cpp:789-796` routes the non-`BattleRuleResolver` branch through `CombatFormula::evaluateDamage()` rather than a real parsed formula.
+- `runtimes/compat_js/battle_manager.cpp` still limits troop page execution to a bounded interpreter subset even after the variable-branch expansion.
+- `engine/core/scene/combat_formula.h` now implements a real recursive-descent parser for a bounded arithmetic/stat subset, but anything outside that subset still falls back with named reasons rather than executing full MZ formula semantics.
+- `engine/core/battle/battle_migration.h:258-261` still inserts a placeholder `common_event` effect when a page has only unmapped event commands.
+- `engine/core/scene/battle_scene.cpp:499,531-539` still uses white-texture placeholder boxes for damage popups, guard markers, and state icons.
 
 **Why it matters:**
 
-- Content with nontrivial formula strings or broader troop-page scripting silently collapses to simplified behavior.
+- Content with nontrivial formula strings or broader troop-page scripting still collapses to a bounded supported subset.
 - Current tests prove deterministic closure for a bounded slice, not full MZ combat semantics.
+- Some battle-scene visuals are still contract placeholders, so even the native scene path remains only partially presentation-real.
 - **This is a correctness gap, not just a performance or polish issue.**
 
 **Recommended direction:**
 
-First, make the decision explicit: are formula strings in scope for native battle parity or not?
-
-**If yes:**
-- Implement a real expression evaluator. A recursive descent parser for the subset of operators MZ formulas use (`+`, `-`, `*`, `/`, `b.atk`, `a.mat`, etc.) is sufficient and self-contained.
-- Wire it into `CombatFormula` as a replacement for the token-replacement fallback.
-- Add test cases for at least five representative formula strings, including multi-operand and stat-reference cases.
-
-**If no:**
-- Replace the silent fallback in `CombatFormula` with an explicit `UnsupportedFormulaError` or a warning log that names the unrecognized formula string.
-- Surface this gap prominently in migration and audit output so content authors are not surprised.
-- Do not let unsupported cases degrade silently into `evaluateDamage()`.
+- Decide whether the current bounded formula evaluator is the long-term floor or only an interim subset.
+- If formula breadth is in scope, expand from the current parser to the additional operators/functions/semantics the product actually needs instead of treating "formula support" as all-or-nothing.
+- If broader parity is not in scope, keep unsupported formulas, troop-page commands, and battle-scene placeholders explicit in migration/runtime diagnostics so authors never mistake the current lane for full MZ behavior.
+- Route transition/background/audio metadata into real scene/audio behavior if those hooks are meant to be product surfaces; otherwise keep the `PARTIAL` boundary explicit and conservative.
+- Replace battle-scene white-texture stand-ins with a real bounded visual contract or with explicit diagnostics/comments that state the placeholder scope.
 
 **Definition of Done:**
 
 - [ ] A formula strategy decision is recorded in the contributor guide or audit document
-- [ ] Either a real expression evaluator is wired and covered by tests, OR every unsupported formula string produces a named, logged, non-silent diagnostic
+- [ ] The bounded formula evaluator is either expanded deliberately or declared the permanent supported subset
+- [ ] Unsupported formula strings, troop-page commands, and migration fallbacks remain named and non-silent
 - [ ] No `PARTIAL` marker in `battle_manager.h` lacks an associated test verifying the partial boundary
+- [ ] Battle-scene placeholder popup/state/guard visuals are either replaced or explicitly scoped as a deliberate temporary contract
 
 **Progress on 2026-04-22:**
 
@@ -441,51 +456,50 @@ First, make the decision explicit: are formula strings in scope for native battl
 - `BattleManager::applySkill()` / `applyItem()` now use that bounded subset when present and expose unsupported formulas in method status text instead of silently degrading.
 - Compat troop-page handling now supports variable conditional branches against constants and live variable operands.
 - Migration now preserves unsupported action `effects[]` as `_compat_effect_fallbacks` rather than hiding them behind a generic warning.
-- **Remaining gap:** full formula/event parity is still not there, and transition/audio routing remains partial.
+- **Remaining gap:** full formula/event parity is still not there, transition/audio routing remains partial, and the native battle scene still carries placeholder popup/state/guard visuals.
 
 ---
 
-### TD-05 — `P2` Memory-growth and lifetime ownership debt in caches, globals, and sprite handles
+### TD-05 — `P3` Remaining ownership debt is narrower and now concentrated in global cache/thread-affinity assumptions and compat sprite TODOs
 
-**Effort:** M | **Risk:** High | **Depends on:** nothing
+**Effort:** S | **Risk:** Medium | **Depends on:** nothing
 
-No fresh must-fix leak at the level of the earlier AudioManager SE issue, but several ownership paths are weaker than they should be.
+No fresh must-fix leak at the level of the earlier AudioManager SE issue remains in this slice, but a smaller set of ownership assumptions still deserves cleanup before these paths are treated as hardened.
 
 **Evidence:**
 
-- `engine/core/render/asset_loader.h:24-29` exposes process-global texture and missing-texture caches with no size bound, no clear API, and no synchronization.
-- `engine/core/render/asset_loader.cpp:9-41` uses those static caches directly; every new successful or failed path is retained for the life of the process.
-- `engine/core/scene/map_scene.cpp:275` and `engine/core/scene/battle_scene.cpp:1017` load runtime textures through `AssetLoader`, making the unbounded cache reachable from scene code.
-- `engine/core/editor/plugin_api.cpp:15,60-66,82-100` stores the active ECS world in a raw process-global `World*`.
-- `engine/core/threading/thread_roles.h:43` and `thread_roles.cpp:5-27` use an unsynchronized `unordered_map` as thread-role state.
-- `tests/unit/test_thread_roles.cpp:12-18` only exercises same-thread registration and lookup; there is no concurrent test coverage.
-- `runtimes/compat_js/window_compat.h:534,608` give `Sprite_Character` and `Sprite_Actor` private `BitmapHandle bitmap_` members, but `window_compat.cpp:2303-2322` and `2374-2380` leave release, reload, source-rect, and animation ownership as TODOs.
+- `engine/core/render/asset_loader.h:24-47` now exposes bounded, clearable static caches, but they remain process-global and unsynchronized.
+- `engine/core/render/asset_loader.cpp` uses those static caches directly with no explicit thread-affinity comment or locking contract.
+- `engine/core/scene/map_scene.cpp` and `engine/core/scene/battle_scene.cpp` still load runtime textures through `AssetLoader`, so the global-cache assumption remains reachable from live scene code.
+- `engine/core/editor/plugin_api.cpp` no longer stores a raw process-global `World*`; it now uses a scoped thread-local binding stack. That earlier high-risk item is closed.
+- `engine/core/threading/thread_roles.h` now uses `std::shared_mutex`, and concurrent tests exist. That earlier map-race item is closed.
+- `runtimes/compat_js/window_compat.cpp:2365,2370,2469` still leaves `Sprite_Character` source-rect updates, sprite animation/update semantics, and `Sprite_Actor` motion-start behavior as TODOs even though deterministic reload/release is now handled.
 
 **Important nuance:**
 
-- `Window_Base` contents-handle cleanup itself looks correct: `window_compat.cpp:1007-1012` erases entries from `contentsBitmaps_`.
+- `Window_Base` contents-handle cleanup itself still looks correct: `window_compat.cpp:1007-1012` erases entries from `contentsBitmaps_`.
 - The SE leak from the previous audit is closed (see Resolved Debt section).
 
 **Why it matters:**
 
-- The asset cache issue is a true memory-growth risk in long-running sessions.
-- The unsynchronized thread-role map is a latent data race waiting for concurrent use to materialize.
-- Sprite handle TODOs mean bitmap-backed sprite work lacks a finished lifetime contract.
+- The remaining `AssetLoader` debt is less about unbounded growth now and more about hidden global-state/thread-affinity assumptions.
+- The earlier `PluginAPI` and `ThreadRegistry` ownership hazards are no longer the headline risk in this category.
+- The remaining compat sprite TODOs mean bitmap-backed sprite work still lacks finished source-rect and motion semantics even after lifetime cleanup landed.
 
 **Recommended direction:**
 
-- Replace `AssetLoader`'s global caches with bounded, clearable, thread-aware storage. Route through the existing LRU-style `AssetCache` if it covers the access pattern, or add an explicit `evict()`/`clear()` API.
-- Replace the raw global plugin `World*` with scoped RAII binding or explicit context passing. A thread-local or scope-guard pattern prevents both use-after-free and cross-context contamination.
-- Add a mutex or `shared_mutex` around the `ThreadRegistry` map, or switch to a lock-free structure. Add at least one concurrent registration test before treating the registry as production concurrency infrastructure.
-- Complete sprite-handle ownership (release, reload, source-rect, animation) before adding real bitmap loading to compat sprites.
+- Either document `AssetLoader` as main-thread-only or make its remaining global caches explicitly thread-safe.
+- Keep `clearCaches()` as the explicit reset boundary and surface that contract in the code/docs that use it.
+- Finish compat sprite source-rect, update-loop, and motion semantics before treating those classes as broader sprite-authoring/runtime surfaces.
 
 **Definition of Done:**
 
-- [ ] `AssetLoader` caches have a documented size bound and an explicit `clear()` or eviction path
-- [ ] No raw process-global `World*` remains in plugin API code
-- [ ] `ThreadRegistry` map access is synchronized
-- [ ] At least one multi-threaded `ThreadRegistry` test covers concurrent registration and lookup
-- [ ] `Sprite_Character` and `Sprite_Actor` bitmap ownership TODOs are resolved before real bitmap loading is wired
+- [x] `AssetLoader` caches have a documented size bound and an explicit `clear()` path
+- [x] No raw process-global `World*` remains in plugin API code
+- [x] `ThreadRegistry` map access is synchronized
+- [x] At least one multi-threaded `ThreadRegistry` test covers concurrent registration and lookup
+- [ ] `AssetLoader` thread-affinity / synchronization expectations are explicit
+- [ ] Remaining compat sprite TODOs are resolved before broader bitmap/animation loading is wired
 
 **Progress on 2026-04-22:**
 
@@ -493,7 +507,7 @@ No fresh must-fix leak at the level of the earlier AudioManager SE issue, but se
 - `ThreadRegistry` map access is synchronized with `std::shared_mutex`, and concurrent registration/query coverage exists.
 - The raw global plugin `World*` binding has been replaced with a scoped thread-local binding stack.
 - `Sprite_Character` and `Sprite_Actor` bitmap handles now reload and release deterministically across identity changes and destruction.
-- **Result:** the highest-risk TD-05 ownership items from this audit are now substantially reduced.
+- **Result:** the highest-risk TD-05 ownership items from the prior pass are now substantially reduced. The remaining work is smaller and mostly about making the surviving global-state and sprite-semantics assumptions explicit or complete.
 
 ---
 
@@ -542,40 +556,46 @@ The release path is now partially real, but most of the lane still proves bounde
 
 ---
 
-### TD-07 — `P3` Build reproducibility and CI fidelity below baseline
+### TD-07 — `P3` Warning policy landed, but warning cleanup and stricter gate posture still lag
 
 **Effort:** S | **Risk:** Low | **Depends on:** nothing
 
-URPG's governance stack is healthier than its C++ quality enforcement and gate exactness.
+URPG's build governance is in better shape than it was in the previous pass. The remaining debt is no longer missing policy; it is the backlog the new policy exposed.
 
 **Evidence:**
 
-- `CMakeLists.txt:10-12` sets only `/FS` and `/EHsc` for MSVC; no repo-wide warning policy like `/W4`, `-Wall`, or `-Wextra` is present.
-- `CMakeLists.txt:386-393` fetches `stb` from `GIT_TAG master`.
-- `ctest -N -L pr` enumerates 892 tests; `ctest -N -L "^pr$"` enumerates 891. The unanchored label regex pulls in `urpg_presentation_release_validation`.
-- `.github/workflows/ci-gates.yml:55-72` runs `check_save_policy_governance.ps1`, `check_breaking_changes.ps1`, and `check_cmake_completeness.ps1` in Gate 1.
-- `tools/ci/run_local_gates.ps1:27-109` does not mirror that policy set; it omits at least `check_save_policy_governance.ps1` and `check_cmake_completeness.ps1`.
+- `CMakeLists.txt:10-17` now enables repo-wide warnings through `urpg_project_warnings` with `/W4` on MSVC and `-Wall -Wextra` on GCC/Clang-family compilers.
+- `CMakeLists.txt` now pins `stb`; the floating-dependency debt from the prior pass is closed.
+- A fresh targeted build of `urpg_integration_tests`, `urpg_snapshot_tests`, `urpg_compat_tests`, and `urpg_presentation_release_validation` succeeds but surfaces 11 unique warnings, including:
+  - presentation translator signature / `class` vs `struct` mismatches in `engine/core/presentation/scene_adapters.h`
+  - a missing `override` on `Window_Command::processOk()` in `runtimes/compat_js/window_compat.h`
+  - aggregate-initialization warning surfacing through `editor/diagnostics/migration_wizard_model.h`
+  - unused `fadeSeconds` in `engine/core/audio/audio_core.h`
+  - unused test helper noise in `tests/integration/test_wave1_closure_integration.cpp`
+- Exact label discovery is now cleanly anchored: `^pr$` => 918, `^nightly$` => 18, `^weekly$` => 44.
+- `tools/ci/run_local_gates.ps1` now mirrors the key Gate 1 governance checks that were missing in the previous pass.
 - `tools/ci/check_cmake_completeness.ps1` now burns down the stale plugin/script seam exemptions; the remaining whitelist is limited to the standalone `engine/core/presentation/profile_arena.cpp` profiling tool.
 
 **Why it matters:**
 
-- Local `All gates passed` does not mean `same policy surface as Gate 1`.
-- Floating dependencies and weak warning posture slow long-term hardening in a large C++ tree.
+- Warning flags only raise code quality if the warning backlog is treated as actionable instead of normalized noise.
+- The tree is now close enough to a useful stricter posture that each lingering warning matters more, not less.
 
 **Recommended direction:**
 
-- Pin `stb` to a specific commit SHA or tagged release.
-- Add `/W4` (MSVC) and `-Wall -Wextra` (GCC/Clang) as repo-wide compile options; suppress only with documented, targeted pragmas.
-- Anchor all ctest label regexes to `"^pr$"`, `"^nightly$"` etc. in both CI and local scripts.
-- Make `run_local_gates.ps1` an exact mirror of Gate 1, or add an explicit comment enumerating what differs and why.
+- Burn down the currently visible warning set now that repo-wide flags are in place.
+- Keep exact-label discovery and local/CI gate parity anchored so future count drift is easy to spot.
+- Consider introducing a focused warnings-as-errors lane once the currently visible backlog reaches zero.
 - Consider adding a clang-tidy or cppcheck preset as an optional opt-in gate.
 
 **Definition of Done:**
 
-- [ ] `stb` pinned to a specific tag or SHA
-- [ ] Repo-wide warning flags present in `CMakeLists.txt`
-- [ ] `run_local_gates.ps1` runs the same checks as Gate 1 (or documents the delta)
-- [ ] All ctest label patterns in CI and local scripts are anchored
+- [x] `stb` is pinned to a specific revision
+- [x] Repo-wide warning flags are present in `CMakeLists.txt`
+- [x] `run_local_gates.ps1` runs the key Gate 1 governance checks that were missing in the prior pass
+- [x] All ctest label patterns in CI and local scripts are anchored
+- [ ] The currently visible targeted-build warning backlog is reduced to zero or explicitly waived
+- [ ] A focused warnings-as-errors lane is either enabled or deliberately deferred with rationale
 - [ ] `check_cmake_completeness.ps1` TODO is resolved or tracked as a separate issue
 
 **Progress on 2026-04-22:**
@@ -584,6 +604,7 @@ URPG's governance stack is healthier than its C++ quality enforcement and gate e
 - Repo-wide warning flags are enabled via a shared compile-options target.
 - CI and local gate label filters are anchored.
 - `run_local_gates.ps1` now includes the key Gate 1 governance checks that were missing in the audit snapshot.
+- The fresh targeted build proves the current debt has shifted to warning cleanup, not policy absence.
 - `check_cmake_completeness.ps1` no longer hides stale runtime/editor seams, but it still carries a narrow TODO for the standalone profiling tool whitelist.
 
 ---
@@ -601,12 +622,12 @@ The maintainability risk is localized but will compound every future fix.
 | `tests/compat/test_compat_plugin_failure_diagnostics.cpp` | 4,033 |
 | `tests/compat/test_compat_plugin_fixtures.cpp` | 2,859 |
 | `tests/unit/test_diagnostics_workspace.cpp` | 2,376 |
+| `runtimes/compat_js/window_compat.cpp` | 2,370 |
 | `runtimes/compat_js/plugin_manager.cpp` | 2,350 |
-| `runtimes/compat_js/window_compat.cpp` | 2,275 |
-| `editor/diagnostics/diagnostics_workspace.cpp` | 2,198 |
 | `tools/audit/urpg_project_audit.cpp` | 2,183 |
-| `runtimes/compat_js/battle_manager.cpp` | 1,806 |
-| `runtimes/compat_js/data_manager.cpp` | 1,718 |
+| `editor/diagnostics/diagnostics_workspace.cpp` | 1,972 |
+| `runtimes/compat_js/battle_manager.cpp` | 1,921 |
+| `runtimes/compat_js/data_manager.cpp` | 1,744 |
 | `tests/unit/test_plugin_manager.cpp` | 1,660 |
 
 **Why it matters:**
@@ -630,51 +651,53 @@ The maintainability risk is localized but will compound every future fix.
 
 ---
 
-### TD-09 — `P2` GAF scripted conditions are declared but never evaluated
+### TD-09 — `P2` GAF scripted conditions are explicit and test-backed, but still unsupported
 
-**Effort:** M | **Risk:** High | **Depends on:** TD-03 (for full live-script wiring), but the diagnostic path is independent
+**Effort:** M | **Risk:** Medium | **Depends on:** TD-03 (for full live-script wiring), but the explicit unsupported path is independent
 
-The Gameplay Ability Framework has a first-class data model for scripted activation and passive cancellation conditions, but neither condition type is evaluated at runtime. Every ability with a non-empty `activeCondition` or `passiveCondition` string silently bypasses those gates.
+The Gameplay Ability Framework still has no evaluator for scripted activation or passive cancellation conditions, but the current gap is no longer silent. The debt has shifted from "hidden bypass" to "authored feature still unsupported."
 
 **Evidence:**
 
-- `engine/core/ability/gameplay_ability.h:34-35` declares `activeCondition` ("Must evaluate true to activate") and `passiveCondition` ("While active, if false, ability cancels") as first-class fields on `ActivationInfo`.
-- `engine/core/ability/gameplay_ability.cpp:50-54`: `evaluateActivation()` checks whether `resolveActiveCondition()` returns a non-empty string, then **unconditionally** sets `result.allowed = false` with reason `"active_condition_unimplemented"` and returns — no scripting evaluation occurs.
-- `passiveCondition` is never read anywhere in the codebase. `update()` does not check it; no cancellation path interrogates it.
-- `AbilitySystemComponent::canApplyEffect()` returns `true` unconditionally with the comment: "placeholder for future logic where Effects have their own Tag requirements."
-- No test in `tests/unit/` or `tests/integration/` exercises an ability with a non-empty `activeCondition` or `passiveCondition`.
+- `engine/core/ability/gameplay_ability.h` still declares `activeCondition` ("Must evaluate true to activate") and `passiveCondition` ("While active, if false, ability cancels") as first-class fields on `ActivationInfo`.
+- `engine/core/ability/gameplay_ability.cpp` now blocks non-empty `activeCondition` values with the explicit reason `active_condition_unsupported` and a detail string that includes the authored expression.
+- `passiveCondition` is still not evaluated anywhere in the runtime update path; the current contract is that it is out of scope until a real evaluator exists.
+- `AbilitySystemComponent::canApplyEffect()` still returns `true` unconditionally and is only documented/test-pinned as an always-true admission gate for now.
+- `tests/unit/test_ability_activation.cpp` now exercises the non-empty `activeCondition` path, proves the explicit diagnostic, and pins the current passive-condition non-behavior.
 
 **Why it matters:**
 
-- Any ability authored with a scripted condition string is permanently blocked (returns `"active_condition_unimplemented"`), or permanently ignores passive cancellation. There is no middle ground.
-- Content authors cannot tell from any runtime signal whether a condition they wrote is being evaluated or bypassed. The failure mode for an active condition is ability-blocked; the failure mode for a passive condition is ability-never-cancels — both are silent.
-- This is a correctness gap, not just a missing feature. The data model is live and callers are writing conditions that are not enforced.
+- Any ability authored with a scripted condition string still cannot actually use that authored data.
+- The active-condition failure mode is now visible and honest, which is much better than before, but it is still a product limitation until an evaluator exists or the field is scoped out.
+- Passive cancellation still does not happen, so authored passive strings remain misleading unless the scope decision is made explicit in docs and tooling.
 
 **Recommended direction:**
 
-First, decide scope: are scripted conditions evaluated against the QuickJS runtime (TD-03 dependency), against the native expression evaluator (TD-04 dependency), or against a bounded DSL?
+First, decide scope: are scripted conditions evaluated against the QuickJS runtime (TD-03 dependency), against a native evaluator, or permanently treated as out-of-scope authoring data?
 
-**Regardless of scripting strategy:**
-- Replace the `"active_condition_unimplemented"` silent bypass with an explicit log-diagnostic and a clearly named result code, so content authors can see the gap at runtime.
-- Add at least one test that registers an ability with a non-empty `activeCondition` and asserts the expected behavior (blocked with diagnostic, or evaluated to true/false).
+**Regardless of the long-term strategy:**
+- Keep the explicit unsupported diagnostic path; do not regress back to silent behavior.
+- Keep at least one focused activation test that exercises a non-empty `activeCondition`.
 
-**Once a scripting strategy is chosen:**
+**Once a scope decision is chosen:**
 - Wire `resolveActiveCondition()` to the chosen evaluator.
 - Wire `passiveCondition` to a cancellation check in `update()`.
 - Implement `canApplyEffect()` tag gate once effects have Tag requirements.
 
 **Definition of Done:**
 
-- [ ] Abilities with a non-empty `activeCondition` produce a named, logged diagnostic — they do not silently block or silently pass
+- [x] Abilities with a non-empty `activeCondition` produce a named diagnostic — they do not silently block or silently pass
 - [x] `passiveCondition` is either evaluated in `update()` or its absence is documented as out-of-scope with a matching test that asserts the field is not read
 - [x] `canApplyEffect()` either checks effect Tag requirements or is documented as always-true with a test pinning that behavior
-- [ ] At least one ability activation test covers a non-empty `activeCondition` value
+- [x] At least one ability activation test covers a non-empty `activeCondition` value
+- [ ] A long-term evaluator-or-scope decision is recorded for `activeCondition` / `passiveCondition`
 
 **Progress on 2026-04-22:**
 
 - Non-empty `activeCondition` values now produce explicit `active_condition_unsupported` diagnostics with detail strings that surface in execution history and replay diagnostics.
 - Focused activation tests now cover the non-empty `activeCondition` path, pin that `passiveCondition` is ignored by the current runtime, and prove that passive strings do not block execution.
 - `canApplyEffect()` is now explicitly documented and test-pinned as an always-true admission gate; modifier `requiredTag` checks still apply later during attribute resolution.
+- **Remaining gap:** the unsupported path is now honest, but authored scripted conditions still do not execute.
 
 ---
 
@@ -688,7 +711,7 @@ The engine declares a full AI chat and cloud-sync integration surface — OpenAI
 
 - `engine/core/ai/ai_connectivity.h`: `OpenAIChatService::requestResponse()` constructs a JSON body, documents the required HTTP steps, and then ends with a commented-out `callback(...)` call. **The function does nothing when called.** `LlamaLocalService::requestResponse()` is identical — commented-out callback, no inference.
 - `engine/core/social/cloud_service.h`: `LocalInMemoryCloudService::syncToCloud()` stores data in an in-process `std::map`. `LocalInMemoryCloudService::initialize()` only allows `CloudProvider::LocalSimulated`; live-looking providers fail with a `NOT LIVE` result instead of pretending to connect. No network operation occurs.
-- `engine/core/message/ai_sync_coordinator.cpp:61`: `checkForRemoteKnowledgeUpdates()` returns `true` unconditionally. The comment labels it "Phase 4 development: Placeholder."
+- `engine/core/message/ai_sync_coordinator.cpp` now returns `false` from `checkForRemoteKnowledgeUpdates()` with an explicit `NOT LIVE` comment; the misleading always-true behavior from the prior pass is gone.
 - `engine/core/ai/personality_registry.h` is a fixed string-template selector, not a dynamic registry or provider-backed catalog.
 - `engine/core/message/ai_sync_coordinator.h:13-14` already documents that, with the in-tree `LocalInMemoryCloudService` (`CloudServiceStub` compatibility alias), the current behavior remains local in-memory rather than live cloud sync. `CMakeLists.txt` compiles `engine/core/message/ai_sync_coordinator.cpp` (line 199), and the tree now includes direct unit coverage for local-only initialization plus `AISyncCoordinator` sync/restore behavior.
 
@@ -718,7 +741,7 @@ The engine declares a full AI chat and cloud-sync integration surface — OpenAI
 - [ ] A single AI/cloud strategy is documented in the contributor guide
 - [ ] `OpenAIChatService::requestResponse()` either makes a real HTTP request or is removed from the production headers
 - [x] `CloudServiceStub` was renamed to `LocalInMemoryCloudService` with `CloudServiceStub` retained only as a compatibility alias, and live-provider initialization now fails loudly instead of pretending to connect
-- [ ] `checkForRemoteKnowledgeUpdates()` either performs a real check or is deleted/replaced with `return false` and a clear comment
+- [x] `checkForRemoteKnowledgeUpdates()` no longer pretends success; it now returns `false` with a clear `NOT LIVE` comment
 - [ ] AI/chat transport and cloud-provider behavior have direct tests, or the related production-facing headers are moved to a clearly labeled `experiments/` or `future/` directory
 
 **Progress on 2026-04-22:**
@@ -731,41 +754,9 @@ The engine declares a full AI chat and cloud-sync integration surface — OpenAI
 
 ---
 
-### TD-11 — `P3` CopilotKernel canon validation uses substring matching, not predicate-based constraint enforcement
+### TD-11 — Closed in current tree: CopilotKernel now uses predicate-based constraint enforcement
 
-**Effort:** S | **Risk:** Low | **Depends on:** nothing
-
-The `CopilotKernel` is presented as a canon constraint enforcement layer for the Producer Copilot system. Its constraint objects carry `id`, `description`, `severity`, and `isHardConstraint` fields — but the actual validation logic ignores all of them and instead checks whether the proposal description string contains the word `"violate"`.
-
-**Evidence:**
-
-- `engine/core/copilot/copilot_kernel.h:47`: `validateProposal()` checks `proposal.description.find("TODO") != std::string::npos` as a baseline failure case.
-- `engine/core/copilot/copilot_kernel.h:52-56`: Hard constraint enforcement reduces to `proposal.description.find("violate") != std::string::npos`. The registered `CanonConstraint` objects are never interrogated.
-- `tests/test_copilot_kernel.cpp`: The three test cases validate empty descriptions, descriptions containing "violate," and a description without "violate." All pass against the mock logic. The `CanonConstraint` added in the test (`"Map cannot have empty cells"`) is never evaluated by the validator.
-- `CanonConstraint` has no predicate field — there is no way to attach a real check function to a constraint, only description strings.
-
-**Why it matters:**
-
-- This is a low-risk finding today because the Copilot system is not yet in a live editorial path. But the test suite passes and appears to validate real constraint enforcement. A future developer reading the tests will reasonably believe constraints are being checked, and build editor workflows on that assumption.
-- The current design cannot be extended to real constraint enforcement without replacing the core of `validateProposal()`.
-
-**Recommended direction:**
-
-- Add a `predicate` field to `CanonConstraint` (e.g., `std::function<bool(const EditProposal&)>`) so constraints can carry real check logic.
-- Replace the `find("violate")` dispatch in `validateProposal()` with iteration over registered constraints using their predicates.
-- Update the test to register a constraint with a real predicate and verify it is called.
-- No API surface needs to change; this is an implementation change inside the kernel.
-
-**Definition of Done:**
-
-- [ ] `CanonConstraint` has a callable predicate field
-- [ ] `validateProposal()` iterates registered constraint predicates, not description substrings
-- [ ] At least one test registers a constraint with a real predicate and verifies it fires on a proposal that violates it
-
-**Progress on 2026-04-22:**
-
-- This finding's core implementation gap is now closed: `CopilotKernel` validates proposals against registered predicate-based constraints, and tests exercise real constraint behavior instead of substring mocks.
-- Follow-up work, if any, is now about expanding rule coverage rather than replacing the enforcement model.
+The core implementation gap from the previous pass is closed. `CanonConstraint` now carries a predicate, `validateProposal()` iterates real predicates, and `tests/test_copilot_kernel.cpp` proves predicate-based rejection instead of substring mocks. Any follow-up work from here is rule-coverage expansion, not technical-debt replacement of the enforcement mechanism itself.
 
 ---
 
@@ -773,11 +764,11 @@ The `CopilotKernel` is presented as a canon constraint enforcement layer for the
 
 This pass reduces to five big themes:
 
-1. **Build-truth drift** — The living runtime path and the public-looking top-level path are still different things. (TD-01, TD-07)
-2. **Hot-loop overhead** — The render and UI path is the strongest current optimization target. (TD-02)
-3. **Harness-versus-runtime ambiguity** — The compat layer is valuable, but still bounded by harness semantics. (TD-03, TD-04)
-4. **Ownership and lifetime debt** — The riskiest memory issues are less about a single obvious leak and more about unbounded caches, globals, and unfinished lifetime contracts. (TD-05)
-5. **Silent pass-through in feature-gated systems** — Several subsystems (GAF scripted conditions, AI connectivity, CopilotKernel constraints) have a declared contract that callers expect to be enforced, but the implementation silently skips or bypasses it. This is a correctness trap: code compiles, some surrounding tests pass, and behavior appears plausible until the feature is actually exercised. (TD-09, TD-10, TD-11)
+1. **Build-truth drift is now narrower but sharper** — the remaining problem is duplicate/non-canonical entry seams plus a warning backlog, not missing baseline governance. (TD-01, TD-07)
+2. **Hot-loop and visual-completeness debt are still concentrated in the render/UI stack** — ownership is better, but textured/UI follow-through and allocator proof remain open. (TD-02, TD-06)
+3. **Harness-versus-runtime ambiguity is still the defining product truth problem** — the compat and plugin layers are useful, but still bounded by harness semantics. (TD-03, TD-04)
+4. **Ownership debt is smaller and more localized** — the earlier headline risks are reduced; what remains is surviving process-global state and unfinished compat sprite semantics. (TD-05)
+5. **Unsupported features are now more honest, but still unresolved as product decisions** — GAF conditions and AI/cloud transport are clearer than before, yet still need either real implementations or deliberate scoping cuts. (TD-09, TD-10)
 
 ---
 
@@ -785,45 +776,40 @@ This pass reduces to five big themes:
 
 | Step | Action | Phase | TD Items |
 |---|---|---|---|
-| 1 | Apply all Quick Wins (pin stb, add warnings, sync local gates, anchor label regex, doc comments on stale assembly, battleback diagnostic, AI connectivity banners, CopilotKernel comment) | 1 | TD-07, TD-01, TD-04, TD-10, TD-11 |
-| 2 | Bound `AssetLoader` caches; synchronize `ThreadRegistry`; add concurrent registry test | 1 | TD-05 |
-| 3 | Declare `EngineShell` canonical; mark or remove stale assembly/editor/plugin paths | 1 | TD-01 |
-| 4 | Wire GAF `resolveActiveCondition()` and `passiveCondition` to the scripting runtime or gate with an explicit `UnsupportedConditionError` | 1–2 | TD-09 |
-| 5 | Redesign `RenderLayer` for arena/value command storage; update `renderer_backend.h` abstraction | 2 | TD-02 |
-| 6 | Implement real text, rect, and UI draw paths in `OpenGLRenderer` | 2 | TD-02 |
-| 7 | Replace raw global `World*`; finish sprite-handle ownership | 2 | TD-05 |
-| 8 | Make the TD-03 scripting strategy decision and begin aligning code layout | 2–3 | TD-03 |
-| 9 | Decide formula scope; implement real evaluator or make fallback explicit and named | 2–3 | TD-04 |
-| 10 | Make an explicit keep/cut decision for the AI/cloud layer; either wire real HTTP transport or delete the simulation facades | 2–3 | TD-10 |
-| 11 | Replace `CopilotKernel` string-match constraints with a real predicate/rule system | 3 | TD-11 |
-| 12 | Tighten export/security/visual-validation claims; add one real lane for each | 3 | TD-06 |
-| 13 | Schedule ASan/LSan and Valgrind pass after Phase 2 render changes land | 3 | — |
-| 14 | Begin splitting `DiagnosticsWorkspace` and `urpg_project_audit` | 3 | TD-08 |
+| 1 | Collapse duplicate incubator `EngineAssembly` / `MainAssembly` copies and keep `EngineShell` as the only canonical runtime entry point | 1 | TD-01 |
+| 2 | Burn down the currently visible warning backlog and decide whether to add a focused warnings-as-errors lane | 1 | TD-07 |
+| 3 | Make `AssetLoader` thread-affinity explicit and close the remaining compat sprite TODOs | 1 | TD-05 |
+| 4 | Decide the TD-03 scripting/plugin strategy and align code layout accordingly | 2 | TD-03 |
+| 5 | Decide battle/formula scope beyond the current subset and close the most visible battle-scene placeholders | 2 | TD-04 |
+| 6 | Record the long-term evaluator-or-scope decision for scripted ability conditions | 2 | TD-09 |
+| 7 | Collect allocator/profiler evidence for the frame-owned render path and decide how far textured/UI follow-through should go | 2 | TD-02 |
+| 8 | Make an explicit keep/cut decision for the AI/cloud layer; either wire real transport or delete/quarantine the simulation facades | 2–3 | TD-10 |
+| 9 | Tighten export/security/visual-validation claims and expand at least one more real lane in each area | 3 | TD-06 |
+| 10 | Begin splitting `DiagnosticsWorkspace` and `urpg_project_audit`, then plan the compat-manager splits behind TD-03 | 3 | TD-08 |
+| 11 | Schedule ASan/LSan and Valgrind pass after the next render/allocator follow-through slice lands | 3 | — |
 
 **Progress note on 2026-04-22:**
 
-- Steps 1, 2, and 11 have landed in substance.
-- Step 4 is partially landed through explicit unsupported-condition diagnostics and tests, but not full evaluation.
-- Steps 5 and 6 are now landed in bounded form through value-owned `FrameRenderCommand` storage, frame-buffer backend consumption, real immediate-mode text/rect submission, focused pre-init/no-context test coverage, and one bounded nightly renderer-backed visual capture lane; the remaining TD-02 follow-through is allocator proof plus richer textured/UI coverage.
-- Step 9 is partially landed through bounded evaluator support plus explicit fallback surfacing, but not full parity.
-- Step 10 is partially landed through truthfulness fixes, but not the keep/cut decision.
+- Step 2's enabling work is landed, and the remaining work is warning cleanup.
+- Step 3's highest-risk slice is landed; the remaining work is the smaller `AssetLoader` contract and compat sprite TODO cleanup.
+- Step 5 is partially landed through the bounded formula subset, explicit fallback surfacing, and better battle migration diagnostics, but not full parity.
+- Step 6 is partially landed through explicit unsupported-condition diagnostics and tests, but not full evaluation.
+- Step 7 is partially landed through value-owned `FrameRenderCommand` storage, frame-buffer backend consumption, real immediate-mode text/rect submission, focused pre-init/no-context test coverage, and one bounded nightly renderer-backed visual capture lane; the remaining TD-02 follow-through is allocator proof plus richer textured/UI coverage.
+- Step 8 is partially landed through truthfulness fixes, but not the keep/cut decision.
 
 ---
 
 ## Conclusion
 
-URPG is not primarily suffering from missing documentation or missing tests. It is suffering from a smaller, harder class of debt: **build-truth drift, harness-versus-runtime ambiguity, hot-loop allocation overhead, silent feature bypasses, and a set of intentionally partial surfaces that still live next to production-looking APIs.**
+URPG is not primarily suffering from missing documentation or missing tests. It is suffering from a smaller, harder class of debt: **non-canonical entry seams, harness-versus-runtime ambiguity, partial visual/runtime closure, a warning backlog exposed by the new warning baseline, and a handful of remaining product-scope decisions that code can now name honestly but not yet execute.**
 
-This pass added three new finding categories that were not visible in the prior pass:
+The fresh sweep changed the audit in four important ways:
 
-- **GAF scripted conditions (TD-09):** Abilities with scripted activation or cancellation conditions silently bypass those conditions at runtime. This is not a documentation gap — the data model is there and callers expect the condition to be enforced.
-- **AI/cloud connectivity (TD-10):** `OpenAIChatService` and `LlamaLocalService` call back with nothing, while `AISyncCoordinator` is only meaningfully real against the in-memory stub path. The simulation is not labeled clearly enough to prevent future integration work from being misdirected.
-- **CopilotKernel constraints (TD-11):** The canon constraint system checks if a proposal description contains the word `"violate"`. Tests pass. Nothing is actually constrained.
+- **TD-07 shifted from policy debt to cleanup debt.** Warning flags, pinned dependencies, and anchored label filters are in place; the new problem is the warning backlog they surfaced.
+- **TD-05 is materially smaller than the earlier snapshot implied.** The highest-risk cache/global/thread issues are no longer the category headline; the remaining work is explicit thread-affinity and compat sprite follow-through.
+- **TD-11 is closed in substance.** Copilot constraints now use predicates, so that mechanism is no longer an active debt leader.
+- **TD-01 is sharper than the current doc previously stated.** The stale assembly seam is truthful about being non-canonical, but it still exists twice and one copy has a broken include path.
 
-All three shared the same failure mode at audit time: a feature contract was declared and tested, but the underlying enforcement was a pass-through. During the 2026-04-22 execution session, TD-11 was closed in substance, TD-09 was improved to emit explicit unsupported-condition diagnostics, and TD-10 was made more truthful by labeling the seams as not live and removing the false-positive remote-update return.
-
-That is fixable. The repo already has the governance discipline to do it. The Quick Wins above can move immediately with near-zero risk. The Phase 1 and Phase 2 items address the most misleading surfaces and the most impactful structural changes without requiring a strategy decision on the JS runtime.
-
-The single most leveraged action is making the code paths themselves as truthful and production-shaped as the surrounding documentation already is.
+That is a healthier kind of debt. The repo already has the governance discipline to expose and close it. The most leveraged next actions are to collapse the duplicate incubator seam, burn down the warning backlog now that the warning baseline exists, and make the remaining partial runtime surfaces either more real or more explicitly out of scope.
 
 > **Next audit trigger:** Re-run this audit after Phase 2 completes. Add an ASan/Valgrind pass to the next cycle — the current finding list is based entirely on code inspection and may be undercounting live memory issues.
