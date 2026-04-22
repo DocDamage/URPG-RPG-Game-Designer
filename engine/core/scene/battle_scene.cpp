@@ -7,11 +7,14 @@
 #include <algorithm>
 #include <ctime>
 #include <filesystem>
+#include <iostream>
 #include <optional>
 
 namespace urpg::scene {
 
 namespace {
+
+constexpr const char* kMissingBattlebackDiagnostic = "MISSING_BATTLEBACK";
 
 int parseDatabaseId(const std::string& rawId) {
     try {
@@ -263,8 +266,16 @@ void BattleScene::onStart() {
 
     // Phase 12: Load Background
     // In MZ, battle backgrounds are often determined by the map or troop.
-    // Placeholder: load a default battleback
-    m_backgroundTexture = loadOptionalTexture("img/battlebacks1/Grassland.png");
+    // Keep the fallback path explicit so missing content does not look like a valid default.
+    constexpr const char* fallbackBattlebackPath = "img/battlebacks1/Grassland.png";
+    m_backgroundTexture = loadOptionalTexture(fallbackBattlebackPath);
+    if (!m_backgroundTexture) {
+        std::cerr << "[" << kMissingBattlebackDiagnostic << "] No configured battleback was resolved; "
+                  << "fallback asset is also unavailable: " << fallbackBattlebackPath << std::endl;
+        if (m_logWindow) {
+            m_logWindow->setText(kMissingBattlebackDiagnostic);
+        }
+    }
 }
 
 void BattleScene::setPhase(BattlePhase phase) {
@@ -524,7 +535,7 @@ void BattleScene::draw(urpg::SpriteBatcher& batcher) {
 
                 // Show State Icons (Phase 11)
                 float stateX = startX + 372.0f;
-                for (int32_t stateId : p.states) {
+                for ([[maybe_unused]] int32_t stateId : p.states) {
                     batcher.submit(1, stateX, startY + (index * 24.0f), 16.0f, 16.0f, 0, 0, 1, 1, 0.9f);
                     stateX += 20.0f;
                 }

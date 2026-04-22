@@ -1,16 +1,22 @@
 #include "doc_generator.h"
+
 #include <fstream>
 #include <iostream>
 
 namespace urpg::editor {
 
-void DocGenerator::registerDoc(const std::string& category, const std::string& name, const std::string& sig, const std::string& desc) {
+void DocGenerator::registerDoc(const std::string& category,
+                               const std::string& name,
+                               const std::string& sig,
+                               const std::string& desc) {
     m_entries[category].push_back({name, sig, desc, category});
 }
 
 void DocGenerator::exportMarkdown(const std::string& filePath) {
     std::ofstream out(filePath);
-    if (!out) return;
+    if (!out) {
+        return;
+    }
 
     out << "# URPG Plugin API Reference\n\n";
     out << "> Status note: this reference includes exported plugin and bridge symbols whose implementation is still partially stubbed or fixture-backed in the current engine.\n\n";
@@ -29,7 +35,9 @@ void DocGenerator::exportMarkdown(const std::string& filePath) {
 
 void DocGenerator::exportHtml(const std::string& filePath) {
     std::ofstream out(filePath);
-    if (!out) return;
+    if (!out) {
+        return;
+    }
 
     out << "<!DOCTYPE html><html><head><title>URPG API Docs</title>";
     out << "<style>body{font-family:sans-serif;background:#202020;color:#ddd;padding:25px;}";

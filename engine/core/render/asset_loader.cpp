@@ -3,17 +3,88 @@
 #include <stb_image.h>
 #include <iostream>
 #include <vector>
+#include <utility>
 
 namespace urpg {
 
-std::unordered_map<std::string, std::shared_ptr<Texture>> AssetLoader::s_textureCache;
-std::unordered_set<std::string> AssetLoader::s_missingTextureCache;
+std::unordered_map<std::string, AssetLoader::TextureCacheEntry> AssetLoader::s_textureCache;
+std::list<std::string> AssetLoader::s_textureCacheUsage;
+std::unordered_map<std::string, AssetLoader::MissingTextureCacheEntry> AssetLoader::s_missingTextureCache;
+std::list<std::string> AssetLoader::s_missingTextureCacheUsage;
+
+void AssetLoader::clearCaches() {
+    s_textureCache.clear();
+    s_textureCacheUsage.clear();
+    s_missingTextureCache.clear();
+    s_missingTextureCacheUsage.clear();
+}
+
+void AssetLoader::touchTextureCacheEntry(const std::string& path) {
+    auto entryIt = s_textureCache.find(path);
+    if (entryIt == s_textureCache.end()) {
+        return;
+    }
+
+    s_textureCacheUsage.splice(s_textureCacheUsage.begin(), s_textureCacheUsage, entryIt->second.usageIt);
+    entryIt->second.usageIt = s_textureCacheUsage.begin();
+}
+
+void AssetLoader::touchMissingTextureCacheEntry(const std::string& path) {
+    auto entryIt = s_missingTextureCache.find(path);
+    if (entryIt == s_missingTextureCache.end()) {
+        return;
+    }
+
+    s_missingTextureCacheUsage.splice(s_missingTextureCacheUsage.begin(), s_missingTextureCacheUsage, entryIt->second.usageIt);
+    entryIt->second.usageIt = s_missingTextureCacheUsage.begin();
+}
+
+void AssetLoader::cacheTexture(const std::string& path, const std::shared_ptr<Texture>& texture) {
+    auto existingIt = s_textureCache.find(path);
+    if (existingIt != s_textureCache.end()) {
+        existingIt->second.texture = texture;
+        touchTextureCacheEntry(path);
+        return;
+    }
+
+    s_textureCacheUsage.push_front(path);
+    s_textureCache.emplace(path, TextureCacheEntry{texture, s_textureCacheUsage.begin()});
+
+    if (s_textureCache.size() <= kTextureCacheLimit) {
+        return;
+    }
+
+    const std::string& evictedPath = s_textureCacheUsage.back();
+    s_textureCache.erase(evictedPath);
+    s_textureCacheUsage.pop_back();
+}
+
+void AssetLoader::cacheMissingTexture(const std::string& path) {
+    auto existingIt = s_missingTextureCache.find(path);
+    if (existingIt != s_missingTextureCache.end()) {
+        touchMissingTextureCacheEntry(path);
+        return;
+    }
+
+    s_missingTextureCacheUsage.push_front(path);
+    s_missingTextureCache.emplace(path, MissingTextureCacheEntry{s_missingTextureCacheUsage.begin()});
+
+    if (s_missingTextureCache.size() <= kMissingTextureCacheLimit) {
+        return;
+    }
+
+    const std::string& evictedPath = s_missingTextureCacheUsage.back();
+    s_missingTextureCache.erase(evictedPath);
+    s_missingTextureCacheUsage.pop_back();
+}
 
 std::shared_ptr<Texture> AssetLoader::loadTexture(const std::string& path) {
-    if (s_textureCache.count(path)) {
-        return s_textureCache[path];
+    if (auto cachedIt = s_textureCache.find(path); cachedIt != s_textureCache.end()) {
+        touchTextureCacheEntry(path);
+        return cachedIt->second.texture;
     }
-    if (s_missingTextureCache.count(path)) {
+    if (s_missingTextureCache.find(path) != s_missingTextureCache.end()) {
+        touchMissingTextureCacheEntry(path);
         return nullptr;
     }
 
@@ -24,7 +95,7 @@ std::shared_ptr<Texture> AssetLoader::loadTexture(const std::string& path) {
 
     if (!data) {
         std::cerr << "[URPG][AssetLoader] Failed to load texture: " << path << " (" << stbi_failure_reason() << ")\n";
-        s_missingTextureCache.insert(path);
+        cacheMissingTexture(path);
         return nullptr;
     }
 
@@ -33,12 +104,15 @@ std::shared_ptr<Texture> AssetLoader::loadTexture(const std::string& path) {
 
     auto texture = std::make_shared<Texture>();
     if (texture->loadFromMemory(pixelData, width, height)) {
-        s_missingTextureCache.erase(path);
-        s_textureCache[path] = texture;
+        if (auto missingIt = s_missingTextureCache.find(path); missingIt != s_missingTextureCache.end()) {
+            s_missingTextureCacheUsage.erase(missingIt->second.usageIt);
+            s_missingTextureCache.erase(missingIt);
+        }
+        cacheTexture(path, texture);
         return texture;
     }
 
-    s_missingTextureCache.insert(path);
+    cacheMissingTexture(path);
     return nullptr;
 }
 

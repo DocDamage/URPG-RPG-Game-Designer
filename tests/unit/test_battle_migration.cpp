@@ -109,10 +109,45 @@ TEST_CASE("BattleMigration: Action Mapping warns on unsupported scope and effect
     REQUIRE(native["cost"]["tp"] == 3);
     REQUIRE(native["effects"].size() == 1);
     REQUIRE(native["effects"][0]["type"] == "damage");
+    REQUIRE(native.contains("_compat_effect_fallbacks"));
+    REQUIRE(native["_compat_effect_fallbacks"].size() == 1);
+    REQUIRE(native["_compat_effect_fallbacks"][0]["type"] == "unsupported_action_effect");
+    REQUIRE(native["_compat_effect_fallbacks"][0]["reason"] == "add_state_effect_unsupported");
+    REQUIRE(native["_compat_effect_fallbacks"][0]["code"] == 21);
     REQUIRE(progress.total_actions == 1);
     REQUIRE(progress.warnings.size() == 2);
     REQUIRE(progress.warnings[0].find("scope") != std::string::npos);
-    REQUIRE(progress.warnings[1].find("effects") != std::string::npos);
+    REQUIRE(progress.warnings[1].find("battle_action_effect_unsupported") != std::string::npos);
+    REQUIRE(progress.warnings[1].find("code 21") != std::string::npos);
+}
+
+TEST_CASE("BattleMigration: Action Mapping preserves multiple unsupported effect fallbacks with named reasons", "[battle][migration][action]") {
+    nlohmann::json rm_skill = {
+        {"id", 27},
+        {"name", "Fallback Storm"},
+        {"effects", {
+            {{"code", 44}, {"dataId", 9}},
+            {{"value1", 1.0}},
+            nlohmann::json::array({1, 2, 3})
+        }}
+    };
+
+    BattleMigration::Progress progress;
+    auto native = BattleMigration::migrateAction(rm_skill, false, progress);
+
+    REQUIRE(native["id"] == "SKL_27");
+    REQUIRE(native["effects"].empty());
+    REQUIRE(native.contains("_compat_effect_fallbacks"));
+    REQUIRE(native["_compat_effect_fallbacks"].size() == 3);
+    REQUIRE(native["_compat_effect_fallbacks"][0]["reason"] == "common_event_effect_unsupported");
+    REQUIRE(native["_compat_effect_fallbacks"][0]["code"] == 44);
+    REQUIRE(native["_compat_effect_fallbacks"][1]["reason"] == "missing_effect_code");
+    REQUIRE_FALSE(native["_compat_effect_fallbacks"][1].contains("code"));
+    REQUIRE(native["_compat_effect_fallbacks"][2]["reason"] == "non_object_effect_record");
+    REQUIRE(progress.warnings.size() == 3);
+    REQUIRE(progress.warnings[0].find("SKL_27") != std::string::npos);
+    REQUIRE(progress.warnings[1].find("missing_effect_code") != std::string::npos);
+    REQUIRE(progress.warnings[2].find("non_object_effect_record") != std::string::npos);
 }
 
 TEST_CASE("BattleMigration: Troop phase turn condition is mapped", "[battle][migration][troop]") {

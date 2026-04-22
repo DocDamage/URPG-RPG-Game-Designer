@@ -1,6 +1,6 @@
 ﻿# URPG Program Completion Status
 
-Status Date: 2026-04-21  
+Status Date: 2026-04-22  
 Program Scope: native-first roadmap rewire plus Wave 1 absorption, Wave 2 advanced capability expansion, post-Phase-2 compat exit hardening, and governance/template-readiness consolidation
 
 Cross-cutting debt, truthfulness, and intake-governance source of truth: `docs/TECHNICAL_DEBT_REMEDIATION_PLAN.md`.
@@ -96,6 +96,20 @@ Phase 3 diagnostics productization is complete as of 2026-04-19, Phase 4 governa
   - `plan/native-feature-absorption-20260413`
 - PR `#5` (native-first absorption plan) is merged into `main`.
 - Recent execution slices landed:
+  - Technical-debt hardening slice (2026-04-22): audit quick wins, ownership closure, and runtime truthfulness
+  - `CMakeLists.txt`, `.github/workflows/ci-gates.yml`, and `tools/ci/run_local_gates.ps1` now pin `stb`, apply repo-wide warning flags through `urpg_project_warnings`, anchor `ctest` label regex to exact labels, and bring local-gate coverage closer to Gate 1 parity.
+  - `tools/incubator/runtime/engine_assembly.h` and `tools/incubator/runtime/main_assembly.h` now keep the stale top-level assembly seams in an explicit incubator path with `EngineShell` as the live path; the bundled `plugin_host.*`, `script_bridge.*`, and `scripting_console.*` seam remains in `tools/incubator/editor/`, and `tools/ci/check_cmake_completeness.ps1` no longer carries stale production-seam exemptions.
+  - `engine/core/scene/battle_scene.cpp` now emits the named `MISSING_BATTLEBACK` diagnostic instead of silently treating `Grassland.png` as a valid default.
+  - `engine/core/ai/ai_connectivity.h`, `engine/core/message/ai_sync_coordinator.cpp`, and `engine/core/social/cloud_service.h` now label the in-tree AI/cloud surface as simulated / not live, while `engine/core/copilot/copilot_kernel.h` and `tests/test_copilot_kernel.cpp` now use predicate-based canon constraints instead of substring matching.
+  - `engine/core/render/asset_loader.*`, `engine/core/threading/thread_roles.*`, and `engine/core/editor/plugin_api.*` now close the highest-risk TD-05 ownership shortcuts: bounded positive/negative texture caches, synchronized `ThreadRegistry` access with concurrent regression coverage, and scoped thread-local world binding for the native Plugin API.
+  - `engine/core/render/render_layer.h`, `engine/core/platform/renderer_backend.h`, `engine/core/engine_shell.h`, and `engine/core/platform/opengl_renderer.*` now carry the substantive TD-02 render-path redesign slice: value-owned `FrameRenderCommand` storage, frame-buffer backend submission, direct frame-command consumption in OpenGL/headless backends, real immediate-color rect draws, and bounded `stb_easy_font` text triangle submission. Focused coverage now pins frame-owned/legacy intake plus the pre-init no-op contract, and OpenGL-enabled local snapshot builds now have one bounded renderer-backed capture smoke/golden test; the remaining follow-through is allocator proof plus broader visual/export validation hardening.
+  - `runtimes/compat_js/window_compat.*` now gives `Sprite_Character` and `Sprite_Actor` deterministic compat bitmap-handle ownership, reload, and destructor cleanup; focused `test_window_compat.cpp` coverage proves replacement and teardown behavior instead of leaving lifetime TODOs in place.
+  - `engine/core/ability/gameplay_ability.*`, `engine/core/ability/ability_system_component.h`, `editor/ability/ability_inspector_panel.cpp`, and `tests/unit/test_ability_activation.cpp` now treat non-empty `activeCondition` values as explicit `active_condition_unsupported` diagnostics with preserved detail rather than silent pass-through.
+  - `engine/core/battle/battle_migration.h` now preserves unsupported action `effects[]` payloads as `_compat_effect_fallbacks`, keeping unsupported non-damage action data observable during migration instead of collapsing it behind a generic warning.
+  - `engine/core/scene/combat_formula.h`, `runtimes/compat_js/battle_manager.*`, and the focused combat/battle tests now define a bounded arithmetic formula subset explicitly: supported formulas evaluate, while unsupported or malformed formulas fall back with named reasons instead of silently pretending to parse.
+  - `runtimes/compat_js/battle_manager.*` also now supports MZ-shaped variable `Conditional Branch` comparisons in the bounded troop-page interpreter surface, and the `PARTIAL` method-status wording for battle-event execution now names the actual supported branch surface.
+  - `runtimes/compat_js/data_manager.*` now preserves enemy `battlerName` as a string-backed field through load/export paths, aligning compat data shape with the battle/window runtime that already consumes string battler identities.
+  - `engine/core/security/resource_protector.h` is now explicit that compression is not yet implemented, exposes `compressionImplemented() == false`, and is covered by focused tests proving current passthrough-plus-XOR behavior instead of claiming real compression.
   - Save/Data importer/upgrader ownership follow-through now lives under `engine/core/save/save_migration.*`, with typed diagnostics/JSONL export and preserved `_compat_mapping_notes` for unmapped compat metadata fields
   - native shell loop and scene scaffolding
   - compat global-state bridges for battle and data-manager flows
@@ -224,7 +238,7 @@ Phase 3 diagnostics productization is complete as of 2026-04-19, Phase 4 governa
   - Focused local validation passed via `.\build\dev-ninja-debug\urpg_tests.exe "[project_audit_cli]" --reporter compact`, `.\build\dev-ninja-debug\urpg_tests.exe "[editor][diagnostics][project_audit]" --reporter compact`, and `.\build\dev-ninja-debug\urpg_tests.exe "[editor][diagnostics][integration][project_audit]" --reporter compact`.
 - Sprint 10 execution slice (2026-04-21): Export validation pipeline hardening
   - `ExportPackager::runExport()` now fails fast when pre-export validation reports missing required artifacts instead of silently continuing past invalid export roots.
-  - Focused export validator and packager coverage now exercises shared synthetic fixtures across the supported targets, and `ExportDiagnosticsPanel` now reads from the same packager preflight seam it claims to represent rather than bypassing that integration path.
+  - Focused export validator and packager coverage now exercises shared fixture-backed target-shape validation across the supported targets, and `ExportDiagnosticsPanel` now reads from the same packager preflight seam it claims to represent rather than bypassing that integration path.
   - Focused local validation passed via `.\build\dev-ninja-debug\urpg_tests.exe "[export][editor][panel]" --reporter compact`, `.\build\dev-ninja-debug\urpg_tests.exe "[export][validation]" --reporter compact`, and `.\build\dev-ninja-debug\urpg_tests.exe "[export][packager]" --reporter compact`.
 - Sprint 11 execution slice (2026-04-21): Localization completeness executable gate
   - `tools/ci/check_localization_consistency.ps1` now enforces the bounded localization bundle contract on repo-local bundles, writes the canonical report at `imports/reports/localization/localization_consistency_report.json`, and stays compatible with Windows PowerShell by avoiding `ConvertFrom-Json -AsHashtable`.
@@ -246,8 +260,13 @@ Phase 3 diagnostics productization is complete as of 2026-04-19, Phase 4 governa
   - Updated `tools/ci/check_platform_exports.ps1` with `-Json` switch emitting structured `target`/`passed`/`errors` shape matching the C++ validator contract.
   - Added PowerShell-invocation tests validating the JSON output shape for both valid and invalid export directories.
   - Updated `ExportDiagnosticsPanel` to surface `postExportValidationPassed` and `emittedArtifacts` arrays when a post-export tree is present.
-  - Updated `content/readiness/readiness_status.json`, `docs/RELEASE_READINESS_MATRIX.md`, and `docs/PROGRAM_COMPLETION_STATUS.md` to reflect the new synthetic pipeline evidence.
+  - Updated `content/readiness/readiness_status.json`, `docs/RELEASE_READINESS_MATRIX.md`, and `docs/PROGRAM_COMPLETION_STATUS.md` to reflect the new emitted-artifact evidence while keeping the lane honestly partial.
   - Focused local validation passed via `.\build\dev-ninja-debug\urpg_tests.exe "[export][packager]" --reporter compact`, `.\build\dev-ninja-debug\urpg_tests.exe "[export][validation]" --reporter compact`, and `.\build\dev-ninja-debug\urpg_tests.exe "[export][editor][panel]" --reporter compact`.
+- Sprint 24 execution slice (2026-04-22): Real Windows export smoke path
+  - Added `tools/export/export_smoke_app.cpp` plus the `urpg_export_smoke_app` target, a bounded headless native launcher that boots `EngineShell`, runs one tick, writes an optional smoke marker, and exits 0.
+  - `ExportPackager` now accepts an explicit `runtimeBinaryPath` and, for the Windows target only, stages a real executable plus sibling runtime DLLs into the export root instead of always writing placeholder executable bytes.
+  - Added a real export regression in `tests/unit/test_export_packager.cpp` that exports to a temp directory, launches the staged `game.exe`, and proves execution via `URPG_EXPORT_SMOKE_OK`; added `tools/ci/check_export_smoke_path.ps1` as the focused local gate for that lane.
+  - Canonical readiness wording for `export_validator` now reflects one bounded real Windows launch smoke path while keeping broader asset bundling, non-Windows synthesis, and security hardening explicitly partial.
 - Sprint 15 execution slice (2026-04-21): Presentation runtime productization
   - Added `[presentation][spatial][e2e]` test in `tests/unit/test_spatial_editor.cpp` proving spatial editing output (elevation brush + prop placement) flows into `PresentationRuntime::BuildPresentationFrame` with elevation-resolved Y positions.
   - Extended `engine/core/presentation/release_validation.cpp` with spatial-authoring→runtime-consumption validation section.
@@ -311,7 +330,12 @@ Phase 3 diagnostics productization is complete as of 2026-04-19, Phase 4 governa
 - Sprint 08 execution slice (2026-04-21): Visual regression harness executable gate
   - `test_visual_regression_harness.cpp` now exercises the approval path in `tools/visual_regression/approve_golden.ps1`, proving an approved golden JSON file can be consumed by `VisualRegressionHarness` and compared successfully through the existing harness path.
   - Added `tools/ci/check_visual_regression_harness.ps1` as a focused executable gate for the file-backed visual regression harness contract, and wired it into `run_local_gates.ps1` after the build step.
-  - Canonical readiness wording for `visual_regression_harness` now reflects the landed file-backed executable gate while keeping the larger gap honest: real render-output capture and a full CI golden gate remain future work.
+  - Canonical readiness wording for `visual_regression_harness` now reflects the landed file-backed executable gate while keeping the larger gap honest: broader renderer-backed coverage and a full CI golden gate remained future work at that stage.
+- Sprint 23 execution slice (2026-04-22): Renderer-backed visual capture smoke lane
+  - `VisualRegressionHarness` now includes a bounded hidden SDL/OpenGL capture helper that renders real `OpenGLRenderer` frame commands into `SceneSnapshot` pixel buffers.
+  - Added `tests/snapshot/test_renderer_backed_visual_capture.cpp` to `urpg_snapshot_tests`, proving one OpenGL-enabled local nightly-lane renderer-backed rect/text capture path plus committed clear-frame, full-frame-rect, and inset-rect goldens without overclaiming a full CI golden pipeline.
+  - Added `tools/ci/check_renderer_backed_visual_capture.ps1` as a focused local executable gate for that OpenGL-enabled renderer-backed snapshot lane.
+  - Canonical readiness wording for `visual_regression_harness` now reflects the landed local renderer-backed capture lane while keeping broader scene coverage and CI golden enforcement as future work.
 - Sprint 03 execution slice (2026-04-21): Compat bridge exit signoff artifact
   - Added `docs/COMPAT_BRIDGE_EXIT_SIGNOFF.md` so `compat_bridge_exit` now has the same explicit evidence-gathering signoff pattern already used by `battle_core` and `save_data_core`.
   - `check_release_readiness.ps1` now requires signoff artifacts for human-review-gated subsystems (`battle_core`, `save_data_core`, `compat_bridge_exit`) instead of relying only on matrix prose.
@@ -589,7 +613,7 @@ The scope in this document is considered 100% complete when all items below are 
    - Added 6 new tests covering edit, route change, remove/add, selection preservation, preview refresh, and clear behavior.
    - All menu lanes pass (35/35 in focused suite, 581/581 repo-wide).
 2. ~~Complete Message/Text renderer bridge closure~~ (DONE 2026-04-19):
-   - `OpenGLRenderer::processCommands()` now explicitly handles `RectCommand` (TIER_BASIC placeholder logging).
+   - `OpenGLRenderer` now explicitly handles `RectCommand` with immediate-color triangle draws and `TextCommand` with bounded `stb_easy_font` triangle submission.
    - `MapScene::onUpdate()` now submits `TextCommand` and `RectCommand` to `RenderLayer` when `m_messageRunner.isActive()`.
    - Added 5 focused tests: MessageFlowRunner advance-to-Completed, cancel-to-Idle, all-disabled choice rejection, MapScene render command submission during dialogue, and Window_Message RenderLayer emission verification.
    - All message lanes pass (`[message]` 22 cases, `[compat][window][message]` 2 cases, `MapScene:` 7 cases).

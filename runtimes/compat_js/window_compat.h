@@ -65,6 +65,11 @@ struct Color {
 using BitmapHandle = uint32_t;
 constexpr BitmapHandle INVALID_BITMAP = 0;
 
+struct SpriteBitmapInfo {
+    BitmapHandle handle = INVALID_BITMAP;
+    std::string assetId;
+};
+
 // Window_Base - Base class for all MZ windows
 //
 // This is the foundation for menu plugins. The compatibility layer
@@ -515,14 +520,21 @@ public:
     
     // Update
     void update();
+
+    std::optional<SpriteBitmapInfo> getBitmapInfo() const;
+    static std::optional<SpriteBitmapInfo> lookupBitmapInfo(BitmapHandle handle);
     
     // Register API
     static void registerAPI(QuickJSContext& ctx);
     
 private:
+    void reloadBitmapForCurrentAsset();
+    void releaseBitmap();
+
     int32_t x_ = 0;
     int32_t y_ = 0;
     std::string characterName_;
+    std::string bitmapAssetId_;
     int32_t characterIndex_ = 0;
     int32_t direction_ = 2;
     int32_t pattern_ = 0;
@@ -542,7 +554,7 @@ class Sprite_Actor {
 public:
     struct CreateParams {
         int32_t actorId = 0;
-        int32_t battlerName = 0;
+        std::string battlerName;
         int32_t x = 0;
         int32_t y = 0;
     };
@@ -552,6 +564,8 @@ public:
     
     // Actor reference
     int32_t getActorId() const { return actorId_; }
+    std::string getBattlerName() const { return battlerName_; }
+    void setBattlerName(const std::string& name);
     
     // Position
     int32_t getX() const { return x_; }
@@ -587,12 +601,20 @@ public:
     
     // Update
     void update();
+
+    std::optional<SpriteBitmapInfo> getBitmapInfo() const;
+    static std::optional<SpriteBitmapInfo> lookupBitmapInfo(BitmapHandle handle);
     
     // Register API
     static void registerAPI(QuickJSContext& ctx);
     
 private:
+    void reloadBitmapForCurrentAsset();
+    void releaseBitmap();
+
     int32_t actorId_ = 0;
+    std::string battlerName_;
+    std::string bitmapAssetId_;
     int32_t x_ = 0;
     int32_t y_ = 0;
     int32_t motion_ = 0;

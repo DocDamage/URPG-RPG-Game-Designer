@@ -8,6 +8,9 @@ AISyncCoordinator::AISyncCoordinator(std::shared_ptr<urpg::social::ICloudService
     : m_cloud(cloudService) {}
 
 bool AISyncCoordinator::syncHistoryToCloud(const std::string& profileId, const ChatbotComponent& chatbot) {
+    // NOT LIVE with the in-tree LocalInMemoryCloudService/CloudServiceStub alias:
+    // this serializes history and hands it to whichever ICloudService is injected,
+    // but the default in-tree implementation only stores bytes in process-local memory.
     if (!m_cloud || !m_cloud->isOnline()) return false;
 
     nlohmann::json history = nlohmann::json::array();
@@ -30,6 +33,9 @@ bool AISyncCoordinator::syncHistoryToCloud(const std::string& profileId, const C
 }
 
 bool AISyncCoordinator::restoreHistoryFromCloud(const std::string& profileId, ChatbotComponent& chatbot) {
+    // NOT LIVE with the in-tree LocalInMemoryCloudService/CloudServiceStub alias:
+    // restores only from current process-local memory and does not prove any
+    // cross-device or remote-cloud transport path.
     if (!m_cloud || !m_cloud->isOnline()) return false;
 
     std::string key = "ai_history_" + profileId + ".json";
@@ -58,9 +64,11 @@ bool AISyncCoordinator::restoreHistoryFromCloud(const std::string& profileId, Ch
 }
 
 bool AISyncCoordinator::checkForRemoteKnowledgeUpdates(const std::string& projectId) {
-    // Phase 4 development: Placeholder for dynamically updating the 'Game Guide'
-    // with community-driven wiki data or developer-pushed story corrections.
-    return true;
+    static_cast<void>(projectId);
+
+    // NOT LIVE: there is no remote transport or provider-specific knowledge feed in-tree.
+    // Return false so callers do not mistake this placeholder for a successful remote check.
+    return false;
 }
 
 } // namespace urpg::ai

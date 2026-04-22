@@ -1,6 +1,8 @@
 #pragma once
 
 #include <cstdint>
+#include <mutex>
+#include <shared_mutex>
 #include <thread>
 #include <unordered_map>
 
@@ -40,6 +42,7 @@ public:
     bool CanRunScriptDirectly() const;
 
 private:
+    mutable std::shared_mutex mutex_;
     std::unordered_map<ThreadRole, std::thread::id> role_threads_;
 };
 

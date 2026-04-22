@@ -5,6 +5,7 @@
 #include "engine/core/audio/audio_ai_bridge.h"
 #include "engine/core/audio/audio_core.h"
 #include "engine/core/animation/animation_ai_bridge.h"
+#include <utility>
 
 namespace urpg::scene {
 
@@ -30,27 +31,27 @@ void MapScene::onUpdate(float deltaTime) {
         const auto* page = m_messageRunner.currentPage();
         if (page != nullptr) {
             // Message window background
-            auto rectCmd = std::make_shared<urpg::RectCommand>();
-            rectCmd->x = 20.0f;
-            rectCmd->y = 280.0f;
-            rectCmd->w = 600.0f;
-            rectCmd->h = 120.0f;
-            rectCmd->r = 0.1f;
-            rectCmd->g = 0.1f;
-            rectCmd->b = 0.15f;
-            rectCmd->a = 0.9f;
-            rectCmd->zOrder = 50;
-            layer.submit(rectCmd);
+            urpg::RectCommand rectCmd;
+            rectCmd.x = 20.0f;
+            rectCmd.y = 280.0f;
+            rectCmd.w = 600.0f;
+            rectCmd.h = 120.0f;
+            rectCmd.r = 0.1f;
+            rectCmd.g = 0.1f;
+            rectCmd.b = 0.15f;
+            rectCmd.a = 0.9f;
+            rectCmd.zOrder = 50;
+            layer.submit(urpg::toFrameRenderCommand(rectCmd));
 
             // Message body text
-            auto textCmd = std::make_shared<urpg::TextCommand>();
-            textCmd->text = page->body;
-            textCmd->x = 40.0f;
-            textCmd->y = 300.0f;
-            textCmd->fontSize = 22;
-            textCmd->maxWidth = 560;
-            textCmd->zOrder = 51;
-            layer.submit(textCmd);
+            urpg::TextCommand textCmd;
+            textCmd.text = page->body;
+            textCmd.x = 40.0f;
+            textCmd.y = 300.0f;
+            textCmd.fontSize = 22;
+            textCmd.maxWidth = 560;
+            textCmd.zOrder = 51;
+            layer.submit(urpg::toFrameRenderCommand(textCmd));
         }
     }
     
@@ -85,14 +86,14 @@ void MapScene::onUpdate(float deltaTime) {
         playerY = lastY + (playerY - lastY) * m_playerMovement.moveProgress;
     }
 
-    auto playerCmd = std::make_shared<urpg::SpriteCommand>();
-    playerCmd->textureId = "hero_sprite";
-    playerCmd->x = playerX;
-    playerCmd->y = playerY;
-    playerCmd->width = 48;
-    playerCmd->height = 48;
-    playerCmd->zOrder = 1;
-    layer.submit(playerCmd);
+    urpg::SpriteCommand playerCmd;
+    playerCmd.textureId = "hero_sprite";
+    playerCmd.x = playerX;
+    playerCmd.y = playerY;
+    playerCmd.width = 48;
+    playerCmd.height = 48;
+    playerCmd.zOrder = 1;
+    layer.submit(urpg::toFrameRenderCommand(playerCmd));
 }
 
 void MapScene::rebuildTileRenderCache() {
@@ -104,13 +105,13 @@ void MapScene::rebuildTileRenderCache() {
     for (int y = 0; y < m_height; ++y) {
         for (int x = 0; x < m_width; ++x) {
             const auto& tile = m_tiles[static_cast<size_t>(y * m_width + x)];
-            auto tileCmd = std::make_shared<urpg::TileCommand>();
-            tileCmd->tilesetId = "default_tileset";
-            tileCmd->tileIndex = tile.tileId;
-            tileCmd->x = static_cast<float>(x) * kTileSize;
-            tileCmd->y = static_cast<float>(y) * kTileSize;
-            tileCmd->zOrder = 0;
-            m_cachedTileCommands.push_back(tileCmd);
+            urpg::TileCommand tileCmd;
+            tileCmd.tilesetId = "default_tileset";
+            tileCmd.tileIndex = tile.tileId;
+            tileCmd.x = static_cast<float>(x) * kTileSize;
+            tileCmd.y = static_cast<float>(y) * kTileSize;
+            tileCmd.zOrder = 0;
+            m_cachedTileCommands.push_back(std::move(tileCmd));
         }
     }
 
@@ -119,7 +120,7 @@ void MapScene::rebuildTileRenderCache() {
 
 void MapScene::submitCachedTileCommands(urpg::RenderLayer& layer) const {
     for (const auto& tileCmd : m_cachedTileCommands) {
-        layer.submit(tileCmd);
+        layer.submit(urpg::toFrameRenderCommand(tileCmd));
     }
 }
 

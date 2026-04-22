@@ -311,6 +311,7 @@ public:
 
         // Map Effects
         nlohmann::json effects = nlohmann::json::array();
+        nlohmann::json effect_fallbacks = nlohmann::json::array();
         // damage mapping
         auto damage = rm_action.value("damage", nlohmann::json::object());
         if (damage.contains("formula") && !damage["formula"].get<std::string>().empty()) {
@@ -321,9 +322,13 @@ public:
             dmg_effect["critical"] = damage.value("critical", false);
             effects.push_back(dmg_effect);
         }
-        if (rm_action.contains("effects") && rm_action["effects"].is_array() && !rm_action["effects"].empty()) {
-            progress.warnings.push_back(
-                "Battle action effects payload contains unsupported non-damage effect records; preserving only mapped native effects.");
+        if (rm_action.contains("effects") && rm_action["effects"].is_array()) {
+            for (const auto& effect_record : rm_action["effects"]) {
+                appendUnsupportedActionEffectFallback(effect_fallbacks, progress, native["id"].get<std::string>(), effect_record);
+            }
+        }
+        if (!effect_fallbacks.empty()) {
+            native["_compat_effect_fallbacks"] = effect_fallbacks;
         }
         native["effects"] = effects;
         native["animation_id"] = "ANI_" + std::to_string(rm_action.value("animationId", 0));
@@ -446,6 +451,58 @@ private:
         progress.warnings.push_back(
             "[battle_event_command_unsupported] Troop page " + std::to_string(page_index) +
             " contains command " + std::to_string(code) + " with reason '" + reason + "'.");
+    }
+
+    static std::string classifyActionEffectReason(const nlohmann::json& effect_record) {
+        if (!effect_record.is_object()) {
+            return "non_object_effect_record";
+        }
+
+        if (!effect_record.contains("code") || !effect_record["code"].is_number_integer()) {
+            return "missing_effect_code";
+        }
+
+        switch (effect_record["code"].get<int>()) {
+            case 11: return "recover_hp_effect_unsupported";
+            case 12: return "recover_mp_effect_unsupported";
+            case 13: return "gain_tp_effect_unsupported";
+            case 21: return "add_state_effect_unsupported";
+            case 22: return "remove_state_effect_unsupported";
+            case 31: return "add_buff_effect_unsupported";
+            case 32: return "add_debuff_effect_unsupported";
+            case 33: return "remove_buff_effect_unsupported";
+            case 34: return "remove_debuff_effect_unsupported";
+            case 41: return "special_effect_unsupported";
+            case 42: return "grow_effect_unsupported";
+            case 43: return "learn_skill_effect_unsupported";
+            case 44: return "common_event_effect_unsupported";
+            default: return "unmapped_effect_code";
+        }
+    }
+
+    static void appendUnsupportedActionEffectFallback(nlohmann::json& fallbacks,
+                                                      Progress& progress,
+                                                      const std::string& native_action_id,
+                                                      const nlohmann::json& effect_record) {
+        const std::string reason = classifyActionEffectReason(effect_record);
+
+        nlohmann::json fallback = {
+            {"type", "unsupported_action_effect"},
+            {"reason", reason},
+            {"source", effect_record},
+        };
+        if (effect_record.is_object() && effect_record.contains("code") && effect_record["code"].is_number_integer()) {
+            fallback["code"] = effect_record["code"];
+        }
+        fallbacks.push_back(fallback);
+
+        std::string warning = "[battle_action_effect_unsupported] Battle action " + native_action_id +
+                              " contains unsupported effect";
+        if (fallback.contains("code")) {
+            warning += " code " + std::to_string(fallback["code"].get<int>());
+        }
+        warning += " with reason '" + reason + "'; fallback record preserved.";
+        progress.warnings.push_back(warning);
     }
 
     static BranchCaptureResult captureConditionalBranch(const nlohmann::json& commands, size_t start_index) {

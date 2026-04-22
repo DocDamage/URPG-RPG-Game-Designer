@@ -101,7 +101,7 @@ TEST_CASE("BattleScene Logic: lifecycle and automated turn progression", "[battl
     }
 }
 
-TEST_CASE("BattleScene: missing default battleback stays quiet during startup", "[battle][scene][assets]") {
+TEST_CASE("BattleScene: missing battleback emits a named diagnostic during startup", "[battle][scene][assets]") {
     auto& dm = urpg::compat::DataManager::instance();
     REQUIRE(dm.loadDatabase());
     dm.setupNewGame();
@@ -113,7 +113,8 @@ TEST_CASE("BattleScene: missing default battleback stays quiet during startup", 
     battle->onStart();
     std::cerr.rdbuf(originalBuffer);
 
-    REQUIRE(captured.str().find("img/battlebacks1/Grassland.png") == std::string::npos);
+    REQUIRE(captured.str().find("MISSING_BATTLEBACK") != std::string::npos);
+    REQUIRE(captured.str().find("img/battlebacks1/Grassland.png") != std::string::npos);
 }
 
 TEST_CASE("BattleScene routes live phase progression through Battle Core flow state", "[battle][scene][logic]") {

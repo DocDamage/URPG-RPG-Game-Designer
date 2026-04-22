@@ -62,13 +62,32 @@ typedef void (*URPG_ShutdownFn)();
 
 namespace urpg::editor {
 
+class ScopedPluginAPIWorldBinding {
+public:
+    explicit ScopedPluginAPIWorldBinding(World* world);
+    ~ScopedPluginAPIWorldBinding();
+
+    ScopedPluginAPIWorldBinding(const ScopedPluginAPIWorldBinding&) = delete;
+    ScopedPluginAPIWorldBinding& operator=(const ScopedPluginAPIWorldBinding&) = delete;
+
+    ScopedPluginAPIWorldBinding(ScopedPluginAPIWorldBinding&& other) noexcept;
+    ScopedPluginAPIWorldBinding& operator=(ScopedPluginAPIWorldBinding&& other) noexcept = delete;
+
+private:
+    bool m_active = false;
+};
+
 /**
- * @brief Binds the world used by the C plugin API entity exports.
+ * @brief Pushes a world binding used by the C plugin API entity exports.
+ *
+ * Bindings are thread-local and nest safely. A matching
+ * `UnbindPluginAPIWorld()` removes only the most recently pushed binding on
+ * the current thread.
  */
 void BindPluginAPIWorld(World* world);
 
 /**
- * @brief Clears the currently bound world from the C plugin API entity exports.
+ * @brief Pops the most recently pushed world binding on the current thread.
  */
 void UnbindPluginAPIWorld();
 

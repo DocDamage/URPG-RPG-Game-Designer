@@ -21,6 +21,7 @@ public:
     struct ActivationCheckResult {
         bool allowed = true;
         std::string reason;
+        std::string detail;
         float cooldown_remaining = 0.0f;
         float current_mp = 0.0f;
     };

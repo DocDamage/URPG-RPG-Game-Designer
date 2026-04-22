@@ -7,8 +7,61 @@
 #include "engine/core/scene/movement_authority.h"
 #include "engine/core/audio/audio_core.h"
 #include "engine/core/render/render_layer.h"
+#include <type_traits>
+#include <utility>
 
 using namespace urpg::scene;
+
+namespace {
+
+template <typename LayerT>
+const auto& renderFrameCommands(const LayerT& layer) {
+    if constexpr (requires { layer.getFrameCommands(); }) {
+        return layer.getFrameCommands();
+    } else {
+        return layer.getCommands();
+    }
+}
+
+template <typename StoredCommand>
+urpg::RenderCmdType renderCommandType(const StoredCommand& command) {
+    if constexpr (requires { command.type; }) {
+        return command.type;
+    } else {
+        return command->type;
+    }
+}
+
+template <typename CommandT, typename StoredCommand>
+const CommandT* renderCommandAs(const StoredCommand& command) {
+    if constexpr (requires { command.template tryGet<CommandT>(); }) {
+        return command.template tryGet<CommandT>();
+    } else if constexpr (requires { command.get(); }) {
+        return dynamic_cast<const CommandT*>(command.get());
+    } else if constexpr (std::is_pointer_v<std::remove_cvref_t<StoredCommand>>) {
+        return dynamic_cast<const CommandT*>(command);
+    } else if constexpr (std::is_base_of_v<CommandT, std::remove_cvref_t<StoredCommand>>) {
+        return &command;
+    } else {
+        return nullptr;
+    }
+}
+
+struct TileSnapshot {
+    int32_t tileIndex = 0;
+    float x = 0.0f;
+    float y = 0.0f;
+    int32_t zOrder = 0;
+};
+
+template <typename StoredCommand>
+TileSnapshot snapshotTileCommand(const StoredCommand& command) {
+    const auto* tile = renderCommandAs<urpg::TileRenderData>(command);
+    REQUIRE(tile != nullptr);
+    return TileSnapshot{tile->tileIndex, command.x, command.y, command.zOrder};
+}
+
+} // namespace
 
 TEST_CASE("MovementAuthority: Native Grid Transitions", "[scene][movement]") {
     urpg::MovementComponent m;
@@ -190,49 +243,58 @@ TEST_CASE("MapScene: retained tile render commands only rebuild when map data ch
     MapScene map("001", 2, 2);
 
     map.onUpdate(0.0f);
-    const auto& firstFrame = layer.getCommands();
+    const auto& firstFrame = renderFrameCommands(layer);
     REQUIRE(firstFrame.size() == 5);
 
-    auto firstTile0 = firstFrame[0];
-    auto firstTile1 = firstFrame[1];
-    auto firstTile2 = firstFrame[2];
-    auto firstTile3 = firstFrame[3];
+    const auto firstTile0 = snapshotTileCommand(firstFrame[0]);
+    const auto firstTile1 = snapshotTileCommand(firstFrame[1]);
+    const auto firstTile2 = snapshotTileCommand(firstFrame[2]);
+    const auto firstTile3 = snapshotTileCommand(firstFrame[3]);
 
     map.onUpdate(0.0f);
-    const auto& secondFrame = layer.getCommands();
+    const auto& secondFrame = renderFrameCommands(layer);
     REQUIRE(secondFrame.size() == 5);
-    REQUIRE(secondFrame[0] == firstTile0);
-    REQUIRE(secondFrame[1] == firstTile1);
-    REQUIRE(secondFrame[2] == firstTile2);
-    REQUIRE(secondFrame[3] == firstTile3);
+    REQUIRE(snapshotTileCommand(secondFrame[0]).tileIndex == firstTile0.tileIndex);
+    REQUIRE(snapshotTileCommand(secondFrame[0]).x == firstTile0.x);
+    REQUIRE(snapshotTileCommand(secondFrame[1]).tileIndex == firstTile1.tileIndex);
+    REQUIRE(snapshotTileCommand(secondFrame[1]).x == firstTile1.x);
+    REQUIRE(snapshotTileCommand(secondFrame[2]).tileIndex == firstTile2.tileIndex);
+    REQUIRE(snapshotTileCommand(secondFrame[2]).y == firstTile2.y);
+    REQUIRE(snapshotTileCommand(secondFrame[3]).tileIndex == firstTile3.tileIndex);
+    REQUIRE(snapshotTileCommand(secondFrame[3]).y == firstTile3.y);
 
     map.setTile(1, 0, 7, true);
     map.onUpdate(0.0f);
-    const auto& thirdFrame = layer.getCommands();
+    const auto& thirdFrame = renderFrameCommands(layer);
     REQUIRE(thirdFrame.size() == 5);
-    REQUIRE(thirdFrame[1] != firstTile1);
+    REQUIRE(renderCommandType(thirdFrame[1]) == urpg::RenderCmdType::Tile);
 
-    auto changedTile = std::dynamic_pointer_cast<urpg::TileCommand>(thirdFrame[1]);
+    const auto* changedTile = renderCommandAs<urpg::TileRenderData>(thirdFrame[1]);
     REQUIRE(changedTile != nullptr);
     REQUIRE(changedTile->tileIndex == 7);
 }
 
-TEST_CASE("MapScene: retained tile commands stay pointer-stable across unchanged frames", "[scene][map][render]") {
+TEST_CASE("MapScene: retained tile frame commands stay value-stable across unchanged frames", "[scene][map][render]") {
     auto& layer = urpg::RenderLayer::getInstance();
     layer.flush();
 
     MapScene map("001", 2, 2);
 
     map.onUpdate(0.0f);
-    const auto firstFrame = layer.getCommands();
+    const auto firstFrame = renderFrameCommands(layer);
     REQUIRE(firstFrame.size() == 5);
 
     map.onUpdate(0.0f);
-    const auto secondFrame = layer.getCommands();
+    const auto secondFrame = renderFrameCommands(layer);
     REQUIRE(secondFrame.size() == firstFrame.size());
 
     for (size_t i = 0; i < 4; ++i) {
-        REQUIRE(secondFrame[i].get() == firstFrame[i].get());
+        const auto before = snapshotTileCommand(firstFrame[i]);
+        const auto after = snapshotTileCommand(secondFrame[i]);
+        REQUIRE(after.tileIndex == before.tileIndex);
+        REQUIRE(after.x == before.x);
+        REQUIRE(after.y == before.y);
+        REQUIRE(after.zOrder == before.zOrder);
     }
 }
 
@@ -251,20 +313,20 @@ TEST_CASE("MapScene: message runner submits render commands during dialogue", "[
     REQUIRE(map.isDialogueActive());
 
     map.onUpdate(0.0f);
-    const auto& commands = layer.getCommands();
+    const auto& commands = renderFrameCommands(layer);
 
     bool hasTextCmd = false;
     bool hasRectCmd = false;
     for (const auto& cmd : commands) {
-        if (cmd->type == urpg::RenderCmdType::Text) {
-            auto textCmd = std::dynamic_pointer_cast<urpg::TextCommand>(cmd);
-            if (textCmd && textCmd->text == "Hello from native message") {
+        if (renderCommandType(cmd) == urpg::RenderCmdType::Text) {
+            const auto* textCmd = renderCommandAs<urpg::TextRenderData>(cmd);
+            if (textCmd != nullptr && textCmd->text == "Hello from native message") {
                 hasTextCmd = true;
             }
         }
-        if (cmd->type == urpg::RenderCmdType::Rect) {
-            auto rectCmd = std::dynamic_pointer_cast<urpg::RectCommand>(cmd);
-            if (rectCmd && rectCmd->w > 0.0f && rectCmd->h > 0.0f) {
+        if (renderCommandType(cmd) == urpg::RenderCmdType::Rect) {
+            const auto* rectCmd = renderCommandAs<urpg::RectRenderData>(cmd);
+            if (rectCmd != nullptr && rectCmd->w > 0.0f && rectCmd->h > 0.0f) {
                 hasRectCmd = true;
             }
         }

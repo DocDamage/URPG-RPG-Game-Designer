@@ -10,8 +10,47 @@
 #include "engine/core/render/render_layer.h"
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/catch_approx.hpp>
+#include <type_traits>
+#include <utility>
 
 using namespace urpg::compat;
+
+namespace {
+
+template <typename LayerT>
+const auto& renderFrameCommands(const LayerT& layer) {
+    if constexpr (requires { layer.getFrameCommands(); }) {
+        return layer.getFrameCommands();
+    } else {
+        return layer.getCommands();
+    }
+}
+
+template <typename StoredCommand>
+urpg::RenderCmdType renderCommandType(const StoredCommand& command) {
+    if constexpr (requires { command->type; }) {
+        return command->type;
+    } else {
+        return command.type;
+    }
+}
+
+template <typename CommandT, typename StoredCommand>
+const CommandT* renderCommandAs(const StoredCommand& command) {
+    if constexpr (requires { command.template tryGet<CommandT>(); }) {
+        return command.template tryGet<CommandT>();
+    } else if constexpr (requires { command.get(); }) {
+        return dynamic_cast<const CommandT*>(command.get());
+    } else if constexpr (std::is_pointer_v<std::remove_cvref_t<StoredCommand>>) {
+        return dynamic_cast<const CommandT*>(command);
+    } else if constexpr (std::is_base_of_v<CommandT, std::remove_cvref_t<StoredCommand>>) {
+        return &command;
+    } else {
+        return nullptr;
+    }
+}
+
+} // namespace
 
 // ============================================================================
 // Window_Base Tests
@@ -157,19 +196,19 @@ TEST_CASE("Window_Base drawActorFace records canonical source and destination re
     REQUIRE(drawInfo->destRect.width == 144);
     REQUIRE(drawInfo->destRect.height == 144);
 
-    const auto& commands = layer.getCommands();
+    const auto& commands = renderFrameCommands(layer);
     REQUIRE_FALSE(commands.empty());
-    REQUIRE(commands.back()->type == urpg::RenderCmdType::Sprite);
+    REQUIRE(renderCommandType(commands.back()) == urpg::RenderCmdType::Sprite);
 
-    auto spriteCmd = std::dynamic_pointer_cast<urpg::SpriteCommand>(commands.back());
+    const auto* spriteCmd = renderCommandAs<urpg::SpriteRenderData>(commands.back());
     REQUIRE(spriteCmd != nullptr);
     REQUIRE(spriteCmd->textureId == "ActorFace_3");
     REQUIRE(spriteCmd->srcX == 288);
     REQUIRE(spriteCmd->srcY == 0);
     REQUIRE(spriteCmd->width == 144);
     REQUIRE(spriteCmd->height == 144);
-    REQUIRE(spriteCmd->x == 50.0f);
-    REQUIRE(spriteCmd->y == 50.0f);
+    REQUIRE(commands.back().x == 50.0f);
+    REQUIRE(commands.back().y == 50.0f);
 
     window.drawActorFace(3, 4, 8, 96, 120);
     const auto clippedInfo = window.getLastFaceDraw();
@@ -277,10 +316,10 @@ TEST_CASE("Window_Base drawText submits renderer TextCommand", "[compat][window]
     const auto info = window.getLastTextDraw();
     REQUIRE(info.has_value());
 
-    const auto& commands = layer.getCommands();
+    const auto& commands = renderFrameCommands(layer);
     REQUIRE_FALSE(commands.empty());
-    REQUIRE(commands.back()->type == urpg::RenderCmdType::Text);
-    auto textCmd = std::dynamic_pointer_cast<urpg::TextCommand>(commands.back());
+    REQUIRE(renderCommandType(commands.back()) == urpg::RenderCmdType::Text);
+    const auto* textCmd = renderCommandAs<urpg::TextRenderData>(commands.back());
     REQUIRE(textCmd != nullptr);
     REQUIRE(textCmd->text == "Renderer call");
     REQUIRE(textCmd->fontFace == "TestFace");
@@ -290,8 +329,8 @@ TEST_CASE("Window_Base drawText submits renderer TextCommand", "[compat][window]
     REQUIRE(textCmd->g == 16);
     REQUIRE(textCmd->b == 24);
     REQUIRE(textCmd->a == 255);
-    REQUIRE(textCmd->x == static_cast<float>(20 + 12 + info->resolvedX));
-    REQUIRE(textCmd->y == static_cast<float>(30 + 12 + info->resolvedY));
+    REQUIRE(commands.back().x == static_cast<float>(20 + 12 + info->resolvedX));
+    REQUIRE(commands.back().y == static_cast<float>(30 + 12 + info->resolvedY));
 }
 
 TEST_CASE("Window_Base drawItemName emits icon + label draw calls", "[compat][window]") {
@@ -371,12 +410,12 @@ TEST_CASE("Window_Base drawGauge submits RectCommands", "[compat][window]") {
 
     window.drawGauge(10, 20, 100, 0.75, Color{255, 0, 0, 255}, Color{0, 255, 0, 255});
 
-    const auto& commands = layer.getCommands();
+    const auto& commands = renderFrameCommands(layer);
     REQUIRE(commands.size() >= 2);
-    REQUIRE(commands[commands.size() - 2]->type == urpg::RenderCmdType::Rect);
-    REQUIRE(commands[commands.size() - 1]->type == urpg::RenderCmdType::Rect);
+    REQUIRE(renderCommandType(commands[commands.size() - 2]) == urpg::RenderCmdType::Rect);
+    REQUIRE(renderCommandType(commands[commands.size() - 1]) == urpg::RenderCmdType::Rect);
 
-    auto fillCmd = std::dynamic_pointer_cast<urpg::RectCommand>(commands.back());
+    const auto* fillCmd = renderCommandAs<urpg::RectRenderData>(commands.back());
     REQUIRE(fillCmd != nullptr);
     REQUIRE(fillCmd->w == 75.0f);
 }
@@ -391,11 +430,11 @@ TEST_CASE("Window_Base drawCharacter submits SpriteCommand", "[compat][window]")
 
     window.drawCharacter("Actor1", 2, 30, 40);
 
-    const auto& commands = layer.getCommands();
+    const auto& commands = renderFrameCommands(layer);
     REQUIRE_FALSE(commands.empty());
-    REQUIRE(commands.back()->type == urpg::RenderCmdType::Sprite);
+    REQUIRE(renderCommandType(commands.back()) == urpg::RenderCmdType::Sprite);
 
-    auto spriteCmd = std::dynamic_pointer_cast<urpg::SpriteCommand>(commands.back());
+    const auto* spriteCmd = renderCommandAs<urpg::SpriteRenderData>(commands.back());
     REQUIRE(spriteCmd != nullptr);
     REQUIRE(spriteCmd->textureId == "Actor1");
     // MZ standard sheet: 4 cols × 2 rows of characters, 48×48 cells.
@@ -416,11 +455,11 @@ TEST_CASE("Window_Base drawIcon emits SpriteCommand with correct source rect", "
 
     window.drawIcon(5, 10, 20);
 
-    const auto& commands = layer.getCommands();
+    const auto& commands = renderFrameCommands(layer);
     REQUIRE_FALSE(commands.empty());
-    REQUIRE(commands.back()->type == urpg::RenderCmdType::Sprite);
+    REQUIRE(renderCommandType(commands.back()) == urpg::RenderCmdType::Sprite);
 
-    auto spriteCmd = std::dynamic_pointer_cast<urpg::SpriteCommand>(commands.back());
+    const auto* spriteCmd = renderCommandAs<urpg::SpriteRenderData>(commands.back());
     REQUIRE(spriteCmd != nullptr);
     REQUIRE(spriteCmd->textureId == "IconSet");
     REQUIRE(spriteCmd->srcX == (5 % 16) * 32);
@@ -645,11 +684,11 @@ TEST_CASE("Window_Message drawMessageBody emits RenderLayer text commands", "[co
 
     messageWindow.drawMessageBody();
 
-    const auto& commands = layer.getCommands();
+    const auto& commands = renderFrameCommands(layer);
     std::string accumulated;
     for (const auto& cmd : commands) {
-        if (cmd->type == urpg::RenderCmdType::Text) {
-            auto textCmd = std::dynamic_pointer_cast<urpg::TextCommand>(cmd);
+        if (renderCommandType(cmd) == urpg::RenderCmdType::Text) {
+            const auto* textCmd = renderCommandAs<urpg::TextRenderData>(cmd);
             if (textCmd) {
                 accumulated += textCmd->text;
             }
@@ -1487,6 +1526,47 @@ TEST_CASE("Sprite_Character scale", "[compat][sprite]") {
     REQUIRE(sprite.getScaleY() == 1.5);
 }
 
+TEST_CASE("Sprite_Character bitmap handles reload and release deterministically", "[compat][sprite]") {
+    Sprite_Character::CreateParams params;
+    params.characterName = "Actor1";
+
+    Sprite_Character sprite(params);
+    const auto initial = sprite.getBitmapInfo();
+    REQUIRE(initial.has_value());
+    REQUIRE(initial->assetId == "Actor1");
+
+    const BitmapHandle initialHandle = initial->handle;
+    sprite.setCharacterIndex(7);
+    REQUIRE(sprite.getBitmapInfo().has_value());
+    REQUIRE(sprite.getBitmapInfo()->handle == initialHandle);
+
+    sprite.setCharacterName("Actor2");
+    const auto reloaded = sprite.getBitmapInfo();
+    REQUIRE(reloaded.has_value());
+    REQUIRE(reloaded->assetId == "Actor2");
+    REQUIRE(reloaded->handle != initialHandle);
+    REQUIRE_FALSE(Sprite_Character::lookupBitmapInfo(initialHandle).has_value());
+
+    sprite.setCharacterName("");
+    REQUIRE_FALSE(sprite.getBitmapInfo().has_value());
+    REQUIRE_FALSE(Sprite_Character::lookupBitmapInfo(reloaded->handle).has_value());
+}
+
+TEST_CASE("Sprite_Character destructor releases owned bitmap handles", "[compat][sprite]") {
+    BitmapHandle trackedHandle = INVALID_BITMAP;
+    {
+        Sprite_Character::CreateParams params;
+        params.characterName = "Actor1";
+        Sprite_Character sprite(params);
+        REQUIRE(sprite.getBitmapInfo().has_value());
+        trackedHandle = sprite.getBitmapInfo()->handle;
+        REQUIRE(Sprite_Character::lookupBitmapInfo(trackedHandle).has_value());
+    }
+
+    REQUIRE(trackedHandle != INVALID_BITMAP);
+    REQUIRE_FALSE(Sprite_Character::lookupBitmapInfo(trackedHandle).has_value());
+}
+
 // ============================================================================
 // Sprite_Actor Tests
 // ============================================================================
@@ -1594,6 +1674,46 @@ TEST_CASE("Sprite_Actor visibility and opacity", "[compat][sprite]") {
     
     REQUIRE_FALSE(sprite.isVisible());
     REQUIRE(sprite.getOpacity() == 100);
+}
+
+TEST_CASE("Sprite_Actor bitmap handles follow battler identity and release cleanly", "[compat][sprite]") {
+    DataManager::instance().loadActors();
+
+    Sprite_Actor::CreateParams params;
+    params.actorId = 1;
+    Sprite_Actor sprite(params);
+
+    const auto initial = sprite.getBitmapInfo();
+    REQUIRE(initial.has_value());
+    REQUIRE(initial->assetId == "Actor1_1");
+    REQUIRE(sprite.getBattlerName() == "Actor1_1");
+
+    const BitmapHandle initialHandle = initial->handle;
+    sprite.setBattlerName("Actor1_2");
+    const auto reloaded = sprite.getBitmapInfo();
+    REQUIRE(reloaded.has_value());
+    REQUIRE(reloaded->assetId == "Actor1_2");
+    REQUIRE(reloaded->handle != initialHandle);
+    REQUIRE_FALSE(Sprite_Actor::lookupBitmapInfo(initialHandle).has_value());
+
+    sprite.setBattlerName("");
+    REQUIRE_FALSE(sprite.getBitmapInfo().has_value());
+    REQUIRE_FALSE(Sprite_Actor::lookupBitmapInfo(reloaded->handle).has_value());
+}
+
+TEST_CASE("Sprite_Actor destructor releases owned bitmap handles", "[compat][sprite]") {
+    BitmapHandle trackedHandle = INVALID_BITMAP;
+    {
+        Sprite_Actor::CreateParams params;
+        params.battlerName = "Actor1_1";
+        Sprite_Actor sprite(params);
+        REQUIRE(sprite.getBitmapInfo().has_value());
+        trackedHandle = sprite.getBitmapInfo()->handle;
+        REQUIRE(Sprite_Actor::lookupBitmapInfo(trackedHandle).has_value());
+    }
+
+    REQUIRE(trackedHandle != INVALID_BITMAP);
+    REQUIRE_FALSE(Sprite_Actor::lookupBitmapInfo(trackedHandle).has_value());
 }
 
 // ============================================================================

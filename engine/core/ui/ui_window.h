@@ -18,7 +18,7 @@ class UIElement {
 public:
     virtual ~UIElement() = default;
 
-    virtual void update(float dt) {}
+    virtual void update(float) {}
     virtual void draw(SpriteBatcher& batcher) = 0;
 
     void setPosition(Vector2f pos) { m_position = pos; }

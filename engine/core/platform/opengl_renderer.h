@@ -34,6 +34,7 @@ public:
     void beginFrame() override;
     void renderBatches(const std::vector<SpriteDrawData>& batches) override;
     void endFrame() override;
+    void processFrameCommands(const std::vector<FrameRenderCommand>& commands) override;
     void processCommands(const std::vector<std::shared_ptr<RenderCommand>>& commands) override;
     void shutdown() override;
     void onResize(int width, int height) override;
@@ -47,13 +48,24 @@ public:
 private:
     void setupDefaultShaders();
     void setupDrawBuffers();
+    void processFrameCommand(const FrameRenderCommand& command);
+    void processCommand(const RenderCommand& command);
+    void submitImmediateBatch(const std::vector<float>& vertices) const;
+    void drawSpriteCommand(const SpriteCommand& command);
+    void drawTileCommand(const TileCommand& command);
+    void drawTextCommand(const TextCommand& command);
+    void drawRectCommand(const RectCommand& command);
     
     // Internal state
+    IPlatformSurface* m_surface = nullptr;
     void* m_context = nullptr; // Platform-specific GL context (HGLRC, GLXContext, etc.)
     uint32_t m_shaderProgram = 0;
     uint32_t m_vao = 0;
     uint32_t m_vbo = 0;
     uint32_t m_ebo = 0;
+    int m_viewportWidth = 640;
+    int m_viewportHeight = 480;
+    bool m_immediatePipelineReady = false;
 
     std::map<std::string, std::shared_ptr<GLTexture>> m_textures;
 };

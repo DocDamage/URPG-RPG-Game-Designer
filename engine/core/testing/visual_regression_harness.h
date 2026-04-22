@@ -1,5 +1,6 @@
 #pragma once
 
+#include "engine/core/render/render_layer.h"
 #include "engine/core/testing/snapshot_validator.h"
 
 #include <nlohmann/json.hpp>
@@ -35,6 +36,11 @@ public:
 
     static SceneSnapshot generateDiffHeatmap(const SceneSnapshot& golden,
                                              const SceneSnapshot& current);
+
+    std::optional<SceneSnapshot> captureOpenGLFrame(const std::vector<FrameRenderCommand>& commands,
+                                                    int width,
+                                                    int height,
+                                                    std::string* errorMessage = nullptr) const;
 
     nlohmann::json buildReportJson(const std::string& testName,
                                    const SnapshotComparisonResult& result) const;

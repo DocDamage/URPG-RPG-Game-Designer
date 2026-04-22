@@ -510,7 +510,7 @@ TEST_CASE("BattleManager: troop battle events execute real page conditions and c
                         {"turnA", 0},
                         {"turnB", 0},
                         {"turnEnding", false},
-                        {"turnValid", true}
+                        {"turnValid", false}
                     }},
                     {"list", nlohmann::json::array({
                         {{"code", 121}, {"indent", 0}, {"parameters", nlohmann::json::array({1, 1, 0})}},
@@ -610,6 +610,70 @@ TEST_CASE("BattleManager: troop battle events honor live switch state through up
     DataManager::setDataDirectory("");
 }
 
+TEST_CASE("BattleManager: troop battle events honor variable conditional branches against live DataManager state", "[battlemgr]") {
+    const nlohmann::json troops = nlohmann::json::array({
+        nullptr,
+        {
+            {"id", 1},
+            {"name", "Variable Branch Troop"},
+            {"members", nlohmann::json::array({
+                {{"enemyId", 1}}
+            })},
+            {"pages", nlohmann::json::array({
+                {
+                    {"conditions", {
+                        {"actorHp", 50},
+                        {"actorId", 1},
+                        {"actorValid", false},
+                        {"enemyHp", 50},
+                        {"enemyIndex", 0},
+                        {"enemyValid", false},
+                        {"switchId", 1},
+                        {"switchValid", false},
+                        {"turnA", 0},
+                        {"turnB", 0},
+                        {"turnEnding", false},
+                        {"turnValid", true}
+                    }},
+                    {"list", nlohmann::json::array({
+                        {{"code", 111}, {"indent", 0}, {"parameters", nlohmann::json::array({1, 7, 0, 3, 1})}},
+                        {{"code", 122}, {"indent", 1}, {"parameters", nlohmann::json::array({8, 8, 0, 0, 9})}},
+                        {{"code", 411}, {"indent", 0}, {"parameters", nlohmann::json::array()}},
+                        {{"code", 122}, {"indent", 1}, {"parameters", nlohmann::json::array({8, 8, 0, 0, 4})}},
+                        {{"code", 412}, {"indent", 0}, {"parameters", nlohmann::json::array()}},
+                        {{"code", 0}, {"indent", 0}, {"parameters", nlohmann::json::array()}}
+                    })},
+                    {"span", 0}
+                }
+            })}
+        }
+    });
+
+    const fs::path fixtureDir = writeBattleEventTroopsFixture(troops);
+    DataManager::setDataDirectory(fixtureDir.string());
+    REQUIRE(DataManager::instance().loadDatabase());
+    DataManager::instance().setupNewGame();
+
+    BattleManager bm;
+    bm.setup(1, true, false);
+    bm.startBattle();
+
+    DataManager::instance().setVariable(7, 2);
+    REQUIRE(DataManager::instance().getVariable(8) == 0);
+
+    bm.startBattleEvent(1);
+    bm.updateBattleEvents();
+    REQUIRE(DataManager::instance().getVariable(8) == 4);
+
+    DataManager::instance().setVariable(7, 3);
+    bm.startBattleEvent(1);
+    bm.updateBattleEvents();
+    REQUIRE(DataManager::instance().getVariable(8) == 9);
+
+    fs::remove_all(fixtureDir);
+    DataManager::setDataDirectory("");
+}
+
 TEST_CASE("BattleManager: turn-span battle events rerun on later eligible turns", "[battlemgr]") {
     const nlohmann::json troops = nlohmann::json::array({
         nullptr,
@@ -684,10 +748,10 @@ TEST_CASE("BattleManager: method status registry", "[battlemgr]") {
     REQUIRE(BattleManager::getMethodStatus("changeBattleBgm") == CompatStatus::PARTIAL);
     REQUIRE(BattleManager::getMethodStatus("playAnimation") == CompatStatus::FULL);
     REQUIRE(BattleManager::getMethodDeviation("setup").find("partial") != std::string::npos);
-    REQUIRE(BattleManager::getMethodDeviation("applySkill").find("formula parsing") != std::string::npos);
-    REQUIRE(BattleManager::getMethodDeviation("applyItem").find("formula parsing") != std::string::npos);
-    REQUIRE(BattleManager::getMethodDeviation("startBattleEvent").find("bounded command subset") != std::string::npos);
-    REQUIRE(BattleManager::getMethodDeviation("updateBattleEvents").find("bounded command subset") != std::string::npos);
+    REQUIRE(BattleManager::getMethodDeviation("applySkill").find("bounded arithmetic formula subset") != std::string::npos);
+    REQUIRE(BattleManager::getMethodDeviation("applyItem").find("bounded arithmetic formula subset") != std::string::npos);
+    REQUIRE(BattleManager::getMethodDeviation("startBattleEvent").find("Conditional Branch currently supports switch, variable") != std::string::npos);
+    REQUIRE(BattleManager::getMethodDeviation("updateBattleEvents").find("Conditional Branch currently supports switch, variable") != std::string::npos);
     REQUIRE(BattleManager::getMethodDeviation("calculateExp").find("enemy loader is still partial") != std::string::npos);
     REQUIRE(BattleManager::getMethodStatus("nonexistentMethod") == CompatStatus::UNSUPPORTED);
 }
@@ -892,6 +956,66 @@ TEST_CASE("BattleManager: applyItem heals or damages correctly", "[battlemgr]") 
     int32_t initialHp = enemy->hp;
     bm.applyItem(nullptr, enemy, 999); // non-existent item
     REQUIRE(enemy->hp == initialHp);
+}
+
+TEST_CASE("BattleManager: applySkill uses the supported compat formula subset when present", "[battlemgr]") {
+    DataManager::instance().loadDatabase();
+    DataManager::instance().setupNewGame();
+
+    BattleManager bm;
+    bm.setup(1, true, false);
+
+    SkillData* skill = DataManager::instance().getSkill(2);
+    REQUIRE(skill != nullptr);
+    const auto originalDamage = skill->damage;
+
+    skill->damage.type = 1;
+    skill->damage.power = 999;
+    skill->damage.formula = "a.atk + 5";
+
+    BattleSubject* enemy = bm.getEnemy(0);
+    REQUIRE(enemy != nullptr);
+    const int32_t initialHp = enemy->hp;
+
+    bm.applySkill(nullptr, enemy, 2);
+
+    REQUIRE(enemy->hp == initialHp - 15);
+    REQUIRE(BattleManager::getMethodDeviation("applySkill").find("Last formula fallback") == std::string::npos);
+
+    skill->damage = originalDamage;
+}
+
+TEST_CASE("BattleManager: applyItem exposes unsupported compat formulas and falls back safely", "[battlemgr]") {
+    DataManager::instance().loadDatabase();
+    DataManager::instance().setupNewGame();
+
+    BattleManager bm;
+    bm.setup(1, true, false);
+
+    ItemData* item = DataManager::instance().getItem(1);
+    REQUIRE(item != nullptr);
+    const auto originalDamage = item->damage;
+    const auto originalEffects = item->effects;
+    const int32_t originalAnimationId = item->animationId;
+
+    item->damage.type = 1;
+    item->damage.power = 9;
+    item->damage.formula = "a.level * 2";
+    item->effects.clear();
+    item->animationId = 0;
+
+    BattleSubject* enemy = bm.getEnemy(0);
+    REQUIRE(enemy != nullptr);
+    const int32_t initialHp = enemy->hp;
+
+    bm.applyItem(nullptr, enemy, 1);
+
+    REQUIRE(enemy->hp == initialHp - 9);
+    REQUIRE(BattleManager::getMethodDeviation("applyItem").find("Last formula fallback: unsupported_formula_symbol:a.level") != std::string::npos);
+
+    item->damage = originalDamage;
+    item->effects = originalEffects;
+    item->animationId = originalAnimationId;
 }
 
 TEST_CASE("BattleManager: applyExp after battle triggers level-up", "[battlemgr]") {

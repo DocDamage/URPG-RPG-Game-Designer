@@ -61,31 +61,12 @@ $presValFiles = Get-TargetFiles -content $cmakeContent -targetName "urpg_present
 $allTestExeFiles = $testFiles + $integrationFiles + $snapshotFiles + $compatFiles + $migrateFiles + $auditFiles + $presValFiles
 $allCMakeFiles = $coreFiles + $allTestExeFiles
 
-# Standalone tools and known debt that are intentionally not in a library/test target
-# TODO: Remediate pre-existing orphaned files from earlier agent swarms.
+# Standalone tools that are intentionally not in a library/test target.
+# TD-01 stale runtime/editor seam exemptions have been burned down; anything left
+# here should represent a real standalone tool instead of hidden production debt.
 $knownDebt = @(
     # Standalone profiling tool (has main(), not part of urpg_core)
     "engine/core/presentation/profile_arena.cpp"
-    # Pre-existing engine/editor sources with unresolved compile errors (missing imgui.h, missing includes, etc.)
-    "engine/core/editor/doc_generator.cpp"
-    "engine/core/editor/plugin_host.cpp"
-    "engine/core/editor/script_bridge.cpp"
-    "engine/core/editor/panels/scripting_console.cpp"
-    "engine/core/ui/battle_tactics_window.cpp"
-    # Pre-existing test files not yet registered in test executables
-    "tests/test_ability_inspector.cpp"
-    "tests/test_ability_pattern_integration.cpp"
-    "tests/test_ability_state_machine.cpp"
-    "tests/test_ability_tasks.cpp"
-    "tests/test_effect_modifiers.cpp"
-    "tests/test_pattern_field_editor.cpp"
-    "tests/test_pattern_serialization.cpp"
-    # Header companions of the known-debt .cpp files above
-    "engine/core/editor/doc_generator.h"
-    "engine/core/editor/plugin_host.h"
-    "engine/core/editor/script_bridge.h"
-    "engine/core/editor/panels/scripting_console.h"
-    "engine/core/ui/battle_tactics_window.h"
 )
 
 $orphans = @()

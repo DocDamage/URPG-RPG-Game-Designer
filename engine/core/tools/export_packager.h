@@ -27,6 +27,7 @@ namespace urpg::tools {
     struct ExportConfig {
         ExportTarget target;
         std::string outputDir;
+        std::string runtimeBinaryPath;
         bool obfuscateScripts = false;
         bool compressAssets = true;
         bool includeDebugSymbols = false;
@@ -61,6 +62,7 @@ namespace urpg::tools {
         std::vector<std::string> bundleAssets(const ExportConfig& config, std::string& log);
         void packScripts(const ExportConfig& config, std::string& log);
         std::vector<std::string> synthesizeExecutable(const ExportConfig& config, std::string& log);
+        std::vector<std::string> stageRealWindowsRuntime(const ExportConfig& config, std::string& log);
         std::string targetToString(ExportTarget t);
     };
 

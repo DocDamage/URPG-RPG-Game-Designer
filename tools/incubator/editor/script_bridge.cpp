@@ -4,7 +4,7 @@
 
 namespace urpg::editor {
 
-// Wave 7.3: Implementation skeleton for QuickJS/JavaScript Bridge.
+// Incubating harness skeleton for the stale EngineAssembly seam.
 
 void ScriptBridge::startup() {
     // Wave 7.3: In a real implementation, we would call JS_NewRuntime() 

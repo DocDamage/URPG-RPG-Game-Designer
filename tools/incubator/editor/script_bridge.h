@@ -15,8 +15,8 @@ using BridgeValue = std::variant<std::monostate, bool, int, float, std::string>;
 
 /**
  * @brief Interface for the high-level scripting bridge (QuickJS).
- * 
- * Wave 7.3 implementation: JavaScript/QuickJS Bridge.
+ *
+ * Incubating harness seam retained only for the stale EngineAssembly path.
  */
 class ScriptBridge {
 public:

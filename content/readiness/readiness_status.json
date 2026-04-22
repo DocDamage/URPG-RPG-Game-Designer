@@ -209,9 +209,9 @@
     {
       "id": "visual_regression_harness",
       "status": "PARTIAL",
-      "summary": "Visual regression harness with golden file management, diff heatmaps, approval tooling, and a file-backed executable harness gate is landed.",
+      "summary": "Visual regression harness with golden file management, diff heatmaps, approval tooling, a file-backed executable harness gate, and one bounded OpenGL-enabled local renderer-backed capture lane with committed clear-frame, full-frame-rect, and inset-rect goldens is landed.",
       "mainGaps": [
-        "Integration with real render output capture and CI golden gate remain future work"
+        "CI golden gate enforcement and broader scene/backend coverage remain future work"
       ],
       "evidence": {
         "runtimeOwner": true,
@@ -242,9 +242,9 @@
     {
       "id": "export_validator",
       "status": "PARTIAL",
-      "summary": "Platform-specific export validator with per-target requirement checking, synthetic pack-and-validate pipeline, PowerShell CI script with JSON output, and diagnostics panel with post-export artifact surfacing is landed.",
+      "summary": "Platform-specific export validator with per-target requirement checking, fixture-backed validation coverage, PowerShell CI script with JSON output, diagnostics panel with post-export artifact surfacing, and one bounded real Windows launch smoke path is landed.",
       "mainGaps": [
-        "Real asset bundling and binary synthesis remain stubbed; synthetic emitted tree is used for validation"
+        "Real asset bundling remains stubbed, non-Windows executable synthesis is still synthetic, and security hardening beyond the current smoke lane remains future work"
       ],
       "evidence": {
         "runtimeOwner": true,

@@ -79,6 +79,13 @@ void UIWindow::draw(SpriteBatcher& batcher) {
 }
 
 void UIWindow::drawGauge(SpriteBatcher& batcher, float x, float y, float width, float rate, uint32_t color1, uint32_t color2) {
+    (void)batcher;
+    (void)x;
+    (void)y;
+    (void)width;
+    (void)rate;
+    (void)color1;
+    (void)color2;
     // 1. Draw Gauge Background (darker strip)
     // Using a solid color batcher entry if the batcher supports it or a white 1x1 area
     // For now: placeholder draw with a semi-transparent black strip

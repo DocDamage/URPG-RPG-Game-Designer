@@ -323,9 +323,9 @@ public:
     // Event Integration
     // ========================================================================
     
-    // Status: PARTIAL - Troop page entry and execution remain partially implemented
+    // Status: PARTIAL - Troop page entry is supported, but only a bounded interpreter subset runs once started
     void startBattleEvent(int32_t eventId);
-    // Status: PARTIAL - Troop page conditions and a bounded command subset execute against live compat state, but full MZ battle interpreter coverage remains out of scope
+    // Status: PARTIAL - Troop page conditions plus a bounded event subset execute against live compat state; conditional branches currently cover switch, variable, and isBattleTest checks
     void updateBattleEvents();
     // Status: FULL - Battle event active state is tracked in live compat state
     bool isBattleEventActive() const;

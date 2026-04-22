@@ -22,6 +22,7 @@ public:
         std::string stage;
         std::string outcome;
         std::string reason;
+        std::string detail;
         std::string state_name;
         float mp_before = 0.0f;
         float mp_after = 0.0f;
@@ -42,7 +43,11 @@ public:
     const GameplayTagContainer& getTags() const { return m_tags; }
 
     /**
-     * @brief Checks if effect has required tags and no blocking tags on the source.
+     * @brief Checks whether an effect may be admitted to the active-effect list.
+     *
+     * Current TD-09 contract: this gate is intentionally always true. Effect-level tag
+     * requirements are not modeled yet; modifier-level `requiredTag` checks are enforced
+     * later during attribute resolution in `getAttribute()`.
      */
     bool canApplyEffect(const GameplayEffect& effect) const;
 
@@ -225,13 +230,15 @@ public:
                                 float mpBefore,
                                 float mpAfter,
                                 float cooldownAfter,
-                                size_t activeEffectCount) {
+                                size_t activeEffectCount,
+                                const std::string& detail = "") {
         AbilityExecutionRecord record;
         record.sequence_id = ++m_nextExecutionSequence;
         record.ability_id = abilityId;
         record.stage = stage;
         record.outcome = outcome;
         record.reason = reason;
+        record.detail = detail;
         record.state_name = stateName;
         record.mp_before = mpBefore;
         record.mp_after = mpAfter;

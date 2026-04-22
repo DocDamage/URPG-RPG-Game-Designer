@@ -106,6 +106,9 @@ void AbilityInspectorPanel::rebuildSnapshot(const AbilitySystemComponent& asc) {
         if (!record.reason.empty()) {
             line << " (" << record.reason << ")";
         }
+        if (!record.detail.empty()) {
+            line << " {" << record.detail << "}";
+        }
         if (record.stage == "activate") {
             line << " mp " << record.mp_before << " -> " << record.mp_after
                  << ", cd=" << record.cooldown_after

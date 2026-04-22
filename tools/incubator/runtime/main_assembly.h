@@ -1,15 +1,17 @@
 #pragma once
 
 #include "engine_assembly.h"
-#include <iostream>
 #include <chrono>
+#include <iostream>
 
 namespace urpg {
 
 /**
  * @brief Main entry point logic for the URPG editor/engine.
- * 
- * Wave 15.2 implementation: Final Assembly Logic.
+ *
+ * NOT CANONICAL: this synthetic loop is not the live runtime path.
+ * Use EngineShell as the canonical top-level runtime entry point until this
+ * compatibility scaffolding is either repaired or removed.
  */
 class MainAssembly {
 public:
@@ -35,11 +37,11 @@ public:
             EngineAssembly::instance().render();
 
             // Termination Check (Synthetic for now)
-            if (deltaTime > 100.0f) isRunning = false; 
-            
+            if (deltaTime > 100.0f) isRunning = false;
+
             // Limit loop for simulation
             static int frameCount = 0;
-            if (++frameCount > 10) isRunning = false; 
+            if (++frameCount > 10) isRunning = false;
         }
 
         // Shutdown

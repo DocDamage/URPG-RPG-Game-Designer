@@ -11,6 +11,12 @@ if(MSVC)
     add_compile_options(/FS /EHsc)
 endif()
 
+add_library(urpg_project_warnings INTERFACE)
+target_compile_options(urpg_project_warnings INTERFACE
+    $<$<CXX_COMPILER_ID:MSVC>:/W4>
+    $<$<OR:$<CXX_COMPILER_ID:GNU>,$<CXX_COMPILER_ID:Clang>,$<CXX_COMPILER_ID:AppleClang>>:-Wall -Wextra>
+)
+
 function(urpg_normalize_path out_var input_path)
     if(NOT input_path)
         set(${out_var} "" PARENT_SCOPE)
@@ -205,6 +211,7 @@ add_library(urpg_core
     editor/diagnostics/event_authority_diagnostics.cpp
     editor/diagnostics/event_authority_panel.cpp
     editor/diagnostics/diagnostics_workspace.cpp
+    editor/diagnostics/diagnostics_workspace_serialization.cpp
     editor/diagnostics/diagnostics_facade.cpp
     editor/diagnostics/project_audit_panel.cpp
     editor/export/export_diagnostics_panel.cpp
@@ -388,7 +395,7 @@ include(FetchContent)
 FetchContent_Declare(
     stb
     GIT_REPOSITORY https://github.com/nothings/stb.git
-    GIT_TAG master
+    GIT_TAG f58f558c120e9b32c217290b80bad1a0729fbb2c
 )
 FetchContent_MakeAvailable(stb)
 
@@ -412,6 +419,7 @@ elseif(TARGET SDL2-static)
 endif()
 
 target_link_libraries(urpg_core PUBLIC 
+    urpg_project_warnings
     nlohmann_json::nlohmann_json 
     ${URPG_SDL_TARGET}
 )
@@ -444,6 +452,24 @@ add_executable(urpg_presentation_release_validation
 target_link_libraries(urpg_presentation_release_validation PRIVATE urpg_core)
 target_include_directories(urpg_presentation_release_validation PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
 urpg_enable_windows_test_binary_unlock(urpg_presentation_release_validation)
+
+add_executable(urpg_export_smoke_app
+    tools/export/export_smoke_app.cpp
+)
+
+target_link_libraries(urpg_export_smoke_app PRIVATE urpg_core)
+target_include_directories(urpg_export_smoke_app PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+
+if(WIN32)
+    add_custom_command(
+        TARGET urpg_export_smoke_app
+        POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            $<TARGET_RUNTIME_DLLS:urpg_export_smoke_app>
+            $<TARGET_FILE_DIR:urpg_export_smoke_app>
+        COMMAND_EXPAND_LISTS
+    )
+endif()
 
 add_executable(urpg_tests
     tests/unit/test_engine_shell.cpp
@@ -564,6 +590,7 @@ add_executable(urpg_tests
     tests/unit/test_menu_migration_logic.cpp
     tests/unit/test_migration_wizard.cpp
     tests/unit/test_ai_bridge_regex.cpp
+    tests/unit/test_ai_sync_coordinator.cpp
     tests/unit/test_achievement_registry.cpp
     tests/unit/test_achievement_panel.cpp
     tests/unit/test_achievement_triggers.cpp
@@ -595,6 +622,8 @@ target_link_libraries(urpg_tests PRIVATE urpg_core Catch2::Catch2WithMain)
 target_include_directories(urpg_tests PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
 target_compile_definitions(urpg_tests PRIVATE URPG_SOURCE_DIR="${CMAKE_CURRENT_SOURCE_DIR}")
 add_dependencies(urpg_tests urpg_project_audit)
+add_dependencies(urpg_tests urpg_export_smoke_app)
+target_compile_definitions(urpg_tests PRIVATE URPG_EXPORT_SMOKE_APP_PATH="$<TARGET_FILE:urpg_export_smoke_app>")
 urpg_enable_windows_test_binary_unlock(urpg_tests)
 
 add_executable(urpg_integration_tests
@@ -610,6 +639,7 @@ urpg_enable_windows_test_binary_unlock(urpg_integration_tests)
 
 add_executable(urpg_snapshot_tests
     tests/snapshot/test_snapshot_canonical_outputs.cpp
+    tests/snapshot/test_renderer_backed_visual_capture.cpp
 )
 
 target_link_libraries(urpg_snapshot_tests PRIVATE urpg_core Catch2::Catch2WithMain)

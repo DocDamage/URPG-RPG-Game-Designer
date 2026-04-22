@@ -155,7 +155,7 @@ struct ItemData {
 struct EnemyData {
     int32_t id = 0;
     std::string name;
-    int32_t battlerName = 0;
+    std::string battlerName;
     int32_t mhp = 100;
     int32_t mmp = 100;
     int32_t atk = 10;

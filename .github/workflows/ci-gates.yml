@@ -86,7 +86,7 @@ jobs:
         if: always()
         run: sccache --show-stats || true
       - name: Run Gate 1 tests
-        run: ctest --test-dir build/ci --output-on-failure -L pr
+        run: ctest --test-dir build/ci --output-on-failure -L "^pr$"
 
   gate2-nightly:
     if: github.event_name == 'schedule' && github.event.schedule == '0 6 * * *'
@@ -139,7 +139,7 @@ jobs:
       - name: Run Gate 2 tests
         env:
           URPG_RENDERER_TIER: ${{ matrix.renderer_tier }}
-        run: ctest --test-dir build/ci --output-on-failure -L nightly --output-log gate2-${{ matrix.renderer_tier }}.log
+        run: ctest --test-dir build/ci --output-on-failure -L "^nightly$" --output-log gate2-${{ matrix.renderer_tier }}.log
       - name: Upload Gate 2 logs
         if: always()
         uses: actions/upload-artifact@v4
@@ -192,7 +192,7 @@ jobs:
         if: always()
         run: sccache --show-stats || true
       - name: Run Gate 3 tests
-        run: ctest --test-dir build/ci --output-on-failure -L weekly --output-log gate3-weekly.log
+        run: ctest --test-dir build/ci --output-on-failure -L "^weekly$" --output-log gate3-weekly.log
       - name: Upload Gate 3 logs
         if: always()
         uses: actions/upload-artifact@v4

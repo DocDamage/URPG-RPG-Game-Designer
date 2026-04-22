@@ -8,7 +8,8 @@
 namespace urpg::ai {
 
 /**
- * @brief Implementation of IChatService that connects to the OpenAI Chat Completions API.
+ * @brief NOT LIVE: stub-shaped IChatService that only models a future OpenAI integration.
+ * No HTTP transport, SSE handling, or callback delivery is implemented in-tree.
  */
 class OpenAIChatService : public IChatService {
 public:
@@ -16,6 +17,10 @@ public:
         : m_apiKey(apiKey), m_model(model) {}
 
     void requestResponse(const std::vector<ChatMessage>& history, ChatCallback callback) override {
+        // NOT LIVE - simulated integration scaffold only. This function does not contact
+        // a remote service and intentionally does not invoke the callback yet.
+        static_cast<void>(callback);
+
         // In a production environment, this would use a C++ HTTP library like cpp-htlib or cURL.
         // For this implementation, we simulate the structured request/response and streaming support.
         
@@ -46,7 +51,8 @@ private:
 };
 
 /**
- * @brief Implementation of IChatService for local inference via Llama.cpp.
+ * @brief NOT LIVE: stub-shaped IChatService for a future local llama.cpp backend.
+ * No model execution or callback delivery is implemented in-tree.
  */
 class LlamaLocalService : public IChatService {
 public:
@@ -55,6 +61,10 @@ public:
     }
 
     void requestResponse(const std::vector<ChatMessage>& history, ChatCallback callback) override {
+        // NOT LIVE - local inference is not wired. Calls are currently a no-op.
+        static_cast<void>(history);
+        static_cast<void>(callback);
+
         // Logic to run local inference using llama.cpp library calls.
         // callback("Local response from Llama.cpp", "");
     }

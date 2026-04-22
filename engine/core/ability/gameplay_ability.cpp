@@ -1,6 +1,5 @@
 #include "gameplay_ability.h"
 #include "ability_system_component.h"
-#include "runtimes/compat_js/quickjs_runtime.h"
 
 namespace urpg::ability {
 
@@ -47,10 +46,11 @@ GameplayAbility::ActivationCheckResult GameplayAbility::evaluateActivation(const
     }
 
     // Scripted Condition check
-    if (!resolveActiveCondition().empty()) {
-        // ... (Scripting logic)
+    const auto& activeCondition = resolveActiveCondition();
+    if (!activeCondition.empty()) {
         result.allowed = false;
-        result.reason = "active_condition_unimplemented";
+        result.reason = "active_condition_unsupported";
+        result.detail = "Unsupported activeCondition: " + activeCondition;
         return result;
     }
 
@@ -122,7 +122,8 @@ bool AbilitySystemComponent::tryActivateAbility(GameplayAbility& ability) {
             mp_before,
             mp_before,
             getCooldownRemaining(ability.getId()),
-            m_activeEffects.size());
+            m_activeEffects.size(),
+            check.detail);
         return false;
     }
 

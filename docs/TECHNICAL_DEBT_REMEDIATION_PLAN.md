@@ -1,6 +1,6 @@
 # Technical Debt Remediation Plan
 
-> **Document status:** Ninth-pass revision — canonical remediation hub as of 2026-04-21.
+> **Document status:** Ninth-pass revision — canonical remediation hub as of 2026-04-22.
 > Incorporates stale-state debt, placeholder export-surface debt, documentation/test drift findings, the external-repository intake program defined in [URPG_repo_intake_plan.md](../URPG_repo_intake_plan.md), and the private-use asset intake program defined in [URPG_private_asset_intake_plan.md](../URPG_private_asset_intake_plan.md).
 > This revision also absorbs the newly added PGMMV, native-absorption, and governance/template-expansion planning inputs into the remediation program so roadmap expansion, truthfulness, and execution governance share one canonical hub.
 
@@ -136,7 +136,9 @@ The debt picture is narrower than it was at initial audit, but several cross-cut
 
 **Phase 3 diagnostics productization is now closed.** The Audio, Migration Wizard, and Event Authority surfaces now render real bodies, export snapshot-backed workflow state, and expose actionable navigation/selection flows through `DiagnosticsWorkspace` rather than only summary shells.
 
-**Some exported interfaces still route to placeholders.** [cloud_service.h](../engine/core/social/cloud_service.h) still needs to be described and governed as a stub-backed surface rather than a production-integrated system. [plugin_api.cpp](../engine/core/editor/plugin_api.cpp) now live-routes the surfaces it claims to expose.
+**Some exported interfaces still route to placeholders.** [cloud_service.h](../engine/core/social/cloud_service.h) still needs to be described and governed as a stub-backed surface rather than a production-integrated system. [plugin_api.cpp](../engine/core/editor/plugin_api.cpp) now live-routes the surfaces it claims to expose, and [resource_protector.h](../engine/core/security/resource_protector.h) now explicitly declares that compression is not implemented yet instead of presenting passthrough behavior as if it were real compression.
+
+**Recent debt follow-through tightened several previously silent boundaries.** The current tree now has bounded texture-cache lifetime with an explicit `AssetLoader::clearCaches()` reset hook, synchronized `ThreadRegistry` access, scoped Plugin API world binding, deterministic compat sprite bitmap-handle ownership, explicit `active_condition_unsupported` ability diagnostics, preserved BattleMigration action-effect fallback records, a bounded native/compat combat formula subset with named fallback reasons, more concrete battle-event interpreter coverage for variable conditional branches, and a narrower `check_cmake_completeness.ps1` scope that no longer hides already-compiled tests as orphan debt. The stale `doc_generator.*`, `battle_tactics_window.*`, `plugin_host.*`, `script_bridge.*`, `scripting_console.*`, `EngineAssembly`, and `MainAssembly` seams have now all been relocated out of production-looking engine/editor/core paths into explicit incubator paths under `tools/`. TD-02's frame-command ownership redesign has also materially landed: `RenderLayer` stores value-owned `FrameRenderCommand` payloads, `EngineShell` now submits the frame buffer through `RendererBackend::processFrameCommands()`, and the OpenGL/headless backends can consume that buffer directly without forcing the hot path back through heap-backed `shared_ptr` command vectors. The bounded real-draw follow-through is now in place too: `OpenGLRenderer` emits immediate-color triangle draws for rects and `stb_easy_font`-derived triangle batches for text, `VisualRegressionHarness` now has one bounded nightly renderer-backed capture lane, and `ExportPackager` now has one bounded real Windows launch smoke path. The remaining TD-02/TD-06 work is allocator proof, CI golden enforcement, broader scene coverage, real asset bundling, non-Windows executable synthesis, and security hardening beyond the current smoke lane. TD-09's remaining low-risk contract gaps are also now explicit: `passiveCondition` is documented/tested as out of current runtime scope, and `canApplyEffect()` is documented/tested as an always-true effect-admission gate until the data model grows real effect-level gating. These are debt-reduction steps, not full closure of TD-04/TD-05/TD-06, but they materially reduce the amount of silent pass-through behavior still in tree.
 
 **Phase 4 intake governance is now concretized and closed as a remediation lane.** [URPG_repo_intake_plan.md](../URPG_repo_intake_plan.md) and [URPG_private_asset_intake_plan.md](../URPG_private_asset_intake_plan.md) are now backed by explicit dispositions, schemas, manifests, source-capture reporting, and a local validation gate so future external-repo and private-asset work enters through governed records instead of placeholder templates.
 
@@ -600,25 +602,25 @@ Do not leave the workspace counting tabs that do not render.
 **Status (2026-04-16):** Remediated via documentation alignment. In-tree behavior remains stub-backed by design.
 
 **Root cause:**
-- [cloud_service.h](../engine/core/social/cloud_service.h) only provides an in-memory `CloudServiceStub`.
+- [cloud_service.h](../engine/core/social/cloud_service.h) only provides an in-memory `LocalInMemoryCloudService` (`CloudServiceStub` remains a compatibility alias).
 - [AI_SUBSYSTEM_CLOSURE_CHECKLIST.md](./AI_SUBSYSTEM_CLOSURE_CHECKLIST.md) marks encrypted sync as ready for `ICloudService` integration.
 - [AI_COPILOT_GUIDE.md](./AI_COPILOT_GUIDE.md) describes cloud sync as a workflow path for preserving conversations across devices.
 - [URPG_Blueprint_v3_1_Integrated.md](../URPG_Blueprint_v3_1_Integrated.md) is more accurate, noting the interface is stubbed.
 
 **Required action:**
 - Update [AI_SUBSYSTEM_CLOSURE_CHECKLIST.md](./AI_SUBSYSTEM_CLOSURE_CHECKLIST.md) and [AI_COPILOT_GUIDE.md](./AI_COPILOT_GUIDE.md) to state clearly that cloud sync is backed by an in-memory stub, not a production service.
-- Do not describe the `CloudServiceStub` as an integration-ready path.
+- Do not describe `LocalInMemoryCloudService` or the `CloudServiceStub` compatibility alias as integration-ready paths.
 - Add a note to [cloud_service.h](../engine/core/social/cloud_service.h) header marking it explicitly as a stub pending real backend integration.
 
 **Owner:** Tech lead or release owner (doc alignment); engine/core maintainers (header annotation).
 
 **Exit criteria:**
 - No AI-facing or developer-facing doc describes cloud sync as operational.
-- `cloud_service.h` header clearly marks `CloudServiceStub` as not for production use.
+- `cloud_service.h` header clearly marks `LocalInMemoryCloudService` as local-only and not for production use.
 
 **Resolution evidence (2026-04-16):**
-- [cloud_service.h](../engine/core/social/cloud_service.h) already marks `CloudServiceStub` as in-memory and not a production cloud integration path.
-- [AI_SUBSYSTEM_CLOSURE_CHECKLIST.md](./AI_SUBSYSTEM_CLOSURE_CHECKLIST.md) now frames encrypted sync as plumbing-only coverage backed by `CloudServiceStub`.
+- [cloud_service.h](../engine/core/social/cloud_service.h) already marks `LocalInMemoryCloudService` as in-memory and not a production cloud integration path, while rejecting live-provider initialization.
+- [AI_SUBSYSTEM_CLOSURE_CHECKLIST.md](./AI_SUBSYSTEM_CLOSURE_CHECKLIST.md) now frames encrypted sync as plumbing-only coverage backed by `LocalInMemoryCloudService` / `CloudServiceStub`.
 - [AI_COPILOT_GUIDE.md](./AI_COPILOT_GUIDE.md) now states that the in-tree path is local-memory stub behavior, not operational cross-device persistence.
 
 ---
@@ -1126,7 +1128,7 @@ Add or repair focused regressions for:
 | Menu serialization round-trip | [test_menu_core.cpp](../tests/unit/test_menu_core.cpp) | Serialize → deserialize → structural equivalence |
 | QuickJS scope truth | [test_quickjs_runtime.cpp](../tests/unit/test_quickjs_runtime.cpp) | Reflects whether fixture-backed or real-runtime-backed |
 | Plugin API routing truth | [test_plugin_api.cpp](../tests/unit/test_plugin_api.cpp) | Methods are labeled correctly; no silent mock behavior |
-| Cloud service scoping | — | `CloudServiceStub` annotation visible in header |
+| Cloud service scoping | — | `LocalInMemoryCloudService` local-only annotation visible in header |
 
 ### Candidate Test Files
 
@@ -1381,3 +1383,8 @@ A remediation item is **done only when all of the following are true**:
 | 2026-04-21 | Sprint 05 improvement: `test_compat_plugin_fixtures.cpp` now adds a weekly-lane anchor proving the curated all-profile orchestration fixture survives directory-based corpus import, full unload, and directory re-import, tightening the honest compat corpus-depth evidence behind the current checklist language. |
 | 2026-04-21 | Sprint 05 improvement: `test_compat_plugin_failure_diagnostics.cpp` now proves curated by-name dispatch emits the same dependency-missing diagnostics as direct dispatch when a dependent compat profile loses its core dependency, tightening invocation-surface parity for the current failure lane. |
 | 2026-04-21 | Sprint 05 closeout: the compat hardening sprint ended with the focused compat anchors, the weekly lane, the full PR lane, and both readiness/truth gates green. |
+| 2026-04-22 | Debt follow-through improvement: tightened TD-05 ownership/lifetime seams with bounded `AssetLoader` caches, synchronized `ThreadRegistry`, scoped Plugin API world binding, and deterministic compat sprite bitmap-handle cleanup/reload semantics backed by focused tests. |
+| 2026-04-22 | Debt follow-through improvement: tightened TD-04 formula and battle-event truthfulness with explicit `CombatFormula` fallback reasons, compat `BattleManager` formula-subset routing, preserved BattleMigration action-effect fallback records, and variable conditional-branch support in the bounded troop-page interpreter surface. |
+| 2026-04-22 | Debt follow-through improvement: tightened TD-06/TD-09/TD-10/TD-11 truth surfaces by making `ResourceProtector::compress()` explicitly unimplemented-compression passthrough, surfacing `active_condition_unsupported` diagnostics in GAF, marking AI/cloud seams as simulated/not live, and replacing CopilotKernel substring-based canon checks with predicate-based constraints. |
+| 2026-04-22 | Debt follow-through improvement: closed the remaining low-risk TD-09 contract gaps by documenting/testing `passiveCondition` as out of current runtime scope and `canApplyEffect()` as an always-true effect-admission gate pending any future effect-level tag model. |
+| 2026-04-22 | Debt follow-through improvement: `VisualRegressionHarness` now has a bounded OpenGL-enabled local renderer-backed capture lane through `urpg_snapshot_tests` plus committed clear-frame, full-frame-rect, and inset-rect goldens, so the visual-validation gap narrows from “no real render capture” to “no CI golden enforcement or broad scene coverage yet.” |

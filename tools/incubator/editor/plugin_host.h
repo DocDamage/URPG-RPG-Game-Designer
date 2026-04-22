@@ -47,8 +47,8 @@ public:
 
 /**
  * @brief Manages the lifecycle and discovery of native/scripted plugins.
- * 
- * Wave 7.1 implementation: Plugin Host Kernel.
+ *
+ * Incubating harness seam retained only for the stale EngineAssembly path.
  */
 class PluginHost {
 public:

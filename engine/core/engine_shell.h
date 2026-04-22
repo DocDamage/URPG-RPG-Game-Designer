@@ -86,8 +86,8 @@ public:
             // Submit batches to the hardware backend
             m_renderer->renderBatches(m_batcher->getBatches());
             
-            // Process high-level RenderLayer commands (Text, etc.)
-            m_renderer->processCommands(RenderLayer::getInstance().getCommands());
+            // Process the frame-owned RenderLayer buffer through the backend adapter.
+            m_renderer->processFrameCommands(RenderLayer::getInstance().getFrameCommands());
             RenderLayer::getInstance().flush();
 
             m_renderer->endFrame();

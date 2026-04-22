@@ -39,6 +39,19 @@ This document records the focused validation lanes for the native presentation s
   - elevation-aware actor Y resolution
   - Classic2D fallback flattening
 
+### Local OpenGL Snapshot Capture Lane
+- **Executable surface**:
+  - `urpg_snapshot_tests.exe "[snapshot][renderer][visual_capture]"`
+  - `pwsh -File .\tools\ci\check_renderer_backed_visual_capture.ps1`
+- **What it covers**:
+  - hidden SDL/OpenGL context creation for a bounded OpenGL-enabled local smoke/golden path
+  - real `OpenGLRenderer` rect/text frame submission captured into `SceneSnapshot`
+  - committed clear-frame, full-frame-rect, and inset-rect golden enforcement plus renderer-backed golden comparison round-trip through `VisualRegressionHarness`
+- **Notes**:
+  - this lane is intentionally outside the focused PR presentation gate
+  - the current `ci` preset sets `URPG_SKIP_OPENGL=ON`, so this lane is a local OpenGL-enabled validation path, not part of the current headless CI gate
+  - it proves one bounded renderer-backed capture path, not broad scene coverage or CI golden enforcement
+
 ## Combined Presentation Gate
 - **Command**:
   - `ctest -C Debug -R "urpg_(presentation_(unit_lane|release_validation)|spatial_editor_lane)" --output-on-failure`
@@ -53,6 +66,7 @@ This document records the focused validation lanes for the native presentation s
 ## Related Test Surfaces
 - `build\dev-vs2022\Debug\urpg_tests.exe "[presentation]"` or the equivalent active local-profile build directory
 - `build\dev-vs2022\Debug\urpg_tests.exe "[editor][spatial]"` or the equivalent active local-profile build directory
+- `build\dev-vs2022\Debug\urpg_snapshot_tests.exe "[snapshot][renderer][visual_capture]"` or the equivalent active OpenGL-enabled local-profile build directory
 
 ## Notes
 - The focused presentation gate is intended to complement, not replace, the broader `pr`, `nightly`, and `weekly` suites.

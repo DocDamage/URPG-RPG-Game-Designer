@@ -32,6 +32,10 @@ public:
         // No-op for headless mode.
     }
 
+    void processFrameCommands(const std::vector<FrameRenderCommand>& /*commands*/) override {
+        // No-op for headless mode.
+    }
+
     void processCommands(const std::vector<std::shared_ptr<RenderCommand>>& /*commands*/) override {
         // No-op for headless mode.
     }

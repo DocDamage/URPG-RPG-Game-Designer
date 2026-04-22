@@ -2,17 +2,19 @@
 
 > **For agentic workers:** Work strictly ticket-by-ticket. Keep checkbox state current in this file and the paired task board.
 
-**Goal:** Wire the export validator into a real synthetic pack-and-validate pipeline so the export lane is backed by emitted-artifact evidence, not only preflight fixture checks.
+**Goal:** Wire the export validator into an emitted-artifact pack-and-validate pipeline so the export lane is backed by post-export evidence, not only preflight fixture checks.
+
+**Historical note:** Sprint 14 landed the emitted-artifact validation slice. A later bounded follow-through added one real Windows launch smoke path, so this file should be read as a sprint-local execution plan rather than the final export truth source.
 
 **Sprint theme:** export validator to real export pipeline
 
 **Primary outcomes for this sprint:**
-- `ExportPackager::runExport()` writes a synthetic export tree to disk that `ExportValidator` can validate post-export.
+- `ExportPackager::runExport()` writes an emitted export tree to disk that `ExportValidator` can validate post-export.
 - `check_platform_exports.ps1` emits the same structured result shape as the C++ validator.
 - Diagnostics panel and readiness docs reflect the new emitted-artifact contract.
 
 **Non-goals for this sprint:**
-- No real asset bundling or binary synthesis (still synthetic/stubbed).
+- No real asset bundling and no broad cross-platform executable synthesis beyond the bounded emitted-artifact slice.
 - No new export targets.
 - No unrelated subsystem work.
 
@@ -75,7 +77,7 @@ ctest -L pr --output-on-failure
 
 ### S14-T01: Pack and Validate Emitted Export Tree
 
-**Goal:** Add one real synthetic "pack and validate emitted export tree" path instead of only preflight fixture checks.
+**Goal:** Add one emitted-artifact "pack and validate export tree" path instead of only preflight fixture checks.
 
 **Primary files:**
 - `engine/core/tools/export_packager.h`

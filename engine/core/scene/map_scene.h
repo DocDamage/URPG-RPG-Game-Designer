@@ -141,7 +141,7 @@ private:
     int m_width;
     int m_height;
     std::vector<TileData> m_tiles;
-    std::vector<std::shared_ptr<urpg::RenderCommand>> m_cachedTileCommands;
+    std::vector<urpg::TileCommand> m_cachedTileCommands;
     bool m_renderLayerDirty = true;
     
     // Components

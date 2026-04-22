@@ -83,6 +83,62 @@ TEST_CASE("GameplayAbility: Activation Pipeline", "[ability][activation]") {
         REQUIRE(fireAbility.canActivate(owner));
     }
 
+    SECTION("Unsupported active conditions are blocked with explicit diagnostics") {
+        fireAbility.editInfo().activeCondition = "source.hp > 10";
+
+        const auto check = fireAbility.evaluateActivation(owner);
+        REQUIRE_FALSE(check.allowed);
+        REQUIRE(check.reason == "active_condition_unsupported");
+        REQUIRE(check.detail.find("source.hp > 10") != std::string::npos);
+
+        REQUIRE_FALSE(owner.tryActivateAbility(fireAbility));
+        const auto& history = owner.getAbilityExecutionHistory();
+        REQUIRE(history.size() == 1);
+        REQUIRE(history[0].outcome == "blocked");
+        REQUIRE(history[0].reason == "active_condition_unsupported");
+        REQUIRE(history[0].detail.find("source.hp > 10") != std::string::npos);
+
+        urpg::editor::AbilityInspectorPanel panel;
+        panel.update(owner);
+        const auto& snapshot = panel.getRenderSnapshot();
+        REQUIRE(snapshot.diagnostic_count == 1);
+        REQUIRE(snapshot.diagnostic_lines[0].find("Unsupported activeCondition") != std::string::npos);
+        REQUIRE(snapshot.diagnostic_lines[0].find("source.hp > 10") != std::string::npos);
+    }
+
+    SECTION("Passive conditions remain out of activation evaluation until a runtime evaluator exists") {
+        fireAbility.editInfo().passiveCondition = "source.hp > 0";
+        REQUIRE(fireAbility.canActivate(owner));
+        REQUIRE(owner.tryActivateAbility(fireAbility));
+
+        const auto& history = owner.getAbilityExecutionHistory();
+        REQUIRE(history.size() == 1);
+        REQUIRE(history[0].outcome == "executed");
+        REQUIRE(history[0].reason.empty());
+    }
+
+    SECTION("Effects are always admitted even when modifier tag gates are unmet") {
+        AbilitySystemComponent effectOwner;
+        urpg::GameplayEffect gatedEffect;
+        gatedEffect.id = "BUFF_ATTACK";
+        gatedEffect.duration = 8.0f;
+
+        urpg::GameplayEffectModifier gatedModifier;
+        gatedModifier.attributeName = "Attack";
+        gatedModifier.operation = urpg::ModifierOp::Add;
+        gatedModifier.value = 12.0f;
+        gatedModifier.requiredTag = "State.Empowered";
+        gatedEffect.modifiers.push_back(gatedModifier);
+
+        REQUIRE(effectOwner.canApplyEffect(gatedEffect));
+        effectOwner.applyEffect(gatedEffect);
+        REQUIRE(effectOwner.getActiveEffectCount() == 1);
+        REQUIRE(effectOwner.getAttribute("Attack", 100.0f) == 100.0f);
+
+        effectOwner.addTag(GameplayTag("State.Empowered"));
+        REQUIRE(effectOwner.getAttribute("Attack", 100.0f) == 112.0f);
+    }
+
     SECTION("Replay-safe execution history records blocked and successful activations deterministically") {
         owner.setAttribute("MP", 15.0f);
         fireAbility.mpCost = 5.0f;

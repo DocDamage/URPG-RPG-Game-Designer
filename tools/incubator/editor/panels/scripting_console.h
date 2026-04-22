@@ -17,8 +17,8 @@ struct ConsoleLine {
 
 /**
  * @brief ImGui-based console for script execution and debug output.
- * 
- * Wave 7.4 implementation: Scripting Console (ImGui).
+ *
+ * Incubating harness UI retained only for the stale EngineAssembly seam.
  */
 class ScriptingConsole {
 public:

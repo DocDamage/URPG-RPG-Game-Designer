@@ -14,6 +14,7 @@
 #include <cmath>
 #include <cstring>
 #include <string_view>
+#include <utility>
 
 namespace urpg {
 namespace compat {
@@ -394,6 +395,52 @@ int32_t lineOffsetForFirstLine(const std::vector<message::RichTextToken>& tokens
     return 0;
 }
 
+std::unordered_map<BitmapHandle, SpriteBitmapInfo> g_spriteBitmaps;
+BitmapHandle g_nextSpriteBitmapHandle = 0x40000000u;
+
+BitmapHandle allocateTrackedSpriteBitmap(const std::string& assetId) {
+    if (assetId.empty()) {
+        return INVALID_BITMAP;
+    }
+
+    BitmapHandle handle = g_nextSpriteBitmapHandle++;
+    if (handle == INVALID_BITMAP) {
+        handle = g_nextSpriteBitmapHandle++;
+    }
+    g_spriteBitmaps[handle] = SpriteBitmapInfo{handle, assetId};
+    return handle;
+}
+
+void releaseTrackedSpriteBitmap(BitmapHandle handle) {
+    if (handle == INVALID_BITMAP) {
+        return;
+    }
+    g_spriteBitmaps.erase(handle);
+}
+
+std::optional<SpriteBitmapInfo> lookupTrackedSpriteBitmap(BitmapHandle handle) {
+    if (handle == INVALID_BITMAP) {
+        return std::nullopt;
+    }
+
+    const auto it = g_spriteBitmaps.find(handle);
+    if (it == g_spriteBitmaps.end()) {
+        return std::nullopt;
+    }
+    return it->second;
+}
+
+std::string resolveActorBattlerAssetId(int32_t actorId) {
+    if (actorId <= 0) {
+        return "";
+    }
+
+    if (const ActorData* actor = DataManager::instance().getActor(actorId)) {
+        return actor->battlerName;
+    }
+    return "";
+}
+
 } // namespace
 
 // ============================================================================
@@ -525,19 +572,19 @@ void Window_Base::drawText(const std::string& text, int32_t x, int32_t y,
     lastTextDraw_ = std::move(info);
     textDrawHistory_.push_back(*lastTextDraw_);
 
-    auto textCmd = std::make_shared<urpg::TextCommand>();
-    textCmd->text = text;
-    textCmd->fontFace = fontFace_;
-    textCmd->fontSize = fontSize_;
-    textCmd->maxWidth = safeMaxWidth;
-    textCmd->x = static_cast<float>(rect_.x + padding_ + lastTextDraw_->resolvedX);
-    textCmd->y = static_cast<float>(rect_.y + padding_ + lastTextDraw_->resolvedY);
-    textCmd->zOrder = 100;
-    textCmd->r = textColor_.r;
-    textCmd->g = textColor_.g;
-    textCmd->b = textColor_.b;
-    textCmd->a = textColor_.a;
-    urpg::RenderLayer::getInstance().submit(textCmd);
+    urpg::TextCommand textCmd;
+    textCmd.text = text;
+    textCmd.fontFace = fontFace_;
+    textCmd.fontSize = fontSize_;
+    textCmd.maxWidth = safeMaxWidth;
+    textCmd.x = static_cast<float>(rect_.x + padding_ + lastTextDraw_->resolvedX);
+    textCmd.y = static_cast<float>(rect_.y + padding_ + lastTextDraw_->resolvedY);
+    textCmd.zOrder = 100;
+    textCmd.r = textColor_.r;
+    textCmd.g = textColor_.g;
+    textCmd.b = textColor_.b;
+    textCmd.a = textColor_.a;
+    urpg::RenderLayer::getInstance().submit(urpg::toFrameRenderCommand(textCmd));
 
     assert(!text.empty() || safeMaxWidth >= 0);
 }
@@ -553,16 +600,16 @@ void Window_Base::drawIcon(int32_t iconIndex, int32_t x, int32_t y) {
     const int32_t iconX = (iconIndex % kIconsPerRow) * kIconSize;
     const int32_t iconY = (iconIndex / kIconsPerRow) * kIconSize;
 
-    auto spriteCmd = std::make_shared<urpg::SpriteCommand>();
-    spriteCmd->textureId = "IconSet";
-    spriteCmd->srcX = iconX;
-    spriteCmd->srcY = iconY;
-    spriteCmd->width = kIconSize;
-    spriteCmd->height = kIconSize;
-    spriteCmd->x = static_cast<float>(rect_.x + padding_ + x);
-    spriteCmd->y = static_cast<float>(rect_.y + padding_ + y);
-    spriteCmd->zOrder = 100;
-    urpg::RenderLayer::getInstance().submit(spriteCmd);
+    urpg::SpriteCommand spriteCmd;
+    spriteCmd.textureId = "IconSet";
+    spriteCmd.srcX = iconX;
+    spriteCmd.srcY = iconY;
+    spriteCmd.width = kIconSize;
+    spriteCmd.height = kIconSize;
+    spriteCmd.x = static_cast<float>(rect_.x + padding_ + x);
+    spriteCmd.y = static_cast<float>(rect_.y + padding_ + y);
+    spriteCmd.zOrder = 100;
+    urpg::RenderLayer::getInstance().submit(urpg::toFrameRenderCommand(spriteCmd));
 }
 
 void Window_Base::drawActorFace(int32_t actorId, int32_t x, int32_t y, 
@@ -593,16 +640,16 @@ void Window_Base::drawActorFace(int32_t actorId, int32_t x, int32_t y,
     info.destRect = Rect{dx, dy, sw, sh};
     lastFaceDraw_ = info;
 
-    auto spriteCmd = std::make_shared<urpg::SpriteCommand>();
-    spriteCmd->textureId = info.faceName;
-    spriteCmd->x = static_cast<float>(rect_.x + padding_ + dx);
-    spriteCmd->y = static_cast<float>(rect_.y + padding_ + dy);
-    spriteCmd->zOrder = 100;
-    spriteCmd->srcX = sx;
-    spriteCmd->srcY = sy;
-    spriteCmd->width = sw;
-    spriteCmd->height = sh;
-    urpg::RenderLayer::getInstance().submit(spriteCmd);
+    urpg::SpriteCommand spriteCmd;
+    spriteCmd.textureId = info.faceName;
+    spriteCmd.x = static_cast<float>(rect_.x + padding_ + dx);
+    spriteCmd.y = static_cast<float>(rect_.y + padding_ + dy);
+    spriteCmd.zOrder = 100;
+    spriteCmd.srcX = sx;
+    spriteCmd.srcY = sy;
+    spriteCmd.width = sw;
+    spriteCmd.height = sh;
+    urpg::RenderLayer::getInstance().submit(urpg::toFrameRenderCommand(spriteCmd));
 }
 
 void Window_Base::drawActorName(int32_t actorId, int32_t x, int32_t y, int32_t width) {
@@ -667,32 +714,32 @@ void Window_Base::drawGauge(int32_t x, int32_t y, int32_t width,
     const float baseY = static_cast<float>(rect_.y + padding_ + y);
 
     // Background rect
-    auto bgCmd = std::make_shared<urpg::RectCommand>();
-    bgCmd->x = baseX;
-    bgCmd->y = baseY;
-    bgCmd->w = static_cast<float>(width);
-    bgCmd->h = static_cast<float>(kGaugeHeight);
-    bgCmd->r = 0.2f;
-    bgCmd->g = 0.2f;
-    bgCmd->b = 0.2f;
-    bgCmd->a = 1.0f;
-    bgCmd->zOrder = 100;
-    urpg::RenderLayer::getInstance().submit(bgCmd);
+    urpg::RectCommand bgCmd;
+    bgCmd.x = baseX;
+    bgCmd.y = baseY;
+    bgCmd.w = static_cast<float>(width);
+    bgCmd.h = static_cast<float>(kGaugeHeight);
+    bgCmd.r = 0.2f;
+    bgCmd.g = 0.2f;
+    bgCmd.b = 0.2f;
+    bgCmd.a = 1.0f;
+    bgCmd.zOrder = 100;
+    urpg::RenderLayer::getInstance().submit(urpg::toFrameRenderCommand(bgCmd));
 
     // Fill rect uses color1. Gradient to color2 is pending: the engine
     // does not yet expose GradientRectCommand, so color2 is intentionally
     // ignored until a gradient primitive is available.
-    auto fillCmd = std::make_shared<urpg::RectCommand>();
-    fillCmd->x = baseX;
-    fillCmd->y = baseY;
-    fillCmd->w = static_cast<float>(fillWidth);
-    fillCmd->h = static_cast<float>(kGaugeHeight);
-    fillCmd->r = color1.r / 255.0f;
-    fillCmd->g = color1.g / 255.0f;
-    fillCmd->b = color1.b / 255.0f;
-    fillCmd->a = color1.a / 255.0f;
-    fillCmd->zOrder = 101;
-    urpg::RenderLayer::getInstance().submit(fillCmd);
+    urpg::RectCommand fillCmd;
+    fillCmd.x = baseX;
+    fillCmd.y = baseY;
+    fillCmd.w = static_cast<float>(fillWidth);
+    fillCmd.h = static_cast<float>(kGaugeHeight);
+    fillCmd.r = color1.r / 255.0f;
+    fillCmd.g = color1.g / 255.0f;
+    fillCmd.b = color1.b / 255.0f;
+    fillCmd.a = color1.a / 255.0f;
+    fillCmd.zOrder = 101;
+    urpg::RenderLayer::getInstance().submit(urpg::toFrameRenderCommand(fillCmd));
 
     (void)color2; // Gradient target reserved for future implementation
 }
@@ -713,16 +760,16 @@ void Window_Base::drawCharacter(const std::string& characterName,
     const int32_t srcX = ((index % kCharSheetCols) * 3 + 1) * kCharCellWidth;
     const int32_t srcY = (index / kCharSheetCols) * 4 * kCharCellHeight;
 
-    auto spriteCmd = std::make_shared<urpg::SpriteCommand>();
-    spriteCmd->textureId = characterName;
-    spriteCmd->x = static_cast<float>(rect_.x + padding_ + x);
-    spriteCmd->y = static_cast<float>(rect_.y + padding_ + y);
-    spriteCmd->zOrder = 100;
-    spriteCmd->srcX = srcX;
-    spriteCmd->srcY = srcY;
-    spriteCmd->width = kCharCellWidth;
-    spriteCmd->height = kCharCellHeight;
-    urpg::RenderLayer::getInstance().submit(spriteCmd);
+    urpg::SpriteCommand spriteCmd;
+    spriteCmd.textureId = characterName;
+    spriteCmd.x = static_cast<float>(rect_.x + padding_ + x);
+    spriteCmd.y = static_cast<float>(rect_.y + padding_ + y);
+    spriteCmd.zOrder = 100;
+    spriteCmd.srcX = srcX;
+    spriteCmd.srcY = srcY;
+    spriteCmd.width = kCharCellWidth;
+    spriteCmd.height = kCharCellHeight;
+    urpg::RenderLayer::getInstance().submit(urpg::toFrameRenderCommand(spriteCmd));
 }
 
 void Window_Base::drawItemName(int32_t itemId, int32_t x, int32_t y, int32_t width) {
@@ -2298,16 +2345,17 @@ Sprite_Character::Sprite_Character(const CreateParams& params)
     , characterName_(params.characterName)
     , characterIndex_(params.characterIndex)
 {
+    reloadBitmapForCurrentAsset();
 }
 
 Sprite_Character::~Sprite_Character() {
-    // TODO: Release bitmap
+    releaseBitmap();
 }
 
 void Sprite_Character::setCharacterName(const std::string& name) {
     if (characterName_ != name) {
         characterName_ = name;
-        // TODO: Reload bitmap
+        reloadBitmapForCurrentAsset();
     }
 }
 
@@ -2320,6 +2368,36 @@ void Sprite_Character::setCharacterIndex(int32_t index) {
 
 void Sprite_Character::update() {
     // TODO: Update animation, position, etc.
+}
+
+std::optional<SpriteBitmapInfo> Sprite_Character::getBitmapInfo() const {
+    return lookupTrackedSpriteBitmap(bitmap_);
+}
+
+std::optional<SpriteBitmapInfo> Sprite_Character::lookupBitmapInfo(BitmapHandle handle) {
+    return lookupTrackedSpriteBitmap(handle);
+}
+
+void Sprite_Character::reloadBitmapForCurrentAsset() {
+    if (bitmap_ != INVALID_BITMAP && bitmapAssetId_ == characterName_) {
+        return;
+    }
+
+    releaseBitmap();
+    bitmapAssetId_.clear();
+
+    if (characterName_.empty()) {
+        return;
+    }
+
+    bitmap_ = allocateTrackedSpriteBitmap(characterName_);
+    bitmapAssetId_ = characterName_;
+}
+
+void Sprite_Character::releaseBitmap() {
+    releaseTrackedSpriteBitmap(bitmap_);
+    bitmap_ = INVALID_BITMAP;
+    bitmapAssetId_.clear();
 }
 
 void Sprite_Character::registerAPI(QuickJSContext& ctx) {
@@ -2366,13 +2444,24 @@ void Sprite_Character::registerAPI(QuickJSContext& ctx) {
 
 Sprite_Actor::Sprite_Actor(const CreateParams& params)
     : actorId_(params.actorId)
+    , battlerName_(params.battlerName.empty() ? resolveActorBattlerAssetId(params.actorId) : params.battlerName)
     , x_(params.x)
     , y_(params.y)
 {
+    reloadBitmapForCurrentAsset();
 }
 
 Sprite_Actor::~Sprite_Actor() {
-    // TODO: Release bitmap
+    releaseBitmap();
+}
+
+void Sprite_Actor::setBattlerName(const std::string& name) {
+    if (battlerName_ == name) {
+        return;
+    }
+
+    battlerName_ = name;
+    reloadBitmapForCurrentAsset();
 }
 
 void Sprite_Actor::startMotion(int32_t motion) {
@@ -2434,6 +2523,36 @@ void Sprite_Actor::update() {
         effectDurationFrames_ = 0;
         currentEffect_.clear();
     }
+}
+
+std::optional<SpriteBitmapInfo> Sprite_Actor::getBitmapInfo() const {
+    return lookupTrackedSpriteBitmap(bitmap_);
+}
+
+std::optional<SpriteBitmapInfo> Sprite_Actor::lookupBitmapInfo(BitmapHandle handle) {
+    return lookupTrackedSpriteBitmap(handle);
+}
+
+void Sprite_Actor::reloadBitmapForCurrentAsset() {
+    if (bitmap_ != INVALID_BITMAP && bitmapAssetId_ == battlerName_) {
+        return;
+    }
+
+    releaseBitmap();
+    bitmapAssetId_.clear();
+
+    if (battlerName_.empty()) {
+        return;
+    }
+
+    bitmap_ = allocateTrackedSpriteBitmap(battlerName_);
+    bitmapAssetId_ = battlerName_;
+}
+
+void Sprite_Actor::releaseBitmap() {
+    releaseTrackedSpriteBitmap(bitmap_);
+    bitmap_ = INVALID_BITMAP;
+    bitmapAssetId_.clear();
 }
 
 void Sprite_Actor::registerAPI(QuickJSContext& ctx) {

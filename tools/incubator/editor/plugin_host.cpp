@@ -38,7 +38,7 @@ void PluginHost::discoverPlugins(const std::string& directory) {
 }
 
 bool PluginHost::loadPlugin(const std::string& pluginId) {
-    // Wave 7.1: Skeleton loading for native and scripted hooks.
+    // Incubating harness: loading remains limited to pre-registered native hooks.
     auto it = std::find_if(m_availablePlugins.begin(), m_availablePlugins.end(),
         [&pluginId](const PluginInfo& p) { return p.id == pluginId; });
 

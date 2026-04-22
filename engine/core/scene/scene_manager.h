@@ -34,9 +34,9 @@ public:
     // Lifecycle hooks
     virtual void onCreate() {}
     virtual void onStart() {}
-    virtual void onUpdate(float deltaTime) {}
-    virtual void handleInput(const urpg::input::InputCore& input) {}
-    virtual void draw(urpg::SpriteBatcher& batcher) {}
+    virtual void onUpdate(float) {}
+    virtual void handleInput(const urpg::input::InputCore&) {}
+    virtual void draw(urpg::SpriteBatcher&) {}
     virtual void onStop() {}
     virtual void onDestroy() {}
 

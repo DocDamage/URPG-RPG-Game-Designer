@@ -1,11 +1,14 @@
 #pragma once
 
+#include <functional>
 #include <string>
 #include <vector>
 #include <variant>
 #include <optional>
 
 namespace urpg::copilot {
+
+struct EditProposal;
 
 /**
  * @brief Represents a rule or constraint that the Producer Copilot must uphold.
@@ -15,8 +18,11 @@ struct CanonConstraint {
     std::string description;
     std::string severity; // "ERROR", "WARNING", "INFO"
     
-    // Simple predicate-based validation simplified for the kernel
+    // Hard constraints fail validation when their predicate returns false.
     bool isHardConstraint = true;
+
+    // When provided, returns true for compliant proposals and false for violations.
+    std::function<bool(const EditProposal&)> predicate;
 };
 
 /**
@@ -49,9 +55,8 @@ public:
             return false;
         }
 
-        // Hard constraints simulation
         for (const auto& constraint : m_constraints) {
-            if (constraint.isHardConstraint && proposal.description.find("violate") != std::string::npos) {
+            if (constraint.isHardConstraint && constraint.predicate && !constraint.predicate(proposal)) {
                 proposal.isCanonCompliant = false;
                 return false;
             }

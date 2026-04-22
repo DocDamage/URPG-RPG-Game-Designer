@@ -10,19 +10,27 @@
 namespace urpg::security {
 
     /**
-     * @brief Advanced Resource Compression & Obfuscation.
-     * Essential for protectong proprietary assets and script logic.
+     * @brief Resource protection helpers for the current export/runtime boundary.
+     * Compression is not implemented yet; only passthrough and light obfuscation
+     * behavior are available today.
      * Part of Wave 4 Engine Polish (4.6).
      */
     class ResourceProtector {
     public:
         /**
-         * @brief Compress a raw byte buffer using ZLib/LZ4 stub.
+         * @brief Report whether real compression is implemented.
          */
-        std::vector<uint8_t> compress(const std::vector<uint8_t>& rawData) {
-            // Simplified: Represents ZLib/LZ4 compression logic
-            std::vector<uint8_t> compressed = rawData; // Stub: no actual compression yet
-            return compressed;
+        [[nodiscard]] static constexpr bool compressionImplemented() {
+            return false;
+        }
+
+        /**
+         * @brief Current TD-06 boundary: returns the input bytes unchanged.
+         * This is a compatibility-preserving passthrough placeholder, not real
+         * ZLib/LZ4 compression.
+         */
+        [[nodiscard]] std::vector<uint8_t> compress(const std::vector<uint8_t>& rawData) {
+            return rawData;
         }
 
         /**

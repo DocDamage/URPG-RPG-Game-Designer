@@ -7,6 +7,28 @@
 #include "engine/core/global_state_hub.h"
 #include "runtimes/compat_js/input_manager.h"
 
+namespace {
+
+bool worldContainsEntity(urpg::World& world, urpg::EntityID target) {
+    bool found = false;
+    world.ForEachWith<>([&](urpg::EntityID entityId) {
+        if (entityId == target) {
+            found = true;
+        }
+    });
+    return found;
+}
+
+std::size_t worldEntityCount(urpg::World& world) {
+    std::size_t count = 0;
+    world.ForEachWith<>([&](urpg::EntityID) {
+        ++count;
+    });
+    return count;
+}
+
+} // namespace
+
 TEST_CASE("Plugin API global-state exports route through GlobalStateHub", "[plugin_api]") {
     auto& hub = urpg::GlobalStateHub::getInstance();
     hub.resetAll();
@@ -55,6 +77,41 @@ TEST_CASE("Plugin API entity exports operate on a bound ECS world", "[plugin_api
     REQUIRE(alive_count == 1);
 
     urpg::editor::UnbindPluginAPIWorld();
+    REQUIRE(URPG_EntityCreate() == 0);
+}
+
+TEST_CASE("Plugin API scoped world bindings restore the previous world", "[plugin_api]") {
+    urpg::World outerWorld;
+    urpg::World innerWorld;
+
+    {
+        urpg::editor::ScopedPluginAPIWorldBinding outerBinding(&outerWorld);
+        const auto outerId = URPG_EntityCreate();
+        REQUIRE(outerId != 0);
+        REQUIRE(worldContainsEntity(outerWorld, static_cast<urpg::EntityID>(outerId)));
+
+        {
+            urpg::editor::ScopedPluginAPIWorldBinding innerBinding(&innerWorld);
+            const auto innerId = URPG_EntityCreate();
+            REQUIRE(innerId != 0);
+            REQUIRE(worldContainsEntity(innerWorld, static_cast<urpg::EntityID>(innerId)));
+            REQUIRE(worldEntityCount(outerWorld) == 1);
+            REQUIRE(worldEntityCount(innerWorld) == 1);
+        }
+
+        const auto restoredOuterId = URPG_EntityCreate();
+        REQUIRE(restoredOuterId != 0);
+        REQUIRE(worldContainsEntity(outerWorld, static_cast<urpg::EntityID>(restoredOuterId)));
+        REQUIRE(worldEntityCount(outerWorld) == 2);
+        REQUIRE(worldEntityCount(innerWorld) == 1);
+    }
+
+    REQUIRE(URPG_EntityCreate() == 0);
+}
+
+TEST_CASE("Plugin API ignores null world binds and unbalanced unbinds", "[plugin_api]") {
+    urpg::editor::UnbindPluginAPIWorld();
+    urpg::editor::BindPluginAPIWorld(nullptr);
     REQUIRE(URPG_EntityCreate() == 0);
 }
 

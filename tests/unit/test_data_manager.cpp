@@ -60,6 +60,7 @@ TEST_CASE("DataManager: database loading and accessors", "[data_manager]") {
 
     REQUIRE(dm.getEnemy(1) != nullptr);
     REQUIRE(dm.getEnemy(1)->name == "Goblin");
+    REQUIRE(dm.getEnemy(1)->battlerName == "Goblin");
 
     REQUIRE(dm.getTroop(1) != nullptr);
     REQUIRE(dm.getTroop(1)->name == "Goblin x2");
@@ -102,8 +103,51 @@ TEST_CASE("DataManager loadDatabase populates seeded database containers", "[dat
     REQUIRE(dm.getClass(1)->name == "Warrior");
     REQUIRE(dm.getEnemy(1) != nullptr);
     REQUIRE(dm.getEnemy(1)->name == "Slime");
+    REQUIRE(dm.getEnemy(1)->battlerName == "Monster");
     REQUIRE(dm.getTroop(1) != nullptr);
     REQUIRE(dm.getTroop(1)->name == "Slime x2");
+}
+
+TEST_CASE("DataManager: enemy battler names preserve string shape across real and seeded loads", "[data_manager]") {
+    SECTION("real MZ enemy data keeps battlerName strings") {
+        DataManager dm;
+        DataManager::setDataDirectory(URPG_SOURCE_DIR "\\third_party\\rpgmaker-mz\\visumz-sample-project\\VisuMZ_Sample_Game_Project\\data");
+
+        REQUIRE(dm.loadEnemies());
+        const EnemyData* enemy = dm.getEnemy(1);
+        REQUIRE(enemy != nullptr);
+        REQUIRE(enemy->name == "Goblin");
+        REQUIRE(enemy->battlerName == "Goblin");
+
+        auto enemiesValue = dm.getEnemiesAsValue();
+        REQUIRE(std::holds_alternative<Array>(enemiesValue.v));
+        const auto& enemies = std::get<Array>(enemiesValue.v);
+        REQUIRE(enemies.size() >= 1);
+        REQUIRE(std::holds_alternative<Object>(enemies.front().v));
+        const auto& enemyObject = std::get<Object>(enemies.front().v);
+        REQUIRE(std::holds_alternative<std::string>(enemyObject.at("battlerName").v));
+        REQUIRE(std::get<std::string>(enemyObject.at("battlerName").v) == "Goblin");
+    }
+
+    SECTION("seeded enemy data also exposes battlerName strings") {
+        DataManager::setDataDirectory("");
+        DataManager dm;
+
+        REQUIRE(dm.loadEnemies());
+        const EnemyData* enemy = dm.getEnemy(2);
+        REQUIRE(enemy != nullptr);
+        REQUIRE(enemy->name == "Goblin");
+        REQUIRE(enemy->battlerName == "Monster");
+
+        auto enemiesValue = dm.getEnemiesAsValue();
+        REQUIRE(std::holds_alternative<Array>(enemiesValue.v));
+        const auto& enemies = std::get<Array>(enemiesValue.v);
+        REQUIRE(enemies.size() >= 2);
+        REQUIRE(std::holds_alternative<Object>(enemies[1].v));
+        const auto& enemyObject = std::get<Object>(enemies[1].v);
+        REQUIRE(std::holds_alternative<std::string>(enemyObject.at("battlerName").v));
+        REQUIRE(std::get<std::string>(enemyObject.at("battlerName").v) == "Monster");
+    }
 }
 
 TEST_CASE("DataManager: global state and inventory", "[data_manager]") {
@@ -345,6 +389,14 @@ TEST_CASE("DataManager: database accessors as Value", "[data_manager]") {
     REQUIRE(std::holds_alternative<Array>(skills.v));
     auto& skillArr = std::get<Array>(skills.v);
     REQUIRE(!skillArr.empty());
+
+    auto enemies = dm.getEnemiesAsValue();
+    REQUIRE(std::holds_alternative<Array>(enemies.v));
+    auto& enemyArr = std::get<Array>(enemies.v);
+    REQUIRE(!enemyArr.empty());
+    REQUIRE(std::holds_alternative<Object>(enemyArr.front().v));
+    REQUIRE(std::holds_alternative<std::string>(std::get<Object>(enemyArr.front().v).at("battlerName").v));
+    REQUIRE(std::get<std::string>(std::get<Object>(enemyArr.front().v).at("battlerName").v) == "Goblin");
 
     REQUIRE(dm.loadMapInfos());
     auto mapInfos = dm.getMapInfosAsValue();

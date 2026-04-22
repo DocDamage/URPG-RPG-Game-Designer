@@ -1,8 +1,8 @@
 #pragma once
 
+#include <map>
 #include <string>
 #include <vector>
-#include <map>
 
 namespace urpg::editor {
 
@@ -29,7 +29,10 @@ public:
     /**
      * @brief Manually register an official API export for documentation.
      */
-    void registerDoc(const std::string& category, const std::string& name, const std::string& sig, const std::string& desc);
+    void registerDoc(const std::string& category,
+                     const std::string& name,
+                     const std::string& sig,
+                     const std::string& desc);
 
     /**
      * @brief Exports all documented entries to a Markdown file.

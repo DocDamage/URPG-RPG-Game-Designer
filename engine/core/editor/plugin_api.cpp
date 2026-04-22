@@ -9,10 +9,18 @@
 #include <iostream>
 #include <string>
 #include <type_traits>
+#include <vector>
 
 namespace {
 
-urpg::World* g_plugin_api_world = nullptr;
+thread_local std::vector<urpg::World*> g_plugin_api_world_bindings;
+
+urpg::World* GetBoundPluginAPIWorld() {
+    if (g_plugin_api_world_bindings.empty()) {
+        return nullptr;
+    }
+    return g_plugin_api_world_bindings.back();
+}
 
 float GlobalValueToFloat(const urpg::GlobalStateHub::Value& value) {
     return std::visit(
@@ -57,12 +65,34 @@ void AddNamedComponent(urpg::World& world, urpg::EntityID entity_id, const std::
 
 namespace urpg::editor {
 
+ScopedPluginAPIWorldBinding::ScopedPluginAPIWorldBinding(World* world) {
+    BindPluginAPIWorld(world);
+    m_active = true;
+}
+
+ScopedPluginAPIWorldBinding::~ScopedPluginAPIWorldBinding() {
+    if (m_active) {
+        UnbindPluginAPIWorld();
+    }
+}
+
+ScopedPluginAPIWorldBinding::ScopedPluginAPIWorldBinding(ScopedPluginAPIWorldBinding&& other) noexcept
+    : m_active(other.m_active) {
+    other.m_active = false;
+}
+
 void BindPluginAPIWorld(World* world) {
-    g_plugin_api_world = world;
+    if (world == nullptr) {
+        return;
+    }
+    g_plugin_api_world_bindings.push_back(world);
 }
 
 void UnbindPluginAPIWorld() {
-    g_plugin_api_world = nullptr;
+    if (g_plugin_api_world_bindings.empty()) {
+        return;
+    }
+    g_plugin_api_world_bindings.pop_back();
 }
 
 } // namespace urpg::editor
@@ -80,24 +110,27 @@ void URPG_LogError(const char* message) {
 }
 
 uint64_t URPG_EntityCreate() {
-    if (g_plugin_api_world == nullptr) {
+    urpg::World* world = GetBoundPluginAPIWorld();
+    if (world == nullptr) {
         return 0;
     }
-    return static_cast<uint64_t>(g_plugin_api_world->CreateEntity());
+    return static_cast<uint64_t>(world->CreateEntity());
 }
 
 void URPG_EntityDestroy(uint64_t entityId) {
-    if (g_plugin_api_world == nullptr || entityId == 0) {
+    urpg::World* world = GetBoundPluginAPIWorld();
+    if (world == nullptr || entityId == 0) {
         return;
     }
-    g_plugin_api_world->DestroyEntity(static_cast<urpg::EntityID>(entityId));
+    world->DestroyEntity(static_cast<urpg::EntityID>(entityId));
 }
 
 void URPG_EntityAddComponent(uint64_t entityId, const char* componentType) {
-    if (g_plugin_api_world == nullptr || entityId == 0 || componentType == nullptr) {
+    urpg::World* world = GetBoundPluginAPIWorld();
+    if (world == nullptr || entityId == 0 || componentType == nullptr) {
         return;
     }
-    AddNamedComponent(*g_plugin_api_world, static_cast<urpg::EntityID>(entityId), componentType);
+    AddNamedComponent(*world, static_cast<urpg::EntityID>(entityId), componentType);
 }
 
 void URPG_SetGlobalVariable(const char* key, float value) {

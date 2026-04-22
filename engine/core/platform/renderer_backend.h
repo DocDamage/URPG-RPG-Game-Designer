@@ -46,6 +46,13 @@ public:
     virtual void endFrame() = 0;
 
     /**
+     * @brief Processes frame-owned render commands while preserving legacy backend overrides.
+     */
+    virtual void processFrameCommands(const std::vector<FrameRenderCommand>& commands) {
+        processCommands(toLegacyRenderCommands(commands));
+    }
+
+    /**
      * @brief Processes a list of generic render commands (sprites, text, etc.).
      */
     virtual void processCommands(const std::vector<std::shared_ptr<RenderCommand>>& commands) = 0;

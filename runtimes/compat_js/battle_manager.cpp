@@ -3,8 +3,10 @@
 
 #include "battle_manager.h"
 #include "data_manager.h"
+#include "engine/core/scene/combat_formula.h"
 #include <algorithm>
 #include <cassert>
+#include <cctype>
 #include <random>
 
 namespace urpg {
@@ -191,6 +193,109 @@ constexpr int32_t kAttackParamId = 2;
 constexpr int32_t kDefenseParamId = 3;
 constexpr int32_t kRecoveryParamId = 4;
 constexpr int32_t kAgilityParamId = 6;
+
+constexpr const char* kApplySkillDeviationBase =
+    "Resolves skill database record and applies damage/healing/state effects. "
+    "A bounded arithmetic formula subset now evaluates when a formula string is present; "
+    "unsupported or malformed formulas fall back to configured power with an explicit deviation reason.";
+constexpr const char* kApplyItemDeviationBase =
+    "Resolves item database record and applies damage/healing/state effects. "
+    "A bounded arithmetic formula subset now evaluates when a formula string is present; "
+    "unsupported or malformed formulas fall back to configured power with an explicit deviation reason.";
+constexpr const char* kBattleEventDeviationBase =
+    "Battle-event updates advance deterministic animations and run troop page conditions plus a bounded interpreter subset. "
+    "Conditional Branch currently supports switch, variable, and BattleManager.isBattleTest() checks; "
+    "supported commands are 0/108/408/111/411/412/121/122/125.";
+
+struct CompatFormulaAmount {
+    int32_t amount = 0;
+    bool usedFormula = false;
+    std::string fallbackReason;
+};
+
+bool isBlankFormula(const std::string& formula) {
+    return std::all_of(formula.begin(),
+                       formula.end(),
+                       [](unsigned char ch) { return std::isspace(ch) != 0; });
+}
+
+urpg::scene::BattleParticipant makeFormulaParticipant(const BattleSubject* subject) {
+    urpg::scene::BattleParticipant participant;
+    if (!subject) {
+        participant.id = "0";
+        participant.hp = 0;
+        participant.maxHp = 0;
+        participant.mp = 0;
+        participant.maxMp = 0;
+        participant.isEnemy = false;
+        return participant;
+    }
+
+    participant.id = std::to_string(subject->id);
+    participant.name = subject->type == BattleSubjectType::ACTOR ? "compat_actor" : "compat_enemy";
+    participant.hp = subject->hp;
+    participant.maxHp = subject->mhp;
+    participant.mp = subject->mp;
+    participant.maxMp = subject->mmp;
+    participant.isEnemy = subject->type == BattleSubjectType::ENEMY;
+    return participant;
+}
+
+std::string composeFormulaDeviation(const std::string& baseDeviation,
+                                    const std::string& fallbackReason,
+                                    int32_t databaseId) {
+    if (fallbackReason.empty()) {
+        return baseDeviation;
+    }
+
+    return baseDeviation + " Last formula fallback: " + fallbackReason +
+           " (databaseId=" + std::to_string(databaseId) + ").";
+}
+
+QuickJSContext::MethodDef makeMethodDef(std::string name,
+                                        QuickJSContext::HostFunction fn,
+                                        CompatStatus status,
+                                        std::string deviationNote = {}) {
+    QuickJSContext::MethodDef method;
+    method.name = std::move(name);
+    method.fn = std::move(fn);
+    method.status = status;
+    method.deviationNote = std::move(deviationNote);
+    return method;
+}
+
+template <typename DamageData>
+CompatFormulaAmount resolveCompatFormulaAmount(const DamageData& damage,
+                                               BattleSubject* user,
+                                               BattleSubject* target,
+                                               const SkillData* skill,
+                                               const ItemData* item) {
+    CompatFormulaAmount result;
+    result.amount = std::max(0, damage.power);
+
+    if (isBlankFormula(damage.formula)) {
+        return result;
+    }
+
+    urpg::scene::BattleParticipant userParticipant = makeFormulaParticipant(user);
+    urpg::scene::BattleParticipant targetParticipant = makeFormulaParticipant(target);
+    urpg::combat::CombatFormula::Context ctx{
+        user ? &userParticipant : nullptr,
+        target ? &targetParticipant : nullptr,
+        skill,
+        item
+    };
+
+    const auto evaluation = urpg::combat::CombatFormula::evaluateFormula(damage.formula, ctx);
+    if (evaluation.usedFallback) {
+        result.fallbackReason = evaluation.reason;
+        return result;
+    }
+
+    result.amount = std::max(0, evaluation.value);
+    result.usedFormula = true;
+    return result;
+}
 
 int32_t getModifierStage(const BattleSubject* subject, int32_t paramId) {
     if (!subject || paramId < 0) {
@@ -406,10 +511,8 @@ BattleManager::BattleManager()
         methodStatus_["autoBattleActor"] = CompatStatus::FULL;
         methodStatus_["applyDamage"] = CompatStatus::FULL;
         methodStatus_["applyHeal"] = CompatStatus::FULL;
-        setStatus("applySkill", CompatStatus::PARTIAL,
-                  "Resolves skill database record and applies damage/healing/state effects. Full formula parsing is not yet implemented.");
-        setStatus("applyItem", CompatStatus::PARTIAL,
-                  "Resolves item database record and applies damage/healing/state effects. Full formula parsing is not yet implemented.");
+        setStatus("applySkill", CompatStatus::PARTIAL, kApplySkillDeviationBase);
+        setStatus("applyItem", CompatStatus::PARTIAL, kApplyItemDeviationBase);
         methodStatus_["addState"] = CompatStatus::FULL;
         methodStatus_["removeState"] = CompatStatus::FULL;
         methodStatus_["hasState"] = CompatStatus::FULL;
@@ -420,10 +523,8 @@ BattleManager::BattleManager()
         methodStatus_["applyTurnEndEffects"] = CompatStatus::FULL;
         methodStatus_["playAnimation"] = CompatStatus::FULL;
         methodStatus_["playAnimationOnSubject"] = CompatStatus::FULL;
-        setStatus("startBattleEvent", CompatStatus::PARTIAL,
-                  "Troop page conditions and a bounded command subset execute against live compat state, but full MZ battle interpreter coverage is still TODO.");
-        setStatus("updateBattleEvents", CompatStatus::PARTIAL,
-                  "Battle-event updates advance deterministic animations and run troop page conditions plus a bounded command subset, but full MZ battle interpreter coverage is still TODO.");
+        setStatus("startBattleEvent", CompatStatus::PARTIAL, kBattleEventDeviationBase);
+        setStatus("updateBattleEvents", CompatStatus::PARTIAL, kBattleEventDeviationBase);
         methodStatus_["isBattleEventActive"] = CompatStatus::FULL;
         methodStatus_["checkTurnCondition"] = CompatStatus::FULL;
         methodStatus_["checkEnemyHpCondition"] = CompatStatus::FULL;
@@ -1043,12 +1144,18 @@ void BattleManager::applySkill(BattleSubject* user, BattleSubject* target, int32
     if (skill->animationId > 0) {
         playAnimation(skill->animationId, target);
     }
+    const CompatFormulaAmount formulaAmount =
+        resolveCompatFormulaAmount(skill->damage, user, target, skill, nullptr);
+    methodDeviations_["applySkill"] =
+        composeFormulaDeviation(kApplySkillDeviationBase, formulaAmount.fallbackReason, skillId);
     const int32_t dmgType = skill->damage.type;
     if (dmgType == 1 || dmgType == 2) {
-        int32_t amount = resolveAttackDamage(user, target, skill->damage.power);
+        int32_t amount = formulaAmount.usedFormula
+            ? formulaAmount.amount
+            : resolveAttackDamage(user, target, formulaAmount.amount);
         applyDamage(target, amount, dmgType == 1);
     } else if (dmgType == 3 || dmgType == 4) {
-        applyHeal(target, skill->damage.power, dmgType == 3);
+        applyHeal(target, formulaAmount.amount, dmgType == 3);
     }
     for (const auto& eff : skill->effects) {
         if (eff.code == 11) {
@@ -1070,12 +1177,18 @@ void BattleManager::applyItem(BattleSubject* user, BattleSubject* target, int32_
     if (item->animationId > 0) {
         playAnimation(item->animationId, target);
     }
+    const CompatFormulaAmount formulaAmount =
+        resolveCompatFormulaAmount(item->damage, user, target, nullptr, item);
+    methodDeviations_["applyItem"] =
+        composeFormulaDeviation(kApplyItemDeviationBase, formulaAmount.fallbackReason, itemId);
     const int32_t dmgType = item->damage.type;
     if (dmgType == 1 || dmgType == 2) {
-        int32_t amount = resolveAttackDamage(user, target, item->damage.power);
+        int32_t amount = formulaAmount.usedFormula
+            ? formulaAmount.amount
+            : resolveAttackDamage(user, target, formulaAmount.amount);
         applyDamage(target, amount, dmgType == 1);
     } else if (dmgType == 3 || dmgType == 4) {
-        applyHeal(target, item->damage.power, dmgType == 3);
+        applyHeal(target, formulaAmount.amount, dmgType == 3);
     }
     for (const auto& eff : item->effects) {
         if (eff.code == 11) {
@@ -1478,6 +1591,22 @@ void BattleManager::updateBattleEvents() {
             return valueToString(params[1]) == "BattleManager.isBattleTest()" && isBattleTest();
         }
 
+        if (mode == 1 && params.size() >= 5) {
+            const int32_t left = DataManager::instance().getVariable(valueToInt(params[1], 0));
+            const int32_t right = valueToInt(params[2], 0) == 0
+                ? valueToInt(params[3], 0)
+                : DataManager::instance().getVariable(valueToInt(params[3], 0));
+            switch (valueToInt(params[4], -1)) {
+                case 0: return left == right;
+                case 1: return left >= right;
+                case 2: return left <= right;
+                case 3: return left > right;
+                case 4: return left < right;
+                case 5: return left != right;
+                default: return false;
+            }
+        }
+
         return false;
     };
 
@@ -1800,7 +1929,7 @@ std::string BattleManager::getMethodDeviation(const std::string& methodName) {
 void BattleManager::registerAPI(QuickJSContext& ctx) {
     std::vector<QuickJSContext::MethodDef> methods;
     
-    methods.push_back({"setup", [](const std::vector<Value>& args) -> Value {
+    methods.push_back(makeMethodDef("setup", [](const std::vector<Value>& args) -> Value {
         if (args.size() < 1) return Value::Nil();
         int32_t troopId = 0;
         if (std::holds_alternative<int64_t>(args[0].v)) troopId = static_cast<int32_t>(std::get<int64_t>(args[0].v));
@@ -1810,56 +1939,56 @@ void BattleManager::registerAPI(QuickJSContext& ctx) {
         if (args.size() > 2 && std::holds_alternative<int64_t>(args[2].v)) canLose = std::get<int64_t>(args[2].v) != 0;
         BattleManager::instance().setup(troopId, canEscape, canLose);
         return Value::Nil();
-    }, CompatStatus::PARTIAL});
+    }, CompatStatus::PARTIAL));
     
-    methods.push_back({"startBattle", [](const std::vector<Value>&) -> Value {
+    methods.push_back(makeMethodDef("startBattle", [](const std::vector<Value>&) -> Value {
         BattleManager::instance().startBattle();
         return Value::Nil();
-    }, CompatStatus::FULL});
+    }, CompatStatus::FULL));
     
-    methods.push_back({"abortBattle", [](const std::vector<Value>&) -> Value {
+    methods.push_back(makeMethodDef("abortBattle", [](const std::vector<Value>&) -> Value {
         BattleManager::instance().abortBattle();
         return Value::Nil();
-    }, CompatStatus::FULL});
+    }, CompatStatus::FULL));
     
-    methods.push_back({"endBattle", [](const std::vector<Value>& args) -> Value {
+    methods.push_back(makeMethodDef("endBattle", [](const std::vector<Value>& args) -> Value {
         if (args.size() < 1) return Value::Nil();
         int32_t result = 0;
         if (std::holds_alternative<int64_t>(args[0].v)) result = static_cast<int32_t>(std::get<int64_t>(args[0].v));
         BattleManager::instance().endBattle(static_cast<BattleResult>(result));
         return Value::Nil();
-    }, CompatStatus::FULL});
+    }, CompatStatus::FULL));
     
-    methods.push_back({"isBattleTest", [](const std::vector<Value>&) -> Value {
+    methods.push_back(makeMethodDef("isBattleTest", [](const std::vector<Value>&) -> Value {
         return Value::Int(BattleManager::instance().isBattleTest() ? 1 : 0);
-    }, CompatStatus::FULL});
+    }, CompatStatus::FULL));
     
-    methods.push_back({"canEscape", [](const std::vector<Value>&) -> Value {
+    methods.push_back(makeMethodDef("canEscape", [](const std::vector<Value>&) -> Value {
         return Value::Int(BattleManager::instance().canEscape() ? 1 : 0);
-    }, CompatStatus::FULL});
+    }, CompatStatus::FULL));
     
-    methods.push_back({"canLose", [](const std::vector<Value>&) -> Value {
+    methods.push_back(makeMethodDef("canLose", [](const std::vector<Value>&) -> Value {
         return Value::Int(BattleManager::instance().canLose() ? 1 : 0);
-    }, CompatStatus::FULL});
+    }, CompatStatus::FULL));
     
-    methods.push_back({"onEscapeSuccess", [](const std::vector<Value>&) -> Value {
+    methods.push_back(makeMethodDef("onEscapeSuccess", [](const std::vector<Value>&) -> Value {
         BattleManager::instance().onEscapeSuccess();
         return Value::Nil();
-    }, CompatStatus::FULL});
+    }, CompatStatus::FULL));
     
-    methods.push_back({"onEscapeFailure", [](const std::vector<Value>&) -> Value {
+    methods.push_back(makeMethodDef("onEscapeFailure", [](const std::vector<Value>&) -> Value {
         BattleManager::instance().onEscapeFailure();
         return Value::Nil();
-    }, CompatStatus::FULL});
+    }, CompatStatus::FULL));
     
-    methods.push_back({"changeBattleBackground", [](const std::vector<Value>& args) -> Value {
+    methods.push_back(makeMethodDef("changeBattleBackground", [](const std::vector<Value>& args) -> Value {
         if (!args.empty() && std::holds_alternative<std::string>(args[0].v)) {
             BattleManager::instance().changeBattleBackground(std::get<std::string>(args[0].v));
         }
         return Value::Nil();
-    }, CompatStatus::PARTIAL});
+    }, CompatStatus::PARTIAL));
     
-    methods.push_back({"changeBattleBgm", [](const std::vector<Value>& args) -> Value {
+    methods.push_back(makeMethodDef("changeBattleBgm", [](const std::vector<Value>& args) -> Value {
         std::string name;
         double volume = 90.0;
         double pitch = 100.0;
@@ -1870,9 +1999,9 @@ void BattleManager::registerAPI(QuickJSContext& ctx) {
         else if (args.size() > 2 && std::holds_alternative<int64_t>(args[2].v)) pitch = static_cast<double>(std::get<int64_t>(args[2].v));
         BattleManager::instance().changeBattleBgm(name, volume, pitch);
         return Value::Nil();
-    }, CompatStatus::PARTIAL});
+    }, CompatStatus::PARTIAL));
     
-    methods.push_back({"changeVictoryMe", [](const std::vector<Value>& args) -> Value {
+    methods.push_back(makeMethodDef("changeVictoryMe", [](const std::vector<Value>& args) -> Value {
         std::string name;
         double volume = 90.0;
         double pitch = 100.0;
@@ -1883,9 +2012,9 @@ void BattleManager::registerAPI(QuickJSContext& ctx) {
         else if (args.size() > 2 && std::holds_alternative<int64_t>(args[2].v)) pitch = static_cast<double>(std::get<int64_t>(args[2].v));
         BattleManager::instance().changeVictoryMe(name, volume, pitch);
         return Value::Nil();
-    }, CompatStatus::PARTIAL});
+    }, CompatStatus::PARTIAL));
     
-    methods.push_back({"changeDefeatMe", [](const std::vector<Value>& args) -> Value {
+    methods.push_back(makeMethodDef("changeDefeatMe", [](const std::vector<Value>& args) -> Value {
         std::string name;
         double volume = 90.0;
         double pitch = 100.0;
@@ -1896,48 +2025,48 @@ void BattleManager::registerAPI(QuickJSContext& ctx) {
         else if (args.size() > 2 && std::holds_alternative<int64_t>(args[2].v)) pitch = static_cast<double>(std::get<int64_t>(args[2].v));
         BattleManager::instance().changeDefeatMe(name, volume, pitch);
         return Value::Nil();
-    }, CompatStatus::PARTIAL});
+    }, CompatStatus::PARTIAL));
 
-    methods.push_back({"getBattleTransition", [](const std::vector<Value>&) -> Value {
+    methods.push_back(makeMethodDef("getBattleTransition", [](const std::vector<Value>&) -> Value {
         return Value::Int(BattleManager::instance().getBattleTransition());
-    }, CompatStatus::PARTIAL});
+    }, CompatStatus::PARTIAL));
 
-    methods.push_back({"getBattleBackground", [](const std::vector<Value>&) -> Value {
+    methods.push_back(makeMethodDef("getBattleBackground", [](const std::vector<Value>&) -> Value {
         Value background;
         background.v = BattleManager::instance().getBattleBackground();
         return background;
-    }, CompatStatus::PARTIAL});
+    }, CompatStatus::PARTIAL));
 
-    methods.push_back({"getBattleBgm", [](const std::vector<Value>&) -> Value {
+    methods.push_back(makeMethodDef("getBattleBgm", [](const std::vector<Value>&) -> Value {
         return battleAudioCueToValue(BattleManager::instance().getBattleBgm());
-    }, CompatStatus::PARTIAL});
+    }, CompatStatus::PARTIAL));
 
-    methods.push_back({"getVictoryMe", [](const std::vector<Value>&) -> Value {
+    methods.push_back(makeMethodDef("getVictoryMe", [](const std::vector<Value>&) -> Value {
         return battleAudioCueToValue(BattleManager::instance().getVictoryMe());
-    }, CompatStatus::PARTIAL});
+    }, CompatStatus::PARTIAL));
 
-    methods.push_back({"getDefeatMe", [](const std::vector<Value>&) -> Value {
+    methods.push_back(makeMethodDef("getDefeatMe", [](const std::vector<Value>&) -> Value {
         return battleAudioCueToValue(BattleManager::instance().getDefeatMe());
-    }, CompatStatus::PARTIAL});
+    }, CompatStatus::PARTIAL));
     
-    methods.push_back({"getPhase", [](const std::vector<Value>&) -> Value {
+    methods.push_back(makeMethodDef("getPhase", [](const std::vector<Value>&) -> Value {
         return Value::Int(static_cast<int32_t>(BattleManager::instance().getPhase()));
-    }, CompatStatus::FULL});
+    }, CompatStatus::FULL));
     
-    methods.push_back({"getTurnCount", [](const std::vector<Value>&) -> Value {
+    methods.push_back(makeMethodDef("getTurnCount", [](const std::vector<Value>&) -> Value {
         return Value::Int(BattleManager::instance().getTurnCount());
-    }, CompatStatus::FULL});
+    }, CompatStatus::FULL));
     
-    methods.push_back({"processEscape", [](const std::vector<Value>&) -> Value {
+    methods.push_back(makeMethodDef("processEscape", [](const std::vector<Value>&) -> Value {
         return Value::Int(BattleManager::instance().processEscape() ? 1 : 0);
-    }, CompatStatus::FULL});
+    }, CompatStatus::FULL));
     
-    methods.push_back({"processAction", [](const std::vector<Value>&) -> Value {
+    methods.push_back(makeMethodDef("processAction", [](const std::vector<Value>&) -> Value {
         BattleManager::instance().processAction();
         return Value::Nil();
-    }, CompatStatus::FULL});
+    }, CompatStatus::FULL));
     
-    methods.push_back({"queueAction", [](const std::vector<Value>& args) -> Value {
+    methods.push_back(makeMethodDef("queueAction", [](const std::vector<Value>& args) -> Value {
         if (args.size() < 2) return Value::Nil();
         int32_t subjectIndex = 0;
         int32_t subjectType = 0;
@@ -1953,9 +2082,9 @@ void BattleManager::registerAPI(QuickJSContext& ctx) {
         if (args.size() > 5 && std::holds_alternative<int64_t>(args[5].v)) itemId = static_cast<int32_t>(std::get<int64_t>(args[5].v));
         BattleManager::instance().queueActionByIndices(subjectIndex, static_cast<BattleSubjectType>(subjectType), static_cast<BattleActionType>(actionType), targetIndex, skillId, itemId);
         return Value::Nil();
-    }, CompatStatus::FULL});
+    }, CompatStatus::FULL));
     
-    methods.push_back({"getNextAction", [](const std::vector<Value>&) -> Value {
+    methods.push_back(makeMethodDef("getNextAction", [](const std::vector<Value>&) -> Value {
         BattleAction* action = BattleManager::instance().getNextAction();
         if (!action || !action->subject) return Value::Nil();
         Object obj;
@@ -1966,23 +2095,23 @@ void BattleManager::registerAPI(QuickJSContext& ctx) {
         obj["skillId"] = Value::Int(action->skillId);
         obj["itemId"] = Value::Int(action->itemId);
         return Value::Obj(std::move(obj));
-    }, CompatStatus::FULL});
+    }, CompatStatus::FULL));
     
-    methods.push_back({"clearActions", [](const std::vector<Value>&) -> Value {
+    methods.push_back(makeMethodDef("clearActions", [](const std::vector<Value>&) -> Value {
         BattleManager::instance().clearActions();
         return Value::Nil();
-    }, CompatStatus::FULL});
+    }, CompatStatus::FULL));
     
-    methods.push_back({"checkTurnCondition", [](const std::vector<Value>& args) -> Value {
+    methods.push_back(makeMethodDef("checkTurnCondition", [](const std::vector<Value>& args) -> Value {
         if (args.size() < 2) return Value::Int(0);
         int32_t turn = 0;
         int32_t span = 0;
         if (std::holds_alternative<int64_t>(args[0].v)) turn = static_cast<int32_t>(std::get<int64_t>(args[0].v));
         if (std::holds_alternative<int64_t>(args[1].v)) span = static_cast<int32_t>(std::get<int64_t>(args[1].v));
         return Value::Int(BattleManager::instance().checkTurnCondition(turn, span) ? 1 : 0);
-    }, CompatStatus::FULL});
+    }, CompatStatus::FULL));
     
-    methods.push_back({"forceAction", [](const std::vector<Value>& args) -> Value {
+    methods.push_back(makeMethodDef("forceAction", [](const std::vector<Value>& args) -> Value {
         if (args.size() < 4) return Value::Nil();
         int32_t subjectIndex = 0;
         int32_t subjectType = 0;
@@ -1998,9 +2127,9 @@ void BattleManager::registerAPI(QuickJSContext& ctx) {
         if (args.size() > 5 && std::holds_alternative<int64_t>(args[5].v)) itemId = static_cast<int32_t>(std::get<int64_t>(args[5].v));
         BattleManager::instance().forceAction(subjectIndex, static_cast<BattleSubjectType>(subjectType), static_cast<BattleActionType>(actionType), targetIndex, skillId, itemId);
         return Value::Nil();
-    }, CompatStatus::FULL});
+    }, CompatStatus::FULL));
     
-    methods.push_back({"addState", [](const std::vector<Value>& args) -> Value {
+    methods.push_back(makeMethodDef("addState", [](const std::vector<Value>& args) -> Value {
         if (args.size() < 3) return Value::Int(0);
         int32_t subjectIndex = 0;
         int32_t subjectType = 0;
@@ -2011,9 +2140,9 @@ void BattleManager::registerAPI(QuickJSContext& ctx) {
         BattleSubject* subject = (subjectType == 0) ? BattleManager::instance().getActor(subjectIndex) : BattleManager::instance().getEnemy(subjectIndex);
         if (!subject) return Value::Int(0);
         return Value::Int(BattleManager::instance().addState(subject, stateId, 3) ? 1 : 0);
-    }, CompatStatus::FULL});
+    }, CompatStatus::FULL));
     
-    methods.push_back({"removeState", [](const std::vector<Value>& args) -> Value {
+    methods.push_back(makeMethodDef("removeState", [](const std::vector<Value>& args) -> Value {
         if (args.size() < 3) return Value::Int(0);
         int32_t subjectIndex = 0;
         int32_t subjectType = 0;
@@ -2024,9 +2153,9 @@ void BattleManager::registerAPI(QuickJSContext& ctx) {
         BattleSubject* subject = (subjectType == 0) ? BattleManager::instance().getActor(subjectIndex) : BattleManager::instance().getEnemy(subjectIndex);
         if (!subject) return Value::Int(0);
         return Value::Int(BattleManager::instance().removeState(subject, stateId) ? 1 : 0);
-    }, CompatStatus::FULL});
+    }, CompatStatus::FULL));
     
-    methods.push_back({"isStateActive", [](const std::vector<Value>& args) -> Value {
+    methods.push_back(makeMethodDef("isStateActive", [](const std::vector<Value>& args) -> Value {
         if (args.size() < 3) return Value::Int(0);
         int32_t subjectIndex = 0;
         int32_t subjectType = 0;
@@ -2037,7 +2166,7 @@ void BattleManager::registerAPI(QuickJSContext& ctx) {
         BattleSubject* subject = (subjectType == 0) ? BattleManager::instance().getActor(subjectIndex) : BattleManager::instance().getEnemy(subjectIndex);
         if (!subject) return Value::Int(0);
         return Value::Int(BattleManager::instance().isStateActive(subject, stateId) ? 1 : 0);
-    }, CompatStatus::FULL});
+    }, CompatStatus::FULL));
     
     ctx.registerObject("BattleManager", methods);
 }

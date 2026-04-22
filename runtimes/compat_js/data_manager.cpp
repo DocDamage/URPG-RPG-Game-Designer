@@ -681,7 +681,7 @@ bool DataManager::loadEnemies() {
             EnemyData enemy;
             enemy.id = elem.value("id", 0);
             enemy.name = elem.value("name", "");
-            enemy.battlerName = 0; // struct field is int32_t; JSON provides string
+            enemy.battlerName = elem.value("battlerName", "");
             enemy.mhp = 100;
             enemy.mmp = 100;
             enemy.atk = 10;
@@ -714,6 +714,7 @@ bool DataManager::loadEnemies() {
     EnemyData slime;
     slime.id = 1;
     slime.name = "Slime";
+    slime.battlerName = "Monster";
     slime.mhp = 30;
     slime.mmp = 0;
     slime.atk = 8;
@@ -730,6 +731,7 @@ bool DataManager::loadEnemies() {
     EnemyData goblin;
     goblin.id = 2;
     goblin.name = "Goblin";
+    goblin.battlerName = "Monster";
     goblin.mhp = 50;
     goblin.mmp = 0;
     goblin.atk = 12;
@@ -1756,7 +1758,31 @@ Value DataManager::getArmorsAsValue() const {
     return Value::Arr(std::move(arr));
 }
 
-Value DataManager::getEnemiesAsValue() const { return Value::Arr({}); }
+Value DataManager::getEnemiesAsValue() const {
+    Array arr;
+    for (const auto& enemy : enemies_) {
+        Object obj;
+        obj["id"] = Value::Int(enemy.id);
+        Value name;
+        name.v = enemy.name;
+        obj["name"] = std::move(name);
+        Value battlerName;
+        battlerName.v = enemy.battlerName;
+        obj["battlerName"] = std::move(battlerName);
+        obj["mhp"] = Value::Int(enemy.mhp);
+        obj["mmp"] = Value::Int(enemy.mmp);
+        obj["atk"] = Value::Int(enemy.atk);
+        obj["def"] = Value::Int(enemy.def);
+        obj["mat"] = Value::Int(enemy.mat);
+        obj["mdf"] = Value::Int(enemy.mdf);
+        obj["agi"] = Value::Int(enemy.agi);
+        obj["luk"] = Value::Int(enemy.luk);
+        obj["exp"] = Value::Int(enemy.exp);
+        obj["gold"] = Value::Int(enemy.gold);
+        arr.push_back(Value::Obj(std::move(obj)));
+    }
+    return Value::Arr(std::move(arr));
+}
 Value DataManager::getTroopsAsValue() const { return Value::Arr({}); }
 Value DataManager::getStatesAsValue() const { return Value::Arr({}); }
 Value DataManager::getClassesAsValue() const {

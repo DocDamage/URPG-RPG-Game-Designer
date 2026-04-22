@@ -39,6 +39,9 @@ Write-Host "== Validate release readiness records ==" -ForegroundColor Cyan
 Write-Host "== Validate schema changelog governance ==" -ForegroundColor Cyan
 & "$PSScriptRoot\check_schema_changelog.ps1"
 
+Write-Host "== Validate save policy governance ==" -ForegroundColor Cyan
+& "$PSScriptRoot\check_save_policy_governance.ps1"
+
 Write-Host "== Validate accessibility governance ==" -ForegroundColor Cyan
 & "$PSScriptRoot\check_accessibility_governance.ps1"
 
@@ -68,6 +71,12 @@ Write-Host "== Validate template claims ==" -ForegroundColor Cyan
 
 Write-Host "== Validate subsystem badges ==" -ForegroundColor Cyan
 & "$PSScriptRoot\..\docs\check_subsystem_badges.ps1"
+
+Write-Host "== Validate breaking-change governance ==" -ForegroundColor Cyan
+& "$PSScriptRoot\check_breaking_changes.ps1"
+
+Write-Host "== Validate CMake completeness ==" -ForegroundColor Cyan
+& "$PSScriptRoot\check_cmake_completeness.ps1"
 
 Write-Host "== Configure: $ConfigurePreset ==" -ForegroundColor Cyan
 cmake --preset $ConfigurePreset
@@ -100,12 +109,12 @@ Write-Host "== Validate curated RPG Maker plugin drop-ins ==" -ForegroundColor C
     -FailOnError
 
 Write-Host "== Gate 1 (pr) ==" -ForegroundColor Cyan
-ctest --test-dir $testDir --output-on-failure -L pr
+ctest --test-dir $testDir --output-on-failure -L "^pr$"
 
 Write-Host "== Gate 2 (nightly) ==" -ForegroundColor Cyan
-ctest --test-dir $testDir --output-on-failure -L nightly
+ctest --test-dir $testDir --output-on-failure -L "^nightly$"
 
 Write-Host "== Gate 3 (weekly) ==" -ForegroundColor Cyan
-ctest --test-dir $testDir --output-on-failure -L weekly
+ctest --test-dir $testDir --output-on-failure -L "^weekly$"
 
 Write-Host "All gates passed." -ForegroundColor Green

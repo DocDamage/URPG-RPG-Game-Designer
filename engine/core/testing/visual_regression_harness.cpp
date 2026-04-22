@@ -1,9 +1,49 @@
 #include "engine/core/testing/visual_regression_harness.h"
 
+#ifndef URPG_HEADLESS
+#include "engine/core/platform/opengl_renderer.h"
+
+#include <SDL2/SDL.h>
+#include <SDL2/SDL_opengl.h>
+#endif
+
+#include <algorithm>
+#include <cstdint>
 #include <fstream>
 #include <filesystem>
 
 namespace urpg::testing {
+
+#ifndef URPG_HEADLESS
+namespace {
+
+class CaptureSurface final : public IPlatformSurface {
+public:
+    explicit CaptureSurface(SDL_Window* window)
+        : m_window(window) {}
+
+    bool initialize(const WindowConfig& /*config*/) override {
+        return true;
+    }
+
+    bool pollEvents() override {
+        return true;
+    }
+
+    void present() override {}
+
+    void shutdown() override {}
+
+    void* getNativeHandle() const override {
+        return m_window;
+    }
+
+private:
+    SDL_Window* m_window = nullptr;
+};
+
+} // namespace
+#endif
 
 void VisualRegressionHarness::setGoldenRoot(const std::string& path) {
     m_goldenRoot = path;
@@ -134,6 +174,134 @@ SceneSnapshot VisualRegressionHarness::generateDiffHeatmap(const SceneSnapshot& 
     }
 
     return heatmap;
+}
+
+std::optional<SceneSnapshot> VisualRegressionHarness::captureOpenGLFrame(
+    const std::vector<FrameRenderCommand>& commands,
+    int width,
+    int height,
+    std::string* errorMessage) const {
+#ifdef URPG_HEADLESS
+    (void)commands;
+    (void)width;
+    (void)height;
+    if (errorMessage != nullptr) {
+        *errorMessage = "Renderer-backed OpenGL capture is unavailable in headless builds.";
+    }
+    return std::nullopt;
+#else
+    const int captureWidth = std::max(width, 1);
+    const int captureHeight = std::max(height, 1);
+
+    const bool initializedVideoHere = (SDL_WasInit(SDL_INIT_VIDEO) == 0);
+    if (initializedVideoHere && SDL_Init(SDL_INIT_VIDEO) != 0) {
+        if (errorMessage != nullptr) {
+            *errorMessage = std::string("SDL_Init(SDL_INIT_VIDEO) failed: ") + SDL_GetError();
+        }
+        return std::nullopt;
+    }
+
+    SDL_Window* window = nullptr;
+    SDL_GLContext glContext = nullptr;
+
+    auto cleanup = [&]() {
+        if (glContext != nullptr) {
+            SDL_GL_DeleteContext(glContext);
+            glContext = nullptr;
+        }
+        if (window != nullptr) {
+            SDL_DestroyWindow(window);
+            window = nullptr;
+        }
+        if (initializedVideoHere) {
+            SDL_QuitSubSystem(SDL_INIT_VIDEO);
+        }
+    };
+
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
+    SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
+    SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
+
+    window = SDL_CreateWindow(
+        "URPG Visual Regression Capture",
+        SDL_WINDOWPOS_UNDEFINED,
+        SDL_WINDOWPOS_UNDEFINED,
+        captureWidth,
+        captureHeight,
+        SDL_WINDOW_OPENGL | SDL_WINDOW_HIDDEN);
+    if (window == nullptr) {
+        if (errorMessage != nullptr) {
+            *errorMessage = std::string("SDL_CreateWindow failed: ") + SDL_GetError();
+        }
+        cleanup();
+        return std::nullopt;
+    }
+
+    glContext = SDL_GL_CreateContext(window);
+    if (glContext == nullptr) {
+        if (errorMessage != nullptr) {
+            *errorMessage = std::string("SDL_GL_CreateContext failed: ") + SDL_GetError();
+        }
+        cleanup();
+        return std::nullopt;
+    }
+
+    if (SDL_GL_MakeCurrent(window, glContext) != 0) {
+        if (errorMessage != nullptr) {
+            *errorMessage = std::string("SDL_GL_MakeCurrent failed: ") + SDL_GetError();
+        }
+        cleanup();
+        return std::nullopt;
+    }
+
+    SDL_GL_SetSwapInterval(0);
+
+    CaptureSurface surface(window);
+    OpenGLRenderer renderer;
+    renderer.onResize(captureWidth, captureHeight);
+    if (!renderer.initialize(&surface)) {
+        if (errorMessage != nullptr) {
+            *errorMessage = "OpenGLRenderer::initialize failed for renderer-backed capture.";
+        }
+        renderer.shutdown();
+        cleanup();
+        return std::nullopt;
+    }
+
+    renderer.beginFrame();
+    renderer.processFrameCommands(commands);
+    glFlush();
+    glFinish();
+
+    std::vector<uint8_t> rawPixels(static_cast<size_t>(captureWidth) * captureHeight * 4, 0);
+    glPixelStorei(GL_PACK_ALIGNMENT, 1);
+    glReadPixels(0, 0, captureWidth, captureHeight, GL_RGBA, GL_UNSIGNED_BYTE, rawPixels.data());
+
+    SceneSnapshot snapshot;
+    snapshot.width = captureWidth;
+    snapshot.height = captureHeight;
+    snapshot.pixels.resize(static_cast<size_t>(captureWidth) * captureHeight);
+
+    for (int y = 0; y < captureHeight; ++y) {
+        const int sourceRow = captureHeight - 1 - y;
+        for (int x = 0; x < captureWidth; ++x) {
+            const size_t sourceIndex = (static_cast<size_t>(sourceRow) * captureWidth + x) * 4;
+            const size_t destIndex = static_cast<size_t>(y) * captureWidth + x;
+            snapshot.pixels[destIndex] = SnapshotPixel{
+                rawPixels[sourceIndex + 0],
+                rawPixels[sourceIndex + 1],
+                rawPixels[sourceIndex + 2],
+                rawPixels[sourceIndex + 3],
+            };
+        }
+    }
+
+    renderer.shutdown();
+    cleanup();
+    return snapshot;
+#endif
 }
 
 nlohmann::json VisualRegressionHarness::buildReportJson(const std::string& testName,

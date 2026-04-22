@@ -1,17 +1,19 @@
 #pragma once
 
-#include "editor/editor_shell.h"
-#include "editor/plugin_host.h"
-#include "editor/script_bridge.h"
-#include "render/renderer_backend.h"
-#include "core/threading/thread_roles.h"
+#include "../../../engine/core/editor/editor_shell.h"
+#include "../../../engine/core/render/renderer_backend.h"
+#include "../../../engine/core/threading/thread_roles.h"
+#include "../editor/plugin_host.h"
+#include "../editor/script_bridge.h"
 
 namespace urpg {
 
 /**
  * @brief Bootstraps the entire URPG engine and editor workspace.
- * 
- * Wave 15.1 implementation: Unified Engine Setup.
+ *
+ * INCUBATING ONLY: this stale assembly seam is not wired into the live
+ * build/runtime path. Use EngineShell as the canonical top-level runtime
+ * entry point until this header is either repaired or removed.
  */
 class EngineAssembly {
 public:
