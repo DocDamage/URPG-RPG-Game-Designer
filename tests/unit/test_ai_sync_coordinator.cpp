@@ -15,14 +15,14 @@ urpg::ai::ChatbotComponent makeChatbot() {
 
 } // namespace
 
-TEST_CASE("LocalInMemoryCloudService rejects live cloud providers", "[ai][cloud]") {
+TEST_CASE("LocalInMemoryCloudService initializes the local-only provider path", "[ai][cloud]") {
     urpg::social::LocalInMemoryCloudService cloud;
 
-    const auto result = cloud.initialize(urpg::social::CloudProvider::GenericHTTP, "api-key");
+    const auto result = cloud.initialize(urpg::social::CloudProvider::LocalSimulated, "api-key");
 
-    REQUIRE_FALSE(result.success);
-    REQUIRE_FALSE(cloud.isOnline());
-    REQUIRE(result.message.find("only supports CloudProvider::LocalSimulated") != std::string::npos);
+    REQUIRE(result.success);
+    REQUIRE(cloud.isOnline());
+    REQUIRE(result.message.find("process-local memory") != std::string::npos);
 }
 
 TEST_CASE("AISyncCoordinator syncs and restores history through local in-memory storage", "[ai][cloud]") {

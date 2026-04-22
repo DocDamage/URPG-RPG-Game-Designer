@@ -79,6 +79,7 @@ Every promoted asset subset must retain a provenance chain made of:
 - Promoted assets are not anonymous.
 - Source-to-target mapping is explicit.
 - Every promoted subset has a promotion record that links the source manifest and bundle manifest entries used to justify promotion.
+- ExportPackager may stage bundle manifests plus promoted assets into `data.pck`, but only for bundle manifests with `bundle_state: "promoted"` and asset rows with `status: "promoted"` that resolve to existing repo-local files under `imports/normalized/`.
 
 ### Promotion Manifest Schema Example
 

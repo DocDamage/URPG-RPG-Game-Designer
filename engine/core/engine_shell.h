@@ -121,17 +121,19 @@ private:
 
     void setupDialogueCommands() {
         m_dialogueProcessor.registerHandler("GIVE_ITEM", [](const std::string& arg) {
+            (void)arg;
             // Implementation linked to InventorySystem
         });
         m_dialogueProcessor.registerHandler("HEAL_PLAYER", [](const std::string& arg) {
+            (void)arg;
             // Implementation linked to HealthSystem
         });
         m_dialogueProcessor.registerHandler("QUEST_ADVANCE", [](const std::string& arg) {
             // arg format: "quest_id:amount"
             size_t colon = arg.find(':');
             if (colon != std::string::npos) {
-                std::string questId = arg.substr(0, colon);
-                int amount = std::stoi(arg.substr(colon + 1));
+                [[maybe_unused]] std::string questId = arg.substr(0, colon);
+                [[maybe_unused]] int amount = std::stoi(arg.substr(colon + 1));
                 // QuestSystem::advanceQuest logic here
             }
         });

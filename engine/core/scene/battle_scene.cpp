@@ -15,6 +15,7 @@ namespace urpg::scene {
 namespace {
 
 constexpr const char* kMissingBattlebackDiagnostic = "MISSING_BATTLEBACK";
+constexpr uint32_t kSolidQuadTextureId = 1;
 
 int parseDatabaseId(const std::string& rawId) {
     try {
@@ -46,6 +47,48 @@ std::shared_ptr<urpg::Texture> loadOptionalTexture(const std::string& path) {
     }
 
     return AssetLoader::loadTexture(path);
+}
+
+std::string buildBattlebackPath(const std::string& battlebackName) {
+    if (battlebackName.empty()) {
+        return {};
+    }
+
+    return "img/battlebacks1/" + battlebackName + ".png";
+}
+
+float colorChannel(uint32_t color, int shift) {
+    return static_cast<float>((color >> shift) & 0xFFu) / 255.0f;
+}
+
+void submitSolidQuad(urpg::SpriteBatcher& batcher,
+                     float x,
+                     float y,
+                     float w,
+                     float h,
+                     float z,
+                     uint32_t color) {
+    batcher.submit(kSolidQuadTextureId,
+                   x, y, w, h,
+                   0.0f, 0.0f, 1.0f, 1.0f,
+                   z,
+                   colorChannel(color, 24),
+                   colorChannel(color, 16),
+                   colorChannel(color, 8),
+                   colorChannel(color, 0));
+}
+
+uint32_t resolveStateColor(int32_t stateId) {
+    switch (stateId % 4) {
+    case 0:
+        return 0xD1495BFFu;
+    case 1:
+        return 0x2E86ABFFu;
+    case 2:
+        return 0x6A994EFFu;
+    default:
+        return 0x7B2CBFFFu;
+    }
 }
 
 int resolveParticipantParam(const BattleParticipant& participant, int32_t param_index) {
@@ -265,13 +308,25 @@ void BattleScene::onStart() {
     m_commandWindow->setVisible(false);
 
     // Phase 12: Load Background
-    // In MZ, battle backgrounds are often determined by the map or troop.
-    // Keep the fallback path explicit so missing content does not look like a valid default.
+    // Prefer compat BattleManager metadata when present, but keep the fallback path
+    // explicit so missing content does not look like a valid default.
+    const std::string configuredBattlebackPath =
+        buildBattlebackPath(compat::BattleManager::instance().getBattleBackground());
+    if (!configuredBattlebackPath.empty()) {
+        m_backgroundTexture = loadOptionalTexture(configuredBattlebackPath);
+    }
+
     constexpr const char* fallbackBattlebackPath = "img/battlebacks1/Grassland.png";
-    m_backgroundTexture = loadOptionalTexture(fallbackBattlebackPath);
     if (!m_backgroundTexture) {
-        std::cerr << "[" << kMissingBattlebackDiagnostic << "] No configured battleback was resolved; "
-                  << "fallback asset is also unavailable: " << fallbackBattlebackPath << std::endl;
+        m_backgroundTexture = loadOptionalTexture(fallbackBattlebackPath);
+    }
+
+    if (!m_backgroundTexture) {
+        std::cerr << "[" << kMissingBattlebackDiagnostic << "] No configured battleback was resolved";
+        if (!configuredBattlebackPath.empty()) {
+            std::cerr << " (attempted: " << configuredBattlebackPath << ")";
+        }
+        std::cerr << "; fallback asset is also unavailable: " << fallbackBattlebackPath << std::endl;
         if (m_logWindow) {
             m_logWindow->setText(kMissingBattlebackDiagnostic);
         }
@@ -491,14 +546,13 @@ void BattleScene::draw(urpg::SpriteBatcher& batcher) {
             
             // Draw participant at its current position with shake offset
             p.animator->draw(batcher, p.position.x + offsetX, p.position.y + offsetY, width, height, 0.5f);
-            
-            // Draw Damage Popup (Phase 9)
-            if (p.DamagePopupTimer > 0) {
-                // Animate floating upwards
-                float popupY = p.position.y - (1.0f - p.DamagePopupTimer) * 32.0f - 20.0f;
-                // placeholder: solid color box using white texture (id 1 usually or 0)
-                batcher.submit(1, p.position.x, popupY, 24.0f, 12.0f, 0, 0, 1, 1, 0.9f);
-            }
+        }
+
+        // Draw Damage Popup (Phase 9)
+        if (p.DamagePopupTimer > 0) {
+            // Animate floating upwards
+            float popupY = p.position.y - (1.0f - p.DamagePopupTimer) * 32.0f - 20.0f;
+            submitSolidQuad(batcher, p.position.x, popupY, 24.0f, 12.0f, 0.9f, p.DamagePopupColor);
         }
     }
 
@@ -530,13 +584,25 @@ void BattleScene::draw(urpg::SpriteBatcher& batcher) {
                 
                 // Show guarding icon/text (Phase 10)
                 if (p.isGuarding) {
-                    batcher.submit(1, startX + 350.0f, startY + (index * 24.0f), 16.0f, 16.0f, 0, 0, 1, 1, 0.9f);
+                    submitSolidQuad(batcher,
+                                    startX + 350.0f,
+                                    startY + (index * 24.0f),
+                                    16.0f,
+                                    16.0f,
+                                    0.9f,
+                                    0xF4A261FFu);
                 }
 
                 // Show State Icons (Phase 11)
                 float stateX = startX + 372.0f;
-                for ([[maybe_unused]] int32_t stateId : p.states) {
-                    batcher.submit(1, stateX, startY + (index * 24.0f), 16.0f, 16.0f, 0, 0, 1, 1, 0.9f);
+                for (int32_t stateId : p.states) {
+                    submitSolidQuad(batcher,
+                                    stateX,
+                                    startY + (index * 24.0f),
+                                    16.0f,
+                                    16.0f,
+                                    0.9f,
+                                    resolveStateColor(stateId));
                     stateX += 20.0f;
                 }
 

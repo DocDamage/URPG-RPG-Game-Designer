@@ -298,6 +298,7 @@ ScriptResult QuickJSContext::evalModule(const std::string& filename) {
 }
 
 ScriptResult QuickJSContext::evalWithScope(const std::string& code, const std::map<std::string, Value>& scope, const std::string& filename) {
+    (void)scope;
     // Harness implementation: for now, we mostly pass through to eval.
     // In a real QuickJS integration, we would create a local scope and push these values.
     // For fixture-backed tests, we only support a few deterministic patterns directly.
@@ -658,8 +659,6 @@ CompatBudget QuickJSRuntime::getAggregateBudgetStatus() const {
     
     CompatBudget aggregate;
     uint32_t cpuUsed = 0;
-    size_t memoryUsed = 0;
-    
     for (const auto& [id, context] : impl_->contexts) {
         auto budget = context->getBudgetStatus();
         if (budget.exceeded_cpu) {
@@ -669,7 +668,6 @@ CompatBudget QuickJSRuntime::getAggregateBudgetStatus() const {
             aggregate.exceeded_memory = true;
         }
         cpuUsed += budget.cpu_slice_us;
-        memoryUsed += context->getHeapSize();
     }
     
     // Check against total limits

@@ -25,7 +25,7 @@ jobs:
       - name: Install sccache
         run: |
           sudo apt-get update
-          sudo apt-get install -y sccache
+          sudo apt-get install -y sccache xvfb libgl1-mesa-dev
       - name: Cache sccache
         uses: actions/cache@v4
         with:
@@ -79,6 +79,26 @@ jobs:
         run: cmake --preset ci
       - name: Build
         run: cmake --build --preset ci-release
+      - name: Configure strict warnings gate
+        run: cmake --preset ci -B build/ci-warnings-as-errors -DURPG_WARNINGS_AS_ERRORS=ON
+      - name: Build strict warnings gate
+        run: >
+          cmake --build build/ci-warnings-as-errors --target
+          urpg_migrate
+          urpg_project_audit
+          urpg_export_smoke_app
+          urpg_presentation_release_validation
+          urpg_tests
+          urpg_integration_tests
+          urpg_snapshot_tests
+          urpg_compat_tests
+      - name: Configure renderer-backed snapshot gate
+        run: cmake --preset ci -B build/ci-renderer-backed -DURPG_SKIP_OPENGL=OFF
+      - name: Build renderer-backed snapshot gate
+        run: cmake --build build/ci-renderer-backed --target urpg_snapshot_tests
+      - name: Run renderer-backed snapshot gate
+        shell: pwsh
+        run: xvfb-run -a pwsh -File ./tools/ci/check_renderer_backed_visual_capture.ps1 -BuildDirectory build/ci-renderer-backed
       - name: Run focused presentation gate
         shell: pwsh
         run: ./tools/ci/run_presentation_gate.ps1 -BuildDirectory build/ci -Configuration Release -SkipBuild

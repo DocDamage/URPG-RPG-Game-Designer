@@ -8,7 +8,7 @@ AISyncCoordinator::AISyncCoordinator(std::shared_ptr<urpg::social::ICloudService
     : m_cloud(cloudService) {}
 
 bool AISyncCoordinator::syncHistoryToCloud(const std::string& profileId, const ChatbotComponent& chatbot) {
-    // NOT LIVE with the in-tree LocalInMemoryCloudService/CloudServiceStub alias:
+    // NOT LIVE with the in-tree LocalInMemoryCloudService:
     // this serializes history and hands it to whichever ICloudService is injected,
     // but the default in-tree implementation only stores bytes in process-local memory.
     if (!m_cloud || !m_cloud->isOnline()) return false;
@@ -33,7 +33,7 @@ bool AISyncCoordinator::syncHistoryToCloud(const std::string& profileId, const C
 }
 
 bool AISyncCoordinator::restoreHistoryFromCloud(const std::string& profileId, ChatbotComponent& chatbot) {
-    // NOT LIVE with the in-tree LocalInMemoryCloudService/CloudServiceStub alias:
+    // NOT LIVE with the in-tree LocalInMemoryCloudService:
     // restores only from current process-local memory and does not prove any
     // cross-device or remote-cloud transport path.
     if (!m_cloud || !m_cloud->isOnline()) return false;

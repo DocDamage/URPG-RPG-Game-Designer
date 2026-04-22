@@ -3,6 +3,7 @@
 #include "engine/core/scene/map_scene.h"
 #include "engine/core/scene/tileset_registry.h"
 #include "runtimes/compat_js/data_manager.h"
+#include <algorithm>
 #include <memory>
 #include <string>
 
@@ -56,17 +57,17 @@ public:
         // 4. Calculate Passability (simplified logic: check layer 0-3 for collision flags)
         for (int y = 0; y < height; ++y) {
             for (int x = 0; x < width; ++x) {
-                int index = y * width + x;
+                const size_t tileIndex = static_cast<size_t>(y * width + x);
                 bool isPassable = true;
+                const size_t collisionLayerCount = std::min<size_t>(4, mapData->data.size());
 
                 // RPG Maker priority: top-down check
-                for (int layerIdx = 3; layerIdx >= 0; --layerIdx) {
-                    if (layerIdx < mapData->data.size()) {
-                        int tileId = mapData->data[layerIdx][index];
-                        if (tileId != 0 && !TilesetRegistry::instance().isTilePassable(tilesetId, tileId)) {
-                            isPassable = false;
-                            break;
-                        }
+                for (size_t offset = 0; offset < collisionLayerCount; ++offset) {
+                    const size_t layerIdx = collisionLayerCount - 1 - offset;
+                    const int tileId = mapData->data[layerIdx][tileIndex];
+                    if (tileId != 0 && !TilesetRegistry::instance().isTilePassable(tilesetId, tileId)) {
+                        isPassable = false;
+                        break;
                     }
                 }
                 
@@ -76,8 +77,8 @@ public:
         }
 
         // 5. Load Player Start (Sync from DataManager)
-        int startX = dm.getStartX();
-        int startY = dm.getStartY();
+        [[maybe_unused]] const int startX = dm.getStartX();
+        [[maybe_unused]] const int startY = dm.getStartY();
         // Here we would sync actor 1 character graphics
         const auto* actor = dm.getActor(dm.getStartPartyMember(0));
         if (actor) {

@@ -12,10 +12,8 @@ namespace urpg {
  */
 class CameraFollowSystem {
 public:
-    void update(World& world, float deltaTime) {
-        Fixed32 dt = Fixed32::FromRaw(static_cast<int32_t>(deltaTime * 65536.0f));
-
-        world.ForEachWith<TransformComponent, CameraComponent, CameraFollowComponent>([&](EntityID cameraEntity, TransformComponent& cameraTransform, const CameraComponent& camera, const CameraFollowComponent& follow) {
+    void update(World& world, [[maybe_unused]] float deltaTime) {
+        world.ForEachWith<TransformComponent, CameraComponent, CameraFollowComponent>([&](EntityID, TransformComponent& cameraTransform, const CameraComponent& camera, const CameraFollowComponent& follow) {
             if (!camera.isActive || follow.target == 0) return;
 
             auto* targetTransform = world.GetComponent<TransformComponent>(follow.target);

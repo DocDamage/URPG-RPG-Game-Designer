@@ -8,10 +8,10 @@ namespace urpg {
 
 struct EventEditRequest {
     std::string event_id;
-    std::string block_id;
+    std::string block_id{};
     AuthorityTag authority;
     EditOperation operation = EditOperation::EditUrpgAst;
-    std::string timestamp_utc;
+    std::string timestamp_utc{};
 };
 
 struct EventEditResult {

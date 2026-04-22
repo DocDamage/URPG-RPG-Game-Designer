@@ -13,7 +13,7 @@ This document tracks the detailed implementation status of the AI Copilot infras
 - [x] **IChatService Interface**: Abstracted base for all AI providers.
 - [x] **Streaming Architecture**: End-to-end support for token-by-token processing.
 - [x] **Function/Tool Calling**: Logic for AI-triggered engine commands (`GIVE_ITEM`, `SET_SWITCH`).
-- [x] **Offline Support**: Skeletal Llama.cpp provider for edge inference.
+- [x] **Offline Support Shape**: `IChatService` supports deterministic in-tree test providers; live offline inference remains out of tree.
 
 ### 3. Native UI (ChatWindow)
 - [x] **Dynamic Layout**: Word-wrapping for varying window widths.
@@ -22,7 +22,7 @@ This document tracks the detailed implementation status of the AI Copilot infras
 
 ### 4. Persistence & Security
 - [x] **Differential Snapshots**: History serialization avoids redundant system prompt blobs.
-- [x] **Encrypted Sync Plumbing**: `AISyncCoordinator` is wired to the `ICloudService` abstraction, but the in-tree implementation remains the process-local `LocalInMemoryCloudService` (`CloudServiceStub` survives only as a compatibility alias); this is plumbing coverage only, not a production cloud-sync capability.
+- [x] **Encrypted Sync Plumbing**: `AISyncCoordinator` is wired to the `ICloudService` abstraction, but the in-tree implementation remains the process-local `LocalInMemoryCloudService`; this is plumbing coverage only, not a production cloud-sync capability.
 
 > Cloud-sync truthfulness note: no in-tree AI workflow currently provides operational cross-device persistence. Any real cloud sync claim requires a non-stub `ICloudService` implementation outside the current tree.
 
@@ -33,7 +33,7 @@ This document tracks the detailed implementation status of the AI Copilot infras
 | **Command Robustness** | `tests/unit/test_ai_bridge_regex.cpp` covers whitespace/commentary variants. | [x] |
 | **BGM Performance** | AI-driven crossfades verified in `MapScene` update loop. | [x] |
 | **Memory Management** | Chat history limits and trimming implemented in `ChatbotComponent`. | [x] |
-| **API Abstraction** | Model-agnostic request format supports GPT-4o, Claude 3.5, and Local models. | [x] |
+| **API Abstraction** | Model-agnostic `IChatService` request shape exists, but real provider transport is not in-tree; only `MockChatService` is a concrete deterministic provider today. | [x] |
 
 ## Future Expansion
 - [ ] **Image Generation Bridge**: Natural language to sprite/icon generation hooks.

@@ -11,7 +11,9 @@ TEST_CASE("CameraSystem identifies active camera", "[render][camera]") {
     SECTION("Finds the first active camera") {
         auto camId = world.CreateEntity();
         world.AddComponent(camId, urpg::TransformComponent{
-            {urpg::Fixed32::FromInt(0), urpg::Fixed32::FromInt(5), urpg::Fixed32::FromInt(-10)}
+            {urpg::Fixed32::FromInt(0), urpg::Fixed32::FromInt(5), urpg::Fixed32::FromInt(-10)},
+            {},
+            {}
         });
         world.AddComponent(camId, urpg::CameraComponent{urpg::Fixed32::FromInt(90), urpg::Fixed32::FromInt(1), urpg::Fixed32::FromRaw(65), urpg::Fixed32::FromInt(100), true});
 

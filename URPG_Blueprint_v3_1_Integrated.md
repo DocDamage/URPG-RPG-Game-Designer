@@ -23,7 +23,7 @@ Cross-cutting debt closure, documentation-truth alignment, and intake-governance
 | Editor Workspace Wave 5 | Complete | 100% | Full technical delivery of Editor Workspace tracks (5.1-5.4). Includes Workspace Kernel, Undo/Redo tracking, Viewport Overlays, and Property Inspector Auto-Generation. |
 | ImGui UI Panels Wave 6 | Complete | 100% | Full implementation of Editor Shell, Scene Hierarchy Panel, Asset Browser, Property Inspector, and Theme Styling. |
 | Plugin & Scripting Wave 7 | Complete | 100% | Full technical delivery of Extensibility tracks (7.1-7.4). Includes Plugin Host, C++ API Exports, JavaScript Bridge, and Scripting Console UI. |
-| Phase 15 Final Integration | Complete | 100% | Assembly of all Wave tracks (1-7) into the unified **URPG v3.1 Gold distribution**. Includes global `EngineAssembly` and `MainAssembly` entry points. |
+| Phase 15 Final Integration | Complete | 100% | Assembly of all Wave tracks (1-7) into the unified **URPG v3.1 Gold distribution**. Historical planning language referenced global `EngineAssembly` / `MainAssembly` entry points; the active runtime entry point in tree is `EngineShell`. |
 | CI Gate Lanes | Active | 100% | PR/nightly/weekly labels are active, with nightly renderer-tier matrix + artifact uploads and snapshot validation. |
 | Validation Baseline | Passing | 5098 assertions / 400 cases | `urpg_tests` (Debug, `ctest -C Debug -L pr`, 2026-04-17). |
 

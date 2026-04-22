@@ -4,9 +4,9 @@
 #include <vector>
 #include <memory>
 #include <functional>
-#include "editor/workspace_kernel.h"
-#include "editor/undo_history.h"
-#include "editor/property_inspector.h"
+#include "workspace_kernel.h"
+#include "undo_history.h"
+#include "property_inspector.h"
 
 namespace urpg::editor {
 
@@ -31,7 +31,11 @@ namespace urpg::editor {
     };
 
     /**
-     * @brief The main Editor Shell that hosts and manages panel lifecycle.
+     * @brief Lightweight panel host for incubating editor UI helpers.
+     *
+     * This type only stores panel instances and provides a placeholder render
+     * hook for callers that already own the ImGui frame lifecycle. It does not
+     * bootstrap the editor runtime, own startup/shutdown, or manage threads.
      */
     class EditorShell {
     public:
@@ -40,7 +44,8 @@ namespace urpg::editor {
         }
 
         void renderUI() {
-            // This would normally be called between ImGui::NewFrame() and ImGui::Render()
+            // Placeholder seam only: callers must supply the actual ImGui frame
+            // and window lifecycle if this host is ever wired into a runtime.
             // for (auto& panel : m_panels) {
             //     if (panel->isOpen()) {
             //         if (ImGui::Begin(panel->getTitle().c_str(), &panel->m_isOpen)) {

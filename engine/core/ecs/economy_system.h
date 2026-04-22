@@ -23,7 +23,11 @@ public:
     TransactionResult buyItem(World& world, EntityID buyer, EntityID merchant, const std::string& itemId, uint32_t price) {
         auto* buyerCurrency = world.GetComponent<CurrencyComponent>(buyer);
         auto* buyerInventory = world.GetComponent<InventoryComponent>(buyer);
-        auto* merchantData = world.GetComponent<MerchantComponent>(merchant);
+        auto* merchantComponent = world.GetComponent<MerchantComponent>(merchant);
+
+        if (!merchantComponent) {
+            return {false, "Merchant unavailable"};
+        }
 
         if (!buyerCurrency || buyerCurrency->amount < price) {
             return {false, "Not enough gold"};

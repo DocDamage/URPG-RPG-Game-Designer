@@ -30,10 +30,13 @@ public:
         GameplayTagContainer requiredTags;    // Must have these to activate
         GameplayTagContainer blockingTags;    // Cannot have these to activate
         
-        // Conditions are string-based expressions evaluated by the Scripting Runtime
-        // Pass: "source.hp > 10" or "target.has_status('Poison')"
-        std::string activeCondition;          // Must evaluate true to activate
-        std::string passiveCondition;         // While active, if false, ability cancels
+        // Scripted condition strings are accepted in authored data for diagnostics
+        // and future compatibility, but the in-tree runtime does not evaluate them.
+        // Non-empty activeCondition values fail with an explicit
+        // "active_condition_unsupported" diagnostic, and passiveCondition remains
+        // out of scope for runtime cancellation unless a future evaluator is added.
+        std::string activeCondition;
+        std::string passiveCondition;
 
         float cooldownSeconds = 0.0f;
         int32_t mpCost = 0;
@@ -78,7 +81,8 @@ public:
     float cooldownTime = 0.0f;
 
     /**
-     * @brief Scripted condition for activation.
+     * @brief Legacy/fallback authored activation condition string.
+     * The in-tree runtime does not evaluate this field.
      */
     std::string activeCondition;
 

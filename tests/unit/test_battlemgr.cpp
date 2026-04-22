@@ -1,6 +1,8 @@
 #include "runtimes/compat_js/battle_manager.h"
+#include "runtimes/compat_js/audio_manager.h"
 #include "runtimes/compat_js/data_manager.h"
 
+#include <catch2/catch_approx.hpp>
 #include <catch2/catch_test_macros.hpp>
 #include <algorithm>
 #include <filesystem>
@@ -358,6 +360,9 @@ TEST_CASE("BattleManager: battle environment metadata is retained through JS hel
 
     BattleManager::registerAPI(ctx);
 
+    auto& battleManager = BattleManager::instance();
+    battleManager.setBattleTransition(3);
+
     urpg::Value ruinsNight;
     ruinsNight.v = std::string("ruins_night");
 
@@ -391,6 +396,8 @@ TEST_CASE("BattleManager: battle environment metadata is retained through JS hel
                                                                 urpg::Value::Int(95)});
     REQUIRE(setDefeatMe.success);
 
+    REQUIRE(battleManager.getBattleTransition() == 3);
+
     auto backgroundResult = ctx.callMethod("BattleManager", "getBattleBackground", {});
     REQUIRE(backgroundResult.success);
     REQUIRE(std::get<std::string>(backgroundResult.value.v) == "ruins_night");
@@ -418,6 +425,81 @@ TEST_CASE("BattleManager: battle environment metadata is retained through JS hel
     REQUIRE(std::get<std::string>(defeat.at("name").v) == "defeat_dirge");
     REQUIRE(std::get<double>(defeat.at("volume").v) == 60.0);
     REQUIRE(std::get<double>(defeat.at("pitch").v) == 95.0);
+    REQUIRE(BattleManager::getMethodDeviation("setBattleTransition").find("metadata-only") != std::string::npos);
+}
+
+TEST_CASE("BattleManager: battle audio cues route into compat AudioManager state", "[battlemgr][audio]") {
+    AudioManager& audio = AudioManager::instance();
+    audio.stopBgm();
+    audio.stopBgs();
+    audio.stopMe();
+    audio.stopSe();
+    audio.setMasterVolume(1.0);
+    audio.setBusVolume(AudioBus::BGM, 1.0);
+    audio.setBusVolume(AudioBus::ME, 1.0);
+
+    BattleManager bm;
+    bm.setBattleBgm("battle_theme", 72.5, 108.0);
+    bm.setVictoryMe("victory_fanfare", 80.0, 105.0);
+    bm.setDefeatMe("defeat_dirge", 60.0, 95.0);
+
+    SECTION("startBattle swaps to battle BGM and escape restores the saved BGM") {
+        audio.playBgm("field_theme", 64.0, 100.0, 12);
+        REQUIRE(audio.getCurrentBgm().name == "field_theme");
+
+        bm.startBattle();
+        REQUIRE(audio.isBgmPlaying());
+        REQUIRE(audio.getCurrentBgm().name == "battle_theme");
+        REQUIRE(audio.getCurrentBgm().volume == Catch::Approx(72.5));
+        REQUIRE(audio.getCurrentBgm().pitch == Catch::Approx(108.0));
+
+        bm.endBattle(BattleResult::ESCAPE);
+        REQUIRE(audio.isBgmPlaying());
+        REQUIRE(audio.getCurrentBgm().name == "field_theme");
+        REQUIRE(audio.getCurrentBgm().volume == Catch::Approx(64.0));
+        REQUIRE(audio.getCurrentBgm().pitch == Catch::Approx(100.0));
+        REQUIRE(audio.getCurrentBgm().pos == 12);
+    }
+
+    SECTION("changing battle BGM during battle updates live compat playback") {
+        audio.playBgm("field_theme", 64.0, 100.0, 0);
+        bm.startBattle();
+        REQUIRE(audio.getCurrentBgm().name == "battle_theme");
+
+        bm.changeBattleBgm("boss_theme", 90.0, 120.0);
+        REQUIRE(audio.isBgmPlaying());
+        REQUIRE(audio.getCurrentBgm().name == "boss_theme");
+        REQUIRE(audio.getCurrentBgm().volume == Catch::Approx(90.0));
+        REQUIRE(audio.getCurrentBgm().pitch == Catch::Approx(120.0));
+
+        bm.endBattle(BattleResult::ABORT);
+    }
+
+    SECTION("victory and defeat route ME playback and stop battle BGM") {
+        bm.startBattle();
+        REQUIRE(audio.isBgmPlaying());
+        REQUIRE(audio.getCurrentBgm().name == "battle_theme");
+
+        bm.endBattle(BattleResult::WIN);
+        REQUIRE_FALSE(audio.isBgmPlaying());
+        AudioChannel* me = audio.getChannel("me");
+        REQUIRE(me != nullptr);
+        REQUIRE(me->isPlaying());
+        REQUIRE(me->getFilename() == "victory_fanfare");
+
+        audio.stopMe();
+        audio.playBgm("field_theme", 50.0, 100.0, 0);
+        bm.startBattle();
+        bm.endBattle(BattleResult::DEFEAT);
+        REQUIRE_FALSE(audio.isBgmPlaying());
+        me = audio.getChannel("me");
+        REQUIRE(me != nullptr);
+        REQUIRE(me->isPlaying());
+        REQUIRE(me->getFilename() == "defeat_dirge");
+    }
+
+    audio.stopMe();
+    audio.stopBgm();
 }
 
 TEST_CASE("BattleManager: direct animation playback runs deterministic lifecycle", "[battlemgr]") {

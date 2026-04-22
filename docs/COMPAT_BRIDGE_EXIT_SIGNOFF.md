@@ -18,6 +18,7 @@ Compat bridge exit is intentionally scoped as an import, validation, and migrati
 | Migration/report tooling | Structured JSONL/report/export surfaces for compat diagnostics and migration planning | `tests/compat/test_compat_plugin_failure_diagnostics.cpp`, `editor/diagnostics/diagnostics_workspace.cpp` |
 
 The authoritative claim is bounded: compat is trustworthy enough to support migration and verification without overstating runtime parity.
+This is also the accepted TD-03 strategy in-tree: the compat harness is the only supported scripting/plugin bridge, and a live JavaScript runtime is future feature scope rather than unfinished current debt.
 
 ---
 

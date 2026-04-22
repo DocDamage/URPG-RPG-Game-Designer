@@ -67,6 +67,20 @@ std::filesystem::path uniqueTempDirectoryPath(std::string_view stem) {
            (std::string(stem) + "_" + std::to_string(ticks));
 }
 
+PluginInfo makePluginInfo(
+    std::string name,
+    std::string version = "1.0",
+    std::string author = {},
+    std::string description = {}
+) {
+    PluginInfo info;
+    info.name = std::move(name);
+    info.version = std::move(version);
+    info.author = std::move(author);
+    info.description = std::move(description);
+    return info;
+}
+
 void writeTextFile(const std::filesystem::path& path, std::string_view contents) {
     std::ofstream out(path, std::ios::binary);
     REQUIRE(out.is_open());
@@ -251,12 +265,12 @@ TEST_CASE("PluginManager: Command registration", "[plugin_manager]") {
     PluginManager& pm = PluginManager::instance();
     
     SECTION("Register command") {
-        pm.registerPlugin({"CommandTestPlugin", "1.0", "", ""});
+        pm.registerPlugin(makePluginInfo("CommandTestPlugin"));
         
         bool registered = pm.registerCommand(
             "CommandTestPlugin",
             "testCommand",
-            [](const std::vector<urpg::Value>& args) -> urpg::Value {
+            [](const std::vector<urpg::Value>&) -> urpg::Value {
                 return urpg::Value();
             },
             "A test command"
@@ -269,7 +283,7 @@ TEST_CASE("PluginManager: Command registration", "[plugin_manager]") {
     }
     
     SECTION("Cannot register command with null handler") {
-        pm.registerPlugin({"NullHandlerPlugin", "1.0", "", ""});
+        pm.registerPlugin(makePluginInfo("NullHandlerPlugin"));
         
         bool registered = pm.registerCommand(
             "NullHandlerPlugin",
@@ -283,7 +297,7 @@ TEST_CASE("PluginManager: Command registration", "[plugin_manager]") {
     }
     
     SECTION("Unregister command") {
-        pm.registerPlugin({"UnregCommandPlugin", "1.0", "", ""});
+        pm.registerPlugin(makePluginInfo("UnregCommandPlugin"));
         
         pm.registerCommand(
             "UnregCommandPlugin",
@@ -300,7 +314,7 @@ TEST_CASE("PluginManager: Command registration", "[plugin_manager]") {
     }
     
     SECTION("Unregister all commands for plugin") {
-        pm.registerPlugin({"MultiCommandPlugin", "1.0", "", ""});
+        pm.registerPlugin(makePluginInfo("MultiCommandPlugin"));
         
         pm.registerCommand("MultiCommandPlugin", "cmd1", [](const std::vector<urpg::Value>&) -> urpg::Value { return {}; });
         pm.registerCommand("MultiCommandPlugin", "cmd2", [](const std::vector<urpg::Value>&) -> urpg::Value { return {}; });
@@ -316,7 +330,7 @@ TEST_CASE("PluginManager: Command registration", "[plugin_manager]") {
     }
 
     SECTION("Get plugin commands returns deterministic lexical order") {
-        pm.registerPlugin({"SortedCommandPlugin", "1.0", "", ""});
+        pm.registerPlugin(makePluginInfo("SortedCommandPlugin"));
 
         pm.registerCommand("SortedCommandPlugin", "zeta", [](const std::vector<urpg::Value>&) -> urpg::Value { return {}; });
         pm.registerCommand("SortedCommandPlugin", "alpha", [](const std::vector<urpg::Value>&) -> urpg::Value { return {}; });
@@ -336,13 +350,13 @@ TEST_CASE("PluginManager: Command execution", "[plugin_manager]") {
     PluginManager& pm = PluginManager::instance();
     
     SECTION("Execute command") {
-        pm.registerPlugin({"ExecPlugin", "1.0", "", ""});
+        pm.registerPlugin(makePluginInfo("ExecPlugin"));
         
         bool wasExecuted = false;
         pm.registerCommand(
             "ExecPlugin",
             "executeMe",
-            [&wasExecuted](const std::vector<urpg::Value>& args) -> urpg::Value {
+            [&wasExecuted](const std::vector<urpg::Value>&) -> urpg::Value {
                 wasExecuted = true;
                 return urpg::Value();
             }
@@ -355,7 +369,7 @@ TEST_CASE("PluginManager: Command execution", "[plugin_manager]") {
     }
     
     SECTION("Execute command by full name") {
-        pm.registerPlugin({"FullNamePlugin", "1.0", "", ""});
+        pm.registerPlugin(makePluginInfo("FullNamePlugin"));
         
         bool wasExecuted = false;
         pm.registerCommand(
@@ -389,7 +403,7 @@ TEST_CASE("PluginManager: Command execution", "[plugin_manager]") {
     }
 
     SECTION("Execute command by full name supports commands with underscores") {
-        REQUIRE(pm.registerPlugin({"FullNameCommandPlugin", "1.0", "", ""}));
+        REQUIRE(pm.registerPlugin(makePluginInfo("FullNameCommandPlugin")));
         REQUIRE(pm.registerCommand(
             "FullNameCommandPlugin",
             "command_with_underscore",
@@ -462,7 +476,7 @@ TEST_CASE("PluginManager: Command execution", "[plugin_manager]") {
     }
 
     SECTION("Execute command asynchronously with FIFO callback order after main-thread dispatch") {
-        pm.registerPlugin({"AsyncPlugin", "1.0", "", ""});
+        pm.registerPlugin(makePluginInfo("AsyncPlugin"));
         pm.registerCommand(
             "AsyncPlugin",
             "echoInt",
@@ -530,7 +544,7 @@ TEST_CASE("PluginManager: Command execution", "[plugin_manager]") {
     }
 
     SECTION("Async callbacks reject dispatch from non-owning thread") {
-        pm.registerPlugin({"AsyncPlugin", "1.0", "", ""});
+        pm.registerPlugin(makePluginInfo("AsyncPlugin"));
         pm.registerCommand(
             "AsyncPlugin",
             "echoInt",
@@ -595,7 +609,7 @@ TEST_CASE("PluginManager: Command execution", "[plugin_manager]") {
     }
 
     SECTION("Async callbacks remain queued after rejected foreign-thread drain until owning thread dispatches them") {
-        pm.registerPlugin({"AsyncPlugin", "1.0", "", ""});
+        pm.registerPlugin(makePluginInfo("AsyncPlugin"));
         pm.registerCommand(
             "AsyncPlugin",
             "echoInt",
@@ -684,7 +698,7 @@ TEST_CASE("PluginManager: Command execution", "[plugin_manager]") {
     }
 
     SECTION("Async callback dispatch clears stale foreign-thread error after successful owning-thread drain") {
-        pm.registerPlugin({"AsyncPlugin", "1.0", "", ""});
+        pm.registerPlugin(makePluginInfo("AsyncPlugin"));
         pm.registerCommand(
             "AsyncPlugin",
             "echoInt",
@@ -1454,7 +1468,7 @@ TEST_CASE("PluginManager: Parameter management", "[plugin_manager]") {
     PluginManager& pm = PluginManager::instance();
     
     SECTION("Set and get parameter") {
-        pm.registerPlugin({"ParamPlugin", "1.0", "", ""});
+        pm.registerPlugin(makePluginInfo("ParamPlugin"));
         
         urpg::Value val;
         val.v = std::string("test_value");
@@ -1468,7 +1482,7 @@ TEST_CASE("PluginManager: Parameter management", "[plugin_manager]") {
     }
     
     SECTION("Get parameter with default") {
-        pm.registerPlugin({"DefaultParamPlugin", "1.0", "", ""});
+        pm.registerPlugin(makePluginInfo("DefaultParamPlugin"));
         
         urpg::Value defaultVal;
         defaultVal.v = std::string("default");
@@ -1480,7 +1494,7 @@ TEST_CASE("PluginManager: Parameter management", "[plugin_manager]") {
     }
     
     SECTION("Get all parameters for plugin") {
-        pm.registerPlugin({"MultiParamPlugin", "1.0", "", ""});
+        pm.registerPlugin(makePluginInfo("MultiParamPlugin"));
         
         urpg::Value val1, val2;
         val1.v = std::string("value1");
@@ -1496,7 +1510,7 @@ TEST_CASE("PluginManager: Parameter management", "[plugin_manager]") {
     }
 
     SECTION("Parse parameters from JSON object") {
-        pm.registerPlugin({"JsonParamPlugin", "1.0", "", ""});
+        pm.registerPlugin(makePluginInfo("JsonParamPlugin"));
 
         REQUIRE(pm.parseParameters("JsonParamPlugin", R"({"enabled":true,"retries":3,"name":"fixture"})"));
 
@@ -1609,7 +1623,7 @@ TEST_CASE("PluginManager: Event handlers", "[plugin_manager]") {
         
         int32_t handlerId = pm.registerEventHandler(
             PluginManager::PluginEvent::ON_LOAD,
-            [&eventTriggered](const std::string& pluginName, PluginManager::PluginEvent) {
+            [&eventTriggered](const std::string&, PluginManager::PluginEvent) {
                 eventTriggered = true;
             }
         );
@@ -1645,7 +1659,7 @@ TEST_CASE("PluginManager: Execution context", "[plugin_manager]") {
     }
     
     SECTION("Context is set during execution") {
-        pm.registerPlugin({"ContextPlugin", "1.0", "", ""});
+        pm.registerPlugin(makePluginInfo("ContextPlugin"));
         
         bool contextWasSet = false;
         pm.registerCommand(
@@ -1664,7 +1678,7 @@ TEST_CASE("PluginManager: Execution context", "[plugin_manager]") {
     }
     
     SECTION("Get current plugin during execution") {
-        pm.registerPlugin({"CurrentPluginTest", "1.0", "", ""});
+        pm.registerPlugin(makePluginInfo("CurrentPluginTest"));
         
         std::string currentPlugin;
         pm.registerCommand(
@@ -1696,7 +1710,7 @@ TEST_CASE("PluginManager: Error handling", "[plugin_manager]") {
     }
     
     SECTION("Error handler is called on exception") {
-        pm.registerPlugin({"ErrorPlugin", "1.0", "", ""});
+        pm.registerPlugin(makePluginInfo("ErrorPlugin"));
         
         bool errorHandlerCalled = false;
         pm.setErrorHandler([&errorHandlerCalled](const std::string&, const std::string&, const std::string&) {
@@ -1720,7 +1734,7 @@ TEST_CASE("PluginManager: Error handling", "[plugin_manager]") {
 
     SECTION("Unknown command exceptions are tagged as crash prevented diagnostics") {
         pm.clearFailureDiagnostics();
-        REQUIRE(pm.registerPlugin({"CrashPreventedPlugin", "1.0", "", ""}));
+        REQUIRE(pm.registerPlugin(makePluginInfo("CrashPreventedPlugin")));
         REQUIRE(pm.registerCommand(
             "CrashPreventedPlugin",
             "throwUnknown",

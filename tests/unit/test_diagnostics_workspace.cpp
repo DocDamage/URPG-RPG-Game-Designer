@@ -44,6 +44,22 @@ urpg::scene::BattleParticipant* findParticipant(std::vector<urpg::scene::BattleP
     return nullptr;
 }
 
+urpg::message::DialoguePage makeDialoguePage(std::string id,
+                                             std::string body,
+                                             urpg::message::MessagePresentationVariant variant,
+                                             bool wait_for_advance = true,
+                                             std::vector<urpg::message::ChoiceOption> choices = {},
+                                             int32_t default_choice_index = 0) {
+    urpg::message::DialoguePage page;
+    page.id = std::move(id);
+    page.body = std::move(body);
+    page.variant = std::move(variant);
+    page.wait_for_advance = wait_for_advance;
+    page.choices = std::move(choices);
+    page.default_choice_index = default_choice_index;
+    return page;
+}
+
 } // namespace
 
 TEST_CASE("DiagnosticsWorkspace - Refresh updates compat and save tabs", "[editor][diagnostics][integration]") {
@@ -70,8 +86,8 @@ TEST_CASE("DiagnosticsWorkspace - Refresh updates compat and save tabs", "[edito
     workspace.bindSaveRuntime(catalog, coordinator);
     urpg::message::MessageFlowRunner messageRunner;
     messageRunner.begin({
-        {"speaker_a", "Welcome back.", urpg::message::variantFromCompatRoute("speaker", "Alicia", 3), true, {}, 0},
-        {"narration_b", "", urpg::message::variantFromCompatRoute("narration", "Alicia", 3), true, {}, 0},
+        makeDialoguePage("speaker_a", "Welcome back.", urpg::message::variantFromCompatRoute("speaker", "Alicia", 3)),
+        makeDialoguePage("narration_b", "", urpg::message::variantFromCompatRoute("narration", "Alicia", 3)),
     });
     urpg::message::RichTextLayoutEngine messageLayout;
     workspace.bindMessageRuntime(messageRunner, messageLayout);
@@ -2359,8 +2375,8 @@ TEST_CASE("DiagnosticsWorkspace - Message inspector workflow actions are exposed
 
     urpg::message::MessageFlowRunner runner;
     runner.begin({
-        {"speaker_a", "Welcome back.", urpg::message::variantFromCompatRoute("speaker", "Alicia", 3), true, {}, 0},
-        {"narration_b", "", urpg::message::variantFromCompatRoute("narration", "Alicia", 3), true, {}, 0},
+        makeDialoguePage("speaker_a", "Welcome back.", urpg::message::variantFromCompatRoute("speaker", "Alicia", 3)),
+        makeDialoguePage("narration_b", "", urpg::message::variantFromCompatRoute("narration", "Alicia", 3)),
     });
     urpg::message::RichTextLayoutEngine layout;
 
@@ -2404,8 +2420,8 @@ TEST_CASE("DiagnosticsWorkspace - Message inspector actions keep exported snapsh
 
     urpg::message::MessageFlowRunner runner;
     runner.begin({
-        {"speaker_a", "Welcome back.", urpg::message::variantFromCompatRoute("speaker", "Alicia", 3), true, {}, 0},
-        {"narration_b", "", urpg::message::variantFromCompatRoute("narration", "Alicia", 3), true, {}, 0},
+        makeDialoguePage("speaker_a", "Welcome back.", urpg::message::variantFromCompatRoute("speaker", "Alicia", 3)),
+        makeDialoguePage("narration_b", "", urpg::message::variantFromCompatRoute("narration", "Alicia", 3)),
     });
     urpg::message::RichTextLayoutEngine layout;
     workspace.bindMessageRuntime(runner, layout);
@@ -2424,7 +2440,7 @@ TEST_CASE("DiagnosticsWorkspace - Message inspector actions keep exported snapsh
 
     urpg::message::MessageFlowRunner runner2;
     runner2.begin({
-        {"page_c", "Hello.", urpg::message::variantFromCompatRoute("speaker", "Bob", 1), true, {}, 0},
+        makeDialoguePage("page_c", "Hello.", urpg::message::variantFromCompatRoute("speaker", "Bob", 1)),
     });
     workspace.bindMessageRuntime(runner2, layout);
     exported = nlohmann::json::parse(workspace.exportAsJson());
@@ -2574,8 +2590,8 @@ TEST_CASE("DiagnosticsWorkspace - Message edit round-trip through workspace",
 
     urpg::message::MessageFlowRunner runner;
     runner.begin({
-        {"page_a", "Hello world.", urpg::message::variantFromCompatRoute("speaker", "Alice", 1), true, {}, 0},
-        {"page_b", "Goodbye.", urpg::message::variantFromCompatRoute("narration", "", 0), true, {}, 0},
+        makeDialoguePage("page_a", "Hello world.", urpg::message::variantFromCompatRoute("speaker", "Alice", 1)),
+        makeDialoguePage("page_b", "Goodbye.", urpg::message::variantFromCompatRoute("narration", "", 0)),
     });
     urpg::message::RichTextLayoutEngine layout;
     workspace.bindMessageRuntime(runner, layout);
@@ -2610,7 +2626,7 @@ TEST_CASE("DiagnosticsWorkspace - Message state export and import round-trip",
 
     urpg::message::MessageFlowRunner runner;
     runner.begin({
-        {"page_a", "Hello world.", urpg::message::variantFromCompatRoute("speaker", "Alice", 1), true, {}, 0},
+        makeDialoguePage("page_a", "Hello world.", urpg::message::variantFromCompatRoute("speaker", "Alice", 1)),
     });
     urpg::message::RichTextLayoutEngine layout;
     workspace.bindMessageRuntime(runner, layout);
@@ -2655,7 +2671,7 @@ TEST_CASE("DiagnosticsWorkspace - Message workspace actions keep snapshot curren
 
     urpg::message::MessageFlowRunner runner;
     runner.begin({
-        {"page_a", "Hello world.", urpg::message::variantFromCompatRoute("speaker", "Alice", 1), true, {}, 0},
+        makeDialoguePage("page_a", "Hello world.", urpg::message::variantFromCompatRoute("speaker", "Alice", 1)),
     });
     urpg::message::RichTextLayoutEngine layout;
     workspace.bindMessageRuntime(runner, layout);

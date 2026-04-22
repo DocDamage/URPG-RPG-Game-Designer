@@ -125,7 +125,6 @@ private:
     int m_currentAtlasFrameIndex = 0;
     float m_elapsedTime = 0.0f;
 
-    bool m_isLooping = true;
     bool m_isWalking = false;
     bool m_usesAtlas = false;
     std::string m_currentAnimationId;

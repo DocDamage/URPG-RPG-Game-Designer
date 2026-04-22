@@ -1526,6 +1526,30 @@ TEST_CASE("Sprite_Character scale", "[compat][sprite]") {
     REQUIRE(sprite.getScaleY() == 1.5);
 }
 
+TEST_CASE("Sprite_Character source rect tracks character index direction and pattern", "[compat][sprite]") {
+    Sprite_Character::CreateParams params;
+    params.characterName = "Actor1";
+    params.characterIndex = 5;
+
+    Sprite_Character sprite(params);
+    REQUIRE(sprite.getSourceRect().x == 144);
+    REQUIRE(sprite.getSourceRect().y == 192);
+    REQUIRE(sprite.getSourceRect().width == 48);
+    REQUIRE(sprite.getSourceRect().height == 48);
+
+    sprite.setDirection(6);
+    REQUIRE(sprite.getSourceRect().x == 144);
+    REQUIRE(sprite.getSourceRect().y == 288);
+
+    sprite.setPattern(2);
+    REQUIRE(sprite.getSourceRect().x == 240);
+    REQUIRE(sprite.getSourceRect().y == 288);
+
+    sprite.setCharacterIndex(7);
+    REQUIRE(sprite.getSourceRect().x == 528);
+    REQUIRE(sprite.getSourceRect().y == 288);
+}
+
 TEST_CASE("Sprite_Character bitmap handles reload and release deterministically", "[compat][sprite]") {
     Sprite_Character::CreateParams params;
     params.characterName = "Actor1";
@@ -1550,6 +1574,41 @@ TEST_CASE("Sprite_Character bitmap handles reload and release deterministically"
     sprite.setCharacterName("");
     REQUIRE_FALSE(sprite.getBitmapInfo().has_value());
     REQUIRE_FALSE(Sprite_Character::lookupBitmapInfo(reloaded->handle).has_value());
+}
+
+TEST_CASE("Sprite_Character update advances deterministic pattern cycle without reloading bitmap", "[compat][sprite]") {
+    Sprite_Character::CreateParams params;
+    params.characterName = "Actor1";
+    params.characterIndex = 1;
+
+    Sprite_Character sprite(params);
+    const auto initialBitmap = sprite.getBitmapInfo();
+    REQUIRE(initialBitmap.has_value());
+    REQUIRE(sprite.getPattern() == 0);
+    REQUIRE(sprite.getSourceRect().x == 144);
+    REQUIRE(sprite.getSourceRect().y == 0);
+
+    for (int i = 0; i < 11; ++i) {
+        sprite.update();
+    }
+
+    REQUIRE(sprite.getPattern() == 0);
+    REQUIRE(sprite.getBitmapInfo()->handle == initialBitmap->handle);
+
+    sprite.update();
+    REQUIRE(sprite.getPattern() == 1);
+    REQUIRE(sprite.getSourceRect().x == 192);
+    REQUIRE(sprite.getSourceRect().y == 0);
+    REQUIRE(sprite.getBitmapInfo()->handle == initialBitmap->handle);
+
+    for (int i = 0; i < 24; ++i) {
+        sprite.update();
+    }
+
+    REQUIRE(sprite.getPattern() == 0);
+    REQUIRE(sprite.getSourceRect().x == 144);
+    REQUIRE(sprite.getSourceRect().y == 0);
+    REQUIRE(sprite.getBitmapInfo()->handle == initialBitmap->handle);
 }
 
 TEST_CASE("Sprite_Character destructor releases owned bitmap handles", "[compat][sprite]") {
@@ -1609,6 +1668,30 @@ TEST_CASE("Sprite_Actor startMotion", "[compat][sprite]") {
     sprite.startMotion(3);  // Guard motion
     
     REQUIRE(sprite.getMotion() == 3);
+}
+
+TEST_CASE("Sprite_Actor startMotion keeps looping motions active across updates", "[compat][sprite]") {
+    Sprite_Actor sprite(Sprite_Actor::CreateParams{});
+    sprite.startMotion(3);  // Guard motion
+
+    for (int i = 0; i < 36; ++i) {
+        sprite.update();
+        REQUIRE(sprite.getMotion() == 3);
+    }
+}
+
+TEST_CASE("Sprite_Actor startMotion returns non-looping motions to idle", "[compat][sprite]") {
+    Sprite_Actor sprite(Sprite_Actor::CreateParams{});
+    sprite.startMotion(7);  // Swing motion
+    REQUIRE(sprite.getMotion() == 7);
+
+    for (int i = 0; i < 17; ++i) {
+        sprite.update();
+        REQUIRE(sprite.getMotion() == 7);
+    }
+
+    sprite.update();
+    REQUIRE(sprite.getMotion() == 0);
 }
 
 TEST_CASE("Sprite_Actor startEffect", "[compat][sprite]") {
@@ -1864,6 +1947,38 @@ TEST_CASE("WindowCompatManager registerAllAPIs", "[compat][manager]") {
     
     // Should not throw
     manager.registerAllAPIs(ctx);
+}
+
+TEST_CASE("Sprite sprite APIs remain explicitly stubbed in harness bindings", "[compat][manager][quickjs]") {
+    WindowCompatManager manager;
+    QuickJSContext ctx;
+    REQUIRE(ctx.initialize(QuickJSConfig{}));
+
+    manager.registerAllAPIs(ctx);
+
+    const auto characterStatus = ctx.getAPIStatus("Sprite_Character.setDirection");
+    REQUIRE(characterStatus.status == CompatStatus::STUB);
+    REQUIRE(characterStatus.deviationNote.find("per-instance Sprite_Character state") != std::string::npos);
+
+    const auto actorStatus = ctx.getAPIStatus("Sprite_Actor.startMotion");
+    REQUIRE(actorStatus.status == CompatStatus::STUB);
+    REQUIRE(actorStatus.deviationNote.find("per-instance Sprite_Actor state") != std::string::npos);
+
+    const auto animationStatus = ctx.getAPIStatus("Sprite_Actor.isAnimationPlaying");
+    REQUIRE(animationStatus.status == CompatStatus::STUB);
+    REQUIRE(animationStatus.deviationNote.find("per-instance Sprite_Actor state") != std::string::npos);
+
+    const auto characterResult = ctx.callMethod("Sprite_Character", "setDirection", {urpg::Value::Int(6)});
+    REQUIRE(characterResult.success);
+    REQUIRE(std::holds_alternative<std::monostate>(characterResult.value.v));
+
+    const auto actorResult = ctx.callMethod("Sprite_Actor", "startMotion", {urpg::Value::Int(3)});
+    REQUIRE(actorResult.success);
+    REQUIRE(std::holds_alternative<std::monostate>(actorResult.value.v));
+
+    const auto animationResult = ctx.callMethod("Sprite_Actor", "isAnimationPlaying", {});
+    REQUIRE(animationResult.success);
+    REQUIRE(std::holds_alternative<std::monostate>(animationResult.value.v));
 }
 
 TEST_CASE("Window_Selectable JS bindings return non-nil values", "[compat][window]") {

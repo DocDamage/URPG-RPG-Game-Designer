@@ -81,7 +81,8 @@ public:
                     node.choices.push_back({
                         .id = c.value("id", ""),
                         .label = c.value("label", ""),
-                        .enabled = c.value("enabled", true)
+                        .enabled = c.value("enabled", true),
+                        .disabled_reason = c.value("disabled_reason", "")
                     });
                 }
             }

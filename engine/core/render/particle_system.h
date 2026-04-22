@@ -18,10 +18,8 @@ struct Particle {
  */
 class ParticleSystem {
 public:
-    void update(World& world, float deltaTime) {
-        Fixed32 dt = Fixed32::FromRaw(static_cast<int32_t>(deltaTime * 65536.0f));
-
-        world.ForEachWith<TransformComponent, ParticleEmitterComponent>([&](EntityID id, const TransformComponent& trans, const ParticleEmitterComponent& emitter) {
+    void update(World& world, [[maybe_unused]] float deltaTime) {
+        world.ForEachWith<TransformComponent, ParticleEmitterComponent>([&](EntityID, const TransformComponent&, const ParticleEmitterComponent&) {
             // Particle simulation logic would happen here.
             // For now, we gather active emitters for the renderer.
         });

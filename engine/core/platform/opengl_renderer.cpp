@@ -4,7 +4,14 @@
 #define STB_EASY_FONT_IMPLEMENTATION
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_opengl.h>
+#if defined(__clang__)
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wunused-function"
+#endif
 #include <stb_easy_font.h>
+#if defined(__clang__)
+#pragma clang diagnostic pop
+#endif
 
 #include <algorithm>
 #include <array>
@@ -13,8 +20,12 @@
 #include <cstddef>
 #include <cstdint>
 #include <iostream>
+#include <memory>
 #include <string>
+#include <string_view>
 #include <vector>
+
+#include "engine/core/render/asset_loader.h"
 
 namespace urpg {
 
@@ -63,6 +74,10 @@ struct GlImmediateApi {
     PFNGLBUFFERDATAPROC bufferData = nullptr;
     PFNGLENABLEVERTEXATTRIBARRAYPROC enableVertexAttribArray = nullptr;
     PFNGLVERTEXATTRIBPOINTERPROC vertexAttribPointer = nullptr;
+    PFNGLGETUNIFORMLOCATIONPROC getUniformLocation = nullptr;
+    PFNGLUNIFORM1IPROC uniform1i = nullptr;
+    PFNGLUNIFORM2FPROC uniform2f = nullptr;
+    PFNGLACTIVETEXTUREPROC activeTexture = nullptr;
 };
 
 template <typename T>
@@ -97,7 +112,11 @@ bool loadImmediateApi(GlImmediateApi& api) {
         && loadGlProc(api.bindBuffer, "glBindBuffer")
         && loadGlProc(api.bufferData, "glBufferData")
         && loadGlProc(api.enableVertexAttribArray, "glEnableVertexAttribArray")
-        && loadGlProc(api.vertexAttribPointer, "glVertexAttribPointer");
+        && loadGlProc(api.vertexAttribPointer, "glVertexAttribPointer")
+        && loadGlProc(api.getUniformLocation, "glGetUniformLocation")
+        && loadGlProc(api.uniform1i, "glUniform1i")
+        && loadGlProc(api.uniform2f, "glUniform2f")
+        && loadGlProc(api.activeTexture, "glActiveTexture");
 }
 
 GlImmediateApi g_gl;
@@ -186,6 +205,178 @@ std::vector<float> buildRectBatch(
         command.b,
         command.a);
     return flattenVertices(vertices);
+}
+
+uint32_t stableHash(std::string_view value) {
+    uint32_t hash = 2166136261u;
+    for (const unsigned char ch : value) {
+        hash ^= ch;
+        hash *= 16777619u;
+    }
+    return hash;
+}
+
+std::array<float, 4> colorFromHash(uint32_t hash, float alpha = 1.0f) {
+    const float r = 0.2f + (static_cast<float>((hash >> 16) & 0xFFu) / 255.0f) * 0.6f;
+    const float g = 0.2f + (static_cast<float>((hash >> 8) & 0xFFu) / 255.0f) * 0.6f;
+    const float b = 0.2f + (static_cast<float>(hash & 0xFFu) / 255.0f) * 0.6f;
+    return {r, g, b, alpha};
+}
+
+std::vector<float> buildPlaceholderQuadBatch(
+    float x,
+    float y,
+    float w,
+    float h,
+    int viewportWidth,
+    int viewportHeight,
+    const std::array<float, 4>& fillColor,
+    const std::array<float, 4>& accentColor) {
+    std::vector<ImmediateColorVertex> vertices;
+    vertices.reserve(18);
+
+    appendQuad(
+        vertices,
+        x,
+        y,
+        w,
+        h,
+        viewportWidth,
+        viewportHeight,
+        fillColor[0],
+        fillColor[1],
+        fillColor[2],
+        fillColor[3]);
+
+    const float accentInset = std::max(2.0f, std::min(w, h) * 0.18f);
+    appendQuad(
+        vertices,
+        x + accentInset,
+        y + accentInset,
+        std::max(1.0f, w - accentInset * 2.0f),
+        std::max(1.0f, h - accentInset * 2.0f),
+        viewportWidth,
+        viewportHeight,
+        accentColor[0],
+        accentColor[1],
+        accentColor[2],
+        accentColor[3]);
+
+    const float stripeWidth = std::max(2.0f, std::min(w, h) * 0.12f);
+    appendQuad(
+        vertices,
+        x,
+        y,
+        stripeWidth,
+        h,
+        viewportWidth,
+        viewportHeight,
+        accentColor[0],
+        accentColor[1],
+        accentColor[2],
+        std::min(fillColor[3] + 0.15f, 1.0f));
+
+    return flattenVertices(vertices);
+}
+
+float normalizeSpriteOpacity(float opacity) {
+    if (opacity <= 0.0f) {
+        return 0.0f;
+    }
+
+    if (opacity <= 1.0f) {
+        return std::clamp(opacity, 0.0f, 1.0f);
+    }
+
+    return std::clamp(opacity / 255.0f, 0.0f, 1.0f);
+}
+
+SpriteDrawData buildSpriteCommandBatch(const SpriteCommand& command,
+                                       const GLTexture& texture) {
+    const auto makeSpriteVertex = [](float x, float y, float z, float u, float v, float alpha) {
+        SpriteVertex vertex{};
+        vertex.position[0] = x;
+        vertex.position[1] = y;
+        vertex.position[2] = z;
+        vertex.uv[0] = u;
+        vertex.uv[1] = v;
+        vertex.color[0] = 1.0f;
+        vertex.color[1] = 1.0f;
+        vertex.color[2] = 1.0f;
+        vertex.color[3] = alpha;
+        return vertex;
+    };
+
+    const float textureWidth = static_cast<float>(std::max(texture.width, 1));
+    const float textureHeight = static_cast<float>(std::max(texture.height, 1));
+    const float width = static_cast<float>(std::max(command.width, 1));
+    const float height = static_cast<float>(std::max(command.height, 1));
+    const float srcX = static_cast<float>(std::clamp(command.srcX, 0, std::max(texture.width - 1, 0)));
+    const float srcY = static_cast<float>(std::clamp(command.srcY, 0, std::max(texture.height - 1, 0)));
+    const float srcWidth = std::clamp(width, 1.0f, textureWidth - srcX);
+    const float srcHeight = std::clamp(height, 1.0f, textureHeight - srcY);
+    const float u1 = srcX / textureWidth;
+    const float v1 = srcY / textureHeight;
+    const float u2 = (srcX + srcWidth) / textureWidth;
+    const float v2 = (srcY + srcHeight) / textureHeight;
+    const float alpha = normalizeSpriteOpacity(command.opacity);
+    const float z = static_cast<float>(command.zOrder);
+
+    SpriteDrawData batch;
+    batch.textureId = texture.handle;
+    batch.vertices = {
+        makeSpriteVertex(command.x, command.y, z, u1, v1, alpha),
+        makeSpriteVertex(command.x, command.y + height, z, u1, v2, alpha),
+        makeSpriteVertex(command.x + width, command.y, z, u2, v1, alpha),
+        makeSpriteVertex(command.x + width, command.y, z, u2, v1, alpha),
+        makeSpriteVertex(command.x, command.y + height, z, u1, v2, alpha),
+        makeSpriteVertex(command.x + width, command.y + height, z, u2, v2, alpha),
+    };
+    return batch;
+}
+
+SpriteDrawData buildTileCommandBatch(const TileCommand& command,
+                                     const GLTexture& texture) {
+    constexpr float kTileSize = 48.0f;
+    const int32_t tilesetWidthInTiles = std::max(texture.width / static_cast<int32_t>(kTileSize), 1);
+    const int32_t safeTileIndex = std::max(command.tileIndex, 0);
+    const float srcX = static_cast<float>((safeTileIndex % tilesetWidthInTiles) * static_cast<int32_t>(kTileSize));
+    const float srcY = static_cast<float>((safeTileIndex / tilesetWidthInTiles) * static_cast<int32_t>(kTileSize));
+    const float textureWidth = static_cast<float>(std::max(texture.width, 1));
+    const float textureHeight = static_cast<float>(std::max(texture.height, 1));
+    const float clampedSrcX = std::clamp(srcX, 0.0f, std::max(textureWidth - kTileSize, 0.0f));
+    const float clampedSrcY = std::clamp(srcY, 0.0f, std::max(textureHeight - kTileSize, 0.0f));
+    const float u1 = clampedSrcX / textureWidth;
+    const float v1 = clampedSrcY / textureHeight;
+    const float u2 = (clampedSrcX + kTileSize) / textureWidth;
+    const float v2 = (clampedSrcY + kTileSize) / textureHeight;
+    const float z = static_cast<float>(command.zOrder);
+
+    const auto makeSpriteVertex = [](float x, float y, float zValue, float u, float v) {
+        SpriteVertex vertex{};
+        vertex.position[0] = x;
+        vertex.position[1] = y;
+        vertex.position[2] = zValue;
+        vertex.uv[0] = u;
+        vertex.uv[1] = v;
+        vertex.color[0] = 1.0f;
+        vertex.color[1] = 1.0f;
+        vertex.color[2] = 1.0f;
+        vertex.color[3] = 1.0f;
+        return vertex;
+    };
+
+    SpriteDrawData batch;
+    batch.textureId = texture.handle;
+    batch.vertices = {
+        makeSpriteVertex(command.x, command.y, z, u1, v1),
+        makeSpriteVertex(command.x, command.y + kTileSize, z, u1, v2),
+        makeSpriteVertex(command.x + kTileSize, command.y, z, u2, v1),
+        makeSpriteVertex(command.x + kTileSize, command.y, z, u2, v1),
+        makeSpriteVertex(command.x, command.y + kTileSize, z, u1, v2),
+        makeSpriteVertex(command.x + kTileSize, command.y + kTileSize, z, u2, v2),
+    };
+    return batch;
 }
 
 char32_t decodeUtf8Codepoint(const std::string& text, size_t& cursor) {
@@ -404,6 +595,40 @@ void main() {
 }
 )";
 
+const char* TEXTURED_VERTEX_SHADER = R"(
+#version 330 core
+layout (location = 0) in vec3 aPos;
+layout (location = 1) in vec2 aUv;
+layout (location = 2) in vec4 aColor;
+
+uniform vec2 uViewportSize;
+
+out vec2 VertexUv;
+out vec4 VertexColor;
+
+void main() {
+    vec2 ndc;
+    ndc.x = (aPos.x / max(uViewportSize.x, 1.0)) * 2.0 - 1.0;
+    ndc.y = 1.0 - ((aPos.y / max(uViewportSize.y, 1.0)) * 2.0);
+    gl_Position = vec4(ndc.xy, 0.0, 1.0);
+    VertexUv = aUv;
+    VertexColor = aColor;
+}
+)";
+
+const char* TEXTURED_FRAGMENT_SHADER = R"(
+#version 330 core
+in vec2 VertexUv;
+in vec4 VertexColor;
+out vec4 FragColor;
+
+uniform sampler2D uTexture;
+
+void main() {
+    FragColor = texture(uTexture, VertexUv) * VertexColor;
+}
+)";
+
 bool OpenGLRenderer::initialize(IPlatformSurface* surface) {
     m_surface = surface;
     std::cout << "[URPG][OpenGL] Initializing OpenGL 3.3 Backend (TIER_BASIC)\n";
@@ -420,7 +645,7 @@ bool OpenGLRenderer::initialize(IPlatformSurface* surface) {
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     }
 
-    return m_immediatePipelineReady;
+    return m_immediatePipelineReady || m_texturedPipelineReady;
 }
 
 void OpenGLRenderer::beginFrame() {
@@ -435,8 +660,7 @@ void OpenGLRenderer::beginFrame() {
 
 void OpenGLRenderer::renderBatches(const std::vector<SpriteDrawData>& batches) {
     for (const auto& batch : batches) {
-        (void)batch;
-        // Sprite/tile textured batching remains separate from the TD-02 text/rect path.
+        submitTexturedBatch(batch);
     }
 }
 
@@ -447,6 +671,18 @@ void OpenGLRenderer::endFrame() {
 }
 
 void OpenGLRenderer::shutdown() {
+    if (m_texturedVbo != 0) {
+        g_gl.deleteBuffers(1, &m_texturedVbo);
+        m_texturedVbo = 0;
+    }
+    if (m_texturedVao != 0) {
+        g_gl.deleteVertexArrays(1, &m_texturedVao);
+        m_texturedVao = 0;
+    }
+    if (m_texturedShaderProgram != 0) {
+        g_gl.deleteProgram(m_texturedShaderProgram);
+        m_texturedShaderProgram = 0;
+    }
     if (m_vbo != 0) {
         g_gl.deleteBuffers(1, &m_vbo);
         m_vbo = 0;
@@ -461,6 +697,7 @@ void OpenGLRenderer::shutdown() {
     }
 
     m_immediatePipelineReady = false;
+    m_texturedPipelineReady = false;
 }
 
 void OpenGLRenderer::onResize(int width, int height) {
@@ -501,6 +738,35 @@ void OpenGLRenderer::setupDefaultShaders() {
 
     g_gl.deleteShader(vertexShader);
     g_gl.deleteShader(fragmentShader);
+
+    const uint32_t texturedVertexShader = compileShader(GL_VERTEX_SHADER, TEXTURED_VERTEX_SHADER);
+    if (texturedVertexShader == 0) {
+        return;
+    }
+
+    const uint32_t texturedFragmentShader = compileShader(GL_FRAGMENT_SHADER, TEXTURED_FRAGMENT_SHADER);
+    if (texturedFragmentShader == 0) {
+        g_gl.deleteShader(texturedVertexShader);
+        return;
+    }
+
+    m_texturedShaderProgram = g_gl.createProgram();
+    g_gl.attachShader(m_texturedShaderProgram, texturedVertexShader);
+    g_gl.attachShader(m_texturedShaderProgram, texturedFragmentShader);
+    g_gl.linkProgram(m_texturedShaderProgram);
+
+    success = 0;
+    g_gl.getProgramiv(m_texturedShaderProgram, GL_LINK_STATUS, &success);
+    if (success != GL_TRUE) {
+        char infoLog[1024] = {};
+        g_gl.getProgramInfoLog(m_texturedShaderProgram, static_cast<GLsizei>(sizeof(infoLog)), nullptr, infoLog);
+        std::cerr << "[URPG][OpenGL] Textured program link failed: " << infoLog << "\n";
+        g_gl.deleteProgram(m_texturedShaderProgram);
+        m_texturedShaderProgram = 0;
+    }
+
+    g_gl.deleteShader(texturedVertexShader);
+    g_gl.deleteShader(texturedFragmentShader);
 }
 
 void OpenGLRenderer::setupDrawBuffers() {
@@ -537,6 +803,53 @@ void OpenGLRenderer::setupDrawBuffers() {
     g_gl.bindVertexArray(0);
 
     m_immediatePipelineReady = (m_vao != 0 && m_vbo != 0);
+
+    if (m_texturedShaderProgram == 0) {
+        return;
+    }
+
+    g_gl.genVertexArrays(1, &m_texturedVao);
+    g_gl.genBuffers(1, &m_texturedVbo);
+
+    if (m_texturedVao == 0 || m_texturedVbo == 0) {
+        return;
+    }
+
+    g_gl.bindVertexArray(m_texturedVao);
+    g_gl.bindBuffer(GL_ARRAY_BUFFER, m_texturedVbo);
+    g_gl.bufferData(GL_ARRAY_BUFFER, 0, nullptr, GL_DYNAMIC_DRAW);
+
+    g_gl.enableVertexAttribArray(0);
+    g_gl.vertexAttribPointer(
+        0,
+        3,
+        GL_FLOAT,
+        GL_FALSE,
+        sizeof(SpriteVertex),
+        reinterpret_cast<void*>(offsetof(SpriteVertex, position)));
+
+    g_gl.enableVertexAttribArray(1);
+    g_gl.vertexAttribPointer(
+        1,
+        2,
+        GL_FLOAT,
+        GL_FALSE,
+        sizeof(SpriteVertex),
+        reinterpret_cast<void*>(offsetof(SpriteVertex, uv)));
+
+    g_gl.enableVertexAttribArray(2);
+    g_gl.vertexAttribPointer(
+        2,
+        4,
+        GL_FLOAT,
+        GL_FALSE,
+        sizeof(SpriteVertex),
+        reinterpret_cast<void*>(offsetof(SpriteVertex, color)));
+
+    g_gl.bindBuffer(GL_ARRAY_BUFFER, 0);
+    g_gl.bindVertexArray(0);
+
+    m_texturedPipelineReady = (m_texturedVao != 0 && m_texturedVbo != 0);
 }
 
 void OpenGLRenderer::processFrameCommands(const std::vector<FrameRenderCommand>& commands) {
@@ -675,12 +988,112 @@ void OpenGLRenderer::submitImmediateBatch(const std::vector<float>& vertices) co
     g_gl.bindVertexArray(0);
 }
 
-void OpenGLRenderer::drawSpriteCommand(const SpriteCommand& /*command*/) {
-    // Textured sprite submission remains outside this TD-02 slice.
+void OpenGLRenderer::submitTexturedBatch(const SpriteDrawData& batch) const {
+    if (batch.vertices.empty()) {
+        return;
+    }
+
+    // Texture ID 1 is a valid first in-memory texture in fresh snapshot contexts.
+    const bool hasBoundTexture = batch.textureId != 0 && glIsTexture(batch.textureId) == GL_TRUE;
+    if (!hasBoundTexture) {
+        std::vector<ImmediateColorVertex> vertices;
+        vertices.reserve(batch.vertices.size());
+
+        for (const auto& vertex : batch.vertices) {
+            vertices.push_back(makeVertex(vertex.position[0],
+                                          vertex.position[1],
+                                          m_viewportWidth,
+                                          m_viewportHeight,
+                                          vertex.color[0],
+                                          vertex.color[1],
+                                          vertex.color[2],
+                                          vertex.color[3]));
+        }
+
+        submitImmediateBatch(flattenVertices(vertices));
+        return;
+    }
+
+    if (!m_texturedPipelineReady || m_texturedShaderProgram == 0) {
+        return;
+    }
+
+    g_gl.useProgram(m_texturedShaderProgram);
+    g_gl.bindVertexArray(m_texturedVao);
+    g_gl.bindBuffer(GL_ARRAY_BUFFER, m_texturedVbo);
+    g_gl.bufferData(GL_ARRAY_BUFFER,
+                    static_cast<GLsizeiptr>(batch.vertices.size() * sizeof(SpriteVertex)),
+                    batch.vertices.data(),
+                    GL_DYNAMIC_DRAW);
+
+    const GLint viewportUniform = g_gl.getUniformLocation(m_texturedShaderProgram, "uViewportSize");
+    if (viewportUniform >= 0) {
+        g_gl.uniform2f(viewportUniform,
+                       static_cast<float>(std::max(m_viewportWidth, 1)),
+                       static_cast<float>(std::max(m_viewportHeight, 1)));
+    }
+
+    const GLint textureUniform = g_gl.getUniformLocation(m_texturedShaderProgram, "uTexture");
+    if (textureUniform >= 0) {
+        g_gl.uniform1i(textureUniform, 0);
+    }
+
+    g_gl.activeTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, batch.textureId);
+    glDrawArrays(GL_TRIANGLES, 0, static_cast<GLsizei>(batch.vertices.size()));
+    glBindTexture(GL_TEXTURE_2D, 0);
+
+    g_gl.bindBuffer(GL_ARRAY_BUFFER, 0);
+    g_gl.bindVertexArray(0);
 }
 
-void OpenGLRenderer::drawTileCommand(const TileCommand& /*command*/) {
-    // Tile rendering remains aligned with the textured sprite path.
+void OpenGLRenderer::drawSpriteCommand(const SpriteCommand& command) {
+    if (const auto texture = resolveTextureHandle(command.textureId)) {
+        submitTexturedBatch(buildSpriteCommandBatch(command, *texture));
+        return;
+    }
+
+    const float width = static_cast<float>(std::max(command.width, 1));
+    const float height = static_cast<float>(std::max(command.height, 1));
+    const uint32_t hash = stableHash(command.textureId);
+    auto fillColor = colorFromHash(hash, std::max(normalizeSpriteOpacity(command.opacity), 0.15f));
+    auto accentColor = colorFromHash(hash ^ 0x00A5A5A5u, std::min(fillColor[3] + 0.1f, 1.0f));
+
+    // Bounded truthfulness: unresolved sprite IDs still fall back to deterministic
+    // placeholder quads derived from texture identity.
+    submitImmediateBatch(
+        buildPlaceholderQuadBatch(command.x,
+                                  command.y,
+                                  width,
+                                  height,
+                                  m_viewportWidth,
+                                  m_viewportHeight,
+                                  fillColor,
+                                  accentColor));
+}
+
+void OpenGLRenderer::drawTileCommand(const TileCommand& command) {
+    if (const auto texture = resolveTextureHandle(command.tilesetId)) {
+        submitTexturedBatch(buildTileCommandBatch(command, *texture));
+        return;
+    }
+
+    constexpr float kTileSize = 48.0f;
+    const uint32_t hash = stableHash(command.tilesetId) ^ (static_cast<uint32_t>(command.tileIndex) * 2654435761u);
+    auto fillColor = colorFromHash(hash, 1.0f);
+    auto accentColor = colorFromHash(hash ^ 0x005A5A5Au, 1.0f);
+
+    // Bounded truthfulness: unresolved tile IDs still render as deterministic
+    // placeholder quads derived from tileset identity and tile index.
+    submitImmediateBatch(
+        buildPlaceholderQuadBatch(command.x,
+                                  command.y,
+                                  kTileSize,
+                                  kTileSize,
+                                  m_viewportWidth,
+                                  m_viewportHeight,
+                                  fillColor,
+                                  accentColor));
 }
 
 void OpenGLRenderer::drawTextCommand(const TextCommand& command) {
@@ -691,7 +1104,51 @@ void OpenGLRenderer::drawRectCommand(const RectCommand& command) {
     submitImmediateBatch(buildRectBatch(command, m_viewportWidth, m_viewportHeight));
 }
 
-bool OpenGLRenderer::loadTexture(const std::string& /*id*/, const std::string& /*filePath*/) {
+std::shared_ptr<GLTexture> OpenGLRenderer::resolveTextureHandle(const std::string& id) {
+    if (id.empty()) {
+        return nullptr;
+    }
+
+    if (auto it = m_textures.find(id); it != m_textures.end()) {
+        if (it->second != nullptr && it->second->handle != 0 && glIsTexture(it->second->handle) == GL_TRUE) {
+            return it->second;
+        }
+        m_textures.erase(it);
+    }
+
+    auto meta = TextureRegistry::getInstance().getTexture(id);
+    if (meta == nullptr || meta->filePath.empty()) {
+        return nullptr;
+    }
+
+    if (!loadTexture(id, meta->filePath)) {
+        return nullptr;
+    }
+
+    auto loaded = m_textures.find(id);
+    return loaded != m_textures.end() ? loaded->second : nullptr;
+}
+
+bool OpenGLRenderer::loadTexture(const std::string& id, const std::string& filePath) {
+    if (id.empty() || filePath.empty()) {
+        return false;
+    }
+
+    auto texture = AssetLoader::loadTexture(filePath);
+    return registerTextureHandle(id, texture);
+}
+
+bool OpenGLRenderer::registerTextureHandle(const std::string& id, const std::shared_ptr<Texture>& texture) {
+    if (id.empty() || texture == nullptr || texture->getId() == 0) {
+        return false;
+    }
+
+    auto handle = std::make_shared<GLTexture>();
+    handle->handle = texture->getId();
+    handle->width = texture->getWidth();
+    handle->height = texture->getHeight();
+    handle->owner = texture;
+    m_textures[id] = std::move(handle);
     return true;
 }
 

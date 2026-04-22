@@ -1,5 +1,6 @@
 #pragma once
 
+#include <algorithm>
 #include <cstdint>
 #include <memory>
 #include <string>
@@ -298,6 +299,13 @@ inline std::vector<std::shared_ptr<RenderCommand>> toLegacyRenderCommands(const 
  */
 class RenderLayer {
 public:
+    struct Telemetry {
+        size_t maxFrameCommandCount = 0;
+        size_t frameCommandCapacity = 0;
+        size_t frameCommandCapacityGrowths = 0;
+        size_t legacyViewBuildCount = 0;
+    };
+
     static RenderLayer& getInstance() {
         static RenderLayer instance;
         return instance;
@@ -327,7 +335,13 @@ public:
      * @brief Adds a value-owned command to the current frame's batch.
      */
     void submit(FrameRenderCommand cmd) {
+        const auto previousCapacity = m_frameCommands.capacity();
         m_frameCommands.push_back(std::move(cmd));
+        if (m_frameCommands.capacity() != previousCapacity) {
+            ++m_telemetry.frameCommandCapacityGrowths;
+            m_telemetry.frameCommandCapacity = m_frameCommands.capacity();
+        }
+        m_telemetry.maxFrameCommandCount = std::max(m_telemetry.maxFrameCommandCount, m_frameCommands.size());
         m_legacyCacheDirty = true;
     }
 
@@ -338,6 +352,18 @@ public:
         m_frameCommands.clear();
         m_legacyCommands.clear();
         m_legacyCacheDirty = false;
+    }
+
+    /**
+     * @brief Reserves frame-command storage to avoid steady-state vector growth.
+     */
+    void reserveFrameCommandCapacity(size_t capacity) {
+        const auto previousCapacity = m_frameCommands.capacity();
+        m_frameCommands.reserve(capacity);
+        if (m_frameCommands.capacity() != previousCapacity) {
+            ++m_telemetry.frameCommandCapacityGrowths;
+            m_telemetry.frameCommandCapacity = m_frameCommands.capacity();
+        }
     }
 
     /**
@@ -353,9 +379,27 @@ public:
     const std::vector<std::shared_ptr<RenderCommand>>& getCommands() const {
         if (m_legacyCacheDirty) {
             m_legacyCommands = toLegacyRenderCommands(m_frameCommands);
+            ++m_telemetry.legacyViewBuildCount;
             m_legacyCacheDirty = false;
         }
         return m_legacyCommands;
+    }
+
+    /**
+     * @brief Returns render-layer telemetry for frame-command growth and legacy conversions.
+     */
+    const Telemetry& getTelemetry() const {
+        return m_telemetry;
+    }
+
+    /**
+     * @brief Resets render-layer telemetry without affecting stored commands.
+     */
+    void resetTelemetry() {
+        m_telemetry.maxFrameCommandCount = m_frameCommands.size();
+        m_telemetry.frameCommandCapacity = m_frameCommands.capacity();
+        m_telemetry.frameCommandCapacityGrowths = 0;
+        m_telemetry.legacyViewBuildCount = 0;
     }
 
 private:
@@ -363,6 +407,7 @@ private:
     std::vector<FrameRenderCommand> m_frameCommands;
     mutable std::vector<std::shared_ptr<RenderCommand>> m_legacyCommands;
     mutable bool m_legacyCacheDirty = false;
+    mutable Telemetry m_telemetry{};
 };
 
 } // namespace urpg

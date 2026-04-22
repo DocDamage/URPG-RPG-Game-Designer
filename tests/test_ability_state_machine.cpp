@@ -18,8 +18,8 @@ TEST_CASE("Multi-Wave Ability State Machine", "[ability]") {
     windup.name = "Windup";
     windup.inherentTags.addTag(urpg::ability::GameplayTag("State.Immune.Stagger"));
     static float timer1 = 0.0f;
-    windup.onEnter = [&](AbilitySystemComponent& a) { windupEntered = true; timer1 = 0.0f; };
-    windup.onTick = [&](AbilitySystemComponent& a, float dt) {
+    windup.onEnter = [&](AbilitySystemComponent& /*a*/) { windupEntered = true; timer1 = 0.0f; };
+    windup.onTick = [&](AbilitySystemComponent& /*a*/, float dt) {
         timer1 += dt;
         return timer1 >= 1.0f;
     };
@@ -27,15 +27,15 @@ TEST_CASE("Multi-Wave Ability State Machine", "[ability]") {
     // 2. Impact State (Instant)
     AbilityState impact;
     impact.name = "Impact";
-    impact.onEnter = [&](AbilitySystemComponent& a) { impactEntered = true; };
-    impact.onTick = [&](AbilitySystemComponent& a, float dt) { return true; }; // Finish instantly
+    impact.onEnter = [&](AbilitySystemComponent& /*a*/) { impactEntered = true; };
+    impact.onTick = [&](AbilitySystemComponent& /*a*/, float /*dt*/) { return true; }; // Finish instantly
 
     // 3. Recovery State (Wait 0.5s)
     AbilityState recovery;
     recovery.name = "Recovery";
     static float timer2 = 0.0f;
-    recovery.onEnter = [&](AbilitySystemComponent& a) { recoveryEntered = true; timer2 = 0.0f; };
-    recovery.onTick = [&](AbilitySystemComponent& a, float dt) {
+    recovery.onEnter = [&](AbilitySystemComponent& /*a*/) { recoveryEntered = true; timer2 = 0.0f; };
+    recovery.onTick = [&](AbilitySystemComponent& /*a*/, float dt) {
         timer2 += dt;
         return timer2 >= 0.5f;
     };

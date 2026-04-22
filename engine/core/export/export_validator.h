@@ -25,6 +25,8 @@ private:
     bool checkPatternExists(const std::filesystem::path& dir, const std::string& pattern) const;
     bool checkAnyAppDirectory(const std::filesystem::path& dir) const;
     bool checkAnyExecutableWithoutExtension(const std::filesystem::path& dir) const;
+    std::vector<std::string> validateBundleIntegrity(const std::filesystem::path& bundlePath,
+                                                     tools::ExportTarget target) const;
     std::string targetToString(tools::ExportTarget target) const;
 };
 

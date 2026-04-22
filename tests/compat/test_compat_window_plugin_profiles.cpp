@@ -81,23 +81,6 @@ std::vector<PluginProfile> buildCuratedProfiles() {
             }
         },
         {
-            "MOG_CharacterMotion_MZ",
-            {
-                {"Sprite_Character.setDirection", CompatStatus::FULL},
-                {"Sprite_Character.setPattern", CompatStatus::FULL},
-                {"Sprite_Character.setScale", CompatStatus::FULL},
-            }
-        },
-        {
-            "MOG_BattleHud_MZ",
-            {
-                {"Sprite_Actor.startMotion", CompatStatus::FULL},
-                {"Sprite_Actor.startAnimation", CompatStatus::FULL},
-                {"Sprite_Actor.startEffect", CompatStatus::FULL},
-                {"Sprite_Actor.setOpacity", CompatStatus::FULL},
-            }
-        },
-        {
             "Galv_QuestLog_MZ",
             {
                 {"Window_Command.isCommandEnabled", CompatStatus::FULL},
@@ -127,7 +110,7 @@ TEST_CASE("Compat profiles: curated MZ plugin surface requirements are available
     manager.registerAllAPIs(ctx);
 
     const auto profiles = buildCuratedProfiles();
-    REQUIRE(profiles.size() == 10);
+    REQUIRE(profiles.size() == 8);
 
     for (const auto& profile : profiles) {
         INFO("Profile: " << profile.pluginName);

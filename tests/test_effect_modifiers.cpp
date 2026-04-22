@@ -19,7 +19,7 @@ TEST_CASE("Effect Modifiers and Attribute Selection", "[ability]") {
         GameplayEffect strengthBuff;
         strengthBuff.name = "Strength Buff";
         strengthBuff.duration = 10.0f;
-        strengthBuff.modifiers.push_back({"Attack", ModifierOp::Add, 20.0f});
+        strengthBuff.modifiers.push_back({"Attack", ModifierOp::Add, 20.0f, {}});
         asc.applyEffect(strengthBuff);
 
         float val = asc.getAttribute("Attack", baseAttack);
@@ -30,13 +30,13 @@ TEST_CASE("Effect Modifiers and Attribute Selection", "[ability]") {
         GameplayEffect strengthBuff;
         strengthBuff.name = "Strength Buff";
         strengthBuff.duration = 10.0f;
-        strengthBuff.modifiers.push_back({"Attack", ModifierOp::Add, 20.0f});
+        strengthBuff.modifiers.push_back({"Attack", ModifierOp::Add, 20.0f, {}});
         asc.applyEffect(strengthBuff);
 
         GameplayEffect haste;
         haste.name = "Haste";
         haste.duration = -1.0f; // Permanent
-        haste.modifiers.push_back({"Attack", ModifierOp::Multiply, 1.5f});
+        haste.modifiers.push_back({"Attack", ModifierOp::Multiply, 1.5f, {}});
         asc.applyEffect(haste);
 
         float val = asc.getAttribute("Attack", baseAttack);
@@ -47,13 +47,13 @@ TEST_CASE("Effect Modifiers and Attribute Selection", "[ability]") {
         GameplayEffect strengthBuff;
         strengthBuff.name = "Strength Buff";
         strengthBuff.duration = 10.0f;
-        strengthBuff.modifiers.push_back({"Attack", ModifierOp::Add, 20.0f});
+        strengthBuff.modifiers.push_back({"Attack", ModifierOp::Add, 20.0f, {}});
         asc.applyEffect(strengthBuff);
 
         GameplayEffect haste;
         haste.name = "Haste";
         haste.duration = -1.0f;
-        haste.modifiers.push_back({"Attack", ModifierOp::Multiply, 1.5f});
+        haste.modifiers.push_back({"Attack", ModifierOp::Multiply, 1.5f, {}});
         asc.applyEffect(haste);
 
         GameplayEffect situational;
@@ -75,13 +75,13 @@ TEST_CASE("Effect Modifiers and Attribute Selection", "[ability]") {
         GameplayEffect strengthBuff;
         strengthBuff.name = "Strength Buff";
         strengthBuff.duration = 10.0f;
-        strengthBuff.modifiers.push_back({"Attack", ModifierOp::Add, 20.0f});
+        strengthBuff.modifiers.push_back({"Attack", ModifierOp::Add, 20.0f, {}});
         asc.applyEffect(strengthBuff);
 
         GameplayEffect haste;
         haste.name = "Haste";
         haste.duration = -1.0f;
-        haste.modifiers.push_back({"Attack", ModifierOp::Multiply, 1.5f});
+        haste.modifiers.push_back({"Attack", ModifierOp::Multiply, 1.5f, {}});
         asc.applyEffect(haste);
 
         GameplayEffect situational;
@@ -95,7 +95,7 @@ TEST_CASE("Effect Modifiers and Attribute Selection", "[ability]") {
         GameplayEffect stun;
         stun.name = "Stun";
         stun.duration = 2.0f;
-        stun.modifiers.push_back({"Attack", ModifierOp::Override, 0.0f});
+        stun.modifiers.push_back({"Attack", ModifierOp::Override, 0.0f, {}});
         asc.applyEffect(stun);
 
         float val = asc.getAttribute("Attack", baseAttack);
@@ -106,13 +106,13 @@ TEST_CASE("Effect Modifiers and Attribute Selection", "[ability]") {
         GameplayEffect strengthBuff;
         strengthBuff.name = "Strength Buff";
         strengthBuff.duration = 10.0f;
-        strengthBuff.modifiers.push_back({"Attack", ModifierOp::Add, 20.0f});
+        strengthBuff.modifiers.push_back({"Attack", ModifierOp::Add, 20.0f, {}});
         asc.applyEffect(strengthBuff);
 
         GameplayEffect haste;
         haste.name = "Haste";
         haste.duration = -1.0f;
-        haste.modifiers.push_back({"Attack", ModifierOp::Multiply, 1.5f});
+        haste.modifiers.push_back({"Attack", ModifierOp::Multiply, 1.5f, {}});
         asc.applyEffect(haste);
 
         GameplayEffect situational;
@@ -126,7 +126,7 @@ TEST_CASE("Effect Modifiers and Attribute Selection", "[ability]") {
         GameplayEffect stun;
         stun.name = "Stun";
         stun.duration = 2.0f;
-        stun.modifiers.push_back({"Attack", ModifierOp::Override, 0.0f});
+        stun.modifiers.push_back({"Attack", ModifierOp::Override, 0.0f, {}});
         asc.applyEffect(stun);
 
         // Expire stun and buff

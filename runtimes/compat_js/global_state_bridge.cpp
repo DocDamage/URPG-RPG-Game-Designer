@@ -6,6 +6,7 @@ namespace urpg {
 namespace compat {
 
 void GlobalStateJSBridge::registerBridge(QuickJSContext& context) {
+    (void)context;
     // 1. Setup $gameSwitches
     // This is simplified to show the mapping to GlobalStateHub.
     // In a real implementation, this would involve using context.addGlobalObject

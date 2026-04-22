@@ -15,7 +15,11 @@ TEST_CASE("TriggerSystem detects entry and exit", "[events][trigger]") {
     world.AddComponent(triggerId, urpg::TriggerVolumeComponent{"OnEnter", "OnExit"});
 
     auto actorId = world.CreateEntity();
-    world.AddComponent(actorId, urpg::TransformComponent{{urpg::Fixed32::FromInt(10), urpg::Fixed32::FromInt(0), urpg::Fixed32::FromInt(0)}});
+    world.AddComponent(actorId, urpg::TransformComponent{
+        {urpg::Fixed32::FromInt(10), urpg::Fixed32::FromInt(0), urpg::Fixed32::FromInt(0)},
+        {},
+        {}
+    });
     world.AddComponent(actorId, urpg::CollisionBoxComponent{urpg::Vector3::Zero(), urpg::Fixed32::FromInt(1)});
 
     SECTION("Entry event fires when entity overlaps") {

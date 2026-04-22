@@ -5,41 +5,28 @@
 
 #include <filesystem>
 #include <fstream>
+#include <vector>
 
 using namespace urpg::exporting;
 using urpg::tools::ExportTarget;
 
 namespace {
 
-void WriteFile(const std::filesystem::path& path, const std::string& content = "") {
-    std::ofstream out(path, std::ios::binary);
-    out << content;
+void CreateRealExportFixture(const std::filesystem::path& base, ExportTarget target) {
+    std::filesystem::remove_all(base);
+    urpg::tools::ExportPackager packager;
+    urpg::tools::ExportConfig config{};
+    config.target = target;
+    config.outputDir = base.string();
+    config.compressAssets = true;
+
+    const auto result = packager.runExport(config);
+    REQUIRE(result.success);
 }
 
-void CreateExportFixture(const std::filesystem::path& base, ExportTarget target) {
-    std::filesystem::remove_all(base);
-    std::filesystem::create_directories(base);
-
-    switch (target) {
-    case ExportTarget::Windows_x64:
-        WriteFile(base / "game.exe", "exe");
-        WriteFile(base / "data.pck", "pck");
-        break;
-    case ExportTarget::Linux_x64:
-        WriteFile(base / "game", "elf");
-        WriteFile(base / "data.pck", "pck");
-        break;
-    case ExportTarget::macOS_Universal:
-        std::filesystem::create_directories(base / "MyGame.app");
-        WriteFile(base / "data.pck", "pck");
-        break;
-    case ExportTarget::Web_WASM:
-        WriteFile(base / "index.html", "html");
-        WriteFile(base / "game.wasm", "wasm");
-        WriteFile(base / "game.js", "js");
-        WriteFile(base / "data.pck", "pck");
-        break;
-    }
+std::vector<std::uint8_t> ReadFileBytes(const std::filesystem::path& path) {
+    std::ifstream in(path, std::ios::binary);
+    return std::vector<std::uint8_t>(std::istreambuf_iterator<char>(in), std::istreambuf_iterator<char>());
 }
 
 } // namespace
@@ -49,8 +36,7 @@ TEST_CASE("ExportValidator: Valid Windows export directory passes", "[export][va
     std::filesystem::remove_all(base);
     std::filesystem::create_directories(base);
 
-    WriteFile(base / "game.exe", "exe");
-    WriteFile(base / "data.pck", "pck");
+    CreateRealExportFixture(base, ExportTarget::Windows_x64);
 
     ExportValidator validator;
     auto errors = validator.validateExportDirectory(base.string(), ExportTarget::Windows_x64);
@@ -65,7 +51,8 @@ TEST_CASE("ExportValidator: Missing required file produces error", "[export][val
     std::filesystem::remove_all(base);
     std::filesystem::create_directories(base);
 
-    WriteFile(base / "data.pck", "pck");
+    CreateRealExportFixture(base, ExportTarget::Windows_x64);
+    std::filesystem::remove(base / "game.exe");
 
     ExportValidator validator;
     auto errors = validator.validateExportDirectory(base.string(), ExportTarget::Windows_x64);
@@ -81,8 +68,7 @@ TEST_CASE("ExportValidator: Missing optional file does not produce error", "[exp
     std::filesystem::remove_all(base);
     std::filesystem::create_directories(base);
 
-    WriteFile(base / "game.exe", "exe");
-    WriteFile(base / "data.pck", "pck");
+    CreateRealExportFixture(base, ExportTarget::Windows_x64);
 
     ExportValidator validator;
     auto errors = validator.validateExportDirectory(base.string(), ExportTarget::Windows_x64);
@@ -96,9 +82,7 @@ TEST_CASE("ExportValidator: macOS check detects .app directory", "[export][valid
     const auto base = std::filesystem::temp_directory_path() / "urpg_export_validator_macos";
     std::filesystem::remove_all(base);
     std::filesystem::create_directories(base);
-    std::filesystem::create_directories(base / "MyGame.app");
-
-    WriteFile(base / "data.pck", "pck");
+    CreateRealExportFixture(base, ExportTarget::macOS_Universal);
 
     ExportValidator validator;
     auto errors = validator.validateExportDirectory(base.string(), ExportTarget::macOS_Universal);
@@ -113,10 +97,7 @@ TEST_CASE("ExportValidator: Web check requires all file types", "[export][valida
     std::filesystem::remove_all(base);
     std::filesystem::create_directories(base);
 
-    WriteFile(base / "index.html", "html");
-    WriteFile(base / "game.wasm", "wasm");
-    WriteFile(base / "game.js", "js");
-    WriteFile(base / "data.pck", "pck");
+    CreateRealExportFixture(base, ExportTarget::Web_WASM);
 
     ExportValidator validator;
     auto errors = validator.validateExportDirectory(base.string(), ExportTarget::Web_WASM);
@@ -143,8 +124,7 @@ TEST_CASE("ExportValidator: Linux check detects executable without extension", "
     std::filesystem::remove_all(base);
     std::filesystem::create_directories(base);
 
-    WriteFile(base / "mygame", "elf");
-    WriteFile(base / "data.pck", "pck");
+    CreateRealExportFixture(base, ExportTarget::Linux_x64);
 
     ExportValidator validator;
     auto errors = validator.validateExportDirectory(base.string(), ExportTarget::Linux_x64);
@@ -167,7 +147,7 @@ TEST_CASE("ExportValidator: supported target fixtures satisfy all required artif
     for (const auto target : targets) {
         const auto base = std::filesystem::temp_directory_path() /
             ("urpg_export_validator_target_" + std::to_string(static_cast<int>(target)));
-        CreateExportFixture(base, target);
+        CreateRealExportFixture(base, target);
 
         const auto errors = validator.validateExportDirectory(base.string(), target);
         REQUIRE(errors.empty());
@@ -178,7 +158,7 @@ TEST_CASE("ExportValidator: supported target fixtures satisfy all required artif
 
 TEST_CASE("check_platform_exports.ps1 -Json emits matching validator result shape for valid export", "[export][validation]") {
     const auto base = std::filesystem::temp_directory_path() / "urpg_export_ps1_json_valid";
-    CreateExportFixture(base, ExportTarget::Windows_x64);
+    CreateRealExportFixture(base, ExportTarget::Windows_x64);
 
     const std::filesystem::path scriptPath =
         std::filesystem::path(URPG_SOURCE_DIR) / "tools" / "ci" / "check_platform_exports.ps1";
@@ -208,9 +188,8 @@ TEST_CASE("check_platform_exports.ps1 -Json emits matching validator result shap
 
 TEST_CASE("check_platform_exports.ps1 -Json emits matching validator result shape for invalid export", "[export][validation]") {
     const auto base = std::filesystem::temp_directory_path() / "urpg_export_ps1_json_invalid";
-    std::filesystem::remove_all(base);
-    std::filesystem::create_directories(base);
-    WriteFile(base / "data.pck", "pck");
+    CreateRealExportFixture(base, ExportTarget::Windows_x64);
+    std::filesystem::remove(base / "game.exe");
 
     const std::filesystem::path scriptPath =
         std::filesystem::path(URPG_SOURCE_DIR) / "tools" / "ci" / "check_platform_exports.ps1";
@@ -238,5 +217,33 @@ TEST_CASE("check_platform_exports.ps1 -Json emits matching validator result shap
     REQUIRE_FALSE(result["errors"].empty());
 
     std::filesystem::remove(outputPath);
+    std::filesystem::remove_all(base);
+}
+
+TEST_CASE("ExportValidator: corrupted bundle integrity produces an error", "[export][validation]") {
+    const auto base = std::filesystem::temp_directory_path() / "urpg_export_validator_corrupt_bundle";
+    CreateRealExportFixture(base, ExportTarget::Windows_x64);
+
+    auto bytes = ReadFileBytes(base / "data.pck");
+    REQUIRE(bytes.size() > 32);
+    bytes.back() ^= 0x1;
+
+    std::ofstream out(base / "data.pck", std::ios::binary | std::ios::trunc);
+    out.write(reinterpret_cast<const char*>(bytes.data()), static_cast<std::streamsize>(bytes.size()));
+    out.close();
+
+    ExportValidator validator;
+    const auto errors = validator.validateExportDirectory(base.string(), ExportTarget::Windows_x64);
+
+    REQUIRE_FALSE(errors.empty());
+    bool foundIntegrityMismatch = false;
+    for (const auto& error : errors) {
+        if (error.find("integrity mismatch") != std::string::npos) {
+            foundIntegrityMismatch = true;
+            break;
+        }
+    }
+    REQUIRE(foundIntegrityMismatch);
+
     std::filesystem::remove_all(base);
 }

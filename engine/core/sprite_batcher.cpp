@@ -4,6 +4,7 @@
 namespace urpg {
 
 SpriteBatcher::SpriteBatcher(uint32_t maxSprites) : m_maxSprites(maxSprites) {
+    m_deferredQuads.reserve(m_maxSprites);
 }
 
 SpriteBatcher::~SpriteBatcher() {
@@ -12,6 +13,10 @@ SpriteBatcher::~SpriteBatcher() {
 void SpriteBatcher::begin() {
     m_deferredQuads.clear();
     m_batches.clear();
+
+    if (m_deferredQuads.capacity() < m_maxSprites) {
+        m_deferredQuads.reserve(m_maxSprites);
+    }
 }
 
 void SpriteBatcher::submit(uint32_t textureId, float x, float y, float w, float h, float u1, float v1, float u2, float v2, float z, float r, float g, float b, float a) {

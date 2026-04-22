@@ -3,6 +3,7 @@
 #include "engine/core/platform/renderer_backend.h"
 #include "engine/core/render/render_layer.h"
 #include "engine/core/assets/texture_registry.h"
+#include "engine/core/platform/gl_texture.h"
 #include <string>
 #include <memory>
 #include <vector>
@@ -17,6 +18,7 @@ struct GLTexture {
     uint32_t handle = 0;
     int32_t width = 0;
     int32_t height = 0;
+    std::shared_ptr<Texture> owner;
 };
 
 /**
@@ -44,6 +46,7 @@ public:
      * In a real implementation, this would use an image loading library like stb_image.
      */
     bool loadTexture(const std::string& id, const std::string& filePath);
+    bool registerTextureHandle(const std::string& id, const std::shared_ptr<Texture>& texture);
 
 private:
     void setupDefaultShaders();
@@ -51,21 +54,25 @@ private:
     void processFrameCommand(const FrameRenderCommand& command);
     void processCommand(const RenderCommand& command);
     void submitImmediateBatch(const std::vector<float>& vertices) const;
+    void submitTexturedBatch(const SpriteDrawData& batch) const;
     void drawSpriteCommand(const SpriteCommand& command);
     void drawTileCommand(const TileCommand& command);
     void drawTextCommand(const TextCommand& command);
     void drawRectCommand(const RectCommand& command);
+    std::shared_ptr<GLTexture> resolveTextureHandle(const std::string& id);
     
     // Internal state
     IPlatformSurface* m_surface = nullptr;
-    void* m_context = nullptr; // Platform-specific GL context (HGLRC, GLXContext, etc.)
     uint32_t m_shaderProgram = 0;
     uint32_t m_vao = 0;
     uint32_t m_vbo = 0;
-    uint32_t m_ebo = 0;
+    uint32_t m_texturedShaderProgram = 0;
+    uint32_t m_texturedVao = 0;
+    uint32_t m_texturedVbo = 0;
     int m_viewportWidth = 640;
     int m_viewportHeight = 480;
     bool m_immediatePipelineReady = false;
+    bool m_texturedPipelineReady = false;
 
     std::map<std::string, std::shared_ptr<GLTexture>> m_textures;
 };

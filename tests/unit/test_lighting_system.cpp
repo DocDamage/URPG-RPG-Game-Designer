@@ -11,7 +11,9 @@ TEST_CASE("LightingSystem gathers lights from world", "[render][lighting]") {
     SECTION("Gathers point lights with correct positions") {
         auto lightId = world.CreateEntity();
         world.AddComponent(lightId, urpg::TransformComponent{
-            {urpg::Fixed32::FromInt(5), urpg::Fixed32::FromInt(0), urpg::Fixed32::FromInt(0)}
+            {urpg::Fixed32::FromInt(5), urpg::Fixed32::FromInt(0), urpg::Fixed32::FromInt(0)},
+            {},
+            {}
         });
         world.AddComponent(lightId, urpg::PointLightComponent{
             {urpg::Fixed32::FromInt(1), urpg::Fixed32::FromInt(0), urpg::Fixed32::FromInt(0)},

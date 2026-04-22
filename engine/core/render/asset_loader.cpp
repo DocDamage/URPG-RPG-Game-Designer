@@ -7,16 +7,40 @@
 
 namespace urpg {
 
+std::mutex AssetLoader::s_cacheMutex;
+std::thread::id AssetLoader::s_cacheOwnerThread;
+bool AssetLoader::s_hasCacheOwnerThread = false;
 std::unordered_map<std::string, AssetLoader::TextureCacheEntry> AssetLoader::s_textureCache;
 std::list<std::string> AssetLoader::s_textureCacheUsage;
 std::unordered_map<std::string, AssetLoader::MissingTextureCacheEntry> AssetLoader::s_missingTextureCache;
 std::list<std::string> AssetLoader::s_missingTextureCacheUsage;
 
+bool AssetLoader::ensureCacheOwnerThreadLocked(const char* operation) {
+    const std::thread::id currentThread = std::this_thread::get_id();
+    if (!s_hasCacheOwnerThread) {
+        s_cacheOwnerThread = currentThread;
+        s_hasCacheOwnerThread = true;
+        return true;
+    }
+
+    if (s_cacheOwnerThread == currentThread) {
+        return true;
+    }
+
+    std::cerr << "[URPG][AssetLoader] Rejected " << operation
+              << " from a non-owner thread. AssetLoader caches are single-thread-affine; "
+                 "call clearCaches() on the new owning thread before reusing them.\n";
+    return false;
+}
+
 void AssetLoader::clearCaches() {
+    std::lock_guard<std::mutex> lock(s_cacheMutex);
     s_textureCache.clear();
     s_textureCacheUsage.clear();
     s_missingTextureCache.clear();
     s_missingTextureCacheUsage.clear();
+    s_cacheOwnerThread = std::this_thread::get_id();
+    s_hasCacheOwnerThread = true;
 }
 
 void AssetLoader::touchTextureCacheEntry(const std::string& path) {
@@ -79,6 +103,11 @@ void AssetLoader::cacheMissingTexture(const std::string& path) {
 }
 
 std::shared_ptr<Texture> AssetLoader::loadTexture(const std::string& path) {
+    std::lock_guard<std::mutex> lock(s_cacheMutex);
+    if (!ensureCacheOwnerThreadLocked("loadTexture")) {
+        return nullptr;
+    }
+
     if (auto cachedIt = s_textureCache.find(path); cachedIt != s_textureCache.end()) {
         touchTextureCacheEntry(path);
         return cachedIt->second.texture;

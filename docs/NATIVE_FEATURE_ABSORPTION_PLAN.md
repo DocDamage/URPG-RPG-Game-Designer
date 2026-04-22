@@ -48,7 +48,7 @@ URPG's core value is native ownership, not plugin accumulation.
 
 ### Tier B: Advanced power systems (planned native lanes)
 
-- Gameplay Ability Framework (tags, abilities, conditions, state machines)
+- Gameplay Ability Framework (tags, abilities, explicit unsupported scripted-condition fields, state machines)
 - AI Copilot Core (knowledge bridges, streaming services, tool-calling, orchestration) [Landed 2026-04-16]
 - Visual Pattern Authoring (painted coordinate patterns for AoE, inventory-like footprints, rule masks)
 - Modular Level Assembly (snap/connect block authoring with import helpers)
@@ -163,7 +163,7 @@ Goal: expand engine power for multi-genre projects while preserving deterministi
 
 ### 3.1 Gameplay Ability Framework
 
-- [x] Gameplay tags and condition queries (hierarchical tag support implemented in `engine/core/ability/gameplay_tags.h`).
+- [x] Gameplay tags and tag-gated activation queries (hierarchical tag support implemented in `engine/core/ability/gameplay_tags.h`; string-scripted `activeCondition` / `passiveCondition` remain deliberately unsupported in-tree).
 - [x] Ability definitions, activation/cooldown/cost pipelines (implemented in `engine/core/ability/gameplay_ability.h` and `ability_system_component.h`).
 - [x] State machines and transition guards (implemented in `engine/core/ability/ability_state_machine.h`).
 - [x] Ability Inspector UI (implemented in `editor/ability/ability_inspector_panel.h`).

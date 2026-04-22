@@ -86,3 +86,42 @@ TEST_CASE("EngineShell Delta Time Clamp", "[engine][core]") {
     shell.shutdown();
     REQUIRE(shell.isRunning() == false);
 }
+
+TEST_CASE("EngineShell steady-state render path avoids frame-command growth and legacy conversion", "[engine][shell][render][td02]") {
+    auto& sceneManager = SceneManager::getInstance();
+    while (sceneManager.stackSize() > 0) {
+        sceneManager.popScene();
+    }
+
+    auto& layer = RenderLayer::getInstance();
+    layer.flush();
+    layer.resetTelemetry();
+
+    auto& shell = EngineShell::getInstance();
+    auto surface = std::make_unique<HeadlessSurface>();
+    shell.startup(std::move(surface), std::make_unique<HeadlessRenderer>());
+
+    auto map = std::make_shared<MapScene>("TD02SteadyState", 20, 15);
+    sceneManager.pushScene(map);
+
+    shell.tick();
+    const auto warmup = layer.getTelemetry();
+    REQUIRE(warmup.maxFrameCommandCount > 0);
+    REQUIRE(warmup.frameCommandCapacity >= warmup.maxFrameCommandCount);
+
+    layer.resetTelemetry();
+
+    for (int frame = 0; frame < 5; ++frame) {
+        shell.tick();
+    }
+
+    const auto steadyState = layer.getTelemetry();
+    REQUIRE(steadyState.maxFrameCommandCount >= warmup.maxFrameCommandCount);
+    REQUIRE(steadyState.frameCommandCapacityGrowths == 0);
+    REQUIRE(steadyState.legacyViewBuildCount == 0);
+
+    shell.shutdown();
+    while (sceneManager.stackSize() > 0) {
+        sceneManager.popScene();
+    }
+}

@@ -1,18 +1,22 @@
 #pragma once
 
+#include "engine/core/asset_compressor.h"
+
 #include <string>
 #include <vector>
 #include <algorithm>
 #include <memory>
 #include <map>
 #include <cstdint>
+#include <string_view>
 
 namespace urpg::security {
 
     /**
      * @brief Resource protection helpers for the current export/runtime boundary.
-     * Compression is not implemented yet; only passthrough and light obfuscation
-     * behavior are available today.
+     * The shipped in-tree contract is lightweight real protection only:
+     * URPG-RLE compression plus XOR obfuscation. This is not a full encrypted
+     * or shipping-hardened content pipeline.
      * Part of Wave 4 Engine Polish (4.6).
      */
     class ResourceProtector {
@@ -21,16 +25,15 @@ namespace urpg::security {
          * @brief Report whether real compression is implemented.
          */
         [[nodiscard]] static constexpr bool compressionImplemented() {
-            return false;
+            return true;
         }
 
         /**
-         * @brief Current TD-06 boundary: returns the input bytes unchanged.
-         * This is a compatibility-preserving passthrough placeholder, not real
-         * ZLib/LZ4 compression.
+         * @brief Compress the input bytes using the in-tree URPG-RLE asset compressor.
+         * This is lightweight real compression, not a no-op passthrough.
          */
         [[nodiscard]] std::vector<uint8_t> compress(const std::vector<uint8_t>& rawData) {
-            return rawData;
+            return urpg::core::AssetCompressor::instance().compress(rawData);
         }
 
         /**
@@ -38,12 +41,47 @@ namespace urpg::security {
          * Used to protect assets from simple rippers.
          */
         void obfuscate(std::vector<uint8_t>& data, const std::string& key) {
-            if (key.empty() || data.empty()) return;
+            urpg::core::AssetCompressor::instance().obfuscate(data, key);
+        }
 
-            for (size_t i = 0; i < data.size(); ++i) {
-                // Circular key XOR
-                data[i] ^= static_cast<uint8_t>(key[i % key.length()]);
+        /**
+         * @brief Compute a lightweight keyed integrity tag for a protected payload.
+         * This is a bounded tamper/corruption indicator, not cryptographic signing.
+         */
+        [[nodiscard]] std::string computeIntegrityTag(std::string_view scope,
+                                                      const std::vector<uint8_t>& data,
+                                                      const std::string& key) const {
+            constexpr std::uint64_t kFnvOffset = 14695981039346656037ull;
+            constexpr std::uint64_t kFnvPrime = 1099511628211ull;
+
+            auto hash = kFnvOffset;
+            const auto mixByte = [&hash](std::uint8_t byte) {
+                hash ^= byte;
+                hash *= kFnvPrime;
+            };
+
+            for (const auto ch : key) {
+                mixByte(static_cast<std::uint8_t>(ch));
             }
+            mixByte(0xff);
+
+            for (const auto ch : scope) {
+                mixByte(static_cast<std::uint8_t>(ch));
+            }
+            mixByte(0xfe);
+
+            for (const auto byte : data) {
+                mixByte(byte);
+            }
+
+            static constexpr char kHex[] = "0123456789abcdef";
+            std::string encoded(16, '0');
+            for (int i = 15; i >= 0; --i) {
+                encoded[static_cast<std::size_t>(i)] = kHex[hash & 0x0f];
+                hash >>= 4;
+            }
+
+            return encoded;
         }
 
         /**

@@ -26,6 +26,7 @@ TEST_CASE("AnimationSystem updates transforms", "[animation]") {
         animSys.update(world, 0.5f);
         
         auto* transform = world.GetComponent<urpg::TransformComponent>(id);
+        REQUIRE(transform != nullptr);
         // Should be at the first keyframe since we haven't implemented full lerp yet, but time has progressed
         auto* animComp = world.GetComponent<urpg::AnimationComponent>(id);
         REQUIRE(animComp->currentTime.ToFloat() > 0.0f);

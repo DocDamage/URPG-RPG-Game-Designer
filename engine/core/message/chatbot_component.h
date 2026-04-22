@@ -39,6 +39,7 @@ public:
      * @brief Optional streaming request.
      */
     virtual void requestStream(const std::vector<ChatMessage>& history, StreamCallback onChunk, ChatCallback onComplete) {
+        (void)onChunk;
         // Fallback to non-streaming if not implemented
         requestResponse(history, onComplete);
     }
@@ -114,7 +115,9 @@ public:
     const std::vector<ChatMessage>& getHistory() const { return m_history; }
 
     /**
-     * @brief Restore a conversation history from a cloud or disk save.
+     * @brief Restore a conversation history from serialized persistence state.
+     * The in-tree sync path currently proves process-local restore only; callers
+     * may also inject histories loaded by out-of-tree persistence backends.
      */
     void restoreHistory(const std::vector<ChatMessage>& history) {
         m_history = history;

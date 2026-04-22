@@ -25,6 +25,7 @@ void MenuPreviewPanel::clearRuntime() {
 }
 
 void MenuPreviewPanel::Render(const urpg::FrameContext& context) {
+    (void)context;
     if (!m_visible) return;
 
     captureRenderSnapshot();
@@ -134,7 +135,8 @@ void MenuPreviewPanel::captureRenderSnapshot() {
             snapshot.command_enabled.push_back(true);
         }
 
-        if (pane.selectedCommandIndex < pane.commands.size()) {
+        if (pane.selectedCommandIndex >= 0 &&
+            static_cast<size_t>(pane.selectedCommandIndex) < pane.commands.size()) {
             snapshot.selected_command_id = pane.commands[pane.selectedCommandIndex].id;
         }
 

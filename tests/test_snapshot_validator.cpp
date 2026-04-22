@@ -32,7 +32,7 @@ TEST_CASE("SnapshotValidator detects pixel differences", "[testing][snapshot]") 
     }
 
     SECTION("Respects threshold for minor differences") {
-        SceneSnapshot s1 = {10, 10}; // 100 pixels
+        SceneSnapshot s1 = {10, 10, {}}; // 100 pixels
         s1.pixels.assign(100, {255,255,255,255});
         
         SceneSnapshot s2 = s1;

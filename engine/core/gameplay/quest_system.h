@@ -26,6 +26,7 @@ struct QuestComponent {
 class QuestSystem {
 public:
     void update(World& world) {
+        (void)world;
         // Quest updates are usually event driven, but periodically we might 
         // want to check objective status globally.
     }

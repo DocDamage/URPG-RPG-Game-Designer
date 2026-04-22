@@ -29,6 +29,7 @@ void UICommandList::select() {
 }
 
 void UICommandList::update(float dt) {
+    (void)dt;
     // Scroll handling (simplified)
     if (m_index < m_topIndex) {
         m_topIndex = m_index;

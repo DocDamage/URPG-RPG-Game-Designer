@@ -18,7 +18,11 @@ TEST_CASE("InteractionSystem detects nearby interactables", "[ecs][interaction]"
 
     // Setup NPC
     auto npcId = world.CreateEntity();
-    world.AddComponent(npcId, urpg::TransformComponent{{urpg::Fixed32::FromInt(1), urpg::Fixed32::FromInt(0), urpg::Fixed32::FromInt(0)}});
+    world.AddComponent(npcId, urpg::TransformComponent{
+        {urpg::Fixed32::FromInt(1), urpg::Fixed32::FromInt(0), urpg::Fixed32::FromInt(0)},
+        {},
+        {}
+    });
     world.AddComponent(npcId, urpg::InteractionComponent{"TalkToNPC", urpg::Fixed32::FromInt(2)});
 
     SECTION("Interaction triggers on Confirm press") {

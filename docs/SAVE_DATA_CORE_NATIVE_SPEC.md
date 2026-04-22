@@ -29,7 +29,7 @@ Scope: runtime ownership, editor ownership, schema, migration, diagnostics, and 
 - Save diagnostics/workspace export now also projects native autosave policy, retention limits, metadata-registry fields, slot descriptors, recovery diagnostics summaries, and serialization schema summaries alongside save slot rows.
 - Save workflow actions are now exposed at the diagnostics workspace layer for problem-slot filtering, autosave visibility toggling, slot selection, live save-policy drafting, deterministic policy validation, and policy apply-to-runtime flows, with selected-row export staying stable across runtime-backed refreshes and recovery-state/schema export remaining runtime-owned.
 - **AI-Ready Save Infrastructure landed (2026-04-16):**
-  - `AISyncCoordinator` (cloud-service-backed AI history serialization; currently exercised via the in-memory stub path)
+  - `AISyncCoordinator` (injected-backing-store AI history serialization; the in-tree path is currently exercised only via `LocalInMemoryCloudService`)
   - `CompressionLevel::Optimal` (incremental space-optimized history saving)
 - validation anchors are active in:
   - `tests/unit/test_data_manager.cpp`

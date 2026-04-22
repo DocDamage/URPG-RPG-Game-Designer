@@ -9,18 +9,17 @@
 namespace urpg::social {
 
     /**
-     * @brief Cloud Provider abstraction for different platforms.
+     * @brief Provider label for the in-tree cloud-service abstraction.
+     * The shipped tree only supports the process-local LocalSimulated path.
      */
     enum class CloudProvider {
-        SteamPayload,
-        EpicOnline,
-        GOGGalaxy,
-        GenericHTTP,
         LocalSimulated
     };
 
     /**
-     * @brief Result of a cloud operation.
+     * @brief Result of a cloud-service operation.
+     * For the in-tree local-memory path, this reports process-local stub behavior
+     * rather than any live remote transport.
      */
     struct CloudResult {
         bool success;
@@ -29,10 +28,12 @@ namespace urpg::social {
     };
 
     /**
-     * @brief Cloud-sync abstraction consumed by AI/save orchestration layers.
-     * Part of Phase 4 Ecosystem integration, but production provider bindings are
-     * still pending; current in-tree usage is primarily exercised through a
-     * process-local double.
+     * @brief Cloud-service abstraction consumed by AI/save orchestration layers.
+     * The accepted in-tree contract is deliberately local-only: production
+     * provider bindings are not implemented here, and the only shipped
+     * implementation is LocalInMemoryCloudService, which keeps data in
+     * process-local memory with no live transport. Any real cloud backend is
+     * future or out-of-tree feature work.
      */
     class ICloudService {
     public:
@@ -40,36 +41,38 @@ namespace urpg::social {
 
         /**
          * @brief Initialize the cloud link with the specified provider.
-         * The in-tree local-memory implementation only accepts LocalSimulated and
-         * does not establish a live provider session.
+         * The in-tree implementation only supports the process-local
+         * LocalSimulated path and does not establish a live provider session.
          */
         virtual CloudResult initialize(CloudProvider provider, const std::string& apiKey) = 0;
 
         /**
-         * @brief Sync local data to the backing store.
+         * @brief Sync local data to the configured backing store.
          * In-tree local-memory implementations only copy bytes into process-local memory.
          */
         virtual CloudResult syncToCloud(const std::string& key, const std::vector<uint8_t>& data) = 0;
 
         /**
-         * @brief Retrieve data from the backing store.
+         * @brief Retrieve data from the configured backing store.
          * In-tree local-memory implementations only read from process-local memory.
          */
         virtual std::vector<uint8_t> fetchFromCloud(const std::string& key) = 0;
 
         /**
-         * @brief List available keys in the backing store namespace.
+         * @brief List available keys in the backing-store namespace.
+         * In-tree local-memory implementations only enumerate process-local keys.
          */
         virtual std::vector<std::string> listRemoteKeys() = 0;
 
         /**
-         * @brief Check if the current environment allows cloud operations.
-         * For stubs, this only reflects local stub readiness, not internet reachability.
+         * @brief Check whether the configured backing store is ready.
+         * For the in-tree local-memory path, this only reflects local stub readiness,
+         * not internet reachability or remote account state.
          */
         virtual bool isOnline() const = 0;
 
         /**
-         * @brief Get status of the last sync operation.
+         * @brief Get status of the last backing-store operation.
          */
         virtual CloudResult getStatus() const = 0;
     };
@@ -85,11 +88,7 @@ namespace urpg::social {
     public:
         CloudResult initialize(CloudProvider provider, const std::string& apiKey) override {
             static_cast<void>(apiKey);
-            m_provider = provider;
-            if (provider != CloudProvider::LocalSimulated) {
-                m_online = false;
-                return {false, "NOT LIVE: LocalInMemoryCloudService only supports CloudProvider::LocalSimulated and cannot initialize live provider bindings.", 123456789};
-            }
+            static_cast<void>(provider);
 
             m_online = true;
             return {true, "NOT LIVE: LocalInMemoryCloudService initialized process-local memory only; no remote provider connection was made.", 123456789};
@@ -134,16 +133,8 @@ namespace urpg::social {
         }
 
     private:
-        CloudProvider m_provider = CloudProvider::LocalSimulated;
         bool m_online = false;
         std::map<std::string, std::vector<uint8_t>> m_storage;
     };
-
-    /**
-     * @brief Backward-compatible alias for the old stub name.
-     * Prefer LocalInMemoryCloudService at new call sites so the local-only scope
-     * is explicit at the type level.
-     */
-    using CloudServiceStub = LocalInMemoryCloudService;
 
 } // namespace urpg::social

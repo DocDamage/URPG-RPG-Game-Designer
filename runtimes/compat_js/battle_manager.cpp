@@ -2,6 +2,7 @@
 // Phase 2 - Compat Layer
 
 #include "battle_manager.h"
+#include "audio_manager.h"
 #include "data_manager.h"
 #include "engine/core/scene/combat_formula.h"
 #include <algorithm>
@@ -418,6 +419,10 @@ constexpr int32_t kVictorySwitchId = 101;
 constexpr int32_t kDefeatSwitchId = 102;
 constexpr int32_t kEscapeSwitchId = 103;
 
+bool isBattleRunning(BattlePhase phase) {
+    return phase != BattlePhase::NONE && phase != BattlePhase::END;
+}
+
 } // namespace
 
 // Internal implementation
@@ -457,23 +462,23 @@ BattleManager::BattleManager()
         setStatus("setup", CompatStatus::PARTIAL,
                   "Troop setup and party seeding are implemented, but rely on DataManager database loaders which are still partial. Enemy positioning is omitted because BattleSubject has no position fields.");
         setStatus("setBattleTransition", CompatStatus::PARTIAL,
-                  "Transition/background/audio metadata is retained for compat readback, but scene/audio backend routing is still TODO.");
+                  "Transition type is still metadata-only, but battle audio cues now drive the compat AudioManager harness during battle lifecycle.");
         setStatus("setBattleBackground", CompatStatus::PARTIAL,
-                  "Transition/background/audio metadata is retained for compat readback, but scene/audio backend routing is still TODO.");
+                  "Battle background name is still metadata-only; no live BattleScene background routing exists yet.");
         setStatus("setBattleBgm", CompatStatus::PARTIAL,
-                  "Transition/background/audio metadata is retained for compat readback, but scene/audio backend routing is still TODO.");
+                  "Battle BGM now drives the compat AudioManager harness during battle lifecycle, but still does not reach a live scene/audio backend.");
         setStatus("setVictoryMe", CompatStatus::PARTIAL,
-                  "Transition/background/audio metadata is retained for compat readback, but scene/audio backend routing is still TODO.");
+                  "Victory ME now drives the compat AudioManager harness on battle end, but still does not reach a live scene/audio backend.");
         setStatus("setDefeatMe", CompatStatus::PARTIAL,
-                  "Transition/background/audio metadata is retained for compat readback, but scene/audio backend routing is still TODO.");
+                  "Defeat ME now drives the compat AudioManager harness on battle end, but still does not reach a live scene/audio backend.");
         setStatus("changeBattleBackground", CompatStatus::PARTIAL,
-                  "Transition/background/audio metadata is retained for compat readback, but scene/audio backend routing is still TODO.");
+                  "Battle background name is still metadata-only; no live BattleScene background routing exists yet.");
         setStatus("changeBattleBgm", CompatStatus::PARTIAL,
-                  "Transition/background/audio metadata is retained for compat readback, but scene/audio backend routing is still TODO.");
+                  "Battle BGM now drives the compat AudioManager harness during battle lifecycle, but still does not reach a live scene/audio backend.");
         setStatus("changeVictoryMe", CompatStatus::PARTIAL,
-                  "Transition/background/audio metadata is retained for compat readback, but scene/audio backend routing is still TODO.");
+                  "Victory ME now drives the compat AudioManager harness on battle end, but still does not reach a live scene/audio backend.");
         setStatus("changeDefeatMe", CompatStatus::PARTIAL,
-                  "Transition/background/audio metadata is retained for compat readback, but scene/audio backend routing is still TODO.");
+                  "Defeat ME now drives the compat AudioManager harness on battle end, but still does not reach a live scene/audio backend.");
         methodStatus_["startBattle"] = CompatStatus::FULL;
         methodStatus_["endBattle"] = CompatStatus::FULL;
         methodStatus_["abortBattle"] = CompatStatus::FULL;
@@ -660,6 +665,10 @@ void BattleManager::setBattleBgm(const std::string& name, double volume, double 
     battleBgm_.name = name;
     battleBgm_.volume = std::clamp(volume, 0.0, 100.0);
     battleBgm_.pitch = std::clamp(pitch, 50.0, 200.0);
+
+    if (isBattleRunning(phase_) && !battleBgm_.name.empty()) {
+        AudioManager::instance().playBgm(battleBgm_.name, battleBgm_.volume, battleBgm_.pitch);
+    }
 }
 
 void BattleManager::setVictoryMe(const std::string& name, double volume, double pitch) {
@@ -699,6 +708,12 @@ const BattleAudioCue& BattleManager::getDefeatMe() const {
 // ============================================================================
 
 void BattleManager::startBattle() {
+    AudioManager& audio = AudioManager::instance();
+    audio.saveBgmSettings();
+    if (!battleBgm_.name.empty()) {
+        audio.playBgm(battleBgm_.name, battleBgm_.volume, battleBgm_.pitch);
+    }
+
     phase_ = BattlePhase::START;
     triggerHook(HookPoint::ON_START, {});
     
@@ -710,21 +725,34 @@ void BattleManager::endBattle(BattleResult result) {
     result_ = result;
     phase_ = BattlePhase::END;
     DataManager& dm = DataManager::instance();
+    AudioManager& audio = AudioManager::instance();
     
     switch (result) {
         case BattleResult::WIN:
             dm.setSwitch(kVictorySwitchId, true);
+            audio.stopBgm();
+            if (!victoryMe_.name.empty()) {
+                audio.playMe(victoryMe_.name, victoryMe_.volume, victoryMe_.pitch);
+            }
             triggerHook(HookPoint::ON_VICTORY, {});
             break;
         case BattleResult::DEFEAT:
             dm.setSwitch(kDefeatSwitchId, true);
+            audio.stopBgm();
+            if (!defeatMe_.name.empty()) {
+                audio.playMe(defeatMe_.name, defeatMe_.volume, defeatMe_.pitch);
+            }
             triggerHook(HookPoint::ON_DEFEAT, {});
             break;
         case BattleResult::ESCAPE:
             dm.setSwitch(kEscapeSwitchId, true);
+            audio.stopMe();
+            audio.restoreBgmSettings();
             triggerHook(HookPoint::ON_ESCAPE, {});
             break;
         case BattleResult::ABORT:
+            audio.stopMe();
+            audio.restoreBgmSettings();
             triggerHook(HookPoint::ON_ABORT, {});
             break;
         default:

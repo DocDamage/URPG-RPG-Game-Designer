@@ -192,16 +192,7 @@ void MapScene::handleInput(const urpg::input::InputCore& input) {
     if (m_playerMovement.isMoving) return;
 
     if (input.isActionJustPressed(urpg::input::InputAction::Confirm)) {
-        // Simple Interaction: Check tile in front of player
-        int tx = m_playerMovement.gridPos.x;
-        int ty = m_playerMovement.gridPos.y;
-        
-        if (m_playerMovement.direction == urpg::Direction::Up) ty--;
-        else if (m_playerMovement.direction == urpg::Direction::Down) ty++;
-        else if (m_playerMovement.direction == urpg::Direction::Left) tx--;
-        else if (m_playerMovement.direction == urpg::Direction::Right) tx++;
-
-        // In a real game, we'd check for an Event/NPC at (tx, ty)
+        // In a real game, we'd check for the interact target tile here.
         // For testing, let's trigger the mock "intro_elder" dialogue if we interact with anything
         auto& registry = urpg::message::DialogueRegistry::getInstance();
         auto pages = registry.flattenConversation("intro_elder");
@@ -272,7 +263,7 @@ void MapScene::setTileset(const std::shared_ptr<Texture>& tileset) {
     }
 }
 
-void MapScene::setPlayerCharacter(const std::string& name, int index) {
+void MapScene::setPlayerCharacter(const std::string& name, int /*index*/) {
     auto texture = urpg::AssetLoader::loadTexture("img/characters/" + name + ".png");
     m_playerAnimator = std::make_unique<SpriteAnimator>(texture);
     // index * 3 is typical for character sheet offset but simplified here
@@ -321,7 +312,7 @@ void MapScene::processAiAnimationCommands(const std::string& aiResponse) {
     // In a full ECS implementation, we would look up the target entity
     if (m_playerAnimator) {
         // Mocking the injection into a component-based system
-        urpg::AnimationComponent anim;
+        [[maybe_unused]] urpg::AnimationComponent anim;
         anim.positionTrack = keyframes;
         anim.duration = keyframes.back().time;
         anim.isPlaying = true;

@@ -1,10 +1,49 @@
+param(
+    [string]$BuildDirectory
+)
+
 $ErrorActionPreference = "Stop"
+. "$PSScriptRoot\resolve-local-cmake-profile.ps1"
+
+function Get-UrpgCMakeCacheValue {
+    param(
+        [Parameter(Mandatory = $true)]
+        [string]$CachePath,
+        [Parameter(Mandatory = $true)]
+        [string]$Key
+    )
+
+    if (-not (Test-Path $CachePath)) {
+        return $null
+    }
+
+    $line = Select-String -Path $CachePath -Pattern "^${Key}(:[^=]+)?=(.*)$" | Select-Object -First 1
+    if (-not $line) {
+        return $null
+    }
+
+    return $line.Matches[0].Groups[2].Value
+}
 
 $repoRoot = Resolve-Path (Join-Path $PSScriptRoot "..\..")
-$buildRoot = Join-Path $repoRoot "build"
+if ([string]::IsNullOrWhiteSpace($BuildDirectory)) {
+    $BuildDirectory = (Get-UrpgLocalBuildProfile).BuildDirectory
+}
+
+$buildRoot = if ([System.IO.Path]::IsPathRooted($BuildDirectory)) {
+    $BuildDirectory
+} else {
+    Join-Path $repoRoot $BuildDirectory
+}
 
 if (-not (Test-Path $buildRoot)) {
-    throw "Missing build directory: $buildRoot. Build an OpenGL-enabled local profile before running check_renderer_backed_visual_capture.ps1."
+    throw "Missing build directory: $buildRoot. Build an OpenGL-enabled profile before running check_renderer_backed_visual_capture.ps1."
+}
+
+$cachePath = Join-Path $buildRoot "CMakeCache.txt"
+$skipOpenGL = Get-UrpgCMakeCacheValue -CachePath $cachePath -Key "URPG_SKIP_OPENGL"
+if ($skipOpenGL -eq "ON") {
+    throw "Build directory '$buildRoot' is configured with URPG_SKIP_OPENGL=ON. Renderer-backed visual capture requires a non-headless OpenGL-enabled build."
 }
 
 $matches = Get-ChildItem -Path $buildRoot -Recurse -File | Where-Object {
@@ -15,7 +54,7 @@ $matches = Get-ChildItem -Path $buildRoot -Recurse -File | Where-Object {
 )
 
 if (-not $matches) {
-    throw "Could not find urpg_snapshot_tests under $buildRoot. Build an OpenGL-enabled local profile before running check_renderer_backed_visual_capture.ps1."
+    throw "Could not find urpg_snapshot_tests under $buildRoot. Build an OpenGL-enabled profile before running check_renderer_backed_visual_capture.ps1."
 }
 
 $testExecutable = ($matches | Select-Object -First 1).FullName

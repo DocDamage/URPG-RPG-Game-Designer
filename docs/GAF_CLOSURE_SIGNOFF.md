@@ -9,11 +9,11 @@
 
 ## 1. Runtime Ownership
 
-The Gameplay Ability Framework provides deterministic, native-owned ability execution, tagging, effect stacking, and cooldown management:
+The Gameplay Ability Framework provides deterministic, native-owned ability execution, tag-based gating, effect stacking, and cooldown management:
 
 | Component | Responsibility | Evidence |
 |-----------|---------------|----------|
-| `GameplayAbility` | Base class for executable actions with tag-based activation checks, structured failure reasons, MP cost resolution, and cooldown commit | `engine/core/ability/gameplay_ability.h` |
+| `GameplayAbility` | Base class for executable actions with tag-based activation checks, explicit unsupported scripted-condition diagnostics, structured failure reasons, MP cost resolution, and cooldown commit | `engine/core/ability/gameplay_ability.h` |
 | `AbilitySystemComponent` | Tag/effect/cooldown owner, attribute modification with additive/multiplicative/override stacking, and bounded deterministic execution history | `engine/core/ability/ability_system_component.h` |
 | `AbilityStateMachine` | Multi-phase ability orchestration (windup → impact → recovery) with per-state tags, enter/tick/exit logic, and deterministic transition diagnostics | `engine/core/ability/ability_state_machine.h` |
 | `PatternField` | 2D coordinate pattern authoring for AoE/range requirements with origin validation, radius bounds, and JSON serialization | `engine/core/ability/pattern_field.h` |
@@ -73,7 +73,8 @@ Key cross-subsystem assertions include:
 1. **Schema contracts**: No canonical JSON schema exists for ability definitions, activation info, or state machine phases. Pattern field has JSON serialization but no schema enforcement.
 2. **Migration mapping**: No compat-to-native upgrader maps RPG Maker MV/MZ skills, items, or troop actions into `GameplayAbility` / `AbilityStateMachine` shapes.
 3. **Gameplay task backend**: `AbilityTask` and `AbilityTask_WaitTime` exist as async task scaffolding, but deeper task backends (input-wait, event-wait, projectile collision) are not yet implemented.
-4. **Real gameplay loop integration**: The GAF is exercised through unit tests and inspector snapshots, but integration into a live `BattleScene` or `MapScene` ability command queue is future work.
+4. **Scripted condition evaluator**: `activeCondition` and `passiveCondition` strings are intentionally not evaluated in-tree. Non-empty `activeCondition` values fail with `active_condition_unsupported`, and `passiveCondition` is out of runtime scope unless future work deliberately reopens this lane.
+5. **Real gameplay loop integration**: The GAF is exercised through unit tests and inspector snapshots, but integration into a live `BattleScene` or `MapScene` ability command queue is future work.
 
 ---
 

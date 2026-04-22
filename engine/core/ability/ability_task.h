@@ -33,6 +33,7 @@ public:
     AbilityTask_WaitTime(float duration) : m_duration(duration) {}
 
     void activate(ability::AbilitySystemComponent& asc) override {
+        (void)asc;
         m_elapsed = 0.0f;
     }
 

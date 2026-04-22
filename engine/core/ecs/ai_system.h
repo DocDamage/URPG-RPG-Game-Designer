@@ -14,7 +14,7 @@ namespace urpg {
  */
 class AISystem {
 public:
-    void update(World& world, float deltaTime) {
+    void update(World& world, [[maybe_unused]] float deltaTime) {
         // Find player position for detection logic
         Vector3 playerPos;
         EntityID playerId = 0;
@@ -23,7 +23,7 @@ public:
             playerId = id;
         });
 
-        world.ForEachWith<TransformComponent, VelocityComponent, AIControlComponent>([&](EntityID id, TransformComponent& transform, VelocityComponent& velocity, AIControlComponent& ai) {
+        world.ForEachWith<TransformComponent, VelocityComponent, AIControlComponent>([&](EntityID, TransformComponent& transform, VelocityComponent& velocity, AIControlComponent& ai) {
             switch (ai.state) {
                 case AIState::Idle:
                     velocity.linear = Vector3::Zero();
@@ -81,8 +81,7 @@ private:
 
     void updatePatrol(const TransformComponent& transform, VelocityComponent& velocity, AIControlComponent& ai) {
         Vector3 target = ai.patrolPoints[ai.currentPatrolIndex];
-        Vector3 diff = target - transform.position;
-        
+
         if (isNearby(transform.position, target, Fixed32::FromRaw(6553))) { // 0.1 units
             ai.currentPatrolIndex = (ai.currentPatrolIndex + 1) % ai.patrolPoints.size();
         } else {

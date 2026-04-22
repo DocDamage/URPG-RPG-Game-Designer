@@ -2,8 +2,6 @@
 
 #include <catch2/catch_test_macros.hpp>
 
-static const char* kEditTestMarker = "EDIT_TEST_MARKER_2026_04_19_UNIQUE_STRING";
-
 namespace {
 
 urpg::MenuCommandMeta MakeCommand(const std::string& id,

@@ -37,6 +37,7 @@ bool Texture::loadFromMemory(const std::vector<uint8_t>& pixelData, int width, i
 }
 
 void Texture::bind(uint32_t unit) {
+    (void)unit;
     // glActiveTexture(GL_TEXTURE0 + unit);
     glBindTexture(GL_TEXTURE_2D, m_textureId);
 }

@@ -14,7 +14,7 @@ public:
     void update(World& world, float deltaTime) {
         Fixed32 dt = Fixed32::FromRaw(static_cast<int32_t>(deltaTime * 65536.0f));
 
-        world.ForEachWith<HealthComponent, StatusEffectComponent>([&](EntityID id, HealthComponent& health, StatusEffectComponent& effect) {
+        world.ForEachWith<HealthComponent, StatusEffectComponent>([&](EntityID, HealthComponent& health, StatusEffectComponent& effect) {
             if (effect.duration <= Fixed32::FromInt(0)) {
                 // Effect expired - logic to remove component should be here
                 return;

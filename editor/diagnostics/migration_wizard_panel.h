@@ -35,7 +35,7 @@ public:
         size_t warning_count = 0;
         size_t error_count = 0;
         bool completed = false;
-        std::string summary_line;
+        std::string summary_line{};
         bool is_selected = false;
         bool can_rerun = false;
         bool can_clear = false;
@@ -79,15 +79,15 @@ public:
         bool has_bound_project_data = false;
         bool can_rerun_bound_migration = false;
         bool can_rerun_bound_selected_subsystem = false;
-        std::string exported_report_json;
+        std::string exported_report_json{};
         bool can_save_report = false;
         bool can_load_report = false;
-        std::vector<std::string> workflow_sections;
-        WorkflowPrimaryActions primary_actions;
-        std::vector<WorkflowSubsystemCard> subsystem_cards;
-        std::optional<WorkflowSubsystemCard> selected_subsystem_card;
-        WorkflowReportIoState report_io;
-        WorkflowBoundRuntimeActions bound_runtime_actions;
+        std::vector<std::string> workflow_sections{};
+        WorkflowPrimaryActions primary_actions{};
+        std::vector<WorkflowSubsystemCard> subsystem_cards{};
+        std::optional<WorkflowSubsystemCard> selected_subsystem_card = std::nullopt;
+        WorkflowReportIoState report_io{};
+        WorkflowBoundRuntimeActions bound_runtime_actions{};
     };
 
     MigrationWizardPanel() : m_model(std::make_shared<MigrationWizardModel>()) {}

@@ -345,7 +345,7 @@ public:
 
     void onStart() override { m_startCount++; }
     void onStop() override { m_stopCount++; }
-    void onUpdate(float dt) override { m_updateCount++; }
+    void onUpdate(float /*dt*/) override { m_updateCount++; }
 
     int m_startCount = 0;
     int m_stopCount = 0;

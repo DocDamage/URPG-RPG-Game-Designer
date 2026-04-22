@@ -16,16 +16,19 @@ void MenuScene::onStart() {
 }
 
 void MenuScene::onUpdate(float deltaTime) {
+    (void)deltaTime;
     if (m_isPaused) return;
     // Handle menu animations, timers, and state transitions.
 }
 
 void MenuScene::handleInput(const urpg::input::InputCore& input) {
+    (void)input;
     if (m_isPaused) return;
     // Process navigation and command routing.
 }
 
 void MenuScene::draw(urpg::SpriteBatcher& batcher) {
+    (void)batcher;
     // Render the scene graph panes and commands.
 }
 

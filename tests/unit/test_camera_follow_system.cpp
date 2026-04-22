@@ -10,7 +10,11 @@ TEST_CASE("CameraFollowSystem updates camera position", "[render][camera]") {
     urpg::CameraFollowSystem followSys;
 
     auto targetId = world.CreateEntity();
-    world.AddComponent(targetId, urpg::TransformComponent{{urpg::Fixed32::FromInt(50), urpg::Fixed32::FromInt(0), urpg::Fixed32::FromInt(0)}});
+    world.AddComponent(targetId, urpg::TransformComponent{
+        {urpg::Fixed32::FromInt(50), urpg::Fixed32::FromInt(0), urpg::Fixed32::FromInt(0)},
+        {},
+        {}
+    });
 
     auto camId = world.CreateEntity();
     world.AddComponent(camId, urpg::TransformComponent{});

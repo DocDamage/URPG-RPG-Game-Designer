@@ -16,7 +16,7 @@ struct LootableComponent {
 
 class LootSystem {
 public:
-    void update(World& world) {
+    void update([[maybe_unused]] World& world) {
         // This would typically check for collisions between player and lootables.
         // For now, let's assume proximity-based looting or event-driven.
     }

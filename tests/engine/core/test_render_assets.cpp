@@ -1,6 +1,7 @@
 #include <catch2/catch_test_macros.hpp>
 #include <sstream>
 #include <iostream>
+#include <thread>
 #include "engine/core/render/render_layer.h"
 #include "engine/core/render/asset_loader.h"
 #include "engine/core/assets/texture_registry.h"
@@ -428,4 +429,52 @@ TEST_CASE("AssetLoader clearCaches drops negative cache state so missing-texture
     const std::string needle = "[URPG][AssetLoader] Failed to load texture: " + path;
     REQUIRE(output.find(needle) != std::string::npos);
     REQUIRE(output.find(needle, output.find(needle) + 1) != std::string::npos);
+}
+
+TEST_CASE("AssetLoader rejects cross-thread cache access until clearCaches hands ownership over",
+          "[assets][core][loader]") {
+    const std::string rejectedPath = "img/__missing__/asset_loader_thread_affinity_rejected.png";
+    AssetLoader::clearCaches();
+
+    std::shared_ptr<Texture> crossThreadResult;
+    std::ostringstream captured;
+    auto* originalBuffer = std::cerr.rdbuf(captured.rdbuf());
+
+    std::thread worker([&]() {
+        crossThreadResult = AssetLoader::loadTexture(rejectedPath);
+    });
+    worker.join();
+
+    std::cerr.rdbuf(originalBuffer);
+
+    REQUIRE(crossThreadResult == nullptr);
+
+    const std::string output = captured.str();
+    REQUIRE(output.find("[URPG][AssetLoader] Rejected loadTexture from a non-owner thread.") != std::string::npos);
+    REQUIRE(output.find("call clearCaches() on the new owning thread before reusing them.") != std::string::npos);
+    REQUIRE(output.find("[URPG][AssetLoader] Failed to load texture: " + rejectedPath) == std::string::npos);
+}
+
+TEST_CASE("AssetLoader clearCaches rebases thread ownership for future cache use",
+          "[assets][core][loader]") {
+    const std::string threadOwnedPath = "img/__missing__/asset_loader_thread_affinity_rebound.png";
+    AssetLoader::clearCaches();
+
+    std::shared_ptr<Texture> reboundResult;
+    std::ostringstream captured;
+    auto* originalBuffer = std::cerr.rdbuf(captured.rdbuf());
+
+    std::thread worker([&]() {
+        AssetLoader::clearCaches();
+        reboundResult = AssetLoader::loadTexture(threadOwnedPath);
+    });
+    worker.join();
+
+    std::cerr.rdbuf(originalBuffer);
+
+    REQUIRE(reboundResult == nullptr);
+
+    const std::string output = captured.str();
+    REQUIRE(output.find("[URPG][AssetLoader] Rejected loadTexture from a non-owner thread.") == std::string::npos);
+    REQUIRE(output.find("[URPG][AssetLoader] Failed to load texture: " + threadOwnedPath) != std::string::npos);
 }

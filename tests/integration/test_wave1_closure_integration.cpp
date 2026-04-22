@@ -10,17 +10,7 @@
 #include <nlohmann/json.hpp>
 
 #include <filesystem>
-#include <fstream>
 #include <string>
-
-namespace {
-
-void WriteText(const std::filesystem::path& path, const std::string& value) {
-    std::ofstream out(path, std::ios::binary);
-    out << value;
-}
-
-} // namespace
 
 TEST_CASE("Integration: battle save round-trip preserves phase and turn count", "[integration][wave1][closure]") {
     using namespace urpg::battle;

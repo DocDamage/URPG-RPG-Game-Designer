@@ -416,7 +416,7 @@ public:
     // Extension
     int32_t getCurrentExt() const;
     virtual void makeCommandList();
-    virtual void processOk();
+    void processOk() override;
     
     // Draw
     void drawItem(int32_t index);
@@ -471,7 +471,6 @@ private:
 class Sprite_Character {
 public:
     struct CreateParams {
-        int32_t characterId = 0;
         std::string characterName;
         int32_t characterIndex = 0;
         int32_t x = 0;
@@ -492,14 +491,15 @@ public:
     void setCharacterName(const std::string& name);
     int32_t getCharacterIndex() const { return characterIndex_; }
     void setCharacterIndex(int32_t index);
+    Rect getSourceRect() const { return sourceRect_; }
     
     // Direction (2=down, 4=left, 6=right, 8=up)
     int32_t getDirection() const { return direction_; }
-    void setDirection(int32_t dir) { direction_ = dir; }
+    void setDirection(int32_t dir);
     
     // Pattern (animation frame)
     int32_t getPattern() const { return pattern_; }
-    void setPattern(int32_t pattern) { pattern_ = pattern; }
+    void setPattern(int32_t pattern);
     
     // Visibility
     bool isVisible() const { return visible_; }
@@ -530,6 +530,7 @@ public:
 private:
     void reloadBitmapForCurrentAsset();
     void releaseBitmap();
+    void refreshSourceRect();
 
     int32_t x_ = 0;
     int32_t y_ = 0;
@@ -543,6 +544,8 @@ private:
     int32_t opacity_ = 255;
     double scaleX_ = 1.0;
     double scaleY_ = 1.0;
+    Rect sourceRect_{};
+    int32_t animationFrameCounter_ = 0;
     BitmapHandle bitmap_ = INVALID_BITMAP;
 };
 
@@ -575,7 +578,7 @@ public:
     
     // Motion (idle, walk, chant, guard, damage, evade, thrust, swing, missile, skill, spell, item, escape, victory, dying, abnormal, sleep, dead)
     int32_t getMotion() const { return motion_; }
-    void setMotion(int32_t motion) { motion_ = motion; }
+    void setMotion(int32_t motion);
     
     // Visibility
     bool isVisible() const { return visible_; }
@@ -611,6 +614,7 @@ public:
 private:
     void reloadBitmapForCurrentAsset();
     void releaseBitmap();
+    void startResolvedMotion(int32_t motion, bool looping);
 
     int32_t actorId_ = 0;
     std::string battlerName_;
@@ -624,6 +628,8 @@ private:
     bool animationPlaying_ = false;
     int32_t animationId_ = 0;
     int32_t animationFramesRemaining_ = 0;
+    int32_t motionFramesRemaining_ = 0;
+    bool motionLoops_ = false;
     bool effecting_ = false;
     std::string currentEffect_;
     int32_t effectDurationFrames_ = 0;

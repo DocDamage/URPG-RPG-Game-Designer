@@ -1,7 +1,10 @@
 #include "engine/core/scene/battle_scene.h"
 #include "engine/core/battle/battle_core.h"
+#include "engine/core/sprite_batcher.h"
+#include "runtimes/compat_js/battle_manager.h"
 #include "runtimes/compat_js/data_manager.h"
 
+#include <catch2/catch_approx.hpp>
 #include <catch2/catch_test_macros.hpp>
 #include <sstream>
 #include <iostream>
@@ -79,6 +82,42 @@ urpg::battle::BattleDamageContext buildAttackContext(const BattleParticipant& su
     return context;
 }
 
+float colorChannel(uint32_t color, int shift) {
+    return static_cast<float>((color >> shift) & 0xFFu) / 255.0f;
+}
+
+bool batchContainsColor(const urpg::SpriteBatcher& batcher, uint32_t color) {
+    const float expectedR = colorChannel(color, 24);
+    const float expectedG = colorChannel(color, 16);
+    const float expectedB = colorChannel(color, 8);
+    const float expectedA = colorChannel(color, 0);
+
+    for (const auto& drawData : batcher.getBatches()) {
+        if (drawData.vertices.empty()) {
+            continue;
+        }
+
+        const auto& vertex = drawData.vertices.front();
+        if (vertex.color[0] == Catch::Approx(expectedR) &&
+            vertex.color[1] == Catch::Approx(expectedG) &&
+            vertex.color[2] == Catch::Approx(expectedB) &&
+            vertex.color[3] == Catch::Approx(expectedA)) {
+            return true;
+        }
+
+        for (const auto& candidate : drawData.vertices) {
+            if (candidate.color[0] == Catch::Approx(expectedR) &&
+                candidate.color[1] == Catch::Approx(expectedG) &&
+                candidate.color[2] == Catch::Approx(expectedB) &&
+                candidate.color[3] == Catch::Approx(expectedA)) {
+                return true;
+            }
+        }
+    }
+
+    return false;
+}
+
 } // namespace
 
 TEST_CASE("BattleScene Logic: lifecycle and automated turn progression", "[battle][scene][logic]") {
@@ -115,6 +154,26 @@ TEST_CASE("BattleScene: missing battleback emits a named diagnostic during start
 
     REQUIRE(captured.str().find("MISSING_BATTLEBACK") != std::string::npos);
     REQUIRE(captured.str().find("img/battlebacks1/Grassland.png") != std::string::npos);
+}
+
+TEST_CASE("BattleScene: compat-selected battleback path is attempted before fallback", "[battle][scene][assets]") {
+    auto& dm = urpg::compat::DataManager::instance();
+    REQUIRE(dm.loadDatabase());
+    dm.setupNewGame();
+
+    urpg::compat::BattleManager::instance().changeBattleBackground("ruins_night");
+    auto battle = std::make_shared<BattleScene>(std::vector<std::string>{"1"});
+
+    std::ostringstream captured;
+    auto* originalBuffer = std::cerr.rdbuf(captured.rdbuf());
+    battle->onStart();
+    std::cerr.rdbuf(originalBuffer);
+
+    REQUIRE(captured.str().find("MISSING_BATTLEBACK") != std::string::npos);
+    REQUIRE(captured.str().find("img/battlebacks1/ruins_night.png") != std::string::npos);
+    REQUIRE(captured.str().find("img/battlebacks1/Grassland.png") != std::string::npos);
+
+    urpg::compat::BattleManager::instance().changeBattleBackground("");
 }
 
 TEST_CASE("BattleScene routes live phase progression through Battle Core flow state", "[battle][scene][logic]") {
@@ -366,6 +425,40 @@ TEST_CASE("BattleScene builds diagnostics preview from the next ordered queued a
 
     CHECK(preview->party_agi == dm.getActorParam(1, 6, 1));
     CHECK(preview->troop_agi == dm.getEnemy(1)->agi + dm.getEnemy(2)->agi);
+}
+
+TEST_CASE("BattleScene draws bounded colored HUD cues for gauges, guard, states, and popups", "[battle][scene][draw]") {
+    auto& dm = urpg::compat::DataManager::instance();
+    REQUIRE(dm.loadDatabase());
+    dm.setupNewGame();
+
+    BattleScene battle({"1"});
+    battle.onStart();
+    battle.addActor("1", "Hero", 100, 20, {0.0f, 0.0f}, nullptr);
+
+    auto& participants = const_cast<std::vector<BattleParticipant>&>(battle.getParticipants());
+    REQUIRE(participants.size() == 1);
+
+    auto& actor = participants.front();
+    actor.isGuarding = true;
+    actor.states = {5, 6};
+    actor.DamagePopupTimer = 0.75f;
+    actor.DamagePopupValue = 42.0f;
+    actor.DamagePopupColor = 0x00FF00FFu;
+
+    urpg::SpriteBatcher batcher;
+    batcher.begin();
+    battle.draw(batcher);
+    batcher.end();
+
+    REQUIRE_FALSE(batcher.getBatches().empty());
+    REQUIRE(batchContainsColor(batcher, 0x1B1B24CCu));
+    REQUIRE(batchContainsColor(batcher, 0xFF0000FFu));
+    REQUIRE(batchContainsColor(batcher, 0xAAAA00FFu));
+    REQUIRE(batchContainsColor(batcher, 0xF4A261FFu));
+    REQUIRE(batchContainsColor(batcher, 0x2E86ABFFu));
+    REQUIRE(batchContainsColor(batcher, 0x6A994EFFu));
+    REQUIRE(batchContainsColor(batcher, 0x00FF00FFu));
 }
 
 TEST_CASE("BattleScene diagnostics preview is unavailable without a queued action", "[battle][scene][diagnostics]") {

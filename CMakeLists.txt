@@ -11,10 +11,14 @@ if(MSVC)
     add_compile_options(/FS /EHsc)
 endif()
 
+option(URPG_WARNINGS_AS_ERRORS "Treat project warnings as errors through urpg_project_warnings" OFF)
+
 add_library(urpg_project_warnings INTERFACE)
 target_compile_options(urpg_project_warnings INTERFACE
     $<$<CXX_COMPILER_ID:MSVC>:/W4>
+    $<$<AND:$<BOOL:${URPG_WARNINGS_AS_ERRORS}>,$<CXX_COMPILER_ID:MSVC>>:/WX>
     $<$<OR:$<CXX_COMPILER_ID:GNU>,$<CXX_COMPILER_ID:Clang>,$<CXX_COMPILER_ID:AppleClang>>:-Wall -Wextra>
+    $<$<AND:$<BOOL:${URPG_WARNINGS_AS_ERRORS}>,$<OR:$<CXX_COMPILER_ID:GNU>,$<CXX_COMPILER_ID:Clang>,$<CXX_COMPILER_ID:AppleClang>>>:-Werror>
 )
 
 function(urpg_normalize_path out_var input_path)
@@ -417,6 +421,17 @@ elseif(TARGET SDL2::SDL2-static)
 elseif(TARGET SDL2-static)
     set(URPG_SDL_TARGET SDL2-static)
 endif()
+
+foreach(_urpg_sdl_vendor_target IN ITEMS SDL2 SDL2-static)
+    if(TARGET ${_urpg_sdl_vendor_target})
+        get_target_property(_urpg_sdl_vendor_imported ${_urpg_sdl_vendor_target} IMPORTED)
+        if(NOT _urpg_sdl_vendor_imported)
+            target_compile_options(${_urpg_sdl_vendor_target} PRIVATE
+                $<$<OR:$<C_COMPILER_ID:Clang>,$<C_COMPILER_ID:AppleClang>>:-Wno-shadow>
+            )
+        endif()
+    endif()
+endforeach()
 
 target_link_libraries(urpg_core PUBLIC 
     urpg_project_warnings

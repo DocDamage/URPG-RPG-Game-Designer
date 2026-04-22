@@ -29,7 +29,7 @@ public:
         size_t warning_count = 0;
         size_t error_count = 0;
         bool completed = false;
-        std::string summary_line;
+        std::string summary_line{};
     };
 
     struct ProgressReport {

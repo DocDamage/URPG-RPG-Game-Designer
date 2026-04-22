@@ -141,22 +141,6 @@ int32_t glyphAdvance(char32_t cp, int32_t font_size) {
     return static_cast<int32_t>(std::lround(size * 0.75));
 }
 
-int32_t measurePlainText(const std::string& text, int32_t font_size) {
-    if (text.empty()) {
-        return 0;
-    }
-    int32_t width = 0;
-    size_t cursor = 0;
-    while (cursor < text.size()) {
-        const char32_t cp = decodeUtf8Codepoint(text, cursor);
-        if (cp == U'\0' || cp == U'\r' || cp == U'\n') {
-            continue;
-        }
-        width += glyphAdvance(cp, font_size);
-    }
-    return width;
-}
-
 } // namespace
 
 MessagePresentationVariant variantFromCompatRoute(const std::string& route,

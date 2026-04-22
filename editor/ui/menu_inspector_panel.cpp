@@ -27,6 +27,7 @@ void MenuInspectorPanel::update() {
 }
 
 void MenuInspectorPanel::Render(const urpg::FrameContext& context) {
+    (void)context;
     if (!m_visible) return;
 
     if (!model_) {

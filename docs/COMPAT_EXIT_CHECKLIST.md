@@ -22,6 +22,7 @@ It is intentionally narrower than full native-feature completion:
 - [x] Curated compat corpus covers the active plugin/import profiles that matter for migration planning.
 - [x] New failure operations are locked to JSONL export, report ingestion, and panel projection parity.
 - [x] QuickJS is still documented as a fixture-backed compat harness everywhere it is referenced.
+- [x] The compat QuickJS/plugin path is explicitly documented as the single supported in-tree scripting/plugin bridge.
 - [x] Runtime status labels remain aligned with actual bridge behavior; fixture-backed or placeholder-backed paths are not labeled `FULL` without evidence.
 - [x] Focused compat suites pass in the active local build lane.
 

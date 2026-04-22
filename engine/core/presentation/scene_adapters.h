@@ -4,16 +4,23 @@
 
 namespace urpg::presentation {
 
+struct MapSceneState;
+struct BattleSceneState;
+struct MenuSceneState;
+struct OverlaySceneState;
+
 /**
  * @brief Adapter for MapScene presentation.
  * Section 10.1: MapScene contract
  */
 class MapSceneTranslator : public PresentationSceneTranslator {
 public:
+    using PresentationSceneTranslator::Translate;
+
     virtual void Translate(
         const PresentationContext& context,
         const PresentationAuthoringData& data,
-        const class MapSceneState& sceneState, // Hypothetical scene state class
+        const MapSceneState& sceneState,
         PresentationFrameIntent& outIntent) = 0;
 };
 
@@ -23,10 +30,12 @@ public:
  */
 class BattleSceneTranslator : public PresentationSceneTranslator {
 public:
+    using PresentationSceneTranslator::Translate;
+
     virtual void Translate(
         const PresentationContext& context,
         const PresentationAuthoringData& data,
-        const class BattleSceneState& sceneState,
+        const BattleSceneState& sceneState,
         PresentationFrameIntent& outIntent) = 0;
 };
 
@@ -36,10 +45,12 @@ public:
  */
 class MenuSceneTranslator : public PresentationSceneTranslator {
 public:
+    using PresentationSceneTranslator::Translate;
+
     virtual void Translate(
         const PresentationContext& context,
         const PresentationAuthoringData& data,
-        const class MenuSceneState& sceneState,
+        const MenuSceneState& sceneState,
         PresentationFrameIntent& outIntent) = 0;
 };
 
@@ -49,10 +60,12 @@ public:
  */
 class OverlaySceneTranslator : public PresentationSceneTranslator {
 public:
+    using PresentationSceneTranslator::Translate;
+
     virtual void Translate(
         const PresentationContext& context,
         const PresentationAuthoringData& data,
-        const class OverlaySceneState& sceneState,
+        const OverlaySceneState& sceneState,
         PresentationFrameIntent& outIntent) = 0;
 };
 

@@ -1,6 +1,8 @@
 #include "ui_window.h"
 #include "engine/core/platform/gl_texture.h"
 
+#include <algorithm>
+
 namespace urpg::ui {
 
 UIWindow::UIWindow() {
@@ -79,20 +81,49 @@ void UIWindow::draw(SpriteBatcher& batcher) {
 }
 
 void UIWindow::drawGauge(SpriteBatcher& batcher, float x, float y, float width, float rate, uint32_t color1, uint32_t color2) {
-    (void)batcher;
-    (void)x;
-    (void)y;
-    (void)width;
-    (void)rate;
-    (void)color1;
-    (void)color2;
-    // 1. Draw Gauge Background (darker strip)
-    // Using a solid color batcher entry if the batcher supports it or a white 1x1 area
-    // For now: placeholder draw with a semi-transparent black strip
-    // batcher.drawRect(x, y, width, 12, 0.0f, 0.0f, 0.0f, 0.5f);
+    const auto toChannel = [](uint32_t color, int shift) {
+        return static_cast<float>((color >> shift) & 0xFFu) / 255.0f;
+    };
 
-    // 2. Draw Gauge Filled portion
-    // batcher.drawRect(x, y, width * rate, 12, (float)(color1 >> 16)/255.0f, ...);
+    const float clampedRate = std::clamp(rate, 0.0f, 1.0f);
+    constexpr uint32_t kSolidQuadTextureId = 1;
+    constexpr uint32_t kGaugeBackground = 0x1B1B24CCu;
+    constexpr float gaugeHeight = 12.0f;
+
+    batcher.submit(kSolidQuadTextureId,
+                   x, y, width, gaugeHeight,
+                   0.0f, 0.0f, 1.0f, 1.0f,
+                   m_zIndex + 0.03f,
+                   toChannel(kGaugeBackground, 24),
+                   toChannel(kGaugeBackground, 16),
+                   toChannel(kGaugeBackground, 8),
+                   toChannel(kGaugeBackground, 0));
+
+    const float fillWidth = width * clampedRate;
+    if (fillWidth <= 0.0f) {
+        return;
+    }
+
+    batcher.submit(kSolidQuadTextureId,
+                   x, y, fillWidth, gaugeHeight,
+                   0.0f, 0.0f, 1.0f, 1.0f,
+                   m_zIndex + 0.04f,
+                   toChannel(color1, 24),
+                   toChannel(color1, 16),
+                   toChannel(color1, 8),
+                   toChannel(color1, 0));
+
+    const float highlightWidth = fillWidth * 0.45f;
+    if (highlightWidth > 0.0f) {
+        batcher.submit(kSolidQuadTextureId,
+                       x, y, highlightWidth, gaugeHeight * 0.45f,
+                       0.0f, 0.0f, 1.0f, 1.0f,
+                       m_zIndex + 0.05f,
+                       toChannel(color2, 24),
+                       toChannel(color2, 16),
+                       toChannel(color2, 8),
+                       toChannel(color2, 0));
+    }
 }
 
 } // namespace urpg::ui

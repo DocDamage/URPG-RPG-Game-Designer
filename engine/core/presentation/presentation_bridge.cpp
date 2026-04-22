@@ -8,7 +8,15 @@ PresentationFrameIntent PresentationBridge::BuildFrameForActiveScene(
     auto activeScene = sceneManager.getActiveScene();
     if (!activeScene) {
         resetBattleCueCursor();
-        return PresentationFrameIntent{PresentationMode::Classic2D, CapabilityTier::Tier0_Baseline};
+        return PresentationFrameIntent{
+            PresentationMode::Classic2D,
+            CapabilityTier::Tier0_Baseline,
+            {},
+            {},
+            {},
+            {},
+            {}
+        };
     }
 
     PresentationContext effectiveContext = context;

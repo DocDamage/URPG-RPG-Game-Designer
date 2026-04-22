@@ -5,8 +5,14 @@
 
 #include <nlohmann/json.hpp>
 
+#include <functional>
 #include <optional>
 #include <string>
+
+namespace urpg {
+class OpenGLRenderer;
+class EngineShell;
+}
 
 namespace urpg::testing {
 
@@ -41,6 +47,16 @@ public:
                                                     int width,
                                                     int height,
                                                     std::string* errorMessage = nullptr) const;
+
+    std::optional<SceneSnapshot> captureOpenGLScene(const std::function<void(urpg::OpenGLRenderer&)>& renderCallback,
+                                                    int width,
+                                                    int height,
+                                                    std::string* errorMessage = nullptr) const;
+
+    std::optional<SceneSnapshot> captureOpenGLEngineTick(const std::function<void(urpg::EngineShell&)>& setupCallback,
+                                                         int width,
+                                                         int height,
+                                                         std::string* errorMessage = nullptr) const;
 
     nlohmann::json buildReportJson(const std::string& testName,
                                    const SnapshotComparisonResult& result) const;

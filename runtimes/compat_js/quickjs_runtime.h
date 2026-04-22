@@ -126,7 +126,7 @@ public:
         std::string name;
         HostFunction fn;
         CompatStatus status = CompatStatus::STUB;
-        std::string deviationNote;      // Required if status == PARTIAL
+        std::string deviationNote{};    // Required if status == PARTIAL
     };
     bool registerObject(const std::string& name, const std::vector<MethodDef>& methods);
 
@@ -152,7 +152,7 @@ public:
     struct APIStatus {
         std::string apiName;
         CompatStatus status;
-        std::string deviationNote;
+        std::string deviationNote{};
         uint32_t callCount = 0;
         uint32_t failCount = 0;
     };

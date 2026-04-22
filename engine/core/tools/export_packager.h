@@ -28,6 +28,8 @@ namespace urpg::tools {
         ExportTarget target;
         std::string outputDir;
         std::string runtimeBinaryPath;
+        std::string assetBundleManifestRootOverride;
+        std::string normalizedAssetRootOverride;
         bool obfuscateScripts = false;
         bool compressAssets = true;
         bool includeDebugSymbols = false;
@@ -43,7 +45,10 @@ namespace urpg::tools {
 
     /**
      * @brief Automated Export Packager.
-     * Handles license auditing, asset bundling, and final binary generation.
+     * Handles the bounded in-tree export contract: staged asset bundle output,
+     * executable synthesis, and one real Windows launch-smoke path when a
+     * runtime binary is explicitly supplied. Broader shipping-grade packaging
+     * remains future work.
      * Part of Wave 4 Engine Polish (4.5).
      */
     class ExportPackager {

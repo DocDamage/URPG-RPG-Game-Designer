@@ -41,6 +41,7 @@ public:
         m_statusEffects.update(world, deltaTime);
         m_health.update(world, deltaTime);
         m_quest.update(world);
+        m_loot.update(world);
         m_progression.update(world);
         m_economy.update(world);
         

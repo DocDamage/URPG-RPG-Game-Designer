@@ -78,9 +78,10 @@ Key cross-subsystem assertions include:
 
 ## 7. Remaining Residual Gaps (Honest Scope Limits)
 
-1. **Compat import/migration completion**: `BattleMigration` maps troop structure, member placement, phase conditions (turn, enemy HP, switch, **actor present**, grouped boolean `and` / `or` trees), event commands (Show Text, Common Event, Change State, Force Action, Change Enemy HP/MP, **Change Switches, Change Variables, Change Gold, Change Items/Weapons/Armors, Transfer Player, Game Over**), and action scopes. Remaining work is now limited to niche event commands and control-flow/plugin-specific troop-page constructs that still require explicit fallback handling. This is tracked as "Compat import/migration completion remains open" in `readiness_status.json`.
-2. **Plugin authority validation**: Battle-specific RPG Maker MZ plugins are validated at the manifest level, but deep behavioral sandbox tests for every battle plugin variant are not yet at 100 % coverage.
-3. **Networked / async battle**: Not in Wave 1 scope.
+1. **Bounded in-tree battle contract**: the supported in-tree compat surface is intentionally bounded, not full RPG Maker battle parity. `CombatFormula` supports the current arithmetic/stat subset with named fallback reasons, the troop-page interpreter supports the current bounded command/branch subset with explicit unsupported fallbacks, compat battle BGM / victory ME / defeat ME route through the deterministic `AudioManager` harness, and `BattleScene` now attempts compat-selected battleback lookup plus bounded colored HUD cues. Broader formula semantics, transition-type routing, and deeper troop-page scripting are future feature work unless the roadmap explicitly reopens them.
+2. **Compat import/migration completion**: `BattleMigration` maps troop structure, member placement, phase conditions (turn, enemy HP, switch, **actor present**, grouped boolean `and` / `or` trees), event commands (Show Text, Common Event, Change State, Force Action, Change Enemy HP/MP, **Change Switches, Change Variables, Change Gold, Change Items/Weapons/Armors, Transfer Player, Game Over**), and action scopes. Remaining work is now limited to niche event commands and control-flow/plugin-specific troop-page constructs that still require explicit fallback handling. This is tracked as "Compat import/migration completion remains open" in `readiness_status.json`.
+3. **Plugin authority validation**: Battle-specific RPG Maker MZ plugins are validated at the manifest level, but deep behavioral sandbox tests for every battle plugin variant are not yet at 100 % coverage.
+4. **Networked / async battle**: Not in Wave 1 scope.
 
 ---
 

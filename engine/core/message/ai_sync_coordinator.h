@@ -9,10 +9,10 @@ namespace urpg::ai {
 
 /**
  * @brief Coordinates AI history serialization through an injected cloud-service abstraction.
- * The wiring is real, but cross-device persistence depends on the backing
- * ICloudService implementation; with the in-tree LocalInMemoryCloudService
- * (or the compatibility alias CloudServiceStub) this remains process-local test
- * behavior rather than a live cloud sync path.
+ * The accepted in-tree contract is process-local only: cross-device persistence
+ * depends on an out-of-tree ICloudService implementation, and the shipped
+ * LocalInMemoryCloudService remains harness/test behavior rather than a live
+ * cloud sync path.
  */
 class AISyncCoordinator {
 public:

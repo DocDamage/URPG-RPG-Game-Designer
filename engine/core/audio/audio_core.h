@@ -74,6 +74,7 @@ public:
      * @brief Plays background music with crossfade support.
      */
     void playBGM(const std::string& assetId, float fadeSeconds = 1.0f) {
+        (void)fadeSeconds;
         m_currentBGM = assetId;
         // Logic for crossfading would go here
     }

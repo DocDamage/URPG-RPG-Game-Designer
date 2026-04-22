@@ -220,6 +220,94 @@ int32_t resolveAnimationDurationFrames(int32_t animationId) {
     return baseFrames + ((animationId % variationCount) * stepFrames);
 }
 
+int32_t normalizeCharacterIndex(int32_t characterIndex) {
+    constexpr int32_t kCharactersPerSheet = 8;
+    if (characterIndex < 0) {
+        return 0;
+    }
+    return characterIndex % kCharactersPerSheet;
+}
+
+int32_t normalizeCharacterPattern(int32_t pattern) {
+    constexpr int32_t kPatternCount = 3;
+    if (pattern < 0) {
+        return 0;
+    }
+    return pattern % kPatternCount;
+}
+
+int32_t normalizeCharacterDirection(int32_t direction) {
+    switch (direction) {
+    case 2:
+    case 4:
+    case 6:
+    case 8:
+        return direction;
+    default:
+        return 2;
+    }
+}
+
+int32_t resolveCharacterDirectionRow(int32_t direction) {
+    switch (normalizeCharacterDirection(direction)) {
+    case 2:
+        return 0;
+    case 4:
+        return 1;
+    case 6:
+        return 2;
+    case 8:
+        return 3;
+    default:
+        return 0;
+    }
+}
+
+Rect resolveCharacterSourceRect(int32_t characterIndex, int32_t direction, int32_t pattern) {
+    constexpr int32_t kCharSheetCols = 4;
+    constexpr int32_t kCharCellWidth = 48;
+    constexpr int32_t kCharCellHeight = 48;
+    const int32_t normalizedIndex = normalizeCharacterIndex(characterIndex);
+    const int32_t normalizedPattern = normalizeCharacterPattern(pattern);
+    const int32_t row = resolveCharacterDirectionRow(direction);
+    const int32_t baseX = (normalizedIndex % kCharSheetCols) * 3 * kCharCellWidth;
+    const int32_t baseY = (normalizedIndex / kCharSheetCols) * 4 * kCharCellHeight;
+    return Rect{
+        baseX + normalizedPattern * kCharCellWidth,
+        baseY + row * kCharCellHeight,
+        kCharCellWidth,
+        kCharCellHeight,
+    };
+}
+
+bool isLoopingActorMotion(int32_t motion) {
+    switch (motion) {
+    case 0:  // walk
+    case 1:  // idle/wait
+    case 2:  // chant
+    case 3:  // guard
+    case 12: // escape
+    case 13: // victory
+    case 14: // dying
+    case 15: // abnormal
+    case 16: // sleep
+    case 17: // dead
+        return true;
+    default:
+        return false;
+    }
+}
+
+int32_t resolveActorMotionDurationFrames(int32_t motion) {
+    if (motion < 0) {
+        return 0;
+    }
+    if (isLoopingActorMotion(motion)) {
+        return 12;
+    }
+    return 18;
+}
+
 int32_t normalizeFaceIndex(int32_t faceIndex) {
     constexpr int32_t faceCells = kFaceSheetCols * kFaceSheetRows;
     if (faceCells <= 0) {
@@ -306,20 +394,6 @@ int32_t hitTestSelectableIndexAt(const Window_Selectable& window,
     }
 
     return index;
-}
-
-int32_t hitTestSelectableIndex(const Window_Selectable& window,
-                               const InputManager& input,
-                               bool acceptHeldPointer) {
-    const bool touchActive =
-        acceptHeldPointer ? (input.isTouchPressed() || input.isTouchTriggered()) : input.isTouchTriggered();
-    const bool mouseActive = acceptHeldPointer ? (input.isMousePressed(0) || input.isMouseTriggered(0))
-                                               : input.isMouseTriggered(0);
-    if (!touchActive && !mouseActive) {
-        return -1;
-    }
-
-    return hitTestSelectableIndexAt(window, getPrimaryPointerX(input), getPrimaryPointerY(input));
 }
 
 bool isPointerInsideSelectableContent(const Window_Selectable& window,
@@ -2343,8 +2417,9 @@ Sprite_Character::Sprite_Character(const CreateParams& params)
     : x_(params.x)
     , y_(params.y)
     , characterName_(params.characterName)
-    , characterIndex_(params.characterIndex)
+    , characterIndex_(normalizeCharacterIndex(params.characterIndex))
 {
+    refreshSourceRect();
     reloadBitmapForCurrentAsset();
 }
 
@@ -2360,14 +2435,40 @@ void Sprite_Character::setCharacterName(const std::string& name) {
 }
 
 void Sprite_Character::setCharacterIndex(int32_t index) {
-    if (characterIndex_ != index) {
-        characterIndex_ = index;
-        // TODO: Update source rect
+    const int32_t normalizedIndex = normalizeCharacterIndex(index);
+    if (characterIndex_ != normalizedIndex) {
+        characterIndex_ = normalizedIndex;
+        refreshSourceRect();
+    }
+}
+
+void Sprite_Character::setDirection(int32_t dir) {
+    const int32_t normalizedDirection = normalizeCharacterDirection(dir);
+    if (direction_ != normalizedDirection) {
+        direction_ = normalizedDirection;
+        refreshSourceRect();
+    }
+}
+
+void Sprite_Character::setPattern(int32_t pattern) {
+    const int32_t normalizedPattern = normalizeCharacterPattern(pattern);
+    if (pattern_ != normalizedPattern) {
+        pattern_ = normalizedPattern;
+        animationFrameCounter_ = 0;
+        refreshSourceRect();
     }
 }
 
 void Sprite_Character::update() {
-    // TODO: Update animation, position, etc.
+    constexpr int32_t kAnimationStepFrames = 12;
+    ++animationFrameCounter_;
+    if (animationFrameCounter_ < kAnimationStepFrames) {
+        return;
+    }
+
+    animationFrameCounter_ = 0;
+    pattern_ = normalizeCharacterPattern(pattern_ + 1);
+    refreshSourceRect();
 }
 
 std::optional<SpriteBitmapInfo> Sprite_Character::getBitmapInfo() const {
@@ -2400,40 +2501,46 @@ void Sprite_Character::releaseBitmap() {
     bitmapAssetId_.clear();
 }
 
+void Sprite_Character::refreshSourceRect() {
+    sourceRect_ = resolveCharacterSourceRect(characterIndex_, direction_, pattern_);
+}
+
 void Sprite_Character::registerAPI(QuickJSContext& ctx) {
     std::vector<QuickJSContext::MethodDef> methods;
+    const std::string spriteCharacterStubNote =
+        "Fixture-backed object registration cannot mutate per-instance Sprite_Character state yet.";
     
     methods.push_back({"setX", [](const std::vector<Value>&) -> Value {
-        return Value::Int(1);
-    }, CompatStatus::FULL});
+        return Value::Nil();
+    }, CompatStatus::STUB, spriteCharacterStubNote});
     
     methods.push_back({"setY", [](const std::vector<Value>&) -> Value {
-        return Value::Int(1);
-    }, CompatStatus::FULL});
+        return Value::Nil();
+    }, CompatStatus::STUB, spriteCharacterStubNote});
     
     methods.push_back({"setDirection", [](const std::vector<Value>&) -> Value {
-        return Value::Int(1);
-    }, CompatStatus::FULL});
+        return Value::Nil();
+    }, CompatStatus::STUB, spriteCharacterStubNote});
     
     methods.push_back({"setPattern", [](const std::vector<Value>&) -> Value {
-        return Value::Int(1);
-    }, CompatStatus::FULL});
+        return Value::Nil();
+    }, CompatStatus::STUB, spriteCharacterStubNote});
     
     methods.push_back({"setVisible", [](const std::vector<Value>&) -> Value {
-        return Value::Int(1);
-    }, CompatStatus::FULL});
+        return Value::Nil();
+    }, CompatStatus::STUB, spriteCharacterStubNote});
     
     methods.push_back({"setBlendMode", [](const std::vector<Value>&) -> Value {
-        return Value::Int(1);
-    }, CompatStatus::FULL});
+        return Value::Nil();
+    }, CompatStatus::STUB, spriteCharacterStubNote});
     
     methods.push_back({"setOpacity", [](const std::vector<Value>&) -> Value {
-        return Value::Int(1);
-    }, CompatStatus::FULL});
+        return Value::Nil();
+    }, CompatStatus::STUB, spriteCharacterStubNote});
     
     methods.push_back({"setScale", [](const std::vector<Value>&) -> Value {
-        return Value::Int(1);
-    }, CompatStatus::FULL});
+        return Value::Nil();
+    }, CompatStatus::STUB, spriteCharacterStubNote});
     
     ctx.registerObject("Sprite_Character", methods);
 }
@@ -2464,9 +2571,15 @@ void Sprite_Actor::setBattlerName(const std::string& name) {
     reloadBitmapForCurrentAsset();
 }
 
+void Sprite_Actor::setMotion(int32_t motion) {
+    motion_ = std::max(0, motion);
+    motionFramesRemaining_ = 0;
+    motionLoops_ = false;
+}
+
 void Sprite_Actor::startMotion(int32_t motion) {
-    motion_ = motion;
-    // TODO: Start motion animation
+    const int32_t resolvedMotion = std::max(0, motion);
+    startResolvedMotion(resolvedMotion, isLoopingActorMotion(resolvedMotion));
 }
 
 void Sprite_Actor::startAnimation(int32_t animationId) {
@@ -2492,6 +2605,19 @@ void Sprite_Actor::startEffect(const std::string& effect) {
 }
 
 void Sprite_Actor::update() {
+    if (motionFramesRemaining_ > 0) {
+        --motionFramesRemaining_;
+        if (motionFramesRemaining_ <= 0) {
+            if (motionLoops_) {
+                motionFramesRemaining_ = resolveActorMotionDurationFrames(motion_);
+            } else {
+                motion_ = 0;
+                motionFramesRemaining_ = 0;
+                motionLoops_ = false;
+            }
+        }
+    }
+
     if (animationPlaying_) {
         if (animationFramesRemaining_ > 0) {
             --animationFramesRemaining_;
@@ -2555,40 +2681,48 @@ void Sprite_Actor::releaseBitmap() {
     bitmapAssetId_.clear();
 }
 
+void Sprite_Actor::startResolvedMotion(int32_t motion, bool looping) {
+    motion_ = motion;
+    motionLoops_ = looping;
+    motionFramesRemaining_ = resolveActorMotionDurationFrames(motion);
+}
+
 void Sprite_Actor::registerAPI(QuickJSContext& ctx) {
     std::vector<QuickJSContext::MethodDef> methods;
+    const std::string spriteActorStubNote =
+        "Fixture-backed object registration cannot mutate or observe per-instance Sprite_Actor state yet.";
     
     methods.push_back({"setMotion", [](const std::vector<Value>&) -> Value {
-        return Value::Int(1);
-    }, CompatStatus::FULL});
+        return Value::Nil();
+    }, CompatStatus::STUB, spriteActorStubNote});
     
     methods.push_back({"startMotion", [](const std::vector<Value>&) -> Value {
-        return Value::Int(1);
-    }, CompatStatus::FULL});
+        return Value::Nil();
+    }, CompatStatus::STUB, spriteActorStubNote});
     
     methods.push_back({"startAnimation", [](const std::vector<Value>&) -> Value {
-        return Value::Int(1);
-    }, CompatStatus::FULL});
+        return Value::Nil();
+    }, CompatStatus::STUB, spriteActorStubNote});
 
     methods.push_back({"isAnimationPlaying", [](const std::vector<Value>&) -> Value {
-        return Value::Int(0);
-    }, CompatStatus::FULL});
+        return Value::Nil();
+    }, CompatStatus::STUB, spriteActorStubNote});
     
     methods.push_back({"startEffect", [](const std::vector<Value>&) -> Value {
-        return Value::Int(1);
-    }, CompatStatus::FULL});
+        return Value::Nil();
+    }, CompatStatus::STUB, spriteActorStubNote});
     
     methods.push_back({"setVisible", [](const std::vector<Value>&) -> Value {
-        return Value::Int(1);
-    }, CompatStatus::FULL});
+        return Value::Nil();
+    }, CompatStatus::STUB, spriteActorStubNote});
     
     methods.push_back({"setBlendMode", [](const std::vector<Value>&) -> Value {
-        return Value::Int(1);
-    }, CompatStatus::FULL});
+        return Value::Nil();
+    }, CompatStatus::STUB, spriteActorStubNote});
     
     methods.push_back({"setOpacity", [](const std::vector<Value>&) -> Value {
-        return Value::Int(1);
-    }, CompatStatus::FULL});
+        return Value::Nil();
+    }, CompatStatus::STUB, spriteActorStubNote});
     
     ctx.registerObject("Sprite_Actor", methods);
 }
@@ -2670,14 +2804,14 @@ void WindowCompatManager::destroyAll() {
 }
 
 void WindowCompatManager::updateAll() {
-    for (auto& [id, window] : windows_) {
-        window->update();
+    for (auto& entry : windows_) {
+        entry.second->update();
     }
-    for (auto& [id, sprite] : characterSprites_) {
-        sprite->update();
+    for (auto& entry : characterSprites_) {
+        entry.second->update();
     }
-    for (auto& [id, sprite] : actorSprites_) {
-        sprite->update();
+    for (auto& entry : actorSprites_) {
+        entry.second->update();
     }
 }
 
@@ -2688,13 +2822,6 @@ void WindowCompatManager::registerAllAPIs(QuickJSContext& ctx) {
     Sprite_Character::registerAPI(ctx);
     Sprite_Actor::registerAPI(ctx);
 
-    ctx.registerAPIStatus("Sprite_Character.setDirection", CompatStatus::FULL);
-    ctx.registerAPIStatus("Sprite_Character.setPattern", CompatStatus::FULL);
-    ctx.registerAPIStatus("Sprite_Character.setScale", CompatStatus::FULL);
-    ctx.registerAPIStatus("Sprite_Actor.startMotion", CompatStatus::FULL);
-    ctx.registerAPIStatus("Sprite_Actor.startAnimation", CompatStatus::FULL);
-    ctx.registerAPIStatus("Sprite_Actor.startEffect", CompatStatus::FULL);
-    ctx.registerAPIStatus("Sprite_Actor.setOpacity", CompatStatus::FULL);
 }
 
 std::vector<WindowCompatManager::CompatReport> WindowCompatManager::getCompatReport() const {

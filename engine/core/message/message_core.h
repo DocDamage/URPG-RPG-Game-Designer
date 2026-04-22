@@ -74,10 +74,10 @@ private:
 };
 
 struct ChoiceOption {
-    std::string id;
-    std::string label;
+    std::string id{};
+    std::string label{};
     bool enabled = true;
-    std::string disabled_reason;
+    std::string disabled_reason{};
 };
 
 class ChoicePromptState {
@@ -178,13 +178,13 @@ private:
 };
 
 struct DialoguePage {
-    std::string id;
-    std::string body;
+    std::string id{};
+    std::string body{};
     MessagePresentationVariant variant;
     bool wait_for_advance = true;
-    std::vector<ChoiceOption> choices;
+    std::vector<ChoiceOption> choices{};
     int32_t default_choice_index = 0;
-    std::string command; // Hook for "tool usage"
+    std::string command{}; // Hook for "tool usage"
 };
 
 enum class MessageFlowState : uint8_t {

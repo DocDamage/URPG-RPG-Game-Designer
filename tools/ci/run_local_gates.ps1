@@ -3,7 +3,8 @@ param(
     [string]$BuildPreset,
     [string]$PresentationConfiguration,
     [switch]$SkipBuild,
-    [switch]$SkipPresentationGate
+    [switch]$SkipPresentationGate,
+    [switch]$SkipWarningsAsErrorsGate
 )
 
 $ErrorActionPreference = "Stop"
@@ -86,13 +87,33 @@ if (-not $SkipBuild) {
     cmake --build --preset $BuildPreset
 }
 
+if (-not $SkipWarningsAsErrorsGate) {
+    $strictBuildDir = "build/$ConfigurePreset-warnings-as-errors"
+    Write-Host "== Configure strict warnings gate: $strictBuildDir ==" -ForegroundColor Cyan
+    cmake --preset $ConfigurePreset -B $strictBuildDir -DURPG_WARNINGS_AS_ERRORS=ON
+
+    Write-Host "== Build strict warnings gate ==" -ForegroundColor Cyan
+    cmake --build $strictBuildDir --target `
+        urpg_migrate `
+        urpg_project_audit `
+        urpg_export_smoke_app `
+        urpg_presentation_release_validation `
+        urpg_tests `
+        urpg_integration_tests `
+        urpg_snapshot_tests `
+        urpg_compat_tests
+}
+
+$testDir = "build/$ConfigurePreset"
+
 Write-Host "== Validate visual regression harness ==" -ForegroundColor Cyan
 & "$PSScriptRoot\check_visual_regression_harness.ps1"
 
+Write-Host "== Validate renderer-backed visual capture ==" -ForegroundColor Cyan
+& "$PSScriptRoot\check_renderer_backed_visual_capture.ps1" -BuildDirectory $testDir
+
 Write-Host "== Validate localization consistency ==" -ForegroundColor Cyan
 & "$PSScriptRoot\check_localization_consistency.ps1"
-
-$testDir = "build/$ConfigurePreset"
 
 if (-not $SkipPresentationGate) {
     Write-Host "== Focused presentation gate ==" -ForegroundColor Cyan

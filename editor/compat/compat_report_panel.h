@@ -40,7 +40,7 @@ struct CompatCallRecord {
     std::string className;
     std::string methodName;
     CompatStatus status;
-    std::string deviationNote;
+    std::string deviationNote{};
     uint32_t callCount = 0;
     uint64_t totalDurationUs = 0;  // Microseconds
     uint64_t lastCallTimestamp = 0;

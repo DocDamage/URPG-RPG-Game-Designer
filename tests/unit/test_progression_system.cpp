@@ -15,7 +15,7 @@ TEST_CASE("ProgressionSystem awards XP and levels up", "[gameplay][progression]"
 
     auto enemyId = world.CreateEntity();
     auto& health = world.AddComponent(enemyId, urpg::HealthComponent{100, 100, false});
-    world.AddComponent(enemyId, urpg::LootComponent{100, 50});
+    world.AddComponent(enemyId, urpg::LootComponent{100, 50, {}});
 
     SECTION("Defeating enemy awards XP") {
         health.isAlive = false; // Mark as dead

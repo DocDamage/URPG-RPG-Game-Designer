@@ -45,7 +45,9 @@ GameplayAbility::ActivationCheckResult GameplayAbility::evaluateActivation(const
         return result;
     }
 
-    // Scripted Condition check
+    // TD-09 accepted in-tree contract: scripted condition strings are not
+    // evaluated. Non-empty authored data fails explicitly instead of silently
+    // bypassing activation rules.
     const auto& activeCondition = resolveActiveCondition();
     if (!activeCondition.empty()) {
         result.allowed = false;
@@ -98,6 +100,7 @@ const std::string& GameplayAbility::resolveActiveCondition() const {
 }
 
 bool AbilitySystemComponent::canApplyEffect(const GameplayEffect& effect) const {
+    (void)effect;
     // Basic implementation for canApplyEffect
     // Check if the source has any tags that would block this effect
     // (This is a placeholder for future logic where Effects have their own Tag requirements)

@@ -6,6 +6,9 @@
 // This defines the PluginManager compatibility surface for MZ plugins.
 // Per Section 4 - WindowCompat Explicit Surface:
 // Plugin command registration and execution is required for plugin compatibility.
+// This is the active and only remaining in-tree scripting/plugin execution path.
+// It is intentionally a fixture-backed compat bridge for import/validation workflows,
+// not a production JavaScript plugin runtime.
 //
 // The PluginManager provides:
 // - Plugin command registration (registerCommand)
@@ -34,12 +37,12 @@ using PluginCommandHandler = std::function<Value(const std::vector<Value>& args)
 
 // Plugin metadata
 struct PluginInfo {
-    std::string name;
-    std::string version;
-    std::string author;
-    std::string description;
-    std::vector<std::string> dependencies;
-    std::vector<std::string> parameters;
+    std::string name{};
+    std::string version{};
+    std::string author{};
+    std::string description{};
+    std::vector<std::string> dependencies{};
+    std::vector<std::string> parameters{};
     bool enabled = true;
     bool loaded = false;
 };

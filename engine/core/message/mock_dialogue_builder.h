@@ -20,7 +20,10 @@ public:
         introStart.id = "start";
         introStart.body = "Welcome to the world of URPG! Are you ready for an adventure?";
         introStart.variant.speaker = "Elder";
-        introStart.choices = {{"yes", "I am born ready!"}, {"no", "Maybe later..."}};
+        introStart.choices = {
+            ChoiceOption{.id = "yes", .label = "I am born ready!", .enabled = true, .disabled_reason = ""},
+            ChoiceOption{.id = "no", .label = "Maybe later...", .enabled = true, .disabled_reason = ""},
+        };
         introStart.next_node_id = ""; // Terminal for this segment, logic handles branch selection.
         introNodes.push_back(introStart);
 

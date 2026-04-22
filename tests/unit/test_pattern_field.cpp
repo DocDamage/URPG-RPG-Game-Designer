@@ -19,7 +19,7 @@ public:
     }
     const std::string& getId() const override { static std::string id = "TestPat"; return id; }
     const ActivationInfo& getActivationInfo() const override { return m_info; }
-    void activate(AbilitySystemComponent& source) override {}
+    void activate([[maybe_unused]] AbilitySystemComponent& source) override {}
 private:
     ActivationInfo m_info;
 };
