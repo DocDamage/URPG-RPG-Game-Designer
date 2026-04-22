@@ -1,0 +1,17 @@
+{
+  "schemaVersion": "1.0.0",
+  "name": "Lyra",
+  "classId": "class_ranger",
+  "portraitId": "portrait_ranger_01",
+  "bodySpriteId": "sprite_ranger_body",
+  "baseAttributes": {
+    "STR": 9.0,
+    "VIT": 9.0,
+    "INT": 8.0,
+    "AGI": 14.0
+  },
+  "appearanceTokens": [
+    "cloak_travel",
+    "hair_short"
+  ]
+}

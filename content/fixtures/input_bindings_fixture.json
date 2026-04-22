@@ -1,0 +1,21 @@
+{
+  "version": "1.0.0",
+  "bindings": [
+    {
+      "keyCode": 38,
+      "action": "MoveUp"
+    },
+    {
+      "keyCode": 40,
+      "action": "MoveDown"
+    },
+    {
+      "keyCode": 90,
+      "action": "Confirm"
+    },
+    {
+      "keyCode": 88,
+      "action": "Cancel"
+    }
+  ]
+}

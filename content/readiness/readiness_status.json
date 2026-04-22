@@ -142,7 +142,7 @@
     {
       "id": "governance_foundation",
       "status": "PARTIAL",
-      "summary": "Governance foundation has first-slice artifacts landed: breaking-change detection, enhanced readiness checks, template specs, bidirectional readiness/truth drift detection, project-audit artifact checks for accessibility, audio, and performance, and a canonical release-signoff workflow artifact.",
+      "summary": "Governance foundation has first-slice artifacts landed: breaking-change detection, enhanced readiness checks, template specs, bidirectional readiness/truth drift detection, project-audit artifact checks for input, accessibility, audio, character, mod, analytics, and performance, a bounded controller-binding runtime/panel plus input governance script/fixture contract, and a canonical release-signoff workflow artifact.",
       "mainGaps": [
         "Diagnostics/export parity and full release-signoff enforcement beyond the current artifact-backed governance workflow remain future work"
       ],
@@ -158,15 +158,16 @@
     {
       "id": "character_identity",
       "status": "PARTIAL",
-      "summary": "Character identity runtime, editor creator panel, ECS component/system integration, and deterministic spawner are landed with schema and focused tests.",
+      "summary": "Character identity runtime, editor creator panel, bounded validation runtime, ECS component/system integration, and deterministic spawner are landed with schema and focused tests.",
       "mainGaps": [
+        "Character identity validator, governance script, and ProjectAudit artifact section are landed for the bounded editor/runtime contract.",
         "Full Create-a-Character workflow (runtime character creation UI, appearance preview pipeline) remain future work"
       ],
       "evidence": {
         "runtimeOwner": true,
         "editorSurface": true,
         "schemaMigration": true,
-        "diagnostics": false,
+        "diagnostics": true,
         "testsValidation": true,
         "docsAligned": true
       }
@@ -257,15 +258,16 @@
     {
       "id": "mod_registry",
       "status": "PARTIAL",
-      "summary": "Mod registry with manifest registration, dependency resolution, load-order topology, and editor manager panel is landed.",
+      "summary": "Mod registry with manifest registration, dependency resolution, load-order topology, bounded validation runtime, and editor manager panel is landed.",
       "mainGaps": [
+        "Mod registry validator, governance script, and ProjectAudit artifact section are landed for the bounded manifest/editor contract.",
         "Live mod loading, sandboxed script execution, and mod-store integration remain future work"
       ],
       "evidence": {
         "runtimeOwner": true,
         "editorSurface": true,
         "schemaMigration": true,
-        "diagnostics": false,
+        "diagnostics": true,
         "testsValidation": true,
         "docsAligned": true
       }
@@ -273,15 +275,16 @@
     {
       "id": "analytics_dispatcher",
       "status": "PARTIAL",
-      "summary": "Opt-in analytics dispatcher with deterministic tick counters, event buffering, circular drop, and editor panel is landed.",
+      "summary": "Opt-in analytics dispatcher with deterministic tick counters, event buffering, circular drop, editor panel, and bounded validator/governance coverage is landed.",
       "mainGaps": [
+        "Analytics validator, governance script, and ProjectAudit artifact section are landed for the bounded opt-in telemetry/editor contract.",
         "Telemetry upload pipeline, session aggregation, and privacy audit workflow remain future work"
       ],
       "evidence": {
         "runtimeOwner": true,
         "editorSurface": true,
         "schemaMigration": true,
-        "diagnostics": false,
+        "diagnostics": true,
         "testsValidation": true,
         "docsAligned": true
       }

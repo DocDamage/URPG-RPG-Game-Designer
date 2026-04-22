@@ -7,6 +7,7 @@
 #include <nlohmann/json.hpp>
 
 #include "analytics_event.h"
+#include "analytics_dispatcher_validator.h"
 
 namespace urpg::analytics {
 
@@ -24,7 +25,11 @@ public:
         const std::string& eventName,
         const std::string& category);
 
+    void setAllowedCategories(const std::vector<std::string>& allowedCategories);
+    std::vector<std::string> getAllowedCategories() const;
     uint64_t getSessionEventCount() const;
+    std::vector<AnalyticsEvent> snapshotEvents() const;
+    std::vector<AnalyticsValidationIssue> getValidationIssues() const;
     nlohmann::json getBufferSnapshot() const;
     void resetSession();
 
@@ -33,6 +38,7 @@ private:
     uint64_t m_nextTick = 1;
     uint64_t m_sessionEventCount = 0;
     static constexpr size_t k_maxBufferSize = 1000;
+    std::vector<std::string> m_allowedCategories;
     std::vector<AnalyticsEvent> m_buffer;
 };
 

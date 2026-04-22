@@ -1,7 +1,15 @@
 #include <catch2/catch_test_macros.hpp>
 
+#include <chrono>
+#include <cstdlib>
+#include <filesystem>
+#include <fstream>
+
+#include <nlohmann/json.hpp>
+
 #include "engine/core/analytics/analytics_dispatcher.h"
 
+using nlohmann::json;
 using urpg::analytics::AnalyticsDispatcher;
 
 TEST_CASE("AnalyticsDispatcher records events when opt-in is true", "[analytics]") {
@@ -79,4 +87,65 @@ TEST_CASE("AnalyticsDispatcher event parameters are preserved", "[analytics]") {
     REQUIRE(snapshot.size() == 1);
     REQUIRE(snapshot[0]["parameters"]["key1"] == "value1");
     REQUIRE(snapshot[0]["parameters"]["key2"] == "value2");
+}
+
+TEST_CASE("AnalyticsDispatcher validator reports disallowed categories and empty event fields", "[analytics]") {
+    AnalyticsDispatcher dispatcher;
+    dispatcher.setOptIn(true);
+    dispatcher.setAllowedCategories({"combat", "ui"});
+
+    dispatcher.dispatchEvent("", "", {{"source", "editor"}});
+    dispatcher.dispatchEvent("debug_click", "debug", {{"source", ""}});
+
+    const auto issues = dispatcher.getValidationIssues();
+    REQUIRE(issues.size() == 4);
+    REQUIRE(issues[0].category == urpg::analytics::AnalyticsValidationCategory::EmptyEventName);
+    REQUIRE(issues[1].category == urpg::analytics::AnalyticsValidationCategory::EmptyCategory);
+    REQUIRE(issues[2].category == urpg::analytics::AnalyticsValidationCategory::DisallowedCategory);
+    REQUIRE(issues[3].category == urpg::analytics::AnalyticsValidationCategory::EmptyParameterValue);
+}
+
+TEST_CASE("AnalyticsDispatcher validator reports excessive parameter count", "[analytics]") {
+    AnalyticsDispatcher dispatcher;
+    dispatcher.setOptIn(true);
+    dispatcher.setAllowedCategories({"combat"});
+
+    std::map<std::string, std::string> params;
+    for (int i = 0; i < 9; ++i) {
+        params["key" + std::to_string(i)] = "value";
+    }
+
+    dispatcher.dispatchEvent("combat_tick", "combat", params);
+
+    const auto issues = dispatcher.getValidationIssues();
+    REQUIRE(issues.size() == 1);
+    REQUIRE(issues[0].category == urpg::analytics::AnalyticsValidationCategory::ExcessiveParameterCount);
+    REQUIRE(issues[0].severity == urpg::analytics::AnalyticsValidationSeverity::Warning);
+}
+
+TEST_CASE("AnalyticsDispatcher governance script validates artifacts", "[analytics][project_audit_cli]") {
+    const auto repoRoot = std::filesystem::path(__FILE__).parent_path().parent_path().parent_path();
+    const auto scriptPath = repoRoot / "tools" / "ci" / "check_analytics_governance.ps1";
+    const auto uniqueSuffix =
+        std::to_string(std::chrono::steady_clock::now().time_since_epoch().count());
+    const auto outputPath =
+        std::filesystem::temp_directory_path() / ("urpg_analytics_gov_out_" + uniqueSuffix + ".json");
+
+    const std::string command =
+        "powershell -ExecutionPolicy Bypass -File \"" + scriptPath.string() +
+        "\" > \"" + outputPath.string() + "\"";
+
+    REQUIRE(std::system(command.c_str()) == 0);
+
+    std::ifstream resultFile(outputPath);
+    REQUIRE(resultFile.is_open());
+
+    std::string jsonStr((std::istreambuf_iterator<char>(resultFile)),
+                        std::istreambuf_iterator<char>());
+    resultFile.close();
+
+    const auto result = json::parse(jsonStr);
+    REQUIRE(result["passed"].get<bool>() == true);
+    REQUIRE(result["errors"].is_array());
+    REQUIRE(result["errors"].empty());
 }

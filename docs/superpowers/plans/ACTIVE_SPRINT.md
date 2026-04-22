@@ -4,10 +4,10 @@ This file tells any LLM session which sprint artifacts to open first.
 
 ## Active Sprint
 
-- Sprint ID: S18
+- Sprint ID: S22
 - Status: closed
-- Execution pack: C:\Users\dferr\dev\URPG - RPG Game Maker\docs\superpowers\plans\2026-04-21-sprint-18-achievement-registry-validation-execution-pack.md
-- Task board: C:\Users\dferr\dev\URPG - RPG Game Maker\docs\superpowers\plans\2026-04-21-s18-task-board.md
+- Execution pack: C:\Users\dferr\dev\URPG - RPG Game Maker\docs\superpowers\plans\2026-04-21-sprint-22-input-controller-governance-execution-pack.md
+- Task board: C:\Users\dferr\dev\URPG - RPG Game Maker\docs\superpowers\plans\2026-04-21-s22-task-board.md
 
 ## Start Order
 
@@ -19,4 +19,4 @@ This file tells any LLM session which sprint artifacts to open first.
 
 ## Next Action
 
-- Activate a new sprint pack before starting fresh implementation work.
+- Activate Sprint 23 or the next bounded work slice before starting fresh implementation work.

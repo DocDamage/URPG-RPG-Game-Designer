@@ -39,6 +39,18 @@ std::optional<ModManifest> ModRegistry::getMod(const std::string& id) const {
     return it->second.manifest;
 }
 
+std::vector<ModManifest> ModRegistry::listMods() const {
+    std::vector<ModManifest> manifests;
+    manifests.reserve(mods_.size());
+
+    for (const auto& [id, instance] : mods_) {
+        (void)id;
+        manifests.push_back(instance.manifest);
+    }
+
+    return manifests;
+}
+
 std::vector<std::string> ModRegistry::resolveLoadOrder() const {
     std::unordered_map<std::string, int32_t> inDegree;
     std::unordered_map<std::string, std::vector<std::string>> adjacency;

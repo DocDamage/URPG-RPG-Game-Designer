@@ -3,10 +3,18 @@
 #include <catch2/matchers/catch_matchers_exception.hpp>
 #include <catch2/matchers/catch_matchers_string.hpp>
 
+#include <chrono>
+#include <cstdlib>
+#include <filesystem>
+#include <fstream>
+
+#include <nlohmann/json.hpp>
+
 #include "engine/core/input/input_remap_store.h"
 
 using namespace urpg::input;
 using Catch::Matchers::ContainsSubstring;
+using nlohmann::json;
 
 TEST_CASE("InputRemapStore: Default mappings are populated on construction", "[input][remap]") {
     InputRemapStore store;
@@ -102,4 +110,31 @@ TEST_CASE("InputRemapStore: hasUnsavedChanges is true after mutation and false a
 
     reloaded.resetToDefaults();
     REQUIRE_FALSE(reloaded.hasUnsavedChanges());
+}
+
+TEST_CASE("InputRemapStore governance script validates artifacts", "[input][remap][project_audit_cli]") {
+    const auto repoRoot = std::filesystem::path(__FILE__).parent_path().parent_path().parent_path();
+    const auto scriptPath = repoRoot / "tools" / "ci" / "check_input_governance.ps1";
+    const auto uniqueSuffix =
+        std::to_string(std::chrono::steady_clock::now().time_since_epoch().count());
+    const auto outputPath =
+        std::filesystem::temp_directory_path() / ("urpg_input_gov_out_" + uniqueSuffix + ".json");
+
+    const std::string command =
+        "powershell -ExecutionPolicy Bypass -File \"" + scriptPath.string() +
+        "\" > \"" + outputPath.string() + "\"";
+
+    REQUIRE(std::system(command.c_str()) == 0);
+
+    std::ifstream resultFile(outputPath);
+    REQUIRE(resultFile.is_open());
+
+    std::string jsonStr((std::istreambuf_iterator<char>(resultFile)),
+                         std::istreambuf_iterator<char>());
+    resultFile.close();
+
+    const auto result = json::parse(jsonStr);
+    REQUIRE(result["passed"].get<bool>() == true);
+    REQUIRE(result["errors"].is_array());
+    REQUIRE(result["errors"].empty());
 }

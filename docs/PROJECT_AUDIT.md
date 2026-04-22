@@ -16,7 +16,7 @@ The governance-foundation slice defines the audit contract for:
 - missing localization keys
 - missing input bindings
 - missing audio event registrations
-- missing canonical input-governance artifact paths where the roadmap already defines them
+- missing canonical input-remap and controller-binding governance artifact paths where the roadmap already defines them
 - accessibility-rule violations detectable at authoring time
 - unresolved import leftovers
 - missing canonical localization/export artifact paths where the roadmap already defines them
@@ -30,7 +30,7 @@ The first shipped slice is a conservative readiness-derived scanner, not a full 
 That means:
 
 - the CLI now reads the canonical readiness dataset and emits a real audit report
-- the diagnostics surfaces can render the emitted report model, including the governance detail the CLI now carries for asset-report, schema/changelog, canonical input/localization/export artifact-path checks, repo-local localization consistency evidence from the canonical report path, first-slice accessibility/audio/performance artifact-governance sections, the release-signoff workflow artifact, and human-review-gated subsystem signoff artifacts plus their structured signoff-contract state
+- the diagnostics surfaces can render the emitted report model, including the governance detail the CLI now carries for asset-report, schema/changelog, canonical input/localization/export artifact-path checks, repo-local localization consistency evidence from the canonical report path, first-slice accessibility/audio/performance/character/mod/analytics artifact-governance sections, the bounded controller-binding runtime/panel plus input governance script/fixture contract, the release-signoff workflow artifact, and human-review-gated subsystem signoff artifacts plus their structured signoff-contract state
 - the output model remains intentionally small and conservative
 - asset-intake and schema/changelog governance can affect the reported result only where those concerns are already represented in the canonical readiness/template governance records
 
@@ -44,7 +44,7 @@ It does **not** yet mean every audit category above is implemented. The current 
 - structured signoff-contract checks for the currently human-review-gated subsystem lanes
 - limited project-schema presence checks for localization, input/controller-governance, and export-governance sections
 
-It may also surface asset-intake or schema/changelog governance concerns when they have already been folded into those readiness/template blocker records, and it can now flag when `project.schema.json` lacks obvious localization, input/controller, or export-governance sections for templates that still depend on those bars. It can also check for missing canonical input/localization/export artifact paths where the roadmap already defines them, and it now consumes the canonical localization consistency report at `imports/reports/localization/localization_consistency_report.json` as bounded evidence for missing-key drift. It does **not** yet crawl the repo independently for every asset-intake, schema-version, changelog, localization, input, or export condition, and it should not be described as a full project scanner.
+It may also surface asset-intake or schema/changelog governance concerns when they have already been folded into those readiness/template blocker records, and it can now flag when `project.schema.json` lacks obvious localization, input/controller, or export-governance sections for templates that still depend on those bars. It can also check for missing canonical input-remap/controller-binding/localization/export artifact paths where the roadmap already defines them; the bounded input contract now includes `InputRemapStore`, `ControllerBindingRuntime`, `ControllerBindingPanel`, `check_input_governance.ps1`, and the canonical input fixture path. It also consumes the canonical localization consistency report at `imports/reports/localization/localization_consistency_report.json` as bounded evidence for missing-key drift. It does **not** yet crawl the repo independently for every asset-intake, schema-version, changelog, localization, input, or export condition, and it should not be described as a full project scanner.
 
 ## Intended Output Shape
 
@@ -60,6 +60,8 @@ The audit report is expected to carry:
 - template status context
 - governance detail for asset report, readiness schema/changelog, and project schema presence checks
 - governance detail for canonical input/localization/export and accessibility/audio/performance artifact-governance sections
+- governance detail for the bounded controller-binding runtime/panel plus input governance script/fixture contract within `inputArtifacts`
+- governance detail for canonical character, mod, and analytics artifact-governance sections
 - governance detail for repo-local localization consistency evidence from the canonical report path
 - governance detail for the canonical release-signoff workflow artifact
 - governance detail for human-review-gated subsystem signoff artifacts, including per-artifact expected-artifact rows and structured signoff-contract state

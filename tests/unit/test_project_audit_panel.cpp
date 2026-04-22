@@ -74,6 +74,9 @@ TEST_CASE("ProjectAuditPanel captures governance details when present", "[editor
         {"localizationEvidenceIssueCount", 1},
         {"accessibilityArtifactIssueCount", 1},
         {"audioArtifactIssueCount", 2},
+        {"characterArtifactIssueCount", 1},
+        {"modArtifactIssueCount", 2},
+        {"analyticsArtifactIssueCount", 4},
         {"performanceArtifactIssueCount", 3},
         {"releaseSignoffWorkflowIssueCount", 0},
         {"signoffArtifactIssueCount", 1},
@@ -151,6 +154,21 @@ TEST_CASE("ProjectAuditPanel captures governance details when present", "[editor
                 {"path", "content/schemas/audio_mix_presets.schema.json"},
                 {"available", true},
                 {"issueCount", 2}
+            }},
+            {"characterArtifacts", {
+                {"path", "content/schemas/character_identity.schema.json"},
+                {"available", true},
+                {"issueCount", 1}
+            }},
+            {"modArtifacts", {
+                {"path", "content/schemas/mod_manifest.schema.json"},
+                {"available", true},
+                {"issueCount", 2}
+            }},
+            {"analyticsArtifacts", {
+                {"path", "content/schemas/analytics_config.schema.json"},
+                {"available", true},
+                {"issueCount", 4}
             }},
             {"performanceArtifacts", {
                 {"path", "docs/presentation/performance_budgets.md"},
@@ -230,6 +248,9 @@ TEST_CASE("ProjectAuditPanel captures governance details when present", "[editor
     REQUIRE(snapshot.localization_evidence_issue_count);
     REQUIRE(snapshot.accessibility_artifact_issue_count);
     REQUIRE(snapshot.audio_artifact_issue_count);
+    REQUIRE(snapshot.character_artifact_issue_count);
+    REQUIRE(snapshot.mod_artifact_issue_count);
+    REQUIRE(snapshot.analytics_artifact_issue_count);
     REQUIRE(snapshot.performance_artifact_issue_count);
     REQUIRE(snapshot.release_signoff_workflow_issue_count);
     REQUIRE(snapshot.signoff_artifact_issue_count);
@@ -240,6 +261,9 @@ TEST_CASE("ProjectAuditPanel captures governance details when present", "[editor
     REQUIRE(*snapshot.localization_evidence_issue_count == 1);
     REQUIRE(*snapshot.accessibility_artifact_issue_count == 1);
     REQUIRE(*snapshot.audio_artifact_issue_count == 2);
+    REQUIRE(*snapshot.character_artifact_issue_count == 1);
+    REQUIRE(*snapshot.mod_artifact_issue_count == 2);
+    REQUIRE(*snapshot.analytics_artifact_issue_count == 4);
     REQUIRE(*snapshot.performance_artifact_issue_count == 3);
     REQUIRE(*snapshot.release_signoff_workflow_issue_count == 0);
     REQUIRE(*snapshot.signoff_artifact_issue_count == 1);
@@ -332,6 +356,27 @@ TEST_CASE("ProjectAuditPanel captures governance details when present", "[editor
     REQUIRE(*snapshot.audio_artifacts->available);
     REQUIRE(snapshot.audio_artifacts->issue_count.has_value());
     REQUIRE(*snapshot.audio_artifacts->issue_count == 2);
+
+    REQUIRE(snapshot.character_artifacts.has_value());
+    REQUIRE(snapshot.character_artifacts->path == "content/schemas/character_identity.schema.json");
+    REQUIRE(snapshot.character_artifacts->available.has_value());
+    REQUIRE(*snapshot.character_artifacts->available);
+    REQUIRE(snapshot.character_artifacts->issue_count.has_value());
+    REQUIRE(*snapshot.character_artifacts->issue_count == 1);
+
+    REQUIRE(snapshot.mod_artifacts.has_value());
+    REQUIRE(snapshot.mod_artifacts->path == "content/schemas/mod_manifest.schema.json");
+    REQUIRE(snapshot.mod_artifacts->available.has_value());
+    REQUIRE(*snapshot.mod_artifacts->available);
+    REQUIRE(snapshot.mod_artifacts->issue_count.has_value());
+    REQUIRE(*snapshot.mod_artifacts->issue_count == 2);
+
+    REQUIRE(snapshot.analytics_artifacts.has_value());
+    REQUIRE(snapshot.analytics_artifacts->path == "content/schemas/analytics_config.schema.json");
+    REQUIRE(snapshot.analytics_artifacts->available.has_value());
+    REQUIRE(*snapshot.analytics_artifacts->available);
+    REQUIRE(snapshot.analytics_artifacts->issue_count.has_value());
+    REQUIRE(*snapshot.analytics_artifacts->issue_count == 4);
 
     REQUIRE(snapshot.performance_artifacts.has_value());
     REQUIRE(snapshot.performance_artifacts->path == "docs/presentation/performance_budgets.md");

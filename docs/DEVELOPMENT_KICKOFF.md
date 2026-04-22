@@ -4,14 +4,17 @@ Snapshot Date: 2026-04-15
 
 This repository is bootstrapped to the blueprint's canonical structure and now includes core + compat kernels with active CI gate wiring.
 
-This document is a kickoff snapshot, not the canonical current-status file.
-For current completion, remediation, and validation status, use:
+This document is a historical kickoff snapshot, not the canonical current-status file.
+For current completion, remediation, validation, and active execution context, use:
 - `docs/PROGRAM_COMPLETION_STATUS.md`
 - `docs/TECHNICAL_DEBT_REMEDIATION_PLAN.md`
+- `docs/RELEASE_READINESS_MATRIX.md`
+- `docs/PROJECT_AUDIT.md`
+- `docs/superpowers/plans/ACTIVE_SPRINT.md`
 
 Cross-cutting debt closure, documentation-truth alignment, and intake-governance tracking: `docs/TECHNICAL_DEBT_REMEDIATION_PLAN.md`.
 
-Historical note: Phase 2 runtime closure completed later on 2026-04-19. Any remaining compat work referenced here should be read as post-closure hardening unless the canonical status docs say otherwise.
+Historical note: Phase 2 runtime closure completed later on 2026-04-19, and later sprint execution extended the canonical governance/status stack through the current active sprint record. Any remaining compat or roadmap work referenced here should be read as historical context unless the canonical status docs say otherwise.
 
 ## Progress tracker
 

@@ -45,8 +45,20 @@ Write-Host "== Validate accessibility governance ==" -ForegroundColor Cyan
 Write-Host "== Validate audio governance ==" -ForegroundColor Cyan
 & "$PSScriptRoot\check_audio_governance.ps1"
 
+Write-Host "== Validate input governance ==" -ForegroundColor Cyan
+& "$PSScriptRoot\check_input_governance.ps1"
+
 Write-Host "== Validate achievement governance ==" -ForegroundColor Cyan
 & "$PSScriptRoot\check_achievement_governance.ps1"
+
+Write-Host "== Validate character governance ==" -ForegroundColor Cyan
+& "$PSScriptRoot\check_character_governance.ps1"
+
+Write-Host "== Validate mod governance ==" -ForegroundColor Cyan
+& "$PSScriptRoot\check_mod_governance.ps1"
+
+Write-Host "== Validate analytics governance ==" -ForegroundColor Cyan
+& "$PSScriptRoot\check_analytics_governance.ps1"
 
 Write-Host "== Validate truth alignment ==" -ForegroundColor Cyan
 & "$PSScriptRoot\..\docs\check_truth_alignment.ps1"

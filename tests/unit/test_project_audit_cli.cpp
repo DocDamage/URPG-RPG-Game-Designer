@@ -253,6 +253,9 @@ TEST_CASE("Project audit CLI emits parseable JSON from the default repo data", "
     REQUIRE(report["governance"].contains("exportArtifacts"));
     REQUIRE(report["governance"].contains("accessibilityArtifacts"));
     REQUIRE(report["governance"].contains("audioArtifacts"));
+    REQUIRE(report["governance"].contains("characterArtifacts"));
+    REQUIRE(report["governance"].contains("modArtifacts"));
+    REQUIRE(report["governance"].contains("analyticsArtifacts"));
     REQUIRE(report["governance"].contains("performanceArtifacts"));
     REQUIRE(report["governance"].contains("releaseSignoffWorkflow"));
     REQUIRE(report["governance"].contains("signoffArtifacts"));
@@ -265,6 +268,9 @@ TEST_CASE("Project audit CLI emits parseable JSON from the default repo data", "
     REQUIRE(report["governance"]["exportArtifacts"].is_object());
     REQUIRE(report["governance"]["accessibilityArtifacts"].is_object());
     REQUIRE(report["governance"]["audioArtifacts"].is_object());
+    REQUIRE(report["governance"]["characterArtifacts"].is_object());
+    REQUIRE(report["governance"]["modArtifacts"].is_object());
+    REQUIRE(report["governance"]["analyticsArtifacts"].is_object());
     REQUIRE(report["governance"]["performanceArtifacts"].is_object());
     REQUIRE(report["governance"]["releaseSignoffWorkflow"].is_object());
     REQUIRE(report["governance"]["signoffArtifacts"].is_object());
@@ -294,6 +300,9 @@ TEST_CASE("Project audit CLI emits parseable JSON from the default repo data", "
     requireGovernanceSectionShape(report["governance"], "inputArtifacts", true);
     requireGovernanceSectionShape(report["governance"], "accessibilityArtifacts", true);
     requireGovernanceSectionShape(report["governance"], "audioArtifacts", true);
+    requireGovernanceSectionShape(report["governance"], "characterArtifacts", true);
+    requireGovernanceSectionShape(report["governance"], "modArtifacts", true);
+    requireGovernanceSectionShape(report["governance"], "analyticsArtifacts", true);
     requireGovernanceSectionShape(report["governance"], "performanceArtifacts", true);
     requireGovernanceSectionShape(report["governance"], "releaseSignoffWorkflow", true);
     requireGovernanceSectionShape(report["governance"], "signoffArtifacts", true);
@@ -303,6 +312,9 @@ TEST_CASE("Project audit CLI emits parseable JSON from the default repo data", "
     requireIssueCountConsistencyIfPresent(report, "localizationEvidenceIssueCount", "localizationEvidence");
     requireIssueCountConsistencyIfPresent(report, "accessibilityArtifactIssueCount", "accessibilityArtifacts");
     requireIssueCountConsistencyIfPresent(report, "audioArtifactIssueCount", "audioArtifacts");
+    requireIssueCountConsistencyIfPresent(report, "characterArtifactIssueCount", "characterArtifacts");
+    requireIssueCountConsistencyIfPresent(report, "modArtifactIssueCount", "modArtifacts");
+    requireIssueCountConsistencyIfPresent(report, "analyticsArtifactIssueCount", "analyticsArtifacts");
     requireIssueCountConsistencyIfPresent(report, "performanceArtifactIssueCount", "performanceArtifacts");
     requireIssueCountConsistencyIfPresent(report, "releaseSignoffWorkflowIssueCount", "releaseSignoffWorkflow");
     requireIssueCountConsistencyIfPresent(report, "signoffArtifactIssueCount", "signoffArtifacts");
@@ -316,6 +328,9 @@ TEST_CASE("Project audit CLI emits parseable JSON from the default repo data", "
         (report["governance"].contains("inputArtifacts") && hasPositiveIssueCount(report["governance"]["inputArtifacts"])) ||
         hasPositiveIssueCount(report["governance"]["accessibilityArtifacts"]) ||
         hasPositiveIssueCount(report["governance"]["audioArtifacts"]) ||
+        hasPositiveIssueCount(report["governance"]["characterArtifacts"]) ||
+        hasPositiveIssueCount(report["governance"]["modArtifacts"]) ||
+        hasPositiveIssueCount(report["governance"]["analyticsArtifacts"]) ||
         hasPositiveIssueCount(report["governance"]["performanceArtifacts"])) {
         CHECK(report["summary"].get<std::string>().find("Asset governance issues:") != std::string::npos);
         CHECK(report["summary"].get<std::string>().find("Schema governance issues:") != std::string::npos);
@@ -336,6 +351,15 @@ TEST_CASE("Project audit CLI emits parseable JSON from the default repo data", "
         }
         if (hasPositiveIssueCount(report["governance"]["audioArtifacts"])) {
             CHECK(report["summary"].get<std::string>().find("Audio artifact issues:") != std::string::npos);
+        }
+        if (hasPositiveIssueCount(report["governance"]["characterArtifacts"])) {
+            CHECK(report["summary"].get<std::string>().find("Character artifact issues:") != std::string::npos);
+        }
+        if (hasPositiveIssueCount(report["governance"]["modArtifacts"])) {
+            CHECK(report["summary"].get<std::string>().find("Mod artifact issues:") != std::string::npos);
+        }
+        if (hasPositiveIssueCount(report["governance"]["analyticsArtifacts"])) {
+            CHECK(report["summary"].get<std::string>().find("Analytics artifact issues:") != std::string::npos);
         }
         if (hasPositiveIssueCount(report["governance"]["performanceArtifacts"])) {
             CHECK(report["summary"].get<std::string>().find("Performance artifact issues:") != std::string::npos);
@@ -462,6 +486,9 @@ TEST_CASE("Project audit CLI keeps governance shape stable for conservative arti
     REQUIRE(report["governance"].contains("exportArtifacts"));
     REQUIRE(report["governance"].contains("accessibilityArtifacts"));
     REQUIRE(report["governance"].contains("audioArtifacts"));
+    REQUIRE(report["governance"].contains("characterArtifacts"));
+    REQUIRE(report["governance"].contains("modArtifacts"));
+    REQUIRE(report["governance"].contains("analyticsArtifacts"));
     REQUIRE(report["governance"].contains("performanceArtifacts"));
     REQUIRE(report["governance"].contains("releaseSignoffWorkflow"));
     REQUIRE(report["governance"].contains("signoffArtifacts"));
@@ -476,6 +503,9 @@ TEST_CASE("Project audit CLI keeps governance shape stable for conservative arti
     requireGovernanceSectionShape(report["governance"], "inputArtifacts", true);
     requireGovernanceSectionShape(report["governance"], "accessibilityArtifacts", true);
     requireGovernanceSectionShape(report["governance"], "audioArtifacts", true);
+    requireGovernanceSectionShape(report["governance"], "characterArtifacts", true);
+    requireGovernanceSectionShape(report["governance"], "modArtifacts", true);
+    requireGovernanceSectionShape(report["governance"], "analyticsArtifacts", true);
     requireGovernanceSectionShape(report["governance"], "performanceArtifacts", true);
     requireGovernanceSectionShape(report["governance"], "releaseSignoffWorkflow", true);
     requireGovernanceSectionShape(report["governance"], "signoffArtifacts", true);
@@ -485,6 +515,9 @@ TEST_CASE("Project audit CLI keeps governance shape stable for conservative arti
     requireIssueCountConsistencyIfPresent(report, "localizationEvidenceIssueCount", "localizationEvidence");
     requireIssueCountConsistencyIfPresent(report, "accessibilityArtifactIssueCount", "accessibilityArtifacts");
     requireIssueCountConsistencyIfPresent(report, "audioArtifactIssueCount", "audioArtifacts");
+    requireIssueCountConsistencyIfPresent(report, "characterArtifactIssueCount", "characterArtifacts");
+    requireIssueCountConsistencyIfPresent(report, "modArtifactIssueCount", "modArtifacts");
+    requireIssueCountConsistencyIfPresent(report, "analyticsArtifactIssueCount", "analyticsArtifacts");
     requireIssueCountConsistencyIfPresent(report, "performanceArtifactIssueCount", "performanceArtifacts");
     requireIssueCountConsistencyIfPresent(report, "releaseSignoffWorkflowIssueCount", "releaseSignoffWorkflow");
     requireIssueCountConsistencyIfPresent(report, "signoffArtifactIssueCount", "signoffArtifacts");

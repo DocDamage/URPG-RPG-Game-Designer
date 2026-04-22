@@ -33,6 +33,7 @@ public:
     bool unregisterMod(const std::string& id);
 
     std::optional<ModManifest> getMod(const std::string& id) const;
+    std::vector<ModManifest> listMods() const;
     std::vector<std::string> resolveLoadOrder() const;
 
     bool activateMod(const std::string& id);

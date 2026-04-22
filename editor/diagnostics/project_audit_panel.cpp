@@ -417,6 +417,24 @@ void populateGovernanceSnapshot(const nlohmann::json& report, ProjectAuditPanel:
         snapshot.audio_artifacts = std::move(audio);
     }
 
+    if (const auto* character_artifacts = findObjectMember(governance, "characterArtifacts", "character_artifacts")) {
+        ProjectAuditArtifactGovernanceSnapshot character{};
+        populateArtifactSectionSnapshot(*character_artifacts, character);
+        snapshot.character_artifacts = std::move(character);
+    }
+
+    if (const auto* mod_artifacts = findObjectMember(governance, "modArtifacts", "mod_artifacts")) {
+        ProjectAuditArtifactGovernanceSnapshot mod{};
+        populateArtifactSectionSnapshot(*mod_artifacts, mod);
+        snapshot.mod_artifacts = std::move(mod);
+    }
+
+    if (const auto* analytics_artifacts = findObjectMember(governance, "analyticsArtifacts", "analytics_artifacts")) {
+        ProjectAuditArtifactGovernanceSnapshot analytics{};
+        populateArtifactSectionSnapshot(*analytics_artifacts, analytics);
+        snapshot.analytics_artifacts = std::move(analytics);
+    }
+
     if (const auto* performance_artifacts = findObjectMember(governance, "performanceArtifacts", "performance_artifacts")) {
         ProjectAuditArtifactGovernanceSnapshot performance{};
         populateArtifactSectionSnapshot(*performance_artifacts, performance);
@@ -447,6 +465,9 @@ void populateGovernanceSnapshot(const nlohmann::json& report, ProjectAuditPanel:
     populateOptionalCount<size_t>(report, "localizationEvidenceIssueCount", snapshot.localization_evidence_issue_count);
     populateOptionalCount<size_t>(report, "accessibilityArtifactIssueCount", snapshot.accessibility_artifact_issue_count);
     populateOptionalCount<size_t>(report, "audioArtifactIssueCount", snapshot.audio_artifact_issue_count);
+    populateOptionalCount<size_t>(report, "characterArtifactIssueCount", snapshot.character_artifact_issue_count);
+    populateOptionalCount<size_t>(report, "modArtifactIssueCount", snapshot.mod_artifact_issue_count);
+    populateOptionalCount<size_t>(report, "analyticsArtifactIssueCount", snapshot.analytics_artifact_issue_count);
     populateOptionalCount<size_t>(report, "performanceArtifactIssueCount", snapshot.performance_artifact_issue_count);
     populateOptionalCount<size_t>(report, "releaseSignoffWorkflowIssueCount", snapshot.release_signoff_workflow_issue_count);
     populateOptionalCount<size_t>(report, "signoffArtifactIssueCount", snapshot.signoff_artifact_issue_count);

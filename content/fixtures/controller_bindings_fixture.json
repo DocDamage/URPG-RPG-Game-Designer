@@ -1,0 +1,33 @@
+{
+  "version": "1.0.0",
+  "bindings": [
+    {
+      "button": "DPadUp",
+      "action": "MoveUp"
+    },
+    {
+      "button": "DPadDown",
+      "action": "MoveDown"
+    },
+    {
+      "button": "DPadLeft",
+      "action": "MoveLeft"
+    },
+    {
+      "button": "DPadRight",
+      "action": "MoveRight"
+    },
+    {
+      "button": "FaceBottom",
+      "action": "Confirm"
+    },
+    {
+      "button": "FaceRight",
+      "action": "Cancel"
+    },
+    {
+      "button": "Start",
+      "action": "Menu"
+    }
+  ]
+}

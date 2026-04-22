@@ -38,8 +38,27 @@ void AnalyticsDispatcher::dispatchEvent(
     dispatchEvent(eventName, category, {});
 }
 
+void AnalyticsDispatcher::setAllowedCategories(const std::vector<std::string>& allowedCategories) {
+    m_allowedCategories = allowedCategories;
+}
+
+std::vector<std::string> AnalyticsDispatcher::getAllowedCategories() const {
+    return m_allowedCategories;
+}
+
 uint64_t AnalyticsDispatcher::getSessionEventCount() const {
     return m_sessionEventCount;
+}
+
+std::vector<AnalyticsEvent> AnalyticsDispatcher::snapshotEvents() const {
+    return m_buffer;
+}
+
+std::vector<AnalyticsValidationIssue> AnalyticsDispatcher::getValidationIssues() const {
+    AnalyticsDispatcherValidator validator;
+    AnalyticsValidationRules rules;
+    rules.allowedCategories = m_allowedCategories;
+    return validator.validate(m_buffer, rules);
 }
 
 nlohmann::json AnalyticsDispatcher::getBufferSnapshot() const {

@@ -140,6 +140,7 @@ function(urpg_enable_windows_test_binary_unlock target_name)
 endfunction()
 
 add_library(urpg_core
+    engine/core/action/controller_binding_runtime.cpp
     engine/core/debug/debug_session.cpp
     engine/core/debug/debug_ai_bridge.cpp
     engine/core/engine_shell.cpp
@@ -157,6 +158,7 @@ add_library(urpg_core
     engine/core/perf/perf_profiler.cpp
     engine/core/testing/visual_regression_harness.cpp
     engine/core/analytics/analytics_dispatcher.cpp
+    engine/core/analytics/analytics_dispatcher_validator.cpp
     engine/core/semver.cpp
     engine/core/asset_compressor.cpp
     engine/core/threading/thread_roles.cpp
@@ -175,6 +177,7 @@ add_library(urpg_core
     engine/core/battle/battle_core.cpp
     engine/core/battle/battle_ai_bridge.cpp
     engine/core/character/character_identity.cpp
+    engine/core/character/character_identity_validator.cpp
     engine/core/character/character_identity_system.cpp
     engine/core/achievement/achievement_registry.cpp
     engine/core/achievement/achievement_trigger.cpp
@@ -209,6 +212,7 @@ add_library(urpg_core
     editor/character/character_creator_model.cpp
     editor/character/character_creator_panel.cpp
     editor/achievement/achievement_panel.cpp
+    editor/action/controller_binding_panel.cpp
     editor/save/save_inspector_model.cpp
     editor/save/save_inspector_panel.cpp
     editor/battle/battle_inspector_model.cpp
@@ -241,6 +245,7 @@ add_library(urpg_core
     engine/core/ability/pattern_field.cpp
     engine/core/ability/pattern_field_presets.cpp
     engine/core/mod/mod_registry.cpp
+    engine/core/mod/mod_registry_validator.cpp
     engine/core/export/export_validator.cpp
     engine/core/tools/export_packager.cpp
     engine/core/level/level_assembly.cpp
@@ -479,6 +484,8 @@ add_executable(urpg_tests
     tests/unit/test_source_authority.cpp
     tests/unit/test_diagnostics_facade.cpp
     tests/unit/test_project_audit_panel.cpp
+    tests/unit/test_controller_binding_runtime.cpp
+    tests/unit/test_controller_binding_panel.cpp
     tests/unit/test_save_catalog.cpp
     tests/unit/test_save_inspector_model.cpp
     tests/unit/test_save_inspector_panel.cpp

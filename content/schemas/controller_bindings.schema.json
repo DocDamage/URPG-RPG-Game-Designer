@@ -1,0 +1,59 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "ControllerBindings",
+  "description": "Schema for canonical controller-to-action bindings used by ControllerBindingRuntime.",
+  "type": "object",
+  "required": ["version", "bindings"],
+  "properties": {
+    "version": {
+      "type": "string",
+      "const": "1.0.0",
+      "description": "Schema version for controller bindings."
+    },
+    "bindings": {
+      "type": "array",
+      "description": "List of controller button bindings.",
+      "items": {
+        "type": "object",
+        "required": ["button", "action"],
+        "properties": {
+          "button": {
+            "type": "string",
+            "enum": [
+              "DPadUp",
+              "DPadDown",
+              "DPadLeft",
+              "DPadRight",
+              "FaceBottom",
+              "FaceRight",
+              "FaceLeft",
+              "FaceTop",
+              "LeftShoulder",
+              "RightShoulder",
+              "Select",
+              "Start",
+              "LeftStickPress",
+              "RightStickPress"
+            ]
+          },
+          "action": {
+            "type": "string",
+            "enum": [
+              "None",
+              "MoveUp",
+              "MoveDown",
+              "MoveLeft",
+              "MoveRight",
+              "Confirm",
+              "Cancel",
+              "Menu",
+              "Debug"
+            ]
+          }
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false
+}

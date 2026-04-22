@@ -1152,6 +1152,18 @@ void addInputArtifactGovernance(const TemplateContext& templateContext,
     const bool enabled = templateBarNeedsProjectArtifact(templateContext, "input") || !isReadyStatus(templateContext.status);
     const std::vector<CanonicalArtifactSpec> artifacts = {
         {
+            "input_artifact.remap_header_missing",
+            "Canonical input remap store header missing",
+            "Input",
+            fs::path("engine") / "core" / "input" / "input_remap_store.h",
+        },
+        {
+            "input_artifact.remap_source_missing",
+            "Canonical input remap store source missing",
+            "Input",
+            fs::path("engine") / "core" / "input" / "input_remap_store.cpp",
+        },
+        {
             "input_artifact.runtime_header_missing",
             "Canonical controller binding runtime header missing",
             "Input",
@@ -1177,9 +1189,33 @@ void addInputArtifactGovernance(const TemplateContext& templateContext,
         },
         {
             "input_artifact.schema_missing",
+            "Canonical input bindings schema missing",
+            "Input",
+            fs::path("content") / "schemas" / "input_bindings.schema.json",
+        },
+        {
+            "input_artifact.controller_schema_missing",
             "Canonical controller bindings schema missing",
             "Input",
             fs::path("content") / "schemas" / "controller_bindings.schema.json",
+        },
+        {
+            "input_artifact.governance_script_missing",
+            "Canonical input governance script missing",
+            "Input",
+            fs::path("tools") / "ci" / "check_input_governance.ps1",
+        },
+        {
+            "input_artifact.fixture_missing",
+            "Canonical input bindings fixture missing",
+            "Input",
+            fs::path("content") / "fixtures" / "input_bindings_fixture.json",
+        },
+        {
+            "input_artifact.controller_fixture_missing",
+            "Canonical controller bindings fixture missing",
+            "Input",
+            fs::path("content") / "fixtures" / "controller_bindings_fixture.json",
         },
     };
 
@@ -1410,6 +1446,243 @@ void addAchievementArtifactGovernance(const TemplateContext& templateContext,
         artifacts,
         issues,
         achievementArtifactIssueCount,
+        governanceReport);
+}
+
+void addCharacterArtifactGovernance(const TemplateContext& templateContext,
+                                    std::vector<AuditIssue>& issues,
+                                    std::size_t& characterArtifactIssueCount,
+                                    json& governanceReport) {
+    const bool enabled = templateBarNeedsProjectArtifact(templateContext, "character") || !isReadyStatus(templateContext.status);
+    const std::vector<CanonicalArtifactSpec> artifacts = {
+        {
+            "character_artifact.schema_missing",
+            "Canonical character identity schema missing",
+            "Character",
+            fs::path("content") / "schemas" / "character_identity.schema.json",
+        },
+        {
+            "character_artifact.runtime_header_missing",
+            "Canonical character identity header missing",
+            "Character",
+            fs::path("engine") / "core" / "character" / "character_identity.h",
+        },
+        {
+            "character_artifact.runtime_source_missing",
+            "Canonical character identity source missing",
+            "Character",
+            fs::path("engine") / "core" / "character" / "character_identity.cpp",
+        },
+        {
+            "character_artifact.validator_header_missing",
+            "Canonical character identity validator header missing",
+            "Character",
+            fs::path("engine") / "core" / "character" / "character_identity_validator.h",
+        },
+        {
+            "character_artifact.validator_source_missing",
+            "Canonical character identity validator source missing",
+            "Character",
+            fs::path("engine") / "core" / "character" / "character_identity_validator.cpp",
+        },
+        {
+            "character_artifact.model_header_missing",
+            "Canonical character creator model header missing",
+            "Character",
+            fs::path("editor") / "character" / "character_creator_model.h",
+        },
+        {
+            "character_artifact.model_source_missing",
+            "Canonical character creator model source missing",
+            "Character",
+            fs::path("editor") / "character" / "character_creator_model.cpp",
+        },
+        {
+            "character_artifact.panel_header_missing",
+            "Canonical character creator panel header missing",
+            "Character",
+            fs::path("editor") / "character" / "character_creator_panel.h",
+        },
+        {
+            "character_artifact.panel_source_missing",
+            "Canonical character creator panel source missing",
+            "Character",
+            fs::path("editor") / "character" / "character_creator_panel.cpp",
+        },
+        {
+            "character_artifact.governance_script_missing",
+            "Canonical character governance script missing",
+            "Character",
+            fs::path("tools") / "ci" / "check_character_governance.ps1",
+        },
+        {
+            "character_artifact.fixture_missing",
+            "Canonical character identity fixture missing",
+            "Character",
+            fs::path("content") / "fixtures" / "character_identity_fixture.json",
+        },
+    };
+
+    addCanonicalArtifactSection(
+        templateContext,
+        "characterArtifacts",
+        "character governance",
+        enabled,
+        artifacts,
+        issues,
+        characterArtifactIssueCount,
+        governanceReport);
+}
+
+void addModArtifactGovernance(const TemplateContext& templateContext,
+                              std::vector<AuditIssue>& issues,
+                              std::size_t& modArtifactIssueCount,
+                              json& governanceReport) {
+    const bool enabled = templateBarNeedsProjectArtifact(templateContext, "mod") || !isReadyStatus(templateContext.status);
+    const std::vector<CanonicalArtifactSpec> artifacts = {
+        {
+            "mod_artifact.schema_missing",
+            "Canonical mod manifest schema missing",
+            "Mod",
+            fs::path("content") / "schemas" / "mod_manifest.schema.json",
+        },
+        {
+            "mod_artifact.runtime_header_missing",
+            "Canonical mod registry header missing",
+            "Mod",
+            fs::path("engine") / "core" / "mod" / "mod_registry.h",
+        },
+        {
+            "mod_artifact.runtime_source_missing",
+            "Canonical mod registry source missing",
+            "Mod",
+            fs::path("engine") / "core" / "mod" / "mod_registry.cpp",
+        },
+        {
+            "mod_artifact.validator_header_missing",
+            "Canonical mod registry validator header missing",
+            "Mod",
+            fs::path("engine") / "core" / "mod" / "mod_registry_validator.h",
+        },
+        {
+            "mod_artifact.validator_source_missing",
+            "Canonical mod registry validator source missing",
+            "Mod",
+            fs::path("engine") / "core" / "mod" / "mod_registry_validator.cpp",
+        },
+        {
+            "mod_artifact.panel_header_missing",
+            "Canonical mod manager panel header missing",
+            "Mod",
+            fs::path("editor") / "mod" / "mod_manager_panel.h",
+        },
+        {
+            "mod_artifact.panel_source_missing",
+            "Canonical mod manager panel source missing",
+            "Mod",
+            fs::path("editor") / "mod" / "mod_manager_panel.cpp",
+        },
+        {
+            "mod_artifact.governance_script_missing",
+            "Canonical mod governance script missing",
+            "Mod",
+            fs::path("tools") / "ci" / "check_mod_governance.ps1",
+        },
+        {
+            "mod_artifact.fixture_missing",
+            "Canonical mod manifest fixture missing",
+            "Mod",
+            fs::path("content") / "fixtures" / "mod_manifest_fixture.json",
+        },
+    };
+
+    addCanonicalArtifactSection(
+        templateContext,
+        "modArtifacts",
+        "mod governance",
+        enabled,
+        artifacts,
+        issues,
+        modArtifactIssueCount,
+        governanceReport);
+}
+
+void addAnalyticsArtifactGovernance(const TemplateContext& templateContext,
+                                    std::vector<AuditIssue>& issues,
+                                    std::size_t& analyticsArtifactIssueCount,
+                                    json& governanceReport) {
+    const bool enabled = templateBarNeedsProjectArtifact(templateContext, "analytics") || !isReadyStatus(templateContext.status);
+    const std::vector<CanonicalArtifactSpec> artifacts = {
+        {
+            "analytics_artifact.schema_missing",
+            "Canonical analytics config schema missing",
+            "Analytics",
+            fs::path("content") / "schemas" / "analytics_config.schema.json",
+        },
+        {
+            "analytics_artifact.runtime_header_missing",
+            "Canonical analytics dispatcher header missing",
+            "Analytics",
+            fs::path("engine") / "core" / "analytics" / "analytics_dispatcher.h",
+        },
+        {
+            "analytics_artifact.runtime_source_missing",
+            "Canonical analytics dispatcher source missing",
+            "Analytics",
+            fs::path("engine") / "core" / "analytics" / "analytics_dispatcher.cpp",
+        },
+        {
+            "analytics_artifact.event_header_missing",
+            "Canonical analytics event header missing",
+            "Analytics",
+            fs::path("engine") / "core" / "analytics" / "analytics_event.h",
+        },
+        {
+            "analytics_artifact.validator_header_missing",
+            "Canonical analytics validator header missing",
+            "Analytics",
+            fs::path("engine") / "core" / "analytics" / "analytics_dispatcher_validator.h",
+        },
+        {
+            "analytics_artifact.validator_source_missing",
+            "Canonical analytics validator source missing",
+            "Analytics",
+            fs::path("engine") / "core" / "analytics" / "analytics_dispatcher_validator.cpp",
+        },
+        {
+            "analytics_artifact.panel_header_missing",
+            "Canonical analytics panel header missing",
+            "Analytics",
+            fs::path("editor") / "analytics" / "analytics_panel.h",
+        },
+        {
+            "analytics_artifact.panel_source_missing",
+            "Canonical analytics panel source missing",
+            "Analytics",
+            fs::path("editor") / "analytics" / "analytics_panel.cpp",
+        },
+        {
+            "analytics_artifact.governance_script_missing",
+            "Canonical analytics governance script missing",
+            "Analytics",
+            fs::path("tools") / "ci" / "check_analytics_governance.ps1",
+        },
+        {
+            "analytics_artifact.fixture_missing",
+            "Canonical analytics fixture missing",
+            "Analytics",
+            fs::path("content") / "fixtures" / "analytics_fixture.json",
+        },
+    };
+
+    addCanonicalArtifactSection(
+        templateContext,
+        "analyticsArtifacts",
+        "analytics governance",
+        enabled,
+        artifacts,
+        issues,
+        analyticsArtifactIssueCount,
         governanceReport);
 }
 
@@ -1878,6 +2151,9 @@ json buildReport(const json& readiness,
     std::size_t accessibilityArtifactIssueCount = 0;
     std::size_t audioArtifactIssueCount = 0;
     std::size_t achievementArtifactIssueCount = 0;
+    std::size_t characterArtifactIssueCount = 0;
+    std::size_t modArtifactIssueCount = 0;
+    std::size_t analyticsArtifactIssueCount = 0;
     std::size_t performanceArtifactIssueCount = 0;
     std::size_t releaseSignoffWorkflowIssueCount = 0;
     std::size_t signoffArtifactIssueCount = 0;
@@ -1897,6 +2173,9 @@ json buildReport(const json& readiness,
     addAccessibilityArtifactGovernance(templateContext, issues, accessibilityArtifactIssueCount, governanceReport);
     addAudioArtifactGovernance(templateContext, issues, audioArtifactIssueCount, governanceReport);
     addAchievementArtifactGovernance(templateContext, issues, achievementArtifactIssueCount, governanceReport);
+    addCharacterArtifactGovernance(templateContext, issues, characterArtifactIssueCount, governanceReport);
+    addModArtifactGovernance(templateContext, issues, modArtifactIssueCount, governanceReport);
+    addAnalyticsArtifactGovernance(templateContext, issues, analyticsArtifactIssueCount, governanceReport);
     addPerformanceArtifactGovernance(templateContext, issues, performanceArtifactIssueCount, governanceReport);
     addReleaseSignoffWorkflowGovernance(templateContext, issues, releaseSignoffWorkflowIssueCount, governanceReport);
     addSignoffArtifactGovernance(readiness, issues, signoffArtifactIssueCount, governanceReport);
@@ -1933,6 +2212,15 @@ json buildReport(const json& readiness,
     }
     if (achievementArtifactIssueCount > 0) {
         summary << " Achievement artifact issues: " << achievementArtifactIssueCount << ".";
+    }
+    if (characterArtifactIssueCount > 0) {
+        summary << " Character artifact issues: " << characterArtifactIssueCount << ".";
+    }
+    if (modArtifactIssueCount > 0) {
+        summary << " Mod artifact issues: " << modArtifactIssueCount << ".";
+    }
+    if (analyticsArtifactIssueCount > 0) {
+        summary << " Analytics artifact issues: " << analyticsArtifactIssueCount << ".";
     }
     if (performanceArtifactIssueCount > 0) {
         summary << " Performance artifact issues: " << performanceArtifactIssueCount << ".";
@@ -1978,6 +2266,9 @@ json buildReport(const json& readiness,
                 {"accessibilityArtifacts", governanceReport["accessibilityArtifacts"]},
                 {"audioArtifacts", governanceReport["audioArtifacts"]},
                 {"achievementArtifacts", governanceReport["achievementArtifacts"]},
+                {"characterArtifacts", governanceReport["characterArtifacts"]},
+                {"modArtifacts", governanceReport["modArtifacts"]},
+                {"analyticsArtifacts", governanceReport["analyticsArtifacts"]},
                 {"performanceArtifacts", governanceReport["performanceArtifacts"]},
                 {"releaseSignoffWorkflow", governanceReport["releaseSignoffWorkflow"]},
                 {"signoffArtifacts", governanceReport["signoffArtifacts"]},
@@ -1991,6 +2282,9 @@ json buildReport(const json& readiness,
         {"accessibilityArtifactIssueCount", accessibilityArtifactIssueCount},
         {"audioArtifactIssueCount", audioArtifactIssueCount},
         {"achievementArtifactIssueCount", achievementArtifactIssueCount},
+        {"characterArtifactIssueCount", characterArtifactIssueCount},
+        {"modArtifactIssueCount", modArtifactIssueCount},
+        {"analyticsArtifactIssueCount", analyticsArtifactIssueCount},
         {"performanceArtifactIssueCount", performanceArtifactIssueCount},
         {"releaseSignoffWorkflowIssueCount", releaseSignoffWorkflowIssueCount},
         {"signoffArtifactIssueCount", signoffArtifactIssueCount},

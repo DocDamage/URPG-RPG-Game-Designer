@@ -35,6 +35,11 @@ TEST_CASE("ModManagerPanel: Snapshot reflects mods after bind", "[mod][editor][p
     auto snapshot = panel.lastRenderSnapshot();
     REQUIRE(snapshot["registered_count"] == 1);
     REQUIRE(snapshot["active_count"] == 1);
+    REQUIRE(snapshot["registered_mod_ids"].size() == 1);
+    REQUIRE(snapshot["registered_mod_ids"][0] == "ui_mod");
+    REQUIRE(snapshot["validation_issue_count"] == 1);
+    REQUIRE(snapshot["validation_issues"].size() == 1);
+    REQUIRE(snapshot["validation_issues"][0]["category"] == "missing_entry_point");
     REQUIRE(snapshot["resolved_load_order"].size() == 1);
     REQUIRE(snapshot["resolved_load_order"][0] == "ui_mod");
     REQUIRE(snapshot["cycle_warning"].is_null());
@@ -65,4 +70,28 @@ TEST_CASE("ModManagerPanel: Cycle warning appears in snapshot when cyclic mods a
     auto snapshot = panel.lastRenderSnapshot();
     REQUIRE_FALSE(snapshot["cycle_warning"].is_null());
     REQUIRE(snapshot["cycle_warning"].get<std::string>().find("circular dependency") != std::string::npos);
+    REQUIRE(snapshot["registered_count"] == 2);
+}
+
+TEST_CASE("ModManagerPanel: Validation issues are surfaced in snapshot", "[mod][editor][panel]") {
+    ModRegistry registry;
+
+    ModManifest invalid;
+    invalid.id = "bad_mod";
+    invalid.dependencies = {"bad_mod", "extra_dep", "extra_dep"};
+
+    REQUIRE(registry.registerMod(invalid));
+
+    ModManagerPanel panel;
+    panel.bindRegistry(&registry);
+    panel.render();
+
+    const auto snapshot = panel.lastRenderSnapshot();
+    REQUIRE(snapshot["validation_issue_count"] == 5);
+    REQUIRE(snapshot["validation_issues"].size() == 5);
+    REQUIRE(snapshot["validation_issues"][0]["category"] == "empty_name");
+    REQUIRE(snapshot["validation_issues"][1]["category"] == "empty_version");
+    REQUIRE(snapshot["validation_issues"][2]["category"] == "missing_entry_point");
+    REQUIRE(snapshot["validation_issues"][3]["category"] == "self_dependency");
+    REQUIRE(snapshot["validation_issues"][4]["category"] == "duplicate_dependency");
 }

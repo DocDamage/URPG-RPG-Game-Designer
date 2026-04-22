@@ -30,6 +30,13 @@ Each governed schema entry should include:
 - Summary: input remapping store schema with action-to-key mappings and version validation
 - Migration Impact: none; initial introduction
 
+### `controller_bindings` (`controller_bindings.schema.json`)
+
+- Version: `1.0.0`
+- Date: `2026-04-21`
+- Summary: canonical controller-binding runtime schema for the bounded controller/editor governance contract layered on top of input remapping
+- Migration Impact: none; additive schema alias for the Sprint 22 controller-binding governance slice
+
 ### `localization_bundle` (`localization_bundle.schema.json`)
 
 - Version: `1.0.0`

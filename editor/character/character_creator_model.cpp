@@ -1,5 +1,6 @@
 #include "editor/character/character_creator_model.h"
 
+#include "engine/core/character/character_identity_validator.h"
 #include "engine/core/character/character_identity_system.h"
 #include "engine/core/ecs/actor_manager.h"
 
@@ -24,6 +25,29 @@ const std::unordered_map<std::string, AttributeMap>& classPresets() {
 
 bool containsValue(const std::vector<std::string>& values, const std::string& value) {
     return std::find(values.begin(), values.end(), value) != values.end();
+}
+
+std::string issueCode(urpg::character::CharacterIdentityIssueCategory category) {
+    using urpg::character::CharacterIdentityIssueCategory;
+
+    switch (category) {
+    case CharacterIdentityIssueCategory::MissingName:
+        return "missing_name";
+    case CharacterIdentityIssueCategory::MissingClass:
+        return "missing_class";
+    case CharacterIdentityIssueCategory::UnknownClass:
+        return "unknown_class";
+    case CharacterIdentityIssueCategory::UnknownPortrait:
+        return "unknown_portrait";
+    case CharacterIdentityIssueCategory::UnknownBodySprite:
+        return "unknown_body_sprite";
+    case CharacterIdentityIssueCategory::UnknownAppearanceToken:
+        return "unknown_appearance_token";
+    case CharacterIdentityIssueCategory::DuplicateAppearanceToken:
+        return "duplicate_appearance_token";
+    }
+
+    return "unknown_issue";
 }
 
 float attributeTotal(const urpg::character::CharacterIdentity& identity) {
@@ -159,33 +183,22 @@ urpg::CharacterSpawner::Result CharacterCreatorModel::spawnCharacter(urpg::World
 }
 
 nlohmann::json CharacterCreatorModel::buildValidationSnapshot() const {
+    urpg::character::CharacterIdentityCatalog catalog;
+    catalog.classIds = m_known_class_ids;
+    catalog.portraitIds = m_known_portrait_ids;
+    catalog.bodySpriteIds = m_known_body_sprite_ids;
+    catalog.appearanceTokens = m_known_appearance_tokens;
+
+    const urpg::character::CharacterIdentityValidator validator;
+    const auto validationIssues = validator.validate(m_identity, catalog);
+
     nlohmann::json issues = nlohmann::json::array();
-
-    if (m_identity.getName().empty()) {
-        issues.push_back({{"field", "name"}, {"code", "missing_name"}, {"message", "Character name is required."}});
-    }
-    if (m_identity.getClassId().empty()) {
-        issues.push_back({{"field", "classId"}, {"code", "missing_class"}, {"message", "Character class is required."}});
-    } else if (!containsValue(m_known_class_ids, m_identity.getClassId())) {
-        issues.push_back({{"field", "classId"}, {"code", "unknown_class"}, {"message", "Character class is not in the current class catalog."}});
-    }
-    if (!m_identity.getPortraitId().empty() && !containsValue(m_known_portrait_ids, m_identity.getPortraitId())) {
-        issues.push_back({{"field", "portraitId"}, {"code", "unknown_portrait"}, {"message", "Portrait id is not in the current portrait catalog."}});
-    }
-    if (!m_identity.getBodySpriteId().empty() && !containsValue(m_known_body_sprite_ids, m_identity.getBodySpriteId())) {
-        issues.push_back({{"field", "bodySpriteId"}, {"code", "unknown_body_sprite"}, {"message", "Body sprite id is not in the current body-sprite catalog."}});
-    }
-
-    std::vector<std::string> seen_tokens;
-    for (const auto& token : m_identity.getAppearanceTokens()) {
-        if (!containsValue(m_known_appearance_tokens, token)) {
-            issues.push_back({{"field", "appearanceTokens"}, {"code", "unknown_appearance_token"}, {"message", "Appearance token '" + token + "' is not in the current appearance catalog."}});
-        }
-        if (containsValue(seen_tokens, token)) {
-            issues.push_back({{"field", "appearanceTokens"}, {"code", "duplicate_appearance_token"}, {"message", "Appearance token '" + token + "' is duplicated."}});
-        } else {
-            seen_tokens.push_back(token);
-        }
+    for (const auto& issue : validationIssues) {
+        issues.push_back({
+            {"field", issue.field},
+            {"code", issueCode(issue.category)},
+            {"message", issue.message},
+        });
     }
 
     return {

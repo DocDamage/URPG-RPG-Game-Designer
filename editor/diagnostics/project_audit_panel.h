@@ -127,6 +127,9 @@ public:
         std::optional<ProjectAuditArtifactGovernanceSnapshot> accessibility_artifacts;
         std::optional<ProjectAuditArtifactGovernanceSnapshot> audio_artifacts;
         std::optional<ProjectAuditArtifactGovernanceSnapshot> performance_artifacts;
+        std::optional<ProjectAuditArtifactGovernanceSnapshot> character_artifacts;
+        std::optional<ProjectAuditArtifactGovernanceSnapshot> mod_artifacts;
+        std::optional<ProjectAuditArtifactGovernanceSnapshot> analytics_artifacts;
         std::optional<ProjectAuditArtifactGovernanceSnapshot> release_signoff_workflow;
         std::optional<ProjectAuditRichArtifactGovernanceSnapshot> signoff_artifacts;
         std::optional<ProjectAuditRichArtifactGovernanceSnapshot> template_spec_artifacts;
@@ -136,6 +139,9 @@ public:
         std::optional<size_t> localization_evidence_issue_count;
         std::optional<size_t> accessibility_artifact_issue_count;
         std::optional<size_t> audio_artifact_issue_count;
+        std::optional<size_t> character_artifact_issue_count;
+        std::optional<size_t> mod_artifact_issue_count;
+        std::optional<size_t> analytics_artifact_issue_count;
         std::optional<size_t> performance_artifact_issue_count;
         std::optional<size_t> release_signoff_workflow_issue_count;
         std::optional<size_t> signoff_artifact_issue_count;

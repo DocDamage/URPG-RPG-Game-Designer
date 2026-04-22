@@ -1,8 +1,16 @@
 #include <catch2/catch_test_macros.hpp>
 
 #include "engine/core/mod/mod_registry.h"
+#include "engine/core/mod/mod_registry_validator.h"
+
+#include <chrono>
+#include <cstdlib>
+#include <filesystem>
+#include <fstream>
+#include <nlohmann/json.hpp>
 
 using namespace urpg::mod;
+using nlohmann::json;
 
 TEST_CASE("ModRegistry: Register and retrieve mod", "[mod]") {
     ModRegistry registry;
@@ -161,4 +169,47 @@ TEST_CASE("ModRegistry: Unregister removes mod and breaks dependency chains grac
     auto order = registry.resolveLoadOrder();
     REQUIRE(order.size() == 1);
     REQUIRE(order[0] == "dependent");
+}
+
+TEST_CASE("ModRegistryValidator: bounded manifest issues are reported", "[mod][validation]") {
+    ModRegistryValidator validator;
+
+    ModManifest invalid;
+    invalid.id = "broken_mod";
+    invalid.dependencies = {"broken_mod", "shared_dep", "shared_dep"};
+
+    const auto issues = validator.validate({invalid});
+    REQUIRE(issues.size() == 5);
+    REQUIRE(issues[0].category == ModIssueCategory::EmptyName);
+    REQUIRE(issues[1].category == ModIssueCategory::EmptyVersion);
+    REQUIRE(issues[2].category == ModIssueCategory::MissingEntryPoint);
+    REQUIRE(issues[3].category == ModIssueCategory::SelfDependency);
+    REQUIRE(issues[4].category == ModIssueCategory::DuplicateDependency);
+}
+
+TEST_CASE("ModRegistryValidator: CI governance script validates artifacts", "[mod][validation][project_audit_cli]") {
+    const auto repoRoot = std::filesystem::path(__FILE__).parent_path().parent_path().parent_path();
+    const auto scriptPath = repoRoot / "tools" / "ci" / "check_mod_governance.ps1";
+    const auto uniqueSuffix =
+        std::to_string(std::chrono::steady_clock::now().time_since_epoch().count());
+    const auto outputPath =
+        std::filesystem::temp_directory_path() / ("urpg_mod_gov_out_" + uniqueSuffix + ".json");
+
+    const std::string command =
+        "powershell -ExecutionPolicy Bypass -File \"" + scriptPath.string() +
+        "\" > \"" + outputPath.string() + "\"";
+
+    REQUIRE(std::system(command.c_str()) == 0);
+
+    std::ifstream resultFile(outputPath);
+    REQUIRE(resultFile.is_open());
+
+    std::string jsonStr((std::istreambuf_iterator<char>(resultFile)),
+                         std::istreambuf_iterator<char>());
+    resultFile.close();
+
+    const auto result = json::parse(jsonStr);
+    REQUIRE(result["passed"].get<bool>() == true);
+    REQUIRE(result["errors"].is_array());
+    REQUIRE(result["errors"].empty());
 }
