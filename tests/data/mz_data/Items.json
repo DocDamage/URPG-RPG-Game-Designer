@@ -1,1 +1,0 @@
-[null,{"id":1,"name":"Potion","iconIndex":176,"description":"Restores 200 HP.","typeId":0,"consumable":1,"price":50,"scope":7,"animationId":0},{"id":2,"name":"Ether","iconIndex":177,"description":"Restores 50 MP.","typeId":0,"consumable":1,"price":150,"scope":7,"animationId":0}]

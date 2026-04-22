@@ -1,10 +1,11 @@
 build/
-build-*/
 build-local/
 .vscode/
 .cache/
 .venv/
 Testing/
+!engine/core/testing/
+!engine/core/testing/**
 __pycache__/
 *.pyc
 .ruff_cache/
@@ -35,10 +36,11 @@ third_party/itch-assets/reports/
 imports/reports/
 itch/archives/
 .rex_db/
-.codemunch/
-.contextlattice/
+.codemunch/last-index.json
+.contextlattice/orchestrator.env
 .memorybridge/bridge.config.json
 .memorybridge/bridge.config.sample.json
 .memorybridge/sync-state.json
 .env
 .env.*
+.aider*

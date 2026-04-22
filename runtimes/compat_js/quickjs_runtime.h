@@ -3,14 +3,9 @@
 // QuickJS Compat Harness Contract Kernel
 // Phase 2 - Compat Layer
 //
-// This defines the fixture-backed QuickJS contract harness used by URPG's MZ compatibility layer.
-// It is intentionally scoped as a compat/import verification harness until a real QuickJS runtime is integrated.
+// This defines the fixture-backed compat-contract harness used by URPG's MZ compatibility layer.
+// This is a fixture-backed compat-contract harness ONLY; live QuickJS runtime integration is out of scope for this file.
 // The harness is isolated from native URPG systems per Invariant 1: "Compat never degrades Native."
-
-// Real QuickJS integration is gated behind URPG_HAS_QUICKJS.
-// When defined, the implementation links against the QuickJS C API.
-// When not defined, a deterministic stub runtime is used for testing.
-// #define URPG_HAS_QUICKJS
 
 #include "engine/runtimes/bridge/value.h"
 #include <cstdint>
@@ -130,7 +125,7 @@ public:
     struct MethodDef {
         std::string name;
         HostFunction fn;
-        CompatStatus status = CompatStatus::FULL;
+        CompatStatus status = CompatStatus::STUB;
         std::string deviationNote;      // Required if status == PARTIAL
     };
     bool registerObject(const std::string& name, const std::vector<MethodDef>& methods);

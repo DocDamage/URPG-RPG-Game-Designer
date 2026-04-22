@@ -1,13 +1,32 @@
 #include "runtimes/compat_js/battle_manager.h"
-#include "runtimes/compat_js/audio_manager.h"
 #include "runtimes/compat_js/data_manager.h"
 
 #include <catch2/catch_test_macros.hpp>
+#include <algorithm>
+#include <filesystem>
+#include <fstream>
+#include <variant>
+#include <nlohmann/json.hpp>
 
 using namespace urpg::compat;
+namespace fs = std::filesystem;
+
+namespace {
+
+fs::path writeBattleEventTroopsFixture(const nlohmann::json& troops) {
+    const fs::path fixtureDir = fs::temp_directory_path() / "urpg_battle_event_fixture";
+    fs::create_directories(fixtureDir);
+
+    std::ofstream out(fixtureDir / "Troops.json", std::ios::binary | std::ios::trunc);
+    out << troops.dump();
+    out.close();
+
+    return fixtureDir;
+}
+
+}
 
 TEST_CASE("BattleManager: setup and flow", "[battlemgr]") {
-    DataManager::instance().clearDatabase();
     BattleManager bm;
 
     bm.setup(1, true, false);
@@ -27,7 +46,6 @@ TEST_CASE("BattleManager: setup and flow", "[battlemgr]") {
 }
 
 TEST_CASE("BattleManager: escape gate", "[battlemgr]") {
-    DataManager::instance().clearDatabase();
     BattleManager bm;
     bm.setup(2, false, false);
     bm.startBattle();
@@ -37,7 +55,6 @@ TEST_CASE("BattleManager: escape gate", "[battlemgr]") {
 }
 
 TEST_CASE("BattleManager: escape attempts ramp to deterministic success", "[battlemgr]") {
-    DataManager::instance().clearDatabase();
     BattleManager bm;
     bm.setup(11, true, false);
     bm.startBattle();
@@ -59,7 +76,6 @@ TEST_CASE("BattleManager: escape attempts ramp to deterministic success", "[batt
 }
 
 TEST_CASE("BattleManager: escape outcomes are deterministic for same setup", "[battlemgr]") {
-    DataManager::instance().clearDatabase();
     BattleManager a;
     BattleManager b;
 
@@ -75,7 +91,6 @@ TEST_CASE("BattleManager: escape outcomes are deterministic for same setup", "[b
 }
 
 TEST_CASE("BattleManager: hook registration and unregistration", "[battlemgr]") {
-    DataManager::instance().clearDatabase();
     BattleManager bm;
     int startHookCalls = 0;
 
@@ -98,7 +113,6 @@ TEST_CASE("BattleManager: hook registration and unregistration", "[battlemgr]") 
 }
 
 TEST_CASE("BattleManager: action queue lifecycle", "[battlemgr]") {
-    DataManager::instance().clearDatabase();
     BattleManager bm;
 
     BattleSubject actor;
@@ -123,7 +137,6 @@ TEST_CASE("BattleManager: action queue lifecycle", "[battlemgr]") {
 }
 
 TEST_CASE("BattleManager: damage and healing", "[battlemgr]") {
-    DataManager::instance().clearDatabase();
     BattleManager bm;
 
     BattleSubject actor;
@@ -153,7 +166,6 @@ TEST_CASE("BattleManager: damage and healing", "[battlemgr]") {
 }
 
 TEST_CASE("BattleManager: modifiers affect attack resolution and targeting priority", "[battlemgr]") {
-    DataManager::instance().clearDatabase();
     BattleManager bm;
     bm.setup(12, true, false);
 
@@ -162,22 +174,18 @@ TEST_CASE("BattleManager: modifiers affect attack resolution and targeting prior
     actor.index = 0;
     actor.hp = 40;
     actor.mhp = 40;
-    actor.atk = 16;
-    actor.def = 10;
 
     BattleSubject enemyA;
     enemyA.type = BattleSubjectType::ENEMY;
     enemyA.index = 0;
     enemyA.hp = 20;
     enemyA.mhp = 20;
-    enemyA.def = 10;
 
     BattleSubject enemyB;
     enemyB.type = BattleSubjectType::ENEMY;
     enemyB.index = 1;
     enemyB.hp = 20;
     enemyB.mhp = 20;
-    enemyB.def = 5;
 
     bm.addActorSubject(actor);
     bm.addEnemySubject(enemyA);
@@ -202,7 +210,6 @@ TEST_CASE("BattleManager: modifiers affect attack resolution and targeting prior
 
     bm.processAction(action);
     REQUIRE(seededEnemyA->hp == 20);
-    // Buffed atk (16 * 1.25 = 20) vs debuffed def (5 * 0.8 = 4) => 16 damage
     REQUIRE(seededEnemyB->hp == 4);
 }
 
@@ -344,16 +351,629 @@ TEST_CASE("BattleManager: turn-end status ordering and buff durations", "[battle
     REQUIRE(bm.getModifierStage(seededActor, 6) == 0);
 }
 
+TEST_CASE("BattleManager: battle environment metadata is retained through JS helpers", "[battlemgr]") {
+    QuickJSContext ctx;
+    QuickJSConfig config;
+    REQUIRE(ctx.initialize(config));
+
+    BattleManager::registerAPI(ctx);
+
+    urpg::Value ruinsNight;
+    ruinsNight.v = std::string("ruins_night");
+
+    auto setBackground = ctx.callMethod("BattleManager", "changeBattleBackground",
+                                        std::vector<urpg::Value>{ruinsNight});
+    REQUIRE(setBackground.success);
+
+    urpg::Value battleTheme;
+    battleTheme.v = std::string("battle_theme");
+    urpg::Value bgmVolume;
+    bgmVolume.v = 72.5;
+    urpg::Value bgmPitch;
+    bgmPitch.v = 108.0;
+    auto setBgm = ctx.callMethod("BattleManager", "changeBattleBgm",
+                                 std::vector<urpg::Value>{battleTheme, bgmVolume, bgmPitch});
+    REQUIRE(setBgm.success);
+
+    urpg::Value victoryName;
+    victoryName.v = std::string("victory_fanfare");
+    auto setVictoryMe = ctx.callMethod("BattleManager", "changeVictoryMe",
+                                       std::vector<urpg::Value>{victoryName,
+                                                                 urpg::Value::Int(80),
+                                                                 urpg::Value::Int(105)});
+    REQUIRE(setVictoryMe.success);
+
+    urpg::Value defeatName;
+    defeatName.v = std::string("defeat_dirge");
+    auto setDefeatMe = ctx.callMethod("BattleManager", "changeDefeatMe",
+                                      std::vector<urpg::Value>{defeatName,
+                                                                urpg::Value::Int(60),
+                                                                urpg::Value::Int(95)});
+    REQUIRE(setDefeatMe.success);
+
+    auto backgroundResult = ctx.callMethod("BattleManager", "getBattleBackground", {});
+    REQUIRE(backgroundResult.success);
+    REQUIRE(std::get<std::string>(backgroundResult.value.v) == "ruins_night");
+
+    auto bgmResult = ctx.callMethod("BattleManager", "getBattleBgm", {});
+    REQUIRE(bgmResult.success);
+    REQUIRE(std::holds_alternative<urpg::Object>(bgmResult.value.v));
+    const auto& bgm = std::get<urpg::Object>(bgmResult.value.v);
+    REQUIRE(std::get<std::string>(bgm.at("name").v) == "battle_theme");
+    REQUIRE(std::get<double>(bgm.at("volume").v) == 72.5);
+    REQUIRE(std::get<double>(bgm.at("pitch").v) == 108.0);
+
+    auto victoryResult = ctx.callMethod("BattleManager", "getVictoryMe", {});
+    REQUIRE(victoryResult.success);
+    REQUIRE(std::holds_alternative<urpg::Object>(victoryResult.value.v));
+    const auto& victory = std::get<urpg::Object>(victoryResult.value.v);
+    REQUIRE(std::get<std::string>(victory.at("name").v) == "victory_fanfare");
+    REQUIRE(std::get<double>(victory.at("volume").v) == 80.0);
+    REQUIRE(std::get<double>(victory.at("pitch").v) == 105.0);
+
+    auto defeatResult = ctx.callMethod("BattleManager", "getDefeatMe", {});
+    REQUIRE(defeatResult.success);
+    REQUIRE(std::holds_alternative<urpg::Object>(defeatResult.value.v));
+    const auto& defeat = std::get<urpg::Object>(defeatResult.value.v);
+    REQUIRE(std::get<std::string>(defeat.at("name").v) == "defeat_dirge");
+    REQUIRE(std::get<double>(defeat.at("volume").v) == 60.0);
+    REQUIRE(std::get<double>(defeat.at("pitch").v) == 95.0);
+}
+
+TEST_CASE("BattleManager: direct animation playback runs deterministic lifecycle", "[battlemgr]") {
+    DataManager::instance().loadDatabase();
+
+    BattleManager bm;
+    BattleSubject actor;
+    actor.type = BattleSubjectType::ACTOR;
+    actor.index = 0;
+    actor.hp = 100;
+    actor.mhp = 100;
+
+    bm.playAnimation(0, &actor);
+    REQUIRE_FALSE(bm.isAnimationPlaying());
+    REQUIRE(bm.getActiveAnimations().empty());
+
+    bm.playAnimation(41, &actor);
+    REQUIRE(bm.isAnimationPlaying());
+    REQUIRE(bm.getActiveAnimations().size() == 1);
+    REQUIRE(bm.getActiveAnimations()[0].animationId == 41);
+    REQUIRE(bm.getActiveAnimations()[0].targetType == BattleSubjectType::ACTOR);
+    REQUIRE(bm.getActiveAnimations()[0].targetIndex == 0);
+    REQUIRE_FALSE(bm.getActiveAnimations()[0].subjectAnimation);
+
+    const int32_t frames = bm.getActiveAnimations()[0].framesRemaining;
+    REQUIRE(frames > 0);
+    for (int32_t i = 0; i < frames - 1; ++i) {
+        REQUIRE(bm.isAnimationPlaying());
+        bm.updateBattleEvents();
+    }
+
+    REQUIRE(bm.isAnimationPlaying());
+    bm.updateBattleEvents();
+    REQUIRE_FALSE(bm.isAnimationPlaying());
+    REQUIRE(bm.getActiveAnimations().empty());
+}
+
+TEST_CASE("BattleManager: skills and items enqueue their configured animations", "[battlemgr]") {
+    DataManager::instance().loadDatabase();
+    DataManager::instance().setupNewGame();
+
+    BattleManager bm;
+    bm.setup(1, true, false);
+
+    BattleSubject actor;
+    actor.type = BattleSubjectType::ACTOR;
+    actor.index = 0;
+    actor.hp = 40;
+    actor.mhp = 100;
+    bm.addActorSubject(actor);
+    BattleSubject* seededActor = bm.getActor(static_cast<int32_t>(bm.getActorsConst().size() - 1));
+    BattleSubject* enemy = bm.getEnemy(0);
+    REQUIRE(seededActor != nullptr);
+    REQUIRE(enemy != nullptr);
+
+    bm.applySkill(nullptr, enemy, 2);
+    REQUIRE(bm.isAnimationPlaying());
+    REQUIRE(bm.getActiveAnimations().size() == 1);
+    REQUIRE(bm.getActiveAnimations()[0].animationId == 67);
+    REQUIRE(bm.getActiveAnimations()[0].targetType == BattleSubjectType::ENEMY);
+    REQUIRE(bm.getActiveAnimations()[0].targetIndex == enemy->index);
+
+    bm.applyItem(nullptr, seededActor, 1);
+    REQUIRE(bm.getActiveAnimations().size() == 2);
+    REQUIRE(bm.getActiveAnimations()[1].animationId == 41);
+    REQUIRE(bm.getActiveAnimations()[1].targetType == BattleSubjectType::ACTOR);
+    REQUIRE(bm.getActiveAnimations()[1].targetIndex == seededActor->index);
+}
+
+TEST_CASE("BattleManager: troop battle events execute real page conditions and commands", "[battlemgr]") {
+    const nlohmann::json troops = nlohmann::json::array({
+        nullptr,
+        {
+            {"id", 1},
+            {"name", "Event Troop"},
+            {"members", nlohmann::json::array({
+                {{"enemyId", 1}}
+            })},
+            {"pages", nlohmann::json::array({
+                {
+                    {"conditions", {
+                        {"actorHp", 50},
+                        {"actorId", 1},
+                        {"actorValid", false},
+                        {"enemyHp", 50},
+                        {"enemyIndex", 0},
+                        {"enemyValid", false},
+                        {"switchId", 1},
+                        {"switchValid", false},
+                        {"turnA", 0},
+                        {"turnB", 0},
+                        {"turnEnding", false},
+                        {"turnValid", true}
+                    }},
+                    {"list", nlohmann::json::array({
+                        {{"code", 121}, {"indent", 0}, {"parameters", nlohmann::json::array({1, 1, 0})}},
+                        {{"code", 122}, {"indent", 0}, {"parameters", nlohmann::json::array({2, 2, 0, 0, 7})}},
+                        {{"code", 125}, {"indent", 0}, {"parameters", nlohmann::json::array({0, 0, 50})}},
+                        {{"code", 0}, {"indent", 0}, {"parameters", nlohmann::json::array()}}
+                    })},
+                    {"span", 0}
+                }
+            })}
+        }
+    });
+
+    const fs::path fixtureDir = writeBattleEventTroopsFixture(troops);
+    DataManager::setDataDirectory(fixtureDir.string());
+    REQUIRE(DataManager::instance().loadDatabase());
+    DataManager::instance().setupNewGame();
+
+    BattleManager bm;
+    bm.setup(1, true, false);
+    bm.startBattle();
+
+    REQUIRE_FALSE(DataManager::instance().getSwitch(1));
+    REQUIRE(DataManager::instance().getVariable(2) == 0);
+    REQUIRE(DataManager::instance().getGold() == 0);
+
+    bm.updateBattleEvents();
+    REQUIRE(DataManager::instance().getSwitch(1));
+    REQUIRE(DataManager::instance().getVariable(2) == 7);
+    REQUIRE(DataManager::instance().getGold() == 50);
+    REQUIRE_FALSE(bm.isBattleEventActive());
+
+    bm.updateBattleEvents();
+    REQUIRE(DataManager::instance().getGold() == 50);
+
+    fs::remove_all(fixtureDir);
+    DataManager::setDataDirectory("");
+}
+
+TEST_CASE("BattleManager: troop battle events honor live switch state through updateBattleEvents", "[battlemgr]") {
+    const nlohmann::json troops = nlohmann::json::array({
+        nullptr,
+        {
+            {"id", 1},
+            {"name", "Switch Event Troop"},
+            {"members", nlohmann::json::array({
+                {{"enemyId", 1}}
+            })},
+            {"pages", nlohmann::json::array({
+                {
+                    {"conditions", {
+                        {"actorHp", 50},
+                        {"actorId", 1},
+                        {"actorValid", false},
+                        {"enemyHp", 50},
+                        {"enemyIndex", 0},
+                        {"enemyValid", false},
+                        {"switchId", 33},
+                        {"switchValid", true},
+                        {"turnA", 0},
+                        {"turnB", 0},
+                        {"turnEnding", false},
+                        {"turnValid", false}
+                    }},
+                    {"list", nlohmann::json::array({
+                        {{"code", 122}, {"indent", 0}, {"parameters", nlohmann::json::array({9, 9, 0, 0, 4})}},
+                        {{"code", 0}, {"indent", 0}, {"parameters", nlohmann::json::array()}}
+                    })},
+                    {"span", 0}
+                }
+            })}
+        }
+    });
+
+    const fs::path fixtureDir = writeBattleEventTroopsFixture(troops);
+    DataManager::setDataDirectory(fixtureDir.string());
+    REQUIRE(DataManager::instance().loadDatabase());
+    DataManager::instance().setupNewGame();
+
+    BattleManager bm;
+    bm.setup(1, true, false);
+    bm.startBattle();
+
+    REQUIRE_FALSE(DataManager::instance().getSwitch(33));
+    REQUIRE(DataManager::instance().getVariable(9) == 0);
+
+    bm.updateBattleEvents();
+    REQUIRE_FALSE(bm.isBattleEventActive());
+    REQUIRE(DataManager::instance().getVariable(9) == 0);
+
+    DataManager::instance().setSwitch(33, true);
+    bm.updateBattleEvents();
+    REQUIRE(DataManager::instance().getVariable(9) == 4);
+    REQUIRE_FALSE(bm.isBattleEventActive());
+
+    fs::remove_all(fixtureDir);
+    DataManager::setDataDirectory("");
+}
+
+TEST_CASE("BattleManager: turn-span battle events rerun on later eligible turns", "[battlemgr]") {
+    const nlohmann::json troops = nlohmann::json::array({
+        nullptr,
+        {
+            {"id", 1},
+            {"name", "Turn Event Troop"},
+            {"members", nlohmann::json::array({
+                {{"enemyId", 1}}
+            })},
+            {"pages", nlohmann::json::array({
+                {
+                    {"conditions", {
+                        {"actorHp", 50},
+                        {"actorId", 1},
+                        {"actorValid", false},
+                        {"enemyHp", 50},
+                        {"enemyIndex", 0},
+                        {"enemyValid", false},
+                        {"switchId", 1},
+                        {"switchValid", false},
+                        {"turnA", 1},
+                        {"turnB", 1},
+                        {"turnEnding", false},
+                        {"turnValid", true}
+                    }},
+                    {"list", nlohmann::json::array({
+                        {{"code", 122}, {"indent", 0}, {"parameters", nlohmann::json::array({3, 3, 1, 0, 2})}},
+                        {{"code", 0}, {"indent", 0}, {"parameters", nlohmann::json::array()}}
+                    })},
+                    {"span", 1}
+                }
+            })}
+        }
+    });
+
+    const fs::path fixtureDir = writeBattleEventTroopsFixture(troops);
+    DataManager::setDataDirectory(fixtureDir.string());
+    REQUIRE(DataManager::instance().loadDatabase());
+    DataManager::instance().setupNewGame();
+
+    BattleManager bm;
+    bm.setup(1, true, false);
+    bm.startBattle();
+
+    bm.updateBattleEvents();
+    REQUIRE(DataManager::instance().getVariable(3) == 0);
+
+    bm.endTurn();
+    bm.updateBattleEvents();
+    REQUIRE(DataManager::instance().getVariable(3) == 2);
+
+    bm.endTurn();
+    bm.updateBattleEvents();
+    REQUIRE(DataManager::instance().getVariable(3) == 4);
+
+    fs::remove_all(fixtureDir);
+    DataManager::setDataDirectory("");
+}
+
 TEST_CASE("BattleManager: method status registry", "[battlemgr]") {
-    DataManager::instance().clearDatabase();
     BattleManager bm;
     (void)bm;
 
     REQUIRE(BattleManager::getMethodStatus("setup") == CompatStatus::PARTIAL);
+    REQUIRE(BattleManager::getMethodStatus("applySkill") == CompatStatus::PARTIAL);
+    REQUIRE(BattleManager::getMethodStatus("applyItem") == CompatStatus::PARTIAL);
+    REQUIRE(BattleManager::getMethodStatus("startBattleEvent") == CompatStatus::PARTIAL);
+    REQUIRE(BattleManager::getMethodStatus("updateBattleEvents") == CompatStatus::PARTIAL);
+    REQUIRE(BattleManager::getMethodStatus("calculateExp") == CompatStatus::PARTIAL);
     REQUIRE(BattleManager::getMethodStatus("processEscape") == CompatStatus::FULL);
-    REQUIRE(BattleManager::getMethodStatus("setBattleTransition") == CompatStatus::STUB);
-    REQUIRE(BattleManager::getMethodDeviation("setup").find("troop loading") != std::string::npos);
+    REQUIRE(BattleManager::getMethodStatus("setBattleTransition") == CompatStatus::PARTIAL);
+    REQUIRE(BattleManager::getMethodStatus("changeBattleBgm") == CompatStatus::PARTIAL);
+    REQUIRE(BattleManager::getMethodStatus("playAnimation") == CompatStatus::FULL);
+    REQUIRE(BattleManager::getMethodDeviation("setup").find("partial") != std::string::npos);
+    REQUIRE(BattleManager::getMethodDeviation("applySkill").find("formula parsing") != std::string::npos);
+    REQUIRE(BattleManager::getMethodDeviation("applyItem").find("formula parsing") != std::string::npos);
+    REQUIRE(BattleManager::getMethodDeviation("startBattleEvent").find("bounded command subset") != std::string::npos);
+    REQUIRE(BattleManager::getMethodDeviation("updateBattleEvents").find("bounded command subset") != std::string::npos);
+    REQUIRE(BattleManager::getMethodDeviation("calculateExp").find("enemy loader is still partial") != std::string::npos);
     REQUIRE(BattleManager::getMethodStatus("nonexistentMethod") == CompatStatus::UNSUPPORTED);
+}
+
+TEST_CASE("BattleManager: turn condition cadence honors threshold and span", "[battlemgr]") {
+    BattleManager bm;
+
+    SECTION("span 0 matches only the exact turn") {
+        REQUIRE_FALSE(bm.checkTurnCondition(2, 0));
+        bm.incrementTurn();
+        bm.incrementTurn();
+        REQUIRE(bm.checkTurnCondition(2, 0));
+        bm.incrementTurn();
+        REQUIRE_FALSE(bm.checkTurnCondition(2, 0));
+    }
+
+    SECTION("span 1 triggers on the threshold turn and every turn after") {
+        REQUIRE_FALSE(bm.checkTurnCondition(2, 1));
+        bm.incrementTurn();
+        REQUIRE_FALSE(bm.checkTurnCondition(2, 1));
+        bm.incrementTurn();
+        REQUIRE(bm.checkTurnCondition(2, 1));
+        bm.incrementTurn();
+        REQUIRE(bm.checkTurnCondition(2, 1));
+    }
+
+    SECTION("span 2 triggers on cadence after the threshold turn") {
+        REQUIRE_FALSE(bm.checkTurnCondition(2, 2));
+        bm.incrementTurn();
+        REQUIRE_FALSE(bm.checkTurnCondition(2, 2));
+        bm.incrementTurn();
+        REQUIRE(bm.checkTurnCondition(2, 2));
+        bm.incrementTurn();
+        REQUIRE_FALSE(bm.checkTurnCondition(2, 2));
+        bm.incrementTurn();
+        REQUIRE(bm.checkTurnCondition(2, 2));
+    }
+}
+
+TEST_CASE("BattleManager: troop setup creates enemies from DataManager", "[battlemgr]") {
+    DataManager::instance().loadDatabase();
+    DataManager::instance().setupNewGame();
+
+    BattleManager bm;
+    bm.setup(1, true, false);
+    REQUIRE(bm.getEnemiesConst().size() == 2); // Troop 1 has two Slimes
+    REQUIRE(bm.getActorsConst().size() == 1);  // Party has Hero (actor 1)
+}
+
+TEST_CASE("BattleManager: defeating all enemies yields expected gold and exp", "[battlemgr]") {
+    DataManager::instance().loadDatabase();
+    DataManager::instance().setupNewGame();
+
+    ActorData* battleActor = DataManager::instance().getActor(1);
+    ClassData* battleClass = DataManager::instance().getClass(battleActor ? battleActor->classId : 0);
+    REQUIRE(battleActor != nullptr);
+    REQUIRE(battleClass != nullptr);
+    battleActor->level = 1;
+    battleActor->exp = 0;
+    battleClass->expTable = {9999, 9999, 9999};
+    battleClass->maxLevel = 99;
+
+    BattleManager bm;
+    bm.setup(2, true, false); // Troop 2 = one Goblin (20 exp, 10 gold)
+    REQUIRE(bm.getEnemiesConst().size() == 1);
+
+    BattleSubject* enemy = bm.getEnemy(0);
+    REQUIRE(enemy != nullptr);
+    bm.applyDamage(enemy, enemy->hp); // kill enemy
+
+    DataManager::instance().getGlobalState().partyMembers.clear();
+
+    REQUIRE(bm.calculateExp() == 20);
+    REQUIRE(bm.calculateGold() == 10);
+
+    int32_t initialGold = DataManager::instance().getGold();
+    bm.applyGold();
+    REQUIRE(DataManager::instance().getGold() == initialGold + 10);
+
+    int32_t initialBattleActorExp = battleActor->exp;
+    bm.applyExp();
+    REQUIRE(battleActor->exp == initialBattleActorExp);
+}
+
+TEST_CASE("BattleManager: drop logic handles probability", "[battlemgr]") {
+    DataManager::instance().loadDatabase();
+    DataManager::instance().setupNewGame();
+
+    BattleManager bm;
+    bm.setup(2, true, false); // Goblin drops: item 1 (rate 1 = 100%), item 2 (rate 2 = 50%)
+    BattleSubject* enemy = bm.getEnemy(0);
+    REQUIRE(enemy != nullptr);
+    bm.applyDamage(enemy, enemy->hp); // kill
+
+    // Seed RNG so that drop rolls are deterministic
+    bm.seedRng(12345);
+    auto drops = bm.calculateDrops();
+    // Item 1 should always be present because rate 1
+    REQUIRE(std::find(drops.begin(), drops.end(), 1) != drops.end());
+
+    // Re-seed to same value and apply drops; inventory change should match identical drop set
+    bm.seedRng(12345);
+    int32_t before1 = DataManager::instance().getItemCount(1);
+    int32_t before2 = DataManager::instance().getItemCount(2);
+    bm.applyDrops();
+    REQUIRE(DataManager::instance().getItemCount(1) == before1 + 1);
+    bool hasItem2 = std::find(drops.begin(), drops.end(), 2) != drops.end();
+    REQUIRE(DataManager::instance().getItemCount(2) == before2 + (hasItem2 ? 1 : 0));
+}
+
+TEST_CASE("BattleManager: victory and defeat switches are set correctly", "[battlemgr]") {
+    DataManager::instance().setupNewGame();
+
+    BattleManager bm;
+    bm.setup(1, true, false);
+    bm.startBattle();
+    bm.endBattle(BattleResult::WIN);
+    REQUIRE(DataManager::instance().getSwitch(101) == true);
+
+    DataManager::instance().setupNewGame(); // reset switches
+    bm.setup(1, true, true);
+    bm.startBattle();
+    bm.endBattle(BattleResult::DEFEAT);
+    REQUIRE(DataManager::instance().getSwitch(102) == true);
+
+    DataManager::instance().setupNewGame();
+    bm.setup(1, true, false);
+    bm.startBattle();
+    bool escaped = bm.processEscape();
+    if (escaped) {
+        REQUIRE(DataManager::instance().getSwitch(103) == true);
+    }
+}
+
+TEST_CASE("BattleManager: processAction resolves attack and advances queue", "[battlemgr]") {
+    DataManager::instance().loadDatabase();
+    DataManager::instance().setupNewGame();
+
+    BattleManager bm;
+    bm.setup(1, true, false); // 2 slimes
+    REQUIRE(bm.getEnemiesConst().size() == 2);
+
+    BattleSubject actor;
+    actor.type = BattleSubjectType::ACTOR;
+    actor.index = 0;
+    actor.hp = 100;
+    actor.mhp = 100;
+
+    bm.queueAction(&actor, BattleActionType::ATTACK, 0);
+    BattleAction* action = bm.getNextAction();
+    REQUIRE(action != nullptr);
+    bm.processAction(action);
+    REQUIRE(bm.getEnemy(0)->hp < bm.getEnemy(0)->mhp);
+    REQUIRE(bm.getNextAction() == nullptr);
+}
+
+TEST_CASE("BattleManager: applySkill deals expected damage and healing", "[battlemgr]") {
+    DataManager::instance().loadDatabase();
+    DataManager::instance().setupNewGame();
+    BattleManager bm;
+    bm.setup(1, true, false);
+
+    BattleSubject* enemy = bm.getEnemy(0);
+    REQUIRE(enemy != nullptr);
+    int32_t initialHp = enemy->hp;
+
+    bm.applySkill(nullptr, enemy, 2); // Fire skill (damage.type=1, power=25)
+    REQUIRE(enemy->hp < initialHp);
+
+    BattleSubject actor;
+    actor.type = BattleSubjectType::ACTOR;
+    actor.index = 0;
+    actor.hp = 10;
+    actor.mhp = 100;
+    bm.addActorSubject(actor);
+    BattleSubject* seededActor = bm.getActor(bm.getActorsConst().size() - 1);
+    REQUIRE(seededActor != nullptr);
+    bm.applySkill(nullptr, seededActor, 1); // Heal skill (damage.type=3, power=30)
+    REQUIRE(seededActor->hp == 40);
+}
+
+TEST_CASE("BattleManager: applyItem heals or damages correctly", "[battlemgr]") {
+    DataManager::instance().loadDatabase();
+    DataManager::instance().setupNewGame();
+    BattleManager bm;
+    bm.setup(1, true, false);
+
+    BattleSubject actor;
+    actor.type = BattleSubjectType::ACTOR;
+    actor.index = 0;
+    actor.hp = 20;
+    actor.mhp = 100;
+    bm.addActorSubject(actor);
+    BattleSubject* seededActor = bm.getActor(bm.getActorsConst().size() - 1);
+    REQUIRE(seededActor != nullptr);
+
+    bm.applyItem(nullptr, seededActor, 1); // Potion (effect code 11, value2=200)
+    REQUIRE(seededActor->hp == 100); // capped at max
+
+    BattleSubject* enemy = bm.getEnemy(0);
+    REQUIRE(enemy != nullptr);
+    int32_t initialHp = enemy->hp;
+    bm.applyItem(nullptr, enemy, 999); // non-existent item
+    REQUIRE(enemy->hp == initialHp);
+}
+
+TEST_CASE("BattleManager: applyExp after battle triggers level-up", "[battlemgr]") {
+    DataManager::instance().loadDatabase();
+    DataManager::instance().setupNewGame();
+
+    ActorData* actor = DataManager::instance().getActor(1);
+    ClassData* cls = DataManager::instance().getClass(actor->classId);
+    REQUIRE(actor != nullptr);
+    REQUIRE(cls != nullptr);
+    actor->level = 1;
+    actor->exp = 0;
+    actor->skills.clear();
+    cls->expTable = {15};
+    cls->skillsToLearn = {{2, 1}};
+    cls->maxLevel = 99;
+
+    BattleManager bm;
+    bm.setup(2, true, false); // Goblin gives 20 exp
+    bm.getEnemy(0)->hp = 0; // kill
+    bm.applyExp();
+
+    REQUIRE(actor->level == 2);
+    REQUIRE(actor->exp == 5);
+    REQUIRE(std::find(actor->skills.begin(), actor->skills.end(), 1) != actor->skills.end());
+}
+
+TEST_CASE("BattleManager: switch condition reads live DataManager state", "[battlemgr]") {
+    DataManager::instance().setupNewGame();
+
+    BattleManager bm;
+
+    REQUIRE_FALSE(bm.checkSwitchCondition(33));
+    DataManager::instance().setSwitch(33, true);
+    REQUIRE(bm.checkSwitchCondition(33));
+}
+
+TEST_CASE("BattleManager: JS bindings return non-default values", "[battlemgr]") {
+    BattleManager::instance().setup(1, true, false);
+    BattleManager::instance().startBattle();
+
+    QuickJSContext ctx;
+    QuickJSConfig config;
+    REQUIRE(ctx.initialize(config));
+
+    BattleManager::registerAPI(ctx);
+
+    auto phaseResult = ctx.callMethod("BattleManager", "getPhase", {});
+    REQUIRE(phaseResult.success);
+    REQUIRE(std::holds_alternative<int64_t>(phaseResult.value.v));
+    REQUIRE(std::get<int64_t>(phaseResult.value.v) == static_cast<int32_t>(BattlePhase::INPUT));
+
+    auto canEscapeResult = ctx.callMethod("BattleManager", "canEscape", {});
+    REQUIRE(canEscapeResult.success);
+    REQUIRE(std::get<int64_t>(canEscapeResult.value.v) == 1);
+
+    auto canLoseResult = ctx.callMethod("BattleManager", "canLose", {});
+    REQUIRE(canLoseResult.success);
+    REQUIRE(std::get<int64_t>(canLoseResult.value.v) == 0);
+
+    auto isBattleTestResult = ctx.callMethod("BattleManager", "isBattleTest", {});
+    REQUIRE(isBattleTestResult.success);
+    REQUIRE(std::get<int64_t>(isBattleTestResult.value.v) == 0);
+
+    auto turnResult = ctx.callMethod("BattleManager", "getTurnCount", {});
+    REQUIRE(turnResult.success);
+    REQUIRE(std::get<int64_t>(turnResult.value.v) == 0);
+
+    auto checkResult = ctx.callMethod("BattleManager", "checkTurnCondition", {urpg::Value::Int(1), urpg::Value::Int(0)});
+    REQUIRE(checkResult.success);
+    REQUIRE(std::get<int64_t>(checkResult.value.v) == 0);
+
+    BattleManager::instance().queueActionByIndices(0, BattleSubjectType::ACTOR, BattleActionType::ATTACK, 0, 0, 0);
+    auto nextActionResult = ctx.callMethod("BattleManager", "getNextAction", {});
+    REQUIRE(nextActionResult.success);
+    REQUIRE(std::holds_alternative<urpg::Object>(nextActionResult.value.v));
+    auto& obj = std::get<urpg::Object>(nextActionResult.value.v);
+    REQUIRE(obj.find("type") != obj.end());
+    const auto& typeValue = obj.at("type");
+    const auto* typePtr = std::get_if<int64_t>(&typeValue.v);
+    REQUIRE(typePtr != nullptr);
+    REQUIRE(*typePtr == static_cast<int32_t>(BattleActionType::ATTACK));
 }
 
 TEST_CASE("Battle structs and enums", "[battlemgr]") {
@@ -370,585 +990,4 @@ TEST_CASE("Battle structs and enums", "[battlemgr]") {
     REQUIRE(static_cast<int>(BattlePhase::ABORT) == 7);
     REQUIRE(static_cast<int>(BattleResult::WIN) == 1);
     REQUIRE(static_cast<int>(BattleActionType::ITEM) == 3);
-}
-
-TEST_CASE("BattleManager: setup populates enemies from DataManager troop", "[battlemgr]") {
-    DataManager::instance().clearDatabase();
-
-    EnemyData& enemy = DataManager::instance().addTestEnemy();
-    enemy.mhp = 50;
-    enemy.mmp = 20;
-    enemy.atk = 12;
-    enemy.def = 8;
-    enemy.mat = 10;
-    enemy.mdf = 10;
-    enemy.agi = 10;
-    enemy.luk = 10;
-    enemy.exp = 25;
-    enemy.gold = 15;
-
-    TroopData& troop = DataManager::instance().addTestTroop();
-    troop.members.push_back(enemy.id);
-
-    ActorData& actor = DataManager::instance().addTestActor();
-    actor.initialLevel = 1;
-    actor.params = {{60, 40, 15, 12, 10, 10, 11, 9}};
-    DataManager::instance().getGlobalState().partyMembers.push_back(actor.id);
-    DataManager::instance().setupGameActors();
-
-    BattleManager bm;
-    bm.setup(troop.id, true, false);
-
-    REQUIRE(bm.getEnemies().size() == 1);
-    BattleSubject* es = bm.getEnemy(0);
-    REQUIRE(es != nullptr);
-    REQUIRE(es->type == BattleSubjectType::ENEMY);
-    REQUIRE(es->id == enemy.id);
-    REQUIRE(es->mhp == 50);
-    REQUIRE(es->hp == 50);
-    REQUIRE(es->mmp == 20);
-    REQUIRE(es->mp == 20);
-    REQUIRE(es->atk == 12);
-    REQUIRE(es->def == 8);
-    REQUIRE(es->mat == 10);
-    REQUIRE(es->mdf == 10);
-    REQUIRE(es->agi == 10);
-    REQUIRE(es->luk == 10);
-
-    REQUIRE(bm.getActors().size() == 1);
-    BattleSubject* as = bm.getActor(0);
-    REQUIRE(as != nullptr);
-    REQUIRE(as->type == BattleSubjectType::ACTOR);
-    REQUIRE(as->id == actor.id);
-    REQUIRE(as->mhp == 60);
-    REQUIRE(as->hp == 60);
-    REQUIRE(as->mmp == 40);
-    REQUIRE(as->mp == 40);
-    REQUIRE(as->atk == 15);
-    REQUIRE(as->def == 12);
-    REQUIRE(as->mat == 10);
-    REQUIRE(as->mdf == 10);
-    REQUIRE(as->agi == 11);
-    REQUIRE(as->luk == 9);
-}
-
-TEST_CASE("BattleManager: rewards apply gold and drops through DataManager", "[battlemgr]") {
-    DataManager::instance().clearDatabase();
-
-    EnemyData& enemy = DataManager::instance().addTestEnemy();
-    enemy.gold = 42;
-    enemy.exp = 30;
-    enemy.dropItems = {1, 100}; // 100% drop rate for item 1
-
-    TroopData& troop = DataManager::instance().addTestTroop();
-    troop.members.push_back(enemy.id);
-
-    ItemData& item = DataManager::instance().addTestItem();
-    (void)item;
-
-    BattleManager bm;
-    bm.setup(troop.id, true, false);
-
-    REQUIRE(bm.calculateExp() == 30);
-    REQUIRE(bm.calculateGold() == 42);
-
-    auto drops = bm.calculateDrops();
-    REQUIRE(drops.size() == 1);
-    REQUIRE(drops[0] == 1);
-
-    DataManager::instance().setGold(0);
-    DataManager::instance().setItemCount(1, 0);
-
-    bm.applyGold();
-    REQUIRE(DataManager::instance().getGold() == 42);
-
-    bm.applyDrops();
-    REQUIRE(DataManager::instance().getItemCount(1) == 1);
-
-    int hookCalls = 0;
-    int receivedExp = 0;
-    bm.registerHook(
-        BattleManager::HookPoint::ON_VICTORY,
-        "test_reward",
-        [&hookCalls, &receivedExp](const std::vector<urpg::Value>& args) -> urpg::Value {
-            ++hookCalls;
-            if (!args.empty() && std::holds_alternative<int64_t>(args[0].v)) {
-                receivedExp = static_cast<int>(std::get<int64_t>(args[0].v));
-            }
-            return urpg::Value::Nil();
-        });
-    bm.applyExp();
-    REQUIRE(hookCalls == 1);
-    REQUIRE(receivedExp == 30);
-}
-
-TEST_CASE("BattleManager: checkSwitchCondition reads DataManager switches", "[battlemgr]") {
-    DataManager::instance().clearDatabase();
-
-    BattleManager bm;
-    REQUIRE_FALSE(bm.checkSwitchCondition(1));
-
-    DataManager::instance().setSwitch(1, true);
-    REQUIRE(bm.checkSwitchCondition(1));
-
-    DataManager::instance().setSwitch(1, false);
-    REQUIRE_FALSE(bm.checkSwitchCondition(1));
-}
-
-TEST_CASE("BattleManager: applySkill and applyItem through DataManager", "[battlemgr]") {
-    DataManager::instance().clearDatabase();
-
-    SkillData& skill = DataManager::instance().addTestSkill();
-    ItemData& item = DataManager::instance().addTestItem();
-
-    EnemyData& enemy = DataManager::instance().addTestEnemy();
-    enemy.mhp = 100;
-
-    TroopData& troop = DataManager::instance().addTestTroop();
-    troop.members.push_back(enemy.id);
-
-    BattleManager bm;
-    bm.setup(troop.id, true, false);
-
-    BattleSubject* es = bm.getEnemy(0);
-    REQUIRE(es != nullptr);
-    REQUIRE(es->hp == 100);
-
-    bm.applySkill(nullptr, es, skill.id);
-    REQUIRE(es->hp == 90);
-
-    bm.applyItem(nullptr, es, item.id);
-    REQUIRE(es->hp == 100);
-}
-
-TEST_CASE("BattleManager: audio setup routes to AudioManager", "[battlemgr]") {
-    DataManager::instance().clearDatabase();
-    AudioManager::instance().stopBgm();
-    BattleManager bm;
-
-    bm.setBattleBgm("Battle1", 80, 100);
-    REQUIRE(AudioManager::instance().getCurrentBgm().name == "Battle1");
-
-    bm.setVictoryMe("Victory", 90, 100);
-    // ME doesn't have a direct getter; just verify no crash
-
-    bm.setDefeatMe("Defeat", 90, 100);
-    // ME doesn't have a direct getter; just verify no crash
-
-    AudioManager::instance().stopBgm();
-}
-
-TEST_CASE("BattleManager: setup stores transition and background", "[battlemgr]") {
-    DataManager::instance().clearDatabase();
-    BattleManager bm;
-
-    bm.setup(1);
-    bm.setBattleTransition(2);
-    REQUIRE(bm.getBattleTransition() == 2);
-
-    bm.setBattleBackground("Castle");
-    REQUIRE(bm.getBattleBackground() == "Castle");
-}
-
-TEST_CASE("BattleManager: attack action uses CombatCalc for damage", "[battlemgr]") {
-    DataManager::instance().clearDatabase();
-
-    EnemyData& enemy = DataManager::instance().addTestEnemy();
-    enemy.mhp = 100;
-    enemy.def = 5;
-
-    TroopData& troop = DataManager::instance().addTestTroop();
-    troop.members.push_back(enemy.id);
-
-    ActorData& actor = DataManager::instance().addTestActor();
-    DataManager::instance().getGlobalState().partyMembers.push_back(actor.id);
-
-    BattleManager bm;
-    bm.setup(troop.id, true, false);
-
-    BattleSubject* actorSubject = bm.getActor(0);
-    REQUIRE(actorSubject != nullptr);
-    actorSubject->atk = 20;
-
-    BattleSubject* enemySubject = bm.getEnemy(0);
-    REQUIRE(enemySubject != nullptr);
-    REQUIRE(enemySubject->hp == 100);
-
-    bm.queueAction(actorSubject, BattleActionType::ATTACK, 0);
-    BattleAction* action = bm.getNextAction();
-    REQUIRE(action != nullptr);
-    bm.processAction(action);
-
-    REQUIRE(enemySubject->hp < 100);
-    int damage1 = 100 - enemySubject->hp;
-    REQUIRE(damage1 > 0);
-
-    // Verify deterministic: same setup -> same damage
-    BattleManager bm2;
-    bm2.setup(troop.id, true, false);
-    BattleSubject* actor2 = bm2.getActor(0);
-    actor2->atk = 20;
-    BattleSubject* enemy2 = bm2.getEnemy(0);
-    REQUIRE(enemy2->hp == 100);
-
-    bm2.queueAction(actor2, BattleActionType::ATTACK, 0);
-    BattleAction* action2 = bm2.getNextAction();
-    REQUIRE(action2 != nullptr);
-    bm2.processAction(action2);
-
-    int damage2 = 100 - enemy2->hp;
-    REQUIRE(damage1 == damage2);
-}
-
-TEST_CASE("BattleManager: applyStateEffects deals tick damage", "[battlemgr]") {
-    DataManager::instance().clearDatabase();
-
-    StateData& state = DataManager::instance().addTestState();
-    state.slipDamage = 2;
-
-    EnemyData& enemy = DataManager::instance().addTestEnemy();
-    enemy.mhp = 50;
-
-    TroopData& troop = DataManager::instance().addTestTroop();
-    troop.members.push_back(enemy.id);
-
-    BattleManager bm;
-    bm.setup(troop.id, true, false);
-
-    BattleSubject* es = bm.getEnemy(0);
-    REQUIRE(es != nullptr);
-    REQUIRE(es->hp == 50);
-
-    es->addState(state.id, 3);
-    bm.applyStateEffects(es);
-    REQUIRE(es->hp == 48);
-
-    bm.applyStateEffects(nullptr);
-    // Test passes if no crash
-}
-
-TEST_CASE("BattleManager: updateBattleEvents ends active events", "[battlemgr]") {
-    DataManager::instance().clearDatabase();
-    BattleManager bm;
-    bm.setup(1);
-
-    bm.startBattleEvent(1);
-    REQUIRE(bm.isBattleEventActive());
-
-    bm.updateBattleEvents();
-    bm.updateBattleEvents();
-    bm.updateBattleEvents();
-    REQUIRE_FALSE(bm.isBattleEventActive());
-}
-
-TEST_CASE("BattleManager: playAnimation records request", "[battlemgr]") {
-    DataManager::instance().clearDatabase();
-
-    EnemyData& enemy = DataManager::instance().addTestEnemy();
-    TroopData& troop = DataManager::instance().addTestTroop();
-    troop.members.push_back(enemy.id);
-
-    BattleManager bm;
-    bm.setup(troop.id, true, false);
-
-    BattleSubject* es = bm.getEnemy(0);
-    REQUIRE(es != nullptr);
-
-    bm.playAnimation(1, es);
-    REQUIRE(bm.getLastAnimationRequest().animationId == 1);
-    REQUIRE(bm.getLastAnimationRequest().targetIndex == es->index);
-    REQUIRE(bm.getLastAnimationRequest().targetType == static_cast<int32_t>(BattleSubjectType::ENEMY));
-
-    bm.clearLastAnimationRequest();
-    REQUIRE(bm.getLastAnimationRequest().animationId == 0);
-    REQUIRE(bm.getLastAnimationRequest().targetIndex == 0);
-}
-
-TEST_CASE("BattleManager: updateBattleEvents ticks to completion", "[battlemgr]") {
-    DataManager::instance().clearDatabase();
-    BattleManager bm;
-    bm.setup(1);
-
-    bm.startBattleEvent(1);
-    REQUIRE(bm.isBattleEventActive());
-
-    bm.updateBattleEvents();
-    REQUIRE(bm.isBattleEventActive());
-
-    bm.updateBattleEvents();
-    REQUIRE(bm.isBattleEventActive());
-
-    bm.updateBattleEvents();
-    REQUIRE_FALSE(bm.isBattleEventActive());
-}
-
-TEST_CASE("BattleSubject: state management", "[battlemgr]") {
-    DataManager::instance().clearDatabase();
-
-    BattleSubject subject;
-    REQUIRE_FALSE(subject.hasState(1));
-
-    subject.addState(1, 5);
-    REQUIRE(subject.hasState(1));
-    REQUIRE(subject.getStateTurns(1) == 5);
-
-    subject.addState(2, 3);
-    REQUIRE(subject.hasState(2));
-    REQUIRE(subject.getStateTurns(2) == 3);
-
-    subject.removeState(1);
-    REQUIRE_FALSE(subject.hasState(1));
-    REQUIRE(subject.getStateTurns(1) == 0);
-    REQUIRE(subject.hasState(2));
-
-    subject.clearStates();
-    REQUIRE_FALSE(subject.hasState(2));
-    REQUIRE(subject.states.empty());
-    REQUIRE(subject.stateTurns.empty());
-
-    // Negative stateId is ignored
-    subject.addState(-1, 5);
-    REQUIRE(subject.states.empty());
-
-    // Duplicate add preserves turns if not specified
-    subject.addState(3, 5);
-    subject.addState(3);
-    REQUIRE(subject.states.size() == 1);
-    REQUIRE(subject.getStateTurns(3) == 5);
-}
-
-TEST_CASE("BattleManager: applyStateEffects with slipDamage", "[battlemgr]") {
-    DataManager::instance().clearDatabase();
-
-    StateData& state = DataManager::instance().addTestState();
-    state.slipDamage = 5;
-
-    EnemyData& enemy = DataManager::instance().addTestEnemy();
-    enemy.mhp = 100;
-
-    TroopData& troop = DataManager::instance().addTestTroop();
-    troop.members.push_back(enemy.id);
-
-    BattleManager bm;
-    bm.setup(troop.id, true, false);
-
-    BattleSubject* es = bm.getEnemy(0);
-    REQUIRE(es != nullptr);
-    REQUIRE(es->hp == 100);
-
-    es->addState(state.id, 3);
-    bm.applyStateEffects(es);
-    REQUIRE(es->hp == 95);
-}
-
-TEST_CASE("BattleManager: applyStateEffects with no active states", "[battlemgr]") {
-    DataManager::instance().clearDatabase();
-
-    EnemyData& enemy = DataManager::instance().addTestEnemy();
-    enemy.mhp = 100;
-
-    TroopData& troop = DataManager::instance().addTestTroop();
-    troop.members.push_back(enemy.id);
-
-    BattleManager bm;
-    bm.setup(troop.id, true, false);
-
-    BattleSubject* es = bm.getEnemy(0);
-    REQUIRE(es != nullptr);
-    REQUIRE(es->hp == 100);
-
-    bm.applyStateEffects(es);
-    REQUIRE(es->hp == 100);
-}
-
-TEST_CASE("BattleManager: applyStateEffects decrements auto-removal turns", "[battlemgr]") {
-    DataManager::instance().clearDatabase();
-
-    StateData& state = DataManager::instance().addTestState();
-    state.autoRemovalTiming = 1; // end of turn
-    state.minTurns = 1;
-    state.maxTurns = 3;
-
-    EnemyData& enemy = DataManager::instance().addTestEnemy();
-    enemy.mhp = 100;
-
-    TroopData& troop = DataManager::instance().addTestTroop();
-    troop.members.push_back(enemy.id);
-
-    BattleManager bm;
-    bm.setup(troop.id, true, false);
-
-    BattleSubject* es = bm.getEnemy(0);
-    REQUIRE(es != nullptr);
-
-    es->addState(state.id, 3);
-    REQUIRE(es->getStateTurns(state.id) == 3);
-
-    bm.applyStateEffects(es);
-    REQUIRE(es->getStateTurns(state.id) == 2);
-
-    bm.applyStateEffects(es);
-    REQUIRE(es->getStateTurns(state.id) == 1);
-}
-
-TEST_CASE("BattleManager: removeExpiredStates removes expired states", "[battlemgr]") {
-    DataManager::instance().clearDatabase();
-
-    StateData& state = DataManager::instance().addTestState();
-    state.autoRemovalTiming = 1;
-    state.minTurns = 1;
-    state.maxTurns = 1;
-
-    EnemyData& enemy = DataManager::instance().addTestEnemy();
-    enemy.mhp = 100;
-
-    TroopData& troop = DataManager::instance().addTestTroop();
-    troop.members.push_back(enemy.id);
-
-    BattleManager bm;
-    bm.setup(troop.id, true, false);
-
-    BattleSubject* es = bm.getEnemy(0);
-    REQUIRE(es != nullptr);
-
-    es->addState(state.id, 1);
-    REQUIRE(es->hasState(state.id));
-
-    bm.applyStateEffects(es);
-    REQUIRE(es->getStateTurns(state.id) == 0);
-    // applyStateEffects removes expired states immediately
-    REQUIRE_FALSE(es->hasState(state.id));
-
-    // removeExpiredStates is idempotent
-    bm.removeExpiredStates(es);
-    REQUIRE_FALSE(es->hasState(state.id));
-}
-
-TEST_CASE("BattleManager: applyDamage may remove removeByDamage states", "[battlemgr]") {
-    DataManager::instance().clearDatabase();
-
-    StateData& state = DataManager::instance().addTestState();
-    state.removeByDamage = true;
-    state.chanceByDamage = 100; // always remove
-
-    EnemyData& enemy = DataManager::instance().addTestEnemy();
-    enemy.mhp = 100;
-
-    TroopData& troop = DataManager::instance().addTestTroop();
-    troop.members.push_back(enemy.id);
-
-    BattleManager bm;
-    bm.setup(troop.id, true, false);
-
-    BattleSubject* es = bm.getEnemy(0);
-    REQUIRE(es != nullptr);
-
-    es->addState(state.id, 3);
-    REQUIRE(es->hasState(state.id));
-
-    bm.applyDamage(es, 10);
-    REQUIRE_FALSE(es->hasState(state.id));
-    REQUIRE(es->hp == 90);
-}
-
-TEST_CASE("BattleManager: applyDamage keeps removeByDamage state on failed roll", "[battlemgr]") {
-    DataManager::instance().clearDatabase();
-
-    StateData& state = DataManager::instance().addTestState();
-    state.removeByDamage = true;
-    state.chanceByDamage = 0; // never remove
-
-    EnemyData& enemy = DataManager::instance().addTestEnemy();
-    enemy.mhp = 100;
-
-    TroopData& troop = DataManager::instance().addTestTroop();
-    troop.members.push_back(enemy.id);
-
-    BattleManager bm;
-    bm.setup(troop.id, true, false);
-
-    BattleSubject* es = bm.getEnemy(0);
-    REQUIRE(es != nullptr);
-
-    es->addState(state.id, 3);
-    REQUIRE(es->hasState(state.id));
-
-    bm.applyDamage(es, 10);
-    REQUIRE(es->hasState(state.id));
-    REQUIRE(es->hp == 90);
-}
-
-TEST_CASE("BattleManager: checkTurnCondition span 0 exact match", "[battlemgr]") {
-    DataManager::instance().clearDatabase();
-    BattleManager bm;
-    bm.setup(1);
-    bm.startBattle();
-
-    // turnCount_ == 0 after setup, before any increment
-    REQUIRE(bm.checkTurnCondition(0, 0));
-    REQUIRE_FALSE(bm.checkTurnCondition(1, 0));
-
-    bm.incrementTurn();
-    REQUIRE_FALSE(bm.checkTurnCondition(0, 0));
-    REQUIRE(bm.checkTurnCondition(1, 0));
-}
-
-TEST_CASE("BattleManager: checkTurnCondition span 1 every turn after threshold", "[battlemgr]") {
-    DataManager::instance().clearDatabase();
-    BattleManager bm;
-    bm.setup(1);
-    bm.startBattle();
-
-    // turnCount_ == 0
-    REQUIRE_FALSE(bm.checkTurnCondition(1, 1));
-
-    bm.incrementTurn(); // turn 1
-    REQUIRE(bm.checkTurnCondition(1, 1));
-
-    bm.incrementTurn(); // turn 2
-    REQUIRE(bm.checkTurnCondition(1, 1));
-
-    bm.incrementTurn(); // turn 3
-    REQUIRE(bm.checkTurnCondition(1, 1));
-}
-
-TEST_CASE("BattleManager: checkTurnCondition span 2 every two turns after threshold", "[battlemgr]") {
-    DataManager::instance().clearDatabase();
-    BattleManager bm;
-    bm.setup(1);
-    bm.startBattle();
-
-    // turnCount_ == 0
-    REQUIRE_FALSE(bm.checkTurnCondition(2, 2));
-
-    bm.incrementTurn(); // turn 1
-    REQUIRE_FALSE(bm.checkTurnCondition(2, 2));
-
-    bm.incrementTurn(); // turn 2
-    REQUIRE(bm.checkTurnCondition(2, 2));
-
-    bm.incrementTurn(); // turn 3
-    REQUIRE_FALSE(bm.checkTurnCondition(2, 2));
-
-    bm.incrementTurn(); // turn 4
-    REQUIRE(bm.checkTurnCondition(2, 2));
-
-    bm.incrementTurn(); // turn 5
-    REQUIRE_FALSE(bm.checkTurnCondition(2, 2));
-}
-
-TEST_CASE("BattleManager: checkTurnCondition boundary turns", "[battlemgr]") {
-    DataManager::instance().clearDatabase();
-    BattleManager bm;
-    bm.setup(1);
-    bm.startBattle();
-
-    // turnCount_ == 0, span 2 with threshold 0 should match
-    REQUIRE(bm.checkTurnCondition(0, 2));
-
-    bm.incrementTurn(); // turn 1
-    REQUIRE_FALSE(bm.checkTurnCondition(0, 2));
-
-    bm.incrementTurn(); // turn 2
-    REQUIRE(bm.checkTurnCondition(0, 2));
 }

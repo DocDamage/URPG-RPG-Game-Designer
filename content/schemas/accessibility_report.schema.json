@@ -1,0 +1,38 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "URPG Accessibility Report Schema",
+  "description": "Schema for accessibility audit reports emitted by the AccessibilityAuditor.",
+  "type": "object",
+  "required": ["auditDate", "issues"],
+  "properties": {
+    "auditDate": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO-8601 timestamp of when the audit was performed."
+    },
+    "issues": {
+      "type": "array",
+      "description": "List of accessibility issues discovered during the audit.",
+      "items": {
+        "type": "object",
+        "required": ["severity", "category", "elementId", "message"],
+        "properties": {
+          "severity": {
+            "type": "string",
+            "enum": ["Warning", "Error"]
+          },
+          "category": {
+            "type": "string",
+            "enum": ["MissingLabel", "FocusOrder", "Contrast", "Navigation"]
+          },
+          "elementId": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}

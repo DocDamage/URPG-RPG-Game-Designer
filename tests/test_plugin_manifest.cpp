@@ -1,5 +1,5 @@
 #include <catch2/catch_test_macros.hpp>
-#include "plugin/plugin_manifest.h"
+#include "engine/core/plugin/plugin_manifest.h"
 #include <nlohmann/json.hpp>
 
 using namespace urpg::plugin;

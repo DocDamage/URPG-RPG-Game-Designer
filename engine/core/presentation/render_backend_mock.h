@@ -22,6 +22,8 @@ public:
     struct PipelineState {
         bool fogEnabled = false;
         bool postFxEnabled = false;
+        size_t worldEffectCount = 0;
+        size_t overlayEffectCount = 0;
         float fogDensity = 0.0f;
         float fogStartDistance = 0.0f;
         float fogEndDistance = 0.0f;
@@ -67,6 +69,12 @@ public:
                     break;
                 case presentation::PresentationCommand::Type::DrawShadowProxy:
                     m_drawCalls.push_back({cmd.id, cmd.position, "ShadowProxy"});
+                    break;
+                case presentation::PresentationCommand::Type::DrawWorldEffect:
+                    ++m_state.worldEffectCount;
+                    break;
+                case presentation::PresentationCommand::Type::DrawOverlayEffect:
+                    ++m_state.overlayEffectCount;
                     break;
                 default:
                     // Other commands (Lights, Camera) would be handled here in a full backend

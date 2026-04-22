@@ -2,7 +2,12 @@
 #include "engine/core/ability/pattern_field.h"
 #include "engine/core/ability/gameplay_ability.h"
 #include "engine/core/ability/ability_system_component.h"
+#include "engine/core/ability/pattern_field_serializer.h"
+#include "engine/core/ability/pattern_field_presets.h"
+#include "editor/ability/pattern_field_model.h"
+#include "editor/ability/pattern_field_panel.h"
 #include <nlohmann/json.hpp>
+#include <algorithm>
 
 using namespace urpg::ability;
 using namespace urpg;
@@ -68,15 +73,28 @@ TEST_CASE("PatternValidator: Rules", "[ability][pattern][validation]") {
         huge.addPoint(50, 50);
         auto result = PatternValidator::Validate(huge, 10);
         REQUIRE_FALSE(result.isValid);
-        REQUIRE(result.issues.size() == 1);
+        REQUIRE(result.issues.size() >= 1);
+        REQUIRE(std::find(result.issues.begin(),
+                          result.issues.end(),
+                          "Pattern exceeds maximum radius of 10.") != result.issues.end());
     }
 
     SECTION("Normal pattern is valid") {
         PatternField normal("Normal");
+        normal.addPoint(0, 0);
         normal.addPoint(1, 1);
         auto result = PatternValidator::Validate(normal);
         REQUIRE(result.isValid);
         REQUIRE(result.issues.empty());
+    }
+
+    SECTION("Pattern without origin is invalid") {
+        PatternField offset("Offset");
+        offset.addPoint(1, 0);
+        auto result = PatternValidator::Validate(offset);
+        REQUIRE_FALSE(result.isValid);
+        REQUIRE(result.issues.size() == 1);
+        REQUIRE(result.issues[0] == "Pattern must include the origin point (0,0).");
     }
 }
 
@@ -103,4 +121,109 @@ TEST_CASE("AbilitySystem: Pattern Validation", "[ability][pattern]") {
         // dx=1, dy=1
         REQUIRE_FALSE(asc.isTargetInPattern(ability, 10, 10, 11, 11));
     }
+}
+
+TEST_CASE("PatternFieldModel applies deterministic presets and preview snapshots", "[ability][pattern][editor]") {
+    urpg::editor::PatternFieldModel model;
+    model.resizeViewport(5);
+    model.applyPreset("cross_small");
+
+    const auto pattern = model.getCurrentPattern();
+    REQUIRE(pattern);
+    REQUIRE(pattern->getName() == "Cross Small");
+    REQUIRE(pattern->hasPoint(0, 0));
+    REQUIRE(pattern->hasPoint(1, 0));
+    REQUIRE(pattern->hasPoint(-1, 0));
+    REQUIRE(pattern->hasPoint(0, 1));
+    REQUIRE(pattern->hasPoint(0, -1));
+
+    const auto preview = model.buildPreviewSnapshot();
+    REQUIRE(preview.is_valid);
+    REQUIRE(preview.issues.empty());
+    REQUIRE(preview.grid_rows.size() == 5);
+    REQUIRE(preview.grid_rows[2].find("[O]") != std::string::npos);
+    REQUIRE(preview.grid_rows[1].find("[X]") != std::string::npos);
+}
+
+TEST_CASE("PatternField preset catalog exposes reusable domains for skills, items, placement, and interaction masks",
+          "[ability][pattern][presets]") {
+    const auto catalog = urpg::PatternFieldPresets::Catalog();
+    REQUIRE(catalog.size() >= 4);
+
+    const auto skill = urpg::PatternFieldPresets::FindById("skill_cross_small");
+    REQUIRE(skill.has_value());
+    REQUIRE(skill->usage == urpg::PatternFieldPresets::Usage::Skill);
+    REQUIRE(skill->pattern.hasPoint(0, 0));
+    REQUIRE(skill->pattern.hasPoint(1, 0));
+
+    const auto item = urpg::PatternFieldPresets::FindById("item_blast_square");
+    REQUIRE(item.has_value());
+    REQUIRE(item->usage == urpg::PatternFieldPresets::Usage::Item);
+    REQUIRE(item->pattern.hasPoint(-1, -1));
+    REQUIRE(item->pattern.hasPoint(1, 1));
+
+    const auto placement = urpg::PatternFieldPresets::FindById("placement_pad");
+    REQUIRE(placement.has_value());
+    REQUIRE(placement->usage == urpg::PatternFieldPresets::Usage::Placement);
+    REQUIRE(placement->pattern.hasPoint(1, 1));
+
+    const auto interaction = urpg::PatternFieldPresets::FindById("interaction_mask_doorway");
+    REQUIRE(interaction.has_value());
+    REQUIRE(interaction->usage == urpg::PatternFieldPresets::Usage::InteractionMask);
+    REQUIRE(interaction->pattern.hasPoint(-1, 0));
+    REQUIRE(interaction->pattern.hasPoint(1, 0));
+}
+
+TEST_CASE("PatternFieldModel filters reusable preset catalog by usage and applies categorized presets",
+          "[ability][pattern][editor]") {
+    urpg::editor::PatternFieldModel model;
+
+    const auto placementPresets =
+        model.availablePresets(urpg::PatternFieldPresets::Usage::Placement);
+    REQUIRE(placementPresets.size() == 1);
+    REQUIRE(placementPresets[0].id == "placement_pad");
+
+    model.applyPreset("interaction_mask_doorway");
+    const auto pattern = model.getCurrentPattern();
+    REQUIRE(pattern);
+    REQUIRE(pattern->getName() == "Interaction Doorway");
+    REQUIRE(pattern->hasPoint(-1, 0));
+    REQUIRE(pattern->hasPoint(0, 0));
+    REQUIRE(pattern->hasPoint(1, 0));
+}
+
+TEST_CASE("PatternFieldPanel snapshot carries preview and validation issues", "[ability][pattern][panel]") {
+    urpg::editor::PatternFieldModel model;
+    auto pattern = std::make_shared<PatternField>("Offset");
+    pattern->addPoint(1, 0);
+    model.setCurrentPattern(pattern);
+    model.resizeViewport(3);
+
+    urpg::editor::PatternFieldPanel panel;
+    panel.update(model);
+
+    const auto& snapshot = panel.getRenderSnapshot();
+    REQUIRE(snapshot.visible);
+    REQUIRE(snapshot.name == "Offset");
+    REQUIRE_FALSE(snapshot.is_valid);
+    REQUIRE(snapshot.issues.size() == 1);
+    REQUIRE(snapshot.issues[0] == "Pattern must include the origin point (0,0).");
+    REQUIRE(snapshot.grid_rows.size() == 3);
+}
+
+TEST_CASE("PatternFieldSerializer preserves deterministic point ordering", "[ability][pattern][serializer]") {
+    PatternField pattern("Ordered");
+    pattern.addPoint(1, 0);
+    pattern.addPoint(0, 0);
+    pattern.addPoint(-1, 0);
+
+    const auto json = urpg::PatternFieldSerializer::toJson(pattern);
+    REQUIRE(json["points"][0]["x"] == -1);
+    REQUIRE(json["points"][1]["x"] == 0);
+    REQUIRE(json["points"][2]["x"] == 1);
+
+    const auto roundTrip = urpg::PatternFieldSerializer::fromJson(json);
+    REQUIRE(roundTrip.hasPoint(-1, 0));
+    REQUIRE(roundTrip.hasPoint(0, 0));
+    REQUIRE(roundTrip.hasPoint(1, 0));
 }

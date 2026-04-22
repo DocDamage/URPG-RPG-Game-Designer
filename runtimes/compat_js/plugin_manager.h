@@ -91,7 +91,7 @@ public:
     // Status: PARTIAL - Loads fixture-backed plugin descriptors, not a live MZ runtime plugin
     bool loadPlugin(const std::string& path);
     
-    // Status: FULL - Unload plugin by name
+    // Status: PARTIAL - Unloads tracked fixture-backed plugin descriptors, not a live MZ runtime plugin
     bool unloadPlugin(const std::string& name);
     
     // Status: PARTIAL - Reload works for tracked fixture-backed plugins
@@ -100,55 +100,55 @@ public:
     // Status: PARTIAL - Directory scan loads fixture-backed descriptors, not a live runtime plugin lane
     int32_t loadPluginsFromDirectory(const std::string& directory);
     
-    // Status: FULL - Unload all plugins
+    // Status: PARTIAL - Unloads tracked fixture-backed plugin descriptors, not a live MZ runtime plugin
     void unloadAllPlugins();
     
     // ========================================================================
     // Plugin Registration
     // ========================================================================
     
-    // Status: FULL - Register plugin metadata
+    // Status: PARTIAL - Registers fixture-backed compat metadata, not live engine plugin state
     bool registerPlugin(const PluginInfo& info);
     
-    // Status: FULL - Unregister plugin
+    // Status: PARTIAL - Unregisters fixture-backed compat metadata, not live engine plugin state
     bool unregisterPlugin(const std::string& name);
     
-    // Status: FULL - Check if plugin is loaded
+    // Status: PARTIAL - Reports fixture-backed compat metadata state only
     bool isPluginLoaded(const std::string& name) const;
     
-    // Status: FULL - Get plugin info
+    // Status: PARTIAL - Returns fixture-backed compat metadata only
     const PluginInfo* getPluginInfo(const std::string& name) const;
     
-    // Status: FULL - Get all loaded plugins
+    // Status: PARTIAL - Returns fixture-backed compat metadata only
     std::vector<std::string> getLoadedPlugins() const;
     
     // ========================================================================
     // Command Registration
     // ========================================================================
     
-    // Status: FULL - Register a plugin command
+    // Status: PARTIAL - Registers compat command handlers, not live engine plugin commands
     // The command will be callable as: pluginName_commandName
     bool registerCommand(const std::string& pluginName,
                         const std::string& commandName,
                         PluginCommandHandler handler,
                         const std::string& description = "");
     
-    // Status: FULL - Unregister a plugin command
+    // Status: PARTIAL - Unregisters compat command handlers, not live engine plugin commands
     bool unregisterCommand(const std::string& pluginName,
                           const std::string& commandName);
     
-    // Status: FULL - Unregister all commands for a plugin
+    // Status: PARTIAL - Unregisters compat command handlers, not live engine plugin commands
     int32_t unregisterAllCommands(const std::string& pluginName);
     
-    // Status: FULL - Check if command exists
+    // Status: PARTIAL - Checks fixture-backed compat command registration only
     bool hasCommand(const std::string& pluginName,
                    const std::string& commandName) const;
     
-    // Status: FULL - Get command info
+    // Status: PARTIAL - Returns fixture-backed compat command registration only
     const CommandInfo* getCommandInfo(const std::string& pluginName,
                                       const std::string& commandName) const;
     
-    // Status: FULL - Get all commands for a plugin
+    // Status: PARTIAL - Returns fixture-backed compat command registration only
     std::vector<std::string> getPluginCommands(const std::string& pluginName) const;
     
     // ========================================================================
@@ -164,7 +164,8 @@ public:
     Value executeCommandByName(const std::string& fullName,
                               const std::vector<Value>& args);
     
-    // Status: PARTIAL - FIFO worker queue is deterministic, but callbacks run on the worker thread
+    // Status: PARTIAL - FIFO worker queue is deterministic and callback delivery is
+    // deferred to the owning thread, but execution still depends on the fixture bridge.
     // Threading contract: command execution happens on the worker thread, but callbacks
     // are deferred until dispatchPendingAsyncCallbacks() is called on the owning thread.
     void executeCommandAsync(const std::string& pluginName,
@@ -172,31 +173,31 @@ public:
                             const std::vector<Value>& args,
                             std::function<void(const Value&)> callback);
 
-    // Status: PARTIAL - Drains deferred async callbacks on the caller thread in FIFO order
+    // Status: PARTIAL - Drains deferred async callbacks in FIFO order on the owning thread only
     int32_t dispatchPendingAsyncCallbacks();
     
     // ========================================================================
     // Parameter Management
     // ========================================================================
     
-    // Status: FULL - Set plugin parameter
+    // Status: PARTIAL - Stores compat parameter state only
     void setParameter(const std::string& pluginName,
                      const std::string& paramName,
                      const Value& value);
     
-    // Status: FULL - Get plugin parameter
+    // Status: PARTIAL - Returns compat parameter state only
     Value getParameter(const std::string& pluginName,
                       const std::string& paramName) const;
     
-    // Status: FULL - Get parameter with default value
+    // Status: PARTIAL - Returns compat parameter state only
     Value getParameter(const std::string& pluginName,
                       const std::string& paramName,
                       const Value& defaultValue) const;
     
-    // Status: FULL - Get all parameters for a plugin
+    // Status: PARTIAL - Returns compat parameter state only
     std::unordered_map<std::string, Value> getParameters(const std::string& pluginName) const;
     
-    // Status: FULL - Parse plugin parameters from JSON
+    // Status: PARTIAL - Parses compat parameter JSON into fixture-backed parameter state
     bool parseParameters(const std::string& pluginName,
                         const std::string& json);
     
@@ -204,20 +205,20 @@ public:
     // Plugin Dependencies
     // ========================================================================
     
-    // Status: FULL - Check if dependencies are satisfied
+    // Status: PARTIAL - Checks compat metadata dependencies only
     bool checkDependencies(const std::string& pluginName) const;
     
-    // Status: FULL - Get missing dependencies
+    // Status: PARTIAL - Reports compat metadata dependencies only
     std::vector<std::string> getMissingDependencies(const std::string& pluginName) const;
     
-    // Status: FULL - Get plugins that depend on this one
+    // Status: PARTIAL - Reports compat metadata dependencies only
     std::vector<std::string> getDependents(const std::string& pluginName) const;
     
     // ========================================================================
     // Event Hooks
     // ========================================================================
     
-    // Status: FULL - Plugin event types
+    // Status: PARTIAL - Event hooks apply to compat metadata/command registration only
     enum class PluginEvent : uint8_t {
         ON_LOAD = 0,
         ON_UNLOAD = 1,
@@ -231,57 +232,57 @@ public:
     // Event handler type
     using PluginEventHandler = std::function<void(const std::string& pluginName, PluginEvent event)>;
     
-    // Status: FULL - Register event handler
+    // Status: PARTIAL - Registers compat event handlers only
     int32_t registerEventHandler(PluginEvent event, PluginEventHandler handler);
     
-    // Status: FULL - Unregister event handler
+    // Status: PARTIAL - Unregisters compat event handlers only
     void unregisterEventHandler(int32_t handlerId);
     
     // ========================================================================
     // Execution Context
     // ========================================================================
     
-    // Status: FULL - Get current execution context
+    // Status: PARTIAL - Returns compat command execution context only
     const PluginContext* getCurrentContext() const;
     
-    // Status: FULL - Check if currently executing a command
+    // Status: PARTIAL - Reports compat command execution state only
     bool isExecuting() const;
     
-    // Status: FULL - Get current plugin being executed
+    // Status: PARTIAL - Reports compat command execution state only
     std::string getCurrentPlugin() const;
     
     // ========================================================================
     // Error Handling
     // ========================================================================
     
-    // Status: FULL - Get last error message
+    // Status: PARTIAL - Reports compat bridge error state only
     std::string getLastError() const;
     
-    // Status: FULL - Clear last error
+    // Status: PARTIAL - Clears compat bridge error state only
     void clearLastError();
     
-    // Status: FULL - Set error handler
+    // Status: PARTIAL - Registers compat bridge error handlers only
     void setErrorHandler(std::function<void(const std::string& pluginName,
                                            const std::string& commandName,
                                            const std::string& error)> handler);
 
-    // Status: FULL - Export structured failure diagnostics as JSONL
+    // Status: PARTIAL - Exports compat bridge failure diagnostics only
     std::string exportFailureDiagnosticsJsonl() const;
 
-    // Status: FULL - Clear accumulated failure diagnostics
+    // Status: PARTIAL - Clears compat bridge failure diagnostics only
     void clearFailureDiagnostics();
     
     // ========================================================================
     // CompatStatus API Surface
     // ========================================================================
     
-    // Status: FULL - Get method compatibility status
+    // Status: PARTIAL - Returns compat status registry entries only
     CompatStatus getMethodStatus(const std::string& methodName) const;
     
-    // Status: FULL - Get method deviation description
+    // Status: PARTIAL - Returns compat deviation descriptions only
     std::string getMethodDeviation(const std::string& methodName) const;
     
-    // Status: FULL - Get all registered methods and their status
+    // Status: PARTIAL - Returns compat status registry entries only
     const std::unordered_map<std::string, CompatStatus>& getAllMethodStatuses() const;
     
 private:

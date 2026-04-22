@@ -2,6 +2,7 @@
 #include "engine/core/ability/ability_system_component.h"
 #include <iostream>
 #include <iomanip>
+#include <sstream>
 
 namespace urpg::editor {
 
@@ -9,6 +10,13 @@ using namespace urpg::ability;
 
 void AbilityInspectorPanel::update(const AbilitySystemComponent& asc) {
     m_model.refresh(asc);
+    rebuildSnapshot(asc);
+}
+
+void AbilityInspectorPanel::clear() {
+    m_model.clear();
+    m_snapshot = {};
+    m_snapshot.visible = m_visible;
 }
 
 void AbilityInspectorPanel::render() {
@@ -64,7 +72,47 @@ void AbilityInspectorPanel::render() {
             }
         }
     }
+
+    if (!m_snapshot.diagnostic_lines.empty()) {
+        std::cout << "Diagnostics / Replay Log:\n";
+        for (const auto& line : m_snapshot.diagnostic_lines) {
+            std::cout << "  - " << line << "\n";
+        }
+    }
     std::cout << "------------------------\n";
+}
+
+void AbilityInspectorPanel::rebuildSnapshot(const AbilitySystemComponent& asc) {
+    m_snapshot = {};
+    m_snapshot.visible = m_visible;
+
+    const auto& history = asc.getAbilityExecutionHistory();
+    m_snapshot.diagnostic_count = history.size();
+    if (history.empty()) {
+        return;
+    }
+
+    const auto& latest = history.back();
+    m_snapshot.latest_ability_id = latest.ability_id;
+    m_snapshot.latest_outcome = latest.outcome;
+
+    for (const auto& record : history) {
+        std::ostringstream line;
+        line << "#" << record.sequence_id << " " << record.ability_id << " " << record.stage
+             << " -> " << record.outcome;
+        if (!record.state_name.empty()) {
+            line << " [" << record.state_name << "]";
+        }
+        if (!record.reason.empty()) {
+            line << " (" << record.reason << ")";
+        }
+        if (record.stage == "activate") {
+            line << " mp " << record.mp_before << " -> " << record.mp_after
+                 << ", cd=" << record.cooldown_after
+                 << ", effects=" << record.active_effect_count;
+        }
+        m_snapshot.diagnostic_lines.push_back(line.str());
+    }
 }
 
 } // namespace urpg::editor

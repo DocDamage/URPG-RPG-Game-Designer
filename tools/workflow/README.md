@@ -88,3 +88,40 @@ llm-workflow-check -Provider glm -ContextSearchAttempts 120 -ContextSearchDelayS
 llm-workflow-up -DeepCheck -RequireSearchHit
 llm-workflow-doctor -Provider auto -CheckContext -Strict
 ```
+
+## Sprint handoff packs
+
+For repo-local sprint execution where one LLM session may hand off to another, keep the active sprint plan and task board in-repo and point the next session at them first.
+
+Stable entrypoint for any model:
+
+- `docs/superpowers/plans/ACTIVE_SPRINT.md`
+- `tools/workflow/SPRINT_AGENT_HANDOFF_TEMPLATE.md`
+
+Create a new sprint pack:
+
+```powershell
+.\tools\workflow\new-sprint-pack.ps1 `
+  -SprintId S06 `
+  -Slug "sprint-06-example" `
+  -Goal "Execute the next bounded sprint end-to-end with resumable LLM handoff." `
+  -Theme "explicit sprint ownership and handoff hygiene" `
+  -PrimaryOutcomes "land bounded ticket work", "keep docs and readiness aligned" `
+  -NonGoals "no broad roadmap expansion", "no unlabeled status promotion" `
+  -Activate
+```
+
+That command creates:
+
+- a dated execution pack in `docs/superpowers/plans/`
+- a paired task board in `docs/superpowers/plans/`
+- an updated `ACTIVE_SPRINT.md` pointer so the next LLM session knows exactly where to start
+
+Suggested pattern:
+
+1. Generate or update the sprint pack.
+2. Open `ACTIVE_SPRINT.md`.
+3. Mark one ticket `IN PROGRESS` in the task board.
+4. Run the ticket-local verification command before editing.
+5. Update docs and readiness records in the same change as code.
+6. Leave a resume note in the task board before ending the session.

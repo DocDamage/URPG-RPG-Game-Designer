@@ -12,87 +12,102 @@ namespace urpg::presentation {
  */
 class BattleSceneTranslatorImpl : public BattleSceneTranslator {
 public:
+    static std::uint64_t ResolveParticipantCueId(const BattleParticipantState& participant) {
+        if (participant.cueId != 0) {
+            return participant.cueId;
+        }
+
+        constexpr std::uint64_t kEnemyCueDomainBit = 1ull << 63;
+        const std::uint64_t parsedId = static_cast<std::uint64_t>(participant.actorId);
+        if (parsedId == 0) {
+            return 0;
+        }
+        return participant.isEnemy ? (parsedId | kEnemyCueDomainBit) : parsedId;
+    }
+
+    static const ActorPresentationProfile* FindActorProfile(const PresentationAuthoringData& data,
+                                                            const BattleParticipantState& participant) {
+        for (const auto& profile : data.actorProfiles) {
+            if (profile.actorId == participant.classId) {
+                return &profile;
+            }
+        }
+        return nullptr;
+    }
+
+    static Vec3 ResolveParticipantPosition(const PresentationAuthoringData& data,
+                                           const BattleSceneState& sceneState,
+                                           const BattleParticipantState& participant) {
+        const auto& formation = data.battleConfig.formation;
+        const ActorPresentationProfile* profile = FindActorProfile(data, participant);
+
+        float sideMultiplier = participant.isEnemy ? 1.0f : -1.0f;
+        Vec3 pos = {0.0f, 0.0f, 0.0f};
+
+        switch (formation.type) {
+            case BattleFormation::LayoutType::Staged:
+                pos.x = (5.0f + static_cast<float>(participant.formationIndex) * formation.spreadWidth) * sideMultiplier;
+                pos.z = static_cast<float>(participant.formationIndex / 4) * formation.depthSpacing;
+                break;
+
+            case BattleFormation::LayoutType::Linear:
+                pos.x = 6.0f * sideMultiplier;
+                pos.z = static_cast<float>(participant.formationIndex) * formation.depthSpacing;
+                break;
+
+            case BattleFormation::LayoutType::Surround: {
+                const auto participantCount = static_cast<float>(std::max<size_t>(sceneState.participants.size(), 1));
+                const float angle = static_cast<float>(participant.formationIndex) * (3.14159f * 2.0f / participantCount);
+                constexpr float kSurroundRadius = 8.0f;
+                pos.x = std::cos(angle) * kSurroundRadius;
+                pos.z = std::sin(angle) * kSurroundRadius;
+                break;
+            }
+        }
+
+        pos.y = profile != nullptr ? profile->anchorOffset.y : 0.0f;
+        return pos;
+    }
+
+    static void ResolveParticipantAnchors(const PresentationAuthoringData& data, BattleSceneState& sceneState) {
+        for (auto& participant : sceneState.participants) {
+            participant.cueId = ResolveParticipantCueId(participant);
+            participant.anchorPosition = ResolveParticipantPosition(data, sceneState, participant);
+            participant.hasAnchorPosition = true;
+        }
+    }
+
     void Translate(
         const PresentationContext& context,
         const PresentationAuthoringData& data,
         const BattleSceneState& sceneState,
         PresentationFrameIntent& outIntent) override {
-        
-        const auto& config = data.battleConfig;
-        const auto& formation = config.formation;
-
-        // 1. Process Participants and Staged Positioning
         for (const auto& participant : sceneState.participants) {
-            // Find Actor Profile
-            const ActorPresentationProfile* profile = nullptr;
-            for (const auto& p : data.actorProfiles) {
-                if (p.actorId == participant.classId) {
-                    profile = &p;
-                    break;
-                }
-            }
-
+            const ActorPresentationProfile* profile = FindActorProfile(data, participant);
             if (!profile) continue;
 
-            // ADR-005: Staged spatial composition
-            // Side multiplier handles Heroes vs Enemies
-            float sideMultiplier = participant.isEnemy ? 1.0f : -1.0f;
-            
-            // Calculate base position within formation based on LayoutType
-            Vec3 pos = {0,0,0};
-            
-            switch (formation.type) {
-                case BattleFormation::LayoutType::Staged:
-                    // Classic side-by-side rows
-                    pos.x = (5.0f + (float)participant.formationIndex * formation.spreadWidth) * sideMultiplier;
-                    pos.z = (float)(participant.formationIndex / 4) * formation.depthSpacing;
-                    break;
-                    
-                case BattleFormation::LayoutType::Linear:
-                    // Single file line
-                    pos.x = 6.0f * sideMultiplier;
-                    pos.z = (float)participant.formationIndex * formation.depthSpacing;
-                    break;
-                    
-                case BattleFormation::LayoutType::Surround:
-                    // Circular arrangement around center
-                    {
-                        float angle = (float)participant.formationIndex * (3.14159f * 2.0f / (float)sceneState.participants.size());
-                        float radius = 8.0f;
-                        pos.x = std::cos(angle) * radius;
-                        pos.z = std::sin(angle) * radius;
-                    }
-                    break;
-            }
+            const Vec3 pos = participant.hasAnchorPosition
+                ? participant.anchorPosition
+                : ResolveParticipantPosition(data, sceneState, participant);
 
-            pos.y = profile->anchorOffset.y; // Standard 2D billboard grounding
-
-            // Tier-based Actor Emission
             if (context.activeMode == PresentationMode::Classic2D) {
-                // Flatten to 2D staging area
                 outIntent.AddActor(participant.actorId, Vec3{pos.x, pos.y, 0.0f}, *profile);
             } else {
                 outIntent.AddActor(participant.actorId, pos, *profile);
             }
         }
 
-        // 2. Battle Camera Intent (ADR-003: Cine-Cam)
+        const auto& config = data.battleConfig;
+        const auto& formation = config.formation;
         if (config.useDynamicCineCamera) {
             CameraProfile cineCam;
-            cineCam.fov = 45.0f; // Tighter FOV for cinematic battles
+            cineCam.fov = 45.0f;
             cineCam.lookAtOffset = {0.0f, 1.5f, 0.0f};
-            
-            // Dynamic framing based on formation
             if (formation.type == BattleFormation::LayoutType::Surround) {
-                cineCam.fov = 65.0f; // Wider view for surrounded encounters
+                cineCam.fov = 65.0f;
             }
-            
             outIntent.SetCameraProfile(cineCam);
         }
-
-        // 3. UI Safe Zone Enforcement (Section 10.2)
-        // Ensure no world spatial elements bleed into HUD reserved regions
-        // This is primarily handled via RenderPass priority and UI pass isolation
     }
 
     // Unused base method

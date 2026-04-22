@@ -57,3 +57,50 @@ TEST_CASE("SaveInspectorPanel - Refresh ingests runtime save catalog state", "[s
 
     std::filesystem::remove_all(base);
 }
+
+TEST_CASE("SaveInspectorPanel - Policy draft validates and applies to runtime", "[save][panel][integration]") {
+    urpg::SaveCatalog catalog;
+    urpg::SaveSessionCoordinator coordinator(catalog);
+    coordinator.setAutosavePolicy({true, 0});
+    coordinator.setRetentionPolicy({1, 1, 4, true});
+
+    urpg::editor::SaveInspectorPanel panel;
+    panel.bindRuntime(catalog, coordinator);
+    panel.refresh();
+
+    REQUIRE(panel.setPolicyAutosaveEnabled(false));
+    REQUIRE(panel.setPolicyAutosaveSlotId(3));
+    REQUIRE(panel.setPolicyRetentionLimits(2, 5, 9, false));
+
+    const auto& policyDraft = panel.getModel().PolicyDraft();
+    REQUIRE(policyDraft.autosave_enabled == false);
+    REQUIRE(policyDraft.autosave_slot_id == 3);
+    REQUIRE(policyDraft.max_autosave_slots == 2);
+    REQUIRE(policyDraft.max_quicksave_slots == 5);
+    REQUIRE(policyDraft.max_manual_slots == 9);
+    REQUIRE(policyDraft.prune_excess_on_save == false);
+
+    const auto& validation = panel.getModel().PolicyValidation();
+    REQUIRE(validation.can_apply);
+    REQUIRE(validation.error_count == 0);
+
+    REQUIRE(panel.applyPolicyToRuntime());
+    REQUIRE(coordinator.autosavePolicy().enabled == false);
+    REQUIRE(coordinator.autosavePolicy().slot_id == 3);
+    REQUIRE(coordinator.retentionPolicy().max_autosave_slots == 2);
+    REQUIRE(coordinator.retentionPolicy().max_quicksave_slots == 5);
+    REQUIRE(coordinator.retentionPolicy().max_manual_slots == 9);
+    REQUIRE(coordinator.retentionPolicy().prune_excess_on_save == false);
+
+    REQUIRE(panel.setPolicyAutosaveEnabled(true));
+    REQUIRE(panel.setPolicyAutosaveSlotId(-1));
+    REQUIRE(panel.setPolicyRetentionLimits(0, 5, 9, false));
+
+    const auto& invalidValidation = panel.getModel().PolicyValidation();
+    REQUIRE_FALSE(invalidValidation.can_apply);
+    REQUIRE(invalidValidation.error_count == 2);
+    REQUIRE(panel.getModel().PolicyIssues().size() == 2);
+    REQUIRE_FALSE(panel.applyPolicyToRuntime());
+    REQUIRE(coordinator.autosavePolicy().enabled == false);
+    REQUIRE(coordinator.autosavePolicy().slot_id == 3);
+}

@@ -9,6 +9,7 @@
 
 #include "quickjs_runtime.h"
 #include "engine/runtimes/bridge/value.h"
+#include <algorithm>
 #include <cstdint>
 #include <functional>
 #include <memory>
@@ -82,11 +83,6 @@ public:
     const std::string& getName() const { return name_; }
     const std::string& getFilename() const { return filename_; }
     
-    // Duration control (0 = infinite, for BGM/BGS looping)
-    void setDurationFrames(int32_t frames);
-    int32_t getDurationFrames() const;
-    int32_t getElapsedFrames() const;
-    
     // Update (called each frame)
     void update();
     
@@ -98,13 +94,17 @@ private:
     AudioBus bus_;
     AudioState state_ = AudioState::STOPPED;
     std::string filename_;
+    double sourceVolume_ = 1.0;
     double volume_ = 1.0;
     double pitch_ = 1.0;
     int32_t pos_ = 0;
     bool playing_ = false;
     bool paused_ = false;
-    int32_t durationFrames_ = 0;
-    int32_t elapsedFrames_ = 0;
+    int32_t framesUntilComplete_ = -1;
+
+public:
+    void setSourceVolume(double volume) { sourceVolume_ = std::clamp(volume, 0.0, 1.0); }
+    double getSourceVolume() const { return sourceVolume_; }
 };
 
 // AudioManager - MZ compatibility layer for audio
@@ -124,12 +124,12 @@ public:
     // Channel Management
     // ========================================================================
     
-    // Status: FULL - Create/destroy channels
+    // Status: PARTIAL - Channel lifecycle is deterministic in-harness, not backed by a live audio engine
     uint32_t createChannel(const std::string& name, AudioBus bus);
     void destroyChannel(const std::string& name);
     void destroyChannel(uint32_t id);
     
-    // Status: FULL - Get channel
+    // Status: PARTIAL - Exposes harness-side channels rather than live backend mixer channels
     AudioChannel* getChannel(const std::string& name);
     AudioChannel* getChannel(uint32_t id);
     
@@ -137,42 +137,44 @@ public:
     // BGM Control
     // ========================================================================
     
-    // Status: FULL - Play BGM
+    // Status: PARTIAL - Drives deterministic harness state rather than a live audio backend
     void playBgm(const std::string& filename, double volume = 90.0, 
                  double pitch = 100.0, int32_t pos = 0);
     
-    // Status: FULL - Stop BGM
+    // Status: PARTIAL - Stops deterministic harness state rather than a live audio backend
     void stopBgm();
     
-    // Status: FULL - Pause/Resume BGM
+    // Status: PARTIAL - Pauses/resumes deterministic harness state rather than a live audio backend
     void pauseBgm();
     void resumeBgm();
     
-    // Status: FULL - Deterministic frame-based crossfade
+    // Status: PARTIAL - Deterministic frame-based crossfade in the harness, not a live mixer/backend
     void crossfadeBgm(const std::string& filename, double volume = 90.0,
                        double pitch = 100.0, int32_t duration = 60);
     
-    // Status: PARTIAL - Saves metadata, but playback position does not advance yet
+    // Status: PARTIAL - Saves deterministic harness playback metadata, not live backend state
     void saveBgmSettings();
     void restoreBgmSettings();
     
-    // Status: PARTIAL - Reports channel metadata, but playback position remains static
+    // Status: PARTIAL - Reflects deterministic harness playback state rather than live backend state
     bool isBgmPlaying() const;
+    // Status: PARTIAL - Reflects deterministic harness playback state rather than live backend state
     bool isBgmPaused() const;
+    // Status: PARTIAL - Reports deterministic harness playback metadata and mix-scaled BGM state through the compat API rather than live backend state
     AudioInfo getCurrentBgm() const;
     
     // ========================================================================
     // BGS Control
     // ========================================================================
     
-    // Status: FULL - Play BGS
+    // Status: PARTIAL - Drives deterministic harness state rather than a live audio backend
     void playBgs(const std::string& filename, double volume = 90.0,
                  double pitch = 100.0, int32_t pos = 0);
     
-    // Status: FULL - Stop BGS
+    // Status: PARTIAL - Stops deterministic harness state rather than a live audio backend
     void stopBgs();
     
-    // Status: FULL - Deterministic frame-based crossfade
+    // Status: PARTIAL - Deterministic frame-based crossfade in the harness, not a live mixer/backend
     void crossfadeBgs(const std::string& filename, double volume = 90.0,
                        double pitch = 100.0, int32_t duration = 60);
     
@@ -180,33 +182,33 @@ public:
     // ME Control
     // ========================================================================
     
-    // Status: FULL - Play ME
+    // Status: PARTIAL - Drives deterministic harness state rather than a live audio backend
     void playMe(const std::string& filename, double volume = 90.0,
                 double pitch = 100.0);
     
-    // Status: FULL - Stop ME
+    // Status: PARTIAL - Stops deterministic harness state rather than a live audio backend
     void stopMe();
     
     // ========================================================================
     // SE Control
     // ========================================================================
     
-    // Status: FULL - Play SE
+    // Status: PARTIAL - Drives deterministic harness state rather than a live audio backend
     void playSe(const std::string& filename, double volume = 90.0,
                 double pitch = 100.0);
     
-    // Status: FULL - Stop SE
+    // Status: PARTIAL - Stops deterministic harness state rather than a live audio backend
     void stopSe();
     
     // ========================================================================
     // Volume Control
     // ========================================================================
     
-    // Status: FULL - Master volume
+    // Status: PARTIAL - Applies deterministic harness mix scaling rather than a live mixer/backend
     void setMasterVolume(double volume);
     double getMasterVolume() const;
     
-    // Status: FULL - Bus volume
+    // Status: PARTIAL - Applies deterministic harness mix scaling rather than a live mixer/backend
     void setBusVolume(AudioBus bus, double volume);
     double getBusVolume(AudioBus bus) const;
     
@@ -214,7 +216,7 @@ public:
     // Ducking
     // ========================================================================
     
-    // Status: PARTIAL - Ducking works, but smooth duration-based duck/unduck is still TODO
+    // Status: PARTIAL - Deterministic duck/unduck and current BGM state remain observable through the compat API, but this still does not drive a live mixer/backend
     void duckBgm(double volume = 50.0, int32_t duration = 30);
     void unduckBgm(int32_t duration = 30);
     bool isBgmDucked() const;
@@ -223,11 +225,8 @@ public:
     // Update
     // ========================================================================
     
-    // Status: FULL - Update all channels (call each frame)
+    // Status: PARTIAL - Advances deterministic harness playback and cleanup, not a live audio engine
     void update();
-    
-    // Status: FULL - Get active SE channel count (for diagnostics/tests)
-    size_t getSeChannelCount() const;
     
     // ========================================================================
     // Compat Status

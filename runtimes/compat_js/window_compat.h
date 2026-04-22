@@ -151,10 +151,9 @@ public:
     // Status: FULL
     virtual Color systemColor(int32_t index) const;
     
-    // Color helpers (MZ system colors)
+    // Status: FULL
     virtual Color normalColor() const;
     virtual Color dimColor() const;
-    virtual Color deathColor() const;
     
     // Font management
     // Status: PARTIAL - Font changes not fully applied
@@ -167,7 +166,7 @@ public:
     virtual std::string textAlignment() const;
     
     // Contents bitmap
-    // Status: STUB - Returns a placeholder handle; backing bitmap lifecycle is not implemented
+    // Status: PARTIAL - Exposes deterministic contents-handle lifecycle and draw-command accumulation, but not a pixel-backed bitmap buffer
     virtual BitmapHandle contents() const;
     virtual void createContents();
     virtual void destroyContents();
@@ -185,7 +184,7 @@ public:
     
     // Position and size
     Rect getRect() const { return rect_; }
-    void setRect(const Rect& rect) { rect_ = rect; }
+    void setRect(const Rect& rect);
     
     // Content area (inside padding)
     Rect getContentRect() const;
@@ -200,13 +199,16 @@ public:
     
     // Padding
     int32_t getPadding() const { return padding_; }
-    void setPadding(int32_t padding) { padding_ = padding; }
+    void setPadding(int32_t padding);
     
     // Update called each frame
     virtual void update();
     
     // Register this class's API with a QuickJS context
     static void registerAPI(QuickJSContext& ctx);
+    
+    // Default instance for JS bindings (minimal bridge until full object wrapper)
+    static void setDefaultInstance(Window_Base* instance);
     
     // Get compat status for a method
     static CompatStatus getMethodStatus(const std::string& methodName);
@@ -223,8 +225,6 @@ public:
     };
     std::optional<FaceDrawInfo> getLastFaceDraw() const { return lastFaceDraw_; }
 
-    double getLastGaugeRate() const { return lastGaugeRate_; }
-    
     struct TextDrawInfo {
         std::string text;
         std::string align = "left";
@@ -238,6 +238,13 @@ public:
     std::optional<TextDrawInfo> getLastTextDraw() const { return lastTextDraw_; }
     const std::vector<TextDrawInfo>& getTextDrawHistory() const { return textDrawHistory_; }
     void clearTextDrawHistory() { textDrawHistory_.clear(); }
+
+    struct ContentsBitmapInfo {
+        BitmapHandle handle = INVALID_BITMAP;
+        int32_t width = 0;
+        int32_t height = 0;
+    };
+    std::optional<ContentsBitmapInfo> getContentsBitmapInfo() const;
 
 protected:
     Rect rect_;
@@ -255,19 +262,21 @@ protected:
     int32_t fontSize_ = 22;
     std::string textAlignment_ = "left";
     std::optional<FaceDrawInfo> lastFaceDraw_;
-    double lastGaugeRate_ = 0.0;
     std::optional<TextDrawInfo> lastTextDraw_;
     std::vector<TextDrawInfo> textDrawHistory_;
     
-
     // API status registry - must be public for static initialization
     static std::unordered_map<std::string, CompatStatus> methodStatus_;
     static std::unordered_map<std::string, std::string> methodDeviations_;
     static std::unordered_map<std::string, uint32_t> methodCallCounts_;
+    static std::unordered_map<BitmapHandle, ContentsBitmapInfo> contentsBitmaps_;
+    static Window_Base* defaultInstance_;
+    static BitmapHandle nextBitmapHandle_;
     
     // Initialize static method status maps
     static void initializeMethodStatus();
     static void recordMethodCall(const std::string& methodName);
+    void syncContentsBitmap();
 };
 
 // Window_Selectable - Base for menus with selectable items
@@ -305,9 +314,6 @@ public:
     void setItemHeight(int32_t height);
     int32_t getItemWidth() const;
     
-    // Touch/mouse hit testing
-    int32_t hitTest(int32_t localX, int32_t localY) const;
-    
     // Navigation
     virtual void cursorDown(bool wrap = true);
     virtual void cursorUp(bool wrap = true);
@@ -336,9 +342,11 @@ public:
     virtual void processPagedown();
     virtual void processPageup();
     
-    // OK / Cancel handlers
-    virtual void onOk();
-    virtual void onCancel();
+    // Cursor / input
+    virtual bool isCursorMovable() const;
+    virtual bool isHandled(const std::string& symbol) const;
+    virtual void processOk();
+    virtual void processCancel();
     
     // Callbacks
     using SelectHandler = std::function<void(int32_t index)>;
@@ -354,6 +362,11 @@ protected:
     int32_t itemHeight_ = 36;
     int32_t topRow_ = 0;
     int32_t numVisibleRows_ = 4;
+    bool pointerPressActive_ = false;
+    bool pointerPressIsTouch_ = false;
+    bool pointerPressMoved_ = false;
+    int32_t pointerPressIndex_ = -1;
+    int32_t pointerLastIndex_ = -1;
     SelectHandler onSelect_;
 };
 
@@ -394,16 +407,16 @@ public:
     int32_t findSymbol(const std::string& symbol) const;
     int32_t findExt(int32_t ext) const;
     void callOkHandler();
-    void onOk() override;
+    
+    // Extension
+    int32_t getCurrentExt() const;
+    virtual void makeCommandList();
+    virtual void processOk();
     
     // Draw
     void drawItem(int32_t index);
     void drawAllItems();
     
-protected:
-    Rect itemRectForIndex(int32_t index) const;
-    
-public:
     // Selection by symbol
     void selectSymbol(const std::string& symbol);
     void selectExt(int32_t ext);
@@ -500,9 +513,6 @@ public:
     double getScaleY() const { return scaleY_; }
     void setScale(double x, double y) { scaleX_ = x; scaleY_ = y; }
     
-    // Bitmap
-    BitmapHandle getBitmap() const { return bitmap_; }
-    
     // Update
     void update();
     
@@ -571,10 +581,6 @@ public:
     bool isAnimationPlaying() const { return animationPlaying_; }
     int32_t getAnimationId() const { return animationId_; }
     
-    // Motion
-    bool isMotionPlaying() const { return motionPlaying_; }
-    int32_t getMotionFramesRemaining() const { return motionFramesRemaining_; }
-    
     // Effect (whiten, blink, collapse, bossCollapse, instantCollapse)
     void startEffect(const std::string& effect);
     bool isEffecting() const { return effecting_; }
@@ -600,8 +606,6 @@ private:
     std::string currentEffect_;
     int32_t effectDurationFrames_ = 0;
     BitmapHandle bitmap_ = INVALID_BITMAP;
-    bool motionPlaying_ = false;
-    int32_t motionFramesRemaining_ = 0;
 };
 
 // WindowCompatManager - Manages all window instances

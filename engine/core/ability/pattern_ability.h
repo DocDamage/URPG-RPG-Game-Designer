@@ -13,7 +13,7 @@ namespace urpg::ability {
 class PatternAbility : public GameplayAbility {
 public:
     PatternAbility(const std::string& id, std::shared_ptr<PatternField> pattern) 
-        : GameplayAbility(id), m_pattern(pattern) {}
+        : id(id), m_pattern(pattern) {}
 
     void setPattern(std::shared_ptr<PatternField> pattern) { m_pattern = pattern; }
     std::shared_ptr<PatternField> getPattern() const { return m_pattern; }
@@ -21,11 +21,11 @@ public:
     /**
      * @brief Gets all affected coordinates relative to an origin.
      */
-    std::vector<PatternPoint> getAffectedCells(int32_t originX, int32_t originY) const {
+    std::vector<PatternField::Point> getAffectedCells(int32_t originX, int32_t originY) const {
         if (!m_pattern) return {};
         
-        std::vector<PatternPoint> worldPoints;
-        for (const auto& point : m_pattern->points) {
+        std::vector<PatternField::Point> worldPoints;
+        for (const auto& point : m_pattern->getPoints()) {
             worldPoints.push_back({originX + point.x, originY + point.y});
         }
         return worldPoints;

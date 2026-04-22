@@ -259,11 +259,91 @@ MessageMigrationResult UpgradeCompatMessageDocument(const nlohmann::json& compat
         page["body"] = body;
         page["wait_for_advance"] = SafeValue<bool>(compat_page, "waitForAdvance", true);
         page["source_route"] = raw_route;
+
+        if (compat_page.contains("defaultChoiceIndex") && compat_page["defaultChoiceIndex"].is_number_integer()) {
+            page["default_choice_index"] = compat_page["defaultChoiceIndex"].get<int>();
+        } else {
+            page["default_choice_index"] = 0;
+        }
+
+        if (compat_page.contains("command") && compat_page["command"].is_string()) {
+            page["command"] = compat_page["command"].get<std::string>();
+        }
+
         if (!choices.empty()) {
             page["choices"] = std::move(choices);
         }
 
         sequence["pages"].push_back(std::move(page));
+
+        // Collect style-related fields and update the default style if any are present.
+        json window_obj = json::object();
+        if (compat_page.contains("windowSkin") && compat_page["windowSkin"].is_string()) {
+            window_obj["skin"] = compat_page["windowSkin"].get<std::string>();
+        }
+        if (compat_page.contains("windowOpacity") && compat_page["windowOpacity"].is_number()) {
+            window_obj["opacity"] = compat_page["windowOpacity"].get<int>();
+        }
+        if (compat_page.contains("padding") && compat_page["padding"].is_number_integer()) {
+            window_obj["padding"] = compat_page["padding"].get<int>();
+        }
+        if (compat_page.contains("fontSize") && compat_page["fontSize"].is_number_integer()) {
+            window_obj["font_size"] = compat_page["fontSize"].get<int>();
+        }
+        if (compat_page.contains("lineHeight") && compat_page["lineHeight"].is_number_integer()) {
+            window_obj["line_height"] = compat_page["lineHeight"].get<int>();
+        }
+
+        json audio_obj = json::object();
+        if (compat_page.contains("typing_se") && compat_page["typing_se"].is_string()) {
+            audio_obj["typing_se"] = compat_page["typing_se"].get<std::string>();
+        }
+        if (compat_page.contains("open_se") && compat_page["open_se"].is_string()) {
+            audio_obj["open_se"] = compat_page["open_se"].get<std::string>();
+        }
+        if (compat_page.contains("close_se") && compat_page["close_se"].is_string()) {
+            audio_obj["close_se"] = compat_page["close_se"].get<std::string>();
+        }
+
+        if (!window_obj.empty() || !audio_obj.empty()) {
+            bool found_default = false;
+            for (auto& style : result.message_styles["styles"]) {
+                if (style["id"] == "default") {
+                    if (!window_obj.empty()) {
+                        style["window"] = std::move(window_obj);
+                    }
+                    if (!audio_obj.empty()) {
+                        style["audio"] = std::move(audio_obj);
+                    }
+                    found_default = true;
+                    break;
+                }
+            }
+            if (!found_default) {
+                json new_style = {
+                    {"id", "default"},
+                    {"namebox", {{"visible", true}, {"margin_x", 12}, {"margin_y", 8}, {"max_width", 320}}},
+                    {"portrait", {{"visible", true}, {"dock", "left"}, {"x", 16}, {"y", 12}, {"width", 144}, {"height", 144}}},
+                };
+                if (!window_obj.empty()) {
+                    new_style["window"] = std::move(window_obj);
+                }
+                if (!audio_obj.empty()) {
+                    new_style["audio"] = std::move(audio_obj);
+                }
+                result.message_styles["styles"].push_back(std::move(new_style));
+            }
+        }
+
+        // Warn on unsupported style fields that we don't yet map.
+        const std::set<std::string> known_unmapped_style_fields = {
+            "positionType", "background", "continue_to", "faceName", "faceIndex", "conditions"};
+        for (const auto& field : known_unmapped_style_fields) {
+            if (compat_page.contains(field)) {
+                emit_diagnostic(MessageMigrationSeverity::Warning, "unsupported_style_field", page_id,
+                                "Compat style field '" + field + "' is not yet mapped during migration.");
+            }
+        }
 
         if (safe_text_only && !added_safe_style) {
             result.message_styles["styles"].push_back(

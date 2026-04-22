@@ -737,3 +737,84 @@ TEST_CASE("MenuCommandRegistry evaluates visibility and enable conditions", "[ui
     REQUIRE(visibleList[0].id == "gated_enable");
     REQUIRE(visibleList[1].id == "always");
 }
+
+
+TEST_CASE("MenuCommandRegistry: Save to schema round-trips loaded commands", "[ui][menu][schema][parity]") {
+    nlohmann::json schema = R"({
+        "commands": [
+            { "id": "save", "label": "Save Progress", "route": "save", "priority": 100 },
+            { "id": "codex", "label": "Codex", "route": "codex", "fallback_route": "options", "priority": 50 },
+            { "id": "custom_01", "label": "Special", "route": "custom", "custom_route_id": "sp_one", "fallback_route": "game_end", "priority": 25 },
+            { "id": "gated", "label": "Gated", "route": "item", "priority": 10,
+              "visibility_rules": [{"switch_id": "unlocked"}],
+              "enable_rules": [{"variable_id": "level", "variable_threshold": 5}]
+            }
+        ]
+    })"_json;
+
+    MenuCommandRegistry registry;
+    REQUIRE(registry.loadFromSchema(schema));
+
+    const auto saved = registry.saveToSchema();
+    REQUIRE(saved.contains("commands"));
+    REQUIRE(saved["commands"].is_array());
+    REQUIRE(saved["commands"].size() == 4);
+
+    // Verify order is preserved by priority
+    REQUIRE(saved["commands"][0]["id"] == "gated");
+    REQUIRE(saved["commands"][0]["priority"] == 10);
+    REQUIRE(saved["commands"][1]["id"] == "custom_01");
+    REQUIRE(saved["commands"][1]["route"] == "custom");
+    REQUIRE(saved["commands"][1]["custom_route_id"] == "sp_one");
+    REQUIRE(saved["commands"][1]["fallback_route"] == "game_end");
+    REQUIRE(saved["commands"][2]["id"] == "codex");
+    REQUIRE(saved["commands"][2]["route"] == "codex");
+    REQUIRE(saved["commands"][2]["fallback_route"] == "options");
+    REQUIRE(saved["commands"][3]["id"] == "save");
+    REQUIRE(saved["commands"][3]["route"] == "save");
+
+    // Verify rules round-trip
+    REQUIRE(saved["commands"][0].contains("visibility_rules"));
+    REQUIRE(saved["commands"][0]["visibility_rules"].size() == 1);
+    REQUIRE(saved["commands"][0]["visibility_rules"][0]["switch_id"] == "unlocked");
+    REQUIRE(saved["commands"][0].contains("enable_rules"));
+    REQUIRE(saved["commands"][0]["enable_rules"].size() == 1);
+    REQUIRE(saved["commands"][0]["enable_rules"][0]["variable_id"] == "level");
+    REQUIRE(saved["commands"][0]["enable_rules"][0]["variable_threshold"] == 5);
+
+    // Verify full round-trip by reloading
+    MenuCommandRegistry reloaded;
+    REQUIRE(reloaded.loadFromSchema(saved));
+    REQUIRE(reloaded.getCommand("codex") != nullptr);
+    REQUIRE(reloaded.getCommand("codex")->route == urpg::MenuRouteTarget::Codex);
+    REQUIRE(reloaded.getCommand("custom_01")->custom_route_id == "sp_one");
+    REQUIRE(reloaded.getCommand("gated")->visibility_rules.size() == 1);
+    REQUIRE(reloaded.getCommand("gated")->enable_rules.size() == 1);
+}
+
+TEST_CASE("MenuRouteResolver: Introspection exposes bound routes", "[ui][menu][route][parity]") {
+    MenuRouteResolver resolver;
+
+    REQUIRE_FALSE(resolver.isRouteBound(urpg::MenuRouteTarget::Item));
+    REQUIRE_FALSE(resolver.isRouteBound(urpg::MenuRouteTarget::Options));
+    REQUIRE_FALSE(resolver.isCustomRouteBound("quest_ext"));
+    REQUIRE(resolver.listBoundNativeRoutes().empty());
+    REQUIRE(resolver.listBoundCustomRoutes().empty());
+
+    resolver.bindRoute(urpg::MenuRouteTarget::Item, [](const urpg::MenuCommandMeta&) {});
+    resolver.bindRoute(urpg::MenuRouteTarget::Options, [](const urpg::MenuCommandMeta&) {});
+    resolver.bindCustomRoute("quest_ext", [](const urpg::MenuCommandMeta&) {});
+    resolver.bindCustomRoute("mods", [](const urpg::MenuCommandMeta&) {});
+
+    REQUIRE(resolver.isRouteBound(urpg::MenuRouteTarget::Item));
+    REQUIRE(resolver.isRouteBound(urpg::MenuRouteTarget::Options));
+    REQUIRE_FALSE(resolver.isRouteBound(urpg::MenuRouteTarget::Save));
+    REQUIRE(resolver.isCustomRouteBound("quest_ext"));
+    REQUIRE(resolver.isCustomRouteBound("mods"));
+    REQUIRE_FALSE(resolver.isCustomRouteBound("missing"));
+
+    auto native = resolver.listBoundNativeRoutes();
+    REQUIRE(native.size() == 2);
+    auto custom = resolver.listBoundCustomRoutes();
+    REQUIRE(custom.size() == 2);
+}

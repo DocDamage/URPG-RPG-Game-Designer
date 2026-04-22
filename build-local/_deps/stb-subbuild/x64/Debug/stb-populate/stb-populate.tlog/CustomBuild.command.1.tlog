@@ -1,0 +1,150 @@
+^C:\USERS\DFERR\DEV\URPG - RPG GAME MAKER\BUILD-LOCAL\_DEPS\STB-SUBBUILD\CMAKEFILES\925E552210F8958F89BF049CBE5B1F93\STB-POPULATE-MKDIR.RULE
+setlocal
+"C:\Program Files\CMake\bin\cmake.exe" -Dcfgdir=/Debug -P "C:/Users/dferr/dev/URPG - RPG Game Maker/build-local/_deps/stb-subbuild/stb-populate-prefix/tmp/stb-populate-mkdirs.cmake"
+if %errorlevel% neq 0 goto :cmEnd
+"C:\Program Files\CMake\bin\cmake.exe" -E touch "C:/Users/dferr/dev/URPG - RPG Game Maker/build-local/_deps/stb-subbuild/stb-populate-prefix/src/stb-populate-stamp/Debug/stb-populate-mkdir"
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
+^C:\USERS\DFERR\DEV\URPG - RPG GAME MAKER\BUILD-LOCAL\_DEPS\STB-SUBBUILD\CMAKEFILES\925E552210F8958F89BF049CBE5B1F93\STB-POPULATE-DOWNLOAD.RULE
+setlocal
+cd "C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\_deps"
+if %errorlevel% neq 0 goto :cmEnd
+C:
+if %errorlevel% neq 0 goto :cmEnd
+"C:\Program Files\CMake\bin\cmake.exe" -DCMAKE_MESSAGE_LOG_LEVEL=VERBOSE -P "C:/Users/dferr/dev/URPG - RPG Game Maker/build-local/_deps/stb-subbuild/stb-populate-prefix/tmp/stb-populate-gitclone.cmake"
+if %errorlevel% neq 0 goto :cmEnd
+"C:\Program Files\CMake\bin\cmake.exe" -E touch "C:/Users/dferr/dev/URPG - RPG Game Maker/build-local/_deps/stb-subbuild/stb-populate-prefix/src/stb-populate-stamp/Debug/stb-populate-download"
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
+^C:\USERS\DFERR\DEV\URPG - RPG GAME MAKER\BUILD-LOCAL\_DEPS\STB-SUBBUILD\CMAKEFILES\925E552210F8958F89BF049CBE5B1F93\STB-POPULATE-UPDATE.RULE
+setlocal
+cd "C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\_deps\stb-src"
+if %errorlevel% neq 0 goto :cmEnd
+C:
+if %errorlevel% neq 0 goto :cmEnd
+"C:\Program Files\CMake\bin\cmake.exe" -Dcan_fetch=YES -DCMAKE_MESSAGE_LOG_LEVEL=VERBOSE -P "C:/Users/dferr/dev/URPG - RPG Game Maker/build-local/_deps/stb-subbuild/stb-populate-prefix/tmp/stb-populate-gitupdate.cmake"
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
+^C:\USERS\DFERR\DEV\URPG - RPG GAME MAKER\BUILD-LOCAL\_DEPS\STB-SUBBUILD\CMAKEFILES\925E552210F8958F89BF049CBE5B1F93\STB-POPULATE-PATCH.RULE
+setlocal
+"C:\Program Files\CMake\bin\cmake.exe" -E echo_append
+if %errorlevel% neq 0 goto :cmEnd
+"C:\Program Files\CMake\bin\cmake.exe" -E touch "C:/Users/dferr/dev/URPG - RPG Game Maker/build-local/_deps/stb-subbuild/stb-populate-prefix/src/stb-populate-stamp/Debug/stb-populate-patch"
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
+^C:\USERS\DFERR\DEV\URPG - RPG GAME MAKER\BUILD-LOCAL\_DEPS\STB-SUBBUILD\CMAKEFILES\925E552210F8958F89BF049CBE5B1F93\STB-POPULATE-CONFIGURE.RULE
+setlocal
+cd "C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\_deps\stb-build"
+if %errorlevel% neq 0 goto :cmEnd
+C:
+if %errorlevel% neq 0 goto :cmEnd
+"C:\Program Files\CMake\bin\cmake.exe" -E echo_append
+if %errorlevel% neq 0 goto :cmEnd
+"C:\Program Files\CMake\bin\cmake.exe" -E touch "C:/Users/dferr/dev/URPG - RPG Game Maker/build-local/_deps/stb-subbuild/stb-populate-prefix/src/stb-populate-stamp/Debug/stb-populate-configure"
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
+^C:\USERS\DFERR\DEV\URPG - RPG GAME MAKER\BUILD-LOCAL\_DEPS\STB-SUBBUILD\CMAKEFILES\925E552210F8958F89BF049CBE5B1F93\STB-POPULATE-BUILD.RULE
+setlocal
+cd "C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\_deps\stb-build"
+if %errorlevel% neq 0 goto :cmEnd
+C:
+if %errorlevel% neq 0 goto :cmEnd
+"C:\Program Files\CMake\bin\cmake.exe" -E echo_append
+if %errorlevel% neq 0 goto :cmEnd
+"C:\Program Files\CMake\bin\cmake.exe" -E touch "C:/Users/dferr/dev/URPG - RPG Game Maker/build-local/_deps/stb-subbuild/stb-populate-prefix/src/stb-populate-stamp/Debug/stb-populate-build"
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
+^C:\USERS\DFERR\DEV\URPG - RPG GAME MAKER\BUILD-LOCAL\_DEPS\STB-SUBBUILD\CMAKEFILES\925E552210F8958F89BF049CBE5B1F93\STB-POPULATE-INSTALL.RULE
+setlocal
+cd "C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\_deps\stb-build"
+if %errorlevel% neq 0 goto :cmEnd
+C:
+if %errorlevel% neq 0 goto :cmEnd
+"C:\Program Files\CMake\bin\cmake.exe" -E echo_append
+if %errorlevel% neq 0 goto :cmEnd
+"C:\Program Files\CMake\bin\cmake.exe" -E touch "C:/Users/dferr/dev/URPG - RPG Game Maker/build-local/_deps/stb-subbuild/stb-populate-prefix/src/stb-populate-stamp/Debug/stb-populate-install"
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
+^C:\USERS\DFERR\DEV\URPG - RPG GAME MAKER\BUILD-LOCAL\_DEPS\STB-SUBBUILD\CMAKEFILES\925E552210F8958F89BF049CBE5B1F93\STB-POPULATE-TEST.RULE
+setlocal
+cd "C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\_deps\stb-build"
+if %errorlevel% neq 0 goto :cmEnd
+C:
+if %errorlevel% neq 0 goto :cmEnd
+"C:\Program Files\CMake\bin\cmake.exe" -E echo_append
+if %errorlevel% neq 0 goto :cmEnd
+"C:\Program Files\CMake\bin\cmake.exe" -E touch "C:/Users/dferr/dev/URPG - RPG Game Maker/build-local/_deps/stb-subbuild/stb-populate-prefix/src/stb-populate-stamp/Debug/stb-populate-test"
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
+^C:\USERS\DFERR\DEV\URPG - RPG GAME MAKER\BUILD-LOCAL\_DEPS\STB-SUBBUILD\CMAKEFILES\0D16ECF196B16F13BA9AEBA749619185\STB-POPULATE-COMPLETE.RULE
+setlocal
+"C:\Program Files\CMake\bin\cmake.exe" -E make_directory "C:/Users/dferr/dev/URPG - RPG Game Maker/build-local/_deps/stb-subbuild/CMakeFiles/Debug"
+if %errorlevel% neq 0 goto :cmEnd
+"C:\Program Files\CMake\bin\cmake.exe" -E touch "C:/Users/dferr/dev/URPG - RPG Game Maker/build-local/_deps/stb-subbuild/CMakeFiles/Debug/stb-populate-complete"
+if %errorlevel% neq 0 goto :cmEnd
+"C:\Program Files\CMake\bin\cmake.exe" -E touch "C:/Users/dferr/dev/URPG - RPG Game Maker/build-local/_deps/stb-subbuild/stb-populate-prefix/src/stb-populate-stamp/Debug/stb-populate-done"
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
+^C:\USERS\DFERR\DEV\URPG - RPG GAME MAKER\BUILD-LOCAL\_DEPS\STB-SUBBUILD\CMAKEFILES\5D8C9CD3775EB5024AB13E27A724B28E\STB-POPULATE.RULE
+setlocal
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
+^C:\USERS\DFERR\DEV\URPG - RPG GAME MAKER\BUILD-LOCAL\_DEPS\STB-SUBBUILD\CMAKELISTS.TXT
+setlocal
+"C:\Program Files\CMake\bin\cmake.exe" "-SC:/Users/dferr/dev/URPG - RPG Game Maker/build-local/_deps/stb-subbuild" "-BC:/Users/dferr/dev/URPG - RPG Game Maker/build-local/_deps/stb-subbuild" --check-stamp-file "C:/Users/dferr/dev/URPG - RPG Game Maker/build-local/_deps/stb-subbuild/CMakeFiles/generate.stamp"
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd

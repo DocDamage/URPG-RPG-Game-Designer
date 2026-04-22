@@ -63,10 +63,25 @@ public:
 
     bool SelectRow(size_t row_index);
     std::optional<std::string> SelectedPageId() const;
+    const std::vector<urpg::message::DialoguePage>& pages() const;
+
+    bool updatePageBody(size_t row_index, const std::string& new_body);
+    bool updatePageSpeaker(size_t row_index, const std::string& new_speaker);
+    bool updatePageMode(size_t row_index, urpg::message::MessagePresentationMode new_mode);
+    bool addPage(const urpg::message::DialoguePage& page);
+    bool removePage(size_t row_index);
+    bool applyToRuntime(urpg::message::MessageFlowRunner& runner);
+    void clear();
+    bool selectPageById(const std::string& page_id);
+    const urpg::message::DialoguePage* selectedPage() const;
 
 private:
+    void RebuildAll();
     void RebuildVisibleRows();
+    void RestoreSelectionByPageId(const std::optional<std::string>& page_id);
 
+    std::vector<urpg::message::DialoguePage> pages_;
+    const urpg::message::RichTextLayoutEngine* layout_engine_ = nullptr;
     std::vector<MessageInspectorRow> all_rows_;
     std::vector<MessageInspectorRow> visible_rows_;
     std::vector<MessageInspectorIssue> issues_;

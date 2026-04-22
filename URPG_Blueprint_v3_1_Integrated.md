@@ -7,7 +7,7 @@ _Full Engineering Specification - No Fluff_
 
 ## Progress Tracker (Live)
 
-Status Date: 2026-04-15
+Status Date: 2026-04-17
 
 Cross-cutting debt closure, documentation-truth alignment, and intake-governance tracking: `docs/TECHNICAL_DEBT_REMEDIATION_PLAN.md`.
 
@@ -15,8 +15,8 @@ Cross-cutting debt closure, documentation-truth alignment, and intake-governance
 | --- | --- | --- | --- |
 | Phase 0 Foundation | Complete | 100% | Core kernels, authority guards, migration/save lanes, diagnostics indexing/panel wiring, and CI lane scaffolding are in place. |
 | Phase 1 Native Core | Complete | 100% | Event dispatch, debug runtime, EngineShell lifecycle, and deterministic ECS iteration are fully implemented. |
-| Phase 2 Compat Layer | Complete | 100% | Full suite of MZ-compatible stubs (Window, Battle, Data, Audio, Input, Plugin) implemented with QuickJS integration and verified via 10-profile conformance suite. |
-| Native Feature Absorption Wave 1 | In progress | ~85% | Native ownership established for Message/Text Core and Battle Core. UI/Menu and Save/Data runtime systems are in active development. All systems integrated with ImGui inspectors. |
+| Phase 2 Compat Layer | In Progress | ~85% | Large compat surface is wired and test-heavy, but significant areas remain fixture-, stub-, or placeholder-backed; status labels and docs now reflect this truth. |
+| Native Feature Absorption Wave 1 | In progress | ~99% | UI/Menu, Message/Text, Save/Data, and Battle closure evidence are recorded. Remaining work is the broader Wave 1/program release close-out. |
 | Native Capability Expansion Wave 2 | Active | ~60% | Developed core kernels for Gameplay Ability Framework, Pattern Fields, Modular Level Assembly, Sprite Pipeline, Raycast Renderer, and Animation/Timeline orchestration. |
 | Native Capability Expansion Wave 3 | Complete | 100% | Technical delivery of All Template Expansion systems (ARPG, VN, Tactics), Subsystem Debugging (Profiler/History), and Phase 4 Ecosystem (Cloud, Security, Plugins) completed and cross-validated. |
 | Native Feature Polish Wave 4 | Complete | 100% | Full technical delivery of Engine Polish tracks (4.1-4.6). Includes Scene Transition Manager, Priority Asset Loader, Spatial Audio Mixer, Hot-Reload, Export Packager, and Resource Protector. |
@@ -25,13 +25,13 @@ Cross-cutting debt closure, documentation-truth alignment, and intake-governance
 | Plugin & Scripting Wave 7 | Complete | 100% | Full technical delivery of Extensibility tracks (7.1-7.4). Includes Plugin Host, C++ API Exports, JavaScript Bridge, and Scripting Console UI. |
 | Phase 15 Final Integration | Complete | 100% | Assembly of all Wave tracks (1-7) into the unified **URPG v3.1 Gold distribution**. Includes global `EngineAssembly` and `MainAssembly` entry points. |
 | CI Gate Lanes | Active | 100% | PR/nightly/weekly labels are active, with nightly renderer-tier matrix + artifact uploads and snapshot validation. |
-| Validation Baseline | Passing | 3912 assertions / 287 cases | `urpg_tests` (Debug, `ctest -C Debug -L pr`, 2026-04-15). |
+| Validation Baseline | Passing | 5098 assertions / 400 cases | `urpg_tests` (Debug, `ctest -C Debug -L pr`, 2026-04-17). |
 
 ### Current Weekly Focus
 
 1. Close compat exit criteria: expand remaining routed conformance depth across the curated 10-profile corpus and lock each new failure mode to JSONL/report/panel assertions.
 2. Close Message/Text renderer handoff: consume backend text commands end-to-end and align compat `Window_Message` parity behavior with native message-scene ownership.
-3. Execute Wave 1 native ownership: move UI/Menu, Message/Text, Battle, and Save/Data from spec-plus-seed into runtime ownership implementation.
+3. Execute the remaining Wave 1 closure proof: publish the broader Wave 1/program release evidence and final reconciliation.
 4. Ship Wave 1 editor + schema productization: inspectors, previews, diagnostics, and migration-aware import upgrade paths.
 5. Begin Wave 2 advanced capability implementation tracks from `docs/NATIVE_FEATURE_ABSORPTION_PLAN.md`.
 6. Track completion against `docs/PROGRAM_COMPLETION_STATUS.md` until all checklist items are complete.
@@ -126,6 +126,14 @@ This section tracks what has been implemented in code so this blueprint doubles 
   - Updated `HeadlessSurface` for CI testing environments.
   - Resolved C++ standard 20 namespace and forward declaration issues in UI headers.
   - Fixed OpenGL linking issues with fallback path for missing `glActiveTexture`.
+- Technical debt remediation (2026-04-17):
+  - Compat status truth pass: downgraded inflated `FULL` claims to `PARTIAL`/`STUB` in `audio_manager.cpp`, `battle_manager.cpp`, `data_manager.cpp`, `window_compat.cpp`, and `input_manager.cpp`.
+  - QuickJS scope explicitly documented as fixture-backed compat harness, not a live production runtime.
+  - Test/build registration drift resolved: removed duplicate `test_engine_shell.cpp`, registered missing `test_menu_orchestration.cpp`, added SE channel-growth regression test.
+  - External repository intake governance established (`docs/external-intake/`).
+  - Private-use asset intake governance established (`docs/asset_intake/`).
+  - Migration wizard productization: added `rerunSubsystem(id, project_data)` action, `bindMigrationWizardRuntime()` wiring, and panel snapshot exposure.
+  - Data manager runtime closure: real `loadDatabase()` orchestration with seeded records; wired JS bindings; implemented real `get*AsValue()` serializers.
 
 ### Phase 14 Native Battle & UI (Complete)
 

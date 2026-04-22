@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 3.23)
 project(urpg LANGUAGES CXX)
 
+include(CheckCXXSourceCompiles)
+
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
@@ -9,13 +11,37 @@ if(MSVC)
     add_compile_options(/FS /EHsc)
 endif()
 
-set(URPG_MSVC_LIKE_COMPILER OFF)
-if(MSVC OR CMAKE_CXX_COMPILER_FRONTEND_VARIANT STREQUAL "MSVC")
-    set(URPG_MSVC_LIKE_COMPILER ON)
-endif()
+function(urpg_normalize_path out_var input_path)
+    if(NOT input_path)
+        set(${out_var} "" PARENT_SCOPE)
+        return()
+    endif()
+
+    file(TO_CMAKE_PATH "${input_path}" _normalized_path)
+    string(REGEX REPLACE "/+$" "" _normalized_path "${_normalized_path}")
+    string(TOLOWER "${_normalized_path}" _normalized_path)
+    set(${out_var} "${_normalized_path}" PARENT_SCOPE)
+endfunction()
+
+function(urpg_get_compiler_root out_var)
+    if(NOT CMAKE_CXX_COMPILER)
+        set(${out_var} "" PARENT_SCOPE)
+        return()
+    endif()
+
+    get_filename_component(_compiler_bin_dir "${CMAKE_CXX_COMPILER}" DIRECTORY)
+    get_filename_component(_compiler_root "${_compiler_bin_dir}" DIRECTORY)
+    urpg_normalize_path(_compiler_root "${_compiler_root}")
+    set(${out_var} "${_compiler_root}" PARENT_SCOPE)
+endfunction()
 
 option(URPG_FETCH_CATCH2 "Fetch Catch2 via CMake" ON)
-option(URPG_USE_SCCACHE "Use sccache as compiler launcher when available" OFF)
+option(
+    URPG_MINGW_VENDORED_SDL_SHARED
+    "Build vendored SDL shared libraries on MinGW fallback toolchains"
+    ON
+)
+option(URPG_USE_SCCACHE "Use sccache as compiler launcher when available" ON)
 option(
     URPG_WINDOWS_UNLOCK_TEST_BINARIES
     "On Windows, stop stale local test runner processes before relinking test executables"
@@ -44,13 +70,54 @@ if(WIN32 AND URPG_WINDOWS_UNLOCK_TEST_BINARIES)
     endif()
 endif()
 
+if(MINGW)
+    find_package(Python3 REQUIRED COMPONENTS Interpreter)
+    set(URPG_WINDRES_WRAPPER_CMD
+        "${CMAKE_BINARY_DIR}/urpg-windres-wrapper.cmd"
+    )
+    get_filename_component(URPG_MINGW_BIN_DIR "${CMAKE_CXX_COMPILER}" DIRECTORY)
+    set(URPG_REAL_WINDRES "${URPG_MINGW_BIN_DIR}/windres.exe")
+    if(NOT EXISTS "${URPG_REAL_WINDRES}")
+        unset(URPG_REAL_WINDRES)
+        find_program(
+            URPG_REAL_WINDRES
+            NAMES windres
+            HINTS "${URPG_MINGW_BIN_DIR}"
+            NO_CACHE
+        )
+    endif()
+
+    if(URPG_REAL_WINDRES)
+        set(URPG_REAL_WINDRES_COMPILER "${URPG_REAL_WINDRES}" CACHE INTERNAL
+            "Underlying MinGW windres compiler path"
+        )
+        string(CONCAT URPG_WINDRES_WRAPPER_CONTENT
+            "@echo off\r\n"
+            "\"${Python3_EXECUTABLE}\" "
+            "\"${CMAKE_CURRENT_SOURCE_DIR}/tools/ci/windres_wrapper.py\" "
+            "\"${URPG_REAL_WINDRES_COMPILER}\" %*\r\n"
+        )
+        file(GENERATE OUTPUT "${URPG_WINDRES_WRAPPER_CMD}" CONTENT "${URPG_WINDRES_WRAPPER_CONTENT}")
+        set(CMAKE_RC_COMPILER "${URPG_WINDRES_WRAPPER_CMD}" CACHE FILEPATH
+            "MinGW RC compiler wrapper for path-safe windres invocations"
+            FORCE
+        )
+        unset(CMAKE_RC_COMPILER_ARG1 CACHE)
+        unset(CMAKE_RC_COMPILER_LAUNCHER CACHE)
+        message(STATUS
+            "URPG: wrapping windres so MinGW resource builds remain path-safe in workspaces with spaces.")
+    endif()
+endif()
+
 function(urpg_enable_windows_test_binary_unlock target_name)
     if(NOT WIN32 OR NOT URPG_WINDOWS_UNLOCK_TEST_BINARIES OR NOT URPG_POWERSHELL_EXE)
         return()
     endif()
 
-    if(CMAKE_GENERATOR MATCHES "Ninja")
-        message(STATUS "URPG: skipping Windows test-binary unlock hook for Ninja generator target ${target_name}")
+    if(MINGW AND CMAKE_BINARY_DIR MATCHES " ")
+        message(STATUS
+            "URPG: skipping Windows test-binary unlock hooks for ${target_name} because "
+            "CMake/Ninja emits a broken PRE_LINK cmd wrapper under MinGW when the build path contains spaces.")
         return()
     endif()
 
@@ -73,9 +140,12 @@ function(urpg_enable_windows_test_binary_unlock target_name)
 endfunction()
 
 add_library(urpg_core
+    engine/core/action/controller_binding_runtime.cpp
     engine/core/debug/debug_session.cpp
+    engine/core/debug/debug_ai_bridge.cpp
     engine/core/engine_shell.cpp
     engine/core/global_state_hub.cpp
+    engine/core/input/input_remap_store.cpp
     engine/core/platform/opengl_renderer.cpp
     engine/core/platform/sdl_surface.cpp
     engine/core/platform/gl_shader.cpp
@@ -85,7 +155,12 @@ add_library(urpg_core
     engine/core/render/sprite_animator.cpp
     engine/core/sprite_batcher.cpp
     engine/core/clock.cpp
+    engine/core/perf/perf_profiler.cpp
+    engine/core/testing/visual_regression_harness.cpp
+    engine/core/analytics/analytics_dispatcher.cpp
+    engine/core/analytics/analytics_dispatcher_validator.cpp
     engine/core/semver.cpp
+    engine/core/asset_compressor.cpp
     engine/core/threading/thread_roles.cpp
     engine/core/events/event_edit_guard.cpp
     engine/core/events/event_runtime.cpp
@@ -94,24 +169,50 @@ add_library(urpg_core
     engine/core/sync/source_authority.cpp
     engine/core/save/save_catalog.cpp
     engine/core/save/save_journal.cpp
+    engine/core/save/save_migration.cpp
     engine/core/save/save_recovery.cpp
     engine/core/save/save_runtime.cpp
+    engine/core/save/lzstring_decompressor.cpp
+    engine/core/save/rpgmaker_save_reader.cpp
     engine/core/battle/battle_core.cpp
+    engine/core/battle/battle_ai_bridge.cpp
+    engine/core/character/character_identity.cpp
+    engine/core/character/character_identity_validator.cpp
+    engine/core/character/character_identity_system.cpp
+    engine/core/achievement/achievement_registry.cpp
+    engine/core/achievement/achievement_trigger.cpp
+    engine/core/achievement/achievement_validator.cpp
+    engine/core/presentation/presentation_bridge.cpp
     engine/core/presentation/presentation_runtime.cpp
+    engine/core/presentation/effects/effect_catalog.cpp
+    engine/core/presentation/effects/effect_resolver.cpp
+    engine/core/presentation/effects/effect_translator.cpp
     engine/gameplay/combat/combat_calc.cpp
     engine/core/audio/audio_ai_bridge.cpp
+    engine/core/audio/audio_mix_presets.cpp
+    engine/core/audio/audio_mix_validator.cpp
     engine/core/animation/animation_ai_bridge.cpp
     engine/core/ui/ui_window.cpp
     engine/core/ui/chat_window.cpp
     engine/core/ui/ui_command_list.cpp
     engine/core/message/message_core.cpp
+    engine/core/message/ai_sync_coordinator.cpp
     engine/core/message/dialogue_registry.cpp
     engine/core/message/message_migration.cpp
+    engine/core/localization/locale_catalog.cpp
+    engine/core/localization/completeness_checker.cpp
+    engine/core/accessibility/accessibility_auditor.cpp
     editor/diagnostics/event_authority_diagnostics.cpp
     editor/diagnostics/event_authority_panel.cpp
     editor/diagnostics/diagnostics_workspace.cpp
     editor/diagnostics/diagnostics_facade.cpp
+    editor/diagnostics/project_audit_panel.cpp
+    editor/export/export_diagnostics_panel.cpp
     editor/compat/compat_report_panel.cpp
+    editor/character/character_creator_model.cpp
+    editor/character/character_creator_panel.cpp
+    editor/achievement/achievement_panel.cpp
+    editor/action/controller_binding_panel.cpp
     editor/save/save_inspector_model.cpp
     editor/save/save_inspector_panel.cpp
     editor/battle/battle_inspector_model.cpp
@@ -126,11 +227,27 @@ add_library(urpg_core
     editor/ability/ability_inspector_panel.cpp
     editor/ability/pattern_field_model.cpp
     editor/ability/pattern_field_panel.cpp
+    editor/perf/perf_diagnostics_model.cpp
+    editor/perf/perf_diagnostics_panel.cpp
+    editor/spatial/elevation_brush_panel.cpp
+    editor/spatial/prop_placement_panel.cpp
+    editor/sprite/sprite_animation_preview_panel.cpp
+    editor/accessibility/accessibility_panel.cpp
+    editor/accessibility/accessibility_menu_adapter.cpp
+    editor/audio/audio_mix_panel.cpp
+    editor/audio/audio_inspector_model.cpp
+    editor/analytics/analytics_panel.cpp
+    editor/mod/mod_manager_panel.cpp
     engine/core/editor/plugin_api.cpp
+    engine/core/editor/security_manager.cpp
     engine/core/ability/gameplay_ability.cpp
     engine/core/ability/ability_state_machine.cpp
     engine/core/ability/pattern_field.cpp
     engine/core/ability/pattern_field_presets.cpp
+    engine/core/mod/mod_registry.cpp
+    engine/core/mod/mod_registry_validator.cpp
+    engine/core/export/export_validator.cpp
+    engine/core/tools/export_packager.cpp
     engine/core/level/level_assembly.cpp
     engine/core/ui/menu_serializer.cpp
     engine/core/scene/battle_scene.cpp
@@ -144,8 +261,6 @@ add_library(urpg_core
     runtimes/compat_js/audio_manager.cpp
     runtimes/compat_js/input_manager.cpp
     runtimes/compat_js/plugin_manager.cpp
-    runtimes/compat_js/game_party.cpp
-    runtimes/compat_js/game_troop.cpp
 )
 
 target_include_directories(urpg_core PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
@@ -181,17 +296,84 @@ target_link_libraries(urpg_core PUBLIC nlohmann_json::nlohmann_json)
 option(URPG_SKIP_OPENGL "Skip OpenGL requirement (for headless CI builds)" OFF)
 set(SDL2_DISABLE_INSTALL ON CACHE BOOL "" FORCE)
 set(SDL2_TESTS OFF CACHE BOOL "" FORCE)
-set(URPG_SKIP_SYSTEM_SDL2 OFF)
-if(WIN32 AND URPG_MSVC_LIKE_COMPILER)
-    set(URPG_SKIP_SYSTEM_SDL2 ON)
-    message(STATUS "URPG: skipping system SDL2 package lookup for MSVC-like Windows toolchain")
+set(URPG_DISABLE_VENDORED_SDL_WINDOWS_JOYSTICK_STACK OFF)
+
+if(MINGW)
+    check_cxx_source_compiles(
+        "
+        #include <windows.h>
+        #include <xinput.h>
+        int main(void) {
+            XINPUT_CAPABILITIES_EX capabilities = {0};
+            return (int)capabilities.ProductId;
+        }
+        "
+        URPG_MINGW_XINPUT_HEADER_HAS_CAPABILITIES_EX
+    )
+
+    if(URPG_MINGW_XINPUT_HEADER_HAS_CAPABILITIES_EX)
+        set(SDL_XINPUT OFF CACHE BOOL
+            "Disable vendored SDL XInput backend on MinGW toolchains whose headers already define XINPUT_CAPABILITIES_EX"
+            FORCE
+        )
+        set(URPG_DISABLE_VENDORED_SDL_WINDOWS_JOYSTICK_STACK ON)
+        message(STATUS
+            "URPG: disabling vendored SDL XInput backend for MinGW because the active xinput.h "
+            "already defines XINPUT_CAPABILITIES_EX and SDL 2.30.0's fallback typedef would conflict.")
+    endif()
 endif()
 
-if(NOT URPG_SKIP_SYSTEM_SDL2)
+if(MINGW)
+    urpg_get_compiler_root(URPG_MINGW_COMPILER_ROOT)
+    if(URPG_MINGW_COMPILER_ROOT)
+        message(STATUS "URPG: probing SDL2 under MinGW compiler root: ${URPG_MINGW_COMPILER_ROOT}")
+        find_package(
+            SDL2 QUIET CONFIG
+            PATHS
+                "${URPG_MINGW_COMPILER_ROOT}"
+                "${URPG_MINGW_COMPILER_ROOT}/lib/cmake"
+                "${URPG_MINGW_COMPILER_ROOT}/lib"
+            NO_DEFAULT_PATH
+        )
+        if(NOT SDL2_FOUND)
+            message(STATUS
+                "URPG: SDL2 was not found under compiler root ${URPG_MINGW_COMPILER_ROOT}; "
+                "falling back to FetchContent to avoid mixed-toolchain headers/libraries.")
+        endif()
+    endif()
+elseif(MSVC)
+    message(STATUS
+        "URPG: skipping host SDL2 package discovery for MSVC to avoid mixing MinGW/MSYS headers into "
+        "Visual Studio builds; using vendored SDL instead.")
+elseif(NOT SDL2_FOUND)
     find_package(SDL2 QUIET)
 endif()
 
 if(NOT SDL2_FOUND)
+    if(MINGW AND URPG_DISABLE_VENDORED_SDL_WINDOWS_JOYSTICK_STACK)
+        set(SDL_JOYSTICK OFF CACHE BOOL
+            "Disable vendored SDL joystick stack on MinGW when XInput compatibility shims are unavailable"
+            FORCE
+        )
+        set(SDL_HAPTIC OFF CACHE BOOL
+            "Disable vendored SDL haptic stack on MinGW when joystick backends are unavailable"
+            FORCE
+        )
+        message(STATUS
+            "URPG: disabling vendored SDL joystick/haptic support for the MinGW fallback build because "
+            "SDL 2.30.0's Windows joystick sources still assume XInput helpers that are not available "
+            "with this header set. Install SDL2 into the active MinGW root to restore controller support.")
+    endif()
+    if(MINGW)
+        set(SDL_SHARED ${URPG_MINGW_VENDORED_SDL_SHARED} CACHE BOOL
+            "Build a shared version of the library"
+            FORCE
+        )
+        set(SDL_STATIC ON CACHE BOOL
+            "Build a static version of the library"
+            FORCE
+        )
+    endif()
     include(FetchContent)
     FetchContent_Declare(
         SDL2
@@ -223,6 +405,10 @@ if(TARGET SDL2::SDL2)
     set(URPG_SDL_TARGET SDL2::SDL2)
 elseif(TARGET SDL2)
     set(URPG_SDL_TARGET SDL2)
+elseif(TARGET SDL2::SDL2-static)
+    set(URPG_SDL_TARGET SDL2::SDL2-static)
+elseif(TARGET SDL2-static)
+    set(URPG_SDL_TARGET SDL2-static)
 endif()
 
 target_link_libraries(urpg_core PUBLIC 
@@ -244,6 +430,13 @@ add_executable(urpg_migrate
 target_link_libraries(urpg_migrate PRIVATE urpg_core)
 target_include_directories(urpg_migrate PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
 
+add_executable(urpg_project_audit
+    tools/audit/urpg_project_audit.cpp
+)
+
+target_link_libraries(urpg_project_audit PRIVATE urpg_core)
+target_include_directories(urpg_project_audit PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+
 add_executable(urpg_presentation_release_validation
     engine/core/presentation/release_validation.cpp
 )
@@ -258,6 +451,8 @@ add_executable(urpg_tests
     tests/unit/test_semver.cpp
     tests/unit/test_fixed32.cpp
     tests/unit/test_frame_budget.cpp
+    tests/unit/test_perf_profiler.cpp
+    tests/unit/test_perf_diagnostics_panel.cpp
     tests/unit/test_ecs_world.cpp
     tests/unit/test_ai_system.cpp
     tests/unit/test_movement_system.cpp
@@ -267,6 +462,10 @@ add_executable(urpg_tests
     tests/unit/test_camera_system.cpp
     tests/unit/test_camera_follow_system.cpp
     tests/unit/test_camera_shake_system.cpp
+    tests/unit/test_character_identity.cpp
+    tests/unit/test_character_identity_ecs.cpp
+    tests/unit/test_character_creator_model.cpp
+    tests/unit/test_character_creator_panel.cpp
     tests/unit/test_animation_system.cpp
     tests/unit/test_system_orchestrator.cpp
     tests/unit/test_interaction_system.cpp
@@ -284,11 +483,17 @@ add_executable(urpg_tests
     tests/unit/test_migration_runner.cpp
     tests/unit/test_source_authority.cpp
     tests/unit/test_diagnostics_facade.cpp
+    tests/unit/test_project_audit_panel.cpp
+    tests/unit/test_controller_binding_runtime.cpp
+    tests/unit/test_controller_binding_panel.cpp
     tests/unit/test_save_catalog.cpp
     tests/unit/test_save_inspector_model.cpp
     tests/unit/test_save_inspector_panel.cpp
+    tests/unit/test_lzstring_decompressor.cpp
+    tests/unit/test_rpgmaker_save_reader.cpp
     tests/unit/test_save_recovery.cpp
     tests/unit/test_save_runtime.cpp
+    tests/unit/test_save_migration.cpp
     tests/unit/test_save_serialization.cpp
     tests/unit/test_battle_inspector_model.cpp
     tests/unit/test_battle_preview_panel.cpp
@@ -303,33 +508,54 @@ add_executable(urpg_tests
     tests/unit/test_window_compat.cpp
     tests/unit/test_compat_report_panel.cpp
     tests/unit/test_battlemgr.cpp
+    tests/unit/test_mod_registry.cpp
+    tests/unit/test_mod_manager_panel.cpp
+    tests/unit/test_battle_effect_cues.cpp
     tests/unit/test_battle_scene_native.cpp
     tests/unit/test_data_manager.cpp
     tests/unit/test_audio_manager.cpp
     tests/unit/test_input_manager.cpp
     tests/unit/test_plugin_manager.cpp
-    tests/unit/test_game_party_troop.cpp
     tests/unit/test_plugin_api.cpp
     tests/unit/test_menu_core.cpp
+    tests/unit/test_menu_orchestration.cpp
     tests/unit/test_input_core.cpp
+    tests/unit/test_input_remap_store.cpp
     tests/unit/test_audio_core.cpp
+    tests/unit/test_audio_mix_presets.cpp
     tests/unit/test_message_text_core.cpp
     tests/unit/test_message_migration.cpp
     tests/unit/test_message_schema_contracts.cpp
+    tests/unit/test_locale_catalog.cpp
+    tests/unit/test_completeness_checker.cpp
+    tests/unit/test_save_schema_contracts.cpp
+    tests/unit/test_save_policy_governance.cpp
     tests/unit/test_message_inspector_model.cpp
     tests/unit/test_message_inspector_panel.cpp
+    tests/unit/test_menu_inspector_panel.cpp
     tests/unit/test_menu_inspector_model.cpp
+    tests/unit/test_menu_preview_panel.cpp
     tests/unit/test_menu_legacy_import.cpp
     tests/unit/test_state_audio_sync.cpp
     tests/unit/test_scene_manager.cpp
     tests/unit/test_gameplay_tags.cpp
+    tests/unit/test_presentation_bridge.cpp
     tests/unit/test_presentation_runtime.cpp
+    tests/unit/test_presentation_effect_translation.cpp
+    tests/unit/test_project_audit_cli.cpp
+    tests/unit/test_effect_cue.cpp
     tests/unit/test_spatial_editor.cpp
     tests/unit/test_huggingface_curated_assets.cpp
     tests/unit/test_ability_activation.cpp
+    tests/unit/test_ability_e2e.cpp
     tests/unit/test_pattern_field.cpp
+    tests/unit/test_effect_resolver.cpp
     tests/unit/test_wave3_gaf.cpp
     tests/unit/test_level_assembly.cpp
+    tests/unit/test_sprite_animator.cpp
+    tests/unit/test_sprite_animation_preview_panel.cpp
+    tests/unit/test_procedural_toolkit.cpp
+    tests/unit/test_optional_lanes.cpp
     tests/unit/test_debug_crash.cpp
     tests/unit/test_audio_inspector.cpp
     tests/unit/test_audio_resolver.cpp
@@ -338,18 +564,43 @@ add_executable(urpg_tests
     tests/unit/test_menu_migration_logic.cpp
     tests/unit/test_migration_wizard.cpp
     tests/unit/test_ai_bridge_regex.cpp
+    tests/unit/test_achievement_registry.cpp
+    tests/unit/test_achievement_panel.cpp
+    tests/unit/test_achievement_triggers.cpp
+    tests/unit/test_accessibility_auditor.cpp
+    tests/unit/test_accessibility_panel.cpp
+    tests/unit/test_export_validator.cpp
+    tests/unit/test_export_packager.cpp
+    tests/unit/test_export_diagnostics_panel.cpp
+    tests/unit/test_visual_regression_harness.cpp
+    tests/unit/test_truth_reconciler.cpp
+    tests/unit/test_analytics_dispatcher.cpp
+    tests/unit/test_analytics_panel.cpp
     tests/engine/core/test_render_assets.cpp
-    tests/engine/core/test_engine_shell.cpp
+    tests/test_asset_license_audit.cpp
+    tests/test_copilot_kernel.cpp
+    tests/test_headless_play_mode.cpp
+    tests/test_plugin_manifest.cpp
+    tests/test_snapshot_validator.cpp
+    tests/test_ability_inspector.cpp
+    tests/test_ability_pattern_integration.cpp
+    tests/test_ability_state_machine.cpp
+    tests/test_ability_tasks.cpp
+    tests/test_effect_modifiers.cpp
+    tests/test_pattern_field_editor.cpp
+    tests/test_pattern_serialization.cpp
 )
 
 target_link_libraries(urpg_tests PRIVATE urpg_core Catch2::Catch2WithMain)
 target_include_directories(urpg_tests PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
 target_compile_definitions(urpg_tests PRIVATE URPG_SOURCE_DIR="${CMAKE_CURRENT_SOURCE_DIR}")
+add_dependencies(urpg_tests urpg_project_audit)
 urpg_enable_windows_test_binary_unlock(urpg_tests)
 
 add_executable(urpg_integration_tests
     tests/integration/test_integration_runtime_recovery.cpp
-    tests/integration/test_integration_battle_data.cpp
+    tests/integration/test_battle_save_integration.cpp
+    tests/integration/test_wave1_closure_integration.cpp
 )
 
 target_link_libraries(urpg_integration_tests PRIVATE urpg_core Catch2::Catch2WithMain)

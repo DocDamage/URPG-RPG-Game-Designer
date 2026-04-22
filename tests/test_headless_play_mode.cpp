@@ -1,5 +1,5 @@
 #include <catch2/catch_test_macros.hpp>
-#include "testing/headless_play_mode.h"
+#include "engine/core/testing/headless_play_mode.h"
 #include <memory>
 
 using namespace urpg::testing;

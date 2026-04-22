@@ -80,6 +80,7 @@ TEST_CASE("InputManager: mouse and touch access", "[input_manager]") {
     im.setMouseWheel(3);
     REQUIRE(im.getMouseWheel() == 3);
     im.update();
+    REQUIRE_FALSE(im.isMouseTriggered(0));
     REQUIRE(im.getMouseWheel() == 0);
 
     im.setTouchPosition(50, 60);
@@ -94,6 +95,24 @@ TEST_CASE("InputManager: mouse and touch access", "[input_manager]") {
     im.shutdown();
 }
 
+TEST_CASE("InputManager: mouse trigger is a one-frame edge", "[input_manager]") {
+    InputManager& im = InputManager::instance();
+    im.initialize();
+
+    im.setMousePressed(0, true);
+    REQUIRE(im.isMouseTriggered(0));
+
+    im.update();
+    REQUIRE(im.isMousePressed(0));
+    REQUIRE_FALSE(im.isMouseTriggered(0));
+
+    im.setMousePressed(0, false);
+    im.setMousePressed(0, true);
+    REQUIRE(im.isMouseTriggered(0));
+
+    im.shutdown();
+}
+
 TEST_CASE("InputManager: gamepad and action mapping", "[input_manager]") {
     InputManager& im = InputManager::instance();
     im.initialize();
@@ -104,6 +123,12 @@ TEST_CASE("InputManager: gamepad and action mapping", "[input_manager]") {
 
     im.setGamepadAxis(0, 0.75);
     REQUIRE(im.getGamepadAxis(0) == Catch::Approx(0.75));
+
+    im.setGamepadButton(0, true);
+    REQUIRE(im.isGamepadButtonTriggered(0));
+    im.update();
+    REQUIRE(im.isGamepadButtonPressed(0));
+    REQUIRE_FALSE(im.isGamepadButtonTriggered(0));
 
     im.mapKeyToAction(InputKey::DECISION, "confirm");
     const ActionMapping* mapping = im.getActionMapping("confirm");
@@ -123,8 +148,10 @@ TEST_CASE("InputManager: method status registry", "[input_manager]") {
     InputManager& im = InputManager::instance();
     (void)im;
 
-    REQUIRE(InputManager::getMethodStatus("isPressed") == CompatStatus::FULL);
-    REQUIRE(InputManager::getMethodStatus("dir4") == CompatStatus::FULL);
+    REQUIRE(InputManager::getMethodStatus("isPressed") == CompatStatus::PARTIAL);
+    REQUIRE(InputManager::getMethodStatus("dir4") == CompatStatus::PARTIAL);
+    REQUIRE(InputManager::getMethodStatus("initialize") == CompatStatus::PARTIAL);
+    REQUIRE(InputManager::getMethodStatus("clear") == CompatStatus::PARTIAL);
     REQUIRE(InputManager::getMethodStatus("nonexistentMethod") == CompatStatus::UNSUPPORTED);
 }
 
@@ -195,10 +222,12 @@ TEST_CASE("TouchInput: method status and constants", "[input_manager]") {
     TouchInput& touch = TouchInput::instance();
     (void)touch;
 
-    REQUIRE(TouchInput::getMethodStatus("x") == CompatStatus::FULL);
-    REQUIRE(TouchInput::getMethodStatus("isPressed") == CompatStatus::FULL);
-    REQUIRE(TouchInput::getMethodStatus("worldX") == CompatStatus::FULL);
-    REQUIRE(TouchInput::getMethodStatus("worldY") == CompatStatus::FULL);
+    REQUIRE(TouchInput::getMethodStatus("x") == CompatStatus::PARTIAL);
+    REQUIRE(TouchInput::getMethodStatus("isPressed") == CompatStatus::PARTIAL);
+    REQUIRE(TouchInput::getMethodStatus("worldX") == CompatStatus::PARTIAL);
+    REQUIRE(TouchInput::getMethodStatus("worldY") == CompatStatus::PARTIAL);
+    REQUIRE(TouchInput::getMethodStatus("moveSpeed") == CompatStatus::PARTIAL);
+    REQUIRE(TouchInput::getMethodStatus("clear") == CompatStatus::PARTIAL);
 
     REQUIRE(InputKey::DOWN == 2);
     REQUIRE(InputKey::LEFT == 4);

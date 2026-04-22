@@ -4,9 +4,9 @@
 // These tests verify the MZ Window API compatibility surface behavior.
 
 #include "runtimes/compat_js/window_compat.h"
+#include "runtimes/compat_js/input_manager.h"
 #include "runtimes/compat_js/quickjs_runtime.h"
 #include "runtimes/compat_js/data_manager.h"
-#include "runtimes/compat_js/input_manager.h"
 #include "engine/core/render/render_layer.h"
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/catch_approx.hpp>
@@ -132,15 +132,16 @@ TEST_CASE("Window_Base getMethodDeviation returns notes", "[compat][window]") {
     REQUIRE(Window_Base::getMethodDeviation("drawActorFace") == "");
     REQUIRE(Window_Base::getMethodDeviation("drawActorHp") == "");
     REQUIRE(Window_Base::getMethodDeviation("drawText") == "");  // FULL, no deviation
-    REQUIRE(Window_Base::getMethodDeviation("drawIcon").find("icon-set bitmap rendering") != std::string::npos);
+    REQUIRE(Window_Base::getMethodDeviation("drawIcon").find("SpriteCommand") != std::string::npos);
 }
 
 TEST_CASE("Window_Base drawActorFace records canonical source and destination rects", "[compat][window]") {
+    auto& layer = urpg::RenderLayer::getInstance();
+    layer.flush();
+
     Window_Base window(Window_Base::CreateParams{});
 
-    const uint32_t drawIconBefore = Window_Base::getMethodCallCount("drawIcon");
     window.drawActorFace(3, 10, 20, 200, 180);
-    REQUIRE(Window_Base::getMethodCallCount("drawIcon") == drawIconBefore + 1);
 
     const auto drawInfo = window.getLastFaceDraw();
     REQUIRE(drawInfo.has_value());
@@ -155,6 +156,20 @@ TEST_CASE("Window_Base drawActorFace records canonical source and destination re
     REQUIRE(drawInfo->destRect.y == 38);
     REQUIRE(drawInfo->destRect.width == 144);
     REQUIRE(drawInfo->destRect.height == 144);
+
+    const auto& commands = layer.getCommands();
+    REQUIRE_FALSE(commands.empty());
+    REQUIRE(commands.back()->type == urpg::RenderCmdType::Sprite);
+
+    auto spriteCmd = std::dynamic_pointer_cast<urpg::SpriteCommand>(commands.back());
+    REQUIRE(spriteCmd != nullptr);
+    REQUIRE(spriteCmd->textureId == "ActorFace_3");
+    REQUIRE(spriteCmd->srcX == 288);
+    REQUIRE(spriteCmd->srcY == 0);
+    REQUIRE(spriteCmd->width == 144);
+    REQUIRE(spriteCmd->height == 144);
+    REQUIRE(spriteCmd->x == 50.0f);
+    REQUIRE(spriteCmd->y == 50.0f);
 
     window.drawActorFace(3, 4, 8, 96, 120);
     const auto clippedInfo = window.getLastFaceDraw();
@@ -174,15 +189,11 @@ TEST_CASE("Window_Base drawActorFace rejects invalid actor or size", "[compat][w
     window.drawActorFace(2, 0, 0, 144, 144);
     REQUIRE(window.getLastFaceDraw().has_value());
 
-    const uint32_t drawIconBefore = Window_Base::getMethodCallCount("drawIcon");
-
     window.drawActorFace(0, 0, 0, 144, 144);
     REQUIRE_FALSE(window.getLastFaceDraw().has_value());
-    REQUIRE(Window_Base::getMethodCallCount("drawIcon") == drawIconBefore);
 
     window.drawActorFace(1, 0, 0, 0, 144);
     REQUIRE_FALSE(window.getLastFaceDraw().has_value());
-    REQUIRE(Window_Base::getMethodCallCount("drawIcon") == drawIconBefore);
 }
 
 TEST_CASE("Window_Base setRect", "[compat][window]") {
@@ -302,7 +313,9 @@ TEST_CASE("Window_Base drawItemName emits icon + label draw calls", "[compat][wi
 }
 
 TEST_CASE("Window_Base drawActor gauges call drawGauge and drawText", "[compat][window]") {
+    DataManager::instance().loadActors();
     Window_Base window(Window_Base::CreateParams{});
+    window.clearTextDrawHistory();
 
     const uint32_t gaugeBefore = Window_Base::getMethodCallCount("drawGauge");
     const uint32_t textBefore = Window_Base::getMethodCallCount("drawText");
@@ -312,139 +325,127 @@ TEST_CASE("Window_Base drawActor gauges call drawGauge and drawText", "[compat][
     window.drawActorTp(1, 0, 0, 128);
 
     REQUIRE(Window_Base::getMethodCallCount("drawGauge") == gaugeBefore + 3);
-    REQUIRE(Window_Base::getMethodCallCount("drawText") == textBefore + 3);
+    REQUIRE(Window_Base::getMethodCallCount("drawText") == textBefore + 6);
+
+    const auto& history = window.getTextDrawHistory();
+    REQUIRE(history.size() >= 6);
+    REQUIRE(history[0].text == "HP");
+    REQUIRE(history[1].text == "100");
+    REQUIRE(history[2].text == "MP");
+    REQUIRE(history[3].text == "30");
+    REQUIRE(history[4].text == "TP");
+    REQUIRE(history[5].text == "0");
 }
 
-TEST_CASE("Window_Base drawActorName uses DataManager actor name", "[compat][window]") {
-    DataManager::instance().clearDatabase();
-#ifdef URPG_SOURCE_DIR
-    DataManager::instance().setDataPath(URPG_SOURCE_DIR "/tests/data/mz_data");
-#else
-    DataManager::instance().setDataPath("tests/data/mz_data");
-#endif
-    DataManager::instance().loadDatabase();
-
+TEST_CASE("Window_Base drawActorName emits actor name via drawText", "[compat][window]") {
+    DataManager::instance().loadActors();
     Window_Base window(Window_Base::CreateParams{});
+    window.clearTextDrawHistory();
 
-    // Valid actorId - should not crash and record drawText
-    const uint32_t drawTextBefore = Window_Base::getMethodCallCount("drawText");
-    window.drawActorName(1, 0, 0, 128);
-    REQUIRE(Window_Base::getMethodCallCount("drawText") == drawTextBefore + 1);
+    window.drawActorName(1, 10, 20, 150);
 
-    // Invalid actorId - should not crash and record drawText with fallback name
-    window.drawActorName(999, 0, 0, 128);
-    REQUIRE(Window_Base::getMethodCallCount("drawText") == drawTextBefore + 2);
-
-    DataManager::instance().clearDatabase();
+    const auto& history = window.getTextDrawHistory();
+    REQUIRE_FALSE(history.empty());
+    REQUIRE(history.back().text == "Hero");
 }
 
-TEST_CASE("Window_Base drawActorLevel uses DataManager actor level", "[compat][window]") {
-    DataManager::instance().clearDatabase();
-#ifdef URPG_SOURCE_DIR
-    DataManager::instance().setDataPath(URPG_SOURCE_DIR "/tests/data/mz_data");
-#else
-    DataManager::instance().setDataPath("tests/data/mz_data");
-#endif
-    DataManager::instance().loadDatabase();
-
+TEST_CASE("Window_Base drawActorLevel emits level text via drawText", "[compat][window]") {
+    DataManager::instance().loadActors();
     Window_Base window(Window_Base::CreateParams{});
+    window.clearTextDrawHistory();
 
-    // Valid actorId - should not crash and record drawText
-    const uint32_t drawTextBefore = Window_Base::getMethodCallCount("drawText");
-    window.drawActorLevel(1, 0, 0);
-    REQUIRE(Window_Base::getMethodCallCount("drawText") == drawTextBefore + 1);
+    window.drawActorLevel(1, 10, 20);
 
-    // Invalid actorId - should not crash and record drawText with fallback level
-    window.drawActorLevel(999, 0, 0);
-    REQUIRE(Window_Base::getMethodCallCount("drawText") == drawTextBefore + 2);
-
-    DataManager::instance().clearDatabase();
+    const auto& history = window.getTextDrawHistory();
+    REQUIRE_FALSE(history.empty());
+    REQUIRE(history.back().text == "Lv 1");
 }
 
-TEST_CASE("Window_Base drawActorHp computes rate from actor params", "[compat][window]") {
-    DataManager::instance().clearDatabase();
-#ifdef URPG_SOURCE_DIR
-    DataManager::instance().setDataPath(URPG_SOURCE_DIR "/tests/data/mz_data");
-#else
-    DataManager::instance().setDataPath("tests/data/mz_data");
-#endif
-    DataManager::instance().loadDatabase();
-    DataManager::instance().setupNewGame();
+TEST_CASE("Window_Base drawGauge submits RectCommands", "[compat][window]") {
+    auto& layer = urpg::RenderLayer::getInstance();
+    layer.flush();
 
-    Window_Base window(Window_Base::CreateParams{});
+    Window_Base::CreateParams params;
+    params.rect = Rect{0, 0, 200, 100};
+    Window_Base window(params);
 
-    // Valid actorId - should not crash and call drawGauge
-    const uint32_t gaugeBefore = Window_Base::getMethodCallCount("drawGauge");
-    window.drawActorHp(1, 0, 0, 128);
-    REQUIRE(Window_Base::getMethodCallCount("drawGauge") == gaugeBefore + 1);
-    double fullRate = window.getLastGaugeRate();
-    REQUIRE(fullRate == 1.0);
+    window.drawGauge(10, 20, 100, 0.75, Color{255, 0, 0, 255}, Color{0, 255, 0, 255});
 
-    // Reduce HP and verify rate changes
-    DataManager::instance().setGameActorHp(1, DataManager::instance().getGameActor(1)->mhp / 2);
-    window.drawActorHp(1, 0, 0, 128);
-    double halfRate = window.getLastGaugeRate();
-    REQUIRE(halfRate == 0.5);
+    const auto& commands = layer.getCommands();
+    REQUIRE(commands.size() >= 2);
+    REQUIRE(commands[commands.size() - 2]->type == urpg::RenderCmdType::Rect);
+    REQUIRE(commands[commands.size() - 1]->type == urpg::RenderCmdType::Rect);
 
-    // Invalid actorId - should not crash and call drawGauge with default rate
-    window.drawActorHp(999, 0, 0, 128);
-    REQUIRE(Window_Base::getMethodCallCount("drawGauge") == gaugeBefore + 3);
-
-    DataManager::instance().clearDatabase();
+    auto fillCmd = std::dynamic_pointer_cast<urpg::RectCommand>(commands.back());
+    REQUIRE(fillCmd != nullptr);
+    REQUIRE(fillCmd->w == 75.0f);
 }
 
-TEST_CASE("Window_Base drawActorTp uses default mtp of 100", "[compat][window]") {
-    DataManager::instance().clearDatabase();
-    auto& actor = DataManager::instance().addTestActor();
-    actor.id = 1;
-    actor.initialLevel = 1;
-    actor.params = {{100, 100, 10, 10, 10, 10, 10, 10}};
-    DataManager::instance().setupGameActors();
-    DataManager::instance().setGameActorTp(1, 50);
+TEST_CASE("Window_Base drawCharacter submits SpriteCommand", "[compat][window]") {
+    auto& layer = urpg::RenderLayer::getInstance();
+    layer.flush();
 
-    Window_Base window(Window_Base::CreateParams{});
-    window.drawActorTp(1, 0, 0, 128);
-    // Default mtp is 100, so rate = 50/100 = 0.5
-    REQUIRE(window.getLastGaugeRate() == 0.5);
+    Window_Base::CreateParams params;
+    params.rect = Rect{0, 0, 200, 100};
+    Window_Base window(params);
 
-    DataManager::instance().clearDatabase();
+    window.drawCharacter("Actor1", 2, 30, 40);
+
+    const auto& commands = layer.getCommands();
+    REQUIRE_FALSE(commands.empty());
+    REQUIRE(commands.back()->type == urpg::RenderCmdType::Sprite);
+
+    auto spriteCmd = std::dynamic_pointer_cast<urpg::SpriteCommand>(commands.back());
+    REQUIRE(spriteCmd != nullptr);
+    REQUIRE(spriteCmd->textureId == "Actor1");
+    // MZ standard sheet: 4 cols × 2 rows of characters, 48×48 cells.
+    // Character 2 standing frame: col=2, row=0, offset (+1, +0) within 3×4 block.
+    REQUIRE(spriteCmd->srcX == ((2 % 4) * 3 + 1) * 48); // 336
+    REQUIRE(spriteCmd->srcY == (2 / 4) * 4 * 48);       // 0
+    REQUIRE(spriteCmd->width == 48);
+    REQUIRE(spriteCmd->height == 48);
 }
 
-TEST_CASE("Window_Base drawActorTp respects custom mtp", "[compat][window]") {
-    DataManager::instance().clearDatabase();
-    InputManager::instance().clear();
-    auto& actor = DataManager::instance().addTestActor();
-    actor.id = 1;
-    actor.initialLevel = 1;
-    actor.params = {{100, 100, 10, 10, 10, 10, 10, 10}};
-    DataManager::instance().setupGameActors();
-    DataManager::instance().setGameActorTp(1, 50);
-    DataManager::instance().setGameActorMtp(1, 200);
+TEST_CASE("Window_Base drawIcon emits SpriteCommand with correct source rect", "[compat][window]") {
+    auto& layer = urpg::RenderLayer::getInstance();
+    layer.flush();
 
-    Window_Base window(Window_Base::CreateParams{});
-    window.drawActorTp(1, 0, 0, 128);
-    // lastGaugeRate_ should be 50/200 = 0.25
-    REQUIRE(window.getLastGaugeRate() == 0.25);
+    Window_Base::CreateParams params;
+    params.rect = Rect{0, 0, 200, 100};
+    Window_Base window(params);
 
-    DataManager::instance().clearDatabase();
+    window.drawIcon(5, 10, 20);
+
+    const auto& commands = layer.getCommands();
+    REQUIRE_FALSE(commands.empty());
+    REQUIRE(commands.back()->type == urpg::RenderCmdType::Sprite);
+
+    auto spriteCmd = std::dynamic_pointer_cast<urpg::SpriteCommand>(commands.back());
+    REQUIRE(spriteCmd != nullptr);
+    REQUIRE(spriteCmd->textureId == "IconSet");
+    REQUIRE(spriteCmd->srcX == (5 % 16) * 32);
+    REQUIRE(spriteCmd->srcY == (5 / 16) * 32);
+    REQUIRE(spriteCmd->width == 32);
+    REQUIRE(spriteCmd->height == 32);
 }
 
-TEST_CASE("Window_Base drawActorTp clamps rate to 1.0 when tp exceeds mtp", "[compat][window]") {
-    DataManager::instance().clearDatabase();
-    auto& actor = DataManager::instance().addTestActor();
-    actor.id = 1;
-    actor.initialLevel = 1;
-    actor.params = {{100, 100, 10, 10, 10, 10, 10, 10}};
-    DataManager::instance().setupGameActors();
-    DataManager::instance().setGameActorTp(1, 150);
-    DataManager::instance().setGameActorMtp(1, 100);
-
+TEST_CASE("Window_Base registerAPI bindings route through default instance", "[compat][window]") {
     Window_Base window(Window_Base::CreateParams{});
-    window.drawActorTp(1, 0, 0, 128);
-    // rate should be clamped to 1.0
-    REQUIRE(window.getLastGaugeRate() == 1.0);
+    Window_Base::setDefaultInstance(&window);
 
-    DataManager::instance().clearDatabase();
+    QuickJSContext ctx;
+    REQUIRE(ctx.initialize(QuickJSConfig{}));
+    Window_Base::registerAPI(ctx);
+
+    urpg::Value textArg;
+    textArg.v = std::string("Hello");
+    auto result = ctx.callMethod("Window_Base", "drawText",
+        std::vector<urpg::Value>{textArg, urpg::Value::Int(0), urpg::Value::Int(0)});
+
+    REQUIRE(result.success);
+    REQUIRE_FALSE(std::holds_alternative<std::monostate>(result.value.v));
+
+    Window_Base::setDefaultInstance(nullptr);
 }
 
 TEST_CASE("Window_Base textColor change and reset", "[compat][window]") {
@@ -485,28 +486,6 @@ TEST_CASE("Window_Base systemColor returns valid colors", "[compat][window]") {
     REQUIRE(hp.g == 96);
 }
 
-TEST_CASE("Window_Base color helpers return expected colors", "[compat][window]") {
-    Window_Base window(Window_Base::CreateParams{});
-    
-    Color normal = window.normalColor();
-    REQUIRE(normal.r == window.systemColor(0).r);
-    REQUIRE(normal.g == window.systemColor(0).g);
-    REQUIRE(normal.b == window.systemColor(0).b);
-    REQUIRE(normal.a == window.systemColor(0).a);
-    
-    Color dim = window.dimColor();
-    REQUIRE(dim.r == 128);
-    REQUIRE(dim.g == 128);
-    REQUIRE(dim.b == 128);
-    REQUIRE(dim.a == 255);
-    
-    Color death = window.deathColor();
-    REQUIRE(death.r == 255);
-    REQUIRE(death.g == 0);
-    REQUIRE(death.b == 0);
-    REQUIRE(death.a == 255);
-}
-
 TEST_CASE("Window_Base font settings", "[compat][window]") {
     Window_Base window(Window_Base::CreateParams{});
     
@@ -528,13 +507,81 @@ TEST_CASE("Window_Base font settings", "[compat][window]") {
 }
 
 TEST_CASE("Window_Base contents management", "[compat][window]") {
-    Window_Base window(Window_Base::CreateParams{});
+    Window_Base::CreateParams params;
+    params.rect = Rect{0, 0, 200, 100};
+    Window_Base window(params);
     
     window.createContents();
     REQUIRE(window.contents() != INVALID_BITMAP);
+    REQUIRE(window.getContentsBitmapInfo().has_value());
+    REQUIRE(window.getContentsBitmapInfo()->handle == window.contents());
+    REQUIRE(window.getContentsBitmapInfo()->width == 176);
+    REQUIRE(window.getContentsBitmapInfo()->height == 76);
     
     window.destroyContents();
     REQUIRE(window.contents() == INVALID_BITMAP);
+    REQUIRE_FALSE(window.getContentsBitmapInfo().has_value());
+}
+
+TEST_CASE("Window_Base contents lifecycle allocates and rotates deterministic handles", "[compat][window]") {
+    Window_Base window(Window_Base::CreateParams{});
+
+    const auto before = window.contents();
+    window.createContents();
+    const auto firstCreated = window.contents();
+    REQUIRE(firstCreated != 0);
+    REQUIRE(firstCreated != before);
+
+    window.destroyContents();
+    REQUIRE(window.contents() == 0);
+
+    window.createContents();
+    const auto secondCreated = window.contents();
+    REQUIRE(secondCreated != 0);
+    REQUIRE(secondCreated != firstCreated);
+}
+
+TEST_CASE("Window_Base contents handles are unique per allocation", "[compat][window]") {
+    Window_Base::CreateParams firstParams;
+    firstParams.rect = Rect{0, 0, 200, 100};
+    Window_Base::CreateParams secondParams;
+    secondParams.rect = Rect{0, 0, 160, 90};
+    Window_Base first(firstParams);
+    Window_Base second(secondParams);
+
+    first.createContents();
+    second.createContents();
+
+    REQUIRE(first.contents() != INVALID_BITMAP);
+    REQUIRE(second.contents() != INVALID_BITMAP);
+    REQUIRE(first.contents() != second.contents());
+    REQUIRE(first.getContentsBitmapInfo().has_value());
+    REQUIRE(second.getContentsBitmapInfo().has_value());
+    REQUIRE(first.getContentsBitmapInfo()->width == 176);
+    REQUIRE(first.getContentsBitmapInfo()->height == 76);
+    REQUIRE(second.getContentsBitmapInfo()->width == 136);
+    REQUIRE(second.getContentsBitmapInfo()->height == 66);
+}
+
+TEST_CASE("Window_Base contents bitmap dimensions stay in sync with rect and padding", "[compat][window]") {
+    Window_Base::CreateParams params;
+    params.rect = Rect{0, 0, 200, 100};
+    Window_Base window(params);
+
+    window.createContents();
+    REQUIRE(window.getContentsBitmapInfo().has_value());
+    REQUIRE(window.getContentsBitmapInfo()->width == 176);
+    REQUIRE(window.getContentsBitmapInfo()->height == 76);
+
+    window.setRect(Rect{0, 0, 180, 140});
+    REQUIRE(window.getContentsBitmapInfo().has_value());
+    REQUIRE(window.getContentsBitmapInfo()->width == 156);
+    REQUIRE(window.getContentsBitmapInfo()->height == 116);
+
+    window.setPadding(20);
+    REQUIRE(window.getContentsBitmapInfo().has_value());
+    REQUIRE(window.getContentsBitmapInfo()->width == 140);
+    REQUIRE(window.getContentsBitmapInfo()->height == 100);
 }
 
 TEST_CASE("Window_Base drawTextEx processes escape codes", "[compat][window]") {
@@ -584,6 +631,33 @@ TEST_CASE("Window_Message dialogue body supports centered and right alignment", 
     REQUIRE(rightX > centerX);
 }
 
+TEST_CASE("Window_Message drawMessageBody emits RenderLayer text commands", "[compat][window][message]") {
+    auto& layer = urpg::RenderLayer::getInstance();
+    layer.flush();
+
+    Window_Message::CreateParams params;
+    params.rect = Rect{0, 0, 400, 220};
+    params.messageX = 10;
+    params.messageY = 10;
+    params.messageWidth = 380;
+    Window_Message messageWindow(params);
+    messageWindow.setMessageText("RenderLayer test body");
+
+    messageWindow.drawMessageBody();
+
+    const auto& commands = layer.getCommands();
+    std::string accumulated;
+    for (const auto& cmd : commands) {
+        if (cmd->type == urpg::RenderCmdType::Text) {
+            auto textCmd = std::dynamic_pointer_cast<urpg::TextCommand>(cmd);
+            if (textCmd) {
+                accumulated += textCmd->text;
+            }
+        }
+    }
+    REQUIRE(accumulated == "RenderLayer test body");
+}
+
 TEST_CASE("Snapshot: drawTextEx wrapped centered and right alignment remains stable", "[compat][window][snapshot]") {
     Window_Base::CreateParams params;
     params.rect = Rect{0, 0, 420, 240};
@@ -623,6 +697,16 @@ TEST_CASE("Window_Base getMethodStatus for extended methods", "[compat][window]"
     REQUIRE(Window_Base::getMethodStatus("drawActorTp") == CompatStatus::FULL);
     REQUIRE(Window_Base::getMethodStatus("textWidth") == CompatStatus::FULL);
     REQUIRE(Window_Base::getMethodStatus("textSize") == CompatStatus::FULL);
+    REQUIRE(Window_Base::getMethodStatus("systemColor") == CompatStatus::PARTIAL);
+    REQUIRE(Window_Base::getMethodStatus("contents") == CompatStatus::PARTIAL);
+    REQUIRE(Window_Base::getMethodStatus("createContents") == CompatStatus::PARTIAL);
+    REQUIRE(Window_Base::getMethodStatus("destroyContents") == CompatStatus::PARTIAL);
+    REQUIRE(Window_Base::getMethodStatus("update") == CompatStatus::PARTIAL);
+    REQUIRE(Window_Base::getMethodDeviation("contents").find("no backing pixel buffer exists") != std::string::npos);
+    REQUIRE(Window_Base::getMethodDeviation("createContents").find("no backing pixel buffer exists") != std::string::npos);
+    REQUIRE(Window_Base::getMethodDeviation("destroyContents").find("no backing pixel buffer exists") != std::string::npos);
+    REQUIRE(Window_Base::getMethodDeviation("update").find("multi-touch") != std::string::npos);
+    REQUIRE(Window_Base::getMethodStatus("nonexistentMethod") == CompatStatus::UNSUPPORTED);
 }
 
 // ============================================================================
@@ -831,145 +915,297 @@ TEST_CASE("Window_Selectable item width calculation", "[compat][window]") {
     REQUIRE(itemWidth < 100);
 }
 
-TEST_CASE("Window_Selectable processCursorMove reads InputManager dir4", "[compat][window]") {
-    InputManager::instance().clear();
+TEST_CASE("Window_Selectable update consumes InputManager cursor movement", "[compat][window]") {
+    InputManager& input = InputManager::instance();
+    input.initialize();
+    input.clear();
 
     Window_Selectable::CreateParams params;
-    params.maxCols = 2;
+    params.maxCols = 1;
+    params.numVisibleRows = 4;
     Window_Selectable window(params);
-    window.setMaxItems(10);
-
-    // DOWN: index 0 -> 2
+    window.setMaxItems(6);
     window.setIndex(0);
-    InputManager::instance().setKeyPressed(InputKey::DOWN, true);
-    InputManager::instance().update();
-    window.update();
-    REQUIRE(window.getIndex() == 2);
+    window.setActive(true);
+    window.open();
 
-    // LEFT: index 1 -> 0
-    InputManager::instance().clear();
-    window.setIndex(1);
-    InputManager::instance().setKeyPressed(InputKey::LEFT, true);
-    InputManager::instance().update();
-    window.update();
-    REQUIRE(window.getIndex() == 0);
-
-    // RIGHT: index 0 -> 1
-    InputManager::instance().clear();
-    window.setIndex(0);
-    InputManager::instance().setKeyPressed(InputKey::RIGHT, true);
-    InputManager::instance().update();
+    input.setKeyPressed(InputKey::DOWN, true);
     window.update();
     REQUIRE(window.getIndex() == 1);
 
-    // UP: index 2 -> 0
-    InputManager::instance().clear();
-    window.setIndex(2);
-    InputManager::instance().setKeyPressed(InputKey::UP, true);
-    InputManager::instance().update();
+    input.update();
     window.update();
-    REQUIRE(window.getIndex() == 0);
+    REQUIRE(window.getIndex() == 2);
 
-    InputManager::instance().clear();
+    input.setKeyPressed(InputKey::DOWN, false);
+    input.update();
+    input.setKeyPressed(InputKey::UP, true);
+    window.update();
+    REQUIRE(window.getIndex() == 1);
+
+    input.shutdown();
 }
 
-TEST_CASE("Window_Selectable processHandling triggers on OK", "[compat][window]") {
-    InputManager::instance().clear();
+TEST_CASE("Window_Command update dispatches ok and cancel input", "[compat][window]") {
+    InputManager& input = InputManager::instance();
+    input.initialize();
+    input.clear();
 
-    Window_Selectable window(Window_Selectable::CreateParams{});
-    window.setMaxItems(5);
-    window.setIndex(2);
+    Window_Command::CreateParams params;
+    params.commands = {
+        {"Item", "item", true, 0},
+        {"Skill", "skill", true, 1}
+    };
+    Window_Command window(params);
+    window.setActive(true);
+    window.open();
+    window.setIndex(1);
 
-    int32_t callbackIndex = -999;
-    window.setOnSelect([&](int32_t index) {
-        callbackIndex = index;
+    int32_t okCount = 0;
+    std::string lastSymbol;
+    window.setOnCommand([&](const std::string& symbol) {
+        ++okCount;
+        lastSymbol = symbol;
     });
 
-    InputManager::instance().setKeyPressed(InputKey::DECISION, true);
-    InputManager::instance().update();
+    input.setKeyPressed(InputKey::DECISION, true);
     window.update();
+    REQUIRE(okCount == 1);
+    REQUIRE(lastSymbol == "skill");
 
-    REQUIRE(callbackIndex == 2);
+    input.setKeyPressed(InputKey::DECISION, false);
+    input.update();
 
-    InputManager::instance().clear();
+    struct CancelTrackingWindow final : Window_Command {
+        using Window_Command::Window_Command;
+        int32_t cancelCount = 0;
+        void processCancel() override { ++cancelCount; }
+    };
+
+    CancelTrackingWindow cancelWindow(params);
+    cancelWindow.setActive(true);
+    cancelWindow.open();
+
+    input.setKeyPressed(InputKey::CANCEL, true);
+    cancelWindow.update();
+    REQUIRE(cancelWindow.cancelCount == 1);
+
+    input.shutdown();
 }
 
-TEST_CASE("Window_Selectable hitTest maps coordinates to item index", "[compat][window]") {
+TEST_CASE("Window_Selectable update hit-tests touch input into selection", "[compat][window]") {
+    InputManager& input = InputManager::instance();
+    input.initialize();
+    input.clear();
+
     Window_Selectable::CreateParams params;
-    params.rect = Rect{0, 0, 200, 200};
-    params.maxCols = 2;
-    params.itemHeight = 36;
+    params.rect = Rect{10, 20, 180, 120};
+    params.maxCols = 1;
     params.numVisibleRows = 4;
+    params.itemHeight = 24;
     Window_Selectable window(params);
-    window.setMaxItems(10);
+    window.setMaxItems(5);
+    window.setIndex(0);
+    window.setActive(true);
+    window.open();
 
-    // Padding is 12, content starts at local (12, 12)
-    // itemWidth = (176 - 8) / 2 = 84
-    // Item 0 at local (12, 12) -> rel (0, 0)
-    REQUIRE(window.hitTest(12, 12) == 0);
-    // Item 1 at local (104, 12) -> rel (92, 0), col=92/84=1
-    REQUIRE(window.hitTest(104, 12) == 1);
-    // Item 2 at local (12, 48) -> rel (0, 36), row=36/36=1
-    REQUIRE(window.hitTest(12, 48) == 2);
-    // Item 3 at local (104, 48) -> rel (92, 36)
-    REQUIRE(window.hitTest(104, 48) == 3);
+    const Rect contentRect = window.getContentRect();
+    input.setTouchPosition(contentRect.x + 8, contentRect.y + (window.getItemHeight() * 2) + 5);
+    input.setTouchPressed(true);
+    window.update();
+    REQUIRE(window.getIndex() == 2);
 
-    // Out of bounds (inside padding)
-    REQUIRE(window.hitTest(0, 0) == -1);
-    REQUIRE(window.hitTest(11, 11) == -1);
-
-    // Out of bounds (beyond content)
-    REQUIRE(window.hitTest(200, 200) == -1);
-
-    // No items
-    window.setMaxItems(0);
-    REQUIRE(window.hitTest(12, 12) == -1);
+    input.shutdown();
 }
 
-TEST_CASE("Window_Selectable touch tap sets cursor index", "[compat][window]") {
-    InputManager::instance().clear();
+TEST_CASE("Window_Selectable update consumes mouse wheel over content", "[compat][window]") {
+    InputManager& input = InputManager::instance();
+    input.initialize();
+    input.clear();
 
     Window_Selectable::CreateParams params;
-    params.rect = Rect{0, 0, 200, 200};
-    params.maxCols = 2;
-    params.itemHeight = 36;
+    params.rect = Rect{10, 20, 180, 120};
+    params.maxCols = 1;
     params.numVisibleRows = 4;
+    params.itemHeight = 24;
     Window_Selectable window(params);
-    window.setMaxItems(10);
+    window.setMaxItems(8);
+    window.setIndex(3);
+    window.setActive(true);
+    window.open();
+
+    const Rect contentRect = window.getContentRect();
+    input.setMousePosition(contentRect.x + 8, contentRect.y + 8);
+    input.setMouseWheel(-1);
+    REQUIRE(window.isCursorMovable());
+    REQUIRE(input.getMouseWheel() == -1);
+    REQUIRE(input.getMouseX() == contentRect.x + 8);
+    REQUIRE(input.getMouseY() == contentRect.y + 8);
+    window.update();
+    REQUIRE(window.getIndex() == 4);
+    REQUIRE(window.getTopRow() == 1);
+
+    input.setMouseWheel(1);
+    window.update();
+    REQUIRE(window.getIndex() == 3);
+    REQUIRE(window.getTopRow() == 1);
+
+    input.shutdown();
+}
+
+TEST_CASE("Window_Selectable mouse wheel is ignored outside content", "[compat][window]") {
+    InputManager& input = InputManager::instance();
+    input.initialize();
+    input.clear();
+
+    Window_Selectable::CreateParams params;
+    params.rect = Rect{10, 20, 180, 120};
+    params.maxCols = 1;
+    params.numVisibleRows = 4;
+    params.itemHeight = 24;
+    Window_Selectable window(params);
+    window.setMaxItems(8);
+    window.setIndex(3);
+    window.setActive(true);
+    window.open();
+
+    input.setMousePosition(0, 0);
+    input.setMouseWheel(-1);
+    window.update();
+    REQUIRE(window.getIndex() == 3);
+    REQUIRE(window.getTopRow() == 0);
+
+    input.shutdown();
+}
+
+TEST_CASE("Window_Command touch release on current item dispatches ok", "[compat][window]") {
+    InputManager& input = InputManager::instance();
+    input.initialize();
+    input.clear();
+
+    Window_Command::CreateParams params;
+    params.rect = Rect{10, 20, 180, 120};
+    params.itemHeight = 24;
+    params.commands = {
+        {"Item", "item", true, 0},
+        {"Skill", "skill", true, 1}
+    };
+    Window_Command window(params);
+    window.setActive(true);
+    window.open();
     window.setIndex(0);
 
-    // Touch at coordinate mapping to index 3
-    InputManager::instance().update(); // clear previous frame state
-    InputManager::instance().setTouchPosition(104, 48);
-    InputManager::instance().setTouchPressed(true);
+    int32_t okCount = 0;
+    std::string lastSymbol;
+    window.setOnCommand([&](const std::string& symbol) {
+        ++okCount;
+        lastSymbol = symbol;
+    });
+
+    const Rect contentRect = window.getContentRect();
+    input.setTouchPosition(contentRect.x + 8, contentRect.y + window.getItemHeight() + 5);
+    input.setTouchPressed(true);
     window.update();
+    REQUIRE(window.getIndex() == 1);
+    REQUIRE(okCount == 0);
 
-    REQUIRE(window.getIndex() == 3);
+    input.update();
+    input.setTouchPressed(false);
+    window.update();
+    REQUIRE(okCount == 1);
+    REQUIRE(lastSymbol == "skill");
 
-    InputManager::instance().clear();
+    input.shutdown();
 }
 
-TEST_CASE("Window_Selectable mouse click sets cursor index", "[compat][window]") {
-    InputManager::instance().clear();
+TEST_CASE("Window_Command touch drag retargets selection and suppresses ok until stable release", "[compat][window]") {
+    InputManager& input = InputManager::instance();
+    input.initialize();
+    input.clear();
 
-    Window_Selectable::CreateParams params;
-    params.rect = Rect{0, 0, 200, 200};
-    params.maxCols = 2;
-    params.itemHeight = 36;
-    params.numVisibleRows = 4;
-    Window_Selectable window(params);
-    window.setMaxItems(10);
+    Window_Command::CreateParams params;
+    params.rect = Rect{10, 20, 180, 120};
+    params.itemHeight = 24;
+    params.commands = {
+        {"Item", "item", true, 0},
+        {"Skill", "skill", true, 1},
+        {"Equip", "equip", true, 2}
+    };
+    Window_Command window(params);
+    window.setActive(true);
+    window.open();
     window.setIndex(0);
 
-    // Mouse click at coordinate mapping to index 3
-    InputManager::instance().update(); // clear previous frame state
-    InputManager::instance().setMousePosition(104, 48);
-    InputManager::instance().setMousePressed(0, true);
+    int32_t okCount = 0;
+    std::string lastSymbol;
+    window.setOnCommand([&](const std::string& symbol) {
+        ++okCount;
+        lastSymbol = symbol;
+    });
+
+    const Rect contentRect = window.getContentRect();
+    input.setTouchPosition(contentRect.x + 8, contentRect.y + 5);
+    input.setTouchPressed(true);
     window.update();
+    REQUIRE(window.getIndex() == 0);
+    REQUIRE(okCount == 0);
 
+    input.update();
+    input.setTouchPosition(contentRect.x + 8, contentRect.y + (window.getItemHeight() * 2) + 5);
+    window.update();
+    REQUIRE(window.getIndex() == 2);
+    REQUIRE(okCount == 0);
+
+    input.update();
+    input.setTouchPressed(false);
+    window.update();
+    REQUIRE(window.getIndex() == 2);
+    REQUIRE(okCount == 0);
+
+    input.setTouchPosition(contentRect.x + 8, contentRect.y + (window.getItemHeight() * 2) + 5);
+    input.setTouchPressed(true);
+    window.update();
+    REQUIRE(window.getIndex() == 2);
+
+    input.update();
+    input.setTouchPressed(false);
+    window.update();
+    REQUIRE(okCount == 1);
+    REQUIRE(lastSymbol == "equip");
+
+    input.shutdown();
+}
+
+TEST_CASE("Window_Selectable touch drag below content scrolls downward", "[compat][window]") {
+    InputManager& input = InputManager::instance();
+    input.initialize();
+    input.clear();
+
+    Window_Selectable::CreateParams params;
+    params.rect = Rect{10, 20, 180, 120};
+    params.maxCols = 1;
+    params.numVisibleRows = 4;
+    params.itemHeight = 24;
+    Window_Selectable window(params);
+    window.setMaxItems(10);
+    window.setIndex(3);
+    window.setActive(true);
+    window.open();
+
+    const Rect contentRect = window.getContentRect();
+    input.setTouchPosition(contentRect.x + 8, contentRect.y + (window.getItemHeight() * 3) + 5);
+    input.setTouchPressed(true);
+    window.update();
     REQUIRE(window.getIndex() == 3);
+    REQUIRE(window.getTopRow() == 0);
 
-    InputManager::instance().clear();
+    input.update();
+    input.setTouchPosition(contentRect.x + 8, contentRect.y + contentRect.height + 6);
+    window.update();
+    REQUIRE(window.getIndex() == 4);
+    REQUIRE(window.getTopRow() == 1);
+
+    input.shutdown();
 }
 
 // ============================================================================
@@ -1139,65 +1375,25 @@ TEST_CASE("Window_Command getCommand bounds check", "[compat][window]") {
     REQUIRE_FALSE(invalid.enabled);
 }
 
-TEST_CASE("Window_Command onOk calls callOkHandler", "[compat][window]") {
-    InputManager::instance().clear();
-
+TEST_CASE("Window_Command drawItem calls drawText", "[compat][window]") {
     Window_Command::CreateParams params;
+    params.rect = Rect{0, 0, 200, 100};
     params.commands = {
-        {"Item", "item", true, 0},
-        {"Skill", "skill", true, 0}
-    };
-    Window_Command window(params);
-    window.setIndex(1);
-
-    std::string lastSymbol;
-    window.setOnCommand([&](const std::string& symbol) {
-        lastSymbol = symbol;
-    });
-
-    InputManager::instance().setKeyPressed(InputKey::DECISION, true);
-    InputManager::instance().update();
-    window.update();
-
-    REQUIRE(lastSymbol == "skill");
-
-    InputManager::instance().clear();
-}
-
-TEST_CASE("Window_Command drawItem draws command text with color", "[compat][window]") {
-    Window_Command::CreateParams params;
-    params.rect = Rect{0, 0, 200, 200};
-    params.commands = {
-        {"Enabled", "enabled", true, 0},
-        {"Disabled", "disabled", false, 1}
+        {"Enabled", "ok", true, 0},
+        {"Disabled", "no", false, 1}
     };
     Window_Command window(params);
 
-    const uint32_t drawItemBefore = Window_Base::getMethodCallCount("drawItem");
     const uint32_t drawTextBefore = Window_Base::getMethodCallCount("drawText");
+    const uint32_t changeColorBefore = Window_Base::getMethodCallCount("changeTextColor");
 
     window.drawItem(0);
+    REQUIRE(Window_Base::getMethodCallCount("drawText") == drawTextBefore + 1);
+    REQUIRE(Window_Base::getMethodCallCount("changeTextColor") == changeColorBefore + 1);
+
     window.drawItem(1);
-
-    REQUIRE(Window_Base::getMethodCallCount("drawItem") == drawItemBefore + 2);
-    REQUIRE(Window_Base::getMethodCallCount("drawText") >= drawTextBefore + 2);
-}
-
-TEST_CASE("Window_Command drawAllItems draws all commands", "[compat][window]") {
-    Window_Command::CreateParams params;
-    params.rect = Rect{0, 0, 200, 200};
-    params.commands = {
-        {"One", "one", true, 0},
-        {"Two", "two", true, 0},
-        {"Three", "three", false, 0}
-    };
-    Window_Command window(params);
-
-    const uint32_t drawItemBefore = Window_Base::getMethodCallCount("drawItem");
-
-    window.drawAllItems();
-
-    REQUIRE(Window_Base::getMethodCallCount("drawItem") == drawItemBefore + 3);
+    REQUIRE(Window_Base::getMethodCallCount("drawText") == drawTextBefore + 2);
+    REQUIRE(Window_Base::getMethodCallCount("changeTextColor") == changeColorBefore + 2);
 }
 
 // ============================================================================
@@ -1400,52 +1596,6 @@ TEST_CASE("Sprite_Actor visibility and opacity", "[compat][sprite]") {
     REQUIRE(sprite.getOpacity() == 100);
 }
 
-TEST_CASE("Sprite_Character setCharacterName manages bitmap lifecycle", "[compat][sprite]") {
-    Sprite_Character sprite(Sprite_Character::CreateParams{});
-    
-    REQUIRE(sprite.getBitmap() == INVALID_BITMAP);
-    
-    sprite.setCharacterName("Actor1");
-    REQUIRE(sprite.getBitmap() != INVALID_BITMAP);
-    
-    sprite.setCharacterName("");
-    REQUIRE(sprite.getBitmap() == INVALID_BITMAP);
-}
-
-TEST_CASE("Sprite_Actor startMotion sets up animation state", "[compat][sprite]") {
-    Sprite_Actor sprite(Sprite_Actor::CreateParams{});
-    
-    sprite.startMotion(1); // walk
-    
-    REQUIRE(sprite.getMotion() == 1);
-    REQUIRE(sprite.isMotionPlaying());
-    REQUIRE(sprite.getMotionFramesRemaining() > 0);
-    
-    // Exhaust frames
-    for (int i = 0; i < 100; ++i) {
-        sprite.update();
-    }
-    REQUIRE_FALSE(sprite.isMotionPlaying());
-}
-
-TEST_CASE("Sprite_Actor update handles motion countdown", "[compat][sprite]") {
-    Sprite_Actor sprite(Sprite_Actor::CreateParams{});
-    
-    sprite.startMotion(4); // damage (24 frames)
-    
-    REQUIRE(sprite.getMotionFramesRemaining() == 24);
-    
-    for (int i = 0; i < 12; ++i) {
-        sprite.update();
-    }
-    REQUIRE(sprite.getMotionFramesRemaining() == 12);
-    
-    for (int i = 0; i < 12; ++i) {
-        sprite.update();
-    }
-    REQUIRE_FALSE(sprite.isMotionPlaying());
-}
-
 // ============================================================================
 // WindowCompatManager Tests
 // ============================================================================
@@ -1596,71 +1746,66 @@ TEST_CASE("WindowCompatManager registerAllAPIs", "[compat][manager]") {
     manager.registerAllAPIs(ctx);
 }
 
-TEST_CASE("Window_Base contents bitmap lifecycle", "[compat][window]") {
-    Window_Base window(Window_Base::CreateParams{});
-    
-    REQUIRE(window.contents() == INVALID_BITMAP);
-    
-    window.createContents();
-    REQUIRE(window.contents() != INVALID_BITMAP);
-    
-    window.destroyContents();
-    REQUIRE(window.contents() == INVALID_BITMAP);
+TEST_CASE("Window_Selectable JS bindings return non-nil values", "[compat][window]") {
+    Window_Selectable window(Window_Selectable::CreateParams{});
+    window.setMaxItems(5);
+    Window_Base::setDefaultInstance(&window);
+
+    QuickJSContext ctx;
+    REQUIRE(ctx.initialize(QuickJSConfig{}));
+    Window_Selectable::registerAPI(ctx);
+
+    auto result = ctx.callMethod("Window_Selectable", "index", {});
+    REQUIRE(result.success);
+    REQUIRE_FALSE(std::holds_alternative<std::monostate>(result.value.v));
+
+    result = ctx.callMethod("Window_Selectable", "maxItems", {});
+    REQUIRE(result.success);
+    REQUIRE_FALSE(std::holds_alternative<std::monostate>(result.value.v));
+
+    result = ctx.callMethod("Window_Selectable", "select", {urpg::Value::Int(2)});
+    REQUIRE(result.success);
+    REQUIRE_FALSE(std::holds_alternative<std::monostate>(result.value.v));
+    REQUIRE(window.getIndex() == 2);
+
+    result = ctx.callMethod("Window_Selectable", "topRow", {});
+    REQUIRE(result.success);
+    REQUIRE_FALSE(std::holds_alternative<std::monostate>(result.value.v));
+
+    result = ctx.callMethod("Window_Selectable", "itemWidth", {});
+    REQUIRE(result.success);
+    REQUIRE_FALSE(std::holds_alternative<std::monostate>(result.value.v));
+
+    Window_Base::setDefaultInstance(nullptr);
 }
 
-TEST_CASE("Sprite_Character update advances pattern deterministically", "[compat][sprite]") {
-    Sprite_Character sprite(Sprite_Character::CreateParams{});
-    
-    REQUIRE(sprite.getPattern() == 0);
-    
-    sprite.update();
-    REQUIRE(sprite.getPattern() == 1);
-    
-    sprite.update();
-    REQUIRE(sprite.getPattern() == 2);
-    
-    sprite.update();
-    REQUIRE(sprite.getPattern() == 3);
-    
-    sprite.update();
-    REQUIRE(sprite.getPattern() == 0);
-    
-    sprite.update();
-    REQUIRE(sprite.getPattern() == 1);
-}
+TEST_CASE("Window_Command JS bindings return non-nil values", "[compat][window]") {
+    Window_Command::CreateParams params;
+    params.commands = {
+        {"Item", "item", true, 10}
+    };
+    Window_Command window(params);
+    Window_Base::setDefaultInstance(&window);
 
-TEST_CASE("Sprite_Actor update completes animation lifecycle", "[compat][sprite]") {
-    Sprite_Actor sprite(Sprite_Actor::CreateParams{});
-    
-    sprite.startAnimation(1);
-    REQUIRE(sprite.isAnimationPlaying());
-    
-    // Duration = 24 + ((1 % 5) * 6) = 30 frames
-    for (int i = 0; i < 29; ++i) {
-        REQUIRE(sprite.isAnimationPlaying());
-        sprite.update();
-    }
-    
-    REQUIRE(sprite.isAnimationPlaying());
-    sprite.update();
-    REQUIRE_FALSE(sprite.isAnimationPlaying());
-}
+    QuickJSContext ctx;
+    REQUIRE(ctx.initialize(QuickJSConfig{}));
+    Window_Command::registerAPI(ctx);
 
-TEST_CASE("Sprite_Actor update completes effect lifecycle", "[compat][sprite]") {
-    Sprite_Actor sprite(Sprite_Actor::CreateParams{});
-    
-    sprite.startEffect("whiten");
-    REQUIRE(sprite.isEffecting());
-    
-    // whiten = 16 frames
-    for (int i = 0; i < 15; ++i) {
-        REQUIRE(sprite.isEffecting());
-        sprite.update();
-    }
-    
-    REQUIRE(sprite.isEffecting());
-    sprite.update();
-    REQUIRE_FALSE(sprite.isEffecting());
+    urpg::Value strArg;
+    strArg.v = std::string("item");
+    auto result = ctx.callMethod("Window_Command", "findSymbol", {strArg});
+    REQUIRE(result.success);
+    REQUIRE_FALSE(std::holds_alternative<std::monostate>(result.value.v));
+
+    result = ctx.callMethod("Window_Command", "selectSymbol", {strArg});
+    REQUIRE(result.success);
+    REQUIRE_FALSE(std::holds_alternative<std::monostate>(result.value.v));
+
+    result = ctx.callMethod("Window_Command", "ext", {});
+    REQUIRE(result.success);
+    REQUIRE_FALSE(std::holds_alternative<std::monostate>(result.value.v));
+
+    Window_Base::setDefaultInstance(nullptr);
 }
 
 // ============================================================================

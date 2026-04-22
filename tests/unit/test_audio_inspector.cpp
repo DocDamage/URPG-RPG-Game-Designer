@@ -18,14 +18,25 @@ TEST_CASE("AudioInspectorModel: Projection", "[editor][audio][inspector]") {
         REQUIRE(summary.issueCount == 0);
     }
 
-    SECTION("Projecting active sounds (Simulated)") {
-        core.playSound("se_test", AudioCategory::SE);
+    SECTION("Projects live active sounds into rows") {
+        const auto handle = core.playSound("se_test", AudioCategory::SE);
+        core.setCategoryVolume(AudioCategory::System, 0.65f);
         model.refresh(core);
-        
-        // In this implementation, refresh doesn't yet pull private core state, 
-        // but it should return a valid summary handle.
+
         auto summary = model.getSummary();
-        REQUIRE(summary.masterVolume == 1.0f);
+        REQUIRE(summary.activeCount == 1);
+        REQUIRE(summary.issueCount == 0);
+        REQUIRE(summary.masterVolume == 0.65f);
+
+        const auto rows = model.getRows();
+        REQUIRE(rows.size() == 1);
+        REQUIRE(rows[0].handle == handle);
+        REQUIRE(rows[0].assetId == "se_test");
+        REQUIRE(rows[0].category == AudioCategory::SE);
+        REQUIRE(rows[0].volume == 1.0f);
+        REQUIRE(rows[0].pitch == 1.0f);
+        REQUIRE_FALSE(rows[0].isLooping);
+        REQUIRE(rows[0].isActive);
     }
 }
 
@@ -39,5 +50,66 @@ TEST_CASE("AudioInspectorPanel: Visibility", "[editor][audio][panel]") {
     SECTION("Can be toggled") {
         panel.setVisible(true);
         REQUIRE(panel.isVisible());
+    }
+
+    SECTION("Visible render records a snapshot") {
+        AudioCore core;
+        panel.onRefreshRequested(core);
+        panel.setVisible(true);
+
+        panel.render();
+
+        REQUIRE(panel.hasRenderedFrame());
+        REQUIRE(panel.lastRenderSnapshot().active_count == 0);
+        REQUIRE(panel.lastRenderSnapshot().issue_count == 0);
+        REQUIRE(panel.lastRenderSnapshot().master_volume == 1.0f);
+        REQUIRE_FALSE(panel.lastRenderSnapshot().has_data);
+        REQUIRE(panel.lastRenderSnapshot().live_rows.empty());
+    }
+
+    SECTION("Visible render includes live handle rows") {
+        AudioCore core;
+        const auto handle = core.playSound("se_ui_ping", AudioCategory::SE);
+        panel.onRefreshRequested(core);
+        panel.setVisible(true);
+
+        panel.render();
+
+        REQUIRE(panel.hasRenderedFrame());
+        REQUIRE(panel.lastRenderSnapshot().active_count == 1);
+        REQUIRE(panel.lastRenderSnapshot().has_data);
+        REQUIRE(panel.lastRenderSnapshot().live_rows.size() == 1);
+        REQUIRE(panel.lastRenderSnapshot().live_rows[0].handle == handle);
+        REQUIRE(panel.lastRenderSnapshot().live_rows[0].assetId == "se_ui_ping");
+        REQUIRE(panel.lastRenderSnapshot().live_rows[0].category == AudioCategory::SE);
+        REQUIRE(panel.lastRenderSnapshot().live_rows[0].isActive);
+    }
+
+    SECTION("Visible render carries selected live row workflow state") {
+        AudioCore core;
+        const auto first_handle = core.playSound("se_ui_ping", AudioCategory::SE);
+        const auto second_handle = core.playSound("bgm_field", AudioCategory::BGM);
+        panel.onRefreshRequested(core);
+        REQUIRE(panel.getModel()->selectNextRow());
+        panel.setVisible(true);
+
+        panel.render();
+
+        REQUIRE(panel.lastRenderSnapshot().selected_handle.has_value());
+        REQUIRE(*panel.lastRenderSnapshot().selected_handle == first_handle);
+        REQUIRE(panel.lastRenderSnapshot().selected_row.has_value());
+        REQUIRE(panel.lastRenderSnapshot().selected_row->assetId == "se_ui_ping");
+        REQUIRE(panel.lastRenderSnapshot().can_select_next_row);
+        REQUIRE_FALSE(panel.lastRenderSnapshot().can_select_previous_row);
+
+        REQUIRE(panel.getModel()->selectNextRow());
+        panel.render();
+
+        REQUIRE(panel.lastRenderSnapshot().selected_handle.has_value());
+        REQUIRE(*panel.lastRenderSnapshot().selected_handle == second_handle);
+        REQUIRE(panel.lastRenderSnapshot().selected_row.has_value());
+        REQUIRE(panel.lastRenderSnapshot().selected_row->assetId == "bgm_field");
+        REQUIRE_FALSE(panel.lastRenderSnapshot().can_select_next_row);
+        REQUIRE(panel.lastRenderSnapshot().can_select_previous_row);
     }
 }

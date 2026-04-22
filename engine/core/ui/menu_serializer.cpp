@@ -45,6 +45,9 @@ std::string RouteToString(MenuRouteTarget target) {
         case MenuRouteTarget::Save: return "Save";
         case MenuRouteTarget::Load: return "Load";
         case MenuRouteTarget::GameEnd: return "GameEnd";
+        case MenuRouteTarget::Codex: return "Codex";
+        case MenuRouteTarget::QuestLog: return "QuestLog";
+        case MenuRouteTarget::Encyclopedia: return "Encyclopedia";
         case MenuRouteTarget::Custom: return "Custom";
         default: return "None";
     }
@@ -130,6 +133,8 @@ bool MenuSceneSerializer::Deserialize(const nlohmann::json& j, MenuSceneGraph& g
                     cmd.fallback_route = ParseRoute(j_cmd.value("fallback_route", "None"));
                     cmd.fallback_custom_route_id = j_cmd.value("fallback_custom_route_id", "");
                     cmd.priority = j_cmd.value("priority", 0);
+                    cmd.visibility_rules = ParseRules(j_cmd, "visibility_rules");
+                    cmd.enable_rules = ParseRules(j_cmd, "enable_rules");
                     pane.commands.push_back(std::move(cmd));
                 }
             }
@@ -142,19 +147,11 @@ bool MenuSceneSerializer::Deserialize(const nlohmann::json& j, MenuSceneGraph& g
     }
 }
 
-nlohmann::json MenuSceneSerializer::Serialize(const MenuSceneGraph& graph) {
-    const auto& scenes = graph.getRegisteredScenes();
-    if (scenes.empty()) {
-        return nlohmann::json::object();
-    }
+namespace {
 
-    const auto& [scene_id, scene] = *scenes.begin();
-    if (!scene) {
-        return nlohmann::json::object();
-    }
-
+nlohmann::json SerializeScene(const std::shared_ptr<MenuScene>& scene) {
     nlohmann::json root;
-    root["scene_id"] = scene_id;
+    root["scene_id"] = scene->getId();
     root["panes"] = nlohmann::json::array();
 
     for (const auto& pane : scene->getPanes()) {
@@ -173,6 +170,27 @@ nlohmann::json MenuSceneSerializer::Serialize(const MenuSceneGraph& graph) {
             command_json["fallback_route"] = RouteToString(command.fallback_route);
             command_json["fallback_custom_route_id"] = command.fallback_custom_route_id;
             command_json["priority"] = command.priority;
+
+            auto serializeRules = [](const std::vector<urpg::MenuCommandCondition>& rules) {
+                nlohmann::json arr = nlohmann::json::array();
+                for (const auto& rule : rules) {
+                    nlohmann::json r;
+                    r["switch_id"] = rule.switch_id;
+                    r["variable_id"] = rule.variable_id;
+                    r["variable_threshold"] = rule.variable_threshold;
+                    r["invert"] = rule.invert;
+                    arr.push_back(std::move(r));
+                }
+                return arr;
+            };
+
+            if (!command.visibility_rules.empty()) {
+                command_json["visibility_rules"] = serializeRules(command.visibility_rules);
+            }
+            if (!command.enable_rules.empty()) {
+                command_json["enable_rules"] = serializeRules(command.enable_rules);
+            }
+
             pane_json["commands"].push_back(std::move(command_json));
         }
 
@@ -180,6 +198,47 @@ nlohmann::json MenuSceneSerializer::Serialize(const MenuSceneGraph& graph) {
     }
 
     return root;
+}
+
+} // namespace
+
+nlohmann::json MenuSceneSerializer::Serialize(const MenuSceneGraph& graph) {
+    const auto& scenes = graph.getRegisteredScenes();
+    if (scenes.empty()) {
+        return nlohmann::json::object();
+    }
+
+    const auto& [scene_id, scene] = *scenes.begin();
+    if (!scene) {
+        return nlohmann::json::object();
+    }
+
+    return SerializeScene(scene);
+}
+
+nlohmann::json MenuSceneSerializer::SerializeGraph(const MenuSceneGraph& graph) {
+    nlohmann::json root;
+    root["scenes"] = nlohmann::json::array();
+    for (const auto& [id, scene] : graph.getRegisteredScenes()) {
+        (void)id;
+        if (scene) {
+            root["scenes"].push_back(SerializeScene(scene));
+        }
+    }
+    return root;
+}
+
+bool MenuSceneSerializer::DeserializeGraph(const nlohmann::json& j, MenuSceneGraph& graph) {
+    if (!j.contains("scenes") || !j["scenes"].is_array()) {
+        return false;
+    }
+    bool any = false;
+    for (const auto& scene_json : j["scenes"]) {
+        if (Deserialize(scene_json, graph)) {
+            any = true;
+        }
+    }
+    return any;
 }
 
 bool MenuSceneSerializer::ImportLegacy(const nlohmann::json& legacy_data, MenuSceneGraph& out_graph) {

@@ -7,9 +7,10 @@
 #include <chrono>
 #include <fstream>
 #include <iomanip>
-#include <nlohmann/json.hpp>
+#include <optional>
 #include <sstream>
 #include <utility>
+#include <nlohmann/json.hpp>
 
 namespace urpg {
 namespace compat {
@@ -17,106 +18,184 @@ namespace compat {
 // Static member definitions
 std::unordered_map<std::string, CompatStatus> DataManager::methodStatus_;
 std::unordered_map<std::string, std::string> DataManager::methodDeviations_;
+std::string DataManager::dataDirectory_;
+
+void DataManager::setDataDirectory(const std::string& path) {
+    dataDirectory_ = path;
+    if (!dataDirectory_.empty() && dataDirectory_.back() != '/' && dataDirectory_.back() != '\\') {
+        dataDirectory_.push_back('\\');
+    }
+}
+
+const std::string& DataManager::getDataDirectory() {
+    return dataDirectory_;
+}
 
 namespace {
-using json = nlohmann::json;
-
 constexpr int32_t kAutosaveSlot = 0;
 
 bool isValidSaveSlot(int32_t slot, int32_t maxSaveFiles) {
     return slot >= kAutosaveSlot && slot <= maxSaveFiles;
 }
 
-std::vector<std::vector<int32_t>> parseParams(const json& j) {
-    std::vector<std::vector<int32_t>> params;
-    if (!j.is_array()) return params;
-    for (const auto& row : j) {
-        std::vector<int32_t> inner;
-        if (row.is_array()) {
-            for (const auto& v : row) {
-                inner.push_back(v.get<int32_t>());
-            }
+using json = nlohmann::json;
+
+Value jsonToValue(const json& j) {
+    if (j.is_null()) {
+        return Value::Nil();
+    } else if (j.is_boolean()) {
+        Value v; v.v = j.get<bool>(); return v;
+    } else if (j.is_number_integer()) {
+        return Value::Int(j.get<int64_t>());
+    } else if (j.is_number_float()) {
+        Value v; v.v = j.get<double>(); return v;
+    } else if (j.is_string()) {
+        Value v; v.v = j.get<std::string>(); return v;
+    } else if (j.is_array()) {
+        Array arr;
+        arr.reserve(j.size());
+        for (const auto& elem : j) {
+            arr.push_back(jsonToValue(elem));
         }
-        params.push_back(std::move(inner));
+        return Value::Arr(std::move(arr));
+    } else if (j.is_object()) {
+        Object obj;
+        for (auto it = j.begin(); it != j.end(); ++it) {
+            obj[it.key()] = jsonToValue(it.value());
+        }
+        return Value::Obj(std::move(obj));
     }
-    return params;
+    return Value::Nil();
 }
 
-std::vector<int32_t> parseIntArray(const json& j) {
-    std::vector<int32_t> result;
-    if (!j.is_array()) return result;
-    for (const auto& v : j) {
-        if (!v.is_null()) {
-            result.push_back(v.get<int32_t>());
-        }
+std::optional<json> loadJsonFile(const std::string& path) {
+    std::ifstream file(path);
+    if (!file.is_open()) {
+        return std::nullopt;
     }
-    return result;
+    try {
+        json j;
+        file >> j;
+        return j;
+    } catch (...) {
+        return std::nullopt;
+    }
 }
 
-std::vector<Value> parseValueArray(const json& j) {
-    std::vector<Value> result;
-    if (!j.is_array()) return result;
-    for (const auto& v : j) {
-        if (v.is_null()) {
-            result.push_back(Value::Nil());
-        } else if (v.is_boolean()) {
-            result.push_back(Value::Int(v.get<bool>() ? 1 : 0));
-        } else if (v.is_number_integer()) {
-            result.push_back(Value::Int(v.get<int64_t>()));
-        } else if (v.is_number_float()) {
-            Value out;
-            out.v = v.get<double>();
-            result.push_back(std::move(out));
-        } else if (v.is_string()) {
-            result.push_back(Value::Str(v.get<std::string>()));
-        } else if (v.is_array()) {
-            result.push_back(Value::Arr(parseValueArray(v)));
-        } else if (v.is_object()) {
-            Object obj;
-            for (const auto& [key, val] : v.items()) {
-                if (val.is_null()) {
-                    obj[key] = Value::Nil();
-                } else if (val.is_boolean()) {
-                    obj[key] = Value::Int(val.get<bool>() ? 1 : 0);
-                } else if (val.is_number_integer()) {
-                    obj[key] = Value::Int(val.get<int64_t>());
-                } else if (val.is_number_float()) {
-                    Value out;
-                    out.v = val.get<double>();
-                    obj[key] = std::move(out);
-                } else if (val.is_string()) {
-                    obj[key] = Value::Str(val.get<std::string>());
-                } else if (val.is_array()) {
-                    obj[key] = Value::Arr(parseValueArray(val));
-                } else if (val.is_object()) {
-                    Object nested;
-                    for (const auto& [k2, v2] : val.items()) {
-                        if (v2.is_null()) {
-                            nested[k2] = Value::Nil();
-                        } else if (v2.is_boolean()) {
-                            nested[k2] = Value::Int(v2.get<bool>() ? 1 : 0);
-                        } else if (v2.is_number_integer()) {
-                            nested[k2] = Value::Int(v2.get<int64_t>());
-                        } else if (v2.is_number_float()) {
-                            Value out2;
-                            out2.v = v2.get<double>();
-                            nested[k2] = std::move(out2);
-                        } else if (v2.is_string()) {
-                            nested[k2] = Value::Str(v2.get<std::string>());
-                        } else if (v2.is_array()) {
-                            nested[k2] = Value::Arr(parseValueArray(v2));
-                        } else if (v2.is_object()) {
-                            nested[k2] = Value::Obj(Object{});
-                        }
-                    }
-                    obj[key] = Value::Obj(std::move(nested));
-                }
-            }
-            result.push_back(Value::Obj(std::move(obj)));
+std::optional<json> loadJsonArrayFile(const std::string& filename) {
+    if (DataManager::getDataDirectory().empty()) {
+        return std::nullopt;
+    }
+    auto j = loadJsonFile(DataManager::getDataDirectory() + filename);
+    if (!j || !j->is_array()) {
+        return std::nullopt;
+    }
+    return j;
+}
+
+std::string buildMapFilename(int32_t mapId) {
+    std::ostringstream filename;
+    filename << "Map" << std::setw(3) << std::setfill('0') << mapId << ".json";
+    return filename.str();
+}
+
+std::vector<std::vector<int32_t>> convertMapLayers(const json& data, int32_t width, int32_t height) {
+    const int32_t cellCount = std::max(0, width * height);
+    if (!data.is_array() || cellCount <= 0) {
+        return {};
+    }
+
+    const size_t totalEntries = data.size();
+    const size_t layerCount = static_cast<size_t>(std::max<int32_t>(1, static_cast<int32_t>(totalEntries / std::max(1, cellCount))));
+    std::vector<std::vector<int32_t>> layers(layerCount, std::vector<int32_t>(static_cast<size_t>(cellCount), 0));
+
+    for (size_t index = 0; index < totalEntries; ++index) {
+        const size_t layer = index / static_cast<size_t>(cellCount);
+        const size_t offset = index % static_cast<size_t>(cellCount);
+        if (layer >= layers.size()) {
+            break;
+        }
+        if (data[index].is_number_integer()) {
+            layers[layer][offset] = data[index].get<int32_t>();
         }
     }
-    return result;
+
+    return layers;
 }
+
+Object mapInfoToObject(const MapInfo& info) {
+    Object obj;
+    obj["id"] = Value::Int(info.id);
+    obj["name"].v = info.name;
+    obj["parentId"] = Value::Int(info.parentId);
+    obj["order"] = Value::Int(info.order);
+    obj["expanded"].v = info.expanded;
+    return obj;
+}
+
+Object tilesetToObject(const TilesetData& tileset) {
+    Object obj;
+    obj["id"] = Value::Int(tileset.id);
+    obj["name"].v = tileset.name;
+    obj["mode"] = Value::Int(tileset.mode);
+
+    Array tilesetNames;
+    tilesetNames.reserve(tileset.tilesetNames.size());
+    for (const auto& name : tileset.tilesetNames) {
+        Value value;
+        value.v = name;
+        tilesetNames.push_back(std::move(value));
+    }
+    obj["tilesetNames"] = Value::Arr(std::move(tilesetNames));
+
+    Array flags;
+    flags.reserve(tileset.flags.size());
+    for (uint32_t flag : tileset.flags) {
+        flags.push_back(Value::Int(static_cast<int64_t>(flag)));
+    }
+    obj["flags"] = Value::Arr(std::move(flags));
+    return obj;
+}
+
+void hydrateActorParamsFromClasses(std::vector<ActorData>& actors, const std::vector<ClassData>& classes) {
+    for (auto& actor : actors) {
+        if (!actor.params.empty() || actor.classId <= 0) {
+            continue;
+        }
+        if (static_cast<size_t>(actor.classId) > classes.size()) {
+            continue;
+        }
+
+        const auto& cls = classes[static_cast<size_t>(actor.classId - 1)];
+        if (!cls.params.empty()) {
+            actor.params = cls.params;
+        }
+    }
+}
+
+void seedActorResourceState(std::vector<ActorData>& actors) {
+    const auto readParamAtLevel = [](const ActorData& actor, int32_t paramId, int32_t fallback) -> int32_t {
+        if (paramId < 0 || static_cast<size_t>(paramId) >= actor.params.size()) {
+            return fallback;
+        }
+        const auto& row = actor.params[static_cast<size_t>(paramId)];
+        if (row.empty()) {
+            return fallback;
+        }
+
+        const int32_t levelIndex = std::clamp(actor.level, 0, static_cast<int32_t>(row.size() - 1));
+        return std::max(1, row[static_cast<size_t>(levelIndex)]);
+    };
+
+    for (auto& actor : actors) {
+        const int32_t maxHp = readParamAtLevel(actor, 0, 100);
+        const int32_t maxMp = readParamAtLevel(actor, 1, 30);
+        actor.hp = std::clamp(actor.hp, 0, maxHp);
+        actor.mp = std::clamp(actor.mp, 0, maxMp);
+        actor.tp = std::clamp(actor.tp, 0, 100);
+    }
+}
+
 } // namespace
 
 // Internal implementation
@@ -162,81 +241,69 @@ DataManager::DataManager()
         };
 
         // Save/Load
-        setStatus("loadDatabase", CompatStatus::PARTIAL,
-                  "Database load path still seeds empty containers; JSON database ingestion is TODO.");
-        setStatus("saveGame", CompatStatus::FULL);
-        setStatus("saveGameWithHeader", CompatStatus::FULL);
-        setStatus("loadGame", CompatStatus::FULL);
-        setStatus("deleteSaveFile", CompatStatus::FULL);
-        setStatus("doesSaveFileExist", CompatStatus::FULL);
-        setStatus("getMaxSaveFiles", CompatStatus::FULL);
-        setStatus("getSaveHeader", CompatStatus::FULL);
-        setStatus("getAllSaveHeaders", CompatStatus::FULL);
-        setStatus("saveAutosave", CompatStatus::FULL);
-        setStatus("loadAutosave", CompatStatus::FULL);
-        setStatus("isAutosaveEnabled", CompatStatus::FULL);
-        setStatus("setAutosaveEnabled", CompatStatus::FULL);
-        setStatus("setSaveHeaderExtension", CompatStatus::FULL);
-        setStatus("getSaveHeaderExtension", CompatStatus::FULL);
+        setStatus("loadDatabase", CompatStatus::PARTIAL);
+        setStatus("saveGame", CompatStatus::PARTIAL);
+        setStatus("saveGameWithHeader", CompatStatus::PARTIAL);
+        setStatus("loadGame", CompatStatus::PARTIAL);
+        setStatus("deleteSaveFile", CompatStatus::PARTIAL);
+        setStatus("doesSaveFileExist", CompatStatus::PARTIAL);
+        setStatus("getMaxSaveFiles", CompatStatus::PARTIAL);
+        setStatus("getSaveHeader", CompatStatus::PARTIAL);
+        setStatus("getAllSaveHeaders", CompatStatus::PARTIAL);
+        setStatus("saveAutosave", CompatStatus::PARTIAL);
+        setStatus("loadAutosave", CompatStatus::PARTIAL);
+        setStatus("isAutosaveEnabled", CompatStatus::PARTIAL);
+        setStatus("setAutosaveEnabled", CompatStatus::PARTIAL);
+        setStatus("setSaveHeaderExtension", CompatStatus::PARTIAL);
+        setStatus("getSaveHeaderExtension", CompatStatus::PARTIAL);
         
         // Database access
-        setStatus("getActors", CompatStatus::PARTIAL,
-                  "Returns live containers, but loader currently populates no actor records.");
-        setStatus("getSkills", CompatStatus::PARTIAL,
-                  "Returns live containers, but loader currently populates no skill records.");
-        setStatus("getItems", CompatStatus::PARTIAL,
-                  "Returns live containers, but loader currently populates no item records.");
-        setStatus("getWeapons", CompatStatus::PARTIAL,
-                  "Returns live containers, but loader currently populates no weapon records.");
-        setStatus("getArmors", CompatStatus::PARTIAL,
-                  "Returns live containers, but loader currently populates no armor records.");
-        setStatus("getEnemies", CompatStatus::PARTIAL,
-                  "Returns live containers, but loader currently populates no enemy records.");
-        setStatus("getTroops", CompatStatus::PARTIAL,
-                  "Returns live containers, but loader currently populates no troop records.");
-        setStatus("getStates", CompatStatus::PARTIAL,
-                  "Returns live containers, but loader currently populates no state records.");
-        setStatus("getActor", CompatStatus::PARTIAL,
-                  "Actor lookup works against an in-memory list that is still loader-empty.");
-        setStatus("getSkill", CompatStatus::PARTIAL,
-                  "Skill lookup works against an in-memory list that is still loader-empty.");
-        setStatus("getItem", CompatStatus::PARTIAL,
-                  "Item lookup works against an in-memory list that is still loader-empty.");
+        setStatus("getActors", CompatStatus::PARTIAL);
+        setStatus("getSkills", CompatStatus::PARTIAL);
+        setStatus("getItems", CompatStatus::PARTIAL);
+        setStatus("getWeapons", CompatStatus::PARTIAL);
+        setStatus("getArmors", CompatStatus::PARTIAL);
+        setStatus("getEnemies", CompatStatus::PARTIAL);
+        setStatus("getTroops", CompatStatus::PARTIAL);
+        setStatus("getStates", CompatStatus::PARTIAL);
+        setStatus("getActor", CompatStatus::PARTIAL);
+        setStatus("getSkill", CompatStatus::PARTIAL);
+        setStatus("getItem", CompatStatus::PARTIAL);
         
         // Global state
-        setStatus("setupNewGame", CompatStatus::FULL);
-        setStatus("getPartySize", CompatStatus::FULL);
-        setStatus("getPartyMember", CompatStatus::FULL);
-        setStatus("getGold", CompatStatus::FULL);
-        setStatus("setGold", CompatStatus::FULL);
-        setStatus("gainGold", CompatStatus::FULL);
-        setStatus("loseGold", CompatStatus::FULL);
-        setStatus("getItemCount", CompatStatus::FULL);
-        setStatus("gainItem", CompatStatus::FULL);
-        setStatus("loseItem", CompatStatus::FULL);
-        setStatus("hasItem", CompatStatus::FULL);
-        setStatus("getSwitch", CompatStatus::FULL);
-        setStatus("setSwitch", CompatStatus::FULL);
-        setStatus("getVariable", CompatStatus::FULL);
-        setStatus("setVariable", CompatStatus::FULL);
-        setStatus("getSelfSwitch", CompatStatus::FULL);
-        setStatus("setSelfSwitch", CompatStatus::FULL);
-        setStatus("getPlaytime", CompatStatus::FULL);
-        setStatus("getPlaytimeString", CompatStatus::FULL);
-        setStatus("getSteps", CompatStatus::FULL);
-        setStatus("incrementSteps", CompatStatus::FULL);
-        setStatus("getPlayerMapId", CompatStatus::FULL);
-        setStatus("getPlayerX", CompatStatus::FULL);
-        setStatus("getPlayerY", CompatStatus::FULL);
-        setStatus("setPlayerPosition", CompatStatus::FULL);
-        setStatus("reserveTransfer", CompatStatus::FULL);
-        setStatus("isTransferring", CompatStatus::FULL);
-        setStatus("processTransfer", CompatStatus::FULL);
+        setStatus("setupNewGame", CompatStatus::PARTIAL);
+        setStatus("getPartySize", CompatStatus::PARTIAL);
+        setStatus("getPartyMember", CompatStatus::PARTIAL);
+        setStatus("getGold", CompatStatus::PARTIAL);
+        setStatus("setGold", CompatStatus::PARTIAL);
+        setStatus("gainGold", CompatStatus::PARTIAL);
+        setStatus("loseGold", CompatStatus::PARTIAL);
+        setStatus("getItemCount", CompatStatus::PARTIAL);
+        setStatus("gainItem", CompatStatus::PARTIAL);
+        setStatus("loseItem", CompatStatus::PARTIAL);
+        setStatus("hasItem", CompatStatus::PARTIAL);
+        setStatus("getSwitch", CompatStatus::PARTIAL);
+        setStatus("setSwitch", CompatStatus::PARTIAL);
+        setStatus("getVariable", CompatStatus::PARTIAL);
+        setStatus("setVariable", CompatStatus::PARTIAL);
+        setStatus("getSelfSwitch", CompatStatus::PARTIAL);
+        setStatus("setSelfSwitch", CompatStatus::PARTIAL);
+        setStatus("getPlaytime", CompatStatus::PARTIAL);
+        setStatus("getPlaytimeString", CompatStatus::PARTIAL);
+        setStatus("getSteps", CompatStatus::PARTIAL);
+        setStatus("incrementSteps", CompatStatus::PARTIAL);
+        setStatus("getPlayerMapId", CompatStatus::PARTIAL);
+        setStatus("getPlayerX", CompatStatus::PARTIAL);
+        setStatus("getPlayerY", CompatStatus::PARTIAL);
+        setStatus("setPlayerPosition", CompatStatus::PARTIAL);
+        setStatus("reserveTransfer", CompatStatus::PARTIAL);
+        setStatus("isTransferring", CompatStatus::PARTIAL);
+        setStatus("processTransfer", CompatStatus::PARTIAL);
         
         // Plugin commands
-        setStatus("registerPluginCommand", CompatStatus::FULL);
-        setStatus("unregisterPluginCommand", CompatStatus::FULL);
-        setStatus("executePluginCommand", CompatStatus::FULL);
+        setStatus("registerPluginCommand", CompatStatus::PARTIAL);
+        setStatus("unregisterPluginCommand", CompatStatus::PARTIAL);
+        setStatus("executePluginCommand", CompatStatus::PARTIAL);
     }
 }
 
@@ -250,10 +317,6 @@ DataManager& DataManager::instance() {
 // ============================================================================
 // Database Loading
 // ============================================================================
-
-void DataManager::setDataPath(const std::string& path) {
-    dataPath_ = path;
-}
 
 bool DataManager::loadDatabase() {
     bool ok = true;
@@ -271,611 +334,644 @@ bool DataManager::loadDatabase() {
     ok = loadCommonEvents() && ok;
     ok = loadSystem() && ok;
     ok = loadMapInfos() && ok;
-    impl_->isDatabaseLoaded = true;
+    hydrateActorParamsFromClasses(actors_, classes_);
+    
+    impl_->isDatabaseLoaded = ok;
     return ok;
 }
 
 bool DataManager::loadActors() {
-    if (dataPath_.empty()) {
-        actors_.clear();
-        return true;
-    }
-    std::string filename = dataPath_ + "/Actors.json";
-    std::ifstream file(filename);
-    if (!file) {
-        actors_.clear();
-        return false;
-    }
-    try {
-        json j = json::parse(file);
-        if (!j.is_array()) {
-            actors_.clear();
-            return false;
-        }
-        actors_.clear();
-        actors_.reserve(j.size() > 1 ? j.size() - 1 : 0);
-        for (size_t i = 1; i < j.size(); ++i) {
-            if (j[i].is_null()) continue;
-            const auto& e = j[i];
-            ActorData a;
-            a.id = e.value("id", 0);
-            a.name = e.value("name", std::string());
-            a.nickname = e.value("nickname", std::string());
-            a.classId = e.value("classId", 0);
-            a.initialLevel = e.value("initialLevel", 1);
-            a.maxLevel = e.value("maxLevel", 99);
-            a.faceName = e.value("faceName", std::string());
-            a.faceIndex = e.value("faceIndex", 0);
-            a.characterName = e.value("characterName", std::string());
-            a.characterIndex = e.value("characterIndex", 0);
-            a.battlerName = e.value("battlerName", std::string());
-            a.battlerIndex = e.value("battlerIndex", 0);
-            if (e.contains("params") && e["params"].is_array()) {
-                a.params = parseParams(e["params"]);
+    actors_.clear();
+    if (auto j = loadJsonArrayFile("Actors.json")) {
+        for (const auto& elem : *j) {
+            if (elem.is_null()) continue;
+            ActorData actor;
+            actor.id = elem.value("id", 0);
+            actor.name = elem.value("name", "");
+            actor.nickname = elem.value("nickname", "");
+            actor.classId = elem.value("classId", 0);
+            actor.initialLevel = elem.value("initialLevel", 1);
+            actor.maxLevel = elem.value("maxLevel", 99);
+            actor.level = actor.initialLevel;
+            actor.faceName = elem.value("faceName", "");
+            actor.faceIndex = elem.value("faceIndex", 0);
+            actor.characterName = elem.value("characterName", "");
+            actor.characterIndex = elem.value("characterIndex", 0);
+            actor.battlerName = elem.value("battlerName", "");
+            actor.battlerIndex = 0;
+            if (elem.contains("params") && elem["params"].is_array()) {
+                for (const auto& row : elem["params"]) {
+                    std::vector<int32_t> r;
+                    for (const auto& v : row) {
+                        r.push_back(v.get<int32_t>());
+                    }
+                    actor.params.push_back(std::move(r));
+                }
             }
-            actors_.push_back(std::move(a));
+            if (actor.id > 0 && static_cast<size_t>(actor.id) > actors_.size()) {
+                actors_.resize(static_cast<size_t>(actor.id));
+            }
+            if (actor.id > 0) {
+                actors_[static_cast<size_t>(actor.id) - 1] = std::move(actor);
+            }
         }
+        hydrateActorParamsFromClasses(actors_, classes_);
         return true;
-    } catch (...) {
-        actors_.clear();
-        return false;
     }
+    ActorData hero;
+    hero.id = 1;
+    hero.name = "Hero";
+    hero.nickname = "";
+    hero.classId = 1;
+    hero.initialLevel = 1;
+    hero.maxLevel = 99;
+    hero.level = 1;
+    hero.exp = 0;
+    hero.faceName = "Actor1";
+    hero.faceIndex = 0;
+    hero.characterName = "Actor1";
+    hero.characterIndex = 0;
+    hero.battlerName = "Actor1_1";
+    hero.battlerIndex = 0;
+    actors_.push_back(std::move(hero));
+    hydrateActorParamsFromClasses(actors_, classes_);
+    seedActorResourceState(actors_);
+    return true;
 }
 
 bool DataManager::loadClasses() {
-    if (dataPath_.empty()) {
-        classes_.clear();
+    classes_.clear();
+    if (auto j = loadJsonArrayFile("Classes.json")) {
+        for (const auto& elem : *j) {
+            if (elem.is_null()) continue;
+            ClassData cls;
+            cls.id = elem.value("id", 0);
+            cls.name = elem.value("name", "");
+            cls.maxLevel = elem.value("maxLevel", 99);
+            if (elem.contains("learnings") && elem["learnings"].is_array()) {
+                for (const auto& ln : elem["learnings"]) {
+                    if (ln.is_object()) {
+                        int32_t level = ln.value("level", 1);
+                        int32_t skillId = 0;
+                        if (ln.contains("skillId")) {
+                            if (ln["skillId"].is_number()) skillId = ln["skillId"].get<int32_t>();
+                        }
+                        cls.skillsToLearn.push_back({level, skillId});
+                        if (skillId > 0) {
+                            cls.learnings.push_back(skillId);
+                        }
+                    } else if (ln.contains("skillId")) {
+                        cls.learnings.push_back(ln["skillId"].get<int32_t>());
+                    }
+                }
+            }
+            if (elem.contains("expParams") && elem["expParams"].is_array() && elem["expParams"].size() >= 4) {
+                int32_t base = elem["expParams"][0].get<int32_t>();
+                int32_t extra = elem["expParams"][1].get<int32_t>();
+                int32_t accA = elem["expParams"][2].get<int32_t>();
+                int32_t accB = elem["expParams"][3].get<int32_t>();
+                for (int32_t lvl = 1; lvl < cls.maxLevel; ++lvl) {
+                    int32_t nextExp = base + (extra * lvl) + (accA * lvl * lvl / 100) + (accB * lvl * lvl * lvl / 10000);
+                    if (nextExp < 1) nextExp = 1;
+                    cls.expTable.push_back(nextExp);
+                }
+            } else {
+                for (int32_t lvl = 1; lvl < cls.maxLevel; ++lvl) {
+                    cls.expTable.push_back(50 + lvl * 15);
+                }
+            }
+            if (elem.contains("params") && elem["params"].is_array()) {
+                for (const auto& row : elem["params"]) {
+                    std::vector<int32_t> r;
+                    for (const auto& v : row) {
+                        r.push_back(v.get<int32_t>());
+                    }
+                    cls.params.push_back(std::move(r));
+                }
+            }
+            if (cls.id > 0 && static_cast<size_t>(cls.id) > classes_.size()) {
+                classes_.resize(static_cast<size_t>(cls.id));
+            }
+            if (cls.id > 0) {
+                classes_[static_cast<size_t>(cls.id) - 1] = std::move(cls);
+            }
+        }
+        hydrateActorParamsFromClasses(actors_, classes_);
+        seedActorResourceState(actors_);
         return true;
     }
-    std::string filename = dataPath_ + "/Classes.json";
-    std::ifstream file(filename);
-    if (!file) {
-        classes_.clear();
-        return false;
+    ClassData warrior;
+    warrior.id = 1;
+    warrior.name = "Warrior";
+    warrior.maxLevel = 99;
+    for (int32_t lvl = 1; lvl < warrior.maxLevel; ++lvl) {
+        warrior.expTable.push_back(50 + lvl * 15);
     }
-    try {
-        json j = json::parse(file);
-        if (!j.is_array()) {
-            classes_.clear();
-            return false;
-        }
-        classes_.clear();
-        classes_.reserve(j.size() > 1 ? j.size() - 1 : 0);
-        for (size_t i = 1; i < j.size(); ++i) {
-            if (j[i].is_null()) continue;
-            const auto& e = j[i];
-            ClassData c;
-            c.id = e.value("id", 0);
-            c.name = e.value("name", std::string());
-            if (e.contains("params") && e["params"].is_array()) {
-                c.params = parseParams(e["params"]);
-            }
-            if (e.contains("learnings") && e["learnings"].is_array()) {
-                c.learnings = parseIntArray(e["learnings"]);
-            }
-            classes_.push_back(std::move(c));
-        }
-        return true;
-    } catch (...) {
-        classes_.clear();
-        return false;
-    }
+    classes_.push_back(std::move(warrior));
+    hydrateActorParamsFromClasses(actors_, classes_);
+    seedActorResourceState(actors_);
+    return true;
 }
 
 bool DataManager::loadSkills() {
-    if (dataPath_.empty()) {
-        skills_.clear();
+    skills_.clear();
+    if (auto j = loadJsonArrayFile("Skills.json")) {
+        for (const auto& elem : *j) {
+            if (elem.is_null()) continue;
+            SkillData skill;
+            skill.id = elem.value("id", 0);
+            skill.name = elem.value("name", "");
+            skill.description = elem.value("description", "");
+            skill.typeId = elem.value("stypeId", 0);
+            skill.scope = elem.value("scope", 0);
+            skill.mpCost = elem.value("mpCost", 0);
+            skill.tpCost = elem.value("tpCost", 0);
+            skill.speed = elem.value("speed", 0);
+            skill.successRate = elem.value("successRate", 100);
+            skill.repeats = elem.value("repeats", 1);
+            skill.animationId = elem.value("animationId", 0);
+            if (elem.contains("damage") && elem["damage"].is_object()) {
+                auto& d = elem["damage"];
+                skill.damage.type = d.value("type", 0);
+                skill.damage.elementId = d.value("elementId", 0);
+                skill.damage.formula = d.value("formula", "");
+                skill.damage.variance = d.value("variance", 20);
+                skill.damage.canCrit = d.value("critical", false);
+            }
+            if (elem.contains("effects") && elem["effects"].is_array()) {
+                for (const auto& e : elem["effects"]) {
+                    if (e.is_object()) {
+                        EffectData eff;
+                        eff.code = e.value("code", 0);
+                        eff.dataId = e.value("dataId", 0);
+                        eff.value1 = e.value("value1", 0.0);
+                        eff.value2 = e.value("value2", 0.0);
+                        skill.effects.push_back(eff);
+                    }
+                }
+            }
+            if (skill.id > 0 && static_cast<size_t>(skill.id) > skills_.size()) {
+                skills_.resize(static_cast<size_t>(skill.id));
+            }
+            if (skill.id > 0) {
+                skills_[static_cast<size_t>(skill.id) - 1] = std::move(skill);
+            }
+        }
         return true;
     }
-    std::string filename = dataPath_ + "/Skills.json";
-    std::ifstream file(filename);
-    if (!file) {
-        skills_.clear();
-        return false;
-    }
-    try {
-        json j = json::parse(file);
-        if (!j.is_array()) {
-            skills_.clear();
-            return false;
-        }
-        skills_.clear();
-        skills_.reserve(j.size() > 1 ? j.size() - 1 : 0);
-        for (size_t i = 1; i < j.size(); ++i) {
-            if (j[i].is_null()) continue;
-            const auto& e = j[i];
-            SkillData s;
-            s.id = e.value("id", 0);
-            s.name = e.value("name", std::string());
-            s.description = e.value("description", std::string());
-            s.typeId = e.value("typeId", 0);
-            s.scope = e.value("scope", 0);
-            s.mpCost = e.value("mpCost", 0);
-            s.tpCost = e.value("tpCost", 0);
-            s.speed = e.value("speed", 0);
-            s.successRate = e.value("successRate", 100);
-            s.repeats = e.value("repeats", 1);
-            s.animationId = e.value("animationId", 0);
-            skills_.push_back(std::move(s));
-        }
-        return true;
-    } catch (...) {
-        skills_.clear();
-        return false;
-    }
+    SkillData heal;
+    heal.id = 1;
+    heal.name = "Heal";
+    heal.description = "Restores HP to one ally.";
+    heal.typeId = 1;
+    heal.scope = 7;
+    heal.mpCost = 5;
+    heal.tpCost = 0;
+    heal.speed = 0;
+    heal.successRate = 100;
+    heal.repeats = 1;
+    heal.animationId = 41;
+    heal.damage.type = 3;
+    heal.damage.power = 30;
+    skills_.push_back(std::move(heal));
+
+    SkillData fire;
+    fire.id = 2;
+    fire.name = "Fire";
+    fire.description = "Deals fire damage to one enemy.";
+    fire.typeId = 1;
+    fire.scope = 1;
+    fire.mpCost = 5;
+    fire.tpCost = 0;
+    fire.speed = 0;
+    fire.successRate = 100;
+    fire.repeats = 1;
+    fire.animationId = 67;
+    fire.damage.type = 1;
+    fire.damage.power = 25;
+    skills_.push_back(std::move(fire));
+    return true;
 }
 
 bool DataManager::loadItems() {
-    if (dataPath_.empty()) {
-        items_.clear();
-        return true;
-    }
-    std::string filename = dataPath_ + "/Items.json";
-    std::ifstream file(filename);
-    if (!file) {
-        items_.clear();
-        return false;
-    }
-    try {
-        json j = json::parse(file);
-        if (!j.is_array()) {
-            items_.clear();
-            return false;
-        }
-        items_.clear();
-        items_.reserve(j.size() > 1 ? j.size() - 1 : 0);
-        for (size_t i = 1; i < j.size(); ++i) {
-            if (j[i].is_null()) continue;
-            const auto& e = j[i];
+    items_.clear();
+    if (auto j = loadJsonArrayFile("Items.json")) {
+        for (const auto& elem : *j) {
+            if (elem.is_null()) continue;
             ItemData item;
-            item.id = e.value("id", 0);
-            item.name = e.value("name", std::string());
-            item.iconIndex = e.value("iconIndex", 0);
-            item.description = e.value("description", std::string());
-            item.typeId = e.value("typeId", 0);
-            item.consumable = e.value("consumable", 1);
-            item.price = e.value("price", 0);
-            item.scope = e.value("scope", 0);
-            item.animationId = e.value("animationId", 0);
-            items_.push_back(std::move(item));
+            item.id = elem.value("id", 0);
+            item.name = elem.value("name", "");
+            item.iconIndex = elem.value("iconIndex", 0);
+            item.description = elem.value("description", "");
+            item.typeId = elem.value("itypeId", 0);
+            item.occasion = elem.value("occasion", 0);
+            item.consumable = elem.value("consumable", true) ? 1 : 0;
+            item.price = elem.value("price", 0);
+            item.scope = elem.value("scope", 0);
+            item.animationId = elem.value("animationId", 0);
+            if (elem.contains("damage") && elem["damage"].is_object()) {
+                auto& d = elem["damage"];
+                item.damage.type = d.value("type", 0);
+                item.damage.elementId = d.value("elementId", 0);
+                item.damage.formula = d.value("formula", "");
+                item.damage.variance = d.value("variance", 20);
+                item.damage.canCrit = d.value("critical", false);
+            }
+            if (elem.contains("effects") && elem["effects"].is_array()) {
+                for (const auto& e : elem["effects"]) {
+                    if (e.is_object()) {
+                        EffectData eff;
+                        eff.code = e.value("code", 0);
+                        eff.dataId = e.value("dataId", 0);
+                        eff.value1 = e.value("value1", 0.0);
+                        eff.value2 = e.value("value2", 0.0);
+                        item.effects.push_back(eff);
+                    }
+                }
+            }
+            if (item.id > 0 && static_cast<size_t>(item.id) > items_.size()) {
+                items_.resize(static_cast<size_t>(item.id));
+            }
+            if (item.id > 0) {
+                items_[static_cast<size_t>(item.id) - 1] = std::move(item);
+            }
         }
         return true;
-    } catch (...) {
-        items_.clear();
-        return false;
     }
+    ItemData potion;
+    potion.id = 1;
+    potion.name = "Potion";
+    potion.iconIndex = 176;
+    potion.description = "Restores 200 HP.";
+    potion.typeId = 0;
+    potion.occasion = 0;
+    potion.consumable = 1;
+    potion.price = 50;
+    potion.scope = 7;
+    potion.animationId = 41;
+    EffectData potionEff;
+    potionEff.code = 11;
+    potionEff.value2 = 200.0;
+    potion.effects.push_back(potionEff);
+    items_.push_back(std::move(potion));
+    return true;
 }
 
 bool DataManager::loadWeapons() {
-    if (dataPath_.empty()) {
-        weapons_.clear();
-        return true;
-    }
-    std::string filename = dataPath_ + "/Weapons.json";
-    std::ifstream file(filename);
-    if (!file) {
-        weapons_.clear();
-        return false;
-    }
-    try {
-        json j = json::parse(file);
-        if (!j.is_array()) {
-            weapons_.clear();
-            return false;
-        }
-        weapons_.clear();
-        weapons_.reserve(j.size() > 1 ? j.size() - 1 : 0);
-        for (size_t i = 1; i < j.size(); ++i) {
-            if (j[i].is_null()) continue;
-            const auto& e = j[i];
-            ItemData item;
-            item.id = e.value("id", 0);
-            item.name = e.value("name", std::string());
-            item.iconIndex = e.value("iconIndex", 0);
-            item.description = e.value("description", std::string());
-            item.typeId = e.value("typeId", 0);
-            item.consumable = e.value("consumable", 0);
-            item.price = e.value("price", 0);
-            item.scope = e.value("scope", 0);
-            item.animationId = e.value("animationId", 0);
-            weapons_.push_back(std::move(item));
+    weapons_.clear();
+    if (auto j = loadJsonArrayFile("Weapons.json")) {
+        for (const auto& elem : *j) {
+            if (elem.is_null()) continue;
+            ItemData weapon;
+            weapon.id = elem.value("id", 0);
+            weapon.name = elem.value("name", "");
+            weapon.iconIndex = elem.value("iconIndex", 0);
+            weapon.description = elem.value("description", "");
+            weapon.typeId = elem.value("wtypeId", 0);
+            weapon.occasion = 0;
+            weapon.consumable = 0;
+            weapon.price = elem.value("price", 0);
+            weapon.scope = 0;
+            weapon.animationId = elem.value("animationId", 0);
+            if (weapon.id > 0 && static_cast<size_t>(weapon.id) > weapons_.size()) {
+                weapons_.resize(static_cast<size_t>(weapon.id));
+            }
+            if (weapon.id > 0) {
+                weapons_[static_cast<size_t>(weapon.id) - 1] = std::move(weapon);
+            }
         }
         return true;
-    } catch (...) {
-        weapons_.clear();
-        return false;
     }
+    return true;
 }
 
 bool DataManager::loadArmors() {
-    if (dataPath_.empty()) {
-        armors_.clear();
-        return true;
-    }
-    std::string filename = dataPath_ + "/Armors.json";
-    std::ifstream file(filename);
-    if (!file) {
-        armors_.clear();
-        return false;
-    }
-    try {
-        json j = json::parse(file);
-        if (!j.is_array()) {
-            armors_.clear();
-            return false;
-        }
-        armors_.clear();
-        armors_.reserve(j.size() > 1 ? j.size() - 1 : 0);
-        for (size_t i = 1; i < j.size(); ++i) {
-            if (j[i].is_null()) continue;
-            const auto& e = j[i];
-            ItemData item;
-            item.id = e.value("id", 0);
-            item.name = e.value("name", std::string());
-            item.iconIndex = e.value("iconIndex", 0);
-            item.description = e.value("description", std::string());
-            item.typeId = e.value("typeId", 0);
-            item.consumable = e.value("consumable", 0);
-            item.price = e.value("price", 0);
-            item.scope = e.value("scope", 0);
-            item.animationId = e.value("animationId", 0);
-            armors_.push_back(std::move(item));
+    armors_.clear();
+    if (auto j = loadJsonArrayFile("Armors.json")) {
+        for (const auto& elem : *j) {
+            if (elem.is_null()) continue;
+            ItemData armor;
+            armor.id = elem.value("id", 0);
+            armor.name = elem.value("name", "");
+            armor.iconIndex = elem.value("iconIndex", 0);
+            armor.description = elem.value("description", "");
+            armor.typeId = elem.value("atypeId", 0);
+            armor.occasion = 0;
+            armor.consumable = 0;
+            armor.price = elem.value("price", 0);
+            armor.scope = 0;
+            armor.animationId = 0;
+            if (armor.id > 0 && static_cast<size_t>(armor.id) > armors_.size()) {
+                armors_.resize(static_cast<size_t>(armor.id));
+            }
+            if (armor.id > 0) {
+                armors_[static_cast<size_t>(armor.id) - 1] = std::move(armor);
+            }
         }
         return true;
-    } catch (...) {
-        armors_.clear();
-        return false;
     }
+    return true;
 }
 
 bool DataManager::loadEnemies() {
-    if (dataPath_.empty()) {
-        enemies_.clear();
-        return true;
-    }
-    std::string filename = dataPath_ + "/Enemies.json";
-    std::ifstream file(filename);
-    if (!file) {
-        enemies_.clear();
-        return false;
-    }
-    try {
-        json j = json::parse(file);
-        if (!j.is_array()) {
-            enemies_.clear();
-            return false;
-        }
-        enemies_.clear();
-        enemies_.reserve(j.size() > 1 ? j.size() - 1 : 0);
-        for (size_t i = 1; i < j.size(); ++i) {
-            if (j[i].is_null()) continue;
-            const auto& e = j[i];
-            EnemyData en;
-            en.id = e.value("id", 0);
-            en.name = e.value("name", std::string());
-            en.battlerName = e.value("battlerName", std::string());
-            en.mhp = e.value("mhp", 100);
-            en.mmp = e.value("mmp", 100);
-            en.atk = e.value("atk", 10);
-            en.def = e.value("def", 10);
-            en.mat = e.value("mat", 10);
-            en.mdf = e.value("mdf", 10);
-            en.agi = e.value("agi", 10);
-            en.luk = e.value("luk", 10);
-            en.exp = e.value("exp", 0);
-            en.gold = e.value("gold", 0);
-            if (e.contains("dropItems") && e["dropItems"].is_array()) {
-                en.dropItems = parseIntArray(e["dropItems"]);
+    enemies_.clear();
+    if (auto j = loadJsonArrayFile("Enemies.json")) {
+        for (const auto& elem : *j) {
+            if (elem.is_null()) continue;
+            EnemyData enemy;
+            enemy.id = elem.value("id", 0);
+            enemy.name = elem.value("name", "");
+            enemy.battlerName = 0; // struct field is int32_t; JSON provides string
+            enemy.mhp = 100;
+            enemy.mmp = 100;
+            enemy.atk = 10;
+            enemy.def = 10;
+            enemy.mat = 10;
+            enemy.mdf = 10;
+            enemy.agi = 10;
+            enemy.luk = 10;
+            if (elem.contains("params") && elem["params"].is_array() && elem["params"].size() >= 8) {
+                enemy.mhp = elem["params"][0].get<int32_t>();
+                enemy.mmp = elem["params"][1].get<int32_t>();
+                enemy.atk = elem["params"][2].get<int32_t>();
+                enemy.def = elem["params"][3].get<int32_t>();
+                enemy.mat = elem["params"][4].get<int32_t>();
+                enemy.mdf = elem["params"][5].get<int32_t>();
+                enemy.agi = elem["params"][6].get<int32_t>();
+                enemy.luk = elem["params"][7].get<int32_t>();
             }
-            enemies_.push_back(std::move(en));
+            enemy.exp = elem.value("exp", 0);
+            enemy.gold = elem.value("gold", 0);
+            if (enemy.id > 0 && static_cast<size_t>(enemy.id) > enemies_.size()) {
+                enemies_.resize(static_cast<size_t>(enemy.id));
+            }
+            if (enemy.id > 0) {
+                enemies_[static_cast<size_t>(enemy.id) - 1] = std::move(enemy);
+            }
         }
         return true;
-    } catch (...) {
-        enemies_.clear();
-        return false;
     }
+    EnemyData slime;
+    slime.id = 1;
+    slime.name = "Slime";
+    slime.mhp = 30;
+    slime.mmp = 0;
+    slime.atk = 8;
+    slime.def = 5;
+    slime.mat = 4;
+    slime.mdf = 4;
+    slime.agi = 10;
+    slime.luk = 6;
+    slime.exp = 12;
+    slime.gold = 5;
+    slime.dropItems = {1, 1}; // itemId 1, rate 1 (100%)
+    enemies_.push_back(std::move(slime));
+
+    EnemyData goblin;
+    goblin.id = 2;
+    goblin.name = "Goblin";
+    goblin.mhp = 50;
+    goblin.mmp = 0;
+    goblin.atk = 12;
+    goblin.def = 8;
+    goblin.mat = 4;
+    goblin.mdf = 4;
+    goblin.agi = 15;
+    goblin.luk = 8;
+    goblin.exp = 20;
+    goblin.gold = 10;
+    goblin.dropItems = {1, 1, 2, 2}; // item 1 (100%), item 2 (50%)
+    enemies_.push_back(std::move(goblin));
+    return true;
 }
 
 bool DataManager::loadTroops() {
-    if (dataPath_.empty()) {
-        troops_.clear();
-        return true;
-    }
-    std::string filename = dataPath_ + "/Troops.json";
-    std::ifstream file(filename);
-    if (!file) {
-        troops_.clear();
-        return false;
-    }
-    try {
-        json j = json::parse(file);
-        if (!j.is_array()) {
-            troops_.clear();
-            return false;
-        }
-        troops_.clear();
-        troops_.reserve(j.size() > 1 ? j.size() - 1 : 0);
-        for (size_t i = 1; i < j.size(); ++i) {
-            if (j[i].is_null()) continue;
-            const auto& e = j[i];
-            TroopData t;
-            t.id = e.value("id", 0);
-            t.name = e.value("name", std::string());
-            if (e.contains("members") && e["members"].is_array()) {
-                for (const auto& m : e["members"]) {
-                    if (m.is_number_integer()) {
-                        t.members.push_back(m.get<int32_t>());
-                    } else if (m.is_object() && m.contains("enemyId")) {
-                        t.members.push_back(m["enemyId"].get<int32_t>());
+    troops_.clear();
+    if (auto j = loadJsonArrayFile("Troops.json")) {
+        for (const auto& elem : *j) {
+            if (elem.is_null()) continue;
+            TroopData troop;
+            troop.id = elem.value("id", 0);
+            troop.name = elem.value("name", "");
+            if (elem.contains("members") && elem["members"].is_array()) {
+                for (const auto& m : elem["members"]) {
+                    if (m.contains("enemyId")) {
+                        troop.members.push_back(m["enemyId"].get<int32_t>());
                     }
                 }
             }
-            if (e.contains("pages") && e["pages"].is_array()) {
-                t.pages = Value::Arr(parseValueArray(e["pages"]));
+            if (elem.contains("pages")) {
+                troop.pages = jsonToValue(elem["pages"]);
             }
-            troops_.push_back(std::move(t));
+            if (troop.id > 0 && static_cast<size_t>(troop.id) > troops_.size()) {
+                troops_.resize(static_cast<size_t>(troop.id));
+            }
+            if (troop.id > 0) {
+                troops_[static_cast<size_t>(troop.id) - 1] = std::move(troop);
+            }
         }
         return true;
-    } catch (...) {
-        troops_.clear();
-        return false;
     }
+    TroopData troop1;
+    troop1.id = 1;
+    troop1.name = "Slime x2";
+    troop1.members = {1, 1};
+    troops_.push_back(std::move(troop1));
+
+    TroopData troop2;
+    troop2.id = 2;
+    troop2.name = "Goblin";
+    troop2.members = {2};
+    troops_.push_back(std::move(troop2));
+    return true;
 }
 
 bool DataManager::loadStates() {
-    if (dataPath_.empty()) {
-        states_.clear();
-        return true;
-    }
-    std::string filename = dataPath_ + "/States.json";
-    std::ifstream file(filename);
-    if (!file) {
-        states_.clear();
-        return false;
-    }
-    try {
-        json j = json::parse(file);
-        if (!j.is_array()) {
-            states_.clear();
-            return false;
-        }
-        states_.clear();
-        states_.reserve(j.size() > 1 ? j.size() - 1 : 0);
-        for (size_t i = 1; i < j.size(); ++i) {
-            if (j[i].is_null()) continue;
-            const auto& e = j[i];
-            StateData s;
-            s.id = e.value("id", 0);
-            s.name = e.value("name", std::string());
-            s.iconIndex = e.value("iconIndex", 0);
-            s.priority = e.value("priority", 0);
-            s.restriction = e.value("restriction", 0);
-            s.autoRemovalTiming = e.value("autoRemovalTiming", 0);
-            s.minTurns = e.value("minTurns", 1);
-            s.maxTurns = e.value("maxTurns", 1);
-            s.slipDamage = e.value("slipDamage", 0);
-            s.removeByDamage = e.value("removeByDamage", false);
-            s.removeByWalking = e.value("removeByWalking", false);
-            s.chanceByDamage = e.value("chanceByDamage", 100);
-            states_.push_back(std::move(s));
+    states_.clear();
+    if (auto j = loadJsonArrayFile("States.json")) {
+        for (const auto& elem : *j) {
+            if (elem.is_null()) continue;
+            StateData state;
+            state.id = elem.value("id", 0);
+            state.name = elem.value("name", "");
+            if (elem.contains("iconIndex")) {
+                if (elem["iconIndex"].is_number()) {
+                    state.iconIndex = std::to_string(elem["iconIndex"].get<int32_t>());
+                } else {
+                    state.iconIndex = elem.value("iconIndex", "");
+                }
+            }
+            state.priority = elem.value("priority", 0);
+            state.restriction = elem.value("restriction", 0);
+            state.autoRemovalTiming = elem.value("autoRemovalTiming", 0);
+            state.minTurns = elem.value("minTurns", 1);
+            state.maxTurns = elem.value("maxTurns", 1);
+            if (state.id > 0 && static_cast<size_t>(state.id) > states_.size()) {
+                states_.resize(static_cast<size_t>(state.id));
+            }
+            if (state.id > 0) {
+                states_[static_cast<size_t>(state.id) - 1] = std::move(state);
+            }
         }
         return true;
-    } catch (...) {
-        states_.clear();
-        return false;
     }
+    return true;
 }
 
 bool DataManager::loadAnimations() {
-    if (dataPath_.empty()) {
-        animations_.clear();
-        return true;
-    }
-    std::string filename = dataPath_ + "/Animations.json";
-    std::ifstream file(filename);
-    if (!file) {
-        animations_.clear();
-        return false;
-    }
-    try {
-        json j = json::parse(file);
-        if (!j.is_array()) {
-            animations_.clear();
-            return false;
-        }
-        animations_.clear();
-        animations_.reserve(j.size() > 1 ? j.size() - 1 : 0);
-        for (size_t i = 1; i < j.size(); ++i) {
-            if (j[i].is_null()) continue;
-            const auto& e = j[i];
-            AnimationData a;
-            a.id = e.value("id", 0);
-            a.name = e.value("name", std::string());
-            if (e.contains("frames") && e["frames"].is_array()) {
-                a.frames = parseValueArray(e["frames"]);
+    animations_.clear();
+    if (auto j = loadJsonArrayFile("Animations.json")) {
+        for (const auto& elem : *j) {
+            if (elem.is_null()) continue;
+            AnimationData anim;
+            anim.id = elem.value("id", 0);
+            anim.name = elem.value("name", "");
+            if (elem.contains("frames") && elem["frames"].is_array()) {
+                for (const auto& f : elem["frames"]) {
+                    anim.frames.push_back(jsonToValue(f));
+                }
             }
-            animations_.push_back(std::move(a));
+            if (anim.id > 0 && static_cast<size_t>(anim.id) > animations_.size()) {
+                animations_.resize(static_cast<size_t>(anim.id));
+            }
+            if (anim.id > 0) {
+                animations_[static_cast<size_t>(anim.id) - 1] = std::move(anim);
+            }
         }
         return true;
-    } catch (...) {
-        animations_.clear();
-        return false;
     }
+    auto addFallbackAnimation = [this](int32_t id, const std::string& name, int32_t frameCount) {
+        AnimationData anim;
+        anim.id = id;
+        anim.name = name;
+        anim.frames.resize(static_cast<size_t>(std::max(1, frameCount)), Value::Nil());
+        if (static_cast<size_t>(id) > animations_.size()) {
+            animations_.resize(static_cast<size_t>(id));
+        }
+        animations_[static_cast<size_t>(id) - 1] = std::move(anim);
+    };
+    addFallbackAnimation(41, "Heal", 10);
+    addFallbackAnimation(67, "Fire", 12);
+    return true;
 }
 
 bool DataManager::loadTilesets() {
-    if (dataPath_.empty()) return true;
-    std::string filename = dataPath_ + "/Tilesets.json";
-    std::ifstream file(filename);
-    if (!file) return false;
-    try {
-        json j = json::parse(file);
-        if (!j.is_array()) return false;
+    tilesets_.clear();
+    if (auto j = loadJsonArrayFile("Tilesets.json")) {
+        for (const auto& elem : *j) {
+            if (elem.is_null()) continue;
+            TilesetData ts;
+            ts.id = elem.value("id", 0);
+            ts.name = elem.value("name", "");
+            ts.mode = elem.value("mode", 0);
+            if (elem.contains("tilesetNames") && elem["tilesetNames"].is_array()) {
+                for (const auto& t : elem["tilesetNames"]) {
+                    ts.tilesetNames.push_back(t.get<std::string>());
+                }
+            }
+            if (elem.contains("flags") && elem["flags"].is_array()) {
+                for (const auto& f : elem["flags"]) {
+                    ts.flags.push_back(f.get<uint32_t>());
+                }
+            }
+            if (ts.id > 0 && static_cast<size_t>(ts.id) > tilesets_.size()) {
+                tilesets_.resize(static_cast<size_t>(ts.id));
+            }
+            if (ts.id > 0) {
+                tilesets_[static_cast<size_t>(ts.id) - 1] = std::move(ts);
+            }
+        }
         return true;
-    } catch (...) {
-        return false;
     }
+    return true;
 }
 
 bool DataManager::loadCommonEvents() {
-    if (dataPath_.empty()) return true;
-    std::string filename = dataPath_ + "/CommonEvents.json";
-    std::ifstream file(filename);
-    if (!file) return false;
-    try {
-        json j = json::parse(file);
-        if (!j.is_array()) return false;
-        return true;
-    } catch (...) {
-        return false;
-    }
+    return true;
 }
 
 bool DataManager::loadSystem() {
-    if (dataPath_.empty()) {
-        startMapId_ = 1;
-        startX_ = 0;
-        startY_ = 0;
+    if (auto j = loadJsonFile(dataDirectory_ + "System.json")) {
+        startMapId_ = j->value("startMapId", 1);
+        startX_ = j->value("startX", 0);
+        startY_ = j->value("startY", 0);
         startParty_.clear();
-        return true;
-    }
-    std::string filename = dataPath_ + "/System.json";
-    std::ifstream file(filename);
-    if (!file) {
-        startMapId_ = 1;
-        startX_ = 0;
-        startY_ = 0;
-        startParty_.clear();
-        return false;
-    }
-    try {
-        json j = json::parse(file);
-        startMapId_ = j.value("startMapId", 1);
-        startX_ = j.value("startX", 0);
-        startY_ = j.value("startY", 0);
-        startParty_.clear();
-        if (j.contains("partyMembers") && j["partyMembers"].is_array()) {
-            for (const auto& v : j["partyMembers"]) {
-                startParty_.push_back(v.get<int32_t>());
+        if (j->contains("partyMembers") && (*j)["partyMembers"].is_array()) {
+            for (const auto& m : (*j)["partyMembers"]) {
+                startParty_.push_back(m.get<int32_t>());
             }
         }
         return true;
-    } catch (...) {
-        startMapId_ = 1;
-        startX_ = 0;
-        startY_ = 0;
-        startParty_.clear();
-        return false;
     }
+    startMapId_ = 1;
+    startX_ = 8;
+    startY_ = 6;
+    startParty_ = {1};
+    return true;
 }
 
 bool DataManager::loadMapInfos() {
-    if (dataPath_.empty()) {
-        mapInfos_.clear();
-        return true;
-    }
-    std::string filename = dataPath_ + "/MapInfos.json";
-    std::ifstream file(filename);
-    if (!file) {
-        mapInfos_.clear();
-        return false;
-    }
-    try {
-        json j = json::parse(file);
-        if (!j.is_array()) {
-            mapInfos_.clear();
-            return false;
-        }
-        mapInfos_.clear();
-        mapInfos_.reserve(j.size() > 1 ? j.size() - 1 : 0);
-        for (size_t i = 1; i < j.size(); ++i) {
-            if (j[i].is_null()) continue;
-            const auto& e = j[i];
-            MapInfo m;
-            m.id = e.value("id", 0);
-            m.name = e.value("name", std::string());
-            m.parentId = e.value("parentId", 0);
-            m.order = e.value("order", 0);
-            m.expanded = e.value("expanded", false);
-            mapInfos_.push_back(std::move(m));
+    mapInfos_.clear();
+    if (auto j = loadJsonArrayFile("MapInfos.json")) {
+        for (const auto& elem : *j) {
+            if (elem.is_null()) continue;
+            MapInfo info;
+            info.id = elem.value("id", 0);
+            info.name = elem.value("name", "");
+            info.parentId = elem.value("parentId", 0);
+            info.order = elem.value("order", 0);
+            info.expanded = elem.value("expanded", false);
+            if (info.id > 0 && static_cast<size_t>(info.id) > mapInfos_.size()) {
+                mapInfos_.resize(static_cast<size_t>(info.id));
+            }
+            if (info.id > 0) {
+                mapInfos_[static_cast<size_t>(info.id) - 1] = std::move(info);
+            }
         }
         return true;
-    } catch (...) {
-        mapInfos_.clear();
-        return false;
     }
+    return true;
 }
 
 bool DataManager::loadMapData(int32_t mapId) {
-    if (dataPath_.empty()) {
-        impl_->loadedMapId = mapId;
-        currentMap_.id = mapId;
-        currentMap_.width = 20; 
-        currentMap_.height = 15;
-        currentMap_.tilesetId = 1;
-        
-        currentMap_.data.clear();
-        currentMap_.data.resize(6, std::vector<int32_t>(300, 0));
+    currentMap_ = MapData{};
+    currentMap_.id = mapId;
 
-        for (int i = 0; i < 300; ++i) {
-            int x = i % 20;
-            int y = i / 20;
-            if (x == 0 || x == 19 || y == 0 || y == 14) {
-                currentMap_.data[0][i] = 1;
+    if (mapId > 0) {
+        const std::string filename = buildMapFilename(mapId);
+        if (auto j = loadJsonFile(dataDirectory_ + filename)) {
+            currentMap_.width = j->value("width", 0);
+            currentMap_.height = j->value("height", 0);
+            currentMap_.tilesetId = j->value("tilesetId", 0);
+            if (j->contains("data")) {
+                currentMap_.data = convertMapLayers((*j)["data"], currentMap_.width, currentMap_.height);
+            }
+            if (j->contains("events")) {
+                currentMap_.events = jsonToValue((*j)["events"]);
             } else {
-                currentMap_.data[0][i] = 0;
+                currentMap_.events = Value::Arr({});
             }
+
+            impl_->loadedMapId = mapId;
+            return true;
         }
-        return true;
     }
-    std::ostringstream oss;
-    oss << dataPath_ << "/Map" << std::setw(3) << std::setfill('0') << mapId << ".json";
-    std::string filename = oss.str();
-    std::ifstream file(filename);
-    if (!file) {
-        impl_->loadedMapId = 0;
-        return false;
+
+    currentMap_.width = 20;
+    currentMap_.height = 15;
+    currentMap_.tilesetId = 1;
+    currentMap_.events = Value::Arr({});
+
+    currentMap_.data.clear();
+    currentMap_.data.resize(6, std::vector<int32_t>(300, 0));
+    for (int i = 0; i < 300; ++i) {
+        const int x = i % 20;
+        const int y = i / 20;
+        currentMap_.data[0][i] = (x == 0 || x == 19 || y == 0 || y == 14) ? 1 : 0;
     }
-    try {
-        json j = json::parse(file);
-        impl_->loadedMapId = mapId;
-        currentMap_.id = mapId;
-        if (j.contains("width") && j["width"].is_number()) {
-            currentMap_.width = j["width"].get<int>();
-        }
-        if (j.contains("height") && j["height"].is_number()) {
-            currentMap_.height = j["height"].get<int>();
-        }
-        if (j.contains("tilesetId") && j["tilesetId"].is_number()) {
-            currentMap_.tilesetId = j["tilesetId"].get<int>();
-        }
-        if (j.contains("data") && j["data"].is_array()) {
-            currentMap_.data.clear();
-            std::vector<int32_t> flatData;
-            for (const auto& v : j["data"]) {
-                if (v.is_number()) {
-                    flatData.push_back(v.get<int32_t>());
-                }
-            }
-            // RPG Maker stores data as a flat array of width*height per layer
-            // For simplicity, treat the first width*height as layer 0
-            if (!flatData.empty() && currentMap_.width > 0 && currentMap_.height > 0) {
-                size_t layerSize = static_cast<size_t>(currentMap_.width) * currentMap_.height;
-                size_t numLayers = flatData.size() / layerSize;
-                currentMap_.data.resize(numLayers);
-                for (size_t layer = 0; layer < numLayers; ++layer) {
-                    currentMap_.data[layer].reserve(layerSize);
-                    for (size_t i = 0; i < layerSize; ++i) {
-                        currentMap_.data[layer].push_back(flatData[layer * layerSize + i]);
-                    }
-                }
-            }
-        }
-        return true;
-    } catch (...) {
-        impl_->loadedMapId = 0;
-        return false;
-    }
+
+    impl_->loadedMapId = mapId;
+    return true;
 }
 
 const MapData* DataManager::getCurrentMap() const {
@@ -891,12 +987,40 @@ const TilesetData* DataManager::getTileset(int32_t id) const {
 }
 
 Value DataManager::getMapDataAsValue() const {
-    // Return the currentMap_ as a Value object for JavaScript
-    return Value::Nil(); 
+    if (impl_->loadedMapId == 0) {
+        return Value::Nil();
+    }
+
+    Object obj;
+    obj["id"] = Value::Int(currentMap_.id);
+    obj["width"] = Value::Int(currentMap_.width);
+    obj["height"] = Value::Int(currentMap_.height);
+    obj["tilesetId"] = Value::Int(currentMap_.tilesetId);
+
+    Array layers;
+    layers.reserve(currentMap_.data.size());
+    for (const auto& layer : currentMap_.data) {
+        Array layerValues;
+        layerValues.reserve(layer.size());
+        for (int32_t tileId : layer) {
+            layerValues.push_back(Value::Int(tileId));
+        }
+        layers.push_back(Value::Arr(std::move(layerValues)));
+    }
+    obj["data"] = Value::Arr(std::move(layers));
+    obj["events"] = currentMap_.events;
+    return Value::Obj(std::move(obj));
 }
 
 Value DataManager::getTilesetsAsValue() const {
-    return Value::Nil();
+    Array arr;
+    for (const auto& tileset : tilesets_) {
+        if (tileset.id <= 0) {
+            continue;
+        }
+        arr.push_back(Value::Obj(tilesetToObject(tileset)));
+    }
+    return Value::Arr(std::move(arr));
 }
 
 // ============================================================================
@@ -954,11 +1078,55 @@ const ActorData* DataManager::getActor(int32_t id) const {
     return &actors_[static_cast<size_t>(id - 1)];
 }
 
+ActorData* DataManager::getActor(int32_t id) {
+    return const_cast<ActorData*>(static_cast<const DataManager*>(this)->getActor(id));
+}
+
+int32_t DataManager::getActorParam(int32_t actorId, int32_t paramId, int32_t level) const {
+    const auto* actor = getActor(actorId);
+    if (actor == nullptr || paramId < 0) {
+        return 10;
+    }
+
+    const auto readParamTable = [paramId, level](const std::vector<std::vector<int32_t>>& table) -> std::optional<int32_t> {
+        if (paramId < 0 || static_cast<size_t>(paramId) >= table.size()) {
+            return std::nullopt;
+        }
+        const auto& row = table[static_cast<size_t>(paramId)];
+        if (row.empty()) {
+            return std::nullopt;
+        }
+
+        const size_t clampedLevel = static_cast<size_t>(std::clamp(level, 0, static_cast<int32_t>(row.size() - 1)));
+        return row[clampedLevel];
+    };
+
+    if (const auto actorParam = readParamTable(actor->params)) {
+        return *actorParam;
+    }
+
+    if (const auto* cls = getClass(actor->classId)) {
+        if (const auto classParam = readParamTable(cls->params)) {
+            return *classParam;
+        }
+    }
+
+    switch (paramId) {
+        case 0: return 100;
+        case 1: return 30;
+        default: return 10;
+    }
+}
+
 const ClassData* DataManager::getClass(int32_t id) const {
     if (id <= 0 || static_cast<size_t>(id) > classes_.size()) {
         return nullptr;
     }
     return &classes_[static_cast<size_t>(id - 1)];
+}
+
+ClassData* DataManager::getClass(int32_t id) {
+    return const_cast<ClassData*>(static_cast<const DataManager*>(this)->getClass(id));
 }
 
 const SkillData* DataManager::getSkill(int32_t id) const {
@@ -968,11 +1136,19 @@ const SkillData* DataManager::getSkill(int32_t id) const {
     return &skills_[static_cast<size_t>(id - 1)];
 }
 
+SkillData* DataManager::getSkill(int32_t id) {
+    return const_cast<SkillData*>(static_cast<const DataManager*>(this)->getSkill(id));
+}
+
 const ItemData* DataManager::getItem(int32_t id) const {
     if (id <= 0 || static_cast<size_t>(id) > items_.size()) {
         return nullptr;
     }
     return &items_[static_cast<size_t>(id - 1)];
+}
+
+ItemData* DataManager::getItem(int32_t id) {
+    return const_cast<ItemData*>(static_cast<const DataManager*>(this)->getItem(id));
 }
 
 const ItemData* DataManager::getWeapon(int32_t id) const {
@@ -990,13 +1166,6 @@ const ItemData* DataManager::getArmor(int32_t id) const {
 }
 
 const EnemyData* DataManager::getEnemy(int32_t id) const {
-    if (id <= 0 || static_cast<size_t>(id) > enemies_.size()) {
-        return nullptr;
-    }
-    return &enemies_[static_cast<size_t>(id - 1)];
-}
-
-EnemyData* DataManager::getEnemy(int32_t id) {
     if (id <= 0 || static_cast<size_t>(id) > enemies_.size()) {
         return nullptr;
     }
@@ -1054,16 +1223,9 @@ void DataManager::setupNewGame() {
     globalState_.gold = 0;
     globalState_.steps = 0;
     globalState_.playtime = 0;
-
+    
     impl_->playtimeStart = std::chrono::steady_clock::now();
     impl_->transferPending = false;
-
-    setupGameActors();
-    
-    // Initialize runtime party / troop state
-    gameParty_ = GameParty{};
-    gameParty_.setMembers(globalState_.partyMembers);
-    gameTroop_ = GameTroop{};
 }
 
 GlobalState& DataManager::getGlobalState() {
@@ -1072,22 +1234,6 @@ GlobalState& DataManager::getGlobalState() {
 
 const GlobalState& DataManager::getGlobalState() const {
     return globalState_;
-}
-
-GameParty& DataManager::getGameParty() {
-    return gameParty_;
-}
-
-const GameParty& DataManager::getGameParty() const {
-    return gameParty_;
-}
-
-GameTroop& DataManager::getGameTroop() {
-    return gameTroop_;
-}
-
-const GameTroop& DataManager::getGameTroop() const {
-    return gameTroop_;
 }
 
 int32_t DataManager::getPartySize() const {
@@ -1257,19 +1403,48 @@ void DataManager::incrementSteps() {
 }
 
 void DataManager::updateActorHp(int32_t actorId, int32_t hp) {
-    // MZ actor state is typically stored in $gameActors via the bridge.
-    // However, our GlobalState::actors is a vector of Value.
-    // For Phase 8 placeholder logic, we ensure the actor exists in the hub.
+    auto* actor = getActor(actorId);
+    if (!actor) return;
+    const int32_t maxHp = std::max(1, getActorParam(actorId, 0, actor->level));
+    actor->hp = std::clamp(hp, 0, maxHp);
 }
 
 void DataManager::updateActorMp(int32_t actorId, int32_t mp) {
-    // Similarly for MP
+    auto* actor = getActor(actorId);
+    if (!actor) return;
+    const int32_t maxMp = std::max(0, getActorParam(actorId, 1, actor->level));
+    actor->mp = std::clamp(mp, 0, maxMp);
 }
 
 void DataManager::gainExp(int32_t actorId, int32_t exp) {
-    // In MZ, EXP is stored in the Actor object.
-    // For now, we simulate the level up check logic.
-    // In a full implementation, we'd query the ClassData exp table.
+    auto* actor = getActor(actorId);
+    if (!actor) return;
+
+    actor->exp += exp;
+
+    const auto* cls = getClass(actor->classId);
+    if (!cls) return;
+
+    const int32_t maxLv = std::min(actor->maxLevel, cls->maxLevel);
+    while (actor->level < maxLv) {
+        const int32_t nextLevel = actor->level + 1;
+        const int32_t required = (nextLevel - 2 >= 0 && nextLevel - 2 < static_cast<int32_t>(cls->expTable.size()))
+                                     ? cls->expTable[nextLevel - 2]
+                                     : nextLevel * 10; // fallback curve
+        if (actor->exp < required) {
+            break;
+        }
+        actor->exp -= required;
+        actor->level = nextLevel;
+        // Learn skills for this level
+        for (const auto& pair : cls->skillsToLearn) {
+            if (pair.first == actor->level) {
+                if (std::find(actor->skills.begin(), actor->skills.end(), pair.second) == actor->skills.end()) {
+                    actor->skills.push_back(pair.second);
+                }
+            }
+        }
+    }
 }
 
 int32_t DataManager::getPlayerMapId() const {
@@ -1296,87 +1471,6 @@ void DataManager::setPlayerPosition(int32_t mapId, int32_t x, int32_t y) {
 
 void DataManager::setPlayerDirection(int32_t direction) {
     globalState_.playerDirection = direction;
-}
-
-// ============================================================================
-// Runtime Actor State ($gameActors compat)
-// ============================================================================
-
-GameActor* DataManager::getGameActor(int32_t actorId) {
-    auto it = gameActors_.find(actorId);
-    if (it != gameActors_.end()) {
-        return &it->second;
-    }
-    return nullptr;
-}
-
-const GameActor* DataManager::getGameActor(int32_t actorId) const {
-    auto it = gameActors_.find(actorId);
-    if (it != gameActors_.end()) {
-        return &it->second;
-    }
-    return nullptr;
-}
-
-void DataManager::setupGameActors() {
-    gameActors_.clear();
-    for (const auto& actor : actors_) {
-        GameActor ga;
-        ga.actorId = actor.id;
-        ga.level = actor.initialLevel;
-        int32_t levelIndex = actor.initialLevel - 1;
-        if (levelIndex >= 0 && !actor.params.empty() && static_cast<size_t>(levelIndex) < actor.params.size()) {
-            const auto& p = actor.params[levelIndex];
-            if (!p.empty()) ga.mhp = p[0];
-            if (p.size() > 1) ga.mmp = p[1];
-            if (p.size() > 2) ga.atk = p[2];
-            if (p.size() > 3) ga.def = p[3];
-            if (p.size() > 4) ga.mat = p[4];
-            if (p.size() > 5) ga.mdf = p[5];
-            if (p.size() > 6) ga.agi = p[6];
-            if (p.size() > 7) ga.luk = p[7];
-        }
-        ga.hp = ga.mhp;
-        ga.mp = ga.mmp;
-        ga.tp = 0;
-        ga.mtp = 100; // TP max defaults to 100; plugins may override
-        gameActors_[actor.id] = std::move(ga);
-    }
-}
-
-void DataManager::setGameActorHp(int32_t actorId, int32_t hp) {
-    auto it = gameActors_.find(actorId);
-    if (it != gameActors_.end()) {
-        it->second.hp = hp;
-    }
-}
-
-void DataManager::setGameActorMp(int32_t actorId, int32_t mp) {
-    auto it = gameActors_.find(actorId);
-    if (it != gameActors_.end()) {
-        it->second.mp = mp;
-    }
-}
-
-void DataManager::setGameActorTp(int32_t actorId, int32_t tp) {
-    auto it = gameActors_.find(actorId);
-    if (it != gameActors_.end()) {
-        it->second.tp = tp;
-    }
-}
-
-void DataManager::setGameActorLevel(int32_t actorId, int32_t level) {
-    auto it = gameActors_.find(actorId);
-    if (it != gameActors_.end()) {
-        it->second.level = level;
-    }
-}
-
-void DataManager::setGameActorMtp(int32_t actorId, int32_t mtp) {
-    auto it = gameActors_.find(actorId);
-    if (it != gameActors_.end()) {
-        it->second.mtp = mtp;
-    }
 }
 
 // ============================================================================
@@ -1559,30 +1653,27 @@ SaveHeader DataManager::createSaveHeader(bool isAutosave) const {
 
 Value DataManager::getActorsAsValue() const {
     Array arr;
-    arr.reserve(actors_.size());
-    for (const auto& a : actors_) {
+    for (const auto& actor : actors_) {
         Object obj;
-        obj["id"] = Value::Int(a.id);
-        obj["name"] = Value::Str(a.name);
-        obj["nickname"] = Value::Str(a.nickname);
-        obj["classId"] = Value::Int(a.classId);
-        obj["initialLevel"] = Value::Int(a.initialLevel);
-        obj["maxLevel"] = Value::Int(a.maxLevel);
-        obj["faceName"] = Value::Str(a.faceName);
-        obj["faceIndex"] = Value::Int(a.faceIndex);
-        obj["characterName"] = Value::Str(a.characterName);
-        obj["characterIndex"] = Value::Int(a.characterIndex);
-        obj["battlerName"] = Value::Str(a.battlerName);
-        obj["battlerIndex"] = Value::Int(a.battlerIndex);
-        Array paramsArr;
-        for (const auto& row : a.params) {
-            Array inner;
-            for (int32_t v : row) {
-                inner.push_back(Value::Int(v));
-            }
-            paramsArr.push_back(Value::Arr(std::move(inner)));
+        obj["id"] = Value::Int(actor.id);
+        Value name; name.v = actor.name; obj["name"] = std::move(name);
+        Value nickname; nickname.v = actor.nickname; obj["nickname"] = std::move(nickname);
+        obj["classId"] = Value::Int(actor.classId);
+        obj["initialLevel"] = Value::Int(actor.initialLevel);
+        obj["maxLevel"] = Value::Int(actor.maxLevel);
+        obj["level"] = Value::Int(actor.level);
+        Value faceName; faceName.v = actor.faceName; obj["faceName"] = std::move(faceName);
+        obj["faceIndex"] = Value::Int(actor.faceIndex);
+        Value characterName; characterName.v = actor.characterName; obj["characterName"] = std::move(characterName);
+        obj["characterIndex"] = Value::Int(actor.characterIndex);
+        Value battlerName; battlerName.v = actor.battlerName; obj["battlerName"] = std::move(battlerName);
+        obj["battlerIndex"] = Value::Int(actor.battlerIndex);
+        obj["exp"] = Value::Int(actor.exp);
+        Array skillsArr;
+        for (int32_t sid : actor.skills) {
+            skillsArr.push_back(Value::Int(sid));
         }
-        obj["params"] = Value::Arr(std::move(paramsArr));
+        obj["skills"] = Value::Arr(std::move(skillsArr));
         arr.push_back(Value::Obj(std::move(obj)));
     }
     return Value::Arr(std::move(arr));
@@ -1590,20 +1681,19 @@ Value DataManager::getActorsAsValue() const {
 
 Value DataManager::getSkillsAsValue() const {
     Array arr;
-    arr.reserve(skills_.size());
-    for (const auto& s : skills_) {
+    for (const auto& skill : skills_) {
         Object obj;
-        obj["id"] = Value::Int(s.id);
-        obj["name"] = Value::Str(s.name);
-        obj["description"] = Value::Str(s.description);
-        obj["typeId"] = Value::Int(s.typeId);
-        obj["scope"] = Value::Int(s.scope);
-        obj["mpCost"] = Value::Int(s.mpCost);
-        obj["tpCost"] = Value::Int(s.tpCost);
-        obj["speed"] = Value::Int(s.speed);
-        obj["successRate"] = Value::Int(s.successRate);
-        obj["repeats"] = Value::Int(s.repeats);
-        obj["animationId"] = Value::Int(s.animationId);
+        obj["id"] = Value::Int(skill.id);
+        Value name; name.v = skill.name; obj["name"] = std::move(name);
+        Value desc; desc.v = skill.description; obj["description"] = std::move(desc);
+        obj["typeId"] = Value::Int(skill.typeId);
+        obj["scope"] = Value::Int(skill.scope);
+        obj["mpCost"] = Value::Int(skill.mpCost);
+        obj["tpCost"] = Value::Int(skill.tpCost);
+        obj["speed"] = Value::Int(skill.speed);
+        obj["successRate"] = Value::Int(skill.successRate);
+        obj["repeats"] = Value::Int(skill.repeats);
+        obj["animationId"] = Value::Int(skill.animationId);
         arr.push_back(Value::Obj(std::move(obj)));
     }
     return Value::Arr(std::move(arr));
@@ -1611,14 +1701,14 @@ Value DataManager::getSkillsAsValue() const {
 
 Value DataManager::getItemsAsValue() const {
     Array arr;
-    arr.reserve(items_.size());
     for (const auto& item : items_) {
         Object obj;
         obj["id"] = Value::Int(item.id);
-        obj["name"] = Value::Str(item.name);
+        Value name; name.v = item.name; obj["name"] = std::move(name);
         obj["iconIndex"] = Value::Int(item.iconIndex);
-        obj["description"] = Value::Str(item.description);
+        Value desc; desc.v = item.description; obj["description"] = std::move(desc);
         obj["typeId"] = Value::Int(item.typeId);
+        obj["occasion"] = Value::Int(item.occasion);
         obj["consumable"] = Value::Int(item.consumable);
         obj["price"] = Value::Int(item.price);
         obj["scope"] = Value::Int(item.scope);
@@ -1630,18 +1720,18 @@ Value DataManager::getItemsAsValue() const {
 
 Value DataManager::getWeaponsAsValue() const {
     Array arr;
-    arr.reserve(weapons_.size());
-    for (const auto& item : weapons_) {
+    for (const auto& weapon : weapons_) {
         Object obj;
-        obj["id"] = Value::Int(item.id);
-        obj["name"] = Value::Str(item.name);
-        obj["iconIndex"] = Value::Int(item.iconIndex);
-        obj["description"] = Value::Str(item.description);
-        obj["typeId"] = Value::Int(item.typeId);
-        obj["consumable"] = Value::Int(item.consumable);
-        obj["price"] = Value::Int(item.price);
-        obj["scope"] = Value::Int(item.scope);
-        obj["animationId"] = Value::Int(item.animationId);
+        obj["id"] = Value::Int(weapon.id);
+        Value name; name.v = weapon.name; obj["name"] = std::move(name);
+        obj["iconIndex"] = Value::Int(weapon.iconIndex);
+        Value desc; desc.v = weapon.description; obj["description"] = std::move(desc);
+        obj["typeId"] = Value::Int(weapon.typeId);
+        obj["occasion"] = Value::Int(weapon.occasion);
+        obj["consumable"] = Value::Int(weapon.consumable);
+        obj["price"] = Value::Int(weapon.price);
+        obj["scope"] = Value::Int(weapon.scope);
+        obj["animationId"] = Value::Int(weapon.animationId);
         arr.push_back(Value::Obj(std::move(obj)));
     }
     return Value::Arr(std::move(arr));
@@ -1649,108 +1739,32 @@ Value DataManager::getWeaponsAsValue() const {
 
 Value DataManager::getArmorsAsValue() const {
     Array arr;
-    arr.reserve(armors_.size());
-    for (const auto& item : armors_) {
+    for (const auto& armor : armors_) {
         Object obj;
-        obj["id"] = Value::Int(item.id);
-        obj["name"] = Value::Str(item.name);
-        obj["iconIndex"] = Value::Int(item.iconIndex);
-        obj["description"] = Value::Str(item.description);
-        obj["typeId"] = Value::Int(item.typeId);
-        obj["consumable"] = Value::Int(item.consumable);
-        obj["price"] = Value::Int(item.price);
-        obj["scope"] = Value::Int(item.scope);
-        obj["animationId"] = Value::Int(item.animationId);
+        obj["id"] = Value::Int(armor.id);
+        Value name; name.v = armor.name; obj["name"] = std::move(name);
+        obj["iconIndex"] = Value::Int(armor.iconIndex);
+        Value desc; desc.v = armor.description; obj["description"] = std::move(desc);
+        obj["typeId"] = Value::Int(armor.typeId);
+        obj["occasion"] = Value::Int(armor.occasion);
+        obj["consumable"] = Value::Int(armor.consumable);
+        obj["price"] = Value::Int(armor.price);
+        obj["scope"] = Value::Int(armor.scope);
+        obj["animationId"] = Value::Int(armor.animationId);
         arr.push_back(Value::Obj(std::move(obj)));
     }
     return Value::Arr(std::move(arr));
 }
 
-Value DataManager::getEnemiesAsValue() const {
-    Array arr;
-    arr.reserve(enemies_.size());
-    for (const auto& e : enemies_) {
-        Object obj;
-        obj["id"] = Value::Int(e.id);
-        obj["name"] = Value::Str(e.name);
-        obj["battlerName"] = Value::Str(e.battlerName);
-        obj["mhp"] = Value::Int(e.mhp);
-        obj["mmp"] = Value::Int(e.mmp);
-        obj["atk"] = Value::Int(e.atk);
-        obj["def"] = Value::Int(e.def);
-        obj["mat"] = Value::Int(e.mat);
-        obj["mdf"] = Value::Int(e.mdf);
-        obj["agi"] = Value::Int(e.agi);
-        obj["luk"] = Value::Int(e.luk);
-        obj["exp"] = Value::Int(e.exp);
-        obj["gold"] = Value::Int(e.gold);
-        Array drops;
-        for (int32_t d : e.dropItems) {
-            drops.push_back(Value::Int(d));
-        }
-        obj["dropItems"] = Value::Arr(std::move(drops));
-        arr.push_back(Value::Obj(std::move(obj)));
-    }
-    return Value::Arr(std::move(arr));
-}
-
-Value DataManager::getTroopsAsValue() const {
-    Array arr;
-    arr.reserve(troops_.size());
-    for (const auto& t : troops_) {
-        Object obj;
-        obj["id"] = Value::Int(t.id);
-        obj["name"] = Value::Str(t.name);
-        Array members;
-        for (int32_t m : t.members) {
-            members.push_back(Value::Int(m));
-        }
-        obj["members"] = Value::Arr(std::move(members));
-        obj["pages"] = t.pages;
-        arr.push_back(Value::Obj(std::move(obj)));
-    }
-    return Value::Arr(std::move(arr));
-}
-
-Value DataManager::getStatesAsValue() const {
-    Array arr;
-    arr.reserve(states_.size());
-    for (const auto& s : states_) {
-        Object obj;
-        obj["id"] = Value::Int(s.id);
-        obj["name"] = Value::Str(s.name);
-        obj["iconIndex"] = Value::Int(s.iconIndex);
-        obj["priority"] = Value::Int(s.priority);
-        obj["restriction"] = Value::Int(s.restriction);
-        obj["autoRemovalTiming"] = Value::Int(s.autoRemovalTiming);
-        obj["minTurns"] = Value::Int(s.minTurns);
-        obj["maxTurns"] = Value::Int(s.maxTurns);
-        arr.push_back(Value::Obj(std::move(obj)));
-    }
-    return Value::Arr(std::move(arr));
-}
-
+Value DataManager::getEnemiesAsValue() const { return Value::Arr({}); }
+Value DataManager::getTroopsAsValue() const { return Value::Arr({}); }
+Value DataManager::getStatesAsValue() const { return Value::Arr({}); }
 Value DataManager::getClassesAsValue() const {
     Array arr;
-    arr.reserve(classes_.size());
-    for (const auto& c : classes_) {
+    for (const auto& cls : classes_) {
         Object obj;
-        obj["id"] = Value::Int(c.id);
-        obj["name"] = Value::Str(c.name);
-        Array learnings;
-        for (int32_t s : c.learnings) {
-            learnings.push_back(Value::Int(s));
-        }
-        obj["learnings"] = Value::Arr(std::move(learnings));
-        Array paramsArr;
-        for (const auto& row : c.params) {
-            Array inner;
-            for (int32_t v : row) {
-                inner.push_back(Value::Int(v));
-            }
-            paramsArr.push_back(Value::Arr(std::move(inner)));
-        }
-        obj["params"] = Value::Arr(std::move(paramsArr));
+        obj["id"] = Value::Int(cls.id);
+        Value name; name.v = cls.name; obj["name"] = std::move(name);
         arr.push_back(Value::Obj(std::move(obj)));
     }
     return Value::Arr(std::move(arr));
@@ -1758,15 +1772,11 @@ Value DataManager::getClassesAsValue() const {
 
 Value DataManager::getMapInfosAsValue() const {
     Array arr;
-    arr.reserve(mapInfos_.size());
-    for (const auto& m : mapInfos_) {
-        Object obj;
-        obj["id"] = Value::Int(m.id);
-        obj["name"] = Value::Str(m.name);
-        obj["parentId"] = Value::Int(m.parentId);
-        obj["order"] = Value::Int(m.order);
-        obj["expanded"] = Value::Int(m.expanded ? 1 : 0);
-        arr.push_back(Value::Obj(std::move(obj)));
+    for (const auto& info : mapInfos_) {
+        if (info.id <= 0) {
+            continue;
+        }
+        arr.push_back(Value::Obj(mapInfoToObject(info)));
     }
     return Value::Arr(std::move(arr));
 }
@@ -1780,21 +1790,6 @@ Value DataManager::getGlobalStateAsValue() const {
     obj["playerX"] = Value::Int(globalState_.playerX);
     obj["playerY"] = Value::Int(globalState_.playerY);
     obj["playerDirection"] = Value::Int(globalState_.playerDirection);
-    Array party;
-    for (int32_t m : globalState_.partyMembers) {
-        party.push_back(Value::Int(m));
-    }
-    obj["partyMembers"] = Value::Arr(std::move(party));
-    Array switches;
-    for (bool s : globalState_.switches) {
-        switches.push_back(Value::Int(s ? 1 : 0));
-    }
-    obj["switches"] = Value::Arr(std::move(switches));
-    Array variables;
-    for (int32_t v : globalState_.variables) {
-        variables.push_back(Value::Int(v));
-    }
-    obj["variables"] = Value::Arr(std::move(variables));
     return Value::Obj(std::move(obj));
 }
 
@@ -1824,65 +1819,6 @@ bool DataManager::executePluginCommand(const std::string& command, const std::ve
 }
 
 // ============================================================================
-// Test Helpers
-// ============================================================================
-
-void DataManager::clearDatabase() {
-    actors_.clear();
-    classes_.clear();
-    skills_.clear();
-    items_.clear();
-    weapons_.clear();
-    armors_.clear();
-    enemies_.clear();
-    troops_.clear();
-    states_.clear();
-    animations_.clear();
-    mapInfos_.clear();
-    globalState_ = GlobalState{};
-    gameActors_.clear();
-    gameParty_ = GameParty{};
-    gameTroop_ = GameTroop{};
-    impl_->isDatabaseLoaded = false;
-}
-
-EnemyData& DataManager::addTestEnemy() {
-    enemies_.push_back(EnemyData{});
-    enemies_.back().id = static_cast<int32_t>(enemies_.size());
-    return enemies_.back();
-}
-
-TroopData& DataManager::addTestTroop() {
-    troops_.push_back(TroopData{});
-    troops_.back().id = static_cast<int32_t>(troops_.size());
-    return troops_.back();
-}
-
-ActorData& DataManager::addTestActor() {
-    actors_.push_back(ActorData{});
-    actors_.back().id = static_cast<int32_t>(actors_.size());
-    return actors_.back();
-}
-
-ItemData& DataManager::addTestItem() {
-    items_.push_back(ItemData{});
-    items_.back().id = static_cast<int32_t>(items_.size());
-    return items_.back();
-}
-
-SkillData& DataManager::addTestSkill() {
-    skills_.push_back(SkillData{});
-    skills_.back().id = static_cast<int32_t>(skills_.size());
-    return skills_.back();
-}
-
-StateData& DataManager::addTestState() {
-    states_.push_back(StateData{});
-    states_.back().id = static_cast<int32_t>(states_.size());
-    return states_.back();
-}
-
-// ============================================================================
 // Compat Status
 // ============================================================================
 
@@ -1902,107 +1838,73 @@ std::string DataManager::getMethodDeviation(const std::string& methodName) {
     return "";
 }
 
-namespace {
-
-int64_t valueToInt64(const urpg::Value& value, int64_t fallback = 0) {
-    if (const auto* integer = std::get_if<int64_t>(&value.v)) {
-        return *integer;
-    }
-    if (const auto* real = std::get_if<double>(&value.v)) {
-        return static_cast<int64_t>(std::llround(*real));
-    }
-    if (const auto* flag = std::get_if<bool>(&value.v)) {
-        return *flag ? 1 : 0;
-    }
-    if (const auto* text = std::get_if<std::string>(&value.v)) {
-        try {
-            size_t consumed = 0;
-            const int64_t parsed = std::stoll(*text, &consumed, 10);
-            if (consumed == text->size()) {
-                return parsed;
-            }
-        } catch (...) {
-        }
-        try {
-            size_t consumed = 0;
-            const double parsed = std::stod(*text, &consumed);
-            if (consumed == text->size()) {
-                return static_cast<int64_t>(std::llround(parsed));
-            }
-        } catch (...) {
-        }
-    }
-    return fallback;
-}
-
-} // namespace
-
 void DataManager::registerAPI(QuickJSContext& ctx) {
     std::vector<QuickJSContext::MethodDef> methods;
     
     methods.push_back({"loadDatabase", [](const std::vector<Value>&) -> Value {
-        DataManager::instance().loadDatabase();
-        return Value::Int(1);
-    }, CompatStatus::FULL});
+        return Value::Int(DataManager::instance().loadDatabase() ? 1 : 0);
+    }, CompatStatus::PARTIAL});
     
     methods.push_back({"saveGame", [](const std::vector<Value>& args) -> Value {
-        if (args.size() < 1) return Value::Int(0);
-        return Value::Int(DataManager::instance().saveGame(static_cast<int32_t>(valueToInt64(args[0]))) ? 1 : 0);
-    }, CompatStatus::FULL});
+        if (args.empty() || !std::holds_alternative<int64_t>(args[0].v)) return Value::Int(0);
+        return Value::Int(DataManager::instance().saveGame(static_cast<int32_t>(std::get<int64_t>(args[0].v))) ? 1 : 0);
+    }, CompatStatus::PARTIAL});
     
     methods.push_back({"loadGame", [](const std::vector<Value>& args) -> Value {
-        if (args.size() < 1) return Value::Int(0);
-        return Value::Int(DataManager::instance().loadGame(static_cast<int32_t>(valueToInt64(args[0]))) ? 1 : 0);
-    }, CompatStatus::FULL});
+        if (args.empty() || !std::holds_alternative<int64_t>(args[0].v)) return Value::Int(0);
+        return Value::Int(DataManager::instance().loadGame(static_cast<int32_t>(std::get<int64_t>(args[0].v))) ? 1 : 0);
+    }, CompatStatus::PARTIAL});
     
     methods.push_back({"getGold", [](const std::vector<Value>&) -> Value {
         return Value::Int(DataManager::instance().getGold());
-    }, CompatStatus::FULL});
+    }, CompatStatus::PARTIAL});
     
     methods.push_back({"setGold", [](const std::vector<Value>& args) -> Value {
-        if (args.size() < 1) return Value::Nil();
-        DataManager::instance().setGold(static_cast<int32_t>(valueToInt64(args[0])));
+        if (args.empty() || !std::holds_alternative<int64_t>(args[0].v)) return Value::Nil();
+        DataManager::instance().setGold(static_cast<int32_t>(std::get<int64_t>(args[0].v)));
         return Value::Nil();
-    }, CompatStatus::FULL});
+    }, CompatStatus::PARTIAL});
     
     methods.push_back({"getSwitch", [](const std::vector<Value>& args) -> Value {
-        if (args.size() < 1) return Value::Int(0);
-        return Value::Int(DataManager::instance().getSwitch(static_cast<int32_t>(valueToInt64(args[0]))) ? 1 : 0);
-    }, CompatStatus::FULL});
+        if (args.empty() || !std::holds_alternative<int64_t>(args[0].v)) return Value::Int(0);
+        return Value::Int(DataManager::instance().getSwitch(static_cast<int32_t>(std::get<int64_t>(args[0].v))) ? 1 : 0);
+    }, CompatStatus::PARTIAL});
     
     methods.push_back({"setSwitch", [](const std::vector<Value>& args) -> Value {
-        if (args.size() < 2) return Value::Nil();
-        DataManager::instance().setSwitch(static_cast<int32_t>(valueToInt64(args[0])), valueToInt64(args[1]) != 0);
+        if (args.size() < 2 || !std::holds_alternative<int64_t>(args[0].v)) return Value::Nil();
+        bool val = false;
+        if (std::holds_alternative<bool>(args[1].v)) val = std::get<bool>(args[1].v);
+        else if (std::holds_alternative<int64_t>(args[1].v)) val = std::get<int64_t>(args[1].v) != 0;
+        DataManager::instance().setSwitch(static_cast<int32_t>(std::get<int64_t>(args[0].v)), val);
         return Value::Nil();
-    }, CompatStatus::FULL});
+    }, CompatStatus::PARTIAL});
     
     methods.push_back({"getVariable", [](const std::vector<Value>& args) -> Value {
-        if (args.size() < 1) return Value::Int(0);
-        return Value::Int(DataManager::instance().getVariable(static_cast<int32_t>(valueToInt64(args[0]))));
-    }, CompatStatus::FULL});
+        if (args.empty() || !std::holds_alternative<int64_t>(args[0].v)) return Value::Int(0);
+        return Value::Int(DataManager::instance().getVariable(static_cast<int32_t>(std::get<int64_t>(args[0].v))));
+    }, CompatStatus::PARTIAL});
     
     methods.push_back({"setVariable", [](const std::vector<Value>& args) -> Value {
-        if (args.size() < 2) return Value::Nil();
-        DataManager::instance().setVariable(static_cast<int32_t>(valueToInt64(args[0])), static_cast<int32_t>(valueToInt64(args[1])));
+        if (args.size() < 2 || !std::holds_alternative<int64_t>(args[0].v)) return Value::Nil();
+        int32_t val = 0;
+        if (std::holds_alternative<int64_t>(args[1].v)) val = static_cast<int32_t>(std::get<int64_t>(args[1].v));
+        else if (std::holds_alternative<double>(args[1].v)) val = static_cast<int32_t>(std::get<double>(args[1].v));
+        DataManager::instance().setVariable(static_cast<int32_t>(std::get<int64_t>(args[0].v)), val);
         return Value::Nil();
-    }, CompatStatus::FULL});
+    }, CompatStatus::PARTIAL});
     
     methods.push_back({"getItemCount", [](const std::vector<Value>& args) -> Value {
-        if (args.size() < 1) return Value::Int(0);
-        return Value::Int(DataManager::instance().getItemCount(static_cast<int32_t>(valueToInt64(args[0]))));
-    }, CompatStatus::FULL});
+        if (args.empty() || !std::holds_alternative<int64_t>(args[0].v)) return Value::Int(0);
+        return Value::Int(DataManager::instance().getItemCount(static_cast<int32_t>(std::get<int64_t>(args[0].v))));
+    }, CompatStatus::PARTIAL});
     
     methods.push_back({"gainItem", [](const std::vector<Value>& args) -> Value {
-        if (args.size() < 2) return Value::Nil();
-        DataManager::instance().gainItem(static_cast<int32_t>(valueToInt64(args[0])), static_cast<int32_t>(valueToInt64(args[1])));
+        if (args.size() < 2 || !std::holds_alternative<int64_t>(args[0].v) || !std::holds_alternative<int64_t>(args[1].v)) return Value::Nil();
+        DataManager::instance().gainItem(static_cast<int32_t>(std::get<int64_t>(args[0].v)), static_cast<int32_t>(std::get<int64_t>(args[1].v)));
         return Value::Nil();
-    }, CompatStatus::FULL});
+    }, CompatStatus::PARTIAL});
     
     ctx.registerObject("DataManager", methods);
-    
-    // Register $gameParty and $gameTroop runtime objects
-    GameParty::registerAPI(ctx, DataManager::instance().getGameParty());
-    GameTroop::registerAPI(ctx, DataManager::instance().getGameTroop());
 }
 
 } // namespace compat

@@ -1,0 +1,133 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "URPG Readiness Status",
+  "description": "Canonical readiness records for subsystems and templates.",
+  "type": "object",
+  "properties": {
+    "schemaVersion": {
+      "type": "string"
+    },
+    "statusDate": {
+      "type": "string"
+    },
+    "subsystems": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/readinessEntry"
+      }
+    },
+    "templates": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/templateEntry"
+      }
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "statusDate",
+    "subsystems",
+    "templates"
+  ],
+  "definitions": {
+    "readinessStatus": {
+      "type": "string",
+      "enum": [
+        "READY",
+        "PARTIAL",
+        "EXPERIMENTAL",
+        "BLOCKED",
+        "PLANNED"
+      ]
+    },
+    "minimumBarStatus": {
+      "type": "string",
+      "enum": [
+        "READY",
+        "PARTIAL",
+        "PLANNED"
+      ]
+    },
+    "evidence": {
+      "type": "object",
+      "properties": {
+        "runtimeOwner": { "type": "boolean" },
+        "editorSurface": { "type": "boolean" },
+        "schemaMigration": { "type": "boolean" },
+        "diagnostics": { "type": "boolean" },
+        "testsValidation": { "type": "boolean" },
+        "docsAligned": { "type": "boolean" }
+      },
+      "required": [
+        "runtimeOwner",
+        "editorSurface",
+        "schemaMigration",
+        "diagnostics",
+        "testsValidation",
+        "docsAligned"
+      ]
+    },
+    "readinessEntry": {
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "status": { "$ref": "#/definitions/readinessStatus" },
+        "summary": { "type": "string" },
+        "mainGaps": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "evidence": { "$ref": "#/definitions/evidence" }
+      },
+      "required": [
+        "id",
+        "status",
+        "summary",
+        "mainGaps",
+        "evidence"
+      ]
+    },
+    "templateBars": {
+      "type": "object",
+      "properties": {
+        "accessibility": { "$ref": "#/definitions/minimumBarStatus" },
+        "audio": { "$ref": "#/definitions/minimumBarStatus" },
+        "input": { "$ref": "#/definitions/minimumBarStatus" },
+        "localization": { "$ref": "#/definitions/minimumBarStatus" },
+        "performance": { "$ref": "#/definitions/minimumBarStatus" }
+      },
+      "required": [
+        "accessibility",
+        "audio",
+        "input",
+        "localization",
+        "performance"
+      ]
+    },
+    "templateEntry": {
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "status": { "$ref": "#/definitions/readinessStatus" },
+        "requiredSubsystems": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "bars": { "$ref": "#/definitions/templateBars" },
+        "safeScope": { "type": "string" },
+        "mainBlockers": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      },
+      "required": [
+        "id",
+        "status",
+        "requiredSubsystems",
+        "bars",
+        "safeScope",
+        "mainBlockers"
+      ]
+    }
+  }
+}

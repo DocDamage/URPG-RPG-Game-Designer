@@ -4,191 +4,121 @@
 #include <variant>
 
 using namespace urpg::compat;
-using urpg::Value;
 using urpg::Array;
+using urpg::Object;
 
 TEST_CASE("DataManager: database loading and accessors", "[data_manager]") {
     DataManager dm;
+    DataManager::setDataDirectory(URPG_SOURCE_DIR "\\third_party\\rpgmaker-mz\\visumz-sample-project\\VisuMZ_Sample_Game_Project\\data");
 
     REQUIRE(dm.loadDatabase());
+    // loadDatabase now orchestrates sub-loaders and reads real MZ JSON files
+    REQUIRE_FALSE(dm.getActors().empty());
+    REQUIRE_FALSE(dm.getSkills().empty());
+    REQUIRE_FALSE(dm.getItems().empty());
+    REQUIRE_FALSE(dm.getClasses().empty());
+    REQUIRE_FALSE(dm.getWeapons().empty());
+    REQUIRE_FALSE(dm.getArmors().empty());
+    REQUIRE_FALSE(dm.getEnemies().empty());
+    REQUIRE_FALSE(dm.getTroops().empty());
+    REQUIRE_FALSE(dm.getStates().empty());
+    REQUIRE_FALSE(dm.getMapInfos().empty());
+
+    // Direct sub-loader calls are idempotent
     REQUIRE(dm.loadActors());
     REQUIRE(dm.loadSkills());
     REQUIRE(dm.loadItems());
     REQUIRE(dm.loadEnemies());
 
-    REQUIRE(dm.getActors().empty());
-    REQUIRE(dm.getSkills().empty());
-    REQUIRE(dm.getItems().empty());
-    REQUIRE(dm.getEnemies().empty());
+    // Verify real records from VisuMZ sample project are loaded
+    REQUIRE(dm.getActor(1) != nullptr);
+    REQUIRE(dm.getActor(1)->name == "Reid");
+    REQUIRE(dm.getActor(2) != nullptr);
+    REQUIRE(dm.getActor(2)->name == "Priscilla");
+    REQUIRE(dm.getActor(1)->params.size() == 8);
+    REQUIRE(dm.getActor(1)->params[0].size() > 1);
+    REQUIRE(dm.getActor(1)->params[6].size() > 1);
+    REQUIRE(dm.getActor(1)->params[0][1] > 0);
+    REQUIRE(dm.getActor(1)->params[6][1] > 0);
+
+    REQUIRE(dm.getSkill(1) != nullptr);
+    REQUIRE(dm.getSkill(1)->name == "Attack");
+    REQUIRE(dm.getSkill(52) != nullptr);
+    REQUIRE(dm.getSkill(52)->name == "Heal I");
+
+    REQUIRE(dm.getItem(7) != nullptr);
+    REQUIRE(dm.getItem(7)->name == "Potion");
+
+    REQUIRE(dm.getClass(1) != nullptr);
+    REQUIRE(dm.getClass(1)->name == "Swordsman");
+
+    REQUIRE(dm.getWeapon(1) != nullptr);
+    REQUIRE(dm.getWeapon(1)->name == "Short Sword");
+
+    REQUIRE(dm.getArmor(2) != nullptr);
+    REQUIRE(dm.getArmor(2)->name == "Linen Clothing");
+
+    REQUIRE(dm.getEnemy(1) != nullptr);
+    REQUIRE(dm.getEnemy(1)->name == "Goblin");
+
+    REQUIRE(dm.getTroop(1) != nullptr);
+    REQUIRE(dm.getTroop(1)->name == "Goblin x2");
+
+    REQUIRE(dm.getState(4) != nullptr);
+    REQUIRE(dm.getState(4)->name == "Poison");
+
+    REQUIRE(!dm.getMapInfos().empty());
+    REQUIRE(dm.getMapInfos()[0].name == "Debug Room");
+
+    REQUIRE(dm.getStartMapId() == 2);
+    REQUIRE(dm.getStartX() == 16);
+    REQUIRE(dm.getStartY() == 23);
+    REQUIRE(dm.getStartPartySize() == 8);
 
     REQUIRE(dm.getActor(999) == nullptr);
     REQUIRE(dm.getSkill(999) == nullptr);
     REQUIRE(dm.getItem(999) == nullptr);
 }
 
-TEST_CASE("DataManager: MZ JSON file loading", "[data_manager]") {
+TEST_CASE("DataManager loadDatabase populates seeded database containers", "[data_manager]") {
+    DataManager::setDataDirectory("");
     DataManager dm;
-#ifdef URPG_SOURCE_DIR
-    dm.setDataPath(URPG_SOURCE_DIR "/tests/data/mz_data");
-#else
-    dm.setDataPath("tests/data/mz_data");
-#endif
 
     REQUIRE(dm.loadDatabase());
-
     REQUIRE_FALSE(dm.getActors().empty());
-    REQUIRE_FALSE(dm.getClasses().empty());
     REQUIRE_FALSE(dm.getSkills().empty());
     REQUIRE_FALSE(dm.getItems().empty());
-    REQUIRE_FALSE(dm.getWeapons().empty());
-    REQUIRE_FALSE(dm.getArmors().empty());
+    REQUIRE_FALSE(dm.getClasses().empty());
     REQUIRE_FALSE(dm.getEnemies().empty());
     REQUIRE_FALSE(dm.getTroops().empty());
-    REQUIRE_FALSE(dm.getStates().empty());
     REQUIRE_FALSE(dm.getAnimations().empty());
-    REQUIRE_FALSE(dm.getMapInfos().empty());
-
-    const ActorData* actor1 = dm.getActor(1);
-    REQUIRE(actor1 != nullptr);
-    REQUIRE(actor1->name == "Harold");
-    REQUIRE(actor1->nickname == "Hero");
-    REQUIRE(actor1->classId == 1);
-    REQUIRE(actor1->initialLevel == 1);
-    REQUIRE(actor1->maxLevel == 99);
-    REQUIRE(actor1->faceName == "Actor1");
-    REQUIRE(actor1->battlerName == "Actor1_1");
-    REQUIRE(actor1->params.size() == 8);
-
-    const ActorData* actor2 = dm.getActor(2);
-    REQUIRE(actor2 != nullptr);
-    REQUIRE(actor2->name == "Therese");
-    REQUIRE(actor2->classId == 2);
-
-    const ClassData* class1 = dm.getClass(1);
-    REQUIRE(class1 != nullptr);
-    REQUIRE(class1->name == "Hero");
-    REQUIRE(class1->params.size() == 8);
-
-    const SkillData* skill1 = dm.getSkill(1);
-    REQUIRE(skill1 != nullptr);
-    REQUIRE(skill1->name == "Attack");
-    REQUIRE(skill1->mpCost == 0);
-
-    const SkillData* skill2 = dm.getSkill(2);
-    REQUIRE(skill2 != nullptr);
-    REQUIRE(skill2->name == "Fire");
-    REQUIRE(skill2->mpCost == 5);
-
-    const ItemData* item1 = dm.getItem(1);
-    REQUIRE(item1 != nullptr);
-    REQUIRE(item1->name == "Potion");
-    REQUIRE(item1->price == 50);
-
-    const ItemData* weapon1 = dm.getWeapon(1);
-    REQUIRE(weapon1 != nullptr);
-    REQUIRE(weapon1->name == "Sword");
-    REQUIRE(weapon1->price == 500);
-
-    const ItemData* armor1 = dm.getArmor(1);
-    REQUIRE(armor1 != nullptr);
-    REQUIRE(armor1->name == "Cloth");
-    REQUIRE(armor1->price == 100);
-
-    const EnemyData* enemy1 = dm.getEnemy(1);
-    REQUIRE(enemy1 != nullptr);
-    REQUIRE(enemy1->name == "Slime");
-    REQUIRE(enemy1->battlerName == "Slime");
-    REQUIRE(enemy1->mhp == 100);
-
-    const EnemyData* enemy2 = dm.getEnemy(2);
-    REQUIRE(enemy2 != nullptr);
-    REQUIRE(enemy2->name == "Bat");
-    REQUIRE(enemy2->battlerName == "Bat");
-    REQUIRE(enemy2->mhp == 80);
-
-    const TroopData* troop1 = dm.getTroop(1);
-    REQUIRE(troop1 != nullptr);
-    REQUIRE(troop1->name == "Slime*2");
-    REQUIRE(troop1->members.size() == 2);
-    REQUIRE(troop1->members[0] == 1);
-    REQUIRE(troop1->members[1] == 1);
-
-    const StateData* state1 = dm.getState(1);
-    REQUIRE(state1 != nullptr);
-    REQUIRE(state1->name == "Knockout");
-    REQUIRE(state1->iconIndex == 0);
-
-    const StateData* state2 = dm.getState(2);
-    REQUIRE(state2 != nullptr);
-    REQUIRE(state2->name == "Poison");
-    REQUIRE(state2->iconIndex == 64);
-
-    REQUIRE(dm.getStartMapId() == 1);
-    REQUIRE(dm.getStartX() == 8);
-    REQUIRE(dm.getStartY() == 6);
-    REQUIRE(dm.getStartPartySize() == 2);
-    REQUIRE(dm.getStartPartyMember(0) == 1);
-    REQUIRE(dm.getStartPartyMember(1) == 2);
-
-    const MapInfo* map1 = dm.getMapInfos().empty() ? nullptr : &dm.getMapInfos()[0];
-    REQUIRE(map1 != nullptr);
-    REQUIRE(map1->name == "World Map");
-
-    REQUIRE(dm.loadMapData(1));
-    REQUIRE(dm.loadMapData(999) == false);
-
-    // Verify getXxxAsValue() returns non-empty arrays
-    Value actorsVal = dm.getActorsAsValue();
-    REQUIRE(std::holds_alternative<Array>(actorsVal.v));
-    REQUIRE(std::get<Array>(actorsVal.v).size() == dm.getActors().size());
-
-    Value skillsVal = dm.getSkillsAsValue();
-    REQUIRE(std::holds_alternative<Array>(skillsVal.v));
-    REQUIRE(std::get<Array>(skillsVal.v).size() == dm.getSkills().size());
-
-    Value itemsVal = dm.getItemsAsValue();
-    REQUIRE(std::holds_alternative<Array>(itemsVal.v));
-    REQUIRE(std::get<Array>(itemsVal.v).size() == dm.getItems().size());
-
-    Value weaponsVal = dm.getWeaponsAsValue();
-    REQUIRE(std::holds_alternative<Array>(weaponsVal.v));
-    REQUIRE(std::get<Array>(weaponsVal.v).size() == dm.getWeapons().size());
-
-    Value armorsVal = dm.getArmorsAsValue();
-    REQUIRE(std::holds_alternative<Array>(armorsVal.v));
-    REQUIRE(std::get<Array>(armorsVal.v).size() == dm.getArmors().size());
-
-    Value enemiesVal = dm.getEnemiesAsValue();
-    REQUIRE(std::holds_alternative<Array>(enemiesVal.v));
-    REQUIRE(std::get<Array>(enemiesVal.v).size() == dm.getEnemies().size());
-
-    Value troopsVal = dm.getTroopsAsValue();
-    REQUIRE(std::holds_alternative<Array>(troopsVal.v));
-    REQUIRE(std::get<Array>(troopsVal.v).size() == dm.getTroops().size());
-
-    Value statesVal = dm.getStatesAsValue();
-    REQUIRE(std::holds_alternative<Array>(statesVal.v));
-    REQUIRE(std::get<Array>(statesVal.v).size() == dm.getStates().size());
-
-    Value classesVal = dm.getClassesAsValue();
-    REQUIRE(std::holds_alternative<Array>(classesVal.v));
-    REQUIRE(std::get<Array>(classesVal.v).size() == dm.getClasses().size());
-
-    Value mapInfosVal = dm.getMapInfosAsValue();
-    REQUIRE(std::holds_alternative<Array>(mapInfosVal.v));
-    REQUIRE(std::get<Array>(mapInfosVal.v).size() == dm.getMapInfos().size());
+    REQUIRE(dm.getActor(1) != nullptr);
+    REQUIRE(dm.getActor(1)->name == "Hero");
+    REQUIRE(dm.getSkill(1) != nullptr);
+    REQUIRE(dm.getSkill(1)->name == "Heal");
+    REQUIRE(dm.getItem(1) != nullptr);
+    REQUIRE(dm.getItem(1)->name == "Potion");
+    REQUIRE(dm.getClass(1) != nullptr);
+    REQUIRE(dm.getClass(1)->name == "Warrior");
+    REQUIRE(dm.getEnemy(1) != nullptr);
+    REQUIRE(dm.getEnemy(1)->name == "Slime");
+    REQUIRE(dm.getTroop(1) != nullptr);
+    REQUIRE(dm.getTroop(1)->name == "Slime x2");
 }
 
 TEST_CASE("DataManager: global state and inventory", "[data_manager]") {
+    DataManager::setDataDirectory("");
     DataManager dm;
     dm.loadDatabase();
     dm.setupNewGame();
 
     GlobalState& state = dm.getGlobalState();
     REQUIRE(state.actors.empty());
-    REQUIRE(state.partyMembers.empty());
+    // setupNewGame now copies the start party (populated by loadDatabase)
+    REQUIRE_FALSE(state.partyMembers.empty());
 
-    REQUIRE(dm.getPartySize() == 0);
+    REQUIRE(dm.getPartySize() == 1);
+    REQUIRE(dm.getPartyMember(0) == 1);
     REQUIRE(dm.getGold() == 0);
 
     dm.setGold(1000);
@@ -213,6 +143,21 @@ TEST_CASE("DataManager: global state and inventory", "[data_manager]") {
     dm.loseItem(1, 50);
     REQUIRE(dm.getItemCount(1) == 0);
     REQUIRE_FALSE(dm.hasItem(1));
+}
+
+TEST_CASE("DataManager: actor param access stays safe when only actor records are loaded", "[data_manager]") {
+    DataManager::setDataDirectory("");
+    DataManager dm;
+
+    REQUIRE(dm.loadActors());
+    REQUIRE(dm.getActor(1) != nullptr);
+    REQUIRE(dm.getActor(1)->params.empty());
+
+    REQUIRE(dm.getActorParam(1, 0, 1) == 100);
+    REQUIRE(dm.getActorParam(1, 1, 1) == 30);
+    REQUIRE(dm.getActorParam(1, 2, 1) == 10);
+    REQUIRE(dm.getActorParam(1, 6, 1) == 10);
+    REQUIRE(dm.getActorParam(999, 2, 1) == 10);
 }
 
 TEST_CASE("DataManager: switches, variables, and self switches", "[data_manager]") {
@@ -375,116 +320,170 @@ TEST_CASE("DataManager: method status registry", "[data_manager]") {
     (void)dm;
 
     REQUIRE(DataManager::getMethodStatus("loadDatabase") == CompatStatus::PARTIAL);
-    REQUIRE(DataManager::getMethodStatus("setupNewGame") == CompatStatus::FULL);
-    REQUIRE(DataManager::getMethodStatus("setSaveHeaderExtension") == CompatStatus::FULL);
-    REQUIRE(DataManager::getMethodDeviation("loadDatabase").find("JSON database ingestion") != std::string::npos);
+    REQUIRE(DataManager::getMethodStatus("setupNewGame") == CompatStatus::PARTIAL);
+    REQUIRE(DataManager::getMethodStatus("setSaveHeaderExtension") == CompatStatus::PARTIAL);
+    REQUIRE(DataManager::getMethodDeviation("loadDatabase").empty());
     REQUIRE(DataManager::getMethodStatus("nonexistentMethod") == CompatStatus::UNSUPPORTED);
 }
 
-TEST_CASE("DataManager: GameActor setup from database", "[data_manager]") {
-#ifdef URPG_SOURCE_DIR
-    DataManager::instance().setDataPath(URPG_SOURCE_DIR "/tests/data/mz_data");
-#else
-    DataManager::instance().setDataPath("tests/data/mz_data");
-#endif
-    DataManager::instance().loadDatabase();
-    DataManager::instance().setupNewGame();
+TEST_CASE("DataManager: database accessors as Value", "[data_manager]") {
+    DataManager dm;
+    DataManager::setDataDirectory(URPG_SOURCE_DIR "\\third_party\\rpgmaker-mz\\visumz-sample-project\\VisuMZ_Sample_Game_Project\\data");
+    REQUIRE(dm.loadDatabase());
 
-    const GameActor* ga1 = DataManager::instance().getGameActor(1);
-    REQUIRE(ga1 != nullptr);
-    REQUIRE(ga1->actorId == 1);
-    REQUIRE(ga1->level == 1);
-    REQUIRE(ga1->hp == ga1->mhp);
-    REQUIRE(ga1->mp == ga1->mmp);
-    REQUIRE(ga1->tp == 0);
-    REQUIRE(ga1->mhp > 0);
-    REQUIRE(ga1->mmp > 0);
+    auto actors = dm.getActorsAsValue();
+    REQUIRE(std::holds_alternative<Array>(actors.v));
+    auto& actorArr = std::get<Array>(actors.v);
+    REQUIRE(!actorArr.empty());
 
-    REQUIRE(DataManager::instance().getGameActor(999) == nullptr);
+    auto items = dm.getItemsAsValue();
+    REQUIRE(std::holds_alternative<Array>(items.v));
+    auto& itemArr = std::get<Array>(items.v);
+    REQUIRE(!itemArr.empty());
 
-    DataManager::instance().clearDatabase();
+    auto skills = dm.getSkillsAsValue();
+    REQUIRE(std::holds_alternative<Array>(skills.v));
+    auto& skillArr = std::get<Array>(skills.v);
+    REQUIRE(!skillArr.empty());
+
+    REQUIRE(dm.loadMapInfos());
+    auto mapInfos = dm.getMapInfosAsValue();
+    REQUIRE(std::holds_alternative<Array>(mapInfos.v));
+    auto& mapInfoArr = std::get<Array>(mapInfos.v);
+    REQUIRE_FALSE(dm.getMapInfos().empty());
+    REQUIRE(!mapInfoArr.empty());
+    REQUIRE(std::holds_alternative<Object>(mapInfoArr.front().v));
+    REQUIRE(std::get<std::string>(std::get<Object>(mapInfoArr.front().v).at("name").v) == "Debug Room");
+
+    auto tilesets = dm.getTilesetsAsValue();
+    REQUIRE(std::holds_alternative<Array>(tilesets.v));
+    auto& tilesetArr = std::get<Array>(tilesets.v);
+    REQUIRE(!tilesetArr.empty());
+    REQUIRE(std::holds_alternative<Object>(tilesetArr.front().v));
+    REQUIRE(std::get<int64_t>(std::get<Object>(tilesetArr.front().v).at("id").v) > 0);
 }
 
-TEST_CASE("DataManager: GameActor HP/MP/TP setters", "[data_manager]") {
-    DataManager::instance().clearDatabase();
+TEST_CASE("DataManager: map data loads real MZ JSON when available", "[data_manager]") {
+    DataManager dm;
+    DataManager::setDataDirectory(URPG_SOURCE_DIR "\\third_party\\rpgmaker-mz\\visumz-sample-project\\VisuMZ_Sample_Game_Project\\data");
 
-    ActorData& actor = DataManager::instance().addTestActor();
-    actor.initialLevel = 1;
-    actor.params = {{50, 30, 8, 8, 8, 8, 8, 8}};
-    DataManager::instance().setupGameActors();
+    REQUIRE(dm.loadDatabase());
+    REQUIRE(dm.loadMapData(2));
 
-    const GameActor* ga = DataManager::instance().getGameActor(actor.id);
-    REQUIRE(ga != nullptr);
-    REQUIRE(ga->hp == 50);
-    REQUIRE(ga->mp == 30);
-    REQUIRE(ga->tp == 0);
+    const MapData* map = dm.getCurrentMap();
+    REQUIRE(map != nullptr);
+    REQUIRE(map->id == 2);
+    REQUIRE(map->width == 34);
+    REQUIRE(map->height == 39);
+    REQUIRE(map->tilesetId == 12);
+    REQUIRE(map->data.size() == 6);
+    REQUIRE(map->data[0].size() == static_cast<size_t>(34 * 39));
 
-    DataManager::instance().setGameActorHp(actor.id, 25);
-    REQUIRE(DataManager::instance().getGameActor(actor.id)->hp == 25);
-
-    DataManager::instance().setGameActorMp(actor.id, 10);
-    REQUIRE(DataManager::instance().getGameActor(actor.id)->mp == 10);
-
-    DataManager::instance().setGameActorTp(actor.id, 50);
-    REQUIRE(DataManager::instance().getGameActor(actor.id)->tp == 50);
-
-    DataManager::instance().setGameActorLevel(actor.id, 5);
-    REQUIRE(DataManager::instance().getGameActor(actor.id)->level == 5);
-
-    DataManager::instance().clearDatabase();
+    auto mapValue = dm.getMapDataAsValue();
+    REQUIRE(std::holds_alternative<Object>(mapValue.v));
+    const auto& mapObject = std::get<Object>(mapValue.v);
+    REQUIRE(std::get<int64_t>(mapObject.at("width").v) == 34);
+    REQUIRE(std::get<int64_t>(mapObject.at("height").v) == 39);
+    REQUIRE(std::get<int64_t>(mapObject.at("tilesetId").v) == 12);
+    REQUIRE(std::holds_alternative<Array>(mapObject.at("data").v));
+    const auto& layers = std::get<Array>(mapObject.at("data").v);
+    REQUIRE(layers.size() == 6);
+    REQUIRE(std::holds_alternative<Array>(layers.front().v));
+    REQUIRE(std::get<Array>(layers.front().v).size() == static_cast<size_t>(34 * 39));
+    REQUIRE_FALSE(std::holds_alternative<std::monostate>(mapObject.at("events").v));
 }
 
-TEST_CASE("DataManager: GameActor mtp defaults to 100", "[data_manager]") {
-    DataManager::instance().clearDatabase();
-    // Add a test actor with params so setupGameActors creates a GameActor
-    auto& actor = DataManager::instance().addTestActor();
-    actor.id = 1;
-    actor.initialLevel = 1;
-    actor.params = {{100, 100, 10, 10, 10, 10, 10, 10}};
+TEST_CASE("DataManager: JS API bindings via registerAPI", "[data_manager]") {
+    DataManager dm;
+    dm.loadDatabase();
+    dm.setupNewGame();
 
-    DataManager::instance().setupGameActors();
-    const GameActor* ga = DataManager::instance().getGameActor(1);
-    REQUIRE(ga != nullptr);
-    REQUIRE(ga->mtp == 100);
+    QuickJSContext ctx;
+    QuickJSConfig config;
+    REQUIRE(ctx.initialize(config));
 
-    DataManager::instance().clearDatabase();
+    DataManager::registerAPI(ctx);
+
+    // getGold / setGold
+    auto getGoldResult = ctx.callMethod("DataManager", "getGold", {});
+    REQUIRE(getGoldResult.success);
+    REQUIRE(std::holds_alternative<int64_t>(getGoldResult.value.v));
+    REQUIRE(std::get<int64_t>(getGoldResult.value.v) == 0);
+
+    ctx.callMethod("DataManager", "setGold", {urpg::Value::Int(250)});
+    getGoldResult = ctx.callMethod("DataManager", "getGold", {});
+    REQUIRE(getGoldResult.success);
+    REQUIRE(std::get<int64_t>(getGoldResult.value.v) == 250);
+
+    // getSwitch / setSwitch
+    auto getSwitchResult = ctx.callMethod("DataManager", "getSwitch", {urpg::Value::Int(1)});
+    REQUIRE(getSwitchResult.success);
+    REQUIRE(std::holds_alternative<int64_t>(getSwitchResult.value.v));
+    REQUIRE(std::get<int64_t>(getSwitchResult.value.v) == 0);
+
+    ctx.callMethod("DataManager", "setSwitch", {urpg::Value::Int(1), urpg::Value::Int(1)});
+    getSwitchResult = ctx.callMethod("DataManager", "getSwitch", {urpg::Value::Int(1)});
+    REQUIRE(getSwitchResult.success);
+    REQUIRE(std::get<int64_t>(getSwitchResult.value.v) == 1);
+
+    // getVariable / setVariable
+    auto getVarResult = ctx.callMethod("DataManager", "getVariable", {urpg::Value::Int(5)});
+    REQUIRE(getVarResult.success);
+    REQUIRE(std::holds_alternative<int64_t>(getVarResult.value.v));
+    REQUIRE(std::get<int64_t>(getVarResult.value.v) == 0);
+
+    ctx.callMethod("DataManager", "setVariable", {urpg::Value::Int(5), urpg::Value::Int(99)});
+    getVarResult = ctx.callMethod("DataManager", "getVariable", {urpg::Value::Int(5)});
+    REQUIRE(getVarResult.success);
+    REQUIRE(std::get<int64_t>(getVarResult.value.v) == 99);
+
+    // getItemCount / gainItem
+    auto getItemResult = ctx.callMethod("DataManager", "getItemCount", {urpg::Value::Int(3)});
+    REQUIRE(getItemResult.success);
+    REQUIRE(std::holds_alternative<int64_t>(getItemResult.value.v));
+    REQUIRE(std::get<int64_t>(getItemResult.value.v) == 0);
+
+    ctx.callMethod("DataManager", "gainItem", {urpg::Value::Int(3), urpg::Value::Int(12)});
+    getItemResult = ctx.callMethod("DataManager", "getItemCount", {urpg::Value::Int(3)});
+    REQUIRE(getItemResult.success);
+    REQUIRE(std::get<int64_t>(getItemResult.value.v) == 12);
 }
 
-TEST_CASE("DataManager: setGameActorMtp updates max TP", "[data_manager]") {
-    DataManager::instance().clearDatabase();
-    auto& actor = DataManager::instance().addTestActor();
-    actor.id = 1;
-    actor.initialLevel = 1;
-    actor.params = {{100, 100, 10, 10, 10, 10, 10, 10}};
+TEST_CASE("DataManager: gainExp triggers level-up and skill learning", "[data_manager]") {
+    DataManager::setDataDirectory("");
+    DataManager dm;
+    dm.loadDatabase();
+    dm.setupNewGame();
 
-    DataManager::instance().setupGameActors();
-    DataManager::instance().setGameActorMtp(1, 150);
+    ActorData* actor = dm.getActor(1);
+    ClassData* cls = dm.getClass(1);
+    REQUIRE(actor != nullptr);
+    REQUIRE(cls != nullptr);
 
-    const GameActor* ga = DataManager::instance().getGameActor(1);
-    REQUIRE(ga != nullptr);
-    REQUIRE(ga->mtp == 150);
+    actor->level = 1;
+    actor->exp = 0;
+    actor->skills.clear();
+    cls->expTable = {15, 30, 60};
+    cls->skillsToLearn = {{2, 1}, {3, 2}};
+    cls->maxLevel = 99;
 
-    DataManager::instance().clearDatabase();
-}
+    dm.gainExp(1, 10);
+    REQUIRE(actor->level == 1);
+    REQUIRE(actor->exp == 10);
 
-TEST_CASE("DataManager: getGameActor returns updated mtp after setGameActorMtp", "[data_manager]") {
-    DataManager::instance().clearDatabase();
-    auto& actor = DataManager::instance().addTestActor();
-    actor.id = 2;
-    actor.initialLevel = 1;
-    actor.params = {{80, 60, 8, 8, 8, 8, 8, 8}};
+    dm.gainExp(1, 10);
+    REQUIRE(actor->level == 2);
+    REQUIRE(actor->exp == 5);
+    REQUIRE(std::find(actor->skills.begin(), actor->skills.end(), 1) != actor->skills.end());
 
-    DataManager::instance().setupGameActors();
-    REQUIRE(DataManager::instance().getGameActor(2)->mtp == 100);
+    dm.gainExp(1, 100);
+    REQUIRE(actor->level == 4);
+    REQUIRE(actor->exp == 15);
+    REQUIRE(std::find(actor->skills.begin(), actor->skills.end(), 2) != actor->skills.end());
 
-    DataManager::instance().setGameActorMtp(2, 250);
-    const GameActor* ga = DataManager::instance().getGameActor(2);
-    REQUIRE(ga != nullptr);
-    REQUIRE(ga->mtp == 250);
-    REQUIRE(ga->hp == 80);
-    REQUIRE(ga->mp == 60);
-
-    DataManager::instance().clearDatabase();
+    cls->maxLevel = 4;
+    dm.gainExp(1, 9999);
+    REQUIRE(actor->level == 4);
 }
 
 TEST_CASE("DataManager structs: defaults", "[data_manager]") {

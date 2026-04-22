@@ -6,6 +6,7 @@
 #include "engine/core/scene/tileset_registry.h"
 #include "engine/core/scene/movement_authority.h"
 #include "engine/core/audio/audio_core.h"
+#include "engine/core/render/render_layer.h"
 
 using namespace urpg::scene;
 
@@ -73,10 +74,6 @@ TEST_CASE("MovementAuthority: Input Integration", "[scene][movement][input]") {
 }
 
 TEST_CASE("MapLoader: Bridge DataManager to MapScene", "[scene][map][loader]") {
-    // Ensure a clean DataManager state so the mock map path is used
-    urpg::compat::DataManager::instance().clearDatabase();
-    urpg::compat::DataManager::instance().setDataPath("");
-
     // 1. Setup tileset collision in the registry
     urpg::TilesetData ts;
     ts.id = 1;
@@ -158,6 +155,123 @@ TEST_CASE("MapScene: AI audio commands use injected AudioCore service", "[scene]
     map.processAiAudioCommands("[ACTION: STOP, ASSET: anything, VOL: 0.0, FADE: 0.0]");
     REQUIRE(audio->currentBGM().empty());
     REQUIRE(audio->activeSourceCount() == 0);
+}
+
+TEST_CASE("MapScene: injected AudioCore can be replaced without stale state leakage", "[scene][map][audio]") {
+    MapScene map("001", 10, 10);
+    auto firstAudio = std::make_shared<urpg::audio::AudioCore>();
+    auto secondAudio = std::make_shared<urpg::audio::AudioCore>();
+
+    map.setAudioCore(firstAudio);
+    map.processAiAudioCommands("[ACTION: CROSSFADE, ASSET: Boss_Dark, VOL: 0.8, FADE: 3.0]");
+    REQUIRE(firstAudio->currentBGM() == "Boss_Dark");
+
+    map.setAudioCore(secondAudio);
+    map.processAiAudioCommands("[ACTION: PLAY_SE, ASSET: Confirm_01, VOL: 1.0, FADE: 0.0]");
+
+    REQUIRE(firstAudio->activeSourceCount() == 0);
+    REQUIRE(secondAudio->activeSourceCount() == 1);
+}
+
+TEST_CASE("MapScene: audio service binding is explicit and observable", "[scene][map][audio]") {
+    MapScene map("001", 10, 10);
+    REQUIRE(map.audioCore() == nullptr);
+
+    auto audio = std::make_shared<urpg::audio::AudioCore>();
+    map.setAudioCore(audio);
+
+    REQUIRE(map.audioCore() == audio);
+}
+
+TEST_CASE("MapScene: retained tile render commands only rebuild when map data changes", "[scene][map][render]") {
+    auto& layer = urpg::RenderLayer::getInstance();
+    layer.flush();
+
+    MapScene map("001", 2, 2);
+
+    map.onUpdate(0.0f);
+    const auto& firstFrame = layer.getCommands();
+    REQUIRE(firstFrame.size() == 5);
+
+    auto firstTile0 = firstFrame[0];
+    auto firstTile1 = firstFrame[1];
+    auto firstTile2 = firstFrame[2];
+    auto firstTile3 = firstFrame[3];
+
+    map.onUpdate(0.0f);
+    const auto& secondFrame = layer.getCommands();
+    REQUIRE(secondFrame.size() == 5);
+    REQUIRE(secondFrame[0] == firstTile0);
+    REQUIRE(secondFrame[1] == firstTile1);
+    REQUIRE(secondFrame[2] == firstTile2);
+    REQUIRE(secondFrame[3] == firstTile3);
+
+    map.setTile(1, 0, 7, true);
+    map.onUpdate(0.0f);
+    const auto& thirdFrame = layer.getCommands();
+    REQUIRE(thirdFrame.size() == 5);
+    REQUIRE(thirdFrame[1] != firstTile1);
+
+    auto changedTile = std::dynamic_pointer_cast<urpg::TileCommand>(thirdFrame[1]);
+    REQUIRE(changedTile != nullptr);
+    REQUIRE(changedTile->tileIndex == 7);
+}
+
+TEST_CASE("MapScene: retained tile commands stay pointer-stable across unchanged frames", "[scene][map][render]") {
+    auto& layer = urpg::RenderLayer::getInstance();
+    layer.flush();
+
+    MapScene map("001", 2, 2);
+
+    map.onUpdate(0.0f);
+    const auto firstFrame = layer.getCommands();
+    REQUIRE(firstFrame.size() == 5);
+
+    map.onUpdate(0.0f);
+    const auto secondFrame = layer.getCommands();
+    REQUIRE(secondFrame.size() == firstFrame.size());
+
+    for (size_t i = 0; i < 4; ++i) {
+        REQUIRE(secondFrame[i].get() == firstFrame[i].get());
+    }
+}
+
+TEST_CASE("MapScene: message runner submits render commands during dialogue", "[scene][map][message]") {
+    using namespace urpg::message;
+
+    auto& layer = urpg::RenderLayer::getInstance();
+    layer.flush();
+
+    MapScene map("001", 2, 2);
+
+    map.startDialogue({
+        {"page_1", "Hello from native message", variantFromCompatRoute("speaker", "Elder", 1), true, {}, 0},
+    });
+
+    REQUIRE(map.isDialogueActive());
+
+    map.onUpdate(0.0f);
+    const auto& commands = layer.getCommands();
+
+    bool hasTextCmd = false;
+    bool hasRectCmd = false;
+    for (const auto& cmd : commands) {
+        if (cmd->type == urpg::RenderCmdType::Text) {
+            auto textCmd = std::dynamic_pointer_cast<urpg::TextCommand>(cmd);
+            if (textCmd && textCmd->text == "Hello from native message") {
+                hasTextCmd = true;
+            }
+        }
+        if (cmd->type == urpg::RenderCmdType::Rect) {
+            auto rectCmd = std::dynamic_pointer_cast<urpg::RectCommand>(cmd);
+            if (rectCmd && rectCmd->w > 0.0f && rectCmd->h > 0.0f) {
+                hasRectCmd = true;
+            }
+        }
+    }
+
+    REQUIRE(hasTextCmd);
+    REQUIRE(hasRectCmd);
 }
 
 class MockScene : public GameScene {

@@ -39,6 +39,8 @@ TEST_CASE("Save inspector model builds rows and summary from catalog", "[save][e
     urpg::SaveSessionCoordinator coordinator(catalog);
     coordinator.setAutosavePolicy({true, 0});
     coordinator.setRetentionPolicy({1, 2, 6, true});
+    coordinator.metadataRegistry().registerField({"difficulty", "Difficulty", false, "Normal"});
+    coordinator.metadataRegistry().registerField({"chapter", "Chapter", true, "prologue"});
     const auto saveSlotsPath = std::filesystem::temp_directory_path() / "save_slots_inspector_model.json";
     WriteText(
         saveSlotsPath,
@@ -83,6 +85,42 @@ TEST_CASE("Save inspector model builds rows and summary from catalog", "[save][e
     REQUIRE(rows[1].category_label == "quicksave");
     REQUIRE(rows[1].retention_label == "quicksave");
     REQUIRE(rows[1].summary.find("load / quicksave / safe_mode_recovery / retained:quicksave / corrupted") != std::string::npos);
+
+    const auto& metadataFields = model.MetadataFields();
+    REQUIRE(metadataFields.size() == 2);
+    REQUIRE(metadataFields[0].key == "chapter");
+    REQUIRE(metadataFields[0].display_label == "Chapter");
+    REQUIRE(metadataFields[0].required);
+    REQUIRE(metadataFields[0].default_value == "prologue");
+    REQUIRE(metadataFields[1].key == "difficulty");
+    REQUIRE(metadataFields[1].display_label == "Difficulty");
+    REQUIRE_FALSE(metadataFields[1].required);
+    REQUIRE(metadataFields[1].default_value == "Normal");
+
+    const auto& descriptors = model.SlotDescriptors();
+    REQUIRE(descriptors.size() == 2);
+    REQUIRE(descriptors[0].slot_id == 0);
+    REQUIRE(descriptors[0].reserved);
+    REQUIRE(descriptors[1].slot_id == 4);
+    REQUIRE_FALSE(descriptors[1].reserved);
+
+    const auto& recovery = model.RecoveryDiagnostics();
+    REQUIRE(recovery.total_recovery_slots == 1);
+    REQUIRE(recovery.autosave_recovery_slots == 0);
+    REQUIRE(recovery.metadata_variables_recovery_slots == 0);
+    REQUIRE(recovery.safe_mode_recovery_slots == 1);
+    REQUIRE(recovery.corrupted_slots == 1);
+    REQUIRE(recovery.diagnostic_rows == 1);
+
+    const auto& serialization = model.SerializationSchema();
+    REQUIRE(serialization.format_magic == "URSV");
+    REQUIRE(serialization.version_major == 1);
+    REQUIRE(serialization.version_minor == 0);
+    REQUIRE(serialization.differential_supported);
+    REQUIRE(serialization.compression_modes.size() == 3);
+    REQUIRE(serialization.compression_modes[0] == "none");
+    REQUIRE(serialization.compression_modes[1] == "fast");
+    REQUIRE(serialization.compression_modes[2] == "optimal");
 
     std::filesystem::remove(saveSlotsPath);
 }

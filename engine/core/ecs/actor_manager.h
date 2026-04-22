@@ -2,6 +2,8 @@
 
 #include "world.h"
 #include "actor_components.h"
+#include "engine/core/character/character_identity.h"
+#include "engine/core/character/character_identity_component.h"
 #include <memory>
 #include <string>
 
@@ -68,6 +70,29 @@ public:
             return actor->isEnemy;
         }
         return false;
+    }
+
+    /**
+     * @brief Create an actor from a CharacterIdentity, attaching identity component.
+     * @param identity The character identity to spawn.
+     * @param isEnemy True if the actor is an enemy, false for PC.
+     * @return The EntityID of the new actor.
+     */
+    EntityID CreateActorFromIdentity(const character::CharacterIdentity& identity, bool isEnemy = false) {
+        EntityID id = CreateActor(identity.getDisplayName(), isEnemy);
+
+        CharacterIdentityComponent comp;
+        comp.identity = identity;
+        comp.dirty = true;
+        world_.AddComponent(id, comp);
+
+        if (!identity.getBodySpriteId().empty()) {
+            if (auto* visual = world_.GetComponent<VisualComponent>(id)) {
+                visual->assetPath = identity.getBodySpriteId();
+            }
+        }
+
+        return id;
     }
 
 private:

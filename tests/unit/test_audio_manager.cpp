@@ -52,6 +52,30 @@ TEST_CASE("AudioManager: BGM controls", "[audio_manager]") {
     REQUIRE_FALSE(am.isBgmPlaying());
 }
 
+TEST_CASE("AudioManager: BGM position advances while playing and pauses cleanly", "[audio_manager]") {
+    AudioManager& am = AudioManager::instance();
+    am.stopBgm();
+
+    am.playBgm("position_theme", 90.0, 100.0, 10);
+    REQUIRE(am.getCurrentBgm().pos == 10);
+
+    am.update();
+    REQUIRE(am.getCurrentBgm().pos == 11);
+
+    am.update();
+    REQUIRE(am.getCurrentBgm().pos == 12);
+
+    am.pauseBgm();
+    am.update();
+    REQUIRE(am.getCurrentBgm().pos == 12);
+
+    am.resumeBgm();
+    am.update();
+    REQUIRE(am.getCurrentBgm().pos == 13);
+
+    am.stopBgm();
+}
+
 TEST_CASE("AudioManager: deterministic crossfade progression", "[audio_manager]") {
     AudioManager& am = AudioManager::instance();
 
@@ -96,6 +120,10 @@ TEST_CASE("AudioManager: deterministic crossfade progression", "[audio_manager]"
 
 TEST_CASE("AudioManager: buses and ducking", "[audio_manager]") {
     AudioManager& am = AudioManager::instance();
+    am.stopBgm();
+    am.setMasterVolume(1.0);
+    am.setBusVolume(AudioBus::BGM, 1.0);
+    am.setBusVolume(AudioBus::SE, 1.0);
 
     am.setMasterVolume(0.8);
     REQUIRE(am.getMasterVolume() == Catch::Approx(0.8));
@@ -106,14 +134,143 @@ TEST_CASE("AudioManager: buses and ducking", "[audio_manager]") {
     am.setBusVolume(AudioBus::SE, -0.5);
     REQUIRE(am.getBusVolume(AudioBus::SE) == Catch::Approx(0.0));
 
-    am.playBgm("duck_test", 90.0, 100.0);
-    am.duckBgm(30.0);
-    REQUIRE(am.isBgmDucked());
+    am.setMasterVolume(1.0);
+    am.setBusVolume(AudioBus::BGM, 1.0);
 
-    am.unduckBgm();
+    am.playBgm("duck_test", 90.0, 100.0);
+    AudioChannel* bgm = am.getChannel("bgm");
+    REQUIRE(bgm != nullptr);
+    REQUIRE(bgm->getVolume() == Catch::Approx(0.9));
+
+    am.duckBgm(30.0, 3);
+    REQUIRE(am.isBgmDucked());
+    REQUIRE(bgm->getVolume() == Catch::Approx(0.9));
+
+    am.update();
+    REQUIRE(bgm->getVolume() == Catch::Approx(0.7));
+
+    am.update();
+    REQUIRE(bgm->getVolume() == Catch::Approx(0.5));
+
+    am.update();
+    REQUIRE(bgm->getVolume() == Catch::Approx(0.3));
+
+    am.unduckBgm(2);
+    am.update();
+    REQUIRE(bgm->getVolume() == Catch::Approx(0.6));
+
+    am.update();
+    REQUIRE(bgm->getVolume() == Catch::Approx(0.9));
     REQUIRE_FALSE(am.isBgmDucked());
 
     am.stopBgm();
+}
+
+TEST_CASE("AudioManager: duck and unduck preserve deterministic BGM state", "[audio_manager]") {
+    AudioManager& am = AudioManager::instance();
+    struct AudioStateCleanupGuard {
+        AudioManager& am;
+        ~AudioStateCleanupGuard() {
+            am.stopBgm();
+            am.setMasterVolume(1.0);
+            am.setBusVolume(AudioBus::BGM, 1.0);
+        }
+    } cleanup{am};
+
+    am.stopBgm();
+    am.setMasterVolume(1.0);
+    am.setBusVolume(AudioBus::BGM, 1.0);
+    am.playBgm("phase2_theme", 80.0, 100.0, 4);
+    REQUIRE(am.getCurrentBgm().name == "phase2_theme");
+    REQUIRE(am.getCurrentBgm().volume == Catch::Approx(80.0));
+
+    am.setMasterVolume(0.5);
+    REQUIRE(am.getCurrentBgm().volume == Catch::Approx(40.0));
+
+    am.setBusVolume(AudioBus::BGM, 0.25);
+    REQUIRE(am.getCurrentBgm().volume == Catch::Approx(10.0));
+
+    am.setMasterVolume(1.0);
+    am.setBusVolume(AudioBus::BGM, 1.0);
+    REQUIRE(am.getCurrentBgm().volume == Catch::Approx(80.0));
+
+    am.duckBgm(30.0, 3);
+    REQUIRE(am.isBgmDucked());
+    REQUIRE(am.getCurrentBgm().name == "phase2_theme");
+    REQUIRE(am.getCurrentBgm().volume == Catch::Approx(80.0));
+
+    am.update();
+    REQUIRE(am.isBgmDucked());
+    REQUIRE(am.getCurrentBgm().volume == Catch::Approx(63.3333333333));
+
+    am.update();
+    REQUIRE(am.isBgmDucked());
+    REQUIRE(am.getCurrentBgm().volume == Catch::Approx(46.6666666667));
+
+    am.update();
+    REQUIRE(am.isBgmDucked());
+    REQUIRE(am.getCurrentBgm().volume == Catch::Approx(30.0));
+
+    am.unduckBgm(2);
+    am.update();
+    REQUIRE(am.isBgmDucked());
+    REQUIRE(am.getCurrentBgm().volume == Catch::Approx(55.0));
+
+    am.setMasterVolume(0.75);
+    am.setBusVolume(AudioBus::BGM, 0.5);
+    am.update();
+    REQUIRE_FALSE(am.isBgmDucked());
+    REQUIRE(am.getCurrentBgm().volume == Catch::Approx(30.0));
+}
+
+TEST_CASE("AudioManager: master and bus volumes affect active playback", "[audio_manager]") {
+    AudioManager& am = AudioManager::instance();
+    am.stopBgm();
+    am.stopBgs();
+    am.stopSe();
+    am.setMasterVolume(1.0);
+    am.setBusVolume(AudioBus::BGM, 1.0);
+    am.setBusVolume(AudioBus::BGS, 1.0);
+    am.setBusVolume(AudioBus::SE, 1.0);
+
+    am.playBgm("mix_theme", 80.0, 100.0);
+    AudioChannel* bgm = am.getChannel("bgm");
+    REQUIRE(bgm != nullptr);
+    REQUIRE(bgm->getVolume() == Catch::Approx(0.8));
+
+    am.setMasterVolume(0.5);
+    REQUIRE(bgm->getVolume() == Catch::Approx(0.4));
+
+    am.setBusVolume(AudioBus::BGM, 0.25);
+    REQUIRE(bgm->getVolume() == Catch::Approx(0.1));
+
+    am.playBgs("mix_rain", 60.0, 100.0);
+    AudioChannel* bgs = am.getChannel("bgs");
+    REQUIRE(bgs != nullptr);
+    REQUIRE(bgs->getVolume() == Catch::Approx(0.3));
+
+    am.setBusVolume(AudioBus::BGS, 0.5);
+    REQUIRE(bgs->getVolume() == Catch::Approx(0.15));
+
+    const uint32_t markerId = am.createChannel("se_mix_probe", AudioBus::SE);
+    am.destroyChannel(markerId);
+    const auto expectedSeName = "se_" + std::to_string(markerId + 1);
+
+    am.playSe("mix_cursor", 50.0, 100.0);
+    AudioChannel* se = am.getChannel(expectedSeName);
+    REQUIRE(se != nullptr);
+    REQUIRE(se->getVolume() == Catch::Approx(0.25));
+
+    am.setBusVolume(AudioBus::SE, 0.2);
+    REQUIRE(se->getVolume() == Catch::Approx(0.05));
+
+    am.stopSe();
+    am.stopBgs();
+    am.stopBgm();
+    am.setMasterVolume(1.0);
+    am.setBusVolume(AudioBus::BGM, 1.0);
+    am.setBusVolume(AudioBus::BGS, 1.0);
+    am.setBusVolume(AudioBus::SE, 1.0);
 }
 
 TEST_CASE("AudioManager: SE/ME/BGS controls", "[audio_manager]") {
@@ -136,17 +293,180 @@ TEST_CASE("AudioManager: SE/ME/BGS controls", "[audio_manager]") {
     am.stopBgs();
 }
 
+TEST_CASE("AudioManager: SE channels are reclaimed after playback completion", "[audio_manager]") {
+    AudioManager& am = AudioManager::instance();
+    am.stopSe();
+
+    const uint32_t markerId = am.createChannel("se_marker_probe", AudioBus::SE);
+    am.destroyChannel(markerId);
+
+    const auto expectedSeName = "se_" + std::to_string(markerId + 1);
+    am.playSe("cursor_cleanup", 90.0, 100.0);
+
+    AudioChannel* seChannel = am.getChannel(expectedSeName);
+    REQUIRE(seChannel != nullptr);
+    REQUIRE(seChannel->isPlaying());
+
+    am.update();
+
+    REQUIRE(am.getChannel(expectedSeName) == nullptr);
+}
+
+TEST_CASE("AudioManager: SE channel growth is bounded across play/update cycles", "[audio_manager]") {
+    AudioManager& am = AudioManager::instance();
+    am.stopSe();
+
+    const uint32_t markerId = am.createChannel("se_growth_probe", AudioBus::SE);
+    am.destroyChannel(markerId);
+
+    const uint32_t baseNextId = markerId + 1;
+
+    // Play multiple SEs across several cycles; after each update all SE channels
+    // should be reclaimed because SE completes in one frame (P1-03 fix).
+    for (int cycle = 0; cycle < 4; ++cycle) {
+        am.playSe("cycle_se", 90.0, 100.0);
+        am.playSe("cycle_se", 90.0, 100.0);
+        am.playSe("cycle_se", 90.0, 100.0);
+        am.update();
+    }
+
+    // No SE channels from the cycles should remain
+    for (uint32_t i = 0; i < 12; ++i) {
+        const auto seName = "se_" + std::to_string(baseNextId + i);
+        REQUIRE(am.getChannel(seName) == nullptr);
+    }
+}
+
 TEST_CASE("AudioManager: method status registry", "[audio_manager]") {
     AudioManager& am = AudioManager::instance();
     (void)am;
 
-    REQUIRE(AudioManager::getMethodStatus("playBgm") == CompatStatus::FULL);
-    REQUIRE(AudioManager::getMethodStatus("crossfadeBgm") == CompatStatus::FULL);
-    REQUIRE(AudioManager::getMethodStatus("crossfadeBgs") == CompatStatus::FULL);
+    REQUIRE(AudioManager::getMethodStatus("playBgm") == CompatStatus::PARTIAL);
+    REQUIRE(AudioManager::getMethodStatus("crossfadeBgm") == CompatStatus::PARTIAL);
+    REQUIRE(AudioManager::getMethodStatus("crossfadeBgs") == CompatStatus::PARTIAL);
     REQUIRE(AudioManager::getMethodStatus("duckBgm") == CompatStatus::PARTIAL);
     REQUIRE(AudioManager::getMethodStatus("getCurrentBgm") == CompatStatus::PARTIAL);
-    REQUIRE(AudioManager::getMethodDeviation("duckBgm").find("smooth") != std::string::npos);
+    REQUIRE(AudioManager::getMethodStatus("setMasterVolume") == CompatStatus::PARTIAL);
+    REQUIRE(AudioManager::getMethodStatus("createChannel") == CompatStatus::PARTIAL);
+    REQUIRE(AudioManager::getMethodDeviation("duckBgm").find("live mixer") != std::string::npos);
+    REQUIRE(AudioManager::getMethodDeviation("getCurrentBgm").find("deterministic harness") != std::string::npos);
+    REQUIRE(AudioManager::getMethodDeviation("playBgm").find("deterministic harness playback state") != std::string::npos);
+    REQUIRE(AudioManager::getMethodDeviation("setMasterVolume").find("mix scaling") != std::string::npos);
+    REQUIRE(AudioManager::getMethodDeviation("createChannel").find("harness channels") != std::string::npos);
     REQUIRE(AudioManager::getMethodStatus("nonexistentMethod") == CompatStatus::UNSUPPORTED);
+}
+
+TEST_CASE("AudioManager: QuickJS API routes into deterministic compat audio state", "[audio_manager]") {
+    AudioManager& am = AudioManager::instance();
+    am.stopBgm();
+    am.stopBgs();
+    am.stopMe();
+    am.stopSe();
+    am.setMasterVolume(1.0);
+    am.setBusVolume(AudioBus::BGM, 1.0);
+    am.setBusVolume(AudioBus::BGS, 1.0);
+
+    QuickJSContext ctx;
+    QuickJSConfig config;
+    REQUIRE(ctx.initialize(config));
+
+    AudioManager::registerAPI(ctx);
+
+    urpg::Value playName;
+    playName.v = std::string("js_theme");
+
+    auto playResult = ctx.callMethod("AudioManager",
+                                     "playBgm",
+                                     {playName, urpg::Value::Int(80), urpg::Value::Int(100), urpg::Value::Int(7)});
+    REQUIRE(playResult.success);
+    REQUIRE(am.isBgmPlaying());
+    REQUIRE(am.getCurrentBgm().name == "js_theme");
+    REQUIRE(am.getCurrentBgm().volume == Catch::Approx(80.0));
+    REQUIRE(am.getCurrentBgm().pos == 7);
+
+    auto playingResult = ctx.callMethod("AudioManager", "isBgmPlaying", {});
+    REQUIRE(playingResult.success);
+    REQUIRE(std::get<int64_t>(playingResult.value.v) == 1);
+
+    auto currentBgmResult = ctx.callMethod("AudioManager", "getCurrentBgm", {});
+    REQUIRE(currentBgmResult.success);
+    REQUIRE(std::holds_alternative<urpg::Object>(currentBgmResult.value.v));
+    const auto& bgmObj = std::get<urpg::Object>(currentBgmResult.value.v);
+    REQUIRE(std::get<std::string>(bgmObj.at("name").v) == "js_theme");
+    REQUIRE(std::get<double>(bgmObj.at("volume").v) == Catch::Approx(80.0));
+    REQUIRE(std::get<int64_t>(bgmObj.at("pos").v) == 7);
+
+    auto pauseResult = ctx.callMethod("AudioManager", "pauseBgm", {});
+    REQUIRE(pauseResult.success);
+    REQUIRE(am.isBgmPaused());
+
+    auto resumeResult = ctx.callMethod("AudioManager", "resumeBgm", {});
+    REQUIRE(resumeResult.success);
+    REQUIRE(am.isBgmPlaying());
+
+    urpg::Value bgsName;
+    bgsName.v = std::string("js_rain");
+    auto playBgsResult = ctx.callMethod("AudioManager",
+                                        "playBgs",
+                                        {bgsName, urpg::Value::Int(70), urpg::Value::Int(100), urpg::Value::Int(2)});
+    REQUIRE(playBgsResult.success);
+    AudioChannel* bgs = am.getChannel("bgs");
+    REQUIRE(bgs != nullptr);
+    REQUIRE(bgs->getFilename() == "js_rain");
+    REQUIRE(bgs->getPosition() == 2);
+
+    auto stopBgsResult = ctx.callMethod("AudioManager", "stopBgs", {});
+    REQUIRE(stopBgsResult.success);
+    REQUIRE_FALSE(bgs->isPlaying());
+
+    urpg::Value meName;
+    meName.v = std::string("js_fanfare");
+    auto playMeResult = ctx.callMethod("AudioManager", "playMe", {meName, urpg::Value::Int(65), urpg::Value::Int(100)});
+    REQUIRE(playMeResult.success);
+    AudioChannel* me = am.getChannel("me");
+    REQUIRE(me != nullptr);
+    REQUIRE(me->isPlaying());
+
+    auto stopMeResult = ctx.callMethod("AudioManager", "stopMe", {});
+    REQUIRE(stopMeResult.success);
+    REQUIRE_FALSE(me->isPlaying());
+
+    auto setMasterResult = ctx.callMethod("AudioManager", "setMasterVolume", {urpg::Value::Int(50)});
+    REQUIRE(setMasterResult.success);
+    auto getMasterResult = ctx.callMethod("AudioManager", "getMasterVolume", {});
+    REQUIRE(getMasterResult.success);
+    REQUIRE(std::get<double>(getMasterResult.value.v) == Catch::Approx(0.5));
+
+    auto setBusResult = ctx.callMethod("AudioManager", "setBusVolume", {urpg::Value::Int(static_cast<int64_t>(AudioBus::BGM)), urpg::Value::Int(25)});
+    REQUIRE(setBusResult.success);
+    auto getBusResult = ctx.callMethod("AudioManager", "getBusVolume", {urpg::Value::Int(static_cast<int64_t>(AudioBus::BGM))});
+    REQUIRE(getBusResult.success);
+    REQUIRE(std::get<double>(getBusResult.value.v) == Catch::Approx(0.25));
+
+    auto duckResult = ctx.callMethod("AudioManager", "duckBgm", {urpg::Value::Int(30), urpg::Value::Int(2)});
+    REQUIRE(duckResult.success);
+    auto isDuckedResult = ctx.callMethod("AudioManager", "isBgmDucked", {});
+    REQUIRE(isDuckedResult.success);
+    REQUIRE(std::get<int64_t>(isDuckedResult.value.v) == 1);
+
+    auto unduckResult = ctx.callMethod("AudioManager", "unduckBgm", {urpg::Value::Int(1)});
+    REQUIRE(unduckResult.success);
+
+    urpg::Value seName;
+    seName.v = std::string("js_cursor");
+    auto playSeResult = ctx.callMethod("AudioManager", "playSe", {seName, urpg::Value::Int(90), urpg::Value::Int(100)});
+    REQUIRE(playSeResult.success);
+
+    auto stopResult = ctx.callMethod("AudioManager", "stopBgm", {});
+    REQUIRE(stopResult.success);
+    REQUIRE_FALSE(am.isBgmPlaying());
+
+    auto stopSeResult = ctx.callMethod("AudioManager", "stopSe", {});
+    REQUIRE(stopSeResult.success);
+    am.stopBgm();
+    am.stopBgs();
+    am.stopMe();
+    am.stopSe();
 }
 
 TEST_CASE("AudioChannel: state and controls", "[audio_manager]") {
@@ -179,112 +499,5 @@ TEST_CASE("AudioChannel: state and controls", "[audio_manager]") {
     REQUIRE(channel.getPosition() == 0);
 
     channel.stop();
-    REQUIRE(channel.getState() == AudioState::STOPPED);
-}
-
-TEST_CASE("AudioManager: BGM position increments on update", "[audio_manager]") {
-    AudioManager& am = AudioManager::instance();
-    am.playBgm("position_test", 100.0, 100.0, 0);
-    REQUIRE(am.getCurrentBgm().pos == 0);
-
-    for (int i = 0; i < 10; ++i) {
-        am.update();
-    }
-
-    REQUIRE(am.getCurrentBgm().pos == 10);
-    am.stopBgm();
-}
-
-TEST_CASE("AudioManager: duckBgm smoothly interpolates volume over frames", "[audio_manager]") {
-    AudioManager& am = AudioManager::instance();
-    am.playBgm("duck_smooth", 100.0, 100.0, 0);
-    REQUIRE(am.getCurrentBgm().volume == Catch::Approx(100.0));
-
-    am.duckBgm(50.0, 10);
-    REQUIRE(am.getCurrentBgm().volume == Catch::Approx(100.0));
-
-    for (int i = 0; i < 5; ++i) {
-        am.update();
-    }
-    REQUIRE(am.getCurrentBgm().volume == Catch::Approx(75.0));
-
-    for (int i = 0; i < 5; ++i) {
-        am.update();
-    }
-    REQUIRE(am.getCurrentBgm().volume == Catch::Approx(50.0));
-
-    am.stopBgm();
-}
-
-TEST_CASE("AudioManager: unduckBgm restores volume over frames", "[audio_manager]") {
-    AudioManager& am = AudioManager::instance();
-    am.playBgm("unduck_test", 100.0, 100.0, 0);
-    am.duckBgm(50.0, 10);
-    for (int i = 0; i < 10; ++i) {
-        am.update();
-    }
-    REQUIRE(am.getCurrentBgm().volume == Catch::Approx(50.0));
-    REQUIRE(am.isBgmDucked());
-
-    am.unduckBgm(10);
-    for (int i = 0; i < 5; ++i) {
-        am.update();
-    }
-    REQUIRE(am.getCurrentBgm().volume == Catch::Approx(75.0));
-
-    for (int i = 0; i < 5; ++i) {
-        am.update();
-    }
-    REQUIRE(am.getCurrentBgm().volume == Catch::Approx(100.0));
-    REQUIRE_FALSE(am.isBgmDucked());
-
-    am.stopBgm();
-}
-
-TEST_CASE("AudioManager: instant duck with duration 0 sets volume immediately", "[audio_manager]") {
-    AudioManager& am = AudioManager::instance();
-    am.playBgm("instant_duck", 100.0, 100.0, 0);
-    am.duckBgm(25.0, 0);
-    REQUIRE(am.getCurrentBgm().volume == Catch::Approx(25.0));
-    am.stopBgm();
-}
-
-TEST_CASE("AudioManager: SE channels do not grow unbounded under repeated playback", "[audio_manager]") {
-    AudioManager& am = AudioManager::instance();
-    am.stopSe();
-
-    // Play multiple SE without explicit stop
-    for (int i = 0; i < 5; ++i) {
-        am.playSe("cursor", 90.0, 100.0);
-    }
-
-    REQUIRE(am.getSeChannelCount() == 5);
-
-    // Simulate 120 frames (> 60 frame default SE duration)
-    for (int i = 0; i < 120; ++i) {
-        am.update();
-    }
-
-    // All SE channels should have been reclaimed automatically
-    REQUIRE(am.getSeChannelCount() == 0);
-}
-
-TEST_CASE("AudioChannel: finite duration auto-stops after elapsed frames", "[audio_manager]") {
-    AudioChannel channel("test_se", AudioBus::SE);
-    channel.play("sfx", 90.0, 100.0, 0);
-    REQUIRE(channel.isPlaying());
-    REQUIRE(channel.getDurationFrames() == 0);
-
-    channel.setDurationFrames(10);
-    REQUIRE(channel.getDurationFrames() == 10);
-
-    for (int i = 0; i < 9; ++i) {
-        channel.update();
-        REQUIRE(channel.isPlaying());
-        REQUIRE(channel.getElapsedFrames() == i + 1);
-    }
-
-    channel.update();
-    REQUIRE_FALSE(channel.isPlaying());
     REQUIRE(channel.getState() == AudioState::STOPPED);
 }

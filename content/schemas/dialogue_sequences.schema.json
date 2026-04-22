@@ -41,6 +41,8 @@
                 "face_actor_id": { "type": "integer", "minimum": 0 },
                 "body": { "type": "string" },
                 "wait_for_advance": { "type": "boolean" },
+                "default_choice_index": { "type": "integer", "default": 0 },
+                "command": { "type": "string" },
                 "source_route": { "type": "string" },
                 "choices": {
                   "type": "array",

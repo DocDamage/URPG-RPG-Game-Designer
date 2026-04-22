@@ -164,3 +164,122 @@ TEST_CASE("MenuSceneSerializer: Serialize round-trips native menu scene graphs",
     REQUIRE(panes[0].commands[1].custom_route_id == "codex_root");
     REQUIRE(panes[0].commands[1].fallback_route == urpg::MenuRouteTarget::Options);
 }
+
+TEST_CASE("MenuSceneSerializer: Serialize round-trips visibility and enable rules", "[ui][menu][serialize]") {
+    MenuSceneGraph graph;
+
+    auto scene = std::make_shared<MenuScene>("RuleMenu");
+
+    MenuPane pane;
+    pane.id = "main";
+    pane.displayName = "Main Pane";
+
+    urpg::MenuCommandMeta cmd;
+    cmd.id = "secret";
+    cmd.label = "Secret";
+    cmd.route = urpg::MenuRouteTarget::Custom;
+    cmd.custom_route_id = "secret_scene";
+    cmd.visibility_rules = {
+        urpg::MenuCommandCondition{.switch_id = "reveal_secret", .variable_id = "", .variable_threshold = 0, .invert = false}
+    };
+    cmd.enable_rules = {
+        urpg::MenuCommandCondition{.variable_id = "player_level", .variable_threshold = 10, .invert = false}
+    };
+
+    pane.commands = {cmd};
+    scene->addPane(pane);
+    graph.registerScene(scene);
+
+    const auto serialized = MenuSceneSerializer::Serialize(graph);
+    REQUIRE(serialized["panes"][0]["commands"][0].contains("visibility_rules"));
+    REQUIRE(serialized["panes"][0]["commands"][0]["visibility_rules"].size() == 1);
+    REQUIRE(serialized["panes"][0]["commands"][0]["visibility_rules"][0]["switch_id"] == "reveal_secret");
+    REQUIRE(serialized["panes"][0]["commands"][0].contains("enable_rules"));
+    REQUIRE(serialized["panes"][0]["commands"][0]["enable_rules"].size() == 1);
+    REQUIRE(serialized["panes"][0]["commands"][0]["enable_rules"][0]["variable_id"] == "player_level");
+    REQUIRE(serialized["panes"][0]["commands"][0]["enable_rules"][0]["variable_threshold"] == 10);
+
+    MenuSceneGraph restored;
+    REQUIRE(MenuSceneSerializer::Deserialize(serialized, restored));
+
+    restored.pushScene("RuleMenu");
+    auto active = restored.getActiveScene();
+    REQUIRE(active != nullptr);
+
+    const auto& commands = active->getPanes()[0].commands;
+    REQUIRE(commands.size() == 1);
+    REQUIRE(commands[0].visibility_rules.size() == 1);
+    REQUIRE(commands[0].visibility_rules[0].switch_id == "reveal_secret");
+    REQUIRE(commands[0].enable_rules.size() == 1);
+    REQUIRE(commands[0].enable_rules[0].variable_id == "player_level");
+    REQUIRE(commands[0].enable_rules[0].variable_threshold == 10);
+}
+
+
+TEST_CASE("MenuSceneSerializer: SerializeGraph round-trips multi-scene graphs", "[ui][menu][serialize][parity]") {
+    MenuSceneGraph graph;
+
+    auto mainScene = std::make_shared<MenuScene>("MainMenu");
+    MenuPane mainPane;
+    mainPane.id = "main";
+    mainPane.displayName = "Main";
+    urpg::MenuCommandMeta itemCmd;
+    itemCmd.id = "item";
+    itemCmd.label = "Items";
+    itemCmd.route = urpg::MenuRouteTarget::Item;
+    mainPane.commands.push_back(itemCmd);
+    mainScene->addPane(mainPane);
+    graph.registerScene(mainScene);
+
+    auto settingsScene = std::make_shared<MenuScene>("Settings");
+    MenuPane settingsPane;
+    settingsPane.id = "settings";
+    settingsPane.displayName = "Settings";
+    urpg::MenuCommandMeta audioCmd;
+    audioCmd.id = "audio";
+    audioCmd.label = "Audio";
+    audioCmd.route = urpg::MenuRouteTarget::Options;
+    settingsPane.commands.push_back(audioCmd);
+    settingsScene->addPane(settingsPane);
+    graph.registerScene(settingsScene);
+
+    const auto serialized = MenuSceneSerializer::SerializeGraph(graph);
+    REQUIRE(serialized.contains("scenes"));
+    REQUIRE(serialized["scenes"].is_array());
+    REQUIRE(serialized["scenes"].size() == 2);
+
+    // Verify both scenes are present
+    bool foundMain = false;
+    bool foundSettings = false;
+    for (const auto& scene_json : serialized["scenes"]) {
+        if (scene_json["scene_id"] == "MainMenu") {
+            foundMain = true;
+            REQUIRE(scene_json["panes"].size() == 1);
+            REQUIRE(scene_json["panes"][0]["commands"][0]["id"] == "item");
+        }
+        if (scene_json["scene_id"] == "Settings") {
+            foundSettings = true;
+            REQUIRE(scene_json["panes"].size() == 1);
+            REQUIRE(scene_json["panes"][0]["commands"][0]["id"] == "audio");
+        }
+    }
+    REQUIRE(foundMain);
+    REQUIRE(foundSettings);
+
+    // Verify round-trip via DeserializeGraph
+    MenuSceneGraph restored;
+    REQUIRE(MenuSceneSerializer::DeserializeGraph(serialized, restored));
+    REQUIRE(restored.getRegisteredScenes().size() == 2);
+
+    restored.pushScene("MainMenu");
+    auto active = restored.getActiveScene();
+    REQUIRE(active != nullptr);
+    REQUIRE(active->getId() == "MainMenu");
+    REQUIRE(active->getPanes()[0].commands[0].id == "item");
+
+    restored.pushScene("Settings");
+    active = restored.getActiveScene();
+    REQUIRE(active != nullptr);
+    REQUIRE(active->getId() == "Settings");
+    REQUIRE(active->getPanes()[0].commands[0].id == "audio");
+}

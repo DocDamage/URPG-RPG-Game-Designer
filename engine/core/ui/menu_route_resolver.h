@@ -45,6 +45,46 @@ public:
         return false;
     }
 
+    /**
+     * @brief Returns true if a native route target has a bound callback.
+     */
+    bool isRouteBound(MenuRouteTarget target) const {
+        return _native_routes.find(target) != _native_routes.end();
+    }
+
+    /**
+     * @brief Returns true if a custom route id has a bound callback.
+     */
+    bool isCustomRouteBound(const std::string& custom_id) const {
+        return _custom_routes.find(custom_id) != _custom_routes.end();
+    }
+
+    /**
+     * @brief Lists all bound native route targets.
+     */
+    std::vector<MenuRouteTarget> listBoundNativeRoutes() const {
+        std::vector<MenuRouteTarget> result;
+        result.reserve(_native_routes.size());
+        for (const auto& [target, _] : _native_routes) {
+            (void)_;
+            result.push_back(target);
+        }
+        return result;
+    }
+
+    /**
+     * @brief Lists all bound custom route ids.
+     */
+    std::vector<std::string> listBoundCustomRoutes() const {
+        std::vector<std::string> result;
+        result.reserve(_custom_routes.size());
+        for (const auto& [id, _] : _custom_routes) {
+            (void)_;
+            result.push_back(id);
+        }
+        return result;
+    }
+
 private:
     bool resolveTarget(const MenuCommandMeta& command,
                        MenuRouteTarget target,

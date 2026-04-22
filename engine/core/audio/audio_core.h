@@ -31,6 +31,16 @@ enum class AudioCategory : uint8_t {
 class AudioCore {
 public:
     struct ChannelState {
+        std::string asset_id;
+        float volume = 1.0f;
+        float pitch = 1.0f;
+        bool isLooping = false;
+        AudioCategory category = AudioCategory::System;
+    };
+
+    struct ActiveSourceSnapshot {
+        AudioHandle handle = 0;
+        std::string asset_id;
         float volume = 1.0f;
         float pitch = 1.0f;
         bool isLooping = false;
@@ -56,7 +66,7 @@ public:
     AudioHandle playSound(const std::string& assetId, AudioCategory category = AudioCategory::SE) {
         // In a real implementation, this would interface with OpenAL/SDL_Mixer/SoLoud
         AudioHandle handle = ++m_handleCounter;
-        m_activeSources[handle] = { 1.0f, 1.0f, false, category };
+        m_activeSources[handle] = { assetId, 1.0f, 1.0f, false, category };
         return handle;
     }
 
@@ -74,6 +84,24 @@ public:
 
     size_t activeSourceCount() const {
         return m_activeSources.size();
+    }
+
+    std::vector<ActiveSourceSnapshot> activeSources() const {
+        std::vector<ActiveSourceSnapshot> snapshots;
+        snapshots.reserve(m_activeSources.size());
+
+        for (const auto& [handle, state] : m_activeSources) {
+            snapshots.push_back({
+                handle,
+                state.asset_id,
+                state.volume,
+                state.pitch,
+                state.isLooping,
+                state.category,
+            });
+        }
+
+        return snapshots;
     }
 
     void setCategoryVolume(AudioCategory category, float volume) {

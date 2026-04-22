@@ -12,8 +12,6 @@
 
 #include "quickjs_runtime.h"
 #include "engine/runtimes/bridge/value.h"
-#include "runtimes/compat_js/game_party.h"
-#include "runtimes/compat_js/game_troop.h"
 #include <cstdint>
 #include <functional>
 #include <memory>
@@ -27,8 +25,6 @@ namespace compat {
 
 // Forward declarations
 class DataManagerImpl;
-class GameParty;
-class GameTroop;
 
 // Save file header structure (MZ format)
 struct SaveHeader {
@@ -76,24 +72,6 @@ struct GlobalState {
     std::unordered_map<int32_t, int32_t> armors;
 };
 
-// Runtime actor state ($gameActors compat)
-struct GameActor {
-    int32_t actorId = 0;
-    int32_t level = 1;
-    int32_t hp = 100;
-    int32_t mp = 100;
-    int32_t tp = 0;
-    int32_t mhp = 100;
-    int32_t mmp = 100;
-    int32_t mtp = 100;  // Max TP (was hardcoded)
-    int32_t atk = 10;
-    int32_t def = 10;
-    int32_t mat = 10;
-    int32_t mdf = 10;
-    int32_t agi = 10;
-    int32_t luk = 10;
-};
-
 // Database data types
 struct ActorData {
     int32_t id = 0;
@@ -103,14 +81,44 @@ struct ActorData {
     int32_t initialLevel = 1;
     int32_t maxLevel = 99;
     int32_t level = 1; // Current level (for display/scaling)
+    int32_t exp = 0;
     std::string faceName;
     int32_t faceIndex = 0;
     std::string characterName;
     int32_t characterIndex = 0;
     std::string battlerName;
     int32_t battlerIndex = 0;
-    // Params: [level][param] - 0=mhp, 1=mmp, 2=atk, 3=def, 4=mat, 5=mdf, 6=agi, 7=luk
+    int32_t hp = 100;
+    int32_t mp = 30;
+    int32_t tp = 0;
+    // Params: [param][level] - 0=mhp, 1=mmp, 2=atk, 3=def, 4=mat, 5=mdf, 6=agi, 7=luk
     std::vector<std::vector<int32_t>> params;
+    std::vector<int32_t> skills;
+};
+
+struct SkillDamage {
+    int32_t type = 0;
+    int32_t elementId = 0;
+    std::string formula;
+    int32_t variance = 20;
+    bool canCrit = false;
+    int32_t power = 10;
+};
+
+struct ItemDamage {
+    int32_t type = 0;
+    int32_t elementId = 0;
+    std::string formula;
+    int32_t variance = 20;
+    bool canCrit = false;
+    int32_t power = 10;
+};
+
+struct EffectData {
+    int32_t code = 0;
+    int32_t dataId = 0;
+    double value1 = 0.0;
+    double value2 = 0.0;
 };
 
 struct SkillData {
@@ -125,6 +133,8 @@ struct SkillData {
     int32_t successRate = 100;
     int32_t repeats = 1;
     int32_t animationId = 0;
+    SkillDamage damage;
+    std::vector<EffectData> effects;
 };
 
 struct ItemData {
@@ -138,12 +148,14 @@ struct ItemData {
     int32_t price = 0;
     int32_t scope = 0;
     int32_t animationId = 0;
+    ItemDamage damage;
+    std::vector<EffectData> effects;
 };
 
 struct EnemyData {
     int32_t id = 0;
     std::string name;
-    std::string battlerName;
+    int32_t battlerName = 0;
     int32_t mhp = 100;
     int32_t mmp = 100;
     int32_t atk = 10;
@@ -185,24 +197,23 @@ struct MapData {
 struct ClassData {
     int32_t id = 0;
     std::string name;
+    int32_t maxLevel = 99;
     std::vector<int32_t> learnings; // Skill IDs by level
-    // Params similar to ActorData
+    std::vector<int32_t> expTable; // Exp required to reach next level (index 0 = level 1->2)
+    std::vector<std::pair<int32_t, int32_t>> skillsToLearn; // {level, skillId}
+    // Params mirror RPG Maker's class table layout: [param][level]
     std::vector<std::vector<int32_t>> params;
 };
 
 struct StateData {
     int32_t id = 0;
     std::string name;
-    int32_t iconIndex = 0;
+    std::string iconIndex;
     int32_t priority = 0;
     int32_t restriction = 0;
     int32_t autoRemovalTiming = 0;
     int32_t minTurns = 1;
     int32_t maxTurns = 1;
-    int32_t slipDamage = 0;        // HP lost per turn while state is active
-    bool removeByDamage = false;   // Remove when subject takes damage
-    bool removeByWalking = false;  // Remove when walking on map
-    int32_t chanceByDamage = 100;  // % chance to remove on damage
 };
 
 struct AnimationData {
@@ -232,15 +243,16 @@ public:
     // Singleton access for compatibility.
     static DataManager& instance();
     
+    // Configure the data directory path for JSON database loading.
+    static void setDataDirectory(const std::string& path);
+    static const std::string& getDataDirectory();
+    
     // ========================================================================
     // Database Loading
     // ========================================================================
     
-    // Status: PARTIAL - Database path currently seeds empty containers; JSON ingestion is still TODO
+    // Status: PARTIAL - Loads seeded compat records and real JSON data when a data root is configured; full project parity is still out of scope
     bool loadDatabase();
-    
-    // Set the base path for data files (e.g. "data")
-    void setDataPath(const std::string& path);
     
     // Status: FULL - Load specific data file
     bool loadActors();
@@ -258,7 +270,7 @@ public:
     bool loadSystem();
     bool loadMapInfos();
     
-    // Status: PARTIAL - Map metadata is seeded with mock data until JSON map ingestion lands
+    // Status: PARTIAL - Prefers real MZ map JSON when available, but still falls back to deterministic mock geometry without a data root
     bool loadMapData(int32_t mapId);
     
     // Status: FULL - Current map data access
@@ -269,7 +281,7 @@ public:
     // Database Accessors
     // ========================================================================
     
-    // Status: PARTIAL - Accessors are live, but loaders currently populate empty database containers
+    // Status: PARTIAL - Accessors return live seeded/loaded compat containers; coverage still depends on available project data
     const std::vector<ActorData>& getActors() const;
     const std::vector<ClassData>& getClasses() const;
     const std::vector<SkillData>& getSkills() const;
@@ -282,15 +294,19 @@ public:
     const std::vector<AnimationData>& getAnimations() const;
     const std::vector<MapInfo>& getMapInfos() const;
     
-    // Status: PARTIAL - Lookup works against the in-memory containers, which are still loader-empty today
+    // Status: PARTIAL - Lookup works against the in-memory seeded/loaded containers
     const ActorData* getActor(int32_t id) const;
+    ActorData* getActor(int32_t id);
+    int32_t getActorParam(int32_t actorId, int32_t paramId, int32_t level = 1) const;
     const ClassData* getClass(int32_t id) const;
+    ClassData* getClass(int32_t id);
     const SkillData* getSkill(int32_t id) const;
+    SkillData* getSkill(int32_t id);
     const ItemData* getItem(int32_t id) const;
+    ItemData* getItem(int32_t id);
     const ItemData* getWeapon(int32_t id) const;
     const ItemData* getArmor(int32_t id) const;
     const EnemyData* getEnemy(int32_t id) const;
-    EnemyData* getEnemy(int32_t id);
     const TroopData* getTroop(int32_t id) const;
     const StateData* getState(int32_t id) const;
     
@@ -319,12 +335,6 @@ public:
     void setGold(int32_t gold);
     void gainGold(int32_t amount);
     void loseGold(int32_t amount);
-    
-    // Runtime party / troop state ($gameParty / $gameTroop compat)
-    GameParty& getGameParty();
-    const GameParty& getGameParty() const;
-    GameTroop& getGameTroop();
-    const GameTroop& getGameTroop() const;
     
     // Status: FULL - Item inventory
     int32_t getItemCount(int32_t itemId) const;
@@ -374,16 +384,6 @@ public:
     int32_t getPlayerDirection() const;
     void setPlayerPosition(int32_t mapId, int32_t x, int32_t y);
     void setPlayerDirection(int32_t direction);
-
-    // Runtime actor state ($gameActors compat)
-    GameActor* getGameActor(int32_t actorId);
-    const GameActor* getGameActor(int32_t actorId) const;
-    void setupGameActors(); // Initialize from database ActorData
-    void setGameActorHp(int32_t actorId, int32_t hp);
-    void setGameActorMp(int32_t actorId, int32_t mp);
-    void setGameActorTp(int32_t actorId, int32_t tp);
-    void setGameActorLevel(int32_t actorId, int32_t level);
-    void setGameActorMtp(int32_t actorId, int32_t mtp);
 
     // Status: FULL - Map transfer requests
     void reserveTransfer(int32_t mapId, int32_t x, int32_t y, int32_t direction = -1);
@@ -467,15 +467,6 @@ public:
     // Register DataManager API with QuickJS context
     static void registerAPI(QuickJSContext& ctx);
     
-    // Test helpers
-    void clearDatabase();
-    EnemyData& addTestEnemy();
-    TroopData& addTestTroop();
-    ActorData& addTestActor();
-    ItemData& addTestItem();
-    SkillData& addTestSkill();
-    StateData& addTestState();
-    
     // Get compat status for a method
     static CompatStatus getMethodStatus(const std::string& methodName);
     static std::string getMethodDeviation(const std::string& methodName);
@@ -512,22 +503,15 @@ private:
     // Autosave
     bool autosaveEnabled_ = true;
     
-    // Data path
-    std::string dataPath_;
-    
     // Plugin commands
     std::unordered_map<std::string, PluginCommandHandler> pluginCommands_;
     
     // Event callback
     EventCallback eventCallback_;
-
-    // Runtime actor state
-    std::unordered_map<int32_t, GameActor> gameActors_;
     
-    // Runtime party / troop state
-    GameParty gameParty_;
-    GameTroop gameTroop_;
-
+    // Data directory path
+    static std::string dataDirectory_;
+    
     // API status registry
     static std::unordered_map<std::string, CompatStatus> methodStatus_;
     static std::unordered_map<std::string, std::string> methodDeviations_;

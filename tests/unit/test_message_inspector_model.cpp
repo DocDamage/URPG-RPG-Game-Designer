@@ -109,3 +109,119 @@ TEST_CASE("Message inspector model route and issue filters narrow visible rows",
     REQUIRE_FALSE(model.SelectRow(9));
     REQUIRE_FALSE(model.SelectedPageId().has_value());
 }
+
+TEST_CASE("MessageInspectorModel supports page body editing", "[message][editor]") {
+    urpg::message::MessageFlowRunner runner;
+    runner.begin({
+        {"page_a", "Original body.", urpg::message::variantFromCompatRoute("speaker", "Alicia", 3), true, {}, 0},
+        {"page_b", "Second page.", urpg::message::variantFromCompatRoute("narration", "", 0), true, {}, 0},
+    });
+
+    urpg::message::RichTextLayoutEngine layout;
+    urpg::editor::MessageInspectorModel model;
+    model.LoadFromFlow(runner, layout);
+
+    REQUIRE(model.SelectRow(0));
+    REQUIRE(model.SelectedPageId().value() == "page_a");
+
+    REQUIRE(model.updatePageBody(0, "Updated body text."));
+
+    const auto& rows = model.VisibleRows();
+    REQUIRE(rows.size() == 2);
+    REQUIRE(rows[0].page_id == "page_a");
+    REQUIRE(rows[0].body_preview == "Updated body text.");
+
+    REQUIRE(model.SelectedPageId().has_value());
+    REQUIRE(model.SelectedPageId().value() == "page_a");
+}
+
+TEST_CASE("MessageInspectorModel supports adding and removing pages", "[message][editor]") {
+    urpg::message::MessageFlowRunner runner;
+    runner.begin({
+        {"page_a", "First page.", urpg::message::variantFromCompatRoute("speaker", "Alicia", 3), true, {}, 0},
+    });
+
+    urpg::message::RichTextLayoutEngine layout;
+    urpg::editor::MessageInspectorModel model;
+    model.LoadFromFlow(runner, layout);
+
+    REQUIRE(model.Summary().total_pages == 1);
+
+    urpg::message::DialoguePage new_page;
+    new_page.id = "page_b";
+    new_page.body = "Second page.";
+    new_page.variant = urpg::message::variantFromCompatRoute("narration", "", 0);
+    REQUIRE(model.addPage(new_page));
+
+    REQUIRE(model.Summary().total_pages == 2);
+    REQUIRE(model.VisibleRows().size() == 2);
+    REQUIRE(model.VisibleRows()[1].page_id == "page_b");
+
+    REQUIRE(model.removePage(1));
+    REQUIRE(model.Summary().total_pages == 1);
+    REQUIRE(model.VisibleRows().size() == 1);
+    REQUIRE(model.VisibleRows()[0].page_id == "page_a");
+}
+
+TEST_CASE("MessageInspectorModel applyToRuntime reconstructs runner state", "[message][editor]") {
+    urpg::message::MessageFlowRunner runner;
+    runner.begin({
+        {"page_a", "First page.", urpg::message::variantFromCompatRoute("speaker", "Alicia", 3), true, {}, 0},
+    });
+
+    urpg::message::RichTextLayoutEngine layout;
+    urpg::editor::MessageInspectorModel model;
+    model.LoadFromFlow(runner, layout);
+
+    REQUIRE(model.updatePageBody(0, "Mutated body."));
+
+    urpg::message::DialoguePage new_page;
+    new_page.id = "page_b";
+    new_page.body = "Added page.";
+    new_page.variant = urpg::message::variantFromCompatRoute("narration", "", 0);
+    REQUIRE(model.addPage(new_page));
+
+    urpg::message::MessageFlowRunner target_runner;
+    REQUIRE(model.applyToRuntime(target_runner));
+
+    REQUIRE(target_runner.pages().size() == 2);
+    REQUIRE(target_runner.pages()[0].body == "Mutated body.");
+    REQUIRE(target_runner.pages()[1].id == "page_b");
+    REQUIRE(target_runner.isActive());
+}
+
+TEST_CASE("MessageInspectorModel clear resets to empty", "[message][editor]") {
+    urpg::message::MessageFlowRunner runner;
+    runner.begin({
+        {"page_a", "First page.", urpg::message::variantFromCompatRoute("speaker", "Alicia", 3), true, {}, 0},
+    });
+
+    urpg::message::RichTextLayoutEngine layout;
+    urpg::editor::MessageInspectorModel model;
+    model.LoadFromFlow(runner, layout);
+
+    REQUIRE(model.Summary().total_pages == 1);
+    model.clear();
+    REQUIRE(model.Summary().total_pages == 0);
+    REQUIRE(model.VisibleRows().empty());
+    REQUIRE(model.Issues().empty());
+    REQUIRE_FALSE(model.SelectedPageId().has_value());
+}
+
+TEST_CASE("MessageInspectorModel selectPageById finds correct row", "[message][editor]") {
+    urpg::message::MessageFlowRunner runner;
+    runner.begin({
+        {"page_a", "First page.", urpg::message::variantFromCompatRoute("speaker", "Alicia", 3), true, {}, 0},
+        {"page_b", "Second page.", urpg::message::variantFromCompatRoute("narration", "", 0), true, {}, 0},
+    });
+
+    urpg::message::RichTextLayoutEngine layout;
+    urpg::editor::MessageInspectorModel model;
+    model.LoadFromFlow(runner, layout);
+
+    REQUIRE(model.selectPageById("page_b"));
+    REQUIRE(model.SelectedPageId().has_value());
+    REQUIRE(model.SelectedPageId().value() == "page_b");
+
+    REQUIRE_FALSE(model.selectPageById("nonexistent"));
+}

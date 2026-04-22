@@ -1,6 +1,23 @@
 #include "editor/battle/battle_inspector_panel.h"
+#include "engine/core/scene/battle_scene.h"
+#include "runtimes/compat_js/data_manager.h"
 
 #include <catch2/catch_test_macros.hpp>
+
+namespace {
+
+urpg::scene::BattleParticipant* findParticipantById(std::vector<urpg::scene::BattleParticipant>& participants,
+                                                    const std::string& id,
+                                                    bool isEnemy) {
+    for (auto& participant : participants) {
+        if (participant.id == id && participant.isEnemy == isEnemy) {
+            return &participant;
+        }
+    }
+    return nullptr;
+}
+
+} // namespace
 
 TEST_CASE("Battle inspector panel refreshes runtime flow, queue, and preview", "[battle][editor][panel]") {
     urpg::battle::BattleFlowController flow;
@@ -40,4 +57,56 @@ TEST_CASE("Battle inspector panel refreshes runtime flow, queue, and preview", "
     panel.clearRuntime();
     panel.refresh();
     REQUIRE(panel.getModel().VisibleRows().empty());
+}
+
+TEST_CASE("Battle inspector panel binds live scene diagnostics preview payload", "[battle][editor][panel]") {
+    auto& dm = urpg::compat::DataManager::instance();
+    REQUIRE(dm.loadDatabase());
+    dm.setupNewGame();
+
+    urpg::scene::BattleScene runtime({"2"});
+    runtime.onStart();
+    runtime.addActor("1", "Hero", 100, 30, {0.0f, 0.0f}, nullptr);
+    runtime.addEnemy("2", "Goblin", 50, 0, {100.0f, 100.0f}, nullptr);
+    runtime.setPhase(urpg::scene::BattlePhase::ACTION);
+    runtime.flowController().noteEscapeFailure();
+
+    auto& participants = const_cast<std::vector<urpg::scene::BattleParticipant>&>(runtime.getParticipants());
+    auto* hero = findParticipantById(participants, "1", false);
+    auto* goblin = findParticipantById(participants, "2", true);
+    REQUIRE(hero != nullptr);
+    REQUIRE(goblin != nullptr);
+
+    urpg::scene::BattleScene::BattleAction action{};
+    action.subject = hero;
+    action.target = goblin;
+    action.command = "attack";
+    runtime.addActionToQueue(action);
+
+    const auto preview = runtime.buildDiagnosticsPreview();
+    REQUIRE(preview.has_value());
+
+    const auto expected_physical_damage = urpg::battle::BattleRuleResolver::resolveDamage(preview->physical_preview);
+    const auto expected_magical_damage = urpg::battle::BattleRuleResolver::resolveDamage(preview->magical_preview);
+    const auto expected_escape_ratio_now = urpg::battle::BattleRuleResolver::resolveEscapeRatio(
+        preview->party_agi, preview->troop_agi, runtime.flowController().escapeFailures());
+    const auto expected_escape_ratio_next = urpg::battle::BattleRuleResolver::resolveEscapeRatio(
+        preview->party_agi, preview->troop_agi, runtime.flowController().escapeFailures() + 1);
+
+    urpg::editor::BattleInspectorPanel panel;
+    panel.bindRuntime(runtime);
+    panel.refresh();
+
+    REQUIRE(panel.getModel().Summary().phase == "action");
+    REQUIRE(panel.getModel().Summary().total_actions == 1);
+    REQUIRE(panel.getModel().VisibleRows().size() == 1);
+    REQUIRE(panel.getModel().VisibleRows()[0].subject_id == hero->id);
+
+    const auto& snapshot = panel.previewPanel().snapshot();
+    REQUIRE(snapshot.phase == "action");
+    REQUIRE(snapshot.can_escape == true);
+    REQUIRE(snapshot.physical_damage == expected_physical_damage);
+    REQUIRE(snapshot.magical_damage == expected_magical_damage);
+    REQUIRE(snapshot.escape_ratio_now == expected_escape_ratio_now);
+    REQUIRE(snapshot.escape_ratio_next_fail == expected_escape_ratio_next);
 }

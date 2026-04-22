@@ -1,0 +1,28 @@
+{
+  "source_id": "SRC-004",
+  "repo_name": "madjin/awesome-cc0",
+  "source_url": "https://github.com/madjin/awesome-cc0",
+  "capture_state": "cataloged_not_mirrored",
+  "snapshot_commit": null,
+  "snapshot_date": null,
+  "source_type": "discovery_index",
+  "category_tags": [
+    "textures",
+    "materials",
+    "hdris",
+    "3d_models",
+    "cc0_sources"
+  ],
+  "intended_use": [
+    "Source environment materials",
+    "Source future UI, icon, audio, and 3D references",
+    "Build a vetted internal source list"
+  ],
+  "handling_path": "discovery_backlog_only",
+  "legal_disposition": "reference_index_only_no_direct_asset_ingest",
+  "promotion_status": "not_started",
+  "notes": [
+    "This source is a directory of downstream candidates, not a direct asset pack.",
+    "Use only to record follow-up acquisition targets."
+  ]
+}

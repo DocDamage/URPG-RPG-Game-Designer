@@ -4,16 +4,43 @@
 
 namespace urpg::editor {
 
+namespace {
+
+urpg::battle::BattleDamageContext DefaultPhysicalPreviewContext() {
+    urpg::battle::BattleDamageContext context;
+    context.subject.atk = 24;
+    context.target.def = 12;
+    context.target.hp = 240;
+    context.power = 10;
+    context.variance_percent = 20;
+    return context;
+}
+
+urpg::battle::BattleDamageContext DefaultMagicalPreviewContext() {
+    urpg::battle::BattleDamageContext context;
+    context.subject.mat = 28;
+    context.target.mdf = 11;
+    context.target.hp = 240;
+    context.power = 14;
+    context.magical = true;
+    context.variance_percent = 10;
+    return context;
+}
+
+} // namespace
+
 void BattleInspectorPanel::bindRuntime(const urpg::battle::BattleFlowController& flow_controller,
                                        const urpg::battle::BattleActionQueue& action_queue) {
     flow_controller_ = &flow_controller;
     action_queue_ = &action_queue;
+    preview_override_.reset();
     preview_panel_.bindRuntime(flow_controller);
 }
 
 void BattleInspectorPanel::clearRuntime() {
     flow_controller_ = nullptr;
     action_queue_ = nullptr;
+    preview_override_.reset();
     model_ = BattleInspectorModel{};
     preview_panel_.clearRuntime();
 }
@@ -69,11 +96,29 @@ void BattleInspectorPanel::refresh() {
     model_.LoadFromRuntime(*flow_controller_, *action_queue_);
     model_.SetShowIssuesOnly(show_issues_only_);
     model_.SetSubjectFilter(subject_filter_);
+    applyPreviewBinding();
     preview_panel_.refresh();
 }
 
 void BattleInspectorPanel::update() {
     refresh();
+}
+
+void BattleInspectorPanel::applyDefaultPreviewBinding() {
+    preview_panel_.setPhysicalPreviewContext(DefaultPhysicalPreviewContext());
+    preview_panel_.setMagicalPreviewContext(DefaultMagicalPreviewContext());
+    preview_panel_.setEscapePreviewAgility(100, 100);
+}
+
+void BattleInspectorPanel::applyPreviewBinding() {
+    if (!preview_override_.has_value()) {
+        applyDefaultPreviewBinding();
+        return;
+    }
+
+    preview_panel_.setPhysicalPreviewContext(preview_override_->physical_preview);
+    preview_panel_.setMagicalPreviewContext(preview_override_->magical_preview);
+    preview_panel_.setEscapePreviewAgility(preview_override_->party_agi, preview_override_->troop_agi);
 }
 
 } // namespace urpg::editor

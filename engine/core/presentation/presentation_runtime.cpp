@@ -1,6 +1,8 @@
 #include "presentation_runtime.h"
 #include "map_scene_translator.h"
 #include "battle_scene_translator.h"
+#include "effects/effect_resolver.h"
+#include "effects/effect_translator.h"
 
 namespace urpg::presentation {
 
@@ -27,7 +29,18 @@ PresentationFrameIntent PresentationRuntime::BuildPresentationFrame(
     // Dispatch to correct scene translator
     if (!context.battleState.battleArenaId.empty()) {
         BattleSceneTranslatorImpl battleTranslator;
-        battleTranslator.Translate(context, data, context.battleState, intent);
+        BattleSceneState resolvedBattleState = context.battleState;
+        BattleSceneTranslatorImpl::ResolveParticipantAnchors(data, resolvedBattleState);
+        battleTranslator.Translate(context, data, resolvedBattleState, intent);
+
+        effects::EffectResolver resolver;
+        effects::EffectTranslator translator;
+        std::vector<effects::ResolvedEffectInstance> resolvedEffects;
+        for (const auto& cue : resolvedBattleState.effectCues) {
+            const auto resolved = resolver.resolve(cue, context.activeTier, &resolvedBattleState);
+            resolvedEffects.insert(resolvedEffects.end(), resolved.begin(), resolved.end());
+        }
+        translator.append(resolvedEffects, intent);
     } else {
         MapSceneTranslatorImpl mapTranslator;
         mapTranslator.Translate(context, data, context.mapState, intent);

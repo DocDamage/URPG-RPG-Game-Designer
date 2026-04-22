@@ -16,6 +16,19 @@ class GameplayAbility;
  */
 class AbilitySystemComponent {
 public:
+    struct AbilityExecutionRecord {
+        size_t sequence_id = 0;
+        std::string ability_id;
+        std::string stage;
+        std::string outcome;
+        std::string reason;
+        std::string state_name;
+        float mp_before = 0.0f;
+        float mp_after = 0.0f;
+        float cooldown_after = 0.0f;
+        size_t active_effect_count = 0;
+    };
+
     /**
      * @brief Adds a tag to the owner.
      */
@@ -37,6 +50,7 @@ public:
      * @brief Check if the owner can activate the given ability.
      */
     bool canActivateAbility(const GameplayAbility& ability) const;
+    bool tryActivateAbility(GameplayAbility& ability);
 
     /**
      * @brief Validates if the target is within the ability's pattern from specified source.
@@ -90,9 +104,15 @@ public:
      * @brief Get modified attribute value.
      */
     float getAttribute(const std::string& attr, float baseValue) const {
+        float resolvedBase = baseValue;
+        auto baseIt = m_baseAttributes.find(attr);
+        if (baseIt != m_baseAttributes.end()) {
+            resolvedBase = baseIt->second;
+        }
+
         float totalAdd = 0.0f;
         float totalMult = 1.0f;
-        float overrideValue = baseValue;
+        float overrideValue = resolvedBase;
         bool hasOverride = false;
 
         for (const auto& effect : m_activeEffects) {
@@ -124,7 +144,11 @@ public:
         }
         
         if (hasOverride) return overrideValue;
-        return (baseValue + totalAdd) * totalMult;
+        return (resolvedBase + totalAdd) * totalMult;
+    }
+
+    void setAttribute(const std::string& attr, float value) {
+        m_baseAttributes[attr] = value;
     }
 
     /**
@@ -150,7 +174,8 @@ public:
      * In a real ECS system, this would write to the Actor's Stat component.
      */
     void modifyAttribute(const std::string& attr, float delta) {
-        // Placeholder: Needs integration with whichever component stores base stats.
+        const float current = getAttribute(attr, defaultBaseAttribute(attr));
+        m_baseAttributes[attr] = current + delta;
     }
 
     /**
@@ -184,11 +209,53 @@ public:
         }
     }
 
+    const std::vector<AbilityExecutionRecord>& getAbilityExecutionHistory() const {
+        return m_executionHistory;
+    }
+
+    size_t getActiveEffectCount() const {
+        return m_activeEffects.size();
+    }
+
+    void recordAbilityExecution(const std::string& abilityId,
+                                const std::string& stage,
+                                const std::string& outcome,
+                                const std::string& reason,
+                                const std::string& stateName,
+                                float mpBefore,
+                                float mpAfter,
+                                float cooldownAfter,
+                                size_t activeEffectCount) {
+        AbilityExecutionRecord record;
+        record.sequence_id = ++m_nextExecutionSequence;
+        record.ability_id = abilityId;
+        record.stage = stage;
+        record.outcome = outcome;
+        record.reason = reason;
+        record.state_name = stateName;
+        record.mp_before = mpBefore;
+        record.mp_after = mpAfter;
+        record.cooldown_after = cooldownAfter;
+        record.active_effect_count = activeEffectCount;
+        m_executionHistory.push_back(std::move(record));
+        constexpr size_t max_records = 128;
+        if (m_executionHistory.size() > max_records) {
+            m_executionHistory.erase(m_executionHistory.begin(), m_executionHistory.begin() + (m_executionHistory.size() - max_records));
+        }
+    }
+
 private:
+    static float defaultBaseAttribute(const std::string& attr) {
+        return attr == "MP" ? 9999.0f : 0.0f;
+    }
+
     GameplayTagContainer m_tags;
     std::vector<std::shared_ptr<GameplayAbility>> m_abilities;
+    std::unordered_map<std::string, float> m_baseAttributes;
     std::unordered_map<std::string, float> m_cooldowns;
     std::vector<GameplayEffect> m_activeEffects;
+    std::vector<AbilityExecutionRecord> m_executionHistory;
+    size_t m_nextExecutionSequence = 0;
 };
 
 } // namespace urpg::ability

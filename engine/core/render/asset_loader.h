@@ -3,6 +3,7 @@
 #include <string>
 #include <memory>
 #include <unordered_map>
+#include <unordered_set>
 #include "engine/core/platform/gl_texture.h"
 
 namespace urpg {
@@ -25,6 +26,7 @@ public:
 private:
     // Simple cache to avoid redundant loads
     static std::unordered_map<std::string, std::shared_ptr<Texture>> s_textureCache;
+    static std::unordered_set<std::string> s_missingTextureCache;
 };
 
 } // namespace urpg

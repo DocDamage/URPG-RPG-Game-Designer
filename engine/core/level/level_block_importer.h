@@ -11,17 +11,24 @@ using json = nlohmann::json;
 
 class LevelBlockImporter {
 public:
-    static std::vector<LevelBlock> importLibrary(const std::string& filePath) {
-        std::vector<LevelBlock> blocks;
+    static LevelBlockLibrary importLibraryDefinition(const std::string& filePath) {
+        LevelBlockLibrary library;
         std::ifstream file(filePath);
-        if (!file.is_open()) return blocks;
+        if (!file.is_open()) return library;
 
         json data;
         file >> data;
 
+        if (data.contains("libraryName") && data["libraryName"].is_string()) {
+            library.setName(data["libraryName"].get<std::string>());
+        }
+
         if (data.contains("blocks") && data["blocks"].is_array()) {
             for (const auto& item : data["blocks"]) {
                 LevelBlock block(item["id"]);
+                if (item.contains("prefabPath") && item["prefabPath"].is_string()) {
+                    block.setPrefabPath(item["prefabPath"].get<std::string>());
+                }
                 
                 if (item.contains("connectors") && item["connectors"].is_array()) {
                     for (const auto& connData : item["connectors"]) {
@@ -40,11 +47,15 @@ public:
                         block.addConnector(connector);
                     }
                 }
-                blocks.push_back(block);
+                library.addBlock(block);
             }
         }
 
-        return blocks;
+        return library;
+    }
+
+    static std::vector<LevelBlock> importLibrary(const std::string& filePath) {
+        return importLibraryDefinition(filePath).getBlocks();
     }
 
 private:

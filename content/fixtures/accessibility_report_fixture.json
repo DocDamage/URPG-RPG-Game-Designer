@@ -1,0 +1,23 @@
+{
+  "auditDate": "2026-04-21T19:58:46Z",
+  "issues": [
+    {
+      "severity": "Error",
+      "category": "MissingLabel",
+      "elementId": "btn_ok",
+      "message": "Focusable element is missing a label"
+    },
+    {
+      "severity": "Warning",
+      "category": "FocusOrder",
+      "elementId": "btn_save",
+      "message": "Duplicate focus order 1"
+    },
+    {
+      "severity": "Error",
+      "category": "Contrast",
+      "elementId": "text_1",
+      "message": "Contrast ratio 2.1 is below minimum 3.0"
+    }
+  ]
+}

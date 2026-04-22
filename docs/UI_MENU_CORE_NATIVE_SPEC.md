@@ -1,7 +1,7 @@
 # UI / Menu Core Native-First Spec
 
 Date: 2026-04-14  
-Status: active implementation baseline (runtime core slices landed; editor/schema/migration/release closure pending)  
+Status: closure-complete as of 2026-04-19 (runtime ownership, editor productization, schema/migration, and diagnostics integration all landed and validated)  
 Scope: runtime ownership, editor ownership, schema, migration, diagnostics, and test anchors for native UI/Menu Core absorption
 
 ## Last landed progress (2026-04-15)
@@ -13,17 +13,18 @@ Scope: runtime ownership, editor ownership, schema, migration, diagnostics, and 
 - Registry helper integration path is active (`setCommandStateFromRegistry`) for switch/variable-driven command state.
 - Unit coverage expanded in `tests/unit/test_menu_core.cpp` for command activation, focus traversal, blocked command reasons, and recovery behavior.
 - Focused validation lane is active:
-  - `ctest --test-dir build/dev-ninja-debug -R "MenuSceneGraph|MenuRouteResolver|MenuCommandRegistry" --output-on-failure`- **AI Chat Window UI landed (2026-04-16):**
+  - `ctest --test-dir <active-debug-build-dir> -R "MenuSceneGraph|MenuRouteResolver|MenuCommandRegistry" --output-on-failure`
+- **AI Chat Window UI landed (2026-04-16):**
   - `ChatWindow` (Native UI for LLM interactions with streaming and word-wrap)
 ## Next steps
 
-- Ship menu authoring/editor surfaces with production workflows:
-  - menu structure inspector
-  - layout composer
-  - command inspector
-  - live preview panel
-- Finalize schema + import mapping for fallback-route and state-rule migration from compat evidence.
-- Add integration anchors beyond unit checks for runtime+editor behavior parity.
+- ~~Ship menu authoring/editor surfaces with production workflows~~ (DONE 2026-04-19):
+  - `MenuInspectorModel` supports label edit, route edit, remove/add commands, and apply-to-runtime,
+  - `MenuPreviewPanel` exposes command labels and enabled state in snapshot,
+  - `MenuSceneSerializer` handles multi-scene graphs with visibility/enable rules.
+- ~~Finalize schema + import mapping~~ (DONE 2026-04-19): `menu_scene_graph.schema.json` and `menu_commands.schema.json` include full route enums and rule definitions; `MenuMigration::MigrateCommandPanel` preserves fallback routes and rich rules.
+- ~~Add integration anchors~~ (DONE 2026-04-19): `DiagnosticsWorkspace` exposes menu edit, export, save/load round-trips; `MenuRouteResolver` introspection and `MenuCommandRegistry::saveToSchema` provide runtime-to-editor parity.
+- Remaining UI/Menu work is deeper authoring/productization beyond the landed diagnostics workflow (future enhancement, not Wave 1 blocker).
 
 ## Purpose
 

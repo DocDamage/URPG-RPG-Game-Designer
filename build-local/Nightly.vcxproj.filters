@@ -1,0 +1,17 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="17.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <CustomBuild Include="C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\CMakeFiles\635b0e2c7646cfa02bcf5060059a1ce4\Nightly.rule">
+      <Filter>CMake Rules</Filter>
+    </CustomBuild>
+    <CustomBuild Include="C:\Users\dferr\dev\URPG - RPG Game Maker\CMakeLists.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\CMakeFiles\Nightly" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="CMake Rules">
+      <UniqueIdentifier>{B1363BBF-41E1-36AA-BC76-EFBDDB320341}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

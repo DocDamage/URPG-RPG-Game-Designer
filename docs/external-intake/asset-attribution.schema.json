@@ -1,0 +1,58 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://urpg.local/schemas/intake/asset-attribution.schema.json",
+  "title": "URPG Asset Attribution Record",
+  "type": "object",
+  "required": [
+    "asset_id",
+    "source_id",
+    "original_relative_path",
+    "author",
+    "license",
+    "attribution_required",
+    "commercial_use_allowed",
+    "redistribution_allowed"
+  ],
+  "properties": {
+    "asset_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "source_id": {
+      "type": "string",
+      "pattern": "^SRC-[0-9]{3}$"
+    },
+    "original_relative_path": {
+      "type": "string",
+      "minLength": 1
+    },
+    "author": {
+      "type": "string",
+      "minLength": 1
+    },
+    "license": {
+      "type": "string",
+      "minLength": 1
+    },
+    "license_url": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "format": "uri"
+    },
+    "attribution_required": {
+      "type": "boolean"
+    },
+    "commercial_use_allowed": {
+      "type": "boolean"
+    },
+    "redistribution_allowed": {
+      "type": "boolean"
+    },
+    "notes": {
+      "type": "string"
+    }
+  },
+  "additionalProperties": false
+}

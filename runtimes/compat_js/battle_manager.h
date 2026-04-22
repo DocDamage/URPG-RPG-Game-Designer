@@ -79,12 +79,6 @@ struct BattleSubject {
     int32_t tp = 0;
     int32_t mhp = 0;
     int32_t mmp = 0;
-    int32_t atk = 0;
-    int32_t def = 0;
-    int32_t mat = 0;
-    int32_t mdf = 0;
-    int32_t agi = 0;
-    int32_t luk = 0;
     
     // Battle state
     bool hidden = false;
@@ -99,13 +93,6 @@ struct BattleSubject {
     int32_t itemId = 0;
     std::vector<BattleStateEffect> states;
     std::vector<BattleModifierEffect> modifiers;
-    std::unordered_map<int32_t, int32_t> stateTurns;
-    
-    void addState(int32_t stateId, int32_t turns = -1);
-    void removeState(int32_t stateId);
-    bool hasState(int32_t stateId) const;
-    void clearStates();
-    int32_t getStateTurns(int32_t stateId) const;
 };
 
 // Battle action being executed
@@ -117,6 +104,21 @@ struct BattleAction {
     int32_t itemId = 0;
     int32_t animationId = 0;
     bool forced = false;
+};
+
+struct BattleAudioCue {
+    std::string name;
+    double volume = 90.0;
+    double pitch = 100.0;
+};
+
+struct BattleAnimationPlayback {
+    int32_t animationId = 0;
+    BattleSubjectType targetType = BattleSubjectType::ACTOR;
+    int32_t targetIndex = 0;
+    int32_t targetId = 0;
+    int32_t framesRemaining = 0;
+    bool subjectAnimation = false;
 };
 
 // Battle result
@@ -155,22 +157,19 @@ public:
     // Status: PARTIAL - Battle state initializes, but troop loading and party seeding are still TODO
     void setup(int32_t troopId, bool canEscape = true, bool canLose = false);
     
-    // Status: STUB - Transition type is accepted but not routed to runtime output
+    // Status: PARTIAL - Transition/background/audio metadata is retained, but not yet routed to scene/audio playback
     void setBattleTransition(int32_t type);
-    
-    // Status: STUB - Background selection is accepted but not routed to runtime output
     void setBattleBackground(const std::string& name);
-    
-    // Status: STUB - Audio metadata is accepted but not routed to playback
     void setBattleBgm(const std::string& name, double volume = 90.0, double pitch = 100.0);
     void setVictoryMe(const std::string& name, double volume = 90.0, double pitch = 100.0);
     void setDefeatMe(const std::string& name, double volume = 90.0, double pitch = 100.0);
-    
-    // Status: FULL - Get battle transition type
+
+    // Status: PARTIAL - Returns retained compat metadata rather than live scene/audio backend state
     int32_t getBattleTransition() const;
-    
-    // Status: FULL - Get battle background name
     const std::string& getBattleBackground() const;
+    const BattleAudioCue& getBattleBgm() const;
+    const BattleAudioCue& getVictoryMe() const;
+    const BattleAudioCue& getDefeatMe() const;
     
     // ========================================================================
     // Battle Flow Control
@@ -295,10 +294,10 @@ public:
     // Status: FULL - Apply healing to subject
     void applyHeal(BattleSubject* subject, int32_t amount, bool isHp = true);
     
-    // Status: STUB - Placeholder path; does not resolve skill database effects
+    // Status: PARTIAL - Resolves skill database record and applies damage/healing/state effects; full formula parsing is not yet implemented
     void applySkill(BattleSubject* user, BattleSubject* target, int32_t skillId);
     
-    // Status: STUB - Placeholder path; does not resolve item database effects
+    // Status: PARTIAL - Resolves item database record and applies damage/healing/state effects; full formula parsing is not yet implemented
     void applyItem(BattleSubject* user, BattleSubject* target, int32_t itemId);
 
     // Status: FULL - Add/remove/query state effects
@@ -314,32 +313,24 @@ public:
     void applyStateEffects(BattleSubject* subject);
     void applyTurnEndEffects(BattleSubject* subject);
     
-    // Status: FULL - Remove expired states
-    void removeExpiredStates(BattleSubject* subject);
-    
-    // Status: STUB - Animation intent is recorded, but playback is still TODO
+    // Status: FULL - Deterministic animation playback queue backed by loaded compat animation data
     void playAnimation(int32_t animationId, BattleSubject* target);
     void playAnimationOnSubject(int32_t animationId, BattleSubject* subject);
-    
-    // Animation tracking (for testing / native renderer)
-    struct AnimationRequest {
-        int32_t animationId = 0;
-        int32_t targetType = 0; // 0=actor, 1=enemy
-        int32_t targetIndex = 0;
-    };
-    AnimationRequest getLastAnimationRequest() const { return lastAnimationRequest_; }
-    void clearLastAnimationRequest() { lastAnimationRequest_ = AnimationRequest{}; }
+    bool isAnimationPlaying() const;
+    const std::vector<BattleAnimationPlayback>& getActiveAnimations() const;
     
     // ========================================================================
     // Event Integration
     // ========================================================================
     
-    // Status: PARTIAL - Event state toggles exist, but interpreter execution is still TODO
+    // Status: PARTIAL - Troop page entry and execution remain partially implemented
     void startBattleEvent(int32_t eventId);
+    // Status: PARTIAL - Troop page conditions and a bounded command subset execute against live compat state, but full MZ battle interpreter coverage remains out of scope
     void updateBattleEvents();
+    // Status: FULL - Battle event active state is tracked in live compat state
     bool isBattleEventActive() const;
     
-    // Status: PARTIAL/STUB - Turn and HP checks are live; switch checks still fall back
+    // Status: FULL - Turn, HP, and switch checks read live compat state
     bool checkTurnCondition(int32_t turn, int32_t span);
     bool checkEnemyHpCondition(int32_t enemyIndex, int32_t percent);
     bool checkActorHpCondition(int32_t actorIndex, int32_t percent);
@@ -382,15 +373,51 @@ public:
     // Drop/Exp/Gold
     // ========================================================================
     
-    // Status: PARTIAL - Reward math still relies on seeded subject data and stub drops
+    // Status: PARTIAL - Reward math uses live compat state with seeded deterministic drops, but full MZ parity is still incomplete
     int32_t calculateExp() const;
     int32_t calculateGold() const;
     std::vector<int32_t> calculateDrops() const;
     
-    // Status: STUB - Reward application into party progression/inventory is still TODO
+    // Status: PARTIAL - EXP application is simplified, but it mutates live DataManager party members
     void applyExp();
+    // Status: FULL - Gold application mutates live DataManager state
     void applyGold();
+    // Status: FULL - Drop application mutates live DataManager inventory
     void applyDrops();
+    
+    // Test helper: seed the internal RNG for deterministic tests
+    void seedRng(uint32_t seed);
+    
+    // ========================================================================
+    // JS-friendly helpers
+    // ========================================================================
+    
+    // Status: FULL - Battle test flag (always false in compat harness)
+    bool isBattleTest() const;
+    
+    // Status: FULL - Check if battle can be lost
+    bool canLose() const;
+    
+    // Status: FULL - Escape callbacks
+    void onEscapeSuccess();
+    void onEscapeFailure();
+    
+    // Status: PARTIAL - Background/Audio metadata setters retain compat state; playback still TODO
+    void changeBattleBackground(const std::string& name);
+    void changeBattleBgm(const std::string& name, double volume = 90.0, double pitch = 100.0);
+    void changeVictoryMe(const std::string& name, double volume = 90.0, double pitch = 100.0);
+    void changeDefeatMe(const std::string& name, double volume = 90.0, double pitch = 100.0);
+    
+    // Status: FULL - Alias for hasState
+    bool isStateActive(const BattleSubject* subject, int32_t stateId) const;
+    
+    // Status: FULL - Process next queued action (parameterless overload)
+    void processAction();
+    
+    // Status: FULL - Queue action by subject indices (JS-friendly)
+    void queueActionByIndices(int32_t subjectIndex, BattleSubjectType subjectType,
+                              BattleActionType type, int32_t targetIndex,
+                              int32_t skillId = 0, int32_t itemId = 0);
     
     // ========================================================================
     // Compat Status
@@ -416,6 +443,12 @@ private:
     double escapeRatio_ = 0.5;
     int32_t escapeFailureCount_ = 0;
     uint32_t escapeRngState_ = 0;
+    int32_t battleTransitionType_ = 0;
+    std::string battleBackground_;
+    BattleAudioCue battleBgm_;
+    BattleAudioCue victoryMe_;
+    BattleAudioCue defeatMe_;
+    std::vector<BattleAnimationPlayback> activeAnimations_;
     
     // Subjects
     std::vector<BattleSubject> actors_;
@@ -424,13 +457,6 @@ private:
     // Actions
     std::vector<BattleAction> actionQueue_;
     int32_t currentActionIndex_ = -1;
-    
-    // Visual/Audio setup
-    int32_t battleTransitionType_ = 0;
-    std::string battleBackgroundName_;
-    
-    // Animation tracking
-    AnimationRequest lastAnimationRequest_;
     
     // Hooks
     std::unordered_map<HookPoint, std::unordered_map<std::string, BattleHookFn>> hooks_;

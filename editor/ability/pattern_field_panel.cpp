@@ -5,6 +5,13 @@ namespace urpg::editor {
 
 void PatternFieldPanel::update(const PatternFieldModel& model) {
     m_model = model;
+    const auto preview = m_model.buildPreviewSnapshot();
+    m_snapshot = {};
+    m_snapshot.visible = m_visible;
+    m_snapshot.name = preview.name;
+    m_snapshot.is_valid = preview.is_valid;
+    m_snapshot.issues = preview.issues;
+    m_snapshot.grid_rows = preview.grid_rows;
 }
 
 void PatternFieldPanel::render() {
@@ -17,6 +24,11 @@ void PatternFieldPanel::render() {
 
     auto bounds = m_model.getViewportBounds();
     std::cout << "Viewport: (" << bounds.minX << "," << bounds.minY << ") to (" << bounds.maxX << "," << bounds.maxY << ")\n";
+    if (!m_snapshot.is_valid) {
+        for (const auto& issue : m_snapshot.issues) {
+            std::cout << "Validation: " << issue << "\n";
+        }
+    }
 
     // Legend
     std::cout << "  - [X]: Active point\n";

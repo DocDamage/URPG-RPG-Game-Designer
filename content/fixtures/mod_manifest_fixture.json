@@ -1,0 +1,8 @@
+{
+  "id": "core_ui",
+  "name": "Core UI",
+  "version": "1.0.0",
+  "author": "URPG",
+  "dependencies": [],
+  "entryPoint": "mods/core_ui/main.js"
+}

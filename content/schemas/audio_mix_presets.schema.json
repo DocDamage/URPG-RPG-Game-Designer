@@ -1,0 +1,51 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "AudioMixPresets",
+  "description": "Schema for the audio mix preset bank format used by URPG.",
+  "type": "object",
+  "required": ["version", "presets"],
+  "properties": {
+    "version": {
+      "type": "string",
+      "description": "Schema version of the preset bank."
+    },
+    "presets": {
+      "type": "array",
+      "description": "Collection of named mix presets.",
+      "items": {
+        "type": "object",
+        "required": ["name", "categoryVolumes", "duckBGMOnSE", "duckAmount"],
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Unique name of the preset."
+          },
+          "categoryVolumes": {
+            "type": "object",
+            "description": "Per-category volume multipliers.",
+            "properties": {
+              "BGM": { "type": "number" },
+              "BGS": { "type": "number" },
+              "SE": { "type": "number" },
+              "ME": { "type": "number" },
+              "System": { "type": "number" }
+            },
+            "additionalProperties": false
+          },
+          "duckBGMOnSE": {
+            "type": "boolean",
+            "description": "Whether BGM should duck when SE plays."
+          },
+          "duckAmount": {
+            "type": "number",
+            "minimum": 0.0,
+            "maximum": 1.0,
+            "description": "Amount to duck BGM by, from 0.0 to 1.0."
+          }
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false
+}

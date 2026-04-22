@@ -7,10 +7,14 @@
 namespace urpg {
 
 std::unordered_map<std::string, std::shared_ptr<Texture>> AssetLoader::s_textureCache;
+std::unordered_set<std::string> AssetLoader::s_missingTextureCache;
 
 std::shared_ptr<Texture> AssetLoader::loadTexture(const std::string& path) {
     if (s_textureCache.count(path)) {
         return s_textureCache[path];
+    }
+    if (s_missingTextureCache.count(path)) {
+        return nullptr;
     }
 
     int width, height, channels;
@@ -20,6 +24,7 @@ std::shared_ptr<Texture> AssetLoader::loadTexture(const std::string& path) {
 
     if (!data) {
         std::cerr << "[URPG][AssetLoader] Failed to load texture: " << path << " (" << stbi_failure_reason() << ")\n";
+        s_missingTextureCache.insert(path);
         return nullptr;
     }
 
@@ -28,10 +33,12 @@ std::shared_ptr<Texture> AssetLoader::loadTexture(const std::string& path) {
 
     auto texture = std::make_shared<Texture>();
     if (texture->loadFromMemory(pixelData, width, height)) {
+        s_missingTextureCache.erase(path);
         s_textureCache[path] = texture;
         return texture;
     }
 
+    s_missingTextureCache.insert(path);
     return nullptr;
 }
 

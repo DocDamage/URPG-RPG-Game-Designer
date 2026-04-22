@@ -27,11 +27,12 @@
         "required": ["condition", "effects"],
         "properties": {
           "condition": {
-            "type": "object",
-            "properties": {
-              "turn_count": { "type": "integer" },
-              "hp_below_percent": { "type": "integer" },
-              "switch_id": { "type": "string" }
+            "$ref": "#/definitions/battle_condition"
+          },
+          "_compat_condition_fallbacks": {
+            "type": "array",
+            "items": {
+              "$ref": "#/definitions/compat_condition_fallback"
             }
           },
           "effects": {
@@ -40,11 +41,60 @@
               "type": "object",
               "required": ["type"],
               "properties": {
-                "type": { "enum": ["message", "common_event", "state_change", "force_action"] }
+                "type": { "enum": ["message", "common_event", "state_change", "force_action", "change_gold", "change_items", "change_weapons", "change_armors", "transfer_player", "game_over", "change_switches", "change_variables", "unsupported_command"] }
               }
             }
           }
         }
+      }
+    }
+  },
+  "definitions": {
+    "battle_condition_leaf": {
+      "type": "object",
+      "properties": {
+        "turn_count": { "type": "integer" },
+        "hp_below_percent": { "type": "integer" },
+        "switch_id": { "type": "string" },
+        "enemy_index": { "type": "integer", "minimum": 0 },
+        "actor_id": { "type": "string" }
+      },
+      "not": {
+        "anyOf": [
+          { "required": ["op"] },
+          { "required": ["children"] }
+        ]
+      }
+    },
+    "battle_condition_group": {
+      "type": "object",
+      "required": ["op", "children"],
+      "properties": {
+        "op": { "enum": ["and", "or"] },
+        "children": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/definitions/battle_condition"
+          }
+        }
+      }
+    },
+    "battle_condition": {
+      "oneOf": [
+        { "$ref": "#/definitions/battle_condition_leaf" },
+        { "$ref": "#/definitions/battle_condition_group" }
+      ]
+    },
+    "compat_condition_fallback": {
+      "type": "object",
+      "required": ["type", "reason", "page_index", "source"],
+      "properties": {
+        "type": { "const": "unsupported_condition_tree" },
+        "reason": { "type": "string" },
+        "page_index": { "type": "integer", "minimum": 0 },
+        "source_operator": { "type": "string" },
+        "source": {}
       }
     }
   }

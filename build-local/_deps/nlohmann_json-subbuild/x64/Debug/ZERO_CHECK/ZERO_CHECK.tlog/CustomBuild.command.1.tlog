@@ -1,0 +1,10 @@
+^C:\USERS\DFERR\DEV\URPG - RPG GAME MAKER\BUILD-LOCAL\_DEPS\NLOHMANN_JSON-SUBBUILD\CMAKEFILES\EA1585637C5484C047BF98CA1237334B\GENERATE.STAMP.RULE
+setlocal
+"C:\Program Files\CMake\bin\cmake.exe" "-SC:/Users/dferr/dev/URPG - RPG Game Maker/build-local/_deps/nlohmann_json-subbuild" "-BC:/Users/dferr/dev/URPG - RPG Game Maker/build-local/_deps/nlohmann_json-subbuild" --check-stamp-list CMakeFiles/generate.stamp.list --vs-solution-file "C:/Users/dferr/dev/URPG - RPG Game Maker/build-local/_deps/nlohmann_json-subbuild/nlohmann_json-populate.sln"
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd

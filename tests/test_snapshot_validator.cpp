@@ -1,5 +1,5 @@
 #include <catch2/catch_test_macros.hpp>
-#include "testing/snapshot_validator.h"
+#include "engine/core/testing/snapshot_validator.h"
 
 using namespace urpg::testing;
 

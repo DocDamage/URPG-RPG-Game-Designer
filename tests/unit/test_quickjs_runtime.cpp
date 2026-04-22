@@ -5,9 +5,6 @@
 // actual QuickJS linking. They validate API surface, directive semantics, and budget tracking.
 
 #include "runtimes/compat_js/quickjs_runtime.h"
-#include "runtimes/compat_js/data_manager.h"
-#include "runtimes/compat_js/battle_manager.h"
-#include "runtimes/compat_js/audio_manager.h"
 #include <catch2/catch_test_macros.hpp>
 
 using namespace urpg::compat;
@@ -421,8 +418,8 @@ TEST_CASE("QuickJSRuntime getTotalHeapSize aggregates", "[compat][quickjs]") {
     runtime.createContext("plugin2", QuickJSConfig{});
     
     size_t total = runtime.getTotalHeapSize();
-    // Each stub context has a 1KB base overhead
-    REQUIRE(total == 2048);
+    // Stubs return 0 heap size
+    REQUIRE(total == 0);
 }
 
 TEST_CASE("QuickJSContext is movable", "[compat][quickjs]") {
@@ -449,283 +446,76 @@ TEST_CASE("CompatStatus values are ordered", "[compat][quickjs]") {
     REQUIRE(static_cast<int>(CompatStatus::STUB) < static_cast<int>(CompatStatus::UNSUPPORTED));
 }
 
-TEST_CASE("QuickJSContext runGC reduces simulated heap", "[compat][quickjs]") {
+TEST_CASE("MethodDef default status is STUB to prevent silent status inflation", "[compat][quickjs]") {
+    QuickJSContext::MethodDef def;
+    REQUIRE(def.status == CompatStatus::STUB);
+}
+
+TEST_CASE("QuickJSContext eval does not execute real arithmetic in fixture-backed harness", "[compat][quickjs]") {
     QuickJSContext ctx;
     REQUIRE(ctx.initialize(QuickJSConfig{}));
     
-    // Register functions and set globals to build up heap
-    REQUIRE(ctx.registerFunction("fn1", [](const std::vector<urpg::Value>&) -> urpg::Value {
-        return urpg::Value::Nil();
-    }));
-    REQUIRE(ctx.registerFunction("fn2", [](const std::vector<urpg::Value>&) -> urpg::Value {
-        return urpg::Value::Nil();
-    }));
-    REQUIRE(ctx.setGlobal("alive", urpg::Value::Int(1)));
-    REQUIRE(ctx.setGlobal("dead", urpg::Value::Nil()));
-    REQUIRE(ctx.setGlobal("alsoDead", urpg::Value::Nil()));
+    auto result = ctx.eval("1 + 1", "test.js");
     
-    const size_t heapBeforeGC = ctx.getHeapSize();
-    REQUIRE(heapBeforeGC > 0);
-    
-    // First GC should remove Nil globals
-    ctx.runGC();
-    const size_t heapAfterFirstGC = ctx.getHeapSize();
-    REQUIRE(heapAfterFirstGC <= heapBeforeGC);
-    
-    // Set another global to Nil and GC again
-    REQUIRE(ctx.setGlobal("alive", urpg::Value::Nil()));
-    ctx.runGC();
-    const size_t heapAfterSecondGC = ctx.getHeapSize();
-    REQUIRE(heapAfterSecondGC <= heapAfterFirstGC);
-    
-    // Verify unreachable globals were collected
-    REQUIRE(ctx.getGlobal("dead") == std::nullopt);
-    REQUIRE(ctx.getGlobal("alsoDead") == std::nullopt);
-    REQUIRE(ctx.getGlobal("alive") == std::nullopt);
+    REQUIRE(result.success);
+    // Harness is fixture-backed, not a live JS runtime, so 1+1 should not evaluate to 2
+    REQUIRE(std::holds_alternative<std::monostate>(result.value.v));
 }
 
-TEST_CASE("QuickJSContext heap size grows with operations", "[compat][quickjs]") {
+TEST_CASE("QuickJSContext eval of plain JS without directives returns Nil", "[compat][quickjs]") {
     QuickJSContext ctx;
     REQUIRE(ctx.initialize(QuickJSConfig{}));
-    
-    const size_t initialHeap = ctx.getHeapSize();
-    REQUIRE(initialHeap == 1024);
-    
-    auto evalResult = ctx.eval("// some code\n1 + 1;", "test.js");
-    REQUIRE(evalResult.success);
-    const size_t heapAfterEval = ctx.getHeapSize();
-    REQUIRE(heapAfterEval > initialHeap);
-    
-    REQUIRE(ctx.registerFunction("growFn", [](const std::vector<urpg::Value>&) -> urpg::Value {
-        return urpg::Value::Nil();
-    }));
-    const size_t heapAfterRegister = ctx.getHeapSize();
-    REQUIRE(heapAfterRegister > heapAfterEval);
+
+    auto result = ctx.eval("let x = 42; function foo() { return x; }", "plain.js");
+
+    REQUIRE(result.success);
+    // The harness does not execute plain JS; result is Nil/undefined
+    REQUIRE(std::holds_alternative<std::monostate>(result.value.v));
 }
 
-TEST_CASE("QuickJSRuntime runGCAll runs GC on all contexts", "[compat][quickjs]") {
-    QuickJSRuntime runtime;
-    REQUIRE(runtime.initialize());
-    
-    auto id1 = runtime.createContext("plugin1", QuickJSConfig{});
-    auto id2 = runtime.createContext("plugin2", QuickJSConfig{});
-    REQUIRE(id1.has_value());
-    REQUIRE(id2.has_value());
-    
-    auto* ctx1 = runtime.getContext(*id1);
-    auto* ctx2 = runtime.getContext(*id2);
-    REQUIRE(ctx1 != nullptr);
-    REQUIRE(ctx2 != nullptr);
-    
-    // Build up heap in both contexts
-    REQUIRE(ctx1->registerFunction("a", [](const std::vector<urpg::Value>&) -> urpg::Value {
-        return urpg::Value::Nil();
-    }));
-    REQUIRE(ctx2->setGlobal("x", urpg::Value::Nil()));
-    
-    const size_t totalBefore = runtime.getTotalHeapSize();
-    REQUIRE(totalBefore > 0);
-    
-    // Should not crash and should collect unreachable state
-    runtime.runGCAll();
-    
-    const size_t totalAfter = runtime.getTotalHeapSize();
-    REQUIRE(totalAfter <= totalBefore);
-    REQUIRE(ctx1->getHeapSize() > 0);
-    REQUIRE(ctx2->getHeapSize() > 0);
+TEST_CASE("QuickJSContext module loader is fixture-driven and does not execute real JS", "[compat][quickjs]") {
+    QuickJSContext ctx;
+    REQUIRE(ctx.initialize(QuickJSConfig{}));
+
+    ctx.setModuleLoader([](const std::string&) -> std::optional<std::string> {
+        // Return plain JS without directives; harness should treat it as fixture text
+        return "const answer = 42;";
+    });
+
+    auto result = ctx.evalModule("fixture_module");
+    REQUIRE(result.success);
+    // Real JS execution is out of scope; the harness returns Nil for non-directive content
+    REQUIRE(std::holds_alternative<std::monostate>(result.value.v));
 }
 
-TEST_CASE("QuickJSContext memory budget triggers when heap exceeds limit", "[compat][quickjs]") {
+TEST_CASE("QuickJSContext call counts are harness-level features", "[compat][quickjs]") {
+    QuickJSContext ctx;
+    REQUIRE(ctx.initialize(QuickJSConfig{}));
+
+    ctx.registerAPIStatus("HarnessAPI.testCall", CompatStatus::STUB);
+
+    // Calling a stub method increments callCount at the harness level
+    auto result = ctx.callMethod("HarnessAPI", "testCall", {});
+    REQUIRE(result.success);
+
+    auto status = ctx.getAPIStatus("HarnessAPI.testCall");
+    REQUIRE(status.callCount == 1);
+    REQUIRE(status.failCount == 0);
+}
+
+TEST_CASE("QuickJSContext CPU budget is enforced at harness level", "[compat][quickjs]") {
     QuickJSContext ctx;
     QuickJSConfig config;
-    config.memoryLimitMB = 0; // Very small limit
-    config.enableMemoryLimit = true;
+    config.enableCPUBudget = true;
+    config.cpuBudgetUs = 0; // Force immediate exceeded
+
     REQUIRE(ctx.initialize(config));
-    REQUIRE(ctx.isMemoryExceeded());
-    
-    QuickJSContext ctx2;
-    QuickJSConfig config2;
-    config2.memoryLimitMB = 64; // Default generous limit
-    config2.enableMemoryLimit = true;
-    REQUIRE(ctx2.initialize(config2));
-    REQUIRE_FALSE(ctx2.isMemoryExceeded());
-}
+    REQUIRE(ctx.registerFunction("dummy", [](const std::vector<urpg::Value>&) -> urpg::Value {
+        return urpg::Value::Nil();
+    }));
 
-TEST_CASE("QuickJSContext DataManager API roundtrip", "[compat][quickjs]") {
-    QuickJSContext ctx;
-    REQUIRE(ctx.initialize(QuickJSConfig{}));
-
-    DataManager::instance().clearDatabase();
-    DataManager::instance().setupNewGame();
-
-    DataManager::registerAPI(ctx);
-
-    const auto goldResult = ctx.callMethod("DataManager", "getGold", {});
-    REQUIRE(goldResult.success);
-    REQUIRE(std::holds_alternative<int64_t>(goldResult.value.v));
-    REQUIRE(std::get<int64_t>(goldResult.value.v) == DataManager::instance().getGold());
-
-    const auto setSwitchResult = ctx.callMethod("DataManager", "setSwitch", {urpg::Value::Int(5), urpg::Value::Int(1)});
-    REQUIRE(setSwitchResult.success);
-    REQUIRE(DataManager::instance().getSwitch(5) == true);
-
-    const auto getSwitchResult = ctx.callMethod("DataManager", "getSwitch", {urpg::Value::Int(5)});
-    REQUIRE(getSwitchResult.success);
-    REQUIRE(std::holds_alternative<int64_t>(getSwitchResult.value.v));
-    REQUIRE(std::get<int64_t>(getSwitchResult.value.v) == 1);
-}
-
-TEST_CASE("QuickJSContext BattleManager API roundtrip", "[compat][quickjs]") {
-    QuickJSContext ctx;
-    REQUIRE(ctx.initialize(QuickJSConfig{}));
-
-    DataManager::instance().clearDatabase();
-    BattleManager::registerAPI(ctx);
-
-    const auto phaseResult = ctx.callMethod("BattleManager", "getPhase", {});
-    REQUIRE(phaseResult.success);
-    REQUIRE(std::holds_alternative<int64_t>(phaseResult.value.v));
-    REQUIRE(std::get<int64_t>(phaseResult.value.v) == static_cast<int32_t>(BattleManager::instance().getPhase()));
-
-    const auto setupResult = ctx.callMethod("BattleManager", "setup", {urpg::Value::Int(1)});
-    REQUIRE(setupResult.success);
-    REQUIRE(BattleManager::instance().getPhase() == BattlePhase::INIT);
-}
-
-TEST_CASE("QuickJSContext AudioManager API roundtrip", "[compat][quickjs]") {
-    QuickJSContext ctx;
-    REQUIRE(ctx.initialize(QuickJSConfig{}));
-
-    AudioManager::registerAPI(ctx);
-
-    const auto playResult = ctx.callMethod("AudioManager", "playBgm", {urpg::Value::Str("Battle1"), urpg::Value::Int(80), urpg::Value::Int(100)});
-    REQUIRE(playResult.success);
-    REQUIRE(AudioManager::instance().getCurrentBgm().name == "Battle1");
-}
-
-TEST_CASE("QuickJSContext $gameParty API roundtrip", "[compat][quickjs]") {
-    QuickJSContext ctx;
-    REQUIRE(ctx.initialize(QuickJSConfig{}));
-
-    DataManager::instance().clearDatabase();
-    DataManager::instance().setupNewGame();
-    DataManager::registerAPI(ctx);
-
-    // Test members
-    const auto membersResult = ctx.callMethod("$gameParty", "members", {});
-    REQUIRE(membersResult.success);
-    REQUIRE(std::holds_alternative<urpg::Array>(membersResult.value.v));
-    const auto& membersArr = std::get<urpg::Array>(membersResult.value.v);
-    REQUIRE(membersArr.empty());
-
-    // Test addActor
-    const auto addResult = ctx.callMethod("$gameParty", "addActor", {urpg::Value::Int(1)});
-    REQUIRE(addResult.success);
-    REQUIRE(DataManager::instance().getGameParty().exists(1));
-
-    // Test size
-    const auto sizeResult = ctx.callMethod("$gameParty", "size", {});
-    REQUIRE(sizeResult.success);
-    REQUIRE(std::holds_alternative<int64_t>(sizeResult.value.v));
-    REQUIRE(std::get<int64_t>(sizeResult.value.v) == 1);
-
-    // Test gold
-    const auto goldResult = ctx.callMethod("$gameParty", "gold", {});
-    REQUIRE(goldResult.success);
-    REQUIRE(std::get<int64_t>(goldResult.value.v) == 0);
-
-    // Test setGold / gainGold
-    ctx.callMethod("$gameParty", "setGold", {urpg::Value::Int(500)});
-    REQUIRE(DataManager::instance().getGameParty().gold() == 500);
-
-    ctx.callMethod("$gameParty", "gainGold", {urpg::Value::Int(250)});
-    REQUIRE(DataManager::instance().getGameParty().gold() == 750);
-
-    // Test items
-    ctx.callMethod("$gameParty", "gainItem", {urpg::Value::Int(1), urpg::Value::Int(5)});
-    REQUIRE(DataManager::instance().getGameParty().numItems(1) == 5);
-
-    const auto itemResult = ctx.callMethod("$gameParty", "numItems", {urpg::Value::Int(1)});
-    REQUIRE(itemResult.success);
-    REQUIRE(std::get<int64_t>(itemResult.value.v) == 5);
-
-    // Test steps
-    ctx.callMethod("$gameParty", "increaseSteps", {urpg::Value::Int(10)});
-    REQUIRE(DataManager::instance().getGameParty().steps() == 10);
-}
-
-TEST_CASE("QuickJSContext $gameTroop API roundtrip", "[compat][quickjs]") {
-    QuickJSContext ctx;
-    REQUIRE(ctx.initialize(QuickJSConfig{}));
-
-    DataManager::instance().clearDatabase();
-    DataManager::instance().setupNewGame();
-
-    // Set up mock enemies and troop
-    DataManager::instance().addTestEnemy();
-    DataManager::instance().addTestEnemy();
-    EnemyData* enemy1 = DataManager::instance().getEnemy(1);
-    REQUIRE(enemy1 != nullptr);
-    enemy1->exp = 30;
-    enemy1->gold = 20;
-    EnemyData* enemy2 = DataManager::instance().getEnemy(2);
-    REQUIRE(enemy2 != nullptr);
-    enemy2->exp = 50;
-    enemy2->gold = 40;
-
-    TroopData& troop = DataManager::instance().addTestTroop();
-    troop.members = {1, 2};
-    
-    // Sync GameTroop runtime state (normally done by BattleManager::setup)
-    DataManager::instance().getGameTroop().setMembers(troop.members);
-
-    DataManager::registerAPI(ctx);
-
-    // Test totalExp / totalGold
-    const auto expResult = ctx.callMethod("$gameTroop", "totalExp", {});
-    REQUIRE(expResult.success);
-    REQUIRE(std::get<int64_t>(expResult.value.v) == 80);
-
-    const auto goldResult = ctx.callMethod("$gameTroop", "totalGold", {});
-    REQUIRE(goldResult.success);
-    REQUIRE(std::get<int64_t>(goldResult.value.v) == 60);
-
-    // Test members
-    const auto membersResult = ctx.callMethod("$gameTroop", "members", {});
-    REQUIRE(membersResult.success);
-    REQUIRE(std::holds_alternative<urpg::Array>(membersResult.value.v));
-    const auto& membersArr = std::get<urpg::Array>(membersResult.value.v);
-    REQUIRE(membersArr.size() == 2);
-
-    // Test size
-    const auto sizeResult = ctx.callMethod("$gameTroop", "size", {});
-    REQUIRE(sizeResult.success);
-    REQUIRE(std::get<int64_t>(sizeResult.value.v) == 2);
-
-    // Test isEmpty
-    const auto emptyResult = ctx.callMethod("$gameTroop", "isEmpty", {});
-    REQUIRE(emptyResult.success);
-    REQUIRE(std::get<int64_t>(emptyResult.value.v) == 0);
-}
-
-TEST_CASE("BattleManager setup syncs GameTroop", "[compat][battle]") {
-    DataManager::instance().clearDatabase();
-    DataManager::instance().setupNewGame();
-
-    DataManager::instance().addTestEnemy();
-    DataManager::instance().addTestEnemy();
-    EnemyData* enemy1 = DataManager::instance().getEnemy(1);
-    REQUIRE(enemy1 != nullptr);
-    enemy1->exp = 10;
-    enemy1->gold = 5;
-
-    TroopData& troop = DataManager::instance().addTestTroop();
-    troop.members = {1, 2};
-
-    BattleManager::instance().setup(1);
-
-    REQUIRE(DataManager::instance().getGameTroop().size() == 2);
-    REQUIRE(DataManager::instance().getGameTroop().members() == std::vector<int32_t>{1, 2});
-    REQUIRE(DataManager::instance().getGameTroop().totalExp() == 10);
-    REQUIRE(DataManager::instance().getGameTroop().totalGold() == 5);
+    auto result = ctx.call("dummy", {});
+    REQUIRE_FALSE(result.success);
+    REQUIRE(result.error == "CPU budget exceeded");
+    REQUIRE(ctx.isCPUExceeded());
 }

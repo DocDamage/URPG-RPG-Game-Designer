@@ -1,12 +1,28 @@
 param(
-    [string]$ConfigurePreset = "ci",
-    [string]$BuildPreset = "ci-release",
-    [string]$PresentationConfiguration = "Release",
+    [string]$ConfigurePreset,
+    [string]$BuildPreset,
+    [string]$PresentationConfiguration,
     [switch]$SkipBuild,
     [switch]$SkipPresentationGate
 )
 
 $ErrorActionPreference = "Stop"
+. "$PSScriptRoot\resolve-local-cmake-profile.ps1"
+
+if ([string]::IsNullOrWhiteSpace($ConfigurePreset) -or
+    [string]::IsNullOrWhiteSpace($BuildPreset) -or
+    [string]::IsNullOrWhiteSpace($PresentationConfiguration)) {
+    $localProfile = Get-UrpgLocalBuildProfile
+    if ([string]::IsNullOrWhiteSpace($ConfigurePreset)) {
+        $ConfigurePreset = $localProfile.ConfigurePreset
+    }
+    if ([string]::IsNullOrWhiteSpace($BuildPreset)) {
+        $BuildPreset = $localProfile.BuildPreset
+    }
+    if ([string]::IsNullOrWhiteSpace($PresentationConfiguration)) {
+        $PresentationConfiguration = $localProfile.Configuration
+    }
+}
 
 Write-Host "== Validate waivers ==" -ForegroundColor Cyan
 & "$PSScriptRoot\check_waivers.ps1"
@@ -17,6 +33,42 @@ Write-Host "== Validate Wave 1 subsystem checklist sync ==" -ForegroundColor Cya
 Write-Host "== Validate presentation docs links ==" -ForegroundColor Cyan
 & "$PSScriptRoot\..\docs\check-presentation-doc-links.ps1"
 
+Write-Host "== Validate release readiness records ==" -ForegroundColor Cyan
+& "$PSScriptRoot\check_release_readiness.ps1"
+
+Write-Host "== Validate schema changelog governance ==" -ForegroundColor Cyan
+& "$PSScriptRoot\check_schema_changelog.ps1"
+
+Write-Host "== Validate accessibility governance ==" -ForegroundColor Cyan
+& "$PSScriptRoot\check_accessibility_governance.ps1"
+
+Write-Host "== Validate audio governance ==" -ForegroundColor Cyan
+& "$PSScriptRoot\check_audio_governance.ps1"
+
+Write-Host "== Validate input governance ==" -ForegroundColor Cyan
+& "$PSScriptRoot\check_input_governance.ps1"
+
+Write-Host "== Validate achievement governance ==" -ForegroundColor Cyan
+& "$PSScriptRoot\check_achievement_governance.ps1"
+
+Write-Host "== Validate character governance ==" -ForegroundColor Cyan
+& "$PSScriptRoot\check_character_governance.ps1"
+
+Write-Host "== Validate mod governance ==" -ForegroundColor Cyan
+& "$PSScriptRoot\check_mod_governance.ps1"
+
+Write-Host "== Validate analytics governance ==" -ForegroundColor Cyan
+& "$PSScriptRoot\check_analytics_governance.ps1"
+
+Write-Host "== Validate truth alignment ==" -ForegroundColor Cyan
+& "$PSScriptRoot\..\docs\check_truth_alignment.ps1"
+
+Write-Host "== Validate template claims ==" -ForegroundColor Cyan
+& "$PSScriptRoot\..\docs\check_template_claims.ps1"
+
+Write-Host "== Validate subsystem badges ==" -ForegroundColor Cyan
+& "$PSScriptRoot\..\docs\check_subsystem_badges.ps1"
+
 Write-Host "== Configure: $ConfigurePreset ==" -ForegroundColor Cyan
 cmake --preset $ConfigurePreset
 
@@ -24,6 +76,12 @@ if (-not $SkipBuild) {
     Write-Host "== Build: $BuildPreset ==" -ForegroundColor Cyan
     cmake --build --preset $BuildPreset
 }
+
+Write-Host "== Validate visual regression harness ==" -ForegroundColor Cyan
+& "$PSScriptRoot\check_visual_regression_harness.ps1"
+
+Write-Host "== Validate localization consistency ==" -ForegroundColor Cyan
+& "$PSScriptRoot\check_localization_consistency.ps1"
 
 $testDir = "build/$ConfigurePreset"
 

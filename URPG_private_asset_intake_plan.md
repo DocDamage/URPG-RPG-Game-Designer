@@ -18,6 +18,26 @@ This plan intentionally relaxes distribution-focused filtering, but it still avo
 
 Program linkage: this intake plan is governed at the program level by `docs/TECHNICAL_DEBT_REMEDIATION_PLAN.md` under `P3-03 — Private-Use Asset Intake Needs Canonical Governance` and `Phase 4 / Workstream 4.2`.
 
+## Governance Artifacts
+
+This plan is supported by the following canonical artifacts:
+
+- [Asset Source Registry](docs/asset_intake/ASSET_SOURCE_REGISTRY.md)
+- [Asset Promotion Guide](docs/asset_intake/ASSET_PROMOTION_GUIDE.md)
+- [Asset Category Gaps](docs/asset_intake/ASSET_CATEGORY_GAPS.md)
+- Staging root: [`imports/staging/asset_intake/`](imports/staging/asset_intake/)
+- Normalized root: [`imports/normalized/`](imports/normalized/)
+- Manifest roots: [`imports/manifests/`](imports/manifests/)
+- Report root: [`imports/reports/`](imports/reports/)
+- Direct-ingest asset mirrors: [`third_party/github_assets/`](third_party/github_assets/)
+
+Cross-cutting external repository intake artifacts:
+
+- [Repo Watchlist](docs/external-intake/repo-watchlist.md)
+- [License Matrix](docs/external-intake/license-matrix.md)
+- [Repo Audit Template](docs/external-intake/repo-audit-template.md)
+- [Feature Adoption Matrix](docs/external-intake/urpg_feature_adoption_matrix.md)
+
 ---
 
 ## Intake Targets
@@ -177,6 +197,11 @@ docs/
     ASSET_SOURCE_REGISTRY.md
     ASSET_PROMOTION_GUIDE.md
     ASSET_CATEGORY_GAPS.md
+  external-intake/
+    repo-watchlist.md
+    license-matrix.md
+    repo-audit-template.md
+    urpg_feature_adoption_matrix.md
 ```
 
 ---
@@ -322,7 +347,7 @@ Use the discovery repos to build the next-wave acquisition backlog.
 
 ### Tasks
 1. Review `awesome-cc0` by category.
-2. Pull only the highest-value candidate sources into `docs/asset_intake/ASSET_SOURCE_REGISTRY.md`.
+2. Pull only the highest-value candidate sources into [`docs/asset_intake/ASSET_SOURCE_REGISTRY.md`](docs/asset_intake/ASSET_SOURCE_REGISTRY.md).
 3. Review `Game-Assets-And-Resources` for category gaps only.
 4. Add follow-up targets by category, not by random browsing.
 

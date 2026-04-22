@@ -1,5 +1,6 @@
 #pragma once
 
+#include <array>
 #include "presentation_types.h"
 #include "presentation_context.h"
 #include "presentation_schema.h"
@@ -21,7 +22,9 @@ struct PresentationCommand {
         SetFog,
         SetPostFX,
         DrawShadowProxy,
-        SetEnvironment
+        SetEnvironment,
+        DrawWorldEffect,
+        DrawOverlayEffect
     } type;
 
     uint32_t id;
@@ -33,6 +36,12 @@ struct PresentationCommand {
     const PostFXProfile* postFXProfile = nullptr;
     const CameraProfile* cameraProfile = nullptr;
     float blendWeight = 1.0f;
+    uint64_t effectOwnerId = 0;
+    float effectDurationSeconds = 0.0f;
+    float effectScale = 1.0f;
+    float effectIntensity = 1.0f;
+    std::array<float, 4> effectColor = {1.0f, 1.0f, 1.0f, 1.0f};
+    float effectOverlayEmphasis = 0.0f;
     LODLevel lodLevel = LODLevel::LOD0_High; // Section 20: LOD integration
 };
 
@@ -47,6 +56,8 @@ struct PresentationFrameIntent {
     std::vector<PresentationCommand> commands;
     std::vector<RenderPass> activePasses;
     PresentationStreamingManifest streamingManifest; // Added Section 20: Streaming Hints
+    std::vector<FogProfile> resolvedFogProfiles;
+    std::vector<PostFXProfile> resolvedPostFXProfiles;
 
     void AddActor(uint32_t id, Vec3 pos, const ActorPresentationProfile& profile, LODLevel lod = LODLevel::LOD0_High) {
         PresentationCommand cmd{PresentationCommand::Type::DrawActor, id, pos, {0,0,0}, &profile};
@@ -81,6 +92,46 @@ struct PresentationFrameIntent {
 
     void AddShadowProxy(uint32_t ownerId, Vec3 pos, Vec3 rot) {
         PresentationCommand cmd{PresentationCommand::Type::DrawShadowProxy, ownerId, pos, rot, nullptr};
+        commands.push_back(cmd);
+    }
+
+    void AddWorldEffect(
+        uint32_t effectId,
+        Vec3 pos,
+        uint64_t ownerId,
+        float durationSeconds,
+        float scale,
+        float intensity,
+        const std::array<float, 4>& color,
+        float overlayEmphasis = 0.0f) {
+        PresentationCommand cmd{PresentationCommand::Type::DrawWorldEffect, effectId, pos, {0,0,0}, nullptr};
+        cmd.effectOwnerId = ownerId;
+        cmd.effectDurationSeconds = durationSeconds;
+        cmd.effectScale = scale;
+        cmd.effectIntensity = intensity;
+        cmd.effectColor = color;
+        cmd.effectOverlayEmphasis = overlayEmphasis;
+        commands.push_back(cmd);
+    }
+
+    void AddOverlayEffect(
+        uint32_t effectId,
+        Vec3 pos,
+        uint64_t ownerId,
+        float durationSeconds,
+        float scale,
+        float intensity,
+        const std::array<float, 4>& color,
+        float blendWeight = 1.0f,
+        float overlayEmphasis = 0.0f) {
+        PresentationCommand cmd{PresentationCommand::Type::DrawOverlayEffect, effectId, pos, {0,0,0}, nullptr};
+        cmd.effectOwnerId = ownerId;
+        cmd.effectDurationSeconds = durationSeconds;
+        cmd.effectScale = scale;
+        cmd.effectIntensity = intensity;
+        cmd.effectColor = color;
+        cmd.effectOverlayEmphasis = overlayEmphasis;
+        cmd.blendWeight = blendWeight;
         commands.push_back(cmd);
     }
 
@@ -188,21 +239,20 @@ public:
             retained.push_back(cmd);
         }
 
-        static FogProfile resolvedFog;
-        static PostFXProfile resolvedPostFX;
-
         std::vector<PresentationCommand> resolved;
         resolved.reserve(retained.size() + 2);
         if (hasFog) {
-            resolvedFog = BlendFogProfiles(intent.commands);
+            intent.resolvedFogProfiles.clear();
+            intent.resolvedFogProfiles.push_back(BlendFogProfiles(intent.commands));
             PresentationCommand fogCmd{PresentationCommand::Type::SetFog, 0, {0,0,0}, {0,0,0}, nullptr};
-            fogCmd.fogProfile = &resolvedFog;
+            fogCmd.fogProfile = &intent.resolvedFogProfiles.back();
             resolved.push_back(fogCmd);
         }
         if (hasPostFX) {
-            resolvedPostFX = BlendPostFXProfiles(intent.commands);
+            intent.resolvedPostFXProfiles.clear();
+            intent.resolvedPostFXProfiles.push_back(BlendPostFXProfiles(intent.commands));
             PresentationCommand postFxCmd{PresentationCommand::Type::SetPostFX, 0, {0,0,0}, {0,0,0}, nullptr};
-            postFxCmd.postFXProfile = &resolvedPostFX;
+            postFxCmd.postFXProfile = &intent.resolvedPostFXProfiles.back();
             resolved.push_back(postFxCmd);
         }
 

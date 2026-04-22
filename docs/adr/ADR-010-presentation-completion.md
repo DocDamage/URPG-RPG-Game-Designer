@@ -3,11 +3,13 @@
 **Status**: [Approved]
 **Date**: 2026-04-16
 
+Historical note: this ADR records the architectural completion claim as it was written on 2026-04-16. Later canonical status and follow-up ADRs, especially `ADR-011-presentation-spatial-status`, clarified that the broader presentation/spatial subsystem remained incubating rather than fully productized. Use the canonical program/remediation docs for current branch truth.
+
 ## Context
 The URPG engine requires a "First-Class" presentation layer to transition from 2D heritage logic to a modern spatial subsystem capable of scaling across capability tiers (Legacy Mobile to High-End Desktop).
 
 ## Decision
-We have implemented a decoupled, contract-first Presentation Core that manages all visual intent. This ADR finalizes the architectural patterns used during Phases 0-17 of the expansion.
+This ADR approved a decoupled, contract-first Presentation Core direction intended to manage visual intent. It recorded the architectural patterns the program was aiming to finalize during the presentation expansion effort; it does not supersede later status corrections about build-graph coverage or productization maturity.
 
 ### Key Architectural Pillars:
 1. **Scene-to-Intent Translation**: All scenes (Map, Battle, Menu, Dialogue) are translated into an immutable `PresentationFrameIntent` buffer. The Game Thread never speaks directly to the Renderer.

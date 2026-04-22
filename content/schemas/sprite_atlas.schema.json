@@ -31,7 +31,36 @@
         },
         "required": ["id", "x", "y", "w", "h"]
       }
+    },
+    "animations": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "frames": {
+            "type": "array",
+            "items": { "type": "string" },
+            "minItems": 1
+          },
+          "frameDuration": { "type": "number", "exclusiveMinimum": 0 },
+          "loop": { "type": "boolean" }
+        },
+        "required": ["id", "frames", "frameDuration", "loop"]
+      }
+    },
+    "preview": {
+      "type": "object",
+      "properties": {
+        "defaultAnimation": { "type": "string" },
+        "frameCount": { "type": "integer", "minimum": 0 },
+        "orderedSpriteIds": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      },
+      "required": ["defaultAnimation", "frameCount", "orderedSpriteIds"]
     }
   },
-  "required": ["atlasName", "texturePath", "size", "sprites"]
+  "required": ["atlasName", "texturePath", "size", "sprites", "animations", "preview"]
 }

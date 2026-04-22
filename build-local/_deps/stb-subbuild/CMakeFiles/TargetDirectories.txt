@@ -1,0 +1,3 @@
+C:/Users/dferr/dev/URPG - RPG Game Maker/build-local/_deps/stb-subbuild/CMakeFiles/stb-populate.dir
+C:/Users/dferr/dev/URPG - RPG Game Maker/build-local/_deps/stb-subbuild/CMakeFiles/ALL_BUILD.dir
+C:/Users/dferr/dev/URPG - RPG Game Maker/build-local/_deps/stb-subbuild/CMakeFiles/ZERO_CHECK.dir

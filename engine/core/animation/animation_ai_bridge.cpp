@@ -1,6 +1,7 @@
 #include "animation_ai_bridge.h"
 #include <sstream>
 #include <algorithm>
+#include <cctype>
 
 namespace urpg::ai {
 
@@ -146,6 +147,10 @@ std::vector<urpg::AnimationKeyframe> AnimationKnowledgeBridge::parseKeyframes(co
             appendFrame(time, x, y, z);
         }
     }
+
+    std::sort(result.begin(), result.end(), [](const urpg::AnimationKeyframe& lhs, const urpg::AnimationKeyframe& rhs) {
+        return lhs.time < rhs.time;
+    });
 
     return result;
 }

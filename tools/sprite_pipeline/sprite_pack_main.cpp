@@ -1,5 +1,4 @@
 #include "sprite_pipeline_defs.h"
-#include <nlohmann/json.hpp>
 #include <iostream>
 #include <fstream>
 #include <filesystem>
@@ -12,7 +11,6 @@
 
 using namespace urpg::tools;
 namespace fs = std::filesystem;
-using json = nlohmann::json;
 
 void printUsage() {
     std::cout << "URPG Sprite Pipeline CLI v1.0\n";
@@ -79,27 +77,10 @@ int main(int argc, char* argv[]) {
         }
     }
 
-    // Serialize to JSON
-    json j;
-    j["atlasName"] = atlas.atlasName;
-    j["texturePath"] = atlas.texturePath;
-    j["size"] = { atlas.width, atlas.height };
-    
-    json spritesJson = json::array();
-    for (const auto& s : atlas.sprites) {
-        spritesJson.push_back({
-            {"id", s.id},
-            {"x", s.x},
-            {"y", s.y},
-            {"w", s.width},
-            {"h", s.height},
-            {"pivot", {s.pivotX, s.pivotY}}
-        });
-    }
-    j["sprites"] = spritesJson;
+    populatePreviewArtifacts(atlas);
 
     std::ofstream out(outputFile);
-    out << j.dump(4);
+    out << toJson(atlas).dump(4);
     out.close();
 
     std::cout << "Successfully packed " << atlas.sprites.size() << " sprites into " << outputFile << "\n";

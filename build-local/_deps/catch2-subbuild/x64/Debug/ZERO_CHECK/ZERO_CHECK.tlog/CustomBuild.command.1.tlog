@@ -1,0 +1,10 @@
+^C:\USERS\DFERR\DEV\URPG - RPG GAME MAKER\BUILD-LOCAL\_DEPS\CATCH2-SUBBUILD\CMAKEFILES\6D9957CE5F483241B951F56162F8C8E3\GENERATE.STAMP.RULE
+setlocal
+"C:\Program Files\CMake\bin\cmake.exe" "-SC:/Users/dferr/dev/URPG - RPG Game Maker/build-local/_deps/catch2-subbuild" "-BC:/Users/dferr/dev/URPG - RPG Game Maker/build-local/_deps/catch2-subbuild" --check-stamp-list CMakeFiles/generate.stamp.list --vs-solution-file "C:/Users/dferr/dev/URPG - RPG Game Maker/build-local/_deps/catch2-subbuild/catch2-populate.sln"
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd

@@ -11,7 +11,6 @@
 #include <sstream>
 #include <stdexcept>
 #include <string_view>
-#include <variant>
 
 namespace urpg {
 namespace compat {
@@ -131,18 +130,10 @@ bool QuickJSContext::initialize(const QuickJSConfig& config) {
     budget_.cpu_slice_us = config.cpuBudgetUs;
     budget_.memory_limit_mb = config.memoryLimitMB;
     
-#ifdef URPG_HAS_QUICKJS
-    // TODO: Initialize actual QuickJS runtime here when moving beyond the compat harness.
-    // JSRuntime* rt = JS_NewRuntime();
-    // JSContext* ctx = JS_NewContext(rt);
-    // Configure memory limits, etc.
-#else
-    // Stub runtime: mark as initialized
+    // Note: Live QuickJS runtime initialization belongs in a separate runtime module, not this harness.
+    
     impl_->initialized = true;
     impl_->config = config;
-    // Simulate initial heap overhead
-    impl_->heapSize = 1024; // 1KB base overhead
-#endif
     return true;
 }
 
@@ -165,9 +156,6 @@ ScriptResult QuickJSContext::eval(const std::string& code, const std::string& fi
         budget_.exceeded_memory = true;
         return result;
     }
-    
-    // Simulate bytecode allocation
-    impl_->heapSize += code.size();
     
     // Fixture bridge: parse lightweight export directives and bind functions.
     // Supported directive format:
@@ -378,8 +366,6 @@ ScriptResult QuickJSContext::call(const std::string& functionName,
         result.success = true;
         result.sourceLocation = functionName;
         lastError_.clear();
-        // Simulate call frame allocation
-        impl_->heapSize += 64;
     } catch (const std::exception& e) {
         result.success = false;
         result.error = std::string("Host function error: ") + e.what();
@@ -459,8 +445,6 @@ bool QuickJSContext::setGlobal(const std::string& name, const Value& value) {
     }
 
     impl_->globals[name] = value;
-    // Simulate property storage allocation
-    impl_->heapSize += 128;
     return true;
 }
 
@@ -473,8 +457,6 @@ bool QuickJSContext::registerFunction(const std::string& name, HostFunction fn) 
         return false;
     }
     impl_->hostFunctions[name] = std::move(fn);
-    // Simulate function object allocation
-    impl_->heapSize += 256;
     return true;
 }
 
@@ -524,26 +506,7 @@ bool QuickJSContext::isCPUExceeded() const {
 
 void QuickJSContext::runGC() {
     assert(impl_ != nullptr);
-#ifdef URPG_HAS_QUICKJS
-    // JS_RunGC(rt);
-#else
-    // Stub GC: collect unused globals and reduce simulated heap
-    if (!impl_->initialized) return;
-    
-    // Remove null/monostate globals (treat as unreachable)
-    for (auto it = impl_->globals.begin(); it != impl_->globals.end(); ) {
-        if (std::holds_alternative<std::monostate>(it->second.v)) {
-            it = impl_->globals.erase(it);
-        } else {
-            ++it;
-        }
-    }
-    
-    // Reduce heap size proportionally to collected items
-    size_t baseSize = 1024 + impl_->hostFunctions.size() * 256;
-    size_t globalsSize = impl_->globals.size() * 128;
-    impl_->heapSize = baseSize + globalsSize;
-#endif
+    // Note: GC is a no-op in the harness; a real GC belongs in the separate runtime module.
 }
 
 size_t QuickJSContext::getHeapSize() const {

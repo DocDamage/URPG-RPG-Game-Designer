@@ -6,10 +6,12 @@
 #include "editor/compat/compat_report_panel.h"
 #include "editor/diagnostics/event_authority_panel.h"
 #include "editor/diagnostics/migration_wizard_panel.h"
+#include "editor/diagnostics/project_audit_panel.h"
 #include "editor/message/message_inspector_panel.h"
 #include "editor/save/save_inspector_panel.h"
 #include "editor/ui/menu_inspector_panel.h"
 #include "editor/ui/menu_preview_panel.h"
+#include "engine/core/input/input_core.h"
 
 namespace urpg::editor {
 
@@ -23,6 +25,7 @@ enum class DiagnosticsTab : uint8_t {
     Audio = 6,
     MigrationWizard = 7,
     Abilities = 8,
+    ProjectAudit = 9,
 };
 
 struct DiagnosticsTabSummary {
@@ -59,27 +62,102 @@ public:
     const AbilityInspectorPanel& abilityPanel() const;
     MigrationWizardPanel& migrationWizardPanel();
     const MigrationWizardPanel& migrationWizardPanel() const;
+    ProjectAuditPanel& projectAuditPanel();
+    const ProjectAuditPanel& projectAuditPanel() const;
 
     void bindSaveRuntime(const urpg::SaveCatalog& catalog,
-                         const urpg::SaveSessionCoordinator& coordinator);
+                         urpg::SaveSessionCoordinator& coordinator);
     void clearSaveRuntime();
+    bool setSaveShowProblemSlotsOnly(bool show_problem_slots_only);
+    bool setSaveIncludeAutosave(bool include_autosave);
+    bool selectSaveRow(size_t row_index);
+    bool setSavePolicyAutosaveEnabled(bool autosave_enabled);
+    bool setSavePolicyAutosaveSlotId(int32_t autosave_slot_id);
+    bool setSavePolicyRetentionLimits(size_t max_autosave_slots,
+                                      size_t max_quicksave_slots,
+                                      size_t max_manual_slots,
+                                      bool prune_excess_on_save);
+    bool applySavePolicyChanges();
     void bindMessageRuntime(const urpg::message::MessageFlowRunner& flow_runner,
                             const urpg::message::RichTextLayoutEngine& layout_engine);
     void clearMessageRuntime();
+    bool setMessageRouteFilter(std::optional<urpg::message::MessagePresentationMode> route_filter);
+    bool clearMessageRouteFilter();
+    bool setMessageShowIssuesOnly(bool show_issues_only);
+    bool selectMessageRow(size_t row_index);
+    bool updateMessagePageBody(size_t row_index, const std::string& new_body);
+    bool updateMessagePageSpeaker(size_t row_index, const std::string& new_speaker);
+    bool removeMessagePage(size_t row_index);
+    bool addMessagePage(const urpg::message::DialoguePage& page);
+    bool applyMessageChangesToRuntime(urpg::message::MessageFlowRunner& runner);
+    std::string exportMessageStateJson() const;
+    bool saveMessageStateToFile(const std::string& path) const;
+    bool loadMessageStateFromFile(const std::string& path, urpg::message::MessageFlowRunner& runner);
     void bindBattleRuntime(const urpg::battle::BattleFlowController& flow_controller,
                            const urpg::battle::BattleActionQueue& action_queue);
+
+    template <typename SceneLike>
+    requires requires(const SceneLike& battle_scene) {
+        battle_scene.flowController();
+        battle_scene.nativeActionQueue();
+        battle_scene.buildDiagnosticsPreview();
+    }
+    void bindBattleRuntime(const SceneLike& battle_scene) {
+        battle_panel_.bindRuntime(battle_scene);
+    }
+
     void clearBattleRuntime();
-    void bindMenuRuntime(const urpg::ui::MenuSceneGraph& scene_graph,
+    void bindMenuRuntime(urpg::ui::MenuSceneGraph& scene_graph,
                          const urpg::ui::MenuCommandRegistry& registry,
                          const urpg::ui::MenuCommandRegistry::SwitchState& switches,
                          const urpg::ui::MenuCommandRegistry::VariableState& variables);
     void clearMenuRuntime();
+    bool setMenuCommandIdFilter(std::string_view command_id_filter);
+    bool clearMenuCommandIdFilter();
+    bool setMenuShowIssuesOnly(bool show_issues_only);
+    bool selectMenuRow(size_t row_index);
+    bool dispatchMenuPreviewAction(urpg::input::InputAction action);
+    bool updateMenuCommandLabel(size_t row_index, std::string_view label);
+    bool updateMenuCommandRoute(size_t row_index, urpg::MenuRouteTarget route, std::string_view custom_route_id);
+    bool removeMenuCommand(size_t row_index);
+    bool addMenuCommand(size_t pane_index, const urpg::MenuCommandMeta& command);
+    bool applyMenuChangesToRuntime();
+    std::string exportMenuStateJson() const;
+    bool saveMenuStateToFile(const std::string& path);
+    bool loadMenuStateFromFile(const std::string& path);
     void bindAudioRuntime(const urpg::audio::AudioCore& core);
     void clearAudioRuntime();
+    bool selectNextAudioRow();
+    bool selectPreviousAudioRow();
+    void bindMigrationWizardRuntime(const nlohmann::json& project_data);
+    void clearMigrationWizardRuntime();
+    bool selectMigrationWizardSubsystemResult(std::string_view subsystem_id);
+    bool selectNextMigrationWizardSubsystemResult();
+    bool selectPreviousMigrationWizardSubsystemResult();
+    bool selectNextMigrationWizardIssueSubsystemResult();
+    bool selectPreviousMigrationWizardIssueSubsystemResult();
+    bool rerunBoundMigrationWizard();
+    bool rerunMigrationWizardSubsystem(std::string_view subsystem_id, const nlohmann::json& project_data);
+    bool rerunBoundSelectedMigrationWizardSubsystem();
+    bool rerunSelectedMigrationWizardSubsystem(const nlohmann::json& project_data);
+    bool clearMigrationWizardSubsystemResult(std::string_view subsystem_id);
+    bool clearSelectedMigrationWizardSubsystemResult();
+    std::string exportMigrationWizardReportJson() const;
+    bool saveMigrationWizardReportToFile(const std::string& path);
+    bool loadMigrationWizardReportFromFile(const std::string& path);
     void bindAbilityRuntime(const urpg::ability::AbilitySystemComponent& asc);
     void clearAbilityRuntime();
+    void bindProjectAuditReport(const nlohmann::json& report);
+    void clearProjectAuditReport();
     void ingestEventAuthorityDiagnosticsJsonl(std::string_view diagnostics_jsonl);
     void clearEventAuthorityDiagnostics();
+    bool setEventAuthorityEventIdFilter(std::string_view event_id_filter);
+    bool setEventAuthorityLevelFilter(std::string_view level_filter);
+    bool setEventAuthorityModeFilter(std::string_view mode_filter);
+    bool clearEventAuthorityFilters();
+    bool selectEventAuthorityRow(size_t row_index);
+    bool selectNextEventAuthorityRow();
+    bool selectPreviousEventAuthorityRow();
 
     void setActiveTab(DiagnosticsTab tab);
     DiagnosticsTab activeTab() const;
@@ -97,6 +175,13 @@ public:
 
 private:
     void syncPanelVisibility();
+    void refreshActiveSnapshotBackedTabIfVisible();
+    void refreshEventAuthoritySnapshotIfActive();
+    void renderEventAuthoritySnapshotIfActive();
+    void refreshMenuSnapshotIfActive();
+    void refreshAudioSnapshotIfActive();
+    void refreshMessageInspectorSnapshotIfActive();
+    void refreshMigrationWizardSnapshotIfActive();
 
     CompatReportPanel compat_panel_;
     SaveInspectorPanel save_panel_;
@@ -107,10 +192,15 @@ private:
     std::shared_ptr<MenuInspectorModel> menu_model_;
     std::unique_ptr<MenuInspectorPanel> menu_panel_;
     std::unique_ptr<MenuPreviewPanel> menu_preview_panel_;
+    urpg::ui::MenuSceneGraph* menu_scene_graph_ = nullptr;
+    const urpg::ui::MenuCommandRegistry* menu_registry_ = nullptr;
+    urpg::ui::MenuCommandRegistry::SwitchState menu_switches_;
+    urpg::ui::MenuCommandRegistry::VariableState menu_variables_;
 
     AudioInspectorPanel audio_panel_;
     AbilityInspectorPanel ability_panel_;
     MigrationWizardPanel migration_wizard_panel_;
+    ProjectAuditPanel project_audit_panel_;
     DiagnosticsTab active_tab_ = DiagnosticsTab::Compat;
     bool visible_ = true;
 };

@@ -1,0 +1,34 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Analytics Configuration",
+  "description": "Schema for the analytics and opt-in telemetry configuration file.",
+  "type": "object",
+  "required": [
+    "optIn",
+    "sessionId"
+  ],
+  "properties": {
+    "optIn": {
+      "type": "boolean",
+      "description": "Whether the user has opted in to analytics collection."
+    },
+    "sessionId": {
+      "type": "string",
+      "description": "A unique identifier for the current analytics session."
+    },
+    "bufferSize": {
+      "type": "integer",
+      "default": 1000,
+      "minimum": 1,
+      "description": "Maximum number of events to retain in the buffer before dropping oldest."
+    },
+    "allowedCategories": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "List of event categories that are permitted to be recorded."
+    }
+  },
+  "additionalProperties": false
+}

@@ -1,131 +1,206 @@
-# URPG (Universal RPG Engine) v3.1
+# URPG (Universal RPG Engine)
 
 ![URPG Header](https://raw.githubusercontent.com/URPG-Project/assets/main/header.png)
 
-**URPG** is a high-performance, deterministic C++ RPG engine designed for the modern era. It combines the flexibility of JavaScript-based plugin systems (compatible with RPG Maker MZ) with the power and safety of a native C++ kernel.
+URPG is a native-first C++20 RPG engine and editor focused on deterministic runtime ownership, migration-safe data contracts, and truthful compatibility with RPG Maker MZ content.
 
-## 🚀 Key Capabilities
+It is not a thin skin over a plugin host. The long-term product direction is:
 
-### 🛠️ Hybrid Native/Script Architecture
-- **C++ Core Kernel:** Deterministic ECS iteration, Fixed32 (Q16.16) math, and a unified `EngineAssembly` lifecycle.
-- **QuickJS Compat Harness:** A fixture-backed JavaScript contract bridge for validating MZ plugin surfaces while the live runtime path is still being hardened.
-- **Least-Privilege Security:** A robust `PluginSecurityManager` that sandboxes external scripts, enforcing permission-based access to system resources.
+- native runtime ownership for game-critical systems
+- editor and diagnostics surfaces for shipped systems
+- schema and migration contracts for authored and imported data
+- a bounded QuickJS compatibility harness for import, verification, and migration confidence
+- evidence-gated documentation, readiness, and release governance
 
-### 🎮 Battle & Gameplay Systems
-- **Native Battle Engine:** Fully implemented turn-based logic (START -> INPUT -> ACTION -> VICTORY) running at native speeds.
-- **Ability Framework:** A modular Gameplay Ability System (GAS) for complex skill interactions and pattern-based fields.
-- **Multi-Genre Templates:** Out-of-the-box support for ARPG, VN (Visual Novel), and Tactics combat styles.
+## Why URPG
 
-### 🍱 Asset & Data Management
-- **URSV Binary Format:** A secure, versioned, and XOR-checksummed binary format for project data and saves.
-- **Tiered Recovery:** Multi-level save corruption recovery (Autosave -> Metadata -> Safe Skeleton).
-- **Resource Protection:** Integrated RLE/XOR compression and obfuscation to protect game assets in exported builds.
+URPG is for teams that want stronger runtime control, stronger tooling, and less hidden engine behavior than typical plugin-heavy RPG stacks.
 
-### 🎨 Editor & Tooling
-- **ImGui Workspace:** A professional-grade editor shell with Scene Hierarchy, Asset Browser, and Property Inspectors.
-- **Live Hot-Reload:** Support for hot-reloading textures, scripts, and localization files without restarting the engine.
-- **Auto-Documentation:** A native `DocGenerator` that produces API documentation directly from header registries.
+Compared with similar products, URPG is differentiated by:
 
-## 📊 Project Status (April 2026)
+- Native ownership instead of plugin accretion: core systems are implemented in C++ and tested as first-class engine features rather than delegated to third-party plugin stacks.
+- Deterministic architecture: ECS-style world iteration, explicit scene/runtime ownership, deterministic input/state flows, and stable validation lanes make behavior easier to test and reason about.
+- Migration and compatibility discipline: the RPG Maker MZ lane is treated as an import and verification bridge, not marketing theater. Compatibility claims stay intentionally conservative.
+- Diagnostics as product surface: ProjectAudit, diagnostics panels, validation scripts, and readiness records are part of the shipped repo, not ad hoc one-off scripts.
+- Governance that matches the code: release-readiness, schema changelog coverage, truth reconciliation, template readiness, and signoff workflow checks are machine-validated.
+- Multi-genre roadmap with landed baseline systems: beyond JRPG basics, the repo already includes ability systems, pattern authoring, modular level assembly, procedural toolkit foundations, 2.5D/raycast groundwork, animation timeline pieces, accessibility, analytics, export validation, mod registry support, and more.
 
-| Track | Status | Completion | Notes |
-| --- | --- | --- | --- |
-| **Foundation (Phase 0)** | Complete | 100% | Core kernels, authority guards, migration/save lanes. |
-| **Native Core (Phase 1)** | Complete | 100% | Event dispatch, debug runtime, EngineShell lifecycle. |
-| **Compat Layer (Phase 2)** | In Progress | ~96% | Compat surface is wired and test-heavy, but several areas remain fixture-, stub-, or placeholder-backed. |
-| **Wave 3-7 Ecosystem** | Complete | 100% | Templates, Profiling, Polish, Workspace, ImGui Panels. |
-| **Final Integration** | Complete | 100% | Unified `EngineAssembly` Gold distribution. |
-| **Native Workwaves** | In Progress | ~92% | Native ownership for Message/Text, Battle Core, and Spatial Presentation. |
+If you want a pure drag-and-drop, low-code editor with a mature asset marketplace, URPG is not trying to be that. If you want a code-owning engine/editor stack that can grow into a serious native RPG toolchain while still helping ingest RPG Maker content, that is exactly the niche URPG is targeting.
 
-## 🏗️ Getting Started
+## Current State
 
-### Prerequisites
-- CMake 3.20+
-- MSVC 2022 (Windows) or GCC/Clang (Linux/macOS)
-- Python 3.9+ (for build scripting)
+Status date: 2026-04-21
 
-### Quick Build (Windows)
-```powershell
-# Configure and build
-cmake --preset dev-ninja-debug
-cmake --build --preset dev-debug
+What is true in the current tree:
 
-# Run tests
-ctest --test-dir build/dev-ninja-debug -L pr --output-on-failure
-```
+- Wave 1 native ownership for UI/Menu, Message/Text, Battle, and Save/Data is landed.
+- Phase 2 compat runtime closure is complete; the remaining compat work is post-closure hardening, confidence depth, and truthful residual scope.
+- ProjectAudit, release-readiness, template-readiness, schema-changelog, and truth-reconciliation governance are active and enforced.
+- Advanced capability lanes are meaningfully implemented, but many remain honestly `PARTIAL` at the product/readiness level.
 
-### Focused Presentation Validation
-```powershell
-# One-command focused presentation gate
-pwsh -File .\tools\ci\run_presentation_gate.ps1
+What is not true:
 
-# Or run the combined presentation CTest gate directly
-ctest -C Debug -R "urpg_(presentation_(unit_lane|release_validation)|spatial_editor_lane)" --output-on-failure
-```
+- The repo is not claiming full release readiness across every subsystem or template.
+- The QuickJS layer is not presented as a finished live scripting runtime for all use cases.
+- Several advanced/editor surfaces are compiled and tested but still have honest residual gaps in workflow depth or workspace integration.
 
-This focused gate is also invoked by `tools/ci/run_local_gates.ps1` locally and by `.github/workflows/ci-gates.yml` in CI.
+For canonical current status, use:
 
-## 📜 Documentation
+- [Program Completion Status](./docs/PROGRAM_COMPLETION_STATUS.md)
+- [Technical Debt Remediation Plan](./docs/TECHNICAL_DEBT_REMEDIATION_PLAN.md)
+- [Release Readiness Matrix](./docs/RELEASE_READINESS_MATRIX.md)
+- [Project Audit](./docs/PROJECT_AUDIT.md)
 
-- **[Master Blueprint](URPG_Blueprint_v3_1_Integrated.md):** The authoritative technical specification.
-- **[Native Absorption Plan](docs/NATIVE_FEATURE_ABSORPTION_PLAN.md):** Roadmap for migrating legacy features.
-- **[Completion Status](docs/PROGRAM_COMPLETION_STATUS.md):** Granular checklist of every implemented feature.
-- **[Technical Debt Remediation Plan](docs/TECHNICAL_DEBT_REMEDIATION_PLAN.md):** Canonical cross-cutting debt, truthfulness, intake-governance, and reconciliation plan.
-- **[Presentation Docs Hub](docs/presentation/README.md):** Index of presentation contracts, validation, tooling, budgets, and schema docs.
-- **[Presentation Validation Guide](docs/presentation/VALIDATION.md):** Focused runtime + spatial authoring validation commands and gate definitions.
+## Architecture
 
-### Build Artifacts (CI)
-- **Nightly Matrix:** [tests_output.txt](tests_output.txt)
-- **Latest Export:** [test_export.json](test_export.json) | [test_export.csv](test_export.csv)
+Core stack:
 
----
-*Built with ❤️ by the URPG Team. Part of the RPG Game Maker ecosystem.*
-  - `processEscape` remains one of the few battle compat paths that is genuinely `FULL`; broader battle setup, event, animation, and reward paths are still partial or stubbed.
-  - Async plugin dispatch remains deterministic FIFO, but its status is now tracked as `PARTIAL` because callbacks run on the worker thread and the JS bridge is still fixture-backed.
-  - Input/Touch QuickJS API registration now routes to live runtime state (no placeholder zeros) and `TouchInput` movement/tap tracking now computes `moveSpeed` + `tapCount`.
-  - PluginManager failure-path diagnostics now emit deterministic JSONL artifacts (`exportFailureDiagnosticsJsonl` / `clearFailureDiagnostics`) with operation tags + sequence IDs.
-  - PluginManager diagnostics JSONL now include compat severity tags (`WARN`, `SOFT_FAIL`, `HARD_FAIL`, `CRASH_PREVENTED`) for downstream report classification.
-  - PluginManager failure diagnostics export now enforces bounded retention (last 2048 events) while preserving monotonic sequence IDs across trims; coverage is gated in unit tests.
-  - `executeCommandByName` now routes through exact registered full keys (supports underscore-heavy command names) and rejects missing plugin/command segments via deterministic `execute_command_by_name_parse` diagnostics.
-  - QuickJS compat harness now supports explicit eval failure directives (`@urpg-fail-eval`), explicit call-failure directives (`@urpg-fail-call`), deterministic context-init failure marker support (`__urpg_fail_context_init__`), and evalModule failure propagation tests for deterministic conformance.
-  - Fixture command validation now fails malformed payloads deterministically (`js` must be string, `script` must be array, `dropContextBeforeCall` must be boolean, optional `entry`/`description`/`mode` metadata must be strings, `mode` values are restricted to `const` or `arg_count`, and commands cannot declare both `js` and `script`) with exported diagnostics operation tags.
-  - Fixture metadata shape validation now fails malformed `dependencies`/`parameters`/`commands` containers and non-string dependency entries deterministically with exported diagnostics operation tags.
-  - Fixture script runtime now supports explicit `error` op and unknown-op hard-fail behavior, surfaced through deterministic `execute_command_quickjs_call` diagnostics artifacts.
-  - Dependent plugin command execution is now gated when required dependencies are missing, surfaced through deterministic `execute_command_dependency_missing` diagnostics artifacts.
-  - Compat report model now ingests PluginManager diagnostics JSONL (`ingestPluginFailureDiagnosticsJsonl`) into timeline events and per-plugin error summaries.
-  - Compat report ingestion now maps PluginManager compat severity tags into timeline severity levels (`WARNING`/`ERROR`/`CRITICAL`).
-  - Compat report panel runtime refresh now consumes and clears PluginManager diagnostics artifacts each update cycle (`CompatReportPanel::refresh`/`update`).
-  - Compat report diagnostics model hardening now updates warning/error flags when method statuses transition and sorts call-volume views by total calls (including unsupported operations).
-  - Compat report panel now records bounded per-plugin session score history plus first-seen/last-updated timestamps, and `LAST_UPDATED` sorting now projects human-readable recency labels.
-  - Compat module unit suites (`test_battlemgr`, `test_data_manager`, `test_audio_manager`, `test_input_manager`, `test_plugin_manager`) are active in `urpg_tests`.
-- Active build wiring snapshot:
-  - `urpg_core` currently builds core kernels + editor diagnostics/panel + compat report panel + the QuickJS compat harness + WindowCompat + Battle/Data/Audio/Input/Plugin compat modules.
-  - `urpg_tests` includes the full compat unit slice in active CMake targets.
-- CI gate suites:
-  - Gate 1 (PR): `ctest -L pr`
-  - Gate 2 (nightly): `ctest -L nightly` (integration + snapshot suites)
-  - Gate 3 (weekly): `ctest -L weekly` (compat suite)
-  - Nightly renderer-tier matrix (`basic`, `standard`, `advanced`) + test log artifacts in CI
-  - Known-break waiver validation via `tools/ci/check_waivers.ps1`
-- Migration CLI: `urpg_migrate`
-- Catch2/CTest baseline (Debug snapshot, 2026-04-15):
-  - `urpg_tests`: 3907 assertions / 287 test cases
+- Language: C++20
+- Build system: CMake 3.23+
+- Platforms: Windows first, with GCC/Clang support paths
+- Rendering/windowing: SDL2 + OpenGL, with headless CI paths
+- JSON: nlohmann/json
+- Testing: Catch2 v3
+- Compatibility runtime: QuickJS under `runtimes/compat_js/`
 
-## Immediate next steps
+Repository structure:
 
-1. Close compat-lane exit criteria for trustworthy import, diagnostics, and migration confidence.
-2. Finish Message/Text renderer closure after the landed bridge:
-   - consume `RenderLayer::TextCommand` in backend tiers where text command rendering is still placeholder,
-   - connect `Window_Message` parity behavior to native message scene runtime ownership path.
-3. Finish UI/Menu Wave 1 closure after the landed runtime interaction slices:
-   - ship menu authoring/preview editor surfaces,
-   - finalize schema + import mapping for route fallback/state rules,
-   - add integration anchors beyond unit tests.
-4. Continue Wave 1 runtime/editor/schema closure for Message/Text, Battle, and Save/Data.
-5. Begin Wave 2 advanced capability implementation (ability framework, pattern editor, modular level assembly, sprite pipeline, procedural toolkit, optional 2.5D lane, timeline orchestration, and editor utilities).
-6. Execute the full remaining checklist in `docs/PROGRAM_COMPLETION_STATUS.md` to drive completion to 100% for the current program scope.
+- `engine/`: native runtime systems
+- `editor/`: editor panels, models, and diagnostics surfaces
+- `runtimes/compat_js/`: bounded RPG Maker MZ compatibility bridge
+- `tests/`: unit, integration, snapshot, compat, and low-level engine coverage
+- `tools/`: CI gates, migration tools, audit tooling, asset hygiene, workflow/bootstrap tooling
+- `content/`: schemas, readiness records, fixtures
+- `docs/`: canonical roadmap, status, readiness, signoff, ADRs, and validation guides
+
+## Shipped Engine Capabilities
+
+### Wave 1 native runtime ownership
+
+- UI/Menu Core:
+  - native command registry, route resolution, scene graph orchestration
+  - menu inspector and preview surfaces
+  - schema and migration support
+- Message/Text Core:
+  - native message flow runner, text layout, prompt state
+  - renderer-facing text and rect command emission
+  - inspector workflows, schema, and migration support
+- Battle Core:
+  - native battle flow, diagnostics, preview integration, migration coverage
+  - presentation bridge/runtime handoff for battle-facing frame intent
+  - signoff artifact and readiness governance
+- Save/Data Core:
+  - save runtime, migration, recovery, policy governance, metadata, slot descriptors
+  - RPG Maker MV/MZ binary save ingestion path
+  - save inspector/editor workflows and diagnostics
+
+### Advanced capability systems
+
+- Gameplay Ability Framework:
+  - gameplay tags, abilities, effects, state machines, ability tasks
+  - ability inspector and end-to-end validation coverage
+- Pattern Field Editor:
+  - painted pattern resources, presets, validation, preview flows
+- Modular Level Assembly:
+  - connector-based block workflows, deterministic placement validation, thumbnails/import helpers
+- Sprite Pipeline Toolkit:
+  - atlas packing, metadata generation, preview/tuning flows
+- Procedural Content Toolkit:
+  - dungeon/layout primitives, deterministic scenario generation, FOV foundations
+- 2.5D presentation lane:
+  - raycast renderer groundwork with explicit project-mode gating
+- Timeline and animation orchestration:
+  - animation clips, timeline kernel, event-triggered transient effect support
+- Editor productivity utilities:
+  - selected helper/task infrastructure for authoring support
+
+### Product and governance subsystems landed as bounded lanes
+
+- Character Identity:
+  - identity runtime, editor creator panel, ECS/system sync, deterministic spawner
+  - bounded validation runtime and governance script
+- Achievement Registry:
+  - definitions, progress tracking, trigger parsing, event bus integration, editor panel
+  - bounded validation runtime and governance script
+- Accessibility Auditor:
+  - missing-label, focus-order, contrast, and navigation audits
+  - live menu-ingest adapter and governance checks
+- Audio Mix Presets:
+  - preset bank, category volumes, ducking rules, editor panel
+  - validator and governance coverage
+- Export Validator:
+  - target-specific export validation, synthetic pack-and-validate path, diagnostics panel
+- Mod Registry:
+  - manifest registration, dependency resolution, load-order topology, editor diagnostics
+  - validator and governance coverage
+- Analytics Dispatcher:
+  - opt-in event buffer, deterministic counters, bounded validator, editor diagnostics
+  - governance and ProjectAudit coverage
+- Input controller governance:
+  - `InputRemapStore`
+  - bounded `ControllerBindingRuntime`
+  - bounded `ControllerBindingPanel`
+  - governance script and audit coverage
+
+### Compatibility and migration lane
+
+- QuickJS compatibility harness for RPG Maker MZ-facing verification
+- `Window_Base`, `Window_Selectable`, `Window_Command`, `Window_Message`, `BattleManager`, `DataManager`, `AudioManager`, `InputManager`, and `PluginManager` compat surfaces
+- curated compat fixture suites and failure-path diagnostics
+- JSONL diagnostics export and report/panel ingestion
+- plugin failure containment and deterministic reporting
+- migration-safe handling of unsupported or lossy paths
+
+This lane is intentionally described as a compat bridge and verification harness, not as blanket live parity with all RPG Maker runtime behavior.
+
+## Editor And Tooling
+
+The repo ships substantial editor and tooling coverage already:
+
+- diagnostics workspace and project audit panel
+- battle, save, message, ability, audio, analytics, accessibility, achievement, character, export, mod, and spatial panels/models
+- migration CLI: `urpg_migrate`
+- release-readiness and truth-reconciliation gates
+- schema changelog governance
+- waiver checking
+- plugin drop-in validation
+- asset hygiene and intake governance
+- LLM workflow/bootstrap tooling (`codemunch`, `contextlattice`, `memorybridge`, workflow installers)
+
+## Why Teams Would Choose URPG Over Similar Tools
+
+Choose URPG if your priorities look like this:
+
+- You need native engine ownership and testability, not just event/plugin scripting.
+- You want to import or reason about RPG Maker content without making plugin compatibility your permanent architecture.
+- You care about evidence-backed status, release gating, and migration contracts.
+- You want a repo where diagnostics, auditability, and signoff discipline are part of the product.
+- You are comfortable with a serious codebase and want a foundation that can support custom runtime work, genre expansion, and stricter CI/governance practices.
+
+Choose something else if your priorities are:
+
+- minimal-code onboarding
+- a broad ready-made marketplace/community of drop-in assets and plugins
+- immediate WYSIWYG content production over runtime ownership and deterministic behavior
+
+## Honest Current Gaps
+
+URPG still has important residual gaps. Some of the main ones currently called out by the canonical docs include:
+
+- broader product-readiness and template-readiness proof
+- real renderer/backend polish beyond the current bounded presentation/runtime contract
+- deeper controller-governance and workspace-level panel wiring
+- real device polling and richer per-device remap workflows
+- export pipeline depth beyond current synthetic validation paths
+- live mod loading/sandboxed execution/distribution workflows
+- analytics upload, aggregation, and privacy/compliance workflows
+- additional accessibility adapters beyond the current bounded menu slice
+
+The project intentionally documents these as residual gaps instead of flattening them into vague “coming soon” language.
 
 ## Build
+
+Recommended local configuration:
 
 ```powershell
 cmake --preset dev-ninja-debug
@@ -133,137 +208,116 @@ cmake --build --preset dev-debug
 ctest --preset dev-all
 ```
 
-On Windows, test executable relinks now automatically clear stale process locks (`urpg_tests.exe`, `urpg_compat_tests.exe`, `urpg_integration_tests.exe`, `urpg_snapshot_tests.exe`). Disable if needed with `-DURPG_WINDOWS_UNLOCK_TEST_BINARIES=OFF`.
-
-## Build cache (sccache)
+Other useful presets:
 
 ```powershell
-$env:SCCACHE_DIR = "$PWD/.cache/sccache"
-sccache --zero-stats
-cmake --preset dev-ninja-debug -DURPG_USE_SCCACHE=ON
-cmake --build --preset dev-debug
-sccache --show-stats
+cmake --preset dev-vs2022
+cmake --build --preset dev-vs2022-debug
+
+cmake --preset dev-mingw-debug
+cmake --build --preset dev-mingw-debug-build
+
+cmake --preset ci
+cmake --build --preset ci-release
 ```
 
-`URPG_USE_SCCACHE` is optional and defaults to `OFF` for local presets. Enable it explicitly only on machines where `sccache` is installed and available on `PATH`.
+## Focused Validation
 
-## Git LFS
+Presentation gate:
 
 ```powershell
-git lfs install
-git lfs track
+.\tools\ci\run_presentation_gate.ps1
 ```
 
-## Local gates
+Full local gates:
 
 ```powershell
 .\tools\ci\run_local_gates.ps1
 ```
 
-## Wave 1 spec checklist sync
+Examples of focused test lanes:
 
 ```powershell
-.\tools\docs\sync-wave1-spec-checklist.ps1
-.\tools\docs\sync-wave1-spec-checklist.ps1 -Check
+.\build\dev-ninja-debug\urpg_tests.exe "[project_audit_cli]" --reporter compact
+.\build\dev-ninja-debug\urpg_tests.exe "[analytics]" --reporter compact
+.\build\dev-ninja-debug\urpg_tests.exe "[input]" --reporter compact
+ctest -L pr
+ctest -L nightly
+ctest -L weekly
 ```
 
-## CodeMunch Pro Workflow
+## CI And Governance
 
-```powershell
-.\tools\codemunch\bootstrap-project.ps1
-.\tools\codemunch\index-project.ps1 -ProjectRoot . -Embed -OutFile ".codemunch\last-index.json"
-```
+Active governance/tooling lanes include:
 
-See `tools/codemunch/README.md` for full usage and cross-project setup.
+- `tools/ci/check_release_readiness.ps1`
+- `tools/ci/truth_reconciler.ps1`
+- `tools/ci/check_schema_changelog.ps1`
+- `tools/ci/check_accessibility_governance.ps1`
+- `tools/ci/check_audio_governance.ps1`
+- `tools/ci/check_achievement_governance.ps1`
+- `tools/ci/check_character_governance.ps1`
+- `tools/ci/check_mod_governance.ps1`
+- `tools/ci/check_analytics_governance.ps1`
+- `tools/ci/check_input_governance.ps1`
 
-## ContextLattice Workflow
+Canonical audit and readiness documents:
 
-```powershell
-.\tools\contextlattice\bootstrap-project.ps1
-.\tools\contextlattice\verify.ps1
-```
+- [Project Audit](./docs/PROJECT_AUDIT.md)
+- [Release Readiness Matrix](./docs/RELEASE_READINESS_MATRIX.md)
+- [Template Readiness Matrix](./docs/TEMPLATE_READINESS_MATRIX.md)
+- [Truth Alignment Rules](./docs/TRUTH_ALIGNMENT_RULES.md)
+- [Subsystem Status Rules](./docs/SUBSYSTEM_STATUS_RULES.md)
+- [Release Signoff Workflow](./docs/RELEASE_SIGNOFF_WORKFLOW.md)
 
-See `tools/contextlattice/README.md` for env and smoke-test usage.
+## Documentation Map
 
-## MemPalace to ContextLattice Bridge
+Start here for truth:
 
-```powershell
-.\tools\memorybridge\bootstrap-project.ps1
-.\tools\memorybridge\sync-from-mempalace.ps1 -DryRun
-```
+- [Program Completion Status](./docs/PROGRAM_COMPLETION_STATUS.md)
+- [Technical Debt Remediation Plan](./docs/TECHNICAL_DEBT_REMEDIATION_PLAN.md)
+- [Native Feature Absorption Plan](./docs/NATIVE_FEATURE_ABSORPTION_PLAN.md)
 
-Use this for one-way sync (`MemPalace -> ContextLattice`) so ContextLattice
-remains the shared canonical memory backend.
+Subsystem, validation, and governance references:
 
-See `tools/memorybridge/README.md` for mapping and incremental sync details.
+- [Project Audit](./docs/PROJECT_AUDIT.md)
+- [Schema Changelog](./docs/SCHEMA_CHANGELOG.md)
+- [Wave 1 Closure Checklist](./docs/WAVE1_SUBSYSTEM_CLOSURE_CHECKLIST.md)
+- [AI Copilot Guide](./docs/AI_COPILOT_GUIDE.md)
+- [Presentation Docs Hub](./docs/presentation/README.md)
+- [Presentation Validation Guide](./docs/presentation/VALIDATION.md)
+- [Archive Index](./docs/archive/README.md)
 
-## Unified LLM Workflow
+Current sprint pointer:
 
-Install one global command (once):
+- [Active Sprint](./docs/superpowers/plans/ACTIVE_SPRINT.md)
 
-```powershell
-.\tools\workflow\install-global-llm-workflow.ps1
-```
+## Contributor Workflow
 
-Then in any project folder run:
-
-```powershell
-llm-workflow-up
-```
-
-Strict end-to-end check:
-
-```powershell
-llm-workflow-check
-```
-
-Environment and prerequisite diagnostics:
-
-```powershell
-llm-workflow-doctor -CheckContext
-```
-
-This command auto-creates missing `tools/codemunch`, `tools/contextlattice`,
-and `tools/memorybridge` from templates, loads `.env`, installs required
-dependencies, normalizes provider keys for OpenAI/Kimi/Gemini/GLM usage, and
-runs bootstrap/verification checks.
-
-Provider selection examples:
-
-```powershell
-llm-workflow-up -Provider glm
-llm-workflow-up -Provider gemini
-llm-workflow-check -Provider kimi
-llm-workflow-doctor -Provider auto -CheckContext -Strict
-```
-
-## Contributor guide
-
-See `CONTRIBUTING.md` for workflow, LFS policy, and asset hygiene checks.
-PR verification uses `.github/PULL_REQUEST_TEMPLATE.md`, including the focused presentation gate when presentation/spatial behavior is touched.
-
-```powershell
-python .\tools\assets\asset_hygiene.py --write-reports --prune-junk
-.\tools\rpgmaker\validate-plugin-dropins.ps1
-```
-
-## Pre-commit
+Useful commands:
 
 ```powershell
 python -m pip install pre-commit
 pre-commit install
 pre-commit run --all-files
+
+python .\tools\assets\asset_hygiene.py --write-reports
+.\tools\rpgmaker\validate-plugin-dropins.ps1
 ```
+
+See also:
+
+- [CONTRIBUTING.md](./CONTRIBUTING.md)
+- [.github/PULL_REQUEST_TEMPLATE.md](./.github/PULL_REQUEST_TEMPLATE.md)
 
 ## Migration CLI
 
 ```powershell
-.\build\urpg_migrate.exe --input <project.json> --migration tools\migrate\migration_op.json --output <out.json>
+.\build\dev-ninja-debug\urpg_migrate.exe --input <project.json> --migration tools\migrate\migration_op.json --output <out.json>
 ```
 
-## Next lane
+## Summary
 
-Primary execution source of truth:
+URPG is already more than a prototype: it has native runtime ownership for the main RPG lanes, meaningful advanced systems, a compatibility bridge, editor surfaces, diagnostics, migration tooling, and real governance.
 
-1. `docs/PROGRAM_COMPLETION_STATUS.md`
-2. `docs/NATIVE_FEATURE_ABSORPTION_PLAN.md`
+Its value is not “everything is done.” Its value is that the repo makes it unusually clear what is done, what is partial, how it is validated, and where teams can build next without inheriting a hidden plugin-shaped architecture.

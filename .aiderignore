@@ -1,0 +1,13 @@
+build/
+build-local/
+.cache/
+.venv/
+Testing/
+__pycache__/
+*.obj
+*.pdb
+*.ilk
+*.exe
+*.dll
+*.lib
+*.exp

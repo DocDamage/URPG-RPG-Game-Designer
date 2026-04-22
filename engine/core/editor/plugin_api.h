@@ -1,15 +1,21 @@
 #pragma once
 
+#include <cstdint>
 #include <string>
 #include <vector>
 
+namespace urpg {
+class World;
+}
+
 /**
  * @file plugin_api.h
- * @brief Stubbed C-style plugin bridge exports for fixture-backed editor integration.
- * 
- * Wave 7.2 seeded the exported surface shape, but these APIs are not yet a
- * production-ready native plugin runtime. Several functions still route to
- * scratch-state storage, placeholder IDs, or no-op engine hooks.
+ * @brief C-style plugin bridge exports for bounded native editor/runtime integration.
+ *
+ * Global state and compat input queries route into live engine-owned state.
+ * Entity lifecycle calls operate on a caller-bound ECS world when one is
+ * available; without a bound world they fail closed rather than inventing
+ * synthetic entities.
  */
 
 #ifdef _WIN32
@@ -25,18 +31,18 @@ extern "C" {
 URPG_API void URPG_LogInfo(const char* message);
 URPG_API void URPG_LogError(const char* message);
 
-// --- Entity Management (STUB: synthetic IDs / no live ECS wiring) ---
+// --- Entity Management (routes into a caller-bound ECS world) ---
 URPG_API uint64_t URPG_EntityCreate();
 URPG_API void URPG_EntityDestroy(uint64_t entityId);
 URPG_API void URPG_EntityAddComponent(uint64_t entityId, const char* componentType);
 
-// --- Global State Hub (STUB: process-local scratch storage, not GlobalStateHub) ---
+// --- Global State Hub (routes into GlobalStateHub) ---
 URPG_API void URPG_SetGlobalVariable(const char* key, float value);
 URPG_API float URPG_GetGlobalVariable(const char* key);
 URPG_API void URPG_SetGlobalSwitch(const char* key, bool value);
 URPG_API bool URPG_GetGlobalSwitch(const char* key);
 
-// --- Input Queries (STUB: fixed placeholder responses, not live input state) ---
+// --- Input Queries (routes into compat InputManager state) ---
 URPG_API bool URPG_IsKeyPressed(int keyCode);
 URPG_API void URPG_GetMousePosition(float* x, float* y);
 
@@ -53,3 +59,17 @@ typedef void (*URPG_UpdateFn)(float deltaTime);
 typedef void (*URPG_ShutdownFn)();
 
 } // extern "C"
+
+namespace urpg::editor {
+
+/**
+ * @brief Binds the world used by the C plugin API entity exports.
+ */
+void BindPluginAPIWorld(World* world);
+
+/**
+ * @brief Clears the currently bound world from the C plugin API entity exports.
+ */
+void UnbindPluginAPIWorld();
+
+} // namespace urpg::editor

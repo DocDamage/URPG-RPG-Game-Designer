@@ -1,0 +1,10 @@
+{
+  "optIn": true,
+  "sessionId": "deterministic-session",
+  "bufferSize": 1000,
+  "allowedCategories": [
+    "combat",
+    "ui",
+    "system"
+  ]
+}

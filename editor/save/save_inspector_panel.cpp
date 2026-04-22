@@ -3,7 +3,7 @@
 namespace urpg::editor {
 
 void SaveInspectorPanel::bindRuntime(const urpg::SaveCatalog& catalog,
-                                     const urpg::SaveSessionCoordinator& coordinator) {
+                                     urpg::SaveSessionCoordinator& coordinator) {
     catalog_ = &catalog;
     coordinator_ = &coordinator;
 }
@@ -38,6 +38,41 @@ void SaveInspectorPanel::setShowProblemSlotsOnly(bool show_problem_slots_only) {
 void SaveInspectorPanel::setIncludeAutosave(bool include_autosave) {
     include_autosave_ = include_autosave;
     model_.SetIncludeAutosave(include_autosave_);
+}
+
+bool SaveInspectorPanel::showProblemSlotsOnly() const {
+    return show_problem_slots_only_;
+}
+
+bool SaveInspectorPanel::includeAutosave() const {
+    return include_autosave_;
+}
+
+bool SaveInspectorPanel::setPolicyAutosaveEnabled(bool autosave_enabled) {
+    return model_.SetPolicyAutosaveEnabled(autosave_enabled);
+}
+
+bool SaveInspectorPanel::setPolicyAutosaveSlotId(int32_t autosave_slot_id) {
+    return model_.SetPolicyAutosaveSlotId(autosave_slot_id);
+}
+
+bool SaveInspectorPanel::setPolicyRetentionLimits(size_t max_autosave_slots,
+                                                  size_t max_quicksave_slots,
+                                                  size_t max_manual_slots,
+                                                  bool prune_excess_on_save) {
+    return model_.SetPolicyRetentionLimits(
+        max_autosave_slots, max_quicksave_slots, max_manual_slots, prune_excess_on_save);
+}
+
+bool SaveInspectorPanel::applyPolicyToRuntime() {
+    if (!coordinator_) {
+        return false;
+    }
+    const bool applied = model_.ApplyPolicyToRuntime(*coordinator_);
+    if (applied) {
+        refresh();
+    }
+    return applied;
 }
 
 void SaveInspectorPanel::render() {

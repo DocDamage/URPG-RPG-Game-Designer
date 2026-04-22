@@ -67,6 +67,7 @@ public:
     void setTilePassable(int x, int y, bool passable) {
         if (x >= 0 && x < m_width && y >= 0 && y < m_height) {
             m_tiles[y * m_width + x].isPassable = passable;
+            m_renderLayerDirty = true;
         }
     }
 
@@ -74,6 +75,7 @@ public:
         if (x >= 0 && x < m_width && y >= 0 && y < m_height) {
             m_tiles[y * m_width + x].tileId = tileId;
             m_tiles[y * m_width + x].isPassable = passable;
+            m_renderLayerDirty = true;
         }
     }
 
@@ -104,6 +106,7 @@ public:
     void openChatInput();
 
     void setAudioCore(std::shared_ptr<urpg::audio::AudioCore> audioCore) { m_audioCore = std::move(audioCore); }
+    std::shared_ptr<urpg::audio::AudioCore> audioCore() const { return m_audioCore; }
 
     /**
      * @brief Injects the AI audio bridge into the scene logic.
@@ -131,10 +134,15 @@ public:
     bool isDialogueActive() const { return m_messageRunner.isActive() || m_isChatInputOpen; }
 
 private:
+    void rebuildTileRenderCache();
+    void submitCachedTileCommands(urpg::RenderLayer& layer) const;
+
     std::string m_mapId;
     int m_width;
     int m_height;
     std::vector<TileData> m_tiles;
+    std::vector<std::shared_ptr<urpg::RenderCommand>> m_cachedTileCommands;
+    bool m_renderLayerDirty = true;
     
     // Components
     urpg::MovementComponent m_playerMovement;

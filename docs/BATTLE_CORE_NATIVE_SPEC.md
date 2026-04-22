@@ -1,7 +1,7 @@
 # Battle Core Native-First Spec
 
 Date: 2026-04-14
-Status: active implementation baseline (runtime/inspector slices landed; schema/migration/release closure pending)
+Status: closure evidence and broader Wave 1 release proof recorded on 2026-04-20; Battle Wave 1 scope is complete
 Scope: runtime ownership, editor ownership, schema, migration, diagnostics, and test anchors for native Battle Core absorption
 
 ## Last landed progress (2026-04-15)
@@ -14,6 +14,7 @@ Scope: runtime ownership, editor ownership, schema, migration, diagnostics, and 
   - `editor/battle/battle_preview_panel.*`
   - `editor/battle/battle_inspector_panel.*`
   - diagnostics workspace `battle` tab wiring
+  - live scene diagnostics binding parity via `flowController()`, `nativeActionQueue()`, and `buildDiagnosticsPreview()` preview payload consumption
 - Compat battle confidence anchors are active:
   - tactical routed battle fixture coverage across plugin reload
   - deterministic escape lifecycle parity in compat tests
@@ -22,19 +23,61 @@ Scope: runtime ownership, editor ownership, schema, migration, diagnostics, and 
   - `tests/unit/test_battle_inspector_model.cpp`
   - `tests/unit/test_battle_preview_panel.cpp`
   - `tests/unit/test_battle_inspector_panel.cpp`
-  - `tests/unit/test_battlemgr.cpp`- **Native AI Battle Tactics Bridge landed (2026-04-16):**
+  - `tests/unit/test_battlemgr.cpp`
+- **Native AI Battle Tactics Bridge landed (2026-04-16):**
   - `BattleKnowledgeBridge` (HP, MP, Weakness serialization for LLMs)
   - Real-time tactical advice pipeline via `ChatbotComponent`
-## Next steps
 
-- Finalize schema + migration contracts for battle flows/actions/rules/hooks from compat evidence into native typed records.
-- Add deeper integration coverage for runtime+editor battle ownership and HUD bridge parity.
-- Close release-readiness for deterministic battle behavior and diagnostics/reporting paths.
-- Continue narrowing compat battle behavior to import/verification bridge-only ownership.
+## Closure evidence bundle
+
+### Runtime owner files
+
+- `engine/core/battle/battle_core.h`
+- `engine/core/battle/battle_core.cpp`
+- `engine/core/scene/battle_scene.h`
+- `engine/core/scene/battle_scene.cpp`
+- `engine/core/battle/battle_migration.h`
+
+### Editor owner files
+
+- `editor/battle/battle_inspector_model.h`
+- `editor/battle/battle_inspector_model.cpp`
+- `editor/battle/battle_preview_panel.h`
+- `editor/battle/battle_preview_panel.cpp`
+- `editor/battle/battle_inspector_panel.h`
+- `editor/battle/battle_inspector_panel.cpp`
+- `editor/diagnostics/diagnostics_workspace.cpp`
+
+### Schema and migration files
+
+- `content/schemas/battle_troops.schema.json`
+- `content/schemas/battle_actions.schema.json`
+- `engine/core/battle/battle_migration.h`
+
+### Latest deterministic test outputs
+
+- `.\build\Debug\urpg_tests.exe "[battle][scene][diagnostics],[battle][editor][panel],[editor][diagnostics][integration][battle_preview]" --reporter compact`
+  - `67 assertions / 5 test cases passed`
+- `.\build\Debug\urpg_tests.exe "[presentation][bridge],[presentation][runtime]" --reporter compact`
+  - `40 assertions / 5 test cases passed`
+- `.\build\Debug\urpg_tests.exe "[editor][diagnostics][wizard],[battle][migration]" --reporter compact`
+  - `533 assertions / 41 test cases passed`
+- `ctest --test-dir build -C Debug --output-on-failure -R "PresentationBridge derives battle frame from active BattleScene|PresentationBridge builds frame for active scene using runtime|BattleScene builds diagnostics preview from the next ordered queued action|Battle inspector panel binds live scene diagnostics preview payload|DiagnosticsWorkspace - Battle tab exports live scene diagnostics preview payload|BattleMigration:|MigrationWizardModel: battle migration warnings propagate from unsupported troop phase/page data|MigrationWizardModel: Batch Orchestration"`
+  - `11/11 tests passed`
 
 ## Purpose
 
 Battle Core becomes the native owner for battle flow, action sequencing, targeting, result handling, and battle-state hooks that currently appear across BattleManager compat tests and routed presentation anchors.
+
+The live BattleScene path now routes phase progression, ordered action draining, and damage resolution through Battle Core instead of maintaining a parallel scene-local authority.
+
+Battle diagnostics now also support a live-scene binding seam: the inspector/workspace can consume `flowController()`, `nativeActionQueue()`, and an optional `buildDiagnosticsPreview()` payload so preview/export state stays aligned with the runtime battle scene when a usable queued action exists, while the existing flow+queue-only binding remains valid.
+
+This seam is now covered by focused native tests for scene preview construction, inspector binding, and diagnostics workspace export parity against a real `BattleScene`.
+
+The presentation bridge now also projects battle presentation state from an active `BattleScene`, so battle HUD/presentation clients can consume native battle participants through the existing battle translator path instead of relying on manually seeded `PresentationContext::battleState`.
+
+Battle migration now emits explicit warnings for unsupported troop page/phase scripts and unsupported action scope/effect payloads while still returning schema-shaped fallback native JSON, and those warning counts propagate through the migration wizard reporting path.
 
 The subsystem should absorb the deterministic behavior already proven in compat tests while keeping HUD and overlay presentation as clients of battle state instead of turning battle logic into a plugin-command-driven surface.
 

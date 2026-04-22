@@ -1,5 +1,5 @@
 #include <catch2/catch_test_macros.hpp>
-#include "asset/asset_license_audit.h"
+#include "engine/core/asset/asset_license_audit.h"
 
 using namespace urpg::asset;
 

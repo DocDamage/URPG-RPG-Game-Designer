@@ -1,0 +1,477 @@
+{
+  "schemaVersion": "1.0.0",
+  "statusDate": "2026-04-21",
+  "subsystems": [
+    {
+      "id": "ui_menu_core",
+      "status": "READY",
+      "summary": "Wave 1 native menu ownership is closed for the claimed scope.",
+      "mainGaps": [],
+      "evidence": {
+        "runtimeOwner": true,
+        "editorSurface": true,
+        "schemaMigration": true,
+        "diagnostics": true,
+        "testsValidation": true,
+        "docsAligned": true
+      }
+    },
+    {
+      "id": "message_text_core",
+      "status": "READY",
+      "summary": "Wave 1 native message/text ownership is closed for the claimed scope.",
+      "mainGaps": [],
+      "evidence": {
+        "runtimeOwner": true,
+        "editorSurface": true,
+        "schemaMigration": true,
+        "diagnostics": true,
+        "testsValidation": true,
+        "docsAligned": true
+      }
+    },
+    {
+      "id": "battle_core",
+      "status": "PARTIAL",
+      "summary": "Battle has real native ownership and diagnostics. Wave 1 closure signoff exists; promotion to READY requires human review of residual gaps.",
+      "mainGaps": [
+        "Wave 1 closure signoff exists; promotion to READY requires human review of residual gaps"
+      ],
+      "signoff": {
+        "required": true,
+        "artifactPath": "docs/BATTLE_CORE_CLOSURE_SIGNOFF.md",
+        "promotionRequiresHumanReview": true,
+        "workflow": "docs/RELEASE_SIGNOFF_WORKFLOW.md"
+      },
+      "evidence": {
+        "runtimeOwner": true,
+        "editorSurface": true,
+        "schemaMigration": true,
+        "diagnostics": true,
+        "testsValidation": true,
+        "docsAligned": true
+      }
+    },
+    {
+      "id": "save_data_core",
+      "status": "PARTIAL",
+      "summary": "Save/data runtime, diagnostics, RPG Maker MV/MZ binary save loading, and end-to-end compat save import into native runtime-owned state are landed. Wave 1 closure signoff exists; promotion to READY requires human review of residual gaps.",
+      "mainGaps": [
+        "Wave 1 closure signoff exists; promotion to READY requires human review of residual gaps"
+      ],
+      "signoff": {
+        "required": true,
+        "artifactPath": "docs/SAVE_DATA_CORE_CLOSURE_SIGNOFF.md",
+        "promotionRequiresHumanReview": true,
+        "workflow": "docs/RELEASE_SIGNOFF_WORKFLOW.md"
+      },
+      "evidence": {
+        "runtimeOwner": true,
+        "editorSurface": true,
+        "schemaMigration": true,
+        "diagnostics": true,
+        "testsValidation": true,
+        "docsAligned": true
+      }
+    },
+    {
+      "id": "compat_bridge_exit",
+      "status": "PARTIAL",
+      "summary": "Compat bridge exit has truthful Phase 2 closure evidence, weekly regression cadence, diagnostics/export parity for the bounded import and verification lane, and an explicit signoff artifact; promotion to READY requires human review of residual gaps.",
+      "mainGaps": [
+        "Compat bridge exit signoff exists; promotion to READY requires human review of residual gaps",
+        "Curated corpus maintenance and ongoing truth upkeep remain future work"
+      ],
+      "signoff": {
+        "required": true,
+        "artifactPath": "docs/COMPAT_BRIDGE_EXIT_SIGNOFF.md",
+        "promotionRequiresHumanReview": true,
+        "workflow": "docs/RELEASE_SIGNOFF_WORKFLOW.md"
+      },
+      "evidence": {
+        "runtimeOwner": true,
+        "editorSurface": false,
+        "schemaMigration": true,
+        "diagnostics": true,
+        "testsValidation": true,
+        "docsAligned": true
+      }
+    },
+    {
+      "id": "presentation_runtime",
+      "status": "PARTIAL",
+      "summary": "Presentation runtime, bridge, compiled spatial editor panels, end-to-end authoring\u00e2\u2020\u2019runtime proof path, and release validation harness are landed. Promotion to READY requires human review of residual gaps.",
+      "mainGaps": [
+        "Real renderer backend integration (currently mock-backed) remains future work",
+        "Profile arena hot-reload path remains unregistered",
+        "Promotion to READY requires human review of residual gaps"
+      ],
+      "evidence": {
+        "runtimeOwner": true,
+        "editorSurface": true,
+        "schemaMigration": false,
+        "diagnostics": true,
+        "testsValidation": true,
+        "docsAligned": true
+      }
+    },
+    {
+      "id": "gameplay_ability_framework",
+      "status": "PARTIAL",
+      "summary": "Gameplay ability runtime, inspector/editor surfaces, structured diagnostics snapshot, end-to-end release-grade test, and closure signoff artifact are landed. Promotion to READY requires human review of residual gaps.",
+      "mainGaps": [
+        "Schema contracts and compat-to-native migration mapping remain future work",
+        "Real gameplay loop integration into BattleScene/MapScene ability command queue remains future work",
+        "Promotion to READY requires human review of residual gaps"
+      ],
+      "signoff": {
+        "required": true,
+        "artifactPath": "docs/GAF_CLOSURE_SIGNOFF.md",
+        "promotionRequiresHumanReview": true,
+        "workflow": "docs/RELEASE_SIGNOFF_WORKFLOW.md"
+      },
+      "evidence": {
+        "runtimeOwner": true,
+        "editorSurface": true,
+        "schemaMigration": false,
+        "diagnostics": true,
+        "testsValidation": true,
+        "docsAligned": true
+      }
+    },
+    {
+      "id": "governance_foundation",
+      "status": "PARTIAL",
+      "summary": "Governance foundation has first-slice artifacts landed: breaking-change detection, enhanced readiness checks, template specs, bidirectional readiness/truth drift detection, project-audit artifact checks for input, accessibility, audio, character, mod, analytics, and performance, a bounded controller-binding runtime/panel plus input governance script/fixture contract, and a canonical release-signoff workflow artifact.",
+      "mainGaps": [
+        "Diagnostics/export parity and full release-signoff enforcement beyond the current artifact-backed governance workflow remain future work"
+      ],
+      "evidence": {
+        "runtimeOwner": false,
+        "editorSurface": false,
+        "schemaMigration": true,
+        "diagnostics": false,
+        "testsValidation": true,
+        "docsAligned": true
+      }
+    },
+    {
+      "id": "character_identity",
+      "status": "PARTIAL",
+      "summary": "Character identity runtime, editor creator panel, bounded validation runtime, ECS component/system integration, and deterministic spawner are landed with schema and focused tests.",
+      "mainGaps": [
+        "Character identity validator, governance script, and ProjectAudit artifact section are landed for the bounded editor/runtime contract.",
+        "Full Create-a-Character workflow (runtime character creation UI, appearance preview pipeline) remain future work"
+      ],
+      "evidence": {
+        "runtimeOwner": true,
+        "editorSurface": true,
+        "schemaMigration": true,
+        "diagnostics": true,
+        "testsValidation": true,
+        "docsAligned": true
+      }
+    },
+    {
+      "id": "achievement_registry",
+      "status": "PARTIAL",
+      "summary": "Achievement registry with progress tracking, unlock conditions, trigger parsing, event-bus auto-unlock, and editor panel are landed.",
+      "mainGaps": [
+        "Achievement validator is landed with EmptyId, EmptyTitle, EmptyUnlockCondition, ZeroTarget, DuplicateId, and EmptyIconId checks.",
+        "Trophy export pipeline and platform-specific achievement backend integration remain future work."
+      ],
+      "evidence": {
+        "runtimeOwner": true,
+        "editorSurface": true,
+        "schemaMigration": true,
+        "diagnostics": true,
+        "testsValidation": true,
+        "docsAligned": true
+      }
+    },
+    {
+      "id": "accessibility_auditor",
+      "status": "PARTIAL",
+      "summary": "Accessibility auditor with missing-label, focus-order, contrast, and navigation rules is landed.",
+      "mainGaps": [
+        "Menu inspector live-ingestion adapter is landed; additional editor surfaces (spatial, audio, battle) still require dedicated adapters.",
+        "Automated CI enforcement of accessibility report artifacts is validated by check_accessibility_governance.ps1."
+      ],
+      "evidence": {
+        "runtimeOwner": true,
+        "editorSurface": true,
+        "schemaMigration": true,
+        "diagnostics": true,
+        "testsValidation": true,
+        "docsAligned": true
+      }
+    },
+    {
+      "id": "visual_regression_harness",
+      "status": "PARTIAL",
+      "summary": "Visual regression harness with golden file management, diff heatmaps, approval tooling, and a file-backed executable harness gate is landed.",
+      "mainGaps": [
+        "Integration with real render output capture and CI golden gate remain future work"
+      ],
+      "evidence": {
+        "runtimeOwner": true,
+        "editorSurface": false,
+        "schemaMigration": false,
+        "diagnostics": false,
+        "testsValidation": true,
+        "docsAligned": true
+      }
+    },
+    {
+      "id": "audio_mix_presets",
+      "status": "PARTIAL",
+      "summary": "Audio mix preset bank with default profiles, category volume mapping, ducking rules, and editor panel is landed.",
+      "mainGaps": [
+        "Audio mix preset validator is landed with MissingDefaultPreset, ConflictingDuckRules, VolumeOutOfRange, and EmptyCategoryVolumes checks.",
+        "Live audio backend integration beyond the current compat-truth harness remains future work."
+      ],
+      "evidence": {
+        "runtimeOwner": true,
+        "editorSurface": true,
+        "schemaMigration": true,
+        "diagnostics": true,
+        "testsValidation": true,
+        "docsAligned": true
+      }
+    },
+    {
+      "id": "export_validator",
+      "status": "PARTIAL",
+      "summary": "Platform-specific export validator with per-target requirement checking, synthetic pack-and-validate pipeline, PowerShell CI script with JSON output, and diagnostics panel with post-export artifact surfacing is landed.",
+      "mainGaps": [
+        "Real asset bundling and binary synthesis remain stubbed; synthetic emitted tree is used for validation"
+      ],
+      "evidence": {
+        "runtimeOwner": true,
+        "editorSurface": true,
+        "schemaMigration": true,
+        "diagnostics": true,
+        "testsValidation": true,
+        "docsAligned": true
+      }
+    },
+    {
+      "id": "mod_registry",
+      "status": "PARTIAL",
+      "summary": "Mod registry with manifest registration, dependency resolution, load-order topology, bounded validation runtime, and editor manager panel is landed.",
+      "mainGaps": [
+        "Mod registry validator, governance script, and ProjectAudit artifact section are landed for the bounded manifest/editor contract.",
+        "Live mod loading, sandboxed script execution, and mod-store integration remain future work"
+      ],
+      "evidence": {
+        "runtimeOwner": true,
+        "editorSurface": true,
+        "schemaMigration": true,
+        "diagnostics": true,
+        "testsValidation": true,
+        "docsAligned": true
+      }
+    },
+    {
+      "id": "analytics_dispatcher",
+      "status": "PARTIAL",
+      "summary": "Opt-in analytics dispatcher with deterministic tick counters, event buffering, circular drop, editor panel, and bounded validator/governance coverage is landed.",
+      "mainGaps": [
+        "Analytics validator, governance script, and ProjectAudit artifact section are landed for the bounded opt-in telemetry/editor contract.",
+        "Telemetry upload pipeline, session aggregation, and privacy audit workflow remain future work"
+      ],
+      "evidence": {
+        "runtimeOwner": true,
+        "editorSurface": true,
+        "schemaMigration": true,
+        "diagnostics": true,
+        "testsValidation": true,
+        "docsAligned": true
+      }
+    }
+  ],
+  "templates": [
+    {
+      "id": "jrpg",
+      "status": "PARTIAL",
+      "requiredSubsystems": [
+        "ui_menu_core",
+        "message_text_core",
+        "battle_core",
+        "save_data_core"
+      ],
+      "bars": {
+        "accessibility": "PARTIAL",
+        "audio": "PARTIAL",
+        "input": "PARTIAL",
+        "localization": "PARTIAL",
+        "performance": "PARTIAL"
+      },
+      "safeScope": "Wave 1 native-first baseline with truthful residual gaps.",
+      "mainBlockers": [
+        "Battle and save closure remain open",
+        "Cross-cutting readiness bars are not complete"
+      ]
+    },
+    {
+      "id": "visual_novel",
+      "status": "PARTIAL",
+      "requiredSubsystems": [
+        "message_text_core",
+        "save_data_core"
+      ],
+      "bars": {
+        "accessibility": "PARTIAL",
+        "audio": "PARTIAL",
+        "input": "PARTIAL",
+        "localization": "PARTIAL",
+        "performance": "PARTIAL"
+      },
+      "safeScope": "Dialogue-heavy projects within current native message and save scope.",
+      "mainBlockers": [
+        "Template-grade governance is not complete"
+      ]
+    },
+    {
+      "id": "turn_based_rpg",
+      "status": "PARTIAL",
+      "requiredSubsystems": [
+        "message_text_core",
+        "battle_core",
+        "save_data_core"
+      ],
+      "bars": {
+        "accessibility": "PARTIAL",
+        "audio": "PARTIAL",
+        "input": "PARTIAL",
+        "localization": "PARTIAL",
+        "performance": "PARTIAL"
+      },
+      "safeScope": "A conservative turn-based template slice similar to jrpg without implying broader productization.",
+      "mainBlockers": [
+        "Cross-cutting readiness bars and dedicated template governance remain incomplete"
+      ]
+    },
+    {
+      "id": "tactics_rpg",
+      "status": "EXPERIMENTAL",
+      "requiredSubsystems": [
+        "battle_core",
+        "presentation_runtime",
+        "save_data_core"
+      ],
+      "bars": {
+        "accessibility": "PLANNED",
+        "audio": "PLANNED",
+        "input": "PARTIAL",
+        "localization": "PLANNED",
+        "performance": "PARTIAL"
+      },
+      "safeScope": "First-class tactics template lane with early implementation anchors in battle, presentation, and save systems.",
+      "mainBlockers": [
+        "Template-specific scenario authoring remains missing",
+        "Cross-cutting readiness bars are not complete"
+      ]
+    },
+    {
+      "id": "arpg",
+      "status": "EXPERIMENTAL",
+      "requiredSubsystems": [
+        "presentation_runtime",
+        "save_data_core"
+      ],
+      "bars": {
+        "accessibility": "PLANNED",
+        "audio": "PLANNED",
+        "input": "PARTIAL",
+        "localization": "PLANNED",
+        "performance": "PARTIAL"
+      },
+      "safeScope": "First-class action-RPG template lane with early implementation anchors in presentation and save systems.",
+      "mainBlockers": [
+        "Template-specific closure visibility remains missing"
+      ]
+    },
+    {
+      "id": "monster_collector_rpg",
+      "status": "PLANNED",
+      "requiredSubsystems": [
+        "ui_menu_core",
+        "message_text_core",
+        "battle_core",
+        "save_data_core",
+        "gameplay_ability_framework"
+      ],
+      "bars": {
+        "accessibility": "PARTIAL",
+        "audio": "PARTIAL",
+        "input": "PARTIAL",
+        "localization": "PARTIAL",
+        "performance": "PARTIAL"
+      },
+      "safeScope": "Exploration of collection-driven combat and party assembly using landed Wave 1 + ability framework.",
+      "mainBlockers": [
+        "Dedicated collection schema, capture mechanics, and template-grade governance remain future work"
+      ]
+    },
+    {
+      "id": "cozy_life_rpg",
+      "status": "PLANNED",
+      "requiredSubsystems": [
+        "ui_menu_core",
+        "message_text_core",
+        "save_data_core"
+      ],
+      "bars": {
+        "accessibility": "PARTIAL",
+        "audio": "PARTIAL",
+        "input": "PARTIAL",
+        "localization": "PARTIAL",
+        "performance": "PARTIAL"
+      },
+      "safeScope": "Dialogue-heavy life-sim exploration within current message/save/menu scope.",
+      "mainBlockers": [
+        "Scheduling system, social relationship mechanics, and crafting/economy lanes remain future work"
+      ]
+    },
+    {
+      "id": "metroidvania_lite",
+      "status": "PLANNED",
+      "requiredSubsystems": [
+        "presentation_runtime",
+        "save_data_core",
+        "gameplay_ability_framework"
+      ],
+      "bars": {
+        "accessibility": "PLANNED",
+        "audio": "PLANNED",
+        "input": "PARTIAL",
+        "localization": "PLANNED",
+        "performance": "PARTIAL"
+      },
+      "safeScope": "2D action exploration using presentation runtime and ability framework.",
+      "mainBlockers": [
+        "Traversal mechanics (dash, wall-jump), map unlock system, and ability-gated progression remain future work"
+      ]
+    },
+    {
+      "id": "2_5d_rpg",
+      "status": "PLANNED",
+      "requiredSubsystems": [
+        "presentation_runtime",
+        "save_data_core"
+      ],
+      "bars": {
+        "accessibility": "PLANNED",
+        "audio": "PLANNED",
+        "input": "PARTIAL",
+        "localization": "PLANNED",
+        "performance": "PARTIAL"
+      },
+      "safeScope": "Mandatory 2.5D template lane built around the raycast-capable presentation stack and save integration.",
+      "mainBlockers": [
+        "Raycast art pipeline, map authoring adapters at production grade, and template-specific export validation remain future work"
+      ]
+    }
+  ]
+}

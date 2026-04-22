@@ -1,8 +1,19 @@
 # Save / Data Core Native-First Spec
 
 Date: 2026-04-14
-Status: active implementation baseline (core slices landed; editor/schema/migration/release closure pending)
+Status: closure evidence and broader Wave 1 release proof recorded on 2026-04-20; Save/Data Wave 1 scope is complete
 Scope: runtime ownership, editor ownership, schema, migration, diagnostics, and test anchors for native Save/Data Core absorption
+
+## Last landed progress (2026-04-20)
+
+- Added native save importer/upgrader ownership in:
+  - `engine/core/save/save_migration.h`
+  - `engine/core/save/save_migration.cpp`
+- Save metadata migration now emits typed diagnostics plus JSONL export and preserves unmapped compat/plugin-header fields as `_compat_mapping_notes` instead of leaving those upgrade rules embedded only in generic migration-runner tests.
+- `tests/unit/test_save_runtime.cpp` now exercises imported metadata hydration through the native Save/Data migration owner.
+- validation anchors are active in:
+  - `tests/unit/test_save_migration.cpp`
+  - `tests/unit/test_save_runtime.cpp`
 
 ## Last landed progress (2026-04-15)
 
@@ -15,6 +26,8 @@ Scope: runtime ownership, editor ownership, schema, migration, diagnostics, and 
   - imported metadata normalization through `MigrationRunner`
   - runtime hydration after migrated metadata
 - Save descriptor projection into inspector slot labels is active.
+- Save diagnostics/workspace export now also projects native autosave policy, retention limits, metadata-registry fields, slot descriptors, recovery diagnostics summaries, and serialization schema summaries alongside save slot rows.
+- Save workflow actions are now exposed at the diagnostics workspace layer for problem-slot filtering, autosave visibility toggling, slot selection, live save-policy drafting, deterministic policy validation, and policy apply-to-runtime flows, with selected-row export staying stable across runtime-backed refreshes and recovery-state/schema export remaining runtime-owned.
 - **AI-Ready Save Infrastructure landed (2026-04-16):**
   - `AISyncCoordinator` (cloud-service-backed AI history serialization; currently exercised via the in-memory stub path)
   - `CompressionLevel::Optimal` (incremental space-optimized history saving)
@@ -27,16 +40,48 @@ Scope: runtime ownership, editor ownership, schema, migration, diagnostics, and 
   - `tests/unit/test_save_serialization.cpp`
   - `tests/unit/test_save_state_sync.cpp`
 
-## Next steps
+## Closure evidence bundle
 
-- Complete native save catalog + serializer ownership closure beyond seeded slices.
-- Finalize schema contracts and importer/upgrader mapping for compat save metadata into native typed records.
-- Ship editor productization surfaces:
-  - save slot inspector
-  - save policy panel
-  - recovery diagnostics view
-  - serialization schema panel
-- Add native integration anchors for autosave policy, recovery escalation, and routed save-panel projection parity.
+### Runtime owner files
+
+- `engine/core/save/save_catalog.h`
+- `engine/core/save/save_catalog.cpp`
+- `engine/core/save/save_runtime.h`
+- `engine/core/save/save_runtime.cpp`
+- `engine/core/save/save_recovery.h`
+- `engine/core/save/save_recovery.cpp`
+- `engine/core/save/save_serialization_hub.h`
+- `engine/core/save/save_metadata_registry.h`
+- `engine/core/save/save_migration.h`
+- `engine/core/save/save_migration.cpp`
+
+### Editor owner files
+
+- `editor/save/save_inspector_model.h`
+- `editor/save/save_inspector_model.cpp`
+- `editor/save/save_inspector_panel.h`
+- `editor/save/save_inspector_panel.cpp`
+- `editor/diagnostics/diagnostics_workspace.cpp`
+
+### Schema and migration files
+
+- `content/schemas/save_policies.schema.json`
+- `content/schemas/save_slots.schema.json`
+- `content/schemas/save_metadata.schema.json`
+- `content/schemas/save_migrations.schema.json`
+- `engine/core/migrate/migration_runner.h`
+- `engine/core/migrate/migration_runner.cpp`
+- `engine/core/save/save_migration.h`
+- `engine/core/save/save_migration.cpp`
+
+### Latest deterministic test outputs
+
+- `.\build\Debug\urpg_tests.exe "[save][schema],[save][catalog],[save][runtime],[save][editor],[save][panel][integration],[save][metadata],[editor][diagnostics][integration][save_actions]" --reporter compact`
+  - `378 assertions / 25 test cases passed`
+- `.\build\Debug\urpg_integration_tests.exe "[integration][save]" --reporter compact`
+  - `10 assertions / 2 test cases passed`
+- `ctest --test-dir build -C Debug --output-on-failure -R "Save migration|Runtime save loader hydrates metadata after imported save migration|Migration runner upgrades imported save metadata into URPG runtime shape|MigrationWizard"`
+  - `42/42 tests passed`
 
 ## Purpose
 
@@ -124,13 +169,13 @@ Save / Data Core should ship with these editor owners:
 
 ### Required schemas
 
-- `save_policies.json`
+- `save_policies.schema.json`
   - autosave rules, retention policy, recovery preferences, and safe-mode defaults
-- `save_slots.json`
+- `save_slots.schema.json`
   - slot IDs, categories, presentation metadata, and reserved routes
-- `save_metadata_schema.json`
+- `save_metadata.schema.json`
   - typed metadata fields, extension mappings, migration notes, and validation rules
-- `save_migrations.json`
+- `save_migrations.schema.json`
   - version upgrade rules, recovery hints, and compatibility transforms
 
 ### Schema rules
@@ -210,6 +255,15 @@ The subsystem should inherit and later replace these evidence paths:
   - runtime loader, migrated metadata hydration, and recovery-tier contracts
 - `tests/unit/test_save_recovery.cpp`
   - recovery-path and malformed-save behavior
+- `tests/unit/test_save_schema_contracts.cpp`
+  - save schema contract file existence and required-root validation
+- `tests/unit/test_save_inspector_model.cpp`
+  - save inspector policy/metadata/descriptor/recovery/schema projection
+- `tests/unit/test_save_inspector_panel.cpp`
+  - save policy draft validation and apply-to-runtime coverage
+- `tests/unit/test_diagnostics_workspace.cpp`
+  - save diagnostics workspace export parity for policy, recovery, and schema state
+  - save workflow action parity, save policy authoring/apply parity, and selected-row export stability
 - future native tests should add:
   - save schema migration tests
   - recovery diagnostics snapshot tests

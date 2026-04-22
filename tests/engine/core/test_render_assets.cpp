@@ -1,5 +1,8 @@
 #include <catch2/catch_test_macros.hpp>
+#include <sstream>
+#include <iostream>
 #include "engine/core/render/render_layer.h"
+#include "engine/core/render/asset_loader.h"
 #include "engine/core/assets/texture_registry.h"
 #include "engine/core/scene/map_scene.h"
 
@@ -91,4 +94,24 @@ TEST_CASE("Texture Registry Persistence", "[assets][core]") {
     REQUIRE(cached != nullptr);
     REQUIRE(cached->width == 144);
     REQUIRE(cached->filePath == "img/characters/Hero.png");
+}
+
+TEST_CASE("AssetLoader caches missing texture failures to avoid repeated warning spam", "[assets][core][loader]") {
+    const std::string missingPath = "img/__missing__/asset_loader_negative_cache_once.png";
+
+    std::ostringstream captured;
+    auto* originalBuffer = std::cerr.rdbuf(captured.rdbuf());
+
+    auto firstLoad = AssetLoader::loadTexture(missingPath);
+    auto secondLoad = AssetLoader::loadTexture(missingPath);
+
+    std::cerr.rdbuf(originalBuffer);
+
+    REQUIRE(firstLoad == nullptr);
+    REQUIRE(secondLoad == nullptr);
+
+    const std::string output = captured.str();
+    const std::string needle = "[URPG][AssetLoader] Failed to load texture: " + missingPath;
+    REQUIRE(output.find(needle) != std::string::npos);
+    REQUIRE(output.find(needle, output.find(needle) + 1) == std::string::npos);
 }

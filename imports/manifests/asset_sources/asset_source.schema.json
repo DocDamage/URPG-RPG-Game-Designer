@@ -1,0 +1,103 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://urpg.local/schemas/intake/asset_source.schema.json",
+  "title": "URPG Asset Source Manifest",
+  "type": "object",
+  "required": [
+    "source_id",
+    "repo_name",
+    "source_url",
+    "capture_state",
+    "source_type",
+    "category_tags",
+    "intended_use",
+    "handling_path",
+    "legal_disposition",
+    "promotion_status"
+  ],
+  "properties": {
+    "source_id": {
+      "type": "string",
+      "pattern": "^SRC-[0-9]{3}$"
+    },
+    "repo_name": {
+      "type": "string",
+      "minLength": 1
+    },
+    "source_url": {
+      "type": "string",
+      "format": "uri"
+    },
+    "capture_state": {
+      "type": "string",
+      "enum": [
+        "cataloged_not_mirrored",
+        "mirrored",
+        "staged",
+        "normalized",
+        "discovery_only"
+      ]
+    },
+    "snapshot_commit": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "snapshot_date": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "format": "date"
+    },
+    "source_type": {
+      "type": "string",
+      "enum": [
+        "direct_asset_pack",
+        "discovery_index",
+        "utility_pack"
+      ]
+    },
+    "category_tags": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "intended_use": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1
+    },
+    "handling_path": {
+      "type": "string",
+      "enum": [
+        "direct_ingest_when_captured",
+        "discovery_backlog_only",
+        "reference_only"
+      ]
+    },
+    "legal_disposition": {
+      "type": "string"
+    },
+    "promotion_status": {
+      "type": "string",
+      "enum": [
+        "not_started",
+        "in_review",
+        "promotion_ready",
+        "promoted"
+      ]
+    },
+    "notes": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  },
+  "additionalProperties": false
+}

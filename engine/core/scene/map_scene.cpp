@@ -12,7 +12,6 @@ MapScene::MapScene(const std::string& mapId, int width, int height)
     : m_mapId(mapId), m_width(width), m_height(height) {
     m_tiles.resize(width * height, {0, true});
     m_renderer = std::make_unique<TilemapRenderer>(width, height);
-    m_audioCore = std::make_shared<urpg::audio::AudioCore>();
     
     // Initialize player movement component
     m_playerMovement.gridPos = {0, 0};
@@ -22,9 +21,37 @@ MapScene::MapScene(const std::string& mapId, int width, int height)
 }
 
 void MapScene::onUpdate(float deltaTime) {
+    // Keep RenderLayer in sync for scene/engine tests and headless render pipelines.
+    auto& layer = urpg::RenderLayer::getInstance();
+    layer.flush();
+
     // 0. Update message runner and UI components
     if (m_messageRunner.isActive()) {
-        // ...
+        const auto* page = m_messageRunner.currentPage();
+        if (page != nullptr) {
+            // Message window background
+            auto rectCmd = std::make_shared<urpg::RectCommand>();
+            rectCmd->x = 20.0f;
+            rectCmd->y = 280.0f;
+            rectCmd->w = 600.0f;
+            rectCmd->h = 120.0f;
+            rectCmd->r = 0.1f;
+            rectCmd->g = 0.1f;
+            rectCmd->b = 0.15f;
+            rectCmd->a = 0.9f;
+            rectCmd->zOrder = 50;
+            layer.submit(rectCmd);
+
+            // Message body text
+            auto textCmd = std::make_shared<urpg::TextCommand>();
+            textCmd->text = page->body;
+            textCmd->x = 40.0f;
+            textCmd->y = 300.0f;
+            textCmd->fontSize = 22;
+            textCmd->maxWidth = 560;
+            textCmd->zOrder = 51;
+            layer.submit(textCmd);
+        }
     }
     
     if (m_chatUI && m_isChatInputOpen) {
@@ -42,24 +69,13 @@ void MapScene::onUpdate(float deltaTime) {
         m_playerAnimator->update(deltaTime);
     }
 
-    // 3. Keep RenderLayer in sync for scene/engine tests and headless render pipelines.
-    auto& layer = urpg::RenderLayer::getInstance();
-    layer.flush();
+    // 3. Submit tile and player render commands
+    if (m_renderLayerDirty) {
+        rebuildTileRenderCache();
+    }
+    submitCachedTileCommands(layer);
 
     constexpr float kTileSize = 48.0f;
-    for (int y = 0; y < m_height; ++y) {
-        for (int x = 0; x < m_width; ++x) {
-            const auto& tile = m_tiles[static_cast<size_t>(y * m_width + x)];
-            auto tileCmd = std::make_shared<urpg::TileCommand>();
-            tileCmd->tilesetId = "default_tileset";
-            tileCmd->tileIndex = tile.tileId;
-            tileCmd->x = static_cast<float>(x) * kTileSize;
-            tileCmd->y = static_cast<float>(y) * kTileSize;
-            tileCmd->zOrder = 0;
-            layer.submit(tileCmd);
-        }
-    }
-
     float playerX = static_cast<float>(m_playerMovement.gridPos.x) * kTileSize;
     float playerY = static_cast<float>(m_playerMovement.gridPos.y) * kTileSize;
     if (m_playerMovement.isMoving) {
@@ -77,6 +93,34 @@ void MapScene::onUpdate(float deltaTime) {
     playerCmd->height = 48;
     playerCmd->zOrder = 1;
     layer.submit(playerCmd);
+}
+
+void MapScene::rebuildTileRenderCache() {
+    constexpr float kTileSize = 48.0f;
+
+    m_cachedTileCommands.clear();
+    m_cachedTileCommands.reserve(static_cast<size_t>(m_width * m_height));
+
+    for (int y = 0; y < m_height; ++y) {
+        for (int x = 0; x < m_width; ++x) {
+            const auto& tile = m_tiles[static_cast<size_t>(y * m_width + x)];
+            auto tileCmd = std::make_shared<urpg::TileCommand>();
+            tileCmd->tilesetId = "default_tileset";
+            tileCmd->tileIndex = tile.tileId;
+            tileCmd->x = static_cast<float>(x) * kTileSize;
+            tileCmd->y = static_cast<float>(y) * kTileSize;
+            tileCmd->zOrder = 0;
+            m_cachedTileCommands.push_back(tileCmd);
+        }
+    }
+
+    m_renderLayerDirty = false;
+}
+
+void MapScene::submitCachedTileCommands(urpg::RenderLayer& layer) const {
+    for (const auto& tileCmd : m_cachedTileCommands) {
+        layer.submit(tileCmd);
+    }
 }
 
 void MapScene::handleInput(const urpg::input::InputCore& input) {

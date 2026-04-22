@@ -3,8 +3,11 @@
 #include <cassert>
 #include "presentation_runtime.h"
 #include "map_scene_translator.h"
+#include "editor/spatial/elevation_brush_panel.h"
+#include "editor/spatial/prop_placement_panel.h"
 
 using namespace urpg::presentation;
+using namespace urpg::editor;
 
 /**
  * @brief Stress test for the Presentation Core logic.
@@ -53,6 +56,7 @@ void RunReleaseValidation() {
     size_t actorCommandCount = 0;
     size_t fogCommandCount = 0;
     size_t postFxCommandCount = 0;
+    size_t lightCommandCount = 0;
     for (const auto& cmd : intent.commands) {
         if (cmd.type == PresentationCommand::Type::DrawActor) {
             actorCommandCount++;
@@ -60,10 +64,15 @@ void RunReleaseValidation() {
             fogCommandCount++;
         } else if (cmd.type == PresentationCommand::Type::SetPostFX) {
             postFxCommandCount++;
+        } else if (cmd.type == PresentationCommand::Type::SetLight) {
+            lightCommandCount++;
         }
     }
 
     std::cout << "[CHECK] Actor Command Count: " << actorCommandCount << " (Expected: 100)" << std::endl;
+    std::cout << "[CHECK] Environment Command Envelope: fog=" << fogCommandCount
+              << ", postfx=" << postFxCommandCount
+              << ", lights=" << lightCommandCount << std::endl;
     assert(actorCommandCount == 100);
     assert(fogCommandCount <= 1);
     assert(postFxCommandCount <= 1);
@@ -87,6 +96,116 @@ void RunReleaseValidation() {
         }
     }
     std::cout << "[CHECK] Fallback Flattening (Tier 0): PASSED" << std::endl;
+
+    // 5. Battle Effect Cue Envelope Validation
+    PresentationContext battleContext;
+    battleContext.activeMode = PresentationMode::Spatial;
+    battleContext.activeTier = CapabilityTier::Tier1_Standard;
+    battleContext.battleState.battleArenaId = "validation_arena";
+    battleContext.battleState.participants.push_back({1, "1", 0, false, 1.0f});
+    battleContext.battleState.participants.push_back({2, "2", 0, true, 1.0f});
+
+    urpg::presentation::effects::EffectCue battleCue;
+    battleCue.frameTick = 0;
+    battleCue.kind = urpg::presentation::effects::EffectCueKind::Gameplay;
+    battleCue.anchorMode = urpg::presentation::effects::EffectAnchorMode::Target;
+    battleCue.sourceId = 1;
+    battleCue.ownerId = 2;
+    battleCue.overlayEmphasis = {1.0f};
+    battleCue.intensity = {1.5f};
+    battleContext.battleState.effectCues.push_back(battleCue);
+
+    PresentationAuthoringData battleData;
+    battleData.actorProfiles.push_back({"1", {0.5f, 0.0f}, {0.0f, 0.25f, 0.0f}, true, 0.0f});
+    battleData.actorProfiles.push_back({"2", {0.5f, 0.0f}, {0.0f, 0.50f, 0.0f}, true, 0.0f});
+    battleData.battleConfig.useDynamicCineCamera = true;
+    battleData.battleConfig.formation.type = BattleFormation::LayoutType::Staged;
+    battleData.battleConfig.formation.spreadWidth = 1.5f;
+    battleData.battleConfig.formation.depthSpacing = 2.0f;
+
+    PresentationFrameIntent battleIntent = runtime.BuildPresentationFrame(battleContext, battleData);
+
+    size_t worldEffectCommandCount = 0;
+    size_t overlayEffectCommandCount = 0;
+    for (const auto& cmd : battleIntent.commands) {
+        if (cmd.type == PresentationCommand::Type::DrawWorldEffect) {
+            worldEffectCommandCount++;
+        } else if (cmd.type == PresentationCommand::Type::DrawOverlayEffect) {
+            overlayEffectCommandCount++;
+        }
+    }
+
+    std::cout << "[CHECK] Battle Effect Command Sample Envelope: world=" << worldEffectCommandCount
+              << ", overlay=" << overlayEffectCommandCount << std::endl;
+    assert(worldEffectCommandCount >= 1);
+    assert(overlayEffectCommandCount >= 1);
+    assert(worldEffectCommandCount <= 16);
+    assert(overlayEffectCommandCount <= 16);
+
+    // 6. Spatial Authoring -> Runtime Consumption Validation
+    std::cout << "[INFO] Starting Spatial Authoring -> Runtime Consumption Validation..." << std::endl;
+    {
+        SpatialMapOverlay overlay;
+        overlay.mapId = "validation_village";
+        overlay.elevation.width = 8;
+        overlay.elevation.height = 8;
+        overlay.elevation.stepHeight = 0.5f;
+        overlay.elevation.levels.assign(64, 0);
+        overlay.fog.density = 0.1f;
+        overlay.postFX.exposure = 1.0f;
+
+        // Edit elevation via brush
+        ElevationBrushPanel brush;
+        brush.SetTarget(&overlay);
+        brush.SetBrushSize(1);
+        brush.ApplyBrush(4, 4, 4); // level 4 => 2.0 world units
+
+        assert(overlay.elevation.levels[4 * 8 + 4] == 4);
+        assert(overlay.elevation.GetWorldHeight(4, 4) == 2.0f);
+
+        // Place prop on the hill
+        PropPlacementPanel placement;
+        placement.SetTarget(&overlay);
+        const float hillHeight = overlay.elevation.GetWorldHeight(4, 4);
+        placement.AddProp("house_01", 4.5f, hillHeight, 4.5f);
+
+        assert(overlay.props.size() == 1);
+        assert(overlay.props[0].assetId == "house_01");
+        assert(overlay.props[0].posY == 2.0f);
+
+        // Feed into presentation runtime
+        PresentationAuthoringData spatialData;
+        spatialData.mapOverlays.push_back(overlay);
+        spatialData.actorProfiles.push_back({"hero", {0.5f, 0.0f}, {0.0f, 0.25f, 0.0f}, true, 0.0f});
+
+        PresentationContext spatialContext;
+        spatialContext.activeMode = PresentationMode::Spatial;
+        spatialContext.activeTier = CapabilityTier::Tier1_Standard;
+        spatialContext.mapState.mapId = "validation_village";
+        spatialContext.mapState.actors.push_back({1, "hero", 4.0f, 4.0f, false});
+
+        PresentationRuntime spatialRuntime;
+        PresentationFrameIntent spatialIntent = spatialRuntime.BuildPresentationFrame(spatialContext, spatialData);
+
+        bool foundActor = false;
+        bool foundProp = false;
+        for (const auto& cmd : spatialIntent.commands) {
+            if (cmd.type == PresentationCommand::Type::DrawActor && cmd.id == 1) {
+                foundActor = true;
+                // Actor on tile (4,4) with elevation level 4 => 2.0 world units + 0.25 anchor offset
+                assert(cmd.position.y == 2.25f);
+            }
+            if (cmd.type == PresentationCommand::Type::DrawProp && cmd.id == 1) {
+                foundProp = true;
+                assert(cmd.position.y == 2.0f);
+            }
+        }
+
+        assert(foundActor);
+        assert(foundProp);
+        assert(spatialIntent.activePasses.size() == 3);
+        std::cout << "[CHECK] Spatial Authoring -> Runtime Consumption: PASSED" << std::endl;
+    }
 
     std::cout << "[SUCCESS] Release Validation Suite: ALL TESTS PASSED" << std::endl;
 }

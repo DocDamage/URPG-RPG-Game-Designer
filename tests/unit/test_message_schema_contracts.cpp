@@ -79,3 +79,14 @@ TEST_CASE("Dialogue sequence schema includes native presentation enums", "[messa
     REQUIRE(enums[1] == "narration");
     REQUIRE(enums[2] == "system");
 }
+
+TEST_CASE("Dialogue sequence schema page definition includes default_choice_index and command", "[message][schema]") {
+    const auto root = sourceRootFromMacro();
+    REQUIRE_FALSE(root.empty());
+    const auto dialogue_schema_path = root / "content" / "schemas" / "dialogue_sequences.schema.json";
+    const auto dialogue_schema = LoadJson(dialogue_schema_path);
+
+    const auto page_properties = dialogue_schema["properties"]["sequences"]["items"]["properties"]["pages"]["items"]["properties"];
+    REQUIRE(page_properties.contains("default_choice_index"));
+    REQUIRE(page_properties.contains("command"));
+}

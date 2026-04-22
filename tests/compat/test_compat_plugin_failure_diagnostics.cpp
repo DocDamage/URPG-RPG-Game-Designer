@@ -277,17 +277,32 @@ TEST_CASE(
         "Missing dependencies for VisuStella_MainMenuCore_MZ_openMenu: VisuStella_CoreEngine_MZ"
     );
 
-    const auto diagnostics = parseJsonl(pm.exportFailureDiagnosticsJsonl());
-    REQUIRE_FALSE(diagnostics.empty());
-    const auto& row = diagnostics.back();
-    REQUIRE(row.value("operation", "") == "execute_command_dependency_missing");
-    REQUIRE(row.value("plugin", "") == "VisuStella_MainMenuCore_MZ");
-    REQUIRE(row.value("command", "") == "openMenu");
-    REQUIRE(row.value("severity", "") == "SOFT_FAIL");
+    const urpg::Value byNameResult = pm.executeCommandByName(
+        "VisuStella_MainMenuCore_MZ_openMenu",
+        {}
+    );
+    REQUIRE(std::holds_alternative<std::monostate>(byNameResult.v));
     REQUIRE(
-        row.value("message", "") ==
+        pm.getLastError() ==
         "Missing dependencies for VisuStella_MainMenuCore_MZ_openMenu: VisuStella_CoreEngine_MZ"
     );
+
+    const auto diagnostics = parseJsonl(pm.exportFailureDiagnosticsJsonl());
+    REQUIRE(diagnostics.size() >= 2);
+
+    const auto dependencyFailureCount = std::count_if(
+        diagnostics.begin(),
+        diagnostics.end(),
+        [](const auto& row) {
+            return row.value("operation", "") == "execute_command_dependency_missing" &&
+                   row.value("plugin", "") == "VisuStella_MainMenuCore_MZ" &&
+                   row.value("command", "") == "openMenu" &&
+                   row.value("severity", "") == "SOFT_FAIL" &&
+                   row.value("message", "") ==
+                       "Missing dependencies for VisuStella_MainMenuCore_MZ_openMenu: VisuStella_CoreEngine_MZ";
+        }
+    );
+    REQUIRE(dependencyFailureCount >= 2);
 
     pm.clearFailureDiagnostics();
     pm.unloadAllPlugins();

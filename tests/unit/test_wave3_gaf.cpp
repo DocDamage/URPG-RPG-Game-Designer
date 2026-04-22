@@ -24,31 +24,30 @@ TEST_CASE("Wave 3: Elemental Resistance and Weakness", "[combat][elemental]") {
 
 TEST_CASE("Wave 3: Gameplay Effect Stacking - Refresh and Stack", "[ability][asc]") {
     AbilitySystemComponent asc;
-    
+
     GameplayEffect haste;
     haste.id = "BUFF_HASTE";
     haste.duration = 5.0f;
     haste.stackingPolicy = GameplayEffectStackingPolicy::Refresh;
-    
+
     GameplayEffectModifier mod;
     mod.attributeName = "Speed";
     mod.value = 1.1f;
     mod.operation = ModifierOp::Multiply;
     haste.modifiers.push_back(mod);
 
-    SECTION("Refresh policy resets duration but doesn't stack effects") {
+    SECTION("Refresh policy resets duration without duplicating the effect") {
         asc.applyEffect(haste);
-        // Simulating some time passed (not direct, but just checking behavior)
-        asc.applyEffect(haste); 
-        
-        // Should still only have 1 active effect
-        // We'd need to expose m_activeEffects or check via getAttribute
-        // Since we can't see private members easily in tests without friend classes, 
-        // we'll check the attribute calculation.
-        
-        // Speed = 100 * 1.1 = 110.0
-        float val = asc.getAttribute("Speed", 100.0f);
-        REQUIRE(val == 110.0f);
+        asc.update(3.0f);
+        asc.applyEffect(haste);
+        asc.update(3.0f);
+
+        REQUIRE(asc.getActiveEffectCount() == 1);
+        REQUIRE(asc.getAttribute("Speed", 100.0f) == 110.0f);
+
+        asc.update(2.1f);
+        REQUIRE(asc.getActiveEffectCount() == 0);
+        REQUIRE(asc.getAttribute("Speed", 100.0f) == 100.0f);
     }
 
     SECTION("Stack policy increases modifier strength") {
@@ -94,14 +93,19 @@ TEST_CASE("Wave 3: Ability Cooldown and Cost", "[ability][asc]") {
     ability.mpCost = 10.0f;
 
     SECTION("Ability cannot activate without enough MP") {
-        // Default MP is 9999 in our stub getAttribute("MP", 9999.0f)
-        // But let's check what happens if we could set it
-        // Since modifyAttribute is currently a stub, we'll verify the flow
-        REQUIRE(ability.canActivate(asc));
+        asc.setAttribute("MP", 5.0f);
+
+        const auto check = ability.evaluateActivation(asc);
+        REQUIRE_FALSE(check.allowed);
+        REQUIRE(check.reason == "insufficient_mp");
+        REQUIRE(check.current_mp == 5.0f);
     }
 
-    SECTION("Ability starts cooldown on commit") {
+    SECTION("Ability commit deducts MP and starts cooldown") {
+        asc.setAttribute("MP", 25.0f);
+
         ability.activate(asc);
+        REQUIRE(asc.getAttribute("MP", 0.0f) == 15.0f);
         REQUIRE(asc.getCooldownRemaining("FIREBALL") == 2.0f);
         REQUIRE_FALSE(ability.canActivate(asc));
 

@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="17.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <CustomBuild Include="C:\Users\dferr\dev\URPG - RPG Game Maker\build-local\_deps\sdl2-subbuild\CMakeFiles\9e88324f6b2c95384ded212faa55923e\generate.stamp.rule">
+      <Filter>CMake Rules</Filter>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="CMake Rules">
+      <UniqueIdentifier>{FBF95F5A-2B8E-3B09-98E4-EB3E2F49106F}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

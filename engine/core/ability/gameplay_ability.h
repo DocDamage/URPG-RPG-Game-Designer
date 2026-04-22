@@ -18,6 +18,13 @@ class AbilitySystemComponent;
  */
 class GameplayAbility {
 public:
+    struct ActivationCheckResult {
+        bool allowed = true;
+        std::string reason;
+        float cooldown_remaining = 0.0f;
+        float current_mp = 0.0f;
+    };
+
     struct ActivationInfo {
         GameplayTagContainer requiredTags;    // Must have these to activate
         GameplayTagContainer blockingTags;    // Cannot have these to activate
@@ -41,6 +48,7 @@ public:
      * @brief High-level check for activation feasibility.
      */
     virtual bool canActivate(const AbilitySystemComponent& source) const;
+    virtual ActivationCheckResult evaluateActivation(const AbilitySystemComponent& source) const;
 
     /**
      * @brief Execution logic for the ability.
@@ -92,6 +100,10 @@ public:
     virtual const GameplayTagContainer& getActiveTags() const { return m_activeTags; }
 
 protected:
+    float resolveCooldownSeconds() const;
+    float resolveMpCost() const;
+    const std::string& resolveActiveCondition() const;
+
     GameplayTagContainer m_activeTags;
     std::vector<std::shared_ptr<AbilityTask>> m_activeTasks;
 };

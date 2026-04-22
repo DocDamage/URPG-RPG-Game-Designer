@@ -1,0 +1,101 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://urpg.dev/schemas/save_metadata.schema.json",
+  "title": "URPG Save Metadata Schema",
+  "description": "Typed native metadata contract for save slot summaries and recovery presentation.",
+  "type": "object",
+  "required": [
+    "_urpg_format_version",
+    "slot_id",
+    "slot_category",
+    "retention_class",
+    "flags"
+  ],
+  "properties": {
+    "_urpg_format_version": {
+      "type": "string"
+    },
+    "slot_id": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "slot_category": {
+      "type": "string",
+      "enum": [
+        "autosave",
+        "quicksave",
+        "manual"
+      ]
+    },
+    "retention_class": {
+      "type": "string",
+      "enum": [
+        "autosave",
+        "quicksave",
+        "manual"
+      ]
+    },
+    "save_version": {
+      "type": "string"
+    },
+    "timestamp": {
+      "type": "string"
+    },
+    "playtime_seconds": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "thumbnail_hash": {
+      "type": "string"
+    },
+    "map_display_name": {
+      "type": "string"
+    },
+    "data_blob_path": {
+      "type": "string"
+    },
+    "flags": {
+      "type": "object",
+      "properties": {
+        "autosave": {
+          "type": "boolean",
+          "default": false
+        },
+        "copilot_generated": {
+          "type": "boolean",
+          "default": false
+        },
+        "corrupted": {
+          "type": "boolean",
+          "default": false
+        }
+      }
+    },
+    "party_snapshot": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "level": {
+            "type": "integer"
+          },
+          "hp": {
+            "type": "integer"
+          },
+          "max_hp": {
+            "type": "integer"
+          }
+        }
+      }
+    },
+    "custom_metadata": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "string"
+      }
+    }
+  }
+}

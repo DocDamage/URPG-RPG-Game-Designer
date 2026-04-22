@@ -1,10 +1,13 @@
 #pragma once
 
 #include "scene_manager.h"
+#include "engine/core/battle/battle_core.h"
 #include "engine/core/math/vector2.h"
+#include "engine/core/presentation/effects/effect_cue.h"
 #include "engine/core/ui/ui_window.h"
 #include "engine/core/ui/ui_command_list.h"
 #include "engine/core/render/sprite_animator.h"
+#include <optional>
 #include <vector>
 #include <string>
 #include <memory>
@@ -44,6 +47,13 @@ enum class BattlePhase {
     DEFEAT
 };
 
+struct BattleDiagnosticsPreview {
+    urpg::battle::BattleDamageContext physical_preview;
+    urpg::battle::BattleDamageContext magical_preview;
+    int32_t party_agi = 0;
+    int32_t troop_agi = 0;
+};
+
 /**
  * @brief Native authority for the Battle flow and participant state.
  */
@@ -59,7 +69,7 @@ public:
     void draw(urpg::SpriteBatcher& batcher) override;
 
     BattlePhase getCurrentPhase() const { return m_currentPhase; }
-    void setPhase(BattlePhase phase) { m_currentPhase = phase; }
+    void setPhase(BattlePhase phase);
 
     int getTurnCount() const { return m_turnCount; }
     void nextTurn() { m_turnCount++; }
@@ -111,9 +121,18 @@ protected:
 public:
     // Testing access
     const std::vector<BattleParticipant>& getParticipants() const { return m_participants; }
-    void addActionToQueue(const BattleAction& action) { m_actionQueue.push_back(action); }
+    void addActionToQueue(const BattleAction& action);
+    urpg::battle::BattleFlowController& flowController() { return m_flowController; }
+    const urpg::battle::BattleFlowController& flowController() const { return m_flowController; }
+    urpg::battle::BattleActionQueue& nativeActionQueue() { return m_nativeActionQueue; }
+    const urpg::battle::BattleActionQueue& nativeActionQueue() const { return m_nativeActionQueue; }
+    void enqueueEffectCue(const urpg::presentation::effects::EffectCue& cue);
+    const std::vector<urpg::presentation::effects::EffectCue>& effectCues() const { return m_effectCues; }
+    void clearEffectCues() { m_effectCues.clear(); }
+    std::optional<BattleDiagnosticsPreview> buildDiagnosticsPreview() const;
 
 private:
+    urpg::battle::BattleQueuedAction makeQueuedAction(const BattleAction& action) const;
     std::vector<std::string> m_enemyIds;
     BattlePhase m_currentPhase;
     int m_turnCount = 0;
@@ -126,6 +145,10 @@ private:
 
     std::vector<BattleParticipant> m_participants;
     std::vector<BattleAction> m_actionQueue;
+    urpg::battle::BattleFlowController m_flowController;
+    urpg::battle::BattleActionQueue m_nativeActionQueue;
+    uint32_t m_effectSequence = 0;
+    std::vector<urpg::presentation::effects::EffectCue> m_effectCues;
 
     // Background
     std::shared_ptr<urpg::Texture> m_backgroundTexture;
