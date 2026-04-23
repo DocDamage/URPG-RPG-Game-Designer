@@ -208,9 +208,20 @@ class CommandEmbeddingAdapter(EmbeddingAdapter):
         if isinstance(status, dict):
             self._runtime_metadata = status
 
+    @staticmethod
+    def _raise_if_error(payload: dict) -> None:
+        error = payload.get("error")
+        if isinstance(error, dict):
+            message = str(error.get("message", "Embedding adapter returned an unspecified error."))
+            code = error.get("code")
+            if code:
+                raise RuntimeError(f"{code}: {message}")
+            raise RuntimeError(message)
+
     def embed_text(self, text: str) -> list[float]:
         payload = self._request({"text": text, "dimension": self._dimension})
         self._update_runtime_metadata_from_payload(payload)
+        self._raise_if_error(payload)
         vector = payload.get("embedding", [])
         if len(vector) != self._dimension:
             raise RuntimeError(
@@ -221,6 +232,7 @@ class CommandEmbeddingAdapter(EmbeddingAdapter):
     def embed_texts(self, texts: list[str]) -> list[list[float]]:
         payload = self._request({"texts": texts, "dimension": self._dimension})
         self._update_runtime_metadata_from_payload(payload)
+        self._raise_if_error(payload)
         embeddings = payload.get("embeddings", [])
         if len(embeddings) != len(texts):
             raise RuntimeError(
@@ -241,10 +253,12 @@ class CommandEmbeddingAdapter(EmbeddingAdapter):
             if include_cache_stats:
                 payload = self._request({"control": "status", "include_cache_stats": True})
                 self._update_runtime_metadata_from_payload(payload)
+                self._raise_if_error(payload)
             return self._runtime_metadata
 
         payload = self._request({"control": "status", "include_cache_stats": include_cache_stats})
         self._update_runtime_metadata_from_payload(payload)
+        self._raise_if_error(payload)
         return self._runtime_metadata
 
     def close(self) -> None:

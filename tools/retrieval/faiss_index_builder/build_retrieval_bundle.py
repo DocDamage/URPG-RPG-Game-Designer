@@ -1,8 +1,40 @@
 #!/usr/bin/env python3
 """Build a retrieval bundle from a chunk manifest.
 
-This currently produces a deterministic JSON bundle with lightweight hashed
-embeddings, while keeping the format ready for a later FAISS-backed build step.
+This script is the first concrete builder stage for retrieval bundles and exercises
+pluggable embedding backends through the command adapter when needed.
+
+Common adapter usage:
+
+```sh
+# Default local backend (no command wiring needed)
+python tools/retrieval/faiss_index_builder/build_retrieval_bundle.py \
+  --manifest path/to/chunk_manifest.json \
+  --output path/to/retrieval_bundle.json \
+  --adapter local_ngram_projection
+
+# Optional model-backed backend (enable when sentence-transformers is installed)
+python tools/retrieval/faiss_index_builder/build_retrieval_bundle.py \
+  --manifest path/to/chunk_manifest.json \
+  --output path/to/retrieval_bundle.json \
+  --adapter optional_sentence_transformer
+
+# Advanced: custom backend command path (explicit)
+python tools/retrieval/faiss_index_builder/build_retrieval_bundle.py \
+  --manifest path/to/chunk_manifest.json \
+  --output path/to/retrieval_bundle.json \
+  --adapter command_adapter \
+  --adapter-command "python tools/retrieval/embedding_jobs/external_embedding_adapter.py --backend builtin_hashed --serve"
+
+# Fallback path for quick smoke validation or CI
+python tools/retrieval/faiss_index_builder/build_retrieval_bundle.py \
+  --manifest path/to/chunk_manifest.json \
+  --output path/to/retrieval_bundle.json \
+  --adapter builtin_hashed
+```
+
+The bundle format stays stable across backends; only the adapter metadata and
+status contract change internally.
 """
 
 from __future__ import annotations
@@ -23,6 +55,32 @@ from tools.retrieval.shared.retrieval_index import (
     normalize_command_adapter_args,
     write_json,
 )
+
+
+def build_default_adapter_command(adapter_id: str) -> list[str]:
+    return [
+        sys.executable,
+        str(REPO_ROOT / "tools" / "retrieval" / "embedding_jobs" / "external_embedding_adapter.py"),
+        "--backend",
+        adapter_id,
+        "--serve",
+    ]
+
+
+def resolve_adapter(adapter_id: str, command: list[str] | None) -> tuple[str, list[str] | None]:
+    adapter_id = adapter_id.strip().lower()
+    if adapter_id in {"local_ngram_projection", "optional_sentence_transformer"}:
+        return "command_adapter", command or build_default_adapter_command(adapter_id)
+
+    if adapter_id == "command_adapter":
+        if not command:
+            raise ValueError("--adapter-command is required when adapter is command_adapter.")
+        return adapter_id, command
+
+    if adapter_id == "builtin_hashed":
+        return adapter_id, None
+
+    raise ValueError(f"Unsupported adapter_id: {adapter_id}")
 
 
 def batched_texts(texts: list[str], batch_size: int) -> list[list[str]]:
@@ -81,7 +139,14 @@ def main() -> int:
     parser.add_argument("--manifest", required=True, help="Path to the retrieval chunk manifest.")
     parser.add_argument("--output", required=True, help="Path to the output retrieval bundle.")
     parser.add_argument("--dimension", type=int, default=DEFAULT_DIMENSION)
-    parser.add_argument("--adapter", default="builtin_hashed", help="Embedding adapter id.")
+    parser.add_argument(
+        "--adapter",
+        default="local_ngram_projection",
+        help=(
+            "Embedding adapter id. Supported: builtin_hashed, local_ngram_projection, "
+            "optional_sentence_transformer, command_adapter."
+        ),
+    )
     parser.add_argument(
         "--adapter-batch-size",
         type=int,
@@ -104,14 +169,15 @@ def main() -> int:
     manifest_path = Path(args.manifest).resolve()
     output_path = Path(args.output).resolve()
     manifest = load_json(manifest_path)
+    adapter_id, command = resolve_adapter(
+        args.adapter,
+        normalize_command_adapter_args(build_command_adapter_args(args.adapter_command_arg or args.adapter_command), REPO_ROOT),
+    )
     bundle = build_bundle(
         manifest,
-        adapter_id=args.adapter,
+        adapter_id=adapter_id,
         dimension=args.dimension,
-        command=normalize_command_adapter_args(
-            build_command_adapter_args(args.adapter_command_arg or args.adapter_command),
-            REPO_ROOT,
-        ),
+        command=command,
         adapter_batch_size=args.adapter_batch_size,
     )
     write_json(output_path, bundle)

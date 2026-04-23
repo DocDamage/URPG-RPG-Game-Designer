@@ -703,6 +703,21 @@ catch_discover_tests(
     PROPERTIES LABELS "weekly"
 )
 
+find_package(Python3 QUIET COMPONENTS Interpreter)
+if(Python3_FOUND)
+    add_test(
+        NAME urpg_retrieval_adapter_resolution_test
+        COMMAND ${Python3_EXECUTABLE} tools/retrieval/tests/test_build_retrieval_bundle.py
+        WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+    )
+    set_tests_properties(
+        urpg_retrieval_adapter_resolution_test
+        PROPERTIES LABELS "pr"
+    )
+else()
+    message(STATUS "Skipping urpg_retrieval_adapter_resolution_test because Python3 interpreter was not found.")
+endif()
+
 add_test(
     NAME urpg_presentation_release_validation
     COMMAND urpg_presentation_release_validation

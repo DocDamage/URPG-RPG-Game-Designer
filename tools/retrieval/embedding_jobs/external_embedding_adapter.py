@@ -2,8 +2,9 @@
 """External command embedding adapter.
 
 This script defines the stable stdin/stdout JSON contract used by the
-`command_adapter` retrieval path. It currently uses the same deterministic
-hashed embedding strategy as the in-process fallback, but runs in a separate
+`command_adapter` retrieval path. It currently supports pluggable local
+backends (including a projection-backed local path and deterministic built-in
+fallback), and optional model-backed execution, while running in a separate
 process so local model runners can replace it later without changing bundle or
 query contracts.
 """
@@ -11,6 +12,7 @@ query contracts.
 from __future__ import annotations
 
 import argparse
+import importlib
 import json
 from pathlib import Path
 import sys
@@ -38,6 +40,9 @@ class EmbeddingBackend:
 
     def cache_stats(self) -> dict:
         raise NotImplementedError
+
+    def availability_error(self) -> dict | None:
+        return None
 
 
 @dataclass
@@ -168,11 +173,102 @@ class LocalNgramProjectionBackend(EmbeddingBackend):
         }
 
 
+@dataclass
+class OptionalSentenceTransformerBackend(EmbeddingBackend):
+    model_name: str = "sentence-transformers/all-MiniLM-L6-v2"
+    _cache: dict[tuple[int, str], list[float]] = field(default_factory=dict)
+    _hits: int = 0
+    _misses: int = 0
+    _model: object | None = None
+    _availability_error: dict | None = None
+
+    def __post_init__(self) -> None:
+        try:
+            sentence_transformers = importlib.import_module("sentence_transformers")
+            self._model = sentence_transformers.SentenceTransformer(self.model_name)
+        except Exception as exc:
+            self._availability_error = {
+                "code": "backend_unavailable",
+                "message": (
+                    "Optional sentence-transformers backend is unavailable. "
+                    "Install `sentence-transformers` in the offline tooling environment to activate it."
+                ),
+                "details": {
+                    "exception_type": type(exc).__name__,
+                    "exception": str(exc),
+                    "missing_dependency": "sentence-transformers",
+                },
+            }
+
+    def availability_error(self) -> dict | None:
+        return self._availability_error
+
+    def embed_texts(self, texts: list[str], dimension: int) -> list[list[float]]:
+        if self._availability_error is not None or self._model is None:
+            raise RuntimeError(self._availability_error["message"] if self._availability_error else "Backend unavailable.")
+
+        vectors: list[list[float]] = []
+        uncached: list[str] = []
+        uncached_indices: list[int] = []
+
+        for index, text in enumerate(texts):
+            key = (dimension, text)
+            if key in self._cache:
+                self._hits += 1
+                vectors.append(self._cache[key])
+            else:
+                self._misses += 1
+                vectors.append([])
+                uncached.append(text)
+                uncached_indices.append(index)
+
+        if uncached:
+            encoded = self._model.encode(uncached, normalize_embeddings=True)
+            for target_index, text, vector in zip(uncached_indices, uncached, encoded):
+                normalized = [float(value) for value in list(vector)[:dimension]]
+                if len(normalized) < dimension:
+                    normalized.extend([0.0] * (dimension - len(normalized)))
+                key = (dimension, text)
+                self._cache[key] = normalized
+                vectors[target_index] = normalized
+
+        return vectors
+
+    def backend_info(self) -> dict:
+        return {
+            "backend_id": "optional_sentence_transformer",
+            "backend_version": "1.0",
+            "model_name": self.model_name,
+        }
+
+    def health_report(self) -> dict:
+        if self._availability_error is not None:
+            return {
+                "ok": False,
+                "status": "degraded",
+                "reason": self._availability_error["message"],
+            }
+        return {
+            "ok": True,
+            "status": "ready",
+        }
+
+    def cache_stats(self) -> dict:
+        return {
+            "enabled": True,
+            "entries": len(self._cache),
+            "hits": self._hits,
+            "misses": self._misses,
+        }
+
+
 def create_backend(backend_id: str) -> EmbeddingBackend:
     if backend_id == "builtin_hashed":
         return BuiltinHashedBackend()
     if backend_id == "local_ngram_projection":
         return LocalNgramProjectionBackend()
+    if backend_id == "optional_sentence_transformer":
+        return OptionalSentenceTransformerBackend()
     raise ValueError(f"Unsupported backend_id: {backend_id}")
 
 
@@ -188,12 +284,23 @@ def build_status(backend: EmbeddingBackend, include_cache_stats: bool) -> dict:
 
 def build_response(payload: dict, backend: EmbeddingBackend) -> dict:
     if payload.get("control") == "status":
-        return {
+        response = {
             "status": build_status(backend, include_cache_stats=bool(payload.get("include_cache_stats", False))),
             "adapter_id": "command_adapter",
         }
+        error = backend.availability_error()
+        if error is not None:
+            response["error"] = error
+        return response
 
     dimension = int(payload.get("dimension", DEFAULT_DIMENSION))
+    availability_error = backend.availability_error()
+    if availability_error is not None:
+        return {
+            "adapter_id": "command_adapter",
+            "status": build_status(backend, include_cache_stats=False),
+            "error": availability_error,
+        }
     if "texts" in payload:
         texts = [str(text) for text in payload.get("texts", [])]
         return {

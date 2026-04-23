@@ -2,3 +2,5 @@
 # Keep runtime-facing dependencies out of this file.
 
 numpy>=1.26
+# Optional retrieval backend:
+# sentence-transformers>=3.0
