@@ -2,206 +2,271 @@
 
 ## Purpose
 
-The remaining work is not just closure cleanup; it is product-grade completion work that must prove runtime capability and WYSIWYG usability together.
+The previous roadmap missed at least three categories that matter for 100% completion:
+- `PARTIAL` systems that are blocked by explicit human-review gates.
+- Template bar closure work (including WYSIWYG bar-level evidence).
+- Long-tail productization and tooling boundary risks that were not represented as first-class slices.
 
-This roadmap maps all non-trivial remaining gaps into bounded sprints with explicit checkboxes and acceptance criteria so progress is executable and reviewable lane-by-lane.
+This revised roadmap maps all non-ready work from `content/readiness/readiness_status.json` into executable sprints with explicit checkboxes and exit criteria.
+
+### Validation pass performed
+
+- `content/readiness/readiness_status.json` was re-read and every non-`READY` subsystem/template is represented.
+- All listed `mainGaps`/`mainBlockers` have corresponding tickets in this roadmap.
 
 ## Scope and Constraints
 
-- Scope is the entire remaining work shown in `content/readiness/readiness_status.json` and the active canonical planning artifacts.
-- A feature is not complete until both these are true:
-  - Runtime path is implemented and exercised by tests.
-  - Editor + diagnostics + import/export surfaces exist for creator usage.
-- Offline ML/research tooling remains in `tools/` and must emit stable artifacts; no new heavy runtime dependency creep.
-- Branches should remain PR-friendly with focused ticket-by-ticket progression and minimal blast radius.
+- Scope is the entire remaining work shown in `content/readiness/readiness_status.json` and the canonical planning docs.
+- A feature is complete only when runtime + editor + diagnostics + migration/audit pathways are productized.
+- Offline ML/research tooling remains in `tools/` and must emit deterministic exported artifacts; no stealth runtime dependency growth.
+- Maintain PR-friendly blast radius and clear ticket-by-ticket traceability.
 
-## Shared Definition of Done (applies every sprint)
+## Shared Definition of Done (per sprint)
 
 - [ ] Required artifacts exist and are committed.
-- [ ] Unit/integration (or compat) coverage proves the new behavior.
-- [ ] Gates in `docs/superpowers/plans` for that sprint executed locally.
-- [ ] `PROJECT_AUDIT.md` / `content/readiness/readiness_status.json` / canonical matrices are reconciled to actual code evidence.
-- [ ] PR-lane evidence command list runs without expected deltas.
-- [ ] Residual gaps are documented in `mainGaps` where any partial remains.
+- [ ] Unit/integration (or compat) coverage proves behavior.
+- [ ] Sprint-specific gates execute locally.
+- [ ] `PROJECT_AUDIT.md` / `content/readiness/readiness_status.json` / canonical matrices align with code evidence.
+- [ ] PR-lane evidence command list runs with expected results.
+- [ ] Explicit residuals remain in `mainGaps`/`mainBlockers` where scope is intentionally deferred.
+- [ ] Human-review conditions are logged as review artifacts, never implied.
 
 ## Sprint Strategy
 
-- S23 covers the largest production risk and should be completed before opening S27 or S30 lanes.
-- S24 and S25 can run in parallel once S23 has started, but S24 should not close without readiness/diagnostics reconciliation from S25.
-- S26 is ongoing maintenance and should run continuously once every sprint starts.
-- S28, S29, S30, and S31 are template/feature expansion and should be run as bounded slices with strict release-gate hooks.
+- S23 is the foundation lane and should start first.
+- S24 and S25 can run in parallel once S23 starts.
+- S26 is continuous maintenance and must not pause.
+- S27, S28, and S29 are high-value execution lanes.
+- S30 and S31 are controlled expansion lanes and open after governance (S25) is stable.
+- S32 and S33 are mandatory enablers:
+  - human-review closure,
+  - tooling + evidence-boundary hardening.
 
 ## S23 — Presentation Runtime Productization (critical-path)
 
 ### Objective
-Deliver real presentation runtime ownership beyond mock-backed behavior and register it as real, observable, and reload-capable.
+Deliver a real presentation runtime path (not mock-backed) with reload and scene-level reliability.
 
 ### Tickets
-- [ ] S23-T01 Replace mock-backed presentation backend wiring with real runtime integration points.
-- [ ] S23-T02 Enable real `ProfileArena` hot-reload across startup and project reload paths.
-- [ ] S23-T03 Close schema migration and compatibility mapping for presentation-owned payloads.
-- [ ] S23-T04 Expand scene-level command coverage for Map/Battle/Chat/Status UI render commands.
-- [ ] S23-T05 Remove or explicitly gate remaining partial claims in docs and readiness records.
-- [ ] S23-T06 Add regression tests proving command stream determinism under presentation hot-rereload.
+- [ ] S23-T01 Replace mock-backed presentation backend behavior with real renderer-backed integration in production path.
+- [ ] S23-T02 Implement and register real `ProfileArena` hot-reload flow.
+- [ ] S23-T03 Close presentation schema/migration mapping gaps with proof fixtures.
+- [ ] S23-T04 Expand scene render-command coverage (Map/Battle/Chat/Status/UI).
+- [ ] S23-T05 Update readiness/docs wording to remove or gate claims that exceed evidence.
+- [ ] S23-T06 Add deterministic tests for command stream replay after reload.
 
 ### Exit Criteria
-- [ ] A bounded scene can render through the real presentation pipeline without mock seam fallback.
-- [ ] Profile arena reload emits stable diagnostics and does not leak resources.
-- [ ] `presentation_runtime` `mainGaps` reduced to only explicitly accepted future work, if any.
-- [ ] `visual_regression_harness` receives at least one new full-scene golden tied to the live presentation path.
+- [ ] Non-mock presentation path renders scene output end-to-end.
+- [ ] Hot-reload does not leak profile resources.
+- [ ] `presentation_runtime` `mainGaps` contains only intentionally deferred items.
+- [ ] `visual_regression_harness` adds at least one full-scene golden tied to live presentation output.
+- [ ] `test_spatial_editor.cpp` and `test_presentation_runtime.cpp` include reload + scene command assertions.
 
 ## S24 — Gameplay Ability Integration and Migration Truth
 
 ### Objective
-Complete the gameplay ability framework as a real part of core gameplay flow, not only diagnostics and structure.
+Complete gameplay ability framework from editor/runtime diagnostics into real command execution.
 
 ### Tickets
-- [ ] S24-T01 Finalize compatibility-to-native schema contract for ability JSON.
-- [ ] S24-T02 Implement compat migration mapping for unsupported/partial ability fields with preserved fallback payloads.
-- [ ] S24-T03 Integrate ability command queue with BattleScene and MapScene execution path.
-- [ ] S24-T04 Implement deterministic state-machine driven execution with real event outcomes.
-- [ ] S24-T05 Add diagnostics/telemetry for blocked vs executed ability transitions.
-- [ ] S24-T06 Update docs and readiness artifacts to remove inflated support language.
+- [ ] S24-T01 Finalize compat-to-native ability schema mapping.
+- [ ] S24-T02 Preserve unsupported fields with deterministic fallback payloads.
+- [ ] S24-T03 Integrate ability command queue into BattleScene/MapScene execution.
+- [ ] S24-T04 Add deterministic state-machine execution outcomes + diagnostics.
+- [ ] S24-T05 Add migration/compatibility tests for supported and fallback branches.
+- [ ] S24-T06 Reconcile all public claims in readiness/status docs.
 
 ### Exit Criteria
-- [ ] `gameplay_ability_framework` no longer relies on passive placeholders for core flow.
-- [ ] Ability execution can be authored, tested, and previewed in editor workflows.
-- [ ] Regressions lock migration and execution parity for supported ability payloads.
+- [ ] Ability runtime is no longer diagnostics-only in game flow paths.
+- [ ] Ability queue executes with deterministic authoring→runtime behavior.
+- [ ] `gameplay_ability_framework` residuals are intentional and documented.
 
 ## S25 — Governance Foundation Completion
 
 ### Objective
-Finish governance enforcement so status, docs, audit, and runtime evidence cannot drift silently.
+Prevent evidence/documentation/runtime drift and enforce artifact truth automatically.
 
 ### Tickets
-- [ ] S25-T01 Complete diagnostics export parity across CLI and UI for all governance sections.
-- [ ] S25-T02 Enforce release-signoff workflow in PR gates (artifact presence + status-date validation).
-- [ ] S25-T03 Close remaining release-readiness/template spec parity checks.
-- [ ] S25-T04 Add truth-reconciler guardrails to catch template-subsystem-bar drift automatically.
-- [ ] S25-T05 Add regression tests for `check_*_governance` scripts and gate failures.
-- [ ] S25-T06 Update `RELEASE_READINESS_MATRIX.md` and `TEMPLATE_READINESS_MATRIX.md` where proofs changed.
+- [ ] S25-T01 Finish diagnostics/export parity between CLI and UI for all governance sections.
+- [ ] S25-T02 Enforce release-signoff workflow and status-date checks in PR gates.
+- [ ] S25-T03 Enforce release-readiness and template-spec parity checks.
+- [ ] S25-T04 Add truth-reconciler checks for template-subsystem-bar drift.
+- [ ] S25-T05 Add regression tests for governance gate failure modes.
+- [ ] S25-T06 Enforce issue-count/date consistency for `PROJECT_AUDIT.md`.
+- [ ] S25-T07 Add one positive/negative regression that breaks status-date or artifact-path assertion.
 
 ### Exit Criteria
-- [ ] CI fails when governance artifacts are missing or stale.
-- [ ] `governance_foundation` reaches `PARTIAL` with no untracked drift risk.
-- [ ] Project audit sections are complete and surfaced in both CLI and diagnostics workspace.
+- [ ] `governance_foundation` is no longer blocked by drift risk.
+- [ ] CI fail behavior is strict for stale/missing artifacts.
+- [ ] Project-audit sections are complete across CLI and diagnostics workspace.
+- [ ] Human-review-gated lines are explicitly represented in checks.
 
 ## S26 — Compat Bridge Exit Maintenance (post-Phase-2)
 
 ### Objective
-Keep compat exit trustworthy through regular expansion and evidence quality.
+Keep compat trust current as curated corpus and import/verification lanes evolve.
 
 ### Tickets
-- [ ] S26-T01 Add/update curated corpus maintenance job in the existing weekly lane.
-- [ ] S26-T02 Add regression fixtures for dependency-drift and profile mismatch scenarios.
-- [ ] S26-T03 Expand failure-report artifacts (`JSONL`, report ingest, panel projection) for new compatibility cases.
-- [ ] S26-T04 Add periodic schema/changelog validation in the compat import lane.
+- [ ] S26-T01 Maintain curated corpus workflow with deterministic health checks.
+- [ ] S26-T02 Add fixtures for dependency drift and profile mismatch.
+- [ ] S26-T03 Expand failure report outputs (`JSONL`, report ingestion, panel projection).
+- [ ] S26-T04 Add periodic schema/changelog validation in compat import lane.
 
 ### Exit Criteria
-- [ ] Weekly compat evidence remains green and interpretable by humans.
-- [ ] Curated corpus health checks are deterministic and fail fast.
-- [ ] `compat_bridge_exit` remaining gaps are explicitly bounded to depth and curation policy.
+- [ ] Weekly compat evidence remains green and auditable.
+- [ ] Corpus health checks fail fast and deterministically.
+- [ ] `compat_bridge_exit` future work remains bounded and explicit.
 
-## S27 — Accessibility + Audio + Mod + Analytics Productionization
+## S27 — Human Review / Promotion Closure
 
 ### Objective
-Close partial lanes that currently rely on bounded scaffolding or compat-only surfaces.
+Close the explicit human-review lanes safely before any READY promotion.
 
 ### Tickets
-- [ ] S27-T01 Add accessibility ingest adapters for spatial, audio, and battle editors.
-- [ ] S27-T02 Emit accessibility audit payloads with actionable file/line references in those new adapters.
-- [ ] S27-T03 Connect audio mix presets to live backend parameters in supported runtime paths.
-- [ ] S27-T04 Implement live mod loading path with sandboxing boundaries and deterministic unload behavior.
-- [ ] S27-T05 Add mod store ingestion contract + validation and failure reporting.
-- [ ] S27-T06 Implement analytics upload + session aggregation + opt-in privacy controls.
-- [ ] S27-T07 Add retention/export workflows for analytics auditability.
+- [ ] S27-T01 Publish `battle_core` reviewer evidence packet + closure checklist.
+- [ ] S27-T02 Publish `save_data_core` reviewer evidence packet + unresolved-gap log.
+- [ ] S27-T03 Publish `compat_bridge_exit` review cadence and maintenance evidence.
+- [ ] S27-T04 Publish `gameplay_ability_framework` review closure for schema/migration boundaries.
+- [ ] S27-T05 Wire promotion rule: READY only after corresponding human-review ticket completion.
 
 ### Exit Criteria
-- [ ] `accessibility_auditor` has non-menu surfaces covered by adapters + diagnostics.
-- [ ] `audio_mix_presets` controls affect actual backend behavior.
-- [ ] `mod_registry` can load live content with bounded sandbox controls.
-- [ ] `analytics_dispatcher` data lifecycle exists beyond local buffering.
+- [ ] All reviewer checkpoints exist as canonical artifacts.
+- [ ] No READY promotion can occur without explicit review completion state.
+- [ ] Readiness records and `RELEASE_SIGNOFF_WORKFLOW.md` align on pending review gates.
 
-## S28 — Visual Regression and Export Hardening
+## S28 — Accessibility, Audio, Mod, and Analytics Productionization
 
 ### Objective
-Turn current partial visual validation into broad, maintainable release-confidence coverage.
+Close partial lanes that are currently bounded to scaffolded or compat-only behavior.
 
 ### Tickets
-- [ ] S28-T01 Add committed full-frame and scene-specific goldens for remaining scene types.
-- [ ] S28-T02 Expand backend coverage (where real render backends are supported in tree).
-- [ ] S28-T03 Enforce fail-on-drift policy in relevant CI lanes.
-- [ ] S28-T04 Extend harness harnessing to include approved deterministic scene transitions.
-- [ ] S28-T05 Harden export package integrity workflow and optional signing validation seam.
-- [ ] S28-T06 Add export artifact validation tests for packaging edge-cases and tamper signals.
+- [ ] S28-T01 Add accessibility live-ingestion adapters for spatial/audio/battle editors.
+- [ ] S28-T02 Add actionable accessibility diagnostics with file/line references for those adapters.
+- [ ] S28-T03 Connect audio mix presets to live runtime backend parameters.
+- [ ] S28-T04 Implement live mod loading + deterministic unload + sandboxing.
+- [ ] S28-T05 Add mod-store contract + validation + failure reporting.
+- [ ] S28-T06 Implement analytics upload and session aggregation.
+- [ ] S28-T07 Add privacy/consent + retention/export workflows.
 
 ### Exit Criteria
-- [ ] New golden baselines are part of the PR lane.
-- [ ] Visual regression failures produce actionable diffs in existing workflow output.
-- [ ] Export packaging has deterministic verification against integrity tags and protected payload metadata.
+- [ ] `accessibility_auditor` covers non-menu surfaces.
+- [ ] Audio presets affect runtime playback.
+- [ ] Live mod loading works under sandbox and determinism constraints.
+- [ ] `analytics_dispatcher` has end-to-end event lifecycle.
 
-## S29 — Template Closure for READY Candidates
+## S29 — Visual Regression and Export Hardening
 
 ### Objective
-Finish core template bars for `jrpg`, `visual_novel`, `turn_based_rpg` so they can be promoted with confidence.
+Expand visual confidence from partial proof to broad scene/backend release coverage.
 
 ### Tickets
-- [ ] S29-T01 Close `accessibility`, `audio`, `input`, `localization`, `performance` bars for `jrpg`.
-- [ ] S29-T02 Close the same bars for `visual_novel`.
-- [ ] S29-T03 Close the same bars for `turn_based_rpg`.
-- [ ] S29-T04 Add template-level WYSIWYG acceptance tests for each lane (edit -> preview -> export).
-- [ ] S29-T05 Add blocked-item evidence updates in `content/readiness/readiness_status.json`.
+- [ ] S29-T01 Add full-frame and scene-specific goldens for remaining scene categories.
+- [ ] S29-T02 Expand backend coverage where renderer support exists.
+- [ ] S29-T03 Enforce fail-on-drift policy in CI/local lanes.
+- [ ] S29-T04 Add deterministic transition goldens for approved scenes.
+- [ ] S29-T05 Extend integrity checks for signing/enforcement seam in export validation.
+- [ ] S29-T06 Add export edge-case and tamper test coverage.
 
 ### Exit Criteria
-- [ ] Bars for the three templates become `READY` only when authoring workflows are proven.
-- [ ] Template artifacts align with `TEMPLATE_READINESS_MATRIX.md`.
+- [ ] Visual regression baselines are PR-lane enforced.
+- [ ] Diff artifacts are actionable and stable.
+- [ ] Export package checks include integrity and repeatability.
 
-## S30 — Template Expansion and Advanced Product Lanes
+## S30 — Template Closure for READY Candidates
 
 ### Objective
-Move experimental templates into concrete ship-ready lanes with clear blockers removed.
+Close bars and WYSIWYG workflows for `jrpg`, `visual_novel`, `turn_based_rpg`.
 
 ### Tickets
-- [ ] S30-T01 `monster_collector_rpg`: collection schema, capture mechanics, and party assembly workflow.
-- [ ] S30-T02 `cozy_life_rpg`: scheduling, relationships, and economy/recipe loops.
-- [ ] S30-T03 `tactics_rpg`: scenario authoring + tactical combat progression.
-- [ ] S30-T04 `arpg`: traversal/growth loop and productized movement authority.
-- [ ] S30-T05 `metroidvania_lite`: progression gating, map-unlock, and movement affordances.
-- [ ] S30-T06 `2_5d_rpg`: raycast map authoring pipeline + production-grade preview.
-- [ ] S30-T07 Add one end-to-end release evidence snapshot per template.
+- [ ] S30-T01 Close `accessibility`, `audio`, `input`, `localization`, `performance` bars for `jrpg`.
+- [ ] S30-T02 Close the same bars for `visual_novel`.
+- [ ] S30-T03 Close the same bars for `turn_based_rpg`.
+- [ ] S30-T04 Add template-level acceptance tests: edit -> preview -> export.
+- [ ] S30-T05 Update `readiness_status.json` blocker evidence for these closures.
 
 ### Exit Criteria
-- [ ] No template marked `PLANNED` or `EXPERIMENTAL` without bounded closure scope.
-- [ ] Each template has a single executable evidence path that includes schema + editor + runtime.
+- [ ] These three templates can be promoted with confidence.
+- [ ] Evidence matches `TEMPLATE_READINESS_MATRIX.md`.
 
-## S31 — Long-Tail WYSIWYG Lanes (close remaining partials)
+## S30-Bis — Template Bar Quality Sweep
 
 ### Objective
-Complete long-tail partial products that block complete productization.
+Add missing bar-level depth for localized/template readiness where it can block production claims.
 
 ### Tickets
-- [ ] S31-T01 Expand Character Identity runtime for full create-a-character workflow.
-- [ ] S31-T02 Add appearance preview pipeline for character authoring.
-- [ ] S31-T03 Integrate achievement conditions with platform trophy backends.
-- [ ] S31-T04 Improve offline tools/runtime artifact trust boundaries for generated/segmented/audio pipelines.
-- [ ] S31-T05 Reconcile all remaining `mainGaps` fields for partially landed systems.
+- [ ] S30B-T01 Add explicit localization completeness proof per template.
+- [ ] S30B-T02 Add accessibility/input parity for remaining required bars.
+- [ ] S30B-T03 Add template-specific performance budget diagnostics.
+- [ ] S30B-T04 Add artifact-level WYSIWYG proof links per bar.
 
 ### Exit Criteria
-- [ ] `character_identity` has end-to-end authoring lifecycle closure.
-- [ ] `achievement_registry` includes backend integration where scope is not explicitly out-of-tree.
-- [ ] No hidden "future work" remains in `mainGaps` without explicit acceptance notes.
+- [ ] Required bars do not remain open due only to missing evidence.
+- [ ] `mainBlockers` are reduced to roadmap-level, date-scoped constraints.
 
-## Suggested Execution Order (3-2-1 cadence)
+## S31 — Template Expansion and Advanced Product Lanes
 
-- [ ] Sprint 23 must start immediately.
-- [ ] S24 and S25 can run next in parallel with tight cross-review between runtime and governance artifacts.
-- [ ] S26 is continuous and should be maintained each sprint.
-- [ ] S27 follows once accessibility/audio/mod/analytics entry contracts are identified in S25.
-- [ ] S28 should run once S23 proves the real backend command stream is stable.
-- [ ] S29 and S30 should open once S25 proves governance and status artifacts are stable.
-- [ ] S31 closes any remaining long-tail blockers after higher-risk product slices are done.
+### Objective
+Progress `PLANNED` and `EXPERIMENTAL` templates to bounded ship-ready slices.
 
-## Immediate Gating Artifacts to Track Across Sprints
+### Tickets
+- [ ] S31-T01 `monster_collector_rpg`: collection schema, capture mechanics, and party workflow.
+- [ ] S31-T02 `cozy_life_rpg`: scheduling/social/economy lane proof.
+- [ ] S31-T03 `tactics_rpg`: scenario authoring and progression framework.
+- [ ] S31-T04 `arpg`: movement and growth loop productization.
+- [ ] S31-T05 `metroidvania_lite`: traversal/map-unlock/progression mechanics.
+- [ ] S31-T06 `2_5d_rpg`: raycast authoring and preview proof.
+- [ ] S31-T07 One end-to-end evidence snapshot per template.
+
+### Exit Criteria
+- [ ] No template remains `PLANNED` or `EXPERIMENTAL` purely by omission.
+- [ ] Each template has executable, authorable, testable evidence.
+
+## S32 — Long-Tail WYSIWYG Lanes
+
+### Objective
+Finish remaining partial feature blocks that directly affect full-product claims.
+
+### Tickets
+- [ ] S32-T01 Character Identity: full Create-a-Character creation lifecycle.
+- [ ] S32-T02 Character appearance/preview pipeline.
+- [ ] S32-T03 Achievement registry platform backend integration where scope is not intentionally out-of-tree.
+- [ ] S32-T04 Reconcile outstanding `mainGaps` entries for partial systems.
+- [ ] S32-T05 Confirm `export_validator` cryptographic hardening roadmap in scope before READY claims.
+
+### Exit Criteria
+- [ ] No unresolved short-cycle blockers remain in partial core systems without explicit traceability.
+- [ ] `character_identity` and `achievement_registry` have end-to-end usability proof where promised.
+
+## S33 — Offline Tooling and Artifact Boundary Hardening
+
+### Objective
+Protect runtime cleanliness while completing first approved tooling lanes.
+
+### Tickets
+- [ ] S33-T01 Complete FAISS retrieval acceptance for deterministic indexing and ingestion.
+- [ ] S33-T02 Complete SAM/SAM2 segmentation acceptance with manifest-backed outputs.
+- [ ] S33-T03 Complete Demucs/Encodec preprocessing acceptance with deterministic outputs.
+- [ ] S33-T04 Add runtime contracts to consume tool artifacts only.
+- [ ] S33-T05 Add provenance/reproducibility checks for tool outputs.
+- [ ] S33-T06 Add guardrails that block toolchain/runtime boundary regression.
+
+### Exit Criteria
+- [ ] Tooling remains outside shipped runtime dependency graph.
+- [ ] Runtime uses only reproducible exported artifacts.
+- [ ] Artifact lineage and checksums are auditable.
+
+## Suggested Execution Order
+
+- [ ] S23 starts now.
+- [ ] S24 and S25 run next in parallel.
+- [ ] S26 runs continuously.
+- [ ] S27 starts as soon as S25 begins (must complete before any READY promotion).
+- [ ] S28 and S29 run after S23 proof and S25 gate stability.
+- [ ] S30 and S31 run after S25 + S30-Bis gating.
+- [ ] S32 closes residual WYSIWYG blockers before S33 closes the tooling boundary.
+- [ ] S33 can run in parallel with later lanes once S23 proves runtime stability.
+- [ ] S29 and S30-Bis should stay coupled so coverage and bar evidence grow together.
+
+## Immediate Gating Artifacts
 
 - [ ] `content/readiness/readiness_status.json`
 - [ ] `docs/PROGRAM_COMPLETION_STATUS.md`
@@ -209,8 +274,20 @@ Complete long-tail partial products that block complete productization.
 - [ ] `docs/RELEASE_READINESS_MATRIX.md`
 - [ ] `docs/TEMPLATE_READINESS_MATRIX.md`
 - [ ] `PROJECT_AUDIT.md`
-- [ ] `tools/ci` governance scripts and check logs
-- [ ] `tests` PR-lane slices tied to each sprint ticket
+- [ ] `tools/ci` governance scripts/log outputs
+- [ ] `tests` PR-lane slices mapped by sprint
+- [ ] Offline tooling manifests in `tools/retrieval` and related pipelines
+- [ ] `docs/RELEASE_READINESS_MATRIX.md` and `docs/TEMPLATE_READINESS_MATRIX.md` updates after each closure
+
+## Remaining Work Mapping (non-ready coverage)
+
+1. Non-ready subsystems mapped:
+   `battle_core`, `save_data_core`, `compat_bridge_exit`, `presentation_runtime`, `gameplay_ability_framework`, `governance_foundation`, `character_identity`, `achievement_registry`, `accessibility_auditor`, `visual_regression_harness`, `audio_mix_presets`, `export_validator`, `mod_registry`, `analytics_dispatcher`.
+
+2. Non-ready templates mapped:
+   `jrpg`, `visual_novel`, `turn_based_rpg`, `tactics_rpg`, `arpg`, `monster_collector_rpg`, `cozy_life_rpg`, `metroidvania_lite`, `2_5d_rpg`.
+
+3. No mapped non-ready item is unassigned.
 
 ## Delivery Cadence
 
@@ -220,5 +297,11 @@ Complete long-tail partial products that block complete productization.
   - [ ] gate scripts
   - [ ] governance and truth reconciler run
   - [ ] artifact/date drift checks
-- [ ] No status updates claiming `READY` before all checkboxes in the corresponding sprint and governance checks are complete.
+  - [ ] explicit readiness record updates
 
+## Known Risks
+
+- [ ] Signing/enforcement in export may expand scope if claimed as fully shipped prematurely.
+- [ ] Template bar closure can regress after runtime-only fixes.
+- [ ] Human-review workflows introduce controlled waiting states that must be planned in schedule.
+- [ ] Tooling pipeline changes may destabilize reproducibility if outputs are not pinned.
