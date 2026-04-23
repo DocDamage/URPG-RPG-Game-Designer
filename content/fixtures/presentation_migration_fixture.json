@@ -1,0 +1,54 @@
+{
+  "schema": "content/schemas/presentation_schema.json",
+  "mapId": "migration_proof_map_001",
+  "schemaVersion": 1,
+  "elevation": {
+    "width": 8,
+    "height": 8,
+    "levels": [
+      0, 0, 0, 0, 0, 0, 0, 0,
+      0, 1, 1, 0, 0, 1, 1, 0,
+      0, 1, 2, 0, 0, 2, 1, 0,
+      0, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0, 0, 0, 0, 0,
+      0, 1, 2, 0, 0, 2, 1, 0,
+      0, 1, 1, 0, 0, 1, 1, 0,
+      0, 0, 0, 0, 0, 0, 0, 0
+    ],
+    "stepHeight": 0.5
+  },
+  "fog": {
+    "density": 0.05,
+    "color": [0.6, 0.65, 0.7],
+    "startDist": 5.0,
+    "endDist": 80.0
+  },
+  "postFX": {
+    "exposure": 1.1,
+    "bloomThreshold": 0.75,
+    "bloomIntensity": 0.25,
+    "saturation": 0.95
+  },
+  "props": [
+    { "assetId": "tree_01", "posX": 2.0, "posY": 0.0, "posZ": 3.0, "rotY": 45.0, "scale": 1.0 },
+    { "assetId": "rock_02", "posX": 5.5, "posY": 1.0, "posZ": 1.5, "rotY": 0.0,  "scale": 0.75 }
+  ],
+  "lights": [
+    {
+      "lightId": 1,
+      "type": "Directional",
+      "position": { "x": 0.0, "y": 10.0, "z": 5.0 },
+      "color": [1.0, 0.95, 0.85],
+      "intensity": 1.2,
+      "range": 100.0
+    },
+    {
+      "lightId": 2,
+      "type": "Point",
+      "position": { "x": 3.0, "y": 1.5, "z": 3.0 },
+      "color": [1.0, 0.8, 0.4],
+      "intensity": 0.6,
+      "range": 8.0
+    }
+  ]
+}

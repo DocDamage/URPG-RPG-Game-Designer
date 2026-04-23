@@ -88,7 +88,7 @@ function New-ChecklistSection {
     $lines += "- [ ] Editor owner files listed."
     $lines += "- [ ] Schema and migration files listed."
     $lines += "- [ ] Latest deterministic test outputs recorded."
-    $lines += "- [ ] `README.md`, `docs/PROGRAM_COMPLETION_STATUS.md`, and `URPG_Blueprint_v3_1_Integrated.md` updated."
+    $lines += "- [ ] `README.md`, `docs/PROGRAM_COMPLETION_STATUS.md`, and `docs/archive/blueprints/URPG_Blueprint_v3_1_Integrated.md` updated."
 
     return ($lines -join "`r`n")
 }

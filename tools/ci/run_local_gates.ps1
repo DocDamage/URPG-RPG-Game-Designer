@@ -37,6 +37,15 @@ Write-Host "== Validate presentation docs links ==" -ForegroundColor Cyan
 Write-Host "== Validate release readiness records ==" -ForegroundColor Cyan
 & "$PSScriptRoot\check_release_readiness.ps1"
 
+Write-Host "== Validate truth reconciliation ==" -ForegroundColor Cyan
+& "$PSScriptRoot\truth_reconciler.ps1"
+
+Write-Host "== Validate template spec bar drift ==" -ForegroundColor Cyan
+& "$PSScriptRoot\check_template_spec_bar_drift.ps1"
+
+Write-Host "== Validate tooling boundary (engine must not import tool code) ==" -ForegroundColor Cyan
+& "$PSScriptRoot\check_tooling_boundary.ps1"
+
 Write-Host "== Validate schema changelog governance ==" -ForegroundColor Cyan
 & "$PSScriptRoot\check_schema_changelog.ps1"
 
@@ -63,6 +72,9 @@ Write-Host "== Validate mod governance ==" -ForegroundColor Cyan
 
 Write-Host "== Validate analytics governance ==" -ForegroundColor Cyan
 & "$PSScriptRoot\check_analytics_governance.ps1"
+
+Write-Host "== Compat corpus health check ==" -ForegroundColor Cyan
+& "$PSScriptRoot\check_compat_health.ps1"
 
 Write-Host "== Validate truth alignment ==" -ForegroundColor Cyan
 & "$PSScriptRoot\..\docs\check_truth_alignment.ps1"

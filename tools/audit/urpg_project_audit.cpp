@@ -1279,6 +1279,42 @@ void addAccessibilityArtifactGovernance(const TemplateContext& templateContext,
             fs::path("editor") / "accessibility" / "accessibility_menu_adapter.cpp",
         },
         {
+            "accessibility_artifact.spatial_adapter_header_missing",
+            "Canonical accessibility spatial adapter header missing",
+            "Accessibility",
+            fs::path("editor") / "accessibility" / "accessibility_spatial_adapter.h",
+        },
+        {
+            "accessibility_artifact.spatial_adapter_source_missing",
+            "Canonical accessibility spatial adapter source missing",
+            "Accessibility",
+            fs::path("editor") / "accessibility" / "accessibility_spatial_adapter.cpp",
+        },
+        {
+            "accessibility_artifact.audio_adapter_header_missing",
+            "Canonical accessibility audio adapter header missing",
+            "Accessibility",
+            fs::path("editor") / "accessibility" / "accessibility_audio_adapter.h",
+        },
+        {
+            "accessibility_artifact.audio_adapter_source_missing",
+            "Canonical accessibility audio adapter source missing",
+            "Accessibility",
+            fs::path("editor") / "accessibility" / "accessibility_audio_adapter.cpp",
+        },
+        {
+            "accessibility_artifact.battle_adapter_header_missing",
+            "Canonical accessibility battle adapter header missing",
+            "Accessibility",
+            fs::path("editor") / "accessibility" / "accessibility_battle_adapter.h",
+        },
+        {
+            "accessibility_artifact.battle_adapter_source_missing",
+            "Canonical accessibility battle adapter source missing",
+            "Accessibility",
+            fs::path("editor") / "accessibility" / "accessibility_battle_adapter.cpp",
+        },
+        {
             "accessibility_artifact.governance_script_missing",
             "Canonical accessibility governance script missing",
             "Accessibility",
@@ -1762,8 +1798,19 @@ void addReleaseSignoffWorkflowGovernance(const TemplateContext& templateContext,
 void addTemplateSpecArtifactGovernance(const TemplateContext& templateContext,
                                        std::vector<AuditIssue>& issues,
                                        std::size_t& templateSpecArtifactIssueCount,
+                                       std::size_t& releaseBlockerCount,
+                                       std::size_t& exportBlockerCount,
                                        json& governanceReport) {
     const bool enabled = templateContext.id != "unknown" && templateContext.data.is_object() && !templateContext.data.empty();
+
+    // Templates that are READY candidates must fail closed on spec governance gaps.
+    static const std::vector<std::string> kFailClosedTemplates = {
+        "jrpg", "visual_novel", "turn_based_rpg"
+    };
+    const bool failClosed = enabled && std::find(
+        kFailClosedTemplates.begin(), kFailClosedTemplates.end(), templateContext.id
+    ) != kFailClosedTemplates.end();
+
     const std::vector<CanonicalArtifactSpec> artifacts = {
         {
             "template_spec_artifact.missing",
@@ -1804,15 +1851,21 @@ void addTemplateSpecArtifactGovernance(const TemplateContext& templateContext,
 
         if (!regularFile) {
             ++templateSpecArtifactIssueCount;
+            if (failClosed) {
+                ++releaseBlockerCount;
+                ++exportBlockerCount;
+            }
             issues.push_back({
                 artifact.code,
                 artifact.title,
                 artifact.detailPrefix + " canonical artifact expected at " + artifact.path.string() +
                     " is " + (exists ? "present but not a regular file" : "missing") +
-                    "; this is a governance gap, not proof the feature is absent.",
-                "warning",
-                false,
-                false,
+                    (failClosed
+                        ? "; this template is a READY candidate — missing spec is a release blocker."
+                        : "; this is a governance gap, not proof the feature is absent."),
+                failClosed ? "error" : "warning",
+                failClosed,
+                failClosed,
             });
             section["expectedArtifacts"].push_back(std::move(artifactEntry));
             continue;
@@ -1885,20 +1938,30 @@ void addTemplateSpecArtifactGovernance(const TemplateContext& templateContext,
 
             if (!templateIdMatches) {
                 ++templateSpecArtifactIssueCount;
+                if (failClosed) {
+                    ++releaseBlockerCount;
+                    ++exportBlockerCount;
+                }
                 issues.push_back({
                     "template_spec_artifact.template_id_mismatch",
                     "Canonical template spec artifact names the wrong template",
                     artifact.detailPrefix + " canonical artifact at " + artifact.path.string() +
                         " does not contain the expected authority line for template " + templateContext.id +
-                        "; keep template-facing docs aligned with the selected readiness context.",
-                    "warning",
-                    false,
-                    false,
+                        (failClosed
+                            ? "; this template is a READY candidate — authority mismatch blocks release."
+                            : "; keep template-facing docs aligned with the selected readiness context."),
+                    failClosed ? "error" : "warning",
+                    failClosed,
+                    failClosed,
                 });
             }
 
             if (!requiredSubsystemsMatch) {
                 ++templateSpecArtifactIssueCount;
+                if (failClosed) {
+                    ++releaseBlockerCount;
+                    ++exportBlockerCount;
+                }
                 issues.push_back({
                     "template_spec_artifact.required_subsystems_mismatch",
                     "Canonical template spec required subsystems drift from readiness",
@@ -1906,9 +1969,9 @@ void addTemplateSpecArtifactGovernance(const TemplateContext& templateContext,
                         " does not match readiness requiredSubsystems for template " + templateContext.id +
                         ". Missing from spec: [" + joinItems(missingSubsystems) + "]. Unexpected in spec: [" +
                         joinItems(unexpectedSubsystems) + "].",
-                    "warning",
-                    false,
-                    false,
+                    failClosed ? "error" : "warning",
+                    failClosed,
+                    failClosed,
                 });
             }
 
@@ -1924,13 +1987,17 @@ void addTemplateSpecArtifactGovernance(const TemplateContext& templateContext,
                 }
 
                 ++templateSpecArtifactIssueCount;
+                if (failClosed) {
+                    ++releaseBlockerCount;
+                    ++exportBlockerCount;
+                }
                 issues.push_back({
                     "template_spec_artifact.bars_mismatch",
                     "Canonical template spec bar statuses drift from readiness",
                     detail.str(),
-                    "warning",
-                    false,
-                    false,
+                    failClosed ? "error" : "warning",
+                    failClosed,
+                    failClosed,
                 });
             }
 
@@ -1940,15 +2007,19 @@ void addTemplateSpecArtifactGovernance(const TemplateContext& templateContext,
             }
         } catch (const std::exception&) {
             ++templateSpecArtifactIssueCount;
+            if (failClosed) {
+                ++releaseBlockerCount;
+                ++exportBlockerCount;
+            }
             artifactEntry["status"] = "unreadable";
             issues.push_back({
                 "template_spec_artifact.unreadable",
                 "Canonical template spec artifact unreadable",
                 artifact.detailPrefix + " canonical artifact at " + artifact.path.string() +
                     " could not be read for template-governance parity checks.",
-                "warning",
-                false,
-                false,
+                failClosed ? "error" : "warning",
+                failClosed,
+                failClosed,
             });
         }
 
@@ -2179,7 +2250,7 @@ json buildReport(const json& readiness,
     addPerformanceArtifactGovernance(templateContext, issues, performanceArtifactIssueCount, governanceReport);
     addReleaseSignoffWorkflowGovernance(templateContext, issues, releaseSignoffWorkflowIssueCount, governanceReport);
     addSignoffArtifactGovernance(readiness, issues, signoffArtifactIssueCount, governanceReport);
-    addTemplateSpecArtifactGovernance(templateContext, issues, templateSpecArtifactIssueCount, governanceReport);
+    addTemplateSpecArtifactGovernance(templateContext, issues, templateSpecArtifactIssueCount, releaseBlockerCount, exportBlockerCount, governanceReport);
 
     json issueArray = json::array();
     for (const auto& issue : issues) {

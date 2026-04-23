@@ -2,21 +2,39 @@
 
 #include <nlohmann/json.hpp>
 #include "../../engine/core/audio/audio_mix_presets.h"
+#include "../../engine/core/audio/audio_core.h"
 
 namespace urpg::editor {
 
 /**
  * @brief Editor panel for inspecting and selecting audio mix presets.
+ *
+ * Call bindCore() with a live AudioCore to make selectPreset() apply the
+ * chosen preset parameters (category volumes and duck-BGM-on-SE) to the
+ * running audio backend immediately.
  */
 class AudioMixPanel {
 public:
     void bindBank(urpg::audio::AudioMixPresetBank* bank);
+    /**
+     * @brief Bind a live AudioCore so that selectPreset() applies parameters
+     *        to the running backend.  Pass nullptr to detach.
+     */
+    void bindCore(urpg::audio::AudioCore* core);
+    /**
+     * @brief Select the named preset as the active preset and, when a live
+     *        core is bound, immediately apply its parameters to that core.
+     * @return true if the preset exists and was applied (or selected when no
+     *         core is bound), false if the preset is unknown.
+     */
+    bool selectPreset(const std::string& name);
     void render();
 
     nlohmann::json lastRenderSnapshot() const;
 
 private:
     urpg::audio::AudioMixPresetBank* m_bank = nullptr;
+    urpg::audio::AudioCore*          m_core = nullptr;
     std::string m_selectedPreset;
     nlohmann::json m_lastSnapshot;
 };

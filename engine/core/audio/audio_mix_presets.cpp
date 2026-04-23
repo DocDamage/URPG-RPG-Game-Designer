@@ -25,6 +25,10 @@ AudioCategory stringToCategory(const std::string& s) {
     return AudioCategory::System;
 }
 
+bool isKnownCategory(const std::string& s) {
+    return s == "BGM" || s == "BGS" || s == "SE" || s == "ME" || s == "System";
+}
+
 nlohmann::json presetToJson(const MixPreset& preset) {
     nlohmann::json j;
     j["name"] = preset.name;
@@ -48,6 +52,9 @@ MixPreset presetFromJson(const nlohmann::json& j) {
 
     if (j.contains("categoryVolumes") && j["categoryVolumes"].is_object()) {
         for (auto it = j["categoryVolumes"].begin(); it != j["categoryVolumes"].end(); ++it) {
+            if (!isKnownCategory(it.key())) {
+                preset.unknownCategoryNames.push_back(it.key());
+            }
             preset.categoryVolumes[stringToCategory(it.key())] = it.value().get<float>();
         }
     }
@@ -122,6 +129,8 @@ bool AudioMixPresetBank::applyPreset(AudioCore& core, const std::string& name) c
     for (const auto& [category, volume] : preset->categoryVolumes) {
         core.setCategoryVolume(category, volume);
     }
+
+    core.setDuckBGMOnSE(preset->duckBGMOnSE, preset->duckAmount);
 
     return true;
 }

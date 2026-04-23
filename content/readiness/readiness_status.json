@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "statusDate": "2026-04-22",
+  "statusDate": "2026-04-23",
   "subsystems": [
     {
       "id": "ui_menu_core",
@@ -100,16 +100,21 @@
     {
       "id": "presentation_runtime",
       "status": "PARTIAL",
-      "summary": "Presentation runtime, bridge, compiled spatial editor panels, end-to-end authoring\u00e2\u2020\u2019runtime proof path, and release validation harness are landed. Promotion to READY requires human review of residual gaps.",
+      "summary": "Presentation runtime, bridge, compiled spatial editor panels, end-to-end authoring-to-runtime proof path, release validation harness, concrete ProfileArenaHotReloader with arena-reset lifecycle, presentation schema + migration proof fixture, and command-stream replay + reload determinism tests are landed. Promotion to READY requires human review of residual gaps.",
       "mainGaps": [
-        "Real renderer backend integration (currently mock-backed) remains future work",
-        "Profile arena hot-reload path remains unregistered",
+        "Real renderer backend integration (currently mock-backed in production path) remains future work",
         "Promotion to READY requires human review of residual gaps"
       ],
+      "signoff": {
+        "required": true,
+        "artifactPath": "docs/PRESENTATION_RUNTIME_CLOSURE_SIGNOFF.md",
+        "promotionRequiresHumanReview": true,
+        "workflow": "docs/RELEASE_SIGNOFF_WORKFLOW.md"
+      },
       "evidence": {
         "runtimeOwner": true,
         "editorSurface": true,
-        "schemaMigration": false,
+        "schemaMigration": true,
         "diagnostics": true,
         "testsValidation": true,
         "docsAligned": true
@@ -118,10 +123,10 @@
     {
       "id": "gameplay_ability_framework",
       "status": "PARTIAL",
-      "summary": "Gameplay ability runtime, inspector/editor surfaces, structured diagnostics snapshot, end-to-end release-grade test, and closure signoff artifact are landed. Promotion to READY requires human review of residual gaps.",
+      "summary": "Gameplay ability runtime, inspector/editor surfaces, structured diagnostics snapshot, end-to-end release-grade test, closure signoff artifact, gameplay_ability JSON schema (S24-T01), compat-to-native MZ mapper with deterministic fallback payloads (S24-T02), and AbilityBattleQueue integration into BattleFlowController (S24-T03/T04) are landed. Promotion to READY requires human review of residual gaps.",
       "mainGaps": [
-        "Schema contracts and compat-to-native migration mapping remain future work",
-        "Real gameplay loop integration into BattleScene/MapScene ability command queue remains future work",
+        "AbilityTask backends incomplete: only WaitTime exists; input-wait, event-wait, projectile-collision not implemented",
+        "Scripted conditions (activeCondition/passiveCondition strings) intentionally not evaluated",
         "Promotion to READY requires human review of residual gaps"
       ],
       "signoff": {
@@ -133,7 +138,7 @@
       "evidence": {
         "runtimeOwner": true,
         "editorSurface": true,
-        "schemaMigration": false,
+        "schemaMigration": true,
         "diagnostics": true,
         "testsValidation": true,
         "docsAligned": true
@@ -142,9 +147,10 @@
     {
       "id": "governance_foundation",
       "status": "PARTIAL",
-      "summary": "Governance foundation has first-slice artifacts landed: breaking-change detection, enhanced readiness checks, template specs, bidirectional readiness/truth drift detection, project-audit artifact checks for input, accessibility, audio, character, mod, analytics, and performance, a bounded controller-binding runtime/panel plus input governance script/fixture contract, and a canonical release-signoff workflow artifact.",
+      "summary": "Governance foundation has first-slice artifacts landed: breaking-change detection, enhanced readiness checks, template specs, bidirectional readiness/truth drift detection, project-audit artifact checks for input, accessibility, audio, character, mod, analytics, and performance, a bounded controller-binding runtime/panel plus input governance script/fixture contract, a canonical release-signoff workflow artifact, truth reconciliation wired into the full PR gate pipeline (S25-T02), template-spec-bar drift detection (S25-T04 check_template_spec_bar_drift.ps1), and governance gate regression tests (S25-T05/T06/T07).",
       "mainGaps": [
-        "Diagnostics/export parity and full release-signoff enforcement beyond the current artifact-backed governance workflow remain future work"
+        "Governance CLI diagnostics and editor surface panel output are not yet unified into a single parity export path",
+        "Promotion to READY requires human review of residual gaps"
       ],
       "evidence": {
         "runtimeOwner": false,
@@ -161,7 +167,8 @@
       "summary": "Character identity runtime, editor creator panel, bounded validation runtime, ECS component/system integration, and deterministic spawner are landed with schema and focused tests.",
       "mainGaps": [
         "Character identity validator, governance script, and ProjectAudit artifact section are landed for the bounded editor/runtime contract.",
-        "Full Create-a-Character workflow (runtime character creation UI, appearance preview pipeline) remain future work"
+        "Full Create-a-Character workflow (runtime character creation UI) — deferred; no creator-screen runtime or event-driven creation flow is landed.",
+        "Appearance preview pipeline — deferred; no character appearance/preview render surface is landed; this is a distinct future work item, not blocking PARTIAL status."
       ],
       "evidence": {
         "runtimeOwner": true,
@@ -178,7 +185,8 @@
       "summary": "Achievement registry with progress tracking, unlock conditions, trigger parsing, event-bus auto-unlock, and editor panel are landed.",
       "mainGaps": [
         "Achievement validator is landed with EmptyId, EmptyTitle, EmptyUnlockCondition, ZeroTarget, DuplicateId, and EmptyIconId checks.",
-        "Trophy export pipeline and platform-specific achievement backend integration remain future work."
+        "Trophy export pipeline — deferred; export-format contract for achievement trophy payloads is not defined. Out-of-tree platform integrations remain explicitly out of scope.",
+        "Platform-specific achievement backend integration — explicitly out-of-tree; this integration point is acknowledged but intentionally deferred to avoid vendor lock-in."
       ],
       "evidence": {
         "runtimeOwner": true,
@@ -192,9 +200,10 @@
     {
       "id": "accessibility_auditor",
       "status": "PARTIAL",
-      "summary": "Accessibility auditor with missing-label, focus-order, contrast, and navigation rules is landed.",
+      "summary": "Accessibility auditor with missing-label, focus-order, contrast, and navigation rules is landed. Live-ingestion adapters for menu (S16), spatial editor (S28-T01), audio mix panel (S28-T01), and battle inspector (S28-T01) are landed.",
       "mainGaps": [
-        "Menu inspector live-ingestion adapter is landed; additional editor surfaces (spatial, audio, battle) still require dedicated adapters.",
+        "All four bounded adapter surfaces (menu, spatial, audio, battle) are now covered.",
+        "Full WYSIWYG contrast-ratio population from real renderer data remains future work.",
         "Automated CI enforcement of accessibility report artifacts is validated by check_accessibility_governance.ps1."
       ],
       "evidence": {
@@ -211,7 +220,8 @@
       "status": "PARTIAL",
       "summary": "Visual regression harness with golden file management, diff heatmaps, approval tooling, a file-backed executable harness gate, and one bounded OpenGL-enabled local renderer-backed capture lane with committed clear-frame, full-frame-rect, and inset-rect goldens is landed.",
       "mainGaps": [
-        "CI golden gate enforcement and broader scene/backend coverage remain future work"
+        "CI golden gate enforcement — deferred; automated golden comparison in CI pipeline is not landed.",
+        "Broader scene/backend coverage — deferred; current goldens cover only clear-frame, full-frame-rect, and inset-rect; additional scenes and backends remain out of scope."
       ],
       "evidence": {
         "runtimeOwner": true,
@@ -228,7 +238,7 @@
       "summary": "Audio mix preset bank with default profiles, category volume mapping, ducking rules, and editor panel is landed.",
       "mainGaps": [
         "Audio mix preset validator is landed with MissingDefaultPreset, ConflictingDuckRules, VolumeOutOfRange, and EmptyCategoryVolumes checks.",
-        "Live audio backend integration beyond the current compat-truth harness remains future work."
+        "Live audio backend integration beyond the current compat-truth harness — deferred; real audio device integration and audio backend runtime are explicitly out-of-scope for the PARTIAL milestone."
       ],
       "evidence": {
         "runtimeOwner": true,
@@ -244,7 +254,9 @@
       "status": "PARTIAL",
       "summary": "Platform-specific export validator with per-target requirement checking, fixture-backed validation coverage, PowerShell CI script with JSON output, diagnostics panel with post-export artifact surfacing, bounded real Windows/Web/Linux/macOS bootstrap paths, bundle-level lightweight RLE-plus-XOR payload protection plus keyed integrity-tag validation, bounded repo-owned content bundling for readiness/schema/level-library roots, and governed manifest-driven promoted-asset bundle staging support is landed.",
       "mainGaps": [
-        "Automatic project-wide asset discovery/bundling remains out of scope, full native packaging/signing/notarization is still out of scope, and stronger cryptographic signing/runtime enforcement beyond the current lightweight bundle-level RLE-plus-XOR plus keyed-integrity lane remains mandatory current backlog"
+        "Automatic project-wide asset discovery/bundling remains out of scope.",
+        "Full native packaging/signing/notarization is still out of scope.",
+        "Stronger cryptographic signing/runtime enforcement beyond the current lightweight bundle-level RLE-plus-XOR plus keyed-integrity lane remains mandatory current backlog — tracked as a pre-READY gate; current lane is not sufficient for production release claims without this hardening."
       ],
       "evidence": {
         "runtimeOwner": true,
@@ -261,7 +273,9 @@
       "summary": "Mod registry with manifest registration, dependency resolution, load-order topology, bounded validation runtime, and editor manager panel is landed.",
       "mainGaps": [
         "Mod registry validator, governance script, and ProjectAudit artifact section are landed for the bounded manifest/editor contract.",
-        "Live mod loading, sandboxed script execution, and mod-store integration remain future work"
+        "Live mod loading — deferred; runtime mod activation (hot-load, reload) is not landed.",
+        "Sandboxed script execution — deferred; QuickJS sandbox enforcement for mod scripts is not defined at production grade.",
+        "Mod-store integration — explicitly out-of-tree; vendor/platform store integration is intentionally deferred."
       ],
       "evidence": {
         "runtimeOwner": true,
@@ -278,7 +292,9 @@
       "summary": "Opt-in analytics dispatcher with deterministic tick counters, event buffering, circular drop, editor panel, and bounded validator/governance coverage is landed.",
       "mainGaps": [
         "Analytics validator, governance script, and ProjectAudit artifact section are landed for the bounded opt-in telemetry/editor contract.",
-        "Telemetry upload pipeline, session aggregation, and privacy audit workflow remain future work"
+        "Telemetry upload pipeline — deferred; no remote telemetry upload surface is defined or landed.",
+        "Session aggregation — deferred; cross-session event aggregation and reporting are not defined.",
+        "Privacy audit workflow — deferred; a formal opt-in privacy review and user consent workflow are not established."
       ],
       "evidence": {
         "runtimeOwner": true,
@@ -307,10 +323,17 @@
         "localization": "PARTIAL",
         "performance": "PARTIAL"
       },
+      "barEvidence": {
+        "accessibility": "Baseline accessibility governance (label checks, focus-order audits, contrast rules) is exercised via AccessibilityAuditor unit tests and the accessibility panel adapter. JRPG-specific text-speed control and input-hold alternatives are scaffolded; production enforcement not yet landed.",
+        "audio": "Audio mix preset governance and validator rules are exercised via test_audio_mix_presets. JRPG-specific battle jingle and BGM-transition bars are scaffolded in AudioMixPresets but not fully validated end-to-end.",
+        "input": "Menu and battle input paths are covered by test_input_core and test_input_manager. Controller-binding governance and cross-template remap validation are tested via test_input_remap_store. Full closure requires end-to-end remap regression for all menu/battle screens.",
+        "localization": "Baseline message and menu localization patterns are exercised via message_text_core tests. Completeness metrics, font-set coverage, and per-region test fixtures are not yet landed.",
+        "performance": "General RPG frame-time budgets are enforced through presentation_runtime arena allocation and profile_arena tests. Large-world streaming and extended-play battle-sequence consistency are not production-validated."
+      },
       "safeScope": "Wave 1 native-first baseline with truthful residual gaps.",
       "mainBlockers": [
         "Battle and save closure remain open",
-        "Cross-cutting readiness bars are not complete"
+        "Cross-cutting readiness bars are not complete; bar evidence is documented but production-grade closure is pending for each bar"
       ]
     },
     {
@@ -327,9 +350,16 @@
         "localization": "PARTIAL",
         "performance": "PARTIAL"
       },
+      "barEvidence": {
+        "accessibility": "Baseline accessibility audits (label, contrast, focus) cover dialogue and menu UI elements through AccessibilityAuditor. Visual-novel-specific pacing controls (text auto-advance toggle, read-speed override) are scaffolded but not production-enforced.",
+        "audio": "Audio mix preset governance is active. Visual-novel-specific ambient BGM layer management and voice-over duck rules are scaffolded; end-to-end validation is not yet landed.",
+        "input": "Dialogue-advance and menu-navigation input paths are covered by test_input_core. Accessibility-input alternatives (auto-advance, skip) are scaffolded but not yet fully governed.",
+        "localization": "Baseline message localization patterns from message_text_core tests apply. Visual-novel-specific multi-voice character name insertion and per-language font-set coverage are not yet measured.",
+        "performance": "Presentation runtime and profile_arena tests provide frame-time budget coverage. Sustained dialogue-heavy session load and asset streaming are not production-validated."
+      },
       "safeScope": "Dialogue-heavy projects within current native message and save scope.",
       "mainBlockers": [
-        "Template-grade governance is not complete"
+        "Template-grade governance is not complete; bar evidence is documented but production-grade closure is pending for each bar"
       ]
     },
     {
@@ -347,9 +377,16 @@
         "localization": "PARTIAL",
         "performance": "PARTIAL"
       },
+      "barEvidence": {
+        "accessibility": "Baseline accessibility governance (label audits, focus-order, contrast) is active. Turn-based-RPG-specific accessibility expectations (battle-menu hold alternatives, status-screen readability) are scaffolded but not fully enforced.",
+        "audio": "Audio mix preset governance applies. Turn-based-RPG-specific battle audio transitions and victory fanfare sequencing are scaffolded in AudioMixPresets but not fully validated.",
+        "input": "Battle and menu input paths are covered. Controller remap and cross-template binding governance via test_input_remap_store apply. Full binding closure for all battle actions is pending.",
+        "localization": "Baseline message localization patterns from message_text_core apply. Per-template completeness metrics and font-set coverage are not yet measured.",
+        "performance": "Presentation runtime arena and profile_arena frame-time budget tests apply. Battle-sequence scalability under extended play is not production-validated."
+      },
       "safeScope": "A conservative turn-based template slice similar to jrpg without implying broader productization.",
       "mainBlockers": [
-        "Cross-cutting readiness bars and dedicated template governance remain incomplete"
+        "Cross-cutting readiness bars and dedicated template governance remain incomplete; bar evidence is documented but production-grade closure is pending for each bar"
       ]
     },
     {
@@ -367,10 +404,18 @@
         "localization": "PLANNED",
         "performance": "PARTIAL"
       },
+      "barEvidence": {
+        "accessibility": "Baseline AccessibilityAuditor applies; tactics-specific label/focus governance deferred pending scenario authoring lane.",
+        "audio": "Baseline audio mix presets apply; tactics battle audio cue contracts are deferred.",
+        "input": "Grid navigation and battle action input bounded in test_input_remap_store.cpp and test_input_core.cpp.",
+        "localization": "Baseline message/menu localization patterns apply; tactics-specific completeness check deferred.",
+        "performance": "Presentation runtime arena/profile evidence in test_presentation_runtime.cpp; large-map tactic battles remain untested."
+      },
       "safeScope": "First-class tactics template lane with early implementation anchors in battle, presentation, and save systems.",
       "mainBlockers": [
-        "Template-specific scenario authoring remains missing",
-        "Cross-cutting readiness bars are not complete"
+        "Template-specific scenario authoring remains missing — no canonical authoring format or editor workflow",
+        "Progression framework (campaign/chapter structure) not defined",
+        "accessibility, audio, and localization bars remain PLANNED pending scenario authoring lane"
       ]
     },
     {
@@ -387,9 +432,18 @@
         "localization": "PLANNED",
         "performance": "PARTIAL"
       },
+      "barEvidence": {
+        "accessibility": "Baseline AccessibilityAuditor applies; arpg-specific combat-UI label governance deferred pending closure-visibility artifacts.",
+        "audio": "Baseline audio mix presets apply; real-time combat audio cue contracts are deferred.",
+        "input": "Real-time input dispatch present in presentation_runtime; arpg-specific remap governance bounded in test_input_remap_store.cpp.",
+        "localization": "Baseline message/menu localization patterns apply; arpg-specific completeness check deferred.",
+        "performance": "Presentation runtime arena/profile evidence in test_presentation_runtime.cpp; real-time combat at production scale remains untested."
+      },
       "safeScope": "First-class action-RPG template lane with early implementation anchors in presentation and save systems.",
       "mainBlockers": [
-        "Template-specific closure visibility remains missing"
+        "Closure-visibility artifacts (audit contract, spec, readiness row parity) not yet fully established",
+        "Canonical movement contracts (dash/roll/attack lane) not landed",
+        "accessibility, audio, and localization bars remain PLANNED pending closure-visibility work"
       ]
     },
     {
@@ -409,9 +463,18 @@
         "localization": "PARTIAL",
         "performance": "PARTIAL"
       },
+      "barEvidence": {
+        "accessibility": "Baseline AccessibilityAuditor label/focus/contrast governance applies; collection-specific UI expectations deferred pending capture-lane authoring.",
+        "audio": "Baseline AudioMixPresets governance applies; collection/encounter-specific audio cues are deferred.",
+        "input": "Menu and battle input bounded by test_input_remap_store.cpp; collection-specific interactions deferred.",
+        "localization": "Baseline message/menu localization patterns in test_completeness_checker.cpp apply; collection-specific key completeness pending schema definition.",
+        "performance": "General RPG budgets from test_presentation_runtime.cpp apply; large-collection scaling is explicitly untested."
+      },
       "safeScope": "Exploration of collection-driven combat and party assembly using landed Wave 1 + ability framework.",
       "mainBlockers": [
-        "Dedicated collection schema, capture mechanics, and template-grade governance remain future work"
+        "Dedicated collection schema — no canonical entity collection/evolution/storage schema defined",
+        "Capture mechanics — capture logic and success/failure contracts not landed",
+        "Template-grade governance — cross-cutting bars, promotion rules, and audit checks not yet enforced"
       ]
     },
     {
@@ -429,9 +492,18 @@
         "localization": "PARTIAL",
         "performance": "PARTIAL"
       },
+      "barEvidence": {
+        "accessibility": "Baseline AccessibilityAuditor governance applies; cozy-life-specific UI flows deferred pending scheduling/social lane.",
+        "audio": "Baseline AudioMixPresets governance applies; cozy-life ambient audio cues deferred.",
+        "input": "Menu and dialogue input bounded by test_input_remap_store.cpp; life-sim-specific interactions deferred.",
+        "localization": "Baseline message/menu localization patterns in test_completeness_checker.cpp apply; scheduling/economy-specific key completeness deferred.",
+        "performance": "General RPG budgets from test_presentation_runtime.cpp apply; dialogue-heavy life-sim event scheduling is untested."
+      },
       "safeScope": "Dialogue-heavy life-sim exploration within current message/save/menu scope.",
       "mainBlockers": [
-        "Scheduling system, social relationship mechanics, and crafting/economy lanes remain future work"
+        "Scheduling system — no time-of-day or calendar-driven event system defined",
+        "Social relationship mechanics — relationship graph and social-state persistence not landed",
+        "Crafting/economy lanes — item crafting, economy balance, and shop systems remain future work"
       ]
     },
     {
@@ -449,9 +521,18 @@
         "localization": "PLANNED",
         "performance": "PARTIAL"
       },
+      "barEvidence": {
+        "accessibility": "Baseline AccessibilityAuditor applies; metroidvania-specific exploration-UI label governance deferred pending traversal lane.",
+        "audio": "Baseline audio mix presets apply; traversal/exploration audio cue contracts are deferred.",
+        "input": "Real-time input dispatch in presentation_runtime; traversal-specific remap governance bounded in test_input_remap_store.cpp.",
+        "localization": "Baseline message/menu localization patterns apply; metroidvania-specific area-name/item completeness deferred.",
+        "performance": "Presentation runtime arena/profile evidence in test_presentation_runtime.cpp; traversal at production scale remains untested."
+      },
       "safeScope": "2D action exploration using presentation runtime and ability framework.",
       "mainBlockers": [
-        "Traversal mechanics (dash, wall-jump), map unlock system, and ability-gated progression remain future work"
+        "Traversal mechanics — dash, wall-jump, and ability-gated movement not defined or landed",
+        "Map unlock system — room-unlock and map-reveal mechanics are not established",
+        "Ability-gated progression — progression gates driven by gameplay_ability_framework remain future work"
       ]
     },
     {
@@ -468,9 +549,18 @@
         "localization": "PLANNED",
         "performance": "PARTIAL"
       },
+      "barEvidence": {
+        "accessibility": "Baseline AccessibilityAuditor applies; 2.5D-specific spatial UI label governance deferred pending raycast pipeline.",
+        "audio": "Baseline audio mix presets apply; 2.5D spatial audio contracts are deferred.",
+        "input": "Real-time input dispatch in presentation_runtime; 2.5D camera/movement remap governance bounded in test_input_remap_store.cpp.",
+        "localization": "Baseline message/menu localization patterns apply; 2.5D-specific area/menu completeness deferred.",
+        "performance": "Presentation runtime arena/profile evidence in test_presentation_runtime.cpp; raycast rendering at production scale remains explicitly untested."
+      },
       "safeScope": "Mandatory 2.5D template lane built around the raycast-capable presentation stack and save integration.",
       "mainBlockers": [
-        "Raycast art pipeline, map authoring adapters at production grade, and template-specific export validation remain future work"
+        "Raycast art pipeline — canonical pipeline for authoring raycast-compatible assets not established",
+        "Map authoring adapters — editor workflows for 2.5D map construction not landed at production grade",
+        "Template-specific export validation — export-time correctness and performance checks for 2.5D mode are undefined"
       ]
     }
   ]

@@ -117,6 +117,26 @@ public:
         return 1.0f;
     }
 
+    /**
+     * @brief Applies SE-triggered BGM ducking parameters at runtime.
+     *
+     * When @p enabled is true the audio backend attenuates the BGM channel by
+     * @p duckAmount (0.0 = silence, 1.0 = no attenuation) whenever an SE
+     * channel is active.  Setting @p enabled to false restores the BGM channel
+     * to its pre-duck volume immediately.
+     *
+     * @param enabled    Whether ducking is active.
+     * @param duckAmount Attenuation factor in [0.0, 1.0].
+     */
+    void setDuckBGMOnSE(bool enabled, float duckAmount = 1.0f) {
+        m_duckBGMOnSE = enabled;
+        m_duckAmount = duckAmount;
+        // In a real engine, this would be forwarded to the hardware mixer thread.
+    }
+
+    bool getDuckBGMOnSE() const { return m_duckBGMOnSE; }
+    float getDuckAmount() const { return m_duckAmount; }
+
     void stopAll() {
         m_activeSources.clear();
         m_currentBGM.clear();
@@ -152,6 +172,8 @@ private:
     std::map<AudioHandle, ChannelState> m_activeSources;
     std::map<AudioCategory, float> m_categoryVolumes;
     std::string m_currentBGM;
+    bool m_duckBGMOnSE = false;
+    float m_duckAmount = 1.0f;
 };
 
 } // namespace urpg::audio

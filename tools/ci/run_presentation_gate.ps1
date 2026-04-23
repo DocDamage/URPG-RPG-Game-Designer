@@ -82,7 +82,7 @@ if ($LASTEXITCODE -ne 0) {
 
 if (-not $SkipBuild) {
     Write-Host "== Build presentation targets ($Configuration) ==" -ForegroundColor Cyan
-    cmake --build --preset $BuildPreset --target urpg_tests urpg_presentation_release_validation
+    cmake --build --preset $BuildPreset --target urpg_tests urpg_presentation_release_validation urpg_snapshot_tests
     if ($LASTEXITCODE -ne 0) {
         throw "Build failed for presentation targets."
     }
@@ -96,7 +96,13 @@ try {
         throw "Presentation gate failed."
     }
 
-    Write-Host "Presentation gate passed." -ForegroundColor Green
+    Write-Host "== Visual regression gate (fail-on-drift) ==" -ForegroundColor Cyan
+    ctest -C $Configuration -L regression --output-on-failure
+    if ($LASTEXITCODE -ne 0) {
+        throw "Visual regression gate failed: one or more golden comparisons drifted. Re-run with URPG_REGEN_RENDERER_BACKED_GOLDENS=1 to update baselines if the change is intentional."
+    }
+
+    Write-Host "Presentation and visual regression gates passed." -ForegroundColor Green
 }
 finally {
     Pop-Location

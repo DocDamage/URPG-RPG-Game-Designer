@@ -2,6 +2,7 @@
 
 #include "engine/core/mod/mod_registry.h"
 #include "engine/core/mod/mod_registry_validator.h"
+#include "engine/core/mod/mod_loader.h"
 
 #include <chrono>
 #include <cstdlib>
@@ -212,4 +213,179 @@ TEST_CASE("ModRegistryValidator: CI governance script validates artifacts", "[mo
     REQUIRE(result["passed"].get<bool>() == true);
     REQUIRE(result["errors"].is_array());
     REQUIRE(result["errors"].empty());
+}
+
+// ─── S28-T05/T06: ModLoader — live loading, sandboxing, store contract ────────
+
+static ModManifest makeValidManifest(const std::string& id) {
+    ModManifest m;
+    m.id = id;
+    m.name = "Mod " + id;
+    m.version = "1.0.0";
+    m.entryPoint = "scripts/" + id + ".js";
+    return m;
+}
+
+TEST_CASE("ModLoader: loadMod registers and activates a valid mod",
+          "[mod][loader][s28t05]") {
+    ModRegistry registry;
+    ModLoader loader(registry);
+
+    auto result = loader.loadMod(makeValidManifest("alpha"));
+
+    REQUIRE(result.success);
+    REQUIRE(result.modId == "alpha");
+    REQUIRE(registry.getMod("alpha").has_value());
+    const auto active = registry.listActiveMods();
+    REQUIRE(std::find(active.begin(), active.end(), "alpha") != active.end());
+}
+
+TEST_CASE("ModLoader: loadMod stores sandbox policy and returns it via getSandboxPolicy",
+          "[mod][loader][s28t05]") {
+    ModRegistry registry;
+    ModLoader loader(registry);
+
+    ModSandboxPolicy policy;
+    policy.allowFileSystemRead = true;
+    policy.allowNetworkAccess = false;
+
+    auto result = loader.loadMod(makeValidManifest("beta"), policy);
+    REQUIRE(result.success);
+
+    auto stored = loader.getSandboxPolicy("beta");
+    REQUIRE(stored.has_value());
+    REQUIRE(stored->allowFileSystemRead == true);
+    REQUIRE(stored->allowNetworkAccess == false);
+    REQUIRE(stored->allowNativeInterop == false);
+}
+
+TEST_CASE("ModLoader: unloadMod removes mod, sandbox policy, and updates load order",
+          "[mod][loader][s28t05]") {
+    ModRegistry registry;
+    ModLoader loader(registry);
+
+    loader.loadMod(makeValidManifest("gamma"));
+    REQUIRE(registry.getMod("gamma").has_value());
+
+    auto result = loader.unloadMod("gamma");
+    REQUIRE(result.success);
+    REQUIRE_FALSE(registry.getMod("gamma").has_value());
+    REQUIRE_FALSE(loader.getSandboxPolicy("gamma").has_value());
+    // No remaining mods → empty load order
+    REQUIRE(result.loadOrder.empty());
+}
+
+TEST_CASE("ModLoader: unloadMod of unknown mod returns failure",
+          "[mod][loader][s28t05]") {
+    ModRegistry registry;
+    ModLoader loader(registry);
+
+    auto result = loader.unloadMod("no_such_mod");
+    REQUIRE_FALSE(result.success);
+    REQUIRE(result.errorMessage.find("Unknown mod") != std::string::npos);
+}
+
+TEST_CASE("ModLoader: loadMod returns deterministic load order across multiple mods",
+          "[mod][loader][s28t05]") {
+    ModRegistry registry;
+    ModLoader loader(registry);
+
+    loader.loadMod(makeValidManifest("dep_a"));
+    auto result = loader.loadMod(makeValidManifest("dep_b"));
+    REQUIRE(result.success);
+    // Both mods should appear in the resolved load order
+    REQUIRE(result.loadOrder.size() == 2);
+}
+
+TEST_CASE("ModLoader: duplicate loadMod returns failure",
+          "[mod][loader][s28t05]") {
+    ModRegistry registry;
+    ModLoader loader(registry);
+
+    REQUIRE(loader.loadMod(makeValidManifest("dup")).success);
+    auto result = loader.loadMod(makeValidManifest("dup"));
+    REQUIRE_FALSE(result.success);
+    REQUIRE(result.errorMessage.find("already registered") != std::string::npos);
+}
+
+TEST_CASE("ModLoader: default sandbox policy is deny-all",
+          "[mod][loader][s28t05]") {
+    ModRegistry registry;
+    ModLoader loader(registry);
+
+    loader.loadMod(makeValidManifest("restricted"));
+    auto policy = loader.getSandboxPolicy("restricted");
+    REQUIRE(policy.has_value());
+    REQUIRE(policy->allowFileSystemRead == false);
+    REQUIRE(policy->allowFileSystemWrite == false);
+    REQUIRE(policy->allowNetworkAccess == false);
+    REQUIRE(policy->allowNativeInterop == false);
+}
+
+TEST_CASE("ModLoader: validateContract rejects missing id",
+          "[mod][loader][s28t06]") {
+    ModRegistry registry;
+    ModLoader loader(registry);
+
+    ModManifest bad = makeValidManifest("x");
+    bad.id = "";
+
+    auto failures = loader.validateContract(bad);
+    REQUIRE_FALSE(failures.empty());
+    REQUIRE(failures[0].field == "id");
+}
+
+TEST_CASE("ModLoader: validateContract rejects missing entryPoint",
+          "[mod][loader][s28t06]") {
+    ModRegistry registry;
+    ModLoader loader(registry);
+
+    ModManifest bad = makeValidManifest("y");
+    bad.entryPoint = "";
+
+    auto failures = loader.validateContract(bad);
+    REQUIRE_FALSE(failures.empty());
+    REQUIRE(failures[0].field == "entryPoint");
+}
+
+TEST_CASE("ModLoader: validateContract passes for well-formed manifest",
+          "[mod][loader][s28t06]") {
+    ModRegistry registry;
+    ModLoader loader(registry);
+
+    auto failures = loader.validateContract(makeValidManifest("good_mod"));
+    REQUIRE(failures.empty());
+}
+
+TEST_CASE("ModLoader: loadMod with contract violation returns failure without registering",
+          "[mod][loader][s28t06]") {
+    ModRegistry registry;
+    ModLoader loader(registry);
+
+    ModManifest bad;
+    bad.id = "bad";
+    bad.name = "Bad Mod";
+    // version and entryPoint intentionally empty
+
+    auto result = loader.loadMod(bad);
+    REQUIRE_FALSE(result.success);
+    REQUIRE(result.errorMessage.find("Contract violation") != std::string::npos);
+    REQUIRE_FALSE(registry.getMod("bad").has_value());
+}
+
+TEST_CASE("ModLoader: setStoreContract adjusts required fields",
+          "[mod][loader][s28t06]") {
+    ModRegistry registry;
+    ModLoader loader(registry);
+
+    // Relax contract: entryPoint not required
+    ModStoreContract relaxed;
+    relaxed.requireEntryPoint = false;
+    loader.setStoreContract(relaxed);
+
+    ModManifest m = makeValidManifest("relaxed_mod");
+    m.entryPoint = "";  // would fail with default contract
+
+    auto result = loader.loadMod(m);
+    REQUIRE(result.success);
 }

@@ -219,3 +219,17 @@ Each governed schema entry should include:
 - Date: `2026-04-20`
 - Summary: sprite atlas schema with frame metadata, animation clips, and preview loop settings
 - Migration Impact: none; initial introduction
+
+### `gameplay_ability` (`gameplay_ability.schema.json`)
+
+- Version: `1.0.0`
+- Date: `2026-04-23`
+- Summary: JSON Schema draft-07 for AuthoredAbilityAsset — covers ability_id, cooldown_seconds, mp_cost, effect_id/attribute/operation/value/duration, pattern (embedded patternField), and unsupported_fields fallback container for compat-to-native mapping. S24-T01 schema migration proof.
+- Migration Impact: none; initial introduction. unsupported_fields preserves MZ source fields verbatim for round-trip fidelity.
+
+### `presentation_spatial_map_overlay` (`presentation_schema.json`)
+
+- Version: `1.0.0`
+- Date: `2026-04-23`
+- Summary: JSON Schema draft-07 for SpatialMapOverlay and embedded profile types (elevationGrid, fogProfile, postFXProfile, propInstance, lightProfile, vec3). S23-T03 schema migration proof.
+- Migration Impact: none; initial introduction.

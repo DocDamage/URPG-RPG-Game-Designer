@@ -17,6 +17,8 @@ struct MixPreset {
     std::map<AudioCategory, float> categoryVolumes;
     bool duckBGMOnSE = false;
     float duckAmount = 0.0f;
+    /** Category name strings encountered during JSON load that did not map to a known AudioCategory. */
+    std::vector<std::string> unknownCategoryNames;
 };
 
 /**

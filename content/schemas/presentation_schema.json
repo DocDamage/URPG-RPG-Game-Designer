@@ -1,0 +1,110 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "PresentationSchema",
+  "description": "Schema for URPG SpatialMapOverlay and related presentation profile types. Canonical authority: engine/core/presentation/presentation_schema.h",
+  "schemaVersion": 1,
+  "definitions": {
+    "vec3": {
+      "type": "object",
+      "required": ["x", "y", "z"],
+      "properties": {
+        "x": { "type": "number" },
+        "y": { "type": "number" },
+        "z": { "type": "number" }
+      },
+      "additionalProperties": false
+    },
+    "fogProfile": {
+      "type": "object",
+      "description": "Atmospheric fog parameters.",
+      "properties": {
+        "density":    { "type": "number", "minimum": 0.0, "maximum": 1.0 },
+        "color":      { "type": "array", "items": { "type": "number" }, "minItems": 3, "maxItems": 3 },
+        "startDist":  { "type": "number", "minimum": 0.0 },
+        "endDist":    { "type": "number", "minimum": 0.0 }
+      },
+      "additionalProperties": false
+    },
+    "postFXProfile": {
+      "type": "object",
+      "description": "Post-processing effect parameters.",
+      "properties": {
+        "exposure":        { "type": "number", "minimum": 0.0 },
+        "bloomThreshold":  { "type": "number", "minimum": 0.0 },
+        "bloomIntensity":  { "type": "number", "minimum": 0.0 },
+        "saturation":      { "type": "number", "minimum": 0.0 }
+      },
+      "additionalProperties": false
+    },
+    "propInstance": {
+      "type": "object",
+      "required": ["assetId", "posX", "posY", "posZ", "rotY", "scale"],
+      "properties": {
+        "assetId": { "type": "string", "minLength": 1 },
+        "posX":    { "type": "number" },
+        "posY":    { "type": "number" },
+        "posZ":    { "type": "number" },
+        "rotY":    { "type": "number" },
+        "scale":   { "type": "number", "exclusiveMinimum": 0.0 }
+      },
+      "additionalProperties": false
+    },
+    "lightProfile": {
+      "type": "object",
+      "required": ["lightId", "type", "position", "color", "intensity", "range"],
+      "properties": {
+        "lightId":   { "type": "integer", "minimum": 0 },
+        "type":      { "type": "string", "enum": ["Directional", "Point", "Spot"] },
+        "position":  { "$ref": "#/definitions/vec3" },
+        "color":     { "type": "array", "items": { "type": "number" }, "minItems": 3, "maxItems": 3 },
+        "intensity": { "type": "number", "minimum": 0.0 },
+        "range":     { "type": "number", "minimum": 0.0 }
+      },
+      "additionalProperties": false
+    },
+    "elevationGrid": {
+      "type": "object",
+      "required": ["width", "height", "levels", "stepHeight"],
+      "properties": {
+        "width":      { "type": "integer", "minimum": 0 },
+        "height":     { "type": "integer", "minimum": 0 },
+        "levels":     { "type": "array", "items": { "type": "integer" } },
+        "stepHeight": { "type": "number", "exclusiveMinimum": 0.0 }
+      },
+      "additionalProperties": false
+    }
+  },
+  "type": "object",
+  "required": ["schema", "mapId", "schemaVersion", "elevation"],
+  "properties": {
+    "schema": {
+      "type": "string",
+      "const": "content/schemas/presentation_schema.json",
+      "description": "Self-reference for schema validation tooling."
+    },
+    "mapId": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Unique map identifier matching the engine MapScene ID."
+    },
+    "schemaVersion": {
+      "type": "integer",
+      "const": 1,
+      "description": "Version of this schema; bump on breaking changes."
+    },
+    "elevation": { "$ref": "#/definitions/elevationGrid" },
+    "fog":       { "$ref": "#/definitions/fogProfile" },
+    "postFX":    { "$ref": "#/definitions/postFXProfile" },
+    "props": {
+      "type": "array",
+      "items": { "$ref": "#/definitions/propInstance" },
+      "default": []
+    },
+    "lights": {
+      "type": "array",
+      "items": { "$ref": "#/definitions/lightProfile" },
+      "default": []
+    }
+  },
+  "additionalProperties": false
+}

@@ -1,0 +1,30 @@
+{
+  "name": "URPG_DependencyDrift_Fixture",
+  "version": "1.0.0-fixture",
+  "author": "URPG Fixture Harness",
+  "description": "Fixture for dependency drift detection. Declares a dependency on a plugin that may not be present in the corpus, to verify that the compat health checker and diagnostics system detect and report drift correctly.",
+  "dependencies": ["VisuStella_CoreEngine_MZ", "URPG_NonExistent_DependencyTarget"],
+  "parameters": {
+    "profile": "dependency_drift_test",
+    "strict_dependency_check": true
+  },
+  "commands": [
+    {
+      "name": "runWithDependencies",
+      "script": [
+        {"op": "set", "key": "plugin", "value": {"from": "pluginName"}},
+        {"op": "set", "key": "command", "value": {"from": "commandName"}},
+        {"op": "set", "key": "profile", "value": {"from": "param", "name": "profile"}},
+        {"op": "returnObject"}
+      ]
+    },
+    {
+      "name": "checkDependencyPresence",
+      "script": [
+        {"op": "set", "key": "plugin", "value": {"from": "pluginName"}},
+        {"op": "set", "key": "argCount", "value": {"from": "argCount"}},
+        {"op": "return", "value": {"from": "argCount"}}
+      ]
+    }
+  ]
+}

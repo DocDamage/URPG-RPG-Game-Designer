@@ -11,6 +11,8 @@ $signoffDocPaths = @{
     "battle_core" = Join-Path $repoRoot "docs\BATTLE_CORE_CLOSURE_SIGNOFF.md"
     "save_data_core" = Join-Path $repoRoot "docs\SAVE_DATA_CORE_CLOSURE_SIGNOFF.md"
     "compat_bridge_exit" = Join-Path $repoRoot "docs\COMPAT_BRIDGE_EXIT_SIGNOFF.md"
+    "gameplay_ability_framework" = Join-Path $repoRoot "docs\GAF_CLOSURE_SIGNOFF.md"
+    "presentation_runtime" = Join-Path $repoRoot "docs\PRESENTATION_RUNTIME_CLOSURE_SIGNOFF.md"
 }
 $releaseSignoffWorkflowRelativePath = "docs/RELEASE_SIGNOFF_WORKFLOW.md"
 

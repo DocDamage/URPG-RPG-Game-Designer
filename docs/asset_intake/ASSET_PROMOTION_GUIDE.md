@@ -1,7 +1,7 @@
 # URPG Asset Promotion Guide
 
 > Guide for staging → normalization → promotion workflow for private-use asset intake.  
-> See `URPG_private_asset_intake_plan.md` and `docs/TECHNICAL_DEBT_REMEDIATION_PLAN.md` (P3-03, Phase 4 / Workstream 4.2).
+> See [URPG_private_asset_intake_plan.md](./URPG_private_asset_intake_plan.md) and [TECHNICAL_DEBT_REMEDIATION_PLAN.md](../TECHNICAL_DEBT_REMEDIATION_PLAN.md) (P3-03, Phase 4 / Workstream 4.2).
 
 ---
 
@@ -167,4 +167,4 @@ Target integrations by priority:
 
 | Date | Change |
 |------|--------|
-| 2026-04-17 | Initial guide created from `URPG_private_asset_intake_plan.md` |
+| 2026-04-17 | Initial guide created from `docs/asset_intake/URPG_private_asset_intake_plan.md` |

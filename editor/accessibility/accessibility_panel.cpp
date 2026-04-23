@@ -43,12 +43,19 @@ void AccessibilityPanel::render() {
                 break;
         }
 
-        issueRows.push_back(nlohmann::json{
+        nlohmann::json issueEntry = nlohmann::json{
             {"severity", severityStr},
             {"category", categoryStr},
             {"elementId", issue.elementId},
             {"message", issue.message}
-        });
+        };
+        if (!issue.sourceFile.empty()) {
+            issueEntry["sourceFile"] = issue.sourceFile;
+        }
+        if (issue.sourceLine >= 1) {
+            issueEntry["sourceLine"] = issue.sourceLine;
+        }
+        issueRows.push_back(std::move(issueEntry));
     }
 
     m_snapshot = nlohmann::json{

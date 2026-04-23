@@ -1,0 +1,101 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "schemaVersion": 1,
+  "title": "Authored Ability Asset",
+  "description": "JSON schema for a URPG native gameplay ability definition (AuthoredAbilityAsset). Used for schema-validated authoring, migration proof fixtures, and compat-to-native mapping.",
+  "type": "object",
+  "properties": {
+    "schema": {
+      "type": "string",
+      "const": "content/schemas/gameplay_ability.schema.json",
+      "description": "Self-identifying schema reference. Must be present for runtime contract validation."
+    },
+    "schemaVersion": {
+      "type": "integer",
+      "const": 1
+    },
+    "ability_id": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Unique string identifier for this ability. Must be non-empty. Dot-namespaced IDs are conventional (e.g. 'skill.fire_bolt')."
+    },
+    "cooldown_seconds": {
+      "type": "number",
+      "minimum": 0.0,
+      "description": "Recharge time in seconds after the ability is used. 0 means no cooldown."
+    },
+    "mp_cost": {
+      "type": "number",
+      "minimum": 0.0,
+      "description": "MP (mana/magic points) consumed on activation."
+    },
+    "effect_id": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Identifier of the gameplay effect applied on activation."
+    },
+    "effect_attribute": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Name of the attribute modified by the effect (e.g. 'Attack', 'Defense', 'HP')."
+    },
+    "effect_operation": {
+      "type": "string",
+      "enum": ["Add", "Multiply", "Override"],
+      "description": "How the modifier is combined with the current attribute value."
+    },
+    "effect_value": {
+      "type": "number",
+      "description": "Scalar value of the attribute modification."
+    },
+    "effect_duration": {
+      "type": "number",
+      "minimum": 0.0,
+      "description": "Duration in seconds for the applied effect. 0 means instantaneous."
+    },
+    "pattern": {
+      "$ref": "#/definitions/patternField",
+      "description": "AoE/range pattern for the ability. A single-point pattern (origin only) represents a single-target ability."
+    },
+    "unsupported_fields": {
+      "type": "object",
+      "description": "Fallback container for source fields that have no native mapping. Preserved verbatim for round-trip fidelity. Runtime ignores this field.",
+      "additionalProperties": true
+    }
+  },
+  "required": [
+    "ability_id",
+    "cooldown_seconds",
+    "mp_cost",
+    "effect_id",
+    "effect_attribute",
+    "effect_operation",
+    "effect_value",
+    "effect_duration"
+  ],
+  "additionalProperties": false,
+  "definitions": {
+    "patternField": {
+      "type": "object",
+      "description": "2D coordinate pattern. See content/schemas/pattern_field.schema.json for full specification.",
+      "properties": {
+        "name": { "type": "string", "minLength": 1 },
+        "points": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "properties": {
+              "x": { "type": "integer" },
+              "y": { "type": "integer" }
+            },
+            "required": ["x", "y"],
+            "additionalProperties": false
+          }
+        }
+      },
+      "required": ["name", "points"],
+      "additionalProperties": false
+    }
+  }
+}

@@ -1,0 +1,31 @@
+{
+  "name": "URPG_ProfileMismatch_Fixture",
+  "version": "1.0.0-fixture",
+  "author": "URPG Fixture Harness",
+  "description": "Fixture for profile mismatch detection. Declares a profile that does not match expected plugin surface naming conventions, to verify that the compat health checker detects and reports naming/profile mismatches correctly.",
+  "parameters": {
+    "profile": "INVALID_PROFILE_NAME_UPPERCASE_VIOLATES_CONVENTION",
+    "windowClass": 9999,
+    "undeclared_parameter_key": "this_value_is_not_in_the_declared_param_set"
+  },
+  "commands": [
+    {
+      "name": "runWithMismatchedProfile",
+      "script": [
+        {"op": "set", "key": "plugin", "value": {"from": "pluginName"}},
+        {"op": "set", "key": "command", "value": {"from": "commandName"}},
+        {"op": "set", "key": "profile", "value": {"from": "param", "name": "profile"}},
+        {"op": "set", "key": "windowClass", "value": {"from": "param", "name": "windowClass"}},
+        {"op": "returnObject"}
+      ]
+    },
+    {
+      "name": "checkProfileMetadata",
+      "script": [
+        {"op": "set", "key": "plugin", "value": {"from": "pluginName"}},
+        {"op": "set", "key": "paramKeys", "value": {"from": "paramKeys"}},
+        {"op": "return", "value": {"from": "paramKeys"}}
+      ]
+    }
+  ]
+}

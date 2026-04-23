@@ -169,6 +169,8 @@ add_library(urpg_core
     engine/core/testing/visual_regression_harness.cpp
     engine/core/analytics/analytics_dispatcher.cpp
     engine/core/analytics/analytics_dispatcher_validator.cpp
+    engine/core/analytics/analytics_uploader.cpp
+    engine/core/analytics/analytics_privacy_controller.cpp
     engine/core/semver.cpp
     engine/core/asset_compressor.cpp
     engine/core/threading/thread_roles.cpp
@@ -248,6 +250,9 @@ add_library(urpg_core
     editor/sprite/sprite_animation_preview_panel.cpp
     editor/accessibility/accessibility_panel.cpp
     editor/accessibility/accessibility_menu_adapter.cpp
+    editor/accessibility/accessibility_spatial_adapter.cpp
+    editor/accessibility/accessibility_audio_adapter.cpp
+    editor/accessibility/accessibility_battle_adapter.cpp
     editor/audio/audio_mix_panel.cpp
     editor/audio/audio_inspector_model.cpp
     editor/analytics/analytics_panel.cpp
@@ -260,6 +265,7 @@ add_library(urpg_core
     engine/core/ability/pattern_field_presets.cpp
     engine/core/mod/mod_registry.cpp
     engine/core/mod/mod_registry_validator.cpp
+    engine/core/mod/mod_loader.cpp
     engine/core/export/export_validator.cpp
     engine/core/tools/export_packager.cpp
     engine/core/level/level_assembly.cpp
@@ -592,6 +598,7 @@ add_executable(urpg_tests
     tests/unit/test_huggingface_curated_assets.cpp
     tests/unit/test_ability_activation.cpp
     tests/unit/test_ability_e2e.cpp
+    tests/unit/test_ability_battle_integration.cpp
     tests/unit/test_pattern_field.cpp
     tests/unit/test_effect_resolver.cpp
     tests/unit/test_wave3_gaf.cpp
@@ -619,8 +626,13 @@ add_executable(urpg_tests
     tests/unit/test_export_diagnostics_panel.cpp
     tests/unit/test_visual_regression_harness.cpp
     tests/unit/test_truth_reconciler.cpp
+    tests/unit/test_governance_regression.cpp
     tests/unit/test_analytics_dispatcher.cpp
     tests/unit/test_analytics_panel.cpp
+    tests/unit/test_template_acceptance.cpp
+    tests/unit/test_template_bar_quality.cpp
+    tests/unit/test_s31_template_evidence_snapshots.cpp
+    tests/unit/test_s32_wysiwyg_lanes.cpp
     tests/engine/core/test_render_assets.cpp
     tests/test_asset_license_audit.cpp
     tests/test_copilot_kernel.cpp
@@ -694,7 +706,7 @@ catch_discover_tests(
 catch_discover_tests(
     urpg_snapshot_tests
     DISCOVERY_MODE PRE_TEST
-    PROPERTIES LABELS "nightly"
+    PROPERTIES LABELS "nightly;regression"
 )
 
 catch_discover_tests(

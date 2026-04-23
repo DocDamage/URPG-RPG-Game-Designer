@@ -63,6 +63,48 @@ std::vector<AudioMixIssue> AudioMixValidator::validate(const AudioMixPresetBank&
                 "Preset has no category volume mappings defined"
             });
         }
+
+        // 5. Unknown category names (populated during JSON load)
+        for (const auto& unknownName : preset.unknownCategoryNames) {
+            issues.push_back(AudioMixIssue{
+                AudioMixIssueSeverity::Warning,
+                AudioMixIssueCategory::UnknownCategory,
+                name,
+                "Unknown audio category '" + unknownName + "' silently absorbed as System"
+            });
+        }
+    }
+
+    // 6. Cross-preset duck-rule conflict: multiple presets with duckBGMOnSE enabled
+    //    but different duckAmount values → ambiguous bank-level ducking behavior.
+    std::vector<std::string> duckEnabledNames;
+    for (const auto& [name, preset] : presets) {
+        if (preset.duckBGMOnSE) {
+            duckEnabledNames.push_back(name);
+        }
+    }
+    if (duckEnabledNames.size() >= 2) {
+        float refAmount = presets.at(duckEnabledNames.front()).duckAmount;
+        bool allSame = true;
+        for (const auto& n : duckEnabledNames) {
+            if (presets.at(n).duckAmount != refAmount) {
+                allSame = false;
+                break;
+            }
+        }
+        if (!allSame) {
+            std::string nameList;
+            for (std::size_t i = 0; i < duckEnabledNames.size(); ++i) {
+                if (i > 0) nameList += ", ";
+                nameList += duckEnabledNames[i];
+            }
+            issues.push_back(AudioMixIssue{
+                AudioMixIssueSeverity::Warning,
+                AudioMixIssueCategory::CrossPresetDuckConflict,
+                "",
+                "Multiple presets enable BGM ducking with conflicting duck amounts: " + nameList
+            });
+        }
     }
 
     return issues;

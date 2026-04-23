@@ -88,6 +88,12 @@ try {
         throw "Compat weekly regression failed."
     }
 
+    Write-Host "== Compat corpus health check ==" -ForegroundColor Cyan
+    & "$PSScriptRoot\check_compat_health.ps1"
+    if ($LASTEXITCODE -ne 0) {
+        throw "Compat corpus health check failed."
+    }
+
     Write-Host "Compat weekly regression passed." -ForegroundColor Green
 }
 finally {

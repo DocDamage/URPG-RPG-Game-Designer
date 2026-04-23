@@ -1,7 +1,7 @@
 # URPG External Repository Watchlist
 
 > Governed intake program for external repositories.  
-> See `URPG_repo_intake_plan.md` (project root) and `docs/TECHNICAL_DEBT_REMEDIATION_PLAN.md` (P3-02, Phase 4 / Workstream 4.1) for program context.
+> See [URPG_repo_intake_plan.md](./URPG_repo_intake_plan.md) and [TECHNICAL_DEBT_REMEDIATION_PLAN.md](../TECHNICAL_DEBT_REMEDIATION_PLAN.md) (P3-02, Phase 4 / Workstream 4.1) for program context.
 
 ---
 
@@ -49,4 +49,4 @@
 
 | Date | Change |
 |------|--------|
-| 2026-04-17 | Initial watchlist created from `URPG_repo_intake_plan.md` |
+| 2026-04-17 | Initial watchlist created from `docs/external-intake/URPG_repo_intake_plan.md` |

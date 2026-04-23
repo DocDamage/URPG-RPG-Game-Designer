@@ -58,7 +58,21 @@ This keeps new compat failure modes from becoming silent or checklist-only evide
 
 ---
 
-## 5. Related Artifacts
+## 5. Review Cadence
+
+Compat bridge exit is a maintenance-mode lane that requires ongoing review rather than a one-time closure:
+
+| Review Trigger | Required Action |
+|----------------|----------------|
+| New compat fixture added to curated corpus | Confirm it is covered by `test_compat_plugin_fixtures.cpp` and the weekly regression lane |
+| Plugin manifest change affecting a curated profile | Update the corresponding fixture and re-run `ctest -L weekly` |
+| Compat status label changed from `PARTIAL` to anything else | Human maintainer must verify the new label against `COMPAT_EXIT_CHECKLIST.md` before commit |
+| Monthly scheduled review | Run `tools/ci/run_compat_weekly_regression.ps1` and record outcome in a reviewer note below |
+| Any promotion consideration | Reviewer must sign the checklist in `docs/COMPAT_BRIDGE_EXIT_SIGNOFF.md` and file a deliberate edit to `readiness_status.json` |
+
+---
+
+## 6. Related Artifacts
 
 - `docs/COMPAT_EXIT_CHECKLIST.md`
 - `docs/PROGRAM_COMPLETION_STATUS.md`

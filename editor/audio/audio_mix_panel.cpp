@@ -6,6 +6,25 @@ void AudioMixPanel::bindBank(urpg::audio::AudioMixPresetBank* bank) {
     m_bank = bank;
 }
 
+void AudioMixPanel::bindCore(urpg::audio::AudioCore* core) {
+    m_core = core;
+}
+
+bool AudioMixPanel::selectPreset(const std::string& name) {
+    if (!m_bank) {
+        return false;
+    }
+    auto presetOpt = m_bank->loadPreset(name);
+    if (!presetOpt.has_value()) {
+        return false;
+    }
+    m_selectedPreset = name;
+    if (m_core) {
+        m_bank->applyPreset(*m_core, name);
+    }
+    return true;
+}
+
 void AudioMixPanel::render() {
     nlohmann::json snapshot;
 
@@ -46,6 +65,12 @@ void AudioMixPanel::render() {
         snapshot["presetCount"] = 0;
         snapshot["presetNames"] = nlohmann::json::array();
         snapshot["selectedPreset"] = nullptr;
+    }
+
+    // Surface live core duck state so the panel snapshot reflects runtime truth.
+    if (m_core) {
+        snapshot["liveCore"]["duckBGMOnSE"] = m_core->getDuckBGMOnSE();
+        snapshot["liveCore"]["duckAmount"]  = m_core->getDuckAmount();
     }
 
     m_lastSnapshot = snapshot;

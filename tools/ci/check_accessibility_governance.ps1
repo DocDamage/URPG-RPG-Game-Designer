@@ -11,6 +11,12 @@ $requiredFiles = @(
     "editor\accessibility\accessibility_panel.cpp",
     "editor\accessibility\accessibility_menu_adapter.h",
     "editor\accessibility\accessibility_menu_adapter.cpp",
+    "editor\accessibility\accessibility_spatial_adapter.h",
+    "editor\accessibility\accessibility_spatial_adapter.cpp",
+    "editor\accessibility\accessibility_audio_adapter.h",
+    "editor\accessibility\accessibility_audio_adapter.cpp",
+    "editor\accessibility\accessibility_battle_adapter.h",
+    "editor\accessibility\accessibility_battle_adapter.cpp",
     "tools\ci\check_accessibility_governance.ps1",
     "content\fixtures\accessibility_report_fixture.json"
 )

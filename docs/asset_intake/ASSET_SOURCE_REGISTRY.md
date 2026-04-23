@@ -1,7 +1,7 @@
 # URPG Asset Source Registry
 
 > Registry of direct-ingest and discovery sources for private-use asset intake.  
-> See `URPG_private_asset_intake_plan.md` and `docs/TECHNICAL_DEBT_REMEDIATION_PLAN.md` (P3-03, Phase 4 / Workstream 4.2).
+> See [URPG_private_asset_intake_plan.md](./URPG_private_asset_intake_plan.md) and [TECHNICAL_DEBT_REMEDIATION_PLAN.md](../TECHNICAL_DEBT_REMEDIATION_PLAN.md) (P3-03, Phase 4 / Workstream 4.2).
 
 ---
 
@@ -85,5 +85,5 @@ Each direct-ingest source must have a manifest under `imports/manifests/asset_so
 
 | Date | Change |
 |------|--------|
-| 2026-04-17 | Initial registry created from `URPG_private_asset_intake_plan.md` |
+| 2026-04-17 | Initial registry created from `docs/asset_intake/URPG_private_asset_intake_plan.md` |
 | 2026-04-19 | Replaced placeholder staged-state rows with concrete capture-state, handling-path, legal-disposition, and promotion-status records linked to the canonical manifests and intake report. |

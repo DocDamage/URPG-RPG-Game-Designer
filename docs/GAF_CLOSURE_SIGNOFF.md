@@ -2,7 +2,7 @@
 
 > **Status:** `PARTIAL`  
 > **Purpose:** Evidence-gathering artifact for GAF release closure review.  
-> **Date:** 2026-04-21  
+> **Date:** 2026-04-23  
 > **Rule:** This document does **not** promote `readiness_status.json` status. Human review is required for promotion to `READY`.
 
 ---
@@ -35,13 +35,18 @@ Two editor panels provide live ability inspection and diagnostics:
 
 ## 3. Schema Contracts
 
-No native JSON schema is enforced for ability definitions under `content/schemas/` at this time. The GAF relies on header-defined C++ structures and in-memory JSON serialization for pattern fields. Schema definition and validation are tracked as residual gaps.
+Native JSON schemas are enforced under `content/schemas/`:
+
+- **`gameplay_ability.schema.json`** (S24-T01) — JSON Schema draft-07 contract for `AuthoredAbilityAsset` definitions. Enforces required fields (`ability_id`, `cooldown_seconds`, `mp_cost`, `effect_id`, `effect_attribute`, `effect_operation`, `effect_value`, `effect_duration`), enumerated `effect_operation` values (`Add`, `Multiply`, `Override`), and an optional embedded `patternField` sub-schema. Unknown fields are preserved in `unsupported_fields` for deterministic fallback handling.
 
 ---
 
 ## 4. Migration Mapping
 
-No compat-to-native migration mapping exists for RPG Maker MV/MZ skills or items into the GAF shape. The GAF is a native-first advanced capability and does not yet provide an upgrader from legacy plugin-shaped ability systems. This is tracked as residual gap.
+`AbilityCompatMapper` (`engine/core/ability/ability_compat_mapper.h`, S24-T02) provides static compat-to-native mapping:
+
+- `mapMzSkillToNativeAbility()` — Maps an RPG Maker MZ/MV skill JSON object to a native `AuthoredAbilityAsset`. Deterministic cost mapping (mpCost, tpCost, tpGain), effect type inference from `damage.type`, and `_fallback_payload` preservation for unrecognised fields. Returns `AbilityCompatMapResult { AuthoredAbilityAsset ability; bool hadUnmappedFields; std::string warnings; }`.
+- `mapMzSkillArrayToNativeAbilities()` — Batch wrapper that maps an array of MZ skill objects and accumulates per-entry warnings.
 
 ---
 
@@ -57,7 +62,7 @@ No compat-to-native migration mapping exists for RPG Maker MV/MZ skills or items
 
 | Layer | Count | Sources |
 |-------|-------|---------|
-| Unit | 8 | `test_ability_activation`, `test_ability_e2e`, `test_ability_state_machine`, `test_ability_tasks`, `test_ability_pattern_integration`, `test_ability_inspector`, `test_wave3_gaf`, `test_effect_modifiers` |
+| Unit | 8 + S24 | `test_ability_activation`, `test_ability_e2e`, `test_ability_state_machine`, `test_ability_tasks`, `test_ability_pattern_integration`, `test_ability_inspector`, `test_wave3_gaf`, `test_effect_modifiers`, `test_ability_battle_integration` (S24-T05, 18 tests) |
 | Integration | 1 + closure suite | `test_wave1_closure_integration` |
 
 Key cross-subsystem assertions include:
@@ -70,11 +75,11 @@ Key cross-subsystem assertions include:
 
 ## 7. Remaining Residual Gaps (Honest Scope Limits)
 
-1. **Schema contracts**: No canonical JSON schema exists for ability definitions, activation info, or state machine phases. Pattern field has JSON serialization but no schema enforcement.
-2. **Migration mapping**: No compat-to-native upgrader maps RPG Maker MV/MZ skills, items, or troop actions into `GameplayAbility` / `AbilityStateMachine` shapes.
+1. **Schema contracts (partial closure)**: `gameplay_ability.schema.json` now enforces the `AuthoredAbilityAsset` JSON contract. Activation info, state machine phase schemas, and pattern field schema enforcement remain future work.
+2. **Migration mapping (partial closure)**: `AbilityCompatMapper` maps RPG Maker MZ/MV skills to native ability assets with deterministic fallback. Troop actions, item compat, and `AbilityStateMachine` phase shapes are not yet mapped from legacy data.
 3. **Gameplay task backend**: `AbilityTask` and `AbilityTask_WaitTime` exist as async task scaffolding, but deeper task backends (input-wait, event-wait, projectile collision) are not yet implemented.
 4. **Scripted condition evaluator**: `activeCondition` and `passiveCondition` strings are intentionally not evaluated in-tree. Non-empty `activeCondition` values fail with `active_condition_unsupported`, and `passiveCondition` is out of runtime scope unless future work deliberately reopens this lane.
-5. **Real gameplay loop integration**: The GAF is exercised through unit tests and inspector snapshots, but integration into a live `BattleScene` or `MapScene` ability command queue is future work.
+5. **Battle queue integration (partial closure)**: `AbilityBattleQueue` (S24-T03) provides the command queue between the ability framework and `BattleFlowController`. Full live `BattleScene` integration remains future work.
 
 ---
 

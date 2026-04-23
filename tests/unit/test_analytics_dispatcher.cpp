@@ -8,6 +8,8 @@
 #include <nlohmann/json.hpp>
 
 #include "engine/core/analytics/analytics_dispatcher.h"
+#include "engine/core/analytics/analytics_uploader.h"
+#include "engine/core/analytics/analytics_privacy_controller.h"
 
 using nlohmann::json;
 using urpg::analytics::AnalyticsDispatcher;
@@ -148,4 +150,197 @@ TEST_CASE("AnalyticsDispatcher governance script validates artifacts", "[analyti
     REQUIRE(result["passed"].get<bool>() == true);
     REQUIRE(result["errors"].is_array());
     REQUIRE(result["errors"].empty());
+}
+
+// ─── S28-T07: Analytics upload and session aggregation ───────────────────────
+
+using namespace urpg::analytics;
+
+TEST_CASE("AnalyticsUploader: flush empty events succeeds with zero flushed",
+          "[analytics][upload][s28t07]") {
+    AnalyticsUploader uploader;
+    uploader.setUploadHandler([](const std::string&) { return true; });
+
+    auto result = uploader.flush({}, "sess1");
+    REQUIRE(result.success);
+    REQUIRE(result.eventsFlushed == 0);
+}
+
+TEST_CASE("AnalyticsUploader: flush forwards events to handler as JSON",
+          "[analytics][upload][s28t07]") {
+    std::vector<std::string> received;
+    AnalyticsUploader uploader;
+    uploader.setUploadHandler([&](const std::string& payload) {
+        received.push_back(payload);
+        return true;
+    });
+
+    std::vector<AnalyticsEvent> events;
+    events.push_back({"player.move", "gameplay", 1, {}});
+    events.push_back({"ui.click",    "ui",       2, {}});
+
+    auto result = uploader.flush(events, "s1");
+    REQUIRE(result.success);
+    REQUIRE(result.eventsFlushed == 2);
+    REQUIRE_FALSE(received.empty());
+
+    // Verify the batch is valid JSON containing our events
+    const auto batch = nlohmann::json::parse(received[0]);
+    REQUIRE(batch.is_array());
+    REQUIRE(batch[0]["eventName"] == "player.move");
+    REQUIRE(batch[0]["sessionId"] == "s1");
+}
+
+TEST_CASE("AnalyticsUploader: batching splits events into multiple handler calls",
+          "[analytics][upload][s28t07]") {
+    int callCount = 0;
+    AnalyticsUploader uploader;
+    uploader.setBatchSize(2);
+    uploader.setUploadHandler([&](const std::string&) { ++callCount; return true; });
+
+    std::vector<AnalyticsEvent> events;
+    for (int i = 0; i < 5; ++i) {
+        events.push_back({"event", "cat", static_cast<uint64_t>(i), {}});
+    }
+
+    auto result = uploader.flush(events);
+    REQUIRE(result.success);
+    REQUIRE(result.eventsFlushed == 5);
+    REQUIRE(callCount == 3);  // ceil(5/2)
+}
+
+TEST_CASE("AnalyticsUploader: session aggregate accumulates across flushes",
+          "[analytics][upload][s28t07]") {
+    AnalyticsUploader uploader;
+    uploader.setUploadHandler([](const std::string&) { return true; });
+
+    std::vector<AnalyticsEvent> sess1 = {
+        {"level.start", "gameplay", 1, {}},
+        {"level.start", "gameplay", 2, {}},
+    };
+    std::vector<AnalyticsEvent> sess2 = {
+        {"ui.click", "ui", 3, {}},
+    };
+
+    uploader.flush(sess1);
+    uploader.flush(sess2);
+
+    const auto& agg = uploader.getAggregate();
+    REQUIRE(agg.totalSessions == 2);
+    REQUIRE(agg.totalEvents == 3);
+    REQUIRE(agg.countsByEvent.at("level.start") == 2);
+    REQUIRE(agg.countsByCategory.at("gameplay") == 2);
+    REQUIRE(agg.countsByCategory.at("ui") == 1);
+}
+
+TEST_CASE("AnalyticsUploader: handler failure propagates as flush failure",
+          "[analytics][upload][s28t07]") {
+    AnalyticsUploader uploader;
+    uploader.setUploadHandler([](const std::string&) { return false; });
+
+    std::vector<AnalyticsEvent> events = {{"e", "c", 1, {}}};
+    auto result = uploader.flush(events);
+    REQUIRE_FALSE(result.success);
+    REQUIRE_FALSE(result.errorMessage.empty());
+}
+
+TEST_CASE("AnalyticsUploader: flush without handler succeeds with 0 flushed",
+          "[analytics][upload][s28t07]") {
+    AnalyticsUploader uploader;
+    std::vector<AnalyticsEvent> events = {{"e", "c", 1, {}}};
+    auto result = uploader.flush(events);
+    REQUIRE(result.success);
+    REQUIRE(result.eventsFlushed == 0);
+    // Aggregate is still updated
+    REQUIRE(uploader.getAggregate().totalEvents == 1);
+}
+
+// ─── S28-T08: Privacy/consent and retention/export workflows ─────────────────
+
+TEST_CASE("AnalyticsPrivacyController: default consent is Unknown (analytics suppressed)",
+          "[analytics][privacy][s28t08]") {
+    AnalyticsPrivacyController ctrl;
+    REQUIRE(ctrl.getConsentState() == ConsentState::Unknown);
+    REQUIRE_FALSE(ctrl.isAnalyticsPermitted());
+}
+
+TEST_CASE("AnalyticsPrivacyController: Granted consent permits analytics",
+          "[analytics][privacy][s28t08]") {
+    AnalyticsPrivacyController ctrl;
+    ctrl.recordConsentDecision(ConsentState::Granted);
+    REQUIRE(ctrl.isAnalyticsPermitted());
+}
+
+TEST_CASE("AnalyticsPrivacyController: Denied consent suppresses analytics",
+          "[analytics][privacy][s28t08]") {
+    AnalyticsPrivacyController ctrl;
+    ctrl.recordConsentDecision(ConsentState::Denied);
+    REQUIRE_FALSE(ctrl.isAnalyticsPermitted());
+}
+
+TEST_CASE("AnalyticsPrivacyController: retention policy purges old events by age",
+          "[analytics][privacy][s28t08]") {
+    AnalyticsPrivacyController ctrl;
+    RetentionPolicy policy;
+    policy.maxAgeTicks = 10;
+    ctrl.setRetentionPolicy(policy);
+
+    std::vector<AnalyticsEvent> events = {
+        {"old", "c", 1, {}},   // age = 99 at tick 100 → purge
+        {"old2", "c", 5, {}},  // age = 95 → purge
+        {"recent", "c", 95, {}}, // age = 5 → keep
+    };
+
+    const size_t removed = ctrl.applyRetentionPolicy(events, 100);
+    REQUIRE(removed == 2);
+    REQUIRE(events.size() == 1);
+    REQUIRE(events[0].eventName == "recent");
+}
+
+TEST_CASE("AnalyticsPrivacyController: retention policy purges excess events by count",
+          "[analytics][privacy][s28t08]") {
+    AnalyticsPrivacyController ctrl;
+    RetentionPolicy policy;
+    policy.maxEventCount = 2;
+    ctrl.setRetentionPolicy(policy);
+
+    std::vector<AnalyticsEvent> events = {
+        {"e1", "c", 1, {}},
+        {"e2", "c", 2, {}},
+        {"e3", "c", 3, {}},
+    };
+
+    ctrl.applyRetentionPolicy(events, 100);
+    REQUIRE(events.size() == 2);
+    REQUIRE(events[0].eventName == "e2");
+    REQUIRE(events[1].eventName == "e3");
+}
+
+TEST_CASE("AnalyticsPrivacyController: exportUserData redacts PII keys",
+          "[analytics][privacy][s28t08]") {
+    AnalyticsPrivacyController ctrl;
+    ctrl.recordConsentDecision(ConsentState::Granted);
+
+    std::vector<AnalyticsEvent> events = {
+        {"login", "auth", 1, {{"username", "alice"}, {"device", "pc"}}}
+    };
+
+    const auto doc = ctrl.exportUserData(events, {"username"});
+    REQUIRE(doc["consentState"] == "Granted");
+    REQUIRE(doc["eventCount"] == 1);
+    REQUIRE(doc["events"][0]["parameters"]["username"] == "[REDACTED]");
+    REQUIRE(doc["events"][0]["parameters"]["device"] == "pc");
+}
+
+TEST_CASE("AnalyticsPrivacyController: eraseUserData clears all events",
+          "[analytics][privacy][s28t08]") {
+    AnalyticsPrivacyController ctrl;
+    std::vector<AnalyticsEvent> events = {
+        {"e1", "c", 1, {}},
+        {"e2", "c", 2, {}},
+    };
+
+    const size_t erased = ctrl.eraseUserData(events);
+    REQUIRE(erased == 2);
+    REQUIRE(events.empty());
 }

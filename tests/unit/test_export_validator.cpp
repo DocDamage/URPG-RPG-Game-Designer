@@ -247,3 +247,184 @@ TEST_CASE("ExportValidator: corrupted bundle integrity produces an error", "[exp
 
     std::filesystem::remove_all(base);
 }
+
+// ─── S29-T05/T06: Signing/enforcement seam + edge-case tamper coverage ───────
+
+TEST_CASE("ExportValidator: bundle with empty entries array passes integrity check",
+          "[export][validation][s29]") {
+    // Edge case: valid header + empty payload is legitimate (no assets yet)
+    const auto base = std::filesystem::temp_directory_path() / "urpg_export_val_empty_entries";
+    std::filesystem::remove_all(base);
+    std::filesystem::create_directories(base);
+
+    CreateRealExportFixture(base, ExportTarget::Windows_x64);
+
+    // Replace data.pck with a minimal valid bundle that has zero entries
+    constexpr char kMagic[] = "URPGPCK1";
+    nlohmann::json manifest;
+    manifest["entries"] = nlohmann::json::array();
+    manifest["payloadOffset"] = 0u;
+    manifest["integrityMode"] = "fnv1a64_keyed";
+    const std::string manifestText = manifest.dump();
+    const auto manifestSize = static_cast<std::uint32_t>(manifestText.size());
+
+    std::vector<std::uint8_t> bundle;
+    for (char c : std::string(kMagic, sizeof(kMagic) - 1)) {
+        bundle.push_back(static_cast<std::uint8_t>(c));
+    }
+    bundle.push_back(static_cast<std::uint8_t>(manifestSize & 0xFF));
+    bundle.push_back(static_cast<std::uint8_t>((manifestSize >> 8) & 0xFF));
+    bundle.push_back(static_cast<std::uint8_t>((manifestSize >> 16) & 0xFF));
+    bundle.push_back(static_cast<std::uint8_t>((manifestSize >> 24) & 0xFF));
+    for (char c : manifestText) {
+        bundle.push_back(static_cast<std::uint8_t>(c));
+    }
+
+    {
+        std::ofstream out(base / "data.pck", std::ios::binary | std::ios::trunc);
+        out.write(reinterpret_cast<const char*>(bundle.data()), static_cast<std::streamsize>(bundle.size()));
+    }
+
+    ExportValidator validator;
+    const auto errors = validator.validateExportDirectory(base.string(), ExportTarget::Windows_x64);
+    REQUIRE(errors.empty());
+
+    std::filesystem::remove_all(base);
+}
+
+TEST_CASE("ExportValidator: truncated bundle header reports structured error",
+          "[export][validation][s29]") {
+    const auto base = std::filesystem::temp_directory_path() / "urpg_export_val_truncated";
+    std::filesystem::remove_all(base);
+    std::filesystem::create_directories(base);
+
+    CreateRealExportFixture(base, ExportTarget::Windows_x64);
+
+    // Truncate data.pck to only 4 bytes — less than the magic + manifest-size header
+    {
+        std::ofstream out(base / "data.pck", std::ios::binary | std::ios::trunc);
+        const char tiny[] = {0x55, 0x52, 0x50, 0x47};
+        out.write(tiny, sizeof(tiny));
+    }
+
+    ExportValidator validator;
+    const auto errors = validator.validateExportDirectory(base.string(), ExportTarget::Windows_x64);
+    REQUIRE_FALSE(errors.empty());
+    bool foundHeaderError = false;
+    for (const auto& e : errors) {
+        if (e.find("truncated") != std::string::npos || e.find("header") != std::string::npos ||
+            e.find("Invalid asset package") != std::string::npos) {
+            foundHeaderError = true;
+            break;
+        }
+    }
+    REQUIRE(foundHeaderError);
+
+    std::filesystem::remove_all(base);
+}
+
+TEST_CASE("ExportValidator: wrong magic bytes reports structured error",
+          "[export][validation][s29]") {
+    const auto base = std::filesystem::temp_directory_path() / "urpg_export_val_badmagic";
+    std::filesystem::remove_all(base);
+    std::filesystem::create_directories(base);
+
+    CreateRealExportFixture(base, ExportTarget::Windows_x64);
+
+    auto bytes = ReadFileBytes(base / "data.pck");
+    REQUIRE(bytes.size() >= 8);
+    // Corrupt first byte of magic
+    bytes[0] ^= 0xFF;
+
+    {
+        std::ofstream out(base / "data.pck", std::ios::binary | std::ios::trunc);
+        out.write(reinterpret_cast<const char*>(bytes.data()), static_cast<std::streamsize>(bytes.size()));
+    }
+
+    ExportValidator validator;
+    const auto errors = validator.validateExportDirectory(base.string(), ExportTarget::Windows_x64);
+    REQUIRE_FALSE(errors.empty());
+    bool foundMagicError = false;
+    for (const auto& e : errors) {
+        if (e.find("URPGPCK1") != std::string::npos || e.find("header") != std::string::npos ||
+            e.find("Invalid asset package") != std::string::npos) {
+            foundMagicError = true;
+            break;
+        }
+    }
+    REQUIRE(foundMagicError);
+
+    std::filesystem::remove_all(base);
+}
+
+TEST_CASE("ExportValidator: manifest with missing integrityMode reports enforcement error",
+          "[export][validation][s29]") {
+    const auto base = std::filesystem::temp_directory_path() / "urpg_export_val_no_integrity_mode";
+    std::filesystem::remove_all(base);
+    std::filesystem::create_directories(base);
+
+    CreateRealExportFixture(base, ExportTarget::Windows_x64);
+
+    // Re-write data.pck with a valid header but manifest lacking integrityMode
+    constexpr char kMagic[] = "URPGPCK1";
+    nlohmann::json manifest;
+    manifest["entries"] = nlohmann::json::array();
+    manifest["payloadOffset"] = 0u;
+    // integrityMode deliberately omitted
+
+    const std::string manifestText = manifest.dump();
+    const auto manifestSize = static_cast<std::uint32_t>(manifestText.size());
+
+    std::vector<std::uint8_t> bundle;
+    for (char c : std::string(kMagic, sizeof(kMagic) - 1)) {
+        bundle.push_back(static_cast<std::uint8_t>(c));
+    }
+    bundle.push_back(static_cast<std::uint8_t>(manifestSize & 0xFF));
+    bundle.push_back(static_cast<std::uint8_t>((manifestSize >> 8) & 0xFF));
+    bundle.push_back(static_cast<std::uint8_t>((manifestSize >> 16) & 0xFF));
+    bundle.push_back(static_cast<std::uint8_t>((manifestSize >> 24) & 0xFF));
+    for (char c : manifestText) {
+        bundle.push_back(static_cast<std::uint8_t>(c));
+    }
+
+    {
+        std::ofstream out(base / "data.pck", std::ios::binary | std::ios::trunc);
+        out.write(reinterpret_cast<const char*>(bundle.data()), static_cast<std::streamsize>(bundle.size()));
+    }
+
+    ExportValidator validator;
+    const auto errors = validator.validateExportDirectory(base.string(), ExportTarget::Windows_x64);
+    REQUIRE_FALSE(errors.empty());
+    bool foundIntegrityModeError = false;
+    for (const auto& e : errors) {
+        if (e.find("integrity") != std::string::npos) {
+            foundIntegrityModeError = true;
+            break;
+        }
+    }
+    REQUIRE(foundIntegrityModeError);
+
+    std::filesystem::remove_all(base);
+}
+
+TEST_CASE("ExportValidator: path-not-found returns a structured error",
+          "[export][validation][s29]") {
+    ExportValidator validator;
+    const auto errors = validator.validateExportDirectory(
+        "/nonexistent/urpg_export_does_not_exist_xyz", ExportTarget::Windows_x64);
+    REQUIRE_FALSE(errors.empty());
+    REQUIRE(errors[0].find("not a directory") != std::string::npos ||
+            errors[0].find("does not exist") != std::string::npos);
+}
+
+TEST_CASE("ExportValidator: report JSON for all-passing export is stable across calls",
+          "[export][validation][s29]") {
+    ExportValidator validator;
+    const std::vector<std::string> noErrors;
+    const auto report1 = validator.buildReportJson(noErrors, ExportTarget::Windows_x64);
+    const auto report2 = validator.buildReportJson(noErrors, ExportTarget::Windows_x64);
+    REQUIRE(report1.dump() == report2.dump());
+    REQUIRE(report1["passed"] == true);
+    REQUIRE(report1["errors"].empty());
+}
+

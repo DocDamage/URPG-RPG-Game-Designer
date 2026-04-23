@@ -58,4 +58,4 @@ Before marking a subsystem as closure-complete:
 - Updated status docs:
   - `README.md`
   - `docs/PROGRAM_COMPLETION_STATUS.md`
-  - `URPG_Blueprint_v3_1_Integrated.md`
+  - `docs/archive/blueprints/URPG_Blueprint_v3_1_Integrated.md`

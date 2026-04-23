@@ -1,8 +1,10 @@
 # Technical Debt Remediation Plan
 
 > **Document status:** Ninth-pass revision — canonical remediation hub as of 2026-04-22.
-> Incorporates stale-state debt, placeholder export-surface debt, documentation/test drift findings, the external-repository intake program defined in [URPG_repo_intake_plan.md](../URPG_repo_intake_plan.md), and the private-use asset intake program defined in [URPG_private_asset_intake_plan.md](../URPG_private_asset_intake_plan.md).
+> Incorporates stale-state debt, placeholder export-surface debt, documentation/test drift findings, the external-repository intake program defined in [URPG_repo_intake_plan.md](./external-intake/URPG_repo_intake_plan.md), and the private-use asset intake program defined in [URPG_private_asset_intake_plan.md](./asset_intake/URPG_private_asset_intake_plan.md).
 > This revision also absorbs the newly added PGMMV, native-absorption, and governance/template-expansion planning inputs into the remediation program so roadmap expansion, truthfulness, and execution governance share one canonical hub.
+>
+> Execution annex: [TECHNICAL_DEBT_ACTION_PLAN.md](./TECHNICAL_DEBT_ACTION_PLAN.md) converts the active audit findings into sprint-sized checkbox work. It is subordinate to this remediation hub and must not be treated as a parallel authority.
 
 ---
 
@@ -142,7 +144,7 @@ The debt picture is narrower than it was at initial audit, but several cross-cut
 
 **Recent debt follow-through tightened several previously silent boundaries.** The current tree now has bounded texture-cache lifetime with an explicit `AssetLoader::clearCaches()` reset hook, an explicit single-thread-affine cache contract with cross-thread rejection, synchronized `ThreadRegistry` access, scoped Plugin API world binding, deterministic compat sprite bitmap-handle ownership plus source-rect/motion semantics, explicit `active_condition_unsupported` ability diagnostics, preserved BattleMigration action-effect fallback records, a bounded native/compat combat formula subset with named fallback reasons, more concrete battle-event interpreter coverage for variable conditional branches, live compat battle-audio routing into the deterministic `AudioManager` harness for battle BGM / victory ME / defeat ME, compat battleback lookup attempted from `BattleScene`, bounded colored battle HUD quads replacing the old white-box stand-ins, and a narrower `check_cmake_completeness.ps1` scope that no longer hides already-compiled tests as orphan debt. The stale `doc_generator.*` and `battle_tactics_window.*` seams remain quarantined under `tools/`, while the dead `EngineAssembly` / `MainAssembly` top-level seam and the dead editor-side `plugin_host.*`, `script_bridge.*`, and `scripting_console.*` seam have now been retired entirely rather than preserved as additional non-canonical execution paths. TD-02 is now closed as a measured render-path redesign lane: `RenderLayer` stores value-owned `FrameRenderCommand` payloads, `EngineShell` submits the frame buffer through `RendererBackend::processFrameCommands()`, the OpenGL/headless backends consume that buffer directly without forcing the hot path back through heap-backed `shared_ptr` command vectors, and render-layer telemetry plus warmed-up scene-load tests now prove steady-state frame submission does not grow frame-command storage or rebuild the legacy pointer view on the active path. TD-06 is now closed as a bounded release-truth lane: `OpenGLRenderer` plus `VisualRegressionHarness` provide one real renderer-backed capture lane with committed goldens now enforced in local gates and Gate 1 CI, `ExportPackager` provides bounded real Windows, Web, Linux, and macOS bootstrap paths, bundle-level lightweight RLE-plus-XOR payload protection, keyed integrity-tag validation for staged payloads during post-export verification, bounded repo-owned content bundling for readiness/schema/level-library roots, and governed manifest-driven promoted-asset staging support for `imports/normalized/` assets explicitly listed in `imports/manifests/asset_bundles/*.json`, its preflight contract is now explicitly separated from post-export artifact validation, and `ResourceProtector` now performs lightweight real RLE compression plus XOR obfuscation instead of a fake compression passthrough. TD-09 is now closed as an explicit unsupported-contract lane: `activeCondition` / `passiveCondition` remain accepted as authored diagnostic data, but the in-tree runtime does not evaluate them, `passiveCondition` is documented/tested as out of current runtime scope, and `canApplyEffect()` is documented/tested as an always-true effect-admission gate until the data model grows real effect-level gating. The warning-cleanup lane also moved from discovery to closure: the in-repo warning clusters exposed by the fresh baseline are now burned down, vendored SDL warning noise is quarantined at the SDL target, the active `dev-ninja-debug` tree no longer carries the stale `.ninja_log` recovery warning, and a focused warnings-as-errors lane now exists in both Gate 1 and `run_local_gates.ps1` via `URPG_WARNINGS_AS_ERRORS` without broadening vendored-code fallout. The remaining mandatory current work is broader scene coverage, automatic project-wide asset discovery/bundling, full native packaging/signing/notarization, and cryptographic signing/runtime enforcement beyond the current bounded smoke lane. TD-04 is now closed as an honest bounded contract rather than an implied march toward full RPG Maker battle parity. These are debt-reduction steps, not full closure of TD-05, but they materially reduce the amount of silent pass-through behavior still in tree.
 
-**Phase 4 intake governance is now concretized and closed as a remediation lane.** [URPG_repo_intake_plan.md](../URPG_repo_intake_plan.md) and [URPG_private_asset_intake_plan.md](../URPG_private_asset_intake_plan.md) are now backed by explicit dispositions, schemas, manifests, source-capture reporting, and a local validation gate so future external-repo and private-asset work enters through governed records instead of placeholder templates.
+**Phase 4 intake governance is now concretized and closed as a remediation lane.** [URPG_repo_intake_plan.md](./external-intake/URPG_repo_intake_plan.md) and [URPG_private_asset_intake_plan.md](./asset_intake/URPG_private_asset_intake_plan.md) are now backed by explicit dispositions, schemas, manifests, source-capture reporting, and a local validation gate so future external-repo and private-asset work enters through governed records instead of placeholder templates.
 
 **Planning authority is centralized, and the remaining risk is regression to drift.** Archived PGMMV/native-absorption roadmap inputs and the 2026-04-20 governance/template-expansion addendum are now reference-only planning inputs routed through this remediation hub and the canonical status stack. The remaining governance work is to keep future plan docs from reintroducing parallel authority and to prevent subsystem/template readiness language from outrunning evidence.
 
@@ -696,7 +698,7 @@ Do not leave the workspace counting tabs that do not render.
 - [cloud_service.h](../engine/core/social/cloud_service.h) only provides an in-memory `LocalInMemoryCloudService`.
 - [AI_SUBSYSTEM_CLOSURE_CHECKLIST.md](./AI_SUBSYSTEM_CLOSURE_CHECKLIST.md) marks encrypted sync as ready for `ICloudService` integration.
 - [AI_COPILOT_GUIDE.md](./AI_COPILOT_GUIDE.md) describes cloud sync as a workflow path for preserving conversations across devices.
-- [URPG_Blueprint_v3_1_Integrated.md](../URPG_Blueprint_v3_1_Integrated.md) is more accurate, noting the interface is stubbed.
+- [URPG_Blueprint_v3_1_Integrated.md](./archive/blueprints/URPG_Blueprint_v3_1_Integrated.md) is more accurate, noting the interface is stubbed.
 
 **Required action:**
 - Update [AI_SUBSYSTEM_CLOSURE_CHECKLIST.md](./AI_SUBSYSTEM_CLOSURE_CHECKLIST.md) and [AI_COPILOT_GUIDE.md](./AI_COPILOT_GUIDE.md) to state clearly that cloud sync is backed by an in-memory stub, not a production service.
@@ -814,7 +816,7 @@ Do not leave the workspace counting tabs that do not render.
 **Impact:** External repositories can accelerate compat, import, localization, exporter, and editor work, but ungoverned ingestion would create new license ambiguity, fixture sprawl, architectural contamination, and false confidence. Without integrating intake into remediation, the program can "fix" debt while silently creating new debt.
 
 **Root cause:**
-- [URPG_repo_intake_plan.md](../URPG_repo_intake_plan.md) now exists as a detailed subsidiary plan, but this remediation hub did not previously assign it a phase, owner, or Definition-of-Done hooks.
+- [URPG_repo_intake_plan.md](./external-intake/URPG_repo_intake_plan.md) now exists as a detailed subsidiary plan, but this remediation hub did not previously assign it a phase, owner, or Definition-of-Done hooks.
 - The intake program covers legal review, fixture corpus curation, wrapped dependency policy, and adopt/defer/ignore decisions for twelve external repositories.
 - Several existing remediation lanes already depend on exactly these outcomes:
   - compat fixture expansion
@@ -825,7 +827,7 @@ Do not leave the workspace counting tabs that do not render.
   - editor UX reference mining
 
 **Required action:**
-- Treat [URPG_repo_intake_plan.md](../URPG_repo_intake_plan.md) as the execution-detail plan for external repository intake, with this remediation hub defining when it starts and what gates it must satisfy.
+- Treat [URPG_repo_intake_plan.md](./external-intake/URPG_repo_intake_plan.md) as the execution-detail plan for external repository intake, with this remediation hub defining when it starts and what gates it must satisfy.
 - Launch intake governance inside Phase 4 before any production-candidate code or asset adoption proceeds:
   - repo watchlist
   - license matrix
@@ -842,12 +844,12 @@ Do not leave the workspace counting tabs that do not render.
 **Owner:** Tech lead or release owner (program governance), content/pipeline lead (asset/reference intake), subsystem owners for compat/import/export/editor follow-through.
 
 **Exit criteria:**
-- The intake governance artifacts from [URPG_repo_intake_plan.md](../URPG_repo_intake_plan.md) are active and linked from remediation work.
+- The intake governance artifacts from [URPG_repo_intake_plan.md](./external-intake/URPG_repo_intake_plan.md) are active and linked from remediation work.
 - No external repository is copied, vendored, or mined into URPG product lanes without a recorded legal and technical disposition.
 - External-repo-derived fixtures, wrappers, and adoption decisions are visible planning inputs rather than ad hoc local experiments.
 
 **Progress evidence (2026-04-19):**
-- [docs/external-intake/repo-watchlist.md](./external-intake/repo-watchlist.md) created and linked from [URPG_repo_intake_plan.md](../URPG_repo_intake_plan.md).
+- [docs/external-intake/repo-watchlist.md](./external-intake/repo-watchlist.md) created and linked from [URPG_repo_intake_plan.md](./external-intake/URPG_repo_intake_plan.md).
 - [docs/external-intake/license-matrix.md](./external-intake/license-matrix.md) now records explicit dispositions for all twelve repositories and blocks direct adoption when upstream terms are not yet re-verified in canonical intake records.
 - [docs/external-intake/repo-audit-template.md](./external-intake/repo-audit-template.md) created and linked.
 - [docs/external-intake/urpg_feature_adoption_matrix.md](./external-intake/urpg_feature_adoption_matrix.md) created and linked.
@@ -863,7 +865,7 @@ Do not leave the workspace counting tabs that do not render.
 **Impact:** Private-use asset ingestion can quickly improve editor feedback and runtime realism, but without governance it would create provenance drift, noisy content roots, license/context confusion, and false confidence about how "real" those surfaces are. The project would appear more complete while becoming harder to audit, curate, or safely evolve.
 
 **Root cause:**
-- [URPG_private_asset_intake_plan.md](../URPG_private_asset_intake_plan.md) now exists as a detailed subsidiary plan, but this remediation hub did not previously assign it a finding, phase workstream, owner, or Definition-of-Done hooks.
+- [URPG_private_asset_intake_plan.md](./asset_intake/URPG_private_asset_intake_plan.md) now exists as a detailed subsidiary plan, but this remediation hub did not previously assign it a finding, phase workstream, owner, or Definition-of-Done hooks.
 - The plan distinguishes two intake modes that need different handling:
   - direct-ingest sources intended for controlled staging and promotion
   - discovery/source-mining sources intended to feed a tracked acquisition backlog rather than direct copying
@@ -875,7 +877,7 @@ Do not leave the workspace counting tabs that do not render.
   - `docs/asset_intake/*`
 
 **Required action:**
-- Treat [URPG_private_asset_intake_plan.md](../URPG_private_asset_intake_plan.md) as the execution-detail plan for private-use asset intake, with this remediation hub defining the gating conditions and ownership.
+- Treat [URPG_private_asset_intake_plan.md](./asset_intake/URPG_private_asset_intake_plan.md) as the execution-detail plan for private-use asset intake, with this remediation hub defining the gating conditions and ownership.
 - Launch private asset intake governance inside Phase 4 before promoted private-use assets are allowed to influence editor/runtime product lanes:
   - source-capture and audit workflow
   - provenance-preserving staging and normalization structure
@@ -893,7 +895,7 @@ Do not leave the workspace counting tabs that do not render.
 **Owner:** Tech lead or release owner (program governance), content/pipeline lead (asset intake flow), asset/tooling owners for manifest/report infrastructure, affected editor/runtime owners for product-lane integration.
 
 **Exit criteria:**
-- The intake artifacts from [URPG_private_asset_intake_plan.md](../URPG_private_asset_intake_plan.md) are active and linked from remediation work.
+- The intake artifacts from [URPG_private_asset_intake_plan.md](./asset_intake/URPG_private_asset_intake_plan.md) are active and linked from remediation work.
 - Private-use assets are staged, normalized, and promoted through recorded provenance rather than ad hoc copies into runtime/editor trees.
 - Direct-ingest and discovery-source repos have distinct tracked handling paths.
 - At least one editor-facing path and one runtime-facing path consume promoted assets through the governed pipeline rather than through local-only drops.
@@ -958,7 +960,7 @@ These principles govern every remediation decision. When in doubt, refer back to
 - CI build gate is active and enforced.
 - The map/chat path compiles against real, current interfaces.
 
-**Related documentation:** [README](../README.md), [PLAN](../PLAN.md), [WORKLOG](../WORKLOG.md), [RELEASE_CHECKLIST](../RELEASE_CHECKLIST.md), [RISKS](../RISKS.md), [Master Blueprint](../URPG_Blueprint_v3_1_Integrated.md).
+**Related documentation:** [README](../README.md), [PLAN](./presentation/PLAN.md), [WORKLOG](../WORKLOG.md), [RELEASE_CHECKLIST](./presentation/RELEASE_CHECKLIST.md), [RISKS](./presentation/RISKS.md), [Master Blueprint](./archive/blueprints/URPG_Blueprint_v3_1_Integrated.md).
 
 ---
 
@@ -1063,12 +1065,12 @@ These principles govern every remediation decision. When in doubt, refer back to
 - Register or delete [test_spatial_editor.cpp](../tests/unit/test_spatial_editor.cpp) with rationale (see P2-04).
 - Keep the registered `test_compat_report_panel.cpp` surface and prevent reintroduction of stale duplicate compat-report test files (see P2-04).
 - Align plugin/cloud/export documentation with the actual routing state of [plugin_api.h](../engine/core/editor/plugin_api.h), [plugin_api.cpp](../engine/core/editor/plugin_api.cpp), and [cloud_service.h](../engine/core/social/cloud_service.h) (see P2-07, P2-08).
-- Stand up external repository intake governance from [URPG_repo_intake_plan.md](../URPG_repo_intake_plan.md) so future compat/import/export/editor improvements are sourced through an explicit legal, fixture, and adoption program rather than ad hoc repo ingestion (see P3-02).
-- Stand up private-use asset intake governance from [URPG_private_asset_intake_plan.md](../URPG_private_asset_intake_plan.md) so editor/runtime realism improvements, placeholder replacement, and vertical-slice asset upgrades are sourced through explicit staging, provenance, and promotion rules rather than ad hoc asset drops (see P3-03).
+- Stand up external repository intake governance from [URPG_repo_intake_plan.md](./external-intake/URPG_repo_intake_plan.md) so future compat/import/export/editor improvements are sourced through an explicit legal, fixture, and adoption program rather than ad hoc repo ingestion (see P3-02).
+- Stand up private-use asset intake governance from [URPG_private_asset_intake_plan.md](./asset_intake/URPG_private_asset_intake_plan.md) so editor/runtime realism improvements, placeholder replacement, and vertical-slice asset upgrades are sourced through explicit staging, provenance, and promotion rules rather than ad hoc asset drops (see P3-03).
 - Reconcile the newly added PGMMV/native-absorption roadmap inputs and governance/template-expansion addendum with the canonical remediation/status/roadmap set so the repo does not carry parallel execution authorities (see P2-10).
 
 #### Workstream 4.1 — External Repository Intake Governance (see P3-02)
-- Treat [URPG_repo_intake_plan.md](../URPG_repo_intake_plan.md) as the detailed execution plan for external intake.
+- Treat [URPG_repo_intake_plan.md](./external-intake/URPG_repo_intake_plan.md) as the detailed execution plan for external intake.
 - Create and maintain the canonical intake artifacts it calls for:
   - `docs/external-intake/repo-watchlist.md`
   - `docs/external-intake/license-matrix.md`
@@ -1085,7 +1087,7 @@ These principles govern every remediation decision. When in doubt, refer back to
   - editor UX reference mining
 
 #### Workstream 4.2 — Private-Use Asset Intake Governance (see P3-03)
-- Treat [URPG_private_asset_intake_plan.md](../URPG_private_asset_intake_plan.md) as the detailed execution plan for private-use asset intake.
+- Treat [URPG_private_asset_intake_plan.md](./asset_intake/URPG_private_asset_intake_plan.md) as the detailed execution plan for private-use asset intake.
 - Create and maintain the canonical intake artifacts it calls for:
   - `third_party/github_assets/*`
   - `imports/staging/asset_intake/*`
@@ -1106,7 +1108,7 @@ These principles govern every remediation decision. When in doubt, refer back to
   - future asset gap reporting and promotion decisions
 
 #### Workstream 4.3 — Canonical Roadmap Integration And Planning Governance (see P2-10)
-- Maintain [URPG_MASTER_NATIVE_ABSORPTION_AND_PGMMV_ROADMAP_2026-04-18.md](./archive/planning/URPG_MASTER_NATIVE_ABSORPTION_AND_PGMMV_ROADMAP_2026-04-18.md), [URPG_PGMMV_SUPPORT_PLAN.md](./archive/planning/URPG_PGMMV_SUPPORT_PLAN.md), and [URPG_MISSING_FEATURES_GOVERNANCE_AND_TEMPLATE_EXPANSION_PLAN_v2.md](../URPG_MISSING_FEATURES_GOVERNANCE_AND_TEMPLATE_EXPANSION_PLAN_v2.md) as execution-detail/reference inputs rather than letting them drift back into parallel-authority status.
+- Maintain [URPG_MASTER_NATIVE_ABSORPTION_AND_PGMMV_ROADMAP_2026-04-18.md](./archive/planning/URPG_MASTER_NATIVE_ABSORPTION_AND_PGMMV_ROADMAP_2026-04-18.md), [URPG_PGMMV_SUPPORT_PLAN.md](./archive/planning/URPG_PGMMV_SUPPORT_PLAN.md), and [URPG_MISSING_FEATURES_GOVERNANCE_AND_TEMPLATE_EXPANSION_PLAN_v2.md](./archive/planning/URPG_MISSING_FEATURES_GOVERNANCE_AND_TEMPLATE_EXPANSION_PLAN_v2.md) as execution-detail/reference inputs rather than letting them drift back into parallel-authority status.
 - Keep the phase story aligned across this remediation hub, [PROGRAM_COMPLETION_STATUS.md](./PROGRAM_COMPLETION_STATUS.md), and [NATIVE_FEATURE_ABSORPTION_PLAN.md](./NATIVE_FEATURE_ABSORPTION_PLAN.md) so new lanes inherit the same build/test/doc/release truth gates.
 - Preserve explicit canonical placement for the absorbed roadmap obligations:
   - PGMMV intake and migration truthfulness
@@ -1127,7 +1129,7 @@ These principles govern every remediation decision. When in doubt, refer back to
 - Newly added roadmap/support plans have been absorbed into the canonical remediation/status/roadmap stack or explicitly marked as superseded/reference-only inputs.
 - Compat exit checklist artifact ([docs/COMPAT_EXIT_CHECKLIST.md](./COMPAT_EXIT_CHECKLIST.md)) is published and satisfies part of the documentation-alignment exit criteria for the compat lane.
 
-**Related documentation:** [README](../README.md), [Master Blueprint](../URPG_Blueprint_v3_1_Integrated.md), [Archive Index](./archive/README.md), [NATIVE_FEATURE_ABSORPTION_PLAN](./NATIVE_FEATURE_ABSORPTION_PLAN.md), [PROGRAM_COMPLETION_STATUS](./PROGRAM_COMPLETION_STATUS.md), [URPG_MASTER_NATIVE_ABSORPTION_AND_PGMMV_ROADMAP_2026-04-18](./archive/planning/URPG_MASTER_NATIVE_ABSORPTION_AND_PGMMV_ROADMAP_2026-04-18.md), [URPG_PGMMV_SUPPORT_PLAN](./archive/planning/URPG_PGMMV_SUPPORT_PLAN.md), [URPG_repo_intake_plan](../URPG_repo_intake_plan.md), [URPG_private_asset_intake_plan](../URPG_private_asset_intake_plan.md), [presentation/schema_changelog](./presentation/schema_changelog.md), [presentation/SPATIAL_EDITOR_TOOLS](./presentation/SPATIAL_EDITOR_TOOLS.md), [presentation/performance_budgets](./presentation/performance_budgets.md), [presentation/test_matrix/MapScene_Contract](./presentation/test_matrix/MapScene_Contract.md), [presentation/test_matrix/MenuScene_Contract](./presentation/test_matrix/MenuScene_Contract.md), [presentation/test_matrix/BattleScene_Contract](./presentation/test_matrix/BattleScene_Contract.md), [presentation/test_matrix/OverlayUI_Contract](./presentation/test_matrix/OverlayUI_Contract.md).
+**Related documentation:** [README](../README.md), [Master Blueprint](./archive/blueprints/URPG_Blueprint_v3_1_Integrated.md), [Archive Index](./archive/README.md), [NATIVE_FEATURE_ABSORPTION_PLAN](./NATIVE_FEATURE_ABSORPTION_PLAN.md), [PROGRAM_COMPLETION_STATUS](./PROGRAM_COMPLETION_STATUS.md), [URPG_MASTER_NATIVE_ABSORPTION_AND_PGMMV_ROADMAP_2026-04-18](./archive/planning/URPG_MASTER_NATIVE_ABSORPTION_AND_PGMMV_ROADMAP_2026-04-18.md), [URPG_PGMMV_SUPPORT_PLAN](./archive/planning/URPG_PGMMV_SUPPORT_PLAN.md), [URPG_repo_intake_plan](./external-intake/URPG_repo_intake_plan.md), [URPG_private_asset_intake_plan](./asset_intake/URPG_private_asset_intake_plan.md), [presentation/schema_changelog](./presentation/schema_changelog.md), [presentation/SPATIAL_EDITOR_TOOLS](./presentation/SPATIAL_EDITOR_TOOLS.md), [presentation/performance_budgets](./presentation/performance_budgets.md), [presentation/test_matrix/MapScene_Contract](./presentation/test_matrix/MapScene_Contract.md), [presentation/test_matrix/MenuScene_Contract](./presentation/test_matrix/MenuScene_Contract.md), [presentation/test_matrix/BattleScene_Contract](./presentation/test_matrix/BattleScene_Contract.md), [presentation/test_matrix/OverlayUI_Contract](./presentation/test_matrix/OverlayUI_Contract.md).
 
 **Architecture Decision Records:** [ADR-001](./adr/ADR-001.md) through [ADR-010-presentation-completion](./adr/ADR-010-presentation-completion.md).
 
@@ -1168,7 +1170,7 @@ These principles govern every remediation decision. When in doubt, refer back to
   - `powershell -ExecutionPolicy Bypass -File tools/ci/check_phase4_intake_governance.ps1`
   - `ctest --preset dev-all --output-on-failure`
 
-**Related documentation:** [presentation/performance_budgets](./presentation/performance_budgets.md), [RISKS](../RISKS.md), [RELEASE_CHECKLIST](../RELEASE_CHECKLIST.md).
+**Related documentation:** [presentation/performance_budgets](./presentation/performance_budgets.md), [RISKS](./presentation/RISKS.md), [RELEASE_CHECKLIST](./presentation/RELEASE_CHECKLIST.md).
 
 ---
 
@@ -1261,15 +1263,15 @@ These are risks **to the remediation effort itself**, distinct from the technica
 The following documents must be updated whenever remediation work lands in the area they describe. Documentation updates are **not optional post-merge tasks** — they are part of the Definition of Done.
 
 - [README](../README.md)
-- [Master Blueprint](../URPG_Blueprint_v3_1_Integrated.md)
+- [Master Blueprint](./archive/blueprints/URPG_Blueprint_v3_1_Integrated.md)
 - [PROGRAM_COMPLETION_STATUS](./PROGRAM_COMPLETION_STATUS.md)
 - [NATIVE_FEATURE_ABSORPTION_PLAN](./NATIVE_FEATURE_ABSORPTION_PLAN.md)
 - [WAVE1_SUBSYSTEM_CLOSURE_CHECKLIST](./WAVE1_SUBSYSTEM_CLOSURE_CHECKLIST.md)
 - [WAVE2_AUDIO_STATE_SYNC_PLAN](./WAVE2_AUDIO_STATE_SYNC_PLAN.md)
 - [AI_COPILOT_GUIDE](./AI_COPILOT_GUIDE.md)
 - [AI_SUBSYSTEM_CLOSURE_CHECKLIST](./AI_SUBSYSTEM_CLOSURE_CHECKLIST.md)
-- [URPG_repo_intake_plan](../URPG_repo_intake_plan.md)
-- [URPG_private_asset_intake_plan](../URPG_private_asset_intake_plan.md)
+- [URPG_repo_intake_plan](./external-intake/URPG_repo_intake_plan.md)
+- [URPG_private_asset_intake_plan](./asset_intake/URPG_private_asset_intake_plan.md)
 - [Archive README](./archive/README.md)
 - [URPG_MASTER_NATIVE_ABSORPTION_AND_PGMMV_ROADMAP_2026-04-18](./archive/planning/URPG_MASTER_NATIVE_ABSORPTION_AND_PGMMV_ROADMAP_2026-04-18.md)
 - [URPG_PGMMV_SUPPORT_PLAN](./archive/planning/URPG_PGMMV_SUPPORT_PLAN.md)
@@ -1289,14 +1291,14 @@ This is the current documentation and planning file tree for the repo. It is int
 
 - [README.md](../README.md) — public repo overview, build entrypoints, and top-level documentation index.
 - [CONTRIBUTING.md](../CONTRIBUTING.md) — contributor workflow, hygiene rules, and PR expectations.
-- [PLAN.md](../PLAN.md) — active presentation-core project plan and task state.
-- [RELEASE_CHECKLIST.md](../RELEASE_CHECKLIST.md) — release-readiness checklist with presentation and remediation references.
-- [RISKS.md](../RISKS.md) — active risk register derived from the archived presentation architecture plan.
+- [PLAN.md](./presentation/PLAN.md) — active presentation-core project plan and task state.
+- [RELEASE_CHECKLIST.md](./presentation/RELEASE_CHECKLIST.md) — release-readiness checklist with presentation and remediation references.
+- [RISKS.md](./presentation/RISKS.md) — active risk register derived from the archived presentation architecture plan.
 - [WORKLOG.md](../WORKLOG.md) — chronological execution log and documentation sync history.
-- [URPG_Blueprint_v3_1_Integrated.md](../URPG_Blueprint_v3_1_Integrated.md) — master product/technical blueprint.
-- [URPG_Blueprint_v3_1_Integrated.docx](../URPG_Blueprint_v3_1_Integrated.docx) — binary Word copy of the master blueprint.
-- [URPG_repo_intake_plan.md](../URPG_repo_intake_plan.md) — external-repository intake execution plan governed under P3-02 / Phase 4.1.
-- [URPG_private_asset_intake_plan.md](../URPG_private_asset_intake_plan.md) — private-use asset intake execution plan governed under P3-03 / Phase 4.2.
+- [URPG_Blueprint_v3_1_Integrated.md](./archive/blueprints/URPG_Blueprint_v3_1_Integrated.md) — master product/technical blueprint.
+- [URPG_Blueprint_v3_1_Integrated.docx](./archive/blueprints/URPG_Blueprint_v3_1_Integrated.docx) — binary Word copy of the master blueprint.
+- [URPG_repo_intake_plan.md](./external-intake/URPG_repo_intake_plan.md) — external-repository intake execution plan governed under P3-02 / Phase 4.1.
+- [URPG_private_asset_intake_plan.md](./asset_intake/URPG_private_asset_intake_plan.md) — private-use asset intake execution plan governed under P3-03 / Phase 4.2.
 
 ### `docs/`
 
@@ -1405,8 +1407,8 @@ A remediation item is **done only when all of the following are true**:
 - [ ] Surfaced editor/runtime functionality is actually reachable in the product via a documented entry point.
 - [ ] Exported, plugin, and cloud-facing surfaces are scoped honestly in headers and docs.
 - [ ] Any new plan or roadmap document introduced by the change is either absorbed into the canonical remediation/status/roadmap set or explicitly marked as execution-detail/reference-only in the same PR.
-- [ ] External code, fixtures, and assets are not adopted unless they have a recorded disposition under [URPG_repo_intake_plan.md](../URPG_repo_intake_plan.md) and the corresponding intake artifacts.
-- [ ] Private-use assets are not promoted into editor/runtime product lanes unless they have recorded provenance, source/bundle manifests, and promotion records under [URPG_private_asset_intake_plan.md](../URPG_private_asset_intake_plan.md) and the corresponding intake artifacts.
+- [ ] External code, fixtures, and assets are not adopted unless they have a recorded disposition under [URPG_repo_intake_plan.md](./external-intake/URPG_repo_intake_plan.md) and the corresponding intake artifacts.
+- [ ] Private-use assets are not promoted into editor/runtime product lanes unless they have recorded provenance, source/bundle manifests, and promotion records under [URPG_private_asset_intake_plan.md](./asset_intake/URPG_private_asset_intake_plan.md) and the corresponding intake artifacts.
 - [ ] Any remaining placeholder behavior is documented as an explicit, intentional waiver — not silently accepted as complete.
 - [ ] No new P0 or P1 findings are introduced by the change (or if they are, they are logged as new findings in this document).
 - [ ] The tech lead or release owner has signed off that documentation alignment is complete for the changed area.
@@ -1432,8 +1434,8 @@ A remediation item is **done only when all of the following are true**:
 | 2026-04-16 | Document rewritten after second-pass audit: new findings added, priorities rebalanced, stubbed systems distinguished from partially functional systems. |
 | 2026-04-16 | Document rewritten after third-pass audit: stale-state diagnostics debt, placeholder export-surface debt, and documentation/test drift findings added. |
 | 2026-04-16 | Fourth-pass improvement: added Table of Contents, Priority Legend, per-finding structured format (Impact/Root Cause/Action/Owner/Exit Criteria), Phase Summary and Dependency table, Risk Register, Ownership Matrix, effort estimates, explicit out-of-scope notes, and strengthened Definition of Done. |
-| 2026-04-16 | Integrated the external repository intake program from [URPG_repo_intake_plan.md](../URPG_repo_intake_plan.md) into findings, Phase 4 governance work, ownership, documentation alignment, and Definition of Done. |
-| 2026-04-16 | Integrated the private-use asset intake program from [URPG_private_asset_intake_plan.md](../URPG_private_asset_intake_plan.md) into findings, Phase 4 governance work, ownership, documentation alignment, and Definition of Done. |
+| 2026-04-16 | Integrated the external repository intake program from [URPG_repo_intake_plan.md](./external-intake/URPG_repo_intake_plan.md) into findings, Phase 4 governance work, ownership, documentation alignment, and Definition of Done. |
+| 2026-04-16 | Integrated the private-use asset intake program from [URPG_private_asset_intake_plan.md](./asset_intake/URPG_private_asset_intake_plan.md) into findings, Phase 4 governance work, ownership, documentation alignment, and Definition of Done. |
 | 2026-04-17 | Agent swarm pass 1: compat status honesty (P1-02), QuickJS scope clarity (P1-01), test/build registration drift fixes (P2-04), intake governance artifact creation (P3-02/P3-03), and documentation alignment (P2-06). |
 | 2026-04-17 | Agent swarm pass 2: input manager status honesty (P1-02), migration wizard productization with `rerunSubsystem` (P2-03), data manager runtime closure with real `loadDatabase()` and JS bindings (Phase 2), and doc sync/intake linking (P3-02/P3-03). |
 | 2026-04-17 | Agent swarm pass 3: plugin manager and data manager status honesty (P1-02), migration wizard further productization with `clearSubsystemResult` and `getReportJson` (P2-03), presentation/spatial incubation decision and ADR-011 (P2-06). |

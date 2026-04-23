@@ -32,6 +32,26 @@
       },
       "duckBGMOnSE": false,
       "duckAmount": 0.0
+    },
+    {
+      "_comment": "Negative case: unknown category key exercises UnknownCategory validator rule",
+      "name": "NegativeUnknownCategory",
+      "categoryVolumes": {
+        "BGM": 1.0,
+        "UNKNOWN_CATEGORY": 0.5
+      },
+      "duckBGMOnSE": false,
+      "duckAmount": 0.0
+    },
+    {
+      "_comment": "Negative case: duckBGMOnSE=true with a different duckAmount than Battle exercises CrossPresetDuckConflict rule",
+      "name": "NegativeDuckConflict",
+      "categoryVolumes": {
+        "BGM": 0.9,
+        "SE": 1.1
+      },
+      "duckBGMOnSE": true,
+      "duckAmount": 0.3
     }
   ]
 }

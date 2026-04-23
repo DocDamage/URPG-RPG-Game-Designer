@@ -1,4 +1,4 @@
-﻿# URPG Program Completion Status
+# URPG Program Completion Status
 
 Status Date: 2026-04-22  
 Program Scope: native-first roadmap rewire plus Wave 1 absorption, Wave 2 advanced capability expansion, post-Phase-2 compat exit hardening, and governance/template-readiness consolidation
@@ -13,7 +13,7 @@ Canonical planning chain:
 - `docs/URPG_facebookresearch_tooling_integration_plan.md` is now treated as an offline-tooling planning input, not a parallel execution authority.
 
 2026-04-20 planning absorption note:
-- `../URPG_MISSING_FEATURES_GOVERNANCE_AND_TEMPLATE_EXPANSION_PLAN_v2.md` is now treated as a planning-input addendum, not a parallel authority.
+- `./archive/planning/URPG_MISSING_FEATURES_GOVERNANCE_AND_TEMPLATE_EXPANSION_PLAN_v2.md` is now treated as a planning-input addendum, not a parallel authority.
 - Its approved deltas are being absorbed into the canonical roadmap/status/remediation stack as planned work.
 - The absorbed scope from that addendum is now reflected here as explicit program-level remaining work, including:
   - schema versioning and changelog governance
@@ -657,7 +657,7 @@ Phase 3 diagnostics productization is complete as of 2026-04-19, Phase 4 governa
   - Input manager status honesty: downgraded all 79 inflated `FULL` labels to `PARTIAL` in `runtimes/compat_js/input_manager.cpp`; aligned `tests/unit/test_input_manager.cpp`.
   - Migration wizard productization: added `rerunSubsystem(id, project_data)` to `MigrationWizardModel` and `MigrationWizardPanel`; exposed `can_rerun_selected_subsystem` in render snapshot; implemented `bindMigrationWizardRuntime()` in `DiagnosticsWorkspace`; added 3 new workflow tests.
   - Data manager runtime closure: implemented real `loadDatabase()` orchestration with seeded actor/class/skill/item records; wired up all stubbed JS bindings in `registerAPI` (loadDatabase, saveGame, loadGame, getGold, setGold, getSwitch, setSwitch, getVariable, setVariable, getItemCount, gainItem); implemented real `getActorsAsValue()`, `getItemsAsValue()`, `getSkillsAsValue()`, `getWeaponsAsValue()`, `getArmorsAsValue()`, `getClassesAsValue()` serializers.
-  - Doc sync: linked new intake governance artifacts into `URPG_repo_intake_plan.md`, `URPG_private_asset_intake_plan.md`, `TECHNICAL_DEBT_REMEDIATION_PLAN.md`, and `PROGRAM_COMPLETION_STATUS.md`; marked P3-02 and P3-03 as partially remediated.
+  - Doc sync: linked new intake governance artifacts into `docs/external-intake/URPG_repo_intake_plan.md`, `docs/asset_intake/URPG_private_asset_intake_plan.md`, `docs/TECHNICAL_DEBT_REMEDIATION_PLAN.md`, and `docs/PROGRAM_COMPLETION_STATUS.md`; marked P3-02 and P3-03 as partially remediated.
   - Latest recorded validation snapshot: `urpg_tests` => 400/400 passed (5,098 assertions).
 - 2026-04-18 audio compat closure:
   - `AudioManager` now advances deterministic playback position, applies deterministic duck/unduck ramps, applies master/bus volume scaling to active playback, and exposes live compat-state bindings through `AudioManager::registerAPI()`.

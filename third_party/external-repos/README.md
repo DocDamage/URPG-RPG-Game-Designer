@@ -8,4 +8,4 @@ This directory is intentionally metadata-first. Repositories may only be mirrore
 - a recorded handling path in `docs/external-intake/repo-watchlist.md`
 - any required fixture or attribution metadata has been defined
 
-See `URPG_repo_intake_plan.md` and `docs/TECHNICAL_DEBT_REMEDIATION_PLAN.md` (`P3-02`, Phase 4.1).
+See [docs/external-intake/URPG_repo_intake_plan.md](../../docs/external-intake/URPG_repo_intake_plan.md) and [docs/TECHNICAL_DEBT_REMEDIATION_PLAN.md](../../docs/TECHNICAL_DEBT_REMEDIATION_PLAN.md) (`P3-02`, Phase 4.1).

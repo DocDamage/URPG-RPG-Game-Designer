@@ -17,6 +17,7 @@ std::vector<UiElementSnapshot> AccessibilityMenuAdapter::ingest(const MenuInspec
         snapshot.hasFocus = row.row_navigable && row.command_visible && row.command_enabled;
         snapshot.focusOrder = row.priority > 0 ? row.priority : static_cast<int32_t>(i + 1);
         snapshot.contrastRatio = 0.0f; // Menu model does not carry contrast data
+        snapshot.sourceContext = "editor/menu/menu_inspector_model.h";
         elements.push_back(std::move(snapshot));
     }
 

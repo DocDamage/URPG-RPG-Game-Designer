@@ -6,6 +6,9 @@ This folder is the documentation home for the native presentation subsystem: con
 It is a presentation-specific reference hub, not the canonical authority for overall program status, remediation phase state, or build-graph/product-readiness claims. For those, use `docs/PROGRAM_COMPLETION_STATUS.md` and `docs/TECHNICAL_DEBT_REMEDIATION_PLAN.md`.
 
 ## Core Guides
+- [Presentation Plan](./PLAN.md)
+- [Release Checklist](./RELEASE_CHECKLIST.md)
+- [Risk Register](./RISKS.md)
 - [Validation Guide](./VALIDATION.md)
 - [Spatial Editor Tools](./SPATIAL_EDITOR_TOOLS.md)
 - [Performance Budgets](./performance_budgets.md)
@@ -19,11 +22,14 @@ It is a presentation-specific reference hub, not the canonical authority for ove
 - [Overlay/UI Contract](./test_matrix/OverlayUI_Contract.md)
 
 ## Recommended Reading Order
-1. [Validation Guide](./VALIDATION.md)
-2. [MapScene Contract](./test_matrix/MapScene_Contract.md)
-3. [Spatial Editor Tools](./SPATIAL_EDITOR_TOOLS.md)
-4. [Performance Budgets](./performance_budgets.md)
-5. [Schema Changelog](./schema_changelog.md)
+1. [Presentation Plan](./PLAN.md)
+2. [Validation Guide](./VALIDATION.md)
+3. [Release Checklist](./RELEASE_CHECKLIST.md)
+4. [MapScene Contract](./test_matrix/MapScene_Contract.md)
+5. [Spatial Editor Tools](./SPATIAL_EDITOR_TOOLS.md)
+6. [Performance Budgets](./performance_budgets.md)
+7. [Risk Register](./RISKS.md)
+8. [Schema Changelog](./schema_changelog.md)
 
 ## Notes
 - Use this folder as the source-of-truth hub for presentation-specific operational docs.

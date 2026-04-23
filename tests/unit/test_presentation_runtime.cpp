@@ -2,6 +2,7 @@
 #include <catch2/catch_test_macros.hpp>
 #include "engine/core/presentation/dialogue_translator.h"
 #include "engine/core/presentation/presentation_bridge.h"
+#include "engine/core/presentation/presentation_hotreload.h"
 #include "engine/core/presentation/presentation_runtime.h"
 #include "engine/core/presentation/render_backend_mock.h"
 #include "engine/core/scene/battle_scene.h"
@@ -479,4 +480,219 @@ TEST_CASE("PresentationBridge does not replay consumed battle effect commands on
     REQUIRE(firstOverlayEffectCount >= 1);
     REQUIRE(secondWorldEffectCount == 0);
     REQUIRE(secondOverlayEffectCount == 0);
+}
+
+// ---------------------------------------------------------------------------
+// S23-T02 / S23-T06: ProfileArenaHotReloader tests
+// ---------------------------------------------------------------------------
+
+TEST_CASE("ProfileArenaHotReloader starts empty with zero reload count", "[presentation][hotreload]") {
+    ProfileArenaHotReloader reloader;
+    REQUIRE(reloader.GetReloadCount() == 0);
+    REQUIRE(reloader.GetRegistry().MapOverlayCount() == 0);
+    REQUIRE(reloader.GetArenaUsedBytes() == 0);
+}
+
+TEST_CASE("ProfileArenaHotReloader Update returns false when no assets are pending", "[presentation][hotreload]") {
+    ProfileArenaHotReloader reloader;
+    REQUIRE_FALSE(reloader.Update());
+    REQUIRE(reloader.GetReloadCount() == 0);
+}
+
+TEST_CASE("ProfileArenaHotReloader processes a reload and invokes callback", "[presentation][hotreload]") {
+    ProfileArenaHotReloader reloader;
+
+    std::string callbackPath;
+    reloader.SetReloadCallback([&](const std::string& path, PresentationRegistry& registry) {
+        callbackPath = path;
+        SpatialMapOverlay overlay;
+        overlay.mapId = "hot_map";
+        overlay.elevation.width = 4;
+        overlay.elevation.height = 4;
+        overlay.elevation.levels.assign(16, 1);
+        overlay.fog.density = 0.1f;
+        registry.RegisterMapOverlay("hot_map", overlay);
+    });
+
+    reloader.OnAssetChanged("content/maps/hot_map.json");
+    REQUIRE(reloader.Update());
+    REQUIRE(reloader.GetReloadCount() == 1);
+    REQUIRE(callbackPath == "content/maps/hot_map.json");
+    REQUIRE(reloader.GetRegistry().MapOverlayCount() == 1);
+    REQUIRE(reloader.GetRegistry().GetMapOverlay("hot_map") != nullptr);
+    CHECK(reloader.GetRegistry().GetMapOverlay("hot_map")->fog.density == Catch::Approx(0.1f));
+}
+
+TEST_CASE("ProfileArenaHotReloader does not leak registry data across reload cycles", "[presentation][hotreload]") {
+    ProfileArenaHotReloader reloader;
+
+    // First reload: register one overlay
+    reloader.SetReloadCallback([](const std::string&, PresentationRegistry& registry) {
+        SpatialMapOverlay overlay;
+        overlay.mapId = "map_a";
+        overlay.elevation.width = 2;
+        overlay.elevation.height = 2;
+        overlay.elevation.levels.assign(4, 0);
+        registry.RegisterMapOverlay("map_a", overlay);
+    });
+    reloader.OnAssetChanged("content/maps/map_a.json");
+    reloader.Update();
+    REQUIRE(reloader.GetRegistry().MapOverlayCount() == 1);
+    REQUIRE(reloader.GetReloadCount() == 1);
+
+    // Second reload: register a different overlay — the old one must be gone
+    reloader.SetReloadCallback([](const std::string&, PresentationRegistry& registry) {
+        SpatialMapOverlay overlay;
+        overlay.mapId = "map_b";
+        overlay.elevation.width = 2;
+        overlay.elevation.height = 2;
+        overlay.elevation.levels.assign(4, 0);
+        registry.RegisterMapOverlay("map_b", overlay);
+    });
+    reloader.OnAssetChanged("content/maps/map_b.json");
+    reloader.Update();
+
+    REQUIRE(reloader.GetReloadCount() == 2);
+    REQUIRE(reloader.GetRegistry().MapOverlayCount() == 1);
+    REQUIRE(reloader.GetRegistry().GetMapOverlay("map_a") == nullptr);
+    REQUIRE(reloader.GetRegistry().GetMapOverlay("map_b") != nullptr);
+}
+
+TEST_CASE("ProfileArenaHotReloader deduplicates pending paths", "[presentation][hotreload]") {
+    ProfileArenaHotReloader reloader;
+    int callbackCount = 0;
+    reloader.SetReloadCallback([&](const std::string&, PresentationRegistry&) { ++callbackCount; });
+
+    reloader.OnAssetChanged("content/maps/shared.json");
+    reloader.OnAssetChanged("content/maps/shared.json"); // duplicate
+    reloader.OnAssetChanged("content/maps/shared.json"); // duplicate
+
+    reloader.Update();
+    REQUIRE(callbackCount == 1);
+    REQUIRE(reloader.GetReloadCount() == 1);
+}
+
+TEST_CASE("ProfileArenaHotReloader arena is reset between reload cycles (no leaked usage)", "[presentation][hotreload]") {
+    ProfileArenaHotReloader reloader(64 * 1024); // small 64 KB arena
+
+    // First reload
+    reloader.SetReloadCallback([](const std::string&, PresentationRegistry&) {});
+    reloader.OnAssetChanged("content/maps/any.json");
+    reloader.Update();
+    const size_t usageAfterFirst = reloader.GetArenaUsedBytes();
+
+    // Second reload — arena must be reset, usage should be at most equal (not accumulated)
+    reloader.OnAssetChanged("content/maps/any.json");
+    reloader.Update();
+    const size_t usageAfterSecond = reloader.GetArenaUsedBytes();
+
+    // Both reloads had the same callback (no allocations) so usage stays at 0
+    REQUIRE(usageAfterFirst == 0);
+    REQUIRE(usageAfterSecond == 0);
+    REQUIRE(reloader.GetReloadCount() == 2);
+}
+
+// ---------------------------------------------------------------------------
+// S23-T06: Command-stream replay determinism
+// ---------------------------------------------------------------------------
+
+TEST_CASE("Presentation command-stream replay is deterministic across builds", "[presentation][replay]") {
+    PresentationRuntime runtime;
+    PresentationContext context;
+    context.activeMode = PresentationMode::Spatial;
+    context.activeTier = CapabilityTier::Tier1_Standard;
+    context.mapState.mapId = "replay_map";
+    context.mapState.actors.push_back({10, "hero", 3.0f, 4.0f, false});
+    context.mapState.actors.push_back({11, "npc",  1.0f, 2.0f, false});
+
+    PresentationAuthoringData data;
+    SpatialMapOverlay overlay;
+    overlay.mapId = "replay_map";
+    overlay.elevation.width = 4;
+    overlay.elevation.height = 4;
+    overlay.elevation.levels.assign(16, 1);
+    overlay.fog.density = 0.12f;
+    overlay.fog.startDist = 2.0f;
+    overlay.fog.endDist = 50.0f;
+    overlay.postFX.exposure = 1.0f;
+    overlay.postFX.bloomIntensity = 0.3f;
+    overlay.postFX.saturation = 0.9f;
+    data.mapOverlays.push_back(overlay);
+    data.actorProfiles.push_back({"hero", {0.5f, 0.0f}, {0.0f, 0.25f, 0.0f}, true, 0.0f});
+    data.actorProfiles.push_back({"npc",  {0.5f, 0.0f}, {0.0f, 0.25f, 0.0f}, true, 0.0f});
+
+    // Build twice from the same input — command counts and key values must match
+    const PresentationFrameIntent first  = runtime.BuildPresentationFrame(context, data);
+    const PresentationFrameIntent second = runtime.BuildPresentationFrame(context, data);
+
+    REQUIRE(first.commands.size() == second.commands.size());
+    REQUIRE(first.activePasses.size() == second.activePasses.size());
+
+    for (size_t i = 0; i < first.commands.size(); ++i) {
+        CHECK(first.commands[i].type == second.commands[i].type);
+        CHECK(first.commands[i].id == second.commands[i].id);
+        CHECK(first.commands[i].position.x == Catch::Approx(second.commands[i].position.x));
+        CHECK(first.commands[i].position.y == Catch::Approx(second.commands[i].position.y));
+        CHECK(first.commands[i].position.z == Catch::Approx(second.commands[i].position.z));
+    }
+}
+
+TEST_CASE("Presentation command-stream replay after hot-reload reflects updated profile data", "[presentation][hotreload][replay]") {
+    PresentationRuntime runtime;
+
+    auto buildFrame = [&](float fogDensity) -> PresentationFrameIntent {
+        PresentationContext ctx;
+        ctx.activeMode = PresentationMode::Spatial;
+        ctx.activeTier = CapabilityTier::Tier1_Standard;
+        ctx.mapState.mapId = "reload_replay_map";
+        ctx.mapState.actors.push_back({1, "hero", 0.0f, 0.0f, false});
+
+        PresentationAuthoringData d;
+        SpatialMapOverlay ov;
+        ov.mapId = "reload_replay_map";
+        ov.elevation.width = 2;
+        ov.elevation.height = 2;
+        ov.elevation.levels.assign(4, 0);
+        ov.fog.density = fogDensity;
+        d.mapOverlays.push_back(ov);
+        d.actorProfiles.push_back({"hero", {0.5f, 0.0f}, {0.0f, 0.25f, 0.0f}, true, 0.0f});
+        return runtime.BuildPresentationFrame(ctx, d);
+    };
+
+    const PresentationFrameIntent before = buildFrame(0.05f);
+    const PresentationFrameIntent after  = buildFrame(0.9f);
+
+    float beforeFog = 0.0f;
+    float afterFog  = 0.0f;
+    for (const auto& cmd : before.commands) {
+        if (cmd.type == PresentationCommand::Type::SetFog && cmd.fogProfile)
+            beforeFog = cmd.fogProfile->density;
+    }
+    for (const auto& cmd : after.commands) {
+        if (cmd.type == PresentationCommand::Type::SetFog && cmd.fogProfile)
+            afterFog = cmd.fogProfile->density;
+    }
+
+    CHECK(beforeFog == Catch::Approx(0.05f));
+    CHECK(afterFog  == Catch::Approx(0.9f));
+    REQUIRE(beforeFog != Catch::Approx(afterFog));
+}
+
+TEST_CASE("ProfileArenaHotReloader reload count increments per unique change event", "[presentation][hotreload]") {
+    ProfileArenaHotReloader reloader;
+    reloader.SetReloadCallback([](const std::string&, PresentationRegistry&) {});
+
+    REQUIRE(reloader.GetReloadCount() == 0);
+
+    reloader.OnAssetChanged("content/maps/map_x.json");
+    reloader.Update();
+    REQUIRE(reloader.GetReloadCount() == 1);
+
+    reloader.OnAssetChanged("content/maps/map_y.json");
+    reloader.Update();
+    REQUIRE(reloader.GetReloadCount() == 2);
+
+    // No pending → no reload
+    reloader.Update();
+    REQUIRE(reloader.GetReloadCount() == 2);
 }

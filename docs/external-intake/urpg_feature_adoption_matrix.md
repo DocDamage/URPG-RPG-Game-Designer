@@ -1,7 +1,7 @@
 # URPG External Repository Feature Adoption Matrix
 
 > Mapping of external repos to URPG features/compat areas.  
-> See `URPG_repo_intake_plan.md` and `docs/TECHNICAL_DEBT_REMEDIATION_PLAN.md` (P3-02, Phase 4 / Workstream 4.1).
+> See [URPG_repo_intake_plan.md](./URPG_repo_intake_plan.md) and [TECHNICAL_DEBT_REMEDIATION_PLAN.md](../TECHNICAL_DEBT_REMEDIATION_PLAN.md) (P3-02, Phase 4 / Workstream 4.1).
 
 ---
 
@@ -107,4 +107,4 @@
 
 | Date | Change |
 |------|--------|
-| 2026-04-17 | Initial matrix and adoption cards created from `URPG_repo_intake_plan.md` |
+| 2026-04-17 | Initial matrix and adoption cards created from `docs/external-intake/URPG_repo_intake_plan.md` |

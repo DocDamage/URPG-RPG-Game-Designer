@@ -899,3 +899,167 @@ TEST_CASE("Snapshot: renderer-backed visual capture covers EngineShell MapScene 
     REQUIRE(changed.errorPercentage > 0.0f);
 }
 #endif
+
+// ─── S29: Visual Regression Golden Coverage ──────────────────────────────────
+
+TEST_CASE("Snapshot: MenuScene golden render produces deterministic full-frame output",
+          "[snapshot][regression][s29]") {
+#ifdef URPG_HEADLESS
+    SUCCEED("Headless build: skipping renderer-backed MenuScene golden");
+#else
+    VisualRegressionHarness harness;
+    harness.setGoldenRoot(getGoldenRoot().string());
+
+    std::string errorMessage;
+    const auto snapshot = harness.captureOpenGLScene(
+        [](urpg::OpenGLRenderer& renderer) {
+            urpg::scene::MenuScene menu("MainMenu");
+            menu.onCreate();
+            menu.onStart();
+
+            urpg::SpriteBatcher batcher;
+            batcher.begin();
+            menu.draw(batcher);
+            batcher.end();
+            renderer.renderBatches(batcher.getBatches());
+        },
+        320,
+        240,
+        &errorMessage);
+    INFO(errorMessage);
+    REQUIRE(snapshot.has_value());
+    REQUIRE(snapshot->width == 320);
+    REQUIRE(snapshot->height == 240);
+
+    if (shouldRegenerateRendererBackedGoldens()) {
+        REQUIRE(harness.saveGolden("S29SceneGoldens", "menu_scene_full_frame", *snapshot));
+    }
+
+    const auto result = harness.compareAgainstGolden("S29SceneGoldens", "menu_scene_full_frame", *snapshot);
+    REQUIRE(result.matches);
+    REQUIRE(result.errorPercentage == 0.0f);
+#endif
+}
+
+TEST_CASE("Snapshot: MapScene golden matches expected full-frame output (regression lane)",
+          "[snapshot][regression][s29]") {
+#ifdef URPG_HEADLESS
+    SUCCEED("Headless build: skipping renderer-backed MapScene regression golden");
+#else
+    VisualRegressionHarness harness;
+    harness.setGoldenRoot(getGoldenRoot().string());
+
+    const auto snapshot = captureMapSceneWorldSnapshot();
+    REQUIRE(snapshot.width == 96);
+    REQUIRE(snapshot.height == 96);
+
+    if (shouldRegenerateRendererBackedGoldens()) {
+        REQUIRE(harness.saveGolden("S29SceneGoldens", "map_scene_full_frame", snapshot));
+    }
+
+    const auto result = harness.compareAgainstGolden("S29SceneGoldens", "map_scene_full_frame", snapshot);
+    REQUIRE(result.matches);
+    REQUIRE(result.errorPercentage == 0.0f);
+#endif
+}
+
+TEST_CASE("Snapshot: BattleScene golden matches expected full-frame output (regression lane)",
+          "[snapshot][regression][s29]") {
+#ifdef URPG_HEADLESS
+    SUCCEED("Headless build: skipping renderer-backed BattleScene regression golden");
+#else
+    VisualRegressionHarness harness;
+    harness.setGoldenRoot(getGoldenRoot().string());
+
+    const auto snapshot = captureBattleSceneSnapshot(false);
+    REQUIRE(snapshot.width == 800);
+    REQUIRE(snapshot.height == 600);
+
+    if (shouldRegenerateRendererBackedGoldens()) {
+        REQUIRE(harness.saveGolden("S29SceneGoldens", "battle_scene_full_frame", snapshot));
+    }
+
+    const auto result = harness.compareAgainstGolden("S29SceneGoldens", "battle_scene_full_frame", snapshot);
+    REQUIRE(result.matches);
+    REQUIRE(result.errorPercentage == 0.0f);
+#endif
+}
+
+TEST_CASE("Snapshot: scene transition sequence produces deterministic golden pair",
+          "[snapshot][regression][s29]") {
+    // This test exercises the transition boundary: before-transition and after-transition
+    // frames must be deterministic and independently stable.
+#ifdef URPG_HEADLESS
+    SUCCEED("Headless build: skipping renderer-backed transition golden");
+#else
+    VisualRegressionHarness harness;
+    harness.setGoldenRoot(getGoldenRoot().string());
+
+    // Capture "before" frame: map scene at rest
+    const auto before = captureMapSceneWorldSnapshot();
+    REQUIRE(before.width == 96);
+    REQUIRE(before.height == 96);
+
+    // Capture "after" frame: battle entry overlay
+    const auto after = captureBattleSceneSnapshot(false);
+    REQUIRE(after.width == 800);
+    REQUIRE(after.height == 600);
+
+    // The two frames must differ (valid transition)
+    const auto diff = SnapshotValidator::compare(before, after);
+    REQUIRE_FALSE(diff.matches);
+
+    // Each frame must individually match its committed golden
+    if (shouldRegenerateRendererBackedGoldens()) {
+        REQUIRE(harness.saveGolden("S29TransitionGoldens", "pre_battle_map", before));
+        REQUIRE(harness.saveGolden("S29TransitionGoldens", "post_battle_entry", after));
+    }
+
+    const auto preResult  = harness.compareAgainstGolden("S29TransitionGoldens", "pre_battle_map", before);
+    const auto postResult = harness.compareAgainstGolden("S29TransitionGoldens", "post_battle_entry", after);
+    REQUIRE(preResult.matches);
+    REQUIRE(postResult.matches);
+#endif
+}
+
+TEST_CASE("Snapshot: diff heatmap golden is actionable and stable",
+          "[snapshot][regression][s29]") {
+    // Ensures the heatmap diff artifact produced for CI reviewers is deterministic.
+#ifdef URPG_HEADLESS
+    SUCCEED("Headless build: skipping renderer-backed diff heatmap golden");
+#else
+    VisualRegressionHarness harness;
+    harness.setGoldenRoot(getGoldenRoot().string());
+
+    // Introduce a known synthetic difference to validate the heatmap pipeline.
+    std::string errorMessage;
+    const auto baseSnapshot = harness.captureOpenGLFrame(makeFullFrameRectCommands(), 4, 4, &errorMessage);
+    INFO(errorMessage);
+    REQUIRE(baseSnapshot.has_value());
+
+    SceneSnapshot modified = *baseSnapshot;
+    if (!modified.pixels.empty()) {
+        modified.pixels[0].r = static_cast<uint8_t>((modified.pixels[0].r + 128) % 256);
+    }
+
+    const auto heatmap = VisualRegressionHarness::generateDiffHeatmap(*baseSnapshot, modified);
+    REQUIRE(heatmap.width == baseSnapshot->width);
+    REQUIRE(heatmap.height == baseSnapshot->height);
+    REQUIRE(heatmap.pixels.size() == baseSnapshot->pixels.size());
+
+    // The heatmap pixel at the modified location must be non-zero
+    if (!heatmap.pixels.empty()) {
+        const auto& p = heatmap.pixels[0];
+        const bool hasDiffSignal = (p.r > 0 || p.g > 0 || p.b > 0);
+        REQUIRE(hasDiffSignal);
+    }
+
+    if (shouldRegenerateRendererBackedGoldens()) {
+        REQUIRE(harness.saveGolden("S29DiffGoldens", "heatmap_single_pixel_diff", heatmap));
+    }
+
+    const auto result = harness.compareAgainstGolden("S29DiffGoldens", "heatmap_single_pixel_diff", heatmap);
+    REQUIRE(result.matches);
+#endif
+}
+

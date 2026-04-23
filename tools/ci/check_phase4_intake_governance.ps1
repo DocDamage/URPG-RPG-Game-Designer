@@ -50,7 +50,7 @@ $placeholderFiles = @(
     "docs/TECHNICAL_DEBT_REMEDIATION_PLAN.md",
     "docs/PROGRAM_COMPLETION_STATUS.md",
     "WORKLOG.md",
-    "PLAN.md"
+    "docs/presentation/PLAN.md"
 )
 
 $placeholderPatterns = @(

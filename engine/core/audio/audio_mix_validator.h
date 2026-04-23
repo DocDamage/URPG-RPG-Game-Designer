@@ -15,7 +15,9 @@ enum class AudioMixIssueCategory {
     MissingDefaultPreset,
     ConflictingDuckRules,
     VolumeOutOfRange,
-    EmptyCategoryVolumes
+    EmptyCategoryVolumes,
+    UnknownCategory,
+    CrossPresetDuckConflict
 };
 
 struct AudioMixIssue {

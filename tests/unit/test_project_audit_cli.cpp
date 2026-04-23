@@ -1052,3 +1052,184 @@ TEST_CASE("Project audit CLI reports template spec required-subsystem drift for 
     }
     REQUIRE(foundMismatch);
 }
+
+// ─── S30-T06: fail-closed template-spec coverage for jrpg/visual_novel/turn_based_rpg ──
+
+TEST_CASE("Project audit CLI fails closed on missing spec for jrpg (blocksRelease=true)",
+          "[project_audit_cli][s30t06]") {
+    const fs::path tempRoot =
+        fs::temp_directory_path() / "urpg_project_audit_s30t06_jrpg_missing_spec";
+    fs::remove_all(tempRoot);
+    fs::create_directories(tempRoot / "content" / "readiness");
+    fs::create_directories(tempRoot / "docs" / "templates");
+
+    writeTextFile(tempRoot / "content" / "readiness" / "synthetic_readiness.json", json{
+        {"schemaVersion", "1.0.0"},
+        {"statusDate", "2026-04-23"},
+        {"subsystems", json::array()},
+        {"templates", json::array({
+            {
+                {"id", "jrpg"},
+                {"status", "PARTIAL"},
+                {"requiredSubsystems", json::array({"battle_core", "save_data_core"})},
+                {"bars", {{"accessibility", "PARTIAL"}, {"audio", "PARTIAL"}}},
+                {"mainBlockers", json::array()}
+            }
+        })}
+    }.dump(2));
+
+    // Deliberately do NOT create jrpg_spec.md
+
+    const ProcessResult result = runProjectAudit(
+        {"--json", "--input", (tempRoot / "content" / "readiness" / "synthetic_readiness.json").string(),
+         "--template", "jrpg"},
+        tempRoot);
+
+    REQUIRE(result.exitCode == 0);
+    const json report = json::parse(result.stdoutText);
+    REQUIRE(report["templateSpecArtifactIssueCount"].get<int>() >= 1);
+
+    bool foundBlockingSpecIssue = false;
+    for (const auto& issue : report["issues"]) {
+        if (issue["code"].get<std::string>().find("template_spec_artifact") != std::string::npos) {
+            REQUIRE(issue["blocksRelease"] == true);
+            REQUIRE(issue["severity"] == "error");
+            foundBlockingSpecIssue = true;
+        }
+    }
+    REQUIRE(foundBlockingSpecIssue);
+
+    fs::remove_all(tempRoot);
+}
+
+TEST_CASE("Project audit CLI fails closed on missing spec for visual_novel (blocksRelease=true)",
+          "[project_audit_cli][s30t06]") {
+    const fs::path tempRoot =
+        fs::temp_directory_path() / "urpg_project_audit_s30t06_vn_missing_spec";
+    fs::remove_all(tempRoot);
+    fs::create_directories(tempRoot / "content" / "readiness");
+    fs::create_directories(tempRoot / "docs" / "templates");
+
+    writeTextFile(tempRoot / "content" / "readiness" / "synthetic_readiness.json", json{
+        {"schemaVersion", "1.0.0"},
+        {"statusDate", "2026-04-23"},
+        {"subsystems", json::array()},
+        {"templates", json::array({
+            {
+                {"id", "visual_novel"},
+                {"status", "PARTIAL"},
+                {"requiredSubsystems", json::array({"message_text_core", "save_data_core"})},
+                {"bars", {{"accessibility", "PARTIAL"}, {"audio", "PARTIAL"}}},
+                {"mainBlockers", json::array()}
+            }
+        })}
+    }.dump(2));
+
+    const ProcessResult result = runProjectAudit(
+        {"--json", "--input", (tempRoot / "content" / "readiness" / "synthetic_readiness.json").string(),
+         "--template", "visual_novel"},
+        tempRoot);
+
+    REQUIRE(result.exitCode == 0);
+    const json report = json::parse(result.stdoutText);
+
+    bool foundBlockingSpecIssue = false;
+    for (const auto& issue : report["issues"]) {
+        if (issue["code"].get<std::string>().find("template_spec_artifact") != std::string::npos) {
+            REQUIRE(issue["blocksRelease"] == true);
+            REQUIRE(issue["severity"] == "error");
+            foundBlockingSpecIssue = true;
+        }
+    }
+    REQUIRE(foundBlockingSpecIssue);
+
+    fs::remove_all(tempRoot);
+}
+
+TEST_CASE("Project audit CLI fails closed on missing spec for turn_based_rpg (blocksRelease=true)",
+          "[project_audit_cli][s30t06]") {
+    const fs::path tempRoot =
+        fs::temp_directory_path() / "urpg_project_audit_s30t06_tbr_missing_spec";
+    fs::remove_all(tempRoot);
+    fs::create_directories(tempRoot / "content" / "readiness");
+    fs::create_directories(tempRoot / "docs" / "templates");
+
+    writeTextFile(tempRoot / "content" / "readiness" / "synthetic_readiness.json", json{
+        {"schemaVersion", "1.0.0"},
+        {"statusDate", "2026-04-23"},
+        {"subsystems", json::array()},
+        {"templates", json::array({
+            {
+                {"id", "turn_based_rpg"},
+                {"status", "PARTIAL"},
+                {"requiredSubsystems", json::array({"battle_core", "save_data_core", "message_text_core"})},
+                {"bars", {{"accessibility", "PARTIAL"}, {"performance", "PARTIAL"}}},
+                {"mainBlockers", json::array()}
+            }
+        })}
+    }.dump(2));
+
+    const ProcessResult result = runProjectAudit(
+        {"--json", "--input", (tempRoot / "content" / "readiness" / "synthetic_readiness.json").string(),
+         "--template", "turn_based_rpg"},
+        tempRoot);
+
+    REQUIRE(result.exitCode == 0);
+    const json report = json::parse(result.stdoutText);
+
+    bool foundBlockingSpecIssue = false;
+    for (const auto& issue : report["issues"]) {
+        if (issue["code"].get<std::string>().find("template_spec_artifact") != std::string::npos) {
+            REQUIRE(issue["blocksRelease"] == true);
+            REQUIRE(issue["severity"] == "error");
+            foundBlockingSpecIssue = true;
+        }
+    }
+    REQUIRE(foundBlockingSpecIssue);
+
+    fs::remove_all(tempRoot);
+}
+
+TEST_CASE("Project audit CLI does NOT fail closed on missing spec for non-candidate templates",
+          "[project_audit_cli][s30t06]") {
+    // A template that is not in the fail-closed set should still produce warnings, not errors.
+    const fs::path tempRoot =
+        fs::temp_directory_path() / "urpg_project_audit_s30t06_other_not_fail_closed";
+    fs::remove_all(tempRoot);
+    fs::create_directories(tempRoot / "content" / "readiness");
+    fs::create_directories(tempRoot / "docs" / "templates");
+
+    writeTextFile(tempRoot / "content" / "readiness" / "synthetic_readiness.json", json{
+        {"schemaVersion", "1.0.0"},
+        {"statusDate", "2026-04-23"},
+        {"subsystems", json::array()},
+        {"templates", json::array({
+            {
+                {"id", "tactics_rpg"},
+                {"status", "EXPERIMENTAL"},
+                {"requiredSubsystems", json::array({"battle_core"})},
+                {"bars", {{"accessibility", "PLANNED"}}},
+                {"mainBlockers", json::array()}
+            }
+        })}
+    }.dump(2));
+
+    const ProcessResult result = runProjectAudit(
+        {"--json", "--input", (tempRoot / "content" / "readiness" / "synthetic_readiness.json").string(),
+         "--template", "tactics_rpg"},
+        tempRoot);
+
+    REQUIRE(result.exitCode == 0);
+    const json report = json::parse(result.stdoutText);
+
+    for (const auto& issue : report["issues"]) {
+        if (issue["code"].get<std::string>().find("template_spec_artifact") != std::string::npos) {
+            // Should be a warning, not an error, and should NOT block release
+            REQUIRE(issue["severity"] == "warning");
+            REQUIRE(issue["blocksRelease"] == false);
+        }
+    }
+
+    fs::remove_all(tempRoot);
+}
+

@@ -1,4 +1,15 @@
-# URPG Program Completion Roadmap (100% Target)
+# Superseded Roadmap Notice
+
+This file is retained only for traceability.
+
+The active roadmap is:
+- [2026-04-23-s23-plus-s33-work-completion-roadmap.md](../../superpowers/plans/2026-04-23-s23-plus-s33-work-completion-roadmap.md)
+
+Do not use this `...s30...` copy as the current source of truth for execution, audit coverage, or roadmap updates.
+
+---
+
+# URPG Program Completion Roadmap (Superseded `s30` Copy)
 
 ## Purpose
 
@@ -26,7 +37,7 @@ This revised roadmap maps all non-ready work from `content/readiness/readiness_s
 - [ ] Required artifacts exist and are committed.
 - [ ] Unit/integration (or compat) coverage proves behavior.
 - [ ] Sprint-specific gates execute locally.
-- [ ] `PROJECT_AUDIT.md` / `content/readiness/readiness_status.json` / canonical matrices align with code evidence.
+- [ ] `docs/PROJECT_AUDIT.md` / `content/readiness/readiness_status.json` / canonical matrices align with code evidence.
 - [ ] PR-lane evidence command list runs with expected results.
 - [ ] Explicit residuals remain in `mainGaps`/`mainBlockers` where scope is intentionally deferred.
 - [ ] Human-review conditions are logged as review artifacts, never implied.
@@ -91,7 +102,7 @@ Prevent evidence/documentation/runtime drift and enforce artifact truth automati
 - [ ] S25-T03 Enforce release-readiness and template-spec parity checks.
 - [ ] S25-T04 Add truth-reconciler checks for template-subsystem-bar drift.
 - [ ] S25-T05 Add regression tests for governance gate failure modes.
-- [ ] S25-T06 Enforce issue-count/date consistency for `PROJECT_AUDIT.md`.
+- [ ] S25-T06 Enforce issue-count/date consistency for `docs/PROJECT_AUDIT.md`.
 - [ ] S25-T07 Add one positive/negative regression that breaks status-date or artifact-path assertion.
 
 ### Exit Criteria
@@ -126,7 +137,8 @@ Close the explicit human-review lanes safely before any READY promotion.
 - [ ] S27-T02 Publish `save_data_core` reviewer evidence packet + unresolved-gap log.
 - [ ] S27-T03 Publish `compat_bridge_exit` review cadence and maintenance evidence.
 - [ ] S27-T04 Publish `gameplay_ability_framework` review closure for schema/migration boundaries.
-- [ ] S27-T05 Wire promotion rule: READY only after corresponding human-review ticket completion.
+- [ ] S27-T05 Publish `presentation_runtime` reviewer evidence packet, or remove human-review promotion wording if closure no longer depends on review-gated promotion.
+- [ ] S27-T06 Wire promotion rule: READY only after corresponding human-review ticket completion.
 
 ### Exit Criteria
 - [ ] All reviewer checkpoints exist as canonical artifacts.
@@ -142,6 +154,7 @@ Close partial lanes that are currently bounded to scaffolded or compat-only beha
 - [ ] S28-T01 Add accessibility live-ingestion adapters for spatial/audio/battle editors.
 - [ ] S28-T02 Add actionable accessibility diagnostics with file/line references for those adapters.
 - [ ] S28-T03 Connect audio mix presets to live runtime backend parameters.
+- [ ] S28-T03a Add the remaining `audio_mix_presets` validator-rule coverage (unknown categories, cross-preset duck conflicts) and keep governance fixtures in parity.
 - [ ] S28-T04 Implement live mod loading + deterministic unload + sandboxing.
 - [ ] S28-T05 Add mod-store contract + validation + failure reporting.
 - [ ] S28-T06 Implement analytics upload and session aggregation.
@@ -181,11 +194,14 @@ Close bars and WYSIWYG workflows for `jrpg`, `visual_novel`, `turn_based_rpg`.
 - [ ] S30-T02 Close the same bars for `visual_novel`.
 - [ ] S30-T03 Close the same bars for `turn_based_rpg`.
 - [ ] S30-T04 Add template-level acceptance tests: edit -> preview -> export.
-- [ ] S30-T05 Update `readiness_status.json` blocker evidence for these closures.
+- [ ] S30-T05 Add canonical template spec artifacts for `jrpg`, `visual_novel`, and `turn_based_rpg`, and reconcile them with readiness/matrix rows.
+- [ ] S30-T06 Extend `urpg_project_audit` template-spec and blocker detection coverage so these three templates can fail closed on missing prerequisites.
+- [ ] S30-T07 Update `readiness_status.json` blocker evidence for these closures.
 
 ### Exit Criteria
 - [ ] These three templates can be promoted with confidence.
 - [ ] Evidence matches `TEMPLATE_READINESS_MATRIX.md`.
+- [ ] Canonical template-facing docs and `docs/PROJECT_AUDIT.md` stay aligned with the promoted scope.
 
 ## S30-Bis — Template Bar Quality Sweep
 
@@ -214,11 +230,14 @@ Progress `PLANNED` and `EXPERIMENTAL` templates to bounded ship-ready slices.
 - [ ] S31-T04 `arpg`: movement and growth loop productization.
 - [ ] S31-T05 `metroidvania_lite`: traversal/map-unlock/progression mechanics.
 - [ ] S31-T06 `2_5d_rpg`: raycast authoring and preview proof.
-- [ ] S31-T07 One end-to-end evidence snapshot per template.
+- [ ] S31-T06a `2_5d_rpg`: add template-specific export validation and raycast art-pipeline closure work.
+- [ ] S31-T07 Add template-grade governance/spec/audit closure for `monster_collector_rpg` and closure-visibility artifacts for `arpg`.
+- [ ] S31-T08 One end-to-end evidence snapshot per template.
 
 ### Exit Criteria
 - [ ] No template remains `PLANNED` or `EXPERIMENTAL` purely by omission.
 - [ ] Each template has executable, authorable, testable evidence.
+- [ ] Each template's canonical spec, readiness record, matrix row, and project-audit contract agree.
 
 ## S32 — Long-Tail WYSIWYG Lanes
 
@@ -231,6 +250,7 @@ Finish remaining partial feature blocks that directly affect full-product claims
 - [ ] S32-T03 Achievement registry platform backend integration where scope is not intentionally out-of-tree.
 - [ ] S32-T04 Reconcile outstanding `mainGaps` entries for partial systems.
 - [ ] S32-T05 Confirm `export_validator` cryptographic hardening roadmap in scope before READY claims.
+- [ ] S32-T06 Complete `achievement_registry` trophy export pipeline and keep platform/backend scope wording explicit where integration stays out of tree.
 
 ### Exit Criteria
 - [ ] No unresolved short-cycle blockers remain in partial core systems without explicit traceability.
@@ -273,11 +293,221 @@ Protect runtime cleanliness while completing first approved tooling lanes.
 - [ ] `docs/TECHNICAL_DEBT_REMEDIATION_PLAN.md`
 - [ ] `docs/RELEASE_READINESS_MATRIX.md`
 - [ ] `docs/TEMPLATE_READINESS_MATRIX.md`
-- [ ] `PROJECT_AUDIT.md`
+- [ ] `docs/PROJECT_AUDIT.md`
+- [ ] `docs/TRUTH_ALIGNMENT_RULES.md`
+- [ ] `docs/SUBSYSTEM_STATUS_RULES.md`
+- [ ] `docs/TEMPLATE_LABEL_RULES.md`
+- [ ] `docs/RELEASE_SIGNOFF_WORKFLOW.md`
 - [ ] `tools/ci` governance scripts/log outputs
 - [ ] `tests` PR-lane slices mapped by sprint
 - [ ] Offline tooling manifests in `tools/retrieval` and related pipelines
 - [ ] `docs/RELEASE_READINESS_MATRIX.md` and `docs/TEMPLATE_READINESS_MATRIX.md` updates after each closure
+
+## Execution Anchors For Newly Added Tickets
+
+This section exists so a low-context implementation model can execute the new tickets without guessing file names, artifact names, or the minimum verification surface.
+
+### Shared conventions
+
+- When a ticket changes canonical readiness or promotion wording, update all of:
+  - `content/readiness/readiness_status.json`
+  - `docs/RELEASE_READINESS_MATRIX.md`
+  - `docs/TEMPLATE_READINESS_MATRIX.md` when template status/bars/blockers change
+  - `docs/PROGRAM_COMPLETION_STATUS.md`
+  - `docs/TECHNICAL_DEBT_REMEDIATION_PLAN.md`
+  - `docs/PROJECT_AUDIT.md` when the shipped audit contract changes
+- Template spec naming convention is `docs/templates/<template_id>_spec.md`.
+- Template spec header must follow the existing canonical pattern:
+  - title line
+  - `Status Date: YYYY-MM-DD`
+  - `Authority: canonical template spec for \`<template_id>\``
+  - sections for `Purpose`, `Required Subsystems`, `Cross-Cutting Minimum Bars`, `Safe Scope Today`, `Main Blockers`, `Promotion Path`
+- Signoff artifact naming convention in the current repo is `docs/<SUBSYSTEM>_CLOSURE_SIGNOFF.md` or `docs/<SUBSYSTEM>_SIGNOFF.md`. Follow the existing style instead of inventing a new format.
+- Any ticket that retains "promotion requires human review" wording must leave the state explicitly non-promoting. Never imply that passing tests or checks equals approval.
+
+### S27-T05 — `presentation_runtime` human-review closure
+
+Preferred implementation path:
+- Add `docs/PRESENTATION_RUNTIME_CLOSURE_SIGNOFF.md`.
+- If the lane should remain human-review-gated, also add a structured `signoff` block for `presentation_runtime` in `content/readiness/readiness_status.json` matching the current governed format used by `battle_core`, `save_data_core`, `compat_bridge_exit`, and `gameplay_ability_framework`.
+- If the lane should no longer be review-gated, remove the human-review promotion wording from:
+  - `content/readiness/readiness_status.json`
+  - `docs/RELEASE_READINESS_MATRIX.md`
+  - any matching summary wording in `docs/PROGRAM_COMPLETION_STATUS.md`
+
+Primary file anchors:
+- `content/readiness/readiness_status.json`
+- `docs/RELEASE_READINESS_MATRIX.md`
+- `docs/RELEASE_SIGNOFF_WORKFLOW.md`
+- `docs/PROGRAM_COMPLETION_STATUS.md`
+- `docs/TECHNICAL_DEBT_REMEDIATION_PLAN.md`
+- `tools/ci/check_release_readiness.ps1`
+- `tools/ci/truth_reconciler.ps1`
+
+Presentation evidence anchors:
+- `engine/core/presentation/presentation_runtime.cpp`
+- `engine/core/presentation/presentation_bridge.cpp`
+- `engine/core/presentation/profile_arena.cpp`
+- `engine/core/presentation/release_validation.cpp`
+- `tests/unit/test_presentation_runtime.cpp`
+- `tests/unit/test_spatial_editor.cpp`
+- `docs/presentation/VALIDATION.md`
+
+Minimum verification:
+- `powershell -ExecutionPolicy Bypass -File tools/ci/check_release_readiness.ps1`
+- `powershell -ExecutionPolicy Bypass -File tools/ci/truth_reconciler.ps1`
+- `powershell -ExecutionPolicy Bypass -File tools/ci/run_presentation_gate.ps1`
+
+### S28-T03a — Remaining `audio_mix_presets` validator-rule coverage
+
+Goal:
+- Extend the validator and fixture surface so the remaining backlog called out by `docs/RELEASE_READINESS_MATRIX.md` is executable instead of prose-only.
+
+Primary file anchors:
+- `engine/core/audio/audio_mix_validator.h`
+- `engine/core/audio/audio_mix_validator.cpp`
+- `engine/core/audio/audio_mix_presets.h`
+- `engine/core/audio/audio_mix_presets.cpp`
+- `content/schemas/audio_mix_presets.schema.json`
+- `content/fixtures/audio_mix_presets_fixture.json`
+- `tests/unit/test_audio_mix_presets.cpp`
+- `tools/ci/check_audio_governance.ps1`
+- `tools/audit/urpg_project_audit.cpp`
+- `docs/RELEASE_READINESS_MATRIX.md`
+
+Concrete checks to add:
+- unknown category detection
+- cross-preset duck-rule conflict detection
+- fixture coverage for both negative cases
+- audit/governance parity if new validator output changes the shipped contract
+
+Minimum verification:
+- `powershell -ExecutionPolicy Bypass -File tools/ci/check_audio_governance.ps1`
+- build + run focused audio preset tests through `urpg_tests`
+
+### S30-T05 — Canonical specs for `jrpg`, `visual_novel`, `turn_based_rpg`
+
+Create:
+- `docs/templates/jrpg_spec.md`
+- `docs/templates/visual_novel_spec.md`
+- `docs/templates/turn_based_rpg_spec.md`
+
+Use these existing files as format references:
+- `docs/templates/monster_collector_rpg_spec.md`
+- `docs/templates/2_5d_rpg_spec.md`
+
+Each new spec must match the current readiness data:
+- required subsystems from `content/readiness/readiness_status.json`
+- current bar statuses from `content/readiness/readiness_status.json`
+- safe-scope wording must stay conservative
+- blockers must not exceed or understate canonical readiness blockers
+
+Also update:
+- `docs/TEMPLATE_READINESS_MATRIX.md`
+- `content/readiness/readiness_status.json` if the plan intentionally changes blockers/bars
+- `docs/PROGRAM_COMPLETION_STATUS.md` if product-facing template wording changes
+
+### S30-T06 — `urpg_project_audit` template-spec coverage for the three READY candidates
+
+Goal:
+- Make the audit fail closed for `jrpg`, `visual_novel`, and `turn_based_rpg` the same way it already reasons about spec artifacts for the existing expansion-template specs.
+
+Primary file anchors:
+- `tools/audit/urpg_project_audit.cpp`
+- `tests/unit/test_project_audit_cli.cpp`
+- `tests/unit/test_project_audit_panel.cpp`
+- `editor/diagnostics/project_audit_panel.cpp`
+- `docs/PROJECT_AUDIT.md`
+- `tools/ci/check_release_readiness.ps1`
+
+Expected behavior:
+- missing canonical spec file should report a concrete issue
+- wrong `Authority:` line should report a concrete issue
+- required-subsystem drift from readiness should report a concrete issue
+- cross-cutting bar drift from readiness should report a concrete issue
+
+Minimum verification:
+- build `urpg_project_audit`
+- run `powershell -ExecutionPolicy Bypass -File tools/ci/check_release_readiness.ps1`
+- run `powershell -ExecutionPolicy Bypass -File tools/ci/truth_reconciler.ps1`
+- run focused project-audit tests through `urpg_tests`
+
+### S31-T06a — `2_5d_rpg` export-validation and art-pipeline closure
+
+This ticket is not only about rendering proof. It must close the exact blockers already named in canonical readiness:
+- raycast art pipeline
+- map authoring adapters at production grade
+- template-specific export validation
+
+Primary file anchors:
+- `docs/templates/2_5d_rpg_spec.md`
+- `engine/core/render/raycast_renderer.h`
+- `engine/core/export/export_validator.h`
+- `engine/core/export/export_validator.cpp`
+- `editor/spatial/spatial_authoring_workspace.cpp`
+- `docs/TEMPLATE_READINESS_MATRIX.md`
+- `tests/unit/test_export_validator.cpp`
+
+Minimum expected outputs:
+- one canonical doc update that names the accepted 2.5D art-pipeline contract
+- one export-validator rule or fixture that is specific to 2.5D template requirements
+- one test that fails when the 2.5D-specific export requirement is missing
+
+### S31-T07 — `monster_collector_rpg` governance closure and `arpg` closure visibility
+
+This is two separate deliverables and should not be collapsed into one doc-only change.
+
+For `monster_collector_rpg`:
+- update `docs/templates/monster_collector_rpg_spec.md`
+- update `tools/audit/urpg_project_audit.cpp` if new template artifacts or blockers become machine-checkable
+- reconcile `docs/TEMPLATE_READINESS_MATRIX.md` and `content/readiness/readiness_status.json`
+
+For `arpg`:
+- create `docs/templates/arpg_spec.md` if the lane is being given first-class closure visibility
+- ensure its blocker wording matches the current `arpg` readiness record before broadening claims
+
+Minimum verification:
+- focused project-audit tests
+- `powershell -ExecutionPolicy Bypass -File tools/ci/check_release_readiness.ps1`
+- `powershell -ExecutionPolicy Bypass -File tools/ci/truth_reconciler.ps1`
+
+### S32-T06 — `achievement_registry` trophy export pipeline
+
+Scope clarification:
+- This ticket is for exportable trophy/achievement artifacts and deterministic pipeline wiring.
+- It is not permission to overclaim live platform backend integration if that remains out of tree.
+
+Primary file anchors:
+- `engine/core/achievement/achievement_registry.h`
+- `engine/core/achievement/achievement_registry.cpp`
+- `engine/core/achievement/achievement_validator.h`
+- `engine/core/achievement/achievement_validator.cpp`
+- `editor/achievement/achievement_panel.cpp`
+- `content/schemas/achievements.schema.json`
+- `content/fixtures/achievement_registry_fixture.json`
+- `tests/unit/test_achievement_registry.cpp`
+- `tests/unit/test_achievement_panel.cpp`
+- `tests/unit/test_achievement_triggers.cpp`
+- `tools/ci/check_achievement_governance.ps1`
+- `tools/audit/urpg_project_audit.cpp`
+
+Expected closure shape:
+- deterministic exported trophy/achievement artifact or manifest format
+- validator coverage for that artifact shape
+- fixture coverage for valid + invalid export cases
+- explicit wording in canonical docs that distinguishes in-tree export support from out-of-tree platform backend integration
+
+Minimum verification:
+- `powershell -ExecutionPolicy Bypass -File tools/ci/check_achievement_governance.ps1`
+- build + run focused achievement tests through `urpg_tests`
+
+### Low-context model guardrails
+
+- Do not invent new status labels; use only `PLANNED`, `EXPERIMENTAL`, `PARTIAL`, `READY`, `BLOCKED`.
+- Do not promote any subsystem or template by editing docs alone; evidence, tests, and audit/gate behavior must move with the doc change.
+- Do not add parallel planning authority. Update the canonical stack listed in `docs/TRUTH_ALIGNMENT_RULES.md`.
+- When touching `content/readiness/readiness_status.json`, keep `statusDate` synchronized with every canonical doc updated in the same slice.
+- Prefer adding one focused negative test per new governance rule so drift fails loudly instead of relying on prose.
 
 ## Remaining Work Mapping (non-ready coverage)
 
