@@ -28,6 +28,7 @@ class AudioMixPresetBank {
 public:
     AudioMixPresetBank();
 
+    void loadDefaults();
     std::optional<MixPreset> loadPreset(const std::string& name) const;
     void savePreset(const MixPreset& preset);
     void removePreset(const std::string& name);
@@ -36,6 +37,7 @@ public:
 
     nlohmann::json toJson() const;
     void fromJson(const nlohmann::json& j);
+    void loadFromJsonString(const std::string& json_text);
 
     const std::map<std::string, MixPreset>& presets() const { return m_presets; }
 

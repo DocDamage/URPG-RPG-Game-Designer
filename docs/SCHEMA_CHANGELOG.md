@@ -1,6 +1,6 @@
 # Schema Changelog
 
-Status Date: 2026-04-20
+Status Date: 2026-04-23
 
 This changelog records versioned schema-governance entries for schemas that are explicitly covered by the readiness-governance lane.
 
@@ -233,3 +233,38 @@ Each governed schema entry should include:
 - Date: `2026-04-23`
 - Summary: JSON Schema draft-07 for SpatialMapOverlay and embedded profile types (elevationGrid, fogProfile, postFXProfile, propInstance, lightProfile, vec3). S23-T03 schema migration proof.
 - Migration Impact: none; initial introduction.
+
+### `asset_pipeline_manifest` (`asset_pipeline_manifest.schema.json`)
+
+- Version: `1.0.0`
+- Date: `2026-04-23`
+- Summary: offline asset-pipeline manifest schema for source path, emitted outputs, tool identity, status, and bounded processing notes.
+- Migration Impact: none; initial introduction for tooling-bound asset processing records.
+
+### `audio_pipeline_manifest` (`audio_pipeline_manifest.schema.json`)
+
+- Version: `1.0.0`
+- Date: `2026-04-23`
+- Summary: offline audio-pipeline manifest schema for source path, emitted outputs, tool identity, status, and prototype-only processing flags.
+- Migration Impact: none; initial introduction for tooling-bound audio preprocessing records.
+
+### `retrieval_chunk_manifest` (`retrieval_chunk_manifest.schema.json`)
+
+- Version: `1.0.0`
+- Date: `2026-04-23`
+- Summary: retrieval chunk-manifest schema covering source roots, chunk sizing, overlap policy, and deterministic chunk payload records for offline indexing pipelines.
+- Migration Impact: none; initial introduction for retrieval artifact governance.
+
+### `retrieval_index_bundle` (`retrieval_index_bundle.schema.json`)
+
+- Version: `1.0.0`
+- Date: `2026-04-23`
+- Summary: retrieval index-bundle schema covering embedding engine metadata, adapter contract, source manifest linkage, entry counts, and stored chunk embeddings.
+- Migration Impact: none; initial introduction for offline retrieval index artifacts.
+
+### `tooling_job_run` (`tooling_job_run.schema.json`)
+
+- Version: `1.0.0`
+- Date: `2026-04-23`
+- Summary: offline tooling job-run schema for job type, status, timestamps, inputs, and outputs across bounded `tools/` pipeline executions.
+- Migration Impact: none; initial introduction for restartable tooling-run records.

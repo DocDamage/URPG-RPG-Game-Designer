@@ -10,6 +10,16 @@ param(
 $ErrorActionPreference = "Stop"
 . "$PSScriptRoot\resolve-local-cmake-profile.ps1"
 
+function Assert-LastExitCode {
+    param(
+        [string]$StepName
+    )
+
+    if ($LASTEXITCODE -ne 0) {
+        throw "$StepName failed with exit code $LASTEXITCODE."
+    }
+}
+
 if ([string]::IsNullOrWhiteSpace($ConfigurePreset) -or
     [string]::IsNullOrWhiteSpace($BuildPreset) -or
     [string]::IsNullOrWhiteSpace($PresentationConfiguration)) {
@@ -93,16 +103,19 @@ Write-Host "== Validate CMake completeness ==" -ForegroundColor Cyan
 
 Write-Host "== Configure: $ConfigurePreset ==" -ForegroundColor Cyan
 cmake --preset $ConfigurePreset
+Assert-LastExitCode "Configure preset '$ConfigurePreset'"
 
 if (-not $SkipBuild) {
     Write-Host "== Build: $BuildPreset ==" -ForegroundColor Cyan
     cmake --build --preset $BuildPreset
+    Assert-LastExitCode "Build preset '$BuildPreset'"
 }
 
 if (-not $SkipWarningsAsErrorsGate) {
     $strictBuildDir = "build/$ConfigurePreset-warnings-as-errors"
     Write-Host "== Configure strict warnings gate: $strictBuildDir ==" -ForegroundColor Cyan
     cmake --preset $ConfigurePreset -B $strictBuildDir -DURPG_WARNINGS_AS_ERRORS=ON
+    Assert-LastExitCode "Configure strict warnings gate '$strictBuildDir'"
 
     Write-Host "== Build strict warnings gate ==" -ForegroundColor Cyan
     cmake --build $strictBuildDir --target `
@@ -114,6 +127,7 @@ if (-not $SkipWarningsAsErrorsGate) {
         urpg_integration_tests `
         urpg_snapshot_tests `
         urpg_compat_tests
+    Assert-LastExitCode "Build strict warnings gate"
 }
 
 $testDir = "build/$ConfigurePreset"
@@ -143,11 +157,14 @@ Write-Host "== Validate curated RPG Maker plugin drop-ins ==" -ForegroundColor C
 
 Write-Host "== Gate 1 (pr) ==" -ForegroundColor Cyan
 ctest --test-dir $testDir --output-on-failure -L "^pr$"
+Assert-LastExitCode "Gate 1 (pr)"
 
 Write-Host "== Gate 2 (nightly) ==" -ForegroundColor Cyan
 ctest --test-dir $testDir --output-on-failure -L "^nightly$"
+Assert-LastExitCode "Gate 2 (nightly)"
 
 Write-Host "== Gate 3 (weekly) ==" -ForegroundColor Cyan
 ctest --test-dir $testDir --output-on-failure -L "^weekly$"
+Assert-LastExitCode "Gate 3 (weekly)"
 
 Write-Host "All gates passed." -ForegroundColor Green

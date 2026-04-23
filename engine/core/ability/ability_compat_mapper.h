@@ -109,6 +109,7 @@ inline AbilityCompatMapResult mapMzSkillToNativeAbility(const nlohmann::json& mz
         // Preserve formula string in unsupported_fields
         if (dmg.contains("formula") && dmg["formula"].is_string()) {
             unsupported["damage_formula"] = dmg["formula"];
+            asset.effect_value = 0.0f;
             result.fallback_field_names.push_back("damage_formula");
             result.mapping_notes.push_back(
                 "damage.formula '" + dmg["formula"].get<std::string>() +

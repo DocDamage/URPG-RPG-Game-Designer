@@ -1252,7 +1252,7 @@ TEST_CASE("Spatial authoring output flows into presentation runtime frame genera
 // ---------------------------------------------------------------------------
 
 TEST_CASE("MenuSceneTranslator emits background shadow proxy command", "[presentation][scene][menu]") {
-    MenuSceneTranslator translator;
+    MenuSceneStateTranslator translator;
     MenuSceneState state;
     state.menuId = "main_menu";
     state.drawBackground = true;
@@ -1273,7 +1273,7 @@ TEST_CASE("MenuSceneTranslator emits background shadow proxy command", "[present
 }
 
 TEST_CASE("MenuSceneTranslator emits blur PostFX when blurBackground is set", "[presentation][scene][menu]") {
-    MenuSceneTranslator translator;
+    MenuSceneStateTranslator translator;
     MenuSceneState state;
     state.drawBackground = true;
     state.blurBackground = true;
@@ -1293,7 +1293,7 @@ TEST_CASE("MenuSceneTranslator emits blur PostFX when blurBackground is set", "[
 }
 
 TEST_CASE("MenuSceneTranslator emits no commands when drawBackground is false and blurBackground is false", "[presentation][scene][menu]") {
-    MenuSceneTranslator translator;
+    MenuSceneStateTranslator translator;
     MenuSceneState state;
     state.drawBackground = false;
     state.blurBackground = false;

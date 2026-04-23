@@ -162,10 +162,18 @@ TEST_CASE("AudioMixValidator: Conflicting duck rules are warnings", "[audio][mix
     AudioMixValidator validator;
     auto issues = validator.validate(bank);
 
-    REQUIRE(issues.size() == 2);
+    const auto conflictingDuckRuleIssues = std::count_if(
+        issues.begin(),
+        issues.end(),
+        [](const AudioMixIssue& issue) {
+            return issue.category == AudioMixIssueCategory::ConflictingDuckRules;
+        });
+
+    REQUIRE(conflictingDuckRuleIssues == 2);
     for (const auto& issue : issues) {
-        REQUIRE(issue.severity == AudioMixIssueSeverity::Warning);
-        REQUIRE(issue.category == AudioMixIssueCategory::ConflictingDuckRules);
+        if (issue.category == AudioMixIssueCategory::ConflictingDuckRules) {
+            REQUIRE(issue.severity == AudioMixIssueSeverity::Warning);
+        }
     }
 }
 

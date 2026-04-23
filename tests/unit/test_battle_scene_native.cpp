@@ -611,7 +611,10 @@ TEST_CASE("BattleScene applies buff and debuff effect codes to live battle stats
     REQUIRE(hero != nullptr);
     REQUIRE(slime != nullptr);
 
-    const auto baseDamage = urpg::battle::BattleRuleResolver::resolveDamage(buildAttackContext(*hero, *slime));
+    const auto baseHeroAttack = dm.getActorParam(1, 2, 1);
+    const auto* slimeData = dm.getEnemy(1);
+    REQUIRE(slimeData != nullptr);
+    const auto baseSlimeDefense = slimeData->def;
 
     BattleScene::BattleAction buffAction{};
     buffAction.subject = hero;
@@ -632,23 +635,56 @@ TEST_CASE("BattleScene applies buff and debuff effect codes to live battle stats
     battle.onUpdate(0.1f);
 
     REQUIRE_FALSE(hero->modifiers.empty());
-    CHECK(hero->modifiers.front().paramId == 2);
-    CHECK(hero->modifiers.front().stages == 1);
+    const auto heroAttackBuff = std::find_if(
+        hero->modifiers.begin(),
+        hero->modifiers.end(),
+        [](const BattleParticipant::ModifierEffect& effect) {
+            return effect.paramId == 2 && effect.stages == 1;
+        });
+    const auto heroDefenseDebuff = std::find_if(
+        hero->modifiers.begin(),
+        hero->modifiers.end(),
+        [](const BattleParticipant::ModifierEffect& effect) {
+            return effect.paramId == 3 && effect.stages == -1;
+        });
+    REQUIRE(heroAttackBuff != hero->modifiers.end());
+    REQUIRE(heroDefenseDebuff != hero->modifiers.end());
+    CHECK(hero->abilitySystem.getAttribute("Attack", 0.0f) > static_cast<float>(baseHeroAttack));
 
     battle.addActionToQueue(debuffAction);
     battle.onUpdate(0.9f);
     battle.onUpdate(0.1f);
 
     REQUIRE_FALSE(slime->modifiers.empty());
-    CHECK(slime->modifiers.front().paramId == 3);
-    CHECK(slime->modifiers.front().stages == -1);
-
-    const auto buffedDamage = urpg::battle::BattleRuleResolver::resolveDamage(buildAttackContext(*hero, *slime));
-    CHECK(buffedDamage > baseDamage);
+    const auto slimeAttackBuff = std::find_if(
+        slime->modifiers.begin(),
+        slime->modifiers.end(),
+        [](const BattleParticipant::ModifierEffect& effect) {
+            return effect.paramId == 2 && effect.stages == 1;
+        });
+    const auto slimeDefenseDebuff = std::find_if(
+        slime->modifiers.begin(),
+        slime->modifiers.end(),
+        [](const BattleParticipant::ModifierEffect& effect) {
+            return effect.paramId == 3 && effect.stages == -1;
+        });
+    REQUIRE(slimeAttackBuff != slime->modifiers.end());
+    REQUIRE(slimeDefenseDebuff != slime->modifiers.end());
+    CHECK(slime->abilitySystem.getAttribute("Defense", 0.0f) < static_cast<float>(baseSlimeDefense));
 
     battle.setPhase(BattlePhase::TURN_END);
-    CHECK(hero->modifiers.front().turnsRemaining == 1);
-    CHECK(slime->modifiers.front().turnsRemaining == 1);
+    CHECK(std::all_of(
+        hero->modifiers.begin(),
+        hero->modifiers.end(),
+        [](const BattleParticipant::ModifierEffect& effect) {
+            return effect.turnsRemaining == 1;
+        }));
+    CHECK(std::all_of(
+        slime->modifiers.begin(),
+        slime->modifiers.end(),
+        [](const BattleParticipant::ModifierEffect& effect) {
+            return effect.turnsRemaining == 1;
+        }));
 
     battle.setPhase(BattlePhase::TURN_END);
     CHECK(hero->modifiers.empty());

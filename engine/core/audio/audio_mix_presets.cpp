@@ -1,4 +1,5 @@
 #include "audio_mix_presets.h"
+#include <nlohmann/json.hpp>
 #include <stdexcept>
 
 namespace urpg::audio {
@@ -65,6 +66,12 @@ MixPreset presetFromJson(const nlohmann::json& j) {
 } // anonymous namespace
 
 AudioMixPresetBank::AudioMixPresetBank() {
+    loadDefaults();
+}
+
+void AudioMixPresetBank::loadDefaults() {
+    m_presets.clear();
+
     MixPreset defaultPreset;
     defaultPreset.name = "Default";
     defaultPreset.categoryVolumes[AudioCategory::BGM] = 1.0f;
@@ -169,6 +176,10 @@ void AudioMixPresetBank::fromJson(const nlohmann::json& j) {
             m_presets[preset.name] = preset;
         }
     }
+}
+
+void AudioMixPresetBank::loadFromJsonString(const std::string& json_text) {
+    fromJson(nlohmann::json::parse(json_text));
 }
 
 } // namespace urpg::audio

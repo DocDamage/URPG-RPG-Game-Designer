@@ -168,7 +168,7 @@
       "mainGaps": [
         "Character identity validator, governance script, and ProjectAudit artifact section are landed for the bounded editor/runtime contract.",
         "Full Create-a-Character workflow (runtime character creation UI) — deferred; no creator-screen runtime or event-driven creation flow is landed.",
-        "Appearance preview pipeline — deferred; no character appearance/preview render surface is landed; this is a distinct future work item, not blocking PARTIAL status."
+        "appearance preview pipeline — deferred; no character appearance/preview render surface is landed; this is a distinct future work item, not blocking PARTIAL status."
       ],
       "evidence": {
         "runtimeOwner": true,

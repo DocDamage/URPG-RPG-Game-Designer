@@ -413,8 +413,10 @@ TEST_CASE("ExportValidator: path-not-found returns a structured error",
     const auto errors = validator.validateExportDirectory(
         "/nonexistent/urpg_export_does_not_exist_xyz", ExportTarget::Windows_x64);
     REQUIRE_FALSE(errors.empty());
-    REQUIRE(errors[0].find("not a directory") != std::string::npos ||
-            errors[0].find("does not exist") != std::string::npos);
+    const bool hasStructuredPathError =
+        errors[0].find("not a directory") != std::string::npos ||
+        errors[0].find("does not exist") != std::string::npos;
+    REQUIRE(hasStructuredPathError);
 }
 
 TEST_CASE("ExportValidator: report JSON for all-passing export is stable across calls",
@@ -427,4 +429,3 @@ TEST_CASE("ExportValidator: report JSON for all-passing export is stable across 
     REQUIRE(report1["passed"] == true);
     REQUIRE(report1["errors"].empty());
 }
-

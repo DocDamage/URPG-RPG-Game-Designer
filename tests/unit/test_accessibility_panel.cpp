@@ -1,4 +1,5 @@
 #include <catch2/catch_test_macros.hpp>
+#include <algorithm>
 #include "editor/accessibility/accessibility_panel.h"
 #include "editor/accessibility/accessibility_menu_adapter.h"
 #include "editor/accessibility/accessibility_spatial_adapter.h"
@@ -293,43 +294,22 @@ TEST_CASE("AccessibilityBattleAdapter: action rows map to focusable elements",
           "[accessibility][editor][battle][s28]") {
     using namespace urpg::battle;
 
-    // Build a minimal battle context with two combatants
     BattleFlowController flow;
+    flow.beginBattle(true);
+    flow.enterAction();
     BattleActionQueue queue;
 
-    Combatant hero;
-    hero.id = "hero_01";
-    hero.name = "Hero";
-    hero.hp = 100;
-    hero.maxHp = 100;
-    hero.mp = 50;
-    hero.maxMp = 50;
-    hero.speed = 10;
-    hero.isEnemy = false;
-    flow.addCombatant(hero);
-
-    Combatant enemy;
-    enemy.id = "enemy_01";
-    enemy.name = "Slime";
-    enemy.hp = 30;
-    enemy.maxHp = 30;
-    enemy.mp = 0;
-    enemy.maxMp = 0;
-    enemy.speed = 5;
-    enemy.isEnemy = true;
-    flow.addCombatant(enemy);
-
-    BattleAction heroAction;
-    heroAction.subjectId = "hero_01";
-    heroAction.targetId = "enemy_01";
+    BattleQueuedAction heroAction;
+    heroAction.subject_id = "hero_01";
+    heroAction.target_id = "enemy_01";
     heroAction.command = "Attack";
     heroAction.speed = 10;
     heroAction.priority = 1;
     queue.enqueue(heroAction);
 
-    BattleAction enemyAction;
-    enemyAction.subjectId = "enemy_01";
-    enemyAction.targetId = "hero_01";
+    BattleQueuedAction enemyAction;
+    enemyAction.subject_id = "enemy_01";
+    enemyAction.target_id = "hero_01";
     enemyAction.command = "Tackle";
     enemyAction.speed = 5;
     enemyAction.priority = 2;
@@ -354,22 +334,13 @@ TEST_CASE("AccessibilityBattleAdapter: action with empty command surfaces Missin
     using namespace urpg::battle;
 
     BattleFlowController flow;
+    flow.beginBattle(true);
+    flow.enterAction();
     BattleActionQueue queue;
 
-    Combatant hero;
-    hero.id = "hero_02";
-    hero.name = "Hero2";
-    hero.hp = 100;
-    hero.maxHp = 100;
-    hero.mp = 50;
-    hero.maxMp = 50;
-    hero.speed = 10;
-    hero.isEnemy = false;
-    flow.addCombatant(hero);
-
-    BattleAction emptyCommandAction;
-    emptyCommandAction.subjectId = "hero_02";
-    emptyCommandAction.targetId = "enemy_99";
+    BattleQueuedAction emptyCommandAction;
+    emptyCommandAction.subject_id = "hero_02";
+    emptyCommandAction.target_id = "enemy_99";
     emptyCommandAction.command = "";  // intentionally empty — should surface MissingLabel
     emptyCommandAction.speed = 10;
     emptyCommandAction.priority = 1;
@@ -418,7 +389,7 @@ TEST_CASE("Spatial adapter emits sourceContext for all elements",
     es.visible = true;
     es.has_target = true;
     es.brush_size = 3;
-    es.brush_strength = 0.8f;
+    es.brush_height = 0.8f;
 
     PropPlacementPanel::RenderSnapshot ps;
     ps.visible = true;
@@ -448,8 +419,18 @@ TEST_CASE("Audio adapter emits sourceContext for all elements",
 
 TEST_CASE("Battle adapter emits sourceContext for all elements",
           "[accessibility][editor][battle][s28t02]") {
+    using namespace urpg::battle;
+
     BattleInspectorModel model;
-    model.loadFixture();
+    BattleFlowController flow;
+    flow.beginBattle(true);
+    flow.enterAction();
+
+    BattleActionQueue queue;
+    queue.enqueue({"hero_fixture", "enemy_fixture", "Attack", 10, 1});
+    queue.enqueue({"enemy_fixture", "hero_fixture", "Counter", 8, 2});
+
+    model.LoadFromRuntime(flow, queue);
     auto elements = AccessibilityBattleAdapter::ingest(model);
 
     REQUIRE_FALSE(elements.empty());
@@ -464,6 +445,7 @@ TEST_CASE("MissingLabel issue from audio adapter includes sourceFile in panel sn
     urpg::audio::AudioMixPresetBank bank;
     bank.loadDefaults();
     const std::string badJson = R"({
+        "version": "1.0.0",
         "presets": [
           {
             "name": "BadPreset",

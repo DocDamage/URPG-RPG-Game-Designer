@@ -32,7 +32,7 @@ struct StatusHUDState {
 /**
  * @brief Translator for menu visual intent.
  */
-class MenuSceneTranslator {
+class MenuSceneStateTranslator {
 public:
     void Translate(const MenuSceneState& state, PresentationFrameIntent& intent) {
         // 1. Emit background intent (if any)

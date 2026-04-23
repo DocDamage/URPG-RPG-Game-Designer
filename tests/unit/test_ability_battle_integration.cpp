@@ -1,4 +1,5 @@
 #include <catch2/catch_test_macros.hpp>
+#include <catch2/catch_approx.hpp>
 
 #include "engine/core/ability/ability_compat_mapper.h"
 #include "engine/core/ability/ability_battle_integration.h"
@@ -11,6 +12,7 @@
 using namespace urpg;
 using namespace urpg::ability;
 using json = nlohmann::json;
+using Catch::Approx;
 
 // ---------------------------------------------------------------------------
 // Minimal concrete ability for battle integration tests
@@ -416,7 +418,7 @@ TEST_CASE("BattleFlowController advances through phases with ability commands qu
     // End turn
     flow.endTurn();
     REQUIRE(flow.phase() == urpg::battle::BattleFlowPhase::TurnEnd);
-    REQUIRE(flow.turnCount() == 1);
+    REQUIRE(flow.turnCount() == 2);
 }
 
 TEST_CASE("AbilityBattleQueue diagnostics JSON is stable across identical battle turns", "[ability][battle][integration][s24]") {

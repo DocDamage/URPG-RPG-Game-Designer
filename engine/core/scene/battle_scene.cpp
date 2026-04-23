@@ -714,8 +714,18 @@ void BattleScene::onUpdate(float dt) {
     if (m_itemWindow->isVisible()) m_itemWindow->update(dt);
     if (m_targetWindow->isVisible()) m_targetWindow->update(dt);
 
-    if (m_phaseTimer > 0) m_phaseTimer -= dt;
-    if (m_shakeTimer > 0) m_shakeTimer -= dt;
+    if (m_phaseTimer > 0.0f) {
+        m_phaseTimer -= dt;
+        if (m_phaseTimer < 1.0e-4f) {
+            m_phaseTimer = 0.0f;
+        }
+    }
+    if (m_shakeTimer > 0.0f) {
+        m_shakeTimer -= dt;
+        if (m_shakeTimer < 1.0e-4f) {
+            m_shakeTimer = 0.0f;
+        }
+    }
 
     // Phase State Machine
     switch (m_currentPhase) {

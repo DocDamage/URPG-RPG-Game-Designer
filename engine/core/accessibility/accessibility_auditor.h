@@ -19,24 +19,24 @@ enum class IssueCategory {
 };
 
 struct AccessibilityIssue {
-    IssueSeverity severity;
-    IssueCategory category;
-    std::string elementId;
-    std::string message;
+    IssueSeverity severity = IssueSeverity::Warning;
+    IssueCategory category = IssueCategory::Navigation;
+    std::string elementId{};
+    std::string message{};
     /** Optional file path reference for actionable navigation to the source of the issue. */
-    std::string sourceFile;
+    std::string sourceFile{};
     /** Optional 1-based line number within sourceFile, or -1 if not available. */
     int32_t sourceLine = -1;
 };
 
 struct UiElementSnapshot {
-    std::string id;
-    std::string label;
+    std::string id{};
+    std::string label{};
     bool hasFocus = false;
     int32_t focusOrder = 0;
     float contrastRatio = 0.0f;
     /** Optional source context propagated to issues generated for this element. */
-    std::string sourceContext;
+    std::string sourceContext{};
 };
 
 class AccessibilityAuditor {

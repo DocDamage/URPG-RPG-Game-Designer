@@ -518,7 +518,7 @@ TEST_CASE("jrpg template bar evidence exists for all required bars", "[governanc
     }
 }
 
-TEST_CASE("jrpg bar status aligns with spec — no drift on nominal fixture", "[governance][s30t01]") {
+TEST_CASE("jrpg bar status aligns with spec - no drift on nominal fixture", "[governance][s30t01]") {
     const nlohmann::json templateBars = nlohmann::json::parse(R"({
         "accessibility": "PARTIAL",
         "audio": "PARTIAL",
@@ -577,7 +577,7 @@ TEST_CASE("visual_novel template bar evidence exists for all required bars", "[g
     }
 }
 
-TEST_CASE("visual_novel bar status aligns with spec — no drift on nominal fixture", "[governance][s30t02]") {
+TEST_CASE("visual_novel bar status aligns with spec - no drift on nominal fixture", "[governance][s30t02]") {
     const nlohmann::json templateBars = nlohmann::json::parse(R"({
         "accessibility": "PARTIAL",
         "audio": "PARTIAL",
@@ -636,7 +636,7 @@ TEST_CASE("turn_based_rpg template bar evidence exists for all required bars", "
     }
 }
 
-TEST_CASE("turn_based_rpg bar status aligns with spec — no drift on nominal fixture", "[governance][s30t03]") {
+TEST_CASE("turn_based_rpg bar status aligns with spec - no drift on nominal fixture", "[governance][s30t03]") {
     const nlohmann::json templateBars = nlohmann::json::parse(R"({
         "accessibility": "PARTIAL",
         "audio": "PARTIAL",

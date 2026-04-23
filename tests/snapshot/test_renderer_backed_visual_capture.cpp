@@ -2,6 +2,7 @@
 #include "engine/core/render/render_layer.h"
 #include "engine/core/scene/battle_scene.h"
 #include "engine/core/scene/map_scene.h"
+#include "engine/core/scene/menu_scene.h"
 #include "engine/core/message/message_core.h"
 #include "engine/core/platform/gl_texture.h"
 #include "engine/core/platform/opengl_renderer.h"
@@ -1062,4 +1063,3 @@ TEST_CASE("Snapshot: diff heatmap golden is actionable and stable",
     REQUIRE(result.matches);
 #endif
 }
-

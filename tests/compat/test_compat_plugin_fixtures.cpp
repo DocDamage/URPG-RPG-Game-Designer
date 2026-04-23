@@ -89,6 +89,22 @@ const std::vector<FixtureSpec>& fixtureSpecs() {
     return specs;
 }
 
+const std::vector<FixtureSpec>& healthOnlyFixtureSpecs() {
+    static const std::vector<FixtureSpec> specs = {
+        {"URPG_DependencyDrift_Fixture", "runWithDependencies", "dependency_drift_test"},
+        {"URPG_ProfileMismatch_Fixture", "runWithMismatchedProfile",
+         "INVALID_PROFILE_NAME_UPPERCASE_VIOLATES_CONVENTION"},
+    };
+    return specs;
+}
+
+std::vector<FixtureSpec> allFixtureSpecs() {
+    std::vector<FixtureSpec> specs = fixtureSpecs();
+    const auto& healthOnly = healthOnlyFixtureSpecs();
+    specs.insert(specs.end(), healthOnly.begin(), healthOnly.end());
+    return specs;
+}
+
 void expectScriptResult(const Value& result,
                         const FixtureSpec& spec,
                         int64_t expectedArgCount,
@@ -266,21 +282,22 @@ TEST_CASE("Compat fixtures: directory loader discovers and loads all fixture plu
     PluginManager& pm = PluginManager::instance();
     pm.unloadAllPlugins();
 
+    const auto specs = allFixtureSpecs();
     const auto loadedCount = pm.loadPluginsFromDirectory(fixtureDir().string());
-    REQUIRE(loadedCount == static_cast<int32_t>(fixtureSpecs().size()));
+    REQUIRE(loadedCount == static_cast<int32_t>(specs.size()));
 
-    for (const auto& spec : fixtureSpecs()) {
+    for (const auto& spec : specs) {
         INFO("Loaded fixture plugin: " << spec.pluginName);
         REQUIRE(pm.isPluginLoaded(spec.pluginName));
         REQUIRE(pm.hasCommand(spec.pluginName, spec.commandName));
     }
 
     auto loadedPlugins = pm.getLoadedPlugins();
-    REQUIRE(loadedPlugins.size() == fixtureSpecs().size());
+    REQUIRE(loadedPlugins.size() == specs.size());
 
     std::vector<std::string> expectedLoaded;
-    expectedLoaded.reserve(fixtureSpecs().size());
-    for (const auto& spec : fixtureSpecs()) {
+    expectedLoaded.reserve(specs.size());
+    for (const auto& spec : specs) {
         expectedLoaded.push_back(spec.pluginName);
     }
     std::sort(expectedLoaded.begin(), expectedLoaded.end());
@@ -433,8 +450,9 @@ TEST_CASE("Compat fixtures: curated all-profile orchestration scenario survives 
     const auto fixturesRoot = fixtureDir();
     REQUIRE(std::filesystem::exists(fixturesRoot));
 
+    const auto discoveredSpecs = allFixtureSpecs();
     const auto loadedCount = pm.loadPluginsFromDirectory(fixturesRoot.string());
-    REQUIRE(loadedCount == static_cast<int32_t>(fixtureSpecs().size()));
+    REQUIRE(loadedCount == static_cast<int32_t>(discoveredSpecs.size()));
 
     const auto& specs = fixtureSpecs();
     const auto orchestrationFixture =
@@ -529,7 +547,7 @@ TEST_CASE("Compat fixtures: curated all-profile orchestration scenario survives 
     pm.clearFailureDiagnostics();
 
     const auto reimportedCount = pm.loadPluginsFromDirectory(fixturesRoot.string());
-    REQUIRE(reimportedCount == static_cast<int32_t>(fixtureSpecs().size()));
+    REQUIRE(reimportedCount == static_cast<int32_t>(discoveredSpecs.size()));
     REQUIRE(pm.loadPlugin(orchestrationFixture.string()));
     REQUIRE(pm.hasCommand("CuratedAllProfilesDirectoryReimportFixture", "runAll"));
 
