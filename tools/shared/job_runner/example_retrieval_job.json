@@ -1,0 +1,7 @@
+{
+  "job_type": "retrieval_chunk_manifest",
+  "source_root": "docs",
+  "output": "data/manifests/docs_chunks.json",
+  "chunk_size": 400,
+  "overlap": 80
+}

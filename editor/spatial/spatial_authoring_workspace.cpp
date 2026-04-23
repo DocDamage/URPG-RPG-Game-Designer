@@ -1,5 +1,6 @@
 #include "editor/spatial/spatial_authoring_workspace.h"
 
+#include <algorithm>
 #include <cmath>
 
 namespace urpg::editor {
@@ -50,6 +51,7 @@ void SpatialAuthoringWorkspace::SetTargets(urpg::scene::MapScene* scene,
     binding_panel_.SetSpatialTarget(overlay);
     canvas_panel_.SetSpatialTarget(overlay);
     canvas_panel_.SetBindingPanel(&binding_panel_);
+    canvas_panel_.SetActiveMode(modeName(active_mode_));
     syncPanelVisibility();
     captureRenderSnapshot();
 }
@@ -77,6 +79,7 @@ void SpatialAuthoringWorkspace::SetActiveMode(ToolMode mode) {
     }
 
     active_mode_ = mode;
+    canvas_panel_.SetActiveMode(modeName(active_mode_));
     syncPanelVisibility();
     captureRenderSnapshot();
 }
@@ -109,6 +112,49 @@ bool SpatialAuthoringWorkspace::ActivateToolbarAction(const std::string& action_
     }
 
     return false;
+}
+
+bool SpatialAuthoringWorkspace::ActivateCanvasAction(const std::string& action_id) {
+    if (action_id.empty()) {
+        return false;
+    }
+    if (ActivateToolbarAction(action_id)) {
+        return true;
+    }
+
+    const auto& canvas_snapshot = canvas_panel_.lastRenderSnapshot();
+    const auto conflict_chip = std::find_if(
+        canvas_snapshot.conflict_action_chips.begin(),
+        canvas_snapshot.conflict_action_chips.end(),
+        [&](const auto& chip) { return chip.action_id == action_id; });
+    if (conflict_chip == canvas_snapshot.conflict_action_chips.end()) {
+        return false;
+    }
+
+    const size_t index = conflict_chip->conflict_index;
+    bool handled = false;
+    if (action_id == "resolve_conflict") {
+        handled = canvas_panel_.ResolveConflictWithSuggestion(index);
+    } else if (action_id.rfind("conflict:", 0) == 0) {
+        const auto last_separator = action_id.rfind(':');
+        const std::string operation = last_separator == std::string::npos
+                                          ? std::string{}
+                                          : action_id.substr(last_separator + 1);
+        if (operation == "keep_primary") {
+            handled = canvas_panel_.ResolveConflictByRemovingSecondary(index);
+        } else if (operation == "keep_secondary") {
+            handled = canvas_panel_.ResolveConflictByRemovingPrimary(index);
+        } else if (operation == "swap") {
+            handled = canvas_panel_.SwapConflictTriggers(index);
+        } else if (operation == "replace_secondary") {
+            handled = canvas_panel_.ReplaceSecondaryWithPrimaryAsset(index);
+        }
+    }
+
+    if (handled) {
+        captureRenderSnapshot();
+    }
+    return handled;
 }
 
 bool SpatialAuthoringWorkspace::RouteCanvasPrimaryAction(float screen_x, float screen_y) {
@@ -224,6 +270,8 @@ void SpatialAuthoringWorkspace::captureRenderSnapshot() {
         {"abilities", "Abilities", active_mode_ == ToolMode::Abilities, last_render_snapshot_.has_target_scene},
         {"resolve_conflict", "Resolve Conflict", false, last_render_snapshot_.canvas.has_conflicts},
     };
+    canvas_panel_.SetActiveMode(last_render_snapshot_.toolbar.active_mode);
+    last_render_snapshot_.canvas = canvas_panel_.lastRenderSnapshot();
 }
 
 } // namespace urpg::editor

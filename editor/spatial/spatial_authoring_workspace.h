@@ -64,6 +64,7 @@ public:
     void SetAvailableTriggers(std::vector<std::string> trigger_ids);
     void SetActiveMode(ToolMode mode);
     bool ActivateToolbarAction(const std::string& action_id);
+    bool ActivateCanvasAction(const std::string& action_id);
     bool RouteCanvasPrimaryAction(float screen_x, float screen_y);
     bool RouteCanvasSecondaryAction(float screen_x, float screen_y);
     bool RouteCanvasHover(float screen_x, float screen_y);

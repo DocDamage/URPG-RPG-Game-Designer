@@ -1,0 +1,48 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urpg/retrieval_index_bundle",
+  "title": "Retrieval Index Bundle",
+  "type": "object",
+  "required": ["schema", "dimension", "engine", "embedding_adapter", "entry_count", "entries"],
+  "properties": {
+    "schema": { "type": "string" },
+    "dimension": { "type": "integer", "minimum": 1 },
+    "engine": { "type": "string" },
+    "embedding_adapter": {
+      "type": "object",
+      "required": ["adapter_id", "dimension"],
+      "properties": {
+        "adapter_id": { "type": "string" },
+        "dimension": { "type": "integer", "minimum": 1 },
+        "command": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "metadata": { "type": "object" }
+      },
+      "additionalProperties": true
+    },
+    "source_manifest": { "type": "string" },
+    "source_root": { "type": "string" },
+    "entry_count": { "type": "integer", "minimum": 0 },
+    "entries": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["chunk_id", "source_path", "chunk_index", "text", "embedding"],
+        "properties": {
+          "chunk_id": { "type": "string" },
+          "source_path": { "type": "string" },
+          "chunk_index": { "type": "integer", "minimum": 0 },
+          "text": { "type": "string" },
+          "embedding": {
+            "type": "array",
+            "items": { "type": "number" }
+          }
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false
+}

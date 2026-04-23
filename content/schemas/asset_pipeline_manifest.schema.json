@@ -1,0 +1,18 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urpg/asset_pipeline_manifest",
+  "title": "Asset Pipeline Manifest",
+  "type": "object",
+  "required": ["source_path", "outputs", "tool", "status"],
+  "properties": {
+    "source_path": { "type": "string" },
+    "outputs": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "tool": { "type": "string" },
+    "status": { "type": "string" },
+    "notes": { "type": "string" }
+  },
+  "additionalProperties": false
+}

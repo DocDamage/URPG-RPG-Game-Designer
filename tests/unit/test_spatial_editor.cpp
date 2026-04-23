@@ -632,8 +632,23 @@ TEST_CASE("Spatial Editor Tooling Integration", "[editor][spatial]") {
         REQUIRE_FALSE(canvasSnapshot.hover_preview.would_conflict);
         REQUIRE(canvasSnapshot.has_conflicts);
         REQUIRE(canvasSnapshot.conflict_count >= 2);
+        REQUIRE(canvasSnapshot.mode_badge_count == 4);
+        REQUIRE(canvasSnapshot.hover_affordance_count >= 2);
+        REQUIRE(canvasSnapshot.conflict_action_chip_count >= canvasSnapshot.conflict_count);
         REQUIRE(canvasSnapshot.available_triggers.size() >= 4);
         REQUIRE_FALSE(canvasSnapshot.selection_trigger_menu.empty());
+        const auto abilitiesBadge = std::find_if(
+            canvasSnapshot.mode_badges.begin(),
+            canvasSnapshot.mode_badges.end(),
+            [](const auto& badge) { return badge.action_id == "abilities"; });
+        REQUIRE(abilitiesBadge != canvasSnapshot.mode_badges.end());
+        REQUIRE(abilitiesBadge->enabled);
+        const auto bindAbilityAffordance = std::find_if(
+            canvasSnapshot.hover_affordances.begin(),
+            canvasSnapshot.hover_affordances.end(),
+            [](const auto& affordance) { return affordance.action_id == "abilities"; });
+        REQUIRE(bindAbilityAffordance != canvasSnapshot.hover_affordances.end());
+        REQUIRE(bindAbilityAffordance->target_kind == "tile");
         const auto tileRecommendedTrigger = std::find_if(
             canvasSnapshot.selection_trigger_menu.begin(),
             canvasSnapshot.selection_trigger_menu.end(),
@@ -650,6 +665,14 @@ TEST_CASE("Spatial Editor Tooling Integration", "[editor][spatial]") {
         const size_t tileConflictIndex = static_cast<size_t>(std::distance(
             canvasSnapshot.conflicts.begin(),
             tileConflictWarning));
+        const auto swapChip = std::find_if(
+            canvasSnapshot.conflict_action_chips.begin(),
+            canvasSnapshot.conflict_action_chips.end(),
+            [&](const auto& chip) {
+                return chip.conflict_index == tileConflictIndex &&
+                       chip.action_id == "conflict:" + std::to_string(tileConflictIndex) + ":swap";
+            });
+        REQUIRE(swapChip != canvasSnapshot.conflict_action_chips.end());
         REQUIRE(canvasPanel.SwapConflictTriggers(tileConflictIndex));
         canvasSnapshot = canvasPanel.lastRenderSnapshot();
         REQUIRE(canvasPanel.ReplaceSecondaryWithPrimaryAsset(tileConflictIndex));
@@ -746,6 +769,8 @@ TEST_CASE("Spatial Editor Tooling Integration", "[editor][spatial]") {
         REQUIRE(snapshot.canvas.has_binding_panel);
         REQUIRE(snapshot.canvas.hover_preview.active);
         REQUIRE(snapshot.canvas.available_triggers.size() == 2);
+        REQUIRE(snapshot.canvas.mode_badge_count == 4);
+        REQUIRE(snapshot.canvas.hover_affordance_count >= 2);
         REQUIRE(snapshot.toolbar.active_mode == "abilities");
         REQUIRE(snapshot.toolbar.has_conflicts == snapshot.canvas.has_conflicts);
         REQUIRE(snapshot.toolbar.actions.size() == 5);
@@ -822,9 +847,35 @@ TEST_CASE("Spatial Editor Tooling Integration", "[editor][spatial]") {
         auto snapshot = workspace.lastRenderSnapshot();
         REQUIRE(snapshot.toolbar.active_mode == "abilities");
         REQUIRE(snapshot.toolbar.selected_prop_asset_id == "oak_01");
+        const auto propsBadge = std::find_if(
+            snapshot.canvas.mode_badges.begin(),
+            snapshot.canvas.mode_badges.end(),
+            [](const auto& badge) { return badge.action_id == "props"; });
+        REQUIRE(propsBadge != snapshot.canvas.mode_badges.end());
+        REQUIRE_FALSE(propsBadge->active);
+        REQUIRE(workspace.ActivateCanvasAction("props"));
+        snapshot = workspace.lastRenderSnapshot();
+        REQUIRE(snapshot.toolbar.active_mode == "props");
+        const auto propsHoverAffordance = std::find_if(
+            snapshot.canvas.hover_affordances.begin(),
+            snapshot.canvas.hover_affordances.end(),
+            [](const auto& affordance) { return affordance.action_id == "props"; });
+        if (propsHoverAffordance != snapshot.canvas.hover_affordances.end()) {
+            REQUIRE(workspace.ActivateCanvasAction(propsHoverAffordance->action_id));
+            snapshot = workspace.lastRenderSnapshot();
+            REQUIRE(snapshot.toolbar.active_mode == "props");
+        }
+        REQUIRE(workspace.ActivateCanvasAction("abilities"));
+        snapshot = workspace.lastRenderSnapshot();
+        REQUIRE(snapshot.toolbar.active_mode == "abilities");
         if (snapshot.toolbar.can_apply_suggested_conflict_resolution) {
             REQUIRE(snapshot.toolbar.conflict_count >= 1);
-            REQUIRE(workspace.ActivateToolbarAction("resolve_conflict"));
+            const auto preferredChip = std::find_if(
+                snapshot.canvas.conflict_action_chips.begin(),
+                snapshot.canvas.conflict_action_chips.end(),
+                [](const auto& chip) { return chip.recommended; });
+            REQUIRE(preferredChip != snapshot.canvas.conflict_action_chips.end());
+            REQUIRE(workspace.ActivateCanvasAction(preferredChip->action_id));
             snapshot = workspace.lastRenderSnapshot();
             REQUIRE(snapshot.toolbar.conflict_count < 2);
             REQUIRE(snapshot.canvas.conflict_count < 2);

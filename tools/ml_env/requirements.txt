@@ -1,0 +1,4 @@
+# Offline tooling dependencies should live here.
+# Keep runtime-facing dependencies out of this file.
+
+numpy>=1.26

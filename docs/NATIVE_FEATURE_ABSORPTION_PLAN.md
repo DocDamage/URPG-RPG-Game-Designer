@@ -17,6 +17,7 @@ Planning-input annexes for this roadmap:
 - `./archive/planning/URPG_PGMMV_SUPPORT_PLAN.md` - detailed PGMMV intake/migration input retained for traceability
 - `./archive/planning/URPG_NATIVE_ABSORPTION_ROADMAP_2026-04-18.md` - earlier native-absorption planning input retained as superseded reference
 - `../URPG_MISSING_FEATURES_GOVERNANCE_AND_TEMPLATE_EXPANSION_PLAN_v2.md` - governance/template expansion addendum retained as planning input while its approved deltas are absorbed into this roadmap and the canonical status stack
+- `./URPG_facebookresearch_tooling_integration_plan.md` - offline ML/research tooling boundary input retained as planning input while its approved scope is absorbed into this roadmap and the canonical status stack
 
 These annexes are not parallel execution authorities. New phase, status, and release-gate claims become canonical only after they are absorbed into this roadmap, `docs/PROGRAM_COMPLETION_STATUS.md`, and `docs/TECHNICAL_DEBT_REMEDIATION_PLAN.md`.
 
@@ -69,6 +70,13 @@ URPG's product goal is also explicitly WYSIWYG and easy to use. Native ownership
 - project-specific add-ons
 - staged customization modules
 
+### Tier D: Offline tooling and content-prep lane
+
+- semantic retrieval and indexing tooling
+- image segmentation and cutout tooling
+- audio separation, analysis, and compression experimentation
+- importer-specific offline adapters and manifest builders
+
 ## Repository-informed capability seeds
 
 These projects informed what to absorb. We treat them as design references first, and only reuse code when licensing/fit is explicitly approved.
@@ -107,6 +115,13 @@ These projects informed what to absorb. We treat them as design references first
 
 - governed customization points and extension contracts
 - no hidden authority over core save/state/combat/menu/message contracts
+
+### Offline tooling lane owns
+
+- heavy ML/research dependencies and helper environments
+- restartable offline jobs under `tools/`
+- stable manifests, cutouts, indexes, and processed asset outputs
+- no direct authority over shipped runtime behavior beyond exported artifacts
 
 ## Execution roadmap
 
@@ -240,7 +255,44 @@ Goal: expand engine power for multi-genre projects while preserving deterministi
 - [x] Selective adoption of high-value editor utilities (implemented `editor/productivity/editor_utility_task.h`).
 - [x] focus on maintainability and ownership fit, not bulk addon import
 
-## Lane 4: Productization and release hardening
+## Lane 4: Offline tooling boundary and pipeline expansion
+
+Goal: add high-value retrieval, vision, and audio tooling without turning URPG into a research-lab runtime or contaminating shipped builds with heavyweight ML dependencies.
+
+Boundary rules:
+
+- heavy research dependencies stay in `tools/` or a separate helper environment
+- runtime consumes static outputs only: JSON, manifests, indexes, PNG/WebP cutouts, WAV/OGG, and metadata
+- no PyTorch-heavy dependency enters the player/runtime build unless there is a separately proven product need
+- every offline stage must be restartable, inspectable, and safe to rerun
+
+### 4.1 Retrieval and search tooling
+
+- [ ] Add an offline FAISS-based retrieval lane under `tools/retrieval`.
+- [ ] Build searchable indexes for lore, dialogue, quests, items, and imported project metadata.
+- [ ] Export chunk manifests with source paths and stable chunk IDs.
+- [ ] Add a local query/debug CLI for authoring and import workflows.
+
+### 4.2 Vision and segmentation tooling
+
+- [ ] Add a SAM / SAM2-compatible segmentation lane under `tools/vision`.
+- [ ] Support batch mask generation, cutout export, and per-asset manifest export.
+- [ ] Preserve manual overrides so reruns do not wipe reviewed work.
+- [ ] Keep the runtime consuming exported cutouts and manifests rather than segmentation code directly.
+
+### 4.3 Audio tooling pipeline
+
+- [ ] Add Demucs-based separation tooling under `tools/audio`.
+- [ ] Add Encodec-based compression experiment tooling and output manifests.
+- [ ] Add AudioCraft-based prototype-generation workflow only as temp-asset ideation, not as a shipped runtime dependency.
+- [ ] Keep all generated/prototype outputs clearly marked and manifest-backed.
+
+### 4.4 Optional later tooling
+
+- [ ] Evaluate Detectron2 only if asset-scale tagging or QA pressure justifies maintenance.
+- [ ] Evaluate PyTorch3D only if the 2.5D / 3D asset pipeline grows into a real maintained content lane.
+
+## Lane 5: Productization and release hardening
 
 Goal: convert delivered systems into stable production paths.
 
@@ -270,7 +322,7 @@ Deliverables:
 - [x] Save policy governance CI gate with canonical fixture validation and schema alignment checks.
 - [x] RPG Maker MV/MZ save file binary format loader with LZString decompression, XOR decryption, and JSON extraction.
 
-## Lane 5: Governance foundation, template readiness, and cross-cutting product bars
+## Lane 6: Governance foundation, template readiness, and cross-cutting product bars
 
 Goal: make URPG safe to expose as a multi-template engine product by giving subsystem readiness, template readiness, and cross-cutting release bars explicit owners and verification paths.
 
@@ -327,12 +379,13 @@ Goal: make URPG safe to expose as a multi-template engine product by giving subs
 
 ### Milestone M4
 
-- Lane 4 release hardening complete
-- Lane 5 governance foundation started
+- Lane 5 release hardening complete
+- Lane 6 governance foundation started
 
 ### Milestone M5
 
-- Lane 5 governance foundation and cross-cutting minimum bars complete
+- Lane 4 offline tooling boundary and first pipeline slices landed
+- Lane 6 governance foundation and cross-cutting minimum bars complete
 - template-readiness contracts published for supported game types
 - full program completion report published
 
@@ -347,6 +400,7 @@ This plan is complete when:
 5. Cross-cutting release bars for accessibility, localization, input, audio governance, and performance are defined and enforced where claimed.
 6. Release gates validate native and compat stability with published evidence.
 7. The remaining supported feature lanes are usable through live, low-friction WYSIWYG editor workflows rather than backend-only seams.
+8. Any adopted ML/research tooling remains isolated behind an offline tooling boundary and contributes only stable exported artifacts to the shipped runtime.
 
 ## Acceptance rules for external-source-inspired work
 

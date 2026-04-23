@@ -54,6 +54,32 @@ public:
         bool selected = false;
     };
 
+    struct ModeBadge {
+        std::string action_id;
+        std::string label;
+        bool active = false;
+        bool enabled = true;
+    };
+
+    struct HoverAffordance {
+        std::string action_id;
+        std::string label;
+        std::string description;
+        std::string target_kind;
+        bool highlighted = false;
+        bool enabled = true;
+    };
+
+    struct ConflictActionChip {
+        std::string action_id;
+        std::string label;
+        std::string conflict_kind;
+        std::string severity;
+        size_t conflict_index = 0;
+        bool recommended = false;
+        bool enabled = true;
+    };
+
     struct HoverPreview {
         bool active = false;
         SelectionKind kind = SelectionKind::None;
@@ -121,9 +147,13 @@ public:
         bool has_binding_panel = false;
         std::string selected_ability_id;
         std::string selected_trigger_id;
+        std::string active_mode;
         std::vector<std::string> available_triggers;
         std::vector<TriggerMenuEntry> selection_trigger_menu;
         size_t badge_count = 0;
+        size_t mode_badge_count = 0;
+        size_t hover_affordance_count = 0;
+        size_t conflict_action_chip_count = 0;
         size_t conflict_count = 0;
         bool has_conflicts = false;
         size_t prop_handle_count = 0;
@@ -131,6 +161,9 @@ public:
         size_t region_overlay_count = 0;
         CanvasSelection selection;
         HoverPreview hover_preview;
+        std::vector<ModeBadge> mode_badges;
+        std::vector<HoverAffordance> hover_affordances;
+        std::vector<ConflictActionChip> conflict_action_chips;
         std::vector<InlineBadge> badges;
         std::vector<ConflictWarning> conflicts;
         std::vector<MapAbilityBindingPanel::PropHandleEntry> prop_handles;
@@ -145,6 +178,7 @@ public:
     void SetBindingPanel(MapAbilityBindingPanel* panel);
     void SetProjectionSettings(const PropPlacementPanel::ScreenProjectionSettings& settings);
     void SetAvailableTriggers(std::vector<std::string> trigger_ids);
+    void SetActiveMode(const std::string& active_mode);
     bool ClickAtScreen(float screen_x, float screen_y);
     bool HoverAtScreen(float screen_x, float screen_y);
     bool DragSelectionToScreen(float screen_x, float screen_y);
@@ -165,6 +199,7 @@ private:
     urpg::presentation::SpatialMapOverlay* m_target_overlay = nullptr;
     MapAbilityBindingPanel* m_binding_panel = nullptr;
     PropPlacementPanel::ScreenProjectionSettings m_projection_settings;
+    std::string m_active_mode = "composite";
     std::vector<std::string> m_available_triggers{"confirm_interact", "touch_interact", "inspect_prop", "enter_region"};
     CanvasSelection m_selection;
     HoverPreview m_hover_preview;

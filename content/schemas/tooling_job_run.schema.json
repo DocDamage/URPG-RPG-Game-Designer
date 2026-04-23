@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urpg/tooling_job_run",
+  "title": "Offline Tooling Job Run",
+  "type": "object",
+  "required": ["job_type", "status"],
+  "properties": {
+    "job_type": { "type": "string" },
+    "status": { "type": "string" },
+    "started_at": { "type": "string" },
+    "finished_at": { "type": "string" },
+    "inputs": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "outputs": {
+      "type": "array",
+      "items": { "type": "string" }
+    }
+  },
+  "additionalProperties": false
+}

@@ -1,0 +1,14 @@
+{
+  "job_type": "retrieval_bundle",
+  "manifest": "data/manifests/docs_chunks.json",
+  "output": "data/indexes/docs_bundle.json",
+  "dimension": 128,
+  "adapter": "command_adapter",
+  "adapter_batch_size": 256,
+  "adapter_command_args": [
+    "python",
+    "tools/retrieval/embedding_jobs/external_embedding_adapter.py",
+    "--backend=local_ngram_projection",
+    "--serve"
+  ]
+}

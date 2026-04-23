@@ -1,0 +1,28 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urpg/retrieval_chunk_manifest",
+  "title": "Retrieval Chunk Manifest",
+  "type": "object",
+  "required": ["schema", "source_root", "chunk_size", "overlap", "chunks"],
+  "properties": {
+    "schema": { "type": "string" },
+    "source_root": { "type": "string" },
+    "chunk_size": { "type": "integer", "minimum": 1 },
+    "overlap": { "type": "integer", "minimum": 0 },
+    "chunks": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["chunk_id", "source_path", "chunk_index", "text"],
+        "properties": {
+          "chunk_id": { "type": "string" },
+          "source_path": { "type": "string" },
+          "chunk_index": { "type": "integer", "minimum": 0 },
+          "text": { "type": "string" }
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false
+}

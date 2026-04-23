@@ -54,6 +54,95 @@ std::vector<SpatialAbilityCanvasPanel::TriggerMenuEntry> BuildTriggerMenu(
     return menu;
 }
 
+std::vector<SpatialAbilityCanvasPanel::ModeBadge> BuildModeBadges(
+    const std::string& active_mode,
+    bool has_target_overlay,
+    bool has_target_scene) {
+    return {
+        {"composite", "Composite", active_mode == "composite", true},
+        {"elevation", "Elevation", active_mode == "elevation", has_target_overlay},
+        {"props", "Props", active_mode == "props", has_target_overlay},
+        {"abilities", "Abilities", active_mode == "abilities", has_target_scene},
+    };
+}
+
+std::vector<SpatialAbilityCanvasPanel::HoverAffordance> BuildHoverAffordances(
+    SpatialAbilityCanvasPanel::SelectionKind kind,
+    bool hover_active,
+    const std::string& active_mode) {
+    if (!hover_active) {
+        return {};
+    }
+
+    switch (kind) {
+    case SpatialAbilityCanvasPanel::SelectionKind::Tile:
+        return {
+            {"abilities", "Bind Ability", "Switch to interaction authoring on this hovered tile.", "tile", active_mode == "abilities", true},
+            {"elevation", "Raise Terrain", "Switch to elevation editing for this hovered tile.", "tile", active_mode == "elevation", true},
+        };
+    case SpatialAbilityCanvasPanel::SelectionKind::Prop:
+        return {
+            {"props", "Edit Prop", "Switch to prop placement and selection for this hovered prop.", "prop", active_mode == "props", true},
+            {"abilities", "Bind Ability", "Switch to interaction authoring on this hovered prop.", "prop", active_mode == "abilities", true},
+        };
+    case SpatialAbilityCanvasPanel::SelectionKind::Region:
+        return {
+            {"abilities", "Edit Region", "Switch to interaction authoring for this hovered region.", "region", active_mode == "abilities", true},
+            {"elevation", "Shape Area", "Switch to terrain editing around this hovered region.", "region", active_mode == "elevation", true},
+        };
+    case SpatialAbilityCanvasPanel::SelectionKind::None:
+        return {};
+    }
+
+    return {};
+}
+
+std::vector<SpatialAbilityCanvasPanel::ConflictActionChip> BuildConflictActionChips(
+    const std::vector<SpatialAbilityCanvasPanel::ConflictWarning>& conflicts) {
+    std::vector<SpatialAbilityCanvasPanel::ConflictActionChip> chips;
+    for (size_t i = 0; i < conflicts.size(); ++i) {
+        const auto& conflict = conflicts[i];
+        chips.push_back({"resolve_conflict", "Resolve", conflict.kind, conflict.severity, i, true, true});
+        if (conflict.can_keep_primary) {
+            chips.push_back({"conflict:" + std::to_string(i) + ":keep_primary",
+                             "Keep Primary",
+                             conflict.kind,
+                             conflict.severity,
+                             i,
+                             conflict.severity == "blocking",
+                             true});
+        }
+        if (conflict.can_keep_secondary) {
+            chips.push_back({"conflict:" + std::to_string(i) + ":keep_secondary",
+                             "Keep Secondary",
+                             conflict.kind,
+                             conflict.severity,
+                             i,
+                             false,
+                             true});
+        }
+        if (conflict.can_swap_triggers) {
+            chips.push_back({"conflict:" + std::to_string(i) + ":swap",
+                             "Swap",
+                             conflict.kind,
+                             conflict.severity,
+                             i,
+                             conflict.severity != "blocking",
+                             true});
+        }
+        if (conflict.can_replace_secondary) {
+            chips.push_back({"conflict:" + std::to_string(i) + ":replace_secondary",
+                             "Replace",
+                             conflict.kind,
+                             conflict.severity,
+                             i,
+                             false,
+                             true});
+        }
+    }
+    return chips;
+}
+
 std::optional<size_t> FindNearestPropIndex(const urpg::presentation::SpatialMapOverlay& overlay,
                                            float world_x,
                                            float world_z,
@@ -104,6 +193,14 @@ void SpatialAbilityCanvasPanel::SetAvailableTriggers(std::vector<std::string> tr
         trigger_ids = {"confirm_interact", "touch_interact", "inspect_prop", "enter_region"};
     }
     m_available_triggers = std::move(trigger_ids);
+    captureRenderSnapshot();
+}
+
+void SpatialAbilityCanvasPanel::SetActiveMode(const std::string& active_mode) {
+    if (m_active_mode == active_mode || active_mode.empty()) {
+        return;
+    }
+    m_active_mode = active_mode;
     captureRenderSnapshot();
 }
 
@@ -614,11 +711,20 @@ void SpatialAbilityCanvasPanel::captureRenderSnapshot() {
     last_render_snapshot_.visible = m_visible;
     last_render_snapshot_.has_target_overlay = (m_target_overlay != nullptr);
     last_render_snapshot_.has_binding_panel = (m_binding_panel != nullptr);
+    last_render_snapshot_.active_mode = m_active_mode;
     last_render_snapshot_.selection = m_selection;
     last_render_snapshot_.hover_preview = m_hover_preview;
     last_render_snapshot_.available_triggers = m_available_triggers;
+    last_render_snapshot_.mode_badges =
+        BuildModeBadges(m_active_mode, last_render_snapshot_.has_target_overlay, last_render_snapshot_.has_binding_panel);
+    last_render_snapshot_.mode_badge_count = last_render_snapshot_.mode_badges.size();
     last_render_snapshot_.selection_trigger_menu =
         BuildTriggerMenu(m_selection.kind, m_available_triggers, m_selection.trigger_id);
+    last_render_snapshot_.hover_affordances =
+        BuildHoverAffordances(last_render_snapshot_.hover_preview.kind,
+                              last_render_snapshot_.hover_preview.active,
+                              m_active_mode);
+    last_render_snapshot_.hover_affordance_count = last_render_snapshot_.hover_affordances.size();
 
     if (m_binding_panel == nullptr) {
         return;
@@ -855,6 +961,8 @@ void SpatialAbilityCanvasPanel::captureRenderSnapshot() {
     last_render_snapshot_.hover_preview.would_conflict = preview_conflicts(last_render_snapshot_.hover_preview);
     last_render_snapshot_.conflict_count = last_render_snapshot_.conflicts.size();
     last_render_snapshot_.has_conflicts = !last_render_snapshot_.conflicts.empty();
+    last_render_snapshot_.conflict_action_chips = BuildConflictActionChips(last_render_snapshot_.conflicts);
+    last_render_snapshot_.conflict_action_chip_count = last_render_snapshot_.conflict_action_chips.size();
     last_render_snapshot_.selection_trigger_menu =
         BuildTriggerMenu(m_selection.kind, m_available_triggers, m_selection.trigger_id);
 

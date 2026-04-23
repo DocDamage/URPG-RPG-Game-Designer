@@ -10,6 +10,7 @@ Canonical planning chain:
 - `docs/NATIVE_FEATURE_ABSORPTION_PLAN.md` is the canonical product roadmap.
 - `docs/PROGRAM_COMPLETION_STATUS.md` is the canonical latest-status snapshot.
 - `docs/archive/planning/URPG_MASTER_NATIVE_ABSORPTION_AND_PGMMV_ROADMAP_2026-04-18.md`, `docs/archive/planning/URPG_PGMMV_SUPPORT_PLAN.md`, and `docs/archive/planning/URPG_NATIVE_ABSORPTION_ROADMAP_2026-04-18.md` are detailed planning inputs retained for traceability until their remaining deltas are absorbed into the canonical docs above.
+- `docs/URPG_facebookresearch_tooling_integration_plan.md` is now treated as an offline-tooling planning input, not a parallel execution authority.
 
 2026-04-20 planning absorption note:
 - `../URPG_MISSING_FEATURES_GOVERNANCE_AND_TEMPLATE_EXPANSION_PLAN_v2.md` is now treated as a planning-input addendum, not a parallel authority.
@@ -45,6 +46,10 @@ Phase 3 diagnostics productization is complete as of 2026-04-19, Phase 4 governa
   - URPG is intended to become a fully WYSIWYG, extremely easy-to-use editor backed by native deterministic runtime ownership, not an engineer-only authoring tool.
   - Runtime and infrastructure work should now be read as enabling truthful live preview and low-friction authoring, not as a substitute for those product goals.
   - A feature should not be treated as complete unless it is implemented, visually authorable, live-previewable, and usable through an easy editor workflow.
+- Offline tooling direction is now explicitly bounded:
+  - research/ML integrations are now treated as offline tooling scope under `tools/`, not as justification to expand the shipped runtime with heavyweight dependencies
+  - the approved absorption path is static outputs only: manifests, indexes, processed audio, cutouts, and metadata
+  - the first planned tooling priorities are FAISS retrieval, SAM/SAM2 segmentation, and Demucs/Encodec audio tooling
 
 - Phase 2 runtime closure is complete:
   - battle reward/event cadence and switch coverage are closed in the compat lane
@@ -679,6 +684,7 @@ The scope in this document is considered 100% complete when all items below are 
 5. Regression and release gates prove stability for both native and compat lanes.
 6. Wave 2 advanced capability baseline is delivered at production quality.
 7. Remaining roadmap features are closed as WYSIWYG product lanes rather than backend-only implementations.
+8. Any adopted research/ML tooling is landed behind an offline boundary and feeds the product through stable exported artifacts rather than runtime dependency creep.
 
 ## Next steps (current sprint)
 
@@ -759,6 +765,12 @@ Phase 2 runtime closure is already complete. The remaining compat work below is 
 - [ ] Treat remaining roadmap lanes as dual-delivery work: runtime capability plus visual authoring/live preview.
 - [ ] Close the remaining feature lanes with direct editor workflows suitable for non-technical creators, not diagnostics-only or fixture-only paths.
 - [ ] Keep public docs, readiness language, and completion claims aligned with that WYSIWYG definition of done.
+
+### 8. Offline tooling boundary and pipeline adoption (remaining)
+
+- [ ] Keep heavy ML/research dependencies isolated under `tools/` or separate helper environments.
+- [ ] Land the first approved offline tooling lanes: FAISS retrieval, SAM/SAM2 segmentation, and Demucs/Encodec audio tooling.
+- [ ] Ensure the runtime consumes only exported artifacts from those pipelines and does not silently acquire heavyweight research dependencies.
 
 ## Work complete, not remaining
 

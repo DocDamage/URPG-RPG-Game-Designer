@@ -66,6 +66,7 @@ This plan is the single source of truth for technical debt remediation across th
 - Ensure private-use asset acceleration happens through a governed provenance-preserving intake path so editor/runtime realism improves without reintroducing licensing, source-traceability, or content-root drift.
 - Ensure newly introduced roadmap scope - especially PGMMV intake, native absorption, HD-2D / 2.5D, authoring UX, accessibility, localization, and product-glue tracks - enters execution through the same truthfulness and Definition-of-Done gates as every other remediation lane.
 - Keep the public product story aligned with the actual target: URPG is meant to become fully WYSIWYG and easy to use, so documentation must not frame low-friction visual authoring as out of scope when the roadmap still requires it.
+- Keep any research/ML expansion behind an offline tooling boundary so the repo does not drift into a runtime-level experiment stack while trying to improve asset and authoring pipelines.
 
 ---
 
@@ -145,6 +146,8 @@ The debt picture is narrower than it was at initial audit, but several cross-cut
 
 **Planning authority is centralized, and the remaining risk is regression to drift.** Archived PGMMV/native-absorption roadmap inputs and the 2026-04-20 governance/template-expansion addendum are now reference-only planning inputs routed through this remediation hub and the canonical status stack. The remaining governance work is to keep future plan docs from reintroducing parallel authority and to prevent subsystem/template readiness language from outrunning evidence.
 
+**Offline tooling scope must stay bounded.** The FacebookResearch tooling plan is useful as a pipeline input, but only if it remains tooling-only scope: heavy dependencies under `tools/`, restartable jobs, manifest-backed outputs, and no stealth expansion of shipped runtime dependencies.
+
 **The newly absorbed gap list sharpens a real remaining product risk.** The remediation findings table is green, but product-readiness governance is not "done." Canonical subsystem readiness matrices, template readiness matrices, schema-version/changelog enforcement, project-audit surfaces, first-slice cross-doc drift/date/status checks, and a canonical release-signoff workflow artifact now exist as governance artifacts, but fuller release-signoff enforcement and the underlying product lanes for accessibility, localization completeness, input remapping, audio governance, and performance budgets remain mandatory current backlog that must pass through the same truth gates before they can be marketed as complete.
 
 **WYSIWYG closure is now part of the debt-prevention story.** The repo can no longer treat "runtime implemented" as equivalent to "feature complete" when public product goals require an easy visual workflow. Remaining roadmap lanes must be closed as both runtime capability and low-friction live authoring surfaces, or the documentation and completion claims will drift again.
@@ -157,6 +160,12 @@ Every remaining item below should be interpreted as dual-delivery work:
 
 - runtime capability
 - WYSIWYG editor workflow and live preview
+
+Any adopted research/ML scope should also be interpreted as boundary-constrained work:
+
+- offline tooling environment only
+- stable exported artifacts only
+- no heavyweight runtime dependency creep
 
 ### Priority 1 — Release-Truth and Validation Expansion
 
@@ -222,10 +231,16 @@ Every remaining item below should be interpreted as dual-delivery work:
     - Add telemetry upload, session aggregation, and privacy-audit workflow support.
     - Keep analytics configuration approachable for non-programmer creators.
 
+13. **Offline tooling boundary and pipeline adoption**
+    - Land the approved tooling boundary first: `tools/`-scoped environments, restartable job runners, and manifest-backed outputs.
+    - Prioritize FAISS retrieval, SAM/SAM2 segmentation, and Demucs/Encodec audio tooling as the first absorbed pipeline slices.
+    - Keep AudioCraft, Detectron2, and PyTorch3D explicitly optional and tooling-only unless later product scope proves a stronger need.
+
 **What this plan does NOT cover:**
 - New feature development not related to closing existing gaps.
 - Cosmetic refactors not tied to correctness or trust.
 - Runtime performance work beyond what is described in Phase 5.
+- Directly embedding heavyweight research/ML stacks into the shipped runtime without a separately justified product decision.
 
 > **Note on [save_runtime.cpp](../engine/core/save/save_runtime.cpp):** Earlier audit passes treated this as a headline stub. It is not. It already has real file I/O, recovery-tier handling, and metadata hydration. It should be treated as a **verification and integration discipline** target, not a rewrite target.
 
