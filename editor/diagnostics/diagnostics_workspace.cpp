@@ -1326,12 +1326,255 @@ bool DiagnosticsWorkspace::clearSelectedMigrationWizardSubsystemResult() {
     return changed;
 }
 
-void DiagnosticsWorkspace::bindAbilityRuntime(const urpg::ability::AbilitySystemComponent& asc) {
+void DiagnosticsWorkspace::beginAbilityDraftPreview() {
+    rebuildAbilityDraftPreviewRuntime();
+    if (ability_runtime_ != nullptr) {
+        ability_panel_.selectDraftAbility(*ability_runtime_);
+    }
+    refreshActiveSnapshotBackedTabIfVisible();
+}
+
+void DiagnosticsWorkspace::bindAbilityRuntime(urpg::ability::AbilitySystemComponent& asc) {
+    owned_ability_preview_runtime_.reset();
+    ability_runtime_ = &asc;
+    ability_runtime_mutable_ = true;
     ability_panel_.update(asc);
+    refreshActiveSnapshotBackedTabIfVisible();
+}
+
+void DiagnosticsWorkspace::bindAbilityRuntime(const urpg::ability::AbilitySystemComponent& asc) {
+    owned_ability_preview_runtime_.reset();
+    ability_runtime_ = const_cast<urpg::ability::AbilitySystemComponent*>(&asc);
+    ability_runtime_mutable_ = false;
+    ability_panel_.update(asc);
+    refreshActiveSnapshotBackedTabIfVisible();
 }
 
 void DiagnosticsWorkspace::clearAbilityRuntime() {
+    owned_ability_preview_runtime_.reset();
+    ability_runtime_ = nullptr;
+    ability_runtime_mutable_ = false;
     ability_panel_.clear();
+    refreshActiveSnapshotBackedTabIfVisible();
+}
+
+bool DiagnosticsWorkspace::selectAbilityRow(size_t row_index) {
+    if (ability_runtime_ == nullptr) {
+        return false;
+    }
+
+    const bool changed = ability_panel_.selectAbility(row_index, *ability_runtime_);
+    if (changed) {
+        refreshActiveSnapshotBackedTabIfVisible();
+    }
+    return changed;
+}
+
+bool DiagnosticsWorkspace::previewSelectedAbility() {
+    if (ability_runtime_ == nullptr || !ability_runtime_mutable_) {
+        return false;
+    }
+
+    const bool attempted = ability_panel_.previewSelectedAbility(*ability_runtime_);
+    if (attempted) {
+        refreshActiveSnapshotBackedTabIfVisible();
+    }
+    return attempted;
+}
+
+bool DiagnosticsWorkspace::applyAbilityDraftToRuntime() {
+    if (ability_runtime_ == nullptr || !ability_runtime_mutable_) {
+        return false;
+    }
+
+    ability_panel_.applyDraftToRuntime(*ability_runtime_);
+    ability_panel_.update(*ability_runtime_);
+    const bool selected = ability_panel_.selectDraftAbility(*ability_runtime_);
+    refreshActiveSnapshotBackedTabIfVisible();
+    return selected;
+}
+
+bool DiagnosticsWorkspace::setAbilityProjectRoot(const std::string& root_path) {
+    const std::filesystem::path new_root = root_path;
+    if (ability_project_root_ == new_root) {
+        return refreshAbilityProjectAssets();
+    }
+
+    ability_project_root_ = new_root;
+    refreshAbilityProjectAssetCatalog();
+    refreshActiveSnapshotBackedTabIfVisible();
+    return true;
+}
+
+bool DiagnosticsWorkspace::refreshAbilityProjectAssets() {
+    refreshAbilityProjectAssetCatalog();
+    refreshActiveSnapshotBackedTabIfVisible();
+    return true;
+}
+
+bool DiagnosticsWorkspace::selectAbilityProjectAsset(size_t index) {
+    if (index >= ability_project_assets_.size()) {
+        return false;
+    }
+    if (ability_selected_project_asset_index_.has_value() && *ability_selected_project_asset_index_ == index) {
+        return false;
+    }
+    ability_selected_project_asset_index_ = index;
+    refreshActiveSnapshotBackedTabIfVisible();
+    return true;
+}
+
+bool DiagnosticsWorkspace::loadSelectedAbilityProjectAsset() {
+    if (!ability_selected_project_asset_index_.has_value()) {
+        return false;
+    }
+
+    const auto& record = ability_project_assets_[*ability_selected_project_asset_index_];
+    const auto asset = urpg::ability::loadAuthoredAbilityAssetFromFile(record.absolute_path);
+    if (!asset.has_value()) {
+        return false;
+    }
+
+    ability_panel_.setDraftFromAsset(*asset);
+    rebuildAbilityDraftPreviewRuntime();
+    return true;
+}
+
+bool DiagnosticsWorkspace::applySelectedAbilityProjectAssetToRuntime() {
+    if (ability_runtime_ == nullptr || !ability_runtime_mutable_ || !ability_selected_project_asset_index_.has_value()) {
+        return false;
+    }
+
+    const auto& record = ability_project_assets_[*ability_selected_project_asset_index_];
+    const auto asset = urpg::ability::loadAuthoredAbilityAssetFromFile(record.absolute_path);
+    if (!asset.has_value()) {
+        return false;
+    }
+
+    ability_panel_.setDraftFromAsset(*asset);
+    ability_panel_.applyDraftToRuntime(*ability_runtime_);
+    ability_panel_.update(*ability_runtime_);
+    const bool selected = ability_panel_.selectDraftAbility(*ability_runtime_);
+    refreshActiveSnapshotBackedTabIfVisible();
+    return selected;
+}
+
+bool DiagnosticsWorkspace::saveAbilityDraftToProjectContent(const std::string& file_name) {
+    if (ability_project_root_.empty() || file_name.empty()) {
+        return false;
+    }
+
+    const auto target_path = urpg::ability::canonicalAbilityContentDirectory(ability_project_root_) / file_name;
+    if (!urpg::ability::saveAuthoredAbilityAssetToFile(ability_panel_.getDraftAsset(), target_path)) {
+        return false;
+    }
+
+    refreshAbilityProjectAssetCatalog();
+    const auto relative_path = std::filesystem::relative(target_path, ability_project_root_).generic_string();
+    for (size_t i = 0; i < ability_project_assets_.size(); ++i) {
+        if (ability_project_assets_[i].relative_path == relative_path) {
+            ability_selected_project_asset_index_ = i;
+            break;
+        }
+    }
+    refreshActiveSnapshotBackedTabIfVisible();
+    return true;
+}
+
+bool DiagnosticsWorkspace::setAbilityDraftId(const std::string& ability_id) {
+    const bool changed = ability_panel_.setDraftAbilityId(ability_id);
+    if (changed) {
+        refreshAbilityDraftAuthoringState();
+    }
+    return changed;
+}
+
+bool DiagnosticsWorkspace::setAbilityDraftCooldownSeconds(float cooldown_seconds) {
+    const bool changed = ability_panel_.setDraftCooldownSeconds(cooldown_seconds);
+    if (changed) {
+        refreshAbilityDraftAuthoringState();
+    }
+    return changed;
+}
+
+bool DiagnosticsWorkspace::setAbilityDraftMpCost(float mp_cost) {
+    const bool changed = ability_panel_.setDraftMpCost(mp_cost);
+    if (changed) {
+        refreshAbilityDraftAuthoringState();
+    }
+    return changed;
+}
+
+bool DiagnosticsWorkspace::setAbilityDraftEffectId(const std::string& effect_id) {
+    const bool changed = ability_panel_.setDraftEffectId(effect_id);
+    if (changed) {
+        refreshAbilityDraftAuthoringState();
+    }
+    return changed;
+}
+
+bool DiagnosticsWorkspace::setAbilityDraftEffectAttribute(const std::string& effect_attribute) {
+    const bool changed = ability_panel_.setDraftEffectAttribute(effect_attribute);
+    if (changed) {
+        refreshAbilityDraftAuthoringState();
+    }
+    return changed;
+}
+
+bool DiagnosticsWorkspace::setAbilityDraftEffectOperation(urpg::ModifierOp effect_operation) {
+    const bool changed = ability_panel_.setDraftEffectOperation(effect_operation);
+    if (changed) {
+        refreshAbilityDraftAuthoringState();
+    }
+    return changed;
+}
+
+bool DiagnosticsWorkspace::setAbilityDraftEffectValue(float effect_value) {
+    const bool changed = ability_panel_.setDraftEffectValue(effect_value);
+    if (changed) {
+        refreshAbilityDraftAuthoringState();
+    }
+    return changed;
+}
+
+bool DiagnosticsWorkspace::setAbilityDraftEffectDuration(float effect_duration) {
+    const bool changed = ability_panel_.setDraftEffectDuration(effect_duration);
+    if (changed) {
+        refreshAbilityDraftAuthoringState();
+    }
+    return changed;
+}
+
+bool DiagnosticsWorkspace::setAbilityDraftPatternName(const std::string& pattern_name) {
+    const bool changed = ability_panel_.setDraftPatternName(pattern_name);
+    if (changed) {
+        refreshAbilityDraftAuthoringState();
+    }
+    return changed;
+}
+
+bool DiagnosticsWorkspace::applyAbilityDraftPatternPreset(const std::string& preset_id) {
+    const bool changed = ability_panel_.applyDraftPatternPreset(preset_id);
+    if (changed) {
+        refreshAbilityDraftAuthoringState();
+    }
+    return changed;
+}
+
+bool DiagnosticsWorkspace::toggleAbilityDraftPatternPoint(int32_t x, int32_t y) {
+    const bool changed = ability_panel_.toggleDraftPatternPoint(x, y);
+    if (changed) {
+        refreshAbilityDraftAuthoringState();
+    }
+    return changed;
+}
+
+bool DiagnosticsWorkspace::clearAbilityDraftPattern() {
+    const bool changed = ability_panel_.clearDraftPattern();
+    if (changed) {
+        refreshAbilityDraftAuthoringState();
+    }
+    return changed;
 }
 
 void DiagnosticsWorkspace::bindProjectAuditReport(const nlohmann::json& report) {
@@ -1837,6 +2080,68 @@ std::string DiagnosticsWorkspace::exportAsJson() const {
             activeTags.push_back(ActiveTagInfoJson(tag));
         }
         activeTabDetail["active_tags"] = std::move(activeTags);
+        const auto& snapshot = ability_panel_.getRenderSnapshot();
+        activeTabDetail["selected_ability_id"] = snapshot.selected_ability_id;
+        activeTabDetail["selected_ability_can_activate"] = snapshot.selected_ability_can_activate;
+        activeTabDetail["selected_ability_blocking_reason"] = snapshot.selected_ability_blocking_reason;
+        activeTabDetail["diagnostic_count"] = snapshot.diagnostic_count;
+        activeTabDetail["latest_ability_id"] = snapshot.latest_ability_id;
+        activeTabDetail["latest_outcome"] = snapshot.latest_outcome;
+        activeTabDetail["can_preview_selected_ability"] =
+            ability_runtime_ != nullptr && ability_runtime_mutable_ && !snapshot.selected_ability_id.empty();
+        nlohmann::json diagnosticLines = nlohmann::json::array();
+        for (const auto& line : snapshot.diagnostic_lines) {
+            diagnosticLines.push_back(line);
+        }
+        activeTabDetail["diagnostic_lines"] = std::move(diagnosticLines);
+        nlohmann::json draft = nlohmann::json::object();
+        draft["has_draft"] = snapshot.draft_preview.has_draft;
+        draft["ability_id"] = snapshot.draft_preview.ability_id;
+        draft["cooldown_seconds"] = snapshot.draft_preview.cooldown_seconds;
+        draft["mp_cost"] = snapshot.draft_preview.mp_cost;
+        draft["effect_id"] = snapshot.draft_preview.effect_id;
+        draft["effect_attribute"] = snapshot.draft_preview.effect_attribute;
+        draft["effect_operation"] = snapshot.draft_preview.effect_operation;
+        draft["effect_value"] = snapshot.draft_preview.effect_value;
+        draft["effect_duration"] = snapshot.draft_preview.effect_duration;
+        draft["preview_mp_before"] = snapshot.draft_preview.preview_mp_before;
+        draft["preview_mp_after"] = snapshot.draft_preview.preview_mp_after;
+        draft["preview_attribute_before"] = snapshot.draft_preview.preview_attribute_before;
+        draft["preview_attribute_after"] = snapshot.draft_preview.preview_attribute_after;
+        nlohmann::json pattern = nlohmann::json::object();
+        pattern["name"] = snapshot.draft_preview.pattern_preview.name;
+        pattern["is_valid"] = snapshot.draft_preview.pattern_preview.is_valid;
+        pattern["issues"] = snapshot.draft_preview.pattern_preview.issues;
+        pattern["grid_rows"] = snapshot.draft_preview.pattern_preview.grid_rows;
+        draft["pattern_preview"] = std::move(pattern);
+        activeTabDetail["draft"] = std::move(draft);
+        nlohmann::json projectContent = nlohmann::json::object();
+        projectContent["project_root"] = ability_project_root_.empty() ? "" : ability_project_root_.generic_string();
+        projectContent["canonical_directory"] =
+            ability_project_root_.empty()
+                ? ""
+                : urpg::ability::canonicalAbilityContentDirectory(ability_project_root_).generic_string();
+        projectContent["asset_count"] = ability_project_assets_.size();
+        projectContent["selected_asset_index"] = ability_selected_project_asset_index_.has_value()
+                                                     ? static_cast<int64_t>(*ability_selected_project_asset_index_)
+                                                     : -1;
+        projectContent["can_load_selected"] = ability_selected_project_asset_index_.has_value();
+        projectContent["can_apply_selected"] =
+            ability_runtime_ != nullptr && ability_runtime_mutable_ && ability_selected_project_asset_index_.has_value();
+        nlohmann::json assets = nlohmann::json::array();
+        for (size_t i = 0; i < ability_project_assets_.size(); ++i) {
+            const auto& asset = ability_project_assets_[i];
+            assets.push_back({
+                {"index", i},
+                {"relative_path", asset.relative_path},
+                {"absolute_path", asset.absolute_path.generic_string()},
+                {"ability_id", asset.ability_id},
+                {"selected", ability_selected_project_asset_index_.has_value() &&
+                                 *ability_selected_project_asset_index_ == i},
+            });
+        }
+        projectContent["assets"] = std::move(assets);
+        activeTabDetail["project_content"] = std::move(projectContent);
         break;
     }
     case DiagnosticsTab::ProjectAudit: {
@@ -2070,6 +2375,9 @@ void DiagnosticsWorkspace::update() {
     event_authority_panel_.update();
     message_panel_.update();
     battle_panel_.update();
+    if (ability_runtime_ != nullptr) {
+        ability_panel_.update(*ability_runtime_);
+    }
     if (menu_panel_) {
         menu_panel_->update();
     }
@@ -2077,6 +2385,53 @@ void DiagnosticsWorkspace::update() {
         menu_preview_panel_->update();
     }
     syncPanelVisibility();
+}
+
+void DiagnosticsWorkspace::refreshAbilityDraftAuthoringState() {
+    if (owned_ability_preview_runtime_.has_value()) {
+        rebuildAbilityDraftPreviewRuntime();
+        return;
+    }
+
+    if (ability_runtime_ != nullptr) {
+        ability_panel_.update(*ability_runtime_);
+    }
+    refreshActiveSnapshotBackedTabIfVisible();
+}
+
+void DiagnosticsWorkspace::rebuildAbilityDraftPreviewRuntime() {
+    owned_ability_preview_runtime_.emplace();
+    ability_panel_.populateDraftPreviewRuntime(*owned_ability_preview_runtime_);
+    ability_runtime_ = &*owned_ability_preview_runtime_;
+    ability_runtime_mutable_ = true;
+    ability_panel_.update(*ability_runtime_);
+    ability_panel_.selectDraftAbility(*ability_runtime_);
+    refreshActiveSnapshotBackedTabIfVisible();
+}
+
+void DiagnosticsWorkspace::refreshAbilityProjectAssetCatalog() {
+    const auto previously_selected_path =
+        ability_selected_project_asset_index_.has_value() && *ability_selected_project_asset_index_ < ability_project_assets_.size()
+            ? std::optional<std::string>(ability_project_assets_[*ability_selected_project_asset_index_].relative_path)
+            : std::nullopt;
+
+    ability_project_assets_ = ability_project_root_.empty()
+                                  ? std::vector<urpg::ability::AuthoredAbilityAssetRecord>{}
+                                  : urpg::ability::discoverAuthoredAbilityAssets(ability_project_root_);
+    ability_selected_project_asset_index_.reset();
+
+    if (previously_selected_path.has_value()) {
+        for (size_t i = 0; i < ability_project_assets_.size(); ++i) {
+            if (ability_project_assets_[i].relative_path == *previously_selected_path) {
+                ability_selected_project_asset_index_ = i;
+                return;
+            }
+        }
+    }
+
+    if (!ability_project_assets_.empty()) {
+        ability_selected_project_asset_index_ = 0;
+    }
 }
 
 void DiagnosticsWorkspace::syncPanelVisibility() {
@@ -2114,6 +2469,11 @@ void DiagnosticsWorkspace::refreshActiveSnapshotBackedTabIfVisible() {
         break;
     case DiagnosticsTab::MigrationWizard:
         refreshMigrationWizardSnapshotIfActive();
+        break;
+    case DiagnosticsTab::Abilities:
+        if (visible_ && active_tab_ == DiagnosticsTab::Abilities) {
+            ability_panel_.render();
+        }
         break;
     case DiagnosticsTab::ProjectAudit:
         if (visible_ && active_tab_ == DiagnosticsTab::ProjectAudit) {

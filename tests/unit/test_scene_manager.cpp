@@ -236,6 +236,177 @@ TEST_CASE("MapScene: audio service binding is explicit and observable", "[scene]
     REQUIRE(map.audioCore() == audio);
 }
 
+TEST_CASE("MapScene: authored ability assets can be granted and activated on the player runtime",
+          "[scene][map][ability]") {
+    MapScene map("001", 10, 10);
+
+    urpg::ability::AuthoredAbilityAsset asset;
+    asset.ability_id = "skill.map_authored";
+    asset.mp_cost = 6.0f;
+    asset.cooldown_seconds = 4.0f;
+    asset.effect_id = "effect.map_guard";
+    asset.effect_attribute = "Defense";
+    asset.effect_operation = urpg::ModifierOp::Add;
+    asset.effect_value = 15.0f;
+    asset.effect_duration = 8.0f;
+    asset.pattern = urpg::PatternField::MakeCross("Map Cross", 1);
+
+    map.grantPlayerAbility(asset);
+    REQUIRE(map.playerAbilitySystem().getAbilities().size() == 1);
+    REQUIRE(map.playerAbilitySystem().getAbilities()[0]->getId() == "skill.map_authored");
+
+    REQUIRE(map.tryActivatePlayerAbility("skill.map_authored"));
+    REQUIRE(map.playerAbilitySystem().getAttribute("MP", 0.0f) == 24.0f);
+    REQUIRE(map.playerAbilitySystem().getAttribute("Defense", 0.0f) == 115.0f);
+}
+
+TEST_CASE("MapScene: bound interaction abilities execute from confirm input through the map runtime",
+          "[scene][map][ability][interaction]") {
+    MapScene map("001", 10, 10);
+
+    urpg::ability::AuthoredAbilityAsset asset;
+    asset.ability_id = "skill.confirm_interact";
+    asset.mp_cost = 6.0f;
+    asset.effect_id = "effect.confirm_interact";
+    asset.effect_attribute = "Attack";
+    asset.effect_value = 9.0f;
+
+    REQUIRE(map.bindInteractionAbility("confirm_interact", "content/abilities/confirm_interact.json", asset));
+    REQUIRE(map.hasInteractionAbilityBinding("confirm_interact"));
+    REQUIRE(map.interactionAbilityBindings().size() == 1);
+    REQUIRE(map.interactionAbilityBindings()[0].asset_path == "content/abilities/confirm_interact.json");
+
+    map.playerAbilitySystem().setAttribute("MP", 30.0f);
+    map.playerAbilitySystem().setAttribute("Attack", 100.0f);
+
+    urpg::input::InputCore input;
+    input.updateActionState(urpg::input::InputAction::Confirm, urpg::input::ActionState::Pressed);
+    map.handleInput(input);
+
+    REQUIRE(map.playerAbilitySystem().getAttribute("MP", 0.0f) == 24.0f);
+    REQUIRE(map.playerAbilitySystem().getAttribute("Attack", 0.0f) == 109.0f);
+    REQUIRE_FALSE(map.playerAbilitySystem().getAbilityExecutionHistory().empty());
+    REQUIRE(map.playerAbilitySystem().getAbilityExecutionHistory().back().ability_id == "skill.confirm_interact");
+    REQUIRE(map.playerAbilitySystem().getAbilityExecutionHistory().back().outcome == "executed");
+}
+
+TEST_CASE("MapScene: tile and prop interaction bindings activate targeted abilities", "[scene][map][ability][interaction_targets]") {
+    MapScene map("001", 10, 10);
+
+    urpg::ability::AuthoredAbilityAsset tileAsset;
+    tileAsset.ability_id = "skill.tile_trigger";
+    tileAsset.effect_id = "effect.tile_trigger";
+    tileAsset.effect_attribute = "Defense";
+    tileAsset.effect_value = 13.0f;
+
+    urpg::ability::AuthoredAbilityAsset propAsset;
+    propAsset.ability_id = "skill.prop_trigger";
+    propAsset.effect_id = "effect.prop_trigger";
+    propAsset.effect_attribute = "MagicDefense";
+    propAsset.effect_value = 8.0f;
+
+    REQUIRE(map.bindTileInteractionAbility("confirm_interact", 2, 3, "content/abilities/tile_trigger.json", tileAsset));
+    REQUIRE(map.bindPropInteractionAbility("inspect_prop", "rock_01", "content/abilities/prop_trigger.json", propAsset));
+    REQUIRE(map.interactionAbilityBindings().size() == 2);
+
+    map.playerAbilitySystem().setAttribute("MP", 30.0f);
+    map.playerAbilitySystem().setAttribute("Defense", 100.0f);
+    map.playerAbilitySystem().setAttribute("MagicDefense", 100.0f);
+
+    REQUIRE(map.activateInteractionAbilityAtTile("confirm_interact", 2, 3));
+    REQUIRE(map.playerAbilitySystem().getAttribute("Defense", 0.0f) == 113.0f);
+
+    map.playerAbilitySystem().setCooldown("skill.tile_trigger", 0.0f);
+    REQUIRE(map.activateInteractionAbilityForProp("inspect_prop", "rock_01"));
+    REQUIRE(map.playerAbilitySystem().getAttribute("MagicDefense", 0.0f) == 108.0f);
+    REQUIRE(map.playerAbilitySystem().getAbilityExecutionHistory().back().ability_id == "skill.prop_trigger");
+}
+
+TEST_CASE("MapScene: region interaction bindings activate for tiles inside the painted area",
+          "[scene][map][ability][interaction_region]") {
+    MapScene map("001", 10, 10);
+
+    urpg::ability::AuthoredAbilityAsset regionAsset;
+    regionAsset.ability_id = "skill.region_trigger";
+    regionAsset.effect_id = "effect.region_trigger";
+    regionAsset.effect_attribute = "MagicDefense";
+    regionAsset.effect_value = 12.0f;
+
+    REQUIRE(map.bindRegionInteractionAbility(
+        "confirm_interact",
+        2,
+        3,
+        5,
+        6,
+        "content/abilities/region_trigger.json",
+        regionAsset));
+
+    map.playerAbilitySystem().setAttribute("MP", 30.0f);
+    map.playerAbilitySystem().setAttribute("MagicDefense", 100.0f);
+
+    REQUIRE(map.activateInteractionAbilityAtTile("confirm_interact", 4, 5));
+    REQUIRE(map.playerAbilitySystem().getAttribute("MagicDefense", 0.0f) == 112.0f);
+
+    map.playerAbilitySystem().setCooldown("skill.region_trigger", 0.0f);
+    REQUIRE_FALSE(map.activateInteractionAbilityAtTile("confirm_interact", 1, 1));
+}
+
+TEST_CASE("MapScene: multiple region interaction bindings normalize and activate independently",
+          "[scene][map][ability][interaction_region]") {
+    MapScene map("001", 10, 10);
+
+    urpg::ability::AuthoredAbilityAsset regionA;
+    regionA.ability_id = "skill.region_alpha";
+    regionA.effect_id = "effect.region_alpha";
+    regionA.effect_attribute = "Defense";
+    regionA.effect_value = 10.0f;
+
+    urpg::ability::AuthoredAbilityAsset regionB;
+    regionB.ability_id = "skill.region_beta";
+    regionB.effect_id = "effect.region_beta";
+    regionB.effect_attribute = "MagicDefense";
+    regionB.effect_value = 14.0f;
+
+    REQUIRE(map.bindRegionInteractionAbility(
+        "confirm_interact",
+        7,
+        7,
+        4,
+        5,
+        "content/abilities/region_alpha.json",
+        regionA));
+    REQUIRE(map.bindRegionInteractionAbility(
+        "confirm_interact",
+        1,
+        1,
+        2,
+        2,
+        "content/abilities/region_beta.json",
+        regionB));
+
+    REQUIRE(map.interactionAbilityBindings().size() == 2);
+    REQUIRE(map.interactionAbilityBindings()[0].region_min_x == 4);
+    REQUIRE(map.interactionAbilityBindings()[0].region_min_y == 5);
+    REQUIRE(map.interactionAbilityBindings()[0].region_max_x == 7);
+    REQUIRE(map.interactionAbilityBindings()[0].region_max_y == 7);
+
+    map.playerAbilitySystem().setAttribute("MP", 30.0f);
+    map.playerAbilitySystem().setAttribute("Defense", 100.0f);
+    map.playerAbilitySystem().setAttribute("MagicDefense", 100.0f);
+
+    REQUIRE(map.activateInteractionAbilityAtTile("confirm_interact", 5, 6));
+    REQUIRE(map.playerAbilitySystem().getAttribute("Defense", 0.0f) == 110.0f);
+    REQUIRE(map.playerAbilitySystem().getAbilityExecutionHistory().back().ability_id == "skill.region_alpha");
+
+    map.playerAbilitySystem().setCooldown("skill.region_alpha", 0.0f);
+    REQUIRE(map.activateInteractionAbilityAtTile("confirm_interact", 2, 2));
+    REQUIRE(map.playerAbilitySystem().getAttribute("MagicDefense", 0.0f) == 114.0f);
+    REQUIRE(map.playerAbilitySystem().getAbilityExecutionHistory().back().ability_id == "skill.region_beta");
+
+    map.playerAbilitySystem().setCooldown("skill.region_beta", 0.0f);
+    REQUIRE_FALSE(map.activateInteractionAbilityAtTile("confirm_interact", 9, 9));
+}
+
 TEST_CASE("MapScene: retained tile render commands only rebuild when map data changes", "[scene][map][render]") {
     auto& layer = urpg::RenderLayer::getInstance();
     layer.flush();

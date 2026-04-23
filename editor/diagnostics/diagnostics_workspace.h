@@ -11,7 +11,12 @@
 #include "editor/save/save_inspector_panel.h"
 #include "editor/ui/menu_inspector_panel.h"
 #include "editor/ui/menu_preview_panel.h"
+#include "engine/core/ability/authored_ability_asset.h"
+#include "engine/core/ability/ability_system_component.h"
+#include "engine/core/ability/gameplay_effect.h"
 #include "engine/core/input/input_core.h"
+
+#include <filesystem>
 
 namespace urpg::editor {
 
@@ -145,8 +150,34 @@ public:
     std::string exportMigrationWizardReportJson() const;
     bool saveMigrationWizardReportToFile(const std::string& path);
     bool loadMigrationWizardReportFromFile(const std::string& path);
+    void beginAbilityDraftPreview();
+    void bindAbilityRuntime(urpg::ability::AbilitySystemComponent& asc);
     void bindAbilityRuntime(const urpg::ability::AbilitySystemComponent& asc);
     void clearAbilityRuntime();
+    bool selectAbilityRow(size_t row_index);
+    bool previewSelectedAbility();
+    bool applyAbilityDraftToRuntime();
+    bool setAbilityDraftId(const std::string& ability_id);
+    bool setAbilityDraftCooldownSeconds(float cooldown_seconds);
+    bool setAbilityDraftMpCost(float mp_cost);
+    bool setAbilityDraftEffectId(const std::string& effect_id);
+    bool setAbilityDraftEffectAttribute(const std::string& effect_attribute);
+    bool setAbilityDraftEffectOperation(urpg::ModifierOp effect_operation);
+    bool setAbilityDraftEffectValue(float effect_value);
+    bool setAbilityDraftEffectDuration(float effect_duration);
+    bool setAbilityDraftPatternName(const std::string& pattern_name);
+    bool applyAbilityDraftPatternPreset(const std::string& preset_id);
+    bool toggleAbilityDraftPatternPoint(int32_t x, int32_t y);
+    bool clearAbilityDraftPattern();
+    std::string exportAbilityDraftStateJson() const;
+    bool saveAbilityDraftStateToFile(const std::string& path) const;
+    bool loadAbilityDraftStateFromFile(const std::string& path);
+    bool setAbilityProjectRoot(const std::string& root_path);
+    bool refreshAbilityProjectAssets();
+    bool selectAbilityProjectAsset(size_t index);
+    bool loadSelectedAbilityProjectAsset();
+    bool applySelectedAbilityProjectAssetToRuntime();
+    bool saveAbilityDraftToProjectContent(const std::string& file_name);
     void bindProjectAuditReport(const nlohmann::json& report);
     void clearProjectAuditReport();
     void ingestEventAuthorityDiagnosticsJsonl(std::string_view diagnostics_jsonl);
@@ -182,6 +213,9 @@ private:
     void refreshAudioSnapshotIfActive();
     void refreshMessageInspectorSnapshotIfActive();
     void refreshMigrationWizardSnapshotIfActive();
+    void refreshAbilityDraftAuthoringState();
+    void rebuildAbilityDraftPreviewRuntime();
+    void refreshAbilityProjectAssetCatalog();
 
     CompatReportPanel compat_panel_;
     SaveInspectorPanel save_panel_;
@@ -199,6 +233,12 @@ private:
 
     AudioInspectorPanel audio_panel_;
     AbilityInspectorPanel ability_panel_;
+    urpg::ability::AbilitySystemComponent* ability_runtime_ = nullptr;
+    bool ability_runtime_mutable_ = false;
+    std::optional<urpg::ability::AbilitySystemComponent> owned_ability_preview_runtime_;
+    std::filesystem::path ability_project_root_;
+    std::vector<urpg::ability::AuthoredAbilityAssetRecord> ability_project_assets_;
+    std::optional<size_t> ability_selected_project_asset_index_;
     MigrationWizardPanel migration_wizard_panel_;
     ProjectAuditPanel project_audit_panel_;
     DiagnosticsTab active_tab_ = DiagnosticsTab::Compat;

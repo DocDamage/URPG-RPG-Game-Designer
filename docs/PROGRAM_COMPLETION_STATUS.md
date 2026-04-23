@@ -41,6 +41,11 @@ Phase 3 diagnostics productization is complete as of 2026-04-19, Phase 4 governa
 
 ## Where we are now
 
+- Product direction is now explicitly WYSIWYG-first:
+  - URPG is intended to become a fully WYSIWYG, extremely easy-to-use editor backed by native deterministic runtime ownership, not an engineer-only authoring tool.
+  - Runtime and infrastructure work should now be read as enabling truthful live preview and low-friction authoring, not as a substitute for those product goals.
+  - A feature should not be treated as complete unless it is implemented, visually authorable, live-previewable, and usable through an easy editor workflow.
+
 - Phase 2 runtime closure is complete:
   - battle reward/event cadence and switch coverage are closed in the compat lane
   - `DataManager::loadDatabase()` seeded-container behavior is explicitly exercised
@@ -238,6 +243,28 @@ Phase 3 diagnostics productization is complete as of 2026-04-19, Phase 4 governa
   - Focused local validation passed via `.\build\dev-ninja-debug\urpg_tests.exe "[project_audit_cli]" --reporter compact`, `.\build\dev-ninja-debug\urpg_project_audit.exe --json --template monster_collector_rpg`, `.\build\dev-ninja-debug\urpg_project_audit.exe --json --template 2_5d_rpg`, `powershell -ExecutionPolicy Bypass -File tools/ci/check_release_readiness.ps1`, and `powershell -ExecutionPolicy Bypass -File tools/ci/truth_reconciler.ps1`.
 - Sprint 08 execution slice (2026-04-21): Structured release-signoff contract enforcement
   - `content/readiness/readiness_status.json` now carries a narrow structured `signoff` contract for the currently human-review-gated subsystem lanes (`battle_core`, `save_data_core`, `compat_bridge_exit`), recording only required artifact path, workflow path, and the non-promoting human-review requirement.
+- Sprint 23 execution slice (2026-04-22): Gameplay Ability Framework live battle integration
+  - `BattleScene` participants now own per-participant `AbilitySystemComponent` state instead of bypassing the Gameplay Ability Framework for battle skill use.
+  - Actor skills granted from compat actor data are now surfaced through the battle skill window and activated authoritatively during `BattleScene::executeAction()`, so live skill use records deterministic activation history and enforces MP cost checks through the shared ASC path.
+  - `BattleScene::onUpdate()` now ticks participant ability runtimes every frame, and focused `[battle][scene][ability]` coverage proves both successful live skill activation and blocked low-MP behavior in the battle loop.
+  - `DiagnosticsWorkspace` now retains and refreshes bound ability runtimes during `update()`, so a scene-owned ASC can change after binding and the Abilities tab/export path stays in sync without a manual rebind.
+  - The Abilities diagnostics tab now supports row selection plus live preview/test activation against a mutable bound runtime, so designers can trigger a granted ability and immediately see cooldown, blocking-reason, MP, and replay-log changes through the same workspace export surface.
+  - The same workspace now also supports a workspace-owned draft ability preview runtime, so authors can edit ability id/cost/cooldown/effect/pattern data and immediately inspect/export both the authored definition and its live preview behavior without depending on pre-granted scene fixtures.
+  - That draft surface now round-trips through save/load JSON and can be applied directly into a mutable bound runtime, including a live `BattleScene` participant ASC, so authored abilities are no longer trapped as workspace-local previews.
+  - Authored abilities now also live behind a shared engine asset contract and can be applied to a live `MapScene` player ASC, giving the Gameplay Ability Framework a second real runtime consumer beyond battle and making map-side authoring/runtime handoff truthful.
+  - Authored abilities are now discoverable as canonical project content under `content/abilities/`, and the diagnostics workspace exposes picker-style selection, load, apply, and save-back workflows so map/editor binding no longer depends on ad hoc direct workspace application.
+  - A dedicated `MapAbilityBindingPanel` now gives the spatial/map editor a first real ability-binding workflow: it discovers canonical `content/abilities/` assets, binds the selected asset to a map interaction trigger, and the `MapScene` runtime executes that binding from confirm interaction instead of limiting map-side authoring to diagnostics-only workflows.
+  - That map interaction lane now supports scoped bindings for global triggers, tile-targeted placements, and prop/object-specific targets, with panel snapshot state for selected trigger, placement tile, and selected prop asset so the workflow is moving toward visual map authoring instead of a single hard-coded interaction slot.
+  - The same map panel now also supports the first genuinely visual authoring gestures on top of that seam: screen-projected click placement for tile bindings, nearest-prop picking from actual placed overlay props, and rectangular region painting that binds an authored ability to any tile inside the painted area.
+  - That visual map-authoring surface now goes further: it tracks committed multi-region paint selections, exports tile/region binding overlays plus per-prop visual handles in the panel snapshot, and distinguishes pending versus already-bound interaction targets so the canvas can reflect live editing state instead of only opaque binding lists.
+  - A new `SpatialAbilityCanvasPanel` now turns those exported overlays into a real always-visible map-surface editing lane: existing tile, prop, and region bindings can be selected directly from the canvas and rebound through the same authored-ability content workflow without dropping back to a list-only panel interaction.
+  - That canvas lane is now bi-directional as well: tile and prop bindings can be moved by drag-style canvas edits, selected regions can be resized in place, and inline badge entries surface current asset/trigger context directly on the map instead of requiring side-panel inspection to understand what a binding does.
+  - The same canvas lane now also behaves much more like a true WYSIWYG authoring surface: hover previews expose the would-be drop or resize result before commit, selected bindings can switch triggers directly from the map surface, and conflict warnings explicitly call out overlapping or competing tile/prop/region bindings instead of leaving those collisions implicit.
+  - Those warnings are now actionable too: the canvas snapshot exposes removable secondary conflict targets plus available trigger menus, and a new `SpatialAuthoringWorkspace` composes elevation, prop placement, ability binding, and the canvas layer into one coherent spatial editing surface rather than four disconnected panels.
+  - That spatial lane is also more policy-aware now: same-trigger collisions stay blocking, cross-trigger overlaps are downgraded to explicit advisory warnings, the canvas can keep either side, swap triggers, or replace the secondary binding from the live authored asset path, and the workspace itself now exposes a shared mode toolbar so elevation, props, and ability editing read like one WYSIWYG tool instead of unrelated inspector tabs.
+  - That toolbar is no longer passive: it now carries shared placement state across the spatial workspace, routes canvas clicks into terrain/prop/ability workflows based on the active authoring mode, and exposes one-click suggested conflict resolution through the same live canvas/runtime contract instead of forcing panel-by-panel handoff.
+  - The core GAF API now supports an explicit `AbilityExecutionContext` with target runtime handles/ASCs, and battle skill activation uses that context to apply target-side HP recovery and state add/remove effects in the live scene instead of remaining source-only.
+  - `BattleScene` participants now also carry compat-style modifier stages, so live skill effects can add/remove buff and debuff stages, those stages feed back into resolved battle params/damage previews, and they expire during turn-end processing instead of staying as inert metadata.
   - `check_release_readiness.ps1` and `truth_reconciler.ps1` now enforce that structured contract alongside the existing artifact-presence and wording checks, while `urpg_project_audit` threads the contract state through the existing `signoffArtifacts` governance section instead of relying on prose alone.
   - Focused local validation passed via `.\build\dev-ninja-debug\urpg_tests.exe "[project_audit_cli]" --reporter compact`, `powershell -ExecutionPolicy Bypass -File tools/ci/check_release_readiness.ps1`, and `powershell -ExecutionPolicy Bypass -File tools/ci/truth_reconciler.ps1`.
 - Sprint 09 execution slice (2026-04-21): ProjectAudit rich governance parity
@@ -651,6 +678,7 @@ The scope in this document is considered 100% complete when all items below are 
 4. Native schemas and migration paths are production-ready for upgraded MZ projects.
 5. Regression and release gates prove stability for both native and compat lanes.
 6. Wave 2 advanced capability baseline is delivered at production quality.
+7. Remaining roadmap features are closed as WYSIWYG product lanes rather than backend-only implementations.
 
 ## Next steps (current sprint)
 
@@ -725,6 +753,12 @@ Phase 2 runtime closure is already complete. The remaining compat work below is 
 - [x] 2.5D presentation lane delivered behind explicit project-mode boundaries.
 - [x] Timeline/Animation orchestration and transient effect events delivered.
 - [x] Selected editor productivity utilities delivered and stabilized.
+
+### 7. WYSIWYG closure and ease-of-use (remaining)
+
+- [ ] Treat remaining roadmap lanes as dual-delivery work: runtime capability plus visual authoring/live preview.
+- [ ] Close the remaining feature lanes with direct editor workflows suitable for non-technical creators, not diagnostics-only or fixture-only paths.
+- [ ] Keep public docs, readiness language, and completion claims aligned with that WYSIWYG definition of done.
 
 ## Work complete, not remaining
 

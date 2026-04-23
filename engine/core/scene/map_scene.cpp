@@ -9,6 +9,63 @@
 
 namespace urpg::scene {
 
+namespace {
+
+bool BindingMatches(const MapScene::InteractionAbilityBinding& binding,
+                    const std::string& trigger_id,
+                    std::optional<std::pair<int, int>> tile,
+                    std::optional<std::string_view> prop_asset_id) {
+    if (binding.trigger_id != trigger_id) {
+        return false;
+    }
+
+    switch (binding.scope) {
+    case MapScene::InteractionBindingScope::Global:
+        return true;
+    case MapScene::InteractionBindingScope::Tile:
+        return tile.has_value() && binding.tile_x == tile->first && binding.tile_y == tile->second;
+    case MapScene::InteractionBindingScope::Prop:
+        return prop_asset_id.has_value() && binding.prop_asset_id == *prop_asset_id;
+    case MapScene::InteractionBindingScope::Region:
+        return tile.has_value() &&
+               tile->first >= binding.region_min_x &&
+               tile->first <= binding.region_max_x &&
+               tile->second >= binding.region_min_y &&
+               tile->second <= binding.region_max_y;
+    }
+
+    return false;
+}
+
+bool BindingKeyMatches(const MapScene::InteractionAbilityBinding& binding,
+                       MapScene::InteractionBindingScope scope,
+                       const std::string& trigger_id,
+                       std::optional<std::pair<int, int>> tile,
+                       std::optional<std::string_view> prop_asset_id) {
+    if (binding.scope != scope || binding.trigger_id != trigger_id) {
+        return false;
+    }
+
+    switch (scope) {
+    case MapScene::InteractionBindingScope::Global:
+        return true;
+    case MapScene::InteractionBindingScope::Tile:
+        return tile.has_value() && binding.tile_x == tile->first && binding.tile_y == tile->second;
+    case MapScene::InteractionBindingScope::Prop:
+        return prop_asset_id.has_value() && binding.prop_asset_id == *prop_asset_id;
+    case MapScene::InteractionBindingScope::Region:
+        return tile.has_value() &&
+               binding.region_min_x == tile->first &&
+               binding.region_min_y == tile->second &&
+               binding.region_max_x == tile->first &&
+               binding.region_max_y == tile->second;
+    }
+
+    return false;
+}
+
+} // namespace
+
 MapScene::MapScene(const std::string& mapId, int width, int height)
     : m_mapId(mapId), m_width(width), m_height(height) {
     m_tiles.resize(width * height, {0, true});
@@ -19,6 +76,10 @@ MapScene::MapScene(const std::string& mapId, int width, int height)
     m_playerMovement.lastGridPos = {0, 0};
     m_playerMovement.moveSpeed = 4.0f;
     m_playerMovement.isMoving = false;
+    m_playerAbilitySystem.setAttribute("MP", 30.0f);
+    m_playerAbilitySystem.setAttribute("Attack", 100.0f);
+    m_playerAbilitySystem.setAttribute("Defense", 100.0f);
+    m_playerAbilitySystem.setAttribute("MagicDefense", 100.0f);
 }
 
 void MapScene::onUpdate(float deltaTime) {
@@ -69,6 +130,8 @@ void MapScene::onUpdate(float deltaTime) {
         m_playerAnimator->setDirection(m_playerMovement.direction);
         m_playerAnimator->update(deltaTime);
     }
+
+    m_playerAbilitySystem.update(deltaTime);
 
     // 3. Submit tile and player render commands
     if (m_renderLayerDirty) {
@@ -192,6 +255,11 @@ void MapScene::handleInput(const urpg::input::InputCore& input) {
     if (m_playerMovement.isMoving) return;
 
     if (input.isActionJustPressed(urpg::input::InputAction::Confirm)) {
+        if (activateInteractionAbilityAtTile("confirm_interact", m_playerMovement.gridPos.x, m_playerMovement.gridPos.y) ||
+            activateInteractionAbility("confirm_interact")) {
+            return;
+        }
+
         // In a real game, we'd check for the interact target tile here.
         // For testing, let's trigger the mock "intro_elder" dialogue if we interact with anything
         auto& registry = urpg::message::DialogueRegistry::getInstance();
@@ -342,6 +410,260 @@ bool MapScene::loadGame(int slotId) {
         urpg::save::SaveSerializationHub::restoreGlobalState(hub, result.payload);
         return true;
     }
+    return false;
+}
+
+void MapScene::grantPlayerAbility(const urpg::ability::AuthoredAbilityAsset& asset) {
+    m_playerAbilitySystem.grantOrReplaceAbility(urpg::ability::makeGameplayAbilityFromAsset(asset));
+}
+
+bool MapScene::tryActivatePlayerAbility(const std::string& ability_id) {
+    for (const auto& ability : m_playerAbilitySystem.getAbilities()) {
+        if (ability && ability->getId() == ability_id) {
+            return m_playerAbilitySystem.tryActivateAbility(*ability);
+        }
+    }
+
+    return false;
+}
+
+bool MapScene::bindInteractionAbility(const std::string& trigger_id,
+                                      const std::string& asset_path,
+                                      const urpg::ability::AuthoredAbilityAsset& asset) {
+    if (trigger_id.empty() || asset.ability_id.empty()) {
+        return false;
+    }
+
+    grantPlayerAbility(asset);
+
+    for (auto& binding : m_interaction_ability_bindings) {
+        if (BindingKeyMatches(binding, InteractionBindingScope::Global, trigger_id, std::nullopt, std::nullopt)) {
+            binding.asset_path = asset_path;
+            binding.ability_id = asset.ability_id;
+            return true;
+        }
+    }
+
+    InteractionAbilityBinding binding;
+    binding.scope = InteractionBindingScope::Global;
+    binding.trigger_id = trigger_id;
+    binding.asset_path = asset_path;
+    binding.ability_id = asset.ability_id;
+    m_interaction_ability_bindings.push_back(std::move(binding));
+    return true;
+}
+
+bool MapScene::bindTileInteractionAbility(const std::string& trigger_id,
+                                          int tile_x,
+                                          int tile_y,
+                                          const std::string& asset_path,
+                                          const urpg::ability::AuthoredAbilityAsset& asset) {
+    if (trigger_id.empty() || asset.ability_id.empty()) {
+        return false;
+    }
+
+    grantPlayerAbility(asset);
+
+    for (auto& binding : m_interaction_ability_bindings) {
+        if (BindingKeyMatches(
+                binding,
+                InteractionBindingScope::Tile,
+                trigger_id,
+                std::make_pair(tile_x, tile_y),
+                std::nullopt)) {
+            binding.asset_path = asset_path;
+            binding.ability_id = asset.ability_id;
+            return true;
+        }
+    }
+
+    InteractionAbilityBinding binding;
+    binding.scope = InteractionBindingScope::Tile;
+    binding.trigger_id = trigger_id;
+    binding.asset_path = asset_path;
+    binding.ability_id = asset.ability_id;
+    binding.tile_x = tile_x;
+    binding.tile_y = tile_y;
+    m_interaction_ability_bindings.push_back(std::move(binding));
+    return true;
+}
+
+bool MapScene::bindPropInteractionAbility(const std::string& trigger_id,
+                                          const std::string& prop_asset_id,
+                                          const std::string& asset_path,
+                                          const urpg::ability::AuthoredAbilityAsset& asset) {
+    if (trigger_id.empty() || prop_asset_id.empty() || asset.ability_id.empty()) {
+        return false;
+    }
+
+    grantPlayerAbility(asset);
+
+    for (auto& binding : m_interaction_ability_bindings) {
+        if (BindingKeyMatches(
+                binding,
+                InteractionBindingScope::Prop,
+                trigger_id,
+                std::nullopt,
+                prop_asset_id)) {
+            binding.asset_path = asset_path;
+            binding.ability_id = asset.ability_id;
+            return true;
+        }
+    }
+
+    InteractionAbilityBinding binding;
+    binding.scope = InteractionBindingScope::Prop;
+    binding.trigger_id = trigger_id;
+    binding.asset_path = asset_path;
+    binding.ability_id = asset.ability_id;
+    binding.prop_asset_id = prop_asset_id;
+    m_interaction_ability_bindings.push_back(std::move(binding));
+    return true;
+}
+
+bool MapScene::bindRegionInteractionAbility(const std::string& trigger_id,
+                                            int min_tile_x,
+                                            int min_tile_y,
+                                            int max_tile_x,
+                                            int max_tile_y,
+                                            const std::string& asset_path,
+                                            const urpg::ability::AuthoredAbilityAsset& asset) {
+    if (trigger_id.empty() || asset.ability_id.empty()) {
+        return false;
+    }
+
+    const int resolved_min_x = std::min(min_tile_x, max_tile_x);
+    const int resolved_min_y = std::min(min_tile_y, max_tile_y);
+    const int resolved_max_x = std::max(min_tile_x, max_tile_x);
+    const int resolved_max_y = std::max(min_tile_y, max_tile_y);
+
+    grantPlayerAbility(asset);
+
+    for (auto& binding : m_interaction_ability_bindings) {
+        if (binding.scope == InteractionBindingScope::Region &&
+            binding.trigger_id == trigger_id &&
+            binding.region_min_x == resolved_min_x &&
+            binding.region_min_y == resolved_min_y &&
+            binding.region_max_x == resolved_max_x &&
+            binding.region_max_y == resolved_max_y) {
+            binding.asset_path = asset_path;
+            binding.ability_id = asset.ability_id;
+            return true;
+        }
+    }
+
+    InteractionAbilityBinding binding;
+    binding.scope = InteractionBindingScope::Region;
+    binding.trigger_id = trigger_id;
+    binding.asset_path = asset_path;
+    binding.ability_id = asset.ability_id;
+    binding.region_min_x = resolved_min_x;
+    binding.region_min_y = resolved_min_y;
+    binding.region_max_x = resolved_max_x;
+    binding.region_max_y = resolved_max_y;
+    m_interaction_ability_bindings.push_back(std::move(binding));
+    return true;
+}
+
+bool MapScene::unbindTileInteractionAbility(const std::string& trigger_id, int tile_x, int tile_y) {
+    const auto before = m_interaction_ability_bindings.size();
+    m_interaction_ability_bindings.erase(
+        std::remove_if(
+            m_interaction_ability_bindings.begin(),
+            m_interaction_ability_bindings.end(),
+            [&](const InteractionAbilityBinding& binding) {
+                return BindingKeyMatches(
+                    binding,
+                    InteractionBindingScope::Tile,
+                    trigger_id,
+                    std::make_pair(tile_x, tile_y),
+                    std::nullopt);
+            }),
+        m_interaction_ability_bindings.end());
+    return m_interaction_ability_bindings.size() != before;
+}
+
+bool MapScene::unbindPropInteractionAbility(const std::string& trigger_id, const std::string& prop_asset_id) {
+    const auto before = m_interaction_ability_bindings.size();
+    m_interaction_ability_bindings.erase(
+        std::remove_if(
+            m_interaction_ability_bindings.begin(),
+            m_interaction_ability_bindings.end(),
+            [&](const InteractionAbilityBinding& binding) {
+                return BindingKeyMatches(
+                    binding,
+                    InteractionBindingScope::Prop,
+                    trigger_id,
+                    std::nullopt,
+                    prop_asset_id);
+            }),
+        m_interaction_ability_bindings.end());
+    return m_interaction_ability_bindings.size() != before;
+}
+
+bool MapScene::unbindRegionInteractionAbility(const std::string& trigger_id,
+                                              int min_tile_x,
+                                              int min_tile_y,
+                                              int max_tile_x,
+                                              int max_tile_y) {
+    const int resolved_min_x = std::min(min_tile_x, max_tile_x);
+    const int resolved_min_y = std::min(min_tile_y, max_tile_y);
+    const int resolved_max_x = std::max(min_tile_x, max_tile_x);
+    const int resolved_max_y = std::max(min_tile_y, max_tile_y);
+    const auto before = m_interaction_ability_bindings.size();
+    m_interaction_ability_bindings.erase(
+        std::remove_if(
+            m_interaction_ability_bindings.begin(),
+            m_interaction_ability_bindings.end(),
+            [&](const InteractionAbilityBinding& binding) {
+                return binding.scope == InteractionBindingScope::Region &&
+                       binding.trigger_id == trigger_id &&
+                       binding.region_min_x == resolved_min_x &&
+                       binding.region_min_y == resolved_min_y &&
+                       binding.region_max_x == resolved_max_x &&
+                       binding.region_max_y == resolved_max_y;
+            }),
+        m_interaction_ability_bindings.end());
+    return m_interaction_ability_bindings.size() != before;
+}
+
+bool MapScene::activateInteractionAbility(const std::string& trigger_id) {
+    for (const auto& binding : m_interaction_ability_bindings) {
+        if (BindingMatches(binding, trigger_id, std::nullopt, std::nullopt)) {
+            return tryActivatePlayerAbility(binding.ability_id);
+        }
+    }
+
+    return false;
+}
+
+bool MapScene::activateInteractionAbilityAtTile(const std::string& trigger_id, int tile_x, int tile_y) {
+    for (const auto& binding : m_interaction_ability_bindings) {
+        if (BindingMatches(binding, trigger_id, std::make_pair(tile_x, tile_y), std::nullopt)) {
+            return tryActivatePlayerAbility(binding.ability_id);
+        }
+    }
+
+    return false;
+}
+
+bool MapScene::activateInteractionAbilityForProp(const std::string& trigger_id, const std::string& prop_asset_id) {
+    for (const auto& binding : m_interaction_ability_bindings) {
+        if (BindingMatches(binding, trigger_id, std::nullopt, prop_asset_id)) {
+            return tryActivatePlayerAbility(binding.ability_id);
+        }
+    }
+
+    return false;
+}
+
+bool MapScene::hasInteractionAbilityBinding(const std::string& trigger_id) const {
+    for (const auto& binding : m_interaction_ability_bindings) {
+        if (binding.trigger_id == trigger_id) {
+            return true;
+        }
+    }
+
     return false;
 }
 

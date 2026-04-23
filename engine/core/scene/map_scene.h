@@ -1,6 +1,8 @@
 #pragma once
 
 #include "scene_manager.h"
+#include "engine/core/ability/ability_system_component.h"
+#include "engine/core/ability/authored_ability_asset.h"
 #include "engine/core/input/input_core.h"
 #include "engine/core/scene/movement_authority.h"
 #include "engine/core/render/render_layer.h"
@@ -31,6 +33,27 @@ struct TileData {
  */
 class MapScene : public GameScene {
 public:
+    enum class InteractionBindingScope : uint8_t {
+        Global = 0,
+        Tile = 1,
+        Prop = 2,
+        Region = 3,
+    };
+
+    struct InteractionAbilityBinding {
+        InteractionBindingScope scope = InteractionBindingScope::Global;
+        std::string trigger_id;
+        std::string asset_path;
+        std::string ability_id;
+        int tile_x = -1;
+        int tile_y = -1;
+        int region_min_x = -1;
+        int region_min_y = -1;
+        int region_max_x = -1;
+        int region_max_y = -1;
+        std::string prop_asset_id;
+    };
+
     MapScene(const std::string& mapId, int width, int height);
     virtual ~MapScene() = default;
 
@@ -133,6 +156,42 @@ public:
      */
     bool isDialogueActive() const { return m_messageRunner.isActive() || m_isChatInputOpen; }
 
+    urpg::ability::AbilitySystemComponent& playerAbilitySystem() { return m_playerAbilitySystem; }
+    const urpg::ability::AbilitySystemComponent& playerAbilitySystem() const { return m_playerAbilitySystem; }
+    void grantPlayerAbility(const urpg::ability::AuthoredAbilityAsset& asset);
+    bool tryActivatePlayerAbility(const std::string& ability_id);
+    bool bindInteractionAbility(const std::string& trigger_id,
+                                const std::string& asset_path,
+                                const urpg::ability::AuthoredAbilityAsset& asset);
+    bool bindTileInteractionAbility(const std::string& trigger_id,
+                                    int tile_x,
+                                    int tile_y,
+                                    const std::string& asset_path,
+                                    const urpg::ability::AuthoredAbilityAsset& asset);
+    bool bindPropInteractionAbility(const std::string& trigger_id,
+                                    const std::string& prop_asset_id,
+                                    const std::string& asset_path,
+                                    const urpg::ability::AuthoredAbilityAsset& asset);
+    bool bindRegionInteractionAbility(const std::string& trigger_id,
+                                      int min_tile_x,
+                                      int min_tile_y,
+                                      int max_tile_x,
+                                      int max_tile_y,
+                                      const std::string& asset_path,
+                                      const urpg::ability::AuthoredAbilityAsset& asset);
+    bool unbindTileInteractionAbility(const std::string& trigger_id, int tile_x, int tile_y);
+    bool unbindPropInteractionAbility(const std::string& trigger_id, const std::string& prop_asset_id);
+    bool unbindRegionInteractionAbility(const std::string& trigger_id,
+                                        int min_tile_x,
+                                        int min_tile_y,
+                                        int max_tile_x,
+                                        int max_tile_y);
+    bool activateInteractionAbility(const std::string& trigger_id);
+    bool activateInteractionAbilityAtTile(const std::string& trigger_id, int tile_x, int tile_y);
+    bool activateInteractionAbilityForProp(const std::string& trigger_id, const std::string& prop_asset_id);
+    bool hasInteractionAbilityBinding(const std::string& trigger_id) const;
+    const std::vector<InteractionAbilityBinding>& interactionAbilityBindings() const { return m_interaction_ability_bindings; }
+
 private:
     void rebuildTileRenderCache();
     void submitCachedTileCommands(urpg::RenderLayer& layer) const;
@@ -156,6 +215,8 @@ private:
     std::shared_ptr<urpg::audio::AudioCore> m_audioCore;
     bool m_isChatInputOpen = false;
     std::string m_currentInputBuffer;
+    urpg::ability::AbilitySystemComponent m_playerAbilitySystem;
+    std::vector<InteractionAbilityBinding> m_interaction_ability_bindings;
 };
 
 } // namespace urpg::scene

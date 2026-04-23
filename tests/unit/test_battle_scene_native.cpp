@@ -6,6 +6,7 @@
 
 #include <catch2/catch_approx.hpp>
 #include <catch2/catch_test_macros.hpp>
+#include <algorithm>
 #include <sstream>
 #include <iostream>
 
@@ -425,6 +426,239 @@ TEST_CASE("BattleScene builds diagnostics preview from the next ordered queued a
 
     CHECK(preview->party_agi == dm.getActorParam(1, 6, 1));
     CHECK(preview->troop_agi == dm.getEnemy(1)->agi + dm.getEnemy(2)->agi);
+}
+
+TEST_CASE("BattleScene routes actor skills through participant ability runtimes", "[battle][scene][ability]") {
+    auto& dm = urpg::compat::DataManager::instance();
+    REQUIRE(dm.loadDatabase());
+    dm.setupNewGame();
+
+    auto* actorData = dm.getActor(1);
+    auto* skillData = dm.getSkill(2);
+    REQUIRE(actorData != nullptr);
+    REQUIRE(skillData != nullptr);
+
+    const auto originalSkills = actorData->skills;
+    const int originalCost = skillData->mpCost;
+
+    actorData->skills = {2};
+    skillData->mpCost = 7;
+
+    BattleScene battle({"1"});
+    battle.onStart();
+    battle.addActor("1", "Hero", 120, 20, {0, 0}, nullptr);
+    battle.addEnemy("1", "Slime", 40, 0, {100, 100}, nullptr);
+
+    auto& participants = const_cast<std::vector<BattleParticipant>&>(battle.getParticipants());
+    BattleParticipant* hero = findParticipantById(participants, "1", false);
+    BattleParticipant* slime = findParticipantById(participants, "1", true);
+
+    REQUIRE(hero != nullptr);
+    REQUIRE(slime != nullptr);
+    REQUIRE(hero->abilitySystem.getAbilities().size() == 1);
+
+    SECTION("Granted skill activates through the participant ASC and spends MP once") {
+        BattleScene::BattleAction action{};
+        action.subject = hero;
+        action.target = slime;
+        action.command = "skill";
+        action.isSkill = true;
+        action.skillId = 2;
+
+        const int initialMp = hero->mp;
+        const int initialHp = slime->hp;
+
+        battle.setPhase(BattlePhase::ACTION);
+        battle.addActionToQueue(action);
+        battle.onUpdate(0.1f);
+
+        CHECK(hero->mp == initialMp - skillData->mpCost);
+        CHECK(slime->hp < initialHp);
+        REQUIRE_FALSE(hero->abilitySystem.getAbilityExecutionHistory().empty());
+        const auto& lastRecord = hero->abilitySystem.getAbilityExecutionHistory().back();
+        CHECK(lastRecord.ability_id == "skill.2");
+        CHECK(lastRecord.outcome == "executed");
+        CHECK(lastRecord.mp_before == Catch::Approx(static_cast<float>(initialMp)));
+        CHECK(lastRecord.mp_after == Catch::Approx(static_cast<float>(initialMp - skillData->mpCost)));
+    }
+
+    SECTION("Granted skill is blocked when the participant ASC lacks enough MP") {
+        hero->mp = 3;
+
+        BattleScene::BattleAction action{};
+        action.subject = hero;
+        action.target = slime;
+        action.command = "skill";
+        action.isSkill = true;
+        action.skillId = 2;
+
+        const int initialHp = slime->hp;
+
+        battle.setPhase(BattlePhase::ACTION);
+        battle.addActionToQueue(action);
+        battle.onUpdate(0.1f);
+
+        CHECK(hero->mp == 3);
+        CHECK(slime->hp == initialHp);
+        REQUIRE_FALSE(hero->abilitySystem.getAbilityExecutionHistory().empty());
+        const auto& lastRecord = hero->abilitySystem.getAbilityExecutionHistory().back();
+        CHECK(lastRecord.ability_id == "skill.2");
+        CHECK(lastRecord.outcome == "blocked");
+        CHECK(lastRecord.reason == "insufficient_mp");
+    }
+
+    actorData->skills = originalSkills;
+    skillData->mpCost = originalCost;
+}
+
+TEST_CASE("BattleScene applies target-aware skill effects after ability activation", "[battle][scene][ability][targeting]") {
+    auto& dm = urpg::compat::DataManager::instance();
+    REQUIRE(dm.loadDatabase());
+    dm.setupNewGame();
+
+    auto* actorData = dm.getActor(1);
+    auto* skillData = dm.getSkill(2);
+    REQUIRE(actorData != nullptr);
+    REQUIRE(skillData != nullptr);
+
+    const auto originalSkills = actorData->skills;
+    const int originalCost = skillData->mpCost;
+    const int originalDamageType = skillData->damage.type;
+    const int originalDamagePower = skillData->damage.power;
+    const auto originalEffects = skillData->effects;
+
+    actorData->skills = {2};
+    skillData->mpCost = 4;
+    skillData->damage.type = 0;
+    skillData->damage.power = 0;
+    skillData->effects.clear();
+    skillData->effects.push_back({11, 0, 0.0, 12.0}); // Recover HP
+    skillData->effects.push_back({21, 9, 0.0, 0.0});  // Add state
+
+    BattleScene battle({"1"});
+    battle.onStart();
+    battle.addActor("1", "Hero", 120, 20, {0, 0}, nullptr);
+    battle.addEnemy("1", "Slime", 40, 0, {100, 100}, nullptr);
+
+    auto& participants = const_cast<std::vector<BattleParticipant>&>(battle.getParticipants());
+    BattleParticipant* hero = findParticipantById(participants, "1", false);
+    BattleParticipant* slime = findParticipantById(participants, "1", true);
+
+    REQUIRE(hero != nullptr);
+    REQUIRE(slime != nullptr);
+
+    slime->hp = 10;
+    slime->states.clear();
+
+    BattleScene::BattleAction action{};
+    action.subject = hero;
+    action.target = slime;
+    action.command = "skill";
+    action.isSkill = true;
+    action.skillId = 2;
+
+    battle.setPhase(BattlePhase::ACTION);
+    battle.addActionToQueue(action);
+    battle.onUpdate(0.1f);
+
+    CHECK(hero->mp == 16);
+    CHECK(slime->hp == 12);
+    CHECK(slime->hp > 10);
+    CHECK(std::find(slime->states.begin(), slime->states.end(), 9) != slime->states.end());
+    REQUIRE_FALSE(hero->abilitySystem.getAbilityExecutionHistory().empty());
+    CHECK(hero->abilitySystem.getAbilityExecutionHistory().back().outcome == "executed");
+
+    actorData->skills = originalSkills;
+    skillData->mpCost = originalCost;
+    skillData->damage.type = originalDamageType;
+    skillData->damage.power = originalDamagePower;
+    skillData->effects = originalEffects;
+}
+
+TEST_CASE("BattleScene applies buff and debuff effect codes to live battle stats", "[battle][scene][ability][modifiers]") {
+    auto& dm = urpg::compat::DataManager::instance();
+    REQUIRE(dm.loadDatabase());
+    dm.setupNewGame();
+
+    auto* actorData = dm.getActor(1);
+    auto* skillData = dm.getSkill(2);
+    REQUIRE(actorData != nullptr);
+    REQUIRE(skillData != nullptr);
+
+    const auto originalSkills = actorData->skills;
+    const int originalCost = skillData->mpCost;
+    const int originalDamageType = skillData->damage.type;
+    const int originalDamagePower = skillData->damage.power;
+    const auto originalEffects = skillData->effects;
+
+    actorData->skills = {2};
+    skillData->mpCost = 4;
+    skillData->damage.type = 0;
+    skillData->damage.power = 0;
+    skillData->effects.clear();
+    skillData->effects.push_back({31, 2, 2.0, 1.0}); // +1 ATK buff for 2 turns
+    skillData->effects.push_back({32, 3, 2.0, 1.0}); // -1 DEF debuff for 2 turns
+
+    BattleScene battle({"1"});
+    battle.onStart();
+    battle.addActor("1", "Hero", 120, 20, {0, 0}, nullptr);
+    battle.addEnemy("1", "Slime", 40, 0, {100, 100}, nullptr);
+
+    auto& participants = const_cast<std::vector<BattleParticipant>&>(battle.getParticipants());
+    BattleParticipant* hero = findParticipantById(participants, "1", false);
+    BattleParticipant* slime = findParticipantById(participants, "1", true);
+
+    REQUIRE(hero != nullptr);
+    REQUIRE(slime != nullptr);
+
+    const auto baseDamage = urpg::battle::BattleRuleResolver::resolveDamage(buildAttackContext(*hero, *slime));
+
+    BattleScene::BattleAction buffAction{};
+    buffAction.subject = hero;
+    buffAction.target = hero;
+    buffAction.command = "skill";
+    buffAction.isSkill = true;
+    buffAction.skillId = 2;
+
+    BattleScene::BattleAction debuffAction{};
+    debuffAction.subject = hero;
+    debuffAction.target = slime;
+    debuffAction.command = "skill";
+    debuffAction.isSkill = true;
+    debuffAction.skillId = 2;
+
+    battle.setPhase(BattlePhase::ACTION);
+    battle.addActionToQueue(buffAction);
+    battle.onUpdate(0.1f);
+
+    REQUIRE_FALSE(hero->modifiers.empty());
+    CHECK(hero->modifiers.front().paramId == 2);
+    CHECK(hero->modifiers.front().stages == 1);
+
+    battle.addActionToQueue(debuffAction);
+    battle.onUpdate(0.9f);
+    battle.onUpdate(0.1f);
+
+    REQUIRE_FALSE(slime->modifiers.empty());
+    CHECK(slime->modifiers.front().paramId == 3);
+    CHECK(slime->modifiers.front().stages == -1);
+
+    const auto buffedDamage = urpg::battle::BattleRuleResolver::resolveDamage(buildAttackContext(*hero, *slime));
+    CHECK(buffedDamage > baseDamage);
+
+    battle.setPhase(BattlePhase::TURN_END);
+    CHECK(hero->modifiers.front().turnsRemaining == 1);
+    CHECK(slime->modifiers.front().turnsRemaining == 1);
+
+    battle.setPhase(BattlePhase::TURN_END);
+    CHECK(hero->modifiers.empty());
+    CHECK(slime->modifiers.empty());
+
+    actorData->skills = originalSkills;
+    skillData->mpCost = originalCost;
+    skillData->damage.type = originalDamageType;
+    skillData->damage.power = originalDamagePower;
+    skillData->effects = originalEffects;
 }
 
 TEST_CASE("BattleScene draws bounded colored HUD cues for gauges, guard, states, and popups", "[battle][scene][draw]") {

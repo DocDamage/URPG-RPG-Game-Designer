@@ -52,6 +52,34 @@ private:
     urpg::GameplayEffect m_effect;
 };
 
+class ContextAwareAbility : public GameplayAbility {
+public:
+    ContextAwareAbility() {
+        id = "skill.context_mark";
+        mpCost = 2.0f;
+    }
+
+    const std::string& getId() const override { return id; }
+    const ActivationInfo& getActivationInfo() const override { return m_info; }
+
+    void activate(AbilitySystemComponent& source) override {
+        commitAbility(source);
+    }
+
+    void activate(AbilitySystemComponent& source, const AbilityExecutionContext& context) override {
+        commitAbility(source);
+        activated_with_target = !context.targets.empty();
+        if (!context.targets.empty() && context.targets.front().abilitySystem != nullptr) {
+            context.targets.front().abilitySystem->addTag(GameplayTag("State.Marked"));
+        }
+    }
+
+    bool activated_with_target = false;
+
+private:
+    ActivationInfo m_info;
+};
+
 TEST_CASE("GameplayAbility: Activation Pipeline", "[ability][activation]") {
     AbilitySystemComponent owner;
     MockAbility fireAbility("skill.fireball");
@@ -188,6 +216,28 @@ TEST_CASE("GameplayAbility: Activation Pipeline", "[ability][activation]") {
         REQUIRE(snapshot.latest_outcome == "executed");
         REQUIRE(snapshot.diagnostic_lines[0].find("skill.effect_burst") != std::string::npos);
         REQUIRE(snapshot.diagnostic_lines[0].find("effects=1") != std::string::npos);
+    }
+
+    SECTION("Context-aware activation can affect a target ASC without breaking source-only activation") {
+        AbilitySystemComponent targetOwner;
+        owner.setAttribute("MP", 10.0f);
+        ContextAwareAbility markAbility;
+
+        GameplayAbility::AbilityExecutionContext context;
+        GameplayAbility::AbilityExecutionTarget target;
+        target.abilitySystem = &targetOwner;
+        target.runtimeId = "target.1";
+        context.targets.push_back(target);
+
+        REQUIRE(owner.tryActivateAbility(markAbility, context));
+        REQUIRE(markAbility.activated_with_target);
+        REQUIRE(targetOwner.getTags().hasTag(GameplayTag("State.Marked")));
+        REQUIRE(owner.getAttribute("MP", 0.0f) == 8.0f);
+
+        ContextAwareAbility sourceOnlyAbility;
+        owner.setAttribute("MP", 10.0f);
+        REQUIRE(owner.tryActivateAbility(sourceOnlyAbility));
+        REQUIRE_FALSE(sourceOnlyAbility.activated_with_target);
     }
 }
 

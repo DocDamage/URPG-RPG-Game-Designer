@@ -18,6 +18,18 @@ class AbilitySystemComponent;
  */
 class GameplayAbility {
 public:
+    struct AbilityExecutionTarget {
+        AbilitySystemComponent* abilitySystem = nullptr;
+        const void* runtimeHandle = nullptr;
+        std::string runtimeId;
+    };
+
+    struct AbilityExecutionContext {
+        const void* sourceRuntimeHandle = nullptr;
+        std::string sourceRuntimeId;
+        std::vector<AbilityExecutionTarget> targets;
+    };
+
     struct ActivationCheckResult {
         bool allowed = true;
         std::string reason;
@@ -52,12 +64,16 @@ public:
      * @brief High-level check for activation feasibility.
      */
     virtual bool canActivate(const AbilitySystemComponent& source) const;
+    virtual bool canActivate(const AbilitySystemComponent& source, const AbilityExecutionContext& context) const;
     virtual ActivationCheckResult evaluateActivation(const AbilitySystemComponent& source) const;
+    virtual ActivationCheckResult evaluateActivation(const AbilitySystemComponent& source,
+                                                     const AbilityExecutionContext& context) const;
 
     /**
      * @brief Execution logic for the ability.
      */
     virtual void activate(AbilitySystemComponent& source) = 0;
+    virtual void activate(AbilitySystemComponent& source, const AbilityExecutionContext& context);
 
     /**
      * @brief Commit the ability (consume costs, start cooldowns).

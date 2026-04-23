@@ -65,6 +65,7 @@ This plan is the single source of truth for technical debt remediation across th
 - Ensure external repositories are evaluated through a governed intake path before they influence URPG runtime, fixtures, tooling, or asset lanes.
 - Ensure private-use asset acceleration happens through a governed provenance-preserving intake path so editor/runtime realism improves without reintroducing licensing, source-traceability, or content-root drift.
 - Ensure newly introduced roadmap scope - especially PGMMV intake, native absorption, HD-2D / 2.5D, authoring UX, accessibility, localization, and product-glue tracks - enters execution through the same truthfulness and Definition-of-Done gates as every other remediation lane.
+- Keep the public product story aligned with the actual target: URPG is meant to become fully WYSIWYG and easy to use, so documentation must not frame low-friction visual authoring as out of scope when the roadmap still requires it.
 
 ---
 
@@ -146,9 +147,16 @@ The debt picture is narrower than it was at initial audit, but several cross-cut
 
 **The newly absorbed gap list sharpens a real remaining product risk.** The remediation findings table is green, but product-readiness governance is not "done." Canonical subsystem readiness matrices, template readiness matrices, schema-version/changelog enforcement, project-audit surfaces, first-slice cross-doc drift/date/status checks, and a canonical release-signoff workflow artifact now exist as governance artifacts, but fuller release-signoff enforcement and the underlying product lanes for accessibility, localization completeness, input remapping, audio governance, and performance budgets remain mandatory current backlog that must pass through the same truth gates before they can be marketed as complete.
 
+**WYSIWYG closure is now part of the debt-prevention story.** The repo can no longer treat "runtime implemented" as equivalent to "feature complete" when public product goals require an easy visual workflow. Remaining roadmap lanes must be closed as both runtime capability and low-friction live authoring surfaces, or the documentation and completion claims will drift again.
+
 ## Mandatory Current Work Backlog
 
 The following items are no longer treated as optional roadmap work. They are mandatory current work and should be scheduled as active implementation backlog.
+
+Every remaining item below should be interpreted as dual-delivery work:
+
+- runtime capability
+- WYSIWYG editor workflow and live preview
 
 ### Priority 1 — Release-Truth and Validation Expansion
 
@@ -186,26 +194,33 @@ The following items are no longer treated as optional roadmap work. They are man
 6. **Gameplay Ability Framework completion**
    - Add schema contracts for ability definitions.
    - Add compat-to-native migration mapping.
-   - Integrate the GAF into a live `BattleScene` or `MapScene` gameplay loop.
+   - Continue binding the GAF into live `BattleScene` and `MapScene` gameplay loops.
+   - Finish the editor-facing authoring workflows so ability work is not stranded in diagnostics-only seams.
    - Note: scripted condition evaluation remains out of current in-tree scope unless explicitly reopened as new implementation work.
 
 7. **Character Identity completion**
    - Deliver the full Create-a-Character runtime workflow and appearance preview pipeline.
+   - Ensure the lane is truly WYSIWYG and beginner-friendly rather than data-model-first.
 
 8. **Achievement Registry completion**
    - Deliver trophy export and platform-specific backend integration.
+   - Add direct visual authoring, preview, and test/simulate flows.
 
 9. **Accessibility Auditor expansion**
    - Expand beyond the menu adapter into spatial, audio, and battle adapters.
+   - Keep those checks visible during live authoring instead of only after-the-fact reporting.
 
 10. **Audio Mix Presets expansion**
     - Add live audio backend integration and richer validator rules.
+    - Keep auditioning and mixer-style preview as part of the authoring surface.
 
 11. **Mod Registry completion**
     - Add live mod loading, sandboxed script execution, and mod-store integration.
+    - Provide a clear visual management workflow for enable/disable/order/conflicts.
 
 12. **Analytics Dispatcher completion**
     - Add telemetry upload, session aggregation, and privacy-audit workflow support.
+    - Keep analytics configuration approachable for non-programmer creators.
 
 **What this plan does NOT cover:**
 - New feature development not related to closing existing gaps.

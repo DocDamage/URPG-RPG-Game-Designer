@@ -26,9 +26,12 @@ This plan replaces the previous addendum and becomes the single roadmap for turn
 
 URPG's core value is native ownership, not plugin accumulation.
 
+URPG's product goal is also explicitly WYSIWYG and easy to use. Native ownership is not the alternative to that goal; it is the foundation that lets the editor preview and ship the real thing without hidden plugin behavior or editor-only fakes.
+
 - Compat exists to import, verify, migrate, and contain risk.
 - Native systems own long-term product capability.
 - Extension and customization infrastructure are first-class product lanes that must be governed explicitly, even when they are not the core delivery vehicle for a feature.
+- Features are only considered complete when they are implemented, visually authorable, live-previewable, and low-friction for creators to use.
 
 ## Planning goals
 
@@ -36,6 +39,7 @@ URPG's core value is native ownership, not plugin accumulation.
 2. Expand the roadmap to support broader game styles through additional high-leverage systems.
 3. Integrate external-repo-inspired capabilities as first-class native tracks, not side appendices.
 4. Add explicit governance, readiness, and cross-cutting minimum-bar lanes so subsystem and template claims stay evidence-gated.
+5. Close each remaining lane as both runtime capability and WYSIWYG editor workflow, instead of deferring ease-of-use until after backend completion.
 
 ## Integrated capability model
 
@@ -170,6 +174,24 @@ Goal: expand engine power for multi-genre projects while preserving deterministi
 - [x] Ability Tasks for async execution (loops/delays implemented in `engine/core/ability/ability_task.h`).
 - [x] Effect Modifiers and attribute math (implemented in `engine/core/ability/gameplay_effect.h`).
 - [x] Ability/effect diagnostics and replay-safe execution.
+- [x] Live battle-scene runtime integration for actor skill activation, cost checks, and execution history (implemented through participant-owned `AbilitySystemComponent` state in `engine/core/scene/battle_scene.h` / `.cpp`).
+- [x] Target-aware battle ability execution context for live skill resolution (implemented through `GameplayAbility::AbilityExecutionContext` plus battle-scene target-side heal/state effect routing).
+- [x] Live compat buff/debuff effect-stage support in battle (participant modifier stages now affect resolved battle params and decay on turn end in the native battle-scene path).
+- [x] Diagnostics-workspace live ability preview workflow (implemented through selectable ability rows plus preview/test activation in `editor/ability/ability_inspector_panel.*` and `editor/diagnostics/diagnostics_workspace.*`).
+- [x] Workspace-owned draft ability authoring preview for id/cost/cooldown/effect/pattern edits without pre-granted fixtures (implemented through draft-preview runtime synthesis in `editor/ability/ability_inspector_panel.*` and `editor/diagnostics/diagnostics_workspace.*`).
+- [x] Draft ability round-trip persistence and battle-runtime application workflow (implemented through draft save/load plus mutable-runtime apply in `editor/diagnostics/diagnostics_workspace_serialization.cpp` and `editor/diagnostics/diagnostics_workspace.*`).
+- [x] Shared authored-ability asset contract plus map-scene runtime consumption (implemented through `engine/core/ability/authored_ability_asset.h`, `engine/core/scene/map_scene.*`, and diagnostics-workspace application into map-owned ASC state).
+- [x] Canonical `content/abilities/` project-content discovery plus explicit picker/load/apply/save workflow in the diagnostics workspace (implemented through authored-ability asset discovery helpers and project-content binding state in `engine/core/ability/authored_ability_asset.h` and `editor/diagnostics/diagnostics_workspace.*`).
+- [x] Real map-authoring ability binding workflow for canonical project content (implemented through `editor/spatial/map_ability_binding_panel.*` and map interaction bindings in `engine/core/scene/map_scene.*`).
+- [x] Multi-target map interaction authoring for tile- and prop-specific bindings on top of the same canonical authored-ability content lane (implemented through scoped interaction bindings in `engine/core/scene/map_scene.*` and placement-oriented state in `editor/spatial/map_ability_binding_panel.*`).
+- [x] First visual map-canvas interaction authoring pass: click-to-place tile bindings, prop selection from placed props, and rectangular area painting on the shared interaction-binding runtime contract (implemented through screen-projected placement helpers in `editor/spatial/map_ability_binding_panel.*` and region-capable bindings in `engine/core/scene/map_scene.*`).
+- [x] Richer map-canvas overlay authoring for abilities: committed multi-region painting, per-prop visual handle snapshots, and binding-overlay export so the editor can show selected, pending, and already-bound interaction targets directly on the canvas (implemented through overlay-ready snapshot state in `editor/spatial/map_ability_binding_panel.*` plus normalized multi-region runtime coverage in `tests/unit/test_scene_manager.cpp`).
+- [x] Direct-on-canvas ability editing workflow for map interactions: an always-visible spatial ability canvas layer now consumes those overlay snapshots so existing tile, prop, and region bindings can be clicked, selected, and rebound from the map surface itself instead of only from the side panel (implemented through `editor/spatial/spatial_ability_canvas_panel.*` on top of `editor/spatial/map_ability_binding_panel.*`).
+- [x] Bi-directional canvas editing for map interaction abilities: dragged tile/prop handles now move live bindings, selected regions can be resized in place, and inline asset/trigger badges are exported for on-canvas affordances instead of keeping that context hidden in side panels (implemented through explicit unbind/rebind helpers in `engine/core/scene/map_scene.*`, move/resize helpers in `editor/spatial/map_ability_binding_panel.*`, and drag/badge state in `editor/spatial/spatial_ability_canvas_panel.*`).
+- [x] WYSIWYG map-canvas affordances for interaction authoring: hover previews now show prospective drop/resize state before commit, selected bindings can switch triggers directly from the canvas, and visible conflict warnings surface overlapping or competing tile/prop/region bindings instead of hiding them behind runtime ambiguity (implemented through trigger-switch helpers in `editor/spatial/map_ability_binding_panel.*` and preview/conflict snapshot state in `editor/spatial/spatial_ability_canvas_panel.*`).
+- [x] Actionable conflict handling plus first composed spatial workspace: the canvas now exposes removable secondary-conflict targets and available trigger menus, while a dedicated `SpatialAuthoringWorkspace` composes elevation, prop placement, map-ability binding, and the canvas layer into one intentional editor surface instead of leaving them as isolated panels (implemented through removal helpers in `editor/spatial/map_ability_binding_panel.*`, actionable conflict metadata in `editor/spatial/spatial_ability_canvas_panel.*`, and `editor/spatial/spatial_authoring_workspace.*`).
+- [x] Smarter conflict resolution and workspace-level spatial tooling: the canvas now distinguishes blocking same-trigger conflicts from cross-trigger advisory overlaps, supports keep-primary/keep-secondary, trigger-swap, and replace-secondary flows, and the composed spatial workspace now exposes a shared authoring mode toolbar so elevation, props, and ability binding behave like one continuous WYSIWYG surface instead of disconnected subpanels (implemented through replacement/swap helpers in `editor/spatial/map_ability_binding_panel.*`, policy-aware warnings in `editor/spatial/spatial_ability_canvas_panel.*`, and toolbar/mode state in `editor/spatial/spatial_authoring_workspace.*`).
+- [x] Workflow-driving spatial toolbar and shared canvas routing: the spatial workspace toolbar now drives the editing flow instead of only describing it, with shared placement state, routed canvas actions for elevation painting / prop placement / ability authoring, and one-click suggested conflict resolution hooks that operate on the live canvas/runtime seam rather than panel-local state (implemented through routing and toolbar actions in `editor/spatial/spatial_authoring_workspace.*` plus suggested-resolution helpers in `editor/spatial/spatial_ability_canvas_panel.*`).
 
 ### 3.2 Pattern Field Editor
 
@@ -324,6 +346,7 @@ This plan is complete when:
 4. Governance foundation artifacts exist for subsystem readiness, template readiness, schema/version change control, and truth reconciliation.
 5. Cross-cutting release bars for accessibility, localization, input, audio governance, and performance are defined and enforced where claimed.
 6. Release gates validate native and compat stability with published evidence.
+7. The remaining supported feature lanes are usable through live, low-friction WYSIWYG editor workflows rather than backend-only seams.
 
 ## Acceptance rules for external-source-inspired work
 

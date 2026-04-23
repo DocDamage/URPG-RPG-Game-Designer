@@ -5,9 +5,11 @@
 #include <vector>
 #include <string>
 #include <memory>
+#include <optional>
 
 namespace urpg::ability {
     class AbilitySystemComponent;
+    class GameplayAbility;
 }
 
 namespace urpg::editor {
@@ -54,6 +56,11 @@ class AbilityInspectorModel {
 public:
     void refresh(const AbilitySystemComponent& asc);
     void clear();
+    bool selectAbility(size_t index);
+    std::optional<size_t> selectedAbilityIndex() const;
+    std::optional<std::string> selectedAbilityId() const;
+    const AbilityInfo* selectedAbility() const;
+    bool previewActivateSelected(AbilitySystemComponent& asc) const;
 
     const std::vector<AbilityInfo>& getAbilities() const { return m_abilities; }
     const std::vector<ActiveTagInfo>& getActiveTags() const { return m_active_tags; }
@@ -61,8 +68,11 @@ public:
     AbilityDiagnosticsSnapshot buildDiagnosticsSnapshot(const AbilitySystemComponent& asc) const;
 
 private:
+    const urpg::ability::GameplayAbility* findGrantedAbility(const AbilitySystemComponent& asc) const;
+
     std::vector<AbilityInfo> m_abilities;
     std::vector<ActiveTagInfo> m_active_tags;
+    std::optional<std::string> m_selected_ability_id;
 };
 
 } // namespace urpg::editor

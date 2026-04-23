@@ -7,6 +7,10 @@ bool GameplayAbility::canActivate(const AbilitySystemComponent& source) const {
     return evaluateActivation(source).allowed;
 }
 
+bool GameplayAbility::canActivate(const AbilitySystemComponent& source, const AbilityExecutionContext& context) const {
+    return evaluateActivation(source, context).allowed;
+}
+
 GameplayAbility::ActivationCheckResult GameplayAbility::evaluateActivation(const AbilitySystemComponent& source) const {
     ActivationCheckResult result;
     const auto& info = getActivationInfo();
@@ -57,6 +61,17 @@ GameplayAbility::ActivationCheckResult GameplayAbility::evaluateActivation(const
     }
 
     return result;
+}
+
+GameplayAbility::ActivationCheckResult GameplayAbility::evaluateActivation(const AbilitySystemComponent& source,
+                                                                          const AbilityExecutionContext& context) const {
+    (void)context;
+    return evaluateActivation(source);
+}
+
+void GameplayAbility::activate(AbilitySystemComponent& source, const AbilityExecutionContext& context) {
+    (void)context;
+    activate(source);
 }
 
 void GameplayAbility::commitAbility(AbilitySystemComponent& source) {
@@ -111,6 +126,11 @@ bool AbilitySystemComponent::canActivateAbility(const GameplayAbility& ability) 
     return ability.canActivate(*this);
 }
 
+bool AbilitySystemComponent::canActivateAbility(const GameplayAbility& ability,
+                                                const GameplayAbility::AbilityExecutionContext& context) const {
+    return ability.canActivate(*this, context);
+}
+
 bool AbilitySystemComponent::tryActivateAbility(GameplayAbility& ability) {
     const auto check = ability.evaluateActivation(*this);
     const float mp_before = getAttribute("MP", defaultBaseAttribute("MP"));
@@ -131,6 +151,41 @@ bool AbilitySystemComponent::tryActivateAbility(GameplayAbility& ability) {
     }
 
     ability.activate(*this);
+    const float mp_after = getAttribute("MP", defaultBaseAttribute("MP"));
+    recordAbilityExecution(
+        ability.getId(),
+        "activate",
+        "executed",
+        "",
+        "",
+        mp_before,
+        mp_after,
+        getCooldownRemaining(ability.getId()),
+        m_activeEffects.size());
+    return true;
+}
+
+bool AbilitySystemComponent::tryActivateAbility(GameplayAbility& ability,
+                                                const GameplayAbility::AbilityExecutionContext& context) {
+    const auto check = ability.evaluateActivation(*this, context);
+    const float mp_before = getAttribute("MP", defaultBaseAttribute("MP"));
+
+    if (!check.allowed) {
+        recordAbilityExecution(
+            ability.getId(),
+            "activate",
+            "blocked",
+            check.reason,
+            "",
+            mp_before,
+            mp_before,
+            getCooldownRemaining(ability.getId()),
+            m_activeEffects.size(),
+            check.detail);
+        return false;
+    }
+
+    ability.activate(*this, context);
     const float mp_after = getAttribute("MP", defaultBaseAttribute("MP"));
     recordAbilityExecution(
         ability.getId(),

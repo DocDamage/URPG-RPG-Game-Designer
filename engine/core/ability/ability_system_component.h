@@ -1,15 +1,15 @@
 #pragma once
 
+#include "gameplay_ability.h"
 #include "gameplay_tags.h"
 #include "gameplay_effect.h"
+#include <algorithm>
 #include <vector>
 #include <string>
 #include <unordered_map>
 #include <memory>
 
 namespace urpg::ability {
-
-class GameplayAbility;
 
 /**
  * @brief Manages Abilities, Tags, and Effects for a source actor/enemy.
@@ -55,7 +55,11 @@ public:
      * @brief Check if the owner can activate the given ability.
      */
     bool canActivateAbility(const GameplayAbility& ability) const;
+    bool canActivateAbility(const GameplayAbility& ability,
+                            const GameplayAbility::AbilityExecutionContext& context) const;
     bool tryActivateAbility(GameplayAbility& ability);
+    bool tryActivateAbility(GameplayAbility& ability,
+                            const GameplayAbility::AbilityExecutionContext& context);
 
     /**
      * @brief Validates if the target is within the ability's pattern from specified source.
@@ -161,6 +165,28 @@ public:
      */
     void grantAbility(std::shared_ptr<GameplayAbility> ability) {
         if (ability) m_abilities.push_back(ability);
+    }
+
+    bool removeAbilityById(const std::string& abilityId) {
+        const auto original_size = m_abilities.size();
+        m_abilities.erase(
+            std::remove_if(
+                m_abilities.begin(),
+                m_abilities.end(),
+                [&](const std::shared_ptr<GameplayAbility>& ability) {
+                    return ability && ability->getId() == abilityId;
+                }),
+            m_abilities.end());
+        return m_abilities.size() != original_size;
+    }
+
+    void grantOrReplaceAbility(std::shared_ptr<GameplayAbility> ability) {
+        if (!ability) {
+            return;
+        }
+
+        removeAbilityById(ability->getId());
+        m_abilities.push_back(std::move(ability));
     }
 
     const std::vector<std::shared_ptr<GameplayAbility>>& getAbilities() const {

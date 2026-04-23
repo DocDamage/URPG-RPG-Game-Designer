@@ -1,4 +1,5 @@
 #include "editor/diagnostics/diagnostics_workspace.h"
+#include "engine/core/ability/authored_ability_asset.h"
 #include "engine/core/ui/menu_serializer.h"
 
 #include <nlohmann/json.hpp>
@@ -247,6 +248,29 @@ bool DiagnosticsWorkspace::loadMenuStateFromFile(const std::string& path) {
         return urpg::ui::MenuSceneSerializer::DeserializeGraph(j, *menu_scene_graph_);
     }
     return urpg::ui::MenuSceneSerializer::Deserialize(j, *menu_scene_graph_);
+}
+
+std::string DiagnosticsWorkspace::exportAbilityDraftStateJson() const {
+    const nlohmann::json result = ability_panel_.getDraftAsset();
+    return result.dump(2);
+}
+
+bool DiagnosticsWorkspace::saveAbilityDraftStateToFile(const std::string& path) const {
+    return urpg::ability::saveAuthoredAbilityAssetToFile(
+        ability_panel_.getDraftAsset(),
+        std::filesystem::path(path));
+}
+
+bool DiagnosticsWorkspace::loadAbilityDraftStateFromFile(const std::string& path) {
+    const auto asset = urpg::ability::loadAuthoredAbilityAssetFromFile(std::filesystem::path(path));
+    if (!asset.has_value()) {
+        return false;
+    }
+
+    ability_panel_.setDraftFromAsset(*asset);
+
+    rebuildAbilityDraftPreviewRuntime();
+    return true;
 }
 
 std::string DiagnosticsWorkspace::exportMigrationWizardReportJson() const {

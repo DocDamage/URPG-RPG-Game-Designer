@@ -215,6 +215,11 @@ TEST_CASE("BattleScene emits CastStart for skill use", "[battle][effects][cue]")
     REQUIRE(dm.loadDatabase());
     dm.setupNewGame();
 
+    auto* actorData = dm.getActor(1);
+    REQUIRE(actorData != nullptr);
+    const auto originalSkills = actorData->skills;
+    actorData->skills = {2};
+
     BattleScene battle({"1"});
     battle.onStart();
     battle.addActor("1", "Hero", 100, 20, {0.0f, 0.0f}, nullptr);
@@ -241,6 +246,8 @@ TEST_CASE("BattleScene emits CastStart for skill use", "[battle][effects][cue]")
     const auto& cues = battle.effectCues();
     REQUIRE(cues.size() == 2);
     CHECK(cues[0].kind == EffectCueKind::CastStart);
+
+    actorData->skills = originalSkills;
 }
 
 TEST_CASE("BattleScene emits CriticalHit for high damage", "[battle][effects][cue]") {

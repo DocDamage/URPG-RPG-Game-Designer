@@ -1,5 +1,6 @@
 #include "battle_scene.h"
 #include "combat_formula.h"
+#include "engine/core/ability/gameplay_ability.h"
 #include "engine/core/sprite_batcher.h"
 #include "runtimes/compat_js/data_manager.h"
 #include "runtimes/compat_js/battle_manager.h"
@@ -16,6 +17,38 @@ namespace {
 
 constexpr const char* kMissingBattlebackDiagnostic = "MISSING_BATTLEBACK";
 constexpr uint32_t kSolidQuadTextureId = 1;
+class BattleSkillAbility final : public urpg::ability::GameplayAbility {
+public:
+    explicit BattleSkillAbility(const compat::SkillData& skill)
+        : m_skillId(skill.id),
+          m_skillName(skill.name),
+          m_effects(skill.effects) {
+        id = "skill." + std::to_string(skill.id);
+        mpCost = static_cast<float>(skill.mpCost);
+        m_info.mpCost = skill.mpCost;
+        m_info.cooldownSeconds = 0.0f;
+    }
+
+    const std::string& getId() const override { return id; }
+    const ActivationInfo& getActivationInfo() const override { return m_info; }
+    void activate(urpg::ability::AbilitySystemComponent& source) override { commitAbility(source); }
+    void activate(urpg::ability::AbilitySystemComponent& source,
+                  const AbilityExecutionContext& context) override {
+        m_lastContext = context;
+        commitAbility(source);
+    }
+
+    int32_t skillId() const { return m_skillId; }
+    const std::string& skillName() const { return m_skillName; }
+    void applyResolvedEffects() const;
+
+private:
+    int32_t m_skillId = 0;
+    std::string m_skillName;
+    std::vector<compat::EffectData> m_effects;
+    ActivationInfo m_info;
+    AbilityExecutionContext m_lastContext;
+};
 
 int parseDatabaseId(const std::string& rawId) {
     try {
@@ -61,6 +94,101 @@ float colorChannel(uint32_t color, int shift) {
     return static_cast<float>((color >> shift) & 0xFFu) / 255.0f;
 }
 
+int32_t clampModifierStage(int32_t stage) {
+    return std::clamp(stage, -2, 2);
+}
+
+double modifierMultiplier(int32_t stage) {
+    if (stage >= 0) {
+        return 1.0 + (0.25 * static_cast<double>(stage));
+    }
+    return 1.0 / (1.0 + (0.25 * static_cast<double>(-stage)));
+}
+
+BattleParticipant::ModifierEffect* findModifierEffect(BattleParticipant& participant, int32_t paramId) {
+    auto it = std::find_if(participant.modifiers.begin(),
+                           participant.modifiers.end(),
+                           [paramId](const BattleParticipant::ModifierEffect& effect) {
+                               return effect.paramId == paramId;
+                           });
+    return it == participant.modifiers.end() ? nullptr : &(*it);
+}
+
+int32_t getModifierStage(const BattleParticipant& participant, int32_t paramId) {
+    const auto it = std::find_if(participant.modifiers.begin(),
+                                 participant.modifiers.end(),
+                                 [paramId](const BattleParticipant::ModifierEffect& effect) {
+                                     return effect.paramId == paramId;
+                                 });
+    return it == participant.modifiers.end() ? 0 : it->stages;
+}
+
+void addBuff(BattleParticipant& participant, int32_t paramId, int32_t turnsRemaining, int32_t stages) {
+    if (paramId < 0 || stages <= 0) {
+        return;
+    }
+
+    auto* existing = findModifierEffect(participant, paramId);
+    if (existing != nullptr) {
+        existing->stages = clampModifierStage(existing->stages + stages);
+        existing->turnsRemaining = std::max(existing->turnsRemaining, std::max(0, turnsRemaining));
+        return;
+    }
+
+    BattleParticipant::ModifierEffect effect;
+    effect.paramId = paramId;
+    effect.stages = clampModifierStage(stages);
+    effect.turnsRemaining = std::max(0, turnsRemaining);
+    participant.modifiers.push_back(effect);
+}
+
+void addDebuff(BattleParticipant& participant, int32_t paramId, int32_t turnsRemaining, int32_t stages) {
+    if (paramId < 0 || stages <= 0) {
+        return;
+    }
+
+    auto* existing = findModifierEffect(participant, paramId);
+    if (existing != nullptr) {
+        existing->stages = clampModifierStage(existing->stages - stages);
+        existing->turnsRemaining = std::max(existing->turnsRemaining, std::max(0, turnsRemaining));
+        return;
+    }
+
+    BattleParticipant::ModifierEffect effect;
+    effect.paramId = paramId;
+    effect.stages = clampModifierStage(-stages);
+    effect.turnsRemaining = std::max(0, turnsRemaining);
+    participant.modifiers.push_back(effect);
+}
+
+void removeBuff(BattleParticipant& participant, int32_t paramId) {
+    auto* existing = findModifierEffect(participant, paramId);
+    if (existing != nullptr && existing->stages > 0) {
+        existing->stages = 0;
+    }
+}
+
+void removeDebuff(BattleParticipant& participant, int32_t paramId) {
+    auto* existing = findModifierEffect(participant, paramId);
+    if (existing != nullptr && existing->stages < 0) {
+        existing->stages = 0;
+    }
+}
+
+void applyTurnEndEffects(BattleParticipant& participant) {
+    auto it = participant.modifiers.begin();
+    while (it != participant.modifiers.end()) {
+        if (it->turnsRemaining > 0) {
+            --it->turnsRemaining;
+        }
+        if (it->turnsRemaining == 0 || it->stages == 0) {
+            it = participant.modifiers.erase(it);
+            continue;
+        }
+        ++it;
+    }
+}
+
 void submitSolidQuad(urpg::SpriteBatcher& batcher,
                      float x,
                      float y,
@@ -104,29 +232,44 @@ int resolveParticipantParam(const BattleParticipant& participant, int32_t param_
             return 1;
         }
 
+        int base = 1;
         switch (param_index) {
         case 0:
-            return enemy->mhp;
+            base = enemy->mhp;
+            break;
         case 1:
-            return enemy->mmp;
+            base = enemy->mmp;
+            break;
         case 2:
-            return enemy->atk;
+            base = enemy->atk;
+            break;
         case 3:
-            return enemy->def;
+            base = enemy->def;
+            break;
         case 4:
-            return enemy->mat;
+            base = enemy->mat;
+            break;
         case 5:
-            return enemy->mdf;
+            base = enemy->mdf;
+            break;
         case 6:
-            return enemy->agi;
+            base = enemy->agi;
+            break;
         case 7:
-            return enemy->luk;
+            base = enemy->luk;
+            break;
         default:
-            return 1;
+            base = 1;
+            break;
         }
+
+        return std::max(1, static_cast<int>(std::lround(static_cast<double>(base) *
+                                                        modifierMultiplier(getModifierStage(participant, param_index)))));
     }
 
-    return dm.getActorParam(id, param_index, 1);
+    const int base = dm.getActorParam(id, param_index, 1);
+    return std::max(1, static_cast<int>(std::lround(static_cast<double>(base) *
+                                                    modifierMultiplier(getModifierStage(participant, param_index)))));
 }
 
 int resolveActionPriority(const BattleScene::BattleAction& action) {
@@ -177,6 +320,137 @@ urpg::battle::BattleDamageContext buildDamageContext(const BattleScene::BattleAc
         }
     }
 
+    return context;
+}
+
+void syncParticipantAbilityRuntime(BattleParticipant& participant) {
+    participant.abilitySystem.setAttribute("HP", static_cast<float>(participant.hp));
+    participant.abilitySystem.setAttribute("MP", static_cast<float>(participant.mp));
+    participant.abilitySystem.setAttribute("Attack", static_cast<float>(resolveParticipantParam(participant, 2)));
+    participant.abilitySystem.setAttribute("Defense", static_cast<float>(resolveParticipantParam(participant, 3)));
+    participant.abilitySystem.setAttribute("MagicAttack", static_cast<float>(resolveParticipantParam(participant, 4)));
+    participant.abilitySystem.setAttribute("MagicDefense", static_cast<float>(resolveParticipantParam(participant, 5)));
+    participant.abilitySystem.setAttribute("Agility", static_cast<float>(resolveParticipantParam(participant, 6)));
+    participant.abilitySystem.setAttribute("Luck", static_cast<float>(resolveParticipantParam(participant, 7)));
+
+    if (participant.isGuarding) {
+        participant.abilitySystem.addTag(urpg::ability::GameplayTag("State.Guarding"));
+    } else {
+        participant.abilitySystem.removeTag(urpg::ability::GameplayTag("State.Guarding"));
+    }
+}
+
+void pullParticipantAbilityRuntime(BattleParticipant& participant) {
+    participant.mp = std::max(0, static_cast<int>(participant.abilitySystem.getAttribute("MP", static_cast<float>(participant.mp))));
+}
+
+void persistParticipantRuntimeState(BattleParticipant& participant) {
+    if (participant.isEnemy) {
+        return;
+    }
+
+    const int actorId = parseDatabaseId(participant.id);
+    if (actorId <= 0) {
+        return;
+    }
+
+    auto& dm = compat::DataManager::instance();
+    dm.updateActorHp(actorId, participant.hp);
+    dm.updateActorMp(actorId, participant.mp);
+}
+
+BattleSkillAbility* findGrantedSkillAbility(BattleParticipant& participant, int32_t skill_id) {
+    for (const auto& ability : participant.abilitySystem.getAbilities()) {
+        auto* battleSkill = dynamic_cast<BattleSkillAbility*>(ability.get());
+        if (battleSkill != nullptr && battleSkill->skillId() == skill_id) {
+            return battleSkill;
+        }
+    }
+    return nullptr;
+}
+
+void BattleSkillAbility::applyResolvedEffects() const {
+    for (const auto& targetContext : m_lastContext.targets) {
+        auto* targetParticipant =
+            static_cast<BattleParticipant*>(const_cast<void*>(targetContext.runtimeHandle));
+        if (targetParticipant == nullptr) {
+            continue;
+        }
+
+        for (const auto& effect : m_effects) {
+            switch (effect.code) {
+            case 11: { // Recover HP
+                targetParticipant->hp = std::min(
+                    targetParticipant->maxHp,
+                    targetParticipant->hp + static_cast<int32_t>(effect.value2));
+                targetParticipant->DamagePopupValue = static_cast<float>(std::max(0, static_cast<int32_t>(effect.value2)));
+                targetParticipant->DamagePopupTimer = 1.0f;
+                targetParticipant->DamagePopupColor = 0x00FF00FFu;
+                break;
+            }
+            case 12: { // Recover MP
+                targetParticipant->mp = std::min(
+                    targetParticipant->maxMp,
+                    targetParticipant->mp + static_cast<int32_t>(effect.value2));
+                break;
+            }
+            case 21: { // Add state
+                const int32_t stateId = effect.dataId;
+                if (stateId > 0 &&
+                    std::find(targetParticipant->states.begin(), targetParticipant->states.end(), stateId) ==
+                        targetParticipant->states.end()) {
+                    targetParticipant->states.push_back(stateId);
+                }
+                break;
+            }
+            case 22: { // Remove state
+                const int32_t stateId = effect.dataId;
+                targetParticipant->states.erase(
+                    std::remove(targetParticipant->states.begin(), targetParticipant->states.end(), stateId),
+                    targetParticipant->states.end());
+                break;
+            }
+            case 31: { // Add buff
+                const int32_t turns = std::max(1, static_cast<int32_t>(std::lround(effect.value1)));
+                const int32_t stages = std::max(1, static_cast<int32_t>(std::lround(effect.value2 == 0.0 ? 1.0 : effect.value2)));
+                addBuff(*targetParticipant, effect.dataId, turns, stages);
+                break;
+            }
+            case 32: { // Add debuff
+                const int32_t turns = std::max(1, static_cast<int32_t>(std::lround(effect.value1)));
+                const int32_t stages = std::max(1, static_cast<int32_t>(std::lround(effect.value2 == 0.0 ? 1.0 : effect.value2)));
+                addDebuff(*targetParticipant, effect.dataId, turns, stages);
+                break;
+            }
+            case 33:
+                removeBuff(*targetParticipant, effect.dataId);
+                break;
+            case 34:
+                removeDebuff(*targetParticipant, effect.dataId);
+                break;
+            default:
+                break;
+            }
+        }
+    }
+}
+
+urpg::ability::GameplayAbility::AbilityExecutionContext buildAbilityExecutionContext(
+    BattleParticipant& subject,
+    const std::vector<BattleParticipant*>& targets) {
+    urpg::ability::GameplayAbility::AbilityExecutionContext context;
+    context.sourceRuntimeHandle = &subject;
+    context.sourceRuntimeId = subject.id;
+    for (auto* target : targets) {
+        if (target == nullptr) {
+            continue;
+        }
+        urpg::ability::GameplayAbility::AbilityExecutionTarget entry;
+        entry.abilitySystem = &target->abilitySystem;
+        entry.runtimeHandle = target;
+        entry.runtimeId = target->id;
+        context.targets.push_back(std::move(entry));
+    }
     return context;
 }
 
@@ -355,6 +629,11 @@ void BattleScene::setPhase(BattlePhase phase) {
     case BattlePhase::TURN_END:
         m_flowController.endTurn();
         m_turnCount = m_flowController.turnCount();
+        for (auto& participant : m_participants) {
+            applyTurnEndEffects(participant);
+            syncParticipantAbilityRuntime(participant);
+            persistParticipantRuntimeState(participant);
+        }
         break;
     case BattlePhase::VICTORY:
         m_flowController.markVictory();
@@ -411,6 +690,10 @@ std::optional<BattleDiagnosticsPreview> BattleScene::buildDiagnosticsPreview() c
 
 void BattleScene::onUpdate(float dt) {
     for (auto& p : m_participants) {
+        syncParticipantAbilityRuntime(p);
+        p.abilitySystem.update(dt);
+        pullParticipantAbilityRuntime(p);
+
         if (p.animator) {
             p.animator->update(dt);
         }
@@ -670,32 +953,35 @@ void BattleScene::openSkillWindow() {
     if (m_pendingAction.subject == nullptr) {
         return;
     }
-    const int actorId = parseDatabaseId(m_pendingAction.subject->id);
-    auto actor = actorId > 0 ? dm.getActor(actorId) : nullptr;
-    
-    if (actor) {
-        // In MZ, skills come from classes and traits. 
-        // Simplified: list first few skills for now
-        for (int skillId : {1, 2, 3, 4, 5}) {
-            auto skill = dm.getSkill(skillId);
-            if (skill) {
-                bool canUse = m_pendingAction.subject->mp >= skill->mpCost;
-                m_skillWindow->addItem(skill->name + " (" + std::to_string(skill->mpCost) + ")", [this, skillId, skill]() {
-                    m_pendingAction.isSkill = true;
-                    m_pendingAction.skillId = skillId;
-                    
-                    // MZ Scope Handling
-                    // 1=Single Enemy, 2=All Enemies, 7=Single Ally, 8=All Allies, 11=Self
-                    if (skill->scope == 11) {
-                        onTargetSelected(m_pendingAction.subject);
-                    } else if (skill->scope == 2 || skill->scope == 8) {
-                        onMultiTargetSelected(skill->scope == 2);
-                    } else {
-                        openTargetWindow(skill->scope <= 6); 
-                    }
-                }, canUse);
-            }
+
+    syncParticipantAbilityRuntime(*m_pendingAction.subject);
+
+    for (const auto& ability : m_pendingAction.subject->abilitySystem.getAbilities()) {
+        auto* battleSkill = dynamic_cast<BattleSkillAbility*>(ability.get());
+        if (battleSkill == nullptr) {
+            continue;
         }
+
+        const auto* skill = dm.getSkill(battleSkill->skillId());
+        if (skill == nullptr) {
+            continue;
+        }
+
+        const bool canUse = m_pendingAction.subject->abilitySystem.canActivateAbility(*ability);
+        m_skillWindow->addItem(skill->name + " (" + std::to_string(skill->mpCost) + ")", [this, skillId = battleSkill->skillId(), skill]() {
+            m_pendingAction.isSkill = true;
+            m_pendingAction.skillId = skillId;
+
+            // MZ Scope Handling
+            // 1=Single Enemy, 2=All Enemies, 7=Single Ally, 8=All Allies, 11=Self
+            if (skill->scope == 11) {
+                onTargetSelected(m_pendingAction.subject);
+            } else if (skill->scope == 2 || skill->scope == 8) {
+                onMultiTargetSelected(skill->scope == 2);
+            } else {
+                openTargetWindow(skill->scope <= 6);
+            }
+        }, canUse);
     }
     m_skillWindow->setVisible(true);
 }
@@ -808,9 +1094,11 @@ void BattleScene::executeAction(const BattleAction& action) {
 
     // Guard reset and processing...
     action.subject->isGuarding = false;
+    syncParticipantAbilityRuntime(*action.subject);
 
     if (action.command == "guard") {
         action.subject->isGuarding = true;
+        syncParticipantAbilityRuntime(*action.subject);
         if (m_logWindow) m_logWindow->setText(action.subject->name + " is guarding!");
         return;
     }
@@ -819,14 +1107,38 @@ void BattleScene::executeAction(const BattleAction& action) {
     std::string skillName = "Attack";
     const compat::SkillData* skillData = nullptr;
     const compat::ItemData* itemData = nullptr;
+    BattleSkillAbility* grantedAbility = nullptr;
+    const auto abilityContext = buildAbilityExecutionContext(*action.subject, currentTargets);
 
     // 2. Resolve Data
     if (action.isSkill && action.skillId != -1) {
         skillData = dm.getSkill(action.skillId);
         if (skillData) {
+            if (!action.subject->isEnemy) {
+                grantedAbility = findGrantedSkillAbility(*action.subject, action.skillId);
+                if (grantedAbility == nullptr) {
+                    if (m_logWindow) {
+                        m_logWindow->setText(action.subject->name + " cannot use " + skillData->name + " here.");
+                    }
+                    return;
+                }
+
+                if (!action.subject->abilitySystem.tryActivateAbility(*grantedAbility, abilityContext)) {
+                    pullParticipantAbilityRuntime(*action.subject);
+                    const auto& history = action.subject->abilitySystem.getAbilityExecutionHistory();
+                    const std::string reason = !history.empty() ? history.back().reason : "activation_blocked";
+                    if (m_logWindow) {
+                        m_logWindow->setText(action.subject->name + " cannot use " + skillData->name + " (" + reason + ").");
+                    }
+                    return;
+                }
+
+                pullParticipantAbilityRuntime(*action.subject);
+            } else {
+                action.subject->mp = std::max(0, action.subject->mp - skillData->mpCost);
+            }
             skillName = skillData->name;
-            action.subject->mp = std::max(0, action.subject->mp - skillData->mpCost);
-            
+
             // Phase 11 Polish: Log Skill Use
             if (m_logWindow) m_logWindow->setText(action.subject->name + " uses " + skillName + "!");
         }
@@ -925,22 +1237,25 @@ void BattleScene::executeAction(const BattleAction& action) {
             enqueueEffectCue(resultCue);
         }
 
-        // 3a. Persist state
-        if (!target->isEnemy) {
-            const int actorId = parseDatabaseId(target->id);
-            if (actorId > 0) {
-                dm.updateActorHp(actorId, target->hp);
-                dm.updateActorMp(actorId, target->mp);
+    }
+
+    if (grantedAbility != nullptr) {
+        grantedAbility->applyResolvedEffects();
+        for (auto* target : currentTargets) {
+            if (target == nullptr) {
+                continue;
             }
+            syncParticipantAbilityRuntime(*target);
         }
     }
 
-    if (!action.subject->isEnemy) {
-        const int actorId = parseDatabaseId(action.subject->id);
-        if (actorId > 0) {
-            dm.updateActorMp(actorId, action.subject->mp);
+    for (auto* target : currentTargets) {
+        if (target == nullptr) {
+            continue;
         }
+        persistParticipantRuntimeState(*target);
     }
+    persistParticipantRuntimeState(*action.subject);
 
     // 4. Visual/Log
     if (action.subject->animator) {
@@ -1107,6 +1422,7 @@ void BattleScene::setupTroop(int32_t troopId) {
 }
 
 void BattleScene::addActor(const std::string& id, const std::string& name, int hp, int mp, Vector2f pos, std::shared_ptr<urpg::Texture> texture) {
+    auto& dm = compat::DataManager::instance();
     BattleParticipant p;
     p.id = id;
     p.name = name;
@@ -1119,6 +1435,19 @@ void BattleScene::addActor(const std::string& id, const std::string& name, int h
         p.animator = std::make_unique<urpg::SpriteAnimator>(texture);
         p.animator->setRow(2); // Face Left (Right sheet column) for actors facing enemies
     }
+
+    const int actorId = parseDatabaseId(id);
+    if (actorId > 0) {
+        if (const auto* actorData = dm.getActor(actorId)) {
+            for (int32_t skillId : actorData->skills) {
+                if (const auto* skill = dm.getSkill(skillId)) {
+                    p.abilitySystem.grantAbility(std::make_shared<BattleSkillAbility>(*skill));
+                }
+            }
+        }
+    }
+
+    syncParticipantAbilityRuntime(p);
     
     m_participants.push_back(std::move(p));
 }
@@ -1136,6 +1465,8 @@ void BattleScene::addEnemy(const std::string& id, const std::string& name, int h
         // Enemis usually use a single frame or different config
         p.animator = std::make_unique<urpg::SpriteAnimator>(texture);
     }
+
+    syncParticipantAbilityRuntime(p);
     
     m_participants.push_back(std::move(p));
 }

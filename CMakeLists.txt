@@ -242,6 +242,9 @@ add_library(urpg_core
     editor/perf/perf_diagnostics_panel.cpp
     editor/spatial/elevation_brush_panel.cpp
     editor/spatial/prop_placement_panel.cpp
+    editor/spatial/map_ability_binding_panel.cpp
+    editor/spatial/spatial_ability_canvas_panel.cpp
+    editor/spatial/spatial_authoring_workspace.cpp
     editor/sprite/sprite_animation_preview_panel.cpp
     editor/accessibility/accessibility_panel.cpp
     editor/accessibility/accessibility_menu_adapter.cpp

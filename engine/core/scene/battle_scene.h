@@ -1,6 +1,7 @@
 #pragma once
 
 #include "scene_manager.h"
+#include "engine/core/ability/ability_system_component.h"
 #include "engine/core/battle/battle_core.h"
 #include "engine/core/math/vector2.h"
 #include "engine/core/presentation/effects/effect_cue.h"
@@ -18,6 +19,12 @@ namespace urpg::scene {
  * @brief Represents a participant in the battle (Actor or Enemy).
  */
 struct BattleParticipant {
+    struct ModifierEffect {
+        int32_t paramId = 0;
+        int32_t stages = 0;
+        int32_t turnsRemaining = 0;
+    };
+
     std::string id;
     std::string name;
     int hp;
@@ -27,6 +34,7 @@ struct BattleParticipant {
     Vector2f position;
     std::unique_ptr<urpg::SpriteAnimator> animator;
     bool isEnemy;
+    urpg::ability::AbilitySystemComponent abilitySystem;
         
         // Phase 9: Visual FX
         float DamagePopupValue = 0;
@@ -35,6 +43,7 @@ struct BattleParticipant {
         
         // Status Effects
         std::vector<int32_t> states; // IDs from states.json
+        std::vector<ModifierEffect> modifiers;
         bool isGuarding = false;
     };
 

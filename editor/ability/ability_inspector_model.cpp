@@ -48,6 +48,76 @@ void AbilityInspectorModel::refresh(const AbilitySystemComponent& asc) {
 void AbilityInspectorModel::clear() {
     m_abilities.clear();
     m_active_tags.clear();
+    m_selected_ability_id.reset();
+}
+
+bool AbilityInspectorModel::selectAbility(size_t index) {
+    if (index >= m_abilities.size()) {
+        return false;
+    }
+
+    const std::string next_id = m_abilities[index].name;
+    if (m_selected_ability_id.has_value() && *m_selected_ability_id == next_id) {
+        return true;
+    }
+
+    m_selected_ability_id = next_id;
+    return true;
+}
+
+std::optional<size_t> AbilityInspectorModel::selectedAbilityIndex() const {
+    if (!m_selected_ability_id.has_value()) {
+        return std::nullopt;
+    }
+
+    for (size_t index = 0; index < m_abilities.size(); ++index) {
+        if (m_abilities[index].name == *m_selected_ability_id) {
+            return index;
+        }
+    }
+
+    return std::nullopt;
+}
+
+std::optional<std::string> AbilityInspectorModel::selectedAbilityId() const {
+    if (!selectedAbilityIndex().has_value()) {
+        return std::nullopt;
+    }
+
+    return m_selected_ability_id;
+}
+
+const AbilityInfo* AbilityInspectorModel::selectedAbility() const {
+    const auto selected_index = selectedAbilityIndex();
+    if (!selected_index.has_value()) {
+        return nullptr;
+    }
+
+    return &m_abilities[*selected_index];
+}
+
+const urpg::ability::GameplayAbility* AbilityInspectorModel::findGrantedAbility(const AbilitySystemComponent& asc) const {
+    const auto selected_id = selectedAbilityId();
+    if (!selected_id.has_value()) {
+        return nullptr;
+    }
+
+    for (const auto& ability : asc.getAbilities()) {
+        if (ability && ability->getId() == *selected_id) {
+            return ability.get();
+        }
+    }
+
+    return nullptr;
+}
+
+bool AbilityInspectorModel::previewActivateSelected(AbilitySystemComponent& asc) const {
+    const auto* ability = findGrantedAbility(asc);
+    if (ability == nullptr) {
+        return false;
+    }
+
+    return asc.tryActivateAbility(*const_cast<urpg::ability::GameplayAbility*>(ability));
 }
 
 AbilityDiagnosticsSnapshot AbilityInspectorModel::buildDiagnosticsSnapshot(const AbilitySystemComponent& asc) const {
