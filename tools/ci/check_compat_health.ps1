@@ -62,8 +62,13 @@ else {
         if (-not $cmd.PSObject.Properties.Name.Contains("name")) {
           Add-Issue "fixture_schema" "ERROR" "Fixture '$($file.Name)': a command entry is missing a 'name' field."
         }
-        if (-not $cmd.PSObject.Properties.Name.Contains("script")) {
-          Add-Issue "fixture_schema" "WARN" "Fixture '$($file.Name)': command '$($cmd.name)' is missing a 'script' field."
+        $hasScript = $cmd.PSObject.Properties.Name.Contains("script")
+        $hasJs = $cmd.PSObject.Properties.Name.Contains("js")
+        if (-not $hasScript -and -not $hasJs) {
+          Add-Issue "fixture_schema" "WARN" "Fixture '$($file.Name)': command '$($cmd.name)' is missing both 'script' and 'js' command bodies."
+        }
+        if ($hasJs -and -not $cmd.PSObject.Properties.Name.Contains("entry")) {
+          Add-Issue "fixture_schema" "WARN" "Fixture '$($file.Name)': command '$($cmd.name)' uses a 'js' body but is missing an 'entry' field."
         }
       }
     }
@@ -76,9 +81,19 @@ else {
       $knownFixtureNames = $fixtureFiles | ForEach-Object {
         [System.IO.Path]::GetFileNameWithoutExtension($_.Name)
       }
+      $allowedMissingDependencies = @()
+      if ($parsed.PSObject.Properties.Name.Contains("healthExpectations") -and
+          $parsed.healthExpectations.PSObject.Properties.Name.Contains("allowMissingDependencies") -and
+          ($parsed.healthExpectations.allowMissingDependencies -is [System.Array] -or
+           $parsed.healthExpectations.allowMissingDependencies -is [System.Collections.Generic.List[object]])) {
+        $allowedMissingDependencies = @($parsed.healthExpectations.allowMissingDependencies)
+      }
+
       foreach ($dep in $parsed.dependencies) {
         if ($dep -notin $knownFixtureNames) {
-          Add-Issue "dependency_drift" "WARN" "Fixture '$($file.Name)' declares dependency '$dep' which is not present in the curated corpus. This may indicate a dependency drift or a missing fixture."
+          if ($dep -notin $allowedMissingDependencies) {
+            Add-Issue "dependency_drift" "WARN" "Fixture '$($file.Name)' declares dependency '$dep' which is not present in the curated corpus. This may indicate a dependency drift or a missing fixture."
+          }
         }
       }
     }

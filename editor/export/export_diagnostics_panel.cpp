@@ -22,7 +22,7 @@ void ExportDiagnosticsPanel::render() {
 
     urpg::exporting::ExportValidator validator;
     urpg::tools::ExportPackager packager;
-    snapshot["target"] = validator.buildReportJson({}, cfg.target)["target"];
+    snapshot["target"] = validator.buildReportJson(std::vector<std::string>{}, cfg.target)["target"];
     snapshot["outputDir"] = cfg.outputDir;
 
     const auto validation = packager.validateBeforeExport(cfg);

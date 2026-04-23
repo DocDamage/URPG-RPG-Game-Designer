@@ -161,6 +161,21 @@ TEST_CASE("VisualRegressionHarness buildReportJson contains expected fields", "[
     REQUIRE(report["errorPercentage"] == 12.5f);
 }
 
+TEST_CASE("VisualRegressionHarness exposes stable backend names", "[testing][visual_regression]") {
+    REQUIRE(VisualRegressionHarness::captureBackendToString(CaptureBackend::OpenGL) == "OpenGL");
+    REQUIRE(VisualRegressionHarness::captureBackendToString(CaptureBackend::Headless) == "Headless");
+}
+
+TEST_CASE("VisualRegressionHarness generic capture API rejects unsupported headless pixel capture",
+          "[testing][visual_regression]") {
+    VisualRegressionHarness harness;
+    std::string errorMessage;
+
+    const auto frame = harness.captureFrame(CaptureBackend::Headless, {}, 4, 4, &errorMessage);
+    REQUIRE_FALSE(frame.has_value());
+    REQUIRE(errorMessage.find("Headless backend") != std::string::npos);
+}
+
 TEST_CASE("VisualRegressionHarness approval script writes a golden consumable by the harness",
           "[testing][visual_regression]") {
     const std::filesystem::path tempRoot = std::filesystem::temp_directory_path() / "urpg_visual_regression_approval";

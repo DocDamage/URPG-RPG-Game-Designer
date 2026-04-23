@@ -1,6 +1,6 @@
 # 2.5D RPG Template Spec
 
-Status Date: 2026-04-20  
+Status Date: 2026-04-23  
 Authority: canonical template spec for `2_5d_rpg`
 
 ## Purpose
@@ -30,9 +30,9 @@ Early first-class 2.5D projects using the raycast-capable presentation stack wit
 
 ## Main Blockers
 
-1. **Raycast art pipeline** — Canonical pipeline for authoring and importing raycast-compatible art assets is not established.
-2. **Map authoring adapters at production grade** — Editor workflows for 2.5D map construction are not landed.
-3. **Template-specific export validation** — Export-time checks for 2.5D mode correctness and performance are undefined.
+1. **Raycast art pipeline** — Canonical pipeline for authoring raycast-compatible assets is not established.
+2. **Map authoring adapters at production grade** — Editor workflows for 2.5D map construction are not landed at production grade.
+3. **Template-specific export validation** — Export-time correctness and performance checks for 2.5D mode are undefined.
 
 ## Promotion Path
 

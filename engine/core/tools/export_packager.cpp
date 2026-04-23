@@ -3,10 +3,15 @@
 #include "engine/core/security/resource_protector.h"
 
 #include <algorithm>
+#include <cctype>
+#include <cstdint>
 #include <filesystem>
 #include <fstream>
+#include <iomanip>
+#include <map>
 #include <nlohmann/json.hpp>
-#include <cstdint>
+#include <set>
+#include <sstream>
 #include <system_error>
 
 namespace urpg::tools {
@@ -14,6 +19,9 @@ namespace urpg::tools {
 namespace {
 
 constexpr char kBundleMagic[] = "URPGPCK1";
+constexpr char kAssetDiscoveryManifestPath[] = "export/asset_discovery_manifest.json";
+constexpr char kAssetDiscoveryFormat[] = "URPG_PROJECT_ASSET_DISCOVERY_V1";
+constexpr char kBundleSignatureMode[] = "sha256_keyed_bundle_v1";
 
 struct BundlePayload {
     std::string path;
@@ -23,6 +31,13 @@ struct BundlePayload {
     bool compressed = false;
     bool obfuscated = false;
     std::string integrityTag;
+};
+
+struct AssetDiscoveryRoot {
+    std::filesystem::path sourcePath;
+    std::string configuredLabel;
+    std::string bundlePrefix;
+    bool configuredFromAbsolutePath = false;
 };
 
 std::string makeWebBootstrapHtml() {
@@ -169,8 +184,41 @@ std::string bundleObfuscationKey(ExportTarget target) {
     }
 }
 
+std::string bundleSignatureKey(ExportTarget target) {
+    switch (target) {
+        case ExportTarget::Windows_x64: return "urpg-export-signature-win-v1";
+        case ExportTarget::Linux_x64: return "urpg-export-signature-linux-v1";
+        case ExportTarget::macOS_Universal: return "urpg-export-signature-macos-v1";
+        case ExportTarget::Web_WASM: return "urpg-export-signature-web-v1";
+        default: return "urpg-export-signature-v1";
+    }
+}
+
 std::vector<uint8_t> toBytes(const std::string& text) {
     return std::vector<uint8_t>(text.begin(), text.end());
+}
+
+std::string sanitizeBundleSegment(std::string value) {
+    for (auto& ch : value) {
+        const unsigned char byte = static_cast<unsigned char>(ch);
+        if (!std::isalnum(byte)) {
+            ch = '_';
+        }
+    }
+
+    value.erase(
+        std::unique(value.begin(), value.end(),
+                    [](char lhs, char rhs) { return lhs == '_' && rhs == '_'; }),
+        value.end());
+
+    while (!value.empty() && value.front() == '_') {
+        value.erase(value.begin());
+    }
+    while (!value.empty() && value.back() == '_') {
+        value.pop_back();
+    }
+
+    return value.empty() ? "root" : value;
 }
 
 std::string makePayloadIntegrityScope(const BundlePayload& payload) {
@@ -206,6 +254,58 @@ std::filesystem::path normalizedAssetRoot(const ExportConfig& config) {
         return std::filesystem::path(config.normalizedAssetRootOverride);
     }
     return repoRootPath() / "imports" / "normalized";
+}
+
+std::vector<AssetDiscoveryRoot> assetDiscoveryRoots(const ExportConfig& config) {
+    std::vector<AssetDiscoveryRoot> roots;
+    if (!config.enableAutoAssetDiscovery) {
+        return roots;
+    }
+
+    std::vector<std::string> configuredRoots = config.assetDiscoveryRoots;
+    if (configuredRoots.empty()) {
+        configuredRoots = {
+            "assets",
+            "audio",
+            "fonts",
+            "images",
+            "content/projects",
+            "content/scenes",
+            "content/localization",
+            "content/ui",
+        };
+    }
+
+    const auto repoRoot = repoRootPath();
+    for (std::size_t index = 0; index < configuredRoots.size(); ++index) {
+        const std::filesystem::path configuredPath(configuredRoots[index]);
+        const bool absolute = configuredPath.is_absolute();
+        const auto resolvedPath = absolute ? configuredPath : (repoRoot / configuredPath).lexically_normal();
+
+        std::string configuredLabel;
+        std::string bundlePrefix;
+        if (absolute) {
+            std::ostringstream label;
+            label << "configured_absolute_root_" << std::setw(2) << std::setfill('0') << (index + 1u);
+            configuredLabel = label.str();
+
+            std::ostringstream prefix;
+            prefix << "project_assets/root_" << std::setw(2) << std::setfill('0') << (index + 1u);
+            bundlePrefix = prefix.str();
+        } else {
+            configuredLabel = configuredPath.generic_string();
+            bundlePrefix = "project_assets/" + sanitizeBundleSegment(configuredLabel);
+        }
+
+        roots.push_back({
+            resolvedPath,
+            configuredLabel,
+            bundlePrefix,
+            absolute,
+        });
+    }
+
+    return roots;
 }
 
 std::vector<uint8_t> readFileBytes(const std::filesystem::path& path) {
@@ -362,6 +462,117 @@ std::vector<BundlePayload> collectPromotedAssetBundlePayloads(const ExportConfig
     return payloads;
 }
 
+nlohmann::json buildAssetDiscoveryManifest(const ExportConfig& config,
+                                           const std::vector<AssetDiscoveryRoot>& discoveryRoots,
+                                           const std::vector<BundlePayload>& payloads) {
+    nlohmann::json manifest;
+    manifest["format"] = kAssetDiscoveryFormat;
+    manifest["mode"] = config.enableAutoAssetDiscovery ? "enabled" : "disabled";
+    manifest["roots"] = nlohmann::json::array();
+    manifest["assets"] = nlohmann::json::array();
+
+    std::map<std::string, std::size_t> rootCounts;
+    for (const auto& payload : payloads) {
+        const auto separator = payload.path.find('/', std::string("project_assets/").size());
+        const std::string rootPrefix =
+            separator == std::string::npos ? payload.path : payload.path.substr(0, separator);
+        rootCounts[rootPrefix] += 1u;
+
+        manifest["assets"].push_back({
+            {"path", payload.path},
+            {"kind", payload.kind},
+            {"rawSize", payload.rawSize},
+            {"sourceRootPrefix", rootPrefix},
+        });
+    }
+
+    for (const auto& root : discoveryRoots) {
+        manifest["roots"].push_back({
+            {"configuredLabel", root.configuredLabel},
+            {"bundlePrefix", root.bundlePrefix},
+            {"exists", std::filesystem::exists(root.sourcePath)},
+            {"isDirectory", std::filesystem::is_directory(root.sourcePath)},
+            {"configuredFromAbsolutePath", root.configuredFromAbsolutePath},
+            {"assetCount", rootCounts[root.bundlePrefix]},
+        });
+    }
+
+    manifest["discoveredAssetCount"] = payloads.size();
+    return manifest;
+}
+
+std::vector<BundlePayload> collectAutoDiscoveredProjectAssetPayloads(const ExportConfig& config,
+                                                                     nlohmann::json& discoveryManifest) {
+    const auto discoveryRoots = assetDiscoveryRoots(config);
+    std::vector<BundlePayload> payloads;
+    std::set<std::string> seenBundlePaths;
+
+    for (const auto& root : discoveryRoots) {
+        std::vector<std::filesystem::path> files;
+        if (std::filesystem::exists(root.sourcePath) && std::filesystem::is_directory(root.sourcePath)) {
+            for (const auto& entry : std::filesystem::recursive_directory_iterator(root.sourcePath)) {
+                if (entry.is_regular_file()) {
+                    files.push_back(entry.path());
+                }
+            }
+        } else if (std::filesystem::exists(root.sourcePath) && std::filesystem::is_regular_file(root.sourcePath)) {
+            files.push_back(root.sourcePath);
+        }
+
+        std::sort(files.begin(), files.end());
+        for (const auto& filePath : files) {
+            std::filesystem::path relativePath;
+            if (std::filesystem::is_directory(root.sourcePath)) {
+                relativePath = std::filesystem::relative(filePath, root.sourcePath);
+            } else {
+                relativePath = filePath.filename();
+            }
+
+            const auto bundlePath = root.bundlePrefix + "/" + relativePath.generic_string();
+            if (!seenBundlePaths.insert(bundlePath).second) {
+                continue;
+            }
+
+            payloads.push_back({
+                bundlePath,
+                "auto_discovered_asset",
+                readFileBytes(filePath),
+                0,
+                false,
+                false,
+                {},
+            });
+        }
+    }
+
+    for (auto& payload : payloads) {
+        payload.rawSize = payload.bytes.size();
+    }
+    discoveryManifest = buildAssetDiscoveryManifest(config, discoveryRoots, payloads);
+    return payloads;
+}
+
+std::vector<std::uint8_t> concatPayloadBytes(const std::vector<BundlePayload>& payloads) {
+    std::vector<std::uint8_t> bytes;
+    std::size_t totalSize = 0;
+    for (const auto& payload : payloads) {
+        totalSize += payload.bytes.size();
+    }
+    bytes.reserve(totalSize);
+
+    for (const auto& payload : payloads) {
+        bytes.insert(bytes.end(), payload.bytes.begin(), payload.bytes.end());
+    }
+    return bytes;
+}
+
+nlohmann::json buildBundleSignatureView(const nlohmann::json& manifest) {
+    auto signatureView = manifest;
+    signatureView.erase("payloadOffset");
+    signatureView.erase("bundleSignature");
+    return signatureView;
+}
+
 std::vector<BundlePayload> buildBundlePayloads(const ExportConfig& config) {
     std::vector<BundlePayload> entries;
 
@@ -421,6 +632,19 @@ std::vector<BundlePayload> buildBundlePayloads(const ExportConfig& config) {
     entries.insert(entries.end(), repoOwnedPayloads.begin(), repoOwnedPayloads.end());
     auto promotedAssetBundlePayloads = collectPromotedAssetBundlePayloads(config);
     entries.insert(entries.end(), promotedAssetBundlePayloads.begin(), promotedAssetBundlePayloads.end());
+    nlohmann::json assetDiscoveryManifest;
+    auto autoDiscoveredPayloads = collectAutoDiscoveredProjectAssetPayloads(config, assetDiscoveryManifest);
+    entries.insert(entries.end(), autoDiscoveredPayloads.begin(), autoDiscoveredPayloads.end());
+    const auto assetDiscoveryText = assetDiscoveryManifest.dump(2) + "\n";
+    entries.push_back({
+        kAssetDiscoveryManifestPath,
+        "asset_discovery_manifest",
+        toBytes(assetDiscoveryText),
+        assetDiscoveryText.size(),
+        false,
+        false,
+        {},
+    });
 
     urpg::security::ResourceProtector protector;
     const std::string obfuscationKey = bundleObfuscationKey(config.target);
@@ -533,8 +757,11 @@ std::vector<std::string> ExportPackager::bundleAssets(const ExportConfig& config
     manifest["format"] = "URPG_BOUNDED_EXPORT_BUNDLE_V1";
     manifest["bundleMode"] = "bounded_export_smoke";
     manifest["target"] = targetToString(config.target);
+    manifest["assetDiscoveryMode"] = config.enableAutoAssetDiscovery ? "project_root_scan_v1" : "disabled";
     manifest["protectionMode"] = config.compressAssets ? "rle_xor" : "none";
     manifest["integrityMode"] = "fnv1a64_keyed";
+    manifest["signatureMode"] = kBundleSignatureMode;
+    manifest["bundleSignature"] = std::string(64, '0');
     manifest["entries"] = nlohmann::json::array();
 
     std::uint32_t payloadOffset = 0;
@@ -559,6 +786,13 @@ std::vector<std::string> ExportPackager::bundleAssets(const ExportConfig& config
         finalizedManifestJson = manifest.dump();
     }
 
+    urpg::security::ResourceProtector protector;
+    manifest["bundleSignature"] = protector.computeCryptographicSignature(
+        buildBundleSignatureView(manifest).dump(),
+        concatPayloadBytes(payloads),
+        bundleSignatureKey(config.target));
+    finalizedManifestJson = manifest.dump();
+
     pck.write(kBundleMagic, sizeof(kBundleMagic) - 1);
     appendUint32LE(pck, static_cast<std::uint32_t>(finalizedManifestJson.size()));
     pck.write(finalizedManifestJson.data(), static_cast<std::streamsize>(finalizedManifestJson.size()));
@@ -568,10 +802,15 @@ std::vector<std::string> ExportPackager::bundleAssets(const ExportConfig& config
     }
 
     log += "Wrote bounded asset bundle with " + std::to_string(payloads.size()) + " staged payload(s).\n";
+    const auto discoveredAssetCount = std::count_if(
+        payloads.begin(), payloads.end(),
+        [](const BundlePayload& payload) { return payload.kind == "auto_discovered_asset"; });
+    log += "Auto-discovered " + std::to_string(discoveredAssetCount) + " project asset(s).\n";
     if (config.compressAssets) {
         log += "Applied lightweight RLE+XOR protection to bundle payloads.\n";
     }
     log += "Applied lightweight keyed integrity tags to bundle payloads.\n";
+    log += "Applied keyed SHA-256 bundle signature across manifest metadata and staged payload bytes.\n";
     return { "data.pck" };
 }
 

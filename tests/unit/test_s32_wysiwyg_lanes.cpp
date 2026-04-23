@@ -10,8 +10,9 @@
 // S32-T06: Achievement trophy export pipeline scope wording.
 //
 // These tests verify that the readiness record accurately reflects the bounded
-// scope of landed work and explicitly documents deferred lanes. If the mainGaps
-// wording is stripped or the deferred acknowledgment removed, these tests fail.
+// scope of landed work and explicitly documents the remaining backlog. If the
+// wording drifts back to vague placeholders or stale deferred claims, these
+// tests fail.
 
 #include <catch2/catch_test_macros.hpp>
 #include <nlohmann/json.hpp>
@@ -67,26 +68,27 @@ bool hasGapContaining(const json& entry, const std::string& keyword) {
 // S32-T01/T02 — Character Identity lifecycle and appearance pipeline
 // ============================================================================
 
-TEST_CASE("character_identity: readiness record acknowledges Create-a-Character deferred scope",
+TEST_CASE("character_identity: readiness record acknowledges bounded runtime creator lane is landed",
           "[wysiwyg][character][s32t01]") {
     const json readiness = loadReadinessStatus();
     const json sub = findSubsystem(readiness, "character_identity");
 
     REQUIRE(!sub.empty());
     REQUIRE(sub.value("status", "") == "PARTIAL");
-
-    // The mainGaps must acknowledge the Create-a-Character workflow as deferred
-    REQUIRE(hasGapContaining(sub, "Create-a-Character"));
+    REQUIRE(sub.value("summary", "").find("runtime creator screen") != std::string::npos);
 }
 
-TEST_CASE("character_identity: readiness record acknowledges appearance preview pipeline as deferred",
+TEST_CASE("character_identity: readiness record narrows remaining gaps to rules/persistence/compositor depth",
           "[wysiwyg][character][s32t02]") {
     const json readiness = loadReadinessStatus();
     const json sub = findSubsystem(readiness, "character_identity");
 
     REQUIRE(!sub.empty());
-    // The mainGaps must distinguish the appearance preview pipeline as a separate deferred item
-    REQUIRE(hasGapContaining(sub, "appearance preview pipeline"));
+    REQUIRE(hasGapContaining(sub, "free-text naming"));
+    REQUIRE(hasGapContaining(sub, "save/load persistence"));
+    REQUIRE(hasGapContaining(sub, "asset compositor"));
+    REQUIRE_FALSE(hasGapContaining(sub, "no creator-screen runtime"));
+    REQUIRE_FALSE(hasGapContaining(sub, "appearance preview pipeline"));
 }
 
 TEST_CASE("character_identity: landed evidence flags are all set",
@@ -182,18 +184,18 @@ TEST_CASE("visual_regression_harness: mainGaps entries have specific wording (no
 }
 
 // ============================================================================
-// S32-T05 — Export validator crypto hardening roadmap in scope
+// S32-T05 — Export validator signature-enforcement roadmap in scope
 // ============================================================================
 
-TEST_CASE("export_validator: mainGaps acknowledges crypto hardening as mandatory pre-READY backlog",
+TEST_CASE("export_validator: mainGaps acknowledges runtime-side signature enforcement as mandatory pre-READY backlog",
           "[wysiwyg][export][s32t05]") {
     const json readiness = loadReadinessStatus();
     const json sub = findSubsystem(readiness, "export_validator");
 
     REQUIRE(!sub.empty());
     REQUIRE(sub.value("status", "") == "PARTIAL");
-    // The mainGaps must call out stronger crypto as mandatory current backlog
-    REQUIRE(hasGapContaining(sub, "cryptographic"));
+    // The mainGaps must still call out stronger runtime-side signature enforcement
+    REQUIRE(hasGapContaining(sub, "signature"));
     REQUIRE(hasGapContaining(sub, "pre-READY"));
 }
 

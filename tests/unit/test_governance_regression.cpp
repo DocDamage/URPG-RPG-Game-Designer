@@ -4,6 +4,7 @@
 #include <regex>
 #include <string>
 #include <vector>
+#include <set>
 
 // ============================================================================
 // S25-T05/T06/T07 — Governance Gate Regression Tests
@@ -126,6 +127,39 @@ bool statusDateMatchesReadiness(const std::string& docText,
     return m[1].str() == readinessDate;
 }
 
+bool compatCommandHasSupportedBody(const nlohmann::json& command) {
+    return command.contains("script") || command.contains("js");
+}
+
+bool compatJsCommandMissingEntry(const nlohmann::json& command) {
+    return command.contains("js") && !command.contains("entry");
+}
+
+std::vector<std::string> findUnexpectedCompatDependencies(
+    const nlohmann::json& fixture,
+    const std::set<std::string>& knownFixtureNames) {
+    std::set<std::string> allowedMissing;
+    if (fixture.contains("healthExpectations") &&
+        fixture["healthExpectations"].contains("allowMissingDependencies")) {
+        for (const auto& dep : fixture["healthExpectations"]["allowMissingDependencies"]) {
+            allowedMissing.insert(dep.get<std::string>());
+        }
+    }
+
+    std::vector<std::string> unexpected;
+    if (!fixture.contains("dependencies")) {
+        return unexpected;
+    }
+
+    for (const auto& dep : fixture["dependencies"]) {
+        const std::string depName = dep.get<std::string>();
+        if (!knownFixtureNames.contains(depName) && !allowedMissing.contains(depName)) {
+            unexpected.push_back(depName);
+        }
+    }
+    return unexpected;
+}
+
 } // namespace
 
 // ----------------------------------------------------------------------------
@@ -203,6 +237,74 @@ TEST_CASE("PARTIAL subsystem with false evidence fields is not flagged", "[gover
 
     const auto bad = findReadySubsystemsWithFalseEvidence(readiness);
     REQUIRE(bad.empty());
+}
+
+TEST_CASE("compat health accepts QuickJS-backed fixture commands without script bodies",
+          "[governance][s25]") {
+    const nlohmann::json command = {
+        {"name", "countArgsViaJs"},
+        {"entry", "coreCountArgsRuntime"},
+        {"js", "// @urpg-export coreCountArgsRuntime arg_count"}
+    };
+
+    REQUIRE(compatCommandHasSupportedBody(command));
+    REQUIRE_FALSE(compatJsCommandMissingEntry(command));
+}
+
+TEST_CASE("compat health flags fixture commands that have neither script nor js bodies",
+          "[governance][s25]") {
+    const nlohmann::json command = {
+        {"name", "brokenCommand"}
+    };
+
+    REQUIRE_FALSE(compatCommandHasSupportedBody(command));
+}
+
+TEST_CASE("compat health flags QuickJS-backed fixture commands missing entry",
+          "[governance][s25]") {
+    const nlohmann::json command = {
+        {"name", "brokenJsCommand"},
+        {"js", "// @urpg-export missingEntry const 1"}
+    };
+
+    REQUIRE(compatCommandHasSupportedBody(command));
+    REQUIRE(compatJsCommandMissingEntry(command));
+}
+
+TEST_CASE("compat health allows explicitly declared health-only missing dependencies",
+          "[governance][s25]") {
+    const nlohmann::json fixture = nlohmann::json::parse(R"({
+        "name": "URPG_DependencyDrift_Fixture",
+        "dependencies": ["VisuStella_CoreEngine_MZ", "URPG_NonExistent_DependencyTarget"],
+        "healthExpectations": {
+            "allowMissingDependencies": ["URPG_NonExistent_DependencyTarget"]
+        }
+    })");
+
+    const std::set<std::string> knownFixtureNames = {
+        "URPG_DependencyDrift_Fixture",
+        "VisuStella_CoreEngine_MZ"
+    };
+
+    const auto unexpected = findUnexpectedCompatDependencies(fixture, knownFixtureNames);
+    REQUIRE(unexpected.empty());
+}
+
+TEST_CASE("compat health still flags unexpected missing dependencies without allowlist",
+          "[governance][s25]") {
+    const nlohmann::json fixture = nlohmann::json::parse(R"({
+        "name": "BrokenFixture",
+        "dependencies": ["VisuStella_CoreEngine_MZ", "URPG_TrulyMissing_Dependency"]
+    })");
+
+    const std::set<std::string> knownFixtureNames = {
+        "BrokenFixture",
+        "VisuStella_CoreEngine_MZ"
+    };
+
+    const auto unexpected = findUnexpectedCompatDependencies(fixture, knownFixtureNames);
+    REQUIRE(unexpected.size() == 1);
+    REQUIRE(unexpected.front() == "URPG_TrulyMissing_Dependency");
 }
 
 // ----------------------------------------------------------------------------

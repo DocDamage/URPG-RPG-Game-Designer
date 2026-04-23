@@ -1,6 +1,6 @@
 # Metroidvania Lite Template Spec
 
-Status Date: 2026-04-20  
+Status Date: 2026-04-23  
 Authority: canonical template spec for `metroidvania_lite`
 
 ## Purpose
@@ -14,8 +14,6 @@ The `metroidvania_lite` template covers 2D action-exploration games with ability
 | `presentation_runtime` | Real-time rendering, camera, and spatial updates for action exploration. |
 | `save_data_core` | Persistent map unlock state, ability unlocks, and checkpoint recovery. |
 | `gameplay_ability_framework` | Traversal abilities (dash, double-jump, wall-jump) and combat skills. |
-| `traversal_mechanics` *(future)* | Dedicated dash, wall-jump, and environmental interaction contracts. |
-| `map_unlock_system` *(future)* | Minimap, room-reveal, and fast-travel gating. |
 
 ## Cross-Cutting Minimum Bars
 
@@ -29,13 +27,13 @@ The `metroidvania_lite` template covers 2D action-exploration games with ability
 
 ## Safe Scope Today
 
-Early first-class metroidvania work using `presentation_runtime` and `gameplay_ability_framework`. Current evidence supports real-time movement and simple combat slices, but production-grade traversal, map-gating, and progression contracts are still required before broader release-facing claims.
+2D action exploration using `presentation_runtime` and `gameplay_ability_framework`. Current evidence supports real-time movement and simple combat slices, but production-grade traversal, map-gating, and progression contracts are still required before broader release-facing claims.
 
 ## Main Blockers
 
-1. **Traversal mechanics** — Dash, wall-jump, and environmental interaction logic are not defined or landed.
-2. **Map unlock system** — Room-reveal, minimap, and fast-travel gating are undefined.
-3. **Ability-gated progression** — Canonical contracts for locking/unlocking world regions by ability are not established.
+1. **Traversal mechanics** — Dash, wall-jump, and ability-gated movement are not defined or landed.
+2. **Map unlock system** — Room-unlock and map-reveal mechanics are not established.
+3. **Ability-gated progression** — Progression gates driven by `gameplay_ability_framework` remain future work.
 
 ## Promotion Path
 

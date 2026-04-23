@@ -30,6 +30,8 @@ namespace urpg::tools {
         std::string runtimeBinaryPath;
         std::string assetBundleManifestRootOverride;
         std::string normalizedAssetRootOverride;
+        std::vector<std::string> assetDiscoveryRoots;
+        bool enableAutoAssetDiscovery = true;
         bool obfuscateScripts = false;
         bool compressAssets = true;
         bool includeDebugSymbols = false;

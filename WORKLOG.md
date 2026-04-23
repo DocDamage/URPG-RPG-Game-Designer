@@ -9,6 +9,47 @@
 
 ## Entries
 
+### 2026-04-23 — Sprint 1 Export Hardening and Renderer Capture Follow-through
+- **Action**: Extended `engine/core/tools/export_packager.cpp` and `.h` with configured project-asset auto-discovery roots, deterministic `project_assets/root_##/...` bundle staging, an embedded `export/asset_discovery_manifest.json` payload, and keyed SHA-256 bundle-signature emission on top of the existing per-entry keyed integrity tags.
+- **Action**: Extended `engine/core/export/export_validator.cpp` and `.h` so post-export validation now enforces the keyed SHA-256 bundle signature, validates the embedded asset-discovery manifest, and can surface a structured `bundleSummary` JSON report containing the decoded discovery manifest for emitted trees.
+- **Action**: Extended `engine/core/testing/visual_regression_harness.cpp` and `.h` with backend-selectable capture entry points while keeping the truthful OpenGL-only implementation boundary explicit, then added a committed `tests/snapshot/goldens/S1SceneGoldens_engine_shell_menu_scene_full_frame.golden.json` proof through `tests/snapshot/test_renderer_backed_visual_capture.cpp`.
+- **Result**: The Sprint 1 follow-through board is now implemented in tree: configured project-root asset discovery, keyed SHA-256 bundle signing/validation, a backend-selectable visual-capture seam, and one more shell-owned full-scene renderer-backed golden are all landed and verified.
+
+### 2026-04-23 — Character Identity Runtime Creator Follow-through
+- **Action**: Added shared bounded catalog/preset helpers in `engine/core/character/character_identity_catalog.h` and `.cpp` so the editor creator flow and the new runtime creator flow use the same class, portrait, body, appearance-token, and suggested-name contract.
+- **Action**: Added `CharacterCreationScreen` in `engine/core/character/character_creation_screen.h` and `.cpp` as a real in-game preset-based creator workflow with input-driven step navigation, event emission for step/selection/completion transitions, actor spawning through `CharacterSpawner`, and a live RenderLayer-backed preview card surface.
+- **Action**: Added focused runtime tests in `tests/unit/test_character_creation_screen.cpp`, then updated the canonical readiness/doc trail so `character_identity` no longer falsely claims that no runtime creator screen or preview surface exists.
+- **Result**: The bounded Create-a-Character runtime lane now has a real in-game screen and preview card in tree. Remaining `character_identity` backlog is now narrowed to authored rules/persistence depth and full layered portrait/field/battle composition rather than total absence of a runtime creator flow.
+
+### 2026-04-23 — Vendored SDL Warning Output Cleanup
+- **Action**: Updated `CMakePresets.json` so the hidden `base` preset disables CMake deprecation warnings via `"warnings": { "deprecated": false }`, applying the suppression consistently across the shared local configure presets without editing vendored SDL sources.
+- **Action**: Re-ran `powershell -ExecutionPolicy Bypass -File tools/ci/run_local_gates.ps1` and confirmed the configure steps no longer print the vendored SDL2 deprecation warnings while the strict in-repo warnings-as-errors lane still passes.
+- **Result**: The local gate wrapper now runs without template-spec drift, compat corpus health, or vendored SDL2 deprecation warning noise. At that checkpoint the lane counts were `ctest -L "^pr$"` => `1131/1131`, `ctest -L "^nightly$"` => `32/32`, and `ctest -L "^weekly$"` => `47/47`.
+
+### 2026-04-23 — Compat Corpus Health Warning Cleanup
+- **Action**: Updated `tools/ci/check_compat_health.ps1` so compat fixture commands are considered structurally valid when they provide either a DSL `script` body or a QuickJS `js` body, and so `js` commands now only warn when the required `entry` field is missing.
+- **Action**: Added an explicit `healthExpectations.allowMissingDependencies` allowlist to `tests/compat/fixtures/plugins/URPG_DependencyDrift_Fixture.json` so the checker can distinguish the intentional health-only missing dependency probe from real curated-corpus drift.
+- **Action**: Added focused regressions in `tests/unit/test_governance_regression.cpp` covering valid `js`-backed commands, broken command-body shapes, missing `entry` detection, allowed health-only missing dependencies, and unexpected missing dependency failures.
+- **Result**: `powershell -ExecutionPolicy Bypass -File tools/ci/check_compat_health.ps1` now passes with `Warnings: 0`, and the full `run_local_gates.ps1` wrapper no longer carries compat corpus warning noise. Later same-day follow-through cleared the remaining vendored SDL2 deprecation output as well.
+
+### 2026-04-23 — Template Spec Drift Reconciliation
+- **Action**: Reconciled `docs/templates/monster_collector_rpg_spec.md`, `docs/templates/cozy_life_rpg_spec.md`, `docs/templates/metroidvania_lite_spec.md`, and `docs/templates/2_5d_rpg_spec.md` to the current readiness dataset by updating `Status Date`, removing future-only required subsystem rows that are not present in `content/readiness/readiness_status.json`, and aligning bar/blocker wording to the canonical template records.
+- **Action**: Re-ran `powershell -ExecutionPolicy Bypass -File tools/ci/check_template_spec_bar_drift.ps1` and then the full `powershell -ExecutionPolicy Bypass -File tools/ci/run_local_gates.ps1` stack to confirm the live gate surface reflects the reconciled specs rather than stale warnings.
+- **Result**: Template-spec drift warnings are cleared from the local gate wrapper. Follow-through in the compat health lane removed the remaining compat corpus warnings as well, and later same-day preset cleanup cleared the vendored SDL2 deprecation output too.
+
+### 2026-04-23 — S23-S33 Roadmap Closeout Verification
+- **Action**: Re-ran the roadmap coverage parse against `content/readiness/readiness_status.json` and `docs/superpowers/plans/2026-04-23-s23-plus-s33-work-completion-roadmap.md`, confirming 14 non-ready subsystems, 9 non-ready templates, and zero unmapped IDs.
+- **Action**: Re-ran `tools/ci/check_release_readiness.ps1`, `tools/ci/truth_reconciler.ps1`, and `tools/ci/run_local_gates.ps1`, then performed a targeted README/docs search to confirm no non-ready subsystem or template is accidentally described as `READY` outside promotion-path language.
+- **Action**: Updated `docs/superpowers/plans/ACTIVE_SPRINT.md`, `docs/superpowers/plans/sprint-audit-checklist.md`, and the S23-S33 roadmap closeout sections so the sprint control surfaces now reflect the verified current-tree state instead of pointing to a nonexistent next unchecked ticket.
+- **Result**: S23-S33 has no unchecked roadmap tickets on the current tree. Later same-day validation cleanup also cleared the last vendored SDL2 deprecation output from the local gate wrapper.
+
+### 2026-04-23 — Validation Follow-through: Full Repo Gates Green
+- **Action**: Hardened `tools/ci/run_local_gates.ps1` so non-zero `cmake` and `ctest` exits now stop local validation immediately instead of allowing false-green continuation through later stages.
+- **Action**: Burned down active compile/test drift across `AudioMixPresetBank`, `AccessibilityPanel` test coverage, gameplay-ability battle integration, export-validator assertions, spatial editor translator naming, governance regression discovery, and the renderer-backed snapshot lane.
+- **Action**: Refreshed the S29 renderer-backed snapshot lane with committed full-frame `MenuScene`/`MapScene`/`BattleScene` goldens, transition-pair goldens, and diff-heatmap stability proof.
+- **Action**: Split compat corpus health fixtures from the active executable corpus in `tests/compat/test_compat_plugin_fixtures.cpp`, keeping the 10 executable curated plugin/import profiles truthful while still counting the two health-only fixtures in directory/discovery checks.
+- **Result**: `powershell -ExecutionPolicy Bypass -File tools/ci/run_local_gates.ps1` now passes end to end, with `ctest -L "^pr$"` => `1131/1131`, `ctest -L "^nightly$"` => `32/32`, and `ctest -L "^weekly$"` => `47/47`. At this checkpoint the template-spec drift and compat corpus health warnings were already cleared; later same-day follow-through removed the vendored SDL2 deprecation output as well.
+
 ### 2026-04-21 — Sprint 22 Closeout: Input Controller Governance Closure
 - **Action**: Completed S22-T01 by adding `ControllerBindingRuntime` (`engine/core/action/controller_binding_runtime.h` and `.cpp`) as a bounded controller-binding runtime adapter over `InputRemapStore`, plus `ControllerBindingPanel` (`editor/action/controller_binding_panel.h` and `.cpp`) with a deterministic render snapshot for current bindings and unsaved state.
 - **Action**: Completed S22-T02 by extending `tools/ci/check_input_governance.ps1`, using `content/fixtures/input_bindings_fixture.json` as the canonical bounded fixture, wiring the script into `tools/ci/run_local_gates.ps1`, and adding focused controller runtime/panel tests in `tests/unit/test_controller_binding_runtime.cpp` and `tests/unit/test_controller_binding_panel.cpp` alongside the PowerShell-invocation governance test in `tests/unit/test_input_remap_store.cpp`.

@@ -1,6 +1,6 @@
 # URPG Program Completion Status
 
-Status Date: 2026-04-22  
+Status Date: 2026-04-23  
 Program Scope: native-first roadmap rewire plus Wave 1 absorption, Wave 2 advanced capability expansion, post-Phase-2 compat exit hardening, and governance/template-readiness consolidation
 
 Cross-cutting debt, truthfulness, and intake-governance source of truth: `docs/TECHNICAL_DEBT_REMEDIATION_PLAN.md`.
@@ -108,6 +108,14 @@ Phase 3 diagnostics productization is complete as of 2026-04-19, Phase 4 governa
 - Recent execution slices landed:
   - Technical-debt hardening slice (2026-04-22): audit quick wins, ownership closure, and runtime truthfulness
   - `CMakeLists.txt`, `.github/workflows/ci-gates.yml`, and `tools/ci/run_local_gates.ps1` now pin `stb`, apply repo-wide warning flags through `urpg_project_warnings`, expose `URPG_WARNINGS_AS_ERRORS` for project-owned targets, anchor `ctest` label regex to exact labels, and keep a focused strict warnings lane in both Gate 1 and local validation.
+  - Validation follow-through slice (2026-04-23): full repo gate recovery, honest local-failure semantics, and renderer-backed S29 refresh
+  - `tools/ci/run_local_gates.ps1` now hard-fails on non-zero `cmake` and `ctest` exits instead of continuing into a false-green local snapshot when configure, build, or labeled test lanes are broken.
+  - Active compile/test drift was burned down across the audio-mix, accessibility, gameplay-ability battle integration, export-validator, spatial-editor, governance-regression, and renderer-backed snapshot lanes, restoring a truthful green build on the active `dev-ninja-debug` path.
+  - `tests/snapshot/test_renderer_backed_visual_capture.cpp` plus the committed S29 goldens now enforce full-frame `MenuScene`, `MapScene`, and `BattleScene` coverage, deterministic transition-pair coverage, and diff-heatmap stability coverage in the renderer-backed lane.
+  - `tests/compat/test_compat_plugin_fixtures.cpp` now keeps the active 10 executable curated plugin/import profiles separate from two health-only corpus fixtures, so directory/discovery and corpus-health checks can deepen without inflating live execution claims.
+  - Template-spec reconciliation slice (2026-04-23): the canonical `monster_collector_rpg`, `cozy_life_rpg`, `metroidvania_lite`, and `2_5d_rpg` specs now match the readiness dataset for `Status Date`, required subsystem rows, and cross-cutting bar values, clearing the template-spec drift warnings from the local gate wrapper.
+  - Compat health reconciliation slice (2026-04-23): `check_compat_health.ps1` now accepts valid QuickJS `js`/`entry` command bodies and uses explicit fixture-level allowlists for intentional health-only missing dependencies, clearing the compat corpus health warnings from the local gate wrapper without broadening the executable compat corpus claim.
+  - CMake preset warning-policy slice (2026-04-23): the hidden `base` preset now disables CMake deprecation warnings, clearing the vendored SDL2 configure-time warning noise from local validation without weakening the repo-owned warnings-as-errors lane.
   - The dead `EngineAssembly` / `MainAssembly` top-level incubator seam has now been retired entirely from `tools/incubator/core/` and `tools/incubator/runtime/`, and the dead editor-side `plugin_host.*`, `script_bridge.*`, and `scripting_console.*` seam has now also been retired from `tools/incubator/editor/`; `EngineShell` remains the live path.
   - TD-03 is now explicitly closed as a strategy lane: the compat QuickJS/plugin stack under `runtimes/compat_js/` is the single supported in-tree scripting/plugin bridge for import, validation, and migration workflows, and any future live scripting runtime would be new feature work rather than unresolved current debt.
   - TD-06 is now explicitly closed as a bounded release-truth lane: the in-tree contract is one real Windows launch smoke path, one real renderer-backed visual capture lane, and lightweight real `ResourceProtector` RLE-plus-XOR protection. The broader shipping-grade export breadth and hardening work is mandatory current backlog, but no longer hidden behind misleading in-tree behavior.
@@ -126,7 +134,7 @@ Phase 3 diagnostics productization is complete as of 2026-04-19, Phase 4 governa
   - `engine/core/security/resource_protector.h` now routes through the in-tree `AssetCompressor` for lightweight real RLE compression plus XOR obfuscation, and focused tests prove compression/decompression round-trips instead of pinning a passthrough placeholder.
   - `engine/core/social/cloud_service.h` now collapses the in-tree cloud provider enum down to the only shipped mode, `LocalSimulated`, and the contributor-facing AI docs now describe the real runtime shape honestly: `IChatService` plus deterministic `MockChatService` in tree, with live providers out of tree.
   - The dead incubator editor scripting/plugin harness under `tools/incubator/editor/` has been removed, so the repo no longer carries a second dormant editor/plugin execution story beside the active compat harness.
-  - The warning-cleanup lane is materially complete in repo code: the presentation, compat, message, diagnostics, plugin-manager, OpenGL/UI, and aggregate-init warning clusters surfaced by the fresh baseline were burned down; vendored SDL warning noise is quarantined at the SDL target; and the stale `dev-ninja-debug` Ninja-state warning was fixed by rebuilding with a fresh `.ninja_log`.
+  - The warning-cleanup lane is materially complete in repo code: the presentation, compat, message, diagnostics, plugin-manager, OpenGL/UI, and aggregate-init warning clusters surfaced by the fresh baseline were burned down; the stale `dev-ninja-debug` Ninja-state warning was fixed by rebuilding with a fresh `.ninja_log`; and vendored SDL configure-time deprecation output is now suppressed at the shared CMake preset boundary so the local wrapper stays clean.
   - Save/Data importer/upgrader ownership follow-through now lives under `engine/core/save/save_migration.*`, with typed diagnostics/JSONL export and preserved `_compat_mapping_notes` for unmapped compat metadata fields
   - native shell loop and scene scaffolding
   - compat global-state bridges for battle and data-manager flows
@@ -155,7 +163,7 @@ Phase 3 diagnostics productization is complete as of 2026-04-19, Phase 4 governa
   - Template spec docs created for `monster_collector_rpg`, `cozy_life_rpg`, `metroidvania_lite`, and `2_5d_rpg` under `docs/templates/`
   - `content/readiness/readiness_status.json` updated with new template entries; `docs/RELEASE_READINESS_MATRIX.md` and `docs/TEMPLATE_READINESS_MATRIX.md` updated to reflect `governance_foundation` promotion to `PARTIAL` and new template rows
 - Agent swarm execution slice (2026-04-20 continued): Wave 2 advanced capabilities and remaining cross-cutting bars
-  - `CharacterIdentity` runtime landed with name/portrait/body/class/attributes/appearance tokens, JSON round-trip, schema `character_identity.schema.json`, editor `CharacterCreatorModel`/`CharacterCreatorPanel`, and focused `[character]` tests
+  - `CharacterIdentity` runtime landed with name/portrait/body/class/attributes/appearance tokens, JSON round-trip, schema `character_identity.schema.json`, editor `CharacterCreatorModel`/`CharacterCreatorPanel`, a bounded runtime `CharacterCreationScreen`, and focused `[character]` tests
   - `AchievementRegistry` landed with `AchievementDef`/`AchievementProgress`, unlock-condition tokens, progress tracking, save/load JSON, schema `achievements.schema.json`, editor `AchievementPanel`, and focused `[achievement]` tests
   - `AccessibilityAuditor` landed with missing-label, focus-order, contrast, and navigation audit rules, schema `accessibility_report.schema.json`, editor `AccessibilityPanel`, and focused `[accessibility]` tests
   - `VisualRegressionHarness` landed with golden file load/save, `SnapshotValidator`-backed comparison, diff heatmap generation, JSON report export, PowerShell approval script `tools/visual_regression/approve_golden.ps1`, and focused `[testing][visual_regression]` tests
@@ -336,6 +344,11 @@ Phase 3 diagnostics productization is complete as of 2026-04-19, Phase 4 governa
 - Sprint 33 execution slice (2026-04-22): Governed manifest-driven promoted-asset staging
   - `ExportPackager` now supports bundling promoted assets from governed `imports/manifests/asset_bundles/*.json` records, but only when the bundle state is `promoted`, the asset rows are `promoted`, and the referenced files resolve to existing repo-local paths under `imports/normalized/`.
   - Focused packager coverage now proves that promoted bundle manifests and their referenced normalized assets stage into `data.pck`, while planned bundles, non-promoted rows, and missing asset targets are skipped instead of being silently claimed as bundled.
+- Sprint 1 follow-through slice (2026-04-23): Export hardening and backend-selectable renderer capture
+  - `ExportPackager` now auto-discovers configured project asset roots into deterministic `project_assets/root_##/...` bundle paths and emits an embedded `export/asset_discovery_manifest.json` payload that records the staged discovery results.
+  - `data.pck` now carries a keyed SHA-256 bundle signature in addition to the older per-entry keyed integrity tags, and `ExportValidator` now enforces that signature plus surfaces a structured `bundleSummary` JSON report with the decoded asset-discovery manifest when asked to validate an emitted tree.
+  - `VisualRegressionHarness` now exposes backend-selectable capture entry points while keeping the truthful OpenGL-only implementation boundary explicit, and `tests/snapshot/test_renderer_backed_visual_capture.cpp` now enforces a committed full-frame `EngineShell` `MenuScene` golden in addition to the earlier shell-owned `MapScene` path.
+  - Focused validation passed via `.\build\dev-ninja-debug\urpg_tests.exe "[export]" --reporter compact`, `.\build\dev-ninja-debug\urpg_tests.exe "[testing][visual_regression]" --reporter compact`, and `.\build\dev-ninja-debug\urpg_snapshot_tests.exe "[snapshot]" --reporter compact`.
 - Sprint 15 execution slice (2026-04-21): Presentation runtime productization
   - Added `[presentation][spatial][e2e]` test in `tests/unit/test_spatial_editor.cpp` proving spatial editing output (elevation brush + prop placement) flows into `PresentationRuntime::BuildPresentationFrame` with elevation-resolved Y positions.
   - Extended `engine/core/presentation/release_validation.cpp` with spatial-authoring→runtime-consumption validation section.
@@ -377,6 +390,11 @@ Phase 3 diagnostics productization is complete as of 2026-04-19, Phase 4 governa
   - Added `content/fixtures/character_identity_fixture.json` and `tools/ci/check_character_governance.ps1`, and wired the new governance script into `tools/ci/run_local_gates.ps1`.
   - Extended `tools/audit/urpg_project_audit.cpp`, `check_release_readiness.ps1`, and the ProjectAudit panel/tests with a new `characterArtifacts` governance section plus `characterArtifactIssueCount`.
   - Updated `content/readiness/readiness_status.json` and `docs/RELEASE_READINESS_MATRIX.md` for `character_identity` to reflect diagnostics closure while keeping the larger Create-a-Character runtime/preview workflow gap honest.
+- Character identity runtime follow-through (2026-04-23):
+  - Added `engine/core/character/character_identity_catalog.h` and `.cpp` so the editor and runtime character-creation flows share one bounded class/portrait/body/appearance contract.
+  - Added `engine/core/character/character_creation_screen.h` and `.cpp` as a real preset-based in-game creator flow with step navigation, completion events, actor spawning, and a RenderLayer-backed preview card surface.
+  - Added focused runtime tests in `tests/unit/test_character_creation_screen.cpp`.
+  - Updated `content/readiness/readiness_status.json`, `docs/RELEASE_READINESS_MATRIX.md`, and the WYSIWYG readiness regression to replace the stale "no runtime screen or preview surface is landed" claim with the narrower remaining authored-rules/compositor/persistence gaps.
 - Sprint 20 execution slice (2026-04-21): Mod registry validation pipeline
   - Added `ModRegistryValidator` in `engine/core/mod/mod_registry_validator.h` and `.cpp` with bounded manifest validation for empty name/version fields, missing entry points, self-dependencies, and duplicate dependency declarations.
   - Extended `ModRegistry` with `listMods()` and updated `ModManagerPanel` to surface validator-backed diagnostics snapshots (`registered_mod_ids`, `validation_issue_count`, and structured `validation_issues`) alongside the existing load-order and cycle-warning state.
@@ -452,13 +470,17 @@ Phase 3 diagnostics productization is complete as of 2026-04-19, Phase 4 governa
   - `powershell -ExecutionPolicy Bypass -File tools/ci/check_release_readiness.ps1` => passed
   - `powershell -ExecutionPolicy Bypass -File tools/ci/truth_reconciler.ps1` => passed
 - Latest recorded local validation snapshot:
-  - recorded under the `dev-ninja-debug` preset: `ctest --preset dev-all --output-on-failure` => 869/869 passed (includes all previous lanes plus Wave 1 closure integration, presentation bridge, incubating test conversion, cmake-completeness-governance, save-policy-governance, battle-migration-residual-gaps, achievement-trigger-integration, character-identity-ecs, and save-binary-format-loader lanes)
+  - recorded under the `dev-ninja-debug` preset on 2026-04-23: `powershell -ExecutionPolicy Bypass -File tools/ci/run_local_gates.ps1` => passed
+  - `ctest --test-dir build/dev-ninja-debug -L "^pr$" --output-on-failure` => 1140/1140 passed
+  - `ctest --test-dir build/dev-ninja-debug -L "^nightly$" --output-on-failure` => 33/33 passed
+  - `ctest --test-dir build/dev-ninja-debug -L "^weekly$" --output-on-failure` => 47/47 passed
+  - wrapper warning output is clean: template-spec drift, compat corpus health, and vendored SDL2 deprecation warnings are all cleared from the current local validation surface
 - Latest focused Phase 5 hardening validation snapshot:
   - `ctest --test-dir build -C Debug --output-on-failure -R "PluginManager: Command execution|MapScene:|SceneManager:"` => 9/9 passed
   - `powershell -ExecutionPolicy Bypass -File tools/ci/check_phase4_intake_governance.ps1` => passed
 - Latest focused presentation validation snapshot:
-  - `ctest --test-dir build -C Debug -R "urpg_(presentation_(unit_lane|release_validation)|spatial_editor_lane)" --output-on-failure` => 3/3 passed
-  - includes the dedicated `[presentation]` unit lane, the standalone release-validation harness, and the spatial editor authoring lane
+  - `powershell -ExecutionPolicy Bypass -File tools/ci/run_presentation_gate.ps1` => passed
+  - includes the dedicated `[presentation]` unit lane, the standalone release-validation harness, the spatial editor authoring lane, and the fail-on-drift snapshot `regression` stage
   - CI `gate1-pr` now invokes the focused presentation gate explicitly via `tools/ci/run_presentation_gate.ps1` after the shared build step
 - Latest broader Wave 1/program release-readiness snapshot (2026-04-20):
   - `ctest --test-dir build -C Debug --output-on-failure -R "PluginManager: Command execution|MapScene:|SceneManager:"` => 9/9 passed
@@ -466,7 +488,8 @@ Phase 3 diagnostics productization is complete as of 2026-04-19, Phase 4 governa
   - `powershell -ExecutionPolicy Bypass -File tools/ci/check_phase4_intake_governance.ps1` => passed
   - `ctest --preset dev-all --output-on-failure` => 790/790 passed
 - Latest focused compat validation snapshot:
-  - `.\build\Debug\urpg_compat_tests.exe --reporter compact` => 3375 assertions / 43 test cases passed
+  - `ctest --test-dir build/dev-ninja-debug -L "^weekly$" --output-on-failure` => 47/47 passed
+  - the active executable compat corpus remains 10 curated plugin/import profiles; two additional health-only fixtures now deepen directory/discovery and corpus-health coverage without changing the executable corpus claim
 - Latest focused audio validation snapshot:
   - `.\build\dev-mingw-debug\urpg_tests.exe "[audio_manager]"` => 147 assertions / 12 test cases passed
 - Latest focused Phase 2 validation snapshot:

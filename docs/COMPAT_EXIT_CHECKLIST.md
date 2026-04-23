@@ -1,6 +1,6 @@
 # Compat Exit Checklist
 
-Status Date: 2026-04-21
+Status Date: 2026-04-23
 
 This checklist is the canonical pass/fail artifact for deciding whether the compat lane is trustworthy enough to serve as an import, validation, and migration bridge without overstating runtime parity.
 
@@ -61,8 +61,8 @@ Evidence anchors:
   - deterministic duck/unduck ramps are covered by focused tests
   - master/bus volume changes now affect active compat playback
   - the QuickJS `AudioManager` object now routes live compat state for BGM/BGS/ME/SE, volume, and ducking helpers
-- Active local compat snapshot refreshed on 2026-04-20:
-  - `.\build\Debug\urpg_compat_tests.exe --reporter compact` => 3375 assertions / 43 test cases passed
+- Active local compat snapshot refreshed on 2026-04-23:
+  - `ctest --test-dir build/dev-ninja-debug -L "^weekly$" --output-on-failure` => 47/47 passed
 - Migration-confidence evidence refreshed on 2026-04-21:
   - `test_audio_manager.cpp` now names the QuickJS bridge as deterministic compat audio state rather than live backend audio state
   - `test_battlemgr.cpp`, `test_data_manager.cpp`, and `test_window_compat.cpp` pin representative `PARTIAL` registry entries plus deviation strings for the current claimed compat scope
@@ -81,6 +81,9 @@ Evidence anchors:
 - Curated compat corpus depth expanded on 2026-04-21:
   - `test_compat_plugin_fixtures.cpp` now proves the curated all-profile orchestration path survives directory-based corpus re-import, not only explicit per-plugin reload calls
   - the weekly lane now includes a named anchor for directory discovery/import plus orchestration rerun and by-name dispatch after re-import
+- Compat corpus health-fixture separation landed on 2026-04-23:
+  - `test_compat_plugin_fixtures.cpp` now keeps the active 10 executable curated profiles in `fixtureSpecs()` while routing `URPG_DependencyDrift_Fixture` and `URPG_ProfileMismatch_Fixture` through health-only discovery coverage
+  - directory/discovery counts now use the combined view without overstating the executable compat corpus
 - Update this checklist whenever a compat surface changes status, link location, or exit evidence.
 - Compat bridge exit signoff evidence now also lives in [COMPAT_BRIDGE_EXIT_SIGNOFF.md](./COMPAT_BRIDGE_EXIT_SIGNOFF.md); the checkboxes below remain human-owned and must not be auto-checked by governance automation.
 

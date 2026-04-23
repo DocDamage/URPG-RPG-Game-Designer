@@ -1,6 +1,6 @@
 # Monster Collector RPG Template Spec
 
-Status Date: 2026-04-20  
+Status Date: 2026-04-23  
 Authority: canonical template spec for `monster_collector_rpg`
 
 ## Purpose
@@ -29,13 +29,13 @@ The `monster_collector_rpg` template covers games where players explore a world,
 
 ## Safe Scope Today
 
-Exploration of collection-driven combat and party assembly using landed Wave 1 subsystems (`ui_menu_core`, `message_text_core`, `battle_core`, `save_data_core`) plus the `gameplay_ability_framework`. Bounded demos that rely on existing menu, message, save, and ability surfaces are safe, provided they do not claim production-grade collection governance.
+Exploration of collection-driven combat and party assembly using landed Wave 1 + ability framework. Bounded demos that rely on existing menu, message, save, and ability surfaces are safe, provided they do not claim production-grade collection governance.
 
 ## Main Blockers
 
-1. **Dedicated collection schema** — No canonical schema for entity collection, evolution, or storage yet.
-2. **Capture mechanics** — Capture logic and success/failure contracts are not defined or landed.
-3. **Template-grade governance** — Cross-cutting bars, promotion rules, and audit checks for this template are not yet enforced.
+1. **Dedicated collection schema** — No canonical entity collection, evolution, or storage schema is defined.
+2. **Capture mechanics** — Capture logic and success/failure contracts are not landed.
+3. **Template-grade governance** — Cross-cutting bars, promotion rules, and audit checks are not yet enforced.
 
 ## Promotion Path
 

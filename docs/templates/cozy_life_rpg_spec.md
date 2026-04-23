@@ -1,6 +1,6 @@
 # Cozy Life RPG Template Spec
 
-Status Date: 2026-04-20  
+Status Date: 2026-04-23  
 Authority: canonical template spec for `cozy_life_rpg`
 
 ## Purpose
@@ -14,18 +14,16 @@ The `cozy_life_rpg` template covers dialogue-heavy life-simulation games with sc
 | `ui_menu_core` | Menus for inventory, relationships, calendar, and world navigation. |
 | `message_text_core` | Heavy reliance on dialogue, choice prompts, and narrative text. |
 | `save_data_core` | Persistent world state, schedule snapshots, and social flag tracking. |
-| `schedule_system` *(future)* | Day-cycle and event-scheduling mechanics. |
-| `social_relationship_mechanics` *(future)* | Bond/affinity systems and character memory. |
 
 ## Cross-Cutting Minimum Bars
 
 | Bar | Status | Notes |
 | --- | --- | --- |
-| Accessibility | `PLANNED` | No template-grade accessibility governance yet. |
+| Accessibility | `PARTIAL` | Baseline accessibility governance applies; cozy-life-specific UI flows remain deferred pending scheduling/social lane proof. |
 | Audio | `PARTIAL` | Ambient and music hooks exist; life-sim-specific audio bars are undefined. |
 | Input | `PARTIAL` | Menu and dialogue input are covered; life-sim-specific interactions are not. |
-| Localization | `PLANNED` | Planned once message and menu localization patterns are finalized. |
-| Performance | `PLANNED` | No life-sim-specific budgets defined. |
+| Localization | `PARTIAL` | Baseline message/menu localization patterns apply; scheduling and economy-specific completeness remains deferred. |
+| Performance | `PARTIAL` | General RPG budgets apply; dialogue-heavy life-sim scheduling remains untested. |
 
 ## Safe Scope Today
 
@@ -33,9 +31,9 @@ Dialogue-heavy life-sim exploration within the current message, save, and menu s
 
 ## Main Blockers
 
-1. **Scheduling system** — Day-cycle, calendar, and event-scheduling logic is not landed.
-2. **Social relationship mechanics** — Bond, affinity, and character-memory systems are undefined.
-3. **Crafting/economy lanes** — Resource gathering, crafting, and economy subsystems are not in scope for Wave 1.
+1. **Scheduling system** — No time-of-day or calendar-driven event system is defined.
+2. **Social relationship mechanics** — Relationship graph and social-state persistence are not landed.
+3. **Crafting/economy lanes** — Item crafting, economy balance, and shop systems remain future work.
 
 ## Promotion Path
 

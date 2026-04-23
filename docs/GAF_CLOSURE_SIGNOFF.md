@@ -79,7 +79,7 @@ Key cross-subsystem assertions include:
 2. **Migration mapping (partial closure)**: `AbilityCompatMapper` maps RPG Maker MZ/MV skills to native ability assets with deterministic fallback. Troop actions, item compat, and `AbilityStateMachine` phase shapes are not yet mapped from legacy data.
 3. **Gameplay task backend**: `AbilityTask` and `AbilityTask_WaitTime` exist as async task scaffolding, but deeper task backends (input-wait, event-wait, projectile collision) are not yet implemented.
 4. **Scripted condition evaluator**: `activeCondition` and `passiveCondition` strings are intentionally not evaluated in-tree. Non-empty `activeCondition` values fail with `active_condition_unsupported`, and `passiveCondition` is out of runtime scope unless future work deliberately reopens this lane.
-5. **Battle queue integration (partial closure)**: `AbilityBattleQueue` (S24-T03) provides the command queue between the ability framework and `BattleFlowController`. Full live `BattleScene` integration remains future work.
+5. **Scene-runtime breadth**: live `BattleScene` participant activation plus authored-ability handoff into a mutable `MapScene` player ASC are now landed, but richer async task-driven orchestration beyond the current queue/update-loop scope remains future work.
 
 ---
 

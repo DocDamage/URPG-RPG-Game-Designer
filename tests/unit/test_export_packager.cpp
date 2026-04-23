@@ -19,6 +19,7 @@ using urpg::exporting::ExportValidator;
 namespace {
 
 constexpr char kBundleMagic[] = "URPGPCK1";
+constexpr char kAssetDiscoveryManifestPath[] = "export/asset_discovery_manifest.json";
 
 void WriteFile(const std::filesystem::path& path, const std::string& content = "") {
     std::filesystem::create_directories(path.parent_path());
@@ -30,6 +31,8 @@ std::vector<uint8_t> ReadFileBytes(const std::filesystem::path& path) {
     std::ifstream in(path, std::ios::binary);
     return std::vector<uint8_t>(std::istreambuf_iterator<char>(in), std::istreambuf_iterator<char>());
 }
+
+std::vector<uint8_t> ReadBundleEntryBytes(const std::filesystem::path& path, const nlohmann::json& entry);
 
 std::string ReadFileText(const std::filesystem::path& path) {
     std::ifstream in(path, std::ios::binary);
@@ -53,6 +56,16 @@ std::string BundleObfuscationKeyForTarget(ExportTarget target) {
     }
 }
 
+std::string BundleSignatureKeyForTarget(ExportTarget target) {
+    switch (target) {
+        case ExportTarget::Windows_x64: return "urpg-export-signature-win-v1";
+        case ExportTarget::Linux_x64: return "urpg-export-signature-linux-v1";
+        case ExportTarget::macOS_Universal: return "urpg-export-signature-macos-v1";
+        case ExportTarget::Web_WASM: return "urpg-export-signature-web-v1";
+        default: return "urpg-export-signature-v1";
+    }
+}
+
 std::string BundleIntegrityScope(const nlohmann::json& entry) {
     return entry.value("path", "") + "|" + entry.value("kind", "") + "|" +
            (entry.value("compressed", false) ? "1" : "0") + "|" +
@@ -68,6 +81,29 @@ std::string ComputeBundleIntegrityTag(const nlohmann::json& entry,
         BundleIntegrityScope(entry),
         storedBytes,
         BundleObfuscationKeyForTarget(target));
+}
+
+nlohmann::json BuildBundleSignatureView(const nlohmann::json& manifest) {
+    auto signatureView = manifest;
+    signatureView.erase("payloadOffset");
+    signatureView.erase("bundleSignature");
+    return signatureView;
+}
+
+std::string ComputeBundleSignature(const std::filesystem::path& path,
+                                   const nlohmann::json& manifest,
+                                   ExportTarget target) {
+    std::vector<uint8_t> storedPayloadBytes;
+    for (const auto& entry : manifest["entries"]) {
+        const auto entryBytes = ReadBundleEntryBytes(path, entry);
+        storedPayloadBytes.insert(storedPayloadBytes.end(), entryBytes.begin(), entryBytes.end());
+    }
+
+    urpg::security::ResourceProtector protector;
+    return protector.computeCryptographicSignature(
+        BuildBundleSignatureView(manifest).dump(),
+        storedPayloadBytes,
+        BundleSignatureKeyForTarget(target));
 }
 
 nlohmann::json ReadBundleManifest(const std::filesystem::path& path) {
@@ -272,13 +308,17 @@ TEST_CASE("ExportPackager::runExport result contains correct file list from a fr
     REQUIRE(manifest["format"] == "URPG_BOUNDED_EXPORT_BUNDLE_V1");
     REQUIRE(manifest["bundleMode"] == "bounded_export_smoke");
     REQUIRE(manifest["target"] == "Windows (x64)");
+    REQUIRE(manifest["assetDiscoveryMode"] == "project_root_scan_v1");
     REQUIRE(manifest["protectionMode"] == "rle_xor");
     REQUIRE(manifest["integrityMode"] == "fnv1a64_keyed");
+    REQUIRE(manifest["signatureMode"] == "sha256_keyed_bundle_v1");
+    REQUIRE(manifest["bundleSignature"] == ComputeBundleSignature(base / "data.pck", manifest, ExportTarget::Windows_x64));
     REQUIRE(manifest["entries"].is_array());
     REQUIRE(manifest["entries"].size() > 3);
 
     const std::vector<std::string> expectedPaths = {
         "export/export_metadata.json",
+        kAssetDiscoveryManifestPath,
         "runtime/bootstrap_scene.json",
         "runtime/script_pack_policy.json",
         "content/readiness/readiness_status.json",
@@ -363,23 +403,29 @@ TEST_CASE("ExportPackager stages bounded repo-owned content roots into data.pck"
     const auto readinessEntry = findEntry("content/readiness/readiness_status.json");
     const auto readinessSchemaEntry = findEntry("content/schemas/readiness_status.schema.json");
     const auto starterDungeonEntry = findEntry("content/level_libraries/starter_dungeon.json");
+    const auto discoveryManifestEntry = findEntry(kAssetDiscoveryManifestPath);
 
     const auto readinessBytes = DecodeBundleEntryBytes(bundlePath, ExportTarget::Windows_x64, readinessEntry);
     const auto readinessSchemaBytes =
         DecodeBundleEntryBytes(bundlePath, ExportTarget::Windows_x64, readinessSchemaEntry);
     const auto starterDungeonBytes =
         DecodeBundleEntryBytes(bundlePath, ExportTarget::Windows_x64, starterDungeonEntry);
+    const auto discoveryManifestBytes =
+        DecodeBundleEntryBytes(bundlePath, ExportTarget::Windows_x64, discoveryManifestEntry);
 
     const std::string readinessText(readinessBytes.begin(), readinessBytes.end());
     const std::string readinessSchemaText(readinessSchemaBytes.begin(), readinessSchemaBytes.end());
     const std::string starterDungeonText(starterDungeonBytes.begin(), starterDungeonBytes.end());
+    const std::string discoveryManifestText(discoveryManifestBytes.begin(), discoveryManifestBytes.end());
 
     REQUIRE(readinessEntry["kind"] == "readiness");
     REQUIRE(readinessSchemaEntry["kind"] == "schema");
     REQUIRE(starterDungeonEntry["kind"] == "level_library");
+    REQUIRE(discoveryManifestEntry["kind"] == "asset_discovery_manifest");
     REQUIRE(readinessText.find("\"schemaVersion\": \"1.0.0\"") != std::string::npos);
     REQUIRE(readinessSchemaText.find("\"title\"") != std::string::npos);
     REQUIRE(starterDungeonText.find("\"libraryName\": \"Starter Dungeon Kit\"") != std::string::npos);
+    REQUIRE(discoveryManifestText.find("\"format\": \"URPG_PROJECT_ASSET_DISCOVERY_V1\"") != std::string::npos);
 
     std::filesystem::remove_all(base);
 }
@@ -508,6 +554,69 @@ TEST_CASE("ExportPackager stages promoted asset bundles from governed manifests"
     std::filesystem::remove_all(base);
 }
 
+TEST_CASE("ExportPackager auto-discovers configured project asset roots and writes a discovery manifest",
+          "[export][packager][discovery]") {
+    const auto base = std::filesystem::temp_directory_path() / "urpg_export_packager_auto_discovery";
+    const auto projectRoot = base / "sample_project";
+    std::filesystem::remove_all(base);
+    std::filesystem::create_directories(projectRoot / "assets" / "ui");
+    std::filesystem::create_directories(projectRoot / "audio");
+
+    WriteFile(projectRoot / "assets" / "ui" / "hud.png", "fake_png_payload");
+    WriteFile(projectRoot / "audio" / "battle_theme.ogg", "fake_ogg_payload");
+
+    ExportPackager packager;
+    ExportConfig config{};
+    config.target = ExportTarget::Windows_x64;
+    config.outputDir = (base / "out").string();
+    config.compressAssets = true;
+    config.assetDiscoveryRoots = {
+        (projectRoot / "assets").string(),
+        (projectRoot / "audio").string(),
+    };
+
+    const auto result = packager.runExport(config);
+
+    INFO(result.log);
+    REQUIRE(result.success);
+
+    const auto bundlePath = base / "out" / "data.pck";
+    const auto manifest = ReadBundleManifest(bundlePath);
+
+    const auto findEntry = [&](const std::string& path) -> nlohmann::json {
+        for (const auto& entry : manifest["entries"]) {
+            if (entry["path"] == path) {
+                return entry;
+            }
+        }
+        INFO(path);
+        REQUIRE(false);
+        return nlohmann::json::object();
+    };
+
+    const auto hudEntry = findEntry("project_assets/root_01/ui/hud.png");
+    const auto audioEntry = findEntry("project_assets/root_02/battle_theme.ogg");
+    const auto discoveryEntry = findEntry(kAssetDiscoveryManifestPath);
+
+    const auto hudBytes = DecodeBundleEntryBytes(bundlePath, ExportTarget::Windows_x64, hudEntry);
+    const auto audioBytes = DecodeBundleEntryBytes(bundlePath, ExportTarget::Windows_x64, audioEntry);
+    const auto discoveryBytes = DecodeBundleEntryBytes(bundlePath, ExportTarget::Windows_x64, discoveryEntry);
+    const auto discoveryManifest = nlohmann::json::parse(
+        std::string(discoveryBytes.begin(), discoveryBytes.end()));
+
+    REQUIRE(hudEntry["kind"] == "auto_discovered_asset");
+    REQUIRE(audioEntry["kind"] == "auto_discovered_asset");
+    REQUIRE(std::string(hudBytes.begin(), hudBytes.end()) == "fake_png_payload");
+    REQUIRE(std::string(audioBytes.begin(), audioBytes.end()) == "fake_ogg_payload");
+    REQUIRE(discoveryManifest["format"] == "URPG_PROJECT_ASSET_DISCOVERY_V1");
+    REQUIRE(discoveryManifest["discoveredAssetCount"] == 2);
+    REQUIRE(discoveryManifest["assets"].size() == 2);
+    REQUIRE(discoveryManifest["assets"][0]["path"] == "project_assets/root_01/ui/hud.png");
+    REQUIRE(discoveryManifest["assets"][1]["path"] == "project_assets/root_02/battle_theme.ogg");
+
+    std::filesystem::remove_all(base);
+}
+
 TEST_CASE("ExportPackager stores bundle payloads as reversible RLE+XOR entries", "[export][packager][security]") {
     const auto base = std::filesystem::temp_directory_path() / "urpg_export_packager_bundle_protection";
     std::filesystem::remove_all(base);
@@ -527,6 +636,8 @@ TEST_CASE("ExportPackager stores bundle payloads as reversible RLE+XOR entries",
     const auto manifest = ReadBundleManifest(bundlePath);
     REQUIRE(manifest["protectionMode"] == "rle_xor");
     REQUIRE(manifest["integrityMode"] == "fnv1a64_keyed");
+    REQUIRE(manifest["signatureMode"] == "sha256_keyed_bundle_v1");
+    REQUIRE(manifest["bundleSignature"] == ComputeBundleSignature(bundlePath, manifest, ExportTarget::Windows_x64));
 
     const auto& firstEntry = manifest["entries"][0];
     const auto storedBytes = ReadBundleEntryBytes(bundlePath, firstEntry);
@@ -569,6 +680,32 @@ TEST_CASE("ExportPackager keyed integrity tags detect stored bundle tampering", 
 
     storedBytes[0] ^= 0x1;
     REQUIRE(originalTag != ComputeBundleIntegrityTag(firstEntry, storedBytes, ExportTarget::Windows_x64));
+
+    std::filesystem::remove_all(base);
+}
+
+TEST_CASE("ExportPackager keyed SHA-256 bundle signature detects manifest tampering",
+          "[export][packager][security]") {
+    const auto base = std::filesystem::temp_directory_path() / "urpg_export_packager_bundle_signature_tamper";
+    std::filesystem::remove_all(base);
+
+    ExportPackager packager;
+    ExportConfig config{};
+    config.target = ExportTarget::Windows_x64;
+    config.outputDir = base.string();
+    config.compressAssets = true;
+
+    const auto result = packager.runExport(config);
+
+    INFO(result.log);
+    REQUIRE(result.success);
+
+    const auto bundlePath = base / "data.pck";
+    auto manifest = ReadBundleManifest(bundlePath);
+    const auto originalSignature = manifest["bundleSignature"].get<std::string>();
+
+    manifest["assetDiscoveryMode"] = "tampered_mode";
+    REQUIRE(originalSignature != ComputeBundleSignature(bundlePath, manifest, ExportTarget::Windows_x64));
 
     std::filesystem::remove_all(base);
 }

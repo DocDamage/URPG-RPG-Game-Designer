@@ -5,6 +5,7 @@
 
 #include <nlohmann/json.hpp>
 
+#include <cstdint>
 #include <functional>
 #include <optional>
 #include <string>
@@ -12,9 +13,15 @@
 namespace urpg {
 class OpenGLRenderer;
 class EngineShell;
+class RendererBackend;
 }
 
 namespace urpg::testing {
+
+enum class CaptureBackend : uint8_t {
+    OpenGL = 0,
+    Headless = 1,
+};
 
 struct GoldenSnapshot {
     int width = 0;
@@ -27,6 +34,8 @@ struct GoldenSnapshot {
 class VisualRegressionHarness {
 public:
     void setGoldenRoot(const std::string& path);
+
+    static std::string captureBackendToString(CaptureBackend backend);
 
     std::optional<GoldenSnapshot> loadGolden(const std::string& testName,
                                              const std::string& snapshotId);
@@ -42,6 +51,24 @@ public:
 
     static SceneSnapshot generateDiffHeatmap(const SceneSnapshot& golden,
                                              const SceneSnapshot& current);
+
+    std::optional<SceneSnapshot> captureFrame(CaptureBackend backend,
+                                              const std::vector<FrameRenderCommand>& commands,
+                                              int width,
+                                              int height,
+                                              std::string* errorMessage = nullptr) const;
+
+    std::optional<SceneSnapshot> captureScene(CaptureBackend backend,
+                                              const std::function<void(urpg::RendererBackend&)>& renderCallback,
+                                              int width,
+                                              int height,
+                                              std::string* errorMessage = nullptr) const;
+
+    std::optional<SceneSnapshot> captureEngineTick(CaptureBackend backend,
+                                                   const std::function<void(urpg::EngineShell&)>& setupCallback,
+                                                   int width,
+                                                   int height,
+                                                   std::string* errorMessage = nullptr) const;
 
     std::optional<SceneSnapshot> captureOpenGLFrame(const std::vector<FrameRenderCommand>& commands,
                                                     int width,

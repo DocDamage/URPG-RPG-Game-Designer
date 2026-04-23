@@ -1,6 +1,7 @@
 #pragma once
 
 #include "engine/core/asset_compressor.h"
+#include "engine/core/security/sha256.h"
 
 #include <string>
 #include <vector>
@@ -82,6 +83,30 @@ namespace urpg::security {
             }
 
             return encoded;
+        }
+
+        /**
+         * @brief Compute a keyed SHA-256 digest for bundle-level authenticity checks.
+         * This is a symmetric cryptographic verification seam, not public-key code signing.
+         */
+        [[nodiscard]] std::string computeCryptographicSignature(std::string_view scope,
+                                                                const std::vector<uint8_t>& data,
+                                                                const std::string& key) const {
+            std::vector<std::uint8_t> message;
+            message.reserve(key.size() + scope.size() + data.size() + 2u);
+
+            for (const auto ch : key) {
+                message.push_back(static_cast<std::uint8_t>(ch));
+            }
+            message.push_back(0xffu);
+
+            for (const auto ch : scope) {
+                message.push_back(static_cast<std::uint8_t>(ch));
+            }
+            message.push_back(0xfeu);
+
+            message.insert(message.end(), data.begin(), data.end());
+            return Sha256::toHex(Sha256::compute(message));
         }
 
         /**

@@ -10,6 +10,9 @@
       "name": "base",
       "hidden": true,
       "binaryDir": "${sourceDir}/build/${presetName}",
+      "warnings": {
+        "deprecated": false
+      },
       "cacheVariables": {
         "URPG_FETCH_CATCH2": "ON",
         "URPG_USE_SCCACHE": "ON"

@@ -2,6 +2,7 @@
 
 #ifndef URPG_HEADLESS
 #include "engine/core/engine_shell.h"
+#include "engine/core/platform/renderer_backend.h"
 #include "engine/core/platform/opengl_renderer.h"
 #include "engine/core/scene/scene_manager.h"
 
@@ -46,6 +47,17 @@ private:
 
 } // namespace
 #endif
+
+std::string VisualRegressionHarness::captureBackendToString(CaptureBackend backend) {
+    switch (backend) {
+        case CaptureBackend::OpenGL:
+            return "OpenGL";
+        case CaptureBackend::Headless:
+            return "Headless";
+        default:
+            return "Unknown";
+    }
+}
 
 void VisualRegressionHarness::setGoldenRoot(const std::string& path) {
     m_goldenRoot = path;
@@ -176,6 +188,78 @@ SceneSnapshot VisualRegressionHarness::generateDiffHeatmap(const SceneSnapshot& 
     }
 
     return heatmap;
+}
+
+std::optional<SceneSnapshot> VisualRegressionHarness::captureFrame(
+    CaptureBackend backend,
+    const std::vector<FrameRenderCommand>& commands,
+    int width,
+    int height,
+    std::string* errorMessage) const {
+    switch (backend) {
+        case CaptureBackend::OpenGL:
+            return captureOpenGLFrame(commands, width, height, errorMessage);
+        case CaptureBackend::Headless:
+            if (errorMessage != nullptr) {
+                *errorMessage = "Headless backend does not support pixel-backed visual capture.";
+            }
+            return std::nullopt;
+        default:
+            if (errorMessage != nullptr) {
+                *errorMessage = "Unknown renderer-backed capture backend.";
+            }
+            return std::nullopt;
+    }
+}
+
+std::optional<SceneSnapshot> VisualRegressionHarness::captureScene(
+    CaptureBackend backend,
+    const std::function<void(urpg::RendererBackend&)>& renderCallback,
+    int width,
+    int height,
+    std::string* errorMessage) const {
+    switch (backend) {
+        case CaptureBackend::OpenGL:
+            return captureOpenGLScene(
+                [&](urpg::OpenGLRenderer& renderer) {
+                    renderCallback(renderer);
+                },
+                width,
+                height,
+                errorMessage);
+        case CaptureBackend::Headless:
+            if (errorMessage != nullptr) {
+                *errorMessage = "Headless backend does not support pixel-backed visual capture.";
+            }
+            return std::nullopt;
+        default:
+            if (errorMessage != nullptr) {
+                *errorMessage = "Unknown renderer-backed capture backend.";
+            }
+            return std::nullopt;
+    }
+}
+
+std::optional<SceneSnapshot> VisualRegressionHarness::captureEngineTick(
+    CaptureBackend backend,
+    const std::function<void(urpg::EngineShell&)>& setupCallback,
+    int width,
+    int height,
+    std::string* errorMessage) const {
+    switch (backend) {
+        case CaptureBackend::OpenGL:
+            return captureOpenGLEngineTick(setupCallback, width, height, errorMessage);
+        case CaptureBackend::Headless:
+            if (errorMessage != nullptr) {
+                *errorMessage = "Headless backend does not support pixel-backed visual capture.";
+            }
+            return std::nullopt;
+        default:
+            if (errorMessage != nullptr) {
+                *errorMessage = "Unknown renderer-backed capture backend.";
+            }
+            return std::nullopt;
+    }
 }
 
 std::optional<SceneSnapshot> VisualRegressionHarness::captureOpenGLFrame(

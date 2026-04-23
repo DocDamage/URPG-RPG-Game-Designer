@@ -79,8 +79,8 @@ Tests in `test_presentation_runtime.cpp` verify:
 
 | Gap | Owner | Notes |
 |-----|-------|-------|
-| Real renderer backend integration | Future: when OpenGL/SDL2 backend is wired to production path | `render_backend_mock.h` is the current consumer; a production `IRenderBackend` dispatch path remains future work |
-| Visual regression golden tied to live renderer output | S29 | Requires OpenGL-enabled CI host |
+| Cross-backend renderer breadth | Adjacent `visual_regression_harness` lane | The current claimed production path now has bounded real renderer-backed proof, but broader backend parity still belongs to the adjacent visual-regression/readiness lane rather than this signoff artifact |
+| Human review and promotion decision | Maintainer / release owner | Promotion from `PARTIAL` to `READY` remains a deliberate human decision even with the current green evidence stack |
 
 These gaps are explicit and scoped. They do not invalidate the evidence above.
 
@@ -90,8 +90,8 @@ These gaps are explicit and scoped. They do not invalidate the evidence above.
 
 Promotion from `PARTIAL` to `READY` requires:
 1. A human reviewer to sign off on the residual gaps above.
-2. The real renderer backend integration gap to be either closed or explicitly accepted as bounded scope.
-3. Visual regression golden updated to reflect the live renderer output.
+2. Any remaining cross-backend renderer residual must be explicitly accepted as bounded scope rather than implied parity.
+3. The reviewer must make a deliberate status edit in `readiness_status.json`; passing gates alone do not promote the subsystem.
 
 **No automated gate completes promotion. A human reviewer must update `readiness_status.json`.**
 

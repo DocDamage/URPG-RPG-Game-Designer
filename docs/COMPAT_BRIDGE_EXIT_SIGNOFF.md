@@ -2,7 +2,7 @@
 
 > **Status:** `PARTIAL`  
 > **Purpose:** Evidence-gathering artifact for compat bridge exit review.  
-> **Date:** 2026-04-21  
+> **Date:** 2026-04-23  
 > **Rule:** This document does **not** promote `readiness_status.json` status. Human review is required for promotion to `READY`.
 
 ---
@@ -28,7 +28,7 @@ Current evidence for the compat bridge exit lane includes:
 
 | Area | Evidence |
 |------|----------|
-| Curated compat corpus | `tests/compat/test_compat_plugin_fixtures.cpp` covers the active 10-profile fixture corpus |
+| Curated compat corpus | `tests/compat/test_compat_plugin_fixtures.cpp` covers the active 10-profile executable fixture corpus and keeps the two corpus-health fixtures separate from executable-surface claims |
 | Failure-path parity | `tests/compat/test_compat_plugin_failure_diagnostics.cpp` proves JSONL export, report ingestion/export, and panel projection parity |
 | Truthful status labels | `tests/unit/test_audio_manager.cpp`, `tests/unit/test_battlemgr.cpp`, `tests/unit/test_data_manager.cpp`, `tests/unit/test_window_compat.cpp`, `tests/unit/test_input_manager.cpp`, `tests/unit/test_plugin_manager.cpp` |
 | Weekly maintenance lane | `tools/ci/run_compat_weekly_regression.ps1` plus the `weekly` CTest lane |

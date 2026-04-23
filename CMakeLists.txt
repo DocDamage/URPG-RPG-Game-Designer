@@ -189,7 +189,9 @@ add_library(urpg_core
     engine/core/battle/battle_core.cpp
     engine/core/battle/battle_ai_bridge.cpp
     engine/core/character/character_identity.cpp
+    engine/core/character/character_identity_catalog.cpp
     engine/core/character/character_identity_validator.cpp
+    engine/core/character/character_creation_screen.cpp
     engine/core/character/character_identity_system.cpp
     engine/core/achievement/achievement_registry.cpp
     engine/core/achievement/achievement_trigger.cpp
@@ -516,6 +518,7 @@ add_executable(urpg_tests
     tests/unit/test_character_identity_ecs.cpp
     tests/unit/test_character_creator_model.cpp
     tests/unit/test_character_creator_panel.cpp
+    tests/unit/test_character_creation_screen.cpp
     tests/unit/test_animation_system.cpp
     tests/unit/test_system_orchestrator.cpp
     tests/unit/test_interaction_system.cpp

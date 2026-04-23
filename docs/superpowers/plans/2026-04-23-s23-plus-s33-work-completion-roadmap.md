@@ -584,15 +584,28 @@ No mapped non-ready item is unassigned.
 
 ---
 
+## Closeout Snapshot (2026-04-23)
+
+- Readiness coverage rerun: 14 non-ready subsystems, 9 non-ready templates, and zero unmapped IDs.
+- `powershell -ExecutionPolicy Bypass -File tools/ci/check_release_readiness.ps1` => passed
+- `powershell -ExecutionPolicy Bypass -File tools/ci/truth_reconciler.ps1` => passed
+- `powershell -ExecutionPolicy Bypass -File tools/ci/run_local_gates.ps1` => passed
+- README/docs search found no accidental `READY` claims for non-ready subsystem/template ids outside promotion-path language.
+- Template-spec drift warnings are cleared from the local gate wrapper.
+- Compat corpus health warnings are cleared from the local gate wrapper.
+- Wrapper warning output is clean: template-spec drift, compat corpus health, and vendored SDL2 deprecation warnings are all cleared.
+
+---
+
 ## Delivery Cadence
 
-- [ ] One sprint update per bounded code slice in `WORKLOG.md`.
-- [ ] Sprint-end checkpoint includes:
-  - [ ] Build + PR-lane tests.
-  - [ ] Gate scripts.
-  - [ ] Governance and truth-reconciler run.
-  - [ ] Artifact/date drift checks.
-  - [ ] Explicit readiness record updates.
+- [x] One sprint update per bounded code slice in `WORKLOG.md`.
+- [x] Sprint-end checkpoint includes:
+  - [x] Build + PR-lane tests.
+  - [x] Gate scripts.
+  - [x] Governance and truth-reconciler run.
+  - [x] Artifact/date drift checks.
+  - [x] Explicit readiness record updates.
 
 ---
 
@@ -614,9 +627,9 @@ Coverage baseline captured this pass:
 - Missing template IDs in this plan: 0
 
 Ongoing validation steps:
-- [ ] Re-run readiness parse and confirm `status != READY` bucket parity.
-- [ ] Re-run roadmap presence checks and confirm zero unmapped IDs.
-- [ ] Confirm no README/ADR/project status file claims READY on unresolved items above.
+- [x] Re-run readiness parse and confirm `status != READY` bucket parity.
+- [x] Re-run roadmap presence checks and confirm zero unmapped IDs.
+- [x] Confirm no README/ADR/project status file claims READY on unresolved items above.
 
 ---
 

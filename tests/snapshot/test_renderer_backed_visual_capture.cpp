@@ -365,7 +365,8 @@ SceneSnapshot captureTileFrameCommandSnapshot(bool registerTextureHandle) {
 SceneSnapshot captureEngineShellMapSceneSnapshot(bool startDialogue) {
     VisualRegressionHarness harness;
     std::string errorMessage;
-    const auto snapshot = harness.captureOpenGLEngineTick(
+    const auto snapshot = harness.captureEngineTick(
+        CaptureBackend::OpenGL,
         [&](urpg::EngineShell& shell) {
             auto tilesetTexture = std::make_shared<urpg::Texture>();
             const auto tilesetPixels = makeMapSceneTilesetPixels();
@@ -412,6 +413,23 @@ SceneSnapshot captureEngineShellMapSceneSnapshot(bool startDialogue) {
         },
         640,
         400,
+        &errorMessage);
+    INFO(errorMessage);
+    REQUIRE(snapshot.has_value());
+    return *snapshot;
+}
+
+SceneSnapshot captureEngineShellMenuSceneSnapshot() {
+    VisualRegressionHarness harness;
+    std::string errorMessage;
+    const auto snapshot = harness.captureEngineTick(
+        CaptureBackend::OpenGL,
+        [](urpg::EngineShell& /*shell*/) {
+            auto menu = std::make_shared<urpg::scene::MenuScene>("EngineShellMenuSnapshot");
+            urpg::scene::SceneManager::getInstance().pushScene(menu);
+        },
+        320,
+        240,
         &errorMessage);
     INFO(errorMessage);
     REQUIRE(snapshot.has_value());
@@ -937,6 +955,29 @@ TEST_CASE("Snapshot: MenuScene golden render produces deterministic full-frame o
     }
 
     const auto result = harness.compareAgainstGolden("S29SceneGoldens", "menu_scene_full_frame", *snapshot);
+    REQUIRE(result.matches);
+    REQUIRE(result.errorPercentage == 0.0f);
+#endif
+}
+
+TEST_CASE("Snapshot: EngineShell MenuScene golden render produces deterministic full-frame output",
+          "[snapshot][regression][s1]") {
+#ifdef URPG_HEADLESS
+    SUCCEED("Headless build: skipping renderer-backed EngineShell MenuScene golden");
+#else
+    VisualRegressionHarness harness;
+    harness.setGoldenRoot(getGoldenRoot().string());
+
+    const auto snapshot = captureEngineShellMenuSceneSnapshot();
+    REQUIRE(snapshot.width == 320);
+    REQUIRE(snapshot.height == 240);
+
+    if (shouldRegenerateRendererBackedGoldens()) {
+        REQUIRE(harness.saveGolden("S1SceneGoldens", "engine_shell_menu_scene_full_frame", snapshot));
+    }
+
+    const auto result =
+        harness.compareAgainstGolden("S1SceneGoldens", "engine_shell_menu_scene_full_frame", snapshot);
     REQUIRE(result.matches);
     REQUIRE(result.errorPercentage == 0.0f);
 #endif

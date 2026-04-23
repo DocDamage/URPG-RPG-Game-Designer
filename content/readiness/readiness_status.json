@@ -100,9 +100,9 @@
     {
       "id": "presentation_runtime",
       "status": "PARTIAL",
-      "summary": "Presentation runtime, bridge, compiled spatial editor panels, end-to-end authoring-to-runtime proof path, release validation harness, concrete ProfileArenaHotReloader with arena-reset lifecycle, presentation schema + migration proof fixture, and command-stream replay + reload determinism tests are landed. Promotion to READY requires human review of residual gaps.",
+      "summary": "Presentation runtime, bridge, compiled spatial editor panels, end-to-end authoring-to-runtime proof path, release validation harness, bounded real renderer-backed production-path proof, shell-owned MapScene/MenuScene proof through the top-level EngineShell loop, concrete ProfileArenaHotReloader with arena-reset lifecycle, presentation schema + migration proof fixture, and command-stream replay + reload determinism tests are landed. Promotion to READY requires human review of residual gaps.",
       "mainGaps": [
-        "Real renderer backend integration (currently mock-backed in production path) remains future work",
+        "Cross-backend renderer breadth remains future work under visual_regression_harness; the current claimed production path is the bounded OpenGL-backed lane with shell-owned MapScene/MenuScene proof rather than cross-backend parity",
         "Promotion to READY requires human review of residual gaps"
       ],
       "signoff": {
@@ -123,7 +123,7 @@
     {
       "id": "gameplay_ability_framework",
       "status": "PARTIAL",
-      "summary": "Gameplay ability runtime, inspector/editor surfaces, structured diagnostics snapshot, end-to-end release-grade test, closure signoff artifact, gameplay_ability JSON schema (S24-T01), compat-to-native MZ mapper with deterministic fallback payloads (S24-T02), and AbilityBattleQueue integration into BattleFlowController (S24-T03/T04) are landed. Promotion to READY requires human review of residual gaps.",
+      "summary": "Gameplay ability runtime, inspector/editor surfaces, structured diagnostics snapshot, end-to-end release-grade test, closure signoff artifact, gameplay_ability JSON schema (S24-T01), compat-to-native MZ mapper with deterministic fallback payloads (S24-T02), live BattleScene activation, and AbilityBattleQueue integration into BattleFlowController (S24-T03/T04) are landed. Promotion to READY requires human review of residual gaps.",
       "mainGaps": [
         "AbilityTask backends incomplete: only WaitTime exists; input-wait, event-wait, projectile-collision not implemented",
         "Scripted conditions (activeCondition/passiveCondition strings) intentionally not evaluated",
@@ -164,11 +164,11 @@
     {
       "id": "character_identity",
       "status": "PARTIAL",
-      "summary": "Character identity runtime, editor creator panel, bounded validation runtime, ECS component/system integration, and deterministic spawner are landed with schema and focused tests.",
+      "summary": "Character identity runtime, editor creator panel, bounded validation runtime, ECS component/system integration, deterministic spawner, preset-based runtime creator screen, and preview card surface are landed with schema and focused tests.",
       "mainGaps": [
-        "Character identity validator, governance script, and ProjectAudit artifact section are landed for the bounded editor/runtime contract.",
-        "Full Create-a-Character workflow (runtime character creation UI) — deferred; no creator-screen runtime or event-driven creation flow is landed.",
-        "appearance preview pipeline — deferred; no character appearance/preview render surface is landed; this is a distinct future work item, not blocking PARTIAL status."
+        "Character identity validator, governance script, ProjectAudit artifact section, bounded runtime creator screen, and preview card surface are landed for the current preset-based editor/runtime contract.",
+        "Author-defined creation rules and deeper exported-game workflow remain future work: background/origin/species restrictions, free-text naming, stat allocation, and save/load persistence for runtime-created protagonists are not yet landed.",
+        "Layered portrait/field/battle composition from appearance parts is not landed; the current runtime preview is a bounded card surface rather than a full asset compositor."
       ],
       "evidence": {
         "runtimeOwner": true,
@@ -218,10 +218,10 @@
     {
       "id": "visual_regression_harness",
       "status": "PARTIAL",
-      "summary": "Visual regression harness with golden file management, diff heatmaps, approval tooling, a file-backed executable harness gate, and one bounded OpenGL-enabled local renderer-backed capture lane with committed clear-frame, full-frame-rect, and inset-rect goldens is landed.",
+      "summary": "Visual regression harness with golden file management, diff heatmaps, approval tooling, a file-backed executable harness gate, backend-selectable capture entry points, and one bounded OpenGL-enabled local renderer-backed capture lane enforcing primitive, live-widget, full-frame scene, transition-pair, diff-heatmap, and shell-owned full-scene goldens in local gates and Gate 1 CI is landed.",
       "mainGaps": [
-        "CI golden gate enforcement — deferred; automated golden comparison in CI pipeline is not landed.",
-        "Broader scene/backend coverage — deferred; current goldens cover only clear-frame, full-frame-rect, and inset-rect; additional scenes and backends remain out of scope."
+        "Broader backend execution — deferred; the generic capture API currently routes only to the bounded OpenGL-backed implementation and explicit headless rejection rather than cross-backend parity.",
+        "Wider shell-owned scene coverage — deferred; current goldens now prove bounded EngineShell MapScene and MenuScene slices rather than every production render path."
       ],
       "evidence": {
         "runtimeOwner": true,
@@ -252,11 +252,11 @@
     {
       "id": "export_validator",
       "status": "PARTIAL",
-      "summary": "Platform-specific export validator with per-target requirement checking, fixture-backed validation coverage, PowerShell CI script with JSON output, diagnostics panel with post-export artifact surfacing, bounded real Windows/Web/Linux/macOS bootstrap paths, bundle-level lightweight RLE-plus-XOR payload protection plus keyed integrity-tag validation, bounded repo-owned content bundling for readiness/schema/level-library roots, and governed manifest-driven promoted-asset bundle staging support is landed.",
+      "summary": "Platform-specific export validator with per-target requirement checking, fixture-backed validation coverage, PowerShell CI script with JSON output, diagnostics panel with post-export artifact surfacing, bounded real Windows/Web/Linux/macOS bootstrap paths, bundle-level lightweight RLE-plus-XOR payload protection plus keyed integrity-tag validation, configured project-asset auto-discovery manifest staging, bounded repo-owned content bundling for readiness/schema/level-library roots, governed manifest-driven promoted-asset bundle staging support, keyed SHA-256 bundle-signature validation, and structured bundle-summary JSON reporting are landed.",
       "mainGaps": [
-        "Automatic project-wide asset discovery/bundling remains out of scope.",
+        "Configured project-asset root discovery is landed; broader arbitrary external intake/store discovery remains future work.",
         "Full native packaging/signing/notarization is still out of scope.",
-        "Stronger cryptographic signing/runtime enforcement beyond the current lightweight bundle-level RLE-plus-XOR plus keyed-integrity lane remains mandatory current backlog — tracked as a pre-READY gate; current lane is not sufficient for production release claims without this hardening."
+        "Runtime-side signature enforcement beyond the current validator-time keyed SHA-256 bundle-signature lane remains mandatory current backlog — tracked as a pre-READY gate; the current lane is stronger than the old keyed-integrity-only contract but still not sufficient for production release claims without runtime enforcement."
       ],
       "evidence": {
         "runtimeOwner": true,

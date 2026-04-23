@@ -1,27 +1,15 @@
 #include "editor/character/character_creator_model.h"
 
+#include "engine/core/character/character_identity_catalog.h"
 #include "engine/core/character/character_identity_validator.h"
 #include "engine/core/character/character_identity_system.h"
 #include "engine/core/ecs/actor_manager.h"
 
 #include <algorithm>
-#include <unordered_map>
 
 namespace urpg::editor {
 
 namespace {
-
-using AttributeMap = std::unordered_map<std::string, float>;
-
-const std::unordered_map<std::string, AttributeMap>& classPresets() {
-    static const std::unordered_map<std::string, AttributeMap> kPresets = {
-        {"class_warrior", {{"STR", 14.0f}, {"VIT", 12.0f}, {"INT", 6.0f}, {"AGI", 8.0f}}},
-        {"class_mage", {{"STR", 6.0f}, {"VIT", 8.0f}, {"INT", 14.0f}, {"AGI", 10.0f}}},
-        {"class_ranger", {{"STR", 9.0f}, {"VIT", 9.0f}, {"INT", 8.0f}, {"AGI", 14.0f}}},
-        {"class_rogue", {{"STR", 8.0f}, {"VIT", 8.0f}, {"INT", 9.0f}, {"AGI", 15.0f}}}
-    };
-    return kPresets;
-}
 
 bool containsValue(const std::vector<std::string>& values, const std::string& value) {
     return std::find(values.begin(), values.end(), value) != values.end();
@@ -74,10 +62,11 @@ std::string primaryAttribute(const urpg::character::CharacterIdentity& identity)
 } // namespace
 
 CharacterCreatorModel::CharacterCreatorModel() {
-    m_known_class_ids = {"class_warrior", "class_mage", "class_ranger", "class_rogue"};
-    m_known_portrait_ids = {"portrait_warrior_01", "portrait_mage_01", "portrait_ranger_01", "portrait_rogue_01"};
-    m_known_body_sprite_ids = {"sprite_warrior_body", "sprite_mage_body", "sprite_ranger_body", "sprite_rogue_body"};
-    m_known_appearance_tokens = {"hair_short", "hair_long", "beard_short", "armor_steel", "cloak_travel", "hat_wizard"};
+    const auto& catalog = urpg::character::defaultCharacterIdentityCatalog();
+    m_known_class_ids = catalog.classIds;
+    m_known_portrait_ids = catalog.portraitIds;
+    m_known_body_sprite_ids = catalog.bodySpriteIds;
+    m_known_appearance_tokens = catalog.appearanceTokens;
 }
 
 void CharacterCreatorModel::loadIdentity(const urpg::character::CharacterIdentity& identity) {
@@ -122,13 +111,7 @@ void CharacterCreatorModel::setBaseAttribute(const std::string& key, float value
 }
 
 void CharacterCreatorModel::applyClassPreset(const std::string& classId) {
-    m_identity.setClassId(classId);
-
-    const auto preset_it = classPresets().find(classId);
-    if (preset_it != classPresets().end()) {
-        m_identity.setBaseAttributes(preset_it->second);
-    }
-
+    urpg::character::applyCharacterClassPreset(m_identity, classId, true, true);
     m_dirty = true;
 }
 
