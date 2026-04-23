@@ -305,3 +305,57 @@ Protect runtime cleanliness while completing first approved tooling lanes.
 - [ ] Template bar closure can regress after runtime-only fixes.
 - [ ] Human-review workflows introduce controlled waiting states that must be planned in schedule.
 - [ ] Tooling pipeline changes may destabilize reproducibility if outputs are not pinned.
+
+## Exhaustiveness and miss-check (current state)
+
+I ran a deterministic readiness cross-check using the latest `content/readiness/readiness_status.json`:
+
+- [ ] Re-run readiness parse and confirm `status != READY` bucket parity.
+- [ ] Re-run roadmap presence checks and confirm zero unmapped IDs.
+- [ ] Confirm no README/ADR/project status file claims READY on unresolved items above.
+
+Coverage baseline captured this pass:
+- Non-ready subsystems: 14
+- Non-ready templates: 9
+- Missing subsystem IDs in this plan: 0
+- Missing template IDs in this plan: 0
+
+Non-ready subsystems:
+- `battle_core`
+- `save_data_core`
+- `compat_bridge_exit`
+- `presentation_runtime`
+- `gameplay_ability_framework`
+- `governance_foundation`
+- `character_identity`
+- `achievement_registry`
+- `accessibility_auditor`
+- `visual_regression_harness`
+- `audio_mix_presets`
+- `export_validator`
+- `mod_registry`
+- `analytics_dispatcher`
+
+Non-ready templates:
+- `jrpg`
+- `visual_novel`
+- `turn_based_rpg`
+- `tactics_rpg`
+- `arpg`
+- `monster_collector_rpg`
+- `cozy_life_rpg`
+- `metroidvania_lite`
+- `2_5d_rpg`
+
+## Explicitly known partial boundaries (not missed features)
+
+- `tools/retrieval/shared/retrieval_index.py` — abstract adapter contracts intentionally left unbound for optional retrieval backends.
+- `tools/retrieval/embedding_jobs/external_embedding_adapter.py` — optional backend adapters are explicit extension points, not hidden required defaults.
+- `runtimes/compat_js/window_compat.h` / `window_compat.cpp` — compatibility-mode rendering edge cases intentionally deferred in boundary tickets.
+- `runtimes/compat_js/battle_manager.h` — staged compatibility behavior already represented in `compat_bridge_exit` closure work.
+
+## Per-sprint execution contract
+
+- [ ] Each sprint has a single canonical acceptance command set and one evidence index entry.
+- [ ] Each sprint writes or updates one authoritative readiness-related artifact.
+- [ ] Any partial closure keeps a single explicit `mainGaps` reason and rollback owner.
