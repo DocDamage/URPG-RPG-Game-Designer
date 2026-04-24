@@ -286,8 +286,29 @@ add_library(urpg_core
     runtimes/compat_js/window_render_helpers.cpp
     runtimes/compat_js/window_text_layout.cpp
     runtimes/compat_js/global_state_bridge.cpp
-    runtimes/compat_js/battle_manager.cpp
+  runtimes/compat_js/battle_manager_api.cpp
+  runtimes/compat_js/battle_manager_actions.cpp
+  runtimes/compat_js/battle_manager_animations.cpp
+  runtimes/compat_js/battle_manager.cpp
+  runtimes/compat_js/battle_manager_conditions.cpp
+  runtimes/compat_js/battle_manager_escape_support.cpp
+  runtimes/compat_js/battle_manager_effects.cpp
+    runtimes/compat_js/battle_manager_events.cpp
+    runtimes/compat_js/battle_manager_lifecycle.cpp
+    runtimes/compat_js/battle_manager_rewards.cpp
+    runtimes/compat_js/battle_manager_support.cpp
+    runtimes/compat_js/data_manager_accessors.cpp
+    runtimes/compat_js/data_manager_api.cpp
+    runtimes/compat_js/data_manager_battle_loading.cpp
     runtimes/compat_js/data_manager.cpp
+    runtimes/compat_js/data_manager_database.cpp
+    runtimes/compat_js/data_manager_enemy_troop_loading.cpp
+    runtimes/compat_js/data_manager_map_loading.cpp
+    runtimes/compat_js/data_manager_save.cpp
+    runtimes/compat_js/data_manager_state.cpp
+    runtimes/compat_js/data_manager_support.cpp
+    runtimes/compat_js/data_manager_value_projection.cpp
+    runtimes/compat_js/data_manager_visual_loading.cpp
     runtimes/compat_js/audio_manager.cpp
     runtimes/compat_js/input_manager.cpp
     runtimes/compat_js/plugin_manager.cpp
@@ -426,7 +447,7 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(stb)
 
-target_include_directories(urpg_core PUBLIC 
+target_include_directories(urpg_core PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}
     ${stb_SOURCE_DIR}
 )
@@ -456,9 +477,9 @@ foreach(_urpg_sdl_vendor_target IN ITEMS SDL2 SDL2-static)
     endif()
 endforeach()
 
-target_link_libraries(urpg_core PUBLIC 
+target_link_libraries(urpg_core PUBLIC
     urpg_project_warnings
-    nlohmann_json::nlohmann_json 
+    nlohmann_json::nlohmann_json
     ${URPG_SDL_TARGET}
 )
 
@@ -477,7 +498,11 @@ target_link_libraries(urpg_migrate PRIVATE urpg_core)
 target_include_directories(urpg_migrate PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
 
 add_executable(urpg_project_audit
+    tools/audit/project_audit_artifact_governance.cpp
     tools/audit/project_audit_asset_report.cpp
+    tools/audit/project_audit_issue_collectors.cpp
+    tools/audit/project_audit_support.cpp
+    tools/audit/project_audit_template_governance.cpp
     tools/audit/project_audit_template_spec.cpp
     tools/audit/urpg_project_audit.cpp
 )

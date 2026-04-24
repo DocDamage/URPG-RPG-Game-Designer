@@ -10,12 +10,10 @@
 // The BattleManager provides hook points at each phase of the MZ battle flow,
 // allowing plugins to intercept and modify battle behavior.
 
+#include "runtimes/compat_js/battle_manager_types.h"
 #include "quickjs_runtime.h"
-#include "engine/runtimes/bridge/value.h"
 #include <cstdint>
-#include <functional>
 #include <memory>
-#include <optional>
 #include <string>
 #include <unordered_map>
 #include <vector>
@@ -26,113 +24,6 @@ namespace compat {
 // Forward declarations
 class BattleManagerImpl;
 
-// Battle phases matching MZ flow
-enum class BattlePhase : uint8_t {
-    NONE = 0,
-    INIT = 1,
-    START = 2,
-    INPUT = 3,
-    TURN = 4,
-    ACTION = 5,
-    END = 6,
-    ABORT = 7
-};
-
-// Battle action types
-enum class BattleActionType : uint8_t {
-    ATTACK = 0,
-    GUARD = 1,
-    SKILL = 2,
-    ITEM = 3,
-    ESCAPE = 4,
-    WAIT = 5
-};
-
-// Subject types in battle
-enum class BattleSubjectType : uint8_t {
-    ACTOR = 0,
-    ENEMY = 1
-};
-
-struct BattleStateEffect {
-    int32_t stateId = 0;
-    int32_t turnsRemaining = 0;
-    int32_t hpDeltaPerTurn = 0;
-    int32_t mpDeltaPerTurn = 0;
-};
-
-struct BattleModifierEffect {
-    int32_t paramId = 0;
-    int32_t stages = 0;
-    int32_t turnsRemaining = 0;
-};
-
-// Battle subject reference (actor or enemy)
-struct BattleSubject {
-    BattleSubjectType type = BattleSubjectType::ACTOR;
-    int32_t index = 0;          // Index in actor/enemy array
-    int32_t id = 0;             // Database ID
-    
-    // Current state
-    int32_t hp = 0;
-    int32_t mp = 0;
-    int32_t tp = 0;
-    int32_t mhp = 0;
-    int32_t mmp = 0;
-    
-    // Battle state
-    bool hidden = false;
-    bool immortal = false;
-    bool acted = false;
-    int32_t actionSpeed = 0;
-    
-    // Pending action
-    BattleActionType pendingAction = BattleActionType::WAIT;
-    int32_t targetIndex = -1;   // -1 = no target, -2 = random
-    int32_t skillId = 0;
-    int32_t itemId = 0;
-    std::vector<BattleStateEffect> states;
-    std::vector<BattleModifierEffect> modifiers;
-};
-
-// Battle action being executed
-struct BattleAction {
-    BattleSubject* subject = nullptr;
-    BattleActionType type = BattleActionType::ATTACK;
-    int32_t targetIndex = -1;
-    int32_t skillId = 0;
-    int32_t itemId = 0;
-    int32_t animationId = 0;
-    bool forced = false;
-};
-
-struct BattleAudioCue {
-    std::string name;
-    double volume = 90.0;
-    double pitch = 100.0;
-};
-
-struct BattleAnimationPlayback {
-    int32_t animationId = 0;
-    BattleSubjectType targetType = BattleSubjectType::ACTOR;
-    int32_t targetIndex = 0;
-    int32_t targetId = 0;
-    int32_t framesRemaining = 0;
-    bool subjectAnimation = false;
-};
-
-// Battle result
-enum class BattleResult : uint8_t {
-    NONE = 0,
-    WIN = 1,
-    ESCAPE = 2,
-    DEFEAT = 3,
-    ABORT = 4
-};
-
-// Hook function types
-using BattleHookFn = std::function<Value(const std::vector<Value>& args)>;
-
 // BattleManager - MZ compatibility layer for battle system
 //
 // This class provides the MZ BattleManager API surface with hook points
@@ -140,23 +31,25 @@ using BattleHookFn = std::function<Value(const std::vector<Value>& args)>;
 //
 class BattleManager {
 public:
+    using HookPoint = BattleHookPoint;
+
     BattleManager();
     ~BattleManager();
-    
+
     // Non-copyable
     BattleManager(const BattleManager&) = delete;
     BattleManager& operator=(const BattleManager&) = delete;
 
     // Singleton access for compatibility.
     static BattleManager& instance();
-    
+
     // ========================================================================
     // Initialization and Setup
     // ========================================================================
-    
+
     // Status: PARTIAL - Battle state initializes, but troop loading and party seeding are still TODO
     void setup(int32_t troopId, bool canEscape = true, bool canLose = false);
-    
+
     // Status: PARTIAL - Transition/background/audio metadata is retained, but not yet routed to scene/audio playback
     void setBattleTransition(int32_t type);
     void setBattleBackground(const std::string& name);
@@ -170,133 +63,133 @@ public:
     const BattleAudioCue& getBattleBgm() const;
     const BattleAudioCue& getVictoryMe() const;
     const BattleAudioCue& getDefeatMe() const;
-    
+
     // ========================================================================
     // Battle Flow Control
     // ========================================================================
-    
+
     // Status: FULL - Start battle
     void startBattle();
-    
+
     // Status: FULL - End battle
     void endBattle(BattleResult result);
-    
+
     // Status: FULL - Abort battle
     void abortBattle();
-    
+
     // Status: FULL - Escape attempt with deterministic MZ-style ratio ramp
     bool canEscape() const;
     bool processEscape();
-    
+
     // Status: FULL - Check if battle is active
     bool isBattleActive() const;
-    
+
     // Status: FULL - Get current phase
     BattlePhase getPhase() const;
-    
+
     // Status: FULL - Get battle result
     BattleResult getResult() const;
-    
+
     // ========================================================================
     // Turn Management
     // ========================================================================
-    
+
     // Status: FULL - Turn counter
     int32_t getTurnCount() const;
     void incrementTurn();
-    
+
     // Status: FULL - Check if specific turn (for event conditions)
     bool isTurn(int32_t turn) const;
     bool isTurnRange(int32_t minTurn, int32_t maxTurn) const;
-    
+
     // Status: FULL - Turn end processing
     void startTurn();
     void endTurn();
-    
+
     // ========================================================================
     // Subject (Actor/Enemy) Management
     // ========================================================================
-    
+
     // Status: FULL - Get all actors in battle
     std::vector<BattleSubject*> getActors();
     const std::vector<BattleSubject>& getActorsConst() const;
-    
+
     // Status: FULL - Get all enemies in battle
     std::vector<BattleSubject*> getEnemies();
     const std::vector<BattleSubject>& getEnemiesConst() const;
-    
+
     // Status: FULL - Get specific subject
     BattleSubject* getActor(int32_t index);
     BattleSubject* getEnemy(int32_t index);
     void addActorSubject(const BattleSubject& subject);
     void addEnemySubject(const BattleSubject& subject);
-    
+
     // Status: FULL - Get all battle members (actors + enemies)
     std::vector<BattleSubject*> getAllSubjects();
-    
+
     // Status: FULL - Get active subjects (not hidden/dead)
     std::vector<BattleSubject*> getActiveActors();
     std::vector<BattleSubject*> getActiveEnemies();
-    
+
     // Status: FULL - Check if party/ troop is all dead
     bool isAllActorsDead() const;
     bool isAllEnemiesDead() const;
-    
+
     // ========================================================================
     // Action System
     // ========================================================================
-    
+
     // Status: FULL - Queue action for subject
     void queueAction(BattleSubject* subject, BattleActionType type,
                      int32_t targetIndex = -1, int32_t skillId = 0, int32_t itemId = 0);
-    
+
     // Status: FULL - Force action (ignores input phase)
     void forceAction(int32_t subjectIndex, BattleSubjectType subjectType,
                      BattleActionType type, int32_t targetIndex,
                      int32_t skillId = 0, int32_t itemId = 0);
-    
+
     // Status: FULL - Get next action to process
     BattleAction* getNextAction();
-    
+
     // Status: FULL - Process action
     void processAction(BattleAction* action);
-    
+
     // Status: FULL - Clear all actions
     void clearActions();
-    
+
     // Status: FULL - Sort actions by speed
     void sortActionsBySpeed();
-    
+
     // ========================================================================
     // Input Phase
     // ========================================================================
-    
+
     // Status: FULL - Select next actor for input
     BattleSubject* selectNextActor();
-    
+
     // Status: FULL - Check if all actors have input
     bool isAllActorsInputted() const;
-    
+
     // Status: FULL - Set actor action
     void setActorAction(int32_t actorIndex, BattleActionType type,
                         int32_t targetIndex, int32_t skillId = 0, int32_t itemId = 0);
-    
+
     // Status: FULL - Auto battle for actor
     void autoBattleActor(int32_t actorIndex);
-    
+
     // ========================================================================
     // Damage and Effects
     // ========================================================================
-    
+
     // Status: FULL - Apply damage to subject
     void applyDamage(BattleSubject* subject, int32_t damage, bool isHp = true);
-    
+
     // Status: FULL - Apply healing to subject
     void applyHeal(BattleSubject* subject, int32_t amount, bool isHp = true);
-    
+
     // Status: PARTIAL - Resolves skill database record and applies damage/healing/state effects; full formula parsing is not yet implemented
     void applySkill(BattleSubject* user, BattleSubject* target, int32_t skillId);
-    
+
     // Status: PARTIAL - Resolves item database record and applies damage/healing/state effects; full formula parsing is not yet implemented
     void applyItem(BattleSubject* user, BattleSubject* target, int32_t itemId);
 
@@ -308,131 +201,111 @@ public:
     bool addBuff(BattleSubject* subject, int32_t paramId, int32_t turnsRemaining = 1, int32_t stages = 1);
     bool addDebuff(BattleSubject* subject, int32_t paramId, int32_t turnsRemaining = 1, int32_t stages = 1);
     int32_t getModifierStage(const BattleSubject* subject, int32_t paramId) const;
-    
+
     // Status: FULL - Check and apply states
     void applyStateEffects(BattleSubject* subject);
     void applyTurnEndEffects(BattleSubject* subject);
-    
+
     // Status: FULL - Deterministic animation playback queue backed by loaded compat animation data
     void playAnimation(int32_t animationId, BattleSubject* target);
     void playAnimationOnSubject(int32_t animationId, BattleSubject* subject);
     bool isAnimationPlaying() const;
     const std::vector<BattleAnimationPlayback>& getActiveAnimations() const;
-    
+
     // ========================================================================
     // Event Integration
     // ========================================================================
-    
+
     // Status: PARTIAL - Troop page entry is supported, but only a bounded interpreter subset runs once started
     void startBattleEvent(int32_t eventId);
     // Status: PARTIAL - Troop page conditions plus a bounded event subset execute against live compat state; conditional branches currently cover switch, variable, and isBattleTest checks
     void updateBattleEvents();
     // Status: FULL - Battle event active state is tracked in live compat state
     bool isBattleEventActive() const;
-    
+
     // Status: FULL - Turn, HP, and switch checks read live compat state
     bool checkTurnCondition(int32_t turn, int32_t span);
     bool checkEnemyHpCondition(int32_t enemyIndex, int32_t percent);
     bool checkActorHpCondition(int32_t actorIndex, int32_t percent);
     bool checkSwitchCondition(int32_t switchId);
-    
+
     // ========================================================================
     // Hook Registration
     // ========================================================================
-    
-    // Hook points for plugins
-    enum class HookPoint : uint8_t {
-        ON_SETUP,               // Before battle setup
-        ON_START,               // Battle starts
-        ON_TURN_START,          // Turn begins
-        ON_TURN_END,            // Turn ends
-        ON_ACTION_START,        // Action begins
-        ON_ACTION_END,          // Action ends
-        ON_DAMAGE,              // Damage dealt
-        ON_HEAL,                // Healing applied
-        ON_STATE_ADDED,         // State added to subject
-        ON_STATE_REMOVED,       // State removed from subject
-        ON_ACTOR_DEATH,         // Actor dies
-        ON_ENEMY_DEATH,         // Enemy dies
-        ON_VICTORY,             // Victory
-        ON_DEFEAT,              // Defeat
-        ON_ESCAPE,              // Escape attempt
-        ON_ABORT                // Battle aborted
-    };
-    
+
     // Register a hook callback
     void registerHook(HookPoint point, const std::string& pluginId, BattleHookFn callback);
-    
+
     // Unregister hooks for a plugin
     void unregisterHooks(const std::string& pluginId);
-    
+
     // Trigger a hook (internal)
     Value triggerHook(HookPoint point, const std::vector<Value>& args);
-    
+
     // ========================================================================
     // Drop/Exp/Gold
     // ========================================================================
-    
+
     // Status: PARTIAL - Reward math uses live compat state with seeded deterministic drops, but full MZ parity is still incomplete
     int32_t calculateExp() const;
     int32_t calculateGold() const;
     std::vector<int32_t> calculateDrops() const;
-    
+
     // Status: PARTIAL - EXP application is simplified, but it mutates live DataManager party members
     void applyExp();
     // Status: FULL - Gold application mutates live DataManager state
     void applyGold();
     // Status: FULL - Drop application mutates live DataManager inventory
     void applyDrops();
-    
+
     // Test helper: seed the internal RNG for deterministic tests
     void seedRng(uint32_t seed);
-    
+
     // ========================================================================
     // JS-friendly helpers
     // ========================================================================
-    
+
     // Status: FULL - Battle test flag (always false in compat harness)
     bool isBattleTest() const;
-    
+
     // Status: FULL - Check if battle can be lost
     bool canLose() const;
-    
+
     // Status: FULL - Escape callbacks
     void onEscapeSuccess();
     void onEscapeFailure();
-    
+
     // Status: PARTIAL - Background/Audio metadata setters retain compat state; playback still TODO
     void changeBattleBackground(const std::string& name);
     void changeBattleBgm(const std::string& name, double volume = 90.0, double pitch = 100.0);
     void changeVictoryMe(const std::string& name, double volume = 90.0, double pitch = 100.0);
     void changeDefeatMe(const std::string& name, double volume = 90.0, double pitch = 100.0);
-    
+
     // Status: FULL - Alias for hasState
     bool isStateActive(const BattleSubject* subject, int32_t stateId) const;
-    
+
     // Status: FULL - Process next queued action (parameterless overload)
     void processAction();
-    
+
     // Status: FULL - Queue action by subject indices (JS-friendly)
     void queueActionByIndices(int32_t subjectIndex, BattleSubjectType subjectType,
                               BattleActionType type, int32_t targetIndex,
                               int32_t skillId = 0, int32_t itemId = 0);
-    
+
     // ========================================================================
     // Compat Status
     // ========================================================================
-    
+
     // Register BattleManager API with QuickJS context
     static void registerAPI(QuickJSContext& ctx);
-    
+
     // Get compat status for a method
     static CompatStatus getMethodStatus(const std::string& methodName);
     static std::string getMethodDeviation(const std::string& methodName);
-    
+
 private:
     std::unique_ptr<BattleManagerImpl> impl_;
-    
+
     // Battle state
     int32_t troopId_ = 0;
     BattlePhase phase_ = BattlePhase::NONE;
@@ -449,18 +322,18 @@ private:
     BattleAudioCue victoryMe_;
     BattleAudioCue defeatMe_;
     std::vector<BattleAnimationPlayback> activeAnimations_;
-    
+
     // Subjects
     std::vector<BattleSubject> actors_;
     std::vector<BattleSubject> enemies_;
-    
+
     // Actions
     std::vector<BattleAction> actionQueue_;
     int32_t currentActionIndex_ = -1;
-    
+
     // Hooks
     std::unordered_map<HookPoint, std::unordered_map<std::string, BattleHookFn>> hooks_;
-    
+
     // API status registry
     static std::unordered_map<std::string, CompatStatus> methodStatus_;
     static std::unordered_map<std::string, std::string> methodDeviations_;
