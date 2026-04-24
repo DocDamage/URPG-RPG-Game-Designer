@@ -132,8 +132,14 @@ if (-not $SkipWarningsAsErrorsGate) {
 
 $testDir = "build/$ConfigurePreset"
 
+Write-Host "== Validate CTest discovery ==" -ForegroundColor Cyan
+& "$PSScriptRoot\check_ctest_discovery.ps1" -BuildDirectory $testDir
+
 Write-Host "== Validate visual regression harness ==" -ForegroundColor Cyan
 & "$PSScriptRoot\check_visual_regression_harness.ps1"
+
+Write-Host "== Validate visual golden governance ==" -ForegroundColor Cyan
+& "$PSScriptRoot\check_visual_golden_governance.ps1"
 
 Write-Host "== Validate renderer-backed visual capture ==" -ForegroundColor Cyan
 & "$PSScriptRoot\check_renderer_backed_visual_capture.ps1" -BuildDirectory $testDir

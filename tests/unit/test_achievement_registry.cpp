@@ -174,6 +174,71 @@ TEST_CASE("AchievementRegistry unknown id in load is ignored", "[achievement]") 
     REQUIRE_FALSE(unknown.has_value());
 }
 
+TEST_CASE("AchievementRegistry exports vendor-neutral trophy payload", "[achievement][export]") {
+    AchievementRegistry registry;
+
+    AchievementDef first;
+    first.id = "ach_001";
+    first.title = "First Blood";
+    first.description = "Defeat one enemy.";
+    first.secret = false;
+    first.unlockCondition = "kill_count_1";
+    first.iconId = "icon_sword";
+
+    AchievementDef secret;
+    secret.id = "ach_secret";
+    secret.title = "Hidden Door";
+    secret.description = "Find the hidden door.";
+    secret.secret = true;
+    secret.unlockCondition = "door_find_3";
+    secret.iconId = "icon_door";
+
+    registry.registerAchievement(first);
+    registry.registerAchievement(secret);
+    REQUIRE(registry.reportProgress("ach_001", 1));
+    registry.reportProgress("ach_secret", 2);
+
+    const auto payload = registry.exportTrophyPayload("urpg-neutral");
+
+    REQUIRE(payload["version"] == "1.0.0");
+    REQUIRE(payload["platform"] == "urpg-neutral");
+    REQUIRE(payload["backendIntegration"] == "out-of-tree");
+    REQUIRE(payload["summary"]["total"] == 2);
+    REQUIRE(payload["summary"]["unlocked"] == 1);
+    REQUIRE(payload["summary"]["secret"] == 1);
+    REQUIRE(payload["trophies"].is_array());
+    REQUIRE(payload["trophies"].size() == 2);
+
+    REQUIRE(payload["trophies"][0]["id"] == "ach_001");
+    REQUIRE(payload["trophies"][0]["target"] == 1);
+    REQUIRE(payload["trophies"][0]["progress"] == 1);
+    REQUIRE(payload["trophies"][0]["unlocked"] == true);
+    REQUIRE(payload["trophies"][0]["unlockTime"] == "deterministic_timestamp");
+
+    REQUIRE(payload["trophies"][1]["id"] == "ach_secret");
+    REQUIRE(payload["trophies"][1]["secret"] == true);
+    REQUIRE(payload["trophies"][1]["target"] == 3);
+    REQUIRE(payload["trophies"][1]["progress"] == 2);
+    REQUIRE(payload["trophies"][1]["unlocked"] == false);
+    REQUIRE_FALSE(payload["trophies"][1].contains("unlockTime"));
+}
+
+TEST_CASE("AchievementRegistry trophy payload defaults to neutral platform", "[achievement][export]") {
+    AchievementRegistry registry;
+
+    AchievementDef def;
+    def.id = "ach_001";
+    def.title = "First Blood";
+    def.description = "Defeat one enemy.";
+    def.secret = false;
+    def.unlockCondition = "kill_count_1";
+    def.iconId = "icon_sword";
+
+    registry.registerAchievement(def);
+
+    REQUIRE(registry.exportTrophyPayload("")["platform"] == "urpg-neutral");
+}
+
 TEST_CASE("AchievementValidator: Valid definitions produce no issues", "[achievement][validation]") {
     AchievementValidator validator;
     std::vector<AchievementDef> defs = {

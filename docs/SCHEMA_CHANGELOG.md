@@ -58,6 +58,13 @@ Each governed schema entry should include:
 - Summary: achievement/trophy registry schema with definitions, progress, and unlock conditions
 - Migration Impact: none; initial introduction
 
+### `achievement_trophy_export` (`achievement_trophy_export.schema.json`)
+
+- Version: `1.0.0`
+- Date: `2026-04-24`
+- Summary: vendor-neutral achievement trophy export payload with summary counts, per-trophy progress, and an explicit out-of-tree backend-integration marker
+- Migration Impact: none; additive export contract for the existing achievement registry
+
 ### `accessibility_report` (`accessibility_report.schema.json`)
 
 - Version: `1.0.0`

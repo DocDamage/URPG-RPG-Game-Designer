@@ -5,6 +5,15 @@ Program Scope: native-first roadmap rewire plus Wave 1 absorption, Wave 2 advanc
 
 Cross-cutting debt, truthfulness, and intake-governance source of truth: `docs/TECHNICAL_DEBT_REMEDIATION_PLAN.md`.
 
+2026-04-24 technical debt audit Sprint 2 evidence refresh:
+- `battle_core` and `save_data_core` validation was refreshed through focused Catch2 tag filters, battle/save integration, Wave 1 closure integration, save policy governance, release readiness, and truth reconciliation.
+- Both lanes intentionally remain `PARTIAL`; `urpg_project_audit --json` still reports `releaseBlockerCount: 2` and `exportBlockerCount: 0` because no human reviewer accept/reject decisions have been recorded.
+
+2026-04-24 technical debt audit Sprint 3 export-hardening boundary:
+- `docs/EXPORT_RUNTIME_SIGNATURE_ENFORCEMENT_DESIGN.md` now records the runtime/load-time `data.pck` signature-enforcement contract required before any export-validator promotion to `READY`.
+- Export remains `PARTIAL`: current keyed SHA-256 bundle-signature enforcement is validator-time protection, while runtime rejection of tampered bundles, temp-file-plus-atomic-rename publication, full native signing, and notarization remain backlog.
+- Achievement registry remains `PARTIAL`: the vendor-neutral trophy export payload is now landed and governed, while platform-specific achievement backend integration remains explicitly out-of-tree.
+
 Canonical planning chain:
 - `docs/TECHNICAL_DEBT_REMEDIATION_PLAN.md` governs cross-cutting truthfulness, reconciliation, and Definition-of-Done requirements.
 - `docs/NATIVE_FEATURE_ABSORPTION_PLAN.md` is the canonical product roadmap.

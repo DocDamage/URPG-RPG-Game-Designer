@@ -1,0 +1,1291 @@
+# Future Feature Actionable Sprint Plan
+
+Status Date: 2026-04-24
+
+This document converts `docs/FUTURE_FEATURE_UPGRADE_PLANS.md` into an implementation-grade backlog. It is designed for humans or LLM coding agents to execute without rediscovering the project shape each time.
+
+This plan is future scope. It does not promote any subsystem or template to `READY`, does not change `content/readiness/readiness_status.json`, and does not replace the current release-signoff workflow.
+
+## Ground Rules
+
+- Do not start these sprints until the current release gates are intentionally closed or deliberately deferred.
+- Every feature must land as a narrow vertical slice: runtime model, editor projection where applicable, schema/fixture when data-driven, diagnostics, tests, docs, and CMake wiring.
+- Keep deterministic behavior first. Any generator, replay, timeline, AI-assist, balance simulation, or snapshot feature must be seedable and reproducible.
+- Keep live providers out of runtime by default. AI, cloud, marketplace, and remote analytics integrations must stay optional, opt-in, or out-of-tree unless product scope changes.
+- Do not mark any new feature `READY` without evidence in code, tests, docs, and project audit/readiness governance.
+- When a feature cannot support full RPG Maker parity, preserve unsupported payloads and emit explicit diagnostics instead of silently dropping data.
+
+## Canonical Implementation Pattern
+
+Use this structure unless an existing subsystem already has a stronger local pattern.
+
+| Layer | Preferred Location | Naming Pattern |
+|---|---|---|
+| Runtime | `engine/core/<feature>/` | `<feature>.h`, `<feature>.cpp`, `<feature>_validator.*`, `<feature>_migration.*` |
+| Editor model/panel | `editor/<feature>/` | `<feature>_model.*`, `<feature>_panel.*` |
+| Tests | `tests/unit/`, `tests/integration/` | `test_<feature>.cpp`, `test_<feature>_panel.cpp`, `test_<feature>_integration.cpp` |
+| Schemas | `content/schemas/` | `<feature>.schema.json` |
+| Fixtures | `content/fixtures/` | `<feature>_fixture.json` |
+| Governance scripts | `tools/ci/` | `check_<feature>_governance.ps1` |
+| Docs | `docs/` or `docs/<feature>/` | `<FEATURE>_*.md`, validation docs |
+
+Add source files to `urpg_core` and tests to `urpg_tests` in `CMakeLists.txt`. Add focused CTest tags to every `TEST_CASE`.
+
+### Shared Definition Of Done
+
+Each sprint is complete only when:
+
+- [ ] Runtime code exists and is wired into `CMakeLists.txt`.
+- [ ] Editor-facing model/panel exists when the feature is authorable or inspectable.
+- [ ] Data schema and canonical fixture exist when the feature persists authorable content.
+- [ ] Unit tests cover happy path, invalid input, empty state, duplicate IDs, unknown references, and deterministic ordering.
+- [ ] Integration tests cover at least one real cross-subsystem path when the feature touches save/load, battle, event, message, export, or presentation.
+- [ ] Governance script exists for any schema/fixture/artifact lane that must stay in sync.
+- [ ] Project audit/readiness docs are updated conservatively, never overclaiming.
+- [ ] `powershell -ExecutionPolicy Bypass -File .\tools\ci\check_release_readiness.ps1` passes.
+- [ ] `powershell -ExecutionPolicy Bypass -File .\tools\ci\truth_reconciler.ps1` passes.
+- [ ] `ctest --test-dir build/dev-ninja-debug -L pr --output-on-failure` passes or any failure is explicitly unrelated and documented.
+
+## Sprint Overview
+
+| Sprint | Lane | Depends On | Primary Output |
+|---|---|---|---|
+| FFS-00 | Current Gate Closure Prerequisites | Current release work | Human-review and export-hardening boundary clear |
+| FFS-01 | Project Health Dashboard | FFS-00 | Editor-ready audit summary and fix queue |
+| FFS-02 | Asset Library And Intake UX | FFS-00 | Asset browser with provenance and cleanup previews |
+| FFS-03 | Visual Event Authoring | FFS-01 | Event page editor, dependency graph, breakpoints |
+| FFS-04 | Plugin Compatibility Inspector | FFS-01 | Plugin scoring, dependency graph, shim hints |
+| FFS-05 | Battle Authoring Suite | FFS-03 | Battle presentation, boss designer, formula debugger |
+| FFS-06 | Map And Worldbuilding Suite | FFS-03 | Tilemap, regions, lighting/weather, procedural maps |
+| FFS-07 | Export, Patch, And Packaging Hardening | FFS-01 | Runtime bundle validation, release comparison, DLC packaging |
+| FFS-08 | Project Onboarding Suite | FFS-01, FFS-07 | New project wizard, templates, dev room, tutorials |
+| FFS-09 | Save/Load Debugging Suite | FFS-01 | Save debugger, corruption lab, migration preview, snapshots |
+| FFS-10 | Narrative And Quest Suite | FFS-03 | Quests, dialogue graph, continuity, choices, endings |
+| FFS-11 | Timeline, Macro, Replay Suite | FFS-03, FFS-10 | Cutscenes, macro recorder, time travel, replay gallery |
+| FFS-12 | RPG Database And Balance Suite | FFS-05, FFS-10 | DB parity, economy, encounters, shops, loot, jobs |
+| FFS-13 | Simulation And World Systems | FFS-10, FFS-12 | Relationships, calendar, NPC schedules, crafting, codex |
+| FFS-14 | Player Experience And Platform Suite | FFS-08 | Localization, accessibility, input remap, device profiles |
+| FFS-15 | Capture, Theme, And Presentation Polish | FFS-06, FFS-14 | Trailer capture, photo mode, UI skin builder |
+| FFS-16 | Collaboration, SDK, And Optional AI | FFS-01 | Diagnostics bundles, mod SDK, co-author workflow, AI assist |
+| FFS-17 | Certification And Governance Integration | All prior slices | Template certification, project completeness scoring, CI guards |
+
+---
+
+## FFS-00 - Current Gate Closure Prerequisites
+
+### Objective
+Prevent future feature work from hiding current release blockers.
+
+### Checklist
+- [ ] Close `battle_core` human review with explicit human accept/reject decision.
+- [ ] Close `save_data_core` human review with explicit human accept/reject decision.
+- [ ] Keep `promotionRequiresHumanReview: true` in signoff-gated readiness records unless governance rules are changed deliberately.
+- [ ] Finish or deliberately defer runtime-side `data.pck` signature enforcement before broad export claims.
+- [ ] Re-run `urpg_project_audit --json` and record release/export blocker counts.
+- [ ] Confirm all new future-plan docs are excluded from `READY` status claims.
+
+### Edge Cases
+- Human reviewer accepts one lane and blocks the other.
+- A reviewer accepts residual gaps but requires follow-up issues before promotion.
+- Audit returns `releaseBlockerCount: 0` but template bars remain `PARTIAL`.
+- Export validation passes offline but runtime load still accepts tampered bundles.
+
+### Required Commands
+
+```powershell
+.\build\dev-ninja-debug\urpg_project_audit.exe --json
+powershell -ExecutionPolicy Bypass -File .\tools\ci\check_release_readiness.ps1
+powershell -ExecutionPolicy Bypass -File .\tools\ci\truth_reconciler.ps1
+ctest --test-dir build/dev-ninja-debug -L pr --output-on-failure
+```
+
+---
+
+## FFS-01 - Project Health Dashboard
+
+### Objective
+Make release blockers, export blockers, asset issues, schema drift, and fix guidance visible inside the editor.
+
+### Files To Add Or Modify
+- [ ] `editor/diagnostics/project_health_model.h`
+- [ ] `editor/diagnostics/project_health_model.cpp`
+- [ ] `editor/diagnostics/project_health_panel.h`
+- [ ] `editor/diagnostics/project_health_panel.cpp`
+- [ ] `tests/unit/test_project_health_model.cpp`
+- [ ] `tests/unit/test_project_health_panel.cpp`
+- [ ] Extend `editor/diagnostics/diagnostics_workspace.*`
+- [ ] Extend `editor/diagnostics/diagnostics_workspace_export.cpp`
+- [ ] Extend `CMakeLists.txt`
+
+### Checklist
+- [ ] Ingest `urpg_project_audit` JSON already accepted by `ProjectAuditPanel`.
+- [ ] Produce grouped cards: release blockers, export blockers, warnings, governance issues, asset issues, schema issues.
+- [ ] Add "Fix next" queue ordered by severity, blocker type, and owning subsystem.
+- [ ] Each fix card includes code, title, detail, affected paths, validation commands, and acceptance criteria.
+- [ ] Add empty state for no report.
+- [ ] Add stale-state indicator when report `statusDate` differs from readiness date.
+- [ ] Add machine-readable snapshot export through diagnostics workspace.
+
+### Edge Cases
+- Report is missing optional governance sections.
+- Report has unknown severity string.
+- Report has counts but no issue array.
+- Report has issue array but no counts.
+- File paths in issues are absent, relative, or outside repo root.
+- Report is huge and contains thousands of asset issues.
+
+### Tests
+- [ ] `ProjectHealthModel` groups issues deterministically by severity then code.
+- [ ] Missing counts are derived from issue flags.
+- [ ] Unknown severity maps to info, not crash.
+- [ ] Empty report renders no-data snapshot.
+- [ ] Fix queue preserves exact validation command strings.
+- [ ] Diagnostics workspace export includes health cards.
+
+### Acceptance Commands
+
+```powershell
+cmake --build --preset dev-debug
+.\build\dev-ninja-debug\urpg_tests.exe "[editor][diagnostics][project_health]" --reporter compact
+.\build\dev-ninja-debug\urpg_project_audit.exe --json
+```
+
+---
+
+## FFS-02 - Asset Library And Intake UX
+
+### Objective
+Turn asset hygiene and intake reports into a creator-facing asset browser with cleanup previews and provenance packets.
+
+### Files To Add Or Modify
+- [ ] `engine/core/assets/asset_library.h`
+- [ ] `engine/core/assets/asset_library.cpp`
+- [ ] `engine/core/assets/asset_provenance.h`
+- [ ] `engine/core/assets/asset_cleanup_planner.h`
+- [ ] `engine/core/assets/asset_cleanup_planner.cpp`
+- [ ] `editor/assets/asset_library_model.*`
+- [ ] `editor/assets/asset_library_panel.*`
+- [ ] `tests/unit/test_asset_library.cpp`
+- [ ] `tests/unit/test_asset_cleanup_planner.cpp`
+- [ ] `tests/unit/test_asset_library_panel.cpp`
+- [ ] `tools/ci/check_asset_library_governance.ps1`
+
+### Checklist
+- [ ] Load existing hygiene reports from `imports/reports/`.
+- [ ] Surface statuses: usable, risky, duplicate, oversized, missing license, missing file, unsupported format.
+- [ ] Do not delete files directly. Generate cleanup plans only.
+- [ ] Add safe-delete preview that proves no referenced asset uses the candidate file.
+- [ ] Export provenance packet with original source, license, normalized path, and export eligibility.
+- [ ] Add case-sensitivity warnings for paths that differ only by case.
+
+### Edge Cases
+- Duplicate files where both are referenced by different fixtures.
+- Asset path exists on Windows but would fail on case-sensitive systems.
+- Oversized archive is intentionally retained under `imports/`.
+- Missing license for a file not included in export.
+- Broken symlink or inaccessible file.
+- Unsupported extension with valid metadata.
+
+### Tests
+- [ ] Duplicate groups sort deterministically by canonical path.
+- [ ] Cleanup plan refuses to delete referenced files.
+- [ ] Missing license blocks export eligibility but not editor preview.
+- [ ] Path case collision is detected.
+- [ ] Provenance packet round-trips JSON.
+- [ ] Governance script fails when fixture/report is missing.
+
+---
+
+## FFS-03 - Visual Event Authoring
+
+### Objective
+Build the authoring spine for RPG logic: visual event pages, command editing, dependency graph, and debugger.
+
+### Files To Add Or Modify
+- [ ] `engine/core/events/event_document.h`
+- [ ] `engine/core/events/event_document.cpp`
+- [ ] `engine/core/events/event_dependency_graph.h`
+- [ ] `engine/core/events/event_dependency_graph.cpp`
+- [ ] `engine/core/events/event_debugger.h`
+- [ ] `engine/core/events/event_debugger.cpp`
+- [ ] `editor/events/event_authoring_model.*`
+- [ ] `editor/events/event_authoring_panel.*`
+- [ ] `content/schemas/events.schema.json`
+- [ ] `content/fixtures/events_fixture.json`
+- [ ] `tests/unit/test_event_document.cpp`
+- [ ] `tests/unit/test_event_dependency_graph.cpp`
+- [ ] `tests/unit/test_event_debugger.cpp`
+- [ ] `tests/unit/test_event_authoring_panel.cpp`
+
+### Checklist
+- [ ] Model event pages with conditions, priority, trigger, and commands.
+- [ ] Support commands for message, switch, variable, transfer, common event, battle, item, gold, wait, fade, sound, and plugin fallback.
+- [ ] Preserve unsupported commands as `_compat_command_fallbacks`.
+- [ ] Build dependency graph of reads/writes for switches, variables, quest flags, save fields, and common events.
+- [ ] Add debugger with breakpoints, current page, command pointer, watch variables, and event stack.
+- [ ] Add semantic validation: duplicate event IDs, missing target map, missing common event, unreachable page, page shadowing, cyclic common-event calls.
+
+### Edge Cases
+- Multiple event pages match; highest-priority page must win deterministically.
+- Event command references deleted switch/variable.
+- Common event recursion.
+- Plugin command is present but plugin is disabled.
+- Transfer target map exists but coordinates are out of bounds.
+- Event page has no commands but valid conditions.
+- Event graph contains thousands of nodes.
+
+### Tests
+- [ ] Event page resolution is deterministic when conditions overlap.
+- [ ] Unsupported commands are preserved in fallback payloads.
+- [ ] Dependency graph reports read/write edges.
+- [ ] Cyclic common-event calls emit diagnostics and do not recurse forever.
+- [ ] Debugger can step, break, resume, and expose watch values.
+- [ ] Empty event document returns empty snapshot without crash.
+
+---
+
+## FFS-04 - Plugin Compatibility Inspector
+
+### Objective
+Expose plugin compatibility, sandbox permissions, unsupported APIs, load order, and suggested native replacements.
+
+### Files To Add Or Modify
+- [ ] `engine/core/plugin/plugin_compatibility_score.h`
+- [ ] `engine/core/plugin/plugin_compatibility_score.cpp`
+- [ ] `editor/plugin/plugin_inspector_model.*`
+- [ ] `editor/plugin/plugin_inspector_panel.*`
+- [ ] `tests/unit/test_plugin_compatibility_score.cpp`
+- [ ] `tests/unit/test_plugin_inspector_panel.cpp`
+- [ ] Extend `tools/rpgmaker/validate-plugin-dropins.ps1` if needed.
+
+### Checklist
+- [ ] Ingest existing compat plugin manifests and failure reports.
+- [ ] Compute conservative score: compatible, partial, risky, unsupported.
+- [ ] List unsupported JS APIs, missing dependencies, permission denials, fixture-only behavior, and fallback paths.
+- [ ] Visualize plugin dependency order and cycles.
+- [ ] Provide shim hints only when an in-tree native feature exists.
+- [ ] Keep score non-release-authoritative until governance integrates it.
+
+### Edge Cases
+- Plugin declares dependency that is missing but unused by the active profile.
+- Plugin uses dynamic eval or obfuscated command names.
+- Plugin load order cycle.
+- Plugin requests permission not granted by sandbox.
+- Manifest is malformed but plugin file exists.
+- Multiple plugins override the same RPG Maker method.
+
+### Tests
+- [ ] Missing dependency lowers score and surfaces exact dependency ID.
+- [ ] Permission denial produces blocking issue.
+- [ ] Cycle detection is deterministic.
+- [ ] Unknown API appears in unsupported list.
+- [ ] Suggested native replacement appears only for mapped APIs.
+
+---
+
+## FFS-05 - Battle Authoring Suite
+
+### Objective
+Make battle authoring visual, inspectable, and designer-friendly.
+
+### Feature Bundle
+- Battle presentation authoring.
+- Boss fight designer.
+- Formula/rule debugger.
+- Enemy AI behavior designer.
+- Party tactics/auto-battle planner.
+
+### Files To Add Or Modify
+- [ ] `engine/core/battle/battle_presentation_profile.*`
+- [ ] `engine/core/battle/boss_profile.*`
+- [ ] `engine/core/battle/battle_formula_probe.*`
+- [ ] `engine/core/battle/enemy_ai_profile.*`
+- [ ] `engine/core/battle/party_tactics_profile.*`
+- [ ] `editor/battle/battle_presentation_panel.*`
+- [ ] `editor/battle/boss_designer_panel.*`
+- [ ] `editor/battle/formula_debugger_panel.*`
+- [ ] `content/schemas/battle_presentation.schema.json`
+- [ ] `content/schemas/boss_profiles.schema.json`
+- [ ] Focused tests under `tests/unit/`.
+
+### Checklist
+- [ ] Battleback assignment validates missing assets and case-sensitive paths.
+- [ ] HUD layout supports gauges, state icons, turn order, damage popups, and guard markers.
+- [ ] Cue timeline supports cast, hit, miss, critical, death, phase transition, victory, defeat, BGM, ME, and camera shake.
+- [ ] Boss profiles support phases, thresholds, summons, enrage, dialogue barks, rewards, and music transitions.
+- [ ] Formula debugger uses existing `CombatFormula` bounded contract and explains fallback reasons.
+- [ ] Enemy AI profiles choose actions deterministically from weighted rules.
+- [ ] Party tactics produce deterministic auto-battle decisions.
+
+### Edge Cases
+- Missing battleback asset.
+- Zero or negative HP threshold.
+- Overlapping boss phases.
+- Formula references unsupported symbol.
+- Enemy AI has no legal action.
+- Weighted action rules sum to zero.
+- Party tactic tries to heal when no healing skill exists.
+- Battle reward references missing item.
+
+### Tests
+- [ ] Missing battleback emits named diagnostic, not silent fallback.
+- [ ] Boss phase threshold ordering is validated.
+- [ ] Formula batch probe reports unsupported symbols and malformed expressions.
+- [ ] Enemy AI selects same action for same state and seed.
+- [ ] Party tactic heals below threshold and defends when no heal is possible.
+- [ ] Cue timeline serializes and replays deterministically.
+
+---
+
+## FFS-06 - Map And Worldbuilding Suite
+
+### Objective
+Upgrade map creation from basic spatial authoring to full RPG worldbuilding.
+
+### Feature Bundle
+- Tilemap/terrain/layer upgrade.
+- 2D lighting/weather authoring.
+- Map region rules editor.
+- Procedural dungeon/map generator.
+- Tactical grid/range preview toolkit.
+- Spawn/respawn system.
+
+### Files To Add Or Modify
+- [ ] `engine/core/map/tile_layer_document.*`
+- [ ] `engine/core/map/terrain_brush.*`
+- [ ] `engine/core/map/map_region_rules.*`
+- [ ] `engine/core/map/procedural_map_generator.*`
+- [ ] `engine/core/map/spawn_table.*`
+- [ ] `engine/core/map/tactical_grid_preview.*`
+- [ ] `engine/core/presentation/weather_profile.*`
+- [ ] `editor/spatial/terrain_brush_panel.*`
+- [ ] `editor/spatial/region_rules_panel.*`
+- [ ] `editor/spatial/procedural_map_panel.*`
+- [ ] `content/schemas/map_regions.schema.json`
+- [ ] `content/schemas/procedural_map_profiles.schema.json`
+
+### Checklist
+- [ ] Add layers with visibility, lock state, collision, navigation, and draw order.
+- [ ] Add terrain brushes: single, rectangle, line, random weighted, stamp, autotile.
+- [ ] Add region metadata for encounters, ambient audio, weather, hazards, movement rules, and events.
+- [ ] Add deterministic map generation profiles: dungeon, cave, town, forest, overworld.
+- [ ] Generated maps must be normal editable map documents, not special runtime-only data.
+- [ ] Add tactical overlay for move range, attack range, blocked cells, and line of sight.
+- [ ] Add spawn/respawn tables with cooldowns, persistence, and save/load rules.
+
+### Edge Cases
+- Layer locked but command tries to edit.
+- Autotile references missing neighbor tiles.
+- Region overlaps with conflicting movement rules.
+- Procedural generator cannot satisfy required boss/key/shop constraints.
+- Spawn table references missing enemy.
+- Navigation generated for impassable cells.
+- Large maps should avoid O(width * height * layers) work every frame.
+
+### Tests
+- [ ] Terrain brush output is deterministic for the same seed.
+- [ ] Locked layer rejects edits.
+- [ ] Region conflict validator emits exact cell/rule conflict.
+- [ ] Procedural generator reports unsatisfied constraints.
+- [ ] Tactical range preview respects blocked cells.
+- [ ] Spawn persistence round-trips through save JSON.
+
+---
+
+## FFS-07 - Export, Patch, And Packaging Hardening
+
+### Objective
+Make shipping artifacts safer, comparable, and suitable for updates.
+
+### Feature Bundle
+- Runtime-side `data.pck` signature enforcement.
+- Release candidate comparison.
+- Patch/DLC builder.
+- Creator marketplace-ready packaging.
+
+### Files To Add Or Modify
+- [ ] `engine/core/export/runtime_bundle_loader.*`
+- [ ] `engine/core/export/export_artifact_compare.*`
+- [ ] `engine/core/export/patch_manifest.*`
+- [ ] `engine/core/export/creator_package_manifest.*`
+- [ ] `tools/pack/` pack CLI extensions.
+- [ ] `tests/unit/test_runtime_bundle_loader.cpp`
+- [ ] `tests/unit/test_export_artifact_compare.cpp`
+- [ ] `tests/unit/test_patch_manifest.cpp`
+- [ ] `tests/unit/test_creator_package_manifest.cpp`
+
+### Checklist
+- [ ] Runtime loader rejects tampered bundles before loading content.
+- [ ] Bundle publication uses temp file plus atomic rename where platform supports it.
+- [ ] Comparison reports changed assets, changed schemas, missing files, signature status, and manifest differences.
+- [ ] Patch builder detects changed data/assets and validates compatibility.
+- [ ] Creator package manifest includes type, license evidence, compatibility target, dependencies, and validation summary.
+
+### Edge Cases
+- Signature missing.
+- Signature present but wrong key.
+- Bundle truncated after manifest.
+- Temp file exists from interrupted export.
+- Patch removes a schema required by old saves.
+- DLC package depends on missing base content.
+
+### Tests
+- [ ] Tampered bundle fails runtime load.
+- [ ] Valid signed bundle loads.
+- [ ] Interrupted atomic publish leaves previous bundle intact.
+- [ ] Artifact compare detects changed schema version.
+- [ ] Patch manifest rejects missing dependency.
+- [ ] Creator package rejects absent license evidence.
+
+---
+
+## FFS-08 - Project Onboarding Suite
+
+### Objective
+Help creators get from blank project to working, validated RPG slice quickly.
+
+### Feature Bundle
+- Guided new project wizard.
+- Starter project templates.
+- One-click dev room test harness.
+- Tutorial project and interactive lessons.
+
+### Files To Add Or Modify
+- [ ] `engine/core/project/project_template_generator.*`
+- [ ] `engine/core/project/dev_room_generator.*`
+- [ ] `engine/core/tutorial/tutorial_lesson.*`
+- [ ] `editor/project/new_project_wizard_model.*`
+- [ ] `editor/project/new_project_wizard_panel.*`
+- [ ] `content/templates/`
+- [ ] `content/fixtures/dev_room_fixture.json`
+- [ ] `tests/unit/test_project_template_generator.cpp`
+- [ ] `tests/unit/test_dev_room_generator.cpp`
+- [ ] `tests/unit/test_tutorial_lesson.cpp`
+
+### Checklist
+- [ ] Generate project from template with maps, menu, message, battle, save, localization, input, and export profile.
+- [ ] Initial audit report is generated after project creation.
+- [ ] Dev room includes stations for message, menu, battle, save/load, plugin report, audio, input, asset warning, export preflight.
+- [ ] Interactive lessons track completion and can be reset.
+- [ ] Generated content has stable IDs and deterministic ordering.
+
+### Edge Cases
+- Template references missing subsystem or asset.
+- User cancels halfway through project creation.
+- Generated project path already exists.
+- Invalid project name/path characters.
+- Dev room station fails but report still completes.
+
+### Tests
+- [ ] Template generator emits valid project JSON for JRPG/VN/TBR.
+- [ ] Duplicate project IDs are rejected.
+- [ ] Dev room scripted route visits all stations.
+- [ ] Tutorial completion persists through save/load.
+- [ ] Generated project passes project schema validation.
+
+---
+
+## FFS-09 - Save/Load Debugging Suite
+
+### Objective
+Make persistence visible, testable, and safe across project updates.
+
+### Feature Bundle
+- Save/load debugger.
+- Corruption lab and recovery simulation.
+- Save compatibility/migration previewer.
+- Cloud-free backup/project snapshots.
+
+### Files To Add Or Modify
+- [ ] `engine/core/save/save_debugger.*`
+- [ ] `engine/core/save/save_corruption_lab.*`
+- [ ] `engine/core/save/save_compatibility_preview.*`
+- [ ] `engine/core/project/project_snapshot_store.*`
+- [ ] `editor/save/save_debugger_panel.*`
+- [ ] `editor/save/save_migration_preview_panel.*`
+- [ ] `tests/unit/test_save_debugger.cpp`
+- [ ] `tests/unit/test_save_corruption_lab.cpp`
+- [ ] `tests/unit/test_save_compatibility_preview.cpp`
+- [ ] `tests/unit/test_project_snapshot_store.cpp`
+
+### Checklist
+- [ ] Inspect slots, metadata, recovery tier, migration notes, and subsystem state.
+- [ ] Intentionally corrupt test saves without touching real user saves.
+- [ ] Run recovery tiers and export diagnostics.
+- [ ] Preview old save fixtures through current migration stack.
+- [ ] Create local project snapshots before migrations and risky edits.
+
+### Edge Cases
+- Corrupted JSON.
+- Valid JSON with wrong schema version.
+- Missing primary but valid autosave.
+- Unknown subsystem blob in save payload.
+- Snapshot restore target path exists.
+- Snapshot references deleted assets.
+
+### Tests
+- [ ] Corruption lab never mutates original fixture.
+- [ ] Recovery simulation reports tier chosen.
+- [ ] Migration preview preserves unrelated blobs.
+- [ ] Snapshot restore round-trips project files.
+- [ ] Unknown save fields remain preserved or explicitly diagnosed.
+
+---
+
+## FFS-10 - Narrative And Quest Suite
+
+### Objective
+Build first-class RPG narrative systems with validation and authoring support.
+
+### Feature Bundle
+- Quest/objective system.
+- Dialogue graph editor.
+- Narrative continuity checker.
+- Player choice consequence tracker.
+- Ending/route manager.
+- Relationship/reputation system.
+- Reputation-gated content browser.
+
+### Files To Add Or Modify
+- [ ] `engine/core/quest/quest_registry.*`
+- [ ] `engine/core/quest/quest_validator.*`
+- [ ] `engine/core/dialogue/dialogue_graph.*`
+- [ ] `engine/core/narrative/narrative_continuity_checker.*`
+- [ ] `engine/core/narrative/choice_consequence_tracker.*`
+- [ ] `engine/core/narrative/ending_route_manager.*`
+- [ ] `engine/core/relationship/relationship_registry.*`
+- [ ] Editor panels under `editor/quest/`, `editor/dialogue/`, `editor/narrative/`, `editor/relationship/`.
+- [ ] Schemas and fixtures for each data-driven feature.
+
+### Checklist
+- [ ] Quest registry supports objective states: locked, active, completed, failed, hidden.
+- [ ] Quest objectives can depend on switches, variables, items, battles, dialogue choices, and reputation.
+- [ ] Dialogue graph supports nodes, choices, conditions, effects, speaker metadata, localization keys, and preview.
+- [ ] Continuity checker reports unreachable dialogue, orphaned nodes, impossible conditions, unresolved choices, and missing endings.
+- [ ] Choice consequence tracker links choices to state changes.
+- [ ] Ending manager evaluates endings deterministically by priority.
+- [ ] Relationship registry persists faction/NPC affinity and reputation.
+
+### Edge Cases
+- Quest objective references deleted item.
+- Quest has no reachable start.
+- Choice loops forever without terminal condition.
+- Multiple endings match; priority resolves deterministically.
+- Relationship value overflows configured bounds.
+- Dialogue localization key missing.
+- Condition references unknown switch.
+
+### Tests
+- [ ] Quest objective advancement is deterministic.
+- [ ] Quest save/load preserves objective state and timestamps.
+- [ ] Dialogue graph detects orphaned nodes.
+- [ ] Continuity checker flags contradictory conditions.
+- [ ] Ending manager chooses highest-priority eligible ending.
+- [ ] Reputation-gated browser lists content by state.
+
+---
+
+## FFS-11 - Timeline, Macro, Replay Suite
+
+### Objective
+Make scripted scenes, repros, and deterministic replay authorable and testable.
+
+### Feature Bundle
+- Cutscene/timeline sequencer.
+- Event macro recorder.
+- In-editor playtest with time travel.
+- Deterministic replay gallery.
+- Golden replay CI lane.
+
+### Files To Add Or Modify
+- [ ] `engine/core/timeline/timeline_document.*`
+- [ ] `engine/core/timeline/timeline_player.*`
+- [ ] `engine/core/events/event_macro_recorder.*`
+- [ ] `engine/core/replay/replay_recorder.*`
+- [ ] `engine/core/replay/replay_player.*`
+- [ ] `engine/core/replay/replay_gallery.*`
+- [ ] Editor panels under `editor/timeline/` and `editor/replay/`.
+- [ ] `tests/unit/test_timeline_player.cpp`
+- [ ] `tests/unit/test_event_macro_recorder.cpp`
+- [ ] `tests/unit/test_replay_recorder.cpp`
+- [ ] `tests/integration/test_replay_integration.cpp`
+
+### Checklist
+- [ ] Timeline tracks support message, movement, audio, fade, tint, camera, wait, event call, and battle cue.
+- [ ] Macro recorder converts playtest actions into draft event/timeline commands.
+- [ ] Replay artifacts include seed, input log, state hashes, project version, and labels.
+- [ ] Time travel uses bounded checkpoints and deterministic replay from checkpoint.
+- [ ] Golden replay CI lane compares state hashes and fails on divergence.
+
+### Edge Cases
+- Timeline references missing actor.
+- Wait duration is zero or negative.
+- Replay generated on old project version.
+- Checkpoint memory limit reached.
+- Input log contains unknown action.
+- Event macro includes unsupported command.
+
+### Tests
+- [ ] Timeline playback produces identical command stream for same seed.
+- [ ] Macro recorder emits editable draft commands.
+- [ ] Replay state hash is stable.
+- [ ] Divergent replay reports first mismatched tick.
+- [ ] Time travel restores previous state without leaking later mutations.
+
+---
+
+## FFS-12 - RPG Database And Balance Suite
+
+### Objective
+Make core RPG databases fast to author, validate, simulate, and balance.
+
+### Feature Bundle
+- Database editor parity pass.
+- Smart autofill database tools.
+- Economy balancer.
+- Encounter table editor.
+- Shop/vendor designer.
+- Inn/rest/recovery system.
+- Loot affix/rarity generator.
+- Job/class progression designer.
+- Skill combo/synergy system.
+
+### Files To Add Or Modify
+- [ ] `engine/core/database/rpg_database.*`
+- [ ] `engine/core/balance/economy_simulator.*`
+- [ ] `engine/core/balance/encounter_table.*`
+- [ ] `engine/core/shop/vendor_catalog.*`
+- [ ] `engine/core/rest/rest_point.*`
+- [ ] `engine/core/items/loot_affix_generator.*`
+- [ ] `engine/core/progression/class_progression.*`
+- [ ] `engine/core/ability/skill_combo_rules.*`
+- [ ] Editor panels under `editor/database/`, `editor/balance/`, `editor/shop/`.
+
+### Checklist
+- [ ] Bulk edit actors, classes, skills, items, enemies, troops, states, equipment, animations, formulas.
+- [ ] CSV import/export is deterministic and schema-validated.
+- [ ] Autofill generates draft stats/prices/XP/skills from explicit design profile.
+- [ ] Economy simulator runs scripted routes and reports gold, XP, inventory, affordability, and resource drain.
+- [ ] Encounter editor supports weights, regions, conditions, preview simulation, and difficulty charts.
+- [ ] Vendors support stock, refresh conditions, buy/sell modifiers, and progression gates.
+- [ ] Loot affix generator uses seeded rolls and validates economy impact.
+- [ ] Job/class graph validates prerequisites, learned skills, and stat curves.
+
+### Edge Cases
+- Duplicate database IDs.
+- CSV missing required column.
+- Generated values exceed configured caps.
+- Encounter weights sum to zero.
+- Vendor item missing from database.
+- Affix pool empty for rarity tier.
+- Class graph cycle.
+- Combo rule references deleted skill.
+
+### Tests
+- [ ] CSV round-trip preserves IDs and values.
+- [ ] Autofill is deterministic for same profile and seed.
+- [ ] Economy route flags unaffordable required item.
+- [ ] Encounter table rejects zero-weight pool.
+- [ ] Vendor stock refresh respects conditions.
+- [ ] Loot affix roll stays within bounds.
+- [ ] Class graph cycle is detected.
+- [ ] Skill combo triggers only under matching tags.
+
+---
+
+## FFS-13 - Simulation And World Systems
+
+### Objective
+Add durable RPG systems that make worlds richer and support more genres.
+
+### Feature Bundle
+- World map/travel system.
+- Crafting/recipe system.
+- Bestiary/codex system.
+- Calendar/time-of-day system.
+- NPC schedule/routine designer.
+- Puzzle/lock-key system.
+- Runtime tutorial/hint system.
+- Spawn/respawn system if not completed in FFS-06.
+
+### Files To Add Or Modify
+- [ ] `engine/core/world/world_map_graph.*`
+- [ ] `engine/core/crafting/crafting_registry.*`
+- [ ] `engine/core/codex/bestiary_registry.*`
+- [ ] `engine/core/time/calendar_runtime.*`
+- [ ] `engine/core/npc/npc_schedule.*`
+- [ ] `engine/core/puzzle/puzzle_registry.*`
+- [ ] `engine/core/tutorial/runtime_hint_system.*`
+- [ ] Editor panels under `editor/world/`, `editor/crafting/`, `editor/codex/`, `editor/time/`, `editor/npc/`, and `editor/puzzle/`.
+- [ ] Schemas and fixtures for each persisted registry.
+- [ ] Focused tests under `tests/unit/` and save/load integration coverage under `tests/integration/`.
+
+### Checklist
+- [ ] World map graph supports nodes, routes, unlocks, fast travel, vehicles, portals, and save persistence.
+- [ ] Crafting supports recipes, ingredients, unlock conditions, result preview, and economy validation.
+- [ ] Bestiary supports seen/scanned/defeated states, drops, weaknesses, lore unlocks, and completion tracking.
+- [ ] Calendar supports day/time blocks, schedules, events, lighting hooks, and save persistence.
+- [ ] NPC routines support map, position, animation, dialogue state, and fallback behavior.
+- [ ] Puzzle assets support locks, keys, ordered triggers, reset rules, and rewards.
+- [ ] Runtime hints support once-only flags, dismissal state, localization keys, and accessibility settings.
+
+### Edge Cases
+- Travel route unlocks itself.
+- Recipe consumes item that is also result.
+- Bestiary entry references missing enemy.
+- Calendar event crosses day boundary.
+- NPC schedule map missing.
+- Puzzle reset conflicts with save state.
+- Hint loops every frame because dismissal flag fails.
+
+### Tests
+- [ ] World route availability changes with flags.
+- [ ] Crafting validates missing ingredients.
+- [ ] Bestiary state persists.
+- [ ] Calendar event fires exactly once per scheduled window.
+- [ ] NPC routine fallback activates when map is missing.
+- [ ] Puzzle ordered trigger rejects wrong sequence and can reset.
+- [ ] Hint dismissal persists.
+
+### Acceptance Commands
+
+```powershell
+cmake --build --preset dev-debug
+.\build\dev-ninja-debug\urpg_tests.exe "[world],[crafting],[codex],[calendar],[npc],[puzzle],[tutorial]" --reporter compact
+.\build\dev-ninja-debug\urpg_integration_tests.exe "[integration][simulation]" --reporter compact
+```
+
+---
+
+## FFS-14 - Player Experience And Platform Suite
+
+### Objective
+Make projects more accessible, localizable, input-friendly, and platform-aware.
+
+### Feature Bundle
+- Localization workspace.
+- Accessibility authoring assistant.
+- Controller + keyboard remap UX.
+- Device/platform preview profiles.
+
+### Files To Add Or Modify
+- [ ] `editor/localization/localization_workspace_model.*`
+- [ ] `editor/localization/localization_workspace_panel.*`
+- [ ] `engine/core/accessibility/accessibility_fix_advisor.*`
+- [ ] `editor/accessibility/accessibility_assistant_panel.*`
+- [ ] `engine/core/input/input_remap_profile.*`
+- [ ] `editor/input/input_remap_panel.*`
+- [ ] `engine/core/platform/device_profile.*`
+- [ ] `editor/platform/device_profile_panel.*`
+- [ ] `content/schemas/device_profile.schema.json`
+- [ ] `content/fixtures/device_profile_fixture.json`
+- [ ] Focused tests under `tests/unit/`.
+- [ ] Governance scripts for localization/accessibility/input/device fixtures when new artifacts become canonical.
+
+### Checklist
+- [ ] Localization panel syncs string IDs, missing keys, glossary terms, translation memory, and layout snapshots.
+- [ ] Accessibility assistant suggests fixes for labels, contrast, focus order, text speed, input alternatives, and controller-only navigation.
+- [ ] Input remap screen supports conflicts, defaults, profiles, keyboard, controller, and accessibility alternatives.
+- [ ] Device profiles report performance, memory, input, resolution, storage, and export constraints.
+
+### Edge Cases
+- Missing translation but fallback locale exists.
+- Glossary term translated inconsistently.
+- Text overflows in one locale only.
+- Controller disconnected mid-remap.
+- Duplicate binding is intentional for accessibility.
+- Low-end profile cannot support selected resolution.
+
+### Tests
+- [ ] Localization workspace flags missing key and respects fallback.
+- [ ] Glossary enforcement reports inconsistent term.
+- [ ] Accessibility preview emits focus-order issue.
+- [ ] Remap rejects accidental conflict unless explicitly allowed.
+- [ ] Device profile flags over-budget frame time/memory.
+
+### Acceptance Commands
+
+```powershell
+cmake --build --preset dev-debug
+.\build\dev-ninja-debug\urpg_tests.exe "[localization],[accessibility],[input],[platform]" --reporter compact
+powershell -ExecutionPolicy Bypass -File .\tools\ci\check_localization_consistency.ps1
+```
+
+---
+
+## FFS-15 - Capture, Theme, And Presentation Polish
+
+### Objective
+Help creators present, brand, and market their games.
+
+### Feature Bundle
+- In-editor screenshot/trailer capture.
+- Photo/diorama mode.
+- Theme/UI skin builder.
+
+### Files To Add Or Modify
+- [ ] `engine/core/capture/capture_session.*`
+- [ ] `engine/core/capture/trailer_capture_manifest.*`
+- [ ] `engine/core/presentation/photo_mode_state.*`
+- [ ] `engine/core/ui/theme_registry.*`
+- [ ] `engine/core/ui/theme_validator.*`
+- [ ] `editor/capture/capture_panel.*`
+- [ ] `editor/presentation/photo_mode_panel.*`
+- [ ] `editor/ui/theme_builder_panel.*`
+- [ ] `content/schemas/ui_theme.schema.json`
+- [ ] `content/fixtures/ui_theme_fixture.json`
+- [ ] Focused tests under `tests/unit/` plus renderer-backed snapshot coverage where visuals are claimed.
+
+### Checklist
+- [ ] Screenshot capture uses deterministic scene state and stable output naming.
+- [ ] Trailer capture supports short clips, GIF-like frame sequence, thumbnails, and store-page media presets.
+- [ ] Photo mode supports pause, camera movement, UI hide, time/weather override, character pose presets, and screenshot export.
+- [ ] UI skin builder supports window frames, fonts, cursors, button states, menu sounds, and cross-screen previews.
+
+### Edge Cases
+- Capture requested in headless CI.
+- Output path unwritable.
+- Missing font in selected theme.
+- Skin references missing sound.
+- Photo mode tries to pose actor not present.
+
+### Tests
+- [ ] Capture returns explicit unsupported status in headless mode.
+- [ ] Theme validator catches missing font and missing sound.
+- [ ] UI skin preview renders all core screens into a snapshot.
+- [ ] Photo mode state does not leak back into gameplay state after exit.
+
+### Acceptance Commands
+
+```powershell
+cmake --build --preset dev-debug
+.\build\dev-ninja-debug\urpg_tests.exe "[capture],[photo_mode],[theme]" --reporter compact
+powershell -ExecutionPolicy Bypass -File .\tools\ci\run_presentation_gate.ps1 -SkipBuild
+```
+
+---
+
+## FFS-16 - Collaboration, SDK, And Optional AI
+
+### Objective
+Support teams and extension authors without adding hidden live-service dependencies.
+
+### Feature Bundle
+- Crash/diagnostics bundle export.
+- Mod SDK documentation + sample mod.
+- Local co-author review workflow.
+- Local AI design assistant.
+
+### Files To Add Or Modify
+- [ ] `engine/core/diagnostics/diagnostics_bundle_exporter.*`
+- [ ] `engine/core/mod/mod_sdk_sample_validator.*`
+- [ ] `engine/core/collaboration/local_review_bundle.*`
+- [ ] `engine/core/ai/ai_assistant_config.*`
+- [ ] `engine/core/ai/ai_suggestion_record.*`
+- [ ] `editor/diagnostics/diagnostics_bundle_panel.*`
+- [ ] `editor/mod/mod_sdk_panel.*`
+- [ ] `editor/collaboration/local_review_panel.*`
+- [ ] `editor/ai/ai_assistant_panel.*`
+- [ ] `docs/modding/`
+- [ ] `content/fixtures/mod_sdk_sample/`
+- [ ] Focused tests under `tests/unit/`.
+
+### Checklist
+- [ ] Diagnostics bundle includes logs, project audit, asset report, config, save metadata, system info, and recent diagnostics snapshots.
+- [ ] Mod SDK sample includes manifest, permissions, validation docs, and expected diagnostics.
+- [ ] Co-author review produces local change summaries, comments, review checklists, and handoff bundles.
+- [ ] AI assistant is opt-in, provider-independent, and never required for runtime.
+- [ ] AI suggestions have review state, provenance/source notes, and generated-content flags.
+
+### Edge Cases
+- Diagnostics bundle contains secrets or ignored `.env` files.
+- Mod sample requests forbidden permission.
+- Git unavailable for local co-author workflow.
+- AI provider unavailable.
+- AI suggestion tries to modify runtime status docs.
+
+### Tests
+- [ ] Diagnostics bundle excludes ignored secret files.
+- [ ] Mod sample passes validation and forbidden-permission sample fails.
+- [ ] Co-author summary works without Git by falling back to file manifest.
+- [ ] AI assistant disabled state is explicit and non-error.
+- [ ] Generated suggestions require approval before applying.
+
+### Acceptance Commands
+
+```powershell
+cmake --build --preset dev-debug
+.\build\dev-ninja-debug\urpg_tests.exe "[diagnostics_bundle],[mod_sdk],[collaboration],[ai_assistant]" --reporter compact
+powershell -ExecutionPolicy Bypass -File .\tools\rpgmaker\validate-plugin-dropins.ps1
+```
+
+---
+
+## FFS-17 - Certification And Governance Integration
+
+### Objective
+Make the future feature set governable and shippable rather than just large.
+
+### Files To Add Or Modify
+- [ ] `tools/ci/check_template_certification.ps1`
+- [ ] `tools/ci/check_feature_governance.ps1`
+- [ ] `tools/docs/check_future_feature_docs.ps1`
+- [ ] `tools/audit/project_completeness_score.*`
+- [ ] `engine/core/project/template_certification.*`
+- [ ] `content/fixtures/template_certification/`
+- [ ] `docs/certification/`
+- [ ] Extend `tools/audit/project_audit.*` only after advisory scoring is stable.
+- [ ] Focused tests under `tests/unit/` and governance-script negative fixtures.
+
+### Checklist
+- [ ] Add template certification suites for JRPG, VN, TBR, tactics, ARPG, monster collector, cozy/life, metroidvania-lite, and 2.5D RPG where appropriate.
+- [ ] Add content completeness score to project audit as a non-authoritative advisory first.
+- [ ] Promote advisory score to release gate only after false positives are understood.
+- [ ] Add per-feature governance scripts only when artifacts are stable.
+- [ ] Add docs explaining supported scope, unsupported scope, and residual gaps.
+- [ ] Add schema changelog entries for every new schema.
+- [ ] Keep readiness matrix and template matrix conservative.
+
+### Edge Cases
+- Completeness score penalizes intentionally minimalist projects.
+- Template certification assumes assets that are not license-cleared.
+- Optional features accidentally become hard requirements.
+- Governance script fails on generated local files.
+
+### Tests
+- [ ] Completeness scoring ignores explicitly disabled optional features.
+- [ ] Template certification fails when required template loop is missing.
+- [ ] Governance script positive and negative fixtures are both covered.
+- [ ] Truth reconciler passes after docs are updated.
+
+### Acceptance Commands
+
+```powershell
+cmake --build --preset dev-debug
+.\build\dev-ninja-debug\urpg_tests.exe "[certification],[project_audit]" --reporter compact
+powershell -ExecutionPolicy Bypass -File .\tools\ci\check_release_readiness.ps1
+powershell -ExecutionPolicy Bypass -File .\tools\ci\truth_reconciler.ps1
+```
+
+---
+
+## Cross-Cutting Edge Case Checklist
+
+Run this list for every new runtime/editor feature.
+
+- [ ] Empty input document.
+- [ ] Malformed JSON.
+- [ ] Missing required field.
+- [ ] Unknown enum value.
+- [ ] Duplicate ID.
+- [ ] Unknown referenced ID.
+- [ ] Orphaned record.
+- [ ] Cycle in graph data.
+- [ ] Unsupported compat payload.
+- [ ] Large input set.
+- [ ] Deterministic ordering under equal priority.
+- [ ] Save/load round-trip.
+- [ ] Schema version mismatch.
+- [ ] Missing asset path.
+- [ ] Case-sensitive path mismatch.
+- [ ] Headless CI behavior.
+- [ ] Permission denied for file write.
+- [ ] Interrupted write/export.
+- [ ] Disabled optional feature.
+- [ ] Local-only/offline mode.
+- [ ] Stale generated report.
+
+## Test Strategy
+
+Use focused tests first, then broaden.
+
+| Test Type | Purpose | Example Command |
+|---|---|---|
+| Unit | Runtime model, validators, panels, edge cases | `.\build\dev-ninja-debug\urpg_tests.exe "[quest]" --reporter compact` |
+| Integration | Cross-system flows like quest + save + event | `.\build\dev-ninja-debug\urpg_integration_tests.exe "[quest][save]" --reporter compact` |
+| Snapshot | Visual/capture/theme regressions | `ctest --test-dir build/dev-ninja-debug -L nightly --output-on-failure` |
+| Governance | Schema/docs/artifact parity | `powershell -ExecutionPolicy Bypass -File .\tools\ci\check_<feature>_governance.ps1` |
+| PR Lane | Broad sanity | `ctest --test-dir build/dev-ninja-debug -L pr --output-on-failure` |
+
+## Copy-Ready Code Patterns
+
+These are intentionally small, concrete examples that match the repo's current C++20, Catch2, and nlohmann/json style.
+
+### CMake Wiring Pattern
+
+```cmake
+# Add runtime/editor sources to urpg_core.
+engine/core/quest/quest_registry.cpp
+engine/core/quest/quest_validator.cpp
+editor/quest/quest_panel.cpp
+
+# Add focused tests to urpg_tests.
+tests/unit/test_quest_registry.cpp
+tests/unit/test_quest_panel.cpp
+```
+
+### Runtime Header Pattern
+
+```cpp
+#pragma once
+
+#include <nlohmann/json.hpp>
+#include <optional>
+#include <string>
+#include <unordered_map>
+#include <vector>
+
+namespace urpg::quest {
+
+enum class QuestObjectiveState {
+    Locked,
+    Active,
+    Completed,
+    Failed,
+    Hidden
+};
+
+struct QuestObjective {
+    std::string id;
+    std::string title;
+    QuestObjectiveState state = QuestObjectiveState::Locked;
+    std::vector<std::string> requiredFlags;
+};
+
+struct QuestDef {
+    std::string id;
+    std::string title;
+    std::vector<QuestObjective> objectives;
+};
+
+struct QuestDiagnostic {
+    std::string code;
+    std::string detail;
+    bool blocksRelease = false;
+};
+
+class QuestRegistry {
+public:
+    bool registerQuest(const QuestDef& quest);
+    bool activateObjective(const std::string& questId, const std::string& objectiveId);
+    bool completeObjective(const std::string& questId, const std::string& objectiveId);
+    std::optional<QuestDef> getQuest(const std::string& questId) const;
+    std::vector<QuestDiagnostic> validate() const;
+    nlohmann::json saveToJson() const;
+    void loadFromJson(const nlohmann::json& value);
+
+private:
+    std::unordered_map<std::string, QuestDef> quests_;
+};
+
+} // namespace urpg::quest
+```
+
+### Runtime Unit Test Pattern
+
+```cpp
+#include "engine/core/quest/quest_registry.h"
+
+#include <catch2/catch_test_macros.hpp>
+
+using namespace urpg::quest;
+
+TEST_CASE("QuestRegistry advances objectives deterministically", "[quest][runtime]") {
+    QuestRegistry registry;
+
+    QuestDef quest;
+    quest.id = "quest_intro";
+    quest.title = "Find the Gate";
+    quest.objectives.push_back({"obj_find_key", "Find the key", QuestObjectiveState::Locked, {}});
+
+    REQUIRE(registry.registerQuest(quest));
+    REQUIRE(registry.activateObjective("quest_intro", "obj_find_key"));
+    REQUIRE(registry.completeObjective("quest_intro", "obj_find_key"));
+
+    const auto loaded = registry.getQuest("quest_intro");
+    REQUIRE(loaded.has_value());
+    REQUIRE(loaded->objectives.size() == 1);
+    REQUIRE(loaded->objectives[0].state == QuestObjectiveState::Completed);
+}
+
+TEST_CASE("QuestRegistry reports duplicate quest ids", "[quest][validation]") {
+    QuestRegistry registry;
+
+    QuestDef first;
+    first.id = "quest_intro";
+    first.title = "Intro";
+
+    QuestDef duplicate = first;
+    duplicate.title = "Duplicate";
+
+    REQUIRE(registry.registerQuest(first));
+    REQUIRE_FALSE(registry.registerQuest(duplicate));
+
+    const auto diagnostics = registry.validate();
+    REQUIRE_FALSE(diagnostics.empty());
+    REQUIRE(diagnostics[0].code == "quest.duplicate_id");
+}
+```
+
+### Editor Panel Snapshot Test Pattern
+
+```cpp
+#include "editor/quest/quest_panel.h"
+#include "engine/core/quest/quest_registry.h"
+
+#include <catch2/catch_test_macros.hpp>
+
+TEST_CASE("QuestPanel snapshot reflects active quest state", "[quest][editor][panel]") {
+    urpg::quest::QuestRegistry registry;
+    registry.registerQuest({"quest_intro", "Find the Gate", {}});
+
+    urpg::editor::QuestPanel panel;
+    panel.bindRegistry(&registry);
+    panel.render();
+
+    REQUIRE(panel.hasRenderedFrame());
+    const auto& snapshot = panel.lastRenderSnapshot();
+    REQUIRE(snapshot.quest_count == 1);
+    REQUIRE(snapshot.rows[0].id == "quest_intro");
+}
+```
+
+### Dependency Graph Test Pattern
+
+```cpp
+#include "engine/core/events/event_dependency_graph.h"
+
+#include <catch2/catch_test_macros.hpp>
+
+TEST_CASE("EventDependencyGraph reports switch reads and writes", "[event][graph]") {
+    urpg::events::EventDocument doc;
+    doc.events.push_back(urpg::events::EventDef{
+        .id = "ev_gate",
+        .pages = {
+            urpg::events::EventPage{
+                .id = "page_locked",
+                .conditions = {urpg::events::EventCondition::SwitchOn("sw_gate_open")},
+                .commands = {urpg::events::EventCommand::SetSwitch("sw_gate_open", true)}
+            }
+        }
+    });
+
+    const auto graph = urpg::events::EventDependencyGraph::Build(doc);
+    REQUIRE(graph.readersOf("sw_gate_open").size() == 1);
+    REQUIRE(graph.writersOf("sw_gate_open").size() == 1);
+    REQUIRE(graph.diagnostics().empty());
+}
+```
+
+### Save/Load Round-Trip Test Pattern
+
+```cpp
+TEST_CASE("QuestRegistry save/load preserves objective state", "[quest][save]") {
+    urpg::quest::QuestRegistry registry;
+    registry.registerQuest({"quest_intro", "Intro", {{"obj_1", "Start", urpg::quest::QuestObjectiveState::Active, {}}}});
+    REQUIRE(registry.completeObjective("quest_intro", "obj_1"));
+
+    const auto saved = registry.saveToJson();
+
+    urpg::quest::QuestRegistry loaded;
+    loaded.loadFromJson(saved);
+
+    const auto quest = loaded.getQuest("quest_intro");
+    REQUIRE(quest.has_value());
+    REQUIRE(quest->objectives[0].state == urpg::quest::QuestObjectiveState::Completed);
+}
+```
+
+### Governance Script Pattern
+
+```powershell
+param(
+  [string]$RepoRoot = (Resolve-Path (Join-Path $PSScriptRoot "..\..")).Path
+)
+
+$schema = Join-Path $RepoRoot "content\schemas\quest.schema.json"
+$fixture = Join-Path $RepoRoot "content\fixtures\quest_fixture.json"
+
+if (-not (Test-Path $schema)) {
+  throw "Missing quest schema: $schema"
+}
+
+if (-not (Test-Path $fixture)) {
+  throw "Missing quest fixture: $fixture"
+}
+
+$fixtureJson = Get-Content $fixture -Raw | ConvertFrom-Json
+if (-not $fixtureJson.quests) {
+  throw "Quest fixture must contain a top-level 'quests' array."
+}
+
+Write-Host "Quest governance validation passed."
+```
+
+### Schema Fixture Pattern
+
+```json
+{
+  "schemaVersion": "1.0.0",
+  "quests": [
+    {
+      "id": "quest_intro",
+      "title": "Find the Gate",
+      "objectives": [
+        {
+          "id": "obj_find_key",
+          "title": "Find the key",
+          "initialState": "active",
+          "requiredFlags": []
+        }
+      ]
+    }
+  ]
+}
+```
+
+## LLM Execution Prompt Template
+
+Use this prompt shape when handing one sprint to a future agent:
+
+```text
+Implement FFS-XX from docs/FUTURE_FEATURE_ACTIONABLE_SPRINT_PLAN.md.
+
+Scope:
+- Own only the files listed under FFS-XX unless a build/test registration file must be updated.
+- Follow existing URPG patterns: C++20, nlohmann/json, Catch2 v3, editor panel snapshot tests, CMake registration.
+- Add runtime, editor, schema/fixture/governance only where the sprint requires them.
+- Preserve unsupported data with explicit diagnostics.
+- Do not update readiness status to READY.
+
+Required verification:
+- cmake --build --preset dev-debug
+- focused urpg_tests tag for this sprint
+- any new governance script
+- check_release_readiness.ps1
+- truth_reconciler.ps1
+
+Final response must list changed files, commands run, and residual gaps.
+```
+
+## Suggested Parallelization
+
+- FFS-01 and FFS-02 can run in parallel after FFS-00.
+- FFS-03 should start before most authoring features because many later systems depend on event/dependency infrastructure.
+- FFS-05 and FFS-06 can run in parallel after FFS-03 if file ownership is split between `engine/core/battle` and `engine/core/map`/`editor/spatial`.
+- FFS-10 and FFS-12 can run in parallel after FFS-03, but coordinate IDs and save/load contracts.
+- FFS-14 can run alongside almost everything if it only consumes existing snapshots and adds validation.
+- FFS-17 should run continuously as features land, not only at the end.
+
+## Final Product Gate For These Future Plans
+
+The future feature program is complete only when:
+
+- [ ] All selected feature sprints have runtime/editor/test/doc evidence.
+- [ ] Every new schema has a fixture, changelog entry, and governance check.
+- [ ] Every persisted feature has save/load and migration coverage.
+- [ ] Every authoring feature has empty/loading/error/success/disabled state coverage in editor snapshots.
+- [ ] Every generator/replay/simulation is deterministic under fixed seed.
+- [ ] `urpg_project_audit --json` reports no unexpected blocker growth.
+- [ ] `ctest --test-dir build/dev-ninja-debug -L pr --output-on-failure` passes.
+- [ ] Release docs distinguish current shipped scope from future optional scope.

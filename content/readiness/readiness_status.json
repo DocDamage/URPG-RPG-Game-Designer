@@ -182,10 +182,10 @@
     {
       "id": "achievement_registry",
       "status": "PARTIAL",
-      "summary": "Achievement registry with progress tracking, unlock conditions, trigger parsing, event-bus auto-unlock, and editor panel are landed.",
+      "summary": "Achievement registry with progress tracking, unlock conditions, trigger parsing, event-bus auto-unlock, editor panel, and vendor-neutral trophy export payload are landed.",
       "mainGaps": [
         "Achievement validator is landed with EmptyId, EmptyTitle, EmptyUnlockCondition, ZeroTarget, DuplicateId, and EmptyIconId checks.",
-        "Trophy export pipeline — deferred; export-format contract for achievement trophy payloads is not defined. Out-of-tree platform integrations remain explicitly out of scope.",
+        "Vendor-neutral trophy export payload is landed with runtime JSON, editor summary, schema, fixture, governance, and focused tests.",
         "Platform-specific achievement backend integration — explicitly out-of-tree; this integration point is acknowledged but intentionally deferred to avoid vendor lock-in."
       ],
       "evidence": {
@@ -256,7 +256,7 @@
       "mainGaps": [
         "Configured project-asset root discovery is landed; broader arbitrary external intake/store discovery remains future work.",
         "Full native packaging/signing/notarization is still out of scope.",
-        "Runtime-side signature enforcement beyond the current validator-time keyed SHA-256 bundle-signature lane remains mandatory current backlog — tracked as a pre-READY gate; the current lane is stronger than the old keyed-integrity-only contract but still not sufficient for production release claims without runtime enforcement."
+        "Runtime-side signature enforcement beyond the current validator-time keyed SHA-256 bundle-signature lane remains mandatory current backlog — tracked as a pre-READY gate in docs/EXPORT_RUNTIME_SIGNATURE_ENFORCEMENT_DESIGN.md; the current lane is stronger than the old keyed-integrity-only contract but still not sufficient for production release claims without runtime enforcement."
       ],
       "evidence": {
         "runtimeOwner": true,

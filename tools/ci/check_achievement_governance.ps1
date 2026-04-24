@@ -5,6 +5,7 @@ $errors = @()
 
 $requiredFiles = @(
     "content\schemas\achievements.schema.json",
+    "content\schemas\achievement_trophy_export.schema.json",
     "engine\core\achievement\achievement_registry.h",
     "engine\core\achievement\achievement_registry.cpp",
     "engine\core\achievement\achievement_validator.h",
@@ -12,7 +13,8 @@ $requiredFiles = @(
     "editor\achievement\achievement_panel.h",
     "editor\achievement\achievement_panel.cpp",
     "tools\ci\check_achievement_governance.ps1",
-    "content\fixtures\achievement_registry_fixture.json"
+    "content\fixtures\achievement_registry_fixture.json",
+    "content\fixtures\achievement_trophy_export_fixture.json"
 )
 
 foreach ($relPath in $requiredFiles) {
@@ -29,6 +31,16 @@ if (Test-Path $schemaPath) {
         $null = Get-Content -Raw -Path $schemaPath | ConvertFrom-Json
     } catch {
         $errors += "Achievement schema is not valid JSON: $_"
+    }
+}
+
+# Validate trophy export schema is parseable JSON
+$trophySchemaPath = Join-Path $repoRoot "content\schemas\achievement_trophy_export.schema.json"
+if (Test-Path $trophySchemaPath) {
+    try {
+        $null = Get-Content -Raw -Path $trophySchemaPath | ConvertFrom-Json
+    } catch {
+        $errors += "Achievement trophy export schema is not valid JSON: $_"
     }
 }
 
@@ -59,6 +71,41 @@ if (Test-Path $fixturePath) {
         }
     } catch {
         $errors += "Achievement fixture is not valid JSON: $_"
+    }
+}
+
+$trophyFixturePath = Join-Path $repoRoot "content\fixtures\achievement_trophy_export_fixture.json"
+if (Test-Path $trophyFixturePath) {
+    try {
+        $fixture = Get-Content -Raw -Path $trophyFixturePath | ConvertFrom-Json
+        if ($fixture.backendIntegration -ne "out-of-tree") {
+            $errors += "Achievement trophy fixture must keep backendIntegration='out-of-tree'"
+        }
+        if (-not $fixture.summary) {
+            $errors += "Achievement trophy fixture is missing summary"
+        }
+        if (-not $fixture.trophies) {
+            $errors += "Achievement trophy fixture is missing trophies array"
+        }
+        foreach ($entry in $fixture.trophies) {
+            if (-not $entry.id) {
+                $errors += "Achievement trophy fixture entry missing id"
+            }
+            if ($null -eq $entry.secret) {
+                $errors += "Achievement trophy fixture entry '$($entry.id)' missing secret"
+            }
+            if ($null -eq $entry.target) {
+                $errors += "Achievement trophy fixture entry '$($entry.id)' missing target"
+            }
+            if ($null -eq $entry.progress) {
+                $errors += "Achievement trophy fixture entry '$($entry.id)' missing progress"
+            }
+            if ($null -eq $entry.unlocked) {
+                $errors += "Achievement trophy fixture entry '$($entry.id)' missing unlocked"
+            }
+        }
+    } catch {
+        $errors += "Achievement trophy export fixture is not valid JSON: $_"
     }
 }
 

@@ -39,6 +39,7 @@ public:
 
     nlohmann::json saveToJson() const;
     void loadFromJson(const nlohmann::json& json);
+    nlohmann::json exportTrophyPayload(const std::string& platform = "urpg-neutral") const;
 
 private:
     std::unordered_map<std::string, AchievementDef> m_definitions;

@@ -284,6 +284,7 @@ add_library(urpg_core
     runtimes/compat_js/window_color_parser.cpp
     runtimes/compat_js/window_compat.cpp
     runtimes/compat_js/window_render_helpers.cpp
+    runtimes/compat_js/window_sprite_compat.cpp
     runtimes/compat_js/window_text_layout.cpp
     runtimes/compat_js/global_state_bridge.cpp
   runtimes/compat_js/battle_manager_api.cpp
@@ -673,6 +674,10 @@ add_executable(urpg_tests
     tests/unit/test_migration_wizard.cpp
     tests/unit/test_ai_bridge_regex.cpp
     tests/unit/test_ai_sync_coordinator.cpp
+    tests/unit/test_diagnostics_workspace_migration.cpp
+    tests/unit/test_diagnostics_workspace_audio_event.cpp
+    tests/unit/test_diagnostics_workspace_message_menu.cpp
+    tests/unit/test_diagnostics_workspace_battle.cpp
     tests/unit/test_achievement_registry.cpp
     tests/unit/test_achievement_panel.cpp
     tests/unit/test_achievement_triggers.cpp
@@ -740,6 +745,8 @@ add_executable(urpg_compat_tests
     tests/compat/test_compat_authority_suite.cpp
     tests/compat/test_compat_window_plugin_profiles.cpp
     tests/compat/test_compat_plugin_fixtures.cpp
+    tests/compat/test_compat_plugin_fixtures_content.cpp
+    tests/compat/test_compat_plugin_fixtures_menu_presentation.cpp
     tests/compat/test_compat_plugin_fixtures_battle.cpp
     tests/compat/test_compat_plugin_failure_diagnostics.cpp
     tests/compat/test_compat_plugin_failure_mixed_chain.cpp

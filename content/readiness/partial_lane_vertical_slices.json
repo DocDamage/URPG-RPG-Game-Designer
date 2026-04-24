@@ -1,0 +1,66 @@
+{
+  "version": 1,
+  "updated": "2026-04-24",
+  "lanes": [
+    {
+      "id": "compat_bridge_exit",
+      "ownerTrack": "Compat runtime",
+      "nextVerticalSlice": "Run a curated live-plugin QuickJS parity fixture end-to-end through diagnostics and export evidence.",
+      "deferredScope": "Ongoing corpus maintenance and broad plugin/backend parity remain backlog."
+    },
+    {
+      "id": "presentation_runtime",
+      "ownerTrack": "Presentation runtime",
+      "nextVerticalSlice": "Add one non-OpenGL backend parity proof for a shell-owned scene once backend support exists.",
+      "deferredScope": "Full cross-backend renderer parity remains backlog."
+    },
+    {
+      "id": "gameplay_ability_framework",
+      "ownerTrack": "Gameplay ability",
+      "nextVerticalSlice": "Land one authored battle/map ability orchestration asset with runtime activation, editor preview, diagnostics, and tests.",
+      "deferredScope": "Scripted condition evaluation and broader authored task composition remain backlog."
+    },
+    {
+      "id": "governance_foundation",
+      "ownerTrack": "Governance diagnostics",
+      "nextVerticalSlice": "Unify ProjectAudit CLI output and editor diagnostics export into one parity-checked JSON contract.",
+      "deferredScope": "Full release-signoff enforcement beyond artifact-backed checks remains backlog."
+    },
+    {
+      "id": "character_identity",
+      "ownerTrack": "Character runtime",
+      "nextVerticalSlice": "Persist one runtime-created protagonist through save/load with editor diagnostics and schema proof.",
+      "deferredScope": "Author-defined creation rules and full layered portrait/field/battle composition remain backlog."
+    },
+    {
+      "id": "achievement_registry",
+      "ownerTrack": "Achievements",
+      "nextVerticalSlice": "Ship the vendor-neutral trophy export payload through runtime, editor summary, schema, fixture, governance, and tests.",
+      "deferredScope": "Platform-specific achievement backends remain out-of-tree."
+    },
+    {
+      "id": "accessibility_auditor",
+      "ownerTrack": "Accessibility",
+      "nextVerticalSlice": "Populate contrast evidence from one real renderer-derived WYSIWYG surface.",
+      "deferredScope": "Full renderer-derived contrast coverage across all UI surfaces remains backlog."
+    },
+    {
+      "id": "audio_mix_presets",
+      "ownerTrack": "Audio runtime",
+      "nextVerticalSlice": "Bind one live audio backend/device smoke path to preset application diagnostics.",
+      "deferredScope": "Broad device/backend matrix coverage remains backlog."
+    },
+    {
+      "id": "mod_registry",
+      "ownerTrack": "Mod runtime",
+      "nextVerticalSlice": "Load one sandboxed repo-owned mod manifest and script through runtime, editor diagnostics, and reload tests.",
+      "deferredScope": "Mod store integration and broad third-party mod execution remain backlog."
+    },
+    {
+      "id": "analytics_dispatcher",
+      "ownerTrack": "Analytics",
+      "nextVerticalSlice": "Export one privacy-audited local session aggregate with diagnostics and opt-in proof.",
+      "deferredScope": "Remote upload pipeline and production privacy review workflow remain backlog."
+    }
+  ]
+}

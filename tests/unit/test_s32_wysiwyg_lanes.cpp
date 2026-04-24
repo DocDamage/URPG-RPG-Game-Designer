@@ -17,6 +17,7 @@
 #include <catch2/catch_test_macros.hpp>
 #include <nlohmann/json.hpp>
 #include <fstream>
+#include <iterator>
 #include <string>
 #include <vector>
 #include <algorithm>
@@ -30,6 +31,23 @@ json loadReadinessStatus() {
         "content/readiness/readiness_status.json",
         "../content/readiness/readiness_status.json",
         "../../content/readiness/readiness_status.json",
+    };
+    for (const auto& path : candidates) {
+        std::ifstream ifs(path);
+        if (ifs.is_open()) {
+            json doc;
+            ifs >> doc;
+            return doc;
+        }
+    }
+    return json{};
+}
+
+json loadPartialLaneSlices() {
+    const std::vector<std::string> candidates = {
+        "content/readiness/partial_lane_vertical_slices.json",
+        "../content/readiness/partial_lane_vertical_slices.json",
+        "../../content/readiness/partial_lane_vertical_slices.json",
     };
     for (const auto& path : candidates) {
         std::ifstream ifs(path);
@@ -60,6 +78,17 @@ bool hasGapContaining(const json& entry, const std::string& keyword) {
         }
     }
     return false;
+}
+
+std::string readTextFile(const std::vector<std::string>& candidates) {
+    for (const auto& path : candidates) {
+        std::ifstream ifs(path);
+        if (ifs.is_open()) {
+            return std::string((std::istreambuf_iterator<char>(ifs)),
+                               std::istreambuf_iterator<char>());
+        }
+    }
+    return {};
 }
 
 } // namespace
@@ -199,18 +228,34 @@ TEST_CASE("export_validator: mainGaps acknowledges runtime-side signature enforc
     REQUIRE(hasGapContaining(sub, "pre-READY"));
 }
 
+TEST_CASE("export_validator: runtime signature enforcement design note keeps validator-time boundary explicit",
+          "[wysiwyg][export][s32t05]") {
+    const std::string text = readTextFile({
+        "docs/EXPORT_RUNTIME_SIGNATURE_ENFORCEMENT_DESIGN.md",
+        "../docs/EXPORT_RUNTIME_SIGNATURE_ENFORCEMENT_DESIGN.md",
+        "../../docs/EXPORT_RUNTIME_SIGNATURE_ENFORCEMENT_DESIGN.md",
+    });
+
+    REQUIRE_FALSE(text.empty());
+    REQUIRE(text.find("validator-time protection only") != std::string::npos);
+    REQUIRE(text.find("runtime loader") != std::string::npos);
+    REQUIRE(text.find("temp-file-plus-atomic-rename") != std::string::npos);
+    REQUIRE(text.find("must not claim") != std::string::npos);
+}
+
 // ============================================================================
 // S32-T06 — Achievement trophy export pipeline scope wording
 // ============================================================================
 
-TEST_CASE("achievement_registry: mainGaps acknowledges trophy export pipeline as deferred",
+TEST_CASE("achievement_registry: readiness record keeps trophy export landed and platform backend deferred",
           "[wysiwyg][achievement][s32t06]") {
     const json readiness = loadReadinessStatus();
     const json sub = findSubsystem(readiness, "achievement_registry");
 
     REQUIRE(!sub.empty());
-    REQUIRE(hasGapContaining(sub, "Trophy export pipeline"));
-    REQUIRE(hasGapContaining(sub, "deferred"));
+    REQUIRE(sub.value("summary", "").find("trophy export payload") != std::string::npos);
+    REQUIRE(hasGapContaining(sub, "Platform-specific achievement backend integration"));
+    REQUIRE(hasGapContaining(sub, "out-of-tree"));
 }
 
 TEST_CASE("achievement_registry: landed evidence flags are all set",
@@ -226,4 +271,36 @@ TEST_CASE("achievement_registry: landed evidence flags are all set",
     REQUIRE(ev.value("diagnostics", false) == true);
     REQUIRE(ev.value("testsValidation", false) == true);
     REQUIRE(ev.value("docsAligned", false) == true);
+}
+
+TEST_CASE("partial product lanes have owned next vertical slices",
+          "[wysiwyg][partial_lanes][td_aud_05]") {
+    const json slices = loadPartialLaneSlices();
+
+    REQUIRE(!slices.empty());
+    REQUIRE(slices.value("version", 0) == 1);
+    REQUIRE(slices.contains("lanes"));
+    REQUIRE(slices["lanes"].is_array());
+
+    const std::vector<std::string> requiredLanes = {
+        "compat_bridge_exit",
+        "presentation_runtime",
+        "gameplay_ability_framework",
+        "governance_foundation",
+        "character_identity",
+        "achievement_registry",
+        "accessibility_auditor",
+        "audio_mix_presets",
+        "mod_registry",
+        "analytics_dispatcher",
+    };
+
+    for (const auto& id : requiredLanes) {
+        auto it = std::find_if(slices["lanes"].begin(), slices["lanes"].end(),
+            [&id](const json& lane) { return lane.value("id", "") == id; });
+        REQUIRE(it != slices["lanes"].end());
+        REQUIRE_FALSE(it->value("ownerTrack", "").empty());
+        REQUIRE_FALSE(it->value("nextVerticalSlice", "").empty());
+        REQUIRE_FALSE(it->value("deferredScope", "").empty());
+    }
 }

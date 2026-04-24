@@ -1,0 +1,35 @@
+{
+  "version": "1.0.0",
+  "platform": "urpg-neutral",
+  "backendIntegration": "out-of-tree",
+  "summary": {
+    "total": 2,
+    "unlocked": 1,
+    "secret": 1
+  },
+  "trophies": [
+    {
+      "id": "ach_001",
+      "title": "First Blood",
+      "description": "Defeat one enemy.",
+      "secret": false,
+      "unlockCondition": "kill_count_1",
+      "iconId": "icon_sword",
+      "target": 1,
+      "progress": 1,
+      "unlocked": true,
+      "unlockTime": "deterministic_timestamp"
+    },
+    {
+      "id": "ach_secret",
+      "title": "Hidden Door",
+      "description": "Find the hidden door.",
+      "secret": true,
+      "unlockCondition": "door_find_3",
+      "iconId": "icon_door",
+      "target": 3,
+      "progress": 2,
+      "unlocked": false
+    }
+  ]
+}

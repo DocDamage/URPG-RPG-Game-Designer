@@ -36,6 +36,7 @@ void AchievementPanel::render() {
     m_snapshot = nlohmann::json{
         {"total_count", achievements.size()},
         {"unlocked_count", unlockedCount},
+        {"trophy_export", m_registry->exportTrophyPayload()["summary"]},
         {"achievements", rows}
     };
 }

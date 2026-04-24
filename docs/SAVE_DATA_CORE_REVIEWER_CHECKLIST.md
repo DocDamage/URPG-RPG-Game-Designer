@@ -29,7 +29,7 @@
 **Verification:**
 
 ```powershell
-ctest --test-dir build/dev-ninja-debug -R "test_save" --output-on-failure
+.\build\dev-ninja-debug\urpg_tests.exe "[save]" --reporter compact
 ```
 
 ---
@@ -46,7 +46,7 @@ ctest --test-dir build/dev-ninja-debug -R "test_save" --output-on-failure
 **Verification:**
 
 ```powershell
-ctest --test-dir build/dev-ninja-debug -R "test_save_migration" --output-on-failure
+.\build\dev-ninja-debug\urpg_tests.exe "[save][migration]" --reporter compact
 powershell -ExecutionPolicy Bypass -File tools/ci/check_save_policy_governance.ps1
 ```
 
@@ -64,7 +64,7 @@ powershell -ExecutionPolicy Bypass -File tools/ci/check_save_policy_governance.p
 **Verification:**
 
 ```powershell
-ctest --test-dir build/dev-ninja-debug -R "test_save_schema" --output-on-failure
+.\build\dev-ninja-debug\urpg_tests.exe "[save][schema]" --reporter compact
 powershell -ExecutionPolicy Bypass -File tools/ci/check_release_readiness.ps1
 powershell -ExecutionPolicy Bypass -File tools/ci/truth_reconciler.ps1
 ```
@@ -82,7 +82,8 @@ powershell -ExecutionPolicy Bypass -File tools/ci/truth_reconciler.ps1
 **Verification:**
 
 ```powershell
-ctest --test-dir build/dev-ninja-debug -R "test_battle_save|test_wave1_closure" --output-on-failure
+.\build\dev-ninja-debug\urpg_integration_tests.exe "[battle][save]" --reporter compact
+.\build\dev-ninja-debug\urpg_integration_tests.exe "[integration][wave1][closure]" --reporter compact
 ```
 
 ---
@@ -116,3 +117,35 @@ The following gaps are **open** as of this review preparation date. The reviewer
 ## Reviewer Notes
 
 _(Record any new gaps, concerns, or conditions found during review here.)_
+
+### Non-Human Review Preparation - 2026-04-24
+
+Automation has completed all evidence-refresh work it can truthfully perform for `save_data_core`. The reviewer still must make the accept/reject decision, but no unchecked machine-validation command remains in this checklist.
+
+| Checklist Area | Command | Automated Result |
+|---|---|---|
+| Runtime correctness | `.\build\dev-ninja-debug\urpg_tests.exe "[save]" --reporter compact` | Passed: 509 assertions / 62 test cases |
+| Migration and compat coverage | `.\build\dev-ninja-debug\urpg_tests.exe "[save][migration]" --reporter compact` | Passed: 49 assertions / 5 test cases |
+| Migration and compat coverage | `powershell -ExecutionPolicy Bypass -File tools\ci\check_save_policy_governance.ps1` | Passed |
+| Schema and governance | `.\build\dev-ninja-debug\urpg_tests.exe "[save][schema]" --reporter compact` | Passed: 87 assertions / 6 test cases |
+| Schema and governance | `powershell -ExecutionPolicy Bypass -File tools\ci\check_release_readiness.ps1` | Passed |
+| Schema and governance | `powershell -ExecutionPolicy Bypass -File tools\ci\truth_reconciler.ps1` | Passed |
+| Integration and cross-subsystem | `.\build\dev-ninja-debug\urpg_integration_tests.exe "[battle][save]" --reporter compact` | Passed: 44 assertions / 4 test cases |
+| Integration and cross-subsystem | `.\build\dev-ninja-debug\urpg_integration_tests.exe "[integration][wave1][closure]" --reporter compact` | Passed: 39 assertions / 4 test cases |
+| Release gate shape | `.\build\dev-ninja-debug\urpg_project_audit.exe --json` | Passed command execution; still reports `releaseBlockerCount: 2` because `battle_core` and `save_data_core` are intentionally blocked on explicit human review |
+
+Machine conclusion: `save_data_core` has current machine evidence prepared for human review. Automation cannot mark unresolved gaps accepted, cannot select `READY`, and cannot update `readiness_status.json` without a human reviewer decision.
+
+### Automated Evidence Refresh - 2026-04-24
+
+Automation refreshed the save/data evidence without granting human approval:
+
+- `.\build\dev-ninja-debug\urpg_tests.exe "[save]" --reporter compact` passed: 509 assertions / 62 test cases.
+- `.\build\dev-ninja-debug\urpg_integration_tests.exe "[battle][save]" --reporter compact` passed: 44 assertions / 4 test cases.
+- `.\build\dev-ninja-debug\urpg_integration_tests.exe "[integration][wave1][closure]" --reporter compact` passed: 39 assertions / 4 test cases.
+- `powershell -ExecutionPolicy Bypass -File tools\ci\check_save_policy_governance.ps1` passed.
+- `powershell -ExecutionPolicy Bypass -File tools\ci\check_release_readiness.ps1` passed.
+- `powershell -ExecutionPolicy Bypass -File tools\ci\truth_reconciler.ps1` passed.
+- `.\build\dev-ninja-debug\urpg_project_audit.exe --json` still reports `releaseBlockerCount: 2`, with `save_data_core` intentionally blocked on explicit human review.
+
+Human reviewer decision remains pending.

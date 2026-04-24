@@ -97,15 +97,368 @@ void writeTextFile(const std::filesystem::path& path, std::string_view contents)
     out << contents;
 }
 
-} // namespace
+using DiagnosticRows = std::vector<nlohmann::json>;
 
-TEST_CASE(
-    "Compat fixtures: combined weekly regression covers curated dependency gating and mixed malformed/runtime chains",
-    "[compat][fixtures][failure][weekly]") {
-    PluginManager& pm = PluginManager::instance();
-    pm.unloadAllPlugins();
-    pm.clearFailureDiagnostics();
+size_t countOperation(const DiagnosticRows& diagnostics, std::string_view operation) {
+    size_t count = 0;
+    for (const auto& row : diagnostics) {
+        if (row.value("operation", "") == operation) {
+            ++count;
+        }
+    }
+    return count;
+}
 
+bool hasDiagnosticRow(const DiagnosticRows& diagnostics, const nlohmann::json& expected) {
+    for (const auto& row : diagnostics) {
+        bool matches = true;
+        for (auto it = expected.begin(); it != expected.end(); ++it) {
+            if (!it.value().is_string() || row.value(it.key(), "") != it.value().get<std::string>()) {
+                matches = false;
+                break;
+            }
+        }
+        if (matches) {
+            return true;
+        }
+    }
+    return false;
+}
+
+void requireDiagnosticRow(const DiagnosticRows& diagnostics, const nlohmann::json& expected) {
+    INFO("Expected diagnostic row: " << expected.dump());
+    REQUIRE(hasDiagnosticRow(diagnostics, expected));
+}
+
+void verifyOperationCounts(const DiagnosticRows& diagnostics, size_t dependencyProbeCount) {
+    REQUIRE(countOperation(diagnostics, "execute_command_dependency_missing") == dependencyProbeCount);
+    REQUIRE(countOperation(diagnostics, "load_plugin_fixture_parse") >= 1);
+    REQUIRE(countOperation(diagnostics, "load_plugin_fixture_open") >= 1);
+    REQUIRE(countOperation(diagnostics, "load_plugin_fixture_name") >= 1);
+    REQUIRE(countOperation(diagnostics, "load_plugin_name") >= 1);
+    REQUIRE(countOperation(diagnostics, "load_plugin_duplicate") >= 1);
+    REQUIRE(countOperation(diagnostics, "load_plugins_directory_scan") >= 1);
+    REQUIRE(countOperation(diagnostics, "load_plugins_directory_scan_entry") >= 1);
+    REQUIRE(countOperation(diagnostics, "load_plugin_dependencies") >= 1);
+    REQUIRE(countOperation(diagnostics, "load_plugin_dependency_entry") >= 1);
+    REQUIRE(countOperation(diagnostics, "load_plugin_parameters") >= 1);
+    REQUIRE(countOperation(diagnostics, "load_plugin_commands") >= 1);
+    REQUIRE(countOperation(diagnostics, "load_plugin_js_payload") >= 1);
+    REQUIRE(countOperation(diagnostics, "load_plugin_script_payload") >= 1);
+    REQUIRE(countOperation(diagnostics, "load_plugin_command_shape") >= 1);
+    REQUIRE(countOperation(diagnostics, "load_plugin_command_name") >= 1);
+    REQUIRE(countOperation(diagnostics, "load_plugin_command_description") >= 1);
+    REQUIRE(countOperation(diagnostics, "load_plugin_drop_context_flag") >= 1);
+    REQUIRE(countOperation(diagnostics, "load_plugin_register_command") >= 1);
+    REQUIRE(countOperation(diagnostics, "load_plugin_register_script_fn") >= 1);
+    REQUIRE(countOperation(diagnostics, "load_plugin_quickjs_context") >= 1);
+    REQUIRE(countOperation(diagnostics, "load_plugin_js_entry") >= 1);
+    REQUIRE(countOperation(diagnostics, "load_plugin_js_eval") >= 1);
+    REQUIRE(countOperation(diagnostics, "parse_parameters_name") >= 1);
+    REQUIRE(countOperation(diagnostics, "parse_parameters_json") >= 1);
+    REQUIRE(countOperation(diagnostics, "execute_command") >= 2);
+    REQUIRE(countOperation(diagnostics, "execute_command_quickjs_call") >= 12);
+    REQUIRE(countOperation(diagnostics, "execute_command_quickjs_context_missing") >= 1);
+    REQUIRE(countOperation(diagnostics, "execute_command_by_name_parse") >= 4);
+}
+
+void verifyDependencyGateDiagnosticRows(const DiagnosticRows& diagnostics, const std::vector<FixtureSpec>& specs) {
+    for (const auto& spec : specs) {
+        const std::string probePlugin = "DependencyGateProbe_" + spec.pluginName;
+        requireDiagnosticRow(
+            diagnostics,
+            {
+                {"operation", "execute_command_dependency_missing"},
+                {"plugin", probePlugin},
+                {"command", "probe"},
+                {"message", "Missing dependencies for " + probePlugin + "_probe: " + spec.pluginName}
+            }
+        );
+    }
+}
+
+void verifyRuntimeDiagnosticRows(const DiagnosticRows& diagnostics) {
+    const auto requireRuntimeRow =
+        [&diagnostics](std::string command, std::string message, std::string severity = "") {
+            nlohmann::json expected{
+                {"operation", "execute_command_quickjs_call"},
+                {"plugin", "MixedChainRuntimeFixture"},
+                {"command", std::move(command)},
+                {"message", std::move(message)}
+            };
+            if (!severity.empty()) {
+                expected["severity"] = std::move(severity);
+            }
+            requireDiagnosticRow(diagnostics, expected);
+        };
+
+    requireRuntimeRow(
+        "runtimeNestedAllAnyScriptError",
+        "Host function error: mixed chain nested all/any script error"
+    );
+    requireRuntimeRow(
+        "runtimeNestedAllAnyUnknown",
+        "Host function error: Unsupported fixture script op 'unknown' at index 0"
+    );
+    requireRuntimeRow(
+        "runtimeMissingOp",
+        "Host function error: Fixture script step missing op at index 0"
+    );
+    requireRuntimeRow(
+        "runtimeNonObjectStep",
+        "Host function error: Fixture script step must be an object at index 0"
+    );
+    requireRuntimeRow(
+        "runtimeIfBranchShape",
+        "Host function error: Fixture script if branch must be an array at index 0"
+    );
+    requireDiagnosticRow(
+        diagnostics,
+        {
+            {"operation", "execute_command"},
+            {"plugin", "MixedChainRuntimeFixture"},
+            {"command", "runtimeMissingTarget"},
+            {"message", "Command not found: MixedChainRuntimeFixture_runtimeMissingTarget"}
+        }
+    );
+    requireDiagnosticRow(
+        diagnostics,
+        {
+            {"operation", "execute_command"},
+            {"plugin", "EliMZ_Book"},
+            {"command", "openBook"},
+            {"severity", "WARN"},
+            {"message", "Command not found: EliMZ_Book_openBook"}
+        }
+    );
+    requireDiagnosticRow(
+        diagnostics,
+        {
+            {"operation", "execute_command_by_name_parse"},
+            {"command", "runtimeInvalidByName"}
+        }
+    );
+    requireRuntimeRow(
+        "runtimeInvokeMissingRequired",
+        "Host function error: Fixture script invoke op expected non-nil result for "
+        "MixedChainRuntimeFixture_runtimeMissingTarget at index 0"
+    );
+    requireRuntimeRow(
+        "runtimeInvokeByNameMissingRequired",
+        "Host function error: Fixture script invokeByName op expected non-nil result for "
+        "runtimeInvalidByName at index 0"
+    );
+    requireRuntimeRow(
+        "runtimeInvokeMalformedArgs",
+        "Host function error: Fixture script invoke op requires array args at index 0"
+    );
+    requireRuntimeRow(
+        "runtimeInvokeMalformedExpect",
+        "Host function error: Fixture script invoke op unsupported expect value "
+        "'unknown_expect' at index 0"
+    );
+    requireRuntimeRow(
+        "runtimeNestedInvokeMalformedStore",
+        "Host function error: Fixture script invoke op requires string store at index 0"
+    );
+    requireRuntimeRow(
+        "runtimeNestedInvokeMalformedExpectObject",
+        "Host function error: Fixture script invoke op requires supported expect object at index 0"
+    );
+    requireRuntimeRow(
+        "runtimeNestedInvokeByNameMalformedStore",
+        "Host function error: Fixture script invokeByName op requires string store at index 0"
+    );
+    requireRuntimeRow(
+        "runtimeNestedInvokeByNameMalformedExpectObject",
+        "Host function error: Fixture script invokeByName op requires supported expect object at index 0"
+    );
+    requireRuntimeRow(
+        "runtimeDeepMixedInvokeByNameBadResolverParts",
+        "Host function error: Fixture script resolver concat requires array parts"
+    );
+    requireRuntimeRow(
+        "runtimeDeepMixedInvokeByNameUnknownResolverSource",
+        "Host function error: Fixture script resolver unknown source 'unknown_resolver'"
+    );
+    requireRuntimeRow(
+        "runtimeDeepMixedConcatBadParts",
+        "Host function error: Fixture script resolver concat requires array parts"
+    );
+    requireRuntimeRow(
+        "runtimeDeepMixedCoalesceBadValues",
+        "Host function error: Fixture script resolver coalesce requires array values"
+    );
+    requireRuntimeRow(
+        "runtimeDeepMixedEqualsMissingRight",
+        "Host function error: Fixture script resolver equals requires left and right"
+    );
+    requireRuntimeRow(
+        "runtimeDeepMixedArgBadIndex",
+        "Host function error: Fixture script resolver arg requires integer index"
+    );
+    requireRuntimeRow(
+        "runtimeDeepMixedParamBadName",
+        "Host function error: Fixture script resolver param requires string name"
+    );
+    requireRuntimeRow(
+        "runtimeDeepMixedLocalBadName",
+        "Host function error: Fixture script resolver local requires string name"
+    );
+    requireRuntimeRow(
+        "runtimeDeepMixedHasArgBadIndex",
+        "Host function error: Fixture script resolver hasArg requires integer index",
+        "HARD_FAIL"
+    );
+    requireRuntimeRow(
+        "runtimeDeepMixedHasParamBadName",
+        "Host function error: Fixture script resolver hasParam requires string name",
+        "HARD_FAIL"
+    );
+    requireRuntimeRow(
+        "runtimeDeepMixedArgCountUnexpectedField",
+        "Host function error: Fixture script resolver argCount does not accept field 'index'",
+        "HARD_FAIL"
+    );
+    requireRuntimeRow(
+        "runtimeDeepMixedArgsUnexpectedField",
+        "Host function error: Fixture script resolver args does not accept field 'name'",
+        "HARD_FAIL"
+    );
+    requireRuntimeRow(
+        "runtimeDeepMixedParamKeysUnexpectedField",
+        "Host function error: Fixture script resolver paramKeys does not accept field 'index'",
+        "HARD_FAIL"
+    );
+}
+
+void verifyLoadPluginDiagnosticRows(
+    const DiagnosticRows& diagnostics,
+    const std::filesystem::path& missingFixture,
+    const std::filesystem::path& emptyNameFixture) {
+    requireDiagnosticRow(
+        diagnostics,
+        {{"operation", "load_plugin_command_shape"}, {"plugin", "MixedChainCommandShapeFixture"}}
+    );
+    requireDiagnosticRow(
+        diagnostics,
+        {{"operation", "load_plugin_command_name"}, {"plugin", "MixedChainCommandNameFixture"}}
+    );
+    requireDiagnosticRow(
+        diagnostics,
+        {
+            {"operation", "load_plugin_drop_context_flag"},
+            {"plugin", "MixedChainDropContextFlagFixture"},
+            {"command", "badDropFlag"}
+        }
+    );
+    requireDiagnosticRow(
+        diagnostics,
+        {
+            {"operation", "load_plugin_js_entry"},
+            {"plugin", "MixedChainEntryTypeFixture"},
+            {"command", "badEntry"}
+        }
+    );
+    requireDiagnosticRow(
+        diagnostics,
+        {
+            {"operation", "load_plugin_command_description"},
+            {"plugin", "MixedChainCommandDescriptionFixture"},
+            {"command", "badDescription"}
+        }
+    );
+    requireDiagnosticRow(
+        diagnostics,
+        {
+            {"operation", "load_plugin_command_mode"},
+            {"plugin", "MixedChainUnsupportedModeFixture"},
+            {"command", "badModeValue"}
+        }
+    );
+    requireDiagnosticRow(
+        diagnostics,
+        {{"operation", "load_plugin_fixture_open"}, {"plugin", missingFixture.stem().string()}}
+    );
+    requireDiagnosticRow(diagnostics, {{"operation", "load_plugins_directory_scan"}});
+
+    const auto scanEntryFailureRow = std::find_if(
+        diagnostics.begin(),
+        diagnostics.end(),
+        [](const nlohmann::json& row) {
+            return row.value("operation", "") == "load_plugins_directory_scan_entry" &&
+                   row.value("message", "").find("__urpg_fail_directory_entry_status___marker.json") !=
+                       std::string::npos;
+        }
+    );
+    REQUIRE(scanEntryFailureRow != diagnostics.end());
+
+    requireDiagnosticRow(
+        diagnostics,
+        {{"operation", "load_plugin_duplicate"}, {"plugin", "MixedChainDuplicateFixture"}}
+    );
+    requireDiagnosticRow(
+        diagnostics,
+        {{"operation", "load_plugin_fixture_name"}, {"plugin", emptyNameFixture.stem().string()}}
+    );
+    requireDiagnosticRow(diagnostics, {{"operation", "parse_parameters_name"}});
+    requireDiagnosticRow(
+        diagnostics,
+        {{"operation", "parse_parameters_json"}, {"plugin", "MixedChainParamsFixture"}}
+    );
+    requireDiagnosticRow(
+        diagnostics,
+        {{"operation", "load_plugin_dependencies"}, {"plugin", "MixedChainDependencyShapeFixture"}}
+    );
+    requireDiagnosticRow(
+        diagnostics,
+        {{"operation", "load_plugin_dependency_entry"}, {"plugin", "MixedChainDependencyEntryFixture"}}
+    );
+    requireDiagnosticRow(
+        diagnostics,
+        {{"operation", "load_plugin_parameters"}, {"plugin", "MixedChainParametersShapeFixture"}}
+    );
+    requireDiagnosticRow(
+        diagnostics,
+        {{"operation", "load_plugin_commands"}, {"plugin", "MixedChainCommandsShapeFixture"}}
+    );
+    requireDiagnosticRow(diagnostics, {{"operation", "load_plugin_name"}, {"plugin", ""}});
+    requireDiagnosticRow(
+        diagnostics,
+        {
+            {"operation", "load_plugin_register_command"},
+            {"plugin", "MixedChainRegisterCommandFixture"},
+            {"command", "dup"}
+        }
+    );
+    requireDiagnosticRow(
+        diagnostics,
+        {
+            {"operation", "load_plugin_register_script_fn"},
+            {"plugin", "MixedChainRegisterScriptFnFixture"},
+            {"command", "__urpg_fail_register_function___scriptCommand"}
+        }
+    );
+    requireDiagnosticRow(
+        diagnostics,
+        {
+            {"operation", "load_plugin_quickjs_context"},
+            {"plugin", "MixedChain__urpg_fail_context_init__Fixture"},
+            {"command", "ctxInitFail"}
+        }
+    );
+    requireDiagnosticRow(
+        diagnostics,
+        {
+            {"operation", "execute_command_quickjs_context_missing"},
+            {"plugin", "MixedChainRuntimeFixture"},
+            {"command", "runtimeContextMissingViaDrop"},
+            {"message", "QuickJS context missing for plugin: MixedChainRuntimeFixture"}
+        }
+    );
+}
+
+void loadCuratedFixturePluginsAndVerifyHappyPaths(PluginManager& pm) {
     const auto fixturesRoot = fixtureDir();
     REQUIRE(std::filesystem::exists(fixturesRoot));
 
@@ -120,9 +473,12 @@ TEST_CASE(
         const urpg::Value result = pm.executeCommand(spec.pluginName, spec.happyPathCommand, {});
         REQUIRE_FALSE(std::holds_alternative<std::monostate>(result.v));
     }
+}
 
+void registerDependencyGateProbesAndVerifyBlocking(PluginManager& pm) {
     std::vector<std::string> executedProbePlugins;
-    for (const auto& spec : specs) {
+
+    for (const auto& spec : fixtureSpecs()) {
         const std::string probePlugin = "DependencyGateProbe_" + spec.pluginName;
 
         urpg::compat::PluginInfo info;
@@ -139,7 +495,7 @@ TEST_CASE(
         ));
     }
 
-    for (const auto& spec : specs) {
+    for (const auto& spec : fixtureSpecs()) {
         const std::string probePlugin = "DependencyGateProbe_" + spec.pluginName;
 
         INFO("Dependency gate check: " << probePlugin << " depends on " << spec.pluginName);
@@ -156,7 +512,9 @@ TEST_CASE(
             ("Missing dependencies for " + probePlugin + "_probe: " + spec.pluginName)
         );
     }
+}
 
+std::filesystem::path createAndExerciseWeeklyLifecycleFixture(PluginManager& pm) {
     REQUIRE(pm.loadPlugin(fixturePath("VisuStella_CoreEngine_MZ").string()));
     REQUIRE(pm.loadPlugin(fixturePath("CGMZ_MenuCommandWindow").string()));
     REQUIRE(pm.loadPlugin(fixturePath("EliMZ_Book").string()));
@@ -224,6 +582,23 @@ TEST_CASE(
             std::get<urpg::Object>(weeklyLifecycleObject.at("dashboard").v).at("profile").v
         ) == "command_window"
     );
+
+    return weeklyLifecycleFixture;
+}
+
+} // namespace
+
+TEST_CASE(
+    "Compat fixtures: combined weekly regression covers curated dependency gating and mixed malformed/runtime chains",
+    "[compat][fixtures][failure][weekly]") {
+    PluginManager& pm = PluginManager::instance();
+    pm.unloadAllPlugins();
+    pm.clearFailureDiagnostics();
+
+    const auto& specs = fixtureSpecs();
+    loadCuratedFixturePluginsAndVerifyHappyPaths(pm);
+    registerDependencyGateProbesAndVerifyBlocking(pm);
+    const auto weeklyLifecycleFixture = createAndExerciseWeeklyLifecycleFixture(pm);
 
     const auto malformedFixture = uniqueTempFixturePath("urpg_mixed_chain_malformed_fixture");
     writeTextFile(malformedFixture, "{\"name\":");
@@ -1401,676 +1776,10 @@ TEST_CASE(
     const auto diagnostics = parseJsonl(pm.exportFailureDiagnosticsJsonl());
     REQUIRE_FALSE(diagnostics.empty());
 
-    const auto countOperation = [&diagnostics](std::string_view operation) {
-        size_t count = 0;
-        for (const auto& row : diagnostics) {
-            if (row.value("operation", "") == operation) {
-                ++count;
-            }
-        }
-        return count;
-    };
-
-    REQUIRE(countOperation("execute_command_dependency_missing") == specs.size());
-    REQUIRE(countOperation("load_plugin_fixture_parse") >= 1);
-    REQUIRE(countOperation("load_plugin_fixture_open") >= 1);
-    REQUIRE(countOperation("load_plugin_fixture_name") >= 1);
-    REQUIRE(countOperation("load_plugin_name") >= 1);
-    REQUIRE(countOperation("load_plugin_duplicate") >= 1);
-    REQUIRE(countOperation("load_plugins_directory_scan") >= 1);
-    REQUIRE(countOperation("load_plugins_directory_scan_entry") >= 1);
-    REQUIRE(countOperation("load_plugin_dependencies") >= 1);
-    REQUIRE(countOperation("load_plugin_dependency_entry") >= 1);
-    REQUIRE(countOperation("load_plugin_parameters") >= 1);
-    REQUIRE(countOperation("load_plugin_commands") >= 1);
-    REQUIRE(countOperation("load_plugin_js_payload") >= 1);
-    REQUIRE(countOperation("load_plugin_script_payload") >= 1);
-    REQUIRE(countOperation("load_plugin_command_shape") >= 1);
-    REQUIRE(countOperation("load_plugin_command_name") >= 1);
-    REQUIRE(countOperation("load_plugin_command_description") >= 1);
-    REQUIRE(countOperation("load_plugin_drop_context_flag") >= 1);
-    REQUIRE(countOperation("load_plugin_register_command") >= 1);
-    REQUIRE(countOperation("load_plugin_register_script_fn") >= 1);
-    REQUIRE(countOperation("load_plugin_quickjs_context") >= 1);
-    REQUIRE(countOperation("load_plugin_js_entry") >= 1);
-    REQUIRE(countOperation("load_plugin_js_eval") >= 1);
-    REQUIRE(countOperation("parse_parameters_name") >= 1);
-    REQUIRE(countOperation("parse_parameters_json") >= 1);
-    REQUIRE(countOperation("execute_command") >= 2);
-    REQUIRE(countOperation("execute_command_quickjs_call") >= 12);
-    REQUIRE(countOperation("execute_command_quickjs_context_missing") >= 1);
-    REQUIRE(countOperation("execute_command_by_name_parse") >= 4);
-
-    for (const auto& spec : specs) {
-        const std::string probePlugin = "DependencyGateProbe_" + spec.pluginName;
-        const std::string expectedMessage =
-            "Missing dependencies for " + probePlugin + "_probe: " + spec.pluginName;
-
-        const auto rowIt = std::find_if(
-            diagnostics.begin(),
-            diagnostics.end(),
-            [&](const nlohmann::json& row) {
-                return row.value("operation", "") == "execute_command_dependency_missing" &&
-                       row.value("plugin", "") == probePlugin &&
-                       row.value("command", "") == "probe" &&
-                       row.value("message", "") == expectedMessage;
-            }
-        );
-        REQUIRE(rowIt != diagnostics.end());
-    }
-
-    const auto nestedAllAnyScriptErrorRow = std::find_if(
-        diagnostics.begin(),
-        diagnostics.end(),
-        [](const nlohmann::json& row) {
-            return row.value("operation", "") == "execute_command_quickjs_call" &&
-                   row.value("plugin", "") == "MixedChainRuntimeFixture" &&
-                   row.value("command", "") == "runtimeNestedAllAnyScriptError" &&
-                   row.value("message", "") ==
-                       "Host function error: mixed chain nested all/any script error";
-        }
-    );
-    REQUIRE(nestedAllAnyScriptErrorRow != diagnostics.end());
-
-    const auto nestedAllAnyUnknownRow = std::find_if(
-        diagnostics.begin(),
-        diagnostics.end(),
-        [](const nlohmann::json& row) {
-            return row.value("operation", "") == "execute_command_quickjs_call" &&
-                   row.value("plugin", "") == "MixedChainRuntimeFixture" &&
-                   row.value("command", "") == "runtimeNestedAllAnyUnknown" &&
-                   row.value("message", "") ==
-                       "Host function error: Unsupported fixture script op 'unknown' at index 0";
-        }
-    );
-    REQUIRE(nestedAllAnyUnknownRow != diagnostics.end());
-
-    const auto missingOpRow = std::find_if(
-        diagnostics.begin(),
-        diagnostics.end(),
-        [](const nlohmann::json& row) {
-            return row.value("operation", "") == "execute_command_quickjs_call" &&
-                   row.value("plugin", "") == "MixedChainRuntimeFixture" &&
-                   row.value("command", "") == "runtimeMissingOp" &&
-                   row.value("message", "") ==
-                       "Host function error: Fixture script step missing op at index 0";
-        }
-    );
-    REQUIRE(missingOpRow != diagnostics.end());
-
-    const auto nonObjectRow = std::find_if(
-        diagnostics.begin(),
-        diagnostics.end(),
-        [](const nlohmann::json& row) {
-            return row.value("operation", "") == "execute_command_quickjs_call" &&
-                   row.value("plugin", "") == "MixedChainRuntimeFixture" &&
-                   row.value("command", "") == "runtimeNonObjectStep" &&
-                   row.value("message", "") ==
-                       "Host function error: Fixture script step must be an object at index 0";
-        }
-    );
-    REQUIRE(nonObjectRow != diagnostics.end());
-
-    const auto branchShapeRow = std::find_if(
-        diagnostics.begin(),
-        diagnostics.end(),
-        [](const nlohmann::json& row) {
-            return row.value("operation", "") == "execute_command_quickjs_call" &&
-                   row.value("plugin", "") == "MixedChainRuntimeFixture" &&
-                   row.value("command", "") == "runtimeIfBranchShape" &&
-                   row.value("message", "") ==
-                       "Host function error: Fixture script if branch must be an array at index 0";
-        }
-    );
-    REQUIRE(branchShapeRow != diagnostics.end());
-
-    const auto invokeMissingCommandRow = std::find_if(
-        diagnostics.begin(),
-        diagnostics.end(),
-        [](const nlohmann::json& row) {
-            return row.value("operation", "") == "execute_command" &&
-                   row.value("plugin", "") == "MixedChainRuntimeFixture" &&
-                   row.value("command", "") == "runtimeMissingTarget" &&
-                   row.value("message", "") ==
-                       "Command not found: MixedChainRuntimeFixture_runtimeMissingTarget";
-        }
-    );
-    REQUIRE(invokeMissingCommandRow != diagnostics.end());
-
-    const auto weeklyLifecycleMissingRow = std::find_if(
-      diagnostics.begin(),
-      diagnostics.end(),
-      [](const nlohmann::json& row) {
-        return row.value("operation", "") == "execute_command" &&
-             row.value("plugin", "") == "EliMZ_Book" &&
-             row.value("command", "") == "openBook" &&
-             row.value("severity", "") == "WARN" &&
-             row.value("message", "") ==
-               "Command not found: EliMZ_Book_openBook";
-      }
-    );
-    REQUIRE(weeklyLifecycleMissingRow != diagnostics.end());
-
-    const auto invokeByNameParseRow = std::find_if(
-        diagnostics.begin(),
-        diagnostics.end(),
-        [](const nlohmann::json& row) {
-            return row.value("operation", "") == "execute_command_by_name_parse" &&
-                   row.value("command", "") == "runtimeInvalidByName";
-        }
-    );
-    REQUIRE(invokeByNameParseRow != diagnostics.end());
-
-    const auto invokeMissingRequiredRow = std::find_if(
-        diagnostics.begin(),
-        diagnostics.end(),
-        [](const nlohmann::json& row) {
-            return row.value("operation", "") == "execute_command_quickjs_call" &&
-                   row.value("plugin", "") == "MixedChainRuntimeFixture" &&
-                   row.value("command", "") == "runtimeInvokeMissingRequired" &&
-                   row.value("message", "") ==
-                       "Host function error: Fixture script invoke op expected non-nil result for "
-                       "MixedChainRuntimeFixture_runtimeMissingTarget at index 0";
-        }
-    );
-    REQUIRE(invokeMissingRequiredRow != diagnostics.end());
-
-    const auto invokeByNameMissingRequiredRow = std::find_if(
-        diagnostics.begin(),
-        diagnostics.end(),
-        [](const nlohmann::json& row) {
-            return row.value("operation", "") == "execute_command_quickjs_call" &&
-                   row.value("plugin", "") == "MixedChainRuntimeFixture" &&
-                   row.value("command", "") == "runtimeInvokeByNameMissingRequired" &&
-                   row.value("message", "") ==
-                       "Host function error: Fixture script invokeByName op expected non-nil result for "
-                       "runtimeInvalidByName at index 0";
-        }
-    );
-    REQUIRE(invokeByNameMissingRequiredRow != diagnostics.end());
-
-    const auto invokeMalformedArgsRow = std::find_if(
-        diagnostics.begin(),
-        diagnostics.end(),
-        [](const nlohmann::json& row) {
-            return row.value("operation", "") == "execute_command_quickjs_call" &&
-                   row.value("plugin", "") == "MixedChainRuntimeFixture" &&
-                   row.value("command", "") == "runtimeInvokeMalformedArgs" &&
-                   row.value("message", "") ==
-                       "Host function error: Fixture script invoke op requires array args at index 0";
-        }
-    );
-    REQUIRE(invokeMalformedArgsRow != diagnostics.end());
-
-    const auto invokeMalformedExpectRow = std::find_if(
-        diagnostics.begin(),
-        diagnostics.end(),
-        [](const nlohmann::json& row) {
-            return row.value("operation", "") == "execute_command_quickjs_call" &&
-                   row.value("plugin", "") == "MixedChainRuntimeFixture" &&
-                   row.value("command", "") == "runtimeInvokeMalformedExpect" &&
-                   row.value("message", "") ==
-                       "Host function error: Fixture script invoke op unsupported expect value "
-                       "'unknown_expect' at index 0";
-        }
-    );
-    REQUIRE(invokeMalformedExpectRow != diagnostics.end());
-
-      const auto nestedInvokeMalformedStoreRow = std::find_if(
-        diagnostics.begin(),
-        diagnostics.end(),
-        [](const nlohmann::json& row) {
-          return row.value("operation", "") == "execute_command_quickjs_call" &&
-               row.value("plugin", "") == "MixedChainRuntimeFixture" &&
-               row.value("command", "") == "runtimeNestedInvokeMalformedStore" &&
-               row.value("message", "") ==
-                 "Host function error: Fixture script invoke op requires string store at index 0";
-        }
-      );
-      REQUIRE(nestedInvokeMalformedStoreRow != diagnostics.end());
-
-      const auto nestedInvokeMalformedExpectObjectRow = std::find_if(
-        diagnostics.begin(),
-        diagnostics.end(),
-        [](const nlohmann::json& row) {
-          return row.value("operation", "") == "execute_command_quickjs_call" &&
-               row.value("plugin", "") == "MixedChainRuntimeFixture" &&
-               row.value("command", "") == "runtimeNestedInvokeMalformedExpectObject" &&
-               row.value("message", "") ==
-                 "Host function error: Fixture script invoke op requires supported expect object at index 0";
-        }
-      );
-      REQUIRE(nestedInvokeMalformedExpectObjectRow != diagnostics.end());
-
-      const auto nestedInvokeByNameMalformedStoreRow = std::find_if(
-        diagnostics.begin(),
-        diagnostics.end(),
-        [](const nlohmann::json& row) {
-          return row.value("operation", "") == "execute_command_quickjs_call" &&
-               row.value("plugin", "") == "MixedChainRuntimeFixture" &&
-               row.value("command", "") == "runtimeNestedInvokeByNameMalformedStore" &&
-               row.value("message", "") ==
-                 "Host function error: Fixture script invokeByName op requires string store at index 0";
-        }
-      );
-      REQUIRE(nestedInvokeByNameMalformedStoreRow != diagnostics.end());
-
-      const auto nestedInvokeByNameMalformedExpectObjectRow = std::find_if(
-        diagnostics.begin(),
-        diagnostics.end(),
-        [](const nlohmann::json& row) {
-          return row.value("operation", "") == "execute_command_quickjs_call" &&
-               row.value("plugin", "") == "MixedChainRuntimeFixture" &&
-               row.value("command", "") == "runtimeNestedInvokeByNameMalformedExpectObject" &&
-               row.value("message", "") ==
-                 "Host function error: Fixture script invokeByName op requires supported expect object at index 0";
-        }
-      );
-      REQUIRE(nestedInvokeByNameMalformedExpectObjectRow != diagnostics.end());
-
-      const auto deepMixedInvokeByNameBadResolverPartsRow = std::find_if(
-        diagnostics.begin(),
-        diagnostics.end(),
-        [](const nlohmann::json& row) {
-          return row.value("operation", "") == "execute_command_quickjs_call" &&
-               row.value("plugin", "") == "MixedChainRuntimeFixture" &&
-               row.value("command", "") == "runtimeDeepMixedInvokeByNameBadResolverParts" &&
-               row.value("message", "") ==
-                 "Host function error: Fixture script resolver concat requires array parts";
-        }
-      );
-      REQUIRE(deepMixedInvokeByNameBadResolverPartsRow != diagnostics.end());
-
-      const auto deepMixedInvokeByNameUnknownResolverSourceRow = std::find_if(
-        diagnostics.begin(),
-        diagnostics.end(),
-        [](const nlohmann::json& row) {
-          return row.value("operation", "") == "execute_command_quickjs_call" &&
-               row.value("plugin", "") == "MixedChainRuntimeFixture" &&
-               row.value("command", "") == "runtimeDeepMixedInvokeByNameUnknownResolverSource" &&
-               row.value("message", "") ==
-                 "Host function error: Fixture script resolver unknown source 'unknown_resolver'";
-        }
-      );
-      REQUIRE(deepMixedInvokeByNameUnknownResolverSourceRow != diagnostics.end());
-
-      const auto deepMixedConcatBadPartsRow = std::find_if(
-        diagnostics.begin(),
-        diagnostics.end(),
-        [](const nlohmann::json& row) {
-          return row.value("operation", "") == "execute_command_quickjs_call" &&
-               row.value("plugin", "") == "MixedChainRuntimeFixture" &&
-               row.value("command", "") == "runtimeDeepMixedConcatBadParts" &&
-               row.value("message", "") ==
-                 "Host function error: Fixture script resolver concat requires array parts";
-        }
-      );
-      REQUIRE(deepMixedConcatBadPartsRow != diagnostics.end());
-
-      const auto deepMixedCoalesceBadValuesRow = std::find_if(
-        diagnostics.begin(),
-        diagnostics.end(),
-        [](const nlohmann::json& row) {
-          return row.value("operation", "") == "execute_command_quickjs_call" &&
-               row.value("plugin", "") == "MixedChainRuntimeFixture" &&
-               row.value("command", "") == "runtimeDeepMixedCoalesceBadValues" &&
-               row.value("message", "") ==
-                 "Host function error: Fixture script resolver coalesce requires array values";
-        }
-      );
-      REQUIRE(deepMixedCoalesceBadValuesRow != diagnostics.end());
-
-      const auto deepMixedEqualsMissingRightRow = std::find_if(
-        diagnostics.begin(),
-        diagnostics.end(),
-        [](const nlohmann::json& row) {
-          return row.value("operation", "") == "execute_command_quickjs_call" &&
-               row.value("plugin", "") == "MixedChainRuntimeFixture" &&
-               row.value("command", "") == "runtimeDeepMixedEqualsMissingRight" &&
-               row.value("message", "") ==
-                 "Host function error: Fixture script resolver equals requires left and right";
-        }
-      );
-      REQUIRE(deepMixedEqualsMissingRightRow != diagnostics.end());
-
-      const auto deepMixedArgBadIndexRow = std::find_if(
-        diagnostics.begin(),
-        diagnostics.end(),
-        [](const nlohmann::json& row) {
-          return row.value("operation", "") == "execute_command_quickjs_call" &&
-               row.value("plugin", "") == "MixedChainRuntimeFixture" &&
-               row.value("command", "") == "runtimeDeepMixedArgBadIndex" &&
-               row.value("message", "") ==
-                 "Host function error: Fixture script resolver arg requires integer index";
-        }
-      );
-      REQUIRE(deepMixedArgBadIndexRow != diagnostics.end());
-
-      const auto deepMixedParamBadNameRow = std::find_if(
-        diagnostics.begin(),
-        diagnostics.end(),
-        [](const nlohmann::json& row) {
-          return row.value("operation", "") == "execute_command_quickjs_call" &&
-               row.value("plugin", "") == "MixedChainRuntimeFixture" &&
-               row.value("command", "") == "runtimeDeepMixedParamBadName" &&
-               row.value("message", "") ==
-                 "Host function error: Fixture script resolver param requires string name";
-        }
-      );
-      REQUIRE(deepMixedParamBadNameRow != diagnostics.end());
-
-      const auto deepMixedLocalBadNameRow = std::find_if(
-        diagnostics.begin(),
-        diagnostics.end(),
-        [](const nlohmann::json& row) {
-          return row.value("operation", "") == "execute_command_quickjs_call" &&
-               row.value("plugin", "") == "MixedChainRuntimeFixture" &&
-               row.value("command", "") == "runtimeDeepMixedLocalBadName" &&
-               row.value("message", "") ==
-                 "Host function error: Fixture script resolver local requires string name";
-        }
-      );
-      REQUIRE(deepMixedLocalBadNameRow != diagnostics.end());
-
-      const auto deepMixedHasArgBadIndexRow = std::find_if(
-        diagnostics.begin(),
-        diagnostics.end(),
-        [](const nlohmann::json& row) {
-          return row.value("operation", "") == "execute_command_quickjs_call" &&
-               row.value("plugin", "") == "MixedChainRuntimeFixture" &&
-               row.value("command", "") == "runtimeDeepMixedHasArgBadIndex" &&
-               row.value("message", "") ==
-                 "Host function error: Fixture script resolver hasArg requires integer index" &&
-               row.value("severity", "") == "HARD_FAIL";
-        }
-      );
-      REQUIRE(deepMixedHasArgBadIndexRow != diagnostics.end());
-
-      const auto deepMixedHasParamBadNameRow = std::find_if(
-        diagnostics.begin(),
-        diagnostics.end(),
-        [](const nlohmann::json& row) {
-          return row.value("operation", "") == "execute_command_quickjs_call" &&
-               row.value("plugin", "") == "MixedChainRuntimeFixture" &&
-               row.value("command", "") == "runtimeDeepMixedHasParamBadName" &&
-               row.value("message", "") ==
-                 "Host function error: Fixture script resolver hasParam requires string name" &&
-               row.value("severity", "") == "HARD_FAIL";
-        }
-      );
-      REQUIRE(deepMixedHasParamBadNameRow != diagnostics.end());
-
-      const auto deepMixedArgCountUnexpectedFieldRow = std::find_if(
-        diagnostics.begin(),
-        diagnostics.end(),
-        [](const nlohmann::json& row) {
-          return row.value("operation", "") == "execute_command_quickjs_call" &&
-               row.value("plugin", "") == "MixedChainRuntimeFixture" &&
-               row.value("command", "") == "runtimeDeepMixedArgCountUnexpectedField" &&
-               row.value("message", "") ==
-                 "Host function error: Fixture script resolver argCount does not accept field 'index'" &&
-               row.value("severity", "") == "HARD_FAIL";
-        }
-      );
-      REQUIRE(deepMixedArgCountUnexpectedFieldRow != diagnostics.end());
-
-      const auto deepMixedArgsUnexpectedFieldRow = std::find_if(
-        diagnostics.begin(),
-        diagnostics.end(),
-        [](const nlohmann::json& row) {
-          return row.value("operation", "") == "execute_command_quickjs_call" &&
-               row.value("plugin", "") == "MixedChainRuntimeFixture" &&
-               row.value("command", "") == "runtimeDeepMixedArgsUnexpectedField" &&
-               row.value("message", "") ==
-                 "Host function error: Fixture script resolver args does not accept field 'name'" &&
-               row.value("severity", "") == "HARD_FAIL";
-        }
-      );
-      REQUIRE(deepMixedArgsUnexpectedFieldRow != diagnostics.end());
-
-      const auto deepMixedParamKeysUnexpectedFieldRow = std::find_if(
-        diagnostics.begin(),
-        diagnostics.end(),
-        [](const nlohmann::json& row) {
-          return row.value("operation", "") == "execute_command_quickjs_call" &&
-               row.value("plugin", "") == "MixedChainRuntimeFixture" &&
-               row.value("command", "") == "runtimeDeepMixedParamKeysUnexpectedField" &&
-               row.value("message", "") ==
-                 "Host function error: Fixture script resolver paramKeys does not accept field 'index'" &&
-               row.value("severity", "") == "HARD_FAIL";
-        }
-      );
-      REQUIRE(deepMixedParamKeysUnexpectedFieldRow != diagnostics.end());
-
-    const auto commandShapeRow = std::find_if(
-        diagnostics.begin(),
-        diagnostics.end(),
-        [](const nlohmann::json& row) {
-            return row.value("operation", "") == "load_plugin_command_shape" &&
-                   row.value("plugin", "") == "MixedChainCommandShapeFixture";
-        }
-    );
-    REQUIRE(commandShapeRow != diagnostics.end());
-
-    const auto commandNameRow = std::find_if(
-        diagnostics.begin(),
-        diagnostics.end(),
-        [](const nlohmann::json& row) {
-            return row.value("operation", "") == "load_plugin_command_name" &&
-                   row.value("plugin", "") == "MixedChainCommandNameFixture";
-        }
-    );
-    REQUIRE(commandNameRow != diagnostics.end());
-
-    const auto dropContextFlagRow = std::find_if(
-        diagnostics.begin(),
-        diagnostics.end(),
-        [](const nlohmann::json& row) {
-            return row.value("operation", "") == "load_plugin_drop_context_flag" &&
-                   row.value("plugin", "") == "MixedChainDropContextFlagFixture" &&
-                   row.value("command", "") == "badDropFlag";
-        }
-    );
-    REQUIRE(dropContextFlagRow != diagnostics.end());
-
-    const auto entryTypeRow = std::find_if(
-        diagnostics.begin(),
-        diagnostics.end(),
-        [](const nlohmann::json& row) {
-            return row.value("operation", "") == "load_plugin_js_entry" &&
-                   row.value("plugin", "") == "MixedChainEntryTypeFixture" &&
-                   row.value("command", "") == "badEntry";
-        }
-    );
-    REQUIRE(entryTypeRow != diagnostics.end());
-
-    const auto commandDescriptionRow = std::find_if(
-        diagnostics.begin(),
-        diagnostics.end(),
-        [](const nlohmann::json& row) {
-            return row.value("operation", "") == "load_plugin_command_description" &&
-                   row.value("plugin", "") == "MixedChainCommandDescriptionFixture" &&
-                   row.value("command", "") == "badDescription";
-        }
-    );
-    REQUIRE(commandDescriptionRow != diagnostics.end());
-
-    const auto unsupportedModeRow = std::find_if(
-        diagnostics.begin(),
-        diagnostics.end(),
-        [](const nlohmann::json& row) {
-            return row.value("operation", "") == "load_plugin_command_mode" &&
-                   row.value("plugin", "") == "MixedChainUnsupportedModeFixture" &&
-                   row.value("command", "") == "badModeValue";
-        }
-    );
-    REQUIRE(unsupportedModeRow != diagnostics.end());
-
-    const auto missingFixtureRow = std::find_if(
-        diagnostics.begin(),
-        diagnostics.end(),
-        [&](const nlohmann::json& row) {
-            return row.value("operation", "") == "load_plugin_fixture_open" &&
-                   row.value("plugin", "") == missingFixture.stem().string();
-        }
-    );
-    REQUIRE(missingFixtureRow != diagnostics.end());
-
-    const auto scanFailureRow = std::find_if(
-        diagnostics.begin(),
-        diagnostics.end(),
-        [](const nlohmann::json& row) {
-            return row.value("operation", "") == "load_plugins_directory_scan";
-        }
-    );
-    REQUIRE(scanFailureRow != diagnostics.end());
-
-    const auto scanEntryFailureRow = std::find_if(
-        diagnostics.begin(),
-        diagnostics.end(),
-        [](const nlohmann::json& row) {
-            return row.value("operation", "") == "load_plugins_directory_scan_entry" &&
-                   row.value("message", "").find("__urpg_fail_directory_entry_status___marker.json") !=
-                       std::string::npos;
-        }
-    );
-    REQUIRE(scanEntryFailureRow != diagnostics.end());
-
-    const auto duplicateFixtureRow = std::find_if(
-        diagnostics.begin(),
-        diagnostics.end(),
-        [](const nlohmann::json& row) {
-            return row.value("operation", "") == "load_plugin_duplicate" &&
-                   row.value("plugin", "") == "MixedChainDuplicateFixture";
-        }
-    );
-    REQUIRE(duplicateFixtureRow != diagnostics.end());
-
-    const auto emptyNameFixtureRow = std::find_if(
-        diagnostics.begin(),
-        diagnostics.end(),
-        [&](const nlohmann::json& row) {
-            return row.value("operation", "") == "load_plugin_fixture_name" &&
-                   row.value("plugin", "") == emptyNameFixture.stem().string();
-        }
-    );
-    REQUIRE(emptyNameFixtureRow != diagnostics.end());
-
-    const auto parseNameRow = std::find_if(
-        diagnostics.begin(),
-        diagnostics.end(),
-        [](const nlohmann::json& row) {
-            return row.value("operation", "") == "parse_parameters_name";
-        }
-    );
-    REQUIRE(parseNameRow != diagnostics.end());
-
-    const auto parseJsonRow = std::find_if(
-        diagnostics.begin(),
-        diagnostics.end(),
-        [](const nlohmann::json& row) {
-            return row.value("operation", "") == "parse_parameters_json" &&
-                   row.value("plugin", "") == "MixedChainParamsFixture";
-        }
-    );
-    REQUIRE(parseJsonRow != diagnostics.end());
-
-    const auto dependencyShapeRow = std::find_if(
-        diagnostics.begin(),
-        diagnostics.end(),
-        [](const nlohmann::json& row) {
-            return row.value("operation", "") == "load_plugin_dependencies" &&
-                   row.value("plugin", "") == "MixedChainDependencyShapeFixture";
-        }
-    );
-    REQUIRE(dependencyShapeRow != diagnostics.end());
-
-    const auto dependencyEntryRow = std::find_if(
-        diagnostics.begin(),
-        diagnostics.end(),
-        [](const nlohmann::json& row) {
-            return row.value("operation", "") == "load_plugin_dependency_entry" &&
-                   row.value("plugin", "") == "MixedChainDependencyEntryFixture";
-        }
-    );
-    REQUIRE(dependencyEntryRow != diagnostics.end());
-
-    const auto parametersShapeRow = std::find_if(
-        diagnostics.begin(),
-        diagnostics.end(),
-        [](const nlohmann::json& row) {
-            return row.value("operation", "") == "load_plugin_parameters" &&
-                   row.value("plugin", "") == "MixedChainParametersShapeFixture";
-        }
-    );
-    REQUIRE(parametersShapeRow != diagnostics.end());
-
-    const auto commandsShapeRow = std::find_if(
-        diagnostics.begin(),
-        diagnostics.end(),
-        [](const nlohmann::json& row) {
-            return row.value("operation", "") == "load_plugin_commands" &&
-                   row.value("plugin", "") == "MixedChainCommandsShapeFixture";
-        }
-    );
-    REQUIRE(commandsShapeRow != diagnostics.end());
-
-    const auto loadPluginNameRow = std::find_if(
-        diagnostics.begin(),
-        diagnostics.end(),
-        [](const nlohmann::json& row) {
-            return row.value("operation", "") == "load_plugin_name" &&
-                   row.value("plugin", "").empty();
-        }
-    );
-    REQUIRE(loadPluginNameRow != diagnostics.end());
-
-    const auto registerCommandRow = std::find_if(
-        diagnostics.begin(),
-        diagnostics.end(),
-        [](const nlohmann::json& row) {
-            return row.value("operation", "") == "load_plugin_register_command" &&
-                   row.value("plugin", "") == "MixedChainRegisterCommandFixture" &&
-                   row.value("command", "") == "dup";
-        }
-    );
-    REQUIRE(registerCommandRow != diagnostics.end());
-
-    const auto registerScriptFnRow = std::find_if(
-        diagnostics.begin(),
-        diagnostics.end(),
-        [](const nlohmann::json& row) {
-            return row.value("operation", "") == "load_plugin_register_script_fn" &&
-                   row.value("plugin", "") == "MixedChainRegisterScriptFnFixture" &&
-                   row.value("command", "") ==
-                       "__urpg_fail_register_function___scriptCommand";
-        }
-    );
-    REQUIRE(registerScriptFnRow != diagnostics.end());
-
-    const auto quickjsContextRow = std::find_if(
-        diagnostics.begin(),
-        diagnostics.end(),
-        [](const nlohmann::json& row) {
-            return row.value("operation", "") == "load_plugin_quickjs_context" &&
-                   row.value("plugin", "") == "MixedChain__urpg_fail_context_init__Fixture" &&
-                   row.value("command", "") == "ctxInitFail";
-        }
-    );
-    REQUIRE(quickjsContextRow != diagnostics.end());
-
-    const auto contextMissingRow = std::find_if(
-        diagnostics.begin(),
-        diagnostics.end(),
-        [](const nlohmann::json& row) {
-            return row.value("operation", "") == "execute_command_quickjs_context_missing" &&
-                   row.value("plugin", "") == "MixedChainRuntimeFixture" &&
-                   row.value("command", "") == "runtimeContextMissingViaDrop" &&
-                   row.value("message", "") ==
-                       "QuickJS context missing for plugin: MixedChainRuntimeFixture";
-        }
-    );
-    REQUIRE(contextMissingRow != diagnostics.end());
+    verifyOperationCounts(diagnostics, specs.size());
+    verifyDependencyGateDiagnosticRows(diagnostics, specs);
+    verifyRuntimeDiagnosticRows(diagnostics);
+    verifyLoadPluginDiagnosticRows(diagnostics, missingFixture, emptyNameFixture);
 
     const std::string diagnosticsJsonl = pm.exportFailureDiagnosticsJsonl();
     urpg::editor::CompatReportModel reportModel;

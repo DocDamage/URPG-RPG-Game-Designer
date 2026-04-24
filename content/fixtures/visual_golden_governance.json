@@ -1,0 +1,47 @@
+{
+  "version": 1,
+  "maxUngovernedGoldenBytes": 10485760,
+  "currentFormatDecision": "Existing renderer-backed JSON goldens remain JSON to avoid churn-only baseline rewrites. New or substantially rewritten full-frame goldens above this limit should prefer compact PNG/binary pixel storage with JSON metadata.",
+  "lfsPolicy": "Current .gitattributes keeps *.json as text. Future compact PNG/binary visual baselines must use the existing Git LFS binary rules.",
+  "reviewRequirements": {
+    "oversizedGolden": "Every committed *.golden.json above maxUngovernedGoldenBytes must be listed here with a reason, review strategy, and human-review artifact or summary.",
+    "formatMigration": "A future migration may replace these oversized JSON files with compact baselines, but must preserve executable comparison and actionable diff diagnostics."
+  },
+  "oversizedGoldens": [
+    {
+      "path": "tests/snapshot/goldens/RendererBackedCapture_battle_scene_textured_runtime_path.golden.json",
+      "maxBytes": 54525952,
+      "reason": "Renderer-backed BattleScene textured-runtime full-frame coverage.",
+      "reviewStrategy": "Keep as a governed legacy JSON golden until compact baseline storage lands; review drift with the visual regression report and heatmap output.",
+      "humanReviewArtifact": "tests/snapshot/goldens/S1SceneGoldens_engine_shell_battle_scene_actor_cue_crop.golden.json"
+    },
+    {
+      "path": "tests/snapshot/goldens/S29SceneGoldens_battle_scene_full_frame.golden.json",
+      "maxBytes": 54525952,
+      "reason": "S29 full-frame BattleScene visual-regression baseline.",
+      "reviewStrategy": "Keep as a governed legacy JSON golden until compact baseline storage lands; review drift with the visual regression report and heatmap output.",
+      "humanReviewArtifact": "tests/snapshot/goldens/S1SceneGoldens_engine_shell_battle_scene_actor_cue_crop.golden.json"
+    },
+    {
+      "path": "tests/snapshot/goldens/S29TransitionGoldens_post_battle_entry.golden.json",
+      "maxBytes": 54525952,
+      "reason": "S29 post-battle transition full-frame visual-regression baseline.",
+      "reviewStrategy": "Keep as a governed legacy JSON golden until compact baseline storage lands; review drift with the transition-pair comparison and heatmap output.",
+      "humanReviewArtifact": "tests/snapshot/goldens/S29DiffGoldens_heatmap_single_pixel_diff.golden.json"
+    },
+    {
+      "path": "tests/snapshot/goldens/RendererBackedCapture_chat_window_mixed_path.golden.json",
+      "maxBytes": 33554432,
+      "reason": "Renderer-backed chat-window mixed-path coverage with enough pixels to prove text/window composition.",
+      "reviewStrategy": "Keep as a governed legacy JSON golden until compact baseline storage lands; review drift with the visual regression report and focused widget expectations.",
+      "humanReviewArtifact": "VisualRegressionHarness::buildReportJson comparison summary"
+    },
+    {
+      "path": "tests/snapshot/goldens/RendererBackedCapture_engine_shell_mapscene_mixed_runtime_path.golden.json",
+      "maxBytes": 30408704,
+      "reason": "Renderer-backed EngineShell MapScene mixed-runtime coverage.",
+      "reviewStrategy": "Keep as a governed legacy JSON golden until compact baseline storage lands; review drift with the visual regression report and available map-scene crop coverage.",
+      "humanReviewArtifact": "tests/snapshot/goldens/RendererBackedCapture_mapscene_dialogue_overlay_crop.golden.json"
+    }
+  ]
+}

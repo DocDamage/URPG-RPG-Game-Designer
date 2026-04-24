@@ -45,6 +45,10 @@ TEST_CASE("AchievementPanel snapshot reflects achievements after bind", "[achiev
     REQUIRE(snapshot.contains("total_count"));
     REQUIRE(snapshot["total_count"] == 2);
     REQUIRE(snapshot.contains("unlocked_count"));
+    REQUIRE(snapshot.contains("trophy_export"));
+    REQUIRE(snapshot["trophy_export"]["total"] == 2);
+    REQUIRE(snapshot["trophy_export"]["unlocked"] == 0);
+    REQUIRE(snapshot["trophy_export"]["secret"] == 1);
     REQUIRE(snapshot.contains("achievements"));
     REQUIRE(snapshot["achievements"].is_array());
     REQUIRE(snapshot["achievements"].size() == 2);
@@ -86,6 +90,8 @@ TEST_CASE("AchievementPanel unlocked count is correct", "[achievement][editor][p
     auto snapshot = panel.lastRenderSnapshot();
     REQUIRE(snapshot["total_count"] == 2);
     REQUIRE(snapshot["unlocked_count"] == 1);
+    REQUIRE(snapshot["trophy_export"]["total"] == 2);
+    REQUIRE(snapshot["trophy_export"]["unlocked"] == 1);
     REQUIRE(snapshot["achievements"][0]["unlocked"] == true);
     REQUIRE(snapshot["achievements"][1]["unlocked"] == false);
 }

@@ -79,6 +79,9 @@ jobs:
         run: cmake --preset ci
       - name: Build
         run: cmake --build --preset ci-release
+      - name: Validate CTest discovery
+        shell: pwsh
+        run: ./tools/ci/check_ctest_discovery.ps1 -BuildDirectory build/ci
       - name: Configure strict warnings gate
         run: cmake --preset ci -B build/ci-warnings-as-errors -DURPG_WARNINGS_AS_ERRORS=ON
       - name: Build strict warnings gate
@@ -99,6 +102,9 @@ jobs:
       - name: Run renderer-backed snapshot gate
         shell: pwsh
         run: xvfb-run -a pwsh -File ./tools/ci/check_renderer_backed_visual_capture.ps1 -BuildDirectory build/ci-renderer-backed
+      - name: Validate visual golden governance
+        shell: pwsh
+        run: ./tools/ci/check_visual_golden_governance.ps1
       - name: Run focused presentation gate
         shell: pwsh
         run: ./tools/ci/run_presentation_gate.ps1 -BuildDirectory build/ci -Configuration Release -SkipBuild
@@ -153,6 +159,9 @@ jobs:
         run: cmake --preset ci
       - name: Build
         run: cmake --build --preset ci-release
+      - name: Validate CTest discovery
+        shell: pwsh
+        run: ./tools/ci/check_ctest_discovery.ps1 -BuildDirectory build/ci
       - name: sccache stats
         if: always()
         run: sccache --show-stats || true
@@ -208,6 +217,9 @@ jobs:
         run: cmake --preset ci
       - name: Build
         run: cmake --build --preset ci-release
+      - name: Validate CTest discovery
+        shell: pwsh
+        run: ./tools/ci/check_ctest_discovery.ps1 -BuildDirectory build/ci
       - name: sccache stats
         if: always()
         run: sccache --show-stats || true

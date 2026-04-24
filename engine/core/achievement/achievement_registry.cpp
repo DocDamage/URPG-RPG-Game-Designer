@@ -142,4 +142,55 @@ void AchievementRegistry::loadFromJson(const nlohmann::json& json) {
     }
 }
 
+nlohmann::json AchievementRegistry::exportTrophyPayload(const std::string& platform) const {
+    const auto definitions = getAllAchievements();
+
+    nlohmann::json trophies = nlohmann::json::array();
+    size_t unlockedCount = 0;
+    size_t secretCount = 0;
+
+    for (const auto& def : definitions) {
+        const auto progressIt = m_progress.find(def.id);
+        AchievementProgress progress;
+        if (progressIt != m_progress.end()) {
+            progress = progressIt->second;
+        }
+
+        if (progress.unlocked) {
+            ++unlockedCount;
+        }
+        if (def.secret) {
+            ++secretCount;
+        }
+
+        nlohmann::json trophy{
+            {"id", def.id},
+            {"title", def.title},
+            {"description", def.description},
+            {"secret", def.secret},
+            {"unlockCondition", def.unlockCondition},
+            {"iconId", def.iconId},
+            {"target", progress.target},
+            {"progress", progress.current},
+            {"unlocked", progress.unlocked}
+        };
+        if (progress.unlockTime.has_value()) {
+            trophy["unlockTime"] = progress.unlockTime.value();
+        }
+        trophies.push_back(trophy);
+    }
+
+    return nlohmann::json{
+        {"version", "1.0.0"},
+        {"platform", platform.empty() ? "urpg-neutral" : platform},
+        {"backendIntegration", "out-of-tree"},
+        {"summary", {
+            {"total", definitions.size()},
+            {"unlocked", unlockedCount},
+            {"secret", secretCount}
+        }},
+        {"trophies", trophies}
+    };
+}
+
 } // namespace urpg::achievement

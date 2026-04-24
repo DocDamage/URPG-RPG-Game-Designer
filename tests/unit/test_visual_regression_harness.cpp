@@ -1,10 +1,12 @@
 #include "engine/core/testing/visual_regression_harness.h"
 
 #include <catch2/catch_test_macros.hpp>
+#include <nlohmann/json.hpp>
 
 #include <cstdlib>
 #include <filesystem>
 #include <fstream>
+#include <unordered_map>
 
 using namespace urpg::testing;
 
@@ -226,4 +228,60 @@ TEST_CASE("VisualRegressionHarness approval script writes a golden consumable by
     REQUIRE(result.errorPercentage == 0.0f);
 
     std::filesystem::remove_all(tempRoot);
+}
+
+TEST_CASE("VisualRegressionHarness oversized committed goldens are governance-listed",
+          "[testing][visual_regression]") {
+    const auto sourceRoot = std::filesystem::path(URPG_SOURCE_DIR);
+    const auto policyPath = sourceRoot / "content" / "fixtures" / "visual_golden_governance.json";
+
+    std::ifstream policyFile(policyPath);
+    REQUIRE(policyFile.good());
+
+    nlohmann::json policy = nlohmann::json::parse(policyFile);
+    REQUIRE(policy["version"] == 1);
+    REQUIRE(policy["maxUngovernedGoldenBytes"].is_number_unsigned());
+
+    const auto maxUngovernedBytes = policy["maxUngovernedGoldenBytes"].get<std::uintmax_t>();
+    REQUIRE(maxUngovernedBytes > 0);
+    REQUIRE(policy["oversizedGoldens"].is_array());
+
+    std::unordered_map<std::string, nlohmann::json> governed;
+    for (const auto& entry : policy["oversizedGoldens"]) {
+        REQUIRE(entry["path"].is_string());
+        REQUIRE(entry["maxBytes"].is_number_unsigned());
+        REQUIRE(entry["reason"].is_string());
+        REQUIRE(entry["reviewStrategy"].is_string());
+        REQUIRE(entry["humanReviewArtifact"].is_string());
+        REQUIRE_FALSE(entry["reason"].get<std::string>().empty());
+        REQUIRE_FALSE(entry["reviewStrategy"].get<std::string>().empty());
+        REQUIRE_FALSE(entry["humanReviewArtifact"].get<std::string>().empty());
+        governed.emplace(entry["path"].get<std::string>(), entry);
+    }
+
+    std::size_t oversizedCount = 0;
+    const auto goldenRoot = getGoldenRoot();
+    for (const auto& item : std::filesystem::recursive_directory_iterator(goldenRoot)) {
+        if (!item.is_regular_file() || item.path().extension() != ".json") {
+            continue;
+        }
+        const auto filename = item.path().filename().string();
+        if (filename.find(".golden.") == std::string::npos) {
+            continue;
+        }
+
+        const auto size = item.file_size();
+        if (size <= maxUngovernedBytes) {
+            continue;
+        }
+
+        oversizedCount += 1;
+        const auto relative = std::filesystem::relative(item.path(), sourceRoot).generic_string();
+        const auto it = governed.find(relative);
+        REQUIRE(it != governed.end());
+        REQUIRE(size <= it->second["maxBytes"].get<std::uintmax_t>());
+    }
+
+    REQUIRE(oversizedCount == governed.size());
+    REQUIRE(oversizedCount > 0);
 }
