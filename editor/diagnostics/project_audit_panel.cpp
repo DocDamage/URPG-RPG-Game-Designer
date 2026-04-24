@@ -339,6 +339,21 @@ void populateGovernanceSnapshot(const nlohmann::json& report, ProjectAuditPanel:
         if (const auto issue_count = readIssueCount(asset)) {
             asset_report.issue_count = *issue_count;
         }
+        if (const auto normalized_count = readCount(asset, "normalizedCount")) {
+            asset_report.normalized_count = *normalized_count;
+        }
+        if (const auto promoted_count = readCount(asset, "promotedCount")) {
+            asset_report.promoted_count = *promoted_count;
+        }
+        if (const auto promoted_visual_lane_count = readCount(asset, "promotedVisualLaneCount")) {
+            asset_report.promoted_visual_lane_count = *promoted_visual_lane_count;
+        }
+        if (const auto promoted_audio_lane_count = readCount(asset, "promotedAudioLaneCount")) {
+            asset_report.promoted_audio_lane_count = *promoted_audio_lane_count;
+        }
+        if (const auto wysiwyg_smoke_proof_count = readCount(asset, "wysiwygSmokeProofCount")) {
+            asset_report.wysiwyg_smoke_proof_count = *wysiwyg_smoke_proof_count;
+        }
         snapshot.asset_report = std::move(asset_report);
     }
 

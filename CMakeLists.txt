@@ -465,11 +465,20 @@ target_link_libraries(urpg_migrate PRIVATE urpg_core)
 target_include_directories(urpg_migrate PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
 
 add_executable(urpg_project_audit
+    tools/audit/project_audit_asset_report.cpp
     tools/audit/urpg_project_audit.cpp
 )
 
 target_link_libraries(urpg_project_audit PRIVATE urpg_core)
 target_include_directories(urpg_project_audit PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+
+add_executable(urpg_pack_cli
+    tools/pack/pack_cli.cpp
+)
+
+target_link_libraries(urpg_pack_cli PRIVATE urpg_core)
+target_include_directories(urpg_pack_cli PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+urpg_enable_windows_test_binary_unlock(urpg_pack_cli)
 
 add_executable(urpg_presentation_release_validation
     engine/core/presentation/release_validation.cpp
@@ -478,6 +487,13 @@ add_executable(urpg_presentation_release_validation
 target_link_libraries(urpg_presentation_release_validation PRIVATE urpg_core)
 target_include_directories(urpg_presentation_release_validation PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
 urpg_enable_windows_test_binary_unlock(urpg_presentation_release_validation)
+
+add_executable(urpg_profile_arena
+    engine/core/presentation/profile_arena.cpp
+)
+
+target_link_libraries(urpg_profile_arena PRIVATE urpg_core)
+target_include_directories(urpg_profile_arena PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
 
 add_executable(urpg_export_smoke_app
     tools/export/export_smoke_app.cpp
@@ -656,7 +672,9 @@ target_include_directories(urpg_tests PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
 target_compile_definitions(urpg_tests PRIVATE URPG_SOURCE_DIR="${CMAKE_CURRENT_SOURCE_DIR}")
 add_dependencies(urpg_tests urpg_project_audit)
 add_dependencies(urpg_tests urpg_export_smoke_app)
+add_dependencies(urpg_tests urpg_pack_cli)
 target_compile_definitions(urpg_tests PRIVATE URPG_EXPORT_SMOKE_APP_PATH="$<TARGET_FILE:urpg_export_smoke_app>")
+target_compile_definitions(urpg_tests PRIVATE URPG_PACK_CLI_PATH="$<TARGET_FILE:urpg_pack_cli>")
 urpg_enable_windows_test_binary_unlock(urpg_tests)
 
 add_executable(urpg_integration_tests
@@ -684,7 +702,9 @@ add_executable(urpg_compat_tests
     tests/compat/test_compat_authority_suite.cpp
     tests/compat/test_compat_window_plugin_profiles.cpp
     tests/compat/test_compat_plugin_fixtures.cpp
+    tests/compat/test_compat_plugin_fixtures_battle.cpp
     tests/compat/test_compat_plugin_failure_diagnostics.cpp
+    tests/compat/test_compat_plugin_failure_mixed_chain.cpp
 )
 
 target_link_libraries(urpg_compat_tests PRIVATE urpg_core Catch2::Catch2WithMain)
@@ -709,6 +729,15 @@ catch_discover_tests(
 catch_discover_tests(
     urpg_snapshot_tests
     DISCOVERY_MODE PRE_TEST
+    PROPERTIES LABELS "nightly"
+)
+
+add_test(
+    NAME urpg_snapshot_regression_lane
+    COMMAND urpg_snapshot_tests "[snapshot][regression]"
+)
+set_tests_properties(
+    urpg_snapshot_regression_lane
     PROPERTIES LABELS "nightly;regression"
 )
 

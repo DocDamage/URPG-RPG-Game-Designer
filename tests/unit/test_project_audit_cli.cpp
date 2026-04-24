@@ -90,6 +90,54 @@ void requireIssueCountConsistencyIfPresent(const json& report, const std::string
     REQUIRE(governance.at(sectionKey)["issueCount"] == report[topLevelKey]);
 }
 
+bool jsonArrayContainsString(const json& value, const std::string& expected) {
+    if (!value.is_array()) {
+        return false;
+    }
+
+    for (const auto& entry : value) {
+        if (entry.is_string() && entry.get<std::string>() == expected) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+bool reportContainsIssueCode(const json& report, const std::string& code) {
+    if (!report.contains("issues") || !report["issues"].is_array()) {
+        return false;
+    }
+
+    for (const auto& issue : report["issues"]) {
+        if (issue.contains("code") && issue["code"].is_string() && issue["code"] == code) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+void writeProjectGovernanceReadinessFixture(const fs::path& path) {
+    writeTextFile(path, json{
+        {"schemaVersion", "1.0.0"},
+        {"statusDate", "2026-04-23"},
+        {"subsystems", json::array()},
+        {"templates", json::array({
+            {
+                {"id", "governance_template"},
+                {"status", "PARTIAL"},
+                {"requiredSubsystems", json::array()},
+                {"bars", {
+                    {"input", "PARTIAL"},
+                    {"localization", "PARTIAL"}
+                }},
+                {"mainBlockers", json::array()}
+            }
+        })}
+    }.dump(2));
+}
+
 ProcessResult runProjectAudit(const std::vector<std::string>& args, const fs::path& workDir) {
     const fs::path tempRoot = fs::temp_directory_path() / "urpg_project_audit_cli";
     fs::create_directories(tempRoot);
@@ -279,6 +327,11 @@ TEST_CASE("Project audit CLI emits parseable JSON from the default repo data", "
     REQUIRE(report["governance"]["assetReport"].contains("available"));
     REQUIRE(report["governance"]["assetReport"].contains("usable"));
     REQUIRE(report["governance"]["assetReport"].contains("issueCount"));
+    REQUIRE(report["governance"]["assetReport"].contains("normalizedCount"));
+    REQUIRE(report["governance"]["assetReport"].contains("promotedCount"));
+    REQUIRE(report["governance"]["assetReport"].contains("promotedVisualLaneCount"));
+    REQUIRE(report["governance"]["assetReport"].contains("promotedAudioLaneCount"));
+    REQUIRE(report["governance"]["assetReport"].contains("wysiwygSmokeProofCount"));
     REQUIRE(report["governance"]["schema"].contains("schemaExists"));
     REQUIRE(report["governance"]["schema"].contains("changelogExists"));
     REQUIRE(report["governance"]["schema"].contains("mentionsSchemaVersion"));
@@ -286,6 +339,14 @@ TEST_CASE("Project audit CLI emits parseable JSON from the default repo data", "
     REQUIRE(report["governance"]["localizationArtifacts"].contains("issueCount"));
     REQUIRE(report["governance"]["localizationEvidence"].contains("issueCount"));
     REQUIRE(report["governance"]["exportArtifacts"].contains("issueCount"));
+    REQUIRE(report["governance"]["exportArtifacts"]["issueCount"] == 0);
+    REQUIRE_FALSE(reportContainsIssueCode(report, "export_artifact.cli_missing"));
+    REQUIRE(report["governance"]["assetReport"]["issueCount"] == 0);
+    REQUIRE(report["governance"]["assetReport"]["normalizedCount"].get<std::int64_t>() > 0);
+    REQUIRE(report["governance"]["assetReport"]["promotedCount"].get<std::int64_t>() > 0);
+    REQUIRE(report["governance"]["assetReport"]["promotedVisualLaneCount"].get<std::int64_t>() > 0);
+    REQUIRE(report["governance"]["assetReport"]["promotedAudioLaneCount"].get<std::int64_t>() > 0);
+    REQUIRE(report["governance"]["assetReport"]["wysiwygSmokeProofCount"].get<std::int64_t>() > 0);
 
     REQUIRE(report["governance"]["assetReport"]["issueCount"] == report["assetGovernanceIssueCount"]);
     CHECK(report["schemaGovernanceIssueCount"].get<std::size_t>() <= report["issues"].size());
@@ -374,6 +435,58 @@ TEST_CASE("Project audit CLI emits parseable JSON from the default repo data", "
             CHECK(report["summary"].get<std::string>().find("Template-spec artifact issues:") != std::string::npos);
         }
     }
+}
+
+TEST_CASE("Project audit CLI flags normalized or promoted asset intake regressions", "[project_audit_cli]") {
+    const fs::path repoRoot = fs::path(URPG_SOURCE_DIR);
+    const fs::path tempRoot = fs::temp_directory_path() / "urpg_project_audit_asset_regression";
+    fs::remove_all(tempRoot);
+    fs::create_directories(tempRoot);
+    const fs::path readinessPath = repoRoot / "content" / "readiness" / "readiness_status.json";
+
+    const auto runWithAssetSummary = [&](const json& summary) {
+        const fs::path reportPath = tempRoot / ("asset_report_" + std::to_string(summary.value("normalized", 0)) +
+                                                "_" + std::to_string(summary.value("promoted", 0)) + ".json");
+        writeTextFile(reportPath, json{{"summary", summary}, {"sources", json::array()}}.dump(2));
+        const ProcessResult result = runProjectAudit(
+            {"--json", "--input", readinessPath.string(), "--asset-report", reportPath.string()},
+            repoRoot);
+        REQUIRE(result.exitCode == 0);
+        return json::parse(result.stdoutText);
+    };
+
+    const json missingPromoted = runWithAssetSummary({
+        {"normalized", 1},
+        {"promoted", 0},
+        {"promoted_visual_lanes", 1},
+        {"promoted_audio_lanes", 1},
+        {"wysiwyg_smoke_proofs", 1},
+    });
+    REQUIRE(missingPromoted["governance"]["assetReport"]["issueCount"].get<std::size_t>() > 0);
+    REQUIRE(reportContainsIssueCode(missingPromoted, "asset_report.no_promoted_intake"));
+
+    const json missingNormalized = runWithAssetSummary({
+        {"normalized", 0},
+        {"promoted", 1},
+        {"promoted_visual_lanes", 1},
+        {"promoted_audio_lanes", 1},
+        {"wysiwyg_smoke_proofs", 1},
+    });
+    REQUIRE(missingNormalized["governance"]["assetReport"]["issueCount"].get<std::size_t>() > 0);
+    REQUIRE(reportContainsIssueCode(missingNormalized, "asset_report.no_normalized_intake"));
+
+    const json missingVisualAudioProof = runWithAssetSummary({
+        {"normalized", 1},
+        {"promoted", 1},
+        {"promoted_visual_lanes", 0},
+        {"promoted_audio_lanes", 0},
+        {"wysiwyg_smoke_proofs", 0},
+    });
+    REQUIRE(reportContainsIssueCode(missingVisualAudioProof, "asset_report.no_promoted_visual_lane"));
+    REQUIRE(reportContainsIssueCode(missingVisualAudioProof, "asset_report.no_promoted_audio_lane"));
+    REQUIRE(reportContainsIssueCode(missingVisualAudioProof, "asset_report.no_wysiwyg_smoke_proof"));
+
+    fs::remove_all(tempRoot);
 }
 
 TEST_CASE("Project audit CLI selects a requested template from a synthetic readiness payload", "[project_audit_cli]") {
@@ -529,6 +642,147 @@ TEST_CASE("Project audit CLI keeps governance shape stable for conservative arti
     CHECK(report["schemaGovernanceIssueCount"].get<std::size_t>() <= report["issues"].size());
 }
 
+TEST_CASE("Project schema defines canonical governance sections and fixture shape", "[project_audit_cli][project_schema]") {
+    const fs::path repoRoot = fs::path(URPG_SOURCE_DIR);
+    const json schema = json::parse(readTextFile(repoRoot / "content" / "schemas" / "project.schema.json"));
+    const json fixture = json::parse(readTextFile(repoRoot / "content" / "fixtures" / "project_governance_fixture.json"));
+
+    REQUIRE(schema["properties"].contains("localization"));
+    REQUIRE(schema["properties"]["localization"]["type"] == "object");
+    REQUIRE(jsonArrayContainsString(schema["properties"]["localization"]["required"], "bundleRoot"));
+    REQUIRE(jsonArrayContainsString(schema["properties"]["localization"]["required"], "schemaPath"));
+    REQUIRE(jsonArrayContainsString(schema["properties"]["localization"]["required"], "reportPath"));
+    REQUIRE(jsonArrayContainsString(schema["properties"]["localization"]["required"], "requiredLocales"));
+    REQUIRE(schema["properties"]["localization"]["properties"]["schemaPath"]["const"] ==
+            "content/schemas/localization_bundle.schema.json");
+    REQUIRE(schema["properties"]["localization"]["properties"]["reportPath"]["const"] ==
+            "imports/reports/localization/localization_consistency_report.json");
+
+    REQUIRE(schema["properties"].contains("input"));
+    REQUIRE(schema["properties"]["input"]["type"] == "object");
+    REQUIRE(jsonArrayContainsString(schema["properties"]["input"]["required"], "bindingSchemaPath"));
+    REQUIRE(jsonArrayContainsString(schema["properties"]["input"]["required"], "controllerBindingSchemaPath"));
+    REQUIRE(jsonArrayContainsString(schema["properties"]["input"]["required"], "fixturePath"));
+
+    REQUIRE(schema["properties"].contains("exportProfiles"));
+    REQUIRE(schema["properties"]["exportProfiles"]["type"] == "array");
+    REQUIRE(jsonArrayContainsString(schema["properties"]["exportProfiles"]["items"]["required"], "id"));
+    REQUIRE(jsonArrayContainsString(schema["properties"]["exportProfiles"]["items"]["required"], "target"));
+    REQUIRE(jsonArrayContainsString(schema["properties"]["exportProfiles"]["items"]["required"], "configSchemaPath"));
+    REQUIRE(jsonArrayContainsString(
+        schema["properties"]["exportProfiles"]["items"]["required"],
+        "validationReportSchemaPath"));
+
+    REQUIRE(fixture["localization"]["schemaPath"] == "content/schemas/localization_bundle.schema.json");
+    REQUIRE(fixture["localization"]["reportPath"] ==
+            "imports/reports/localization/localization_consistency_report.json");
+    REQUIRE(fixture["input"]["bindingSchemaPath"] == "content/schemas/input_bindings.schema.json");
+    REQUIRE(fixture["input"]["controllerBindingSchemaPath"] == "content/schemas/controller_bindings.schema.json");
+    REQUIRE(fixture["exportProfiles"].is_array());
+    REQUIRE(fixture["exportProfiles"][0]["configSchemaPath"] == "content/schemas/export_config.schema.json");
+}
+
+TEST_CASE("Project audit accepts the canonical project governance schema vocabulary", "[project_audit_cli]") {
+    const fs::path repoRoot = fs::path(URPG_SOURCE_DIR);
+    const fs::path tempRoot = fs::temp_directory_path() / "urpg_project_audit_cli_project_schema_positive";
+    fs::remove_all(tempRoot);
+    fs::create_directories(tempRoot / "content" / "readiness");
+    fs::create_directories(tempRoot / "content" / "schemas");
+
+    writeProjectGovernanceReadinessFixture(tempRoot / "content" / "readiness" / "synthetic_readiness.json");
+    writeTextFile(
+        tempRoot / "content" / "schemas" / "project.schema.json",
+        readTextFile(repoRoot / "content" / "schemas" / "project.schema.json"));
+
+    const ProcessResult result = runProjectAudit(
+        {"--json", "--input", (tempRoot / "content" / "readiness" / "synthetic_readiness.json").string(),
+         "--template", "governance_template"},
+        tempRoot);
+
+    REQUIRE(result.exitCode == 0);
+    const json report = json::parse(result.stdoutText);
+    REQUIRE(report["projectArtifactIssueCount"] == 0);
+    REQUIRE(report["governance"]["projectSchema"]["canonicalLocalizationProperty"] == "localization");
+    REQUIRE(report["governance"]["projectSchema"]["canonicalInputProperty"] == "input");
+    REQUIRE(report["governance"]["projectSchema"]["canonicalExportProperty"] == "exportProfiles");
+    REQUIRE(report["governance"]["projectSchema"]["hasLocalizationSection"] == true);
+    REQUIRE(report["governance"]["projectSchema"]["hasInputSection"] == true);
+    REQUIRE(report["governance"]["projectSchema"]["hasExportSection"] == true);
+    REQUIRE_FALSE(reportContainsIssueCode(report, "project_schema.localization_missing"));
+    REQUIRE_FALSE(reportContainsIssueCode(report, "project_schema.input_governance_missing"));
+    REQUIRE_FALSE(reportContainsIssueCode(report, "project_schema.export_governance_missing"));
+}
+
+TEST_CASE("Project audit reports missing canonical project governance sections", "[project_audit_cli]") {
+    const fs::path tempRoot = fs::temp_directory_path() / "urpg_project_audit_cli_project_schema_missing";
+    fs::remove_all(tempRoot);
+    fs::create_directories(tempRoot / "content" / "readiness");
+    fs::create_directories(tempRoot / "content" / "schemas");
+
+    writeProjectGovernanceReadinessFixture(tempRoot / "content" / "readiness" / "synthetic_readiness.json");
+    writeTextFile(
+        tempRoot / "content" / "schemas" / "project.schema.json",
+        json{
+            {"$schema", "https://json-schema.org/draft/2020-12/schema"},
+            {"type", "object"},
+            {"properties", {{"determinism", {{"type", "object"}}}}}
+        }.dump(2));
+
+    const ProcessResult result = runProjectAudit(
+        {"--json", "--input", (tempRoot / "content" / "readiness" / "synthetic_readiness.json").string(),
+         "--template", "governance_template"},
+        tempRoot);
+
+    REQUIRE(result.exitCode == 0);
+    const json report = json::parse(result.stdoutText);
+    REQUIRE(report["projectArtifactIssueCount"] == 3);
+    REQUIRE(report["governance"]["projectSchema"]["hasLocalizationSection"] == false);
+    REQUIRE(report["governance"]["projectSchema"]["hasInputSection"] == false);
+    REQUIRE(report["governance"]["projectSchema"]["hasExportSection"] == false);
+    REQUIRE(reportContainsIssueCode(report, "project_schema.localization_missing"));
+    REQUIRE(reportContainsIssueCode(report, "project_schema.input_governance_missing"));
+    REQUIRE(reportContainsIssueCode(report, "project_schema.export_governance_missing"));
+}
+
+TEST_CASE("Project audit reports malformed canonical project governance sections", "[project_audit_cli]") {
+    const fs::path tempRoot = fs::temp_directory_path() / "urpg_project_audit_cli_project_schema_malformed";
+    fs::remove_all(tempRoot);
+    fs::create_directories(tempRoot / "content" / "readiness");
+    fs::create_directories(tempRoot / "content" / "schemas");
+
+    writeProjectGovernanceReadinessFixture(tempRoot / "content" / "readiness" / "synthetic_readiness.json");
+    writeTextFile(
+        tempRoot / "content" / "schemas" / "project.schema.json",
+        json{
+            {"$schema", "https://json-schema.org/draft/2020-12/schema"},
+            {"type", "object"},
+            {"properties", {
+                {"localization", {{"type", "string"}}},
+                {"input", {
+                    {"type", "object"},
+                    {"required", json::array({"fixturePath"})},
+                    {"properties", {{"fixturePath", {{"type", "string"}}}}}
+                }},
+                {"exportProfiles", {{"type", "object"}}}
+            }}
+        }.dump(2));
+
+    const ProcessResult result = runProjectAudit(
+        {"--json", "--input", (tempRoot / "content" / "readiness" / "synthetic_readiness.json").string(),
+         "--template", "governance_template"},
+        tempRoot);
+
+    REQUIRE(result.exitCode == 0);
+    const json report = json::parse(result.stdoutText);
+    REQUIRE(report["projectArtifactIssueCount"] == 3);
+    REQUIRE(report["governance"]["projectSchema"]["hasLocalizationSection"] == false);
+    REQUIRE(report["governance"]["projectSchema"]["hasInputSection"] == false);
+    REQUIRE(report["governance"]["projectSchema"]["hasExportSection"] == false);
+    REQUIRE(reportContainsIssueCode(report, "project_schema.localization_malformed"));
+    REQUIRE(reportContainsIssueCode(report, "project_schema.input_governance_malformed"));
+    REQUIRE(reportContainsIssueCode(report, "project_schema.export_governance_malformed"));
+}
+
 TEST_CASE("Project audit CLI surfaces localization consistency evidence drift", "[project_audit_cli]") {
     const fs::path tempRoot = fs::temp_directory_path() / "urpg_project_audit_cli_localization_evidence";
     fs::remove_all(tempRoot);
@@ -661,6 +915,107 @@ TEST_CASE("Project audit CLI keeps clean localization consistency evidence usabl
     REQUIRE(report["governance"]["localizationEvidence"]["usable"] == true);
     REQUIRE(report["governance"]["localizationEvidence"]["status"] == "passed");
     REQUIRE(report["governance"]["localizationEvidence"]["missingKeyCount"] == 0);
+}
+
+TEST_CASE("Project audit CLI keeps no-bundle localization evidence usable", "[project_audit_cli]") {
+    const fs::path tempRoot = fs::temp_directory_path() / "urpg_project_audit_cli_localization_evidence_no_bundles";
+    fs::remove_all(tempRoot);
+    fs::create_directories(tempRoot / "content" / "readiness");
+    fs::create_directories(tempRoot / "imports" / "reports" / "localization");
+
+    writeTextFile(tempRoot / "content" / "readiness" / "synthetic_readiness.json", json{
+        {"schemaVersion", "1.0.0"},
+        {"statusDate", "2026-04-23"},
+        {"subsystems", json::array()},
+        {"templates", json::array({
+            {
+                {"id", "artifact_template"},
+                {"status", "PARTIAL"},
+                {"requiredSubsystems", json::array()},
+                {"bars", {
+                    {"localization", "PARTIAL"}
+                }},
+                {"mainBlockers", json::array()}
+            }
+        })}
+    }.dump(2));
+
+    writeTextFile(
+        tempRoot / "imports" / "reports" / "localization" / "localization_consistency_report.json",
+        json{
+            {"schemaVersion", "1.0.0"},
+            {"status", "no_bundles"},
+            {"summary", {
+                {"hasBundles", false},
+                {"bundleCount", 0},
+                {"masterLocale", nullptr},
+                {"missingLocaleCount", 0},
+                {"missingKeyCount", 0},
+                {"extraKeyCount", 0}
+            }},
+            {"bundles", json::array()}
+        }.dump(2));
+
+    const ProcessResult result = runProjectAudit(
+        {"--json", "--input", (tempRoot / "content" / "readiness" / "synthetic_readiness.json").string(),
+         "--template", "artifact_template"},
+        tempRoot);
+
+    REQUIRE(result.exitCode == 0);
+    const json report = json::parse(result.stdoutText);
+    REQUIRE(report["localizationEvidenceIssueCount"] == 0);
+    REQUIRE(report["governance"]["localizationEvidence"]["issueCount"] == 0);
+    REQUIRE(report["governance"]["localizationEvidence"]["usable"] == true);
+    REQUIRE(report["governance"]["localizationEvidence"]["status"] == "no_bundles");
+    REQUIRE(report["governance"]["localizationEvidence"]["hasBundles"] == false);
+    REQUIRE(report["governance"]["localizationEvidence"]["bundleCount"] == 0);
+}
+
+TEST_CASE("Project audit CLI reports malformed localization evidence without explicit path", "[project_audit_cli]") {
+    const fs::path tempRoot = fs::temp_directory_path() / "urpg_project_audit_cli_localization_evidence_malformed";
+    fs::remove_all(tempRoot);
+    fs::create_directories(tempRoot / "content" / "readiness");
+    fs::create_directories(tempRoot / "imports" / "reports" / "localization");
+
+    writeTextFile(tempRoot / "content" / "readiness" / "synthetic_readiness.json", json{
+        {"schemaVersion", "1.0.0"},
+        {"statusDate", "2026-04-23"},
+        {"subsystems", json::array()},
+        {"templates", json::array({
+            {
+                {"id", "artifact_template"},
+                {"status", "PARTIAL"},
+                {"requiredSubsystems", json::array()},
+                {"bars", {
+                    {"localization", "PARTIAL"}
+                }},
+                {"mainBlockers", json::array()}
+            }
+        })}
+    }.dump(2));
+
+    writeTextFile(
+        tempRoot / "imports" / "reports" / "localization" / "localization_consistency_report.json",
+        json{
+            {"schemaVersion", "1.0.0"},
+            {"status", "failed"},
+            {"summary", {
+                {"hasBundles", true},
+                {"bundleCount", 1}
+            }}
+        }.dump(2));
+
+    const ProcessResult result = runProjectAudit(
+        {"--json", "--input", (tempRoot / "content" / "readiness" / "synthetic_readiness.json").string(),
+         "--template", "artifact_template"},
+        tempRoot);
+
+    REQUIRE(result.exitCode == 0);
+    const json report = json::parse(result.stdoutText);
+    REQUIRE(report["localizationEvidenceIssueCount"] == 1);
+    REQUIRE(report["governance"]["localizationEvidence"]["issueCount"] == 1);
+    REQUIRE(report["governance"]["localizationEvidence"]["usable"] == false);
+    REQUIRE(reportContainsIssueCode(report, "localization_report.summary.counters_missing"));
 }
 
 TEST_CASE("Project audit CLI fails when --input is missing its path", "[project_audit_cli]") {
@@ -1232,4 +1587,3 @@ TEST_CASE("Project audit CLI does NOT fail closed on missing spec for non-candid
 
     fs::remove_all(tempRoot);
 }
-

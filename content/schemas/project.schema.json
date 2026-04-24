@@ -22,6 +22,96 @@
           }
         }
       }
+    },
+    "localization": {
+      "type": "object",
+      "description": "Bounded localization governance contract for repo-local bundle validation.",
+      "required": ["bundleRoot", "schemaPath", "reportPath", "requiredLocales"],
+      "properties": {
+        "bundleRoot": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Project-relative root containing localization bundle JSON files."
+        },
+        "schemaPath": {
+          "type": "string",
+          "const": "content/schemas/localization_bundle.schema.json",
+          "description": "Canonical bundle schema used by the localization consistency gate."
+        },
+        "reportPath": {
+          "type": "string",
+          "const": "imports/reports/localization/localization_consistency_report.json",
+          "description": "Canonical localization consistency report consumed by ProjectAudit."
+        },
+        "requiredLocales": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 },
+          "uniqueItems": true
+        },
+        "masterLocale": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Optional preferred master locale for completeness comparison."
+        },
+        "allowMissingBundles": {
+          "type": "boolean",
+          "description": "Whether a no-bundle report is acceptable for the current project stage."
+        }
+      },
+      "additionalProperties": false
+    },
+    "input": {
+      "type": "object",
+      "description": "Bounded input/controller governance contract for remap and controller fixtures.",
+      "required": ["bindingSchemaPath", "controllerBindingSchemaPath", "fixturePath"],
+      "properties": {
+        "bindingSchemaPath": {
+          "type": "string",
+          "const": "content/schemas/input_bindings.schema.json"
+        },
+        "controllerBindingSchemaPath": {
+          "type": "string",
+          "const": "content/schemas/controller_bindings.schema.json"
+        },
+        "fixturePath": {
+          "type": "string",
+          "const": "content/fixtures/input_bindings_fixture.json"
+        },
+        "controllerFixturePath": {
+          "type": "string",
+          "const": "content/fixtures/controller_bindings_fixture.json"
+        },
+        "allowUnmappedActions": {
+          "type": "boolean",
+          "description": "Whether authoring-time remap validation may permit unmapped actions."
+        }
+      },
+      "additionalProperties": false
+    },
+    "exportProfiles": {
+      "type": "array",
+      "description": "Bounded export-governance profiles; this does not imply full platform signing or notarization.",
+      "items": {
+        "type": "object",
+        "required": ["id", "target", "configSchemaPath", "validationReportSchemaPath"],
+        "properties": {
+          "id": { "type": "string", "minLength": 1 },
+          "target": {
+            "type": "string",
+            "enum": ["Windows_x64", "Linux_x64", "macOS_Universal", "Web_WASM"]
+          },
+          "configSchemaPath": {
+            "type": "string",
+            "const": "content/schemas/export_config.schema.json"
+          },
+          "validationReportSchemaPath": {
+            "type": "string",
+            "const": "content/schemas/export_validation_report.schema.json"
+          },
+          "outputDir": { "type": "string" }
+        },
+        "additionalProperties": false
+      }
     }
   },
   "additionalProperties": true

@@ -21,8 +21,8 @@
 
 | Category | Status | Coverage Notes | Target Source(s) | Priority |
 |----------|--------|----------------|------------------|----------|
-| UI sounds | `fixture_only` | Existing repo coverage is still synthetic/reference-only; `SRC-003` is cataloged for future capture but not yet mirrored or promoted | `SRC-003` | P0 |
-| Prototype sprites | `fixture_only` | Existing repo coverage is still fixture/reference-only; `SRC-002` is cataloged for future capture but not yet mirrored or normalized | `SRC-002` | P0 |
+| UI sounds | `partial` | First governed `SRC-003` UI SFX proof asset is normalized and promoted; broader menu, notification, and editor feedback coverage remains future work | `SRC-003` | P0 |
+| Prototype sprites | `partial` | First governed `SRC-002` prototype actor SVG is normalized and promoted; broader character/item/grid coverage remains future work | `SRC-002` | P0 |
 | Fantasy environment tilesets | `fixture_only` | Existing environment coverage remains test/reference-oriented; `SRC-001` is cataloged for curated future capture | `SRC-001` | P1 |
 | Placeholder characters / monsters | `fixture_only` | Existing character coverage remains fixture/reference-oriented; `SRC-001` is cataloged for curated future capture | `SRC-001` | P1 |
 | Placeholder UI frames / chrome | `fixture_only` | No promoted pack exists; `SRC-001` is only a cataloged future source candidate | `SRC-001` | P1 |
@@ -41,10 +41,10 @@
 
 ## Fast-Win Targets
 
-These are the immediate governed promotion targets once source capture begins:
+These are the governed promotion targets after the first TD Sprint 04 proof lanes:
 
-1. **UI Sound Pass** — Capture and normalize a small `kenney-interface-sounds` subset into `imports/normalized/ui_sfx/`, then wire it into editor/runtime audio events.
-2. **Prototype Sprite Pass** — Capture and normalize a curated `GDQuest/game-sprites` subset into `imports/normalized/prototype_sprites/`, then wire it into map/battle test scenes.
+1. **UI Sound Pass** — Expand the first `kenney-interface-sounds` proof beyond `kenney_click_001.wav` into a small confirm/cancel/open/close set, then wire those cues into editor/runtime audio events.
+2. **Prototype Sprite Pass** — Expand the first `GDQuest/game-sprites` proof beyond `gdquest_blue_actor.svg` into a curated actor/item/grid subset, then wire it into map/battle test scenes.
 3. **Fantasy Environment Vertical Slice** — Capture one curated tileset bundle and one character subset from `Intersect-Assets`, record attribution manifests, and promote them into a representative scene.
 
 ---
@@ -76,3 +76,4 @@ Categories to mine from `awesome-cc0` and `Game-Assets-And-Resources`:
 |------|--------|
 | 2026-04-17 | Initial gap map created from `docs/asset_intake/URPG_private_asset_intake_plan.md` |
 | 2026-04-19 | Replaced misleading staged-state wording with cataloged-not-mirrored reality and rewrote fast-win targets as governed future capture/promote work. |
+| 2026-04-23 | TD Sprint 04 moved UI sounds and prototype sprites from fixture-only to partial with one promoted proof asset in each lane. |

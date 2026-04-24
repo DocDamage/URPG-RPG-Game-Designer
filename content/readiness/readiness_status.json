@@ -77,7 +77,7 @@
     {
       "id": "compat_bridge_exit",
       "status": "PARTIAL",
-      "summary": "Compat bridge exit has truthful Phase 2 closure evidence, weekly regression cadence, diagnostics/export parity for the bounded import and verification lane, and an explicit signoff artifact; promotion to READY requires human review of residual gaps.",
+      "summary": "Compat bridge exit has truthful Phase 2 closure evidence, weekly regression cadence, diagnostics/export parity for the bounded import and verification lane, WindowCompat color parsing plus segmented gauge-gradient evidence, and an explicit signoff artifact; promotion to READY requires human review of residual gaps.",
       "mainGaps": [
         "Compat bridge exit signoff exists; promotion to READY requires human review of residual gaps",
         "Curated corpus maintenance and ongoing truth upkeep remain future work"
@@ -100,9 +100,9 @@
     {
       "id": "presentation_runtime",
       "status": "PARTIAL",
-      "summary": "Presentation runtime, bridge, compiled spatial editor panels, end-to-end authoring-to-runtime proof path, release validation harness, bounded real renderer-backed production-path proof, shell-owned MapScene/MenuScene proof through the top-level EngineShell loop, concrete ProfileArenaHotReloader with arena-reset lifecycle, presentation schema + migration proof fixture, and command-stream replay + reload determinism tests are landed. Promotion to READY requires human review of residual gaps.",
+      "summary": "Presentation runtime, bridge, compiled spatial editor panels, end-to-end authoring-to-runtime proof path, release validation harness, bounded real renderer-backed production-path proof, shell-owned MapScene/MenuScene plus BattleScene actor-cue proof through the top-level EngineShell loop, a registered standalone profile_arena target, concrete ProfileArenaHotReloader with arena-reset lifecycle, presentation schema + migration proof fixture, and command-stream replay + reload determinism tests are landed. Promotion to READY requires human review of residual gaps.",
       "mainGaps": [
-        "Cross-backend renderer breadth remains future work under visual_regression_harness; the current claimed production path is the bounded OpenGL-backed lane with shell-owned MapScene/MenuScene proof rather than cross-backend parity",
+        "Cross-backend renderer breadth remains future work under visual_regression_harness; the current claimed production path is the bounded OpenGL-backed lane with shell-owned MapScene/MenuScene/BattleScene proof rather than cross-backend parity",
         "Promotion to READY requires human review of residual gaps"
       ],
       "signoff": {
@@ -123,9 +123,9 @@
     {
       "id": "gameplay_ability_framework",
       "status": "PARTIAL",
-      "summary": "Gameplay ability runtime, inspector/editor surfaces, structured diagnostics snapshot, end-to-end release-grade test, closure signoff artifact, gameplay_ability JSON schema (S24-T01), compat-to-native MZ mapper with deterministic fallback payloads (S24-T02), live BattleScene activation, and AbilityBattleQueue integration into BattleFlowController (S24-T03/T04) are landed. Promotion to READY requires human review of residual gaps.",
+      "summary": "Gameplay ability runtime, inspector/editor surfaces, structured diagnostics snapshot, end-to-end release-grade test, closure signoff artifact, gameplay_ability JSON schema (S24-T01), compat-to-native MZ mapper with deterministic fallback payloads (S24-T02), live BattleScene activation, AbilityBattleQueue integration into BattleFlowController (S24-T03/T04), and deterministic AbilityTask WaitInput/WaitEvent/WaitProjectileCollision backends are landed. Promotion to READY requires human review of residual gaps.",
       "mainGaps": [
-        "AbilityTask backends incomplete: only WaitTime exists; input-wait, event-wait, projectile-collision not implemented",
+        "Richer task-driven ability orchestration across authored battle/map content remains broader product-depth backlog",
         "Scripted conditions (activeCondition/passiveCondition strings) intentionally not evaluated",
         "Promotion to READY requires human review of residual gaps"
       ],
@@ -147,7 +147,7 @@
     {
       "id": "governance_foundation",
       "status": "PARTIAL",
-      "summary": "Governance foundation has first-slice artifacts landed: breaking-change detection, enhanced readiness checks, template specs, bidirectional readiness/truth drift detection, project-audit artifact checks for input, accessibility, audio, character, mod, analytics, and performance, a bounded controller-binding runtime/panel plus input governance script/fixture contract, a canonical release-signoff workflow artifact, truth reconciliation wired into the full PR gate pipeline (S25-T02), template-spec-bar drift detection (S25-T04 check_template_spec_bar_drift.ps1), and governance gate regression tests (S25-T05/T06/T07).",
+      "summary": "Governance foundation has first-slice artifacts landed: breaking-change detection, enhanced readiness checks, template specs, bidirectional readiness/truth drift detection, canonical project schema governance sections for localization/input/exportProfiles, project-audit shape checks for that vocabulary, artifact checks for input, localization-bundle, accessibility, audio, character, mod, analytics, and performance, a bounded controller-binding runtime/panel plus input governance script/fixture contract, a canonical release-signoff workflow artifact, truth reconciliation wired into the full PR gate pipeline (S25-T02), template-spec-bar drift detection (S25-T04 check_template_spec_bar_drift.ps1), and governance gate regression tests (S25-T05/T06/T07).",
       "mainGaps": [
         "Governance CLI diagnostics and editor surface panel output are not yet unified into a single parity export path",
         "Promotion to READY requires human review of residual gaps"
@@ -218,10 +218,10 @@
     {
       "id": "visual_regression_harness",
       "status": "PARTIAL",
-      "summary": "Visual regression harness with golden file management, diff heatmaps, approval tooling, a file-backed executable harness gate, backend-selectable capture entry points, and one bounded OpenGL-enabled local renderer-backed capture lane enforcing primitive, live-widget, full-frame scene, transition-pair, diff-heatmap, and shell-owned full-scene goldens in local gates and Gate 1 CI is landed.",
+      "summary": "Visual regression harness with golden file management, diff heatmaps, approval tooling, a file-backed executable harness gate, backend-selectable capture entry points, and one bounded OpenGL-enabled local renderer-backed capture lane enforcing primitive, live-widget, full-frame scene, transition-pair, diff-heatmap, shell-owned full-scene Map/Menu goldens, and a shell-owned BattleScene actor-cue crop golden in local gates and Gate 1 CI is landed.",
       "mainGaps": [
         "Broader backend execution — deferred; the generic capture API currently routes only to the bounded OpenGL-backed implementation and explicit headless rejection rather than cross-backend parity.",
-        "Wider shell-owned scene coverage — deferred; current goldens now prove bounded EngineShell MapScene and MenuScene slices rather than every production render path."
+        "Wider shell-owned state/permutation coverage — deferred; current goldens now prove bounded EngineShell MapScene, MenuScene, and BattleScene slices rather than every production render path."
       ],
       "evidence": {
         "runtimeOwner": true,
@@ -252,7 +252,7 @@
     {
       "id": "export_validator",
       "status": "PARTIAL",
-      "summary": "Platform-specific export validator with per-target requirement checking, fixture-backed validation coverage, PowerShell CI script with JSON output, diagnostics panel with post-export artifact surfacing, bounded real Windows/Web/Linux/macOS bootstrap paths, bundle-level lightweight RLE-plus-XOR payload protection plus keyed integrity-tag validation, configured project-asset auto-discovery manifest staging, bounded repo-owned content bundling for readiness/schema/level-library roots, governed manifest-driven promoted-asset bundle staging support, keyed SHA-256 bundle-signature validation, and structured bundle-summary JSON reporting are landed.",
+      "summary": "Platform-specific export validator with per-target requirement checking, fixture-backed validation coverage, PowerShell CI script with JSON output, canonical urpg_pack_cli entrypoint, diagnostics panel with post-export artifact surfacing, bounded real Windows/Web/Linux/macOS bootstrap paths, bundle-level lightweight RLE-plus-XOR payload protection plus keyed integrity-tag validation, configured project-asset auto-discovery manifest staging, bounded repo-owned content bundling for readiness/schema/level-library roots, governed manifest-driven promoted-asset bundle staging support, keyed SHA-256 bundle-signature validation, and structured bundle-summary JSON reporting are landed.",
       "mainGaps": [
         "Configured project-asset root discovery is landed; broader arbitrary external intake/store discovery remains future work.",
         "Full native packaging/signing/notarization is still out of scope.",

@@ -17,13 +17,13 @@
 
 ## Direct-Ingest Sources
 
-These repos are approved for controlled capture when source-capture work starts. As of 2026-04-19 they are cataloged but not yet mirrored, staged, or normalized.
+These repos are approved for controlled capture. As of 2026-04-23, TD Sprint 04 has promoted one bounded visual lane from `SRC-002` and one bounded UI-audio lane from `SRC-003`; the remaining rows stay cataloged future intake candidates.
 
 | # | Source ID | Repo Name | Source URL | Snapshot Commit | Snapshot Date | Type | Category Tags | Intended Use | Capture State | Handling Path | Legal Disposition | Promotion Status |
 |---|-----------|-----------|------------|-----------------|---------------|------|---------------|--------------|---------------|---------------|-------------------|------------------|
 | 1 | `SRC-001` | AscensionGameDev/Intersect-Assets | `https://github.com/AscensionGameDev/Intersect-Assets` | `—` | `—` | `direct_asset_pack` | tilesets, characters, animations, UI, sounds, music, tools | Environment kit bootstrapping; character placeholder coverage; UI prototyping; audio resolver testing; animation/VFX placeholder coverage | `cataloged_not_mirrored` | `direct_ingest_when_captured` | `mixed_asset_pack_reference_only_until_per-asset_attribution_is_captured` | `not_started` |
-| 2 | `SRC-002` | GDQuest/game-sprites | `https://github.com/GDQuest/game-sprites` | `—` | `—` | `direct_asset_pack` | sprites, items, grid actors | Combat prototype actors; inventory/item placeholders; grid-based and interaction tests; early map/entity validation | `cataloged_not_mirrored` | `direct_ingest_when_captured` | `cc0_candidate_recorded_for_private_use_intake` | `not_started` |
-| 3 | `SRC-003` | Calinou/kenney-interface-sounds | `https://github.com/Calinou/kenney-interface-sounds` | `—` | `—` | `direct_asset_pack` | UI SFX, feedback sounds | Menu confirm/cancel; button hover/click; panel open/close; inventory and notification feedback; editor shell feedback sounds | `cataloged_not_mirrored` | `direct_ingest_when_captured` | `cc0_candidate_recorded_for_private_use_intake` | `not_started` |
+| 2 | `SRC-002` | GDQuest/game-sprites | `https://github.com/GDQuest/game-sprites` | `ea05c63eb1d88af928d2d9a7445879500c9ece3f` | `2026-04-23` | `direct_asset_pack` | sprites, items, grid actors | Combat prototype actors; inventory/item placeholders; grid-based and interaction tests; early map/entity validation | `normalized` | `direct_ingest_when_captured` | `cc0_candidate_recorded_for_private_use_intake` | `promoted` |
+| 3 | `SRC-003` | Calinou/kenney-interface-sounds | `https://github.com/Calinou/kenney-interface-sounds` | `4596a49eaf5a533948d49a47467f606bcdea70ff` | `2026-04-23` | `direct_asset_pack` | UI SFX, feedback sounds | Menu confirm/cancel; button hover/click; panel open/close; inventory and notification feedback; editor shell feedback sounds | `normalized` | `direct_ingest_when_captured` | `cc0_candidate_recorded_for_private_use_intake` | `promoted` |
 
 ## Discovery / Source-Mining Sources
 
@@ -77,7 +77,9 @@ Each direct-ingest source must have a manifest under `imports/manifests/asset_so
 
 - Canonical source manifests: `imports/manifests/asset_sources/SRC-001.json` through `SRC-005.json`
 - Canonical status report: `imports/reports/asset_intake/source_capture_status.json`
-- Current recorded state: 5 cataloged sources, 0 mirrored, 0 staged, 0 normalized
+- Current recorded state: 5 cataloged sources, 2 normalized/promoted proof lanes, 3 cataloged future candidates
+- First promoted visual lane: `imports/normalized/prototype_sprites/gdquest_blue_actor.svg` via `imports/manifests/asset_bundles/BND-001.json`
+- First promoted audio lane: `imports/normalized/ui_sfx/kenney_click_001.wav` via `imports/manifests/asset_bundles/BND-002.json`
 
 ---
 
@@ -87,3 +89,4 @@ Each direct-ingest source must have a manifest under `imports/manifests/asset_so
 |------|--------|
 | 2026-04-17 | Initial registry created from `docs/asset_intake/URPG_private_asset_intake_plan.md` |
 | 2026-04-19 | Replaced placeholder staged-state rows with concrete capture-state, handling-path, legal-disposition, and promotion-status records linked to the canonical manifests and intake report. |
+| 2026-04-23 | TD Sprint 04 promoted the first bounded visual (`SRC-002`) and UI-audio (`SRC-003`) proof lanes with source snapshots, normalized assets, bundle manifests, and smoke-proof reporting. |

@@ -87,7 +87,12 @@ TEST_CASE("ProjectAuditPanel captures governance details when present", "[editor
                 {"path", "imports/reports/asset_intake/source_capture_status.json"},
                 {"available", true},
                 {"usable", false},
-                {"issueCount", 3}
+                {"issueCount", 3},
+                {"normalizedCount", 2},
+                {"promotedCount", 2},
+                {"promotedVisualLaneCount", 1},
+                {"promotedAudioLaneCount", 1},
+                {"wysiwygSmokeProofCount", 1}
             }},
             {"schema", {
                 {"schemaExists", true},
@@ -276,6 +281,11 @@ TEST_CASE("ProjectAuditPanel captures governance details when present", "[editor
     REQUIRE(snapshot.asset_report->usable.has_value());
     REQUIRE_FALSE(*snapshot.asset_report->usable);
     REQUIRE(snapshot.asset_report->issue_count == 3);
+    REQUIRE(snapshot.asset_report->normalized_count == 2);
+    REQUIRE(snapshot.asset_report->promoted_count == 2);
+    REQUIRE(snapshot.asset_report->promoted_visual_lane_count == 1);
+    REQUIRE(snapshot.asset_report->promoted_audio_lane_count == 1);
+    REQUIRE(snapshot.asset_report->wysiwyg_smoke_proof_count == 1);
 
     REQUIRE(snapshot.schema_governance.has_value());
     REQUIRE(snapshot.schema_governance->schema_exists.has_value());

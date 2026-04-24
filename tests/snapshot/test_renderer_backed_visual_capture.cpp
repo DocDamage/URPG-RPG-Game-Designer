@@ -16,6 +16,7 @@
 
 #include <cstdlib>
 #include <filesystem>
+#include <memory>
 #include <stdexcept>
 
 using namespace urpg;
@@ -430,6 +431,51 @@ SceneSnapshot captureEngineShellMenuSceneSnapshot() {
         },
         320,
         240,
+        &errorMessage);
+    INFO(errorMessage);
+    REQUIRE(snapshot.has_value());
+    return *snapshot;
+}
+
+SceneSnapshot captureEngineShellBattleSceneSnapshot() {
+    VisualRegressionHarness harness;
+    std::string errorMessage;
+    const auto snapshot = harness.captureEngineTick(
+        CaptureBackend::OpenGL,
+        [](urpg::EngineShell& /*shell*/) {
+            auto actorTexture = std::make_shared<urpg::Texture>();
+            const auto actorPixels = makeBattleActorPixels();
+            if (!actorTexture->loadFromMemory(actorPixels, 144, 192)) {
+                throw std::runtime_error("Failed to load in-memory EngineShell battle actor texture.");
+            }
+
+            auto enemyTexture = std::make_shared<urpg::Texture>();
+            const auto enemyPixels = makeBattleEnemyPixels();
+            if (!enemyTexture->loadFromMemory(enemyPixels, 128, 128)) {
+                throw std::runtime_error("Failed to load in-memory EngineShell battle enemy texture.");
+            }
+
+            auto battle = std::make_shared<urpg::scene::BattleScene>(std::vector<std::string>{});
+            battle->addActor("1", "Hero", 96, 28, {120.0f, 280.0f}, actorTexture);
+            battle->addEnemy("1", "Slime", 44, 0, {540.0f, 170.0f}, enemyTexture);
+
+            auto& participants =
+                const_cast<std::vector<urpg::scene::BattleParticipant>&>(battle->getParticipants());
+            if (!participants.empty()) {
+                auto& actor = participants.front();
+                actor.hp = 68;
+                actor.mp = 14;
+                actor.isGuarding = true;
+                actor.states = {5, 6};
+                actor.DamagePopupTimer = 0.75f;
+                actor.DamagePopupValue = 42.0f;
+                actor.DamagePopupColor = 0x00FF00FFu;
+            }
+
+            urpg::scene::SceneManager::getInstance().pushScene(battle);
+        },
+        800,
+        600,
         &errorMessage);
     INFO(errorMessage);
     REQUIRE(snapshot.has_value());
@@ -978,6 +1024,33 @@ TEST_CASE("Snapshot: EngineShell MenuScene golden render produces deterministic 
 
     const auto result =
         harness.compareAgainstGolden("S1SceneGoldens", "engine_shell_menu_scene_full_frame", snapshot);
+    REQUIRE(result.matches);
+    REQUIRE(result.errorPercentage == 0.0f);
+#endif
+}
+
+TEST_CASE("Snapshot: EngineShell BattleScene golden render produces deterministic actor cue crop",
+          "[snapshot][regression][s1]") {
+#ifdef URPG_HEADLESS
+    SUCCEED("Headless build: skipping renderer-backed EngineShell BattleScene golden");
+#else
+    VisualRegressionHarness harness;
+    harness.setGoldenRoot(getGoldenRoot().string());
+
+    const auto fullFrame = captureEngineShellBattleSceneSnapshot();
+    REQUIRE(fullFrame.width == 800);
+    REQUIRE(fullFrame.height == 600);
+
+    const auto snapshot = cropSnapshot(fullFrame, 96, 220, 160, 140);
+    REQUIRE(snapshot.width == 160);
+    REQUIRE(snapshot.height == 140);
+
+    if (shouldRegenerateRendererBackedGoldens()) {
+        REQUIRE(harness.saveGolden("S1SceneGoldens", "engine_shell_battle_scene_actor_cue_crop", snapshot));
+    }
+
+    const auto result =
+        harness.compareAgainstGolden("S1SceneGoldens", "engine_shell_battle_scene_actor_cue_crop", snapshot);
     REQUIRE(result.matches);
     REQUIRE(result.errorPercentage == 0.0f);
 #endif

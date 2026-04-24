@@ -242,7 +242,7 @@ foreach ($requiredPhrase in @(
         "accessibility",
         "audio",
         "performance",
-        "input/localization/export",
+        "input/localization-bundle/export",
         "localization consistency report",
         "governance detail",
         "release-signoff workflow"

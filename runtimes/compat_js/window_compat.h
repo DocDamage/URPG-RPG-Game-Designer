@@ -119,7 +119,7 @@ public:
     virtual void drawActorTp(int32_t actorId, int32_t x, int32_t y, 
                              int32_t width = 128);
     
-    // Status: PARTIAL - Records gauge semantics, but background/fill gradient rendering is still TODO
+    // Status: PARTIAL - Records gauge semantics and emits a bounded segmented gradient fill.
     virtual void drawGauge(int32_t x, int32_t y, int32_t width,
                            double rate, const Color& color1, const Color& color2);
     

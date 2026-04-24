@@ -1,0 +1,15 @@
+{
+  "bundle_id": "BND-002",
+  "bundle_name": "td_sprint_04_ui_sfx_lane",
+  "source_id": "SRC-003",
+  "bundle_state": "promoted",
+  "assets": [
+    {
+      "original_relative_path": "addons/kenney_interface_sounds/click_001.wav",
+      "promoted_relative_path": "ui_sfx/kenney_click_001.wav",
+      "category": "ui_sfx",
+      "status": "promoted",
+      "notes": "First governed audio proof asset for resolver/runtime/export smoke coverage."
+    }
+  ]
+}

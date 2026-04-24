@@ -15,6 +15,7 @@ The Gameplay Ability Framework provides deterministic, native-owned ability exec
 |-----------|---------------|----------|
 | `GameplayAbility` | Base class for executable actions with tag-based activation checks, explicit unsupported scripted-condition diagnostics, structured failure reasons, MP cost resolution, and cooldown commit | `engine/core/ability/gameplay_ability.h` |
 | `AbilitySystemComponent` | Tag/effect/cooldown owner, attribute modification with additive/multiplicative/override stacking, and bounded deterministic execution history | `engine/core/ability/ability_system_component.h` |
+| `AbilityTask` backends | Deterministic async task surface with `WaitTime`, `WaitInput`, `WaitEvent`, and `WaitProjectileCollision`; granted abilities tick task progress through `AbilitySystemComponent::update()` | `engine/core/ability/ability_task.h` |
 | `AbilityStateMachine` | Multi-phase ability orchestration (windup → impact → recovery) with per-state tags, enter/tick/exit logic, and deterministic transition diagnostics | `engine/core/ability/ability_state_machine.h` |
 | `PatternField` | 2D coordinate pattern authoring for AoE/range requirements with origin validation, radius bounds, and JSON serialization | `engine/core/ability/pattern_field.h` |
 
@@ -68,6 +69,7 @@ Native JSON schemas are enforced under `content/schemas/`:
 Key cross-subsystem assertions include:
 - End-to-end activation → commit → cooldown → effect → inspector coherence.
 - State machine windup → impact → recovery transitions with deterministic history.
+- WaitInput, WaitEvent, and WaitProjectileCollision task completion, mismatch rejection, timeout behavior, and ASC update-loop ticking.
 - Pattern field integration with ability targeting and editor preview.
 - Effect stacking policies (refresh and stack) with attribute resolution.
 
@@ -77,7 +79,7 @@ Key cross-subsystem assertions include:
 
 1. **Schema contracts (partial closure)**: `gameplay_ability.schema.json` now enforces the `AuthoredAbilityAsset` JSON contract. Activation info, state machine phase schemas, and pattern field schema enforcement remain future work.
 2. **Migration mapping (partial closure)**: `AbilityCompatMapper` maps RPG Maker MZ/MV skills to native ability assets with deterministic fallback. Troop actions, item compat, and `AbilityStateMachine` phase shapes are not yet mapped from legacy data.
-3. **Gameplay task backend**: `AbilityTask` and `AbilityTask_WaitTime` exist as async task scaffolding, but deeper task backends (input-wait, event-wait, projectile collision) are not yet implemented.
+3. **Gameplay task orchestration depth**: `AbilityTask_WaitInput`, `AbilityTask_WaitEvent`, and `AbilityTask_WaitProjectileCollision` are now implemented and covered with deterministic completion, mismatch, timeout, and ASC update-loop tests. Broader authored battle/map content that composes these tasks into designer-facing ability flows remains future product-depth work.
 4. **Scripted condition evaluator**: `activeCondition` and `passiveCondition` strings are intentionally not evaluated in-tree. Non-empty `activeCondition` values fail with `active_condition_unsupported`, and `passiveCondition` is out of runtime scope unless future work deliberately reopens this lane.
 5. **Scene-runtime breadth**: live `BattleScene` participant activation plus authored-ability handoff into a mutable `MapScene` player ASC are now landed, but richer async task-driven orchestration beyond the current queue/update-loop scope remains future work.
 

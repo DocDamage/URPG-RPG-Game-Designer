@@ -10,3 +10,8 @@ See docs/TECHNICAL_DEBT_REMEDIATION_PLAN.md (P3-02, P3-03) for program context.
 - `promoted_relative_path` resolves to an existing repo-local file under `imports/normalized/`
 
 Automatic project-wide asset discovery is still out of scope; this directory is a governed explicit allowlist, not a generic content scan root.
+
+TD Sprint 04 added the first promoted allowlist records:
+
+- `BND-001.json` - `SRC-002` prototype visual proof lane
+- `BND-002.json` - `SRC-003` UI SFX proof lane

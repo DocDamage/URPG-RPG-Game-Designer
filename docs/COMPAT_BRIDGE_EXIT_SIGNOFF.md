@@ -31,6 +31,7 @@ Current evidence for the compat bridge exit lane includes:
 | Curated compat corpus | `tests/compat/test_compat_plugin_fixtures.cpp` covers the active 10-profile executable fixture corpus and keeps the two corpus-health fixtures separate from executable-surface claims |
 | Failure-path parity | `tests/compat/test_compat_plugin_failure_diagnostics.cpp` proves JSONL export, report ingestion/export, and panel projection parity |
 | Truthful status labels | `tests/unit/test_audio_manager.cpp`, `tests/unit/test_battlemgr.cpp`, `tests/unit/test_data_manager.cpp`, `tests/unit/test_window_compat.cpp`, `tests/unit/test_input_manager.cpp`, `tests/unit/test_plugin_manager.cpp` |
+| WindowCompat fidelity | `tests/unit/test_window_compat.cpp` proves JS color-object/string parsing for `changeTextColor` and segmented gradient color use for `drawGauge` |
 | Weekly maintenance lane | `tools/ci/run_compat_weekly_regression.ps1` plus the `weekly` CTest lane |
 | Canonical exit criteria | `docs/COMPAT_EXIT_CHECKLIST.md` |
 
@@ -54,7 +55,8 @@ This keeps new compat failure modes from becoming silent or checklist-only evide
 1. **Human exit sign-off**: This artifact exists to support review, but `compat_bridge_exit` still requires explicit maintainer/release-owner/doc-truth signoff before any future promotion beyond `PARTIAL`.
 2. **Curated corpus maintenance**: The active corpus is evidence-backed today, but continued fixture maintenance and weekly regression depth are ongoing obligations rather than one-time closure.
 3. **Truth upkeep**: Fixture-backed or placeholder-backed compat paths must remain conservatively labeled as the implementation evolves.
-4. **Live runtime/backend parity**: Out of scope for this lane. Compat remains a bounded bridge, not a finished JS runtime or live backend surface.
+4. **Window/UI fidelity depth**: `Window_Base` now handles JS color objects/strings and bounded segmented gauge gradients, but `contents()` remains a deterministic handle/dimension contract rather than a pixel-backed bitmap buffer.
+5. **Live runtime/backend parity**: Out of scope for this lane. Compat remains a bounded bridge, not a finished JS runtime or live backend surface.
 
 ---
 

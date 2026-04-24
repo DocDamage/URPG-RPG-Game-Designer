@@ -84,6 +84,9 @@ Evidence anchors:
 - Compat corpus health-fixture separation landed on 2026-04-23:
   - `test_compat_plugin_fixtures.cpp` now keeps the active 10 executable curated profiles in `fixtureSpecs()` while routing `URPG_DependencyDrift_Fixture` and `URPG_ProfileMismatch_Fixture` through health-only discovery coverage
   - directory/discovery counts now use the combined view without overstating the executable compat corpus
+- WindowCompat fidelity follow-through landed on 2026-04-23:
+  - `Window_Base::changeTextColor` now accepts JS color objects and hex/rgb strings through the QuickJS harness binding instead of ignoring non-integer color values
+  - `Window_Base::drawGauge` now emits segmented gradient fill rects using both supplied colors, while `contents()` remains explicitly handle/dimension-backed rather than pixel-backed
 - Update this checklist whenever a compat surface changes status, link location, or exit evidence.
 - Compat bridge exit signoff evidence now also lives in [COMPAT_BRIDGE_EXIT_SIGNOFF.md](./COMPAT_BRIDGE_EXIT_SIGNOFF.md); the checkboxes below remain human-owned and must not be auto-checked by governance automation.
 

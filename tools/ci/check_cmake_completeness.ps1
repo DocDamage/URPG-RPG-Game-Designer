@@ -57,17 +57,16 @@ $compatFiles = Get-TargetFiles -content $cmakeContent -targetName "urpg_compat_t
 $migrateFiles = Get-TargetFiles -content $cmakeContent -targetName "urpg_migrate"
 $auditFiles = Get-TargetFiles -content $cmakeContent -targetName "urpg_project_audit"
 $presValFiles = Get-TargetFiles -content $cmakeContent -targetName "urpg_presentation_release_validation"
+$profileArenaFiles = Get-TargetFiles -content $cmakeContent -targetName "urpg_profile_arena"
 
 $allTestExeFiles = $testFiles + $integrationFiles + $snapshotFiles + $compatFiles + $migrateFiles + $auditFiles + $presValFiles
-$allCMakeFiles = $coreFiles + $allTestExeFiles
+$standaloneToolFiles = $profileArenaFiles
+$allCMakeFiles = $coreFiles + $allTestExeFiles + $standaloneToolFiles
 
 # Standalone tools that are intentionally not in a library/test target.
 # TD-01 stale runtime/editor seam exemptions have been burned down; anything left
 # here should represent a real standalone tool instead of hidden production debt.
-$knownDebt = @(
-    # Standalone profiling tool (has main(), not part of urpg_core)
-    "engine/core/presentation/profile_arena.cpp"
-)
+$knownDebt = @()
 
 $orphans = @()
 

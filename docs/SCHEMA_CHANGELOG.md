@@ -173,10 +173,10 @@ Each governed schema entry should include:
 
 ### `project` (`project.schema.json`)
 
-- Version: `1.0.0`
-- Date: `2026-04-20`
-- Summary: top-level project schema with title, version, template reference, and subsystem flags
-- Migration Impact: none; initial introduction
+- Version: `1.1.0`
+- Date: `2026-04-23`
+- Summary: top-level project schema with deterministic base contract plus bounded governance sections for localization bundles, input/controller fixtures, and export profiles
+- Migration Impact: additive; existing base project documents remain valid because the governance sections are optional at the schema root and enforced conservatively by ProjectAudit only when selected template bars require them
 
 ### `rich_text_tokens` (`rich_text_tokens.schema.json`)
 

@@ -1,0 +1,15 @@
+{
+  "bundle_id": "BND-001",
+  "bundle_name": "td_sprint_04_prototype_visual_lane",
+  "source_id": "SRC-002",
+  "bundle_state": "promoted",
+  "assets": [
+    {
+      "original_relative_path": "characters/blue.svg",
+      "promoted_relative_path": "prototype_sprites/gdquest_blue_actor.svg",
+      "category": "prototype_sprite",
+      "status": "promoted",
+      "notes": "First governed visual proof asset for editor/runtime/export smoke coverage."
+    }
+  ]
+}

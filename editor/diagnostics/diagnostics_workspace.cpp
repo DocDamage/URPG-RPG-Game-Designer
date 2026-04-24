@@ -2200,6 +2200,21 @@ std::string DiagnosticsWorkspace::exportAsJson() const {
             if (snapshot.asset_report->issue_count.has_value()) {
                 assetReport["issue_count"] = *snapshot.asset_report->issue_count;
             }
+            if (snapshot.asset_report->normalized_count.has_value()) {
+                assetReport["normalized_count"] = *snapshot.asset_report->normalized_count;
+            }
+            if (snapshot.asset_report->promoted_count.has_value()) {
+                assetReport["promoted_count"] = *snapshot.asset_report->promoted_count;
+            }
+            if (snapshot.asset_report->promoted_visual_lane_count.has_value()) {
+                assetReport["promoted_visual_lane_count"] = *snapshot.asset_report->promoted_visual_lane_count;
+            }
+            if (snapshot.asset_report->promoted_audio_lane_count.has_value()) {
+                assetReport["promoted_audio_lane_count"] = *snapshot.asset_report->promoted_audio_lane_count;
+            }
+            if (snapshot.asset_report->wysiwyg_smoke_proof_count.has_value()) {
+                assetReport["wysiwyg_smoke_proof_count"] = *snapshot.asset_report->wysiwyg_smoke_proof_count;
+            }
             governance["asset_report"] = std::move(assetReport);
         }
         if (snapshot.schema_governance.has_value()) {

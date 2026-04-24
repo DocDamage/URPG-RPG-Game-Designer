@@ -21,7 +21,12 @@ $requiredFiles = @(
     "imports/manifests/asset_sources/SRC-003.json",
     "imports/manifests/asset_sources/SRC-004.json",
     "imports/manifests/asset_sources/SRC-005.json",
+    "imports/manifests/asset_bundles/BND-001.json",
+    "imports/manifests/asset_bundles/BND-002.json",
+    "imports/normalized/prototype_sprites/gdquest_blue_actor.svg",
+    "imports/normalized/ui_sfx/kenney_click_001.wav",
     "imports/reports/asset_intake/source_capture_status.json",
+    "imports/reports/asset_intake/wysiwyg_smoke_proof.json",
     "third_party/external-repos/README.md",
     "imports/fixtures/compat/README.md",
     "imports/fixtures/legacy-projects/README.md",
@@ -82,6 +87,28 @@ foreach ($sourceId in $expectedSourceIds) {
 
     if ($manifest.source_id -ne $sourceId) {
         Write-Host "Manifest source_id mismatch in $manifestPath"
+        $hasError = $true
+    }
+}
+
+try {
+    $assetReport = Get-Content "imports/reports/asset_intake/source_capture_status.json" -Raw | ConvertFrom-Json
+} catch {
+    Write-Host "Invalid asset intake status report."
+    $hasError = $true
+}
+
+if ($null -ne $assetReport) {
+    if ($assetReport.summary.normalized -lt 1 -or $assetReport.summary.promoted -lt 1) {
+        Write-Host "Asset intake report must include at least one normalized and one promoted asset."
+        $hasError = $true
+    }
+    if ($assetReport.summary.promoted_visual_lanes -lt 1 -or $assetReport.summary.promoted_audio_lanes -lt 1) {
+        Write-Host "Asset intake report must include promoted visual and audio lanes."
+        $hasError = $true
+    }
+    if ($assetReport.summary.wysiwyg_smoke_proofs -lt 1) {
+        Write-Host "Asset intake report must include a WYSIWYG smoke proof."
         $hasError = $true
     }
 }

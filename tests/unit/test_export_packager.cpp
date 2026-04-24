@@ -8,6 +8,9 @@
 #include <fstream>
 #include <cstdlib>
 #include <chrono>
+#include <sstream>
+#include <string>
+#include <vector>
 
 #ifdef _WIN32
 #include <windows.h>
@@ -149,6 +152,131 @@ std::vector<uint8_t> DecodeBundleEntryBytes(const std::filesystem::path& path,
 #ifdef URPG_EXPORT_SMOKE_APP_PATH
 std::filesystem::path GetExportSmokeAppPath() {
     return std::filesystem::path(URPG_EXPORT_SMOKE_APP_PATH);
+}
+#endif
+
+#ifdef URPG_PACK_CLI_PATH
+struct ProcessResult {
+    int exitCode = -1;
+    std::string stdoutText;
+    std::string stderrText;
+};
+
+std::filesystem::path GetPackCliPath() {
+    return std::filesystem::path(URPG_PACK_CLI_PATH);
+}
+
+ProcessResult RunPackCli(const std::vector<std::string>& args) {
+    const auto tempRoot = std::filesystem::temp_directory_path() /
+        ("urpg_pack_cli_process_" +
+         std::to_string(std::chrono::steady_clock::now().time_since_epoch().count()));
+    std::filesystem::remove_all(tempRoot);
+    std::filesystem::create_directories(tempRoot);
+
+    const auto stdoutPath = tempRoot / "stdout.txt";
+    const auto stderrPath = tempRoot / "stderr.txt";
+    const auto exePath = GetPackCliPath();
+    REQUIRE(std::filesystem::exists(exePath));
+
+    ProcessResult result;
+
+#ifdef _WIN32
+    auto toWide = [](const std::string& text) {
+        return std::wstring(text.begin(), text.end());
+    };
+
+    auto quote = [](const std::wstring& text) {
+        return L"\"" + text + L"\"";
+    };
+
+    std::wstring commandLine = quote(exePath.wstring());
+    for (const auto& arg : args) {
+        commandLine += L" ";
+        commandLine += quote(toWide(arg));
+    }
+
+    SECURITY_ATTRIBUTES securityAttributes{};
+    securityAttributes.nLength = sizeof(securityAttributes);
+    securityAttributes.bInheritHandle = TRUE;
+
+    HANDLE stdoutHandle = CreateFileW(
+        stdoutPath.c_str(),
+        GENERIC_WRITE,
+        FILE_SHARE_READ,
+        &securityAttributes,
+        CREATE_ALWAYS,
+        FILE_ATTRIBUTE_NORMAL,
+        nullptr);
+    REQUIRE(stdoutHandle != INVALID_HANDLE_VALUE);
+
+    HANDLE stderrHandle = CreateFileW(
+        stderrPath.c_str(),
+        GENERIC_WRITE,
+        FILE_SHARE_READ,
+        &securityAttributes,
+        CREATE_ALWAYS,
+        FILE_ATTRIBUTE_NORMAL,
+        nullptr);
+    REQUIRE(stderrHandle != INVALID_HANDLE_VALUE);
+
+    STARTUPINFOW startupInfo{};
+    startupInfo.cb = sizeof(startupInfo);
+    startupInfo.dwFlags = STARTF_USESTDHANDLES;
+    startupInfo.hStdInput = GetStdHandle(STD_INPUT_HANDLE);
+    startupInfo.hStdOutput = stdoutHandle;
+    startupInfo.hStdError = stderrHandle;
+
+    PROCESS_INFORMATION processInfo{};
+    std::vector<wchar_t> mutableCommandLine(commandLine.begin(), commandLine.end());
+    mutableCommandLine.push_back(L'\0');
+
+    const BOOL launched = CreateProcessW(
+        nullptr,
+        mutableCommandLine.data(),
+        nullptr,
+        nullptr,
+        TRUE,
+        0,
+        nullptr,
+        nullptr,
+        &startupInfo,
+        &processInfo);
+
+    CloseHandle(stdoutHandle);
+    CloseHandle(stderrHandle);
+
+    REQUIRE(launched == TRUE);
+
+    WaitForSingleObject(processInfo.hProcess, 30000);
+
+    DWORD exitCode = 1;
+    REQUIRE(GetExitCodeProcess(processInfo.hProcess, &exitCode) == TRUE);
+
+    CloseHandle(processInfo.hThread);
+    CloseHandle(processInfo.hProcess);
+
+    result.exitCode = static_cast<int>(exitCode);
+#else
+    std::ostringstream command;
+    command << "\"" << exePath.string() << "\"";
+    for (const auto& arg : args) {
+        command << " \"" << arg << "\"";
+    }
+    command << " > \"" << stdoutPath.string() << "\"";
+    command << " 2> \"" << stderrPath.string() << "\"";
+
+    result.exitCode = std::system(command.str().c_str());
+#endif
+
+    if (std::filesystem::exists(stdoutPath)) {
+        result.stdoutText = ReadFileText(stdoutPath);
+    }
+    if (std::filesystem::exists(stderrPath)) {
+        result.stderrText = ReadFileText(stderrPath);
+    }
+
+    std::filesystem::remove_all(tempRoot);
+    return result;
 }
 #endif
 
@@ -554,6 +682,58 @@ TEST_CASE("ExportPackager stages promoted asset bundles from governed manifests"
     std::filesystem::remove_all(base);
 }
 
+TEST_CASE("ExportPackager stages canonical promoted visual and audio intake lanes", "[export][packager][assets]") {
+    const auto base = std::filesystem::temp_directory_path() / "urpg_export_packager_canonical_promoted_assets";
+    std::filesystem::remove_all(base);
+
+    ExportPackager packager;
+    ExportConfig config{};
+    config.target = ExportTarget::Windows_x64;
+    config.outputDir = (base / "out").string();
+    config.compressAssets = true;
+
+    const auto result = packager.runExport(config);
+
+    INFO(result.log);
+    REQUIRE(result.success);
+
+    const auto bundlePath = base / "out" / "data.pck";
+    const auto manifest = ReadBundleManifest(bundlePath);
+
+    const auto findEntry = [&](const std::string& path) -> nlohmann::json {
+        for (const auto& entry : manifest["entries"]) {
+            if (entry["path"] == path) {
+                return entry;
+            }
+        }
+        INFO(path);
+        REQUIRE(false);
+        return nlohmann::json::object();
+    };
+
+    const auto visualManifestEntry = findEntry("imports/manifests/asset_bundles/BND-001.json");
+    const auto audioManifestEntry = findEntry("imports/manifests/asset_bundles/BND-002.json");
+    const auto visualAssetEntry = findEntry("imports/normalized/prototype_sprites/gdquest_blue_actor.svg");
+    const auto audioAssetEntry = findEntry("imports/normalized/ui_sfx/kenney_click_001.wav");
+
+    const auto visualBytes = DecodeBundleEntryBytes(bundlePath, ExportTarget::Windows_x64, visualAssetEntry);
+    const auto audioBytes = DecodeBundleEntryBytes(bundlePath, ExportTarget::Windows_x64, audioAssetEntry);
+    const std::string visualText(visualBytes.begin(), visualBytes.end());
+
+    REQUIRE(visualManifestEntry["kind"] == "asset_bundle_manifest");
+    REQUIRE(audioManifestEntry["kind"] == "asset_bundle_manifest");
+    REQUIRE(visualAssetEntry["kind"] == "promoted_asset");
+    REQUIRE(audioAssetEntry["kind"] == "promoted_asset");
+    REQUIRE(visualText.find("<svg") != std::string::npos);
+    REQUIRE(audioBytes.size() > 12);
+    REQUIRE(static_cast<char>(audioBytes[0]) == 'R');
+    REQUIRE(static_cast<char>(audioBytes[1]) == 'I');
+    REQUIRE(static_cast<char>(audioBytes[2]) == 'F');
+    REQUIRE(static_cast<char>(audioBytes[3]) == 'F');
+
+    std::filesystem::remove_all(base);
+}
+
 TEST_CASE("ExportPackager auto-discovers configured project asset roots and writes a discovery manifest",
           "[export][packager][discovery]") {
     const auto base = std::filesystem::temp_directory_path() / "urpg_export_packager_auto_discovery";
@@ -908,6 +1088,92 @@ TEST_CASE("ExportPackager::runExport fails when pre-export validation fails", "[
     REQUIRE(result.generatedFiles.empty());
     REQUIRE(result.log.find("Pre-export validation failed.") != std::string::npos);
     REQUIRE(result.log.find("Output directory is required") != std::string::npos);
+}
+
+TEST_CASE("urpg_pack_cli runs preflight, export, and post-export validation as JSON",
+          "[export][packager][cli]") {
+#ifdef URPG_PACK_CLI_PATH
+    const auto outputDir = std::filesystem::temp_directory_path() /
+        ("urpg_pack_cli_success_" +
+         std::to_string(std::chrono::steady_clock::now().time_since_epoch().count()));
+    std::filesystem::remove_all(outputDir);
+
+    const auto result = RunPackCli({
+        "--json",
+        "--target",
+        "Web_WASM",
+        "--output",
+        outputDir.string(),
+    });
+
+    INFO(result.stderrText);
+    INFO(result.stdoutText);
+    REQUIRE(result.exitCode == 0);
+    REQUIRE_FALSE(result.stdoutText.empty());
+
+    const auto report = nlohmann::json::parse(result.stdoutText);
+    REQUIRE(report["tool"] == "urpg_pack_cli");
+    REQUIRE(report["phase"] == "export");
+    REQUIRE(report["target"] == "Web_WASM");
+    REQUIRE(report["success"] == true);
+    REQUIRE(report["preflight"]["passed"] == true);
+    REQUIRE(report["preflight"]["errors"].empty());
+    REQUIRE(report["export"]["success"] == true);
+    REQUIRE(report["postExportValidation"]["passed"] == true);
+    REQUIRE(report["postExportValidation"]["errors"].empty());
+    REQUIRE(report["postExportValidation"]["bundleSummary"]["signatureMode"] == "sha256_keyed_bundle_v1");
+    REQUIRE(report["postExportValidation"]["bundleSummary"]["bundleSignaturePresent"] == true);
+
+    REQUIRE(std::filesystem::exists(outputDir / "data.pck"));
+    REQUIRE(std::filesystem::exists(outputDir / "index.html"));
+    REQUIRE(std::filesystem::exists(outputDir / "game.js"));
+    REQUIRE(std::filesystem::exists(outputDir / "game.wasm"));
+
+    const auto manifest = ReadBundleManifest(outputDir / "data.pck");
+    REQUIRE(manifest["signatureMode"] == "sha256_keyed_bundle_v1");
+    REQUIRE(manifest["bundleSignature"] == ComputeBundleSignature(outputDir / "data.pck", manifest, ExportTarget::Web_WASM));
+
+    std::filesystem::remove_all(outputDir);
+#else
+    SUCCEED("URPG pack CLI path is not available in this build.");
+#endif
+}
+
+TEST_CASE("urpg_pack_cli reports preflight failures without exporting",
+          "[export][packager][cli]") {
+#ifdef URPG_PACK_CLI_PATH
+    const auto outputFile = std::filesystem::temp_directory_path() /
+        ("urpg_pack_cli_failure_" +
+         std::to_string(std::chrono::steady_clock::now().time_since_epoch().count()) + ".txt");
+    std::filesystem::remove(outputFile);
+    WriteFile(outputFile, "not_a_directory");
+
+    const auto result = RunPackCli({
+        "--json",
+        "--target",
+        "Windows_x64",
+        "--output",
+        outputFile.string(),
+    });
+
+    INFO(result.stderrText);
+    INFO(result.stdoutText);
+    REQUIRE(result.exitCode != 0);
+    REQUIRE_FALSE(result.stdoutText.empty());
+
+    const auto report = nlohmann::json::parse(result.stdoutText);
+    REQUIRE(report["tool"] == "urpg_pack_cli");
+    REQUIRE(report["success"] == false);
+    REQUIRE(report["preflight"]["passed"] == false);
+    REQUIRE_FALSE(report["preflight"]["errors"].empty());
+    REQUIRE(report["preflight"]["errors"][0].get<std::string>().find("not a directory") != std::string::npos);
+    REQUIRE(report["export"]["success"] == false);
+    REQUIRE(std::filesystem::is_regular_file(outputFile));
+
+    std::filesystem::remove(outputFile);
+#else
+    SUCCEED("URPG pack CLI path is not available in this build.");
+#endif
 }
 
 #ifdef _WIN32

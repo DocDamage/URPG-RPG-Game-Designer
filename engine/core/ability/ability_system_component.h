@@ -238,6 +238,14 @@ public:
                 ++it;
             }
         }
+
+        // Scene loops tick AbilitySystemComponent, so granted abilities own their
+        // async task progression through the same deterministic update path.
+        for (const auto& ability : m_abilities) {
+            if (ability) {
+                ability->update(deltaTime);
+            }
+        }
     }
 
     const std::vector<AbilityExecutionRecord>& getAbilityExecutionHistory() const {

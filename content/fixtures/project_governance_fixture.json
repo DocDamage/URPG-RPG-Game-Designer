@@ -1,0 +1,36 @@
+{
+  "_urpg_format_version": "1.0",
+  "_engine_version_min": "0.1.0",
+  "determinism": {
+    "level": "A",
+    "authoritative_math": "fixed32",
+    "physics": {
+      "authoritative": true,
+      "note": "Canonical fixture for the bounded project governance contract."
+    }
+  },
+  "localization": {
+    "bundleRoot": "content/localization",
+    "schemaPath": "content/schemas/localization_bundle.schema.json",
+    "reportPath": "imports/reports/localization/localization_consistency_report.json",
+    "requiredLocales": ["en"],
+    "masterLocale": "en",
+    "allowMissingBundles": true
+  },
+  "input": {
+    "bindingSchemaPath": "content/schemas/input_bindings.schema.json",
+    "controllerBindingSchemaPath": "content/schemas/controller_bindings.schema.json",
+    "fixturePath": "content/fixtures/input_bindings_fixture.json",
+    "controllerFixturePath": "content/fixtures/controller_bindings_fixture.json",
+    "allowUnmappedActions": false
+  },
+  "exportProfiles": [
+    {
+      "id": "windows_debug",
+      "target": "Windows_x64",
+      "configSchemaPath": "content/schemas/export_config.schema.json",
+      "validationReportSchemaPath": "content/schemas/export_validation_report.schema.json",
+      "outputDir": "build/exports/windows_debug"
+    }
+  ]
+}

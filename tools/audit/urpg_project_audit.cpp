@@ -1,3 +1,5 @@
+#include "tools/audit/project_audit_asset_report.h"
+
 #include <algorithm>
 #include <cstdint>
 #include <filesystem>
@@ -13,6 +15,8 @@
 
 namespace fs = std::filesystem;
 using json = nlohmann::json;
+using urpg::tools::audit::getInteger;
+using urpg::tools::audit::readAssetReportSummary;
 
 namespace {
 
@@ -230,23 +234,6 @@ std::string joinItems(const std::vector<std::string>& items) {
         buffer << items[i];
     }
     return buffer.str();
-}
-
-std::optional<std::int64_t> getInteger(const json& value, const std::string& key) {
-    if (!value.contains(key)) {
-        return std::nullopt;
-    }
-
-    const json& entry = value.at(key);
-    if (entry.is_number_integer()) {
-        return entry.get<std::int64_t>();
-    }
-
-    if (entry.is_number_unsigned()) {
-        return static_cast<std::int64_t>(entry.get<std::uint64_t>());
-    }
-
-    return std::nullopt;
 }
 
 json makeIssue(const AuditIssue& issue) {
@@ -654,8 +641,12 @@ void addAssetReportIssues(
     }
 
     const json& summary = report.at("summary");
-    const std::optional<std::int64_t> normalized = getInteger(summary, "normalized");
-    const std::optional<std::int64_t> promoted = getInteger(summary, "promoted");
+    const auto assetSummary = readAssetReportSummary(summary);
+    const auto& normalized = assetSummary.normalized;
+    const auto& promoted = assetSummary.promoted;
+    const auto& promotedVisualLanes = assetSummary.promotedVisualLanes;
+    const auto& promotedAudioLanes = assetSummary.promotedAudioLanes;
+    const auto& wysiwygSmokeProofs = assetSummary.wysiwygSmokeProofs;
 
     if (!normalized.has_value() || !promoted.has_value()) {
         if (assetReportContext.explicitPath) {
@@ -674,17 +665,51 @@ void addAssetReportIssues(
         return;
     }
 
-    if ((isPartialStatus(templateContext.status) || isExperimentalStatus(templateContext.status)) && *normalized == 0 && *promoted == 0) {
-        issues.push_back({
-            "asset_report.no_promoted_or_normalized_intake",
-            "No promoted or normalized asset intake yet",
-            "Selected template " + templateContext.id + " is " + templateContext.status +
-                " and the asset intake report still shows normalized=0 and promoted=0.",
-            "warning",
-            false,
-            false,
-        });
-        ++assetGovernanceIssueCount;
+    if (isPartialStatus(templateContext.status) || isExperimentalStatus(templateContext.status)) {
+        const auto addCounterIssue = [&](const std::string& code,
+                                         const std::string& title,
+                                         const std::string& detail) {
+            issues.push_back({
+                code,
+                title,
+                "Selected template " + templateContext.id + " is " + templateContext.status + " and " + detail,
+                "warning",
+                false,
+                false,
+            });
+            ++assetGovernanceIssueCount;
+        };
+
+        if (*normalized <= 0) {
+            addCounterIssue(
+                "asset_report.no_normalized_intake",
+                "No normalized asset intake yet",
+                "the asset intake report shows normalized=0.");
+        }
+        if (*promoted <= 0) {
+            addCounterIssue(
+                "asset_report.no_promoted_intake",
+                "No promoted asset intake yet",
+                "the asset intake report shows promoted=0.");
+        }
+        if (!promotedVisualLanes.has_value() || *promotedVisualLanes <= 0) {
+            addCounterIssue(
+                "asset_report.no_promoted_visual_lane",
+                "No promoted visual asset lane yet",
+                "the asset intake report does not show a promoted visual lane.");
+        }
+        if (!promotedAudioLanes.has_value() || *promotedAudioLanes <= 0) {
+            addCounterIssue(
+                "asset_report.no_promoted_audio_lane",
+                "No promoted audio asset lane yet",
+                "the asset intake report does not show a promoted audio lane.");
+        }
+        if (!wysiwygSmokeProofs.has_value() || *wysiwygSmokeProofs <= 0) {
+            addCounterIssue(
+                "asset_report.no_wysiwyg_smoke_proof",
+                "No WYSIWYG asset smoke proof yet",
+                "the asset intake report does not show a WYSIWYG smoke proof.");
+        }
     }
 }
 
@@ -775,11 +800,84 @@ bool templateBarNeedsProjectArtifact(const TemplateContext& templateContext, con
     return it->get<std::string>() != "READY";
 }
 
-bool projectSchemaHasProperty(const json& schema, const char* propertyName) {
+const json* projectSchemaProperty(const json& schema, const char* propertyName) {
     if (!schema.is_object() || !schema.contains("properties") || !schema.at("properties").is_object()) {
+        return nullptr;
+    }
+    const auto it = schema.at("properties").find(propertyName);
+    if (it == schema.at("properties").end() || !it->is_object()) {
+        return nullptr;
+    }
+    return &(*it);
+}
+
+bool jsonStringArrayContains(const json& value, const char* expected) {
+    if (!value.is_array()) {
         return false;
     }
-    return schema.at("properties").contains(propertyName);
+
+    for (const auto& entry : value) {
+        if (entry.is_string() && entry.get<std::string>() == expected) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+bool projectSchemaObjectSectionHasRequiredProperties(const json& schema,
+                                                     const char* propertyName,
+                                                     const std::vector<const char*>& requiredProperties) {
+    const json* section = projectSchemaProperty(schema, propertyName);
+    if (section == nullptr || getString(*section, "type") != "object") {
+        return false;
+    }
+
+    if (!section->contains("properties") || !section->at("properties").is_object() ||
+        !section->contains("required") || !section->at("required").is_array()) {
+        return false;
+    }
+
+    for (const char* requiredProperty : requiredProperties) {
+        if (!section->at("properties").contains(requiredProperty) ||
+            !jsonStringArrayContains(section->at("required"), requiredProperty)) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+bool projectSchemaHasExportProfilesSection(const json& schema) {
+    const json* section = projectSchemaProperty(schema, "exportProfiles");
+    if (section == nullptr || getString(*section, "type") != "array") {
+        return false;
+    }
+
+    if (!section->contains("items") || !section->at("items").is_object()) {
+        return false;
+    }
+
+    const json& items = section->at("items");
+    if (getString(items, "type") != "object" || !items.contains("properties") || !items.at("properties").is_object() ||
+        !items.contains("required") || !items.at("required").is_array()) {
+        return false;
+    }
+
+    const std::vector<const char*> requiredProperties = {
+        "id",
+        "target",
+        "configSchemaPath",
+        "validationReportSchemaPath",
+    };
+    for (const char* requiredProperty : requiredProperties) {
+        if (!items.at("properties").contains(requiredProperty) ||
+            !jsonStringArrayContains(items.at("required"), requiredProperty)) {
+            return false;
+        }
+    }
+
+    return true;
 }
 
 void addProjectArtifactIssues(const TemplateContext& templateContext,
@@ -810,14 +908,28 @@ void addProjectArtifactIssues(const TemplateContext& templateContext,
     }
 
     const json& schema = *projectSchemaContext.schema;
-    governanceReport["projectSchema"]["hasLocalizationSection"] = projectSchemaHasProperty(schema, "localization");
-    governanceReport["projectSchema"]["hasInputSection"] =
-        projectSchemaHasProperty(schema, "input") || projectSchemaHasProperty(schema, "controllerBindings");
-    governanceReport["projectSchema"]["hasExportSection"] =
-        projectSchemaHasProperty(schema, "export") || projectSchemaHasProperty(schema, "exportProfiles");
+    const bool hasLocalizationProperty = projectSchemaProperty(schema, "localization") != nullptr;
+    const bool hasInputProperty = projectSchemaProperty(schema, "input") != nullptr;
+    const bool hasExportProfilesProperty = projectSchemaProperty(schema, "exportProfiles") != nullptr;
+    const bool localizationSectionOk = projectSchemaObjectSectionHasRequiredProperties(
+        schema,
+        "localization",
+        {"bundleRoot", "schemaPath", "reportPath", "requiredLocales"});
+    const bool inputSectionOk = projectSchemaObjectSectionHasRequiredProperties(
+        schema,
+        "input",
+        {"bindingSchemaPath", "controllerBindingSchemaPath", "fixturePath"});
+    const bool exportSectionOk = projectSchemaHasExportProfilesSection(schema);
+
+    governanceReport["projectSchema"]["canonicalLocalizationProperty"] = "localization";
+    governanceReport["projectSchema"]["canonicalInputProperty"] = "input";
+    governanceReport["projectSchema"]["canonicalExportProperty"] = "exportProfiles";
+    governanceReport["projectSchema"]["hasLocalizationSection"] = localizationSectionOk;
+    governanceReport["projectSchema"]["hasInputSection"] = inputSectionOk;
+    governanceReport["projectSchema"]["hasExportSection"] = exportSectionOk;
 
     if (templateBarNeedsProjectArtifact(templateContext, "localization") &&
-        !governanceReport["projectSchema"]["hasLocalizationSection"].get<bool>()) {
+        !hasLocalizationProperty) {
         issues.push_back({
             "project_schema.localization_missing",
             "Project schema has no localization governance section",
@@ -830,13 +942,41 @@ void addProjectArtifactIssues(const TemplateContext& templateContext,
         ++projectArtifactIssueCount;
     }
 
-    if (templateBarNeedsProjectArtifact(templateContext, "input") &&
-        !governanceReport["projectSchema"]["hasInputSection"].get<bool>()) {
+    if (templateBarNeedsProjectArtifact(templateContext, "localization") && hasLocalizationProperty &&
+        !localizationSectionOk) {
+        issues.push_back({
+            "project_schema.localization_malformed",
+            "Project schema localization governance section is malformed",
+            "Selected template " + templateContext.id +
+                " still depends on localization governance, but project.schema.json localization must be an object with "
+                "bundleRoot, schemaPath, reportPath, and requiredLocales.",
+            "warning",
+            false,
+            false,
+        });
+        ++projectArtifactIssueCount;
+    }
+
+    if (templateBarNeedsProjectArtifact(templateContext, "input") && !hasInputProperty) {
         issues.push_back({
             "project_schema.input_governance_missing",
             "Project schema has no input governance section",
             "Selected template " + templateContext.id +
-                " still depends on input/controller governance, but project.schema.json has no input or controllerBindings section.",
+                " still depends on input/controller governance, but project.schema.json has no input section.",
+            "warning",
+            false,
+            false,
+        });
+        ++projectArtifactIssueCount;
+    }
+
+    if (templateBarNeedsProjectArtifact(templateContext, "input") && hasInputProperty && !inputSectionOk) {
+        issues.push_back({
+            "project_schema.input_governance_malformed",
+            "Project schema input governance section is malformed",
+            "Selected template " + templateContext.id +
+                " still depends on input/controller governance, but project.schema.json input must be an object with "
+                "bindingSchemaPath, controllerBindingSchemaPath, and fixturePath.",
             "warning",
             false,
             false,
@@ -845,12 +985,27 @@ void addProjectArtifactIssues(const TemplateContext& templateContext,
     }
 
     if ((isPartialStatus(templateContext.status) || isExperimentalStatus(templateContext.status)) &&
-        !governanceReport["projectSchema"]["hasExportSection"].get<bool>()) {
+        !hasExportProfilesProperty) {
         issues.push_back({
             "project_schema.export_governance_missing",
             "Project schema has no export governance section",
             "Selected template " + templateContext.id +
-                " is not fully ready and project.schema.json has no export or exportProfiles section for bounded export governance.",
+                " is not fully ready and project.schema.json has no exportProfiles section for bounded export governance.",
+            "warning",
+            false,
+            false,
+        });
+        ++projectArtifactIssueCount;
+    }
+
+    if ((isPartialStatus(templateContext.status) || isExperimentalStatus(templateContext.status)) &&
+        hasExportProfilesProperty && !exportSectionOk) {
+        issues.push_back({
+            "project_schema.export_governance_malformed",
+            "Project schema export governance section is malformed",
+            "Selected template " + templateContext.id +
+                " is not fully ready and project.schema.json exportProfiles must be an array of objects with id, target, "
+                "configSchemaPath, and validationReportSchemaPath.",
             "warning",
             false,
             false,
@@ -920,22 +1075,22 @@ void addLocalizationArtifactGovernance(const TemplateContext& templateContext,
     const bool enabled = templateBarNeedsProjectArtifact(templateContext, "localization");
     const std::vector<CanonicalArtifactSpec> artifacts = {
         {
-            "localization_artifact.schema_missing",
-            "Canonical localization catalog schema missing",
+            "localization_artifact.bundle_schema_missing",
+            "Canonical localization bundle schema missing",
             "Localization",
-            fs::path("content") / "schemas" / "localization_catalog.schema.json",
+            fs::path("content") / "schemas" / "localization_bundle.schema.json",
         },
         {
-            "localization_artifact.extractor_missing",
-            "Canonical localization extractor missing",
+            "localization_artifact.locale_catalog_runtime_missing",
+            "Canonical localization catalog runtime missing",
             "Localization",
-            fs::path("tools") / "localization" / "extract_localization.cpp",
+            fs::path("engine") / "core" / "localization" / "locale_catalog.cpp",
         },
         {
-            "localization_artifact.writeback_missing",
-            "Canonical localization writeback tool missing",
+            "localization_artifact.completeness_checker_missing",
+            "Canonical localization completeness checker missing",
             "Localization",
-            fs::path("tools") / "localization" / "writeback_localization.cpp",
+            fs::path("engine") / "core" / "localization" / "completeness_checker.cpp",
         },
         {
             "localization_artifact.ci_gate_missing",
@@ -2306,6 +2461,33 @@ json buildReport(const json& readiness,
         summary << " Template-spec artifact issues: " << templateSpecArtifactIssueCount << ".";
     }
 
+    json assetReportGovernance = {
+        {"path", assetReportContext.path.string()},
+        {"explicit", assetReportContext.explicitPath},
+        {"available", assetReportContext.report.has_value() || assetReportContext.loadWarning.has_value()},
+        {"usable", assetReportContext.report.has_value()},
+        {"issueCount", assetGovernanceIssueCount},
+    };
+    if (assetReportContext.report.has_value() && assetReportContext.report->is_object() &&
+        assetReportContext.report->contains("summary") && assetReportContext.report->at("summary").is_object()) {
+        const auto assetSummary = readAssetReportSummary(assetReportContext.report->at("summary"));
+        if (assetSummary.normalized.has_value()) {
+            assetReportGovernance["normalizedCount"] = *assetSummary.normalized;
+        }
+        if (assetSummary.promoted.has_value()) {
+            assetReportGovernance["promotedCount"] = *assetSummary.promoted;
+        }
+        if (assetSummary.promotedVisualLanes.has_value()) {
+            assetReportGovernance["promotedVisualLaneCount"] = *assetSummary.promotedVisualLanes;
+        }
+        if (assetSummary.promotedAudioLanes.has_value()) {
+            assetReportGovernance["promotedAudioLaneCount"] = *assetSummary.promotedAudioLanes;
+        }
+        if (assetSummary.wysiwygSmokeProofs.has_value()) {
+            assetReportGovernance["wysiwygSmokeProofCount"] = *assetSummary.wysiwygSmokeProofs;
+        }
+    }
+
     return json{
         {"schemaVersion", getString(readiness, "schemaVersion", "1.0.0")},
         {"statusDate", getString(readiness, "statusDate")},
@@ -2320,14 +2502,7 @@ json buildReport(const json& readiness,
             }},
         {"governance",
             {
-                {"assetReport",
-                    {
-                        {"path", assetReportContext.path.string()},
-                        {"explicit", assetReportContext.explicitPath},
-                        {"available", assetReportContext.report.has_value() || assetReportContext.loadWarning.has_value()},
-                        {"usable", assetReportContext.report.has_value()},
-                        {"issueCount", assetGovernanceIssueCount},
-                    }},
+                {"assetReport", assetReportGovernance},
                 {"schema", governanceReport["schema"]},
                 {"projectSchema", governanceReport["projectSchema"]},
                 {"localizationArtifacts", governanceReport["localizationArtifacts"]},

@@ -50,6 +50,21 @@ const CommandT* renderCommandAs(const StoredCommand& command) {
     }
 }
 
+urpg::Value colorObject(uint8_t r, uint8_t g, uint8_t b, uint8_t a = 255) {
+    urpg::Object object;
+    object["r"] = urpg::Value::Int(r);
+    object["g"] = urpg::Value::Int(g);
+    object["b"] = urpg::Value::Int(b);
+    object["a"] = urpg::Value::Int(a);
+    return urpg::Value::Obj(std::move(object));
+}
+
+urpg::Value stringValue(const std::string& value) {
+    urpg::Value out;
+    out.v = value;
+    return out;
+}
+
 } // namespace
 
 // ============================================================================
@@ -411,13 +426,27 @@ TEST_CASE("Window_Base drawGauge submits RectCommands", "[compat][window]") {
     window.drawGauge(10, 20, 100, 0.75, Color{255, 0, 0, 255}, Color{0, 255, 0, 255});
 
     const auto& commands = renderFrameCommands(layer);
-    REQUIRE(commands.size() >= 2);
-    REQUIRE(renderCommandType(commands[commands.size() - 2]) == urpg::RenderCmdType::Rect);
-    REQUIRE(renderCommandType(commands[commands.size() - 1]) == urpg::RenderCmdType::Rect);
+    REQUIRE(commands.size() >= 9);
+    REQUIRE(renderCommandType(commands.front()) == urpg::RenderCmdType::Rect);
+
+    float totalFillWidth = 0.0f;
+    for (std::size_t index = 1; index < commands.size(); ++index) {
+        REQUIRE(renderCommandType(commands[index]) == urpg::RenderCmdType::Rect);
+        const auto* segment = renderCommandAs<urpg::RectRenderData>(commands[index]);
+        REQUIRE(segment != nullptr);
+        totalFillWidth += segment->w;
+    }
+    REQUIRE(totalFillWidth == Catch::Approx(75.0f));
+
+    const auto* firstFillCmd = renderCommandAs<urpg::RectRenderData>(commands[1]);
+    REQUIRE(firstFillCmd != nullptr);
+    REQUIRE(firstFillCmd->r == Catch::Approx(1.0f));
+    REQUIRE(firstFillCmd->g == Catch::Approx(0.0f));
 
     const auto* fillCmd = renderCommandAs<urpg::RectRenderData>(commands.back());
     REQUIRE(fillCmd != nullptr);
-    REQUIRE(fillCmd->w == 75.0f);
+    REQUIRE(fillCmd->r == Catch::Approx(0.0f));
+    REQUIRE(fillCmd->g == Catch::Approx(1.0f));
 }
 
 TEST_CASE("Window_Base drawCharacter submits SpriteCommand", "[compat][window]") {
@@ -483,6 +512,89 @@ TEST_CASE("Window_Base registerAPI bindings route through default instance", "[c
 
     REQUIRE(result.success);
     REQUIRE_FALSE(std::holds_alternative<std::monostate>(result.value.v));
+
+    Window_Base::setDefaultInstance(nullptr);
+}
+
+TEST_CASE("Window_Base registerAPI parses color objects and strings", "[compat][window]") {
+    Window_Base window(Window_Base::CreateParams{});
+    Window_Base::setDefaultInstance(&window);
+
+    QuickJSContext ctx;
+    REQUIRE(ctx.initialize(QuickJSConfig{}));
+    Window_Base::registerAPI(ctx);
+
+    auto objectResult = ctx.callMethod(
+        "Window_Base",
+        "changeTextColor",
+        std::vector<urpg::Value>{colorObject(12, 34, 56, 128)});
+
+    REQUIRE(objectResult.success);
+    Color objectColor = window.textColor();
+    REQUIRE(objectColor.r == 12);
+    REQUIRE(objectColor.g == 34);
+    REQUIRE(objectColor.b == 56);
+    REQUIRE(objectColor.a == 128);
+
+    auto stringResult = ctx.callMethod(
+        "Window_Base",
+        "changeTextColor",
+        std::vector<urpg::Value>{stringValue("#102030")});
+
+    REQUIRE(stringResult.success);
+    Color stringColor = window.textColor();
+    REQUIRE(stringColor.r == 0x10);
+    REQUIRE(stringColor.g == 0x20);
+    REQUIRE(stringColor.b == 0x30);
+    REQUIRE(stringColor.a == 255);
+
+    Window_Base::setDefaultInstance(nullptr);
+}
+
+TEST_CASE("Window_Base registerAPI drawGauge uses parsed gradient colors", "[compat][window]") {
+    auto& layer = urpg::RenderLayer::getInstance();
+    layer.flush();
+
+    Window_Base window(Window_Base::CreateParams{});
+    Window_Base::setDefaultInstance(&window);
+
+    QuickJSContext ctx;
+    REQUIRE(ctx.initialize(QuickJSConfig{}));
+    Window_Base::registerAPI(ctx);
+
+    auto result = ctx.callMethod(
+        "Window_Base",
+        "drawGauge",
+        std::vector<urpg::Value>{
+            urpg::Value::Int(0),
+            urpg::Value::Int(0),
+            urpg::Value::Int(80),
+            [] {
+                urpg::Value rate;
+                rate.v = 0.5;
+                return rate;
+            }(),
+            colorObject(200, 10, 20),
+            stringValue("#0010ff80"),
+        });
+
+    REQUIRE(result.success);
+
+    const auto& commands = renderFrameCommands(layer);
+    REQUIRE(commands.size() >= 9);
+
+    const auto* firstFillCmd = renderCommandAs<urpg::RectRenderData>(commands[1]);
+    REQUIRE(firstFillCmd != nullptr);
+    REQUIRE(firstFillCmd->r == Catch::Approx(200.0f / 255.0f));
+    REQUIRE(firstFillCmd->g == Catch::Approx(10.0f / 255.0f));
+    REQUIRE(firstFillCmd->b == Catch::Approx(20.0f / 255.0f));
+
+    const auto* lastFillCmd = renderCommandAs<urpg::RectRenderData>(commands.back());
+    REQUIRE(lastFillCmd != nullptr);
+    REQUIRE(lastFillCmd->r == Catch::Approx(0.0f));
+    REQUIRE(lastFillCmd->g == Catch::Approx(16.0f / 255.0f));
+    REQUIRE(lastFillCmd->b == Catch::Approx(1.0f));
+    REQUIRE(lastFillCmd->a == Catch::Approx(128.0f / 255.0f));
 
     Window_Base::setDefaultInstance(nullptr);
 }

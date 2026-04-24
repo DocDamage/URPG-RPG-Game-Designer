@@ -149,7 +149,12 @@ TEST_CASE("DiagnosticsWorkspace - Refresh updates compat and save tabs", "[edito
                 {"path", "imports/reports/asset_audit.json"},
                 {"available", true},
                 {"usable", false},
-                {"issueCount", 2}
+                {"issueCount", 2},
+                {"normalizedCount", 2},
+                {"promotedCount", 2},
+                {"promotedVisualLaneCount", 1},
+                {"promotedAudioLaneCount", 1},
+                {"wysiwygSmokeProofCount", 1}
             }},
             {"schema", {
                 {"schemaExists", true},
@@ -634,6 +639,11 @@ TEST_CASE("DiagnosticsWorkspace - Refresh updates compat and save tabs", "[edito
     REQUIRE(auditJson["active_tab_detail"]["governance"]["asset_report"]["available"] == true);
     REQUIRE(auditJson["active_tab_detail"]["governance"]["asset_report"]["usable"] == false);
     REQUIRE(auditJson["active_tab_detail"]["governance"]["asset_report"]["issue_count"] == 2);
+    REQUIRE(auditJson["active_tab_detail"]["governance"]["asset_report"]["normalized_count"] == 2);
+    REQUIRE(auditJson["active_tab_detail"]["governance"]["asset_report"]["promoted_count"] == 2);
+    REQUIRE(auditJson["active_tab_detail"]["governance"]["asset_report"]["promoted_visual_lane_count"] == 1);
+    REQUIRE(auditJson["active_tab_detail"]["governance"]["asset_report"]["promoted_audio_lane_count"] == 1);
+    REQUIRE(auditJson["active_tab_detail"]["governance"]["asset_report"]["wysiwyg_smoke_proof_count"] == 1);
     REQUIRE(auditJson["active_tab_detail"]["governance"]["schema"]["schema_exists"] == true);
     REQUIRE(auditJson["active_tab_detail"]["governance"]["schema"]["changelog_exists"] == false);
     REQUIRE(auditJson["active_tab_detail"]["governance"]["schema"]["mentions_schema_version"] == true);

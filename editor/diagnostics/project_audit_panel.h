@@ -28,6 +28,11 @@ struct ProjectAuditAssetReportSnapshot {
     std::optional<bool> available;
     std::optional<bool> usable;
     std::optional<size_t> issue_count;
+    std::optional<size_t> normalized_count;
+    std::optional<size_t> promoted_count;
+    std::optional<size_t> promoted_visual_lane_count;
+    std::optional<size_t> promoted_audio_lane_count;
+    std::optional<size_t> wysiwyg_smoke_proof_count;
 };
 
 struct ProjectAuditSchemaGovernanceSnapshot {
