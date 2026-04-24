@@ -37,7 +37,7 @@ Compared with similar tools, URPG is differentiated by:
 
 ## Current State
 
-Status date: 2026-04-22
+Status date: 2026-04-24
 
 What is true in the current tree:
 
@@ -64,6 +64,8 @@ For canonical status, use:
 - [Technical Debt Remediation Plan](./docs/TECHNICAL_DEBT_REMEDIATION_PLAN.md)
 - [Native Feature Absorption Plan](./docs/NATIVE_FEATURE_ABSORPTION_PLAN.md)
 - [Release Readiness Matrix](./docs/RELEASE_READINESS_MATRIX.md)
+- [Future Feature Upgrade Plans](./docs/FUTURE_FEATURE_UPGRADE_PLANS.md)
+- [Future Feature Actionable Sprint Plan](./docs/FUTURE_FEATURE_ACTIONABLE_SPRINT_PLAN.md)
 
 ## What Is Landed
 
@@ -112,6 +114,126 @@ Those are not separate from the WYSIWYG goal. Each one still needs both:
 
 - runtime capability
 - easy visual authoring and live preview
+
+## Future Work Roadmap
+
+The future roadmap is intentionally separated from current readiness claims. These items are planned product direction, not automatic `READY` commitments. Each one should land as a narrow, evidence-backed vertical slice with runtime code, editor workflow, schema or fixtures where needed, diagnostics, tests, docs, and conservative readiness updates.
+
+Detailed planning lives in:
+
+- [Future Feature Upgrade Plans](./docs/FUTURE_FEATURE_UPGRADE_PLANS.md)
+- [Future Feature Actionable Sprint Plan](./docs/FUTURE_FEATURE_ACTIONABLE_SPRINT_PLAN.md)
+
+### First product upgrades
+
+- Project Health / Readiness Dashboard: turn audit, readiness, schema, asset, and blocker signals into editor-facing fix guidance.
+- Real Asset Library + Asset Intake UX: expose provenance, license state, duplicate detection, missing references, import normalization, and cleanup previews.
+- Visual Event Authoring: add a no-code event-page workflow for conditions, commands, switches, variables, movement, messages, battles, transfers, and common events.
+- Plugin Compatibility Inspector: surface plugin manifests, dependencies, permissions, unsupported calls, load order, fallback behavior, and shim hints.
+- Battle Presentation Authoring: give creators control over battlebacks, HUD layout, cues, popups, icons, music, and deterministic preview playback.
+- Tilemap / Terrain / Layer Upgrade: improve spatial authoring with terrain sets, layer locking, collision/navigation metadata, overpasses, and runtime-preview parity.
+- Export Runtime Hardening: add runtime-side `data.pck` signature enforcement, atomic bundle publication, release comparison, patching, and clearer export artifact reporting.
+- Starter Project Templates: ship polished JRPG, Visual Novel, and Turn-Based RPG starters with maps, dialogue, battle, save/load, menus, export profiles, and readiness evidence.
+- Save/Load Debugger: inspect slots, recovery tiers, migration notes, corrupted payloads, subsystem state, and save compatibility.
+- One-Click Dev Room Test Harness: generate a test scene that exercises events, battle, save/load, plugins, audio, input, and export warnings.
+
+### Second-wave authoring systems
+
+- Guided New Project Wizard.
+- Quest / Objective System.
+- Dialogue Graph Editor.
+- Common Event Library.
+- Database Editor Parity Pass.
+- Cutscene / Timeline Sequencer.
+- In-Editor Playtest With Time Travel.
+- Localization Workspace.
+- Accessibility Authoring Assistant.
+- Formula / Rule Debugger.
+- Economy Balancer.
+- Encounter Table Editor.
+- World Map / Travel System.
+- 2D Lighting / Weather Authoring.
+- Sprite / Animation Import Pipeline.
+- Controller + Keyboard Remap UX.
+- Crash / Diagnostics Bundle Export.
+- Mod SDK Documentation + Sample Mod.
+- Cloud-Free Backup / Project Snapshotting.
+- Tutorial Project + Interactive Lessons.
+
+### Differentiating "magic layer" upgrades
+
+- Procedural Dungeon / Map Generator.
+- Flag / Switch / Variable Dependency Graph.
+- Narrative Continuity Checker.
+- Event Macro Recorder.
+- Local AI Design Assistant with opt-in providers and no runtime dependency.
+- Smart Autofill Database Tools.
+- Visual Diff For Game Data.
+- Local-only Authoring Heatmaps.
+- Deterministic Replay Gallery.
+- Boss Fight Designer.
+- State Machine Visualizer.
+- Content Completeness Score.
+- In-Editor Screenshot / Trailer Capture.
+- Theme / UI Skin Builder.
+- Relationship / Reputation System.
+- Crafting / Recipe System.
+- Bestiary / Codex System.
+- Photo Mode / Diorama Mode.
+- Patch / DLC Builder.
+- Creator Marketplace-Ready Packaging.
+
+### Fourth-wave genre and depth systems
+
+- Enemy AI Behavior Designer.
+- Party Tactics / Auto-Battle Planner.
+- Job / Class Progression Designer.
+- Skill Combo / Synergy System.
+- Loot Affix / Rarity Generator.
+- Tactical Grid / Range Preview Toolkit.
+- Puzzle / Lock-Key System.
+- Shop / Vendor Designer.
+- Inn / Rest / Recovery System.
+- Calendar / Time-of-Day System.
+- NPC Schedule / Routine Designer.
+- Reputation-Gated Content Browser.
+- Map Region Rules Editor.
+- Spawn / Respawn System.
+- Runtime Tutorial / Hint System.
+- Player Choice Consequence Tracker.
+- Ending / Route Manager.
+- Save Compatibility / Migration Previewer.
+- Device / Platform Preview Profiles.
+- Local Co-Author Review Workflow.
+
+### Planned follow-on upgrades
+
+- Guided remediation workflows for the Project Health / Readiness Dashboard.
+- Auto-cleanup and provenance packets for the asset library.
+- Event debugger with breakpoints for visual event authoring.
+- Compatibility scoring and shim hints for plugin inspection.
+- Phase timelines and cue choreography for battle presentation.
+- Advanced brushes and chunked validation for tilemaps.
+- Release candidate comparison for export hardening.
+- Template certification suites for starter projects.
+- Corruption lab and recovery simulation for save/load debugging.
+- Auto-generated regression routes for dev rooms.
+- Quest graph and route coverage.
+- Dialogue text pipeline integration.
+- Parametric common-event recipes.
+- Bulk edit and validation lanes for database editing.
+- Runtime capture and replay for cutscenes.
+- Bug repro export for playtest time travel.
+- Translation memory and glossary support for localization.
+- Accessibility preview modes.
+- Batch balance probes for formulas and rules.
+- Playthrough economy simulation.
+- Difficulty-curve visualization for encounters.
+- Generator profiles and constraints for procedural maps.
+- Auto-fix and impact preview for dependency graphs.
+- Route proof reports for narrative continuity.
+- Golden replay CI lanes.
+- Guardrailed source attribution and review state for AI suggestions.
 
 ## Architecture
 
