@@ -1,4 +1,5 @@
 #include "tools/audit/project_audit_asset_report.h"
+#include "tools/audit/project_audit_template_spec.h"
 
 #include <algorithm>
 #include <cstdint>
@@ -16,7 +17,12 @@
 namespace fs = std::filesystem;
 using json = nlohmann::json;
 using urpg::tools::audit::getInteger;
+using urpg::tools::audit::extractTemplateSpecBars;
+using urpg::tools::audit::extractTemplateSpecRequiredSubsystems;
+using urpg::tools::audit::inspectProjectSchemaGovernance;
+using urpg::tools::audit::joinItems;
 using urpg::tools::audit::readAssetReportSummary;
+using urpg::tools::audit::templateBarDisplayName;
 
 namespace {
 
@@ -104,136 +110,6 @@ std::vector<std::string> getStringArray(const json& value, const std::string& ke
     }
 
     return items;
-}
-
-std::string trim(const std::string& text) {
-    const auto begin = text.find_first_not_of(" \t\r\n");
-    if (begin == std::string::npos) {
-        return "";
-    }
-
-    const auto end = text.find_last_not_of(" \t\r\n");
-    return text.substr(begin, end - begin + 1);
-}
-
-bool startsWith(const std::string& value, const std::string& prefix) {
-    return value.size() >= prefix.size() && value.compare(0, prefix.size(), prefix) == 0;
-}
-
-std::optional<std::string> extractBacktickValue(const std::string& line) {
-    const auto firstTick = line.find('`');
-    if (firstTick == std::string::npos) {
-        return std::nullopt;
-    }
-
-    const auto secondTick = line.find('`', firstTick + 1);
-    if (secondTick == std::string::npos || secondTick <= firstTick + 1) {
-        return std::nullopt;
-    }
-
-    return line.substr(firstTick + 1, secondTick - firstTick - 1);
-}
-
-std::string templateBarDisplayName(const std::string& barName) {
-    if (barName == "accessibility") {
-        return "Accessibility";
-    }
-    if (barName == "audio") {
-        return "Audio";
-    }
-    if (barName == "input") {
-        return "Input";
-    }
-    if (barName == "localization") {
-        return "Localization";
-    }
-    if (barName == "performance") {
-        return "Performance";
-    }
-    return barName;
-}
-
-std::vector<std::string> extractTemplateSpecRequiredSubsystems(const std::string& text) {
-    std::vector<std::string> subsystems;
-    std::istringstream stream(text);
-    std::string line;
-    bool inRequiredSubsystems = false;
-
-    while (std::getline(stream, line)) {
-        const std::string trimmedLine = trim(line);
-        if (startsWith(trimmedLine, "## ")) {
-            inRequiredSubsystems = trimmedLine == "## Required Subsystems";
-            continue;
-        }
-
-        if (!inRequiredSubsystems || !startsWith(trimmedLine, "| `")) {
-            continue;
-        }
-
-        const auto subsystem = extractBacktickValue(trimmedLine);
-        if (subsystem.has_value()) {
-            subsystems.push_back(*subsystem);
-        }
-    }
-
-    std::sort(subsystems.begin(), subsystems.end());
-    subsystems.erase(std::unique(subsystems.begin(), subsystems.end()), subsystems.end());
-    return subsystems;
-}
-
-json extractTemplateSpecBars(const std::string& text) {
-    json bars = json::object();
-    std::istringstream stream(text);
-    std::string line;
-    bool inCrossCuttingBars = false;
-
-    while (std::getline(stream, line)) {
-        const std::string trimmedLine = trim(line);
-        if (startsWith(trimmedLine, "## ")) {
-            inCrossCuttingBars = trimmedLine == "## Cross-Cutting Minimum Bars";
-            continue;
-        }
-
-        if (!inCrossCuttingBars || !startsWith(trimmedLine, "| ")) {
-            continue;
-        }
-
-        const auto firstSeparator = trimmedLine.find('|', 2);
-        if (firstSeparator == std::string::npos) {
-            continue;
-        }
-
-        const std::string barLabel = trim(trimmedLine.substr(2, firstSeparator - 2));
-        const auto statusValue = extractBacktickValue(trimmedLine);
-        if (!statusValue.has_value()) {
-            continue;
-        }
-
-        if (barLabel == "Accessibility") {
-            bars["accessibility"] = *statusValue;
-        } else if (barLabel == "Audio") {
-            bars["audio"] = *statusValue;
-        } else if (barLabel == "Input") {
-            bars["input"] = *statusValue;
-        } else if (barLabel == "Localization") {
-            bars["localization"] = *statusValue;
-        } else if (barLabel == "Performance") {
-            bars["performance"] = *statusValue;
-        }
-    }
-
-    return bars;
-}
-
-std::string joinItems(const std::vector<std::string>& items) {
-    std::ostringstream buffer;
-    for (std::size_t i = 0; i < items.size(); ++i) {
-        if (i > 0) {
-            buffer << ", ";
-        }
-        buffer << items[i];
-    }
-    return buffer.str();
 }
 
 json makeIssue(const AuditIssue& issue) {
@@ -800,86 +676,6 @@ bool templateBarNeedsProjectArtifact(const TemplateContext& templateContext, con
     return it->get<std::string>() != "READY";
 }
 
-const json* projectSchemaProperty(const json& schema, const char* propertyName) {
-    if (!schema.is_object() || !schema.contains("properties") || !schema.at("properties").is_object()) {
-        return nullptr;
-    }
-    const auto it = schema.at("properties").find(propertyName);
-    if (it == schema.at("properties").end() || !it->is_object()) {
-        return nullptr;
-    }
-    return &(*it);
-}
-
-bool jsonStringArrayContains(const json& value, const char* expected) {
-    if (!value.is_array()) {
-        return false;
-    }
-
-    for (const auto& entry : value) {
-        if (entry.is_string() && entry.get<std::string>() == expected) {
-            return true;
-        }
-    }
-
-    return false;
-}
-
-bool projectSchemaObjectSectionHasRequiredProperties(const json& schema,
-                                                     const char* propertyName,
-                                                     const std::vector<const char*>& requiredProperties) {
-    const json* section = projectSchemaProperty(schema, propertyName);
-    if (section == nullptr || getString(*section, "type") != "object") {
-        return false;
-    }
-
-    if (!section->contains("properties") || !section->at("properties").is_object() ||
-        !section->contains("required") || !section->at("required").is_array()) {
-        return false;
-    }
-
-    for (const char* requiredProperty : requiredProperties) {
-        if (!section->at("properties").contains(requiredProperty) ||
-            !jsonStringArrayContains(section->at("required"), requiredProperty)) {
-            return false;
-        }
-    }
-
-    return true;
-}
-
-bool projectSchemaHasExportProfilesSection(const json& schema) {
-    const json* section = projectSchemaProperty(schema, "exportProfiles");
-    if (section == nullptr || getString(*section, "type") != "array") {
-        return false;
-    }
-
-    if (!section->contains("items") || !section->at("items").is_object()) {
-        return false;
-    }
-
-    const json& items = section->at("items");
-    if (getString(items, "type") != "object" || !items.contains("properties") || !items.at("properties").is_object() ||
-        !items.contains("required") || !items.at("required").is_array()) {
-        return false;
-    }
-
-    const std::vector<const char*> requiredProperties = {
-        "id",
-        "target",
-        "configSchemaPath",
-        "validationReportSchemaPath",
-    };
-    for (const char* requiredProperty : requiredProperties) {
-        if (!items.at("properties").contains(requiredProperty) ||
-            !jsonStringArrayContains(items.at("required"), requiredProperty)) {
-            return false;
-        }
-    }
-
-    return true;
-}
-
 void addProjectArtifactIssues(const TemplateContext& templateContext,
                               const ProjectSchemaContext& projectSchemaContext,
                               std::vector<AuditIssue>& issues,
@@ -907,29 +703,17 @@ void addProjectArtifactIssues(const TemplateContext& templateContext,
         return;
     }
 
-    const json& schema = *projectSchemaContext.schema;
-    const bool hasLocalizationProperty = projectSchemaProperty(schema, "localization") != nullptr;
-    const bool hasInputProperty = projectSchemaProperty(schema, "input") != nullptr;
-    const bool hasExportProfilesProperty = projectSchemaProperty(schema, "exportProfiles") != nullptr;
-    const bool localizationSectionOk = projectSchemaObjectSectionHasRequiredProperties(
-        schema,
-        "localization",
-        {"bundleRoot", "schemaPath", "reportPath", "requiredLocales"});
-    const bool inputSectionOk = projectSchemaObjectSectionHasRequiredProperties(
-        schema,
-        "input",
-        {"bindingSchemaPath", "controllerBindingSchemaPath", "fixturePath"});
-    const bool exportSectionOk = projectSchemaHasExportProfilesSection(schema);
+    const auto schemaGovernance = inspectProjectSchemaGovernance(*projectSchemaContext.schema);
 
     governanceReport["projectSchema"]["canonicalLocalizationProperty"] = "localization";
     governanceReport["projectSchema"]["canonicalInputProperty"] = "input";
     governanceReport["projectSchema"]["canonicalExportProperty"] = "exportProfiles";
-    governanceReport["projectSchema"]["hasLocalizationSection"] = localizationSectionOk;
-    governanceReport["projectSchema"]["hasInputSection"] = inputSectionOk;
-    governanceReport["projectSchema"]["hasExportSection"] = exportSectionOk;
+    governanceReport["projectSchema"]["hasLocalizationSection"] = schemaGovernance.localizationSectionOk;
+    governanceReport["projectSchema"]["hasInputSection"] = schemaGovernance.inputSectionOk;
+    governanceReport["projectSchema"]["hasExportSection"] = schemaGovernance.exportProfilesSectionOk;
 
     if (templateBarNeedsProjectArtifact(templateContext, "localization") &&
-        !hasLocalizationProperty) {
+        !schemaGovernance.hasLocalizationProperty) {
         issues.push_back({
             "project_schema.localization_missing",
             "Project schema has no localization governance section",
@@ -942,8 +726,8 @@ void addProjectArtifactIssues(const TemplateContext& templateContext,
         ++projectArtifactIssueCount;
     }
 
-    if (templateBarNeedsProjectArtifact(templateContext, "localization") && hasLocalizationProperty &&
-        !localizationSectionOk) {
+    if (templateBarNeedsProjectArtifact(templateContext, "localization") &&
+        schemaGovernance.hasLocalizationProperty && !schemaGovernance.localizationSectionOk) {
         issues.push_back({
             "project_schema.localization_malformed",
             "Project schema localization governance section is malformed",
@@ -957,7 +741,7 @@ void addProjectArtifactIssues(const TemplateContext& templateContext,
         ++projectArtifactIssueCount;
     }
 
-    if (templateBarNeedsProjectArtifact(templateContext, "input") && !hasInputProperty) {
+    if (templateBarNeedsProjectArtifact(templateContext, "input") && !schemaGovernance.hasInputProperty) {
         issues.push_back({
             "project_schema.input_governance_missing",
             "Project schema has no input governance section",
@@ -970,7 +754,8 @@ void addProjectArtifactIssues(const TemplateContext& templateContext,
         ++projectArtifactIssueCount;
     }
 
-    if (templateBarNeedsProjectArtifact(templateContext, "input") && hasInputProperty && !inputSectionOk) {
+    if (templateBarNeedsProjectArtifact(templateContext, "input") && schemaGovernance.hasInputProperty &&
+        !schemaGovernance.inputSectionOk) {
         issues.push_back({
             "project_schema.input_governance_malformed",
             "Project schema input governance section is malformed",
@@ -985,7 +770,7 @@ void addProjectArtifactIssues(const TemplateContext& templateContext,
     }
 
     if ((isPartialStatus(templateContext.status) || isExperimentalStatus(templateContext.status)) &&
-        !hasExportProfilesProperty) {
+        !schemaGovernance.hasExportProfilesProperty) {
         issues.push_back({
             "project_schema.export_governance_missing",
             "Project schema has no export governance section",
@@ -999,7 +784,7 @@ void addProjectArtifactIssues(const TemplateContext& templateContext,
     }
 
     if ((isPartialStatus(templateContext.status) || isExperimentalStatus(templateContext.status)) &&
-        hasExportProfilesProperty && !exportSectionOk) {
+        schemaGovernance.hasExportProfilesProperty && !schemaGovernance.exportProfilesSectionOk) {
         issues.push_back({
             "project_schema.export_governance_malformed",
             "Project schema export governance section is malformed",

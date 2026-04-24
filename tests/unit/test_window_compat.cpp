@@ -426,17 +426,29 @@ TEST_CASE("Window_Base drawGauge submits RectCommands", "[compat][window]") {
     window.drawGauge(10, 20, 100, 0.75, Color{255, 0, 0, 255}, Color{0, 255, 0, 255});
 
     const auto& commands = renderFrameCommands(layer);
-    REQUIRE(commands.size() >= 9);
+    REQUIRE(commands.size() == 9);
     REQUIRE(renderCommandType(commands.front()) == urpg::RenderCmdType::Rect);
 
+    const auto* background = renderCommandAs<urpg::RectRenderData>(commands.front());
+    REQUIRE(background != nullptr);
+    REQUIRE(background->w == Catch::Approx(100.0f));
+    REQUIRE(background->h == Catch::Approx(12.0f));
+
     float totalFillWidth = 0.0f;
+    float expectedX = commands.front().x;
+    const float expectedY = commands.front().y;
     for (std::size_t index = 1; index < commands.size(); ++index) {
         REQUIRE(renderCommandType(commands[index]) == urpg::RenderCmdType::Rect);
         const auto* segment = renderCommandAs<urpg::RectRenderData>(commands[index]);
         REQUIRE(segment != nullptr);
+        REQUIRE(commands[index].x == Catch::Approx(expectedX));
+        REQUIRE(commands[index].y == Catch::Approx(expectedY));
+        REQUIRE(segment->h == Catch::Approx(12.0f));
         totalFillWidth += segment->w;
+        expectedX += segment->w;
     }
     REQUIRE(totalFillWidth == Catch::Approx(75.0f));
+    REQUIRE(expectedX == Catch::Approx(commands.front().x + 75.0f));
 
     const auto* firstFillCmd = renderCommandAs<urpg::RectRenderData>(commands[1]);
     REQUIRE(firstFillCmd != nullptr);

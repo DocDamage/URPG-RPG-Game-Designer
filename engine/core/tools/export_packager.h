@@ -4,10 +4,9 @@
 #include <vector>
 #include <map>
 #include <chrono>
-#include <fstream>
 #include <filesystem>
-// Note: license audit and plugin manifest integration are stubbed;
-// this header is intentionally self-contained to avoid missing dependency headers.
+// This header is intentionally self-contained to avoid pulling implementation
+// details for asset governance and bundle serialization into callers.
 
 namespace urpg::tools {
 
@@ -65,11 +64,9 @@ namespace urpg::tools {
         ExportValidationResult validateBeforeExport(const ExportConfig& config) const;
 
     private:
-        bool runLicenseAudit(std::string& log);
+        bool runLicenseAudit(const ExportConfig& config, std::string& log);
         std::vector<std::string> bundleAssets(const ExportConfig& config, std::string& log);
         void packScripts(const ExportConfig& config, std::string& log);
-        std::vector<std::string> synthesizeExecutable(const ExportConfig& config, std::string& log);
-        std::vector<std::string> stageRealWindowsRuntime(const ExportConfig& config, std::string& log);
         std::string targetToString(ExportTarget t);
     };
 

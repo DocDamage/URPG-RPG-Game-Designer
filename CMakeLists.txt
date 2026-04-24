@@ -270,13 +270,20 @@ add_library(urpg_core
     engine/core/mod/mod_loader.cpp
     engine/core/export/export_validator.cpp
     engine/core/tools/export_packager.cpp
+    engine/core/tools/export_packager_bundle_writer.cpp
+    engine/core/tools/export_packager_executable_staging.cpp
+    engine/core/tools/export_packager_license_audit.cpp
+    engine/core/tools/export_packager_payload_builder.cpp
     engine/core/level/level_assembly.cpp
     engine/core/ui/menu_serializer.cpp
     engine/core/scene/battle_scene.cpp
     engine/core/scene/map_scene.cpp
     engine/core/scene/menu_scene.cpp
     runtimes/compat_js/quickjs_runtime.cpp
+    runtimes/compat_js/window_color_parser.cpp
     runtimes/compat_js/window_compat.cpp
+    runtimes/compat_js/window_render_helpers.cpp
+    runtimes/compat_js/window_text_layout.cpp
     runtimes/compat_js/global_state_bridge.cpp
     runtimes/compat_js/battle_manager.cpp
     runtimes/compat_js/data_manager.cpp
@@ -466,6 +473,7 @@ target_include_directories(urpg_migrate PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
 
 add_executable(urpg_project_audit
     tools/audit/project_audit_asset_report.cpp
+    tools/audit/project_audit_template_spec.cpp
     tools/audit/urpg_project_audit.cpp
 )
 

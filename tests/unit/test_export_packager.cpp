@@ -8,6 +8,7 @@
 #include <fstream>
 #include <cstdlib>
 #include <chrono>
+#include <limits>
 #include <sstream>
 #include <string>
 #include <vector>
@@ -28,6 +29,35 @@ void WriteFile(const std::filesystem::path& path, const std::string& content = "
     std::filesystem::create_directories(path.parent_path());
     std::ofstream out(path, std::ios::binary);
     out << content;
+}
+
+void WritePromotedSourceManifest(const std::filesystem::path& root,
+                                 const std::string& sourceId,
+                                 const std::string& legalDisposition = "cc0_candidate_recorded_for_export") {
+    WriteFile(
+        root / "asset_sources" / (sourceId + ".json"),
+        "{\n"
+        "  \"source_id\": \"" + sourceId + "\",\n"
+        "  \"repo_name\": \"test/source\",\n"
+        "  \"source_url\": \"https://example.invalid/assets\",\n"
+        "  \"legal_disposition\": \"" + legalDisposition + "\",\n"
+        "  \"promotion_status\": \"promoted\"\n"
+        "}\n");
+}
+
+void WriteAssetLicenseManifest(const std::filesystem::path& root, const std::vector<std::string>& paths) {
+    nlohmann::json manifest;
+    manifest["format"] = "URPG_ASSET_LICENSES_V1";
+    manifest["assets"] = nlohmann::json::array();
+    for (const auto& path : paths) {
+        manifest["assets"].push_back({
+            {"path", path},
+            {"license", "MIT"},
+            {"attribution", "URPG test fixture"},
+            {"sourceUrl", "https://example.invalid/assets"},
+        });
+    }
+    WriteFile(root / "asset_licenses.json", manifest.dump(2) + "\n");
 }
 
 std::vector<uint8_t> ReadFileBytes(const std::filesystem::path& path) {
@@ -565,6 +595,7 @@ TEST_CASE("ExportPackager stages promoted asset bundles from governed manifests"
     std::filesystem::remove_all(base);
     std::filesystem::create_directories(manifestRoot);
     std::filesystem::create_directories(normalizedRoot);
+    WritePromotedSourceManifest(base, "SRC-002");
 
     WriteFile(
         manifestRoot / "BND-900.json",
@@ -682,6 +713,95 @@ TEST_CASE("ExportPackager stages promoted asset bundles from governed manifests"
     std::filesystem::remove_all(base);
 }
 
+TEST_CASE("ExportPackager fails closed when promoted asset source license evidence is missing",
+          "[export][packager][security]") {
+    const auto base = std::filesystem::temp_directory_path() / "urpg_export_packager_missing_source_license";
+    const auto manifestRoot = base / "asset_bundles";
+    const auto normalizedRoot = base / "normalized";
+    std::filesystem::remove_all(base);
+
+    WriteFile(
+        manifestRoot / "BND-910.json",
+        R"({
+  "bundle_id": "BND-910",
+  "bundle_name": "missing_source_license",
+  "source_id": "SRC-910",
+  "bundle_state": "promoted",
+  "assets": [
+    {
+      "original_relative_path": "sprites/hero.svg",
+      "promoted_relative_path": "prototype_sprites/hero.svg",
+      "category": "prototype_sprite",
+      "status": "promoted"
+    }
+  ]
+}
+)");
+    WriteFile(normalizedRoot / "prototype_sprites" / "hero.svg", "<svg></svg>");
+
+    ExportPackager packager;
+    ExportConfig config{};
+    config.target = ExportTarget::Windows_x64;
+    config.outputDir = (base / "out").string();
+    config.assetBundleManifestRootOverride = manifestRoot.string();
+    config.normalizedAssetRootOverride = normalizedRoot.string();
+
+    const auto result = packager.runExport(config);
+
+    INFO(result.log);
+    REQUIRE_FALSE(result.success);
+    REQUIRE(result.generatedFiles.empty());
+    REQUIRE(result.log.find("Asset License Audit failed") != std::string::npos);
+    REQUIRE(result.log.find("missing source license evidence") != std::string::npos);
+    REQUIRE_FALSE(std::filesystem::exists(base / "out" / "data.pck"));
+
+    std::filesystem::remove_all(base);
+}
+
+TEST_CASE("ExportPackager fails closed on disallowed promoted asset legal disposition",
+          "[export][packager][security]") {
+    const auto base = std::filesystem::temp_directory_path() / "urpg_export_packager_disallowed_source_license";
+    const auto manifestRoot = base / "asset_bundles";
+    const auto normalizedRoot = base / "normalized";
+    std::filesystem::remove_all(base);
+    WritePromotedSourceManifest(base, "SRC-911", "mixed_asset_pack_reference_only_until_attribution_is_captured");
+
+    WriteFile(
+        manifestRoot / "BND-911.json",
+        R"({
+  "bundle_id": "BND-911",
+  "bundle_name": "disallowed_source_license",
+  "source_id": "SRC-911",
+  "bundle_state": "promoted",
+  "assets": [
+    {
+      "original_relative_path": "sprites/hero.svg",
+      "promoted_relative_path": "prototype_sprites/hero.svg",
+      "category": "prototype_sprite",
+      "status": "promoted"
+    }
+  ]
+}
+)");
+    WriteFile(normalizedRoot / "prototype_sprites" / "hero.svg", "<svg></svg>");
+
+    ExportPackager packager;
+    ExportConfig config{};
+    config.target = ExportTarget::Windows_x64;
+    config.outputDir = (base / "out").string();
+    config.assetBundleManifestRootOverride = manifestRoot.string();
+    config.normalizedAssetRootOverride = normalizedRoot.string();
+
+    const auto result = packager.runExport(config);
+
+    INFO(result.log);
+    REQUIRE_FALSE(result.success);
+    REQUIRE(result.log.find("Disallowed asset source legal disposition") != std::string::npos);
+    REQUIRE_FALSE(std::filesystem::exists(base / "out" / "data.pck"));
+
+    std::filesystem::remove_all(base);
+}
+
 TEST_CASE("ExportPackager stages canonical promoted visual and audio intake lanes", "[export][packager][assets]") {
     const auto base = std::filesystem::temp_directory_path() / "urpg_export_packager_canonical_promoted_assets";
     std::filesystem::remove_all(base);
@@ -744,6 +864,8 @@ TEST_CASE("ExportPackager auto-discovers configured project asset roots and writ
 
     WriteFile(projectRoot / "assets" / "ui" / "hud.png", "fake_png_payload");
     WriteFile(projectRoot / "audio" / "battle_theme.ogg", "fake_ogg_payload");
+    WriteAssetLicenseManifest(projectRoot / "assets", {"ui/hud.png"});
+    WriteAssetLicenseManifest(projectRoot / "audio", {"battle_theme.ogg"});
 
     ExportPackager packager;
     ExportConfig config{};
@@ -793,6 +915,72 @@ TEST_CASE("ExportPackager auto-discovers configured project asset roots and writ
     REQUIRE(discoveryManifest["assets"].size() == 2);
     REQUIRE(discoveryManifest["assets"][0]["path"] == "project_assets/root_01/ui/hud.png");
     REQUIRE(discoveryManifest["assets"][1]["path"] == "project_assets/root_02/battle_theme.ogg");
+
+    std::filesystem::remove_all(base);
+}
+
+TEST_CASE("ExportPackager fails closed when discovered assets have malformed license evidence",
+          "[export][packager][discovery][security]") {
+    const auto base = std::filesystem::temp_directory_path() / "urpg_export_packager_bad_discovery_license";
+    const auto projectRoot = base / "sample_project";
+    std::filesystem::remove_all(base);
+
+    WriteFile(projectRoot / "assets" / "ui" / "hud.png", "fake_png_payload");
+    WriteFile(projectRoot / "assets" / "asset_licenses.json", R"({"format":"wrong","assets":[]})");
+
+    ExportPackager packager;
+    ExportConfig config{};
+    config.target = ExportTarget::Windows_x64;
+    config.outputDir = (base / "out").string();
+    config.assetDiscoveryRoots = {
+        (projectRoot / "assets").string(),
+    };
+
+    const auto result = packager.runExport(config);
+
+    INFO(result.log);
+    REQUIRE_FALSE(result.success);
+    REQUIRE(result.log.find("Malformed asset license manifest") != std::string::npos);
+    REQUIRE_FALSE(std::filesystem::exists(base / "out" / "data.pck"));
+
+    std::filesystem::remove_all(base);
+}
+
+TEST_CASE("ExportPackager rejects discovered payloads that exceed uint32 bundle limits",
+          "[export][packager][security]") {
+    const auto base = std::filesystem::temp_directory_path() / "urpg_export_packager_oversized_payload";
+    const auto projectRoot = base / "sample_project";
+    const auto largeAsset = projectRoot / "assets" / "large.bin";
+    std::filesystem::remove_all(base);
+
+    WriteAssetLicenseManifest(projectRoot / "assets", {"large.bin"});
+    std::filesystem::create_directories(largeAsset.parent_path());
+    std::error_code resizeError;
+    std::filesystem::resize_file(
+        largeAsset,
+        static_cast<std::uintmax_t>((std::numeric_limits<std::uint32_t>::max)()) + 1u,
+        resizeError);
+    if (resizeError) {
+        std::filesystem::remove_all(base);
+        SUCCEED("Filesystem could not create sparse oversized fixture: " << resizeError.message());
+        return;
+    }
+
+    ExportPackager packager;
+    ExportConfig config{};
+    config.target = ExportTarget::Windows_x64;
+    config.outputDir = (base / "out").string();
+    config.compressAssets = false;
+    config.assetDiscoveryRoots = {
+        (projectRoot / "assets").string(),
+    };
+
+    const auto result = packager.runExport(config);
+
+    INFO(result.log);
+    REQUIRE_FALSE(result.success);
+    REQUIRE(result.log.find("uint32 bundle size limit") != std::string::npos);
+    REQUIRE_FALSE(std::filesystem::exists(base / "out" / "data.pck"));
 
     std::filesystem::remove_all(base);
 }
