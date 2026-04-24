@@ -1,0 +1,15 @@
+{
+  "generated_at": "2026-04-24T14:35:17+00:00",
+  "repo_root": "C:\\Users\\dferr\\dev\\URPG - RPG Game Maker",
+  "duplicates_csv": "C:\\Users\\dferr\\dev\\URPG - RPG Game Maker\\imports\\reports\\asset_hygiene_duplicates.csv",
+  "plan_count": 0,
+  "apply_mode": false,
+  "max_removals": 0,
+  "removed_count": 0,
+  "removed_bytes": 0,
+  "missing_count": 0,
+  "skipped_by_cap": 0,
+  "removed_empty_dirs": 0,
+  "plan_csv": "C:\\Users\\dferr\\dev\\URPG - RPG Game Maker\\imports\\reports\\asset_safe_dedupe_plan.csv",
+  "applied_csv": "C:\\Users\\dferr\\dev\\URPG - RPG Game Maker\\imports\\reports\\asset_safe_dedupe_applied.csv"
+}

@@ -46,6 +46,8 @@ What is true in the current tree:
 - Canonical governance, readiness, audit, and reconciliation lanes are active.
 - The Gameplay Ability Framework has moved beyond backend-only groundwork into live editor/runtime workflows.
 - The spatial editor lane now includes a composed WYSIWYG workspace for terrain, props, and map ability interactions.
+- The first future-feature vertical slices for Project Health and Asset Library intake are now landed as conservative editor/runtime projections over existing audit and hygiene data.
+- A large local `more assets/` intake has been unpacked into `imports/raw/more_assets/`, cleaned of OS/archive junk, indexed, and prepared for Git LFS tracking.
 
 What is also true:
 
@@ -92,6 +94,8 @@ Each of those lanes now has native runtime ownership plus editor, schema, migrat
 ### Product and governance systems already in tree
 
 - ProjectAudit and diagnostics workspace
+- ProjectHealth diagnostics projection with grouped health cards and a deterministic fix-next queue
+- AssetLibrary runtime/editor model with provenance packets, duplicate status, case-collision warnings, and cleanup previews
 - release-readiness and template-readiness artifacts
 - truth reconciliation and schema changelog checks
 - accessibility, audio, analytics, achievement, character, export, mod, and input governance lanes
@@ -123,11 +127,12 @@ Detailed planning lives in:
 
 - [Future Feature Upgrade Plans](./docs/FUTURE_FEATURE_UPGRADE_PLANS.md)
 - [Future Feature Actionable Sprint Plan](./docs/FUTURE_FEATURE_ACTIONABLE_SPRINT_PLAN.md)
+- [Asset Library And More Assets Intake](./docs/ASSET_LIBRARY_AND_MORE_ASSETS_INTAKE.md)
 
 ### First product upgrades
 
-- Project Health / Readiness Dashboard: turn audit, readiness, schema, asset, and blocker signals into editor-facing fix guidance.
-- Real Asset Library + Asset Intake UX: expose provenance, license state, duplicate detection, missing references, import normalization, and cleanup previews.
+- Project Health / Readiness Dashboard: first editor-facing health/fix-queue projection is landed; remaining work is richer remediation workflow wiring.
+- Real Asset Library + Asset Intake UX: first runtime/editor asset-library slice is landed with provenance, duplicate detection, report loading, safe cleanup previews, and raw `more assets/` intake indexing; remaining work is promotion workflow and richer license review UX.
 - Visual Event Authoring: add a no-code event-page workflow for conditions, commands, switches, variables, movement, messages, battles, transfers, and common events.
 - Plugin Compatibility Inspector: surface plugin manifests, dependencies, permissions, unsupported calls, load order, fallback behavior, and shim hints.
 - Battle Presentation Authoring: give creators control over battlebacks, HUD layout, cues, popups, icons, music, and deterministic preview playback.

@@ -9,6 +9,14 @@
 
 ## Entries
 
+### 2026-04-24 - Future Feature Slices: Project Health And Asset Library Intake
+- **Action**: Landed the FFS-01 Project Health projection as a thin diagnostics layer over existing `ProjectAuditPanel` JSON ingestion. The new `ProjectHealthModel` and `ProjectHealthPanel` group release blockers, export blockers, warnings, governance issues, asset issues, and schema issues, and expose a deterministic `fix_next` queue through diagnostics workspace export.
+- **Action**: Landed the FFS-02 Asset Library first slice with runtime `AssetLibrary`, `AssetCleanupPlanner`, provenance packets, editor `AssetLibraryModel`/`AssetLibraryPanel`, report-directory loading, case-collision detection, and focused governance checks.
+- **Action**: Added `tools/assets/ingest_more_assets.ps1` and used it to inventory 39 zip archives from `more assets/`, extract them into `imports/raw/more_assets/`, skip 3 installers without execution, and write a manifest under `imports/reports/more_assets/`.
+- **Action**: Pruned only OS/archive junk from the extracted raw intake, regenerated asset hygiene reports, added `tools/assets/plan_more_assets_dedupe.py` for report-only same-archive duplicate planning, and updated `asset_db.py` so `imports/raw/more_assets` is indexed by default with `category=more-assets-raw`.
+- **Validation**: `cmake --build --preset dev-debug --target urpg_tests`, `urpg_tests "[editor][diagnostics][project_health]"`, `urpg_tests "[assets][asset_library]"`, `check_asset_library_governance.ps1`, `asset_hygiene.py --write-reports`, `plan_more_assets_dedupe.py`, `asset_db.py index`, and `asset_db.py stats` all completed successfully for the focused slice.
+- **Result**: Project Health and Asset Library are now real first vertical slices without readiness promotion. The new asset payload is preserved as raw/provenance-first material and prepared for Git LFS tracking.
+
 ### 2026-04-24 - Technical Debt Audit Sprint 6: Diagnostics Workspace Test Split
 - **Action**: Started TD-AUD-06 complexity paydown with a behavior-preserving split of `tests/unit/test_diagnostics_workspace.cpp`. The original file dropped from 3,123 lines to 1,700 lines, with migration, audio/event, message/menu, and battle diagnostics coverage moved into focused test translation units.
 - **Action**: Registered `test_diagnostics_workspace_migration.cpp`, `test_diagnostics_workspace_audio_event.cpp`, `test_diagnostics_workspace_message_menu.cpp`, and `test_diagnostics_workspace_battle.cpp` in `CMakeLists.txt`.

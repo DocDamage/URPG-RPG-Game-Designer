@@ -18,6 +18,7 @@ Robust local asset index for this repo using SQLite + FTS5.
   - `third_party/rpgmaker-mz`
   - `third_party/huggingface`
   - `imports/root-drop/archives`
+  - `imports/raw/more_assets`
 
 ## Usage
 ```powershell
@@ -67,6 +68,20 @@ Inputs and reports:
 - `tools/assets/huggingface_curated_manifest.json`
 - `imports/reports/huggingface_curated_inventory.json`
 
+## More-assets archive intake
+Inventory and safely extract local zip archives from `more assets/` into a quarantined raw intake folder.
+Installers are cataloged but never executed.
+
+```powershell
+.\tools\assets\ingest_more_assets.ps1
+.\tools\assets\ingest_more_assets.ps1 -InventoryOnly
+```
+
+Inputs and outputs:
+- Source: `more assets/`
+- Extracted files: `imports/raw/more_assets/`
+- Manifest: `imports/reports/more_assets/more_assets_intake_manifest.json`
+
 ## Safe duplicate prune wave
 Conservative duplicate cleanup for extracted working copies (`itch/unzipped`) when canonical copies already exist.
 
@@ -79,3 +94,17 @@ Reports are written to `imports/reports/`:
 - `asset_safe_dedupe_plan.csv`
 - `asset_safe_dedupe_applied.csv`
 - `asset_safe_dedupe_summary.json`
+
+## More-assets raw duplicate planning
+Report-only duplicate cleanup planning for `imports/raw/more_assets`.
+The planner only considers exact duplicates inside the same extracted archive root and preserves license/readme files.
+
+```powershell
+python .\tools\assets\plan_more_assets_dedupe.py
+python .\tools\assets\plan_more_assets_dedupe.py --apply --max-removals 100
+```
+
+Reports are written to `imports/reports/more_assets/`:
+- `more_assets_safe_dedupe_plan.csv`
+- `more_assets_safe_dedupe_applied.csv`
+- `more_assets_safe_dedupe_summary.json`

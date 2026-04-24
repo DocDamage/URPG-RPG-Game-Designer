@@ -1,0 +1,26 @@
+{
+  "report_date": "2026-04-23",
+  "report_version": 1,
+  "proof_id": "td_sprint_04_asset_activation_smoke",
+  "visual_lane": {
+    "source_id": "SRC-002",
+    "bundle_id": "BND-001",
+    "normalized_asset": "imports/normalized/prototype_sprites/gdquest_blue_actor.svg",
+    "editor_surface": "editor asset browser / spatial prototype sprite lane",
+    "runtime_surface": "AssetLoader-compatible SVG/text payload proof for prototype sprite references",
+    "export_surface": "ExportPackager promoted-asset bundle staging"
+  },
+  "audio_lane": {
+    "source_id": "SRC-003",
+    "bundle_id": "BND-002",
+    "normalized_asset": "imports/normalized/ui_sfx/kenney_click_001.wav",
+    "editor_surface": "audio inspector / UI feedback cue lane",
+    "runtime_surface": "AudioCore asset-id playback smoke proof",
+    "export_surface": "ExportPackager promoted-asset bundle staging"
+  },
+  "validation": [
+    "tests/unit/test_export_packager.cpp verifies both promoted assets enter data.pck",
+    "tests/unit/test_project_audit_cli.cpp verifies normalized/promoted intake counts stay non-zero",
+    "tests/unit/test_audio_core.cpp and focused audio resolver lanes keep runtime audio ID handling deterministic"
+  ]
+}

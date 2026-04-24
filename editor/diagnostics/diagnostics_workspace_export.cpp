@@ -27,6 +27,8 @@ const char* TabName(DiagnosticsTab tab) {
         return "abilities";
     case DiagnosticsTab::ProjectAudit:
         return "project_audit";
+    case DiagnosticsTab::ProjectHealth:
+        return "project_health";
     }
     return "compat";
 }
@@ -442,6 +444,36 @@ nlohmann::json ActiveTagInfoJson(const ActiveTagInfo& info) {
     return {
         {"tag", info.tag},
         {"count", info.count},
+    };
+}
+
+nlohmann::json ProjectHealthFixCardJson(const ProjectHealthFixCard& card) {
+    return {
+        {"code", card.code},
+        {"title", card.title},
+        {"detail", card.detail},
+        {"owning_subsystem", card.owning_subsystem},
+        {"severity", toString(card.severity)},
+        {"group", toString(card.group)},
+        {"blocks_release", card.blocks_release},
+        {"blocks_export", card.blocks_export},
+        {"affected_paths", card.affected_paths},
+        {"validation_commands", card.validation_commands},
+        {"acceptance_criteria", card.acceptance_criteria},
+    };
+}
+
+nlohmann::json ProjectHealthGroupCardJson(const ProjectHealthGroupCard& card) {
+    nlohmann::json fixes = nlohmann::json::array();
+    for (const auto& fix : card.fixes) {
+        fixes.push_back(ProjectHealthFixCardJson(fix));
+    }
+    return {
+        {"group", toString(card.group)},
+        {"title", card.title},
+        {"issue_count", card.issue_count},
+        {"blocker_count", card.blocker_count},
+        {"fixes", std::move(fixes)},
     };
 }
 
@@ -1315,6 +1347,31 @@ std::string DiagnosticsWorkspace::exportAsJson() const {
             });
         }
         activeTabDetail["issues"] = std::move(issues);
+        break;
+    }
+    case DiagnosticsTab::ProjectHealth: {
+        const auto& snapshot = project_health_panel_.lastRenderSnapshot();
+        activeTabDetail["has_data"] = snapshot.has_data;
+        activeTabDetail["headline"] = snapshot.headline;
+        activeTabDetail["summary_text"] = snapshot.summary;
+        activeTabDetail["status_date"] = snapshot.status_date;
+        activeTabDetail["readiness_date"] = snapshot.readiness_date;
+        activeTabDetail["stale"] = snapshot.stale;
+        activeTabDetail["issue_count"] = snapshot.issue_count;
+        activeTabDetail["release_blocker_count"] = snapshot.release_blocker_count;
+        activeTabDetail["export_blocker_count"] = snapshot.export_blocker_count;
+
+        nlohmann::json groups = nlohmann::json::array();
+        for (const auto& group : snapshot.groups) {
+            groups.push_back(ProjectHealthGroupCardJson(group));
+        }
+        activeTabDetail["groups"] = std::move(groups);
+
+        nlohmann::json fixNext = nlohmann::json::array();
+        for (const auto& fix : snapshot.fix_next) {
+            fixNext.push_back(ProjectHealthFixCardJson(fix));
+        }
+        activeTabDetail["fix_next"] = std::move(fixNext);
         break;
     }
     default:

@@ -1,0 +1,174 @@
+{
+  "generatedAtUtc": "2026-04-17T00:01:14.0883828Z",
+  "manifest": "tools\\assets\\huggingface_curated_manifest.json",
+  "datasets": [
+    {
+      "repo": "NintenHero/RPG-Maker-MV-Data",
+      "license": "cc-by-nc-sa-4.0",
+      "ingestMode": "manifest_only",
+      "relativePath": "6ft Blunder/Map001.json",
+      "targetPath": "third_party\\huggingface\\rpg-maker-mv-data\\6ft Blunder\\Map001.json",
+      "downloaded": false
+    },
+    {
+      "repo": "NintenHero/RPG-Maker-MV-Data",
+      "license": "cc-by-nc-sa-4.0",
+      "ingestMode": "manifest_only",
+      "relativePath": "6ft Blunder/System.json",
+      "targetPath": "third_party\\huggingface\\rpg-maker-mv-data\\6ft Blunder\\System.json",
+      "downloaded": false
+    },
+    {
+      "repo": "NintenHero/RPG-Maker-MV-Data",
+      "license": "cc-by-nc-sa-4.0",
+      "ingestMode": "manifest_only",
+      "relativePath": "(not) Christmas in Karkatland/Tilesets.json",
+      "targetPath": "third_party\\huggingface\\rpg-maker-mv-data\\(not) Christmas in Karkatland\\Tilesets.json",
+      "downloaded": false
+    },
+    {
+      "repo": "NintenHero/RPG-Maker-XP-Data",
+      "license": "cc-by-nc-sa-4.0",
+      "ingestMode": "manifest_only",
+      "relativePath": "Astray/Map001.rxdata",
+      "targetPath": "third_party\\huggingface\\rpg-maker-xp-data\\Astray\\Map001.rxdata",
+      "downloaded": false
+    },
+    {
+      "repo": "NintenHero/RPG-Maker-XP-Data",
+      "license": "cc-by-nc-sa-4.0",
+      "ingestMode": "manifest_only",
+      "relativePath": "Astray/Scripts.rxdata",
+      "targetPath": "third_party\\huggingface\\rpg-maker-xp-data\\Astray\\Scripts.rxdata",
+      "downloaded": false
+    },
+    {
+      "repo": "NintenHero/RPG-Maker-XP-Data",
+      "license": "cc-by-nc-sa-4.0",
+      "ingestMode": "manifest_only",
+      "relativePath": "Do Us Part/System.rxdata",
+      "targetPath": "third_party\\huggingface\\rpg-maker-xp-data\\Do Us Part\\System.rxdata",
+      "downloaded": false
+    },
+    {
+      "repo": "NintenHero/Tiled-Map-Editor-TMX",
+      "license": "bsd-3-clause",
+      "ingestMode": "vendor_direct",
+      "relativePath": "Bubblegum Bandit/rules1.tmx",
+      "targetPath": "third_party\\huggingface\\tiled-map-editor-tmx\\Bubblegum Bandit\\rules1.tmx",
+      "downloaded": true
+    },
+    {
+      "repo": "NintenHero/Tiled-Map-Editor-TMX",
+      "license": "bsd-3-clause",
+      "ingestMode": "vendor_direct",
+      "relativePath": "Inexistence/chateau/Entree/entree.tmx",
+      "targetPath": "third_party\\huggingface\\tiled-map-editor-tmx\\Inexistence\\chateau\\Entree\\entree.tmx",
+      "downloaded": true
+    },
+    {
+      "repo": "NintenHero/Tiled-Map-Editor-TMX",
+      "license": "bsd-3-clause",
+      "ingestMode": "vendor_direct",
+      "relativePath": "Inexistence/chateau/Hall/Hall.tmx",
+      "targetPath": "third_party\\huggingface\\tiled-map-editor-tmx\\Inexistence\\chateau\\Hall\\Hall.tmx",
+      "downloaded": true
+    },
+    {
+      "repo": "NintenHero/Tiled-Map-Editor-TMX",
+      "license": "bsd-3-clause",
+      "ingestMode": "vendor_direct",
+      "relativePath": "Titan Souls/FLOOR2/WOODS/a.tmx",
+      "targetPath": "third_party\\huggingface\\tiled-map-editor-tmx\\Titan Souls\\FLOOR2\\WOODS\\a.tmx",
+      "downloaded": true
+    },
+    {
+      "repo": "NintenHero/Tiled-Map-Editor-TMX",
+      "license": "bsd-3-clause",
+      "ingestMode": "vendor_direct",
+      "relativePath": "Titan Souls/avarice.tmx",
+      "targetPath": "third_party\\huggingface\\tiled-map-editor-tmx\\Titan Souls\\avarice.tmx",
+      "downloaded": true
+    },
+    {
+      "repo": "NintenHero/Visual-Novel-Maker-Data",
+      "license": "apache-2.0",
+      "ingestMode": "vendor_direct",
+      "relativePath": "My Boss Is Scaring Me/07DDA09123019333.json.js",
+      "targetPath": "third_party\\huggingface\\visual-novel-maker-data\\My Boss Is Scaring Me\\07DDA09123019333.json.js",
+      "downloaded": true
+    },
+    {
+      "repo": "NintenHero/Visual-Novel-Maker-Data",
+      "license": "apache-2.0",
+      "ingestMode": "vendor_direct",
+      "relativePath": "My Boss Is Scaring Me/0680E2763533F740B54A6C139E537CF59C20.json.js",
+      "targetPath": "third_party\\huggingface\\visual-novel-maker-data\\My Boss Is Scaring Me\\0680E2763533F740B54A6C139E537CF59C20.json.js",
+      "downloaded": true
+    },
+    {
+      "repo": "NintenHero/Visual-Novel-Maker-Data",
+      "license": "apache-2.0",
+      "ingestMode": "vendor_direct",
+      "relativePath": "My Boss Is Scaring Me/158BCC5D580307477F6AE8A14D5278F56EE2.json.js",
+      "targetPath": "third_party\\huggingface\\visual-novel-maker-data\\My Boss Is Scaring Me\\158BCC5D580307477F6AE8A14D5278F56EE2.json.js",
+      "downloaded": true
+    },
+    {
+      "repo": "NintenHero/Visual-Novel-Maker-Data",
+      "license": "apache-2.0",
+      "ingestMode": "vendor_direct",
+      "relativePath": "My Boss Is Scaring Me/232F08772D91E44D10380D14842B92CA796A.json.js",
+      "targetPath": "third_party\\huggingface\\visual-novel-maker-data\\My Boss Is Scaring Me\\232F08772D91E44D10380D14842B92CA796A.json.js",
+      "downloaded": true
+    },
+    {
+      "repo": "NintenHero/Visual-Novel-Maker-Data",
+      "license": "apache-2.0",
+      "ingestMode": "vendor_direct",
+      "relativePath": "Aegis Dilemma Veritas Omnia Vincit/3C1AA2B2080628487718FB2335A24330F5F4.json.js",
+      "targetPath": "third_party\\huggingface\\visual-novel-maker-data\\Aegis Dilemma Veritas Omnia Vincit\\3C1AA2B2080628487718FB2335A24330F5F4.json.js",
+      "downloaded": true
+    },
+    {
+      "repo": "wallstoneai/godot-gdscript-dataset",
+      "license": "apache-2.0",
+      "ingestMode": "vendor_direct",
+      "relativePath": "README.md",
+      "targetPath": "third_party\\huggingface\\godot-gdscript-dataset\\README.md",
+      "downloaded": true
+    },
+    {
+      "repo": "wallstoneai/godot-gdscript-dataset",
+      "license": "apache-2.0",
+      "ingestMode": "vendor_direct",
+      "relativePath": "files/-godot_2d_platformer_game.txt",
+      "targetPath": "third_party\\huggingface\\godot-gdscript-dataset\\files\\-godot_2d_platformer_game.txt",
+      "downloaded": true
+    },
+    {
+      "repo": "wallstoneai/godot-gdscript-dataset",
+      "license": "apache-2.0",
+      "ingestMode": "vendor_direct",
+      "relativePath": "files/06-3D-RPG.txt",
+      "targetPath": "third_party\\huggingface\\godot-gdscript-dataset\\files\\06-3D-RPG.txt",
+      "downloaded": true
+    },
+    {
+      "repo": "wallstoneai/godot-gdscript-dataset",
+      "license": "apache-2.0",
+      "ingestMode": "vendor_direct",
+      "relativePath": "files/11-RPG.txt",
+      "targetPath": "third_party\\huggingface\\godot-gdscript-dataset\\files\\11-RPG.txt",
+      "downloaded": true
+    },
+    {
+      "repo": "wallstoneai/godot-gdscript-dataset",
+      "license": "apache-2.0",
+      "ingestMode": "vendor_direct",
+      "relativePath": "files/Action-RPG.txt",
+      "targetPath": "third_party\\huggingface\\godot-gdscript-dataset\\files\\Action-RPG.txt",
+      "downloaded": true
+    }
+  ]
+}

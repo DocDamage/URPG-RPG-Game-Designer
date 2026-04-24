@@ -1,0 +1,80 @@
+{
+  "report_date": "2026-04-23",
+  "report_version": 1,
+  "summary": {
+    "total_sources": 5,
+    "cataloged_not_mirrored": 3,
+    "mirrored": 2,
+    "staged": 2,
+    "normalized": 2,
+    "discovery_only": 0,
+    "direct_asset_pack_sources": 3,
+    "discovery_index_sources": 2,
+    "promotion_ready": 0,
+    "promoted": 2,
+    "promoted_visual_lanes": 1,
+    "promoted_audio_lanes": 1,
+    "wysiwyg_smoke_proofs": 1
+  },
+  "sources": [
+    {
+      "source_id": "SRC-001",
+      "repo_name": "AscensionGameDev/Intersect-Assets",
+      "source_type": "direct_asset_pack",
+      "capture_state": "cataloged_not_mirrored",
+      "handling_path": "direct_ingest_when_captured",
+      "legal_disposition": "mixed_asset_pack_reference_only_until_per-asset_attribution_is_captured",
+      "promotion_status": "not_started"
+    },
+    {
+      "source_id": "SRC-002",
+      "repo_name": "GDQuest/game-sprites",
+      "source_type": "direct_asset_pack",
+      "capture_state": "normalized",
+      "handling_path": "direct_ingest_when_captured",
+      "legal_disposition": "cc0_candidate_recorded_for_private_use_intake",
+      "promotion_status": "promoted",
+      "snapshot_commit": "ea05c63eb1d88af928d2d9a7445879500c9ece3f",
+      "normalized_assets": [
+        "imports/normalized/prototype_sprites/gdquest_blue_actor.svg"
+      ],
+      "bundle_manifest": "imports/manifests/asset_bundles/BND-001.json"
+    },
+    {
+      "source_id": "SRC-003",
+      "repo_name": "Calinou/kenney-interface-sounds",
+      "source_type": "direct_asset_pack",
+      "capture_state": "normalized",
+      "handling_path": "direct_ingest_when_captured",
+      "legal_disposition": "cc0_candidate_recorded_for_private_use_intake",
+      "promotion_status": "promoted",
+      "snapshot_commit": "4596a49eaf5a533948d49a47467f606bcdea70ff",
+      "normalized_assets": [
+        "imports/normalized/ui_sfx/kenney_click_001.wav"
+      ],
+      "bundle_manifest": "imports/manifests/asset_bundles/BND-002.json"
+    },
+    {
+      "source_id": "SRC-004",
+      "repo_name": "madjin/awesome-cc0",
+      "source_type": "discovery_index",
+      "capture_state": "cataloged_not_mirrored",
+      "handling_path": "discovery_backlog_only",
+      "legal_disposition": "reference_index_only_no_direct_asset_ingest",
+      "promotion_status": "not_started"
+    },
+    {
+      "source_id": "SRC-005",
+      "repo_name": "HotpotDesign/Game-Assets-And-Resources",
+      "source_type": "discovery_index",
+      "capture_state": "cataloged_not_mirrored",
+      "handling_path": "discovery_backlog_only",
+      "legal_disposition": "reference_index_only_no_direct_asset_ingest",
+      "promotion_status": "not_started"
+    }
+  ],
+  "notes": [
+    "This report mirrors the canonical source manifests under imports/manifests/asset_sources/.",
+    "TD Sprint 04 promotes one bounded visual lane and one bounded audio lane; the remaining cataloged sources stay future intake candidates."
+  ]
+}

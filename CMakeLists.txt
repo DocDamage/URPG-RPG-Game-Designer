@@ -203,6 +203,8 @@ add_library(urpg_core
     engine/core/presentation/effects/effect_translator.cpp
     engine/gameplay/combat/combat_calc.cpp
     engine/core/audio/audio_ai_bridge.cpp
+    engine/core/assets/asset_library.cpp
+    engine/core/assets/asset_cleanup_planner.cpp
     engine/core/audio/audio_mix_presets.cpp
     engine/core/audio/audio_mix_validator.cpp
     engine/core/animation/animation_ai_bridge.cpp
@@ -223,6 +225,10 @@ add_library(urpg_core
     editor/diagnostics/diagnostics_workspace_serialization.cpp
     editor/diagnostics/diagnostics_facade.cpp
     editor/diagnostics/project_audit_panel.cpp
+    editor/diagnostics/project_health_model.cpp
+    editor/diagnostics/project_health_panel.cpp
+    editor/assets/asset_library_model.cpp
+    editor/assets/asset_library_panel.cpp
     editor/export/export_diagnostics_panel.cpp
     editor/compat/compat_report_panel.cpp
     editor/character/character_creator_model.cpp
@@ -592,6 +598,11 @@ add_executable(urpg_tests
     tests/unit/test_source_authority.cpp
     tests/unit/test_diagnostics_facade.cpp
     tests/unit/test_project_audit_panel.cpp
+    tests/unit/test_project_health_model.cpp
+    tests/unit/test_project_health_panel.cpp
+    tests/unit/test_asset_library.cpp
+    tests/unit/test_asset_cleanup_planner.cpp
+    tests/unit/test_asset_library_panel.cpp
     tests/unit/test_controller_binding_runtime.cpp
     tests/unit/test_controller_binding_panel.cpp
     tests/unit/test_save_catalog.cpp

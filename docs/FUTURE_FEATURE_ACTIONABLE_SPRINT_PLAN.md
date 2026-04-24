@@ -103,28 +103,31 @@ ctest --test-dir build/dev-ninja-debug -L pr --output-on-failure
 
 ## FFS-01 - Project Health Dashboard
 
+### 2026-04-24 Slice Status
+First vertical slice landed. It builds on the already-existing `ProjectAuditPanel` and adds a separate project-health projection with grouped cards, stale-state detection, a deterministic `fix_next` queue, diagnostics workspace export, and focused tests. This is not a readiness promotion.
+
 ### Objective
 Make release blockers, export blockers, asset issues, schema drift, and fix guidance visible inside the editor.
 
 ### Files To Add Or Modify
-- [ ] `editor/diagnostics/project_health_model.h`
-- [ ] `editor/diagnostics/project_health_model.cpp`
-- [ ] `editor/diagnostics/project_health_panel.h`
-- [ ] `editor/diagnostics/project_health_panel.cpp`
-- [ ] `tests/unit/test_project_health_model.cpp`
-- [ ] `tests/unit/test_project_health_panel.cpp`
-- [ ] Extend `editor/diagnostics/diagnostics_workspace.*`
-- [ ] Extend `editor/diagnostics/diagnostics_workspace_export.cpp`
-- [ ] Extend `CMakeLists.txt`
+- [x] `editor/diagnostics/project_health_model.h`
+- [x] `editor/diagnostics/project_health_model.cpp`
+- [x] `editor/diagnostics/project_health_panel.h`
+- [x] `editor/diagnostics/project_health_panel.cpp`
+- [x] `tests/unit/test_project_health_model.cpp`
+- [x] `tests/unit/test_project_health_panel.cpp`
+- [x] Extend `editor/diagnostics/diagnostics_workspace.*`
+- [x] Extend `editor/diagnostics/diagnostics_workspace_export.cpp`
+- [x] Extend `CMakeLists.txt`
 
 ### Checklist
-- [ ] Ingest `urpg_project_audit` JSON already accepted by `ProjectAuditPanel`.
-- [ ] Produce grouped cards: release blockers, export blockers, warnings, governance issues, asset issues, schema issues.
-- [ ] Add "Fix next" queue ordered by severity, blocker type, and owning subsystem.
-- [ ] Each fix card includes code, title, detail, affected paths, validation commands, and acceptance criteria.
-- [ ] Add empty state for no report.
-- [ ] Add stale-state indicator when report `statusDate` differs from readiness date.
-- [ ] Add machine-readable snapshot export through diagnostics workspace.
+- [x] Ingest `urpg_project_audit` JSON already accepted by `ProjectAuditPanel`.
+- [x] Produce grouped cards: release blockers, export blockers, warnings, governance issues, asset issues, schema issues.
+- [x] Add "Fix next" queue ordered by severity, blocker type, and owning subsystem.
+- [x] Each fix card includes code, title, detail, affected paths, validation commands, and acceptance criteria.
+- [x] Add empty state for no report.
+- [x] Add stale-state indicator when report `statusDate` differs from readiness date.
+- [x] Add machine-readable snapshot export through diagnostics workspace.
 
 ### Edge Cases
 - Report is missing optional governance sections.
@@ -135,12 +138,12 @@ Make release blockers, export blockers, asset issues, schema drift, and fix guid
 - Report is huge and contains thousands of asset issues.
 
 ### Tests
-- [ ] `ProjectHealthModel` groups issues deterministically by severity then code.
-- [ ] Missing counts are derived from issue flags.
-- [ ] Unknown severity maps to info, not crash.
-- [ ] Empty report renders no-data snapshot.
-- [ ] Fix queue preserves exact validation command strings.
-- [ ] Diagnostics workspace export includes health cards.
+- [x] `ProjectHealthModel` groups issues deterministically by severity then code.
+- [x] Missing counts are derived from issue flags.
+- [x] Unknown severity maps to info, not crash.
+- [x] Empty report renders no-data snapshot.
+- [x] Fix queue preserves exact validation command strings.
+- [x] Diagnostics workspace export includes health cards.
 
 ### Acceptance Commands
 
@@ -154,29 +157,32 @@ cmake --build --preset dev-debug
 
 ## FFS-02 - Asset Library And Intake UX
 
+### 2026-04-24 Slice Status
+First vertical slice landed. It provides a runtime asset library, editor-facing model/panel snapshot, provenance packet export, safe cleanup preview, report-directory loading, governance script, focused tests, and raw `more assets/` archive intake/indexing. This is not a content readiness or license-clearance promotion.
+
 ### Objective
 Turn asset hygiene and intake reports into a creator-facing asset browser with cleanup previews and provenance packets.
 
 ### Files To Add Or Modify
-- [ ] `engine/core/assets/asset_library.h`
-- [ ] `engine/core/assets/asset_library.cpp`
-- [ ] `engine/core/assets/asset_provenance.h`
-- [ ] `engine/core/assets/asset_cleanup_planner.h`
-- [ ] `engine/core/assets/asset_cleanup_planner.cpp`
-- [ ] `editor/assets/asset_library_model.*`
-- [ ] `editor/assets/asset_library_panel.*`
-- [ ] `tests/unit/test_asset_library.cpp`
-- [ ] `tests/unit/test_asset_cleanup_planner.cpp`
-- [ ] `tests/unit/test_asset_library_panel.cpp`
-- [ ] `tools/ci/check_asset_library_governance.ps1`
+- [x] `engine/core/assets/asset_library.h`
+- [x] `engine/core/assets/asset_library.cpp`
+- [x] `engine/core/assets/asset_provenance.h`
+- [x] `engine/core/assets/asset_cleanup_planner.h`
+- [x] `engine/core/assets/asset_cleanup_planner.cpp`
+- [x] `editor/assets/asset_library_model.*`
+- [x] `editor/assets/asset_library_panel.*`
+- [x] `tests/unit/test_asset_library.cpp`
+- [x] `tests/unit/test_asset_cleanup_planner.cpp`
+- [x] `tests/unit/test_asset_library_panel.cpp`
+- [x] `tools/ci/check_asset_library_governance.ps1`
 
 ### Checklist
-- [ ] Load existing hygiene reports from `imports/reports/`.
-- [ ] Surface statuses: usable, risky, duplicate, oversized, missing license, missing file, unsupported format.
-- [ ] Do not delete files directly. Generate cleanup plans only.
-- [ ] Add safe-delete preview that proves no referenced asset uses the candidate file.
-- [ ] Export provenance packet with original source, license, normalized path, and export eligibility.
-- [ ] Add case-sensitivity warnings for paths that differ only by case.
+- [x] Load existing hygiene reports from `imports/reports/`.
+- [x] Surface statuses: usable, risky, duplicate, oversized, missing license, missing file, unsupported format.
+- [x] Do not delete files directly. Generate cleanup plans only.
+- [x] Add safe-delete preview that proves no referenced asset uses the candidate file.
+- [x] Export provenance packet with original source, license, normalized path, and export eligibility.
+- [x] Add case-sensitivity warnings for paths that differ only by case.
 
 ### Edge Cases
 - Duplicate files where both are referenced by different fixtures.
@@ -187,12 +193,12 @@ Turn asset hygiene and intake reports into a creator-facing asset browser with c
 - Unsupported extension with valid metadata.
 
 ### Tests
-- [ ] Duplicate groups sort deterministically by canonical path.
-- [ ] Cleanup plan refuses to delete referenced files.
-- [ ] Missing license blocks export eligibility but not editor preview.
-- [ ] Path case collision is detected.
-- [ ] Provenance packet round-trips JSON.
-- [ ] Governance script fails when fixture/report is missing.
+- [x] Duplicate groups sort deterministically by canonical path.
+- [x] Cleanup plan refuses to delete referenced files.
+- [x] Missing license blocks export eligibility but not editor preview.
+- [x] Path case collision is detected.
+- [x] Provenance packet round-trips JSON.
+- [x] Governance script fails when fixture/report is missing.
 
 ---
 

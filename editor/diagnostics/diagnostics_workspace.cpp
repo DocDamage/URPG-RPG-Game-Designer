@@ -163,6 +163,14 @@ const ProjectAuditPanel& DiagnosticsWorkspace::projectAuditPanel() const {
     return project_audit_panel_;
 }
 
+ProjectHealthPanel& DiagnosticsWorkspace::projectHealthPanel() {
+    return project_health_panel_;
+}
+
+const ProjectHealthPanel& DiagnosticsWorkspace::projectHealthPanel() const {
+    return project_health_panel_;
+}
+
 void DiagnosticsWorkspace::bindSaveRuntime(const urpg::SaveCatalog& catalog,
                                            urpg::SaveSessionCoordinator& coordinator) {
     save_panel_.bindRuntime(catalog, coordinator);
@@ -822,11 +830,13 @@ bool DiagnosticsWorkspace::clearAbilityDraftPattern() {
 
 void DiagnosticsWorkspace::bindProjectAuditReport(const nlohmann::json& report) {
     project_audit_panel_.setReportJson(report);
+    project_health_panel_.setReportJson(report);
     refreshActiveSnapshotBackedTabIfVisible();
 }
 
 void DiagnosticsWorkspace::clearProjectAuditReport() {
     project_audit_panel_.clear();
+    project_health_panel_.clear();
     refreshActiveSnapshotBackedTabIfVisible();
 }
 
@@ -992,6 +1002,13 @@ DiagnosticsTabSummary DiagnosticsWorkspace::tabSummary(DiagnosticsTab tab) const
         summary.has_data = project_audit_panel_.hasReportData();
         break;
     }
+    case DiagnosticsTab::ProjectHealth: {
+        const auto& snapshot = project_health_panel_.model().snapshot();
+        summary.item_count = snapshot.fix_next.size();
+        summary.issue_count = snapshot.release_blocker_count + snapshot.export_blocker_count;
+        summary.has_data = project_health_panel_.hasReportData();
+        break;
+    }
     }
 
     return summary;
@@ -1009,6 +1026,7 @@ std::vector<DiagnosticsTabSummary> DiagnosticsWorkspace::allTabSummaries() const
         tabSummary(DiagnosticsTab::MigrationWizard),
         tabSummary(DiagnosticsTab::Abilities),
         tabSummary(DiagnosticsTab::ProjectAudit),
+        tabSummary(DiagnosticsTab::ProjectHealth),
     };
 }
 
@@ -1044,6 +1062,8 @@ void DiagnosticsWorkspace::render() {
         ability_panel_.render();
     } else if (active_tab_ == DiagnosticsTab::ProjectAudit) {
         project_audit_panel_.render();
+    } else if (active_tab_ == DiagnosticsTab::ProjectHealth) {
+        project_health_panel_.render();
     }
 }
 
@@ -1143,6 +1163,7 @@ void DiagnosticsWorkspace::syncPanelVisibility() {
     migration_wizard_panel_.setVisible(visible_ && active_tab_ == DiagnosticsTab::MigrationWizard);
     ability_panel_.setVisible(visible_ && active_tab_ == DiagnosticsTab::Abilities);
     project_audit_panel_.setVisible(visible_ && active_tab_ == DiagnosticsTab::ProjectAudit);
+    project_health_panel_.setVisible(visible_ && active_tab_ == DiagnosticsTab::ProjectHealth);
 }
 
 void DiagnosticsWorkspace::refreshActiveSnapshotBackedTabIfVisible() {
@@ -1171,6 +1192,11 @@ void DiagnosticsWorkspace::refreshActiveSnapshotBackedTabIfVisible() {
     case DiagnosticsTab::ProjectAudit:
         if (visible_ && active_tab_ == DiagnosticsTab::ProjectAudit) {
             project_audit_panel_.render();
+        }
+        break;
+    case DiagnosticsTab::ProjectHealth:
+        if (visible_ && active_tab_ == DiagnosticsTab::ProjectHealth) {
+            project_health_panel_.render();
         }
         break;
     case DiagnosticsTab::MessageText:

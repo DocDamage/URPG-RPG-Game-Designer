@@ -7,6 +7,7 @@
 #include "editor/diagnostics/event_authority_panel.h"
 #include "editor/diagnostics/migration_wizard_panel.h"
 #include "editor/diagnostics/project_audit_panel.h"
+#include "editor/diagnostics/project_health_panel.h"
 #include "editor/message/message_inspector_panel.h"
 #include "editor/save/save_inspector_panel.h"
 #include "editor/ui/menu_inspector_panel.h"
@@ -31,6 +32,7 @@ enum class DiagnosticsTab : uint8_t {
     MigrationWizard = 7,
     Abilities = 8,
     ProjectAudit = 9,
+    ProjectHealth = 10,
 };
 
 struct DiagnosticsTabSummary {
@@ -69,6 +71,8 @@ public:
     const MigrationWizardPanel& migrationWizardPanel() const;
     ProjectAuditPanel& projectAuditPanel();
     const ProjectAuditPanel& projectAuditPanel() const;
+    ProjectHealthPanel& projectHealthPanel();
+    const ProjectHealthPanel& projectHealthPanel() const;
 
     void bindSaveRuntime(const urpg::SaveCatalog& catalog,
                          urpg::SaveSessionCoordinator& coordinator);
@@ -241,6 +245,7 @@ private:
     std::optional<size_t> ability_selected_project_asset_index_;
     MigrationWizardPanel migration_wizard_panel_;
     ProjectAuditPanel project_audit_panel_;
+    ProjectHealthPanel project_health_panel_;
     DiagnosticsTab active_tab_ = DiagnosticsTab::Compat;
     bool visible_ = true;
 };

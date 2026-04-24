@@ -1,0 +1,84 @@
+#pragma once
+
+#include "engine/core/assets/asset_provenance.h"
+
+#include <nlohmann/json.hpp>
+
+#include <cstdint>
+#include <optional>
+#include <set>
+#include <string>
+#include <vector>
+
+namespace urpg::assets {
+
+enum class AssetStatus : uint16_t {
+    Usable = 1 << 0,
+    Risky = 1 << 1,
+    Duplicate = 1 << 2,
+    Oversized = 1 << 3,
+    MissingLicense = 1 << 4,
+    MissingFile = 1 << 5,
+    UnsupportedFormat = 1 << 6,
+    CaseCollision = 1 << 7,
+};
+
+struct AssetRecord {
+    std::string path;
+    uint64_t size_bytes = 0;
+    std::string sha256;
+    std::set<AssetStatus> statuses;
+    AssetProvenance provenance;
+};
+
+struct AssetDuplicateEntry {
+    std::string sha256;
+    uint64_t size_bytes = 0;
+    std::string path;
+    std::string recommended_keep;
+    bool recommended_remove = false;
+};
+
+struct AssetDuplicateGroup {
+    std::string sha256;
+    uint64_t size_bytes = 0;
+    std::vector<AssetDuplicateEntry> entries;
+};
+
+struct AssetLibrarySnapshot {
+    size_t file_count = 0;
+    size_t duplicate_group_count = 0;
+    size_t oversize_count = 0;
+    size_t missing_license_count = 0;
+    size_t case_collision_count = 0;
+    std::vector<AssetRecord> assets;
+    std::vector<AssetDuplicateGroup> duplicate_groups;
+};
+
+class AssetLibrary {
+public:
+    void clear();
+    void ingestHygieneSummary(const nlohmann::json& summary);
+    void ingestIntakeReport(const nlohmann::json& report);
+    void ingestDuplicateCsv(std::string_view csv_text);
+    void addReferencedAsset(std::string path);
+    void markMissingFile(std::string path);
+    void markUnsupportedFormat(std::string path);
+    void detectCaseCollisions();
+
+    const AssetLibrarySnapshot& snapshot() const { return snapshot_; }
+    const std::set<std::string>& referencedAssets() const { return referenced_assets_; }
+    std::optional<AssetRecord> findAsset(std::string_view path) const;
+
+private:
+    AssetRecord& ensureAsset(std::string path);
+    void sortSnapshot();
+
+    AssetLibrarySnapshot snapshot_{};
+    std::set<std::string> referenced_assets_;
+};
+
+const char* toString(AssetStatus status);
+std::string exportProvenancePacket(const AssetRecord& record);
+
+} // namespace urpg::assets

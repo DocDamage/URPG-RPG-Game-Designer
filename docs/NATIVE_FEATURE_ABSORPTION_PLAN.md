@@ -42,6 +42,12 @@ URPG's product goal is also explicitly WYSIWYG and easy to use. Native ownership
 4. Add explicit governance, readiness, and cross-cutting minimum-bar lanes so subsystem and template claims stay evidence-gated.
 5. Close each remaining lane as both runtime capability and WYSIWYG editor workflow, instead of deferring ease-of-use until after backend completion.
 
+2026-04-24 execution note:
+
+- The first Project Health / Readiness Dashboard slice is landed as a diagnostics projection over existing project-audit JSON, with grouped health cards and a deterministic fix-next queue.
+- The first Asset Library / Intake UX slice is landed as a runtime/editor asset-library model with provenance packets, safe cleanup previews, report loading, and raw `more assets/` archive intake indexed as `more-assets-raw`.
+- Both slices remain conservative productization lanes and do not promote any readiness record or template to `READY`.
+
 ## Integrated capability model
 
 ### Tier A: Core ownership (must ship as native)

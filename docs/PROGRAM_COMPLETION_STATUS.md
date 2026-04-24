@@ -14,10 +14,17 @@ Cross-cutting debt, truthfulness, and intake-governance source of truth: `docs/T
 - Export remains `PARTIAL`: current keyed SHA-256 bundle-signature enforcement is validator-time protection, while runtime rejection of tampered bundles, temp-file-plus-atomic-rename publication, full native signing, and notarization remain backlog.
 - Achievement registry remains `PARTIAL`: the vendor-neutral trophy export payload is now landed and governed, while platform-specific achievement backend integration remains explicitly out-of-tree.
 
+2026-04-24 future-feature vertical slice update:
+- FFS-01 Project Health now has a first editor/runtime projection over `urpg_project_audit` JSON: grouped health cards, stale-state detection, and a deterministic `fix_next` queue exported through the diagnostics workspace.
+- FFS-02 Asset Library now has a first runtime/editor slice: asset records, provenance packets, duplicate grouping, case-collision flags, safe cleanup previews, report-directory loading, and focused asset-library governance.
+- The local `more assets/` source drop was inventoried, safely extracted to `imports/raw/more_assets/`, cleaned of OS/archive junk, indexed in the asset catalog as `category=more-assets-raw`, and documented in `docs/ASSET_LIBRARY_AND_MORE_ASSETS_INTAKE.md`.
+- These slices do not promote any readiness record to `READY`; project health and asset library remain productization follow-through lanes until richer remediation, license-review, and promotion workflows are complete.
+
 Canonical planning chain:
 - `docs/TECHNICAL_DEBT_REMEDIATION_PLAN.md` governs cross-cutting truthfulness, reconciliation, and Definition-of-Done requirements.
 - `docs/NATIVE_FEATURE_ABSORPTION_PLAN.md` is the canonical product roadmap.
 - `docs/PROGRAM_COMPLETION_STATUS.md` is the canonical latest-status snapshot.
+- `docs/ASSET_LIBRARY_AND_MORE_ASSETS_INTAKE.md` records the new raw asset intake, hygiene, catalog, and report-only dedupe status.
 - `docs/archive/planning/URPG_MASTER_NATIVE_ABSORPTION_AND_PGMMV_ROADMAP_2026-04-18.md`, `docs/archive/planning/URPG_PGMMV_SUPPORT_PLAN.md`, and `docs/archive/planning/URPG_NATIVE_ABSORPTION_ROADMAP_2026-04-18.md` are detailed planning inputs retained for traceability until their remaining deltas are absorbed into the canonical docs above.
 - `docs/URPG_facebookresearch_tooling_integration_plan.md` is now treated as an offline-tooling planning input, not a parallel execution authority.
 

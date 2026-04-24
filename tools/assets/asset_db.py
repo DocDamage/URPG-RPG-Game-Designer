@@ -22,6 +22,7 @@ DEFAULT_ROOTS = [
     "third_party/rpgmaker-mz",
     "third_party/huggingface",
     "imports/root-drop/archives",
+    "imports/raw/more_assets",
 ]
 EXCLUDED_DIRS = {".git", ".venv", "__pycache__", "node_modules", "packs-by-category", "unzipped"}
 
@@ -84,6 +85,11 @@ def infer_pack_category(path_rel: str) -> tuple[str | None, str | None]:
         if i + 1 < len(parts) and parts[i + 1] != "README.md":
             category = f"huggingface-{parts[i + 1]}"
             pack = pack or parts[i + 1]
+    if "imports" in parts and "raw" in parts and "more_assets" in parts:
+        i = parts.index("more_assets")
+        if i + 1 < len(parts):
+            pack = parts[i + 1]
+        category = "more-assets-raw"
     return pack, category
 
 
@@ -347,9 +353,15 @@ class Catalog:
                     and not force
                 )
                 if unchanged:
+                    pack, category = infer_pack_category(p_rel)
                     cur.execute(
-                        "UPDATE assets SET path_rel=?,source_root=?,missing=0,last_seen_at=?,last_scan_id=? WHERE path_abs=?",
-                        (p_rel, src_root, now, scan_id, p_abs),
+                        """
+                        UPDATE assets
+                        SET path_rel=?,source_root=?,media_kind=?,pack=?,category=?,
+                            missing=0,last_seen_at=?,last_scan_id=?
+                        WHERE path_abs=?
+                        """,
+                        (p_rel, src_root, kind, pack, category, now, scan_id, p_abs),
                     )
                     files_skipped += 1
                     continue

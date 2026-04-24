@@ -68,3 +68,7 @@
 *.lib binary
 *.obj binary
 *.pdb binary
+
+# Newly ingested raw asset source packs are intentionally large and must stay in LFS.
+"more assets/**" filter=lfs diff=lfs merge=lfs -text
+imports/raw/more_assets/** filter=lfs diff=lfs merge=lfs -text

@@ -1,0 +1,22 @@
+{
+    "schemaPath":  "C:\\Users\\dferr\\dev\\URPG - RPG Game Maker\\content\\schemas\\localization_bundle.schema.json",
+    "bundles":  [
+
+                ],
+    "generatedAtUtc":  "2026-04-24T05:54:44.2608783Z",
+    "bundleRoot":  "C:\\Users\\dferr\\dev\\URPG - RPG Game Maker\\content\\localization",
+    "schemaVersion":  "1.0.0",
+    "summary":  {
+                    "hasBundles":  false,
+                    "bundleCount":  0,
+                    "masterLocale":  null,
+                    "missingLocaleCount":  0,
+                    "missingKeyCount":  0,
+                    "extraKeyCount":  0
+                },
+    "status":  "no_bundles",
+    "errors":  [
+
+               ],
+    "reportPath":  "C:\\Users\\dferr\\dev\\URPG - RPG Game Maker\\imports\\reports\\localization\\localization_consistency_report.json"
+}

@@ -1,0 +1,14 @@
+{
+  "generated_at": "2026-04-24T14:37:22.9451870Z",
+  "preview_csv": "imports\\reports\\more_assets\\more_assets_duplicate_cleanup_preview.csv",
+  "candidate_count": 28563,
+  "candidate_bytes": 249883779,
+  "keep_root_counts": [
+    {
+      "root": "imports/raw/more_assets",
+      "count": 28563
+    }
+  ],
+  "apply_mode": false,
+  "note": "Report-only duplicate preview for imports/raw/more_assets; no files were deleted."
+}
