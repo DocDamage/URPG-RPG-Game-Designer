@@ -219,6 +219,7 @@ add_library(urpg_core
     editor/diagnostics/event_authority_diagnostics.cpp
     editor/diagnostics/event_authority_panel.cpp
     editor/diagnostics/diagnostics_workspace.cpp
+    editor/diagnostics/diagnostics_workspace_export.cpp
     editor/diagnostics/diagnostics_workspace_serialization.cpp
     editor/diagnostics/diagnostics_facade.cpp
     editor/diagnostics/project_audit_panel.cpp
@@ -290,6 +291,10 @@ add_library(urpg_core
     runtimes/compat_js/audio_manager.cpp
     runtimes/compat_js/input_manager.cpp
     runtimes/compat_js/plugin_manager.cpp
+    runtimes/compat_js/plugin_manager_directory_scan.cpp
+    runtimes/compat_js/plugin_manager_fixture_script.cpp
+    runtimes/compat_js/plugin_manager_status.cpp
+    runtimes/compat_js/plugin_manager_support.cpp
 )
 
 target_include_directories(urpg_core PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
