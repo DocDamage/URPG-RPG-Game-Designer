@@ -1,0 +1,13 @@
+{
+  "version": "1.0.0",
+  "profiles": [
+    {
+      "id": "low-end",
+      "frameTimeBudgetMs": 16.6,
+      "memoryBudgetMb": 512,
+      "maxResolution": { "width": 1280, "height": 720 },
+      "storageBudgetMb": 100,
+      "inputDevices": ["keyboard"]
+    }
+  ]
+}

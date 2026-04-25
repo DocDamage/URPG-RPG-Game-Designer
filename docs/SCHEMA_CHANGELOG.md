@@ -416,6 +416,13 @@ Each governed schema entry should include:
 - Summary: runtime hint schema for once-only hint definitions, localization keys, trigger flags, accessibility settings, and dismissed state
 - Migration Impact: none; initial introduction for the FFS-13 simulation and world systems slice
 
+### `device_profile` (`device_profile.schema.json`)
+
+- Version: `1.0.0`
+- Date: `2026-04-25`
+- Summary: device profile schema for performance, memory, input, resolution, storage, and export constraint preview records
+- Migration Impact: none; initial introduction for the FFS-14 player experience and platform slice
+
 ### `tooling_job_run` (`tooling_job_run.schema.json`)
 
 - Version: `1.0.0`

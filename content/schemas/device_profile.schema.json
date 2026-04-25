@@ -1,0 +1,24 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:urpg:device_profile",
+  "type": "object",
+  "required": ["version", "profiles"],
+  "properties": {
+    "version": { "const": "1.0.0" },
+    "profiles": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "frameTimeBudgetMs", "memoryBudgetMb", "maxResolution", "storageBudgetMb", "inputDevices"],
+        "properties": {
+          "id": { "type": "string" },
+          "frameTimeBudgetMs": { "type": "number" },
+          "memoryBudgetMb": { "type": "integer" },
+          "maxResolution": { "type": "object" },
+          "storageBudgetMb": { "type": "integer" },
+          "inputDevices": { "type": "array", "items": { "type": "string" } }
+        }
+      }
+    }
+  }
+}

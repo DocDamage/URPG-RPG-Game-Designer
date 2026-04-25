@@ -161,7 +161,9 @@ add_library(urpg_core
     engine/core/engine_shell.cpp
     engine/core/global_state_hub.cpp
     engine/core/input/input_remap_store.cpp
+    engine/core/input/input_remap_profile.cpp
     engine/core/platform/opengl_renderer.cpp
+    engine/core/platform/device_profile.cpp
     engine/core/platform/sdl_surface.cpp
     engine/core/platform/gl_shader.cpp
     engine/core/platform/gl_texture.cpp
@@ -270,6 +272,7 @@ add_library(urpg_core
     engine/core/localization/locale_catalog.cpp
     engine/core/localization/completeness_checker.cpp
     engine/core/accessibility/accessibility_auditor.cpp
+    engine/core/accessibility/accessibility_fix_advisor.cpp
     editor/diagnostics/event_authority_diagnostics.cpp
     editor/diagnostics/event_authority_panel.cpp
     editor/diagnostics/diagnostics_workspace.cpp
@@ -289,6 +292,8 @@ add_library(urpg_core
     editor/dialogue/dialogue_graph_panel.cpp
     editor/narrative/narrative_continuity_panel.cpp
     editor/relationship/relationship_panel.cpp
+    editor/localization/localization_workspace_model.cpp
+    editor/localization/localization_workspace_panel.cpp
     editor/timeline/timeline_panel.cpp
     editor/replay/replay_panel.cpp
     editor/database/database_panel.cpp
@@ -339,11 +344,14 @@ add_library(urpg_core
     editor/spatial/spatial_authoring_workspace.cpp
     editor/sprite/sprite_animation_preview_panel.cpp
     editor/accessibility/accessibility_panel.cpp
+    editor/accessibility/accessibility_assistant_panel.cpp
     editor/accessibility/accessibility_menu_adapter.cpp
     editor/accessibility/accessibility_spatial_adapter.cpp
     editor/accessibility/accessibility_audio_adapter.cpp
     editor/accessibility/accessibility_battle_adapter.cpp
     editor/audio/audio_mix_panel.cpp
+    editor/input/input_remap_panel.cpp
+    editor/platform/device_profile_panel.cpp
     editor/audio/audio_inspector_model.cpp
     editor/analytics/analytics_panel.cpp
     editor/mod/mod_manager_panel.cpp
@@ -838,6 +846,7 @@ add_executable(urpg_tests
     tests/unit/test_npc_schedule.cpp
     tests/unit/test_puzzle_registry.cpp
     tests/unit/test_runtime_hint_system.cpp
+    tests/unit/test_player_experience_platform_suite.cpp
     tests/unit/test_s31_template_evidence_snapshots.cpp
     tests/unit/test_s32_wysiwyg_lanes.cpp
     tests/engine/core/test_render_assets.cpp

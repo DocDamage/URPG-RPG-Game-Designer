@@ -1,0 +1,15 @@
+{
+  "version": "1.0.0",
+  "localization": {
+    "sourceLocale": "en",
+    "targetLocale": "ja",
+    "glossary": [{ "source": "Save", "target": "保存" }]
+  },
+  "accessibility": {
+    "requiredFixActions": ["normalize_focus_order", "raise_contrast_ratio"]
+  },
+  "input": {
+    "allowAccessibilityDuplicates": true
+  },
+  "deviceProfiles": ["low-end"]
+}

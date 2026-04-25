@@ -830,6 +830,9 @@ cmake --build --preset dev-debug
 
 ## FFS-14 - Player Experience And Platform Suite
 
+**Status (2026-04-25): Complete.**
+FFS-14 implementation slice is complete. It adds a localization workspace model/panel for source-target key sync, fallback resolution, glossary checks, and layout-limit snapshots; accessibility fix advising and an assistant panel; input remap profiles with conflict detection and explicit accessibility duplicates; device profile budget evaluation and panel snapshots; canonical device profile schema and fixtures; a player-experience governance check; CMake wiring; and focused tests. This is not a full visual localization, accessibility, input, or device-preview authoring UI beyond the runtime/editor snapshot contracts listed here.
+
 ### Objective
 Make projects more accessible, localizable, input-friendly, and platform-aware.
 
@@ -840,24 +843,24 @@ Make projects more accessible, localizable, input-friendly, and platform-aware.
 - Device/platform preview profiles.
 
 ### Files To Add Or Modify
-- [ ] `editor/localization/localization_workspace_model.*`
-- [ ] `editor/localization/localization_workspace_panel.*`
-- [ ] `engine/core/accessibility/accessibility_fix_advisor.*`
-- [ ] `editor/accessibility/accessibility_assistant_panel.*`
-- [ ] `engine/core/input/input_remap_profile.*`
-- [ ] `editor/input/input_remap_panel.*`
-- [ ] `engine/core/platform/device_profile.*`
-- [ ] `editor/platform/device_profile_panel.*`
-- [ ] `content/schemas/device_profile.schema.json`
-- [ ] `content/fixtures/device_profile_fixture.json`
-- [ ] Focused tests under `tests/unit/`.
-- [ ] Governance scripts for localization/accessibility/input/device fixtures when new artifacts become canonical.
+- [x] `editor/localization/localization_workspace_model.*`
+- [x] `editor/localization/localization_workspace_panel.*`
+- [x] `engine/core/accessibility/accessibility_fix_advisor.*`
+- [x] `editor/accessibility/accessibility_assistant_panel.*`
+- [x] `engine/core/input/input_remap_profile.*`
+- [x] `editor/input/input_remap_panel.*`
+- [x] `engine/core/platform/device_profile.*`
+- [x] `editor/platform/device_profile_panel.*`
+- [x] `content/schemas/device_profile.schema.json`
+- [x] `content/fixtures/device_profile_fixture.json`
+- [x] Focused tests under `tests/unit/`.
+- [x] Governance scripts for localization/accessibility/input/device fixtures when new artifacts become canonical.
 
 ### Checklist
-- [ ] Localization panel syncs string IDs, missing keys, glossary terms, translation memory, and layout snapshots.
-- [ ] Accessibility assistant suggests fixes for labels, contrast, focus order, text speed, input alternatives, and controller-only navigation.
-- [ ] Input remap screen supports conflicts, defaults, profiles, keyboard, controller, and accessibility alternatives.
-- [ ] Device profiles report performance, memory, input, resolution, storage, and export constraints.
+- [x] Localization panel syncs string IDs, missing keys, glossary terms, translation memory, and layout snapshots.
+- [x] Accessibility assistant suggests fixes for labels, contrast, focus order, text speed, input alternatives, and controller-only navigation.
+- [x] Input remap screen supports conflicts, defaults, profiles, keyboard, controller, and accessibility alternatives.
+- [x] Device profiles report performance, memory, input, resolution, storage, and export constraints.
 
 ### Edge Cases
 - Missing translation but fallback locale exists.
@@ -868,11 +871,11 @@ Make projects more accessible, localizable, input-friendly, and platform-aware.
 - Low-end profile cannot support selected resolution.
 
 ### Tests
-- [ ] Localization workspace flags missing key and respects fallback.
-- [ ] Glossary enforcement reports inconsistent term.
-- [ ] Accessibility preview emits focus-order issue.
-- [ ] Remap rejects accidental conflict unless explicitly allowed.
-- [ ] Device profile flags over-budget frame time/memory.
+- [x] Localization workspace flags missing key and respects fallback.
+- [x] Glossary enforcement reports inconsistent term.
+- [x] Accessibility preview emits focus-order issue.
+- [x] Remap rejects accidental conflict unless explicitly allowed.
+- [x] Device profile flags over-budget frame time/memory.
 
 ### Acceptance Commands
 
