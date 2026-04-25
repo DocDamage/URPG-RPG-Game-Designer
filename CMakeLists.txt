@@ -182,6 +182,13 @@ add_library(urpg_core
     engine/core/format/canonical_json.cpp
     engine/core/migrate/migration_runner.cpp
     engine/core/plugin/plugin_compatibility_score.cpp
+    engine/core/quest/quest_registry.cpp
+    engine/core/quest/quest_validator.cpp
+    engine/core/dialogue/dialogue_graph.cpp
+    engine/core/narrative/choice_consequence_tracker.cpp
+    engine/core/narrative/ending_route_manager.cpp
+    engine/core/narrative/narrative_continuity_checker.cpp
+    engine/core/relationship/relationship_registry.cpp
     engine/core/sync/source_authority.cpp
     engine/core/save/save_catalog.cpp
     engine/core/save/save_compatibility_preview.cpp
@@ -251,6 +258,10 @@ add_library(urpg_core
     editor/plugin/plugin_inspector_panel.cpp
     editor/project/new_project_wizard_model.cpp
     editor/project/new_project_wizard_panel.cpp
+    editor/quest/quest_panel.cpp
+    editor/dialogue/dialogue_graph_panel.cpp
+    editor/narrative/narrative_continuity_panel.cpp
+    editor/relationship/relationship_panel.cpp
     editor/assets/asset_library_model.cpp
     editor/assets/asset_library_panel.cpp
     editor/export/export_diagnostics_panel.cpp
@@ -631,6 +642,12 @@ add_executable(urpg_tests
     tests/unit/test_battle_core.cpp
     tests/unit/test_bridge_roundtrip.cpp
     tests/unit/test_thread_roles.cpp
+    tests/unit/test_choice_consequence_tracker.cpp
+    tests/unit/test_dialogue_graph.cpp
+    tests/unit/test_ending_route_manager.cpp
+    tests/unit/test_narrative_continuity_checker.cpp
+    tests/unit/test_quest_registry.cpp
+    tests/unit/test_relationship_registry.cpp
     tests/unit/test_render_tier.cpp
     tests/unit/test_project_snapshot_store.cpp
     tests/unit/test_save_compatibility_preview.cpp

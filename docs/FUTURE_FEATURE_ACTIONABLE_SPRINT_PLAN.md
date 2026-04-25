@@ -598,25 +598,31 @@ Build first-class RPG narrative systems with validation and authoring support.
 - Relationship/reputation system.
 - Reputation-gated content browser.
 
+### 2026-04-25 Status
+- Landed deterministic quest state, quest validation, dialogue graph, narrative continuity, choice consequence, ending route, and relationship/reputation helpers.
+- Added editor panel snapshots for quest, dialogue, narrative continuity, and relationship views.
+- Added narrative schemas, fixture content, FFS-10 unit coverage, and a governance check for build/doc registration drift.
+
 ### Files To Add Or Modify
-- [ ] `engine/core/quest/quest_registry.*`
-- [ ] `engine/core/quest/quest_validator.*`
-- [ ] `engine/core/dialogue/dialogue_graph.*`
-- [ ] `engine/core/narrative/narrative_continuity_checker.*`
-- [ ] `engine/core/narrative/choice_consequence_tracker.*`
-- [ ] `engine/core/narrative/ending_route_manager.*`
-- [ ] `engine/core/relationship/relationship_registry.*`
-- [ ] Editor panels under `editor/quest/`, `editor/dialogue/`, `editor/narrative/`, `editor/relationship/`.
-- [ ] Schemas and fixtures for each data-driven feature.
+- [x] `engine/core/quest/quest_registry.*`
+- [x] `engine/core/quest/quest_validator.*`
+- [x] `engine/core/dialogue/dialogue_graph.*`
+- [x] `engine/core/narrative/narrative_continuity_checker.*`
+- [x] `engine/core/narrative/choice_consequence_tracker.*`
+- [x] `engine/core/narrative/ending_route_manager.*`
+- [x] `engine/core/relationship/relationship_registry.*`
+- [x] Editor panels under `editor/quest/`, `editor/dialogue/`, `editor/narrative/`, `editor/relationship/`.
+- [x] Schemas and fixtures for each data-driven feature.
+- [x] `tools/ci/check_narrative_quest_governance.ps1`
 
 ### Checklist
-- [ ] Quest registry supports objective states: locked, active, completed, failed, hidden.
-- [ ] Quest objectives can depend on switches, variables, items, battles, dialogue choices, and reputation.
-- [ ] Dialogue graph supports nodes, choices, conditions, effects, speaker metadata, localization keys, and preview.
-- [ ] Continuity checker reports unreachable dialogue, orphaned nodes, impossible conditions, unresolved choices, and missing endings.
-- [ ] Choice consequence tracker links choices to state changes.
-- [ ] Ending manager evaluates endings deterministically by priority.
-- [ ] Relationship registry persists faction/NPC affinity and reputation.
+- [x] Quest registry supports objective states: locked, active, completed, failed, hidden.
+- [x] Quest objectives can depend on switches, variables, items, battles, dialogue choices, and reputation.
+- [x] Dialogue graph supports nodes, choices, conditions, effects, speaker metadata, localization keys, and preview.
+- [x] Continuity checker reports unreachable dialogue, orphaned nodes, impossible conditions, unresolved choices, and missing endings.
+- [x] Choice consequence tracker links choices to state changes.
+- [x] Ending manager evaluates endings deterministically by priority.
+- [x] Relationship registry persists faction/NPC affinity and reputation.
 
 ### Edge Cases
 - Quest objective references deleted item.
@@ -628,12 +634,12 @@ Build first-class RPG narrative systems with validation and authoring support.
 - Condition references unknown switch.
 
 ### Tests
-- [ ] Quest objective advancement is deterministic.
-- [ ] Quest save/load preserves objective state and timestamps.
-- [ ] Dialogue graph detects orphaned nodes.
-- [ ] Continuity checker flags contradictory conditions.
-- [ ] Ending manager chooses highest-priority eligible ending.
-- [ ] Reputation-gated browser lists content by state.
+- [x] Quest objective advancement is deterministic.
+- [x] Quest save/load preserves objective state and timestamps.
+- [x] Dialogue graph detects orphaned nodes.
+- [x] Continuity checker flags contradictory conditions.
+- [x] Ending manager chooses highest-priority eligible ending.
+- [x] Reputation-gated browser lists content by state.
 
 ---
 

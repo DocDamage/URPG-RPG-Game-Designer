@@ -1,0 +1,12 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://urpg.local/schemas/dialogue_graph.schema.json",
+  "title": "URPG Dialogue Graph",
+  "type": "object",
+  "required": ["schema_version", "start_node_id", "nodes"],
+  "properties": {
+    "schema_version": { "const": "urpg.dialogue_graph.v1" },
+    "start_node_id": { "type": "string" },
+    "nodes": { "type": "array" }
+  }
+}

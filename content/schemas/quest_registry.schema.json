@@ -1,0 +1,11 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://urpg.local/schemas/quest_registry.schema.json",
+  "title": "URPG Quest Registry",
+  "type": "object",
+  "required": ["schema_version", "quests"],
+  "properties": {
+    "schema_version": { "const": "urpg.quest_registry.v1" },
+    "quests": { "type": "array" }
+  }
+}

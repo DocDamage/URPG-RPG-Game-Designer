@@ -1,0 +1,28 @@
+{
+  "quest": {
+    "id": "intro_quest",
+    "objectives": [
+      {
+        "id": "meet_guide",
+        "state": "locked",
+        "dependencies": [
+          { "type": "switch", "id": "intro_started", "value": 1 },
+          { "type": "dialogue_choice", "id": "choice_help_guide", "value": 1 }
+        ]
+      }
+    ]
+  },
+  "dialogue_graph": {
+    "schema_version": "urpg.dialogue_graph.v1",
+    "start_node_id": "start",
+    "nodes": [
+      { "id": "start", "localization_key": "dlg.start", "ending": false },
+      { "id": "end", "localization_key": "dlg.end", "ending": true }
+    ]
+  },
+  "relationship": {
+    "schema_version": "urpg.relationship_registry.v1",
+    "affinity": { "guide": 35 },
+    "gates": [{ "content_id": "guide_sidequest", "subject_id": "guide", "minimum": 20 }]
+  }
+}

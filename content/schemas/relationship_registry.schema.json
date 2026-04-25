@@ -1,0 +1,12 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://urpg.local/schemas/relationship_registry.schema.json",
+  "title": "URPG Relationship Registry",
+  "type": "object",
+  "required": ["schema_version", "affinity", "gates"],
+  "properties": {
+    "schema_version": { "const": "urpg.relationship_registry.v1" },
+    "affinity": { "type": "object" },
+    "gates": { "type": "array" }
+  }
+}
