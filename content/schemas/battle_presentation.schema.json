@@ -1,0 +1,42 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "URPG Battle Presentation Profile",
+  "type": "object",
+  "required": ["id", "battleback1", "hud", "cue_timeline"],
+  "properties": {
+    "id": { "type": "string" },
+    "battleback1": { "type": "string" },
+    "battleback2": { "type": "string" },
+    "hud": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "type", "x", "y"],
+        "properties": {
+          "id": { "type": "string" },
+          "type": {
+            "enum": ["gauge", "state_icon", "turn_order", "damage_popup", "guard_marker"]
+          },
+          "x": { "type": "integer" },
+          "y": { "type": "integer" },
+          "visible": { "type": "boolean" }
+        }
+      }
+    },
+    "cue_timeline": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "type", "frame"],
+        "properties": {
+          "id": { "type": "string" },
+          "type": {
+            "enum": ["cast", "hit", "miss", "critical", "death", "phase_transition", "victory", "defeat", "bgm", "me", "camera_shake"]
+          },
+          "frame": { "type": "integer", "minimum": 0 },
+          "payload": { "type": "string" }
+        }
+      }
+    }
+  }
+}

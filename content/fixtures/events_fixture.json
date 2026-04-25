@@ -1,0 +1,86 @@
+{
+  "maps": [
+    {
+      "id": "town",
+      "width": 20,
+      "height": 15
+    }
+  ],
+  "events": [
+    {
+      "id": "evt_npc_intro",
+      "map_id": "town",
+      "x": 4,
+      "y": 5,
+      "pages": [
+        {
+          "id": "base",
+          "priority": 0,
+          "trigger": "action_button",
+          "conditions": {
+            "switches": {},
+            "min_variables": {},
+            "quest_flags": []
+          },
+          "commands": [
+            {
+              "id": "say_hello",
+              "kind": "message",
+              "value": "Welcome to town."
+            },
+            {
+              "id": "set_intro_seen",
+              "kind": "switch",
+              "target": "intro_seen",
+              "value": "true"
+            }
+          ]
+        },
+        {
+          "id": "reward",
+          "priority": 10,
+          "trigger": "action_button",
+          "conditions": {
+            "switches": {
+              "intro_seen": true
+            },
+            "min_variables": {
+              "party_level": 2
+            },
+            "quest_flags": ["first_quest.open"]
+          },
+          "commands": [
+            {
+              "id": "reward_gold",
+              "kind": "gold",
+              "amount": 100,
+              "read_save_fields": ["party.gold"],
+              "write_save_fields": ["party.gold"]
+            },
+            {
+              "id": "legacy_plugin_payload",
+              "kind": "unsupported",
+              "_compat_command_fallbacks": {
+                "rpgmaker_code": 357,
+                "plugin": "LegacyQuestBridge",
+                "command": "GrantStamp"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "common_events": [
+    {
+      "id": "ce_reward_fanfare",
+      "commands": [
+        {
+          "id": "play_fanfare",
+          "kind": "sound",
+          "target": "audio/se/fanfare.ogg"
+        }
+      ]
+    }
+  ]
+}

@@ -345,7 +345,7 @@ TEST_CASE("DiagnosticsWorkspace - Refresh updates compat and save tabs", "[edito
     REQUIRE(auditSummary.has_data);
 
     const auto allSummaries = workspace.allTabSummaries();
-    REQUIRE(allSummaries.size() == 10);
+    REQUIRE(allSummaries.size() == 11);
 
     urpg::editor::DiagnosticsFacade facade(workspace);
     const auto exportedJson = nlohmann::json::parse(facade.emitSnapshot());
@@ -368,7 +368,7 @@ TEST_CASE("DiagnosticsWorkspace - Refresh updates compat and save tabs", "[edito
     REQUIRE(exportedJson["active_tab_detail"]["recent_events"][0]["pluginId"] == "MissingPlugin");
     REQUIRE(exportedJson["active_tab_detail"]["recent_events"][0]["severity"] == "WARNING");
     REQUIRE(exportedJson["tabs"].is_array());
-    REQUIRE(exportedJson["tabs"].size() == 10);
+    REQUIRE(exportedJson["tabs"].size() == 11);
     REQUIRE(exportedJson["tabs"][0]["name"] == "compat");
     REQUIRE(exportedJson["tabs"][0]["item_count"] == 1);
     REQUIRE(exportedJson["tabs"][1]["name"] == "save");

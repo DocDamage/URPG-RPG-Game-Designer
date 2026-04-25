@@ -1,0 +1,28 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "URPG Boss Profile",
+  "type": "object",
+  "required": ["id", "phases"],
+  "properties": {
+    "id": { "type": "string" },
+    "phases": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "hp_below_percent"],
+        "properties": {
+          "id": { "type": "string" },
+          "hp_below_percent": { "type": "integer", "minimum": 1, "maximum": 100 },
+          "summons": {
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "enrage": { "type": "boolean" },
+          "dialogue_bark": { "type": "string" },
+          "reward_item": { "type": "string" },
+          "music_transition": { "type": "string" }
+        }
+      }
+    }
+  }
+}

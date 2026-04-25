@@ -1,0 +1,27 @@
+{
+  "presentation": {
+    "id": "crystal_cave_battle",
+    "battleback1": "img/battlebacks1/CrystalCave.png",
+    "battleback2": "img/battlebacks2/CrystalFog.png",
+    "hud": [
+      { "id": "actor_hp", "type": "gauge", "x": 8, "y": 8, "visible": true },
+      { "id": "state_icons", "type": "state_icon", "x": 8, "y": 32, "visible": true },
+      { "id": "turn_order", "type": "turn_order", "x": 160, "y": 8, "visible": true },
+      { "id": "damage_popup", "type": "damage_popup", "x": 200, "y": 80, "visible": true },
+      { "id": "guard_marker", "type": "guard_marker", "x": 64, "y": 64, "visible": true }
+    ],
+    "cue_timeline": [
+      { "id": "cast", "type": "cast", "frame": 10, "payload": "skill_1" },
+      { "id": "hit", "type": "hit", "frame": 28, "payload": "slash" },
+      { "id": "victory", "type": "victory", "frame": 120, "payload": "me_victory" }
+    ]
+  },
+  "boss": {
+    "id": "crystal_lich",
+    "phases": [
+      { "id": "opening", "hp_below_percent": 100, "dialogue_bark": "The cave wakes.", "music_transition": "battle_theme" },
+      { "id": "summon", "hp_below_percent": 60, "summons": ["crystal_wisp"], "dialogue_bark": "Shatter for me." },
+      { "id": "enrage", "hp_below_percent": 25, "enrage": true, "reward_item": "crystal_crown", "music_transition": "boss_enrage" }
+    ]
+  }
+}

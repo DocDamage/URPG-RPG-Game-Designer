@@ -204,32 +204,37 @@ Turn asset hygiene and intake reports into a creator-facing asset browser with c
 
 ## FFS-03 - Visual Event Authoring
 
+### 2026-04-25 Status
+FFS-03 implementation slice is complete. It adds a runtime event authoring document, deterministic active-page resolution, unsupported-command preservation, switch/variable/quest/save-field dependency graph edges, debugger stepping/breakpoints/watch variables, editor model/panel snapshots, semantic validation, a canonical schema/fixture pair, governance artifact check, CMake wiring, focused tests, and a save/load integration test. This is not a readiness promotion and does not claim full RPG Maker event-command parity beyond the supported command categories listed below.
+
 ### Objective
 Build the authoring spine for RPG logic: visual event pages, command editing, dependency graph, and debugger.
 
 ### Files To Add Or Modify
-- [ ] `engine/core/events/event_document.h`
-- [ ] `engine/core/events/event_document.cpp`
-- [ ] `engine/core/events/event_dependency_graph.h`
-- [ ] `engine/core/events/event_dependency_graph.cpp`
-- [ ] `engine/core/events/event_debugger.h`
-- [ ] `engine/core/events/event_debugger.cpp`
-- [ ] `editor/events/event_authoring_model.*`
-- [ ] `editor/events/event_authoring_panel.*`
-- [ ] `content/schemas/events.schema.json`
-- [ ] `content/fixtures/events_fixture.json`
-- [ ] `tests/unit/test_event_document.cpp`
-- [ ] `tests/unit/test_event_dependency_graph.cpp`
-- [ ] `tests/unit/test_event_debugger.cpp`
-- [ ] `tests/unit/test_event_authoring_panel.cpp`
+- [x] `engine/core/events/event_document.h`
+- [x] `engine/core/events/event_document.cpp`
+- [x] `engine/core/events/event_dependency_graph.h`
+- [x] `engine/core/events/event_dependency_graph.cpp`
+- [x] `engine/core/events/event_debugger.h`
+- [x] `engine/core/events/event_debugger.cpp`
+- [x] `editor/events/event_authoring_model.*`
+- [x] `editor/events/event_authoring_panel.*`
+- [x] `content/schemas/events.schema.json`
+- [x] `content/fixtures/events_fixture.json`
+- [x] `tests/unit/test_event_document.cpp`
+- [x] `tests/unit/test_event_dependency_graph.cpp`
+- [x] `tests/unit/test_event_debugger.cpp`
+- [x] `tests/unit/test_event_authoring_panel.cpp`
+- [x] `tests/integration/test_event_authoring_integration.cpp`
+- [x] `tools/ci/check_events_governance.ps1`
 
 ### Checklist
-- [ ] Model event pages with conditions, priority, trigger, and commands.
-- [ ] Support commands for message, switch, variable, transfer, common event, battle, item, gold, wait, fade, sound, and plugin fallback.
-- [ ] Preserve unsupported commands as `_compat_command_fallbacks`.
-- [ ] Build dependency graph of reads/writes for switches, variables, quest flags, save fields, and common events.
-- [ ] Add debugger with breakpoints, current page, command pointer, watch variables, and event stack.
-- [ ] Add semantic validation: duplicate event IDs, missing target map, missing common event, unreachable page, page shadowing, cyclic common-event calls.
+- [x] Model event pages with conditions, priority, trigger, and commands.
+- [x] Support commands for message, switch, variable, transfer, common event, battle, item, gold, wait, fade, sound, and plugin fallback.
+- [x] Preserve unsupported commands as `_compat_command_fallbacks`.
+- [x] Build dependency graph of reads/writes for switches, variables, quest flags, save fields, and common events.
+- [x] Add debugger with breakpoints, current page, command pointer, watch variables, and event stack.
+- [x] Add semantic validation: duplicate event IDs, missing target map, missing common event, unreachable page, page shadowing, cyclic common-event calls.
 
 ### Edge Cases
 - Multiple event pages match; highest-priority page must win deterministically.
@@ -241,36 +246,42 @@ Build the authoring spine for RPG logic: visual event pages, command editing, de
 - Event graph contains thousands of nodes.
 
 ### Tests
-- [ ] Event page resolution is deterministic when conditions overlap.
-- [ ] Unsupported commands are preserved in fallback payloads.
-- [ ] Dependency graph reports read/write edges.
-- [ ] Cyclic common-event calls emit diagnostics and do not recurse forever.
-- [ ] Debugger can step, break, resume, and expose watch values.
-- [ ] Empty event document returns empty snapshot without crash.
+- [x] Event page resolution is deterministic when conditions overlap.
+- [x] Unsupported commands are preserved in fallback payloads.
+- [x] Dependency graph reports read/write edges.
+- [x] Cyclic common-event calls emit diagnostics and do not recurse forever.
+- [x] Debugger can step, break, resume, and expose watch values.
+- [x] Empty event document returns empty snapshot without crash.
 
 ---
 
 ## FFS-04 - Plugin Compatibility Inspector
 
+### 2026-04-25 Status
+FFS-04 implementation slice is complete. It adds a runtime compatibility scorer for plugin manifests and plugin-manager failure JSONL, deterministic dependency graph/cycle detection, profile-aware dependency drift handling, conservative compatible/partial/risky/unsupported tiers, denied-permission and unsupported-API issue surfacing, native shim hints only for mapped in-tree features, a headless editor inspector snapshot, machine-readable JSON export, governance artifact checks, CMake wiring, and focused tests. This is not release-authoritative and does not change compatibility promotion policy.
+
 ### Objective
 Expose plugin compatibility, sandbox permissions, unsupported APIs, load order, and suggested native replacements.
 
 ### Files To Add Or Modify
-- [ ] `engine/core/plugin/plugin_compatibility_score.h`
-- [ ] `engine/core/plugin/plugin_compatibility_score.cpp`
-- [ ] `editor/plugin/plugin_inspector_model.*`
-- [ ] `editor/plugin/plugin_inspector_panel.*`
-- [ ] `tests/unit/test_plugin_compatibility_score.cpp`
-- [ ] `tests/unit/test_plugin_inspector_panel.cpp`
-- [ ] Extend `tools/rpgmaker/validate-plugin-dropins.ps1` if needed.
+- [x] `engine/core/plugin/plugin_compatibility_score.h`
+- [x] `engine/core/plugin/plugin_compatibility_score.cpp`
+- [x] `editor/plugin/plugin_inspector_model.*`
+- [x] `editor/plugin/plugin_inspector_panel.*`
+- [x] `tests/unit/test_plugin_compatibility_score.cpp`
+- [x] `tests/unit/test_plugin_inspector_panel.cpp`
+- [x] Extend `tools/rpgmaker/validate-plugin-dropins.ps1` if needed. Not needed for this inspector/governance slice.
+- [x] `tools/ci/check_plugin_inspector_governance.ps1`
 
 ### Checklist
-- [ ] Ingest existing compat plugin manifests and failure reports.
-- [ ] Compute conservative score: compatible, partial, risky, unsupported.
-- [ ] List unsupported JS APIs, missing dependencies, permission denials, fixture-only behavior, and fallback paths.
-- [ ] Visualize plugin dependency order and cycles.
-- [ ] Provide shim hints only when an in-tree native feature exists.
-- [ ] Keep score non-release-authoritative until governance integrates it.
+- [x] Ingest existing compat plugin manifests and failure reports.
+- [x] Compute conservative score: compatible, partial, risky, unsupported.
+- [x] List unsupported JS APIs, missing dependencies, permission denials, fixture-only behavior, and fallback paths.
+- [x] Visualize plugin dependency order and cycles through a deterministic inspector projection.
+- [x] Provide shim hints only when an in-tree native feature exists.
+- [x] Keep score non-release-authoritative until governance integrates it.
+- [x] Export machine-readable inspector snapshots for diagnostics and audit handoff.
+- [x] Preserve fixture/profile-allowed dependency drift without silently treating it as full compatibility.
 
 ### Edge Cases
 - Plugin declares dependency that is missing but unused by the active profile.
@@ -281,15 +292,20 @@ Expose plugin compatibility, sandbox permissions, unsupported APIs, load order, 
 - Multiple plugins override the same RPG Maker method.
 
 ### Tests
-- [ ] Missing dependency lowers score and surfaces exact dependency ID.
-- [ ] Permission denial produces blocking issue.
-- [ ] Cycle detection is deterministic.
-- [ ] Unknown API appears in unsupported list.
-- [ ] Suggested native replacement appears only for mapped APIs.
+- [x] Missing dependency lowers score and surfaces exact dependency ID.
+- [x] Permission denial produces blocking issue.
+- [x] Cycle detection is deterministic.
+- [x] Unknown API appears in unsupported list.
+- [x] Suggested native replacement appears only for mapped APIs.
+- [x] Existing compat fixture directory loads deterministically.
+- [x] Profile-allowed missing dependency is preserved as a graph edge without lowering the dependency score as a hard miss.
 
 ---
 
 ## FFS-05 - Battle Authoring Suite
+
+### 2026-04-25 Status
+FFS-05 implementation slice is complete. It adds battle presentation profiles with battleback/HUD/cue validation, boss profiles with deterministic phase threshold validation, a formula debugger backed by the existing bounded `CombatFormula` contract, deterministic weighted enemy AI profiles, party tactics/auto-battle decisions, editor-facing presentation/boss/formula panel snapshots, canonical schemas and fixture data, governance artifact checks, CMake wiring, and focused tests. This is not a readiness promotion and does not claim a full visual battle editor or live renderer integration beyond these authoring contracts.
 
 ### Objective
 Make battle authoring visual, inspectable, and designer-friendly.
@@ -302,26 +318,28 @@ Make battle authoring visual, inspectable, and designer-friendly.
 - Party tactics/auto-battle planner.
 
 ### Files To Add Or Modify
-- [ ] `engine/core/battle/battle_presentation_profile.*`
-- [ ] `engine/core/battle/boss_profile.*`
-- [ ] `engine/core/battle/battle_formula_probe.*`
-- [ ] `engine/core/battle/enemy_ai_profile.*`
-- [ ] `engine/core/battle/party_tactics_profile.*`
-- [ ] `editor/battle/battle_presentation_panel.*`
-- [ ] `editor/battle/boss_designer_panel.*`
-- [ ] `editor/battle/formula_debugger_panel.*`
-- [ ] `content/schemas/battle_presentation.schema.json`
-- [ ] `content/schemas/boss_profiles.schema.json`
-- [ ] Focused tests under `tests/unit/`.
+- [x] `engine/core/battle/battle_presentation_profile.*`
+- [x] `engine/core/battle/boss_profile.*`
+- [x] `engine/core/battle/battle_formula_probe.*`
+- [x] `engine/core/battle/enemy_ai_profile.*`
+- [x] `engine/core/battle/party_tactics_profile.*`
+- [x] `editor/battle/battle_presentation_panel.*`
+- [x] `editor/battle/boss_designer_panel.*`
+- [x] `editor/battle/formula_debugger_panel.*`
+- [x] `content/schemas/battle_presentation.schema.json`
+- [x] `content/schemas/boss_profiles.schema.json`
+- [x] Focused tests under `tests/unit/`.
+- [x] `content/fixtures/battle_authoring_fixture.json`
+- [x] `tools/ci/check_battle_authoring_governance.ps1`
 
 ### Checklist
-- [ ] Battleback assignment validates missing assets and case-sensitive paths.
-- [ ] HUD layout supports gauges, state icons, turn order, damage popups, and guard markers.
-- [ ] Cue timeline supports cast, hit, miss, critical, death, phase transition, victory, defeat, BGM, ME, and camera shake.
-- [ ] Boss profiles support phases, thresholds, summons, enrage, dialogue barks, rewards, and music transitions.
-- [ ] Formula debugger uses existing `CombatFormula` bounded contract and explains fallback reasons.
-- [ ] Enemy AI profiles choose actions deterministically from weighted rules.
-- [ ] Party tactics produce deterministic auto-battle decisions.
+- [x] Battleback assignment validates missing assets and case-sensitive paths.
+- [x] HUD layout supports gauges, state icons, turn order, damage popups, and guard markers.
+- [x] Cue timeline supports cast, hit, miss, critical, death, phase transition, victory, defeat, BGM, ME, and camera shake.
+- [x] Boss profiles support phases, thresholds, summons, enrage, dialogue barks, rewards, and music transitions.
+- [x] Formula debugger uses existing `CombatFormula` bounded contract and explains fallback reasons.
+- [x] Enemy AI profiles choose actions deterministically from weighted rules.
+- [x] Party tactics produce deterministic auto-battle decisions.
 
 ### Edge Cases
 - Missing battleback asset.
@@ -334,12 +352,12 @@ Make battle authoring visual, inspectable, and designer-friendly.
 - Battle reward references missing item.
 
 ### Tests
-- [ ] Missing battleback emits named diagnostic, not silent fallback.
-- [ ] Boss phase threshold ordering is validated.
-- [ ] Formula batch probe reports unsupported symbols and malformed expressions.
-- [ ] Enemy AI selects same action for same state and seed.
-- [ ] Party tactic heals below threshold and defends when no heal is possible.
-- [ ] Cue timeline serializes and replays deterministically.
+- [x] Missing battleback emits named diagnostic, not silent fallback.
+- [x] Boss phase threshold ordering is validated.
+- [x] Formula batch probe reports unsupported symbols and malformed expressions.
+- [x] Enemy AI selects same action for same state and seed.
+- [x] Party tactic heals below threshold and defends when no heal is possible.
+- [x] Cue timeline serializes and replays deterministically.
 
 ---
 

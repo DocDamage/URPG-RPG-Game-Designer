@@ -175,9 +175,13 @@ add_library(urpg_core
     engine/core/asset_compressor.cpp
     engine/core/threading/thread_roles.cpp
     engine/core/events/event_edit_guard.cpp
+    engine/core/events/event_debugger.cpp
+    engine/core/events/event_dependency_graph.cpp
+    engine/core/events/event_document.cpp
     engine/core/events/event_runtime.cpp
     engine/core/format/canonical_json.cpp
     engine/core/migrate/migration_runner.cpp
+    engine/core/plugin/plugin_compatibility_score.cpp
     engine/core/sync/source_authority.cpp
     engine/core/save/save_catalog.cpp
     engine/core/save/save_journal.cpp
@@ -188,6 +192,11 @@ add_library(urpg_core
     engine/core/save/rpgmaker_save_reader.cpp
     engine/core/battle/battle_core.cpp
     engine/core/battle/battle_ai_bridge.cpp
+    engine/core/battle/battle_formula_probe.cpp
+    engine/core/battle/battle_presentation_profile.cpp
+    engine/core/battle/boss_profile.cpp
+    engine/core/battle/enemy_ai_profile.cpp
+    engine/core/battle/party_tactics_profile.cpp
     engine/core/character/character_identity.cpp
     engine/core/character/character_identity_catalog.cpp
     engine/core/character/character_identity_validator.cpp
@@ -227,6 +236,10 @@ add_library(urpg_core
     editor/diagnostics/project_audit_panel.cpp
     editor/diagnostics/project_health_model.cpp
     editor/diagnostics/project_health_panel.cpp
+    editor/events/event_authoring_model.cpp
+    editor/events/event_authoring_panel.cpp
+    editor/plugin/plugin_inspector_model.cpp
+    editor/plugin/plugin_inspector_panel.cpp
     editor/assets/asset_library_model.cpp
     editor/assets/asset_library_panel.cpp
     editor/export/export_diagnostics_panel.cpp
@@ -238,6 +251,9 @@ add_library(urpg_core
     editor/save/save_inspector_model.cpp
     editor/save/save_inspector_panel.cpp
     editor/battle/battle_inspector_model.cpp
+    editor/battle/battle_presentation_panel.cpp
+    editor/battle/boss_designer_panel.cpp
+    editor/battle/formula_debugger_panel.cpp
     editor/battle/battle_preview_panel.cpp
     editor/battle/battle_inspector_panel.cpp
     editor/message/message_inspector_model.cpp
@@ -600,6 +616,8 @@ add_executable(urpg_tests
     tests/unit/test_project_audit_panel.cpp
     tests/unit/test_project_health_model.cpp
     tests/unit/test_project_health_panel.cpp
+    tests/unit/test_plugin_compatibility_score.cpp
+    tests/unit/test_plugin_inspector_panel.cpp
     tests/unit/test_asset_library.cpp
     tests/unit/test_asset_cleanup_planner.cpp
     tests/unit/test_asset_library_panel.cpp
@@ -615,9 +633,14 @@ add_executable(urpg_tests
     tests/unit/test_save_migration.cpp
     tests/unit/test_save_serialization.cpp
     tests/unit/test_battle_inspector_model.cpp
+    tests/unit/test_battle_authoring_suite.cpp
     tests/unit/test_battle_preview_panel.cpp
     tests/unit/test_battle_inspector_panel.cpp
     tests/unit/test_event_edit_guard.cpp
+    tests/unit/test_event_document.cpp
+    tests/unit/test_event_dependency_graph.cpp
+    tests/unit/test_event_debugger.cpp
+    tests/unit/test_event_authoring_panel.cpp
     tests/unit/test_event_authority_diagnostics.cpp
     tests/unit/test_event_authority_panel.cpp
     tests/unit/test_diagnostics_workspace.cpp
@@ -734,6 +757,7 @@ urpg_enable_windows_test_binary_unlock(urpg_tests)
 add_executable(urpg_integration_tests
     tests/integration/test_integration_runtime_recovery.cpp
     tests/integration/test_battle_save_integration.cpp
+    tests/integration/test_event_authoring_integration.cpp
     tests/integration/test_wave1_closure_integration.cpp
 )
 

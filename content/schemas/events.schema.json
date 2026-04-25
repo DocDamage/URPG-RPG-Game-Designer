@@ -1,0 +1,106 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://urpg.local/schemas/events.schema.json",
+  "title": "URPG Event Authoring Document",
+  "type": "object",
+  "required": ["maps", "events"],
+  "properties": {
+    "maps": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "width", "height"],
+        "properties": {
+          "id": {"type": "string", "minLength": 1},
+          "width": {"type": "integer", "minimum": 1},
+          "height": {"type": "integer", "minimum": 1}
+        }
+      }
+    },
+    "events": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "map_id", "pages"],
+        "properties": {
+          "id": {"type": "string", "minLength": 1},
+          "map_id": {"type": "string", "minLength": 1},
+          "x": {"type": "integer", "minimum": 0},
+          "y": {"type": "integer", "minimum": 0},
+          "pages": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["id", "priority", "trigger", "commands"],
+              "properties": {
+                "id": {"type": "string", "minLength": 1},
+                "priority": {"type": "integer"},
+                "trigger": {
+                  "type": "string",
+                  "enum": ["action_button", "player_touch", "autorun", "parallel"]
+                },
+                "conditions": {
+                  "type": "object",
+                  "properties": {
+                    "switches": {"type": "object", "additionalProperties": {"type": "boolean"}},
+                    "min_variables": {"type": "object", "additionalProperties": {"type": "integer"}},
+                    "quest_flags": {"type": "array", "items": {"type": "string"}}
+                  }
+                },
+                "commands": {
+                  "type": "array",
+                  "items": {"$ref": "#/$defs/command"}
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "common_events": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "commands"],
+        "properties": {
+          "id": {"type": "string", "minLength": 1},
+          "commands": {"type": "array", "items": {"$ref": "#/$defs/command"}}
+        }
+      }
+    }
+  },
+  "$defs": {
+    "command": {
+      "type": "object",
+      "required": ["id", "kind"],
+      "properties": {
+        "id": {"type": "string", "minLength": 1},
+        "kind": {
+          "type": "string",
+          "enum": [
+            "message",
+            "switch",
+            "variable",
+            "transfer",
+            "common_event",
+            "battle",
+            "item",
+            "gold",
+            "wait",
+            "fade",
+            "sound",
+            "plugin",
+            "unsupported"
+          ]
+        },
+        "target": {"type": "string"},
+        "value": {"type": "string"},
+        "amount": {"type": "integer"},
+        "read_save_fields": {"type": "array", "items": {"type": "string"}},
+        "write_save_fields": {"type": "array", "items": {"type": "string"}},
+        "payload": {"type": "object"},
+        "_compat_command_fallbacks": {"type": "object"}
+      }
+    }
+  }
+}
