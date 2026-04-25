@@ -1,0 +1,77 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "UiTheme",
+  "description": "Schema for FFS-15 UI theme assets consumed by the theme registry and editor preview panel.",
+  "type": "object",
+  "required": ["version", "themeId", "windowFrame", "font", "cursor", "buttonStates", "menuSound", "previewScreens"],
+  "properties": {
+    "version": {
+      "type": "string",
+      "const": "1.0.0"
+    },
+    "themeId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "windowFrame": {
+      "type": "object",
+      "required": ["asset", "borderPixels"],
+      "properties": {
+        "asset": {
+          "type": "string",
+          "minLength": 1
+        },
+        "borderPixels": {
+          "type": "integer",
+          "minimum": 0
+        }
+      },
+      "additionalProperties": false
+    },
+    "font": {
+      "type": "string",
+      "minLength": 1
+    },
+    "cursor": {
+      "type": "string",
+      "minLength": 1
+    },
+    "buttonStates": {
+      "type": "object",
+      "required": ["normal", "hover", "pressed", "disabled"],
+      "properties": {
+        "normal": {
+          "type": "string",
+          "minLength": 1
+        },
+        "hover": {
+          "type": "string",
+          "minLength": 1
+        },
+        "pressed": {
+          "type": "string",
+          "minLength": 1
+        },
+        "disabled": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "additionalProperties": false
+    },
+    "menuSound": {
+      "type": "string",
+      "minLength": 1
+    },
+    "previewScreens": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string",
+        "enum": ["title", "menu", "battle"]
+      },
+      "uniqueItems": true
+    }
+  },
+  "additionalProperties": false
+}

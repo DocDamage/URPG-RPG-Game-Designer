@@ -16,6 +16,13 @@ Each governed schema entry should include:
 
 ## Entries
 
+### `ui_theme` (`ui_theme.schema.json`)
+
+- Version: `1.0.0`
+- Date: `2026-04-25`
+- Summary: UI theme schema for window frames, fonts, cursors, button states, menu sounds, and cross-screen preview contracts
+- Migration Impact: none; initial introduction for the FFS-15 capture, theme, and presentation polish slice
+
 ### `readiness_status` (`readiness_status.schema.json`)
 
 - Version: `1.0.0`

@@ -889,6 +889,8 @@ powershell -ExecutionPolicy Bypass -File .\tools\ci\check_localization_consisten
 
 ## FFS-15 - Capture, Theme, And Presentation Polish
 
+**Status (2026-04-25): Complete.** Landed bounded runtime/editor contracts for deterministic capture naming, trailer frame manifests, photo-mode state isolation, theme validation, and stable UI preview snapshots. This slice intentionally covers headless-safe contracts and editor snapshot surfaces; full renderer-backed visual authoring remains governed by the existing presentation gate.
+
 ### Objective
 Help creators present, brand, and market their games.
 
@@ -898,23 +900,23 @@ Help creators present, brand, and market their games.
 - Theme/UI skin builder.
 
 ### Files To Add Or Modify
-- [ ] `engine/core/capture/capture_session.*`
-- [ ] `engine/core/capture/trailer_capture_manifest.*`
-- [ ] `engine/core/presentation/photo_mode_state.*`
-- [ ] `engine/core/ui/theme_registry.*`
-- [ ] `engine/core/ui/theme_validator.*`
-- [ ] `editor/capture/capture_panel.*`
-- [ ] `editor/presentation/photo_mode_panel.*`
-- [ ] `editor/ui/theme_builder_panel.*`
-- [ ] `content/schemas/ui_theme.schema.json`
-- [ ] `content/fixtures/ui_theme_fixture.json`
-- [ ] Focused tests under `tests/unit/` plus renderer-backed snapshot coverage where visuals are claimed.
+- [x] `engine/core/capture/capture_session.*`
+- [x] `engine/core/capture/trailer_capture_manifest.*`
+- [x] `engine/core/presentation/photo_mode_state.*`
+- [x] `engine/core/ui/theme_registry.*`
+- [x] `engine/core/ui/theme_validator.*`
+- [x] `editor/capture/capture_panel.*`
+- [x] `editor/presentation/photo_mode_panel.*`
+- [x] `editor/ui/theme_builder_panel.*`
+- [x] `content/schemas/ui_theme.schema.json`
+- [x] `content/fixtures/ui_theme_fixture.json`
+- [x] Focused tests under `tests/unit/` plus renderer-backed snapshot coverage where visuals are claimed.
 
 ### Checklist
-- [ ] Screenshot capture uses deterministic scene state and stable output naming.
-- [ ] Trailer capture supports short clips, GIF-like frame sequence, thumbnails, and store-page media presets.
-- [ ] Photo mode supports pause, camera movement, UI hide, time/weather override, character pose presets, and screenshot export.
-- [ ] UI skin builder supports window frames, fonts, cursors, button states, menu sounds, and cross-screen previews.
+- [x] Screenshot capture uses deterministic scene state and stable output naming.
+- [x] Trailer capture supports short clips, GIF-like frame sequence, thumbnails, and store-page media presets.
+- [x] Photo mode supports pause, camera movement, UI hide, time/weather override, character pose presets, and screenshot export.
+- [x] UI skin builder supports window frames, fonts, cursors, button states, menu sounds, and cross-screen previews.
 
 ### Edge Cases
 - Capture requested in headless CI.
@@ -924,10 +926,10 @@ Help creators present, brand, and market their games.
 - Photo mode tries to pose actor not present.
 
 ### Tests
-- [ ] Capture returns explicit unsupported status in headless mode.
-- [ ] Theme validator catches missing font and missing sound.
-- [ ] UI skin preview renders all core screens into a snapshot.
-- [ ] Photo mode state does not leak back into gameplay state after exit.
+- [x] Capture returns explicit unsupported status in headless mode.
+- [x] Theme validator catches missing font and missing sound.
+- [x] UI skin preview renders all core screens into a snapshot.
+- [x] Photo mode state does not leak back into gameplay state after exit.
 
 ### Acceptance Commands
 

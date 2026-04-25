@@ -1,0 +1,18 @@
+{
+  "version": "1.0.0",
+  "themeId": "theme.default",
+  "windowFrame": {
+    "asset": "ui/window/default_frame.png",
+    "borderPixels": 8
+  },
+  "font": "default.ttf",
+  "cursor": "cursor.default",
+  "buttonStates": {
+    "normal": "ui/button/default_normal.png",
+    "hover": "ui/button/default_hover.png",
+    "pressed": "ui/button/default_pressed.png",
+    "disabled": "ui/button/default_disabled.png"
+  },
+  "menuSound": "ok.ogg",
+  "previewScreens": ["title", "menu", "battle"]
+}

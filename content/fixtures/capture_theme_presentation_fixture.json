@@ -1,0 +1,25 @@
+{
+  "version": "1.0.0",
+  "capture": {
+    "sceneId": "scene.title",
+    "frame": 7,
+    "outputName": "scene.title_000007.png",
+    "headlessStatus": "unsupported_headless"
+  },
+  "trailer": {
+    "manifestId": "launch",
+    "preset": "store",
+    "frameCount": 3,
+    "thumbnailName": "launch_store_thumbnail.png"
+  },
+  "photoMode": {
+    "mapId": "map",
+    "weatherOverride": "rain",
+    "uiHidden": true,
+    "poseActor": "actor.hero"
+  },
+  "theme": {
+    "themeId": "theme.default",
+    "stablePreviewHash": "theme.default:battle|menu|title"
+  }
+}
