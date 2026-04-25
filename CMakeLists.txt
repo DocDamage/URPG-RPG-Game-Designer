@@ -184,6 +184,9 @@ add_library(urpg_core
     engine/core/plugin/plugin_compatibility_score.cpp
     engine/core/sync/source_authority.cpp
     engine/core/save/save_catalog.cpp
+    engine/core/save/save_compatibility_preview.cpp
+    engine/core/save/save_corruption_lab.cpp
+    engine/core/save/save_debugger.cpp
     engine/core/save/save_journal.cpp
     engine/core/save/save_migration.cpp
     engine/core/save/save_recovery.cpp
@@ -256,8 +259,10 @@ add_library(urpg_core
     editor/character/character_creator_panel.cpp
     editor/achievement/achievement_panel.cpp
     editor/action/controller_binding_panel.cpp
+    editor/save/save_debugger_panel.cpp
     editor/save/save_inspector_model.cpp
     editor/save/save_inspector_panel.cpp
+    editor/save/save_migration_preview_panel.cpp
     editor/battle/battle_inspector_model.cpp
     editor/battle/battle_presentation_panel.cpp
     editor/battle/boss_designer_panel.cpp
@@ -313,6 +318,7 @@ add_library(urpg_core
     engine/core/tools/export_packager_license_audit.cpp
     engine/core/tools/export_packager_payload_builder.cpp
     engine/core/project/dev_room_generator.cpp
+    engine/core/project/project_snapshot_store.cpp
     engine/core/project/project_template_generator.cpp
     engine/core/tutorial/tutorial_lesson.cpp
     engine/core/level/level_assembly.cpp
@@ -626,6 +632,10 @@ add_executable(urpg_tests
     tests/unit/test_bridge_roundtrip.cpp
     tests/unit/test_thread_roles.cpp
     tests/unit/test_render_tier.cpp
+    tests/unit/test_project_snapshot_store.cpp
+    tests/unit/test_save_compatibility_preview.cpp
+    tests/unit/test_save_corruption_lab.cpp
+    tests/unit/test_save_debugger.cpp
     tests/unit/test_save_journal.cpp
     tests/unit/test_canonical_json.cpp
     tests/unit/test_migration_runner.cpp

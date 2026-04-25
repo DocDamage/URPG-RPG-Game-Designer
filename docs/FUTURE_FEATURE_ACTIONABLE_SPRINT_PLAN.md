@@ -541,24 +541,31 @@ Make persistence visible, testable, and safe across project updates.
 - Save compatibility/migration previewer.
 - Cloud-free backup/project snapshots.
 
+### 2026-04-25 Status
+- Landed save debugger inspection for slot metadata, recovery tiers, migration notes, subsystem state, and diagnostics.
+- Added a corruption lab that writes mutated test copies, recovery simulation reporting, compatibility migration previews, and local project snapshot/restore support.
+- Added editor panel snapshots, a save debugging fixture, FFS-09 unit coverage, and a governance check for registration drift.
+
 ### Files To Add Or Modify
-- [ ] `engine/core/save/save_debugger.*`
-- [ ] `engine/core/save/save_corruption_lab.*`
-- [ ] `engine/core/save/save_compatibility_preview.*`
-- [ ] `engine/core/project/project_snapshot_store.*`
-- [ ] `editor/save/save_debugger_panel.*`
-- [ ] `editor/save/save_migration_preview_panel.*`
-- [ ] `tests/unit/test_save_debugger.cpp`
-- [ ] `tests/unit/test_save_corruption_lab.cpp`
-- [ ] `tests/unit/test_save_compatibility_preview.cpp`
-- [ ] `tests/unit/test_project_snapshot_store.cpp`
+- [x] `engine/core/save/save_debugger.*`
+- [x] `engine/core/save/save_corruption_lab.*`
+- [x] `engine/core/save/save_compatibility_preview.*`
+- [x] `engine/core/project/project_snapshot_store.*`
+- [x] `editor/save/save_debugger_panel.*`
+- [x] `editor/save/save_migration_preview_panel.*`
+- [x] `tests/unit/test_save_debugger.cpp`
+- [x] `tests/unit/test_save_corruption_lab.cpp`
+- [x] `tests/unit/test_save_compatibility_preview.cpp`
+- [x] `tests/unit/test_project_snapshot_store.cpp`
+- [x] `content/fixtures/save_debugging_fixture.json`
+- [x] `tools/ci/check_save_debugging_governance.ps1`
 
 ### Checklist
-- [ ] Inspect slots, metadata, recovery tier, migration notes, and subsystem state.
-- [ ] Intentionally corrupt test saves without touching real user saves.
-- [ ] Run recovery tiers and export diagnostics.
-- [ ] Preview old save fixtures through current migration stack.
-- [ ] Create local project snapshots before migrations and risky edits.
+- [x] Inspect slots, metadata, recovery tier, migration notes, and subsystem state.
+- [x] Intentionally corrupt test saves without touching real user saves.
+- [x] Run recovery tiers and export diagnostics.
+- [x] Preview old save fixtures through current migration stack.
+- [x] Create local project snapshots before migrations and risky edits.
 
 ### Edge Cases
 - Corrupted JSON.
@@ -569,11 +576,11 @@ Make persistence visible, testable, and safe across project updates.
 - Snapshot references deleted assets.
 
 ### Tests
-- [ ] Corruption lab never mutates original fixture.
-- [ ] Recovery simulation reports tier chosen.
-- [ ] Migration preview preserves unrelated blobs.
-- [ ] Snapshot restore round-trips project files.
-- [ ] Unknown save fields remain preserved or explicitly diagnosed.
+- [x] Corruption lab never mutates original fixture.
+- [x] Recovery simulation reports tier chosen.
+- [x] Migration preview preserves unrelated blobs.
+- [x] Snapshot restore round-trips project files.
+- [x] Unknown save fields remain preserved or explicitly diagnosed.
 
 ---
 

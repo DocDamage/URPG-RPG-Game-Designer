@@ -1,0 +1,14 @@
+{
+  "schema_version": "urpg.save.v1",
+  "slot_id": 1,
+  "recovery_tier": "primary",
+  "metadata": {
+    "_save_version": "1.0.0",
+    "_map_display_name": "Onboarding Harbor"
+  },
+  "subsystems": {
+    "battle": { "turn": 1 },
+    "save": { "autosave": true }
+  },
+  "migration_notes": []
+}
