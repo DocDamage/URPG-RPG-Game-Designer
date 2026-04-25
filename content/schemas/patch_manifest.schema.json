@@ -1,0 +1,16 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://urpg.local/schemas/patch_manifest.schema.json",
+  "title": "URPG Patch Manifest",
+  "type": "object",
+  "required": ["id", "base_version", "target_version", "changed_data", "changed_assets", "dependencies"],
+  "properties": {
+    "id": { "type": "string", "minLength": 1 },
+    "base_version": { "type": "string", "minLength": 1 },
+    "target_version": { "type": "string", "minLength": 1 },
+    "changed_data": { "type": "array", "items": { "type": "string" } },
+    "changed_assets": { "type": "array", "items": { "type": "string" } },
+    "dependencies": { "type": "array", "items": { "type": "string" } }
+  },
+  "additionalProperties": false
+}

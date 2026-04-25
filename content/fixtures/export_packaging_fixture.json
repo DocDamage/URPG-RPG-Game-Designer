@@ -1,0 +1,18 @@
+{
+  "patch_manifest": {
+    "id": "ffs07-fixture-patch",
+    "base_version": "1.0.0",
+    "target_version": "1.1.0",
+    "changed_data": ["data/schemas/save.schema.json"],
+    "changed_assets": ["assets/hero.png"],
+    "dependencies": ["base-content"]
+  },
+  "creator_package_manifest": {
+    "id": "ffs07-fixture-creator-pack",
+    "type": "tileset",
+    "license_evidence": "licenses/ffs07-fixture-creator-pack.md",
+    "compatibility_target": "URPG>=0.7",
+    "dependencies": ["base-content"],
+    "validation_summary": "validated by FFS-07 export packaging tests"
+  }
+}

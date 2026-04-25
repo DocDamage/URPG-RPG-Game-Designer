@@ -24,6 +24,7 @@ struct CliOptions {
     bool json = false;
     bool preflightOnly = false;
     bool validateOnly = false;
+    bool explainHardening = false;
     bool enableAutoAssetDiscovery = true;
     bool obfuscateScripts = false;
     bool compressAssets = true;
@@ -91,6 +92,7 @@ void printHelp() {
         << "  --include-debug-symbols       Include debug symbol flag in native exports\n"
         << "  --preflight-only              Run export preflight and stop\n"
         << "  --validate-only               Run post-export validation for an existing output\n"
+        << "  --explain-hardening           Describe signed bundle and patch/package checks\n"
         << "  --json                        Emit a machine-readable JSON report\n"
         << "  --help                        Show this help text\n";
 }
@@ -120,6 +122,8 @@ ParseResult parseArgs(int argc, char** argv) {
             result.options.preflightOnly = true;
         } else if (arg == "--validate-only") {
             result.options.validateOnly = true;
+        } else if (arg == "--explain-hardening") {
+            result.options.explainHardening = true;
         } else if (arg == "--no-auto-discovery") {
             result.options.enableAutoAssetDiscovery = false;
         } else if (arg == "--no-compress") {
@@ -182,13 +186,13 @@ ParseResult parseArgs(int argc, char** argv) {
         return result;
     }
 
-    if (!result.options.help && !result.options.target.has_value()) {
+    if (!result.options.help && !result.options.explainHardening && !result.options.target.has_value()) {
         result.ok = false;
         result.error = "--target is required";
         return result;
     }
 
-    if (!result.options.help && result.options.outputDir.empty()) {
+    if (!result.options.help && !result.options.explainHardening && result.options.outputDir.empty()) {
         result.ok = false;
         result.error = "--output is required";
         return result;
@@ -239,6 +243,37 @@ nlohmann::json exportResultToJson(const ExportPackager::ExportResult& result) {
     };
 }
 
+nlohmann::json hardeningReportToJson() {
+    return {
+        {"tool", "urpg_pack_cli"},
+        {"phase", "export_hardening"},
+        {"runtimeBundle", {
+            {"signatureMode", "sha256_keyed_bundle_v1"},
+            {"tamperPolicy", "reject_before_load"},
+            {"publication", "temp_file_then_rename"},
+        }},
+        {"artifactCompare", {
+            "changed_assets",
+            "changed_schemas",
+            "missing_files",
+            "signature_changed",
+            "manifest_changed",
+        }},
+        {"patchManifest", {
+            {"tracks", {"changed_data", "changed_assets", "dependencies"}},
+            {"compatibilityChecks", {"base_version", "target_version", "dependency_presence"}},
+        }},
+        {"creatorPackageManifest", {
+            "id",
+            "type",
+            "license_evidence",
+            "compatibility_target",
+            "dependencies",
+            "validation_summary",
+        }},
+    };
+}
+
 nlohmann::json baseReport(const CliOptions& options, std::string phase) {
     return {
         {"tool", "urpg_pack_cli"},
@@ -275,6 +310,15 @@ int main(int argc, char** argv) {
     const CliOptions& options = parsed.options;
     if (options.help) {
         printHelp();
+        return 0;
+    }
+    if (options.explainHardening) {
+        const auto report = hardeningReportToJson();
+        if (options.json) {
+            emitJson(report);
+        } else {
+            std::cout << report.dump(2) << '\n';
+        }
         return 0;
     }
 

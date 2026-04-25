@@ -432,23 +432,33 @@ Make shipping artifacts safer, comparable, and suitable for updates.
 - Patch/DLC builder.
 - Creator marketplace-ready packaging.
 
+### 2026-04-25 Status
+- Landed runtime signed bundle loading and temp-file publication helpers.
+- Added release artifact diffing, patch manifests, creator package manifests, schemas, and fixtures.
+- Extended `urpg_pack_cli` with an export-hardening explanation report.
+- Added FFS-07 unit coverage plus a governance check for registration drift.
+
 ### Files To Add Or Modify
-- [ ] `engine/core/export/runtime_bundle_loader.*`
-- [ ] `engine/core/export/export_artifact_compare.*`
-- [ ] `engine/core/export/patch_manifest.*`
-- [ ] `engine/core/export/creator_package_manifest.*`
-- [ ] `tools/pack/` pack CLI extensions.
-- [ ] `tests/unit/test_runtime_bundle_loader.cpp`
-- [ ] `tests/unit/test_export_artifact_compare.cpp`
-- [ ] `tests/unit/test_patch_manifest.cpp`
-- [ ] `tests/unit/test_creator_package_manifest.cpp`
+- [x] `engine/core/export/runtime_bundle_loader.*`
+- [x] `engine/core/export/export_artifact_compare.*`
+- [x] `engine/core/export/patch_manifest.*`
+- [x] `engine/core/export/creator_package_manifest.*`
+- [x] `tools/pack/` pack CLI extensions.
+- [x] `tests/unit/test_runtime_bundle_loader.cpp`
+- [x] `tests/unit/test_export_artifact_compare.cpp`
+- [x] `tests/unit/test_patch_manifest.cpp`
+- [x] `tests/unit/test_creator_package_manifest.cpp`
+- [x] `content/schemas/patch_manifest.schema.json`
+- [x] `content/schemas/creator_package_manifest.schema.json`
+- [x] `content/fixtures/export_packaging_fixture.json`
+- [x] `tools/ci/check_export_packaging_governance.ps1`
 
 ### Checklist
-- [ ] Runtime loader rejects tampered bundles before loading content.
-- [ ] Bundle publication uses temp file plus atomic rename where platform supports it.
-- [ ] Comparison reports changed assets, changed schemas, missing files, signature status, and manifest differences.
-- [ ] Patch builder detects changed data/assets and validates compatibility.
-- [ ] Creator package manifest includes type, license evidence, compatibility target, dependencies, and validation summary.
+- [x] Runtime loader rejects tampered bundles before loading content.
+- [x] Bundle publication uses temp file plus atomic rename where platform supports it.
+- [x] Comparison reports changed assets, changed schemas, missing files, signature status, and manifest differences.
+- [x] Patch builder detects changed data/assets and validates compatibility.
+- [x] Creator package manifest includes type, license evidence, compatibility target, dependencies, and validation summary.
 
 ### Edge Cases
 - Signature missing.
@@ -459,12 +469,12 @@ Make shipping artifacts safer, comparable, and suitable for updates.
 - DLC package depends on missing base content.
 
 ### Tests
-- [ ] Tampered bundle fails runtime load.
-- [ ] Valid signed bundle loads.
-- [ ] Interrupted atomic publish leaves previous bundle intact.
-- [ ] Artifact compare detects changed schema version.
-- [ ] Patch manifest rejects missing dependency.
-- [ ] Creator package rejects absent license evidence.
+- [x] Tampered bundle fails runtime load.
+- [x] Valid signed bundle loads.
+- [x] Interrupted atomic publish leaves previous bundle intact.
+- [x] Artifact compare detects changed schema version.
+- [x] Patch manifest rejects missing dependency.
+- [x] Creator package rejects absent license evidence.
 
 ---
 

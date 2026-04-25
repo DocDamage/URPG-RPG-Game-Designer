@@ -300,7 +300,11 @@ add_library(urpg_core
     engine/core/mod/mod_registry.cpp
     engine/core/mod/mod_registry_validator.cpp
     engine/core/mod/mod_loader.cpp
+    engine/core/export/creator_package_manifest.cpp
+    engine/core/export/export_artifact_compare.cpp
     engine/core/export/export_validator.cpp
+    engine/core/export/patch_manifest.cpp
+    engine/core/export/runtime_bundle_loader.cpp
     engine/core/tools/export_packager.cpp
     engine/core/tools/export_packager_bundle_writer.cpp
     engine/core/tools/export_packager_executable_staging.cpp
@@ -727,9 +731,13 @@ add_executable(urpg_tests
     tests/unit/test_achievement_triggers.cpp
     tests/unit/test_accessibility_auditor.cpp
     tests/unit/test_accessibility_panel.cpp
+    tests/unit/test_creator_package_manifest.cpp
+    tests/unit/test_export_artifact_compare.cpp
     tests/unit/test_export_validator.cpp
     tests/unit/test_export_packager.cpp
     tests/unit/test_export_diagnostics_panel.cpp
+    tests/unit/test_patch_manifest.cpp
+    tests/unit/test_runtime_bundle_loader.cpp
     tests/unit/test_visual_regression_harness.cpp
     tests/unit/test_truth_reconciler.cpp
     tests/unit/test_governance_regression.cpp
