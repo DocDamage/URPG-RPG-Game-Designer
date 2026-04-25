@@ -1,0 +1,42 @@
+{
+  "regions": [
+    {
+      "id": "forest_edge",
+      "x": 0,
+      "y": 0,
+      "width": 8,
+      "height": 6,
+      "encounter_table": "forest_day",
+      "ambient_audio": "birds",
+      "weather": "clear",
+      "hazard": "",
+      "movement_rule": "normal",
+      "event_id": "evt_forest_gate"
+    }
+  ],
+  "profiles": [
+    {
+      "id": "seeded_dungeon",
+      "type": "dungeon",
+      "width": 16,
+      "height": 16,
+      "seed": 1337,
+      "require_boss": true,
+      "require_key": true,
+      "require_shop": false
+    }
+  ],
+  "spawns": {
+    "id": "forest_spawns",
+    "entries": [
+      {
+        "id": "slime_spawn",
+        "enemy_id": "slime",
+        "x": 4,
+        "y": 5,
+        "cooldown_seconds": 30,
+        "persistent": true
+      }
+    ]
+  }
+}

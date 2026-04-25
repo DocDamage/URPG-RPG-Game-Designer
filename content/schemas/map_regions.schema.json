@@ -1,0 +1,28 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "URPG Map Region Rules",
+  "type": "object",
+  "required": ["regions"],
+  "properties": {
+    "regions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "x", "y", "width", "height"],
+        "properties": {
+          "id": { "type": "string" },
+          "x": { "type": "integer" },
+          "y": { "type": "integer" },
+          "width": { "type": "integer", "minimum": 1 },
+          "height": { "type": "integer", "minimum": 1 },
+          "encounter_table": { "type": "string" },
+          "ambient_audio": { "type": "string" },
+          "weather": { "type": "string" },
+          "hazard": { "type": "string" },
+          "movement_rule": { "type": "string" },
+          "event_id": { "type": "string" }
+        }
+      }
+    }
+  }
+}

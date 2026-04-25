@@ -363,6 +363,9 @@ Make battle authoring visual, inspectable, and designer-friendly.
 
 ## FFS-06 - Map And Worldbuilding Suite
 
+### 2026-04-25 Status
+FFS-06 implementation slice is complete. It adds editable tile layer documents, deterministic terrain brush previews, map region rule validation, deterministic procedural map profiles that return normal editable map documents, tactical move range previews, spawn table JSON persistence, a weather profile contract, editor-facing terrain/region/procedural panel snapshots, canonical schemas and fixture data, governance artifact checks, CMake wiring, and focused tests. This is not a readiness promotion and does not claim full tile renderer/editor integration beyond these authoring contracts.
+
 ### Objective
 Upgrade map creation from basic spatial authoring to full RPG worldbuilding.
 
@@ -375,27 +378,29 @@ Upgrade map creation from basic spatial authoring to full RPG worldbuilding.
 - Spawn/respawn system.
 
 ### Files To Add Or Modify
-- [ ] `engine/core/map/tile_layer_document.*`
-- [ ] `engine/core/map/terrain_brush.*`
-- [ ] `engine/core/map/map_region_rules.*`
-- [ ] `engine/core/map/procedural_map_generator.*`
-- [ ] `engine/core/map/spawn_table.*`
-- [ ] `engine/core/map/tactical_grid_preview.*`
-- [ ] `engine/core/presentation/weather_profile.*`
-- [ ] `editor/spatial/terrain_brush_panel.*`
-- [ ] `editor/spatial/region_rules_panel.*`
-- [ ] `editor/spatial/procedural_map_panel.*`
-- [ ] `content/schemas/map_regions.schema.json`
-- [ ] `content/schemas/procedural_map_profiles.schema.json`
+- [x] `engine/core/map/tile_layer_document.*`
+- [x] `engine/core/map/terrain_brush.*`
+- [x] `engine/core/map/map_region_rules.*`
+- [x] `engine/core/map/procedural_map_generator.*`
+- [x] `engine/core/map/spawn_table.*`
+- [x] `engine/core/map/tactical_grid_preview.*`
+- [x] `engine/core/presentation/weather_profile.*`
+- [x] `editor/spatial/terrain_brush_panel.*`
+- [x] `editor/spatial/region_rules_panel.*`
+- [x] `editor/spatial/procedural_map_panel.*`
+- [x] `content/schemas/map_regions.schema.json`
+- [x] `content/schemas/procedural_map_profiles.schema.json`
+- [x] `content/fixtures/map_worldbuilding_fixture.json`
+- [x] `tools/ci/check_map_worldbuilding_governance.ps1`
 
 ### Checklist
-- [ ] Add layers with visibility, lock state, collision, navigation, and draw order.
-- [ ] Add terrain brushes: single, rectangle, line, random weighted, stamp, autotile.
-- [ ] Add region metadata for encounters, ambient audio, weather, hazards, movement rules, and events.
-- [ ] Add deterministic map generation profiles: dungeon, cave, town, forest, overworld.
-- [ ] Generated maps must be normal editable map documents, not special runtime-only data.
-- [ ] Add tactical overlay for move range, attack range, blocked cells, and line of sight.
-- [ ] Add spawn/respawn tables with cooldowns, persistence, and save/load rules.
+- [x] Add layers with visibility, lock state, collision, navigation, and draw order.
+- [x] Add terrain brushes: single, rectangle, line, random weighted, stamp, autotile.
+- [x] Add region metadata for encounters, ambient audio, weather, hazards, movement rules, and events.
+- [x] Add deterministic map generation profiles: dungeon, cave, town, forest, overworld.
+- [x] Generated maps must be normal editable map documents, not special runtime-only data.
+- [x] Add tactical overlay for move range, attack range, blocked cells, and line of sight.
+- [x] Add spawn/respawn tables with cooldowns, persistence, and save/load rules.
 
 ### Edge Cases
 - Layer locked but command tries to edit.
@@ -407,12 +412,12 @@ Upgrade map creation from basic spatial authoring to full RPG worldbuilding.
 - Large maps should avoid O(width * height * layers) work every frame.
 
 ### Tests
-- [ ] Terrain brush output is deterministic for the same seed.
-- [ ] Locked layer rejects edits.
-- [ ] Region conflict validator emits exact cell/rule conflict.
-- [ ] Procedural generator reports unsatisfied constraints.
-- [ ] Tactical range preview respects blocked cells.
-- [ ] Spawn persistence round-trips through save JSON.
+- [x] Terrain brush output is deterministic for the same seed.
+- [x] Locked layer rejects edits.
+- [x] Region conflict validator emits exact cell/rule conflict.
+- [x] Procedural generator reports unsatisfied constraints.
+- [x] Tactical range preview respects blocked cells.
+- [x] Spawn persistence round-trips through save JSON.
 
 ---
 

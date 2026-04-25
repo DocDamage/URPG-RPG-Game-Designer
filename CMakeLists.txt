@@ -197,6 +197,12 @@ add_library(urpg_core
     engine/core/battle/boss_profile.cpp
     engine/core/battle/enemy_ai_profile.cpp
     engine/core/battle/party_tactics_profile.cpp
+    engine/core/map/tile_layer_document.cpp
+    engine/core/map/terrain_brush.cpp
+    engine/core/map/map_region_rules.cpp
+    engine/core/map/procedural_map_generator.cpp
+    engine/core/map/spawn_table.cpp
+    engine/core/map/tactical_grid_preview.cpp
     engine/core/character/character_identity.cpp
     engine/core/character/character_identity_catalog.cpp
     engine/core/character/character_identity_validator.cpp
@@ -268,6 +274,9 @@ add_library(urpg_core
     editor/perf/perf_diagnostics_model.cpp
     editor/perf/perf_diagnostics_panel.cpp
     editor/spatial/elevation_brush_panel.cpp
+    editor/spatial/terrain_brush_panel.cpp
+    editor/spatial/region_rules_panel.cpp
+    editor/spatial/procedural_map_panel.cpp
     editor/spatial/prop_placement_panel.cpp
     editor/spatial/map_ability_binding_panel.cpp
     editor/spatial/spatial_ability_canvas_panel.cpp
@@ -687,6 +696,7 @@ add_executable(urpg_tests
     tests/unit/test_project_audit_cli.cpp
     tests/unit/test_effect_cue.cpp
     tests/unit/test_spatial_editor.cpp
+    tests/unit/test_map_worldbuilding_suite.cpp
     tests/unit/test_huggingface_curated_assets.cpp
     tests/unit/test_ability_activation.cpp
     tests/unit/test_ability_e2e.cpp
