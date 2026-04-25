@@ -1,0 +1,16 @@
+{
+  "schema_version": "urpg.dev_room.v1",
+  "project_id": "fixture_project",
+  "map_id": "dev_room_001",
+  "stations": [
+    "message",
+    "menu",
+    "battle",
+    "save_load",
+    "plugin_report",
+    "audio",
+    "input",
+    "asset_warning",
+    "export_preflight"
+  ]
+}

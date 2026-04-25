@@ -1,0 +1,5 @@
+{
+  "template_id": "jrpg",
+  "display_name": "Classic JRPG",
+  "subsystems": ["maps", "menu", "message", "battle", "save", "localization", "input", "export_profile"]
+}

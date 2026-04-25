@@ -1,0 +1,5 @@
+{
+  "template_id": "visual_novel",
+  "display_name": "Visual Novel",
+  "subsystems": ["maps", "menu", "message", "battle", "save", "localization", "input", "export_profile"]
+}

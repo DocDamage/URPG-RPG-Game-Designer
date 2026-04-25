@@ -1,0 +1,5 @@
+{
+  "template_id": "turn_based_rpg",
+  "display_name": "Turn-Based RPG",
+  "subsystems": ["maps", "menu", "message", "battle", "save", "localization", "input", "export_profile"]
+}

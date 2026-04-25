@@ -489,24 +489,30 @@ Help creators get from blank project to working, validated RPG slice quickly.
 - One-click dev room test harness.
 - Tutorial project and interactive lessons.
 
+### 2026-04-25 Status
+- Landed deterministic starter project generation for JRPG, visual novel, and turn-based RPG templates.
+- Added new project wizard model/panel snapshots, dev room generation, tutorial lesson progress persistence, starter template content, and dev room fixture coverage.
+- Added FFS-08 unit coverage plus a governance check for build/doc registration drift.
+
 ### Files To Add Or Modify
-- [ ] `engine/core/project/project_template_generator.*`
-- [ ] `engine/core/project/dev_room_generator.*`
-- [ ] `engine/core/tutorial/tutorial_lesson.*`
-- [ ] `editor/project/new_project_wizard_model.*`
-- [ ] `editor/project/new_project_wizard_panel.*`
-- [ ] `content/templates/`
-- [ ] `content/fixtures/dev_room_fixture.json`
-- [ ] `tests/unit/test_project_template_generator.cpp`
-- [ ] `tests/unit/test_dev_room_generator.cpp`
-- [ ] `tests/unit/test_tutorial_lesson.cpp`
+- [x] `engine/core/project/project_template_generator.*`
+- [x] `engine/core/project/dev_room_generator.*`
+- [x] `engine/core/tutorial/tutorial_lesson.*`
+- [x] `editor/project/new_project_wizard_model.*`
+- [x] `editor/project/new_project_wizard_panel.*`
+- [x] `content/templates/`
+- [x] `content/fixtures/dev_room_fixture.json`
+- [x] `tests/unit/test_project_template_generator.cpp`
+- [x] `tests/unit/test_dev_room_generator.cpp`
+- [x] `tests/unit/test_tutorial_lesson.cpp`
+- [x] `tools/ci/check_project_onboarding_governance.ps1`
 
 ### Checklist
-- [ ] Generate project from template with maps, menu, message, battle, save, localization, input, and export profile.
-- [ ] Initial audit report is generated after project creation.
-- [ ] Dev room includes stations for message, menu, battle, save/load, plugin report, audio, input, asset warning, export preflight.
-- [ ] Interactive lessons track completion and can be reset.
-- [ ] Generated content has stable IDs and deterministic ordering.
+- [x] Generate project from template with maps, menu, message, battle, save, localization, input, and export profile.
+- [x] Initial audit report is generated after project creation.
+- [x] Dev room includes stations for message, menu, battle, save/load, plugin report, audio, input, asset warning, export preflight.
+- [x] Interactive lessons track completion and can be reset.
+- [x] Generated content has stable IDs and deterministic ordering.
 
 ### Edge Cases
 - Template references missing subsystem or asset.
@@ -516,11 +522,11 @@ Help creators get from blank project to working, validated RPG slice quickly.
 - Dev room station fails but report still completes.
 
 ### Tests
-- [ ] Template generator emits valid project JSON for JRPG/VN/TBR.
-- [ ] Duplicate project IDs are rejected.
-- [ ] Dev room scripted route visits all stations.
-- [ ] Tutorial completion persists through save/load.
-- [ ] Generated project passes project schema validation.
+- [x] Template generator emits valid project JSON for JRPG/VN/TBR.
+- [x] Duplicate project IDs are rejected.
+- [x] Dev room scripted route visits all stations.
+- [x] Tutorial completion persists through save/load.
+- [x] Generated project passes project schema validation.
 
 ---
 

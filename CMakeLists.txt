@@ -246,6 +246,8 @@ add_library(urpg_core
     editor/events/event_authoring_panel.cpp
     editor/plugin/plugin_inspector_model.cpp
     editor/plugin/plugin_inspector_panel.cpp
+    editor/project/new_project_wizard_model.cpp
+    editor/project/new_project_wizard_panel.cpp
     editor/assets/asset_library_model.cpp
     editor/assets/asset_library_panel.cpp
     editor/export/export_diagnostics_panel.cpp
@@ -310,6 +312,9 @@ add_library(urpg_core
     engine/core/tools/export_packager_executable_staging.cpp
     engine/core/tools/export_packager_license_audit.cpp
     engine/core/tools/export_packager_payload_builder.cpp
+    engine/core/project/dev_room_generator.cpp
+    engine/core/project/project_template_generator.cpp
+    engine/core/tutorial/tutorial_lesson.cpp
     engine/core/level/level_assembly.cpp
     engine/core/ui/menu_serializer.cpp
     engine/core/scene/battle_scene.cpp
@@ -629,6 +634,7 @@ add_executable(urpg_tests
     tests/unit/test_project_audit_panel.cpp
     tests/unit/test_project_health_model.cpp
     tests/unit/test_project_health_panel.cpp
+    tests/unit/test_project_template_generator.cpp
     tests/unit/test_plugin_compatibility_score.cpp
     tests/unit/test_plugin_inspector_panel.cpp
     tests/unit/test_asset_library.cpp
@@ -745,6 +751,8 @@ add_executable(urpg_tests
     tests/unit/test_analytics_panel.cpp
     tests/unit/test_template_acceptance.cpp
     tests/unit/test_template_bar_quality.cpp
+    tests/unit/test_dev_room_generator.cpp
+    tests/unit/test_tutorial_lesson.cpp
     tests/unit/test_s31_template_evidence_snapshots.cpp
     tests/unit/test_s32_wysiwyg_lanes.cpp
     tests/engine/core/test_render_assets.cpp
