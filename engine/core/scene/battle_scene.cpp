@@ -6,6 +6,7 @@
 #include "runtimes/compat_js/battle_manager.h"
 #include "engine/core/render/asset_loader.h"
 #include <algorithm>
+#include <cmath>
 #include <ctime>
 #include <filesystem>
 #include <iostream>

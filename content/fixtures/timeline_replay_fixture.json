@@ -1,0 +1,26 @@
+{
+  "timeline": {
+    "schema_version": "urpg.timeline.v1",
+    "actors": ["hero"],
+    "commands": [
+      { "id": "intro_message", "kind": "message", "tick": 0, "target": "Welcome." },
+      { "id": "hero_walk", "kind": "movement", "tick": 6, "duration": 12, "actor_id": "hero", "target": "x:4,y:2" },
+      { "id": "battle_sting", "kind": "battle_cue", "tick": 24, "target": "boss_intro" }
+    ]
+  },
+  "replay": {
+    "schema_version": "urpg.replay.v1",
+    "id": "intro_golden",
+    "seed": 99,
+    "project_version": "2.0.0",
+    "labels": ["golden", "ffs11"],
+    "input_log": [
+      { "tick": 0, "action": "start", "payload": {} },
+      { "tick": 3, "action": "confirm", "payload": { "button": "ok" } }
+    ],
+    "state_hashes": {
+      "0": "4f19b7f0a7a3b001",
+      "3": "61dd2f9d12b44731"
+    }
+  }
+}

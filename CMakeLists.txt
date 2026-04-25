@@ -74,7 +74,12 @@ if(URPG_USE_SCCACHE)
 endif()
 
 if(WIN32 AND URPG_WINDOWS_UNLOCK_TEST_BINARIES)
-    find_program(URPG_POWERSHELL_EXE NAMES pwsh powershell)
+    find_program(URPG_WINDOWS_POWERSHELL_EXE NAMES powershell)
+    if(URPG_WINDOWS_POWERSHELL_EXE)
+        set(URPG_POWERSHELL_EXE "${URPG_WINDOWS_POWERSHELL_EXE}")
+    else()
+        find_program(URPG_POWERSHELL_EXE NAMES pwsh powershell)
+    endif()
     if(NOT URPG_POWERSHELL_EXE)
         message(WARNING "URPG_WINDOWS_UNLOCK_TEST_BINARIES=ON but no PowerShell executable was found")
     endif()
@@ -178,6 +183,7 @@ add_library(urpg_core
     engine/core/events/event_debugger.cpp
     engine/core/events/event_dependency_graph.cpp
     engine/core/events/event_document.cpp
+    engine/core/events/event_macro_recorder.cpp
     engine/core/events/event_runtime.cpp
     engine/core/format/canonical_json.cpp
     engine/core/migrate/migration_runner.cpp
@@ -189,6 +195,20 @@ add_library(urpg_core
     engine/core/narrative/ending_route_manager.cpp
     engine/core/narrative/narrative_continuity_checker.cpp
     engine/core/relationship/relationship_registry.cpp
+    engine/core/timeline/timeline_document.cpp
+    engine/core/timeline/timeline_player.cpp
+    engine/core/replay/replay_recorder.cpp
+    engine/core/replay/replay_player.cpp
+    engine/core/replay/replay_gallery.cpp
+    engine/core/replay/golden_replay_lane.cpp
+    engine/core/database/rpg_database.cpp
+    engine/core/balance/economy_simulator.cpp
+    engine/core/balance/encounter_table.cpp
+    engine/core/shop/vendor_catalog.cpp
+    engine/core/rest/rest_point.cpp
+    engine/core/items/loot_affix_generator.cpp
+    engine/core/progression/class_progression.cpp
+    engine/core/ability/skill_combo_rules.cpp
     engine/core/sync/source_authority.cpp
     engine/core/save/save_catalog.cpp
     engine/core/save/save_compatibility_preview.cpp
@@ -262,6 +282,11 @@ add_library(urpg_core
     editor/dialogue/dialogue_graph_panel.cpp
     editor/narrative/narrative_continuity_panel.cpp
     editor/relationship/relationship_panel.cpp
+    editor/timeline/timeline_panel.cpp
+    editor/replay/replay_panel.cpp
+    editor/database/database_panel.cpp
+    editor/balance/balance_panel.cpp
+    editor/shop/vendor_panel.cpp
     editor/assets/asset_library_model.cpp
     editor/assets/asset_library_panel.cpp
     editor/export/export_diagnostics_panel.cpp
@@ -780,6 +805,19 @@ add_executable(urpg_tests
     tests/unit/test_template_bar_quality.cpp
     tests/unit/test_dev_room_generator.cpp
     tests/unit/test_tutorial_lesson.cpp
+    tests/unit/test_timeline_player.cpp
+    tests/unit/test_event_macro_recorder.cpp
+    tests/unit/test_replay_recorder.cpp
+    tests/unit/test_timeline_replay_panels.cpp
+    tests/unit/test_rpg_database_suite.cpp
+    tests/unit/test_economy_simulator.cpp
+    tests/unit/test_encounter_table.cpp
+    tests/unit/test_vendor_catalog.cpp
+    tests/unit/test_rest_point.cpp
+    tests/unit/test_loot_affix_generator.cpp
+    tests/unit/test_class_progression.cpp
+    tests/unit/test_skill_combo_rules.cpp
+    tests/unit/test_database_balance_panels.cpp
     tests/unit/test_s31_template_evidence_snapshots.cpp
     tests/unit/test_s32_wysiwyg_lanes.cpp
     tests/engine/core/test_render_assets.cpp
@@ -811,6 +849,7 @@ add_executable(urpg_integration_tests
     tests/integration/test_integration_runtime_recovery.cpp
     tests/integration/test_battle_save_integration.cpp
     tests/integration/test_event_authoring_integration.cpp
+    tests/integration/test_replay_integration.cpp
     tests/integration/test_wave1_closure_integration.cpp
 )
 
@@ -893,6 +932,28 @@ if(Python3_FOUND)
     )
 else()
     message(STATUS "Skipping urpg_retrieval_adapter_resolution_test because Python3 interpreter was not found.")
+endif()
+
+if(URPG_POWERSHELL_EXE)
+    add_test(
+        NAME urpg_golden_replay_lane
+        COMMAND
+            ${URPG_POWERSHELL_EXE}
+            -NoProfile
+            -ExecutionPolicy
+            Bypass
+            -File
+            "${CMAKE_SOURCE_DIR}/tools/ci/check_golden_replays.ps1"
+            -RepoRoot
+            "${CMAKE_SOURCE_DIR}"
+        WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+    )
+    set_tests_properties(
+        urpg_golden_replay_lane
+        PROPERTIES LABELS "pr;replay"
+    )
+else()
+    message(STATUS "Skipping urpg_golden_replay_lane because PowerShell was not found.")
 endif()
 
 add_test(

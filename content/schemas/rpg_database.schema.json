@@ -1,0 +1,21 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://urpg.local/schemas/rpg_database.schema.json",
+  "title": "URPG RPG Database",
+  "type": "object",
+  "required": ["schema_version", "actors", "items"],
+  "properties": {
+    "schema_version": { "const": "urpg.rpg_database.v1" },
+    "actors": { "type": "array" },
+    "items": { "type": "array" },
+    "classes": { "type": "array" },
+    "skills": { "type": "array" },
+    "enemies": { "type": "array" },
+    "troops": { "type": "array" },
+    "states": { "type": "array" },
+    "equipment": { "type": "array" },
+    "animations": { "type": "array" },
+    "formulas": { "type": "array" }
+  },
+  "additionalProperties": true
+}

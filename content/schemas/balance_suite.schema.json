@@ -1,0 +1,18 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://urpg.local/schemas/balance_suite.schema.json",
+  "title": "URPG Balance Suite",
+  "type": "object",
+  "required": ["schema_version", "economy_routes", "encounters", "vendors", "rest_points", "loot_affixes", "class_progression", "skill_combos"],
+  "properties": {
+    "schema_version": { "const": "urpg.balance_suite.v1" },
+    "economy_routes": { "type": "array" },
+    "encounters": { "type": "array" },
+    "vendors": { "type": "array" },
+    "rest_points": { "type": "array" },
+    "loot_affixes": { "type": "array" },
+    "class_progression": { "type": "array" },
+    "skill_combos": { "type": "array" }
+  },
+  "additionalProperties": true
+}

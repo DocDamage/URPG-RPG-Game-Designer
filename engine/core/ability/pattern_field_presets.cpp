@@ -1,5 +1,7 @@
 #include "engine/core/ability/pattern_field_presets.h"
 
+#include <algorithm>
+
 namespace urpg {
 
 std::shared_ptr<PatternField> PatternFieldPresets::Point() {

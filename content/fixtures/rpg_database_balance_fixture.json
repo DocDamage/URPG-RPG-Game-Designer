@@ -1,0 +1,25 @@
+{
+  "database": {
+    "schema_version": "urpg.rpg_database.v1",
+    "actors": [{ "id": "actor.hero", "name": "Hero", "class_id": "class.warrior", "max_hp": 120, "attack": 18 }],
+    "items": [{ "id": "item.potion", "name": "Potion", "price": 50, "tags": ["healing"] }],
+    "classes": [{ "id": "class.warrior" }],
+    "skills": [{ "id": "skill.fire", "tags": ["fire"] }],
+    "enemies": [{ "id": "enemy.slime" }],
+    "troops": [],
+    "states": [],
+    "equipment": [],
+    "animations": [],
+    "formulas": []
+  },
+  "balance": {
+    "schema_version": "urpg.balance_suite.v1",
+    "economy_routes": [{ "id": "route.intro" }],
+    "encounters": [{ "enemy_id": "enemy.slime", "region_id": "forest", "weight": 3 }],
+    "vendors": [{ "id": "vendor.town", "stock": ["item.potion"] }],
+    "rest_points": [{ "id": "inn.town", "cost": 30 }],
+    "loot_affixes": [{ "id": "sharp", "rarity": "rare" }],
+    "class_progression": [{ "id": "class.warrior" }],
+    "skill_combos": [{ "id": "combo.fire", "required_skills": ["skill.fire"] }]
+  }
+}

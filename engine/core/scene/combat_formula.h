@@ -64,7 +64,7 @@ public:
         if (!normalized.has_value()) {
             result.value = evaluateDamage(ctx);
             result.usedFallback = true;
-            result.reason = substitutionError_;
+            result.reason = substitutionError();
             return result;
         }
 
@@ -263,7 +263,7 @@ private:
     };
 
     static std::optional<std::string> substituteSupportedSymbols(const std::string& formula, const Context& ctx) {
-        substitutionError_.clear();
+        substitutionError().clear();
 
         std::string normalized;
         normalized.reserve(formula.size());
@@ -285,7 +285,7 @@ private:
                 const std::string token = formula.substr(start, pos - start);
                 const auto resolved = resolveSymbol(token, ctx);
                 if (!resolved.has_value()) {
-                    substitutionError_ = "unsupported_formula_symbol:" + token;
+                    substitutionError() = "unsupported_formula_symbol:" + token;
                     return std::nullopt;
                 }
                 normalized += std::to_string(*resolved);
@@ -329,7 +329,10 @@ private:
                            [](unsigned char ch) { return std::isspace(ch) != 0; });
     }
 
-    static inline thread_local std::string substitutionError_;
+    static std::string& substitutionError() {
+        static thread_local std::string value;
+        return value;
+    }
 
     static int32_t parseParticipantId(const scene::BattleParticipant* p) {
         if (p == nullptr) {

@@ -1,6 +1,6 @@
 # Schema Changelog
 
-Status Date: 2026-04-23
+Status Date: 2026-04-25
 
 This changelog records versioned schema-governance entries for schemas that are explicitly covered by the readiness-governance lane.
 
@@ -234,6 +234,76 @@ Each governed schema entry should include:
 - Summary: JSON Schema draft-07 for AuthoredAbilityAsset — covers ability_id, cooldown_seconds, mp_cost, effect_id/attribute/operation/value/duration, pattern (embedded patternField), and unsupported_fields fallback container for compat-to-native mapping. S24-T01 schema migration proof.
 - Migration Impact: none; initial introduction. unsupported_fields preserves MZ source fields verbatim for round-trip fidelity.
 
+### `events` (`events.schema.json`)
+
+- Version: `1.0.0`
+- Date: `2026-04-25`
+- Summary: visual event authoring schema for maps, event pages, triggers, conditions, common events, supported command kinds, and compatibility fallback payloads
+- Migration Impact: none; initial introduction for the FFS-03 future-feature event authoring slice
+
+### `battle_presentation` (`battle_presentation.schema.json`)
+
+- Version: `1.0.0`
+- Date: `2026-04-25`
+- Summary: battle presentation profile schema for battleback assets, HUD elements, and deterministic cue timeline records
+- Migration Impact: none; initial introduction for the FFS-05 battle authoring slice
+
+### `boss_profiles` (`boss_profiles.schema.json`)
+
+- Version: `1.0.0`
+- Date: `2026-04-25`
+- Summary: boss profile schema for phase thresholds, summons, enrage flags, dialogue barks, rewards, and music transitions
+- Migration Impact: none; initial introduction for the FFS-05 battle authoring slice
+
+### `map_regions` (`map_regions.schema.json`)
+
+- Version: `1.0.0`
+- Date: `2026-04-25`
+- Summary: map region rules schema for rectangular regions, encounter tables, ambient audio, weather, hazards, movement rules, and linked events
+- Migration Impact: none; initial introduction for the FFS-06 map and worldbuilding slice
+
+### `procedural_map_profiles` (`procedural_map_profiles.schema.json`)
+
+- Version: `1.0.0`
+- Date: `2026-04-25`
+- Summary: procedural map profile schema for deterministic seeded dungeon, cave, town, forest, and overworld generation inputs
+- Migration Impact: none; initial introduction for the FFS-06 map and worldbuilding slice
+
+### `patch_manifest` (`patch_manifest.schema.json`)
+
+- Version: `1.0.0`
+- Date: `2026-04-25`
+- Summary: patch manifest schema for base/target versions, changed data, changed assets, and package dependencies
+- Migration Impact: none; initial introduction for the FFS-07 export and packaging slice
+
+### `creator_package_manifest` (`creator_package_manifest.schema.json`)
+
+- Version: `1.0.0`
+- Date: `2026-04-25`
+- Summary: creator package manifest schema for package identity, type, license evidence, compatibility target, dependencies, and validation summary
+- Migration Impact: none; initial introduction for the FFS-07 export and packaging slice
+
+### `quest_registry` (`quest_registry.schema.json`)
+
+- Version: `1.0.0`
+- Date: `2026-04-25`
+- Summary: quest registry schema for versioned quest registry payloads and quest arrays
+- Migration Impact: none; initial introduction for the FFS-10 narrative and quest slice
+
+### `dialogue_graph` (`dialogue_graph.schema.json`)
+
+- Version: `1.0.0`
+- Date: `2026-04-25`
+- Summary: dialogue graph schema for versioned dialogue nodes and a deterministic start node
+- Migration Impact: none; initial introduction for the FFS-10 narrative and quest slice
+
+### `relationship_registry` (`relationship_registry.schema.json`)
+
+- Version: `1.0.0`
+- Date: `2026-04-25`
+- Summary: relationship registry schema for versioned affinity values and relationship gates
+- Migration Impact: none; initial introduction for the FFS-10 narrative and quest slice
+
 ### `presentation_spatial_map_overlay` (`presentation_schema.json`)
 
 - Version: `1.0.0`
@@ -268,6 +338,34 @@ Each governed schema entry should include:
 - Date: `2026-04-23`
 - Summary: retrieval index-bundle schema covering embedding engine metadata, adapter contract, source manifest linkage, entry counts, and stored chunk embeddings.
 - Migration Impact: none; initial introduction for offline retrieval index artifacts.
+
+### `timeline` (`timeline.schema.json`)
+
+- Version: `1.0.0`
+- Date: `2026-04-25`
+- Summary: deterministic timeline authoring schema for actors and ordered message, movement, audio, fade, tint, camera, wait, event-call, battle-cue, and unsupported command records
+- Migration Impact: none; initial introduction for the FFS-11 future-feature timeline slice
+
+### `replay` (`replay.schema.json`)
+
+- Version: `1.0.0`
+- Date: `2026-04-25`
+- Summary: deterministic replay artifact schema for seed, project version, labels, input log, and per-tick state hashes
+- Migration Impact: none; initial introduction for the FFS-11 future-feature replay slice
+
+### `rpg_database` (`rpg_database.schema.json`)
+
+- Version: `1.0.0`
+- Date: `2026-04-25`
+- Summary: RPG database schema for actor and item records, class links, prices, tags, and balance-relevant stats
+- Migration Impact: none; initial introduction for the FFS-12 future-feature database and balance slice
+
+### `balance_suite` (`balance_suite.schema.json`)
+
+- Version: `1.0.0`
+- Date: `2026-04-25`
+- Summary: balance suite schema for economy routes, encounter pools, vendor stock, rest points, loot affixes, class progression, and skill combo records
+- Migration Impact: none; initial introduction for the FFS-12 future-feature database and balance slice
 
 ### `tooling_job_run` (`tooling_job_run.schema.json`)
 

@@ -1,0 +1,34 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:urpg:timeline:v1",
+  "type": "object",
+  "required": ["schema_version", "commands"],
+  "properties": {
+    "schema_version": { "const": "urpg.timeline.v1" },
+    "actors": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 },
+      "uniqueItems": true
+    },
+    "commands": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "kind", "tick"],
+        "properties": {
+          "id": { "type": "string", "minLength": 1 },
+          "kind": {
+            "enum": ["message", "movement", "audio", "fade", "tint", "camera", "wait", "event_call", "battle_cue", "unsupported"]
+          },
+          "tick": { "type": "integer", "minimum": 0 },
+          "duration": { "type": "integer", "minimum": 0 },
+          "actor_id": { "type": "string" },
+          "target": { "type": "string" },
+          "payload": { "type": "object" }
+        },
+        "additionalProperties": true
+      }
+    }
+  },
+  "additionalProperties": true
+}

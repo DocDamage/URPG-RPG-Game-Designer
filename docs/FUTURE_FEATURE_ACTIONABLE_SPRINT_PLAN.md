@@ -645,6 +645,9 @@ Build first-class RPG narrative systems with validation and authoring support.
 
 ## FFS-11 - Timeline, Macro, Replay Suite
 
+### 2026-04-25 Status
+FFS-11 implementation slice is complete. It adds deterministic timeline documents/playback, event macro draft conversion, replay artifacts with seed/input/state-hash metadata, divergent replay comparison, bounded checkpoint restore, a replay gallery query, headless editor panel snapshots, canonical timeline/replay schemas and fixture data, a golden replay CI lane that compares state hashes and fails on divergence, governance artifact checks, CMake wiring, focused tests, and a save/load integration path. This is not a full visual cutscene editor or live in-editor playtest loop beyond the deterministic authoring/replay contracts listed here.
+
 ### Objective
 Make scripted scenes, repros, and deterministic replay authorable and testable.
 
@@ -656,24 +659,25 @@ Make scripted scenes, repros, and deterministic replay authorable and testable.
 - Golden replay CI lane.
 
 ### Files To Add Or Modify
-- [ ] `engine/core/timeline/timeline_document.*`
-- [ ] `engine/core/timeline/timeline_player.*`
-- [ ] `engine/core/events/event_macro_recorder.*`
-- [ ] `engine/core/replay/replay_recorder.*`
-- [ ] `engine/core/replay/replay_player.*`
-- [ ] `engine/core/replay/replay_gallery.*`
-- [ ] Editor panels under `editor/timeline/` and `editor/replay/`.
-- [ ] `tests/unit/test_timeline_player.cpp`
-- [ ] `tests/unit/test_event_macro_recorder.cpp`
-- [ ] `tests/unit/test_replay_recorder.cpp`
-- [ ] `tests/integration/test_replay_integration.cpp`
+- [x] `engine/core/timeline/timeline_document.*`
+- [x] `engine/core/timeline/timeline_player.*`
+- [x] `engine/core/events/event_macro_recorder.*`
+- [x] `engine/core/replay/replay_recorder.*`
+- [x] `engine/core/replay/replay_player.*`
+- [x] `engine/core/replay/replay_gallery.*`
+- [x] Editor panels under `editor/timeline/` and `editor/replay/`.
+- [x] `tests/unit/test_timeline_player.cpp`
+- [x] `tests/unit/test_event_macro_recorder.cpp`
+- [x] `tests/unit/test_replay_recorder.cpp`
+- [x] `tests/integration/test_replay_integration.cpp`
+- [x] `tools/ci/check_golden_replays.ps1`
 
 ### Checklist
-- [ ] Timeline tracks support message, movement, audio, fade, tint, camera, wait, event call, and battle cue.
-- [ ] Macro recorder converts playtest actions into draft event/timeline commands.
-- [ ] Replay artifacts include seed, input log, state hashes, project version, and labels.
-- [ ] Time travel uses bounded checkpoints and deterministic replay from checkpoint.
-- [ ] Golden replay CI lane compares state hashes and fails on divergence.
+- [x] Timeline tracks support message, movement, audio, fade, tint, camera, wait, event call, and battle cue.
+- [x] Macro recorder converts playtest actions into draft event/timeline commands.
+- [x] Replay artifacts include seed, input log, state hashes, project version, and labels.
+- [x] Time travel uses bounded checkpoints and deterministic replay from checkpoint.
+- [x] Golden replay CI lane compares state hashes and fails on divergence.
 
 ### Edge Cases
 - Timeline references missing actor.
@@ -684,15 +688,18 @@ Make scripted scenes, repros, and deterministic replay authorable and testable.
 - Event macro includes unsupported command.
 
 ### Tests
-- [ ] Timeline playback produces identical command stream for same seed.
-- [ ] Macro recorder emits editable draft commands.
-- [ ] Replay state hash is stable.
-- [ ] Divergent replay reports first mismatched tick.
-- [ ] Time travel restores previous state without leaking later mutations.
+- [x] Timeline playback produces identical command stream for same seed.
+- [x] Macro recorder emits editable draft commands.
+- [x] Replay state hash is stable.
+- [x] Divergent replay reports first mismatched tick.
+- [x] Time travel restores previous state without leaking later mutations.
 
 ---
 
 ## FFS-12 - RPG Database And Balance Suite
+
+**Status (2026-04-25): Complete.**
+FFS-12 implementation slice is complete. It adds deterministic RPG database records with CSV import/export, duplicate/malformed-row validation, seeded autofill from explicit balance profiles, economy route simulation, encounter weights and preview metrics, vendor stock gating, rest point recovery costs, seeded loot affixes, class progression graph validation, skill combo matching, headless editor panel snapshots, canonical database/balance schemas and fixture data, governance artifact checks, CMake wiring, and focused tests. This is not a full visual database editor surface beyond the deterministic runtime/editor snapshot contracts listed here.
 
 ### Objective
 Make core RPG databases fast to author, validate, simulate, and balance.
@@ -709,25 +716,28 @@ Make core RPG databases fast to author, validate, simulate, and balance.
 - Skill combo/synergy system.
 
 ### Files To Add Or Modify
-- [ ] `engine/core/database/rpg_database.*`
-- [ ] `engine/core/balance/economy_simulator.*`
-- [ ] `engine/core/balance/encounter_table.*`
-- [ ] `engine/core/shop/vendor_catalog.*`
-- [ ] `engine/core/rest/rest_point.*`
-- [ ] `engine/core/items/loot_affix_generator.*`
-- [ ] `engine/core/progression/class_progression.*`
-- [ ] `engine/core/ability/skill_combo_rules.*`
-- [ ] Editor panels under `editor/database/`, `editor/balance/`, `editor/shop/`.
+- [x] `engine/core/database/rpg_database.*`
+- [x] `engine/core/balance/economy_simulator.*`
+- [x] `engine/core/balance/encounter_table.*`
+- [x] `engine/core/shop/vendor_catalog.*`
+- [x] `engine/core/rest/rest_point.*`
+- [x] `engine/core/items/loot_affix_generator.*`
+- [x] `engine/core/progression/class_progression.*`
+- [x] `engine/core/ability/skill_combo_rules.*`
+- [x] Editor panels under `editor/database/`, `editor/balance/`, `editor/shop/`.
+- [x] Schemas and fixtures under `content/schemas/` and `content/fixtures/`.
+- [x] Governance check under `tools/ci/`.
+- [x] Focused tests under `tests/unit/`.
 
 ### Checklist
-- [ ] Bulk edit actors, classes, skills, items, enemies, troops, states, equipment, animations, formulas.
-- [ ] CSV import/export is deterministic and schema-validated.
-- [ ] Autofill generates draft stats/prices/XP/skills from explicit design profile.
-- [ ] Economy simulator runs scripted routes and reports gold, XP, inventory, affordability, and resource drain.
-- [ ] Encounter editor supports weights, regions, conditions, preview simulation, and difficulty charts.
-- [ ] Vendors support stock, refresh conditions, buy/sell modifiers, and progression gates.
-- [ ] Loot affix generator uses seeded rolls and validates economy impact.
-- [ ] Job/class graph validates prerequisites, learned skills, and stat curves.
+- [x] Bulk edit actors, classes, skills, items, enemies, troops, states, equipment, animations, formulas.
+- [x] CSV import/export is deterministic and schema-validated.
+- [x] Autofill generates draft stats/prices/XP/skills from explicit design profile.
+- [x] Economy simulator runs scripted routes and reports gold, XP, inventory, affordability, and resource drain.
+- [x] Encounter editor supports weights, regions, conditions, preview simulation, and difficulty charts.
+- [x] Vendors support stock, refresh conditions, buy/sell modifiers, and progression gates.
+- [x] Loot affix generator uses seeded rolls and validates economy impact.
+- [x] Job/class graph validates prerequisites, learned skills, and stat curves.
 
 ### Edge Cases
 - Duplicate database IDs.
@@ -740,14 +750,14 @@ Make core RPG databases fast to author, validate, simulate, and balance.
 - Combo rule references deleted skill.
 
 ### Tests
-- [ ] CSV round-trip preserves IDs and values.
-- [ ] Autofill is deterministic for same profile and seed.
-- [ ] Economy route flags unaffordable required item.
-- [ ] Encounter table rejects zero-weight pool.
-- [ ] Vendor stock refresh respects conditions.
-- [ ] Loot affix roll stays within bounds.
-- [ ] Class graph cycle is detected.
-- [ ] Skill combo triggers only under matching tags.
+- [x] CSV round-trip preserves IDs and values.
+- [x] Autofill is deterministic for same profile and seed.
+- [x] Economy route flags unaffordable required item.
+- [x] Encounter table rejects zero-weight pool.
+- [x] Vendor stock refresh respects conditions.
+- [x] Loot affix roll stays within bounds.
+- [x] Class graph cycle is detected.
+- [x] Skill combo triggers only under matching tags.
 
 ---
 

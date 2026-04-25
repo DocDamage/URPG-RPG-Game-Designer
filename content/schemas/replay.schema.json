@@ -1,0 +1,35 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:urpg:replay:v1",
+  "type": "object",
+  "required": ["schema_version", "id", "seed", "project_version", "input_log", "state_hashes"],
+  "properties": {
+    "schema_version": { "const": "urpg.replay.v1" },
+    "id": { "type": "string", "minLength": 1 },
+    "seed": { "type": "integer", "minimum": 0 },
+    "project_version": { "type": "string" },
+    "labels": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 },
+      "uniqueItems": true
+    },
+    "input_log": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["tick", "action", "payload"],
+        "properties": {
+          "tick": { "type": "integer", "minimum": 0 },
+          "action": { "type": "string", "minLength": 1 },
+          "payload": { "type": "object" }
+        },
+        "additionalProperties": false
+      }
+    },
+    "state_hashes": {
+      "type": "object",
+      "additionalProperties": { "type": "string", "minLength": 1 }
+    }
+  },
+  "additionalProperties": true
+}
