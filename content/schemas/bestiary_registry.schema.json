@@ -1,0 +1,11 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:urpg:bestiary_registry",
+  "type": "object",
+  "required": ["version", "entries", "states"],
+  "properties": {
+    "version": { "const": "1.0.0" },
+    "entries": { "type": "array" },
+    "states": { "type": "array" }
+  }
+}

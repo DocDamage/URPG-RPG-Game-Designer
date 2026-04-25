@@ -763,6 +763,9 @@ Make core RPG databases fast to author, validate, simulate, and balance.
 
 ## FFS-13 - Simulation And World Systems
 
+**Status (2026-04-25): Complete.**
+FFS-13 implementation slice is complete. It adds deterministic world-map routing with unlock flags and vehicles, crafting recipes with preview and validation, bestiary state persistence, calendar event windows including day-boundary handling, NPC schedule fallback resolution, ordered puzzle triggers with reset behavior, runtime hint dismissal persistence, headless editor panel snapshots, canonical schemas and fixture data, a simulation governance check, CMake wiring, focused tests, and a cross-system integration path. This is not a full visual authoring workspace or broad spawn/respawn expansion beyond the runtime/editor snapshot contracts listed here.
+
 ### Objective
 Add durable RPG systems that make worlds richer and support more genres.
 
@@ -777,25 +780,25 @@ Add durable RPG systems that make worlds richer and support more genres.
 - Spawn/respawn system if not completed in FFS-06.
 
 ### Files To Add Or Modify
-- [ ] `engine/core/world/world_map_graph.*`
-- [ ] `engine/core/crafting/crafting_registry.*`
-- [ ] `engine/core/codex/bestiary_registry.*`
-- [ ] `engine/core/time/calendar_runtime.*`
-- [ ] `engine/core/npc/npc_schedule.*`
-- [ ] `engine/core/puzzle/puzzle_registry.*`
-- [ ] `engine/core/tutorial/runtime_hint_system.*`
-- [ ] Editor panels under `editor/world/`, `editor/crafting/`, `editor/codex/`, `editor/time/`, `editor/npc/`, and `editor/puzzle/`.
-- [ ] Schemas and fixtures for each persisted registry.
-- [ ] Focused tests under `tests/unit/` and save/load integration coverage under `tests/integration/`.
+- [x] `engine/core/world/world_map_graph.*`
+- [x] `engine/core/crafting/crafting_registry.*`
+- [x] `engine/core/codex/bestiary_registry.*`
+- [x] `engine/core/time/calendar_runtime.*`
+- [x] `engine/core/npc/npc_schedule.*`
+- [x] `engine/core/puzzle/puzzle_registry.*`
+- [x] `engine/core/tutorial/runtime_hint_system.*`
+- [x] Editor panels under `editor/world/`, `editor/crafting/`, `editor/codex/`, `editor/time/`, `editor/npc/`, and `editor/puzzle/`.
+- [x] Schemas and fixtures for each persisted registry.
+- [x] Focused tests under `tests/unit/` and save/load integration coverage under `tests/integration/`.
 
 ### Checklist
-- [ ] World map graph supports nodes, routes, unlocks, fast travel, vehicles, portals, and save persistence.
-- [ ] Crafting supports recipes, ingredients, unlock conditions, result preview, and economy validation.
-- [ ] Bestiary supports seen/scanned/defeated states, drops, weaknesses, lore unlocks, and completion tracking.
-- [ ] Calendar supports day/time blocks, schedules, events, lighting hooks, and save persistence.
-- [ ] NPC routines support map, position, animation, dialogue state, and fallback behavior.
-- [ ] Puzzle assets support locks, keys, ordered triggers, reset rules, and rewards.
-- [ ] Runtime hints support once-only flags, dismissal state, localization keys, and accessibility settings.
+- [x] World map graph supports nodes, routes, unlocks, fast travel, vehicles, portals, and save persistence.
+- [x] Crafting supports recipes, ingredients, unlock conditions, result preview, and economy validation.
+- [x] Bestiary supports seen/scanned/defeated states, drops, weaknesses, lore unlocks, and completion tracking.
+- [x] Calendar supports day/time blocks, schedules, events, lighting hooks, and save persistence.
+- [x] NPC routines support map, position, animation, dialogue state, and fallback behavior.
+- [x] Puzzle assets support locks, keys, ordered triggers, reset rules, and rewards.
+- [x] Runtime hints support once-only flags, dismissal state, localization keys, and accessibility settings.
 
 ### Edge Cases
 - Travel route unlocks itself.
@@ -807,13 +810,13 @@ Add durable RPG systems that make worlds richer and support more genres.
 - Hint loops every frame because dismissal flag fails.
 
 ### Tests
-- [ ] World route availability changes with flags.
-- [ ] Crafting validates missing ingredients.
-- [ ] Bestiary state persists.
-- [ ] Calendar event fires exactly once per scheduled window.
-- [ ] NPC routine fallback activates when map is missing.
-- [ ] Puzzle ordered trigger rejects wrong sequence and can reset.
-- [ ] Hint dismissal persists.
+- [x] World route availability changes with flags.
+- [x] Crafting validates missing ingredients.
+- [x] Bestiary state persists.
+- [x] Calendar event fires exactly once per scheduled window.
+- [x] NPC routine fallback activates when map is missing.
+- [x] Puzzle ordered trigger rejects wrong sequence and can reset.
+- [x] Hint dismissal persists.
 
 ### Acceptance Commands
 

@@ -202,6 +202,13 @@ add_library(urpg_core
     engine/core/replay/replay_gallery.cpp
     engine/core/replay/golden_replay_lane.cpp
     engine/core/database/rpg_database.cpp
+    engine/core/world/world_map_graph.cpp
+    engine/core/crafting/crafting_registry.cpp
+    engine/core/codex/bestiary_registry.cpp
+    engine/core/time/calendar_runtime.cpp
+    engine/core/npc/npc_schedule.cpp
+    engine/core/puzzle/puzzle_registry.cpp
+    engine/core/tutorial/runtime_hint_system.cpp
     engine/core/balance/economy_simulator.cpp
     engine/core/balance/encounter_table.cpp
     engine/core/shop/vendor_catalog.cpp
@@ -287,6 +294,12 @@ add_library(urpg_core
     editor/database/database_panel.cpp
     editor/balance/balance_panel.cpp
     editor/shop/vendor_panel.cpp
+    editor/world/world_panel.cpp
+    editor/crafting/crafting_panel.cpp
+    editor/codex/codex_panel.cpp
+    editor/time/calendar_panel.cpp
+    editor/npc/npc_panel.cpp
+    editor/puzzle/puzzle_panel.cpp
     editor/assets/asset_library_model.cpp
     editor/assets/asset_library_panel.cpp
     editor/export/export_diagnostics_panel.cpp
@@ -818,6 +831,13 @@ add_executable(urpg_tests
     tests/unit/test_class_progression.cpp
     tests/unit/test_skill_combo_rules.cpp
     tests/unit/test_database_balance_panels.cpp
+    tests/unit/test_world_simulation_suite.cpp
+    tests/unit/test_crafting_registry.cpp
+    tests/unit/test_bestiary_registry.cpp
+    tests/unit/test_calendar_runtime.cpp
+    tests/unit/test_npc_schedule.cpp
+    tests/unit/test_puzzle_registry.cpp
+    tests/unit/test_runtime_hint_system.cpp
     tests/unit/test_s31_template_evidence_snapshots.cpp
     tests/unit/test_s32_wysiwyg_lanes.cpp
     tests/engine/core/test_render_assets.cpp
@@ -850,6 +870,7 @@ add_executable(urpg_integration_tests
     tests/integration/test_battle_save_integration.cpp
     tests/integration/test_event_authoring_integration.cpp
     tests/integration/test_replay_integration.cpp
+    tests/integration/test_simulation_world_integration.cpp
     tests/integration/test_wave1_closure_integration.cpp
 )
 

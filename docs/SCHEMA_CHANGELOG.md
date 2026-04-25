@@ -367,6 +367,55 @@ Each governed schema entry should include:
 - Summary: balance suite schema for economy routes, encounter pools, vendor stock, rest points, loot affixes, class progression, and skill combo records
 - Migration Impact: none; initial introduction for the FFS-12 future-feature database and balance slice
 
+### `world_map_graph` (`world_map_graph.schema.json`)
+
+- Version: `1.0.0`
+- Date: `2026-04-25`
+- Summary: world-map graph schema for nodes, routes, unlock flags, vehicles, fast travel, and portal-capable travel records
+- Migration Impact: none; initial introduction for the FFS-13 simulation and world systems slice
+
+### `crafting_registry` (`crafting_registry.schema.json`)
+
+- Version: `1.0.0`
+- Date: `2026-04-25`
+- Summary: crafting registry schema for recipes, ingredient counts, result previews, and unlock conditions
+- Migration Impact: none; initial introduction for the FFS-13 simulation and world systems slice
+
+### `bestiary_registry` (`bestiary_registry.schema.json`)
+
+- Version: `1.0.0`
+- Date: `2026-04-25`
+- Summary: bestiary registry schema for enemy entries, weaknesses, drops, lore keys, and persisted seen/scanned/defeated state
+- Migration Impact: none; initial introduction for the FFS-13 simulation and world systems slice
+
+### `calendar_runtime` (`calendar_runtime.schema.json`)
+
+- Version: `1.0.0`
+- Date: `2026-04-25`
+- Summary: calendar runtime schema for day/time windows, event flags, and day-boundary scheduling contracts
+- Migration Impact: none; initial introduction for the FFS-13 simulation and world systems slice
+
+### `npc_schedule` (`npc_schedule.schema.json`)
+
+- Version: `1.0.0`
+- Date: `2026-04-25`
+- Summary: NPC schedule schema for map, position, animation, dialogue state, hour windows, and fallback behavior
+- Migration Impact: none; initial introduction for the FFS-13 simulation and world systems slice
+
+### `puzzle_registry` (`puzzle_registry.schema.json`)
+
+- Version: `1.0.0`
+- Date: `2026-04-25`
+- Summary: puzzle registry schema for ordered triggers, reset rules, state, and reward flags
+- Migration Impact: none; initial introduction for the FFS-13 simulation and world systems slice
+
+### `runtime_hint_system` (`runtime_hint_system.schema.json`)
+
+- Version: `1.0.0`
+- Date: `2026-04-25`
+- Summary: runtime hint schema for once-only hint definitions, localization keys, trigger flags, accessibility settings, and dismissed state
+- Migration Impact: none; initial introduction for the FFS-13 simulation and world systems slice
+
 ### `tooling_job_run` (`tooling_job_run.schema.json`)
 
 - Version: `1.0.0`

@@ -1,0 +1,11 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:urpg:npc_schedule",
+  "type": "object",
+  "required": ["version", "routines", "fallback"],
+  "properties": {
+    "version": { "const": "1.0.0" },
+    "routines": { "type": "array" },
+    "fallback": { "type": "object" }
+  }
+}

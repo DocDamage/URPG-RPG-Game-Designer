@@ -1,0 +1,22 @@
+{
+  "version": "1.0.0",
+  "world": {
+    "nodes": [{ "id": "town", "name": "Town" }, { "id": "market", "name": "Market" }],
+    "routes": [{ "from": "town", "to": "market", "requiredFlag": "market_open", "fastTravel": true }]
+  },
+  "crafting": {
+    "recipes": [{ "id": "recipe.soup", "ingredients": { "vegetable": 2 }, "results": { "soup": 1 }, "unlockFlag": "market_open" }]
+  },
+  "calendar": {
+    "events": [{ "id": "market_day", "day": 1, "startHour": 8, "endHour": 12, "flag": "market_open" }]
+  },
+  "bestiary": {
+    "entries": [{ "enemyId": "enemy.slime", "name": "Slime", "weaknesses": ["ice"], "drops": ["gel"], "loreKey": "codex.slime" }]
+  },
+  "npc": {
+    "routines": [{ "npcId": "npc.merchant", "mapId": "market", "startHour": 8, "endHour": 17 }],
+    "fallback": { "mapId": "home" }
+  },
+  "puzzles": [{ "id": "puzzle.door", "orderedTriggers": ["red", "blue"], "rewardFlag": "door_open" }],
+  "hints": [{ "id": "hint.save", "localizationKey": "tutorial.save", "requiredFlag": "opened_menu" }]
+}

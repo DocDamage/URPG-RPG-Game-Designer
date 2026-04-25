@@ -1,0 +1,11 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:urpg:world_map_graph",
+  "type": "object",
+  "required": ["version", "nodes", "routes"],
+  "properties": {
+    "version": { "const": "1.0.0" },
+    "nodes": { "type": "array" },
+    "routes": { "type": "array" }
+  }
+}

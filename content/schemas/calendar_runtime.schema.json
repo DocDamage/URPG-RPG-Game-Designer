@@ -1,0 +1,10 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:urpg:calendar_runtime",
+  "type": "object",
+  "required": ["version", "events"],
+  "properties": {
+    "version": { "const": "1.0.0" },
+    "events": { "type": "array" }
+  }
+}
