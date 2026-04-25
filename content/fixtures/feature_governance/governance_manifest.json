@@ -1,0 +1,8 @@
+{
+  "schema": "urpg.feature_governance_manifest.v1",
+  "featureId": "certification_governance",
+  "owner": "governance_foundation",
+  "docs": "docs/certification/README.md",
+  "schema": "content/readiness/readiness_status.json",
+  "tests": "tests/unit/test_future_feature_17.cpp"
+}

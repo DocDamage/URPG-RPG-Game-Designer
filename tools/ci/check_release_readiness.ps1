@@ -303,10 +303,17 @@ if (-not $projectAuditJson.Trim()) {
 }
 
 $projectAuditReport = $projectAuditJson | ConvertFrom-Json
-foreach ($field in @("schemaVersion", "statusDate", "headline", "summary", "releaseBlockerCount", "exportBlockerCount", "templateContext", "governance", "issues")) {
+foreach ($field in @("schemaVersion", "statusDate", "headline", "summary", "releaseBlockerCount", "exportBlockerCount", "completenessAdvisory", "templateContext", "governance", "issues")) {
     if (-not ($projectAuditReport.PSObject.Properties.Name -contains $field)) {
         throw "urpg_project_audit JSON is missing required top-level field '$field'."
     }
+}
+
+if ($projectAuditReport.completenessAdvisory.advisoryOnly -ne $true) {
+    throw "urpg_project_audit completenessAdvisory must remain advisoryOnly."
+}
+if ($projectAuditReport.completenessAdvisory.nonAuthoritative -ne $true) {
+    throw "urpg_project_audit completenessAdvisory must remain nonAuthoritative."
 }
 
 if ($projectAuditReport.statusDate -ne $readiness.statusDate) {
@@ -367,3 +374,4 @@ Write-Host "All READY/PARTIAL template required subsystems are known."
 Write-Host "Required signoff artifacts exist for human-review-gated subsystems."
 Write-Host "Release signoff workflow artifact is present and carries the expected non-promoting workflow language."
 Write-Host "urpg_project_audit JSON contract includes the required governance sections and issue counts."
+Write-Host "urpg_project_audit exposes a non-authoritative completeness advisory."

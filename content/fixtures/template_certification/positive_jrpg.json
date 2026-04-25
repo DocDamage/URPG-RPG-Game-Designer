@@ -1,0 +1,11 @@
+{
+  "schema": "urpg.template_certification.fixture.v1",
+  "templateId": "jrpg",
+  "loops": [
+    "battle_loop",
+    "save_loop"
+  ],
+  "disabledOptionalFeatures": [
+    "fishing_loop"
+  ]
+}

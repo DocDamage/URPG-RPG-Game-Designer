@@ -1,6 +1,7 @@
 #include "tools/audit/project_audit_asset_report.h"
 #include "tools/audit/project_audit_artifact_governance.h"
 #include "tools/audit/project_audit_issue_collectors.h"
+#include "tools/audit/project_completeness_score.h"
 #include "tools/audit/project_audit_support.h"
 #include "tools/audit/project_audit_template_governance.h"
 
@@ -49,6 +50,7 @@ using urpg::tools::audit::loadProjectSchema;
 using urpg::tools::audit::makeIssue;
 using urpg::tools::audit::readFile;
 using urpg::tools::audit::readAssetReportSummary;
+using urpg::tools::audit::scoreTemplateReadinessCompleteness;
 
 namespace {
 
@@ -104,6 +106,7 @@ json buildReport(const json& readiness,
     for (const auto& issue : issues) {
         issueArray.push_back(makeIssue(issue));
     }
+    const json completenessAdvisory = scoreTemplateReadinessCompleteness(readiness, templateContext.data);
 
     const std::string templateStatus = templateContext.status;
     const std::string headline = "Readiness audit for " + templateContext.id + " (" + templateStatus + ")";
@@ -188,6 +191,7 @@ json buildReport(const json& readiness,
         {"summary", summary.str()},
         {"releaseBlockerCount", releaseBlockerCount},
         {"exportBlockerCount", exportBlockerCount},
+        {"completenessAdvisory", completenessAdvisory},
         {"templateContext",
             {
                 {"id", templateContext.id},

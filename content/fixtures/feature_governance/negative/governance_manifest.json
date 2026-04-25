@@ -1,0 +1,8 @@
+{
+  "schema": "urpg.feature_governance_manifest.v1",
+  "featureId": "broken_governance_fixture",
+  "owner": "",
+  "docs": "docs/certification/missing.md",
+  "schema": "content/schemas/missing.schema.json",
+  "tests": "tests/unit/missing_test.cpp"
+}

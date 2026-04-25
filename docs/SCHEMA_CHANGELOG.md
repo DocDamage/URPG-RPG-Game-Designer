@@ -16,6 +16,27 @@ Each governed schema entry should include:
 
 ## Entries
 
+### `template_certification` (`template_certification` report payload)
+
+- Version: `1.0.0`
+- Date: `2026-04-25`
+- Summary: Advisory template certification report for minimum loop evidence across JRPG, VN, TBR, tactics, ARPG, monster collector, cozy/life, metroidvania-lite, and 2.5D RPG templates
+- Migration Impact: none; additive FFS-17 governance payload and not a release gate
+
+### `project_completeness_score` (`project_completeness_score` advisory payload)
+
+- Version: `1.0.0`
+- Date: `2026-04-25`
+- Summary: Non-authoritative project audit completeness score that ignores disabled optional features and keeps missing required evidence advisory-only
+- Migration Impact: none; additive FFS-17 project audit advisory
+
+### `feature_governance_manifest` (`governance_manifest.json`)
+
+- Version: `1.0.0`
+- Date: `2026-04-25`
+- Summary: Local feature governance manifest with owner, docs, schema/data, and tests pointers for stable feature artifacts
+- Migration Impact: none; additive FFS-17 governance fixture contract
+
 ### `ui_theme` (`ui_theme.schema.json`)
 
 - Version: `1.0.0`

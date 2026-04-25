@@ -394,6 +394,7 @@ add_library(urpg_core
     engine/core/project/dev_room_generator.cpp
     engine/core/project/project_snapshot_store.cpp
     engine/core/project/project_template_generator.cpp
+    engine/core/project/template_certification.cpp
     engine/core/tutorial/tutorial_lesson.cpp
     engine/core/level/level_assembly.cpp
     engine/core/ui/menu_serializer.cpp
@@ -622,6 +623,7 @@ add_executable(urpg_project_audit
     tools/audit/project_audit_artifact_governance.cpp
     tools/audit/project_audit_asset_report.cpp
     tools/audit/project_audit_issue_collectors.cpp
+    tools/audit/project_completeness_score.cpp
     tools/audit/project_audit_support.cpp
     tools/audit/project_audit_template_governance.cpp
     tools/audit/project_audit_template_spec.cpp
@@ -679,6 +681,7 @@ add_executable(urpg_tests
     tests/unit/test_fixed32.cpp
     tests/unit/test_frame_budget.cpp
     tests/unit/test_future_feature_16.cpp
+    tests/unit/test_future_feature_17.cpp
     tests/unit/test_perf_profiler.cpp
     tests/unit/test_perf_diagnostics_panel.cpp
     tests/unit/test_ecs_world.cpp
@@ -881,6 +884,7 @@ add_executable(urpg_tests
     tests/test_effect_modifiers.cpp
     tests/test_pattern_field_editor.cpp
     tests/test_pattern_serialization.cpp
+    tools/audit/project_completeness_score.cpp
 )
 
 target_link_libraries(urpg_tests PRIVATE urpg_core Catch2::Catch2WithMain)

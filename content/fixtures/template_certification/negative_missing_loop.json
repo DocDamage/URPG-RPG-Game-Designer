@@ -1,0 +1,7 @@
+{
+  "schema": "urpg.template_certification.fixture.v1",
+  "templateId": "jrpg",
+  "loops": [
+    "save_loop"
+  ]
+}
