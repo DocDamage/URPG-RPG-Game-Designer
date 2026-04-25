@@ -1,10 +1,10 @@
 {
-  "GeneratedAt": "2026-04-10T11:08:49-04:00",
-  "RepoRoot": "F:\\stuff from desktop\\URPG - RPG Game Maker",
-  "PluginRoot": "F:\\stuff from desktop\\URPG - RPG Game Maker\\third_party\\rpgmaker-mz\\steam-dlc\\plugin-dropins\\js\\plugins",
-  "FileCount": 30,
-  "ErrorCount": 48,
-  "WarnCount": 12,
-  "StemCollisionCount": 7,
-  "PluginKeyCollisionCount": 7
+    "GeneratedAt":  "2026-04-25T11:09:04-04:00",
+    "RepoRoot":  "C:\\dev\\URPG Maker",
+    "PluginRoot":  "C:\\dev\\URPG Maker\\third_party\\rpgmaker-mz\\steam-dlc\\plugin-dropins\\js\\plugins",
+    "FileCount":  30,
+    "ErrorCount":  48,
+    "WarnCount":  12,
+    "StemCollisionCount":  7,
+    "PluginKeyCollisionCount":  7
 }

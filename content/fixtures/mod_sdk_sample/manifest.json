@@ -1,0 +1,12 @@
+{
+  "id": "urpg.sample.echo",
+  "name": "URPG Sample Echo Mod",
+  "version": "1.0.0",
+  "author": "URPG Team",
+  "entryPoint": "scripts/echo_mod.js",
+  "permissions": [
+    "read_project_data",
+    "register_commands",
+    "emit_diagnostics"
+  ]
+}

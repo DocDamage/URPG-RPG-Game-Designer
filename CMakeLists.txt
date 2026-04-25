@@ -156,6 +156,10 @@ endfunction()
 
 add_library(urpg_core
     engine/core/action/controller_binding_runtime.cpp
+    engine/core/ai/ai_assistant_config.cpp
+    engine/core/ai/ai_suggestion_record.cpp
+    engine/core/collaboration/local_review_bundle.cpp
+    engine/core/diagnostics/diagnostics_bundle_exporter.cpp
     engine/core/debug/debug_session.cpp
     engine/core/debug/debug_ai_bridge.cpp
     engine/core/engine_shell.cpp
@@ -281,6 +285,7 @@ add_library(urpg_core
     editor/diagnostics/event_authority_diagnostics.cpp
     editor/diagnostics/event_authority_panel.cpp
     editor/diagnostics/diagnostics_workspace.cpp
+    editor/diagnostics/diagnostics_bundle_panel.cpp
     editor/diagnostics/diagnostics_workspace_export.cpp
     editor/diagnostics/diagnostics_workspace_serialization.cpp
     editor/diagnostics/diagnostics_facade.cpp
@@ -362,7 +367,10 @@ add_library(urpg_core
     editor/ui/theme_builder_panel.cpp
     editor/audio/audio_inspector_model.cpp
     editor/analytics/analytics_panel.cpp
+    editor/ai/ai_assistant_panel.cpp
+    editor/collaboration/local_review_panel.cpp
     editor/mod/mod_manager_panel.cpp
+    editor/mod/mod_sdk_panel.cpp
     engine/core/editor/plugin_api.cpp
     engine/core/editor/security_manager.cpp
     engine/core/ability/gameplay_ability.cpp
@@ -371,6 +379,7 @@ add_library(urpg_core
     engine/core/ability/pattern_field_presets.cpp
     engine/core/mod/mod_registry.cpp
     engine/core/mod/mod_registry_validator.cpp
+    engine/core/mod/mod_sdk_sample_validator.cpp
     engine/core/mod/mod_loader.cpp
     engine/core/export/creator_package_manifest.cpp
     engine/core/export/export_artifact_compare.cpp
@@ -669,6 +678,7 @@ add_executable(urpg_tests
     tests/unit/test_semver.cpp
     tests/unit/test_fixed32.cpp
     tests/unit/test_frame_budget.cpp
+    tests/unit/test_future_feature_16.cpp
     tests/unit/test_perf_profiler.cpp
     tests/unit/test_perf_diagnostics_panel.cpp
     tests/unit/test_ecs_world.cpp

@@ -1,0 +1,11 @@
+{
+  "schema": "urpg.mod.expected_diagnostics.v1",
+  "modId": "urpg.sample.echo",
+  "diagnostics": [
+    {
+      "code": "sample.echo.loaded",
+      "severity": "info",
+      "message": "Sample echo mod loaded."
+    }
+  ]
+}
