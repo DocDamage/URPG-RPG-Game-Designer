@@ -41,6 +41,20 @@ std::filesystem::path readPath(const nlohmann::json& object, const char* key, co
     return std::filesystem::path(object.at(key).get<std::string>());
 }
 
+std::string readString(const nlohmann::json& object, const char* key, const std::string& fallback) {
+    if (!object.contains(key) || !object.at(key).is_string()) {
+        return fallback;
+    }
+    return object.at(key).get<std::string>();
+}
+
+std::string normalizeConsentState(std::string state) {
+    if (state == "granted" || state == "denied" || state == "unknown") {
+        return state;
+    }
+    return "unknown";
+}
+
 WindowSettings readWindowSettings(const nlohmann::json& root, WindowSettings defaults) {
     if (!root.contains("window") || !root.at("window").is_object()) {
         return defaults;
@@ -207,6 +221,13 @@ EditorSettingsLoadResult loadEditorSettings(const std::filesystem::path& path, c
         result.settings.imgui_ini_path = readPath(payload, "imgui_ini_path", result.settings.imgui_ini_path);
         result.settings.workspace_path = readPath(payload, "workspace_path", result.settings.workspace_path);
         result.settings.restore_workspace = readBool(payload, "restore_workspace", result.settings.restore_workspace);
+        if (payload.contains("analytics") && payload.at("analytics").is_object()) {
+            const auto& analytics = payload.at("analytics");
+            result.settings.analytics_consent_state =
+                normalizeConsentState(readString(analytics, "consent_state", result.settings.analytics_consent_state));
+            result.settings.analytics_upload_enabled =
+                readBool(analytics, "upload_enabled", result.settings.analytics_upload_enabled);
+        }
     } catch (const std::exception& ex) {
         result.settings = defaultEditorSettings(paths);
         result.report.recovered_from_malformed = true;
@@ -235,6 +256,11 @@ bool saveEditorSettings(const std::filesystem::path& path, const EditorSettings&
         {"imgui_ini_path", settings.imgui_ini_path.generic_string()},
         {"workspace_path", settings.workspace_path.generic_string()},
         {"restore_workspace", settings.restore_workspace},
+        {"analytics",
+         {
+             {"consent_state", normalizeConsentState(settings.analytics_consent_state)},
+             {"upload_enabled", settings.analytics_upload_enabled},
+         }},
     };
     return writeJsonFile(path, payload, error);
 }

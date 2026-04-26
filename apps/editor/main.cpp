@@ -170,6 +170,28 @@ void printStartupFailure(const urpg::diagnostics::StartupDiagnosticRecord& recor
     }
 }
 
+urpg::analytics::ConsentState analyticsConsentFromSettings(const std::string& state) {
+    if (state == "granted") {
+        return urpg::analytics::ConsentState::Granted;
+    }
+    if (state == "denied") {
+        return urpg::analytics::ConsentState::Denied;
+    }
+    return urpg::analytics::ConsentState::Unknown;
+}
+
+std::string analyticsConsentToSettings(urpg::analytics::ConsentState state) {
+    switch (state) {
+    case urpg::analytics::ConsentState::Granted:
+        return "granted";
+    case urpg::analytics::ConsentState::Denied:
+        return "denied";
+    case urpg::analytics::ConsentState::Unknown:
+        return "unknown";
+    }
+    return "unknown";
+}
+
 bool runEditorFrame(urpg::EngineShell& engineShell, urpg::editor::EditorShell& editorShell, bool renderAllPanels,
                     double deltaSeconds = 1.0 / 60.0) {
     engineShell.tick();
@@ -378,6 +400,10 @@ int main(int argc, char** argv) {
 #endif
 
         EditorPanelRuntime panelRuntime;
+        const auto analyticsConsent = analyticsConsentFromSettings(settingsLoad.settings.analytics_consent_state);
+        panelRuntime.analytics_privacy_controller.recordConsentDecision(analyticsConsent);
+        panelRuntime.analytics_dispatcher.setOptIn(analyticsConsent == urpg::analytics::ConsentState::Granted &&
+                                                   settingsLoad.settings.analytics_upload_enabled);
         if (!registerEditorPanels(editorShell, panelRuntime)) {
             std::cerr << "URPG editor failed to register required panels.\n";
 #ifdef URPG_IMGUI_ENABLED
@@ -435,6 +461,9 @@ int main(int argc, char** argv) {
         settingsLoad.settings.window.height = config.height;
         settingsLoad.settings.window.fullscreen = config.fullscreen;
         settingsLoad.settings.window.resizable = config.resizable;
+        settingsLoad.settings.analytics_consent_state =
+            analyticsConsentToSettings(panelRuntime.analytics_privacy_controller.getConsentState());
+        settingsLoad.settings.analytics_upload_enabled = panelRuntime.analytics_dispatcher.isOptIn();
         std::string settingsError;
         if (!urpg::settings::saveEditorSettings(settingsPaths.editor_settings, settingsLoad.settings, &settingsError)) {
             std::cerr << "URPG editor failed to save settings: " << settingsError << "\n";

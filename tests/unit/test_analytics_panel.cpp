@@ -179,6 +179,44 @@ TEST_CASE("AnalyticsPanel flush upload respects disabled states and consent", "[
     REQUIRE(snapshot["lastAction"]["message"] == "Upload disabled: analytics consent is not granted.");
 }
 
+TEST_CASE("AnalyticsPanel requires explicit consent before upload is enabled",
+          "[analytics][editor][panel][privacy][consent]") {
+    AnalyticsDispatcher dispatcher;
+    AnalyticsUploader uploader;
+    AnalyticsPrivacyController privacy;
+    AnalyticsPanel panel;
+    panel.bindDispatcher(&dispatcher);
+    panel.bindUploader(&uploader);
+    panel.bindPrivacyController(&privacy);
+
+    uploader.setUploadHandler([](const std::string&) { return true; });
+    dispatcher.setOptIn(true);
+    dispatcher.dispatchEvent("queued", "ui");
+    panel.render();
+
+    auto snapshot = panel.lastRenderSnapshot();
+    REQUIRE(snapshot["privacyStatus"] == "unknown");
+    REQUIRE(snapshot["requiresConsentPrompt"] == true);
+    REQUIRE(snapshot["analyticsPermitted"] == false);
+    REQUIRE(snapshot["actions"]["flushUpload"] == false);
+    REQUIRE(snapshot["disabledUploadMessage"] == "Upload disabled: analytics consent is not granted.");
+    REQUIRE_FALSE(panel.flushQueuedEvents());
+    REQUIRE(panel.lastRenderSnapshot()["lastAction"]["message"] ==
+            "Upload disabled: analytics consent is not granted.");
+
+    REQUIRE(panel.setOptIn(true));
+    snapshot = panel.lastRenderSnapshot();
+    REQUIRE(snapshot["privacyStatus"] == "granted");
+    REQUIRE(snapshot["requiresConsentPrompt"] == false);
+    REQUIRE(snapshot["actions"]["flushUpload"] == true);
+
+    REQUIRE(panel.setOptIn(false));
+    snapshot = panel.lastRenderSnapshot();
+    REQUIRE(snapshot["privacyStatus"] == "denied");
+    REQUIRE(snapshot["analyticsPermitted"] == false);
+    REQUIRE(snapshot["actions"]["flushUpload"] == false);
+}
+
 TEST_CASE("AnalyticsPanel flush upload sends queued events and clears queue on success",
           "[analytics][editor][panel][controls]") {
     AnalyticsDispatcher dispatcher;

@@ -2,13 +2,15 @@
 
 #include <catch2/catch_test_macros.hpp>
 
+#include <chrono>
 #include <filesystem>
 #include <fstream>
 
 namespace {
 
 std::filesystem::path uniqueSettingsRoot(const std::string& name) {
-    return std::filesystem::temp_directory_path() / name;
+    const auto tick = std::chrono::steady_clock::now().time_since_epoch().count();
+    return std::filesystem::temp_directory_path() / (name + "_" + std::to_string(tick));
 }
 
 void writeText(const std::filesystem::path& path, const std::string& text) {
@@ -74,6 +76,8 @@ TEST_CASE("Editor settings persist ImGui and workspace paths", "[settings][persi
     settings.imgui_ini_path = paths.root / "custom_imgui.ini";
     settings.workspace_path = paths.root / "custom_workspace.json";
     settings.restore_workspace = false;
+    settings.analytics_consent_state = "granted";
+    settings.analytics_upload_enabled = true;
 
     REQUIRE(urpg::settings::saveEditorSettings(paths.editor_settings, settings));
 
@@ -84,6 +88,8 @@ TEST_CASE("Editor settings persist ImGui and workspace paths", "[settings][persi
     REQUIRE(loaded.settings.imgui_ini_path == paths.root / "custom_imgui.ini");
     REQUIRE(loaded.settings.workspace_path == paths.root / "custom_workspace.json");
     REQUIRE_FALSE(loaded.settings.restore_workspace);
+    REQUIRE(loaded.settings.analytics_consent_state == "granted");
+    REQUIRE(loaded.settings.analytics_upload_enabled);
 
     std::filesystem::remove_all(root);
 }
@@ -108,6 +114,34 @@ TEST_CASE("Malformed settings recover to defaults without crashing", "[settings]
     REQUIRE(editor.settings.window.width == 1440);
     REQUIRE(editor.settings.window.height == 900);
     REQUIRE(editor.settings.imgui_ini_path == paths.editor_imgui_ini);
+    REQUIRE(editor.settings.analytics_consent_state == "unknown");
+    REQUIRE_FALSE(editor.settings.analytics_upload_enabled);
+
+    std::filesystem::remove_all(root);
+}
+
+TEST_CASE("Editor analytics consent defaults disabled and normalizes unknown values",
+          "[settings][persistence][analytics][privacy][consent]") {
+    const auto root = uniqueSettingsRoot("urpg_editor_analytics_settings");
+    std::filesystem::remove_all(root);
+    const auto paths = urpg::settings::appSettingsPaths(root);
+
+    auto defaults = urpg::settings::loadEditorSettings(paths.editor_settings, paths);
+    REQUIRE(defaults.settings.analytics_consent_state == "unknown");
+    REQUIRE_FALSE(defaults.settings.analytics_upload_enabled);
+
+    writeText(paths.editor_settings, R"({
+  "schema": "urpg.editor_settings.v1",
+  "analytics": {
+    "consent_state": "surprise",
+    "upload_enabled": true
+  }
+})");
+
+    const auto loaded = urpg::settings::loadEditorSettings(paths.editor_settings, paths);
+    REQUIRE(loaded.report.loaded);
+    REQUIRE(loaded.settings.analytics_consent_state == "unknown");
+    REQUIRE(loaded.settings.analytics_upload_enabled);
 
     std::filesystem::remove_all(root);
 }

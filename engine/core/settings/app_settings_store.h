@@ -50,6 +50,8 @@ struct EditorSettings {
     std::filesystem::path imgui_ini_path;
     std::filesystem::path workspace_path;
     bool restore_workspace = true;
+    std::string analytics_consent_state = "unknown";
+    bool analytics_upload_enabled = false;
 };
 
 struct SettingsLoadReport {

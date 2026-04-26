@@ -923,13 +923,15 @@
 
 **Risk level:** High.
 
+**Status:** Completed in this pass.
+
 **Exact implementation steps:**
-- [ ] Inspect the analytics dispatcher/uploader/privacy controller wiring in `apps/editor/main.cpp`.
-- [ ] Ensure analytics upload is disabled by default until consent is recorded.
-- [ ] Add a first-run consent prompt or settings panel control.
-- [ ] Add a persistent opt-out path.
-- [ ] Document collected fields in `PRIVACY_POLICY.md`.
-- [ ] Add tests for default-disabled, opt-in, opt-out, and persisted preference.
+- [x] Inspect the analytics dispatcher/uploader/privacy controller wiring in `apps/editor/main.cpp`.
+- [x] Ensure analytics upload is disabled by default until consent is recorded.
+- [x] Add a settings panel control and snapshot state for first-run unknown consent.
+- [x] Add a persistent opt-out path through editor settings.
+- [x] Document collected fields in `PRIVACY_POLICY.md`.
+- [x] Add tests for default-disabled, opt-in, opt-out, and persisted preference.
 
 **Acceptance criteria:**
 - No analytics upload can occur before explicit consent.
@@ -940,6 +942,16 @@
 - `cmake --build --preset dev-debug --target urpg_editor urpg_tests`
 - `ctest --preset dev-all -R "analytics|privacy|consent"`
 - Manual first-run prompt verification remains required in `urpg_editor`.
+
+**Verification results:**
+- Passed: `cmake --build --preset dev-debug --target urpg_editor urpg_tests`.
+- Passed: `cmake --build --preset dev-debug --target urpg_tests`.
+- Passed: `.\build\dev-ninja-debug\urpg_tests.exe "[analytics][privacy][consent]"` with 20 assertions in 2 test cases.
+- Passed: `.\build\dev-ninja-debug\urpg_tests.exe "[settings][persistence][analytics]"` with 5 assertions in 1 test case.
+- Passed: `ctest --preset dev-all -R "analytics|privacy|consent" --output-on-failure` with 8/8 tests passing.
+- Passed: headless editor restart check wrote default analytics settings as `consent_state: unknown` and `upload_enabled: false`.
+- Passed: headless editor restart check preserved pre-existing `consent_state: granted` and `upload_enabled: true`.
+- Unverified: interactive first-run visual prompt quality in a non-headless `urpg_editor` session.
 
 ### P4-003 - Prove Save Data Integrity Through Runtime Continue Path
 

@@ -221,9 +221,14 @@ void AnalyticsPanel::rebuildSnapshot() {
         m_privacyController ? consentStateToString(m_privacyController->getConsentState()) : "unbound";
     snapshot["analyticsPermitted"] =
         m_privacyController ? m_privacyController->isAnalyticsPermitted() : m_dispatcher->isOptIn();
+    snapshot["requiresConsentPrompt"] =
+        m_privacyController && m_privacyController->getConsentState() == urpg::analytics::ConsentState::Unknown;
     if (m_privacyController == nullptr) {
         snapshot["statusMessages"].push_back(
             "No analytics privacy controller is bound; dispatcher opt-in is used as fallback.");
+    } else if (m_privacyController->getConsentState() == urpg::analytics::ConsentState::Unknown) {
+        snapshot["statusMessages"].push_back(
+            "Analytics consent has not been recorded; uploads remain disabled until opt-in.");
     }
     snapshot["queuedEventCount"] = m_dispatcher->getQueuedEventCount();
     snapshot["sessionEventCount"] = m_dispatcher->getSessionEventCount();
