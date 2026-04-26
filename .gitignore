@@ -39,6 +39,7 @@ itch/archives/
 more assets/**/*.zip
 imports/root-drop/archives/rpgmaker/visustella/VisuMZ_Sample_Game_Project.zip
 third_party/itch-assets/packs-by-category/bundles-mega/2017patronbundle/2017/children/children_frames.zip
+docs/archive/blueprints/URPG_Blueprint_v3_1_Integrated.docx
 .rex_db/
 .codemunch/last-index.json
 .contextlattice/orchestrator.env
