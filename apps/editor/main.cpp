@@ -8,6 +8,7 @@
 #include "engine/core/analytics/analytics_dispatcher.h"
 #include "engine/core/analytics/analytics_privacy_controller.h"
 #include "engine/core/analytics/analytics_uploader.h"
+#include "engine/core/app_cli.h"
 #include "engine/core/editor/editor_shell.h"
 #include "engine/core/engine_shell.h"
 #include "engine/core/mod/mod_loader.h"
@@ -30,80 +31,23 @@
 #endif
 
 #include <chrono>
-#include <cstdint>
 #include <exception>
 #include <filesystem>
 #include <fstream>
 #include <iostream>
 #include <memory>
-#include <optional>
 #include <string>
 #include <thread>
 #include <vector>
 
 namespace {
 
-struct EditorOptions {
-    bool headless =
+bool defaultHeadless() {
 #ifdef URPG_HEADLESS
-        true;
+    return true;
 #else
-        false;
+    return false;
 #endif
-    int frames = -1;
-    std::uint32_t width = 1440;
-    std::uint32_t height = 900;
-    bool list_panels = false;
-    bool render_all_panels = false;
-    bool smoke = false;
-    std::optional<std::string> open_panel_id;
-    std::filesystem::path project_root = std::filesystem::current_path();
-    std::filesystem::path smoke_output;
-    std::filesystem::path smoke_snapshot_root;
-};
-
-EditorOptions parseOptions(int argc, char** argv) {
-    EditorOptions options;
-    for (int i = 1; i < argc; ++i) {
-        const std::string arg = argv[i];
-        if (arg == "--headless") {
-            options.headless = true;
-        } else if (arg == "--frames" && i + 1 < argc) {
-            options.frames = std::stoi(argv[++i]);
-        } else if (arg == "--width" && i + 1 < argc) {
-            options.width = static_cast<std::uint32_t>(std::stoul(argv[++i]));
-        } else if (arg == "--height" && i + 1 < argc) {
-            options.height = static_cast<std::uint32_t>(std::stoul(argv[++i]));
-        } else if (arg == "--list-panels") {
-            options.list_panels = true;
-        } else if (arg == "--render-all-panels") {
-            options.render_all_panels = true;
-        } else if (arg == "--smoke") {
-            options.smoke = true;
-            options.headless = true;
-        } else if (arg == "--open-panel" && i + 1 < argc) {
-            options.open_panel_id = argv[++i];
-        } else if (arg == "--project-root" && i + 1 < argc) {
-            options.project_root = argv[++i];
-        } else if (arg == "--smoke-output" && i + 1 < argc) {
-            options.smoke_output = argv[++i];
-        } else if (arg == "--smoke-snapshot-root" && i + 1 < argc) {
-            options.smoke_snapshot_root = argv[++i];
-        }
-    }
-
-    if (options.smoke) {
-        if (options.frames < 0) {
-            options.frames = 0;
-        }
-        if (options.smoke_output.empty()) {
-            options.smoke_output = std::filesystem::temp_directory_path() / "urpg_editor_smoke_state.json";
-        }
-        if (options.smoke_snapshot_root.empty()) {
-            options.smoke_snapshot_root = std::filesystem::temp_directory_path() / "urpg_editor_smoke_snapshots";
-        }
-    }
-    return options;
 }
 
 void printVersion() {
@@ -224,7 +168,7 @@ nlohmann::json panelSnapshotJson(const urpg::editor::EditorShell& editorShell) {
 }
 
 int runSmokeWorkflow(urpg::EngineShell& engineShell, urpg::editor::EditorShell& editorShell,
-                     const EditorOptions& options) {
+                     const urpg::cli::EditorCliOptions& options) {
     static constexpr std::string_view requiredPanels[] = {
         "diagnostics", "assets", "ability", "mod", "analytics",
     };
@@ -300,15 +244,21 @@ int runSmokeWorkflow(urpg::EngineShell& engineShell, urpg::editor::EditorShell& 
 
 int main(int argc, char** argv) {
     try {
-        for (int i = 1; i < argc; ++i) {
-            const std::string arg = argv[i];
-            if (arg == "--version") {
-                printVersion();
-                return 0;
-            }
+        const auto cli = urpg::cli::parseEditorCli(urpg::cli::argvToViews(argc, argv), defaultHeadless());
+        if (!cli.ok()) {
+            std::cerr << "URPG editor: " << cli.error << "\n" << urpg::cli::editorHelpText();
+            return 2;
+        }
+        if (cli.action == urpg::cli::CliAction::Help) {
+            std::cout << urpg::cli::editorHelpText();
+            return 0;
+        }
+        if (cli.action == urpg::cli::CliAction::Version) {
+            printVersion();
+            return 0;
         }
 
-        const EditorOptions options = parseOptions(argc, argv);
+        const urpg::cli::EditorCliOptions options = cli.options;
 
         urpg::WindowConfig config;
         config.title = "URPG Editor";

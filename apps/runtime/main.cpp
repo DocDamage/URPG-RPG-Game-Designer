@@ -1,3 +1,4 @@
+#include "engine/core/app_cli.h"
 #include "engine/core/engine_shell.h"
 #include "engine/core/platform/headless_renderer.h"
 #include "engine/core/platform/headless_surface.h"
@@ -11,9 +12,7 @@
 #endif
 
 #include <chrono>
-#include <cstdint>
 #include <exception>
-#include <filesystem>
 #include <iostream>
 #include <memory>
 #include <string>
@@ -21,36 +20,12 @@
 
 namespace {
 
-struct RuntimeOptions {
-    bool headless =
+bool defaultHeadless() {
 #ifdef URPG_HEADLESS
-        true;
+    return true;
 #else
-        false;
+    return false;
 #endif
-    int frames = -1;
-    std::uint32_t width = 1280;
-    std::uint32_t height = 720;
-    std::filesystem::path project_root = std::filesystem::current_path();
-};
-
-RuntimeOptions parseOptions(int argc, char** argv) {
-    RuntimeOptions options;
-    for (int i = 1; i < argc; ++i) {
-        const std::string arg = argv[i];
-        if (arg == "--headless") {
-            options.headless = true;
-        } else if (arg == "--frames" && i + 1 < argc) {
-            options.frames = std::stoi(argv[++i]);
-        } else if (arg == "--width" && i + 1 < argc) {
-            options.width = static_cast<std::uint32_t>(std::stoul(argv[++i]));
-        } else if (arg == "--height" && i + 1 < argc) {
-            options.height = static_cast<std::uint32_t>(std::stoul(argv[++i]));
-        } else if (arg == "--project-root" && i + 1 < argc) {
-            options.project_root = argv[++i];
-        }
-    }
-    return options;
 }
 
 void printVersion() {
@@ -68,15 +43,21 @@ void clearSceneStack() {
 
 int main(int argc, char** argv) {
     try {
-        for (int i = 1; i < argc; ++i) {
-            const std::string arg = argv[i];
-            if (arg == "--version") {
-                printVersion();
-                return 0;
-            }
+        const auto cli = urpg::cli::parseRuntimeCli(urpg::cli::argvToViews(argc, argv), defaultHeadless());
+        if (!cli.ok()) {
+            std::cerr << "URPG runtime: " << cli.error << "\n" << urpg::cli::runtimeHelpText();
+            return 2;
+        }
+        if (cli.action == urpg::cli::CliAction::Help) {
+            std::cout << urpg::cli::runtimeHelpText();
+            return 0;
+        }
+        if (cli.action == urpg::cli::CliAction::Version) {
+            printVersion();
+            return 0;
         }
 
-        const RuntimeOptions options = parseOptions(argc, argv);
+        const urpg::cli::RuntimeCliOptions options = cli.options;
 
         urpg::WindowConfig config;
         config.title = "URPG Runtime";

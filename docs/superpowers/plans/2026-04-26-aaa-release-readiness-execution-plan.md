@@ -189,13 +189,13 @@
 **Risk level:** Medium.
 
 **Exact implementation steps:**
-- [ ] Extract runtime option parsing into a testable function if it currently only exists inside `main`.
-- [ ] Extract editor option parsing into a testable function if it currently only exists inside `main`.
-- [ ] Add `--help` output for runtime and editor listing every supported option and expected value.
-- [ ] Return non-zero for unknown flags.
-- [ ] Return non-zero for missing values after flags such as `--frames`, `--width`, `--height`, and `--project-root`.
-- [ ] Preserve existing successful behavior for valid options.
-- [ ] Add tests for help, version, unknown flag, missing value, and valid option parsing.
+- [x] Extract runtime option parsing into a testable function if it currently only exists inside `main`.
+- [x] Extract editor option parsing into a testable function if it currently only exists inside `main`.
+- [x] Add `--help` output for runtime and editor listing every supported option and expected value.
+- [x] Return non-zero for unknown flags.
+- [x] Return non-zero for missing values after flags such as `--frames`, `--width`, `--height`, and `--project-root`.
+- [x] Preserve existing successful behavior for valid options.
+- [x] Add tests for help, version, unknown flag, missing value, and valid option parsing.
 
 **Acceptance criteria:**
 - `urpg_runtime --help` exits `0` and lists supported options.
@@ -209,6 +209,20 @@
 - `.\build\dev-ninja-debug\apps\runtime\urpg_runtime.exe --bad-option`
 - `.\build\dev-ninja-debug\apps\editor\urpg_editor.exe --help`
 - `ctest --preset dev-all -R "cli|runtime|editor"`
+
+**Verification evidence (2026-04-26):**
+- `cmake --build --preset dev-debug --target urpg_tests urpg_runtime urpg_editor` completed.
+- `.\build\dev-ninja-debug\urpg_tests.exe "[cli]"` passed 8 test cases and 535 assertions.
+- `.\build\dev-ninja-debug\urpg_runtime.exe --help` exited `0` and listed runtime options.
+- `.\build\dev-ninja-debug\urpg_runtime.exe --version` exited `0` and printed `URPG Runtime 0.1.0`.
+- `.\build\dev-ninja-debug\urpg_runtime.exe --bogus` exited `2` and printed `unknown option: --bogus`.
+- `.\build\dev-ninja-debug\urpg_editor.exe --help` exited `0` and listed editor options.
+- `.\build\dev-ninja-debug\urpg_editor.exe --version` exited `0` and printed `URPG Editor 0.1.0`.
+- `.\build\dev-ninja-debug\urpg_editor.exe --width` exited `2` and printed `missing value after --width`.
+- `.\build\dev-ninja-debug\urpg_runtime.exe --headless --frames 0` exited `0`.
+- `.\build\dev-ninja-debug\urpg_editor.exe --headless --frames 0` exited `0`.
+- `ctest --preset dev-all -R "Runtime CLI|Editor CLI" --output-on-failure` passed 6 tests.
+- `ctest --preset dev-all -R "CLI|cli" --output-on-failure` is not a valid focused P0-003 check because it also matches unrelated Project Audit CLI tests; that broader run failed on existing governance report assertions in tests 548 and 563.
 
 ### P0-004 - Gate Test Dependencies Behind An Explicit Build Option
 

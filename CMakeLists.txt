@@ -203,6 +203,7 @@ endfunction()
 
 add_library(urpg_core
     engine/core/action/controller_binding_runtime.cpp
+    engine/core/app_cli.cpp
     engine/core/ai/ai_assistant_config.cpp
     engine/core/ai/ai_suggestion_record.cpp
     engine/core/collaboration/local_review_bundle.cpp
@@ -975,6 +976,7 @@ add_executable(urpg_tests
     tests/unit/test_governance_regression.cpp
     tests/unit/test_analytics_dispatcher.cpp
     tests/unit/test_analytics_panel.cpp
+    tests/unit/test_app_cli.cpp
     tests/unit/test_template_acceptance.cpp
     tests/unit/test_template_bar_quality.cpp
     tests/unit/test_dev_room_generator.cpp
