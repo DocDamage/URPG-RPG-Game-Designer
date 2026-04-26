@@ -110,7 +110,11 @@ if ($IsWindows -or $env:OS -eq "Windows_NT") {
 Assert-ZipContains -ArchivePath $runtimeArchive.FullName -RequiredEntries @(
   "bin/urpg_runtime$exeSuffix",
   "bin/urpg_editor$exeSuffix",
-  "bin/urpg_audio_smoke$exeSuffix"
+  "bin/urpg_audio_smoke$exeSuffix",
+  "share/icons/hicolor/256x256/apps/urpg_runtime.png",
+  "share/icons/hicolor/256x256/apps/urpg_editor.png",
+  "share/applications/urpg-runtime.desktop",
+  "share/applications/urpg-editor.desktop"
 )
 
 Assert-ZipContains -ArchivePath $runtimeDataArchive.FullName -RequiredEntries @(

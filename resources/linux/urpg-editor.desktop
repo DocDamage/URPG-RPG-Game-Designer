@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=URPG Editor
+Comment=Create and edit URPG projects
+Exec=urpg_editor
+Icon=urpg_editor
+Terminal=false
+Categories=Development;Game;

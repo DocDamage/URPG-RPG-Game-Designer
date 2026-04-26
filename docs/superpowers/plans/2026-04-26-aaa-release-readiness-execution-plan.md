@@ -1151,6 +1151,8 @@
 
 ### P5-004 - Add Platform Metadata And App Icons
 
+**Status:** Completed in this pass.
+
 **Files to edit:**
 - `CMakeLists.txt`
 - Platform metadata files to create under `packaging/` or `resources/`
@@ -1165,19 +1167,32 @@
 **Risk level:** Medium.
 
 **Exact implementation steps:**
-- [ ] Search for existing `.ico`, `.icns`, `.png`, `.rc`, `.manifest`, and `.desktop` assets.
-- [ ] Select or create app icons for runtime and editor.
-- [ ] Add Windows resource metadata for product name, version, company/project name, and icon.
-- [ ] Add Linux `.desktop` metadata if Linux packages are supported.
-- [ ] Add macOS bundle metadata only if macOS app bundle packaging is supported.
-- [ ] Include metadata files in install/package rules.
+- [x] Search for existing `.ico`, `.icns`, `.png`, `.rc`, `.manifest`, and `.desktop` assets.
+- [x] Select or create app icons for runtime and editor.
+- [x] Add Windows resource metadata for product name, version, company/project name, and icon.
+- [x] Add Linux `.desktop` metadata if Linux packages are supported.
+- [x] Add macOS bundle metadata only if macOS app bundle packaging is supported.
+- [x] Include metadata files in install/package rules.
+
+**Evidence:**
+- Scoped metadata search found no project-owned Windows resource, Linux desktop, or app icon metadata before this task.
+- Created generated runtime/editor PNG and ICO assets under `resources/icons/`.
+- Added Windows `.rc.in` version metadata and icon resource templates for `urpg_runtime` and `urpg_editor`; CMake configures string and numeric versions from `project(urpg VERSION ...)`.
+- Added Linux desktop entries for runtime and editor under `resources/linux/`.
+- Added icon and desktop resources to install/package rules and smoke checks.
+- `cmake -S . -B build/dev-ninja-release -G Ninja -DCMAKE_BUILD_TYPE=Release -DURPG_USE_SCCACHE=OFF` passed.
+- `cmake --build --preset dev-release --target urpg_runtime urpg_editor -j 2` passed with generated Windows resource files.
+- `./tools/ci/check_install_smoke.ps1 -BuildDirectory build/dev-ninja-release -InstallPrefix build/install-smoke` passed.
+- `./tools/ci/check_package_smoke.ps1 -BuildDirectory build/dev-ninja-release -PackageRoot build/package-smoke` passed.
+- macOS bundle metadata was not added because the current native packaging path produces component ZIP/TGZ archives and does not define macOS app bundles.
+- Platform-specific visual verification remains unverified until the installed applications are inspected on each supported OS shell/launcher.
 
 **Acceptance criteria:**
 - Supported release platforms have explicit app identity metadata.
 - Installed package includes icon and metadata resources.
 
 **Verification command or manual test:**
-- `rg -n "\\.ico|\\.icns|\\.desktop|VERSIONINFO|app manifest|CPACK" CMakeLists.txt packaging resources`
+- `rg -n "\\.ico|\\.icns|\\.desktop|VERSIONINFO|app manifest|CPACK|\\.rc\\.in" CMakeLists.txt resources cmake docs tools`
 - Platform-specific visual verification remains unverified until tested on each supported OS.
 
 ### P5-005 - Prove Fresh Clone And LFS Asset Hydration

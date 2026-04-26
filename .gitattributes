@@ -8,6 +8,10 @@
 
 *.sh text eol=lf
 *.cmake text eol=lf
+*.desktop text eol=lf
+*.manifest text eol=lf
+*.rc text eol=lf
+*.rc.in text eol=lf
 *.cpp text eol=lf
 *.cxx text eol=lf
 *.cc text eol=lf
@@ -66,6 +70,7 @@
 *.woff2 binary
 *.ttf binary
 *.otf binary
+*.ico binary
 *.dll binary
 *.exe binary
 *.lib binary

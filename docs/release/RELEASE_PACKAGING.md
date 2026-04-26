@@ -100,6 +100,12 @@ Expected install tree:
     PRIVACY_POLICY.md
     release/
     templates/
+  share/icons/hicolor/256x256/apps/
+    urpg_runtime.png
+    urpg_editor.png
+  share/applications/
+    urpg-runtime.desktop
+    urpg-editor.desktop
 ```
 
 Root legal documents that do not exist yet, such as `THIRD_PARTY_NOTICES.md`, `EULA.md`, and `CREDITS.md`, are installed automatically once created by the legal-documentation task.

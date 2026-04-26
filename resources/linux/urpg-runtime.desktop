@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=URPG Runtime
+Comment=Run URPG projects
+Exec=urpg_runtime
+Icon=urpg_runtime
+Terminal=false
+Categories=Game;

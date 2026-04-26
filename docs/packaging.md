@@ -28,6 +28,8 @@ CPack emits component archives:
 
 Raw intake folders, duplicate source archives, and unpromoted asset dumps are not native app package contents.
 
+The `Runtime` component also includes app identity resources under `share/icons/hicolor/256x256/apps/` and Linux desktop entries under `share/applications/`. Windows builds embed version metadata and app icons into `urpg_runtime.exe` and `urpg_editor.exe`.
+
 ## Smoke Check
 
 Use the package smoke wrapper after configuring the release build tree:

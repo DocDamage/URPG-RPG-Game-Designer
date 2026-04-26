@@ -762,6 +762,15 @@ target_link_libraries(urpg_audio_smoke PRIVATE urpg_core)
 target_include_directories(urpg_audio_smoke PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
 
 if(WIN32)
+    set(_urpg_runtime_rc "${CMAKE_CURRENT_BINARY_DIR}/generated/resources/windows/urpg_runtime.rc")
+    set(_urpg_editor_rc "${CMAKE_CURRENT_BINARY_DIR}/generated/resources/windows/urpg_editor.rc")
+    configure_file(resources/windows/urpg_runtime.rc.in "${_urpg_runtime_rc}" @ONLY)
+    configure_file(resources/windows/urpg_editor.rc.in "${_urpg_editor_rc}" @ONLY)
+    target_sources(urpg_runtime PRIVATE "${_urpg_runtime_rc}")
+    target_sources(urpg_editor PRIVATE "${_urpg_editor_rc}")
+endif()
+
+if(WIN32)
     foreach(_urpg_app_target IN ITEMS urpg_runtime urpg_editor urpg_audio_smoke)
         add_custom_command(
             TARGET ${_urpg_app_target}
@@ -876,6 +885,22 @@ install(
     DESTINATION "${CMAKE_INSTALL_DOCDIR}/templates"
     COMPONENT Docs
     FILES_MATCHING PATTERN "*.md"
+)
+
+install(
+    FILES
+        resources/icons/urpg_runtime.png
+        resources/icons/urpg_editor.png
+    DESTINATION "${CMAKE_INSTALL_DATADIR}/icons/hicolor/256x256/apps"
+    COMPONENT Runtime
+)
+
+install(
+    FILES
+        resources/linux/urpg-runtime.desktop
+        resources/linux/urpg-editor.desktop
+    DESTINATION "${CMAKE_INSTALL_DATADIR}/applications"
+    COMPONENT Runtime
 )
 
 add_executable(urpg_migrate
