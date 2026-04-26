@@ -297,6 +297,7 @@ add_library(urpg_core
     engine/core/save/save_migration.cpp
     engine/core/save/save_recovery.cpp
     engine/core/save/save_runtime.cpp
+    engine/core/save/runtime_save_startup.cpp
     engine/core/save/lzstring_decompressor.cpp
     engine/core/save/rpgmaker_save_reader.cpp
     engine/core/battle/battle_core.cpp
@@ -1066,6 +1067,7 @@ urpg_enable_windows_test_binary_unlock(urpg_tests)
 
 add_executable(urpg_integration_tests
     tests/integration/test_integration_runtime_recovery.cpp
+    tests/integration/test_runtime_startup_save_flow.cpp
     tests/integration/test_battle_save_integration.cpp
     tests/integration/test_character_save_integration.cpp
     tests/integration/test_exported_runtime_smoke.cpp

@@ -598,6 +598,7 @@ TEST_CASE("RuntimeTitleScene routes New Game and Exit through callbacks", "[scen
     RuntimeTitleScene title({
         [&newGameStarted] { newGameStarted = true; },
         [&exitRequested] { exitRequested = true; },
+        {},
     });
 
     const auto newGameResult = title.activateCommand(RuntimeTitleCommandId::NewGame);
@@ -633,6 +634,7 @@ TEST_CASE("RuntimeTitleScene New Game can transition to the existing runtime boo
     SceneManager manager;
     auto title = makeDefaultRuntimeTitleScene({
         [&manager] { manager.gotoScene(std::make_shared<MapScene>("RuntimeBoot", 16, 12)); },
+        {},
         {},
     });
 

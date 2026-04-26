@@ -231,8 +231,11 @@ TEST_CASE("export_validator: mainGaps acknowledges runtime-side signature enforc
 TEST_CASE("export_validator: runtime signature enforcement design note keeps validator-time boundary explicit",
           "[wysiwyg][export][s32t05]") {
     const std::string text = readTextFile({
+        "docs/specs/EXPORT_RUNTIME_SIGNATURE_ENFORCEMENT_DESIGN.md",
         "docs/EXPORT_RUNTIME_SIGNATURE_ENFORCEMENT_DESIGN.md",
+        "../docs/specs/EXPORT_RUNTIME_SIGNATURE_ENFORCEMENT_DESIGN.md",
         "../docs/EXPORT_RUNTIME_SIGNATURE_ENFORCEMENT_DESIGN.md",
+        "../../docs/specs/EXPORT_RUNTIME_SIGNATURE_ENFORCEMENT_DESIGN.md",
         "../../docs/EXPORT_RUNTIME_SIGNATURE_ENFORCEMENT_DESIGN.md",
     });
 

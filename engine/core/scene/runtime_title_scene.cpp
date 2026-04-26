@@ -78,6 +78,19 @@ const RuntimeTitleCommand* RuntimeTitleScene::findCommand(RuntimeTitleCommandId 
     return nullptr;
 }
 
+void RuntimeTitleScene::setContinueAvailability(bool enabled, std::string disabled_reason) {
+    for (auto& command : commands_) {
+        if (command.id == RuntimeTitleCommandId::Continue) {
+            command.enabled = enabled;
+            command.disabled_reason = enabled ? std::string{} : std::move(disabled_reason);
+            if (!enabled && command.disabled_reason.empty()) {
+                command.disabled_reason = "No save data found";
+            }
+            return;
+        }
+    }
+}
+
 RuntimeTitleCommandResult RuntimeTitleScene::activateCommand(RuntimeTitleCommandId id) {
     const RuntimeTitleCommand* command = findCommand(id);
     if (command == nullptr) {
@@ -100,6 +113,10 @@ RuntimeTitleCommandResult RuntimeTitleScene::activateCommand(RuntimeTitleCommand
         }
         return {true, true, "exit_requested", "Exit selected."};
     case RuntimeTitleCommandId::Continue:
+        if (callbacks_.continue_game) {
+            return callbacks_.continue_game();
+        }
+        return {true, false, "continue_handler_missing", "Continue is enabled but no save loader is registered."};
     case RuntimeTitleCommandId::Options:
         break;
     }

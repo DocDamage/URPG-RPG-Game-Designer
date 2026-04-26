@@ -345,12 +345,12 @@
 **Risk level:** High.
 
 **Exact implementation steps:**
-- [ ] Identify the canonical save metadata API and save slot load API.
-- [ ] Add startup save-slot discovery using `RuntimeOptions.project_root` or the configured save directory.
-- [ ] Make Continue enabled only when at least one valid save exists.
-- [ ] Make Continue load the newest valid save or open a slot selector if one exists.
-- [ ] On corrupted save, show or log a structured failure and fall back to recovery flow if one exists.
-- [ ] Add integration tests for no saves, valid save, and corrupted save metadata.
+- [x] Identify the canonical save metadata API and save slot load API.
+- [x] Add startup save-slot discovery using `RuntimeOptions.project_root` or the configured save directory.
+- [x] Make Continue enabled only when at least one valid save exists.
+- [x] Make Continue load the newest valid save or open a slot selector if one exists.
+- [x] On corrupted save, show or log a structured failure and fall back to recovery flow if one exists.
+- [x] Add integration tests for no saves, valid save, and corrupted save metadata.
 
 **Acceptance criteria:**
 - Runtime startup can distinguish no-save and has-save states.
@@ -361,6 +361,15 @@
 - `cmake --build --preset dev-debug --target urpg_runtime urpg_integration_tests`
 - `ctest --preset dev-all -R "save|runtime"`
 - Manual save-slot selection is unverified until exercised in the running editor/runtime.
+
+**Verification evidence (2026-04-26):**
+- `cmake --build --preset dev-debug --target urpg_runtime urpg_tests urpg_integration_tests` completed.
+- `build\dev-ninja-debug\urpg_integration_tests.exe "[integration][runtime][save]"` passed 4 test cases and 39 assertions.
+- `build\dev-ninja-debug\urpg_tests.exe "[scene][runtime][title]"` passed 5 test cases and 50 assertions.
+- `build\dev-ninja-debug\urpg_runtime.exe --headless --frames 3` exited `0` and printed `URPG runtime exited after 3 frame(s).`
+- Initial `ctest --preset dev-all -R "Runtime startup save|RuntimeTitleScene|save|runtime" --output-on-failure` exposed a stale documentation test path for `docs/specs/EXPORT_RUNTIME_SIGNATURE_ENFORCEMENT_DESIGN.md`; the lookup was updated.
+- Final `ctest --preset dev-all -R "Runtime startup save|RuntimeTitleScene|save|runtime" --output-on-failure` passed 130 tests with 0 failures.
+- Manual save-slot selection remains unverified because the current implementation loads the newest valid slot directly; selector UI does not exist yet.
 
 ### P1-003 - Prove Or Wire Runtime Startup Subsystems
 

@@ -34,6 +34,7 @@ class RuntimeTitleScene final : public GameScene {
     struct Callbacks {
         std::function<void()> start_new_game;
         std::function<void()> request_exit;
+        std::function<RuntimeTitleCommandResult()> continue_game;
     };
 
     explicit RuntimeTitleScene(Callbacks callbacks = {});
@@ -45,6 +46,7 @@ class RuntimeTitleScene final : public GameScene {
 
     const std::vector<RuntimeTitleCommand>& commands() const { return commands_; }
     const RuntimeTitleCommand* findCommand(RuntimeTitleCommandId id) const;
+    void setContinueAvailability(bool enabled, std::string disabled_reason = {});
     RuntimeTitleCommandResult activateCommand(RuntimeTitleCommandId id);
 
   private:

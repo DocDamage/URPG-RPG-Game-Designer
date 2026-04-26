@@ -2,6 +2,7 @@
 #include "engine/core/engine_shell.h"
 #include "engine/core/platform/headless_renderer.h"
 #include "engine/core/platform/headless_surface.h"
+#include "engine/core/save/runtime_save_startup.h"
 #include "engine/core/scene/map_scene.h"
 #include "engine/core/scene/runtime_title_scene.h"
 #include "engine/core/scene/scene_manager.h"
@@ -94,13 +95,38 @@ int main(int argc, char** argv) {
         }
 
         clearSceneStack();
-        urpg::scene::SceneManager::getInstance().gotoScene(urpg::scene::makeDefaultRuntimeTitleScene({
+        const auto startupSaveState = urpg::discoverRuntimeSaves(options.project_root);
+        auto titleScene = urpg::scene::makeDefaultRuntimeTitleScene({
             [] {
                 urpg::scene::SceneManager::getInstance().gotoScene(
                     std::make_shared<urpg::scene::MapScene>("RuntimeBoot", 16, 12));
             },
             [&shell] { shell.shutdown(); },
-        }));
+            [startupSaveState] {
+                const auto result = urpg::continueNewestRuntimeSave(startupSaveState);
+                if (!result.ok) {
+                    std::cerr << "URPG runtime continue failed: " << result.error << "\n";
+                    return urpg::scene::RuntimeTitleCommandResult{
+                        true, false, "continue_load_failed", result.error.empty() ? "Save load failed." : result.error};
+                }
+
+                const auto mapName =
+                    result.active_meta.map_display_name.empty() ? std::string("RuntimeBoot") : result.active_meta.map_display_name;
+                if (result.loaded_from_recovery) {
+                    std::cout << "URPG runtime continue recovered slot " << result.slot_id << " with tier "
+                              << static_cast<int>(result.recovery_tier) << ".\n";
+                } else {
+                    std::cout << "URPG runtime continue loaded slot " << result.slot_id << ".\n";
+                }
+
+                urpg::scene::SceneManager::getInstance().gotoScene(
+                    std::make_shared<urpg::scene::MapScene>(mapName, 16, 12));
+                return urpg::scene::RuntimeTitleCommandResult{
+                    true, true, "continue_loaded", "Continue loaded the newest save slot."};
+            },
+        });
+        titleScene->setContinueAvailability(startupSaveState.hasLoadableSave(), startupSaveState.continueDisabledReason());
+        urpg::scene::SceneManager::getInstance().gotoScene(titleScene);
 
         int frame = 0;
         while (shell.isRunning() && (options.frames < 0 || frame < options.frames)) {
