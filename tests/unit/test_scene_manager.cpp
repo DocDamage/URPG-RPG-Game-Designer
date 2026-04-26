@@ -4,6 +4,7 @@
 #include "engine/core/scene/map_loader.h"
 #include "engine/core/scene/map_scene.h"
 #include "engine/core/scene/movement_authority.h"
+#include "engine/core/scene/runtime_title_scene.h"
 #include "engine/core/scene/scene_manager.h"
 #include "engine/core/scene/tileset_registry.h"
 #include <catch2/catch_test_macros.hpp>
@@ -559,4 +560,125 @@ TEST_CASE("SceneManager: Basic Lifecycle & Stack", "[scene][core]") {
         REQUIRE(map->m_updateCount == 1);
         REQUIRE(title->m_updateCount == 0);
     }
+}
+
+TEST_CASE("RuntimeTitleScene exposes startup commands with explicit disabled states", "[scene][runtime][title]") {
+    RuntimeTitleScene title;
+
+    REQUIRE(title.getType() == SceneType::TITLE);
+    REQUIRE(title.getName() == "RuntimeTitle");
+    REQUIRE(title.commands().size() == 4);
+
+    const auto* newGame = title.findCommand(RuntimeTitleCommandId::NewGame);
+    REQUIRE(newGame != nullptr);
+    REQUIRE(newGame->label == "New Game");
+    REQUIRE(newGame->enabled);
+
+    const auto* continueGame = title.findCommand(RuntimeTitleCommandId::Continue);
+    REQUIRE(continueGame != nullptr);
+    REQUIRE(continueGame->label == "Continue");
+    REQUIRE_FALSE(continueGame->enabled);
+    REQUIRE(continueGame->disabled_reason == "No save data found");
+
+    const auto* options = title.findCommand(RuntimeTitleCommandId::Options);
+    REQUIRE(options != nullptr);
+    REQUIRE(options->label == "Options");
+    REQUIRE_FALSE(options->enabled);
+    REQUIRE(options->disabled_reason == "Options flow is not wired yet");
+
+    const auto* exit = title.findCommand(RuntimeTitleCommandId::Exit);
+    REQUIRE(exit != nullptr);
+    REQUIRE(exit->label == "Exit");
+    REQUIRE(exit->enabled);
+}
+
+TEST_CASE("RuntimeTitleScene routes New Game and Exit through callbacks", "[scene][runtime][title]") {
+    bool newGameStarted = false;
+    bool exitRequested = false;
+    RuntimeTitleScene title({
+        [&newGameStarted] { newGameStarted = true; },
+        [&exitRequested] { exitRequested = true; },
+    });
+
+    const auto newGameResult = title.activateCommand(RuntimeTitleCommandId::NewGame);
+    REQUIRE(newGameResult.handled);
+    REQUIRE(newGameResult.success);
+    REQUIRE(newGameResult.code == "new_game_started");
+    REQUIRE(newGameStarted);
+
+    const auto exitResult = title.activateCommand(RuntimeTitleCommandId::Exit);
+    REQUIRE(exitResult.handled);
+    REQUIRE(exitResult.success);
+    REQUIRE(exitResult.code == "exit_requested");
+    REQUIRE(exitRequested);
+}
+
+TEST_CASE("RuntimeTitleScene rejects disabled startup commands with actionable reasons", "[scene][runtime][title]") {
+    RuntimeTitleScene title;
+
+    const auto continueResult = title.activateCommand(RuntimeTitleCommandId::Continue);
+    REQUIRE(continueResult.handled);
+    REQUIRE_FALSE(continueResult.success);
+    REQUIRE(continueResult.code == "command_disabled");
+    REQUIRE(continueResult.message == "No save data found");
+
+    const auto optionsResult = title.activateCommand(RuntimeTitleCommandId::Options);
+    REQUIRE(optionsResult.handled);
+    REQUIRE_FALSE(optionsResult.success);
+    REQUIRE(optionsResult.code == "command_disabled");
+    REQUIRE(optionsResult.message == "Options flow is not wired yet");
+}
+
+TEST_CASE("RuntimeTitleScene New Game can transition to the existing runtime boot map", "[scene][runtime][title]") {
+    SceneManager manager;
+    auto title = makeDefaultRuntimeTitleScene({
+        [&manager] { manager.gotoScene(std::make_shared<MapScene>("RuntimeBoot", 16, 12)); },
+        {},
+    });
+
+    manager.gotoScene(title);
+    REQUIRE(manager.getActiveScene() != nullptr);
+    REQUIRE(manager.getActiveScene()->getType() == SceneType::TITLE);
+    REQUIRE(manager.getActiveScene()->getName() == "RuntimeTitle");
+
+    const auto result = title->activateCommand(RuntimeTitleCommandId::NewGame);
+    REQUIRE(result.success);
+    REQUIRE(manager.getActiveScene() != nullptr);
+    REQUIRE(manager.getActiveScene()->getType() == SceneType::MAP);
+    REQUIRE(manager.getActiveScene()->getName() == "Map_RuntimeBoot");
+}
+
+TEST_CASE("RuntimeTitleScene emits visible title and disabled command labels", "[scene][runtime][title][render]") {
+    auto& layer = urpg::RenderLayer::getInstance();
+    layer.flush();
+
+    RuntimeTitleScene title;
+    title.onUpdate(0.016f);
+
+    bool sawTitle = false;
+    bool sawNewGame = false;
+    bool sawDisabledContinue = false;
+    bool sawDisabledOptions = false;
+    bool sawExit = false;
+
+    for (const auto& command : renderFrameCommands(layer)) {
+        if (renderCommandType(command) != urpg::RenderCmdType::Text) {
+            continue;
+        }
+        const auto* text = renderCommandAs<urpg::TextRenderData>(command);
+        REQUIRE(text != nullptr);
+        sawTitle = sawTitle || text->text == "URPG";
+        sawNewGame = sawNewGame || text->text == "New Game";
+        sawDisabledContinue = sawDisabledContinue || text->text == "Continue - No save data found";
+        sawDisabledOptions = sawDisabledOptions || text->text == "Options - Options flow is not wired yet";
+        sawExit = sawExit || text->text == "Exit";
+    }
+
+    REQUIRE(sawTitle);
+    REQUIRE(sawNewGame);
+    REQUIRE(sawDisabledContinue);
+    REQUIRE(sawDisabledOptions);
+    REQUIRE(sawExit);
+
+    layer.flush();
 }

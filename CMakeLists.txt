@@ -469,6 +469,7 @@ add_library(urpg_core
     engine/core/scene/battle_scene.cpp
     engine/core/scene/map_scene.cpp
     engine/core/scene/menu_scene.cpp
+    engine/core/scene/runtime_title_scene.cpp
     runtimes/compat_js/quickjs_runtime.cpp
     runtimes/compat_js/window_color_parser.cpp
     runtimes/compat_js/window_compat.cpp

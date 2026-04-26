@@ -3,6 +3,7 @@
 #include "engine/core/platform/headless_renderer.h"
 #include "engine/core/platform/headless_surface.h"
 #include "engine/core/scene/map_scene.h"
+#include "engine/core/scene/runtime_title_scene.h"
 #include "engine/core/scene/scene_manager.h"
 #include "engine/core/version.h"
 
@@ -93,8 +94,13 @@ int main(int argc, char** argv) {
         }
 
         clearSceneStack();
-        urpg::scene::SceneManager::getInstance().gotoScene(
-            std::make_shared<urpg::scene::MapScene>("RuntimeBoot", 16, 12));
+        urpg::scene::SceneManager::getInstance().gotoScene(urpg::scene::makeDefaultRuntimeTitleScene({
+            [] {
+                urpg::scene::SceneManager::getInstance().gotoScene(
+                    std::make_shared<urpg::scene::MapScene>("RuntimeBoot", 16, 12));
+            },
+            [&shell] { shell.shutdown(); },
+        }));
 
         int frame = 0;
         while (shell.isRunning() && (options.frames < 0 || frame < options.frames)) {

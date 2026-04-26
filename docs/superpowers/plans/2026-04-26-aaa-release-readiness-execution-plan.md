@@ -282,8 +282,10 @@
 
 **Files to edit:**
 - `apps/runtime/main.cpp`
-- New or existing scene files under `engine/core/scene/`
-- Tests under `tests/integration/` or `tests/unit/`
+- `engine/core/scene/runtime_title_scene.h`
+- `engine/core/scene/runtime_title_scene.cpp`
+- `tests/unit/test_scene_manager.cpp`
+- `CMakeLists.txt`
 
 **Files to inspect:**
 - `engine/core/scene/*`
@@ -296,13 +298,13 @@
 **Risk level:** High.
 
 **Exact implementation steps:**
-- [ ] Inspect existing scene classes for title, menu, options, save slot, and map transition support.
-- [ ] If no title scene exists, add a minimal `RuntimeTitleScene` with explicit actions for New Game, Continue, Options, and Exit.
-- [ ] Replace direct `MapScene("RuntimeBoot", 16, 12)` construction in `apps/runtime/main.cpp` with startup scene construction.
-- [ ] Wire New Game to start the existing map path.
-- [ ] Wire Exit to request runtime shutdown through the existing shell/scene mechanism.
-- [ ] Add a headless smoke path that can run a fixed number of frames without requiring manual UI input.
-- [ ] Add tests proving the runtime startup stack starts with the title flow instead of the hardcoded map.
+- [x] Inspect existing scene classes for title, menu, options, save slot, and map transition support.
+- [x] If no title scene exists, add a minimal `RuntimeTitleScene` with explicit actions for New Game, Continue, Options, and Exit.
+- [x] Replace direct `MapScene("RuntimeBoot", 16, 12)` construction in `apps/runtime/main.cpp` with startup scene construction.
+- [x] Wire New Game to start the existing map path.
+- [x] Wire Exit to request runtime shutdown through the existing shell/scene mechanism.
+- [x] Add a headless smoke path that can run a fixed number of frames without requiring manual UI input.
+- [x] Add tests proving the runtime startup stack starts with the title flow instead of the hardcoded map.
 
 **Acceptance criteria:**
 - Runtime no longer clears directly into a hardcoded `RuntimeBoot` map in normal startup.
@@ -315,6 +317,14 @@
 - `cmake --build --preset dev-debug --target urpg_runtime urpg_tests urpg_integration_tests`
 - `.\build\dev-ninja-debug\apps\runtime\urpg_runtime.exe --headless --frames 3`
 - Manual non-headless test unverified until a developer confirms title/new/exit visually.
+
+**Verification evidence (2026-04-26):**
+- `cmake --build --preset dev-debug --target urpg_runtime urpg_tests urpg_integration_tests` completed.
+- `build\dev-ninja-debug\urpg_tests.exe "[scene][runtime][title]"` passed 5 test cases and 50 assertions.
+- `ctest --preset dev-all -R "RuntimeTitleScene|runtime title|SceneManager: Basic" --output-on-failure` passed 6 tests.
+- `build\dev-ninja-debug\urpg_runtime.exe --headless --frames 3` exited `0` and printed `URPG runtime exited after 3 frame(s).`
+- `rg -n "RuntimeBoot|MapScene\(" apps\runtime\main.cpp engine\core\scene\runtime_title_scene.h engine\core\scene\runtime_title_scene.cpp tests\unit\test_scene_manager.cpp` shows `RuntimeBoot` only in the New Game transition callback and its unit test, not as the initial runtime scene.
+- Manual non-headless visual confirmation remains unverified; it requires launching the runtime with a window and selecting New Game and Exit interactively.
 
 ### P1-002 - Wire Runtime Save/Load Into Startup Continue Flow
 
