@@ -99,6 +99,34 @@ TEST_CASE("SaveSessionCoordinator integrates MetadataRegistry", "[save][catalog]
     std::filesystem::remove_all(base);
 }
 
+TEST_CASE("SaveSessionCoordinator reports primary save write failures with actionable diagnostics",
+          "[save][catalog][persistence][error]") {
+    const auto base = std::filesystem::temp_directory_path() / "urpg_save_write_failure";
+    std::filesystem::remove_all(base);
+    std::filesystem::create_directories(base / "slot_008.json");
+
+    urpg::SaveCatalog catalog;
+    urpg::SaveSessionCoordinator coordinator(catalog);
+
+    urpg::SaveSessionSaveRequest request;
+    request.slot_id = 8;
+    request.primary_save_path = base / "slot_008.json";
+    request.payload = R"({"state":"cannot-write-over-directory"})";
+    request.meta.map_display_name = "Write Failure";
+
+    const auto result = coordinator.save(request);
+    REQUIRE_FALSE(result.ok);
+    REQUIRE(result.slot_id == 8);
+    REQUIRE_FALSE(result.error.empty());
+    const bool hasActionableWriteError = result.error == "failed_to_open_temp_file" ||
+                                         result.error == "failed_to_write_backup" ||
+                                         result.error == "failed_to_rename_temp_file";
+    REQUIRE(hasActionableWriteError);
+    REQUIRE(catalog.find(8) == nullptr);
+
+    std::filesystem::remove_all(base);
+}
+
 TEST_CASE("SaveSessionCoordinator loads save_policies.json", "[save][catalog][schema]") {
     const auto path = std::filesystem::temp_directory_path() / "save_policies.json";
     const std::string content = R"({

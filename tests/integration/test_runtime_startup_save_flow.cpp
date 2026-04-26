@@ -1,4 +1,5 @@
 #include "engine/core/save/runtime_save_startup.h"
+#include "engine/core/save/save_serialization_hub.h"
 #include "engine/core/scene/runtime_title_scene.h"
 
 #include <catch2/catch_test_macros.hpp>
@@ -7,6 +8,7 @@
 #include <filesystem>
 #include <fstream>
 #include <string>
+#include <vector>
 
 namespace {
 
@@ -30,6 +32,12 @@ class TempProject {
         std::filesystem::create_directories(saves());
         std::ofstream out(saves() / filename, std::ios::binary);
         out << payload;
+    }
+
+    void writeSaveFile(const std::string& filename, const std::vector<uint8_t>& payload) const {
+        std::filesystem::create_directories(saves());
+        std::ofstream out(saves() / filename, std::ios::binary);
+        out.write(reinterpret_cast<const char*>(payload.data()), static_cast<std::streamsize>(payload.size()));
     }
 
   private:
@@ -98,6 +106,84 @@ TEST_CASE("Runtime startup save discovery enables Continue for newest valid prim
     REQUIRE(commandResult.success);
     REQUIRE(commandResult.code == "continue_loaded");
     REQUIRE(continueCalled);
+}
+
+TEST_CASE("Runtime startup Continue loads valid URSV payloads through checksum path",
+          "[integration][runtime][save][checksum]") {
+    const TempProject project;
+    const auto binary = urpg::save::SaveSerializationHub::jsonToBinary(R"({"state":"binary-primary"})",
+                                                                       urpg::save::SaveSerializationHub::CompressionLevel::None);
+    project.writeSaveFile("slot_5.ursv", binary);
+    project.writeSaveFile("slot_5_meta.json", metadataJson(5, "2026-04-26T12:00:00Z", "BinaryMap"));
+
+    const auto state = urpg::discoverRuntimeSaves(project.root());
+
+    REQUIRE(state.hasLoadableSave());
+    REQUIRE(state.newestLoadableSave() != nullptr);
+    REQUIRE(state.newestLoadableSave()->slot_id == 5);
+
+    const auto result = urpg::continueNewestRuntimeSave(state);
+    REQUIRE(result.ok);
+    REQUIRE(result.slot_id == 5);
+    REQUIRE_FALSE(result.loaded_from_recovery);
+    REQUIRE(result.recovery_tier == urpg::SaveRecoveryTier::None);
+    REQUIRE(result.active_meta.map_display_name == "BinaryMap");
+    REQUIRE(result.diagnostics.empty());
+}
+
+TEST_CASE("Runtime startup Continue recovers from corrupt URSV primary through autosave",
+          "[integration][runtime][save][recovery][checksum][autosave]") {
+    const TempProject project;
+    auto binary = urpg::save::SaveSerializationHub::jsonToBinary(R"({"state":"broken-primary"})",
+                                                                 urpg::save::SaveSerializationHub::CompressionLevel::None);
+    binary[12] = static_cast<uint8_t>(binary[12] ^ 0x7F);
+    project.writeSaveFile("slot_6.ursv", binary);
+    project.writeSaveFile("slot_6_meta.json", metadataJson(6, "2026-04-26T13:00:00Z", "CorruptPrimaryMap"));
+    project.writeSaveFile("autosave.json", R"({"state":"autosave-fallback"})");
+
+    const auto state = urpg::discoverRuntimeSaves(project.root());
+
+    REQUIRE(state.hasLoadableSave());
+    REQUIRE(state.newestLoadableSave() != nullptr);
+    REQUIRE(state.newestLoadableSave()->slot_id == 6);
+
+    const auto result = urpg::continueNewestRuntimeSave(state);
+    REQUIRE(result.ok);
+    REQUIRE(result.slot_id == 6);
+    REQUIRE(result.loaded_from_recovery);
+    REQUIRE(result.recovery_tier == urpg::SaveRecoveryTier::Level1Autosave);
+    REQUIRE_FALSE(result.boot_safe_mode);
+    REQUIRE(result.diagnostics.size() == 1);
+    REQUIRE(result.diagnostics[0] == "primary_payload_ursv_checksum_failed");
+}
+
+TEST_CASE("Runtime startup Continue recovers corrupt primary and corrupt autosave through safe skeleton",
+          "[integration][runtime][save][recovery][checksum]") {
+    const TempProject project;
+    auto binary = urpg::save::SaveSerializationHub::jsonToBinary(R"({"state":"broken-primary"})",
+                                                                 urpg::save::SaveSerializationHub::CompressionLevel::None);
+    binary.back() = static_cast<uint8_t>(binary.back() ^ 0x7F);
+    project.writeSaveFile("slot_7.ursv", binary);
+    project.writeSaveFile("slot_7_meta.json", metadataJson(7, "2026-04-26T14:00:00Z", "SkeletonMap"));
+    project.writeSaveFile("autosave.json", R"({"state":)");
+
+    const auto state = urpg::discoverRuntimeSaves(project.root());
+
+    REQUIRE(state.hasLoadableSave());
+    REQUIRE(state.newestLoadableSave() != nullptr);
+    REQUIRE(state.newestLoadableSave()->slot_id == 7);
+
+    const auto result = urpg::continueNewestRuntimeSave(state);
+    REQUIRE(result.ok);
+    REQUIRE(result.slot_id == 7);
+    REQUIRE(result.loaded_from_recovery);
+    REQUIRE(result.boot_safe_mode);
+    REQUIRE(result.recovery_tier == urpg::SaveRecoveryTier::Level3SafeSkeleton);
+    REQUIRE(result.active_meta.flags.corrupted);
+    REQUIRE(result.active_meta.map_display_name == "SkeletonMap");
+    REQUIRE(result.diagnostics.size() == 2);
+    REQUIRE(result.diagnostics[0] == "primary_payload_ursv_checksum_failed");
+    REQUIRE(result.diagnostics[1] == "autosave_payload_json_parse_failed");
 }
 
 TEST_CASE("Runtime startup Continue can recover from metadata and variables when primary save is missing",

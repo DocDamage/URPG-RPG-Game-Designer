@@ -1,5 +1,7 @@
 #include "engine/core/save/save_runtime.h"
 
+#include "engine/core/save/save_serialization_hub.h"
+
 #include <fstream>
 #include <iterator>
 
@@ -20,6 +22,58 @@ std::string ReadAll(const std::filesystem::path& path) {
     }
 
     return std::string((std::istreambuf_iterator<char>(in)), std::istreambuf_iterator<char>());
+}
+
+std::vector<uint8_t> ReadBytes(const std::filesystem::path& path) {
+    if (path.empty()) {
+        return {};
+    }
+
+    std::ifstream in(path, std::ios::binary);
+    if (!in) {
+        return {};
+    }
+
+    return std::vector<uint8_t>((std::istreambuf_iterator<char>(in)), std::istreambuf_iterator<char>());
+}
+
+bool LooksLikeUrsv(const std::vector<uint8_t>& bytes) {
+    return bytes.size() >= 4 && bytes[0] == 'U' && bytes[1] == 'R' && bytes[2] == 'S' && bytes[3] == 'V';
+}
+
+bool IsJsonPayload(const std::string& payload) {
+    if (payload.empty()) {
+        return false;
+    }
+    const auto parsed = nlohmann::json::parse(payload, nullptr, false);
+    return !parsed.is_discarded() && parsed.is_object();
+}
+
+std::string ReadPrimaryPayload(const std::filesystem::path& path, std::vector<std::string>& diagnostics) {
+    const auto bytes = ReadBytes(path);
+    if (bytes.empty()) {
+        return {};
+    }
+
+    if (LooksLikeUrsv(bytes) || path.extension() == ".ursv") {
+        const auto decoded = save::SaveSerializationHub::binaryToJson(bytes);
+        if (decoded.empty()) {
+            diagnostics.push_back("primary_payload_ursv_checksum_failed");
+            return {};
+        }
+        if (!IsJsonPayload(decoded)) {
+            diagnostics.push_back("primary_payload_ursv_json_invalid");
+            return {};
+        }
+        return decoded;
+    }
+
+    const std::string payload(bytes.begin(), bytes.end());
+    if (!IsJsonPayload(payload)) {
+        diagnostics.push_back("primary_payload_json_parse_failed");
+        return {};
+    }
+    return payload;
 }
 
 void TryHydrateMeta(const std::string& metadata_payload, SaveSlotMeta& out_meta) {
@@ -112,7 +166,7 @@ RuntimeSaveLoadResult RuntimeSaveLoader::Load(const RuntimeSaveLoadRequest& requ
     RuntimeSaveLoadResult result;
 
     if (!request.force_safe_mode) {
-        result.payload = ReadAll(request.primary_save_path);
+        result.payload = ReadPrimaryPayload(request.primary_save_path, result.diagnostics);
         if (!result.payload.empty()) {
             result.ok = true;
             result.recovery_tier = SaveRecoveryTier::None;
@@ -131,7 +185,13 @@ RuntimeSaveLoadResult RuntimeSaveLoader::Load(const RuntimeSaveLoadRequest& requ
         recovery_request.variables_path = request.variables_path;
     }
 
-    const SaveRecoveryResult recovery_result = SaveRecoveryManager::Recover(recovery_request);
+    SaveRecoveryResult recovery_result = SaveRecoveryManager::Recover(recovery_request);
+    if (recovery_result.ok && recovery_result.tier == SaveRecoveryTier::Level1Autosave &&
+        !IsJsonPayload(recovery_result.full_payload)) {
+        result.diagnostics.push_back("autosave_payload_json_parse_failed");
+        recovery_request.autosave_path.clear();
+        recovery_result = SaveRecoveryManager::Recover(recovery_request);
+    }
     if (!recovery_result.ok) {
         result.ok = false;
         result.error = recovery_result.error.empty() ? "save recovery failed" : recovery_result.error;

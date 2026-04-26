@@ -968,11 +968,13 @@
 
 **Risk level:** High.
 
+**Status:** Completed in this pass.
+
 **Exact implementation steps:**
-- [ ] Add or extend tests for valid save, corrupt metadata, corrupt payload, autosave fallback, and safe skeleton fallback if supported.
-- [ ] Ensure runtime Continue surfaces recovery result to the user or log.
-- [ ] Ensure save write failures return actionable diagnostics.
-- [ ] Confirm save format version/checksum behavior is exercised by tests.
+- [x] Add or extend tests for valid save, corrupt metadata, corrupt payload, autosave fallback, and safe skeleton fallback if supported.
+- [x] Ensure runtime Continue surfaces recovery result to the user or log.
+- [x] Ensure save write failures return actionable diagnostics.
+- [x] Confirm save format version/checksum behavior is exercised by tests.
 
 **Acceptance criteria:**
 - Continue cannot silently load corrupt state.
@@ -982,6 +984,18 @@
 **Verification command or manual test:**
 - `cmake --build --preset dev-debug --target urpg_tests urpg_integration_tests`
 - `ctest --preset dev-all -R "save|recovery|checksum|autosave"`
+
+**Verification results:**
+- Initial build exposed a Catch2 assertion syntax issue in the new write-failure test; fixed by decomposing the boolean expression.
+- Passed: `cmake --build --preset dev-debug --target urpg_tests urpg_integration_tests`.
+- Passed: `.\build\dev-ninja-debug\urpg_integration_tests.exe "[integration][runtime][save]"` with 71 assertions in 7 test cases.
+- Passed: `.\build\dev-ninja-debug\urpg_tests.exe "[save][catalog][persistence][error]"` with 5 assertions in 1 test case.
+- Passed: `.\build\dev-ninja-debug\urpg_tests.exe "[save][serialization][core]"` with 9 assertions in 3 test cases.
+- Passed: `ctest --preset dev-all -R "save|recovery|checksum|autosave" --output-on-failure` with 78/78 tests passing.
+- Verified: runtime Continue accepts valid `.ursv` payloads through the checksum decoder.
+- Verified: corrupt `.ursv` primary payloads do not silently load; they record diagnostics and fall back to autosave when available.
+- Verified: corrupt `.ursv` primary payload plus corrupt autosave falls through to deterministic safe-skeleton recovery.
+- Verified: save write failures return concrete save-journal diagnostics such as `failed_to_open_temp_file`, `failed_to_write_backup`, or `failed_to_rename_temp_file`.
 
 ---
 

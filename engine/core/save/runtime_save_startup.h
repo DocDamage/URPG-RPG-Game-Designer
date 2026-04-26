@@ -50,6 +50,7 @@ struct RuntimeSaveContinueResult {
     SaveRecoveryTier recovery_tier = SaveRecoveryTier::None;
     std::string error;
     SaveSlotMeta active_meta;
+    std::vector<std::string> diagnostics;
 };
 
 std::filesystem::path defaultRuntimeSaveRoot(const std::filesystem::path& project_root);

@@ -311,6 +311,7 @@ SaveSessionLoadResult SaveSessionCoordinator::load(const SaveSessionLoadRequest&
     result.recovery_tier = runtime_result.recovery_tier;
     result.error = runtime_result.error;
     result.active_meta = runtime_result.active_meta;
+    result.diagnostics = runtime_result.diagnostics;
     if (!IsValidSlotId(result.active_meta.slot_id)) {
         result.active_meta.slot_id = request.slot_id;
     }

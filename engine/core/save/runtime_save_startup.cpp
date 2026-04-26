@@ -349,6 +349,7 @@ RuntimeSaveContinueResult continueNewestRuntimeSave(const RuntimeSaveStartupStat
     result.recovery_tier = load_result.recovery_tier;
     result.error = load_result.error;
     result.active_meta = load_result.active_meta;
+    result.diagnostics = load_result.diagnostics;
 
     if (result.ok && result.active_meta.slot_id <= 0 && slot->slot_id > 0) {
         result.active_meta.slot_id = slot->slot_id;

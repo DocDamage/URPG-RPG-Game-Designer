@@ -72,6 +72,7 @@ struct SaveSessionLoadResult {
     SaveRecoveryTier recovery_tier = SaveRecoveryTier::None;
     std::string error;
     SaveSlotMeta active_meta;
+    std::vector<std::string> diagnostics;
 };
 
 struct SaveSessionSaveRequest {
