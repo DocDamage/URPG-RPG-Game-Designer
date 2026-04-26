@@ -3,19 +3,65 @@
 #include "engine/core/diagnostics/runtime_diagnostics.h"
 #include "map_scene_translator.h"
 #include "presentation_runtime.h"
-#include <cassert>
+#include <iostream>
+#include <string>
 #include <vector>
 
 using namespace urpg::presentation;
 using namespace urpg::editor;
+
+namespace {
+
+constexpr const char* kSubsystem = "presentation.release_validation";
+constexpr const char* kSourceFile = "engine/core/presentation/release_validation.cpp";
+
+class ValidationReport {
+  public:
+    void check(bool condition, const std::string& section, const std::string& message) {
+        if (condition) {
+            return;
+        }
+
+        std::string failure = std::string(kSourceFile) + ": " + section + ": " + message;
+        failures_.push_back(failure);
+        urpg::diagnostics::RuntimeDiagnostics::error(kSubsystem, "release_validation.check_failed", failure);
+    }
+
+    bool passed() const {
+        return failures_.empty();
+    }
+
+    size_t failureCount() const {
+        return failures_.size();
+    }
+
+    void printSummary() const {
+        if (passed()) {
+            std::cout << "Release Validation Suite: ALL TESTS PASSED\n";
+            return;
+        }
+
+        std::cerr << "Release Validation Suite: FAILED (" << failures_.size() << " checks failed)\n";
+        for (const auto& failure : failures_) {
+            std::cerr << " - " << failure << "\n";
+        }
+    }
+
+  private:
+    std::vector<std::string> failures_;
+};
+
+} // namespace
 
 /**
  * @brief Stress test for the Presentation Core logic.
  * Ensures the system can handle a high volume of actors and lookups
  * without state corruption or performance spikes.
  */
-void RunReleaseValidation() {
-    urpg::diagnostics::RuntimeDiagnostics::info("presentation.release_validation", "release_validation.started",
+bool RunReleaseValidation() {
+    ValidationReport report;
+
+    urpg::diagnostics::RuntimeDiagnostics::info(kSubsystem, "release_validation.started",
                                                 "Starting Phase 5: Release Validation.");
 
     PresentationRuntime runtime;
@@ -71,25 +117,27 @@ void RunReleaseValidation() {
     }
 
     urpg::diagnostics::RuntimeDiagnostics::info(
-        "presentation.release_validation", "release_validation.actor_command_count",
+        kSubsystem, "release_validation.actor_command_count",
         "Actor Command Count: " + std::to_string(actorCommandCount) + " (Expected: 100)");
     urpg::diagnostics::RuntimeDiagnostics::info(
-        "presentation.release_validation", "release_validation.environment_command_envelope",
+        kSubsystem, "release_validation.environment_command_envelope",
         "Environment Command Envelope: fog=" + std::to_string(fogCommandCount) +
             ", postfx=" + std::to_string(postFxCommandCount) + ", lights=" + std::to_string(lightCommandCount));
-    assert(actorCommandCount == 100);
-    assert(fogCommandCount <= 1);
-    assert(postFxCommandCount <= 1);
+    report.check(actorCommandCount == 100, "scaled_map", "expected 100 draw-actor commands");
+    report.check(fogCommandCount <= 1, "scaled_map", "expected no more than one fog command");
+    report.check(postFxCommandCount <= 1, "scaled_map", "expected no more than one post-fx command");
 
     // Verify Y-Position Resolution (Base 1.0 from level 2 + 0.5 from anchorOffset)
     for (const auto& cmd : intent.commands) {
         if (cmd.type == PresentationCommand::Type::DrawActor) {
-            assert(cmd.position.y == 1.5f);
+            report.check(cmd.position.y == 1.5f, "height_resolution",
+                         "expected actor y-position to resolve to 1.5");
         }
     }
-    urpg::diagnostics::RuntimeDiagnostics::info("presentation.release_validation",
-                                                "release_validation.y_height_resolution_passed",
-                                                "Y-Height Resolution: PASSED");
+    if (report.passed()) {
+        urpg::diagnostics::RuntimeDiagnostics::info(kSubsystem, "release_validation.y_height_resolution_passed",
+                                                    "Y-Height Resolution: PASSED");
+    }
 
     // 4. Fallback Logic Validation
     context.activeMode = PresentationMode::Classic2D;
@@ -98,12 +146,14 @@ void RunReleaseValidation() {
     for (const auto& cmd : fallbackIntent.commands) {
         if (cmd.type == PresentationCommand::Type::DrawActor) {
             // In Classic2D, Z should be 0.0f (Flattened)
-            assert(cmd.position.z == 0.0f);
+            report.check(cmd.position.z == 0.0f, "classic2d_fallback",
+                         "expected Classic2D actor z-position to flatten to 0.0");
         }
     }
-    urpg::diagnostics::RuntimeDiagnostics::info("presentation.release_validation",
-                                                "release_validation.fallback_flattening_passed",
-                                                "Fallback Flattening (Tier 0): PASSED");
+    if (report.passed()) {
+        urpg::diagnostics::RuntimeDiagnostics::info(kSubsystem, "release_validation.fallback_flattening_passed",
+                                                    "Fallback Flattening (Tier 0): PASSED");
+    }
 
     // 5. Battle Effect Cue Envelope Validation
     PresentationContext battleContext;
@@ -144,16 +194,20 @@ void RunReleaseValidation() {
     }
 
     urpg::diagnostics::RuntimeDiagnostics::info(
-        "presentation.release_validation", "release_validation.battle_effect_envelope",
+        kSubsystem, "release_validation.battle_effect_envelope",
         "Battle Effect Command Sample Envelope: world=" + std::to_string(worldEffectCommandCount) +
             ", overlay=" + std::to_string(overlayEffectCommandCount));
-    assert(worldEffectCommandCount >= 1);
-    assert(overlayEffectCommandCount >= 1);
-    assert(worldEffectCommandCount <= 16);
-    assert(overlayEffectCommandCount <= 16);
+    report.check(worldEffectCommandCount >= 1, "battle_effect_envelope",
+                 "expected at least one world effect command");
+    report.check(overlayEffectCommandCount >= 1, "battle_effect_envelope",
+                 "expected at least one overlay effect command");
+    report.check(worldEffectCommandCount <= 16, "battle_effect_envelope",
+                 "expected no more than 16 world effect commands");
+    report.check(overlayEffectCommandCount <= 16, "battle_effect_envelope",
+                 "expected no more than 16 overlay effect commands");
 
     // 6. Spatial Authoring -> Runtime Consumption Validation
-    urpg::diagnostics::RuntimeDiagnostics::info("presentation.release_validation",
+    urpg::diagnostics::RuntimeDiagnostics::info(kSubsystem,
                                                 "release_validation.spatial_validation_started",
                                                 "Starting Spatial Authoring -> Runtime Consumption Validation.");
     {
@@ -172,8 +226,10 @@ void RunReleaseValidation() {
         brush.SetBrushSize(1);
         brush.ApplyBrush(4, 4, 4); // level 4 => 2.0 world units
 
-        assert(overlay.elevation.levels[4 * 8 + 4] == 4);
-        assert(overlay.elevation.GetWorldHeight(4, 4) == 2.0f);
+        report.check(overlay.elevation.levels[4 * 8 + 4] == 4, "spatial_authoring",
+                     "expected elevation brush to write level 4 at tile (4,4)");
+        report.check(overlay.elevation.GetWorldHeight(4, 4) == 2.0f, "spatial_authoring",
+                     "expected level 4 elevation to resolve to 2.0 world units");
 
         // Place prop on the hill
         PropPlacementPanel placement;
@@ -181,9 +237,13 @@ void RunReleaseValidation() {
         const float hillHeight = overlay.elevation.GetWorldHeight(4, 4);
         placement.AddProp("house_01", 4.5f, hillHeight, 4.5f);
 
-        assert(overlay.props.size() == 1);
-        assert(overlay.props[0].assetId == "house_01");
-        assert(overlay.props[0].posY == 2.0f);
+        report.check(overlay.props.size() == 1, "spatial_authoring", "expected one placed prop");
+        if (!overlay.props.empty()) {
+            report.check(overlay.props[0].assetId == "house_01", "spatial_authoring",
+                         "expected placed prop asset id to be house_01");
+            report.check(overlay.props[0].posY == 2.0f, "spatial_authoring",
+                         "expected placed prop y-position to match hill height 2.0");
+        }
 
         // Feed into presentation runtime
         PresentationAuthoringData spatialData;
@@ -205,33 +265,45 @@ void RunReleaseValidation() {
             if (cmd.type == PresentationCommand::Type::DrawActor && cmd.id == 1) {
                 foundActor = true;
                 // Actor on tile (4,4) with elevation level 4 => 2.0 world units + 0.25 anchor offset
-                assert(cmd.position.y == 2.25f);
+                report.check(cmd.position.y == 2.25f, "spatial_runtime",
+                             "expected actor y-position to resolve to 2.25");
             }
             if (cmd.type == PresentationCommand::Type::DrawProp && cmd.id == 1) {
                 foundProp = true;
-                assert(cmd.position.y == 2.0f);
+                report.check(cmd.position.y == 2.0f, "spatial_runtime",
+                             "expected prop y-position to resolve to 2.0");
             }
         }
 
-        assert(foundActor);
-        assert(foundProp);
-        assert(spatialIntent.activePasses.size() == 3);
-        urpg::diagnostics::RuntimeDiagnostics::info("presentation.release_validation",
-                                                    "release_validation.spatial_runtime_consumption_passed",
-                                                    "Spatial Authoring -> Runtime Consumption: PASSED");
+        report.check(foundActor, "spatial_runtime", "expected spatial frame to draw actor id 1");
+        report.check(foundProp, "spatial_runtime", "expected spatial frame to draw prop id 1");
+        report.check(spatialIntent.activePasses.size() == 3, "spatial_runtime",
+                     "expected three active presentation passes");
+        if (report.passed()) {
+            urpg::diagnostics::RuntimeDiagnostics::info(kSubsystem,
+                                                        "release_validation.spatial_runtime_consumption_passed",
+                                                        "Spatial Authoring -> Runtime Consumption: PASSED");
+        }
     }
 
-    urpg::diagnostics::RuntimeDiagnostics::info("presentation.release_validation", "release_validation.succeeded",
-                                                "Release Validation Suite: ALL TESTS PASSED");
+    report.printSummary();
+    if (report.passed()) {
+        urpg::diagnostics::RuntimeDiagnostics::info(kSubsystem, "release_validation.succeeded",
+                                                    "Release Validation Suite: ALL TESTS PASSED");
+    } else {
+        urpg::diagnostics::RuntimeDiagnostics::fatal(
+            kSubsystem, "release_validation.failed",
+            "Release Validation Suite failed " + std::to_string(report.failureCount()) + " checks");
+    }
+    return report.passed();
 }
 
 int main() {
     try {
-        RunReleaseValidation();
-        return 0;
+        return RunReleaseValidation() ? 0 : 1;
     } catch (const std::exception& e) {
-        urpg::diagnostics::RuntimeDiagnostics::fatal("presentation.release_validation", "release_validation.fatal",
-                                                     e.what());
+        urpg::diagnostics::RuntimeDiagnostics::fatal(kSubsystem, "release_validation.fatal", e.what());
+        std::cerr << "Release Validation Suite: FATAL: " << e.what() << "\n";
         return 1;
     }
 }

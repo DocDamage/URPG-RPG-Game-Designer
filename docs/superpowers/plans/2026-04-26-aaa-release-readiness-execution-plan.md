@@ -146,12 +146,12 @@
 **Risk level:** High.
 
 **Exact implementation steps:**
-- [ ] Remove `#include <cassert>`.
-- [ ] Add a local validation helper that records failures with file/section context and returns a non-zero process exit code.
-- [ ] Replace each `assert(condition)` with `check(condition, "specific failure message")`.
-- [ ] Ensure success prints a concise pass summary.
-- [ ] Ensure any failed check prints all failure messages before returning non-zero.
-- [ ] Build and run `urpg_presentation_release_validation` in Debug and Release configurations.
+- [x] Remove `#include <cassert>`.
+- [x] Add a local validation helper that records failures with file/section context and returns a non-zero process exit code.
+- [x] Replace each `assert(condition)` with `check(condition, "specific failure message")`.
+- [x] Ensure success prints a concise pass summary.
+- [x] Ensure any failed check prints all failure messages before returning non-zero.
+- [x] Build and run `urpg_presentation_release_validation` in Debug and Release configurations.
 
 **Acceptance criteria:**
 - No `assert(` remains in `engine/core/presentation/release_validation.cpp`.
@@ -162,7 +162,15 @@
 - `rg -n "assert\\(|<cassert>" engine/core/presentation/release_validation.cpp`
 - `cmake --build --preset dev-debug --target urpg_presentation_release_validation`
 - `.\build\dev-ninja-debug\urpg_presentation_release_validation.exe`
-- Release-mode verification is unverified until a release preset build is run: `cmake --build --preset dev-release --target urpg_presentation_release_validation`.
+- `cmake --build --preset dev-release --target urpg_presentation_release_validation`
+- `.\build\dev-ninja-release\urpg_presentation_release_validation.exe`
+
+**Verification evidence (2026-04-26):**
+- `rg -n "assert\\(|<cassert>" engine/core/presentation/release_validation.cpp` returned no matches.
+- `cmake --build --preset dev-debug --target urpg_presentation_release_validation` completed.
+- `.\build\dev-ninja-debug\urpg_presentation_release_validation.exe` printed `Release Validation Suite: ALL TESTS PASSED`.
+- `cmake --build --preset dev-release --target urpg_presentation_release_validation` completed after forcing vendored SDL's `WINDRES` cache variable to the path-safe MinGW wrapper.
+- `.\build\dev-ninja-release\urpg_presentation_release_validation.exe` printed `Release Validation Suite: ALL TESTS PASSED`.
 
 ### P0-003 - Make Runtime And Editor CLI Parsing Strict
 

@@ -154,6 +154,10 @@ if(MINGW)
             "MinGW RC compiler wrapper for path-safe windres invocations"
             FORCE
         )
+        set(WINDRES "${URPG_WINDRES_WRAPPER_CMD}" CACHE FILEPATH
+            "MinGW windres wrapper for dependencies that use WINDRES directly"
+            FORCE
+        )
         set(CMAKE_RC_COMPILE_OBJECT
             "\"${Python3_EXECUTABLE}\" \"${CMAKE_CURRENT_SOURCE_DIR}/tools/ci/windres_wrapper.py\" \"${URPG_REAL_WINDRES_COMPILER}\" -O coff <DEFINES> <INCLUDES> <FLAGS> <SOURCE> <OBJECT>"
             CACHE STRING
