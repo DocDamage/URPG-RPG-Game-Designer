@@ -102,14 +102,14 @@
 **Risk level:** Medium.
 
 **Exact implementation steps:**
-- [ ] Add `VERSION 0.1.0` to the root `project(urpg ...)` declaration.
-- [ ] Create `cmake/urpg_version.h.in` defining `URPG_VERSION_MAJOR`, `URPG_VERSION_MINOR`, `URPG_VERSION_PATCH`, and `URPG_VERSION_STRING`.
-- [ ] Add `configure_file(cmake/urpg_version.h.in ${CMAKE_CURRENT_BINARY_DIR}/generated/urpg_version.h @ONLY)`.
-- [ ] Add `${CMAKE_CURRENT_BINARY_DIR}/generated` to include paths for app targets that print version data.
-- [ ] Create `engine/core/version.h` with a small inline API that returns the generated version string.
-- [ ] Add `--version` output to `urpg_runtime`, `urpg_editor`, and `urpg_audio_smoke`.
-- [ ] Create `CHANGELOG.md` with an `Unreleased` section and the current release-readiness cleanup scope.
-- [ ] Run configure, build the three app targets, and run each executable with `--version`.
+- [x] Add `VERSION 0.1.0` to the root `project(urpg ...)` declaration.
+- [x] Create `cmake/urpg_version.h.in` defining `URPG_VERSION_MAJOR`, `URPG_VERSION_MINOR`, `URPG_VERSION_PATCH`, and `URPG_VERSION_STRING`.
+- [x] Add `configure_file(cmake/urpg_version.h.in ${CMAKE_CURRENT_BINARY_DIR}/generated/urpg_version.h @ONLY)`.
+- [x] Add `${CMAKE_CURRENT_BINARY_DIR}/generated` to include paths for app targets that print version data.
+- [x] Create `engine/core/version.h` with a small inline API that returns the generated version string.
+- [x] Add `--version` output to `urpg_runtime`, `urpg_editor`, and `urpg_audio_smoke`.
+- [x] Create `CHANGELOG.md` with an `Unreleased` section and the current release-readiness cleanup scope.
+- [x] Run configure, build the three app targets, and run each executable with `--version`.
 
 **Acceptance criteria:**
 - `project(urpg VERSION 0.1.0 LANGUAGES C CXX)` or equivalent versioned declaration exists.
@@ -122,6 +122,14 @@
 - `.\build\dev-ninja-debug\apps\runtime\urpg_runtime.exe --version`
 - `.\build\dev-ninja-debug\apps\editor\urpg_editor.exe --version`
 - `.\build\dev-ninja-debug\apps\audio_smoke\urpg_audio_smoke.exe --version`
+
+**Verification evidence (2026-04-26):**
+- `cmake --preset dev-ninja-debug` completed.
+- `cmake --build --preset dev-debug --target urpg_runtime urpg_editor urpg_audio_smoke` is blocked by a pre-existing MinGW SDL `windres` path-with-space failure in `C:\dev\URPG Maker`.
+- No-space headless verification completed with `cmake -S . -B C:\dev\urpg-build-ci-nospace -G Ninja -DCMAKE_BUILD_TYPE=Release -DURPG_SKIP_OPENGL=ON -DFETCHCONTENT_BASE_DIR=C:\dev\urpg-fetchcontent-nospace -DURPG_USE_SCCACHE=ON` and `cmake --build C:\dev\urpg-build-ci-nospace --target urpg_runtime urpg_editor urpg_audio_smoke`.
+- `C:\dev\urpg-build-ci-nospace\urpg_runtime.exe --version` printed `URPG Runtime 0.1.0`.
+- `C:\dev\urpg-build-ci-nospace\urpg_editor.exe --version` printed `URPG Editor 0.1.0`.
+- `C:\dev\urpg-build-ci-nospace\urpg_audio_smoke.exe --version` printed `URPG Audio Smoke 0.1.0`.
 
 ### P0-002 - Replace Release Validation `assert()` With Runtime-Failing Checks
 
@@ -1063,4 +1071,3 @@
 - Unverified: Any code fix in this plan. This document is an execution plan only; implementation tasks still need to be performed and verified.
 - Unverified: Fresh-clone LFS hydration. It requires a clone that does not rely on the local Git LFS cache.
 - Unverified: Legal sufficiency of EULA/privacy/third-party notices. It requires qualified legal review.
-

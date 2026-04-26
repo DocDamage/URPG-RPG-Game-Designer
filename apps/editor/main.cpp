@@ -17,6 +17,7 @@
 #include "engine/core/project/project_snapshot_store.h"
 #include "engine/core/scene/map_scene.h"
 #include "engine/core/scene/scene_manager.h"
+#include "engine/core/version.h"
 #include <nlohmann/json.hpp>
 
 #ifndef URPG_HEADLESS
@@ -103,6 +104,10 @@ EditorOptions parseOptions(int argc, char** argv) {
         }
     }
     return options;
+}
+
+void printVersion() {
+    std::cout << "URPG Editor " << urpg::versionString() << "\n";
 }
 
 void clearSceneStack() {
@@ -295,6 +300,14 @@ int runSmokeWorkflow(urpg::EngineShell& engineShell, urpg::editor::EditorShell& 
 
 int main(int argc, char** argv) {
     try {
+        for (int i = 1; i < argc; ++i) {
+            const std::string arg = argv[i];
+            if (arg == "--version") {
+                printVersion();
+                return 0;
+            }
+        }
+
         const EditorOptions options = parseOptions(argc, argv);
 
         urpg::WindowConfig config;

@@ -3,6 +3,7 @@
 #include "engine/core/platform/headless_surface.h"
 #include "engine/core/scene/map_scene.h"
 #include "engine/core/scene/scene_manager.h"
+#include "engine/core/version.h"
 
 #ifndef URPG_HEADLESS
 #include "engine/core/platform/opengl_renderer.h"
@@ -52,6 +53,10 @@ RuntimeOptions parseOptions(int argc, char** argv) {
     return options;
 }
 
+void printVersion() {
+    std::cout << "URPG Runtime " << urpg::versionString() << "\n";
+}
+
 void clearSceneStack() {
     auto& sceneManager = urpg::scene::SceneManager::getInstance();
     while (sceneManager.stackSize() > 0) {
@@ -63,6 +68,14 @@ void clearSceneStack() {
 
 int main(int argc, char** argv) {
     try {
+        for (int i = 1; i < argc; ++i) {
+            const std::string arg = argv[i];
+            if (arg == "--version") {
+                printVersion();
+                return 0;
+            }
+        }
+
         const RuntimeOptions options = parseOptions(argc, argv);
 
         urpg::WindowConfig config;

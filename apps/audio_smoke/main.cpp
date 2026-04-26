@@ -1,4 +1,5 @@
 #include "engine/core/audio/audio_core.h"
+#include "engine/core/version.h"
 
 #include <chrono>
 #include <filesystem>
@@ -19,6 +20,10 @@ void printUsage() {
         << "Usage: urpg_audio_smoke --asset <wav path or asset id> [--project-root <path>] [--duration-ms <ms>]\n";
 }
 
+void printVersion() {
+    std::cout << "URPG Audio Smoke " << urpg::versionString() << "\n";
+}
+
 Options parseOptions(int argc, char** argv) {
     Options options;
     for (int i = 1; i < argc; ++i) {
@@ -31,6 +36,9 @@ Options parseOptions(int argc, char** argv) {
             options.durationMs = std::max(1, std::stoi(argv[++i]));
         } else if (arg == "--help" || arg == "-h") {
             printUsage();
+            std::exit(0);
+        } else if (arg == "--version") {
+            printVersion();
             std::exit(0);
         }
     }

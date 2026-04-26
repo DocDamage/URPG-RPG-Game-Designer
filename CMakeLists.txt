@@ -1,7 +1,13 @@
 cmake_minimum_required(VERSION 3.23)
-project(urpg LANGUAGES C CXX)
+project(urpg VERSION 0.1.0 LANGUAGES C CXX)
 
 include(CheckCXXSourceCompiles)
+
+configure_file(
+    "${CMAKE_CURRENT_SOURCE_DIR}/cmake/urpg_version.h.in"
+    "${CMAKE_CURRENT_BINARY_DIR}/generated/urpg_version.h"
+    @ONLY
+)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -173,13 +179,13 @@ add_library(urpg_core
     engine/core/global_state_hub.cpp
     engine/core/input/input_remap_store.cpp
     engine/core/input/input_remap_profile.cpp
-    engine/core/platform/opengl_renderer.cpp
     engine/core/platform/device_profile.cpp
     engine/core/capture/capture_session.cpp
     engine/core/capture/trailer_capture_manifest.cpp
     engine/core/platform/sdl_surface.cpp
-    engine/core/platform/gl_shader.cpp
-    engine/core/platform/gl_texture.cpp
+    $<$<NOT:$<BOOL:${URPG_SKIP_OPENGL}>>:engine/core/platform/opengl_renderer.cpp>
+    $<$<NOT:$<BOOL:${URPG_SKIP_OPENGL}>>:engine/core/platform/gl_shader.cpp>
+    $<$<NOT:$<BOOL:${URPG_SKIP_OPENGL}>>:engine/core/platform/gl_texture.cpp>
     engine/core/render/asset_loader.cpp
     engine/core/render/tilemap_renderer.cpp
     engine/core/render/sprite_animator.cpp
@@ -615,6 +621,7 @@ target_compile_features(imgui PUBLIC cxx_std_20)
 
 target_include_directories(urpg_core PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}
+    ${CMAKE_CURRENT_BINARY_DIR}/generated
     ${stb_SOURCE_DIR}
 )
 

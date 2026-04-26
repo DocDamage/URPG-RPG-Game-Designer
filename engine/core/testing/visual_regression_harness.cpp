@@ -220,6 +220,13 @@ std::optional<SceneSnapshot> VisualRegressionHarness::captureScene(
     std::string* errorMessage) const {
     switch (backend) {
         case CaptureBackend::OpenGL:
+#ifdef URPG_HEADLESS
+            (void)renderCallback;
+            if (errorMessage != nullptr) {
+                *errorMessage = "Renderer-backed OpenGL scene capture is unavailable in headless builds.";
+            }
+            return std::nullopt;
+#else
             return captureOpenGLScene(
                 [&](urpg::OpenGLRenderer& renderer) {
                     renderCallback(renderer);
@@ -227,6 +234,7 @@ std::optional<SceneSnapshot> VisualRegressionHarness::captureScene(
                 width,
                 height,
                 errorMessage);
+#endif
         case CaptureBackend::Headless:
             if (errorMessage != nullptr) {
                 *errorMessage = "Headless backend does not support pixel-backed visual capture.";
