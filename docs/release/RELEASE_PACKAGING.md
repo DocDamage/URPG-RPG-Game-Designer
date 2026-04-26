@@ -70,3 +70,54 @@ Release failure path without credentials:
 ```
 
 The release failure path must exit non-zero and report the missing signing inputs.
+
+## Installed App Layout
+
+`cmake --install` is the supported native app-layout smoke path before CPack is added. It installs only release-facing runtime/editor files and governed manifests; raw intake folders, duplicate source archives, and unpromoted third-party asset dumps are not installed.
+
+Expected install tree:
+
+```text
+<prefix>/
+  bin/
+    urpg_runtime[.exe]
+    urpg_editor[.exe]
+    urpg_audio_smoke[.exe]
+    SDL2.dll and MinGW runtime DLLs where required on Windows
+  share/urpg/
+    content/
+      level_libraries/
+      readiness/
+      schemas/
+      templates/
+    imports/manifests/
+      asset_bundles/
+      asset_sources/
+  share/doc/urpg/
+    README.md
+    LICENSE
+    CHANGELOG.md
+    PRIVACY_POLICY.md
+    release/
+    templates/
+```
+
+Root legal documents that do not exist yet, such as `THIRD_PARTY_NOTICES.md`, `EULA.md`, and `CREDITS.md`, are installed automatically once created by the legal-documentation task.
+
+## Install Smoke
+
+After building the release preset:
+
+```powershell
+cmake --build --preset dev-release
+cmake --install build/dev-ninja-release --prefix build/install-smoke --component Runtime
+cmake --install build/dev-ninja-release --prefix build/install-smoke --component RuntimeData
+cmake --install build/dev-ninja-release --prefix build/install-smoke --component Docs
+.\build\install-smoke\bin\urpg_runtime.exe --headless --frames 1 --project-root .\build\install-smoke\share\urpg
+```
+
+The CI wrapper performs the same install layout checks and runtime launch:
+
+```powershell
+.\tools\ci\check_install_smoke.ps1 -BuildDirectory build/dev-ninja-release -InstallPrefix build/install-smoke
+```

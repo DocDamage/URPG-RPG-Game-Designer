@@ -1003,6 +1003,8 @@
 
 ### P5-001 - Complete Install Rules For A Distributable App Layout
 
+**Status:** Completed in this pass.
+
 **Files to edit:**
 - `CMakeLists.txt`
 - Packaging/install docs under `docs/`
@@ -1019,11 +1021,11 @@
 **Risk level:** High.
 
 **Exact implementation steps:**
-- [ ] Define the expected installed directory layout for runtime, editor, data, project templates, plugins, shaders, licenses, and notices.
-- [ ] Add `install(FILES ...)` and `install(DIRECTORY ...)` rules for required non-binary runtime data.
-- [ ] Add install components if the project distinguishes runtime, editor, dev, and docs.
-- [ ] Add a CI script or CTest that runs `cmake --install` into a temporary directory.
-- [ ] Validate the installed runtime can start headless from the install directory.
+- [x] Define the expected installed directory layout for runtime, editor, data, project templates, plugins, shaders, licenses, and notices.
+- [x] Add `install(FILES ...)` and `install(DIRECTORY ...)` rules for required non-binary runtime data.
+- [x] Add install components if the project distinguishes runtime, editor, dev, and docs.
+- [x] Add a CI script or CTest that runs `cmake --install` into a temporary directory.
+- [x] Validate the installed runtime can start headless from the install directory.
 
 **Acceptance criteria:**
 - `cmake --install` produces a runnable app layout.
@@ -1033,6 +1035,19 @@
 - `cmake --build --preset dev-release`
 - `cmake --install build/dev-release --prefix build/install-smoke`
 - `.\build\install-smoke\bin\urpg_runtime.exe --headless --frames 1`
+
+**Verification evidence (2026-04-26):**
+- Added a componentized app install layout: `Runtime`, `RuntimeData`, and `Docs`.
+- Runtime install now includes `urpg_runtime`, `urpg_editor`, `urpg_audio_smoke`, SDL2 on Windows, and MinGW runtime DLLs when building with MinGW.
+- Runtime data install now includes release-facing `content/level_libraries`, `content/readiness`, `content/schemas`, `content/templates`, and governed `imports/manifests`.
+- Docs install now includes root release docs plus `docs/release/` and `docs/templates/`.
+- Added `tools/ci/check_install_smoke.ps1`; it installs the three components, asserts required layout paths, and runs the installed runtime from the install prefix with `--project-root <prefix>/share/urpg`.
+- Added CTest lane `urpg_install_smoke` with labels `nightly;packaging;install`.
+- `cmake --build --preset dev-release --target urpg_runtime urpg_editor urpg_audio_smoke -j 2` passed.
+- `.\tools\ci\check_install_smoke.ps1 -BuildDirectory build/dev-ninja-release -InstallPrefix build/install-smoke` passed and launched the installed runtime for one headless frame.
+- `ctest --test-dir build/dev-ninja-release -R urpg_install_smoke --output-on-failure` passed.
+- `git diff --check` passed.
+- Full `cmake --build --preset dev-release` remains unverified in this pass: the initial run failed in the configured `sccache` launcher while packaging dependency files, and the subsequent compiler-direct full tree rebuild exceeded the local command timeout. The shipped app targets required for this install task were rebuilt and verified.
 
 ### P5-002 - Create Required Legal And Release Documents
 

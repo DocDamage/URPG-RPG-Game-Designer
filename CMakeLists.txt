@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 3.23)
 project(urpg VERSION 0.1.0 LANGUAGES C CXX)
 
 include(CheckCXXSourceCompiles)
+include(GNUInstallDirs)
 
 configure_file(
     "${CMAKE_CURRENT_SOURCE_DIR}/cmake/urpg_version.h.in"
@@ -774,7 +775,107 @@ if(WIN32)
 endif()
 
 install(TARGETS urpg_runtime urpg_editor urpg_audio_smoke
-    RUNTIME DESTINATION bin
+    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+    COMPONENT Runtime
+)
+
+set(URPG_INSTALL_DATA_ROOT "${CMAKE_INSTALL_DATADIR}/urpg")
+
+if(WIN32)
+    if(TARGET SDL2)
+        get_target_property(_urpg_runtime_dll_type SDL2 TYPE)
+        if(_urpg_runtime_dll_type STREQUAL "SHARED_LIBRARY")
+            install(
+                FILES $<TARGET_FILE:SDL2>
+                DESTINATION ${CMAKE_INSTALL_BINDIR}
+                COMPONENT Runtime
+            )
+        endif()
+    elseif(TARGET SDL2::SDL2)
+        get_target_property(_urpg_runtime_dll_type SDL2::SDL2 TYPE)
+        if(_urpg_runtime_dll_type STREQUAL "SHARED_LIBRARY" OR
+           _urpg_runtime_dll_type STREQUAL "UNKNOWN_LIBRARY")
+            install(
+                FILES $<TARGET_FILE:SDL2::SDL2>
+                DESTINATION ${CMAKE_INSTALL_BINDIR}
+                COMPONENT Runtime
+            )
+        endif()
+    endif()
+
+    if(MINGW)
+        get_filename_component(_urpg_mingw_bin_dir "${CMAKE_CXX_COMPILER}" DIRECTORY)
+        foreach(_urpg_mingw_runtime_dll IN ITEMS libgcc_s_seh-1.dll libstdc++-6.dll libwinpthread-1.dll)
+            if(EXISTS "${_urpg_mingw_bin_dir}/${_urpg_mingw_runtime_dll}")
+                install(
+                    FILES "${_urpg_mingw_bin_dir}/${_urpg_mingw_runtime_dll}"
+                    DESTINATION ${CMAKE_INSTALL_BINDIR}
+                    COMPONENT Runtime
+                )
+            endif()
+        endforeach()
+    endif()
+endif()
+
+install(
+    DIRECTORY
+        content/level_libraries
+        content/readiness
+        content/schemas
+        content/templates
+    DESTINATION "${URPG_INSTALL_DATA_ROOT}/content"
+    COMPONENT RuntimeData
+    FILES_MATCHING
+        PATTERN "*.json"
+        PATTERN "*.jsonl"
+        PATTERN "*.md"
+)
+
+install(
+    DIRECTORY imports/manifests/
+    DESTINATION "${URPG_INSTALL_DATA_ROOT}/imports/manifests"
+    COMPONENT RuntimeData
+    FILES_MATCHING
+        PATTERN "*.json"
+        PATTERN "*.md"
+)
+
+set(_urpg_release_doc_candidates
+    README.md
+    LICENSE
+    CHANGELOG.md
+    PRIVACY_POLICY.md
+    THIRD_PARTY_NOTICES.md
+    EULA.md
+    CREDITS.md
+)
+set(_urpg_release_docs)
+foreach(_urpg_release_doc IN LISTS _urpg_release_doc_candidates)
+    if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/${_urpg_release_doc}")
+        list(APPEND _urpg_release_docs "${CMAKE_CURRENT_SOURCE_DIR}/${_urpg_release_doc}")
+    endif()
+endforeach()
+
+if(_urpg_release_docs)
+    install(
+        FILES ${_urpg_release_docs}
+        DESTINATION ${CMAKE_INSTALL_DOCDIR}
+        COMPONENT Docs
+    )
+endif()
+
+install(
+    DIRECTORY docs/release/
+    DESTINATION "${CMAKE_INSTALL_DOCDIR}/release"
+    COMPONENT Docs
+    FILES_MATCHING PATTERN "*.md"
+)
+
+install(
+    DIRECTORY docs/templates/
+    DESTINATION "${CMAKE_INSTALL_DOCDIR}/templates"
+    COMPONENT Docs
+    FILES_MATCHING PATTERN "*.md"
 )
 
 add_executable(urpg_migrate
@@ -1246,8 +1347,30 @@ if(URPG_POWERSHELL_EXE)
         urpg_golden_replay_lane
         PROPERTIES LABELS "pr;replay"
     )
+
+    add_test(
+        NAME urpg_install_smoke
+        COMMAND
+            ${URPG_POWERSHELL_EXE}
+            -NoProfile
+            -ExecutionPolicy
+            Bypass
+            -File
+            "${CMAKE_SOURCE_DIR}/tools/ci/check_install_smoke.ps1"
+            -RepoRoot
+            "${CMAKE_SOURCE_DIR}"
+            -BuildDirectory
+            "${CMAKE_BINARY_DIR}"
+            -InstallPrefix
+            "${CMAKE_BINARY_DIR}/install-smoke"
+        WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+    )
+    set_tests_properties(
+        urpg_install_smoke
+        PROPERTIES LABELS "nightly;packaging;install"
+    )
 else()
-    message(STATUS "Skipping urpg_golden_replay_lane because PowerShell was not found.")
+    message(STATUS "Skipping PowerShell-backed CTest lanes because PowerShell was not found.")
 endif()
 
 add_test(
