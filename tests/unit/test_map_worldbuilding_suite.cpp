@@ -51,28 +51,61 @@ TEST_CASE("Region conflict validator emits exact cell and rule conflict", "[map]
         {"mud", 0, 0, 3, 3, "", "", "rain", "", "slow", ""},
         {"ice", 2, 2, 3, 3, "", "", "snow", "", "slide", ""},
     });
+    panel.render();
 
+    REQUIRE(panel.hasRenderedFrame());
+    REQUIRE_FALSE(panel.snapshot().disabled);
     REQUIRE(panel.snapshot().diagnostic_count == 1);
+    REQUIRE(panel.snapshot().status_message == "Region rules have diagnostics.");
     REQUIRE(panel.diagnostics()[0].code == "region_movement_conflict");
     REQUIRE(panel.diagnostics()[0].x == 2);
     REQUIRE(panel.diagnostics()[0].y == 2);
     REQUIRE(panel.diagnostics()[0].target == "mud:ice");
 }
 
+TEST_CASE("Region rules panel renders an explicit disabled empty state", "[map][worldbuilding][editor][spatial]") {
+    urpg::editor::RegionRulesPanel panel;
+
+    panel.render();
+
+    REQUIRE(panel.hasRenderedFrame());
+    REQUIRE(panel.snapshot().disabled);
+    REQUIRE(panel.snapshot().rule_count == 0);
+    REQUIRE(panel.snapshot().diagnostic_count == 0);
+    REQUIRE(panel.snapshot().status_message == "Load region rules before previewing this panel.");
+}
+
 TEST_CASE("Procedural generator reports unsatisfied constraints and returns editable document", "[map][worldbuilding][ffs06]") {
     urpg::editor::ProceduralMapPanel panel;
     panel.generate({"tiny_boss", "dungeon", 4, 4, 7, true, true, true});
+    panel.render();
 
+    REQUIRE(panel.hasRenderedFrame());
+    REQUIRE_FALSE(panel.snapshot().disabled);
     REQUIRE(panel.snapshot().has_result);
     REQUIRE(panel.snapshot().width == 4);
     REQUIRE(panel.snapshot().height == 4);
     REQUIRE(panel.snapshot().layer_count == 2);
     REQUIRE(panel.snapshot().diagnostic_count == 1);
+    REQUIRE(panel.snapshot().status_message == "Procedural map preview has diagnostics.");
     REQUIRE(panel.result().diagnostics[0].code == "unsatisfied_constraints");
 
     auto doc = panel.result().document;
     REQUIRE(doc.setTile("terrain", 1, 1, 42));
     REQUIRE(doc.tileAt("terrain", 1, 1).value() == 42);
+}
+
+TEST_CASE("Procedural map panel renders an explicit disabled empty state", "[map][worldbuilding][editor][spatial]") {
+    urpg::editor::ProceduralMapPanel panel;
+
+    panel.render();
+
+    REQUIRE(panel.hasRenderedFrame());
+    REQUIRE(panel.snapshot().disabled);
+    REQUIRE_FALSE(panel.snapshot().has_result);
+    REQUIRE(panel.snapshot().width == 0);
+    REQUIRE(panel.snapshot().height == 0);
+    REQUIRE(panel.snapshot().status_message == "Generate a procedural map profile before previewing this panel.");
 }
 
 TEST_CASE("Tactical range preview respects blocked cells", "[map][worldbuilding][ffs06]") {

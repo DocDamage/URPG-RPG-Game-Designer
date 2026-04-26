@@ -503,6 +503,8 @@
 
 ### P1-006 - Implement Or Explicitly Disable Empty Spatial Panel Render Paths
 
+**Status:** Completed on 2026-04-26.
+
 **Files to edit:**
 - `editor/spatial/procedural_map_panel.cpp`
 - `editor/spatial/region_rules_panel.cpp`
@@ -518,11 +520,11 @@
 **Risk level:** Medium.
 
 **Exact implementation steps:**
-- [ ] Inspect the uppercase/lowercase render conventions used by spatial panels.
-- [ ] If the lowercase `render()` path is expected to draw UI, implement visible controls or a disabled state with the exact reason.
-- [ ] If lowercase `render()` is obsolete, remove it or forward it to the canonical render method.
-- [ ] Add smoke coverage that calls the path used by editor navigation.
-- [ ] Confirm no empty user-facing render path remains.
+- [x] Inspect the uppercase/lowercase render conventions used by spatial panels.
+- [x] If the lowercase `render()` path is expected to draw UI, implement visible controls or a disabled state with the exact reason.
+- [x] If lowercase `render()` is obsolete, remove it or forward it to the canonical render method.
+- [x] Add smoke coverage that calls the path used by editor navigation.
+- [x] Confirm no empty user-facing render path remains.
 
 **Acceptance criteria:**
 - `procedural_map_panel.cpp` and `region_rules_panel.cpp` no longer expose empty user-facing render functions.
@@ -532,6 +534,13 @@
 - `rg -n "void .*::render\\(\\)\\s*\\{\\s*\\}" editor/spatial`
 - `cmake --build --preset dev-debug --target urpg_tests`
 - `ctest --preset dev-all -R "spatial|editor"`
+
+**Verification results:**
+- `rg -n "void .*::render\\(\\)\\s*\\{\\s*\\}" editor/spatial` returned no matches.
+- `cmake --build --preset dev-debug --target urpg_tests` passed.
+- `build\dev-ninja-debug\urpg_tests.exe "[map][worldbuilding]"` passed 8 test cases and 61 assertions.
+- `build\dev-ninja-debug\urpg_tests.exe "[editor][spatial]"` passed 7 test cases and 375 assertions.
+- `ctest --preset dev-all -R "spatial|editor" --output-on-failure` passed 4 tests with 0 failures.
 
 ---
 
