@@ -772,6 +772,8 @@
 
 ### P3-002 - Validate Runtime Project And Asset Directories Before Startup
 
+**Status:** Completed in this pass.
+
 **Files to edit:**
 - `apps/runtime/main.cpp`
 - Existing asset/runtime bundle validation files under `engine/core/assets/`
@@ -787,11 +789,11 @@
 **Risk level:** High.
 
 **Exact implementation steps:**
-- [ ] Define the minimum required runtime project files and directories.
-- [ ] Add preflight validation before scene startup.
-- [ ] Return non-zero with diagnostics if required directories or manifests are missing.
-- [ ] Add a test fixture for valid minimal project data.
-- [ ] Add a test fixture for missing assets/manifests.
+- [x] Define the minimum required runtime project files and directories.
+- [x] Add preflight validation before scene startup.
+- [x] Return non-zero with diagnostics if required directories or manifests are missing.
+- [x] Add a test fixture for valid minimal project data.
+- [x] Add a test fixture for missing assets/manifests.
 
 **Acceptance criteria:**
 - Missing project assets fail early with named missing paths.
@@ -800,6 +802,17 @@
 **Verification command or manual test:**
 - `cmake --build --preset dev-debug --target urpg_runtime urpg_integration_tests`
 - `ctest --preset dev-all -R "asset|runtime|preflight"`
+
+**Verification results:**
+- Passed: `cmake --build --preset dev-debug --target urpg_runtime urpg_tests`.
+- Passed: `git diff --check`.
+- Passed: `.\build\dev-ninja-debug\urpg_tests.exe "[diagnostics][startup]"` with 28 assertions in 8 test cases.
+- Passed: `ctest --preset dev-all -R "startup|preflight|runtime" --output-on-failure` with 96/96 tests passing.
+- Passed: `.\build\dev-ninja-debug\urpg_runtime.exe --headless --frames 1`; returned exit code 0 from the repo root.
+- Passed: runtime with an empty temporary project root returned exit code 1, printed `runtime_project_manifest_missing`, and wrote `runtime_startup.jsonl`.
+- Passed: runtime with a malformed temporary `project.json` returned exit code 1, printed `runtime_project_manifest_invalid`, and wrote `runtime_startup.jsonl`.
+- Passed: runtime with a manifest-only temporary project root returned exit code 1, printed `runtime_project_content_missing` with concrete `content` and `data` paths, and wrote `runtime_startup.jsonl`.
+- Passed: runtime with a valid temporary `project.json` plus `content/` directory returned exit code 0.
 
 ### P3-003 - Add Editor Empty, Loading, And Error State Coverage
 

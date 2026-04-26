@@ -14,6 +14,12 @@ std::filesystem::path tempRoot(const std::string& name) {
     return root;
 }
 
+void writeText(const std::filesystem::path& path, const std::string& payload) {
+    std::filesystem::create_directories(path.parent_path());
+    std::ofstream out(path, std::ios::binary);
+    out << payload;
+}
+
 } // namespace
 
 TEST_CASE("Startup diagnostics write project-local JSONL records", "[diagnostics][startup]") {
@@ -85,4 +91,72 @@ TEST_CASE("Startup input validation reports missing project roots and invalid wi
 
     const auto ok = urpg::diagnostics::validateStartupInputs("runtime", root, 1280, 720, true);
     REQUIRE_FALSE(ok.has_value());
+}
+
+TEST_CASE("Runtime project preflight accepts minimal manifest plus content root",
+          "[diagnostics][startup][runtime][preflight]") {
+    const auto root = tempRoot("runtime_preflight_valid");
+    writeText(root / "project.json", R"({
+  "_urpg_format_version": "1.0",
+  "_engine_version_min": "0.1.0",
+  "determinism": {
+    "level": "A",
+    "authoritative_math": "fixed32"
+  }
+})");
+    std::filesystem::create_directories(root / "content");
+
+    const auto result = urpg::diagnostics::validateRuntimeProjectPreflight("runtime", root, true);
+
+    REQUIRE_FALSE(result.has_value());
+}
+
+TEST_CASE("Runtime project preflight accepts dev content roots without a manifest",
+          "[diagnostics][startup][runtime][preflight]") {
+    const auto root = tempRoot("runtime_preflight_content_root");
+    std::filesystem::create_directories(root / "content");
+
+    const auto result = urpg::diagnostics::validateRuntimeProjectPreflight("runtime", root, true);
+
+    REQUIRE_FALSE(result.has_value());
+}
+
+TEST_CASE("Runtime project preflight rejects empty project roots",
+          "[diagnostics][startup][runtime][preflight]") {
+    const auto root = tempRoot("runtime_preflight_empty");
+
+    const auto result = urpg::diagnostics::validateRuntimeProjectPreflight("runtime", root, true);
+
+    REQUIRE(result.has_value());
+    REQUIRE(result->code == "runtime_project_manifest_missing");
+    REQUIRE(result->severity == urpg::diagnostics::StartupDiagnosticSeverity::Fatal);
+}
+
+TEST_CASE("Runtime project preflight rejects malformed manifests",
+          "[diagnostics][startup][runtime][preflight]") {
+    const auto root = tempRoot("runtime_preflight_invalid_manifest");
+    writeText(root / "project.json", R"({"_urpg_format_version": "1.0",)");
+
+    const auto result = urpg::diagnostics::validateRuntimeProjectPreflight("runtime", root, true);
+
+    REQUIRE(result.has_value());
+    REQUIRE(result->code == "runtime_project_manifest_invalid");
+}
+
+TEST_CASE("Runtime project preflight rejects manifest-only project roots without content",
+          "[diagnostics][startup][runtime][preflight]") {
+    const auto root = tempRoot("runtime_preflight_missing_content");
+    writeText(root / "project.json", R"({
+  "_urpg_format_version": "1.0",
+  "_engine_version_min": "0.1.0",
+  "determinism": {
+    "level": "A",
+    "authoritative_math": "fixed32"
+  }
+})");
+
+    const auto result = urpg::diagnostics::validateRuntimeProjectPreflight("runtime", root, true);
+
+    REQUIRE(result.has_value());
+    REQUIRE(result->code == "runtime_project_content_missing");
 }

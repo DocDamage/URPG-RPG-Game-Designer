@@ -91,6 +91,12 @@ int main(int argc, char** argv) {
             printStartupFailure(*startupFailure, writeResult);
             return 1;
         }
+        if (const auto preflightFailure =
+                urpg::diagnostics::validateRuntimeProjectPreflight("runtime", options.project_root, options.headless)) {
+            const auto writeResult = urpg::diagnostics::writeStartupDiagnostic(*preflightFailure);
+            printStartupFailure(*preflightFailure, writeResult);
+            return 1;
+        }
 
         urpg::WindowConfig config;
         config.title = "URPG Runtime";

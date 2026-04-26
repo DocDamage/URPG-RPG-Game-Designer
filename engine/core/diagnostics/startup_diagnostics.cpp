@@ -1,5 +1,6 @@
 #include "engine/core/diagnostics/startup_diagnostics.h"
 
+#include <array>
 #include <chrono>
 #include <cstdint>
 #include <fstream>
@@ -18,6 +19,48 @@ std::string nowUtcEpochSeconds() {
     const auto seconds = std::chrono::time_point_cast<std::chrono::seconds>(now);
     const auto count = seconds.time_since_epoch().count();
     return std::to_string(count);
+}
+
+bool hasRuntimeBundle(const std::filesystem::path& project_root) {
+    const std::array<std::filesystem::path, 4> bundle_candidates = {
+        project_root / "data.pck",
+        project_root / "export" / "data.pck",
+        project_root / "dist" / "data.pck",
+        project_root / "build" / "export" / "data.pck",
+    };
+
+    for (const auto& candidate : bundle_candidates) {
+        std::error_code ec;
+        if (std::filesystem::is_regular_file(candidate, ec) && !ec) {
+            return true;
+        }
+    }
+    return false;
+}
+
+bool hasContentRoot(const std::filesystem::path& project_root) {
+    std::error_code ec;
+    return (std::filesystem::is_directory(project_root / "content", ec) && !ec) ||
+           (std::filesystem::is_directory(project_root / "data", ec) && !ec);
+}
+
+std::optional<nlohmann::json> readProjectManifest(const std::filesystem::path& manifest_path) {
+    std::ifstream in(manifest_path, std::ios::binary);
+    if (!in) {
+        return std::nullopt;
+    }
+
+    auto manifest = nlohmann::json::parse(in, nullptr, false);
+    if (manifest.is_discarded() || !manifest.is_object()) {
+        return std::nullopt;
+    }
+    return manifest;
+}
+
+bool hasRequiredProjectManifestFields(const nlohmann::json& manifest) {
+    return manifest.contains("_urpg_format_version") && manifest["_urpg_format_version"].is_string() &&
+           manifest.contains("_engine_version_min") && manifest["_engine_version_min"].is_string() &&
+           manifest.contains("determinism") && manifest["determinism"].is_object();
 }
 
 } // namespace
@@ -103,6 +146,67 @@ std::optional<StartupDiagnosticRecord> validateStartupInputs(const std::string& 
             StartupDiagnosticSeverity::Fatal,
             "invalid_window_size",
             "Startup width and height must both be greater than zero.",
+            project_root,
+            headless,
+        };
+    }
+
+    return std::nullopt;
+}
+
+std::optional<StartupDiagnosticRecord> validateRuntimeProjectPreflight(const std::string& app_id,
+                                                                       const std::filesystem::path& project_root,
+                                                                       bool headless) {
+    const bool bundlePresent = hasRuntimeBundle(project_root);
+    const auto manifestPath = project_root / "project.json";
+
+    std::error_code ec;
+    if (!std::filesystem::exists(manifestPath, ec)) {
+        if (bundlePresent || hasContentRoot(project_root)) {
+            return std::nullopt;
+        }
+
+        return StartupDiagnosticRecord{
+            app_id,
+            StartupDiagnosticSeverity::Fatal,
+            "runtime_project_manifest_missing",
+            "Runtime project requires project.json, a content/ or data/ directory, or an exported data.pck bundle "
+            "under the project root.",
+            project_root,
+            headless,
+        };
+    }
+
+    if (!std::filesystem::is_regular_file(manifestPath, ec) || ec) {
+        return StartupDiagnosticRecord{
+            app_id,
+            StartupDiagnosticSeverity::Fatal,
+            "runtime_project_manifest_invalid",
+            "Runtime project manifest is not a readable file: " + manifestPath.string(),
+            project_root,
+            headless,
+        };
+    }
+
+    const auto manifest = readProjectManifest(manifestPath);
+    if (!manifest || !hasRequiredProjectManifestFields(*manifest)) {
+        return StartupDiagnosticRecord{
+            app_id,
+            StartupDiagnosticSeverity::Fatal,
+            "runtime_project_manifest_invalid",
+            "Runtime project manifest must be valid JSON with _urpg_format_version, _engine_version_min, and determinism.",
+            project_root,
+            headless,
+        };
+    }
+
+    if (!bundlePresent && !hasContentRoot(project_root)) {
+        return StartupDiagnosticRecord{
+            app_id,
+            StartupDiagnosticSeverity::Fatal,
+            "runtime_project_content_missing",
+            "Runtime project requires " + (project_root / "content").string() + " or " +
+                (project_root / "data").string() + " when no exported data.pck bundle is present.",
             project_root,
             headless,
         };

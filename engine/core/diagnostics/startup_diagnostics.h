@@ -37,5 +37,8 @@ std::optional<StartupDiagnosticRecord> validateStartupInputs(const std::string& 
                                                              std::uint32_t width,
                                                              std::uint32_t height,
                                                              bool headless);
+std::optional<StartupDiagnosticRecord> validateRuntimeProjectPreflight(const std::string& app_id,
+                                                                       const std::filesystem::path& project_root,
+                                                                       bool headless);
 
 } // namespace urpg::diagnostics
