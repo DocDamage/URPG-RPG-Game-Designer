@@ -16,9 +16,8 @@ constexpr int32_t kFontSizeMax = 96;
 
 std::string toLowerCopy(const std::string& value) {
     std::string lowered = value;
-    std::transform(lowered.begin(), lowered.end(), lowered.begin(), [](unsigned char ch) {
-        return static_cast<char>(std::tolower(ch));
-    });
+    std::transform(lowered.begin(), lowered.end(), lowered.begin(),
+                   [](unsigned char ch) { return static_cast<char>(std::tolower(ch)); });
     return lowered;
 }
 
@@ -100,8 +99,8 @@ char32_t decodeUtf8Codepoint(const std::string& text, size_t& cursor) {
         const auto b3 = static_cast<unsigned char>(text[cursor + 3]);
         if ((b1 & 0xC0) == 0x80 && (b2 & 0xC0) == 0x80 && (b3 & 0xC0) == 0x80) {
             cursor += 4;
-            return static_cast<char32_t>(
-                ((lead & 0x07) << 18) | ((b1 & 0x3F) << 12) | ((b2 & 0x3F) << 6) | (b3 & 0x3F));
+            return static_cast<char32_t>(((lead & 0x07) << 18) | ((b1 & 0x3F) << 12) | ((b2 & 0x3F) << 6) |
+                                         (b3 & 0x3F));
         }
     }
 
@@ -143,8 +142,7 @@ int32_t glyphAdvance(char32_t cp, int32_t font_size) {
 
 } // namespace
 
-MessagePresentationVariant variantFromCompatRoute(const std::string& route,
-                                                  const std::string& speaker_default,
+MessagePresentationVariant variantFromCompatRoute(const std::string& route, const std::string& speaker_default,
                                                   int32_t speaker_face_actor_id) {
     const std::string normalized_route = toLowerCopy(route);
     MessagePresentationVariant variant;
@@ -318,7 +316,7 @@ void RichTextLayoutEngine::setLineHeight(int32_t height) {
 
 void RichTextLayoutEngine::setMaxWidth(int32_t max_width) {
     // 0 or negative means infinite/no wrapping
-    max_width_ = max_width; 
+    max_width_ = max_width;
 }
 
 void RichTextLayoutEngine::setAlignment(MessageAlignment alignment) {
@@ -353,7 +351,8 @@ RichTextLayoutResult RichTextLayoutEngine::layout(const std::string& text) const
                 while (cursor < remaining.size()) {
                     const char32_t cp = decodeUtf8Codepoint(remaining, cursor);
                     word_w += glyphAdvance(cp, font_size);
-                    if (cp == U' ' || cp == U'\t') break;
+                    if (cp == U' ' || cp == U'\t')
+                        break;
                 }
                 if (max_width_ > 0 && current_x + word_w > max_width_ && current_x > 0) {
                     wrapped.push_back({RichTextTokenType::NewLine, "", 0});
@@ -372,8 +371,10 @@ RichTextLayoutResult RichTextLayoutEngine::layout(const std::string& text) const
             wrapped.push_back(token);
             current_x += icon_w;
         } else {
-            if (token.type == RichTextTokenType::FontBigger) font_size = std::min(kFontSizeMax, font_size + kFontStep);
-            else if (token.type == RichTextTokenType::FontSmaller) font_size = std::max(kFontSizeMin, font_size - kFontStep);
+            if (token.type == RichTextTokenType::FontBigger)
+                font_size = std::min(kFontSizeMax, font_size + kFontStep);
+            else if (token.type == RichTextTokenType::FontSmaller)
+                font_size = std::max(kFontSizeMin, font_size - kFontStep);
             wrapped.push_back(token);
         }
     }
@@ -390,11 +391,15 @@ RichTextLayoutResult RichTextLayoutEngine::layout(const std::string& text) const
         max_w = std::max(max_w, line_w);
         int32_t offset = 0;
         if (max_width_ > 0) {
-            if (alignment_ == MessageAlignment::Center) offset = (max_width_ - line_w) / 2;
-            else if (alignment_ == MessageAlignment::Right) offset = max_width_ - line_w;
+            if (alignment_ == MessageAlignment::Center)
+                offset = (max_width_ - line_w) / 2;
+            else if (alignment_ == MessageAlignment::Right)
+                offset = max_width_ - line_w;
         }
-        if (offset != 0) result.tokens.push_back({RichTextTokenType::LineOffset, "", offset});
-        for (size_t i = line_start; i < end; ++i) result.tokens.push_back(wrapped[i]);
+        if (offset != 0)
+            result.tokens.push_back({RichTextTokenType::LineOffset, "", offset});
+        for (size_t i = line_start; i < end; ++i)
+            result.tokens.push_back(wrapped[i]);
         total_h += line_h;
         line_count++;
     };
@@ -560,27 +565,27 @@ std::vector<RichTextToken> RichTextLayoutEngine::tokenize(const std::string& tex
 
 std::string RichTextLayoutEngine::resolveEscape(char command, int32_t arg) const {
     switch (command) {
-        case 'V':
-            return variable_resolver_ ? std::to_string(variable_resolver_(arg)) : std::to_string(arg);
-        case 'N': {
-            if (actor_name_resolver_) {
-                return actor_name_resolver_(arg);
-            }
-            return "Actor " + std::to_string(std::max(0, arg));
+    case 'V':
+        return variable_resolver_ ? std::to_string(variable_resolver_(arg)) : std::to_string(arg);
+    case 'N': {
+        if (actor_name_resolver_) {
+            return actor_name_resolver_(arg);
         }
-        case 'P': {
-            if (party_member_resolver_ && actor_name_resolver_) {
-                const int32_t actor_id = party_member_resolver_(arg - 1);
-                if (actor_id > 0) {
-                    return actor_name_resolver_(actor_id);
-                }
+        return "Actor " + std::to_string(std::max(0, arg));
+    }
+    case 'P': {
+        if (party_member_resolver_ && actor_name_resolver_) {
+            const int32_t actor_id = party_member_resolver_(arg - 1);
+            if (actor_id > 0) {
+                return actor_name_resolver_(actor_id);
             }
-            return "";
         }
-        case 'G':
-            return currency_unit_;
-        default:
-            break;
+        return "";
+    }
+    case 'G':
+        return currency_unit_;
+    default:
+        break;
     }
     return "";
 }
@@ -664,8 +669,7 @@ void MessageFlowRunner::cancel() {
 }
 
 bool MessageFlowRunner::isActive() const {
-    return state_ == MessageFlowState::Presenting ||
-           state_ == MessageFlowState::AwaitingAdvance ||
+    return state_ == MessageFlowState::Presenting || state_ == MessageFlowState::AwaitingAdvance ||
            state_ == MessageFlowState::AwaitingChoice;
 }
 
@@ -776,8 +780,7 @@ bool MessageFlowRunner::restore(const MessageFlowSnapshot& snapshot) {
         if (!choice_prompt_.isOpen()) {
             return false;
         }
-        const size_t requested_index =
-            std::min(snapshot.selected_choice_index, choice_prompt_.optionCount() - 1);
+        const size_t requested_index = std::min(snapshot.selected_choice_index, choice_prompt_.optionCount() - 1);
         if (!choice_prompt_.setSelectedIndex(requested_index)) {
             const ChoiceOption* option = choice_prompt_.selectedOption();
             if (option == nullptr || !option->enabled) {

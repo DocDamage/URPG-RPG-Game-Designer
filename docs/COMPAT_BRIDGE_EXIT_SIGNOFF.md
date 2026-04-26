@@ -1,8 +1,8 @@
 # Compat Bridge Exit — Closure Sign-off
 
-> **Status:** `PARTIAL`  
-> **Purpose:** Evidence-gathering artifact for compat bridge exit review.  
-> **Date:** 2026-04-23  
+> **Status:** `PARTIAL`
+> **Purpose:** Evidence-gathering artifact for compat bridge exit review.
+> **Date:** 2026-04-23
 > **Rule:** This document does **not** promote `readiness_status.json` status. Human review is required for promotion to `READY`.
 
 ---

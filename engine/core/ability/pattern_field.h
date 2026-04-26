@@ -1,9 +1,9 @@
 #pragma once
 
-#include <vector>
-#include <string>
 #include <cstdint>
 #include <nlohmann/json_fwd.hpp>
+#include <string>
+#include <vector>
 
 namespace urpg {
 
@@ -12,7 +12,7 @@ namespace urpg {
  * Patterns are defined relative to a (0,0) center point.
  */
 class PatternField {
-public:
+  public:
     struct Point {
         int32_t x;
         int32_t y;
@@ -30,13 +30,13 @@ public:
 
     const std::vector<Point>& getPoints() const { return m_points; }
     void setPoints(const std::vector<Point>& points);
-    
+
     const std::string& getName() const { return m_name; }
     void setName(const std::string& name) { m_name = name; }
 
     void getBounds(int32_t& minX, int32_t& minY, int32_t& maxX, int32_t& maxY) const;
 
-private:
+  private:
     void normalize();
 
     std::string m_name;
@@ -48,7 +48,7 @@ private:
  * Part of Wave 2 Pattern Field Editor completion.
  */
 class PatternValidator {
-public:
+  public:
     struct ValidationResult {
         bool isValid = true;
         std::vector<std::string> issues;

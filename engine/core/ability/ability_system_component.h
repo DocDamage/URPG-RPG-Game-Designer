@@ -1,13 +1,13 @@
 #pragma once
 
 #include "gameplay_ability.h"
-#include "gameplay_tags.h"
 #include "gameplay_effect.h"
+#include "gameplay_tags.h"
 #include <algorithm>
-#include <vector>
+#include <memory>
 #include <string>
 #include <unordered_map>
-#include <memory>
+#include <vector>
 
 namespace urpg::ability {
 
@@ -15,7 +15,7 @@ namespace urpg::ability {
  * @brief Manages Abilities, Tags, and Effects for a source actor/enemy.
  */
 class AbilitySystemComponent {
-public:
+  public:
     struct AbilityExecutionRecord {
         size_t sequence_id = 0;
         std::string ability_id;
@@ -58,20 +58,18 @@ public:
     bool canActivateAbility(const GameplayAbility& ability,
                             const GameplayAbility::AbilityExecutionContext& context) const;
     bool tryActivateAbility(GameplayAbility& ability);
-    bool tryActivateAbility(GameplayAbility& ability,
-                            const GameplayAbility::AbilityExecutionContext& context);
+    bool tryActivateAbility(GameplayAbility& ability, const GameplayAbility::AbilityExecutionContext& context);
 
     /**
      * @brief Validates if the target is within the ability's pattern from specified source.
      */
-    bool isTargetInPattern(const GameplayAbility& ability, int32_t sourceX, int32_t sourceY, int32_t targetX, int32_t targetY) const;
+    bool isTargetInPattern(const GameplayAbility& ability, int32_t sourceX, int32_t sourceY, int32_t targetX,
+                           int32_t targetY) const;
 
     /**
      * @brief Track cooldowns (in seconds).
      */
-    void setCooldown(const std::string& abilityId, float seconds) {
-        m_cooldowns[abilityId] = seconds;
-    }
+    void setCooldown(const std::string& abilityId, float seconds) { m_cooldowns[abilityId] = seconds; }
 
     float getCooldownRemaining(const std::string& abilityId) const {
         auto it = m_cooldowns.find(abilityId);
@@ -79,28 +77,29 @@ public:
     }
 
     /**
-     * @brief Apply a temporary or permanent effect. 
+     * @brief Apply a temporary or permanent effect.
      * Handles stacking and refresh logic based on policy.
      */
     void applyEffect(const GameplayEffect& effect) {
-        if (!canApplyEffect(effect)) return;
+        if (!canApplyEffect(effect))
+            return;
 
         // Check for existing instance with same ID
         if (!effect.id.empty()) {
             for (auto& active : m_activeEffects) {
                 if (active.id == effect.id && !active.isExpired) {
                     switch (effect.stackingPolicy) {
-                        case GameplayEffectStackingPolicy::Refresh:
-                            active.elapsed = 0.0f;
-                            return;
-                        case GameplayEffectStackingPolicy::Stack:
-                            if (active.stackCount < active.maxStacks) {
-                                active.stackCount++;
-                            }
-                            active.elapsed = 0.0f;
-                            return;
-                        default:
-                            break;
+                    case GameplayEffectStackingPolicy::Refresh:
+                        active.elapsed = 0.0f;
+                        return;
+                    case GameplayEffectStackingPolicy::Stack:
+                        if (active.stackCount < active.maxStacks) {
+                            active.stackCount++;
+                        }
+                        active.elapsed = 0.0f;
+                        return;
+                    default:
+                        break;
                     }
                 }
             }
@@ -125,7 +124,8 @@ public:
         bool hasOverride = false;
 
         for (const auto& effect : m_activeEffects) {
-            if (effect.isExpired) continue;
+            if (effect.isExpired)
+                continue;
             for (const auto& mod : effect.modifiers) {
                 if (mod.attributeName == attr) {
                     // Check if modifier requirements are met
@@ -136,47 +136,46 @@ public:
                     float stackedValue = mod.value * effect.stackCount;
 
                     switch (mod.operation) {
-                        case ModifierOp::Add: totalAdd += stackedValue; break;
-                        case ModifierOp::Multiply: 
-                            // Compounding vs Additive multiplication is an architectual choice.
-                            // Here we assume modifiers within a stack compound if it's a multiplier.
-                            // But usually, multipliers add to a sum (1.0 + 0.1 + 0.1).
-                            totalMult += (mod.value - 1.0f) * effect.stackCount; 
-                            break;
-                        case ModifierOp::Override: 
-                            overrideValue = mod.value; // Override doesn't stack usually
-                            hasOverride = true; 
-                            break;
+                    case ModifierOp::Add:
+                        totalAdd += stackedValue;
+                        break;
+                    case ModifierOp::Multiply:
+                        // Compounding vs Additive multiplication is an architectual choice.
+                        // Here we assume modifiers within a stack compound if it's a multiplier.
+                        // But usually, multipliers add to a sum (1.0 + 0.1 + 0.1).
+                        totalMult += (mod.value - 1.0f) * effect.stackCount;
+                        break;
+                    case ModifierOp::Override:
+                        overrideValue = mod.value; // Override doesn't stack usually
+                        hasOverride = true;
+                        break;
                     }
                 }
             }
         }
-        
-        if (hasOverride) return overrideValue;
+
+        if (hasOverride)
+            return overrideValue;
         return (resolvedBase + totalAdd) * totalMult;
     }
 
-    void setAttribute(const std::string& attr, float value) {
-        m_baseAttributes[attr] = value;
-    }
+    void setAttribute(const std::string& attr, float value) { m_baseAttributes[attr] = value; }
 
     /**
      * @brief Manages granting and revoking abilities.
      */
     void grantAbility(std::shared_ptr<GameplayAbility> ability) {
-        if (ability) m_abilities.push_back(ability);
+        if (ability)
+            m_abilities.push_back(ability);
     }
 
     bool removeAbilityById(const std::string& abilityId) {
         const auto original_size = m_abilities.size();
-        m_abilities.erase(
-            std::remove_if(
-                m_abilities.begin(),
-                m_abilities.end(),
-                [&](const std::shared_ptr<GameplayAbility>& ability) {
-                    return ability && ability->getId() == abilityId;
-                }),
-            m_abilities.end());
+        m_abilities.erase(std::remove_if(m_abilities.begin(), m_abilities.end(),
+                                         [&](const std::shared_ptr<GameplayAbility>& ability) {
+                                             return ability && ability->getId() == abilityId;
+                                         }),
+                          m_abilities.end());
         return m_abilities.size() != original_size;
     }
 
@@ -189,16 +188,12 @@ public:
         m_abilities.push_back(std::move(ability));
     }
 
-    const std::vector<std::shared_ptr<GameplayAbility>>& getAbilities() const {
-        return m_abilities;
-    }
+    const std::vector<std::shared_ptr<GameplayAbility>>& getAbilities() const { return m_abilities; }
 
     /**
      * @brief Returns a reference to the cooldown map.
      */
-    const std::unordered_map<std::string, float>& getActiveCooldowns() const {
-        return m_cooldowns;
-    }
+    const std::unordered_map<std::string, float>& getActiveCooldowns() const { return m_cooldowns; }
 
     /**
      * @brief Manual attribute setter for cost deduction (mock implementation).
@@ -214,7 +209,7 @@ public:
      */
     void update(float deltaTime) {
         // Update Cooldowns
-        for (auto it = m_cooldowns.begin(); it != m_cooldowns.end(); ) {
+        for (auto it = m_cooldowns.begin(); it != m_cooldowns.end();) {
             it->second -= deltaTime;
             if (it->second <= 0.0f) {
                 it = m_cooldowns.erase(it);
@@ -224,7 +219,7 @@ public:
         }
 
         // Update Effects
-        for (auto it = m_activeEffects.begin(); it != m_activeEffects.end(); ) {
+        for (auto it = m_activeEffects.begin(); it != m_activeEffects.end();) {
             if (it->duration > 0.0f) {
                 it->elapsed += deltaTime;
                 if (it->elapsed >= it->duration) {
@@ -248,24 +243,13 @@ public:
         }
     }
 
-    const std::vector<AbilityExecutionRecord>& getAbilityExecutionHistory() const {
-        return m_executionHistory;
-    }
+    const std::vector<AbilityExecutionRecord>& getAbilityExecutionHistory() const { return m_executionHistory; }
 
-    size_t getActiveEffectCount() const {
-        return m_activeEffects.size();
-    }
+    size_t getActiveEffectCount() const { return m_activeEffects.size(); }
 
-    void recordAbilityExecution(const std::string& abilityId,
-                                const std::string& stage,
-                                const std::string& outcome,
-                                const std::string& reason,
-                                const std::string& stateName,
-                                float mpBefore,
-                                float mpAfter,
-                                float cooldownAfter,
-                                size_t activeEffectCount,
-                                const std::string& detail = "") {
+    void recordAbilityExecution(const std::string& abilityId, const std::string& stage, const std::string& outcome,
+                                const std::string& reason, const std::string& stateName, float mpBefore, float mpAfter,
+                                float cooldownAfter, size_t activeEffectCount, const std::string& detail = "") {
         AbilityExecutionRecord record;
         record.sequence_id = ++m_nextExecutionSequence;
         record.ability_id = abilityId;
@@ -281,14 +265,13 @@ public:
         m_executionHistory.push_back(std::move(record));
         constexpr size_t max_records = 128;
         if (m_executionHistory.size() > max_records) {
-            m_executionHistory.erase(m_executionHistory.begin(), m_executionHistory.begin() + (m_executionHistory.size() - max_records));
+            m_executionHistory.erase(m_executionHistory.begin(),
+                                     m_executionHistory.begin() + (m_executionHistory.size() - max_records));
         }
     }
 
-private:
-    static float defaultBaseAttribute(const std::string& attr) {
-        return attr == "MP" ? 9999.0f : 0.0f;
-    }
+  private:
+    static float defaultBaseAttribute(const std::string& attr) { return attr == "MP" ? 9999.0f : 0.0f; }
 
     GameplayTagContainer m_tags;
     std::vector<std::shared_ptr<GameplayAbility>> m_abilities;

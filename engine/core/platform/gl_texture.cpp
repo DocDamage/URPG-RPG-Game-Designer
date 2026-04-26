@@ -24,7 +24,7 @@ bool Texture::loadFromMemory(const std::vector<uint8_t>& pixelData, int width, i
     // RPG RPG textures usually benefit from Pixel Art filter (Nearest)
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    
+
     // Tiling support (MZ/MV spritesheets usually wrap)
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);

@@ -1,12 +1,12 @@
 #pragma once
 
-#include <string>
-#include <vector>
-#include <map>
+#include "../../engine/core/audio/audio_core.h"
 #include <algorithm>
+#include <map>
 #include <mutex>
 #include <optional>
-#include "../../engine/core/audio/audio_core.h"
+#include <string>
+#include <vector>
 
 namespace urpg::editor {
 
@@ -27,7 +27,7 @@ struct AudioHandleRow {
  * @brief Model for projecting active AudioCore state into the editor UI.
  */
 class AudioInspectorModel {
-public:
+  public:
     void refresh(const urpg::audio::AudioCore& audio) {
         std::lock_guard<std::mutex> lock(m_mutex);
         m_master_volume = audio.getCategoryVolume(urpg::audio::AudioCategory::System);
@@ -56,10 +56,10 @@ public:
                 selected_handle_.reset();
             }
         }
-        
+
         // Issue tracking
         m_issues.clear();
-        
+
         // Example validation: volume > 1.0 (unlikely but possible if gain staging is weird)
         // Or "asset missing" if we had asset registry access
     }
@@ -168,10 +168,10 @@ public:
 
     Summary getSummary() const {
         std::lock_guard<std::mutex> lock(m_mutex);
-        return { m_projected_active_count, m_issues.size(), m_master_volume };
+        return {m_projected_active_count, m_issues.size(), m_master_volume};
     }
 
-private:
+  private:
     std::optional<size_t> selectedRowIndexLocked() const {
         if (!selected_handle_.has_value()) {
             return std::nullopt;

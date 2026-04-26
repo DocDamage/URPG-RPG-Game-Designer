@@ -1,27 +1,27 @@
 #pragma once
 
-#include <string>
-#include <vector>
-#include <map>
-#include <optional>
-#include <algorithm>
-#include <fstream>
-#include <nlohmann/json.hpp>
-#include "../../engine/core/message/message_migration.h"
 #include "../../engine/core/battle/battle_migration.h"
+#include "../../engine/core/message/message_migration.h"
 #include "../../engine/core/save/save_migration.h"
 #include "../../engine/core/ui/menu_migration.h"
+#include <algorithm>
+#include <fstream>
+#include <map>
+#include <nlohmann/json.hpp>
+#include <optional>
+#include <string>
+#include <vector>
 
 namespace urpg::editor {
 
 /**
  * @brief Logic for orchestrating full-project migrations from legacy formats.
- * 
+ *
  * This model collects diagnostics from all subsystem migrators (Message, Battle, UI)
  * and provides a single completion report for the editor wizard.
  */
 class MigrationWizardModel {
-public:
+  public:
     struct SubsystemResult {
         std::string subsystem_id;
         std::string display_name;
@@ -88,9 +88,12 @@ public:
     bool clearSubsystemResult(std::string_view subsystem_id) {
         for (auto it = m_report.subsystem_results.begin(); it != m_report.subsystem_results.end(); ++it) {
             if (it->subsystem_id == subsystem_id) {
-                m_report.total_files_processed = (m_report.total_files_processed > 0) ? m_report.total_files_processed - 1 : 0;
-                m_report.warning_count = (m_report.warning_count >= it->warning_count) ? m_report.warning_count - it->warning_count : 0;
-                m_report.error_count = (m_report.error_count >= it->error_count) ? m_report.error_count - it->error_count : 0;
+                m_report.total_files_processed =
+                    (m_report.total_files_processed > 0) ? m_report.total_files_processed - 1 : 0;
+                m_report.warning_count =
+                    (m_report.warning_count >= it->warning_count) ? m_report.warning_count - it->warning_count : 0;
+                m_report.error_count =
+                    (m_report.error_count >= it->error_count) ? m_report.error_count - it->error_count : 0;
                 const bool was_selected = selected_subsystem_id_.has_value() && *selected_subsystem_id_ == subsystem_id;
                 m_report.subsystem_results.erase(it);
                 if (was_selected) {
@@ -123,9 +126,12 @@ public:
     bool rerunSubsystem(std::string_view subsystem_id, const nlohmann::json& project_data) {
         for (auto it = m_report.subsystem_results.begin(); it != m_report.subsystem_results.end(); ++it) {
             if (it->subsystem_id == subsystem_id) {
-                m_report.total_files_processed = (m_report.total_files_processed > 0) ? m_report.total_files_processed - 1 : 0;
-                m_report.warning_count = (m_report.warning_count >= it->warning_count) ? m_report.warning_count - it->warning_count : 0;
-                m_report.error_count = (m_report.error_count >= it->error_count) ? m_report.error_count - it->error_count : 0;
+                m_report.total_files_processed =
+                    (m_report.total_files_processed > 0) ? m_report.total_files_processed - 1 : 0;
+                m_report.warning_count =
+                    (m_report.warning_count >= it->warning_count) ? m_report.warning_count - it->warning_count : 0;
+                m_report.error_count =
+                    (m_report.error_count >= it->error_count) ? m_report.error_count - it->error_count : 0;
                 m_report.subsystem_results.erase(it);
                 break;
             }
@@ -277,17 +283,13 @@ public:
         return true;
     }
 
-    bool canSelectNextIssueSubsystemResult() const {
-        return adjacentIssueSubsystemIndex(/*forward=*/true).has_value();
-    }
+    bool canSelectNextIssueSubsystemResult() const { return adjacentIssueSubsystemIndex(/*forward=*/true).has_value(); }
 
     bool canSelectPreviousIssueSubsystemResult() const {
         return adjacentIssueSubsystemIndex(/*forward=*/false).has_value();
     }
 
-    std::optional<std::string> selectedSubsystemId() const {
-        return selected_subsystem_id_;
-    }
+    std::optional<std::string> selectedSubsystemId() const { return selected_subsystem_id_; }
 
     std::string getReportJson() const {
         nlohmann::json root;
@@ -318,7 +320,8 @@ public:
 
     bool saveReportToFile(const std::string& path) {
         std::ofstream ofs(path);
-        if (!ofs) return false;
+        if (!ofs)
+            return false;
         ofs << getReportJson();
         return ofs.good();
     }
@@ -326,7 +329,8 @@ public:
     bool loadReportFromFile(const std::string& path) {
         clear();
         std::ifstream ifs(path);
-        if (!ifs) return false;
+        if (!ifs)
+            return false;
         try {
             nlohmann::json root;
             ifs >> root;
@@ -356,8 +360,8 @@ public:
                     !item.contains("processed_count") || !item["processed_count"].is_number_unsigned() ||
                     !item.contains("warning_count") || !item["warning_count"].is_number_unsigned() ||
                     !item.contains("error_count") || !item["error_count"].is_number_unsigned() ||
-                    !item.contains("completed") || !item["completed"].is_boolean() ||
-                    !item.contains("summary_line") || !item["summary_line"].is_string()) {
+                    !item.contains("completed") || !item["completed"].is_boolean() || !item.contains("summary_line") ||
+                    !item["summary_line"].is_string()) {
                     clear();
                     return false;
                 }
@@ -413,16 +417,11 @@ public:
         return std::nullopt;
     }
 
-private:
+  private:
     SubsystemResult runMessageMigration(const nlohmann::json& messages_data) {
         const auto message_result = message::UpgradeCompatMessageDocument(messages_data);
         SubsystemResult summary{
-            "message",
-            "Message",
-            1,
-            0,
-            0,
-            true,
+            "message", "Message", 1, 0, 0, true,
         };
         for (const auto& diagnostic : message_result.diagnostics) {
             if (diagnostic.severity == message::MessageMigrationSeverity::Error) {
@@ -431,12 +430,9 @@ private:
                 summary.warning_count++;
             }
         }
-        summary.summary_line =
-            "Message migration: " +
-            std::to_string(message_result.dialogue_sequences.size()) +
-            " dialogue sequence(s), " +
-            std::to_string(message_result.diagnostics.size()) +
-            " diagnostic(s).";
+        summary.summary_line = "Message migration: " + std::to_string(message_result.dialogue_sequences.size()) +
+                               " dialogue sequence(s), " + std::to_string(message_result.diagnostics.size()) +
+                               " diagnostic(s).";
         return summary;
     }
 
@@ -450,9 +446,8 @@ private:
             ui_progress.warnings.size(),
             ui_progress.errors.size(),
             true,
-            "Menu migration: " + std::to_string(ui_progress.total_scenes) +
-                " scene panel(s), " + std::to_string(ui_progress.total_commands) +
-                " command(s).",
+            "Menu migration: " + std::to_string(ui_progress.total_scenes) + " scene panel(s), " +
+                std::to_string(ui_progress.total_commands) + " command(s).",
         };
         return summary;
     }
@@ -469,9 +464,8 @@ private:
             b_progress.warnings.size(),
             b_progress.errors.size(),
             true,
-            "Battle migration: " + std::to_string(b_progress.total_troops) +
-                " troop(s), " + std::to_string(b_progress.total_actions) +
-                " action(s).",
+            "Battle migration: " + std::to_string(b_progress.total_troops) + " troop(s), " +
+                std::to_string(b_progress.total_actions) + " action(s).",
         };
         return summary;
     }
@@ -535,9 +529,8 @@ private:
         }
 
         if (!selected_subsystem_id_.has_value()) {
-            const auto it = std::find_if(m_report.subsystem_results.begin(),
-                                         m_report.subsystem_results.end(),
-                                         subsystemHasIssues);
+            const auto it =
+                std::find_if(m_report.subsystem_results.begin(), m_report.subsystem_results.end(), subsystemHasIssues);
             if (it == m_report.subsystem_results.end()) {
                 return std::nullopt;
             }

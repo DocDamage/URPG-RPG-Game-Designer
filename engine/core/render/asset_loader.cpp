@@ -1,9 +1,10 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include "asset_loader.h"
-#include <stb_image.h>
+#include "engine/core/diagnostics/runtime_diagnostics.h"
 #include <iostream>
-#include <vector>
+#include <stb_image.h>
 #include <utility>
+#include <vector>
 
 namespace urpg {
 
@@ -27,9 +28,11 @@ bool AssetLoader::ensureCacheOwnerThreadLocked(const char* operation) {
         return true;
     }
 
-    std::cerr << "[URPG][AssetLoader] Rejected " << operation
-              << " from a non-owner thread. AssetLoader caches are single-thread-affine; "
-                 "call clearCaches() on the new owning thread before reusing them.\n";
+    const std::string message = std::string("Rejected ") + operation +
+                                " from a non-owner thread. AssetLoader caches are single-thread-affine; "
+                                "call clearCaches() on the new owning thread before reusing them.";
+    std::cerr << "[URPG][AssetLoader] " << message << "\n";
+    diagnostics::RuntimeDiagnostics::error("render.asset_loader", "asset_loader.non_owner_thread", message);
     return false;
 }
 
@@ -59,7 +62,8 @@ void AssetLoader::touchMissingTextureCacheEntry(const std::string& path) {
         return;
     }
 
-    s_missingTextureCacheUsage.splice(s_missingTextureCacheUsage.begin(), s_missingTextureCacheUsage, entryIt->second.usageIt);
+    s_missingTextureCacheUsage.splice(s_missingTextureCacheUsage.begin(), s_missingTextureCacheUsage,
+                                      entryIt->second.usageIt);
     entryIt->second.usageIt = s_missingTextureCacheUsage.begin();
 }
 
@@ -123,7 +127,9 @@ std::shared_ptr<Texture> AssetLoader::loadTexture(const std::string& path) {
     unsigned char* data = stbi_load(path.c_str(), &width, &height, &channels, 4); // Force 4 channels (RGBA)
 
     if (!data) {
-        std::cerr << "[URPG][AssetLoader] Failed to load texture: " << path << " (" << stbi_failure_reason() << ")\n";
+        const std::string message = "Failed to load texture: " + path + " (" + stbi_failure_reason() + ")";
+        std::cerr << "[URPG][AssetLoader] " << message << "\n";
+        diagnostics::RuntimeDiagnostics::warning("render.asset_loader", "asset_loader.texture_load_failed", message);
         cacheMissingTexture(path);
         return nullptr;
     }

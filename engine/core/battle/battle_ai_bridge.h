@@ -1,9 +1,9 @@
 #pragma once
 
 #include "engine/core/battle/battle_core.h"
+#include <memory>
 #include <string>
 #include <vector>
-#include <memory>
 
 namespace urpg::ai {
 
@@ -24,15 +24,13 @@ struct EnemyIntel {
  * @brief Bridge between the active Battle state and the AI Tactics Advisor.
  */
 class BattleKnowledgeBridge {
-public:
+  public:
     /**
      * @brief Generates a prompt describing the CURRENT battle state.
      */
-    static std::string generateBattlePrompt(
-        const urpg::battle::BattleFlowController& flow,
-        const std::vector<EnemyIntel>& visibleEnemies,
-        const std::vector<urpg::battle::BattleRuleStatBlock>& partyStats
-    );
+    static std::string generateBattlePrompt(const urpg::battle::BattleFlowController& flow,
+                                            const std::vector<EnemyIntel>& visibleEnemies,
+                                            const std::vector<urpg::battle::BattleRuleStatBlock>& partyStats);
 
     /**
      * @brief Translates stat blocks into natural language for the LLM.

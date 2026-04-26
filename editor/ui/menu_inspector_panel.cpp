@@ -28,7 +28,8 @@ void MenuInspectorPanel::update() {
 
 void MenuInspectorPanel::Render(const urpg::FrameContext& context) {
     (void)context;
-    if (!m_visible) return;
+    if (!m_visible)
+        return;
 
     if (!model_) {
         last_render_snapshot_ = {};
@@ -39,6 +40,10 @@ void MenuInspectorPanel::Render(const urpg::FrameContext& context) {
     CaptureRenderSnapshot();
 
 #ifdef URPG_IMGUI_ENABLED
+    if (ImGui::GetCurrentContext() == nullptr) {
+        return;
+    }
+
     if (!ImGui::Begin(m_title.c_str(), &m_visible)) {
         ImGui::End();
         return;
@@ -51,18 +56,32 @@ void MenuInspectorPanel::Render(const urpg::FrameContext& context) {
     }
 
     const auto& summary = model_->Summary();
-    
+
     // Header Section - Summary
     if (ImGui::CollapsingHeader("Summary", 32)) { // ImGuiTreeNodeFlags_DefaultOpen
         ImGui::Columns(2);
-        ImGui::Text("Active Scene:"); ImGui::NextColumn(); ImGui::Text("%s", summary.active_scene_id.empty() ? "(none)" : summary.active_scene_id.c_str()); ImGui::NextColumn();
-        ImGui::Text("Stack Depth:"); ImGui::NextColumn(); ImGui::Text("%zu", summary.stack_depth); ImGui::NextColumn();
-        ImGui::Text("Total Panes:"); ImGui::NextColumn(); ImGui::Text("%zu", summary.total_panes); ImGui::NextColumn();
-        ImGui::Text("Total Commands:"); ImGui::NextColumn(); ImGui::Text("%zu", summary.total_commands); ImGui::NextColumn();
-        
+        ImGui::Text("Active Scene:");
+        ImGui::NextColumn();
+        ImGui::Text("%s", summary.active_scene_id.empty() ? "(none)" : summary.active_scene_id.c_str());
+        ImGui::NextColumn();
+        ImGui::Text("Stack Depth:");
+        ImGui::NextColumn();
+        ImGui::Text("%zu", summary.stack_depth);
+        ImGui::NextColumn();
+        ImGui::Text("Total Panes:");
+        ImGui::NextColumn();
+        ImGui::Text("%zu", summary.total_panes);
+        ImGui::NextColumn();
+        ImGui::Text("Total Commands:");
+        ImGui::NextColumn();
+        ImGui::Text("%zu", summary.total_commands);
+        ImGui::NextColumn();
+
         if (summary.issue_count > 0) {
-            ImGui::TextColored(ImVec4(1.0f, 0.4f, 0.4f, 1.0f), "Total Issues:"); ImGui::NextColumn();
-            ImGui::TextColored(ImVec4(1.0f, 0.4f, 0.4f, 1.0f), "%zu", summary.issue_count); ImGui::NextColumn();
+            ImGui::TextColored(ImVec4(1.0f, 0.4f, 0.4f, 1.0f), "Total Issues:");
+            ImGui::NextColumn();
+            ImGui::TextColored(ImVec4(1.0f, 0.4f, 0.4f, 1.0f), "%zu", summary.issue_count);
+            ImGui::NextColumn();
         }
         ImGui::Columns(1);
     }
@@ -101,19 +120,21 @@ void MenuInspectorPanel::Render(const urpg::FrameContext& context) {
         for (size_t index = 0; index < rows.size(); ++index) {
             const auto& row = rows[index];
             ImGui::TableNextRow();
-            
+
             ImGui::TableNextColumn();
             const bool is_selected = selected_command_id.has_value() && row.command_id == *selected_command_id;
-            if (ImGui::Selectable((row.pane_id + "##menu-pane-" + std::to_string(index)).c_str(),
-                                  is_selected,
+            if (ImGui::Selectable((row.pane_id + "##menu-pane-" + std::to_string(index)).c_str(), is_selected,
                                   1 | 2)) { // SpanAllColumns | AllowItemOverlap
                 model_->SelectRow(index);
                 CaptureRenderSnapshot();
             }
 
-            ImGui::TableNextColumn(); ImGui::Text("%s", row.command_id.c_str());
-            ImGui::TableNextColumn(); ImGui::Text("%s", row.command_label.c_str());
-            ImGui::TableNextColumn(); ImGui::Text("%s", row.route_label.c_str());
+            ImGui::TableNextColumn();
+            ImGui::Text("%s", row.command_id.c_str());
+            ImGui::TableNextColumn();
+            ImGui::Text("%s", row.command_label.c_str());
+            ImGui::TableNextColumn();
+            ImGui::Text("%s", row.route_label.c_str());
 
             ImGui::TableNextColumn();
             if (row.command_enabled) {
@@ -149,10 +170,8 @@ void MenuInspectorPanel::CaptureRenderSnapshot() {
         model_->CommandIdFilter().has_value() ? *model_->CommandIdFilter() : std::string{};
     last_render_snapshot_.show_issues_only = model_->ShowIssuesOnly();
     last_render_snapshot_.has_data =
-        !last_render_snapshot_.summary.active_scene_id.empty() ||
-        last_render_snapshot_.summary.total_panes > 0 ||
-        !last_render_snapshot_.visible_rows.empty() ||
-        !last_render_snapshot_.issues.empty();
+        !last_render_snapshot_.summary.active_scene_id.empty() || last_render_snapshot_.summary.total_panes > 0 ||
+        !last_render_snapshot_.visible_rows.empty() || !last_render_snapshot_.issues.empty();
 
     has_rendered_frame_ = true;
 }
@@ -177,8 +196,9 @@ void MenuInspectorPanel::RenderSceneGraphState() {
     ImGui::Text("Visible commands: %zu / %zu", summary.visible_commands, summary.total_commands);
     ImGui::Text("Enabled commands: %zu", summary.enabled_commands);
     ImGui::Text("Blocked commands: %zu", summary.blocked_commands);
-    ImGui::Text("Command id filter: %s",
-                last_render_snapshot_.command_id_filter.empty() ? "(none)" : last_render_snapshot_.command_id_filter.c_str());
+    ImGui::Text("Command id filter: %s", last_render_snapshot_.command_id_filter.empty()
+                                             ? "(none)"
+                                             : last_render_snapshot_.command_id_filter.c_str());
     ImGui::Text("Issues only: %s", last_render_snapshot_.show_issues_only ? "yes" : "no");
 #endif
 }
@@ -196,10 +216,8 @@ void MenuInspectorPanel::RenderSelectedCommandDetails() {
     ImGui::Text("Pane: %s", row.pane_label.c_str());
     ImGui::Text("Route: %s", row.route_label.c_str());
     ImGui::Text("Summary: %s", row.summary.c_str());
-    ImGui::Text("Visible / Enabled / Navigable: %s / %s / %s",
-                row.command_visible ? "yes" : "no",
-                row.command_enabled ? "yes" : "no",
-                row.row_navigable ? "yes" : "no");
+    ImGui::Text("Visible / Enabled / Navigable: %s / %s / %s", row.command_visible ? "yes" : "no",
+                row.command_enabled ? "yes" : "no", row.row_navigable ? "yes" : "no");
     ImGui::Text("Issues on row: %zu", row.issue_count);
 #endif
 }

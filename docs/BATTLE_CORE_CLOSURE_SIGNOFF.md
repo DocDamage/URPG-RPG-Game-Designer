@@ -1,8 +1,8 @@
 # Battle Core — Wave 1 Closure Sign-off
 
-> **Status:** `PARTIAL`  
-> **Purpose:** Evidence-gathering artifact for Wave 1 closure review.  
-> **Date:** 2026-04-20  
+> **Status:** `PARTIAL`
+> **Purpose:** Evidence-gathering artifact for Wave 1 closure review.
+> **Date:** 2026-04-20
 > **Rule:** This document does **not** promote `readiness_status.json` status. Human review is required for promotion to `READY`.
 
 ---

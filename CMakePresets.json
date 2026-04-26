@@ -14,6 +14,7 @@
         "deprecated": false
       },
       "cacheVariables": {
+        "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
         "URPG_FETCH_CATCH2": "ON",
         "URPG_USE_SCCACHE": "ON"
       }

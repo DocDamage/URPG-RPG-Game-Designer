@@ -13,18 +13,21 @@ namespace urpg {
  * Handles window creation, event polling, and OpenGL context binding.
  */
 class SDLSurface : public IPlatformSurface {
-public:
+  public:
+    SDLSurface() = default;
     SDLSurface(const std::string& title, int width, int height);
     virtual ~SDLSurface();
 
+    bool initialize(const WindowConfig& config) override;
     bool pollEvents() override;
     void present() override;
     void shutdown() override;
+    void* getNativeHandle() const override { return m_window; }
 
     // SDL-specific accessors
     SDL_Window* getNativeWindow() const { return m_window; }
 
-private:
+  private:
     SDL_Window* m_window = nullptr;
     void* m_glContext = nullptr;
     bool m_isInitialized = false;

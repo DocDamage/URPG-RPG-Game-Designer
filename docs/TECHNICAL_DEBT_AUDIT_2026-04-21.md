@@ -1,7 +1,7 @@
 # Technical Debt Audit
 
-**Status Date:** 2026-04-22  
-**Document version:** v4  
+**Status Date:** 2026-04-22
+**Document version:** v4
 **Supersedes:** v3 (2026-04-22)
 
 This rewrite is based on a fresh code-first audit of the current tree.
@@ -189,7 +189,7 @@ The live path is `EngineShell` plus a bounded native/compat slice. Around that c
 
 ## Priority Summary
 
-> **Effort key:** S = hours, M = 1–3 days, L = 1–2 weeks, XL = multi-week  
+> **Effort key:** S = hours, M = 1–3 days, L = 1–2 weeks, XL = multi-week
 > **Risk key:** Correctness risk if left unaddressed — High / Medium / Low
 
 | ID | Severity | Effort | Risk | Blocks | Title |
@@ -239,7 +239,7 @@ Low Risk  │  TD-05     │  TD-01
           │            │
 ```
 
-\*\* TD-07 is low-severity debt, but the new warning baseline is only useful if the surfaced warnings are actually burned down.  
+\*\* TD-07 is low-severity debt, but the new warning baseline is only useful if the surfaced warnings are actually burned down.
 \*\*\* TD-08 (file size) is low risk *today* but compounds the cost of every other fix.
 
 ---

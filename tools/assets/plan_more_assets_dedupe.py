@@ -8,7 +8,14 @@ import json
 from pathlib import Path
 
 RAW_PREFIX = "imports/raw/more_assets/"
-PROTECTED_NAME_TOKENS = ("license", "licence", "readme", "copying", "credits", "third-party")
+PROTECTED_NAME_TOKENS = (
+    "license",
+    "licence",
+    "readme",
+    "copying",
+    "credits",
+    "third-party",
+)
 
 
 def now_iso() -> str:
@@ -23,12 +30,27 @@ def parse_args() -> argparse.Namespace:
         )
     )
     parser.add_argument("--repo-root", default=".", help="Repository root")
-    parser.add_argument("--duplicates-csv", default="imports/reports/asset_hygiene_duplicates.csv")
-    parser.add_argument("--plan-csv", default="imports/reports/more_assets/more_assets_safe_dedupe_plan.csv")
-    parser.add_argument("--applied-csv", default="imports/reports/more_assets/more_assets_safe_dedupe_applied.csv")
-    parser.add_argument("--summary-json", default="imports/reports/more_assets/more_assets_safe_dedupe_summary.json")
-    parser.add_argument("--apply", action="store_true", help="Delete planned duplicate files")
-    parser.add_argument("--max-removals", type=int, default=0, help="Optional cap when --apply is used")
+    parser.add_argument(
+        "--duplicates-csv", default="imports/reports/asset_hygiene_duplicates.csv"
+    )
+    parser.add_argument(
+        "--plan-csv",
+        default="imports/reports/more_assets/more_assets_safe_dedupe_plan.csv",
+    )
+    parser.add_argument(
+        "--applied-csv",
+        default="imports/reports/more_assets/more_assets_safe_dedupe_applied.csv",
+    )
+    parser.add_argument(
+        "--summary-json",
+        default="imports/reports/more_assets/more_assets_safe_dedupe_summary.json",
+    )
+    parser.add_argument(
+        "--apply", action="store_true", help="Delete planned duplicate files"
+    )
+    parser.add_argument(
+        "--max-removals", type=int, default=0, help="Optional cap when --apply is used"
+    )
     return parser.parse_args()
 
 
@@ -121,7 +143,14 @@ def main() -> int:
     with plan_csv.open("w", encoding="utf-8", newline="") as handle:
         writer = csv.DictWriter(
             handle,
-            fieldnames=["path_rel", "recommended_keep", "archive_root", "sha256", "size_bytes", "eligible_reason"],
+            fieldnames=[
+                "path_rel",
+                "recommended_keep",
+                "archive_root",
+                "sha256",
+                "size_bytes",
+                "eligible_reason",
+            ],
         )
         writer.writeheader()
         writer.writerows(plan_rows)
@@ -165,7 +194,13 @@ def main() -> int:
     with applied_csv.open("w", encoding="utf-8", newline="") as handle:
         writer = csv.DictWriter(
             handle,
-            fieldnames=["path_rel", "recommended_keep", "sha256", "size_bytes", "applied_at"],
+            fieldnames=[
+                "path_rel",
+                "recommended_keep",
+                "sha256",
+                "size_bytes",
+                "applied_at",
+            ],
         )
         writer.writeheader()
         writer.writerows(applied_rows)

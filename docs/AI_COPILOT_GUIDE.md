@@ -53,7 +53,7 @@ The AI can dynamically change background music based on the narrative.
 The `ChatWindow` component supports native word-wrapping via `urpg::ui::ChatWindow::draw`. This ensures that long AI responses are legible on all display resolutions.
 
 ### Pattern-Based Command Parsing
-The engine uses high-performance regex validaton (tested in `tests/unit/test_ai_bridge_regex.cpp`) to extract multi-subsystem commands from a single AI message. 
+The engine uses high-performance regex validaton (tested in `tests/unit/test_ai_bridge_regex.cpp`) to extract multi-subsystem commands from a single AI message.
 Example Response:
 > "Be careful in the dungeon! [ACTION: CROSSFADE, ASSET: Dark_Ambient, VOL: 0.4, FADE: 2.0] I've spotted patterns on the wall. [KEYFRAME: 1.0, POS: 0:5:0]"
 

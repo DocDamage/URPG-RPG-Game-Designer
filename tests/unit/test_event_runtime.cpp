@@ -6,11 +6,9 @@
 using namespace urpg;
 
 TEST_CASE("MapEventInterpreter: Command Flow", "[event][interpreter]") {
-    std::vector<EventCommand> list = {
-        { EventOpcode::ControlSwitches, 0, { 1, true } }, // Switch 1 = ON
-        { EventOpcode::PlaySE, 0, { "Cursor1", 100, 100, 0 } },
-        { EventOpcode::End, 0, {} }
-    };
+    std::vector<EventCommand> list = {{EventOpcode::ControlSwitches, 0, {1, true}}, // Switch 1 = ON
+                                      {EventOpcode::PlaySE, 0, {"Cursor1", 100, 100, 0}},
+                                      {EventOpcode::End, 0, {}}};
 
     MapEventInterpreter interp(list);
 
@@ -19,7 +17,7 @@ TEST_CASE("MapEventInterpreter: Command Flow", "[event][interpreter]") {
         REQUIRE(interp.getIndex() == 0);
 
         bool cont = interp.update(); // Switch
-        REQUIRE(cont == true); // Immediate continue
+        REQUIRE(cont == true);       // Immediate continue
         REQUIRE(interp.getIndex() == 1);
 
         cont = interp.update(); // PlaySE
@@ -31,11 +29,9 @@ TEST_CASE("MapEventInterpreter: Command Flow", "[event][interpreter]") {
     }
 
     SECTION("ShowMessage triggers waiting status") {
-        std::vector<EventCommand> msgList = {
-            { EventOpcode::ShowMessage, 0, { "Hello World" } }
-        };
+        std::vector<EventCommand> msgList = {{EventOpcode::ShowMessage, 0, {"Hello World"}}};
         MapEventInterpreter msgInterp(msgList);
-        
+
         bool cont = msgInterp.update();
         REQUIRE(cont == false); // Should wait (e.g. for user input)
     }

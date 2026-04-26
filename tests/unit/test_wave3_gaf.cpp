@@ -1,6 +1,6 @@
-#include "engine/gameplay/combat/combat_calc.h"
 #include "engine/core/ability/ability_system_component.h"
 #include "engine/core/ability/gameplay_ability.h"
+#include "engine/gameplay/combat/combat_calc.h"
 #include <catch2/catch_test_macros.hpp>
 
 using namespace urpg;
@@ -55,7 +55,7 @@ TEST_CASE("Wave 3: Gameplay Effect Stacking - Refresh and Stack", "[ability][asc
         poison.id = "DEBUFF_POISON";
         poison.stackingPolicy = GameplayEffectStackingPolicy::Stack;
         poison.maxStacks = 3;
-        
+
         GameplayEffectModifier pmod;
         pmod.attributeName = "HealthRegen";
         pmod.value = -10.0f;
@@ -73,15 +73,13 @@ TEST_CASE("Wave 3: Gameplay Effect Stacking - Refresh and Stack", "[ability][asc
 }
 
 class TestAbility : public GameplayAbility {
-public:
+  public:
     const std::string& getId() const override { return id; }
     const ActivationInfo& getActivationInfo() const override { return m_info; }
-    
-    void activate(AbilitySystemComponent& source) override {
-        commitAbility(source);
-    }
 
-private:
+    void activate(AbilitySystemComponent& source) override { commitAbility(source); }
+
+  private:
     ActivationInfo m_info;
 };
 

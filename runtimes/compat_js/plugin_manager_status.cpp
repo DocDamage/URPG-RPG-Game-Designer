@@ -2,16 +2,13 @@
 
 namespace urpg::compat::plugin_manager_detail {
 
-void initializePluginManagerMethodStatus(
-    std::unordered_map<std::string, CompatStatus>& methodStatus,
-    std::unordered_map<std::string, std::string>& methodDeviations) {
+void initializePluginManagerMethodStatus(std::unordered_map<std::string, CompatStatus>& methodStatus,
+                                         std::unordered_map<std::string, std::string>& methodDeviations) {
     if (!methodStatus.empty()) {
         return;
     }
 
-    const auto setStatus = [&](const std::string& method,
-                               CompatStatus status,
-                               const std::string& deviation = "") {
+    const auto setStatus = [&](const std::string& method, CompatStatus status, const std::string& deviation = "") {
         methodStatus[method] = status;
         if (deviation.empty()) {
             methodDeviations.erase(method);
@@ -21,12 +18,13 @@ void initializePluginManagerMethodStatus(
     };
 
     setStatus("loadPlugin", CompatStatus::PARTIAL,
-              "Loads fixture JSON plugins and stub JS contexts; live MZ plugin runtime loading is not implemented.");
+              "Loads fixture JSON descriptors and live JavaScript plugin files through the QuickJS compat runtime; "
+              "broader MZ engine globals remain partial.");
     setStatus("unloadPlugin", CompatStatus::PARTIAL);
     setStatus("reloadPlugin", CompatStatus::PARTIAL,
-              "Reload works for tracked fixture-backed plugins, not a general live plugin runtime.");
+              "Reload works for tracked fixture JSON and live JavaScript plugin source paths.");
     setStatus("loadPluginsFromDirectory", CompatStatus::PARTIAL,
-              "Directory scan loads fixture-backed plugin descriptors, not a live MZ plugin runtime.");
+              "Directory scan loads fixture JSON descriptors and live JavaScript plugin files.");
     setStatus("unloadAllPlugins", CompatStatus::PARTIAL);
 
     setStatus("registerPlugin", CompatStatus::PARTIAL);
@@ -43,11 +41,14 @@ void initializePluginManagerMethodStatus(
     setStatus("getPluginCommands", CompatStatus::PARTIAL);
 
     setStatus("executeCommand", CompatStatus::PARTIAL,
-              "Execution is reliable for registered handlers and fixtures, but still depends on a fixture-backed JS bridge.");
+              "Execution is reliable for registered handlers, fixture descriptors, and live JS registered commands; "
+              "unsupported MZ globals still fail deterministically.");
     setStatus("executeCommandByName", CompatStatus::PARTIAL,
-              "Qualified-name routing is reliable for registered handlers and fixtures, but still depends on a fixture-backed JS bridge.");
+              "Qualified-name routing is reliable for registered handlers, fixture descriptors, and live JS registered "
+              "commands.");
     setStatus("executeCommandAsync", CompatStatus::PARTIAL,
-              "FIFO async dispatch works with owning-thread-only callback delivery, but still relies on the fixture-backed JS bridge.");
+              "FIFO async dispatch works with owning-thread-only callback delivery for registered handlers and "
+              "live/fixture-backed commands.");
     setStatus("dispatchPendingAsyncCallbacks", CompatStatus::PARTIAL,
               "Callbacks are explicitly drained on the owning thread; no host event loop integration yet.");
 

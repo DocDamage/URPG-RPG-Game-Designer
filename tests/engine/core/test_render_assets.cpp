@@ -1,13 +1,13 @@
-#include <catch2/catch_test_macros.hpp>
-#include <sstream>
-#include <iostream>
-#include <thread>
-#include "engine/core/render/render_layer.h"
-#include "engine/core/render/asset_loader.h"
 #include "engine/core/assets/texture_registry.h"
 #include "engine/core/platform/opengl_renderer.h"
 #include "engine/core/platform/renderer_backend.h"
+#include "engine/core/render/asset_loader.h"
+#include "engine/core/render/render_layer.h"
 #include "engine/core/scene/map_scene.h"
+#include <catch2/catch_test_macros.hpp>
+#include <iostream>
+#include <sstream>
+#include <thread>
 
 using namespace urpg;
 using namespace urpg::scene;
@@ -15,14 +15,10 @@ using namespace urpg::scene;
 namespace {
 
 class FrameAdapterCaptureRenderer final : public RendererBackend {
-public:
-    RenderTier getTier() const override {
-        return RenderTier::Basic;
-    }
+  public:
+    RenderTier getTier() const override { return RenderTier::Basic; }
 
-    bool initialize(IPlatformSurface* /*surface*/) override {
-        return true;
-    }
+    bool initialize(IPlatformSurface* /*surface*/) override { return true; }
 
     void beginFrame() override {}
     void renderBatches(const std::vector<SpriteDrawData>& /*batches*/) override {}
@@ -43,14 +39,14 @@ public:
 TEST_CASE("Render Layer Batching", "[render][core]") {
     auto& layer = RenderLayer::getInstance();
     layer.flush();
-    
+
     SpriteCommand cmd1;
     cmd1.textureId = "test_tex";
     cmd1.x = 10;
     cmd1.y = 20;
-    
+
     layer.submit(toFrameRenderCommand(cmd1));
-    
+
     const auto& frameCommands = layer.getFrameCommands();
     REQUIRE(frameCommands.size() == 1);
     REQUIRE(frameCommands[0].type == RenderCmdType::Sprite);
@@ -154,7 +150,8 @@ TEST_CASE("Frame render commands preserve text and rect payloads through legacy 
     }
 }
 
-TEST_CASE("RendererBackend frame-command adapter preserves command payloads for legacy overrides", "[render][core][td02]") {
+TEST_CASE("RendererBackend frame-command adapter preserves command payloads for legacy overrides",
+          "[render][core][td02]") {
     FrameAdapterCaptureRenderer renderer;
 
     TextCommand text;
@@ -220,7 +217,8 @@ TEST_CASE("RendererBackend frame-command adapter preserves command payloads for 
     REQUIRE(renderer.capturedCommands[2]->zOrder == 9);
 }
 
-TEST_CASE("OpenGLRenderer frame-owned text and rect commands stay silent before GL initialization", "[render][core][td02][opengl]") {
+TEST_CASE("OpenGLRenderer frame-owned text and rect commands stay silent before GL initialization",
+          "[render][core][td02][opengl]") {
     OpenGLRenderer renderer;
     renderer.onResize(320, 240);
 
@@ -259,7 +257,8 @@ TEST_CASE("OpenGLRenderer frame-owned text and rect commands stay silent before 
     REQUIRE(captured.str().empty());
 }
 
-TEST_CASE("OpenGLRenderer legacy command intake stays silent before GL initialization", "[render][core][td02][opengl]") {
+TEST_CASE("OpenGLRenderer legacy command intake stays silent before GL initialization",
+          "[render][core][td02][opengl]") {
     OpenGLRenderer renderer;
     renderer.onResize(160, 120);
 
@@ -288,20 +287,20 @@ TEST_CASE("OpenGLRenderer legacy command intake stays silent before GL initializ
 TEST_CASE("MapScene Render Sync", "[render][scene]") {
     auto& layer = RenderLayer::getInstance();
     layer.flush();
-    
+
     MapScene map("RenderTest", 2, 2);
     map.setTile(0, 0, 101, true);
-    
+
     // Trigger render submission
     map.onUpdate(0.016f);
-    
+
     const auto& cmds = layer.getFrameCommands();
     // 2x2 map = 4 tile commands + 1 player sprite = 5
     REQUIRE(cmds.size() == 5);
-    
+
     bool foundTile = false;
     bool foundPlayer = false;
-    
+
     for (const auto& cmd : cmds) {
         if (cmd.type == RenderCmdType::Tile) {
             const auto* tileCmd = cmd.tryGet<TileRenderData>();
@@ -316,28 +315,31 @@ TEST_CASE("MapScene Render Sync", "[render][scene]") {
             }
         }
     }
-    
+
     REQUIRE(foundTile);
     REQUIRE(foundPlayer);
 }
 
 TEST_CASE("Asset Cache LRU Eviction Test", "[assets][core][lru]") {
     AssetCache<TextureMeta> cache(2); // Capacity of 2
-    
-    auto a1 = std::make_shared<TextureMeta>(); a1->setId("1");
-    auto a2 = std::make_shared<TextureMeta>(); a2->setId("2");
-    auto a3 = std::make_shared<TextureMeta>(); a3->setId("3");
-    
+
+    auto a1 = std::make_shared<TextureMeta>();
+    a1->setId("1");
+    auto a2 = std::make_shared<TextureMeta>();
+    a2->setId("2");
+    auto a3 = std::make_shared<TextureMeta>();
+    a3->setId("3");
+
     cache.store(a1);
     cache.store(a2);
     REQUIRE(cache.size() == 2);
-    
+
     // Use A1 (moves it to the front)
     cache.get("1");
-    
+
     // Store A3, should evict A2 (since A1 was used)
     cache.store(a3);
-    
+
     REQUIRE(cache.size() == 2);
     REQUIRE(cache.has("1") == true);
     REQUIRE(cache.has("3") == true);
@@ -347,14 +349,14 @@ TEST_CASE("Asset Cache LRU Eviction Test", "[assets][core][lru]") {
 TEST_CASE("Texture Registry Persistence", "[assets][core]") {
     auto& registry = TextureRegistry::getInstance();
     registry.clear();
-    
+
     TextureMeta meta;
     meta.filePath = "img/characters/Hero.png";
     meta.width = 144;
     meta.height = 192;
-    
+
     registry.registerTexture("hero_sprite", meta);
-    
+
     auto cached = registry.getTexture("hero_sprite");
     REQUIRE(cached != nullptr);
     REQUIRE(cached->width == 144);
@@ -440,9 +442,7 @@ TEST_CASE("AssetLoader rejects cross-thread cache access until clearCaches hands
     std::ostringstream captured;
     auto* originalBuffer = std::cerr.rdbuf(captured.rdbuf());
 
-    std::thread worker([&]() {
-        crossThreadResult = AssetLoader::loadTexture(rejectedPath);
-    });
+    std::thread worker([&]() { crossThreadResult = AssetLoader::loadTexture(rejectedPath); });
     worker.join();
 
     std::cerr.rdbuf(originalBuffer);
@@ -455,8 +455,7 @@ TEST_CASE("AssetLoader rejects cross-thread cache access until clearCaches hands
     REQUIRE(output.find("[URPG][AssetLoader] Failed to load texture: " + rejectedPath) == std::string::npos);
 }
 
-TEST_CASE("AssetLoader clearCaches rebases thread ownership for future cache use",
-          "[assets][core][loader]") {
+TEST_CASE("AssetLoader clearCaches rebases thread ownership for future cache use", "[assets][core][loader]") {
     const std::string threadOwnedPath = "img/__missing__/asset_loader_thread_affinity_rebound.png";
     AssetLoader::clearCaches();
 

@@ -22,24 +22,25 @@ void ChatWindow::update(float dt) {
 }
 
 void ChatWindow::draw(SpriteBatcher& batcher) {
-    if (!m_visible) return;
+    if (!m_visible)
+        return;
 
     // 1. Draw base window frame and background using the parent UIWindow logic.
     UIWindow::draw(batcher);
 
     // 2. Draw Conversation History (Scrolling upward from the bottom of history area)
     auto& layer = urpg::RenderLayer::getInstance();
-    
+
     float startY = m_position.y + 20.0f;
     float lineHeight = 28.0f;
-    
+
     // We only show the last N lines in the window to maintain space.
     size_t historyCount = m_history.size();
     size_t startIdx = (historyCount > (size_t)m_maxHistoryLines) ? historyCount - m_maxHistoryLines : 0;
-    
+
     for (size_t i = startIdx; i < historyCount; ++i) {
         const auto& msg = m_history[i];
-        
+
         urpg::TextCommand cmd;
         cmd.text = "[" + msg.speaker + "]: " + msg.content;
         cmd.x = m_position.x + 20.0f;
@@ -50,7 +51,7 @@ void ChatWindow::draw(SpriteBatcher& batcher) {
 
     // 3. Draw Player Input Tooltip (Always at the bottom of the window)
     float inputLineY = m_position.y + m_size.y - 50.0f;
-    
+
     // Draw an input line separator
     urpg::RectCommand line;
     line.x = m_position.x + 10.0f;
@@ -74,7 +75,7 @@ void ChatWindow::draw(SpriteBatcher& batcher) {
 
 void ChatWindow::addMessage(const std::string& speaker, const std::string& content) {
     m_history.push_back({speaker, content});
-    
+
     // Auto-scroll logic: trim old history if it gets too large for memory (e.g., 50 lines MAX)
     if (m_history.size() > 50) {
         m_history.erase(m_history.begin());

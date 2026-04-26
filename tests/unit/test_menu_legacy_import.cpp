@@ -1,12 +1,12 @@
-#include <catch2/catch_test_macros.hpp>
 #include "engine/core/ui/menu_serializer.h"
+#include <catch2/catch_test_macros.hpp>
 #include <nlohmann/json.hpp>
 
 using namespace urpg::ui;
 
 TEST_CASE("MenuSceneSerializer: Legacy Import", "[ui][menu][legacy]") {
     MenuSceneGraph graph;
-    
+
     SECTION("Import standard System.json commands") {
         nlohmann::json legacy_system = {
             {"menuCommands", {true, true, false, true, false, true}} // item, skill, equip, status, formation, save
@@ -25,11 +25,11 @@ TEST_CASE("MenuSceneSerializer: Legacy Import", "[ui][menu][legacy]") {
 
         auto panes = active->getPanes();
         REQUIRE(panes.size() == 1);
-        
+
         const auto& commands = panes[0].commands;
         // Expected: Item, Skill, Status, Save + (Options, GameEnd) = 6 commands
         REQUIRE(commands.size() == 6);
-        
+
         REQUIRE(commands[0].label == "Item");
         REQUIRE(commands[1].label == "Skill");
         REQUIRE(commands[2].label == "Status");
@@ -46,34 +46,22 @@ TEST_CASE("MenuSceneSerializer: Legacy Import", "[ui][menu][legacy]") {
 
     SECTION("Import rich mainMenu command metadata with fallback routes and state rules") {
         nlohmann::json legacy_menu = {
-            {"mainMenu", {
-                {"commands", {
-                    {
-                        {"id", "codex"},
-                        {"label", "Codex"},
-                        {"route", "codex"},
-                        {"fallback_route", "options"},
-                        {"priority", 25},
-                        {"visibility_rules", {{
-                            {"switch_id", "codex_unlocked"}
-                        }}},
-                        {"enable_rules", {{
-                            {"variable_id", "codex_points"},
-                            {"variable_threshold", 3}
-                        }}}
-                    },
-                    {
-                        {"id", "mods"},
-                        {"label", "Mods"},
-                        {"route", "custom"},
-                        {"custom_route_id", "mods_root"},
-                        {"fallback_route", "custom"},
-                        {"fallback_custom_route_id", "mods_safe"},
-                        {"priority", 40}
-                    }
-                }}
-            }}
-        };
+            {"mainMenu",
+             {{"commands",
+               {{{"id", "codex"},
+                 {"label", "Codex"},
+                 {"route", "codex"},
+                 {"fallback_route", "options"},
+                 {"priority", 25},
+                 {"visibility_rules", {{{"switch_id", "codex_unlocked"}}}},
+                 {"enable_rules", {{{"variable_id", "codex_points"}, {"variable_threshold", 3}}}}},
+                {{"id", "mods"},
+                 {"label", "Mods"},
+                 {"route", "custom"},
+                 {"custom_route_id", "mods_root"},
+                 {"fallback_route", "custom"},
+                 {"fallback_custom_route_id", "mods_safe"},
+                 {"priority", 40}}}}}}};
 
         bool success = MenuSceneSerializer::ImportLegacy(legacy_menu, graph);
         REQUIRE(success);
@@ -179,12 +167,10 @@ TEST_CASE("MenuSceneSerializer: Serialize round-trips visibility and enable rule
     cmd.label = "Secret";
     cmd.route = urpg::MenuRouteTarget::Custom;
     cmd.custom_route_id = "secret_scene";
-    cmd.visibility_rules = {
-        urpg::MenuCommandCondition{.switch_id = "reveal_secret", .variable_id = "", .variable_threshold = 0, .invert = false}
-    };
+    cmd.visibility_rules = {urpg::MenuCommandCondition{
+        .switch_id = "reveal_secret", .variable_id = "", .variable_threshold = 0, .invert = false}};
     cmd.enable_rules = {
-        urpg::MenuCommandCondition{.variable_id = "player_level", .variable_threshold = 10, .invert = false}
-    };
+        urpg::MenuCommandCondition{.variable_id = "player_level", .variable_threshold = 10, .invert = false}};
 
     pane.commands = {cmd};
     scene->addPane(pane);
@@ -214,7 +200,6 @@ TEST_CASE("MenuSceneSerializer: Serialize round-trips visibility and enable rule
     REQUIRE(commands[0].enable_rules[0].variable_id == "player_level");
     REQUIRE(commands[0].enable_rules[0].variable_threshold == 10);
 }
-
 
 TEST_CASE("MenuSceneSerializer: SerializeGraph round-trips multi-scene graphs", "[ui][menu][serialize][parity]") {
     MenuSceneGraph graph;

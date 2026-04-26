@@ -9,12 +9,15 @@ void AnalyticsUploader::setUploadHandler(UploadHandler handler) {
     m_handler = std::move(handler);
 }
 
+bool AnalyticsUploader::hasUploadHandler() const {
+    return static_cast<bool>(m_handler);
+}
+
 void AnalyticsUploader::setBatchSize(size_t batchSize) {
     m_batchSize = batchSize;
 }
 
-UploadFlushResult AnalyticsUploader::flush(const std::vector<AnalyticsEvent>& events,
-                                           const std::string& sessionId) {
+UploadFlushResult AnalyticsUploader::flush(const std::vector<AnalyticsEvent>& events, const std::string& sessionId) {
     UploadFlushResult result;
 
     // Accumulate session aggregates regardless of upload availability.
@@ -43,7 +46,7 @@ UploadFlushResult AnalyticsUploader::flush(const std::vector<AnalyticsEvent>& ev
             const auto& event = events[i];
             nlohmann::json entry;
             entry["eventName"] = event.eventName;
-            entry["category"]  = event.category;
+            entry["category"] = event.category;
             entry["timestamp"] = event.timestamp;
             if (!sessionId.empty()) {
                 entry["sessionId"] = sessionId;

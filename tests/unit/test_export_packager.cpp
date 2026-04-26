@@ -1,13 +1,14 @@
-#include <catch2/catch_test_macros.hpp>
+#include "engine/core/export/export_validator.h"
 #include "engine/core/security/resource_protector.h"
 #include "engine/core/tools/export_packager.h"
-#include "engine/core/export/export_validator.h"
+#include "engine/core/tools/export_packager_bundle_writer.h"
+#include <catch2/catch_test_macros.hpp>
 #include <nlohmann/json.hpp>
 
+#include <chrono>
+#include <cstdlib>
 #include <filesystem>
 #include <fstream>
-#include <cstdlib>
-#include <chrono>
 #include <limits>
 #include <sstream>
 #include <string>
@@ -31,18 +32,20 @@ void WriteFile(const std::filesystem::path& path, const std::string& content = "
     out << content;
 }
 
-void WritePromotedSourceManifest(const std::filesystem::path& root,
-                                 const std::string& sourceId,
+void WritePromotedSourceManifest(const std::filesystem::path& root, const std::string& sourceId,
                                  const std::string& legalDisposition = "cc0_candidate_recorded_for_export") {
-    WriteFile(
-        root / "asset_sources" / (sourceId + ".json"),
-        "{\n"
-        "  \"source_id\": \"" + sourceId + "\",\n"
-        "  \"repo_name\": \"test/source\",\n"
-        "  \"source_url\": \"https://example.invalid/assets\",\n"
-        "  \"legal_disposition\": \"" + legalDisposition + "\",\n"
-        "  \"promotion_status\": \"promoted\"\n"
-        "}\n");
+    WriteFile(root / "asset_sources" / (sourceId + ".json"),
+              "{\n"
+              "  \"source_id\": \"" +
+                  sourceId +
+                  "\",\n"
+                  "  \"repo_name\": \"test/source\",\n"
+                  "  \"source_url\": \"https://example.invalid/assets\",\n"
+                  "  \"legal_disposition\": \"" +
+                  legalDisposition +
+                  "\",\n"
+                  "  \"promotion_status\": \"promoted\"\n"
+                  "}\n");
 }
 
 void WriteAssetLicenseManifest(const std::filesystem::path& root, const std::vector<std::string>& paths) {
@@ -73,47 +76,52 @@ std::string ReadFileText(const std::filesystem::path& path) {
 }
 
 std::uint32_t ReadUint32LE(const std::vector<uint8_t>& bytes, std::size_t offset) {
-    return static_cast<std::uint32_t>(bytes[offset]) |
-           (static_cast<std::uint32_t>(bytes[offset + 1]) << 8) |
+    return static_cast<std::uint32_t>(bytes[offset]) | (static_cast<std::uint32_t>(bytes[offset + 1]) << 8) |
            (static_cast<std::uint32_t>(bytes[offset + 2]) << 16) |
            (static_cast<std::uint32_t>(bytes[offset + 3]) << 24);
 }
 
 std::string BundleObfuscationKeyForTarget(ExportTarget target) {
     switch (target) {
-        case ExportTarget::Windows_x64: return "urpg-export-bundle-win";
-        case ExportTarget::Linux_x64: return "urpg-export-bundle-linux";
-        case ExportTarget::macOS_Universal: return "urpg-export-bundle-macos";
-        case ExportTarget::Web_WASM: return "urpg-export-bundle-web";
-        default: return "urpg-export-bundle";
+    case ExportTarget::Windows_x64:
+        return "urpg-export-bundle-win";
+    case ExportTarget::Linux_x64:
+        return "urpg-export-bundle-linux";
+    case ExportTarget::macOS_Universal:
+        return "urpg-export-bundle-macos";
+    case ExportTarget::Web_WASM:
+        return "urpg-export-bundle-web";
+    default:
+        return "urpg-export-bundle";
     }
 }
 
 std::string BundleSignatureKeyForTarget(ExportTarget target) {
     switch (target) {
-        case ExportTarget::Windows_x64: return "urpg-export-signature-win-v1";
-        case ExportTarget::Linux_x64: return "urpg-export-signature-linux-v1";
-        case ExportTarget::macOS_Universal: return "urpg-export-signature-macos-v1";
-        case ExportTarget::Web_WASM: return "urpg-export-signature-web-v1";
-        default: return "urpg-export-signature-v1";
+    case ExportTarget::Windows_x64:
+        return "urpg-export-signature-win-v1";
+    case ExportTarget::Linux_x64:
+        return "urpg-export-signature-linux-v1";
+    case ExportTarget::macOS_Universal:
+        return "urpg-export-signature-macos-v1";
+    case ExportTarget::Web_WASM:
+        return "urpg-export-signature-web-v1";
+    default:
+        return "urpg-export-signature-v1";
     }
 }
 
 std::string BundleIntegrityScope(const nlohmann::json& entry) {
     return entry.value("path", "") + "|" + entry.value("kind", "") + "|" +
-           (entry.value("compressed", false) ? "1" : "0") + "|" +
-           (entry.value("obfuscated", false) ? "1" : "0") + "|" +
+           (entry.value("compressed", false) ? "1" : "0") + "|" + (entry.value("obfuscated", false) ? "1" : "0") + "|" +
            std::to_string(entry.value("rawSize", 0u));
 }
 
-std::string ComputeBundleIntegrityTag(const nlohmann::json& entry,
-                                      const std::vector<uint8_t>& storedBytes,
+std::string ComputeBundleIntegrityTag(const nlohmann::json& entry, const std::vector<uint8_t>& storedBytes,
                                       ExportTarget target) {
     urpg::security::ResourceProtector protector;
-    return protector.computeIntegrityTag(
-        BundleIntegrityScope(entry),
-        storedBytes,
-        BundleObfuscationKeyForTarget(target));
+    return protector.computeIntegrityTag(BundleIntegrityScope(entry), storedBytes,
+                                         BundleObfuscationKeyForTarget(target));
 }
 
 nlohmann::json BuildBundleSignatureView(const nlohmann::json& manifest) {
@@ -123,8 +131,7 @@ nlohmann::json BuildBundleSignatureView(const nlohmann::json& manifest) {
     return signatureView;
 }
 
-std::string ComputeBundleSignature(const std::filesystem::path& path,
-                                   const nlohmann::json& manifest,
+std::string ComputeBundleSignature(const std::filesystem::path& path, const nlohmann::json& manifest,
                                    ExportTarget target) {
     std::vector<uint8_t> storedPayloadBytes;
     for (const auto& entry : manifest["entries"]) {
@@ -133,10 +140,8 @@ std::string ComputeBundleSignature(const std::filesystem::path& path,
     }
 
     urpg::security::ResourceProtector protector;
-    return protector.computeCryptographicSignature(
-        BuildBundleSignatureView(manifest).dump(),
-        storedPayloadBytes,
-        BundleSignatureKeyForTarget(target));
+    return protector.computeCryptographicSignature(BuildBundleSignatureView(manifest).dump(), storedPayloadBytes,
+                                                   BundleSignatureKeyForTarget(target));
 }
 
 nlohmann::json ReadBundleManifest(const std::filesystem::path& path) {
@@ -160,13 +165,11 @@ std::vector<uint8_t> ReadBundleEntryBytes(const std::filesystem::path& path, con
     const auto storedSize = entry["storedSize"].get<std::size_t>();
 
     REQUIRE(bytes.size() >= payloadOffset + offset + storedSize);
-    return std::vector<uint8_t>(
-        bytes.begin() + static_cast<std::ptrdiff_t>(payloadOffset + offset),
-        bytes.begin() + static_cast<std::ptrdiff_t>(payloadOffset + offset + storedSize));
+    return std::vector<uint8_t>(bytes.begin() + static_cast<std::ptrdiff_t>(payloadOffset + offset),
+                                bytes.begin() + static_cast<std::ptrdiff_t>(payloadOffset + offset + storedSize));
 }
 
-std::vector<uint8_t> DecodeBundleEntryBytes(const std::filesystem::path& path,
-                                            ExportTarget target,
+std::vector<uint8_t> DecodeBundleEntryBytes(const std::filesystem::path& path, ExportTarget target,
                                             const nlohmann::json& entry) {
     auto payload = ReadBundleEntryBytes(path, entry);
     if (entry.value("obfuscated", false)) {
@@ -197,9 +200,9 @@ std::filesystem::path GetPackCliPath() {
 }
 
 ProcessResult RunPackCli(const std::vector<std::string>& args) {
-    const auto tempRoot = std::filesystem::temp_directory_path() /
-        ("urpg_pack_cli_process_" +
-         std::to_string(std::chrono::steady_clock::now().time_since_epoch().count()));
+    const auto tempRoot =
+        std::filesystem::temp_directory_path() /
+        ("urpg_pack_cli_process_" + std::to_string(std::chrono::steady_clock::now().time_since_epoch().count()));
     std::filesystem::remove_all(tempRoot);
     std::filesystem::create_directories(tempRoot);
 
@@ -211,13 +214,9 @@ ProcessResult RunPackCli(const std::vector<std::string>& args) {
     ProcessResult result;
 
 #ifdef _WIN32
-    auto toWide = [](const std::string& text) {
-        return std::wstring(text.begin(), text.end());
-    };
+    auto toWide = [](const std::string& text) { return std::wstring(text.begin(), text.end()); };
 
-    auto quote = [](const std::wstring& text) {
-        return L"\"" + text + L"\"";
-    };
+    auto quote = [](const std::wstring& text) { return L"\"" + text + L"\""; };
 
     std::wstring commandLine = quote(exePath.wstring());
     for (const auto& arg : args) {
@@ -229,24 +228,12 @@ ProcessResult RunPackCli(const std::vector<std::string>& args) {
     securityAttributes.nLength = sizeof(securityAttributes);
     securityAttributes.bInheritHandle = TRUE;
 
-    HANDLE stdoutHandle = CreateFileW(
-        stdoutPath.c_str(),
-        GENERIC_WRITE,
-        FILE_SHARE_READ,
-        &securityAttributes,
-        CREATE_ALWAYS,
-        FILE_ATTRIBUTE_NORMAL,
-        nullptr);
+    HANDLE stdoutHandle = CreateFileW(stdoutPath.c_str(), GENERIC_WRITE, FILE_SHARE_READ, &securityAttributes,
+                                      CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, nullptr);
     REQUIRE(stdoutHandle != INVALID_HANDLE_VALUE);
 
-    HANDLE stderrHandle = CreateFileW(
-        stderrPath.c_str(),
-        GENERIC_WRITE,
-        FILE_SHARE_READ,
-        &securityAttributes,
-        CREATE_ALWAYS,
-        FILE_ATTRIBUTE_NORMAL,
-        nullptr);
+    HANDLE stderrHandle = CreateFileW(stderrPath.c_str(), GENERIC_WRITE, FILE_SHARE_READ, &securityAttributes,
+                                      CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, nullptr);
     REQUIRE(stderrHandle != INVALID_HANDLE_VALUE);
 
     STARTUPINFOW startupInfo{};
@@ -260,17 +247,8 @@ ProcessResult RunPackCli(const std::vector<std::string>& args) {
     std::vector<wchar_t> mutableCommandLine(commandLine.begin(), commandLine.end());
     mutableCommandLine.push_back(L'\0');
 
-    const BOOL launched = CreateProcessW(
-        nullptr,
-        mutableCommandLine.data(),
-        nullptr,
-        nullptr,
-        TRUE,
-        0,
-        nullptr,
-        nullptr,
-        &startupInfo,
-        &processInfo);
+    const BOOL launched = CreateProcessW(nullptr, mutableCommandLine.data(), nullptr, nullptr, TRUE, 0, nullptr,
+                                         nullptr, &startupInfo, &processInfo);
 
     CloseHandle(stdoutHandle);
     CloseHandle(stderrHandle);
@@ -311,21 +289,14 @@ ProcessResult RunPackCli(const std::vector<std::string>& args) {
 #endif
 
 #ifdef _WIN32
-bool LaunchProcessAndCaptureOutput(const std::filesystem::path& executable,
-                                   const std::filesystem::path& markerPath,
+bool LaunchProcessAndCaptureOutput(const std::filesystem::path& executable, const std::filesystem::path& markerPath,
                                    const std::filesystem::path& logPath) {
     SECURITY_ATTRIBUTES securityAttributes{};
     securityAttributes.nLength = sizeof(securityAttributes);
     securityAttributes.bInheritHandle = TRUE;
 
-    HANDLE logHandle = CreateFileW(
-        logPath.c_str(),
-        GENERIC_WRITE,
-        FILE_SHARE_READ,
-        &securityAttributes,
-        CREATE_ALWAYS,
-        FILE_ATTRIBUTE_NORMAL,
-        nullptr);
+    HANDLE logHandle = CreateFileW(logPath.c_str(), GENERIC_WRITE, FILE_SHARE_READ, &securityAttributes, CREATE_ALWAYS,
+                                   FILE_ATTRIBUTE_NORMAL, nullptr);
     if (logHandle == INVALID_HANDLE_VALUE) {
         return false;
     }
@@ -338,20 +309,10 @@ bool LaunchProcessAndCaptureOutput(const std::filesystem::path& executable,
     startupInfo.hStdError = logHandle;
 
     PROCESS_INFORMATION processInfo{};
-    std::wstring commandLine =
-        L"\"" + executable.wstring() + L"\" --write-marker \"" + markerPath.wstring() + L"\"";
+    std::wstring commandLine = L"\"" + executable.wstring() + L"\" --write-marker \"" + markerPath.wstring() + L"\"";
 
-    const BOOL launched = CreateProcessW(
-        nullptr,
-        commandLine.data(),
-        nullptr,
-        nullptr,
-        TRUE,
-        0,
-        nullptr,
-        nullptr,
-        &startupInfo,
-        &processInfo);
+    const BOOL launched = CreateProcessW(nullptr, commandLine.data(), nullptr, nullptr, TRUE, 0, nullptr, nullptr,
+                                         &startupInfo, &processInfo);
 
     CloseHandle(logHandle);
 
@@ -461,24 +422,29 @@ TEST_CASE("ExportPackager::runExport result contains correct file list from a fr
     REQUIRE_FALSE(result.generatedFiles.empty());
     REQUIRE(result.generatedFiles[0] == "data.pck");
     REQUIRE(std::filesystem::exists(base / "data.pck"));
+    REQUIRE_FALSE(std::filesystem::exists(base / "data.pck.tmp"));
 
     const auto manifest = ReadBundleManifest(base / "data.pck");
     REQUIRE(manifest["format"] == "URPG_BOUNDED_EXPORT_BUNDLE_V1");
-    REQUIRE(manifest["bundleMode"] == "bounded_export_smoke");
+    REQUIRE(manifest["bundleMode"] == "project_content_bundle_v1");
     REQUIRE(manifest["target"] == "Windows (x64)");
     REQUIRE(manifest["assetDiscoveryMode"] == "project_root_scan_v1");
     REQUIRE(manifest["protectionMode"] == "rle_xor");
     REQUIRE(manifest["integrityMode"] == "fnv1a64_keyed");
     REQUIRE(manifest["signatureMode"] == "sha256_keyed_bundle_v1");
-    REQUIRE(manifest["bundleSignature"] == ComputeBundleSignature(base / "data.pck", manifest, ExportTarget::Windows_x64));
+    REQUIRE(manifest["bundleSignature"] ==
+            ComputeBundleSignature(base / "data.pck", manifest, ExportTarget::Windows_x64));
     REQUIRE(manifest["entries"].is_array());
     REQUIRE(manifest["entries"].size() > 3);
 
     const std::vector<std::string> expectedPaths = {
         "export/export_metadata.json",
         kAssetDiscoveryManifestPath,
-        "runtime/bootstrap_scene.json",
+        "runtime/project_entry.json",
         "runtime/script_pack_policy.json",
+        "content/fixtures/export_packaging_fixture.json",
+        "content/fixtures/map_worldbuilding_fixture.json",
+        "content/fixtures/project_governance_fixture.json",
         "content/readiness/readiness_status.json",
         "content/schemas/readiness_status.schema.json",
         "content/level_libraries/starter_dungeon.json",
@@ -498,6 +464,83 @@ TEST_CASE("ExportPackager::runExport result contains correct file list from a fr
         }
         REQUIRE(found);
     }
+
+    for (const auto& entry : manifest["entries"]) {
+        if (entry["path"] == "runtime/project_entry.json") {
+            const auto bytes = DecodeBundleEntryBytes(base / "data.pck", ExportTarget::Windows_x64, entry);
+            const auto payload = nlohmann::json::parse(bytes.begin(), bytes.end());
+            REQUIRE(payload["bundleMode"] == "project_content_bundle_v1");
+            REQUIRE(payload["entryScene"] == "content/fixtures/map_worldbuilding_fixture.json");
+            REQUIRE(payload["projectConfig"] == "content/fixtures/project_governance_fixture.json");
+        }
+        if (entry["path"] == "runtime/script_pack_policy.json") {
+            const auto bytes = DecodeBundleEntryBytes(base / "data.pck", ExportTarget::Windows_x64, entry);
+            const std::string text(bytes.begin(), bytes.end());
+            REQUIRE(text.find("placeholder") == std::string::npos);
+            REQUIRE(text.find("bounded_obfuscation_header") == std::string::npos);
+
+            const auto payload = nlohmann::json::parse(text);
+            REQUIRE(payload["scriptExportMode"] == "verbatim");
+            REQUIRE(payload["failClosedForUnsupportedModes"] == true);
+        }
+    }
+
+    std::filesystem::remove_all(base);
+}
+
+TEST_CASE("ExportPackager fails closed for unsupported script export modes", "[export][packager][security]") {
+    const auto base = std::filesystem::temp_directory_path() / "urpg_export_packager_unsupported_scripts";
+    std::filesystem::remove_all(base);
+
+    ExportPackager packager;
+    ExportConfig config{};
+    config.target = ExportTarget::Windows_x64;
+    config.outputDir = base.string();
+    config.obfuscateScripts = true;
+
+    const auto result = packager.runExport(config);
+
+    INFO(result.log);
+    REQUIRE_FALSE(result.success);
+    REQUIRE(result.log.find("Unsupported script export mode") != std::string::npos);
+    REQUIRE_FALSE(std::filesystem::exists(base / "data.pck"));
+
+    std::filesystem::remove_all(base);
+}
+
+TEST_CASE("ExportPackager bundle writer preserves existing bundle when temp validation fails",
+          "[export][packager][security]") {
+    const auto base = std::filesystem::temp_directory_path() / "urpg_export_packager_atomic_validation_failure";
+    std::filesystem::remove_all(base);
+    std::filesystem::create_directories(base);
+    WriteFile(base / "data.pck", "previous-bundle");
+
+    urpg::tools::export_packager_detail::BundlePayload payload;
+    payload.path = "data/Actors.json";
+    payload.kind = "database";
+    payload.bytes = {1, 2, 3, 4};
+    payload.rawSize = payload.bytes.size();
+    payload.integrityTag = "not-a-valid-integrity-tag";
+
+    auto result = urpg::tools::export_packager_detail::writeBundleFile(base, ExportTarget::Windows_x64, false,
+                                                                       "test_fixture", {payload});
+
+    INFO(result.log);
+    REQUIRE_FALSE(result.success);
+    REQUIRE_FALSE(result.errors.empty());
+    const auto joinedErrors = [&result]() {
+        std::string joined;
+        for (const auto& error : result.errors) {
+            joined += error;
+            joined += "\n";
+        }
+        return joined;
+    }();
+    REQUIRE(joinedErrors.find("bundle_publish.temp_validation_failed") != std::string::npos);
+    REQUIRE(joinedErrors.find("bundle_publish.validation.entry_integrity_mismatch:data/Actors.json") !=
+            std::string::npos);
+    REQUIRE(ReadFileText(base / "data.pck") == "previous-bundle");
+    REQUIRE_FALSE(std::filesystem::exists(base / "data.pck.tmp"));
 
     std::filesystem::remove_all(base);
 }
@@ -566,8 +609,7 @@ TEST_CASE("ExportPackager stages bounded repo-owned content roots into data.pck"
     const auto readinessBytes = DecodeBundleEntryBytes(bundlePath, ExportTarget::Windows_x64, readinessEntry);
     const auto readinessSchemaBytes =
         DecodeBundleEntryBytes(bundlePath, ExportTarget::Windows_x64, readinessSchemaEntry);
-    const auto starterDungeonBytes =
-        DecodeBundleEntryBytes(bundlePath, ExportTarget::Windows_x64, starterDungeonEntry);
+    const auto starterDungeonBytes = DecodeBundleEntryBytes(bundlePath, ExportTarget::Windows_x64, starterDungeonEntry);
     const auto discoveryManifestBytes =
         DecodeBundleEntryBytes(bundlePath, ExportTarget::Windows_x64, discoveryManifestEntry);
 
@@ -597,9 +639,8 @@ TEST_CASE("ExportPackager stages promoted asset bundles from governed manifests"
     std::filesystem::create_directories(normalizedRoot);
     WritePromotedSourceManifest(base, "SRC-002");
 
-    WriteFile(
-        manifestRoot / "BND-900.json",
-        R"({
+    WriteFile(manifestRoot / "BND-900.json",
+              R"({
   "bundle_id": "BND-900",
   "bundle_name": "test_promoted_assets",
   "source_id": "SRC-002",
@@ -626,9 +667,8 @@ TEST_CASE("ExportPackager stages promoted asset bundles from governed manifests"
   ]
 }
 )");
-    WriteFile(
-        manifestRoot / "BND-901.json",
-        R"({
+    WriteFile(manifestRoot / "BND-901.json",
+              R"({
   "bundle_id": "BND-901",
   "bundle_name": "planned_assets",
   "source_id": "SRC-002",
@@ -643,12 +683,12 @@ TEST_CASE("ExportPackager stages promoted asset bundles from governed manifests"
   ]
 }
 )");
-    WriteFile(
-        normalizedRoot / "prototype_sprites" / "hero_placeholder.svg",
-        "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\"><rect width=\"16\" height=\"16\" fill=\"#3a7\"/></svg>");
-    WriteFile(
-        normalizedRoot / "prototype_sprites" / "planned.svg",
-        "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\"><circle cx=\"8\" cy=\"8\" r=\"6\" fill=\"#a73\"/></svg>");
+    WriteFile(normalizedRoot / "prototype_sprites" / "hero_placeholder.svg",
+              "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\"><rect width=\"16\" height=\"16\" "
+              "fill=\"#3a7\"/></svg>");
+    WriteFile(normalizedRoot / "prototype_sprites" / "planned.svg",
+              "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\"><circle cx=\"8\" cy=\"8\" r=\"6\" "
+              "fill=\"#a73\"/></svg>");
 
     ExportPackager packager;
     ExportConfig config{};
@@ -679,10 +719,8 @@ TEST_CASE("ExportPackager stages promoted asset bundles from governed manifests"
 
     const auto bundleManifestEntry = findEntry("imports/manifests/asset_bundles/BND-900.json");
     const auto promotedAssetEntry = findEntry("imports/normalized/prototype_sprites/hero_placeholder.svg");
-    const auto bundleManifestBytes =
-        DecodeBundleEntryBytes(bundlePath, ExportTarget::Windows_x64, bundleManifestEntry);
-    const auto promotedAssetBytes =
-        DecodeBundleEntryBytes(bundlePath, ExportTarget::Windows_x64, promotedAssetEntry);
+    const auto bundleManifestBytes = DecodeBundleEntryBytes(bundlePath, ExportTarget::Windows_x64, bundleManifestEntry);
+    const auto promotedAssetBytes = DecodeBundleEntryBytes(bundlePath, ExportTarget::Windows_x64, promotedAssetEntry);
 
     const std::string bundleManifestText(bundleManifestBytes.begin(), bundleManifestBytes.end());
     const std::string promotedAssetText(promotedAssetBytes.begin(), promotedAssetBytes.end());
@@ -720,9 +758,8 @@ TEST_CASE("ExportPackager fails closed when promoted asset source license eviden
     const auto normalizedRoot = base / "normalized";
     std::filesystem::remove_all(base);
 
-    WriteFile(
-        manifestRoot / "BND-910.json",
-        R"({
+    WriteFile(manifestRoot / "BND-910.json",
+              R"({
   "bundle_id": "BND-910",
   "bundle_name": "missing_source_license",
   "source_id": "SRC-910",
@@ -766,9 +803,8 @@ TEST_CASE("ExportPackager fails closed on disallowed promoted asset legal dispos
     std::filesystem::remove_all(base);
     WritePromotedSourceManifest(base, "SRC-911", "mixed_asset_pack_reference_only_until_attribution_is_captured");
 
-    WriteFile(
-        manifestRoot / "BND-911.json",
-        R"({
+    WriteFile(manifestRoot / "BND-911.json",
+              R"({
   "bundle_id": "BND-911",
   "bundle_name": "disallowed_source_license",
   "source_id": "SRC-911",
@@ -850,6 +886,13 @@ TEST_CASE("ExportPackager stages canonical promoted visual and audio intake lane
     REQUIRE(static_cast<char>(audioBytes[1]) == 'I');
     REQUIRE(static_cast<char>(audioBytes[2]) == 'F');
     REQUIRE(static_cast<char>(audioBytes[3]) == 'F');
+    for (const auto& entry : manifest["entries"]) {
+        const auto path = entry["path"].get<std::string>();
+        REQUIRE(path.rfind("imports/raw/", 0) != 0);
+        REQUIRE(path.rfind("third_party/", 0) != 0);
+        REQUIRE(path.rfind("itch/", 0) != 0);
+        REQUIRE(path.rfind("project_assets/imports_normalized/", 0) != 0);
+    }
 
     std::filesystem::remove_all(base);
 }
@@ -903,8 +946,7 @@ TEST_CASE("ExportPackager auto-discovers configured project asset roots and writ
     const auto hudBytes = DecodeBundleEntryBytes(bundlePath, ExportTarget::Windows_x64, hudEntry);
     const auto audioBytes = DecodeBundleEntryBytes(bundlePath, ExportTarget::Windows_x64, audioEntry);
     const auto discoveryBytes = DecodeBundleEntryBytes(bundlePath, ExportTarget::Windows_x64, discoveryEntry);
-    const auto discoveryManifest = nlohmann::json::parse(
-        std::string(discoveryBytes.begin(), discoveryBytes.end()));
+    const auto discoveryManifest = nlohmann::json::parse(std::string(discoveryBytes.begin(), discoveryBytes.end()));
 
     REQUIRE(hudEntry["kind"] == "auto_discovered_asset");
     REQUIRE(audioEntry["kind"] == "auto_discovered_asset");
@@ -957,9 +999,7 @@ TEST_CASE("ExportPackager rejects discovered payloads that exceed uint32 bundle 
     std::filesystem::create_directories(largeAsset.parent_path());
     std::error_code resizeError;
     std::filesystem::resize_file(
-        largeAsset,
-        static_cast<std::uintmax_t>((std::numeric_limits<std::uint32_t>::max)()) + 1u,
-        resizeError);
+        largeAsset, static_cast<std::uintmax_t>((std::numeric_limits<std::uint32_t>::max)()) + 1u, resizeError);
     if (resizeError) {
         std::filesystem::remove_all(base);
         SUCCEED("Filesystem could not create sparse oversized fixture: " << resizeError.message());
@@ -1014,9 +1054,11 @@ TEST_CASE("ExportPackager stores bundle payloads as reversible RLE+XOR entries",
 
     REQUIRE(firstEntry["compressed"] == true);
     REQUIRE(firstEntry["obfuscated"] == true);
-    REQUIRE(firstEntry["integrityTag"] == ComputeBundleIntegrityTag(firstEntry, storedBytes, ExportTarget::Windows_x64));
+    REQUIRE(firstEntry["integrityTag"] ==
+            ComputeBundleIntegrityTag(firstEntry, storedBytes, ExportTarget::Windows_x64));
     REQUIRE_FALSE(storedBytes.empty());
-    REQUIRE(decodedText.find("\"format\": \"URPG_BOUNDED_EXPORT_BUNDLE_V1\"") != std::string::npos);
+    REQUIRE(decodedText.find("\"format\": \"URPG_PROJECT_EXPORT_METADATA_V1\"") != std::string::npos);
+    REQUIRE(decodedText.find("\"bundleMode\": \"project_content_bundle_v1\"") != std::string::npos);
     REQUIRE(decodedText.find("\"target\": \"Windows (x64)\"") != std::string::npos);
 
     std::filesystem::remove_all(base);
@@ -1052,8 +1094,7 @@ TEST_CASE("ExportPackager keyed integrity tags detect stored bundle tampering", 
     std::filesystem::remove_all(base);
 }
 
-TEST_CASE("ExportPackager keyed SHA-256 bundle signature detects manifest tampering",
-          "[export][packager][security]") {
+TEST_CASE("ExportPackager keyed SHA-256 bundle signature detects manifest tampering", "[export][packager][security]") {
     const auto base = std::filesystem::temp_directory_path() / "urpg_export_packager_bundle_signature_tamper";
     std::filesystem::remove_all(base);
 
@@ -1186,7 +1227,7 @@ TEST_CASE("ExportPackager::validateBeforeExport stays independent from post-expo
 
     for (const auto target : targets) {
         const auto base = std::filesystem::temp_directory_path() /
-            ("urpg_export_packager_target_" + std::to_string(static_cast<int>(target)));
+                          ("urpg_export_packager_target_" + std::to_string(static_cast<int>(target)));
         std::filesystem::remove_all(base);
         std::filesystem::create_directories(base);
 
@@ -1246,7 +1287,7 @@ TEST_CASE("ExportPackager emits valid export trees for all supported targets", "
 
     for (const auto target : targets) {
         const auto base = std::filesystem::temp_directory_path() /
-            ("urpg_export_packager_emit_target_" + std::to_string(static_cast<int>(target)));
+                          ("urpg_export_packager_emit_target_" + std::to_string(static_cast<int>(target)));
         std::filesystem::remove_all(base);
 
         ExportConfig config{};
@@ -1278,12 +1319,11 @@ TEST_CASE("ExportPackager::runExport fails when pre-export validation fails", "[
     REQUIRE(result.log.find("Output directory is required") != std::string::npos);
 }
 
-TEST_CASE("urpg_pack_cli runs preflight, export, and post-export validation as JSON",
-          "[export][packager][cli]") {
+TEST_CASE("urpg_pack_cli runs preflight, export, and post-export validation as JSON", "[export][packager][cli]") {
 #ifdef URPG_PACK_CLI_PATH
-    const auto outputDir = std::filesystem::temp_directory_path() /
-        ("urpg_pack_cli_success_" +
-         std::to_string(std::chrono::steady_clock::now().time_since_epoch().count()));
+    const auto outputDir =
+        std::filesystem::temp_directory_path() /
+        ("urpg_pack_cli_success_" + std::to_string(std::chrono::steady_clock::now().time_since_epoch().count()));
     std::filesystem::remove_all(outputDir);
 
     const auto result = RunPackCli({
@@ -1319,7 +1359,8 @@ TEST_CASE("urpg_pack_cli runs preflight, export, and post-export validation as J
 
     const auto manifest = ReadBundleManifest(outputDir / "data.pck");
     REQUIRE(manifest["signatureMode"] == "sha256_keyed_bundle_v1");
-    REQUIRE(manifest["bundleSignature"] == ComputeBundleSignature(outputDir / "data.pck", manifest, ExportTarget::Web_WASM));
+    REQUIRE(manifest["bundleSignature"] ==
+            ComputeBundleSignature(outputDir / "data.pck", manifest, ExportTarget::Web_WASM));
 
     std::filesystem::remove_all(outputDir);
 #else
@@ -1327,12 +1368,11 @@ TEST_CASE("urpg_pack_cli runs preflight, export, and post-export validation as J
 #endif
 }
 
-TEST_CASE("urpg_pack_cli reports preflight failures without exporting",
-          "[export][packager][cli]") {
+TEST_CASE("urpg_pack_cli reports preflight failures without exporting", "[export][packager][cli]") {
 #ifdef URPG_PACK_CLI_PATH
     const auto outputFile = std::filesystem::temp_directory_path() /
-        ("urpg_pack_cli_failure_" +
-         std::to_string(std::chrono::steady_clock::now().time_since_epoch().count()) + ".txt");
+                            ("urpg_pack_cli_failure_" +
+                             std::to_string(std::chrono::steady_clock::now().time_since_epoch().count()) + ".txt");
     std::filesystem::remove(outputFile);
     WriteFile(outputFile, "not_a_directory");
 
@@ -1369,8 +1409,8 @@ TEST_CASE("ExportPackager stages a real Windows smoke export that launches succe
           "[export][packager][real_smoke]") {
 #ifdef URPG_EXPORT_SMOKE_APP_PATH
     const auto outputDir = std::filesystem::temp_directory_path() /
-        ("urpg_export_packager_real_smoke_" +
-         std::to_string(std::chrono::steady_clock::now().time_since_epoch().count()));
+                           ("urpg_export_packager_real_smoke_" +
+                            std::to_string(std::chrono::steady_clock::now().time_since_epoch().count()));
     const auto markerPath = outputDir / "smoke_marker.txt";
     const auto logPath = outputDir / "smoke_stdout.txt";
     const auto smokeAppPath = GetExportSmokeAppPath();
@@ -1409,15 +1449,9 @@ TEST_CASE("ExportPackager stages a real Windows smoke export that launches succe
 }
 #endif
 
-TEST_CASE("ResourceProtector::compress performs reversible lightweight compression",
-          "[export][security]") {
+TEST_CASE("ResourceProtector::compress performs reversible lightweight compression", "[export][security]") {
     urpg::security::ResourceProtector protector;
-    const std::vector<uint8_t> rawData = {
-        0x10, 0x10, 0x10, 0x10,
-        0x20, 0x20, 0x20,
-        0xFF, 0xFF,
-        0x7A
-    };
+    const std::vector<uint8_t> rawData = {0x10, 0x10, 0x10, 0x10, 0x20, 0x20, 0x20, 0xFF, 0xFF, 0x7A};
 
     REQUIRE(urpg::security::ResourceProtector::compressionImplemented());
 
@@ -1428,8 +1462,7 @@ TEST_CASE("ResourceProtector::compress performs reversible lightweight compressi
     REQUIRE(urpg::core::AssetCompressor::instance().decompress(compressed) == rawData);
 }
 
-TEST_CASE("ResourceProtector obfuscation remains reversible XOR over compressed bytes",
-          "[export][security]") {
+TEST_CASE("ResourceProtector obfuscation remains reversible XOR over compressed bytes", "[export][security]") {
     urpg::security::ResourceProtector protector;
     const std::vector<uint8_t> rawData = {0x12, 0x12, 0x12, 0x34, 0x34, 0x56, 0x56, 0x56, 0x56};
     auto protectedData = protector.compress(rawData);

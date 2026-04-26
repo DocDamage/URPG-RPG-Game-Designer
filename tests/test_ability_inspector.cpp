@@ -1,15 +1,18 @@
 #include <catch2/catch_test_macros.hpp>
 
-#include "engine/core/ability/gameplay_ability.h"
-#include "engine/core/ability/ability_system_component.h"
 #include "editor/ability/ability_inspector_panel.h"
+#include "engine/core/ability/ability_system_component.h"
+#include "engine/core/ability/gameplay_ability.h"
+
+#include <iostream>
+#include <sstream>
 
 using namespace urpg;
 using namespace urpg::ability;
 using namespace urpg::editor;
 
 class FireboltAbility : public GameplayAbility {
-public:
+  public:
     const std::string& getId() const override {
         static std::string id = "Firebolt";
         return id;
@@ -22,9 +25,7 @@ public:
         return info;
     }
 
-    void activate(AbilitySystemComponent& source) override {
-        commitAbility(source);
-    }
+    void activate(AbilitySystemComponent& source) override { commitAbility(source); }
 };
 
 TEST_CASE("Ability Inspector UI Projection", "[ability][editor]") {
@@ -39,8 +40,14 @@ TEST_CASE("Ability Inspector UI Projection", "[ability][editor]") {
     REQUIRE(success);
     REQUIRE(asc.getCooldownRemaining("Firebolt") > 0.0f);
 
+    std::ostringstream capturedOutput;
+    auto* originalOutput = std::cout.rdbuf(capturedOutput.rdbuf());
+
     panel.update(asc);
     panel.render();
+    auto renderSnap = panel.getRenderSnapshot();
+    REQUIRE(renderSnap.has_rendered_frame);
+    REQUIRE(renderSnap.controls.size() == 6);
 
     asc.update(2.5f);
     panel.update(asc);
@@ -51,6 +58,8 @@ TEST_CASE("Ability Inspector UI Projection", "[ability][editor]") {
     panel.render();
 
     REQUIRE(asc.getCooldownRemaining("Firebolt") == 0.0f);
+    std::cout.rdbuf(originalOutput);
+    REQUIRE(capturedOutput.str().empty());
 }
 
 TEST_CASE("Ability Inspector Diagnostics Snapshot", "[ability][editor]") {
@@ -112,6 +121,41 @@ TEST_CASE("Ability Inspector Diagnostics Snapshot", "[ability][editor]") {
         REQUIRE(renderSnap.selected_ability_id == "Firebolt");
         REQUIRE(renderSnap.selected_ability_can_activate == false);
         REQUIRE(renderSnap.selected_ability_blocking_reason.find("Cooldown") != std::string::npos);
+    }
+
+    SECTION("Panel exposes wired command controls for the editor host") {
+        REQUIRE(panel.applyDraftPatternPreset("skill_cross_small"));
+        panel.update(asc);
+        REQUIRE(panel.selectAbility(0, asc));
+
+        panel.setCommandCallbacks({
+            [] { return true; },
+            [] { return true; },
+            [] { return true; },
+            [] { return true; },
+        });
+        panel.render();
+
+        const auto renderSnap = panel.getRenderSnapshot();
+        REQUIRE(renderSnap.has_rendered_frame);
+        REQUIRE(renderSnap.controls.size() == 6);
+
+        auto controlEnabled = [&renderSnap](const std::string& id) {
+            for (const auto& control : renderSnap.controls) {
+                if (control.id == id) {
+                    return control.enabled;
+                }
+            }
+            return false;
+        };
+
+        REQUIRE(controlEnabled("select_ability"));
+        REQUIRE(controlEnabled("preview_selected"));
+        REQUIRE(controlEnabled("validate_draft"));
+        REQUIRE(controlEnabled("apply_draft"));
+        REQUIRE(controlEnabled("save_draft"));
+        REQUIRE(controlEnabled("load_draft"));
+        REQUIRE(renderSnap.validation_issues.empty());
     }
 
     SECTION("Draft ability preview builds a workspace-owned editable runtime") {

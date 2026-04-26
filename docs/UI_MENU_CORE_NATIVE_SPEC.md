@@ -1,7 +1,7 @@
 # UI / Menu Core Native-First Spec
 
-Date: 2026-04-14  
-Status: closure-complete as of 2026-04-19 (runtime ownership, editor productization, schema/migration, and diagnostics integration all landed and validated)  
+Date: 2026-04-14
+Status: closure-complete as of 2026-04-19 (runtime ownership, editor productization, schema/migration, and diagnostics integration all landed and validated)
 Scope: runtime ownership, editor ownership, schema, migration, diagnostics, and test anchors for native UI/Menu Core absorption
 
 ## Last landed progress (2026-04-15)

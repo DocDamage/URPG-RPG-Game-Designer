@@ -1,25 +1,25 @@
 #pragma once
 
 #include "editor/diagnostics/diagnostics_workspace.h"
-#include <string>
 #include <functional>
+#include <string>
 
 namespace urpg::editor {
 
 /**
  * @brief A lightweight facade for emitting diagnostic snapshots from the DiagnosticsWorkspace.
- * 
- * This class provides a bridge between the core DiagnosticsWorkspace and external consumers 
- * (like editor shells or UI transports) that need to periodically or on-demand capture 
+ *
+ * This class provides a bridge between the core DiagnosticsWorkspace and external consumers
+ * (like editor shells or UI transports) that need to periodically or on-demand capture
  * the current state of diagnostic data.
  */
 class DiagnosticsFacade {
-public:
+  public:
     explicit DiagnosticsFacade(DiagnosticsWorkspace& workspace);
 
     /**
      * @brief Emits a JSON snapshot of the current diagnostics state.
-     * 
+     *
      * @return std::string A JSON-formatted string representing the diagnostics snapshot.
      */
     std::string emitSnapshot() const;
@@ -29,7 +29,7 @@ public:
      */
     void refreshAndEmit(std::function<void(std::string_view)> callback) const;
 
-private:
+  private:
     DiagnosticsWorkspace& workspace_;
 };
 

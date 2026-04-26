@@ -1,6 +1,6 @@
 # URPG External Repository Audit Template
 
-> Checklist for auditing an external repository before adoption into URPG.  
+> Checklist for auditing an external repository before adoption into URPG.
 > See [URPG_repo_intake_plan.md](./URPG_repo_intake_plan.md) and [TECHNICAL_DEBT_REMEDIATION_PLAN.md](../TECHNICAL_DEBT_REMEDIATION_PLAN.md) (P3-02).
 
 ---

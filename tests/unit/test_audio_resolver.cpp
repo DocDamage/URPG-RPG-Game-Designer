@@ -1,7 +1,7 @@
-#include <catch2/catch_test_macros.hpp>
 #include "engine/core/audio/audio_core.h"
 #include "engine/core/audio/state_driven_audio_resolver.h"
 #include "engine/core/global_state_hub.h"
+#include <catch2/catch_test_macros.hpp>
 
 using namespace urpg::audio;
 using namespace urpg;
@@ -25,7 +25,7 @@ TEST_CASE("StateDrivenAudioResolver: BGM Auto-Switching", "[audio][state][resolv
         resolver.addRule({"map.type", "forest", "forest_theme", 1.0f});
         resolver.addRule({"battle.active", "true", "battle_theme", 0.5f});
 
-        hub.setConfig("map.type", "forest"); 
+        hub.setConfig("map.type", "forest");
         hub.setConfig("battle.active", "true");
         // Battle theme should take precedence if we check internal priority.
     }

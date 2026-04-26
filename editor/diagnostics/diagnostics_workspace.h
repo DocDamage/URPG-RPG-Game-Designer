@@ -1,7 +1,7 @@
 #pragma once
 
-#include "editor/audio/audio_inspector_panel.h"
 #include "editor/ability/ability_inspector_panel.h"
+#include "editor/audio/audio_inspector_panel.h"
 #include "editor/battle/battle_inspector_panel.h"
 #include "editor/compat/compat_report_panel.h"
 #include "editor/diagnostics/event_authority_panel.h"
@@ -12,8 +12,8 @@
 #include "editor/save/save_inspector_panel.h"
 #include "editor/ui/menu_inspector_panel.h"
 #include "editor/ui/menu_preview_panel.h"
-#include "engine/core/ability/authored_ability_asset.h"
 #include "engine/core/ability/ability_system_component.h"
+#include "engine/core/ability/authored_ability_asset.h"
 #include "engine/core/ability/gameplay_effect.h"
 #include "engine/core/input/input_core.h"
 
@@ -44,7 +44,7 @@ struct DiagnosticsTabSummary {
 };
 
 class DiagnosticsWorkspace {
-public:
+  public:
     DiagnosticsWorkspace();
 
     CompatReportPanel& compatPanel();
@@ -74,17 +74,14 @@ public:
     ProjectHealthPanel& projectHealthPanel();
     const ProjectHealthPanel& projectHealthPanel() const;
 
-    void bindSaveRuntime(const urpg::SaveCatalog& catalog,
-                         urpg::SaveSessionCoordinator& coordinator);
+    void bindSaveRuntime(const urpg::SaveCatalog& catalog, urpg::SaveSessionCoordinator& coordinator);
     void clearSaveRuntime();
     bool setSaveShowProblemSlotsOnly(bool show_problem_slots_only);
     bool setSaveIncludeAutosave(bool include_autosave);
     bool selectSaveRow(size_t row_index);
     bool setSavePolicyAutosaveEnabled(bool autosave_enabled);
     bool setSavePolicyAutosaveSlotId(int32_t autosave_slot_id);
-    bool setSavePolicyRetentionLimits(size_t max_autosave_slots,
-                                      size_t max_quicksave_slots,
-                                      size_t max_manual_slots,
+    bool setSavePolicyRetentionLimits(size_t max_autosave_slots, size_t max_quicksave_slots, size_t max_manual_slots,
                                       bool prune_excess_on_save);
     bool applySavePolicyChanges();
     void bindMessageRuntime(const urpg::message::MessageFlowRunner& flow_runner,
@@ -105,19 +102,18 @@ public:
     void bindBattleRuntime(const urpg::battle::BattleFlowController& flow_controller,
                            const urpg::battle::BattleActionQueue& action_queue);
 
-    template <typename SceneLike>
-    requires requires(const SceneLike& battle_scene) {
-        battle_scene.flowController();
-        battle_scene.nativeActionQueue();
-        battle_scene.buildDiagnosticsPreview();
-    }
+    template<typename SceneLike>
+        requires requires(const SceneLike& battle_scene) {
+            battle_scene.flowController();
+            battle_scene.nativeActionQueue();
+            battle_scene.buildDiagnosticsPreview();
+        }
     void bindBattleRuntime(const SceneLike& battle_scene) {
         battle_panel_.bindRuntime(battle_scene);
     }
 
     void clearBattleRuntime();
-    void bindMenuRuntime(urpg::ui::MenuSceneGraph& scene_graph,
-                         const urpg::ui::MenuCommandRegistry& registry,
+    void bindMenuRuntime(urpg::ui::MenuSceneGraph& scene_graph, const urpg::ui::MenuCommandRegistry& registry,
                          const urpg::ui::MenuCommandRegistry::SwitchState& switches,
                          const urpg::ui::MenuCommandRegistry::VariableState& variables);
     void clearMenuRuntime();
@@ -208,7 +204,7 @@ public:
     void refresh();
     void update();
 
-private:
+  private:
     void syncPanelVisibility();
     void refreshActiveSnapshotBackedTabIfVisible();
     void refreshEventAuthoritySnapshotIfActive();
@@ -226,7 +222,7 @@ private:
     urpg::EventAuthorityPanel event_authority_panel_;
     MessageInspectorPanel message_panel_;
     BattleInspectorPanel battle_panel_;
-    
+
     std::shared_ptr<MenuInspectorModel> menu_model_;
     std::unique_ptr<MenuInspectorPanel> menu_panel_;
     std::unique_ptr<MenuPreviewPanel> menu_preview_panel_;

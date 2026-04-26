@@ -31,6 +31,7 @@ from typing import Any
 # S33-T04: Artifact contract
 # ---------------------------------------------------------------------------
 
+
 @dataclass
 class ArtifactContract:
     """Declares the expected top-level fields that a runtime-consumable artifact must contain.
@@ -39,6 +40,7 @@ class ArtifactContract:
     (FAISS builders, SAM segmenters, audio preprocessors) must export artifacts
     that satisfy their declared contract before the runtime may reference them.
     """
+
     required_fields: list[str] = field(default_factory=list)
     schema_field: str = "schema"
     expected_schema_prefix: str = "content/schemas/"
@@ -46,7 +48,14 @@ class ArtifactContract:
 
 # Well-known contracts for each approved tooling output type.
 RETRIEVAL_BUNDLE_CONTRACT = ArtifactContract(
-    required_fields=["schema", "dimension", "engine", "embedding_adapter", "entry_count", "entries"],
+    required_fields=[
+        "schema",
+        "dimension",
+        "engine",
+        "embedding_adapter",
+        "entry_count",
+        "entries",
+    ],
     expected_schema_prefix="content/schemas/",
 )
 
@@ -70,7 +79,9 @@ class ArtifactContractViolation(ValueError):
     """Raised when an artifact does not satisfy its declared contract."""
 
 
-def validate_artifact_contract(artifact: dict[str, Any], contract: ArtifactContract) -> None:
+def validate_artifact_contract(
+    artifact: dict[str, Any], contract: ArtifactContract
+) -> None:
     """Verify that *artifact* satisfies *contract*.
 
     Raises:
@@ -84,7 +95,9 @@ def validate_artifact_contract(artifact: dict[str, Any], contract: ArtifactContr
             )
 
     schema_value = artifact.get(contract.schema_field, "")
-    if not isinstance(schema_value, str) or not schema_value.startswith(contract.expected_schema_prefix):
+    if not isinstance(schema_value, str) or not schema_value.startswith(
+        contract.expected_schema_prefix
+    ):
         raise ArtifactContractViolation(
             f"Artifact '{contract.schema_field}' field must be a string starting with "
             f"'{contract.expected_schema_prefix}', got: {schema_value!r}"
@@ -112,6 +125,7 @@ class ProvenanceRecord:
     output_hash:    SHA-256 hex digest of the artifact payload (excluding this
                     provenance record itself) at write time.
     """
+
     tool_id: str
     tool_version: str
     input_hash: str

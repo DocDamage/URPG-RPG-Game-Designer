@@ -8,7 +8,6 @@ import hashlib
 import json
 import os
 import re
-import sys
 from datetime import datetime, timezone
 from pathlib import PurePath
 from typing import Any
@@ -43,7 +42,9 @@ def _as_text(value: Any) -> str:
     return str(value)
 
 
-def _post_json(url: str, api_key: str, payload: dict[str, Any], timeout: int = 30) -> dict[str, Any]:
+def _post_json(
+    url: str, api_key: str, payload: dict[str, Any], timeout: int = 30
+) -> dict[str, Any]:
     body = json.dumps(payload).encode("utf-8")
     req = request.Request(
         url=url,
@@ -79,7 +80,9 @@ def _get_json(url: str, api_key: str, timeout: int = 15) -> dict[str, Any]:
         return json.loads(text)
 
 
-def _resolve(name: str, arg_val: str, config_val: str, env_val: str, default: str) -> str:
+def _resolve(
+    name: str, arg_val: str, config_val: str, env_val: str, default: str
+) -> str:
     if arg_val:
         return arg_val
     if env_val:
@@ -97,7 +100,9 @@ def _extract_wing_map(config: dict[str, Any]) -> dict[str, str]:
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="Sync MemPalace drawers into ContextLattice")
+    parser = argparse.ArgumentParser(
+        description="Sync MemPalace drawers into ContextLattice"
+    )
     parser.add_argument("--config-file", default=".memorybridge/bridge.config.json")
     parser.add_argument("--state-file", default=".memorybridge/sync-state.json")
     parser.add_argument("--orchestrator-url", default="")
@@ -116,7 +121,9 @@ def main() -> int:
 
     config = _load_json(args.config_file)
     state = _load_json(args.state_file)
-    synced: dict[str, str] = state.get("synced", {}) if isinstance(state.get("synced"), dict) else {}
+    synced: dict[str, str] = (
+        state.get("synced", {}) if isinstance(state.get("synced"), dict) else {}
+    )
     state.setdefault("version", 1)
 
     api_key_env_var = _resolve(
@@ -177,7 +184,13 @@ def main() -> int:
         return 2
 
     if not args.dry_run and not api_key:
-        print(json.dumps({"error": f"Missing API key. Set --api-key or env var {api_key_env_var}."}))
+        print(
+            json.dumps(
+                {
+                    "error": f"Missing API key. Set --api-key or env var {api_key_env_var}."
+                }
+            )
+        )
         return 2
 
     if args.batch_size <= 0:
@@ -215,7 +228,11 @@ def main() -> int:
                 )
             )
             return 0
-        print(json.dumps({"error": f"Could not open collection '{collection_name}': {exc}"}))
+        print(
+            json.dumps(
+                {"error": f"Could not open collection '{collection_name}': {exc}"}
+            )
+        )
         return 2
 
     summary = {
@@ -252,7 +269,9 @@ def main() -> int:
         for idx, drawer_id in enumerate(ids):
             summary["seen"] += 1
             doc = _as_text(docs[idx] if idx < len(docs) else "")
-            meta = metas[idx] if idx < len(metas) and isinstance(metas[idx], dict) else {}
+            meta = (
+                metas[idx] if idx < len(metas) and isinstance(metas[idx], dict) else {}
+            )
             content_hash = hashlib.sha256(doc.encode("utf-8")).hexdigest()
 
             if not args.force_resync and synced.get(drawer_id) == content_hash:
@@ -271,8 +290,12 @@ def main() -> int:
             room_slug = _slug(room)
 
             project_name = wing_project_map.get(wing) or default_project
-            topic_path = "/".join([_slug(topic_prefix, "mempalace"), wing_slug, room_slug])
-            file_name = f"mempalace/{wing_slug}/{room_slug}/{_slug(drawer_id)}-{source_stem}.md"
+            topic_path = "/".join(
+                [_slug(topic_prefix, "mempalace"), wing_slug, room_slug]
+            )
+            file_name = (
+                f"mempalace/{wing_slug}/{room_slug}/{_slug(drawer_id)}-{source_stem}.md"
+            )
 
             payload = {
                 "projectName": project_name,
@@ -288,7 +311,9 @@ def main() -> int:
                 continue
 
             try:
-                result = _post_json(f"{orchestrator_url}/memory/write", api_key, payload)
+                result = _post_json(
+                    f"{orchestrator_url}/memory/write", api_key, payload
+                )
                 if isinstance(result, dict) and result.get("ok") is False:
                     raise RuntimeError(f"memory/write returned ok=false: {result}")
                 synced[drawer_id] = content_hash

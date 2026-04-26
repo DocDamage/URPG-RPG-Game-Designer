@@ -22,13 +22,7 @@ enum class EffectCueKind {
     PhaseBanner
 };
 
-enum class EffectAnchorMode {
-    World,
-    Owner,
-    Target,
-    Screen,
-    Overlay
-};
+enum class EffectAnchorMode { World, Owner, Target, Screen, Overlay };
 
 struct EffectCue {
     std::uint64_t frameTick = 0;
@@ -37,8 +31,8 @@ struct EffectCue {
     std::uint64_t ownerId = 0;
     EffectCueKind kind = EffectCueKind::Gameplay;
     EffectAnchorMode anchorMode = EffectAnchorMode::World;
-    OverlayEmphasis overlayEmphasis {};
-    EffectIntensity intensity {};
+    OverlayEmphasis overlayEmphasis{};
+    EffectIntensity intensity{};
 
     auto operator<=>(const EffectCue& other) const noexcept {
         return std::tie(frameTick, sequenceIndex, sourceId, ownerId) <=>
@@ -48,7 +42,7 @@ struct EffectCue {
     bool operator==(const EffectCue&) const = default;
 };
 
-inline constexpr bool effectCueLess(const EffectCue& lhs, const EffectCue& rhs) noexcept {
+inline bool effectCueLess(const EffectCue& lhs, const EffectCue& rhs) noexcept {
     return lhs < rhs;
 }
 

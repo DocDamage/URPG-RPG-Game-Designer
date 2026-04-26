@@ -1,6 +1,6 @@
 #include "audio_ai_bridge.h"
-#include <sstream>
 #include <algorithm>
+#include <sstream>
 
 namespace urpg::ai {
 
@@ -15,10 +15,8 @@ std::string trim(std::string value) {
 
 } // namespace
 
-std::string AudioKnowledgeBridge::generateAudioPrompt(
-    const AudioMetadata& current,
-    const std::string& targetEventDescription
-) {
+std::string AudioKnowledgeBridge::generateAudioPrompt(const AudioMetadata& current,
+                                                      const std::string& targetEventDescription) {
     std::stringstream ss;
     ss << "### Audio Orchestrator Phase ###\n";
     ss << "Current BGM: " << (current.currentBGM.empty() ? "None" : current.currentBGM) << "\n";
@@ -30,11 +28,12 @@ std::string AudioKnowledgeBridge::generateAudioPrompt(
     ss << "Recommend an audio change using the following format:\n";
     ss << "[ACTION: PLAY_BGM|CROSSFADE|PLAY_SE|STOP, ASSET: AssetID, VOL: 0.0-1.0, FADE: Seconds]\n";
     ss << "Ensure the music matches the new scene mood and transitions smoothly.";
-    
+
     return ss.str();
 }
 
-std::vector<AudioKnowledgeBridge::AudioCommand> AudioKnowledgeBridge::parseAudioCommands(const std::string& aiResponse) {
+std::vector<AudioKnowledgeBridge::AudioCommand>
+AudioKnowledgeBridge::parseAudioCommands(const std::string& aiResponse) {
     std::vector<AudioCommand> result;
 
     size_t search_pos = 0;
@@ -61,7 +60,8 @@ std::vector<AudioKnowledgeBridge::AudioCommand> AudioKnowledgeBridge::parseAudio
         size_t field_start = 0;
         while (field_start <= payload.size()) {
             size_t comma = payload.find(',', field_start);
-            std::string field = trim(payload.substr(field_start, comma == std::string::npos ? std::string::npos : comma - field_start));
+            std::string field =
+                trim(payload.substr(field_start, comma == std::string::npos ? std::string::npos : comma - field_start));
             field_start = (comma == std::string::npos) ? payload.size() + 1 : comma + 1;
 
             const size_t colon = field.find(':');

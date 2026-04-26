@@ -90,6 +90,22 @@ void TryHydrateMeta(const std::string& metadata_payload, SaveSlotMeta& out_meta)
     }
 }
 
+void TryHydrateCreatedProtagonist(RuntimeSaveLoadResult& result) {
+    if (result.payload.empty()) {
+        return;
+    }
+
+    const auto parsed = nlohmann::json::parse(result.payload, nullptr, false);
+    if (parsed.is_discarded()) {
+        result.diagnostics.push_back("created_protagonist_payload_json_parse_failed");
+        return;
+    }
+
+    std::vector<std::string> diagnostics;
+    result.created_protagonist = character::loadCreatedProtagonistFromSaveDocument(parsed, &diagnostics);
+    result.diagnostics.insert(result.diagnostics.end(), diagnostics.begin(), diagnostics.end());
+}
+
 } // namespace
 
 RuntimeSaveLoadResult RuntimeSaveLoader::Load(const RuntimeSaveLoadRequest& request) {
@@ -101,6 +117,7 @@ RuntimeSaveLoadResult RuntimeSaveLoader::Load(const RuntimeSaveLoadRequest& requ
             result.ok = true;
             result.recovery_tier = SaveRecoveryTier::None;
             TryHydrateMeta(ReadAll(request.metadata_path), result.active_meta);
+            TryHydrateCreatedProtagonist(result);
             return result;
         }
     }
@@ -128,6 +145,7 @@ RuntimeSaveLoadResult RuntimeSaveLoader::Load(const RuntimeSaveLoadRequest& requ
     switch (recovery_result.tier) {
     case SaveRecoveryTier::Level1Autosave:
         result.payload = recovery_result.full_payload;
+        TryHydrateCreatedProtagonist(result);
         break;
     case SaveRecoveryTier::Level2MetadataVariables:
         result.payload = recovery_result.metadata_payload;
@@ -168,6 +186,30 @@ bool RuntimeSaveLoader::Save(const RuntimeSaveLoadRequest& request, const std::s
     } catch (...) {
         return false;
     }
+}
+
+bool RuntimeSaveLoader::SaveCreatedProtagonist(const RuntimeSaveLoadRequest& request, const std::string& payload,
+                                               EntityID entity, const character::CharacterIdentity& identity,
+                                               std::vector<std::string>* diagnostics) {
+    auto document = nlohmann::json::parse(payload.empty() ? "{}" : payload, nullptr, false);
+    if (document.is_discarded()) {
+        if (diagnostics != nullptr) {
+            diagnostics->push_back("save_payload_json_parse_failed");
+        }
+        return false;
+    }
+    if (!document.is_object()) {
+        if (diagnostics != nullptr) {
+            diagnostics->push_back("save_payload_not_object");
+        }
+        return false;
+    }
+
+    if (!character::attachCreatedProtagonistToSaveDocument(document, entity, identity, diagnostics)) {
+        return false;
+    }
+
+    return Save(request, document.dump());
 }
 
 } // namespace urpg

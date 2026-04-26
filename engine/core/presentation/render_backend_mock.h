@@ -1,9 +1,9 @@
 #pragma once
 
+#include "engine/core/diagnostics/runtime_diagnostics.h"
 #include "presentation_runtime.h"
-#include <vector>
 #include <string>
-#include <iostream>
+#include <vector>
 
 namespace urpg::render {
 
@@ -12,7 +12,7 @@ namespace urpg::render {
  * Consumes PresentationFrameIntent and tracks draw calls and pipeline states.
  */
 class RenderBackendMock {
-public:
+  public:
     struct DrawCall {
         uint32_t id;
         presentation::Vec3 position;
@@ -42,43 +42,47 @@ public:
 
         for (const auto& cmd : intent.commands) {
             switch (cmd.type) {
-                case presentation::PresentationCommand::Type::DrawActor:
-                    m_drawCalls.push_back({cmd.id, cmd.position, "Actor"});
-                    break;
-                case presentation::PresentationCommand::Type::DrawProp:
-                    m_drawCalls.push_back({cmd.id, cmd.position, "Prop"});
-                    break;
-                case presentation::PresentationCommand::Type::SetFog:
-                    m_state.fogEnabled = true;
-                    if (cmd.fogProfile) {
-                        m_state.fogDensity = cmd.fogProfile->density;
-                        m_state.fogStartDistance = cmd.fogProfile->startDist;
-                        m_state.fogEndDistance = cmd.fogProfile->endDist;
-                        std::cout << "[BACKEND] Applied Fog: Density=" << cmd.fogProfile->density << "\n";
-                    }
-                    break;
-                case presentation::PresentationCommand::Type::SetPostFX:
-                    m_state.postFxEnabled = true;
-                    if (cmd.postFXProfile) {
-                        m_state.bloomIntensity = cmd.postFXProfile->bloomIntensity;
-                        m_state.bloomThreshold = cmd.postFXProfile->bloomThreshold;
-                        m_state.exposure = cmd.postFXProfile->exposure;
-                        m_state.saturation = cmd.postFXProfile->saturation;
-                        std::cout << "[BACKEND] Applied PostFX: Bloom=" << m_state.bloomIntensity << "\n";
-                    }
-                    break;
-                case presentation::PresentationCommand::Type::DrawShadowProxy:
-                    m_drawCalls.push_back({cmd.id, cmd.position, "ShadowProxy"});
-                    break;
-                case presentation::PresentationCommand::Type::DrawWorldEffect:
-                    ++m_state.worldEffectCount;
-                    break;
-                case presentation::PresentationCommand::Type::DrawOverlayEffect:
-                    ++m_state.overlayEffectCount;
-                    break;
-                default:
-                    // Other commands (Lights, Camera) would be handled here in a full backend
-                    break;
+            case presentation::PresentationCommand::Type::DrawActor:
+                m_drawCalls.push_back({cmd.id, cmd.position, "Actor"});
+                break;
+            case presentation::PresentationCommand::Type::DrawProp:
+                m_drawCalls.push_back({cmd.id, cmd.position, "Prop"});
+                break;
+            case presentation::PresentationCommand::Type::SetFog:
+                m_state.fogEnabled = true;
+                if (cmd.fogProfile) {
+                    m_state.fogDensity = cmd.fogProfile->density;
+                    m_state.fogStartDistance = cmd.fogProfile->startDist;
+                    m_state.fogEndDistance = cmd.fogProfile->endDist;
+                    urpg::diagnostics::RuntimeDiagnostics::info("presentation.backend_mock", "backend_mock.fog_applied",
+                                                                "Applied Fog: Density=" +
+                                                                    std::to_string(cmd.fogProfile->density));
+                }
+                break;
+            case presentation::PresentationCommand::Type::SetPostFX:
+                m_state.postFxEnabled = true;
+                if (cmd.postFXProfile) {
+                    m_state.bloomIntensity = cmd.postFXProfile->bloomIntensity;
+                    m_state.bloomThreshold = cmd.postFXProfile->bloomThreshold;
+                    m_state.exposure = cmd.postFXProfile->exposure;
+                    m_state.saturation = cmd.postFXProfile->saturation;
+                    urpg::diagnostics::RuntimeDiagnostics::info(
+                        "presentation.backend_mock", "backend_mock.postfx_applied",
+                        "Applied PostFX: Bloom=" + std::to_string(m_state.bloomIntensity));
+                }
+                break;
+            case presentation::PresentationCommand::Type::DrawShadowProxy:
+                m_drawCalls.push_back({cmd.id, cmd.position, "ShadowProxy"});
+                break;
+            case presentation::PresentationCommand::Type::DrawWorldEffect:
+                ++m_state.worldEffectCount;
+                break;
+            case presentation::PresentationCommand::Type::DrawOverlayEffect:
+                ++m_state.overlayEffectCount;
+                break;
+            default:
+                // Other commands (Lights, Camera) would be handled here in a full backend
+                break;
             }
         }
     }
@@ -86,7 +90,7 @@ public:
     const std::vector<DrawCall>& GetDrawCalls() const { return m_drawCalls; }
     const PipelineState& GetCurrentState() const { return m_state; }
 
-private:
+  private:
     std::vector<DrawCall> m_drawCalls;
     PipelineState m_state;
 };

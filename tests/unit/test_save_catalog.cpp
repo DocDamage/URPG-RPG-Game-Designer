@@ -84,7 +84,7 @@ TEST_CASE("SaveSessionCoordinator integrates MetadataRegistry", "[save][catalog]
     request.slot_id = 7;
     request.primary_save_path = primary;
     request.meta.map_display_name = "Registry Test";
-    
+
     // We don't set engine_mode in request.meta.custom_metadata
 
     const auto result = coordinator.save(request);
@@ -119,7 +119,7 @@ TEST_CASE("SaveSessionCoordinator loads save_policies.json", "[save][catalog][sc
 
     urpg::SaveCatalog catalog;
     urpg::SaveSessionCoordinator coordinator(catalog);
-    
+
     REQUIRE(coordinator.loadSavePolicies(path));
 
     // Check Metadata

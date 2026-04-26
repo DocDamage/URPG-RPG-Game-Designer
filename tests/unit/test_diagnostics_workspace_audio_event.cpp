@@ -1,5 +1,5 @@
-#include "editor/diagnostics/diagnostics_workspace.h"
 #include "editor/diagnostics/diagnostics_facade.h"
+#include "editor/diagnostics/diagnostics_workspace.h"
 #include "engine/core/audio/audio_core.h"
 #include "engine/core/battle/battle_core.h"
 #include "engine/core/input/input_core.h"
@@ -86,9 +86,12 @@ TEST_CASE("DiagnosticsWorkspace - Event authority actions keep exported snapshot
     workspace.setActiveTab(urpg::editor::DiagnosticsTab::EventAuthority);
 
     workspace.ingestEventAuthorityDiagnosticsJsonl(
-        "{\"ts\":\"2026-03-04T00:00:02Z\",\"level\":\"warn\",\"subsystem\":\"event_authority\",\"event\":\"edit_rejected\",\"event_id\":\"evt_alpha\",\"block_id\":\"blk_alpha\",\"mode\":\"compat\",\"operation\":\"edit_urpg_ast\",\"error_code\":\"read_only_derived_view\",\"message\":\"alpha\"}\n"
-        "{\"ts\":\"2026-03-04T00:00:03Z\",\"level\":\"error\",\"subsystem\":\"event_authority\",\"event\":\"edit_rejected\",\"event_id\":\"evt_beta\",\"block_id\":\"blk_beta\",\"mode\":\"mixed\",\"operation\":\"edit_raw_command_list\",\"error_code\":\"invalid_for_mode\",\"message\":\"beta\"}"
-    );
+        "{\"ts\":\"2026-03-04T00:00:02Z\",\"level\":\"warn\",\"subsystem\":\"event_authority\",\"event\":\"edit_"
+        "rejected\",\"event_id\":\"evt_alpha\",\"block_id\":\"blk_alpha\",\"mode\":\"compat\",\"operation\":\"edit_"
+        "urpg_ast\",\"error_code\":\"read_only_derived_view\",\"message\":\"alpha\"}\n"
+        "{\"ts\":\"2026-03-04T00:00:03Z\",\"level\":\"error\",\"subsystem\":\"event_authority\",\"event\":\"edit_"
+        "rejected\",\"event_id\":\"evt_beta\",\"block_id\":\"blk_beta\",\"mode\":\"mixed\",\"operation\":\"edit_raw_"
+        "command_list\",\"error_code\":\"invalid_for_mode\",\"message\":\"beta\"}");
     workspace.render();
 
     auto exported = nlohmann::json::parse(workspace.exportAsJson());
@@ -104,8 +107,9 @@ TEST_CASE("DiagnosticsWorkspace - Event authority actions keep exported snapshot
     REQUIRE(exported["active_tab_detail"]["has_data"] == false);
 
     workspace.ingestEventAuthorityDiagnosticsJsonl(
-        "{\"ts\":\"2026-03-04T00:00:04Z\",\"level\":\"warn\",\"subsystem\":\"event_authority\",\"event\":\"edit_rejected\",\"event_id\":\"evt_gamma\",\"block_id\":\"blk_gamma\",\"mode\":\"compat\",\"operation\":\"edit_urpg_ast\",\"error_code\":\"new_warning\",\"message\":\"gamma\"}"
-    );
+        "{\"ts\":\"2026-03-04T00:00:04Z\",\"level\":\"warn\",\"subsystem\":\"event_authority\",\"event\":\"edit_"
+        "rejected\",\"event_id\":\"evt_gamma\",\"block_id\":\"blk_gamma\",\"mode\":\"compat\",\"operation\":\"edit_"
+        "urpg_ast\",\"error_code\":\"new_warning\",\"message\":\"gamma\"}");
     exported = nlohmann::json::parse(workspace.exportAsJson());
     REQUIRE(exported["active_tab_detail"]["visible_rows"] == 1);
     REQUIRE(exported["active_tab_detail"]["visible_row_entries"].size() == 1);
@@ -131,8 +135,9 @@ TEST_CASE("DiagnosticsWorkspace - Activating a snapshot-backed tab refreshes exp
     REQUIRE(exported["active_tab_detail"]["live_rows"][0]["assetId"] == "tab_switch_audio");
 }
 
-TEST_CASE("DiagnosticsWorkspace - Revealing a hidden snapshot-backed tab refreshes exported detail without manual render",
-          "[editor][diagnostics][integration][visible_switch_snapshot]") {
+TEST_CASE(
+    "DiagnosticsWorkspace - Revealing a hidden snapshot-backed tab refreshes exported detail without manual render",
+    "[editor][diagnostics][integration][visible_switch_snapshot]") {
     urpg::editor::DiagnosticsWorkspace workspace;
     workspace.setActiveTab(urpg::editor::DiagnosticsTab::Audio);
     workspace.setVisible(false);
@@ -153,16 +158,18 @@ TEST_CASE("DiagnosticsWorkspace - Revealing a hidden snapshot-backed tab refresh
     REQUIRE(exported["active_tab_detail"]["live_rows"][0]["assetId"] == "visible_switch_audio");
 }
 
-
 TEST_CASE("DiagnosticsWorkspace - Event authority workflow actions are exposed at workspace level",
           "[editor][diagnostics][integration][event_authority_actions]") {
     urpg::editor::DiagnosticsWorkspace workspace;
     workspace.setActiveTab(urpg::editor::DiagnosticsTab::EventAuthority);
 
     workspace.ingestEventAuthorityDiagnosticsJsonl(
-        "{\"ts\":\"2026-03-04T00:00:02Z\",\"level\":\"warn\",\"subsystem\":\"event_authority\",\"event\":\"edit_rejected\",\"event_id\":\"evt_alpha\",\"block_id\":\"blk_alpha\",\"mode\":\"compat\",\"operation\":\"edit_urpg_ast\",\"error_code\":\"read_only_derived_view\",\"message\":\"alpha\"}\n"
-        "{\"ts\":\"2026-03-04T00:00:03Z\",\"level\":\"error\",\"subsystem\":\"event_authority\",\"event\":\"edit_rejected\",\"event_id\":\"evt_beta\",\"block_id\":\"blk_beta\",\"mode\":\"mixed\",\"operation\":\"edit_raw_command_list\",\"error_code\":\"invalid_for_mode\",\"message\":\"beta\"}"
-    );
+        "{\"ts\":\"2026-03-04T00:00:02Z\",\"level\":\"warn\",\"subsystem\":\"event_authority\",\"event\":\"edit_"
+        "rejected\",\"event_id\":\"evt_alpha\",\"block_id\":\"blk_alpha\",\"mode\":\"compat\",\"operation\":\"edit_"
+        "urpg_ast\",\"error_code\":\"read_only_derived_view\",\"message\":\"alpha\"}\n"
+        "{\"ts\":\"2026-03-04T00:00:03Z\",\"level\":\"error\",\"subsystem\":\"event_authority\",\"event\":\"edit_"
+        "rejected\",\"event_id\":\"evt_beta\",\"block_id\":\"blk_beta\",\"mode\":\"mixed\",\"operation\":\"edit_raw_"
+        "command_list\",\"error_code\":\"invalid_for_mode\",\"message\":\"beta\"}");
 
     REQUIRE(workspace.setEventAuthorityEventIdFilter("evt_beta"));
     REQUIRE(workspace.selectEventAuthorityRow(0));
@@ -197,5 +204,3 @@ TEST_CASE("DiagnosticsWorkspace - Event authority workflow actions are exposed a
     REQUIRE(exported["active_tab_detail"]["mode_filter"] == "");
     REQUIRE(exported["active_tab_detail"]["visible_rows"] == 2);
 }
-
-

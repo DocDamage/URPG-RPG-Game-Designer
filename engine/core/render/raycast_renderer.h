@@ -1,12 +1,12 @@
 #pragma once
 
-#include <vector>
-#include <cmath>
+#include "engine/core/presentation/presentation_schema.h"
+#include "engine/core/presentation/presentation_types.h"
 #include <algorithm>
+#include <cmath>
 #include <cstdint>
 #include <string>
-#include "engine/core/presentation/presentation_types.h"
-#include "engine/core/presentation/presentation_schema.h"
+#include <vector>
 
 namespace urpg::render {
 
@@ -15,7 +15,7 @@ namespace urpg::render {
  * Maps a 2D grid to a pseudo-3D perspective.
  */
 class RaycastRenderer {
-public:
+  public:
     struct AuthoringAdapter {
         std::string mapId;
         int32_t width = 0;
@@ -45,10 +45,10 @@ public:
     };
 
     struct CastResult {
-        int32_t x;           // Screen x
-        int32_t mapX, mapY;  // What map cell was hit
-        int32_t side;        // 0 for N/S, 1 for E/W
-        float wallDist;      // Perpendicular distance to wall
+        int32_t x;          // Screen x
+        int32_t mapX, mapY; // What map cell was hit
+        int32_t side;       // 0 for N/S, 1 for E/W
+        float wallDist;     // Perpendicular distance to wall
     };
 
     /**
@@ -64,7 +64,7 @@ public:
 
         for (int x = 0; x < config.screenWidth; ++x) {
             // Calculate ray position and direction
-            float cameraX = 2 * x / static_cast<float>(config.screenWidth) - 1; 
+            float cameraX = 2 * x / static_cast<float>(config.screenWidth) - 1;
             float rayDirX = cam.dirX + cam.planeX * cameraX;
             float rayDirY = cam.dirY + cam.planeY * cameraX;
 
@@ -113,12 +113,15 @@ public:
                     side = 1;
                 }
                 // Check if ray has hit a wall
-                if (isBlocking(mapX, mapY)) hit = 1;
+                if (isBlocking(mapX, mapY))
+                    hit = 1;
             }
 
             // Calculate distance projected on camera direction (Euclidean distance will give fisheye effect!)
-            if (side == 0) perpWallDist = (sideDistX - deltaDistX);
-            else           perpWallDist = (sideDistY - deltaDistY);
+            if (side == 0)
+                perpWallDist = (sideDistX - deltaDistX);
+            else
+                perpWallDist = (sideDistY - deltaDistY);
 
             results.push_back({x, mapX, mapY, side, perpWallDist});
         }

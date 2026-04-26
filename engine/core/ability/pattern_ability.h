@@ -11,9 +11,8 @@ namespace urpg::ability {
  * Demonstrates integration between 3.1 (Abilities) and 3.2 (Patterns).
  */
 class PatternAbility : public GameplayAbility {
-public:
-    PatternAbility(const std::string& id, std::shared_ptr<PatternField> pattern) 
-        : id(id), m_pattern(pattern) {}
+  public:
+    PatternAbility(const std::string& id, std::shared_ptr<PatternField> pattern) : id(id), m_pattern(pattern) {}
 
     void setPattern(std::shared_ptr<PatternField> pattern) { m_pattern = pattern; }
     std::shared_ptr<PatternField> getPattern() const { return m_pattern; }
@@ -22,8 +21,9 @@ public:
      * @brief Gets all affected coordinates relative to an origin.
      */
     std::vector<PatternField::Point> getAffectedCells(int32_t originX, int32_t originY) const {
-        if (!m_pattern) return {};
-        
+        if (!m_pattern)
+            return {};
+
         std::vector<PatternField::Point> worldPoints;
         for (const auto& point : m_pattern->getPoints()) {
             worldPoints.push_back({originX + point.x, originY + point.y});
@@ -31,12 +31,12 @@ public:
         return worldPoints;
     }
 
-protected:
+  protected:
     virtual bool canActivate(const AbilitySystemComponent& owner) const override {
         return GameplayAbility::canActivate(owner) && m_pattern != nullptr;
     }
 
-private:
+  private:
     std::shared_ptr<PatternField> m_pattern;
 };
 

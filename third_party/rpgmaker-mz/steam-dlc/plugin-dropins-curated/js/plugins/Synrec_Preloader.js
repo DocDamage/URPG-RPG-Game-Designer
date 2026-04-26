@@ -3,162 +3,162 @@
  * @plugindesc v1.1.6 Preloads image and audio for the game on start
  * @url https://synrec.itch.io
  * @target MZ
- * 
+ *
  * @help
  * During playtesting, the plugin will create a list of image and audio
  * that was loaded to be preloaded on startup.
- * 
- * 
+ *
+ *
  * @param Bypass Load Confirm
  * @desc Bypass needing to use a confirm button
  * @type boolean
  * @default false
- * 
+ *
  * @param Skip Title
  * @desc Skips title if no save game
  * @type boolean
  * @default true
- * 
+ *
  * @param Title Video
  * @desc Plays video before title scene
  * Played from videos folder in project directory
  * @type text
- * 
+ *
  * @param Loading Gauge
  * @desc Setup the loading gauge
  * @type struct<preloadGauge>
- * 
+ *
  * @param Preload Background
  * @desc Background Image used for the preload scene.
  * @type file
  * @dir img/system/
- * 
+ *
  * @param Preload Fonts
  * @desc Setup fonts to preload
  * @type struct<preloadFont>[]
  * @default []
- * 
+ *
  * @param General Settings
- * 
+ *
  * @param Ignored Directories
  * @parent General Settings
  * @desc These directories are ignored by the preloader
  * Format: main_dir/sub_dir/
  * @type text[]
  * @default []
- * 
+ *
  * @param Ignored Files
  * @parent General Settings
  * @desc These files are ignored by the preloader
  * @type struct<ignoreFile>[]
  * @default []
- * 
+ *
  */
 /*~struct~preloadFont:
- * 
+ *
  * @param Font Name
  * @desc Name of the font
  * @type text
  * @default Font Name
- * 
+ *
  * @param Font URL
  * @desc mv: ./fonts/font_name.ttf
  * mz: font_name.ttf
  * @type text
  * @default ./fonts/font_name.ttf
- * 
+ *
  */
 /*~struct~preloadGauge:
- * 
+ *
  * @param Position X
  * @desc Screen position of gauge
  * @type text
  * @default 0
- * 
+ *
  * @param Position Y
  * @desc Screen position of gauge
  * @type text
  * @default 0
- * 
+ *
  * @param Radius
  * @desc Size of the gauge
  * @type text
  * @default 1
- * 
+ *
  * @param Color
  * @desc Color of the gauge
  * Use 0xHex; eg: 0xffffff
  * @type text
  * @default 0xffffff
- * 
+ *
  * @param Complete Text
  * @desc Text when preload complete
  * @type text
  * @default Press OK To Continue
- * 
+ *
  * @param Text X
  * @parent Complete Text
  * @desc Position of text
  * @type text
  * @default 0
- * 
+ *
  * @param Text Y
  * @parent Complete Text
  * @desc Position of text
  * @type text
  * @default 0
  * @default 0
- * 
+ *
  * @param Text Font Face
  * @parent Complete Text
  * @desc Font face of text
  * @type text
  * @default sans-serif
- * 
+ *
  * @param Text Size
  * @parent Complete Text
  * @desc Size of text
  * @type text
  * @default 24
- * 
+ *
  * @param Text Outline Size
  * @parent Complete Text
  * @desc Size of text
  * @type text
  * @default 4
- * 
+ *
  * @param Text Color
  * @parent Complete Text
  * @desc Color of text
  * eg: #ffffff or rgba(255, 255, 255, 1)
  * @type text
  * @default #ffffff
- * 
+ *
  * @param Text Outline Color
  * @parent Complete Text
  * @desc Color of text
  * eg: #ffffff or rgba(255, 255, 255, 1)
  * @type text
  * @default rgba(0, 0, 0, 0.5)
- * 
+ *
  */
 /*~struct~ignoreFile:
- * 
+ *
  * @param Name
  * @desc No function
  * @type text
  * @default FILE
- * 
+ *
  * @param Directory
  * @desc Directory file loaded from
  * Format: main_dir/sub_dir/
  * @type text
  * @default img/pictures/
- * 
+ *
  * @param File Name
  * @desc Include sub-directory names as well.
  * @type text
- * 
+ *
  */
 
 const Syn_Preload = {};
@@ -532,8 +532,8 @@ Scene_Base.prototype.isBusy = function() {
     const need_preload = $gameTemp._need_preload;
     if(!need_preload)return base;
     return (
-        base || 
-        SceneManager._running_preloader || 
+        base ||
+        SceneManager._running_preloader ||
         !SceneManager._complete_preload ||
         !$gameTemp._confirm_preload
     );
@@ -544,7 +544,7 @@ Scene_Base.prototype.isBusy = function() {
 //     const base = Syn_Preload_ScnBse_IsRdy.call(this, ...arguments);
 //     return (
 //         base &&
-//         SceneManager._running_preloader && 
+//         SceneManager._running_preloader &&
 //         !$gameTemp._need_preload
 //     );
 // }
@@ -617,7 +617,7 @@ ScenePreloader_LoadVideo.prototype.updateVideo = function(){
     texture.update();
     const source = mz_mode ? texture.baseTexture.resource.source : texture.baseTexture.source;
     if(
-        video._need_resize > 0 && 
+        video._need_resize > 0 &&
         !isNaN(video._need_resize) ||
         (
             video.width >= Infinity ||
@@ -1114,7 +1114,7 @@ Game_Temp.prototype.audioLoading = function(){
     for(let i = 0; i < this._loading_audios.length; i++){
         const audio = this._loading_audios[i];
         if(
-            audio._isLoaded || 
+            audio._isLoaded ||
             (audio.isReady ? audio.isReady() : false)
         ){
             this._loading_audios.splice(i, 1);

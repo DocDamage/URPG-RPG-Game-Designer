@@ -1,6 +1,6 @@
 #include "editor/ability/ability_inspector_model.h"
-#include "engine/core/ability/gameplay_ability.h"
 #include "engine/core/ability/ability_system_component.h"
+#include "engine/core/ability/gameplay_ability.h"
 #include <algorithm>
 
 namespace urpg::editor {
@@ -18,8 +18,7 @@ void AbilityInspectorModel::refresh(const AbilitySystemComponent& asc) {
     }
 
     // Sort tags alphabetically for UI
-    std::sort(m_active_tags.begin(), m_active_tags.end(), 
-        [](const auto& a, const auto& b) { return a.tag < b.tag; });
+    std::sort(m_active_tags.begin(), m_active_tags.end(), [](const auto& a, const auto& b) { return a.tag < b.tag; });
 
     // Project abilities from ASC
     for (const auto& ability : asc.getAbilities()) {
@@ -29,7 +28,7 @@ void AbilityInspectorModel::refresh(const AbilitySystemComponent& asc) {
         info.cooldown_remaining = asc.getCooldownRemaining(abilityId);
         info.can_activate = ability->canActivate(asc);
         info.pattern = ability->getActivationInfo().pattern;
-        
+
         if (!info.can_activate) {
             // Determine a simple blocking reason
             if (info.cooldown_remaining > 0.0f) {
@@ -96,7 +95,8 @@ const AbilityInfo* AbilityInspectorModel::selectedAbility() const {
     return &m_abilities[*selected_index];
 }
 
-const urpg::ability::GameplayAbility* AbilityInspectorModel::findGrantedAbility(const AbilitySystemComponent& asc) const {
+const urpg::ability::GameplayAbility*
+AbilityInspectorModel::findGrantedAbility(const AbilitySystemComponent& asc) const {
     const auto selected_id = selectedAbilityId();
     if (!selected_id.has_value()) {
         return nullptr;
@@ -133,7 +133,8 @@ AbilityDiagnosticsSnapshot AbilityInspectorModel::buildDiagnosticsSnapshot(const
         state.can_activate = ability->canActivate(asc);
         if (!state.can_activate) {
             if (state.cooldown_remaining > 0.0f) {
-                state.blocking_reason = "Cooldown (" + std::to_string(static_cast<int>(state.cooldown_remaining)) + "s)";
+                state.blocking_reason =
+                    "Cooldown (" + std::to_string(static_cast<int>(state.cooldown_remaining)) + "s)";
             } else if (ability->mpCost > asc.getAttribute("MP", 0.0f)) {
                 state.blocking_reason = "Insufficient MP";
             } else {

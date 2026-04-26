@@ -128,7 +128,9 @@ class BuiltinHashedAdapter(EmbeddingAdapter):
 
 
 class CommandEmbeddingAdapter(EmbeddingAdapter):
-    def __init__(self, command: list[str], dimension: int, adapter_id: str = "command_adapter") -> None:
+    def __init__(
+        self, command: list[str], dimension: int, adapter_id: str = "command_adapter"
+    ) -> None:
         self._command = command
         self._dimension = dimension
         self._adapter_id = adapter_id
@@ -138,7 +140,9 @@ class CommandEmbeddingAdapter(EmbeddingAdapter):
     def spec(self) -> EmbeddingAdapterSpec:
         metadata = {
             "kind": "external_command",
-            "transport": "persistent_jsonl" if self._supports_persistent_worker() else "one_shot_stdio",
+            "transport": "persistent_jsonl"
+            if self._supports_persistent_worker()
+            else "one_shot_stdio",
         }
         runtime_metadata = self.runtime_metadata(include_cache_stats=False)
         if runtime_metadata:
@@ -185,7 +189,9 @@ class CommandEmbeddingAdapter(EmbeddingAdapter):
     def _run_persistent(self, payload: dict) -> dict:
         worker = self._ensure_worker()
         if worker.stdin is None or worker.stdout is None:
-            raise RuntimeError("Embedding adapter worker did not expose stdin/stdout pipes.")
+            raise RuntimeError(
+                "Embedding adapter worker did not expose stdin/stdout pipes."
+            )
 
         worker.stdin.write(json.dumps(payload) + "\n")
         worker.stdin.flush()
@@ -195,7 +201,9 @@ class CommandEmbeddingAdapter(EmbeddingAdapter):
             if worker.stderr is not None:
                 stderr_text = worker.stderr.read().strip()
             self.close()
-            raise RuntimeError(f"Embedding adapter worker closed unexpectedly. {stderr_text}".strip())
+            raise RuntimeError(
+                f"Embedding adapter worker closed unexpectedly. {stderr_text}".strip()
+            )
         return json.loads(response_line)
 
     def _request(self, payload: dict) -> dict:
@@ -212,7 +220,9 @@ class CommandEmbeddingAdapter(EmbeddingAdapter):
     def _raise_if_error(payload: dict) -> None:
         error = payload.get("error")
         if isinstance(error, dict):
-            message = str(error.get("message", "Embedding adapter returned an unspecified error."))
+            message = str(
+                error.get("message", "Embedding adapter returned an unspecified error.")
+            )
             code = error.get("code")
             if code:
                 raise RuntimeError(f"{code}: {message}")
@@ -245,18 +255,24 @@ class CommandEmbeddingAdapter(EmbeddingAdapter):
                 raise RuntimeError(
                     f"Embedding adapter returned dimension {len(vector)} but expected {self._dimension}"
                 )
-            normalized_vectors.append(_normalize_vector([float(value) for value in vector]))
+            normalized_vectors.append(
+                _normalize_vector([float(value) for value in vector])
+            )
         return normalized_vectors
 
     def runtime_metadata(self, include_cache_stats: bool = False) -> dict | None:
         if self._runtime_metadata is not None:
             if include_cache_stats:
-                payload = self._request({"control": "status", "include_cache_stats": True})
+                payload = self._request(
+                    {"control": "status", "include_cache_stats": True}
+                )
                 self._update_runtime_metadata_from_payload(payload)
                 self._raise_if_error(payload)
             return self._runtime_metadata
 
-        payload = self._request({"control": "status", "include_cache_stats": include_cache_stats})
+        payload = self._request(
+            {"control": "status", "include_cache_stats": include_cache_stats}
+        )
         self._update_runtime_metadata_from_payload(payload)
         self._raise_if_error(payload)
         return self._runtime_metadata
@@ -297,17 +313,23 @@ def create_embedding_adapter(
     if adapter_id == "command_adapter":
         if not command:
             raise ValueError("command_adapter requires a command.")
-        return CommandEmbeddingAdapter(command=command, dimension=dimension, adapter_id=adapter_id)
+        return CommandEmbeddingAdapter(
+            command=command, dimension=dimension, adapter_id=adapter_id
+        )
     raise ValueError(f"Unsupported adapter_id: {adapter_id}")
 
 
 def create_adapter_from_bundle(bundle: dict) -> EmbeddingAdapter:
     metadata = bundle.get("embedding_adapter", {})
     adapter_id = metadata.get("adapter_id", bundle.get("engine", "builtin_hashed"))
-    dimension = int(metadata.get("dimension", bundle.get("dimension", DEFAULT_DIMENSION)))
+    dimension = int(
+        metadata.get("dimension", bundle.get("dimension", DEFAULT_DIMENSION))
+    )
     command = metadata.get("command")
     if isinstance(command, list):
-        return create_embedding_adapter(adapter_id=adapter_id, dimension=dimension, command=command)
+        return create_embedding_adapter(
+            adapter_id=adapter_id, dimension=dimension, command=command
+        )
     return create_embedding_adapter(adapter_id=adapter_id, dimension=dimension)
 
 
@@ -327,7 +349,9 @@ def build_command_adapter_args(command: str | list[str] | None) -> list[str] | N
     return [segment for segment in shlex.split(stripped, posix=False) if segment]
 
 
-def normalize_command_adapter_args(command: list[str] | None, repo_root: Path) -> list[str] | None:
+def normalize_command_adapter_args(
+    command: list[str] | None, repo_root: Path
+) -> list[str] | None:
     if not command:
         return None
 
@@ -350,7 +374,10 @@ def normalize_command_adapter_args(command: list[str] | None, repo_root: Path) -
 
 def default_command_adapter_example() -> dict:
     return {
-        "stdin_json": {"texts": ["query text", "chunk text"], "dimension": DEFAULT_DIMENSION},
+        "stdin_json": {
+            "texts": ["query text", "chunk text"],
+            "dimension": DEFAULT_DIMENSION,
+        },
         "stdout_json": {"embeddings": [[0.0, 0.1, 0.0], [0.2, 0.0, 0.0]]},
         "control_json": {"control": "status", "include_cache_stats": True},
         "notes": "External command adapters should support batched texts, while single-text requests remain valid. Persistent workers use one JSON object per line and expose status/control reporting.",

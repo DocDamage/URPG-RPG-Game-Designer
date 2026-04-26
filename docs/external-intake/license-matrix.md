@@ -1,6 +1,6 @@
 # URPG External Repository License Matrix
 
-> Legal intake gate for the twelve external repositories in the URPG intake program.  
+> Legal intake gate for the twelve external repositories in the URPG intake program.
 > See [URPG_repo_intake_plan.md](./URPG_repo_intake_plan.md) and [TECHNICAL_DEBT_REMEDIATION_PLAN.md](../TECHNICAL_DEBT_REMEDIATION_PLAN.md) (P3-02).
 
 ---

@@ -1,8 +1,8 @@
 # Technical Debt Audit Sprint Checklist - 2026-04-24
 
-Status: refreshed current-tree audit and follow-up sprint plan  
-Audit date: 2026-04-24  
-Worktree: `codex/refresh-technical-debt-audit-2026-04-22`  
+Status: refreshed current-tree audit and follow-up sprint plan
+Audit date: 2026-04-24
+Worktree: `codex/refresh-technical-debt-audit-2026-04-22`
 Scope: replace the stale 2026-04-24 sprint checklist with findings from a fresh source, build, CTest, ProjectAudit, export, visual-regression, and governance pass.
 
 This file remains an execution checklist, not a new source of truth. If any sprint changes readiness status, update the canonical status stack in the same change:
@@ -89,7 +89,7 @@ rg --files engine editor runtimes tools tests | line-count sort for hot spots
 
 ### TD-AUD-01 - Broad CTest Discovery/Label Selection Is Broken
 
-**Priority:** P0  
+**Priority:** P0
 **Evidence:** After rebuilding missing test binaries, broad discovery and label selection still fail:
 
 ```text
@@ -128,7 +128,7 @@ Direct execution of `urpg_compat_tests.exe "[compat]"` passes, so this is CTest 
 
 ### TD-AUD-02 - Release Promotion Remains Human-Review Blocked
 
-**Priority:** P1  
+**Priority:** P1
 **Evidence:** `urpg_project_audit --json` reports `releaseBlockerCount: 2` and `exportBlockerCount: 0`. The blockers are `battle_core` and `save_data_core`, both intentionally `PARTIAL` until the release-signoff workflow records human review.
 
 This is honest debt rather than status inflation. The risk is process stagnation: the evidence stack can stay green while the product remains unpromotable.
@@ -151,7 +151,7 @@ This is honest debt rather than status inflation. The risk is process stagnation
 
 ### TD-AUD-03 - Export Hardening Is Stronger But Not Release-Grade
 
-**Priority:** P2  
+**Priority:** P2
 **Evidence:** The old export-audit findings are no longer accurate:
 
 - `ExportPackager::runLicenseAudit()` now calls promoted-bundle and auto-discovered asset license checks.
@@ -178,7 +178,7 @@ The remaining debt is the readiness residual already named by ProjectAudit: runt
 
 ### TD-AUD-04 - Renderer-Backed Visual Goldens Are Oversized
 
-**Priority:** P2  
+**Priority:** P2
 **Evidence:** The renderer-backed visual lane is real and passes, but several committed golden files are huge line-oriented JSON artifacts:
 
 | Lines | File |
@@ -208,7 +208,7 @@ This does not make the tests wrong. It does make reviews, diffs, storage, and ac
 
 ### TD-AUD-05 - Product-Feature Coverage Remains Partial
 
-**Priority:** P2  
+**Priority:** P2
 **Evidence:** ProjectAudit is truthful but still reports multiple non-ready subsystems and bars. Current partial lanes include:
 
 - `compat_bridge_exit`: bounded fixture-backed bridge, not live plugin runtime parity.
@@ -238,7 +238,7 @@ This does not make the tests wrong. It does make reviews, diffs, storage, and ac
 
 ### TD-AUD-06 - Complexity Hot Spots Remain
 
-**Priority:** P3  
+**Priority:** P3
 **Evidence:** The first split pass helped, but several active source/test files are still large:
 
 | Lines | File |
@@ -283,36 +283,36 @@ These are not immediate correctness blockers, but they slow review and make doma
 
 ### TD-AUD-OLD-01 - Restore Nightly Visual Gate
 
-**Status:** Closed for the old gauge finding.  
+**Status:** Closed for the old gauge finding.
 **Evidence:** `ctest --preset dev-all --output-on-failure -R "Window_Base status and gauge surface"` passed. Direct snapshot regression also passed.
 
 Nightly as a label is still blocked, but by TD-AUD-01 CTest metadata parsing, not by the gauge golden.
 
 ### TD-AUD-OLD-02 - Replace Export License Audit Stub
 
-**Status:** Closed.  
+**Status:** Closed.
 **Evidence:** `runLicenseAudit()` now calls `auditPromotedAssetBundleLicenses()` and `auditAutoDiscoveredAssetLicenses()`. Tests cover missing, malformed, and disallowed license evidence and prove export fails before `data.pck` is emitted.
 
 ### TD-AUD-OLD-03 - Harden Bundle Write Failure Handling
 
-**Status:** Mostly closed.  
+**Status:** Mostly closed.
 **Evidence:** `writeBundleFile()` checks file open state and stream state after close, and callers fail when `BundleWriteResult.success` is false.
 
 Residual backlog: temp-file plus atomic rename would make partial-write behavior stronger, but the old "always reports data.pck after failed write" finding is no longer accurate.
 
 ### TD-AUD-OLD-04 - Make Bundle Offsets Size-Safe
 
-**Status:** Closed for the current format.  
+**Status:** Closed for the current format.
 **Evidence:** the bundle writer enforces uint32 bounds on payload sizes, cumulative offsets, and manifest length. Export tests include oversized discovered payload rejection.
 
 ### TD-AUD-OLD-05 - Refresh Stale Audit And Status Docs
 
-**Status:** Closed for this file by this rewrite.  
+**Status:** Closed for this file by this rewrite.
 **Residual:** broader canonical docs still carry 2026-04-23 status dates. That is acceptable if no status promotion happens, but the next sprint that changes status must update the whole canonical stack.
 
 ### TD-AUD-OLD-06 - Worktree And Release Hygiene Sweep
 
-**Status:** Closed for this audit.  
+**Status:** Closed for this audit.
 **Evidence:** `git status --short --branch` shows a clean worktree.
 
 ## Recommended Execution Order

@@ -44,4 +44,3 @@ Copy `tools/codemunch/` into another repo and run:
 .\tools\codemunch\bootstrap-project.ps1
 .\tools\codemunch\index-project.ps1 -ProjectRoot . -Embed
 ```
-

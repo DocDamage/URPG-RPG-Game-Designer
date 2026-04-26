@@ -18,4 +18,3 @@ Initial schema versions for Presentation Core Phase 1 & 2.
 - `PresentationRegistry` (v1): Centralized resource indexing and cold-boot hydration.
 - `StreamingManifest` (v1): LOD and chunk-based loading priorities.
 - `ShaderPipelineState` (v1): Immutable hash-based GPU state tracking (ADR-007).
-

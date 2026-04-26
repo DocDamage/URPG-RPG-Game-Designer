@@ -24,7 +24,13 @@ def main() -> int:
     if job_type == "retrieval_chunk_manifest":
         command = [
             sys.executable,
-            str(repo_root / "tools" / "retrieval" / "faiss_index_builder" / "build_chunk_manifest.py"),
+            str(
+                repo_root
+                / "tools"
+                / "retrieval"
+                / "faiss_index_builder"
+                / "build_chunk_manifest.py"
+            ),
             "--source-root",
             str(repo_root / job["source_root"]),
             "--output",
@@ -37,7 +43,13 @@ def main() -> int:
     elif job_type == "retrieval_bundle":
         command = [
             sys.executable,
-            str(repo_root / "tools" / "retrieval" / "faiss_index_builder" / "build_retrieval_bundle.py"),
+            str(
+                repo_root
+                / "tools"
+                / "retrieval"
+                / "faiss_index_builder"
+                / "build_retrieval_bundle.py"
+            ),
             "--manifest",
             str(repo_root / job["manifest"]),
             "--output",

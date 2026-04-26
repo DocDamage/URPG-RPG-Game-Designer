@@ -1,10 +1,10 @@
 #pragma once
 
 #include <functional>
-#include <string>
-#include <vector>
-#include <variant>
 #include <optional>
+#include <string>
+#include <variant>
+#include <vector>
 
 namespace urpg::copilot {
 
@@ -17,7 +17,7 @@ struct CanonConstraint {
     std::string id;
     std::string description;
     std::string severity; // "ERROR", "WARNING", "INFO"
-    
+
     // Hard constraints fail validation when their predicate returns false.
     bool isHardConstraint = true;
 
@@ -40,10 +40,8 @@ struct EditProposal {
  * Responsible for canon validation and atomic edit orchestration.
  */
 class CopilotKernel {
-public:
-    void addConstraint(const CanonConstraint& constraint) {
-        m_constraints.push_back(constraint);
-    }
+  public:
+    void addConstraint(const CanonConstraint& constraint) { m_constraints.push_back(constraint); }
 
     /**
      * @brief Validates a proposal against known canon constraints.
@@ -66,7 +64,7 @@ public:
         return true;
     }
 
-private:
+  private:
     std::vector<CanonConstraint> m_constraints;
 };
 

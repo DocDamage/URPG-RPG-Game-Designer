@@ -7,8 +7,7 @@ SpriteBatcher::SpriteBatcher(uint32_t maxSprites) : m_maxSprites(maxSprites) {
     m_deferredQuads.reserve(m_maxSprites);
 }
 
-SpriteBatcher::~SpriteBatcher() {
-}
+SpriteBatcher::~SpriteBatcher() {}
 
 void SpriteBatcher::begin() {
     m_deferredQuads.clear();
@@ -19,14 +18,24 @@ void SpriteBatcher::begin() {
     }
 }
 
-void SpriteBatcher::submit(uint32_t textureId, float x, float y, float w, float h, float u1, float v1, float u2, float v2, float z, float r, float g, float b, float a) {
+void SpriteBatcher::submit(uint32_t textureId, float x, float y, float w, float h, float u1, float v1, float u2,
+                           float v2, float z, float r, float g, float b, float a) {
     DeferredQuad quad;
     quad.textureId = textureId;
-    quad.x = x; quad.y = y; quad.w = w; quad.h = h;
-    quad.u1 = u1; quad.v1 = v1; quad.u2 = u2; quad.v2 = v2;
+    quad.x = x;
+    quad.y = y;
+    quad.w = w;
+    quad.h = h;
+    quad.u1 = u1;
+    quad.v1 = v1;
+    quad.u2 = u2;
+    quad.v2 = v2;
     quad.z = z;
-    quad.r = r; quad.g = g; quad.b = b; quad.a = a;
-    
+    quad.r = r;
+    quad.g = g;
+    quad.b = b;
+    quad.a = a;
+
     m_deferredQuads.push_back(quad);
 }
 
@@ -35,7 +44,8 @@ void SpriteBatcher::end() {
     // Primary sort: Z-Order (Back-to-Front)
     // Secondary sort: Texture ID (Batching optimization)
     std::sort(m_deferredQuads.begin(), m_deferredQuads.end(), [](const DeferredQuad& a, const DeferredQuad& b) {
-        if (a.z != b.z) return a.z < b.z;
+        if (a.z != b.z)
+            return a.z < b.z;
         return a.textureId < b.textureId;
     });
 
@@ -46,12 +56,12 @@ void SpriteBatcher::end() {
         }
 
         auto& v = m_batches.back().vertices;
-        v.push_back({{q.x,     q.y,     q.z}, {q.u1, q.v1}, {q.r, q.g, q.b, q.a}});
-        v.push_back({{q.x,     q.y + q.h, q.z}, {q.u1, q.v2}, {q.r, q.g, q.b, q.a}});
-        v.push_back({{q.x + q.w, q.y,     q.z}, {q.u2, q.v1}, {q.r, q.g, q.b, q.a}});
-        v.push_back({{q.x,     q.y + q.h, q.z}, {q.u1, q.v2}, {q.r, q.g, q.b, q.a}});
+        v.push_back({{q.x, q.y, q.z}, {q.u1, q.v1}, {q.r, q.g, q.b, q.a}});
+        v.push_back({{q.x, q.y + q.h, q.z}, {q.u1, q.v2}, {q.r, q.g, q.b, q.a}});
+        v.push_back({{q.x + q.w, q.y, q.z}, {q.u2, q.v1}, {q.r, q.g, q.b, q.a}});
+        v.push_back({{q.x, q.y + q.h, q.z}, {q.u1, q.v2}, {q.r, q.g, q.b, q.a}});
         v.push_back({{q.x + q.w, q.y + q.h, q.z}, {q.u2, q.v2}, {q.r, q.g, q.b, q.a}});
-        v.push_back({{q.x + q.w, q.y,     q.z}, {q.u2, q.v1}, {q.r, q.g, q.b, q.a}});
+        v.push_back({{q.x + q.w, q.y, q.z}, {q.u2, q.v1}, {q.r, q.g, q.b, q.a}});
     }
 }
 

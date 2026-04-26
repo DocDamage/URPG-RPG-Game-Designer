@@ -1,11 +1,11 @@
 #pragma once
 
-#include "engine/core/ecs/world.h"
 #include "engine/core/ecs/actor_components.h"
 #include "engine/core/ecs/collision_components.h"
+#include "engine/core/ecs/world.h"
 #include "engine/core/events/trigger_components.h"
-#include <vector>
 #include <string>
+#include <vector>
 
 namespace urpg {
 
@@ -13,7 +13,7 @@ namespace urpg {
  * @brief System that detects when entities enter or exit trigger volumes.
  */
 class TriggerSystem {
-public:
+  public:
     struct PendingEvent {
         std::string eventId;
         EntityID triggerEntity;
@@ -24,47 +24,53 @@ public:
         m_pendingEvents.clear();
 
         // Query all triggers
-        world.ForEachWith<TransformComponent, CollisionBoxComponent, TriggerVolumeComponent>([&](EntityID triggerId, TransformComponent& tTrans, CollisionBoxComponent& tBox, TriggerVolumeComponent& trigger) {
-            if (!trigger.isActive) return;
+        world.ForEachWith<TransformComponent, CollisionBoxComponent, TriggerVolumeComponent>(
+            [&](EntityID triggerId, TransformComponent& tTrans, CollisionBoxComponent& tBox,
+                TriggerVolumeComponent& trigger) {
+                if (!trigger.isActive)
+                    return;
 
-            // Ensure trigger has state tracking
-            TriggerStateComponent* state = world.GetComponent<TriggerStateComponent>(triggerId);
-            if (!state) {
-                state = &world.AddComponent(triggerId, TriggerStateComponent{});
-            }
+                // Ensure trigger has state tracking
+                TriggerStateComponent* state = world.GetComponent<TriggerStateComponent>(triggerId);
+                if (!state) {
+                    state = &world.AddComponent(triggerId, TriggerStateComponent{});
+                }
 
-            state->wasOccupiedLastFrame = state->isCurrentlyOccupied;
-            state->isCurrentlyOccupied = false;
+                state->wasOccupiedLastFrame = state->isCurrentlyOccupied;
+                state->isCurrentlyOccupied = false;
 
-            // Check against all other entities that could activate a trigger
-            world.ForEachWith<TransformComponent, CollisionBoxComponent>([&](EntityID actorId, TransformComponent& aTrans, CollisionBoxComponent& aBox) {
-                if (triggerId == actorId) return;
+                // Check against all other entities that could activate a trigger
+                world.ForEachWith<TransformComponent, CollisionBoxComponent>(
+                    [&](EntityID actorId, TransformComponent& aTrans, CollisionBoxComponent& aBox) {
+                        if (triggerId == actorId)
+                            return;
 
-                if (checkOverlap(tTrans, tBox, aTrans, aBox)) {
-                    state->isCurrentlyOccupied = true;
-                    
-                    if (!state->wasOccupiedLastFrame) {
-                        if (!trigger.onEnterEvent.empty()) {
-                            m_pendingEvents.push_back({trigger.onEnterEvent, triggerId, actorId});
+                        if (checkOverlap(tTrans, tBox, aTrans, aBox)) {
+                            state->isCurrentlyOccupied = true;
+
+                            if (!state->wasOccupiedLastFrame) {
+                                if (!trigger.onEnterEvent.empty()) {
+                                    m_pendingEvents.push_back({trigger.onEnterEvent, triggerId, actorId});
+                                }
+                                if (trigger.isOneShot) {
+                                    trigger.isActive = false;
+                                }
+                            }
                         }
-                        if (trigger.isOneShot) {
-                            trigger.isActive = false;
-                        }
+                    });
+
+                if (state->wasOccupiedLastFrame && !state->isCurrentlyOccupied) {
+                    if (!trigger.onExitEvent.empty()) {
+                        m_pendingEvents.push_back(
+                            {trigger.onExitEvent, triggerId, 0}); // 0 for simplified exit activator
                     }
                 }
             });
-
-            if (state->wasOccupiedLastFrame && !state->isCurrentlyOccupied) {
-                if (!trigger.onExitEvent.empty()) {
-                    m_pendingEvents.push_back({trigger.onExitEvent, triggerId, 0}); // 0 for simplified exit activator
-                }
-            }
-        });
     }
 
     const std::vector<PendingEvent>& getPendingEvents() const { return m_pendingEvents; }
 
-private:
+  private:
     bool checkOverlap(const TransformComponent& tTrans, const CollisionBoxComponent& tBox,
                       const TransformComponent& aTrans, const CollisionBoxComponent& aBox) {
         const float tHalfX = tBox.size.x.ToFloat() * 0.5f;
@@ -81,8 +87,7 @@ private:
         const float aCenterY = (aTrans.position + aBox.offset).y.ToFloat();
         const float aCenterZ = (aTrans.position + aBox.offset).z.ToFloat();
 
-        return std::abs(tCenterX - aCenterX) < (tHalfX + aHalfX) &&
-               std::abs(tCenterY - aCenterY) < (tHalfY + aHalfY) &&
+        return std::abs(tCenterX - aCenterX) < (tHalfX + aHalfX) && std::abs(tCenterY - aCenterY) < (tHalfY + aHalfY) &&
                std::abs(tCenterZ - aCenterZ) < (tHalfZ + aHalfZ);
     }
 

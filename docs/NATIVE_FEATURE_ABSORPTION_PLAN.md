@@ -1,7 +1,7 @@
 # URPG Native Capability Expansion Plan
 
-Date: 2026-04-20  
-Status: active roadmap  
+Date: 2026-04-20
+Status: active roadmap
 Scope: native runtime, editor workflows, schema/migration, compat bridge exit, advanced capability expansion, and template/governance productization
 
 This is the roadmap document, not the canonical latest-status snapshot. For current completion, remediation, and validation state, use:

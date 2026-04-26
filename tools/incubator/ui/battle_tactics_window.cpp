@@ -23,7 +23,8 @@ void BattleTacticsWindow::update(float dt) {
 }
 
 void BattleTacticsWindow::draw(SpriteBatcher& batcher) {
-    if (!m_visible) return;
+    if (!m_visible)
+        return;
 
     // Draw frame/background
     UIWindow::draw(batcher);
@@ -37,11 +38,12 @@ void BattleTacticsWindow::draw(SpriteBatcher& batcher) {
     titleCmd->y = m_position.y + 15.0f;
     titleCmd->fontSize = 18;
     titleCmd->zOrder = m_zIndex + 0.1f;
-    
+
     // Add pulsing intensity
     float pulse = (std::sin(m_pulseTime * 4.0f) * 0.5f + 0.5f) * 0.3f;
     titleCmd->r = static_cast<uint8_t>(255.0f * (0.7f + pulse));
-    titleCmd->g = 255; titleCmd->b = 255;
+    titleCmd->g = 255;
+    titleCmd->b = 255;
     layer.submit(titleCmd);
 
     if (!m_isLoading && !m_recommendedMove.empty()) {
@@ -51,7 +53,9 @@ void BattleTacticsWindow::draw(SpriteBatcher& batcher) {
         moveCmd->x = m_position.x + 15.0f;
         moveCmd->y = m_position.y + 45.0f;
         moveCmd->fontSize = 22;
-        moveCmd->g = 255; moveCmd->r = 100; moveCmd->b = 100; // Highlight in Green-ish
+        moveCmd->g = 255;
+        moveCmd->r = 100;
+        moveCmd->b = 100; // Highlight in Green-ish
         moveCmd->zOrder = m_zIndex + 0.1f;
         layer.submit(moveCmd);
 

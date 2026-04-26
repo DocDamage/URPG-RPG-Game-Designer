@@ -1,6 +1,6 @@
 # Template Readiness Matrix
 
-Status Date: 2026-04-23  
+Status Date: 2026-04-23
 Authority: canonical template readiness reference for product-facing template labels
 
 This matrix answers a narrower question than the roadmap: which game templates are currently safe to describe as `READY`, `PARTIAL`, `EXPERIMENTAL`, `BLOCKED`, or `PLANNED`.

@@ -19,15 +19,15 @@ class World;
  */
 
 #ifdef _WIN32
-    #define URPG_API __declspec(dllexport)
+#define URPG_API __declspec(dllexport)
 #else
-    #define URPG_API __attribute__((visibility("default")))
+#define URPG_API __attribute__((visibility("default")))
 #endif
 
 extern "C" {
 
 // --- Logging & Diagnostics ---
-// Routed: emits log lines only; does not integrate with a structured editor log sink yet.
+// Routed through RuntimeDiagnostics; does not write directly to stdout/stderr.
 URPG_API void URPG_LogInfo(const char* message);
 URPG_API void URPG_LogError(const char* message);
 
@@ -63,7 +63,7 @@ typedef void (*URPG_ShutdownFn)();
 namespace urpg::editor {
 
 class ScopedPluginAPIWorldBinding {
-public:
+  public:
     explicit ScopedPluginAPIWorldBinding(World* world);
     ~ScopedPluginAPIWorldBinding();
 
@@ -73,7 +73,7 @@ public:
     ScopedPluginAPIWorldBinding(ScopedPluginAPIWorldBinding&& other) noexcept;
     ScopedPluginAPIWorldBinding& operator=(ScopedPluginAPIWorldBinding&& other) noexcept = delete;
 
-private:
+  private:
     bool m_active = false;
 };
 

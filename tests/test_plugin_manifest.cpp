@@ -1,5 +1,5 @@
-#include <catch2/catch_test_macros.hpp>
 #include "engine/core/plugin/plugin_manifest.h"
+#include <catch2/catch_test_macros.hpp>
 #include <nlohmann/json.hpp>
 
 using namespace urpg::plugin;
@@ -28,11 +28,11 @@ TEST_CASE("PluginManifest parses JSON correcty", "[plugin]") {
     REQUIRE(m.id == "my_plugin");
     REQUIRE(m.version == "1.2.3");
     REQUIRE(m.author == "Alice");
-    
+
     REQUIRE(m.dependencies.size() == 2);
     REQUIRE(m.dependencies[0].pluginId == "base_core");
     REQUIRE_FALSE(m.dependencies[0].isOptional);
-    
+
     REQUIRE(m.dependencies[1].pluginId == "optional_mod");
     REQUIRE(m.dependencies[1].versionRange == "^2.0.0");
     REQUIRE(m.dependencies[1].isOptional);

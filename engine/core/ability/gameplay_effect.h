@@ -7,9 +7,9 @@
 namespace urpg {
 
 enum class ModifierOp {
-    Add,        // Value + Modifier
-    Multiply,   // Value * Modifier
-    Override    // Value = Modifier (Highest priority)
+    Add,      // Value + Modifier
+    Multiply, // Value * Modifier
+    Override  // Value = Modifier (Highest priority)
 };
 
 /**
@@ -19,17 +19,17 @@ struct GameplayEffectModifier {
     std::string attributeName;
     ModifierOp operation;
     float value;
-    
+
     // Optional tag requirements for this modifier to be active
     // (e.g. "Only active if State.Poisoned")
-    std::string requiredTag; 
+    std::string requiredTag;
 };
 
 enum class GameplayEffectStackingPolicy {
-    None,       // Add as new instance (default)
-    Refresh,    // Reset duration of existing instance
-    Stack,      // Increment stack count and refresh duration
-    Overflow    // If at max stacks, apply a secondary effect
+    None,    // Add as new instance (default)
+    Refresh, // Reset duration of existing instance
+    Stack,   // Increment stack count and refresh duration
+    Overflow // If at max stacks, apply a secondary effect
 };
 
 /**

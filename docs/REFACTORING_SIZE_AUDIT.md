@@ -1,7 +1,7 @@
 # Refactoring Audit — Files Requiring Size Reduction
 
-**Generated:** 2026-04-22  
-**Scope:** `engine/`, `editor/`, `runtimes/`, `tests/`, `tools/`  
+**Generated:** 2026-04-22
+**Scope:** `engine/`, `editor/`, `runtimes/`, `tests/`, `tools/`
 **Thresholds:** Critical >2000 lines | High 1000–2000 lines | Medium 300–999 lines
 
 ---

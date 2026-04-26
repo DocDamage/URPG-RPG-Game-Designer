@@ -21,6 +21,7 @@ namespace {
 constexpr char kAssetDiscoveryManifestPath[] = "export/asset_discovery_manifest.json";
 constexpr char kAssetDiscoveryFormat[] = "URPG_PROJECT_ASSET_DISCOVERY_V1";
 constexpr char kAssetLicenseManifestFilename[] = "asset_licenses.json";
+constexpr char kProjectContentBundleMode[] = "project_content_bundle_v1";
 
 struct AssetDiscoveryRoot {
     std::filesystem::path sourcePath;
@@ -31,21 +32,31 @@ struct AssetDiscoveryRoot {
 
 std::string bundleTargetToString(ExportTarget target) {
     switch (target) {
-        case ExportTarget::Windows_x64: return "Windows (x64)";
-        case ExportTarget::Linux_x64: return "Linux (x64)";
-        case ExportTarget::macOS_Universal: return "macOS (Universal)";
-        case ExportTarget::Web_WASM: return "Web (WASM/WebGL)";
-        default: return "Other";
+    case ExportTarget::Windows_x64:
+        return "Windows (x64)";
+    case ExportTarget::Linux_x64:
+        return "Linux (x64)";
+    case ExportTarget::macOS_Universal:
+        return "macOS (Universal)";
+    case ExportTarget::Web_WASM:
+        return "Web (WASM/WebGL)";
+    default:
+        return "Other";
     }
 }
 
 std::string bundleObfuscationKey(ExportTarget target) {
     switch (target) {
-        case ExportTarget::Windows_x64: return "urpg-export-bundle-win";
-        case ExportTarget::Linux_x64: return "urpg-export-bundle-linux";
-        case ExportTarget::macOS_Universal: return "urpg-export-bundle-macos";
-        case ExportTarget::Web_WASM: return "urpg-export-bundle-web";
-        default: return "urpg-export-bundle";
+    case ExportTarget::Windows_x64:
+        return "urpg-export-bundle-win";
+    case ExportTarget::Linux_x64:
+        return "urpg-export-bundle-linux";
+    case ExportTarget::macOS_Universal:
+        return "urpg-export-bundle-macos";
+    case ExportTarget::Web_WASM:
+        return "urpg-export-bundle-web";
+    default:
+        return "urpg-export-bundle";
     }
 }
 
@@ -61,10 +72,8 @@ std::string sanitizeBundleSegment(std::string value) {
         }
     }
 
-    value.erase(
-        std::unique(value.begin(), value.end(),
-                    [](char lhs, char rhs) { return lhs == '_' && rhs == '_'; }),
-        value.end());
+    value.erase(std::unique(value.begin(), value.end(), [](char lhs, char rhs) { return lhs == '_' && rhs == '_'; }),
+                value.end());
 
     while (!value.empty() && value.front() == '_') {
         value.erase(value.begin());
@@ -77,10 +86,8 @@ std::string sanitizeBundleSegment(std::string value) {
 }
 
 std::string makePayloadIntegrityScope(const BundlePayload& payload) {
-    return payload.path + "|" + payload.kind + "|" +
-           (payload.compressed ? "1" : "0") + "|" +
-           (payload.obfuscated ? "1" : "0") + "|" +
-           std::to_string(payload.rawSize);
+    return payload.path + "|" + payload.kind + "|" + (payload.compressed ? "1" : "0") + "|" +
+           (payload.obfuscated ? "1" : "0") + "|" + std::to_string(payload.rawSize);
 }
 
 std::filesystem::path repoRootPath() {
@@ -110,13 +117,7 @@ std::vector<AssetDiscoveryRoot> assetDiscoveryRoots(const ExportConfig& config) 
     std::vector<std::string> configuredRoots = config.assetDiscoveryRoots;
     if (configuredRoots.empty()) {
         configuredRoots = {
-            "assets",
-            "audio",
-            "fonts",
-            "images",
-            "content/projects",
-            "content/scenes",
-            "content/localization",
+            "assets",     "audio", "fonts", "images", "content/projects", "content/scenes", "content/localization",
             "content/ui",
         };
     }
@@ -166,8 +167,8 @@ bool fileFitsBundleLimits(const std::filesystem::path& path, std::vector<std::st
     std::error_code sizeError;
     const auto size = std::filesystem::file_size(path, sizeError);
     if (sizeError) {
-        errors.push_back("Unable to read asset size for export payload: " + path.string() +
-                         " (" + sizeError.message() + ")");
+        errors.push_back("Unable to read asset size for export payload: " + path.string() + " (" + sizeError.message() +
+                         ")");
         return false;
     }
     if (size > std::numeric_limits<std::uint32_t>::max()) {
@@ -180,39 +181,21 @@ bool fileFitsBundleLimits(const std::filesystem::path& path, std::vector<std::st
 bool isPathWithinRoot(const std::filesystem::path& root, const std::filesystem::path& candidate) {
     const auto normalizedRoot = root.lexically_normal();
     const auto normalizedCandidate = candidate.lexically_normal();
-    const auto mismatch = std::mismatch(
-        normalizedRoot.begin(), normalizedRoot.end(),
-        normalizedCandidate.begin(), normalizedCandidate.end());
+    const auto mismatch = std::mismatch(normalizedRoot.begin(), normalizedRoot.end(), normalizedCandidate.begin(),
+                                        normalizedCandidate.end());
     return mismatch.first == normalizedRoot.end();
 }
 
 std::vector<BundlePayload> collectRepoOwnedPayloads() {
     const std::filesystem::path root = repoRootPath();
-    const std::vector<std::pair<std::filesystem::path, std::string>> singleFiles = {
-        {root / "content" / "readiness" / "readiness_status.json", "readiness"},
-    };
     const std::vector<std::pair<std::filesystem::path, std::string>> directories = {
+        {root / "content" / "fixtures", "project_fixture"},
+        {root / "content" / "readiness", "readiness"},
         {root / "content" / "schemas", "schema"},
         {root / "content" / "level_libraries", "level_library"},
     };
 
     std::vector<BundlePayload> payloads;
-
-    for (const auto& [filePath, kind] : singleFiles) {
-        if (!std::filesystem::exists(filePath) || !std::filesystem::is_regular_file(filePath)) {
-            continue;
-        }
-
-        payloads.push_back({
-            std::filesystem::relative(filePath, root).generic_string(),
-            kind,
-            readFileBytes(filePath),
-            0,
-            false,
-            false,
-            {},
-        });
-    }
 
     for (const auto& [dirPath, kind] : directories) {
         if (!std::filesystem::exists(dirPath) || !std::filesystem::is_directory(dirPath)) {
@@ -241,6 +224,42 @@ std::vector<BundlePayload> collectRepoOwnedPayloads() {
     }
 
     return payloads;
+}
+
+nlohmann::json buildProjectEntryPayload() {
+    return {
+        {"format", "URPG_PROJECT_ENTRY_V1"},
+        {"bundleMode", kProjectContentBundleMode},
+        {"entryScene", "content/fixtures/map_worldbuilding_fixture.json"},
+        {"projectConfig", "content/fixtures/project_governance_fixture.json"},
+        {"exportFixture", "content/fixtures/export_packaging_fixture.json"},
+        {"levelLibrary", "content/level_libraries/starter_dungeon.json"},
+        {"assetDiscoveryManifest", kAssetDiscoveryManifestPath},
+        {"runtimeSurface", "runtime_bundle_loader"},
+    };
+}
+
+nlohmann::json buildScriptPolicyPayload() {
+    return {
+        {"format", "URPG_SCRIPT_EXPORT_POLICY_V1"},
+        {"scriptExportMode", "verbatim"},
+        {"supportedModes", nlohmann::json::array({"verbatim"})},
+        {"unsupportedModes", nlohmann::json::array({"obfuscateScripts"})},
+        {"failClosedForUnsupportedModes", true},
+        {"runtimeSurface", "quickjs_compat_harness"},
+        {"scriptRoots", nlohmann::json::array({
+                            {
+                                {"path", "runtimes/compat_js"},
+                                {"kind", "compat_runtime"},
+                                {"exportMode", "verbatim"},
+                            },
+                            {
+                                {"path", "content/fixtures/mod_sdk_sample/scripts"},
+                                {"kind", "project_mod_scripts"},
+                                {"exportMode", "verbatim"},
+                            },
+                        })},
+    };
 }
 
 std::vector<BundlePayload> collectPromotedAssetBundlePayloads(const ExportConfig& config,
@@ -272,8 +291,8 @@ std::vector<BundlePayload> collectPromotedAssetBundlePayloads(const ExportConfig
             continue;
         }
 
-        if (!manifest.is_object() || manifest.value("bundle_state", "") != "promoted" ||
-            !manifest.contains("assets") || !manifest["assets"].is_array()) {
+        if (!manifest.is_object() || manifest.value("bundle_state", "") != "promoted" || !manifest.contains("assets") ||
+            !manifest["assets"].is_array()) {
             continue;
         }
 
@@ -291,8 +310,7 @@ std::vector<BundlePayload> collectPromotedAssetBundlePayloads(const ExportConfig
             }
 
             const auto assetPath = (assetRoot / relativePath).lexically_normal();
-            if (!isPathWithinRoot(assetRoot, assetPath) ||
-                !std::filesystem::exists(assetPath) ||
+            if (!isPathWithinRoot(assetRoot, assetPath) || !std::filesystem::exists(assetPath) ||
                 !std::filesystem::is_regular_file(assetPath)) {
                 continue;
             }
@@ -434,13 +452,18 @@ BundleBuildResult buildBundlePayloads(const ExportConfig& config) {
     BundleBuildResult result;
     auto& entries = result.payloads;
 
+    if (config.obfuscateScripts) {
+        result.errors.push_back(
+            "Unsupported script export mode: obfuscateScripts=true requires a real script transform pipeline.");
+        return result;
+    }
+
     const nlohmann::json exportMetadata = {
-        {"format", "URPG_BOUNDED_EXPORT_BUNDLE_V1"},
-        {"bundleMode", "bounded_export_smoke"},
-        {"target", bundleTargetToString(config.target)},
-        {"compressAssets", config.compressAssets},
-        {"includeDebugSymbols", config.includeDebugSymbols},
-        {"obfuscateScripts", config.obfuscateScripts},
+        {"format", "URPG_PROJECT_EXPORT_METADATA_V1"},           {"bundleMode", kProjectContentBundleMode},
+        {"target", bundleTargetToString(config.target)},         {"compressAssets", config.compressAssets},
+        {"includeDebugSymbols", config.includeDebugSymbols},     {"obfuscateScripts", config.obfuscateScripts},
+        {"projectEntry", "runtime/project_entry.json"},          {"scriptPolicy", "runtime/script_pack_policy.json"},
+        {"assetDiscoveryManifest", kAssetDiscoveryManifestPath},
     };
     entries.push_back({
         "export/export_metadata.json",
@@ -452,30 +475,18 @@ BundleBuildResult buildBundlePayloads(const ExportConfig& config) {
         {},
     });
 
-    const nlohmann::json bootstrapScene = {
-        {"entryScene", "Boot"},
-        {"firstRuntimeSurface", "MapScene"},
-        {"bundleContract", "bounded_export_smoke"},
-        {"notes", {
-            "Synthetic project-wide asset discovery is not implemented in-tree.",
-            "This bundle carries deterministic bootstrap/runtime metadata only."
-        }},
-    };
+    const nlohmann::json projectEntry = buildProjectEntryPayload();
     entries.push_back({
-        "runtime/bootstrap_scene.json",
-        "bootstrap",
-        toBytes(bootstrapScene.dump(2) + "\n"),
-        bootstrapScene.dump(2).size() + 1,
+        "runtime/project_entry.json",
+        "project_entry",
+        toBytes(projectEntry.dump(2) + "\n"),
+        projectEntry.dump(2).size() + 1,
         false,
         false,
         {},
     });
 
-    const nlohmann::json scriptPolicy = {
-        {"obfuscateScripts", config.obfuscateScripts},
-        {"packScriptsStatus", config.obfuscateScripts ? "bounded_obfuscation_header" : "verbatim_placeholder"},
-        {"runtimeSurface", "compat_harness"},
-    };
+    const nlohmann::json scriptPolicy = buildScriptPolicyPayload();
     entries.push_back({
         "runtime/script_pack_policy.json",
         "script_policy",

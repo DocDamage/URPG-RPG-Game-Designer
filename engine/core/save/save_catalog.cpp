@@ -36,10 +36,11 @@ SaveRetentionClass ParseRetentionClass(const SaveSlotMeta& meta, SaveSlotCategor
         return RetentionClassForCategory(category);
     }
     return meta.retention_class == SaveRetentionClass::Autosave && category == SaveSlotCategory::Autosave
-        ? SaveRetentionClass::Autosave
-        : (meta.retention_class == SaveRetentionClass::Quicksave || meta.retention_class == SaveRetentionClass::Manual
-            ? meta.retention_class
-            : RetentionClassForCategory(category));
+               ? SaveRetentionClass::Autosave
+               : (meta.retention_class == SaveRetentionClass::Quicksave ||
+                          meta.retention_class == SaveRetentionClass::Manual
+                      ? meta.retention_class
+                      : RetentionClassForCategory(category));
 }
 
 SaveSlotCategory ParseSlotCategoryString(const std::string& rawCategory) {
@@ -52,7 +53,8 @@ SaveSlotCategory ParseSlotCategoryString(const std::string& rawCategory) {
     return SaveSlotCategory::Manual;
 }
 
-void NormalizeMeta(SaveSlotMeta& meta, int32_t slot_id, int32_t autosave_slot, const SaveMetadataRegistry* registry = nullptr) {
+void NormalizeMeta(SaveSlotMeta& meta, int32_t slot_id, int32_t autosave_slot,
+                   const SaveMetadataRegistry* registry = nullptr) {
     meta.slot_id = slot_id;
     meta.category = ParseSlotCategory(meta, slot_id, autosave_slot);
     meta.retention_class = ParseRetentionClass(meta, meta.category);
@@ -85,20 +87,14 @@ nlohmann::json BuildMetadataJson(const SaveSlotMeta& meta) {
     root["_thumbnail_hash"] = meta.thumbnail_hash;
     root["_map_display_name"] = meta.map_display_name;
     root["_data_blob_path"] = meta.data_blob_path;
-    root["_flags"] = {
-        {"autosave", meta.flags.autosave},
-        {"copilot_generated", meta.flags.copilot_generated},
-        {"corrupted", meta.flags.corrupted}
-    };
+    root["_flags"] = {{"autosave", meta.flags.autosave},
+                      {"copilot_generated", meta.flags.copilot_generated},
+                      {"corrupted", meta.flags.corrupted}};
 
     root["_party_snapshot"] = nlohmann::json::array();
     for (const auto& member : meta.party_snapshot) {
-        root["_party_snapshot"].push_back({
-            {"name", member.name},
-            {"level", member.level},
-            {"hp", member.hp},
-            {"max_hp", member.max_hp}
-        });
+        root["_party_snapshot"].push_back(
+            {{"name", member.name}, {"level", member.level}, {"hp", member.hp}, {"max_hp", member.max_hp}});
     }
 
     if (!meta.custom_metadata.empty()) {
@@ -172,8 +168,7 @@ std::vector<SaveCatalogEntry> SaveCatalog::listEntries(bool include_autosave) co
     return entries;
 }
 
-SaveSessionCoordinator::SaveSessionCoordinator(SaveCatalog& catalog)
-    : catalog_(catalog) {}
+SaveSessionCoordinator::SaveSessionCoordinator(SaveCatalog& catalog) : catalog_(catalog) {}
 
 const SaveAutosavePolicy& SaveSessionCoordinator::autosavePolicy() const {
     return autosave_policy_;
@@ -199,7 +194,7 @@ bool SaveSessionCoordinator::loadSavePolicies(const std::filesystem::path& path)
 
     try {
         nlohmann::json data = nlohmann::json::parse(f);
-        
+
         // 1. Metadata Fields
         if (data.contains("metadata_fields")) {
             metadata_registry_.loadFromSchema(data);
@@ -209,9 +204,11 @@ bool SaveSessionCoordinator::loadSavePolicies(const std::filesystem::path& path)
         if (data.contains("retention")) {
             const auto& r = data["retention"];
             retention_policy_.max_autosave_slots = r.value("max_autosave_slots", retention_policy_.max_autosave_slots);
-            retention_policy_.max_quicksave_slots = r.value("max_quicksave_slots", retention_policy_.max_quicksave_slots);
+            retention_policy_.max_quicksave_slots =
+                r.value("max_quicksave_slots", retention_policy_.max_quicksave_slots);
             retention_policy_.max_manual_slots = r.value("max_manual_slots", retention_policy_.max_manual_slots);
-            retention_policy_.prune_excess_on_save = r.value("prune_excess_on_save", retention_policy_.prune_excess_on_save);
+            retention_policy_.prune_excess_on_save =
+                r.value("prune_excess_on_save", retention_policy_.prune_excess_on_save);
         }
 
         // 3. Autosave Policy
@@ -271,10 +268,9 @@ bool SaveSessionCoordinator::loadSaveSlots(const std::filesystem::path& path) {
 }
 
 std::optional<SaveSlotDescriptor> SaveSessionCoordinator::slotDescriptor(int32_t slot_id) const {
-    const auto it = std::find_if(slot_descriptors_.begin(), slot_descriptors_.end(),
-                                 [slot_id](const SaveSlotDescriptor& descriptor) {
-                                     return descriptor.slot_id == slot_id;
-                                 });
+    const auto it =
+        std::find_if(slot_descriptors_.begin(), slot_descriptors_.end(),
+                     [slot_id](const SaveSlotDescriptor& descriptor) { return descriptor.slot_id == slot_id; });
     if (it == slot_descriptors_.end()) {
         return std::nullopt;
     }

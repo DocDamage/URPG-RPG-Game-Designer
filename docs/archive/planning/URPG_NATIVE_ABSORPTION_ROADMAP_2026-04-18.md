@@ -1,7 +1,7 @@
 # URPG Native Absorption Roadmap
 
-Date: 2026-04-18  
-Status: superseded planning input retained for traceability  
+Date: 2026-04-18
+Status: superseded planning input retained for traceability
 Scope: convert the plugin-ecosystem research brief into a repo-ready, native-first execution plan with phases, file targets, issue breakdowns, acceptance criteria, and release gates.
 
 Canonical governance and current execution authority live in:

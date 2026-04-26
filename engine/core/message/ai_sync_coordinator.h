@@ -1,9 +1,10 @@
 #pragma once
 
-#include "engine/core/social/cloud_service.h"
 #include "engine/core/message/chatbot_component.h"
+#include "engine/core/social/cloud_service.h"
 #include <memory>
 #include <string>
+#include <vector>
 
 namespace urpg::ai {
 
@@ -15,7 +16,26 @@ namespace urpg::ai {
  * cloud sync path.
  */
 class AISyncCoordinator {
-public:
+  public:
+    enum class SyncErrorCode {
+        None,
+        Offline,
+        MissingKey,
+        CloudWriteFailed,
+        InvalidJson,
+        SchemaMismatch,
+        RestoreFailed,
+        RemoteUpdatesUnsupported
+    };
+
+    struct SyncResult {
+        bool success = false;
+        SyncErrorCode code = SyncErrorCode::None;
+        std::string message;
+        std::string key;
+        std::vector<std::string> details;
+    };
+
     AISyncCoordinator(std::shared_ptr<urpg::social::ICloudService> cloudService);
     virtual ~AISyncCoordinator() = default;
 
@@ -23,19 +43,27 @@ public:
      * @brief Pushes current chatbot history to the configured cloud-service backend.
      */
     bool syncHistoryToCloud(const std::string& profileId, const ChatbotComponent& chatbot);
+    SyncResult syncHistoryToCloudDetailed(const std::string& profileId, const ChatbotComponent& chatbot);
 
     /**
      * @brief Pulls chatbot history from the configured cloud-service backend and restores it.
      */
     bool restoreHistoryFromCloud(const std::string& profileId, ChatbotComponent& chatbot);
+    SyncResult restoreHistoryFromCloudDetailed(const std::string& profileId, ChatbotComponent& chatbot);
 
     /**
      * @brief Placeholder hook for checking remote AI knowledge updates.
      */
     bool checkForRemoteKnowledgeUpdates(const std::string& projectId);
+    SyncResult checkForRemoteKnowledgeUpdatesDetailed(const std::string& projectId);
 
-private:
+    SyncResult lastResult() const;
+
+  private:
+    static std::string historyKeyForProfile(const std::string& profileId);
+
     std::shared_ptr<urpg::social::ICloudService> m_cloud;
+    SyncResult m_lastResult;
 };
 
 } // namespace urpg::ai

@@ -1,5 +1,5 @@
-#include "editor/diagnostics/diagnostics_workspace.h"
 #include "editor/diagnostics/diagnostics_facade.h"
+#include "editor/diagnostics/diagnostics_workspace.h"
 #include "engine/core/audio/audio_core.h"
 #include "engine/core/battle/battle_core.h"
 #include "engine/core/input/input_core.h"
@@ -18,7 +18,8 @@
 
 namespace {
 
-urpg::scene::BattleParticipant* findParticipant(std::vector<urpg::scene::BattleParticipant>& participants, bool is_enemy) {
+urpg::scene::BattleParticipant* findParticipant(std::vector<urpg::scene::BattleParticipant>& participants,
+                                                bool is_enemy) {
     for (auto& participant : participants) {
         if (participant.isEnemy == is_enemy) {
             return &participant;
@@ -82,4 +83,3 @@ TEST_CASE("DiagnosticsWorkspace - Battle tab exports live scene diagnostics prev
     REQUIRE(exported["active_tab_detail"]["preview"]["escape_ratio_now"] == expected_escape_ratio_now);
     REQUIRE(exported["active_tab_detail"]["preview"]["escape_ratio_next_fail"] == expected_escape_ratio_next);
 }
-

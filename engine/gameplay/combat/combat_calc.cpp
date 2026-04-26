@@ -24,7 +24,7 @@ DamageResult CombatCalc::PhysicalDamage(const ActorStats& a, const ActorStats& d
 DamageResult CombatCalc::CalculateDamage(const ActorStats& a, const ActorStats& d, uint32_t variance_seed) const {
     // Wave 3 standard damage formula: (Atk * 4 - Def * 2) * element_rate
     const int32_t base = std::max<int32_t>(0, (a.atk.raw * 4 - d.def.raw * 2) >> 16);
-    
+
     // Elemental Weakness & Resistance
     float elementRate = 1.0f;
 
@@ -55,9 +55,7 @@ DamageResult CombatCalc::CalculateDamage(const ActorStats& a, const ActorStats& 
     return result;
 }
 
-DamageResult CombatCalc::CalculateDamage(const ActorStats& a,
-                                         const ActorStats& d,
-                                         uint32_t variance_seed,
+DamageResult CombatCalc::CalculateDamage(const ActorStats& a, const ActorStats& d, uint32_t variance_seed,
                                          const std::string& skill_id) const {
     (void)skill_id;
     return CalculateDamage(a, d, variance_seed);

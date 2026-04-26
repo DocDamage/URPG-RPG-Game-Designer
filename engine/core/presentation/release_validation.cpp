@@ -1,10 +1,10 @@
-#include <iostream>
-#include <vector>
-#include <cassert>
-#include "presentation_runtime.h"
-#include "map_scene_translator.h"
 #include "editor/spatial/elevation_brush_panel.h"
 #include "editor/spatial/prop_placement_panel.h"
+#include "engine/core/diagnostics/runtime_diagnostics.h"
+#include "map_scene_translator.h"
+#include "presentation_runtime.h"
+#include <cassert>
+#include <vector>
 
 using namespace urpg::presentation;
 using namespace urpg::editor;
@@ -15,7 +15,8 @@ using namespace urpg::editor;
  * without state corruption or performance spikes.
  */
 void RunReleaseValidation() {
-    std::cout << "[INFO] Starting Phase 5: Release Validation..." << std::endl;
+    urpg::diagnostics::RuntimeDiagnostics::info("presentation.release_validation", "release_validation.started",
+                                                "Starting Phase 5: Release Validation.");
 
     PresentationRuntime runtime;
     PresentationContext context;
@@ -25,7 +26,7 @@ void RunReleaseValidation() {
     context.mapState.mapId = "mega_village";
     context.activeMode = PresentationMode::Spatial3D;
     context.activeTier = CapabilityTier::Tier1_Standard;
-    
+
     // Create an elevation grid
     SpatialMapOverlay overlay;
     overlay.mapId = "mega_village";
@@ -69,10 +70,13 @@ void RunReleaseValidation() {
         }
     }
 
-    std::cout << "[CHECK] Actor Command Count: " << actorCommandCount << " (Expected: 100)" << std::endl;
-    std::cout << "[CHECK] Environment Command Envelope: fog=" << fogCommandCount
-              << ", postfx=" << postFxCommandCount
-              << ", lights=" << lightCommandCount << std::endl;
+    urpg::diagnostics::RuntimeDiagnostics::info(
+        "presentation.release_validation", "release_validation.actor_command_count",
+        "Actor Command Count: " + std::to_string(actorCommandCount) + " (Expected: 100)");
+    urpg::diagnostics::RuntimeDiagnostics::info(
+        "presentation.release_validation", "release_validation.environment_command_envelope",
+        "Environment Command Envelope: fog=" + std::to_string(fogCommandCount) +
+            ", postfx=" + std::to_string(postFxCommandCount) + ", lights=" + std::to_string(lightCommandCount));
     assert(actorCommandCount == 100);
     assert(fogCommandCount <= 1);
     assert(postFxCommandCount <= 1);
@@ -83,19 +87,23 @@ void RunReleaseValidation() {
             assert(cmd.position.y == 1.5f);
         }
     }
-    std::cout << "[CHECK] Y-Height Resolution: PASSED" << std::endl;
+    urpg::diagnostics::RuntimeDiagnostics::info("presentation.release_validation",
+                                                "release_validation.y_height_resolution_passed",
+                                                "Y-Height Resolution: PASSED");
 
     // 4. Fallback Logic Validation
     context.activeMode = PresentationMode::Classic2D;
     PresentationFrameIntent fallbackIntent = runtime.BuildPresentationFrame(context, data);
-    
+
     for (const auto& cmd : fallbackIntent.commands) {
         if (cmd.type == PresentationCommand::Type::DrawActor) {
             // In Classic2D, Z should be 0.0f (Flattened)
             assert(cmd.position.z == 0.0f);
         }
     }
-    std::cout << "[CHECK] Fallback Flattening (Tier 0): PASSED" << std::endl;
+    urpg::diagnostics::RuntimeDiagnostics::info("presentation.release_validation",
+                                                "release_validation.fallback_flattening_passed",
+                                                "Fallback Flattening (Tier 0): PASSED");
 
     // 5. Battle Effect Cue Envelope Validation
     PresentationContext battleContext;
@@ -135,15 +143,19 @@ void RunReleaseValidation() {
         }
     }
 
-    std::cout << "[CHECK] Battle Effect Command Sample Envelope: world=" << worldEffectCommandCount
-              << ", overlay=" << overlayEffectCommandCount << std::endl;
+    urpg::diagnostics::RuntimeDiagnostics::info(
+        "presentation.release_validation", "release_validation.battle_effect_envelope",
+        "Battle Effect Command Sample Envelope: world=" + std::to_string(worldEffectCommandCount) +
+            ", overlay=" + std::to_string(overlayEffectCommandCount));
     assert(worldEffectCommandCount >= 1);
     assert(overlayEffectCommandCount >= 1);
     assert(worldEffectCommandCount <= 16);
     assert(overlayEffectCommandCount <= 16);
 
     // 6. Spatial Authoring -> Runtime Consumption Validation
-    std::cout << "[INFO] Starting Spatial Authoring -> Runtime Consumption Validation..." << std::endl;
+    urpg::diagnostics::RuntimeDiagnostics::info("presentation.release_validation",
+                                                "release_validation.spatial_validation_started",
+                                                "Starting Spatial Authoring -> Runtime Consumption Validation.");
     {
         SpatialMapOverlay overlay;
         overlay.mapId = "validation_village";
@@ -204,10 +216,13 @@ void RunReleaseValidation() {
         assert(foundActor);
         assert(foundProp);
         assert(spatialIntent.activePasses.size() == 3);
-        std::cout << "[CHECK] Spatial Authoring -> Runtime Consumption: PASSED" << std::endl;
+        urpg::diagnostics::RuntimeDiagnostics::info("presentation.release_validation",
+                                                    "release_validation.spatial_runtime_consumption_passed",
+                                                    "Spatial Authoring -> Runtime Consumption: PASSED");
     }
 
-    std::cout << "[SUCCESS] Release Validation Suite: ALL TESTS PASSED" << std::endl;
+    urpg::diagnostics::RuntimeDiagnostics::info("presentation.release_validation", "release_validation.succeeded",
+                                                "Release Validation Suite: ALL TESTS PASSED");
 }
 
 int main() {
@@ -215,7 +230,8 @@ int main() {
         RunReleaseValidation();
         return 0;
     } catch (const std::exception& e) {
-        std::cerr << "[FATAL] " << e.what() << std::endl;
+        urpg::diagnostics::RuntimeDiagnostics::fatal("presentation.release_validation", "release_validation.fatal",
+                                                     e.what());
         return 1;
     }
 }

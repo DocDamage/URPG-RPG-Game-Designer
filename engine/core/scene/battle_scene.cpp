@@ -1,10 +1,11 @@
 #include "battle_scene.h"
 #include "combat_formula.h"
 #include "engine/core/ability/gameplay_ability.h"
-#include "engine/core/sprite_batcher.h"
-#include "runtimes/compat_js/data_manager.h"
-#include "runtimes/compat_js/battle_manager.h"
+#include "engine/core/diagnostics/runtime_diagnostics.h"
 #include "engine/core/render/asset_loader.h"
+#include "engine/core/sprite_batcher.h"
+#include "runtimes/compat_js/battle_manager.h"
+#include "runtimes/compat_js/data_manager.h"
 #include <algorithm>
 #include <cmath>
 #include <ctime>
@@ -19,11 +20,9 @@ namespace {
 constexpr const char* kMissingBattlebackDiagnostic = "MISSING_BATTLEBACK";
 constexpr uint32_t kSolidQuadTextureId = 1;
 class BattleSkillAbility final : public urpg::ability::GameplayAbility {
-public:
+  public:
     explicit BattleSkillAbility(const compat::SkillData& skill)
-        : m_skillId(skill.id),
-          m_skillName(skill.name),
-          m_effects(skill.effects) {
+        : m_skillId(skill.id), m_skillName(skill.name), m_effects(skill.effects) {
         id = "skill." + std::to_string(skill.id);
         mpCost = static_cast<float>(skill.mpCost);
         m_info.mpCost = skill.mpCost;
@@ -33,8 +32,7 @@ public:
     const std::string& getId() const override { return id; }
     const ActivationInfo& getActivationInfo() const override { return m_info; }
     void activate(urpg::ability::AbilitySystemComponent& source) override { commitAbility(source); }
-    void activate(urpg::ability::AbilitySystemComponent& source,
-                  const AbilityExecutionContext& context) override {
+    void activate(urpg::ability::AbilitySystemComponent& source, const AbilityExecutionContext& context) override {
         m_lastContext = context;
         commitAbility(source);
     }
@@ -43,7 +41,7 @@ public:
     const std::string& skillName() const { return m_skillName; }
     void applyResolvedEffects() const;
 
-private:
+  private:
     int32_t m_skillId = 0;
     std::string m_skillName;
     std::vector<compat::EffectData> m_effects;
@@ -107,20 +105,16 @@ double modifierMultiplier(int32_t stage) {
 }
 
 BattleParticipant::ModifierEffect* findModifierEffect(BattleParticipant& participant, int32_t paramId) {
-    auto it = std::find_if(participant.modifiers.begin(),
-                           participant.modifiers.end(),
-                           [paramId](const BattleParticipant::ModifierEffect& effect) {
-                               return effect.paramId == paramId;
-                           });
+    auto it =
+        std::find_if(participant.modifiers.begin(), participant.modifiers.end(),
+                     [paramId](const BattleParticipant::ModifierEffect& effect) { return effect.paramId == paramId; });
     return it == participant.modifiers.end() ? nullptr : &(*it);
 }
 
 int32_t getModifierStage(const BattleParticipant& participant, int32_t paramId) {
-    const auto it = std::find_if(participant.modifiers.begin(),
-                                 participant.modifiers.end(),
-                                 [paramId](const BattleParticipant::ModifierEffect& effect) {
-                                     return effect.paramId == paramId;
-                                 });
+    const auto it =
+        std::find_if(participant.modifiers.begin(), participant.modifiers.end(),
+                     [paramId](const BattleParticipant::ModifierEffect& effect) { return effect.paramId == paramId; });
     return it == participant.modifiers.end() ? 0 : it->stages;
 }
 
@@ -190,21 +184,9 @@ void applyTurnEndEffects(BattleParticipant& participant) {
     }
 }
 
-void submitSolidQuad(urpg::SpriteBatcher& batcher,
-                     float x,
-                     float y,
-                     float w,
-                     float h,
-                     float z,
-                     uint32_t color) {
-    batcher.submit(kSolidQuadTextureId,
-                   x, y, w, h,
-                   0.0f, 0.0f, 1.0f, 1.0f,
-                   z,
-                   colorChannel(color, 24),
-                   colorChannel(color, 16),
-                   colorChannel(color, 8),
-                   colorChannel(color, 0));
+void submitSolidQuad(urpg::SpriteBatcher& batcher, float x, float y, float w, float h, float z, uint32_t color) {
+    batcher.submit(kSolidQuadTextureId, x, y, w, h, 0.0f, 0.0f, 1.0f, 1.0f, z, colorChannel(color, 24),
+                   colorChannel(color, 16), colorChannel(color, 8), colorChannel(color, 0));
 }
 
 uint32_t resolveStateColor(int32_t stateId) {
@@ -264,8 +246,8 @@ int resolveParticipantParam(const BattleParticipant& participant, int32_t param_
             break;
         }
 
-        return std::max(1, static_cast<int>(std::lround(static_cast<double>(base) *
-                                                        modifierMultiplier(getModifierStage(participant, param_index)))));
+        return std::max(1, static_cast<int>(std::lround(static_cast<double>(base) * modifierMultiplier(getModifierStage(
+                                                                                        participant, param_index)))));
     }
 
     const int base = dm.getActorParam(id, param_index, 1);
@@ -342,7 +324,8 @@ void syncParticipantAbilityRuntime(BattleParticipant& participant) {
 }
 
 void pullParticipantAbilityRuntime(BattleParticipant& participant) {
-    participant.mp = std::max(0, static_cast<int>(participant.abilitySystem.getAttribute("MP", static_cast<float>(participant.mp))));
+    participant.mp =
+        std::max(0, static_cast<int>(participant.abilitySystem.getAttribute("MP", static_cast<float>(participant.mp))));
 }
 
 void persistParticipantRuntimeState(BattleParticipant& participant) {
@@ -372,8 +355,7 @@ BattleSkillAbility* findGrantedSkillAbility(BattleParticipant& participant, int3
 
 void BattleSkillAbility::applyResolvedEffects() const {
     for (const auto& targetContext : m_lastContext.targets) {
-        auto* targetParticipant =
-            static_cast<BattleParticipant*>(const_cast<void*>(targetContext.runtimeHandle));
+        auto* targetParticipant = static_cast<BattleParticipant*>(const_cast<void*>(targetContext.runtimeHandle));
         if (targetParticipant == nullptr) {
             continue;
         }
@@ -381,25 +363,23 @@ void BattleSkillAbility::applyResolvedEffects() const {
         for (const auto& effect : m_effects) {
             switch (effect.code) {
             case 11: { // Recover HP
-                targetParticipant->hp = std::min(
-                    targetParticipant->maxHp,
-                    targetParticipant->hp + static_cast<int32_t>(effect.value2));
-                targetParticipant->DamagePopupValue = static_cast<float>(std::max(0, static_cast<int32_t>(effect.value2)));
+                targetParticipant->hp =
+                    std::min(targetParticipant->maxHp, targetParticipant->hp + static_cast<int32_t>(effect.value2));
+                targetParticipant->DamagePopupValue =
+                    static_cast<float>(std::max(0, static_cast<int32_t>(effect.value2)));
                 targetParticipant->DamagePopupTimer = 1.0f;
                 targetParticipant->DamagePopupColor = 0x00FF00FFu;
                 break;
             }
             case 12: { // Recover MP
-                targetParticipant->mp = std::min(
-                    targetParticipant->maxMp,
-                    targetParticipant->mp + static_cast<int32_t>(effect.value2));
+                targetParticipant->mp =
+                    std::min(targetParticipant->maxMp, targetParticipant->mp + static_cast<int32_t>(effect.value2));
                 break;
             }
             case 21: { // Add state
                 const int32_t stateId = effect.dataId;
-                if (stateId > 0 &&
-                    std::find(targetParticipant->states.begin(), targetParticipant->states.end(), stateId) ==
-                        targetParticipant->states.end()) {
+                if (stateId > 0 && std::find(targetParticipant->states.begin(), targetParticipant->states.end(),
+                                             stateId) == targetParticipant->states.end()) {
                     targetParticipant->states.push_back(stateId);
                 }
                 break;
@@ -413,13 +393,15 @@ void BattleSkillAbility::applyResolvedEffects() const {
             }
             case 31: { // Add buff
                 const int32_t turns = std::max(1, static_cast<int32_t>(std::lround(effect.value1)));
-                const int32_t stages = std::max(1, static_cast<int32_t>(std::lround(effect.value2 == 0.0 ? 1.0 : effect.value2)));
+                const int32_t stages =
+                    std::max(1, static_cast<int32_t>(std::lround(effect.value2 == 0.0 ? 1.0 : effect.value2)));
                 addBuff(*targetParticipant, effect.dataId, turns, stages);
                 break;
             }
             case 32: { // Add debuff
                 const int32_t turns = std::max(1, static_cast<int32_t>(std::lround(effect.value1)));
-                const int32_t stages = std::max(1, static_cast<int32_t>(std::lround(effect.value2 == 0.0 ? 1.0 : effect.value2)));
+                const int32_t stages =
+                    std::max(1, static_cast<int32_t>(std::lround(effect.value2 == 0.0 ? 1.0 : effect.value2)));
                 addDebuff(*targetParticipant, effect.dataId, turns, stages);
                 break;
             }
@@ -436,9 +418,8 @@ void BattleSkillAbility::applyResolvedEffects() const {
     }
 }
 
-urpg::ability::GameplayAbility::AbilityExecutionContext buildAbilityExecutionContext(
-    BattleParticipant& subject,
-    const std::vector<BattleParticipant*>& targets) {
+urpg::ability::GameplayAbility::AbilityExecutionContext
+buildAbilityExecutionContext(BattleParticipant& subject, const std::vector<BattleParticipant*>& targets) {
     urpg::ability::GameplayAbility::AbilityExecutionContext context;
     context.sourceRuntimeHandle = &subject;
     context.sourceRuntimeId = subject.id;
@@ -528,8 +509,7 @@ int sumAgility(const std::vector<BattleParticipant>& participants, bool is_enemy
 } // namespace
 
 BattleScene::BattleScene(const std::vector<std::string>& enemyIds)
-    : m_enemyIds(enemyIds), m_currentPhase(BattlePhase::START)
-{
+    : m_enemyIds(enemyIds), m_currentPhase(BattlePhase::START) {
     // Initialize common battle windows
     m_logWindow = std::make_shared<ui::UIWindow>();
     m_logWindow->setPosition(Vector2f(20.0f, 20.0f));
@@ -597,11 +577,14 @@ void BattleScene::onStart() {
     }
 
     if (!m_backgroundTexture) {
-        std::cerr << "[" << kMissingBattlebackDiagnostic << "] No configured battleback was resolved";
+        std::string message = "No configured battleback was resolved";
         if (!configuredBattlebackPath.empty()) {
-            std::cerr << " (attempted: " << configuredBattlebackPath << ")";
+            message += " (attempted: " + configuredBattlebackPath + ")";
         }
-        std::cerr << "; fallback asset is also unavailable: " << fallbackBattlebackPath << std::endl;
+        message += "; fallback asset is also unavailable: ";
+        message += fallbackBattlebackPath;
+        std::cerr << "[" << kMissingBattlebackDiagnostic << "] " << message << std::endl;
+        urpg::diagnostics::RuntimeDiagnostics::warning("scene.battle", kMissingBattlebackDiagnostic, message);
         if (m_logWindow) {
             m_logWindow->setText(kMissingBattlebackDiagnostic);
         }
@@ -698,7 +681,7 @@ void BattleScene::onUpdate(float dt) {
         if (p.animator) {
             p.animator->update(dt);
         }
-        
+
         // Update damage popups
         if (p.DamagePopupValue > 0 && p.DamagePopupTimer > 0) {
             p.DamagePopupTimer -= dt;
@@ -707,13 +690,16 @@ void BattleScene::onUpdate(float dt) {
 
     m_logWindow->update(dt);
     m_statusWindow->update(dt);
-    
+
     if (m_commandWindow->isVisible()) {
         m_commandWindow->update(dt);
     }
-    if (m_skillWindow->isVisible()) m_skillWindow->update(dt);
-    if (m_itemWindow->isVisible()) m_itemWindow->update(dt);
-    if (m_targetWindow->isVisible()) m_targetWindow->update(dt);
+    if (m_skillWindow->isVisible())
+        m_skillWindow->update(dt);
+    if (m_itemWindow->isVisible())
+        m_itemWindow->update(dt);
+    if (m_targetWindow->isVisible())
+        m_targetWindow->update(dt);
 
     if (m_phaseTimer > 0.0f) {
         m_phaseTimer -= dt;
@@ -730,89 +716,91 @@ void BattleScene::onUpdate(float dt) {
 
     // Phase State Machine
     switch (m_currentPhase) {
-        case BattlePhase::START:
-            if (m_phaseTimer <= 0) {
-                setPhase(BattlePhase::INPUT);
-                m_currentActorIndex = 0;
-                m_commandWindow->setVisible(true);
+    case BattlePhase::START:
+        if (m_phaseTimer <= 0) {
+            setPhase(BattlePhase::INPUT);
+            m_currentActorIndex = 0;
+            m_commandWindow->setVisible(true);
 
-                // Phase 13: Signal JS Battle Start Hook
-                // compat::BattleManager::instance().triggerHook(compat::BattleManager::HookPoint::ON_START, {});
+            // Phase 13: Signal JS Battle Start Hook
+            // compat::BattleManager::instance().triggerHook(compat::BattleManager::HookPoint::ON_START, {});
+        }
+        break;
+
+    case BattlePhase::INPUT:
+        // Input is handled via callbacks from UICommandList
+        break;
+
+    case BattlePhase::ACTION:
+        if (m_phaseTimer <= 0) {
+            BattlePhase nextPhase = checkEndCondition();
+            if (nextPhase != BattlePhase::ACTION) {
+                setPhase(nextPhase);
+                m_phaseTimer = 2.0f;
+                m_actionQueue.clear();
+                m_nativeActionQueue.clear();
+                break;
             }
-            break;
 
-        case BattlePhase::INPUT:
-            // Input is handled via callbacks from UICommandList
-            break;
-
-        case BattlePhase::ACTION:
-            if (m_phaseTimer <= 0) {
-                BattlePhase nextPhase = checkEndCondition();
-                if (nextPhase != BattlePhase::ACTION) {
-                    setPhase(nextPhase);
-                    m_phaseTimer = 2.0f;
-                    m_actionQueue.clear();
-                    m_nativeActionQueue.clear();
+            if (!m_nativeActionQueue.empty()) {
+                auto action = popResolvedAction(m_actionQueue, m_nativeActionQueue);
+                if (!action.has_value()) {
+                    setPhase(BattlePhase::TURN_END);
+                    m_phaseTimer = 0.5f;
                     break;
                 }
 
-                if (!m_nativeActionQueue.empty()) {
-                    auto action = popResolvedAction(m_actionQueue, m_nativeActionQueue);
-                    if (!action.has_value()) {
-                        setPhase(BattlePhase::TURN_END);
-                        m_phaseTimer = 0.5f;
-                        break;
-                    }
+                executeAction(*action);
 
-                    executeAction(*action);
-                    
-                    // Check for victory/defeat after each action
-                    BattlePhase nextPhase = checkEndCondition();
-                    if (nextPhase != BattlePhase::ACTION) {
-                        setPhase(nextPhase);
-                        m_phaseTimer = 2.0f; // Brief pause to show victory/defeat msg
-                        m_actionQueue.clear();
-                        m_nativeActionQueue.clear();
-                    } else {
-                        m_phaseTimer = 1.0f; // 1 second between actions
-                    }
+                // Check for victory/defeat after each action
+                BattlePhase nextPhase = checkEndCondition();
+                if (nextPhase != BattlePhase::ACTION) {
+                    setPhase(nextPhase);
+                    m_phaseTimer = 2.0f; // Brief pause to show victory/defeat msg
+                    m_actionQueue.clear();
+                    m_nativeActionQueue.clear();
                 } else {
-                    setPhase(BattlePhase::TURN_END);
-                    m_phaseTimer = 0.5f;
+                    m_phaseTimer = 1.0f; // 1 second between actions
                 }
-            }
-            break;
-
-        case BattlePhase::VICTORY:
-            if (m_phaseTimer <= 0) {
-                // Return to previous scene or world map
-                SceneManager::getInstance().popScene();
             } else {
-                if (m_logWindow) m_logWindow->setText("Victory!");
+                setPhase(BattlePhase::TURN_END);
+                m_phaseTimer = 0.5f;
             }
-            break;
+        }
+        break;
 
-        case BattlePhase::DEFEAT:
-            if (m_phaseTimer <= 0) {
-                // Game over or return to main menu
-                SceneManager::getInstance().popScene();
-            } else {
-                if (m_logWindow) m_logWindow->setText("Defeat...");
-            }
-            break;
+    case BattlePhase::VICTORY:
+        if (m_phaseTimer <= 0) {
+            // Return to previous scene or world map
+            SceneManager::getInstance().popScene();
+        } else {
+            if (m_logWindow)
+                m_logWindow->setText("Victory!");
+        }
+        break;
 
-        case BattlePhase::TURN_END:
-            if (m_phaseTimer <= 0) {
-                setPhase(BattlePhase::INPUT);
-                m_currentActorIndex = 0;
-                m_actionQueue.clear();
-                m_nativeActionQueue.clear();
-                m_commandWindow->setVisible(true);
-            }
-            break;
+    case BattlePhase::DEFEAT:
+        if (m_phaseTimer <= 0) {
+            // Game over or return to main menu
+            SceneManager::getInstance().popScene();
+        } else {
+            if (m_logWindow)
+                m_logWindow->setText("Defeat...");
+        }
+        break;
 
-        default:
-            break;
+    case BattlePhase::TURN_END:
+        if (m_phaseTimer <= 0) {
+            setPhase(BattlePhase::INPUT);
+            m_currentActorIndex = 0;
+            m_actionQueue.clear();
+            m_nativeActionQueue.clear();
+            m_commandWindow->setVisible(true);
+        }
+        break;
+
+    default:
+        break;
     }
 }
 
@@ -827,17 +815,15 @@ void BattleScene::draw(urpg::SpriteBatcher& batcher) {
 
     // 1. Draw Background (Phase 12)
     if (m_backgroundTexture) {
-        batcher.submit(m_backgroundTexture->getId(), 
-                       offsetX, offsetY, 800.0f, 600.0f, 
-                       0, 0, 1, 1, 0.1f);
+        batcher.submit(m_backgroundTexture->getId(), offsetX, offsetY, 800.0f, 600.0f, 0, 0, 1, 1, 0.1f);
     }
-    
+
     // 2. Draw Participants
     for (const auto& p : m_participants) {
         if (p.animator) {
             float width = p.isEnemy ? 128.0f : 48.0f;
             float height = p.isEnemy ? 128.0f : 48.0f;
-            
+
             // Draw participant at its current position with shake offset
             p.animator->draw(batcher, p.position.x + offsetX, p.position.y + offsetY, width, height, 0.5f);
         }
@@ -857,11 +843,11 @@ void BattleScene::draw(urpg::SpriteBatcher& batcher) {
 
     if (m_statusWindow && m_statusWindow->isVisible()) {
         m_statusWindow->draw(batcher);
-        
+
         // 3a. Draw specific status data inside status window
         float startX = m_statusWindow->getPosition().x + 10.0f;
         float startY = m_statusWindow->getPosition().y + 10.0f;
-        
+
         size_t index = 0;
         for (auto& p : m_participants) {
             if (!p.isEnemy) {
@@ -870,32 +856,24 @@ void BattleScene::draw(urpg::SpriteBatcher& batcher) {
 
                 // HP Bar
                 float hpRate = (float)p.hp / (float)std::max(1, p.maxHp);
-                m_statusWindow->drawGauge(batcher, startX + 120.0f, startY + (index * 24.0f) + 8.0f, 100.0f, hpRate, 0xFF0000FF, 0xFF0000AA);
+                m_statusWindow->drawGauge(batcher, startX + 120.0f, startY + (index * 24.0f) + 8.0f, 100.0f, hpRate,
+                                          0xFF0000FF, 0xFF0000AA);
 
                 // MP Bar
                 float mpRate = (float)p.mp / (float)std::max(1, p.maxMp);
-                m_statusWindow->drawGauge(batcher, startX + 240.0f, startY + (index * 24.0f) + 8.0f, 100.0f, mpRate, 0xFFFF00FF, 0xAAAA00FF);
-                
+                m_statusWindow->drawGauge(batcher, startX + 240.0f, startY + (index * 24.0f) + 8.0f, 100.0f, mpRate,
+                                          0xFFFF00FF, 0xAAAA00FF);
+
                 // Show guarding icon/text (Phase 10)
                 if (p.isGuarding) {
-                    submitSolidQuad(batcher,
-                                    startX + 350.0f,
-                                    startY + (index * 24.0f),
-                                    16.0f,
-                                    16.0f,
-                                    0.9f,
+                    submitSolidQuad(batcher, startX + 350.0f, startY + (index * 24.0f), 16.0f, 16.0f, 0.9f,
                                     0xF4A261FFu);
                 }
 
                 // Show State Icons (Phase 11)
                 float stateX = startX + 372.0f;
                 for (int32_t stateId : p.states) {
-                    submitSolidQuad(batcher,
-                                    stateX,
-                                    startY + (index * 24.0f),
-                                    16.0f,
-                                    16.0f,
-                                    0.9f,
+                    submitSolidQuad(batcher, stateX, startY + (index * 24.0f), 16.0f, 16.0f, 0.9f,
                                     resolveStateColor(stateId));
                     stateX += 20.0f;
                 }
@@ -909,13 +887,16 @@ void BattleScene::draw(urpg::SpriteBatcher& batcher) {
     if (m_targetWindow->isVisible()) {
         // Highlighting current selection would go here
     }
-    
+
     if (m_commandWindow && m_commandWindow->isVisible()) {
         m_commandWindow->draw(batcher);
     }
-    if (m_skillWindow && m_skillWindow->isVisible()) m_skillWindow->draw(batcher);
-    if (m_itemWindow && m_itemWindow->isVisible()) m_itemWindow->draw(batcher);
-    if (m_targetWindow && m_targetWindow->isVisible()) m_targetWindow->draw(batcher);
+    if (m_skillWindow && m_skillWindow->isVisible())
+        m_skillWindow->draw(batcher);
+    if (m_itemWindow && m_itemWindow->isVisible())
+        m_itemWindow->draw(batcher);
+    if (m_targetWindow && m_targetWindow->isVisible())
+        m_targetWindow->draw(batcher);
 }
 
 void BattleScene::processTurn() {
@@ -940,7 +921,8 @@ void BattleScene::onCommandSelected(const std::string& cmd) {
         }
     }
 
-    if (!subject) return;
+    if (!subject)
+        return;
 
     // Reset pending action
     m_pendingAction = BattleAction();
@@ -979,20 +961,23 @@ void BattleScene::openSkillWindow() {
         }
 
         const bool canUse = m_pendingAction.subject->abilitySystem.canActivateAbility(*ability);
-        m_skillWindow->addItem(skill->name + " (" + std::to_string(skill->mpCost) + ")", [this, skillId = battleSkill->skillId(), skill]() {
-            m_pendingAction.isSkill = true;
-            m_pendingAction.skillId = skillId;
+        m_skillWindow->addItem(
+            skill->name + " (" + std::to_string(skill->mpCost) + ")",
+            [this, skillId = battleSkill->skillId(), skill]() {
+                m_pendingAction.isSkill = true;
+                m_pendingAction.skillId = skillId;
 
-            // MZ Scope Handling
-            // 1=Single Enemy, 2=All Enemies, 7=Single Ally, 8=All Allies, 11=Self
-            if (skill->scope == 11) {
-                onTargetSelected(m_pendingAction.subject);
-            } else if (skill->scope == 2 || skill->scope == 8) {
-                onMultiTargetSelected(skill->scope == 2);
-            } else {
-                openTargetWindow(skill->scope <= 6);
-            }
-        }, canUse);
+                // MZ Scope Handling
+                // 1=Single Enemy, 2=All Enemies, 7=Single Ally, 8=All Allies, 11=Self
+                if (skill->scope == 11) {
+                    onTargetSelected(m_pendingAction.subject);
+                } else if (skill->scope == 2 || skill->scope == 8) {
+                    onMultiTargetSelected(skill->scope == 2);
+                } else {
+                    openTargetWindow(skill->scope <= 6);
+                }
+            },
+            canUse);
     }
     m_skillWindow->setVisible(true);
 }
@@ -1009,7 +994,7 @@ void BattleScene::openItemWindow() {
                 m_itemWindow->addItem(item->name + " x" + std::to_string(count), [this, itemId, item]() {
                     m_pendingAction.isItem = true;
                     m_pendingAction.itemId = itemId;
-                    
+
                     // MZ Scope Handling for Items
                     if (item->scope == 11) {
                         onTargetSelected(m_pendingAction.subject);
@@ -1033,7 +1018,7 @@ void BattleScene::onMultiTargetSelected(bool targetEnemies) {
             m_pendingAction.multiTargets.push_back(&p);
         }
     }
-    
+
     // We can still use onTargetSelected to finalize, passing nullptr as single target
     onTargetSelected(nullptr);
 }
@@ -1042,9 +1027,7 @@ void BattleScene::openTargetWindow(bool targetEnemies) {
     m_targetWindow->clearItems();
     for (auto& p : m_participants) {
         if (p.isEnemy == targetEnemies && p.hp > 0) {
-            m_targetWindow->addItem(p.name, [this, &p]() {
-                onTargetSelected(&p);
-            });
+            m_targetWindow->addItem(p.name, [this, &p]() { onTargetSelected(&p); });
         }
     }
     m_targetWindow->setVisible(true);
@@ -1053,16 +1036,18 @@ void BattleScene::openTargetWindow(bool targetEnemies) {
 void BattleScene::onTargetSelected(BattleParticipant* target) {
     m_pendingAction.target = target;
     addActionToQueue(m_pendingAction);
-    
+
     m_skillWindow->setVisible(false);
     m_itemWindow->setVisible(false);
     m_targetWindow->setVisible(false);
 
     // Move to next actor
     m_currentActorIndex++;
-    
+
     size_t totalActors = 0;
-    for (const auto& p : m_participants) if (!p.isEnemy) totalActors++;
+    for (const auto& p : m_participants)
+        if (!p.isEnemy)
+            totalActors++;
 
     if (m_currentActorIndex >= totalActors) {
         m_commandWindow->setVisible(false);
@@ -1071,7 +1056,8 @@ void BattleScene::onTargetSelected(BattleParticipant* target) {
 }
 
 void BattleScene::executeAction(const BattleAction& action) {
-    if (!action.subject) return;
+    if (!action.subject)
+        return;
 
     // Phase 13: Signal Action Start Hook
     compat::BattleManager::instance().triggerHook(compat::BattleManager::HookPoint::ON_ACTION_START, {});
@@ -1081,7 +1067,8 @@ void BattleScene::executeAction(const BattleAction& action) {
     if (action.isAoE) {
         // Use pre-selected multi-targets (all enemies or all allies)
         for (auto* t : action.multiTargets) {
-            if (t && t->hp > 0) currentTargets.push_back(t);
+            if (t && t->hp > 0)
+                currentTargets.push_back(t);
         }
     } else if (action.target) {
         // Single target handling with redirection
@@ -1095,13 +1082,16 @@ void BattleScene::executeAction(const BattleAction& action) {
                 }
             }
         }
-        if (finalTarget->hp > 0) currentTargets.push_back(finalTarget);
+        if (finalTarget->hp > 0)
+            currentTargets.push_back(finalTarget);
     }
 
-    if (currentTargets.empty()) return;
+    if (currentTargets.empty())
+        return;
 
     // Check if subject is alive
-    if (action.subject->hp <= 0) return;
+    if (action.subject->hp <= 0)
+        return;
 
     // Guard reset and processing...
     action.subject->isGuarding = false;
@@ -1110,7 +1100,8 @@ void BattleScene::executeAction(const BattleAction& action) {
     if (action.command == "guard") {
         action.subject->isGuarding = true;
         syncParticipantAbilityRuntime(*action.subject);
-        if (m_logWindow) m_logWindow->setText(action.subject->name + " is guarding!");
+        if (m_logWindow)
+            m_logWindow->setText(action.subject->name + " is guarding!");
         return;
     }
 
@@ -1139,7 +1130,8 @@ void BattleScene::executeAction(const BattleAction& action) {
                     const auto& history = action.subject->abilitySystem.getAbilityExecutionHistory();
                     const std::string reason = !history.empty() ? history.back().reason : "activation_blocked";
                     if (m_logWindow) {
-                        m_logWindow->setText(action.subject->name + " cannot use " + skillData->name + " (" + reason + ").");
+                        m_logWindow->setText(action.subject->name + " cannot use " + skillData->name + " (" + reason +
+                                             ").");
                     }
                     return;
                 }
@@ -1151,7 +1143,8 @@ void BattleScene::executeAction(const BattleAction& action) {
             skillName = skillData->name;
 
             // Phase 11 Polish: Log Skill Use
-            if (m_logWindow) m_logWindow->setText(action.subject->name + " uses " + skillName + "!");
+            if (m_logWindow)
+                m_logWindow->setText(action.subject->name + " uses " + skillName + "!");
         }
     } else if (action.isItem && action.itemId != -1) {
         itemData = dm.getItem(action.itemId);
@@ -1160,10 +1153,12 @@ void BattleScene::executeAction(const BattleAction& action) {
             dm.loseItem(action.itemId, 1);
 
             // Phase 11 Polish: Log Item Use
-            if (m_logWindow) m_logWindow->setText(action.subject->name + " uses " + skillName + "!");
+            if (m_logWindow)
+                m_logWindow->setText(action.subject->name + " uses " + skillName + "!");
         }
     } else if (action.command == "attack") {
-        if (m_logWindow) m_logWindow->setText(action.subject->name + " attacks!");
+        if (m_logWindow)
+            m_logWindow->setText(action.subject->name + " attacks!");
     }
 
     if (action.command == "attack" || action.isSkill || action.isItem) {
@@ -1186,7 +1181,8 @@ void BattleScene::executeAction(const BattleAction& action) {
     for (auto* target : currentTargets) {
         int32_t damage = 0;
         if (action.command == "attack" || action.isSkill || action.isItem) {
-            damage = urpg::battle::BattleRuleResolver::resolveDamage(buildDamageContext(action, *action.subject, *target));
+            damage =
+                urpg::battle::BattleRuleResolver::resolveDamage(buildDamageContext(action, *action.subject, *target));
         } else {
             combat::CombatFormula::Context ctx;
             ctx.subject = action.subject;
@@ -1247,7 +1243,6 @@ void BattleScene::executeAction(const BattleAction& action) {
 
             enqueueEffectCue(resultCue);
         }
-
     }
 
     if (grantedAbility != nullptr) {
@@ -1270,8 +1265,10 @@ void BattleScene::executeAction(const BattleAction& action) {
 
     // 4. Visual/Log
     if (action.subject->animator) {
-        if (action.isSkill || action.isItem) action.subject->animator->setRow(3); // Skill/Item pose
-        else if (action.command == "attack") action.subject->animator->setRow(2); // Attack pose
+        if (action.isSkill || action.isItem)
+            action.subject->animator->setRow(3); // Skill/Item pose
+        else if (action.command == "attack")
+            action.subject->animator->setRow(2); // Attack pose
     }
 
     if (m_logWindow) {
@@ -1291,15 +1288,18 @@ BattlePhase BattleScene::checkEndCondition() {
     bool anyActorAlive = false;
 
     for (const auto& p : m_participants) {
-        if (p.isEnemy && p.hp > 0) anyEnemyAlive = true;
-        if (!p.isEnemy && p.hp > 0) anyActorAlive = true;
+        if (p.isEnemy && p.hp > 0)
+            anyEnemyAlive = true;
+        if (!p.isEnemy && p.hp > 0)
+            anyActorAlive = true;
     }
 
     if (!anyEnemyAlive) {
         processVictoryRewards();
         return BattlePhase::VICTORY;
     }
-    if (!anyActorAlive) return BattlePhase::DEFEAT;
+    if (!anyActorAlive)
+        return BattlePhase::DEFEAT;
 
     return BattlePhase::ACTION;
 }
@@ -1323,8 +1323,8 @@ void BattleScene::processVictoryRewards() {
                 // EnemyData::dropItems is [itemId, rate, ...] - based on my read_file of data_manager.h
                 for (size_t i = 0; i < enemyData->dropItems.size(); i += 2) {
                     int32_t itemId = enemyData->dropItems[i];
-                    int32_t denominator = (i + 1 < enemyData->dropItems.size()) ? enemyData->dropItems[i+1] : 1;
-                    
+                    int32_t denominator = (i + 1 < enemyData->dropItems.size()) ? enemyData->dropItems[i + 1] : 1;
+
                     // Simple probability check
                     if (denominator > 0 && (rand() % denominator == 0)) {
                         itemsDropped.push_back({itemId, 1});
@@ -1367,23 +1367,26 @@ void BattleScene::processVictoryRewards() {
     }
 
     // Update Log with rewards
-    std::string rewardMsg = "Victory! Gained " + std::to_string(totalGold) + " G and " + std::to_string(totalExp) + " EXP.";
+    std::string rewardMsg =
+        "Victory! Gained " + std::to_string(totalGold) + " G and " + std::to_string(totalExp) + " EXP.";
     if (!itemsDropped.empty()) {
         rewardMsg += " Found " + std::to_string(itemsDropped.size()) + " items!";
     }
-    
+
     // Add level up messages to log
     for (const auto& msg : levelUpMsgs) {
         rewardMsg += "\n" + msg;
     }
 
-    if (m_logWindow) m_logWindow->setText(rewardMsg);
+    if (m_logWindow)
+        m_logWindow->setText(rewardMsg);
 }
 
 void BattleScene::setupTroop(int32_t troopId) {
     auto& dm = compat::DataManager::instance();
     auto troop = dm.getTroop(troopId);
-    if (!troop) return;
+    if (!troop)
+        return;
 
     m_participants.clear();
 
@@ -1397,13 +1400,12 @@ void BattleScene::setupTroop(int32_t troopId) {
         if (enemyData) {
             std::string texturePath = "img/enemies/enemy" + std::to_string(enemyId) + ".png";
             auto texture = AssetLoader::loadTexture(texturePath);
-            
+
             // Layout: simple vertical stack, offset for depth
             float posX = enemyBaseX + (i * 20.0f);
             float posY = enemyBaseY + (i * 80.0f) - (troop->members.size() / 2.0f * 80.0f);
 
-            addEnemy(std::to_string(enemyId), enemyData->name, enemyData->mhp, enemyData->mmp, 
-                     {posX, posY}, texture);
+            addEnemy(std::to_string(enemyId), enemyData->name, enemyData->mhp, enemyData->mmp, {posX, posY}, texture);
         }
     }
 
@@ -1425,14 +1427,14 @@ void BattleScene::setupTroop(int32_t troopId) {
 
             int mhp = dm.getActorParam(actorId, 0, 1);
             int mmp = dm.getActorParam(actorId, 1, 1);
-            
-            addActor(std::to_string(actorId), actorData->name, mhp, mmp, 
-                     {posX, posY}, texture);
+
+            addActor(std::to_string(actorId), actorData->name, mhp, mmp, {posX, posY}, texture);
         }
     }
 }
 
-void BattleScene::addActor(const std::string& id, const std::string& name, int hp, int mp, Vector2f pos, std::shared_ptr<urpg::Texture> texture) {
+void BattleScene::addActor(const std::string& id, const std::string& name, int hp, int mp, Vector2f pos,
+                           std::shared_ptr<urpg::Texture> texture) {
     auto& dm = compat::DataManager::instance();
     BattleParticipant p;
     p.id = id;
@@ -1441,7 +1443,7 @@ void BattleScene::addActor(const std::string& id, const std::string& name, int h
     p.mp = p.maxMp = mp;
     p.position = pos;
     p.isEnemy = false;
-    
+
     if (texture) {
         p.animator = std::make_unique<urpg::SpriteAnimator>(texture);
         p.animator->setRow(2); // Face Left (Right sheet column) for actors facing enemies
@@ -1459,11 +1461,12 @@ void BattleScene::addActor(const std::string& id, const std::string& name, int h
     }
 
     syncParticipantAbilityRuntime(p);
-    
+
     m_participants.push_back(std::move(p));
 }
 
-void BattleScene::addEnemy(const std::string& id, const std::string& name, int hp, int mp, Vector2f pos, std::shared_ptr<urpg::Texture> texture) {
+void BattleScene::addEnemy(const std::string& id, const std::string& name, int hp, int mp, Vector2f pos,
+                           std::shared_ptr<urpg::Texture> texture) {
     BattleParticipant p;
     p.id = id;
     p.name = name;
@@ -1471,14 +1474,14 @@ void BattleScene::addEnemy(const std::string& id, const std::string& name, int h
     p.mp = p.maxMp = mp;
     p.position = pos;
     p.isEnemy = true;
-    
+
     if (texture) {
         // Enemis usually use a single frame or different config
         p.animator = std::make_unique<urpg::SpriteAnimator>(texture);
     }
 
     syncParticipantAbilityRuntime(p);
-    
+
     m_participants.push_back(std::move(p));
 }
 

@@ -2,11 +2,11 @@
 
 #include "engine/core/analytics/analytics_event.h"
 
-#include <nlohmann/json.hpp>
+#include <cstdint>
 #include <functional>
+#include <nlohmann/json.hpp>
 #include <string>
 #include <vector>
-#include <cstdint>
 
 namespace urpg::analytics {
 
@@ -25,7 +25,7 @@ struct UploadFlushResult {
  * Produced by aggregateSession() for structured diagnostics.
  */
 struct SessionAggregate {
-    uint64_t totalEvents   = 0;
+    uint64_t totalEvents = 0;
     uint64_t totalSessions = 0;
     /** Map of category name → event count across all sessions. */
     std::unordered_map<std::string, uint64_t> countsByCategory;
@@ -46,7 +46,7 @@ struct SessionAggregate {
  * panels can inspect cross-session event distributions without raw PII.
  */
 class AnalyticsUploader {
-public:
+  public:
     /**
      * @brief Upload-backend callback type.
      *
@@ -60,6 +60,7 @@ public:
      *        still accumulating session aggregates.
      */
     void setUploadHandler(UploadHandler handler);
+    bool hasUploadHandler() const;
 
     /**
      * @brief Set the maximum number of events per flush batch.  Defaults to
@@ -77,8 +78,7 @@ public:
      * @param sessionId Opaque session identifier attached to every batch.
      * @return          UploadFlushResult with success flag and event count.
      */
-    UploadFlushResult flush(const std::vector<AnalyticsEvent>& events,
-                            const std::string& sessionId = "");
+    UploadFlushResult flush(const std::vector<AnalyticsEvent>& events, const std::string& sessionId = "");
 
     /**
      * @brief Return the current cross-session aggregate.
@@ -90,7 +90,7 @@ public:
      */
     void resetAggregate();
 
-private:
+  private:
     UploadHandler m_handler;
     size_t m_batchSize = 100;
     SessionAggregate m_aggregate;

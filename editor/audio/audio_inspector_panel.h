@@ -2,6 +2,7 @@
 
 #include "audio_inspector_model.h"
 #include <memory>
+#include <string>
 #include <vector>
 
 namespace urpg::editor {
@@ -10,7 +11,7 @@ namespace urpg::editor {
  * @brief GUI controller for the Audio Inspector tab.
  */
 class AudioInspectorPanel {
-public:
+  public:
     struct RenderSnapshot {
         size_t active_count = 0;
         size_t issue_count = 0;
@@ -21,13 +22,13 @@ public:
         bool can_select_next_row = false;
         bool can_select_previous_row = false;
         bool has_data = false;
+        bool model_bound = true;
+        std::string status_message = "Audio inspector has not rendered yet.";
     };
 
     AudioInspectorPanel() : m_model(std::make_shared<AudioInspectorModel>()) {}
 
-    void onRefreshRequested(const urpg::audio::AudioCore& core) {
-        m_model->refresh(core);
-    }
+    void onRefreshRequested(const urpg::audio::AudioCore& core) { m_model->refresh(core); }
 
     void clear() {
         m_model->clear();
@@ -56,17 +57,20 @@ public:
         m_last_render_snapshot.can_select_next_row = m_model->canSelectNextRow();
         m_last_render_snapshot.can_select_previous_row = m_model->canSelectPreviousRow();
         m_last_render_snapshot.has_data = summary.activeCount > 0 || summary.issueCount > 0;
+        m_last_render_snapshot.model_bound = m_model != nullptr;
+        m_last_render_snapshot.status_message =
+            m_last_render_snapshot.has_data
+                ? ""
+                : "No live audio sources or diagnostics are available; refresh from AudioCore.";
         m_has_rendered_frame = true;
     }
 
-    void update() {
-        render();
-    }
+    void update() { render(); }
 
     bool hasRenderedFrame() const { return m_has_rendered_frame; }
     const RenderSnapshot& lastRenderSnapshot() const { return m_last_render_snapshot; }
 
-private:
+  private:
     std::shared_ptr<AudioInspectorModel> m_model;
     bool m_visible = false;
     bool m_has_rendered_frame = false;

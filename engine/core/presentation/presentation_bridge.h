@@ -1,8 +1,8 @@
 #pragma once
 
+#include "engine/core/presentation/presentation_context.h"
 #include "engine/core/presentation/presentation_runtime.h"
 #include "engine/core/presentation/presentation_schema.h"
-#include "engine/core/presentation/presentation_context.h"
 #include "engine/core/presentation/scene_adapters.h"
 #include "engine/core/scene/battle_scene.h"
 #include "engine/core/scene/scene_manager.h"
@@ -16,15 +16,15 @@ namespace urpg::presentation {
  * This class coordinates the transformation of GameScene state into Render Intent.
  */
 class PresentationBridge {
-public:
-    PresentationBridge(std::shared_ptr<PresentationRuntime> runtime, 
+  public:
+    PresentationBridge(std::shared_ptr<PresentationRuntime> runtime,
                        std::shared_ptr<PresentationAuthoringData> authoringData)
         : m_runtime(runtime), m_authoringData(authoringData) {}
 
     /**
      * @brief Generates the visual intent for the currently active scene.
      */
-    PresentationFrameIntent BuildFrameForActiveScene(const scene::SceneManager& sceneManager, 
+    PresentationFrameIntent BuildFrameForActiveScene(const scene::SceneManager& sceneManager,
                                                      const PresentationContext& context);
 
     /**
@@ -32,7 +32,7 @@ public:
      */
     std::shared_ptr<PresentationRuntime> GetRuntime() const { return m_runtime; }
 
-private:
+  private:
     struct BattleCueCursor {
         uint32_t nextSequenceIndex = 0;
         size_t observedCueCount = 0;

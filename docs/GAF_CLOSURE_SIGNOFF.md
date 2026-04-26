@@ -1,8 +1,8 @@
 # Gameplay Ability Framework — Release Closure Sign-off
 
-> **Status:** `PARTIAL`  
-> **Purpose:** Evidence-gathering artifact for GAF release closure review.  
-> **Date:** 2026-04-23  
+> **Status:** `PARTIAL`
+> **Purpose:** Evidence-gathering artifact for GAF release closure review.
+> **Date:** 2026-04-23
 > **Rule:** This document does **not** promote `readiness_status.json` status. Human review is required for promotion to `READY`.
 
 ---

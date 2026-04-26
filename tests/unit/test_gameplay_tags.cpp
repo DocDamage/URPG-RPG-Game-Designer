@@ -1,5 +1,5 @@
-#include <catch2/catch_test_macros.hpp>
 #include "engine/core/ability/gameplay_tags.h"
+#include <catch2/catch_test_macros.hpp>
 
 using namespace urpg::ability;
 
@@ -27,7 +27,7 @@ TEST_CASE("GameplayTag: Basic Tag Matching", "[ability][tags]") {
 
 TEST_CASE("GameplayTagContainer: Tag Collection Management", "[ability][tags]") {
     GameplayTagContainer container;
-    
+
     container.addTag(GameplayTag("State.Invulnerable"));
     container.addTag(GameplayTag("Ability.Passive.Heal"));
 
@@ -38,8 +38,8 @@ TEST_CASE("GameplayTagContainer: Tag Collection Management", "[ability][tags]") 
     }
 
     SECTION("Batch checking: Any/All tags") {
-        std::vector<GameplayTag> anySet = { GameplayTag("State.Invulnerable"), GameplayTag("DUMMY") };
-        std::vector<GameplayTag> allSet = { GameplayTag("State.Invulnerable"), GameplayTag("Ability.Passive.Heal") };
+        std::vector<GameplayTag> anySet = {GameplayTag("State.Invulnerable"), GameplayTag("DUMMY")};
+        std::vector<GameplayTag> allSet = {GameplayTag("State.Invulnerable"), GameplayTag("Ability.Passive.Heal")};
 
         REQUIRE(container.hasAnyTags(anySet));
         REQUIRE(container.hasAllTags(allSet));

@@ -1,17 +1,17 @@
 #pragma once
 
-#include "scene_manager.h"
 #include "engine/core/ability/ability_system_component.h"
 #include "engine/core/battle/battle_core.h"
 #include "engine/core/math/vector2.h"
 #include "engine/core/presentation/effects/effect_cue.h"
-#include "engine/core/ui/ui_window.h"
-#include "engine/core/ui/ui_command_list.h"
 #include "engine/core/render/sprite_animator.h"
-#include <optional>
-#include <vector>
-#include <string>
+#include "engine/core/ui/ui_command_list.h"
+#include "engine/core/ui/ui_window.h"
+#include "scene_manager.h"
 #include <memory>
+#include <optional>
+#include <string>
+#include <vector>
 
 namespace urpg::scene {
 
@@ -35,26 +35,19 @@ struct BattleParticipant {
     std::unique_ptr<urpg::SpriteAnimator> animator;
     bool isEnemy;
     urpg::ability::AbilitySystemComponent abilitySystem;
-        
-        // Phase 9: Visual FX
-        float DamagePopupValue = 0;
-        float DamagePopupTimer = 0;
-        uint32_t DamagePopupColor = 0xFFFFFFFF;
-        
-        // Status Effects
-        std::vector<int32_t> states; // IDs from states.json
-        std::vector<ModifierEffect> modifiers;
-        bool isGuarding = false;
-    };
 
-enum class BattlePhase {
-    START = 0,
-    INPUT,
-    ACTION,
-    TURN_END,
-    VICTORY,
-    DEFEAT
+    // Phase 9: Visual FX
+    float DamagePopupValue = 0;
+    float DamagePopupTimer = 0;
+    uint32_t DamagePopupColor = 0xFFFFFFFF;
+
+    // Status Effects
+    std::vector<int32_t> states; // IDs from states.json
+    std::vector<ModifierEffect> modifiers;
+    bool isGuarding = false;
 };
+
+enum class BattlePhase { START = 0, INPUT, ACTION, TURN_END, VICTORY, DEFEAT };
 
 struct BattleDiagnosticsPreview {
     urpg::battle::BattleDamageContext physical_preview;
@@ -67,7 +60,7 @@ struct BattleDiagnosticsPreview {
  * @brief Native authority for the Battle flow and participant state.
  */
 class BattleScene : public GameScene {
-public:
+  public:
     BattleScene(const std::vector<std::string>& enemyIds);
 
     SceneType getType() const override { return SceneType::BATTLE; }
@@ -90,29 +83,31 @@ public:
      */
     void setupTroop(int32_t troopId);
 
-    void addActor(const std::string& id, const std::string& name, int hp, int mp, Vector2f pos, std::shared_ptr<urpg::Texture> texture);
-    void addEnemy(const std::string& id, const std::string& name, int hp, int mp, Vector2f pos, std::shared_ptr<urpg::Texture> texture);
+    void addActor(const std::string& id, const std::string& name, int hp, int mp, Vector2f pos,
+                  std::shared_ptr<urpg::Texture> texture);
+    void addEnemy(const std::string& id, const std::string& name, int hp, int mp, Vector2f pos,
+                  std::shared_ptr<urpg::Texture> texture);
 
     struct BattleAction {
         BattleParticipant* subject;
-        BattleParticipant* target; // Singular target (for single-target actions)
+        BattleParticipant* target;                    // Singular target (for single-target actions)
         std::vector<BattleParticipant*> multiTargets; // Phase 10: For AoE actions
-        std::string command; // "attack", "skill", "item", "guard"
-        int32_t skillId = -1; // ID if skill command
-        int32_t itemId = -1; // ID if item command
+        std::string command;                          // "attack", "skill", "item", "guard"
+        int32_t skillId = -1;                         // ID if skill command
+        int32_t itemId = -1;                          // ID if item command
         bool isSkill = false;
         bool isItem = false;
         bool isAoE = false; // Phase 10: Multi-target flag
     };
 
-protected:
+  protected:
     void onCommandSelected(const std::string& cmd);
     void onTargetSelected(BattleParticipant* target);
     void onMultiTargetSelected(bool targetEnemies); // Phase 10
     void openSkillWindow();
     void openItemWindow();
     void openTargetWindow(bool targetEnemies);
-    
+
     void processTurn();
     void executeAction(const BattleAction& action);
 
@@ -127,7 +122,7 @@ protected:
      */
     BattlePhase checkEndCondition();
 
-public:
+  public:
     // Testing access
     const std::vector<BattleParticipant>& getParticipants() const { return m_participants; }
     void addActionToQueue(const BattleAction& action);
@@ -140,7 +135,7 @@ public:
     void clearEffectCues() { m_effectCues.clear(); }
     std::optional<BattleDiagnosticsPreview> buildDiagnosticsPreview() const;
 
-private:
+  private:
     urpg::battle::BattleQueuedAction makeQueuedAction(const BattleAction& action) const;
     std::vector<std::string> m_enemyIds;
     BattlePhase m_currentPhase;
@@ -166,8 +161,8 @@ private:
     std::shared_ptr<ui::UIWindow> m_logWindow;
     std::shared_ptr<ui::UIWindow> m_statusWindow;
     std::shared_ptr<ui::UICommandList> m_commandWindow;
-    std::shared_ptr<ui::UICommandList> m_skillWindow; // Skill selection
-    std::shared_ptr<ui::UICommandList> m_itemWindow;  // Item selection
+    std::shared_ptr<ui::UICommandList> m_skillWindow;  // Skill selection
+    std::shared_ptr<ui::UICommandList> m_itemWindow;   // Item selection
     std::shared_ptr<ui::UICommandList> m_targetWindow; // Enemy/Actor selection
 };
 

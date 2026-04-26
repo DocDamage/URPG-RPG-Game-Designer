@@ -1,7 +1,7 @@
 # URPG Pixel Game Maker MV Support Plan
 
-Date: 2026-04-18  
-Status: detailed planning annex / historical execution-detail input  
+Date: 2026-04-18
+Status: detailed planning annex / historical execution-detail input
 Scope: add Pixel Game Maker MV (PGMMV) project support to URPG as a native import, migration, diagnostics, and editor workflow lane
 
 Canonical governance and current execution authority live in:

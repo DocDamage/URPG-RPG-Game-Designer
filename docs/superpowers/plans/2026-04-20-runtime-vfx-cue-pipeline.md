@@ -827,4 +827,3 @@ No approved requirement from the design doc is left without a task.
 - `EffectCue`, `ResolvedEffectInstance`, `EffectResolver`, and `EffectTranslator` names are consistent across all tasks.
 - `DrawWorldEffect` and `DrawOverlayEffect` are used consistently as the new `PresentationCommand::Type` values.
 - `BattleScene::enqueueEffectCue()` and `BattleScene::effectCues()` are introduced before later tasks rely on them.
-

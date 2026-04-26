@@ -1,8 +1,8 @@
 # Save/Data Core — Reviewer Checklist
 
-> **Status:** `PARTIAL`  
-> **Purpose:** Human-reviewer checklist for Wave 1 `save_data_core` promotion consideration.  
-> **Date:** 2026-04-23  
+> **Status:** `PARTIAL`
+> **Purpose:** Human-reviewer checklist for Wave 1 `save_data_core` promotion consideration.
+> **Date:** 2026-04-23
 > **Rule:** This document does **not** grant or imply release approval. A designated human reviewer must complete every item below and record findings before any promotion to `READY` may occur.
 
 ---

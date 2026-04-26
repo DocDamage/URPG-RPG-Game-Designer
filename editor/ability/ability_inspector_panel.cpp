@@ -1,8 +1,11 @@
 #include "editor/ability/ability_inspector_panel.h"
 #include "engine/core/ability/ability_system_component.h"
-#include <iostream>
 #include <iomanip>
 #include <sstream>
+
+#ifdef URPG_IMGUI_ENABLED
+#include <imgui.h>
+#endif
 
 namespace urpg::editor {
 
@@ -17,6 +20,12 @@ void AbilityInspectorPanel::clear() {
     m_model.clear();
     m_snapshot = {};
     m_snapshot.visible = m_visible;
+    rebuildControlState();
+}
+
+void AbilityInspectorPanel::setCommandCallbacks(CommandCallbacks callbacks) {
+    m_command_callbacks = std::move(callbacks);
+    rebuildControlState();
 }
 
 bool AbilityInspectorPanel::selectAbility(size_t index, const AbilitySystemComponent& asc) {
@@ -109,8 +118,7 @@ bool AbilityInspectorPanel::setDraftEffectDuration(float effect_duration) {
 }
 
 bool AbilityInspectorPanel::setDraftPatternName(const std::string& pattern_name) {
-    if (auto current = m_draft_pattern_model.getCurrentPattern();
-        current && current->getName() == pattern_name) {
+    if (auto current = m_draft_pattern_model.getCurrentPattern(); current && current->getName() == pattern_name) {
         return false;
     }
     m_draft_pattern_model.setName(pattern_name);
@@ -226,83 +234,170 @@ bool AbilityInspectorPanel::selectDraftAbility(AbilitySystemComponent& asc) {
 }
 
 void AbilityInspectorPanel::render() {
-    if (!m_visible) return;
+    if (!m_visible)
+        return;
 
-    std::cout << "\n--- Ability Inspector ---\n";
-    
-    // Header - Active Tags
+    m_snapshot.visible = m_visible;
+    m_snapshot.has_rendered_frame = true;
+    rebuildControlState();
+
+#ifdef URPG_IMGUI_ENABLED
+    if (ImGui::GetCurrentContext() == nullptr) {
+        return;
+    }
+
+    if (!ImGui::Begin("Ability Inspector", &m_visible)) {
+        ImGui::End();
+        return;
+    }
+
     const auto& tags = m_model.getActiveTags();
+    ImGui::Text("Active Tags");
     if (tags.empty()) {
-        std::cout << "Active Tags: None\n";
+        ImGui::TextDisabled("None");
     } else {
-        std::cout << "Active Tags:\n";
         for (const auto& tagInfo : tags) {
-            std::cout << "  - " << tagInfo.tag << " (" << tagInfo.count << " stacks)\n";
+            ImGui::BulletText("%s (%d stack%s)", tagInfo.tag.c_str(), tagInfo.count, tagInfo.count == 1 ? "" : "s");
         }
     }
 
-    // Header - Abilities / Cooldowns
+    ImGui::Separator();
     const auto& abilities = m_model.getAbilities();
+    ImGui::Text("Abilities");
     if (abilities.empty()) {
-        std::cout << "Abilities: No active cooldowns to track.\n";
+        ImGui::TextDisabled("No abilities are bound to this runtime.");
     } else {
-        std::cout << "Abilities / Cooldowns:\n";
-        for (const auto& info : abilities) {
-            std::cout << "  - " << info.name 
-                      << ": " << (info.can_activate ? "[Ready]" : "[Cooldown: " + std::to_string(info.cooldown_remaining) + "s]")
-                      << (info.blocking_reason.empty() ? "" : " (Blocked: " + info.blocking_reason + ")")
-                      << "\n";
+        if (ImGui::BeginTable("AbilityInspectorAbilities", 4, ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg)) {
+            ImGui::TableSetupColumn("Ability");
+            ImGui::TableSetupColumn("Status");
+            ImGui::TableSetupColumn("Cooldown");
+            ImGui::TableSetupColumn("Blocking Reason");
+            ImGui::TableHeadersRow();
 
-            if (info.pattern) {
-                // Validation
-                auto validation = PatternValidator::Validate(*info.pattern);
-                if (!validation.isValid) {
-                    for (const auto& issue : validation.issues) {
-                        std::cout << "      [!] Error: " << issue << "\n";
-                    }
+            const auto selected_index = m_model.selectedAbilityIndex();
+            for (size_t index = 0; index < abilities.size(); ++index) {
+                const auto& info = abilities[index];
+                ImGui::TableNextRow();
+                ImGui::TableNextColumn();
+                const bool selected = selected_index.has_value() && *selected_index == index;
+                if (ImGui::Selectable(info.name.c_str(), selected, ImGuiSelectableFlags_SpanAllColumns)) {
+                    m_model.selectAbility(index);
+                    m_snapshot.selected_ability_id = info.name;
+                    m_snapshot.selected_ability_can_activate = info.can_activate;
+                    m_snapshot.selected_ability_blocking_reason = info.blocking_reason;
                 }
-
-                // Mini Preview (3x3 area around center for inspector simplicity)
-                std::cout << "      Pattern: ";
-                for (int py = -1; py <= 1; ++py) {
-                    if (py != -1) std::cout << "               ";
-                    for (int px = -1; px <= 1; ++px) {
-                        if (px == 0 && py == 0) {
-                            std::cout << (info.pattern->hasPoint(px, py) ? "[O]" : "[.]");
-                        } else {
-                            std::cout << (info.pattern->hasPoint(px, py) ? "[X]" : "[ ]");
-                        }
-                    }
-                    std::cout << "\n";
-                }
+                ImGui::TableNextColumn();
+                ImGui::TextUnformatted(info.can_activate ? "Ready" : "Blocked");
+                ImGui::TableNextColumn();
+                ImGui::Text("%.2fs", info.cooldown_remaining);
+                ImGui::TableNextColumn();
+                ImGui::TextUnformatted(info.blocking_reason.empty() ? "-" : info.blocking_reason.c_str());
             }
+
+            ImGui::EndTable();
         }
     }
+
+    ImGui::Separator();
+    ImGui::Text("Actions");
+    const auto button = [&](const char* id, const char* label, bool enabled, const CommandCallback& callback) {
+        if (!enabled) {
+            ImGui::BeginDisabled();
+        }
+        if (ImGui::Button(label) && enabled && callback) {
+            (void)callback();
+        }
+        if (!enabled) {
+            ImGui::EndDisabled();
+        }
+        ImGui::SameLine();
+        (void)id;
+    };
+
+    button("preview_selected", "Preview",
+           !m_snapshot.selected_ability_id.empty() && static_cast<bool>(m_command_callbacks.preview_selected),
+           m_command_callbacks.preview_selected);
+    button("validate_draft", "Validate", m_snapshot.draft_preview.has_draft, [this]() {
+        validateDraftPattern();
+        return m_snapshot.validation_issues.empty();
+    });
+    button("apply_draft", "Apply", static_cast<bool>(m_command_callbacks.apply_draft_to_runtime),
+           m_command_callbacks.apply_draft_to_runtime);
+    button("save_draft", "Save", static_cast<bool>(m_command_callbacks.save_draft), m_command_callbacks.save_draft);
+    button("load_draft", "Load", static_cast<bool>(m_command_callbacks.load_draft), m_command_callbacks.load_draft);
+    ImGui::NewLine();
 
     if (!m_snapshot.diagnostic_lines.empty()) {
-        std::cout << "Diagnostics / Replay Log:\n";
+        ImGui::Separator();
+        ImGui::Text("Diagnostics");
         for (const auto& line : m_snapshot.diagnostic_lines) {
-            std::cout << "  - " << line << "\n";
+            ImGui::BulletText("%s", line.c_str());
         }
     }
-    if (m_snapshot.draft_preview.has_draft) {
-        std::cout << "Draft Preview:\n";
-        std::cout << "  - Ability: " << m_snapshot.draft_preview.ability_id << "\n";
-        std::cout << "  - Cost / Cooldown: " << m_snapshot.draft_preview.mp_cost
-                  << " MP / " << m_snapshot.draft_preview.cooldown_seconds << "s\n";
-        std::cout << "  - Effect: " << m_snapshot.draft_preview.effect_id
-                  << " -> " << m_snapshot.draft_preview.effect_attribute
-                  << " " << m_snapshot.draft_preview.effect_operation
-                  << " " << m_snapshot.draft_preview.effect_value
-                  << " (" << m_snapshot.draft_preview.effect_duration << "s)\n";
+
+    if (!m_snapshot.validation_issues.empty()) {
+        ImGui::Separator();
+        ImGui::Text("Validation");
+        for (const auto& issue : m_snapshot.validation_issues) {
+            ImGui::BulletText("%s", issue.c_str());
+        }
     }
-    std::cout << "------------------------\n";
+
+    if (m_snapshot.draft_preview.has_draft) {
+        ImGui::Separator();
+        ImGui::Text("Draft Preview");
+        ImGui::Text("Ability: %s", m_snapshot.draft_preview.ability_id.c_str());
+        ImGui::Text("Cost / Cooldown: %.2f MP / %.2fs", m_snapshot.draft_preview.mp_cost,
+                    m_snapshot.draft_preview.cooldown_seconds);
+        ImGui::Text("Effect: %s -> %s %s %.2f (%.2fs)", m_snapshot.draft_preview.effect_id.c_str(),
+                    m_snapshot.draft_preview.effect_attribute.c_str(),
+                    m_snapshot.draft_preview.effect_operation.c_str(), m_snapshot.draft_preview.effect_value,
+                    m_snapshot.draft_preview.effect_duration);
+        for (const auto& row : m_snapshot.draft_preview.pattern_preview.grid_rows) {
+            ImGui::TextUnformatted(row.c_str());
+        }
+    }
+
+    ImGui::End();
+#endif
+}
+
+void AbilityInspectorPanel::rebuildControlState() {
+    m_snapshot.controls = {
+        {"select_ability", "Select Ability", !m_model.getAbilities().empty()},
+        {"preview_selected", "Preview Selected",
+         !m_snapshot.selected_ability_id.empty() && static_cast<bool>(m_command_callbacks.preview_selected)},
+        {"validate_draft", "Validate Draft", m_snapshot.draft_preview.has_draft},
+        {"apply_draft", "Apply Draft", static_cast<bool>(m_command_callbacks.apply_draft_to_runtime)},
+        {"save_draft", "Save Draft", static_cast<bool>(m_command_callbacks.save_draft)},
+        {"load_draft", "Load Draft", static_cast<bool>(m_command_callbacks.load_draft)},
+    };
+}
+
+void AbilityInspectorPanel::validateDraftPattern() {
+    m_snapshot.validation_issues.clear();
+    const auto asset = buildDraftAsset();
+    const auto validation = PatternValidator::Validate(asset.pattern);
+    if (!validation.isValid) {
+        m_snapshot.validation_issues = validation.issues;
+    }
+    if (asset.ability_id.empty()) {
+        m_snapshot.validation_issues.push_back("Ability id is required.");
+    }
+    if (asset.effect_id.empty()) {
+        m_snapshot.validation_issues.push_back("Effect id is required.");
+    }
+    if (asset.effect_attribute.empty()) {
+        m_snapshot.validation_issues.push_back("Effect attribute is required.");
+    }
 }
 
 void AbilityInspectorPanel::rebuildSnapshot(const AbilitySystemComponent& asc) {
     m_snapshot = {};
     m_snapshot.visible = m_visible;
     m_snapshot.draft_preview = buildDraftPreviewSnapshot();
+
+    validateDraftPattern();
 
     const auto& history = asc.getAbilityExecutionHistory();
     m_snapshot.diagnostic_count = history.size();
@@ -312,6 +407,7 @@ void AbilityInspectorPanel::rebuildSnapshot(const AbilitySystemComponent& asc) {
         m_snapshot.selected_ability_blocking_reason = selected_ability->blocking_reason;
     }
     if (history.empty()) {
+        rebuildControlState();
         return;
     }
 
@@ -321,8 +417,8 @@ void AbilityInspectorPanel::rebuildSnapshot(const AbilitySystemComponent& asc) {
 
     for (const auto& record : history) {
         std::ostringstream line;
-        line << "#" << record.sequence_id << " " << record.ability_id << " " << record.stage
-             << " -> " << record.outcome;
+        line << "#" << record.sequence_id << " " << record.ability_id << " " << record.stage << " -> "
+             << record.outcome;
         if (!record.state_name.empty()) {
             line << " [" << record.state_name << "]";
         }
@@ -333,12 +429,13 @@ void AbilityInspectorPanel::rebuildSnapshot(const AbilitySystemComponent& asc) {
             line << " {" << record.detail << "}";
         }
         if (record.stage == "activate") {
-            line << " mp " << record.mp_before << " -> " << record.mp_after
-                 << ", cd=" << record.cooldown_after
+            line << " mp " << record.mp_before << " -> " << record.mp_after << ", cd=" << record.cooldown_after
                  << ", effects=" << record.active_effect_count;
         }
         m_snapshot.diagnostic_lines.push_back(line.str());
     }
+
+    rebuildControlState();
 }
 
 } // namespace urpg::editor

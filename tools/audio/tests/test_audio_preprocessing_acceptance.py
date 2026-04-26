@@ -32,7 +32,7 @@ REPO_ROOT = Path(__file__).resolve().parents[3]
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
-from tools.retrieval.shared.artifact_contracts import (
+from tools.retrieval.shared.artifact_contracts import (  # noqa: E402
     AUDIO_STEM_MANIFEST_CONTRACT,
     ArtifactContractViolation,
     validate_artifact_contract,
@@ -42,6 +42,7 @@ from tools.retrieval.shared.artifact_contracts import (
 # ---------------------------------------------------------------------------
 # Shared fixtures
 # ---------------------------------------------------------------------------
+
 
 def _make_stem(
     stem_id: str,
@@ -76,9 +77,9 @@ def _make_audio_stem_manifest(
 _SAMPLE_SOURCE_ASSET = "imports/audio/battle_theme_01.ogg"
 
 _SAMPLE_STEMS = [
-    _make_stem("stem_001", "drums",  "output/stems/battle_theme_01_drums.wav"),
-    _make_stem("stem_002", "bass",   "output/stems/battle_theme_01_bass.wav"),
-    _make_stem("stem_003", "other",  "output/stems/battle_theme_01_other.wav"),
+    _make_stem("stem_001", "drums", "output/stems/battle_theme_01_drums.wav"),
+    _make_stem("stem_002", "bass", "output/stems/battle_theme_01_bass.wav"),
+    _make_stem("stem_003", "other", "output/stems/battle_theme_01_other.wav"),
     _make_stem("stem_004", "vocals", "output/stems/battle_theme_01_vocals.wav"),
 ]
 
@@ -86,6 +87,7 @@ _SAMPLE_STEMS = [
 # ---------------------------------------------------------------------------
 # S33-T03: Schema contract enforcement
 # ---------------------------------------------------------------------------
+
 
 class AudioStemManifestContractTests(unittest.TestCase):
     """Audio stem manifest satisfies AUDIO_STEM_MANIFEST_CONTRACT."""
@@ -145,6 +147,7 @@ class AudioStemManifestContractTests(unittest.TestCase):
 # S33-T03: Per-stem field shape validation
 # ---------------------------------------------------------------------------
 
+
 class StemEntryShapeTests(unittest.TestCase):
     """Each stem entry must have required fields with valid values."""
 
@@ -156,12 +159,18 @@ class StemEntryShapeTests(unittest.TestCase):
                 violations.append(f"Stem missing required field: '{required_field}'")
         if "file_path" in stem and not isinstance(stem["file_path"], str):
             violations.append("Stem 'file_path' must be a string")
-        if "file_path" in stem and isinstance(stem["file_path"], str) and not stem["file_path"].strip():
+        if (
+            "file_path" in stem
+            and isinstance(stem["file_path"], str)
+            and not stem["file_path"].strip()
+        ):
             violations.append("Stem 'file_path' must not be empty or whitespace")
         if "sample_rate_hz" in stem:
             rate = stem["sample_rate_hz"]
             if not isinstance(rate, int) or rate <= 0:
-                violations.append(f"Stem 'sample_rate_hz' must be a positive integer, got {rate!r}")
+                violations.append(
+                    f"Stem 'sample_rate_hz' must be a positive integer, got {rate!r}"
+                )
         return violations
 
     def test_sample_stems_are_all_valid(self) -> None:
@@ -200,6 +209,7 @@ class StemEntryShapeTests(unittest.TestCase):
 # ---------------------------------------------------------------------------
 # S33-T03: Round-trip fidelity
 # ---------------------------------------------------------------------------
+
 
 class AudioStemManifestRoundTripTests(unittest.TestCase):
     """JSON serialisation must not mutate any manifest field."""
@@ -249,6 +259,7 @@ class AudioStemManifestRoundTripTests(unittest.TestCase):
 # S33-T03: Determinism contract
 # ---------------------------------------------------------------------------
 
+
 class AudioStemManifestDeterminismTests(unittest.TestCase):
     """Same logical inputs must produce identical manifest structure."""
 
@@ -271,9 +282,7 @@ class AudioStemManifestDeterminismTests(unittest.TestCase):
 
     def test_stem_count_reflects_input(self) -> None:
         zero_stems = _make_audio_stem_manifest(_SAMPLE_SOURCE_ASSET, [])
-        one_stem = _make_audio_stem_manifest(
-            _SAMPLE_SOURCE_ASSET, [_SAMPLE_STEMS[0]]
-        )
+        one_stem = _make_audio_stem_manifest(_SAMPLE_SOURCE_ASSET, [_SAMPLE_STEMS[0]])
         self.assertEqual(len(zero_stems["stems"]), 0)
         self.assertEqual(len(one_stem["stems"]), 1)
 

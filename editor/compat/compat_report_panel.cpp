@@ -8,9 +8,9 @@
 #include <algorithm>
 #include <chrono>
 #include <fstream>
+#include <iomanip>
 #include <nlohmann/json.hpp>
 #include <sstream>
-#include <iomanip>
 
 namespace urpg {
 namespace editor {
@@ -24,9 +24,7 @@ using namespace std::chrono;
 constexpr size_t kPluginScoreHistoryLimit = 16;
 
 static uint64_t currentTimeMs() {
-    return static_cast<uint64_t>(
-        duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count()
-    );
+    return static_cast<uint64_t>(duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count());
 }
 
 static std::string formatTimestamp(uint64_t timestampMs) {
@@ -34,7 +32,7 @@ static std::string formatTimestamp(uint64_t timestampMs) {
     auto mins = secs / 60;
     auto hrs = mins / 60;
     auto days = hrs / 24;
-    
+
     std::stringstream ss;
     ss << days << "d " << (hrs % 24) << "h " << (mins % 60) << "m " << (secs % 60) << "s";
     return ss.str();
@@ -71,12 +69,24 @@ static std::string escapeJson(const std::string& s) {
     result.reserve(s.size());
     for (char c : s) {
         switch (c) {
-            case '"': result += "\\\""; break;
-            case '\\': result += "\\\\"; break;
-            case '\n': result += "\\n"; break;
-            case '\r': result += "\\r"; break;
-            case '\t': result += "\\t"; break;
-            default: result += c; break;
+        case '"':
+            result += "\\\"";
+            break;
+        case '\\':
+            result += "\\\\";
+            break;
+        case '\n':
+            result += "\\n";
+            break;
+        case '\r':
+            result += "\\r";
+            break;
+        case '\t':
+            result += "\\t";
+            break;
+        default:
+            result += c;
+            break;
         }
     }
     return result;
@@ -86,8 +96,10 @@ static std::string escapeCsv(const std::string& s) {
     if (s.find(',') != std::string::npos || s.find('"') != std::string::npos) {
         std::string result = "\"";
         for (char c : s) {
-            if (c == '"') result += "\"\"";
-            else result += c;
+            if (c == '"')
+                result += "\"\"";
+            else
+                result += c;
         }
         result += "\"";
         return result;
@@ -118,19 +130,28 @@ static CompatStatus mapPluginFailureStatus(std::string_view severity) {
 
 std::string CompatEvent::severityToString() const {
     switch (severity) {
-        case Severity::INFO: return "INFO";
-        case Severity::WARNING: return "WARNING";
-        case Severity::ERROR: return "ERROR";
-        case Severity::CRITICAL: return "CRITICAL";
-        default: return "UNKNOWN";
+    case Severity::INFO:
+        return "INFO";
+    case Severity::WARNING:
+        return "WARNING";
+    case Severity::ERROR:
+        return "ERROR";
+    case Severity::CRITICAL:
+        return "CRITICAL";
+    default:
+        return "UNKNOWN";
     }
 }
 
 CompatEvent::Severity CompatEvent::severityFromString(const std::string& s) {
-    if (s == "INFO") return Severity::INFO;
-    if (s == "WARNING") return Severity::WARNING;
-    if (s == "ERROR") return Severity::ERROR;
-    if (s == "CRITICAL") return Severity::CRITICAL;
+    if (s == "INFO")
+        return Severity::INFO;
+    if (s == "WARNING")
+        return Severity::WARNING;
+    if (s == "ERROR")
+        return Severity::ERROR;
+    if (s == "CRITICAL")
+        return Severity::CRITICAL;
     return Severity::INFO;
 }
 
@@ -143,16 +164,14 @@ CompatReportModel::CompatReportModel() = default;
 CompatReportModel::~CompatReportModel() = default;
 
 void CompatReportModel::recordCall(const std::string& pluginId, const std::string& className,
-                                        const std::string& methodName, CompatStatus status,
-                                        uint64_t durationUs) {
+                                   const std::string& methodName, CompatStatus status, uint64_t durationUs) {
     const uint64_t nowMs = currentTimeMs();
     auto& records = pluginCalls_[pluginId];
-    
-    auto it = std::find_if(records.begin(), records.end(),
-        [&](const CompatCallRecord& r) {
-            return r.className == className && r.methodName == methodName;
-        });
-    
+
+    auto it = std::find_if(records.begin(), records.end(), [&](const CompatCallRecord& r) {
+        return r.className == className && r.methodName == methodName;
+    });
+
     if (it != records.end()) {
         it->callCount++;
         it->totalDurationUs += durationUs;
@@ -184,17 +203,15 @@ void CompatReportModel::recordCall(const std::string& pluginId, const std::strin
     if (sessionActive_) {
         sessionTouchedPlugins_.insert(pluginId);
     }
-    
+
     summariesDirty_ = true;
 }
 
 void CompatReportModel::recordEvent(const CompatEvent& event) {
     eventLog_.push_back(event);
-    
+
     std::sort(eventLog_.begin(), eventLog_.end(),
-        [](const CompatEvent& a, const CompatEvent& b) {
-            return a.timestamp > b.timestamp;
-        });
+              [](const CompatEvent& a, const CompatEvent& b) { return a.timestamp > b.timestamp; });
 }
 
 void CompatReportModel::ingestPluginFailureDiagnosticsJsonl(std::string_view diagnostics_jsonl) {
@@ -214,8 +231,7 @@ void CompatReportModel::ingestPluginFailureDiagnosticsJsonl(std::string_view dia
             continue;
         }
 
-        if (row.value("subsystem", "") != "plugin_manager" ||
-            row.value("event", "") != "compat_failure") {
+        if (row.value("subsystem", "") != "plugin_manager" || row.value("event", "") != "compat_failure") {
             continue;
         }
 
@@ -223,11 +239,7 @@ void CompatReportModel::ingestPluginFailureDiagnosticsJsonl(std::string_view dia
 
         CompatEvent event;
         event.timestamp = row.value(
-            "seq",
-            static_cast<uint64_t>(
-                duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count()
-            )
-        );
+            "seq", static_cast<uint64_t>(duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count()));
         event.pluginId = row.value("plugin", "");
         event.className = "PluginManager";
         event.methodName = row.value("operation", "");
@@ -246,20 +258,15 @@ void CompatReportModel::ingestPluginFailureDiagnosticsJsonl(std::string_view dia
         recordEvent(event);
 
         if (!event.pluginId.empty()) {
-            const std::string methodName =
-                event.methodName.empty() ? "unknown_failure" : event.methodName;
-            recordCall(
-                event.pluginId,
-                "PluginManager",
-                methodName,
-                mapPluginFailureStatus(severityTag)
-            );
+            const std::string methodName = event.methodName.empty() ? "unknown_failure" : event.methodName;
+            recordCall(event.pluginId, "PluginManager", methodName, mapPluginFailureStatus(severityTag));
         }
     }
 }
 
 void CompatReportModel::recalculateSummaries() const {
-    if (!summariesDirty_) return;
+    if (!summariesDirty_)
+        return;
 
     std::unordered_map<std::string, PluginCompatSummary> recalculated;
     recalculated.reserve(pluginCalls_.size());
@@ -267,7 +274,7 @@ void CompatReportModel::recalculateSummaries() const {
     for (const auto& pair : pluginCalls_) {
         const std::string& pluginId = pair.first;
         const std::vector<CompatCallRecord>& calls = pair.second;
-        
+
         PluginCompatSummary summary;
         summary.pluginId = pluginId;
         if (const auto it = pluginSummaries_.find(pluginId); it != pluginSummaries_.end()) {
@@ -277,20 +284,30 @@ void CompatReportModel::recalculateSummaries() const {
             summary.firstSeenTimestamp = it->second.firstSeenTimestamp;
             summary.lastUpdatedTimestamp = it->second.lastUpdatedTimestamp;
         }
-        
+
         for (const auto& call : calls) {
             switch (call.status) {
-                case CompatStatus::FULL: summary.fullCount++; break;
-                case CompatStatus::PARTIAL: summary.partialCount++; break;
-                case CompatStatus::STUB: summary.stubCount++; break;
-                case CompatStatus::UNSUPPORTED: summary.unsupportedCount++; break;
+            case CompatStatus::FULL:
+                summary.fullCount++;
+                break;
+            case CompatStatus::PARTIAL:
+                summary.partialCount++;
+                break;
+            case CompatStatus::STUB:
+                summary.stubCount++;
+                break;
+            case CompatStatus::UNSUPPORTED:
+                summary.unsupportedCount++;
+                break;
             }
             summary.totalCalls += call.callCount;
             summary.totalDurationUs += call.totalDurationUs;
-            if (call.hasWarning) summary.warningCount++;
-            if (call.hasError) summary.errorCount++;
+            if (call.hasWarning)
+                summary.warningCount++;
+            if (call.hasError)
+                summary.errorCount++;
         }
-        
+
         summary.calculateScore();
         recalculated[pluginId] = std::move(summary);
     }
@@ -301,25 +318,25 @@ void CompatReportModel::recalculateSummaries() const {
 
 std::vector<PluginCompatSummary> CompatReportModel::getAllPluginSummaries() const {
     recalculateSummaries();
-    
+
     std::vector<PluginCompatSummary> result;
     result.reserve(pluginCalls_.size());
-    
+
     for (const auto& pair : pluginCalls_) {
         result.push_back(getPluginSummary(pair.first));
     }
-    
+
     return result;
 }
 
 PluginCompatSummary CompatReportModel::getPluginSummary(const std::string& pluginId) const {
     recalculateSummaries();
-    
+
     auto it = pluginSummaries_.find(pluginId);
     if (it != pluginSummaries_.end()) {
         return it->second;
     }
-    
+
     PluginCompatSummary empty;
     empty.pluginId = pluginId;
     return empty;
@@ -336,9 +353,7 @@ std::vector<CompatCallRecord> CompatReportModel::getPluginCalls(const std::strin
 std::vector<CompatEvent> CompatReportModel::getPluginEvents(const std::string& pluginId) const {
     std::vector<CompatEvent> result;
     std::copy_if(eventLog_.begin(), eventLog_.end(), std::back_inserter(result),
-        [&pluginId](const CompatEvent& e) {
-            return e.pluginId == pluginId;
-        });
+                 [&pluginId](const CompatEvent& e) { return e.pluginId == pluginId; });
     return result;
 }
 
@@ -347,23 +362,24 @@ std::vector<CompatEvent> CompatReportModel::getRecentEvents(uint32_t limit) cons
     uint32_t count = 0;
     for (const auto& event : eventLog_) {
         result.push_back(event);
-        if (++count >= limit) break;
+        if (++count >= limit)
+            break;
     }
     return result;
 }
 
 std::vector<CompatEvent> CompatReportModel::getEventsBySeverity(CompatEvent::Severity minSeverity) const {
     std::vector<CompatEvent> result;
-    
+
     int minOrder = static_cast<int>(minSeverity);
-    
+
     for (const auto& event : eventLog_) {
         int eventOrder = static_cast<int>(event.severity);
         if (eventOrder >= minOrder) {
             result.push_back(event);
         }
     }
-    
+
     return result;
 }
 
@@ -417,16 +433,18 @@ void CompatReportModel::clearHistory() {
 std::string CompatReportModel::exportAsJson() const {
     std::stringstream ss;
     ss << "{\n";
-    ss << "  \"exportTime\": \"" << formatTimestamp(duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count()) << "\",\n";
+    ss << "  \"exportTime\": \""
+       << formatTimestamp(duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count()) << "\",\n";
     ss << "  \"sessionStart\": \"" << formatTimestamp(sessionStartTime_) << "\",\n";
     ss << "  \"plugins\": [\n";
-    
+
     auto summaries = getAllPluginSummaries();
     bool first = true;
     for (const auto& summary : summaries) {
-        if (!first) ss << ",\n";
+        if (!first)
+            ss << ",\n";
         first = false;
-        
+
         ss << "    {\n";
         ss << "      \"pluginId\": \"" << escapeJson(summary.pluginId) << "\",\n";
         ss << "      \"pluginName\": \"" << escapeJson(summary.pluginName) << "\",\n";
@@ -440,15 +458,16 @@ std::string CompatReportModel::exportAsJson() const {
         ss << "      \"errorCount\": " << summary.errorCount << "\n";
         ss << "    }";
     }
-    
+
     ss << "\n  ],\n";
     ss << "  \"events\": [\n";
-    
+
     first = true;
     for (const auto& event : eventLog_) {
-        if (!first) ss << ",\n";
+        if (!first)
+            ss << ",\n";
         first = false;
-        
+
         ss << "    {\n";
         ss << "      \"timestamp\": \"" << formatTimestamp(event.timestamp) << "\",\n";
         ss << "      \"pluginId\": \"" << escapeJson(event.pluginId) << "\",\n";
@@ -458,39 +477,35 @@ std::string CompatReportModel::exportAsJson() const {
         ss << "      \"message\": \"" << escapeJson(event.message) << "\"\n";
         ss << "    }";
     }
-    
+
     ss << "\n  ]\n";
     ss << "}\n";
-    
+
     return ss.str();
 }
 
 std::string CompatReportModel::exportAsCsv() const {
     std::stringstream ss;
-    
-    ss << "Plugin ID,Plugin Name,Version,Compat Score,Full Count,Partial Count,Stub Count,Unsupported Count,Warning Count,Error Count\n";
-    
+
+    ss << "Plugin ID,Plugin Name,Version,Compat Score,Full Count,Partial Count,Stub Count,Unsupported Count,Warning "
+          "Count,Error Count\n";
+
     auto summaries = getAllPluginSummaries();
     for (const auto& summary : summaries) {
-        ss << escapeCsv(summary.pluginId) << ","
-           << escapeCsv(summary.pluginName) << ","
-           << escapeCsv(summary.version) << ","
-           << summary.compatibilityScore << ","
-           << summary.fullCount << ","
-           << summary.partialCount << ","
-           << summary.stubCount << ","
-           << summary.unsupportedCount << ","
-           << summary.warningCount << ","
+        ss << escapeCsv(summary.pluginId) << "," << escapeCsv(summary.pluginName) << "," << escapeCsv(summary.version)
+           << "," << summary.compatibilityScore << "," << summary.fullCount << "," << summary.partialCount << ","
+           << summary.stubCount << "," << summary.unsupportedCount << "," << summary.warningCount << ","
            << summary.errorCount << "\n";
     }
-    
+
     return ss.str();
 }
 
 int32_t CompatReportModel::getProjectCompatibilityScore() const {
     auto summaries = getAllPluginSummaries();
-    if (summaries.empty()) return 100;
-    
+    if (summaries.empty())
+        return 100;
+
     int32_t totalScore = 0;
     for (const auto& s : summaries) {
         totalScore += s.compatibilityScore;
@@ -502,10 +517,7 @@ int32_t CompatReportModel::getProjectCompatibilityScore() const {
 // CompatReportView Implementation
 // ============================================================================
 
-CompatReportView::CompatReportView(CompatReportModel& model)
-    : model_(model)
-{
-}
+CompatReportView::CompatReportView(CompatReportModel& model) : model_(model) {}
 
 void CompatReportView::setSortBy(SortBy sortBy, bool ascending) {
     sortBy_ = sortBy;
@@ -518,65 +530,69 @@ void CompatReportView::setFilter(const Filter& filter) {
 
 std::vector<PluginCompatSummary> CompatReportView::getVisibleSummaries() const {
     auto summaries = model_.getAllPluginSummaries();
-    
+
     std::vector<PluginCompatSummary> filtered;
     for (const auto& s : summaries) {
-        if (!filter_.pluginId.empty() && s.pluginId != filter_.pluginId) continue;
-        if (filter_.hideFullCompat && s.compatibilityScore == 100) continue;
-        if (filter_.showOnlyWithIssues && s.compatibilityScore == 100) continue;
+        if (!filter_.pluginId.empty() && s.pluginId != filter_.pluginId)
+            continue;
+        if (filter_.hideFullCompat && s.compatibilityScore == 100)
+            continue;
+        if (filter_.showOnlyWithIssues && s.compatibilityScore == 100)
+            continue;
         filtered.push_back(s);
     }
-    
-    std::sort(filtered.begin(), filtered.end(),
-        [this](const PluginCompatSummary& a, const PluginCompatSummary& b) {
-            int cmp = 0;
-            switch (sortBy_) {
-                case SortBy::PLUGIN_NAME:
-                    cmp = a.pluginName.compare(b.pluginName);
-                    break;
-                case SortBy::COMPATIBILITY_SCORE:
-                    cmp = a.compatibilityScore - b.compatibilityScore;
-                    break;
-                case SortBy::WARNING_COUNT:
-                    cmp = static_cast<int32_t>(a.warningCount) - static_cast<int32_t>(b.warningCount);
-                    break;
-                case SortBy::CALL_COUNT: {
-                    int64_t aTotal = static_cast<int64_t>(a.totalCalls);
-                    int64_t bTotal = static_cast<int64_t>(b.totalCalls);
-                    cmp = static_cast<int>(aTotal - bTotal);
-                    break;
-                }
-                case SortBy::LAST_UPDATED:
-                    if (a.lastUpdatedTimestamp < b.lastUpdatedTimestamp) {
-                        cmp = -1;
-                    } else if (a.lastUpdatedTimestamp > b.lastUpdatedTimestamp) {
-                        cmp = 1;
-                    }
-                    break;
+
+    std::sort(filtered.begin(), filtered.end(), [this](const PluginCompatSummary& a, const PluginCompatSummary& b) {
+        int cmp = 0;
+        switch (sortBy_) {
+        case SortBy::PLUGIN_NAME:
+            cmp = a.pluginName.compare(b.pluginName);
+            break;
+        case SortBy::COMPATIBILITY_SCORE:
+            cmp = a.compatibilityScore - b.compatibilityScore;
+            break;
+        case SortBy::WARNING_COUNT:
+            cmp = static_cast<int32_t>(a.warningCount) - static_cast<int32_t>(b.warningCount);
+            break;
+        case SortBy::CALL_COUNT: {
+            int64_t aTotal = static_cast<int64_t>(a.totalCalls);
+            int64_t bTotal = static_cast<int64_t>(b.totalCalls);
+            cmp = static_cast<int>(aTotal - bTotal);
+            break;
+        }
+        case SortBy::LAST_UPDATED:
+            if (a.lastUpdatedTimestamp < b.lastUpdatedTimestamp) {
+                cmp = -1;
+            } else if (a.lastUpdatedTimestamp > b.lastUpdatedTimestamp) {
+                cmp = 1;
             }
-            if (cmp == 0) {
-                cmp = a.pluginId.compare(b.pluginId);
-            }
-            return ascending_ ? cmp < 0 : cmp > 0;
-        });
-    
+            break;
+        }
+        if (cmp == 0) {
+            cmp = a.pluginId.compare(b.pluginId);
+        }
+        return ascending_ ? cmp < 0 : cmp > 0;
+    });
+
     return filtered;
 }
 
 std::vector<CompatEvent> CompatReportView::getVisibleEvents() const {
     auto events = model_.getRecentEvents(1000);
-    
+
     std::vector<CompatEvent> filtered;
     for (const auto& e : events) {
-        if (!filter_.pluginId.empty() && e.pluginId != filter_.pluginId) continue;
-        
+        if (!filter_.pluginId.empty() && e.pluginId != filter_.pluginId)
+            continue;
+
         int minOrder = static_cast<int>(filter_.minSeverity);
         int eventOrder = static_cast<int>(e.severity);
-        if (eventOrder < minOrder) continue;
-        
+        if (eventOrder < minOrder)
+            continue;
+
         filtered.push_back(e);
     }
-    
+
     return filtered;
 }
 
@@ -609,13 +625,13 @@ bool CompatReportView::isDetailView() const {
     return detailView_;
 }
 
-void CompatReportView::refresh() {
-}
+void CompatReportView::refresh() {}
 
 void CompatReportView::exportReport(const std::string& format, const std::string& path) {
     std::ofstream file(path);
-    if (!file.is_open()) return;
-    
+    if (!file.is_open())
+        return;
+
     if (format == "json") {
         file << model_.exportAsJson();
     } else if (format == "csv") {
@@ -635,7 +651,7 @@ std::vector<CompatReportView::SummaryRow> CompatReportView::getSummaryRows() con
     auto summaries = getVisibleSummaries();
     std::vector<SummaryRow> rows;
     rows.reserve(summaries.size());
-    
+
     for (const auto& s : summaries) {
         SummaryRow row;
         row.pluginId = s.pluginId;
@@ -651,7 +667,7 @@ std::vector<CompatReportView::SummaryRow> CompatReportView::getSummaryRows() con
         row.lastUpdated = formatRelativeAge(s.lastUpdatedTimestamp);
         rows.push_back(row);
     }
-    
+
     return rows;
 }
 
@@ -659,7 +675,7 @@ std::vector<CompatReportView::EventRow> CompatReportView::getEventRows() const {
     auto events = getVisibleEvents();
     std::vector<EventRow> rows;
     rows.reserve(events.size());
-    
+
     for (const auto& e : events) {
         EventRow row;
         row.timestamp = e.timestamp;
@@ -672,35 +688,49 @@ std::vector<CompatReportView::EventRow> CompatReportView::getEventRows() const {
         row.hasNavigation = !e.navigationTarget.empty();
         rows.push_back(row);
     }
-    
+
     return rows;
 }
 
 std::string CompatReportView::getScoreColor(int32_t score) {
-    if (score >= 90) return "#4CAF50";
-    if (score >= 70) return "#8BC34A";
-    if (score >= 50) return "#FFC107";
-    if (score >= 30) return "#FF9800";
+    if (score >= 90)
+        return "#4CAF50";
+    if (score >= 70)
+        return "#8BC34A";
+    if (score >= 50)
+        return "#FFC107";
+    if (score >= 30)
+        return "#FF9800";
     return "#F44336";
 }
 
 std::string CompatReportView::getSeverityColor(CompatEvent::Severity severity) {
     switch (severity) {
-        case CompatEvent::Severity::INFO: return "#2196F3";
-        case CompatEvent::Severity::WARNING: return "#FF9800";
-        case CompatEvent::Severity::ERROR: return "#F44336";
-        case CompatEvent::Severity::CRITICAL: return "#9C27B0";
-        default: return "#9E9E9E";
+    case CompatEvent::Severity::INFO:
+        return "#2196F3";
+    case CompatEvent::Severity::WARNING:
+        return "#FF9800";
+    case CompatEvent::Severity::ERROR:
+        return "#F44336";
+    case CompatEvent::Severity::CRITICAL:
+        return "#9C27B0";
+    default:
+        return "#9E9E9E";
     }
 }
 
 std::string CompatReportView::getSeverityIcon(CompatEvent::Severity severity) {
     switch (severity) {
-        case CompatEvent::Severity::INFO: return "info";
-        case CompatEvent::Severity::WARNING: return "warning";
-        case CompatEvent::Severity::ERROR: return "error";
-        case CompatEvent::Severity::CRITICAL: return "critical";
-        default: return "unknown";
+    case CompatEvent::Severity::INFO:
+        return "info";
+    case CompatEvent::Severity::WARNING:
+        return "warning";
+    case CompatEvent::Severity::ERROR:
+        return "error";
+    case CompatEvent::Severity::CRITICAL:
+        return "critical";
+    default:
+        return "unknown";
     }
 }
 
@@ -708,16 +738,14 @@ std::string CompatReportView::getSeverityIcon(CompatEvent::Severity severity) {
 // CompatReportPanel Implementation
 // ============================================================================
 
-CompatReportPanel::CompatReportPanel()
-    : view_(model_)
-{
-}
+CompatReportPanel::CompatReportPanel() : view_(model_) {}
 
 CompatReportPanel::~CompatReportPanel() = default;
 
 void CompatReportPanel::render() {
-    if (!visible_) return;
-    
+    if (!visible_)
+        return;
+
     if (detailView_) {
         renderDetailView();
     } else {
@@ -731,7 +759,7 @@ void CompatReportPanel::update() {
 
 void CompatReportPanel::renderSummaryView() {
     auto summaries = view_.getVisibleSummaries();
-    
+
     for (const auto& summary : summaries) {
         renderPluginHeader(summary);
     }
@@ -742,17 +770,17 @@ void CompatReportPanel::renderDetailView() {
         renderSummaryView();
         return;
     }
-    
+
     auto calls = model_.getPluginCalls(selectedPlugin_);
-    
+
     renderCallTable(calls);
-    
+
     renderEventTimeline();
 }
 
 void CompatReportPanel::renderEventTimeline() {
     auto events = model_.getRecentEvents(50);
-    
+
     for (const auto& event : events) {
         (void)event;
     }

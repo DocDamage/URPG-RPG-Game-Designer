@@ -1,6 +1,6 @@
 # Wave 1 Subsystem Closure Checklist (Canonical)
 
-Date: 2026-04-20  
+Date: 2026-04-20
 Status: canonical source for Wave 1 subsystem closure gates
 
 This document is the single source of truth for the closure criteria that apply to all Wave 1 subsystem specs:

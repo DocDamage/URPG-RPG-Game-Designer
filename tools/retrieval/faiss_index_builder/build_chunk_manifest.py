@@ -32,7 +32,7 @@ def chunk_text(text: str, chunk_size: int, overlap: int) -> list[str]:
     start = 0
     step = max(1, chunk_size - overlap)
     while start < len(normalized):
-        chunks.append(normalized[start:start + chunk_size])
+        chunks.append(normalized[start : start + chunk_size])
         start += step
     return chunks
 
@@ -46,7 +46,9 @@ def build_manifest(source_root: Path, chunk_size: int, overlap: int) -> dict:
             text = source_path.read_text(encoding="utf-8", errors="replace")
         relative_path = source_path.relative_to(source_root).as_posix()
         for index, chunk in enumerate(chunk_text(text, chunk_size, overlap)):
-            chunk_id = hashlib.sha1(f"{relative_path}:{index}:{chunk}".encode("utf-8")).hexdigest()[:16]
+            chunk_id = hashlib.sha1(
+                f"{relative_path}:{index}:{chunk}".encode("utf-8")
+            ).hexdigest()[:16]
             chunks.append(
                 {
                     "chunk_id": chunk_id,
@@ -67,7 +69,11 @@ def build_manifest(source_root: Path, chunk_size: int, overlap: int) -> dict:
 
 def main() -> int:
     parser = argparse.ArgumentParser(description="Build a retrieval chunk manifest.")
-    parser.add_argument("--source-root", required=True, help="Root directory containing project text to index.")
+    parser.add_argument(
+        "--source-root",
+        required=True,
+        help="Root directory containing project text to index.",
+    )
     parser.add_argument("--output", required=True, help="Output manifest path.")
     parser.add_argument("--chunk-size", type=int, default=400)
     parser.add_argument("--overlap", type=int, default=80)

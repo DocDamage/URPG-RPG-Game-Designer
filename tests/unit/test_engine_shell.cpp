@@ -1,31 +1,31 @@
-#include <catch2/catch_test_macros.hpp>
 #include "engine/core/engine_shell.h"
-#include "engine/core/platform/headless_surface.h"
 #include "engine/core/platform/headless_renderer.h"
+#include "engine/core/platform/headless_surface.h"
 #include "engine/core/scene/map_scene.h"
 #include "engine/core/scene/scene_manager.h"
-#include <thread>
+#include <catch2/catch_test_macros.hpp>
 #include <chrono>
+#include <thread>
 
 using namespace urpg;
 using namespace urpg::scene;
 
 TEST_CASE("Engine Shell: Basic Lifecycle", "[shell_unit]") {
     auto& shell = EngineShell::getInstance();
-    
+
     // Initial State Check
     REQUIRE(shell.isRunning() == false);
-    
+
     // Startup
     auto surface = std::make_unique<HeadlessSurface>();
     auto renderer = std::make_unique<HeadlessRenderer>();
     shell.startup(std::move(surface), std::move(renderer));
     REQUIRE(shell.isRunning() == true);
-    
+
     // Tick with measurable delay for delta time calculation
     std::this_thread::sleep_for(std::chrono::milliseconds(10));
     shell.tick();
-    
+
     // Shutdown
     shell.shutdown();
     REQUIRE(shell.isRunning() == false);
@@ -36,17 +36,17 @@ TEST_CASE("Engine Shell: Delta Time Calculation", "[engine][shell]") {
     auto surface = std::make_unique<HeadlessSurface>();
     auto renderer = std::make_unique<HeadlessRenderer>();
     shell.startup(std::move(surface), std::move(renderer));
-    
+
     // Perform two ticks to establish a meaningful delta
     shell.tick();
-    
+
     // Delay for approx 30ms (nominally 33fps region)
     std::this_thread::sleep_for(std::chrono::milliseconds(30));
-    
+
     // Tick again and verify dt exists
     // (Note: Testing for > 0.0f generically since exact sleeps vary by platform)
     shell.tick();
-    
+
     shell.shutdown();
 }
 
@@ -87,7 +87,8 @@ TEST_CASE("EngineShell Delta Time Clamp", "[engine][core]") {
     REQUIRE(shell.isRunning() == false);
 }
 
-TEST_CASE("EngineShell steady-state render path avoids frame-command growth and legacy conversion", "[engine][shell][render][td02]") {
+TEST_CASE("EngineShell steady-state render path avoids frame-command growth and legacy conversion",
+          "[engine][shell][render][td02]") {
     auto& sceneManager = SceneManager::getInstance();
     while (sceneManager.stackSize() > 0) {
         sceneManager.popScene();

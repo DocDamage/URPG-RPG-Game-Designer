@@ -1,6 +1,6 @@
 # URPG Program Completion Status
 
-Status Date: 2026-04-23  
+Status Date: 2026-04-23
 Program Scope: native-first roadmap rewire plus Wave 1 absorption, Wave 2 advanced capability expansion, post-Phase-2 compat exit hardening, and governance/template-readiness consolidation
 
 Cross-cutting debt, truthfulness, and intake-governance source of truth: `docs/TECHNICAL_DEBT_REMEDIATION_PLAN.md`.

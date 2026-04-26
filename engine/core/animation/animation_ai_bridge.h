@@ -21,15 +21,12 @@ struct AnimateableMetadata {
  * Allows the AI to generate keyframes based on natural language descriptions (e.g., "Make him jump").
  */
 class AnimationKnowledgeBridge {
-public:
+  public:
     /**
      * @brief Generates a prompt for keyframe generation.
      */
-    static std::string generateAnimationPrompt(
-        const AnimateableMetadata& actor,
-        const std::string& description,
-        float duration
-    );
+    static std::string generateAnimationPrompt(const AnimateableMetadata& actor, const std::string& description,
+                                               float duration);
 
     /**
      * @brief Parses the LLM's response into native animation tracks.

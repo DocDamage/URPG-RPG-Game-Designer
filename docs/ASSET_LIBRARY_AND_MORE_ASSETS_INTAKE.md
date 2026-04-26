@@ -62,13 +62,13 @@ After extraction, `tools/assets/asset_hygiene.py --write-reports --prune-junk` r
 
 The follow-up non-pruning scan reported:
 
-- `file_count`: 159,519
+- `file_count`: 159,437
 - `junk_file_count`: 0
 - `junk_dir_count`: 0
-- `oversize_count`: 10
-- `duplicate_groups`: 43,261
-- `duplicate_file_count`: 95,040
-- `duplicate_waste_bytes`: 3,443,221,459
+- `oversize_count`: 4
+- `duplicate_groups`: 43,300
+- `duplicate_file_count`: 95,120
+- `duplicate_waste_bytes`: 3,428,333,794
 
 ## Duplicate Policy
 

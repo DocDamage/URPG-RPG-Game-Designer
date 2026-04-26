@@ -1,7 +1,7 @@
 #pragma once
 
-#include "engine/core/ecs/world.h"
 #include "engine/core/ecs/economy_components.h"
+#include "engine/core/ecs/world.h"
 #include "engine/core/gameplay/inventory_components.h"
 
 namespace urpg {
@@ -10,7 +10,7 @@ namespace urpg {
  * @brief System that handles buying/selling from merchants.
  */
 class EconomySystem {
-public:
+  public:
     struct TransactionResult {
         bool success;
         std::string message;
@@ -20,7 +20,8 @@ public:
         // Merchant economy is currently transaction-driven; no per-frame step yet.
     }
 
-    TransactionResult buyItem(World& world, EntityID buyer, EntityID merchant, const std::string& itemId, uint32_t price) {
+    TransactionResult buyItem(World& world, EntityID buyer, EntityID merchant, const std::string& itemId,
+                              uint32_t price) {
         auto* buyerCurrency = world.GetComponent<CurrencyComponent>(buyer);
         auto* buyerInventory = world.GetComponent<InventoryComponent>(buyer);
         auto* merchantComponent = world.GetComponent<MerchantComponent>(merchant);
@@ -39,7 +40,7 @@ public:
 
         buyerCurrency->amount -= price;
         buyerInventory->addItem(itemId);
-        
+
         return {true, "Purchase successful"};
     }
 };

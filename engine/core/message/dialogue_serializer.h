@@ -9,7 +9,7 @@ namespace urpg::message {
  * @brief Serialization and Deserialization for Dialogue data.
  */
 class DialogueSerializer {
-public:
+  public:
     static nlohmann::json toJson(const std::vector<DialogueNode>& nodes) {
         nlohmann::json j = nlohmann::json::array();
         for (const auto& node : nodes) {
@@ -18,7 +18,7 @@ public:
             n["body"] = node.body;
             n["next_node_id"] = node.next_node_id;
             n["command"] = node.command;
-            
+
             // Condition
             if (!node.condition.switch_id.empty() || node.condition.check_variable) {
                 n["condition"]["switch_id"] = node.condition.switch_id;
@@ -37,11 +37,7 @@ public:
             // Choices
             n["choices"] = nlohmann::json::array();
             for (const auto& choice : node.choices) {
-                n["choices"].push_back({
-                    {"id", choice.id},
-                    {"label", choice.label},
-                    {"enabled", choice.enabled}
-                });
+                n["choices"].push_back({{"id", choice.id}, {"label", choice.label}, {"enabled", choice.enabled}});
             }
             j.push_back(n);
         }
@@ -50,7 +46,8 @@ public:
 
     static std::vector<DialogueNode> fromJson(const nlohmann::json& j) {
         std::vector<DialogueNode> nodes;
-        if (!j.is_array()) return nodes;
+        if (!j.is_array())
+            return nodes;
 
         for (const auto& n : j) {
             DialogueNode node;
@@ -78,12 +75,10 @@ public:
 
             if (n.contains("choices") && n["choices"].is_array()) {
                 for (const auto& c : n["choices"]) {
-                    node.choices.push_back({
-                        .id = c.value("id", ""),
-                        .label = c.value("label", ""),
-                        .enabled = c.value("enabled", true),
-                        .disabled_reason = c.value("disabled_reason", "")
-                    });
+                    node.choices.push_back({.id = c.value("id", ""),
+                                            .label = c.value("label", ""),
+                                            .enabled = c.value("enabled", true),
+                                            .disabled_reason = c.value("disabled_reason", "")});
                 }
             }
             nodes.push_back(node);

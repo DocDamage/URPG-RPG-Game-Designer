@@ -71,6 +71,10 @@ python tools/retrieval/tests/test_build_retrieval_bundle.py
 
 This test is also registered in the top-level `pr` CTest lane as:
 
-- `urpg_retrieval_adapter_resolution_test` (labels: `pr`)
+- `urpg_audio_preprocessing_acceptance_test` (labels: `pr;tools;python`)
+- `urpg_retrieval_artifact_contracts_test` (labels: `pr;tools;python`)
+- `urpg_retrieval_adapter_resolution_test` (labels: `pr;tools;python`)
+- `urpg_retrieval_acceptance_test` (labels: `pr;tools;python`)
+- `urpg_vision_segmentation_acceptance_test` (labels: `pr;tools;python`)
 
 The runtime must not depend directly on retrieval-building libraries from this directory.

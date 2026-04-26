@@ -1,12 +1,12 @@
-#include <catch2/catch_test_macros.hpp>
-#include "engine/core/scene/scene_manager.h"
-#include "engine/core/scene/map_scene.h"
-#include "engine/core/scene/battle_scene.h"
-#include "engine/core/scene/map_loader.h"
-#include "engine/core/scene/tileset_registry.h"
-#include "engine/core/scene/movement_authority.h"
 #include "engine/core/audio/audio_core.h"
 #include "engine/core/render/render_layer.h"
+#include "engine/core/scene/battle_scene.h"
+#include "engine/core/scene/map_loader.h"
+#include "engine/core/scene/map_scene.h"
+#include "engine/core/scene/movement_authority.h"
+#include "engine/core/scene/scene_manager.h"
+#include "engine/core/scene/tileset_registry.h"
+#include <catch2/catch_test_macros.hpp>
 #include <type_traits>
 #include <utility>
 
@@ -14,8 +14,7 @@ using namespace urpg::scene;
 
 namespace {
 
-template <typename LayerT>
-const auto& renderFrameCommands(const LayerT& layer) {
+template<typename LayerT> const auto& renderFrameCommands(const LayerT& layer) {
     if constexpr (requires { layer.getFrameCommands(); }) {
         return layer.getFrameCommands();
     } else {
@@ -23,8 +22,7 @@ const auto& renderFrameCommands(const LayerT& layer) {
     }
 }
 
-template <typename StoredCommand>
-urpg::RenderCmdType renderCommandType(const StoredCommand& command) {
+template<typename StoredCommand> urpg::RenderCmdType renderCommandType(const StoredCommand& command) {
     if constexpr (requires { command.type; }) {
         return command.type;
     } else {
@@ -32,8 +30,7 @@ urpg::RenderCmdType renderCommandType(const StoredCommand& command) {
     }
 }
 
-template <typename CommandT, typename StoredCommand>
-const CommandT* renderCommandAs(const StoredCommand& command) {
+template<typename CommandT, typename StoredCommand> const CommandT* renderCommandAs(const StoredCommand& command) {
     if constexpr (requires { command.template tryGet<CommandT>(); }) {
         return command.template tryGet<CommandT>();
     } else if constexpr (requires { command.get(); }) {
@@ -54,8 +51,7 @@ struct TileSnapshot {
     int32_t zOrder = 0;
 };
 
-template <typename StoredCommand>
-TileSnapshot snapshotTileCommand(const StoredCommand& command) {
+template<typename StoredCommand> TileSnapshot snapshotTileCommand(const StoredCommand& command) {
     const auto* tile = renderCommandAs<urpg::TileRenderData>(command);
     REQUIRE(tile != nullptr);
     return TileSnapshot{tile->tileIndex, command.x, command.y, command.zOrder};
@@ -65,8 +61,8 @@ TileSnapshot snapshotTileCommand(const StoredCommand& command) {
 
 TEST_CASE("MovementAuthority: Native Grid Transitions", "[scene][movement]") {
     urpg::MovementComponent m;
-    m.gridPos = { 5, 5 };
-    m.lastGridPos = { 5, 5 };
+    m.gridPos = {5, 5};
+    m.lastGridPos = {5, 5};
     m.moveSpeed = 4.0f; // 4 tiles per second
     m.isMoving = false;
 
@@ -89,7 +85,7 @@ TEST_CASE("MovementAuthority: Native Grid Transitions", "[scene][movement]") {
     }
 
     SECTION("Update handles progress and completion") {
-        m.gridPos = { 4, 5 };
+        m.gridPos = {4, 5};
         m.isMoving = true;
         m.moveProgress = 0.0f;
 
@@ -114,10 +110,10 @@ TEST_CASE("MovementAuthority: Input Integration", "[scene][movement][input]") {
     SECTION("Input triggers movement in MapScene") {
         // Press key 1 (MoveRight)
         input.processKeyEvent(1, urpg::input::ActionState::Pressed);
-        
+
         // Before update, player is at (0,0)
         REQUIRE(map.getPlayerMovement().gridPos.x == 0);
-        
+
         // Process input and transition
         map.handleInput(input);
         REQUIRE(map.getPlayerMovement().isMoving);
@@ -131,7 +127,7 @@ TEST_CASE("MapLoader: Bridge DataManager to MapScene", "[scene][map][loader]") {
     urpg::TilesetData ts;
     ts.id = 1;
     ts.name = "Outdoor";
-    ts.flags = { urpg::TileFlag::Passable, urpg::TileFlag::FullImpassable }; // 0=Floor, 1=Wall
+    ts.flags = {urpg::TileFlag::Passable, urpg::TileFlag::FullImpassable}; // 0=Floor, 1=Wall
     urpg::TilesetRegistry::instance().registerTileset(ts);
 
     // 2. Load map through the loader
@@ -155,7 +151,7 @@ TEST_CASE("MapLoader: Bridge DataManager to MapScene", "[scene][map][loader]") {
 #if 0
 TEST_CASE("BattleScene: Phase and Turn Authority", "[scene][battle]") {
     BattleScene battle({"slime_01", "slime_02"});
-    
+
     SECTION("Initial battle state") {
         REQUIRE(battle.getType() == SceneType::BATTLE);
         REQUIRE(battle.getEnemies().size() == 2);
@@ -177,7 +173,7 @@ TEST_CASE("BattleScene: Phase and Turn Authority", "[scene][battle]") {
 
 TEST_CASE("MapScene: Coordinate and Collision Authority", "[scene][map]") {
     MapScene map("001", 10, 10);
-    
+
     SECTION("Initial boundary checks") {
         REQUIRE(map.checkCollision(-1, 0) == true);
         REQUIRE(map.checkCollision(10, 0) == true);
@@ -189,7 +185,7 @@ TEST_CASE("MapScene: Coordinate and Collision Authority", "[scene][map]") {
         map.setTile(5, 5, 1, false); // Wall
         REQUIRE(map.checkCollision(5, 5) == true);
 
-        map.setTile(5, 5, 2, true);  // Floor
+        map.setTile(5, 5, 2, true); // Floor
         REQUIRE(map.checkCollision(5, 5) == false);
     }
 }
@@ -290,7 +286,8 @@ TEST_CASE("MapScene: bound interaction abilities execute from confirm input thro
     REQUIRE(map.playerAbilitySystem().getAbilityExecutionHistory().back().outcome == "executed");
 }
 
-TEST_CASE("MapScene: tile and prop interaction bindings activate targeted abilities", "[scene][map][ability][interaction_targets]") {
+TEST_CASE("MapScene: tile and prop interaction bindings activate targeted abilities",
+          "[scene][map][ability][interaction_targets]") {
     MapScene map("001", 10, 10);
 
     urpg::ability::AuthoredAbilityAsset tileAsset;
@@ -306,7 +303,8 @@ TEST_CASE("MapScene: tile and prop interaction bindings activate targeted abilit
     propAsset.effect_value = 8.0f;
 
     REQUIRE(map.bindTileInteractionAbility("confirm_interact", 2, 3, "content/abilities/tile_trigger.json", tileAsset));
-    REQUIRE(map.bindPropInteractionAbility("inspect_prop", "rock_01", "content/abilities/prop_trigger.json", propAsset));
+    REQUIRE(
+        map.bindPropInteractionAbility("inspect_prop", "rock_01", "content/abilities/prop_trigger.json", propAsset));
     REQUIRE(map.interactionAbilityBindings().size() == 2);
 
     map.playerAbilitySystem().setAttribute("MP", 30.0f);
@@ -332,14 +330,8 @@ TEST_CASE("MapScene: region interaction bindings activate for tiles inside the p
     regionAsset.effect_attribute = "MagicDefense";
     regionAsset.effect_value = 12.0f;
 
-    REQUIRE(map.bindRegionInteractionAbility(
-        "confirm_interact",
-        2,
-        3,
-        5,
-        6,
-        "content/abilities/region_trigger.json",
-        regionAsset));
+    REQUIRE(map.bindRegionInteractionAbility("confirm_interact", 2, 3, 5, 6, "content/abilities/region_trigger.json",
+                                             regionAsset));
 
     map.playerAbilitySystem().setAttribute("MP", 30.0f);
     map.playerAbilitySystem().setAttribute("MagicDefense", 100.0f);
@@ -367,22 +359,10 @@ TEST_CASE("MapScene: multiple region interaction bindings normalize and activate
     regionB.effect_attribute = "MagicDefense";
     regionB.effect_value = 14.0f;
 
-    REQUIRE(map.bindRegionInteractionAbility(
-        "confirm_interact",
-        7,
-        7,
-        4,
-        5,
-        "content/abilities/region_alpha.json",
-        regionA));
-    REQUIRE(map.bindRegionInteractionAbility(
-        "confirm_interact",
-        1,
-        1,
-        2,
-        2,
-        "content/abilities/region_beta.json",
-        regionB));
+    REQUIRE(map.bindRegionInteractionAbility("confirm_interact", 7, 7, 4, 5, "content/abilities/region_alpha.json",
+                                             regionA));
+    REQUIRE(map.bindRegionInteractionAbility("confirm_interact", 1, 1, 2, 2, "content/abilities/region_beta.json",
+                                             regionB));
 
     REQUIRE(map.interactionAbilityBindings().size() == 2);
     REQUIRE(map.interactionAbilityBindings()[0].region_min_x == 4);
@@ -508,9 +488,9 @@ TEST_CASE("MapScene: message runner submits render commands during dialogue", "[
 }
 
 class MockScene : public GameScene {
-public:
+  public:
     MockScene(SceneType type, const std::string& name) : m_type(type), m_name(name) {}
-    
+
     SceneType getType() const override { return m_type; }
     std::string getName() const override { return m_name; }
 
@@ -522,7 +502,7 @@ public:
     int m_stopCount = 0;
     int m_updateCount = 0;
 
-private:
+  private:
     SceneType m_type;
     std::string m_name;
 };
@@ -555,7 +535,7 @@ TEST_CASE("SceneManager: Basic Lifecycle & Stack", "[scene][core]") {
     SECTION("Popping scenes") {
         manager.pushScene(title);
         manager.pushScene(map);
-        
+
         manager.popScene();
         REQUIRE(manager.getActiveScene()->getName() == "TitleScreen");
         REQUIRE(title->m_startCount == 2); // Recalled from stack
@@ -566,7 +546,7 @@ TEST_CASE("SceneManager: Basic Lifecycle & Stack", "[scene][core]") {
         manager.pushScene(title);
         manager.pushScene(map);
         manager.gotoScene(battle);
-        
+
         REQUIRE(manager.getActiveScene()->getName() == "Encounter");
         REQUIRE(manager.stackSize() == 1);
     }
@@ -574,7 +554,7 @@ TEST_CASE("SceneManager: Basic Lifecycle & Stack", "[scene][core]") {
     SECTION("Update only affects top scene") {
         manager.pushScene(title);
         manager.pushScene(map);
-        
+
         manager.update(0.16f);
         REQUIRE(map->m_updateCount == 1);
         REQUIRE(title->m_updateCount == 0);

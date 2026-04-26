@@ -1,10 +1,10 @@
 #pragma once
 
+#include <bitset>
+#include <cstdint>
+#include <map>
 #include <string>
 #include <vector>
-#include <map>
-#include <cstdint>
-#include <bitset>
 
 namespace urpg::editor {
 
@@ -25,11 +25,11 @@ enum class PluginPermission : uint16_t {
 
 /**
  * @brief Manages the security context and permission validation for plugins.
- * 
+ *
  * Part of the Post-Gold Security Hardening track.
  */
 class PluginSecurityManager {
-public:
+  public:
     static PluginSecurityManager& instance() {
         static PluginSecurityManager inst;
         return inst;
@@ -54,10 +54,12 @@ public:
     /**
      * @brief Set the default policy for new plugins.
      */
-    void setDefaultPolicy(std::bitset<static_cast<size_t>(PluginPermission::Count)> policy) { m_defaultPolicy = policy; }
+    void setDefaultPolicy(std::bitset<static_cast<size_t>(PluginPermission::Count)> policy) {
+        m_defaultPolicy = policy;
+    }
 
-private:
-    PluginSecurityManager() { 
+  private:
+    PluginSecurityManager() {
         // Default: least privilege (empty)
     }
 

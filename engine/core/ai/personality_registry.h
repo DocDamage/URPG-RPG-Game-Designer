@@ -1,7 +1,7 @@
 #pragma once
 
-#include <string>
 #include <map>
+#include <string>
 
 namespace urpg::ai {
 
@@ -9,11 +9,12 @@ namespace urpg::ai {
  * @brief Pre-defined templates for character personalities to be used with the ChatbotComponent.
  */
 class PersonalityRegistry {
-public:
+  public:
     static std::string getSystemPrompt(const std::string& templateName) {
         if (templateName == "Elder") {
             return "You are a wise village elder. You speak in riddles and provide cryptic but helpful guidance. "
-                   "You value tradition and the safety of the village. You use archaic language like 'thee' and 'thou'.";
+                   "You value tradition and the safety of the village. You use archaic language like 'thee' and "
+                   "'thou'.";
         }
         if (templateName == "Warrior") {
             return "You are a battle-hardened warrior. You are blunt, direct, and slightly impatient. "
@@ -27,7 +28,7 @@ public:
             return "You are a compassionate healer. You speak softly and offer comfort. "
                    "You focus on the well-being of others and value peace and harmony.";
         }
-        
+
         return "You are a helpful game assistant.";
     }
 

@@ -1,10 +1,10 @@
 #pragma once
 
+#include <functional>
+#include <mutex>
 #include <string>
 #include <unordered_map>
 #include <variant>
-#include <mutex>
-#include <functional>
 #include <vector>
 
 namespace urpg {
@@ -12,11 +12,11 @@ namespace urpg {
 /**
  * @brief Thread-safe store for global game state (Switches and Variables).
  * This persists across scenes and is the primary target for Save/Load.
- * 
+ *
  * Wave 2 Expansion: Added ChangeCallback subscription system for UI/Audio sync.
  */
 class GlobalStateHub {
-public:
+  public:
     static GlobalStateHub& getInstance() {
         static GlobalStateHub instance;
         return instance;
@@ -70,7 +70,8 @@ public:
     void setSwitch(const std::string& id, bool value) {
         {
             std::lock_guard<std::mutex> lock(m_mutex);
-            if (m_switches.count(id) && m_switches[id] == value) return;
+            if (m_switches.count(id) && m_switches[id] == value)
+                return;
             m_switches[id] = value;
         }
         notify(id, Value(value));
@@ -99,7 +100,8 @@ public:
     void setVariable(const std::string& id, Value value) {
         {
             std::lock_guard<std::mutex> lock(m_mutex);
-            if (m_variables.count(id) && m_variables[id] == value) return;
+            if (m_variables.count(id) && m_variables[id] == value)
+                return;
             m_variables[id] = value;
         }
         notify(id, value);
@@ -120,7 +122,8 @@ public:
     void setConfig(const std::string& key, const std::string& value) {
         {
             std::lock_guard<std::mutex> lock(m_mutex);
-            if (m_config.count(key) && m_config[key] == value) return;
+            if (m_config.count(key) && m_config[key] == value)
+                return;
             m_config[key] = value;
         }
         notify(key, Value(value));
@@ -140,7 +143,7 @@ public:
     uint32_t subscribe(const std::string& pattern, ChangeCallback callback) {
         std::lock_guard<std::mutex> lock(m_mutex);
         uint32_t handle = m_nextHandle++;
-        m_subscriptions.push_back({ handle, pattern, std::move(callback) });
+        m_subscriptions.push_back({handle, pattern, std::move(callback)});
         return handle;
     }
 
@@ -148,8 +151,7 @@ public:
      * @brief Diff-First state update for audio/UI sync.
      * Triggers notifications ONLY if the value actually changed.
      */
-    template<typename T>
-    void updateState(const std::string& id, T newValue) {
+    template<typename T> void updateState(const std::string& id, T newValue) {
         bool changed = false;
         Value val(newValue);
         {
@@ -211,7 +213,7 @@ public:
         m_nextHandle = 1;
     }
 
-private:
+  private:
     GlobalStateHub() = default;
 
     void notify(const std::string& id, const Value& value) {
@@ -221,10 +223,8 @@ private:
             for (const auto& sub : m_subscriptions) {
                 const bool exact_match = sub.pattern == id;
                 const bool all_match = sub.pattern == "*";
-                const bool prefix_match =
-                    sub.pattern.size() > 1 &&
-                    sub.pattern.back() == '*' &&
-                    id.rfind(sub.pattern.substr(0, sub.pattern.size() - 1), 0) == 0;
+                const bool prefix_match = sub.pattern.size() > 1 && sub.pattern.back() == '*' &&
+                                          id.rfind(sub.pattern.substr(0, sub.pattern.size() - 1), 0) == 0;
                 if (exact_match || all_match || prefix_match) {
                     callbacks.push_back(sub.callback);
                 }
@@ -246,7 +246,7 @@ private:
     std::unordered_map<std::string, bool> m_baseline_switches;
     std::unordered_map<std::string, Value> m_baseline_variables;
     std::unordered_map<std::string, std::string> m_config;
-    
+
     std::vector<Subscription> m_subscriptions;
     uint32_t m_nextHandle = 1;
 

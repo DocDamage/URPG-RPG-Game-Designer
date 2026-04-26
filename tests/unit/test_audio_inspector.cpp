@@ -1,7 +1,7 @@
-#include <catch2/catch_test_macros.hpp>
 #include "editor/audio/audio_inspector_model.h"
 #include "editor/audio/audio_inspector_panel.h"
 #include "engine/core/audio/audio_core.h"
+#include <catch2/catch_test_macros.hpp>
 #include <memory>
 
 using namespace urpg::editor;
@@ -42,11 +42,11 @@ TEST_CASE("AudioInspectorModel: Projection", "[editor][audio][inspector]") {
 
 TEST_CASE("AudioInspectorPanel: Visibility", "[editor][audio][panel]") {
     AudioInspectorPanel panel;
-    
+
     SECTION("Starts hidden") {
         REQUIRE_FALSE(panel.isVisible());
     }
-    
+
     SECTION("Can be toggled") {
         panel.setVisible(true);
         REQUIRE(panel.isVisible());
@@ -64,6 +64,9 @@ TEST_CASE("AudioInspectorPanel: Visibility", "[editor][audio][panel]") {
         REQUIRE(panel.lastRenderSnapshot().issue_count == 0);
         REQUIRE(panel.lastRenderSnapshot().master_volume == 1.0f);
         REQUIRE_FALSE(panel.lastRenderSnapshot().has_data);
+        REQUIRE(panel.lastRenderSnapshot().model_bound);
+        REQUIRE(panel.lastRenderSnapshot().status_message ==
+                "No live audio sources or diagnostics are available; refresh from AudioCore.");
         REQUIRE(panel.lastRenderSnapshot().live_rows.empty());
     }
 
@@ -78,6 +81,7 @@ TEST_CASE("AudioInspectorPanel: Visibility", "[editor][audio][panel]") {
         REQUIRE(panel.hasRenderedFrame());
         REQUIRE(panel.lastRenderSnapshot().active_count == 1);
         REQUIRE(panel.lastRenderSnapshot().has_data);
+        REQUIRE(panel.lastRenderSnapshot().status_message.empty());
         REQUIRE(panel.lastRenderSnapshot().live_rows.size() == 1);
         REQUIRE(panel.lastRenderSnapshot().live_rows[0].handle == handle);
         REQUIRE(panel.lastRenderSnapshot().live_rows[0].assetId == "se_ui_ping");

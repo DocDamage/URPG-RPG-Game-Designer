@@ -1,8 +1,8 @@
 # URPG Missing Features, Governance Gaps, and Template Expansion Plan
 
-Date: 2026-04-20  
-Version: 2.0 — revised and expanded  
-Status: proposed planning addendum  
+Date: 2026-04-20
+Version: 2.0 — revised and expanded
+Status: proposed planning addendum
 Scope: missing product features, template-governance gaps, game-type readiness, the Create-a-Character runtime lane, cross-cutting concerns, and newly identified subsystem gaps
 
 This document extends the earlier gap checklist (v1.0) and folds in the major planning work developed around:
@@ -62,7 +62,7 @@ URPG already has substantial real implementation across:
 
 What is still easy to miss are the **governance, template, and productization layers** that make those capabilities safe to expose, safe to market, and safe for users to build on.
 
-The current repo state suggests the main risk is no longer "URPG lacks serious capability."  
+The current repo state suggests the main risk is no longer "URPG lacks serious capability."
 The bigger risk is that **template support, subsystem labels, and editor surfaces can drift away from verified reality** unless they are governed explicitly.
 
 A second class of risk — now explicitly named — is that the following **cross-cutting concerns have no subsystem owner and no CI gate**:
@@ -1053,9 +1053,9 @@ Key blocker:
 # Part V — Create-a-Character Runtime Module
 
 ## Goal
-URPG must be able to export games that include a **real in-game Create-a-Character system**.  
-Not just an editor-side importer.  
-Not just a cosmetic picker.  
+URPG must be able to export games that include a **real in-game Create-a-Character system**.
+Not just an editor-side importer.
+Not just a cosmetic picker.
 A runtime module that ships inside the finished game.
 
 ## Core rule

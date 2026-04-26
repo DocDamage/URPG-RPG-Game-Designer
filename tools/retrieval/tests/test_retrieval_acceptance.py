@@ -29,25 +29,28 @@ REPO_ROOT = Path(__file__).resolve().parents[3]
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
-from tools.retrieval.faiss_index_builder.build_retrieval_bundle import build_bundle
-from tools.retrieval.faiss_index_builder.build_chunk_manifest import build_manifest
+from tools.retrieval.faiss_index_builder.build_retrieval_bundle import build_bundle  # noqa: E402
+from tools.retrieval.faiss_index_builder.build_chunk_manifest import build_manifest  # noqa: E402
 
 
 # ---------------------------------------------------------------------------
 # Shared fixtures
 # ---------------------------------------------------------------------------
 
+
 def _make_chunk_manifest(texts: list[str]) -> dict:
     """Minimal inline chunk manifest for determinism tests."""
     chunks = []
     for i, text in enumerate(texts):
         chunk_id = hashlib.sha1(f"test:{i}:{text}".encode()).hexdigest()[:16]
-        chunks.append({
-            "chunk_id": chunk_id,
-            "source_path": f"test_source_{i}.txt",
-            "chunk_index": 0,
-            "text": text,
-        })
+        chunks.append(
+            {
+                "chunk_id": chunk_id,
+                "source_path": f"test_source_{i}.txt",
+                "chunk_index": 0,
+                "text": text,
+            }
+        )
     return {
         "schema": "content/schemas/retrieval_chunk_manifest.schema.json",
         "source_root": "test/",
@@ -70,6 +73,7 @@ _SAMPLE_TEXTS = [
 # Acceptance tests
 # ---------------------------------------------------------------------------
 
+
 class BundleSchemContract(unittest.TestCase):
     """S33-T01: Bundle output satisfies the schema contract."""
 
@@ -85,7 +89,9 @@ class BundleSchemContract(unittest.TestCase):
 
     def test_bundle_schema_field_is_correct(self) -> None:
         bundle = self._build(_SAMPLE_TEXTS)
-        self.assertEqual(bundle["schema"], "content/schemas/retrieval_index_bundle.schema.json")
+        self.assertEqual(
+            bundle["schema"], "content/schemas/retrieval_index_bundle.schema.json"
+        )
 
     def test_bundle_entry_count_matches_manifest(self) -> None:
         bundle = self._build(_SAMPLE_TEXTS)
@@ -112,7 +118,13 @@ class BundleSchemContract(unittest.TestCase):
 
     def test_all_entries_have_required_fields(self) -> None:
         bundle = self._build(_SAMPLE_TEXTS)
-        required_fields = {"chunk_id", "source_path", "chunk_index", "text", "embedding"}
+        required_fields = {
+            "chunk_id",
+            "source_path",
+            "chunk_index",
+            "text",
+            "embedding",
+        }
         for entry in bundle["entries"]:
             for field in required_fields:
                 self.assertIn(field, entry, msg=f"Entry missing field: {field}")
@@ -122,7 +134,9 @@ class BundleSchemContract(unittest.TestCase):
         for entry in bundle["entries"]:
             emb = entry["embedding"]
             self.assertEqual(len(emb), 128)
-            self.assertTrue(any(v != 0.0 for v in emb), "Embedding must not be all-zero")
+            self.assertTrue(
+                any(v != 0.0 for v in emb), "Embedding must not be all-zero"
+            )
 
     def test_empty_manifest_produces_empty_bundle(self) -> None:
         bundle = self._build([])
@@ -158,10 +172,12 @@ class BundleDeterminismAcceptance(unittest.TestCase):
         self.assertEqual(first["engine"], second["engine"])
 
         for i, (e1, e2) in enumerate(zip(first["entries"], second["entries"])):
-            self.assertEqual(e1["chunk_id"], e2["chunk_id"],
-                             msg=f"chunk_id mismatch at index {i}")
-            self.assertEqual(e1["embedding"], e2["embedding"],
-                             msg=f"embedding mismatch at index {i}")
+            self.assertEqual(
+                e1["chunk_id"], e2["chunk_id"], msg=f"chunk_id mismatch at index {i}"
+            )
+            self.assertEqual(
+                e1["embedding"], e2["embedding"], msg=f"embedding mismatch at index {i}"
+            )
 
     def test_different_text_order_produces_different_embeddings(self) -> None:
         forward_manifest = _make_chunk_manifest(["alpha bravo", "charlie delta"])
@@ -194,14 +210,19 @@ class BundleDeterminismAcceptance(unittest.TestCase):
 class ChunkManifestDeterminism(unittest.TestCase):
     """S33-T01: Chunk manifest building from a directory is stable across calls."""
 
-    def test_manifest_chunk_ids_are_stable_across_calls(self, tmp_path: "Path | None" = None) -> None:
+    def test_manifest_chunk_ids_are_stable_across_calls(
+        self, tmp_path: "Path | None" = None
+    ) -> None:
         import tempfile
-        import os
 
         with tempfile.TemporaryDirectory() as tmpdir:
             root = Path(tmpdir)
-            (root / "doc_a.md").write_text("# Title\nSome content about the engine.", encoding="utf-8")
-            (root / "doc_b.txt").write_text("Another document with different content.", encoding="utf-8")
+            (root / "doc_a.md").write_text(
+                "# Title\nSome content about the engine.", encoding="utf-8"
+            )
+            (root / "doc_b.txt").write_text(
+                "Another document with different content.", encoding="utf-8"
+            )
 
             first = build_manifest(root, chunk_size=200, overlap=40)
             second = build_manifest(root, chunk_size=200, overlap=40)
@@ -219,7 +240,9 @@ class ChunkManifestDeterminism(unittest.TestCase):
             (root / "test.md").write_text("content", encoding="utf-8")
             manifest = build_manifest(root, chunk_size=100, overlap=20)
 
-        self.assertEqual(manifest["schema"], "content/schemas/retrieval_chunk_manifest.schema.json")
+        self.assertEqual(
+            manifest["schema"], "content/schemas/retrieval_chunk_manifest.schema.json"
+        )
 
     def test_manifest_includes_source_root(self) -> None:
         import tempfile

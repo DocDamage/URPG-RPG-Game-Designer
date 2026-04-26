@@ -1,11 +1,11 @@
 #pragma once
 
-#include <string>
-#include <vector>
-#include <functional>
-#include <memory>
 #include "engine/core/message/message_core.h"
 #include "engine/core/message/world_knowledge_bridge.h"
+#include <functional>
+#include <memory>
+#include <string>
+#include <vector>
 
 namespace urpg::ai {
 
@@ -22,7 +22,7 @@ struct ChatMessage {
  * This allows the game developer to plug in OpenAI, Anthropic, or a local model.
  */
 class IChatService {
-public:
+  public:
     virtual ~IChatService() = default;
 
     using ChatCallback = std::function<void(const std::string& response, const std::string& command)>;
@@ -38,7 +38,8 @@ public:
     /**
      * @brief Optional streaming request.
      */
-    virtual void requestStream(const std::vector<ChatMessage>& history, StreamCallback onChunk, ChatCallback onComplete) {
+    virtual void requestStream(const std::vector<ChatMessage>& history, StreamCallback onChunk,
+                               ChatCallback onComplete) {
         (void)onChunk;
         // Fallback to non-streaming if not implemented
         requestResponse(history, onComplete);
@@ -49,7 +50,7 @@ public:
  * @brief A specialized Dialogue Node that acts as an entry point for AI Chat.
  */
 class ChatbotComponent {
-public:
+  public:
     ChatbotComponent(std::shared_ptr<IChatService> service) : m_service(service) {}
 
     void setSystemPrompt(const std::string& prompt) { m_systemPrompt = prompt; }
@@ -74,7 +75,7 @@ public:
             page.body = response;
             page.command = command; // Pass through to local handlers if needed
             page.variant.speaker = "Mysterious AI";
-            
+
             onReady(page);
         });
     }
@@ -92,19 +93,21 @@ public:
     /**
      * @brief Streams the AI response in real-time.
      */
-    void streamResponse(const std::string& userInput, IChatService::StreamCallback onChunk, std::function<void(urpg::message::DialoguePage)> onComplete) {
+    void streamResponse(const std::string& userInput, IChatService::StreamCallback onChunk,
+                        std::function<void(urpg::message::DialoguePage)> onComplete) {
         prepareHistory(userInput);
 
-        m_service->requestStream(m_history, onChunk, [this, onComplete](const std::string& response, const std::string& command) {
-            m_history.push_back({"assistant", response});
+        m_service->requestStream(m_history, onChunk,
+                                 [this, onComplete](const std::string& response, const std::string& command) {
+                                     m_history.push_back({"assistant", response});
 
-            urpg::message::DialoguePage page;
-            page.body = response;
-            page.command = command;
-            page.variant.speaker = "Mysterious AI";
-            
-            onComplete(page);
-        });
+                                     urpg::message::DialoguePage page;
+                                     page.body = response;
+                                     page.command = command;
+                                     page.variant.speaker = "Mysterious AI";
+
+                                     onComplete(page);
+                                 });
     }
 
     void clearHistory() { m_history.clear(); }
@@ -119,16 +122,14 @@ public:
      * The in-tree sync path currently proves process-local restore only; callers
      * may also inject histories loaded by out-of-tree persistence backends.
      */
-    void restoreHistory(const std::vector<ChatMessage>& history) {
-        m_history = history;
-    }
+    void restoreHistory(const std::vector<ChatMessage>& history) { m_history = history; }
 
-private:
+  private:
     void prepareHistory(const std::string& userInput) {
         // ALWAYS refresh the dynamic world state context for every request
         // This ensures the AI knows if a quest progressed or a switch flipped since the last message.
         std::string dynamicContext = WorldKnowledgeBridge::generateContext();
-        
+
         if (m_history.empty()) {
             m_history.push_back({"system", m_systemPrompt + "\n\n" + dynamicContext});
         } else {

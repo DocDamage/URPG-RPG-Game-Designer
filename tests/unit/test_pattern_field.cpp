@@ -1,26 +1,28 @@
-#include <catch2/catch_test_macros.hpp>
-#include "engine/core/ability/pattern_field.h"
-#include "engine/core/ability/gameplay_ability.h"
-#include "engine/core/ability/ability_system_component.h"
-#include "engine/core/ability/pattern_field_serializer.h"
-#include "engine/core/ability/pattern_field_presets.h"
 #include "editor/ability/pattern_field_model.h"
 #include "editor/ability/pattern_field_panel.h"
-#include <nlohmann/json.hpp>
+#include "engine/core/ability/ability_system_component.h"
+#include "engine/core/ability/gameplay_ability.h"
+#include "engine/core/ability/pattern_field.h"
+#include "engine/core/ability/pattern_field_presets.h"
+#include "engine/core/ability/pattern_field_serializer.h"
 #include <algorithm>
+#include <catch2/catch_test_macros.hpp>
+#include <nlohmann/json.hpp>
 
 using namespace urpg::ability;
 using namespace urpg;
 
 class TestAbilityWithPattern : public GameplayAbility {
-public:
-    TestAbilityWithPattern(std::shared_ptr<PatternField> p) {
-        m_info.pattern = p;
+  public:
+    TestAbilityWithPattern(std::shared_ptr<PatternField> p) { m_info.pattern = p; }
+    const std::string& getId() const override {
+        static std::string id = "TestPat";
+        return id;
     }
-    const std::string& getId() const override { static std::string id = "TestPat"; return id; }
     const ActivationInfo& getActivationInfo() const override { return m_info; }
     void activate([[maybe_unused]] AbilitySystemComponent& source) override {}
-private:
+
+  private:
     ActivationInfo m_info;
 };
 
@@ -74,9 +76,8 @@ TEST_CASE("PatternValidator: Rules", "[ability][pattern][validation]") {
         auto result = PatternValidator::Validate(huge, 10);
         REQUIRE_FALSE(result.isValid);
         REQUIRE(result.issues.size() >= 1);
-        REQUIRE(std::find(result.issues.begin(),
-                          result.issues.end(),
-                          "Pattern exceeds maximum radius of 10.") != result.issues.end());
+        REQUIRE(std::find(result.issues.begin(), result.issues.end(), "Pattern exceeds maximum radius of 10.") !=
+                result.issues.end());
     }
 
     SECTION("Normal pattern is valid") {
@@ -178,8 +179,7 @@ TEST_CASE("PatternFieldModel filters reusable preset catalog by usage and applie
           "[ability][pattern][editor]") {
     urpg::editor::PatternFieldModel model;
 
-    const auto placementPresets =
-        model.availablePresets(urpg::PatternFieldPresets::Usage::Placement);
+    const auto placementPresets = model.availablePresets(urpg::PatternFieldPresets::Usage::Placement);
     REQUIRE(placementPresets.size() == 1);
     REQUIRE(placementPresets[0].id == "placement_pad");
 
@@ -204,11 +204,15 @@ TEST_CASE("PatternFieldPanel snapshot carries preview and validation issues", "[
 
     const auto& snapshot = panel.getRenderSnapshot();
     REQUIRE(snapshot.visible);
+    REQUIRE_FALSE(snapshot.has_rendered_frame);
     REQUIRE(snapshot.name == "Offset");
     REQUIRE_FALSE(snapshot.is_valid);
     REQUIRE(snapshot.issues.size() == 1);
     REQUIRE(snapshot.issues[0] == "Pattern must include the origin point (0,0).");
     REQUIRE(snapshot.grid_rows.size() == 3);
+    REQUIRE(snapshot.viewport_size == 3);
+    REQUIRE(snapshot.active_point_count == 1);
+    REQUIRE(snapshot.controls.size() == 5);
 }
 
 TEST_CASE("PatternFieldSerializer preserves deterministic point ordering", "[ability][pattern][serializer]") {

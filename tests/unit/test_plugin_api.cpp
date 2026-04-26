@@ -1,9 +1,11 @@
 #include <catch2/catch_test_macros.hpp>
 
+#include "engine/core/diagnostics/runtime_diagnostics.h"
 #include "engine/core/ecs/actor_components.h"
 #include "engine/core/ecs/player_control_system.h"
 #include "engine/core/ecs/world.h"
 #include "engine/core/editor/plugin_api.h"
+#include "engine/core/editor/security_manager.h"
 #include "engine/core/global_state_hub.h"
 #include "runtimes/compat_js/input_manager.h"
 
@@ -21,9 +23,7 @@ bool worldContainsEntity(urpg::World& world, urpg::EntityID target) {
 
 std::size_t worldEntityCount(urpg::World& world) {
     std::size_t count = 0;
-    world.ForEachWith<>([&](urpg::EntityID) {
-        ++count;
-    });
+    world.ForEachWith<>([&](urpg::EntityID) { ++count; });
     return count;
 }
 
@@ -71,9 +71,7 @@ TEST_CASE("Plugin API entity exports operate on a bound ECS world", "[plugin_api
     URPG_EntityDestroy(firstId);
 
     uint32_t alive_count = 0;
-    world.ForEachWith<>([&](urpg::EntityID) {
-        ++alive_count;
-    });
+    world.ForEachWith<>([&](urpg::EntityID) { ++alive_count; });
     REQUIRE(alive_count == 1);
 
     urpg::editor::UnbindPluginAPIWorld();
@@ -133,4 +131,47 @@ TEST_CASE("Plugin API input exports read compat InputManager state", "[plugin_ap
     REQUIRE(y == 288.0f);
 
     input.shutdown();
+}
+
+TEST_CASE("Plugin API logging emits runtime diagnostics", "[plugin_api][diagnostics]") {
+    urpg::diagnostics::RuntimeDiagnostics::clear();
+
+    URPG_LogInfo("plugin ready");
+    URPG_LogError("plugin failed");
+
+    const auto diagnostics = urpg::diagnostics::RuntimeDiagnostics::snapshot();
+    REQUIRE(diagnostics.size() == 2);
+
+    REQUIRE(diagnostics[0].severity == urpg::diagnostics::DiagnosticSeverity::Info);
+    REQUIRE(diagnostics[0].subsystem == "editor.plugin_api");
+    REQUIRE(diagnostics[0].code == "plugin.log.info");
+    REQUIRE(diagnostics[0].message == "plugin ready");
+
+    REQUIRE(diagnostics[1].severity == urpg::diagnostics::DiagnosticSeverity::Error);
+    REQUIRE(diagnostics[1].subsystem == "editor.plugin_api");
+    REQUIRE(diagnostics[1].code == "plugin.log.error");
+    REQUIRE(diagnostics[1].message == "plugin failed");
+
+    urpg::diagnostics::RuntimeDiagnostics::clear();
+}
+
+TEST_CASE("Plugin security audit emits runtime diagnostics", "[plugin_api][security][diagnostics]") {
+    auto& security = urpg::editor::PluginSecurityManager::instance();
+    security.setDefaultPolicy({});
+    security.revokeAll("diagnostic_security_fixture");
+    urpg::diagnostics::RuntimeDiagnostics::clear();
+
+    REQUIRE_FALSE(
+        security.requestPermission("diagnostic_security_fixture", urpg::editor::PluginPermission::NetworkAccess));
+
+    const auto diagnostics = urpg::diagnostics::RuntimeDiagnostics::snapshot();
+    REQUIRE(diagnostics.size() == 1);
+    REQUIRE(diagnostics[0].severity == urpg::diagnostics::DiagnosticSeverity::Warning);
+    REQUIRE(diagnostics[0].subsystem == "editor.security");
+    REQUIRE(diagnostics[0].code == "plugin.permission.denied");
+    REQUIRE(diagnostics[0].message.find("diagnostic_security_fixture") != std::string::npos);
+    REQUIRE(diagnostics[0].message.find("NetworkAccess") != std::string::npos);
+
+    urpg::diagnostics::RuntimeDiagnostics::clear();
+    security.revokeAll("diagnostic_security_fixture");
 }

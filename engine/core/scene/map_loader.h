@@ -13,7 +13,7 @@ namespace urpg {
  * @brief Bridge between the compat DataManager (MZ JSON data) and Native MapScene.
  */
 class MapLoader {
-public:
+  public:
     /**
      * @brief Translates a compat map data object into a native MapScene.
      * @param mapId The ID of the map to load.
@@ -21,19 +21,20 @@ public:
      */
     static std::unique_ptr<urpg::scene::MapScene> LoadToNative(int32_t mapId) {
         auto& dm = urpg::compat::DataManager::instance();
-        
+
         // 1. Ensure DataManager is synchronized with the requested map ID.
         if (!dm.loadMapData(mapId)) {
             return nullptr;
         }
 
         const auto* mapData = dm.getCurrentMap();
-        if (!mapData) return nullptr;
+        if (!mapData)
+            return nullptr;
 
         int width = mapData->width;
         int height = mapData->height;
         int tilesetId = mapData->tilesetId;
-        
+
         auto nativeMap = std::make_unique<urpg::scene::MapScene>(std::to_string(mapId), width, height);
 
         // 2. Resolve Tileset Collision
@@ -70,7 +71,7 @@ public:
                         break;
                     }
                 }
-                
+
                 // We set the base passability on the MapScene's collision grid
                 nativeMap->setTilePassable(x, y, isPassable);
             }
@@ -84,7 +85,7 @@ public:
         if (actor) {
             nativeMap->setPlayerCharacter(actor->characterName, actor->characterIndex);
         }
-        
+
         return nativeMap;
     }
 };

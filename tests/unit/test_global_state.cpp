@@ -1,5 +1,5 @@
-#include <catch2/catch_test_macros.hpp>
 #include "engine/core/global_state_hub.h"
+#include <catch2/catch_test_macros.hpp>
 
 using namespace urpg;
 
@@ -22,7 +22,7 @@ TEST_CASE("GlobalStateHub Persistence and Access", "[core][global_state]") {
     SECTION("Variables store variants") {
         auto gold = hub.getVariable("gold");
         REQUIRE(std::get<int32_t>(gold) == 100);
-        
+
         auto name = hub.getVariable("playerName");
         REQUIRE(std::get<std::string>(name) == "Hero");
     }
@@ -36,9 +36,7 @@ TEST_CASE("GlobalStateHub Persistence and Access", "[core][global_state]") {
     SECTION("Diff-First update triggers notifications only on change") {
         hub.resetAll();
         int notifyCount = 0;
-        hub.subscribe("test_key", [&](const std::string&, const GlobalStateHub::Value&) {
-            notifyCount++;
-        });
+        hub.subscribe("test_key", [&](const std::string&, const GlobalStateHub::Value&) { notifyCount++; });
 
         hub.updateState("test_key", 10);
         REQUIRE(notifyCount == 1);

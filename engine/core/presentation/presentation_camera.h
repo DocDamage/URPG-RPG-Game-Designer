@@ -1,11 +1,11 @@
 #pragma once
 
+#include "engine/core/diagnostics/runtime_diagnostics.h"
 #include "presentation_runtime.h"
 #include "presentation_schema.h"
+#include <algorithm>
 #include <string>
 #include <vector>
-#include <iostream>
-#include <algorithm>
 
 namespace urpg::presentation {
 
@@ -25,7 +25,7 @@ struct CameraState {
  * Section 14.1: Camera Constraints and Framing
  */
 class PresentationCamera {
-public:
+  public:
     /**
      * @brief Resolves camera intent based on profile constraints.
      */
@@ -35,33 +35,30 @@ public:
         state.currentDistance = std::clamp(state.currentDistance, profile.minDistance, profile.maxDistance);
 
         // 2. Compute final looked-at point using offset
-        Vec3 finalLookAt = {
-            state.targetPos.x + profile.lookAtOffset.x,
-            state.targetPos.y + profile.lookAtOffset.y,
-            state.targetPos.z + profile.lookAtOffset.z
-        };
+        Vec3 finalLookAt = {state.targetPos.x + profile.lookAtOffset.x, state.targetPos.y + profile.lookAtOffset.y,
+                            state.targetPos.z + profile.lookAtOffset.z};
 
         // 3. Emit intent command
         PresentationCommand camCmd;
         camCmd.type = PresentationCommand::Type::SetCamera;
         camCmd.id = 0xCAF; // Main Camera ID
-        camCmd.position = { 
-            finalLookAt.x, 
-            finalLookAt.y + state.currentDistance, // Mock vertical offset for distance
-            finalLookAt.z 
-        };
-        camCmd.rotation = { state.currentPitch, state.currentYaw, 0.0f };
-        
+        camCmd.position = {finalLookAt.x,
+                           finalLookAt.y + state.currentDistance, // Mock vertical offset for distance
+                           finalLookAt.z};
+        camCmd.rotation = {state.currentPitch, state.currentYaw, 0.0f};
+
         intent.commands.push_back(camCmd);
-        
-        std::cout << "[CAMERA] Applied profile '" << profile.profileId << "'. "
-                  << "Target Offset: [" << profile.lookAtOffset.x << "," << profile.lookAtOffset.y << "," << profile.lookAtOffset.z << "] "
-                  << "Clamped Distance: " << state.currentDistance << "\n";
+
+        urpg::diagnostics::RuntimeDiagnostics::info(
+            "presentation.camera", "camera.profile_applied",
+            "Applied profile '" + profile.profileId + "'. Target Offset: [" + std::to_string(profile.lookAtOffset.x) +
+                "," + std::to_string(profile.lookAtOffset.y) + "," + std::to_string(profile.lookAtOffset.z) +
+                "] Clamped Distance: " + std::to_string(state.currentDistance));
     }
 
     const CameraProfile& GetActiveProfile() const { return m_activeProfile; }
 
-private:
+  private:
     CameraProfile m_activeProfile;
 };
 

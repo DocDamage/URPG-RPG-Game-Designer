@@ -17,13 +17,6 @@ std::string readText(const std::filesystem::path& path) {
     return std::string((std::istreambuf_iterator<char>(in)), std::istreambuf_iterator<char>());
 }
 
-void writeText(const std::filesystem::path& path, const std::string& text) {
-    std::filesystem::create_directories(path.parent_path());
-    std::ofstream out(path);
-    REQUIRE(out.is_open());
-    out << text;
-}
-
 std::filesystem::path projectAuditExecutable() {
 #if defined(_WIN32)
     return std::filesystem::path(URPG_SOURCE_DIR) / "build" / "dev-ninja-debug" / "urpg_project_audit.exe";
@@ -33,8 +26,7 @@ std::filesystem::path projectAuditExecutable() {
 }
 
 int runPowerShellScript(const std::filesystem::path& script, const std::string& args = "") {
-    const std::string command =
-        "powershell -ExecutionPolicy Bypass -File \"" + script.string() + "\" " + args;
+    const std::string command = "powershell -ExecutionPolicy Bypass -File \"" + script.string() + "\" " + args;
     return std::system(command.c_str());
 }
 
@@ -57,8 +49,8 @@ TEST_CASE("Template certification covers all conservative template suites", "[ce
 }
 
 TEST_CASE("Template certification fails when required template loop is missing", "[certification]") {
-    const auto fixturePath =
-        std::filesystem::path(URPG_SOURCE_DIR) / "content" / "fixtures" / "template_certification" / "negative_missing_loop.json";
+    const auto fixturePath = std::filesystem::path(URPG_SOURCE_DIR) / "content" / "fixtures" /
+                             "template_certification" / "negative_missing_loop.json";
     const auto project = nlohmann::json::parse(readText(fixturePath));
 
     urpg::project::TemplateCertification certification;
@@ -71,8 +63,8 @@ TEST_CASE("Template certification fails when required template loop is missing",
 }
 
 TEST_CASE("Template certification positive fixture passes", "[certification]") {
-    const auto fixturePath =
-        std::filesystem::path(URPG_SOURCE_DIR) / "content" / "fixtures" / "template_certification" / "positive_jrpg.json";
+    const auto fixturePath = std::filesystem::path(URPG_SOURCE_DIR) / "content" / "fixtures" /
+                             "template_certification" / "positive_jrpg.json";
     const auto project = nlohmann::json::parse(readText(fixturePath));
 
     urpg::project::TemplateCertification certification;
@@ -89,9 +81,9 @@ TEST_CASE("Completeness scoring ignores disabled optional features", "[project_a
     };
 
     const auto score = urpg::tools::audit::scoreProjectCompleteness(project, {
-        {"battle_loop", false},
-        {"fishing_loop", true},
-    });
+                                                                                 {"battle_loop", false},
+                                                                                 {"fishing_loop", true},
+                                                                             });
 
     REQUIRE(score.applicable == 1);
     REQUIRE(score.satisfied == 1);
@@ -104,10 +96,11 @@ TEST_CASE("Project audit exposes completeness as non-authoritative advisory", "[
     REQUIRE(std::filesystem::exists(exe));
 
     const auto outputPath = std::filesystem::temp_directory_path() / "urpg_project_audit_ffs17.json";
-    const auto readinessPath = std::filesystem::path(URPG_SOURCE_DIR) / "content" / "readiness" / "readiness_status.json";
+    const auto readinessPath =
+        std::filesystem::path(URPG_SOURCE_DIR) / "content" / "readiness" / "readiness_status.json";
     const std::string command = "powershell -ExecutionPolicy Bypass -Command \"& '" + exe.string() +
-                                "' --json --input '" + readinessPath.string() +
-                                "' | Out-File -Encoding utf8 '" + outputPath.string() + "'\"";
+                                "' --json --input '" + readinessPath.string() + "' | Out-File -Encoding utf8 '" +
+                                outputPath.string() + "'\"";
     REQUIRE(std::system(command.c_str()) == 0);
 
     const auto report = nlohmann::json::parse(readText(outputPath));
@@ -116,7 +109,8 @@ TEST_CASE("Project audit exposes completeness as non-authoritative advisory", "[
     REQUIRE(report["completenessAdvisory"]["nonAuthoritative"] == true);
 }
 
-TEST_CASE("FFS-17 governance scripts accept positive fixtures and reject negative fixtures", "[certification][project_audit]") {
+TEST_CASE("FFS-17 governance scripts accept positive fixtures and reject negative fixtures",
+          "[certification][project_audit]") {
     const auto repoRoot = std::filesystem::path(URPG_SOURCE_DIR);
 
     REQUIRE(runPowerShellScript(repoRoot / "tools" / "ci" / "check_template_certification.ps1") == 0);

@@ -1,7 +1,7 @@
 # URPG Master Native Absorption and PGMMV Roadmap v2
 
-Date: 2026-04-18  
-Status: detailed planning annex / historical execution-detail input (v2 planning-closure update)  
+Date: 2026-04-18
+Status: detailed planning annex / historical execution-detail input (v2 planning-closure update)
 Scope: unify **PGMMV support**, **native absorption of plugin-driven demand**, and **HD-2D / 2.5D productization** into one repo-ready planning input with phases, file targets, issue breakdowns, acceptance criteria, and release gates.
 
 Canonical governance and current execution authority live in:

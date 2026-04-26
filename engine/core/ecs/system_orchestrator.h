@@ -1,28 +1,28 @@
 #pragma once
 
-#include "engine/core/ecs/world.h"
-#include "engine/core/ecs/actor_components.h"
-#include "engine/core/ecs/player_control_system.h"
-#include "engine/core/ecs/ai_system.h"
-#include "engine/core/ecs/movement_system.h"
-#include "engine/core/ecs/collision_system.h"
 #include "engine/core/animation/animation_system.h"
-#include "engine/core/render/camera_system.h"
-#include "engine/core/render/camera_follow_system.h"
-#include "engine/core/render/camera_shake_system.h"
-#include "engine/core/render/lighting_system.h"
-#include "engine/core/events/trigger_system.h"
-#include "engine/core/ecs/interaction_system.h"
-#include "engine/core/ecs/health_system.h"
-#include "engine/core/ecs/progression_system.h"
-#include "engine/gameplay/status_effect_system.h"
+#include "engine/core/ecs/actor_components.h"
+#include "engine/core/ecs/ai_system.h"
+#include "engine/core/ecs/collision_system.h"
 #include "engine/core/ecs/economy_system.h"
-#include "engine/core/render/particle_system.h"
+#include "engine/core/ecs/health_system.h"
+#include "engine/core/ecs/interaction_system.h"
 #include "engine/core/ecs/lifetime_system.h"
+#include "engine/core/ecs/movement_system.h"
+#include "engine/core/ecs/player_control_system.h"
+#include "engine/core/ecs/progression_system.h"
+#include "engine/core/ecs/world.h"
+#include "engine/core/events/trigger_system.h"
 #include "engine/core/gameplay/loot_system.h"
 #include "engine/core/gameplay/quest_system.h"
-#include "engine/core/ui/ui_state_sync_system.h"
 #include "engine/core/input/input_core.h"
+#include "engine/core/render/camera_follow_system.h"
+#include "engine/core/render/camera_shake_system.h"
+#include "engine/core/render/camera_system.h"
+#include "engine/core/render/lighting_system.h"
+#include "engine/core/render/particle_system.h"
+#include "engine/core/ui/ui_state_sync_system.h"
+#include "engine/gameplay/status_effect_system.h"
 
 namespace urpg {
 
@@ -30,7 +30,7 @@ namespace urpg {
  * @brief Orchestrates the execution order of all engine systems.
  */
 class SystemOrchestrator {
-public:
+  public:
     void update(World& world, input::InputCore& input, float deltaTime) {
         // 1. Interaction & Player Control
         m_interaction.update(world, input);
@@ -44,14 +44,14 @@ public:
         m_loot.update(world);
         m_progression.update(world);
         m_economy.update(world);
-        
+
         // 3. State Progression (Animations)
         m_animation.update(world, deltaTime);
-        
+
         // 4. Physics & Collisions
         m_collision.update(world);
         m_lifetime.update(world, deltaTime);
-        
+
         // 5. Movement Integration
         m_movement.update(world, deltaTime);
 
@@ -62,7 +62,7 @@ public:
         // 7. UI and Visual Effects
         m_uiSync.update(world);
         m_particles.update(world, deltaTime);
-        
+
         // 8. Render Preparation
         m_camera.update(world);
         m_lighting.update(world);
@@ -71,7 +71,7 @@ public:
     const CameraSystem& getCamera() const { return m_camera; }
     const TriggerSystem& getTrigger() const { return m_trigger; }
 
-private:
+  private:
     PlayerControlSystem m_playerControl;
     AISystem m_ai;
     StatusEffectSystem m_statusEffects;
@@ -95,4 +95,3 @@ private:
 };
 
 } // namespace urpg
-

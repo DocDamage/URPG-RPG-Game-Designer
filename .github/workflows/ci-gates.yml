@@ -22,10 +22,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - name: Install sccache
         run: |
           sudo apt-get update
-          sudo apt-get install -y sccache xvfb libgl1-mesa-dev
+          sudo apt-get install -y sccache xvfb libgl1-mesa-dev clang-format clang-tidy
+      - name: Install pre-commit
+        run: python -m pip install pre-commit
       - name: Cache sccache
         uses: actions/cache@v4
         with:
@@ -77,11 +81,25 @@ jobs:
           sccache --zero-stats || true
       - name: Configure
         run: cmake --preset ci
+      - name: Run pre-commit static gates
+        env:
+          URPG_CPP_GATE_BASE_REF: ${{ github.event.pull_request.base.sha || github.event.before || 'HEAD' }}
+          URPG_CLANG_TIDY_BUILD_DIR: build/ci
+          URPG_REQUIRE_CLANG_TIDY: "1"
+        run: pre-commit run --all-files
       - name: Build
         run: cmake --build --preset ci-release
+      - name: Validate platform export matrix
+        shell: pwsh
+        run: ./tools/ci/check_platform_exports.ps1 -BuildDirectory build/ci
+      - name: Validate release packaging dry run
+        shell: pwsh
+        run: ./tools/ci/package_release_artifacts.ps1 -Mode DevUnsigned -BuildDirectory build/ci -DryRun
       - name: Validate CTest discovery
         shell: pwsh
         run: ./tools/ci/check_ctest_discovery.ps1 -BuildDirectory build/ci
+      - name: Run Python tool tests
+        run: ctest --test-dir build/ci --output-on-failure -L "^tools$"
       - name: Configure strict warnings gate
         run: cmake --preset ci -B build/ci-warnings-as-errors -DURPG_WARNINGS_AS_ERRORS=ON
       - name: Build strict warnings gate

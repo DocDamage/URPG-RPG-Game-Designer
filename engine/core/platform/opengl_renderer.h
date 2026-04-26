@@ -1,13 +1,13 @@
 #pragma once
 
-#include "engine/core/platform/renderer_backend.h"
-#include "engine/core/render/render_layer.h"
 #include "engine/core/assets/texture_registry.h"
 #include "engine/core/platform/gl_texture.h"
-#include <string>
-#include <memory>
-#include <vector>
+#include "engine/core/platform/renderer_backend.h"
+#include "engine/core/render/render_layer.h"
 #include <map>
+#include <memory>
+#include <string>
+#include <vector>
 
 namespace urpg {
 
@@ -26,7 +26,7 @@ struct GLTexture {
  * Focuses on TIER_BASIC (OpenGL 3.3) for maximum compatibility.
  */
 class OpenGLRenderer : public RendererBackend {
-public:
+  public:
     OpenGLRenderer() = default;
     virtual ~OpenGLRenderer() { shutdown(); }
 
@@ -48,7 +48,7 @@ public:
     bool loadTexture(const std::string& id, const std::string& filePath);
     bool registerTextureHandle(const std::string& id, const std::shared_ptr<Texture>& texture);
 
-private:
+  private:
     void setupDefaultShaders();
     void setupDrawBuffers();
     void processFrameCommand(const FrameRenderCommand& command);
@@ -60,7 +60,7 @@ private:
     void drawTextCommand(const TextCommand& command);
     void drawRectCommand(const RectCommand& command);
     std::shared_ptr<GLTexture> resolveTextureHandle(const std::string& id);
-    
+
     // Internal state
     IPlatformSurface* m_surface = nullptr;
     uint32_t m_shaderProgram = 0;

@@ -1,7 +1,7 @@
-#include "engine/core/ecs/world.h"
+#include "engine/core/ecs/actor_manager.h"
 #include "engine/core/ecs/ai_system.h"
 #include "engine/core/ecs/player_control_system.h"
-#include "engine/core/ecs/actor_manager.h"
+#include "engine/core/ecs/world.h"
 
 #include <catch2/catch_test_macros.hpp>
 
@@ -21,9 +21,9 @@ TEST_CASE("AISystem drives actor behavior", "[ecs][ai]") {
 
     SECTION("Idle NPC switches to Chase when player is nearby") {
         actorMgr.SetActorPosition(playerId, urpg::Fixed32::FromInt(2), urpg::Fixed32::FromInt(0));
-        
+
         aiSys.update(world, 0.1f);
-        
+
         REQUIRE(ai.state == urpg::AIState::Chase);
     }
 

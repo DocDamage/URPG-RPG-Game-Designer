@@ -1,6 +1,6 @@
 # External Feature Upgrade Shortlist (GitHub + Codeberg Scan)
 
-Date: 2026-04-15  
+Date: 2026-04-15
 Scope: actionable upgrades for URPG based on live external repository scan
 
 ## Best Features To Add
@@ -85,4 +85,3 @@ Scope: actionable upgrades for URPG based on live external repository scan
 3. Add BT micro-runtime for NPC/combat decision logic.
 4. Add packaging CLI + CI job for repeatable export artifacts.
 5. Add localization extraction/writeback + lint gate.
-

@@ -49,4 +49,3 @@ Write-Output "Bootstrapped memory bridge files:"
 Write-Output " - $samplePath"
 Write-Output " - $configPath"
 Write-Output " - $statePath"
-

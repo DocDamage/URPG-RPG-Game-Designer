@@ -1,18 +1,18 @@
 #pragma once
 
-#include <vector>
 #include <cstdint>
 #include <string>
+#include <vector>
 
 namespace urpg::core {
 
 /**
  * @brief Simple Run-Length Encoding and XOR-based obfuscation for initial protection.
- * 
+ *
  * Part of the Post-Gold Asset Protection track.
  */
 class AssetCompressor {
-public:
+  public:
     static AssetCompressor& instance() {
         static AssetCompressor inst;
         return inst;
@@ -33,7 +33,7 @@ public:
      */
     void obfuscate(std::vector<uint8_t>& data, const std::string& key);
 
-private:
+  private:
     AssetCompressor() = default;
 };
 

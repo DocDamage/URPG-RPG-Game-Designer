@@ -1,8 +1,9 @@
 #pragma once
 
-#include "scene_adapters.h"
 #include "battle_scene_state.h"
 #include "presentation_schema.h"
+#include "scene_adapters.h"
+#include <cmath>
 
 namespace urpg::presentation {
 
@@ -11,7 +12,7 @@ namespace urpg::presentation {
  * Section 10.2: BattleScene Integration
  */
 class BattleSceneTranslatorImpl : public BattleSceneTranslator {
-public:
+  public:
     static std::uint64_t ResolveParticipantCueId(const BattleParticipantState& participant) {
         if (participant.cueId != 0) {
             return participant.cueId;
@@ -35,8 +36,7 @@ public:
         return nullptr;
     }
 
-    static Vec3 ResolveParticipantPosition(const PresentationAuthoringData& data,
-                                           const BattleSceneState& sceneState,
+    static Vec3 ResolveParticipantPosition(const PresentationAuthoringData& data, const BattleSceneState& sceneState,
                                            const BattleParticipantState& participant) {
         const auto& formation = data.battleConfig.formation;
         const ActorPresentationProfile* profile = FindActorProfile(data, participant);
@@ -45,24 +45,24 @@ public:
         Vec3 pos = {0.0f, 0.0f, 0.0f};
 
         switch (formation.type) {
-            case BattleFormation::LayoutType::Staged:
-                pos.x = (5.0f + static_cast<float>(participant.formationIndex) * formation.spreadWidth) * sideMultiplier;
-                pos.z = static_cast<float>(participant.formationIndex / 4) * formation.depthSpacing;
-                break;
+        case BattleFormation::LayoutType::Staged:
+            pos.x = (5.0f + static_cast<float>(participant.formationIndex) * formation.spreadWidth) * sideMultiplier;
+            pos.z = static_cast<float>(participant.formationIndex / 4) * formation.depthSpacing;
+            break;
 
-            case BattleFormation::LayoutType::Linear:
-                pos.x = 6.0f * sideMultiplier;
-                pos.z = static_cast<float>(participant.formationIndex) * formation.depthSpacing;
-                break;
+        case BattleFormation::LayoutType::Linear:
+            pos.x = 6.0f * sideMultiplier;
+            pos.z = static_cast<float>(participant.formationIndex) * formation.depthSpacing;
+            break;
 
-            case BattleFormation::LayoutType::Surround: {
-                const auto participantCount = static_cast<float>(std::max<size_t>(sceneState.participants.size(), 1));
-                const float angle = static_cast<float>(participant.formationIndex) * (3.14159f * 2.0f / participantCount);
-                constexpr float kSurroundRadius = 8.0f;
-                pos.x = std::cos(angle) * kSurroundRadius;
-                pos.z = std::sin(angle) * kSurroundRadius;
-                break;
-            }
+        case BattleFormation::LayoutType::Surround: {
+            const auto participantCount = static_cast<float>(std::max<size_t>(sceneState.participants.size(), 1));
+            const float angle = static_cast<float>(participant.formationIndex) * (3.14159f * 2.0f / participantCount);
+            constexpr float kSurroundRadius = 8.0f;
+            pos.x = std::cos(angle) * kSurroundRadius;
+            pos.z = std::sin(angle) * kSurroundRadius;
+            break;
+        }
         }
 
         pos.y = profile != nullptr ? profile->anchorOffset.y : 0.0f;
@@ -77,18 +77,15 @@ public:
         }
     }
 
-    void Translate(
-        const PresentationContext& context,
-        const PresentationAuthoringData& data,
-        const BattleSceneState& sceneState,
-        PresentationFrameIntent& outIntent) override {
+    void Translate(const PresentationContext& context, const PresentationAuthoringData& data,
+                   const BattleSceneState& sceneState, PresentationFrameIntent& outIntent) override {
         for (const auto& participant : sceneState.participants) {
             const ActorPresentationProfile* profile = FindActorProfile(data, participant);
-            if (!profile) continue;
+            if (!profile)
+                continue;
 
-            const Vec3 pos = participant.hasAnchorPosition
-                ? participant.anchorPosition
-                : ResolveParticipantPosition(data, sceneState, participant);
+            const Vec3 pos = participant.hasAnchorPosition ? participant.anchorPosition
+                                                           : ResolveParticipantPosition(data, sceneState, participant);
 
             if (context.activeMode == PresentationMode::Classic2D) {
                 outIntent.AddActor(participant.actorId, Vec3{pos.x, pos.y, 0.0f}, *profile);

@@ -32,7 +32,7 @@ REPO_ROOT = Path(__file__).resolve().parents[3]
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
-from tools.retrieval.shared.artifact_contracts import (
+from tools.retrieval.shared.artifact_contracts import (  # noqa: E402
     SEGMENTATION_MANIFEST_CONTRACT,
     ArtifactContractViolation,
     validate_artifact_contract,
@@ -42,6 +42,7 @@ from tools.retrieval.shared.artifact_contracts import (
 # ---------------------------------------------------------------------------
 # Shared fixtures
 # ---------------------------------------------------------------------------
+
 
 def _make_mask(
     mask_id: str,
@@ -77,7 +78,7 @@ def _make_segmentation_manifest(
 _SAMPLE_SOURCE_ASSET = "imports/sprites/hero_sheet.png"
 
 _SAMPLE_MASKS = [
-    _make_mask("mask_001", "hero_body",  (10.0, 5.0, 48.0, 64.0), 0.97),
+    _make_mask("mask_001", "hero_body", (10.0, 5.0, 48.0, 64.0), 0.97),
     _make_mask("mask_002", "hero_sword", (58.0, 20.0, 16.0, 40.0), 0.88),
     _make_mask("mask_003", "hero_shield", (0.0, 30.0, 14.0, 32.0), 0.72),
 ]
@@ -86,6 +87,7 @@ _SAMPLE_MASKS = [
 # ---------------------------------------------------------------------------
 # S33-T02: Schema contract enforcement
 # ---------------------------------------------------------------------------
+
 
 class SegmentationManifestContractTests(unittest.TestCase):
     """Segmentation manifest satisfies SEGMENTATION_MANIFEST_CONTRACT."""
@@ -145,6 +147,7 @@ class SegmentationManifestContractTests(unittest.TestCase):
 # S33-T02: Per-mask field shape validation
 # ---------------------------------------------------------------------------
 
+
 class MaskEntryShapeTests(unittest.TestCase):
     """Each mask entry must have required fields with valid ranges."""
 
@@ -161,7 +164,9 @@ class MaskEntryShapeTests(unittest.TestCase):
                 if coord not in bbox:
                     violations.append(f"Bbox missing field: '{coord}'")
                 elif bbox[coord] < 0:
-                    violations.append(f"Bbox '{coord}' must be non-negative, got {bbox[coord]}")
+                    violations.append(
+                        f"Bbox '{coord}' must be non-negative, got {bbox[coord]}"
+                    )
             if "width" in bbox and bbox["width"] <= 0:
                 violations.append(f"Bbox 'width' must be > 0, got {bbox['width']}")
             if "height" in bbox and bbox["height"] <= 0:
@@ -210,6 +215,7 @@ class MaskEntryShapeTests(unittest.TestCase):
 # S33-T02: Round-trip fidelity
 # ---------------------------------------------------------------------------
 
+
 class SegmentationManifestRoundTripTests(unittest.TestCase):
     """JSON serialisation must not mutate any manifest field."""
 
@@ -226,9 +232,7 @@ class SegmentationManifestRoundTripTests(unittest.TestCase):
         for original, recovered in zip(manifest["masks"], reloaded["masks"]):
             self.assertEqual(original["mask_id"], recovered["mask_id"])
             self.assertEqual(original["label"], recovered["label"])
-            self.assertAlmostEqual(
-                original["score"], recovered["score"], places=12
-            )
+            self.assertAlmostEqual(original["score"], recovered["score"], places=12)
             for coord in ("x", "y", "width", "height"):
                 self.assertAlmostEqual(
                     original["bbox"][coord], recovered["bbox"][coord], places=12
@@ -244,6 +248,7 @@ class SegmentationManifestRoundTripTests(unittest.TestCase):
 # S33-T02: Determinism contract
 # ---------------------------------------------------------------------------
 
+
 class SegmentationManifestDeterminismTests(unittest.TestCase):
     """Same logical inputs must produce identical manifest structure."""
 
@@ -254,8 +259,9 @@ class SegmentationManifestDeterminismTests(unittest.TestCase):
         second = _make_segmentation_manifest(
             _SAMPLE_SOURCE_ASSET, copy.deepcopy(_SAMPLE_MASKS)
         )
-        self.assertEqual(json.dumps(first, sort_keys=True),
-                         json.dumps(second, sort_keys=True))
+        self.assertEqual(
+            json.dumps(first, sort_keys=True), json.dumps(second, sort_keys=True)
+        )
 
     def test_different_source_assets_produce_different_manifests(self) -> None:
         first = _make_segmentation_manifest("assets/sprite_a.png", _SAMPLE_MASKS)
@@ -264,9 +270,7 @@ class SegmentationManifestDeterminismTests(unittest.TestCase):
 
     def test_mask_count_reflects_input(self) -> None:
         zero_masks = _make_segmentation_manifest(_SAMPLE_SOURCE_ASSET, [])
-        one_mask = _make_segmentation_manifest(
-            _SAMPLE_SOURCE_ASSET, [_SAMPLE_MASKS[0]]
-        )
+        one_mask = _make_segmentation_manifest(_SAMPLE_SOURCE_ASSET, [_SAMPLE_MASKS[0]])
         self.assertEqual(len(zero_masks["masks"]), 0)
         self.assertEqual(len(one_mask["masks"]), 1)
 

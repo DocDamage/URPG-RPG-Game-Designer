@@ -1,8 +1,8 @@
 #pragma once
 
+#include "engine/core/diagnostics/runtime_diagnostics.h"
 #include "presentation_types.h"
 #include <string>
-#include <iostream>
 
 namespace urpg::presentation {
 
@@ -22,13 +22,14 @@ struct HardwareProfile {
  * @brief Multi-platform capability detection and auto-tiering logic.
  */
 class TierDetector {
-public:
+  public:
     /**
      * @brief Resolves the appropriate CapabilityTier based on a hardware profile.
      */
     static CapabilityTier AutoDetect(const HardwareProfile& profile) {
-        std::cout << "[TIER-DETECTOR] Analyzing: " << profile.deviceName << "\n";
-        
+        urpg::diagnostics::RuntimeDiagnostics::info("presentation.tier_detector", "tier_detector.profile_analyzed",
+                                                    "Analyzing: " + profile.deviceName);
+
         // Tier 3: High-end Desktop/Console
         if (profile.supportsRayTracing && profile.videoMemoryMB >= 8000 && profile.shaderPerformanceScore > 0.8f) {
             return CapabilityTier::Tier3_Full;

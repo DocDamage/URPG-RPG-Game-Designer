@@ -1,6 +1,6 @@
 # URPG Master Blueprint v3.1
 
-Upgrade Date: 2026-03-03  
+Upgrade Date: 2026-03-03
 v3.1 Focus: architecture-core determinism + lifecycle/hot-reload + save metadata + test anchors
 
 _Full Engineering Specification - No Fluff_

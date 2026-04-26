@@ -1,33 +1,28 @@
 #pragma once
 
 #include "engine/core/input/input_core.h"
+#include <memory>
 #include <string>
 #include <vector>
-#include <memory>
 
-namespace urpg { class SpriteBatcher; }
+namespace urpg {
+class SpriteBatcher;
+}
 
 namespace urpg::scene {
 
 /**
  * @brief Native representation of possible engine scenes.
  */
-enum class SceneType : uint8_t {
-    BOOT,
-    TITLE,
-    MAP,
-    BATTLE,
-    MENU,
-    GAMEOVER
-};
+enum class SceneType : uint8_t { BOOT, TITLE, MAP, BATTLE, MENU, GAMEOVER };
 
 /**
  * @brief Abstract base class for all engine scenes.
  */
 class GameScene {
-public:
+  public:
     virtual ~GameScene() = default;
-    
+
     virtual SceneType getType() const = 0;
     virtual std::string getName() const = 0;
 
@@ -43,18 +38,18 @@ public:
     bool isPaused() const { return m_isPaused; }
     void setPaused(bool paused) { m_isPaused = paused; }
 
-protected:
+  protected:
     bool m_isPaused = false;
 };
 
 /**
  * @brief Authoritative manager for the engine's scene stack.
- * 
+ *
  * This system synchronizes Input, Audio, and UI context based on the
  * active gameplay scene.
  */
 class SceneManager {
-public:
+  public:
     static SceneManager& getInstance() {
         static SceneManager instance;
         return instance;
@@ -70,8 +65,9 @@ public:
     }
 
     void popScene() {
-        if (m_stack.empty()) return;
-        
+        if (m_stack.empty())
+            return;
+
         auto oldScene = m_stack.back();
         oldScene->onStop();
         oldScene->onDestroy();
@@ -89,9 +85,7 @@ public:
         pushScene(scene);
     }
 
-    std::shared_ptr<GameScene> getActiveScene() const {
-        return m_stack.empty() ? nullptr : m_stack.back();
-    }
+    std::shared_ptr<GameScene> getActiveScene() const { return m_stack.empty() ? nullptr : m_stack.back(); }
 
     size_t stackSize() const { return m_stack.size(); }
 
@@ -101,7 +95,7 @@ public:
         }
     }
 
-private:
+  private:
     std::vector<std::shared_ptr<GameScene>> m_stack;
 };
 

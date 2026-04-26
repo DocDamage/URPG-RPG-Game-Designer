@@ -97,10 +97,11 @@ TEST_CASE("RichTextLayoutEngine expands escapes and measures deterministic layou
     SECTION("setMaxWidth enables word-wrapping") {
         RichTextLayoutEngine rapping_layout;
         rapping_layout.setBaseFontSize(10); // small font
-        
+
         // Long text should wrap
         rapping_layout.setMaxWidth(50); // very narrow
-        const auto wrapped = rapping_layout.layout("This is a very long text that should definitely wrap multiple times.");
+        const auto wrapped =
+            rapping_layout.layout("This is a very long text that should definitely wrap multiple times.");
         REQUIRE(wrapped.metrics.line_count > 1);
         REQUIRE(wrapped.metrics.width <= 70); // allow slight overflow for long words
     }
@@ -115,7 +116,7 @@ TEST_CASE("RichTextLayoutEngine expands escapes and measures deterministic layou
 
         alignment_layout.setAlignment(MessageAlignment::Center);
         const auto centered = alignment_layout.layout(text);
-        
+
         bool has_offset = false;
         for (const auto& token : centered.tokens) {
             if (token.type == RichTextTokenType::LineOffset) {
@@ -128,7 +129,7 @@ TEST_CASE("RichTextLayoutEngine expands escapes and measures deterministic layou
 
         alignment_layout.setAlignment(MessageAlignment::Right);
         const auto right = alignment_layout.layout(text);
-        
+
         has_offset = false;
         for (const auto& token : right.tokens) {
             if (token.type == RichTextTokenType::LineOffset) {
@@ -169,8 +170,12 @@ TEST_CASE("MessageFlowRunner drives presentation, advance, and choice lifecycle"
     MessageFlowRunner runner;
     runner.begin({
         {"p1", "Speaker line", variantFromCompatRoute("speaker", "Alicia", 3), true, {}, 0},
-        {"p2", "Choose route", variantFromCompatRoute("speaker", "Alicia", 3), true,
-         {{"branch_a", "Branch A", true, ""}, {"branch_b", "Branch B", true, ""}}, 0},
+        {"p2",
+         "Choose route",
+         variantFromCompatRoute("speaker", "Alicia", 3),
+         true,
+         {{"branch_a", "Branch A", true, ""}, {"branch_b", "Branch B", true, ""}},
+         0},
         {"p3", "Narration continuation", variantFromCompatRoute("narration", "Alicia", 3), false, {}, 0},
     });
 
@@ -262,8 +267,12 @@ TEST_CASE("MessageFlowRunner snapshot and restore keeps in-flight choice state",
     MessageFlowRunner runner;
     const std::vector<DialoguePage> pages = {
         {"intro", "Intro", variantFromCompatRoute("speaker", "Alicia", 3), true, {}, 0},
-        {"choice", "Choice", variantFromCompatRoute("speaker", "Alicia", 3), true,
-         {{"a", "A", true, ""}, {"b", "B", true, ""}, {"c", "C", true, ""}}, 0},
+        {"choice",
+         "Choice",
+         variantFromCompatRoute("speaker", "Alicia", 3),
+         true,
+         {{"a", "A", true, ""}, {"b", "B", true, ""}, {"c", "C", true, ""}},
+         0},
     };
     runner.begin(pages);
 

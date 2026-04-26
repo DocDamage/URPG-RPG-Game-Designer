@@ -1,12 +1,13 @@
 #pragma once
 
-#include <string>
-#include <vector>
-#include <map>
-#include <functional>
-#include <nlohmann/json_fwd.hpp>
-#include "engine/core/message/message_core.h"
 #include "engine/core/global_state_hub.h"
+#include "engine/core/message/message_core.h"
+#include <functional>
+#include <map>
+#include <nlohmann/json_fwd.hpp>
+#include <string>
+#include <utility>
+#include <vector>
 
 namespace urpg::message {
 
@@ -31,7 +32,7 @@ struct DialogueNode {
     MessagePresentationVariant variant;
     std::vector<ChoiceOption> choices;
     std::string next_node_id;
-    std::string command; // "Tool usage" hook (e.g., "GIVE_ITEM:potion")
+    std::string command;         // "Tool usage" hook (e.g., "GIVE_ITEM:potion")
     DialogueCondition condition; // Logic hook for conditional entry/branching
 };
 
@@ -39,7 +40,7 @@ struct DialogueNode {
  * @brief Registry for loading and retrieving dialogue trees from data.
  */
 class DialogueRegistry {
-public:
+  public:
     static DialogueRegistry& getInstance() {
         static DialogueRegistry instance;
         return instance;
@@ -49,9 +50,9 @@ public:
         m_conversations[conversation_id] = nodes;
     }
 
-    const std::map<std::string, std::vector<DialogueNode>>& getConversations() const {
-        return m_conversations;
-    }
+    const std::map<std::string, std::vector<DialogueNode>>& getConversations() const { return m_conversations; }
+
+    void clear() { m_conversations.clear(); }
 
     const std::vector<DialogueNode>* getConversation(const std::string& id) const {
         auto it = m_conversations.find(id);
@@ -61,7 +62,8 @@ public:
     const DialogueNode* getNode(const std::string& conversation_id, const std::string& node_id) const {
         if (auto conversation = getConversation(conversation_id)) {
             for (const auto& node : *conversation) {
-                if (node.id == node_id) return &node;
+                if (node.id == node_id)
+                    return &node;
             }
         }
         return nullptr;
@@ -81,18 +83,21 @@ public:
      * @brief Converts a sequence of conversation nodes starting from a node_id
      * into a linear set of DialoguePage objects for the MessageFlowRunner.
      */
-    std::vector<DialoguePage> flattenConversation(const std::string& conversation_id, const std::string& start_node_id = "") const {
+    std::vector<DialoguePage> flattenConversation(const std::string& conversation_id,
+                                                  const std::string& start_node_id = "") const {
         std::vector<DialoguePage> pages;
         const std::vector<DialogueNode>* conv = getConversation(conversation_id);
-        if (!conv || conv->empty()) return pages;
+        if (!conv || conv->empty())
+            return pages;
 
         std::string current_id = start_node_id.empty() ? (*conv)[0].id : start_node_id;
-        
-        // Simple linear crawler for now. Branching logic usually handled by external state machine 
+
+        // Simple linear crawler for now. Branching logic usually handled by external state machine
         // or by restarting begin() with a new subset of nodes.
         while (!current_id.empty()) {
             const DialogueNode* node = getNode(conversation_id, current_id);
-            if (!node) break;
+            if (!node)
+                break;
 
             DialoguePage page;
             page.id = node->id;
@@ -104,13 +109,14 @@ public:
 
             current_id = node->next_node_id;
             // Prevent infinite loops in data
-            if (pages.size() > 100) break; 
+            if (pages.size() > 100)
+                break;
         }
 
         return pages;
     }
 
-private:
+  private:
     DialogueRegistry() = default;
     std::map<std::string, std::vector<DialogueNode>> m_conversations;
 };
@@ -119,26 +125,57 @@ private:
  * @brief Processes commands triggered by dialogue transitions.
  */
 class DialogueCommandProcessor {
-public:
-    using CommandHandler = std::function<void(const std::string& arg)>;
+  public:
+    struct CommandResult {
+        std::string command;
+        std::string prefix;
+        std::string argument;
+        bool handled = false;
+        bool success = false;
+        std::string code;
+        std::string message;
+    };
+
+    using CommandHandler = std::function<CommandResult(const std::string& arg)>;
 
     void registerHandler(const std::string& command_prefix, CommandHandler handler) {
         m_handlers[command_prefix] = handler;
     }
 
-    void execute(const std::string& full_command) {
-        if (full_command.empty()) return;
-        
+    void clearHandlers() { m_handlers.clear(); }
+
+    CommandResult execute(const std::string& full_command) {
+        CommandResult result;
+        result.command = full_command;
+
+        if (full_command.empty()) {
+            result.code = "empty_command";
+            result.message = "Dialogue command is empty.";
+            return result;
+        }
+
         size_t colon = full_command.find(':');
         std::string prefix = full_command.substr(0, colon);
         std::string arg = (colon != std::string::npos) ? full_command.substr(colon + 1) : "";
+        result.prefix = prefix;
+        result.argument = arg;
 
-        if (m_handlers.count(prefix)) {
-            m_handlers[prefix](arg);
+        const auto handler = m_handlers.find(prefix);
+        if (handler == m_handlers.end()) {
+            result.code = "unknown_command";
+            result.message = "No dialogue command handler registered for '" + prefix + "'.";
+            return result;
         }
+
+        result = handler->second(arg);
+        result.command = full_command;
+        result.prefix = prefix;
+        result.argument = arg;
+        result.handled = true;
+        return result;
     }
 
-private:
+  private:
     std::map<std::string, CommandHandler> m_handlers;
 };
 

@@ -3,43 +3,43 @@
  * @plugindesc v3.4 Allows for creation of custom menus
  * @target MZ
  * @url https://synrec.itch.io/
- * 
+ *
  * @help
  * Use the plugin parameters to setup custom menus.
  * Ensure menu identifier names are unique.
- * 
+ *
  * You can open the live menu editor by pressing the default "F9" key
- * (Or otherwise set in the plugin parameters)whilst in a custom menu 
+ * (Or otherwise set in the plugin parameters)whilst in a custom menu
  * scene and this is the only way to open the live editor. Attempting
  * to open the live editor otherwise will not work.
- * 
+ *
  * You must also close the RPG Maker Project Editor if you want to
  * save any changes from the live editor otherwise all menu changes
  * will be temporary.
- * 
+ *
  * The live editor allows for real time customization of your custom
- * menu scenes and real time setting of scene overrides. 
- * 
- * You may visit the Youtube playlist to see examples on how to setup 
- * custom menus here: 
+ * menu scenes and real time setting of scene overrides.
+ *
+ * You may visit the Youtube playlist to see examples on how to setup
+ * custom menus here:
  * https://www.youtube.com/playlist?list=PLLNw1pfxQDSluUMNnzdeEnlEMF-OYn0OE
- * 
+ *
  * Some parameters may be substituted for game variables/switches. The
  * live editor may not be truly capable of handling these RPG Maker
  * specific calls just yet and as such, it will auto set any number
  * requiring parameter to zero (0).
- * 
+ *
  * The live editor is made from html, css and javascript and does NOT
  * link to any external server/client. If you find it linking to any
  * non-local service, delete the editor and contact the developer
  * with information as to where you obtained the plugin and source from
  * as it is likely you have a maliciously modified version.
- * 
+ *
  * The live menu editor is not designed for deployment projects and
  * as such, it must be deleted from projects that are to be deployed.
- * 
+ *
  * Menus can be "nested"/lead further into more menus.
- * 
+ *
  * You can play video on menu by using script calls.
  * - this.playVideo(name, label, loop, x, y, width, height);
  * -- name = video file name (without extension)
@@ -48,10 +48,10 @@
  * -- x = horizontal position of video
  * -- y = vertical position of video
  * -- width/height = size of video. Set to zero (0) for video default
- * 
+ *
  * - this.stopVideo(label)
  * -- label = video identifier in scene
- * 
+ *
  * You can call a scene by using SceneManager.push(Menu_Class_Name)
  * Where "Menu_Class_Name" can be the following:
  * - Scene_Item
@@ -62,154 +62,154 @@
  * - Scene_Save
  * - Scene_Load
  * - Scene_Debug
- * 
+ *
  * You can see the "Menu_Class_Name" options from rmmz_scenes.js (if using MZ)
  * or rpg_scenes.js (if using MV)
- * 
+ *
  * Convenient Script Calls:
  * > DataManager.menuBuilderGameReset()
  * - Resets all game objects and sets up project as for new game
- * 
+ *
  * > $gameTemp.openMenu("name")
  * - Opens custom menu scene  by identifier, "name"
- * 
+ *
  * > SceneManager._scene.closeMenu()
  * - If in custom menu scene, closes the menu properly.
  * - Do not use $gameTemp.closeMenu()
- * 
+ *
  * > $gameTemp.openedMenu()
  * - Returns data of opened menu
- * 
+ *
  * @param Editor Access Button Name
  * @desc Name of the button to access editor
  * Default: debug
  * @type text
  * @default debug
- * 
+ *
  * @param Menu Configurations
  * @desc Setup custom menus
  * @type struct<custMenu>[]
  * @default []
- * 
+ *
  * @param Scene Overrides
  * @desc Override scene class
  * @type struct<sceneOverride>[]
  * @default []
- * 
+ *
  */
 /*~struct~sceneOverride:
- * 
+ *
  * @param Name
  * @desc No function
  * @type text
  * @default OVERRIDE
- * 
+ *
  * @param Scene Class
  * @desc The scene class to override
  * @type text
  * @default Scene_Menu
- * 
+ *
  * @param Menu Identifier
  * @desc The identifier of the menu to load
  * @type text
  * @default menu
- * 
+ *
  */
 /*~struct~staticGfx:
- * 
+ *
  * @param File
  * @desc Graphic file
  * @type file
  * @dir img/pictures/
- * 
+ *
  * @param X
  * @desc Position Setting
  * @type text
  * @default  0
- * 
+ *
  * @param Y
  * @desc Position Setting
  * @type text
  * @default  0
- * 
+ *
  * @param Scrolling X
  * @desc Scroll image consistently on origin.
  * @type number
  * @default 0
- * 
+ *
  * @param Scrolling Y
  * @desc Scroll image consistently on origin.
  * @type number
  * @default 0
- * 
+ *
  * @param Anchor X
  * @desc Modify image pivot point.
  * @type number
  * @decimals 3
  * @min -999999
  * @default 0.000
- * 
+ *
  * @param Anchor Y
  * @desc Modify image pivot point.
  * @type number
  * @decimals 3
  * @min -999999
  * @default 0.000
- * 
+ *
  * @param Rotation
  * @desc Apply rotation to image.
  * @type number
  * @decimals 3
  * @min -999999
  * @default 0.000
- * 
+ *
  * @param Constant Rotation
  * @desc Repeatedly apply rotation
  * @type boolean
  * @default false
- * 
+ *
  */
 /*~struct~animGfx:
- * 
+ *
  * @param File
  * @desc Graphic file
  * @type file
  * @dir img/pictures/
- * 
+ *
  * @param X
  * @desc Position Setting
  * @type number
  * @default  0
- * 
+ *
  * @param Y
  * @desc Position Setting
  * @type number
  * @default  0
- * 
+ *
  * @param Max Frames
  * @desc Number of frames the graphic uses
  * @type number
  * @min 1
  * @default 1
- * 
+ *
  * @param Frame Rate
  * @desc Speed at which frames update
  * @type number
  * @default 0
- * 
+ *
  */
 /*~struct~winText:
- * 
+ *
  * @param Text
  * @desc Text to draw
  * @type note
  * @default ""
- * 
+ *
  * @param X
  * @desc Starting position of text
  * @type text
  * @default 0
- * 
+ *
  * @param Y
  * @desc Starting position of text
  * @type text
@@ -217,27 +217,27 @@
  *
  */
 /*~struct~gfx:
- * 
+ *
  * @param Picture
  * @desc Picture file to use
  * @type file
  * @dir img/pictures/
- * 
+ *
  * @param X
  * @desc Starting position of picture
  * @type text
  * @default 0
- * 
+ *
  * @param Y
  * @desc Starting position of picture
  * @type text
  * @default 0
- * 
+ *
  * @param Width
  * @desc Size of the picture
  * @type text
  * @default 1
- * 
+ *
  * @param Height
  * @desc Size of the picture
  * @type text
@@ -245,301 +245,301 @@
  *
  */
 /*~struct~locSize:
- * 
+ *
  * @param X
  * @desc Position setting.
  * @type number
  * @default 0
- * 
+ *
  * @param Y
  * @desc Position setting.
  * @type number
  * @default 0
- * 
+ *
  * @param Width
  * @desc Size setting.
  * @type number
  * @default 1
- * 
+ *
  * @param Height
  * @desc Size setting.
  * @type number
  * @default 1
- * 
+ *
  */
 /*~struct~windowStyle:
- * 
+ *
  * @param Font Settings
  * @desc Setup child parameters
- * 
+ *
  * @param Font Size
  * @parent Font Settings
  * @desc Size of font.
  * @type number
  * @default 16
- * 
+ *
  * @param Font Face
  * @parent Font Settings
  * @desc Font face used for the window.
  * @type text
  * @default sans-serif
- * 
+ *
  * @param Base Font Color
  * @parent Font Settings
  * @desc Default font color for window
  * @type text
  * @default #ffffff
- * 
+ *
  * @param Font Outline Color
  * @parent Font Settings
  * @desc Default font color for window
  * @type text
  * @default rgba(0, 0, 0, 0.5)
- * 
+ *
  * @param Font Outline Thickness
  * @parent Font Settings
  * @desc The thickness of the text outline
  * @type number
  * @default 3
- * 
+ *
  * @param Window Skin
  * @desc Image file used for the window skin.
  * @type file
  * @dir img/system/
  * @default Window
- * 
+ *
  * @param Window Opacity
  * @desc 0 = Fully transparent, 255 = Fully opaque.
  * @type number
  * @default 255
- * 
+ *
  * @param Show Window Dimmer
  * @desc Hides window skin
  * @type boolean
  * @default false
- * 
+ *
  */
 /*~struct~displayRequirements:
- * 
+ *
  * @param Game Switch
  * @desc This switch must be ON
  * @type switch
  * @default 0
- * 
+ *
  * @param Game Variable
  * @desc The variable to consider
  * @type variable
  * @default 0
- * 
+ *
  * @param Variable Minimum
  * @parent Game Variable
  * @desc Lowest value of the variable
  * @type text
  * @default 0
- * 
+ *
  * @param Variable Maximum
  * @parent Game Variable
  * @desc Highest value of the variable
  * @type text
  * @default 0
- * 
+ *
  * @param Code
  * @desc Code must evaluate to a "true" value
  * @type note
  * @default ""
- * 
+ *
  */
 /*~struct~gaugeDraw:
- * 
+ *
  * @param Label
  * @desc Label text for gauge
  * @type text
  * @default gauge
- * 
+ *
  * @param Label X
  * @desc Position of the label text in window
  * @type text
  * @default 0
- * 
+ *
  * @param Label Y
  * @desc Position of the label text in window
  * @type text
  * @default 0
- * 
+ *
  * @param Gauge Current Value
  * @desc How to set gauge current value
  * Evaluated value.
  * @type text
  * @default
- * 
+ *
  * @param Gauge Max Value
  * @desc How to set gauge max value
  * Evaluated value.
  * @type text
  * @default
- * 
+ *
  * @param Gauge X
  * @desc Position of the gauge in window
  * @type text
  * @default 0
- * 
+ *
  * @param Gauge Y
  * @desc Position of the gauge in window
  * @type text
  * @default 0
- * 
+ *
  * @param Gauge Width
  * @desc Size of the gauge
  * @type text
  * @default 1
- * 
+ *
  * @param Gauge Height
  * @desc Size of the gauge
  * @type text
  * @default 1
  * @default 1
- * 
+ *
  * @param Gauge Border
  * @desc Border size indent of the gauge
  * @type text
  * @default 2
- * 
+ *
  * @param Gauge Border Color
  * @desc Color for gauge border
  * @type text
  * @default #000000
- * 
+ *
  * @param Gauge Background Color
  * @desc Color for gauge background
  * @type text
  * @default #666666
- * 
+ *
  * @param Gauge Color
  * @desc Color for gauge background
  * @type text
  * @default #aaffaa
- * 
+ *
  */
 /*~struct~basicWin:
- * 
+ *
  * @param Name
  * @desc No function
  * @type text
  * @default Window
- * 
+ *
  * @param Dimension Configuration
  * @desc Setup position and width of the window
  * @type struct<locSize>
  * @default {"X":"0","Y":"0","Width":"1","Height":"1"}
- * 
+ *
  * @param Window Font and Style Configuration
  * @desc Custom style the window
  * @type struct<windowStyle>
  * @default {"Font Settings":"","Font Size":"16","Font Face":"sans-serif","Base Font Color":"#ffffff","Font Outline Color":"rgba(0, 0, 0, 0.5)","Font Outline Thickness":"3","Window Skin":"Window","Window Opacity":"255","Show Window Dimmer":"false"}
- * 
+ *
  * @param Display Requirements
  * @desc Conditions to display the window
  * @type struct<displayRequirements>
- * 
+ *
  * @param Draw Texts
  * @desc Draw various text
  * @type struct<winText>[]
  * @default []
- * 
+ *
  * @param Text References
  * @parent Draw Texts
  * @desc Set code references for draw text
  * %1 = first, %2 = second, etc...
  * @type text[]
  * @default []
- * 
+ *
  * @param Draw Pictures
  * @desc Draw various pictures
  * @type struct<gfx>[]
  * @default []
- * 
+ *
  * @param Gauges
  * @desc Draw gauges on the window
  * @type struct<gaugeDraw>[]
  * @default []
- * 
+ *
  */
 /*~struct~gaugeDraw:
- * 
+ *
  * @param Label
  * @desc Label text for gauge
  * @type text
  * @default gauge
- * 
+ *
  * @param Label X
  * @desc Position of the label text in window
  * @type text
  * @default 0
- * 
+ *
  * @param Label Y
  * @desc Position of the label text in window
  * @type text
  * @default 0
- * 
+ *
  * @param Gauge Current Value
  * @desc How to set gauge current value
  * @type text
  * @default
- * 
+ *
  * @param Gauge Max Value
  * @desc How to set gauge max value
  * @type text
  * @default
- * 
+ *
  * @param Gauge X
  * @desc Position of the gauge in window
  * @type text
  * @default 0
- * 
+ *
  * @param Gauge Y
  * @desc Position of the gauge in window
  * @type text
  * @default 0
- * 
+ *
  * @param Gauge Width
  * @desc Size of the gauge
  * @type text
  * @default 1
- * 
+ *
  * @param Gauge Height
  * @desc Size of the gauge
  * @type text
  * @default 1
  * @default 1
- * 
+ *
  * @param Gauge Border
  * @desc Border size indent of the gauge
  * @type text
  * @default 2
- * 
+ *
  * @param Gauge Border Color
  * @desc Color for gauge border
  * @type text
  * @default #000000
- * 
+ *
  * @param Gauge Background Color
  * @desc Color for gauge background
  * @type text
  * @default #666666
- * 
+ *
  * @param Gauge Color
  * @desc Color for gauge background
  * @type text
  * @default #aaffaa
- * 
+ *
  */
 /*~struct~actorBaseParamWindow:
- * 
+ *
  * @param Name
  * @desc No function.
  * @type text
  * @default Window
- * 
+ *
  * @param Base Param
  * @desc The base param to draw
  * @type select
@@ -560,31 +560,31 @@
  * @option luk
  * @value 7
  * @default 0
- * 
+ *
  * @param Param Text
  * @desc How to draw param text
  * %1 = param value
  * @type text
  * @default %1
- * 
+ *
  * @param X
  * @desc Position in window
  * @type text
  * @default 0
- * 
+ *
  * @param Y
  * @desc Position in window
  * @type text
  * @default 0
- * 
+ *
  */
 /*~struct~actorExParamWindow:
- * 
+ *
  * @param Name
  * @desc No function.
  * @type text
  * @default Window
- * 
+ *
  * @param Ex Param
  * @desc The ex param to draw. Converted to percentage.
  * @type select
@@ -609,31 +609,31 @@
  * @option TP Regeneration Rate
  * @value 9
  * @default 0
- * 
+ *
  * @param Param Text
  * @desc How to draw param text
  * %1 = param value
  * @type text
  * @default %1
- * 
+ *
  * @param X
  * @desc Position in window
  * @type text
  * @default 0
- * 
+ *
  * @param Y
  * @desc Position in window
  * @type text
  * @default 0
- * 
+ *
  */
 /*~struct~actorSPParamWindow:
- * 
+ *
  * @param Name
  * @desc No function.
  * @type text
  * @default Window
- * 
+ *
  * @param Sp Param
  * @desc The sp param to draw. Converted to percentage.
  * @type select
@@ -658,207 +658,207 @@
  * @option Experience Rate
  * @value 9
  * @default 0
- * 
+ *
  * @param Param Text
  * @desc How to draw param text
  * %1 = param value
  * @type text
  * @default %1
- * 
+ *
  * @param X
  * @desc Position in window
  * @type text
  * @default 0
- * 
+ *
  * @param Y
  * @desc Position in window
  * @type text
  * @default 0
- * 
+ *
  */
 /*~struct~actorDataWindow:
- * 
+ *
  * @param Name
  * @desc No function.
  * @type text
  * @default Window
- * 
+ *
  * @param Dimension Configuration
  * @desc Setup position and width of the window
  * @type struct<locSize>
  * @default {"X":"0","Y":"0","Width":"1","Height":"1"}
- * 
+ *
  * @param Window Font and Style Configuration
  * @desc Custom style the window
  * @type struct<windowStyle>
  * @default {"Font Settings":"","Font Size":"16","Font Face":"sans-serif","Base Font Color":"#ffffff","Font Outline Color":"rgba(0, 0, 0, 0.5)","Font Outline Thickness":"3","Window Skin":"Window","Window Opacity":"255","Show Window Dimmer":"false"}
- * 
+ *
  * @param Display Requirements
  * @desc Conditions to display the window
  * @type struct<displayRequirements>
- * 
+ *
  * @param Gauges
  * @desc Setup gauges for the window
  * @type struct<gaugeDraw>[]
  * @default []
- * 
+ *
  * @param Draw Actor Name
  * @desc Draw actor name
  * @type boolean
  * @default false
- * 
+ *
  * @param Name Text
  * @parent Draw Actor Name
  * @desc Text used for the name
  * %1 = Name, %2 = Nickname
  * @type text
  * @default %1
- * 
+ *
  * @param Name X
  * @parent Draw Actor Name
  * @desc Position of name in window
  * @type text
  * @default 0
- * 
+ *
  * @param Name Y
  * @parent Draw Actor Name
  * @desc Position of name in window
  * @type text
  * @default 0
- * 
+ *
  * @param Draw Actor Profile
  * @desc Draw actor profile
  * @type boolean
  * @default false
- * 
+ *
  * @param Profile X
  * @parent Draw Actor Profile
  * @desc Position of profile in window
  * @type text
  * @default 0
- * 
+ *
  * @param Profile Y
  * @parent Draw Actor Profile
  * @desc Position of profile in window
  * @type text
  * @default 0
- * 
+ *
  * @param Draw Class Level
  * @desc Draw actor class name and level
  * @type boolean
  * @default false
- * 
+ *
  * @param Class Level Text
  * @parent Draw Class Level
  * @desc Draw class name and level
  * %1 = class name, %2 = level
  * @type text
  * @default Class: %1 <%2>
- * 
+ *
  * @param Class Level X
  * @parent Draw Class Level
  * @desc Position of class level in window.
  * @type text
  * @default 0
- * 
+ *
  * @param Class Level Y
  * @parent Draw Class Level
  * @desc Position of class level in window.
  * @type text
  * @default 0
- * 
+ *
  * @param Draw HP Resource
  * @desc Draw actor current and max HP
  * @type boolean
  * @default false
- * 
+ *
  * @param HP Text
  * @parent Draw HP Resource
  * @desc Text for HP (Escape chars allowed)
  * %1 = Current, %2 = Max
  * @type text
  * @default \I[84]%1 / %2
- * 
+ *
  * @param HP X
  * @parent Draw HP Resource
  * @desc Position of text in window
  * @type text
  * @default 0
- * 
+ *
  * @param HP Y
  * @parent Draw HP Resource
  * @desc Position of text in window
  * @type text
  * @default 0
- * 
+ *
  * @param Draw MP Resource
  * @desc Draw actor current and max MP
  * @type boolean
  * @default false
- * 
+ *
  * @param MP Text
  * @parent Draw MP Resource
  * @desc Text for MP (Escape chars allowed)
  * %1 = Current, %2 = Max
  * @type text
  * @default \I[79]%1 / %2
- * 
+ *
  * @param MP X
  * @parent Draw MP Resource
  * @desc Position of text in window
  * @type text
  * @default 0
- * 
+ *
  * @param MP Y
  * @parent Draw MP Resource
  * @desc Position of text in window
  * @type text
  * @default 0
- * 
+ *
  * @param Draw TP Resource
  * @desc Draw actor current and max TP
  * @type boolean
  * @default false
- * 
+ *
  * @param TP Text
  * @parent Draw TP Resource
  * @desc Text for TP (Escape chars allowed)
  * %1 = Current, %2 = Max
  * @type text
  * @default \I[79]%1 / %2
- * 
+ *
  * @param TP X
  * @parent Draw TP Resource
  * @desc Position of text in window
  * @type text
  * @default 0
- * 
+ *
  * @param TP Y
  * @parent Draw TP Resource
  * @desc Position of text in window
  * @type text
  * @default 0
- * 
+ *
  * @param Draw Base Params
  * @desc Draw actor base params
  * @type struct<actorBaseParamWindow>[]
  * @default []
- * 
+ *
  * @param Draw Ex Params
  * @desc Draw actor extra params
  * @type struct<actorExParamWindow>[]
  * @default []
- * 
+ *
  * @param Draw Sp Params
  * @desc Draw actor special params
  * @type struct<actorSpParamWindow>[]
  * @default []
- * 
+ *
  * @param Display Map Character
  * @desc Display actor map character
  * @type boolean
  * @default false
- * 
+ *
  * @param Character Direction
  * @parent Display Map Character
  * @desc Facing direction of the character.
@@ -872,36 +872,36 @@
  * @option up
  * @value 8
  * @default 2
- * 
+ *
  * @param Character X
  * @parent Display Map Character
  * @desc Position relative to window
  * @type text
  * @default 0
- * 
+ *
  * @param Character Y
  * @parent Display Map Character
  * @desc Position relative to window
  * @type text
  * @default 0
- * 
+ *
  * @param Character Scale X
  * @parent Display Map Character
  * @desc Size of the character
  * @type text
  * @default 1
- * 
+ *
  * @param Character Scale Y
  * @parent Display Map Character
  * @desc Size of the character
  * @type text
  * @default 1
- * 
+ *
  * @param Display Battler
  * @desc Display actor battler
  * @type boolean
  * @default false
- * 
+ *
  * @param Battler Motion
  * @parent Display Battler
  * @desc Battler motion to refresh to
@@ -925,226 +925,226 @@
  * @option sleep
  * @option dead
  * @default wait
- * 
+ *
  * @param Battler X
  * @parent Display Battler
  * @desc Position relative to window
  * @type text
  * @default 0
- * 
+ *
  * @param Battler Y
  * @parent Display Battler
  * @desc Position relative to window
  * @type text
  * @default 0
- * 
+ *
  * @param Battler Scale X
  * @parent Display Battler
  * @desc Size of the battler
  * @type text
  * @default 1
- * 
+ *
  * @param Battler Scale Y
  * @parent Display Battler
  * @desc Size of the battler
  * @type text
  * @default 1
- * 
+ *
  */
 /*~struct~actorSelcWindow:
- * 
+ *
  * @param Name
  * @desc No function.
  * @type text
  * @default Window
- * 
+ *
  * @param Dimension Configuration
  * @desc Setup position and width of the window
  * @type struct<locSize>
  * @default {"X":"0","Y":"0","Width":"1","Height":"1"}
- * 
+ *
  * @param Window Font and Style Configuration
  * @desc Custom style the window
  * @type struct<windowStyle>
  * @default {"Font Settings":"","Font Size":"16","Font Face":"sans-serif","Base Font Color":"#ffffff","Font Outline Color":"rgba(0, 0, 0, 0.5)","Font Outline Thickness":"3","Window Skin":"Window","Window Opacity":"255","Show Window Dimmer":"false"}
- * 
+ *
  * @param Max Columns
  * @desc Max columns the window will use
  * @type number
  * @default 1
- * 
+ *
  * @param Item Width
  * @desc Max width of window items. 0 = Default
  * @type number
  * @default 0
- * 
+ *
  * @param Item Height
  * @desc Max Item height of window items. 0 = Default
  * @type number
  * @default 0
- * 
+ *
  * @param Gauges
  * @desc Setup gauges for the window
  * @type struct<gaugeDraw>[]
  * @default []
- * 
+ *
  * @param Draw Actor Name
  * @desc Draw actor name
  * @type boolean
  * @default false
- * 
+ *
  * @param Name Text
  * @parent Draw Actor Name
  * @desc Text used for the name
  * %1 = Name, %2 = Nickname
  * @type text
  * @default %1
- * 
+ *
  * @param Name X
  * @parent Draw Actor Name
  * @desc Position of name in window
  * @type text
  * @default 0
- * 
+ *
  * @param Name Y
  * @parent Draw Actor Name
  * @desc Position of name in window
  * @type text
  * @default 0
- * 
+ *
  * @param Draw Actor Profile
  * @desc Draw actor profile
  * @type boolean
  * @default false
- * 
+ *
  * @param Profile X
  * @parent Draw Actor Profile
  * @desc Position of profile in window
  * @type text
  * @default 0
- * 
+ *
  * @param Profile Y
  * @parent Draw Actor Profile
  * @desc Position of profile in window
  * @type text
  * @default 0
- * 
+ *
  * @param Draw Class Level
  * @desc Draw actor class name and level
  * @type boolean
  * @default false
- * 
+ *
  * @param Class Level Text
  * @parent Draw Class Level
  * @desc Draw class name and level
  * %1 = class name, %2 = level
  * @type text
  * @default Class: %1 <%2>
- * 
+ *
  * @param Class Level X
  * @parent Draw Class Level
  * @desc Position of class level in window.
  * @type text
  * @default 0
- * 
+ *
  * @param Class Level Y
  * @parent Draw Class Level
  * @desc Position of class level in window.
  * @type text
  * @default 0
- * 
+ *
  * @param Draw HP Resource
  * @desc Draw actor current and max HP
  * @type boolean
  * @default false
- * 
+ *
  * @param HP Text
  * @parent Draw HP Resource
  * @desc Text for HP (Escape chars allowed)
  * %1 = Current, %2 = Max
  * @type text
  * @default \I[84]%1 / %2
- * 
+ *
  * @param HP X
  * @parent Draw HP Resource
  * @desc Position of text in window
  * @type text
  * @default 0
- * 
+ *
  * @param HP Y
  * @parent Draw HP Resource
  * @desc Position of text in window
  * @type text
  * @default 0
- * 
+ *
  * @param Draw MP Resource
  * @desc Draw actor current and max MP
  * @type boolean
  * @default false
- * 
+ *
  * @param MP Text
  * @parent Draw MP Resource
  * @desc Text for MP (Escape chars allowed)
  * %1 = Current, %2 = Max
  * @type text
  * @default \I[79]%1 / %2
- * 
+ *
  * @param MP X
  * @parent Draw MP Resource
  * @desc Position of text in window
  * @type text
  * @default 0
- * 
+ *
  * @param MP Y
  * @parent Draw MP Resource
  * @desc Position of text in window
  * @type text
  * @default 0
- * 
+ *
  * @param Draw TP Resource
  * @desc Draw actor current and max TP
  * @type boolean
  * @default false
- * 
+ *
  * @param TP Text
  * @parent Draw TP Resource
  * @desc Text for TP (Escape chars allowed)
  * %1 = Current, %2 = Max
  * @type text
  * @default \I[79]%1 / %2
- * 
+ *
  * @param TP X
  * @parent Draw TP Resource
  * @desc Position of text in window
  * @type text
  * @default 0
- * 
+ *
  * @param TP Y
  * @parent Draw TP Resource
  * @desc Position of text in window
  * @type text
  * @default 0
- * 
+ *
  * @param Draw Base Params
  * @desc Draw actor base params
  * @type struct<actorBaseParamWindow>[]
  * @default []
- * 
+ *
  * @param Draw Ex Params
  * @desc Draw actor extra params
  * @type struct<actorExParamWindow>[]
  * @default []
- * 
+ *
  * @param Draw Sp Params
  * @desc Draw actor special params
  * @type struct<actorSpParamWindow>[]
  * @default []
- * 
+ *
  * @param Display Map Character
  * @desc Display actor map character
  * @type boolean
  * @default false
- * 
+ *
  * @param Character Direction
  * @parent Display Map Character
  * @desc Facing direction of the character.
@@ -1158,36 +1158,36 @@
  * @option up
  * @value 8
  * @default 2
- * 
+ *
  * @param Character X
  * @parent Display Map Character
  * @desc Position relative to window
  * @type text
  * @default 0
- * 
+ *
  * @param Character Y
  * @parent Display Map Character
  * @desc Position relative to window
  * @type text
  * @default 0
- * 
+ *
  * @param Character Scale X
  * @parent Display Map Character
  * @desc Size of the character
  * @type text
  * @default 1
- * 
+ *
  * @param Character Scale Y
  * @parent Display Map Character
  * @desc Size of the character
  * @type text
  * @default 1
- * 
+ *
  * @param Display Battler
  * @desc Display actor battler
  * @type boolean
  * @default false
- * 
+ *
  * @param Battler Motion
  * @parent Display Battler
  * @desc Battler motion to refresh to
@@ -1211,530 +1211,530 @@
  * @option sleep
  * @option dead
  * @default wait
- * 
+ *
  * @param Battler X
  * @parent Display Battler
  * @desc Position relative to window
  * @type text
  * @default 0
- * 
+ *
  * @param Battler Y
  * @parent Display Battler
  * @desc Position relative to window
  * @type text
  * @default 0
- * 
+ *
  * @param Battler Scale X
  * @parent Display Battler
  * @desc Size of the battler
  * @type text
  * @default 1
- * 
+ *
  * @param Battler Scale Y
  * @parent Display Battler
  * @desc Size of the battler
  * @type text
  * @default 1
- * 
+ *
  */
 /*~struct~stockVarReq:
- * 
+ *
  * @param Name
  * @desc No function
  * @type text
  * @default Variable
- * 
+ *
  * @param Variable
  * @desc The game variable considered
  * @type variable
  * @default 0
- * 
+ *
  * @param Min Value
  * @desc Smallest value of the variable
  * @type text
  * @default 0
- * 
+ *
  * @param Max Value
  * @desc Largest value of the variable
  * @type text
  * @default 0
- * 
+ *
  */
 /*~struct~stockItmReq:
- * 
+ *
  * @param Name
  * @desc No function
  * @type text
  * @default Variable
- * 
+ *
  * @param Item
  * @desc The game item considered
  * @type item
  * @default 0
- * 
+ *
  * @param Min Value
  * @desc Smallest amount of the item.
  * @type text
  * @default 0
- * 
+ *
  * @param Max Value
  * @desc Largest amount of the item.
  * @type text
  * @default 0
- * 
+ *
  */
 /*~struct~stockWepReq:
- * 
+ *
  * @param Name
  * @desc No function
  * @type text
  * @default Variable
- * 
+ *
  * @param Weapon
  * @desc The game weapon considered
  * @type weapon
  * @default 0
- * 
+ *
  * @param Min Value
  * @desc Smallest amount of the weapon.
  * @type text
  * @default 0
- * 
+ *
  * @param Max Value
  * @desc Largest amount of the weapon.
  * @type text
  * @default 0
- * 
+ *
  */
 /*~struct~stockArmReq:
- * 
+ *
  * @param Name
  * @desc No function
  * @type text
  * @default Variable
- * 
+ *
  * @param Armor
  * @desc The game weapon considered
  * @type armor
  * @default 0
- * 
+ *
  * @param Min Value
  * @desc Smallest amount of the armor.
  * @type text
  * @default 0
- * 
+ *
  * @param Max Value
  * @desc Largest amount of the armor.
  * @type text
  * @default 0
- * 
+ *
  */
 /*~struct~optReq:
- * 
+ *
  * @param Variable Requirements
  * @desc Setup multiple variable requirements
  * @type struct<stockVarReq>[]
  * @default []
- * 
+ *
  * @param Switch Requirements
  * @desc The listed switches must be enabled/ON.
  * @type switch[]
  * @default []
- * 
+ *
  * @param Item Requirements
  * @desc Setup multiple item requirements.
  * @type struct<stockItmReq>[]
  * @default []
- * 
+ *
  * @param Weapon Requirements
  * @desc Setup multiple weapon requirements.
  * @type struct<stockWepReq>[]
  * @default []
- * 
+ *
  * @param Armor Requirements
  * @desc Setup multiple armor requirements.
  * @type struct<stockArmReq>[]
  * @default []
- * 
+ *
  */
 /*~struct~selcOpt:
- * 
+ *
  * @param Name
  * @desc Name of the option
  * @type text
  * @default Option
- * 
+ *
  * @param Alternative Name
  * @desc Alternative name of the option for display use
  * @type text
  * @default Alternative Name
- * 
+ *
  * @param Display Requirements
  * @desc Requirements to list option in menu
  * @type struct<optReq>
- * 
+ *
  * @param Select Requirements
  * @desc Requirements to list option in menu
  * @type struct<optReq>
- * 
+ *
  * @param Description
  * @desc How to describe the selection
  * @type note
  * @default ""
- * 
+ *
  * @param Pictures
  * @desc Picture images used to represent selection
  * @type file[]
  * @dir img/pictures/
  * @default []
- * 
+ *
  * @param Static Graphic
  * @desc Image layered over scene background and just below back graphics
  * @type struct<staticGfx>
- * 
+ *
  * @param Animated Graphic
  * @desc Animated graphic to represent selection
  * @type struct<animGfx>
- * 
+ *
  * @param Video
  * @desc Play video with selection
  * Video is played below video layer
  * @type file
  * @dir movies/
- * 
+ *
  * @param Video X
  * @parent Video
  * @desc Position video
  * @type text
  * @default 0
- * 
+ *
  * @param Video Y
  * @parent Video
  * @desc Position video
  * @type text
  * @default 0
- * 
+ *
  * @param Video Width
  * @parent Video
  * @desc Set video size
  * Use 0 for default
  * @type text
  * @default 0
- * 
+ *
  * @param Video Height
  * @parent Video
  * @desc Set video size
  * Use 0 for default
  * @type text
  * @default 0
- * 
+ *
  * @param Scene Button
  * @desc Add button to scene to link to option
  * @type struct<menuButton>
- * 
+ *
  * @param Event Execution
  * @desc Event to run on selecting the option
  * Takes priority over code execution.
  * @type common_event
  * @default 0
- * 
+ *
  * @param Code Execution
  * @desc Code to run on selecting the option
  * @type note
  * @default ""
- * 
+ *
  * @param Require Actor Select
  * @desc If enabled, opens actor selection window
  * @type boolean
  * @default false
- * 
+ *
  */
 /*~struct~selcWindow:
- * 
+ *
  * @param Dimension Configuration
  * @desc Setup position and width of the window
  * @type struct<locSize>
  * @default {"X":"0","Y":"0","Width":"1","Height":"1"}
- * 
+ *
  * @param Window Font and Style Configuration
  * @desc Custom style the window
  * @type struct<windowStyle>
  * @default {"Font Settings":"","Font Size":"16","Font Face":"sans-serif","Base Font Color":"#ffffff","Font Outline Color":"rgba(0, 0, 0, 0.5)","Font Outline Thickness":"3","Window Skin":"Window","Window Opacity":"255","Show Window Dimmer":"false"}
- * 
+ *
  * @param Item Width
  * @desc Size of the selection area
  * @type text
  * @default 1
- * 
+ *
  * @param Item Height
  * @desc Size of the selection area
  * @type text
  * @default 1
- * 
+ *
  * @param Max Columns
  * @desc Number of horizontal columns
  * @type text
  * @default 1
- * 
+ *
  * @param Selection Options
  * @desc A list of options for the window
  * @type struct<selcOpt>[]
  * @default []
- * 
+ *
  * @param Gauges
  * @desc Setup gauges for the window
  * @type struct<gaugeDraw>[]
  * @default []
- * 
+ *
  * @param Draw Name
  * @desc Draw Option Name?
  * @type boolean
  * @default false
- * 
+ *
  * @param Name Text
  * @parent Draw Name
  * @desc Text for name. %1 = Name.
  * @type text
  * @default %1
- * 
+ *
  * @param Name X
  * @parent Draw Name
  * @desc Position of text
  * @type text
  * @default 0
- * 
+ *
  * @param Name Y
  * @parent Draw Name
  * @desc Position of text
  * @type text
  * @default 0
- * 
+ *
  * @param Draw Alternative Name
  * @desc Draw Option Alternative Name?
  * @type boolean
  * @default false
- * 
+ *
  * @param Alternative Name Text
  * @parent Draw Alternative Name
  * @desc Text for name. %1 = Alternative Name.
  * @type text
  * @default %1
- * 
+ *
  * @param Alternative Name X
  * @parent Draw Alternative Name
  * @desc Position of text
  * @type text
  * @default 0
- * 
+ *
  * @param Alternative Name Y
  * @parent Draw Alternative Name
  * @desc Position of text
  * @type text
  * @default 0
- * 
+ *
  * @param Draw Description
  * @desc Draw Option Description?
  * @type boolean
  * @default false
- * 
+ *
  * @param Description X
  * @parent Draw Description
  * @desc Position of text
  * @type text
  * @default 0
- * 
+ *
  * @param Description Y
  * @parent Draw Description
  * @desc Position of text
  * @type text
  * @default 0
- * 
+ *
  * @param Draw Picture
  * @desc Draw Option Picture?
  * @type boolean
  * @default false
- * 
+ *
  * @param Picture Index
  * @parent Draw Picture
  * @desc Index of picture to draw (start at zero (0))
  * @type text
  * @default $gameVariables.value(1)
- * 
+ *
  * @param Picture X
  * @parent Draw Picture
  * @desc Position of picture
  * @type text
  * @default 0
- * 
+ *
  * @param Picture Y
  * @parent Draw Picture
  * @desc Position of picture
  * @type text
  * @default 0
- * 
+ *
  * @param Picture Width
  * @parent Draw Picture
  * @desc Size of picture
  * @type text
  * @default 0
- * 
+ *
  * @param Picture Height
  * @parent Draw Picture
  * @desc Size of picture
  * @type text
  * @default 0
- * 
+ *
  */
 /*~struct~selcDataWindow:
- * 
+ *
  * @param Name
  * @desc No function
  * @type text
  * @default Data Window
- * 
+ *
  * @param Dimension Configuration
  * @desc Setup position and width of the window
  * @type struct<locSize>
  * @default {"X":"0","Y":"0","Width":"1","Height":"1"}
- * 
+ *
  * @param Window Font and Style Configuration
  * @desc Custom style the window
  * @type struct<windowStyle>
  * @default {"Font Settings":"","Font Size":"16","Font Face":"sans-serif","Base Font Color":"#ffffff","Font Outline Color":"rgba(0, 0, 0, 0.5)","Font Outline Thickness":"3","Window Skin":"Window","Window Opacity":"255","Show Window Dimmer":"false"}
- * 
+ *
  * @param Display Requirements
  * @desc Conditions to display the window
  * @type struct<displayRequirements>
- * 
+ *
  * @param Gauges
  * @desc Setup gauges for the window
  * @type struct<gaugeDraw>[]
  * @default []
- * 
+ *
  * @param Draw Option Name
  * @desc Draw Name of option?
  * @type boolean
  * @default false
- * 
+ *
  * @param Name Text
  * @parent Draw Option Name
  * @desc Text for name. %1 = Name.
  * @type text
  * @default %1
- * 
+ *
  * @param Name X
  * @parent Draw Option Name
  * @desc Position of name
  * @type text
  * @default 0
- * 
+ *
  * @param Name Y
  * @parent Draw Option Name
  * @desc Position of name
  * @type text
  * @default 0
- * 
+ *
  * @param Draw Alternative Option Name
  * @desc Draw Name of option?
  * @type boolean
  * @default false
- * 
+ *
  * @param Alternative Name Text
  * @parent Draw Alternative Option Name
  * @desc Text for name. %1 = Alternative Name.
  * @type text
  * @default %1
- * 
+ *
  * @param Alternative Name X
  * @parent Draw Alternative Option Name
  * @desc Position of name
  * @type text
  * @default 0
- * 
+ *
  * @param Alternative Name Y
  * @parent Draw Alternative Option Name
  * @desc Position of name
  * @type text
  * @default 0
- * 
+ *
  * @param Draw Description
  * @desc Draw Description of option?
  * @type boolean
  * @default false
- * 
+ *
  * @param Description X
  * @parent Draw Description
  * @desc Position of name
  * @type text
  * @default 0
- * 
+ *
  * @param Description Y
  * @parent Draw Description
  * @desc Position of name
  * @type text
  * @default 0
- * 
+ *
  * @param Draw Picture
  * @desc Draw Description of option?
  * @type boolean
  * @default false
- * 
+ *
  * @param Picture Index
  * @parent Draw Picture
  * @desc Index of picture used.
  * @type text
  * @default 1
- * 
+ *
  * @param Picture X
  * @parent Draw Picture
  * @desc Position of picture
  * @type text
  * @default 0
- * 
+ *
  * @param Picture Y
  * @parent Draw Picture
  * @desc Position of picture
  * @type text
  * @default 0
- * 
+ *
  * @param Picture Width
  * @parent Draw Picture
  * @desc Size of picture
  * @type text
  * @default 0
- * 
+ *
  * @param Picture Height
  * @parent Draw Picture
  * @desc Size of picture
  * @type text
  * @default 0
- * 
+ *
  */
 /*~struct~menuButton:
- * 
+ *
  * @param Name
  * @desc No function
  * @type text
  * @default Button
- * 
+ *
  * @param X
  * @desc Position on screen.
  * @type text
  * @default 0
- * 
+ *
  * @param Y
  * @desc Position on screen.
  * @type text
  * @default 0
- * 
+ *
  * @param Cold Graphic
  * @desc Graphic when not mouse over.
  * @type struct<animGfx>
- * 
+ *
  * @param Hot Graphic
  * @desc Graphic when mouse over.
  * @type struct<animGfx>
- * 
+ *
  */
 /*~struct~custMenu:
  *
@@ -1742,132 +1742,132 @@
  * @desc Name used to identify menu data.
  * @type text
  * @default menu
- * 
+ *
  * @param Preload Backgrounds
  * @desc Picture images used for scene preload background.
  * @type struct<gfx>[]
  * @default []
- * 
+ *
  * @param On Load Script Calls
  * @desc Script calls to run at start of menu scene
  * @type note[]
  * @default []
- * 
+ *
  * @param Backgrounds
  * @desc Picture images used for scene background.
  * @type struct<staticGfx>[]
  * @default []
- * 
+ *
  * @param Back Graphics
  * @desc Animated pictures layered just above scene background.
  * @type struct<animGfx>[]
  * @default []
- * 
+ *
  * @param Selection Window
  * @desc Window used for selection options
  * @type struct<selcWindow>
- * 
+ *
  * @param Open Effect
  * @parent Selection Window
  * @desc Selection window has an open effect at start
  * @type boolean
  * @default false
- * 
+ *
  * @param Disable Cancel Exit
  * @parent Selection Window
  * @desc Prevents cancel button from exiting menu.
  * You will need to set exit option
  * @type boolean
  * @default false
- * 
+ *
  * @param Update Codes
  * @desc The code here will run every frame in
  * sequence as they are listed.
  * @type note[]
  * @default []
- * 
+ *
  * @param Actor Selection Window
  * @parent Selection Window
  * @desc Window draws all party members and allow selection
  * Hidden unless selection condition met
  * @type struct<actorSelcWindow>
- * 
+ *
  * @param Always Show Actor Select
  * @parent Actor Selection Window
  * @desc Always show actor select on scene
  * @type boolean
  * @default false
- * 
+ *
  * @param Actor Data Windows
  * @parent Actor Selection Window
  * @desc Window to display selected actor data
  * @type struct<actorDataWindow>[]
  * @default []
- * 
+ *
  * @param Selection Data Windows
  * @parent Selection Window
  * @desc Display data based on window selection
  * @type struct<selcDataWindow>[]
  * @default []
- * 
+ *
  * @param Basic Windows
  * @desc Windows to display basic data. (Always shown)
  * @type struct<basicWin>[]
  * @default []
- * 
+ *
  * @param Fore Graphics
  * @desc Animated pictures layered just below scene foreground.
  * @type struct<animGfx>[]
  * @default []
- * 
+ *
  * @param Foregrounds
  * @desc Picture images used for scene foreground.
  * @type struct<staticGfx>[]
  * @default []
- * 
+ *
  */
 /*:ja
  * @author Synrec/Kylestclr
  * @plugindesc v3.4 カスタムメニューの作成が可能
  * @target MZ
  * @url https://synrec.itch.io/
- * 
+ *
  * @help
  * カスタムメニューを設定するには、プラグインパラメータを使用します。
  * メニュー識別子の名前がユニークであることを確認します。
- * 
+ *
  * カスタムメニューシーン中に、デフォルトでは「F9」キー（またはプラグイン
  * パラメータで設定されたキー）を押すことで、ライブメニューエディタを開く
  * ことができます。これはライブエディタを開く唯一の方法です。
  * その他の方法でライブエディタを開こうとしても、動作しません。
- * 
+ *
  * ライブエディタでの変更を保存するには、RPGツクールのプロジェクトエディタを
  * 閉じておく必要があります。プロジェクトエディタを開いたままだと、
  * メニューの変更は一時的なものとなります。
- * 
+ *
  * ライブエディタでは、カスタムメニューシーンのリアルタイムカスタマイズ
  * およびシーンオーバーライドのリアルタイム設定が可能です。
- * 
+ *
  * カスタムメニューの設定方法については、以下のYouTubeプレイリストで
  * 例を見ることができます：
  * https://www.youtube.com/playlist?list=PLLNw1pfxQDSluUMNnzdeEnlEMF-OYn0OE
- * 
+ *
  * 一部のパラメータには、ゲーム内の変数やスイッチを代用することができます。
  * ただし、ライブエディタは現時点でこれらのRPGツクール特有の呼び出しを完全には
  * 処理できないため、数値が必要なパラメータには自動的に「0」が設定されます。
- * 
- * 
+ *
+ *
  * ライブエディタはHTML、CSS、JavaScriptで作成されており、外部のサーバーや
  * クライアントには一切接続しません。もし外部のサービスに接続しようとしている
  * のを発見した場合は、そのエディタを削除し、プラグインおよびソースの入手元の
  * 情報を添えて開発者に連絡してください。悪意のある改造版である可能性があります。
- * 
- * 
+ *
+ *
  * ライブメニューエディタは配布用プロジェクト向けには設計されていません。
  * したがって、配布予定のプロジェクトからは削除する必要があります。
- * 
+ *
  * メニューは 「ネスト」（入れ子）することができ、さらに他のメニューに導くことができる。
- * 
+ *
  * スクリプトコールを使用することで、メニュー上でビデオを再生することができます。
  * - this.playVideo(name, label, loop, x, y, width, height);
  * -- name = ビデオファイル名（拡張子なし）。
@@ -1897,28 +1897,28 @@
  * 便利なスクリプトコール:
  * > DataManager.menuBuilderGameReset()
  * - すべてのゲームオブジェクトをリセットし、新しいゲームとしてプロジェクトをセットアップします。
- * 
+ *
  * > $gameTemp.openMenu("name")
  * - 識別子 "name" によって指定されたカスタムメニューシーンを開きます。
- * 
+ *
  * > SceneManager._scene.closeMenu()
  * - カスタムメニューシーン内で使用され、メニューを正しく閉じます。
  * - $gameTemp.closeMenu() は使用しないでください。
- * 
+ *
  * > $gameTemp.openedMenu()
  * - 現在開かれているメニューのデータを返します。
- * 
+ *
  * @param Editor Access Button Name
  * @desc エディタを開くためのボタン名
  * Default: debug
  * @type text
  * @default debug
- * 
+ *
  * @param Menu Configurations
  * @desc カスタムメニューの設定
  * @type struct<custMenu>[]
  * @default []
- * 
+ *
  * @param Scene Overrides
  * @desc シーンクラスのオーバーライド
  * @type struct<sceneOverride>[]
@@ -1944,100 +1944,100 @@
  *
 */
 /*~struct~staticGfx:ja
- * 
+ *
  * @param File
  * @desc 画像ファイル
  * @type file
  * @dir img/pictures/
- * 
+ *
  * @param X
  * @desc X位置設定
  * @type text
  * @default  0
- * 
+ *
  * @param Y
  * @desc Y位置設定
  * @type text
  * @default  0
- * 
+ *
  * @param Scrolling X
  * @desc 画像をX原点上で一貫して画像をスクロールする。
  * @type number
  * @default 0
- * 
+ *
  * @param Scrolling Y
  * @desc 画像をY原点上で一貫して画像をスクロールする。
  * @type number
  * @default 0
- * 
+ *
  * @param Anchor X
  * @desc 画像のXピボットポイントを変更する。
  * @type number
  * @decimals 3
  * @min -999999
  * @default 0.000
- * 
+ *
  * @param Anchor Y
  * @desc 画像のYピボットポイントを変更する。
  * @type number
  * @decimals 3
  * @min -999999
  * @default 0.000
- * 
+ *
  * @param Rotation
  * @desc 画像に回転をかける。
  * @type number
  * @decimals 3
  * @min -999999
  * @default 0.000
- * 
+ *
  * @param Constant Rotation
  * @desc 回転の繰り返し
  * @type boolean
  * @default false
- * 
+ *
  */
 /*~struct~animGfx:ja
- * 
+ *
  * @param File
  * @desc 画像ファイル
  * @type file
  * @dir img/pictures/
- * 
+ *
  * @param X
  * @desc X位置設定
  * @type number
  * @default  0
- * 
+ *
  * @param Y
  * @desc Y位置設定
  * @type number
  * @default  0
- * 
+ *
  * @param Max Frames
  * @desc グラフィックが使用するフレーム数
  * @type number
  * @min 1
  * @default 1
- * 
+ *
  * @param Frame Rate
  * @desc フレームの更新速度
  * @type number
  * @default 0
- * 
+ *
  */
 /*~struct~winText:ja
- * 
+ *
  * @param Text
  * @desc 描くテキスト
  * @type note
  * @default ""
- * 
+ *
  * @param X
  * @desc テキストのX開始位置
  * @type text
  * @default 0
- * 
+ *
  * @param Y
  * @desc テキストのY開始位置
  * @type text
@@ -2045,27 +2045,27 @@
  *
  */
 /*~struct~gfx:ja
- * 
+ *
  * @param Picture
  * @desc 使用する画像ファイル
  * @type file
  * @dir img/pictures/
- * 
+ *
  * @param X
  * @desc 画像のX開始位置
  * @type text
  * @default 0
- * 
+ *
  * @param Y
  * @desc 画像のY開始位置
  * @type text
  * @default 0
- * 
+ *
  * @param Width
  * @desc 画像の幅
  * @type text
  * @default 1
- * 
+ *
  * @param Height
  * @desc 画像の高さ
  * @type text
@@ -2073,301 +2073,301 @@
  *
  */
 /*~struct~locSize:ja
- * 
+ *
  * @param X
  * @desc X位置設定
  * @type number
  * @default 0
- * 
+ *
  * @param Y
  * @desc Y位置設定.
  * @type number
  * @default 0
- * 
+ *
  * @param Width
  * @desc 幅の設定
  * @type number
  * @default 1
- * 
+ *
  * @param Height
  * @desc 高さの設定
  * @type number
  * @default 1
- * 
+ *
  */
 /*~struct~windowStyle:ja
- * 
+ *
  * @param Font Settings
  * @desc 子パラメーターの設定
- * 
+ *
  * @param Font Size
  * @parent Font Settings
  * @desc フォントサイズ
  * @type number
  * @default 16
- * 
+ *
  * @param Font Face
  * @parent Font Settings
  * @desc ウィンドウに使用されるフォント
  * @type text
  * @default sans-serif
- * 
+ *
  * @param Base Font Color
  * @parent Font Settings
  * @desc ウィンドウのデフォルトフォントの色
  * @type text
  * @default #ffffff
- * 
+ *
  * @param Font Outline Color
  * @parent Font Settings
  * @desc ウィンドウのデフォルトフォントの輪郭色
  * @type text
  * @default rgba(0, 0, 0, 0.5)
- * 
+ *
  * @param Font Outline Thickness
  * @parent Font Settings
  * @desc テキストの輪郭の太さ
  * @type number
  * @default 3
- * 
+ *
  * @param Window Skin
  * @desc ウィンドウスキンに使用される画像ファイル
  * @type file
  * @dir img/system/
  * @default Window
- * 
+ *
  * @param Window Opacity
  * @desc 0 = 完全に透明、255 = 完全に不透明
  * @type number
  * @default 255
- * 
+ *
  * @param Show Window Dimmer
  * @desc ウィンドウのスキンを隠す
  * @type boolean
  * @default false
- * 
+ *
  */
 /*~struct~displayRequirements:ja
- * 
+ *
  * @param Game Switch
  * @desc このスイッチは ON（オン） にする必要があります。
  * @type switch
  * @default 0
- * 
+ *
  * @param Game Variable
  * @desc 対象となる変数
  * @type variable
  * @default 0
- * 
+ *
  * @param Variable Minimum
  * @parent Game Variable
  * @desc 変数の最小値
  * @type text
  * @default 0
- * 
+ *
  * @param Variable Maximum
  * @parent Game Variable
  * @desc変数の最大値
  * @type text
  * @default 0
- * 
+ *
  * @param Code
  * @desc コードの評価結果が「真（true）」でなければなりません。
  * @type note
  * @default ""
- * 
+ *
  */
 /*~struct~gaugeDraw:ja
- * 
+ *
  * @param Label
  * @desc ゲージのラベルテキスト
  * @type text
  * @default gauge
- * 
+ *
  * @param Label X
  * @desc ウィンドウ内のラベルテキストのX位置
  * @type text
  * @default 0
- * 
+ *
  * @param Label Y
  * @desc ウィンドウ内のラベルテキストのY位置
  * @type text
  * @default 0
- * 
+ *
  * @param Gauge Current Value
  * @desc ゲージ電流値の設定方法
  * Evaluated value.
  * @type text
  * @default
- * 
+ *
  * @param Gauge Max Value
  * @descゲージの最大値の設定方法
  * Evaluated value.
  * @type text
  * @default
- * 
+ *
  * @param Gauge X
  * @desc ウィンドウ内のゲージのX位置
  * @type text
  * @default 0
- * 
+ *
  * @param Gauge Y
  * @desc ウィンドウ内のゲージのY位置
  * @type text
  * @default 0
- * 
+ *
  * @param Gauge Width
  * @desc ゲージの幅
  * @type text
  * @default 1
- * 
+ *
  * @param Gauge Height
  * @desc ゲージの高さ
  * @type text
  * @default 1
  * @default 1
- * 
+ *
  * @param Gauge Border
  * @desc ゲージの枠の大きさ
  * @type text
  * @default 2
- * 
+ *
  * @param Gauge Border Color
  * @desc ゲージの縁取りの色
  * @type text
  * @default #000000
- * 
+ *
  * @param Gauge Background Color
  * @desc ゲージ背景の色
  * @type text
  * @default #666666
- * 
+ *
  * @param Gauge Color
  * @desc ゲージ背景の色
  * @type text
  * @default #aaffaa
- * 
+ *
  */
 /*~struct~basicWin:ja
- * 
+ *
  * @param Name
  * @desc 機能なし
  * @type text
  * @default Window
- * 
+ *
  * @param Dimension Configuration
  * @desc ウィンドウの位置と幅の設定
  * @type struct<locSize>
  * @default {"X":"0","Y":"0","Width":"1","Height":"1"}
- * 
+ *
  * @param Window Font and Style Configuration
  * @desc ウィンドウのカスタムスタイル
  * @type struct<windowStyle>
  * @default {"Font Settings":"","Font Size":"16","Font Face":"sans-serif","Base Font Color":"#ffffff","Font Outline Color":"rgba(0, 0, 0, 0.5)","Font Outline Thickness":"3","Window Skin":"Window","Window Opacity":"255","Show Window Dimmer":"false"}
- * 
+ *
  * @param Display Requirements
  * @desc ウィンドウを表示するための条件
  * @type struct<displayRequirements>
- * 
+ *
  * @param Draw Texts
  * @desc 様々なテキストを描画
  * @type struct<winText>[]
  * @default []
- * 
+ *
  * @param Text References
  * @parent テキストを描画
  * @desc Set code references for draw text
  * %1 = first, %2 = second, etc...
  * @type text []
  * @default []
- * 
+ *
  * @param Draw Pictures
  * @desc様々な絵を描画
  * @type struct<gfx>[]
  * @default []
- * 
+ *
  * @param Draw Gauges
  * @desc ウィンドウにゲージを描画
  * @type struct<gaugeDraw>[]
  * @default []
- * 
+ *
  */
 /*~struct~gaugeDraw:ja
- * 
+ *
  * @param Label
  * @desc ゲージのラベルテキスト
  * @type text
  * @default gauge
- * 
+ *
  * @param Label X
  * @desc ウィンドウ内のラベルテキストのX位置
  * @type text
  * @default 0
- * 
+ *
  * @param Label Y
  * @desc ウィンドウ内のラベルテキストのY位置
  * @type text
  * @default 0
- * 
+ *
  * @param Gauge Current Value
  * @desc ゲージ電流値の設定方法
  * @type text
  * @default
- * 
+ *
  * @param Gauge Max Value
  * @desc Hゲージ最大値の設定方法
  * @type text
  * @default
- * 
+ *
  * @param Gauge X
  * @desc ウィンドウ内のゲージのX位置
  * @type text
  * @default 0
- * 
+ *
  * @param Gauge Y
  * @desc ウィンドウ内のゲージのY位置
  * @type text
  * @default 0
- * 
+ *
  * @param Gauge Width
  * @desc ゲージの幅
  * @type text
  * @default 1
- * 
+ *
  * @param Gauge Height
  * @desc ゲージの高さ
  * @type text
  * @default 1
  * @default 1
- * 
+ *
  * @param Gauge Border
  * @desc ゲージの枠の大きさ
  * @type text
  * @default 2
- * 
+ *
  * @param Gauge Border Color
  * @desc ゲージの縁取りの色
  * @type text
  * @default #000000
- * 
+ *
  * @param Gauge Background Color
  * @desc ゲージ背景の色
  * @type text
  * @default #666666
- * 
+ *
  * @param Gauge Color
  * @desc ゲージ背景の色
  * @type text
  * @default #aaffaa
- * 
+ *
  */
 /*~struct~actorBaseParamWindow:ja
- * 
+ *
  * @param Name
  * @desc 処理なし
  * @type text
  * @default ウィンドウ
- * 
+ *
  * @param Base Param
  * @desc 描画に使用する基本パラメータ
  * @type select
@@ -2388,31 +2388,31 @@
  * @option luk
  * @value 7
  * @default 0
- * 
+ *
  * @param Param Text
  * @desc パラメータの表示方法（テキストとして）
  * %1 = param value
  * @type text
  * @default %1
- * 
+ *
  * @param X
  * @desc ウィンドウ内のX位置
  * @type text
  * @default 0
- * 
+ *
  * @param Y
  * @desc ウィンドウ内のY位置
  * @type text
  * @default 0
- * 
+ *
  */
 /*~struct~actorExParamWindow:ja
- * 
+ *
  * @param Name
  * @desc 処理なし
  * @type text
  * @default ウィンドウ
- * 
+ *
  * @param Ex Param
  * @desc 描画する追加パラメータ（EXパラメータ）。パーセンテージに変換されます。
  * @type select
@@ -2437,31 +2437,31 @@
  * @option TP再生率（TP Regeneration Rate）
  * @value 9
  * @default 0
- * 
+ *
  * @param Param Text
  * @desc パラメータの表示方法（テキストとして）
  * %1 = param value
  * @type text
  * @default %1
- * 
+ *
  * @param X
  * @desc ウィンドウ内のX位置
  * @type text
  * @default 0
- * 
+ *
  * @param Y
  * @desc ウィンドウ内のY位置
  * @type text
  * @default 0
- * 
+ *
  */
 /*~struct~actorSPParamWindow:ja
- * 
+ *
  * @param Name
  * @desc 処理なし
  * @type text
  * @default ウィンドウ
- * 
+ *
  * @param Sp Param
  * @desc 描画する追加パラメータ（SPパラメータ）。パーセンテージに変換されます。
  * @type select
@@ -2486,23 +2486,23 @@
  * @option 経験値獲得率（Experience Rate）
  * @value 9
  * @default 0
- * 
+ *
  * @param Param Text
  * @desc パラメータの表示方法（テキストとして）
  * %1 = param value
  * @type text
  * @default %1
- * 
+ *
  * @param X
  * @desc ウィンドウ内のX位置
  * @type text
  * @default 0
- * 
+ *
  * @param Y
  * @desc ウィンドウ内のY位置
  * @type text
  * @default 0
- * 
+ *
  */
 /*~struct~actorDataWindow:ja
  *
@@ -3066,164 +3066,164 @@
  *
 */
 /*~struct~stockVarReq:ja
- * 
+ *
  * @param Name
  * @desc 機能なし
  * @type text
  * @default Variable
- * 
+ *
  * @param Variable
  * @desc ゲーム変数
  * @type variable
  * @default 0
- * 
+ *
  * @param Min Value
  * @desc 変数の最小値
  * @type text
  * @default 0
- * 
+ *
  * @param Max Value
  * @desc 変数の最大値
  * @type text
  * @default 0
- * 
+ *
  */
 /*~struct~stockItmReq:ja
- * 
+ *
  * @param Name
  * @desc 機能なし
  * @type text
  * @default Variable
- * 
+ *
  * @param Item
  * @desc ゲームアイテム
  * @type item
  * @default 0
- * 
+ *
  * @param Min Value
  * @desc アイテムの最小量
  * @type text
  * @default 0
- * 
+ *
  * @param Max Value
  * @desc アイテムの最大量
  * @type text
  * @default 0
- * 
+ *
  */
 /*~struct~stockWepReq:ja
- * 
+ *
  * @param Name
  * @desc 機能なし
  * @type text
  * @default Variable
- * 
+ *
  * @param Weapon
  * @desc ゲームの武器
  * @type weapon
  * @default 0
- * 
+ *
  * @param Min Value
  * @desc 武器の最小量
  * @type text
  * @default 0
- * 
+ *
  * @param Max Value
  * @desc 武器の最大量
  * @type text
  * @default 0
- * 
+ *
  */
 /*~struct~stockArmReq:ja
- * 
+ *
  * @param Name
  * @desc 機能なし
  * @type text
  * @default Variable
- * 
+ *
  * @param Armor
  * @desc ゲームの鎧
  * @type armor
  * @default 0
- * 
+ *
  * @param Min Value
  * @desc 鎧の最小値
  * @type text
  * @default 0
- * 
+ *
  * @param Max Value
  * @desc 鎧の最大値
  * @type text
  * @default 0
- * 
+ *
  */
 /*~struct~optReq:ja
- * 
+ *
  * @param Variable Requirements
  * @desc 複数の可変要件を設定する
  * @type struct<stockVarReq>[]
  * @default []
- * 
+ *
  * @param Switch Requirements
  * @desc 記載されているスイッチは有効/ONでなければならない。
  * @type switch[]
  * @default []
- * 
+ *
  * @param Item Requirements
  * @desc 複数のアイテムの必要要件を設定します。
  * @type struct<stockItmReq>[]
  * @default []
- * 
+ *
  * @param Weapon Requirements
  * @desc 複数の武器の必要要件を設定します。
  * @type struct<stockWepReq>[]
  * @default []
- * 
+ *
  * @param Armor Requirements
  * @desc 複数の鎧の必要要件を設定します。
  * @type struct<stockArmReq>[]
  * @default []
- * 
+ *
  */
 /*~struct~selcOpt:ja
- * 
+ *
  * @param Name
  * @desc オプション名
  * @type text
  * @default Option
- * 
+ *
  * @param Alternative Name
  * @desc 表示用のオプションの別名
  * @type text
  * @default Alternative Name
- * 
+ *
  * @param Display Requirements
  * @desc メニューにオプションを表示するための条件
  * @type struct<optReq>
- * 
+ *
  * @param Select Requirements
  * @desc メニューにオプションを表示するための条件
  * @type struct<optReq>
- * 
+ *
  * @param Description
  * @desc セレクションの説明方法
  * @type note
  * @default ""
- * 
+ *
  * @param Pictures
  * @desc セレクションを表す画像
  * @type file[]
  * @dir img/pictures/
  * @default []
- * 
+ *
  * @param Static Graphic
  * @desc 画像は背景の上にレイヤーされ、バックグラフィックのすぐ下にある。
  * @type struct<staticGfx>
- * 
+ *
  * @param Animated Graphic
  * @desc 選択を表すアニメーショングラフィック
  * @type struct<animGfx>
- * 
+ *
  * @param Video
  * @desc 選択した動画を再生する
  * Video is played below video layer
@@ -3258,18 +3258,18 @@
  * @param Scene Button
  * @descオプションにリンクするボタンをシーンに追加する
  * @type struct<menuButton>
- * 
+ *
  * @param Event Execution
  * @desc オプションを選択すると実行されるイベント
  * Takes priority over code execution.
  * @type common_event
  * @default 0
- * 
+ *
  * @param Code Execution
  * @desc オプション選択時に実行されるコード
  * @type note
  * @default ""
- * 
+ *
  * @param Require Actor Select
  * @desc 有効な場合、アクター選択ウィンドウを開く
  * @type boolean
@@ -3277,158 +3277,158 @@
  *
  */
 /*~struct~selcWindow:ja
- * 
+ *
  * @param Dimension Configuration
  * @desc ウィンドウの位置と幅の設定
  * @type struct<locSize>
  * @default {"X":"0","Y":"0","Width":"1","Height":"1"}
- * 
+ *
  * @param Window Font and Style Configuration
  * @desc ウィンドウのカスタムスタイル
  * @type struct<windowStyle>
  * @default {"Font Settings":"","Font Size":"16","Font Face":"sans-serif","Base Font Color":"#ffffff","Font Outline Color":"rgba(0, 0, 0, 0.5)","Font Outline Thickness":"3","Window Skin":"Window","Window Opacity":"255","Show Window Dimmer":"false"}
- * 
+ *
  * @param Item Width
  * @desc 選択領域の幅
  * @type text
  * @default 1
- * 
+ *
  * @param Item Height
  * @desc 選択領域の高さ
  * @type text
  * @default 1
- * 
+ *
  * @param Max Columns
  * @desc 横列の数
  * @type text
  * @default 1
- * 
+ *
  * @param Selection Options
  * @desc ウィンドウのオプションのリスト
  * @type struct<selcOpt>[]
  * @default []
- * 
+ *
  * @param Draw Gauges
  * @descウィンドウのゲージを設定する
  * @type struct<gaugeDraw>[]
  * @default []
- * 
+ *
  * @param Draw Name
  * @desc ドローオプション名は？
  * @type boolean
  * @default false
- * 
+ *
  * @param Name Text
  * @parent Draw Name
  * @desc 名前のテキスト。%1 = 名前。
  * @type text
  * @default %1
- * 
+ *
  * @param Name X
  * @parent Draw Name
  * @desc テキストのX位置
  * @type text
  * @default 0
- * 
+ *
  * @param Name Y
  * @parent Draw Name
  * @desc テキストのY位置
  * @type text
  * @default 0
- * 
+ *
  * @param Draw Alternative Name
  * @desc ドローオプションの別名は？
  * @type boolean
  * @default false
- * 
+ *
  * @param Alternative Name Text
  * @parent Draw Alternative Name
  * @desc 代替名のテキスト。%1 = 代替名。
  * @type text
  * @default %1
- * 
+ *
  * @param Alternative Name X
  * @parent Draw Alternative Name
  * @desc テキストのX位置
  * @type text
  * @default 0
- * 
+ *
  * @param Alternative Name Y
  * @parent Draw Alternative Name
  * @desc テキストのY位置
  * @type text
  * @default 0
- * 
+ *
  * @param Draw Description
  * @desc ドローオプションの説明
  * @type boolean
  * @default false
- * 
+ *
  * @param Description X
  * @parent Draw Description
  * @desc テキストのX位置
  * @type text
  * @default 0
- * 
+ *
  * @param Description Y
  * @parent Draw Description
  * @desc テキストのY位置
  * @type text
  * @default 0
- * 
+ *
  * @param Draw Picture
  * @desc オプション画像を描く？
  * @type boolean
  * @default false
- * 
+ *
  * @param Picture Index
  * @parent Draw Picture
  * @desc 描画する画像のインデックス（0から始まる）
  * @type text
  * @default $gameVariables.value(1)
- * 
+ *
  * @param Picture X
  * @parent Draw Picture
  * @desc 画像のX位置
  * @type text
  * @default 0
- * 
+ *
  * @param Picture Y
  * @parent Draw Picture
  * @desc 画像のY位置
  * @type text
  * @default 0
- * 
+ *
  * @param Picture Width
  * @parent Draw Picture
  * @desc 画像の幅
  * @type text
  * @default 0
- * 
+ *
  * @param Picture Height
  * @parent Draw Picture
  * @desc 画像の高さ
  * @type text
  * @default 0
- * 
+ *
  */
 /*~struct~selcDataWindow:ja
- * 
+ *
  * @param Name
  * @desc 機能なし
  * @type text
  * @default Data Window
- * 
+ *
  * @param Dimension Configuration
  * @desc ウィンドウの位置と幅の設定
  * @type struct<locSize>
  * @default {"X":"0","Y":"0","Width":"1","Height":"1"}
- * 
+ *
  * @param Window Font and Style Configuration
  * @desc ウィンドウのカスタムスタイル
  * @type struct<windowStyle>
  * @default {"Font Settings":"","Font Size":"16","Font Face":"sans-serif","Base Font Color":"#ffffff","Font Outline Color":"rgba(0, 0, 0, 0.5)","Font Outline Thickness":"3","Window Skin":"Window","Window Opacity":"255","Show Window Dimmer":"false"}
- * 
+ *
  * @param Display Requirements
  * @desc ウィンドウを表示するための条件
  * @type struct<displayRequirements>
@@ -3437,12 +3437,12 @@
  * @desc ウィンドウのゲージを設定する
  * @type struct<gaugeDraw>[]
  * @default []
- * 
+ *
  * @param Draw Option Name
  * @desc オプション名は？
  * @type boolean
  * @default false
- * 
+ *
  * @param Name Text
  * @parent Draw Option Name
  * @desc 名前のテキスト。%1 = 名前。
@@ -3454,13 +3454,13 @@
  * @desc 名前のX位置
  * @type text
  * @default 0
- * 
+ *
  * @param Name Y
  * @parent Draw Option Name
  * @desc 名前のY位置
  * @type text
  * @default 0
- * 
+ *
  * @param Draw Alternative Option Name
  * @desc オプションの代替名は？
  * @type boolean
@@ -3471,97 +3471,97 @@
  * @desc 名前のテキスト。%1 = 代替名。
  * @type text
  * @default %1
- * 
+ *
  * @param Alternative Name X
  * @parent Draw Alternative Option Name
  * @desc 代替名のX位置
  * @type text
  * @default 0
- * 
+ *
  * @param Alternative Name Y
  * @parent Draw Alternative Option Name
  * @desc 代替名のY位置
  * @type text
  * @default 0
- * 
+ *
  * @param Draw Description
  * @desc オプションの説明は？
  * @type boolean
  * @default false
- * 
+ *
  * @param Description X
  * @parent Draw Description
  * @desc 説明のX位置
  * @type text
  * @default 0
- * 
+ *
  * @param Description Y
  * @parent Draw Description
  * @desc 説明のY位置
  * @type text
  * @default 0
- * 
+ *
  * @param Draw Picture
  * @desc オプションの説明を描く？
  * @type boolean
  * @default false
- * 
+ *
  * @param Picture Index
  * @parent Draw Picture
  * @desc 使用画像のインデックス
  * @type text
  * @default 1
- * 
+ *
  * @param Picture X
  * @parent Draw Picture
  * @desc 画像のX位置
  * @type text
  * @default 0
- * 
+ *
  * @param Picture Y
  * @parent Draw Picture
  * @desc 画像のY位置
  * @type text
  * @default 0
- * 
+ *
  * @param Picture Width
  * @parent Draw Picture
  * @desc 画像の幅
  * @type text
  * @default 0
- * 
+ *
  * @param Picture Height
  * @parent Draw Picture
  * @desc 画像の高さ
  * @type text
  * @default 0
- * 
+ *
  */
 /*~struct~menuButton:ja
- * 
+ *
  * @param Name
  * @desc 機能なし
  * @type text
  * @default Button
- * 
+ *
  * @param X
  * @desc 画面上のX位置
  * @type text
  * @default 0
- * 
+ *
  * @param Y
  * @desc 画面上のY位置
  * @type text
  * @default 0
- * 
+ *
  * @param Cold Graphic
  * @desc マウスオーバーしていない時のグラフィック
  * @type struct<animGfx>
- * 
+ *
  * @param Hot Graphic
  * @desc マウスオーバー時のグラフィック
  * @type struct<animGfx>
- * 
+ *
  */
 /*~struct~custMenu:ja
  *
@@ -3569,12 +3569,12 @@
  * @desc メニューデータを識別するための名前。
  * @type text
  * @default menu
- * 
+ *
  * @param Preload Backgrounds
  * @desc シーンのプリロードの背景に使用される画像。
  * @type struct<gfx>[]
  * @default []
- * 
+ *
  * @param On Load Script Calls
  * @desc メニューシーンの開始時に実行されるスクリプト呼び出し
  * @type note[]
@@ -3584,16 +3584,16 @@
  * @desc シーンの背景に使用される画像。
  * @type struct<staticGfx>[]
  * @default []
- * 
+ *
  * @param Back Graphics
  * @desc シーンの背景のすぐ上にレイヤーされたアニメーション画像。
  * @type struct<animGfx>[]
  * @default []
- * 
+ *
  * @param Selection Window
  * @desc 選択オプションに使用されるウィンドウ
  * @type struct<selcWindow>
- * 
+ *
  * @param Open Effect
  * @parent Selection Window
  * @desc 選択ウィンドウは開始時にオープンエフェクトがあります
@@ -3606,19 +3606,19 @@
  * 終了させるには、終了オプションを設定する必要があります。
  * @type boolean
  * @default false
- * 
+ *
  * @param Update Codes
  * @desc ここに記述されたコードは、一覧にある順番で
  * 毎フレーム実行されます。
  * @type note[]
  * @default []
- * 
+ *
  * @param Actor Selection Window
  * @parent Selection Window
  * @desc このウィンドウはすべてのパーティメンバーを描画し、選択を可能にします。
  * 選択条件が満たされない限り非表示になります。
  * @type struct<actorSelcWindow>
- * 
+ *
  * @param Always Show Actor Select
  * @parent Actor Selection Window
  * @desc 常にアクターセレクトシーンを表示
@@ -3636,22 +3636,22 @@
  * @desc ウィンドウの選択に基づいてデータを表示する
  * @type struct<selcDataWindow>[]
  * @default []
- * 
+ *
  * @param Basic Windows
  * @desc 基本データを表示するウィンドウ。(常時表示）
  * @type struct<basicWin>[]
  * @default []
- * 
+ *
  * @param Fore Graphics
  * @desc シーンの前景のすぐ下にレイヤーされたアニメーション画像
  * @type struct<animGfx>[]
  * @default []
- * 
+ *
  * @param Foregrounds
  * @desc シーンの前景に使用される画像。
  * @type struct<staticGfx>[]
  * @default []
- * 
+ *
  */
 
 
@@ -4739,7 +4739,7 @@ SpriteSynrec_VideoLayer.prototype.startVideo = function(name, label, loop, rect)
     if(mz_mode)source.play();
     this.addChild(sprite);
     if(
-        !rect.width || 
+        !rect.width ||
         !rect.height ||
         (
             sprite.width >= Infinity ||
@@ -4809,7 +4809,7 @@ SpriteSynrec_VideoLayer.prototype.updateVideos = function(){
         texture.update();
         const source = mz_mode ? texture.baseTexture.resource.source : texture.baseTexture.source;
         if(
-            video._need_resize > 0 && 
+            video._need_resize > 0 &&
             !isNaN(video._need_resize) ||
             (
                 video.width >= Infinity ||
@@ -6985,10 +6985,10 @@ Scene_SynrecMenu.prototype.createEventHandlers = function(){
     if(Utils.RPGMAKER_NAME == 'MZ'){
         this._messageWindow.subWindows = function(){
             return [
-                this._goldWindow, 
+                this._goldWindow,
                 this._choiceListWindow,
-                this._numberInputWindow, 
-                this._eventItemWindow, 
+                this._numberInputWindow,
+                this._eventItemWindow,
                 this._nameBoxWindow
             ];
         }
@@ -7374,7 +7374,7 @@ Scene_SynrecMenu.prototype.updateVideo = function(){
     sprite.width = vw || videoTexture.width || Graphics.boxWidth;
     sprite.height = vh || videoTexture.height || Graphics.boxHeight;
     if(
-        !vw || 
+        !vw ||
         !vh
     ){
         sprite._need_resize = 60;
@@ -7397,7 +7397,7 @@ Scene_SynrecMenu.prototype.updateEvent = function(){
     }
     this._event_handler.update();
     if(
-        this._event_handler.isRunning() || 
+        this._event_handler.isRunning() ||
         $gameMessage.isBusy() ||
         this._messageWindow.isOpen() ||
         this._scrollTextWindow.visible

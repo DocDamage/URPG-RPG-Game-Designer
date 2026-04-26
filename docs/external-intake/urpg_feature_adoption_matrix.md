@@ -1,6 +1,6 @@
 # URPG External Repository Feature Adoption Matrix
 
-> Mapping of external repos to URPG features/compat areas.  
+> Mapping of external repos to URPG features/compat areas.
 > See [URPG_repo_intake_plan.md](./URPG_repo_intake_plan.md) and [TECHNICAL_DEBT_REMEDIATION_PLAN.md](../TECHNICAL_DEBT_REMEDIATION_PLAN.md) (P3-02, Phase 4 / Workstream 4.1).
 
 ---

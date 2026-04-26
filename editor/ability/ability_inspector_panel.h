@@ -4,20 +4,30 @@
 #include "editor/ability/pattern_field_model.h"
 #include "engine/core/ability/authored_ability_asset.h"
 #include "engine/core/ability/gameplay_effect.h"
+#include <functional>
 #include <string>
+#include <vector>
 
 namespace urpg::ability {
-    class AbilitySystemComponent;
-    class GameplayAbility;
-}
+class AbilitySystemComponent;
+class GameplayAbility;
+} // namespace urpg::ability
 
 namespace urpg::editor {
 
 using namespace urpg::ability;
 
 class AbilityInspectorPanel {
-public:
+  public:
     using DraftAbilityDefinition = urpg::ability::AuthoredAbilityAsset;
+    using CommandCallback = std::function<bool()>;
+
+    struct CommandCallbacks {
+        CommandCallback preview_selected;
+        CommandCallback apply_draft_to_runtime;
+        CommandCallback save_draft;
+        CommandCallback load_draft;
+    };
 
     struct DraftPreviewSnapshot {
         bool has_draft = false;
@@ -37,7 +47,14 @@ public:
     };
 
     struct RenderSnapshot {
+        struct ControlState {
+            std::string id;
+            std::string label;
+            bool enabled = false;
+        };
+
         bool visible = true;
+        bool has_rendered_frame = false;
         std::vector<std::string> diagnostic_lines;
         size_t diagnostic_count = 0;
         std::string latest_ability_id;
@@ -46,6 +63,8 @@ public:
         bool selected_ability_can_activate = false;
         std::string selected_ability_blocking_reason;
         DraftPreviewSnapshot draft_preview;
+        std::vector<ControlState> controls;
+        std::vector<std::string> validation_issues;
     };
 
     AbilityInspectorPanel() = default;
@@ -53,6 +72,7 @@ public:
     void update(const AbilitySystemComponent& asc);
     void clear();
     void render();
+    void setCommandCallbacks(CommandCallbacks callbacks);
     bool selectAbility(size_t index, const AbilitySystemComponent& asc);
     bool previewSelectedAbility(AbilitySystemComponent& asc);
     void resetDraftAbility();
@@ -74,7 +94,9 @@ public:
 
     const AbilityInspectorModel& getModel() const { return m_model; }
     const RenderSnapshot& getRenderSnapshot() const { return m_snapshot; }
-    AbilityDiagnosticsSnapshot getDiagnosticsSnapshot(const AbilitySystemComponent& asc) const { return m_model.buildDiagnosticsSnapshot(asc); }
+    AbilityDiagnosticsSnapshot getDiagnosticsSnapshot(const AbilitySystemComponent& asc) const {
+        return m_model.buildDiagnosticsSnapshot(asc);
+    }
     DraftAbilityDefinition getDraftAsset() const;
     void setDraftFromAsset(const DraftAbilityDefinition& asset);
     const PatternFieldModel& getDraftPatternModel() const { return m_draft_pattern_model; }
@@ -82,8 +104,10 @@ public:
     bool isVisible() const { return m_visible; }
     void setVisible(bool visible) { m_visible = visible; }
 
-private:
+  private:
     void rebuildSnapshot(const AbilitySystemComponent& asc);
+    void rebuildControlState();
+    void validateDraftPattern();
     std::shared_ptr<urpg::ability::GameplayAbility> buildDraftAbility() const;
     DraftAbilityDefinition buildDraftAsset() const;
     DraftPreviewSnapshot buildDraftPreviewSnapshot() const;
@@ -93,6 +117,7 @@ private:
     DraftAbilityDefinition m_draft_definition;
     PatternFieldModel m_draft_pattern_model;
     RenderSnapshot m_snapshot;
+    CommandCallbacks m_command_callbacks;
     bool m_visible = true;
 };
 

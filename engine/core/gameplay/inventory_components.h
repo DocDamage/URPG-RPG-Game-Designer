@@ -1,8 +1,8 @@
 #pragma once
 
 #include "engine/core/math/fixed32.h"
-#include <vector>
 #include <string>
+#include <vector>
 
 namespace urpg {
 
@@ -24,7 +24,7 @@ struct InventoryComponent {
                 return true;
             }
         }
-        
+
         // Add new slot if space
         if (slots.size() < static_cast<size_t>(maxSlots)) {
             slots.push_back({itemId, count});

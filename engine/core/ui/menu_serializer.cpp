@@ -9,47 +9,73 @@ namespace {
 
 std::string NormalizeRoute(std::string_view route_str) {
     std::string normalized(route_str);
-    std::transform(normalized.begin(), normalized.end(), normalized.begin(), [](unsigned char ch) {
-        return static_cast<char>(std::tolower(ch));
-    });
+    std::transform(normalized.begin(), normalized.end(), normalized.begin(),
+                   [](unsigned char ch) { return static_cast<char>(std::tolower(ch)); });
     return normalized;
 }
 
 MenuRouteTarget ParseRoute(std::string_view route_str) {
     const auto normalized = NormalizeRoute(route_str);
 
-    if (normalized == "item") return MenuRouteTarget::Item;
-    if (normalized == "skill") return MenuRouteTarget::Skill;
-    if (normalized == "equip") return MenuRouteTarget::Equip;
-    if (normalized == "status") return MenuRouteTarget::Status;
-    if (normalized == "formation") return MenuRouteTarget::Formation;
-    if (normalized == "options") return MenuRouteTarget::Options;
-    if (normalized == "save") return MenuRouteTarget::Save;
-    if (normalized == "load") return MenuRouteTarget::Load;
-    if (normalized == "gameend" || normalized == "game_end") return MenuRouteTarget::GameEnd;
-    if (normalized == "codex") return MenuRouteTarget::Codex;
-    if (normalized == "questlog" || normalized == "quest_log") return MenuRouteTarget::QuestLog;
-    if (normalized == "encyclopedia") return MenuRouteTarget::Encyclopedia;
-    if (normalized == "custom") return MenuRouteTarget::Custom;
+    if (normalized == "item")
+        return MenuRouteTarget::Item;
+    if (normalized == "skill")
+        return MenuRouteTarget::Skill;
+    if (normalized == "equip")
+        return MenuRouteTarget::Equip;
+    if (normalized == "status")
+        return MenuRouteTarget::Status;
+    if (normalized == "formation")
+        return MenuRouteTarget::Formation;
+    if (normalized == "options")
+        return MenuRouteTarget::Options;
+    if (normalized == "save")
+        return MenuRouteTarget::Save;
+    if (normalized == "load")
+        return MenuRouteTarget::Load;
+    if (normalized == "gameend" || normalized == "game_end")
+        return MenuRouteTarget::GameEnd;
+    if (normalized == "codex")
+        return MenuRouteTarget::Codex;
+    if (normalized == "questlog" || normalized == "quest_log")
+        return MenuRouteTarget::QuestLog;
+    if (normalized == "encyclopedia")
+        return MenuRouteTarget::Encyclopedia;
+    if (normalized == "custom")
+        return MenuRouteTarget::Custom;
     return MenuRouteTarget::None;
 }
 
 std::string RouteToString(MenuRouteTarget target) {
     switch (target) {
-        case MenuRouteTarget::Item: return "Item";
-        case MenuRouteTarget::Skill: return "Skill";
-        case MenuRouteTarget::Equip: return "Equip";
-        case MenuRouteTarget::Status: return "Status";
-        case MenuRouteTarget::Formation: return "Formation";
-        case MenuRouteTarget::Options: return "Options";
-        case MenuRouteTarget::Save: return "Save";
-        case MenuRouteTarget::Load: return "Load";
-        case MenuRouteTarget::GameEnd: return "GameEnd";
-        case MenuRouteTarget::Codex: return "Codex";
-        case MenuRouteTarget::QuestLog: return "QuestLog";
-        case MenuRouteTarget::Encyclopedia: return "Encyclopedia";
-        case MenuRouteTarget::Custom: return "Custom";
-        default: return "None";
+    case MenuRouteTarget::Item:
+        return "Item";
+    case MenuRouteTarget::Skill:
+        return "Skill";
+    case MenuRouteTarget::Equip:
+        return "Equip";
+    case MenuRouteTarget::Status:
+        return "Status";
+    case MenuRouteTarget::Formation:
+        return "Formation";
+    case MenuRouteTarget::Options:
+        return "Options";
+    case MenuRouteTarget::Save:
+        return "Save";
+    case MenuRouteTarget::Load:
+        return "Load";
+    case MenuRouteTarget::GameEnd:
+        return "GameEnd";
+    case MenuRouteTarget::Codex:
+        return "Codex";
+    case MenuRouteTarget::QuestLog:
+        return "QuestLog";
+    case MenuRouteTarget::Encyclopedia:
+        return "Encyclopedia";
+    case MenuRouteTarget::Custom:
+        return "Custom";
+    default:
+        return "None";
     }
 }
 
@@ -112,16 +138,17 @@ bool TryImportRichMainMenu(const nlohmann::json& legacy_data, MenuPane& mainPane
 
 bool MenuSceneSerializer::Deserialize(const nlohmann::json& j, MenuSceneGraph& graph) {
     try {
-        if (!j.contains("scene_id") || !j.contains("panes") || !j["panes"].is_array()) return false;
+        if (!j.contains("scene_id") || !j.contains("panes") || !j["panes"].is_array())
+            return false;
 
         std::string scene_id = j["scene_id"];
         auto scene = std::make_shared<MenuScene>(scene_id);
-        
+
         for (const auto& j_pane : j["panes"]) {
             MenuPane pane;
             pane.id = j_pane.value("id", "");
             pane.displayName = j_pane.value("label", "");
-            
+
             if (j_pane.contains("commands") && j_pane["commands"].is_array()) {
                 for (const auto& j_cmd : j_pane["commands"]) {
                     MenuCommandMeta cmd;
@@ -261,13 +288,9 @@ bool MenuSceneSerializer::ImportLegacy(const nlohmann::json& legacy_data, MenuSc
             // MV/MZ System.json uses an array of booleans for [item, skill, equip, status, formation, save]
             // where index 0=item, 1=skill, etc.
             static const std::vector<std::pair<std::string, MenuRouteTarget>> standard_mapping = {
-                {"Item", MenuRouteTarget::Item},
-                {"Skill", MenuRouteTarget::Skill},
-                {"Equip", MenuRouteTarget::Equip},
-                {"Status", MenuRouteTarget::Status},
-                {"Formation", MenuRouteTarget::Formation},
-                {"Save", MenuRouteTarget::Save}
-            };
+                {"Item", MenuRouteTarget::Item},           {"Skill", MenuRouteTarget::Skill},
+                {"Equip", MenuRouteTarget::Equip},         {"Status", MenuRouteTarget::Status},
+                {"Formation", MenuRouteTarget::Formation}, {"Save", MenuRouteTarget::Save}};
 
             for (size_t i = 0; i < std::min(cmds.size(), standard_mapping.size()); ++i) {
                 if (cmds[i].get<bool>()) {

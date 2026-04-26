@@ -45,4 +45,3 @@ if (-not (Test-Path -LiteralPath $mcpSnippetPath)) {
 Write-Output "Bootstrapped codemunch project files:"
 Write-Output " - $indexDefaultsPath"
 Write-Output " - $mcpSnippetPath"
-

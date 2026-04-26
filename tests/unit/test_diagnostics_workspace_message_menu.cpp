@@ -1,5 +1,5 @@
-#include "editor/diagnostics/diagnostics_workspace.h"
 #include "editor/diagnostics/diagnostics_facade.h"
+#include "editor/diagnostics/diagnostics_workspace.h"
 #include "engine/core/audio/audio_core.h"
 #include "engine/core/battle/battle_core.h"
 #include "engine/core/input/input_core.h"
@@ -17,8 +17,7 @@
 
 namespace {
 
-urpg::message::DialoguePage makeDialoguePage(std::string id,
-                                             std::string body,
+urpg::message::DialoguePage makeDialoguePage(std::string id, std::string body,
                                              urpg::message::MessagePresentationVariant variant,
                                              bool wait_for_advance = true,
                                              std::vector<urpg::message::ChoiceOption> choices = {},
@@ -114,7 +113,6 @@ TEST_CASE("DiagnosticsWorkspace - Message inspector actions keep exported snapsh
     REQUIRE(exported["active_tab_detail"]["visible_rows"].size() == 1);
     REQUIRE(exported["active_tab_detail"]["visible_rows"][0]["page_id"] == "page_c");
 }
-
 
 TEST_CASE("DiagnosticsWorkspace - Menu edit and export round-trip", "[editor][diagnostics][integration][menu_parity]") {
     urpg::ui::MenuCommandRegistry registry;
@@ -352,5 +350,3 @@ TEST_CASE("DiagnosticsWorkspace - Message workspace actions keep snapshot curren
     REQUIRE(exported["active_tab_detail"]["visible_rows"][0]["page_id"] == "page_a");
     REQUIRE(exported["active_tab_detail"]["visible_rows"][0]["body_preview"] == "Updated body.");
 }
-
-

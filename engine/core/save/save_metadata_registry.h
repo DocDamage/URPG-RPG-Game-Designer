@@ -2,21 +2,21 @@
 
 #include "save_types.h"
 #include <map>
+#include <nlohmann/json.hpp>
 #include <string>
 #include <vector>
-#include <nlohmann/json.hpp>
 
 namespace urpg {
 
 /**
  * @brief Registry for controlling save metadata schema and validation.
- * 
+ *
  * In the URPG engine, the metadata structure for save slots is flexible.
  * The registry defines which keys are expected and how they should be handled
  * for presentation in the UI (e.g., Save/Load menus).
  */
 class SaveMetadataRegistry {
-public:
+  public:
     struct MetadataField {
         std::string key;
         std::string display_label;
@@ -24,13 +24,9 @@ public:
         std::string default_value;
     };
 
-    void registerField(const MetadataField& field) {
-        _fields[field.key] = field;
-    }
+    void registerField(const MetadataField& field) { _fields[field.key] = field; }
 
-    const std::map<std::string, MetadataField>& getFields() const {
-        return _fields;
-    }
+    const std::map<std::string, MetadataField>& getFields() const { return _fields; }
 
     /**
      * @brief Loads fields from a JSON schema (from save_policies.json).
@@ -46,8 +42,9 @@ public:
         }
 
         for (const auto& item : fields) {
-            if (!item.contains("key")) continue;
-            
+            if (!item.contains("key"))
+                continue;
+
             MetadataField field;
             field.key = item["key"].get<std::string>();
             field.display_label = item.value("display_label", field.key);
@@ -69,7 +66,7 @@ public:
         }
     }
 
-private:
+  private:
     std::map<std::string, MetadataField> _fields;
 };
 

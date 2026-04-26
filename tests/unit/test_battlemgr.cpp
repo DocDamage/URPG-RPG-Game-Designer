@@ -1,19 +1,30 @@
-#include "runtimes/compat_js/battle_manager.h"
 #include "runtimes/compat_js/audio_manager.h"
+#include "runtimes/compat_js/battle_manager.h"
 #include "runtimes/compat_js/data_manager.h"
 
+#include <algorithm>
 #include <catch2/catch_approx.hpp>
 #include <catch2/catch_test_macros.hpp>
-#include <algorithm>
 #include <filesystem>
 #include <fstream>
-#include <variant>
 #include <nlohmann/json.hpp>
+#include <variant>
 
 using namespace urpg::compat;
 namespace fs = std::filesystem;
 
 namespace {
+
+double numericValueAsDouble(const urpg::Value& value) {
+    if (const auto* asDouble = std::get_if<double>(&value.v)) {
+        return *asDouble;
+    }
+    if (const auto* asInt = std::get_if<int64_t>(&value.v)) {
+        return static_cast<double>(*asInt);
+    }
+    FAIL("Expected numeric Value variant");
+    return 0.0;
+}
 
 fs::path writeBattleEventTroopsFixture(const nlohmann::json& troops) {
     const fs::path fixtureDir = fs::temp_directory_path() / "urpg_battle_event_fixture";
@@ -26,7 +37,7 @@ fs::path writeBattleEventTroopsFixture(const nlohmann::json& troops) {
     return fixtureDir;
 }
 
-}
+} // namespace
 
 TEST_CASE("BattleManager: setup and flow", "[battlemgr]") {
     BattleManager bm;
@@ -96,13 +107,11 @@ TEST_CASE("BattleManager: hook registration and unregistration", "[battlemgr]") 
     BattleManager bm;
     int startHookCalls = 0;
 
-    bm.registerHook(
-        BattleManager::HookPoint::ON_START,
-        "test_plugin",
-        [&startHookCalls](const std::vector<urpg::Value>&) -> urpg::Value {
-            ++startHookCalls;
-            return urpg::Value::Nil();
-        });
+    bm.registerHook(BattleManager::HookPoint::ON_START, "test_plugin",
+                    [&startHookCalls](const std::vector<urpg::Value>&) -> urpg::Value {
+                        ++startHookCalls;
+                        return urpg::Value::Nil();
+                    });
 
     bm.setup(1, true, false);
     bm.startBattle();
@@ -222,34 +231,26 @@ TEST_CASE("BattleManager: state effects and outcome hooks", "[battlemgr]") {
     int actorDeathCount = 0;
     int victoryCount = 0;
 
-    bm.registerHook(
-        BattleManager::HookPoint::ON_STATE_ADDED,
-        "test_plugin",
-        [&stateAddedCount](const std::vector<urpg::Value>&) -> urpg::Value {
-            ++stateAddedCount;
-            return urpg::Value::Nil();
-        });
-    bm.registerHook(
-        BattleManager::HookPoint::ON_STATE_REMOVED,
-        "test_plugin",
-        [&stateRemovedCount](const std::vector<urpg::Value>&) -> urpg::Value {
-            ++stateRemovedCount;
-            return urpg::Value::Nil();
-        });
-    bm.registerHook(
-        BattleManager::HookPoint::ON_ACTOR_DEATH,
-        "test_plugin",
-        [&actorDeathCount](const std::vector<urpg::Value>&) -> urpg::Value {
-            ++actorDeathCount;
-            return urpg::Value::Nil();
-        });
-    bm.registerHook(
-        BattleManager::HookPoint::ON_VICTORY,
-        "test_plugin",
-        [&victoryCount](const std::vector<urpg::Value>&) -> urpg::Value {
-            ++victoryCount;
-            return urpg::Value::Nil();
-        });
+    bm.registerHook(BattleManager::HookPoint::ON_STATE_ADDED, "test_plugin",
+                    [&stateAddedCount](const std::vector<urpg::Value>&) -> urpg::Value {
+                        ++stateAddedCount;
+                        return urpg::Value::Nil();
+                    });
+    bm.registerHook(BattleManager::HookPoint::ON_STATE_REMOVED, "test_plugin",
+                    [&stateRemovedCount](const std::vector<urpg::Value>&) -> urpg::Value {
+                        ++stateRemovedCount;
+                        return urpg::Value::Nil();
+                    });
+    bm.registerHook(BattleManager::HookPoint::ON_ACTOR_DEATH, "test_plugin",
+                    [&actorDeathCount](const std::vector<urpg::Value>&) -> urpg::Value {
+                        ++actorDeathCount;
+                        return urpg::Value::Nil();
+                    });
+    bm.registerHook(BattleManager::HookPoint::ON_VICTORY, "test_plugin",
+                    [&victoryCount](const std::vector<urpg::Value>&) -> urpg::Value {
+                        ++victoryCount;
+                        return urpg::Value::Nil();
+                    });
 
     BattleSubject actor;
     actor.type = BattleSubjectType::ACTOR;
@@ -293,15 +294,13 @@ TEST_CASE("BattleManager: turn-end status ordering and buff durations", "[battle
     BattleManager bm;
     std::vector<std::string> damageOrder;
 
-    bm.registerHook(
-        BattleManager::HookPoint::ON_DAMAGE,
-        "test_plugin",
-        [&damageOrder](const std::vector<urpg::Value>& args) -> urpg::Value {
-            const auto subjectType = std::get<int64_t>(args[0].v);
-            const auto subjectIndex = std::get<int64_t>(args[1].v);
-            damageOrder.push_back(std::to_string(subjectType) + ":" + std::to_string(subjectIndex));
-            return urpg::Value::Nil();
-        });
+    bm.registerHook(BattleManager::HookPoint::ON_DAMAGE, "test_plugin",
+                    [&damageOrder](const std::vector<urpg::Value>& args) -> urpg::Value {
+                        const auto subjectType = std::get<int64_t>(args[0].v);
+                        const auto subjectIndex = std::get<int64_t>(args[1].v);
+                        damageOrder.push_back(std::to_string(subjectType) + ":" + std::to_string(subjectIndex));
+                        return urpg::Value::Nil();
+                    });
 
     bm.setup(9, true, false);
 
@@ -366,8 +365,8 @@ TEST_CASE("BattleManager: battle environment metadata is retained through JS hel
     urpg::Value ruinsNight;
     ruinsNight.v = std::string("ruins_night");
 
-    auto setBackground = ctx.callMethod("BattleManager", "changeBattleBackground",
-                                        std::vector<urpg::Value>{ruinsNight});
+    auto setBackground =
+        ctx.callMethod("BattleManager", "changeBattleBackground", std::vector<urpg::Value>{ruinsNight});
     REQUIRE(setBackground.success);
 
     urpg::Value battleTheme;
@@ -376,24 +375,21 @@ TEST_CASE("BattleManager: battle environment metadata is retained through JS hel
     bgmVolume.v = 72.5;
     urpg::Value bgmPitch;
     bgmPitch.v = 108.0;
-    auto setBgm = ctx.callMethod("BattleManager", "changeBattleBgm",
-                                 std::vector<urpg::Value>{battleTheme, bgmVolume, bgmPitch});
+    auto setBgm =
+        ctx.callMethod("BattleManager", "changeBattleBgm", std::vector<urpg::Value>{battleTheme, bgmVolume, bgmPitch});
     REQUIRE(setBgm.success);
 
     urpg::Value victoryName;
     victoryName.v = std::string("victory_fanfare");
-    auto setVictoryMe = ctx.callMethod("BattleManager", "changeVictoryMe",
-                                       std::vector<urpg::Value>{victoryName,
-                                                                 urpg::Value::Int(80),
-                                                                 urpg::Value::Int(105)});
+    auto setVictoryMe =
+        ctx.callMethod("BattleManager", "changeVictoryMe",
+                       std::vector<urpg::Value>{victoryName, urpg::Value::Int(80), urpg::Value::Int(105)});
     REQUIRE(setVictoryMe.success);
 
     urpg::Value defeatName;
     defeatName.v = std::string("defeat_dirge");
     auto setDefeatMe = ctx.callMethod("BattleManager", "changeDefeatMe",
-                                      std::vector<urpg::Value>{defeatName,
-                                                                urpg::Value::Int(60),
-                                                                urpg::Value::Int(95)});
+                                      std::vector<urpg::Value>{defeatName, urpg::Value::Int(60), urpg::Value::Int(95)});
     REQUIRE(setDefeatMe.success);
 
     REQUIRE(battleManager.getBattleTransition() == 3);
@@ -407,24 +403,24 @@ TEST_CASE("BattleManager: battle environment metadata is retained through JS hel
     REQUIRE(std::holds_alternative<urpg::Object>(bgmResult.value.v));
     const auto& bgm = std::get<urpg::Object>(bgmResult.value.v);
     REQUIRE(std::get<std::string>(bgm.at("name").v) == "battle_theme");
-    REQUIRE(std::get<double>(bgm.at("volume").v) == 72.5);
-    REQUIRE(std::get<double>(bgm.at("pitch").v) == 108.0);
+    REQUIRE(numericValueAsDouble(bgm.at("volume")) == 72.5);
+    REQUIRE(numericValueAsDouble(bgm.at("pitch")) == 108.0);
 
     auto victoryResult = ctx.callMethod("BattleManager", "getVictoryMe", {});
     REQUIRE(victoryResult.success);
     REQUIRE(std::holds_alternative<urpg::Object>(victoryResult.value.v));
     const auto& victory = std::get<urpg::Object>(victoryResult.value.v);
     REQUIRE(std::get<std::string>(victory.at("name").v) == "victory_fanfare");
-    REQUIRE(std::get<double>(victory.at("volume").v) == 80.0);
-    REQUIRE(std::get<double>(victory.at("pitch").v) == 105.0);
+    REQUIRE(numericValueAsDouble(victory.at("volume")) == 80.0);
+    REQUIRE(numericValueAsDouble(victory.at("pitch")) == 105.0);
 
     auto defeatResult = ctx.callMethod("BattleManager", "getDefeatMe", {});
     REQUIRE(defeatResult.success);
     REQUIRE(std::holds_alternative<urpg::Object>(defeatResult.value.v));
     const auto& defeat = std::get<urpg::Object>(defeatResult.value.v);
     REQUIRE(std::get<std::string>(defeat.at("name").v) == "defeat_dirge");
-    REQUIRE(std::get<double>(defeat.at("volume").v) == 60.0);
-    REQUIRE(std::get<double>(defeat.at("pitch").v) == 95.0);
+    REQUIRE(numericValueAsDouble(defeat.at("volume")) == 60.0);
+    REQUIRE(numericValueAsDouble(defeat.at("pitch")) == 95.0);
     REQUIRE(BattleManager::getMethodDeviation("setBattleTransition").find("metadata-only") != std::string::npos);
 }
 
@@ -570,41 +566,32 @@ TEST_CASE("BattleManager: skills and items enqueue their configured animations",
 }
 
 TEST_CASE("BattleManager: troop battle events execute real page conditions and commands", "[battlemgr]") {
-    const nlohmann::json troops = nlohmann::json::array({
-        nullptr,
-        {
-            {"id", 1},
-            {"name", "Event Troop"},
-            {"members", nlohmann::json::array({
-                {{"enemyId", 1}}
-            })},
-            {"pages", nlohmann::json::array({
-                {
-                    {"conditions", {
-                        {"actorHp", 50},
-                        {"actorId", 1},
-                        {"actorValid", false},
-                        {"enemyHp", 50},
-                        {"enemyIndex", 0},
-                        {"enemyValid", false},
-                        {"switchId", 1},
-                        {"switchValid", false},
-                        {"turnA", 0},
-                        {"turnB", 0},
-                        {"turnEnding", false},
-                        {"turnValid", false}
-                    }},
-                    {"list", nlohmann::json::array({
-                        {{"code", 121}, {"indent", 0}, {"parameters", nlohmann::json::array({1, 1, 0})}},
-                        {{"code", 122}, {"indent", 0}, {"parameters", nlohmann::json::array({2, 2, 0, 0, 7})}},
-                        {{"code", 125}, {"indent", 0}, {"parameters", nlohmann::json::array({0, 0, 50})}},
-                        {{"code", 0}, {"indent", 0}, {"parameters", nlohmann::json::array()}}
-                    })},
-                    {"span", 0}
-                }
-            })}
-        }
-    });
+    const nlohmann::json troops = nlohmann::json::array(
+        {nullptr,
+         {{"id", 1},
+          {"name", "Event Troop"},
+          {"members", nlohmann::json::array({{{"enemyId", 1}}})},
+          {"pages",
+           nlohmann::json::array(
+               {{{"conditions",
+                  {{"actorHp", 50},
+                   {"actorId", 1},
+                   {"actorValid", false},
+                   {"enemyHp", 50},
+                   {"enemyIndex", 0},
+                   {"enemyValid", false},
+                   {"switchId", 1},
+                   {"switchValid", false},
+                   {"turnA", 0},
+                   {"turnB", 0},
+                   {"turnEnding", false},
+                   {"turnValid", false}}},
+                 {"list", nlohmann::json::array(
+                              {{{"code", 121}, {"indent", 0}, {"parameters", nlohmann::json::array({1, 1, 0})}},
+                               {{"code", 122}, {"indent", 0}, {"parameters", nlohmann::json::array({2, 2, 0, 0, 7})}},
+                               {{"code", 125}, {"indent", 0}, {"parameters", nlohmann::json::array({0, 0, 50})}},
+                               {{"code", 0}, {"indent", 0}, {"parameters", nlohmann::json::array()}}})},
+                 {"span", 0}}})}}});
 
     const fs::path fixtureDir = writeBattleEventTroopsFixture(troops);
     DataManager::setDataDirectory(fixtureDir.string());
@@ -633,39 +620,30 @@ TEST_CASE("BattleManager: troop battle events execute real page conditions and c
 }
 
 TEST_CASE("BattleManager: troop battle events honor live switch state through updateBattleEvents", "[battlemgr]") {
-    const nlohmann::json troops = nlohmann::json::array({
-        nullptr,
-        {
-            {"id", 1},
-            {"name", "Switch Event Troop"},
-            {"members", nlohmann::json::array({
-                {{"enemyId", 1}}
-            })},
-            {"pages", nlohmann::json::array({
-                {
-                    {"conditions", {
-                        {"actorHp", 50},
-                        {"actorId", 1},
-                        {"actorValid", false},
-                        {"enemyHp", 50},
-                        {"enemyIndex", 0},
-                        {"enemyValid", false},
-                        {"switchId", 33},
-                        {"switchValid", true},
-                        {"turnA", 0},
-                        {"turnB", 0},
-                        {"turnEnding", false},
-                        {"turnValid", false}
-                    }},
-                    {"list", nlohmann::json::array({
-                        {{"code", 122}, {"indent", 0}, {"parameters", nlohmann::json::array({9, 9, 0, 0, 4})}},
-                        {{"code", 0}, {"indent", 0}, {"parameters", nlohmann::json::array()}}
-                    })},
-                    {"span", 0}
-                }
-            })}
-        }
-    });
+    const nlohmann::json troops = nlohmann::json::array(
+        {nullptr,
+         {{"id", 1},
+          {"name", "Switch Event Troop"},
+          {"members", nlohmann::json::array({{{"enemyId", 1}}})},
+          {"pages",
+           nlohmann::json::array(
+               {{{"conditions",
+                  {{"actorHp", 50},
+                   {"actorId", 1},
+                   {"actorValid", false},
+                   {"enemyHp", 50},
+                   {"enemyIndex", 0},
+                   {"enemyValid", false},
+                   {"switchId", 33},
+                   {"switchValid", true},
+                   {"turnA", 0},
+                   {"turnB", 0},
+                   {"turnEnding", false},
+                   {"turnValid", false}}},
+                 {"list", nlohmann::json::array(
+                              {{{"code", 122}, {"indent", 0}, {"parameters", nlohmann::json::array({9, 9, 0, 0, 4})}},
+                               {{"code", 0}, {"indent", 0}, {"parameters", nlohmann::json::array()}}})},
+                 {"span", 0}}})}}});
 
     const fs::path fixtureDir = writeBattleEventTroopsFixture(troops);
     DataManager::setDataDirectory(fixtureDir.string());
@@ -692,44 +670,36 @@ TEST_CASE("BattleManager: troop battle events honor live switch state through up
     DataManager::setDataDirectory("");
 }
 
-TEST_CASE("BattleManager: troop battle events honor variable conditional branches against live DataManager state", "[battlemgr]") {
-    const nlohmann::json troops = nlohmann::json::array({
-        nullptr,
-        {
-            {"id", 1},
-            {"name", "Variable Branch Troop"},
-            {"members", nlohmann::json::array({
-                {{"enemyId", 1}}
-            })},
-            {"pages", nlohmann::json::array({
-                {
-                    {"conditions", {
-                        {"actorHp", 50},
-                        {"actorId", 1},
-                        {"actorValid", false},
-                        {"enemyHp", 50},
-                        {"enemyIndex", 0},
-                        {"enemyValid", false},
-                        {"switchId", 1},
-                        {"switchValid", false},
-                        {"turnA", 0},
-                        {"turnB", 0},
-                        {"turnEnding", false},
-                        {"turnValid", true}
-                    }},
-                    {"list", nlohmann::json::array({
-                        {{"code", 111}, {"indent", 0}, {"parameters", nlohmann::json::array({1, 7, 0, 3, 1})}},
-                        {{"code", 122}, {"indent", 1}, {"parameters", nlohmann::json::array({8, 8, 0, 0, 9})}},
-                        {{"code", 411}, {"indent", 0}, {"parameters", nlohmann::json::array()}},
-                        {{"code", 122}, {"indent", 1}, {"parameters", nlohmann::json::array({8, 8, 0, 0, 4})}},
-                        {{"code", 412}, {"indent", 0}, {"parameters", nlohmann::json::array()}},
-                        {{"code", 0}, {"indent", 0}, {"parameters", nlohmann::json::array()}}
-                    })},
-                    {"span", 0}
-                }
-            })}
-        }
-    });
+TEST_CASE("BattleManager: troop battle events honor variable conditional branches against live DataManager state",
+          "[battlemgr]") {
+    const nlohmann::json troops = nlohmann::json::array(
+        {nullptr,
+         {{"id", 1},
+          {"name", "Variable Branch Troop"},
+          {"members", nlohmann::json::array({{{"enemyId", 1}}})},
+          {"pages",
+           nlohmann::json::array(
+               {{{"conditions",
+                  {{"actorHp", 50},
+                   {"actorId", 1},
+                   {"actorValid", false},
+                   {"enemyHp", 50},
+                   {"enemyIndex", 0},
+                   {"enemyValid", false},
+                   {"switchId", 1},
+                   {"switchValid", false},
+                   {"turnA", 0},
+                   {"turnB", 0},
+                   {"turnEnding", false},
+                   {"turnValid", true}}},
+                 {"list", nlohmann::json::array(
+                              {{{"code", 111}, {"indent", 0}, {"parameters", nlohmann::json::array({1, 7, 0, 3, 1})}},
+                               {{"code", 122}, {"indent", 1}, {"parameters", nlohmann::json::array({8, 8, 0, 0, 9})}},
+                               {{"code", 411}, {"indent", 0}, {"parameters", nlohmann::json::array()}},
+                               {{"code", 122}, {"indent", 1}, {"parameters", nlohmann::json::array({8, 8, 0, 0, 4})}},
+                               {{"code", 412}, {"indent", 0}, {"parameters", nlohmann::json::array()}},
+                               {{"code", 0}, {"indent", 0}, {"parameters", nlohmann::json::array()}}})},
+                 {"span", 0}}})}}});
 
     const fs::path fixtureDir = writeBattleEventTroopsFixture(troops);
     DataManager::setDataDirectory(fixtureDir.string());
@@ -757,39 +727,30 @@ TEST_CASE("BattleManager: troop battle events honor variable conditional branche
 }
 
 TEST_CASE("BattleManager: turn-span battle events rerun on later eligible turns", "[battlemgr]") {
-    const nlohmann::json troops = nlohmann::json::array({
-        nullptr,
-        {
-            {"id", 1},
-            {"name", "Turn Event Troop"},
-            {"members", nlohmann::json::array({
-                {{"enemyId", 1}}
-            })},
-            {"pages", nlohmann::json::array({
-                {
-                    {"conditions", {
-                        {"actorHp", 50},
-                        {"actorId", 1},
-                        {"actorValid", false},
-                        {"enemyHp", 50},
-                        {"enemyIndex", 0},
-                        {"enemyValid", false},
-                        {"switchId", 1},
-                        {"switchValid", false},
-                        {"turnA", 1},
-                        {"turnB", 1},
-                        {"turnEnding", false},
-                        {"turnValid", true}
-                    }},
-                    {"list", nlohmann::json::array({
-                        {{"code", 122}, {"indent", 0}, {"parameters", nlohmann::json::array({3, 3, 1, 0, 2})}},
-                        {{"code", 0}, {"indent", 0}, {"parameters", nlohmann::json::array()}}
-                    })},
-                    {"span", 1}
-                }
-            })}
-        }
-    });
+    const nlohmann::json troops = nlohmann::json::array(
+        {nullptr,
+         {{"id", 1},
+          {"name", "Turn Event Troop"},
+          {"members", nlohmann::json::array({{{"enemyId", 1}}})},
+          {"pages",
+           nlohmann::json::array(
+               {{{"conditions",
+                  {{"actorHp", 50},
+                   {"actorId", 1},
+                   {"actorValid", false},
+                   {"enemyHp", 50},
+                   {"enemyIndex", 0},
+                   {"enemyValid", false},
+                   {"switchId", 1},
+                   {"switchValid", false},
+                   {"turnA", 1},
+                   {"turnB", 1},
+                   {"turnEnding", false},
+                   {"turnValid", true}}},
+                 {"list", nlohmann::json::array(
+                              {{{"code", 122}, {"indent", 0}, {"parameters", nlohmann::json::array({3, 3, 1, 0, 2})}},
+                               {{"code", 0}, {"indent", 0}, {"parameters", nlohmann::json::array()}}})},
+                 {"span", 1}}})}}});
 
     const fs::path fixtureDir = writeBattleEventTroopsFixture(troops);
     DataManager::setDataDirectory(fixtureDir.string());
@@ -830,11 +791,16 @@ TEST_CASE("BattleManager: method status registry", "[battlemgr]") {
     REQUIRE(BattleManager::getMethodStatus("changeBattleBgm") == CompatStatus::PARTIAL);
     REQUIRE(BattleManager::getMethodStatus("playAnimation") == CompatStatus::FULL);
     REQUIRE(BattleManager::getMethodDeviation("setup").find("partial") != std::string::npos);
-    REQUIRE(BattleManager::getMethodDeviation("applySkill").find("bounded arithmetic formula subset") != std::string::npos);
-    REQUIRE(BattleManager::getMethodDeviation("applyItem").find("bounded arithmetic formula subset") != std::string::npos);
-    REQUIRE(BattleManager::getMethodDeviation("startBattleEvent").find("Conditional Branch currently supports switch, variable") != std::string::npos);
-    REQUIRE(BattleManager::getMethodDeviation("updateBattleEvents").find("Conditional Branch currently supports switch, variable") != std::string::npos);
-    REQUIRE(BattleManager::getMethodDeviation("calculateExp").find("enemy loader is still partial") != std::string::npos);
+    REQUIRE(BattleManager::getMethodDeviation("applySkill").find("bounded arithmetic formula subset") !=
+            std::string::npos);
+    REQUIRE(BattleManager::getMethodDeviation("applyItem").find("bounded arithmetic formula subset") !=
+            std::string::npos);
+    REQUIRE(BattleManager::getMethodDeviation("startBattleEvent")
+                .find("Conditional Branch currently supports switch, variable") != std::string::npos);
+    REQUIRE(BattleManager::getMethodDeviation("updateBattleEvents")
+                .find("Conditional Branch currently supports switch, variable") != std::string::npos);
+    REQUIRE(BattleManager::getMethodDeviation("calculateExp").find("enemy loader is still partial") !=
+            std::string::npos);
     REQUIRE(BattleManager::getMethodStatus("nonexistentMethod") == CompatStatus::UNSUPPORTED);
 }
 
@@ -1031,7 +997,7 @@ TEST_CASE("BattleManager: applyItem heals or damages correctly", "[battlemgr]") 
     REQUIRE(seededActor != nullptr);
 
     bm.applyItem(nullptr, seededActor, 1); // Potion (effect code 11, value2=200)
-    REQUIRE(seededActor->hp == 100); // capped at max
+    REQUIRE(seededActor->hp == 100);       // capped at max
 
     BattleSubject* enemy = bm.getEnemy(0);
     REQUIRE(enemy != nullptr);
@@ -1093,7 +1059,8 @@ TEST_CASE("BattleManager: applyItem exposes unsupported compat formulas and fall
     bm.applyItem(nullptr, enemy, 1);
 
     REQUIRE(enemy->hp == initialHp - 9);
-    REQUIRE(BattleManager::getMethodDeviation("applyItem").find("Last formula fallback: unsupported_formula_symbol:a.level") != std::string::npos);
+    REQUIRE(BattleManager::getMethodDeviation("applyItem")
+                .find("Last formula fallback: unsupported_formula_symbol:a.level") != std::string::npos);
 
     item->damage = originalDamage;
     item->effects = originalEffects;
@@ -1117,7 +1084,7 @@ TEST_CASE("BattleManager: applyExp after battle triggers level-up", "[battlemgr]
 
     BattleManager bm;
     bm.setup(2, true, false); // Goblin gives 20 exp
-    bm.getEnemy(0)->hp = 0; // kill
+    bm.getEnemy(0)->hp = 0;   // kill
     bm.applyExp();
 
     REQUIRE(actor->level == 2);
@@ -1166,7 +1133,8 @@ TEST_CASE("BattleManager: JS bindings return non-default values", "[battlemgr]")
     REQUIRE(turnResult.success);
     REQUIRE(std::get<int64_t>(turnResult.value.v) == 0);
 
-    auto checkResult = ctx.callMethod("BattleManager", "checkTurnCondition", {urpg::Value::Int(1), urpg::Value::Int(0)});
+    auto checkResult =
+        ctx.callMethod("BattleManager", "checkTurnCondition", {urpg::Value::Int(1), urpg::Value::Int(0)});
     REQUIRE(checkResult.success);
     REQUIRE(std::get<int64_t>(checkResult.value.v) == 0);
 

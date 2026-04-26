@@ -13,7 +13,7 @@ TEST_CASE("DiagnosticsFacade - Emits accurate snapshot via facade", "[editor][di
     SECTION("Initial state emission") {
         std::string json_str = facade.emitSnapshot();
         auto json = nlohmann::json::parse(json_str);
-        
+
         REQUIRE(json.contains("active_tab"));
         REQUIRE(json.contains("visible"));
         REQUIRE(json.contains("tabs"));
@@ -28,7 +28,7 @@ TEST_CASE("DiagnosticsFacade - Emits accurate snapshot via facade", "[editor][di
             REQUIRE(json.is_object());
             REQUIRE(json["tabs"].is_array());
         });
-        
+
         REQUIRE(callback_called);
     }
 }

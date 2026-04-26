@@ -3,9 +3,9 @@
 // QuickJS Compat Harness Contract Kernel
 // Phase 2 - Compat Layer
 //
-// This defines the fixture-backed compat-contract harness used by URPG's MZ compatibility layer.
-// This is a fixture-backed compat-contract harness ONLY; live QuickJS runtime integration is out of scope for this file.
-// The harness is isolated from native URPG systems per Invariant 1: "Compat never degrades Native."
+// This defines the QuickJS-backed compat-contract runtime used by URPG's MZ compatibility layer.
+// The runtime executes live JavaScript while preserving fixture directive support for compatibility tests.
+// The runtime is isolated from native URPG systems per Invariant 1: "Compat never degrades Native."
 
 #include "engine/runtimes/bridge/value.h"
 #include <cstdint>
@@ -38,25 +38,25 @@ enum class CompatStatus : uint8_t {
 // Result of a script execution
 struct ScriptResult {
     bool success = false;
-    Value value;                         // Return value (if any)
-    std::string error;                   // Error message (if failed)
+    Value value;       // Return value (if any)
+    std::string error; // Error message (if failed)
     CompatSeverity severity = CompatSeverity::WARN;
-    std::string sourceLocation;          // file:line for diagnostics
+    std::string sourceLocation; // file:line for diagnostics
 };
 
 // Memory/CPU budget tracking for compat lane
 struct CompatBudget {
-    uint32_t cpu_slice_us = 4000;        // Max CPU time per frame for compat lane
-    uint32_t memory_limit_mb = 64;       // Memory ceiling for QuickJS heap
+    uint32_t cpu_slice_us = 4000;  // Max CPU time per frame for compat lane
+    uint32_t memory_limit_mb = 64; // Memory ceiling for QuickJS heap
     bool exceeded_cpu = false;
     bool exceeded_memory = false;
 };
 
 // Virtual filesystem mount point for sandboxed file access
 struct VFSMount {
-    std::string virtualPath;             // Path as seen by JS (e.g., "/data/")
-    std::string realPath;                // Actual filesystem path
-    bool readOnly = true;                // Compat lane is read-only by default
+    std::string virtualPath; // Path as seen by JS (e.g., "/data/")
+    std::string realPath;    // Actual filesystem path
+    bool readOnly = true;    // Compat lane is read-only by default
 };
 
 // QuickJS harness configuration
@@ -69,20 +69,20 @@ struct QuickJSConfig {
     std::string moduleBasePath = "/js/";
 };
 
-// Forward declaration - real QuickJS state remains opaque to the contract when/if integrated
+// Forward declaration - QuickJS state remains opaque to the public contract
 class QuickJSContextImpl;
 
-// QuickJSContext - Contract kernel for the fixture-backed QuickJS compat harness
-// 
+// QuickJSContext - Contract kernel for the QuickJS compat runtime
+//
 // Design principles:
 // 1. All JS→C++ calls go through the Value bridge (no direct type exposure)
 // 2. File access is virtualized through VFSMounts (no direct disk access)
 // 3. Memory and CPU are budgeted and enforceable
 // 4. Errors are always caught and converted to ScriptResult (no exceptions cross boundary)
-// 5. Until real QuickJS integration lands, eval/call semantics are harness-driven rather than live-engine driven
+// 5. Fixture directives remain supported for deterministic compat tests/import flows
 //
 class QuickJSContext {
-public:
+  public:
     QuickJSContext();
     ~QuickJSContext();
 
@@ -92,25 +92,25 @@ public:
     QuickJSContext(QuickJSContext&&) noexcept;
     QuickJSContext& operator=(QuickJSContext&&) noexcept;
 
-    // Initialize the compat harness with configuration
+    // Initialize the compat runtime with configuration
     bool initialize(const QuickJSConfig& config);
 
-    // Evaluate harness-supported script directives or passthrough fixture text
+    // Evaluate live JavaScript or harness-supported script directives
     ScriptResult eval(const std::string& code, const std::string& filename = "<eval>");
 
-    // Evaluate a script string within a specific local scope for harness/testing flows
-    ScriptResult evalWithScope(const std::string& code, const std::map<std::string, Value>& scope, const std::string& filename = "<eval>");
+    // Evaluate a script string after binding scope values as globals
+    ScriptResult evalWithScope(const std::string& code, const std::map<std::string, Value>& scope,
+                               const std::string& filename = "<eval>");
 
-    // Load and evaluate a module through the harness loader hook
+    // Load and evaluate a module through the loader hook
     ScriptResult evalModule(const std::string& filename);
 
     // Call a global function with arguments
     ScriptResult call(const std::string& functionName, const std::vector<Value>& args);
 
     // Call a method on an object
-    ScriptResult callMethod(const std::string& objectName, 
-                           const std::string& methodName,
-                           const std::vector<Value>& args);
+    ScriptResult callMethod(const std::string& objectName, const std::string& methodName,
+                            const std::vector<Value>& args);
 
     // Get/set global variable
     std::optional<Value> getGlobal(const std::string& name);
@@ -126,7 +126,7 @@ public:
         std::string name;
         HostFunction fn;
         CompatStatus status = CompatStatus::STUB;
-        std::string deviationNote{};    // Required if status == PARTIAL
+        std::string deviationNote{}; // Required if status == PARTIAL
     };
     bool registerObject(const std::string& name, const std::vector<MethodDef>& methods);
 
@@ -156,12 +156,11 @@ public:
         uint32_t callCount = 0;
         uint32_t failCount = 0;
     };
-    void registerAPIStatus(const std::string& apiName, CompatStatus status, 
-                          const std::string& deviationNote = "");
+    void registerAPIStatus(const std::string& apiName, CompatStatus status, const std::string& deviationNote = "");
     APIStatus getAPIStatus(const std::string& apiName) const;
     std::vector<APIStatus> getAllAPIStatuses() const;
 
-private:
+  private:
     std::unique_ptr<QuickJSContextImpl> impl_;
     std::unordered_map<std::string, APIStatus> apiRegistry_;
     QuickJSConfig config_;
@@ -170,13 +169,12 @@ private:
     ModuleLoader moduleLoader_;
 };
 
-// QuickJSRuntime - Manages multiple isolated compat-harness contexts
+// QuickJSRuntime - Manages multiple isolated compat runtime contexts
 //
-// Each MZ plugin can run in its own isolated harness context for fixture-backed testing/import flows.
-// This does not imply live production JS execution support yet.
+// Each MZ plugin can run in its own isolated context for live execution and fixture-backed testing/import flows.
 //
 class QuickJSRuntime {
-public:
+  public:
     QuickJSRuntime();
     ~QuickJSRuntime();
 
@@ -184,13 +182,12 @@ public:
     QuickJSRuntime(const QuickJSRuntime&) = delete;
     QuickJSRuntime& operator=(const QuickJSRuntime&) = delete;
 
-    // Initialize the compat harness runtime wrapper
+    // Initialize the compat runtime wrapper
     bool initialize();
 
     // Create a new isolated context for a plugin
     // pluginId is used for diagnostics and budget tracking
-    std::optional<uint32_t> createContext(const std::string& pluginId, 
-                                          const QuickJSConfig& config);
+    std::optional<uint32_t> createContext(const std::string& pluginId, const QuickJSConfig& config);
 
     // Get context by ID
     QuickJSContext* getContext(uint32_t contextId);
@@ -214,7 +211,7 @@ public:
     // Get all registered API statuses across contexts
     std::unordered_map<std::string, QuickJSContext::APIStatus> getAllAPIStatuses() const;
 
-private:
+  private:
     struct Impl;
     std::unique_ptr<Impl> impl_;
 };

@@ -9,7 +9,7 @@ namespace urpg::ui {
  * @brief Serialization and Import logic for MenuSceneGraph.
  */
 class MenuSceneSerializer {
-public:
+  public:
     /**
      * @brief Populate a MenuSceneGraph from the native URPG JSON format.
      */
@@ -35,7 +35,7 @@ public:
 
     /**
      * @brief Import legacy RPG Maker (MV/MZ) menu data into URPG format.
-     * 
+     *
      * Handles mapping of Window_Command children and Handler bindings.
      */
     static bool ImportLegacy(const nlohmann::json& legacy_data, MenuSceneGraph& out_graph);

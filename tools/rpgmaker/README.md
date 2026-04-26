@@ -18,7 +18,10 @@ Reports:
 
 ## Plugin drop-in validation
 
-Validates plugin JS headers and detects duplicate stem/key conflicts across staged drop-ins.
+Validates plugin JS headers and detects duplicate stem/key conflicts across release drop-ins. With no
+`-PluginRoot`, the validator uses the curated release tree when present and falls back to raw staged
+DLC only before curation has been generated. Use `-PluginRoot third_party\rpgmaker-mz\steam-dlc\plugin-dropins\js\plugins`
+when auditing raw vendor intake collisions.
 
 ```powershell
 .\tools\rpgmaker\validate-plugin-dropins.ps1
@@ -46,6 +49,7 @@ Reports:
 - `third_party/rpgmaker-mz/steam-dlc/reports/plugin_dropins_curated_summary.json`
 - `third_party/rpgmaker-mz/steam-dlc/reports/plugin_dropins_curated_manifest.csv`
 - `third_party/rpgmaker-mz/steam-dlc/reports/plugin_dropins_curated_conflicts.csv`
+- `third_party/rpgmaker-mz/steam-dlc/reports/plugin_dropins_release_manifest.json`
 - `third_party/rpgmaker-mz/steam-dlc/reports/plugin_dropins_curated_validation_summary.json`
 - `third_party/rpgmaker-mz/steam-dlc/reports/plugin_dropins_curated_validation_files.csv`
 - `third_party/rpgmaker-mz/steam-dlc/reports/plugin_dropins_curated_validation_issues.csv`

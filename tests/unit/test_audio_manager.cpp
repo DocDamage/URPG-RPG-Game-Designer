@@ -5,6 +5,21 @@
 
 using namespace urpg::compat;
 
+namespace {
+
+double numericValueAsDouble(const urpg::Value& value) {
+    if (const auto* asDouble = std::get_if<double>(&value.v)) {
+        return *asDouble;
+    }
+    if (const auto* asInt = std::get_if<int64_t>(&value.v)) {
+        return static_cast<double>(*asInt);
+    }
+    FAIL("Expected numeric Value variant");
+    return 0.0;
+}
+
+} // namespace
+
 TEST_CASE("AudioManager: channel lifecycle", "[audio_manager]") {
     AudioManager& am = AudioManager::instance();
 
@@ -350,7 +365,8 @@ TEST_CASE("AudioManager: method status registry", "[audio_manager]") {
     REQUIRE(AudioManager::getMethodStatus("createChannel") == CompatStatus::PARTIAL);
     REQUIRE(AudioManager::getMethodDeviation("duckBgm").find("live mixer") != std::string::npos);
     REQUIRE(AudioManager::getMethodDeviation("getCurrentBgm").find("deterministic harness") != std::string::npos);
-    REQUIRE(AudioManager::getMethodDeviation("playBgm").find("deterministic harness playback state") != std::string::npos);
+    REQUIRE(AudioManager::getMethodDeviation("playBgm").find("deterministic harness playback state") !=
+            std::string::npos);
     REQUIRE(AudioManager::getMethodDeviation("setMasterVolume").find("mix scaling") != std::string::npos);
     REQUIRE(AudioManager::getMethodDeviation("createChannel").find("harness channels") != std::string::npos);
     REQUIRE(AudioManager::getMethodStatus("nonexistentMethod") == CompatStatus::UNSUPPORTED);
@@ -375,8 +391,7 @@ TEST_CASE("AudioManager: QuickJS API routes into deterministic compat audio stat
     urpg::Value playName;
     playName.v = std::string("js_theme");
 
-    auto playResult = ctx.callMethod("AudioManager",
-                                     "playBgm",
+    auto playResult = ctx.callMethod("AudioManager", "playBgm",
                                      {playName, urpg::Value::Int(80), urpg::Value::Int(100), urpg::Value::Int(7)});
     REQUIRE(playResult.success);
     REQUIRE(am.isBgmPlaying());
@@ -393,7 +408,7 @@ TEST_CASE("AudioManager: QuickJS API routes into deterministic compat audio stat
     REQUIRE(std::holds_alternative<urpg::Object>(currentBgmResult.value.v));
     const auto& bgmObj = std::get<urpg::Object>(currentBgmResult.value.v);
     REQUIRE(std::get<std::string>(bgmObj.at("name").v) == "js_theme");
-    REQUIRE(std::get<double>(bgmObj.at("volume").v) == Catch::Approx(80.0));
+    REQUIRE(numericValueAsDouble(bgmObj.at("volume")) == Catch::Approx(80.0));
     REQUIRE(std::get<int64_t>(bgmObj.at("pos").v) == 7);
 
     auto pauseResult = ctx.callMethod("AudioManager", "pauseBgm", {});
@@ -406,8 +421,7 @@ TEST_CASE("AudioManager: QuickJS API routes into deterministic compat audio stat
 
     urpg::Value bgsName;
     bgsName.v = std::string("js_rain");
-    auto playBgsResult = ctx.callMethod("AudioManager",
-                                        "playBgs",
+    auto playBgsResult = ctx.callMethod("AudioManager", "playBgs",
                                         {bgsName, urpg::Value::Int(70), urpg::Value::Int(100), urpg::Value::Int(2)});
     REQUIRE(playBgsResult.success);
     AudioChannel* bgs = am.getChannel("bgs");
@@ -437,9 +451,11 @@ TEST_CASE("AudioManager: QuickJS API routes into deterministic compat audio stat
     REQUIRE(getMasterResult.success);
     REQUIRE(std::get<double>(getMasterResult.value.v) == Catch::Approx(0.5));
 
-    auto setBusResult = ctx.callMethod("AudioManager", "setBusVolume", {urpg::Value::Int(static_cast<int64_t>(AudioBus::BGM)), urpg::Value::Int(25)});
+    auto setBusResult = ctx.callMethod("AudioManager", "setBusVolume",
+                                       {urpg::Value::Int(static_cast<int64_t>(AudioBus::BGM)), urpg::Value::Int(25)});
     REQUIRE(setBusResult.success);
-    auto getBusResult = ctx.callMethod("AudioManager", "getBusVolume", {urpg::Value::Int(static_cast<int64_t>(AudioBus::BGM))});
+    auto getBusResult =
+        ctx.callMethod("AudioManager", "getBusVolume", {urpg::Value::Int(static_cast<int64_t>(AudioBus::BGM))});
     REQUIRE(getBusResult.success);
     REQUIRE(std::get<double>(getBusResult.value.v) == Catch::Approx(0.25));
 
@@ -467,6 +483,55 @@ TEST_CASE("AudioManager: QuickJS API routes into deterministic compat audio stat
     am.stopBgs();
     am.stopMe();
     am.stopSe();
+}
+
+TEST_CASE("AudioManager: bound AudioCore receives compat playback calls", "[audio_manager][audio][runtime]") {
+    AudioManager& am = AudioManager::instance();
+    am.stopBgm();
+    am.stopBgs();
+    am.stopMe();
+    am.stopSe();
+    am.setMasterVolume(1.0);
+    am.setBusVolume(AudioBus::BGM, 1.0);
+    am.setBusVolume(AudioBus::BGS, 1.0);
+    am.setBusVolume(AudioBus::ME, 1.0);
+    am.setBusVolume(AudioBus::SE, 1.0);
+
+    urpg::audio::AudioCore core;
+    am.bindAudioCore(&core);
+    REQUIRE(am.boundAudioCore() == &core);
+
+    am.playBgm("compat_bgm", 80.0, 100.0);
+    REQUIRE(core.currentBGM() == "compat_bgm");
+
+    am.playBgs("compat_bgs", 70.0, 100.0);
+    REQUIRE(core.currentBGS() == "compat_bgs");
+
+    am.playMe("compat_me", 60.0, 100.0);
+    am.playSe("compat_se", 50.0, 100.0);
+    REQUIRE(core.activeSources().size() == 4);
+
+    am.setMasterVolume(0.5);
+    am.setBusVolume(AudioBus::SE, 0.25);
+    REQUIRE(core.getCategoryVolume(urpg::audio::AudioCategory::SE) == Catch::Approx(0.125f));
+
+    am.stopSe();
+    REQUIRE(core.activeSources().size() == 3);
+    am.stopMe();
+    REQUIRE(core.activeSources().size() == 2);
+    am.stopBgs();
+    REQUIRE(core.currentBGS().empty());
+    am.stopBgm();
+    REQUIRE(core.currentBGM().empty());
+    REQUIRE(core.activeSources().empty());
+
+    am.bindAudioCore(nullptr);
+    REQUIRE(am.boundAudioCore() == nullptr);
+    am.setMasterVolume(1.0);
+    am.setBusVolume(AudioBus::BGM, 1.0);
+    am.setBusVolume(AudioBus::BGS, 1.0);
+    am.setBusVolume(AudioBus::ME, 1.0);
+    am.setBusVolume(AudioBus::SE, 1.0);
 }
 
 TEST_CASE("AudioChannel: state and controls", "[audio_manager]") {

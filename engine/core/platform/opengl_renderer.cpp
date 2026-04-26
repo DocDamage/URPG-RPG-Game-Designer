@@ -7,10 +7,15 @@
 #if defined(__clang__)
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wunused-function"
+#elif defined(__GNUC__)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-function"
 #endif
 #include <stb_easy_font.h>
 #if defined(__clang__)
 #pragma clang diagnostic pop
+#elif defined(__GNUC__)
+#pragma GCC diagnostic pop
 #endif
 
 #include <algorithm>
@@ -19,12 +24,12 @@
 #include <cmath>
 #include <cstddef>
 #include <cstdint>
-#include <iostream>
 #include <memory>
 #include <string>
 #include <string_view>
 #include <vector>
 
+#include "engine/core/diagnostics/runtime_diagnostics.h"
 #include "engine/core/render/asset_loader.h"
 
 namespace urpg {
@@ -80,43 +85,33 @@ struct GlImmediateApi {
     PFNGLACTIVETEXTUREPROC activeTexture = nullptr;
 };
 
-template <typename T>
-bool loadGlProc(T& target, const char* name) {
+template<typename T> bool loadGlProc(T& target, const char* name) {
     target = reinterpret_cast<T>(SDL_GL_GetProcAddress(name));
     if (target == nullptr) {
-        std::cerr << "[URPG][OpenGL] Failed to load GL proc: " << name << "\n";
+        diagnostics::RuntimeDiagnostics::error("platform.opengl", "opengl.proc_load_failed",
+                                               std::string("Failed to load GL proc: ") + name);
         return false;
     }
     return true;
 }
 
 bool loadImmediateApi(GlImmediateApi& api) {
-    return loadGlProc(api.createShader, "glCreateShader")
-        && loadGlProc(api.shaderSource, "glShaderSource")
-        && loadGlProc(api.compileShader, "glCompileShader")
-        && loadGlProc(api.getShaderiv, "glGetShaderiv")
-        && loadGlProc(api.getShaderInfoLog, "glGetShaderInfoLog")
-        && loadGlProc(api.deleteShader, "glDeleteShader")
-        && loadGlProc(api.createProgram, "glCreateProgram")
-        && loadGlProc(api.attachShader, "glAttachShader")
-        && loadGlProc(api.linkProgram, "glLinkProgram")
-        && loadGlProc(api.getProgramiv, "glGetProgramiv")
-        && loadGlProc(api.getProgramInfoLog, "glGetProgramInfoLog")
-        && loadGlProc(api.deleteProgram, "glDeleteProgram")
-        && loadGlProc(api.useProgram, "glUseProgram")
-        && loadGlProc(api.genVertexArrays, "glGenVertexArrays")
-        && loadGlProc(api.deleteVertexArrays, "glDeleteVertexArrays")
-        && loadGlProc(api.bindVertexArray, "glBindVertexArray")
-        && loadGlProc(api.genBuffers, "glGenBuffers")
-        && loadGlProc(api.deleteBuffers, "glDeleteBuffers")
-        && loadGlProc(api.bindBuffer, "glBindBuffer")
-        && loadGlProc(api.bufferData, "glBufferData")
-        && loadGlProc(api.enableVertexAttribArray, "glEnableVertexAttribArray")
-        && loadGlProc(api.vertexAttribPointer, "glVertexAttribPointer")
-        && loadGlProc(api.getUniformLocation, "glGetUniformLocation")
-        && loadGlProc(api.uniform1i, "glUniform1i")
-        && loadGlProc(api.uniform2f, "glUniform2f")
-        && loadGlProc(api.activeTexture, "glActiveTexture");
+    return loadGlProc(api.createShader, "glCreateShader") && loadGlProc(api.shaderSource, "glShaderSource") &&
+           loadGlProc(api.compileShader, "glCompileShader") && loadGlProc(api.getShaderiv, "glGetShaderiv") &&
+           loadGlProc(api.getShaderInfoLog, "glGetShaderInfoLog") && loadGlProc(api.deleteShader, "glDeleteShader") &&
+           loadGlProc(api.createProgram, "glCreateProgram") && loadGlProc(api.attachShader, "glAttachShader") &&
+           loadGlProc(api.linkProgram, "glLinkProgram") && loadGlProc(api.getProgramiv, "glGetProgramiv") &&
+           loadGlProc(api.getProgramInfoLog, "glGetProgramInfoLog") &&
+           loadGlProc(api.deleteProgram, "glDeleteProgram") && loadGlProc(api.useProgram, "glUseProgram") &&
+           loadGlProc(api.genVertexArrays, "glGenVertexArrays") &&
+           loadGlProc(api.deleteVertexArrays, "glDeleteVertexArrays") &&
+           loadGlProc(api.bindVertexArray, "glBindVertexArray") && loadGlProc(api.genBuffers, "glGenBuffers") &&
+           loadGlProc(api.deleteBuffers, "glDeleteBuffers") && loadGlProc(api.bindBuffer, "glBindBuffer") &&
+           loadGlProc(api.bufferData, "glBufferData") &&
+           loadGlProc(api.enableVertexAttribArray, "glEnableVertexAttribArray") &&
+           loadGlProc(api.vertexAttribPointer, "glVertexAttribPointer") &&
+           loadGlProc(api.getUniformLocation, "glGetUniformLocation") && loadGlProc(api.uniform1i, "glUniform1i") &&
+           loadGlProc(api.uniform2f, "glUniform2f") && loadGlProc(api.activeTexture, "glActiveTexture");
 }
 
 GlImmediateApi g_gl;
@@ -129,45 +124,21 @@ float pixelToNdcY(float y, int viewportHeight) {
     return 1.0f - ((y / static_cast<float>(std::max(viewportHeight, 1))) * 2.0f);
 }
 
-ImmediateColorVertex makeVertex(
-    float x,
-    float y,
-    int viewportWidth,
-    int viewportHeight,
-    float r,
-    float g,
-    float b,
-    float a) {
+ImmediateColorVertex makeVertex(float x, float y, int viewportWidth, int viewportHeight, float r, float g, float b,
+                                float a) {
     return {
-        pixelToNdcX(x, viewportWidth),
-        pixelToNdcY(y, viewportHeight),
-        r,
-        g,
-        b,
-        a,
+        pixelToNdcX(x, viewportWidth), pixelToNdcY(y, viewportHeight), r, g, b, a,
     };
 }
 
-void appendQuad(
-    std::vector<ImmediateColorVertex>& vertices,
-    float x,
-    float y,
-    float w,
-    float h,
-    int viewportWidth,
-    int viewportHeight,
-    float r,
-    float g,
-    float b,
-    float a) {
+void appendQuad(std::vector<ImmediateColorVertex>& vertices, float x, float y, float w, float h, int viewportWidth,
+                int viewportHeight, float r, float g, float b, float a) {
     const auto topLeft = makeVertex(x, y, viewportWidth, viewportHeight, r, g, b, a);
     const auto topRight = makeVertex(x + w, y, viewportWidth, viewportHeight, r, g, b, a);
     const auto bottomLeft = makeVertex(x, y + h, viewportWidth, viewportHeight, r, g, b, a);
     const auto bottomRight = makeVertex(x + w, y + h, viewportWidth, viewportHeight, r, g, b, a);
 
-    vertices.insert(
-        vertices.end(),
-        {topLeft, bottomLeft, topRight, topRight, bottomLeft, bottomRight});
+    vertices.insert(vertices.end(), {topLeft, bottomLeft, topRight, topRight, bottomLeft, bottomRight});
 }
 
 std::vector<float> flattenVertices(const std::vector<ImmediateColorVertex>& vertices) {
@@ -186,24 +157,11 @@ std::vector<float> flattenVertices(const std::vector<ImmediateColorVertex>& vert
     return flattened;
 }
 
-std::vector<float> buildRectBatch(
-    const RectCommand& command,
-    int viewportWidth,
-    int viewportHeight) {
+std::vector<float> buildRectBatch(const RectCommand& command, int viewportWidth, int viewportHeight) {
     std::vector<ImmediateColorVertex> vertices;
     vertices.reserve(6);
-    appendQuad(
-        vertices,
-        command.x,
-        command.y,
-        command.w,
-        command.h,
-        viewportWidth,
-        viewportHeight,
-        command.r,
-        command.g,
-        command.b,
-        command.a);
+    appendQuad(vertices, command.x, command.y, command.w, command.h, viewportWidth, viewportHeight, command.r,
+               command.g, command.b, command.a);
     return flattenVertices(vertices);
 }
 
@@ -223,58 +181,23 @@ std::array<float, 4> colorFromHash(uint32_t hash, float alpha = 1.0f) {
     return {r, g, b, alpha};
 }
 
-std::vector<float> buildPlaceholderQuadBatch(
-    float x,
-    float y,
-    float w,
-    float h,
-    int viewportWidth,
-    int viewportHeight,
-    const std::array<float, 4>& fillColor,
-    const std::array<float, 4>& accentColor) {
+std::vector<float> buildPlaceholderQuadBatch(float x, float y, float w, float h, int viewportWidth, int viewportHeight,
+                                             const std::array<float, 4>& fillColor,
+                                             const std::array<float, 4>& accentColor) {
     std::vector<ImmediateColorVertex> vertices;
     vertices.reserve(18);
 
-    appendQuad(
-        vertices,
-        x,
-        y,
-        w,
-        h,
-        viewportWidth,
-        viewportHeight,
-        fillColor[0],
-        fillColor[1],
-        fillColor[2],
-        fillColor[3]);
+    appendQuad(vertices, x, y, w, h, viewportWidth, viewportHeight, fillColor[0], fillColor[1], fillColor[2],
+               fillColor[3]);
 
     const float accentInset = std::max(2.0f, std::min(w, h) * 0.18f);
-    appendQuad(
-        vertices,
-        x + accentInset,
-        y + accentInset,
-        std::max(1.0f, w - accentInset * 2.0f),
-        std::max(1.0f, h - accentInset * 2.0f),
-        viewportWidth,
-        viewportHeight,
-        accentColor[0],
-        accentColor[1],
-        accentColor[2],
-        accentColor[3]);
+    appendQuad(vertices, x + accentInset, y + accentInset, std::max(1.0f, w - accentInset * 2.0f),
+               std::max(1.0f, h - accentInset * 2.0f), viewportWidth, viewportHeight, accentColor[0], accentColor[1],
+               accentColor[2], accentColor[3]);
 
     const float stripeWidth = std::max(2.0f, std::min(w, h) * 0.12f);
-    appendQuad(
-        vertices,
-        x,
-        y,
-        stripeWidth,
-        h,
-        viewportWidth,
-        viewportHeight,
-        accentColor[0],
-        accentColor[1],
-        accentColor[2],
-        std::min(fillColor[3] + 0.15f, 1.0f));
+    appendQuad(vertices, x, y, stripeWidth, h, viewportWidth, viewportHeight, accentColor[0], accentColor[1],
+               accentColor[2], std::min(fillColor[3] + 0.15f, 1.0f));
 
     return flattenVertices(vertices);
 }
@@ -291,8 +214,7 @@ float normalizeSpriteOpacity(float opacity) {
     return std::clamp(opacity / 255.0f, 0.0f, 1.0f);
 }
 
-SpriteDrawData buildSpriteCommandBatch(const SpriteCommand& command,
-                                       const GLTexture& texture) {
+SpriteDrawData buildSpriteCommandBatch(const SpriteCommand& command, const GLTexture& texture) {
     const auto makeSpriteVertex = [](float x, float y, float z, float u, float v, float alpha) {
         SpriteVertex vertex{};
         vertex.position[0] = x;
@@ -335,8 +257,7 @@ SpriteDrawData buildSpriteCommandBatch(const SpriteCommand& command,
     return batch;
 }
 
-SpriteDrawData buildTileCommandBatch(const TileCommand& command,
-                                     const GLTexture& texture) {
+SpriteDrawData buildTileCommandBatch(const TileCommand& command, const GLTexture& texture) {
     constexpr float kTileSize = 48.0f;
     const int32_t tilesetWidthInTiles = std::max(texture.width / static_cast<int32_t>(kTileSize), 1);
     const int32_t safeTileIndex = std::max(command.tileIndex, 0);
@@ -409,8 +330,8 @@ char32_t decodeUtf8Codepoint(const std::string& text, size_t& cursor) {
         const unsigned char b3 = static_cast<unsigned char>(text[cursor + 3]);
         if ((b1 & 0xC0) == 0x80 && (b2 & 0xC0) == 0x80 && (b3 & 0xC0) == 0x80) {
             cursor += 4;
-            return static_cast<char32_t>(
-                ((lead & 0x07) << 18) | ((b1 & 0x3F) << 12) | ((b2 & 0x3F) << 6) | (b3 & 0x3F));
+            return static_cast<char32_t>(((lead & 0x07) << 18) | ((b1 & 0x3F) << 12) | ((b2 & 0x3F) << 6) |
+                                         (b3 & 0x3F));
         }
     }
 
@@ -493,23 +414,15 @@ std::string wrapTextForRenderer(const TextCommand& command) {
     return wrapped;
 }
 
-std::vector<float> buildTextBatch(
-    const TextCommand& command,
-    int viewportWidth,
-    int viewportHeight) {
+std::vector<float> buildTextBatch(const TextCommand& command, int viewportWidth, int viewportHeight) {
     const std::string wrappedText = wrapTextForRenderer(command);
     if (wrappedText.empty()) {
         return {};
     }
 
     std::array<char, kEasyFontVertexBufferSize> quadBuffer{};
-    const int quadCount = stb_easy_font_print(
-        0.0f,
-        0.0f,
-        const_cast<char*>(wrappedText.c_str()),
-        nullptr,
-        quadBuffer.data(),
-        static_cast<int>(quadBuffer.size()));
+    const int quadCount = stb_easy_font_print(0.0f, 0.0f, const_cast<char*>(wrappedText.c_str()), nullptr,
+                                              quadBuffer.data(), static_cast<int>(quadBuffer.size()));
 
     if (quadCount <= 0) {
         return {};
@@ -528,15 +441,8 @@ std::vector<float> buildTextBatch(
     for (int quadIndex = 0; quadIndex < quadCount; ++quadIndex) {
         const auto* quad = easyVertices + (quadIndex * 4);
         const auto convert = [&](const EasyFontVertex& vertex) {
-            return makeVertex(
-                command.x + (vertex.x * scale),
-                command.y + (vertex.y * scale),
-                viewportWidth,
-                viewportHeight,
-                r,
-                g,
-                b,
-                a);
+            return makeVertex(command.x + (vertex.x * scale), command.y + (vertex.y * scale), viewportWidth,
+                              viewportHeight, r, g, b, a);
         };
 
         const auto topLeft = convert(quad[0]);
@@ -544,9 +450,7 @@ std::vector<float> buildTextBatch(
         const auto bottomRight = convert(quad[2]);
         const auto bottomLeft = convert(quad[3]);
 
-        vertices.insert(
-            vertices.end(),
-            {topLeft, bottomLeft, topRight, topRight, bottomLeft, bottomRight});
+        vertices.insert(vertices.end(), {topLeft, bottomLeft, topRight, topRight, bottomLeft, bottomRight});
     }
 
     return flattenVertices(vertices);
@@ -565,7 +469,8 @@ uint32_t compileShader(GLenum type, const char* source) {
 
     char infoLog[1024] = {};
     g_gl.getShaderInfoLog(shader, static_cast<GLsizei>(sizeof(infoLog)), nullptr, infoLog);
-    std::cerr << "[URPG][OpenGL] Shader compile failed: " << infoLog << "\n";
+    diagnostics::RuntimeDiagnostics::error("platform.opengl", "opengl.shader_compile_failed",
+                                           std::string("Shader compile failed: ") + infoLog);
     g_gl.deleteShader(shader);
     return 0;
 }
@@ -631,7 +536,8 @@ void main() {
 
 bool OpenGLRenderer::initialize(IPlatformSurface* surface) {
     m_surface = surface;
-    std::cout << "[URPG][OpenGL] Initializing OpenGL 3.3 Backend (TIER_BASIC)\n";
+    diagnostics::RuntimeDiagnostics::info("platform.opengl", "opengl.backend_initializing",
+                                          "Initializing OpenGL 3.3 Backend (TIER_BASIC)");
 
     if (!loadImmediateApi(g_gl)) {
         return false;
@@ -731,7 +637,8 @@ void OpenGLRenderer::setupDefaultShaders() {
     if (success != GL_TRUE) {
         char infoLog[1024] = {};
         g_gl.getProgramInfoLog(m_shaderProgram, static_cast<GLsizei>(sizeof(infoLog)), nullptr, infoLog);
-        std::cerr << "[URPG][OpenGL] Program link failed: " << infoLog << "\n";
+        diagnostics::RuntimeDiagnostics::error("platform.opengl", "opengl.program_link_failed",
+                                               std::string("Program link failed: ") + infoLog);
         g_gl.deleteProgram(m_shaderProgram);
         m_shaderProgram = 0;
     }
@@ -760,7 +667,8 @@ void OpenGLRenderer::setupDefaultShaders() {
     if (success != GL_TRUE) {
         char infoLog[1024] = {};
         g_gl.getProgramInfoLog(m_texturedShaderProgram, static_cast<GLsizei>(sizeof(infoLog)), nullptr, infoLog);
-        std::cerr << "[URPG][OpenGL] Textured program link failed: " << infoLog << "\n";
+        diagnostics::RuntimeDiagnostics::error("platform.opengl", "opengl.textured_program_link_failed",
+                                               std::string("Textured program link failed: ") + infoLog);
         g_gl.deleteProgram(m_texturedShaderProgram);
         m_texturedShaderProgram = 0;
     }
@@ -782,22 +690,12 @@ void OpenGLRenderer::setupDrawBuffers() {
     g_gl.bufferData(GL_ARRAY_BUFFER, 0, nullptr, GL_DYNAMIC_DRAW);
 
     g_gl.enableVertexAttribArray(0);
-    g_gl.vertexAttribPointer(
-        0,
-        2,
-        GL_FLOAT,
-        GL_FALSE,
-        sizeof(ImmediateColorVertex),
-        reinterpret_cast<void*>(offsetof(ImmediateColorVertex, x)));
+    g_gl.vertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(ImmediateColorVertex),
+                             reinterpret_cast<void*>(offsetof(ImmediateColorVertex, x)));
 
     g_gl.enableVertexAttribArray(1);
-    g_gl.vertexAttribPointer(
-        1,
-        4,
-        GL_FLOAT,
-        GL_FALSE,
-        sizeof(ImmediateColorVertex),
-        reinterpret_cast<void*>(offsetof(ImmediateColorVertex, r)));
+    g_gl.vertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, sizeof(ImmediateColorVertex),
+                             reinterpret_cast<void*>(offsetof(ImmediateColorVertex, r)));
 
     g_gl.bindBuffer(GL_ARRAY_BUFFER, 0);
     g_gl.bindVertexArray(0);
@@ -820,31 +718,16 @@ void OpenGLRenderer::setupDrawBuffers() {
     g_gl.bufferData(GL_ARRAY_BUFFER, 0, nullptr, GL_DYNAMIC_DRAW);
 
     g_gl.enableVertexAttribArray(0);
-    g_gl.vertexAttribPointer(
-        0,
-        3,
-        GL_FLOAT,
-        GL_FALSE,
-        sizeof(SpriteVertex),
-        reinterpret_cast<void*>(offsetof(SpriteVertex, position)));
+    g_gl.vertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(SpriteVertex),
+                             reinterpret_cast<void*>(offsetof(SpriteVertex, position)));
 
     g_gl.enableVertexAttribArray(1);
-    g_gl.vertexAttribPointer(
-        1,
-        2,
-        GL_FLOAT,
-        GL_FALSE,
-        sizeof(SpriteVertex),
-        reinterpret_cast<void*>(offsetof(SpriteVertex, uv)));
+    g_gl.vertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(SpriteVertex),
+                             reinterpret_cast<void*>(offsetof(SpriteVertex, uv)));
 
     g_gl.enableVertexAttribArray(2);
-    g_gl.vertexAttribPointer(
-        2,
-        4,
-        GL_FLOAT,
-        GL_FALSE,
-        sizeof(SpriteVertex),
-        reinterpret_cast<void*>(offsetof(SpriteVertex, color)));
+    g_gl.vertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, sizeof(SpriteVertex),
+                             reinterpret_cast<void*>(offsetof(SpriteVertex, color)));
 
     g_gl.bindBuffer(GL_ARRAY_BUFFER, 0);
     g_gl.bindVertexArray(0);
@@ -868,105 +751,105 @@ void OpenGLRenderer::processCommands(const std::vector<std::shared_ptr<RenderCom
 
 void OpenGLRenderer::processFrameCommand(const FrameRenderCommand& command) {
     switch (command.type) {
-        case RenderCmdType::Sprite: {
-            const auto* spriteData = command.tryGet<SpriteRenderData>();
-            if (spriteData == nullptr) {
-                break;
-            }
-
-            SpriteCommand legacy;
-            legacy.zOrder = command.zOrder;
-            legacy.x = command.x;
-            legacy.y = command.y;
-            legacy.textureId = spriteData->textureId;
-            legacy.srcX = spriteData->srcX;
-            legacy.srcY = spriteData->srcY;
-            legacy.width = spriteData->width;
-            legacy.height = spriteData->height;
-            legacy.opacity = spriteData->opacity;
-            drawSpriteCommand(legacy);
+    case RenderCmdType::Sprite: {
+        const auto* spriteData = command.tryGet<SpriteRenderData>();
+        if (spriteData == nullptr) {
             break;
         }
-        case RenderCmdType::Tile: {
-            const auto* tileData = command.tryGet<TileRenderData>();
-            if (tileData == nullptr) {
-                break;
-            }
 
-            TileCommand legacy;
-            legacy.zOrder = command.zOrder;
-            legacy.x = command.x;
-            legacy.y = command.y;
-            legacy.tilesetId = tileData->tilesetId;
-            legacy.tileIndex = tileData->tileIndex;
-            drawTileCommand(legacy);
+        SpriteCommand legacy;
+        legacy.zOrder = command.zOrder;
+        legacy.x = command.x;
+        legacy.y = command.y;
+        legacy.textureId = spriteData->textureId;
+        legacy.srcX = spriteData->srcX;
+        legacy.srcY = spriteData->srcY;
+        legacy.width = spriteData->width;
+        legacy.height = spriteData->height;
+        legacy.opacity = spriteData->opacity;
+        drawSpriteCommand(legacy);
+        break;
+    }
+    case RenderCmdType::Tile: {
+        const auto* tileData = command.tryGet<TileRenderData>();
+        if (tileData == nullptr) {
             break;
         }
-        case RenderCmdType::Text: {
-            const auto* textData = command.tryGet<TextRenderData>();
-            if (textData == nullptr) {
-                break;
-            }
 
-            TextCommand legacy;
-            legacy.zOrder = command.zOrder;
-            legacy.x = command.x;
-            legacy.y = command.y;
-            legacy.text = textData->text;
-            legacy.fontFace = textData->fontFace;
-            legacy.fontSize = textData->fontSize;
-            legacy.maxWidth = textData->maxWidth;
-            legacy.r = textData->r;
-            legacy.g = textData->g;
-            legacy.b = textData->b;
-            legacy.a = textData->a;
-            drawTextCommand(legacy);
+        TileCommand legacy;
+        legacy.zOrder = command.zOrder;
+        legacy.x = command.x;
+        legacy.y = command.y;
+        legacy.tilesetId = tileData->tilesetId;
+        legacy.tileIndex = tileData->tileIndex;
+        drawTileCommand(legacy);
+        break;
+    }
+    case RenderCmdType::Text: {
+        const auto* textData = command.tryGet<TextRenderData>();
+        if (textData == nullptr) {
             break;
         }
-        case RenderCmdType::Rect: {
-            const auto* rectData = command.tryGet<RectRenderData>();
-            if (rectData == nullptr) {
-                break;
-            }
 
-            RectCommand legacy;
-            legacy.zOrder = command.zOrder;
-            legacy.x = command.x;
-            legacy.y = command.y;
-            legacy.w = rectData->w;
-            legacy.h = rectData->h;
-            legacy.r = rectData->r;
-            legacy.g = rectData->g;
-            legacy.b = rectData->b;
-            legacy.a = rectData->a;
-            drawRectCommand(legacy);
+        TextCommand legacy;
+        legacy.zOrder = command.zOrder;
+        legacy.x = command.x;
+        legacy.y = command.y;
+        legacy.text = textData->text;
+        legacy.fontFace = textData->fontFace;
+        legacy.fontSize = textData->fontSize;
+        legacy.maxWidth = textData->maxWidth;
+        legacy.r = textData->r;
+        legacy.g = textData->g;
+        legacy.b = textData->b;
+        legacy.a = textData->a;
+        drawTextCommand(legacy);
+        break;
+    }
+    case RenderCmdType::Rect: {
+        const auto* rectData = command.tryGet<RectRenderData>();
+        if (rectData == nullptr) {
             break;
         }
-        case RenderCmdType::Clear:
-            break;
-        default:
-            break;
+
+        RectCommand legacy;
+        legacy.zOrder = command.zOrder;
+        legacy.x = command.x;
+        legacy.y = command.y;
+        legacy.w = rectData->w;
+        legacy.h = rectData->h;
+        legacy.r = rectData->r;
+        legacy.g = rectData->g;
+        legacy.b = rectData->b;
+        legacy.a = rectData->a;
+        drawRectCommand(legacy);
+        break;
+    }
+    case RenderCmdType::Clear:
+        break;
+    default:
+        break;
     }
 }
 
 void OpenGLRenderer::processCommand(const RenderCommand& command) {
     switch (command.type) {
-        case RenderCmdType::Sprite:
-            drawSpriteCommand(static_cast<const SpriteCommand&>(command));
-            break;
-        case RenderCmdType::Tile:
-            drawTileCommand(static_cast<const TileCommand&>(command));
-            break;
-        case RenderCmdType::Text:
-            drawTextCommand(static_cast<const TextCommand&>(command));
-            break;
-        case RenderCmdType::Rect:
-            drawRectCommand(static_cast<const RectCommand&>(command));
-            break;
-        case RenderCmdType::Clear:
-            break;
-        default:
-            break;
+    case RenderCmdType::Sprite:
+        drawSpriteCommand(static_cast<const SpriteCommand&>(command));
+        break;
+    case RenderCmdType::Tile:
+        drawTileCommand(static_cast<const TileCommand&>(command));
+        break;
+    case RenderCmdType::Text:
+        drawTextCommand(static_cast<const TextCommand&>(command));
+        break;
+    case RenderCmdType::Rect:
+        drawRectCommand(static_cast<const RectCommand&>(command));
+        break;
+    case RenderCmdType::Clear:
+        break;
+    default:
+        break;
     }
 }
 
@@ -978,11 +861,8 @@ void OpenGLRenderer::submitImmediateBatch(const std::vector<float>& vertices) co
     g_gl.useProgram(m_shaderProgram);
     g_gl.bindVertexArray(m_vao);
     g_gl.bindBuffer(GL_ARRAY_BUFFER, m_vbo);
-    g_gl.bufferData(
-        GL_ARRAY_BUFFER,
-        static_cast<GLsizeiptr>(vertices.size() * sizeof(float)),
-        vertices.data(),
-        GL_DYNAMIC_DRAW);
+    g_gl.bufferData(GL_ARRAY_BUFFER, static_cast<GLsizeiptr>(vertices.size() * sizeof(float)), vertices.data(),
+                    GL_DYNAMIC_DRAW);
     glDrawArrays(GL_TRIANGLES, 0, static_cast<GLsizei>(vertices.size() / kImmediateVertexStride));
     g_gl.bindBuffer(GL_ARRAY_BUFFER, 0);
     g_gl.bindVertexArray(0);
@@ -1000,14 +880,8 @@ void OpenGLRenderer::submitTexturedBatch(const SpriteDrawData& batch) const {
         vertices.reserve(batch.vertices.size());
 
         for (const auto& vertex : batch.vertices) {
-            vertices.push_back(makeVertex(vertex.position[0],
-                                          vertex.position[1],
-                                          m_viewportWidth,
-                                          m_viewportHeight,
-                                          vertex.color[0],
-                                          vertex.color[1],
-                                          vertex.color[2],
-                                          vertex.color[3]));
+            vertices.push_back(makeVertex(vertex.position[0], vertex.position[1], m_viewportWidth, m_viewportHeight,
+                                          vertex.color[0], vertex.color[1], vertex.color[2], vertex.color[3]));
         }
 
         submitImmediateBatch(flattenVertices(vertices));
@@ -1021,15 +895,12 @@ void OpenGLRenderer::submitTexturedBatch(const SpriteDrawData& batch) const {
     g_gl.useProgram(m_texturedShaderProgram);
     g_gl.bindVertexArray(m_texturedVao);
     g_gl.bindBuffer(GL_ARRAY_BUFFER, m_texturedVbo);
-    g_gl.bufferData(GL_ARRAY_BUFFER,
-                    static_cast<GLsizeiptr>(batch.vertices.size() * sizeof(SpriteVertex)),
-                    batch.vertices.data(),
-                    GL_DYNAMIC_DRAW);
+    g_gl.bufferData(GL_ARRAY_BUFFER, static_cast<GLsizeiptr>(batch.vertices.size() * sizeof(SpriteVertex)),
+                    batch.vertices.data(), GL_DYNAMIC_DRAW);
 
     const GLint viewportUniform = g_gl.getUniformLocation(m_texturedShaderProgram, "uViewportSize");
     if (viewportUniform >= 0) {
-        g_gl.uniform2f(viewportUniform,
-                       static_cast<float>(std::max(m_viewportWidth, 1)),
+        g_gl.uniform2f(viewportUniform, static_cast<float>(std::max(m_viewportWidth, 1)),
                        static_cast<float>(std::max(m_viewportHeight, 1)));
     }
 
@@ -1061,15 +932,8 @@ void OpenGLRenderer::drawSpriteCommand(const SpriteCommand& command) {
 
     // Bounded truthfulness: unresolved sprite IDs still fall back to deterministic
     // placeholder quads derived from texture identity.
-    submitImmediateBatch(
-        buildPlaceholderQuadBatch(command.x,
-                                  command.y,
-                                  width,
-                                  height,
-                                  m_viewportWidth,
-                                  m_viewportHeight,
-                                  fillColor,
-                                  accentColor));
+    submitImmediateBatch(buildPlaceholderQuadBatch(command.x, command.y, width, height, m_viewportWidth,
+                                                   m_viewportHeight, fillColor, accentColor));
 }
 
 void OpenGLRenderer::drawTileCommand(const TileCommand& command) {
@@ -1085,15 +949,8 @@ void OpenGLRenderer::drawTileCommand(const TileCommand& command) {
 
     // Bounded truthfulness: unresolved tile IDs still render as deterministic
     // placeholder quads derived from tileset identity and tile index.
-    submitImmediateBatch(
-        buildPlaceholderQuadBatch(command.x,
-                                  command.y,
-                                  kTileSize,
-                                  kTileSize,
-                                  m_viewportWidth,
-                                  m_viewportHeight,
-                                  fillColor,
-                                  accentColor));
+    submitImmediateBatch(buildPlaceholderQuadBatch(command.x, command.y, kTileSize, kTileSize, m_viewportWidth,
+                                                   m_viewportHeight, fillColor, accentColor));
 }
 
 void OpenGLRenderer::drawTextCommand(const TextCommand& command) {

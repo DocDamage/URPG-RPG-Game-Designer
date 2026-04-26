@@ -1,11 +1,11 @@
 #pragma once
 
-#include "gameplay_tags.h"
 #include "ability_task.h"
+#include "gameplay_tags.h"
 #include "pattern_field.h"
+#include <memory>
 #include <string>
 #include <vector>
-#include <memory>
 
 namespace urpg::ability {
 
@@ -13,11 +13,11 @@ class AbilitySystemComponent;
 
 /**
  * @brief Base class for all executable actions in the Gameplay Ability Framework.
- * 
+ *
  * Abilities use Tags to determine if they can be activated and what they block.
  */
 class GameplayAbility {
-public:
+  public:
     struct AbilityExecutionTarget {
         AbilitySystemComponent* abilitySystem = nullptr;
         const void* runtimeHandle = nullptr;
@@ -39,9 +39,9 @@ public:
     };
 
     struct ActivationInfo {
-        GameplayTagContainer requiredTags;    // Must have these to activate
-        GameplayTagContainer blockingTags;    // Cannot have these to activate
-        
+        GameplayTagContainer requiredTags; // Must have these to activate
+        GameplayTagContainer blockingTags; // Cannot have these to activate
+
         // Scripted condition strings are accepted in authored data for diagnostics
         // and future compatibility, but the in-tree runtime does not evaluate them.
         // Non-empty activeCondition values fail with an explicit
@@ -120,7 +120,7 @@ public:
      */
     virtual const GameplayTagContainer& getActiveTags() const { return m_activeTags; }
 
-protected:
+  protected:
     float resolveCooldownSeconds() const;
     float resolveMpCost() const;
     const std::string& resolveActiveCondition() const;

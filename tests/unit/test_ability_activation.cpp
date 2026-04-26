@@ -1,31 +1,29 @@
-#include <catch2/catch_test_macros.hpp>
-#include "engine/core/ability/gameplay_ability.h"
-#include "engine/core/ability/ability_system_component.h"
-#include "engine/core/ability/ability_state_machine.h"
 #include "editor/ability/ability_inspector_panel.h"
+#include "engine/core/ability/ability_state_machine.h"
+#include "engine/core/ability/ability_system_component.h"
+#include "engine/core/ability/gameplay_ability.h"
 #include "engine/core/ability/gameplay_effect.h"
+#include <catch2/catch_test_macros.hpp>
 
 using namespace urpg::ability;
 
 class MockAbility : public GameplayAbility {
-public:
+  public:
     MockAbility(std::string id) : m_id(std::move(id)) {}
 
     const std::string& getId() const override { return m_id; }
     const ActivationInfo& getActivationInfo() const override { return m_info; }
-    void activate(AbilitySystemComponent& source) override {
-        commitAbility(source);
-    }
+    void activate(AbilitySystemComponent& source) override { commitAbility(source); }
 
     ActivationInfo& editInfo() { return m_info; }
 
-private:
+  private:
     std::string m_id;
     ActivationInfo m_info;
 };
 
 class EffectAbility : public GameplayAbility {
-public:
+  public:
     EffectAbility() {
         id = "skill.effect_burst";
         cooldownTime = 2.0f;
@@ -47,13 +45,13 @@ public:
         source.applyEffect(m_effect);
     }
 
-private:
+  private:
     ActivationInfo m_info;
     urpg::GameplayEffect m_effect;
 };
 
 class ContextAwareAbility : public GameplayAbility {
-public:
+  public:
     ContextAwareAbility() {
         id = "skill.context_mark";
         mpCost = 2.0f;
@@ -62,9 +60,7 @@ public:
     const std::string& getId() const override { return id; }
     const ActivationInfo& getActivationInfo() const override { return m_info; }
 
-    void activate(AbilitySystemComponent& source) override {
-        commitAbility(source);
-    }
+    void activate(AbilitySystemComponent& source) override { commitAbility(source); }
 
     void activate(AbilitySystemComponent& source, const AbilityExecutionContext& context) override {
         commitAbility(source);
@@ -76,7 +72,7 @@ public:
 
     bool activated_with_target = false;
 
-private:
+  private:
     ActivationInfo m_info;
 };
 
@@ -86,7 +82,7 @@ TEST_CASE("GameplayAbility: Activation Pipeline", "[ability][activation]") {
 
     SECTION("Ability activation fails if owner is Stunned") {
         fireAbility.editInfo().blockingTags.addTag(GameplayTag("State.Stunned"));
-        
+
         owner.addTag(GameplayTag("State.Stunned"));
         REQUIRE_FALSE(fireAbility.canActivate(owner));
 
@@ -104,7 +100,7 @@ TEST_CASE("GameplayAbility: Activation Pipeline", "[ability][activation]") {
 
     SECTION("Ability activation requires specific tags") {
         fireAbility.editInfo().requiredTags.addTag(GameplayTag("State.Concentrated"));
-        
+
         REQUIRE_FALSE(fireAbility.canActivate(owner));
 
         owner.addTag(GameplayTag("State.Concentrated"));

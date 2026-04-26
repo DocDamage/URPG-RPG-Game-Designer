@@ -1,6 +1,6 @@
-#include <catch2/catch_test_macros.hpp>
-#include "engine/core/save/save_serialization_hub.h"
 #include "engine/core/global_state_hub.h"
+#include "engine/core/save/save_serialization_hub.h"
+#include <catch2/catch_test_macros.hpp>
 #include <nlohmann/json.hpp>
 
 using namespace urpg::save;
@@ -25,7 +25,7 @@ TEST_CASE("SaveSerializationHub: GlobalState Serialization", "[save][serializati
 
         std::string json = SaveSerializationHub::snapshotGlobalState(hub);
         auto root = nlohmann::json::parse(json);
-        
+
         REQUIRE(root["switches"]["S001_DoorOpen"] == true);
         REQUIRE(root["variables"]["V001_Gold"] == 150);
         REQUIRE(root["variables"]["V002_Name"] == "Hero");
@@ -34,7 +34,7 @@ TEST_CASE("SaveSerializationHub: GlobalState Serialization", "[save][serializati
     SECTION("Round-trip restoration") {
         hub.setSwitch("S001", true);
         hub.setVariable("V001", 42);
-        
+
         std::string json = SaveSerializationHub::snapshotGlobalState(hub);
         hub.clearSessionState();
         REQUIRE(hub.getSwitch("S001") == false);
@@ -66,7 +66,7 @@ TEST_CASE("SaveSerializationHub: GlobalState Serialization", "[save][serializati
         hub.clearSessionState();
         hub.setSwitch("S001_Baseline", true); // restore baseline manually
         SaveSerializationHub::restoreGlobalState(hub, json);
-        
+
         REQUIRE(hub.getSwitch("S001_Baseline") == true);
         REQUIRE(hub.getSwitch("S002_New") == true);
         REQUIRE(std::get<int32_t>(hub.getVariable("V001_Baseline")) == 200);
@@ -75,11 +75,11 @@ TEST_CASE("SaveSerializationHub: GlobalState Serialization", "[save][serializati
     SECTION("Binary format integrity") {
         std::string json = "{\"test\":true}";
         auto binary = SaveSerializationHub::jsonToBinary(json);
-        
+
         // Header URSV
         REQUIRE(binary[0] == 'U');
         REQUIRE(binary[3] == 'V');
-        
+
         std::string restored = SaveSerializationHub::binaryToJson(binary);
         REQUIRE(restored == json);
     }

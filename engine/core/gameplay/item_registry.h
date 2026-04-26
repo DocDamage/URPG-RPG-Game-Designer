@@ -1,19 +1,13 @@
 #pragma once
 
-#include <string>
-#include <vector>
 #include <map>
 #include <memory>
+#include <string>
+#include <vector>
 
 namespace urpg {
 
-enum class ItemType {
-    Consumable,
-    Weapon,
-    Armor,
-    Material,
-    KeyItem
-};
+enum class ItemType { Consumable, Weapon, Armor, Material, KeyItem };
 
 struct ItemData {
     std::string id;
@@ -22,22 +16,20 @@ struct ItemData {
     ItemType type;
     int value;
     int maxStack;
-    
+
     // Potential stats for gear
     int attackPower = 0;
     int defensePower = 0;
 };
 
 class ItemRegistry {
-public:
+  public:
     static ItemRegistry& getInstance() {
         static ItemRegistry instance;
         return instance;
     }
 
-    void registerItem(const ItemData& item) {
-        m_items[item.id] = item;
-    }
+    void registerItem(const ItemData& item) { m_items[item.id] = item; }
 
     const ItemData* getItem(const std::string& id) const {
         auto it = m_items.find(id);
@@ -47,7 +39,7 @@ public:
         return nullptr;
     }
 
-private:
+  private:
     ItemRegistry() = default;
     std::map<std::string, ItemData> m_items;
 };

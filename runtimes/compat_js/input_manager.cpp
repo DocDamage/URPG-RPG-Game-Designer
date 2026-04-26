@@ -63,7 +63,7 @@ std::unordered_map<std::string, std::string> TouchInput::methodDeviations_;
 // ============================================================================
 
 class InputManagerImpl {
-public:
+  public:
     bool initialized = false;
 };
 
@@ -71,9 +71,7 @@ public:
 // InputManager Implementation
 // ============================================================================
 
-InputManager::InputManager()
-    : impl_(std::make_unique<InputManagerImpl>())
-{
+InputManager::InputManager() : impl_(std::make_unique<InputManagerImpl>()) {
     // Initialize method status registry
     if (methodStatus_.empty()) {
         // Keyboard
@@ -81,33 +79,33 @@ InputManager::InputManager()
         methodStatus_["isTriggered"] = CompatStatus::PARTIAL;
         methodStatus_["isRepeated"] = CompatStatus::PARTIAL;
         methodStatus_["isReleased"] = CompatStatus::PARTIAL;
-        
+
         // Direction
         methodStatus_["dir4"] = CompatStatus::PARTIAL;
         methodStatus_["dir8"] = CompatStatus::PARTIAL;
         methodStatus_["isDirectionPressed"] = CompatStatus::PARTIAL;
         methodStatus_["isDirectionTriggered"] = CompatStatus::PARTIAL;
-        
+
         // Mouse
         methodStatus_["mouseX"] = CompatStatus::PARTIAL;
         methodStatus_["mouseY"] = CompatStatus::PARTIAL;
         methodStatus_["isMousePressed"] = CompatStatus::PARTIAL;
         methodStatus_["isMouseTriggered"] = CompatStatus::PARTIAL;
         methodStatus_["mouseWheel"] = CompatStatus::PARTIAL;
-        
+
         // Touch
         methodStatus_["touchX"] = CompatStatus::PARTIAL;
         methodStatus_["touchY"] = CompatStatus::PARTIAL;
         methodStatus_["isTouchPressed"] = CompatStatus::PARTIAL;
         methodStatus_["isTouchTriggered"] = CompatStatus::PARTIAL;
         methodStatus_["touchCount"] = CompatStatus::PARTIAL;
-        
+
         // Gamepad
         methodStatus_["isGamepadConnected"] = CompatStatus::PARTIAL;
         methodStatus_["isGamepadButtonPressed"] = CompatStatus::PARTIAL;
         methodStatus_["isGamepadButtonTriggered"] = CompatStatus::PARTIAL;
         methodStatus_["gamepadAxis"] = CompatStatus::PARTIAL;
-        
+
         // Actions
         methodStatus_["isActionPressed"] = CompatStatus::PARTIAL;
         methodStatus_["isActionTriggered"] = CompatStatus::PARTIAL;
@@ -115,7 +113,7 @@ InputManager::InputManager()
         methodStatus_["mapKeyToAction"] = CompatStatus::PARTIAL;
         methodStatus_["mapGamepadButtonToAction"] = CompatStatus::PARTIAL;
         methodStatus_["unmapAction"] = CompatStatus::PARTIAL;
-        
+
         // Lifecycle
         methodStatus_["initialize"] = CompatStatus::PARTIAL;
         methodStatus_["update"] = CompatStatus::PARTIAL;
@@ -147,7 +145,7 @@ void InputManager::shutdown() {
 void InputManager::update() {
     // Store previous frame's key states
     state_.prevKeys = state_.keys;
-    
+
     // Clear one-frame edge states before computing the current frame.
     state_.triggeredKeys.fill(false);
     state_.repeatedKeys.fill(false);
@@ -155,16 +153,16 @@ void InputManager::update() {
     state_.mouseTriggered[1] = false;
     state_.mouseTriggered[2] = false;
     state_.gamepadButtonsTriggered.fill(false);
-    
+
     // Update key repeats
     updateKeyRepeats();
-    
+
     // Update direction state
     updateDirectionState();
-    
+
     // Clear mouse wheel
     state_.mouseWheel = 0;
-    
+
     // Touch presses keep the held state, but the trigger edge lasts one frame.
     state_.touchTriggered = false;
 }
@@ -175,7 +173,7 @@ void InputManager::clear() {
     state_.triggeredKeys.fill(false);
     state_.repeatedKeys.fill(false);
     state_.repeatCounters.fill(0);
-    
+
     state_.mouseX = 0;
     state_.mouseY = 0;
     state_.mousePressed[0] = false;
@@ -185,18 +183,18 @@ void InputManager::clear() {
     state_.mouseTriggered[1] = false;
     state_.mouseTriggered[2] = false;
     state_.mouseWheel = 0;
-    
+
     state_.touchX = 0;
     state_.touchY = 0;
     state_.touchPressed = false;
     state_.touchTriggered = false;
     state_.touchCount = 0;
-    
+
     state_.gamepadConnected = false;
     state_.gamepadButtons.fill(false);
     state_.gamepadButtonsTriggered.fill(false);
     state_.gamepadAxes.fill(0.0);
-    
+
     state_.dir4 = 0;
     state_.dir8 = 0;
 }
@@ -206,31 +204,36 @@ void InputManager::clear() {
 // ============================================================================
 
 bool InputManager::isPressed(int32_t keyCode) const {
-    if (keyCode < 0 || keyCode >= 256) return false;
+    if (keyCode < 0 || keyCode >= 256)
+        return false;
     return state_.keys[static_cast<size_t>(keyCode)];
 }
 
 bool InputManager::isTriggered(int32_t keyCode) const {
-    if (keyCode < 0 || keyCode >= 256) return false;
+    if (keyCode < 0 || keyCode >= 256)
+        return false;
     return state_.triggeredKeys[static_cast<size_t>(keyCode)];
 }
 
 bool InputManager::isRepeated(int32_t keyCode) const {
-    if (keyCode < 0 || keyCode >= 256) return false;
+    if (keyCode < 0 || keyCode >= 256)
+        return false;
     return state_.repeatedKeys[static_cast<size_t>(keyCode)];
 }
 
 bool InputManager::isReleased(int32_t keyCode) const {
-    if (keyCode < 0 || keyCode >= 256) return false;
+    if (keyCode < 0 || keyCode >= 256)
+        return false;
     return state_.prevKeys[static_cast<size_t>(keyCode)] && !state_.keys[static_cast<size_t>(keyCode)];
 }
 
 void InputManager::setKeyPressed(int32_t keyCode, bool pressed) {
-    if (keyCode < 0 || keyCode >= 256) return;
-    
+    if (keyCode < 0 || keyCode >= 256)
+        return;
+
     bool wasPressed = state_.keys[static_cast<size_t>(keyCode)];
     state_.keys[static_cast<size_t>(keyCode)] = pressed;
-    
+
     if (pressed && !wasPressed) {
         state_.triggeredKeys[static_cast<size_t>(keyCode)] = true;
         state_.repeatCounters[static_cast<size_t>(keyCode)] = 0;
@@ -251,21 +254,31 @@ int32_t InputManager::getDir8() const {
 
 bool InputManager::isDirectionPressed(int32_t dir) const {
     switch (dir) {
-        case 2: return isPressed(InputKey::DOWN) || isGamepadButtonPressed(InputKey::GAMEPAD_DOWN);
-        case 4: return isPressed(InputKey::LEFT) || isGamepadButtonPressed(InputKey::GAMEPAD_LEFT);
-        case 6: return isPressed(InputKey::RIGHT) || isGamepadButtonPressed(InputKey::GAMEPAD_RIGHT);
-        case 8: return isPressed(InputKey::UP) || isGamepadButtonPressed(InputKey::GAMEPAD_UP);
-        default: return false;
+    case 2:
+        return isPressed(InputKey::DOWN) || isGamepadButtonPressed(InputKey::GAMEPAD_DOWN);
+    case 4:
+        return isPressed(InputKey::LEFT) || isGamepadButtonPressed(InputKey::GAMEPAD_LEFT);
+    case 6:
+        return isPressed(InputKey::RIGHT) || isGamepadButtonPressed(InputKey::GAMEPAD_RIGHT);
+    case 8:
+        return isPressed(InputKey::UP) || isGamepadButtonPressed(InputKey::GAMEPAD_UP);
+    default:
+        return false;
     }
 }
 
 bool InputManager::isDirectionTriggered(int32_t dir) const {
     switch (dir) {
-        case 2: return isTriggered(InputKey::DOWN) || isGamepadButtonTriggered(InputKey::GAMEPAD_DOWN);
-        case 4: return isTriggered(InputKey::LEFT) || isGamepadButtonTriggered(InputKey::GAMEPAD_LEFT);
-        case 6: return isTriggered(InputKey::RIGHT) || isGamepadButtonTriggered(InputKey::GAMEPAD_RIGHT);
-        case 8: return isTriggered(InputKey::UP) || isGamepadButtonTriggered(InputKey::GAMEPAD_UP);
-        default: return false;
+    case 2:
+        return isTriggered(InputKey::DOWN) || isGamepadButtonTriggered(InputKey::GAMEPAD_DOWN);
+    case 4:
+        return isTriggered(InputKey::LEFT) || isGamepadButtonTriggered(InputKey::GAMEPAD_LEFT);
+    case 6:
+        return isTriggered(InputKey::RIGHT) || isGamepadButtonTriggered(InputKey::GAMEPAD_RIGHT);
+    case 8:
+        return isTriggered(InputKey::UP) || isGamepadButtonTriggered(InputKey::GAMEPAD_UP);
+    default:
+        return false;
     }
 }
 
@@ -282,12 +295,14 @@ int32_t InputManager::getMouseY() const {
 }
 
 bool InputManager::isMousePressed(int32_t button) const {
-    if (button < 0 || button > 2) return false;
+    if (button < 0 || button > 2)
+        return false;
     return state_.mousePressed[button];
 }
 
 bool InputManager::isMouseTriggered(int32_t button) const {
-    if (button < 0 || button > 2) return false;
+    if (button < 0 || button > 2)
+        return false;
     return state_.mouseTriggered[button];
 }
 
@@ -301,7 +316,8 @@ void InputManager::setMousePosition(int32_t x, int32_t y) {
 }
 
 void InputManager::setMousePressed(int32_t button, bool pressed) {
-    if (button < 0 || button > 2) return;
+    if (button < 0 || button > 2)
+        return;
     bool wasPressed = state_.mousePressed[button];
     state_.mousePressed[button] = pressed;
     if (pressed && !wasPressed) {
@@ -364,17 +380,20 @@ int32_t InputManager::getGamepadId() const {
 }
 
 bool InputManager::isGamepadButtonPressed(int32_t button) const {
-    if (button < 0 || button >= 16) return false;
+    if (button < 0 || button >= 16)
+        return false;
     return state_.gamepadButtons[static_cast<size_t>(button)];
 }
 
 bool InputManager::isGamepadButtonTriggered(int32_t button) const {
-    if (button < 0 || button >= 16) return false;
+    if (button < 0 || button >= 16)
+        return false;
     return state_.gamepadButtonsTriggered[static_cast<size_t>(button)];
 }
 
 double InputManager::getGamepadAxis(int32_t axis) const {
-    if (axis < 0 || axis >= 4) return 0.0;
+    if (axis < 0 || axis >= 4)
+        return 0.0;
     return state_.gamepadAxes[static_cast<size_t>(axis)];
 }
 
@@ -384,7 +403,8 @@ void InputManager::setGamepadConnected(bool connected, int32_t id) {
 }
 
 void InputManager::setGamepadButton(int32_t button, bool pressed) {
-    if (button < 0 || button >= 16) return;
+    if (button < 0 || button >= 16)
+        return;
     bool wasPressed = state_.gamepadButtons[static_cast<size_t>(button)];
     state_.gamepadButtons[static_cast<size_t>(button)] = pressed;
     if (pressed && !wasPressed) {
@@ -393,7 +413,8 @@ void InputManager::setGamepadButton(int32_t button, bool pressed) {
 }
 
 void InputManager::setGamepadAxis(int32_t axis, double value) {
-    if (axis < 0 || axis >= 4) return;
+    if (axis < 0 || axis >= 4)
+        return;
     state_.gamepadAxes[static_cast<size_t>(axis)] = std::clamp(value, -1.0, 1.0);
 }
 
@@ -403,56 +424,65 @@ void InputManager::setGamepadAxis(int32_t axis, double value) {
 
 bool InputManager::isActionPressed(const std::string& actionId) const {
     auto it = actionMappings_.find(actionId);
-    if (it == actionMappings_.end()) return false;
-    
+    if (it == actionMappings_.end())
+        return false;
+
     const ActionMapping& mapping = it->second;
-    
+
     // Check keyboard keys
     for (int32_t keyCode : mapping.keyCodes) {
-        if (isPressed(keyCode)) return true;
+        if (isPressed(keyCode))
+            return true;
     }
-    
+
     // Check gamepad buttons
     for (int32_t button : mapping.gamepadButtons) {
-        if (isGamepadButtonPressed(button)) return true;
+        if (isGamepadButtonPressed(button))
+            return true;
     }
-    
+
     // Check gamepad axis
     if (mapping.gamepadAxis >= 0 && mapping.gamepadAxis < 4) {
         double axisValue = getGamepadAxis(mapping.gamepadAxis);
-        if (std::abs(axisValue) >= mapping.axisThreshold) return true;
+        if (std::abs(axisValue) >= mapping.axisThreshold)
+            return true;
     }
-    
+
     return false;
 }
 
 bool InputManager::isActionTriggered(const std::string& actionId) const {
     auto it = actionMappings_.find(actionId);
-    if (it == actionMappings_.end()) return false;
-    
+    if (it == actionMappings_.end())
+        return false;
+
     const ActionMapping& mapping = it->second;
-    
+
     for (int32_t keyCode : mapping.keyCodes) {
-        if (isTriggered(keyCode)) return true;
+        if (isTriggered(keyCode))
+            return true;
     }
-    
+
     for (int32_t button : mapping.gamepadButtons) {
-        if (isGamepadButtonTriggered(button)) return true;
+        if (isGamepadButtonTriggered(button))
+            return true;
     }
-    
+
     return false;
 }
 
 bool InputManager::isActionRepeated(const std::string& actionId) const {
     auto it = actionMappings_.find(actionId);
-    if (it == actionMappings_.end()) return false;
-    
+    if (it == actionMappings_.end())
+        return false;
+
     const ActionMapping& mapping = it->second;
-    
+
     for (int32_t keyCode : mapping.keyCodes) {
-        if (isRepeated(keyCode)) return true;
+        if (isRepeated(keyCode))
+            return true;
     }
-    
+
     return false;
 }
 
@@ -486,24 +516,34 @@ void InputManager::updateDirectionState() {
     bool left = isDirectionPressed(4);
     bool right = isDirectionPressed(6);
     bool up = isDirectionPressed(8);
-    
+
     // Calculate dir4 (prioritize horizontal)
     state_.dir4 = 0;
-    if (down) state_.dir4 = 2;
-    if (left) state_.dir4 = 4;
-    if (right) state_.dir4 = 6;
-    if (up) state_.dir4 = 8;
-    
+    if (down)
+        state_.dir4 = 2;
+    if (left)
+        state_.dir4 = 4;
+    if (right)
+        state_.dir4 = 6;
+    if (up)
+        state_.dir4 = 8;
+
     // Calculate dir8
     state_.dir8 = 0;
     if (down && !up) {
-        if (left && !right) state_.dir8 = 1;
-        else if (right && !left) state_.dir8 = 3;
-        else state_.dir8 = 2;
+        if (left && !right)
+            state_.dir8 = 1;
+        else if (right && !left)
+            state_.dir8 = 3;
+        else
+            state_.dir8 = 2;
     } else if (up && !down) {
-        if (left && !right) state_.dir8 = 7;
-        else if (right && !left) state_.dir8 = 9;
-        else state_.dir8 = 8;
+        if (left && !right)
+            state_.dir8 = 7;
+        else if (right && !left)
+            state_.dir8 = 9;
+        else
+            state_.dir8 = 8;
     } else if (left && !right) {
         state_.dir8 = 4;
     } else if (right && !left) {
@@ -515,7 +555,7 @@ void InputManager::updateKeyRepeats() {
     for (size_t i = 0; i < 256; ++i) {
         if (state_.keys[i]) {
             state_.repeatCounters[i]++;
-            
+
             // Trigger on initial press
             if (state_.repeatCounters[i] == 1) {
                 state_.triggeredKeys[i] = true;
@@ -557,49 +597,65 @@ std::string InputManager::getMethodDeviation(const std::string& methodName) {
 
 void InputManager::registerAPI(QuickJSContext& ctx) {
     std::vector<QuickJSContext::MethodDef> methods;
-    
-    methods.push_back({"isPressed", [](const std::vector<Value>& args) -> Value {
-        if (args.size() < 1) return Value::Int(0);
-        const int32_t keyCode = static_cast<int32_t>(valueToInt64(args[0]));
-        return Value::Int(InputManager::instance().isPressed(keyCode) ? 1 : 0);
-    }, CompatStatus::PARTIAL});
-    
-    methods.push_back({"isTriggered", [](const std::vector<Value>& args) -> Value {
-        if (args.size() < 1) return Value::Int(0);
-        const int32_t keyCode = static_cast<int32_t>(valueToInt64(args[0]));
-        return Value::Int(InputManager::instance().isTriggered(keyCode) ? 1 : 0);
-    }, CompatStatus::PARTIAL});
-    
-    methods.push_back({"isRepeated", [](const std::vector<Value>& args) -> Value {
-        if (args.size() < 1) return Value::Int(0);
-        const int32_t keyCode = static_cast<int32_t>(valueToInt64(args[0]));
-        return Value::Int(InputManager::instance().isRepeated(keyCode) ? 1 : 0);
-    }, CompatStatus::PARTIAL});
 
-    methods.push_back({"isReleased", [](const std::vector<Value>& args) -> Value {
-        if (args.size() < 1) return Value::Int(0);
-        const int32_t keyCode = static_cast<int32_t>(valueToInt64(args[0]));
-        return Value::Int(InputManager::instance().isReleased(keyCode) ? 1 : 0);
-    }, CompatStatus::PARTIAL});
-    
-    methods.push_back({"dir4", [](const std::vector<Value>&) -> Value {
-        return Value::Int(InputManager::instance().getDir4());
-    }, CompatStatus::PARTIAL});
-    
-    methods.push_back({"dir8", [](const std::vector<Value>&) -> Value {
-        return Value::Int(InputManager::instance().getDir8());
-    }, CompatStatus::PARTIAL});
-    
-    methods.push_back({"update", [](const std::vector<Value>&) -> Value {
-        InputManager::instance().update();
-        return Value::Nil();
-    }, CompatStatus::PARTIAL});
-    
-    methods.push_back({"clear", [](const std::vector<Value>&) -> Value {
-        InputManager::instance().clear();
-        return Value::Nil();
-    }, CompatStatus::PARTIAL});
-    
+    methods.push_back({"isPressed",
+                       [](const std::vector<Value>& args) -> Value {
+                           if (args.size() < 1)
+                               return Value::Int(0);
+                           const int32_t keyCode = static_cast<int32_t>(valueToInt64(args[0]));
+                           return Value::Int(InputManager::instance().isPressed(keyCode) ? 1 : 0);
+                       },
+                       CompatStatus::PARTIAL});
+
+    methods.push_back({"isTriggered",
+                       [](const std::vector<Value>& args) -> Value {
+                           if (args.size() < 1)
+                               return Value::Int(0);
+                           const int32_t keyCode = static_cast<int32_t>(valueToInt64(args[0]));
+                           return Value::Int(InputManager::instance().isTriggered(keyCode) ? 1 : 0);
+                       },
+                       CompatStatus::PARTIAL});
+
+    methods.push_back({"isRepeated",
+                       [](const std::vector<Value>& args) -> Value {
+                           if (args.size() < 1)
+                               return Value::Int(0);
+                           const int32_t keyCode = static_cast<int32_t>(valueToInt64(args[0]));
+                           return Value::Int(InputManager::instance().isRepeated(keyCode) ? 1 : 0);
+                       },
+                       CompatStatus::PARTIAL});
+
+    methods.push_back({"isReleased",
+                       [](const std::vector<Value>& args) -> Value {
+                           if (args.size() < 1)
+                               return Value::Int(0);
+                           const int32_t keyCode = static_cast<int32_t>(valueToInt64(args[0]));
+                           return Value::Int(InputManager::instance().isReleased(keyCode) ? 1 : 0);
+                       },
+                       CompatStatus::PARTIAL});
+
+    methods.push_back(
+        {"dir4", [](const std::vector<Value>&) -> Value { return Value::Int(InputManager::instance().getDir4()); },
+         CompatStatus::PARTIAL});
+
+    methods.push_back(
+        {"dir8", [](const std::vector<Value>&) -> Value { return Value::Int(InputManager::instance().getDir8()); },
+         CompatStatus::PARTIAL});
+
+    methods.push_back({"update",
+                       [](const std::vector<Value>&) -> Value {
+                           InputManager::instance().update();
+                           return Value::Nil();
+                       },
+                       CompatStatus::PARTIAL});
+
+    methods.push_back({"clear",
+                       [](const std::vector<Value>&) -> Value {
+                           InputManager::instance().clear();
+                           return Value::Nil();
+                       },
+                       CompatStatus::PARTIAL});
+
     ctx.registerObject("Input", methods);
 }
 
@@ -661,7 +717,7 @@ void TouchInput::update() {
         state_.moved = false;
         state_.stayed = true;
     }
-    
+
     // Check for release
     if (justReleased) {
         state_.endX = state_.x;
@@ -670,7 +726,7 @@ void TouchInput::update() {
             ++state_.tapCount;
         }
     }
-    
+
     // Update hold time
     if (state_.pressed) {
         ++state_.holdTime;
@@ -684,67 +740,114 @@ void TouchInput::update() {
         state_.moveDistance = std::sqrt(totalDx * totalDx + totalDy * totalDy);
         state_.moved = state_.moveDistance > 10.0;
         state_.stayed = !state_.moved;
-        
+
         // Calculate move direction (8-direction)
         if (state_.moveDistance > 0) {
             double angle = std::atan2(totalDy, totalDx) * 180.0 / 3.14159265;
-            if (angle < 0) angle += 360.0;
-            
-            if (angle >= 337.5 || angle < 22.5) state_.moveDirection = 6;
-            else if (angle >= 22.5 && angle < 67.5) state_.moveDirection = 3;
-            else if (angle >= 67.5 && angle < 112.5) state_.moveDirection = 2;
-            else if (angle >= 112.5 && angle < 157.5) state_.moveDirection = 1;
-            else if (angle >= 157.5 && angle < 202.5) state_.moveDirection = 4;
-            else if (angle >= 202.5 && angle < 247.5) state_.moveDirection = 7;
-            else if (angle >= 247.5 && angle < 292.5) state_.moveDirection = 8;
-            else state_.moveDirection = 9;
+            if (angle < 0)
+                angle += 360.0;
+
+            if (angle >= 337.5 || angle < 22.5)
+                state_.moveDirection = 6;
+            else if (angle >= 22.5 && angle < 67.5)
+                state_.moveDirection = 3;
+            else if (angle >= 67.5 && angle < 112.5)
+                state_.moveDirection = 2;
+            else if (angle >= 112.5 && angle < 157.5)
+                state_.moveDirection = 1;
+            else if (angle >= 157.5 && angle < 202.5)
+                state_.moveDirection = 4;
+            else if (angle >= 202.5 && angle < 247.5)
+                state_.moveDirection = 7;
+            else if (angle >= 247.5 && angle < 292.5)
+                state_.moveDirection = 8;
+            else
+                state_.moveDirection = 9;
         }
     } else {
         state_.moveSpeed = 0.0;
     }
-    
+
     // Store previous state
     state_.prevPressed = state_.pressed;
     state_.prevX = state_.x;
     state_.prevY = state_.y;
 }
 
-int32_t TouchInput::getX() const { return state_.x; }
-int32_t TouchInput::getY() const { return state_.y; }
-int32_t TouchInput::getScreenX() const { return state_.x; }
-int32_t TouchInput::getScreenY() const { return state_.y; }
+int32_t TouchInput::getX() const {
+    return state_.x;
+}
+int32_t TouchInput::getY() const {
+    return state_.y;
+}
+int32_t TouchInput::getScreenX() const {
+    return state_.x;
+}
+int32_t TouchInput::getScreenY() const {
+    return state_.y;
+}
 int32_t TouchInput::getWorldX() const {
     const double scaleX = sanitizeScale(state_.cameraScaleX);
     return static_cast<int32_t>(
-        std::lround((static_cast<double>(state_.x) - static_cast<double>(state_.cameraOffsetX)) / scaleX)
-    );
+        std::lround((static_cast<double>(state_.x) - static_cast<double>(state_.cameraOffsetX)) / scaleX));
 }
 int32_t TouchInput::getWorldY() const {
     const double scaleY = sanitizeScale(state_.cameraScaleY);
     return static_cast<int32_t>(
-        std::lround((static_cast<double>(state_.y) - static_cast<double>(state_.cameraOffsetY)) / scaleY)
-    );
+        std::lround((static_cast<double>(state_.y) - static_cast<double>(state_.cameraOffsetY)) / scaleY));
 }
 
-bool TouchInput::isPressed() const { return state_.pressed; }
-bool TouchInput::isTriggered() const { return state_.pressed && !state_.prevPressed; }
-bool TouchInput::isReleased() const { return !state_.pressed && state_.prevPressed; }
-bool TouchInput::isCancelled() const { return state_.cancelled; }
-bool TouchInput::isMoved() const { return state_.moved; }
-bool TouchInput::isStayed() const { return state_.stayed; }
+bool TouchInput::isPressed() const {
+    return state_.pressed;
+}
+bool TouchInput::isTriggered() const {
+    return state_.pressed && !state_.prevPressed;
+}
+bool TouchInput::isReleased() const {
+    return !state_.pressed && state_.prevPressed;
+}
+bool TouchInput::isCancelled() const {
+    return state_.cancelled;
+}
+bool TouchInput::isMoved() const {
+    return state_.moved;
+}
+bool TouchInput::isStayed() const {
+    return state_.stayed;
+}
 
-int32_t TouchInput::getTouchCount() const { return state_.count; }
-int32_t TouchInput::getTapCount() const { return state_.tapCount; }
-int32_t TouchInput::getHoldTime() const { return state_.holdTime; }
+int32_t TouchInput::getTouchCount() const {
+    return state_.count;
+}
+int32_t TouchInput::getTapCount() const {
+    return state_.tapCount;
+}
+int32_t TouchInput::getHoldTime() const {
+    return state_.holdTime;
+}
 
-double TouchInput::getMoveDistance() const { return state_.moveDistance; }
-double TouchInput::getMoveSpeed() const { return state_.moveSpeed; }
-int32_t TouchInput::getMoveDirection() const { return state_.moveDirection; }
+double TouchInput::getMoveDistance() const {
+    return state_.moveDistance;
+}
+double TouchInput::getMoveSpeed() const {
+    return state_.moveSpeed;
+}
+int32_t TouchInput::getMoveDirection() const {
+    return state_.moveDirection;
+}
 
-int32_t TouchInput::getStartX() const { return state_.startX; }
-int32_t TouchInput::getStartY() const { return state_.startY; }
-int32_t TouchInput::getEndX() const { return state_.endX; }
-int32_t TouchInput::getEndY() const { return state_.endY; }
+int32_t TouchInput::getStartX() const {
+    return state_.startX;
+}
+int32_t TouchInput::getStartY() const {
+    return state_.startY;
+}
+int32_t TouchInput::getEndX() const {
+    return state_.endX;
+}
+int32_t TouchInput::getEndY() const {
+    return state_.endY;
+}
 
 void TouchInput::setTouchPosition(int32_t x, int32_t y) {
     state_.x = x;
@@ -794,73 +897,85 @@ std::string TouchInput::getMethodDeviation(const std::string& methodName) {
 
 void TouchInput::registerAPI(QuickJSContext& ctx) {
     std::vector<QuickJSContext::MethodDef> methods;
-    
-    methods.push_back({"x", [](const std::vector<Value>&) -> Value {
-        return Value::Int(TouchInput::instance().getX());
-    }, CompatStatus::PARTIAL});
-    
-    methods.push_back({"y", [](const std::vector<Value>&) -> Value {
-        return Value::Int(TouchInput::instance().getY());
-    }, CompatStatus::PARTIAL});
 
-    methods.push_back({"screenX", [](const std::vector<Value>&) -> Value {
-        return Value::Int(TouchInput::instance().getScreenX());
-    }, CompatStatus::PARTIAL});
+    methods.push_back({"x",
+                       [](const std::vector<Value>&) -> Value { return Value::Int(TouchInput::instance().getX()); },
+                       CompatStatus::PARTIAL});
 
-    methods.push_back({"screenY", [](const std::vector<Value>&) -> Value {
-        return Value::Int(TouchInput::instance().getScreenY());
-    }, CompatStatus::PARTIAL});
+    methods.push_back({"y",
+                       [](const std::vector<Value>&) -> Value { return Value::Int(TouchInput::instance().getY()); },
+                       CompatStatus::PARTIAL});
 
-    methods.push_back({"worldX", [](const std::vector<Value>&) -> Value {
-        return Value::Int(TouchInput::instance().getWorldX());
-    }, CompatStatus::PARTIAL});
+    methods.push_back(
+        {"screenX", [](const std::vector<Value>&) -> Value { return Value::Int(TouchInput::instance().getScreenX()); },
+         CompatStatus::PARTIAL});
 
-    methods.push_back({"worldY", [](const std::vector<Value>&) -> Value {
-        return Value::Int(TouchInput::instance().getWorldY());
-    }, CompatStatus::PARTIAL});
-    
-    methods.push_back({"isPressed", [](const std::vector<Value>&) -> Value {
-        return Value::Int(TouchInput::instance().isPressed() ? 1 : 0);
-    }, CompatStatus::PARTIAL});
-    
-    methods.push_back({"isTriggered", [](const std::vector<Value>&) -> Value {
-        return Value::Int(TouchInput::instance().isTriggered() ? 1 : 0);
-    }, CompatStatus::PARTIAL});
+    methods.push_back(
+        {"screenY", [](const std::vector<Value>&) -> Value { return Value::Int(TouchInput::instance().getScreenY()); },
+         CompatStatus::PARTIAL});
 
-    methods.push_back({"isReleased", [](const std::vector<Value>&) -> Value {
-        return Value::Int(TouchInput::instance().isReleased() ? 1 : 0);
-    }, CompatStatus::PARTIAL});
+    methods.push_back(
+        {"worldX", [](const std::vector<Value>&) -> Value { return Value::Int(TouchInput::instance().getWorldX()); },
+         CompatStatus::PARTIAL});
 
-    methods.push_back({"isMoved", [](const std::vector<Value>&) -> Value {
-        return Value::Int(TouchInput::instance().isMoved() ? 1 : 0);
-    }, CompatStatus::PARTIAL});
+    methods.push_back(
+        {"worldY", [](const std::vector<Value>&) -> Value { return Value::Int(TouchInput::instance().getWorldY()); },
+         CompatStatus::PARTIAL});
 
-    methods.push_back({"isStayed", [](const std::vector<Value>&) -> Value {
-        return Value::Int(TouchInput::instance().isStayed() ? 1 : 0);
-    }, CompatStatus::PARTIAL});
+    methods.push_back(
+        {"isPressed",
+         [](const std::vector<Value>&) -> Value { return Value::Int(TouchInput::instance().isPressed() ? 1 : 0); },
+         CompatStatus::PARTIAL});
 
-    methods.push_back({"touchCount", [](const std::vector<Value>&) -> Value {
-        return Value::Int(TouchInput::instance().getTouchCount());
-    }, CompatStatus::PARTIAL});
+    methods.push_back(
+        {"isTriggered",
+         [](const std::vector<Value>&) -> Value { return Value::Int(TouchInput::instance().isTriggered() ? 1 : 0); },
+         CompatStatus::PARTIAL});
 
-    methods.push_back({"tapCount", [](const std::vector<Value>&) -> Value {
-        return Value::Int(TouchInput::instance().getTapCount());
-    }, CompatStatus::PARTIAL});
+    methods.push_back(
+        {"isReleased",
+         [](const std::vector<Value>&) -> Value { return Value::Int(TouchInput::instance().isReleased() ? 1 : 0); },
+         CompatStatus::PARTIAL});
 
-    methods.push_back({"holdTime", [](const std::vector<Value>&) -> Value {
-        return Value::Int(TouchInput::instance().getHoldTime());
-    }, CompatStatus::PARTIAL});
+    methods.push_back(
+        {"isMoved",
+         [](const std::vector<Value>&) -> Value { return Value::Int(TouchInput::instance().isMoved() ? 1 : 0); },
+         CompatStatus::PARTIAL});
 
-    methods.push_back({"update", [](const std::vector<Value>&) -> Value {
-        TouchInput::instance().update();
-        return Value::Nil();
-    }, CompatStatus::PARTIAL});
-    
-    methods.push_back({"clear", [](const std::vector<Value>&) -> Value {
-        TouchInput::instance().clear();
-        return Value::Nil();
-    }, CompatStatus::PARTIAL});
-    
+    methods.push_back(
+        {"isStayed",
+         [](const std::vector<Value>&) -> Value { return Value::Int(TouchInput::instance().isStayed() ? 1 : 0); },
+         CompatStatus::PARTIAL});
+
+    methods.push_back(
+        {"touchCount",
+         [](const std::vector<Value>&) -> Value { return Value::Int(TouchInput::instance().getTouchCount()); },
+         CompatStatus::PARTIAL});
+
+    methods.push_back(
+        {"tapCount",
+         [](const std::vector<Value>&) -> Value { return Value::Int(TouchInput::instance().getTapCount()); },
+         CompatStatus::PARTIAL});
+
+    methods.push_back(
+        {"holdTime",
+         [](const std::vector<Value>&) -> Value { return Value::Int(TouchInput::instance().getHoldTime()); },
+         CompatStatus::PARTIAL});
+
+    methods.push_back({"update",
+                       [](const std::vector<Value>&) -> Value {
+                           TouchInput::instance().update();
+                           return Value::Nil();
+                       },
+                       CompatStatus::PARTIAL});
+
+    methods.push_back({"clear",
+                       [](const std::vector<Value>&) -> Value {
+                           TouchInput::instance().clear();
+                           return Value::Nil();
+                       },
+                       CompatStatus::PARTIAL});
+
     ctx.registerObject("TouchInput", methods);
 }
 

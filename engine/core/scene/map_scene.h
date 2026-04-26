@@ -1,22 +1,22 @@
 #pragma once
 
-#include "scene_manager.h"
 #include "engine/core/ability/ability_system_component.h"
 #include "engine/core/ability/authored_ability_asset.h"
-#include "engine/core/input/input_core.h"
-#include "engine/core/scene/movement_authority.h"
-#include "engine/core/render/render_layer.h"
-#include "engine/core/render/tilemap_renderer.h"
-#include "engine/core/render/sprite_animator.h"
-#include "engine/core/message/message_core.h"
-#include "engine/core/message/dialogue_registry.h"
-#include "engine/core/message/chatbot_component.h"
-#include "engine/core/ui/chat_window.h"
 #include "engine/core/audio/audio_core.h"
-#include <vector>
+#include "engine/core/input/input_core.h"
+#include "engine/core/message/chatbot_component.h"
+#include "engine/core/message/dialogue_registry.h"
+#include "engine/core/message/message_core.h"
+#include "engine/core/render/render_layer.h"
+#include "engine/core/render/sprite_animator.h"
+#include "engine/core/render/tilemap_renderer.h"
+#include "engine/core/scene/movement_authority.h"
+#include "engine/core/ui/chat_window.h"
+#include "scene_manager.h"
 #include <cstdint>
-#include <string>
 #include <memory>
+#include <string>
+#include <vector>
 
 namespace urpg::scene {
 
@@ -32,7 +32,7 @@ struct TileData {
  * @brief Native authority for Map data, coordinates, and collision.
  */
 class MapScene : public GameScene {
-public:
+  public:
     enum class InteractionBindingScope : uint8_t {
         Global = 0,
         Tile = 1,
@@ -104,7 +104,8 @@ public:
 
     // Coordinate Authority
     bool checkCollision(int x, int y) const {
-        if (x < 0 || x >= m_width || y < 0 || y >= m_height) return true;
+        if (x < 0 || x >= m_width || y < 0 || y >= m_height)
+            return true;
         return !m_tiles[y * m_width + x].isPassable;
     }
 
@@ -160,39 +161,28 @@ public:
     const urpg::ability::AbilitySystemComponent& playerAbilitySystem() const { return m_playerAbilitySystem; }
     void grantPlayerAbility(const urpg::ability::AuthoredAbilityAsset& asset);
     bool tryActivatePlayerAbility(const std::string& ability_id);
-    bool bindInteractionAbility(const std::string& trigger_id,
-                                const std::string& asset_path,
+    bool bindInteractionAbility(const std::string& trigger_id, const std::string& asset_path,
                                 const urpg::ability::AuthoredAbilityAsset& asset);
-    bool bindTileInteractionAbility(const std::string& trigger_id,
-                                    int tile_x,
-                                    int tile_y,
-                                    const std::string& asset_path,
-                                    const urpg::ability::AuthoredAbilityAsset& asset);
-    bool bindPropInteractionAbility(const std::string& trigger_id,
-                                    const std::string& prop_asset_id,
-                                    const std::string& asset_path,
-                                    const urpg::ability::AuthoredAbilityAsset& asset);
-    bool bindRegionInteractionAbility(const std::string& trigger_id,
-                                      int min_tile_x,
-                                      int min_tile_y,
-                                      int max_tile_x,
-                                      int max_tile_y,
-                                      const std::string& asset_path,
+    bool bindTileInteractionAbility(const std::string& trigger_id, int tile_x, int tile_y,
+                                    const std::string& asset_path, const urpg::ability::AuthoredAbilityAsset& asset);
+    bool bindPropInteractionAbility(const std::string& trigger_id, const std::string& prop_asset_id,
+                                    const std::string& asset_path, const urpg::ability::AuthoredAbilityAsset& asset);
+    bool bindRegionInteractionAbility(const std::string& trigger_id, int min_tile_x, int min_tile_y, int max_tile_x,
+                                      int max_tile_y, const std::string& asset_path,
                                       const urpg::ability::AuthoredAbilityAsset& asset);
     bool unbindTileInteractionAbility(const std::string& trigger_id, int tile_x, int tile_y);
     bool unbindPropInteractionAbility(const std::string& trigger_id, const std::string& prop_asset_id);
-    bool unbindRegionInteractionAbility(const std::string& trigger_id,
-                                        int min_tile_x,
-                                        int min_tile_y,
-                                        int max_tile_x,
+    bool unbindRegionInteractionAbility(const std::string& trigger_id, int min_tile_x, int min_tile_y, int max_tile_x,
                                         int max_tile_y);
     bool activateInteractionAbility(const std::string& trigger_id);
     bool activateInteractionAbilityAtTile(const std::string& trigger_id, int tile_x, int tile_y);
     bool activateInteractionAbilityForProp(const std::string& trigger_id, const std::string& prop_asset_id);
     bool hasInteractionAbilityBinding(const std::string& trigger_id) const;
-    const std::vector<InteractionAbilityBinding>& interactionAbilityBindings() const { return m_interaction_ability_bindings; }
+    const std::vector<InteractionAbilityBinding>& interactionAbilityBindings() const {
+        return m_interaction_ability_bindings;
+    }
 
-private:
+  private:
     void rebuildTileRenderCache();
     void submitCachedTileCommands(urpg::RenderLayer& layer) const;
 
@@ -202,7 +192,7 @@ private:
     std::vector<TileData> m_tiles;
     std::vector<urpg::TileCommand> m_cachedTileCommands;
     bool m_renderLayerDirty = true;
-    
+
     // Components
     urpg::MovementComponent m_playerMovement;
     std::unique_ptr<TilemapRenderer> m_renderer;

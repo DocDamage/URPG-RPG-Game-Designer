@@ -1,6 +1,6 @@
 #pragma once
 
-#include "presentation_runtime.h"
+#include <string>
 #include <vector>
 
 namespace urpg::presentation {
@@ -11,7 +11,7 @@ namespace urpg::presentation {
 struct MapActorState {
     uint32_t actorId;
     std::string classId; // Links to ActorPresentationProfile
-    float posX, posY; // Grid coordinates
+    float posX, posY;    // Grid coordinates
     bool isMoving;
     // ... animation state etc
 };

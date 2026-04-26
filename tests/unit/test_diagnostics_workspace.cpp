@@ -1,5 +1,5 @@
-#include "editor/diagnostics/diagnostics_workspace.h"
 #include "editor/diagnostics/diagnostics_facade.h"
+#include "editor/diagnostics/diagnostics_workspace.h"
 #include "engine/core/ability/ability_system_component.h"
 #include "engine/core/ability/gameplay_ability.h"
 #include "engine/core/audio/audio_core.h"
@@ -22,7 +22,7 @@
 namespace {
 
 class WorkspaceAbility final : public urpg::ability::GameplayAbility {
-public:
+  public:
     explicit WorkspaceAbility(std::string ability_id) : ability_id_(std::move(ability_id)) {}
 
     const std::string& getId() const override { return ability_id_; }
@@ -31,13 +31,13 @@ public:
 
     ActivationInfo& editInfo() { return info_; }
 
-private:
+  private:
     std::string ability_id_;
     ActivationInfo info_;
 };
 
 class SceneBoundWorkspaceAbility final : public urpg::ability::GameplayAbility {
-public:
+  public:
     SceneBoundWorkspaceAbility() {
         id = "skill.live_scene";
         mpCost = 5.0f;
@@ -47,15 +47,14 @@ public:
     const std::string& getId() const override { return id; }
     const ActivationInfo& getActivationInfo() const override { return info_; }
 
-    void activate(urpg::ability::AbilitySystemComponent& source) override {
-        commitAbility(source);
-    }
+    void activate(urpg::ability::AbilitySystemComponent& source) override { commitAbility(source); }
 
-private:
+  private:
     ActivationInfo info_;
 };
 
-urpg::scene::BattleParticipant* findParticipant(std::vector<urpg::scene::BattleParticipant>& participants, bool is_enemy) {
+urpg::scene::BattleParticipant* findParticipant(std::vector<urpg::scene::BattleParticipant>& participants,
+                                                bool is_enemy) {
     for (auto& participant : participants) {
         if (participant.isEnemy == is_enemy) {
             return &participant;
@@ -64,8 +63,7 @@ urpg::scene::BattleParticipant* findParticipant(std::vector<urpg::scene::BattleP
     return nullptr;
 }
 
-urpg::message::DialoguePage makeDialoguePage(std::string id,
-                                             std::string body,
+urpg::message::DialoguePage makeDialoguePage(std::string id, std::string body,
                                              urpg::message::MessagePresentationVariant variant,
                                              bool wait_for_advance = true,
                                              std::vector<urpg::message::ChoiceOption> choices = {},
@@ -122,11 +120,7 @@ TEST_CASE("DiagnosticsWorkspace - Refresh updates compat and save tabs", "[edito
     urpg::audio::AudioCore audioCore;
     audioCore.playSound("workspace_test_se", urpg::audio::AudioCategory::SE);
     workspace.bindAudioRuntime(audioCore);
-    workspace.bindMigrationWizardRuntime(nlohmann::json{
-        {"scenes", {
-            {{"symbol", "item"}, {"name", "Items"}}
-        }}
-    });
+    workspace.bindMigrationWizardRuntime(nlohmann::json{{"scenes", {{{"symbol", "item"}, {"name", "Items"}}}}});
     workspace.bindProjectAuditReport(nlohmann::json{
         {"schemaVersion", "1.0.0"},
         {"headline", "Workspace audit"},
@@ -144,158 +138,112 @@ TEST_CASE("DiagnosticsWorkspace - Refresh updates compat and save tabs", "[edito
         {"signoffArtifactIssueCount", 1},
         {"templateSpecArtifactIssueCount", 1},
         {"templateContext", {{"id", "jrpg"}, {"status", "PARTIAL"}}},
-        {"governance", {
-            {"assetReport", {
-                {"path", "imports/reports/asset_audit.json"},
-                {"available", true},
-                {"usable", false},
-                {"issueCount", 2},
-                {"normalizedCount", 2},
-                {"promotedCount", 2},
-                {"promotedVisualLaneCount", 1},
-                {"promotedAudioLaneCount", 1},
-                {"wysiwygSmokeProofCount", 1}
-            }},
-            {"schema", {
-                {"schemaExists", true},
-                {"changelogExists", false},
-                {"mentionsSchemaVersion", true},
-                {"schemaVersion", "2.1.0"}
-            }},
-            {"projectSchema", {
-                {"path", "schemas/project.schema.json"},
-                {"available", true},
-                {"hasLocalizationSection", true},
-                {"hasInputSection", false},
-                {"hasExportSection", true}
-            }},
-            {"localizationEvidence", {
-                {"path", "imports/reports/localization/localization_consistency_report.json"},
-                {"available", true},
-                {"enabled", true},
-                {"usable", true},
-                {"dependency", "template localization coverage evidence"},
-                {"summary", "Checking canonical localization consistency evidence for selected template jrpg."},
-                {"status", "missing_keys"},
-                {"issueCount", 1},
-                {"hasBundles", true},
-                {"bundleCount", 2},
-                {"missingLocaleCount", 1},
-                {"missingKeyCount", 2},
-                {"extraKeyCount", 1},
-                {"masterLocale", "en"},
-                {"bundles", {
-                    {
-                        {"path", "content/localization/en.json"},
-                        {"locale", "en"},
-                        {"keyCount", 3}
-                    },
-                    {
-                        {"path", "content/localization/fr.json"},
-                        {"locale", "fr"},
-                        {"keyCount", 2}
-                    }
-                }}
-            }},
-            {"inputArtifacts", {
-                {"path", "content/input/input_bindings.json"},
-                {"exists", true},
-                {"issueCount", 2}
-            }},
-            {"accessibilityArtifacts", {
-                {"path", "content/schemas/accessibility_report.schema.json"},
-                {"available", true},
-                {"issueCount", 1}
-            }},
-            {"audioArtifacts", {
-                {"path", "content/schemas/audio_mix_presets.schema.json"},
-                {"available", true},
-                {"issueCount", 2}
-            }},
-            {"performanceArtifacts", {
-                {"path", "docs/presentation/performance_budgets.md"},
-                {"available", true},
-                {"issueCount", 3}
-            }},
-            {"releaseSignoffWorkflow", {
-                {"path", "docs/RELEASE_SIGNOFF_WORKFLOW.md"},
-                {"available", true},
-                {"issueCount", 0}
-            }},
-            {"signoffArtifacts", {
-                {"enabled", true},
-                {"dependency", "human-review-gated subsystem signoff artifacts"},
-                {"summary", "Checking required subsystem signoff artifacts, conservative wording, and structured human-review signoff contracts for governed lanes."},
-                {"available", true},
-                {"issueCount", 1},
-                {"expectedArtifacts", {
-                    {
-                        {"subsystemId", "battle_core"},
-                        {"title", "Battle Core signoff"},
-                        {"path", "docs/BATTLE_CORE_CLOSURE_SIGNOFF.md"},
-                        {"required", true},
-                        {"exists", true},
-                        {"isRegularFile", true},
-                        {"status", "contract_mismatch"},
-                        {"wordingOk", true},
-                        {"signoffContract", {
-                            {"required", true},
-                            {"artifactPath", "docs/BATTLE_CORE_CLOSURE_SIGNOFF.md"},
-                            {"promotionRequiresHumanReview", false},
-                            {"workflow", "docs/RELEASE_SIGNOFF_WORKFLOW.md"},
-                            {"contractOk", false}
-                        }}
-                    }
-                }}
-            }},
-            {"templateSpecArtifacts", {
-                {"enabled", true},
-                {"path", "docs/templates/jrpg_spec.md"},
-                {"available", true},
-                {"issueCount", 1},
-                {"expectedArtifacts", {
-                    {
-                        {"path", "docs/templates/jrpg_spec.md"},
-                        {"status", "parity_mismatch"},
-                        {"templateIdMatches", true},
-                        {"requiredSubsystemsMatch", false},
-                        {"barsMatch", false},
-                        {"missingRequiredSubsystems", {"save_data_core"}},
-                        {"unexpectedRequiredSubsystems", {"2_5d_mode"}},
-                        {"barMismatches", {
-                            {
-                                {"bar", "accessibility"},
-                                {"label", "Accessibility"},
-                                {"expectedStatus", "PARTIAL"},
-                                {"specStatus", "PLANNED"}
-                            }
-                        }}
-                    }
-                }}
-            }}
-        }},
-        {"issues", {
-            {
-                {"code", "missing_localization_key"},
-                {"title", "Missing localization key"},
-                {"detail", "menu.start is missing from one locale."},
-                {"severity", "warning"},
-                {"blocksRelease", true},
-                {"blocksExport", false}
-            },
-            {
-                {"code", "missing_input_binding"},
-                {"title", "Missing input binding"},
-                {"detail", "confirm action is not bound for controller."},
-                {"severity", "error"},
-                {"blocksRelease", false},
-                {"blocksExport", true}
-            }
-        }}
-    });
+        {"governance",
+         {{"assetReport",
+           {{"path", "imports/reports/asset_audit.json"},
+            {"available", true},
+            {"usable", false},
+            {"issueCount", 2},
+            {"normalizedCount", 2},
+            {"promotedCount", 2},
+            {"promotedVisualLaneCount", 1},
+            {"promotedAudioLaneCount", 1},
+            {"wysiwygSmokeProofCount", 1}}},
+          {"schema",
+           {{"schemaExists", true},
+            {"changelogExists", false},
+            {"mentionsSchemaVersion", true},
+            {"schemaVersion", "2.1.0"}}},
+          {"projectSchema",
+           {{"path", "schemas/project.schema.json"},
+            {"available", true},
+            {"hasLocalizationSection", true},
+            {"hasInputSection", false},
+            {"hasExportSection", true}}},
+          {"localizationEvidence",
+           {{"path", "imports/reports/localization/localization_consistency_report.json"},
+            {"available", true},
+            {"enabled", true},
+            {"usable", true},
+            {"dependency", "template localization coverage evidence"},
+            {"summary", "Checking canonical localization consistency evidence for selected template jrpg."},
+            {"status", "missing_keys"},
+            {"issueCount", 1},
+            {"hasBundles", true},
+            {"bundleCount", 2},
+            {"missingLocaleCount", 1},
+            {"missingKeyCount", 2},
+            {"extraKeyCount", 1},
+            {"masterLocale", "en"},
+            {"bundles",
+             {{{"path", "content/localization/en.json"}, {"locale", "en"}, {"keyCount", 3}},
+              {{"path", "content/localization/fr.json"}, {"locale", "fr"}, {"keyCount", 2}}}}}},
+          {"inputArtifacts", {{"path", "content/input/input_bindings.json"}, {"exists", true}, {"issueCount", 2}}},
+          {"accessibilityArtifacts",
+           {{"path", "content/schemas/accessibility_report.schema.json"}, {"available", true}, {"issueCount", 1}}},
+          {"audioArtifacts",
+           {{"path", "content/schemas/audio_mix_presets.schema.json"}, {"available", true}, {"issueCount", 2}}},
+          {"performanceArtifacts",
+           {{"path", "docs/presentation/performance_budgets.md"}, {"available", true}, {"issueCount", 3}}},
+          {"releaseSignoffWorkflow",
+           {{"path", "docs/RELEASE_SIGNOFF_WORKFLOW.md"}, {"available", true}, {"issueCount", 0}}},
+          {"signoffArtifacts",
+           {{"enabled", true},
+            {"dependency", "human-review-gated subsystem signoff artifacts"},
+            {"summary", "Checking required subsystem signoff artifacts, conservative wording, and structured "
+                        "human-review signoff contracts for governed lanes."},
+            {"available", true},
+            {"issueCount", 1},
+            {"expectedArtifacts",
+             {{{"subsystemId", "battle_core"},
+               {"title", "Battle Core signoff"},
+               {"path", "docs/BATTLE_CORE_CLOSURE_SIGNOFF.md"},
+               {"required", true},
+               {"exists", true},
+               {"isRegularFile", true},
+               {"status", "contract_mismatch"},
+               {"wordingOk", true},
+               {"signoffContract",
+                {{"required", true},
+                 {"artifactPath", "docs/BATTLE_CORE_CLOSURE_SIGNOFF.md"},
+                 {"promotionRequiresHumanReview", false},
+                 {"workflow", "docs/RELEASE_SIGNOFF_WORKFLOW.md"},
+                 {"contractOk", false}}}}}}}},
+          {"templateSpecArtifacts",
+           {{"enabled", true},
+            {"path", "docs/templates/jrpg_spec.md"},
+            {"available", true},
+            {"issueCount", 1},
+            {"expectedArtifacts",
+             {{{"path", "docs/templates/jrpg_spec.md"},
+               {"status", "parity_mismatch"},
+               {"templateIdMatches", true},
+               {"requiredSubsystemsMatch", false},
+               {"barsMatch", false},
+               {"missingRequiredSubsystems", {"save_data_core"}},
+               {"unexpectedRequiredSubsystems", {"2_5d_mode"}},
+               {"barMismatches",
+                {{{"bar", "accessibility"},
+                  {"label", "Accessibility"},
+                  {"expectedStatus", "PARTIAL"},
+                  {"specStatus", "PLANNED"}}}}}}}}}}},
+        {"issues",
+         {{{"code", "missing_localization_key"},
+           {"title", "Missing localization key"},
+           {"detail", "menu.start is missing from one locale."},
+           {"severity", "warning"},
+           {"blocksRelease", true},
+           {"blocksExport", false}},
+          {{"code", "missing_input_binding"},
+           {"title", "Missing input binding"},
+           {"detail", "confirm action is not bound for controller."},
+           {"severity", "error"},
+           {"blocksRelease", false},
+           {"blocksExport", true}}}}});
     workspace.ingestEventAuthorityDiagnosticsJsonl(
-        "{\"ts\":\"2026-03-04T00:00:02Z\",\"level\":\"warn\",\"subsystem\":\"event_authority\",\"event\":\"edit_rejected\",\"event_id\":\"evt_workspace\",\"block_id\":\"blk_workspace\",\"mode\":\"compat\",\"operation\":\"edit_urpg_ast\",\"error_code\":\"read_only_derived_view\",\"message\":\"workspace test\"}"
-    );
+        "{\"ts\":\"2026-03-04T00:00:02Z\",\"level\":\"warn\",\"subsystem\":\"event_authority\",\"event\":\"edit_"
+        "rejected\",\"event_id\":\"evt_workspace\",\"block_id\":\"blk_workspace\",\"mode\":\"compat\",\"operation\":"
+        "\"edit_urpg_ast\",\"error_code\":\"read_only_derived_view\",\"message\":\"workspace test\"}");
 
     pluginManager.executeCommand("MissingPlugin", "missingCommand", {});
     REQUIRE_FALSE(pluginManager.exportFailureDiagnosticsJsonl().empty());
@@ -481,7 +429,8 @@ TEST_CASE("DiagnosticsWorkspace - Refresh updates compat and save tabs", "[edito
     REQUIRE(workspace.eventAuthorityPanel().lastRenderSnapshot().selected_row->event_id == "evt_workspace");
     REQUIRE(workspace.eventAuthorityPanel().lastRenderSnapshot().selected_row->block_id == "blk_workspace");
     REQUIRE(workspace.eventAuthorityPanel().lastRenderSnapshot().selected_navigation_target.has_value());
-    REQUIRE(workspace.eventAuthorityPanel().lastRenderSnapshot().selected_navigation_target->event_id == "evt_workspace");
+    REQUIRE(workspace.eventAuthorityPanel().lastRenderSnapshot().selected_navigation_target->event_id ==
+            "evt_workspace");
     REQUIRE_FALSE(workspace.messagePanel().isVisible());
     REQUIRE_FALSE(workspace.battlePanel().isVisible());
 
@@ -604,16 +553,25 @@ TEST_CASE("DiagnosticsWorkspace - Refresh updates compat and save tabs", "[edito
     REQUIRE(workspace.projectAuditPanel().lastRenderSnapshot().signoff_artifacts->expected_artifacts.size() == 1);
     REQUIRE(workspace.projectAuditPanel().lastRenderSnapshot().signoff_artifacts->expected_artifacts[0].subsystem_id ==
             "battle_core");
-    REQUIRE(workspace.projectAuditPanel().lastRenderSnapshot().signoff_artifacts->expected_artifacts[0].signoff_contract.has_value());
-    REQUIRE(workspace.projectAuditPanel().lastRenderSnapshot().signoff_artifacts->expected_artifacts[0].signoff_contract->contract_ok ==
-            false);
+    REQUIRE(workspace.projectAuditPanel()
+                .lastRenderSnapshot()
+                .signoff_artifacts->expected_artifacts[0]
+                .signoff_contract.has_value());
+    REQUIRE(workspace.projectAuditPanel()
+                .lastRenderSnapshot()
+                .signoff_artifacts->expected_artifacts[0]
+                .signoff_contract->contract_ok == false);
     REQUIRE(workspace.projectAuditPanel().lastRenderSnapshot().template_spec_artifacts.has_value());
-    REQUIRE(workspace.projectAuditPanel().lastRenderSnapshot().template_spec_artifacts->path == "docs/templates/jrpg_spec.md");
+    REQUIRE(workspace.projectAuditPanel().lastRenderSnapshot().template_spec_artifacts->path ==
+            "docs/templates/jrpg_spec.md");
     REQUIRE(workspace.projectAuditPanel().lastRenderSnapshot().template_spec_artifacts->expected_artifacts.size() == 1);
-    REQUIRE(workspace.projectAuditPanel().lastRenderSnapshot().template_spec_artifacts->expected_artifacts[0].required_subsystems_match ==
-            false);
-    REQUIRE(workspace.projectAuditPanel().lastRenderSnapshot().template_spec_artifacts->expected_artifacts[0].bars_match ==
-            false);
+    REQUIRE(workspace.projectAuditPanel()
+                .lastRenderSnapshot()
+                .template_spec_artifacts->expected_artifacts[0]
+                .required_subsystems_match == false);
+    REQUIRE(
+        workspace.projectAuditPanel().lastRenderSnapshot().template_spec_artifacts->expected_artifacts[0].bars_match ==
+        false);
     REQUIRE(workspace.projectAuditPanel().lastRenderSnapshot().issues.size() == 2);
     const auto auditJson = nlohmann::json::parse(facade.emitSnapshot());
     REQUIRE(auditJson["active_tab"] == "project_audit");
@@ -693,32 +651,35 @@ TEST_CASE("DiagnosticsWorkspace - Refresh updates compat and save tabs", "[edito
             "human-review-gated subsystem signoff artifacts");
     REQUIRE(auditJson["active_tab_detail"]["governance"]["signoff_artifacts"]["expected_artifacts"].is_array());
     REQUIRE(auditJson["active_tab_detail"]["governance"]["signoff_artifacts"]["expected_artifacts"].size() == 1);
-    REQUIRE(auditJson["active_tab_detail"]["governance"]["signoff_artifacts"]["expected_artifacts"][0]["subsystem_id"] ==
-            "battle_core");
+    REQUIRE(
+        auditJson["active_tab_detail"]["governance"]["signoff_artifacts"]["expected_artifacts"][0]["subsystem_id"] ==
+        "battle_core");
     REQUIRE(auditJson["active_tab_detail"]["governance"]["signoff_artifacts"]["expected_artifacts"][0]["status"] ==
             "contract_mismatch");
-    REQUIRE(auditJson["active_tab_detail"]["governance"]["signoff_artifacts"]["expected_artifacts"][0]["signoff_contract"]["artifact_path"] ==
-            "docs/BATTLE_CORE_CLOSURE_SIGNOFF.md");
-    REQUIRE(auditJson["active_tab_detail"]["governance"]["signoff_artifacts"]["expected_artifacts"][0]["signoff_contract"]["contract_ok"] ==
-            false);
-    REQUIRE(auditJson["active_tab_detail"]["governance"]["template_spec_artifacts"]["path"] == "docs/templates/jrpg_spec.md");
+    REQUIRE(auditJson["active_tab_detail"]["governance"]["signoff_artifacts"]["expected_artifacts"][0]
+                     ["signoff_contract"]["artifact_path"] == "docs/BATTLE_CORE_CLOSURE_SIGNOFF.md");
+    REQUIRE(auditJson["active_tab_detail"]["governance"]["signoff_artifacts"]["expected_artifacts"][0]
+                     ["signoff_contract"]["contract_ok"] == false);
+    REQUIRE(auditJson["active_tab_detail"]["governance"]["template_spec_artifacts"]["path"] ==
+            "docs/templates/jrpg_spec.md");
     REQUIRE(auditJson["active_tab_detail"]["governance"]["template_spec_artifacts"]["available"] == true);
     REQUIRE(auditJson["active_tab_detail"]["governance"]["template_spec_artifacts"]["issue_count"] == 1);
     REQUIRE(auditJson["active_tab_detail"]["governance"]["template_spec_artifacts"]["enabled"] == true);
     REQUIRE(auditJson["active_tab_detail"]["governance"]["template_spec_artifacts"]["expected_artifacts"].is_array());
     REQUIRE(auditJson["active_tab_detail"]["governance"]["template_spec_artifacts"]["expected_artifacts"].size() == 1);
-    REQUIRE(auditJson["active_tab_detail"]["governance"]["template_spec_artifacts"]["expected_artifacts"][0]["status"] ==
-            "parity_mismatch");
-    REQUIRE(auditJson["active_tab_detail"]["governance"]["template_spec_artifacts"]["expected_artifacts"][0]["required_subsystems_match"] ==
-            false);
-    REQUIRE(auditJson["active_tab_detail"]["governance"]["template_spec_artifacts"]["expected_artifacts"][0]["bars_match"] ==
-            false);
-    REQUIRE(auditJson["active_tab_detail"]["governance"]["template_spec_artifacts"]["expected_artifacts"][0]["missing_required_subsystems"][0] ==
-            "save_data_core");
-    REQUIRE(auditJson["active_tab_detail"]["governance"]["template_spec_artifacts"]["expected_artifacts"][0]["unexpected_required_subsystems"][0] ==
-            "2_5d_mode");
-    REQUIRE(auditJson["active_tab_detail"]["governance"]["template_spec_artifacts"]["expected_artifacts"][0]["bar_mismatches"][0]["bar"] ==
-            "accessibility");
+    REQUIRE(
+        auditJson["active_tab_detail"]["governance"]["template_spec_artifacts"]["expected_artifacts"][0]["status"] ==
+        "parity_mismatch");
+    REQUIRE(auditJson["active_tab_detail"]["governance"]["template_spec_artifacts"]["expected_artifacts"][0]
+                     ["required_subsystems_match"] == false);
+    REQUIRE(auditJson["active_tab_detail"]["governance"]["template_spec_artifacts"]["expected_artifacts"][0]
+                     ["bars_match"] == false);
+    REQUIRE(auditJson["active_tab_detail"]["governance"]["template_spec_artifacts"]["expected_artifacts"][0]
+                     ["missing_required_subsystems"][0] == "save_data_core");
+    REQUIRE(auditJson["active_tab_detail"]["governance"]["template_spec_artifacts"]["expected_artifacts"][0]
+                     ["unexpected_required_subsystems"][0] == "2_5d_mode");
+    REQUIRE(auditJson["active_tab_detail"]["governance"]["template_spec_artifacts"]["expected_artifacts"][0]
+                     ["bar_mismatches"][0]["bar"] == "accessibility");
     REQUIRE(auditJson["active_tab_detail"]["issues"].is_array());
     REQUIRE(auditJson["active_tab_detail"]["issues"].size() == 2);
     REQUIRE(auditJson["active_tab_detail"]["issues"][0]["code"] == "missing_localization_key");
@@ -773,7 +734,8 @@ TEST_CASE("DiagnosticsWorkspace - Refresh updates compat and save tabs", "[edito
     REQUIRE(workspace.migrationWizardPanel().lastRenderSnapshot().summary_log_count == 2);
     REQUIRE(workspace.migrationWizardPanel().lastRenderSnapshot().headline == "Migration wizard complete.");
     REQUIRE(workspace.migrationWizardPanel().lastRenderSnapshot().summary_logs.size() == 2);
-    REQUIRE(workspace.migrationWizardPanel().lastRenderSnapshot().summary_logs[0].find("Menu migration") != std::string::npos);
+    REQUIRE(workspace.migrationWizardPanel().lastRenderSnapshot().summary_logs[0].find("Menu migration") !=
+            std::string::npos);
     REQUIRE(workspace.migrationWizardPanel().lastRenderSnapshot().subsystem_results.size() == 1);
     REQUIRE(workspace.migrationWizardPanel().lastRenderSnapshot().subsystem_results[0].subsystem_id == "menu");
 
@@ -803,45 +765,30 @@ TEST_CASE("DiagnosticsWorkspace - Project audit derives blocker counts from issu
         {"headline", "Fallback audit"},
         {"summary", "Derived blocker counts should come from issue flags."},
         {"templateContext", {{"id", "jrpg"}, {"status", "PARTIAL"}}},
-        {"issues", {
-            {
-                {"code", "missing_localization_key"},
-                {"title", "Missing localization key"},
-                {"detail", "menu.start is missing from one locale."},
-                {"severity", "warning"},
-                {"blocksRelease", true},
-                {"blocksExport", false}
-            },
-            {
-                {"code", "missing_input_binding"},
-                {"title", "Missing input binding"},
-                {"detail", "confirm action is not bound for controller."},
-                {"severity", "error"},
-                {"blocksRelease", false},
-                {"blocksExport", true}
-            },
-            {
-                {"code", "missing_console_profile"},
-                {"title", "Missing console profile"},
-                {"detail", "console export profile is incomplete."},
-                {"severity", "error"},
-                {"blocksRelease", true},
-                {"blocksExport", true}
-            }
-        }},
-        {"governance", {
-            {"localizationArtifacts", {
-                {"path", "content/localization/en-US.json"},
-                {"available", true},
-                {"issueCount", 1}
-            }},
-            {"exportArtifacts", {
-                {"path", "exports/project_audit/export_manifest.json"},
-                {"present", true},
-                {"issueCount", 2}
-            }}
-        }}
-    });
+        {"issues",
+         {{{"code", "missing_localization_key"},
+           {"title", "Missing localization key"},
+           {"detail", "menu.start is missing from one locale."},
+           {"severity", "warning"},
+           {"blocksRelease", true},
+           {"blocksExport", false}},
+          {{"code", "missing_input_binding"},
+           {"title", "Missing input binding"},
+           {"detail", "confirm action is not bound for controller."},
+           {"severity", "error"},
+           {"blocksRelease", false},
+           {"blocksExport", true}},
+          {{"code", "missing_console_profile"},
+           {"title", "Missing console profile"},
+           {"detail", "console export profile is incomplete."},
+           {"severity", "error"},
+           {"blocksRelease", true},
+           {"blocksExport", true}}}},
+        {"governance",
+         {{"localizationArtifacts",
+           {{"path", "content/localization/en-US.json"}, {"available", true}, {"issueCount", 1}}},
+          {"exportArtifacts",
+           {{"path", "exports/project_audit/export_manifest.json"}, {"present", true}, {"issueCount", 2}}}}}});
 
     workspace.refresh();
 
@@ -969,7 +916,8 @@ TEST_CASE("DiagnosticsWorkspace - Menu runtime binding populates and clears menu
     REQUIRE(menuSnapshot["active_tab_detail"]["preview"]["visible_panes"].is_array());
     REQUIRE(menuSnapshot["active_tab_detail"]["preview"]["visible_panes"].size() == 1);
     REQUIRE(menuSnapshot["active_tab_detail"]["preview"]["visible_panes"][0]["pane_id"] == "main_pane");
-    REQUIRE(menuSnapshot["active_tab_detail"]["preview"]["visible_panes"][0]["selected_command_id"] == "urpg.menu.item");
+    REQUIRE(menuSnapshot["active_tab_detail"]["preview"]["visible_panes"][0]["selected_command_id"] ==
+            "urpg.menu.item");
 
     workspace.clearMenuRuntime();
 
@@ -1244,7 +1192,8 @@ TEST_CASE("DiagnosticsWorkspace - Menu preview actions drive runtime selection a
 
     REQUIRE(workspace.dispatchMenuPreviewAction(urpg::input::InputAction::MoveDown));
     exported = nlohmann::json::parse(workspace.exportAsJson());
-    REQUIRE(exported["active_tab_detail"]["preview"]["visible_panes"][0]["selected_command_id"] == "urpg.menu.dead_end");
+    REQUIRE(exported["active_tab_detail"]["preview"]["visible_panes"][0]["selected_command_id"] ==
+            "urpg.menu.dead_end");
     REQUIRE(exported["active_tab_detail"]["selected_command_id"] == "urpg.menu.dead_end");
     REQUIRE(exported["active_tab_detail"]["selected_row"]["command_id"] == "urpg.menu.dead_end");
 
@@ -1388,7 +1337,7 @@ TEST_CASE("DiagnosticsWorkspace - ability tab follows live scene-owned ASC updat
 namespace {
 
 class WorkspacePreviewAbility final : public urpg::ability::GameplayAbility {
-public:
+  public:
     WorkspacePreviewAbility(std::string ability_id, float cooldown_seconds, float mp_cost)
         : id_(std::move(ability_id)) {
         info_.cooldownSeconds = cooldown_seconds;
@@ -1398,11 +1347,9 @@ public:
     const std::string& getId() const override { return id_; }
     const ActivationInfo& getActivationInfo() const override { return info_; }
 
-    void activate(urpg::ability::AbilitySystemComponent& source) override {
-        commitAbility(source);
-    }
+    void activate(urpg::ability::AbilitySystemComponent& source) override { commitAbility(source); }
 
-private:
+  private:
     std::string id_;
     ActivationInfo info_;
 };
@@ -1435,7 +1382,8 @@ TEST_CASE("DiagnosticsWorkspace - ability workflow actions expose selection and 
     REQUIRE(exported["active_tab_detail"]["diagnostic_count"] == 1);
     REQUIRE(exported["active_tab_detail"]["diagnostic_lines"].size() == 1);
     REQUIRE(exported["active_tab_detail"]["selected_ability_can_activate"] == false);
-    REQUIRE(exported["active_tab_detail"]["selected_ability_blocking_reason"].get<std::string>().find("Cooldown") != std::string::npos);
+    REQUIRE(exported["active_tab_detail"]["selected_ability_blocking_reason"].get<std::string>().find("Cooldown") !=
+            std::string::npos);
     REQUIRE(asc.getAttribute("MP", 0.0f) == 15.0f);
 
     REQUIRE(workspace.selectAbilityRow(1));
@@ -1475,7 +1423,8 @@ TEST_CASE("DiagnosticsWorkspace - ability draft editing drives owned preview run
     REQUIRE(exported["active_tab_detail"]["draft"]["preview_attribute_after"] == 118.0);
     REQUIRE(exported["active_tab_detail"]["draft"]["pattern_preview"]["name"] == "Editor Guard Pattern");
     REQUIRE(exported["active_tab_detail"]["draft"]["pattern_preview"]["is_valid"] == true);
-    REQUIRE(exported["active_tab_detail"]["draft"]["pattern_preview"]["grid_rows"][2].get<std::string>().find("[O]") != std::string::npos);
+    REQUIRE(exported["active_tab_detail"]["draft"]["pattern_preview"]["grid_rows"][2].get<std::string>().find("[O]") !=
+            std::string::npos);
 
     REQUIRE(workspace.previewSelectedAbility());
     exported = nlohmann::json::parse(workspace.exportAsJson());
@@ -1483,7 +1432,8 @@ TEST_CASE("DiagnosticsWorkspace - ability draft editing drives owned preview run
     REQUIRE(exported["active_tab_detail"]["latest_outcome"] == "executed");
     REQUIRE(exported["active_tab_detail"]["diagnostic_count"] == 1);
     REQUIRE(exported["active_tab_detail"]["abilities"][0]["can_activate"] == false);
-    REQUIRE(exported["active_tab_detail"]["abilities"][0]["blocking_reason"].get<std::string>().find("Cooldown") != std::string::npos);
+    REQUIRE(exported["active_tab_detail"]["abilities"][0]["blocking_reason"].get<std::string>().find("Cooldown") !=
+            std::string::npos);
 }
 
 TEST_CASE("DiagnosticsWorkspace - ability draft state save and load round-trip",
@@ -1610,9 +1560,7 @@ TEST_CASE("DiagnosticsWorkspace - project ability content is discoverable and lo
     fire.effect_attribute = "Attack";
     fire.effect_value = 18.0f;
     fire.pattern.setName("Fire Pattern");
-    REQUIRE(urpg::ability::saveAuthoredAbilityAssetToFile(
-        fire,
-        project_root / "content" / "abilities" / "fire.json"));
+    REQUIRE(urpg::ability::saveAuthoredAbilityAssetToFile(fire, project_root / "content" / "abilities" / "fire.json"));
 
     urpg::ability::AuthoredAbilityAsset guard;
     guard.ability_id = "skill.content_guard";
@@ -1621,9 +1569,8 @@ TEST_CASE("DiagnosticsWorkspace - project ability content is discoverable and lo
     guard.effect_operation = urpg::ModifierOp::Override;
     guard.effect_value = 55.0f;
     guard.pattern.setName("Guard Pattern");
-    REQUIRE(urpg::ability::saveAuthoredAbilityAssetToFile(
-        guard,
-        project_root / "content" / "abilities" / "guard.json"));
+    REQUIRE(
+        urpg::ability::saveAuthoredAbilityAssetToFile(guard, project_root / "content" / "abilities" / "guard.json"));
 
     urpg::editor::DiagnosticsWorkspace workspace;
     workspace.setActiveTab(urpg::editor::DiagnosticsTab::Abilities);
@@ -1646,8 +1593,9 @@ TEST_CASE("DiagnosticsWorkspace - project ability content is discoverable and lo
     std::filesystem::remove_all(project_root);
 }
 
-TEST_CASE("DiagnosticsWorkspace - selected project ability asset can bind into a live map runtime and save back to content",
-          "[editor][diagnostics][integration][abilities][content_binding][map]") {
+TEST_CASE(
+    "DiagnosticsWorkspace - selected project ability asset can bind into a live map runtime and save back to content",
+    "[editor][diagnostics][integration][abilities][content_binding][map]") {
     const auto project_root = std::filesystem::temp_directory_path() / "urpg_workspace_ability_content_binding";
     std::filesystem::remove_all(project_root);
     std::filesystem::create_directories(project_root / "content" / "abilities");
@@ -1659,9 +1607,8 @@ TEST_CASE("DiagnosticsWorkspace - selected project ability asset can bind into a
     mapAsset.effect_attribute = "Defense";
     mapAsset.effect_value = 21.0f;
     mapAsset.pattern.setName("Map Content Pattern");
-    REQUIRE(urpg::ability::saveAuthoredAbilityAssetToFile(
-        mapAsset,
-        project_root / "content" / "abilities" / "map_guard.json"));
+    REQUIRE(urpg::ability::saveAuthoredAbilityAssetToFile(mapAsset,
+                                                          project_root / "content" / "abilities" / "map_guard.json"));
 
     urpg::scene::MapScene map("001", 10, 10);
     urpg::editor::DiagnosticsWorkspace workspace;
@@ -1697,4 +1644,3 @@ TEST_CASE("DiagnosticsWorkspace - selected project ability asset can bind into a
 
     std::filesystem::remove_all(project_root);
 }
-

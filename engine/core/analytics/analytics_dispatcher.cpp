@@ -10,10 +10,8 @@ bool AnalyticsDispatcher::isOptIn() const {
     return m_optIn;
 }
 
-void AnalyticsDispatcher::dispatchEvent(
-    const std::string& eventName,
-    const std::string& category,
-    const std::map<std::string, std::string>& params) {
+void AnalyticsDispatcher::dispatchEvent(const std::string& eventName, const std::string& category,
+                                        const std::map<std::string, std::string>& params) {
     if (!m_optIn) {
         return;
     }
@@ -32,9 +30,7 @@ void AnalyticsDispatcher::dispatchEvent(
     }
 }
 
-void AnalyticsDispatcher::dispatchEvent(
-    const std::string& eventName,
-    const std::string& category) {
+void AnalyticsDispatcher::dispatchEvent(const std::string& eventName, const std::string& category) {
     dispatchEvent(eventName, category, {});
 }
 
@@ -74,10 +70,20 @@ nlohmann::json AnalyticsDispatcher::getBufferSnapshot() const {
     return result;
 }
 
+size_t AnalyticsDispatcher::getQueuedEventCount() const {
+    return m_buffer.size();
+}
+
+size_t AnalyticsDispatcher::clearQueuedEvents() {
+    const size_t count = m_buffer.size();
+    m_buffer.clear();
+    return count;
+}
+
 void AnalyticsDispatcher::resetSession() {
     m_buffer.clear();
     m_nextTick = 1;
     m_sessionEventCount = 0;
 }
 
-}  // namespace urpg::analytics
+} // namespace urpg::analytics

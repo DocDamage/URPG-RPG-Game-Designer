@@ -30,8 +30,7 @@ struct MessagePresentationVariant {
     std::string route_token;
 };
 
-MessagePresentationVariant variantFromCompatRoute(const std::string& route,
-                                                  const std::string& speaker_default,
+MessagePresentationVariant variantFromCompatRoute(const std::string& route, const std::string& speaker_default,
                                                   int32_t speaker_face_actor_id = 0);
 
 struct NameboxChrome {
@@ -64,12 +63,12 @@ struct PortraitBinding {
 };
 
 class PortraitBindingRegistry {
-public:
+  public:
     void registerBinding(int32_t actor_id, PortraitBinding binding);
     const PortraitBinding* resolveBinding(int32_t actor_id) const;
     void clear();
 
-private:
+  private:
     std::map<int32_t, PortraitBinding> actor_bindings_;
 };
 
@@ -81,7 +80,7 @@ struct ChoiceOption {
 };
 
 class ChoicePromptState {
-public:
+  public:
     void open(std::vector<ChoiceOption> options, int32_t default_index = 0);
     void close();
 
@@ -95,7 +94,7 @@ public:
     bool canConfirm() const;
     std::optional<std::string> confirmSelection() const;
 
-private:
+  private:
     bool advanceSelection(int32_t step);
     std::optional<size_t> findEnabledFrom(size_t start, int32_t step) const;
 
@@ -139,7 +138,7 @@ struct RichTextLayoutResult {
 };
 
 class RichTextLayoutEngine {
-public:
+  public:
     using VariableResolver = std::function<int32_t(int32_t)>;
     using ActorNameResolver = std::function<std::string(int32_t)>;
     using PartyMemberResolver = std::function<int32_t(int32_t)>;
@@ -158,12 +157,12 @@ public:
     [[nodiscard]] int32_t textWidth(const std::string& text) const;
 
     /**
-     * @brief Resolves all escapes in the text (variables, actor names, etc.) 
+     * @brief Resolves all escapes in the text (variables, actor names, etc.)
      * but does NOT tokenize or layout. Used for simple string expansion.
      */
     [[nodiscard]] std::string resolveEscapes(const std::string& text) const;
 
-private:
+  private:
     std::vector<RichTextToken> tokenize(const std::string& text) const;
     std::string resolveEscape(char command, int32_t arg) const;
 
@@ -202,7 +201,7 @@ struct MessageFlowSnapshot {
 };
 
 class MessageFlowRunner {
-public:
+  public:
     using CommandExecutor = std::function<void(const std::string&)>;
 
     void begin(std::vector<DialoguePage> pages);
@@ -227,7 +226,7 @@ public:
     [[nodiscard]] MessageFlowSnapshot snapshot() const;
     bool restore(const MessageFlowSnapshot& snapshot);
 
-private:
+  private:
     void enterCurrentPage();
     void stepToNextPage();
 

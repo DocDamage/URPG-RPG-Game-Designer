@@ -1,5 +1,5 @@
-#include "editor/diagnostics/diagnostics_workspace.h"
 #include "editor/diagnostics/diagnostics_facade.h"
+#include "editor/diagnostics/diagnostics_workspace.h"
 #include "engine/core/audio/audio_core.h"
 #include "engine/core/battle/battle_core.h"
 #include "engine/core/input/input_core.h"
@@ -19,11 +19,7 @@ TEST_CASE("DiagnosticsWorkspace - Migration wizard state clears cleanly",
           "[editor][diagnostics][integration][wizard_clear]") {
     urpg::editor::DiagnosticsWorkspace workspace;
 
-    workspace.migrationWizardPanel().onProjectUpdateRequested({
-        {"scenes", {
-            {{"symbol", "item"}, {"name", "Items"}}
-        }}
-    });
+    workspace.migrationWizardPanel().onProjectUpdateRequested({{"scenes", {{{"symbol", "item"}, {"name", "Items"}}}}});
 
     const auto populatedSummary = workspace.tabSummary(urpg::editor::DiagnosticsTab::MigrationWizard);
     REQUIRE(populatedSummary.item_count == 1);
@@ -43,18 +39,9 @@ TEST_CASE("DiagnosticsWorkspace - Migration wizard export carries selected subsy
           "[editor][diagnostics][integration][wizard_export]") {
     urpg::editor::DiagnosticsWorkspace workspace;
 
-    workspace.bindMigrationWizardRuntime({
-        {"messages", {
-            {
-                {"id", "page_1"},
-                {"speaker", "Guide"},
-                {"text", "Welcome to URPG."}
-            }
-        }},
-        {"scenes", {
-            {{"symbol", "item"}, {"name", "Items"}}
-        }}
-    });
+    workspace.bindMigrationWizardRuntime(
+        {{"messages", {{{"id", "page_1"}, {"speaker", "Guide"}, {"text", "Welcome to URPG."}}}},
+         {"scenes", {{{"symbol", "item"}, {"name", "Items"}}}}});
 
     workspace.setActiveTab(urpg::editor::DiagnosticsTab::MigrationWizard);
     workspace.render();
@@ -77,7 +64,8 @@ TEST_CASE("DiagnosticsWorkspace - Migration wizard export carries selected subsy
     REQUIRE(exported["active_tab_detail"]["selected_subsystem_display_name"] == "Message");
     REQUIRE(exported["active_tab_detail"]["selected_subsystem_processed_count"] == 1);
     REQUIRE(exported["active_tab_detail"]["selected_subsystem_completed"] == true);
-    REQUIRE(exported["active_tab_detail"]["selected_subsystem_summary_line"].get<std::string>().find("Message migration") != std::string::npos);
+    REQUIRE(exported["active_tab_detail"]["selected_subsystem_summary_line"].get<std::string>().find(
+                "Message migration") != std::string::npos);
     REQUIRE(exported["active_tab_detail"]["can_rerun_selected_subsystem"] == true);
     REQUIRE(exported["active_tab_detail"]["can_clear_selected_subsystem"] == true);
     REQUIRE(exported["active_tab_detail"]["can_select_next_subsystem"] == true);
@@ -95,38 +83,29 @@ TEST_CASE("DiagnosticsWorkspace - Migration wizard export carries aggregate coun
         (std::filesystem::temp_directory_path() / "urpg_workspace_migration_wizard_export_counts.json").string();
     std::filesystem::remove(temp_path);
 
-    nlohmann::json report_json = {
-        {"total_files_processed", 2},
-        {"warning_count", 3},
-        {"error_count", 1},
-        {"is_complete", true},
-        {"summary_logs", {
-            "Message migration: 1 dialogue sequence(s), 2 diagnostic(s).",
-            "Menu migration: 1 scene panel(s), 1 command(s).",
-            "Migration wizard complete."
-        }},
-        {"subsystem_results", {
-            {
-                {"subsystem_id", "message"},
-                {"display_name", "Message"},
-                {"processed_count", 1},
-                {"warning_count", 2},
-                {"error_count", 0},
-                {"completed", true},
-                {"summary_line", "Message migration: 1 dialogue sequence(s), 2 diagnostic(s)."}
-            },
-            {
-                {"subsystem_id", "menu"},
-                {"display_name", "Menu"},
-                {"processed_count", 1},
-                {"warning_count", 1},
-                {"error_count", 1},
-                {"completed", true},
-                {"summary_line", "Menu migration: 1 scene panel(s), 1 command(s)."}
-            }
-        }},
-        {"selected_subsystem_id", "message"}
-    };
+    nlohmann::json report_json = {{"total_files_processed", 2},
+                                  {"warning_count", 3},
+                                  {"error_count", 1},
+                                  {"is_complete", true},
+                                  {"summary_logs",
+                                   {"Message migration: 1 dialogue sequence(s), 2 diagnostic(s).",
+                                    "Menu migration: 1 scene panel(s), 1 command(s).", "Migration wizard complete."}},
+                                  {"subsystem_results",
+                                   {{{"subsystem_id", "message"},
+                                     {"display_name", "Message"},
+                                     {"processed_count", 1},
+                                     {"warning_count", 2},
+                                     {"error_count", 0},
+                                     {"completed", true},
+                                     {"summary_line", "Message migration: 1 dialogue sequence(s), 2 diagnostic(s)."}},
+                                    {{"subsystem_id", "menu"},
+                                     {"display_name", "Menu"},
+                                     {"processed_count", 1},
+                                     {"warning_count", 1},
+                                     {"error_count", 1},
+                                     {"completed", true},
+                                     {"summary_line", "Menu migration: 1 scene panel(s), 1 command(s)."}}}},
+                                  {"selected_subsystem_id", "message"}};
 
     {
         std::ofstream ofs(temp_path);
@@ -152,17 +131,8 @@ TEST_CASE("DiagnosticsWorkspace - Migration wizard workflow actions are exposed 
     urpg::editor::DiagnosticsWorkspace workspace;
 
     nlohmann::json project_data = {
-        {"messages", {
-            {
-                {"id", "page_1"},
-                {"speaker", "Guide"},
-                {"text", "Welcome to URPG."}
-            }
-        }},
-        {"scenes", {
-            {{"symbol", "item"}, {"name", "Items"}}
-        }}
-    };
+        {"messages", {{{"id", "page_1"}, {"speaker", "Guide"}, {"text", "Welcome to URPG."}}}},
+        {"scenes", {{{"symbol", "item"}, {"name", "Items"}}}}};
 
     workspace.bindMigrationWizardRuntime(project_data);
     workspace.setActiveTab(urpg::editor::DiagnosticsTab::MigrationWizard);
@@ -186,7 +156,8 @@ TEST_CASE("DiagnosticsWorkspace - Migration wizard workflow actions are exposed 
 
     exported = nlohmann::json::parse(workspace.exportAsJson());
     REQUIRE(exported["active_tab_detail"]["selected_subsystem_id"] == "menu");
-    REQUIRE(exported["active_tab_detail"]["selected_subsystem_summary_line"].get<std::string>().find("2 command(s)") != std::string::npos);
+    REQUIRE(exported["active_tab_detail"]["selected_subsystem_summary_line"].get<std::string>().find("2 command(s)") !=
+            std::string::npos);
 
     const auto exported_report_json = workspace.exportMigrationWizardReportJson();
     REQUIRE_FALSE(exported_report_json.empty());
@@ -206,17 +177,8 @@ TEST_CASE("DiagnosticsWorkspace - Migration wizard export carries a rendered wor
     urpg::editor::DiagnosticsWorkspace workspace;
 
     nlohmann::json project_data = {
-        {"messages", {
-            {
-                {"id", "page_1"},
-                {"speaker", "Guide"},
-                {"text", "Welcome to URPG."}
-            }
-        }},
-        {"scenes", {
-            {{"symbol", "item"}, {"name", "Items"}}
-        }}
-    };
+        {"messages", {{{"id", "page_1"}, {"speaker", "Guide"}, {"text", "Welcome to URPG."}}}},
+        {"scenes", {{{"symbol", "item"}, {"name", "Items"}}}}};
 
     workspace.bindMigrationWizardRuntime(project_data);
     workspace.setActiveTab(urpg::editor::DiagnosticsTab::MigrationWizard);
@@ -284,17 +246,8 @@ TEST_CASE("DiagnosticsWorkspace - Migration wizard selected-subsystem actions ar
     urpg::editor::DiagnosticsWorkspace workspace;
 
     nlohmann::json project_data = {
-        {"messages", {
-            {
-                {"id", "page_1"},
-                {"speaker", "Guide"},
-                {"text", "Welcome to URPG."}
-            }
-        }},
-        {"scenes", {
-            {{"symbol", "item"}, {"name", "Items"}}
-        }}
-    };
+        {"messages", {{{"id", "page_1"}, {"speaker", "Guide"}, {"text", "Welcome to URPG."}}}},
+        {"scenes", {{{"symbol", "item"}, {"name", "Items"}}}}};
 
     workspace.bindMigrationWizardRuntime(project_data);
     workspace.setActiveTab(urpg::editor::DiagnosticsTab::MigrationWizard);
@@ -310,7 +263,8 @@ TEST_CASE("DiagnosticsWorkspace - Migration wizard selected-subsystem actions ar
     REQUIRE(workspace.rerunSelectedMigrationWizardSubsystem(project_data));
     exported = nlohmann::json::parse(workspace.exportAsJson());
     REQUIRE(exported["active_tab_detail"]["selected_subsystem_id"] == "menu");
-    REQUIRE(exported["active_tab_detail"]["selected_subsystem_summary_line"].get<std::string>().find("2 command(s)") != std::string::npos);
+    REQUIRE(exported["active_tab_detail"]["selected_subsystem_summary_line"].get<std::string>().find("2 command(s)") !=
+            std::string::npos);
 
     REQUIRE(workspace.clearSelectedMigrationWizardSubsystemResult());
     exported = nlohmann::json::parse(workspace.exportAsJson());
@@ -331,17 +285,8 @@ TEST_CASE("DiagnosticsWorkspace - Migration wizard bound-runtime rerun actions a
     urpg::editor::DiagnosticsWorkspace workspace;
 
     nlohmann::json project_data = {
-        {"messages", {
-            {
-                {"id", "page_1"},
-                {"speaker", "Guide"},
-                {"text", "Welcome to URPG."}
-            }
-        }},
-        {"scenes", {
-            {{"symbol", "item"}, {"name", "Items"}}
-        }}
-    };
+        {"messages", {{{"id", "page_1"}, {"speaker", "Guide"}, {"text", "Welcome to URPG."}}}},
+        {"scenes", {{{"symbol", "item"}, {"name", "Items"}}}}};
 
     workspace.bindMigrationWizardRuntime(project_data);
     workspace.setActiveTab(urpg::editor::DiagnosticsTab::MigrationWizard);
@@ -384,17 +329,8 @@ TEST_CASE("DiagnosticsWorkspace - Migration wizard actions keep exported snapsho
     urpg::editor::DiagnosticsWorkspace workspace;
 
     nlohmann::json project_data = {
-        {"messages", {
-            {
-                {"id", "page_1"},
-                {"speaker", "Guide"},
-                {"text", "Welcome to URPG."}
-            }
-        }},
-        {"scenes", {
-            {{"symbol", "item"}, {"name", "Items"}}
-        }}
-    };
+        {"messages", {{{"id", "page_1"}, {"speaker", "Guide"}, {"text", "Welcome to URPG."}}}},
+        {"scenes", {{{"symbol", "item"}, {"name", "Items"}}}}};
 
     workspace.bindMigrationWizardRuntime(project_data);
     workspace.setActiveTab(urpg::editor::DiagnosticsTab::MigrationWizard);
@@ -407,7 +343,8 @@ TEST_CASE("DiagnosticsWorkspace - Migration wizard actions keep exported snapsho
     project_data["scenes"].push_back({{"symbol", "equip"}, {"name", "Equip"}});
     REQUIRE(workspace.rerunMigrationWizardSubsystem("menu", project_data));
     exported = nlohmann::json::parse(workspace.exportAsJson());
-    REQUIRE(exported["active_tab_detail"]["selected_subsystem_summary_line"].get<std::string>().find("2 command(s)") != std::string::npos);
+    REQUIRE(exported["active_tab_detail"]["selected_subsystem_summary_line"].get<std::string>().find("2 command(s)") !=
+            std::string::npos);
 
     REQUIRE(workspace.clearMigrationWizardSubsystemResult("menu"));
     exported = nlohmann::json::parse(workspace.exportAsJson());
@@ -424,17 +361,8 @@ TEST_CASE("DiagnosticsWorkspace - Migration wizard rendered workflow updates acr
     urpg::editor::DiagnosticsWorkspace workspace;
 
     nlohmann::json project_data = {
-        {"messages", {
-            {
-                {"id", "page_1"},
-                {"speaker", "Guide"},
-                {"text", "Welcome to URPG."}
-            }
-        }},
-        {"scenes", {
-            {{"symbol", "item"}, {"name", "Items"}}
-        }}
-    };
+        {"messages", {{{"id", "page_1"}, {"speaker", "Guide"}, {"text", "Welcome to URPG."}}}},
+        {"scenes", {{{"symbol", "item"}, {"name", "Items"}}}}};
 
     workspace.bindMigrationWizardRuntime(project_data);
     workspace.setActiveTab(urpg::editor::DiagnosticsTab::MigrationWizard);
@@ -450,8 +378,10 @@ TEST_CASE("DiagnosticsWorkspace - Migration wizard rendered workflow updates acr
     REQUIRE(workspace.rerunSelectedMigrationWizardSubsystem(project_data));
     exported = nlohmann::json::parse(workspace.exportAsJson());
     REQUIRE(exported["active_tab_detail"]["selected_subsystem_card"]["subsystem_id"] == "menu");
-    REQUIRE(exported["active_tab_detail"]["selected_subsystem_card"]["summary_line"].get<std::string>().find("2 command(s)") != std::string::npos);
-    REQUIRE(exported["active_tab_detail"]["subsystem_cards"][1]["summary_line"].get<std::string>().find("2 command(s)") != std::string::npos);
+    REQUIRE(exported["active_tab_detail"]["selected_subsystem_card"]["summary_line"].get<std::string>().find(
+                "2 command(s)") != std::string::npos);
+    REQUIRE(exported["active_tab_detail"]["subsystem_cards"][1]["summary_line"].get<std::string>().find(
+                "2 command(s)") != std::string::npos);
 
     REQUIRE(workspace.clearSelectedMigrationWizardSubsystemResult());
     exported = nlohmann::json::parse(workspace.exportAsJson());
@@ -464,11 +394,7 @@ TEST_CASE("DiagnosticsWorkspace - Clearing the last migration wizard subsystem c
           "[editor][diagnostics][integration][wizard_clear_last]") {
     urpg::editor::DiagnosticsWorkspace workspace;
 
-    workspace.bindMigrationWizardRuntime({
-        {"scenes", {
-            {{"symbol", "item"}, {"name", "Items"}}
-        }}
-    });
+    workspace.bindMigrationWizardRuntime({{"scenes", {{{"symbol", "item"}, {"name", "Items"}}}}});
     workspace.setActiveTab(urpg::editor::DiagnosticsTab::MigrationWizard);
     workspace.render();
 
@@ -494,11 +420,7 @@ TEST_CASE("DiagnosticsWorkspace - Migration wizard failed load clears exported s
           "[editor][diagnostics][integration][wizard_file_failure]") {
     urpg::editor::DiagnosticsWorkspace workspace;
 
-    workspace.bindMigrationWizardRuntime({
-        {"scenes", {
-            {{"symbol", "item"}, {"name", "Items"}}
-        }}
-    });
+    workspace.bindMigrationWizardRuntime({{"scenes", {{{"symbol", "item"}, {"name", "Items"}}}}});
     workspace.setActiveTab(urpg::editor::DiagnosticsTab::MigrationWizard);
     workspace.render();
 
@@ -506,7 +428,8 @@ TEST_CASE("DiagnosticsWorkspace - Migration wizard failed load clears exported s
     REQUIRE(exported["active_tab_detail"]["has_data"] == true);
     REQUIRE(exported["active_tab_detail"]["subsystem_results"].size() == 1);
 
-    const auto temp_path = (std::filesystem::temp_directory_path() / "urpg_workspace_migration_wizard_bad_load.json").string();
+    const auto temp_path =
+        (std::filesystem::temp_directory_path() / "urpg_workspace_migration_wizard_bad_load.json").string();
     {
         std::ofstream ofs(temp_path);
         REQUIRE(ofs);
@@ -539,17 +462,8 @@ TEST_CASE("DiagnosticsWorkspace - Migration wizard save/load round-trip preserve
     urpg::editor::DiagnosticsWorkspace workspace;
 
     nlohmann::json project_data = {
-        {"messages", {
-            {
-                {"id", "page_1"},
-                {"speaker", "Guide"},
-                {"text", "Welcome to URPG."}
-            }
-        }},
-        {"scenes", {
-            {{"symbol", "item"}, {"name", "Items"}}
-        }}
-    };
+        {"messages", {{{"id", "page_1"}, {"speaker", "Guide"}, {"text", "Welcome to URPG."}}}},
+        {"scenes", {{{"symbol", "item"}, {"name", "Items"}}}}};
 
     workspace.bindMigrationWizardRuntime(project_data);
     workspace.setActiveTab(urpg::editor::DiagnosticsTab::MigrationWizard);
@@ -557,7 +471,8 @@ TEST_CASE("DiagnosticsWorkspace - Migration wizard save/load round-trip preserve
     REQUIRE(workspace.selectNextMigrationWizardSubsystemResult());
 
     const auto original_report_json = workspace.exportMigrationWizardReportJson();
-    const auto temp_path = (std::filesystem::temp_directory_path() / "urpg_workspace_migration_wizard_roundtrip.json").string();
+    const auto temp_path =
+        (std::filesystem::temp_directory_path() / "urpg_workspace_migration_wizard_roundtrip.json").string();
     std::filesystem::remove(temp_path);
 
     REQUIRE(workspace.saveMigrationWizardReportToFile(temp_path));
@@ -598,38 +513,29 @@ TEST_CASE("DiagnosticsWorkspace - Migration wizard loaded report exports rendere
         (std::filesystem::temp_directory_path() / "urpg_workspace_migration_wizard_loaded_workflow.json").string();
     std::filesystem::remove(temp_path);
 
-    nlohmann::json report_json = {
-        {"total_files_processed", 2},
-        {"warning_count", 1},
-        {"error_count", 0},
-        {"is_complete", true},
-        {"summary_logs", {
-            "Message migration: 1 dialogue sequence(s), 1 diagnostic(s).",
-            "Menu migration: 1 scene panel(s), 1 command(s).",
-            "Migration wizard complete."
-        }},
-        {"subsystem_results", {
-            {
-                {"subsystem_id", "message"},
-                {"display_name", "Message"},
-                {"processed_count", 1},
-                {"warning_count", 1},
-                {"error_count", 0},
-                {"completed", true},
-                {"summary_line", "Message migration: 1 dialogue sequence(s), 1 diagnostic(s)."}
-            },
-            {
-                {"subsystem_id", "menu"},
-                {"display_name", "Menu"},
-                {"processed_count", 1},
-                {"warning_count", 0},
-                {"error_count", 0},
-                {"completed", true},
-                {"summary_line", "Menu migration: 1 scene panel(s), 1 command(s)."}
-            }
-        }},
-        {"selected_subsystem_id", "menu"}
-    };
+    nlohmann::json report_json = {{"total_files_processed", 2},
+                                  {"warning_count", 1},
+                                  {"error_count", 0},
+                                  {"is_complete", true},
+                                  {"summary_logs",
+                                   {"Message migration: 1 dialogue sequence(s), 1 diagnostic(s).",
+                                    "Menu migration: 1 scene panel(s), 1 command(s).", "Migration wizard complete."}},
+                                  {"subsystem_results",
+                                   {{{"subsystem_id", "message"},
+                                     {"display_name", "Message"},
+                                     {"processed_count", 1},
+                                     {"warning_count", 1},
+                                     {"error_count", 0},
+                                     {"completed", true},
+                                     {"summary_line", "Message migration: 1 dialogue sequence(s), 1 diagnostic(s)."}},
+                                    {{"subsystem_id", "menu"},
+                                     {"display_name", "Menu"},
+                                     {"processed_count", 1},
+                                     {"warning_count", 0},
+                                     {"error_count", 0},
+                                     {"completed", true},
+                                     {"summary_line", "Menu migration: 1 scene panel(s), 1 command(s)."}}}},
+                                  {"selected_subsystem_id", "menu"}};
 
     {
         std::ofstream ofs(temp_path);
@@ -672,19 +578,15 @@ TEST_CASE("DiagnosticsWorkspace - Migration wizard load repairs orphaned selecte
         {"error_count", 0},
         {"is_complete", true},
         {"summary_logs", {"Menu migration: 1 scene panel(s), 1 command(s).", "Migration wizard complete."}},
-        {"subsystem_results", {
-            {
-                {"subsystem_id", "menu"},
-                {"display_name", "Menu"},
-                {"processed_count", 1},
-                {"warning_count", 0},
-                {"error_count", 0},
-                {"completed", true},
-                {"summary_line", "Menu migration: 1 scene panel(s), 1 command(s)."}
-            }
-        }},
-        {"selected_subsystem_id", "missing"}
-    };
+        {"subsystem_results",
+         {{{"subsystem_id", "menu"},
+           {"display_name", "Menu"},
+           {"processed_count", 1},
+           {"warning_count", 0},
+           {"error_count", 0},
+           {"completed", true},
+           {"summary_line", "Menu migration: 1 scene panel(s), 1 command(s)."}}}},
+        {"selected_subsystem_id", "missing"}};
 
     {
         std::ofstream ofs(temp_path);
@@ -711,11 +613,7 @@ TEST_CASE("DiagnosticsWorkspace - Migration wizard file load clears previously b
     urpg::editor::DiagnosticsWorkspace workspace;
     workspace.setActiveTab(urpg::editor::DiagnosticsTab::MigrationWizard);
 
-    workspace.bindMigrationWizardRuntime({
-        {"scenes", {
-            {{"symbol", "item"}, {"name", "Items"}}
-        }}
-    });
+    workspace.bindMigrationWizardRuntime({{"scenes", {{{"symbol", "item"}, {"name", "Items"}}}}});
     workspace.render();
 
     auto exported = nlohmann::json::parse(workspace.exportAsJson());
@@ -732,19 +630,15 @@ TEST_CASE("DiagnosticsWorkspace - Migration wizard file load clears previously b
         {"error_count", 0},
         {"is_complete", true},
         {"summary_logs", {"Menu migration: 1 scene panel(s), 1 command(s).", "Migration wizard complete."}},
-        {"subsystem_results", {
-            {
-                {"subsystem_id", "menu"},
-                {"display_name", "Menu"},
-                {"processed_count", 1},
-                {"warning_count", 0},
-                {"error_count", 0},
-                {"completed", true},
-                {"summary_line", "Menu migration: 1 scene panel(s), 1 command(s)."}
-            }
-        }},
-        {"selected_subsystem_id", "menu"}
-    };
+        {"subsystem_results",
+         {{{"subsystem_id", "menu"},
+           {"display_name", "Menu"},
+           {"processed_count", 1},
+           {"warning_count", 0},
+           {"error_count", 0},
+           {"completed", true},
+           {"summary_line", "Menu migration: 1 scene panel(s), 1 command(s)."}}}},
+        {"selected_subsystem_id", "menu"}};
 
     {
         std::ofstream ofs(temp_path);
@@ -771,11 +665,7 @@ TEST_CASE("DiagnosticsWorkspace - Migration wizard save preserves bound runtime 
           "[editor][diagnostics][integration][wizard_file_save_binding]") {
     urpg::editor::DiagnosticsWorkspace workspace;
     workspace.setActiveTab(urpg::editor::DiagnosticsTab::MigrationWizard);
-    workspace.bindMigrationWizardRuntime({
-        {"scenes", {
-            {{"symbol", "item"}, {"name", "Items"}}
-        }}
-    });
+    workspace.bindMigrationWizardRuntime({{"scenes", {{{"symbol", "item"}, {"name", "Items"}}}}});
     workspace.render();
 
     auto exported = nlohmann::json::parse(workspace.exportAsJson());
@@ -784,7 +674,8 @@ TEST_CASE("DiagnosticsWorkspace - Migration wizard save preserves bound runtime 
     REQUIRE(exported["active_tab_detail"]["can_rerun_bound_selected_subsystem"] == true);
 
     const auto temp_path =
-        (std::filesystem::temp_directory_path() / "urpg_workspace_migration_wizard_save_preserves_binding.json").string();
+        (std::filesystem::temp_directory_path() / "urpg_workspace_migration_wizard_save_preserves_binding.json")
+            .string();
     std::filesystem::remove(temp_path);
 
     REQUIRE(workspace.saveMigrationWizardReportToFile(temp_path));
@@ -801,7 +692,6 @@ TEST_CASE("DiagnosticsWorkspace - Migration wizard save preserves bound runtime 
     std::filesystem::remove(temp_path);
 }
 
-
 TEST_CASE("DiagnosticsWorkspace - Migration wizard issue-navigation actions are exposed at workspace level",
           "[editor][diagnostics][integration][migration_wizard_issue_actions]") {
     urpg::editor::DiagnosticsWorkspace workspace;
@@ -812,48 +702,37 @@ TEST_CASE("DiagnosticsWorkspace - Migration wizard issue-navigation actions are 
         (std::filesystem::temp_directory_path() / "urpg_workspace_migration_wizard_issue_navigation.json").string();
     std::filesystem::remove(temp_path);
 
-    nlohmann::json report_json = {
-        {"total_files_processed", 3},
-        {"warning_count", 1},
-        {"error_count", 1},
-        {"is_complete", true},
-        {"summary_logs", {
-            "Message migration: 1 dialogue sequence(s), 1 diagnostic(s).",
-            "Menu migration: 1 scene panel(s), 1 command(s).",
-            "Battle migration: 1 troop(s), 3 action(s).",
-            "Migration wizard complete."
-        }},
-        {"subsystem_results", {
-            {
-                {"subsystem_id", "message"},
-                {"display_name", "Message"},
-                {"processed_count", 1},
-                {"warning_count", 1},
-                {"error_count", 0},
-                {"completed", true},
-                {"summary_line", "Message migration: 1 dialogue sequence(s), 1 diagnostic(s)."}
-            },
-            {
-                {"subsystem_id", "menu"},
-                {"display_name", "Menu"},
-                {"processed_count", 1},
-                {"warning_count", 0},
-                {"error_count", 0},
-                {"completed", true},
-                {"summary_line", "Menu migration: 1 scene panel(s), 1 command(s)."}
-            },
-            {
-                {"subsystem_id", "battle"},
-                {"display_name", "Battle"},
-                {"processed_count", 1},
-                {"warning_count", 0},
-                {"error_count", 1},
-                {"completed", true},
-                {"summary_line", "Battle migration: 1 troop(s), 3 action(s)."}
-            }
-        }},
-        {"selected_subsystem_id", "message"}
-    };
+    nlohmann::json report_json = {{"total_files_processed", 3},
+                                  {"warning_count", 1},
+                                  {"error_count", 1},
+                                  {"is_complete", true},
+                                  {"summary_logs",
+                                   {"Message migration: 1 dialogue sequence(s), 1 diagnostic(s).",
+                                    "Menu migration: 1 scene panel(s), 1 command(s).",
+                                    "Battle migration: 1 troop(s), 3 action(s).", "Migration wizard complete."}},
+                                  {"subsystem_results",
+                                   {{{"subsystem_id", "message"},
+                                     {"display_name", "Message"},
+                                     {"processed_count", 1},
+                                     {"warning_count", 1},
+                                     {"error_count", 0},
+                                     {"completed", true},
+                                     {"summary_line", "Message migration: 1 dialogue sequence(s), 1 diagnostic(s)."}},
+                                    {{"subsystem_id", "menu"},
+                                     {"display_name", "Menu"},
+                                     {"processed_count", 1},
+                                     {"warning_count", 0},
+                                     {"error_count", 0},
+                                     {"completed", true},
+                                     {"summary_line", "Menu migration: 1 scene panel(s), 1 command(s)."}},
+                                    {{"subsystem_id", "battle"},
+                                     {"display_name", "Battle"},
+                                     {"processed_count", 1},
+                                     {"warning_count", 0},
+                                     {"error_count", 1},
+                                     {"completed", true},
+                                     {"summary_line", "Battle migration: 1 troop(s), 3 action(s)."}}}},
+                                  {"selected_subsystem_id", "message"}};
 
     {
         std::ofstream ofs(temp_path);
@@ -885,5 +764,3 @@ TEST_CASE("DiagnosticsWorkspace - Migration wizard issue-navigation actions are 
 
     std::filesystem::remove(temp_path);
 }
-
-

@@ -1,7 +1,7 @@
+#include "engine/core/input/input_core.h"
 #include "engine/core/ui/menu_command_registry.h"
 #include "engine/core/ui/menu_route_resolver.h"
 #include "engine/core/ui/menu_scene_graph.h"
-#include "engine/core/input/input_core.h"
 
 #include <catch2/catch_test_macros.hpp>
 #include <nlohmann/json.hpp>
@@ -12,12 +12,12 @@ using namespace urpg::input;
 
 TEST_CASE("MenuSceneGraph: Input Navigation", "[ui][graph][input]") {
     MenuSceneGraph graph;
-    
+
     auto menu = std::make_shared<MenuScene>("Test");
     MenuPane pane;
     pane.id = "p1";
     pane.isActive = true;
-    pane.commands = { {"c1"}, {"c2"}, {"c3"} };
+    pane.commands = {{"c1"}, {"c2"}, {"c3"}};
     menu->addPane(pane);
     graph.registerScene(menu);
     graph.pushScene("Test");
@@ -38,8 +38,7 @@ TEST_CASE("MenuSceneGraph: Input Navigation", "[ui][graph][input]") {
     }
 }
 
-TEST_CASE("MenuSceneGraph: MoveLeft/MoveRight cycles active pane across visible panes",
-          "[ui][graph][pane_focus]") {
+TEST_CASE("MenuSceneGraph: MoveLeft/MoveRight cycles active pane across visible panes", "[ui][graph][pane_focus]") {
     MenuSceneGraph graph;
 
     auto menu = std::make_shared<MenuScene>("PaneFocusTest");
@@ -96,8 +95,7 @@ TEST_CASE("MenuSceneGraph: MoveLeft/MoveRight cycles active pane across visible 
     }
 }
 
-TEST_CASE("MenuSceneGraph: pane focus skips panes without visible+enabled commands",
-          "[ui][graph][pane_focus][gate]") {
+TEST_CASE("MenuSceneGraph: pane focus skips panes without visible+enabled commands", "[ui][graph][pane_focus][gate]") {
     MenuSceneGraph graph;
 
     auto menu = std::make_shared<MenuScene>("PaneFocusGateTest");
@@ -141,12 +139,8 @@ TEST_CASE("MenuSceneGraph: pane focus skips panes without visible+enabled comman
     graph.registerScene(menu);
     graph.pushScene("PaneFocusGateTest");
 
-    graph.setCommandEnabledEvaluator([](const urpg::MenuCommandMeta& cmd) {
-        return cmd.id != "blocked_cmd";
-    });
-    graph.setCommandVisibleEvaluator([](const urpg::MenuCommandMeta& cmd) {
-        return cmd.id != "hidden_cmd";
-    });
+    graph.setCommandEnabledEvaluator([](const urpg::MenuCommandMeta& cmd) { return cmd.id != "blocked_cmd"; });
+    graph.setCommandVisibleEvaluator([](const urpg::MenuCommandMeta& cmd) { return cmd.id != "hidden_cmd"; });
 
     graph.handleInput(InputAction::MoveRight, ActionState::Pressed);
     const auto& panes = graph.getActiveScene()->getPanes();
@@ -190,9 +184,7 @@ TEST_CASE("MenuSceneGraph: active pane auto-recovers when current pane becomes n
     graph.pushScene("PaneRecoveryTest");
 
     // Simulate runtime state change that disables pane A's only command.
-    graph.setCommandEnabledEvaluator([](const urpg::MenuCommandMeta& cmd) {
-        return cmd.id != "cmd_a";
-    });
+    graph.setCommandEnabledEvaluator([](const urpg::MenuCommandMeta& cmd) { return cmd.id != "cmd_a"; });
 
     // Any input should trigger active-pane validation before action handling.
     graph.handleInput(InputAction::MoveDown, ActionState::Pressed);
@@ -202,16 +194,13 @@ TEST_CASE("MenuSceneGraph: active pane auto-recovers when current pane becomes n
     REQUIRE(panes[1].isActive);
 }
 
-TEST_CASE("MenuSceneGraph: registry state helper drives visibility and enabled gating",
-          "[ui][graph][state_helper]") {
+TEST_CASE("MenuSceneGraph: registry state helper drives visibility and enabled gating", "[ui][graph][state_helper]") {
     MenuSceneGraph graph;
     MenuRouteResolver resolver;
     MenuCommandRegistry registry;
 
     int32_t optionsRouteHits = 0;
-    resolver.bindRoute(urpg::MenuRouteTarget::Options, [&](const urpg::MenuCommandMeta&) {
-        ++optionsRouteHits;
-    });
+    resolver.bindRoute(urpg::MenuRouteTarget::Options, [&](const urpg::MenuCommandMeta&) { ++optionsRouteHits; });
 
     auto menu = std::make_shared<MenuScene>("RegistryStateHelperTest");
 
@@ -292,15 +281,12 @@ TEST_CASE("MenuSceneGraph: registry state helper drives visibility and enabled g
     REQUIRE(optionsRouteHits == 1);
 }
 
-TEST_CASE("MenuSceneGraph: Confirm activates selected command through route resolver",
-          "[ui][graph][confirm]") {
+TEST_CASE("MenuSceneGraph: Confirm activates selected command through route resolver", "[ui][graph][confirm]") {
     MenuSceneGraph graph;
     MenuRouteResolver resolver;
 
     int32_t optionsRouteHits = 0;
-    resolver.bindRoute(urpg::MenuRouteTarget::Options, [&](const urpg::MenuCommandMeta&) {
-        ++optionsRouteHits;
-    });
+    resolver.bindRoute(urpg::MenuRouteTarget::Options, [&](const urpg::MenuCommandMeta&) { ++optionsRouteHits; });
 
     auto menu = std::make_shared<MenuScene>("ConfirmTest");
     MenuPane pane;
@@ -340,15 +326,12 @@ TEST_CASE("MenuSceneGraph: Confirm activates selected command through route reso
     }
 }
 
-TEST_CASE("MenuSceneGraph: Confirm enforces command enabled evaluator gate",
-          "[ui][graph][confirm][gate]") {
+TEST_CASE("MenuSceneGraph: Confirm enforces command enabled evaluator gate", "[ui][graph][confirm][gate]") {
     MenuSceneGraph graph;
     MenuRouteResolver resolver;
 
     int32_t optionsRouteHits = 0;
-    resolver.bindRoute(urpg::MenuRouteTarget::Options, [&](const urpg::MenuCommandMeta&) {
-        ++optionsRouteHits;
-    });
+    resolver.bindRoute(urpg::MenuRouteTarget::Options, [&](const urpg::MenuCommandMeta&) { ++optionsRouteHits; });
 
     auto menu = std::make_shared<MenuScene>("ConfirmGateTest");
     MenuPane pane;
@@ -368,9 +351,7 @@ TEST_CASE("MenuSceneGraph: Confirm enforces command enabled evaluator gate",
     graph.registerScene(menu);
     graph.pushScene("ConfirmGateTest");
     graph.setRouteResolver(&resolver);
-    graph.setCommandEnabledEvaluator([](const urpg::MenuCommandMeta& cmd) {
-        return cmd.id != "blocked_cmd";
-    });
+    graph.setCommandEnabledEvaluator([](const urpg::MenuCommandMeta& cmd) { return cmd.id != "blocked_cmd"; });
 
     SECTION("Blocked command does not resolve route") {
         REQUIRE(graph.getActiveScene()->getPanes()[0].selectedCommandIndex == 0);
@@ -392,18 +373,14 @@ TEST_CASE("MenuSceneGraph: blocked confirm exposes disabled reason and callback 
     MenuRouteResolver resolver;
 
     int32_t optionsRouteHits = 0;
-    resolver.bindRoute(urpg::MenuRouteTarget::Options, [&](const urpg::MenuCommandMeta&) {
-        ++optionsRouteHits;
-    });
+    resolver.bindRoute(urpg::MenuRouteTarget::Options, [&](const urpg::MenuCommandMeta&) { ++optionsRouteHits; });
 
     std::string blockedEventCommandId;
     std::string blockedEventReason;
-    graph.setCommandBlockedHandler(
-        [&](const urpg::MenuCommandMeta& cmd, std::string_view reason) {
-            blockedEventCommandId = cmd.id;
-            blockedEventReason = std::string(reason);
-        }
-    );
+    graph.setCommandBlockedHandler([&](const urpg::MenuCommandMeta& cmd, std::string_view reason) {
+        blockedEventCommandId = cmd.id;
+        blockedEventReason = std::string(reason);
+    });
 
     auto menu = std::make_shared<MenuScene>("ConfirmBlockedReasonTest");
     MenuPane pane;
@@ -423,9 +400,7 @@ TEST_CASE("MenuSceneGraph: blocked confirm exposes disabled reason and callback 
     graph.registerScene(menu);
     graph.pushScene("ConfirmBlockedReasonTest");
     graph.setRouteResolver(&resolver);
-    graph.setCommandEnabledEvaluator([](const urpg::MenuCommandMeta& cmd) {
-        return cmd.id != "blocked_cmd";
-    });
+    graph.setCommandEnabledEvaluator([](const urpg::MenuCommandMeta& cmd) { return cmd.id != "blocked_cmd"; });
     graph.setCommandDisabledReasonEvaluator([](const urpg::MenuCommandMeta& cmd) {
         if (cmd.id == "blocked_cmd") {
             return std::string("Requires 3 energy.");
@@ -449,7 +424,7 @@ TEST_CASE("MenuSceneGraph: blocked confirm exposes disabled reason and callback 
 
 TEST_CASE("MenuSceneGraph handles basic navigation and stack", "[ui][graph]") {
     MenuSceneGraph graph;
-    
+
     auto mainMenu = std::make_shared<MenuScene>("MainMenu");
     mainMenu->addPane({"main_pane", "Main Menu", true, true, {}});
     graph.registerScene(mainMenu);
@@ -478,8 +453,7 @@ TEST_CASE("MenuSceneGraph handles basic navigation and stack", "[ui][graph]") {
     }
 }
 
-TEST_CASE("MenuSceneGraph: Cancel pops nested scenes and guards root by default",
-          "[ui][graph][cancel]") {
+TEST_CASE("MenuSceneGraph: Cancel pops nested scenes and guards root by default", "[ui][graph][cancel]") {
     MenuSceneGraph graph;
 
     auto rootMenu = std::make_shared<MenuScene>("RootMenu");
@@ -512,8 +486,7 @@ TEST_CASE("MenuSceneGraph: Cancel pops nested scenes and guards root by default"
     REQUIRE(graph.getActiveScene()->getId() == "RootMenu");
 }
 
-TEST_CASE("MenuSceneGraph: Cancel can pop root scene when explicitly enabled",
-          "[ui][graph][cancel]") {
+TEST_CASE("MenuSceneGraph: Cancel can pop root scene when explicitly enabled", "[ui][graph][cancel]") {
     MenuSceneGraph graph;
 
     auto rootMenu = std::make_shared<MenuScene>("RootMenu");
@@ -536,7 +509,7 @@ TEST_CASE("MenuSceneGraph: Cancel can pop root scene when explicitly enabled",
 
 TEST_CASE("MenuCommandRegistry handles priority and sorting", "[ui][menu]") {
     MenuCommandRegistry registry;
-    
+
     urpg::MenuCommandMeta cmd1;
     cmd1.id = "low_prio";
     cmd1.priority = 10;
@@ -585,13 +558,9 @@ TEST_CASE("MenuRouteResolver resolves native and custom targets", "[ui][menu][ro
     bool nativeTriggered = false;
     bool customTriggered = false;
 
-    resolver.bindRoute(urpg::MenuRouteTarget::Item, [&](const urpg::MenuCommandMeta&) {
-        nativeTriggered = true;
-    });
+    resolver.bindRoute(urpg::MenuRouteTarget::Item, [&](const urpg::MenuCommandMeta&) { nativeTriggered = true; });
 
-    resolver.bindCustomRoute("quest_ext", [&](const urpg::MenuCommandMeta&) {
-        customTriggered = true;
-    });
+    resolver.bindCustomRoute("quest_ext", [&](const urpg::MenuCommandMeta&) { customTriggered = true; });
 
     urpg::MenuCommandMeta itemCmd;
     itemCmd.route = urpg::MenuRouteTarget::Item;
@@ -614,12 +583,8 @@ TEST_CASE("MenuRouteResolver falls back when primary route is unavailable", "[ui
     bool optionsTriggered = false;
     bool customFallbackTriggered = false;
 
-    resolver.bindRoute(urpg::MenuRouteTarget::Options, [&](const urpg::MenuCommandMeta&) {
-        optionsTriggered = true;
-    });
-    resolver.bindCustomRoute("backup_route", [&](const urpg::MenuCommandMeta&) {
-        customFallbackTriggered = true;
-    });
+    resolver.bindRoute(urpg::MenuRouteTarget::Options, [&](const urpg::MenuCommandMeta&) { optionsTriggered = true; });
+    resolver.bindCustomRoute("backup_route", [&](const urpg::MenuCommandMeta&) { customFallbackTriggered = true; });
 
     urpg::MenuCommandMeta missingCustomWithNativeFallback;
     missingCustomWithNativeFallback.route = urpg::MenuRouteTarget::Custom;
@@ -737,7 +702,6 @@ TEST_CASE("MenuCommandRegistry evaluates visibility and enable conditions", "[ui
     REQUIRE(visibleList[0].id == "gated_enable");
     REQUIRE(visibleList[1].id == "always");
 }
-
 
 TEST_CASE("MenuCommandRegistry: Save to schema round-trips loaded commands", "[ui][menu][schema][parity]") {
     nlohmann::json schema = R"({

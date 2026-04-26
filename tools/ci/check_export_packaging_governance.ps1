@@ -16,6 +16,8 @@ $requiredPaths = @(
   "content/schemas/patch_manifest.schema.json",
   "content/schemas/creator_package_manifest.schema.json",
   "content/fixtures/export_packaging_fixture.json",
+  "docs/RELEASE_PACKAGING.md",
+  "tools/ci/package_release_artifacts.ps1",
   "tests/unit/test_runtime_bundle_loader.cpp",
   "tests/unit/test_export_artifact_compare.cpp",
   "tests/unit/test_patch_manifest.cpp",

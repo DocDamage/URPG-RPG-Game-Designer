@@ -37,4 +37,3 @@ if (-not (Test-Path -LiteralPath $mcpSamplePath)) {
 Write-Output "Bootstrapped ContextLattice project files:"
 Write-Output " - $envSamplePath"
 Write-Output " - $mcpSamplePath"
-

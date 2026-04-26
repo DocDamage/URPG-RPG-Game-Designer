@@ -11,8 +11,7 @@
 
 namespace urpg::editor {
 
-MenuPreviewPanel::MenuPreviewPanel()
-    : EditorPanel("Menu Preview") {}
+MenuPreviewPanel::MenuPreviewPanel() : EditorPanel("Menu Preview") {}
 
 void MenuPreviewPanel::bindRuntime(urpg::ui::MenuSceneGraph& scene_graph) {
     scene_graph_ = &scene_graph;
@@ -26,11 +25,16 @@ void MenuPreviewPanel::clearRuntime() {
 
 void MenuPreviewPanel::Render(const urpg::FrameContext& context) {
     (void)context;
-    if (!m_visible) return;
+    if (!m_visible)
+        return;
 
     captureRenderSnapshot();
 
 #ifdef URPG_IMGUI_ENABLED
+    if (ImGui::GetCurrentContext() == nullptr) {
+        return;
+    }
+
     if (!ImGui::Begin(m_title.c_str(), &m_visible)) {
         ImGui::End();
         return;
@@ -55,10 +59,11 @@ void MenuPreviewPanel::Render(const urpg::FrameContext& context) {
     // Render each pane in the active scene
     const auto& panes = activeScene->getPanes();
     for (const auto& pane : panes) {
-        if (!pane.isVisible) continue;
+        if (!pane.isVisible)
+            continue;
 
         ImGui::PushID(pane.id.c_str());
-        
+
         ImGui::Text("Pane: %s", pane.id.c_str());
         if (pane.isActive) {
             ImGui::SameLine();
@@ -69,7 +74,8 @@ void MenuPreviewPanel::Render(const urpg::FrameContext& context) {
         if (ImGui::BeginChild(pane.id.c_str(), ImVec2(0, 150), true)) {
             for (size_t i = 0; i < pane.commands.size(); ++i) {
                 const auto& cmd = pane.commands[i];
-                bool isSelected = (i == pane.selectedCommandIndex);
+                const bool isSelected =
+                    pane.selectedCommandIndex >= 0 && i == static_cast<size_t>(pane.selectedCommandIndex);
                 const std::string label = cmd.label.empty() ? cmd.id : cmd.label;
 
                 if (isSelected) {
@@ -135,8 +141,7 @@ void MenuPreviewPanel::captureRenderSnapshot() {
             snapshot.command_enabled.push_back(true);
         }
 
-        if (pane.selectedCommandIndex >= 0 &&
-            static_cast<size_t>(pane.selectedCommandIndex) < pane.commands.size()) {
+        if (pane.selectedCommandIndex >= 0 && static_cast<size_t>(pane.selectedCommandIndex) < pane.commands.size()) {
             snapshot.selected_command_id = pane.commands[pane.selectedCommandIndex].id;
         }
 

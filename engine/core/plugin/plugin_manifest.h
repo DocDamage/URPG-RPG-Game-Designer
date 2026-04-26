@@ -1,9 +1,9 @@
 #pragma once
 
-#include <string>
-#include <vector>
 #include <map>
 #include <nlohmann/json.hpp>
+#include <string>
+#include <vector>
 
 namespace urpg::plugin {
 
@@ -26,7 +26,7 @@ struct PluginManifest {
     std::string version;
     std::string author;
     std::string description;
-    
+
     std::vector<PluginDependency> dependencies;
     std::vector<std::string> permissions;
     std::map<std::string, std::string> parameters; // Default parameter values
@@ -44,11 +44,8 @@ struct PluginManifest {
                 if (dep.is_string()) {
                     m.dependencies.push_back({dep.get<std::string>(), "*", false});
                 } else if (dep.is_object()) {
-                    m.dependencies.push_back({
-                        dep.value("id", ""),
-                        dep.value("version", "*"),
-                        dep.value("optional", false)
-                    });
+                    m.dependencies.push_back(
+                        {dep.value("id", ""), dep.value("version", "*"), dep.value("optional", false)});
                 }
             }
         }

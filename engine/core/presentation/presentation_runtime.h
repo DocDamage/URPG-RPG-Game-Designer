@@ -1,12 +1,12 @@
 #pragma once
 
-#include <array>
-#include "presentation_types.h"
 #include "presentation_context.h"
 #include "presentation_schema.h"
-#include "render_pass_manager.h"
 #include "presentation_streaming.h"
+#include "presentation_types.h"
+#include "render_pass_manager.h"
 #include <algorithm>
+#include <array>
 
 namespace urpg::presentation {
 
@@ -52,7 +52,7 @@ struct PresentationCommand {
 struct PresentationFrameIntent {
     PresentationMode activeMode;
     CapabilityTier activeTier;
-    
+
     std::vector<PresentationCommand> commands;
     std::vector<RenderPass> activePasses;
     PresentationStreamingManifest streamingManifest; // Added Section 20: Streaming Hints
@@ -60,7 +60,7 @@ struct PresentationFrameIntent {
     std::vector<PostFXProfile> resolvedPostFXProfiles;
 
     void AddActor(uint32_t id, Vec3 pos, const ActorPresentationProfile& profile, LODLevel lod = LODLevel::LOD0_High) {
-        PresentationCommand cmd{PresentationCommand::Type::DrawActor, id, pos, {0,0,0}, &profile};
+        PresentationCommand cmd{PresentationCommand::Type::DrawActor, id, pos, {0, 0, 0}, &profile};
         cmd.lodLevel = lod;
         commands.push_back(cmd);
     }
@@ -71,20 +71,20 @@ struct PresentationFrameIntent {
     }
 
     void AddLight(const LightProfile& light) {
-        PresentationCommand cmd{PresentationCommand::Type::SetLight, light.lightId, light.position, {0,0,0}, nullptr};
+        PresentationCommand cmd{PresentationCommand::Type::SetLight, light.lightId, light.position, {0, 0, 0}, nullptr};
         cmd.lightProfile = &light;
         commands.push_back(cmd);
     }
 
     void AddFog(const FogProfile& fog, float blendWeight = 1.0f) {
-        PresentationCommand cmd{PresentationCommand::Type::SetFog, 0, {0,0,0}, {0,0,0}, nullptr};
+        PresentationCommand cmd{PresentationCommand::Type::SetFog, 0, {0, 0, 0}, {0, 0, 0}, nullptr};
         cmd.fogProfile = &fog;
         cmd.blendWeight = blendWeight;
         commands.push_back(cmd);
     }
 
     void AddPostFX(const PostFXProfile& fx, float blendWeight = 1.0f) {
-        PresentationCommand cmd{PresentationCommand::Type::SetPostFX, 0, {0,0,0}, {0,0,0}, nullptr};
+        PresentationCommand cmd{PresentationCommand::Type::SetPostFX, 0, {0, 0, 0}, {0, 0, 0}, nullptr};
         cmd.postFXProfile = &fx;
         cmd.blendWeight = blendWeight;
         commands.push_back(cmd);
@@ -95,16 +95,9 @@ struct PresentationFrameIntent {
         commands.push_back(cmd);
     }
 
-    void AddWorldEffect(
-        uint32_t effectId,
-        Vec3 pos,
-        uint64_t ownerId,
-        float durationSeconds,
-        float scale,
-        float intensity,
-        const std::array<float, 4>& color,
-        float overlayEmphasis = 0.0f) {
-        PresentationCommand cmd{PresentationCommand::Type::DrawWorldEffect, effectId, pos, {0,0,0}, nullptr};
+    void AddWorldEffect(uint32_t effectId, Vec3 pos, uint64_t ownerId, float durationSeconds, float scale,
+                        float intensity, const std::array<float, 4>& color, float overlayEmphasis = 0.0f) {
+        PresentationCommand cmd{PresentationCommand::Type::DrawWorldEffect, effectId, pos, {0, 0, 0}, nullptr};
         cmd.effectOwnerId = ownerId;
         cmd.effectDurationSeconds = durationSeconds;
         cmd.effectScale = scale;
@@ -114,17 +107,10 @@ struct PresentationFrameIntent {
         commands.push_back(cmd);
     }
 
-    void AddOverlayEffect(
-        uint32_t effectId,
-        Vec3 pos,
-        uint64_t ownerId,
-        float durationSeconds,
-        float scale,
-        float intensity,
-        const std::array<float, 4>& color,
-        float blendWeight = 1.0f,
-        float overlayEmphasis = 0.0f) {
-        PresentationCommand cmd{PresentationCommand::Type::DrawOverlayEffect, effectId, pos, {0,0,0}, nullptr};
+    void AddOverlayEffect(uint32_t effectId, Vec3 pos, uint64_t ownerId, float durationSeconds, float scale,
+                          float intensity, const std::array<float, 4>& color, float blendWeight = 1.0f,
+                          float overlayEmphasis = 0.0f) {
+        PresentationCommand cmd{PresentationCommand::Type::DrawOverlayEffect, effectId, pos, {0, 0, 0}, nullptr};
         cmd.effectOwnerId = ownerId;
         cmd.effectDurationSeconds = durationSeconds;
         cmd.effectScale = scale;
@@ -136,24 +122,23 @@ struct PresentationFrameIntent {
     }
 
     void SetCameraProfile(const CameraProfile& profile) {
-        PresentationCommand cmd{PresentationCommand::Type::SetCamera, 0, profile.lookAtOffset, {profile.fov, 0.0f, 0.0f}, nullptr};
+        PresentationCommand cmd{
+            PresentationCommand::Type::SetCamera, 0, profile.lookAtOffset, {profile.fov, 0.0f, 0.0f}, nullptr};
         cmd.cameraProfile = &profile;
         commands.push_back(cmd);
     }
 
-    void AddPass(const RenderPass& pass) {
-        activePasses.push_back(pass);
-    }
+    void AddPass(const RenderPass& pass) { activePasses.push_back(pass); }
 };
 
 /**
  * @brief Core entry point for the Presentation Core subsystem.
- * 
+ *
  * This class owns the visual interpretation logic of the engine.
  * It is responsible for bridging Game Scene State to Render Intent.
  */
 class PresentationRuntime {
-public:
+  public:
     PresentationRuntime() = default;
     ~PresentationRuntime() = default;
 
@@ -212,8 +197,10 @@ public:
             const float currentFactor = totalWeight / combinedWeight;
             const float newFactor = weight / combinedWeight;
             blended.exposure = blended.exposure * currentFactor + cmd.postFXProfile->exposure * newFactor;
-            blended.bloomThreshold = blended.bloomThreshold * currentFactor + cmd.postFXProfile->bloomThreshold * newFactor;
-            blended.bloomIntensity = blended.bloomIntensity * currentFactor + cmd.postFXProfile->bloomIntensity * newFactor;
+            blended.bloomThreshold =
+                blended.bloomThreshold * currentFactor + cmd.postFXProfile->bloomThreshold * newFactor;
+            blended.bloomIntensity =
+                blended.bloomIntensity * currentFactor + cmd.postFXProfile->bloomIntensity * newFactor;
             blended.saturation = blended.saturation * currentFactor + cmd.postFXProfile->saturation * newFactor;
             totalWeight = combinedWeight;
         }
@@ -244,14 +231,14 @@ public:
         if (hasFog) {
             intent.resolvedFogProfiles.clear();
             intent.resolvedFogProfiles.push_back(BlendFogProfiles(intent.commands));
-            PresentationCommand fogCmd{PresentationCommand::Type::SetFog, 0, {0,0,0}, {0,0,0}, nullptr};
+            PresentationCommand fogCmd{PresentationCommand::Type::SetFog, 0, {0, 0, 0}, {0, 0, 0}, nullptr};
             fogCmd.fogProfile = &intent.resolvedFogProfiles.back();
             resolved.push_back(fogCmd);
         }
         if (hasPostFX) {
             intent.resolvedPostFXProfiles.clear();
             intent.resolvedPostFXProfiles.push_back(BlendPostFXProfiles(intent.commands));
-            PresentationCommand postFxCmd{PresentationCommand::Type::SetPostFX, 0, {0,0,0}, {0,0,0}, nullptr};
+            PresentationCommand postFxCmd{PresentationCommand::Type::SetPostFX, 0, {0, 0, 0}, {0, 0, 0}, nullptr};
             postFxCmd.postFXProfile = &intent.resolvedPostFXProfiles.back();
             resolved.push_back(postFxCmd);
         }
@@ -264,9 +251,8 @@ public:
      * @brief The main spine function (Section 9.1).
      * ADR-009: Executed on the Game Thread only.
      */
-    PresentationFrameIntent BuildPresentationFrame(
-        const PresentationContext& context,
-        const PresentationAuthoringData& data);
+    PresentationFrameIntent BuildPresentationFrame(const PresentationContext& context,
+                                                   const PresentationAuthoringData& data);
 
     /**
      * @brief Access diagnostics collected during the last frame or load.
@@ -285,7 +271,7 @@ public:
         m_diagnostics.push_back({severity, message, context});
     }
 
-private:
+  private:
     std::vector<DiagnosticEntry> m_diagnostics;
 
     // Section 11: Capability and Fallback

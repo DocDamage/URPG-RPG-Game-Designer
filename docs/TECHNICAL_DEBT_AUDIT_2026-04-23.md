@@ -41,7 +41,7 @@ That pass found adjacent feature/product gaps that were not explicit enough in t
 
 ### TD-2026-04-23-01 - Release Readiness Is Still Human-Review Gated
 
-**Priority:** P1  
+**Priority:** P1
 **Evidence:** `urpg_project_audit` reports two release blockers: `battle_core` and `save_data_core` are required for the selected `jrpg` template but remain `PARTIAL`.
 
 The code and docs are healthier than before because the residual is explicit rather than hidden. The remaining debt is the promotion workflow itself: the signoff artifacts exist, but they deliberately do not grant `READY`.
@@ -59,7 +59,7 @@ The code and docs are healthier than before because the residual is explicit rat
 
 ### TD-2026-04-23-02 - Project Schema And Audit Vocabulary Are Misaligned
 
-**Priority:** P1  
+**Priority:** P1
 **Evidence:** `urpg_project_audit` reports:
 
 - `project_schema.localization_missing`
@@ -81,7 +81,7 @@ The code and docs are healthier than before because the residual is explicit rat
 
 ### TD-2026-04-23-03 - Localization Governance Has Two Partial Stories
 
-**Priority:** P1  
+**Priority:** P1
 **Evidence:** The canonical localization consistency report exists and is parseable, but it reports `status: no_bundles`. The audit also expects missing artifacts:
 
 - `content/schemas/localization_catalog.schema.json`
@@ -104,7 +104,7 @@ The current runtime/schema/report lane is not the same as the audit/tooling lane
 
 ### TD-2026-04-23-04 - Export Has Real Bounded Packaging But No Canonical Pack CLI
 
-**Priority:** P1  
+**Priority:** P1
 **Evidence:** `export_validator` is still `PARTIAL`, and the project audit reports `export_artifact.cli_missing` for `tools/pack/pack_cli.cpp`. Current implementation includes bounded packager/validator coverage, keyed SHA-256 bundle validation, and platform bootstrap tests, but docs correctly keep broader discovery, signing/notarization, and runtime-side enforcement as backlog.
 
 **Next step:** Complete `TD-S04`: choose a canonical CLI path or formally document the replacement, then keep packager preflight, post-export validation, and release signing language separated.
@@ -120,7 +120,7 @@ The current runtime/schema/report lane is not the same as the audit/tooling lane
 
 ### TD-2026-04-23-05 - Compat Runtime Contract Is Honest But Still Harness-Shaped
 
-**Priority:** P2  
+**Priority:** P2
 **Evidence:** `runtimes/compat_js/quickjs_runtime.cpp` explicitly says it is a fixture-backed harness, not a live QuickJS runtime. The compat bridge is `PARTIAL`, and code comments/status labels still identify harness-backed surfaces.
 
 This is no longer status-inflation debt, but it remains product debt if live plugin execution is expected.
@@ -138,7 +138,7 @@ This is no longer status-inflation debt, but it remains product debt if live plu
 
 ### TD-2026-04-23-06 - WindowCompat/UI Fidelity Still Contains High-Use TODOs
 
-**Priority:** P2  
+**Priority:** P2
 **Evidence:** Active TODO scan finds residual compat UI gaps:
 
 - `runtimes/compat_js/window_compat.h`: icon-set bitmap rendering, gauge gradients, character-sheet rendering
@@ -160,7 +160,7 @@ These are mostly truthfully marked `PARTIAL`, but they sit on plugin-facing surf
 
 ### TD-2026-04-23-07 - Asset Intake Is Governed But Not Activated
 
-**Priority:** P2  
+**Priority:** P2
 **Evidence:** `imports/reports/asset_intake/source_capture_status.json` reports:
 
 - `total_sources: 5`
@@ -184,7 +184,7 @@ Governance is truthful, but no asset lane is yet promoted into runtime/editor/ex
 
 ### TD-2026-04-23-08 - Gameplay Ability Runtime Depth Lags Editor Breadth
 
-**Priority:** P2  
+**Priority:** P2
 **Evidence:** `gameplay_ability_framework` remains `PARTIAL`. The readiness gap explicitly calls out missing async task backends: `WaitInput`, `WaitEvent`, and projectile collision. Scripted `activeCondition`/`passiveCondition` strings remain intentionally unsupported.
 
 **Next step:** Complete `TD-S06`: add the next deterministic task backend or narrow the shipped contract and keep readiness/signoff wording conservative.
@@ -201,7 +201,7 @@ Governance is truthful, but no asset lane is yet promoted into runtime/editor/ex
 
 ### TD-2026-04-23-09 - Presentation And Visual Validation Are Bounded, Not Broad
 
-**Priority:** P2  
+**Priority:** P2
 **Evidence:** `presentation_runtime` remains `PARTIAL`; its current claim is bounded OpenGL-backed proof with shell-owned MapScene/MenuScene evidence, not cross-backend parity. `profile_arena.cpp` remains the only explicit CMake completeness whitelist entry.
 
 **Next step:** Treat cross-backend breadth as visual-regression backlog, and either register/archive `profile_arena.cpp` or keep its standalone status explicitly documented.
@@ -216,7 +216,7 @@ Governance is truthful, but no asset lane is yet promoted into runtime/editor/ex
 
 ### TD-2026-04-23-10 - Complexity Hot Spots Need Refactoring Budget
 
-**Priority:** P3  
+**Priority:** P3
 **Evidence:** Largest active source/test files by line count:
 
 | Lines | File |
@@ -245,7 +245,7 @@ These are understandable accumulation points, but they slow review and make doma
 
 ### TD-2026-04-23-11 - Product Feature Coverage Gaps Remain Outside The Core Debt List
 
-**Priority:** P2  
+**Priority:** P2
 **Evidence:** The readiness and template matrices still list feature/functionality gaps not fully covered by the first ten audit findings:
 
 - `governance_foundation`: CLI diagnostics and editor panel output are not unified into a single parity export path.

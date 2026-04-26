@@ -5,12 +5,12 @@
 
 #include "window_compat.h"
 #include "data_manager.h"
+#include "engine/core/message/message_core.h"
+#include "engine/core/render/render_layer.h"
 #include "input_manager.h"
 #include "window_color_parser.h"
 #include "window_render_helpers.h"
 #include "window_text_layout.h"
-#include "engine/core/message/message_core.h"
-#include "engine/core/render/render_layer.h"
 #include <algorithm>
 #include <cassert>
 #include <cctype>
@@ -51,12 +51,9 @@ int32_t getPrimaryPointerY(const InputManager& input, bool preferTouch = false) 
     return (preferTouch || isTouchPrimary(input)) ? input.getTouchY() : input.getMouseY();
 }
 
-int32_t hitTestSelectableIndexAt(const Window_Selectable& window,
-                                 int32_t pointerX,
-                                 int32_t pointerY) {
+int32_t hitTestSelectableIndexAt(const Window_Selectable& window, int32_t pointerX, int32_t pointerY) {
     const Rect contentRect = window.getContentRect();
-    if (pointerX < contentRect.x || pointerY < contentRect.y ||
-        pointerX >= contentRect.x + contentRect.width ||
+    if (pointerX < contentRect.x || pointerY < contentRect.y || pointerX >= contentRect.x + contentRect.width ||
         pointerY >= contentRect.y + contentRect.height) {
         return -1;
     }
@@ -70,9 +67,8 @@ int32_t hitTestSelectableIndexAt(const Window_Selectable& window,
     const int32_t safeMaxCols = std::max(1, window.getMaxCols());
     const int32_t localX = pointerX - contentRect.x;
     const int32_t localY = pointerY - contentRect.y;
-    const int32_t col = std::clamp(
-        localX / std::max(1, itemWidth + kSelectableItemSpacing), 0, std::max(0, safeMaxCols - 1)
-    );
+    const int32_t col =
+        std::clamp(localX / std::max(1, itemWidth + kSelectableItemSpacing), 0, std::max(0, safeMaxCols - 1));
     const int32_t row = std::max(0, localY / itemHeight) + window.getTopRow();
     const int32_t index = row * safeMaxCols + col;
     if (index < 0 || index >= window.getMaxItems()) {
@@ -81,20 +77,16 @@ int32_t hitTestSelectableIndexAt(const Window_Selectable& window,
 
     const int32_t itemX = col * (itemWidth + kSelectableItemSpacing);
     const int32_t itemY = (row - window.getTopRow()) * itemHeight;
-    if (localX < itemX || localX >= itemX + itemWidth ||
-        localY < itemY || localY >= itemY + itemHeight) {
+    if (localX < itemX || localX >= itemX + itemWidth || localY < itemY || localY >= itemY + itemHeight) {
         return -1;
     }
 
     return index;
 }
 
-bool isPointerInsideSelectableContent(const Window_Selectable& window,
-                                      int32_t pointerX,
-                                      int32_t pointerY) {
+bool isPointerInsideSelectableContent(const Window_Selectable& window, int32_t pointerX, int32_t pointerY) {
     const Rect contentRect = window.getContentRect();
-    return pointerX >= contentRect.x && pointerY >= contentRect.y &&
-           pointerX < contentRect.x + contentRect.width &&
+    return pointerX >= contentRect.x && pointerY >= contentRect.y && pointerX < contentRect.x + contentRect.width &&
            pointerY < contentRect.y + contentRect.height;
 }
 
@@ -126,12 +118,11 @@ BitmapHandle Window_Base::nextBitmapHandle_ = 1;
 // Initialize static method status maps
 void Window_Base::initializeMethodStatus() {
     static bool initialized = false;
-    if (initialized) return;
+    if (initialized)
+        return;
     initialized = true;
 
-    const auto setStatus = [](const std::string& method,
-                              CompatStatus status,
-                              const std::string& deviation = "") {
+    const auto setStatus = [](const std::string& method, CompatStatus status, const std::string& deviation = "") {
         methodStatus_[method] = status;
         if (deviation.empty()) {
             methodDeviations_.erase(method);
@@ -139,7 +130,7 @@ void Window_Base::initializeMethodStatus() {
             methodDeviations_[method] = deviation;
         }
     };
-    
+
     // FULL status methods
     setStatus("drawText", CompatStatus::FULL);
     setStatus("drawIcon", CompatStatus::PARTIAL,
@@ -149,7 +140,8 @@ void Window_Base::initializeMethodStatus() {
     setStatus("drawActorLevel", CompatStatus::PARTIAL,
               "Actor-level lookup and text draw are wired; full window chrome is not implemented.");
     setStatus("drawGauge", CompatStatus::PARTIAL,
-              "Background and segmented gradient fill RectCommands are submitted; this is bounded renderer geometry rather than pixel-perfect MZ shader output.");
+              "Background and segmented gradient fill RectCommands are submitted; this is bounded renderer geometry "
+              "rather than pixel-perfect MZ shader output.");
     setStatus("drawCharacter", CompatStatus::PARTIAL,
               "SpriteCommand is submitted with proper MZ 48×48 standing-frame source rect.");
     setStatus("lineHeight", CompatStatus::FULL);
@@ -174,22 +166,24 @@ void Window_Base::initializeMethodStatus() {
     setStatus("close", CompatStatus::FULL);
     setStatus("show", CompatStatus::FULL);
     setStatus("hide", CompatStatus::FULL);
-    setStatus("update", CompatStatus::PARTIAL,
-              "Selectable windows process keyboard/gamepad navigation plus pointer press/drag/release hit-testing and wheel scrolling through InputManager, but multi-touch and inertial pointer nuances are still simplified.");
+    setStatus(
+        "update", CompatStatus::PARTIAL,
+        "Selectable windows process keyboard/gamepad navigation plus pointer press/drag/release hit-testing and wheel "
+        "scrolling through InputManager, but multi-touch and inertial pointer nuances are still simplified.");
     setStatus("getContentRect", CompatStatus::FULL);
-    
+
     setStatus("drawActorFace", CompatStatus::FULL);
-    
+
     setStatus("drawActorHp", CompatStatus::FULL);
     setStatus("drawActorMp", CompatStatus::FULL);
     setStatus("drawActorTp", CompatStatus::FULL);
-    
+
     setStatus("drawTextEx", CompatStatus::FULL);
-    
+
     setStatus("drawItemName", CompatStatus::FULL);
-    
+
     setStatus("textWidth", CompatStatus::FULL);
-    
+
     setStatus("textSize", CompatStatus::FULL);
 
     for (const auto& [methodName, status] : methodStatus_) {
@@ -198,10 +192,7 @@ void Window_Base::initializeMethodStatus() {
     }
 }
 
-Window_Base::Window_Base(const CreateParams& params)
-    : rect_(params.rect)
-    , background_(params.transparent ? 2 : 0)
-{
+Window_Base::Window_Base(const CreateParams& params) : rect_(params.rect), background_(params.transparent ? 2 : 0) {
     initializeMethodStatus();
 }
 
@@ -219,8 +210,7 @@ void Window_Base::setPadding(int32_t padding) {
     syncContentsBitmap();
 }
 
-void Window_Base::drawText(const std::string& text, int32_t x, int32_t y, 
-                            int32_t maxWidth, const std::string& align) {
+void Window_Base::drawText(const std::string& text, int32_t x, int32_t y, int32_t maxWidth, const std::string& align) {
     recordMethodCall("drawText");
     const int32_t safeMaxWidth = std::max(0, maxWidth);
     const std::string normalizedAlign = normalizeAlignmentString(align);
@@ -281,8 +271,7 @@ void Window_Base::drawIcon(int32_t iconIndex, int32_t x, int32_t y) {
     urpg::RenderLayer::getInstance().submit(urpg::toFrameRenderCommand(spriteCmd));
 }
 
-void Window_Base::drawActorFace(int32_t actorId, int32_t x, int32_t y, 
-                                 int32_t width, int32_t height) {
+void Window_Base::drawActorFace(int32_t actorId, int32_t x, int32_t y, int32_t width, int32_t height) {
     recordMethodCall("drawActorFace");
     if (actorId <= 0 || width <= 0 || height <= 0) {
         lastFaceDraw_.reset();
@@ -371,8 +360,8 @@ void Window_Base::drawActorTp(int32_t actorId, int32_t x, int32_t y, int32_t wid
     drawActorResourceGauge(*this, x, y, width, "TP", currentTp, maxTp, systemColor(18), systemColor(6));
 }
 
-void Window_Base::drawGauge(int32_t x, int32_t y, int32_t width,
-                             double rate, const Color& color1, const Color& color2) {
+void Window_Base::drawGauge(int32_t x, int32_t y, int32_t width, double rate, const Color& color1,
+                            const Color& color2) {
     recordMethodCall("drawGauge");
     assert(width > 0);
     assert(rate >= 0.0 && rate <= 1.0);
@@ -408,8 +397,7 @@ void Window_Base::drawGauge(int32_t x, int32_t y, int32_t width,
             continue;
         }
 
-        const double t =
-            segmentCount == 1 ? 0.0 : static_cast<double>(segment) / static_cast<double>(segmentCount - 1);
+        const double t = segmentCount == 1 ? 0.0 : static_cast<double>(segment) / static_cast<double>(segmentCount - 1);
         const Color segmentColor = lerpColor(color1, color2, t);
 
         urpg::RectCommand fillCmd;
@@ -426,8 +414,7 @@ void Window_Base::drawGauge(int32_t x, int32_t y, int32_t width,
     }
 }
 
-void Window_Base::drawCharacter(const std::string& characterName,
-                                 int32_t index, int32_t x, int32_t y) {
+void Window_Base::drawCharacter(const std::string& characterName, int32_t index, int32_t x, int32_t y) {
     recordMethodCall("drawCharacter");
     assert(!characterName.empty());
     assert(index >= 0);
@@ -470,8 +457,7 @@ void Window_Base::drawItemName(int32_t itemId, int32_t x, int32_t y, int32_t wid
     drawIcon(iconIndex, x, iconY);
 
     const int32_t textX = x + kIconWidth + kIconSpacing;
-    const int32_t textWidth =
-        safeWidth > 0 ? std::max(0, safeWidth - (kIconWidth + kIconSpacing)) : 0;
+    const int32_t textWidth = safeWidth > 0 ? std::max(0, safeWidth - (kIconWidth + kIconSpacing)) : 0;
     drawText(label, textX, y, textWidth);
 }
 
@@ -500,12 +486,7 @@ Rect Window_Base::getContentRect() const {
     methodCallCounts_["getContentRect"]++;
     const int32_t innerWidth = std::max(0, rect_.width - padding_ * 2);
     const int32_t innerHeight = std::max(0, rect_.height - padding_ * 2);
-    return Rect{
-        rect_.x + padding_,
-        rect_.y + padding_,
-        innerWidth,
-        innerHeight
-    };
+    return Rect{rect_.x + padding_, rect_.y + padding_, innerWidth, innerHeight};
 }
 
 void Window_Base::update() {
@@ -533,38 +514,38 @@ void Window_Base::drawTextEx(const std::string& text, int32_t x, int32_t y, int3
 
     for (const auto& token : tokens) {
         switch (token.type) {
-            case message::RichTextTokenType::Text: {
-                if (!token.text.empty()) {
-                    drawText(token.text, cursorX, cursorY, 0, "left");
-                    cursorX += measurePlainTextRenderer(token.text, currentFontSize);
-                    currentLineHeight = std::max(currentLineHeight, std::max(baseLineHeight, currentFontSize + 8));
-                }
-                break;
+        case message::RichTextTokenType::Text: {
+            if (!token.text.empty()) {
+                drawText(token.text, cursorX, cursorY, 0, "left");
+                cursorX += measurePlainTextRenderer(token.text, currentFontSize);
+                currentLineHeight = std::max(currentLineHeight, std::max(baseLineHeight, currentFontSize + 8));
             }
-            case message::RichTextTokenType::Icon:
-                drawIcon(token.value, cursorX, cursorY);
-                cursorX += kIconWidth + kIconSpacing;
-                currentLineHeight = std::max(currentLineHeight, std::max(baseLineHeight, kIconWidth));
-                break;
-            case message::RichTextTokenType::Color:
-                changeTextColor(token.value);
-                break;
-            case message::RichTextTokenType::FontBigger:
-                currentFontSize = std::min(kFontSizeMax, currentFontSize + kFontStep);
-                currentLineHeight = std::max(currentLineHeight, std::max(baseLineHeight, currentFontSize + 8));
-                break;
-            case message::RichTextTokenType::FontSmaller:
-                currentFontSize = std::max(kFontSizeMin, currentFontSize - kFontStep);
-                currentLineHeight = std::max(currentLineHeight, std::max(baseLineHeight, currentFontSize + 8));
-                break;
-            case message::RichTextTokenType::NewLine:
-                cursorX = x;
-                cursorY += currentLineHeight;
-                currentLineHeight = std::max(1, baseLineHeight);
-                break;
-            case message::RichTextTokenType::LineOffset:
-                cursorX = x + token.value;
-                break;
+            break;
+        }
+        case message::RichTextTokenType::Icon:
+            drawIcon(token.value, cursorX, cursorY);
+            cursorX += kIconWidth + kIconSpacing;
+            currentLineHeight = std::max(currentLineHeight, std::max(baseLineHeight, kIconWidth));
+            break;
+        case message::RichTextTokenType::Color:
+            changeTextColor(token.value);
+            break;
+        case message::RichTextTokenType::FontBigger:
+            currentFontSize = std::min(kFontSizeMax, currentFontSize + kFontStep);
+            currentLineHeight = std::max(currentLineHeight, std::max(baseLineHeight, currentFontSize + 8));
+            break;
+        case message::RichTextTokenType::FontSmaller:
+            currentFontSize = std::max(kFontSizeMin, currentFontSize - kFontStep);
+            currentLineHeight = std::max(currentLineHeight, std::max(baseLineHeight, currentFontSize + 8));
+            break;
+        case message::RichTextTokenType::NewLine:
+            cursorX = x;
+            cursorY += currentLineHeight;
+            currentLineHeight = std::max(1, baseLineHeight);
+            break;
+        case message::RichTextTokenType::LineOffset:
+            cursorX = x + token.value;
+            break;
         }
     }
 
@@ -579,15 +560,13 @@ int32_t Window_Base::lineHeight() const {
 
 int32_t Window_Base::textWidth(const std::string& text) const {
     methodCallCounts_["textWidth"]++;
-    message::RichTextLayoutEngine layout =
-        buildLayoutEngineForWindow(*this, 0, message::MessageAlignment::Left);
+    message::RichTextLayoutEngine layout = buildLayoutEngineForWindow(*this, 0, message::MessageAlignment::Left);
     return layout.textWidth(text);
 }
 
 Rect Window_Base::textSize(const std::string& text) const {
     methodCallCounts_["textSize"]++;
-    message::RichTextLayoutEngine layout =
-        buildLayoutEngineForWindow(*this, 0, message::MessageAlignment::Left);
+    message::RichTextLayoutEngine layout = buildLayoutEngineForWindow(*this, 0, message::MessageAlignment::Left);
     const message::RichTextLayoutResult result = layout.layout(text);
     return Rect{0, 0, result.metrics.width, result.metrics.height};
 }
@@ -616,33 +595,33 @@ Color Window_Base::systemColor(int32_t index) const {
     methodCallCounts_["systemColor"]++;
     // MZ system colors (simplified palette)
     static const Color systemColors[] = {
-        {0, 0, 0, 255},         // 0: Black
-        {255, 255, 255, 255},   // 1: White
-        {128, 128, 128, 255},   // 2: Gray
-        {255, 128, 128, 255},   // 3: Light red
-        {128, 255, 128, 255},   // 4: Light green
-        {128, 128, 255, 255},   // 5: Light blue
-        {255, 255, 128, 255},   // 6: Yellow
-        {255, 128, 255, 255},   // 7: Magenta
-        {128, 255, 255, 255},   // 8: Cyan
-        {255, 0, 0, 255},       // 9: Red
-        {0, 255, 0, 255},       // 10: Green
-        {0, 0, 255, 255},       // 11: Blue
-        {255, 200, 0, 255},     // 12: Gold
-        {192, 192, 192, 255},   // 13: Silver
-        {80, 80, 80, 255},      // 14: Dark gray
-        {160, 160, 160, 255},   // 15: Medium gray
-        {255, 96, 96, 255},     // 16: HP color
-        {96, 192, 255, 255},    // 17: MP color
-        {255, 128, 64, 255},    // 18: TP color
-        {64, 255, 64, 255},     // 19: Power up
-        {255, 64, 64, 255},     // 20: Power down
+        {0, 0, 0, 255},       // 0: Black
+        {255, 255, 255, 255}, // 1: White
+        {128, 128, 128, 255}, // 2: Gray
+        {255, 128, 128, 255}, // 3: Light red
+        {128, 255, 128, 255}, // 4: Light green
+        {128, 128, 255, 255}, // 5: Light blue
+        {255, 255, 128, 255}, // 6: Yellow
+        {255, 128, 255, 255}, // 7: Magenta
+        {128, 255, 255, 255}, // 8: Cyan
+        {255, 0, 0, 255},     // 9: Red
+        {0, 255, 0, 255},     // 10: Green
+        {0, 0, 255, 255},     // 11: Blue
+        {255, 200, 0, 255},   // 12: Gold
+        {192, 192, 192, 255}, // 13: Silver
+        {80, 80, 80, 255},    // 14: Dark gray
+        {160, 160, 160, 255}, // 15: Medium gray
+        {255, 96, 96, 255},   // 16: HP color
+        {96, 192, 255, 255},  // 17: MP color
+        {255, 128, 64, 255},  // 18: TP color
+        {64, 255, 64, 255},   // 19: Power up
+        {255, 64, 64, 255},   // 20: Power down
     };
     constexpr int numColors = sizeof(systemColors) / sizeof(systemColors[0]);
     if (index >= 0 && index < numColors) {
         return systemColors[index];
     }
-    return Color{255, 255, 255, 255};  // Default white
+    return Color{255, 255, 255, 255}; // Default white
 }
 
 Color Window_Base::normalColor() const {
@@ -712,11 +691,8 @@ void Window_Base::syncContentsBitmap() {
     }
 
     const Rect contentRect = getContentRect();
-    contentsBitmaps_[contents_] = ContentsBitmapInfo{
-        contents_,
-        std::max(0, contentRect.width),
-        std::max(0, contentRect.height)
-    };
+    contentsBitmaps_[contents_] =
+        ContentsBitmapInfo{contents_, std::max(0, contentRect.width), std::max(0, contentRect.height)};
 }
 
 void Window_Base::createContents() {
@@ -742,7 +718,7 @@ void Window_Base::destroyContents() {
 }
 
 void Window_Base::recordMethodCall(const std::string& methodName) {
-    initializeMethodStatus();  // Ensure initialized
+    initializeMethodStatus(); // Ensure initialized
     auto it = methodCallCounts_.find(methodName);
     if (it != methodCallCounts_.end()) {
         ++it->second;
@@ -750,25 +726,25 @@ void Window_Base::recordMethodCall(const std::string& methodName) {
 }
 
 CompatStatus Window_Base::getMethodStatus(const std::string& methodName) {
-    initializeMethodStatus();  // Ensure initialized
+    initializeMethodStatus(); // Ensure initialized
     auto it = methodStatus_.find(methodName);
     return it != methodStatus_.end() ? it->second : CompatStatus::UNSUPPORTED;
 }
 
 std::string Window_Base::getMethodDeviation(const std::string& methodName) {
-    initializeMethodStatus();  // Ensure initialized
+    initializeMethodStatus(); // Ensure initialized
     auto it = methodDeviations_.find(methodName);
     return it != methodDeviations_.end() ? it->second : "";
 }
 
 uint32_t Window_Base::getMethodCallCount(const std::string& methodName) {
-    initializeMethodStatus();  // Ensure initialized
+    initializeMethodStatus(); // Ensure initialized
     auto it = methodCallCounts_.find(methodName);
     return it != methodCallCounts_.end() ? it->second : 0;
 }
 
 std::vector<std::string> Window_Base::getTrackedMethods() {
-    initializeMethodStatus();  // Ensure initialized
+    initializeMethodStatus(); // Ensure initialized
     std::vector<std::string> methodNames;
     methodNames.reserve(methodStatus_.size());
     for (const auto& [methodName, status] : methodStatus_) {
@@ -784,25 +760,31 @@ void Window_Base::setDefaultInstance(Window_Base* instance) {
 }
 
 void Window_Base::registerAPI(QuickJSContext& ctx) {
-    initializeMethodStatus();  // Ensure initialized
+    initializeMethodStatus(); // Ensure initialized
 
     auto getInt = [](const Value& v, int64_t defaultVal = 0) -> int64_t {
-        if (auto* p = std::get_if<int64_t>(&v.v)) return *p;
-        if (auto* p = std::get_if<double>(&v.v)) return static_cast<int64_t>(*p);
+        if (auto* p = std::get_if<int64_t>(&v.v))
+            return *p;
+        if (auto* p = std::get_if<double>(&v.v))
+            return static_cast<int64_t>(*p);
         return defaultVal;
     };
     auto getDouble = [](const Value& v, double defaultVal = 0.0) -> double {
-        if (auto* p = std::get_if<double>(&v.v)) return *p;
-        if (auto* p = std::get_if<int64_t>(&v.v)) return static_cast<double>(*p);
+        if (auto* p = std::get_if<double>(&v.v))
+            return *p;
+        if (auto* p = std::get_if<int64_t>(&v.v))
+            return static_cast<double>(*p);
         return defaultVal;
     };
     auto getString = [](const Value& v, const std::string& defaultVal = "") -> std::string {
-        if (auto* p = std::get_if<std::string>(&v.v)) return *p;
+        if (auto* p = std::get_if<std::string>(&v.v))
+            return *p;
         return defaultVal;
     };
 
     auto dispatch = [](std::function<Value(Window_Base&)> fn) -> Value {
-        if (!defaultInstance_) return Value::Nil();
+        if (!defaultInstance_)
+            return Value::Nil();
         return fn(*defaultInstance_);
     };
 
@@ -958,9 +940,7 @@ void Window_Base::registerAPI(QuickJSContext& ctx) {
     });
 
     add("lineHeight", [&](const std::vector<Value>&) -> Value {
-        return dispatch([&](Window_Base& w) {
-            return Value::Int(w.lineHeight());
-        });
+        return dispatch([&](Window_Base& w) { return Value::Int(w.lineHeight()); });
     });
 
     add("textWidth", [&](const std::vector<Value>& args) -> Value {
@@ -1044,9 +1024,7 @@ void Window_Base::registerAPI(QuickJSContext& ctx) {
     });
 
     add("fontSize", [&](const std::vector<Value>&) -> Value {
-        return dispatch([&](Window_Base& w) {
-            return Value::Int(w.fontSize());
-        });
+        return dispatch([&](Window_Base& w) { return Value::Int(w.fontSize()); });
     });
 
     add("setFontFace", [&](const std::vector<Value>& args) -> Value {
@@ -1079,9 +1057,7 @@ void Window_Base::registerAPI(QuickJSContext& ctx) {
     });
 
     add("contents", [&](const std::vector<Value>&) -> Value {
-        return dispatch([&](Window_Base& w) {
-            return Value::Int(static_cast<int64_t>(w.contents()));
-        });
+        return dispatch([&](Window_Base& w) { return Value::Int(static_cast<int64_t>(w.contents())); });
     });
 
     add("createContents", [&](const std::vector<Value>&) -> Value {
@@ -1153,12 +1129,8 @@ void Window_Base::registerAPI(QuickJSContext& ctx) {
 // ============================================================================
 
 Window_Selectable::Window_Selectable(const CreateParams& params)
-    : Window_Base(params)
-    , maxCols_(std::max(1, params.maxCols))
-    , itemHeight_(std::max(1, params.itemHeight))
-    , numVisibleRows_(std::max(1, params.numVisibleRows))
-{
-}
+    : Window_Base(params), maxCols_(std::max(1, params.maxCols)), itemHeight_(std::max(1, params.itemHeight)),
+      numVisibleRows_(std::max(1, params.numVisibleRows)) {}
 
 void Window_Selectable::setMaxItems(int32_t count) {
     const bool hadNoItems = (maxItems_ == 0);
@@ -1188,11 +1160,11 @@ void Window_Selectable::setItemHeight(int32_t height) {
 void Window_Selectable::setIndex(int32_t index) {
     const int32_t previousIndex = index_;
     index_ = std::clamp(index, -1, std::max(-1, maxItems_ - 1));
-    
+
     // Ensure cursor is visible
     const int32_t row = getRow();
     const int32_t topRow = getTopRow();
-    
+
     if (row < topRow) {
         setTopRow(row);
     } else if (row >= topRow + numVisibleRows_) {
@@ -1206,19 +1178,20 @@ void Window_Selectable::setIndex(int32_t index) {
 
 int32_t Window_Selectable::getItemWidth() const {
     const int32_t safeMaxCols = std::max(1, maxCols_);
-    const int32_t spacing = 8;  // MZ default
+    const int32_t spacing = 8; // MZ default
     const int32_t totalSpacing = spacing * (safeMaxCols - 1);
     const int32_t availableWidth = std::max(0, getContentRect().width - totalSpacing);
     return availableWidth / safeMaxCols;
 }
 
 void Window_Selectable::cursorDown(bool wrap) {
-    if (maxItems_ <= 0) return;
-    
+    if (maxItems_ <= 0)
+        return;
+
     const int32_t safeMaxCols = std::max(1, maxCols_);
     int32_t maxRow = (maxItems_ + safeMaxCols - 1) / safeMaxCols - 1;
     int32_t currentRow = getRow();
-    
+
     if (currentRow < maxRow) {
         setIndex(index_ + safeMaxCols);
     } else if (wrap && safeMaxCols == 1) {
@@ -1227,11 +1200,12 @@ void Window_Selectable::cursorDown(bool wrap) {
 }
 
 void Window_Selectable::cursorUp(bool wrap) {
-    if (maxItems_ <= 0) return;
-    
+    if (maxItems_ <= 0)
+        return;
+
     const int32_t safeMaxCols = std::max(1, maxCols_);
     int32_t currentRow = getRow();
-    
+
     if (currentRow > 0) {
         setIndex(index_ - safeMaxCols);
     } else if (wrap && safeMaxCols == 1) {
@@ -1241,11 +1215,12 @@ void Window_Selectable::cursorUp(bool wrap) {
 
 void Window_Selectable::cursorRight(bool wrap) {
     const int32_t safeMaxCols = std::max(1, maxCols_);
-    if (safeMaxCols < 2) return;
-    
+    if (safeMaxCols < 2)
+        return;
+
     int32_t currentCol = getCol();
     int32_t maxCol = std::min(safeMaxCols, maxItems_ - getRow() * safeMaxCols) - 1;
-    
+
     if (currentCol < maxCol) {
         setIndex(index_ + 1);
     } else if (wrap) {
@@ -1258,10 +1233,11 @@ void Window_Selectable::cursorRight(bool wrap) {
 
 void Window_Selectable::cursorLeft(bool wrap) {
     const int32_t safeMaxCols = std::max(1, maxCols_);
-    if (safeMaxCols < 2) return;
-    
+    if (safeMaxCols < 2)
+        return;
+
     int32_t currentCol = getCol();
-    
+
     if (currentCol > 0) {
         setIndex(index_ - 1);
     } else if (wrap) {
@@ -1274,8 +1250,9 @@ void Window_Selectable::cursorLeft(bool wrap) {
 }
 
 void Window_Selectable::cursorPagedown() {
-    if (maxItems_ <= 0) return;
-    
+    if (maxItems_ <= 0)
+        return;
+
     const int32_t safeMaxCols = std::max(1, maxCols_);
     int32_t newIndex = index_ + numVisibleRows_ * safeMaxCols;
     if (newIndex < maxItems_) {
@@ -1286,8 +1263,9 @@ void Window_Selectable::cursorPagedown() {
 }
 
 void Window_Selectable::cursorPageup() {
-    if (maxItems_ <= 0) return;
-    
+    if (maxItems_ <= 0)
+        return;
+
     const int32_t safeMaxCols = std::max(1, maxCols_);
     int32_t newIndex = index_ - numVisibleRows_ * safeMaxCols;
     if (newIndex >= 0) {
@@ -1313,7 +1291,8 @@ void Window_Selectable::setTopRow(int32_t row) {
 }
 
 int32_t Window_Selectable::getMaxTopRow() const {
-    if (maxItems_ <= 0) return 0;
+    if (maxItems_ <= 0)
+        return 0;
     const int32_t safeMaxCols = std::max(1, maxCols_);
     int32_t maxRow = (maxItems_ + safeMaxCols - 1) / safeMaxCols - 1;
     return std::max(0, maxRow - numVisibleRows_ + 1);
@@ -1344,12 +1323,9 @@ void Window_Selectable::processHandling() {
     }
 
     if (!isPrimaryPointerPressed(input) && pointerPressActive_) {
-        const int32_t releaseIndex = hitTestSelectableIndexAt(
-            *this, getPrimaryPointerX(input, pointerPressIsTouch_), getPrimaryPointerY(input, pointerPressIsTouch_)
-        );
-        if (!pointerPressMoved_ &&
-            pointerPressIndex_ >= 0 &&
-            releaseIndex == pointerPressIndex_ &&
+        const int32_t releaseIndex = hitTestSelectableIndexAt(*this, getPrimaryPointerX(input, pointerPressIsTouch_),
+                                                              getPrimaryPointerY(input, pointerPressIsTouch_));
+        if (!pointerPressMoved_ && pointerPressIndex_ >= 0 && releaseIndex == pointerPressIndex_ &&
             getIndex() == pointerPressIndex_) {
             processOk();
         }
@@ -1416,8 +1392,7 @@ void Window_Selectable::processCursorMove() {
     }
 
     const int32_t wheelDelta = input.getMouseWheel();
-    if (wheelDelta != 0 &&
-        isPointerInsideSelectableContent(*this, input.getMouseX(), input.getMouseY())) {
+    if (wheelDelta != 0 && isPointerInsideSelectableContent(*this, input.getMouseX(), input.getMouseY())) {
         if (wheelDelta < 0) {
             cursorDown(false);
         } else {
@@ -1426,8 +1401,8 @@ void Window_Selectable::processCursorMove() {
         return;
     }
 
-    if (input.isDirectionTriggered(2) || input.isDirectionTriggered(6) ||
-        input.isDirectionTriggered(4) || input.isDirectionTriggered(8)) {
+    if (input.isDirectionTriggered(2) || input.isDirectionTriggered(6) || input.isDirectionTriggered(4) ||
+        input.isDirectionTriggered(8)) {
         if (input.isDirectionTriggered(2)) {
             cursorDown(true);
         } else if (input.isDirectionTriggered(8)) {
@@ -1481,19 +1456,24 @@ void Window_Selectable::registerAPI(QuickJSContext& ctx) {
     Window_Base::registerAPI(ctx);
 
     auto getInt = [](const Value& v, int64_t defaultVal = 0) -> int64_t {
-        if (auto* p = std::get_if<int64_t>(&v.v)) return *p;
-        if (auto* p = std::get_if<double>(&v.v)) return static_cast<int64_t>(*p);
+        if (auto* p = std::get_if<int64_t>(&v.v))
+            return *p;
+        if (auto* p = std::get_if<double>(&v.v))
+            return static_cast<int64_t>(*p);
         return defaultVal;
     };
     auto getString = [](const Value& v, const std::string& defaultVal = "") -> std::string {
-        if (auto* p = std::get_if<std::string>(&v.v)) return *p;
+        if (auto* p = std::get_if<std::string>(&v.v))
+            return *p;
         return defaultVal;
     };
 
     auto dispatchSelectable = [&](std::function<Value(Window_Selectable&)> fn) -> Value {
-        if (!defaultInstance_) return Value::Nil();
+        if (!defaultInstance_)
+            return Value::Nil();
         auto* sel = dynamic_cast<Window_Selectable*>(defaultInstance_);
-        if (!sel) return Value::Nil();
+        if (!sel)
+            return Value::Nil();
         return fn(*sel);
     };
 
@@ -1508,9 +1488,7 @@ void Window_Selectable::registerAPI(QuickJSContext& ctx) {
     };
 
     add("index", [&](const std::vector<Value>&) -> Value {
-        return dispatchSelectable([](Window_Selectable& w) {
-            return Value::Int(w.getIndex());
-        });
+        return dispatchSelectable([](Window_Selectable& w) { return Value::Int(w.getIndex()); });
     });
 
     add("select", [&](const std::vector<Value>& args) -> Value {
@@ -1522,33 +1500,23 @@ void Window_Selectable::registerAPI(QuickJSContext& ctx) {
     });
 
     add("topRow", [&](const std::vector<Value>&) -> Value {
-        return dispatchSelectable([](Window_Selectable& w) {
-            return Value::Int(w.getTopRow());
-        });
+        return dispatchSelectable([](Window_Selectable& w) { return Value::Int(w.getTopRow()); });
     });
 
     add("maxItems", [&](const std::vector<Value>&) -> Value {
-        return dispatchSelectable([](Window_Selectable& w) {
-            return Value::Int(w.getMaxItems());
-        });
+        return dispatchSelectable([](Window_Selectable& w) { return Value::Int(w.getMaxItems()); });
     });
 
     add("maxCols", [&](const std::vector<Value>&) -> Value {
-        return dispatchSelectable([](Window_Selectable& w) {
-            return Value::Int(w.getMaxCols());
-        });
+        return dispatchSelectable([](Window_Selectable& w) { return Value::Int(w.getMaxCols()); });
     });
 
     add("itemHeight", [&](const std::vector<Value>&) -> Value {
-        return dispatchSelectable([](Window_Selectable& w) {
-            return Value::Int(w.getItemHeight());
-        });
+        return dispatchSelectable([](Window_Selectable& w) { return Value::Int(w.getItemHeight()); });
     });
 
     add("itemWidth", [&](const std::vector<Value>&) -> Value {
-        return dispatchSelectable([](Window_Selectable& w) {
-            return Value::Int(w.getItemWidth());
-        });
+        return dispatchSelectable([](Window_Selectable& w) { return Value::Int(w.getItemWidth()); });
     });
 
     add("cursorDown", [&](const std::vector<Value>& args) -> Value {
@@ -1584,9 +1552,7 @@ void Window_Selectable::registerAPI(QuickJSContext& ctx) {
     });
 
     add("isCursorMovable", [&](const std::vector<Value>&) -> Value {
-        return dispatchSelectable([](Window_Selectable& w) {
-            return Value::Int(w.isCursorMovable() ? 1 : 0);
-        });
+        return dispatchSelectable([](Window_Selectable& w) { return Value::Int(w.isCursorMovable() ? 1 : 0); });
     });
 
     add("isHandled", [&](const std::vector<Value>& args) -> Value {
@@ -1636,9 +1602,7 @@ void Window_Selectable::registerAPI(QuickJSContext& ctx) {
     });
 
     add("getItemWidth", [&](const std::vector<Value>&) -> Value {
-        return dispatchSelectable([](Window_Selectable& w) {
-            return Value::Int(w.getItemWidth());
-        });
+        return dispatchSelectable([](Window_Selectable& w) { return Value::Int(w.getItemWidth()); });
     });
 
     add("cursorPagedown", [&](const std::vector<Value>&) -> Value {
@@ -1656,15 +1620,11 @@ void Window_Selectable::registerAPI(QuickJSContext& ctx) {
     });
 
     add("getRow", [&](const std::vector<Value>&) -> Value {
-        return dispatchSelectable([](Window_Selectable& w) {
-            return Value::Int(w.getRow());
-        });
+        return dispatchSelectable([](Window_Selectable& w) { return Value::Int(w.getRow()); });
     });
 
     add("getCol", [&](const std::vector<Value>&) -> Value {
-        return dispatchSelectable([](Window_Selectable& w) {
-            return Value::Int(w.getCol());
-        });
+        return dispatchSelectable([](Window_Selectable& w) { return Value::Int(w.getCol()); });
     });
 
     add("setTopRow", [&](const std::vector<Value>& args) -> Value {
@@ -1676,9 +1636,7 @@ void Window_Selectable::registerAPI(QuickJSContext& ctx) {
     });
 
     add("getTopRow", [&](const std::vector<Value>&) -> Value {
-        return dispatchSelectable([](Window_Selectable& w) {
-            return Value::Int(w.getTopRow());
-        });
+        return dispatchSelectable([](Window_Selectable& w) { return Value::Int(w.getTopRow()); });
     });
 
     add("processPagedown", [&](const std::vector<Value>&) -> Value {
@@ -1702,10 +1660,7 @@ void Window_Selectable::registerAPI(QuickJSContext& ctx) {
 // Window_Command Implementation
 // ============================================================================
 
-Window_Command::Window_Command(const CreateParams& params)
-    : Window_Selectable(params)
-    , commands_(params.commands)
-{
+Window_Command::Window_Command(const CreateParams& params) : Window_Selectable(params), commands_(params.commands) {
     setMaxItems(static_cast<int32_t>(commands_.size()));
 }
 
@@ -1722,8 +1677,7 @@ void Window_Command::setCommands(const std::vector<CommandItem>& commands) {
     setMaxItems(static_cast<int32_t>(commands_.size()));
 }
 
-void Window_Command::addCommand(const std::string& name, const std::string& symbol,
-                                 bool enabled, int32_t ext) {
+void Window_Command::addCommand(const std::string& name, const std::string& symbol, bool enabled, int32_t ext) {
     commands_.push_back({name, symbol, enabled, ext});
     setMaxItems(static_cast<int32_t>(commands_.size()));
 }
@@ -1785,16 +1739,12 @@ void Window_Command::drawItem(int32_t index) {
     if (index < 0 || index >= static_cast<int32_t>(commands_.size())) {
         return;
     }
-    
+
     const auto& cmd = commands_[index];
     const int32_t maxCols = std::max(1, getMaxCols());
-    Rect itemRect{
-        (index % maxCols) * getItemWidth(),
-        (index / maxCols) * getItemHeight(),
-        getItemWidth(),
-        getItemHeight()
-    };
-    
+    Rect itemRect{(index % maxCols) * getItemWidth(), (index / maxCols) * getItemHeight(), getItemWidth(),
+                  getItemHeight()};
+
     const Color color = cmd.enabled ? normalColor() : dimColor();
     changeTextColor(color);
     drawText(cmd.name, itemRect.x, itemRect.y, itemRect.width, "left");
@@ -1837,24 +1787,31 @@ void Window_Command::registerAPI(QuickJSContext& ctx) {
     Window_Selectable::registerAPI(ctx);
 
     auto getInt = [](const Value& v, int64_t defaultVal = 0) -> int64_t {
-        if (auto* p = std::get_if<int64_t>(&v.v)) return *p;
-        if (auto* p = std::get_if<double>(&v.v)) return static_cast<int64_t>(*p);
+        if (auto* p = std::get_if<int64_t>(&v.v))
+            return *p;
+        if (auto* p = std::get_if<double>(&v.v))
+            return static_cast<int64_t>(*p);
         return defaultVal;
     };
     auto getString = [](const Value& v, const std::string& defaultVal = "") -> std::string {
-        if (auto* p = std::get_if<std::string>(&v.v)) return *p;
+        if (auto* p = std::get_if<std::string>(&v.v))
+            return *p;
         return defaultVal;
     };
     auto getBool = [](const Value& v, bool defaultVal = false) -> bool {
-        if (auto* p = std::get_if<bool>(&v.v)) return *p;
-        if (auto* p = std::get_if<int64_t>(&v.v)) return *p != 0;
+        if (auto* p = std::get_if<bool>(&v.v))
+            return *p;
+        if (auto* p = std::get_if<int64_t>(&v.v))
+            return *p != 0;
         return defaultVal;
     };
 
     auto dispatchCommand = [&](std::function<Value(Window_Command&)> fn) -> Value {
-        if (!defaultInstance_) return Value::Nil();
+        if (!defaultInstance_)
+            return Value::Nil();
         auto* cmd = dynamic_cast<Window_Command*>(defaultInstance_);
-        if (!cmd) return Value::Nil();
+        if (!cmd)
+            return Value::Nil();
         return fn(*cmd);
     };
 
@@ -1909,9 +1866,7 @@ void Window_Command::registerAPI(QuickJSContext& ctx) {
     });
 
     add("ext", [&](const std::vector<Value>&) -> Value {
-        return dispatchCommand([](Window_Command& w) {
-            return Value::Int(w.getCurrentExt());
-        });
+        return dispatchCommand([](Window_Command& w) { return Value::Int(w.getCurrentExt()); });
     });
 
     add("makeCommandList", [&](const std::vector<Value>&) -> Value {
@@ -1923,9 +1878,7 @@ void Window_Command::registerAPI(QuickJSContext& ctx) {
 
     // Helper bindings
     add("getCommandCount", [&](const std::vector<Value>&) -> Value {
-        return dispatchCommand([](Window_Command& w) {
-            return Value::Int(w.getCommandCount());
-        });
+        return dispatchCommand([](Window_Command& w) { return Value::Int(w.getCommandCount()); });
     });
 
     add("isCommandEnabled", [&](const std::vector<Value>& args) -> Value {
@@ -1936,9 +1889,7 @@ void Window_Command::registerAPI(QuickJSContext& ctx) {
     });
 
     add("isCurrentItemEnabled", [&](const std::vector<Value>&) -> Value {
-        return dispatchCommand([](Window_Command& w) {
-            return Value::Int(w.isCurrentItemEnabled() ? 1 : 0);
-        });
+        return dispatchCommand([](Window_Command& w) { return Value::Int(w.isCurrentItemEnabled() ? 1 : 0); });
     });
 
     add("getCurrentSymbol", [&](const std::vector<Value>&) -> Value {
@@ -1994,11 +1945,7 @@ void Window_Command::registerAPI(QuickJSContext& ctx) {
 // ============================================================================
 
 Window_Message::Window_Message(const CreateParams& params)
-    : Window_Base(params)
-    , messageX_(params.messageX)
-    , messageY_(params.messageY)
-    , messageWidth_(params.messageWidth) {
-}
+    : Window_Base(params), messageX_(params.messageX), messageY_(params.messageY), messageWidth_(params.messageWidth) {}
 
 void Window_Message::setMessageRect(int32_t x, int32_t y, int32_t width) {
     messageX_ = x;
@@ -2020,7 +1967,6 @@ void Window_Message::drawMessageBody() {
     const int32_t width = messageWidth_ > 0 ? messageWidth_ : content.width;
     drawTextEx(messageText_, messageX_, messageY_, width);
 }
-
 
 // ============================================================================
 // WindowCompatManager Implementation
@@ -2116,12 +2062,11 @@ void WindowCompatManager::registerAllAPIs(QuickJSContext& ctx) {
     Window_Command::registerAPI(ctx);
     Sprite_Character::registerAPI(ctx);
     Sprite_Actor::registerAPI(ctx);
-
 }
 
 std::vector<WindowCompatManager::CompatReport> WindowCompatManager::getCompatReport() const {
     std::vector<CompatReport> report;
-    
+
     for (const auto& method : Window_Base::getTrackedMethods()) {
         CompatReport entry;
         entry.className = "Window_Base";
@@ -2131,7 +2076,7 @@ std::vector<WindowCompatManager::CompatReport> WindowCompatManager::getCompatRep
         entry.callCount = Window_Base::getMethodCallCount(method);
         report.push_back(entry);
     }
-    
+
     return report;
 }
 

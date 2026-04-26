@@ -11,7 +11,7 @@ namespace urpg::ui {
  * Comprises an input prompt and a scrolling history of AI responses.
  */
 class ChatWindow : public UIWindow {
-public:
+  public:
     ChatWindow();
     virtual ~ChatWindow() = default;
 
@@ -34,7 +34,8 @@ public:
      * @brief Updates the last message in history (useful for streaming chunks).
      */
     void updateLastMessage(const std::string& extraContent) {
-        if (!m_history.empty()) m_history.back().content += extraContent;
+        if (!m_history.empty())
+            m_history.back().content += extraContent;
     }
 
     /**
@@ -52,14 +53,14 @@ public:
      */
     void setWrappingEnabled(bool enabled) { m_wrappingEnabled = enabled; }
 
-private:
+  private:
     struct ChatMessage {
         std::string speaker;
         std::string content;
         uint32_t color = 0xFFFFFFFF;
     };
-bool m_wrappingEnabled = true;
-    
+    bool m_wrappingEnabled = true;
+
     std::vector<ChatMessage> m_history;
     std::string m_inputBuffer;
     float m_cursorTime = 0.0f;

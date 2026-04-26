@@ -1,11 +1,11 @@
 #pragma once
 
-#include <vector>
+#include "../global_state_hub.h"
 #include <cstdint>
-#include <string>
 #include <memory>
 #include <nlohmann/json.hpp>
-#include "../global_state_hub.h"
+#include <string>
+#include <vector>
 
 namespace urpg::save {
 
@@ -14,7 +14,7 @@ namespace urpg::save {
  * This hub centralizes compression and persistence formats.
  */
 class SaveSerializationHub {
-public:
+  public:
     /**
      * @brief Creates a JSON snapshot of the current GlobalStateHub for saving.
      * @param hub The hub to snapshot.
@@ -22,21 +22,19 @@ public:
      */
     static std::string snapshotGlobalState(const GlobalStateHub& hub, bool differential = false) {
         nlohmann::json root;
-        
+
         // Serialize AI History with incremental optimization
         // Only save recent or "critical" messages if specified
-        
+
         // Serialize Switches
         root["switches"] = differential ? hub.getDiffSwitches() : hub.getAllSwitches();
         root["differential"] = differential;
-        
+
         // Serialize Variables
         nlohmann::json variables = nlohmann::json::object();
         auto vars = differential ? hub.getDiffVariables() : hub.getAllVariables();
         for (const auto& [id, value] : vars) {
-            std::visit([&](auto&& arg) {
-                variables[id] = arg;
-            }, value);
+            std::visit([&](auto&& arg) { variables[id] = arg; }, value);
         }
         root["variables"] = variables;
 
@@ -48,7 +46,8 @@ public:
      */
     static void restoreGlobalState(GlobalStateHub& hub, const std::string& json) {
         auto root = nlohmann::json::parse(json, nullptr, false);
-        if (root.is_discarded()) return;
+        if (root.is_discarded())
+            return;
 
         bool differential = root.value("differential", false);
         if (!differential) {
@@ -64,10 +63,14 @@ public:
         if (root.contains("variables") && root["variables"].is_object()) {
             for (auto it = root["variables"].begin(); it != root["variables"].end(); ++it) {
                 auto& val = it.value();
-                if (val.is_boolean()) hub.updateState(it.key(), val.get<bool>());
-                else if (val.is_number_integer()) hub.updateState(it.key(), val.get<int32_t>());
-                else if (val.is_number_float()) hub.updateState(it.key(), val.get<float>());
-                else if (val.is_string()) hub.updateState(it.key(), val.get<std::string>());
+                if (val.is_boolean())
+                    hub.updateState(it.key(), val.get<bool>());
+                else if (val.is_number_integer())
+                    hub.updateState(it.key(), val.get<int32_t>());
+                else if (val.is_number_float())
+                    hub.updateState(it.key(), val.get<float>());
+                else if (val.is_string())
+                    hub.updateState(it.key(), val.get<std::string>());
             }
         }
     }
@@ -75,11 +78,7 @@ public:
     /**
      * @brief High-level compression levels for save files.
      */
-    enum class CompressionLevel : uint8_t {
-        None = 0,
-        Fast = 1,
-        Optimal = 2
-    };
+    enum class CompressionLevel : uint8_t { None = 0, Fast = 1, Optimal = 2 };
 
     /**
      * @brief Converts a JSON string into a compressed binary buffer for disk persistence.
@@ -88,18 +87,21 @@ public:
      * @return A vector of bytes representing the serialized output.
      */
     static std::vector<uint8_t> jsonToBinary(const std::string& json, CompressionLevel level = CompressionLevel::Fast) {
-        // Implementation Note: In a production environment, this would integrate with 
-        // a library like Zstd or LZ4. For current phase, we use a custom RLE-lite 
+        // Implementation Note: In a production environment, this would integrate with
+        // a library like Zstd or LZ4. For current phase, we use a custom RLE-lite
         // approach for basic binary packing and metadata tagging.
-        
+
         std::vector<uint8_t> binary;
         // Header: "URSV" (URPG Save)
-        binary.push_back('U'); binary.push_back('R'); 
-        binary.push_back('S'); binary.push_back('V');
-        
+        binary.push_back('U');
+        binary.push_back('R');
+        binary.push_back('S');
+        binary.push_back('V');
+
         // Version (1.0)
-        binary.push_back(1); binary.push_back(0);
-        
+        binary.push_back(1);
+        binary.push_back(0);
+
         // Compression Flag
         binary.push_back(static_cast<uint8_t>(level));
 
@@ -117,13 +119,14 @@ public:
         binary.push_back((len >> 24) & 0xFF);
 
         // Content (for 'None', just append; for Fast/Optimal, apply logic)
-        for(char c : processedJson) {
+        for (char c : processedJson) {
             binary.push_back(static_cast<uint8_t>(c));
         }
 
         // Basic XOR checksum (last byte)
         uint8_t checksum = 0;
-        for(uint8_t b : binary) checksum ^= b;
+        for (uint8_t b : binary)
+            checksum ^= b;
         binary.push_back(checksum);
 
         return binary;
@@ -135,7 +138,8 @@ public:
      * @return The original JSON string. Returns empty string on corruption.
      */
     static std::string binaryToJson(const std::vector<uint8_t>& binary) {
-        if (binary.size() < 11) return ""; // Minimum header + checksum
+        if (binary.size() < 11)
+            return ""; // Minimum header + checksum
 
         // Verify Header
         if (binary[0] != 'U' || binary[1] != 'R' || binary[2] != 'S' || binary[3] != 'V') {
@@ -148,13 +152,15 @@ public:
         for (size_t i = 0; i < binary.size() - 1; ++i) {
             actualChecksum ^= binary[i];
         }
-        if (actualChecksum != expectedChecksum) return "";
+        if (actualChecksum != expectedChecksum)
+            return "";
 
         // Read Length
         uint32_t len = binary[7] | (binary[8] << 8) | (binary[9] << 16) | (binary[10] << 24);
-        
+
         // Extract content (starting at index 11)
-        if (binary.size() < 11 + len + 1) return ""; // Checksum is the last byte
+        if (binary.size() < 11 + len + 1)
+            return ""; // Checksum is the last byte
 
         std::string json;
         json.reserve(len);

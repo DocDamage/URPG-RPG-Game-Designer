@@ -1,5 +1,5 @@
-#include <catch2/catch_test_macros.hpp>
 #include "engine/core/testing/headless_play_mode.h"
+#include <catch2/catch_test_macros.hpp>
 #include <memory>
 
 using namespace urpg::testing;
@@ -11,14 +11,14 @@ TEST_CASE("HeadlessPlayMode executes scripted sequence", "[testing]") {
     bool actionExecuted = false;
     bool waitCondition = false;
 
-    session->addStep({"Step 1", [&]() { 
-        actionExecuted = true; 
-        return true; 
-    }, "Immediate execution step"});
+    session->addStep({"Step 1",
+                      [&]() {
+                          actionExecuted = true;
+                          return true;
+                      },
+                      "Immediate execution step"});
 
-    session->addStep({"Step 2", [&]() { 
-        return waitCondition; 
-    }, "Wait step"});
+    session->addStep({"Step 2", [&]() { return waitCondition; }, "Wait step"});
 
     playMode.startSession(std::move(session));
 
@@ -29,7 +29,7 @@ TEST_CASE("HeadlessPlayMode executes scripted sequence", "[testing]") {
 
     SECTION("Waits until conditions are met") {
         playMode.update(0.16f); // After Step 1
-        
+
         playMode.update(0.16f); // Stuck on Step 2
         REQUIRE_FALSE(playMode.isFinished());
 

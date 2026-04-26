@@ -1,31 +1,31 @@
 #pragma once
 
-#include "ui_types.h"
 #include "../global_state_hub.h"
-#include <map>
-#include <string>
-#include <vector>
+#include "ui_types.h"
 #include <algorithm>
 #include <cstdint>
-#include <unordered_map>
+#include <map>
 #include <nlohmann/json.hpp>
+#include <string>
+#include <unordered_map>
+#include <vector>
 
 namespace urpg::ui {
 
 /**
  * @brief Authoritative store of all available UI commands in the engine.
- * 
+ *
  * The registry holds both core and custom commands, providing deterministic
  * lookup and sorting for menu composition.
  */
 class MenuCommandRegistry {
-public:
+  public:
     using SwitchState = std::unordered_map<std::string, bool>;
     using VariableState = std::unordered_map<std::string, int32_t>;
 
     /**
      * @brief Helper to capture current global state into SwitchState/VariableState maps.
-     * 
+     *
      * Wave 2: This bridges the GlobalStateHub to the Menu evaluators.
      */
     static void captureGlobalState(SwitchState& outSwitches, VariableState& outVariables) {
@@ -40,9 +40,7 @@ public:
         }
     }
 
-    void registerCommand(const MenuCommandMeta& command) {
-        _commands[command.id] = command;
-    }
+    void registerCommand(const MenuCommandMeta& command) { _commands[command.id] = command; }
 
     const MenuCommandMeta* getCommand(const std::string& id) const {
         auto it = _commands.find(id);
@@ -60,7 +58,8 @@ public:
             list.push_back(cmd);
         }
         std::sort(list.begin(), list.end(), [](const auto& a, const auto& b) {
-            if (a.priority != b.priority) return a.priority < b.priority;
+            if (a.priority != b.priority)
+                return a.priority < b.priority;
             return a.id < b.id;
         });
         return list;
@@ -69,18 +68,14 @@ public:
     /**
      * @brief Evaluates whether a command is visible for the provided runtime state.
      */
-    bool isVisible(const MenuCommandMeta& command,
-                   const SwitchState& switches,
-                   const VariableState& variables) const {
+    bool isVisible(const MenuCommandMeta& command, const SwitchState& switches, const VariableState& variables) const {
         return evaluateRuleSet(command.visibility_rules, switches, variables);
     }
 
     /**
      * @brief Evaluates whether a command is enabled for the provided runtime state.
      */
-    bool isEnabled(const MenuCommandMeta& command,
-                   const SwitchState& switches,
-                   const VariableState& variables) const {
+    bool isEnabled(const MenuCommandMeta& command, const SwitchState& switches, const VariableState& variables) const {
         return evaluateRuleSet(command.enable_rules, switches, variables);
     }
 
@@ -99,7 +94,8 @@ public:
         }
 
         std::sort(list.begin(), list.end(), [](const auto& a, const auto& b) {
-            if (a.priority != b.priority) return a.priority < b.priority;
+            if (a.priority != b.priority)
+                return a.priority < b.priority;
             return a.id < b.id;
         });
         return list;
@@ -119,14 +115,15 @@ public:
         }
 
         for (const auto& item : cmds) {
-            if (!item.contains("id")) continue;
-            
+            if (!item.contains("id"))
+                continue;
+
             MenuCommandMeta cmd;
             cmd.id = item["id"].get<std::string>();
             cmd.label = item.value("label", cmd.id);
             cmd.icon_id = item.value("icon", "");
             cmd.priority = item.value("priority", 0);
-            
+
             // Route Target
             std::string route_str = item.value("route", "none");
             cmd.route = parseRoute(route_str);
@@ -178,9 +175,8 @@ public:
         return root;
     }
 
-private:
-    static bool evaluateRule(const MenuCommandCondition& rule,
-                             const SwitchState& switches,
+  private:
+    static bool evaluateRule(const MenuCommandCondition& rule, const SwitchState& switches,
                              const VariableState& variables) {
         bool pass = true;
 
@@ -202,8 +198,7 @@ private:
         return pass;
     }
 
-    static bool evaluateRuleSet(const std::vector<MenuCommandCondition>& rules,
-                                const SwitchState& switches,
+    static bool evaluateRuleSet(const std::vector<MenuCommandCondition>& rules, const SwitchState& switches,
                                 const VariableState& variables) {
         for (const auto& rule : rules) {
             if (!evaluateRule(rule, switches, variables)) {
@@ -214,46 +209,75 @@ private:
     }
 
     static MenuRouteTarget parseRoute(const std::string& str) {
-        if (str == "item")         return MenuRouteTarget::Item;
-        if (str == "skill")        return MenuRouteTarget::Skill;
-        if (str == "equip")        return MenuRouteTarget::Equip;
-        if (str == "status")       return MenuRouteTarget::Status;
-        if (str == "formation")    return MenuRouteTarget::Formation;
-        if (str == "save")         return MenuRouteTarget::Save;
-        if (str == "load")         return MenuRouteTarget::Load;
-        if (str == "options")      return MenuRouteTarget::Options;
-        if (str == "game_end")     return MenuRouteTarget::GameEnd;
-        if (str == "codex")        return MenuRouteTarget::Codex;
-        if (str == "quest_log")    return MenuRouteTarget::QuestLog;
-        if (str == "encyclopedia") return MenuRouteTarget::Encyclopedia;
-        if (str == "custom")       return MenuRouteTarget::Custom;
+        if (str == "item")
+            return MenuRouteTarget::Item;
+        if (str == "skill")
+            return MenuRouteTarget::Skill;
+        if (str == "equip")
+            return MenuRouteTarget::Equip;
+        if (str == "status")
+            return MenuRouteTarget::Status;
+        if (str == "formation")
+            return MenuRouteTarget::Formation;
+        if (str == "save")
+            return MenuRouteTarget::Save;
+        if (str == "load")
+            return MenuRouteTarget::Load;
+        if (str == "options")
+            return MenuRouteTarget::Options;
+        if (str == "game_end")
+            return MenuRouteTarget::GameEnd;
+        if (str == "codex")
+            return MenuRouteTarget::Codex;
+        if (str == "quest_log")
+            return MenuRouteTarget::QuestLog;
+        if (str == "encyclopedia")
+            return MenuRouteTarget::Encyclopedia;
+        if (str == "custom")
+            return MenuRouteTarget::Custom;
         return MenuRouteTarget::None;
     }
 
     static std::string routeToString(MenuRouteTarget target) {
         switch (target) {
-        case MenuRouteTarget::Item:        return "item";
-        case MenuRouteTarget::Skill:       return "skill";
-        case MenuRouteTarget::Equip:       return "equip";
-        case MenuRouteTarget::Status:      return "status";
-        case MenuRouteTarget::Formation:   return "formation";
-        case MenuRouteTarget::Save:        return "save";
-        case MenuRouteTarget::Load:        return "load";
-        case MenuRouteTarget::Options:     return "options";
-        case MenuRouteTarget::GameEnd:     return "game_end";
-        case MenuRouteTarget::Codex:       return "codex";
-        case MenuRouteTarget::QuestLog:    return "quest_log";
-        case MenuRouteTarget::Encyclopedia:return "encyclopedia";
-        case MenuRouteTarget::Custom:      return "custom";
-        default:                           return "none";
+        case MenuRouteTarget::Item:
+            return "item";
+        case MenuRouteTarget::Skill:
+            return "skill";
+        case MenuRouteTarget::Equip:
+            return "equip";
+        case MenuRouteTarget::Status:
+            return "status";
+        case MenuRouteTarget::Formation:
+            return "formation";
+        case MenuRouteTarget::Save:
+            return "save";
+        case MenuRouteTarget::Load:
+            return "load";
+        case MenuRouteTarget::Options:
+            return "options";
+        case MenuRouteTarget::GameEnd:
+            return "game_end";
+        case MenuRouteTarget::Codex:
+            return "codex";
+        case MenuRouteTarget::QuestLog:
+            return "quest_log";
+        case MenuRouteTarget::Encyclopedia:
+            return "encyclopedia";
+        case MenuRouteTarget::Custom:
+            return "custom";
+        default:
+            return "none";
         }
     }
 
     static std::vector<urpg::MenuCommandCondition> parseRules(const nlohmann::json& parent, const char* field) {
         std::vector<urpg::MenuCommandCondition> rules;
-        if (!parent.contains(field) || !parent[field].is_array()) return rules;
+        if (!parent.contains(field) || !parent[field].is_array())
+            return rules;
         for (const auto& r : parent[field]) {
-            if (!r.is_object()) continue;
+            if (!r.is_object())
+                continue;
             urpg::MenuCommandCondition cond;
             cond.switch_id = r.value("switch_id", "");
             cond.variable_id = r.value("variable_id", "");
@@ -280,4 +304,4 @@ private:
     std::map<std::string, MenuCommandMeta> _commands;
 };
 
-} // namespace urpg
+} // namespace urpg::ui

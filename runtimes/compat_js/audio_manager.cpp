@@ -47,11 +47,11 @@ std::string ValueToString(const Value& value, const std::string& fallback = "") 
 AudioBus ValueToBus(const Value& value, AudioBus fallback) {
     if (const auto* asInt = std::get_if<int64_t>(&value.v)) {
         switch (static_cast<AudioBus>(*asInt)) {
-            case AudioBus::BGM:
-            case AudioBus::BGS:
-            case AudioBus::ME:
-            case AudioBus::SE:
-                return static_cast<AudioBus>(*asInt);
+        case AudioBus::BGM:
+        case AudioBus::BGS:
+        case AudioBus::ME:
+        case AudioBus::SE:
+            return static_cast<AudioBus>(*asInt);
         }
     }
     return fallback;
@@ -80,9 +80,7 @@ std::unordered_map<std::string, std::string> AudioManager::methodDeviations_;
 // AudioChannel Implementation
 // ============================================================================
 
-AudioChannel::AudioChannel(const std::string& name, AudioBus bus)
-    : name_(name), bus_(bus) {
-}
+AudioChannel::AudioChannel(const std::string& name, AudioBus bus) : name_(name), bus_(bus) {}
 
 AudioChannel::~AudioChannel() = default;
 
@@ -194,13 +192,15 @@ struct PendingVolumeRamp {
 };
 
 class AudioManagerImpl {
-public:
+  public:
     std::vector<std::unique_ptr<AudioChannel>> channels_;
     std::unordered_map<std::string, uint32_t> channelIndex_;
     std::unordered_map<AudioBus, double> busVolumes_;
+    std::unordered_map<uint32_t, urpg::audio::AudioHandle> backendHandles_;
     double masterVolume_ = 1.0;
     uint32_t nextChannelId_ = 1;
-    
+    urpg::audio::AudioCore* audioCore_ = nullptr;
+
     // BGM state
     AudioChannel* bgmChannel_ = nullptr;
     AudioInfo savedBgm_;
@@ -212,13 +212,13 @@ public:
     // BGS state
     AudioChannel* bgsChannel_ = nullptr;
     PendingCrossfade bgsCrossfade_;
-    
+
     // ME state
     AudioChannel* meChannel_ = nullptr;
-    
+
     // SE channels
     std::vector<AudioChannel*> seChannels_;
-    
+
     AudioManagerImpl() {
         busVolumes_[AudioBus::BGM] = 1.0;
         busVolumes_[AudioBus::BGS] = 1.0;
@@ -229,21 +229,41 @@ public:
 
 namespace {
 
-double ComputeEffectiveVolume(const AudioManagerImpl& impl,
-                              const AudioChannel& channel,
-                              double duckMultiplier = 1.0) {
+double ComputeEffectiveVolume(const AudioManagerImpl& impl, const AudioChannel& channel, double duckMultiplier = 1.0) {
     const auto busVolume = impl.busVolumes_.find(channel.getBus());
     const double bus = busVolume != impl.busVolumes_.end() ? busVolume->second : 1.0;
     return ClampNormalized(channel.getSourceVolume() * impl.masterVolume_ * bus * duckMultiplier);
 }
 
-void ApplyChannelVolume(const AudioManagerImpl& impl,
-                        AudioChannel* channel,
-                        double duckMultiplier = 1.0) {
+void ApplyChannelVolume(const AudioManagerImpl& impl, AudioChannel* channel, double duckMultiplier = 1.0) {
     if (!channel) {
         return;
     }
     channel->setVolume(ComputeEffectiveVolume(impl, *channel, duckMultiplier));
+}
+
+urpg::audio::AudioCategory BusToAudioCategory(AudioBus bus) {
+    switch (bus) {
+    case AudioBus::BGM:
+        return urpg::audio::AudioCategory::BGM;
+    case AudioBus::BGS:
+        return urpg::audio::AudioCategory::BGS;
+    case AudioBus::ME:
+        return urpg::audio::AudioCategory::ME;
+    case AudioBus::SE:
+        return urpg::audio::AudioCategory::SE;
+    }
+    return urpg::audio::AudioCategory::System;
+}
+
+void ApplyCoreBusVolume(AudioManagerImpl& impl, AudioBus bus) {
+    if (!impl.audioCore_) {
+        return;
+    }
+    const auto busVolume = impl.busVolumes_.find(bus);
+    const double busScale = busVolume != impl.busVolumes_.end() ? busVolume->second : 1.0;
+    impl.audioCore_->setCategoryVolume(BusToAudioCategory(bus),
+                                       static_cast<float>(ClampNormalized(impl.masterVolume_ * busScale)));
 }
 
 } // namespace
@@ -252,14 +272,10 @@ void ApplyChannelVolume(const AudioManagerImpl& impl,
 // AudioManager Implementation
 // ============================================================================
 
-AudioManager::AudioManager()
-    : impl_(std::make_unique<AudioManagerImpl>())
-{
+AudioManager::AudioManager() : impl_(std::make_unique<AudioManagerImpl>()) {
     // Initialize method status registry
     if (methodStatus_.empty()) {
-        const auto setStatus = [](const std::string& method,
-                                  CompatStatus status,
-                                  const std::string& deviation = "") {
+        const auto setStatus = [](const std::string& method, CompatStatus status, const std::string& deviation = "") {
             methodStatus_[method] = status;
             if (deviation.empty()) {
                 methodDeviations_.erase(method);
@@ -279,8 +295,9 @@ AudioManager::AudioManager()
                   "Resumes deterministic harness playback state rather than a live audio backend.");
         setStatus("crossfadeBgm", CompatStatus::PARTIAL,
                   "Crossfade is deterministic in the harness, but it does not drive a live mixer/backend.");
-        setStatus("saveBgmSettings", CompatStatus::PARTIAL,
-                  "State snapshot round-trips deterministic harness playback metadata, not a live audio backend state.");
+        setStatus(
+            "saveBgmSettings", CompatStatus::PARTIAL,
+            "State snapshot round-trips deterministic harness playback metadata, not a live audio backend state.");
         setStatus("restoreBgmSettings", CompatStatus::PARTIAL,
                   "State restore rehydrates deterministic harness playback metadata, not a live mixer/backend state.");
         setStatus("isBgmPlaying", CompatStatus::PARTIAL,
@@ -288,8 +305,9 @@ AudioManager::AudioManager()
         setStatus("isBgmPaused", CompatStatus::PARTIAL,
                   "Reflects deterministic harness playback state rather than a live audio backend.");
         setStatus("getCurrentBgm", CompatStatus::PARTIAL,
-                  "Reports deterministic harness playback metadata and mix-scaled BGM state through the compat API rather than querying a live audio backend.");
-        
+                  "Reports deterministic harness playback metadata and mix-scaled BGM state through the compat API "
+                  "rather than querying a live audio backend.");
+
         // BGS
         setStatus("playBgs", CompatStatus::PARTIAL,
                   "Drives deterministic harness playback state rather than a live audio backend.");
@@ -297,19 +315,19 @@ AudioManager::AudioManager()
                   "Stops deterministic harness playback state rather than a live audio backend.");
         setStatus("crossfadeBgs", CompatStatus::PARTIAL,
                   "Crossfade is deterministic in the harness, but it does not drive a live mixer/backend.");
-        
+
         // ME
         setStatus("playMe", CompatStatus::PARTIAL,
                   "Drives deterministic harness playback state rather than a live audio backend.");
         setStatus("stopMe", CompatStatus::PARTIAL,
                   "Stops deterministic harness playback state rather than a live audio backend.");
-        
+
         // SE
         setStatus("playSe", CompatStatus::PARTIAL,
                   "Drives deterministic harness playback state rather than a live audio backend.");
         setStatus("stopSe", CompatStatus::PARTIAL,
                   "Stops deterministic harness playback state rather than a live audio backend.");
-        
+
         // Volume
         setStatus("setMasterVolume", CompatStatus::PARTIAL,
                   "Applies deterministic harness mix scaling rather than a live mixer/backend.");
@@ -319,15 +337,18 @@ AudioManager::AudioManager()
                   "Applies deterministic harness mix scaling rather than a live mixer/backend.");
         setStatus("getBusVolume", CompatStatus::PARTIAL,
                   "Reports deterministic harness mix scaling rather than a live mixer/backend.");
-        
+
         // Ducking
         setStatus("duckBgm", CompatStatus::PARTIAL,
-                  "Deterministic ducking updates observable compat BGM state through the API, but it still does not drive a live mixer/backend.");
+                  "Deterministic ducking updates observable compat BGM state through the API, but it still does not "
+                  "drive a live mixer/backend.");
         setStatus("unduckBgm", CompatStatus::PARTIAL,
-                  "Deterministic unducking restores observable compat BGM state through the API, but it still does not drive a live mixer/backend.");
+                  "Deterministic unducking restores observable compat BGM state through the API, but it still does not "
+                  "drive a live mixer/backend.");
         setStatus("isBgmDucked", CompatStatus::PARTIAL,
-                  "Reflects deterministic harness ducking state exposed through the compat API rather than a live mixer/backend.");
-        
+                  "Reflects deterministic harness ducking state exposed through the compat API rather than a live "
+                  "mixer/backend.");
+
         // Channels
         setStatus("createChannel", CompatStatus::PARTIAL,
                   "Creates deterministic harness channels rather than live backend mixer channels.");
@@ -345,6 +366,22 @@ AudioManager& AudioManager::instance() {
     return instance;
 }
 
+void AudioManager::bindAudioCore(urpg::audio::AudioCore* core) {
+    impl_->audioCore_ = core;
+    if (!core) {
+        return;
+    }
+
+    ApplyCoreBusVolume(*impl_, AudioBus::BGM);
+    ApplyCoreBusVolume(*impl_, AudioBus::BGS);
+    ApplyCoreBusVolume(*impl_, AudioBus::ME);
+    ApplyCoreBusVolume(*impl_, AudioBus::SE);
+}
+
+urpg::audio::AudioCore* AudioManager::boundAudioCore() const {
+    return impl_->audioCore_;
+}
+
 // ============================================================================
 // Channel Management
 // ============================================================================
@@ -353,10 +390,10 @@ uint32_t AudioManager::createChannel(const std::string& name, AudioBus bus) {
     auto channel = std::make_unique<AudioChannel>(name, bus);
     uint32_t id = impl_->nextChannelId_++;
     channel->id = id;
-    
+
     impl_->channelIndex_[name] = id;
     impl_->channels_.push_back(std::move(channel));
-    
+
     return id;
 }
 
@@ -370,8 +407,14 @@ void AudioManager::destroyChannel(const std::string& name) {
 void AudioManager::destroyChannel(uint32_t id) {
     for (auto it = impl_->channels_.begin(); it != impl_->channels_.end(); ++it) {
         if ((*it)->id == id) {
+            if (auto backendIt = impl_->backendHandles_.find(id); backendIt != impl_->backendHandles_.end()) {
+                if (impl_->audioCore_) {
+                    impl_->audioCore_->stopHandle(backendIt->second);
+                }
+                impl_->backendHandles_.erase(backendIt);
+            }
             // Remove from index
-            for (auto idxIt = impl_->channelIndex_.begin(); idxIt != impl_->channelIndex_.end(); ) {
+            for (auto idxIt = impl_->channelIndex_.begin(); idxIt != impl_->channelIndex_.end();) {
                 if (idxIt->second == id) {
                     idxIt = impl_->channelIndex_.erase(idxIt);
                 } else {
@@ -414,10 +457,13 @@ void AudioManager::playBgm(const std::string& filename, double volume, double pi
         createChannel("bgm", AudioBus::BGM);
         impl_->bgmChannel_ = getChannel("bgm");
     }
-    
+
     if (impl_->bgmChannel_) {
         impl_->bgmChannel_->play(filename, volume, pitch, pos);
         ApplyChannelVolume(*impl_, impl_->bgmChannel_);
+    }
+    if (impl_->audioCore_) {
+        impl_->audioCore_->playBGM(filename, 0.0f);
     }
 }
 
@@ -428,6 +474,9 @@ void AudioManager::stopBgm() {
     impl_->bgmDucked_ = false;
     if (impl_->bgmChannel_) {
         impl_->bgmChannel_->stop();
+    }
+    if (impl_->audioCore_) {
+        impl_->audioCore_->stopCategory(urpg::audio::AudioCategory::BGM);
     }
 }
 
@@ -458,6 +507,9 @@ void AudioManager::crossfadeBgm(const std::string& filename, double volume, doub
     impl_->bgmCrossfade_.elapsedFrames = 0;
     impl_->bgmCrossfade_.sourceVolume = std::clamp(impl_->bgmChannel_->getVolume(), 0.0, 1.0);
     impl_->bgmCrossfade_.switchedTrack = false;
+    if (impl_->audioCore_) {
+        impl_->audioCore_->playBGM(filename, static_cast<float>(duration) / 60.0f);
+    }
 }
 
 void AudioManager::saveBgmSettings() {
@@ -471,8 +523,7 @@ void AudioManager::saveBgmSettings() {
 
 void AudioManager::restoreBgmSettings() {
     if (!impl_->savedBgm_.name.empty()) {
-        playBgm(impl_->savedBgm_.name, impl_->savedBgm_.volume, 
-                impl_->savedBgm_.pitch, impl_->savedBgm_.pos);
+        playBgm(impl_->savedBgm_.name, impl_->savedBgm_.volume, impl_->savedBgm_.pitch, impl_->savedBgm_.pos);
     }
 }
 
@@ -505,10 +556,13 @@ void AudioManager::playBgs(const std::string& filename, double volume, double pi
         createChannel("bgs", AudioBus::BGS);
         impl_->bgsChannel_ = getChannel("bgs");
     }
-    
+
     if (impl_->bgsChannel_) {
         impl_->bgsChannel_->play(filename, volume, pitch, pos);
         ApplyChannelVolume(*impl_, impl_->bgsChannel_);
+    }
+    if (impl_->audioCore_) {
+        impl_->audioCore_->playBGS(filename, 0.0f);
     }
 }
 
@@ -516,6 +570,9 @@ void AudioManager::stopBgs() {
     impl_->bgsCrossfade_.active = false;
     if (impl_->bgsChannel_) {
         impl_->bgsChannel_->stop();
+    }
+    if (impl_->audioCore_) {
+        impl_->audioCore_->stopCategory(urpg::audio::AudioCategory::BGS);
     }
 }
 
@@ -534,6 +591,9 @@ void AudioManager::crossfadeBgs(const std::string& filename, double volume, doub
     impl_->bgsCrossfade_.elapsedFrames = 0;
     impl_->bgsCrossfade_.sourceVolume = std::clamp(impl_->bgsChannel_->getVolume(), 0.0, 1.0);
     impl_->bgsCrossfade_.switchedTrack = false;
+    if (impl_->audioCore_) {
+        impl_->audioCore_->playBGS(filename, static_cast<float>(duration) / 60.0f);
+    }
 }
 
 // ============================================================================
@@ -545,16 +605,23 @@ void AudioManager::playMe(const std::string& filename, double volume, double pit
         createChannel("me", AudioBus::ME);
         impl_->meChannel_ = getChannel("me");
     }
-    
+
     if (impl_->meChannel_) {
         impl_->meChannel_->play(filename, volume, pitch);
         ApplyChannelVolume(*impl_, impl_->meChannel_);
+    }
+    if (impl_->audioCore_) {
+        impl_->audioCore_->playME(filename, static_cast<float>(std::clamp(volume / 100.0, 0.0, 1.0)),
+                                  static_cast<float>(std::clamp(pitch / 100.0, 0.5, 2.0)));
     }
 }
 
 void AudioManager::stopMe() {
     if (impl_->meChannel_) {
         impl_->meChannel_->stop();
+    }
+    if (impl_->audioCore_) {
+        impl_->audioCore_->stopCategory(urpg::audio::AudioCategory::ME);
     }
 }
 
@@ -570,12 +637,23 @@ void AudioManager::playSe(const std::string& filename, double volume, double pit
         channel->play(filename, volume, pitch);
         ApplyChannelVolume(*impl_, channel);
         impl_->seChannels_.push_back(channel);
+        if (impl_->audioCore_) {
+            impl_->backendHandles_[id] = impl_->audioCore_->playSound(
+                filename, urpg::audio::AudioCategory::SE, static_cast<float>(std::clamp(volume / 100.0, 0.0, 1.0)),
+                static_cast<float>(std::clamp(pitch / 100.0, 0.5, 2.0)));
+        }
     }
 }
 
 void AudioManager::stopSe() {
     for (auto* channel : impl_->seChannels_) {
         if (channel) {
+            if (auto backendIt = impl_->backendHandles_.find(channel->id); backendIt != impl_->backendHandles_.end()) {
+                if (impl_->audioCore_) {
+                    impl_->audioCore_->stopHandle(backendIt->second);
+                }
+                impl_->backendHandles_.erase(backendIt);
+            }
             channel->stop();
         }
     }
@@ -594,6 +672,10 @@ void AudioManager::setMasterVolume(double volume) {
     for (auto* channel : impl_->seChannels_) {
         ApplyChannelVolume(*impl_, channel);
     }
+    ApplyCoreBusVolume(*impl_, AudioBus::BGM);
+    ApplyCoreBusVolume(*impl_, AudioBus::BGS);
+    ApplyCoreBusVolume(*impl_, AudioBus::ME);
+    ApplyCoreBusVolume(*impl_, AudioBus::SE);
 }
 
 double AudioManager::getMasterVolume() const {
@@ -603,21 +685,22 @@ double AudioManager::getMasterVolume() const {
 void AudioManager::setBusVolume(AudioBus bus, double volume) {
     impl_->busVolumes_[bus] = std::clamp(volume, 0.0, 1.0);
     switch (bus) {
-        case AudioBus::BGM:
-            ApplyChannelVolume(*impl_, impl_->bgmChannel_);
-            break;
-        case AudioBus::BGS:
-            ApplyChannelVolume(*impl_, impl_->bgsChannel_);
-            break;
-        case AudioBus::ME:
-            ApplyChannelVolume(*impl_, impl_->meChannel_);
-            break;
-        case AudioBus::SE:
-            for (auto* channel : impl_->seChannels_) {
-                ApplyChannelVolume(*impl_, channel);
-            }
-            break;
+    case AudioBus::BGM:
+        ApplyChannelVolume(*impl_, impl_->bgmChannel_);
+        break;
+    case AudioBus::BGS:
+        ApplyChannelVolume(*impl_, impl_->bgsChannel_);
+        break;
+    case AudioBus::ME:
+        ApplyChannelVolume(*impl_, impl_->meChannel_);
+        break;
+    case AudioBus::SE:
+        for (auto* channel : impl_->seChannels_) {
+            ApplyChannelVolume(*impl_, channel);
+        }
+        break;
     }
+    ApplyCoreBusVolume(*impl_, bus);
 }
 
 double AudioManager::getBusVolume(AudioBus bus) const {
@@ -632,7 +715,7 @@ double AudioManager::getBusVolume(AudioBus bus) const {
 void AudioManager::duckBgm(double volume, int32_t duration) {
     impl_->bgmDucked_ = true;
     impl_->bgmDuckVolume_ = std::clamp(volume / 100.0, 0.0, 1.0);
-    
+
     if (impl_->bgmChannel_) {
         impl_->bgmVolumeRamp_.startVolume = impl_->bgmChannel_->getVolume();
         impl_->bgmVolumeRamp_.targetVolume = impl_->bgmDuckVolume_;
@@ -679,11 +762,7 @@ void AudioManager::update() {
             const double fadeOutT = std::min(1.0, static_cast<double>(state.elapsedFrames) / fadeOutFrames);
             channel->setVolume(state.sourceVolume * (1.0 - fadeOutT));
             if (state.elapsedFrames >= fadeOutFrames) {
-                channel->play(
-                    state.filename,
-                    state.targetVolumePercent,
-                    state.targetPitchPercent,
-                    state.targetPos);
+                channel->play(state.filename, state.targetVolumePercent, state.targetPitchPercent, state.targetPos);
                 channel->setVolume(0.0);
                 state.switchedTrack = true;
             }
@@ -733,9 +812,9 @@ void AudioManager::update() {
             channel->update();
         }
     }
-    
+
     // Clean up finished SE channels
-    for (auto it = impl_->seChannels_.begin(); it != impl_->seChannels_.end(); ) {
+    for (auto it = impl_->seChannels_.begin(); it != impl_->seChannels_.end();) {
         if (*it && !(*it)->isPlaying()) {
             destroyChannel((*it)->id);
             it = impl_->seChannels_.erase(it);
@@ -767,129 +846,170 @@ std::string AudioManager::getMethodDeviation(const std::string& methodName) {
 
 void AudioManager::registerAPI(QuickJSContext& ctx) {
     std::vector<QuickJSContext::MethodDef> methods;
-    
-    methods.push_back({"playBgm", [](const std::vector<Value>& args) -> Value {
-        if (args.size() < 1) return Value::Nil();
-        AudioManager::instance().playBgm(
-            ValueToString(args[0]),
-            args.size() > 1 ? ValueToDouble(args[1], 90.0) : 90.0,
-            args.size() > 2 ? ValueToDouble(args[2], 100.0) : 100.0,
-            args.size() > 3 ? ValueToInt(args[3], 0) : 0);
-        return Value::Nil();
-    }, AudioManager::getMethodStatus("playBgm"), AudioManager::getMethodDeviation("playBgm")});
-    
-    methods.push_back({"stopBgm", [](const std::vector<Value>&) -> Value {
-        AudioManager::instance().stopBgm();
-        return Value::Nil();
-    }, AudioManager::getMethodStatus("stopBgm"), AudioManager::getMethodDeviation("stopBgm")});
-    
-    methods.push_back({"pauseBgm", [](const std::vector<Value>&) -> Value {
-        AudioManager::instance().pauseBgm();
-        return Value::Nil();
-    }, AudioManager::getMethodStatus("pauseBgm"), AudioManager::getMethodDeviation("pauseBgm")});
-    
-    methods.push_back({"resumeBgm", [](const std::vector<Value>&) -> Value {
-        AudioManager::instance().resumeBgm();
-        return Value::Nil();
-    }, AudioManager::getMethodStatus("resumeBgm"), AudioManager::getMethodDeviation("resumeBgm")});
-    
-    methods.push_back({"isBgmPlaying", [](const std::vector<Value>&) -> Value {
-        return Value::Int(AudioManager::instance().isBgmPlaying() ? 1 : 0);
-    }, AudioManager::getMethodStatus("isBgmPlaying"), AudioManager::getMethodDeviation("isBgmPlaying")});
 
-    methods.push_back({"isBgmPaused", [](const std::vector<Value>&) -> Value {
-        return Value::Int(AudioManager::instance().isBgmPaused() ? 1 : 0);
-    }, AudioManager::getMethodStatus("isBgmPaused"), AudioManager::getMethodDeviation("isBgmPaused")});
+    methods.push_back({"playBgm",
+                       [](const std::vector<Value>& args) -> Value {
+                           if (args.size() < 1)
+                               return Value::Nil();
+                           AudioManager::instance().playBgm(ValueToString(args[0]),
+                                                            args.size() > 1 ? ValueToDouble(args[1], 90.0) : 90.0,
+                                                            args.size() > 2 ? ValueToDouble(args[2], 100.0) : 100.0,
+                                                            args.size() > 3 ? ValueToInt(args[3], 0) : 0);
+                           return Value::Nil();
+                       },
+                       AudioManager::getMethodStatus("playBgm"), AudioManager::getMethodDeviation("playBgm")});
 
-    methods.push_back({"getCurrentBgm", [](const std::vector<Value>&) -> Value {
-        return AudioInfoToValue(AudioManager::instance().getCurrentBgm());
-    }, AudioManager::getMethodStatus("getCurrentBgm"), AudioManager::getMethodDeviation("getCurrentBgm")});
+    methods.push_back({"stopBgm",
+                       [](const std::vector<Value>&) -> Value {
+                           AudioManager::instance().stopBgm();
+                           return Value::Nil();
+                       },
+                       AudioManager::getMethodStatus("stopBgm"), AudioManager::getMethodDeviation("stopBgm")});
 
-    methods.push_back({"playBgs", [](const std::vector<Value>& args) -> Value {
-        if (args.size() < 1) return Value::Nil();
-        AudioManager::instance().playBgs(
-            ValueToString(args[0]),
-            args.size() > 1 ? ValueToDouble(args[1], 90.0) : 90.0,
-            args.size() > 2 ? ValueToDouble(args[2], 100.0) : 100.0,
-            args.size() > 3 ? ValueToInt(args[3], 0) : 0);
-        return Value::Nil();
-    }, AudioManager::getMethodStatus("playBgs"), AudioManager::getMethodDeviation("playBgs")});
+    methods.push_back({"pauseBgm",
+                       [](const std::vector<Value>&) -> Value {
+                           AudioManager::instance().pauseBgm();
+                           return Value::Nil();
+                       },
+                       AudioManager::getMethodStatus("pauseBgm"), AudioManager::getMethodDeviation("pauseBgm")});
 
-    methods.push_back({"stopBgs", [](const std::vector<Value>&) -> Value {
-        AudioManager::instance().stopBgs();
-        return Value::Nil();
-    }, AudioManager::getMethodStatus("stopBgs"), AudioManager::getMethodDeviation("stopBgs")});
+    methods.push_back({"resumeBgm",
+                       [](const std::vector<Value>&) -> Value {
+                           AudioManager::instance().resumeBgm();
+                           return Value::Nil();
+                       },
+                       AudioManager::getMethodStatus("resumeBgm"), AudioManager::getMethodDeviation("resumeBgm")});
 
-    methods.push_back({"playMe", [](const std::vector<Value>& args) -> Value {
-        if (args.size() < 1) return Value::Nil();
-        AudioManager::instance().playMe(
-            ValueToString(args[0]),
-            args.size() > 1 ? ValueToDouble(args[1], 90.0) : 90.0,
-            args.size() > 2 ? ValueToDouble(args[2], 100.0) : 100.0);
-        return Value::Nil();
-    }, AudioManager::getMethodStatus("playMe"), AudioManager::getMethodDeviation("playMe")});
+    methods.push_back(
+        {"isBgmPlaying",
+         [](const std::vector<Value>&) -> Value { return Value::Int(AudioManager::instance().isBgmPlaying() ? 1 : 0); },
+         AudioManager::getMethodStatus("isBgmPlaying"), AudioManager::getMethodDeviation("isBgmPlaying")});
 
-    methods.push_back({"stopMe", [](const std::vector<Value>&) -> Value {
-        AudioManager::instance().stopMe();
-        return Value::Nil();
-    }, AudioManager::getMethodStatus("stopMe"), AudioManager::getMethodDeviation("stopMe")});
-    
-    methods.push_back({"playSe", [](const std::vector<Value>& args) -> Value {
-        if (args.size() < 1) return Value::Nil();
-        AudioManager::instance().playSe(
-            ValueToString(args[0]),
-            args.size() > 1 ? ValueToDouble(args[1], 90.0) : 90.0,
-            args.size() > 2 ? ValueToDouble(args[2], 100.0) : 100.0);
-        return Value::Nil();
-    }, AudioManager::getMethodStatus("playSe"), AudioManager::getMethodDeviation("playSe")});
-    
-    methods.push_back({"stopSe", [](const std::vector<Value>&) -> Value {
-        AudioManager::instance().stopSe();
-        return Value::Nil();
-    }, AudioManager::getMethodStatus("stopSe"), AudioManager::getMethodDeviation("stopSe")});
+    methods.push_back(
+        {"isBgmPaused",
+         [](const std::vector<Value>&) -> Value { return Value::Int(AudioManager::instance().isBgmPaused() ? 1 : 0); },
+         AudioManager::getMethodStatus("isBgmPaused"), AudioManager::getMethodDeviation("isBgmPaused")});
 
-    methods.push_back({"setMasterVolume", [](const std::vector<Value>& args) -> Value {
-        if (args.empty()) return Value::Nil();
-        AudioManager::instance().setMasterVolume(ValueToDouble(args[0], 100.0) / 100.0);
-        return Value::Nil();
-    }, AudioManager::getMethodStatus("setMasterVolume"), AudioManager::getMethodDeviation("setMasterVolume")});
+    methods.push_back(
+        {"getCurrentBgm",
+         [](const std::vector<Value>&) -> Value { return AudioInfoToValue(AudioManager::instance().getCurrentBgm()); },
+         AudioManager::getMethodStatus("getCurrentBgm"), AudioManager::getMethodDeviation("getCurrentBgm")});
 
-    methods.push_back({"getMasterVolume", [](const std::vector<Value>&) -> Value {
-        Value out;
-        out.v = AudioManager::instance().getMasterVolume();
-        return out;
-    }, AudioManager::getMethodStatus("getMasterVolume"), AudioManager::getMethodDeviation("getMasterVolume")});
+    methods.push_back({"playBgs",
+                       [](const std::vector<Value>& args) -> Value {
+                           if (args.size() < 1)
+                               return Value::Nil();
+                           AudioManager::instance().playBgs(ValueToString(args[0]),
+                                                            args.size() > 1 ? ValueToDouble(args[1], 90.0) : 90.0,
+                                                            args.size() > 2 ? ValueToDouble(args[2], 100.0) : 100.0,
+                                                            args.size() > 3 ? ValueToInt(args[3], 0) : 0);
+                           return Value::Nil();
+                       },
+                       AudioManager::getMethodStatus("playBgs"), AudioManager::getMethodDeviation("playBgs")});
 
-    methods.push_back({"setBusVolume", [](const std::vector<Value>& args) -> Value {
-        if (args.size() < 2) return Value::Nil();
-        AudioManager::instance().setBusVolume(
-            ValueToBus(args[0], AudioBus::BGM),
-            ValueToDouble(args[1], 100.0) / 100.0);
-        return Value::Nil();
-    }, AudioManager::getMethodStatus("setBusVolume"), AudioManager::getMethodDeviation("setBusVolume")});
+    methods.push_back({"stopBgs",
+                       [](const std::vector<Value>&) -> Value {
+                           AudioManager::instance().stopBgs();
+                           return Value::Nil();
+                       },
+                       AudioManager::getMethodStatus("stopBgs"), AudioManager::getMethodDeviation("stopBgs")});
 
-    methods.push_back({"getBusVolume", [](const std::vector<Value>& args) -> Value {
-        Value out;
-        out.v = AudioManager::instance().getBusVolume(args.empty() ? AudioBus::BGM : ValueToBus(args[0], AudioBus::BGM));
-        return out;
-    }, AudioManager::getMethodStatus("getBusVolume"), AudioManager::getMethodDeviation("getBusVolume")});
+    methods.push_back({"playMe",
+                       [](const std::vector<Value>& args) -> Value {
+                           if (args.size() < 1)
+                               return Value::Nil();
+                           AudioManager::instance().playMe(ValueToString(args[0]),
+                                                           args.size() > 1 ? ValueToDouble(args[1], 90.0) : 90.0,
+                                                           args.size() > 2 ? ValueToDouble(args[2], 100.0) : 100.0);
+                           return Value::Nil();
+                       },
+                       AudioManager::getMethodStatus("playMe"), AudioManager::getMethodDeviation("playMe")});
 
-    methods.push_back({"duckBgm", [](const std::vector<Value>& args) -> Value {
-        AudioManager::instance().duckBgm(
-            args.empty() ? 50.0 : ValueToDouble(args[0], 50.0),
-            args.size() > 1 ? ValueToInt(args[1], 30) : 30);
-        return Value::Nil();
-    }, AudioManager::getMethodStatus("duckBgm"), AudioManager::getMethodDeviation("duckBgm")});
+    methods.push_back({"stopMe",
+                       [](const std::vector<Value>&) -> Value {
+                           AudioManager::instance().stopMe();
+                           return Value::Nil();
+                       },
+                       AudioManager::getMethodStatus("stopMe"), AudioManager::getMethodDeviation("stopMe")});
 
-    methods.push_back({"unduckBgm", [](const std::vector<Value>& args) -> Value {
-        AudioManager::instance().unduckBgm(args.empty() ? 30 : ValueToInt(args[0], 30));
-        return Value::Nil();
-    }, AudioManager::getMethodStatus("unduckBgm"), AudioManager::getMethodDeviation("unduckBgm")});
+    methods.push_back({"playSe",
+                       [](const std::vector<Value>& args) -> Value {
+                           if (args.size() < 1)
+                               return Value::Nil();
+                           AudioManager::instance().playSe(ValueToString(args[0]),
+                                                           args.size() > 1 ? ValueToDouble(args[1], 90.0) : 90.0,
+                                                           args.size() > 2 ? ValueToDouble(args[2], 100.0) : 100.0);
+                           return Value::Nil();
+                       },
+                       AudioManager::getMethodStatus("playSe"), AudioManager::getMethodDeviation("playSe")});
 
-    methods.push_back({"isBgmDucked", [](const std::vector<Value>&) -> Value {
-        return Value::Int(AudioManager::instance().isBgmDucked() ? 1 : 0);
-    }, AudioManager::getMethodStatus("isBgmDucked"), AudioManager::getMethodDeviation("isBgmDucked")});
-    
+    methods.push_back({"stopSe",
+                       [](const std::vector<Value>&) -> Value {
+                           AudioManager::instance().stopSe();
+                           return Value::Nil();
+                       },
+                       AudioManager::getMethodStatus("stopSe"), AudioManager::getMethodDeviation("stopSe")});
+
+    methods.push_back({"setMasterVolume",
+                       [](const std::vector<Value>& args) -> Value {
+                           if (args.empty())
+                               return Value::Nil();
+                           AudioManager::instance().setMasterVolume(ValueToDouble(args[0], 100.0) / 100.0);
+                           return Value::Nil();
+                       },
+                       AudioManager::getMethodStatus("setMasterVolume"),
+                       AudioManager::getMethodDeviation("setMasterVolume")});
+
+    methods.push_back({"getMasterVolume",
+                       [](const std::vector<Value>&) -> Value {
+                           Value out;
+                           out.v = AudioManager::instance().getMasterVolume();
+                           return out;
+                       },
+                       AudioManager::getMethodStatus("getMasterVolume"),
+                       AudioManager::getMethodDeviation("getMasterVolume")});
+
+    methods.push_back({"setBusVolume",
+                       [](const std::vector<Value>& args) -> Value {
+                           if (args.size() < 2)
+                               return Value::Nil();
+                           AudioManager::instance().setBusVolume(ValueToBus(args[0], AudioBus::BGM),
+                                                                 ValueToDouble(args[1], 100.0) / 100.0);
+                           return Value::Nil();
+                       },
+                       AudioManager::getMethodStatus("setBusVolume"),
+                       AudioManager::getMethodDeviation("setBusVolume")});
+
+    methods.push_back(
+        {"getBusVolume",
+         [](const std::vector<Value>& args) -> Value {
+             Value out;
+             out.v = AudioManager::instance().getBusVolume(args.empty() ? AudioBus::BGM
+                                                                        : ValueToBus(args[0], AudioBus::BGM));
+             return out;
+         },
+         AudioManager::getMethodStatus("getBusVolume"), AudioManager::getMethodDeviation("getBusVolume")});
+
+    methods.push_back({"duckBgm",
+                       [](const std::vector<Value>& args) -> Value {
+                           AudioManager::instance().duckBgm(args.empty() ? 50.0 : ValueToDouble(args[0], 50.0),
+                                                            args.size() > 1 ? ValueToInt(args[1], 30) : 30);
+                           return Value::Nil();
+                       },
+                       AudioManager::getMethodStatus("duckBgm"), AudioManager::getMethodDeviation("duckBgm")});
+
+    methods.push_back({"unduckBgm",
+                       [](const std::vector<Value>& args) -> Value {
+                           AudioManager::instance().unduckBgm(args.empty() ? 30 : ValueToInt(args[0], 30));
+                           return Value::Nil();
+                       },
+                       AudioManager::getMethodStatus("unduckBgm"), AudioManager::getMethodDeviation("unduckBgm")});
+
+    methods.push_back(
+        {"isBgmDucked",
+         [](const std::vector<Value>&) -> Value { return Value::Int(AudioManager::instance().isBgmDucked() ? 1 : 0); },
+         AudioManager::getMethodStatus("isBgmDucked"), AudioManager::getMethodDeviation("isBgmDucked")});
+
     ctx.registerObject("AudioManager", methods);
 }
 

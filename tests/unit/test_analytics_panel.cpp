@@ -2,8 +2,17 @@
 
 #include "editor/analytics/analytics_panel.h"
 #include "engine/core/analytics/analytics_dispatcher.h"
+#include "engine/core/analytics/analytics_privacy_controller.h"
+#include "engine/core/analytics/analytics_uploader.h"
+
+#include <string>
+#include <vector>
 
 using urpg::analytics::AnalyticsDispatcher;
+using urpg::analytics::AnalyticsPrivacyController;
+using urpg::analytics::AnalyticsUploader;
+using urpg::analytics::ConsentState;
+using urpg::analytics::RetentionPolicy;
 using urpg::editor::AnalyticsPanel;
 
 TEST_CASE("AnalyticsPanel empty snapshot when no dispatcher bound", "[analytics][editor][panel]") {
@@ -19,6 +28,13 @@ TEST_CASE("AnalyticsPanel empty snapshot when no dispatcher bound", "[analytics]
     REQUIRE(snapshot["warningCount"] == 0);
     REQUIRE(snapshot["recentEvents"].is_array());
     REQUIRE(snapshot["recentEvents"].empty());
+    REQUIRE(snapshot["dispatcherBound"] == false);
+    REQUIRE(snapshot["actions"]["setOptIn"] == false);
+    REQUIRE(snapshot["uploadStatus"] == "disabled");
+    REQUIRE(snapshot["disabledUploadMessage"] == "No analytics dispatcher is bound.");
+    REQUIRE(snapshot["statusMessages"].size() == 2);
+    REQUIRE(snapshot["statusMessages"][0] == "No analytics dispatcher is bound; analytics actions are disabled.");
+    REQUIRE(snapshot["statusMessages"][1] == "No analytics privacy controller is bound.");
 }
 
 TEST_CASE("AnalyticsPanel snapshot reflects events after dispatch", "[analytics][editor][panel]") {
@@ -41,6 +57,11 @@ TEST_CASE("AnalyticsPanel snapshot reflects events after dispatch", "[analytics]
     REQUIRE(snapshot["recentEvents"].size() == 1);
     REQUIRE(snapshot["recentEvents"][0]["eventName"] == "editor_event");
     REQUIRE(snapshot["recentEvents"][0]["category"] == "editor_category");
+    REQUIRE(snapshot["queuedEventCount"] == 1);
+    REQUIRE(snapshot["statusMessages"].size() == 2);
+    REQUIRE(snapshot["statusMessages"][0] ==
+            "No analytics privacy controller is bound; dispatcher opt-in is used as fallback.");
+    REQUIRE(snapshot["statusMessages"][1] == "No analytics uploader is bound; uploads are disabled.");
 }
 
 TEST_CASE("AnalyticsPanel opt-in toggle reflected in snapshot", "[analytics][editor][panel]") {
@@ -88,4 +109,113 @@ TEST_CASE("AnalyticsPanel surfaces validator-backed diagnostics", "[analytics][e
     REQUIRE(snapshot["validationIssues"][2]["category"] == "empty_event_name");
     REQUIRE(snapshot["validationIssues"][0]["severity"] == "error");
     REQUIRE(snapshot["validationIssues"][1]["severity"] == "warning");
+}
+
+TEST_CASE("AnalyticsPanel consent toggle updates dispatcher and privacy controller",
+          "[analytics][editor][panel][controls]") {
+    AnalyticsDispatcher dispatcher;
+    AnalyticsPrivacyController privacy;
+    AnalyticsPanel panel;
+    panel.bindDispatcher(&dispatcher);
+    panel.bindPrivacyController(&privacy);
+
+    REQUIRE(panel.setOptIn(true));
+    auto snapshot = panel.lastRenderSnapshot();
+    REQUIRE(dispatcher.isOptIn());
+    REQUIRE(privacy.getConsentState() == ConsentState::Granted);
+    REQUIRE(snapshot["optIn"] == true);
+    REQUIRE(snapshot["privacyStatus"] == "granted");
+    REQUIRE(snapshot["analyticsPermitted"] == true);
+    REQUIRE(snapshot["lastAction"]["action"] == "set_opt_in");
+
+    REQUIRE(panel.setOptIn(false));
+    snapshot = panel.lastRenderSnapshot();
+    REQUIRE_FALSE(dispatcher.isOptIn());
+    REQUIRE(privacy.getConsentState() == ConsentState::Denied);
+    REQUIRE(snapshot["privacyStatus"] == "denied");
+}
+
+TEST_CASE("AnalyticsPanel clear queue action removes buffered events without resetting session count",
+          "[analytics][editor][panel][controls]") {
+    AnalyticsDispatcher dispatcher;
+    dispatcher.setOptIn(true);
+    dispatcher.dispatchEvent("queued", "ui");
+
+    AnalyticsPanel panel;
+    panel.bindDispatcher(&dispatcher);
+    panel.render();
+    REQUIRE(panel.lastRenderSnapshot()["queuedEventCount"] == 1);
+
+    REQUIRE(panel.clearQueuedEvents() == 1);
+    const auto snapshot = panel.lastRenderSnapshot();
+    REQUIRE(snapshot["queuedEventCount"] == 0);
+    REQUIRE(snapshot["sessionEventCount"] == 1);
+    REQUIRE(snapshot["lastAction"]["action"] == "clear_queue");
+    REQUIRE(snapshot["lastAction"]["affectedEvents"] == 1);
+}
+
+TEST_CASE("AnalyticsPanel flush upload respects disabled states and consent", "[analytics][editor][panel][controls]") {
+    AnalyticsDispatcher dispatcher;
+    AnalyticsUploader uploader;
+    AnalyticsPrivacyController privacy;
+    AnalyticsPanel panel;
+    panel.bindDispatcher(&dispatcher);
+    panel.bindUploader(&uploader);
+    panel.bindPrivacyController(&privacy);
+
+    dispatcher.setOptIn(true);
+    dispatcher.dispatchEvent("queued", "ui");
+    panel.render();
+
+    REQUIRE_FALSE(panel.flushQueuedEvents());
+    auto snapshot = panel.lastRenderSnapshot();
+    REQUIRE(snapshot["uploadStatus"] == "disabled");
+    REQUIRE(snapshot["lastAction"]["message"] == "Upload disabled: no upload handler configured.");
+
+    uploader.setUploadHandler([](const std::string&) { return true; });
+    privacy.recordConsentDecision(ConsentState::Denied);
+    REQUIRE_FALSE(panel.flushQueuedEvents());
+    snapshot = panel.lastRenderSnapshot();
+    REQUIRE(snapshot["lastAction"]["message"] == "Upload disabled: analytics consent is not granted.");
+}
+
+TEST_CASE("AnalyticsPanel flush upload sends queued events and clears queue on success",
+          "[analytics][editor][panel][controls]") {
+    AnalyticsDispatcher dispatcher;
+    AnalyticsUploader uploader;
+    AnalyticsPrivacyController privacy;
+    AnalyticsPanel panel;
+    panel.bindDispatcher(&dispatcher);
+    panel.bindUploader(&uploader);
+    panel.bindPrivacyController(&privacy);
+    panel.setSessionId("analytics-panel-test");
+
+    std::vector<std::string> uploadedPayloads;
+    uploader.setUploadHandler([&uploadedPayloads](const std::string& payload) {
+        uploadedPayloads.push_back(payload);
+        return true;
+    });
+    privacy.recordConsentDecision(ConsentState::Granted);
+    RetentionPolicy policy;
+    policy.maxAgeTicks = 240;
+    policy.maxEventCount = 25;
+    privacy.setRetentionPolicy(policy);
+    dispatcher.setOptIn(true);
+    dispatcher.dispatchEvent("queued", "ui");
+
+    panel.render();
+    REQUIRE(panel.lastRenderSnapshot()["actions"]["flushUpload"] == true);
+    REQUIRE(panel.flushQueuedEvents());
+
+    const auto snapshot = panel.lastRenderSnapshot();
+    REQUIRE(snapshot["queuedEventCount"] == 0);
+    REQUIRE(snapshot["uploadStatus"] == "disabled");
+    REQUIRE(snapshot["disabledUploadMessage"] == "No queued analytics events to upload.");
+    REQUIRE(snapshot["retentionMaxAgeTicks"] == 240);
+    REQUIRE(snapshot["retentionMaxEventCount"] == 25);
+    REQUIRE(snapshot["lastAction"]["action"] == "flush_upload");
+    REQUIRE(snapshot["lastAction"]["success"] == true);
+    REQUIRE(snapshot["lastAction"]["affectedEvents"] == 1);
+    REQUIRE(uploadedPayloads.size() == 1);
+    REQUIRE(uploadedPayloads[0].find("analytics-panel-test") != std::string::npos);
 }

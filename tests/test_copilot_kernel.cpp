@@ -1,21 +1,16 @@
-#include <catch2/catch_test_macros.hpp>
 #include "engine/core/copilot/copilot_kernel.h"
+#include <catch2/catch_test_macros.hpp>
 
 using namespace urpg::copilot;
 
 TEST_CASE("CopilotKernel validates edit proposals against canon", "[copilot]") {
     CopilotKernel kernel;
-    
-    CanonConstraint noGaps = {
-        "NO_GAPS",
-        "Map cannot have empty cells",
-        "ERROR",
-        true,
-        [](const EditProposal& proposal) {
-            return proposal.description.find("empty cells") == std::string::npos &&
-                   proposal.diffHint.find("gap") == std::string::npos;
-        }
-    };
+
+    CanonConstraint noGaps = {"NO_GAPS", "Map cannot have empty cells", "ERROR", true,
+                              [](const EditProposal& proposal) {
+                                  return proposal.description.find("empty cells") == std::string::npos &&
+                                         proposal.diffHint.find("gap") == std::string::npos;
+                              }};
     kernel.addConstraint(noGaps);
 
     SECTION("Validates a simple compliant proposal") {

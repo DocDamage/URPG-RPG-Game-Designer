@@ -47,7 +47,7 @@ REPO_ROOT = Path(__file__).resolve().parents[3]
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
-from tools.retrieval.shared.retrieval_index import (
+from tools.retrieval.shared.retrieval_index import (  # noqa: E402
     DEFAULT_DIMENSION,
     build_command_adapter_args,
     create_embedding_adapter,
@@ -60,21 +60,31 @@ from tools.retrieval.shared.retrieval_index import (
 def build_default_adapter_command(adapter_id: str) -> list[str]:
     return [
         sys.executable,
-        str(REPO_ROOT / "tools" / "retrieval" / "embedding_jobs" / "external_embedding_adapter.py"),
+        str(
+            REPO_ROOT
+            / "tools"
+            / "retrieval"
+            / "embedding_jobs"
+            / "external_embedding_adapter.py"
+        ),
         "--backend",
         adapter_id,
         "--serve",
     ]
 
 
-def resolve_adapter(adapter_id: str, command: list[str] | None) -> tuple[str, list[str] | None]:
+def resolve_adapter(
+    adapter_id: str, command: list[str] | None
+) -> tuple[str, list[str] | None]:
     adapter_id = adapter_id.strip().lower()
     if adapter_id in {"local_ngram_projection", "optional_sentence_transformer"}:
         return "command_adapter", command or build_default_adapter_command(adapter_id)
 
     if adapter_id == "command_adapter":
         if not command:
-            raise ValueError("--adapter-command is required when adapter is command_adapter.")
+            raise ValueError(
+                "--adapter-command is required when adapter is command_adapter."
+            )
         return adapter_id, command
 
     if adapter_id == "builtin_hashed":
@@ -84,7 +94,9 @@ def resolve_adapter(adapter_id: str, command: list[str] | None) -> tuple[str, li
 
 
 def batched_texts(texts: list[str], batch_size: int) -> list[list[str]]:
-    return [texts[index : index + batch_size] for index in range(0, len(texts), batch_size)]
+    return [
+        texts[index : index + batch_size] for index in range(0, len(texts), batch_size)
+    ]
 
 
 def build_bundle(
@@ -94,7 +106,9 @@ def build_bundle(
     command: list[str] | None,
     adapter_batch_size: int,
 ) -> dict:
-    adapter = create_embedding_adapter(adapter_id=adapter_id, dimension=dimension, command=command)
+    adapter = create_embedding_adapter(
+        adapter_id=adapter_id, dimension=dimension, command=command
+    )
     try:
         chunks = chunk_manifest.get("chunks", [])
         all_texts = [chunk["text"] for chunk in chunks]
@@ -135,9 +149,15 @@ def build_bundle(
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="Build a retrieval bundle from a chunk manifest.")
-    parser.add_argument("--manifest", required=True, help="Path to the retrieval chunk manifest.")
-    parser.add_argument("--output", required=True, help="Path to the output retrieval bundle.")
+    parser = argparse.ArgumentParser(
+        description="Build a retrieval bundle from a chunk manifest."
+    )
+    parser.add_argument(
+        "--manifest", required=True, help="Path to the retrieval chunk manifest."
+    )
+    parser.add_argument(
+        "--output", required=True, help="Path to the output retrieval bundle."
+    )
     parser.add_argument("--dimension", type=int, default=DEFAULT_DIMENSION)
     parser.add_argument(
         "--adapter",
@@ -171,7 +191,12 @@ def main() -> int:
     manifest = load_json(manifest_path)
     adapter_id, command = resolve_adapter(
         args.adapter,
-        normalize_command_adapter_args(build_command_adapter_args(args.adapter_command_arg or args.adapter_command), REPO_ROOT),
+        normalize_command_adapter_args(
+            build_command_adapter_args(
+                args.adapter_command_arg or args.adapter_command
+            ),
+            REPO_ROOT,
+        ),
     )
     bundle = build_bundle(
         manifest,

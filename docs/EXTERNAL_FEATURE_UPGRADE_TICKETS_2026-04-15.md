@@ -1,7 +1,7 @@
 # URPG External Feature Upgrade Tickets
 
-Date: 2026-04-15  
-Source basis: `docs/EXTERNAL_FEATURE_UPGRADE_SHORTLIST_2026-04-15.md` + external repo scan batches  
+Date: 2026-04-15
+Source basis: `docs/EXTERNAL_FEATURE_UPGRADE_SHORTLIST_2026-04-15.md` + external repo scan batches
 Goal: concrete, implementation-ready tickets with scope, file ownership, and test gates
 
 This is a planning ticket set. Test commands below should be run against the active local debug build directory or matching CTest preset, not assumed to require one specific generated tree.

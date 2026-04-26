@@ -1,20 +1,20 @@
-#include <catch2/catch_test_macros.hpp>
-#include <catch2/catch_approx.hpp>
 #include "editor/spatial/elevation_brush_panel.h"
 #include "editor/spatial/map_ability_binding_panel.h"
 #include "editor/spatial/prop_placement_panel.h"
 #include "editor/spatial/spatial_ability_canvas_panel.h"
 #include "editor/spatial/spatial_authoring_workspace.h"
 #include "engine/core/ability/authored_ability_asset.h"
+#include "engine/core/presentation/dialogue_translator.h"
 #include "engine/core/presentation/map_scene_translator.h"
 #include "engine/core/presentation/menu_scene_translator.h"
 #include "engine/core/presentation/presentation_migrate.h"
-#include "engine/core/presentation/render_backend_mock.h"
-#include "engine/core/presentation/presentation_schema.h"
-#include "engine/core/presentation/spatial_projection.h"
-#include "engine/core/presentation/dialogue_translator.h"
 #include "engine/core/presentation/presentation_runtime.h"
+#include "engine/core/presentation/presentation_schema.h"
+#include "engine/core/presentation/render_backend_mock.h"
+#include "engine/core/presentation/spatial_projection.h"
 #include "engine/core/scene/map_scene.h"
+#include <catch2/catch_approx.hpp>
+#include <catch2/catch_test_macros.hpp>
 
 #include <algorithm>
 #include <filesystem>
@@ -34,7 +34,7 @@ TEST_CASE("Spatial Editor Tooling Integration", "[editor][spatial]") {
         brush.SetTarget(&overlay);
         brush.SetBrushSize(2);
         brush.SetBrushHeight(3.0f);
-        
+
         brush.ApplyBrush(5, 5, 2);
         REQUIRE(overlay.elevation.levels[5 * 10 + 5] == 2);
         REQUIRE(overlay.elevation.levels[4 * 10 + 4] == 2);
@@ -43,9 +43,9 @@ TEST_CASE("Spatial Editor Tooling Integration", "[editor][spatial]") {
         REQUIRE(brush.lastRenderSnapshot().grid_height == 10);
         REQUIRE(brush.lastRenderSnapshot().brush_size == 2);
         REQUIRE(brush.lastRenderSnapshot().brush_height == Catch::Approx(3.0f));
-        
+
         // Out of bounds safety
-        brush.ApplyBrush(20, 20, 5); 
+        brush.ApplyBrush(20, 20, 5);
         // Should not crash
     }
 
@@ -53,7 +53,7 @@ TEST_CASE("Spatial Editor Tooling Integration", "[editor][spatial]") {
         PropPlacementPanel placement;
         placement.SetTarget(&overlay);
         placement.SetSelectedAssetId("rock_01");
-        
+
         placement.AddProp("rock_01", 1.5f, 0.0f, 2.5f);
         REQUIRE(overlay.props.size() == 1);
         REQUIRE(overlay.props[0].assetId == "rock_01");
@@ -74,9 +74,8 @@ TEST_CASE("Spatial Editor Tooling Integration", "[editor][spatial]") {
         asset.effect_id = "effect.map_interact";
         asset.effect_attribute = "Attack";
         asset.effect_value = 14.0f;
-        REQUIRE(urpg::ability::saveAuthoredAbilityAssetToFile(
-            asset,
-            projectRoot / "content" / "abilities" / "interact.json"));
+        REQUIRE(urpg::ability::saveAuthoredAbilityAssetToFile(asset,
+                                                              projectRoot / "content" / "abilities" / "interact.json"));
 
         urpg::scene::MapScene map("001", 10, 10);
         MapAbilityBindingPanel panel;
@@ -117,18 +116,16 @@ TEST_CASE("Spatial Editor Tooling Integration", "[editor][spatial]") {
         tileAsset.effect_id = "effect.tile_bind";
         tileAsset.effect_attribute = "Defense";
         tileAsset.effect_value = 11.0f;
-        REQUIRE(urpg::ability::saveAuthoredAbilityAssetToFile(
-            tileAsset,
-            projectRoot / "content" / "abilities" / "tile_bind.json"));
+        REQUIRE(urpg::ability::saveAuthoredAbilityAssetToFile(tileAsset, projectRoot / "content" / "abilities" /
+                                                                             "tile_bind.json"));
 
         urpg::ability::AuthoredAbilityAsset propAsset;
         propAsset.ability_id = "skill.prop_bind";
         propAsset.effect_id = "effect.prop_bind";
         propAsset.effect_attribute = "MagicDefense";
         propAsset.effect_value = 7.0f;
-        REQUIRE(urpg::ability::saveAuthoredAbilityAssetToFile(
-            propAsset,
-            projectRoot / "content" / "abilities" / "prop_bind.json"));
+        REQUIRE(urpg::ability::saveAuthoredAbilityAssetToFile(propAsset, projectRoot / "content" / "abilities" /
+                                                                             "prop_bind.json"));
 
         urpg::scene::MapScene map("001", 10, 10);
         MapAbilityBindingPanel panel;
@@ -153,12 +150,12 @@ TEST_CASE("Spatial Editor Tooling Integration", "[editor][spatial]") {
 
         map.playerAbilitySystem().setAttribute("MP", 30.0f);
         map.playerAbilitySystem().setAttribute("Defense", 100.0f);
-    REQUIRE(panel.ActivatePlacementTileInteraction());
-    snapshot = panel.lastRenderSnapshot();
-    const std::string tileAbilityId = snapshot.bindings.front().ability_id;
-    REQUIRE(snapshot.latest_ability_id == tileAbilityId);
+        REQUIRE(panel.ActivatePlacementTileInteraction());
+        snapshot = panel.lastRenderSnapshot();
+        const std::string tileAbilityId = snapshot.bindings.front().ability_id;
+        REQUIRE(snapshot.latest_ability_id == tileAbilityId);
 
-    map.playerAbilitySystem().setCooldown(tileAbilityId, 0.0f);
+        map.playerAbilitySystem().setCooldown(tileAbilityId, 0.0f);
         map.playerAbilitySystem().setAttribute("MagicDefense", 100.0f);
         REQUIRE(panel.ActivateSelectedPropInteraction());
         snapshot = panel.lastRenderSnapshot();
@@ -178,27 +175,24 @@ TEST_CASE("Spatial Editor Tooling Integration", "[editor][spatial]") {
         tileAsset.effect_id = "effect.visual_tile";
         tileAsset.effect_attribute = "Attack";
         tileAsset.effect_value = 5.0f;
-        REQUIRE(urpg::ability::saveAuthoredAbilityAssetToFile(
-            tileAsset,
-            projectRoot / "content" / "abilities" / "visual_tile.json"));
+        REQUIRE(urpg::ability::saveAuthoredAbilityAssetToFile(tileAsset, projectRoot / "content" / "abilities" /
+                                                                             "visual_tile.json"));
 
         urpg::ability::AuthoredAbilityAsset propAsset;
         propAsset.ability_id = "skill.visual_prop";
         propAsset.effect_id = "effect.visual_prop";
         propAsset.effect_attribute = "Defense";
         propAsset.effect_value = 6.0f;
-        REQUIRE(urpg::ability::saveAuthoredAbilityAssetToFile(
-            propAsset,
-            projectRoot / "content" / "abilities" / "visual_prop.json"));
+        REQUIRE(urpg::ability::saveAuthoredAbilityAssetToFile(propAsset, projectRoot / "content" / "abilities" /
+                                                                             "visual_prop.json"));
 
         urpg::ability::AuthoredAbilityAsset regionAsset;
         regionAsset.ability_id = "skill.visual_region";
         regionAsset.effect_id = "effect.visual_region";
         regionAsset.effect_attribute = "MagicDefense";
         regionAsset.effect_value = 4.0f;
-        REQUIRE(urpg::ability::saveAuthoredAbilityAssetToFile(
-            regionAsset,
-            projectRoot / "content" / "abilities" / "visual_region.json"));
+        REQUIRE(urpg::ability::saveAuthoredAbilityAssetToFile(regionAsset, projectRoot / "content" / "abilities" /
+                                                                               "visual_region.json"));
 
         overlay.props.push_back({"banner_01", 6.1f, 0.0f, 5.9f, 0.0f, 1.0f});
 
@@ -270,9 +264,8 @@ TEST_CASE("Spatial Editor Tooling Integration", "[editor][spatial]") {
         regionAsset.effect_id = "effect.multi_region";
         regionAsset.effect_attribute = "Defense";
         regionAsset.effect_value = 9.0f;
-        REQUIRE(urpg::ability::saveAuthoredAbilityAssetToFile(
-            regionAsset,
-            projectRoot / "content" / "abilities" / "multi_region.json"));
+        REQUIRE(urpg::ability::saveAuthoredAbilityAssetToFile(regionAsset, projectRoot / "content" / "abilities" /
+                                                                               "multi_region.json"));
 
         urpg::scene::MapScene map("001", 10, 10);
         MapAbilityBindingPanel panel;
@@ -325,18 +318,15 @@ TEST_CASE("Spatial Editor Tooling Integration", "[editor][spatial]") {
         std::filesystem::remove_all(projectRoot);
         std::filesystem::create_directories(projectRoot / "content" / "abilities");
 
-        const auto saveAsset = [&](const std::string& fileName,
-                                   const std::string& abilityId,
-                                   const std::string& attribute,
-                                   float value) {
+        const auto saveAsset = [&](const std::string& fileName, const std::string& abilityId,
+                                   const std::string& attribute, float value) {
             urpg::ability::AuthoredAbilityAsset asset;
             asset.ability_id = abilityId;
             asset.effect_id = abilityId + ".effect";
             asset.effect_attribute = attribute;
             asset.effect_value = value;
-            return urpg::ability::saveAuthoredAbilityAssetToFile(
-                asset,
-                projectRoot / "content" / "abilities" / fileName);
+            return urpg::ability::saveAuthoredAbilityAssetToFile(asset,
+                                                                 projectRoot / "content" / "abilities" / fileName);
         };
 
         REQUIRE(saveAsset("tile_old.json", "skill.canvas_tile_old", "Attack", 5.0f));
@@ -399,10 +389,10 @@ TEST_CASE("Spatial Editor Tooling Integration", "[editor][spatial]") {
         REQUIRE(selectAbility("skill.canvas_tile_new"));
         REQUIRE(canvasPanel.ApplySelectedAssetToSelection());
         auto bindingSnapshot = bindingPanel.lastRenderSnapshot();
-        const auto reboundTileBinding = std::find_if(
-            bindingSnapshot.bindings.begin(),
-            bindingSnapshot.bindings.end(),
-            [](const auto& binding) { return binding.scope == "tile" && binding.ability_id == "skill.canvas_tile_new"; });
+        const auto reboundTileBinding =
+            std::find_if(bindingSnapshot.bindings.begin(), bindingSnapshot.bindings.end(), [](const auto& binding) {
+                return binding.scope == "tile" && binding.ability_id == "skill.canvas_tile_new";
+            });
         REQUIRE(reboundTileBinding != bindingSnapshot.bindings.end());
 
         REQUIRE(canvasPanel.ClickAtScreen(121.0f, 59.0f));
@@ -412,10 +402,10 @@ TEST_CASE("Spatial Editor Tooling Integration", "[editor][spatial]") {
         REQUIRE(selectAbility("skill.canvas_prop_new"));
         REQUIRE(canvasPanel.ApplySelectedAssetToSelection());
         bindingSnapshot = bindingPanel.lastRenderSnapshot();
-        const auto reboundPropBinding = std::find_if(
-            bindingSnapshot.bindings.begin(),
-            bindingSnapshot.bindings.end(),
-            [](const auto& binding) { return binding.scope == "prop" && binding.ability_id == "skill.canvas_prop_new"; });
+        const auto reboundPropBinding =
+            std::find_if(bindingSnapshot.bindings.begin(), bindingSnapshot.bindings.end(), [](const auto& binding) {
+                return binding.scope == "prop" && binding.ability_id == "skill.canvas_prop_new";
+            });
         REQUIRE(reboundPropBinding != bindingSnapshot.bindings.end());
 
         REQUIRE(canvasPanel.ClickAtScreen(100.0f, 60.0f));
@@ -428,10 +418,10 @@ TEST_CASE("Spatial Editor Tooling Integration", "[editor][spatial]") {
         REQUIRE(selectAbility("skill.canvas_region_new"));
         REQUIRE(canvasPanel.ApplySelectedAssetToSelection());
         bindingSnapshot = bindingPanel.lastRenderSnapshot();
-        const auto reboundRegionBinding = std::find_if(
-            bindingSnapshot.bindings.begin(),
-            bindingSnapshot.bindings.end(),
-            [](const auto& binding) { return binding.scope == "region" && binding.ability_id == "skill.canvas_region_new"; });
+        const auto reboundRegionBinding =
+            std::find_if(bindingSnapshot.bindings.begin(), bindingSnapshot.bindings.end(), [](const auto& binding) {
+                return binding.scope == "region" && binding.ability_id == "skill.canvas_region_new";
+            });
         REQUIRE(reboundRegionBinding != bindingSnapshot.bindings.end());
 
         std::filesystem::remove_all(projectRoot);
@@ -442,18 +432,15 @@ TEST_CASE("Spatial Editor Tooling Integration", "[editor][spatial]") {
         std::filesystem::remove_all(projectRoot);
         std::filesystem::create_directories(projectRoot / "content" / "abilities");
 
-        const auto saveAsset = [&](const std::string& fileName,
-                                   const std::string& abilityId,
-                                   const std::string& attribute,
-                                   float value) {
+        const auto saveAsset = [&](const std::string& fileName, const std::string& abilityId,
+                                   const std::string& attribute, float value) {
             urpg::ability::AuthoredAbilityAsset asset;
             asset.ability_id = abilityId;
             asset.effect_id = abilityId + ".effect";
             asset.effect_attribute = attribute;
             asset.effect_value = value;
-            return urpg::ability::saveAuthoredAbilityAssetToFile(
-                asset,
-                projectRoot / "content" / "abilities" / fileName);
+            return urpg::ability::saveAuthoredAbilityAssetToFile(asset,
+                                                                 projectRoot / "content" / "abilities" / fileName);
         };
 
         REQUIRE(saveAsset("tile_drag.json", "skill.canvas_tile_drag", "Attack", 5.0f));
@@ -507,10 +494,10 @@ TEST_CASE("Spatial Editor Tooling Integration", "[editor][spatial]") {
         REQUIRE(canvasPanel.ClickAtScreen(110.0f, 40.0f));
         REQUIRE(canvasPanel.DragSelectionToScreen(130.0f, 40.0f));
         auto bindingSnapshot = bindingPanel.lastRenderSnapshot();
-        const auto movedTileBinding = std::find_if(
-            bindingSnapshot.bindings.begin(),
-            bindingSnapshot.bindings.end(),
-            [](const auto& binding) { return binding.scope == "tile" && binding.ability_id == "skill.canvas_tile_drag"; });
+        const auto movedTileBinding =
+            std::find_if(bindingSnapshot.bindings.begin(), bindingSnapshot.bindings.end(), [](const auto& binding) {
+                return binding.scope == "tile" && binding.ability_id == "skill.canvas_tile_drag";
+            });
         REQUIRE(movedTileBinding != bindingSnapshot.bindings.end());
         REQUIRE(movedTileBinding->tile_x == 7);
         REQUIRE(movedTileBinding->tile_y == 4);
@@ -518,20 +505,20 @@ TEST_CASE("Spatial Editor Tooling Integration", "[editor][spatial]") {
         REQUIRE(canvasPanel.ClickAtScreen(121.0f, 59.0f));
         REQUIRE(canvasPanel.DragSelectionToScreen(141.0f, 59.0f));
         bindingSnapshot = bindingPanel.lastRenderSnapshot();
-        const auto movedPropBinding = std::find_if(
-            bindingSnapshot.bindings.begin(),
-            bindingSnapshot.bindings.end(),
-            [](const auto& binding) { return binding.scope == "prop" && binding.ability_id == "skill.canvas_prop_drag"; });
+        const auto movedPropBinding =
+            std::find_if(bindingSnapshot.bindings.begin(), bindingSnapshot.bindings.end(), [](const auto& binding) {
+                return binding.scope == "prop" && binding.ability_id == "skill.canvas_prop_drag";
+            });
         REQUIRE(movedPropBinding != bindingSnapshot.bindings.end());
         REQUIRE(movedPropBinding->prop_asset_id == "chest_01");
 
         REQUIRE(canvasPanel.ClickAtScreen(100.0f, 60.0f));
         REQUIRE(canvasPanel.ResizeSelectedRegionToScreen(140.0f, 80.0f));
         bindingSnapshot = bindingPanel.lastRenderSnapshot();
-        const auto resizedRegionBinding = std::find_if(
-            bindingSnapshot.bindings.begin(),
-            bindingSnapshot.bindings.end(),
-            [](const auto& binding) { return binding.scope == "region" && binding.ability_id == "skill.canvas_region_drag"; });
+        const auto resizedRegionBinding =
+            std::find_if(bindingSnapshot.bindings.begin(), bindingSnapshot.bindings.end(), [](const auto& binding) {
+                return binding.scope == "region" && binding.ability_id == "skill.canvas_region_drag";
+            });
         REQUIRE(resizedRegionBinding != bindingSnapshot.bindings.end());
         REQUIRE(resizedRegionBinding->region_min_x == 4);
         REQUIRE(resizedRegionBinding->region_min_y == 5);
@@ -550,18 +537,15 @@ TEST_CASE("Spatial Editor Tooling Integration", "[editor][spatial]") {
         std::filesystem::remove_all(projectRoot);
         std::filesystem::create_directories(projectRoot / "content" / "abilities");
 
-        const auto saveAsset = [&](const std::string& fileName,
-                                   const std::string& abilityId,
-                                   const std::string& attribute,
-                                   float value) {
+        const auto saveAsset = [&](const std::string& fileName, const std::string& abilityId,
+                                   const std::string& attribute, float value) {
             urpg::ability::AuthoredAbilityAsset asset;
             asset.ability_id = abilityId;
             asset.effect_id = abilityId + ".effect";
             asset.effect_attribute = attribute;
             asset.effect_value = value;
-            return urpg::ability::saveAuthoredAbilityAssetToFile(
-                asset,
-                projectRoot / "content" / "abilities" / fileName);
+            return urpg::ability::saveAuthoredAbilityAssetToFile(asset,
+                                                                 projectRoot / "content" / "abilities" / fileName);
         };
 
         REQUIRE(saveAsset("hover_tile.json", "skill.hover_tile", "Attack", 5.0f));
@@ -638,41 +622,34 @@ TEST_CASE("Spatial Editor Tooling Integration", "[editor][spatial]") {
         REQUIRE(canvasSnapshot.conflict_action_chip_count >= canvasSnapshot.conflict_count);
         REQUIRE(canvasSnapshot.available_triggers.size() >= 4);
         REQUIRE_FALSE(canvasSnapshot.selection_trigger_menu.empty());
-        const auto abilitiesBadge = std::find_if(
-            canvasSnapshot.mode_badges.begin(),
-            canvasSnapshot.mode_badges.end(),
-            [](const auto& badge) { return badge.action_id == "abilities"; });
+        const auto abilitiesBadge = std::find_if(canvasSnapshot.mode_badges.begin(), canvasSnapshot.mode_badges.end(),
+                                                 [](const auto& badge) { return badge.action_id == "abilities"; });
         REQUIRE(abilitiesBadge != canvasSnapshot.mode_badges.end());
         REQUIRE(abilitiesBadge->enabled);
-        const auto bindAbilityAffordance = std::find_if(
-            canvasSnapshot.hover_affordances.begin(),
-            canvasSnapshot.hover_affordances.end(),
-            [](const auto& affordance) { return affordance.action_id == "abilities"; });
+        const auto bindAbilityAffordance =
+            std::find_if(canvasSnapshot.hover_affordances.begin(), canvasSnapshot.hover_affordances.end(),
+                         [](const auto& affordance) { return affordance.action_id == "abilities"; });
         REQUIRE(bindAbilityAffordance != canvasSnapshot.hover_affordances.end());
         REQUIRE(bindAbilityAffordance->target_kind == "tile");
-        const auto tileRecommendedTrigger = std::find_if(
-            canvasSnapshot.selection_trigger_menu.begin(),
-            canvasSnapshot.selection_trigger_menu.end(),
-            [](const auto& entry) { return entry.recommended; });
+        const auto tileRecommendedTrigger =
+            std::find_if(canvasSnapshot.selection_trigger_menu.begin(), canvasSnapshot.selection_trigger_menu.end(),
+                         [](const auto& entry) { return entry.recommended; });
         REQUIRE(tileRecommendedTrigger != canvasSnapshot.selection_trigger_menu.end());
         REQUIRE(tileRecommendedTrigger->trigger_id == "confirm_interact");
-        const auto tileConflictWarning = std::find_if(
-            canvasSnapshot.conflicts.begin(),
-            canvasSnapshot.conflicts.end(),
-            [](const auto& warning) { return warning.kind == "tile_multi_trigger"; });
+        const auto tileConflictWarning =
+            std::find_if(canvasSnapshot.conflicts.begin(), canvasSnapshot.conflicts.end(),
+                         [](const auto& warning) { return warning.kind == "tile_multi_trigger"; });
         REQUIRE(tileConflictWarning != canvasSnapshot.conflicts.end());
         REQUIRE(tileConflictWarning->can_swap_triggers);
         REQUIRE(tileConflictWarning->can_replace_secondary);
-        const size_t tileConflictIndex = static_cast<size_t>(std::distance(
-            canvasSnapshot.conflicts.begin(),
-            tileConflictWarning));
-        const auto swapChip = std::find_if(
-            canvasSnapshot.conflict_action_chips.begin(),
-            canvasSnapshot.conflict_action_chips.end(),
-            [&](const auto& chip) {
-                return chip.conflict_index == tileConflictIndex &&
-                       chip.action_id == "conflict:" + std::to_string(tileConflictIndex) + ":swap";
-            });
+        const size_t tileConflictIndex =
+            static_cast<size_t>(std::distance(canvasSnapshot.conflicts.begin(), tileConflictWarning));
+        const auto swapChip =
+            std::find_if(canvasSnapshot.conflict_action_chips.begin(), canvasSnapshot.conflict_action_chips.end(),
+                         [&](const auto& chip) {
+                             return chip.conflict_index == tileConflictIndex &&
+                                    chip.action_id == "conflict:" + std::to_string(tileConflictIndex) + ":swap";
+                         });
         REQUIRE(swapChip != canvasSnapshot.conflict_action_chips.end());
         REQUIRE(canvasPanel.SwapConflictTriggers(tileConflictIndex));
         canvasSnapshot = canvasPanel.lastRenderSnapshot();
@@ -689,14 +666,12 @@ TEST_CASE("Spatial Editor Tooling Integration", "[editor][spatial]") {
         REQUIRE(canvasSnapshot.selection.trigger_id == switchedTriggerId);
 
         const auto switchedBindingsSnapshot = bindingPanel.lastRenderSnapshot();
-        const auto switchedTileBinding = std::find_if(
-            switchedBindingsSnapshot.bindings.begin(),
-            switchedBindingsSnapshot.bindings.end(),
-            [&](const auto& binding) {
-                return binding.scope == "tile" &&
-                       binding.ability_id == "skill.hover_tile" &&
-                       binding.trigger_id == switchedTriggerId;
-            });
+        const auto switchedTileBinding =
+            std::find_if(switchedBindingsSnapshot.bindings.begin(), switchedBindingsSnapshot.bindings.end(),
+                         [&](const auto& binding) {
+                             return binding.scope == "tile" && binding.ability_id == "skill.hover_tile" &&
+                                    binding.trigger_id == switchedTriggerId;
+                         });
         REQUIRE(switchedTileBinding != switchedBindingsSnapshot.bindings.end());
 
         REQUIRE(canvasPanel.ClickAtScreen(100.0f, 60.0f));
@@ -706,10 +681,8 @@ TEST_CASE("Spatial Editor Tooling Integration", "[editor][spatial]") {
         REQUIRE(canvasSnapshot.hover_preview.kind == SpatialAbilityCanvasPanel::SelectionKind::Region);
         REQUIRE_FALSE(canvasSnapshot.hover_preview.would_conflict);
 
-        const auto overlapWarning = std::find_if(
-            canvasSnapshot.conflicts.begin(),
-            canvasSnapshot.conflicts.end(),
-            [](const auto& warning) { return warning.kind == "region_layered"; });
+        const auto overlapWarning = std::find_if(canvasSnapshot.conflicts.begin(), canvasSnapshot.conflicts.end(),
+                                                 [](const auto& warning) { return warning.kind == "region_layered"; });
         if (overlapWarning != canvasSnapshot.conflicts.end()) {
             REQUIRE(overlapWarning->severity == "warning");
             REQUIRE(overlapWarning->policy == "layered_region");
@@ -728,9 +701,8 @@ TEST_CASE("Spatial Editor Tooling Integration", "[editor][spatial]") {
         asset.effect_id = "effect.workspace";
         asset.effect_attribute = "Attack";
         asset.effect_value = 5.0f;
-        REQUIRE(urpg::ability::saveAuthoredAbilityAssetToFile(
-            asset,
-            projectRoot / "content" / "abilities" / "workspace.json"));
+        REQUIRE(urpg::ability::saveAuthoredAbilityAssetToFile(asset, projectRoot / "content" / "abilities" /
+                                                                         "workspace.json"));
 
         urpg::scene::MapScene map("001", 10, 10);
         SpatialAuthoringWorkspace workspace;
@@ -794,9 +766,8 @@ TEST_CASE("Spatial Editor Tooling Integration", "[editor][spatial]") {
             asset.effect_id = ability_id + ".effect";
             asset.effect_attribute = "Attack";
             asset.effect_value = value;
-            return urpg::ability::saveAuthoredAbilityAssetToFile(
-                asset,
-                projectRoot / "content" / "abilities" / file_name);
+            return urpg::ability::saveAuthoredAbilityAssetToFile(asset,
+                                                                 projectRoot / "content" / "abilities" / file_name);
         };
 
         REQUIRE(saveAsset("toolbar_tile.json", "skill.toolbar_tile", 5.0f));
@@ -848,19 +819,16 @@ TEST_CASE("Spatial Editor Tooling Integration", "[editor][spatial]") {
         auto snapshot = workspace.lastRenderSnapshot();
         REQUIRE(snapshot.toolbar.active_mode == "abilities");
         REQUIRE(snapshot.toolbar.selected_prop_asset_id == "oak_01");
-        const auto propsBadge = std::find_if(
-            snapshot.canvas.mode_badges.begin(),
-            snapshot.canvas.mode_badges.end(),
-            [](const auto& badge) { return badge.action_id == "props"; });
+        const auto propsBadge = std::find_if(snapshot.canvas.mode_badges.begin(), snapshot.canvas.mode_badges.end(),
+                                             [](const auto& badge) { return badge.action_id == "props"; });
         REQUIRE(propsBadge != snapshot.canvas.mode_badges.end());
         REQUIRE_FALSE(propsBadge->active);
         REQUIRE(workspace.ActivateCanvasAction("props"));
         snapshot = workspace.lastRenderSnapshot();
         REQUIRE(snapshot.toolbar.active_mode == "props");
-        const auto propsHoverAffordance = std::find_if(
-            snapshot.canvas.hover_affordances.begin(),
-            snapshot.canvas.hover_affordances.end(),
-            [](const auto& affordance) { return affordance.action_id == "props"; });
+        const auto propsHoverAffordance =
+            std::find_if(snapshot.canvas.hover_affordances.begin(), snapshot.canvas.hover_affordances.end(),
+                         [](const auto& affordance) { return affordance.action_id == "props"; });
         if (propsHoverAffordance != snapshot.canvas.hover_affordances.end()) {
             REQUIRE(workspace.ActivateCanvasAction(propsHoverAffordance->action_id));
             snapshot = workspace.lastRenderSnapshot();
@@ -871,10 +839,9 @@ TEST_CASE("Spatial Editor Tooling Integration", "[editor][spatial]") {
         REQUIRE(snapshot.toolbar.active_mode == "abilities");
         if (snapshot.toolbar.can_apply_suggested_conflict_resolution) {
             REQUIRE(snapshot.toolbar.conflict_count >= 1);
-            const auto preferredChip = std::find_if(
-                snapshot.canvas.conflict_action_chips.begin(),
-                snapshot.canvas.conflict_action_chips.end(),
-                [](const auto& chip) { return chip.recommended; });
+            const auto preferredChip =
+                std::find_if(snapshot.canvas.conflict_action_chips.begin(), snapshot.canvas.conflict_action_chips.end(),
+                             [](const auto& chip) { return chip.recommended; });
             REQUIRE(preferredChip != snapshot.canvas.conflict_action_chips.end());
             REQUIRE(workspace.ActivateCanvasAction(preferredChip->action_id));
             snapshot = workspace.lastRenderSnapshot();
@@ -898,8 +865,8 @@ TEST_CASE("Spatial Editor Tooling Integration", "[editor][spatial]") {
         float worldX = -1.0f;
         float worldY = -1.0f;
         float worldZ = -1.0f;
-        const bool projected = PropPlacementPanel::TryProjectScreenToGround(
-            overlay, 100.0f, 50.0f, projection, worldX, worldY, worldZ);
+        const bool projected =
+            PropPlacementPanel::TryProjectScreenToGround(overlay, 100.0f, 50.0f, projection, worldX, worldY, worldZ);
 
         REQUIRE(projected);
         REQUIRE(worldX == 4.0f);
@@ -918,8 +885,8 @@ TEST_CASE("Spatial Editor Tooling Integration", "[editor][spatial]") {
         float worldX = -1.0f;
         float worldY = -1.0f;
         float worldZ = -1.0f;
-        const bool projected = PropPlacementPanel::TryProjectScreenToGround(
-            overlay, 120.0f, 40.0f, projection, worldX, worldY, worldZ);
+        const bool projected =
+            PropPlacementPanel::TryProjectScreenToGround(overlay, 120.0f, 40.0f, projection, worldX, worldY, worldZ);
 
         REQUIRE(projected);
         REQUIRE(worldX == 6.0f);
@@ -1076,7 +1043,7 @@ TEST_CASE("Spatial Editor Tooling Integration", "[editor][spatial]") {
         PresentationContext ctx;
         ctx.activeMode = PresentationMode::Spatial;
         ctx.activeTier = CapabilityTier::Tier1_Standard;
-        
+
         MapSceneState state;
         state.mapId = "test_env";
         state.actors.push_back({7, "hero", 2.0f, 3.0f, false});
@@ -1090,10 +1057,15 @@ TEST_CASE("Spatial Editor Tooling Integration", "[editor][spatial]") {
         bool foundPostFx = false;
         bool foundShadowProxy = false;
         for (const auto& cmd : intent.commands) {
-            if (cmd.type == PresentationCommand::Type::SetLight && cmd.id == 101) foundLight = true;
-            if (cmd.type == PresentationCommand::Type::SetFog && cmd.fogProfile && cmd.fogProfile->density == 0.5f) foundFog = true;
-            if (cmd.type == PresentationCommand::Type::SetPostFX && cmd.postFXProfile && cmd.postFXProfile->bloomIntensity == 0.9f) foundPostFx = true;
-            if (cmd.type == PresentationCommand::Type::DrawShadowProxy && cmd.id == 7) foundShadowProxy = true;
+            if (cmd.type == PresentationCommand::Type::SetLight && cmd.id == 101)
+                foundLight = true;
+            if (cmd.type == PresentationCommand::Type::SetFog && cmd.fogProfile && cmd.fogProfile->density == 0.5f)
+                foundFog = true;
+            if (cmd.type == PresentationCommand::Type::SetPostFX && cmd.postFXProfile &&
+                cmd.postFXProfile->bloomIntensity == 0.9f)
+                foundPostFx = true;
+            if (cmd.type == PresentationCommand::Type::DrawShadowProxy && cmd.id == 7)
+                foundShadowProxy = true;
         }
 
         REQUIRE(foundLight);
@@ -1292,7 +1264,8 @@ TEST_CASE("MenuSceneTranslator emits blur PostFX when blurBackground is set", "[
     REQUIRE(foundPostFX);
 }
 
-TEST_CASE("MenuSceneTranslator emits no commands when drawBackground is false and blurBackground is false", "[presentation][scene][menu]") {
+TEST_CASE("MenuSceneTranslator emits no commands when drawBackground is false and blurBackground is false",
+          "[presentation][scene][menu]") {
     MenuSceneStateTranslator translator;
     MenuSceneState state;
     state.drawBackground = false;
@@ -1393,7 +1366,8 @@ TEST_CASE("StatusHUDTranslator combined: turn indicator + status icons + minimap
     // Expected: 1 turn indicator + 2 status icons + 1 minimap = 4 overlay commands
     size_t overlayCount = 0;
     for (const auto& cmd : intent.commands) {
-        if (cmd.type == PresentationCommand::Type::DrawOverlayEffect) ++overlayCount;
+        if (cmd.type == PresentationCommand::Type::DrawOverlayEffect)
+            ++overlayCount;
     }
     REQUIRE(overlayCount == 4);
 }

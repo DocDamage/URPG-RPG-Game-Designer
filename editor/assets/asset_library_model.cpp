@@ -5,8 +5,7 @@
 
 namespace urpg::editor {
 
-void AssetLibraryModel::ingestReports(const nlohmann::json& hygiene_summary,
-                                      const nlohmann::json& intake_report,
+void AssetLibraryModel::ingestReports(const nlohmann::json& hygiene_summary, const nlohmann::json& intake_report,
                                       std::string_view duplicate_csv) {
     library_.clear();
     library_.ingestHygieneSummary(hygiene_summary);
@@ -14,15 +13,17 @@ void AssetLibraryModel::ingestReports(const nlohmann::json& hygiene_summary,
     library_.ingestDuplicateCsv(duplicate_csv);
     library_.detectCaseCollisions();
     rebuildCleanupPreview();
+    snapshot_.reports_loaded = true;
+    snapshot_.status_message = "";
 }
 
-bool AssetLibraryModel::loadReportsFromDirectory(const std::filesystem::path& reports_root, std::string* error_message) {
+bool AssetLibraryModel::loadReportsFromDirectory(const std::filesystem::path& reports_root,
+                                                 std::string* error_message) {
     const auto hygiene_path = reports_root / "asset_hygiene_summary.json";
     const auto duplicates_path = reports_root / "asset_hygiene_duplicates.csv";
     const auto intake_path = reports_root / "asset_intake" / "source_capture_status.json";
 
-    if (!std::filesystem::is_regular_file(hygiene_path) ||
-        !std::filesystem::is_regular_file(duplicates_path) ||
+    if (!std::filesystem::is_regular_file(hygiene_path) || !std::filesystem::is_regular_file(duplicates_path) ||
         !std::filesystem::is_regular_file(intake_path)) {
         if (error_message != nullptr) {
             *error_message = "asset library reports are missing";
@@ -65,6 +66,8 @@ void AssetLibraryModel::clear() {
     library_.clear();
     cleanup_plan_ = {};
     snapshot_ = {};
+    snapshot_.reports_loaded = false;
+    snapshot_.status_message = "No asset library reports are loaded.";
 }
 
 void AssetLibraryModel::refreshSnapshot() {
@@ -73,6 +76,9 @@ void AssetLibraryModel::refreshSnapshot() {
     snapshot_.duplicate_group_count = asset_snapshot.duplicate_groups.size();
     snapshot_.cleanup_allowed_count = cleanup_plan_.allowed_count;
     snapshot_.cleanup_refused_count = cleanup_plan_.refused_count;
+    snapshot_.reports_loaded = asset_snapshot.assets.size() > 0 || asset_snapshot.duplicate_groups.size() > 0 ||
+                               cleanup_plan_.allowed_count > 0 || cleanup_plan_.refused_count > 0;
+    snapshot_.status_message = snapshot_.reports_loaded ? "" : "No asset library reports are loaded.";
     snapshot_.issue_count = 0;
     for (const auto& asset : asset_snapshot.assets) {
         if (!(asset.statuses.size() == 1 && asset.statuses.contains(urpg::assets::AssetStatus::Usable))) {

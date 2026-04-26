@@ -24,13 +24,45 @@ DEFAULT_ROOTS = [
     "imports/root-drop/archives",
     "imports/raw/more_assets",
 ]
-EXCLUDED_DIRS = {".git", ".venv", "__pycache__", "node_modules", "packs-by-category", "unzipped"}
+EXCLUDED_DIRS = {
+    ".git",
+    ".venv",
+    "__pycache__",
+    "node_modules",
+    "packs-by-category",
+    "unzipped",
+}
 
-IMAGE_EXTS = {"png", "jpg", "jpeg", "gif", "bmp", "webp", "ase", "aseprite", "tif", "tiff"}
+IMAGE_EXTS = {
+    "png",
+    "jpg",
+    "jpeg",
+    "gif",
+    "bmp",
+    "webp",
+    "ase",
+    "aseprite",
+    "tif",
+    "tiff",
+}
 AUDIO_EXTS = {"ogg", "wav", "mp3", "flac", "m4a", "aac", "opus"}
 VIDEO_EXTS = {"mp4", "webm", "mov", "mkv", "avi"}
 ARCHIVE_EXTS = {"zip", "7z", "rar", "tar", "gz", "bz2", "xz"}
-TEXT_EXTS = {"txt", "md", "csv", "json", "js", "ts", "yaml", "yml", "xml", "ini", "cfg", "log", "pdf"}
+TEXT_EXTS = {
+    "txt",
+    "md",
+    "csv",
+    "json",
+    "js",
+    "ts",
+    "yaml",
+    "yml",
+    "xml",
+    "ini",
+    "cfg",
+    "log",
+    "pdf",
+}
 
 
 def now_utc() -> str:
@@ -107,7 +139,11 @@ def read_image_size(path: Path, ext: str) -> tuple[int, int] | None:
         with path.open("rb") as f:
             if ext == "png":
                 d = f.read(24)
-                if len(d) >= 24 and d[:8] == b"\x89PNG\r\n\x1a\n" and d[12:16] == b"IHDR":
+                if (
+                    len(d) >= 24
+                    and d[:8] == b"\x89PNG\r\n\x1a\n"
+                    and d[12:16] == b"IHDR"
+                ):
                     return struct.unpack(">II", d[16:24])
             if ext in {"jpg", "jpeg"}:
                 if f.read(2) != b"\xff\xd8":
@@ -129,15 +165,33 @@ def read_image_size(path: Path, ext: str) -> tuple[int, int] | None:
                     if len(seg) != 2:
                         return None
                     seg_len = struct.unpack(">H", seg)[0]
-                    if marker in {0xC0, 0xC1, 0xC2, 0xC3, 0xC5, 0xC6, 0xC7, 0xC9, 0xCA, 0xCB, 0xCD, 0xCE, 0xCF}:
+                    if marker in {
+                        0xC0,
+                        0xC1,
+                        0xC2,
+                        0xC3,
+                        0xC5,
+                        0xC6,
+                        0xC7,
+                        0xC9,
+                        0xCA,
+                        0xCB,
+                        0xCD,
+                        0xCE,
+                        0xCF,
+                    }:
                         p = f.read(seg_len - 2)
                         if len(p) >= 5:
-                            return struct.unpack(">H", p[3:5])[0], struct.unpack(">H", p[1:3])[0]
+                            return struct.unpack(">H", p[3:5])[0], struct.unpack(
+                                ">H", p[1:3]
+                            )[0]
                         return None
                     f.seek(seg_len - 2, os.SEEK_CUR)
             if ext == "gif":
                 d = f.read(10)
-                if len(d) >= 10 and (d.startswith(b"GIF87a") or d.startswith(b"GIF89a")):
+                if len(d) >= 10 and (
+                    d.startswith(b"GIF87a") or d.startswith(b"GIF89a")
+                ):
                     return struct.unpack("<HH", d[6:10])
             if ext == "bmp":
                 d = f.read(26)
@@ -146,7 +200,12 @@ def read_image_size(path: Path, ext: str) -> tuple[int, int] | None:
                     return abs(w), abs(h)
             if ext == "webp":
                 d = f.read(64)
-                if len(d) >= 30 and d[:4] == b"RIFF" and d[8:12] == b"WEBP" and d[12:16] == b"VP8X":
+                if (
+                    len(d) >= 30
+                    and d[:4] == b"RIFF"
+                    and d[8:12] == b"WEBP"
+                    and d[12:16] == b"VP8X"
+                ):
                     w = 1 + int.from_bytes(d[24:27], "little")
                     h = 1 + int.from_bytes(d[27:30], "little")
                     return w, h
@@ -268,7 +327,9 @@ class Catalog:
     def _rebuild_auto_tags(self) -> None:
         cur = self.conn.cursor()
         cur.execute("DELETE FROM asset_tags WHERE source='auto'")
-        tag_cache = {r["name"]: int(r["id"]) for r in cur.execute("SELECT id,name FROM tags")}
+        tag_cache = {
+            r["name"]: int(r["id"]) for r in cur.execute("SELECT id,name FROM tags")
+        }
 
         def ensure_tag(name: str) -> int:
             if name in tag_cache:
@@ -292,7 +353,9 @@ class Catalog:
                 tags.add(f"category:{slugify(r['category'])}")
             if r["pack"]:
                 tags.add(f"pack:{slugify(r['pack'])}")
-            for token in re.findall(r"[a-z0-9]{3,}", Path(r["filename"]).stem.lower())[:8]:
+            for token in re.findall(r"[a-z0-9]{3,}", Path(r["filename"]).stem.lower())[
+                :8
+            ]:
                 tags.add(f"name:{token}")
             for t in tags:
                 inserts.append((int(r["id"]), ensure_tag(t), "auto"))
@@ -318,14 +381,32 @@ class Catalog:
         ).fetchall()
         cur.executemany(
             "INSERT INTO asset_fts(rowid,path_rel,filename,pack,category,tags) VALUES(?,?,?,?,?,?)",
-            [(int(r["id"]), r["path_rel"], r["filename"], r["pack"], r["category"], r["tags"]) for r in rows],
+            [
+                (
+                    int(r["id"]),
+                    r["path_rel"],
+                    r["filename"],
+                    r["pack"],
+                    r["category"],
+                    r["tags"],
+                )
+                for r in rows
+            ],
         )
 
     def index(self, roots: list[Path], force: bool = False) -> dict[str, int]:
         now = now_utc()
-        roots_json = json.dumps([str(r.resolve().relative_to(self.repo_root)).replace("\\", "/") for r in roots])
+        roots_json = json.dumps(
+            [
+                str(r.resolve().relative_to(self.repo_root)).replace("\\", "/")
+                for r in roots
+            ]
+        )
         cur = self.conn.cursor()
-        cur.execute("INSERT INTO scan_runs(started_at,roots_json) VALUES(?,?)", (now, roots_json))
+        cur.execute(
+            "INSERT INTO scan_runs(started_at,roots_json) VALUES(?,?)",
+            (now, roots_json),
+        )
         scan_id = int(cur.lastrowid)
 
         existing = self._existing_by_abs()
@@ -434,7 +515,9 @@ class Catalog:
                 )
                 files_indexed += 1
 
-        removed = [(now, scan_id, p_abs) for p_abs in existing.keys() if p_abs not in seen]
+        removed = [
+            (now, scan_id, p_abs) for p_abs in existing.keys() if p_abs not in seen
+        ]
         if removed:
             cur.executemany(
                 "UPDATE assets SET missing=1,last_seen_at=?,last_scan_id=? WHERE path_abs=?",
@@ -447,7 +530,14 @@ class Catalog:
 
         cur.execute(
             "UPDATE scan_runs SET finished_at=?,files_seen=?,files_indexed=?,files_skipped=?,files_removed=? WHERE id=?",
-            (now_utc(), files_seen, files_indexed, files_skipped, files_removed, scan_id),
+            (
+                now_utc(),
+                files_seen,
+                files_indexed,
+                files_skipped,
+                files_removed,
+                scan_id,
+            ),
         )
         self.conn.commit()
         return {
@@ -458,7 +548,15 @@ class Catalog:
             "files_removed": files_removed,
         }
 
-    def find(self, query: str | None, limit: int, ext: str | None, kind: str | None, pack: str | None, category: str | None):
+    def find(
+        self,
+        query: str | None,
+        limit: int,
+        ext: str | None,
+        kind: str | None,
+        pack: str | None,
+        category: str | None,
+    ):
         where = ["a.missing=0"]
         params: list[object] = []
         join = ""
@@ -483,7 +581,7 @@ class Catalog:
         sql = f"""
           SELECT a.id,a.path_rel,a.media_kind,a.ext,a.size_bytes,a.pack,a.category,a.width,a.height,a.duration_ms
           FROM assets a {join}
-          WHERE {' AND '.join(where)}
+          WHERE {" AND ".join(where)}
           ORDER BY {order}
           LIMIT ?
         """
@@ -542,7 +640,9 @@ def cmd_index(cat: Catalog, args: argparse.Namespace) -> int:
 
 
 def cmd_find(cat: Catalog, args: argparse.Namespace) -> int:
-    rows = cat.find(args.query, args.limit, args.ext, args.kind, args.pack, args.category)
+    rows = cat.find(
+        args.query, args.limit, args.ext, args.kind, args.pack, args.category
+    )
     for r in rows:
         print(dict(r))
     return 0
@@ -550,10 +650,14 @@ def cmd_find(cat: Catalog, args: argparse.Namespace) -> int:
 
 def cmd_dupes(cat: Catalog, args: argparse.Namespace) -> int:
     for r in cat.dupes(args.limit):
-        print(f"sha256={r['sha256']} copies={r['copies']} total_size_bytes={r['total_size_bytes']}")
+        print(
+            f"sha256={r['sha256']} copies={r['copies']} total_size_bytes={r['total_size_bytes']}"
+        )
         if args.show_paths:
             for f in cat.dupes_for_hash(r["sha256"]):
-                print(f"  - {f['path_rel']} ({f['size_bytes']} bytes, {f['media_kind']}/{f['ext']})")
+                print(
+                    f"  - {f['path_rel']} ({f['size_bytes']} bytes, {f['media_kind']}/{f['ext']})"
+                )
     return 0
 
 
@@ -572,9 +676,13 @@ def cmd_stats(cat: Catalog, _args: argparse.Namespace) -> int:
 
 
 def parser() -> argparse.ArgumentParser:
-    p = argparse.ArgumentParser(description="Robust asset catalog (SQLite + FTS + duplicate tracking)")
+    p = argparse.ArgumentParser(
+        description="Robust asset catalog (SQLite + FTS + duplicate tracking)"
+    )
     p.add_argument("--repo-root", default=".", help="Repo root (default: .)")
-    p.add_argument("--db", default=str(DEFAULT_DB), help=f"DB path (default: {DEFAULT_DB})")
+    p.add_argument(
+        "--db", default=str(DEFAULT_DB), help=f"DB path (default: {DEFAULT_DB})"
+    )
     sub = p.add_subparsers(dest="cmd", required=True)
 
     sub.add_parser("init", help="Initialize schema.")

@@ -16,12 +16,13 @@ struct AssetLibraryModelSnapshot {
     size_t duplicate_group_count = 0;
     size_t cleanup_allowed_count = 0;
     size_t cleanup_refused_count = 0;
+    bool reports_loaded = false;
+    std::string status_message = "No asset library reports are loaded.";
 };
 
 class AssetLibraryModel {
-public:
-    void ingestReports(const nlohmann::json& hygiene_summary,
-                       const nlohmann::json& intake_report,
+  public:
+    void ingestReports(const nlohmann::json& hygiene_summary, const nlohmann::json& intake_report,
                        std::string_view duplicate_csv);
     bool loadReportsFromDirectory(const std::filesystem::path& reports_root, std::string* error_message = nullptr);
     void addReferencedAsset(std::string path);
@@ -32,7 +33,7 @@ public:
     const urpg::assets::AssetCleanupPlan& cleanupPlan() const { return cleanup_plan_; }
     const AssetLibraryModelSnapshot& snapshot() const { return snapshot_; }
 
-private:
+  private:
     void refreshSnapshot();
 
     urpg::assets::AssetLibrary library_;

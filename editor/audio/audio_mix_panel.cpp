@@ -27,6 +27,13 @@ bool AudioMixPanel::selectPreset(const std::string& name) {
 
 void AudioMixPanel::render() {
     nlohmann::json snapshot;
+    snapshot["bankBound"] = m_bank != nullptr;
+    snapshot["coreBound"] = m_core != nullptr;
+    snapshot["statusMessages"] = nlohmann::json::array();
+    snapshot["actions"] = {
+        {"selectPreset", m_bank != nullptr},
+        {"applyToLiveCore", m_bank != nullptr && m_core != nullptr},
+    };
 
     if (m_bank) {
         auto presetNames = m_bank->listPresets();
@@ -45,11 +52,21 @@ void AudioMixPanel::render() {
                 for (const auto& [category, volume] : presetOpt->categoryVolumes) {
                     std::string key;
                     switch (category) {
-                        case urpg::audio::AudioCategory::BGM:    key = "BGM"; break;
-                        case urpg::audio::AudioCategory::BGS:    key = "BGS"; break;
-                        case urpg::audio::AudioCategory::SE:     key = "SE"; break;
-                        case urpg::audio::AudioCategory::ME:     key = "ME"; break;
-                        case urpg::audio::AudioCategory::System: key = "System"; break;
+                    case urpg::audio::AudioCategory::BGM:
+                        key = "BGM";
+                        break;
+                    case urpg::audio::AudioCategory::BGS:
+                        key = "BGS";
+                        break;
+                    case urpg::audio::AudioCategory::SE:
+                        key = "SE";
+                        break;
+                    case urpg::audio::AudioCategory::ME:
+                        key = "ME";
+                        break;
+                    case urpg::audio::AudioCategory::System:
+                        key = "System";
+                        break;
                     }
                     volumes[key] = volume;
                 }
@@ -65,12 +82,16 @@ void AudioMixPanel::render() {
         snapshot["presetCount"] = 0;
         snapshot["presetNames"] = nlohmann::json::array();
         snapshot["selectedPreset"] = nullptr;
+        snapshot["statusMessages"].push_back("No audio mix preset bank is bound.");
     }
 
     // Surface live core duck state so the panel snapshot reflects runtime truth.
     if (m_core) {
         snapshot["liveCore"]["duckBGMOnSE"] = m_core->getDuckBGMOnSE();
-        snapshot["liveCore"]["duckAmount"]  = m_core->getDuckAmount();
+        snapshot["liveCore"]["duckAmount"] = m_core->getDuckAmount();
+    } else {
+        snapshot["statusMessages"].push_back(
+            "No live AudioCore is bound; preset selection will not affect runtime audio.");
     }
 
     m_lastSnapshot = snapshot;

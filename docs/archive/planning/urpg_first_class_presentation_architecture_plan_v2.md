@@ -1,9 +1,9 @@
 # URPG Presentation Core — First-Class Integration Program
 ## Architecture, execution, risk control, and release plan
 
-**Date:** 2026-04-16  
-**Version:** 2.0  
-**Status:** Historical architecture/delivery planning input retained for traceability  
+**Date:** 2026-04-16
+**Version:** 2.0
+**Status:** Historical architecture/delivery planning input retained for traceability
 **Supersedes:** v1.0 (2026-04-16)
 
 This archived plan preserves the architecture program as it was being drafted on 2026-04-16. It is not a current implementation authority for this branch; current execution truth must route through the canonical program/remediation docs and any later ADR corrections.
@@ -68,9 +68,9 @@ That core must treat these as first-class engine paths:
   - staged spatial / HD-2D
   - raycast 2.5D
 
-This is not an optional visual lane.  
-This is not a premium mode.  
-This is not renderer-special behavior.  
+This is not an optional visual lane.
+This is not a premium mode.
+This is not renderer-special behavior.
 This is a product-level engine subsystem.
 
 If it does not own runtime, authoring, schema, migration, diagnostics, testing, and release criteria, then it is not integrated. It is just a prettier detour.
@@ -85,9 +85,9 @@ URPG needs one authoritative system that answers this question:
 
 That system is Presentation Core.
 
-The renderer does not answer that question.  
-The backend does not answer that question.  
-Map code does not answer that question.  
+The renderer does not answer that question.
+The backend does not answer that question.
+Map code does not answer that question.
 Editor hacks do not answer that question.
 
 Presentation Core answers it once, consistently, and emits renderable intent.
@@ -128,8 +128,8 @@ These are the things the program must **not** pretend to be doing:
 - owning physics simulation or collision response
 - providing a general-purpose material editor
 
-Spatial presentation can be stylized and limited.  
-It does **not** need to be a general-purpose 3D engine.  
+Spatial presentation can be stylized and limited.
+It does **not** need to be a general-purpose 3D engine.
 It **does** need to be a first-class URPG engine path.
 
 ---
@@ -670,8 +670,8 @@ Every presentation schema must be:
 
 ### 12.3 Serialization rule
 
-No renderer-owned hidden defaults may serve as the real source of truth for production content.  
-If a value matters, it must live in schema or a documented default profile.  
+No renderer-owned hidden defaults may serve as the real source of truth for production content.
+If a value matters, it must live in schema or a documented default profile.
 Undocumented defaults in renderer code are a review blocker.
 
 ### 12.4 Schema versioning strategy
@@ -911,7 +911,7 @@ The following is the initial pass order. This is a starting model — ADR-007 mu
 
 ### Rule
 
-Renderer backend does not improvise scene semantics.  
+Renderer backend does not improvise scene semantics.
 It executes a resolved presentation plan.
 
 ---

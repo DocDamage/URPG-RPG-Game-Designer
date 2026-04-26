@@ -8,7 +8,7 @@
     "id": { "type": "string" },
     "name": { "type": "string" },
     "description": { "type": "string" },
-    "scope": { 
+    "scope": {
       "enum": ["all_enemies", "all_allies", "single_enemy", "single_ally", "user", "none", "random"]
     },
     "cost": {

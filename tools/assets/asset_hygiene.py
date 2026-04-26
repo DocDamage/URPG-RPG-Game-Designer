@@ -11,7 +11,15 @@ import shutil
 from pathlib import Path
 
 DEFAULT_ROOTS = ["third_party", "imports", "itch"]
-EXCLUDED_DIRS = {".git", ".venv", "__pycache__", "node_modules", ".cache", "build", "Testing"}
+EXCLUDED_DIRS = {
+    ".git",
+    ".venv",
+    "__pycache__",
+    "node_modules",
+    ".cache",
+    "build",
+    "Testing",
+}
 JUNK_FILE_NAMES = {".DS_Store", "Thumbs.db", "Desktop.ini"}
 JUNK_DIR_NAMES = {"__MACOSX"}
 JUNK_PREFIXES = ("._",)
@@ -55,19 +63,34 @@ def preference_score(path_rel: str) -> tuple[int, int, str]:
 
 
 def parse_args() -> argparse.Namespace:
-    p = argparse.ArgumentParser(description="Asset hygiene scan: junk, duplicates, oversize files.")
+    p = argparse.ArgumentParser(
+        description="Asset hygiene scan: junk, duplicates, oversize files."
+    )
     p.add_argument("--repo-root", default=".", help="Repository root.")
-    p.add_argument("--roots", nargs="*", default=DEFAULT_ROOTS, help="Roots to scan (relative to repo root).")
-    p.add_argument("--oversize-mb", type=int, default=100, help="Oversize threshold in MB.")
+    p.add_argument(
+        "--roots",
+        nargs="*",
+        default=DEFAULT_ROOTS,
+        help="Roots to scan (relative to repo root).",
+    )
+    p.add_argument(
+        "--oversize-mb", type=int, default=100, help="Oversize threshold in MB."
+    )
     p.add_argument(
         "--max-hash-mb",
         type=int,
         default=512,
         help="Skip hashing files larger than this MB for duplicate detection.",
     )
-    p.add_argument("--report-dir", default="imports/reports", help="Directory for report output.")
-    p.add_argument("--write-reports", action="store_true", help="Write JSON/CSV reports.")
-    p.add_argument("--prune-junk", action="store_true", help="Delete junk files/dirs after scan.")
+    p.add_argument(
+        "--report-dir", default="imports/reports", help="Directory for report output."
+    )
+    p.add_argument(
+        "--write-reports", action="store_true", help="Write JSON/CSV reports."
+    )
+    p.add_argument(
+        "--prune-junk", action="store_true", help="Delete junk files/dirs after scan."
+    )
     return p.parse_args()
 
 
@@ -101,7 +124,9 @@ def main() -> int:
 
             for d in list(dirs):
                 if d in JUNK_DIR_NAMES:
-                    junk_dirs.append({"path_rel": rel(base / d, repo_root), "reason": "junk-dir"})
+                    junk_dirs.append(
+                        {"path_rel": rel(base / d, repo_root), "reason": "junk-dir"}
+                    )
 
             for name in files:
                 p = base / name
@@ -126,7 +151,9 @@ def main() -> int:
                 row = {
                     "path_rel": p_rel,
                     "size_bytes": int(stat.st_size),
-                    "mtime_ns": int(getattr(stat, "st_mtime_ns", int(stat.st_mtime * 1_000_000_000))),
+                    "mtime_ns": int(
+                        getattr(stat, "st_mtime_ns", int(stat.st_mtime * 1_000_000_000))
+                    ),
                     "ext": p.suffix.lower().lstrip("."),
                 }
                 file_rows.append(row)
@@ -162,7 +189,9 @@ def main() -> int:
             continue
         duplicate_groups += 1
         duplicate_files += len(rows)
-        keep = sorted(rows, key=lambda r: preference_score(r["path_rel"]))[0]["path_rel"]
+        keep = sorted(rows, key=lambda r: preference_score(r["path_rel"]))[0][
+            "path_rel"
+        ]
         for r in rows:
             duplicate_rows.append(
                 {
@@ -207,33 +236,57 @@ def main() -> int:
     report_dir = (repo_root / args.report_dir).resolve()
     if args.write_reports:
         ensure_dir(report_dir)
-        (report_dir / "asset_hygiene_summary.json").write_text(json.dumps(summary, indent=2), encoding="utf-8")
+        (report_dir / "asset_hygiene_summary.json").write_text(
+            json.dumps(summary, indent=2), encoding="utf-8"
+        )
 
-        with (report_dir / "asset_hygiene_junk.csv").open("w", newline="", encoding="utf-8") as f:
+        with (report_dir / "asset_hygiene_junk.csv").open(
+            "w", newline="", encoding="utf-8"
+        ) as f:
             w = csv.DictWriter(f, fieldnames=["path_rel", "reason"])
             w.writeheader()
             for row in junk_files + junk_dirs:
                 w.writerow(row)
 
-        with (report_dir / "asset_hygiene_oversize.csv").open("w", newline="", encoding="utf-8") as f:
-            w = csv.DictWriter(f, fieldnames=["path_rel", "size_bytes", "mtime_ns", "ext"])
-            w.writeheader()
-            for row in sorted(oversize_rows, key=lambda r: (-r["size_bytes"], r["path_rel"])):
-                w.writerow(row)
-
-        with (report_dir / "asset_hygiene_duplicates.csv").open("w", newline="", encoding="utf-8") as f:
+        with (report_dir / "asset_hygiene_oversize.csv").open(
+            "w", newline="", encoding="utf-8"
+        ) as f:
             w = csv.DictWriter(
-                f,
-                fieldnames=["sha256", "size_bytes", "path_rel", "recommended_keep", "recommended_remove"],
+                f, fieldnames=["path_rel", "size_bytes", "mtime_ns", "ext"]
             )
             w.writeheader()
-            for row in sorted(duplicate_rows, key=lambda r: (r["sha256"], r["path_rel"])):
+            for row in sorted(
+                oversize_rows, key=lambda r: (-r["size_bytes"], r["path_rel"])
+            ):
                 w.writerow(row)
 
-        with (report_dir / "asset_hygiene_hash_skips.csv").open("w", newline="", encoding="utf-8") as f:
+        with (report_dir / "asset_hygiene_duplicates.csv").open(
+            "w", newline="", encoding="utf-8"
+        ) as f:
+            w = csv.DictWriter(
+                f,
+                fieldnames=[
+                    "sha256",
+                    "size_bytes",
+                    "path_rel",
+                    "recommended_keep",
+                    "recommended_remove",
+                ],
+            )
+            w.writeheader()
+            for row in sorted(
+                duplicate_rows, key=lambda r: (r["sha256"], r["path_rel"])
+            ):
+                w.writerow(row)
+
+        with (report_dir / "asset_hygiene_hash_skips.csv").open(
+            "w", newline="", encoding="utf-8"
+        ) as f:
             w = csv.DictWriter(f, fieldnames=["path_rel", "size_bytes", "reason"])
             w.writeheader()
-            for row in sorted(hash_skips, key=lambda r: (-r["size_bytes"], r["path_rel"])):
+            for row in sorted(
+                hash_skips, key=lambda r: (-r["size_bytes"], r["path_rel"])
+            ):
                 w.writerow(row)
 
     print(f"SCAN_ROOTS\t{','.join(summary['scan_roots'])}")

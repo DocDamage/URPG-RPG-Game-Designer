@@ -1,8 +1,8 @@
 #pragma once
 
-#include "engine/core/ecs/world.h"
-#include "engine/core/ecs/health_components.h"
 #include "engine/core/ecs/collision_system.h"
+#include "engine/core/ecs/health_components.h"
+#include "engine/core/ecs/world.h"
 #include "engine/core/render/camera_shake_system.h"
 
 namespace urpg {
@@ -11,7 +11,7 @@ namespace urpg {
  * @brief System that processes health changes, invulnerability frames, and contact damage.
  */
 class HealthSystem {
-public:
+  public:
     void update(World& world, float deltaTime) {
         Fixed32 dt = Fixed32::FromRaw(static_cast<int32_t>(deltaTime * 65536.0f));
         m_currentTime = m_currentTime + dt;
@@ -32,10 +32,12 @@ public:
 
     void applyDamage(World& world, EntityID target, int32_t amount) {
         auto* health = world.GetComponent<HealthComponent>(target);
-        if (!health || !health->isAlive) return;
+        if (!health || !health->isAlive)
+            return;
 
         // Check for invulnerability
-        if (world.GetComponent<InvulnerabilityComponent>(target)) return;
+        if (world.GetComponent<InvulnerabilityComponent>(target))
+            return;
 
         health->current -= amount;
         if (health->current <= 0) {
@@ -55,7 +57,20 @@ public:
         world.AddComponent(target, invul);
     }
 
-private:
+    bool heal(World& world, EntityID target, int32_t amount) {
+        auto* health = world.GetComponent<HealthComponent>(target);
+        if (!health || amount <= 0 || !health->isAlive) {
+            return false;
+        }
+
+        health->current += amount;
+        if (health->current > health->max) {
+            health->current = health->max;
+        }
+        return true;
+    }
+
+  private:
     Fixed32 m_currentTime = Fixed32::FromInt(0);
 };
 

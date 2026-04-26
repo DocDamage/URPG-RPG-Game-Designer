@@ -38,7 +38,8 @@
       "normalized_assets": [
         "imports/normalized/prototype_sprites/gdquest_blue_actor.svg"
       ],
-      "bundle_manifest": "imports/manifests/asset_bundles/BND-001.json"
+      "bundle_manifest": "imports/manifests/asset_bundles/BND-001.json",
+      "attribution_record": "imports/reports/asset_intake/attribution/SRC-002_gdquest_blue_actor.json"
     },
     {
       "source_id": "SRC-003",
@@ -52,7 +53,8 @@
       "normalized_assets": [
         "imports/normalized/ui_sfx/kenney_click_001.wav"
       ],
-      "bundle_manifest": "imports/manifests/asset_bundles/BND-002.json"
+      "bundle_manifest": "imports/manifests/asset_bundles/BND-002.json",
+      "attribution_record": "imports/reports/asset_intake/attribution/SRC-003_kenney_click_001.json"
     },
     {
       "source_id": "SRC-004",

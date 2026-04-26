@@ -50,17 +50,11 @@ std::vector<LevelBlockThumbnail> LevelBlockLibrary::buildThumbnails() const {
         thumbnail.blockId = block.getId();
         thumbnail.prefabPath = block.getPrefabPath();
         thumbnail.connectorCount = block.getConnectors().size();
-        thumbnail.rows = {
-            ".....",
-            ".....",
-            ".....",
-            ".....",
-            "....."
-        };
+        thumbnail.rows = {".....", ".....", ".....", ".....", "....."};
 
-        const char centerGlyph = block.getId().empty()
-            ? '#'
-            : static_cast<char>(std::toupper(static_cast<unsigned char>(block.getId().front())));
+        const char centerGlyph =
+            block.getId().empty() ? '#'
+                                  : static_cast<char>(std::toupper(static_cast<unsigned char>(block.getId().front())));
         thumbnail.rows[2][2] = centerGlyph;
 
         for (const auto& connector : block.getConnectors()) {
@@ -99,9 +93,8 @@ void LevelAssemblyWorkspace::registerLibrary(const LevelBlockLibrary& library) {
 }
 
 const LevelBlock* LevelAssemblyWorkspace::findBlockDefinition(const std::string& blockId) const {
-    auto it = std::find_if(m_blockDefinitions.begin(), m_blockDefinitions.end(), [&](const LevelBlock& block) {
-        return block.getId() == blockId;
-    });
+    auto it = std::find_if(m_blockDefinitions.begin(), m_blockDefinitions.end(),
+                           [&](const LevelBlock& block) { return block.getId() == blockId; });
     return it == m_blockDefinitions.end() ? nullptr : &(*it);
 }
 
@@ -115,10 +108,8 @@ bool LevelAssemblyWorkspace::placeBlock(const std::string& blockId, int32_t x, i
     return true;
 }
 
-LevelAssemblyWorkspace::PlacementValidation LevelAssemblyWorkspace::validatePlacement(const std::string& blockId,
-                                                                                     int32_t x,
-                                                                                     int32_t y,
-                                                                                     int32_t z) const {
+LevelAssemblyWorkspace::PlacementValidation
+LevelAssemblyWorkspace::validatePlacement(const std::string& blockId, int32_t x, int32_t y, int32_t z) const {
     PlacementValidation result;
 
     if (hasBlockAt(x, y, z)) {
@@ -162,11 +153,8 @@ LevelAssemblyWorkspace::PlacementValidation LevelAssemblyWorkspace::validatePlac
         }
 
         const bool hasMatchingNeighborConnector = std::any_of(
-            neighborBlock->getConnectors().begin(),
-            neighborBlock->getConnectors().end(),
-            [&](const SnapConnector& neighborConnector) {
-                return SnapLogic::canSnap(connector, neighborConnector);
-            });
+            neighborBlock->getConnectors().begin(), neighborBlock->getConnectors().end(),
+            [&](const SnapConnector& neighborConnector) { return SnapLogic::canSnap(connector, neighborConnector); });
 
         if (!hasMatchingNeighborConnector) {
             found_conflict = true;
@@ -199,16 +187,13 @@ LevelAssemblyWorkspace::PlacementValidation LevelAssemblyWorkspace::validatePlac
 }
 
 bool LevelAssemblyWorkspace::hasBlockAt(int32_t x, int32_t y, int32_t z) const {
-    return std::any_of(m_placedBlocks.begin(), m_placedBlocks.end(), 
-        [=](const auto& b) {
-            return b.x == x && b.y == y && b.z == z;
-        });
+    return std::any_of(m_placedBlocks.begin(), m_placedBlocks.end(),
+                       [=](const auto& b) { return b.x == x && b.y == y && b.z == z; });
 }
 
 const PlacedBlock* LevelAssemblyWorkspace::getBlockAt(int32_t x, int32_t y, int32_t z) const {
-    auto it = std::find_if(m_placedBlocks.begin(), m_placedBlocks.end(), [=](const PlacedBlock& block) {
-        return block.x == x && block.y == y && block.z == z;
-    });
+    auto it = std::find_if(m_placedBlocks.begin(), m_placedBlocks.end(),
+                           [=](const PlacedBlock& block) { return block.x == x && block.y == y && block.z == z; });
     return it == m_placedBlocks.end() ? nullptr : &(*it);
 }
 

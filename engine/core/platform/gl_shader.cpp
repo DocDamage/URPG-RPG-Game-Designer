@@ -1,7 +1,7 @@
 #include "gl_shader.h"
 #define GL_GLEXT_PROTOTYPES
+#include "engine/core/diagnostics/runtime_diagnostics.h"
 #include <SDL2/SDL_opengl.h>
-#include <iostream>
 #include <vector>
 
 namespace urpg {
@@ -16,18 +16,21 @@ bool Shader::compile(const char* vertexSource, const char* fragmentSource) {
     uint32_t vertexShader = glCreateShader(GL_VERTEX_SHADER);
     glShaderSource(vertexShader, 1, &vertexSource, nullptr);
     glCompileShader(vertexShader);
-    if (!checkCompileErrors(vertexShader, "VERTEX")) return false;
+    if (!checkCompileErrors(vertexShader, "VERTEX"))
+        return false;
 
     uint32_t fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
     glShaderSource(fragmentShader, 1, &fragmentSource, nullptr);
     glCompileShader(fragmentShader);
-    if (!checkCompileErrors(fragmentShader, "FRAGMENT")) return false;
+    if (!checkCompileErrors(fragmentShader, "FRAGMENT"))
+        return false;
 
     m_programId = glCreateProgram();
     glAttachShader(m_programId, vertexShader);
     glAttachShader(m_programId, fragmentShader);
     glLinkProgram(m_programId);
-    if (!checkCompileErrors(m_programId, "PROGRAM")) return false;
+    if (!checkCompileErrors(m_programId, "PROGRAM"))
+        return false;
 
     glDeleteShader(vertexShader);
     glDeleteShader(fragmentShader);
@@ -58,14 +61,16 @@ bool Shader::checkCompileErrors(uint32_t shader, std::string type) {
         glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
         if (!success) {
             glGetShaderInfoLog(shader, 1024, nullptr, infoLog);
-            std::cerr << "[URPG][Shader] Compilation Error (" << type << "): " << infoLog << "\n";
+            diagnostics::RuntimeDiagnostics::error("platform.shader", "shader.compile_failed",
+                                                   "Compilation error (" + type + "): " + infoLog);
             return false;
         }
     } else {
         glGetProgramiv(shader, GL_LINK_STATUS, &success);
         if (!success) {
             glGetProgramInfoLog(shader, 1024, nullptr, infoLog);
-            std::cerr << "[URPG][Shader] Linking Error: " << infoLog << "\n";
+            diagnostics::RuntimeDiagnostics::error("platform.shader", "shader.link_failed",
+                                                   std::string("Linking error: ") + infoLog);
             return false;
         }
     }

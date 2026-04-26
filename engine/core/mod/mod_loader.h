@@ -1,9 +1,10 @@
 #pragma once
 
 #include "engine/core/mod/mod_registry.h"
+#include "runtimes/compat_js/quickjs_runtime.h"
 
-#include <nlohmann/json.hpp>
 #include <functional>
+#include <nlohmann/json.hpp>
 #include <optional>
 #include <string>
 #include <unordered_map>
@@ -28,10 +29,10 @@ struct ModLoadResult {
  * All flags default to false (deny-by-default sandbox).
  */
 struct ModSandboxPolicy {
-    bool allowFileSystemRead  = false;
+    bool allowFileSystemRead = false;
     bool allowFileSystemWrite = false;
-    bool allowNetworkAccess   = false;
-    bool allowNativeInterop   = false;
+    bool allowNetworkAccess = false;
+    bool allowNativeInterop = false;
 };
 
 /**
@@ -43,10 +44,10 @@ struct ModSandboxPolicy {
  */
 struct ModStoreContract {
     /** Minimum required manifest fields. */
-    bool requireId          = true;
-    bool requireName        = true;
-    bool requireVersion     = true;
-    bool requireEntryPoint  = true;
+    bool requireId = true;
+    bool requireName = true;
+    bool requireVersion = true;
+    bool requireEntryPoint = true;
     /** Whether unknown/unsupported manifest fields are treated as errors. */
     bool rejectUnknownFields = false;
 };
@@ -60,22 +61,29 @@ struct ModContractFailure {
     std::string reason;
 };
 
+struct ModDiagnostic {
+    std::string code;
+    std::string severity;
+    std::string message;
+};
+
+struct ModRuntimeSnapshot {
+    std::vector<std::string> commandIds;
+    std::vector<ModDiagnostic> diagnostics;
+    bool scriptLoaded = false;
+    bool active = false;
+};
+
 /**
  * @brief Provides live mod loading, deterministic unload, sandboxing, and
  *        mod-store contract enforcement on top of a ModRegistry.
  *
- * The ModLoader owns no state of its own beyond a reference to the owning
- * ModRegistry.  It does not actually execute mod code — it models the
- * load/unload lifecycle, load-order computation, sandbox policy attachment,
- * and store-contract validation at the boundary so that callers can reason
- * about mod lifecycle without executing arbitrary code.
- *
- * In a real engine integration, the implementation of `loadMod` would
- * interface with the QuickJS runtime (runtimes/compat_js) to evaluate the
- * mod's entry point inside a sandboxed JS context.
+ * ModLoader owns runtime state for sandboxed QuickJS mod contexts in addition
+ * to registry lifecycle, load-order computation, sandbox policy attachment,
+ * and store-contract validation.
  */
 class ModLoader {
-public:
+  public:
     explicit ModLoader(ModRegistry& registry);
 
     /**
@@ -87,8 +95,32 @@ public:
      * @param policy    Sandbox permissions to apply when the mod is activated.
      * @return          ModLoadResult with success flag and resolved load order.
      */
-    ModLoadResult loadMod(const ModManifest& manifest,
-                          const ModSandboxPolicy& policy = {});
+    ModLoadResult loadMod(const ModManifest& manifest, const ModSandboxPolicy& policy = {});
+
+    /**
+     * @brief Validate and register @p manifest without activating it.
+     *
+     * This supports editor import workflows where a manifest is staged first
+     * and activated explicitly by the user after reviewing validation and
+     * sandbox policy details.
+     */
+    ModLoadResult registerMod(const ModManifest& manifest, const ModSandboxPolicy& policy = {});
+
+    /**
+     * @brief Activate an already registered mod and return resolved load order.
+     */
+    ModLoadResult activateMod(const std::string& modId);
+
+    /**
+     * @brief Deactivate an already registered mod and return resolved load order.
+     */
+    ModLoadResult deactivateMod(const std::string& modId);
+
+    /**
+     * @brief Re-register and activate an existing mod using its stored manifest
+     *        and sandbox policy.
+     */
+    ModLoadResult reloadMod(const std::string& modId);
 
     /**
      * @brief Deactivate and unregister a mod, then recompute load order for
@@ -120,10 +152,32 @@ public:
      */
     std::vector<ModContractFailure> validateContract(const ModManifest& manifest) const;
 
-private:
+    /**
+     * @brief Execute a command registered by an active mod script.
+     */
+    std::optional<urpg::Value> executeCommand(const std::string& modId, const std::string& commandId,
+                                              const std::vector<urpg::Value>& args = {});
+
+    /**
+     * @brief Return runtime commands/diagnostics observed for a mod.
+     */
+    ModRuntimeSnapshot getRuntimeSnapshot(const std::string& modId) const;
+
+  private:
+    struct RuntimeState {
+        std::string entryPoint;
+        std::vector<std::string> commandIds;
+        std::vector<ModDiagnostic> diagnostics;
+        bool scriptLoaded = false;
+        bool active = false;
+    };
+
     ModRegistry& m_registry;
     ModStoreContract m_contract;
     std::unordered_map<std::string, ModSandboxPolicy> m_sandboxPolicies;
+    compat::QuickJSRuntime m_runtime;
+    bool m_runtimeInitialized = false;
+    std::unordered_map<std::string, RuntimeState> m_runtimeStates;
 };
 
 } // namespace urpg::mod

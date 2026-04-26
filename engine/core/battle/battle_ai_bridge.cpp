@@ -14,23 +14,23 @@ std::string BattleKnowledgeBridge::describeStatBlock(const urpg::battle::BattleR
     return ss.str();
 }
 
-std::string BattleKnowledgeBridge::generateBattlePrompt(
-    const urpg::battle::BattleFlowController& flow,
-    const std::vector<EnemyIntel>& visibleEnemies,
-    const std::vector<urpg::battle::BattleRuleStatBlock>& partyStats
-) {
+std::string
+BattleKnowledgeBridge::generateBattlePrompt(const urpg::battle::BattleFlowController& flow,
+                                            const std::vector<EnemyIntel>& visibleEnemies,
+                                            const std::vector<urpg::battle::BattleRuleStatBlock>& partyStats) {
     std::stringstream ss;
     ss << "### Current Battle State Info ###\n";
     ss << "Battle Turn: " << flow.turnCount() << "\n";
     ss << "Escape Ratio Failures: " << flow.escapeFailures() << "\n";
-    
+
     ss << "\n-- Enemies --\n";
     for (const auto& enemy : visibleEnemies) {
         ss << "* " << enemy.name << " (" << enemy.description << ")\n";
         ss << "  " << describeStatBlock(enemy.stats) << "\n";
         if (!enemy.weaknesses.empty()) {
             ss << "  Weak to: ";
-            for (const auto& w : enemy.weaknesses) ss << w << " ";
+            for (const auto& w : enemy.weaknesses)
+                ss << w << " ";
             ss << "\n";
         }
     }

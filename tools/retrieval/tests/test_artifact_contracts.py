@@ -12,7 +12,7 @@ REPO_ROOT = Path(__file__).resolve().parents[3]
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
-from tools.retrieval.shared.artifact_contracts import (
+from tools.retrieval.shared.artifact_contracts import (  # noqa: E402
     RETRIEVAL_BUNDLE_CONTRACT,
     RETRIEVAL_MANIFEST_CONTRACT,
     ArtifactContractViolation,
@@ -27,6 +27,7 @@ from tools.retrieval.shared.artifact_contracts import (
 # ---------------------------------------------------------------------------
 # Fixtures
 # ---------------------------------------------------------------------------
+
 
 def _minimal_bundle() -> dict:
     return {
@@ -61,8 +62,8 @@ def _minimal_manifest() -> dict:
 # S33-T04: Contract validation
 # ---------------------------------------------------------------------------
 
-class ArtifactContractValidation(unittest.TestCase):
 
+class ArtifactContractValidation(unittest.TestCase):
     def test_valid_bundle_passes_contract(self) -> None:
         validate_artifact_contract(_minimal_bundle(), RETRIEVAL_BUNDLE_CONTRACT)
 
@@ -91,11 +92,20 @@ class ArtifactContractValidation(unittest.TestCase):
         self.assertIn("content/schemas/", str(ctx.exception))
 
     def test_all_bundle_required_fields_individually_raise_if_missing(self) -> None:
-        required = ["schema", "dimension", "engine", "embedding_adapter", "entry_count", "entries"]
+        required = [
+            "schema",
+            "dimension",
+            "engine",
+            "embedding_adapter",
+            "entry_count",
+            "entries",
+        ]
         for field_name in required:
             bundle = _minimal_bundle()
             del bundle[field_name]
-            with self.assertRaises(ArtifactContractViolation, msg=f"Should fail for missing: {field_name}"):
+            with self.assertRaises(
+                ArtifactContractViolation, msg=f"Should fail for missing: {field_name}"
+            ):
                 validate_artifact_contract(bundle, RETRIEVAL_BUNDLE_CONTRACT)
 
     def test_custom_contract_validates_correctly(self) -> None:
@@ -119,8 +129,8 @@ class ArtifactContractValidation(unittest.TestCase):
 # S33-T05: Provenance attachment and verification
 # ---------------------------------------------------------------------------
 
-class ProvenanceAttachment(unittest.TestCase):
 
+class ProvenanceAttachment(unittest.TestCase):
     def test_attach_adds_provenance_field(self) -> None:
         bundle = _minimal_bundle()
         attach_provenance(bundle, tool_id="faiss_index_builder", tool_version="1.0.0")
@@ -128,7 +138,12 @@ class ProvenanceAttachment(unittest.TestCase):
 
     def test_provenance_contains_required_fields(self) -> None:
         bundle = _minimal_bundle()
-        attach_provenance(bundle, tool_id="faiss_index_builder", tool_version="1.0.0", input_hash="abcd1234")
+        attach_provenance(
+            bundle,
+            tool_id="faiss_index_builder",
+            tool_version="1.0.0",
+            input_hash="abcd1234",
+        )
         prov = bundle["__provenance__"]
         self.assertEqual(prov["tool_id"], "faiss_index_builder")
         self.assertEqual(prov["tool_version"], "1.0.0")
@@ -147,8 +162,10 @@ class ProvenanceAttachment(unittest.TestCase):
         bundle_b = copy.deepcopy(bundle_a)
         attach_provenance(bundle_a, tool_id="tool", tool_version="1.0")
         attach_provenance(bundle_b, tool_id="tool", tool_version="1.0")
-        self.assertEqual(bundle_a["__provenance__"]["output_hash"],
-                         bundle_b["__provenance__"]["output_hash"])
+        self.assertEqual(
+            bundle_a["__provenance__"]["output_hash"],
+            bundle_b["__provenance__"]["output_hash"],
+        )
 
     def test_output_hash_changes_when_payload_changes(self) -> None:
         bundle_a = _minimal_bundle()
@@ -157,15 +174,18 @@ class ProvenanceAttachment(unittest.TestCase):
 
         attach_provenance(bundle_a, tool_id="tool", tool_version="1.0")
         attach_provenance(bundle_b, tool_id="tool", tool_version="1.0")
-        self.assertNotEqual(bundle_a["__provenance__"]["output_hash"],
-                            bundle_b["__provenance__"]["output_hash"])
+        self.assertNotEqual(
+            bundle_a["__provenance__"]["output_hash"],
+            bundle_b["__provenance__"]["output_hash"],
+        )
 
 
 class ProvenanceVerification(unittest.TestCase):
-
     def _build_with_provenance(self, **kwargs) -> dict:
         bundle = _minimal_bundle()
-        attach_provenance(bundle, tool_id="faiss_index_builder", tool_version="1.2.0", **kwargs)
+        attach_provenance(
+            bundle, tool_id="faiss_index_builder", tool_version="1.2.0", **kwargs
+        )
         return bundle
 
     def test_verify_passes_for_clean_artifact(self) -> None:
@@ -210,6 +230,7 @@ class ProvenanceVerification(unittest.TestCase):
 
     def test_provenance_survives_json_round_trip(self) -> None:
         import json
+
         bundle = self._build_with_provenance()
         serialized = json.dumps(bundle)
         reloaded = json.loads(serialized)

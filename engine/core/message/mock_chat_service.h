@@ -9,10 +9,10 @@ namespace urpg::ai {
  * Used to test the chatbot pipeline without requiring an internet connection or API keys.
  */
 class MockChatService : public IChatService {
-public:
+  public:
     void requestResponse(const std::vector<ChatMessage>& history, ChatCallback callback) override {
         const std::string& lastUserMsg = history.back().content;
-        
+
         std::string response = "I hear you say: '" + lastUserMsg + "'. Truly fascinating.";
         std::string command = "";
 

@@ -1,7 +1,7 @@
 # Export Runtime Signature Enforcement Design
 
-Status: design note for TD-AUD-03  
-Date: 2026-04-24  
+Status: design note for TD-AUD-03
+Date: 2026-04-24
 Scope: define the missing runtime/load-time security contract for `data.pck` before any export lane can be promoted to `READY`.
 
 ## Current Landed Boundary

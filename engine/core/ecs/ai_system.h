@@ -2,10 +2,10 @@
 
 #include <cmath>
 
-#include "engine/core/ecs/world.h"
 #include "engine/core/ecs/actor_components.h"
 #include "engine/core/ecs/ai_components.h"
 #include "engine/core/ecs/player_control_system.h"
+#include "engine/core/ecs/world.h"
 
 namespace urpg {
 
@@ -13,18 +13,20 @@ namespace urpg {
  * @brief Simple AI system for actor behaviors (patrolling and basic chasing).
  */
 class AISystem {
-public:
+  public:
     void update(World& world, [[maybe_unused]] float deltaTime) {
         // Find player position for detection logic
         Vector3 playerPos;
         EntityID playerId = 0;
-        world.ForEachWith<TransformComponent, PlayerControlComponent>([&](EntityID id, const TransformComponent& trans, const PlayerControlComponent&) {
-            playerPos = trans.position;
-            playerId = id;
-        });
+        world.ForEachWith<TransformComponent, PlayerControlComponent>(
+            [&](EntityID id, const TransformComponent& trans, const PlayerControlComponent&) {
+                playerPos = trans.position;
+                playerId = id;
+            });
 
-        world.ForEachWith<TransformComponent, VelocityComponent, AIControlComponent>([&](EntityID, TransformComponent& transform, VelocityComponent& velocity, AIControlComponent& ai) {
-            switch (ai.state) {
+        world.ForEachWith<TransformComponent, VelocityComponent, AIControlComponent>(
+            [&](EntityID, TransformComponent& transform, VelocityComponent& velocity, AIControlComponent& ai) {
+                switch (ai.state) {
                 case AIState::Idle:
                     velocity.linear = Vector3::Zero();
                     if (playerId != 0 && isNearby(transform.position, playerPos, ai.detectionRadius)) {
@@ -44,7 +46,8 @@ public:
                     break;
 
                 case AIState::Chase:
-                    if (playerId == 0 || !isNearby(transform.position, playerPos, ai.detectionRadius * Fixed32::FromInt(2))) {
+                    if (playerId == 0 ||
+                        !isNearby(transform.position, playerPos, ai.detectionRadius * Fixed32::FromInt(2))) {
                         ai.state = AIState::Patrol;
                         break;
                     }
@@ -54,11 +57,11 @@ public:
                 case AIState::Flee:
                     moveTowards(transform.position, playerPos, velocity, ai.moveSpeed * Fixed32::FromInt(-1));
                     break;
-            }
-        });
+                }
+            });
     }
 
-private:
+  private:
     bool isNearby(const Vector3& a, const Vector3& b, Fixed32 radius) {
         Vector3 diff = a - b;
         return (diff.x * diff.x + diff.y * diff.y) <= (radius * radius);
@@ -69,8 +72,8 @@ private:
         // Simplified normalization for demo purposes
         float dx = diff.x.ToFloat();
         float dy = diff.y.ToFloat();
-        float dist = std::sqrt(dx*dx + dy*dy);
-        
+        float dist = std::sqrt(dx * dx + dy * dy);
+
         if (dist > 0.01f) {
             velocity.linear.x = Fixed32::FromRaw(static_cast<int32_t>((dx / dist) * speed.ToFloat() * 65536.0f));
             velocity.linear.y = Fixed32::FromRaw(static_cast<int32_t>((dy / dist) * speed.ToFloat() * 65536.0f));

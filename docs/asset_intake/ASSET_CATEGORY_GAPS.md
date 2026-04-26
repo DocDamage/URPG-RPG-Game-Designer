@@ -1,6 +1,6 @@
 # URPG Asset Category Gaps
 
-> Current asset gaps by category. Used to drive acquisition backlog and promotion decisions.  
+> Current asset gaps by category. Used to drive acquisition backlog and promotion decisions.
 > See [URPG_private_asset_intake_plan.md](./URPG_private_asset_intake_plan.md) and [TECHNICAL_DEBT_REMEDIATION_PLAN.md](../TECHNICAL_DEBT_REMEDIATION_PLAN.md) (P3-03, Phase 4 / Workstream 4.2).
 
 ---

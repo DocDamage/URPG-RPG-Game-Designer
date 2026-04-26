@@ -1,13 +1,13 @@
+#include "editor/audio/audio_mix_panel.h"
+#include "engine/core/audio/audio_core.h"
+#include "engine/core/audio/audio_mix_presets.h"
+#include "engine/core/audio/audio_mix_validator.h"
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/matchers/catch_matchers_vector.hpp>
-#include "engine/core/audio/audio_mix_presets.h"
-#include "engine/core/audio/audio_core.h"
-#include "engine/core/audio/audio_mix_validator.h"
-#include "editor/audio/audio_mix_panel.h"
-#include <nlohmann/json.hpp>
 #include <cstdlib>
 #include <filesystem>
 #include <fstream>
+#include <nlohmann/json.hpp>
 #include <string>
 
 using namespace urpg::audio;
@@ -162,12 +162,9 @@ TEST_CASE("AudioMixValidator: Conflicting duck rules are warnings", "[audio][mix
     AudioMixValidator validator;
     auto issues = validator.validate(bank);
 
-    const auto conflictingDuckRuleIssues = std::count_if(
-        issues.begin(),
-        issues.end(),
-        [](const AudioMixIssue& issue) {
-            return issue.category == AudioMixIssueCategory::ConflictingDuckRules;
-        });
+    const auto conflictingDuckRuleIssues = std::count_if(issues.begin(), issues.end(), [](const AudioMixIssue& issue) {
+        return issue.category == AudioMixIssueCategory::ConflictingDuckRules;
+    });
 
     REQUIRE(conflictingDuckRuleIssues == 2);
     for (const auto& issue : issues) {
@@ -189,8 +186,9 @@ TEST_CASE("AudioMixValidator: Volume out of range is an error", "[audio][mix][va
     AudioMixValidator validator;
     auto issues = validator.validate(bank);
 
-    auto rangeIssues = std::count_if(issues.begin(), issues.end(),
-        [](const AudioMixIssue& i) { return i.category == AudioMixIssueCategory::VolumeOutOfRange; });
+    auto rangeIssues = std::count_if(issues.begin(), issues.end(), [](const AudioMixIssue& i) {
+        return i.category == AudioMixIssueCategory::VolumeOutOfRange;
+    });
     REQUIRE(rangeIssues == 2);
 }
 
@@ -204,27 +202,27 @@ TEST_CASE("AudioMixValidator: Empty category volumes is a warning", "[audio][mix
     AudioMixValidator validator;
     auto issues = validator.validate(bank);
 
-    auto emptyIssues = std::count_if(issues.begin(), issues.end(),
-        [](const AudioMixIssue& i) { return i.category == AudioMixIssueCategory::EmptyCategoryVolumes; });
+    auto emptyIssues = std::count_if(issues.begin(), issues.end(), [](const AudioMixIssue& i) {
+        return i.category == AudioMixIssueCategory::EmptyCategoryVolumes;
+    });
     REQUIRE(emptyIssues == 1);
 }
 
-TEST_CASE("AudioMixValidator: CI governance script validates artifacts", "[audio][mix][validation][project_audit_cli]") {
+TEST_CASE("AudioMixValidator: CI governance script validates artifacts",
+          "[audio][mix][validation][project_audit_cli]") {
     const auto repoRoot = std::filesystem::path(__FILE__).parent_path().parent_path().parent_path();
     const auto scriptPath = repoRoot / "tools" / "ci" / "check_audio_governance.ps1";
     const auto outputPath = std::filesystem::temp_directory_path() / "urpg_audio_gov_out.json";
 
     const std::string command =
-        "powershell -ExecutionPolicy Bypass -File \"" + scriptPath.string() +
-        "\" > \"" + outputPath.string() + "\"";
+        "powershell -ExecutionPolicy Bypass -File \"" + scriptPath.string() + "\" > \"" + outputPath.string() + "\"";
 
     REQUIRE(std::system(command.c_str()) == 0);
 
     std::ifstream resultFile(outputPath);
     REQUIRE(resultFile.is_open());
 
-    std::string jsonStr((std::istreambuf_iterator<char>(resultFile)),
-                         std::istreambuf_iterator<char>());
+    std::string jsonStr((std::istreambuf_iterator<char>(resultFile)), std::istreambuf_iterator<char>());
     resultFile.close();
 
     auto result = json::parse(jsonStr);
@@ -253,12 +251,14 @@ TEST_CASE("AudioMixValidator: unknown category name from JSON produces a warning
     AudioMixValidator validator;
     auto issues = validator.validate(bank);
 
-    auto unknownIssues = std::count_if(issues.begin(), issues.end(),
-        [](const AudioMixIssue& i) { return i.category == AudioMixIssueCategory::UnknownCategory; });
+    auto unknownIssues = std::count_if(issues.begin(), issues.end(), [](const AudioMixIssue& i) {
+        return i.category == AudioMixIssueCategory::UnknownCategory;
+    });
     REQUIRE(unknownIssues == 1);
 
-    const auto it = std::find_if(issues.begin(), issues.end(),
-        [](const AudioMixIssue& i) { return i.category == AudioMixIssueCategory::UnknownCategory; });
+    const auto it = std::find_if(issues.begin(), issues.end(), [](const AudioMixIssue& i) {
+        return i.category == AudioMixIssueCategory::UnknownCategory;
+    });
     REQUIRE(it != issues.end());
     REQUIRE(it->severity == AudioMixIssueSeverity::Warning);
     REQUIRE(it->presetName == "Default");
@@ -286,8 +286,9 @@ TEST_CASE("AudioMixValidator: multiple unknown category names produce one warnin
     AudioMixValidator validator;
     auto issues = validator.validate(bank);
 
-    auto unknownIssues = std::count_if(issues.begin(), issues.end(),
-        [](const AudioMixIssue& i) { return i.category == AudioMixIssueCategory::UnknownCategory; });
+    auto unknownIssues = std::count_if(issues.begin(), issues.end(), [](const AudioMixIssue& i) {
+        return i.category == AudioMixIssueCategory::UnknownCategory;
+    });
     REQUIRE(unknownIssues == 2);
 }
 
@@ -305,36 +306,41 @@ TEST_CASE("AudioMixValidator: cross-preset duck conflict produces a warning", "[
     AudioMixValidator validator;
     auto issues = validator.validate(bank);
 
-    auto conflictIssues = std::count_if(issues.begin(), issues.end(),
-        [](const AudioMixIssue& i) { return i.category == AudioMixIssueCategory::CrossPresetDuckConflict; });
+    auto conflictIssues = std::count_if(issues.begin(), issues.end(), [](const AudioMixIssue& i) {
+        return i.category == AudioMixIssueCategory::CrossPresetDuckConflict;
+    });
     REQUIRE(conflictIssues == 1);
 
-    const auto it = std::find_if(issues.begin(), issues.end(),
-        [](const AudioMixIssue& i) { return i.category == AudioMixIssueCategory::CrossPresetDuckConflict; });
+    const auto it = std::find_if(issues.begin(), issues.end(), [](const AudioMixIssue& i) {
+        return i.category == AudioMixIssueCategory::CrossPresetDuckConflict;
+    });
     REQUIRE(it->severity == AudioMixIssueSeverity::Warning);
     REQUIRE(it->message.find("Battle") != std::string::npos);
     REQUIRE(it->message.find("ConflictingDuck") != std::string::npos);
 }
 
-TEST_CASE("AudioMixValidator: two presets with same duck amount do not trigger cross-preset conflict", "[audio][mix][validation]") {
+TEST_CASE("AudioMixValidator: two presets with same duck amount do not trigger cross-preset conflict",
+          "[audio][mix][validation]") {
     AudioMixPresetBank bank;
     // Battle: duckBGMOnSE=true, duckAmount=0.5
     MixPreset sameDuck;
     sameDuck.name = "SameDuck";
     sameDuck.duckBGMOnSE = true;
-    sameDuck.duckAmount = 0.5f;  // Same as Battle — no conflict
+    sameDuck.duckAmount = 0.5f; // Same as Battle — no conflict
     sameDuck.categoryVolumes[AudioCategory::BGM] = 1.0f;
     bank.savePreset(sameDuck);
 
     AudioMixValidator validator;
     auto issues = validator.validate(bank);
 
-    auto conflictIssues = std::count_if(issues.begin(), issues.end(),
-        [](const AudioMixIssue& i) { return i.category == AudioMixIssueCategory::CrossPresetDuckConflict; });
+    auto conflictIssues = std::count_if(issues.begin(), issues.end(), [](const AudioMixIssue& i) {
+        return i.category == AudioMixIssueCategory::CrossPresetDuckConflict;
+    });
     REQUIRE(conflictIssues == 0);
 }
 
-TEST_CASE("AudioMixValidator: negative fixture cases load and produce expected validator issues", "[audio][mix][validation]") {
+TEST_CASE("AudioMixValidator: negative fixture cases load and produce expected validator issues",
+          "[audio][mix][validation]") {
     const auto repoRoot = std::filesystem::path(__FILE__).parent_path().parent_path().parent_path();
     const auto fixturePath = repoRoot / "content" / "fixtures" / "audio_mix_presets_fixture.json";
     REQUIRE(std::filesystem::exists(fixturePath));
@@ -353,25 +359,28 @@ TEST_CASE("AudioMixValidator: negative fixture cases load and produce expected v
     // The NegativeUnknownCategory preset should have its unknown name tracked
     const auto negUnknown = bank.loadPreset("NegativeUnknownCategory");
     REQUIRE_FALSE(negUnknown->unknownCategoryNames.empty());
-    const bool hasUnknownCat = std::find(negUnknown->unknownCategoryNames.begin(),
-                                          negUnknown->unknownCategoryNames.end(),
-                                          "UNKNOWN_CATEGORY") != negUnknown->unknownCategoryNames.end();
+    const bool hasUnknownCat =
+        std::find(negUnknown->unknownCategoryNames.begin(), negUnknown->unknownCategoryNames.end(),
+                  "UNKNOWN_CATEGORY") != negUnknown->unknownCategoryNames.end();
     REQUIRE(hasUnknownCat);
 
     AudioMixValidator validator;
     auto issues = validator.validate(bank);
 
     // Should have at least one UnknownCategory warning
-    auto unknownIssues = std::count_if(issues.begin(), issues.end(),
-        [](const AudioMixIssue& i) { return i.category == AudioMixIssueCategory::UnknownCategory; });
+    auto unknownIssues = std::count_if(issues.begin(), issues.end(), [](const AudioMixIssue& i) {
+        return i.category == AudioMixIssueCategory::UnknownCategory;
+    });
     REQUIRE(unknownIssues >= 1);
 
     // Should have a CrossPresetDuckConflict warning (Battle @ 0.5 vs NegativeDuckConflict @ 0.3)
-    auto conflictIssues = std::count_if(issues.begin(), issues.end(),
-        [](const AudioMixIssue& i) { return i.category == AudioMixIssueCategory::CrossPresetDuckConflict; });
+    auto conflictIssues = std::count_if(issues.begin(), issues.end(), [](const AudioMixIssue& i) {
+        return i.category == AudioMixIssueCategory::CrossPresetDuckConflict;
+    });
     REQUIRE(conflictIssues == 1);
-    const auto conflictIt = std::find_if(issues.begin(), issues.end(),
-        [](const AudioMixIssue& i) { return i.category == AudioMixIssueCategory::CrossPresetDuckConflict; });
+    const auto conflictIt = std::find_if(issues.begin(), issues.end(), [](const AudioMixIssue& i) {
+        return i.category == AudioMixIssueCategory::CrossPresetDuckConflict;
+    });
     REQUIRE(conflictIt->message.find("NegativeDuckConflict") != std::string::npos);
 }
 
@@ -422,7 +431,8 @@ TEST_CASE("AudioMixPanel selectPreset returns false for unknown preset", "[audio
     REQUIRE(core.getDuckBGMOnSE() == false);
 }
 
-TEST_CASE("AudioMixPanel render snapshot includes liveCore duck state when core is bound", "[audio][mix][runtime][s28t03]") {
+TEST_CASE("AudioMixPanel render snapshot includes liveCore duck state when core is bound",
+          "[audio][mix][runtime][s28t03]") {
     AudioMixPresetBank bank;
     bank.loadDefaults();
     AudioCore core;
@@ -449,4 +459,27 @@ TEST_CASE("AudioMixPanel render snapshot has no liveCore key when no core bound"
 
     const auto snapshot = panel.lastRenderSnapshot();
     REQUIRE_FALSE(snapshot.contains("liveCore"));
+    REQUIRE(snapshot["bankBound"] == true);
+    REQUIRE(snapshot["coreBound"] == false);
+    REQUIRE(snapshot["actions"]["selectPreset"] == true);
+    REQUIRE(snapshot["actions"]["applyToLiveCore"] == false);
+    REQUIRE(snapshot["statusMessages"].size() == 1);
+    REQUIRE(snapshot["statusMessages"][0] ==
+            "No live AudioCore is bound; preset selection will not affect runtime audio.");
+}
+
+TEST_CASE("AudioMixPanel render snapshot explains missing preset bank and core", "[audio][mix][runtime][s28t03]") {
+    urpg::editor::AudioMixPanel panel;
+    panel.render();
+
+    const auto snapshot = panel.lastRenderSnapshot();
+    REQUIRE(snapshot["bankBound"] == false);
+    REQUIRE(snapshot["coreBound"] == false);
+    REQUIRE(snapshot["presetCount"] == 0);
+    REQUIRE(snapshot["actions"]["selectPreset"] == false);
+    REQUIRE(snapshot["actions"]["applyToLiveCore"] == false);
+    REQUIRE(snapshot["statusMessages"].size() == 2);
+    REQUIRE(snapshot["statusMessages"][0] == "No audio mix preset bank is bound.");
+    REQUIRE(snapshot["statusMessages"][1] ==
+            "No live AudioCore is bound; preset selection will not affect runtime audio.");
 }

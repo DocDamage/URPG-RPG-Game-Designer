@@ -6,11 +6,12 @@
 namespace urpg::message {
 
 /**
- * @brief Utility for populating the DialogueRegistry with mock/test data
- * until the formal JSON persistence layer is fully wired.
+ * @brief Test fixture utility for populating DialogueRegistry with canned data.
+ *
+ * Production startup loads project dialogue content through DialogueProjectLoader.
  */
 class MockDialogueBuilder {
-public:
+  public:
     static void populate() {
         auto& registry = DialogueRegistry::getInstance();
 
@@ -58,7 +59,7 @@ public:
         healerStart.variant.speaker = "Healer";
         healerStart.command = "HEAL_PLAYER:100";
         healerNodes.push_back(healerStart);
-        
+
         registry.registerConversation("npc_healer", healerNodes);
     }
 };

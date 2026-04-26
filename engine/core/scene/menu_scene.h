@@ -1,8 +1,8 @@
 #pragma once
 
 #include "engine/core/scene/scene_manager.h"
-#include "engine/core/ui/menu_scene_graph.h"
 #include "engine/core/ui/menu_command_registry.h"
+#include "engine/core/ui/menu_scene_graph.h"
 
 #include <memory>
 #include <string>
@@ -11,13 +11,13 @@ namespace urpg::scene {
 
 /**
  * @brief Native scene for rendering and coordinating UI/Menu interactions.
- * 
+ *
  * This fulfills the Wave 1 requirement for "UI/Menu" native runtime ownership.
  * It encapsulates the MenuSceneGraph and MenuCommandRegistry, bridging them
  * to the engine's SceneManager and SpriteBatcher.
  */
 class MenuScene : public GameScene {
-public:
+  public:
     explicit MenuScene(std::string scene_id);
 
     SceneType getType() const override { return SceneType::MENU; }
@@ -35,7 +35,7 @@ public:
     const ui::MenuSceneGraph& getSceneGraph() const { return scene_graph_; }
     const ui::MenuCommandRegistry& getRegistry() const { return registry_; }
 
-protected:
+  protected:
     std::string scene_id_;
     ui::MenuSceneGraph scene_graph_;
     ui::MenuCommandRegistry registry_;

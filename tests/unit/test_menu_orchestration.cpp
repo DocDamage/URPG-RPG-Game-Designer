@@ -1,9 +1,9 @@
-#include <catch2/catch_test_macros.hpp>
-#include "engine/core/ui/menu_scene_graph.h"
-#include "engine/core/ui/menu_command_registry.h"
-#include "engine/core/ui/menu_route_resolver.h"
 #include "engine/core/audio/audio_core.h"
 #include "engine/core/global_state_hub.h"
+#include "engine/core/ui/menu_command_registry.h"
+#include "engine/core/ui/menu_route_resolver.h"
+#include "engine/core/ui/menu_scene_graph.h"
+#include <catch2/catch_test_macros.hpp>
 #include <memory>
 
 using namespace urpg::ui;
@@ -23,9 +23,7 @@ TEST_CASE("MenuSceneGraph: Command Orchestration", "[ui][menu][orchestration]") 
 
     // Track route execution
     bool itemRouteTriggered = false;
-    resolver.bindRoute(MenuRouteTarget::Item, [&](const MenuCommandMeta&) {
-        itemRouteTriggered = true;
-    });
+    resolver.bindRoute(MenuRouteTarget::Item, [&](const MenuCommandMeta&) { itemRouteTriggered = true; });
 
     // Create a scene with a pane
     auto scene = std::make_shared<MenuScene>("main_menu");
@@ -54,7 +52,7 @@ TEST_CASE("MenuSceneGraph: Command Orchestration", "[ui][menu][orchestration]") 
         secretCmd.id = "urpg.menu.secret";
         secretCmd.label = "Secret";
         secretCmd.route = MenuRouteTarget::Status;
-        
+
         MenuCommandCondition cond;
         cond.switch_id = "S001_SecretVisible";
         secretCmd.visibility_rules.push_back(cond);
@@ -65,7 +63,7 @@ TEST_CASE("MenuSceneGraph: Command Orchestration", "[ui][menu][orchestration]") 
 
         MenuCommandRegistry::SwitchState switches;
         MenuCommandRegistry::VariableState variables;
-        
+
         // Initial state: hidden
         MenuCommandRegistry::captureGlobalState(switches, variables);
         REQUIRE_FALSE(registry.isVisible(secretCmd, switches, variables));
@@ -88,12 +86,12 @@ TEST_CASE("MenuSceneGraph: Command Orchestration", "[ui][menu][orchestration]") 
         subPane.commands.push_back(backCmd);
         subScene->addPane(subPane);
         graph.registerScene(subScene);
-        
+
         REQUIRE(graph.getActiveScene()->getId() == "main_menu");
-        
+
         graph.pushScene("sub_menu");
         REQUIRE(graph.getActiveScene()->getId() == "sub_menu");
-        
+
         graph.handleInput(urpg::input::InputAction::Cancel, urpg::input::ActionState::Pressed);
         REQUIRE(graph.getActiveScene()->getId() == "main_menu");
     }

@@ -1,7 +1,7 @@
 #pragma once
 
-#include "engine/core/ecs/world.h"
 #include "engine/core/ecs/actor_components.h"
+#include "engine/core/ecs/world.h"
 #include "engine/core/render/camera_components.h"
 
 namespace urpg {
@@ -10,19 +10,20 @@ namespace urpg {
  * @brief System that tracks the active camera and prepares view matrices.
  */
 class CameraSystem {
-public:
+  public:
     void update(World& world) {
         m_activeCameraFound = false;
-        
-        world.ForEachWith<TransformComponent, CameraComponent>([&](EntityID id, const TransformComponent& transform, const CameraComponent& camera) {
-            if (camera.isActive && !m_activeCameraFound) {
-                m_viewPosition = transform.position;
-                m_viewRotation = transform.rotation;
-                m_activeCameraData = camera;
-                m_activeCameraFound = true;
-                m_activeEntity = id;
-            }
-        });
+
+        world.ForEachWith<TransformComponent, CameraComponent>(
+            [&](EntityID id, const TransformComponent& transform, const CameraComponent& camera) {
+                if (camera.isActive && !m_activeCameraFound) {
+                    m_viewPosition = transform.position;
+                    m_viewRotation = transform.rotation;
+                    m_activeCameraData = camera;
+                    m_activeCameraFound = true;
+                    m_activeEntity = id;
+                }
+            });
     }
 
     bool hasActiveCamera() const { return m_activeCameraFound; }
@@ -31,7 +32,7 @@ public:
     CameraComponent getCameraData() const { return m_activeCameraData; }
     EntityID getActiveEntity() const { return m_activeEntity; }
 
-private:
+  private:
     bool m_activeCameraFound = false;
     Vector3 m_viewPosition;
     Vector3 m_viewRotation;

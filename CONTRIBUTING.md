@@ -1,6 +1,6 @@
 # Contributing
 
-This repo contains source code and a large volume of binary game assets.  
+This repo contains source code and a large volume of binary game assets.
 Please follow these rules so we keep merges safe and the repo healthy.
 
 ## 1) Local setup
@@ -11,10 +11,17 @@ python -m pip install pre-commit
 pre-commit install
 ```
 
+The C++ pre-commit hooks require `clang-format` and `clang-tidy` on `PATH`.
+Run `cmake --preset dev-ninja-debug` before the full hook suite so clang-tidy can read `build/dev-ninja-debug/compile_commands.json`.
+The C++ hooks enforce changed and untracked files; this avoids turning legacy formatting debt into unrelated release churn while still rejecting new regressions.
+clang-tidy analyzes a deterministic bounded subset by default for fast local feedback; set `URPG_CLANG_TIDY_MAX_FILES=0` when you need full changed-file static coverage.
+On Windows MinGW builds, the local clang-tidy hook skips analysis unless `URPG_REQUIRE_CLANG_TIDY=1` is set because Windows LLVM can mix MSVC headers into MinGW SDL translation units; Linux CI enforces the hook strictly.
+
 ## 2) Before opening a PR
 
 ```powershell
 .\tools\ci\run_local_gates.ps1
+cmake --preset dev-ninja-debug
 pre-commit run --all-files
 ```
 

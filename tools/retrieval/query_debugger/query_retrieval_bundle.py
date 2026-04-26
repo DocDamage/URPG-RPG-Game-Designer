@@ -11,7 +11,7 @@ REPO_ROOT = Path(__file__).resolve().parents[3]
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
-from tools.retrieval.shared.retrieval_index import (
+from tools.retrieval.shared.retrieval_index import (  # noqa: E402
     create_adapter_from_bundle,
     dot_product,
     load_json,
@@ -21,7 +21,9 @@ from tools.retrieval.shared.retrieval_index import (
 
 def safe_print(text: str) -> None:
     encoding = sys.stdout.encoding or "utf-8"
-    normalized = text.encode(encoding, errors="replace").decode(encoding, errors="replace")
+    normalized = text.encode(encoding, errors="replace").decode(
+        encoding, errors="replace"
+    )
     print(normalized)
 
 
@@ -37,9 +39,13 @@ def lexical_overlap_score(query: str, text: str) -> float:
 
 def main() -> int:
     parser = argparse.ArgumentParser(description="Query a retrieval bundle.")
-    parser.add_argument("--bundle", required=True, help="Path to the retrieval bundle JSON file.")
+    parser.add_argument(
+        "--bundle", required=True, help="Path to the retrieval bundle JSON file."
+    )
     parser.add_argument("--query", required=True, help="Query text.")
-    parser.add_argument("--limit", type=int, default=5, help="Maximum number of matches to return.")
+    parser.add_argument(
+        "--limit", type=int, default=5, help="Maximum number of matches to return."
+    )
     args = parser.parse_args()
 
     bundle_path = Path(args.bundle).resolve()
@@ -58,10 +64,14 @@ def main() -> int:
 
     safe_print(f"Query: {args.query}")
     safe_print(f"Bundle: {bundle_path}")
-    safe_print(f"Adapter: {bundle.get('embedding_adapter', {}).get('adapter_id', bundle.get('engine', 'builtin_hashed'))}")
+    safe_print(
+        f"Adapter: {bundle.get('embedding_adapter', {}).get('adapter_id', bundle.get('engine', 'builtin_hashed'))}"
+    )
     safe_print("")
     for rank, (score, entry) in enumerate(scored_entries[: args.limit], start=1):
-        safe_print(f"[{rank}] score={score:.4f} chunk_id={entry['chunk_id']} source={entry['source_path']}")
+        safe_print(
+            f"[{rank}] score={score:.4f} chunk_id={entry['chunk_id']} source={entry['source_path']}"
+        )
         safe_print(f"    {entry['text']}")
         safe_print("")
 

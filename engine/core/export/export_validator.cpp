@@ -1,12 +1,13 @@
 #include "engine/core/export/export_validator.h"
 
-#include "engine/core/security/resource_protector.h"
+#include "engine/core/export/export_bundle_contract.h"
 
 #include <algorithm>
 #include <cstdint>
 #include <filesystem>
 #include <fstream>
 #include <set>
+#include <string_view>
 #include <vector>
 
 namespace {
@@ -14,86 +15,63 @@ namespace {
 constexpr char kBundleMagic[] = "URPGPCK1";
 constexpr char kAssetDiscoveryManifestPath[] = "export/asset_discovery_manifest.json";
 constexpr char kAssetDiscoveryFormat[] = "URPG_PROJECT_ASSET_DISCOVERY_V1";
-constexpr char kBundleSignatureMode[] = "sha256_keyed_bundle_v1";
+
+std::string formatBundleContractError(const std::string& code) {
+    if (code == "missing_bundle")
+        return "Invalid asset package: missing bundle";
+    if (code == "truncated_bundle_header")
+        return "Invalid asset package: truncated bundle header";
+    if (code == "invalid_bundle_magic")
+        return "Invalid asset package: missing URPGPCK1 header";
+    if (code == "invalid_bundle_manifest_size")
+        return "Invalid asset package: invalid manifest size";
+    if (code == "truncated_bundle_manifest")
+        return "Invalid asset package: manifest extends past end of file";
+    if (code == "invalid_bundle_manifest_json")
+        return "Invalid asset package: manifest JSON parse failed";
+    if (code == "missing_manifest_entries")
+        return "Invalid asset package: missing manifest entries array";
+    if (code == "missing_payload_offset")
+        return "Invalid asset package: missing payload offset";
+    if (code == "missing_integrity_mode")
+        return "Invalid asset package: missing keyed integrity metadata";
+    if (code == "unsupported_integrity_mode")
+        return "Invalid asset package: unsupported keyed integrity metadata";
+    if (code == "missing_signature_mode")
+        return "Invalid asset package: missing keyed SHA-256 bundle signature metadata";
+    if (code == "unsupported_signature_mode")
+        return "Invalid asset package: unsupported keyed SHA-256 bundle signature metadata";
+    if (code == "missing_bundle_signature")
+        return "Invalid asset package: missing keyed SHA-256 bundle signature";
+    if (code == "payload_offset_out_of_bounds")
+        return "Invalid asset package: payload offset extends past end of file";
+    if (code == "manifest_entry_not_object")
+        return "Invalid asset package: manifest entry is not an object";
+    if (code == "manifest_entry_missing_required_fields") {
+        return "Invalid asset package: manifest entry is missing required fields";
+    }
+    if (code == "bundle_signature_mismatch")
+        return "Asset package bundle signature mismatch";
+    constexpr std::string_view integrityPrefix = "entry_integrity_mismatch:";
+    if (code.rfind(std::string(integrityPrefix), 0) == 0) {
+        return "Asset package integrity mismatch: " + code.substr(integrityPrefix.size());
+    }
+    constexpr std::string_view payloadPrefix = "payload_entry_extends_past_bundle:";
+    if (code.rfind(std::string(payloadPrefix), 0) == 0) {
+        return "Invalid asset package: payload bytes extend past end of file for " + code.substr(payloadPrefix.size());
+    }
+    return "Invalid asset package: " + code;
+}
 
 std::uint32_t readUint32LE(const std::vector<std::uint8_t>& bytes, std::size_t offset) {
-    return static_cast<std::uint32_t>(bytes[offset]) |
-           (static_cast<std::uint32_t>(bytes[offset + 1]) << 8) |
+    return static_cast<std::uint32_t>(bytes[offset]) | (static_cast<std::uint32_t>(bytes[offset + 1]) << 8) |
            (static_cast<std::uint32_t>(bytes[offset + 2]) << 16) |
            (static_cast<std::uint32_t>(bytes[offset + 3]) << 24);
-}
-
-std::string bundleObfuscationKey(urpg::tools::ExportTarget target) {
-    switch (target) {
-        case urpg::tools::ExportTarget::Windows_x64: return "urpg-export-bundle-win";
-        case urpg::tools::ExportTarget::Linux_x64: return "urpg-export-bundle-linux";
-        case urpg::tools::ExportTarget::macOS_Universal: return "urpg-export-bundle-macos";
-        case urpg::tools::ExportTarget::Web_WASM: return "urpg-export-bundle-web";
-        default: return "urpg-export-bundle";
-    }
-}
-
-std::string bundleSignatureKey(urpg::tools::ExportTarget target) {
-    switch (target) {
-        case urpg::tools::ExportTarget::Windows_x64: return "urpg-export-signature-win-v1";
-        case urpg::tools::ExportTarget::Linux_x64: return "urpg-export-signature-linux-v1";
-        case urpg::tools::ExportTarget::macOS_Universal: return "urpg-export-signature-macos-v1";
-        case urpg::tools::ExportTarget::Web_WASM: return "urpg-export-signature-web-v1";
-        default: return "urpg-export-signature-v1";
-    }
-}
-
-std::string makePayloadIntegrityScope(const nlohmann::json& entry) {
-    return entry.value("path", "") + "|" + entry.value("kind", "") + "|" +
-           (entry.value("compressed", false) ? "1" : "0") + "|" +
-           (entry.value("obfuscated", false) ? "1" : "0") + "|" +
-           std::to_string(entry.value("rawSize", 0u));
 }
 
 std::vector<std::uint8_t> readFileBytes(const std::filesystem::path& path) {
     std::ifstream in(path, std::ios::binary);
     return std::vector<std::uint8_t>(std::istreambuf_iterator<char>(in), std::istreambuf_iterator<char>());
-}
-
-nlohmann::json buildBundleSignatureView(const nlohmann::json& manifest) {
-    auto signatureView = manifest;
-    signatureView.erase("payloadOffset");
-    signatureView.erase("bundleSignature");
-    return signatureView;
-}
-
-std::vector<std::uint8_t> decodeBundleEntryBytes(const nlohmann::json& entry,
-                                                 const std::vector<std::uint8_t>& bundleBytes,
-                                                 std::size_t payloadOffset,
-                                                 urpg::tools::ExportTarget target) {
-    const auto offset = entry["offset"].get<std::size_t>();
-    const auto storedSize = entry["storedSize"].get<std::size_t>();
-    const auto begin = bundleBytes.begin() + static_cast<std::ptrdiff_t>(payloadOffset + offset);
-    const auto end = begin + static_cast<std::ptrdiff_t>(storedSize);
-    std::vector<std::uint8_t> decoded(begin, end);
-
-    urpg::security::ResourceProtector protector;
-    if (entry.value("obfuscated", false)) {
-        protector.obfuscate(decoded, bundleObfuscationKey(target));
-    }
-    if (entry.value("compressed", false)) {
-        decoded = urpg::core::AssetCompressor::instance().decompress(decoded);
-    }
-    return decoded;
-}
-
-std::vector<std::uint8_t> concatStoredPayloadBytes(const nlohmann::json& entries,
-                                                   const std::vector<std::uint8_t>& bundleBytes,
-                                                   std::size_t payloadOffset) {
-    std::vector<std::uint8_t> payloadBytes;
-    for (const auto& entry : entries) {
-        const auto offset = entry["offset"].get<std::size_t>();
-        const auto storedSize = entry["storedSize"].get<std::size_t>();
-        const auto begin = bundleBytes.begin() + static_cast<std::ptrdiff_t>(payloadOffset + offset);
-        const auto end = begin + static_cast<std::ptrdiff_t>(storedSize);
-        payloadBytes.insert(payloadBytes.end(), begin, end);
-    }
-    return payloadBytes;
 }
 
 } // namespace
@@ -145,36 +123,28 @@ std::vector<std::string> ExportValidator::validateExportDirectory(const std::str
 
 std::vector<PlatformRequirement> ExportValidator::getRequirementsForTarget(tools::ExportTarget target) const {
     switch (target) {
-        case tools::ExportTarget::Windows_x64:
-            return {
-                {"*.exe", true, "Windows executable"},
+    case tools::ExportTarget::Windows_x64:
+        return {{"*.exe", true, "Windows executable"},
                 {"data.pck", true, "Asset package"},
-                {"*.dll", false, "Dynamic libraries"}
-            };
-        case tools::ExportTarget::Linux_x64:
-            return {
-                {"executable_without_extension", true, "Linux executable"},
+                {"*.dll", false, "Dynamic libraries"}};
+    case tools::ExportTarget::Linux_x64:
+        return {{"executable_without_extension", true, "Linux executable"},
                 {"data.pck", true, "Asset package"},
-                {"*.so", false, "Shared libraries"}
-            };
-        case tools::ExportTarget::macOS_Universal:
-            return {
-                {"*.app", true, "macOS application bundle"},
-                {"data.pck", true, "Asset package"}
-            };
-        case tools::ExportTarget::Web_WASM:
-            return {
-                {"index.html", true, "HTML entry point"},
+                {"*.so", false, "Shared libraries"}};
+    case tools::ExportTarget::macOS_Universal:
+        return {{"*.app", true, "macOS application bundle"}, {"data.pck", true, "Asset package"}};
+    case tools::ExportTarget::Web_WASM:
+        return {{"index.html", true, "HTML entry point"},
                 {"*.wasm", true, "WebAssembly binary"},
                 {"*.js", true, "JavaScript loader"},
-                {"data.pck", true, "Asset package"}
-            };
-        default:
-            return {};
+                {"data.pck", true, "Asset package"}};
+    default:
+        return {};
     }
 }
 
-nlohmann::json ExportValidator::buildReportJson(const std::vector<std::string>& errors, tools::ExportTarget target) const {
+nlohmann::json ExportValidator::buildReportJson(const std::vector<std::string>& errors,
+                                                tools::ExportTarget target) const {
     nlohmann::json report;
     report["target"] = targetToString(target);
     report["passed"] = errors.empty();
@@ -239,121 +209,26 @@ std::vector<std::string> ExportValidator::validateBundleIntegrity(const std::fil
                                                                   tools::ExportTarget target) const {
     std::vector<std::string> errors;
 
-    const auto bytes = readFileBytes(bundlePath);
-    if (bytes.size() < (sizeof(kBundleMagic) - 1) + sizeof(std::uint32_t)) {
-        errors.emplace_back("Invalid asset package: truncated bundle header");
+    const auto contract = bundle_contract::validateBundleFile(bundlePath, target);
+    for (const auto& code : contract.errors) {
+        errors.emplace_back(formatBundleContractError(code));
+    }
+    if (!contract.valid) {
         return errors;
     }
 
-    if (std::string(bytes.begin(), bytes.begin() + (sizeof(kBundleMagic) - 1)) != kBundleMagic) {
-        errors.emplace_back("Invalid asset package: missing URPGPCK1 header");
-        return errors;
-    }
-
-    const auto manifestSize = readUint32LE(bytes, sizeof(kBundleMagic) - 1);
-    const auto manifestOffset = (sizeof(kBundleMagic) - 1) + sizeof(std::uint32_t);
-    if (bytes.size() < manifestOffset + manifestSize) {
-        errors.emplace_back("Invalid asset package: manifest extends past end of file");
-        return errors;
-    }
-
-    nlohmann::json manifest;
-    try {
-        const std::string manifestText(bytes.begin() + static_cast<std::ptrdiff_t>(manifestOffset),
-                                       bytes.begin() + static_cast<std::ptrdiff_t>(manifestOffset + manifestSize));
-        manifest = nlohmann::json::parse(manifestText);
-    } catch (const std::exception& ex) {
-        errors.emplace_back(std::string("Invalid asset package: manifest JSON parse failed: ") + ex.what());
-        return errors;
-    }
-
-    if (!manifest.contains("entries") || !manifest["entries"].is_array()) {
-        errors.emplace_back("Invalid asset package: missing manifest entries array");
-        return errors;
-    }
-    if (!manifest.contains("payloadOffset") || !manifest["payloadOffset"].is_number_unsigned()) {
-        errors.emplace_back("Invalid asset package: missing payload offset");
-        return errors;
-    }
-    if (manifest.value("integrityMode", "") != "fnv1a64_keyed") {
-        errors.emplace_back("Invalid asset package: missing keyed integrity metadata");
-        return errors;
-    }
-    if (manifest.value("signatureMode", "") != kBundleSignatureMode) {
-        errors.emplace_back("Invalid asset package: missing keyed SHA-256 bundle signature metadata");
-        return errors;
-    }
-    if (!manifest.contains("bundleSignature") || !manifest["bundleSignature"].is_string()) {
-        errors.emplace_back("Invalid asset package: missing keyed SHA-256 bundle signature");
-        return errors;
-    }
-
+    const auto& bytes = contract.bytes;
+    const auto& manifest = contract.manifest;
     const auto payloadOffset = manifest["payloadOffset"].get<std::size_t>();
-    if (bytes.size() < payloadOffset) {
-        errors.emplace_back("Invalid asset package: payload offset extends past end of file");
-        return errors;
-    }
-
-    urpg::security::ResourceProtector protector;
-    const auto integrityKey = bundleObfuscationKey(target);
-    bool canVerifyBundleSignature = true;
     std::set<std::string> manifestPaths;
 
     for (const auto& entry : manifest["entries"]) {
-        if (!entry.is_object()) {
-            errors.emplace_back("Invalid asset package: manifest entry is not an object");
-            canVerifyBundleSignature = false;
-            continue;
-        }
-        if (!entry.contains("path") || !entry["path"].is_string() ||
-            !entry.contains("kind") || !entry["kind"].is_string() ||
-            !entry.contains("offset") || !entry["offset"].is_number_unsigned() ||
-            !entry.contains("storedSize") || !entry["storedSize"].is_number_unsigned() ||
-            !entry.contains("rawSize") || !entry["rawSize"].is_number_unsigned() ||
-            !entry.contains("integrityTag") || !entry["integrityTag"].is_string()) {
-            errors.emplace_back("Invalid asset package: manifest entry is missing required fields");
-            canVerifyBundleSignature = false;
-            continue;
-        }
-
         manifestPaths.insert(entry["path"].get<std::string>());
-        const auto offset = entry["offset"].get<std::size_t>();
-        const auto storedSize = entry["storedSize"].get<std::size_t>();
-        if (bytes.size() < payloadOffset + offset + storedSize) {
-            errors.emplace_back("Invalid asset package: payload bytes extend past end of file for " +
-                                entry["path"].get<std::string>());
-            canVerifyBundleSignature = false;
-            continue;
-        }
-
-        const auto begin = bytes.begin() + static_cast<std::ptrdiff_t>(payloadOffset + offset);
-        const auto end = begin + static_cast<std::ptrdiff_t>(storedSize);
-        const std::vector<std::uint8_t> storedBytes(begin, end);
-        const auto expectedTag = protector.computeIntegrityTag(
-            makePayloadIntegrityScope(entry),
-            storedBytes,
-            integrityKey);
-        if (expectedTag != entry["integrityTag"].get<std::string>()) {
-            errors.emplace_back("Asset package integrity mismatch: " + entry["path"].get<std::string>());
-        }
     }
 
-    if (canVerifyBundleSignature) {
-        const auto expectedSignature = protector.computeCryptographicSignature(
-            buildBundleSignatureView(manifest).dump(),
-            concatStoredPayloadBytes(manifest["entries"], bytes, payloadOffset),
-            bundleSignatureKey(target));
-        if (expectedSignature != manifest["bundleSignature"].get<std::string>()) {
-            errors.emplace_back("Asset package bundle signature mismatch");
-        }
-    }
-
-    const auto discoveryEntryIt = std::find_if(
-        manifest["entries"].begin(), manifest["entries"].end(),
-        [](const nlohmann::json& entry) {
-            return entry.is_object() &&
-                   entry.contains("path") &&
-                   entry["path"].is_string() &&
+    const auto discoveryEntryIt =
+        std::find_if(manifest["entries"].begin(), manifest["entries"].end(), [](const nlohmann::json& entry) {
+            return entry.is_object() && entry.contains("path") && entry["path"].is_string() &&
                    entry["path"].get<std::string>() == kAssetDiscoveryManifestPath;
         });
 
@@ -364,7 +239,7 @@ std::vector<std::string> ExportValidator::validateBundleIntegrity(const std::fil
 
     try {
         const auto decodedDiscoveryBytes =
-            decodeBundleEntryBytes(*discoveryEntryIt, bytes, payloadOffset, target);
+            bundle_contract::decodeBundleEntryBytes(*discoveryEntryIt, bytes, payloadOffset, target);
         const std::string discoveryText(decodedDiscoveryBytes.begin(), decodedDiscoveryBytes.end());
         const auto discoveryManifest = nlohmann::json::parse(discoveryText);
 
@@ -393,8 +268,7 @@ std::vector<std::string> ExportValidator::validateBundleIntegrity(const std::fil
             }
         }
     } catch (const std::exception& ex) {
-        errors.emplace_back(std::string("Invalid asset package: asset discovery manifest parse failed: ") +
-                            ex.what());
+        errors.emplace_back(std::string("Invalid asset package: asset discovery manifest parse failed: ") + ex.what());
     }
 
     return errors;
@@ -425,8 +299,8 @@ std::optional<nlohmann::json> ExportValidator::inspectBundleSummary(const std::f
         return std::nullopt;
     }
 
-    if (!manifest.contains("entries") || !manifest["entries"].is_array() ||
-        !manifest.contains("payloadOffset") || !manifest["payloadOffset"].is_number_unsigned()) {
+    if (!manifest.contains("entries") || !manifest["entries"].is_array() || !manifest.contains("payloadOffset") ||
+        !manifest["payloadOffset"].is_number_unsigned()) {
         return std::nullopt;
     }
 
@@ -439,24 +313,21 @@ std::optional<nlohmann::json> ExportValidator::inspectBundleSummary(const std::f
     summary["assetDiscoveryMode"] = manifest.value("assetDiscoveryMode", "");
     summary["integrityMode"] = manifest.value("integrityMode", "");
     summary["signatureMode"] = manifest.value("signatureMode", "");
-    summary["bundleSignaturePresent"] =
-        manifest.contains("bundleSignature") && manifest["bundleSignature"].is_string() &&
-        !manifest["bundleSignature"].get<std::string>().empty();
+    summary["bundleSignaturePresent"] = manifest.contains("bundleSignature") &&
+                                        manifest["bundleSignature"].is_string() &&
+                                        !manifest["bundleSignature"].get<std::string>().empty();
 
     const auto payloadOffset = manifest["payloadOffset"].get<std::size_t>();
-    const auto discoveryEntryIt = std::find_if(
-        manifest["entries"].begin(), manifest["entries"].end(),
-        [](const nlohmann::json& entry) {
-            return entry.is_object() &&
-                   entry.contains("path") &&
-                   entry["path"].is_string() &&
+    const auto discoveryEntryIt =
+        std::find_if(manifest["entries"].begin(), manifest["entries"].end(), [](const nlohmann::json& entry) {
+            return entry.is_object() && entry.contains("path") && entry["path"].is_string() &&
                    entry["path"].get<std::string>() == kAssetDiscoveryManifestPath;
         });
 
     if (discoveryEntryIt != manifest["entries"].end()) {
         try {
             const auto decodedDiscoveryBytes =
-                decodeBundleEntryBytes(*discoveryEntryIt, bytes, payloadOffset, target);
+                bundle_contract::decodeBundleEntryBytes(*discoveryEntryIt, bytes, payloadOffset, target);
             const std::string discoveryText(decodedDiscoveryBytes.begin(), decodedDiscoveryBytes.end());
             summary["assetDiscoveryManifest"] = nlohmann::json::parse(discoveryText);
         } catch (const std::exception& ex) {
@@ -469,11 +340,16 @@ std::optional<nlohmann::json> ExportValidator::inspectBundleSummary(const std::f
 
 std::string ExportValidator::targetToString(tools::ExportTarget target) const {
     switch (target) {
-        case tools::ExportTarget::Windows_x64: return "Windows_x64";
-        case tools::ExportTarget::Linux_x64: return "Linux_x64";
-        case tools::ExportTarget::macOS_Universal: return "macOS_Universal";
-        case tools::ExportTarget::Web_WASM: return "Web_WASM";
-        default: return "Unknown";
+    case tools::ExportTarget::Windows_x64:
+        return "Windows_x64";
+    case tools::ExportTarget::Linux_x64:
+        return "Linux_x64";
+    case tools::ExportTarget::macOS_Universal:
+        return "macOS_Universal";
+    case tools::ExportTarget::Web_WASM:
+        return "Web_WASM";
+    default:
+        return "Unknown";
     }
 }
 

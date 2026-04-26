@@ -1,29 +1,27 @@
 #pragma once
 
 #include "ui_types.h"
-#include <map>
-#include <string>
 #include <functional>
 #include <iostream>
+#include <map>
+#include <string>
 
 namespace urpg::ui {
 
 /**
  * @brief Resolves MenuRouteTarget IDs into concrete actions.
- * 
+ *
  * In a native scenario, this system maps "Save" to the SavePanel view
  * and "Item" to the ItemSelection view, etc.
  */
 class MenuRouteResolver {
-public:
+  public:
     using RouteCallback = std::function<void(const MenuCommandMeta&)>;
 
     /**
      * @brief Maps a native RouteTarget to a callback function.
      */
-    void bindRoute(MenuRouteTarget target, RouteCallback callback) {
-        _native_routes[target] = std::move(callback);
-    }
+    void bindRoute(MenuRouteTarget target, RouteCallback callback) { _native_routes[target] = std::move(callback); }
 
     /**
      * @brief Maps a custom string RouteID to a callback function.
@@ -48,9 +46,7 @@ public:
     /**
      * @brief Returns true if a native route target has a bound callback.
      */
-    bool isRouteBound(MenuRouteTarget target) const {
-        return _native_routes.find(target) != _native_routes.end();
-    }
+    bool isRouteBound(MenuRouteTarget target) const { return _native_routes.find(target) != _native_routes.end(); }
 
     /**
      * @brief Returns true if a custom route id has a bound callback.
@@ -85,10 +81,8 @@ public:
         return result;
     }
 
-private:
-    bool resolveTarget(const MenuCommandMeta& command,
-                       MenuRouteTarget target,
-                       const std::string& customRouteId) const {
+  private:
+    bool resolveTarget(const MenuCommandMeta& command, MenuRouteTarget target, const std::string& customRouteId) const {
         if (target == MenuRouteTarget::None) {
             return false;
         }
@@ -114,4 +108,4 @@ private:
     std::map<std::string, RouteCallback> _custom_routes;
 };
 
-} // namespace urpg
+} // namespace urpg::ui

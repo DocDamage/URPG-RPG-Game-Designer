@@ -12,7 +12,7 @@ namespace urpg::presentation {
  * (ADR-008: Project Migration Strategy)
  */
 class PresentationMigrationTool {
-public:
+  public:
     struct LegacyMapData {
         std::string id;
         uint32_t width;
@@ -34,7 +34,7 @@ public:
         spatial.elevation.stepHeight = 0.5f;
         spatial.elevation.levels.assign(legacy.width * legacy.height, 0);
 
-        // 2. Heuristic: Infer elevation from "Legacy Tile IDs" 
+        // 2. Heuristic: Infer elevation from "Legacy Tile IDs"
         // Example: Tiles > 100 are considered "high ground" in our mock logic
         for (size_t i = 0; i < legacy.tileData.size(); ++i) {
             if (legacy.tileData[i] > 100) {
@@ -56,7 +56,7 @@ public:
         nlohmann::json j;
         j["mapId"] = overlay.mapId;
         j["schemaVersion"] = overlay.schemaVersion;
-        
+
         j["elevation"]["width"] = overlay.elevation.width;
         j["elevation"]["height"] = overlay.elevation.height;
         j["elevation"]["levels"] = overlay.elevation.levels;
@@ -99,7 +99,7 @@ public:
         j["postFX"]["exposure"] = overlay.postFX.exposure;
         j["postFX"]["bloomThreshold"] = overlay.postFX.bloomThreshold;
         j["postFX"]["saturation"] = overlay.postFX.saturation;
-        
+
         return j;
     }
 

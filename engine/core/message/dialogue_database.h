@@ -1,11 +1,11 @@
 #pragma once
 
-#include <string>
-#include <vector>
-#include <map>
-#include <nlohmann/json.hpp>
 #include "dialogue_registry.h"
 #include "dialogue_serializer.h"
+#include <map>
+#include <nlohmann/json.hpp>
+#include <string>
+#include <vector>
 
 namespace urpg::message {
 
@@ -21,18 +21,18 @@ struct DialogueDatabaseFile {
  * @brief Handles persistence and bulk loading of dialogue datasets.
  */
 class DialogueDatabase {
-public:
+  public:
     /**
      * @brief Exports all registered conversations to a unified project-wide JSON.
      */
     static nlohmann::json exportProjectDatabase(const DialogueRegistry& registry) {
         nlohmann::json root = nlohmann::json::object();
         auto conversations = registry.getConversations();
-        
+
         for (const auto& [convId, nodes] : conversations) {
             root[convId] = DialogueSerializer::toJson(nodes);
         }
-        
+
         return root;
     }
 
@@ -40,7 +40,8 @@ public:
      * @brief Imports a project-wide JSON into the current registry.
      */
     static void importProjectDatabase(DialogueRegistry& registry, const nlohmann::json& json) {
-        if (!json.is_object()) return;
+        if (!json.is_object())
+            return;
 
         for (auto it = json.begin(); it != json.end(); ++it) {
             std::string convId = it.key();
@@ -55,7 +56,7 @@ public:
     static nlohmann::json exportMetadata(const DialogueRegistry& registry) {
         nlohmann::json root = nlohmann::json::array();
         auto conversations = registry.getConversations();
-        
+
         for (const auto& [convId, nodes] : conversations) {
             nlohmann::json meta;
             meta["id"] = convId;
@@ -65,7 +66,7 @@ public:
             }
             root.push_back(meta);
         }
-        
+
         return root;
     }
 };

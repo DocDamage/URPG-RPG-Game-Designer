@@ -1,8 +1,8 @@
 # ADR-011: Presentation and Spatial Subsystem Status — Productized with Residual Gaps
 
-**Status:** Approved  
-**Date:** 2026-04-17  
-**Updated:** 2026-04-21  
+**Status:** Approved
+**Date:** 2026-04-17
+**Updated:** 2026-04-21
 **Supersedes / Clarifies:** ADR-010-presentation-completion (architectural patterns approved; build coverage and productization status explicitly downscoped)
 
 Historical note: this ADR preserves the status correction recorded on 2026-04-17. The specific `editor/spatial/*` header-only limitation described in the original Context was remediated on 2026-04-20 when compiled `.cpp` panel sources were added and registered in the build graph. The subsystem was further productized on 2026-04-21 with a runtime-backed spatial-authoring→presentation-consumption proof path. For current execution and release truth, defer to the canonical program/remediation documents.

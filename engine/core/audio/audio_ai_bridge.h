@@ -21,14 +21,11 @@ struct AudioMetadata {
  * Allows the AI to orchestrate BGM changes and sound effects based on game state.
  */
 class AudioKnowledgeBridge {
-public:
+  public:
     /**
      * @brief Generates a prompt for the AI to recommend audio changes.
      */
-    static std::string generateAudioPrompt(
-        const AudioMetadata& current,
-        const std::string& targetEventDescription
-    );
+    static std::string generateAudioPrompt(const AudioMetadata& current, const std::string& targetEventDescription);
 
     /**
      * @brief Interprets the AI's orchestration command.

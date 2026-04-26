@@ -1,10 +1,10 @@
 #pragma once
 
-#include <string>
-#include <vector>
-#include <variant>
-#include <memory>
 #include <cstdint>
+#include <memory>
+#include <string>
+#include <variant>
+#include <vector>
 
 namespace urpg {
 
@@ -40,9 +40,8 @@ struct EventCommand {
  * @brief Native interpreter for map event command lists.
  */
 class MapEventInterpreter {
-public:
-    MapEventInterpreter(const std::vector<EventCommand>& commands) 
-        : m_commands(commands), m_index(0) {}
+  public:
+    MapEventInterpreter(const std::vector<EventCommand>& commands) : m_commands(commands), m_index(0) {}
 
     bool isRunning() const { return m_index < m_commands.size(); }
 
@@ -51,35 +50,36 @@ public:
      * @return True if we should continue immediately, false if we need to wait (e.g. Message).
      */
     bool update() {
-        if (!isRunning()) return false;
+        if (!isRunning())
+            return false;
 
         const auto& cmd = m_commands[m_index];
         bool wait = processCommand(cmd);
-        
+
         m_index++;
         return !wait;
     }
 
     int getIndex() const { return m_index; }
 
-private:
+  private:
     /**
      * @brief Core dispatcher for opcodes.
      * @return True if this command causes a "Wait" state.
      */
     bool processCommand(const EventCommand& cmd) {
         switch (cmd.code) {
-            case EventOpcode::ShowMessage:
-                // Log for diagnostics/test
-                return true; // Wait for user input
-            case EventOpcode::ControlSwitches:
-                // Logic for setting globally
-                return false;
-            case EventOpcode::TransferPlayer:
-                // Scene transition logic
-                return true; 
-            default:
-                return false;
+        case EventOpcode::ShowMessage:
+            // Log for diagnostics/test
+            return true; // Wait for user input
+        case EventOpcode::ControlSwitches:
+            // Logic for setting globally
+            return false;
+        case EventOpcode::TransferPlayer:
+            // Scene transition logic
+            return true;
+        default:
+            return false;
         }
     }
 

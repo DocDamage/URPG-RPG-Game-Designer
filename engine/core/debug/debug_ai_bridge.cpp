@@ -30,10 +30,8 @@ std::string DebugKnowledgeBridge::formatWatchTable(const std::vector<urpg::Watch
     return ss.str();
 }
 
-std::string DebugKnowledgeBridge::generateDebugPrompt(
-    const urpg::DebugRuntimeSession& session,
-    const std::string& error_message
-) {
+std::string DebugKnowledgeBridge::generateDebugPrompt(const urpg::DebugRuntimeSession& session,
+                                                      const std::string& error_message) {
     std::stringstream ss;
     ss << "### Runtime Debug Analysis ###\n";
     if (!error_message.empty()) {
@@ -46,9 +44,10 @@ std::string DebugKnowledgeBridge::generateDebugPrompt(
     ss << formatWatchTable(session.SnapshotWatches());
 
     ss << "\n### AI Objective ###\n";
-    ss << "Analyze the state above. Explain the most likely cause of the " << (error_message.empty() ? "pause" : "error");
+    ss << "Analyze the state above. Explain the most likely cause of the "
+       << (error_message.empty() ? "pause" : "error");
     ss << " and suggest a fix for the event logic.";
-    
+
     return ss.str();
 }
 

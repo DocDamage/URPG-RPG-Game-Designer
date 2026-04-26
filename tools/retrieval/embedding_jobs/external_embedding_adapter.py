@@ -25,7 +25,10 @@ REPO_ROOT = Path(__file__).resolve().parents[3]
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
-from tools.retrieval.shared.retrieval_index import BuiltinHashedAdapter, DEFAULT_DIMENSION
+from tools.retrieval.shared.retrieval_index import (  # noqa: E402
+    BuiltinHashedAdapter,
+    DEFAULT_DIMENSION,
+)
 
 
 class EmbeddingBackend:
@@ -113,7 +116,9 @@ class LocalNgramProjectionBackend(EmbeddingBackend):
                 ngrams.append(normalized[index : index + n])
         return ngrams
 
-    def _project_feature(self, prefix: str, feature: str, dimension: int) -> list[float]:
+    def _project_feature(
+        self, prefix: str, feature: str, dimension: int
+    ) -> list[float]:
         rng = random.Random(self._seed_for_feature(prefix, feature))
         return [rng.gauss(0.0, 1.0) for _ in range(dimension)]
 
@@ -205,7 +210,11 @@ class OptionalSentenceTransformerBackend(EmbeddingBackend):
 
     def embed_texts(self, texts: list[str], dimension: int) -> list[list[float]]:
         if self._availability_error is not None or self._model is None:
-            raise RuntimeError(self._availability_error["message"] if self._availability_error else "Backend unavailable.")
+            raise RuntimeError(
+                self._availability_error["message"]
+                if self._availability_error
+                else "Backend unavailable."
+            )
 
         vectors: list[list[float]] = []
         uncached: list[str] = []
@@ -285,7 +294,10 @@ def build_status(backend: EmbeddingBackend, include_cache_stats: bool) -> dict:
 def build_response(payload: dict, backend: EmbeddingBackend) -> dict:
     if payload.get("control") == "status":
         response = {
-            "status": build_status(backend, include_cache_stats=bool(payload.get("include_cache_stats", False))),
+            "status": build_status(
+                backend,
+                include_cache_stats=bool(payload.get("include_cache_stats", False)),
+            ),
             "adapter_id": "command_adapter",
         }
         error = backend.availability_error()
@@ -341,7 +353,9 @@ def run_server(backend: EmbeddingBackend) -> int:
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="URPG external command embedding adapter.")
+    parser = argparse.ArgumentParser(
+        description="URPG external command embedding adapter."
+    )
     parser.add_argument(
         "--serve",
         action="store_true",

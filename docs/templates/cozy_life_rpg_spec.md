@@ -1,6 +1,6 @@
 # Cozy Life RPG Template Spec
 
-Status Date: 2026-04-23  
+Status Date: 2026-04-23
 Authority: canonical template spec for `cozy_life_rpg`
 
 ## Purpose

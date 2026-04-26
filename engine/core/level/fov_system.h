@@ -1,8 +1,8 @@
 #pragma once
 
-#include <vector>
-#include <cstdint>
 #include <cmath>
+#include <cstdint>
+#include <vector>
 
 namespace urpg::level {
 
@@ -11,14 +11,15 @@ namespace urpg::level {
  * Uses recursive shadowcasting or basic raycasting for the baseline.
  */
 class FOVSystem {
-public:
-    struct Point { int32_t x, y; };
+  public:
+    struct Point {
+        int32_t x, y;
+    };
 
     /**
      * @brief Computes visible cells from an origin within a max radius.
      */
-    static std::vector<Point> computeFOV(int32_t originX, int32_t originY, int32_t radius, 
-                                        const auto& isBlocking) {
+    static std::vector<Point> computeFOV(int32_t originX, int32_t originY, int32_t radius, const auto& isBlocking) {
         std::vector<Point> visible;
         visible.push_back({originX, originY});
 
@@ -38,7 +39,8 @@ public:
                 int32_t ty = static_cast<int32_t>(cy);
 
                 visible.push_back({tx, ty});
-                if (isBlocking(tx, ty)) break;
+                if (isBlocking(tx, ty))
+                    break;
             }
         }
         return visible;

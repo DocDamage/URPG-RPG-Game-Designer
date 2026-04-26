@@ -6,24 +6,20 @@
 
 #include <nlohmann/json.hpp>
 
-#include "analytics_event.h"
 #include "analytics_dispatcher_validator.h"
+#include "analytics_event.h"
 
 namespace urpg::analytics {
 
 class AnalyticsDispatcher {
-public:
+  public:
     void setOptIn(bool enabled);
     bool isOptIn() const;
 
-    void dispatchEvent(
-        const std::string& eventName,
-        const std::string& category,
-        const std::map<std::string, std::string>& params);
+    void dispatchEvent(const std::string& eventName, const std::string& category,
+                       const std::map<std::string, std::string>& params);
 
-    void dispatchEvent(
-        const std::string& eventName,
-        const std::string& category);
+    void dispatchEvent(const std::string& eventName, const std::string& category);
 
     void setAllowedCategories(const std::vector<std::string>& allowedCategories);
     std::vector<std::string> getAllowedCategories() const;
@@ -31,9 +27,11 @@ public:
     std::vector<AnalyticsEvent> snapshotEvents() const;
     std::vector<AnalyticsValidationIssue> getValidationIssues() const;
     nlohmann::json getBufferSnapshot() const;
+    size_t getQueuedEventCount() const;
+    size_t clearQueuedEvents();
     void resetSession();
 
-private:
+  private:
     bool m_optIn = false;
     uint64_t m_nextTick = 1;
     uint64_t m_sessionEventCount = 0;
@@ -42,4 +40,4 @@ private:
     std::vector<AnalyticsEvent> m_buffer;
 };
 
-}  // namespace urpg::analytics
+} // namespace urpg::analytics

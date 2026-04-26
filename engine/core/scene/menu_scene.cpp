@@ -3,9 +3,7 @@
 
 namespace urpg::scene {
 
-MenuScene::MenuScene(std::string scene_id) 
-    : scene_id_(std::move(scene_id)) {
-}
+MenuScene::MenuScene(std::string scene_id) : scene_id_(std::move(scene_id)) {}
 
 void MenuScene::onCreate() {
     // Initialization logic for the menu graph (e.g., loading schema/styles).
@@ -17,13 +15,15 @@ void MenuScene::onStart() {
 
 void MenuScene::onUpdate(float deltaTime) {
     (void)deltaTime;
-    if (m_isPaused) return;
+    if (m_isPaused)
+        return;
     // Handle menu animations, timers, and state transitions.
 }
 
 void MenuScene::handleInput(const urpg::input::InputCore& input) {
     (void)input;
-    if (m_isPaused) return;
+    if (m_isPaused)
+        return;
     // Process navigation and command routing.
 }
 

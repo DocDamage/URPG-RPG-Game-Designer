@@ -1,11 +1,11 @@
 #include "sprite_pipeline_defs.h"
-#include <iostream>
-#include <fstream>
 #include <filesystem>
+#include <fstream>
+#include <iostream>
 
 /**
  * @brief Simple Sprite Pipeline CLI for atlas metadata generation and trimming.
- * 
+ *
  * Usage: urpg_sprite_pack --input <dir> --output <json>
  */
 
@@ -56,7 +56,7 @@ int main(int argc, char* argv[]) {
                 rect.id = entry.path().stem().string();
                 rect.width = 64;  // Simulated size
                 rect.height = 64; // Simulated size
-                
+
                 // Simple shelf packing logic
                 if (currentX + rect.width > atlas.width) {
                     currentX = 0;
@@ -72,7 +72,8 @@ int main(int argc, char* argv[]) {
                 atlas.sprites.push_back(rect);
 
                 currentX += rect.width;
-                if (rect.height > maxHeightInRow) maxHeightInRow = rect.height;
+                if (rect.height > maxHeightInRow)
+                    maxHeightInRow = rect.height;
             }
         }
     }

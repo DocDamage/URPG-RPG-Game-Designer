@@ -1,4 +1,5 @@
 #include "plugin_api.h"
+#include "engine/core/diagnostics/runtime_diagnostics.h"
 #include "engine/core/ecs/actor_components.h"
 #include "engine/core/ecs/player_control_system.h"
 #include "engine/core/ecs/world.h"
@@ -6,7 +7,6 @@
 #include "runtimes/compat_js/input_manager.h"
 
 #include <cmath>
-#include <iostream>
 #include <string>
 #include <type_traits>
 #include <vector>
@@ -100,13 +100,15 @@ void UnbindPluginAPIWorld() {
 extern "C" {
 
 void URPG_LogInfo(const char* message) {
-    if (!message) return;
-    std::cout << "[URPG Plugin Info] " << message << std::endl;
+    if (!message)
+        return;
+    urpg::diagnostics::RuntimeDiagnostics::info("editor.plugin_api", "plugin.log.info", message);
 }
 
 void URPG_LogError(const char* message) {
-    if (!message) return;
-    std::cerr << "[URPG Plugin Error] " << message << std::endl;
+    if (!message)
+        return;
+    urpg::diagnostics::RuntimeDiagnostics::error("editor.plugin_api", "plugin.log.error", message);
 }
 
 uint64_t URPG_EntityCreate() {
@@ -134,22 +136,26 @@ void URPG_EntityAddComponent(uint64_t entityId, const char* componentType) {
 }
 
 void URPG_SetGlobalVariable(const char* key, float value) {
-    if (!key) return;
+    if (!key)
+        return;
     urpg::GlobalStateHub::getInstance().setVariable(key, value);
 }
 
 float URPG_GetGlobalVariable(const char* key) {
-    if (!key) return 0.0f;
+    if (!key)
+        return 0.0f;
     return GlobalValueToFloat(urpg::GlobalStateHub::getInstance().getVariable(key));
 }
 
 void URPG_SetGlobalSwitch(const char* key, bool value) {
-    if (!key) return;
+    if (!key)
+        return;
     urpg::GlobalStateHub::getInstance().setSwitch(key, value);
 }
 
 bool URPG_GetGlobalSwitch(const char* key) {
-    if (!key) return false;
+    if (!key)
+        return false;
     return urpg::GlobalStateHub::getInstance().getSwitch(key);
 }
 
@@ -159,8 +165,10 @@ bool URPG_IsKeyPressed(int keyCode) {
 
 void URPG_GetMousePosition(float* x, float* y) {
     auto& input = urpg::compat::InputManager::instance();
-    if (x) *x = static_cast<float>(input.getMouseX());
-    if (y) *y = static_cast<float>(input.getMouseY());
+    if (x)
+        *x = static_cast<float>(input.getMouseX());
+    if (y)
+        *y = static_cast<float>(input.getMouseY());
 }
 
 } // extern "C"

@@ -1,41 +1,27 @@
-#include <catch2/catch_test_macros.hpp>
-#include "editor/diagnostics/migration_wizard_panel.h"
 #include "editor/diagnostics/migration_wizard_model.h"
-#include <nlohmann/json.hpp>
+#include "editor/diagnostics/migration_wizard_panel.h"
+#include <catch2/catch_test_macros.hpp>
 #include <filesystem>
 #include <fstream>
+#include <nlohmann/json.hpp>
 
 using namespace urpg::editor;
 
 TEST_CASE("MigrationWizardModel: Batch Orchestration", "[editor][diagnostics][wizard]") {
     MigrationWizardModel model;
-    
+
     nlohmann::json project_data = {
-        {"messages", {
-            {"pages", {
-                {
-                    {"id", "speaker_a"},
-                    {"route", "speaker"},
-                    {"speaker", {{"actor_id", 1}, {"name", "Alyx"}}},
-                    {"text", {"Hello there."}}
-                }
-            }}
-        }},
-        {"scenes", {
-            {{"symbol", "item"}, {"name", "Items"}}
-        }},
-        {"troops", {
-            {{"id", 1}, {"name", "Slime x2"}, {"members", {}}}
-        }},
-        {"save", {
-            {"_urpg_format_version", "mz_compat_1"},
-            {"meta", {
-                {"slotId", 4},
-                {"mapName", "Archivist Vault"},
-                {"playtimeSeconds", 222}
-            }}
-        }}
-    };
+        {"messages",
+         {{"pages",
+           {{{"id", "speaker_a"},
+             {"route", "speaker"},
+             {"speaker", {{"actor_id", 1}, {"name", "Alyx"}}},
+             {"text", {"Hello there."}}}}}}},
+        {"scenes", {{{"symbol", "item"}, {"name", "Items"}}}},
+        {"troops", {{{"id", 1}, {"name", "Slime x2"}, {"members", {}}}}},
+        {"save",
+         {{"_urpg_format_version", "mz_compat_1"},
+          {"meta", {{"slotId", 4}, {"mapName", "Archivist Vault"}, {"playtimeSeconds", 222}}}}}};
 
     SECTION("Initial state") {
         auto report = model.getReport();
@@ -46,7 +32,7 @@ TEST_CASE("MigrationWizardModel: Batch Orchestration", "[editor][diagnostics][wi
     SECTION("Run full migration collects counts from subsystems") {
         model.runFullMigration(project_data);
         auto report = model.getReport();
-        
+
         REQUIRE(report.is_complete);
         REQUIRE(report.total_files_processed == 4); // messages, scenes/menus, troops, save metadata
         REQUIRE(report.subsystem_results.size() == 4);
@@ -78,19 +64,10 @@ TEST_CASE("MigrationWizardModel: save migration warnings propagate from unmapped
     MigrationWizardModel model;
 
     nlohmann::json project_data = {
-        {"save", {
-            {"_urpg_format_version", "mz_compat_1"},
-            {"meta", {
-                {"slotId", 9},
-                {"mapName", "Signal Spire"},
-                {"customBadge", "nightmare"}
-            }},
-            {"pluginHeader", {
-                {"uiTab", "system"},
-                {"theme", "violet"}
-            }}
-        }}
-    };
+        {"save",
+         {{"_urpg_format_version", "mz_compat_1"},
+          {"meta", {{"slotId", 9}, {"mapName", "Signal Spire"}, {"customBadge", "nightmare"}}},
+          {"pluginHeader", {{"uiTab", "system"}, {"theme", "violet"}}}}}};
 
     model.runFullMigration(project_data);
     const auto& report = model.getReport();
@@ -108,11 +85,7 @@ TEST_CASE("MigrationWizardModel: save migration warnings propagate from unmapped
 TEST_CASE("MigrationWizardPanel: Visible render records migration snapshot", "[editor][diagnostics][wizard][panel]") {
     MigrationWizardPanel panel;
 
-    nlohmann::json project_data = {
-        {"scenes", {
-            {{"symbol", "item"}, {"name", "Items"}}
-        }}
-    };
+    nlohmann::json project_data = {{"scenes", {{{"symbol", "item"}, {"name", "Items"}}}}};
 
     panel.onProjectUpdateRequested(project_data);
     panel.setVisible(true);
@@ -149,25 +122,13 @@ TEST_CASE("MigrationWizardModel: battle migration warnings propagate from unsupp
     MigrationWizardModel model;
 
     nlohmann::json project_data = {
-        {"troops", {
-            {
-                {"id", 7},
-                {"name", "Page-heavy troop"},
-                {"members", {
-                    {{"enemyId", 1}, {"x", 120}, {"y", 180}, {"hidden", false}}
-                }},
-                {"pages", {
-                    {
-                        {"conditions", {{"turnEnding", true}}},
-                        {"list", {
-                            {{"code", 101}, {"parameters", {"Hello!"}}},
-                            {{"code", 999}, {"parameters", {}}}
-                        }}
-                    }
-                }}
-            }
-        }}
-    };
+        {"troops",
+         {{{"id", 7},
+           {"name", "Page-heavy troop"},
+           {"members", {{{"enemyId", 1}, {"x", 120}, {"y", 180}, {"hidden", false}}}},
+           {"pages",
+            {{{"conditions", {{"turnEnding", true}}},
+              {"list", {{{"code", 101}, {"parameters", {"Hello!"}}}, {{"code", 999}, {"parameters", {}}}}}}}}}}}};
 
     model.runFullMigration(project_data);
     const auto& report = model.getReport();
@@ -186,24 +147,14 @@ TEST_CASE("MigrationWizardPanel: render snapshot exposes a rendered workflow bod
           "[editor][diagnostics][wizard][panel][workflow]") {
     MigrationWizardPanel panel;
 
-    nlohmann::json project_data = {
-        {"messages", {
-            {"pages", {
-                {
-                    {"id", "speaker_a"},
-                    {"route", "speaker"},
-                    {"speaker", {{"actor_id", 1}, {"name", "Alyx"}}},
-                    {"text", {"Hello there."}}
-                }
-            }}
-        }},
-        {"scenes", {
-            {{"symbol", "item"}, {"name", "Items"}}
-        }},
-        {"troops", {
-            {{"id", 1}, {"name", "Slime x2"}, {"members", {}}}
-        }}
-    };
+    nlohmann::json project_data = {{"messages",
+                                    {{"pages",
+                                      {{{"id", "speaker_a"},
+                                        {"route", "speaker"},
+                                        {"speaker", {{"actor_id", 1}, {"name", "Alyx"}}},
+                                        {"text", {"Hello there."}}}}}}},
+                                   {"scenes", {{{"symbol", "item"}, {"name", "Items"}}}},
+                                   {"troops", {{{"id", 1}, {"name", "Slime x2"}, {"members", {}}}}}};
 
     panel.onProjectUpdateRequested(project_data);
     panel.setVisible(true);
@@ -254,14 +205,11 @@ TEST_CASE("MigrationWizardPanel: render snapshot exposes a rendered workflow bod
     REQUIRE(snapshot.bound_runtime_actions.rerun_selected_subsystem.enabled);
 }
 
-TEST_CASE("MigrationWizardPanel: Clear resets report and rendered snapshot", "[editor][diagnostics][wizard][panel][clear]") {
+TEST_CASE("MigrationWizardPanel: Clear resets report and rendered snapshot",
+          "[editor][diagnostics][wizard][panel][clear]") {
     MigrationWizardPanel panel;
 
-    nlohmann::json project_data = {
-        {"scenes", {
-            {{"symbol", "item"}, {"name", "Items"}}
-        }}
-    };
+    nlohmann::json project_data = {{"scenes", {{{"symbol", "item"}, {"name", "Items"}}}}};
 
     panel.onProjectUpdateRequested(project_data);
     panel.setVisible(true);
@@ -327,24 +275,17 @@ TEST_CASE("MigrationWizardPanel: empty render still exposes workflow shell with 
     REQUIRE_FALSE(snapshot.bound_runtime_actions.rerun_selected_subsystem.enabled);
 }
 
-TEST_CASE("MigrationWizardModel: subsystem selection follows current results", "[editor][diagnostics][wizard][selection]") {
+TEST_CASE("MigrationWizardModel: subsystem selection follows current results",
+          "[editor][diagnostics][wizard][selection]") {
     MigrationWizardModel model;
 
-    nlohmann::json project_data = {
-        {"messages", {
-            {"pages", {
-                {
-                    {"id", "speaker_a"},
-                    {"route", "speaker"},
-                    {"speaker", {{"actor_id", 1}, {"name", "Alyx"}}},
-                    {"text", {"Hello there."}}
-                }
-            }}
-        }},
-        {"scenes", {
-            {{"symbol", "item"}, {"name", "Items"}}
-        }}
-    };
+    nlohmann::json project_data = {{"messages",
+                                    {{"pages",
+                                      {{{"id", "speaker_a"},
+                                        {"route", "speaker"},
+                                        {"speaker", {{"actor_id", 1}, {"name", "Alyx"}}},
+                                        {"text", {"Hello there."}}}}}}},
+                                   {"scenes", {{{"symbol", "item"}, {"name", "Items"}}}}};
 
     model.runFullMigration(project_data);
 
@@ -364,27 +305,18 @@ TEST_CASE("MigrationWizardModel: subsystem selection follows current results", "
     REQUIRE_FALSE(model.selectedSubsystemResult().has_value());
 }
 
-TEST_CASE("MigrationWizardModel: selection can move to adjacent subsystem results", "[editor][diagnostics][wizard][selection][navigation]") {
+TEST_CASE("MigrationWizardModel: selection can move to adjacent subsystem results",
+          "[editor][diagnostics][wizard][selection][navigation]") {
     MigrationWizardModel model;
 
-    nlohmann::json project_data = {
-        {"messages", {
-            {"pages", {
-                {
-                    {"id", "speaker_a"},
-                    {"route", "speaker"},
-                    {"speaker", {{"actor_id", 1}, {"name", "Alyx"}}},
-                    {"text", {"Hello there."}}
-                }
-            }}
-        }},
-        {"scenes", {
-            {{"symbol", "item"}, {"name", "Items"}}
-        }},
-        {"troops", {
-            {{"id", 1}, {"name", "Slime x2"}, {"members", {}}}
-        }}
-    };
+    nlohmann::json project_data = {{"messages",
+                                    {{"pages",
+                                      {{{"id", "speaker_a"},
+                                        {"route", "speaker"},
+                                        {"speaker", {{"actor_id", 1}, {"name", "Alyx"}}},
+                                        {"text", {"Hello there."}}}}}}},
+                                   {"scenes", {{{"symbol", "item"}, {"name", "Items"}}}},
+                                   {"troops", {{{"id", 1}, {"name", "Slime x2"}, {"members", {}}}}}};
 
     model.runFullMigration(project_data);
 
@@ -416,24 +348,17 @@ TEST_CASE("MigrationWizardModel: selection can move to adjacent subsystem result
     REQUIRE(*model.selectedSubsystemId() == "message");
 }
 
-TEST_CASE("MigrationWizardPanel: render snapshot carries selected subsystem", "[editor][diagnostics][wizard][panel][selection]") {
+TEST_CASE("MigrationWizardPanel: render snapshot carries selected subsystem",
+          "[editor][diagnostics][wizard][panel][selection]") {
     MigrationWizardPanel panel;
 
-    nlohmann::json project_data = {
-        {"messages", {
-            {"pages", {
-                {
-                    {"id", "speaker_a"},
-                    {"route", "speaker"},
-                    {"speaker", {{"actor_id", 1}, {"name", "Alyx"}}},
-                    {"text", {"Hello there."}}
-                }
-            }}
-        }},
-        {"scenes", {
-            {{"symbol", "item"}, {"name", "Items"}}
-        }}
-    };
+    nlohmann::json project_data = {{"messages",
+                                    {{"pages",
+                                      {{{"id", "speaker_a"},
+                                        {"route", "speaker"},
+                                        {"speaker", {{"actor_id", 1}, {"name", "Alyx"}}},
+                                        {"text", {"Hello there."}}}}}}},
+                                   {"scenes", {{{"symbol", "item"}, {"name", "Items"}}}}};
 
     panel.onProjectUpdateRequested(project_data);
     REQUIRE(panel.selectSubsystemResult("menu"));
@@ -450,24 +375,17 @@ TEST_CASE("MigrationWizardPanel: render snapshot carries selected subsystem", "[
     REQUIRE(panel.lastRenderSnapshot().selected_subsystem_summary_line.find("Menu migration") != std::string::npos);
 }
 
-TEST_CASE("MigrationWizardPanel: render snapshot exposes selection navigation state", "[editor][diagnostics][wizard][panel][selection][navigation]") {
+TEST_CASE("MigrationWizardPanel: render snapshot exposes selection navigation state",
+          "[editor][diagnostics][wizard][panel][selection][navigation]") {
     MigrationWizardPanel panel;
 
-    nlohmann::json project_data = {
-        {"messages", {
-            {"pages", {
-                {
-                    {"id", "speaker_a"},
-                    {"route", "speaker"},
-                    {"speaker", {{"actor_id", 1}, {"name", "Alyx"}}},
-                    {"text", {"Hello there."}}
-                }
-            }}
-        }},
-        {"scenes", {
-            {{"symbol", "item"}, {"name", "Items"}}
-        }}
-    };
+    nlohmann::json project_data = {{"messages",
+                                    {{"pages",
+                                      {{{"id", "speaker_a"},
+                                        {"route", "speaker"},
+                                        {"speaker", {{"actor_id", 1}, {"name", "Alyx"}}},
+                                        {"text", {"Hello there."}}}}}}},
+                                   {"scenes", {{{"symbol", "item"}, {"name", "Items"}}}}};
 
     panel.onProjectUpdateRequested(project_data);
     panel.setVisible(true);
@@ -487,21 +405,13 @@ TEST_CASE("MigrationWizardPanel: rendered workflow body tracks selection and act
           "[editor][diagnostics][wizard][panel][workflow][actions]") {
     MigrationWizardPanel panel;
 
-    nlohmann::json project_data = {
-        {"messages", {
-            {"pages", {
-                {
-                    {"id", "speaker_a"},
-                    {"route", "speaker"},
-                    {"speaker", {{"actor_id", 1}, {"name", "Alyx"}}},
-                    {"text", {"Hello there."}}
-                }
-            }}
-        }},
-        {"scenes", {
-            {{"symbol", "item"}, {"name", "Items"}}
-        }}
-    };
+    nlohmann::json project_data = {{"messages",
+                                    {{"pages",
+                                      {{{"id", "speaker_a"},
+                                        {"route", "speaker"},
+                                        {"speaker", {{"actor_id", 1}, {"name", "Alyx"}}},
+                                        {"text", {"Hello there."}}}}}}},
+                                   {"scenes", {{{"symbol", "item"}, {"name", "Items"}}}}};
 
     panel.onProjectUpdateRequested(project_data);
     panel.setVisible(true);
@@ -540,21 +450,13 @@ TEST_CASE("MigrationWizardPanel: rendered workflow body tracks selection and act
 TEST_CASE("MigrationWizardModel: rerunSubsystem updates existing result", "[editor][diagnostics][wizard][rerun]") {
     MigrationWizardModel model;
 
-    nlohmann::json project_data = {
-        {"messages", {
-            {"pages", {
-                {
-                    {"id", "speaker_a"},
-                    {"route", "speaker"},
-                    {"speaker", {{"actor_id", 1}, {"name", "Alyx"}}},
-                    {"text", {"Hello there."}}
-                }
-            }}
-        }},
-        {"scenes", {
-            {{"symbol", "item"}, {"name", "Items"}}
-        }}
-    };
+    nlohmann::json project_data = {{"messages",
+                                    {{"pages",
+                                      {{{"id", "speaker_a"},
+                                        {"route", "speaker"},
+                                        {"speaker", {{"actor_id", 1}, {"name", "Alyx"}}},
+                                        {"text", {"Hello there."}}}}}}},
+                                   {"scenes", {{{"symbol", "item"}, {"name", "Items"}}}}};
 
     model.runFullMigration(project_data);
     REQUIRE(model.getReport().subsystem_results.size() == 2);
@@ -578,30 +480,18 @@ TEST_CASE("MigrationWizardModel: rerunSubsystem updates existing result", "[edit
 TEST_CASE("MigrationWizardModel: rerunSubsystem on missing subsystem adds it", "[editor][diagnostics][wizard][rerun]") {
     MigrationWizardModel model;
 
-    nlohmann::json project_data = {
-        {"messages", {
-            {"pages", {
-                {
-                    {"id", "speaker_a"},
-                    {"route", "speaker"},
-                    {"speaker", {{"actor_id", 1}, {"name", "Alyx"}}},
-                    {"text", {"Hello there."}}
-                }
-            }}
-        }},
-        {"scenes", {
-            {{"symbol", "item"}, {"name", "Items"}}
-        }}
-    };
+    nlohmann::json project_data = {{"messages",
+                                    {{"pages",
+                                      {{{"id", "speaker_a"},
+                                        {"route", "speaker"},
+                                        {"speaker", {{"actor_id", 1}, {"name", "Alyx"}}},
+                                        {"text", {"Hello there."}}}}}}},
+                                   {"scenes", {{{"symbol", "item"}, {"name", "Items"}}}}};
 
     model.runFullMigration(project_data);
     REQUIRE(model.getReport().subsystem_results.size() == 2);
 
-    nlohmann::json battle_data = {
-        {"troops", {
-            {{"id", 1}, {"name", "Slime x2"}, {"members", {}}}
-        }}
-    };
+    nlohmann::json battle_data = {{"troops", {{{"id", 1}, {"name", "Slime x2"}, {"members", {}}}}}};
     REQUIRE(model.rerunSubsystem("battle", battle_data));
     auto report = model.getReport();
     REQUIRE(report.subsystem_results.size() == 3);
@@ -618,21 +508,13 @@ TEST_CASE("MigrationWizardModel: selected-subsystem actions operate on the curre
           "[editor][diagnostics][wizard][selected_actions]") {
     MigrationWizardModel model;
 
-    nlohmann::json project_data = {
-        {"messages", {
-            {"pages", {
-                {
-                    {"id", "speaker_a"},
-                    {"route", "speaker"},
-                    {"speaker", {{"actor_id", 1}, {"name", "Alyx"}}},
-                    {"text", {"Hello there."}}
-                }
-            }}
-        }},
-        {"scenes", {
-            {{"symbol", "item"}, {"name", "Items"}}
-        }}
-    };
+    nlohmann::json project_data = {{"messages",
+                                    {{"pages",
+                                      {{{"id", "speaker_a"},
+                                        {"route", "speaker"},
+                                        {"speaker", {{"actor_id", 1}, {"name", "Alyx"}}},
+                                        {"text", {"Hello there."}}}}}}},
+                                   {"scenes", {{{"symbol", "item"}, {"name", "Items"}}}}};
 
     model.runFullMigration(project_data);
     REQUIRE(model.selectedSubsystemId().has_value());
@@ -656,14 +538,11 @@ TEST_CASE("MigrationWizardModel: selected-subsystem actions operate on the curre
     REQUIRE_FALSE(model.rerunSelectedSubsystem(project_data));
 }
 
-TEST_CASE("MigrationWizardPanel: rerun action reflected in render snapshot", "[editor][diagnostics][wizard][panel][rerun]") {
+TEST_CASE("MigrationWizardPanel: rerun action reflected in render snapshot",
+          "[editor][diagnostics][wizard][panel][rerun]") {
     MigrationWizardPanel panel;
 
-    nlohmann::json project_data = {
-        {"scenes", {
-            {{"symbol", "item"}, {"name", "Items"}}
-        }}
-    };
+    nlohmann::json project_data = {{"scenes", {{{"symbol", "item"}, {"name", "Items"}}}}};
 
     panel.onProjectUpdateRequested(project_data);
     panel.setVisible(true);
@@ -685,21 +564,13 @@ TEST_CASE("MigrationWizardPanel: selected-subsystem actions follow the current s
           "[editor][diagnostics][wizard][panel][selected_actions]") {
     MigrationWizardPanel panel;
 
-    nlohmann::json project_data = {
-        {"messages", {
-            {"pages", {
-                {
-                    {"id", "speaker_a"},
-                    {"route", "speaker"},
-                    {"speaker", {{"actor_id", 1}, {"name", "Alyx"}}},
-                    {"text", {"Hello there."}}
-                }
-            }}
-        }},
-        {"scenes", {
-            {{"symbol", "item"}, {"name", "Items"}}
-        }}
-    };
+    nlohmann::json project_data = {{"messages",
+                                    {{"pages",
+                                      {{{"id", "speaker_a"},
+                                        {"route", "speaker"},
+                                        {"speaker", {{"actor_id", 1}, {"name", "Alyx"}}},
+                                        {"text", {"Hello there."}}}}}}},
+                                   {"scenes", {{{"symbol", "item"}, {"name", "Items"}}}}};
 
     panel.onProjectUpdateRequested(project_data);
     REQUIRE(panel.selectSubsystemResult("menu"));
@@ -734,21 +605,13 @@ TEST_CASE("MigrationWizardPanel: bound runtime enables no-arg rerun actions",
           "[editor][diagnostics][wizard][panel][bound_runtime]") {
     MigrationWizardPanel panel;
 
-    nlohmann::json project_data = {
-        {"messages", {
-            {"pages", {
-                {
-                    {"id", "speaker_a"},
-                    {"route", "speaker"},
-                    {"speaker", {{"actor_id", 1}, {"name", "Alyx"}}},
-                    {"text", {"Hello there."}}
-                }
-            }}
-        }},
-        {"scenes", {
-            {{"symbol", "item"}, {"name", "Items"}}
-        }}
-    };
+    nlohmann::json project_data = {{"messages",
+                                    {{"pages",
+                                      {{{"id", "speaker_a"},
+                                        {"route", "speaker"},
+                                        {"speaker", {{"actor_id", 1}, {"name", "Alyx"}}},
+                                        {"text", {"Hello there."}}}}}}},
+                                   {"scenes", {{{"symbol", "item"}, {"name", "Items"}}}}};
 
     panel.onProjectUpdateRequested(project_data);
     panel.setVisible(true);
@@ -775,27 +638,18 @@ TEST_CASE("MigrationWizardPanel: bound runtime enables no-arg rerun actions",
     REQUIRE(*panel.lastRenderSnapshot().selected_subsystem_id == "menu");
 }
 
-TEST_CASE("MigrationWizardModel: clearSubsystemResult removes result and updates counts", "[editor][diagnostics][wizard][clear]") {
+TEST_CASE("MigrationWizardModel: clearSubsystemResult removes result and updates counts",
+          "[editor][diagnostics][wizard][clear]") {
     MigrationWizardModel model;
 
-    nlohmann::json project_data = {
-        {"messages", {
-            {"pages", {
-                {
-                    {"id", "speaker_a"},
-                    {"route", "speaker"},
-                    {"speaker", {{"actor_id", 1}, {"name", "Alyx"}}},
-                    {"text", {"Hello there."}}
-                }
-            }}
-        }},
-        {"scenes", {
-            {{"symbol", "item"}, {"name", "Items"}}
-        }},
-        {"troops", {
-            {{"id", 1}, {"name", "Slime x2"}, {"members", {}}}
-        }}
-    };
+    nlohmann::json project_data = {{"messages",
+                                    {{"pages",
+                                      {{{"id", "speaker_a"},
+                                        {"route", "speaker"},
+                                        {"speaker", {{"actor_id", 1}, {"name", "Alyx"}}},
+                                        {"text", {"Hello there."}}}}}}},
+                                   {"scenes", {{{"symbol", "item"}, {"name", "Items"}}}},
+                                   {"troops", {{{"id", 1}, {"name", "Slime x2"}, {"members", {}}}}}};
 
     model.runFullMigration(project_data);
     auto report = model.getReport();
@@ -815,24 +669,17 @@ TEST_CASE("MigrationWizardModel: clearSubsystemResult removes result and updates
     REQUIRE_FALSE(model.clearSubsystemResult("menu"));
 }
 
-TEST_CASE("MigrationWizardModel: clearSubsystemResult updates selection when selected is cleared", "[editor][diagnostics][wizard][clear][selection]") {
+TEST_CASE("MigrationWizardModel: clearSubsystemResult updates selection when selected is cleared",
+          "[editor][diagnostics][wizard][clear][selection]") {
     MigrationWizardModel model;
 
-    nlohmann::json project_data = {
-        {"messages", {
-            {"pages", {
-                {
-                    {"id", "speaker_a"},
-                    {"route", "speaker"},
-                    {"speaker", {{"actor_id", 1}, {"name", "Alyx"}}},
-                    {"text", {"Hello there."}}
-                }
-            }}
-        }},
-        {"scenes", {
-            {{"symbol", "item"}, {"name", "Items"}}
-        }}
-    };
+    nlohmann::json project_data = {{"messages",
+                                    {{"pages",
+                                      {{{"id", "speaker_a"},
+                                        {"route", "speaker"},
+                                        {"speaker", {{"actor_id", 1}, {"name", "Alyx"}}},
+                                        {"text", {"Hello there."}}}}}}},
+                                   {"scenes", {{{"symbol", "item"}, {"name", "Items"}}}}};
 
     model.runFullMigration(project_data);
     REQUIRE(model.selectedSubsystemId().has_value());
@@ -850,11 +697,7 @@ TEST_CASE("MigrationWizardModel: clearing the last subsystem result resets the w
           "[editor][diagnostics][wizard][clear][last_result]") {
     MigrationWizardModel model;
 
-    nlohmann::json project_data = {
-        {"scenes", {
-            {{"symbol", "item"}, {"name", "Items"}}
-        }}
-    };
+    nlohmann::json project_data = {{"scenes", {{{"symbol", "item"}, {"name", "Items"}}}}};
 
     model.runFullMigration(project_data);
     REQUIRE(model.getReport().total_files_processed == 1);
@@ -876,11 +719,7 @@ TEST_CASE("MigrationWizardModel: clearing the last subsystem result resets the w
 TEST_CASE("MigrationWizardModel: getReportJson returns structured report", "[editor][diagnostics][wizard][export]") {
     MigrationWizardModel model;
 
-    nlohmann::json project_data = {
-        {"scenes", {
-            {{"symbol", "item"}, {"name", "Items"}}
-        }}
-    };
+    nlohmann::json project_data = {{"scenes", {{{"symbol", "item"}, {"name", "Items"}}}}};
 
     model.runFullMigration(project_data);
     const auto json_str = model.getReportJson();
@@ -896,27 +735,21 @@ TEST_CASE("MigrationWizardModel: getReportJson returns structured report", "[edi
     REQUIRE(parsed["subsystem_results"][0]["subsystem_id"] == "menu");
     REQUIRE(parsed["subsystem_results"][0]["display_name"] == "Menu");
     REQUIRE(parsed["subsystem_results"][0]["completed"] == true);
-    REQUIRE(parsed["subsystem_results"][0]["summary_line"].get<std::string>().find("Menu migration") != std::string::npos);
+    REQUIRE(parsed["subsystem_results"][0]["summary_line"].get<std::string>().find("Menu migration") !=
+            std::string::npos);
 }
 
-TEST_CASE("MigrationWizardPanel: clear action reflected in render snapshot", "[editor][diagnostics][wizard][panel][clear]") {
+TEST_CASE("MigrationWizardPanel: clear action reflected in render snapshot",
+          "[editor][diagnostics][wizard][panel][clear]") {
     MigrationWizardPanel panel;
 
-    nlohmann::json project_data = {
-        {"messages", {
-            {"pages", {
-                {
-                    {"id", "speaker_a"},
-                    {"route", "speaker"},
-                    {"speaker", {{"actor_id", 1}, {"name", "Alyx"}}},
-                    {"text", {"Hello there."}}
-                }
-            }}
-        }},
-        {"scenes", {
-            {{"symbol", "item"}, {"name", "Items"}}
-        }}
-    };
+    nlohmann::json project_data = {{"messages",
+                                    {{"pages",
+                                      {{{"id", "speaker_a"},
+                                        {"route", "speaker"},
+                                        {"speaker", {{"actor_id", 1}, {"name", "Alyx"}}},
+                                        {"text", {"Hello there."}}}}}}},
+                                   {"scenes", {{{"symbol", "item"}, {"name", "Items"}}}}};
 
     panel.onProjectUpdateRequested(project_data);
     panel.setVisible(true);
@@ -937,11 +770,7 @@ TEST_CASE("MigrationWizardPanel: clearing the last subsystem result yields an em
           "[editor][diagnostics][wizard][panel][clear][last_result]") {
     MigrationWizardPanel panel;
 
-    nlohmann::json project_data = {
-        {"scenes", {
-            {{"symbol", "item"}, {"name", "Items"}}
-        }}
-    };
+    nlohmann::json project_data = {{"scenes", {{{"symbol", "item"}, {"name", "Items"}}}}};
 
     panel.onProjectUpdateRequested(project_data);
     panel.setVisible(true);
@@ -964,14 +793,11 @@ TEST_CASE("MigrationWizardPanel: clearing the last subsystem result yields an em
     REQUIRE(panel.lastRenderSnapshot().can_load_report);
 }
 
-TEST_CASE("MigrationWizardPanel: exportReportJson and snapshot export field", "[editor][diagnostics][wizard][panel][export]") {
+TEST_CASE("MigrationWizardPanel: exportReportJson and snapshot export field",
+          "[editor][diagnostics][wizard][panel][export]") {
     MigrationWizardPanel panel;
 
-    nlohmann::json project_data = {
-        {"scenes", {
-            {{"symbol", "item"}, {"name", "Items"}}
-        }}
-    };
+    nlohmann::json project_data = {{"scenes", {{{"symbol", "item"}, {"name", "Items"}}}}};
 
     panel.onProjectUpdateRequested(project_data);
     panel.setVisible(true);
@@ -988,17 +814,15 @@ TEST_CASE("MigrationWizardPanel: exportReportJson and snapshot export field", "[
     REQUIRE(parsed["subsystem_results"][0]["subsystem_id"] == "menu");
 }
 
-TEST_CASE("MigrationWizardModel: saveReportToFile writes getReportJson to disk", "[editor][diagnostics][wizard][file]") {
+TEST_CASE("MigrationWizardModel: saveReportToFile writes getReportJson to disk",
+          "[editor][diagnostics][wizard][file]") {
     MigrationWizardModel model;
-    nlohmann::json project_data = {
-        {"scenes", {
-            {{"symbol", "item"}, {"name", "Items"}}
-        }}
-    };
+    nlohmann::json project_data = {{"scenes", {{{"symbol", "item"}, {"name", "Items"}}}}};
     model.runFullMigration(project_data);
     const auto original_json = model.getReportJson();
 
-    const std::string temp_path = (std::filesystem::temp_directory_path() / "urpg_migration_wizard_save_test.json").string();
+    const std::string temp_path =
+        (std::filesystem::temp_directory_path() / "urpg_migration_wizard_save_test.json").string();
     std::filesystem::remove(temp_path);
 
     REQUIRE(model.saveReportToFile(temp_path));
@@ -1017,28 +841,21 @@ TEST_CASE("MigrationWizardModel: saveReportToFile writes getReportJson to disk",
 
 TEST_CASE("MigrationWizardModel: loadReportFromFile restores report state", "[editor][diagnostics][wizard][file]") {
     MigrationWizardModel model;
-    nlohmann::json project_data = {
-        {"messages", {
-            {"pages", {
-                {
-                    {"id", "speaker_a"},
-                    {"route", "speaker"},
-                    {"speaker", {{"actor_id", 1}, {"name", "Alyx"}}},
-                    {"text", {"Hello there."}}
-                }
-            }}
-        }},
-        {"scenes", {
-            {{"symbol", "item"}, {"name", "Items"}}
-        }}
-    };
+    nlohmann::json project_data = {{"messages",
+                                    {{"pages",
+                                      {{{"id", "speaker_a"},
+                                        {"route", "speaker"},
+                                        {"speaker", {{"actor_id", 1}, {"name", "Alyx"}}},
+                                        {"text", {"Hello there."}}}}}}},
+                                   {"scenes", {{{"symbol", "item"}, {"name", "Items"}}}}};
     model.runFullMigration(project_data);
     model.selectSubsystemResult("menu");
 
     const auto original_report = model.getReport();
     const auto original_selected = model.selectedSubsystemId();
 
-    const std::string temp_path = (std::filesystem::temp_directory_path() / "urpg_migration_wizard_load_test.json").string();
+    const std::string temp_path =
+        (std::filesystem::temp_directory_path() / "urpg_migration_wizard_load_test.json").string();
     std::filesystem::remove(temp_path);
     REQUIRE(model.saveReportToFile(temp_path));
 
@@ -1054,7 +871,8 @@ TEST_CASE("MigrationWizardModel: loadReportFromFile restores report state", "[ed
     for (size_t i = 0; i < loaded_report.subsystem_results.size(); ++i) {
         REQUIRE(loaded_report.subsystem_results[i].subsystem_id == original_report.subsystem_results[i].subsystem_id);
         REQUIRE(loaded_report.subsystem_results[i].display_name == original_report.subsystem_results[i].display_name);
-        REQUIRE(loaded_report.subsystem_results[i].processed_count == original_report.subsystem_results[i].processed_count);
+        REQUIRE(loaded_report.subsystem_results[i].processed_count ==
+                original_report.subsystem_results[i].processed_count);
         REQUIRE(loaded_report.subsystem_results[i].warning_count == original_report.subsystem_results[i].warning_count);
         REQUIRE(loaded_report.subsystem_results[i].error_count == original_report.subsystem_results[i].error_count);
         REQUIRE(loaded_report.subsystem_results[i].completed == original_report.subsystem_results[i].completed);
@@ -1077,19 +895,15 @@ TEST_CASE("MigrationWizardModel: loadReportFromFile repairs orphaned selected su
         {"error_count", 0},
         {"is_complete", true},
         {"summary_logs", {"Menu migration: 1 scene panel(s), 1 command(s).", "Migration wizard complete."}},
-        {"subsystem_results", {
-            {
-                {"subsystem_id", "menu"},
-                {"display_name", "Menu"},
-                {"processed_count", 1},
-                {"warning_count", 0},
-                {"error_count", 0},
-                {"completed", true},
-                {"summary_line", "Menu migration: 1 scene panel(s), 1 command(s)."}
-            }
-        }},
-        {"selected_subsystem_id", "missing"}
-    };
+        {"subsystem_results",
+         {{{"subsystem_id", "menu"},
+           {"display_name", "Menu"},
+           {"processed_count", 1},
+           {"warning_count", 0},
+           {"error_count", 0},
+           {"completed", true},
+           {"summary_line", "Menu migration: 1 scene panel(s), 1 command(s)."}}}},
+        {"selected_subsystem_id", "missing"}};
 
     {
         std::ofstream ofs(temp_path);
@@ -1107,17 +921,15 @@ TEST_CASE("MigrationWizardModel: loadReportFromFile repairs orphaned selected su
     std::filesystem::remove(temp_path);
 }
 
-TEST_CASE("MigrationWizardModel: loadReportFromFile with bad file returns false and clears model", "[editor][diagnostics][wizard][file]") {
+TEST_CASE("MigrationWizardModel: loadReportFromFile with bad file returns false and clears model",
+          "[editor][diagnostics][wizard][file]") {
     MigrationWizardModel model;
-    nlohmann::json project_data = {
-        {"scenes", {
-            {{"symbol", "item"}, {"name", "Items"}}
-        }}
-    };
+    nlohmann::json project_data = {{"scenes", {{{"symbol", "item"}, {"name", "Items"}}}}};
     model.runFullMigration(project_data);
     REQUIRE(model.getReport().total_files_processed > 0);
 
-    const std::string temp_path = (std::filesystem::temp_directory_path() / "urpg_migration_wizard_bad_test.json").string();
+    const std::string temp_path =
+        (std::filesystem::temp_directory_path() / "urpg_migration_wizard_bad_test.json").string();
     {
         std::ofstream ofs(temp_path);
         ofs << "this is not json";
@@ -1131,7 +943,8 @@ TEST_CASE("MigrationWizardModel: loadReportFromFile with bad file returns false 
 
     std::filesystem::remove(temp_path);
 
-    const std::string nonexistent = (std::filesystem::temp_directory_path() / "urpg_migration_wizard_does_not_exist.json").string();
+    const std::string nonexistent =
+        (std::filesystem::temp_directory_path() / "urpg_migration_wizard_does_not_exist.json").string();
     std::filesystem::remove(nonexistent);
     REQUIRE_FALSE(model.loadReportFromFile(nonexistent));
     REQUIRE(model.getReport().total_files_processed == 0);
@@ -1141,11 +954,7 @@ TEST_CASE("MigrationWizardPanel: failed load clears previously bound runtime aff
           "[editor][diagnostics][wizard][panel][file][failure][bound_runtime]") {
     MigrationWizardPanel panel;
     panel.setVisible(true);
-    panel.onProjectUpdateRequested({
-        {"scenes", {
-            {{"symbol", "item"}, {"name", "Items"}}
-        }}
-    });
+    panel.onProjectUpdateRequested({{"scenes", {{{"symbol", "item"}, {"name", "Items"}}}}});
     panel.render();
 
     REQUIRE(panel.lastRenderSnapshot().has_bound_project_data);
@@ -1179,13 +988,10 @@ TEST_CASE("MigrationWizardPanel: failed load clears previously bound runtime aff
     std::filesystem::remove(temp_path);
 }
 
-TEST_CASE("MigrationWizardPanel: save/load report forwards to model and snapshot exposes flags", "[editor][diagnostics][wizard][panel][file]") {
+TEST_CASE("MigrationWizardPanel: save/load report forwards to model and snapshot exposes flags",
+          "[editor][diagnostics][wizard][panel][file]") {
     MigrationWizardPanel panel;
-    nlohmann::json project_data = {
-        {"scenes", {
-            {{"symbol", "item"}, {"name", "Items"}}
-        }}
-    };
+    nlohmann::json project_data = {{"scenes", {{{"symbol", "item"}, {"name", "Items"}}}}};
     panel.onProjectUpdateRequested(project_data);
     panel.setVisible(true);
     panel.render();
@@ -1193,7 +999,8 @@ TEST_CASE("MigrationWizardPanel: save/load report forwards to model and snapshot
     REQUIRE(panel.lastRenderSnapshot().can_save_report);
     REQUIRE(panel.lastRenderSnapshot().can_load_report);
 
-    const std::string temp_path = (std::filesystem::temp_directory_path() / "urpg_migration_wizard_panel_test.json").string();
+    const std::string temp_path =
+        (std::filesystem::temp_directory_path() / "urpg_migration_wizard_panel_test.json").string();
     std::filesystem::remove(temp_path);
     REQUIRE(panel.saveReportToFile(temp_path));
     REQUIRE(std::filesystem::exists(temp_path));
@@ -1220,11 +1027,7 @@ TEST_CASE("MigrationWizardPanel: saving a report preserves bound runtime afforda
           "[editor][diagnostics][wizard][panel][file][save_binding]") {
     MigrationWizardPanel panel;
     panel.setVisible(true);
-    panel.onProjectUpdateRequested({
-        {"scenes", {
-            {{"symbol", "item"}, {"name", "Items"}}
-        }}
-    });
+    panel.onProjectUpdateRequested({{"scenes", {{{"symbol", "item"}, {"name", "Items"}}}}});
     panel.render();
 
     REQUIRE(panel.lastRenderSnapshot().has_bound_project_data);
@@ -1264,19 +1067,15 @@ TEST_CASE("MigrationWizardPanel: load report repairs orphaned selected subsystem
         {"error_count", 0},
         {"is_complete", true},
         {"summary_logs", {"Menu migration: 1 scene panel(s), 1 command(s).", "Migration wizard complete."}},
-        {"subsystem_results", {
-            {
-                {"subsystem_id", "menu"},
-                {"display_name", "Menu"},
-                {"processed_count", 1},
-                {"warning_count", 0},
-                {"error_count", 0},
-                {"completed", true},
-                {"summary_line", "Menu migration: 1 scene panel(s), 1 command(s)."}
-            }
-        }},
-        {"selected_subsystem_id", "missing"}
-    };
+        {"subsystem_results",
+         {{{"subsystem_id", "menu"},
+           {"display_name", "Menu"},
+           {"processed_count", 1},
+           {"warning_count", 0},
+           {"error_count", 0},
+           {"completed", true},
+           {"summary_line", "Menu migration: 1 scene panel(s), 1 command(s)."}}}},
+        {"selected_subsystem_id", "missing"}};
 
     {
         std::ofstream ofs(temp_path);
@@ -1315,38 +1114,29 @@ TEST_CASE("MigrationWizardPanel: loading a saved report renders workflow cards w
         (std::filesystem::temp_directory_path() / "urpg_migration_wizard_panel_loaded_workflow.json").string();
     std::filesystem::remove(temp_path);
 
-    nlohmann::json report_json = {
-        {"total_files_processed", 2},
-        {"warning_count", 1},
-        {"error_count", 0},
-        {"is_complete", true},
-        {"summary_logs", {
-            "Message migration: 1 dialogue sequence(s), 1 diagnostic(s).",
-            "Menu migration: 1 scene panel(s), 1 command(s).",
-            "Migration wizard complete."
-        }},
-        {"subsystem_results", {
-            {
-                {"subsystem_id", "message"},
-                {"display_name", "Message"},
-                {"processed_count", 1},
-                {"warning_count", 1},
-                {"error_count", 0},
-                {"completed", true},
-                {"summary_line", "Message migration: 1 dialogue sequence(s), 1 diagnostic(s)."}
-            },
-            {
-                {"subsystem_id", "menu"},
-                {"display_name", "Menu"},
-                {"processed_count", 1},
-                {"warning_count", 0},
-                {"error_count", 0},
-                {"completed", true},
-                {"summary_line", "Menu migration: 1 scene panel(s), 1 command(s)."}
-            }
-        }},
-        {"selected_subsystem_id", "menu"}
-    };
+    nlohmann::json report_json = {{"total_files_processed", 2},
+                                  {"warning_count", 1},
+                                  {"error_count", 0},
+                                  {"is_complete", true},
+                                  {"summary_logs",
+                                   {"Message migration: 1 dialogue sequence(s), 1 diagnostic(s).",
+                                    "Menu migration: 1 scene panel(s), 1 command(s).", "Migration wizard complete."}},
+                                  {"subsystem_results",
+                                   {{{"subsystem_id", "message"},
+                                     {"display_name", "Message"},
+                                     {"processed_count", 1},
+                                     {"warning_count", 1},
+                                     {"error_count", 0},
+                                     {"completed", true},
+                                     {"summary_line", "Message migration: 1 dialogue sequence(s), 1 diagnostic(s)."}},
+                                    {{"subsystem_id", "menu"},
+                                     {"display_name", "Menu"},
+                                     {"processed_count", 1},
+                                     {"warning_count", 0},
+                                     {"error_count", 0},
+                                     {"completed", true},
+                                     {"summary_line", "Menu migration: 1 scene panel(s), 1 command(s)."}}}},
+                                  {"selected_subsystem_id", "menu"}};
 
     {
         std::ofstream ofs(temp_path);
@@ -1381,11 +1171,7 @@ TEST_CASE("MigrationWizardPanel: loading a report clears any previously bound ru
     MigrationWizardPanel panel;
     panel.setVisible(true);
 
-    panel.onProjectUpdateRequested({
-        {"scenes", {
-            {{"symbol", "item"}, {"name", "Items"}}
-        }}
-    });
+    panel.onProjectUpdateRequested({{"scenes", {{{"symbol", "item"}, {"name", "Items"}}}}});
     panel.render();
     REQUIRE(panel.lastRenderSnapshot().has_bound_project_data);
     REQUIRE(panel.lastRenderSnapshot().can_rerun_bound_migration);
@@ -1400,19 +1186,15 @@ TEST_CASE("MigrationWizardPanel: loading a report clears any previously bound ru
         {"error_count", 0},
         {"is_complete", true},
         {"summary_logs", {"Menu migration: 1 scene panel(s), 1 command(s).", "Migration wizard complete."}},
-        {"subsystem_results", {
-            {
-                {"subsystem_id", "menu"},
-                {"display_name", "Menu"},
-                {"processed_count", 1},
-                {"warning_count", 0},
-                {"error_count", 0},
-                {"completed", true},
-                {"summary_line", "Menu migration: 1 scene panel(s), 1 command(s)."}
-            }
-        }},
-        {"selected_subsystem_id", "menu"}
-    };
+        {"subsystem_results",
+         {{{"subsystem_id", "menu"},
+           {"display_name", "Menu"},
+           {"processed_count", 1},
+           {"warning_count", 0},
+           {"error_count", 0},
+           {"completed", true},
+           {"summary_line", "Menu migration: 1 scene panel(s), 1 command(s)."}}}},
+        {"selected_subsystem_id", "menu"}};
 
     {
         std::ofstream ofs(temp_path);
@@ -1441,48 +1223,37 @@ TEST_CASE("MigrationWizardModel: issue navigation skips clean subsystem results"
         (std::filesystem::temp_directory_path() / "urpg_migration_wizard_issue_navigation_model.json").string();
     std::filesystem::remove(temp_path);
 
-    nlohmann::json report_json = {
-        {"total_files_processed", 3},
-        {"warning_count", 2},
-        {"error_count", 1},
-        {"is_complete", true},
-        {"summary_logs", {
-            "Message migration: 1 dialogue sequence(s), 2 diagnostic(s).",
-            "Menu migration: 1 scene panel(s), 1 command(s).",
-            "Battle migration: 1 troop(s), 3 action(s).",
-            "Migration wizard complete."
-        }},
-        {"subsystem_results", {
-            {
-                {"subsystem_id", "message"},
-                {"display_name", "Message"},
-                {"processed_count", 1},
-                {"warning_count", 2},
-                {"error_count", 0},
-                {"completed", true},
-                {"summary_line", "Message migration: 1 dialogue sequence(s), 2 diagnostic(s)."}
-            },
-            {
-                {"subsystem_id", "menu"},
-                {"display_name", "Menu"},
-                {"processed_count", 1},
-                {"warning_count", 0},
-                {"error_count", 0},
-                {"completed", true},
-                {"summary_line", "Menu migration: 1 scene panel(s), 1 command(s)."}
-            },
-            {
-                {"subsystem_id", "battle"},
-                {"display_name", "Battle"},
-                {"processed_count", 1},
-                {"warning_count", 0},
-                {"error_count", 1},
-                {"completed", true},
-                {"summary_line", "Battle migration: 1 troop(s), 3 action(s)."}
-            }
-        }},
-        {"selected_subsystem_id", "message"}
-    };
+    nlohmann::json report_json = {{"total_files_processed", 3},
+                                  {"warning_count", 2},
+                                  {"error_count", 1},
+                                  {"is_complete", true},
+                                  {"summary_logs",
+                                   {"Message migration: 1 dialogue sequence(s), 2 diagnostic(s).",
+                                    "Menu migration: 1 scene panel(s), 1 command(s).",
+                                    "Battle migration: 1 troop(s), 3 action(s).", "Migration wizard complete."}},
+                                  {"subsystem_results",
+                                   {{{"subsystem_id", "message"},
+                                     {"display_name", "Message"},
+                                     {"processed_count", 1},
+                                     {"warning_count", 2},
+                                     {"error_count", 0},
+                                     {"completed", true},
+                                     {"summary_line", "Message migration: 1 dialogue sequence(s), 2 diagnostic(s)."}},
+                                    {{"subsystem_id", "menu"},
+                                     {"display_name", "Menu"},
+                                     {"processed_count", 1},
+                                     {"warning_count", 0},
+                                     {"error_count", 0},
+                                     {"completed", true},
+                                     {"summary_line", "Menu migration: 1 scene panel(s), 1 command(s)."}},
+                                    {{"subsystem_id", "battle"},
+                                     {"display_name", "Battle"},
+                                     {"processed_count", 1},
+                                     {"warning_count", 0},
+                                     {"error_count", 1},
+                                     {"completed", true},
+                                     {"summary_line", "Battle migration: 1 troop(s), 3 action(s)."}}}},
+                                  {"selected_subsystem_id", "message"}};
 
     {
         std::ofstream ofs(temp_path);
@@ -1530,48 +1301,37 @@ TEST_CASE("MigrationWizardPanel: render snapshot exposes issue-focused navigatio
         (std::filesystem::temp_directory_path() / "urpg_migration_wizard_issue_navigation_panel.json").string();
     std::filesystem::remove(temp_path);
 
-    nlohmann::json report_json = {
-        {"total_files_processed", 3},
-        {"warning_count", 1},
-        {"error_count", 1},
-        {"is_complete", true},
-        {"summary_logs", {
-            "Message migration: 1 dialogue sequence(s), 1 diagnostic(s).",
-            "Menu migration: 1 scene panel(s), 1 command(s).",
-            "Battle migration: 1 troop(s), 3 action(s).",
-            "Migration wizard complete."
-        }},
-        {"subsystem_results", {
-            {
-                {"subsystem_id", "message"},
-                {"display_name", "Message"},
-                {"processed_count", 1},
-                {"warning_count", 1},
-                {"error_count", 0},
-                {"completed", true},
-                {"summary_line", "Message migration: 1 dialogue sequence(s), 1 diagnostic(s)."}
-            },
-            {
-                {"subsystem_id", "menu"},
-                {"display_name", "Menu"},
-                {"processed_count", 1},
-                {"warning_count", 0},
-                {"error_count", 0},
-                {"completed", true},
-                {"summary_line", "Menu migration: 1 scene panel(s), 1 command(s)."}
-            },
-            {
-                {"subsystem_id", "battle"},
-                {"display_name", "Battle"},
-                {"processed_count", 1},
-                {"warning_count", 0},
-                {"error_count", 1},
-                {"completed", true},
-                {"summary_line", "Battle migration: 1 troop(s), 3 action(s)."}
-            }
-        }},
-        {"selected_subsystem_id", "message"}
-    };
+    nlohmann::json report_json = {{"total_files_processed", 3},
+                                  {"warning_count", 1},
+                                  {"error_count", 1},
+                                  {"is_complete", true},
+                                  {"summary_logs",
+                                   {"Message migration: 1 dialogue sequence(s), 1 diagnostic(s).",
+                                    "Menu migration: 1 scene panel(s), 1 command(s).",
+                                    "Battle migration: 1 troop(s), 3 action(s).", "Migration wizard complete."}},
+                                  {"subsystem_results",
+                                   {{{"subsystem_id", "message"},
+                                     {"display_name", "Message"},
+                                     {"processed_count", 1},
+                                     {"warning_count", 1},
+                                     {"error_count", 0},
+                                     {"completed", true},
+                                     {"summary_line", "Message migration: 1 dialogue sequence(s), 1 diagnostic(s)."}},
+                                    {{"subsystem_id", "menu"},
+                                     {"display_name", "Menu"},
+                                     {"processed_count", 1},
+                                     {"warning_count", 0},
+                                     {"error_count", 0},
+                                     {"completed", true},
+                                     {"summary_line", "Menu migration: 1 scene panel(s), 1 command(s)."}},
+                                    {{"subsystem_id", "battle"},
+                                     {"display_name", "Battle"},
+                                     {"processed_count", 1},
+                                     {"warning_count", 0},
+                                     {"error_count", 1},
+                                     {"completed", true},
+                                     {"summary_line", "Battle migration: 1 troop(s), 3 action(s)."}}}},
+                                  {"selected_subsystem_id", "message"}};
 
     {
         std::ofstream ofs(temp_path);

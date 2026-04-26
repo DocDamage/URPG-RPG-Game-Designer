@@ -1,9 +1,9 @@
 #pragma once
 
-#include "world.h"
 #include "actor_components.h"
 #include "engine/core/character/character_identity.h"
 #include "engine/core/character/character_identity_component.h"
+#include "world.h"
 #include <memory>
 #include <string>
 
@@ -13,7 +13,7 @@ namespace urpg {
  * @brief High-level manager for creating and accessing Actors via the ECS.
  */
 class ActorManager {
-public:
+  public:
     ActorManager(World& world) : world_(world) {}
 
     /**
@@ -24,16 +24,16 @@ public:
      */
     EntityID CreateActor(const std::string& name, bool isEnemy = false) {
         EntityID id = world_.CreateEntity();
-        
+
         ActorComponent actor;
         actor.name = name;
         actor.isEnemy = isEnemy;
         world_.AddComponent(id, actor);
-        
+
         world_.AddComponent(id, TransformComponent{});
         world_.AddComponent(id, VisualComponent{});
         world_.AddComponent(id, VelocityComponent{});
-        
+
         return id;
     }
 
@@ -58,9 +58,7 @@ public:
     /**
      * @brief Get Actor component data.
      */
-    ActorComponent* GetActor(EntityID id) {
-        return world_.GetComponent<ActorComponent>(id);
-    }
+    ActorComponent* GetActor(EntityID id) { return world_.GetComponent<ActorComponent>(id); }
 
     /**
      * @brief Check if actor is an enemy.
@@ -95,7 +93,7 @@ public:
         return id;
     }
 
-private:
+  private:
     World& world_;
 };
 

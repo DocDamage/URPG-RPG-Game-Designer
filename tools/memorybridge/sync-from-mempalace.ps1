@@ -67,4 +67,3 @@ if ($Strict) {
 if ($LASTEXITCODE -ne 0) {
     throw "MemPalace -> ContextLattice sync failed with exit code $LASTEXITCODE."
 }
-

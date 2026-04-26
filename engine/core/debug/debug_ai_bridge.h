@@ -11,14 +11,12 @@ namespace urpg::ai {
  * This allows the AI to analyze call-stacks and watch-tables to explain bugs.
  */
 class DebugKnowledgeBridge {
-public:
+  public:
     /**
      * @brief Generates a prompt describing the current PAUSED debug state.
      */
-    static std::string generateDebugPrompt(
-        const urpg::DebugRuntimeSession& session,
-        const std::string& error_message = ""
-    );
+    static std::string generateDebugPrompt(const urpg::DebugRuntimeSession& session,
+                                           const std::string& error_message = "");
 
     /**
      * @brief Formats the call stack for the LLM.

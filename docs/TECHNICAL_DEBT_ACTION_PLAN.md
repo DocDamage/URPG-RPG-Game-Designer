@@ -1,7 +1,7 @@
 # URPG Technical Debt Action Plan
 
-Date: 2026-04-23  
-Status: active execution annex  
+Date: 2026-04-23
+Status: active execution annex
 Scope: turn the current technical-debt audit into bounded sprint work with explicit checklists, dependencies, and exit criteria
 
 This file is an execution annex to the canonical debt/status stack:

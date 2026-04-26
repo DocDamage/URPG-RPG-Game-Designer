@@ -1,11 +1,11 @@
 #pragma once
 
+#include "engine/core/math/vector2.h"
+#include "engine/core/platform/gl_texture.h"
+#include "engine/core/sprite_batcher.h"
 #include <memory>
 #include <string>
 #include <vector>
-#include "engine/core/platform/gl_texture.h"
-#include "engine/core/sprite_batcher.h"
-#include "engine/core/math/vector2.h"
 
 namespace urpg {
 
@@ -14,7 +14,7 @@ namespace urpg {
  * Optimized for RPG Maker MZ/MV character sheets (3x4 or 12x8 layouts).
  */
 class SpriteAnimator {
-public:
+  public:
     struct AtlasFrame {
         std::string id;
         int x = 0;
@@ -49,15 +49,14 @@ public:
     };
 
     struct AnimationConfig {
-        int framesX = 3;      // Frames per row
-        int framesY = 4;      // Frames per column (directions)
+        int framesX = 3;             // Frames per row
+        int framesY = 4;             // Frames per column (directions)
         float frameDuration = 0.15f; // Time per frame in seconds
     };
 
     SpriteAnimator(const std::shared_ptr<Texture>& texture);
     SpriteAnimator(const std::shared_ptr<Texture>& texture, const AnimationConfig& config);
-    SpriteAnimator(const std::shared_ptr<Texture>& texture,
-                   const AtlasDefinition& atlas,
+    SpriteAnimator(const std::shared_ptr<Texture>& texture, const AtlasDefinition& atlas,
                    const std::string& animationId);
     ~SpriteAnimator() = default;
 
@@ -77,10 +76,18 @@ public:
      */
     void setDirection(Direction dir) {
         switch (dir) {
-            case Direction::Down:  setRow(0); break;
-            case Direction::Left:  setRow(1); break;
-            case Direction::Right: setRow(2); break;
-            case Direction::Up:    setRow(3); break;
+        case Direction::Down:
+            setRow(0);
+            break;
+        case Direction::Left:
+            setRow(1);
+            break;
+        case Direction::Right:
+            setRow(2);
+            break;
+        case Direction::Up:
+            setRow(3);
+            break;
         }
     }
 
@@ -115,11 +122,11 @@ public:
      */
     std::shared_ptr<Texture> getTexture() const { return m_texture; }
 
-private:
+  private:
     std::shared_ptr<Texture> m_texture;
     AnimationConfig m_config;
     AtlasDefinition m_atlas;
-    
+
     int m_currentRow = 0;
     int m_currentFrame = 0;
     int m_currentAtlasFrameIndex = 0;

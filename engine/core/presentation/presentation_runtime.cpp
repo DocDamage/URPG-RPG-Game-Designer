@@ -1,15 +1,13 @@
 #include "presentation_runtime.h"
-#include "map_scene_translator.h"
 #include "battle_scene_translator.h"
 #include "effects/effect_resolver.h"
 #include "effects/effect_translator.h"
+#include "map_scene_translator.h"
 
 namespace urpg::presentation {
 
-PresentationFrameIntent PresentationRuntime::BuildPresentationFrame(
-    const PresentationContext& context,
-    const PresentationAuthoringData& data) 
-{
+PresentationFrameIntent PresentationRuntime::BuildPresentationFrame(const PresentationContext& context,
+                                                                    const PresentationAuthoringData& data) {
     PresentationFrameIntent intent;
     // Use context values if they differ from project defaults (runtime overrides)
     intent.activeMode = context.activeMode;
@@ -25,7 +23,7 @@ PresentationFrameIntent PresentationRuntime::BuildPresentationFrame(
     // 2. World Spatial Pass (The core MapScene/BattleScene emission)
     RenderPass worldPass{"WorldSpatial", RenderPassType::WorldSpatial};
     worldPass.commandStartIndex = intent.commands.size();
-    
+
     // Dispatch to correct scene translator
     if (!context.battleState.battleArenaId.empty()) {
         BattleSceneTranslatorImpl battleTranslator;

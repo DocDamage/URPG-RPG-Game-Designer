@@ -80,7 +80,13 @@ if ([string]::IsNullOrWhiteSpace($RepoRoot)) {
 }
 
 if ([string]::IsNullOrWhiteSpace($PluginRoot)) {
-    $PluginRoot = Join-Path $RepoRoot "third_party/rpgmaker-mz/steam-dlc/plugin-dropins/js/plugins"
+    $curatedPluginRoot = Join-Path $RepoRoot "third_party/rpgmaker-mz/steam-dlc/plugin-dropins-curated/js/plugins"
+    $rawPluginRoot = Join-Path $RepoRoot "third_party/rpgmaker-mz/steam-dlc/plugin-dropins/js/plugins"
+    if (Test-Path -LiteralPath $curatedPluginRoot) {
+        $PluginRoot = $curatedPluginRoot
+    } else {
+        $PluginRoot = $rawPluginRoot
+    }
 } elseif (-not [System.IO.Path]::IsPathRooted($PluginRoot)) {
     $PluginRoot = Join-Path $RepoRoot $PluginRoot
 }
@@ -176,8 +182,8 @@ foreach ($g in $keyGroups) {
     }
 }
 
-$errorCount = ($issueRows | Where-Object { $_.Severity -eq "ERROR" }).Count
-$warnCount = ($issueRows | Where-Object { $_.Severity -eq "WARN" }).Count
+$errorCount = @($issueRows | Where-Object { $_.Severity -eq "ERROR" }).Count
+$warnCount = @($issueRows | Where-Object { $_.Severity -eq "WARN" }).Count
 $summary = [PSCustomObject]@{
     GeneratedAt = (Get-Date -Format "yyyy-MM-ddTHH:mm:sszzz")
     RepoRoot = $RepoRoot

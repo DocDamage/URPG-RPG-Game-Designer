@@ -1,14 +1,16 @@
 #include "security_manager.h"
-#include <iostream>
+#include "engine/core/diagnostics/runtime_diagnostics.h"
 #include <algorithm>
 
 namespace urpg::editor {
 
 bool PluginSecurityManager::requestPermission(const std::string& pluginId, PluginPermission permission) {
-    if (pluginId.empty()) return false;
+    if (pluginId.empty())
+        return false;
 
     // Check if we already have it
-    if (hasPermission(pluginId, permission)) return true;
+    if (hasPermission(pluginId, permission))
+        return true;
 
     // Check if it's in the default policy
     if (m_defaultPolicy.test(static_cast<size_t>(permission))) {
@@ -45,16 +47,30 @@ void PluginSecurityManager::revokeAll(const std::string& pluginId) {
 void PluginSecurityManager::logAudit(const std::string& pluginId, PluginPermission permission, bool granted) {
     std::string permStr;
     switch (permission) {
-        case PluginPermission::FileSystemRead: permStr = "FileSystemRead"; break;
-        case PluginPermission::FileSystemWrite: permStr = "FileSystemWrite"; break;
-        case PluginPermission::NetworkAccess: permStr = "NetworkAccess"; break;
-        case PluginPermission::GlobalStateEdit: permStr = "GlobalStateEdit"; break;
-        case PluginPermission::ECSDestructive: permStr = "ECSDestructive"; break;
-        default: permStr = "Unknown"; break;
+    case PluginPermission::FileSystemRead:
+        permStr = "FileSystemRead";
+        break;
+    case PluginPermission::FileSystemWrite:
+        permStr = "FileSystemWrite";
+        break;
+    case PluginPermission::NetworkAccess:
+        permStr = "NetworkAccess";
+        break;
+    case PluginPermission::GlobalStateEdit:
+        permStr = "GlobalStateEdit";
+        break;
+    case PluginPermission::ECSDestructive:
+        permStr = "ECSDestructive";
+        break;
+    default:
+        permStr = "Unknown";
+        break;
     }
 
-    std::cout << "[Security Audit] Plugin '" << pluginId << "' requested " << permStr 
-              << (granted ? ": GRANTED" : ": DENIED") << std::endl;
+    urpg::diagnostics::RuntimeDiagnostics::emit(
+        granted ? urpg::diagnostics::DiagnosticSeverity::Info : urpg::diagnostics::DiagnosticSeverity::Warning,
+        "editor.security", granted ? "plugin.permission.granted" : "plugin.permission.denied",
+        "Plugin '" + pluginId + "' requested " + permStr + (granted ? ": GRANTED" : ": DENIED"));
 }
 
 } // namespace urpg::editor

@@ -22,14 +22,16 @@ GameplayAbility::ActivationCheckResult GameplayAbility::evaluateActivation(const
     result.current_mp = current_mp;
 
     // Required tags check
-    if (!sourceTags.hasAllTags(std::vector<GameplayTag>(info.requiredTags.getTags().begin(), info.requiredTags.getTags().end()))) {
+    if (!sourceTags.hasAllTags(
+            std::vector<GameplayTag>(info.requiredTags.getTags().begin(), info.requiredTags.getTags().end()))) {
         result.allowed = false;
         result.reason = "missing_required_tags";
         return result;
     }
 
     // Blocking tags check
-    if (sourceTags.hasAnyTags(std::vector<GameplayTag>(info.blockingTags.getTags().begin(), info.blockingTags.getTags().end()))) {
+    if (sourceTags.hasAnyTags(
+            std::vector<GameplayTag>(info.blockingTags.getTags().begin(), info.blockingTags.getTags().end()))) {
         result.allowed = false;
         result.reason = "blocking_tags_present";
         return result;
@@ -63,8 +65,9 @@ GameplayAbility::ActivationCheckResult GameplayAbility::evaluateActivation(const
     return result;
 }
 
-GameplayAbility::ActivationCheckResult GameplayAbility::evaluateActivation(const AbilitySystemComponent& source,
-                                                                          const AbilityExecutionContext& context) const {
+GameplayAbility::ActivationCheckResult
+GameplayAbility::evaluateActivation(const AbilitySystemComponent& source,
+                                    const AbilityExecutionContext& context) const {
     (void)context;
     return evaluateActivation(source);
 }
@@ -89,7 +92,7 @@ void GameplayAbility::commitAbility(AbilitySystemComponent& source) {
 }
 
 void GameplayAbility::update(float deltaTime) {
-    for (auto it = m_activeTasks.begin(); it != m_activeTasks.end(); ) {
+    for (auto it = m_activeTasks.begin(); it != m_activeTasks.end();) {
         (*it)->tick(deltaTime);
         if ((*it)->isFinished()) {
             it = m_activeTasks.erase(it);
@@ -136,32 +139,15 @@ bool AbilitySystemComponent::tryActivateAbility(GameplayAbility& ability) {
     const float mp_before = getAttribute("MP", defaultBaseAttribute("MP"));
 
     if (!check.allowed) {
-        recordAbilityExecution(
-            ability.getId(),
-            "activate",
-            "blocked",
-            check.reason,
-            "",
-            mp_before,
-            mp_before,
-            getCooldownRemaining(ability.getId()),
-            m_activeEffects.size(),
-            check.detail);
+        recordAbilityExecution(ability.getId(), "activate", "blocked", check.reason, "", mp_before, mp_before,
+                               getCooldownRemaining(ability.getId()), m_activeEffects.size(), check.detail);
         return false;
     }
 
     ability.activate(*this);
     const float mp_after = getAttribute("MP", defaultBaseAttribute("MP"));
-    recordAbilityExecution(
-        ability.getId(),
-        "activate",
-        "executed",
-        "",
-        "",
-        mp_before,
-        mp_after,
-        getCooldownRemaining(ability.getId()),
-        m_activeEffects.size());
+    recordAbilityExecution(ability.getId(), "activate", "executed", "", "", mp_before, mp_after,
+                           getCooldownRemaining(ability.getId()), m_activeEffects.size());
     return true;
 }
 
@@ -171,42 +157,27 @@ bool AbilitySystemComponent::tryActivateAbility(GameplayAbility& ability,
     const float mp_before = getAttribute("MP", defaultBaseAttribute("MP"));
 
     if (!check.allowed) {
-        recordAbilityExecution(
-            ability.getId(),
-            "activate",
-            "blocked",
-            check.reason,
-            "",
-            mp_before,
-            mp_before,
-            getCooldownRemaining(ability.getId()),
-            m_activeEffects.size(),
-            check.detail);
+        recordAbilityExecution(ability.getId(), "activate", "blocked", check.reason, "", mp_before, mp_before,
+                               getCooldownRemaining(ability.getId()), m_activeEffects.size(), check.detail);
         return false;
     }
 
     ability.activate(*this, context);
     const float mp_after = getAttribute("MP", defaultBaseAttribute("MP"));
-    recordAbilityExecution(
-        ability.getId(),
-        "activate",
-        "executed",
-        "",
-        "",
-        mp_before,
-        mp_after,
-        getCooldownRemaining(ability.getId()),
-        m_activeEffects.size());
+    recordAbilityExecution(ability.getId(), "activate", "executed", "", "", mp_before, mp_after,
+                           getCooldownRemaining(ability.getId()), m_activeEffects.size());
     return true;
 }
 
-bool AbilitySystemComponent::isTargetInPattern(const GameplayAbility& ability, int32_t sourceX, int32_t sourceY, int32_t targetX, int32_t targetY) const {
+bool AbilitySystemComponent::isTargetInPattern(const GameplayAbility& ability, int32_t sourceX, int32_t sourceY,
+                                               int32_t targetX, int32_t targetY) const {
     const auto& info = ability.getActivationInfo();
-    if (!info.pattern) return true; // No pattern means distance and placement aren't restricted by GAF
+    if (!info.pattern)
+        return true; // No pattern means distance and placement aren't restricted by GAF
 
     int32_t dx = targetX - sourceX;
     int32_t dy = targetY - sourceY;
-    
+
     return info.pattern->hasPoint(dx, dy);
 }
 

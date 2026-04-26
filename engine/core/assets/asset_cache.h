@@ -1,10 +1,10 @@
 #pragma once
 
-#include <string>
-#include <unordered_map>
+#include <list>
 #include <memory>
 #include <mutex>
-#include <list>
+#include <string>
+#include <unordered_map>
 
 namespace urpg {
 
@@ -12,22 +12,21 @@ namespace urpg {
  * @brief Base class for any asset managed by the AssetCache.
  */
 class Asset {
-public:
+  public:
     virtual ~Asset() = default;
-    
+
     const std::string& getId() const { return m_id; }
     void setId(const std::string& id) { m_id = id; }
 
-protected:
+  protected:
     std::string m_id;
 };
 
 /**
  * @brief Thread-safe template-based asset cache with LRU eviction logic.
  */
-template<typename T>
-class AssetCache {
-public:
+template<typename T> class AssetCache {
+  public:
     static_assert(std::is_base_of<Asset, T>::value, "T must inherit from urpg::Asset");
 
     explicit AssetCache(size_t capacity = 100) : m_capacity(capacity) {}
@@ -36,9 +35,10 @@ public:
      * @brief Stores an asset in the cache. Evicts least recently used if capacity is reached.
      */
     void store(std::shared_ptr<T> asset) {
-        if (!asset || asset->getId().empty()) return;
+        if (!asset || asset->getId().empty())
+            return;
         std::lock_guard<std::mutex> lock(m_mutex);
-        
+
         const std::string& id = asset->getId();
         auto it = m_cacheMap.find(id);
 
@@ -124,7 +124,7 @@ public:
         }
     }
 
-private:
+  private:
     size_t m_capacity;
     std::list<std::shared_ptr<T>> m_lruList;
     std::unordered_map<std::string, typename std::list<std::shared_ptr<T>>::iterator> m_cacheMap;

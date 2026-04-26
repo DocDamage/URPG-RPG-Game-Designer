@@ -4,9 +4,12 @@ repos:
     hooks:
       - id: check-merge-conflict
       - id: check-json
+        exclude: ^content/fixtures/feature_governance/(negative/)?governance_manifest\.json$
       - id: check-yaml
       - id: trailing-whitespace
+        exclude: ^(build[^/]*|imports|third_party)/
       - id: end-of-file-fixer
+        exclude: ^(build[^/]*|imports|third_party)/
 
   - repo: https://github.com/astral-sh/ruff-pre-commit
     rev: v0.14.1
@@ -16,3 +19,18 @@ repos:
         files: ^tools/.*\.py$
       - id: ruff-format
         files: ^tools/.*\.py$
+
+  - repo: local
+    hooks:
+      - id: urpg-clang-format
+        name: clang-format C/C++ sources
+        entry: python tools/ci/check_cpp_style_static.py --mode format --changed
+        language: system
+        files: \.(c|cc|cpp|cxx|h|hh|hpp|hxx)$
+        exclude: ^(\.cache|build[^/]*|imports|third_party)/
+      - id: urpg-clang-tidy
+        name: clang-tidy C/C++ translation units
+        entry: python tools/ci/check_cpp_style_static.py --mode tidy --changed
+        language: system
+        files: \.(c|cc|cpp|cxx)$
+        exclude: ^(\.cache|build[^/]*|imports|third_party)/

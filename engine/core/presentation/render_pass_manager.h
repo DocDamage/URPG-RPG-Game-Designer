@@ -1,8 +1,8 @@
 #pragma once
 
 #include "presentation_types.h"
-#include <vector>
 #include <string>
+#include <vector>
 
 namespace urpg::presentation {
 
@@ -11,11 +11,11 @@ namespace urpg::presentation {
  * ADR-007: Strict separation of visual layers.
  */
 enum class RenderPassType {
-    Background,     // Static environment/Skybox
-    WorldSpatial,   // Map, Actors, Props (Depth Sorted)
-    WorldOverlay,   // Combat damage numbers, local world-space icons
-    UserInterface,  // Global HUD, Menus, Dialogue
-    Debug           // Collision bounds, wireframes, stats
+    Background,    // Static environment/Skybox
+    WorldSpatial,  // Map, Actors, Props (Depth Sorted)
+    WorldOverlay,  // Combat damage numbers, local world-space icons
+    UserInterface, // Global HUD, Menus, Dialogue
+    Debug          // Collision bounds, wireframes, stats
 };
 
 /**
@@ -25,7 +25,7 @@ enum class RenderPassType {
 struct RenderPass {
     std::string passName;
     RenderPassType type;
-    
+
     // Policy identifiers
     bool useDepthTesting = true;
     bool useAlphaBlending = false;
@@ -41,31 +41,25 @@ struct RenderPass {
  * Section 11.2: Render Execution Pipeline
  */
 class RenderPassManager {
-public:
+  public:
     RenderPassManager() = default;
 
     /**
      * @brief Resets the pass sequence for a new frame.
      */
-    void Reset() {
-        m_passes.clear();
-    }
+    void Reset() { m_passes.clear(); }
 
     /**
      * @brief Adds a new pass to the current frame.
      */
-    void AddPass(const RenderPass& pass) {
-        m_passes.push_back(pass);
-    }
+    void AddPass(const RenderPass& pass) { m_passes.push_back(pass); }
 
     /**
      * @brief Retrieves the current pass sequence.
      */
-    const std::vector<RenderPass>& GetPasses() const {
-        return m_passes;
-    }
+    const std::vector<RenderPass>& GetPasses() const { return m_passes; }
 
-private:
+  private:
     std::vector<RenderPass> m_passes;
 };
 

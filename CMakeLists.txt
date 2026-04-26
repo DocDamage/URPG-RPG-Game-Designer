@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.23)
-project(urpg LANGUAGES CXX)
+project(urpg LANGUAGES C CXX)
 
 include(CheckCXXSourceCompiles)
 
@@ -57,6 +57,7 @@ option(
     "On Windows, stop stale local test runner processes before relinking test executables"
     ON
 )
+option(URPG_FETCH_QUICKJS_NG "Fetch QuickJS-NG via CMake" ON)
 
 if(URPG_USE_SCCACHE)
     find_program(SCCACHE_PROGRAM NAMES sccache)
@@ -253,6 +254,7 @@ add_library(urpg_core
     engine/core/character/character_identity_validator.cpp
     engine/core/character/character_creation_screen.cpp
     engine/core/character/character_identity_system.cpp
+    engine/core/character/character_save_state.cpp
     engine/core/achievement/achievement_registry.cpp
     engine/core/achievement/achievement_trigger.cpp
     engine/core/achievement/achievement_validator.cpp
@@ -277,6 +279,7 @@ add_library(urpg_core
     engine/core/message/message_core.cpp
     engine/core/message/ai_sync_coordinator.cpp
     engine/core/message/dialogue_registry.cpp
+    engine/core/message/dialogue_project_loader.cpp
     engine/core/message/message_migration.cpp
     engine/core/localization/locale_catalog.cpp
     engine/core/localization/completeness_checker.cpp
@@ -362,6 +365,7 @@ add_library(urpg_core
     editor/accessibility/accessibility_audio_adapter.cpp
     editor/accessibility/accessibility_battle_adapter.cpp
     editor/audio/audio_mix_panel.cpp
+    engine/core/audio/audio_runtime_backend.cpp
     editor/input/input_remap_panel.cpp
     editor/platform/device_profile_panel.cpp
     editor/ui/theme_builder_panel.cpp
@@ -382,6 +386,7 @@ add_library(urpg_core
     engine/core/mod/mod_sdk_sample_validator.cpp
     engine/core/mod/mod_loader.cpp
     engine/core/export/creator_package_manifest.cpp
+    engine/core/export/export_bundle_contract.cpp
     engine/core/export/export_artifact_compare.cpp
     engine/core/export/export_validator.cpp
     engine/core/export/patch_manifest.cpp
@@ -468,6 +473,22 @@ if(NOT nlohmann_json_FOUND)
 endif()
 
 target_link_libraries(urpg_core PUBLIC nlohmann_json::nlohmann_json)
+
+if(URPG_FETCH_QUICKJS_NG)
+    include(FetchContent)
+    set(QJS_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
+    set(QJS_BUILD_TESTS OFF CACHE BOOL "" FORCE)
+    set(QJS_BUILD_QJS OFF CACHE BOOL "" FORCE)
+    set(QJS_BUILD_QJSC OFF CACHE BOOL "" FORCE)
+    FetchContent_Declare(
+        quickjs_ng
+        GIT_REPOSITORY https://github.com/quickjs-ng/quickjs.git
+        GIT_TAG v0.11.0
+    )
+    FetchContent_MakeAvailable(quickjs_ng)
+else()
+    find_package(qjs REQUIRED)
+endif()
 
 # Platform Dependencies (SDL2, OpenGL)
 option(URPG_SKIP_OPENGL "Skip OpenGL requirement (for headless CI builds)" OFF)
@@ -569,6 +590,23 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(stb)
 
+FetchContent_Declare(
+    imgui
+    GIT_REPOSITORY https://github.com/ocornut/imgui.git
+    GIT_TAG v1.92.6
+)
+FetchContent_MakeAvailable(imgui)
+
+add_library(imgui STATIC
+    ${imgui_SOURCE_DIR}/imgui.cpp
+    ${imgui_SOURCE_DIR}/imgui_draw.cpp
+    ${imgui_SOURCE_DIR}/imgui_tables.cpp
+    ${imgui_SOURCE_DIR}/imgui_widgets.cpp
+    ${imgui_SOURCE_DIR}/misc/cpp/imgui_stdlib.cpp
+)
+target_include_directories(imgui PUBLIC ${imgui_SOURCE_DIR})
+target_compile_features(imgui PUBLIC cxx_std_20)
+
 target_include_directories(urpg_core PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}
     ${stb_SOURCE_DIR}
@@ -601,9 +639,13 @@ endforeach()
 
 target_link_libraries(urpg_core PUBLIC
     urpg_project_warnings
+    imgui
     nlohmann_json::nlohmann_json
+    qjs
     ${URPG_SDL_TARGET}
 )
+target_compile_definitions(urpg_core PUBLIC URPG_QUICKJS_ENABLED=1)
+target_compile_definitions(urpg_core PUBLIC URPG_IMGUI_ENABLED=1)
 
 if(NOT URPG_SKIP_OPENGL)
     target_link_libraries(urpg_core PUBLIC OpenGL::GL)
@@ -611,6 +653,44 @@ else()
     target_compile_definitions(urpg_core PUBLIC URPG_HEADLESS=1)
     message(STATUS "URPG: Building in HEADLESS mode (OpenGL skipped)")
 endif()
+
+add_executable(urpg_runtime
+    apps/runtime/main.cpp
+)
+
+target_link_libraries(urpg_runtime PRIVATE urpg_core)
+target_include_directories(urpg_runtime PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+
+add_executable(urpg_editor
+    apps/editor/main.cpp
+)
+
+target_link_libraries(urpg_editor PRIVATE urpg_core)
+target_include_directories(urpg_editor PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+
+add_executable(urpg_audio_smoke
+    apps/audio_smoke/main.cpp
+)
+
+target_link_libraries(urpg_audio_smoke PRIVATE urpg_core)
+target_include_directories(urpg_audio_smoke PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+
+if(WIN32)
+    foreach(_urpg_app_target IN ITEMS urpg_runtime urpg_editor urpg_audio_smoke)
+        add_custom_command(
+            TARGET ${_urpg_app_target}
+            POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy_if_different
+                $<TARGET_RUNTIME_DLLS:${_urpg_app_target}>
+                $<TARGET_FILE_DIR:${_urpg_app_target}>
+            COMMAND_EXPAND_LISTS
+        )
+    endforeach()
+endif()
+
+install(TARGETS urpg_runtime urpg_editor urpg_audio_smoke
+    RUNTIME DESTINATION bin
+)
 
 add_executable(urpg_migrate
     tools/migrate/migrate_cli.cpp
@@ -725,6 +805,7 @@ add_executable(urpg_tests
     tests/unit/test_migration_runner.cpp
     tests/unit/test_source_authority.cpp
     tests/unit/test_diagnostics_facade.cpp
+    tests/unit/test_editor_shell.cpp
     tests/unit/test_project_audit_panel.cpp
     tests/unit/test_project_health_model.cpp
     tests/unit/test_project_health_panel.cpp
@@ -764,6 +845,7 @@ add_executable(urpg_tests
     tests/unit/test_compat_report_panel.cpp
     tests/unit/test_battlemgr.cpp
     tests/unit/test_mod_registry.cpp
+    tests/unit/test_mod_loader.cpp
     tests/unit/test_mod_manager_panel.cpp
     tests/unit/test_battle_effect_cues.cpp
     tests/unit/test_battle_scene_native.cpp
@@ -777,9 +859,12 @@ add_executable(urpg_tests
     tests/unit/test_input_core.cpp
     tests/unit/test_input_remap_store.cpp
     tests/unit/test_audio_core.cpp
+    tests/unit/test_audio_mixer.cpp
     tests/unit/test_audio_mix_presets.cpp
     tests/unit/test_message_text_core.cpp
     tests/unit/test_message_migration.cpp
+    tests/unit/test_dialogue_project_loader.cpp
+    tests/unit/test_dialogue_command_handlers.cpp
     tests/unit/test_message_schema_contracts.cpp
     tests/unit/test_locale_catalog.cpp
     tests/unit/test_completeness_checker.cpp
@@ -900,6 +985,7 @@ urpg_enable_windows_test_binary_unlock(urpg_tests)
 add_executable(urpg_integration_tests
     tests/integration/test_integration_runtime_recovery.cpp
     tests/integration/test_battle_save_integration.cpp
+    tests/integration/test_character_save_integration.cpp
     tests/integration/test_event_authoring_integration.cpp
     tests/integration/test_replay_integration.cpp
     tests/integration/test_simulation_world_integration.cpp
@@ -974,17 +1060,46 @@ catch_discover_tests(
 
 find_package(Python3 QUIET COMPONENTS Interpreter)
 if(Python3_FOUND)
-    add_test(
-        NAME urpg_retrieval_adapter_resolution_test
-        COMMAND ${Python3_EXECUTABLE} tools/retrieval/tests/test_build_retrieval_bundle.py
-        WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+    function(urpg_add_python_tool_test test_name test_script)
+        add_test(
+            NAME ${test_name}
+            COMMAND ${Python3_EXECUTABLE} ${test_script}
+            WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+        )
+        set_tests_properties(
+            ${test_name}
+            PROPERTIES LABELS "pr;tools;python"
+        )
+    endfunction()
+
+    urpg_add_python_tool_test(
+        urpg_audio_preprocessing_acceptance_test
+        tools/audio/tests/test_audio_preprocessing_acceptance.py
     )
-    set_tests_properties(
+    urpg_add_python_tool_test(
+        urpg_retrieval_artifact_contracts_test
+        tools/retrieval/tests/test_artifact_contracts.py
+    )
+    urpg_add_python_tool_test(
         urpg_retrieval_adapter_resolution_test
-        PROPERTIES LABELS "pr"
+        tools/retrieval/tests/test_build_retrieval_bundle.py
+    )
+    urpg_add_python_tool_test(
+        urpg_retrieval_acceptance_test
+        tools/retrieval/tests/test_retrieval_acceptance.py
+    )
+    urpg_add_python_tool_test(
+        urpg_vision_segmentation_acceptance_test
+        tools/vision/tests/test_segmentation_acceptance.py
     )
 else()
-    message(STATUS "Skipping urpg_retrieval_adapter_resolution_test because Python3 interpreter was not found.")
+    message(STATUS
+        "Skipping Python tool CTest registrations because Python3 interpreter was not found: "
+        "tools/audio/tests/test_audio_preprocessing_acceptance.py; "
+        "tools/retrieval/tests/test_artifact_contracts.py; "
+        "tools/retrieval/tests/test_build_retrieval_bundle.py; "
+        "tools/retrieval/tests/test_retrieval_acceptance.py; "
+        "tools/vision/tests/test_segmentation_acceptance.py")
 endif()
 
 if(URPG_POWERSHELL_EXE)

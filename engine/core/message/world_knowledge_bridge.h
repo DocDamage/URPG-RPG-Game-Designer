@@ -1,14 +1,14 @@
 #pragma once
 
+#include "engine/core/ecs/world.h"
+#include "engine/core/gameplay/item_registry.h"
+#include "engine/core/gameplay/quest_system.h"
+#include "engine/core/global_state_hub.h"
+#include "engine/core/message/dialogue_registry.h"
+#include "engine/core/scene/tileset_registry.h"
+#include <sstream>
 #include <string>
 #include <vector>
-#include <sstream>
-#include "engine/core/message/dialogue_registry.h"
-#include "engine/core/gameplay/item_registry.h"
-#include "engine/core/scene/tileset_registry.h"
-#include "engine/core/global_state_hub.h"
-#include "engine/core/gameplay/quest_system.h"
-#include "engine/core/ecs/world.h"
 
 namespace urpg::ai {
 
@@ -17,7 +17,7 @@ namespace urpg::ai {
  * the game's database (Items, Dialogue, etc.) AND real-time world state.
  */
 class WorldKnowledgeBridge {
-public:
+  public:
     /**
      * @brief Generates a comprehensive prompt context including static database
      * and dynamic runtime state (Quests, Switches, Variables).
@@ -25,7 +25,8 @@ public:
     static std::string generateContext() {
         std::stringstream ss;
         ss << "You are an omniscient Game Guide Chatbot for the player. \n";
-        ss << "Your role is to answer questions about the world, the player's progress, and game mechanics using the following LIVE data:\n\n";
+        ss << "Your role is to answer questions about the world, the player's progress, and game mechanics using the "
+              "following LIVE data:\n\n";
 
         auto& hub = urpg::GlobalStateHub::getInstance();
 
@@ -49,7 +50,7 @@ public:
         // 3. Database Reference
         ss << "--- AVAILABLE ACTIONS ---\n";
         ss << "You can use [GIVE_ITEM:id] to award items if the player deserves them.\n";
-        
+
         return ss.str();
     }
 };

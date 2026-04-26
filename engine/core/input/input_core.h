@@ -1,10 +1,10 @@
 #pragma once
 
-#include <vector>
-#include <string>
-#include <map>
-#include <functional>
 #include <cstdint>
+#include <functional>
+#include <map>
+#include <string>
+#include <vector>
 
 namespace urpg::input {
 
@@ -18,40 +18,34 @@ enum class InputAction : uint32_t {
     MoveDown,
     MoveLeft,
     MoveRight,
-    Confirm,    // 'Z', 'Enter', 'Space'
-    Cancel,     // 'X', 'Esc'
-    Menu,       // 'C', 'Tab'
-    Debug       // '~'
+    Confirm, // 'Z', 'Enter', 'Space'
+    Cancel,  // 'X', 'Esc'
+    Menu,    // 'C', 'Tab'
+    Debug    // '~'
 };
 
 /**
  * @brief State of an individual action.
  */
-enum class ActionState : uint8_t {
-    Pressed,
-    Released,
-    Held
-};
+enum class ActionState : uint8_t { Pressed, Released, Held };
 
 /**
  * @brief Native Input Core for event handling and action mapping.
  */
 class InputCore {
-public:
+  public:
     using ActionHandler = std::function<void(InputAction, ActionState)>;
 
     /**
      * @brief Maps a raw key code (from window system) to a conceptual InputAction.
      */
-    void mapKey(int32_t keyCode, InputAction action) {
-        m_keyMaps[keyCode] = action;
-    }
+    void mapKey(int32_t keyCode, InputAction action) { m_keyMaps[keyCode] = action; }
 
     /**
      * @brief Processes a raw key event from the OS/Platform layer.
      */
     void processKeyEvent(int32_t keyCode, ActionState state) {
-        // Fallback or explicit mapping? 
+        // Fallback or explicit mapping?
         // For MZ compatibility, we typically map certain keys to core actions by default.
         if (auto it = m_keyMaps.find(keyCode); it != m_keyMaps.end()) {
             InputAction action = it->second;
@@ -92,11 +86,9 @@ public:
         return false;
     }
 
-    void addHandler(ActionHandler handler) {
-        m_handlers.push_back(std::move(handler));
-    }
+    void addHandler(ActionHandler handler) { m_handlers.push_back(std::move(handler)); }
 
-private:
+  private:
     std::map<int32_t, InputAction> m_keyMaps;
     std::map<InputAction, ActionState> m_actionStates;
     std::vector<ActionHandler> m_handlers;

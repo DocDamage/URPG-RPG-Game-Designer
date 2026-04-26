@@ -1,8 +1,8 @@
 #pragma once
 
-#include "platform_surface.h"
+#include "engine/core/diagnostics/runtime_diagnostics.h"
 #include "engine/core/engine_shell.h"
-#include <iostream>
+#include "platform_surface.h"
 
 namespace urpg {
 
@@ -11,9 +11,12 @@ namespace urpg {
  * This does not create a real window but simulates a fixed frame rate.
  */
 class HeadlessSurface : public IPlatformSurface {
-public:
+  public:
     bool initialize(const WindowConfig& config) override {
-        std::cout << "[PLATFORM] Initializing Headless Surface: " << config.title << " (" << config.width << "x" << config.height << ")\n";
+        diagnostics::RuntimeDiagnostics::info("platform.headless", "headless.surface_initialized",
+                                              "Initializing Headless Surface: " + config.title + " (" +
+                                                  std::to_string(config.width) + "x" + std::to_string(config.height) +
+                                                  ")");
         m_config = config;
         m_quitRequested = false;
         return true;
@@ -31,18 +34,15 @@ public:
     }
 
     void shutdown() override {
-        std::cout << "[PLATFORM] Shutting down Headless Surface.\n";
+        diagnostics::RuntimeDiagnostics::info("platform.headless", "headless.surface_shutdown",
+                                              "Shutting down Headless Surface.");
     }
 
-    void* getNativeHandle() const override {
-        return nullptr;
-    }
+    void* getNativeHandle() const override { return nullptr; }
 
-    void requestQuit() {
-        m_quitRequested = true;
-    }
+    void requestQuit() { m_quitRequested = true; }
 
-private:
+  private:
     WindowConfig m_config;
     bool m_quitRequested = false;
 };

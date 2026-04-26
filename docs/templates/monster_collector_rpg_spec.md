@@ -1,6 +1,6 @@
 # Monster Collector RPG Template Spec
 
-Status Date: 2026-04-23  
+Status Date: 2026-04-23
 Authority: canonical template spec for `monster_collector_rpg`
 
 ## Purpose

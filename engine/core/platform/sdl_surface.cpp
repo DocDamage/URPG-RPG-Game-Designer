@@ -1,7 +1,7 @@
 #include "sdl_surface.h"
-#include "engine/core/input/input_core.h"
+#include "engine/core/diagnostics/runtime_diagnostics.h"
 #include "engine/core/engine_shell.h"
-#include <iostream>
+#include "engine/core/input/input_core.h"
 
 // Forward declaring SDL types to avoid pulling in SDL.h in the header
 #include <SDL2/SDL.h>
@@ -11,30 +11,52 @@ namespace urpg {
 
 static input::InputAction mapSdlKey(SDL_Keycode key) {
     switch (key) {
-        case SDLK_UP:
-        case SDLK_w:      return input::InputAction::MoveUp;
-        case SDLK_DOWN:
-        case SDLK_s:      return input::InputAction::MoveDown;
-        case SDLK_LEFT:
-        case SDLK_a:      return input::InputAction::MoveLeft;
-        case SDLK_RIGHT:
-        case SDLK_d:      return input::InputAction::MoveRight;
-        case SDLK_z:
-        case SDLK_RETURN:
-        case SDLK_SPACE:  return input::InputAction::Confirm;
-        case SDLK_x:
-        case SDLK_ESCAPE: return input::InputAction::Cancel;
-        case SDLK_c:
-        case SDLK_LSHIFT: return input::InputAction::Menu;
-        case SDLK_BACKQUOTE: return input::InputAction::Debug;
-        default:          return input::InputAction::None;
+    case SDLK_UP:
+    case SDLK_w:
+        return input::InputAction::MoveUp;
+    case SDLK_DOWN:
+    case SDLK_s:
+        return input::InputAction::MoveDown;
+    case SDLK_LEFT:
+    case SDLK_a:
+        return input::InputAction::MoveLeft;
+    case SDLK_RIGHT:
+    case SDLK_d:
+        return input::InputAction::MoveRight;
+    case SDLK_z:
+    case SDLK_RETURN:
+    case SDLK_SPACE:
+        return input::InputAction::Confirm;
+    case SDLK_x:
+    case SDLK_ESCAPE:
+        return input::InputAction::Cancel;
+    case SDLK_c:
+    case SDLK_LSHIFT:
+        return input::InputAction::Menu;
+    case SDLK_BACKQUOTE:
+        return input::InputAction::Debug;
+    default:
+        return input::InputAction::None;
     }
 }
 
 SDLSurface::SDLSurface(const std::string& title, int width, int height) {
+    WindowConfig config;
+    config.title = title;
+    config.width = static_cast<uint32_t>(width);
+    config.height = static_cast<uint32_t>(height);
+    initialize(config);
+}
+
+bool SDLSurface::initialize(const WindowConfig& config) {
+    if (m_isInitialized) {
+        return true;
+    }
+
     if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_GAMECONTROLLER) != 0) {
-        std::cerr << "[URPG][SDL] Failed to initialize SDL: " << SDL_GetError() << "\n";
-        return;
+        diagnostics::RuntimeDiagnostics::error("platform.sdl", "sdl.initialize_failed",
+                                               std::string("Failed to initialize SDL: ") + SDL_GetError());
+        return false;
     }
 
     // Set OpenGL Attributes (TIER_BASIC: 3.3 Core)
@@ -44,36 +66,39 @@ SDLSurface::SDLSurface(const std::string& title, int width, int height) {
     SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
     SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
 
-    m_window = SDL_CreateWindow(
-        title.c_str(),
-        SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
-        width, height,
-        SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI
-    );
+    m_window = SDL_CreateWindow(config.title.c_str(), SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
+                                static_cast<int>(config.width), static_cast<int>(config.height),
+                                SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI);
 
     if (!m_window) {
-        std::cerr << "[URPG][SDL] Failed to create window: " << SDL_GetError() << "\n";
+        diagnostics::RuntimeDiagnostics::error("platform.sdl", "sdl.window_create_failed",
+                                               std::string("Failed to create SDL window: ") + SDL_GetError());
         SDL_Quit();
-        return;
+        return false;
     }
 
     m_glContext = SDL_GL_CreateContext(m_window);
     if (!m_glContext) {
-        std::cerr << "[URPG][SDL] Failed to create GL context: " << SDL_GetError() << "\n";
+        diagnostics::RuntimeDiagnostics::error("platform.sdl", "sdl.gl_context_create_failed",
+                                               std::string("Failed to create SDL GL context: ") + SDL_GetError());
         SDL_DestroyWindow(m_window);
+        m_window = nullptr;
         SDL_Quit();
-        return;
+        return false;
     }
 
     SDL_GL_MakeCurrent(m_window, m_glContext);
-    
+
     // Enable VSync (Adaptive if possible)
     if (SDL_GL_SetSwapInterval(-1) < 0) {
         SDL_GL_SetSwapInterval(1);
     }
 
     m_isInitialized = true;
-    std::cout << "[URPG][SDL] Surface initialized: " << width << "x" << height << "\n";
+    diagnostics::RuntimeDiagnostics::info("platform.sdl", "sdl.surface_initialized",
+                                          "Surface initialized: " + std::to_string(config.width) + "x" +
+                                              std::to_string(config.height));
+    return true;
 }
 
 SDLSurface::~SDLSurface() {
@@ -81,14 +106,15 @@ SDLSurface::~SDLSurface() {
 }
 
 bool SDLSurface::pollEvents() {
-    if (!m_isInitialized) return false;
+    if (!m_isInitialized)
+        return false;
 
     SDL_Event event;
     while (SDL_PollEvent(&event)) {
         if (event.type == SDL_QUIT) {
             return false;
         }
-        
+
         // Window Resize events
         if (event.type == SDL_WINDOWEVENT) {
             if (event.window.event == SDL_WINDOWEVENT_RESIZED) {

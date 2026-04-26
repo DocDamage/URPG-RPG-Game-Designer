@@ -70,6 +70,24 @@ function Get-SelectionScore {
     return $score
 }
 
+function Get-CandidateClassification {
+    param(
+        [string]$CandidatePathRel,
+        [string]$CandidateSha256,
+        [string]$SelectedSha256,
+        [string]$ConflictType
+    )
+
+    $p = $CandidatePathRel.ToLowerInvariant()
+    if ($p -match "sample_ja|sample_jp|sample_project_jp|samplemap_ja|mz example - jp") {
+        return "localized_sample_copy"
+    }
+    if ($CandidateSha256 -eq $SelectedSha256 -or $ConflictType -eq "duplicate-copy") {
+        return "identical_copy"
+    }
+    return "conflicting_plugin_implementation"
+}
+
 if ([string]::IsNullOrWhiteSpace($RepoRoot)) {
     $RepoRoot = (Resolve-Path (Join-Path $PSScriptRoot "..\..")).Path
 } else {
@@ -205,10 +223,67 @@ $summary = [PSCustomObject]@{
 $summaryJsonPath = Join-Path $reportRoot "plugin_dropins_curated_summary.json"
 $manifestCsvPath = Join-Path $reportRoot "plugin_dropins_curated_manifest.csv"
 $conflictsCsvPath = Join-Path $reportRoot "plugin_dropins_curated_conflicts.csv"
+$releaseManifestJsonPath = Join-Path $reportRoot "plugin_dropins_release_manifest.json"
 
 $summary | ConvertTo-Json -Depth 6 | Set-Content -LiteralPath $summaryJsonPath
 $manifestRows | Sort-Object PluginKey | Export-Csv -LiteralPath $manifestCsvPath -NoTypeInformation -Encoding UTF8
 $conflictRows | Sort-Object PluginKey, CandidatePathRel | Export-Csv -LiteralPath $conflictsCsvPath -NoTypeInformation -Encoding UTF8
+
+$manifestByKey = @{}
+foreach ($row in $manifestRows) {
+    $manifestByKey[$row.PluginKey.ToLowerInvariant()] = $row
+}
+
+$includedRows = foreach ($row in ($manifestRows | Sort-Object PluginKey)) {
+    [PSCustomObject]@{
+        pluginKey = $row.PluginKey
+        outputFile = $row.OutputFile
+        releasePath = $row.OutputPathRel
+        selectedSourcePath = $row.SelectedSourcePathRel
+        sha256 = $row.SelectedSha256
+        candidateCount = [int]$row.CandidateCount
+        uniqueHashCount = [int]$row.UniqueHashCount
+        conflictType = $row.ConflictType
+        classification = if ($row.ConflictType -eq "single") { "single_source" } else { "selected_release_candidate" }
+        selectionScore = [int]$row.SelectionScore
+    }
+}
+
+$excludedRows = foreach ($row in ($conflictRows | Where-Object { $_.Selected -ne $true } | Sort-Object PluginKey, CandidatePathRel)) {
+    $selected = $manifestByKey[$row.PluginKey.ToLowerInvariant()]
+    $classification = Get-CandidateClassification `
+        -CandidatePathRel $row.CandidatePathRel `
+        -CandidateSha256 $row.CandidateSha256 `
+        -SelectedSha256 $selected.SelectedSha256 `
+        -ConflictType $row.ConflictType
+    [PSCustomObject]@{
+        pluginKey = $row.PluginKey
+        candidatePath = $row.CandidatePathRel
+        candidateSha256 = $row.CandidateSha256
+        candidateScore = [int]$row.CandidateScore
+        selectedSourcePath = $selected.SelectedSourcePathRel
+        selectedSha256 = $selected.SelectedSha256
+        classification = $classification
+        notPackagedReason = "excluded_$classification"
+    }
+}
+
+$releaseManifest = [PSCustomObject]@{
+    format = "URPG_RPGMAKER_PLUGIN_RELEASE_MANIFEST_V1"
+    generatedAt = (Get-Date -Format "yyyy-MM-ddTHH:mm:sszzz")
+    sourcePluginRoot = $sourceRootResolved
+    releasePluginRoot = $CuratedPluginRoot
+    selectionPolicy = @(
+        "group_by_plugin_key",
+        "prefer_english_sample_sources",
+        "prefer_menu_builder_pack_when_scores_tie",
+        "prefer_shorter_stable_repo_path",
+        "preserve_all_raw_vendor_sources_outside_release_manifest"
+    )
+    included = @($includedRows)
+    excluded = @($excludedRows)
+}
+$releaseManifest | ConvertTo-Json -Depth 12 | Set-Content -LiteralPath $releaseManifestJsonPath
 
 Write-Output "SOURCE_ROOT`t$sourceRootResolved"
 Write-Output "CURATED_ROOT`t$CuratedPluginRoot"
@@ -219,3 +294,4 @@ Write-Output "DUPLICATE_COPY_KEYS`t$($summary.DuplicateCopyKeyCount)"
 Write-Output "SUMMARY_JSON`t$summaryJsonPath"
 Write-Output "MANIFEST_CSV`t$manifestCsvPath"
 Write-Output "CONFLICTS_CSV`t$conflictsCsvPath"
+Write-Output "RELEASE_MANIFEST_JSON`t$releaseManifestJsonPath"

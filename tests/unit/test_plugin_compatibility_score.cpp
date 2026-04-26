@@ -5,6 +5,7 @@
 
 #include <algorithm>
 #include <filesystem>
+#include <string_view>
 
 using namespace urpg::plugin;
 
@@ -17,9 +18,7 @@ PluginCompatibilityManifest manifest(nlohmann::json json) {
 std::filesystem::path sourceRootFromMacro() {
 #ifdef URPG_SOURCE_DIR
     std::string sourceRoot = URPG_SOURCE_DIR;
-    if (sourceRoot.size() >= 2 &&
-        sourceRoot.front() == '"' &&
-        sourceRoot.back() == '"') {
+    if (sourceRoot.size() >= 2 && sourceRoot.front() == '"' && sourceRoot.back() == '"') {
         sourceRoot = sourceRoot.substr(1, sourceRoot.size() - 2);
     }
     return std::filesystem::path(sourceRoot);
@@ -28,10 +27,9 @@ std::filesystem::path sourceRootFromMacro() {
 #endif
 }
 
-const PluginCompatibilityResult& findPlugin(const PluginCompatibilityReport& report, const std::string& id) {
-    const auto it = std::find_if(report.plugins.begin(), report.plugins.end(), [&](const auto& result) {
-        return result.plugin_id == id;
-    });
+const PluginCompatibilityResult& findPlugin(const PluginCompatibilityReport& report, std::string_view id) {
+    const auto it = std::find_if(report.plugins.begin(), report.plugins.end(),
+                                 [&](const auto& result) { return result.plugin_id == id; });
     REQUIRE(it != report.plugins.end());
     return *it;
 }
@@ -56,7 +54,8 @@ TEST_CASE("PluginCompatibilityScore reports missing dependencies exactly", "[plu
     REQUIRE(addon.issues[0].target == "MissingTarget");
 }
 
-TEST_CASE("PluginCompatibilityScore turns denied sandbox permission into blocking issue", "[plugin][compatibility][ffs04]") {
+TEST_CASE("PluginCompatibilityScore turns denied sandbox permission into blocking issue",
+          "[plugin][compatibility][ffs04]") {
     PluginCompatibilityAnalysisInput input;
     input.granted_permissions = {"save.read"};
     input.manifests = {
@@ -97,7 +96,8 @@ TEST_CASE("PluginCompatibilityScore cycle detection is deterministic", "[plugin]
     }));
 }
 
-TEST_CASE("PluginCompatibilityScore lists unsupported APIs and native shim hints only for mapped APIs", "[plugin][compatibility][ffs04]") {
+TEST_CASE("PluginCompatibilityScore lists unsupported APIs and native shim hints only for mapped APIs",
+          "[plugin][compatibility][ffs04]") {
     PluginCompatibilityAnalysisInput input;
     input.native_shim_hints = DefaultNativePluginShimHints();
     input.manifests = {
@@ -127,7 +127,9 @@ TEST_CASE("PluginCompatibilityScore lists unsupported APIs and native shim hints
     REQUIRE(hinted_issue_count == 1);
 }
 
-TEST_CASE("PluginCompatibilityScore ingests fixture-only behavior, fallback paths, failure reports, and override conflicts", "[plugin][compatibility][ffs04]") {
+TEST_CASE(
+    "PluginCompatibilityScore ingests fixture-only behavior, fallback paths, failure reports, and override conflicts",
+    "[plugin][compatibility][ffs04]") {
     PluginCompatibilityAnalysisInput input;
     input.failure_diagnostics_jsonl =
         R"({"seq":1,"subsystem":"plugin_manager","event":"compat_failure","plugin":"MenuA","operation":"load_plugin_js_eval","message":"eval unavailable","severity":"CRASH_PREVENTED"})";
@@ -158,15 +160,14 @@ TEST_CASE("PluginCompatibilityScore ingests fixture-only behavior, fallback path
     }));
 }
 
-TEST_CASE("PluginCompatibilityScore loads real compat fixture manifests with profile-allowed dependency drift", "[plugin][compatibility][ffs04]") {
+TEST_CASE("PluginCompatibilityScore loads real compat fixture manifests with profile-allowed dependency drift",
+          "[plugin][compatibility][ffs04]") {
     const auto source_root = sourceRootFromMacro();
     REQUIRE_FALSE(source_root.empty());
 
     std::string error;
     const auto manifests = LoadPluginCompatibilityManifestsFromDirectory(
-        source_root / "tests" / "compat" / "fixtures" / "plugins",
-        &error
-    );
+        source_root / "tests" / "compat" / "fixtures" / "plugins", &error);
     REQUIRE(error.empty());
     REQUIRE(manifests.size() >= 10);
 
@@ -177,20 +178,16 @@ TEST_CASE("PluginCompatibilityScore loads real compat fixture manifests with pro
     const auto report = AnalyzePluginCompatibility(input);
     const auto& drift = findPlugin(report, "URPG_DependencyDrift_Fixture");
 
-    REQUIRE(std::find(
-                drift.missing_dependencies.begin(),
-                drift.missing_dependencies.end(),
-                "URPG_NonExistent_DependencyTarget"
-            ) == drift.missing_dependencies.end());
+    REQUIRE(std::find(drift.missing_dependencies.begin(), drift.missing_dependencies.end(),
+                      "URPG_NonExistent_DependencyTarget") == drift.missing_dependencies.end());
     REQUIRE(std::any_of(report.dependency_edges.begin(), report.dependency_edges.end(), [](const auto& edge) {
         return edge.from_plugin == "URPG_DependencyDrift_Fixture" &&
-               edge.to_plugin == "URPG_NonExistent_DependencyTarget" &&
-               edge.missing &&
-               edge.optional;
+               edge.to_plugin == "URPG_NonExistent_DependencyTarget" && edge.missing && edge.optional;
     }));
 }
 
-TEST_CASE("PluginCompatibilityScore exports machine-readable non-authoritative report", "[plugin][compatibility][ffs04]") {
+TEST_CASE("PluginCompatibilityScore exports machine-readable non-authoritative report",
+          "[plugin][compatibility][ffs04]") {
     PluginCompatibilityAnalysisInput input;
     input.native_shim_hints = DefaultNativePluginShimHints();
     input.manifests = {

@@ -1,5 +1,5 @@
-#include "engine/core/ecs/world.h"
 #include "engine/core/ecs/health_system.h"
+#include "engine/core/ecs/world.h"
 #include "engine/core/render/camera_shake_components.h"
 
 #include <catch2/catch_test_macros.hpp>
@@ -22,8 +22,9 @@ TEST_CASE("HealthSystem manages damage and i-frames", "[ecs][health]") {
     }
 
     SECTION("Cannot damage invulnerable entity") {
-        world.AddComponent(targetId, urpg::InvulnerabilityComponent{urpg::Fixed32::FromInt(1), urpg::Fixed32::FromInt(1)});
-        
+        world.AddComponent(targetId,
+                           urpg::InvulnerabilityComponent{urpg::Fixed32::FromInt(1), urpg::Fixed32::FromInt(1)});
+
         healthSys.applyDamage(world, targetId, 10);
         REQUIRE(health.current == 100);
     }

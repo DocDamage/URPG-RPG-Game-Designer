@@ -20,9 +20,9 @@ Use this template when a repo stays `reference_only` but still yields concrete U
 
 ## Extracted Ideas
 
-1. 
-2. 
-3. 
+1.
+2.
+3.
 
 ## Non-Adopt Reasons
 

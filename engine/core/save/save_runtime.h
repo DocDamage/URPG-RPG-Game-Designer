@@ -1,10 +1,13 @@
 #pragma once
 
+#include "engine/core/character/character_save_state.h"
 #include "engine/core/save/save_recovery.h"
 #include "engine/core/save/save_types.h"
 
 #include <filesystem>
+#include <optional>
 #include <string>
+#include <vector>
 
 namespace urpg {
 
@@ -27,12 +30,17 @@ struct RuntimeSaveLoadResult {
     std::string payload;
     std::string variables_payload;
     SaveSlotMeta active_meta;
+    std::optional<character::CreatedProtagonistSaveState> created_protagonist;
+    std::vector<std::string> diagnostics;
 };
 
 class RuntimeSaveLoader {
-public:
+  public:
     static RuntimeSaveLoadResult Load(const RuntimeSaveLoadRequest& request);
     static bool Save(const RuntimeSaveLoadRequest& request, const std::string& payload);
+    static bool SaveCreatedProtagonist(const RuntimeSaveLoadRequest& request, const std::string& payload,
+                                       EntityID entity, const character::CharacterIdentity& identity,
+                                       std::vector<std::string>* diagnostics = nullptr);
 };
 
 } // namespace urpg

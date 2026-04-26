@@ -1,7 +1,7 @@
 #include "animation_ai_bridge.h"
-#include <sstream>
 #include <algorithm>
 #include <cctype>
+#include <sstream>
 
 namespace urpg::ai {
 
@@ -16,16 +16,13 @@ std::string trim(std::string value) {
 
 } // namespace
 
-std::string AnimationKnowledgeBridge::generateAnimationPrompt(
-    const AnimateableMetadata& actor,
-    const std::string& description,
-    float duration
-) {
+std::string AnimationKnowledgeBridge::generateAnimationPrompt(const AnimateableMetadata& actor,
+                                                              const std::string& description, float duration) {
     std::stringstream ss;
     ss << "### Animation Copilot Phase ###\n";
     ss << "Actor: " << actor.actorId << " (" << actor.actorType << ")\n";
-    ss << "Current Position: [" << actor.currentPosition.x.ToFloat() << ", " 
-       << actor.currentPosition.y.ToFloat() << ", " << actor.currentPosition.z.ToFloat() << "]\n";
+    ss << "Current Position: [" << actor.currentPosition.x.ToFloat() << ", " << actor.currentPosition.y.ToFloat()
+       << ", " << actor.currentPosition.z.ToFloat() << "]\n";
     ss << "Description of Motion: \"" << description << "\"\n";
     ss << "Target Duration: " << duration << " seconds\n\n";
 
@@ -33,7 +30,7 @@ std::string AnimationKnowledgeBridge::generateAnimationPrompt(
     ss << "Generate a sequence of keyframes in the following JSON format:\n";
     ss << "[{\"time\": T, \"x\": X, \"y\": Y, \"z\": Z}, ...]\n";
     ss << "Use relative positions and ensure the animation fits the duration.";
-    
+
     return ss.str();
 }
 
@@ -69,7 +66,8 @@ std::vector<urpg::AnimationKeyframe> AnimationKnowledgeBridge::parseKeyframes(co
             continue;
         }
 
-        const std::string time_str = trim(payload.substr(std::string("KEYFRAME:").size(), comma - std::string("KEYFRAME:").size()));
+        const std::string time_str =
+            trim(payload.substr(std::string("KEYFRAME:").size(), comma - std::string("KEYFRAME:").size()));
         const std::string pos_str = trim(payload.substr(pos_marker + std::string("POS:").size()));
 
         const size_t first_sep = pos_str.find(':');
@@ -78,12 +76,9 @@ std::vector<urpg::AnimationKeyframe> AnimationKnowledgeBridge::parseKeyframes(co
             continue;
         }
 
-        appendFrame(
-            std::stof(time_str),
-            std::stof(trim(pos_str.substr(0, first_sep))),
-            std::stof(trim(pos_str.substr(first_sep + 1, second_sep - first_sep - 1))),
-            std::stof(trim(pos_str.substr(second_sep + 1)))
-        );
+        appendFrame(std::stof(time_str), std::stof(trim(pos_str.substr(0, first_sep))),
+                    std::stof(trim(pos_str.substr(first_sep + 1, second_sep - first_sep - 1))),
+                    std::stof(trim(pos_str.substr(second_sep + 1))));
     }
 
     if (!result.empty()) {
@@ -116,7 +111,8 @@ std::vector<urpg::AnimationKeyframe> AnimationKnowledgeBridge::parseKeyframes(co
         size_t field_start = 0;
         while (field_start <= payload.size()) {
             size_t comma = payload.find(',', field_start);
-            std::string field = trim(payload.substr(field_start, comma == std::string::npos ? std::string::npos : comma - field_start));
+            std::string field =
+                trim(payload.substr(field_start, comma == std::string::npos ? std::string::npos : comma - field_start));
             field_start = (comma == std::string::npos) ? payload.size() + 1 : comma + 1;
 
             const size_t colon = field.find(':');

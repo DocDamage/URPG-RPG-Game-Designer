@@ -64,4 +64,3 @@ Copy `tools/memorybridge/` and run:
 .\tools\memorybridge\bootstrap-project.ps1
 .\tools\memorybridge\sync-from-mempalace.ps1 -DryRun
 ```
-
