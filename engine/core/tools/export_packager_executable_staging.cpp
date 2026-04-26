@@ -69,8 +69,7 @@ loadUrpgExport().catch((error) => {
 
 std::vector<std::uint8_t> makeEmptyWasmModule() {
     return {
-        0x00, 0x61, 0x73, 0x6D,
-        0x01, 0x00, 0x00, 0x00,
+        0x00, 0x61, 0x73, 0x6D, 0x01, 0x00, 0x00, 0x00,
     };
 }
 
@@ -149,17 +148,12 @@ bool writeBytesFile(const std::filesystem::path& path, const std::vector<std::ui
 
 void makeExecutable(const std::filesystem::path& path) {
     std::error_code chmodError;
-    std::filesystem::permissions(
-        path,
-        std::filesystem::perms::owner_read |
-            std::filesystem::perms::owner_write |
-            std::filesystem::perms::owner_exec |
-            std::filesystem::perms::group_read |
-            std::filesystem::perms::group_exec |
-            std::filesystem::perms::others_read |
-            std::filesystem::perms::others_exec,
-        std::filesystem::perm_options::replace,
-        chmodError);
+    std::filesystem::permissions(path,
+                                 std::filesystem::perms::owner_read | std::filesystem::perms::owner_write |
+                                     std::filesystem::perms::owner_exec | std::filesystem::perms::group_read |
+                                     std::filesystem::perms::group_exec | std::filesystem::perms::others_read |
+                                     std::filesystem::perms::others_exec,
+                                 std::filesystem::perm_options::replace, chmodError);
 }
 
 ExecutableStageResult stageRealWindowsRuntime(const ExportConfig& config) {
@@ -169,11 +163,8 @@ ExecutableStageResult stageRealWindowsRuntime(const ExportConfig& config) {
     const std::filesystem::path stagedBinary = outDir / "game.exe";
 
     std::error_code copyError;
-    std::filesystem::copy_file(
-        sourceBinary,
-        stagedBinary,
-        std::filesystem::copy_options::overwrite_existing,
-        copyError);
+    std::filesystem::copy_file(sourceBinary, stagedBinary, std::filesystem::copy_options::overwrite_existing,
+                               copyError);
     if (copyError) {
         result.log += "Failed to copy real Windows runtime binary: " + copyError.message() + "\n";
         return result;
@@ -187,11 +178,8 @@ ExecutableStageResult stageRealWindowsRuntime(const ExportConfig& config) {
 
         const std::filesystem::path destination = outDir / entry.path().filename();
         std::error_code dllCopyError;
-        std::filesystem::copy_file(
-            entry.path(),
-            destination,
-            std::filesystem::copy_options::overwrite_existing,
-            dllCopyError);
+        std::filesystem::copy_file(entry.path(), destination, std::filesystem::copy_options::overwrite_existing,
+                                   dllCopyError);
         if (dllCopyError) {
             result.log += "Failed to copy runtime dependency " + entry.path().filename().string() + ": " +
                           dllCopyError.message() + "\n";
@@ -206,72 +194,127 @@ ExecutableStageResult stageRealWindowsRuntime(const ExportConfig& config) {
     return result;
 }
 
+ExecutableStageResult stageRealLinuxRuntime(const ExportConfig& config) {
+    ExecutableStageResult result;
+    const std::filesystem::path sourceBinary(config.runtimeBinaryPath);
+    const std::filesystem::path stagedBinary = std::filesystem::path(config.outputDir) / "game";
+
+    std::error_code copyError;
+    std::filesystem::copy_file(sourceBinary, stagedBinary, std::filesystem::copy_options::overwrite_existing,
+                               copyError);
+    if (copyError) {
+        result.log += "Failed to copy real Linux runtime binary: " + copyError.message() + "\n";
+        return result;
+    }
+
+    makeExecutable(stagedBinary);
+    result.files.push_back("game");
+    result.log += "Staged real Linux smoke runtime from " + sourceBinary.string() + ".\n";
+    return result;
+}
+
+ExecutableStageResult stageRealMacRuntime(const ExportConfig& config) {
+    ExecutableStageResult result;
+    const std::filesystem::path sourceBinary(config.runtimeBinaryPath);
+    const std::filesystem::path appPath = std::filesystem::path(config.outputDir) / "MyGame.app";
+    const std::filesystem::path exePath = appPath / "Contents" / "MacOS" / "MyGame";
+    const std::filesystem::path infoPlistPath = appPath / "Contents" / "Info.plist";
+
+    std::error_code dirError;
+    std::filesystem::create_directories(exePath.parent_path(), dirError);
+    if (dirError) {
+        result.log += "Failed to prepare real macOS smoke runtime bundle: " + dirError.message() + "\n";
+        return result;
+    }
+
+    std::error_code copyError;
+    std::filesystem::copy_file(sourceBinary, exePath, std::filesystem::copy_options::overwrite_existing, copyError);
+    if (copyError) {
+        result.log += "Failed to copy real macOS runtime binary: " + copyError.message() + "\n";
+        return result;
+    }
+    if (!writeTextFile(infoPlistPath, makeMacInfoPlist())) {
+        result.log += "Failed to write real macOS smoke runtime Info.plist.\n";
+        return result;
+    }
+
+    makeExecutable(exePath);
+    result.files.push_back("MyGame.app");
+    result.log += "Staged real macOS smoke runtime from " + sourceBinary.string() + ".\n";
+    return result;
+}
+
 } // namespace
 
 ExecutableStageResult stageExecutableArtifacts(const ExportConfig& config) {
     if (config.target == ExportTarget::Windows_x64 && !config.runtimeBinaryPath.empty()) {
         return stageRealWindowsRuntime(config);
     }
+    if (config.target == ExportTarget::Linux_x64 && !config.runtimeBinaryPath.empty()) {
+        return stageRealLinuxRuntime(config);
+    }
+    if (config.target == ExportTarget::macOS_Universal && !config.runtimeBinaryPath.empty()) {
+        return stageRealMacRuntime(config);
+    }
 
     ExecutableStageResult result;
     const std::filesystem::path outDir(config.outputDir);
 
     switch (config.target) {
-        case ExportTarget::Windows_x64: {
-            if (!writeTextFile(outDir / "game.exe", "MZ synthetic windows executable\n")) {
-                result.log += "Failed to synthesize bounded Windows executable placeholder.\n";
-                return result;
-            }
-            result.files.push_back("game.exe");
-            break;
+    case ExportTarget::Windows_x64: {
+        if (!writeTextFile(outDir / "game.exe", "MZ synthetic windows executable\n")) {
+            result.log += "Failed to synthesize bounded Windows executable placeholder.\n";
+            return result;
         }
-        case ExportTarget::Linux_x64: {
-            const std::filesystem::path exePath = outDir / "game";
-            if (!writeTextFile(exePath, makeLinuxBootstrapScript())) {
-                result.log += "Failed to synthesize bounded Linux bootstrap launcher script.\n";
-                return result;
-            }
-            makeExecutable(exePath);
-            result.files.push_back("game");
-            result.log += "Synthesized bounded Linux bootstrap launcher script.\n";
-            break;
+        result.files.push_back("game.exe");
+        break;
+    }
+    case ExportTarget::Linux_x64: {
+        const std::filesystem::path exePath = outDir / "game";
+        if (!writeTextFile(exePath, makeLinuxBootstrapScript())) {
+            result.log += "Failed to synthesize bounded Linux bootstrap launcher script.\n";
+            return result;
         }
-        case ExportTarget::macOS_Universal: {
-            const std::filesystem::path appPath = outDir / "MyGame.app";
-            std::error_code appDirError;
-            std::filesystem::create_directories(appPath, appDirError);
-            const std::filesystem::path exePath = appPath / "Contents" / "MacOS" / "MyGame";
-            std::error_code exeDirError;
-            std::filesystem::create_directories(exePath.parent_path(), exeDirError);
-            if (appDirError || exeDirError) {
-                result.log += "Failed to prepare bounded macOS app bootstrap structure.\n";
-                return result;
-            }
+        makeExecutable(exePath);
+        result.files.push_back("game");
+        result.log += "Synthesized bounded Linux bootstrap launcher script.\n";
+        break;
+    }
+    case ExportTarget::macOS_Universal: {
+        const std::filesystem::path appPath = outDir / "MyGame.app";
+        std::error_code appDirError;
+        std::filesystem::create_directories(appPath, appDirError);
+        const std::filesystem::path exePath = appPath / "Contents" / "MacOS" / "MyGame";
+        std::error_code exeDirError;
+        std::filesystem::create_directories(exePath.parent_path(), exeDirError);
+        if (appDirError || exeDirError) {
+            result.log += "Failed to prepare bounded macOS app bootstrap structure.\n";
+            return result;
+        }
 
-            const std::filesystem::path infoPlistPath = appPath / "Contents" / "Info.plist";
-            if (!writeTextFile(exePath, makeMacBootstrapScript()) ||
-                !writeTextFile(infoPlistPath, makeMacInfoPlist())) {
-                result.log += "Failed to synthesize bounded macOS app bootstrap structure.\n";
-                return result;
-            }
-            makeExecutable(exePath);
-            result.files.push_back("MyGame.app");
-            result.log += "Synthesized bounded macOS app bootstrap structure.\n";
-            break;
+        const std::filesystem::path infoPlistPath = appPath / "Contents" / "Info.plist";
+        if (!writeTextFile(exePath, makeMacBootstrapScript()) || !writeTextFile(infoPlistPath, makeMacInfoPlist())) {
+            result.log += "Failed to synthesize bounded macOS app bootstrap structure.\n";
+            return result;
         }
-        case ExportTarget::Web_WASM: {
-            if (!writeTextFile(outDir / "index.html", makeWebBootstrapHtml()) ||
-                !writeBytesFile(outDir / "game.wasm", makeEmptyWasmModule()) ||
-                !writeTextFile(outDir / "game.js", makeWebBootstrapLoader())) {
-                result.log += "Failed to synthesize bounded Web bootstrap artifacts.\n";
-                return result;
-            }
-            result.files.push_back("index.html");
-            result.files.push_back("game.wasm");
-            result.files.push_back("game.js");
-            result.log += "Synthesized bounded Web bootstrap artifacts with real HTML/JS/Wasm structure.\n";
-            break;
+        makeExecutable(exePath);
+        result.files.push_back("MyGame.app");
+        result.log += "Synthesized bounded macOS app bootstrap structure.\n";
+        break;
+    }
+    case ExportTarget::Web_WASM: {
+        if (!writeTextFile(outDir / "index.html", makeWebBootstrapHtml()) ||
+            !writeBytesFile(outDir / "game.wasm", makeEmptyWasmModule()) ||
+            !writeTextFile(outDir / "game.js", makeWebBootstrapLoader())) {
+            result.log += "Failed to synthesize bounded Web bootstrap artifacts.\n";
+            return result;
         }
+        result.files.push_back("index.html");
+        result.files.push_back("game.wasm");
+        result.files.push_back("game.js");
+        result.log += "Synthesized bounded Web bootstrap artifacts with real HTML/JS/Wasm structure.\n";
+        break;
+    }
     }
 
     result.log += "Synthesized " + std::to_string(result.files.size()) + " executable artifact(s).\n";

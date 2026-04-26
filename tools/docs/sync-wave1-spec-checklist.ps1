@@ -90,7 +90,7 @@ function New-ChecklistSection {
     $lines += "- [ ] Latest deterministic test outputs recorded."
     $lines += "- [ ] `README.md`, `docs/PROGRAM_COMPLETION_STATUS.md`, and `docs/archive/blueprints/URPG_Blueprint_v3_1_Integrated.md` updated."
 
-    return ($lines -join "`r`n")
+    return ($lines -join "`n")
 }
 
 $changed = @()
@@ -103,19 +103,19 @@ foreach ($spec in $specs) {
 
     $text = Get-Content -Path $path -Raw
     $generated = New-ChecklistSection -SubsystemName $spec.Name -SubsystemSpecific $spec.Specific
-    $replacementBlock = "$startMarker`r`n$generated`r`n$endMarker"
+    $replacementBlock = "$startMarker`n$generated`n$endMarker"
 
     $newText = $text
     if ($text.Contains($startMarker) -and $text.Contains($endMarker)) {
         $pattern = [regex]::Escape($startMarker) + "(?s).*?" + [regex]::Escape($endMarker)
         $newText = [regex]::Replace($text, $pattern, [System.Text.RegularExpressions.MatchEvaluator]{ param($m) $replacementBlock }, 1)
     } else {
-        $insert = "$replacementBlock`r`n`r`n"
+        $insert = "$replacementBlock`n`n"
         $anchor = "## Non-goals for this slice"
         if ($text.Contains($anchor)) {
             $newText = $text.Replace($anchor, $insert + $anchor)
         } else {
-            $newText = $text.TrimEnd() + "`r`n`r`n" + $insert
+            $newText = $text.TrimEnd() + "`n`n" + $insert
         }
     }
 

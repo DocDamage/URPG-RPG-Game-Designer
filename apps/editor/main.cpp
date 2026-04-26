@@ -14,8 +14,10 @@
 #include "engine/core/mod/mod_registry.h"
 #include "engine/core/platform/headless_renderer.h"
 #include "engine/core/platform/headless_surface.h"
+#include "engine/core/project/project_snapshot_store.h"
 #include "engine/core/scene/map_scene.h"
 #include "engine/core/scene/scene_manager.h"
+#include <nlohmann/json.hpp>
 
 #ifndef URPG_HEADLESS
 #include "engine/core/platform/opengl_renderer.h"
@@ -30,11 +32,13 @@
 #include <cstdint>
 #include <exception>
 #include <filesystem>
+#include <fstream>
 #include <iostream>
 #include <memory>
 #include <optional>
 #include <string>
 #include <thread>
+#include <vector>
 
 namespace {
 
@@ -50,8 +54,11 @@ struct EditorOptions {
     std::uint32_t height = 900;
     bool list_panels = false;
     bool render_all_panels = false;
+    bool smoke = false;
     std::optional<std::string> open_panel_id;
     std::filesystem::path project_root = std::filesystem::current_path();
+    std::filesystem::path smoke_output;
+    std::filesystem::path smoke_snapshot_root;
 };
 
 EditorOptions parseOptions(int argc, char** argv) {
@@ -70,10 +77,29 @@ EditorOptions parseOptions(int argc, char** argv) {
             options.list_panels = true;
         } else if (arg == "--render-all-panels") {
             options.render_all_panels = true;
+        } else if (arg == "--smoke") {
+            options.smoke = true;
+            options.headless = true;
         } else if (arg == "--open-panel" && i + 1 < argc) {
             options.open_panel_id = argv[++i];
         } else if (arg == "--project-root" && i + 1 < argc) {
             options.project_root = argv[++i];
+        } else if (arg == "--smoke-output" && i + 1 < argc) {
+            options.smoke_output = argv[++i];
+        } else if (arg == "--smoke-snapshot-root" && i + 1 < argc) {
+            options.smoke_snapshot_root = argv[++i];
+        }
+    }
+
+    if (options.smoke) {
+        if (options.frames < 0) {
+            options.frames = 0;
+        }
+        if (options.smoke_output.empty()) {
+            options.smoke_output = std::filesystem::temp_directory_path() / "urpg_editor_smoke_state.json";
+        }
+        if (options.smoke_snapshot_root.empty()) {
+            options.smoke_snapshot_root = std::filesystem::temp_directory_path() / "urpg_editor_smoke_snapshots";
         }
     }
     return options;
@@ -153,6 +179,116 @@ void printPanelList(const urpg::editor::EditorShell& editor_shell) {
         std::cout << panel.id << "\t" << panel.category << "\t" << panel.title << "\t"
                   << (panel.visible ? "visible" : "hidden") << "\n";
     }
+}
+
+bool runEditorFrame(urpg::EngineShell& engineShell, urpg::editor::EditorShell& editorShell, bool renderAllPanels,
+                    double deltaSeconds = 1.0 / 60.0) {
+    engineShell.tick();
+#ifdef URPG_IMGUI_ENABLED
+    ImGui::NewFrame();
+#endif
+    bool rendered = false;
+    if (editorShell.beginFrame(deltaSeconds)) {
+        if (renderAllPanels) {
+            rendered = editorShell.renderVisiblePanels() > 0;
+        } else {
+            rendered = editorShell.renderActivePanel();
+        }
+        rendered = editorShell.endFrame() && rendered;
+    }
+#ifdef URPG_IMGUI_ENABLED
+    ImGui::Render();
+#endif
+    return rendered;
+}
+
+nlohmann::json panelSnapshotJson(const urpg::editor::EditorShell& editorShell) {
+    nlohmann::json panels = nlohmann::json::array();
+    for (const auto& panel : editorShell.panels()) {
+        panels.push_back({
+            {"id", panel.id},
+            {"title", panel.title},
+            {"category", panel.category},
+            {"visible", panel.visible},
+            {"enabled", panel.enabled},
+            {"rendered_last_frame", panel.rendered_last_frame},
+            {"render_count", panel.render_count},
+        });
+    }
+    return panels;
+}
+
+int runSmokeWorkflow(urpg::EngineShell& engineShell, urpg::editor::EditorShell& editorShell,
+                     const EditorOptions& options) {
+    static constexpr std::string_view requiredPanels[] = {
+        "diagnostics", "assets", "ability", "mod", "analytics",
+    };
+
+    nlohmann::json report = {
+        {"schema", "urpg.editor_smoke.v1"},
+        {"project_root", options.project_root.generic_string()},
+        {"project_root_exists", std::filesystem::is_directory(options.project_root)},
+        {"opened_panels", nlohmann::json::array()},
+        {"rendered_panels", nlohmann::json::array()},
+        {"errors", nlohmann::json::array()},
+    };
+
+    if (!std::filesystem::is_directory(options.project_root)) {
+        report["errors"].push_back("project_root_missing");
+    }
+
+    for (const auto panelId : requiredPanels) {
+        if (!editorShell.hasPanel(panelId)) {
+            report["errors"].push_back(std::string("missing_panel:") + std::string(panelId));
+            continue;
+        }
+        if (!editorShell.openPanel(panelId)) {
+            report["errors"].push_back(std::string("open_panel_failed:") + std::string(panelId));
+            continue;
+        }
+        report["opened_panels"].push_back(panelId);
+        if (!runEditorFrame(engineShell, editorShell, false)) {
+            report["errors"].push_back(std::string("render_panel_failed:") + std::string(panelId));
+            continue;
+        }
+        report["rendered_panels"].push_back(panelId);
+    }
+
+    const urpg::project::ProjectSnapshotStore snapshotStore;
+    std::filesystem::remove_all(options.smoke_snapshot_root / "editor_smoke_project_state");
+    const auto snapshot =
+        snapshotStore.createSnapshot(options.project_root, options.smoke_snapshot_root, "editor_smoke_project_state");
+    report["project_snapshot"] = {
+        {"success", snapshot.success},
+        {"path", snapshot.snapshot_path.generic_string()},
+        {"manifest", snapshot.manifest},
+        {"errors", snapshot.errors},
+    };
+    if (!snapshot.success) {
+        report["errors"].push_back("project_snapshot_failed");
+    }
+
+    const auto shellSnapshot = editorShell.snapshot();
+    report["frame_index"] = shellSnapshot.frame_index;
+    report["active_panel_id"] = shellSnapshot.active_panel_id;
+    report["runtime_preview_id"] = shellSnapshot.runtime_preview_id;
+    report["panels"] = panelSnapshotJson(editorShell);
+
+    std::filesystem::create_directories(options.smoke_output.parent_path());
+    std::ofstream out(options.smoke_output, std::ios::binary);
+    if (!out) {
+        std::cerr << "URPG editor smoke failed to open output '" << options.smoke_output.string() << "'.\n";
+        return 1;
+    }
+    out << report.dump(2) << "\n";
+
+    if (!report["errors"].empty()) {
+        std::cerr << "URPG editor smoke failed: " << report["errors"].dump() << "\n";
+        return 1;
+    }
+
+    std::cout << "URPG editor smoke wrote " << options.smoke_output.string() << "\n";
+    return 0;
 }
 
 } // namespace
@@ -244,23 +380,20 @@ int main(int argc, char** argv) {
             printPanelList(editorShell);
         }
 
+        if (options.smoke) {
+            const int smokeResult = runSmokeWorkflow(engineShell, editorShell, options);
+            editorShell.shutdown();
+#ifdef URPG_IMGUI_ENABLED
+            ImGui::DestroyContext();
+#endif
+            engineShell.shutdown();
+            clearSceneStack();
+            return smokeResult;
+        }
+
         int frame = 0;
         while (engineShell.isRunning() && editorShell.isRunning() && (options.frames < 0 || frame < options.frames)) {
-            engineShell.tick();
-#ifdef URPG_IMGUI_ENABLED
-            ImGui::NewFrame();
-#endif
-            if (editorShell.beginFrame(1.0 / 60.0)) {
-                if (options.render_all_panels) {
-                    (void)editorShell.renderVisiblePanels();
-                } else {
-                    (void)editorShell.renderActivePanel();
-                }
-                (void)editorShell.endFrame();
-            }
-#ifdef URPG_IMGUI_ENABLED
-            ImGui::Render();
-#endif
+            (void)runEditorFrame(engineShell, editorShell, options.render_all_panels);
             ++frame;
             if (options.headless) {
                 std::this_thread::sleep_for(std::chrono::milliseconds(1));

@@ -74,27 +74,26 @@ std::optional<ExportTarget> parseTarget(std::string_view value) {
 }
 
 void printHelp() {
-    std::cout
-        << "urpg_pack_cli --target <target> --output <dir> [options]\n\n"
-        << "Targets:\n"
-        << "  Windows_x64\n"
-        << "  Linux_x64\n"
-        << "  macOS_Universal\n"
-        << "  Web_WASM\n\n"
-        << "Options:\n"
-        << "  --runtime-binary <path>       Runtime binary to copy into native exports\n"
-        << "  --manifest-root <path>        Manifest root for bundled assets\n"
-        << "  --normalized-root <path>      Normalized asset root for bundled assets\n"
-        << "  --asset-root <path>           Asset discovery root; may be repeated\n"
-        << "  --no-auto-discovery           Disable default asset discovery roots\n"
-        << "  --no-compress                 Disable asset bundle compression\n"
-        << "  --obfuscate-scripts           Enable script obfuscation flag\n"
-        << "  --include-debug-symbols       Include debug symbol flag in native exports\n"
-        << "  --preflight-only              Run export preflight and stop\n"
-        << "  --validate-only               Run post-export validation for an existing output\n"
-        << "  --explain-hardening           Describe signed bundle and patch/package checks\n"
-        << "  --json                        Emit a machine-readable JSON report\n"
-        << "  --help                        Show this help text\n";
+    std::cout << "urpg_pack_cli --target <target> --output <dir> [options]\n\n"
+              << "Targets:\n"
+              << "  Windows_x64\n"
+              << "  Linux_x64\n"
+              << "  macOS_Universal\n"
+              << "  Web_WASM\n\n"
+              << "Options:\n"
+              << "  --runtime-binary <path>       Runtime binary to stage into native exports\n"
+              << "  --manifest-root <path>        Manifest root for bundled assets\n"
+              << "  --normalized-root <path>      Normalized asset root for bundled assets\n"
+              << "  --asset-root <path>           Asset discovery root; may be repeated\n"
+              << "  --no-auto-discovery           Disable default asset discovery roots\n"
+              << "  --no-compress                 Disable asset bundle compression\n"
+              << "  --obfuscate-scripts           Enable script obfuscation flag\n"
+              << "  --include-debug-symbols       Include debug symbol flag in native exports\n"
+              << "  --preflight-only              Run export preflight and stop\n"
+              << "  --validate-only               Run post-export validation for an existing output\n"
+              << "  --explain-hardening           Describe signed bundle and patch/package checks\n"
+              << "  --json                        Emit a machine-readable JSON report\n"
+              << "  --help                        Show this help text\n";
 }
 
 bool readValue(int argc, char** argv, int& index, std::string& value, std::string& error) {
@@ -247,30 +246,34 @@ nlohmann::json hardeningReportToJson() {
     return {
         {"tool", "urpg_pack_cli"},
         {"phase", "export_hardening"},
-        {"runtimeBundle", {
-            {"signatureMode", "sha256_keyed_bundle_v1"},
-            {"tamperPolicy", "reject_before_load"},
-            {"publication", "temp_file_then_rename"},
-        }},
-        {"artifactCompare", {
-            "changed_assets",
-            "changed_schemas",
-            "missing_files",
-            "signature_changed",
-            "manifest_changed",
-        }},
-        {"patchManifest", {
-            {"tracks", {"changed_data", "changed_assets", "dependencies"}},
-            {"compatibilityChecks", {"base_version", "target_version", "dependency_presence"}},
-        }},
-        {"creatorPackageManifest", {
-            "id",
-            "type",
-            "license_evidence",
-            "compatibility_target",
-            "dependencies",
-            "validation_summary",
-        }},
+        {"runtimeBundle",
+         {
+             {"signatureMode", "sha256_keyed_bundle_v1"},
+             {"tamperPolicy", "reject_before_load"},
+             {"publication", "temp_file_then_rename"},
+         }},
+        {"artifactCompare",
+         {
+             "changed_assets",
+             "changed_schemas",
+             "missing_files",
+             "signature_changed",
+             "manifest_changed",
+         }},
+        {"patchManifest",
+         {
+             {"tracks", {"changed_data", "changed_assets", "dependencies"}},
+             {"compatibilityChecks", {"base_version", "target_version", "dependency_presence"}},
+         }},
+        {"creatorPackageManifest",
+         {
+             "id",
+             "type",
+             "license_evidence",
+             "compatibility_target",
+             "dependencies",
+             "validation_summary",
+         }},
     };
 }
 

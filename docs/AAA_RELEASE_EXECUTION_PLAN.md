@@ -525,7 +525,7 @@ Scope: Convert the senior release audit into ordered implementation work for mov
 - Acceptance criteria: CI rejects C++ style/static-analysis regressions.
 - Verification command or manual test: `pre-commit run --all-files`
 
-### P6-03 - Add End-To-End Editor Smoke Test
+### P6-03 - Add End-To-End Editor Smoke Test (completed)
 
 - Task ID: P6-03
 - Title: Add End-To-End Editor Smoke Test
@@ -543,7 +543,7 @@ Scope: Convert the senior release audit into ordered implementation work for mov
 - Acceptance criteria: editor startup workflow is covered in CI.
 - Verification command or manual test: new `ctest` labeled `pr;editor_smoke`
 
-### P6-04 - Add Exported Runtime Smoke Test
+### P6-04 - Add Exported Runtime Smoke Test (completed)
 
 - Task ID: P6-04
 - Title: Add Exported Runtime Smoke Test
@@ -561,7 +561,40 @@ Scope: Convert the senior release audit into ordered implementation work for mov
 - Acceptance criteria: export path proves runtime load, not only validator output.
 - Verification command or manual test: new `ctest` labeled `nightly;export`
 
-### P6-05 - Final Release Gate
+### P6-04A - Refresh Renderer-Backed Snapshot Goldens (completed)
+
+- Task ID: P6-04A
+- Title: Refresh Renderer-Backed Snapshot Goldens
+- Files to edit: `tests/snapshot/goldens/**`
+- Files to inspect: `tests/snapshot/test_renderer_backed_visual_capture.cpp`, `engine/core/testing/visual_regression_harness.*`
+- Dependencies: P6-04 nightly verification
+- Risk level: Medium
+- Exact implementation steps:
+  1. Run the nightly snapshot lane and capture failing golden comparisons.
+  2. Regenerate renderer-backed goldens with `URPG_REGEN_RENDERER_BACKED_GOLDENS=1`.
+  3. Inspect the changed golden files and confirm the lane passes without regeneration.
+  4. Run the full nightly label set.
+- Acceptance criteria: renderer-backed snapshot and regression lanes pass with committed goldens and no regeneration environment variable.
+- Verification command or manual test: `ctest --preset dev-all -L nightly --output-on-failure`
+
+### P6-04B - Pre-Final Change Hygiene Check (completed)
+
+- Task ID: P6-04B
+- Title: Pre-Final Change Hygiene Check
+- Files to edit: none unless the checks expose generated artifacts, malformed diffs, or missing plan notes
+- Files to inspect: working tree status, latest P6-03/P6-04/P6-04A diffs, generated fixture/golden files
+- Dependencies: P6-03, P6-04, P6-04A
+- Risk level: Medium
+- Exact implementation steps:
+  1. Confirm every untracked file is an intentional source, fixture, test, or golden artifact.
+  2. Run `git diff --check`.
+  3. Re-run focused editor/export smoke checks for the newest release gates.
+  4. Re-run export-labeled CTest selection.
+  5. Confirm no build outputs, temp files, or accidental generated reports are in the working tree.
+- Acceptance criteria: only intentional source/fixture/test/golden files remain changed; diff hygiene passes; latest smoke/export checks pass.
+- Verification command or manual test: `git status --short`, `git diff --check`, `ctest --test-dir build/dev-ninja-debug --output-on-failure -R "urpg_editor_smoke|urpg_exported_runtime_smoke"`, `ctest --test-dir build/dev-ninja-debug --output-on-failure -L "^export$"`
+
+### P6-05 - Final Release Gate (completed)
 
 - Task ID: P6-05
 - Title: Final Release Gate

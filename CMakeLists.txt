@@ -118,6 +118,12 @@ if(MINGW)
             "MinGW RC compiler wrapper for path-safe windres invocations"
             FORCE
         )
+        set(CMAKE_RC_COMPILE_OBJECT
+            "\"${Python3_EXECUTABLE}\" \"${CMAKE_CURRENT_SOURCE_DIR}/tools/ci/windres_wrapper.py\" \"${URPG_REAL_WINDRES_COMPILER}\" -O coff <DEFINES> <INCLUDES> <FLAGS> <SOURCE> <OBJECT>"
+            CACHE STRING
+            "MinGW RC compile rule with path-safe windres wrapper"
+            FORCE
+        )
         unset(CMAKE_RC_COMPILER_ARG1 CACHE)
         unset(CMAKE_RC_COMPILER_LAUNCHER CACHE)
         message(STATUS
@@ -986,6 +992,7 @@ add_executable(urpg_integration_tests
     tests/integration/test_integration_runtime_recovery.cpp
     tests/integration/test_battle_save_integration.cpp
     tests/integration/test_character_save_integration.cpp
+    tests/integration/test_exported_runtime_smoke.cpp
     tests/integration/test_event_authoring_integration.cpp
     tests/integration/test_replay_integration.cpp
     tests/integration/test_simulation_world_integration.cpp
@@ -995,6 +1002,10 @@ add_executable(urpg_integration_tests
 target_link_libraries(urpg_integration_tests PRIVATE urpg_core Catch2::Catch2WithMain)
 target_include_directories(urpg_integration_tests PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
 target_compile_definitions(urpg_integration_tests PRIVATE URPG_SOURCE_DIR="${CMAKE_CURRENT_SOURCE_DIR}")
+add_dependencies(urpg_integration_tests urpg_export_smoke_app)
+add_dependencies(urpg_integration_tests urpg_pack_cli)
+target_compile_definitions(urpg_integration_tests PRIVATE URPG_EXPORT_SMOKE_APP_PATH="$<TARGET_FILE:urpg_export_smoke_app>")
+target_compile_definitions(urpg_integration_tests PRIVATE URPG_PACK_CLI_PATH="$<TARGET_FILE:urpg_pack_cli>")
 urpg_enable_windows_test_binary_unlock(urpg_integration_tests)
 
 add_executable(urpg_snapshot_tests
@@ -1052,6 +1063,15 @@ set_tests_properties(
     PROPERTIES LABELS "nightly;regression"
 )
 
+add_test(
+    NAME urpg_exported_runtime_smoke
+    COMMAND urpg_integration_tests "[export][runtime_smoke]"
+)
+set_tests_properties(
+    urpg_exported_runtime_smoke
+    PROPERTIES LABELS "nightly;export"
+)
+
 catch_discover_tests(
     urpg_compat_tests
     DISCOVERY_MODE PRE_TEST
@@ -1101,6 +1121,25 @@ else()
         "tools/retrieval/tests/test_retrieval_acceptance.py; "
         "tools/vision/tests/test_segmentation_acceptance.py")
 endif()
+
+add_test(
+    NAME urpg_editor_smoke
+    COMMAND
+        $<TARGET_FILE:urpg_editor>
+        --smoke
+        --headless
+        --project-root
+        "${CMAKE_SOURCE_DIR}/content/fixtures/editor_smoke_project"
+        --smoke-output
+        "${CMAKE_BINARY_DIR}/editor_smoke/editor_state.json"
+        --smoke-snapshot-root
+        "${CMAKE_BINARY_DIR}/editor_smoke/snapshots"
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+)
+set_tests_properties(
+    urpg_editor_smoke
+    PROPERTIES LABELS "pr;editor_smoke"
+)
 
 if(URPG_POWERSHELL_EXE)
     add_test(

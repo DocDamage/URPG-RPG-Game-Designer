@@ -1,0 +1,13 @@
+{
+  "_urpg_format_version": "1.0",
+  "_engine_version_min": "0.1.0",
+  "name": "Editor Smoke Project",
+  "determinism": {
+    "level": "A",
+    "authoritative_math": "fixed32",
+    "physics": {
+      "authoritative": true,
+      "note": "Headless editor smoke fixture"
+    }
+  }
+}

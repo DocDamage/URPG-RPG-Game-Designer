@@ -1,6 +1,6 @@
 # Asset Library And More Assets Intake
 
-Status Date: 2026-04-24
+Status Date: 2026-04-25
 
 This document records the current asset-library vertical slice and the local `more assets/` intake that was unpacked, cleaned, indexed, and prepared for repository tracking.
 
@@ -62,13 +62,13 @@ After extraction, `tools/assets/asset_hygiene.py --write-reports --prune-junk` r
 
 The follow-up non-pruning scan reported:
 
-- `file_count`: 159,437
+- `file_count`: 159,443
 - `junk_file_count`: 0
 - `junk_dir_count`: 0
 - `oversize_count`: 4
 - `duplicate_groups`: 43,300
-- `duplicate_file_count`: 95,120
-- `duplicate_waste_bytes`: 3,428,333,794
+- `duplicate_file_count`: 95,117
+- `duplicate_waste_bytes`: 3,428,021,085
 
 ## Duplicate Policy
 

@@ -19,7 +19,7 @@ ExportPackager::ExportResult ExportPackager::runExport(const ExportConfig& confi
         std::filesystem::create_directories(config.outputDir, mkdirError);
         if (mkdirError) {
             log += "Failed to prepare export output directory: " + mkdirError.message() + "\n";
-            return { false, log, {} };
+            return {false, log, {}};
         }
     }
 
@@ -29,19 +29,19 @@ ExportPackager::ExportResult ExportPackager::runExport(const ExportConfig& confi
         for (const auto& error : validation.errors) {
             log += " - " + error + "\n";
         }
-        return { false, log, {} };
+        return {false, log, {}};
     }
 
     // 1. License Audit (Phase 4 Security Gate)
     if (!runLicenseAudit(config, log)) {
-        return { false, log, {} };
+        return {false, log, {}};
     }
 
     // 2. Asset Bundling
     std::vector<std::string> bundles = bundleAssets(config, log);
     if (bundles.empty()) {
         log += "Asset bundling failed.\n";
-        return { false, log, {} };
+        return {false, log, {}};
     }
 
     // 3. Script Packing (with optional obfuscation 4.6)
@@ -52,13 +52,13 @@ ExportPackager::ExportResult ExportPackager::runExport(const ExportConfig& confi
     auto stageResult = export_packager_detail::stageExecutableArtifacts(config);
     log += stageResult.log;
     auto executableFiles = std::move(stageResult.files);
-    if (config.target == ExportTarget::Windows_x64 && !config.runtimeBinaryPath.empty() && executableFiles.empty()) {
-        log += "Real Windows runtime staging failed.\n";
-        return { false, log, bundles };
+    if (config.target != ExportTarget::Web_WASM && !config.runtimeBinaryPath.empty() && executableFiles.empty()) {
+        log += "Real native runtime staging failed.\n";
+        return {false, log, bundles};
     }
     bundles.insert(bundles.end(), executableFiles.begin(), executableFiles.end());
 
-    return { true, log, bundles };
+    return {true, log, bundles};
 }
 
 ExportValidationResult ExportPackager::validateBeforeExport(const ExportConfig& config) const {
@@ -73,18 +73,18 @@ ExportValidationResult ExportPackager::validateBeforeExport(const ExportConfig& 
         }
     }
 
-    if (config.target == ExportTarget::Windows_x64 && !config.runtimeBinaryPath.empty()) {
+    if (!config.runtimeBinaryPath.empty() && config.target != ExportTarget::Web_WASM) {
         std::filesystem::path runtimeBinary(config.runtimeBinaryPath);
         if (runtimeBinary.empty() || !std::filesystem::exists(runtimeBinary) ||
             !std::filesystem::is_regular_file(runtimeBinary)) {
-            errors.emplace_back("Missing runtime binary for real Windows smoke export: " + config.runtimeBinaryPath);
-        } else if (runtimeBinary.extension() != ".exe") {
+            errors.emplace_back("Missing runtime binary for real native smoke export: " + config.runtimeBinaryPath);
+        } else if (config.target == ExportTarget::Windows_x64 && runtimeBinary.extension() != ".exe") {
             errors.emplace_back("Real Windows smoke export requires an .exe runtime binary: " +
                                 config.runtimeBinaryPath);
         }
     }
 
-    return { errors.empty(), std::move(errors) };
+    return {errors.empty(), std::move(errors)};
 }
 
 bool ExportPackager::runLicenseAudit(const ExportConfig& config, std::string& log) {
@@ -116,12 +116,8 @@ std::vector<std::string> ExportPackager::bundleAssets(const ExportConfig& config
         return {};
     }
     const auto assetDiscoveryMode = config.enableAutoAssetDiscovery ? "project_root_scan_v1" : "disabled";
-    auto writeResult = export_packager_detail::writeBundleFile(
-        outDir,
-        config.target,
-        config.compressAssets,
-        assetDiscoveryMode,
-        std::move(buildResult.payloads));
+    auto writeResult = export_packager_detail::writeBundleFile(outDir, config.target, config.compressAssets,
+                                                               assetDiscoveryMode, std::move(buildResult.payloads));
     log += writeResult.log;
     if (!writeResult.success) {
         for (const auto& error : writeResult.errors) {
@@ -129,7 +125,7 @@ std::vector<std::string> ExportPackager::bundleAssets(const ExportConfig& config
         }
         return {};
     }
-    return { writeResult.fileName };
+    return {writeResult.fileName};
 }
 
 void ExportPackager::packScripts(const ExportConfig& config, std::string& log) {
@@ -139,12 +135,17 @@ void ExportPackager::packScripts(const ExportConfig& config, std::string& log) {
 }
 
 std::string ExportPackager::targetToString(ExportTarget t) {
-    switch(t) {
-        case ExportTarget::Windows_x64: return "Windows (x64)";
-        case ExportTarget::Linux_x64: return "Linux (x64)";
-        case ExportTarget::macOS_Universal: return "macOS (Universal)";
-        case ExportTarget::Web_WASM: return "Web (WASM/WebGL)";
-        default: return "Other";
+    switch (t) {
+    case ExportTarget::Windows_x64:
+        return "Windows (x64)";
+    case ExportTarget::Linux_x64:
+        return "Linux (x64)";
+    case ExportTarget::macOS_Universal:
+        return "macOS (Universal)";
+    case ExportTarget::Web_WASM:
+        return "Web (WASM/WebGL)";
+    default:
+        return "Other";
     }
 }
 

@@ -1,0 +1,11 @@
+{
+  "format": "URPG_ASSET_LICENSES_V1",
+  "assets": [
+    {
+      "path": "project.json",
+      "license": "MIT",
+      "attribution": "URPG test fixture",
+      "sourceUrl": "repo://content/fixtures/export_runtime_smoke_project/project.json"
+    }
+  ]
+}
