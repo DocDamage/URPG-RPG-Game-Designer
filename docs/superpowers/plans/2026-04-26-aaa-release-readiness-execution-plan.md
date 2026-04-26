@@ -726,6 +726,8 @@
 
 ### P3-001 - Add Structured Startup Diagnostics And Persistent Logs
 
+**Status:** Completed in this pass.
+
 **Files to edit:**
 - `apps/runtime/main.cpp`
 - `apps/editor/main.cpp`
@@ -742,12 +744,12 @@
 **Risk level:** High.
 
 **Exact implementation steps:**
-- [ ] Identify existing diagnostics/logging APIs and reuse them.
-- [ ] Add a startup diagnostics sink for runtime and editor.
-- [ ] Write startup failures to a stable per-project or per-user log path.
-- [ ] For non-headless app startup, route critical startup failures to a visible error surface if the surface can be initialized.
-- [ ] For headless mode, print the log path and structured error code to stderr.
-- [ ] Add tests for missing project root and invalid startup config.
+- [x] Identify existing diagnostics/logging APIs and reuse them.
+- [x] Add a startup diagnostics sink for runtime and editor.
+- [x] Write startup failures to a stable per-project or per-user log path.
+- [x] For non-headless app startup, route critical startup failures to a visible error surface if the surface can be initialized.
+- [x] For headless mode, print the log path and structured error code to stderr.
+- [x] Add tests for missing project root and invalid startup config.
 
 **Acceptance criteria:**
 - Startup failures are not console-only.
@@ -756,8 +758,17 @@
 
 **Verification command or manual test:**
 - `cmake --build --preset dev-debug --target urpg_runtime urpg_editor urpg_tests`
-- `.\build\dev-ninja-debug\apps\runtime\urpg_runtime.exe --headless --project-root C:\definitely-missing-urpg-root --frames 1`
+- `.\build\dev-ninja-debug\urpg_runtime.exe --headless --project-root C:\definitely-missing-urpg-root --frames 1`
 - `ctest --preset dev-all -R "diagnostic|startup|error"`
+
+**Verification results:**
+- Passed: `cmake --build --preset dev-debug --target urpg_runtime urpg_editor urpg_tests`.
+- Passed: `git diff --check`.
+- Passed: `.\build\dev-ninja-debug\urpg_tests.exe "[diagnostics][startup]"` with 19 assertions in 3 test cases.
+- Passed: `ctest --preset dev-all -R "diagnostic|startup|error" --output-on-failure` with 85/85 tests passing.
+- Passed: `.\build\dev-ninja-debug\urpg_runtime.exe --headless --project-root C:\definitely-missing-urpg-root --frames 1`; returned exit code 1, printed `project_root_missing`, and wrote `runtime_startup.jsonl`.
+- Passed: `.\build\dev-ninja-debug\urpg_runtime.exe --headless --width 0 --height 720 --frames 1`; returned exit code 1, printed `invalid_window_size`, and wrote `runtime_startup.jsonl`.
+- Passed: `.\build\dev-ninja-debug\urpg_editor.exe --headless --project-root C:\definitely-missing-urpg-root --frames 1`; returned exit code 1, printed `project_root_missing`, and wrote `editor_startup.jsonl`.
 
 ### P3-002 - Validate Runtime Project And Asset Directories Before Startup
 

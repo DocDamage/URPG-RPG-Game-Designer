@@ -9,6 +9,7 @@
 #include "engine/core/analytics/analytics_privacy_controller.h"
 #include "engine/core/analytics/analytics_uploader.h"
 #include "engine/core/app_cli.h"
+#include "engine/core/diagnostics/startup_diagnostics.h"
 #include "engine/core/editor/editor_panel_registry.h"
 #include "engine/core/editor/editor_shell.h"
 #include "engine/core/engine_shell.h"
@@ -156,6 +157,18 @@ void printPanelList(const urpg::editor::EditorShell& editor_shell) {
     }
 }
 
+void printStartupFailure(const urpg::diagnostics::StartupDiagnosticRecord& record,
+                         const urpg::diagnostics::StartupDiagnosticWriteResult& writeResult) {
+    std::cerr << "URPG editor startup " << urpg::diagnostics::toString(record.severity) << " [" << record.code
+              << "]: " << record.message << "\n";
+    if (!writeResult.log_path.empty()) {
+        std::cerr << "URPG editor startup diagnostics log: " << writeResult.log_path.string() << "\n";
+    }
+    if (!writeResult.written && !writeResult.error.empty()) {
+        std::cerr << "URPG editor startup diagnostics write failed: " << writeResult.error << "\n";
+    }
+}
+
 bool runEditorFrame(urpg::EngineShell& engineShell, urpg::editor::EditorShell& editorShell, bool renderAllPanels,
                     double deltaSeconds = 1.0 / 60.0) {
     engineShell.tick();
@@ -283,6 +296,12 @@ int main(int argc, char** argv) {
         }
 
         const urpg::cli::EditorCliOptions options = cli.options;
+        if (const auto startupFailure = urpg::diagnostics::validateStartupInputs(
+                "editor", options.project_root, options.width, options.height, options.headless)) {
+            const auto writeResult = urpg::diagnostics::writeStartupDiagnostic(*startupFailure);
+            printStartupFailure(*startupFailure, writeResult);
+            return 1;
+        }
 
         urpg::WindowConfig config;
         config.title = "URPG Editor";

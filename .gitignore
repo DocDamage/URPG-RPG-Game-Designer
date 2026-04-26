@@ -2,6 +2,7 @@ build/
 build-local/
 .vscode/
 .cache/
+.urpg/
 .venv/
 Testing/
 !engine/core/testing/

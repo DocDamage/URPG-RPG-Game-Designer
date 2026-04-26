@@ -451,6 +451,7 @@ add_library(urpg_core
     engine/core/mod/mod_registry_validator.cpp
     engine/core/mod/mod_sdk_sample_validator.cpp
     engine/core/mod/mod_loader.cpp
+    engine/core/diagnostics/startup_diagnostics.cpp
     engine/core/export/creator_package_manifest.cpp
     engine/core/export/export_bundle_contract.cpp
     engine/core/export/export_artifact_compare.cpp
@@ -1039,6 +1040,7 @@ add_executable(urpg_tests
     tests/unit/test_npc_schedule.cpp
     tests/unit/test_puzzle_registry.cpp
     tests/unit/test_runtime_hint_system.cpp
+    tests/unit/test_startup_diagnostics.cpp
     tests/unit/test_player_experience_platform_suite.cpp
     tests/unit/test_capture_theme_presentation_suite.cpp
     tests/unit/test_s31_template_evidence_snapshots.cpp

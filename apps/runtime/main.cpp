@@ -1,4 +1,5 @@
 #include "engine/core/app_cli.h"
+#include "engine/core/diagnostics/startup_diagnostics.h"
 #include "engine/core/engine_shell.h"
 #include "engine/core/platform/headless_renderer.h"
 #include "engine/core/platform/headless_surface.h"
@@ -53,6 +54,18 @@ void printStartupDiagnostics(const urpg::RuntimeStartupReport& report) {
     }
 }
 
+void printStartupFailure(const urpg::diagnostics::StartupDiagnosticRecord& record,
+                         const urpg::diagnostics::StartupDiagnosticWriteResult& writeResult) {
+    std::cerr << "URPG runtime startup " << urpg::diagnostics::toString(record.severity) << " [" << record.code
+              << "]: " << record.message << "\n";
+    if (!writeResult.log_path.empty()) {
+        std::cerr << "URPG runtime startup diagnostics log: " << writeResult.log_path.string() << "\n";
+    }
+    if (!writeResult.written && !writeResult.error.empty()) {
+        std::cerr << "URPG runtime startup diagnostics write failed: " << writeResult.error << "\n";
+    }
+}
+
 } // namespace
 
 int main(int argc, char** argv) {
@@ -72,6 +85,12 @@ int main(int argc, char** argv) {
         }
 
         const urpg::cli::RuntimeCliOptions options = cli.options;
+        if (const auto startupFailure = urpg::diagnostics::validateStartupInputs(
+                "runtime", options.project_root, options.width, options.height, options.headless)) {
+            const auto writeResult = urpg::diagnostics::writeStartupDiagnostic(*startupFailure);
+            printStartupFailure(*startupFailure, writeResult);
+            return 1;
+        }
 
         urpg::WindowConfig config;
         config.title = "URPG Runtime";
