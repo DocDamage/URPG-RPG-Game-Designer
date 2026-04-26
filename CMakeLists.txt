@@ -302,6 +302,7 @@ add_library(urpg_core
     engine/core/save/runtime_save_startup.cpp
     engine/core/save/lzstring_decompressor.cpp
     engine/core/save/rpgmaker_save_reader.cpp
+    engine/core/settings/app_settings_store.cpp
     engine/core/battle/battle_core.cpp
     engine/core/battle/battle_ai_bridge.cpp
     engine/core/battle/battle_formula_probe.cpp
@@ -1016,6 +1017,7 @@ add_executable(urpg_tests
     tests/unit/test_analytics_dispatcher.cpp
     tests/unit/test_analytics_panel.cpp
     tests/unit/test_app_cli.cpp
+    tests/unit/test_app_settings_store.cpp
     tests/unit/test_template_acceptance.cpp
     tests/unit/test_template_bar_quality.cpp
     tests/unit/test_dev_room_generator.cpp

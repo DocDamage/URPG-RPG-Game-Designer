@@ -877,13 +877,15 @@
 
 **Risk level:** High.
 
+**Status:** Completed in this pass.
+
 **Exact implementation steps:**
-- [ ] Locate or create a settings store using existing JSON conventions.
-- [ ] Persist runtime window size, fullscreen/window mode if supported, audio volume, input mapping path, and accessibility preferences.
-- [ ] Persist editor ImGui settings to a project-local or user-local path instead of `nullptr`.
-- [ ] Persist editor layout/workspace settings if a custom workspace store exists.
-- [ ] Add migration/default behavior for missing or malformed settings files.
-- [ ] Add tests for load defaults, save, reload, and malformed JSON recovery.
+- [x] Locate or create a settings store using existing JSON conventions.
+- [x] Persist runtime window size, fullscreen/window mode, audio volume, input mapping path, and accessibility preferences.
+- [x] Persist editor ImGui settings to a project-local path instead of `nullptr`.
+- [x] Persist editor workspace settings path and restore preference in the editor settings file.
+- [x] Add migration/default behavior for missing or malformed settings files.
+- [x] Add tests for load defaults, save, reload, and malformed JSON recovery.
 
 **Acceptance criteria:**
 - Runtime/editor settings survive restart.
@@ -894,6 +896,15 @@
 - `cmake --build --preset dev-debug --target urpg_runtime urpg_editor urpg_tests`
 - `ctest --preset dev-all -R "settings|persistence|imgui"`
 - Manual restart verification is required for visible editor layout persistence.
+
+**Verification results:**
+- Passed: `cmake --build --preset dev-debug --target urpg_runtime urpg_editor urpg_tests`.
+- Passed: `.\build\dev-ninja-debug\urpg_tests.exe "[settings][persistence]"` with 33 assertions in 4 test cases.
+- Passed: `.\build\dev-ninja-debug\urpg_tests.exe "[cli]"` with 544 assertions in 8 test cases.
+- Passed: `ctest --preset dev-all -R "settings|persistence|imgui" --output-on-failure` with 7/7 tests passing.
+- Passed: runtime restart check with a temporary valid project root. First run used `--width 1111 --height 777`; second run omitted dimensions; `.urpg/settings/runtime.json` retained width `1111` and height `777`.
+- Passed: editor restart check with a temporary project root. First run used `--width 1222 --height 888`; second run omitted dimensions; `.urpg/settings/editor.json` retained width `1222` and height `888`, and `.urpg/settings/editor_imgui.ini` existed.
+- Unverified: visible editor layout restoration quality in a non-headless interactive editor session.
 
 ### P4-002 - Add Analytics Privacy Consent And Disable Path
 

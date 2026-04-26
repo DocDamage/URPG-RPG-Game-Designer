@@ -52,7 +52,14 @@ TEST_CASE("Runtime CLI preserves valid option parsing", "[cli][runtime]") {
     REQUIRE(parsed.options.frames == 3);
     REQUIRE(parsed.options.width == 800);
     REQUIRE(parsed.options.height == 600);
+    REQUIRE(parsed.options.width_provided);
+    REQUIRE(parsed.options.height_provided);
     REQUIRE(parsed.options.project_root == "demo");
+
+    const auto defaults = urpg::cli::parseRuntimeCli(args({}), false);
+    REQUIRE(defaults.ok());
+    REQUIRE_FALSE(defaults.options.width_provided);
+    REQUIRE_FALSE(defaults.options.height_provided);
 }
 
 TEST_CASE("Editor CLI parses help and version without requiring engine startup", "[cli][editor]") {
@@ -108,6 +115,8 @@ TEST_CASE("Editor CLI preserves valid option parsing and smoke defaults", "[cli]
     REQUIRE(parsed.options.frames == 7);
     REQUIRE(parsed.options.width == 1280);
     REQUIRE(parsed.options.height == 720);
+    REQUIRE(parsed.options.width_provided);
+    REQUIRE(parsed.options.height_provided);
     REQUIRE(parsed.options.project_root == "demo");
     REQUIRE(parsed.options.list_panels);
     REQUIRE(parsed.options.render_all_panels);
@@ -119,6 +128,8 @@ TEST_CASE("Editor CLI preserves valid option parsing and smoke defaults", "[cli]
     REQUIRE(smoke.options.smoke);
     REQUIRE(smoke.options.headless);
     REQUIRE(smoke.options.frames == 0);
+    REQUIRE_FALSE(smoke.options.width_provided);
+    REQUIRE_FALSE(smoke.options.height_provided);
     REQUIRE_FALSE(smoke.options.smoke_output.empty());
     REQUIRE_FALSE(smoke.options.smoke_snapshot_root.empty());
 }

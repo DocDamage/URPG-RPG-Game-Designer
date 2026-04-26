@@ -7,6 +7,7 @@
 #include "engine/core/scene/map_scene.h"
 #include "engine/core/scene/runtime_title_scene.h"
 #include "engine/core/scene/scene_manager.h"
+#include "engine/core/settings/app_settings_store.h"
 #include "engine/core/version.h"
 
 #ifndef URPG_HEADLESS
@@ -85,8 +86,21 @@ int main(int argc, char** argv) {
         }
 
         const urpg::cli::RuntimeCliOptions options = cli.options;
+        const auto settingsPaths = urpg::settings::appSettingsPaths(options.project_root);
+        auto settingsLoad = urpg::settings::loadRuntimeSettings(settingsPaths.runtime_settings);
+        for (const auto& warning : settingsLoad.report.warnings) {
+            std::cerr << "URPG runtime settings warning: " << warning << "\n";
+        }
+        if (options.width_provided) {
+            settingsLoad.settings.window.width = options.width;
+        }
+        if (options.height_provided) {
+            settingsLoad.settings.window.height = options.height;
+        }
+
         if (const auto startupFailure = urpg::diagnostics::validateStartupInputs(
-                "runtime", options.project_root, options.width, options.height, options.headless)) {
+                "runtime", options.project_root, settingsLoad.settings.window.width, settingsLoad.settings.window.height,
+                options.headless)) {
             const auto writeResult = urpg::diagnostics::writeStartupDiagnostic(*startupFailure);
             printStartupFailure(*startupFailure, writeResult);
             return 1;
@@ -100,8 +114,10 @@ int main(int argc, char** argv) {
 
         urpg::WindowConfig config;
         config.title = "URPG Runtime";
-        config.width = options.width;
-        config.height = options.height;
+        config.width = settingsLoad.settings.window.width;
+        config.height = settingsLoad.settings.window.height;
+        config.fullscreen = settingsLoad.settings.window.fullscreen;
+        config.resizable = settingsLoad.settings.window.resizable;
 
         std::unique_ptr<urpg::IPlatformSurface> surface;
         std::unique_ptr<urpg::RendererBackend> renderer;
@@ -177,6 +193,15 @@ int main(int argc, char** argv) {
 
         shell.shutdown();
         clearSceneStack();
+
+        settingsLoad.settings.window.width = config.width;
+        settingsLoad.settings.window.height = config.height;
+        settingsLoad.settings.window.fullscreen = config.fullscreen;
+        settingsLoad.settings.window.resizable = config.resizable;
+        std::string settingsError;
+        if (!urpg::settings::saveRuntimeSettings(settingsPaths.runtime_settings, settingsLoad.settings, &settingsError)) {
+            std::cerr << "URPG runtime failed to save settings: " << settingsError << "\n";
+        }
 
         std::cout << "URPG runtime exited after " << frame << " frame(s).\n";
         return 0;

@@ -20,6 +20,7 @@
 #include "engine/core/project/project_snapshot_store.h"
 #include "engine/core/scene/map_scene.h"
 #include "engine/core/scene/scene_manager.h"
+#include "engine/core/settings/app_settings_store.h"
 #include "engine/core/version.h"
 #include <nlohmann/json.hpp>
 
@@ -296,8 +297,21 @@ int main(int argc, char** argv) {
         }
 
         const urpg::cli::EditorCliOptions options = cli.options;
+        const auto settingsPaths = urpg::settings::appSettingsPaths(options.project_root);
+        auto settingsLoad = urpg::settings::loadEditorSettings(settingsPaths.editor_settings, settingsPaths);
+        for (const auto& warning : settingsLoad.report.warnings) {
+            std::cerr << "URPG editor settings warning: " << warning << "\n";
+        }
+        if (options.width_provided) {
+            settingsLoad.settings.window.width = options.width;
+        }
+        if (options.height_provided) {
+            settingsLoad.settings.window.height = options.height;
+        }
+
         if (const auto startupFailure = urpg::diagnostics::validateStartupInputs(
-                "editor", options.project_root, options.width, options.height, options.headless)) {
+                "editor", options.project_root, settingsLoad.settings.window.width, settingsLoad.settings.window.height,
+                options.headless)) {
             const auto writeResult = urpg::diagnostics::writeStartupDiagnostic(*startupFailure);
             printStartupFailure(*startupFailure, writeResult);
             return 1;
@@ -305,8 +319,10 @@ int main(int argc, char** argv) {
 
         urpg::WindowConfig config;
         config.title = "URPG Editor";
-        config.width = options.width;
-        config.height = options.height;
+        config.width = settingsLoad.settings.window.width;
+        config.height = settingsLoad.settings.window.height;
+        config.fullscreen = settingsLoad.settings.window.fullscreen;
+        config.resizable = settingsLoad.settings.window.resizable;
 
         std::unique_ptr<urpg::IPlatformSurface> surface;
         std::unique_ptr<urpg::RendererBackend> renderer;
@@ -350,8 +366,10 @@ int main(int argc, char** argv) {
 
 #ifdef URPG_IMGUI_ENABLED
         ImGui::CreateContext();
-        ImGui::GetIO().DisplaySize = ImVec2(static_cast<float>(options.width), static_cast<float>(options.height));
-        ImGui::GetIO().IniFilename = nullptr;
+        ImGui::GetIO().DisplaySize = ImVec2(static_cast<float>(config.width), static_cast<float>(config.height));
+        std::filesystem::create_directories(settingsLoad.settings.imgui_ini_path.parent_path());
+        const std::string imguiIniFilename = settingsLoad.settings.imgui_ini_path.string();
+        ImGui::GetIO().IniFilename = imguiIniFilename.c_str();
         ImGui::GetIO().LogFilename = nullptr;
         unsigned char* fontPixels = nullptr;
         int fontWidth = 0;
@@ -412,6 +430,15 @@ int main(int argc, char** argv) {
 #endif
         engineShell.shutdown();
         clearSceneStack();
+
+        settingsLoad.settings.window.width = config.width;
+        settingsLoad.settings.window.height = config.height;
+        settingsLoad.settings.window.fullscreen = config.fullscreen;
+        settingsLoad.settings.window.resizable = config.resizable;
+        std::string settingsError;
+        if (!urpg::settings::saveEditorSettings(settingsPaths.editor_settings, settingsLoad.settings, &settingsError)) {
+            std::cerr << "URPG editor failed to save settings: " << settingsError << "\n";
+        }
 
         std::cout << "URPG editor exited after " << frame << " frame(s).\n";
         return 0;

@@ -84,6 +84,7 @@ RuntimeCliParseResult parseRuntimeCli(std::vector<std::string_view> args, bool d
                 result.error = invalidValueError(arg, args[i]);
                 return result;
             }
+            result.options.width_provided = true;
         } else if (arg == "--height") {
             if (i + 1 >= args.size() || needsValue(args[i + 1])) {
                 result.error = missingValueError(arg);
@@ -93,6 +94,7 @@ RuntimeCliParseResult parseRuntimeCli(std::vector<std::string_view> args, bool d
                 result.error = invalidValueError(arg, args[i]);
                 return result;
             }
+            result.options.height_provided = true;
         } else if (arg == "--project-root") {
             if (i + 1 >= args.size() || needsValue(args[i + 1])) {
                 result.error = missingValueError(arg);
@@ -138,6 +140,7 @@ EditorCliParseResult parseEditorCli(std::vector<std::string_view> args, bool def
                 result.error = invalidValueError(arg, args[i]);
                 return result;
             }
+            result.options.width_provided = true;
         } else if (arg == "--height") {
             if (i + 1 >= args.size() || needsValue(args[i + 1])) {
                 result.error = missingValueError(arg);
@@ -147,6 +150,7 @@ EditorCliParseResult parseEditorCli(std::vector<std::string_view> args, bool def
                 result.error = invalidValueError(arg, args[i]);
                 return result;
             }
+            result.options.height_provided = true;
         } else if (arg == "--list-panels") {
             result.options.list_panels = true;
         } else if (arg == "--render-all-panels") {

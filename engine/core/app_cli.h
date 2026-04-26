@@ -20,6 +20,8 @@ struct RuntimeCliOptions {
     int frames = -1;
     std::uint32_t width = 1280;
     std::uint32_t height = 720;
+    bool width_provided = false;
+    bool height_provided = false;
     std::filesystem::path project_root = std::filesystem::current_path();
 };
 
@@ -28,6 +30,8 @@ struct EditorCliOptions {
     int frames = -1;
     std::uint32_t width = 1440;
     std::uint32_t height = 900;
+    bool width_provided = false;
+    bool height_provided = false;
     bool list_panels = false;
     bool render_all_panels = false;
     bool smoke = false;
