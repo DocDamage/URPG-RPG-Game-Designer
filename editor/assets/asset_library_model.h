@@ -11,6 +11,7 @@
 namespace urpg::editor {
 
 struct AssetLibraryModelSnapshot {
+    std::string status = "empty";
     size_t asset_count = 0;
     size_t issue_count = 0;
     size_t duplicate_group_count = 0;
@@ -18,6 +19,8 @@ struct AssetLibraryModelSnapshot {
     size_t cleanup_refused_count = 0;
     bool reports_loaded = false;
     std::string status_message = "No asset library reports are loaded.";
+    std::string error_message;
+    std::string remediation = "Run tools/assets/asset_hygiene.py --write-reports to generate asset library reports.";
 };
 
 class AssetLibraryModel {

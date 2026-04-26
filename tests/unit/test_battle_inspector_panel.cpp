@@ -33,6 +33,10 @@ TEST_CASE("Battle inspector panel refreshes runtime flow, queue, and preview", "
     panel.bindRuntime(flow, queue);
     panel.refresh();
 
+    REQUIRE(panel.lastRenderSnapshot().status == "error");
+    REQUIRE(panel.lastRenderSnapshot().runtime_bound);
+    REQUIRE(panel.lastRenderSnapshot().visible_row_count == 2);
+    REQUIRE(panel.lastRenderSnapshot().issue_count >= 1);
     REQUIRE(panel.getModel().Summary().phase == "action");
     REQUIRE(panel.getModel().Summary().total_actions == 2);
     REQUIRE(panel.getModel().Summary().issue_count >= 1);
@@ -56,7 +60,33 @@ TEST_CASE("Battle inspector panel refreshes runtime flow, queue, and preview", "
 
     panel.clearRuntime();
     panel.refresh();
+    REQUIRE(panel.lastRenderSnapshot().status == "disabled");
+    REQUIRE_FALSE(panel.lastRenderSnapshot().runtime_bound);
     REQUIRE(panel.getModel().VisibleRows().empty());
+}
+
+TEST_CASE("Battle inspector panel surfaces disabled and empty render states", "[battle][editor][panel][empty]") {
+    urpg::editor::BattleInspectorPanel panel;
+    panel.render();
+
+    auto snapshot = panel.lastRenderSnapshot();
+    REQUIRE(snapshot.status == "disabled");
+    REQUIRE(snapshot.can_refresh == false);
+    REQUIRE_FALSE(snapshot.remediation.empty());
+
+    urpg::battle::BattleFlowController flow;
+    flow.beginBattle(true);
+    urpg::battle::BattleActionQueue queue;
+    panel.bindRuntime(flow, queue);
+    panel.refresh();
+
+    snapshot = panel.lastRenderSnapshot();
+    REQUIRE(snapshot.status == "empty");
+    REQUIRE(snapshot.runtime_bound);
+    REQUIRE(snapshot.can_refresh);
+    REQUIRE(snapshot.visible_row_count == 0);
+    REQUIRE(snapshot.message == "No battle actions are queued.");
+    REQUIRE(snapshot.remediation.find("Queue a battle action") != std::string::npos);
 }
 
 TEST_CASE("Battle inspector panel binds live scene diagnostics preview payload", "[battle][editor][panel]") {

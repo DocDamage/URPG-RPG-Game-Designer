@@ -43,6 +43,7 @@ void BattleInspectorPanel::clearRuntime() {
     preview_override_.reset();
     model_ = BattleInspectorModel{};
     preview_panel_.clearRuntime();
+    captureRenderSnapshot();
 }
 
 BattleInspectorModel& BattleInspectorPanel::getModel() {
@@ -85,11 +86,13 @@ void BattleInspectorPanel::render() {
         return;
     }
     preview_panel_.render();
+    captureRenderSnapshot();
 }
 
 void BattleInspectorPanel::refresh() {
     if (!flow_controller_ || !action_queue_) {
         preview_panel_.refresh();
+        captureRenderSnapshot();
         return;
     }
 
@@ -98,10 +101,15 @@ void BattleInspectorPanel::refresh() {
     model_.SetSubjectFilter(subject_filter_);
     applyPreviewBinding();
     preview_panel_.refresh();
+    captureRenderSnapshot();
 }
 
 void BattleInspectorPanel::update() {
     refresh();
+}
+
+const BattleInspectorPanel::RenderSnapshot& BattleInspectorPanel::lastRenderSnapshot() const {
+    return last_render_snapshot_;
 }
 
 void BattleInspectorPanel::applyDefaultPreviewBinding() {
@@ -119,6 +127,42 @@ void BattleInspectorPanel::applyPreviewBinding() {
     preview_panel_.setPhysicalPreviewContext(preview_override_->physical_preview);
     preview_panel_.setMagicalPreviewContext(preview_override_->magical_preview);
     preview_panel_.setEscapePreviewAgility(preview_override_->party_agi, preview_override_->troop_agi);
+}
+
+void BattleInspectorPanel::captureRenderSnapshot() {
+    last_render_snapshot_ = {};
+    last_render_snapshot_.visible = visible_;
+    last_render_snapshot_.runtime_bound = flow_controller_ != nullptr && action_queue_ != nullptr;
+    last_render_snapshot_.can_refresh = last_render_snapshot_.runtime_bound;
+    last_render_snapshot_.visible_row_count = model_.VisibleRows().size();
+    last_render_snapshot_.issue_count = model_.Summary().issue_count;
+    last_render_snapshot_.phase = model_.Summary().phase;
+
+    if (!last_render_snapshot_.runtime_bound) {
+        last_render_snapshot_.status = "disabled";
+        last_render_snapshot_.message = "No battle runtime is bound.";
+        last_render_snapshot_.remediation =
+            "Bind BattleFlowController and BattleActionQueue before rendering battle diagnostics.";
+        return;
+    }
+
+    if (model_.Summary().issue_count > 0) {
+        last_render_snapshot_.status = "error";
+        last_render_snapshot_.message = "Battle queue contains diagnostics.";
+        last_render_snapshot_.remediation = "Review invalid queued actions before continuing battle simulation.";
+        return;
+    }
+
+    if (model_.VisibleRows().empty()) {
+        last_render_snapshot_.status = "empty";
+        last_render_snapshot_.message = "No battle actions are queued.";
+        last_render_snapshot_.remediation = "Queue a battle action or advance the battle flow to inspect runtime actions.";
+        return;
+    }
+
+    last_render_snapshot_.status = "ready";
+    last_render_snapshot_.message = "Battle diagnostics are available.";
+    last_render_snapshot_.remediation = "";
 }
 
 } // namespace urpg::editor

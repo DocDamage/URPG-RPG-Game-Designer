@@ -828,12 +828,14 @@
 
 **Risk level:** Medium.
 
+**Status:** Completed for the high-risk synchronous panels in this pass. Loading-state behavior remains unverified because the inspected panels do not currently expose a deferred or background load path.
+
 **Exact implementation steps:**
-- [ ] For every top-level panel, identify data dependencies and async/loading paths.
-- [ ] Add explicit empty state text for no data.
-- [ ] Add explicit loading state for deferred or background operations.
-- [ ] Add explicit error state for failed load/parse/validation.
-- [ ] Add tests or smoke assertions for the highest-risk panels first: assets, save, export, analytics, mod manager, battle, and spatial.
+- [x] Identify data dependencies and async/loading paths for the highest-risk panels: assets, save, battle, and spatial.
+- [x] Add explicit empty state text for no data in asset library, save inspector, battle inspector, and spatial authoring snapshots.
+- [ ] Add explicit loading state for deferred or background operations. Unverified: no deferred/background operation path exists in the inspected panels; verification requires adding or identifying a real async editor workflow.
+- [x] Add explicit error state for failed load/parse/validation in asset library, save inspector, battle inspector, and spatial binding snapshots.
+- [x] Add tests or smoke assertions for the highest-risk panels first: assets, save, battle, and spatial. Export, analytics, and mod manager already had matching coverage in the CTest regex and were not changed in this pass.
 
 **Acceptance criteria:**
 - Top-level panels do not render blank content for empty/error/loading states.
@@ -843,6 +845,17 @@
 - `cmake --build --preset dev-debug --target urpg_tests`
 - `ctest --preset dev-all -R "editor|empty|loading|error"`
 - Manual verification remains required for visual quality in `urpg_editor`.
+
+**Verification results:**
+- Passed: `git diff --check`.
+- Passed: `cmake --build --preset dev-debug --target urpg_tests`.
+- Passed: `.\build\dev-ninja-debug\urpg_tests.exe "[assets][asset_library][editor]"` with 23 assertions in 4 test cases.
+- Passed: `.\build\dev-ninja-debug\urpg_tests.exe "[save][panel]"` with 53 assertions in 3 test cases.
+- Passed: `.\build\dev-ninja-debug\urpg_tests.exe "[battle][editor][panel]"` with 41 assertions in 3 test cases. Existing warning observed: missing battleback fallback asset `img/battlebacks1/Grassland.png`.
+- Passed: `.\build\dev-ninja-debug\urpg_tests.exe "[editor][spatial]"` with 387 assertions in 7 test cases.
+- Passed: `ctest --preset dev-all -R "editor|empty|loading|error" --output-on-failure` with 70/70 tests passing.
+- Unverified: manual visual quality in `urpg_editor`.
+- Unverified: loading-state behavior for this pass because the changed panels are synchronous and expose no deferred/background load path.
 
 ---
 

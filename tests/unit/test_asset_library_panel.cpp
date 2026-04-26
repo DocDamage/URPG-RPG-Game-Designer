@@ -33,7 +33,29 @@ TEST_CASE("AssetLibraryPanel empty snapshot explains missing reports", "[assets]
     REQUIRE(panel.hasRenderedFrame());
     REQUIRE(panel.lastRenderSnapshot().asset_count == 0);
     REQUIRE_FALSE(panel.lastRenderSnapshot().reports_loaded);
+    REQUIRE(panel.lastRenderSnapshot().status == "empty");
     REQUIRE(panel.lastRenderSnapshot().status_message == "No asset library reports are loaded.");
+    REQUIRE_FALSE(panel.lastRenderSnapshot().remediation.empty());
+}
+
+TEST_CASE("AssetLibraryPanel load error snapshot includes remediation", "[assets][asset_library][editor][error]") {
+    const auto root = std::filesystem::temp_directory_path() / "urpg_asset_library_missing_reports";
+    std::filesystem::remove_all(root);
+    std::filesystem::create_directories(root);
+
+    urpg::editor::AssetLibraryPanel panel;
+    std::string error;
+    REQUIRE_FALSE(panel.model().loadReportsFromDirectory(root, &error));
+    panel.render();
+
+    const auto& snapshot = panel.lastRenderSnapshot();
+    REQUIRE(snapshot.status == "empty");
+    REQUIRE(snapshot.status_message == "Asset library reports are missing.");
+    REQUIRE_FALSE(snapshot.error_message.empty());
+    REQUIRE(snapshot.error_message.find(root.string()) != std::string::npos);
+    REQUIRE(snapshot.remediation.find("asset_hygiene.py") != std::string::npos);
+
+    std::filesystem::remove_all(root);
 }
 
 TEST_CASE("AssetLibraryModel loads canonical report directory shape", "[assets][asset_library][editor]") {

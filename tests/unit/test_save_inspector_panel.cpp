@@ -4,6 +4,30 @@
 
 #include <filesystem>
 
+TEST_CASE("SaveInspectorPanel render snapshot surfaces disabled and empty states", "[save][panel][empty][error]") {
+    urpg::editor::SaveInspectorPanel panel;
+    panel.render();
+
+    auto snapshot = panel.lastRenderSnapshot();
+    REQUIRE(snapshot.status == "disabled");
+    REQUIRE(snapshot.runtime_bound == false);
+    REQUIRE(snapshot.can_refresh == false);
+    REQUIRE_FALSE(snapshot.remediation.empty());
+
+    urpg::SaveCatalog catalog;
+    urpg::SaveSessionCoordinator coordinator(catalog);
+    panel.bindRuntime(catalog, coordinator);
+    panel.refresh();
+
+    snapshot = panel.lastRenderSnapshot();
+    REQUIRE(snapshot.status == "empty");
+    REQUIRE(snapshot.runtime_bound == true);
+    REQUIRE(snapshot.can_refresh == true);
+    REQUIRE(snapshot.visible_row_count == 0);
+    REQUIRE(snapshot.message == "No save slots are visible.");
+    REQUIRE(snapshot.remediation.find("Create a save slot") != std::string::npos);
+}
+
 TEST_CASE("SaveInspectorPanel - Refresh ingests runtime save catalog state", "[save][panel][integration]") {
     const auto base = std::filesystem::temp_directory_path() / "urpg_save_inspector_panel";
     std::filesystem::create_directories(base);
@@ -27,6 +51,8 @@ TEST_CASE("SaveInspectorPanel - Refresh ingests runtime save catalog state", "[s
 
     panel.refresh();
 
+    REQUIRE(panel.lastRenderSnapshot().status == "ready");
+    REQUIRE(panel.lastRenderSnapshot().visible_row_count == 1);
     const auto& firstSummary = panel.getModel().Summary();
     REQUIRE(firstSummary.total_slots == 1);
     REQUIRE(firstSummary.quicksave_slots == 1);
@@ -100,6 +126,10 @@ TEST_CASE("SaveInspectorPanel - Policy draft validates and applies to runtime", 
     REQUIRE_FALSE(invalidValidation.can_apply);
     REQUIRE(invalidValidation.error_count == 2);
     REQUIRE(panel.getModel().PolicyIssues().size() == 2);
+    panel.render();
+    REQUIRE(panel.lastRenderSnapshot().status == "error");
+    REQUIRE(panel.lastRenderSnapshot().issue_count == 2);
+    REQUIRE_FALSE(panel.lastRenderSnapshot().can_apply_policy);
     REQUIRE_FALSE(panel.applyPolicyToRuntime());
     REQUIRE(coordinator.autosavePolicy().enabled == false);
     REQUIRE(coordinator.autosavePolicy().slot_id == 3);

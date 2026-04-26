@@ -6,6 +6,18 @@ namespace urpg::editor {
 
 class SaveInspectorPanel {
 public:
+    struct RenderSnapshot {
+        std::string status = "disabled";
+        std::string message = "No save runtime is bound.";
+        std::string remediation = "Bind SaveCatalog and SaveSessionCoordinator before rendering save state.";
+        bool runtime_bound = false;
+        bool visible = true;
+        bool can_refresh = false;
+        bool can_apply_policy = false;
+        size_t visible_row_count = 0;
+        size_t issue_count = 0;
+    };
+
     SaveInspectorPanel() = default;
 
     void bindRuntime(const urpg::SaveCatalog& catalog,
@@ -33,11 +45,15 @@ public:
     void render();
     void refresh();
     void update();
+    const RenderSnapshot& lastRenderSnapshot() const;
 
 private:
+    void captureRenderSnapshot();
+
     const urpg::SaveCatalog* catalog_ = nullptr;
     urpg::SaveSessionCoordinator* coordinator_ = nullptr;
     SaveInspectorModel model_;
+    RenderSnapshot last_render_snapshot_;
     bool visible_ = true;
     bool show_problem_slots_only_ = false;
     bool include_autosave_ = true;

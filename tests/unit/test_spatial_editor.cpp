@@ -49,6 +49,32 @@ TEST_CASE("Spatial Editor Tooling Integration", "[editor][spatial]") {
         // Should not crash
     }
 
+    SECTION("SpatialAuthoringWorkspace surfaces target binding states") {
+        SpatialAuthoringWorkspace workspace;
+        workspace.Render(urpg::FrameContext{});
+
+        auto snapshot = workspace.lastRenderSnapshot();
+        REQUIRE(snapshot.status == "disabled");
+        REQUIRE_FALSE(snapshot.has_target_scene);
+        REQUIRE_FALSE(snapshot.has_target_overlay);
+        REQUIRE_FALSE(snapshot.remediation.empty());
+
+        urpg::scene::MapScene map("001", 10, 10);
+        workspace.SetTargets(&map, nullptr);
+        snapshot = workspace.lastRenderSnapshot();
+        REQUIRE(snapshot.status == "error");
+        REQUIRE(snapshot.has_target_scene);
+        REQUIRE_FALSE(snapshot.has_target_overlay);
+        REQUIRE(snapshot.remediation.find("SpatialMapOverlay") != std::string::npos);
+
+        workspace.SetTargets(&map, &overlay);
+        snapshot = workspace.lastRenderSnapshot();
+        REQUIRE(snapshot.status == "ready");
+        REQUIRE(snapshot.has_target_scene);
+        REQUIRE(snapshot.has_target_overlay);
+        REQUIRE(snapshot.remediation.empty());
+    }
+
     SECTION("PropPlacement adds instances") {
         PropPlacementPanel placement;
         placement.SetTarget(&overlay);

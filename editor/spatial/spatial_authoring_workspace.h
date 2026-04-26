@@ -45,6 +45,9 @@ public:
     };
 
     struct RenderSnapshot {
+        std::string status = "disabled";
+        std::string message = "No spatial authoring targets are bound.";
+        std::string remediation = "Bind a MapScene and SpatialMapOverlay before using spatial authoring tools.";
         bool visible = true;
         bool has_target_scene = false;
         bool has_target_overlay = false;

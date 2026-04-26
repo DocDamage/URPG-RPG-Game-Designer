@@ -12,6 +12,7 @@ void SaveInspectorPanel::clearRuntime() {
     catalog_ = nullptr;
     coordinator_ = nullptr;
     model_ = SaveInspectorModel{};
+    captureRenderSnapshot();
 }
 
 SaveInspectorModel& SaveInspectorPanel::getModel() {
@@ -79,20 +80,67 @@ void SaveInspectorPanel::render() {
     if (!visible_) {
         return;
     }
+    captureRenderSnapshot();
 }
 
 void SaveInspectorPanel::refresh() {
     if (!catalog_ || !coordinator_) {
+        captureRenderSnapshot();
         return;
     }
 
     model_.LoadFromCatalog(*catalog_, *coordinator_);
     model_.SetShowProblemSlotsOnly(show_problem_slots_only_);
     model_.SetIncludeAutosave(include_autosave_);
+    captureRenderSnapshot();
 }
 
 void SaveInspectorPanel::update() {
     refresh();
+}
+
+const SaveInspectorPanel::RenderSnapshot& SaveInspectorPanel::lastRenderSnapshot() const {
+    return last_render_snapshot_;
+}
+
+void SaveInspectorPanel::captureRenderSnapshot() {
+    last_render_snapshot_ = {};
+    last_render_snapshot_.visible = visible_;
+    last_render_snapshot_.runtime_bound = catalog_ != nullptr && coordinator_ != nullptr;
+    last_render_snapshot_.can_refresh = last_render_snapshot_.runtime_bound;
+    last_render_snapshot_.visible_row_count = model_.VisibleRows().size();
+    last_render_snapshot_.issue_count = model_.PolicyValidation().issue_count;
+    last_render_snapshot_.can_apply_policy =
+        last_render_snapshot_.runtime_bound && model_.PolicyValidation().can_apply;
+
+    if (!last_render_snapshot_.runtime_bound) {
+        last_render_snapshot_.status = "disabled";
+        last_render_snapshot_.message = "No save runtime is bound.";
+        last_render_snapshot_.remediation =
+            "Bind SaveCatalog and SaveSessionCoordinator before rendering save state.";
+        last_render_snapshot_.can_apply_policy = false;
+        return;
+    }
+
+    if (model_.PolicyValidation().error_count > 0) {
+        last_render_snapshot_.status = "error";
+        last_render_snapshot_.message = "Save policy draft has validation errors.";
+        last_render_snapshot_.remediation = "Fix save policy validation errors before applying runtime changes.";
+        return;
+    }
+
+    if (model_.VisibleRows().empty()) {
+        last_render_snapshot_.status = "empty";
+        last_render_snapshot_.message = "No save slots are visible.";
+        last_render_snapshot_.remediation = show_problem_slots_only_
+                                               ? "Disable problem-slot filtering or create a save slot."
+                                               : "Create a save slot before using save inspection tools.";
+        return;
+    }
+
+    last_render_snapshot_.status = "ready";
+    last_render_snapshot_.message = "Save inspection data is available.";
+    last_render_snapshot_.remediation = "";
 }
 
 } // namespace urpg::editor

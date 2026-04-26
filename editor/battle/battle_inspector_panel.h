@@ -7,6 +7,18 @@ namespace urpg::editor {
 
 class BattleInspectorPanel {
 public:
+    struct RenderSnapshot {
+        std::string status = "disabled";
+        std::string message = "No battle runtime is bound.";
+        std::string remediation = "Bind BattleFlowController and BattleActionQueue before rendering battle diagnostics.";
+        bool runtime_bound = false;
+        bool visible = true;
+        bool can_refresh = false;
+        size_t visible_row_count = 0;
+        size_t issue_count = 0;
+        std::string phase = "none";
+    };
+
     BattleInspectorPanel() = default;
 
     void bindRuntime(const urpg::battle::BattleFlowController& flow_controller,
@@ -40,6 +52,7 @@ public:
     void render();
     void refresh();
     void update();
+    const RenderSnapshot& lastRenderSnapshot() const;
 
 private:
     struct PreviewOverride {
@@ -51,6 +64,7 @@ private:
 
     void applyDefaultPreviewBinding();
     void applyPreviewBinding();
+    void captureRenderSnapshot();
 
     template <typename OptionalPreview>
     void setPreviewOverride(OptionalPreview&& preview) {
@@ -71,6 +85,7 @@ private:
     std::optional<PreviewOverride> preview_override_;
     BattleInspectorModel model_;
     BattlePreviewPanel preview_panel_;
+    RenderSnapshot last_render_snapshot_;
     bool visible_ = true;
     bool show_issues_only_ = false;
     std::optional<std::string> subject_filter_;

@@ -250,6 +250,21 @@ void SpatialAuthoringWorkspace::captureRenderSnapshot() {
     last_render_snapshot_.visible = m_visible;
     last_render_snapshot_.has_target_scene = (m_target_scene != nullptr);
     last_render_snapshot_.has_target_overlay = (m_target_overlay != nullptr);
+    if (!last_render_snapshot_.has_target_scene && !last_render_snapshot_.has_target_overlay) {
+        last_render_snapshot_.status = "disabled";
+        last_render_snapshot_.message = "No spatial authoring targets are bound.";
+        last_render_snapshot_.remediation =
+            "Bind a MapScene and SpatialMapOverlay before using spatial authoring tools.";
+    } else if (!last_render_snapshot_.has_target_scene || !last_render_snapshot_.has_target_overlay) {
+        last_render_snapshot_.status = "error";
+        last_render_snapshot_.message = "Spatial authoring is partially bound.";
+        last_render_snapshot_.remediation =
+            "Bind both MapScene and SpatialMapOverlay so ability, elevation, and prop tools can operate together.";
+    } else {
+        last_render_snapshot_.status = "ready";
+        last_render_snapshot_.message = "Spatial authoring targets are ready.";
+        last_render_snapshot_.remediation = "";
+    }
     last_render_snapshot_.elevation = elevation_panel_.lastRenderSnapshot();
     last_render_snapshot_.props = prop_panel_.lastRenderSnapshot();
     last_render_snapshot_.bindings = binding_panel_.lastRenderSnapshot();
