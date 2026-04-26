@@ -13,10 +13,10 @@ No release-facing status claim may exceed the strongest evidence-backed status p
 When these disagree, the canonical resolution order is:
 
 1. `content/readiness/readiness_status.json`
-2. `docs/RELEASE_READINESS_MATRIX.md`
-3. `docs/TEMPLATE_READINESS_MATRIX.md`
-4. `docs/PROGRAM_COMPLETION_STATUS.md`
-5. `docs/NATIVE_FEATURE_ABSORPTION_PLAN.md`
+2. `docs/release/RELEASE_READINESS_MATRIX.md`
+3. `docs/governance/TEMPLATE_READINESS_MATRIX.md`
+4. `docs/status/PROGRAM_COMPLETION_STATUS.md`
+5. `docs/archive/planning/NATIVE_FEATURE_ABSORPTION_PLAN.md`
 
 Older planning inputs, archive docs, and addenda are reference material, not status authorities.
 

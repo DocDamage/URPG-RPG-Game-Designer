@@ -1,7 +1,7 @@
 # URPG Asset Source Registry
 
 > Registry of direct-ingest and discovery sources for private-use asset intake.
-> See [URPG_private_asset_intake_plan.md](./URPG_private_asset_intake_plan.md) and [TECHNICAL_DEBT_REMEDIATION_PLAN.md](../TECHNICAL_DEBT_REMEDIATION_PLAN.md) (P3-03, Phase 4 / Workstream 4.2).
+> See [URPG_private_asset_intake_plan.md](../archive/planning/asset_intake__URPG_private_asset_intake_plan.md) and [TECHNICAL_DEBT_REMEDIATION_PLAN.md](../archive/planning/TECHNICAL_DEBT_REMEDIATION_PLAN.md) (P3-03, Phase 4 / Workstream 4.2).
 
 ---
 
@@ -92,3 +92,4 @@ Each direct-ingest source must have a manifest under `imports/manifests/asset_so
 | 2026-04-19 | Replaced placeholder staged-state rows with concrete capture-state, handling-path, legal-disposition, and promotion-status records linked to the canonical manifests and intake report. |
 | 2026-04-23 | TD Sprint 04 promoted the first bounded visual (`SRC-002`) and UI-audio (`SRC-003`) proof lanes with source snapshots, normalized assets, bundle manifests, and smoke-proof reporting. |
 | 2026-04-25 | Added per-asset release attribution records for the promoted visual and UI-audio lanes and tightened export discovery so promoted normalized assets ship through bundle manifests rather than generic discovery. |
+

@@ -3,28 +3,28 @@
 Status Date: 2026-04-23
 Program Scope: native-first roadmap rewire plus Wave 1 absorption, Wave 2 advanced capability expansion, post-Phase-2 compat exit hardening, and governance/template-readiness consolidation
 
-Cross-cutting debt, truthfulness, and intake-governance source of truth: `docs/TECHNICAL_DEBT_REMEDIATION_PLAN.md`.
+Cross-cutting debt, truthfulness, and intake-governance source of truth: `docs/archive/planning/TECHNICAL_DEBT_REMEDIATION_PLAN.md`.
 
 2026-04-24 technical debt audit Sprint 2 evidence refresh:
 - `battle_core` and `save_data_core` validation was refreshed through focused Catch2 tag filters, battle/save integration, Wave 1 closure integration, save policy governance, release readiness, and truth reconciliation.
 - Both lanes intentionally remain `PARTIAL`; `urpg_project_audit --json` still reports `releaseBlockerCount: 2` and `exportBlockerCount: 0` because no human reviewer accept/reject decisions have been recorded.
 
 2026-04-24 technical debt audit Sprint 3 export-hardening boundary:
-- `docs/EXPORT_RUNTIME_SIGNATURE_ENFORCEMENT_DESIGN.md` now records the runtime/load-time `data.pck` signature-enforcement contract required before any export-validator promotion to `READY`.
+- `docs/specs/EXPORT_RUNTIME_SIGNATURE_ENFORCEMENT_DESIGN.md` now records the runtime/load-time `data.pck` signature-enforcement contract required before any export-validator promotion to `READY`.
 - Export remains `PARTIAL`: current keyed SHA-256 bundle-signature enforcement is validator-time protection, while runtime rejection of tampered bundles, temp-file-plus-atomic-rename publication, full native signing, and notarization remain backlog.
 - Achievement registry remains `PARTIAL`: the vendor-neutral trophy export payload is now landed and governed, while platform-specific achievement backend integration remains explicitly out-of-tree.
 
 2026-04-24 future-feature vertical slice update:
 - FFS-01 Project Health now has a first editor/runtime projection over `urpg_project_audit` JSON: grouped health cards, stale-state detection, and a deterministic `fix_next` queue exported through the diagnostics workspace.
 - FFS-02 Asset Library now has a first runtime/editor slice: asset records, provenance packets, duplicate grouping, case-collision flags, safe cleanup previews, report-directory loading, and focused asset-library governance.
-- The local `more assets/` source drop was inventoried, safely extracted to `imports/raw/more_assets/`, cleaned of OS/archive junk, indexed in the asset catalog as `category=more-assets-raw`, and documented in `docs/ASSET_LIBRARY_AND_MORE_ASSETS_INTAKE.md`.
+- The local `more assets/` source drop was inventoried, safely extracted to `imports/raw/more_assets/`, cleaned of OS/archive junk, indexed in the asset catalog as `category=more-assets-raw`, and documented in `docs/asset_intake/ASSET_LIBRARY_AND_MORE_ASSETS_INTAKE.md`.
 - These slices do not promote any readiness record to `READY`; project health and asset library remain productization follow-through lanes until richer remediation, license-review, and promotion workflows are complete.
 
 Canonical planning chain:
-- `docs/TECHNICAL_DEBT_REMEDIATION_PLAN.md` governs cross-cutting truthfulness, reconciliation, and Definition-of-Done requirements.
-- `docs/NATIVE_FEATURE_ABSORPTION_PLAN.md` is the canonical product roadmap.
-- `docs/PROGRAM_COMPLETION_STATUS.md` is the canonical latest-status snapshot.
-- `docs/ASSET_LIBRARY_AND_MORE_ASSETS_INTAKE.md` records the new raw asset intake, hygiene, catalog, and report-only dedupe status.
+- `docs/archive/planning/TECHNICAL_DEBT_REMEDIATION_PLAN.md` governs cross-cutting truthfulness, reconciliation, and Definition-of-Done requirements.
+- `docs/archive/planning/NATIVE_FEATURE_ABSORPTION_PLAN.md` is the canonical product roadmap.
+- `docs/status/PROGRAM_COMPLETION_STATUS.md` is the canonical latest-status snapshot.
+- `docs/asset_intake/ASSET_LIBRARY_AND_MORE_ASSETS_INTAKE.md` records the new raw asset intake, hygiene, catalog, and report-only dedupe status.
 - `docs/archive/planning/URPG_MASTER_NATIVE_ABSORPTION_AND_PGMMV_ROADMAP_2026-04-18.md`, `docs/archive/planning/URPG_PGMMV_SUPPORT_PLAN.md`, and `docs/archive/planning/URPG_NATIVE_ABSORPTION_ROADMAP_2026-04-18.md` are detailed planning inputs retained for traceability until their remaining deltas are absorbed into the canonical docs above.
 - `docs/URPG_facebookresearch_tooling_integration_plan.md` is now treated as an offline-tooling planning input, not a parallel execution authority.
 
@@ -46,11 +46,11 @@ Canonical planning chain:
   - expanded template-readiness coverage for Monster Collector RPG, Cozy/Life RPG, Metroidvania-lite, and 2.5D RPG
 - Its presence does **not** mean the proposed governance foundation, template matrices, or cross-cutting minimum bars are already landed.
 - The first canonical governance artifacts for this lane now exist under:
-  - [`docs/RELEASE_READINESS_MATRIX.md`](./RELEASE_READINESS_MATRIX.md)
-  - [`docs/TEMPLATE_READINESS_MATRIX.md`](./TEMPLATE_READINESS_MATRIX.md)
-  - [`docs/TRUTH_ALIGNMENT_RULES.md`](./TRUTH_ALIGNMENT_RULES.md)
-  - [`docs/TEMPLATE_LABEL_RULES.md`](./TEMPLATE_LABEL_RULES.md)
-  - [`docs/SUBSYSTEM_STATUS_RULES.md`](./SUBSYSTEM_STATUS_RULES.md)
+  - [`docs/release/RELEASE_READINESS_MATRIX.md`](../release/RELEASE_READINESS_MATRIX.md)
+  - [`docs/governance/TEMPLATE_READINESS_MATRIX.md`](../governance/TEMPLATE_READINESS_MATRIX.md)
+  - [`docs/governance/TRUTH_ALIGNMENT_RULES.md`](../governance/TRUTH_ALIGNMENT_RULES.md)
+  - [`docs/governance/TEMPLATE_LABEL_RULES.md`](../governance/TEMPLATE_LABEL_RULES.md)
+  - [`docs/governance/SUBSYSTEM_STATUS_RULES.md`](../governance/SUBSYSTEM_STATUS_RULES.md)
 
 Phase 2 runtime closure is complete as of 2026-04-19. Remaining compat work in this document is post-closure exit hardening, corpus depth, and ongoing truth-maintenance work, not unfinished baseline closure of the audited Phase 2 runtime slice.
 
@@ -89,8 +89,8 @@ Phase 3 diagnostics productization is complete as of 2026-04-19, Phase 4 governa
   - the repo has strong importer/test/reference corpora
   - the repo does **not** yet have a serious license-cleared production asset library across tiles, portraits, UI, VFX, and audio
 - Phase 4 governance/reconciliation closure is complete:
-  - external repository intake governance now has recorded repo dispositions, fixture/attribution schemas, and a dedicated validation gate under [`docs/external-intake/`](./external-intake/) and [`tools/ci/check_phase4_intake_governance.ps1`](../tools/ci/check_phase4_intake_governance.ps1)
-  - private-use asset intake governance now has schema-backed source manifests, truthful capture-state reporting, and reconciled asset-gap records under [`docs/asset_intake/`](./asset_intake/), [`imports/manifests/`](../imports/manifests/), and [`imports/reports/asset_intake/`](../imports/reports/asset_intake/)
+  - external repository intake governance now has recorded repo dispositions, fixture/attribution schemas, and a dedicated validation gate under [`docs/external-intake/`](../external-intake/) and [`tools/ci/check_phase4_intake_governance.ps1`](../../tools/ci/check_phase4_intake_governance.ps1)
+  - private-use asset intake governance now has schema-backed source manifests, truthful capture-state reporting, and reconciled asset-gap records under [`docs/asset_intake/`](../asset_intake/), [`imports/manifests/`](../../imports/manifests/), and [`imports/reports/asset_intake/`](../../imports/reports/asset_intake/)
   - release-readiness and truth-reconciliation gates now enforce bidirectional matrix/readiness coverage plus canonical status-date alignment across the core readiness docs
 - Phase 5 hardening closure is complete:
   - async plugin callbacks are now deferred, FIFO, owning-thread-only, and covered by focused queue-integrity and stale-error-clearing regressions
@@ -98,7 +98,7 @@ Phase 3 diagnostics productization is complete as of 2026-04-19, Phase 4 governa
   - retained tile render commands are now explicitly documented and verified as pointer-stable across unchanged frames
   - the Phase 4 governance gate now enforces wrapper/facade-only production-candidate adoption plus provenance-preserving asset-promotion records
   - the native `PluginAPI` bridge now routes globals into `GlobalStateHub`, input queries into compat `InputManager` state, and entity lifecycle into a caller-bound ECS world instead of scratch-state placeholders
-- **Planning Governance:** standalone PGMMV/native-absorption roadmap files are now treated as reference annexes under [`docs/TECHNICAL_DEBT_REMEDIATION_PLAN.md`](./TECHNICAL_DEBT_REMEDIATION_PLAN.md) and indexed in [`docs/archive/README.md`](./archive/README.md), not parallel execution authorities.
+- **Planning Governance:** standalone PGMMV/native-absorption roadmap files are now treated as reference annexes under [`docs/archive/planning/TECHNICAL_DEBT_REMEDIATION_PLAN.md`](../archive/planning/TECHNICAL_DEBT_REMEDIATION_PLAN.md) and indexed in [`docs/archive/README.md`](../archive/README.md), not parallel execution authorities.
 - The current program-level risk has shifted from baseline closure to governance drift:
   - subsystem-wide release-readiness matrix is still not landed as a full product-readiness signoff system; the repo currently has a first-slice canonical matrix plus machine-readable readiness records
   - template readiness matrix and template-claim guardrails are still not landed as full template signoff governance; the repo currently has a first-slice canonical matrix and conservative claim checks
@@ -177,7 +177,7 @@ Phase 3 diagnostics productization is complete as of 2026-04-19, Phase 4 governa
   - `tools/ci/check_release_readiness.ps1` hardened with evidence-gated `READY` validation and template required-subsystem cross-checks
   - `tools/ci/check_breaking_changes.ps1` created for schema-breaking-change governance (validates schema identity, changelog freshness, and schema/changelog alignment)
   - Template spec docs created for `monster_collector_rpg`, `cozy_life_rpg`, `metroidvania_lite`, and `2_5d_rpg` under `docs/templates/`
-  - `content/readiness/readiness_status.json` updated with new template entries; `docs/RELEASE_READINESS_MATRIX.md` and `docs/TEMPLATE_READINESS_MATRIX.md` updated to reflect `governance_foundation` promotion to `PARTIAL` and new template rows
+  - `content/readiness/readiness_status.json` updated with new template entries; `docs/release/RELEASE_READINESS_MATRIX.md` and `docs/governance/TEMPLATE_READINESS_MATRIX.md` updated to reflect `governance_foundation` promotion to `PARTIAL` and new template rows
 - Agent swarm execution slice (2026-04-20 continued): Wave 2 advanced capabilities and remaining cross-cutting bars
   - `CharacterIdentity` runtime landed with name/portrait/body/class/attributes/appearance tokens, JSON round-trip, schema `character_identity.schema.json`, editor `CharacterCreatorModel`/`CharacterCreatorPanel`, a bounded runtime `CharacterCreationScreen`, and focused `[character]` tests
   - `AchievementRegistry` landed with `AchievementDef`/`AchievementProgress`, unlock-condition tokens, progress tracking, save/load JSON, schema `achievements.schema.json`, editor `AchievementPanel`, and focused `[achievement]` tests
@@ -192,14 +192,14 @@ Phase 3 diagnostics productization is complete as of 2026-04-19, Phase 4 governa
   - `AnalyticsDispatcher` landed with opt-in gating, deterministic tick counters, 1000-event circular buffer, JSON buffer snapshot, schema `analytics_config.schema.json`, editor `AnalyticsPanel`, and focused `[analytics]` tests
   - Fixed pre-existing header bug in `engine/core/tools/export_packager.h` (removed non-existent `#include` paths that were never exercised because the header was header-only and uncompiled)
   - `content/readiness/readiness_status.json` updated with new subsystem entries: `audio_mix_presets`, `export_validator`, `mod_registry`, `analytics_dispatcher`
-  - `docs/SCHEMA_CHANGELOG.md` backfilled with entries for the 10 schema artifacts introduced across the second and third agent swarms
+  - `docs/governance/SCHEMA_CHANGELOG.md` backfilled with entries for the 10 schema artifacts introduced across the second and third agent swarms
 - Fourth agent swarm execution slice (2026-04-20): Lane 4 release hardening and cross-subsystem integration
   - `ExportPackager` converted from header-only to compiled `.cpp` with `validateBeforeExport` integration against `ExportValidator`, editor `ExportDiagnosticsPanel`, schema `export_config.schema.json`, and focused `[export][packager]` tests
   - `test_battle_save_integration.cpp` added to `urpg_integration_tests` with 4 cross-subsystem tests covering battle state serialization, save metadata preservation, post-battle map transition, and combined migration wizard reporting
   - `tools/ci/truth_reconciler.ps1` created for canonical truth reconciliation across readiness records, release/template matrices, schemas, and docs; added to `gate1-pr` in `.github/workflows/ci-gates.yml`
   - `tools/ci/check_cmake_completeness.ps1` created to validate no orphaned `.cpp` or test files exist outside `CMakeLists.txt`; added to `gate1-pr` and `gate2-nightly` in `.github/workflows/ci-gates.yml`
   - `tools/ci/check_breaking_changes.ps1` registered in all three CI gates and fixed for cross-platform path separators
-  - `docs/NATIVE_FEATURE_ABSORPTION_PLAN.md` Lane 4 and Lane 5.1 checkboxes marked complete: breaking-change detection in CI, canonical truth reconciler, schema versioning governance, release/template readiness matrix enforcement
+  - `docs/archive/planning/NATIVE_FEATURE_ABSORPTION_PLAN.md` Lane 4 and Lane 5.1 checkboxes marked complete: breaking-change detection in CI, canonical truth reconciler, schema versioning governance, release/template readiness matrix enforcement
 - Fifth agent swarm execution slice (2026-04-20): Wave 1 closure signoffs, presentation bridge, and incubating test hardening
   - `test_wave1_closure_integration.cpp` added to `urpg_integration_tests` with 4 cross-subsystem tests and 39 assertions covering battle-save-menu-message boundaries, migration wizard batch orchestration, and diagnostics workspace export parity
   - `BATTLE_CORE_CLOSURE_SIGNOFF.md` and `SAVE_DATA_CORE_CLOSURE_SIGNOFF.md` created as evidence-gathering artifacts for Wave 1 closure review
@@ -260,8 +260,8 @@ Phase 3 diagnostics productization is complete as of 2026-04-19, Phase 4 governa
   - Focused verification passed via `.\build\dev-ninja-debug\urpg_tests.exe "[project_audit],[editor][diagnostics][integration][project_audit]" --reporter compact` plus the CLI audit lane.
 - Sprint 02 execution slice (2026-04-21): Governance-depth readiness enforcement
   - `check_release_readiness.ps1` now validates the emitted `urpg_project_audit` JSON contract directly, including the richer `accessibilityArtifacts`, `audioArtifacts`, and `performanceArtifacts` governance sections plus their top-level issue counts, instead of only checking doc/date/matrix drift.
-  - `truth_reconciler.ps1` now includes `docs/PROJECT_AUDIT.md` in the status-date alignment chain and verifies the project-audit doc still describes the shipped richer governance contract.
-  - `docs/PROJECT_AUDIT.md`, `docs/RELEASE_READINESS_MATRIX.md`, and `docs/TRUTH_ALIGNMENT_RULES.md` were reconciled so the governance-foundation wording matches the now-enforced audit depth.
+  - `truth_reconciler.ps1` now includes `docs/audits/PROJECT_AUDIT.md` in the status-date alignment chain and verifies the project-audit doc still describes the shipped richer governance contract.
+  - `docs/audits/PROJECT_AUDIT.md`, `docs/release/RELEASE_READINESS_MATRIX.md`, and `docs/governance/TRUTH_ALIGNMENT_RULES.md` were reconciled so the governance-foundation wording matches the now-enforced audit depth.
 - Sprint 02 closeout snapshot (2026-04-21)
   - `ctest --test-dir build/dev-ninja-debug -L pr --output-on-failure` => 835/835 passed
   - `powershell -ExecutionPolicy Bypass -File tools/ci/check_release_readiness.ps1` => passed
@@ -341,7 +341,7 @@ Phase 3 diagnostics productization is complete as of 2026-04-19, Phase 4 governa
   - Added `tests/unit/test_ability_e2e.cpp` with end-to-end release-grade ability flow tests proving activation, commit, cooldown, effect application, state machine transitions, and inspector projection coherence.
   - Added `AbilityDiagnosticsSnapshot` to `AbilityInspectorModel` with structured ability states, active effect counts, cooldown counts, and execution history sequence tracking; exposed through `AbilityInspectorPanel::getDiagnosticsSnapshot()`.
   - Added `docs/GAF_CLOSURE_SIGNOFF.md` as the canonical evidence-gathering signoff artifact for the Gameplay Ability Framework.
-  - Updated `content/readiness/readiness_status.json`, `docs/RELEASE_READINESS_MATRIX.md`, and `docs/PROGRAM_COMPLETION_STATUS.md` to reflect diagnostics closure and honest residual gaps.
+  - Updated `content/readiness/readiness_status.json`, `docs/release/RELEASE_READINESS_MATRIX.md`, and `docs/status/PROGRAM_COMPLETION_STATUS.md` to reflect diagnostics closure and honest residual gaps.
   - Focused local validation passed via `.\build\dev-ninja-debug\urpg_tests.exe "[ability][e2e]" --reporter compact` and `.\build\dev-ninja-debug\urpg_tests.exe "[ability][editor]" --reporter compact`.
 - Sprint 14 execution slice (2026-04-21): Export validator to real export pipeline
   - Modified `ExportPackager::bundleAssets` to write `data.pck` to disk and added `synthesizeExecutable` to write target-appropriate executable artifacts.
@@ -349,7 +349,7 @@ Phase 3 diagnostics productization is complete as of 2026-04-19, Phase 4 governa
   - Updated `tools/ci/check_platform_exports.ps1` with `-Json` switch emitting structured `target`/`passed`/`errors` shape matching the C++ validator contract.
   - Added PowerShell-invocation tests validating the JSON output shape for both valid and invalid export directories.
   - Updated `ExportDiagnosticsPanel` to surface `postExportValidationPassed` and `emittedArtifacts` arrays when a post-export tree is present.
-  - Updated `content/readiness/readiness_status.json`, `docs/RELEASE_READINESS_MATRIX.md`, and `docs/PROGRAM_COMPLETION_STATUS.md` to reflect the new emitted-artifact evidence while keeping the lane honestly partial.
+  - Updated `content/readiness/readiness_status.json`, `docs/release/RELEASE_READINESS_MATRIX.md`, and `docs/status/PROGRAM_COMPLETION_STATUS.md` to reflect the new emitted-artifact evidence while keeping the lane honestly partial.
   - Focused local validation passed via `.\build\dev-ninja-debug\urpg_tests.exe "[export][packager]" --reporter compact`, `.\build\dev-ninja-debug\urpg_tests.exe "[export][validation]" --reporter compact`, and `.\build\dev-ninja-debug\urpg_tests.exe "[export][editor][panel]" --reporter compact`.
 - Sprint 24 execution slice (2026-04-22): Real Windows export smoke path
   - Added `tools/export/export_smoke_app.cpp` plus the `urpg_export_smoke_app` target, a bounded headless native launcher that boots `EngineShell`, runs one tick, writes an optional smoke marker, and exits 0.
@@ -395,7 +395,7 @@ Phase 3 diagnostics productization is complete as of 2026-04-19, Phase 4 governa
   - Extended `engine/core/presentation/release_validation.cpp` with spatial-authoring→runtime-consumption validation section.
   - Updated `docs/adr/ADR-011-presentation-spatial-status.md` to reflect compiled spatial panels, runtime-backed tests, and honest residual gaps.
   - Updated `docs/presentation/VALIDATION.md` to include the new e2e test in the spatial editor authoring lane.
-  - Updated `content/readiness/readiness_status.json` and `docs/RELEASE_READINESS_MATRIX.md` for `presentation_runtime` to reflect diagnostics closure and authoring/runtime proof.
+  - Updated `content/readiness/readiness_status.json` and `docs/release/RELEASE_READINESS_MATRIX.md` for `presentation_runtime` to reflect diagnostics closure and authoring/runtime proof.
   - Focused local validation passed via `.\build\dev-ninja-debug\urpg_tests.exe "[presentation][spatial][e2e]" --reporter compact`, `.\build\dev-ninja-debug\urpg_tests.exe "[editor][spatial]" --reporter compact`, and `.\build\dev-ninja-debug\urpg_presentation_release_validation.exe`.
 - Sprint 16 execution slice (2026-04-21): Accessibility auditor live ingestion
   - Added `AccessibilityMenuAdapter` in `editor/accessibility/accessibility_menu_adapter.h` and `.cpp` that maps live `MenuInspectorModel` rows into `UiElementSnapshot` elements for the auditor.
@@ -404,7 +404,7 @@ Phase 3 diagnostics productization is complete as of 2026-04-19, Phase 4 governa
   - Added PowerShell-invocation test in `tests/unit/test_accessibility_auditor.cpp` asserting the governance script emits `passed: true` with an empty errors array.
   - Extended `tools/audit/urpg_project_audit.cpp` `addAccessibilityArtifactGovernance` to check for `accessibility_menu_adapter.h/.cpp`, `check_accessibility_governance.ps1`, and `accessibility_report_fixture.json`.
   - Updated `content/readiness/readiness_status.json` for `accessibility_auditor` to set `diagnostics: true` and narrow `mainGaps` to honest residual scope (additional editor surfaces beyond menu still require adapters).
-  - Updated `docs/RELEASE_READINESS_MATRIX.md` for `accessibility_auditor` to reflect diagnostics closure, menu adapter evidence, and CI governance script.
+  - Updated `docs/release/RELEASE_READINESS_MATRIX.md` for `accessibility_auditor` to reflect diagnostics closure, menu adapter evidence, and CI governance script.
   - Focused local validation passed via `.\build\dev-ninja-debug\urpg_tests.exe "[accessibility]" --reporter compact`, `powershell -ExecutionPolicy Bypass -File tools/ci/check_accessibility_governance.ps1`, `powershell -ExecutionPolicy Bypass -File tools/ci/check_release_readiness.ps1`, and `powershell -ExecutionPolicy Bypass -File tools/ci/truth_reconciler.ps1`.
 - Sprint 17 execution slice (2026-04-21): Audio mix preset validation pipeline
   - Added `AudioMixValidator` in `engine/core/audio/audio_mix_validator.h` and `.cpp` with `validate(const AudioMixPresetBank&)` returning structured `AudioMixIssue` elements for MissingDefaultPreset, ConflictingDuckRules, VolumeOutOfRange, and EmptyCategoryVolumes.
@@ -413,7 +413,7 @@ Phase 3 diagnostics productization is complete as of 2026-04-19, Phase 4 governa
   - Added PowerShell-invocation test in `tests/unit/test_audio_mix_presets.cpp` asserting the governance script emits `passed: true` with an empty errors array.
   - Extended `tools/audit/urpg_project_audit.cpp` `addAudioArtifactGovernance` to check for `audio_mix_validator.h/.cpp`, `check_audio_governance.ps1`, and `audio_mix_presets_fixture.json`.
   - Updated `content/readiness/readiness_status.json` for `audio_mix_presets` to set `diagnostics: true` and narrow `mainGaps` to honest residual scope.
-  - Updated `docs/RELEASE_READINESS_MATRIX.md` for `audio_mix_presets` to reflect diagnostics closure, validator evidence, and CI governance script.
+  - Updated `docs/release/RELEASE_READINESS_MATRIX.md` for `audio_mix_presets` to reflect diagnostics closure, validator evidence, and CI governance script.
   - Focused local validation passed via `.\build\dev-ninja-debug\urpg_tests.exe "[audio][mix]" --reporter compact`, `powershell -ExecutionPolicy Bypass -File tools/ci/check_audio_governance.ps1`, `powershell -ExecutionPolicy Bypass -File tools/ci/check_release_readiness.ps1`, and `powershell -ExecutionPolicy Bypass -File tools/ci/truth_reconciler.ps1`.
 - Sprint 18 execution slice (2026-04-21): Achievement registry validation pipeline
   - Added `AchievementValidator` in `engine/core/achievement/achievement_validator.h` and `.cpp` with `validate(const std::vector<AchievementDef>&)` returning structured `AchievementIssue` elements for EmptyId, EmptyTitle, EmptyUnlockCondition, ZeroTarget, DuplicateId, and EmptyIconId.
@@ -422,7 +422,7 @@ Phase 3 diagnostics productization is complete as of 2026-04-19, Phase 4 governa
   - Added PowerShell-invocation test in `tests/unit/test_achievement_registry.cpp` asserting the governance script emits `passed: true` with an empty errors array.
   - Extended `tools/audit/urpg_project_audit.cpp` with new `addAchievementArtifactGovernance` checking for `achievement_validator.h/.cpp`, `check_achievement_governance.ps1`, and `achievement_registry_fixture.json`; updated `check_release_readiness.ps1` to validate the new `achievementArtifacts` governance section and `achievementArtifactIssueCount` field.
   - Updated `content/readiness/readiness_status.json` for `achievement_registry` to set `diagnostics: true` and narrow `mainGaps` to honest residual scope.
-  - Updated `docs/RELEASE_READINESS_MATRIX.md` for `achievement_registry` to reflect diagnostics closure, validator evidence, and CI governance script.
+  - Updated `docs/release/RELEASE_READINESS_MATRIX.md` for `achievement_registry` to reflect diagnostics closure, validator evidence, and CI governance script.
   - Focused local validation passed via `.\build\dev-ninja-debug\urpg_tests.exe "[achievement]" --reporter compact`, `powershell -ExecutionPolicy Bypass -File tools/ci/check_achievement_governance.ps1`, `powershell -ExecutionPolicy Bypass -File tools/ci/check_release_readiness.ps1`, and `powershell -ExecutionPolicy Bypass -File tools/ci/truth_reconciler.ps1`.
 - Sprint 19 execution slice (2026-04-21): Character identity validation pipeline
   - Added `CharacterIdentityValidator` in `engine/core/character/character_identity_validator.h` and `.cpp` with bounded catalog-aware validation for missing/unknown class data, missing name, unknown portrait/body sprite ids, unknown appearance tokens, and duplicate appearance tokens.
@@ -430,31 +430,31 @@ Phase 3 diagnostics productization is complete as of 2026-04-19, Phase 4 governa
   - Added focused validation tests in `tests/unit/test_character_identity.cpp` tagged `[character][identity][validation]`, plus a PowerShell-invocation test asserting `tools/ci/check_character_governance.ps1` emits `passed: true` with an empty errors array.
   - Added `content/fixtures/character_identity_fixture.json` and `tools/ci/check_character_governance.ps1`, and wired the new governance script into `tools/ci/run_local_gates.ps1`.
   - Extended `tools/audit/urpg_project_audit.cpp`, `check_release_readiness.ps1`, and the ProjectAudit panel/tests with a new `characterArtifacts` governance section plus `characterArtifactIssueCount`.
-  - Updated `content/readiness/readiness_status.json` and `docs/RELEASE_READINESS_MATRIX.md` for `character_identity` to reflect diagnostics closure while keeping the larger Create-a-Character runtime/preview workflow gap honest.
+  - Updated `content/readiness/readiness_status.json` and `docs/release/RELEASE_READINESS_MATRIX.md` for `character_identity` to reflect diagnostics closure while keeping the larger Create-a-Character runtime/preview workflow gap honest.
 - Character identity runtime follow-through (2026-04-23):
   - Added `engine/core/character/character_identity_catalog.h` and `.cpp` so the editor and runtime character-creation flows share one bounded class/portrait/body/appearance contract.
   - Added `engine/core/character/character_creation_screen.h` and `.cpp` as a real preset-based in-game creator flow with step navigation, completion events, actor spawning, and a RenderLayer-backed preview card surface.
   - Added focused runtime tests in `tests/unit/test_character_creation_screen.cpp`.
-  - Updated `content/readiness/readiness_status.json`, `docs/RELEASE_READINESS_MATRIX.md`, and the WYSIWYG readiness regression to replace the stale "no runtime screen or preview surface is landed" claim with the narrower remaining authored-rules/compositor/persistence gaps.
+  - Updated `content/readiness/readiness_status.json`, `docs/release/RELEASE_READINESS_MATRIX.md`, and the WYSIWYG readiness regression to replace the stale "no runtime screen or preview surface is landed" claim with the narrower remaining authored-rules/compositor/persistence gaps.
 - Sprint 20 execution slice (2026-04-21): Mod registry validation pipeline
   - Added `ModRegistryValidator` in `engine/core/mod/mod_registry_validator.h` and `.cpp` with bounded manifest validation for empty name/version fields, missing entry points, self-dependencies, and duplicate dependency declarations.
   - Extended `ModRegistry` with `listMods()` and updated `ModManagerPanel` to surface validator-backed diagnostics snapshots (`registered_mod_ids`, `validation_issue_count`, and structured `validation_issues`) alongside the existing load-order and cycle-warning state.
   - Added focused validation tests in `tests/unit/test_mod_registry.cpp` and `tests/unit/test_mod_manager_panel.cpp`, plus a PowerShell-invocation test asserting `tools/ci/check_mod_governance.ps1` emits `passed: true` with an empty errors array.
   - Added `content/fixtures/mod_manifest_fixture.json` and `tools/ci/check_mod_governance.ps1`, and wired the new governance script into `tools/ci/run_local_gates.ps1`.
   - Extended `tools/audit/urpg_project_audit.cpp`, `check_release_readiness.ps1`, and the ProjectAudit panel/tests with a new `modArtifacts` governance section plus `modArtifactIssueCount`.
-  - Updated `content/readiness/readiness_status.json` and `docs/RELEASE_READINESS_MATRIX.md` for `mod_registry` to reflect diagnostics closure while keeping live loading, sandboxing, and distribution gaps honest.
+  - Updated `content/readiness/readiness_status.json` and `docs/release/RELEASE_READINESS_MATRIX.md` for `mod_registry` to reflect diagnostics closure while keeping live loading, sandboxing, and distribution gaps honest.
 - Sprint 21 execution slice (2026-04-21): Analytics dispatcher validation pipeline
   - Added `AnalyticsDispatcherValidator` in `engine/core/analytics/analytics_dispatcher_validator.h` and `.cpp` with bounded checks for empty event names/categories, disallowed categories, empty parameter keys/values, and excessive parameter counts.
   - Updated `AnalyticsDispatcher` and `AnalyticsPanel` so the analytics lane now exposes validator-backed diagnostics including allowed categories, structured validation issues, and issue severity counts.
   - Added `content/fixtures/analytics_fixture.json` and `tools/ci/check_analytics_governance.ps1`, wired the new governance script into `tools/ci/run_local_gates.ps1`, and added a PowerShell-invocation test in `tests/unit/test_analytics_dispatcher.cpp`.
   - Extended `tools/audit/urpg_project_audit.cpp`, `check_release_readiness.ps1`, and the ProjectAudit panel/tests with a new `analyticsArtifacts` governance section plus `analyticsArtifactIssueCount`.
-  - Updated `content/readiness/readiness_status.json`, `docs/RELEASE_READINESS_MATRIX.md`, `docs/PROJECT_AUDIT.md`, and the Sprint 21 planning artifacts for `analytics_dispatcher` while keeping upload, aggregation, and privacy workflow gaps honest.
+  - Updated `content/readiness/readiness_status.json`, `docs/release/RELEASE_READINESS_MATRIX.md`, `docs/audits/PROJECT_AUDIT.md`, and the Sprint 21 planning artifacts for `analytics_dispatcher` while keeping upload, aggregation, and privacy workflow gaps honest.
 - Sprint 22 execution slice (2026-04-21): Input controller governance closure
   - Added `ControllerBindingRuntime` in `engine/core/action/controller_binding_runtime.h` and `.cpp` as a bounded controller-facing runtime adapter layered on top of `InputRemapStore`.
   - Added `ControllerBindingPanel` in `editor/action/controller_binding_panel.h` and `.cpp` so the controller-binding lane now has a compiled snapshot-style editor surface exposing bindings, unsaved state, and deterministic panel output.
   - Extended `tools/ci/check_input_governance.ps1`, used `content/fixtures/input_bindings_fixture.json` as the canonical bounded fixture, and added focused controller runtime/panel tests plus the PowerShell-invocation governance test in `tests/unit/test_input_remap_store.cpp`.
   - Extended `tools/audit/urpg_project_audit.cpp` `inputArtifacts` so the bounded input governance contract now checks the remap store, controller-binding runtime, controller-binding panel, governance script, and canonical fixture.
-  - Added `content/schemas/controller_bindings.schema.json`, updated `docs/SCHEMA_CHANGELOG.md`, `docs/PROJECT_AUDIT.md`, `docs/RELEASE_READINESS_MATRIX.md`, `content/readiness/readiness_status.json`, `WORKLOG.md`, and the Sprint 22 planning artifacts while keeping project-schema/controller-governance and real device-polling gaps honest.
+  - Added `content/schemas/controller_bindings.schema.json`, updated `docs/governance/SCHEMA_CHANGELOG.md`, `docs/audits/PROJECT_AUDIT.md`, `docs/release/RELEASE_READINESS_MATRIX.md`, `content/readiness/readiness_status.json`, `WORKLOG.md`, and the Sprint 22 planning artifacts while keeping project-schema/controller-governance and real device-polling gaps honest.
 - Sprint 08 execution slice (2026-04-21): Visual regression harness executable gate
   - `test_visual_regression_harness.cpp` now exercises the approval path in `tools/visual_regression/approve_golden.ps1`, proving an approved golden JSON file can be consumed by `VisualRegressionHarness` and compared successfully through the existing harness path.
   - Added `tools/ci/check_visual_regression_harness.ps1` as a focused executable gate for the file-backed visual regression harness contract, and wired it into `run_local_gates.ps1` after the build step.
@@ -487,7 +487,7 @@ Phase 3 diagnostics productization is complete as of 2026-04-19, Phase 4 governa
   - `powershell -ExecutionPolicy Bypass -File tools/ci/check_release_readiness.ps1` => passed
   - `powershell -ExecutionPolicy Bypass -File tools/ci/truth_reconciler.ps1` => passed
 - Sprint 04 execution slice (2026-04-21): Canonical release-signoff workflow artifact
-  - Added `docs/RELEASE_SIGNOFF_WORKFLOW.md` as the canonical non-promoting workflow artifact for governed release-signoff discipline across readiness/signoff lanes.
+  - Added `docs/release/RELEASE_SIGNOFF_WORKFLOW.md` as the canonical non-promoting workflow artifact for governed release-signoff discipline across readiness/signoff lanes.
   - `check_release_readiness.ps1` and `truth_reconciler.ps1` now require that workflow doc, align its status date with the readiness stack, and verify its expected non-promoting workflow language.
   - `RELEASE_READINESS_MATRIX.md`, `TRUTH_ALIGNMENT_RULES.md`, and `readiness_status.json` now record that the governance foundation includes a canonical release-signoff workflow artifact, while keeping full release-signoff enforcement honestly below `READY`.
 - Sprint 04 execution slice (2026-04-21): Project-audit release-signoff workflow parity
@@ -546,29 +546,29 @@ Phase 3 diagnostics productization is complete as of 2026-04-19, Phase 4 governa
   - disabled Dependabot PR branch churn in `.github/dependabot.yml`
   - enforced `main` branch protection policy
 - Established external repository intake governance artifacts:
-  - [docs/external-intake/repo-watchlist.md](./external-intake/repo-watchlist.md)
-  - [docs/external-intake/license-matrix.md](./external-intake/license-matrix.md)
-  - [docs/external-intake/repo-audit-template.md](./external-intake/repo-audit-template.md)
-  - [docs/external-intake/urpg_feature_adoption_matrix.md](./external-intake/urpg_feature_adoption_matrix.md)
+  - [docs/external-intake/repo-watchlist.md](../external-intake/repo-watchlist.md)
+  - [docs/external-intake/license-matrix.md](../external-intake/license-matrix.md)
+  - [docs/external-intake/repo-audit-template.md](../external-intake/repo-audit-template.md)
+  - [docs/external-intake/urpg_feature_adoption_matrix.md](../external-intake/urpg_feature_adoption_matrix.md)
 - Established private-use asset intake governance artifacts:
-  - [docs/asset_intake/ASSET_SOURCE_REGISTRY.md](./asset_intake/ASSET_SOURCE_REGISTRY.md)
-  - [docs/asset_intake/ASSET_PROMOTION_GUIDE.md](./asset_intake/ASSET_PROMOTION_GUIDE.md)
-  - [docs/asset_intake/ASSET_CATEGORY_GAPS.md](./asset_intake/ASSET_CATEGORY_GAPS.md)
-  - Scaffolded [`imports/staging/asset_intake/`](../imports/staging/asset_intake/), [`imports/normalized/`](../imports/normalized/), [`imports/manifests/`](../imports/manifests/), [`imports/reports/`](../imports/reports/), and [`third_party/github_assets/`](../third_party/github_assets/)
+  - [docs/asset_intake/ASSET_SOURCE_REGISTRY.md](../asset_intake/ASSET_SOURCE_REGISTRY.md)
+  - [docs/asset_intake/ASSET_PROMOTION_GUIDE.md](../asset_intake/ASSET_PROMOTION_GUIDE.md)
+  - [docs/asset_intake/ASSET_CATEGORY_GAPS.md](../asset_intake/ASSET_CATEGORY_GAPS.md)
+  - Scaffolded [`imports/staging/asset_intake/`](../../imports/staging/asset_intake/), [`imports/normalized/`](../../imports/normalized/), [`imports/manifests/`](../../imports/manifests/), [`imports/reports/`](../../imports/reports/), and [`third_party/github_assets/`](../../third_party/github_assets/)
 - Updated subsystem planning set:
-  - `docs/UI_MENU_CORE_NATIVE_SPEC.md`
-  - `docs/MESSAGE_TEXT_CORE_NATIVE_SPEC.md`
-  - `docs/SAVE_DATA_CORE_NATIVE_SPEC.md`
-  - `docs/BATTLE_CORE_NATIVE_SPEC.md`
+  - `docs/specs/UI_MENU_CORE_NATIVE_SPEC.md`
+  - `docs/specs/MESSAGE_TEXT_CORE_NATIVE_SPEC.md`
+  - `docs/specs/SAVE_DATA_CORE_NATIVE_SPEC.md`
+  - `docs/specs/BATTLE_CORE_NATIVE_SPEC.md`
 - Rewrote the primary roadmap into an integrated plan:
-  - `docs/NATIVE_FEATURE_ABSORPTION_PLAN.md`
+  - `docs/archive/planning/NATIVE_FEATURE_ABSORPTION_PLAN.md`
   - includes Wave 2 advanced capability tracks (ability framework, pattern editor, modular level assembly, sprite pipeline, procedural toolkit, 2.5D presentation lane, timeline orchestration, editor utilities)
 - Normalized planning authority for PGMMV/native-absorption scope:
-  - `docs/TECHNICAL_DEBT_REMEDIATION_PLAN.md` now governs roadmap-alignment and truthfulness requirements for newly added planning scope
+  - `docs/archive/planning/TECHNICAL_DEBT_REMEDIATION_PLAN.md` now governs roadmap-alignment and truthfulness requirements for newly added planning scope
   - `docs/archive/planning/URPG_MASTER_NATIVE_ABSORPTION_AND_PGMMV_ROADMAP_2026-04-18.md`, `docs/archive/planning/URPG_PGMMV_SUPPORT_PLAN.md`, and `docs/archive/planning/URPG_NATIVE_ABSORPTION_ROADMAP_2026-04-18.md` are now linked as detailed planning inputs rather than canonical status/roadmap authorities
   - the remediation hub now also carries a finding-status dashboard, expanded documentation tree, and additional planning-governance risks so execution/state review can start from one document
 - Added canonical Wave 1 closure checklist governance:
-  - canonical source: `docs/WAVE1_SUBSYSTEM_CLOSURE_CHECKLIST.md`
+  - canonical source: `docs/archive/planning/WAVE1_SUBSYSTEM_CLOSURE_CHECKLIST.md`
   - subsystem spec sync tool: `tools/docs/sync-wave1-spec-checklist.ps1`
   - CI/local gate drift check: `tools/ci/check_wave1_spec_checklists.ps1`
 - Added Message/Text Core runtime ownership slice:
@@ -657,11 +657,11 @@ Phase 3 diagnostics productization is complete as of 2026-04-19, Phase 4 governa
   - `tests/unit/test_ai_bridge_regex.cpp`: Unit-level validation for cross-component AI command parsing.
 - Added Battle Core schema + migration completion slice:
   - schema contracts:
-    - [content/schemas/battle_troops.schema.json](../content/schemas/battle_troops.schema.json)
-    - [content/schemas/battle_actions.schema.json](../content/schemas/battle_actions.schema.json)
+    - [content/schemas/battle_troops.schema.json](../../content/schemas/battle_troops.schema.json)
+    - [content/schemas/battle_actions.schema.json](../../content/schemas/battle_actions.schema.json)
   - compat-to-native upgrader mapping:
-    - [engine/core/battle/battle_migration.h](../engine/core/battle/battle_migration.h)
-    - [tests/unit/test_battle_migration.cpp](../tests/unit/test_battle_migration.cpp)
+    - [engine/core/battle/battle_migration.h](../../engine/core/battle/battle_migration.h)
+    - [tests/unit/test_battle_migration.cpp](../../tests/unit/test_battle_migration.cpp)
   - unsupported troop page/phase scripts and unsupported action scope/effect payloads now emit migration warnings while preserving schema-shaped fallback output
   - migration wizard battle summaries now count those warnings through `MigrationWizardModel`
   - unit coverage in `tests/unit/test_battle_migration.cpp`, `tests/unit/test_battle_core.cpp`, and `tests/unit/test_migration_wizard.cpp`
@@ -721,11 +721,11 @@ Phase 3 diagnostics productization is complete as of 2026-04-19, Phase 4 governa
   - Input manager status honesty: downgraded all 79 inflated `FULL` labels to `PARTIAL` in `runtimes/compat_js/input_manager.cpp`; aligned `tests/unit/test_input_manager.cpp`.
   - Migration wizard productization: added `rerunSubsystem(id, project_data)` to `MigrationWizardModel` and `MigrationWizardPanel`; exposed `can_rerun_selected_subsystem` in render snapshot; implemented `bindMigrationWizardRuntime()` in `DiagnosticsWorkspace`; added 3 new workflow tests.
   - Data manager runtime closure: implemented real `loadDatabase()` orchestration with seeded actor/class/skill/item records; wired up all stubbed JS bindings in `registerAPI` (loadDatabase, saveGame, loadGame, getGold, setGold, getSwitch, setSwitch, getVariable, setVariable, getItemCount, gainItem); implemented real `getActorsAsValue()`, `getItemsAsValue()`, `getSkillsAsValue()`, `getWeaponsAsValue()`, `getArmorsAsValue()`, `getClassesAsValue()` serializers.
-  - Doc sync: linked new intake governance artifacts into `docs/external-intake/URPG_repo_intake_plan.md`, `docs/asset_intake/URPG_private_asset_intake_plan.md`, `docs/TECHNICAL_DEBT_REMEDIATION_PLAN.md`, and `docs/PROGRAM_COMPLETION_STATUS.md`; marked P3-02 and P3-03 as partially remediated.
+  - Doc sync: linked new intake governance artifacts into `docs/external-intake/URPG_repo_intake_plan.md`, `docs/asset_intake/URPG_private_asset_intake_plan.md`, `docs/archive/planning/TECHNICAL_DEBT_REMEDIATION_PLAN.md`, and `docs/status/PROGRAM_COMPLETION_STATUS.md`; marked P3-02 and P3-03 as partially remediated.
   - Latest recorded validation snapshot: `urpg_tests` => 400/400 passed (5,098 assertions).
 - 2026-04-18 audio compat closure:
   - `AudioManager` now advances deterministic playback position, applies deterministic duck/unduck ramps, applies master/bus volume scaling to active playback, and exposes live compat-state bindings through `AudioManager::registerAPI()`.
-  - Documentation truth was reconciled across `WORKLOG.md`, `docs/TECHNICAL_DEBT_REMEDIATION_PLAN.md`, `docs/DEVELOPMENT_KICKOFF.md`, and `docs/COMPAT_EXIT_CHECKLIST.md` so the audio lane is consistently described as deterministic harness-backed `PARTIAL` behavior rather than a `FULL` live-audio surface.
+  - Documentation truth was reconciled across `WORKLOG.md`, `docs/archive/planning/TECHNICAL_DEBT_REMEDIATION_PLAN.md`, `docs/DEVELOPMENT_KICKOFF.md`, and `docs/archive/planning/COMPAT_EXIT_CHECKLIST.md` so the audio lane is consistently described as deterministic harness-backed `PARTIAL` behavior rather than a `FULL` live-audio surface.
 - 2026-04-18 window compat closure follow-through:
   - `Window_Selectable` now supports keyboard/gamepad navigation, pointer press/drag/release hit-testing, drag retargeting, drag-scroll, and mouse-wheel scrolling through `InputManager`.
   - `Window_Base::contents()` now tracks compat bitmap metadata (handle, width, height) and keeps that metadata synchronized with rect/padding changes.
@@ -890,3 +890,4 @@ Phase 2 runtime closure is already complete. The remaining compat work below is 
   - [x] `AbilityStateMachine` now records deterministic entered/failed/finished transition diagnostics through the shared ability execution history.
   - [x] `AbilityInspectorPanel` now exposes replay-log-oriented render snapshot data for the current ability runtime history.
   - [x] Focused verification: `.\build\Debug\urpg_tests.exe "[ability]" --reporter compact` => 49 assertions / 8 test cases passed.
+

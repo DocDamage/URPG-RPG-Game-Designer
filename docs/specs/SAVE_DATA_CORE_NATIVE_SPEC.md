@@ -284,7 +284,7 @@ Phase 1 of Save / Data Core absorption should deliver:
 ## Wave 1 Closure Checklist (Canonical)
 
 _Managed by `tools/docs/sync-wave1-spec-checklist.ps1`. Do not edit manually._
-_Canonical source: [WAVE1_SUBSYSTEM_CLOSURE_CHECKLIST.md](WAVE1_SUBSYSTEM_CLOSURE_CHECKLIST.md)_
+_Canonical source: [WAVE1_SUBSYSTEM_CLOSURE_CHECKLIST.md](../archive/planning/WAVE1_SUBSYSTEM_CLOSURE_CHECKLIST.md)_
 
 ### Universal closure gates
 
@@ -307,7 +307,7 @@ _Canonical source: [WAVE1_SUBSYSTEM_CLOSURE_CHECKLIST.md](WAVE1_SUBSYSTEM_CLOSUR
 - [ ] Editor owner files listed.
 - [ ] Schema and migration files listed.
 - [ ] Latest deterministic test outputs recorded.
-- [ ] README.md, docs/PROGRAM_COMPLETION_STATUS.md, and docs/archive/blueprints/URPG_Blueprint_v3_1_Integrated.md updated.
+- [ ] README.md, docs/status/PROGRAM_COMPLETION_STATUS.md, and docs/archive/blueprints/URPG_Blueprint_v3_1_Integrated.md updated.
 <!-- WAVE1_CHECKLIST_END -->
 
 ## Non-goals for this slice
@@ -316,3 +316,4 @@ _Canonical source: [WAVE1_SUBSYSTEM_CLOSURE_CHECKLIST.md](WAVE1_SUBSYSTEM_CLOSUR
 - coupling save presentation layout to authoritative serialization logic
 - making raw plugin header extensions the long-term authoring model
 - shipping cloud sync before the local schema and recovery contracts are authoritative
+

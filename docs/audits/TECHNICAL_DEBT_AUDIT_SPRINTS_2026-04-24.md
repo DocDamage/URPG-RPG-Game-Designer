@@ -7,10 +7,10 @@ Scope: replace the stale 2026-04-24 sprint checklist with findings from a fresh 
 
 This file remains an execution checklist, not a new source of truth. If any sprint changes readiness status, update the canonical status stack in the same change:
 
-- `docs/PROGRAM_COMPLETION_STATUS.md`
-- `docs/RELEASE_READINESS_MATRIX.md`
-- `docs/TECHNICAL_DEBT_ACTION_PLAN.md`
-- `docs/TECHNICAL_DEBT_REMEDIATION_PLAN.md`
+- `docs/status/PROGRAM_COMPLETION_STATUS.md`
+- `docs/release/RELEASE_READINESS_MATRIX.md`
+- `docs/archive/planning/TECHNICAL_DEBT_ACTION_PLAN.md`
+- `docs/archive/planning/TECHNICAL_DEBT_REMEDIATION_PLAN.md`
 - `content/readiness/readiness_status.json`
 - `WORKLOG.md`
 
@@ -140,7 +140,7 @@ This is honest debt rather than status inflation. The risk is process stagnation
 - [ ] Have a human reviewer record accept/reject notes for `save_data_core`.
 - [x] Update `content/readiness/readiness_status.json` only for lanes with explicit approval. No approval was recorded, so no readiness promotion was made.
 - [x] Re-run `urpg_project_audit --json` and confirm release-blocker changes are review-backed. Output remains `releaseBlockerCount: 2`, which matches the pending human-review state.
-- [x] Update `docs/RELEASE_READINESS_MATRIX.md`, `docs/PROGRAM_COMPLETION_STATUS.md`, and `WORKLOG.md`.
+- [x] Update `docs/release/RELEASE_READINESS_MATRIX.md`, `docs/status/PROGRAM_COMPLETION_STATUS.md`, and `WORKLOG.md`.
 
 **Exit Criteria:**
 
@@ -174,7 +174,7 @@ The remaining debt is the readiness residual already named by ProjectAudit: runt
 - [x] Export readiness wording distinguishes current validator-time protection from runtime enforcement.
 - [x] Any future promotion is now blocked on runtime-side tamper rejection and platform packaging evidence.
 
-**Closure Evidence (2026-04-24):** `docs/EXPORT_RUNTIME_SIGNATURE_ENFORCEMENT_DESIGN.md` now records the required runtime/load-time `data.pck` signature-enforcement contract, the test cases required once runtime enforcement exists, and the decision to move future bundle publication to temp-file-plus-atomic-rename before release-grade packaging claims. `content/readiness/readiness_status.json`, `docs/RELEASE_READINESS_MATRIX.md`, and `docs/PROGRAM_COMPLETION_STATUS.md` distinguish current validator-time keyed SHA-256 bundle-signature validation from missing runtime enforcement. A governance regression in `tests/unit/test_s32_wysiwyg_lanes.cpp` keeps that design note and boundary wording present. No `READY` export promotion was made.
+**Closure Evidence (2026-04-24):** `docs/specs/EXPORT_RUNTIME_SIGNATURE_ENFORCEMENT_DESIGN.md` now records the required runtime/load-time `data.pck` signature-enforcement contract, the test cases required once runtime enforcement exists, and the decision to move future bundle publication to temp-file-plus-atomic-rename before release-grade packaging claims. `content/readiness/readiness_status.json`, `docs/release/RELEASE_READINESS_MATRIX.md`, and `docs/status/PROGRAM_COMPLETION_STATUS.md` distinguish current validator-time keyed SHA-256 bundle-signature validation from missing runtime enforcement. A governance regression in `tests/unit/test_s32_wysiwyg_lanes.cpp` keeps that design note and boundary wording present. No `READY` export promotion was made.
 
 ### TD-AUD-04 - Renderer-Backed Visual Goldens Are Oversized
 

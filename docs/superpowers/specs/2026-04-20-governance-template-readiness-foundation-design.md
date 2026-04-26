@@ -107,12 +107,12 @@ Those remain downstream implementation lanes. This governance slice only decides
 
 ## Recommended v1 Components
 
-- `docs/RELEASE_READINESS_MATRIX.md`
-- `docs/TEMPLATE_READINESS_MATRIX.md`
-- `docs/TRUTH_ALIGNMENT_RULES.md`
-- `docs/TEMPLATE_LABEL_RULES.md`
-- `docs/SUBSYSTEM_STATUS_RULES.md`
-- `docs/SCHEMA_CHANGELOG.md`
+- `docs/release/RELEASE_READINESS_MATRIX.md`
+- `docs/governance/TEMPLATE_READINESS_MATRIX.md`
+- `docs/governance/TRUTH_ALIGNMENT_RULES.md`
+- `docs/governance/TEMPLATE_LABEL_RULES.md`
+- `docs/governance/SUBSYSTEM_STATUS_RULES.md`
+- `docs/governance/SCHEMA_CHANGELOG.md`
 - `content/schemas/readiness_status.schema.json`
 - `tools/ci/check_release_readiness.ps1`
 - `tools/docs/check_truth_alignment.ps1`

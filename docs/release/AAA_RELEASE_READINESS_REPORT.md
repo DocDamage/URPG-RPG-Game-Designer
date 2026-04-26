@@ -38,7 +38,7 @@ Important repository condition: after branch cleanup and history rewrite, the au
 
 ### C-1: No Project Version Metadata
 
-**Evidence:** [CMakeLists.txt](../CMakeLists.txt) line 2 contains:
+**Evidence:** [CMakeLists.txt](../../CMakeLists.txt) line 2 contains:
 
 ```cmake
 project(urpg LANGUAGES C CXX)
@@ -64,7 +64,7 @@ f9d74b2dc
 
 ### C-3: Runtime Boots Directly Into a Hardcoded Map Scene
 
-**Evidence:** [apps/runtime/main.cpp](../apps/runtime/main.cpp) clears the scene stack and calls:
+**Evidence:** [apps/runtime/main.cpp](../../apps/runtime/main.cpp) clears the scene stack and calls:
 
 ```cpp
 urpg::scene::SceneManager::getInstance().gotoScene(
@@ -79,7 +79,7 @@ The app search found no `TitleScreen` or `MenuScene` reference in `apps/runtime/
 
 ### C-4: Runtime Entry Point Has No Save/Load Flow
 
-**Evidence:** [apps/runtime/main.cpp](../apps/runtime/main.cpp) parses only `--headless`, `--frames`, `--width`, `--height`, and `--project-root`. The app search found no `SaveRuntime` reference in `apps/runtime/main.cpp`.
+**Evidence:** [apps/runtime/main.cpp](../../apps/runtime/main.cpp) parses only `--headless`, `--frames`, `--width`, `--height`, and `--project-root`. The app search found no `SaveRuntime` reference in `apps/runtime/main.cpp`.
 
 **Impact:** A released runtime built from this entry point cannot continue a game, select a save slot, recover corrupted saves, or autosave through the main boot path.
 
@@ -95,7 +95,7 @@ The app search found no `TitleScreen` or `MenuScene` reference in `apps/runtime/
 
 ### C-6: Editor Links Many Panel Sources but Registers Only Six Top-Level Panels
 
-**Evidence:** [apps/editor/main.cpp](../apps/editor/main.cpp) registers exactly these panels through `EditorShell::addPanel`:
+**Evidence:** [apps/editor/main.cpp](../../apps/editor/main.cpp) registers exactly these panels through `EditorShell::addPanel`:
 
 | ID | Title | Category |
 |---|---|---|
@@ -114,7 +114,7 @@ The editor tree contains 67 `*panel.h` files and 64 `*panel.cpp` files. `CMakeLi
 
 ### C-7: Editor Smoke Test Covers Only Five Panels
 
-**Evidence:** [apps/editor/main.cpp](../apps/editor/main.cpp) declares the smoke-required panel IDs as:
+**Evidence:** [apps/editor/main.cpp](../../apps/editor/main.cpp) declares the smoke-required panel IDs as:
 
 ```cpp
 "diagnostics", "assets", "ability", "mod", "analytics"
@@ -128,7 +128,7 @@ It omits the registered `patterns` panel and does not cover the many other compi
 
 ### C-8: Release Validation Uses `assert()`
 
-**Evidence:** [engine/core/presentation/release_validation.cpp](../engine/core/presentation/release_validation.cpp) includes `<cassert>` and uses `assert(...)` for validation checks.
+**Evidence:** [engine/core/presentation/release_validation.cpp](../../engine/core/presentation/release_validation.cpp) includes `<cassert>` and uses `assert(...)` for validation checks.
 
 **Impact:** In Release/NDEBUG builds, these validations can be compiled out, turning the release validation executable into a weaker signal than its name implies.
 
@@ -136,7 +136,7 @@ It omits the registered `patterns` panel and does not cover the many other compi
 
 ### C-9: Install Rules Are Minimal
 
-**Evidence:** [CMakeLists.txt](../CMakeLists.txt) contains:
+**Evidence:** [CMakeLists.txt](../../CMakeLists.txt) contains:
 
 ```cmake
 install(TARGETS urpg_runtime urpg_editor urpg_audio_smoke
@@ -178,7 +178,7 @@ The root `LICENSE` exists, and `third_party/` contains `aseprite`, `external-rep
 
 ### H-2: Runtime Main Loop Has No Verified Frame Cap in Non-Headless Mode
 
-**Evidence:** [apps/runtime/main.cpp](../apps/runtime/main.cpp) sleeps for 1 ms only when `options.headless` is true. No VSync or frame limiter reference was found in the runtime entry point.
+**Evidence:** [apps/runtime/main.cpp](../../apps/runtime/main.cpp) sleeps for 1 ms only when `options.headless` is true. No VSync or frame limiter reference was found in the runtime entry point.
 
 **Impact:** Non-headless runtime execution can run as fast as `shell.tick()` and presentation allow unless throttled deeper in the engine. That deeper throttling was not verified by this report.
 
@@ -186,7 +186,7 @@ The root `LICENSE` exists, and `third_party/` contains `aseprite`, `external-rep
 
 ### H-3: Runtime Main Loop Has No Verified Pause/Focus Handling
 
-**Evidence:** [apps/runtime/main.cpp](../apps/runtime/main.cpp) loops on `shell.isRunning()` and calls `shell.tick()` each frame. No pause/focus/suspend handling is visible in the entry point.
+**Evidence:** [apps/runtime/main.cpp](../../apps/runtime/main.cpp) loops on `shell.isRunning()` and calls `shell.tick()` each frame. No pause/focus/suspend handling is visible in the entry point.
 
 **Impact:** Focus loss, minimize, suspend/resume, and pause menu behavior are not release-proven from the runtime entry point.
 
@@ -202,7 +202,7 @@ The root `LICENSE` exists, and `third_party/` contains `aseprite`, `external-rep
 
 ### H-5: Editor ImGui Settings Persistence Is Disabled
 
-**Evidence:** [apps/editor/main.cpp](../apps/editor/main.cpp) sets:
+**Evidence:** [apps/editor/main.cpp](../../apps/editor/main.cpp) sets:
 
 ```cpp
 ImGui::GetIO().IniFilename = nullptr;
@@ -215,7 +215,7 @@ ImGui::GetIO().LogFilename = nullptr;
 
 ### H-6: Catch2 Is Fetched by Default Independent of Release Intent
 
-**Evidence:** [CMakeLists.txt](../CMakeLists.txt) defines:
+**Evidence:** [CMakeLists.txt](../../CMakeLists.txt) defines:
 
 ```cmake
 option(URPG_FETCH_CATCH2 "Fetch Catch2 via CMake" ON)
@@ -282,7 +282,7 @@ Two additional narrow archive removals were completed after confirming retained 
 
 ### M-2: No Verified Privacy/Consent Flow for Analytics
 
-**Evidence:** [apps/editor/main.cpp](../apps/editor/main.cpp) constructs analytics dispatcher/uploader/privacy controller objects and binds them to `AnalyticsPanel`. This audit did not verify a first-run consent gate.
+**Evidence:** [apps/editor/main.cpp](../../apps/editor/main.cpp) constructs analytics dispatcher/uploader/privacy controller objects and binds them to `AnalyticsPanel`. This audit did not verify a first-run consent gate.
 
 **Impact:** Analytics behavior is not release-cleared from the editor entry point.
 
@@ -352,3 +352,4 @@ A release candidate should not be cut from this repository until all critical fi
 ## Final Assessment
 
 URPG contains a substantial engine and editor codebase, but the audited entry points and packaging metadata are not yet at release-candidate quality. The main blocker is not the absence of subsystem code; it is that essential product flows are either not wired through the shipped applications, not covered by smoke tests, or not represented in release/package metadata.
+

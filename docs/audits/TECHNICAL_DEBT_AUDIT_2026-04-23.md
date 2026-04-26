@@ -33,7 +33,7 @@ git ls-files .env* gitleaks.toml .gitignore .gitattributes
 
 ## Coverage Cross-Check
 
-A second pass compared this audit against `content/readiness/readiness_status.json`, `docs/RELEASE_READINESS_MATRIX.md`, `docs/TEMPLATE_READINESS_MATRIX.md`, `docs/NATIVE_FEATURE_ABSORPTION_PLAN.md`, and `docs/PROGRAM_COMPLETION_STATUS.md`.
+A second pass compared this audit against `content/readiness/readiness_status.json`, `docs/release/RELEASE_READINESS_MATRIX.md`, `docs/governance/TEMPLATE_READINESS_MATRIX.md`, `docs/archive/planning/NATIVE_FEATURE_ABSORPTION_PLAN.md`, and `docs/status/PROGRAM_COMPLETION_STATUS.md`.
 
 That pass found adjacent feature/product gaps that were not explicit enough in the first ten findings. They are now tracked as `TD-2026-04-23-11` and `TD-Sprint-06`.
 
@@ -46,7 +46,7 @@ That pass found adjacent feature/product gaps that were not explicit enough in t
 
 The code and docs are healthier than before because the residual is explicit rather than hidden. The remaining debt is the promotion workflow itself: the signoff artifacts exist, but they deliberately do not grant `READY`.
 
-**Next step:** Execute the human-review closure path in `docs/RELEASE_SIGNOFF_WORKFLOW.md` for battle and save, then update `content/readiness/readiness_status.json` only if the review accepts the residuals.
+**Next step:** Execute the human-review closure path in `docs/release/RELEASE_SIGNOFF_WORKFLOW.md` for battle and save, then update `content/readiness/readiness_status.json` only if the review accepts the residuals.
 
 **Checklist:**
 
@@ -55,7 +55,7 @@ The code and docs are healthier than before because the residual is explicit rat
 - [ ] Have a human reviewer record accept/reject notes for `save_data_core`.
 - [ ] Update `content/readiness/readiness_status.json` only for lanes whose residuals are accepted.
 - [ ] Re-run `urpg_project_audit --json` and confirm the release blocker count changes only for approved lanes.
-- [ ] Update `docs/RELEASE_READINESS_MATRIX.md` and `docs/PROGRAM_COMPLETION_STATUS.md` in the same change.
+- [ ] Update `docs/release/RELEASE_READINESS_MATRIX.md` and `docs/status/PROGRAM_COMPLETION_STATUS.md` in the same change.
 
 ### TD-2026-04-23-02 - Project Schema And Audit Vocabulary Are Misaligned
 
@@ -68,7 +68,7 @@ The code and docs are healthier than before because the residual is explicit rat
 
 `content/schemas/project.schema.json` still only defines the narrow base project/determinism contract while the audit expects localization, input/controller, and export governance sections for templates that depend on those bars.
 
-**Next step:** Start `TD-S02` from `docs/TECHNICAL_DEBT_ACTION_PLAN.md`: choose the canonical property names, extend the schema, add fixtures/tests, and update audit/docs in one change.
+**Next step:** Start `TD-S02` from `docs/archive/planning/TECHNICAL_DEBT_ACTION_PLAN.md`: choose the canonical property names, extend the schema, add fixtures/tests, and update audit/docs in one change.
 
 **Checklist:**
 
@@ -77,7 +77,7 @@ The code and docs are healthier than before because the residual is explicit rat
 - [ ] Add a canonical project fixture that exercises the new sections.
 - [ ] Update `tools/audit/urpg_project_audit.cpp` to validate the same vocabulary.
 - [ ] Add positive and negative project-audit tests for missing and malformed governance sections.
-- [ ] Update `docs/PROJECT_AUDIT.md`, `docs/RELEASE_READINESS_MATRIX.md`, and readiness records.
+- [ ] Update `docs/audits/PROJECT_AUDIT.md`, `docs/release/RELEASE_READINESS_MATRIX.md`, and readiness records.
 
 ### TD-2026-04-23-03 - Localization Governance Has Two Partial Stories
 
@@ -116,7 +116,7 @@ The current runtime/schema/report lane is not the same as the audit/tooling lane
 - [ ] Add CLI smoke coverage for at least one successful export and one validation failure.
 - [ ] Preserve deterministic ordering and hash/signature output in tests.
 - [ ] Keep preflight readiness, post-export validation, and release signing/notarization wording separate.
-- [ ] Update `docs/RELEASE_READINESS_MATRIX.md` and `docs/PROGRAM_COMPLETION_STATUS.md`.
+- [ ] Update `docs/release/RELEASE_READINESS_MATRIX.md` and `docs/status/PROGRAM_COMPLETION_STATUS.md`.
 
 ### TD-2026-04-23-05 - Compat Runtime Contract Is Honest But Still Harness-Shaped
 
@@ -293,7 +293,7 @@ These gaps are mostly documented honestly as `PARTIAL`, `EXPERIMENTAL`, or `PLAN
 - [ ] Close TD-02 project schema/audit vocabulary alignment.
 - [ ] Close TD-03 localization contract unification.
 - [ ] Re-run `urpg_project_audit --json` and confirm the project-schema/localization artifact warnings are either gone or intentionally renamed.
-- [ ] Update `docs/TECHNICAL_DEBT_ACTION_PLAN.md`, `docs/PROJECT_AUDIT.md`, and `docs/PROGRAM_COMPLETION_STATUS.md`.
+- [ ] Update `docs/archive/planning/TECHNICAL_DEBT_ACTION_PLAN.md`, `docs/audits/PROJECT_AUDIT.md`, and `docs/status/PROGRAM_COMPLETION_STATUS.md`.
 
 ### TD-Sprint-02 - Export And Release Truth
 

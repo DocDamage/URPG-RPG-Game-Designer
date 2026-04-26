@@ -6,7 +6,7 @@
 
 This rewrite is based on a fresh code-first audit of the current tree.
 
-This document is an audit snapshot and prioritization aid, not a replacement for the canonical remediation hub in `docs/TECHNICAL_DEBT_REMEDIATION_PLAN.md`. Where this audit recommends execution order or Definition-of-Done wording, treat it as input to the remediation plan rather than a second source of authority.
+This document is an audit snapshot and prioritization aid, not a replacement for the canonical remediation hub in `docs/archive/planning/TECHNICAL_DEBT_REMEDIATION_PLAN.md`. Where this audit recommends execution order or Definition-of-Done wording, treat it as input to the remediation plan rather than a second source of authority.
 
 ---
 

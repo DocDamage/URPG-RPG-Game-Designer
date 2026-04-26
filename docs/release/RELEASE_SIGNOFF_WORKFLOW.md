@@ -62,6 +62,6 @@ For the currently human-review-gated subsystem lanes, the machine-checked readin
 - `required: true`
 - the canonical `artifactPath`
 - `promotionRequiresHumanReview: true`
-- the canonical workflow path `docs/RELEASE_SIGNOFF_WORKFLOW.md`
+- the canonical workflow path `docs/release/RELEASE_SIGNOFF_WORKFLOW.md`
 
 This contract exists to keep artifact paths and non-promoting review requirements aligned across readiness, audit, and gates. It does **not** record that a human review happened, and it does not grant release approval.

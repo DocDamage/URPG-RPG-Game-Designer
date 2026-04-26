@@ -1,7 +1,7 @@
 # URPG Asset Promotion Guide
 
 > Guide for staging → normalization → promotion workflow for private-use asset intake.
-> See [URPG_private_asset_intake_plan.md](./URPG_private_asset_intake_plan.md) and [TECHNICAL_DEBT_REMEDIATION_PLAN.md](../TECHNICAL_DEBT_REMEDIATION_PLAN.md) (P3-03, Phase 4 / Workstream 4.2).
+> See [URPG_private_asset_intake_plan.md](../archive/planning/asset_intake__URPG_private_asset_intake_plan.md) and [TECHNICAL_DEBT_REMEDIATION_PLAN.md](../archive/planning/TECHNICAL_DEBT_REMEDIATION_PLAN.md) (P3-03, Phase 4 / Workstream 4.2).
 
 ---
 
@@ -170,3 +170,4 @@ Target integrations by priority:
 | 2026-04-17 | Initial guide created from `docs/asset_intake/URPG_private_asset_intake_plan.md` |
 | 2026-04-23 | TD Sprint 04 exercised the guide with `BND-001` and `BND-002`, proving one visual and one UI-audio promoted lane through source manifests, normalized assets, smoke-proof reporting, and export bundle staging. |
 | 2026-04-25 | Added release attribution records for the promoted proof assets and clarified that shipped normalized assets must enter exports through promoted bundle manifests, not broad raw-intake or normalized-root discovery. |
+

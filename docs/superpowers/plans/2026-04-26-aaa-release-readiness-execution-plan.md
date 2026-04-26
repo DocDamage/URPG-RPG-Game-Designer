@@ -8,7 +8,7 @@
 
 **Tech Stack:** C++20, CMake 3.23+, Catch2 v3, PowerShell CI scripts, Git LFS, ImGui editor, SDL/headless runtime surfaces.
 
-**Source Audit:** `docs/AAA_RELEASE_READINESS_REPORT.md`
+**Source Audit:** `docs/release/AAA_RELEASE_READINESS_REPORT.md`
 
 ---
 
@@ -455,7 +455,7 @@
 
 **Exact implementation steps:**
 - [ ] Run searches for empty render functions, placeholder labels, mock data strings, disabled buttons with no reason, and no-op handlers.
-- [ ] Record each verified stub in `docs/RELEASE_READINESS_MATRIX.md` or the app-level matrix from P5-005.
+- [ ] Record each verified stub in `docs/release/RELEASE_READINESS_MATRIX.md` or the app-level matrix from P5-005.
 - [ ] For each user-facing stub, either implement the real behavior or convert it to an explicit disabled state with owner, reason, and unlock condition.
 - [ ] Add a focused test for each implemented behavior or disabled-state contract.
 - [ ] Do not edit audit-gap items until the search proves the specific file and behavior.
@@ -776,7 +776,7 @@
 - `PRIVACY_POLICY.md`
 - `CREDITS.md`
 - `CHANGELOG.md`
-- `docs/RELEASE_READINESS_MATRIX.md` or app-level matrix from P5-005
+- `docs/release/RELEASE_READINESS_MATRIX.md` or app-level matrix from P5-005
 
 **Files to inspect:**
 - `LICENSE`
@@ -875,7 +875,7 @@
 - `.gitattributes`
 - `.gitignore`
 - `tools/assets/asset_hygiene.py` if checks need updates
-- `docs/RELEASE_READINESS_MATRIX.md`
+- `docs/release/RELEASE_READINESS_MATRIX.md`
 
 **Files to inspect:**
 - `third_party/`
@@ -909,14 +909,14 @@
 
 **Files to edit:**
 - `docs/APP_RELEASE_READINESS_MATRIX.md`
-- `docs/AAA_RELEASE_READINESS_REPORT.md`
-- `docs/PROGRAM_COMPLETION_STATUS.md`
+- `docs/release/AAA_RELEASE_READINESS_REPORT.md`
+- `docs/status/PROGRAM_COMPLETION_STATUS.md`
 
 **Files to inspect:**
-- `docs/RELEASE_READINESS_MATRIX.md`
-- `docs/KNOWN_BREAK_WAIVERS.md`
-- `docs/PROGRAM_COMPLETION_STATUS.md`
-- `docs/NATIVE_FEATURE_ABSORPTION_PLAN.md`
+- `docs/release/RELEASE_READINESS_MATRIX.md`
+- `docs/release/KNOWN_BREAK_WAIVERS.md`
+- `docs/status/PROGRAM_COMPLETION_STATUS.md`
+- `docs/archive/planning/NATIVE_FEATURE_ABSORPTION_PLAN.md`
 
 **Dependencies:** P1-P5 tasks can update this incrementally.
 
@@ -975,9 +975,9 @@
 ### P6-002 - Run Full Regression And Close The Readiness Report
 
 **Files to edit:**
-- `docs/AAA_RELEASE_READINESS_REPORT.md`
+- `docs/release/AAA_RELEASE_READINESS_REPORT.md`
 - `docs/APP_RELEASE_READINESS_MATRIX.md`
-- `docs/PROGRAM_COMPLETION_STATUS.md`
+- `docs/status/PROGRAM_COMPLETION_STATUS.md`
 - `CHANGELOG.md`
 
 **Files to inspect:**
@@ -1015,9 +1015,10 @@
 
 ## Current Verification Status
 
-- Verified: The source audit exists at `docs/AAA_RELEASE_READINESS_REPORT.md`.
+- Verified: The source audit exists at `docs/release/AAA_RELEASE_READINESS_REPORT.md`.
 - Verified: The plan maps every critical, high, and medium finding in the report to at least one task.
 - Verified: Audit-gap items are marked unverified and require inspection/tests before implementation.
 - Unverified: Any code fix in this plan. This document is an execution plan only; implementation tasks still need to be performed and verified.
 - Unverified: Fresh-clone LFS hydration. It requires a clone that does not rely on the local Git LFS cache.
 - Unverified: Legal sufficiency of EULA/privacy/third-party notices. It requires qualified legal review.
+

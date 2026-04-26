@@ -228,7 +228,7 @@ Phase 1 of Message / Text Core absorption should deliver:
 ## Wave 1 Closure Checklist (Canonical)
 
 _Managed by `tools/docs/sync-wave1-spec-checklist.ps1`. Do not edit manually._
-_Canonical source: [WAVE1_SUBSYSTEM_CLOSURE_CHECKLIST.md](WAVE1_SUBSYSTEM_CLOSURE_CHECKLIST.md)_
+_Canonical source: [WAVE1_SUBSYSTEM_CLOSURE_CHECKLIST.md](../archive/planning/WAVE1_SUBSYSTEM_CLOSURE_CHECKLIST.md)_
 
 ### Universal closure gates
 
@@ -251,7 +251,7 @@ _Canonical source: [WAVE1_SUBSYSTEM_CLOSURE_CHECKLIST.md](WAVE1_SUBSYSTEM_CLOSUR
 - [ ] Editor owner files listed.
 - [ ] Schema and migration files listed.
 - [ ] Latest deterministic test outputs recorded.
-- [ ] README.md, docs/PROGRAM_COMPLETION_STATUS.md, and docs/archive/blueprints/URPG_Blueprint_v3_1_Integrated.md updated.
+- [ ] README.md, docs/status/PROGRAM_COMPLETION_STATUS.md, and docs/archive/blueprints/URPG_Blueprint_v3_1_Integrated.md updated.
 <!-- WAVE1_CHECKLIST_END -->
 
 ## Non-goals for this slice
@@ -260,3 +260,4 @@ _Canonical source: [WAVE1_SUBSYSTEM_CLOSURE_CHECKLIST.md](WAVE1_SUBSYSTEM_CLOSUR
 - folding event graph ownership into the message renderer
 - making escape strings the primary authoring UX forever
 - shipping advanced cinematic text effects before the layout and flow model is authoritative
+

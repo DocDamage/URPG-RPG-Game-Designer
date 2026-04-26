@@ -31,7 +31,7 @@ Derived from `docs/archive/planning/urpg_first_class_presentation_architecture_p
 - **Owner**: Presentation Architect
 
 ### Risk 6 — Asset requirements are unclear
-- **Mitigation**: Maintain an explicit asset-gap inventory in [PLAN.md](./PLAN.md) and keep reference corpora separated from production asset claims.
+- **Mitigation**: Maintain an explicit asset-gap inventory in the archived [presentation plan](../archive/planning/presentation__PLAN.md) and keep reference corpora separated from production asset claims.
 - **Trigger**: Fixture libraries are cited as if they close real content-production needs.
 - **Owner**: Content / Pipeline Lead
 

@@ -1,7 +1,7 @@
 # URPG Asset Category Gaps
 
 > Current asset gaps by category. Used to drive acquisition backlog and promotion decisions.
-> See [URPG_private_asset_intake_plan.md](./URPG_private_asset_intake_plan.md) and [TECHNICAL_DEBT_REMEDIATION_PLAN.md](../TECHNICAL_DEBT_REMEDIATION_PLAN.md) (P3-03, Phase 4 / Workstream 4.2).
+> See [URPG_private_asset_intake_plan.md](../archive/planning/asset_intake__URPG_private_asset_intake_plan.md) and [TECHNICAL_DEBT_REMEDIATION_PLAN.md](../archive/planning/TECHNICAL_DEBT_REMEDIATION_PLAN.md) (P3-03, Phase 4 / Workstream 4.2).
 
 ---
 
@@ -77,3 +77,4 @@ Categories to mine from `awesome-cc0` and `Game-Assets-And-Resources`:
 | 2026-04-17 | Initial gap map created from `docs/asset_intake/URPG_private_asset_intake_plan.md` |
 | 2026-04-19 | Replaced misleading staged-state wording with cataloged-not-mirrored reality and rewrote fast-win targets as governed future capture/promote work. |
 | 2026-04-23 | TD Sprint 04 moved UI sounds and prototype sprites from fixture-only to partial with one promoted proof asset in each lane. |
+

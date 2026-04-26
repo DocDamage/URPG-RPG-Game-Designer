@@ -33,7 +33,7 @@ Current evidence for the compat bridge exit lane includes:
 | Truthful status labels | `tests/unit/test_audio_manager.cpp`, `tests/unit/test_battlemgr.cpp`, `tests/unit/test_data_manager.cpp`, `tests/unit/test_window_compat.cpp`, `tests/unit/test_input_manager.cpp`, `tests/unit/test_plugin_manager.cpp` |
 | WindowCompat fidelity | `tests/unit/test_window_compat.cpp` proves JS color-object/string parsing for `changeTextColor` and segmented gradient color use for `drawGauge` |
 | Weekly maintenance lane | `tools/ci/run_compat_weekly_regression.ps1` plus the `weekly` CTest lane |
-| Canonical exit criteria | `docs/COMPAT_EXIT_CHECKLIST.md` |
+| Canonical exit criteria | `docs/archive/planning/COMPAT_EXIT_CHECKLIST.md` |
 
 ---
 
@@ -76,10 +76,10 @@ Compat bridge exit is a maintenance-mode lane that requires ongoing review rathe
 
 ## 6. Related Artifacts
 
-- `docs/COMPAT_EXIT_CHECKLIST.md`
-- `docs/PROGRAM_COMPLETION_STATUS.md`
-- `docs/TECHNICAL_DEBT_REMEDIATION_PLAN.md`
-- `docs/RELEASE_READINESS_MATRIX.md`
+- `docs/archive/planning/COMPAT_EXIT_CHECKLIST.md`
+- `docs/status/PROGRAM_COMPLETION_STATUS.md`
+- `docs/archive/planning/TECHNICAL_DEBT_REMEDIATION_PLAN.md`
+- `docs/release/RELEASE_READINESS_MATRIX.md`
 - `content/readiness/readiness_status.json`
 
 ---
