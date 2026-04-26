@@ -541,3 +541,144 @@ TEST_CASE("QuickJSContext CPU budget is enforced at harness level", "[compat][qu
     REQUIRE(result.error == "CPU budget exceeded");
     REQUIRE(ctx.isCPUExceeded());
 }
+
+TEST_CASE("QuickJSContext compat timers are deterministic and clearable", "[compat][quickjs][async]") {
+    QuickJSContext ctx;
+    REQUIRE(ctx.initialize(QuickJSConfig{}));
+
+    const auto setup = ctx.eval(R"JS(
+        globalThis.timerHits = 0;
+        const timeoutId = setTimeout(function(delta) { globalThis.timerHits += delta; }, 0, 2);
+        clearTimeout(timeoutId);
+        setTimeout(function(delta) { globalThis.timerHits += delta; }, 0, 5);
+        __urpgPendingTimerCount();
+    )JS",
+                                "timer_cleanup.js");
+    REQUIRE(setup.success);
+    REQUIRE(std::holds_alternative<int64_t>(setup.value.v));
+    REQUIRE(std::get<int64_t>(setup.value.v) == 1);
+
+    const auto run = ctx.eval("__urpgRunDueTimers();", "timer_cleanup.js");
+    REQUIRE(run.success);
+    REQUIRE(std::holds_alternative<int64_t>(run.value.v));
+    REQUIRE(std::get<int64_t>(run.value.v) == 1);
+
+    const auto hits = ctx.getGlobal("timerHits");
+    REQUIRE(hits.has_value());
+    REQUIRE(std::holds_alternative<int64_t>(hits->v));
+    REQUIRE(std::get<int64_t>(hits->v) == 5);
+
+    const auto remaining = ctx.eval("__urpgPendingTimerCount();", "timer_cleanup.js");
+    REQUIRE(remaining.success);
+    REQUIRE(std::get<int64_t>(remaining.value.v) == 0);
+}
+
+TEST_CASE("QuickJSContext compat intervals persist until cleared", "[compat][quickjs][async]") {
+    QuickJSContext ctx;
+    REQUIRE(ctx.initialize(QuickJSConfig{}));
+
+    const auto setup = ctx.eval(R"JS(
+        globalThis.intervalHits = 0;
+        globalThis.intervalId = setInterval(function() { globalThis.intervalHits += 1; }, 0);
+        __urpgRunDueTimers();
+        __urpgRunDueTimers();
+        clearInterval(globalThis.intervalId);
+        __urpgPendingTimerCount();
+    )JS",
+                                "interval_cleanup.js");
+    REQUIRE(setup.success);
+    REQUIRE(std::holds_alternative<int64_t>(setup.value.v));
+    REQUIRE(std::get<int64_t>(setup.value.v) == 0);
+
+    const auto hits = ctx.getGlobal("intervalHits");
+    REQUIRE(hits.has_value());
+    REQUIRE(std::holds_alternative<int64_t>(hits->v));
+    REQUIRE(std::get<int64_t>(hits->v) == 2);
+}
+
+TEST_CASE("QuickJSContext compat event listeners can be removed", "[compat][quickjs][async]") {
+    QuickJSContext ctx;
+    REQUIRE(ctx.initialize(QuickJSConfig{}));
+
+    const auto result = ctx.eval(R"JS(
+        globalThis.eventHits = 0;
+        function onReady(event) {
+          globalThis.eventHits += event.amount;
+        }
+        addEventListener("ready", onReady);
+        dispatchEvent({ type: "ready", amount: 3 });
+        removeEventListener("ready", onReady);
+        dispatchEvent({ type: "ready", amount: 7 });
+        __urpgListenerCount("ready");
+    )JS",
+                                 "event_listener_cleanup.js");
+    REQUIRE(result.success);
+    REQUIRE(std::holds_alternative<int64_t>(result.value.v));
+    REQUIRE(std::get<int64_t>(result.value.v) == 0);
+
+    const auto hits = ctx.getGlobal("eventHits");
+    REQUIRE(hits.has_value());
+    REQUIRE(std::holds_alternative<int64_t>(hits->v));
+    REQUIRE(std::get<int64_t>(hits->v) == 3);
+}
+
+TEST_CASE("QuickJSRuntime context teardown drops compat async resources", "[compat][quickjs][async]") {
+    QuickJSRuntime runtime;
+    REQUIRE(runtime.initialize());
+
+    const auto firstId = runtime.createContext("async-plugin", QuickJSConfig{});
+    REQUIRE(firstId.has_value());
+    auto* firstContext = runtime.getContext(*firstId);
+    REQUIRE(firstContext != nullptr);
+    REQUIRE(firstContext->eval("setTimeout(function() {}, 0); addEventListener('boot', function() {});",
+                               "async_teardown.js")
+                .success);
+
+    runtime.destroyContext(*firstId);
+    REQUIRE(runtime.getContext(*firstId) == nullptr);
+
+    const auto secondId = runtime.createContext("async-plugin", QuickJSConfig{});
+    REQUIRE(secondId.has_value());
+    auto* secondContext = runtime.getContext(*secondId);
+    REQUIRE(secondContext != nullptr);
+
+    const auto timerCount = secondContext->eval("__urpgPendingTimerCount();", "async_teardown.js");
+    REQUIRE(timerCount.success);
+    REQUIRE(std::get<int64_t>(timerCount.value.v) == 0);
+
+    const auto listenerCount = secondContext->eval("__urpgListenerCount('boot');", "async_teardown.js");
+    REQUIRE(listenerCount.success);
+    REQUIRE(std::get<int64_t>(listenerCount.value.v) == 0);
+}
+
+TEST_CASE("QuickJSContext drains promise jobs and reports unhandled rejections", "[compat][quickjs][async]") {
+    QuickJSContext ctx;
+    REQUIRE(ctx.initialize(QuickJSConfig{}));
+
+    const auto result = ctx.eval(R"JS(
+        Promise.resolve().then(function() {
+          globalThis.promiseValue = 42;
+        });
+        Promise.reject("plugin async failure");
+        "queued";
+    )JS",
+                                 "promise_rejection_plugin.js");
+    REQUIRE(result.success);
+
+    REQUIRE(ctx.drainPendingJobs() >= 1);
+
+    const auto value = ctx.getGlobal("promiseValue");
+    REQUIRE(value.has_value());
+    REQUIRE(std::holds_alternative<int64_t>(value->v));
+    REQUIRE(std::get<int64_t>(value->v) == 42);
+
+    const auto diagnostics = ctx.getRuntimeDiagnostics();
+    REQUIRE_FALSE(diagnostics.empty());
+    REQUIRE(diagnostics.back().operation == "quickjs_unhandled_promise_rejection");
+    REQUIRE(diagnostics.back().message == "plugin async failure");
+    REQUIRE(diagnostics.back().severity == CompatSeverity::HARD_FAIL);
+    REQUIRE(diagnostics.back().sourceLocation == "promise_rejection_plugin.js");
+
+    ctx.clearRuntimeDiagnostics();
+    REQUIRE(ctx.getRuntimeDiagnostics().empty());
+}

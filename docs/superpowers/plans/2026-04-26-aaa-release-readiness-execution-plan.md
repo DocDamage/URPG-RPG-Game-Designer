@@ -631,9 +631,12 @@
 
 ### P2-003 - Verify QuickJS Runtime Timer, Event, And Promise Gaps
 
+**Status:** Completed on 2026-04-26.
+
 **Files to edit:**
-- Files discovered under `runtimes/compat_js/`
-- Tests under `tests/compat/`
+- `runtimes/compat_js/quickjs_runtime.h`
+- `runtimes/compat_js/quickjs_runtime.cpp`
+- `tests/unit/test_quickjs_runtime.cpp`
 
 **Files to inspect:**
 - `runtimes/compat_js/**`
@@ -644,10 +647,10 @@
 **Risk level:** High.
 
 **Exact implementation steps:**
-- [ ] Inspect timer registration, event listener registration, and promise rejection handling in the QuickJS compatibility runtime.
-- [ ] Add tests for listener removal, repeated timer cleanup, runtime shutdown cleanup, and unhandled promise rejection reporting.
-- [ ] Implement fixes only for failing or missing behavior proven by tests.
-- [ ] Add diagnostics for rejected promises that include plugin/source context where available.
+- [x] Inspect timer registration, event listener registration, and promise rejection handling in the QuickJS compatibility runtime.
+- [x] Add tests for listener removal, repeated timer cleanup, runtime shutdown cleanup, and unhandled promise rejection reporting.
+- [x] Implement fixes only for failing or missing behavior proven by tests.
+- [x] Add diagnostics for rejected promises that include plugin/source context where available.
 
 **Acceptance criteria:**
 - Timer/listener resources do not leak across runtime teardown.
@@ -658,6 +661,17 @@
 - `cmake --build --preset dev-debug --target urpg_compat_tests`
 - `ctest -L weekly`
 - This remains unverified until the inspection and tests prove whether the audit-gap claims are real defects.
+
+**Verification results:**
+- `rg -n "setTimeout|setInterval|clearTimeout|clearInterval|addEventListener|removeEventListener|Promise|rejection|unhandled|timer|listener" runtimes\compat_js tests\compat tests\unit` confirmed the prior QuickJS wrapper had no timer/listener bootstrap or promise rejection diagnostics.
+- `cmake --build --preset dev-debug --target urpg_tests` passed after rerun with a longer timeout; the first 120s attempt timed out during a large rebuild.
+- `git diff --check` passed.
+- `build\dev-ninja-debug\urpg_tests.exe "[compat][quickjs]"` passed 218 assertions in 47 test cases.
+- `ctest --preset dev-all -R "QuickJSContext|QuickJSRuntime" --output-on-failure` passed 43 tests with 0 failures.
+- `cmake --build --preset dev-debug --target urpg_compat_tests` passed.
+- `build\dev-ninja-debug\urpg_compat_tests.exe` passed 3557 assertions in 47 test cases.
+- `ctest --preset dev-all -L weekly --output-on-failure` passed 47 tests with 0 failures.
+- `ctest --preset dev-all -R "QuickJS|quickjs|compat" --output-on-failure` passed the 75 real matching tests but also selected the existing placeholder `urpg_compat_tests_NOT_BUILT`, which CTest reports as not-run; targeted QuickJS and weekly verification above are authoritative for this task.
 
 ### P2-004 - Evaluate UM7 Terrain Mesh Plugin For Future Compatibility Or Native Support
 

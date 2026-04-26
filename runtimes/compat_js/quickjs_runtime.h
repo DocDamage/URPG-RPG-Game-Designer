@@ -44,6 +44,13 @@ struct ScriptResult {
     std::string sourceLocation; // file:line for diagnostics
 };
 
+struct QuickJSDiagnostic {
+    std::string operation;
+    std::string message;
+    CompatSeverity severity = CompatSeverity::WARN;
+    std::string sourceLocation;
+};
+
 // Memory/CPU budget tracking for compat lane
 struct CompatBudget {
     uint32_t cpu_slice_us = 4000;  // Max CPU time per frame for compat lane
@@ -143,6 +150,9 @@ class QuickJSContext {
     // Error handling
     std::string getLastError() const;
     void clearLastError();
+    std::vector<QuickJSDiagnostic> getRuntimeDiagnostics() const;
+    void clearRuntimeDiagnostics();
+    uint32_t drainPendingJobs(uint32_t maxJobs = 1024);
 
     // Module loading hook
     using ModuleLoader = std::function<std::optional<std::string>(const std::string& moduleId)>;

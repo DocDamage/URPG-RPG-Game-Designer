@@ -20,6 +20,99 @@ namespace {
 constexpr uint64_t kStubCallCostUs = 100;
 constexpr std::string_view kFailContextInitMarker = "__urpg_fail_context_init__";
 constexpr std::string_view kFailRegisterFunctionMarker = "__urpg_fail_register_function__";
+constexpr std::string_view kCompatBootstrap = R"JS(
+(function() {
+  if (globalThis.__urpgCompatBootstrapInstalled) {
+    return;
+  }
+  globalThis.__urpgCompatBootstrapInstalled = true;
+
+  const timers = new Map();
+  let nextTimerId = 1;
+  const normalizeDelay = function(delay) {
+    const numeric = Number(delay);
+    return Number.isFinite(numeric) && numeric > 0 ? numeric : 0;
+  };
+  const registerTimer = function(callback, delay, args, repeat) {
+    if (typeof callback !== "function") {
+      throw new TypeError("Timer callback must be a function");
+    }
+    const id = nextTimerId++;
+    timers.set(id, { callback, delay: normalizeDelay(delay), args, repeat: !!repeat });
+    return id;
+  };
+  globalThis.setTimeout = function(callback, delay, ...args) {
+    return registerTimer(callback, delay, args, false);
+  };
+  globalThis.setInterval = function(callback, delay, ...args) {
+    return registerTimer(callback, delay, args, true);
+  };
+  globalThis.clearTimeout = function(id) {
+    timers.delete(Number(id));
+  };
+  globalThis.clearInterval = globalThis.clearTimeout;
+  globalThis.__urpgPendingTimerCount = function() {
+    return timers.size;
+  };
+  globalThis.__urpgRunDueTimers = function(maxCallbacks) {
+    const limit = maxCallbacks === undefined ? timers.size : Math.max(0, Number(maxCallbacks));
+    let invoked = 0;
+    for (const [id, timer] of Array.from(timers.entries())) {
+      if (invoked >= limit) {
+        break;
+      }
+      if (!timer.repeat) {
+        timers.delete(id);
+      }
+      timer.callback(...timer.args);
+      invoked++;
+    }
+    return invoked;
+  };
+
+  const listeners = new Map();
+  globalThis.addEventListener = function(type, listener) {
+    if (typeof listener !== "function") {
+      throw new TypeError("Event listener must be a function");
+    }
+    const key = String(type);
+    const bucket = listeners.get(key) || [];
+    if (!bucket.includes(listener)) {
+      bucket.push(listener);
+      listeners.set(key, bucket);
+    }
+  };
+  globalThis.removeEventListener = function(type, listener) {
+    const key = String(type);
+    const bucket = listeners.get(key);
+    if (!bucket) {
+      return;
+    }
+    const index = bucket.indexOf(listener);
+    if (index >= 0) {
+      bucket.splice(index, 1);
+    }
+    if (bucket.length === 0) {
+      listeners.delete(key);
+    }
+  };
+  globalThis.dispatchEvent = function(event) {
+    const type = typeof event === "string" ? event : String(event && event.type);
+    const bucket = listeners.get(type);
+    if (!bucket) {
+      return true;
+    }
+    for (const listener of Array.from(bucket)) {
+      listener(event);
+    }
+    return true;
+  };
+  globalThis.__urpgListenerCount = function(type) {
+    const bucket = listeners.get(String(type));
+    return bucket ? bucket.length : 0;
+  };
+})();
+)JS";
 
 std::string trim(std::string value) {
     const auto first = value.find_first_not_of(" \t\r\n");
@@ -252,6 +345,15 @@ Value jsValueToBridgeValue(JSContext* ctx, JSValueConst value) {
     return out;
 }
 
+std::string jsValueToString(JSContext* ctx, JSValueConst value) {
+    const char* text = JS_ToCString(ctx, value);
+    std::string out = text ? text : "JavaScript value";
+    if (text) {
+        JS_FreeCString(ctx, text);
+    }
+    return out;
+}
+
 } // namespace
 
 // ============================================================================
@@ -269,6 +371,8 @@ class QuickJSContextImpl {
     uint64_t cpuUsedUs = 0;
     JSRuntime* runtime = nullptr;
     JSContext* context = nullptr;
+    std::vector<QuickJSDiagnostic> diagnostics;
+    std::string activeSourceLocation;
 
     ~QuickJSContextImpl() {
         if (context) {
@@ -281,6 +385,21 @@ class QuickJSContextImpl {
         }
     }
 };
+
+void promiseRejectionTracker(JSContext* ctx, JSValueConst, JSValueConst reason, bool isHandled, void* opaque) {
+    auto* impl = static_cast<QuickJSContextImpl*>(opaque);
+    if (!impl) {
+        return;
+    }
+
+    QuickJSDiagnostic diagnostic;
+    diagnostic.operation =
+        isHandled ? "quickjs_promise_rejection_handled" : "quickjs_unhandled_promise_rejection";
+    diagnostic.message = jsValueToString(ctx, reason);
+    diagnostic.severity = isHandled ? CompatSeverity::WARN : CompatSeverity::HARD_FAIL;
+    diagnostic.sourceLocation = impl->activeSourceLocation;
+    impl->diagnostics.push_back(std::move(diagnostic));
+}
 
 JSValue hostFunctionThunk(JSContext* ctx, JSValueConst, int argc, JSValueConst* argv, int, JSValueConst* funcData) {
     auto* impl = static_cast<QuickJSContextImpl*>(JS_GetContextOpaque(ctx));
@@ -358,6 +477,7 @@ bool QuickJSContext::initialize(const QuickJSConfig& config) {
     if (config.enableMemoryLimit) {
         JS_SetMemoryLimit(impl_->runtime, static_cast<size_t>(config.memoryLimitMB) * 1024 * 1024);
     }
+    JS_SetHostPromiseRejectionTracker(impl_->runtime, promiseRejectionTracker, impl_.get());
 
     impl_->context = JS_NewContext(impl_->runtime);
     if (!impl_->context) {
@@ -367,6 +487,20 @@ bool QuickJSContext::initialize(const QuickJSConfig& config) {
         return false;
     }
     JS_SetContextOpaque(impl_->context, impl_.get());
+    impl_->activeSourceLocation = config.moduleBasePath;
+
+    JSValue bootstrap = JS_Eval(impl_->context, kCompatBootstrap.data(), kCompatBootstrap.size(),
+                                "<urpg_compat_bootstrap>", JS_EVAL_TYPE_GLOBAL);
+    if (JS_IsException(bootstrap)) {
+        lastError_ = exceptionToString(impl_->context);
+        JS_FreeValue(impl_->context, bootstrap);
+        JS_FreeContext(impl_->context);
+        impl_->context = nullptr;
+        JS_FreeRuntime(impl_->runtime);
+        impl_->runtime = nullptr;
+        return false;
+    }
+    JS_FreeValue(impl_->context, bootstrap);
 
     impl_->initialized = true;
     impl_->config = config;
@@ -394,6 +528,7 @@ ScriptResult QuickJSContext::eval(const std::string& code, const std::string& fi
     }
 
     const bool hasFixtureDirective = code.find("@urpg-") != std::string::npos;
+    impl_->activeSourceLocation = filename;
 
     // Fixture bridge: parse lightweight export directives and bind functions.
     // Supported directive format:
@@ -843,6 +978,42 @@ std::string QuickJSContext::getLastError() const {
 
 void QuickJSContext::clearLastError() {
     lastError_.clear();
+}
+
+std::vector<QuickJSDiagnostic> QuickJSContext::getRuntimeDiagnostics() const {
+    assert(impl_ != nullptr);
+    return impl_->diagnostics;
+}
+
+void QuickJSContext::clearRuntimeDiagnostics() {
+    assert(impl_ != nullptr);
+    impl_->diagnostics.clear();
+}
+
+uint32_t QuickJSContext::drainPendingJobs(uint32_t maxJobs) {
+    assert(impl_ != nullptr);
+    if (!impl_->runtime) {
+        return 0;
+    }
+
+    uint32_t executed = 0;
+    while (executed < maxJobs && JS_IsJobPending(impl_->runtime)) {
+        JSContext* jobContext = nullptr;
+        const int rc = JS_ExecutePendingJob(impl_->runtime, &jobContext);
+        if (rc <= 0) {
+            if (rc < 0 && jobContext != nullptr) {
+                QuickJSDiagnostic diagnostic;
+                diagnostic.operation = "quickjs_pending_job_failure";
+                diagnostic.message = exceptionToString(jobContext);
+                diagnostic.severity = CompatSeverity::HARD_FAIL;
+                diagnostic.sourceLocation = impl_->activeSourceLocation;
+                impl_->diagnostics.push_back(std::move(diagnostic));
+            }
+            break;
+        }
+        ++executed;
+    }
+    return executed;
 }
 
 void QuickJSContext::setModuleLoader(ModuleLoader loader) {
