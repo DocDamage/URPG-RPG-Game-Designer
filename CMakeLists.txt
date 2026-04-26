@@ -894,6 +894,7 @@ add_executable(urpg_tests
     tests/unit/test_project_health_model.cpp
     tests/unit/test_project_health_panel.cpp
     tests/unit/test_project_template_generator.cpp
+    tests/unit/test_new_project_wizard_panel.cpp
     tests/unit/test_plugin_compatibility_score.cpp
     tests/unit/test_plugin_inspector_panel.cpp
     tests/unit/test_asset_library.cpp

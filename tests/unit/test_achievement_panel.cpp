@@ -12,7 +12,11 @@ TEST_CASE("AchievementPanel empty snapshot when no registry bound", "[achievemen
 
     auto snapshot = panel.lastRenderSnapshot();
     REQUIRE(snapshot.is_object());
-    REQUIRE(snapshot.empty());
+    REQUIRE(snapshot["status"] == "disabled");
+    REQUIRE(snapshot["disabled_reason"] == "No AchievementRegistry is bound.");
+    REQUIRE(snapshot["owner"] == "editor/achievement");
+    REQUIRE(snapshot["unlock_condition"] == "Bind AchievementRegistry before rendering the achievement panel.");
+    REQUIRE(snapshot["achievements"].empty());
 }
 
 TEST_CASE("AchievementPanel snapshot reflects achievements after bind", "[achievement][editor][panel]") {
@@ -42,6 +46,7 @@ TEST_CASE("AchievementPanel snapshot reflects achievements after bind", "[achiev
     panel.render();
 
     auto snapshot = panel.lastRenderSnapshot();
+    REQUIRE(snapshot["status"] == "ready");
     REQUIRE(snapshot.contains("total_count"));
     REQUIRE(snapshot["total_count"] == 2);
     REQUIRE(snapshot.contains("unlocked_count"));

@@ -8,11 +8,18 @@ void NewProjectWizardPanel::bindModel(NewProjectWizardModel* model) {
 
 void NewProjectWizardPanel::render() {
     if (!model_) {
-        snapshot_ = nlohmann::json::object();
+        snapshot_ = {
+            {"panel", "new_project_wizard"},
+            {"status", "disabled"},
+            {"disabled_reason", "No NewProjectWizardModel is bound."},
+            {"owner", "editor/project"},
+            {"unlock_condition", "Bind NewProjectWizardModel before rendering the new project wizard."},
+        };
         return;
     }
     snapshot_ = {
         {"panel", "new_project_wizard"},
+        {"status", "ready"},
         {"model", model_->snapshot()},
     };
 }

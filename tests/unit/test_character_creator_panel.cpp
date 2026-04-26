@@ -9,7 +9,10 @@ TEST_CASE("CharacterCreatorPanel snapshot is empty when no model bound", "[chara
     CharacterCreatorPanel panel;
     panel.render();
     const auto& snapshot = panel.lastRenderSnapshot();
-    REQUIRE(snapshot.empty());
+    REQUIRE(snapshot["status"] == "disabled");
+    REQUIRE(snapshot["disabled_reason"] == "No CharacterCreatorModel is bound.");
+    REQUIRE(snapshot["owner"] == "editor/character");
+    REQUIRE(snapshot["unlock_condition"] == "Bind CharacterCreatorModel before rendering the character creator panel.");
 }
 
 TEST_CASE("CharacterCreatorPanel snapshot reflects identity after model load", "[character][editor][panel]") {
@@ -28,6 +31,7 @@ TEST_CASE("CharacterCreatorPanel snapshot reflects identity after model load", "
     panel.render();
 
     const auto& snapshot = panel.lastRenderSnapshot();
+    REQUIRE(snapshot["status"] == "ready");
     REQUIRE(snapshot.contains("identity_summary"));
     REQUIRE(snapshot["identity_summary"]["name"] == "Marcus");
     REQUIRE(snapshot["identity_summary"]["class_id"] == "class_paladin");

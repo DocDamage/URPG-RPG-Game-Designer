@@ -9,7 +9,9 @@ using namespace urpg::perf;
 TEST_CASE("PerfDiagnosticsPanel: snapshot is empty when no model is bound", "[perf][editor][diagnostics]") {
     PerfDiagnosticsPanel panel;
     panel.render();
-    REQUIRE(panel.lastRenderSnapshot().empty());
+    REQUIRE(panel.lastRenderSnapshot()["status"] == "disabled");
+    REQUIRE(panel.lastRenderSnapshot()["disabled_reason"] == "No PerfDiagnosticsModel is bound.");
+    REQUIRE(panel.lastRenderSnapshot()["owner"] == "editor/perf");
 }
 
 TEST_CASE("PerfDiagnosticsPanel: snapshot reflects profiler data when model is bound and profiler has frames",
@@ -27,6 +29,7 @@ TEST_CASE("PerfDiagnosticsPanel: snapshot reflects profiler data when model is b
     panel.render();
 
     const auto& snapshot = panel.lastRenderSnapshot();
+    REQUIRE(snapshot["status"] == "ready");
     REQUIRE(snapshot.contains("frame_summary"));
     REQUIRE(snapshot.contains("sections"));
     REQUIRE(snapshot["frame_summary"].contains("lastFrameUs"));
@@ -46,5 +49,6 @@ TEST_CASE("PerfDiagnosticsPanel: model detach returns empty snapshot", "[perf][e
     model.detachProfiler();
     panel.render();
 
-    REQUIRE(panel.lastRenderSnapshot().empty());
+    REQUIRE(panel.lastRenderSnapshot()["status"] == "disabled");
+    REQUIRE(panel.lastRenderSnapshot()["disabled_reason"] == "No PerfProfiler is attached to the diagnostics model.");
 }

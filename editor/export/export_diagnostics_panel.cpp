@@ -13,7 +13,14 @@ void ExportDiagnosticsPanel::render() {
     nlohmann::json snapshot;
 
     if (!config_.has_value()) {
-        snapshot = nlohmann::json::object();
+        snapshot = {
+            {"panel", "export_diagnostics"},
+            {"status", "disabled"},
+            {"disabled_reason", "No ExportConfig is set."},
+            {"owner", "editor/export"},
+            {"unlock_condition", "Set ExportConfig before rendering export diagnostics."},
+            {"readyToExport", false},
+        };
         last_render_snapshot_ = std::move(snapshot);
         return;
     }
@@ -22,6 +29,8 @@ void ExportDiagnosticsPanel::render() {
 
     urpg::exporting::ExportValidator validator;
     urpg::tools::ExportPackager packager;
+    snapshot["panel"] = "export_diagnostics";
+    snapshot["status"] = "ready";
     snapshot["target"] = validator.buildReportJson(std::vector<std::string>{}, cfg.target)["target"];
     snapshot["outputDir"] = cfg.outputDir;
 

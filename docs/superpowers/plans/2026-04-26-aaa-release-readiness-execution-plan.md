@@ -548,6 +548,8 @@
 
 ### P2-001 - Audit And Replace User-Facing Editor Stubs
 
+**Status:** Completed on 2026-04-26.
+
 **Files to edit:**
 - Files discovered by the inspection under `editor/`
 - Tests under `tests/unit/` or `tests/integration/`
@@ -561,11 +563,11 @@
 **Risk level:** Medium.
 
 **Exact implementation steps:**
-- [ ] Run searches for empty render functions, placeholder labels, mock data strings, disabled buttons with no reason, and no-op handlers.
-- [ ] Record each verified stub in `docs/release/RELEASE_READINESS_MATRIX.md` or the app-level matrix from P5-005.
-- [ ] For each user-facing stub, either implement the real behavior or convert it to an explicit disabled state with owner, reason, and unlock condition.
-- [ ] Add a focused test for each implemented behavior or disabled-state contract.
-- [ ] Do not edit audit-gap items until the search proves the specific file and behavior.
+- [x] Run searches for empty render functions, placeholder labels, mock data strings, disabled buttons with no reason, and no-op handlers.
+- [x] Record each verified stub in `docs/release/RELEASE_READINESS_MATRIX.md` or the app-level matrix from P5-005.
+- [x] For each user-facing stub, either implement the real behavior or convert it to an explicit disabled state with owner, reason, and unlock condition.
+- [x] Add a focused test for each implemented behavior or disabled-state contract.
+- [x] Do not edit audit-gap items until the search proves the specific file and behavior.
 
 **Acceptance criteria:**
 - No user-facing panel has a silent no-op, empty view, or placeholder data path unless documented as intentionally disabled.
@@ -575,6 +577,14 @@
 - `rg -n "TODO|TBD|placeholder|mock|stub|coming soon|not implemented|\\{\\s*\\}" editor`
 - `cmake --build --preset dev-debug --target urpg_tests`
 - `ctest --preset dev-all -R "editor"`
+
+**Verification results:**
+- `rg -n "TODO|TBD|placeholder|mock|stub|coming soon|not implemented|\\{\\s*\\}" editor` was run. Remaining matches are aggregate initialization/reset paths, compat-report `stubCount` metrics, or other non-user-facing data helpers; verified silent empty panel states are recorded in `docs/release/RELEASE_READINESS_MATRIX.md`.
+- `rg -n "m_snapshot = nlohmann::json::object\\(\\)|snapshot_ = nlohmann::json::object\\(\\)|last_render_snapshot_ = nlohmann::json::object\\(\\)" editor` confirmed remaining object assignments are constructor/reset/action-state paths rather than unconfigured render output.
+- `rg -n 'void .*::render\\(\\)\\s*\\{\\s*\\}|void .*::Render\\([^)]*\\)\\s*\\{\\s*\\}' editor` returned no matches.
+- `cmake --build --preset dev-debug --target urpg_tests` passed.
+- Focused panel tests passed for `[achievement][editor][panel]`, `[character][editor][panel]`, `[accessibility][editor][panel]`, `[perf][editor][diagnostics]`, `[export][editor][panel]`, and `[project][editor][panel]`.
+- `ctest --preset dev-all -R "AchievementPanel|CharacterCreatorPanel|AccessibilityPanel|PerfDiagnosticsPanel|ExportDiagnosticsPanel|NewProjectWizardPanel|editor" --output-on-failure` passed 25 tests with 0 failures.
 
 ### P2-002 - Verify Editor Button Handlers And Disabled States
 

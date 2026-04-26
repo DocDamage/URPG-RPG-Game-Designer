@@ -39,7 +39,10 @@ TEST_CASE("ExportDiagnosticsPanel produces empty snapshot when no config set", "
 
     const auto& snapshot = panel.lastRenderSnapshot();
     REQUIRE(snapshot.is_object());
-    REQUIRE(snapshot.empty());
+    REQUIRE(snapshot["status"] == "disabled");
+    REQUIRE(snapshot["disabled_reason"] == "No ExportConfig is set.");
+    REQUIRE(snapshot["owner"] == "editor/export");
+    REQUIRE(snapshot["readyToExport"] == false);
 }
 
 TEST_CASE("ExportDiagnosticsPanel snapshot reflects preflight readiness on a fresh directory", "[export][editor][panel]") {
@@ -55,6 +58,7 @@ TEST_CASE("ExportDiagnosticsPanel snapshot reflects preflight readiness on a fre
     panel.render();
 
     const auto& snapshot = panel.lastRenderSnapshot();
+    REQUIRE(snapshot["status"] == "ready");
     REQUIRE(snapshot["target"] == "Windows_x64");
     REQUIRE(snapshot["outputDir"] == base.string());
     REQUIRE(snapshot["validationSource"] == "packager_preflight");

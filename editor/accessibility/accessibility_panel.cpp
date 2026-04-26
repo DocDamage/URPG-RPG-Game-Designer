@@ -8,7 +8,17 @@ void AccessibilityPanel::bindAuditor(urpg::accessibility::AccessibilityAuditor* 
 
 void AccessibilityPanel::render() {
     if (!m_auditor) {
-        m_snapshot = nlohmann::json::object();
+        m_snapshot = {
+            {"panel", "accessibility"},
+            {"status", "disabled"},
+            {"disabled_reason", "No AccessibilityAuditor is bound."},
+            {"owner", "editor/accessibility"},
+            {"unlock_condition", "Bind AccessibilityAuditor before rendering accessibility audit results."},
+            {"issueCount", 0},
+            {"errorCount", 0},
+            {"warningCount", 0},
+            {"issues", nlohmann::json::array()},
+        };
         return;
     }
 
@@ -59,6 +69,8 @@ void AccessibilityPanel::render() {
     }
 
     m_snapshot = nlohmann::json{
+        {"panel", "accessibility"},
+        {"status", "ready"},
         {"issueCount", issues.size()},
         {"errorCount", errorCount},
         {"warningCount", warningCount},

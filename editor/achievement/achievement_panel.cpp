@@ -8,7 +8,16 @@ void AchievementPanel::bindRegistry(urpg::achievement::AchievementRegistry* regi
 
 void AchievementPanel::render() {
     if (!m_registry) {
-        m_snapshot = nlohmann::json::object();
+        m_snapshot = {
+            {"panel", "achievement"},
+            {"status", "disabled"},
+            {"disabled_reason", "No AchievementRegistry is bound."},
+            {"owner", "editor/achievement"},
+            {"unlock_condition", "Bind AchievementRegistry before rendering the achievement panel."},
+            {"total_count", 0},
+            {"unlocked_count", 0},
+            {"achievements", nlohmann::json::array()},
+        };
         return;
     }
 
@@ -34,6 +43,8 @@ void AchievementPanel::render() {
     }
 
     m_snapshot = nlohmann::json{
+        {"panel", "achievement"},
+        {"status", "ready"},
         {"total_count", achievements.size()},
         {"unlocked_count", unlockedCount},
         {"trophy_export", m_registry->exportTrophyPayload()["summary"]},

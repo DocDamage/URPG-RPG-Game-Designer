@@ -51,6 +51,21 @@ Every subsystem row is evaluated against these fields:
 | `mod_registry` | `PARTIAL` | Yes | Yes | Yes | Yes | Yes | Yes | Mod registry with manifest registration, dependency resolution, load-order topology, bounded validation runtime, and editor manager panel is landed. | Mod validator/governance coverage is landed; live mod loading, sandboxed script execution, and mod-store integration remain mandatory current backlog. |
 | `analytics_dispatcher` | `PARTIAL` | Yes | Yes | Yes | Yes | Yes | Yes | Opt-in analytics dispatcher with deterministic tick counters, event buffering, circular drop, editor panel, and bounded validator/governance coverage is landed. | Analytics validator/governance coverage is landed; telemetry upload pipeline, session aggregation, and privacy audit workflow remain mandatory current backlog. |
 
+## P2-001 Editor Stub Audit
+
+Audit Date: 2026-04-26
+
+The P2-001 editor sweep searched for empty render functions, placeholder language, mock/stub labels, and silent empty JSON snapshots under `editor/`. Verified user-facing silent empty states were converted to explicit disabled-state snapshots with an owner, reason, and unlock condition.
+
+| Panel | Verified Gap | Resolution | Regression Evidence |
+| --- | --- | --- | --- |
+| `AchievementPanel` | Render without `AchievementRegistry` returned `{}`. | Emits `status=disabled`, owner `editor/achievement`, and binding unlock condition. | `tests/unit/test_achievement_panel.cpp` |
+| `AccessibilityPanel` | Render without `AccessibilityAuditor` returned `{}`. | Emits `status=disabled`, owner `editor/accessibility`, and binding unlock condition. | `tests/unit/test_accessibility_panel.cpp` |
+| `CharacterCreatorPanel` | Render without `CharacterCreatorModel` returned `{}`. | Emits `status=disabled`, owner `editor/character`, and binding unlock condition. | `tests/unit/test_character_creator_panel.cpp` |
+| `ExportDiagnosticsPanel` | Render without `ExportConfig` returned `{}`. | Emits `status=disabled`, owner `editor/export`, `readyToExport=false`, and config unlock condition. | `tests/unit/test_export_diagnostics_panel.cpp` |
+| `PerfDiagnosticsPanel` | Render without model/profiler returned `{}`. | Emits separate disabled states for missing model and missing profiler. | `tests/unit/test_perf_diagnostics_panel.cpp` |
+| `NewProjectWizardPanel` | Render without `NewProjectWizardModel` returned `{}`. | Emits `status=disabled`, owner `editor/project`, and binding unlock condition. | `tests/unit/test_new_project_wizard_panel.cpp` |
+
 ## Promotion Rules
 
 A subsystem may be promoted to `READY` only when:

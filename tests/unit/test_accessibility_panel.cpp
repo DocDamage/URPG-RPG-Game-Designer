@@ -21,7 +21,11 @@ TEST_CASE("AccessibilityPanel: Empty snapshot when no auditor bound", "[accessib
     auto snapshot = panel.lastRenderSnapshot();
 
     REQUIRE(snapshot.is_object());
-    REQUIRE(snapshot.empty());
+    REQUIRE(snapshot["status"] == "disabled");
+    REQUIRE(snapshot["disabled_reason"] == "No AccessibilityAuditor is bound.");
+    REQUIRE(snapshot["owner"] == "editor/accessibility");
+    REQUIRE(snapshot["unlock_condition"] == "Bind AccessibilityAuditor before rendering accessibility audit results.");
+    REQUIRE(snapshot["issues"].empty());
 }
 
 TEST_CASE("AccessibilityPanel: Snapshot reflects issues after audit", "[accessibility][editor][panel]") {
@@ -37,6 +41,7 @@ TEST_CASE("AccessibilityPanel: Snapshot reflects issues after audit", "[accessib
     panel.render();
     auto snapshot = panel.lastRenderSnapshot();
 
+    REQUIRE(snapshot["status"] == "ready");
     REQUIRE(snapshot["issueCount"] == 2);
     REQUIRE(snapshot["issues"].is_array());
     REQUIRE(snapshot["issues"].size() == 2);
