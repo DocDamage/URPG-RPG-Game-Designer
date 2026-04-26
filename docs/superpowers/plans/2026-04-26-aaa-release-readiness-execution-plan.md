@@ -675,8 +675,11 @@
 
 ### P2-004 - Evaluate UM7 Terrain Mesh Plugin For Future Compatibility Or Native Support
 
+**Status:** Completed on 2026-04-26. The plugin remains quarantined backlog/reference material and is not approved for release, compat-fixture promotion, or native implementation.
+
 **Files to edit:**
 - `imports/staging/plugin_intake/UM7_TerrainMesh/manifest.json`
+- `docs/release/UM7_TERRAIN_MESH_INTAKE.md`
 - Optional if promoted later: `tests/compat/fixtures/plugins/UM7_TerrainMesh.json`
 - Optional if native support is approved later: files under `engine/core/presentation/`, `engine/core/scene/`, and `editor/spatial/`
 
@@ -692,12 +695,12 @@
 **Risk level:** Medium.
 
 **Exact implementation steps:**
-- [ ] Verify the plugin source URL, license, and redistribution terms.
-- [ ] Confirm whether UltraMode7 itself is available, licensed, and intended as a compatibility target.
-- [ ] Classify desired support as JavaScript plugin compatibility, native terrain mesh feature, or both.
-- [ ] If JavaScript compatibility is desired, add a compat fixture manifest that records globals patched by the plugin and expected dependency handling.
-- [ ] If native support is desired, write a focused design note for terrain-tag elevation, region passability overrides, vehicle/airship elevation behavior, and editor preview implications before touching engine code.
-- [ ] Do not move the plugin out of `imports/staging/plugin_intake/` until licensing and support classification are complete.
+- [x] Verify the plugin source URL, license, and redistribution terms.
+- [x] Confirm whether UltraMode7 itself is available, licensed, and intended as a compatibility target.
+- [x] Classify desired support as JavaScript plugin compatibility, native terrain mesh feature, or both.
+- [x] If JavaScript compatibility is desired, add a compat fixture manifest that records globals patched by the plugin and expected dependency handling.
+- [x] If native support is desired, write a focused design note for terrain-tag elevation, region passability overrides, vehicle/airship elevation behavior, and editor preview implications before touching engine code.
+- [x] Do not move the plugin out of `imports/staging/plugin_intake/` until licensing and support classification are complete.
 
 **Acceptance criteria:**
 - The plugin has verified provenance and license status before promotion.
@@ -709,6 +712,13 @@
 - `Get-Content imports/staging/plugin_intake/UM7_TerrainMesh/manifest.json`
 - `rg -n "UM7_TerrainMesh|UltraMode7|um7_terrain_mesh" imports docs tests runtimes engine editor`
 - Promotion remains unverified until source/license and implementation path are approved.
+
+**Verification results:**
+- `Get-Content imports\staging\plugin_intake\UM7_TerrainMesh\manifest.json | ConvertFrom-Json | Out-Null` passed.
+- `Get-Content imports\staging\plugin_intake\UM7_TerrainMesh\manifest.json` confirmed the manifest now records unverified source/license status, unverified UltraMode7 dependency scope, explicit promotion blockers, and `native_backlog_reference_only` classification.
+- `rg -n "UM7_TerrainMesh|UltraMode7|um7_terrain_mesh" imports docs tests runtimes engine editor` confirmed no runtime, fixture, or engine implementation exists for this plugin and that the new release intake note is discoverable.
+- Web searches for `"UM7_TerrainMesh" Paradajz`, `"The Continuous Mesh" "Paradajz" "UltraMode7"`, and `"$getUM7PixelHeight"` did not identify an authoritative public source URL on 2026-04-26.
+- `docs/release/UM7_TERRAIN_MESH_INTAKE.md` records the decision not to add a compat fixture or native implementation until source URL, license, redistribution terms, and UltraMode7 dependency scope are approved.
 
 ---
 

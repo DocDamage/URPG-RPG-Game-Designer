@@ -7,6 +7,16 @@
   "source_file": "UM7_TerrainMesh.js",
   "plugin_runtime": "RPG Maker MZ",
   "author": "Paradajz",
+  "source_verification": {
+    "status": "unverified",
+    "searched_on": "2026-04-26",
+    "queries": [
+      "\"UM7_TerrainMesh\" Paradajz",
+      "\"The Continuous Mesh\" \"Paradajz\" \"UltraMode7\"",
+      "\"$getUM7PixelHeight\""
+    ],
+    "result": "No authoritative public source URL was identified during release-readiness intake."
+  },
   "license": {
     "status": "unverified",
     "required_before_promotion": true,
@@ -36,6 +46,20 @@
     "vehicle_airship_behavior",
     "visual_vignette",
     "forest_transparency"
+  ],
+  "support_classification": {
+    "current_decision": "native_backlog_reference_only",
+    "compat_fixture_allowed": false,
+    "native_feature_allowed": false,
+    "release_blocker": false,
+    "rationale": "The plugin source URL, license, redistribution terms, and UltraMode7 dependency terms are unverified. URPG already has a native SpatialMapOverlay/ElevationGrid lane, so the safe near-term use is requirements capture only."
+  },
+  "promotion_blockers": [
+    "Source URL is unverified.",
+    "Redistribution terms are unverified.",
+    "UltraMode7 dependency availability and license are unverified.",
+    "No compat fixture may be added until source/license review passes.",
+    "No native implementation may begin until the native design note has approved tests for elevation, passability, vehicle behavior, and editor preview."
   ],
   "initial_observations": [
     "Adds height offsets for terrain tags 1 through 5.",
