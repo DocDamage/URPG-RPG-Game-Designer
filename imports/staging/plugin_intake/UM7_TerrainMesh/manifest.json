@@ -1,0 +1,55 @@
+{
+  "id": "um7_terrain_mesh",
+  "display_name": "UM7 Terrain Mesh",
+  "status": "backlog",
+  "release_scope": "not_release_blocking",
+  "integration_state": "not_integrated",
+  "source_file": "UM7_TerrainMesh.js",
+  "plugin_runtime": "RPG Maker MZ",
+  "author": "Paradajz",
+  "license": {
+    "status": "unverified",
+    "required_before_promotion": true,
+    "notes": "No license text was found in the plugin header during intake. Confirm source URL and redistribution terms before moving out of imports/staging."
+  },
+  "dependencies": [
+    {
+      "id": "UltraMode7",
+      "required": true,
+      "notes": "Plugin declares @base UltraMode7 and patches UltraMode7.mapToScreen."
+    },
+    {
+      "id": "UM7_CurvatureAddon",
+      "required": false,
+      "notes": "Plugin declares @orderAfter UM7_CurvatureAddon."
+    },
+    {
+      "id": "UM7_DualOcean",
+      "required": false,
+      "notes": "Plugin declares @orderAfter UM7_DualOcean."
+    }
+  ],
+  "feature_areas": [
+    "terrain_rendering",
+    "tile_elevation",
+    "collision",
+    "vehicle_airship_behavior",
+    "visual_vignette",
+    "forest_transparency"
+  ],
+  "initial_observations": [
+    "Adds height offsets for terrain tags 1 through 5.",
+    "Overrides player passability using configured walkable and blocked region IDs.",
+    "Patches UltraMode7 map-to-screen elevation behavior.",
+    "Patches character sprite updates for airship elevation and forest transparency.",
+    "Uses RPG Maker globals including PluginManager, $dataMap, $gameMap, $gamePlayer, Game_Vehicle, Sprite_Character, Game_Player, and UltraMode7."
+  ],
+  "promotion_requirements": [
+    "Verify source URL, license, and redistribution permissions.",
+    "Add compat fixture metadata under tests/compat/fixtures/plugins if retained as a plugin compatibility target.",
+    "Decide whether URPG should support this as JavaScript plugin compatibility, native terrain mesh behavior, or both.",
+    "Map required engine/editor support into the active AAA release readiness execution plan before implementation.",
+    "Add tests for terrain tag elevation, region passability overrides, vehicle/airship behavior, and UltraMode7 dependency handling."
+  ],
+  "intake_date": "2026-04-26"
+}

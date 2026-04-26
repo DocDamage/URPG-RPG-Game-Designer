@@ -59,6 +59,11 @@
   - Unverified audit gap: orphaned event listeners, repeated timers, and unhandled JavaScript promise rejection behavior have not been verified.
   - Required verification: inspect runtime timer/event/promise handling and add failing tests before making changes.
 
+- `imports/staging/plugin_intake/UM7_TerrainMesh/`
+  - Backlog intake candidate: `UM7_TerrainMesh.js` is an RPG Maker MZ UltraMode7 terrain mesh plugin.
+  - Current status: not integrated, not release-blocking, license unverified.
+  - Required verification before promotion: confirm source URL/license, decide whether support is JS-compat-only or native terrain mesh behavior, and add compatibility/native tests before implementation.
+
 - `docs/`
   - Verified blocker: no root-level or docs-level `THIRD_PARTY_NOTICES.md`, `EULA.md`, `PRIVACY_POLICY.md`, `CREDITS.md`, or `CHANGELOG.md`.
   - Verified blocker: release readiness governance is split across docs without an app-level release matrix for shipped-product readiness.
@@ -527,6 +532,43 @@
 - `cmake --build --preset dev-debug --target urpg_compat_tests`
 - `ctest -L weekly`
 - This remains unverified until the inspection and tests prove whether the audit-gap claims are real defects.
+
+### P2-004 - Evaluate UM7 Terrain Mesh Plugin For Future Compatibility Or Native Support
+
+**Files to edit:**
+- `imports/staging/plugin_intake/UM7_TerrainMesh/manifest.json`
+- Optional if promoted later: `tests/compat/fixtures/plugins/UM7_TerrainMesh.json`
+- Optional if native support is approved later: files under `engine/core/presentation/`, `engine/core/scene/`, and `editor/spatial/`
+
+**Files to inspect:**
+- `imports/staging/plugin_intake/UM7_TerrainMesh/UM7_TerrainMesh.js`
+- `runtimes/compat_js/**`
+- `tests/compat/fixtures/plugins/**`
+- `engine/core/presentation/**`
+- `editor/spatial/**`
+
+**Dependencies:** P2-003 for compatibility-runtime behavior, P5-002 for third-party notices/license handling.
+
+**Risk level:** Medium.
+
+**Exact implementation steps:**
+- [ ] Verify the plugin source URL, license, and redistribution terms.
+- [ ] Confirm whether UltraMode7 itself is available, licensed, and intended as a compatibility target.
+- [ ] Classify desired support as JavaScript plugin compatibility, native terrain mesh feature, or both.
+- [ ] If JavaScript compatibility is desired, add a compat fixture manifest that records globals patched by the plugin and expected dependency handling.
+- [ ] If native support is desired, write a focused design note for terrain-tag elevation, region passability overrides, vehicle/airship elevation behavior, and editor preview implications before touching engine code.
+- [ ] Do not move the plugin out of `imports/staging/plugin_intake/` until licensing and support classification are complete.
+
+**Acceptance criteria:**
+- The plugin has verified provenance and license status before promotion.
+- UltraMode7 dependency handling is explicit.
+- Any implementation path has tests defined before code changes begin.
+- The plugin remains non-release-blocking unless the release owner explicitly promotes it into scope.
+
+**Verification command or manual test:**
+- `Get-Content imports/staging/plugin_intake/UM7_TerrainMesh/manifest.json`
+- `rg -n "UM7_TerrainMesh|UltraMode7|um7_terrain_mesh" imports docs tests runtimes engine editor`
+- Promotion remains unverified until source/license and implementation path are approved.
 
 ---
 
