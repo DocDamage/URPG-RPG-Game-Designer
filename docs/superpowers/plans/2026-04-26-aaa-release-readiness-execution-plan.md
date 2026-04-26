@@ -1105,6 +1105,8 @@
 
 ### P5-003 - Add CPack Or Document The Supported Packaging System
 
+**Status:** Completed in this pass.
+
 **Files to edit:**
 - `CMakeLists.txt`
 - `cmake/packaging.cmake`
@@ -1120,11 +1122,11 @@
 **Risk level:** Medium.
 
 **Exact implementation steps:**
-- [ ] Decide whether official packaging uses CPack.
-- [ ] If using CPack, add `CPACK_PACKAGE_NAME`, version fields from the CMake project, vendor/contact fields, license/readme resources, and generator configuration.
-- [ ] Include `include(CPack)` after install rules.
-- [ ] If not using CPack, document the supported packaging command and add CI validation for it.
-- [ ] Add a package smoke step to local gates or a dedicated packaging script.
+- [x] Decide whether official packaging uses CPack.
+- [x] If using CPack, add `CPACK_PACKAGE_NAME`, version fields from the CMake project, vendor/contact fields, license/readme resources, and generator configuration.
+- [x] Include `include(CPack)` after install rules.
+- [x] Not applicable: CPack is used; documented the CPack command and added CI validation for it.
+- [x] Add a package smoke step to local gates or a dedicated packaging script.
 
 **Acceptance criteria:**
 - The repo has one documented, validated package creation path.
@@ -1133,6 +1135,19 @@
 **Verification command or manual test:**
 - CPack path: `cmake --build --preset dev-release && cpack --config build/dev-release/CPackConfig.cmake`
 - Non-CPack path: run the documented packaging command and verify produced artifact contents.
+
+**Verification evidence (2026-04-26):**
+- CPack selected as the canonical native app packaging path. The existing export packager remains the game-export path, not the app package path.
+- Added `cmake/packaging.cmake` with package name, vendor/contact, description, homepage, version fields from the CMake project, license/readme resources, ZIP/TGZ generators, and component archives for `Runtime`, `RuntimeData`, and `Docs`.
+- Included `cmake/packaging.cmake` from the root `CMakeLists.txt`.
+- Added `docs/packaging.md` with canonical configure/build/CPack commands, component descriptions, smoke command, and release limits.
+- Added `tools/ci/check_package_smoke.ps1` and CTest lane `urpg_package_smoke`.
+- `cmake -S . -B build/dev-ninja-release -G Ninja -DCMAKE_BUILD_TYPE=Release -DURPG_USE_SCCACHE=OFF` passed.
+- `.\tools\ci\check_package_smoke.ps1 -BuildDirectory build/dev-ninja-release -PackageRoot build/package-smoke` passed and generated:
+  - `build/package-smoke/URPG-0.1.0-Windows-AMD64-Runtime.zip`
+  - `build/package-smoke/URPG-0.1.0-Windows-AMD64-RuntimeData.zip`
+  - `build/package-smoke/URPG-0.1.0-Windows-AMD64-Docs.zip`
+- `ctest --test-dir build/dev-ninja-release -R urpg_package_smoke --output-on-failure` passed.
 
 ### P5-004 - Add Platform Metadata And App Icons
 

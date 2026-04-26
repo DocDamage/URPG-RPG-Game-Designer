@@ -1369,6 +1369,28 @@ if(URPG_POWERSHELL_EXE)
         urpg_install_smoke
         PROPERTIES LABELS "nightly;packaging;install"
     )
+
+    add_test(
+        NAME urpg_package_smoke
+        COMMAND
+            ${URPG_POWERSHELL_EXE}
+            -NoProfile
+            -ExecutionPolicy
+            Bypass
+            -File
+            "${CMAKE_SOURCE_DIR}/tools/ci/check_package_smoke.ps1"
+            -RepoRoot
+            "${CMAKE_SOURCE_DIR}"
+            -BuildDirectory
+            "${CMAKE_BINARY_DIR}"
+            -PackageRoot
+            "${CMAKE_BINARY_DIR}/package-smoke"
+        WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+    )
+    set_tests_properties(
+        urpg_package_smoke
+        PROPERTIES LABELS "nightly;packaging"
+    )
 else()
     message(STATUS "Skipping PowerShell-backed CTest lanes because PowerShell was not found.")
 endif()
@@ -1400,3 +1422,5 @@ set_tests_properties(
     urpg_presentation_release_validation
     PROPERTIES LABELS "nightly;presentation"
 )
+
+include(cmake/packaging.cmake)

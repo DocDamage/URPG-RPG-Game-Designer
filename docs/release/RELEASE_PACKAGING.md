@@ -73,7 +73,7 @@ The release failure path must exit non-zero and report the missing signing input
 
 ## Installed App Layout
 
-`cmake --install` is the supported native app-layout smoke path before CPack is added. It installs only release-facing runtime/editor files and governed manifests; raw intake folders, duplicate source archives, and unpromoted third-party asset dumps are not installed.
+`cmake --install` is the native app-layout smoke path used by CPack. It installs only release-facing runtime/editor files and governed manifests; raw intake folders, duplicate source archives, and unpromoted third-party asset dumps are not installed.
 
 Expected install tree:
 
@@ -120,4 +120,14 @@ The CI wrapper performs the same install layout checks and runtime launch:
 
 ```powershell
 .\tools\ci\check_install_smoke.ps1 -BuildDirectory build/dev-ninja-release -InstallPrefix build/install-smoke
+```
+
+## Native App Packages
+
+Native URPG app packages are produced with CPack from the install components above. See `docs/packaging.md` for the canonical command.
+
+Package smoke:
+
+```powershell
+.\tools\ci\check_package_smoke.ps1 -BuildDirectory build/dev-ninja-release -PackageRoot build/package-smoke
 ```
