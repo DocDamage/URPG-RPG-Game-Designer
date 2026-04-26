@@ -195,7 +195,7 @@ nlohmann::json panelSnapshotJson(const urpg::editor::EditorShell& editorShell) {
 
 int runSmokeWorkflow(urpg::EngineShell& engineShell, urpg::editor::EditorShell& editorShell,
                      const urpg::cli::EditorCliOptions& options) {
-    const auto requiredPanels = urpg::editor::requiredTopLevelPanelIds();
+    const auto requiredPanels = urpg::editor::smokeRequiredEditorPanelIds();
 
     nlohmann::json report = {
         {"schema", "urpg.editor_smoke.v1"},

@@ -463,6 +463,8 @@
 
 ### P1-005 - Expand Editor Smoke Coverage To All Registered Panels
 
+**Status:** Completed on 2026-04-26.
+
 **Files to edit:**
 - `apps/editor/main.cpp`
 - Editor smoke tests under `tests/`
@@ -476,11 +478,11 @@
 **Risk level:** Medium.
 
 **Exact implementation steps:**
-- [ ] Replace hardcoded smoke-required panel IDs with IDs from the registry.
-- [ ] Include `patterns` in smoke coverage immediately.
-- [ ] Add a test that fails if a registered top-level panel is missing from the smoke-required list.
-- [ ] Add a test that fails if an intentionally hidden panel lacks a reason.
-- [ ] Run editor-focused tests.
+- [x] Replace hardcoded smoke-required panel IDs with IDs from the registry.
+- [x] Include `patterns` in smoke coverage immediately.
+- [x] Add a test that fails if a registered top-level panel is missing from the smoke-required list.
+- [x] Add a test that fails if an intentionally hidden panel lacks a reason.
+- [x] Run editor-focused tests.
 
 **Acceptance criteria:**
 - Smoke coverage covers all registered top-level panels.
@@ -491,6 +493,13 @@
 - `cmake --build --preset dev-debug --target urpg_tests`
 - `ctest --preset dev-all -R "editor|panel|smoke"`
 - `.\tools\ci\run_presentation_gate.ps1`
+
+**Verification results:**
+- `rg -n "smokeRequiredEditorPanelIds|requiredTopLevelPanelIds|patterns" apps/editor engine/core/editor tests/unit/test_editor_panel_registry.cpp` confirmed smoke coverage is registry-backed and includes `patterns`.
+- `cmake --build --preset dev-debug --target urpg_editor urpg_tests` passed.
+- `build\dev-ninja-debug\urpg_tests.exe "[editor][panel][registry]"` passed 4 test cases and 438 assertions.
+- `ctest --preset dev-all -R "editor|panel|smoke" --output-on-failure` passed 35 tests with 0 failures.
+- `.\tools\ci\run_presentation_gate.ps1` passed presentation and visual regression gates.
 
 ### P1-006 - Implement Or Explicitly Disable Empty Spatial Panel Render Paths
 

@@ -60,3 +60,11 @@ TEST_CASE("Editor panel registry classifies diagnostics and incubating workspace
     const auto topLevel = urpg::editor::topLevelEditorPanels();
     REQUIRE(topLevel.size() == urpg::editor::requiredTopLevelPanelIds().size());
 }
+
+TEST_CASE("Editor smoke coverage follows every registered top-level panel", "[editor][panel][registry][smoke]") {
+    const auto topLevelIds = urpg::editor::requiredTopLevelPanelIds();
+    const auto smokeIds = urpg::editor::smokeRequiredEditorPanelIds();
+
+    REQUIRE(smokeIds == topLevelIds);
+    REQUIRE(ContainsId(smokeIds, "patterns"));
+}

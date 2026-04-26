@@ -25,6 +25,7 @@ struct EditorPanelRegistryEntry {
 const std::vector<EditorPanelRegistryEntry>& editorPanelRegistry();
 std::vector<EditorPanelRegistryEntry> topLevelEditorPanels();
 std::vector<std::string> requiredTopLevelPanelIds();
+std::vector<std::string> smokeRequiredEditorPanelIds();
 const EditorPanelRegistryEntry* findEditorPanelRegistryEntry(std::string_view id);
 bool hiddenEditorPanelEntriesHaveReasons();
 

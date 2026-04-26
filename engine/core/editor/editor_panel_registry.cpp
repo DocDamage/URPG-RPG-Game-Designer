@@ -179,6 +179,10 @@ std::vector<std::string> requiredTopLevelPanelIds() {
     return ids;
 }
 
+std::vector<std::string> smokeRequiredEditorPanelIds() {
+    return requiredTopLevelPanelIds();
+}
+
 const EditorPanelRegistryEntry* findEditorPanelRegistryEntry(std::string_view id) {
     const auto it = std::find_if(kRegistry.begin(), kRegistry.end(),
                                  [id](const EditorPanelRegistryEntry& entry) { return entry.id == id; });
