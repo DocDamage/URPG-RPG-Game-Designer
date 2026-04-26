@@ -588,9 +588,12 @@
 
 ### P2-002 - Verify Editor Button Handlers And Disabled States
 
+**Status:** Completed on 2026-04-26. Headless contracts and inventory are verified; manual hover testing in the graphical editor remains unverified.
+
 **Files to edit:**
 - Files discovered by this task under `editor/`
 - Tests under `tests/`
+- `docs/release/EDITOR_CONTROL_INVENTORY.md`
 
 **Files to inspect:**
 - `editor/**/*.cpp`
@@ -601,11 +604,11 @@
 **Risk level:** Medium.
 
 **Exact implementation steps:**
-- [ ] Enumerate every `ImGui::Button`, menu item, checkbox, combo, drag, slider, and selectable control in user-facing panels.
-- [ ] For each command button, confirm there is a handler that mutates state, opens a modal, dispatches a command, or is visibly disabled.
-- [ ] For every disabled control, confirm the UI shows a reason or tooltip.
-- [ ] Fix verified no-op handlers one at a time with tests.
-- [ ] Mark this task unverified until the enumeration is committed as an artifact.
+- [x] Enumerate every `ImGui::Button`, menu item, checkbox, combo, drag, slider, and selectable control in user-facing panels.
+- [x] For each command button, confirm there is a handler that mutates state, opens a modal, dispatches a command, or is visibly disabled.
+- [x] For every disabled control, confirm the UI shows a reason or tooltip.
+- [x] Fix verified no-op handlers one at a time with tests.
+- [x] Commit the enumeration as a release-review artifact.
 
 **Acceptance criteria:**
 - Every user-facing editor command has an observable behavior or explicit disabled reason.
@@ -614,6 +617,17 @@
 **Verification command or manual test:**
 - `rg -n "ImGui::(Button|MenuItem|Checkbox|Combo|Selectable|Slider|Drag)" editor`
 - Manual verification is required for visual disabled-state affordances in `urpg_editor`.
+
+**Verification results:**
+- `docs/release/EDITOR_CONTROL_INVENTORY.md` records every `ImGui::Button`, `ImGui::Checkbox`, and `ImGui::Selectable` match found under `editor/`.
+- `cmake --build --preset dev-debug --target urpg_tests` passed.
+- `git diff --check` passed.
+- `build\dev-ninja-debug\urpg_tests.exe "[ability][editor]"` passed 88 assertions in 4 test cases.
+- `build\dev-ninja-debug\urpg_tests.exe "[pattern][editor]"` passed 49 assertions in 3 test cases.
+- `build\dev-ninja-debug\urpg_tests.exe "[analytics][editor][panel]"` passed 78 assertions in 8 test cases.
+- `build\dev-ninja-debug\urpg_tests.exe "[ui][editor][menu_inspector][panel]"` passed 11 assertions in 1 test case.
+- `ctest --preset dev-all -R "Ability|Pattern|Analytics|MenuInspector" --output-on-failure` passed 82 tests with 0 failures.
+- Manual graphical hover verification of disabled ImGui tooltips remains unverified; it requires launching `urpg_editor`, opening the ability inspector, and hovering disabled commands with missing runtime handlers or missing selected ability.
 
 ### P2-003 - Verify QuickJS Runtime Timer, Event, And Promise Gaps
 

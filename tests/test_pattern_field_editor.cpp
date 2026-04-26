@@ -4,6 +4,7 @@
 #include "editor/ability/pattern_field_panel.h"
 #include "engine/core/ability/pattern_field.h"
 
+#include <algorithm>
 #include <iostream>
 #include <sstream>
 
@@ -28,6 +29,12 @@ TEST_CASE("Pattern Field Editor authoring", "[pattern][editor]") {
         REQUIRE(snapshot.viewport_size == 5);
         REQUIRE(snapshot.grid_rows.size() == 5);
         REQUIRE(snapshot.controls.size() == 5);
+        const auto clearControl = std::find_if(snapshot.controls.begin(), snapshot.controls.end(), [](const auto& control) {
+            return control.id == "clear_pattern";
+        });
+        REQUIRE(clearControl != snapshot.controls.end());
+        REQUIRE_FALSE(clearControl->enabled);
+        REQUIRE(clearControl->disabled_reason == "No selected pattern points to clear.");
         REQUIRE(capturedOutput.str().empty());
     }
 

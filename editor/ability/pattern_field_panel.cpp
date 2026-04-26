@@ -1,5 +1,7 @@
 #include "editor/ability/pattern_field_panel.h"
 
+#include <string_view>
+
 #ifdef URPG_IMGUI_ENABLED
 #include <imgui.h>
 #include <misc/cpp/imgui_stdlib.h>
@@ -48,6 +50,22 @@ void PatternFieldPanel::render() {
     }
 
     auto& currentModel = model();
+    const auto controlById = [this](std::string_view id) -> const RenderSnapshot::ControlState* {
+        for (const auto& control : m_snapshot.controls) {
+            if (control.id == id) {
+                return &control;
+            }
+        }
+        return nullptr;
+    };
+
+    const auto disabledTooltip = [](const RenderSnapshot::ControlState* control) {
+        if (control != nullptr && !control->disabled_reason.empty() &&
+            ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled)) {
+            ImGui::SetTooltip("%s", control->disabled_reason.c_str());
+        }
+    };
+
     std::string name = m_snapshot.name;
     if (ImGui::InputText("Name", &name)) {
         (void)setPatternName(name);
@@ -58,8 +76,17 @@ void PatternFieldPanel::render() {
         (void)resizeViewport(viewport);
     }
 
-    if (ImGui::Button("Clear")) {
+    const auto* clearControl = controlById("clear_pattern");
+    const bool canClear = clearControl == nullptr || clearControl->enabled;
+    if (!canClear) {
+        ImGui::BeginDisabled();
+    }
+    if (ImGui::Button("Clear") && canClear) {
         (void)clearPattern();
+    }
+    if (!canClear) {
+        disabledTooltip(clearControl);
+        ImGui::EndDisabled();
     }
 
     const auto presets = currentModel.availablePresets();
@@ -79,14 +106,23 @@ void PatternFieldPanel::render() {
 
     ImGui::Separator();
     ImGui::Text("Grid");
+    const auto* toggleControl = controlById("toggle_point");
+    const bool canTogglePoint = toggleControl == nullptr || toggleControl->enabled;
     const auto bounds = currentModel.getViewportBounds();
     for (int32_t y = bounds.minY; y <= bounds.maxY; ++y) {
         for (int32_t x = bounds.minX; x <= bounds.maxX; ++x) {
             ImGui::PushID(static_cast<int>((y - bounds.minY) * m_snapshot.viewport_size + (x - bounds.minX)));
             const bool selected = currentModel.isPointSelected(x, y);
             const char* label = (x == 0 && y == 0) ? (selected ? "[O]" : "[.]") : (selected ? "[X]" : "[ ]");
-            if (ImGui::Button(label, ImVec2(36.0f, 28.0f))) {
+            if (!canTogglePoint) {
+                ImGui::BeginDisabled();
+            }
+            if (ImGui::Button(label, ImVec2(36.0f, 28.0f)) && canTogglePoint) {
                 (void)togglePoint(x, y);
+            }
+            if (!canTogglePoint) {
+                disabledTooltip(toggleControl);
+                ImGui::EndDisabled();
             }
             ImGui::PopID();
             if (x < bounds.maxX) {
@@ -175,12 +211,15 @@ void PatternFieldPanel::rebuildSnapshot() {
 }
 
 void PatternFieldPanel::rebuildControlState() {
+    const bool hasPattern = model().getCurrentPattern() != nullptr;
+    const bool hasPoints = m_snapshot.active_point_count > 0;
+    const bool hasPresets = !model().availablePresets().empty();
     m_snapshot.controls = {
-        {"set_name", "Set Name", model().getCurrentPattern() != nullptr},
-        {"toggle_point", "Toggle Point", model().getCurrentPattern() != nullptr},
-        {"clear_pattern", "Clear Pattern", m_snapshot.active_point_count > 0},
-        {"resize_viewport", "Resize Viewport", true},
-        {"apply_preset", "Apply Preset", !model().availablePresets().empty()},
+        {"set_name", "Set Name", hasPattern, hasPattern ? "" : "No pattern is loaded."},
+        {"toggle_point", "Toggle Point", hasPattern, hasPattern ? "" : "No pattern is loaded."},
+        {"clear_pattern", "Clear Pattern", hasPoints, hasPoints ? "" : "No selected pattern points to clear."},
+        {"resize_viewport", "Resize Viewport", true, ""},
+        {"apply_preset", "Apply Preset", hasPresets, hasPresets ? "" : "No pattern presets are available."},
     };
 }
 

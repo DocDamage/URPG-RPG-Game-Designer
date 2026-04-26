@@ -149,13 +149,45 @@ TEST_CASE("Ability Inspector Diagnostics Snapshot", "[ability][editor]") {
             return false;
         };
 
+        auto disabledReason = [&renderSnap](const std::string& id) {
+            for (const auto& control : renderSnap.controls) {
+                if (control.id == id) {
+                    return control.disabled_reason;
+                }
+            }
+            return std::string{};
+        };
+
         REQUIRE(controlEnabled("select_ability"));
         REQUIRE(controlEnabled("preview_selected"));
         REQUIRE(controlEnabled("validate_draft"));
         REQUIRE(controlEnabled("apply_draft"));
         REQUIRE(controlEnabled("save_draft"));
         REQUIRE(controlEnabled("load_draft"));
+        REQUIRE(disabledReason("preview_selected").empty());
         REQUIRE(renderSnap.validation_issues.empty());
+    }
+
+    SECTION("Disabled command controls expose reviewer-visible reasons") {
+        panel.update(asc);
+        panel.render();
+
+        const auto renderSnap = panel.getRenderSnapshot();
+        REQUIRE(renderSnap.controls.size() == 6);
+
+        auto disabledReason = [&renderSnap](const std::string& id) {
+            for (const auto& control : renderSnap.controls) {
+                if (control.id == id) {
+                    return control.disabled_reason;
+                }
+            }
+            return std::string{};
+        };
+
+        REQUIRE(disabledReason("preview_selected") == "Select an ability before previewing.");
+        REQUIRE(disabledReason("apply_draft") == "Editor host has not registered an apply-draft command handler.");
+        REQUIRE(disabledReason("save_draft") == "Editor host has not registered a save-draft command handler.");
+        REQUIRE(disabledReason("load_draft") == "Editor host has not registered a load-draft command handler.");
     }
 
     SECTION("Draft ability preview builds a workspace-owned editable runtime") {

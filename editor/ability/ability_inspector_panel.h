@@ -51,6 +51,7 @@ class AbilityInspectorPanel {
             std::string id;
             std::string label;
             bool enabled = false;
+            std::string disabled_reason;
         };
 
         bool visible = true;

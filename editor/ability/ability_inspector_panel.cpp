@@ -2,6 +2,7 @@
 #include "engine/core/ability/ability_system_component.h"
 #include <iomanip>
 #include <sstream>
+#include <string_view>
 
 #ifdef URPG_IMGUI_ENABLED
 #include <imgui.h>
@@ -300,12 +301,27 @@ void AbilityInspectorPanel::render() {
 
     ImGui::Separator();
     ImGui::Text("Actions");
+    const auto controlById = [this](std::string_view id) -> const RenderSnapshot::ControlState* {
+        for (const auto& control : m_snapshot.controls) {
+            if (control.id == id) {
+                return &control;
+            }
+        }
+        return nullptr;
+    };
+
     const auto button = [&](const char* id, const char* label, bool enabled, const CommandCallback& callback) {
         if (!enabled) {
             ImGui::BeginDisabled();
         }
         if (ImGui::Button(label) && enabled && callback) {
             (void)callback();
+        }
+        if (!enabled) {
+            if (const auto* control = controlById(id);
+                control != nullptr && !control->disabled_reason.empty() && ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled)) {
+                ImGui::SetTooltip("%s", control->disabled_reason.c_str());
+            }
         }
         if (!enabled) {
             ImGui::EndDisabled();
@@ -363,14 +379,28 @@ void AbilityInspectorPanel::render() {
 }
 
 void AbilityInspectorPanel::rebuildControlState() {
+    const bool hasAbilities = !m_model.getAbilities().empty();
+    const bool hasSelection = !m_snapshot.selected_ability_id.empty();
+    const bool hasPreviewCallback = static_cast<bool>(m_command_callbacks.preview_selected);
+    const bool hasApplyCallback = static_cast<bool>(m_command_callbacks.apply_draft_to_runtime);
+    const bool hasSaveCallback = static_cast<bool>(m_command_callbacks.save_draft);
+    const bool hasLoadCallback = static_cast<bool>(m_command_callbacks.load_draft);
+
     m_snapshot.controls = {
-        {"select_ability", "Select Ability", !m_model.getAbilities().empty()},
+        {"select_ability", "Select Ability", hasAbilities,
+         hasAbilities ? "" : "No abilities are bound to this runtime."},
         {"preview_selected", "Preview Selected",
-         !m_snapshot.selected_ability_id.empty() && static_cast<bool>(m_command_callbacks.preview_selected)},
-        {"validate_draft", "Validate Draft", m_snapshot.draft_preview.has_draft},
-        {"apply_draft", "Apply Draft", static_cast<bool>(m_command_callbacks.apply_draft_to_runtime)},
-        {"save_draft", "Save Draft", static_cast<bool>(m_command_callbacks.save_draft)},
-        {"load_draft", "Load Draft", static_cast<bool>(m_command_callbacks.load_draft)},
+         hasSelection && hasPreviewCallback,
+         !hasSelection ? "Select an ability before previewing."
+                       : (!hasPreviewCallback ? "Editor host has not registered a preview command handler." : "")},
+        {"validate_draft", "Validate Draft", m_snapshot.draft_preview.has_draft,
+         m_snapshot.draft_preview.has_draft ? "" : "Create or load a draft ability before validation."},
+        {"apply_draft", "Apply Draft", hasApplyCallback,
+         hasApplyCallback ? "" : "Editor host has not registered an apply-draft command handler."},
+        {"save_draft", "Save Draft", hasSaveCallback,
+         hasSaveCallback ? "" : "Editor host has not registered a save-draft command handler."},
+        {"load_draft", "Load Draft", hasLoadCallback,
+         hasLoadCallback ? "" : "Editor host has not registered a load-draft command handler."},
     };
 }
 
