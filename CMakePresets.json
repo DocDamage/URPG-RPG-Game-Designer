@@ -64,6 +64,17 @@
       }
     },
     {
+      "name": "release-no-tests",
+      "displayName": "Release (Ninja, Tests Off)",
+      "inherits": "base",
+      "generator": "Ninja",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release",
+        "URPG_BUILD_TESTS": "OFF",
+        "URPG_FETCH_CATCH2": "OFF"
+      }
+    },
+    {
       "name": "ci",
       "displayName": "CI (Ninja Release + cached FetchContent)",
       "inherits": "base",
@@ -95,6 +106,10 @@
     {
       "name": "dev-release",
       "configurePreset": "dev-ninja-release"
+    },
+    {
+      "name": "release-no-tests",
+      "configurePreset": "release-no-tests"
     },
     {
       "name": "dev-mingw-debug-build",

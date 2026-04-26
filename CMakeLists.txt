@@ -51,6 +51,7 @@ function(urpg_get_compiler_root out_var)
     set(${out_var} "${_compiler_root}" PARENT_SCOPE)
 endfunction()
 
+option(URPG_BUILD_TESTS "Build URPG test executables" ON)
 option(URPG_FETCH_CATCH2 "Fetch Catch2 via CMake" ON)
 option(
     URPG_MINGW_VENDORED_SDL_SHARED
@@ -149,12 +150,27 @@ if(MINGW)
             "\"${CMAKE_CURRENT_SOURCE_DIR}/tools/ci/windres_wrapper.py\" "
             "\"${URPG_REAL_WINDRES_COMPILER}\" %*\r\n"
         )
-        file(GENERATE OUTPUT "${URPG_WINDRES_WRAPPER_CMD}" CONTENT "${URPG_WINDRES_WRAPPER_CONTENT}")
-        set(CMAKE_RC_COMPILER "${URPG_WINDRES_WRAPPER_CMD}" CACHE FILEPATH
+        file(WRITE "${URPG_WINDRES_WRAPPER_CMD}" "${URPG_WINDRES_WRAPPER_CONTENT}")
+        execute_process(
+            COMMAND
+                "${Python3_EXECUTABLE}"
+                -c
+                "import ctypes, sys; p = sys.argv[1]; n = ctypes.windll.kernel32.GetShortPathNameW(p, None, 0); b = ctypes.create_unicode_buffer(n) if n else None; r = ctypes.windll.kernel32.GetShortPathNameW(p, b, n) if n else 0; print(b.value if r else p)"
+                "${URPG_WINDRES_WRAPPER_CMD}"
+            OUTPUT_VARIABLE URPG_WINDRES_WRAPPER_COMPILER
+            ERROR_QUIET
+            OUTPUT_STRIP_TRAILING_WHITESPACE
+        )
+        if(NOT URPG_WINDRES_WRAPPER_COMPILER)
+            set(URPG_WINDRES_WRAPPER_COMPILER "${URPG_WINDRES_WRAPPER_CMD}")
+        endif()
+        set(ENV{RC} "${URPG_WINDRES_WRAPPER_COMPILER}")
+        set(CMAKE_RC_COMPILER_INIT "${URPG_WINDRES_WRAPPER_COMPILER}")
+        set(CMAKE_RC_COMPILER "${URPG_WINDRES_WRAPPER_COMPILER}" CACHE FILEPATH
             "MinGW RC compiler wrapper for path-safe windres invocations"
             FORCE
         )
-        set(WINDRES "${URPG_WINDRES_WRAPPER_CMD}" CACHE FILEPATH
+        set(WINDRES "${URPG_WINDRES_WRAPPER_COMPILER}" CACHE FILEPATH
             "MinGW windres wrapper for dependencies that use WINDRES directly"
             FORCE
         )
@@ -496,7 +512,7 @@ target_include_directories(urpg_core PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
 enable_testing()
 
-if(URPG_FETCH_CATCH2)
+if(URPG_BUILD_TESTS AND URPG_FETCH_CATCH2)
     include(FetchContent)
     FetchContent_Declare(
         Catch2
@@ -504,7 +520,7 @@ if(URPG_FETCH_CATCH2)
         GIT_TAG v3.6.0
     )
     FetchContent_MakeAvailable(Catch2)
-else()
+elseif(URPG_BUILD_TESTS)
     find_package(Catch2 3 REQUIRED)
 endif()
 
@@ -626,6 +642,21 @@ if(NOT SDL2_FOUND)
         GIT_TAG release-2.30.0 # Stable baseline for URPG
     )
     FetchContent_MakeAvailable(SDL2)
+
+    if(MINGW AND CMAKE_BINARY_DIR MATCHES " ")
+        foreach(_urpg_sdl_vendor_target IN ITEMS SDL2 SDL2-static)
+            if(TARGET ${_urpg_sdl_vendor_target})
+                get_target_property(_urpg_sdl_vendor_sources ${_urpg_sdl_vendor_target} SOURCES)
+                if(_urpg_sdl_vendor_sources)
+                    list(FILTER _urpg_sdl_vendor_sources EXCLUDE REGEX "/src/main/windows/.*\\.rc$")
+                    set_property(TARGET ${_urpg_sdl_vendor_target} PROPERTY SOURCES ${_urpg_sdl_vendor_sources})
+                endif()
+            endif()
+        endforeach()
+        message(STATUS
+            "URPG: removed vendored SDL Windows resource sources for MinGW fallback builds "
+            "because raw windres invocations cannot safely preprocess include paths in workspace paths with spaces.")
+    endif()
 endif()
 
 # Fetch stb_image
@@ -802,6 +833,7 @@ if(WIN32)
     )
 endif()
 
+if(URPG_BUILD_TESTS)
 add_executable(urpg_tests
     tests/unit/test_engine_shell.cpp
     tests/unit/test_global_state.cpp
@@ -1207,15 +1239,6 @@ else()
 endif()
 
 add_test(
-    NAME urpg_presentation_release_validation
-    COMMAND urpg_presentation_release_validation
-)
-set_tests_properties(
-    urpg_presentation_release_validation
-    PROPERTIES LABELS "nightly;presentation"
-)
-
-add_test(
     NAME urpg_presentation_unit_lane
     COMMAND urpg_tests "[presentation]"
 )
@@ -1231,4 +1254,14 @@ add_test(
 set_tests_properties(
     urpg_spatial_editor_lane
     PROPERTIES LABELS "pr;presentation;editor"
+)
+endif()
+
+add_test(
+    NAME urpg_presentation_release_validation
+    COMMAND urpg_presentation_release_validation
+)
+set_tests_properties(
+    urpg_presentation_release_validation
+    PROPERTIES LABELS "nightly;presentation"
 )

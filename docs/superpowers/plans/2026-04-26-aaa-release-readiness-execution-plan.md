@@ -229,8 +229,6 @@
 **Files to edit:**
 - `CMakeLists.txt`
 - `CMakePresets.json`
-- `.github/workflows/ci-gates.yml`
-- `tools/ci/run_local_gates.ps1`
 
 **Files to inspect:**
 - `tools/ci/run_presentation_gate.ps1`
@@ -241,22 +239,40 @@
 **Risk level:** Medium.
 
 **Exact implementation steps:**
-- [ ] Add `option(URPG_BUILD_TESTS "Build URPG test executables" ON)`.
-- [ ] Gate Catch2 `FetchContent` or `find_package(Catch2)` behind `if(URPG_BUILD_TESTS)`.
-- [ ] Gate test executable definitions and `catch_discover_tests` calls behind `if(URPG_BUILD_TESTS)`.
-- [ ] Keep `urpg_presentation_release_validation` available if it is a release validation executable, or explicitly document and gate it if it is test-only.
-- [ ] Add a release preset or cache variable path with `URPG_BUILD_TESTS=OFF`.
-- [ ] Confirm CI presets keep tests enabled.
+- [x] Add `option(URPG_BUILD_TESTS "Build URPG test executables" ON)`.
+- [x] Gate Catch2 `FetchContent` or `find_package(Catch2)` behind `if(URPG_BUILD_TESTS)`.
+- [x] Gate test executable definitions and `catch_discover_tests` calls behind `if(URPG_BUILD_TESTS)`.
+- [x] Keep `urpg_presentation_release_validation` available if it is a release validation executable, or explicitly document and gate it if it is test-only.
+- [x] Add a release preset or cache variable path with `URPG_BUILD_TESTS=OFF`.
+- [x] Confirm CI presets keep tests enabled.
 
 **Acceptance criteria:**
 - Configuring with `-DURPG_BUILD_TESTS=OFF` does not fetch Catch2 and does not define Catch2-linked test targets.
 - CI/local validation still builds and runs tests with `URPG_BUILD_TESTS=ON`.
 
 **Verification command or manual test:**
-- `cmake -S . -B build/release-no-tests -DURPG_BUILD_TESTS=OFF -DURPG_FETCH_CATCH2=OFF`
-- `cmake --build build/release-no-tests --target urpg_runtime urpg_editor`
+- `cmake --preset release-no-tests`
+- `ninja -C build\release-no-tests -t targets`
+- `cmake --build --preset release-no-tests --target urpg_runtime urpg_editor urpg_presentation_release_validation`
 - `cmake --preset dev-ninja-debug`
-- `ctest --preset dev-all`
+- `cmake --build --preset dev-debug --target urpg_tests`
+- `ctest --test-dir build\release-no-tests -R urpg_presentation_release_validation --output-on-failure`
+- `ctest --preset dev-all -R "Runtime CLI|Editor CLI" --output-on-failure`
+
+**Verification evidence (2026-04-26):**
+- `cmake --preset release-no-tests` completed from a clean `build\release-no-tests` directory with `URPG_BUILD_TESTS=OFF` and `URPG_FETCH_CATCH2=OFF`.
+- `ninja -C build\release-no-tests -t targets` listed `urpg_runtime`, `urpg_editor`, and `urpg_presentation_release_validation`; it did not list `urpg_tests`, `urpg_integration_tests`, `urpg_snapshot_tests`, `urpg_compat_tests`, or Catch2 targets.
+- `Select-String -Path build\release-no-tests\CMakeCache.txt -Pattern "URPG_BUILD_TESTS|URPG_FETCH_CATCH2|Catch2"` showed `URPG_BUILD_TESTS:BOOL=OFF` and `URPG_FETCH_CATCH2:BOOL=OFF`.
+- `cmake --build --preset release-no-tests --target urpg_runtime urpg_editor urpg_presentation_release_validation` completed.
+- `build\release-no-tests\urpg_runtime.exe --version` printed `URPG Runtime 0.1.0`.
+- `build\release-no-tests\urpg_editor.exe --version` printed `URPG Editor 0.1.0`.
+- `build\release-no-tests\urpg_presentation_release_validation.exe` printed `Release Validation Suite: ALL TESTS PASSED`.
+- `ctest --test-dir build\release-no-tests -R urpg_presentation_release_validation --output-on-failure` passed 1 test.
+- `cmake --preset dev-ninja-debug` completed with default `URPG_BUILD_TESTS=ON`.
+- `cmake --build --preset dev-debug --target urpg_tests` completed.
+- `build\dev-ninja-debug\urpg_tests.exe "[cli]"` passed 8 test cases and 535 assertions.
+- `ctest --preset dev-all -R "Runtime CLI|Editor CLI" --output-on-failure` passed 6 tests.
+- During verification, a clean MinGW fallback build in `C:\dev\URPG Maker` hit SDL's raw `windres` path-with-space failure. `CMakeLists.txt` now removes vendored SDL Windows `.rc` resource sources for MinGW fallback builds under space-containing build paths, and the same clean `release-no-tests` build then completed.
 
 ---
 
