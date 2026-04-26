@@ -24,7 +24,7 @@ git describe --tags --always --dirty
 rg -n -- '--help|--version|AudioCore|AssetLoader|RuntimeBundleLoader|LocaleCatalog|PerfProfiler|InputManager|SaveRuntime|TitleScreen|MenuScene|SDL_GL_SetSwapInterval|fullscreen|VSync' .\apps
 ```
 
-Important repository condition: the Git index was refreshed after this report was rewritten. The earlier index-only mass deletion state was resolved, then the tracked asset deletions were restored from `HEAD` and hydrated from the local Git LFS cache with `git lfs checkout`. The absence of tags and `git describe` output are still reported because they were directly observed.
+Important repository condition: after branch cleanup and history rewrite, the audited branch is clean on `development` at commit `f9d74b2dca0423dafcce2cd9e009cab4ce8555e3`. The earlier index-only mass deletion state was resolved, then the tracked asset deletions were restored from `HEAD` and hydrated from the local Git LFS cache with `git lfs checkout`. The absence of tags and `git describe` output are still reported because they were directly observed.
 
 ## Verified Summary
 
@@ -52,15 +52,15 @@ There is no `VERSION` argument in the CMake project declaration. Direct checks a
 
 ### C-2: No Release Tags
 
-**Evidence:** `git tag -l` returned no tags. `git describe --tags --always --dirty` returned:
+**Evidence:** `git tag -l` returned no tags. On the clean `development` branch at commit `f9d74b2dca0423dafcce2cd9e009cab4ce8555e3`, `git describe --tags --always --dirty` returned:
 
 ```text
-c8761d871-dirty
+f9d74b2dc
 ```
 
 **Impact:** There is no immutable release marker or version history anchor in the audited repository.
 
-**Required fix:** Resolve the dirty worktree/index state, create an initial release or prerelease tag only after validation passes, and document release contents in `CHANGELOG.md`.
+**Required fix:** Create an initial release or prerelease tag only after validation passes, and document release contents in `CHANGELOG.md`.
 
 ### C-3: Runtime Boots Directly Into a Hardcoded Map Scene
 
@@ -257,11 +257,11 @@ This repository exceeded its LFS budget. The account responsible for the budget 
 Checking out LFS objects: 100% (156847/156847), 19 GB | 392 MB/s, done.
 ```
 
-As a mitigation after this audit, 39 duplicate source ZIP archives under `more assets/` were staged for removal from Git tracking and `more assets/**/*.zip` was added to `.gitignore`. The extracted/imported asset directories under `imports/raw/more_assets/` remain tracked. This removes about 5.68 GB of ZIP archive payload from future tracked revisions, but it does not rewrite existing Git LFS history.
+As a mitigation after this audit, 39 duplicate source ZIP archives under `more assets/` were removed from Git tracking and `more assets/**/*.zip` was added to `.gitignore`. The extracted/imported asset directories under `imports/raw/more_assets/` remain tracked. This removes about 5.68 GB of ZIP archive payload from future tracked revisions, but it does not rewrite existing Git LFS history.
 
 A second duplicate-asset mitigation removed the byte-for-byte duplicate `third_party/itch-assets/packs-by-category/ui/fantasy-platformer-game-ui/` tree from Git tracking and added that path to `.gitignore`. The canonical copy remains tracked at `third_party/itch-assets/packs/fantasy-platformer-game-ui/`. This removes another 592 duplicate tracked files, about 444.67 MB of LFS payload from future tracked revisions.
 
-Two additional narrow archive removals were staged after confirming retained canonical copies:
+Two additional narrow archive removals were completed after confirming retained canonical copies:
 
 - `imports/root-drop/archives/rpgmaker/visustella/VisuMZ_Sample_Game_Project.zip`, because the sample project is already unpacked under `third_party/rpgmaker-mz/visumz-sample-project/`.
 - `third_party/itch-assets/packs-by-category/bundles-mega/2017patronbundle/2017/children/children_frames.zip`, because the canonical tracked copy remains under `third_party/itch-assets/packs/2017patronbundle/2017/children/children_frames.zip`.
