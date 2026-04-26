@@ -70,6 +70,9 @@ $requiredPaths = @(
   "share/doc/urpg/LICENSE",
   "share/doc/urpg/CHANGELOG.md",
   "share/doc/urpg/PRIVACY_POLICY.md",
+  "share/doc/urpg/THIRD_PARTY_NOTICES.md",
+  "share/doc/urpg/EULA.md",
+  "share/doc/urpg/CREDITS.md",
   "share/doc/urpg/release/RELEASE_PACKAGING.md"
 )
 

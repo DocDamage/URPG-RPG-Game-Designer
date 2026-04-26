@@ -2,6 +2,8 @@
 
 Last updated: 2026-04-26
 
+Review status: implementation-accurate engineering policy; legal sufficiency is unverified until reviewed by a qualified legal reviewer.
+
 URPG does not upload analytics by default. The editor starts with analytics consent set to `unknown`, keeps uploads disabled, and records a user decision only when the analytics settings control is changed.
 
 ## Analytics Data
@@ -32,6 +34,12 @@ Removing or corrupting that file causes the editor to recover to defaults, which
 
 The uploader is transport-agnostic and has no network upload handler configured by default in `urpg_editor`. Even if queued events exist, upload is blocked unless a handler is configured, analytics opt-in is enabled, and consent is granted.
 
+URPG does not currently configure advertising identifiers, third-party analytics SDKs, or automatic crash-report uploads in the shipped editor/runtime entry points.
+
 ## Data Retention And Erasure
 
 `AnalyticsPrivacyController` supports retention limits by maximum event age and maximum event count. It also supports local export and erasure workflows for queued analytics events. Erasure clears the supplied local event buffer; external storage or custom upload backends must implement their own matching deletion workflow before being enabled.
+
+## Contact And Review
+
+Until a public support channel is approved, privacy questions for release candidates must be routed through the project owner or release manager recorded in the release signoff workflow. A public release must replace this internal routing note with the approved support/contact address.

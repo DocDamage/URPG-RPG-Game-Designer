@@ -83,3 +83,15 @@ If any of those conditions fail, the row must remain below `READY`.
 - `READY` applies only to the scope actually evidenced, not to every imaginable extension of the subsystem.
 - A subsystem can be `READY` while adjacent template/productization lanes remain `PARTIAL`.
 - This matrix is intended to work alongside `content/readiness/readiness_status.json` and the readiness-rule checks under `tools/ci/` and `tools/docs/`.
+
+## Legal And Notices Snapshot
+
+Status Date: 2026-04-26
+
+| Area | Status | Evidence | Remaining Gate |
+| --- | --- | --- | --- |
+| Project license | `PARTIAL` | Root `LICENSE` is present and installed by the native app layout. | Confirm final binary distribution terms during legal signoff. |
+| Third-party notices | `PARTIAL` | Root `THIRD_PARTY_NOTICES.md` inventories shipped install components, fetched dependencies, governed manifests, and repository-only intake/reference paths. | Qualified legal reviewer must verify license sufficiency and exact upstream notice text. |
+| Credits | `PARTIAL` | Root `CREDITS.md` records URPG project credits, dependency credits, and promoted proof-lane attribution status. | Confirm final public attribution requirements for any promoted asset or plugin included in a release package. |
+| EULA | `BLOCKED` | Root `EULA.md` exists as an internal-only placeholder. | Replace with or approve production EULA through qualified legal review before external distribution. |
+| Privacy policy | `PARTIAL` | Root `PRIVACY_POLICY.md` matches the opt-in analytics implementation and no-default-upload behavior. | Replace internal contact routing and complete qualified legal/privacy review before public release. |

@@ -1051,6 +1051,8 @@
 
 ### P5-002 - Create Required Legal And Release Documents
 
+**Status:** Completed in this pass. Legal sufficiency remains unverified until qualified legal review.
+
 **Files to edit:**
 - `THIRD_PARTY_NOTICES.md`
 - `EULA.md`
@@ -1071,12 +1073,12 @@
 **Risk level:** High.
 
 **Exact implementation steps:**
-- [ ] Inventory third-party code and asset sources from `third_party/`, `imports/`, and existing intake docs.
-- [ ] Create `THIRD_PARTY_NOTICES.md` with dependency/source, license, path, and distribution notes.
-- [ ] Create `CREDITS.md` covering engine, assets, plugins, and third-party packs where attribution is required.
-- [ ] Create `EULA.md` suitable for the intended distribution mode, or mark it as internal-only if external legal review is required before publication.
-- [ ] Complete `PRIVACY_POLICY.md` from P4-002 analytics behavior.
-- [ ] Keep `CHANGELOG.md` current with release-readiness changes.
+- [x] Inventory third-party code and asset sources from `third_party/`, `imports/`, and existing intake docs.
+- [x] Create `THIRD_PARTY_NOTICES.md` with dependency/source, license, path, and distribution notes.
+- [x] Create `CREDITS.md` covering engine, assets, plugins, and third-party packs where attribution is required.
+- [x] Create `EULA.md` suitable for the intended distribution mode, or mark it as internal-only if external legal review is required before publication.
+- [x] Complete `PRIVACY_POLICY.md` from P4-002 analytics behavior.
+- [x] Keep `CHANGELOG.md` current with release-readiness changes.
 
 **Acceptance criteria:**
 - Required docs exist and are referenced from packaging/install rules.
@@ -1087,6 +1089,19 @@
 - `Test-Path .\THIRD_PARTY_NOTICES.md, .\EULA.md, .\PRIVACY_POLICY.md, .\CREDITS.md, .\CHANGELOG.md`
 - `python .\tools\assets\asset_hygiene.py --write-reports`
 - Legal sufficiency remains unverified until reviewed by a qualified legal reviewer.
+
+**Verification evidence (2026-04-26):**
+- `THIRD_PARTY_NOTICES.md` created with shipped install components, fetched dependency sources, governed manifests, repository-only intake/reference paths, and explicit legal-review blockers.
+- `CREDITS.md` created with project credits, third-party code/library credits, promoted proof-lane credits, and unverified-public-release attribution requirements.
+- `EULA.md` created as an internal-only placeholder and explicitly blocks public distribution under that text until qualified legal review.
+- `PRIVACY_POLICY.md` updated to match opt-in analytics behavior, no default upload handler, no advertising IDs/third-party analytics SDKs/crash-report uploads in shipped entry points, and internal contact routing.
+- `CHANGELOG.md` updated with packaging/legal readiness changes.
+- `docs/release/RELEASE_READINESS_MATRIX.md` updated with a legal/notices snapshot.
+- `Test-Path .\THIRD_PARTY_NOTICES.md, .\EULA.md, .\PRIVACY_POLICY.md, .\CREDITS.md, .\CHANGELOG.md` returned five `True` values.
+- `python .\tools\assets\asset_hygiene.py --write-reports` passed after a long scan: 158849 files, 0 junk files, 1 oversize file, 42708 duplicate groups, 93932 duplicate files, 2715392371 duplicate-waste bytes, 0 hash skips.
+- Remaining oversize file: `third_party/itch-assets/packs/fantasy-platformer-game-ui/PSD/17Icons.psd` at 105418536 bytes.
+- `.\tools\ci\check_install_smoke.ps1 -BuildDirectory build/dev-ninja-release -InstallPrefix build/install-smoke` passed after reconfigure and verified the new legal docs are installed under `share/doc/urpg/`.
+- Legal sufficiency remains unverified; a qualified legal reviewer must approve notices, EULA, third-party license text, and public privacy/contact language before external release.
 
 ### P5-003 - Add CPack Or Document The Supported Packaging System
 

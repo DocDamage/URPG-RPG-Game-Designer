@@ -1,19 +1,19 @@
 {
-  "generated_at": "2026-04-26T03:05:08+00:00",
+  "generated_at": "2026-04-26T23:39:56+00:00",
   "repo_root": "C:\\dev\\URPG Maker",
   "scan_roots": [
     "third_party",
     "imports",
     "itch"
   ],
-  "file_count": 159443,
+  "file_count": 158849,
   "junk_file_count": 0,
   "junk_dir_count": 0,
   "pruned_count": 0,
   "oversize_threshold_mb": 100,
-  "oversize_count": 4,
-  "duplicate_groups": 43300,
-  "duplicate_file_count": 95117,
-  "duplicate_waste_bytes": 3428021085,
+  "oversize_count": 1,
+  "duplicate_groups": 42708,
+  "duplicate_file_count": 93932,
+  "duplicate_waste_bytes": 2715392371,
   "hash_skip_count": 0
 }
