@@ -13,6 +13,7 @@
 #include "engine/core/platform/platform_surface.h"
 #include "engine/core/platform/renderer_backend.h"
 #include "engine/core/render/render_layer.h"
+#include "engine/core/runtime_startup_services.h"
 #include "engine/core/scene/scene_manager.h"
 #include "engine/core/sprite_batcher.h"
 #include "runtimes/compat_js/audio_manager.h"
@@ -63,8 +64,10 @@ class EngineShell {
         m_dialogueLoadResult = message::DialogueProjectLoader::loadProject(dialogueRegistry, options.project_root);
         initializeDialogueCommandState();
         setupDialogueCommands();
-        m_audioCore.setAssetRoot(options.project_root);
         compat::AudioManager::instance().bindAudioCore(&m_audioCore);
+        m_runtimeStartupReport = RuntimeStartupServices::initialize(
+            options.project_root, m_audioCore, m_inputCore,
+            compat::AudioManager::instance().boundAudioCore() == &m_audioCore);
 
         m_batcher = std::make_unique<SpriteBatcher>();
         m_clock.reset();
@@ -136,6 +139,7 @@ class EngineShell {
     bool isRunning() const { return m_isRunning; }
     input::InputCore& getInput() { return m_inputCore; }
     audio::AudioCore& getAudio() { return m_audioCore; }
+    const RuntimeStartupReport& getRuntimeStartupReport() const { return m_runtimeStartupReport; }
     IPlatformSurface* getPlatform() { return m_platform.get(); }
     RendererBackend* getRenderer() { return m_renderer.get(); }
     /**
@@ -356,6 +360,7 @@ class EngineShell {
     Clock m_clock;
     message::DialogueCommandProcessor m_dialogueProcessor;
     message::DialogueProjectLoadResult m_dialogueLoadResult;
+    RuntimeStartupReport m_runtimeStartupReport;
     World m_dialogueCommandWorld;
     EntityID m_dialoguePlayerEntity = 0;
     HealthSystem m_dialogueHealthSystem;

@@ -391,11 +391,11 @@
 **Risk level:** High.
 
 **Exact implementation steps:**
-- [ ] Inspect each subsystem for its intended startup API and ownership model.
-- [ ] Add a `RuntimeStartupServices` object or equivalent local startup sequence if no central startup object exists.
-- [ ] Initialize or explicitly skip with documented reason: audio, asset bundle validation, localization catalog, profiler, and input manager.
-- [ ] Ensure startup failures use Phase 3 diagnostics, not raw crashes.
-- [ ] Add smoke tests proving each required subsystem is reached during runtime startup.
+- [x] Inspect each subsystem for its intended startup API and ownership model.
+- [x] Add a `RuntimeStartupServices` object or equivalent local startup sequence if no central startup object exists.
+- [x] Initialize or explicitly skip with documented reason: audio, asset bundle validation, localization catalog, profiler, and input manager.
+- [x] Ensure startup failures use Phase 3 diagnostics, not raw crashes.
+- [x] Add smoke tests proving each required subsystem is reached during runtime startup.
 
 **Acceptance criteria:**
 - The runtime entry path either initializes each listed subsystem or references a verified downstream initializer.
@@ -406,6 +406,15 @@
 - `rg -n "AudioCore|AssetLoader|RuntimeBundleLoader|LocaleCatalog|PerfProfiler|InputManager" apps/runtime engine/core`
 - `cmake --build --preset dev-debug --target urpg_runtime urpg_integration_tests`
 - `ctest --preset dev-all -R "runtime|startup|audio|asset|input|localization|profiler"`
+
+**Verification evidence (2026-04-26):**
+- `rg -n "AudioCore|AssetLoader|RuntimeBundleLoader|LocaleCatalog|PerfProfiler|InputManager" apps/runtime engine/core` shows runtime startup coverage through `engine/core/runtime_startup_services.cpp` and `engine/core/engine_shell.h`.
+- `cmake --build --preset dev-debug --target urpg_runtime urpg_tests urpg_integration_tests` completed.
+- `build\dev-ninja-debug\urpg_integration_tests.exe "[integration][runtime][startup]"` passed 4 test cases and 25 assertions.
+- `build\dev-ninja-debug\urpg_tests.exe "[input]"` passed 21 test cases and 103 assertions.
+- `build\dev-ninja-debug\urpg_runtime.exe --headless --frames 3` exited `0` and printed the targeted missing-locale startup warning.
+- Initial broad CTest surfaced that `imports/normalized/ui_sfx/kenney_click_001.wav` is a Git LFS pointer because the remote LFS budget is exceeded; the export test now accepts either a hydrated `RIFF` WAV or an explicit LFS pointer with `oid`/`size` evidence.
+- Final `ctest --preset dev-all -R "runtime|startup|audio|asset|input|localization|profiler" --output-on-failure` passed 121 tests with 0 failures.
 
 ### P1-004 - Register Intended Top-Level Editor Panels Through A Discoverable Navigation Model
 

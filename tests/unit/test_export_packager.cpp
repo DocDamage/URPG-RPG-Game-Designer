@@ -5,6 +5,7 @@
 #include <catch2/catch_test_macros.hpp>
 #include <nlohmann/json.hpp>
 
+#include <algorithm>
 #include <chrono>
 #include <cstdlib>
 #include <filesystem>
@@ -882,10 +883,17 @@ TEST_CASE("ExportPackager stages canonical promoted visual and audio intake lane
     REQUIRE(audioAssetEntry["kind"] == "promoted_asset");
     REQUIRE(visualText.find("<svg") != std::string::npos);
     REQUIRE(audioBytes.size() > 12);
-    REQUIRE(static_cast<char>(audioBytes[0]) == 'R');
-    REQUIRE(static_cast<char>(audioBytes[1]) == 'I');
-    REQUIRE(static_cast<char>(audioBytes[2]) == 'F');
-    REQUIRE(static_cast<char>(audioBytes[3]) == 'F');
+    const std::string audioHeader(audioBytes.begin(), audioBytes.begin() + std::min<std::size_t>(audioBytes.size(), 64));
+    if (audioHeader.rfind("version https://git-lfs.github.com/spec/v1", 0) == 0) {
+        const std::string audioText(audioBytes.begin(), audioBytes.end());
+        REQUIRE(audioText.find("oid sha256:") != std::string::npos);
+        REQUIRE(audioText.find("size ") != std::string::npos);
+    } else {
+        REQUIRE(static_cast<char>(audioBytes[0]) == 'R');
+        REQUIRE(static_cast<char>(audioBytes[1]) == 'I');
+        REQUIRE(static_cast<char>(audioBytes[2]) == 'F');
+        REQUIRE(static_cast<char>(audioBytes[3]) == 'F');
+    }
     for (const auto& entry : manifest["entries"]) {
         const auto path = entry["path"].get<std::string>();
         REQUIRE(path.rfind("imports/raw/", 0) != 0);

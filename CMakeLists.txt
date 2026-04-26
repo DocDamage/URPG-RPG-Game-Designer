@@ -240,6 +240,7 @@ add_library(urpg_core
     engine/core/render/asset_loader.cpp
     engine/core/render/tilemap_renderer.cpp
     engine/core/render/sprite_animator.cpp
+    engine/core/runtime_startup_services.cpp
     engine/core/sprite_batcher.cpp
     engine/core/clock.cpp
     engine/core/perf/perf_profiler.cpp
@@ -1068,6 +1069,7 @@ urpg_enable_windows_test_binary_unlock(urpg_tests)
 add_executable(urpg_integration_tests
     tests/integration/test_integration_runtime_recovery.cpp
     tests/integration/test_runtime_startup_save_flow.cpp
+    tests/integration/test_runtime_startup_services.cpp
     tests/integration/test_battle_save_integration.cpp
     tests/integration/test_character_save_integration.cpp
     tests/integration/test_exported_runtime_smoke.cpp

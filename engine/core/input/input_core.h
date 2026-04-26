@@ -88,6 +88,13 @@ class InputCore {
 
     void addHandler(ActionHandler handler) { m_handlers.push_back(std::move(handler)); }
 
+    bool hasMappingFor(int32_t keyCode, InputAction action) const {
+        const auto it = m_keyMaps.find(keyCode);
+        return it != m_keyMaps.end() && it->second == action;
+    }
+
+    size_t mappedKeyCount() const { return m_keyMaps.size(); }
+
   private:
     std::map<int32_t, InputAction> m_keyMaps;
     std::map<InputAction, ActionState> m_actionStates;

@@ -41,6 +41,18 @@ void clearSceneStack() {
     }
 }
 
+void printStartupDiagnostics(const urpg::RuntimeStartupReport& report) {
+    for (const auto& subsystem : report.subsystems) {
+        if (subsystem.status != urpg::RuntimeStartupSubsystemStatus::Warning &&
+            subsystem.status != urpg::RuntimeStartupSubsystemStatus::Error) {
+            continue;
+        }
+
+        std::cerr << "URPG runtime startup " << urpg::toString(subsystem.status) << " [" << subsystem.subsystem
+                  << ":" << subsystem.code << "]: " << subsystem.message << "\n";
+    }
+}
+
 } // namespace
 
 int main(int argc, char** argv) {
@@ -93,6 +105,7 @@ int main(int argc, char** argv) {
             std::cerr << "URPG runtime startup failed.\n";
             return 1;
         }
+        printStartupDiagnostics(shell.getRuntimeStartupReport());
 
         clearSceneStack();
         const auto startupSaveState = urpg::discoverRuntimeSaves(options.project_root);
