@@ -418,6 +418,8 @@
 
 ### P1-004 - Register Intended Top-Level Editor Panels Through A Discoverable Navigation Model
 
+**Status:** Completed on 2026-04-26.
+
 **Files to edit:**
 - `apps/editor/main.cpp`
 - Existing editor panel registry or shell files under `editor/`
@@ -434,12 +436,12 @@
 **Risk level:** High.
 
 **Exact implementation steps:**
-- [ ] Generate a list of compiled editor panels from `CMakeLists.txt` and `editor/**/*panel.*`.
-- [ ] Classify each panel as top-level, nested workspace-only, internal, or intentionally disabled.
-- [ ] Add a single editor panel registry table with ID, title, category, factory, and exposure status.
-- [ ] Register every top-level panel through `EditorShell::addPanel`.
-- [ ] Add an allowlist for internal or intentionally hidden panels with explicit reason strings.
-- [ ] Ensure `patterns` remains registered and covered.
+- [x] Generate a list of compiled editor panels from `CMakeLists.txt` and `editor/**/*panel.*`.
+- [x] Classify each panel as top-level, nested workspace-only, internal, or intentionally disabled.
+- [x] Add a single editor panel registry table with ID, title, category, factory, and exposure status.
+- [x] Register every top-level panel through `EditorShell::addPanel`.
+- [x] Add an allowlist for internal or intentionally hidden panels with explicit reason strings.
+- [x] Ensure `patterns` remains registered and covered.
 
 **Acceptance criteria:**
 - Every user-facing compiled panel is reachable from top-level navigation or documented as nested/internal.
@@ -450,6 +452,14 @@
 - `rg -n "addPanel|requiredPanelIds|PanelDescriptor|panel registry" apps/editor editor tests`
 - `cmake --build --preset dev-debug --target urpg_editor urpg_tests`
 - Manual editor navigation verification is unverified until a developer launches `urpg_editor` and confirms every top-level category.
+
+**Verification results:**
+- `rg -n "addPanel|requiredPanelIds|PanelDescriptor|panel registry" apps/editor editor tests` confirmed top-level shell registration now flows through the registry and registry tests.
+- `cmake --build --preset dev-debug --target urpg_editor urpg_tests` passed.
+- `build\dev-ninja-debug\urpg_tests.exe "[editor][panel][registry]"` passed 3 test cases and 436 assertions.
+- `build\dev-ninja-debug\urpg_editor.exe --headless --smoke --project-root .\content\fixtures\editor_smoke_project --smoke-output .\build\dev-ninja-debug\editor_smoke\editor_state.json --smoke-snapshot-root .\build\dev-ninja-debug\editor_smoke\snapshots` passed and wrote an error-free smoke report.
+- `ctest --preset dev-all -R "editor|panel|smoke" --output-on-failure` passed 34 tests with 0 failures.
+- Manual editor navigation remains unverified until a developer launches the graphical editor.
 
 ### P1-005 - Expand Editor Smoke Coverage To All Registered Panels
 

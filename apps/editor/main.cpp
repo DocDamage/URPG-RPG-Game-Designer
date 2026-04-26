@@ -9,6 +9,7 @@
 #include "engine/core/analytics/analytics_privacy_controller.h"
 #include "engine/core/analytics/analytics_uploader.h"
 #include "engine/core/app_cli.h"
+#include "engine/core/editor/editor_panel_registry.h"
 #include "engine/core/editor/editor_shell.h"
 #include "engine/core/engine_shell.h"
 #include "engine/core/mod/mod_loader.h"
@@ -33,11 +34,13 @@
 #include <chrono>
 #include <exception>
 #include <filesystem>
+#include <functional>
 #include <fstream>
 #include <iostream>
 #include <memory>
 #include <string>
 #include <thread>
+#include <unordered_map>
 #include <vector>
 
 namespace {
@@ -88,37 +91,60 @@ bool registerEditorPanels(urpg::editor::EditorShell& editor_shell, EditorPanelRu
     runtime.analytics_panel.bindPrivacyController(&runtime.analytics_privacy_controller);
     runtime.diagnostics_workspace.bindAbilityRuntime(runtime.ability_runtime);
 
-    using urpg::editor::EditorPanelDescriptor;
+    using PanelRenderFactory = std::function<urpg::editor::EditorShell::RenderCallback(EditorPanelRuntime&)>;
+    const std::unordered_map<std::string, PanelRenderFactory> renderFactories = {
+        {"diagnostics",
+         [](EditorPanelRuntime& panelRuntime) {
+             return [&panelRuntime](const urpg::editor::EditorFrameContext&) {
+                 panelRuntime.diagnostics_workspace.update();
+                 panelRuntime.diagnostics_workspace.render();
+             };
+         }},
+        {"assets",
+         [](EditorPanelRuntime& panelRuntime) {
+             return [&panelRuntime](const urpg::editor::EditorFrameContext&) {
+                 panelRuntime.asset_library_panel.render();
+             };
+         }},
+        {"ability",
+         [](EditorPanelRuntime& panelRuntime) {
+             return [&panelRuntime](const urpg::editor::EditorFrameContext&) {
+                 panelRuntime.ability_inspector_panel.update(panelRuntime.ability_runtime);
+                 panelRuntime.ability_inspector_panel.render();
+             };
+         }},
+        {"patterns",
+         [](EditorPanelRuntime& panelRuntime) {
+             return [&panelRuntime](const urpg::editor::EditorFrameContext&) {
+                 panelRuntime.pattern_field_panel.render();
+             };
+         }},
+        {"mod",
+         [](EditorPanelRuntime& panelRuntime) {
+             return [&panelRuntime](const urpg::editor::EditorFrameContext&) {
+                 panelRuntime.mod_manager_panel.render();
+             };
+         }},
+        {"analytics",
+         [](EditorPanelRuntime& panelRuntime) {
+             return [&panelRuntime](const urpg::editor::EditorFrameContext&) {
+                 panelRuntime.analytics_panel.render();
+             };
+         }},
+    };
 
     bool ok = true;
-    ok = editor_shell.addPanel(EditorPanelDescriptor{"diagnostics", "Diagnostics", "System"},
-                               [&runtime](const urpg::editor::EditorFrameContext&) {
-                                   runtime.diagnostics_workspace.update();
-                                   runtime.diagnostics_workspace.render();
-                               }) &&
-         ok;
-    ok = editor_shell.addPanel(
-             EditorPanelDescriptor{"assets", "Assets", "Content"},
-             [&runtime](const urpg::editor::EditorFrameContext&) { runtime.asset_library_panel.render(); }) &&
-         ok;
-    ok = editor_shell.addPanel(EditorPanelDescriptor{"ability", "Ability Inspector", "Gameplay"},
-                               [&runtime](const urpg::editor::EditorFrameContext&) {
-                                   runtime.ability_inspector_panel.update(runtime.ability_runtime);
-                                   runtime.ability_inspector_panel.render();
-                               }) &&
-         ok;
-    ok = editor_shell.addPanel(
-             EditorPanelDescriptor{"patterns", "Pattern Field Editor", "Gameplay"},
-             [&runtime](const urpg::editor::EditorFrameContext&) { runtime.pattern_field_panel.render(); }) &&
-         ok;
-    ok = editor_shell.addPanel(
-             EditorPanelDescriptor{"mod", "Mod Manager", "Runtime"},
-             [&runtime](const urpg::editor::EditorFrameContext&) { runtime.mod_manager_panel.render(); }) &&
-         ok;
-    ok = editor_shell.addPanel(
-             EditorPanelDescriptor{"analytics", "Analytics", "Runtime"},
-             [&runtime](const urpg::editor::EditorFrameContext&) { runtime.analytics_panel.render(); }) &&
-         ok;
+    for (const auto& panel : urpg::editor::topLevelEditorPanels()) {
+        const auto factory = renderFactories.find(panel.id);
+        if (factory == renderFactories.end()) {
+            ok = false;
+            continue;
+        }
+
+        ok = editor_shell.addPanel(
+                 urpg::editor::EditorPanelDescriptor{panel.id, panel.title, panel.category}, factory->second(runtime)) &&
+             ok;
+    }
 
     return ok;
 }
@@ -169,9 +195,7 @@ nlohmann::json panelSnapshotJson(const urpg::editor::EditorShell& editorShell) {
 
 int runSmokeWorkflow(urpg::EngineShell& engineShell, urpg::editor::EditorShell& editorShell,
                      const urpg::cli::EditorCliOptions& options) {
-    static constexpr std::string_view requiredPanels[] = {
-        "diagnostics", "assets", "ability", "mod", "analytics",
-    };
+    const auto requiredPanels = urpg::editor::requiredTopLevelPanelIds();
 
     nlohmann::json report = {
         {"schema", "urpg.editor_smoke.v1"},
@@ -186,18 +210,18 @@ int runSmokeWorkflow(urpg::EngineShell& engineShell, urpg::editor::EditorShell& 
         report["errors"].push_back("project_root_missing");
     }
 
-    for (const auto panelId : requiredPanels) {
+    for (const auto& panelId : requiredPanels) {
         if (!editorShell.hasPanel(panelId)) {
-            report["errors"].push_back(std::string("missing_panel:") + std::string(panelId));
+            report["errors"].push_back(std::string("missing_panel:") + panelId);
             continue;
         }
         if (!editorShell.openPanel(panelId)) {
-            report["errors"].push_back(std::string("open_panel_failed:") + std::string(panelId));
+            report["errors"].push_back(std::string("open_panel_failed:") + panelId);
             continue;
         }
         report["opened_panels"].push_back(panelId);
         if (!runEditorFrame(engineShell, editorShell, false)) {
-            report["errors"].push_back(std::string("render_panel_failed:") + std::string(panelId));
+            report["errors"].push_back(std::string("render_panel_failed:") + panelId);
             continue;
         }
         report["rendered_panels"].push_back(panelId);
