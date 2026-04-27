@@ -55,7 +55,7 @@ This plan converts the game/app completion audit into ordered implementation wor
   4. Emit startup diagnostics on missing/malformed mapping files.
   5. Fall back to defaults when no mapping file exists.
 - Acceptance criteria: Saved input mappings change runtime controls after restart.
-- Verification command or manual test: `ctest --preset dev-all -R "input.*remap|settings|startup" --output-on-failure`
+- Verification command or manual test: `ctest --preset dev-all -R "InputRemapStore|settings|startup" --output-on-failure`
 
 ### Task P0-04
 
