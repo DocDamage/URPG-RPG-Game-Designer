@@ -184,7 +184,7 @@ std::vector<uint8_t> DecodeBundleEntryBytes(const std::filesystem::path& path, E
     return payload;
 }
 
-#ifdef URPG_EXPORT_SMOKE_APP_PATH
+#if defined(_WIN32) && defined(URPG_EXPORT_SMOKE_APP_PATH)
 std::filesystem::path GetExportSmokeAppPath() {
     return std::filesystem::path(URPG_EXPORT_SMOKE_APP_PATH);
 }
