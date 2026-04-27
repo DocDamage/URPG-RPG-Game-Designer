@@ -239,6 +239,7 @@ add_library(urpg_core
     $<$<NOT:$<BOOL:${URPG_SKIP_OPENGL}>>:engine/core/platform/opengl_renderer.cpp>
     $<$<NOT:$<BOOL:${URPG_SKIP_OPENGL}>>:engine/core/platform/gl_shader.cpp>
     $<$<NOT:$<BOOL:${URPG_SKIP_OPENGL}>>:engine/core/platform/gl_texture.cpp>
+    $<$<BOOL:${URPG_SKIP_OPENGL}>:engine/core/platform/headless_texture.cpp>
     engine/core/render/asset_loader.cpp
     engine/core/render/tilemap_renderer.cpp
     engine/core/render/sprite_animator.cpp
