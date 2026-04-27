@@ -248,6 +248,7 @@ try {
         urpg_editor `
         urpg_audio_smoke `
         urpg_presentation_release_validation `
+        urpg_snapshot_tests `
         urpg_tests
       Assert-LastExitCode "Build release candidate targets"
     }
