@@ -1,15 +1,26 @@
 #include "runtimes/compat_js/data_manager.h"
 
 #include <catch2/catch_test_macros.hpp>
+#include <filesystem>
 #include <variant>
 
 using namespace urpg::compat;
 using urpg::Array;
 using urpg::Object;
 
+namespace {
+
+std::string sampleProjectDataDirectory() {
+    return (std::filesystem::path(URPG_SOURCE_DIR) / "third_party" / "rpgmaker-mz" / "visumz-sample-project" /
+            "VisuMZ_Sample_Game_Project" / "data")
+        .string();
+}
+
+} // namespace
+
 TEST_CASE("DataManager: database loading and accessors", "[data_manager]") {
     DataManager dm;
-    DataManager::setDataDirectory(URPG_SOURCE_DIR "\\third_party\\rpgmaker-mz\\visumz-sample-project\\VisuMZ_Sample_Game_Project\\data");
+    DataManager::setDataDirectory(sampleProjectDataDirectory());
 
     REQUIRE(dm.loadDatabase());
     // loadDatabase now orchestrates sub-loaders and reads real MZ JSON files
@@ -111,7 +122,7 @@ TEST_CASE("DataManager loadDatabase populates seeded database containers", "[dat
 TEST_CASE("DataManager: enemy battler names preserve string shape across real and seeded loads", "[data_manager]") {
     SECTION("real MZ enemy data keeps battlerName strings") {
         DataManager dm;
-        DataManager::setDataDirectory(URPG_SOURCE_DIR "\\third_party\\rpgmaker-mz\\visumz-sample-project\\VisuMZ_Sample_Game_Project\\data");
+        DataManager::setDataDirectory(sampleProjectDataDirectory());
 
         REQUIRE(dm.loadEnemies());
         const EnemyData* enemy = dm.getEnemy(1);
@@ -372,7 +383,7 @@ TEST_CASE("DataManager: method status registry", "[data_manager]") {
 
 TEST_CASE("DataManager: database accessors as Value", "[data_manager]") {
     DataManager dm;
-    DataManager::setDataDirectory(URPG_SOURCE_DIR "\\third_party\\rpgmaker-mz\\visumz-sample-project\\VisuMZ_Sample_Game_Project\\data");
+    DataManager::setDataDirectory(sampleProjectDataDirectory());
     REQUIRE(dm.loadDatabase());
 
     auto actors = dm.getActorsAsValue();
@@ -417,7 +428,7 @@ TEST_CASE("DataManager: database accessors as Value", "[data_manager]") {
 
 TEST_CASE("DataManager: map data loads real MZ JSON when available", "[data_manager]") {
     DataManager dm;
-    DataManager::setDataDirectory(URPG_SOURCE_DIR "\\third_party\\rpgmaker-mz\\visumz-sample-project\\VisuMZ_Sample_Game_Project\\data");
+    DataManager::setDataDirectory(sampleProjectDataDirectory());
 
     REQUIRE(dm.loadDatabase());
     REQUIRE(dm.loadMapData(2));

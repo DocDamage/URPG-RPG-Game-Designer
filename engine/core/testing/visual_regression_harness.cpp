@@ -222,6 +222,8 @@ std::optional<SceneSnapshot> VisualRegressionHarness::captureScene(
         case CaptureBackend::OpenGL:
 #ifdef URPG_HEADLESS
             (void)renderCallback;
+            (void)width;
+            (void)height;
             if (errorMessage != nullptr) {
                 *errorMessage = "Renderer-backed OpenGL scene capture is unavailable in headless builds.";
             }

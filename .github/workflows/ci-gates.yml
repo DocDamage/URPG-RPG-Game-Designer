@@ -39,6 +39,7 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y sccache xvfb libgl1-mesa-dev libx11-dev libxext-dev libxrandr-dev libxcursor-dev libxi-dev libxinerama-dev libxxf86vm-dev libxss-dev libasound2-dev libpulse-dev clang-format clang-tidy
+          if ! command -v powershell >/dev/null 2>&1 && command -v pwsh >/dev/null 2>&1; then sudo ln -s "$(command -v pwsh)" /usr/local/bin/powershell; fi
       - name: Install pre-commit
         run: python -m pip install pre-commit
       - name: Cache sccache
@@ -272,6 +273,7 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y sccache xvfb libgl1-mesa-dev libx11-dev libxext-dev libxrandr-dev libxcursor-dev libxi-dev libxinerama-dev libxxf86vm-dev libxss-dev libasound2-dev libpulse-dev
+          if ! command -v powershell >/dev/null 2>&1 && command -v pwsh >/dev/null 2>&1; then sudo ln -s "$(command -v pwsh)" /usr/local/bin/powershell; fi
       - name: Cache sccache
         uses: actions/cache@v4
         with:

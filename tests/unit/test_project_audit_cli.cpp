@@ -24,11 +24,7 @@ struct ProcessResult {
 };
 
 fs::path projectAuditExecutablePath() {
-#if defined(_WIN32)
-    return fs::path(URPG_SOURCE_DIR) / "build" / "dev-ninja-debug" / "urpg_project_audit.exe";
-#else
-    return fs::path(URPG_SOURCE_DIR) / "build" / "dev-ninja-debug" / "urpg_project_audit";
-#endif
+    return fs::path(URPG_PROJECT_AUDIT_PATH);
 }
 
 std::string readTextFile(const fs::path& path) {

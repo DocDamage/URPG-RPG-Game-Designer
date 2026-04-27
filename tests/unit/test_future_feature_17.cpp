@@ -18,15 +18,12 @@ std::string readText(const std::filesystem::path& path) {
 }
 
 std::filesystem::path projectAuditExecutable() {
-#if defined(_WIN32)
-    return std::filesystem::path(URPG_SOURCE_DIR) / "build" / "dev-ninja-debug" / "urpg_project_audit.exe";
-#else
-    return std::filesystem::path(URPG_SOURCE_DIR) / "build" / "dev-ninja-debug" / "urpg_project_audit";
-#endif
+    return std::filesystem::path(URPG_PROJECT_AUDIT_PATH);
 }
 
 int runPowerShellScript(const std::filesystem::path& script, const std::string& args = "") {
-    const std::string command = "powershell -ExecutionPolicy Bypass -File \"" + script.string() + "\" " + args;
+    const std::string command =
+        std::string(URPG_POWERSHELL_EXE) + " -ExecutionPolicy Bypass -File \"" + script.string() + "\" " + args;
     return std::system(command.c_str());
 }
 
@@ -98,9 +95,9 @@ TEST_CASE("Project audit exposes completeness as non-authoritative advisory", "[
     const auto outputPath = std::filesystem::temp_directory_path() / "urpg_project_audit_ffs17.json";
     const auto readinessPath =
         std::filesystem::path(URPG_SOURCE_DIR) / "content" / "readiness" / "readiness_status.json";
-    const std::string command = "powershell -ExecutionPolicy Bypass -Command \"& '" + exe.string() +
-                                "' --json --input '" + readinessPath.string() + "' | Out-File -Encoding utf8 '" +
-                                outputPath.string() + "'\"";
+    const std::string command = std::string(URPG_POWERSHELL_EXE) + " -ExecutionPolicy Bypass -Command \"& '" +
+                                exe.string() + "' --json --input '" + readinessPath.string() +
+                                "' | Out-File -Encoding utf8 '" + outputPath.string() + "'\"";
     REQUIRE(std::system(command.c_str()) == 0);
 
     const auto report = nlohmann::json::parse(readText(outputPath));

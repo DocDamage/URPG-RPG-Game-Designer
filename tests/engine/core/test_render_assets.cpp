@@ -219,11 +219,10 @@ TEST_CASE("RendererBackend frame-command adapter preserves command payloads for 
     REQUIRE(renderer.capturedCommands[2]->zOrder == 9);
 }
 
+#ifdef URPG_HEADLESS
+#else
 TEST_CASE("OpenGLRenderer frame-owned text and rect commands stay silent before GL initialization",
           "[render][core][td02][opengl]") {
-#ifdef URPG_HEADLESS
-    SKIP("OpenGL renderer is not built in headless configuration");
-#else
     OpenGLRenderer renderer;
     renderer.onResize(320, 240);
 
@@ -260,14 +259,10 @@ TEST_CASE("OpenGLRenderer frame-owned text and rect commands stay silent before 
     std::cout.rdbuf(originalBuffer);
 
     REQUIRE(captured.str().empty());
-#endif
 }
 
 TEST_CASE("OpenGLRenderer legacy command intake stays silent before GL initialization",
           "[render][core][td02][opengl]") {
-#ifdef URPG_HEADLESS
-    SKIP("OpenGL renderer is not built in headless configuration");
-#else
     OpenGLRenderer renderer;
     renderer.onResize(160, 120);
 
@@ -291,8 +286,8 @@ TEST_CASE("OpenGLRenderer legacy command intake stays silent before GL initializ
     std::cout.rdbuf(originalBuffer);
 
     REQUIRE(captured.str().empty());
-#endif
 }
+#endif
 
 TEST_CASE("MapScene Render Sync", "[render][scene]") {
     auto& layer = RenderLayer::getInstance();
