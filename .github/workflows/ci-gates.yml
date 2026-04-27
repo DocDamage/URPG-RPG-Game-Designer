@@ -38,7 +38,7 @@ jobs:
       - name: Install sccache
         run: |
           sudo apt-get update
-          sudo apt-get install -y sccache xvfb libgl1-mesa-dev clang-format clang-tidy
+          sudo apt-get install -y sccache xvfb libgl1-mesa-dev libx11-dev libxext-dev libxrandr-dev libxcursor-dev libxi-dev libxinerama-dev libxxf86vm-dev libxss-dev libasound2-dev libpulse-dev clang-format clang-tidy
       - name: Install pre-commit
         run: python -m pip install pre-commit
       - name: Cache sccache
@@ -271,7 +271,7 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y sccache xvfb libgl1-mesa-dev
+          sudo apt-get install -y sccache xvfb libgl1-mesa-dev libx11-dev libxext-dev libxrandr-dev libxcursor-dev libxi-dev libxinerama-dev libxxf86vm-dev libxss-dev libasound2-dev libpulse-dev
       - name: Cache sccache
         uses: actions/cache@v4
         with:
