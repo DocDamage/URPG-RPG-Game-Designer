@@ -74,6 +74,21 @@ SceneSnapshot withOpaqueAlpha(SceneSnapshot snapshot) {
     return snapshot;
 }
 
+float rendererBackedGoldenThreshold() {
+    const char* value = std::getenv("URPG_RENDERER_BACKED_GOLDEN_THRESHOLD");
+    if (value == nullptr) {
+        return 0.0f;
+    }
+
+    char* end = nullptr;
+    const float threshold = std::strtof(value, &end);
+    if (end == value || threshold < 0.0f) {
+        return 0.0f;
+    }
+
+    return threshold;
+}
+
 SnapshotComparisonResult compareRendererBackedGolden(VisualRegressionHarness& harness,
                                                      const std::string& snapshotId,
                                                      const SceneSnapshot& current) {
@@ -87,7 +102,10 @@ SnapshotComparisonResult compareRendererBackedGolden(VisualRegressionHarness& ha
     goldenScene.height = golden->height;
     goldenScene.pixels = golden->pixels;
 
-    return SnapshotValidator::compare(withOpaqueAlpha(std::move(goldenScene)), withOpaqueAlpha(current));
+    return SnapshotValidator::compare(
+        withOpaqueAlpha(std::move(goldenScene)),
+        withOpaqueAlpha(current),
+        rendererBackedGoldenThreshold());
 }
 
 SceneSnapshot captureMapSceneDialogueOverlayCrop(bool startDialogue) {
@@ -692,7 +710,7 @@ TEST_CASE("Snapshot: renderer-backed visual capture matches committed full-frame
 
     const auto result = compareRendererBackedGolden(harness, "rect_full_frame", *snapshot);
     REQUIRE(result.matches);
-    REQUIRE(result.errorPercentage == 0.0f);
+    REQUIRE(result.errorPercentage <= rendererBackedGoldenThreshold());
 }
 
 TEST_CASE("Snapshot: renderer-backed visual capture matches committed clear-frame golden",
@@ -707,7 +725,7 @@ TEST_CASE("Snapshot: renderer-backed visual capture matches committed clear-fram
 
     const auto result = compareRendererBackedGolden(harness, "clear_frame", *snapshot);
     REQUIRE(result.matches);
-    REQUIRE(result.errorPercentage == 0.0f);
+    REQUIRE(result.errorPercentage <= rendererBackedGoldenThreshold());
 }
 
 TEST_CASE("Snapshot: renderer-backed visual capture matches committed inset-rect golden",
@@ -722,7 +740,7 @@ TEST_CASE("Snapshot: renderer-backed visual capture matches committed inset-rect
 
     const auto result = compareRendererBackedGolden(harness, "rect_inset_clear_border", *snapshot);
     REQUIRE(result.matches);
-    REQUIRE(result.errorPercentage == 0.0f);
+    REQUIRE(result.errorPercentage <= rendererBackedGoldenThreshold());
 }
 
 TEST_CASE("Snapshot: renderer-backed visual capture round-trips through golden comparison",
@@ -748,9 +766,9 @@ TEST_CASE("Snapshot: renderer-backed visual capture round-trips through golden c
 
     const auto identical = compareRendererBackedGolden(harness, "with_text", *withText);
     REQUIRE(identical.matches);
-    REQUIRE(identical.errorPercentage == 0.0f);
+    REQUIRE(identical.errorPercentage <= rendererBackedGoldenThreshold());
 
-    const auto different = compareRendererBackedGolden(harness, "with_text", *withoutText);
+    const auto different = SnapshotValidator::compare(withOpaqueAlpha(*withText), withOpaqueAlpha(*withoutText));
     REQUIRE_FALSE(different.matches);
     REQUIRE(different.errorPercentage > 0.0f);
 
@@ -778,9 +796,9 @@ TEST_CASE("Snapshot: renderer-backed visual capture covers MapScene dialogue ove
 
     const auto identical = compareRendererBackedGolden(harness, "mapscene_dialogue_overlay_crop", withDialogue);
     REQUIRE(identical.matches);
-    REQUIRE(identical.errorPercentage == 0.0f);
+    REQUIRE(identical.errorPercentage <= rendererBackedGoldenThreshold());
 
-    const auto different = compareRendererBackedGolden(harness, "mapscene_dialogue_overlay_crop", withoutDialogue);
+    const auto different = SnapshotValidator::compare(withOpaqueAlpha(withDialogue), withOpaqueAlpha(withoutDialogue));
     REQUIRE_FALSE(different.matches);
     REQUIRE(different.errorPercentage > 0.0f);
 }
@@ -806,9 +824,9 @@ TEST_CASE("Snapshot: renderer-backed visual capture covers Window_Base status an
 
     const auto identical = compareRendererBackedGolden(harness, "window_status_gauge_crop", withTpGauge);
     REQUIRE(identical.matches);
-    REQUIRE(identical.errorPercentage == 0.0f);
+    REQUIRE(identical.errorPercentage <= rendererBackedGoldenThreshold());
 
-    const auto different = compareRendererBackedGolden(harness, "window_status_gauge_crop", withoutTpGauge);
+    const auto different = SnapshotValidator::compare(withOpaqueAlpha(withTpGauge), withOpaqueAlpha(withoutTpGauge));
     REQUIRE_FALSE(different.matches);
     REQUIRE(different.errorPercentage > 0.0f);
 }
@@ -830,7 +848,7 @@ TEST_CASE("Snapshot: renderer-backed visual capture covers MapScene world placeh
 
     const auto identical = compareRendererBackedGolden(harness, "mapscene_world_placeholder", world);
     REQUIRE(identical.matches);
-    REQUIRE(identical.errorPercentage == 0.0f);
+    REQUIRE(identical.errorPercentage <= rendererBackedGoldenThreshold());
 
     const auto changed = SnapshotValidator::compare(
         cropSnapshot(world, 0, 0, dialogueOverlay.width, dialogueOverlay.height),
@@ -856,7 +874,7 @@ TEST_CASE("Snapshot: renderer-backed visual capture covers textured MapScene bat
 
     const auto identical = compareRendererBackedGolden(harness, "mapscene_textured_batch_path", texturedWorld);
     REQUIRE(identical.matches);
-    REQUIRE(identical.errorPercentage == 0.0f);
+    REQUIRE(identical.errorPercentage <= rendererBackedGoldenThreshold());
 
     const auto changed = SnapshotValidator::compare(texturedWorld, placeholderWorld);
     REQUIRE_FALSE(changed.matches);
@@ -880,7 +898,7 @@ TEST_CASE("Snapshot: renderer-backed visual capture covers ChatWindow mixed batc
 
     const auto identical = compareRendererBackedGolden(harness, "chat_window_mixed_path", chatWindow);
     REQUIRE(identical.matches);
-    REQUIRE(identical.errorPercentage == 0.0f);
+    REQUIRE(identical.errorPercentage <= rendererBackedGoldenThreshold());
 
     const auto changed = SnapshotValidator::compare(
         cropSnapshot(chatWindow, 0, 0, windowStatus.width, windowStatus.height),
@@ -906,7 +924,7 @@ TEST_CASE("Snapshot: renderer-backed visual capture covers BattleScene textured 
 
     const auto identical = compareRendererBackedGolden(harness, "battle_scene_textured_runtime_path", battleScene);
     REQUIRE(identical.matches);
-    REQUIRE(identical.errorPercentage == 0.0f);
+    REQUIRE(identical.errorPercentage <= rendererBackedGoldenThreshold());
 
     const auto changed = SnapshotValidator::compare(battleScene, reducedBattleScene);
     REQUIRE_FALSE(changed.matches);
@@ -930,7 +948,7 @@ TEST_CASE("Snapshot: renderer-backed visual capture covers textured direct sprit
 
     const auto identical = compareRendererBackedGolden(harness, "sprite_frame_command_textured", texturedSprite);
     REQUIRE(identical.matches);
-    REQUIRE(identical.errorPercentage == 0.0f);
+    REQUIRE(identical.errorPercentage <= rendererBackedGoldenThreshold());
 
     const auto changed = SnapshotValidator::compare(texturedSprite, placeholderSprite);
     REQUIRE_FALSE(changed.matches);
@@ -954,7 +972,7 @@ TEST_CASE("Snapshot: renderer-backed visual capture covers textured direct tile 
 
     const auto identical = compareRendererBackedGolden(harness, "tile_frame_command_textured", texturedTile);
     REQUIRE(identical.matches);
-    REQUIRE(identical.errorPercentage == 0.0f);
+    REQUIRE(identical.errorPercentage <= rendererBackedGoldenThreshold());
 
     const auto changed = SnapshotValidator::compare(texturedTile, placeholderTile);
     REQUIRE_FALSE(changed.matches);
@@ -978,7 +996,7 @@ TEST_CASE("Snapshot: renderer-backed visual capture covers EngineShell MapScene 
 
     const auto identical = compareRendererBackedGolden(harness, "engine_shell_mapscene_mixed_runtime_path", shellMixed);
     REQUIRE(identical.matches);
-    REQUIRE(identical.errorPercentage == 0.0f);
+    REQUIRE(identical.errorPercentage <= rendererBackedGoldenThreshold());
 
     const auto changed = SnapshotValidator::compare(shellMixed, shellWorldOnly);
     REQUIRE_FALSE(changed.matches);

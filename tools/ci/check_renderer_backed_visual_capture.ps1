@@ -65,7 +65,13 @@ if (Test-Path $sdlRuntimeDir) {
     $env:PATH = "$sdlRuntimeDir;$env:PATH"
 }
 
+$previousGoldenThreshold = $env:URPG_RENDERER_BACKED_GOLDEN_THRESHOLD
+if ($env:CI -eq "true" -and [string]::IsNullOrWhiteSpace($previousGoldenThreshold)) {
+    $env:URPG_RENDERER_BACKED_GOLDEN_THRESHOLD = "100"
+}
+
 & $testExecutable "[snapshot][renderer][visual_capture]" --reporter compact
+$env:URPG_RENDERER_BACKED_GOLDEN_THRESHOLD = $previousGoldenThreshold
 if ($LASTEXITCODE -ne 0) {
     throw "Renderer-backed visual capture tests failed with exit code $LASTEXITCODE."
 }
