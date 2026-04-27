@@ -2031,7 +2031,22 @@ TEST_CASE("WindowCompatManager registerAllAPIs", "[compat][manager]") {
     manager.registerAllAPIs(ctx);
 }
 
-TEST_CASE("Sprite sprite APIs remain explicitly stubbed in harness bindings", "[compat][manager][quickjs]") {
+TEST_CASE("WindowCompatManager release-required APIs are not registered as stubs", "[compat][manager][quickjs]") {
+    WindowCompatManager manager;
+    QuickJSContext ctx;
+    REQUIRE(ctx.initialize(QuickJSConfig{}));
+
+    manager.registerAllAPIs(ctx);
+
+    const auto statuses = ctx.getAllAPIStatuses();
+    REQUIRE_FALSE(statuses.empty());
+    for (const auto& status : statuses) {
+        INFO(status.apiName);
+        REQUIRE(status.status != CompatStatus::STUB);
+    }
+}
+
+TEST_CASE("Sprite QuickJS bindings mutate deterministic sprite instances", "[compat][manager][quickjs]") {
     WindowCompatManager manager;
     QuickJSContext ctx;
     REQUIRE(ctx.initialize(QuickJSConfig{}));
@@ -2039,28 +2054,46 @@ TEST_CASE("Sprite sprite APIs remain explicitly stubbed in harness bindings", "[
     manager.registerAllAPIs(ctx);
 
     const auto characterStatus = ctx.getAPIStatus("Sprite_Character.setDirection");
-    REQUIRE(characterStatus.status == CompatStatus::STUB);
-    REQUIRE(characterStatus.deviationNote.find("per-instance Sprite_Character state") != std::string::npos);
+    REQUIRE(characterStatus.status == CompatStatus::FULL);
 
     const auto actorStatus = ctx.getAPIStatus("Sprite_Actor.startMotion");
-    REQUIRE(actorStatus.status == CompatStatus::STUB);
-    REQUIRE(actorStatus.deviationNote.find("per-instance Sprite_Actor state") != std::string::npos);
+    REQUIRE(actorStatus.status == CompatStatus::FULL);
 
     const auto animationStatus = ctx.getAPIStatus("Sprite_Actor.isAnimationPlaying");
-    REQUIRE(animationStatus.status == CompatStatus::STUB);
-    REQUIRE(animationStatus.deviationNote.find("per-instance Sprite_Actor state") != std::string::npos);
+    REQUIRE(animationStatus.status == CompatStatus::FULL);
+
+    Sprite_Character character(Sprite_Character::CreateParams{});
+    Sprite_Character::setDefaultInstance(&character);
 
     const auto characterResult = ctx.callMethod("Sprite_Character", "setDirection", {urpg::Value::Int(6)});
     REQUIRE(characterResult.success);
-    REQUIRE(std::holds_alternative<std::monostate>(characterResult.value.v));
+    REQUIRE_FALSE(std::holds_alternative<std::monostate>(characterResult.value.v));
+    REQUIRE(character.getDirection() == 6);
+
+    const auto patternResult = ctx.callMethod("Sprite_Character", "setPattern", {urpg::Value::Int(2)});
+    REQUIRE(patternResult.success);
+    REQUIRE(character.getPattern() == 2);
+
+    Sprite_Actor actor(Sprite_Actor::CreateParams{});
+    Sprite_Actor::setDefaultInstance(&actor);
 
     const auto actorResult = ctx.callMethod("Sprite_Actor", "startMotion", {urpg::Value::Int(3)});
     REQUIRE(actorResult.success);
-    REQUIRE(std::holds_alternative<std::monostate>(actorResult.value.v));
+    REQUIRE_FALSE(std::holds_alternative<std::monostate>(actorResult.value.v));
+    REQUIRE(actor.getMotion() == 3);
+
+    const auto startAnimationResult = ctx.callMethod("Sprite_Actor", "startAnimation", {urpg::Value::Int(7)});
+    REQUIRE(startAnimationResult.success);
+    REQUIRE(actor.isAnimationPlaying());
 
     const auto animationResult = ctx.callMethod("Sprite_Actor", "isAnimationPlaying", {});
     REQUIRE(animationResult.success);
-    REQUIRE(std::holds_alternative<std::monostate>(animationResult.value.v));
+    const auto* animationPlaying = std::get_if<bool>(&animationResult.value.v);
+    REQUIRE(animationPlaying != nullptr);
+    REQUIRE(*animationPlaying);
+
+    Sprite_Character::setDefaultInstance(nullptr);
+    Sprite_Actor::setDefaultInstance(nullptr);
 }
 
 TEST_CASE("Window_Selectable JS bindings return non-nil values", "[compat][window]") {

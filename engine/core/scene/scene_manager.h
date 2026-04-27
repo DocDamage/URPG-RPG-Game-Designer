@@ -14,7 +14,7 @@ namespace urpg::scene {
 /**
  * @brief Native representation of possible engine scenes.
  */
-enum class SceneType : uint8_t { BOOT, TITLE, MAP, BATTLE, MENU, GAMEOVER };
+enum class SceneType : uint8_t { BOOT, TITLE, MAP, BATTLE, MENU, OPTIONS, GAMEOVER };
 
 /**
  * @brief Abstract base class for all engine scenes.

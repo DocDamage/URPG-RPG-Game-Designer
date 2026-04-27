@@ -100,7 +100,7 @@ TEST_CASE("Runtime startup save discovery enables Continue for newest valid prim
                                               continueCalled = true;
                                               return urpg::scene::RuntimeTitleCommandResult{
                                                   true, true, "continue_loaded", "loaded"};
-                                          }});
+                                          }, {}});
     title.setContinueAvailability(state.hasLoadableSave(), state.continueDisabledReason());
     const auto commandResult = title.activateCommand(urpg::scene::RuntimeTitleCommandId::Continue);
     REQUIRE(commandResult.success);

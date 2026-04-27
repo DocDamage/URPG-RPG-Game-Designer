@@ -1,3 +1,4 @@
+#include "engine/core/diagnostics/runtime_diagnostics.h"
 #include "engine/core/scene/battle_scene.h"
 #include "engine/core/battle/battle_core.h"
 #include "engine/core/sprite_batcher.h"
@@ -141,10 +142,11 @@ TEST_CASE("BattleScene Logic: lifecycle and automated turn progression", "[battl
     }
 }
 
-TEST_CASE("BattleScene: missing battleback emits a named diagnostic during startup", "[battle][scene][assets]") {
+TEST_CASE("battle assets: missing battleback emits a named diagnostic during startup", "[battle][scene][assets]") {
     auto& dm = urpg::compat::DataManager::instance();
     REQUIRE(dm.loadDatabase());
     dm.setupNewGame();
+    urpg::diagnostics::RuntimeDiagnostics::clear();
 
     auto battle = std::make_shared<BattleScene>(std::vector<std::string>{"1"});
 
@@ -154,13 +156,21 @@ TEST_CASE("BattleScene: missing battleback emits a named diagnostic during start
     std::cerr.rdbuf(originalBuffer);
 
     REQUIRE(captured.str().find("MISSING_BATTLEBACK") != std::string::npos);
-    REQUIRE(captured.str().find("img/battlebacks1/Grassland.png") != std::string::npos);
+    REQUIRE(captured.str().find("Grassland.png") == std::string::npos);
+    REQUIRE(captured.str().find("no battleback was configured") != std::string::npos);
+
+    const auto diagnostics = urpg::diagnostics::RuntimeDiagnostics::snapshot();
+    REQUIRE(std::any_of(diagnostics.begin(), diagnostics.end(), [](const auto& diagnostic) {
+        return diagnostic.subsystem == "scene.battle" && diagnostic.code == "MISSING_BATTLEBACK" &&
+               diagnostic.severity == urpg::diagnostics::DiagnosticSeverity::Error;
+    }));
 }
 
-TEST_CASE("BattleScene: compat-selected battleback path is attempted before fallback", "[battle][scene][assets]") {
+TEST_CASE("battle assets: compat-selected battleback path is attempted without fallback", "[battle][scene][assets]") {
     auto& dm = urpg::compat::DataManager::instance();
     REQUIRE(dm.loadDatabase());
     dm.setupNewGame();
+    urpg::diagnostics::RuntimeDiagnostics::clear();
 
     urpg::compat::BattleManager::instance().changeBattleBackground("ruins_night");
     auto battle = std::make_shared<BattleScene>(std::vector<std::string>{"1"});
@@ -172,7 +182,13 @@ TEST_CASE("BattleScene: compat-selected battleback path is attempted before fall
 
     REQUIRE(captured.str().find("MISSING_BATTLEBACK") != std::string::npos);
     REQUIRE(captured.str().find("img/battlebacks1/ruins_night.png") != std::string::npos);
-    REQUIRE(captured.str().find("img/battlebacks1/Grassland.png") != std::string::npos);
+    REQUIRE(captured.str().find("Grassland.png") == std::string::npos);
+
+    const auto diagnostics = urpg::diagnostics::RuntimeDiagnostics::snapshot();
+    REQUIRE(std::any_of(diagnostics.begin(), diagnostics.end(), [](const auto& diagnostic) {
+        return diagnostic.subsystem == "scene.battle" && diagnostic.code == "MISSING_BATTLEBACK" &&
+               diagnostic.severity == urpg::diagnostics::DiagnosticSeverity::Error;
+    }));
 
     urpg::compat::BattleManager::instance().changeBattleBackground("");
 }

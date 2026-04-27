@@ -1,6 +1,6 @@
 #pragma once
 
-// WindowCompat - Core Surface Stubs
+// WindowCompat - Core Compat Surfaces
 // Phase 2 - Compat Layer
 //
 // This defines the MZ Window API compatibility surface.
@@ -508,6 +508,7 @@ class Sprite_Character {
 
     std::optional<SpriteBitmapInfo> getBitmapInfo() const;
     static std::optional<SpriteBitmapInfo> lookupBitmapInfo(BitmapHandle handle);
+    static void setDefaultInstance(Sprite_Character* instance);
 
     // Register API
     static void registerAPI(QuickJSContext& ctx);
@@ -532,6 +533,7 @@ class Sprite_Character {
     Rect sourceRect_{};
     int32_t animationFrameCounter_ = 0;
     BitmapHandle bitmap_ = INVALID_BITMAP;
+    static Sprite_Character* defaultInstance_;
 };
 
 // Sprite_Actor - Battle actor sprite
@@ -593,6 +595,7 @@ class Sprite_Actor {
 
     std::optional<SpriteBitmapInfo> getBitmapInfo() const;
     static std::optional<SpriteBitmapInfo> lookupBitmapInfo(BitmapHandle handle);
+    static void setDefaultInstance(Sprite_Actor* instance);
 
     // Register API
     static void registerAPI(QuickJSContext& ctx);
@@ -620,6 +623,7 @@ class Sprite_Actor {
     std::string currentEffect_;
     int32_t effectDurationFrames_ = 0;
     BitmapHandle bitmap_ = INVALID_BITMAP;
+    static Sprite_Actor* defaultInstance_;
 };
 
 // WindowCompatManager - Manages all window instances

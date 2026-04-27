@@ -13,6 +13,7 @@ namespace urpg::tools {
 ExportPackager::ExportResult ExportPackager::runExport(const ExportConfig& config) {
     std::string log;
     log += "Starting export for target: " + targetToString(config.target) + "\n";
+    log += "Export mode: " + std::string(config.mode == ExportMode::Release ? "release" : "dev_bootstrap") + "\n";
 
     if (!config.outputDir.empty()) {
         std::error_code mkdirError;
@@ -47,8 +48,9 @@ ExportPackager::ExportResult ExportPackager::runExport(const ExportConfig& confi
     // 3. Script Packing (with optional obfuscation 4.6)
     packScripts(config, log);
 
-    // 4. Binary Synthesis
-    log += "Synthesizing final executable...\n";
+    // 4. Runtime Artifact Staging
+    log += config.mode == ExportMode::Release ? "Staging release runtime artifacts...\n"
+                                               : "Synthesizing dev bootstrap runtime artifacts...\n";
     auto stageResult = export_packager_detail::stageExecutableArtifacts(config);
     log += stageResult.log;
     auto executableFiles = std::move(stageResult.files);
@@ -57,6 +59,12 @@ ExportPackager::ExportResult ExportPackager::runExport(const ExportConfig& confi
         return {false, log, bundles};
     }
     bundles.insert(bundles.end(), executableFiles.begin(), executableFiles.end());
+
+    if (config.mode == ExportMode::Release) {
+        log += "Export output is intended to be playable release staging.\n";
+    } else {
+        log += "Export output is bootstrap-only and not a playable release package.\n";
+    }
 
     return {true, log, bundles};
 }
@@ -73,14 +81,22 @@ ExportValidationResult ExportPackager::validateBeforeExport(const ExportConfig& 
         }
     }
 
+    if (config.mode == ExportMode::Release) {
+        if (config.target == ExportTarget::Web_WASM) {
+            errors.emplace_back("Release Web export requires a real WebAssembly/runtime artifact; dev bootstrap "
+                                "Web output is not accepted for release.");
+        } else if (config.runtimeBinaryPath.empty()) {
+            errors.emplace_back("Release native export requires runtimeBinaryPath for a real runtime binary.");
+        }
+    }
+
     if (!config.runtimeBinaryPath.empty() && config.target != ExportTarget::Web_WASM) {
         std::filesystem::path runtimeBinary(config.runtimeBinaryPath);
         if (runtimeBinary.empty() || !std::filesystem::exists(runtimeBinary) ||
             !std::filesystem::is_regular_file(runtimeBinary)) {
-            errors.emplace_back("Missing runtime binary for real native smoke export: " + config.runtimeBinaryPath);
+            errors.emplace_back("Missing runtime binary for real native export: " + config.runtimeBinaryPath);
         } else if (config.target == ExportTarget::Windows_x64 && runtimeBinary.extension() != ".exe") {
-            errors.emplace_back("Real Windows smoke export requires an .exe runtime binary: " +
-                                config.runtimeBinaryPath);
+            errors.emplace_back("Real Windows export requires an .exe runtime binary: " + config.runtimeBinaryPath);
         }
     }
 

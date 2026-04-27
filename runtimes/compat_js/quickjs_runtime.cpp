@@ -791,10 +791,17 @@ ScriptResult QuickJSContext::callMethod(const std::string& objectName, const std
             return result;
         }
         if (it->second.status == CompatStatus::STUB) {
+            QuickJSDiagnostic diagnostic;
+            diagnostic.operation = "quickjs_stub_api_call";
+            diagnostic.message = "Stub API called: " + fullName;
+            diagnostic.severity = CompatSeverity::WARN;
+            diagnostic.sourceLocation = fullName;
+            impl_->diagnostics.push_back(std::move(diagnostic));
             result.success = true;
             result.value = Value::Nil();
+            result.sourceLocation = fullName;
             lastError_.clear();
-            return result; // No-op for stubs
+            return result;
         }
     }
 

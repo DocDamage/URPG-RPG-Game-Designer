@@ -17,7 +17,7 @@ void addDiagnostic(std::vector<BattleAuthoringDiagnostic>& diagnostics,
 }
 
 bool assetAvailable(const std::string& path, const std::set<std::string>& available_assets) {
-    return path.empty() || available_assets.contains(path);
+    return !path.empty() && available_assets.contains(path);
 }
 
 } // namespace
@@ -70,11 +70,15 @@ BattlePresentationValidationResult ValidateBattlePresentationProfile(
 ) {
     BattlePresentationValidationResult result;
 
+    if (profile.battleback1.empty()) {
+        addDiagnostic(result.diagnostics, BattleAuthoringSeverity::Error, "required_battleback",
+                      "Battle presentation profile must define battleback1 for release.", "battleback1");
+    }
     if (!assetAvailable(profile.battleback1, available_assets)) {
         addDiagnostic(result.diagnostics, BattleAuthoringSeverity::Error, "missing_battleback",
                       "Battleback asset is not available: " + profile.battleback1, profile.battleback1);
     }
-    if (!assetAvailable(profile.battleback2, available_assets)) {
+    if (!profile.battleback2.empty() && !assetAvailable(profile.battleback2, available_assets)) {
         addDiagnostic(result.diagnostics, BattleAuthoringSeverity::Error, "missing_battleback",
                       "Battleback asset is not available: " + profile.battleback2, profile.battleback2);
     }

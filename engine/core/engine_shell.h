@@ -100,6 +100,7 @@ class EngineShell {
             activeScene->handleInput(m_inputCore);
             activeScene->onUpdate(dt);
         }
+        m_inputCore.endFrame();
 
         // 4. Record and Render Frame
         if (m_renderer && m_batcher) {

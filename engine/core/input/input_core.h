@@ -42,6 +42,11 @@ class InputCore {
     void mapKey(int32_t keyCode, InputAction action) { m_keyMaps[keyCode] = action; }
 
     /**
+     * @brief Clears all raw key mappings while preserving current action state.
+     */
+    void clearKeyMappings() { m_keyMaps.clear(); }
+
+    /**
      * @brief Processes a raw key event from the OS/Platform layer.
      */
     void processKeyEvent(int32_t keyCode, ActionState state) {
@@ -60,6 +65,14 @@ class InputCore {
      * @brief Provides a way to manually update an action state (e.g., from a mapping function).
      */
     void updateActionState(InputAction action, ActionState state) {
+        if (state == ActionState::Pressed) {
+            if (auto it = m_actionStates.find(action);
+                it != m_actionStates.end() &&
+                (it->second == ActionState::Pressed || it->second == ActionState::Held)) {
+                return;
+            }
+        }
+
         m_actionStates[action] = state;
         for (auto& handler : m_handlers) {
             handler(action, state);
@@ -84,6 +97,32 @@ class InputCore {
             return it->second == ActionState::Pressed;
         }
         return false;
+    }
+
+    /**
+     * @brief Checks whether an action was newly released on the current input tick.
+     */
+    bool isActionJustReleased(InputAction action) const {
+        if (auto it = m_actionStates.find(action); it != m_actionStates.end()) {
+            return it->second == ActionState::Released;
+        }
+        return false;
+    }
+
+    /**
+     * @brief Advances transient per-frame states after scene input has been handled.
+     */
+    void endFrame() {
+        for (auto it = m_actionStates.begin(); it != m_actionStates.end();) {
+            if (it->second == ActionState::Pressed) {
+                it->second = ActionState::Held;
+                ++it;
+            } else if (it->second == ActionState::Released) {
+                it = m_actionStates.erase(it);
+            } else {
+                ++it;
+            }
+        }
     }
 
     void addHandler(ActionHandler handler) { m_handlers.push_back(std::move(handler)); }

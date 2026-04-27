@@ -14,6 +14,7 @@
 #include "engine/core/ui/chat_window.h"
 #include "scene_manager.h"
 #include <cstdint>
+#include <filesystem>
 #include <memory>
 #include <string>
 #include <vector>
@@ -26,6 +27,16 @@ namespace urpg::scene {
 struct TileData {
     uint16_t tileId = 0;
     bool isPassable = true;
+};
+
+struct MapAssetReference {
+    std::string id;
+    std::filesystem::path path;
+};
+
+struct MapAssetReferences {
+    MapAssetReference player_sprite;
+    MapAssetReference tileset;
 };
 
 /**
@@ -83,6 +94,9 @@ class MapScene : public GameScene {
      * @brief Setup the player's visual sprite.
      */
     void setPlayerCharacter(const std::string& name, int index);
+    void setAssetReferences(MapAssetReferences references);
+    const MapAssetReferences& assetReferences() const { return m_assetReferences; }
+    const std::vector<std::string>& assetDiagnostics() const { return m_assetDiagnostics; }
 
     /**
      * @brief Manually override passability for a specific tile.
@@ -185,6 +199,7 @@ class MapScene : public GameScene {
   private:
     void rebuildTileRenderCache();
     void submitCachedTileCommands(urpg::RenderLayer& layer) const;
+    void validateRenderAssetReferences();
 
     std::string m_mapId;
     int m_width;
@@ -192,6 +207,9 @@ class MapScene : public GameScene {
     std::vector<TileData> m_tiles;
     std::vector<urpg::TileCommand> m_cachedTileCommands;
     bool m_renderLayerDirty = true;
+    MapAssetReferences m_assetReferences;
+    std::vector<std::string> m_assetDiagnostics;
+    bool m_assetReferencesValidated = false;
 
     // Components
     urpg::MovementComponent m_playerMovement;
@@ -208,5 +226,8 @@ class MapScene : public GameScene {
     urpg::ability::AbilitySystemComponent m_playerAbilitySystem;
     std::vector<InteractionAbilityBinding> m_interaction_ability_bindings;
 };
+
+MapAssetReferences loadRuntimeMapAssetReferences(const std::filesystem::path& project_root,
+                                                 const std::string& map_id);
 
 } // namespace urpg::scene

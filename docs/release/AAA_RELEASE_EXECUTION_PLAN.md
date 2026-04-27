@@ -20,7 +20,7 @@ This plan converts the game/app completion audit into ordered implementation wor
   5. Render visible focus/disabled state in `onUpdate()`.
   6. Preserve existing callback behavior for New Game, Continue, Exit.
 - Acceptance criteria: Title screen can be navigated and activated through runtime input, not only direct test calls.
-- Verification command or manual test: `ctest --preset dev-all -R "RuntimeTitleScene|runtime title" --output-on-failure`
+- Verification command or manual test: `ctest --preset dev-all -R "RuntimeTitleScene" --output-on-failure`
 
 ### Task P0-02
 
@@ -38,7 +38,7 @@ This plan converts the game/app completion audit into ordered implementation wor
   5. Call advancement once per `EngineShell::tick()` after scene input handling.
   6. Update tests that currently rely on sticky `Pressed`.
 - Acceptance criteria: Holding Confirm does not repeatedly activate one-shot commands; held movement still works.
-- Verification command or manual test: `ctest --preset dev-all -R "input|RuntimeTitleScene|map_scene|menu" --output-on-failure`
+- Verification command or manual test: `ctest --preset dev-all -R "input|RuntimeTitleScene|MapScene|menu" --output-on-failure`
 
 ### Task P0-03
 
@@ -72,7 +72,7 @@ This plan converts the game/app completion audit into ordered implementation wor
   4. Keep bounded bootstrap mode only for tests/dev smoke.
   5. Update export logs to state whether output is playable or bootstrap-only.
 - Acceptance criteria: Release export cannot silently produce marker/bootstrap artifacts.
-- Verification command or manual test: `ctest --preset dev-all -R "export.*packager|export.*validator" --output-on-failure`
+- Verification command or manual test: `ctest --preset dev-all -R "ExportPackager|ExportValidator" --output-on-failure`
 
 ## Phase 1 - Unwired UI, Routes, Handlers, And Feature Surfaces
 
@@ -86,11 +86,11 @@ This plan converts the game/app completion audit into ordered implementation wor
 - Risk level: High
 - Exact implementation steps:
   1. Classify every registry panel as `ReleaseTopLevel`, `Nested`, `DevOnly`, or `Deferred`.
-  2. Remove "awaiting shell workflow wiring" from panels intended for release.
+  2. Remove legacy pending-wiring wording from panels intended for release.
   3. Add explicit reasons for deferred/dev-only panels.
   4. Align docs with actual exposure.
 - Acceptance criteria: No release-claimed panel remains hidden without a documented release exclusion.
-- Verification command or manual test: `rg -n "awaiting shell workflow wiring|Compiled .*awaiting" engine/core/editor docs`
+- Verification command or manual test: confirm no legacy pending-wiring wording remains in `engine/core/editor` or `docs`.
 
 ### Task P1-02
 
@@ -123,7 +123,7 @@ This plan converts the game/app completion audit into ordered implementation wor
   4. Register `load_draft` from the same storage.
   5. Surface success/error feedback in panel snapshot and ImGui UI.
 - Acceptance criteria: Preview, Apply, Save, and Load buttons perform real behavior or report actionable errors.
-- Verification command or manual test: `ctest --preset dev-all -R "ability.*inspector|ability.*editor" --output-on-failure`
+- Verification command or manual test: `ctest --preset dev-all -R "Ability Inspector|Ability end-to-end" --output-on-failure`
 
 ### Task P1-04
 
@@ -174,7 +174,7 @@ This plan converts the game/app completion audit into ordered implementation wor
   3. Replace hardcoded `hero_sprite` and `default_tileset`.
   4. Emit missing asset diagnostics before rendering placeholders.
 - Acceptance criteria: Runtime map uses bundled/project assets, not test-only logical IDs.
-- Verification command or manual test: `ctest --preset dev-all -R "map|render_assets|runtime_bundle" --output-on-failure`
+- Verification command or manual test: `ctest --preset dev-all -R "MapScene|AssetLoader|Runtime map asset" --output-on-failure`
 
 ### Task P2-02
 
@@ -240,7 +240,7 @@ This plan converts the game/app completion audit into ordered implementation wor
   3. Return success/failure from playback APIs where callers need feedback.
   4. Surface backend diagnostics in editor/runtime snapshots.
 - Acceptance criteria: Missing audio assets do not appear active.
-- Verification command or manual test: `ctest --preset dev-all -R "audio|state_audio_sync" --output-on-failure`
+- Verification command or manual test: `ctest --preset dev-all -R "audio|AudioCore: GlobalState" --output-on-failure`
 
 ### Task P3-02
 
@@ -256,7 +256,7 @@ This plan converts the game/app completion audit into ordered implementation wor
   3. Record diagnostics for invalid config.
   4. Add tests for malformed config values.
 - Acceptance criteria: Malformed `audio.*` config cannot crash runtime.
-- Verification command or manual test: `ctest --preset dev-all -R "audio|settings|global_state" --output-on-failure`
+- Verification command or manual test: `ctest --preset dev-all -R "audio|settings|GlobalState" --output-on-failure`
 
 ### Task P3-03
 
@@ -322,7 +322,7 @@ This plan converts the game/app completion audit into ordered implementation wor
   4. Emit startup diagnostics with bundle path and reason.
   5. Add tamper tests through runtime startup.
 - Acceptance criteria: Tampered `data.pck` prevents runtime boot/use.
-- Verification command or manual test: `ctest --preset dev-all -R "runtime_bundle|exported_runtime|tamper" --output-on-failure`
+- Verification command or manual test: `ctest --preset dev-all -R "runtime bundle|exported runtime|tamper" --output-on-failure`
 
 ### Task P4-03
 
@@ -421,7 +421,7 @@ This plan converts the game/app completion audit into ordered implementation wor
   3. Test Confirm activates selected command once.
   4. Test Continue unavailable/available states.
 - Acceptance criteria: Title navigation regressions fail tests.
-- Verification command or manual test: `ctest --preset dev-all -R "RuntimeTitleScene|runtime title" --output-on-failure`
+- Verification command or manual test: `ctest --preset dev-all -R "RuntimeTitleScene" --output-on-failure`
 
 ### Task P6-02
 

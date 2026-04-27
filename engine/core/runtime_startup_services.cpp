@@ -2,9 +2,11 @@
 
 #include "engine/core/diagnostics/runtime_diagnostics.h"
 #include "engine/core/export/runtime_bundle_loader.h"
+#include "engine/core/input/input_remap_store.h"
 #include "engine/core/localization/locale_catalog.h"
 #include "engine/core/perf/perf_profiler.h"
 #include "engine/core/render/asset_loader.h"
+#include "engine/core/settings/app_settings_store.h"
 #include "engine/core/tools/export_packager.h"
 
 #include <array>
@@ -169,7 +171,8 @@ void initializeProfiler(RuntimeStartupReport& report) {
                  "PerfProfiler was initialized and accepted a startup frame sample.");
 }
 
-void initializeInput(RuntimeStartupReport& report, input::InputCore& input) {
+void applyDefaultInputMappings(input::InputCore& input) {
+    input.clearKeyMappings();
     input.mapKey('W', input::InputAction::MoveUp);
     input.mapKey('w', input::InputAction::MoveUp);
     input.mapKey('S', input::InputAction::MoveDown);
@@ -194,10 +197,72 @@ void initializeInput(RuntimeStartupReport& report, input::InputCore& input) {
     input.mapKey('c', input::InputAction::Menu);
     input.mapKey('`', input::InputAction::Debug);
     input.mapKey('~', input::InputAction::Debug);
+}
+
+std::filesystem::path resolveProjectPath(const std::filesystem::path& project_root, const std::filesystem::path& path) {
+    if (path.empty() || path.is_absolute()) {
+        return path;
+    }
+    return project_root / path;
+}
+
+void initializeInput(RuntimeStartupReport& report, const std::filesystem::path& project_root, input::InputCore& input) {
+    applyDefaultInputMappings(input);
 
     report.input_mapping_count = input.mappedKeyCount();
     addSubsystem(report, "InputManager", RuntimeStartupSubsystemStatus::Initialized, "input.default_map_ready",
                  "Runtime default keyboard mappings were registered.");
+
+    const auto settings_paths = settings::appSettingsPaths(project_root);
+    const auto runtime_settings = settings::loadRuntimeSettings(settings_paths.runtime_settings);
+    for (const auto& warning : runtime_settings.report.warnings) {
+        addSubsystem(report, "InputManager", RuntimeStartupSubsystemStatus::Warning, "input.runtime_settings_warning",
+                     "Runtime settings warning while resolving input mappings: " + warning);
+    }
+
+    const bool custom_mapping_path_configured =
+        runtime_settings.report.loaded &&
+        runtime_settings.settings.input_mapping_path != settings::defaultRuntimeSettings().input_mapping_path;
+    const auto mapping_path = resolveProjectPath(project_root, runtime_settings.settings.input_mapping_path);
+    std::error_code ec;
+    if (!std::filesystem::is_regular_file(mapping_path, ec) || ec) {
+        if (custom_mapping_path_configured) {
+            addSubsystem(report, "InputManager", RuntimeStartupSubsystemStatus::Warning, "input.remap_missing",
+                         "Configured input mapping file was not found: " + mapping_path.string() +
+                             "; runtime default mappings remain active.");
+        }
+        return;
+    }
+
+    std::string error;
+    const auto payload = readJsonFile(mapping_path, error);
+    if (!payload) {
+        addSubsystem(report, "InputManager", RuntimeStartupSubsystemStatus::Warning, "input.remap_" + error,
+                     "Input mapping file could not be read: " + mapping_path.string() +
+                         "; runtime default mappings remain active.");
+        return;
+    }
+
+    input::InputRemapStore remap_store;
+    try {
+        remap_store.loadFromJson(*payload);
+    } catch (const std::exception& ex) {
+        addSubsystem(report, "InputManager", RuntimeStartupSubsystemStatus::Warning, "input.remap_invalid",
+                     "Input mapping file is invalid at " + mapping_path.string() + ": " + ex.what() +
+                         "; runtime default mappings remain active.");
+        return;
+    }
+
+    input.clearKeyMappings();
+    for (const auto& [key_code, action] : remap_store.getAllMappings()) {
+        if (action != input::InputAction::None) {
+            input.mapKey(key_code, action);
+        }
+    }
+    report.input_mapping_count = input.mappedKeyCount();
+    addSubsystem(report, "InputManager", RuntimeStartupSubsystemStatus::Initialized, "input.remap_loaded",
+                 "Runtime input mappings loaded from " + mapping_path.string() + " with " +
+                     std::to_string(report.input_mapping_count) + " binding(s).");
 }
 
 } // namespace
@@ -239,7 +304,7 @@ RuntimeStartupReport RuntimeStartupServices::initialize(const std::filesystem::p
     initializeAssets(report, report.project_root);
     initializeLocalization(report, report.project_root);
     initializeProfiler(report);
-    initializeInput(report, input);
+    initializeInput(report, report.project_root, input);
 
     return report;
 }

@@ -75,6 +75,10 @@ SceneSnapshot captureMapSceneDialogueOverlayCrop(bool startDialogue) {
     layer.flush();
 
     urpg::scene::MapScene map("SnapshotMap", 2, 2);
+    map.setAssetReferences({
+        {"hero_sprite", {}},
+        {"default_tileset", {}},
+    });
     if (startDialogue) {
         map.startDialogue({
             {"page_1",
@@ -104,6 +108,10 @@ SceneSnapshot captureMapSceneWorldSnapshot() {
     layer.flush();
 
     urpg::scene::MapScene map("SnapshotWorld", 2, 2);
+    map.setAssetReferences({
+        {"hero_sprite", {}},
+        {"default_tileset", {}},
+    });
     map.setTile(0, 0, 101, true);
     map.setTile(1, 0, 5, true);
     map.setTile(0, 1, 17, true);
@@ -393,6 +401,10 @@ SceneSnapshot captureEngineShellMapSceneSnapshot(bool startDialogue) {
             }
 
             auto map = std::make_shared<urpg::scene::MapScene>("EngineShellSnapshot", 2, 2);
+            map->setAssetReferences({
+                {"hero_sprite", {}},
+                {"default_tileset", {}},
+            });
             map->setTileset(tilesetTexture);
             map->setLayerData(0, {1, 2, 3, 1});
             map->setTile(0, 0, 1, true);

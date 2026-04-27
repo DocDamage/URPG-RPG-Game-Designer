@@ -15,6 +15,7 @@ namespace {
 
 using urpg::exporting::ExportValidator;
 using urpg::tools::ExportConfig;
+using urpg::tools::ExportMode;
 using urpg::tools::ExportPackager;
 using urpg::tools::ExportTarget;
 using urpg::tools::ExportValidationResult;
@@ -29,6 +30,7 @@ struct CliOptions {
     bool obfuscateScripts = false;
     bool compressAssets = true;
     bool includeDebugSymbols = false;
+    ExportMode mode = ExportMode::DevBootstrap;
     std::optional<ExportTarget> target;
     std::filesystem::path outputDir;
     std::filesystem::path runtimeBinaryPath;
@@ -82,6 +84,8 @@ void printHelp() {
               << "  Web_WASM\n\n"
               << "Options:\n"
               << "  --runtime-binary <path>       Runtime binary to stage into native exports\n"
+              << "  --release                     Require release-grade runtime artifacts\n"
+              << "  --dev-bootstrap               Allow bootstrap-only smoke artifacts (default)\n"
               << "  --manifest-root <path>        Manifest root for bundled assets\n"
               << "  --normalized-root <path>      Normalized asset root for bundled assets\n"
               << "  --asset-root <path>           Asset discovery root; may be repeated\n"
@@ -131,6 +135,10 @@ ParseResult parseArgs(int argc, char** argv) {
             result.options.obfuscateScripts = true;
         } else if (arg == "--include-debug-symbols") {
             result.options.includeDebugSymbols = true;
+        } else if (arg == "--release") {
+            result.options.mode = ExportMode::Release;
+        } else if (arg == "--dev-bootstrap") {
+            result.options.mode = ExportMode::DevBootstrap;
         } else if (arg == "--target") {
             if (!readValue(argc, argv, i, value, result.error)) {
                 result.ok = false;
@@ -203,6 +211,7 @@ ParseResult parseArgs(int argc, char** argv) {
 ExportConfig toExportConfig(const CliOptions& options) {
     ExportConfig config;
     config.target = *options.target;
+    config.mode = options.mode;
     config.outputDir = options.outputDir.string();
     config.runtimeBinaryPath = options.runtimeBinaryPath.string();
     config.assetBundleManifestRootOverride = options.assetBundleManifestRootOverride.string();
@@ -282,6 +291,7 @@ nlohmann::json baseReport(const CliOptions& options, std::string phase) {
         {"tool", "urpg_pack_cli"},
         {"phase", std::move(phase)},
         {"target", targetToString(*options.target)},
+        {"mode", options.mode == ExportMode::Release ? "release" : "dev_bootstrap"},
         {"outputDir", options.outputDir.generic_string()},
     };
 }

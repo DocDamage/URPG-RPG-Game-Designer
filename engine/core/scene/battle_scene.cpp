@@ -563,28 +563,22 @@ void BattleScene::onStart() {
     m_commandWindow->setVisible(false);
 
     // Phase 12: Load Background
-    // Prefer compat BattleManager metadata when present, but keep the fallback path
-    // explicit so missing content does not look like a valid default.
+    // Release builds must use an explicitly configured and packaged battleback.
     const std::string configuredBattlebackPath =
         buildBattlebackPath(compat::BattleManager::instance().getBattleBackground());
     if (!configuredBattlebackPath.empty()) {
         m_backgroundTexture = loadOptionalTexture(configuredBattlebackPath);
     }
 
-    constexpr const char* fallbackBattlebackPath = "img/battlebacks1/Grassland.png";
     if (!m_backgroundTexture) {
-        m_backgroundTexture = loadOptionalTexture(fallbackBattlebackPath);
-    }
-
-    if (!m_backgroundTexture) {
-        std::string message = "No configured battleback was resolved";
+        std::string message = "No packaged battleback was resolved";
         if (!configuredBattlebackPath.empty()) {
             message += " (attempted: " + configuredBattlebackPath + ")";
+        } else {
+            message += " because no battleback was configured";
         }
-        message += "; fallback asset is also unavailable: ";
-        message += fallbackBattlebackPath;
         std::cerr << "[" << kMissingBattlebackDiagnostic << "] " << message << std::endl;
-        urpg::diagnostics::RuntimeDiagnostics::warning("scene.battle", kMissingBattlebackDiagnostic, message);
+        urpg::diagnostics::RuntimeDiagnostics::error("scene.battle", kMissingBattlebackDiagnostic, message);
         if (m_logWindow) {
             m_logWindow->setText(kMissingBattlebackDiagnostic);
         }

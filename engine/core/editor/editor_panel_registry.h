@@ -7,17 +7,17 @@
 namespace urpg::editor {
 
 enum class EditorPanelExposure {
-    TopLevel,
-    NestedWorkspace,
-    Internal,
-    Disabled,
+    ReleaseTopLevel,
+    Nested,
+    DevOnly,
+    Deferred,
 };
 
 struct EditorPanelRegistryEntry {
     std::string id;
     std::string title;
     std::string category;
-    EditorPanelExposure exposure = EditorPanelExposure::Internal;
+    EditorPanelExposure exposure = EditorPanelExposure::Deferred;
     std::string owner;
     std::string reason;
 };

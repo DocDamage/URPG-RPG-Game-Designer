@@ -1,19 +1,45 @@
 #include "engine/core/audio/audio_core.h"
+#include "engine/core/diagnostics/runtime_diagnostics.h"
 #include "engine/core/render/render_layer.h"
 #include "engine/core/scene/battle_scene.h"
 #include "engine/core/scene/map_loader.h"
 #include "engine/core/scene/map_scene.h"
 #include "engine/core/scene/movement_authority.h"
+#include "engine/core/scene/options_scene.h"
 #include "engine/core/scene/runtime_title_scene.h"
 #include "engine/core/scene/scene_manager.h"
 #include "engine/core/scene/tileset_registry.h"
+#include "engine/core/settings/app_settings_store.h"
 #include <catch2/catch_test_macros.hpp>
+#include <algorithm>
+#include <chrono>
+#include <filesystem>
+#include <fstream>
 #include <type_traits>
 #include <utility>
 
 using namespace urpg::scene;
 
 namespace {
+
+class TempRuntimeSettingsRoot {
+  public:
+    TempRuntimeSettingsRoot() {
+        const auto unique = std::to_string(std::chrono::steady_clock::now().time_since_epoch().count());
+        root_ = std::filesystem::temp_directory_path() / ("urpg_options_scene_" + unique);
+        std::filesystem::create_directories(root_);
+    }
+
+    ~TempRuntimeSettingsRoot() {
+        std::error_code ec;
+        std::filesystem::remove_all(root_, ec);
+    }
+
+    const std::filesystem::path& root() const { return root_; }
+
+  private:
+    std::filesystem::path root_;
+};
 
 template<typename LayerT> const auto& renderFrameCommands(const LayerT& layer) {
     if constexpr (requires { layer.getFrameCommands(); }) {
@@ -426,6 +452,99 @@ TEST_CASE("MapScene: retained tile render commands only rebuild when map data ch
     REQUIRE(changedTile->tileIndex == 7);
 }
 
+TEST_CASE("MapScene uses project map asset references for render commands", "[scene][map][render][assets]") {
+    auto& layer = urpg::RenderLayer::getInstance();
+    layer.flush();
+    urpg::diagnostics::RuntimeDiagnostics::clear();
+
+    MapScene map("AssetMap", 2, 2);
+    map.setAssetReferences({
+        {"project_player_sprite", {}},
+        {"project_tileset", {}},
+    });
+    map.setTile(0, 0, 12, true);
+    map.onUpdate(0.0f);
+
+    bool sawPlayer = false;
+    bool sawTileset = false;
+    for (const auto& command : renderFrameCommands(layer)) {
+        if (renderCommandType(command) == urpg::RenderCmdType::Sprite) {
+            const auto* sprite = renderCommandAs<urpg::SpriteRenderData>(command);
+            sawPlayer = sawPlayer || (sprite != nullptr && sprite->textureId == "project_player_sprite");
+        }
+        if (renderCommandType(command) == urpg::RenderCmdType::Tile) {
+            const auto* tile = renderCommandAs<urpg::TileRenderData>(command);
+            sawTileset = sawTileset || (tile != nullptr && tile->tilesetId == "project_tileset");
+        }
+    }
+
+    REQUIRE(sawPlayer);
+    REQUIRE(sawTileset);
+    REQUIRE(map.assetDiagnostics().empty());
+    REQUIRE(urpg::diagnostics::RuntimeDiagnostics::snapshot().empty());
+}
+
+TEST_CASE("MapScene emits diagnostics before rendering asset placeholders", "[scene][map][render][assets]") {
+    auto& layer = urpg::RenderLayer::getInstance();
+    layer.flush();
+    urpg::diagnostics::RuntimeDiagnostics::clear();
+
+    MapScene map("MissingAssetMap", 1, 1);
+    map.onUpdate(0.0f);
+
+    bool sawMissingPlayer = false;
+    bool sawMissingTileset = false;
+    for (const auto& command : renderFrameCommands(layer)) {
+        if (renderCommandType(command) == urpg::RenderCmdType::Sprite) {
+            const auto* sprite = renderCommandAs<urpg::SpriteRenderData>(command);
+            sawMissingPlayer = sawMissingPlayer || (sprite != nullptr && sprite->textureId == "missing_player_sprite");
+        }
+        if (renderCommandType(command) == urpg::RenderCmdType::Tile) {
+            const auto* tile = renderCommandAs<urpg::TileRenderData>(command);
+            sawMissingTileset = sawMissingTileset || (tile != nullptr && tile->tilesetId == "missing_tileset");
+        }
+    }
+
+    REQUIRE(sawMissingPlayer);
+    REQUIRE(sawMissingTileset);
+    REQUIRE(map.assetDiagnostics().size() == 2);
+
+    const auto diagnostics = urpg::diagnostics::RuntimeDiagnostics::snapshot();
+    REQUIRE(std::count_if(diagnostics.begin(), diagnostics.end(), [](const auto& diagnostic) {
+                return diagnostic.subsystem == "scene.map" &&
+                       (diagnostic.code == "map.player_sprite_missing" ||
+                        diagnostic.code == "map.tileset_missing");
+            }) == 2);
+}
+
+TEST_CASE("Runtime map asset references load from project manifest", "[scene][map][assets]") {
+    const TempRuntimeSettingsRoot temp;
+    std::filesystem::create_directories(temp.root() / "content" / "actors");
+    std::filesystem::create_directories(temp.root() / "content" / "tilesets");
+    {
+        std::ofstream actor(temp.root() / "content" / "actors" / "hero.png", std::ios::binary);
+        actor << "png";
+        std::ofstream tileset(temp.root() / "content" / "tilesets" / "world.png", std::ios::binary);
+        tileset << "png";
+        std::ofstream project(temp.root() / "project.json", std::ios::binary);
+        project << R"({
+  "startup": {
+    "map": "AssetMap",
+    "map_assets": {
+      "player_sprite": {"id": "hero.runtime", "path": "content/actors/hero.png"},
+      "tileset": {"id": "tileset.runtime", "path": "content/tilesets/world.png"}
+    }
+  }
+})";
+    }
+
+    const auto references = loadRuntimeMapAssetReferences(temp.root(), "AssetMap");
+    REQUIRE(references.player_sprite.id == "hero.runtime");
+    REQUIRE(references.tileset.id == "tileset.runtime");
+    REQUIRE(references.player_sprite.path == temp.root() / "content" / "actors" / "hero.png");
+    REQUIRE(references.tileset.path == temp.root() / "content" / "tilesets" / "world.png");
+}
+
 TEST_CASE("MapScene: retained tile frame commands stay value-stable across unchanged frames", "[scene][map][render]") {
     auto& layer = urpg::RenderLayer::getInstance();
     layer.flush();
@@ -599,6 +718,7 @@ TEST_CASE("RuntimeTitleScene routes New Game and Exit through callbacks", "[scen
         [&newGameStarted] { newGameStarted = true; },
         [&exitRequested] { exitRequested = true; },
         {},
+        {},
     });
 
     const auto newGameResult = title.activateCommand(RuntimeTitleCommandId::NewGame);
@@ -612,6 +732,27 @@ TEST_CASE("RuntimeTitleScene routes New Game and Exit through callbacks", "[scen
     REQUIRE(exitResult.success);
     REQUIRE(exitResult.code == "exit_requested");
     REQUIRE(exitRequested);
+}
+
+TEST_CASE("RuntimeTitleScene enables Options when runtime supplies an options flow", "[scene][runtime][title]") {
+    bool optionsOpened = false;
+    RuntimeTitleScene title({
+        {},
+        {},
+        {},
+        [&optionsOpened] { optionsOpened = true; },
+    });
+
+    const auto* options = title.findCommand(RuntimeTitleCommandId::Options);
+    REQUIRE(options != nullptr);
+    REQUIRE(options->enabled);
+    REQUIRE(options->disabled_reason.empty());
+
+    const auto result = title.activateCommand(RuntimeTitleCommandId::Options);
+    REQUIRE(result.handled);
+    REQUIRE(result.success);
+    REQUIRE(result.code == "options_opened");
+    REQUIRE(optionsOpened);
 }
 
 TEST_CASE("RuntimeTitleScene rejects disabled startup commands with actionable reasons", "[scene][runtime][title]") {
@@ -630,10 +771,85 @@ TEST_CASE("RuntimeTitleScene rejects disabled startup commands with actionable r
     REQUIRE(optionsResult.message == "Options flow is not wired yet");
 }
 
+TEST_CASE("RuntimeTitleScene runtime input moves focus across visible commands", "[scene][runtime][title][input]") {
+    RuntimeTitleScene title;
+    urpg::input::InputCore input;
+
+    REQUIRE(title.selectedCommandIndex() == 0);
+    REQUIRE(title.selectedCommand() != nullptr);
+    REQUIRE(title.selectedCommand()->id == RuntimeTitleCommandId::NewGame);
+
+    input.updateActionState(urpg::input::InputAction::MoveDown, urpg::input::ActionState::Pressed);
+    title.handleInput(input);
+    REQUIRE(title.selectedCommandIndex() == 1);
+    REQUIRE(title.selectedCommand() != nullptr);
+    REQUIRE(title.selectedCommand()->id == RuntimeTitleCommandId::Continue);
+
+    input.updateActionState(urpg::input::InputAction::MoveDown, urpg::input::ActionState::Released);
+    input.updateActionState(urpg::input::InputAction::MoveUp, urpg::input::ActionState::Pressed);
+    title.handleInput(input);
+    REQUIRE(title.selectedCommandIndex() == 0);
+    REQUIRE(title.selectedCommand() != nullptr);
+    REQUIRE(title.selectedCommand()->id == RuntimeTitleCommandId::NewGame);
+
+    input.updateActionState(urpg::input::InputAction::MoveUp, urpg::input::ActionState::Released);
+    title.handleInput(input);
+    input.updateActionState(urpg::input::InputAction::MoveUp, urpg::input::ActionState::Pressed);
+    title.handleInput(input);
+    REQUIRE(title.selectedCommandIndex() == 3);
+    REQUIRE(title.selectedCommand() != nullptr);
+    REQUIRE(title.selectedCommand()->id == RuntimeTitleCommandId::Exit);
+}
+
+TEST_CASE("RuntimeTitleScene runtime input activates the selected command", "[scene][runtime][title][input]") {
+    bool exitRequested = false;
+    RuntimeTitleScene title({
+        {},
+        [&exitRequested] { exitRequested = true; },
+        {},
+        {},
+    });
+    urpg::input::InputCore input;
+
+    input.updateActionState(urpg::input::InputAction::MoveUp, urpg::input::ActionState::Pressed);
+    title.handleInput(input);
+    REQUIRE(title.selectedCommand() != nullptr);
+    REQUIRE(title.selectedCommand()->id == RuntimeTitleCommandId::Exit);
+
+    input.updateActionState(urpg::input::InputAction::MoveUp, urpg::input::ActionState::Released);
+    input.updateActionState(urpg::input::InputAction::Confirm, urpg::input::ActionState::Pressed);
+    title.handleInput(input);
+
+    REQUIRE(exitRequested);
+    REQUIRE(title.lastCommandResult().handled);
+    REQUIRE(title.lastCommandResult().success);
+    REQUIRE(title.lastCommandResult().code == "exit_requested");
+}
+
+TEST_CASE("RuntimeTitleScene runtime input reports disabled selected command", "[scene][runtime][title][input]") {
+    RuntimeTitleScene title;
+    urpg::input::InputCore input;
+
+    input.updateActionState(urpg::input::InputAction::MoveDown, urpg::input::ActionState::Pressed);
+    title.handleInput(input);
+    REQUIRE(title.selectedCommand() != nullptr);
+    REQUIRE(title.selectedCommand()->id == RuntimeTitleCommandId::Continue);
+
+    input.updateActionState(urpg::input::InputAction::MoveDown, urpg::input::ActionState::Released);
+    input.updateActionState(urpg::input::InputAction::Confirm, urpg::input::ActionState::Pressed);
+    title.handleInput(input);
+
+    REQUIRE(title.lastCommandResult().handled);
+    REQUIRE_FALSE(title.lastCommandResult().success);
+    REQUIRE(title.lastCommandResult().code == "command_disabled");
+    REQUIRE(title.lastCommandResult().message == "No save data found");
+}
+
 TEST_CASE("RuntimeTitleScene New Game can transition to the existing runtime boot map", "[scene][runtime][title]") {
     SceneManager manager;
     auto title = makeDefaultRuntimeTitleScene({
         [&manager] { manager.gotoScene(std::make_shared<MapScene>("RuntimeBoot", 16, 12)); },
+        {},
         {},
         {},
     });
@@ -650,6 +866,105 @@ TEST_CASE("RuntimeTitleScene New Game can transition to the existing runtime boo
     REQUIRE(manager.getActiveScene()->getName() == "Map_RuntimeBoot");
 }
 
+TEST_CASE("RuntimeOptionsScene edits display audio input and accessibility settings", "[scene][runtime][options]") {
+    const TempRuntimeSettingsRoot temp;
+    const auto paths = urpg::settings::appSettingsPaths(temp.root());
+    auto settings = urpg::settings::defaultRuntimeSettings();
+    settings.window.width = 1280;
+    settings.audio.master_volume = 1.0f;
+    settings.accessibility.high_contrast = false;
+
+    bool savedCallback = false;
+    RuntimeOptionsScene scene(settings, paths.runtime_settings,
+                              {
+                                  {},
+                                  [&savedCallback](const urpg::settings::RuntimeSettings& savedSettings) {
+                                      savedCallback = true;
+                                      REQUIRE(savedSettings.window.width == 1360);
+                                      REQUIRE(savedSettings.audio.master_volume == 0.9f);
+                                      REQUIRE(savedSettings.accessibility.high_contrast);
+                                  },
+                              });
+
+    REQUIRE(scene.getType() == SceneType::OPTIONS);
+    REQUIRE(scene.getName() == "RuntimeOptions");
+    REQUIRE(scene.rows().size() == 10);
+    REQUIRE(scene.selectedRow() != nullptr);
+    REQUIRE(scene.selectedRow()->id == RuntimeOptionsRowId::WindowWidth);
+
+    scene.adjustSelected(1);
+    REQUIRE(scene.settings().window.width == 1360);
+
+    urpg::input::InputCore input;
+    auto press = [&](urpg::input::InputAction action) {
+        input.updateActionState(action, urpg::input::ActionState::Pressed);
+        scene.handleInput(input);
+        input.endFrame();
+        input.updateActionState(action, urpg::input::ActionState::Released);
+        scene.handleInput(input);
+        input.endFrame();
+    };
+
+    press(urpg::input::InputAction::MoveDown);
+    press(urpg::input::InputAction::MoveDown);
+    REQUIRE(scene.selectedRow() != nullptr);
+    REQUIRE(scene.selectedRow()->id == RuntimeOptionsRowId::MasterVolume);
+    press(urpg::input::InputAction::MoveLeft);
+    REQUIRE(scene.settings().audio.master_volume == 0.9f);
+
+    press(urpg::input::InputAction::MoveDown);
+    press(urpg::input::InputAction::MoveDown);
+    REQUIRE(scene.selectedRow() != nullptr);
+    REQUIRE(scene.selectedRow()->id == RuntimeOptionsRowId::InputMapping);
+    const auto inputResult = scene.activateSelected();
+    REQUIRE(inputResult.success);
+    REQUIRE(scene.settings().input_mapping_path == urpg::settings::defaultRuntimeSettings().input_mapping_path);
+
+    press(urpg::input::InputAction::MoveDown);
+    REQUIRE(scene.selectedRow() != nullptr);
+    REQUIRE(scene.selectedRow()->id == RuntimeOptionsRowId::HighContrast);
+    press(urpg::input::InputAction::Confirm);
+    REQUIRE(scene.settings().accessibility.high_contrast);
+
+    press(urpg::input::InputAction::MoveDown);
+    press(urpg::input::InputAction::MoveDown);
+    press(urpg::input::InputAction::MoveDown);
+    REQUIRE(scene.selectedRow() != nullptr);
+    REQUIRE(scene.selectedRow()->id == RuntimeOptionsRowId::Save);
+    press(urpg::input::InputAction::Confirm);
+
+    REQUIRE(savedCallback);
+    REQUIRE(scene.lastCommandResult().success);
+    REQUIRE(scene.lastCommandResult().code == "settings_saved");
+
+    const auto loaded = urpg::settings::loadRuntimeSettings(paths.runtime_settings);
+    REQUIRE(loaded.report.loaded);
+    REQUIRE(loaded.settings.window.width == 1360);
+    REQUIRE(loaded.settings.audio.master_volume == 0.9f);
+    REQUIRE(loaded.settings.accessibility.high_contrast);
+}
+
+TEST_CASE("RuntimeOptionsScene supports cancel/back navigation", "[scene][runtime][options][input]") {
+    const TempRuntimeSettingsRoot temp;
+    const auto paths = urpg::settings::appSettingsPaths(temp.root());
+
+    bool backRequested = false;
+    RuntimeOptionsScene scene(urpg::settings::defaultRuntimeSettings(), paths.runtime_settings,
+                              {
+                                  [&backRequested] { backRequested = true; },
+                                  {},
+                              });
+
+    urpg::input::InputCore input;
+    input.updateActionState(urpg::input::InputAction::Cancel, urpg::input::ActionState::Pressed);
+    scene.handleInput(input);
+
+    REQUIRE(backRequested);
+    REQUIRE(scene.lastCommandResult().handled);
+    REQUIRE(scene.lastCommandResult().success);
+    REQUIRE(scene.lastCommandResult().code == "options_back");
+}
+
 TEST_CASE("RuntimeTitleScene emits visible title and disabled command labels", "[scene][runtime][title][render]") {
     auto& layer = urpg::RenderLayer::getInstance();
     layer.flush();
@@ -662,8 +977,16 @@ TEST_CASE("RuntimeTitleScene emits visible title and disabled command labels", "
     bool sawDisabledContinue = false;
     bool sawDisabledOptions = false;
     bool sawExit = false;
+    bool sawFocusHighlight = false;
 
     for (const auto& command : renderFrameCommands(layer)) {
+        if (renderCommandType(command) == urpg::RenderCmdType::Rect) {
+            const auto* rect = renderCommandAs<urpg::RectRenderData>(command);
+            REQUIRE(rect != nullptr);
+            sawFocusHighlight = sawFocusHighlight || (command.x == 56.0f && command.y == 112.0f && rect->w == 528.0f &&
+                                                       rect->h == 30.0f && command.zOrder == 1);
+            continue;
+        }
         if (renderCommandType(command) != urpg::RenderCmdType::Text) {
             continue;
         }
@@ -681,6 +1004,7 @@ TEST_CASE("RuntimeTitleScene emits visible title and disabled command labels", "
     REQUIRE(sawDisabledContinue);
     REQUIRE(sawDisabledOptions);
     REQUIRE(sawExit);
+    REQUIRE(sawFocusHighlight);
 
     layer.flush();
 }

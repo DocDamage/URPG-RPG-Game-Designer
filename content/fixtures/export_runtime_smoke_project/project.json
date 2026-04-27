@@ -8,6 +8,14 @@
   },
   "startup": {
     "map": "ExportSmoke",
-    "headless_safe": true
+    "headless_safe": true,
+    "map_assets": {
+      "player_sprite": {
+        "id": "export_smoke_player"
+      },
+      "tileset": {
+        "id": "export_smoke_tileset"
+      }
+    }
   }
 }

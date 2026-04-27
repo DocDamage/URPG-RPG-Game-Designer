@@ -5,6 +5,7 @@
 #include "window_render_helpers.h"
 
 #include <algorithm>
+#include <functional>
 #include <unordered_map>
 
 namespace urpg {
@@ -48,6 +49,54 @@ std::optional<SpriteBitmapInfo> lookupTrackedSpriteBitmap(BitmapHandle handle) {
 }
 
 } // namespace
+
+Sprite_Character* Sprite_Character::defaultInstance_ = nullptr;
+Sprite_Actor* Sprite_Actor::defaultInstance_ = nullptr;
+
+int64_t getIntArg(const std::vector<Value>& args, size_t index, int64_t defaultValue = 0) {
+    if (index >= args.size()) {
+        return defaultValue;
+    }
+    if (const auto* p = std::get_if<int64_t>(&args[index].v)) {
+        return *p;
+    }
+    if (const auto* p = std::get_if<double>(&args[index].v)) {
+        return static_cast<int64_t>(*p);
+    }
+    if (const auto* p = std::get_if<bool>(&args[index].v)) {
+        return *p ? 1 : 0;
+    }
+    return defaultValue;
+}
+
+double getDoubleArg(const std::vector<Value>& args, size_t index, double defaultValue = 0.0) {
+    if (index >= args.size()) {
+        return defaultValue;
+    }
+    if (const auto* p = std::get_if<double>(&args[index].v)) {
+        return *p;
+    }
+    if (const auto* p = std::get_if<int64_t>(&args[index].v)) {
+        return static_cast<double>(*p);
+    }
+    return defaultValue;
+}
+
+std::string getStringArg(const std::vector<Value>& args, size_t index, const std::string& defaultValue = "") {
+    if (index >= args.size()) {
+        return defaultValue;
+    }
+    if (const auto* p = std::get_if<std::string>(&args[index].v)) {
+        return *p;
+    }
+    return defaultValue;
+}
+
+Value boolValue(bool value) {
+    Value out;
+    out.v = value;
+    return out;
+}
 
 // ============================================================================
 // Sprite_Character Implementation
@@ -119,6 +168,10 @@ std::optional<SpriteBitmapInfo> Sprite_Character::lookupBitmapInfo(BitmapHandle 
     return lookupTrackedSpriteBitmap(handle);
 }
 
+void Sprite_Character::setDefaultInstance(Sprite_Character* instance) {
+    defaultInstance_ = instance;
+}
+
 void Sprite_Character::reloadBitmapForCurrentAsset() {
     if (bitmap_ != INVALID_BITMAP && bitmapAssetId_ == characterName_) {
         return;
@@ -147,40 +200,68 @@ void Sprite_Character::refreshSourceRect() {
 
 void Sprite_Character::registerAPI(QuickJSContext& ctx) {
     std::vector<QuickJSContext::MethodDef> methods;
-    const std::string spriteCharacterStubNote =
-        "Fixture-backed object registration cannot mutate per-instance Sprite_Character state yet.";
+    const auto dispatch = [](std::function<Value(Sprite_Character&)> fn) -> Value {
+        if (!defaultInstance_) {
+            return Value::Nil();
+        }
+        return fn(*defaultInstance_);
+    };
 
-    methods.push_back({"setX", [](const std::vector<Value>&) -> Value {
-        return Value::Nil();
-    }, CompatStatus::STUB, spriteCharacterStubNote});
+    methods.push_back({"setX", [dispatch](const std::vector<Value>& args) -> Value {
+        return dispatch([&](Sprite_Character& sprite) {
+            sprite.setX(static_cast<int32_t>(getIntArg(args, 0)));
+            return Value::Int(1);
+        });
+    }, CompatStatus::FULL, {}});
 
-    methods.push_back({"setY", [](const std::vector<Value>&) -> Value {
-        return Value::Nil();
-    }, CompatStatus::STUB, spriteCharacterStubNote});
+    methods.push_back({"setY", [dispatch](const std::vector<Value>& args) -> Value {
+        return dispatch([&](Sprite_Character& sprite) {
+            sprite.setY(static_cast<int32_t>(getIntArg(args, 0)));
+            return Value::Int(1);
+        });
+    }, CompatStatus::FULL, {}});
 
-    methods.push_back({"setDirection", [](const std::vector<Value>&) -> Value {
-        return Value::Nil();
-    }, CompatStatus::STUB, spriteCharacterStubNote});
+    methods.push_back({"setDirection", [dispatch](const std::vector<Value>& args) -> Value {
+        return dispatch([&](Sprite_Character& sprite) {
+            sprite.setDirection(static_cast<int32_t>(getIntArg(args, 0, 2)));
+            return Value::Int(1);
+        });
+    }, CompatStatus::FULL, {}});
 
-    methods.push_back({"setPattern", [](const std::vector<Value>&) -> Value {
-        return Value::Nil();
-    }, CompatStatus::STUB, spriteCharacterStubNote});
+    methods.push_back({"setPattern", [dispatch](const std::vector<Value>& args) -> Value {
+        return dispatch([&](Sprite_Character& sprite) {
+            sprite.setPattern(static_cast<int32_t>(getIntArg(args, 0)));
+            return Value::Int(1);
+        });
+    }, CompatStatus::FULL, {}});
 
-    methods.push_back({"setVisible", [](const std::vector<Value>&) -> Value {
-        return Value::Nil();
-    }, CompatStatus::STUB, spriteCharacterStubNote});
+    methods.push_back({"setVisible", [dispatch](const std::vector<Value>& args) -> Value {
+        return dispatch([&](Sprite_Character& sprite) {
+            sprite.setVisible(getIntArg(args, 0, 1) != 0);
+            return Value::Int(1);
+        });
+    }, CompatStatus::FULL, {}});
 
-    methods.push_back({"setBlendMode", [](const std::vector<Value>&) -> Value {
-        return Value::Nil();
-    }, CompatStatus::STUB, spriteCharacterStubNote});
+    methods.push_back({"setBlendMode", [dispatch](const std::vector<Value>& args) -> Value {
+        return dispatch([&](Sprite_Character& sprite) {
+            sprite.setBlendMode(static_cast<int32_t>(getIntArg(args, 0)));
+            return Value::Int(1);
+        });
+    }, CompatStatus::FULL, {}});
 
-    methods.push_back({"setOpacity", [](const std::vector<Value>&) -> Value {
-        return Value::Nil();
-    }, CompatStatus::STUB, spriteCharacterStubNote});
+    methods.push_back({"setOpacity", [dispatch](const std::vector<Value>& args) -> Value {
+        return dispatch([&](Sprite_Character& sprite) {
+            sprite.setOpacity(static_cast<int32_t>(getIntArg(args, 0, 255)));
+            return Value::Int(1);
+        });
+    }, CompatStatus::FULL, {}});
 
-    methods.push_back({"setScale", [](const std::vector<Value>&) -> Value {
-        return Value::Nil();
-    }, CompatStatus::STUB, spriteCharacterStubNote});
+    methods.push_back({"setScale", [dispatch](const std::vector<Value>& args) -> Value {
+        return dispatch([&](Sprite_Character& sprite) {
+            sprite.setScale(getDoubleArg(args, 0, 1.0), getDoubleArg(args, 1, 1.0));
+            return Value::Int(1);
+        });
+    }, CompatStatus::FULL, {}});
 
     ctx.registerObject("Sprite_Character", methods);
 }
@@ -299,6 +380,10 @@ std::optional<SpriteBitmapInfo> Sprite_Actor::lookupBitmapInfo(BitmapHandle hand
     return lookupTrackedSpriteBitmap(handle);
 }
 
+void Sprite_Actor::setDefaultInstance(Sprite_Actor* instance) {
+    defaultInstance_ = instance;
+}
+
 void Sprite_Actor::reloadBitmapForCurrentAsset() {
     if (bitmap_ != INVALID_BITMAP && bitmapAssetId_ == battlerName_) {
         return;
@@ -329,40 +414,67 @@ void Sprite_Actor::startResolvedMotion(int32_t motion, bool looping) {
 
 void Sprite_Actor::registerAPI(QuickJSContext& ctx) {
     std::vector<QuickJSContext::MethodDef> methods;
-    const std::string spriteActorStubNote =
-        "Fixture-backed object registration cannot mutate or observe per-instance Sprite_Actor state yet.";
+    const auto dispatch = [](std::function<Value(Sprite_Actor&)> fn) -> Value {
+        if (!defaultInstance_) {
+            return Value::Nil();
+        }
+        return fn(*defaultInstance_);
+    };
 
-    methods.push_back({"setMotion", [](const std::vector<Value>&) -> Value {
-        return Value::Nil();
-    }, CompatStatus::STUB, spriteActorStubNote});
+    methods.push_back({"setMotion", [dispatch](const std::vector<Value>& args) -> Value {
+        return dispatch([&](Sprite_Actor& sprite) {
+            sprite.setMotion(static_cast<int32_t>(getIntArg(args, 0)));
+            return Value::Int(1);
+        });
+    }, CompatStatus::FULL, {}});
 
-    methods.push_back({"startMotion", [](const std::vector<Value>&) -> Value {
-        return Value::Nil();
-    }, CompatStatus::STUB, spriteActorStubNote});
+    methods.push_back({"startMotion", [dispatch](const std::vector<Value>& args) -> Value {
+        return dispatch([&](Sprite_Actor& sprite) {
+            sprite.startMotion(static_cast<int32_t>(getIntArg(args, 0)));
+            return Value::Int(1);
+        });
+    }, CompatStatus::FULL, {}});
 
-    methods.push_back({"startAnimation", [](const std::vector<Value>&) -> Value {
-        return Value::Nil();
-    }, CompatStatus::STUB, spriteActorStubNote});
+    methods.push_back({"startAnimation", [dispatch](const std::vector<Value>& args) -> Value {
+        return dispatch([&](Sprite_Actor& sprite) {
+            sprite.startAnimation(static_cast<int32_t>(getIntArg(args, 0)));
+            return Value::Int(1);
+        });
+    }, CompatStatus::FULL, {}});
 
-    methods.push_back({"isAnimationPlaying", [](const std::vector<Value>&) -> Value {
-        return Value::Nil();
-    }, CompatStatus::STUB, spriteActorStubNote});
+    methods.push_back({"isAnimationPlaying", [dispatch](const std::vector<Value>&) -> Value {
+        return dispatch([](Sprite_Actor& sprite) {
+            return boolValue(sprite.isAnimationPlaying());
+        });
+    }, CompatStatus::FULL, {}});
 
-    methods.push_back({"startEffect", [](const std::vector<Value>&) -> Value {
-        return Value::Nil();
-    }, CompatStatus::STUB, spriteActorStubNote});
+    methods.push_back({"startEffect", [dispatch](const std::vector<Value>& args) -> Value {
+        return dispatch([&](Sprite_Actor& sprite) {
+            sprite.startEffect(getStringArg(args, 0));
+            return Value::Int(1);
+        });
+    }, CompatStatus::FULL, {}});
 
-    methods.push_back({"setVisible", [](const std::vector<Value>&) -> Value {
-        return Value::Nil();
-    }, CompatStatus::STUB, spriteActorStubNote});
+    methods.push_back({"setVisible", [dispatch](const std::vector<Value>& args) -> Value {
+        return dispatch([&](Sprite_Actor& sprite) {
+            sprite.setVisible(getIntArg(args, 0, 1) != 0);
+            return Value::Int(1);
+        });
+    }, CompatStatus::FULL, {}});
 
-    methods.push_back({"setBlendMode", [](const std::vector<Value>&) -> Value {
-        return Value::Nil();
-    }, CompatStatus::STUB, spriteActorStubNote});
+    methods.push_back({"setBlendMode", [dispatch](const std::vector<Value>& args) -> Value {
+        return dispatch([&](Sprite_Actor& sprite) {
+            sprite.setBlendMode(static_cast<int32_t>(getIntArg(args, 0)));
+            return Value::Int(1);
+        });
+    }, CompatStatus::FULL, {}});
 
-    methods.push_back({"setOpacity", [](const std::vector<Value>&) -> Value {
-        return Value::Nil();
-    }, CompatStatus::STUB, spriteActorStubNote});
+    methods.push_back({"setOpacity", [dispatch](const std::vector<Value>& args) -> Value {
+        return dispatch([&](Sprite_Actor& sprite) {
+            sprite.setOpacity(static_cast<int32_t>(getIntArg(args, 0, 255)));
+            return Value::Int(1);
+        });
+    }, CompatStatus::FULL, {}});
 
     ctx.registerObject("Sprite_Actor", methods);
 }

@@ -10,6 +10,35 @@
 using namespace urpg;
 using namespace urpg::scene;
 
+namespace {
+
+class InputLifecycleScene final : public GameScene {
+  public:
+    SceneType getType() const override { return SceneType::TITLE; }
+    std::string getName() const override { return "InputLifecycleScene"; }
+
+    void handleInput(const input::InputCore& input) override {
+        if (input.isActionJustPressed(input::InputAction::Confirm)) {
+            ++confirmJustPressedCount;
+        }
+        if (input.isActionActive(input::InputAction::Confirm)) {
+            ++confirmActiveCount;
+        }
+    }
+
+    int confirmJustPressedCount = 0;
+    int confirmActiveCount = 0;
+};
+
+void clearSceneStack() {
+    auto& sceneManager = SceneManager::getInstance();
+    while (sceneManager.stackSize() > 0) {
+        sceneManager.popScene();
+    }
+}
+
+} // namespace
+
 TEST_CASE("Engine Shell: Basic Lifecycle", "[shell_unit]") {
     auto& shell = EngineShell::getInstance();
 
@@ -52,6 +81,7 @@ TEST_CASE("Engine Shell: Delta Time Calculation", "[engine][shell]") {
 
 TEST_CASE("EngineShell Tick Loop", "[engine_shell][core]") {
     auto& shell = EngineShell::getInstance();
+    clearSceneStack();
     auto surface = std::make_unique<HeadlessSurface>();
     shell.startup(std::move(surface), std::make_unique<HeadlessRenderer>());
 
@@ -70,6 +100,39 @@ TEST_CASE("EngineShell Tick Loop", "[engine_shell][core]") {
     REQUIRE(movement.isMoving == true);
 
     shell.shutdown();
+    clearSceneStack();
+}
+
+TEST_CASE("EngineShell advances input just-pressed state after scene input", "[engine_shell][core][input]") {
+    auto& shell = EngineShell::getInstance();
+    clearSceneStack();
+    auto surface = std::make_unique<HeadlessSurface>();
+    shell.startup(std::move(surface), std::make_unique<HeadlessRenderer>());
+
+    auto scene = std::make_shared<InputLifecycleScene>();
+    SceneManager::getInstance().pushScene(scene);
+
+    shell.getInput().updateActionState(input::InputAction::Confirm, input::ActionState::Released);
+    shell.getInput().endFrame();
+    shell.getInput().updateActionState(input::InputAction::Confirm, input::ActionState::Pressed);
+
+    shell.tick();
+    REQUIRE(scene->confirmJustPressedCount == 1);
+    REQUIRE(scene->confirmActiveCount == 1);
+    REQUIRE_FALSE(shell.getInput().isActionJustPressed(input::InputAction::Confirm));
+    REQUIRE(shell.getInput().isActionActive(input::InputAction::Confirm));
+
+    shell.tick();
+    REQUIRE(scene->confirmJustPressedCount == 1);
+    REQUIRE(scene->confirmActiveCount == 2);
+
+    shell.getInput().updateActionState(input::InputAction::Confirm, input::ActionState::Released);
+    shell.tick();
+    REQUIRE_FALSE(shell.getInput().isActionActive(input::InputAction::Confirm));
+    REQUIRE_FALSE(shell.getInput().isActionJustReleased(input::InputAction::Confirm));
+
+    shell.shutdown();
+    clearSceneStack();
 }
 
 TEST_CASE("EngineShell Delta Time Clamp", "[engine][core]") {

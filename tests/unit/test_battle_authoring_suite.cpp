@@ -5,8 +5,9 @@
 #include "engine/core/battle/party_tactics_profile.h"
 
 #include <catch2/catch_test_macros.hpp>
+#include <algorithm>
 
-TEST_CASE("Battle presentation validates battlebacks, HUD elements, and deterministic cue replay", "[battle][authoring][ffs05]") {
+TEST_CASE("battle authoring validates battlebacks, HUD elements, and deterministic cue replay", "[battle][authoring][ffs05]") {
     urpg::battle::BattlePresentationProfile profile;
     profile.id = "arena";
     profile.battleback1 = "img/battlebacks1/CrystalCave.png";
@@ -37,6 +38,22 @@ TEST_CASE("Battle presentation validates battlebacks, HUD elements, and determin
     REQUIRE(panel.validation().replay_cues[2].id == "victory");
     REQUIRE_FALSE(panel.validation().diagnostics.empty());
     REQUIRE(panel.validation().diagnostics[0].code == "missing_battleback");
+}
+
+TEST_CASE("battle authoring requires an explicit release battleback", "[battle][authoring][assets]") {
+    urpg::battle::BattlePresentationProfile profile;
+    profile.id = "arena_without_background";
+
+    const auto result = urpg::battle::ValidateBattlePresentationProfile(profile, {});
+
+    REQUIRE(std::any_of(result.diagnostics.begin(), result.diagnostics.end(), [](const auto& diagnostic) {
+        return diagnostic.code == "required_battleback" &&
+               diagnostic.severity == urpg::battle::BattleAuthoringSeverity::Error;
+    }));
+    REQUIRE(std::any_of(result.diagnostics.begin(), result.diagnostics.end(), [](const auto& diagnostic) {
+        return diagnostic.code == "missing_battleback" &&
+               diagnostic.severity == urpg::battle::BattleAuthoringSeverity::Error;
+    }));
 }
 
 TEST_CASE("Boss profile validates phase threshold ordering", "[battle][authoring][ffs05]") {

@@ -190,6 +190,23 @@ TEST_CASE("Ability Inspector Diagnostics Snapshot", "[ability][editor]") {
         REQUIRE(disabledReason("load_draft") == "Editor host has not registered a load-draft command handler.");
     }
 
+    SECTION("Command feedback remains visible after panel refresh") {
+        panel.update(asc);
+        panel.recordCommandResult("save_draft", true, "Saved draft ability to content/abilities/skill_draft.json");
+        panel.render();
+
+        auto renderSnap = panel.getRenderSnapshot();
+        REQUIRE(renderSnap.latest_command_id == "save_draft");
+        REQUIRE(renderSnap.latest_command_success);
+        REQUIRE(renderSnap.latest_command_message == "Saved draft ability to content/abilities/skill_draft.json");
+
+        panel.update(asc);
+        renderSnap = panel.getRenderSnapshot();
+        REQUIRE(renderSnap.latest_command_id == "save_draft");
+        REQUIRE(renderSnap.latest_command_success);
+        REQUIRE(renderSnap.latest_command_message == "Saved draft ability to content/abilities/skill_draft.json");
+    }
+
     SECTION("Draft ability preview builds a workspace-owned editable runtime") {
         AbilitySystemComponent draftAsc;
         REQUIRE(panel.setDraftAbilityId("skill.authored"));

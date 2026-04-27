@@ -20,9 +20,19 @@ TEST_CASE("InputCore: Key Mapping and Action Processing", "[input][core]") {
 
         input.processKeyEvent(KEY_UP, ActionState::Pressed);
         REQUIRE(input.isActionActive(InputAction::MoveUp));
+        REQUIRE(input.isActionJustPressed(InputAction::MoveUp));
+
+        input.endFrame();
+        REQUIRE(input.isActionActive(InputAction::MoveUp));
+        REQUIRE_FALSE(input.isActionJustPressed(InputAction::MoveUp));
 
         input.processKeyEvent(KEY_UP, ActionState::Released);
         REQUIRE_FALSE(input.isActionActive(InputAction::MoveUp));
+        REQUIRE(input.isActionJustReleased(InputAction::MoveUp));
+
+        input.endFrame();
+        REQUIRE_FALSE(input.isActionActive(InputAction::MoveUp));
+        REQUIRE_FALSE(input.isActionJustReleased(InputAction::MoveUp));
     }
 
     SECTION("Handler callbacks") {
@@ -46,5 +56,27 @@ TEST_CASE("InputCore: Key Mapping and Action Processing", "[input][core]") {
         // Key code 99 is not mapped
         input.processKeyEvent(99, ActionState::Pressed);
         REQUIRE_FALSE(anyTriggered);
+    }
+
+    SECTION("Repeated pressed events while held do not recreate a just-pressed edge") {
+        int pressedEvents = 0;
+        input.addHandler([&](InputAction action, ActionState state) {
+            if (action == InputAction::Confirm && state == ActionState::Pressed) {
+                ++pressedEvents;
+            }
+        });
+
+        input.processKeyEvent(KEY_Z, ActionState::Pressed);
+        REQUIRE(input.isActionJustPressed(InputAction::Confirm));
+        REQUIRE(pressedEvents == 1);
+
+        input.endFrame();
+        REQUIRE(input.isActionActive(InputAction::Confirm));
+        REQUIRE_FALSE(input.isActionJustPressed(InputAction::Confirm));
+
+        input.processKeyEvent(KEY_Z, ActionState::Pressed);
+        REQUIRE(input.isActionActive(InputAction::Confirm));
+        REQUIRE_FALSE(input.isActionJustPressed(InputAction::Confirm));
+        REQUIRE(pressedEvents == 1);
     }
 }

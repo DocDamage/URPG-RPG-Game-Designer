@@ -191,6 +191,40 @@ TEST_CASE("AnalyticsUploader: flush forwards events to handler as JSON",
     REQUIRE(batch[0]["sessionId"] == "s1");
 }
 
+TEST_CASE("AnalyticsUploader: local JSONL export writes consent-gated batches",
+          "[analytics][upload][privacy][consent]") {
+    const auto unique = std::to_string(std::chrono::steady_clock::now().time_since_epoch().count());
+    const auto root = std::filesystem::temp_directory_path() / ("urpg_analytics_export_" + unique);
+    const auto exportPath = root / "reports" / "analytics" / "events.jsonl";
+
+    AnalyticsUploader uploader;
+    uploader.setLocalJsonlExportPath(exportPath);
+
+    std::vector<AnalyticsEvent> events = {
+        {"editor.open", "ui", 1, {{"panel", "analytics"}}},
+    };
+
+    const auto result = uploader.flush(events, "local-session");
+    REQUIRE(result.success);
+    REQUIRE(result.eventsFlushed == 1);
+    REQUIRE(uploader.localJsonlExportPath().has_value());
+    REQUIRE(*uploader.localJsonlExportPath() == exportPath);
+
+    std::ifstream in(exportPath, std::ios::binary);
+    REQUIRE(in.good());
+    std::string line;
+    std::getline(in, line);
+    const auto exported = nlohmann::json::parse(line);
+    REQUIRE(exported["schema"] == "urpg.analytics.local_export.v1");
+    REQUIRE(exported["transport"] == "local_jsonl");
+    REQUIRE(exported["batch"].is_array());
+    REQUIRE(exported["batch"][0]["eventName"] == "editor.open");
+    REQUIRE(exported["batch"][0]["sessionId"] == "local-session");
+
+    std::error_code ec;
+    std::filesystem::remove_all(root, ec);
+}
+
 TEST_CASE("AnalyticsUploader: batching splits events into multiple handler calls",
           "[analytics][upload][s28t07]") {
     int callCount = 0;

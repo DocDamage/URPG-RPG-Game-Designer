@@ -289,6 +289,10 @@ TEST_CASE("MapScene Render Sync", "[render][scene]") {
     layer.flush();
 
     MapScene map("RenderTest", 2, 2);
+    map.setAssetReferences({
+        {"render_test_player", {}},
+        {"render_test_tileset", {}},
+    });
     map.setTile(0, 0, 101, true);
 
     // Trigger render submission
@@ -310,7 +314,7 @@ TEST_CASE("MapScene Render Sync", "[render][scene]") {
         }
         if (cmd.type == RenderCmdType::Sprite) {
             const auto* spriteCmd = cmd.tryGet<SpriteRenderData>();
-            if (spriteCmd != nullptr && spriteCmd->textureId == "hero_sprite") {
+            if (spriteCmd != nullptr && spriteCmd->textureId == "render_test_player") {
                 foundPlayer = true;
             }
         }

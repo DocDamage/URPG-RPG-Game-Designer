@@ -22,6 +22,8 @@ For release packaging:
 
 `DevUnsigned` is the only mode allowed to emit unsigned artifacts. The generated report must show `unsignedArtifactsAllowed: true` and each artifact must carry an `unsignedReason`.
 
+Export-packager smoke outputs that synthesize runtime launchers are explicitly marked as `DevBootstrap`. They include a `DevBootstrap/export_mode.json` sidecar with `productionPlayable: false` and `releaseEligible: false`. These artifacts are valid only for local export smoke tests and must not be promoted into native app release packages.
+
 Release packaging also requires the curated RPG Maker plugin release manifest:
 
 ```text
@@ -137,3 +139,5 @@ Package smoke:
 ```powershell
 .\tools\ci\check_package_smoke.ps1 -BuildDirectory build/dev-ninja-release -PackageRoot build/package-smoke
 ```
+
+The package smoke gate rejects any archive containing `DevBootstrap` marker paths or bootstrap-only marker content, so release package archives cannot silently include export-packager smoke launchers.

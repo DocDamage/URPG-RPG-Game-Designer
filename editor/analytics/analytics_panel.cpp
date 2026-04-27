@@ -179,6 +179,8 @@ void AnalyticsPanel::rebuildSnapshot() {
     nlohmann::json snapshot;
     snapshot["dispatcherBound"] = m_dispatcher != nullptr;
     snapshot["uploaderBound"] = m_uploader != nullptr;
+    snapshot["uploadMode"] = "disabled";
+    snapshot["localExportPath"] = "";
     snapshot["privacyControllerBound"] = m_privacyController != nullptr;
     snapshot["sessionId"] = m_sessionId;
     snapshot["lastAction"] = m_lastAction.is_null() ? nlohmann::json::object() : m_lastAction;
@@ -275,6 +277,11 @@ void AnalyticsPanel::rebuildSnapshot() {
     snapshot["validationIssues"] = std::move(validationIssues);
     snapshot["errorCount"] = errorCount;
     snapshot["warningCount"] = warningCount;
+
+    if (m_uploader && m_uploader->localJsonlExportPath().has_value()) {
+        snapshot["uploadMode"] = "local_jsonl";
+        snapshot["localExportPath"] = m_uploader->localJsonlExportPath()->generic_string();
+    }
 
     std::string disabledMessage;
     if (!m_uploader) {

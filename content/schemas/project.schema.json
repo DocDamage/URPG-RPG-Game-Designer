@@ -112,6 +112,40 @@
         },
         "additionalProperties": false
       }
+    },
+    "startup": {
+      "type": "object",
+      "description": "Runtime startup scene and release map asset references.",
+      "properties": {
+        "map": { "type": "string", "minLength": 1 },
+        "headless_safe": { "type": "boolean" },
+        "map_assets": {
+          "type": "object",
+          "description": "Logical render asset ids and optional project-relative source paths for the startup map.",
+          "properties": {
+            "player_sprite": {
+              "type": "object",
+              "required": ["id"],
+              "properties": {
+                "id": { "type": "string", "minLength": 1 },
+                "path": { "type": "string", "minLength": 1 }
+              },
+              "additionalProperties": false
+            },
+            "tileset": {
+              "type": "object",
+              "required": ["id"],
+              "properties": {
+                "id": { "type": "string", "minLength": 1 },
+                "path": { "type": "string", "minLength": 1 }
+              },
+              "additionalProperties": false
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": true
     }
   },
   "additionalProperties": true

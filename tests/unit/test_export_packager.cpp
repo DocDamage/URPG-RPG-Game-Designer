@@ -26,6 +26,7 @@ namespace {
 
 constexpr char kBundleMagic[] = "URPGPCK1";
 constexpr char kAssetDiscoveryManifestPath[] = "export/asset_discovery_manifest.json";
+constexpr char kDevBootstrapMetadataPath[] = "DevBootstrap/export_mode.json";
 
 void WriteFile(const std::filesystem::path& path, const std::string& content = "") {
     std::filesystem::create_directories(path.parent_path());
@@ -406,6 +407,49 @@ TEST_CASE("ExportPackager::validateBeforeExport fails when real Windows smoke ru
     std::filesystem::remove_all(base);
 }
 
+TEST_CASE("ExportPackager::validateBeforeExport rejects release native exports without a real runtime",
+          "[export][packager][release]") {
+    const auto base = std::filesystem::temp_directory_path() / "urpg_export_packager_release_missing_runtime";
+    std::filesystem::remove_all(base);
+    std::filesystem::create_directories(base);
+
+    ExportPackager packager;
+    ExportConfig config{};
+    config.target = ExportTarget::Windows_x64;
+    config.mode = ExportMode::Release;
+    config.outputDir = base.string();
+
+    const auto result = packager.validateBeforeExport(config);
+
+    REQUIRE_FALSE(result.passed);
+    REQUIRE_FALSE(result.errors.empty());
+    REQUIRE(result.errors[0].find("Release native export requires runtimeBinaryPath") != std::string::npos);
+
+    std::filesystem::remove_all(base);
+}
+
+TEST_CASE("ExportPackager::validateBeforeExport rejects release Web bootstrap exports",
+          "[export][packager][release]") {
+    const auto base = std::filesystem::temp_directory_path() / "urpg_export_packager_release_web_bootstrap";
+    std::filesystem::remove_all(base);
+    std::filesystem::create_directories(base);
+
+    ExportPackager packager;
+    ExportConfig config{};
+    config.target = ExportTarget::Web_WASM;
+    config.mode = ExportMode::Release;
+    config.outputDir = base.string();
+
+    const auto result = packager.validateBeforeExport(config);
+
+    REQUIRE_FALSE(result.passed);
+    REQUIRE_FALSE(result.errors.empty());
+    REQUIRE(result.errors[0].find("Release Web export requires a real WebAssembly/runtime artifact") !=
+            std::string::npos);
+
+    std::filesystem::remove_all(base);
+}
+
 TEST_CASE("ExportPackager::runExport result contains correct file list from a fresh directory", "[export][packager]") {
     const auto base = std::filesystem::temp_directory_path() / "urpg_export_packager_run_valid";
     std::filesystem::remove_all(base);
@@ -420,10 +464,20 @@ TEST_CASE("ExportPackager::runExport result contains correct file list from a fr
 
     INFO(result.log);
     REQUIRE(result.success);
+    REQUIRE(result.log.find("Export mode: dev_bootstrap") != std::string::npos);
+    REQUIRE(result.log.find("bootstrap-only and not a playable release package") != std::string::npos);
     REQUIRE_FALSE(result.generatedFiles.empty());
     REQUIRE(result.generatedFiles[0] == "data.pck");
     REQUIRE(std::filesystem::exists(base / "data.pck"));
+    REQUIRE(std::filesystem::exists(base / kDevBootstrapMetadataPath));
     REQUIRE_FALSE(std::filesystem::exists(base / "data.pck.tmp"));
+
+    const auto bootstrapMetadata = nlohmann::json::parse(ReadFileText(base / kDevBootstrapMetadataPath));
+    REQUIRE(bootstrapMetadata["schema"] == "urpg.export.dev_bootstrap.v1");
+    REQUIRE(bootstrapMetadata["mode"] == "DevBootstrap");
+    REQUIRE(bootstrapMetadata["target"] == "Windows_x64");
+    REQUIRE(bootstrapMetadata["productionPlayable"] == false);
+    REQUIRE(bootstrapMetadata["releaseEligible"] == false);
 
     const auto manifest = ReadBundleManifest(base / "data.pck");
     REQUIRE(manifest["format"] == "URPG_BOUNDED_EXPORT_BUNDLE_V1");
@@ -485,6 +539,29 @@ TEST_CASE("ExportPackager::runExport result contains correct file list from a fr
             REQUIRE(payload["failClosedForUnsupportedModes"] == true);
         }
     }
+
+    std::filesystem::remove_all(base);
+}
+
+TEST_CASE("ExportPackager::runExport fails release native export before bootstrap artifact synthesis",
+          "[export][packager][release]") {
+    const auto base = std::filesystem::temp_directory_path() / "urpg_export_packager_release_run_missing_runtime";
+    std::filesystem::remove_all(base);
+
+    ExportPackager packager;
+    ExportConfig config{};
+    config.target = ExportTarget::Windows_x64;
+    config.mode = ExportMode::Release;
+    config.outputDir = base.string();
+    config.compressAssets = true;
+
+    const auto result = packager.runExport(config);
+
+    INFO(result.log);
+    REQUIRE_FALSE(result.success);
+    REQUIRE(result.log.find("Pre-export validation failed.") != std::string::npos);
+    REQUIRE(result.log.find("Release native export requires runtimeBinaryPath") != std::string::npos);
+    REQUIRE_FALSE(std::filesystem::exists(base / "game.exe"));
 
     std::filesystem::remove_all(base);
 }
@@ -1144,14 +1221,19 @@ TEST_CASE("ExportPackager synthesizes bounded real Web bootstrap artifacts", "[e
     REQUIRE(std::filesystem::exists(base / "index.html"));
     REQUIRE(std::filesystem::exists(base / "game.js"));
     REQUIRE(std::filesystem::exists(base / "game.wasm"));
+    REQUIRE(std::filesystem::exists(base / kDevBootstrapMetadataPath));
 
     const auto html = ReadFileText(base / "index.html");
     const auto js = ReadFileText(base / "game.js");
     const auto wasm = ReadFileBytes(base / "game.wasm");
+    const auto metadata = nlohmann::json::parse(ReadFileText(base / kDevBootstrapMetadataPath));
 
     REQUIRE(html.find("<script type=\"module\" src=\"./game.js\"></script>") != std::string::npos);
     REQUIRE(js.find("fetch(bundlePath)") != std::string::npos);
     REQUIRE(js.find("WebAssembly.instantiate") != std::string::npos);
+    REQUIRE(metadata["mode"] == "DevBootstrap");
+    REQUIRE(metadata["target"] == "Web_WASM");
+    REQUIRE(metadata["releaseEligible"] == false);
     REQUIRE(wasm.size() == 8);
     REQUIRE(wasm[0] == 0x00);
     REQUIRE(wasm[1] == 0x61);
@@ -1181,11 +1263,16 @@ TEST_CASE("ExportPackager synthesizes bounded Linux bootstrap launcher", "[expor
     REQUIRE(result.success);
     REQUIRE(std::filesystem::exists(base / "game"));
     REQUIRE(std::filesystem::exists(base / "data.pck"));
+    REQUIRE(std::filesystem::exists(base / kDevBootstrapMetadataPath));
 
     const auto script = ReadFileText(base / "game");
+    const auto metadata = nlohmann::json::parse(ReadFileText(base / kDevBootstrapMetadataPath));
     REQUIRE(script.find("#!/bin/sh") == 0);
     REQUIRE(script.find("data.pck") != std::string::npos);
     REQUIRE(script.find("URPG bounded Linux export bootstrap ready") != std::string::npos);
+    REQUIRE(metadata["mode"] == "DevBootstrap");
+    REQUIRE(metadata["target"] == "Linux_x64");
+    REQUIRE(metadata["releaseEligible"] == false);
 
     std::filesystem::remove_all(base);
 }
@@ -1208,15 +1295,20 @@ TEST_CASE("ExportPackager synthesizes bounded macOS app bootstrap", "[export][pa
     REQUIRE(std::filesystem::exists(base / "data.pck"));
     REQUIRE(std::filesystem::exists(base / "MyGame.app" / "Contents" / "Info.plist"));
     REQUIRE(std::filesystem::exists(base / "MyGame.app" / "Contents" / "MacOS" / "MyGame"));
+    REQUIRE(std::filesystem::exists(base / kDevBootstrapMetadataPath));
 
     const auto plist = ReadFileText(base / "MyGame.app" / "Contents" / "Info.plist");
     const auto script = ReadFileText(base / "MyGame.app" / "Contents" / "MacOS" / "MyGame");
+    const auto metadata = nlohmann::json::parse(ReadFileText(base / kDevBootstrapMetadataPath));
 
     REQUIRE(plist.find("<key>CFBundleExecutable</key>") != std::string::npos);
     REQUIRE(plist.find("<string>MyGame</string>") != std::string::npos);
     REQUIRE(script.find("#!/bin/sh") == 0);
     REQUIRE(script.find("data.pck") != std::string::npos);
     REQUIRE(script.find("URPG bounded macOS export bootstrap ready") != std::string::npos);
+    REQUIRE(metadata["mode"] == "DevBootstrap");
+    REQUIRE(metadata["target"] == "macOS_Universal");
+    REQUIRE(metadata["releaseEligible"] == false);
 
     std::filesystem::remove_all(base);
 }
@@ -1407,6 +1499,43 @@ TEST_CASE("urpg_pack_cli reports preflight failures without exporting", "[export
     REQUIRE(std::filesystem::is_regular_file(outputFile));
 
     std::filesystem::remove(outputFile);
+#else
+    SUCCEED("URPG pack CLI path is not available in this build.");
+#endif
+}
+
+TEST_CASE("urpg_pack_cli release mode rejects bootstrap-only native exports", "[export][packager][cli][release]") {
+#ifdef URPG_PACK_CLI_PATH
+    const auto outputDir =
+        std::filesystem::temp_directory_path() /
+        ("urpg_pack_cli_release_missing_runtime_" +
+         std::to_string(std::chrono::steady_clock::now().time_since_epoch().count()));
+    std::filesystem::remove_all(outputDir);
+
+    const auto result = RunPackCli({
+        "--json",
+        "--release",
+        "--target",
+        "Windows_x64",
+        "--output",
+        outputDir.string(),
+    });
+
+    INFO(result.stderrText);
+    INFO(result.stdoutText);
+    REQUIRE(result.exitCode != 0);
+    REQUIRE_FALSE(result.stdoutText.empty());
+
+    const auto report = nlohmann::json::parse(result.stdoutText);
+    REQUIRE(report["tool"] == "urpg_pack_cli");
+    REQUIRE(report["mode"] == "release");
+    REQUIRE(report["success"] == false);
+    REQUIRE(report["preflight"]["passed"] == false);
+    REQUIRE(report["preflight"]["errors"][0].get<std::string>().find("Release native export requires runtimeBinaryPath") !=
+            std::string::npos);
+    REQUIRE_FALSE(std::filesystem::exists(outputDir / "game.exe"));
+
+    std::filesystem::remove_all(outputDir);
 #else
     SUCCEED("URPG pack CLI path is not available in this build.");
 #endif

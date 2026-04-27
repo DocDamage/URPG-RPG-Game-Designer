@@ -5,6 +5,7 @@
 #include "engine/core/platform/headless_surface.h"
 #include "engine/core/save/runtime_save_startup.h"
 #include "engine/core/scene/map_scene.h"
+#include "engine/core/scene/options_scene.h"
 #include "engine/core/scene/runtime_title_scene.h"
 #include "engine/core/scene/scene_manager.h"
 #include "engine/core/settings/app_settings_store.h"
@@ -17,6 +18,7 @@
 
 #include <chrono>
 #include <exception>
+#include <filesystem>
 #include <iostream>
 #include <memory>
 #include <string>
@@ -65,6 +67,21 @@ void printStartupFailure(const urpg::diagnostics::StartupDiagnosticRecord& recor
     if (!writeResult.written && !writeResult.error.empty()) {
         std::cerr << "URPG runtime startup diagnostics write failed: " << writeResult.error << "\n";
     }
+}
+
+std::shared_ptr<urpg::scene::MapScene> makeRuntimeMapScene(const std::filesystem::path& projectRoot,
+                                                           const std::string& mapName) {
+    auto map = std::make_shared<urpg::scene::MapScene>(mapName, 16, 12);
+    map->setAssetReferences(urpg::scene::loadRuntimeMapAssetReferences(projectRoot, mapName));
+    return map;
+}
+
+void applyRuntimeAudioSettings(urpg::audio::AudioCore& audio, const urpg::settings::AudioSettings& settings) {
+    audio.setCategoryVolume(urpg::audio::AudioCategory::BGM, settings.bgm_volume * settings.master_volume);
+    audio.setCategoryVolume(urpg::audio::AudioCategory::BGS, settings.bgs_volume * settings.master_volume);
+    audio.setCategoryVolume(urpg::audio::AudioCategory::SE, settings.se_volume * settings.master_volume);
+    audio.setCategoryVolume(urpg::audio::AudioCategory::ME, settings.me_volume * settings.master_volume);
+    audio.setCategoryVolume(urpg::audio::AudioCategory::System, settings.system_volume * settings.master_volume);
 }
 
 } // namespace
@@ -146,17 +163,18 @@ int main(int argc, char** argv) {
             std::cerr << "URPG runtime startup failed.\n";
             return 1;
         }
+        applyRuntimeAudioSettings(shell.getAudio(), settingsLoad.settings.audio);
         printStartupDiagnostics(shell.getRuntimeStartupReport());
 
         clearSceneStack();
         const auto startupSaveState = urpg::discoverRuntimeSaves(options.project_root);
         auto titleScene = urpg::scene::makeDefaultRuntimeTitleScene({
-            [] {
+            [&options] {
                 urpg::scene::SceneManager::getInstance().gotoScene(
-                    std::make_shared<urpg::scene::MapScene>("RuntimeBoot", 16, 12));
+                    makeRuntimeMapScene(options.project_root, "RuntimeBoot"));
             },
             [&shell] { shell.shutdown(); },
-            [startupSaveState] {
+            [startupSaveState, &options] {
                 const auto result = urpg::continueNewestRuntimeSave(startupSaveState);
                 if (!result.ok) {
                     std::cerr << "URPG runtime continue failed: " << result.error << "\n";
@@ -174,9 +192,20 @@ int main(int argc, char** argv) {
                 }
 
                 urpg::scene::SceneManager::getInstance().gotoScene(
-                    std::make_shared<urpg::scene::MapScene>(mapName, 16, 12));
+                    makeRuntimeMapScene(options.project_root, mapName));
                 return urpg::scene::RuntimeTitleCommandResult{
                     true, true, "continue_loaded", "Continue loaded the newest save slot."};
+            },
+            [&settingsLoad, &settingsPaths, &shell] {
+                urpg::scene::SceneManager::getInstance().pushScene(urpg::scene::makeRuntimeOptionsScene(
+                    settingsLoad.settings, settingsPaths.runtime_settings,
+                    {
+                        [] { urpg::scene::SceneManager::getInstance().popScene(); },
+                        [&settingsLoad, &shell](const urpg::settings::RuntimeSettings& savedSettings) {
+                            settingsLoad.settings = savedSettings;
+                            applyRuntimeAudioSettings(shell.getAudio(), settingsLoad.settings.audio);
+                        },
+                    }));
             },
         });
         titleScene->setContinueAvailability(startupSaveState.hasLoadableSave(), startupSaveState.continueDisabledReason());

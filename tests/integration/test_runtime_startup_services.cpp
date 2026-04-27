@@ -2,9 +2,11 @@
 #include "engine/core/diagnostics/runtime_diagnostics.h"
 #include "engine/core/engine_shell.h"
 #include "engine/core/input/input_core.h"
+#include "engine/core/input/input_remap_store.h"
 #include "engine/core/platform/headless_renderer.h"
 #include "engine/core/platform/headless_surface.h"
 #include "engine/core/runtime_startup_services.h"
+#include "engine/core/settings/app_settings_store.h"
 
 #include <catch2/catch_test_macros.hpp>
 
@@ -99,6 +101,74 @@ TEST_CASE("RuntimeStartupServices surfaces invalid locale catalogs as targeted d
 
     REQUIRE(report.hasErrors());
     REQUIRE(report.hasSubsystemCode("LocaleCatalog", "localization.json_parse_failed"));
+}
+
+TEST_CASE("RuntimeStartupServices loads runtime input remap from project-relative settings path",
+          "[integration][runtime][startup][input][remap][settings]") {
+    const TempProject project;
+    const auto settingsPaths = urpg::settings::appSettingsPaths(project.root());
+
+    auto runtimeSettings = urpg::settings::defaultRuntimeSettings();
+    runtimeSettings.input_mapping_path = "config/custom_input.json";
+    REQUIRE(urpg::settings::saveRuntimeSettings(settingsPaths.runtime_settings, runtimeSettings));
+
+    urpg::input::InputRemapStore remapStore;
+    remapStore.clear();
+    remapStore.setMapping('F', urpg::input::InputAction::Confirm);
+    project.writeFile("config/custom_input.json", remapStore.saveToJson().dump(2));
+
+    urpg::audio::AudioCore audio;
+    urpg::input::InputCore input;
+
+    const auto report = urpg::RuntimeStartupServices::initialize(project.root(), audio, input, true);
+
+    REQUIRE_FALSE(report.hasErrors());
+    REQUIRE(report.hasSubsystemCode("InputManager", "input.default_map_ready"));
+    REQUIRE(report.hasSubsystemCode("InputManager", "input.remap_loaded"));
+    REQUIRE(report.input_mapping_count == 1);
+    REQUIRE(input.hasMappingFor('F', urpg::input::InputAction::Confirm));
+    REQUIRE_FALSE(input.hasMappingFor('Z', urpg::input::InputAction::Confirm));
+}
+
+TEST_CASE("RuntimeStartupServices warns and keeps defaults when configured input remap is missing",
+          "[integration][runtime][startup][input][remap][settings]") {
+    const TempProject project;
+    const auto settingsPaths = urpg::settings::appSettingsPaths(project.root());
+
+    auto runtimeSettings = urpg::settings::defaultRuntimeSettings();
+    runtimeSettings.input_mapping_path = "config/missing_input.json";
+    REQUIRE(urpg::settings::saveRuntimeSettings(settingsPaths.runtime_settings, runtimeSettings));
+
+    urpg::audio::AudioCore audio;
+    urpg::input::InputCore input;
+
+    const auto report = urpg::RuntimeStartupServices::initialize(project.root(), audio, input, true);
+
+    REQUIRE_FALSE(report.hasErrors());
+    REQUIRE(report.hasSubsystemCode("InputManager", "input.remap_missing"));
+    REQUIRE(input.hasMappingFor('W', urpg::input::InputAction::MoveUp));
+    REQUIRE(input.hasMappingFor('Z', urpg::input::InputAction::Confirm));
+}
+
+TEST_CASE("RuntimeStartupServices warns and keeps defaults when input remap is malformed",
+          "[integration][runtime][startup][input][remap][settings]") {
+    const TempProject project;
+    const auto settingsPaths = urpg::settings::appSettingsPaths(project.root());
+
+    auto runtimeSettings = urpg::settings::defaultRuntimeSettings();
+    runtimeSettings.input_mapping_path = "config/bad_input.json";
+    REQUIRE(urpg::settings::saveRuntimeSettings(settingsPaths.runtime_settings, runtimeSettings));
+    project.writeFile("config/bad_input.json", "{ not valid json");
+
+    urpg::audio::AudioCore audio;
+    urpg::input::InputCore input;
+
+    const auto report = urpg::RuntimeStartupServices::initialize(project.root(), audio, input, true);
+
+    REQUIRE_FALSE(report.hasErrors());
+    REQUIRE(report.hasSubsystemCode("InputManager", "input.remap_json_parse_failed"));
+    REQUIRE(input.hasMappingFor('W', urpg::input::InputAction::MoveUp));
+    REQUIRE(input.hasMappingFor('Z', urpg::input::InputAction::Confirm));
 }
 
 TEST_CASE("EngineShell startup invokes RuntimeStartupServices",

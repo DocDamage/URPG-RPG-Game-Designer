@@ -1,5 +1,6 @@
 #include "engine/core/analytics/analytics_uploader.h"
 
+#include <fstream>
 #include <nlohmann/json.hpp>
 #include <unordered_map>
 
@@ -7,6 +8,7 @@ namespace urpg::analytics {
 
 void AnalyticsUploader::setUploadHandler(UploadHandler handler) {
     m_handler = std::move(handler);
+    m_localJsonlExportPath.reset();
 }
 
 bool AnalyticsUploader::hasUploadHandler() const {
@@ -15,6 +17,36 @@ bool AnalyticsUploader::hasUploadHandler() const {
 
 void AnalyticsUploader::setBatchSize(size_t batchSize) {
     m_batchSize = batchSize;
+}
+
+void AnalyticsUploader::setLocalJsonlExportPath(std::filesystem::path path) {
+    m_localJsonlExportPath = std::move(path);
+    const auto exportPath = *m_localJsonlExportPath;
+    m_handler = [exportPath](const std::string& jsonPayload) {
+        std::error_code ec;
+        std::filesystem::create_directories(exportPath.parent_path(), ec);
+        if (ec) {
+            return false;
+        }
+
+        const auto batch = nlohmann::json::parse(jsonPayload, nullptr, false);
+        if (batch.is_discarded()) {
+            return false;
+        }
+
+        std::ofstream out(exportPath, std::ios::binary | std::ios::app);
+        if (!out) {
+            return false;
+        }
+
+        const nlohmann::json line = {
+            {"schema", "urpg.analytics.local_export.v1"},
+            {"transport", "local_jsonl"},
+            {"batch", batch},
+        };
+        out << line.dump() << "\n";
+        return out.good();
+    };
 }
 
 UploadFlushResult AnalyticsUploader::flush(const std::vector<AnalyticsEvent>& events, const std::string& sessionId) {

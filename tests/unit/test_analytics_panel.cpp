@@ -5,6 +5,7 @@
 #include "engine/core/analytics/analytics_privacy_controller.h"
 #include "engine/core/analytics/analytics_uploader.h"
 
+#include <filesystem>
 #include <string>
 #include <vector>
 
@@ -256,4 +257,36 @@ TEST_CASE("AnalyticsPanel flush upload sends queued events and clears queue on s
     REQUIRE(snapshot["lastAction"]["affectedEvents"] == 1);
     REQUIRE(uploadedPayloads.size() == 1);
     REQUIRE(uploadedPayloads[0].find("analytics-panel-test") != std::string::npos);
+}
+
+TEST_CASE("AnalyticsPanel reports release local export handler as upload mode",
+          "[analytics][editor][panel][privacy][consent]") {
+    AnalyticsDispatcher dispatcher;
+    AnalyticsUploader uploader;
+    AnalyticsPrivacyController privacy;
+    AnalyticsPanel panel;
+    panel.bindDispatcher(&dispatcher);
+    panel.bindUploader(&uploader);
+    panel.bindPrivacyController(&privacy);
+
+    const auto exportRoot = std::filesystem::temp_directory_path() / "urpg_analytics_panel_local_export";
+    const auto exportPath = exportRoot / "reports" / "analytics" / "editor_analytics.jsonl";
+    uploader.setLocalJsonlExportPath(exportPath);
+    privacy.recordConsentDecision(ConsentState::Granted);
+    dispatcher.setOptIn(true);
+    dispatcher.dispatchEvent("queued", "ui");
+
+    panel.render();
+    auto snapshot = panel.lastRenderSnapshot();
+    REQUIRE(snapshot["uploadMode"] == "local_jsonl");
+    REQUIRE(snapshot["localExportPath"] == exportPath.generic_string());
+    REQUIRE(snapshot["actions"]["flushUpload"] == true);
+
+    REQUIRE(panel.flushQueuedEvents());
+    snapshot = panel.lastRenderSnapshot();
+    REQUIRE(snapshot["lastAction"]["success"] == true);
+    REQUIRE(snapshot["lastAction"]["affectedEvents"] == 1);
+
+    std::error_code ec;
+    std::filesystem::remove_all(exportRoot, ec);
 }

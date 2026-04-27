@@ -60,6 +60,43 @@ function Assert-ZipContains {
   }
 }
 
+function Assert-ZipExcludesDevBootstrapMarkers {
+  param(
+    [Parameter(Mandatory = $true)]
+    [string]$ArchivePath
+  )
+
+  Add-Type -AssemblyName System.IO.Compression.FileSystem
+  $archive = [System.IO.Compression.ZipFile]::OpenRead($ArchivePath)
+  try {
+    foreach ($entry in $archive.Entries) {
+      $normalized = $entry.FullName.Replace("\", "/")
+      if ($normalized -match "(^|/)DevBootstrap(/|$)" -or $normalized -match "dev_bootstrap") {
+        throw "Release package archive '$ArchivePath' contains DevBootstrap marker entry '$normalized'."
+      }
+
+      if ($entry.Length -gt 0 -and $entry.Length -lt 1048576) {
+        $stream = $entry.Open()
+        try {
+          $reader = New-Object System.IO.StreamReader($stream)
+          try {
+            $text = $reader.ReadToEnd()
+            if ($text.Contains("URPG DEV BOOTSTRAP ONLY") -or $text.Contains('"mode": "DevBootstrap"')) {
+              throw "Release package archive '$ArchivePath' contains DevBootstrap marker content in '$normalized'."
+            }
+          } finally {
+            $reader.Dispose()
+          }
+        } finally {
+          $stream.Dispose()
+        }
+      }
+    }
+  } finally {
+    $archive.Dispose()
+  }
+}
+
 $RepoRoot = [System.IO.Path]::GetFullPath($RepoRoot)
 $BuildDirectory = Resolve-UnderRoot -Root $RepoRoot -Path $BuildDirectory
 $PackageRoot = Resolve-UnderRoot -Root $RepoRoot -Path $PackageRoot
@@ -101,6 +138,10 @@ $docsArchive = $archives | Where-Object { $_.Name -match "Docs" } | Select-Objec
 if ($null -eq $runtimeArchive -or $null -eq $runtimeDataArchive -or $null -eq $docsArchive) {
   throw "Could not identify Runtime, RuntimeData, and Docs component archives in $PackageRoot."
 }
+
+Assert-ZipExcludesDevBootstrapMarkers -ArchivePath $runtimeArchive.FullName
+Assert-ZipExcludesDevBootstrapMarkers -ArchivePath $runtimeDataArchive.FullName
+Assert-ZipExcludesDevBootstrapMarkers -ArchivePath $docsArchive.FullName
 
 $exeSuffix = ""
 if ($IsWindows -or $env:OS -eq "Windows_NT") {

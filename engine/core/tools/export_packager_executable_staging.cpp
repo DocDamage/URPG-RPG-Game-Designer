@@ -9,6 +9,35 @@ namespace urpg::tools::export_packager_detail {
 
 namespace {
 
+constexpr const char* kDevBootstrapMetadataPath = "DevBootstrap/export_mode.json";
+
+std::string targetModeName(ExportTarget target) {
+    switch (target) {
+    case ExportTarget::Windows_x64:
+        return "Windows_x64";
+    case ExportTarget::Linux_x64:
+        return "Linux_x64";
+    case ExportTarget::macOS_Universal:
+        return "macOS_Universal";
+    case ExportTarget::Web_WASM:
+        return "Web_WASM";
+    }
+    return "Unknown";
+}
+
+std::string makeDevBootstrapMetadata(ExportTarget target) {
+    return std::string("{\n") +
+           "  \"schema\": \"urpg.export.dev_bootstrap.v1\",\n"
+           "  \"mode\": \"DevBootstrap\",\n"
+           "  \"target\": \"" +
+           targetModeName(target) +
+           "\",\n"
+           "  \"productionPlayable\": false,\n"
+           "  \"releaseEligible\": false,\n"
+           "  \"reason\": \"Synthetic bootstrap artifact for local smoke tests only.\"\n"
+           "}\n";
+}
+
 std::string makeWebBootstrapHtml() {
     return R"(<!DOCTYPE html>
 <html lang="en">
@@ -146,6 +175,16 @@ bool writeBytesFile(const std::filesystem::path& path, const std::vector<std::ui
     return out.good();
 }
 
+bool writeDevBootstrapMetadata(const std::filesystem::path& outDir, ExportTarget target) {
+    const auto metadataPath = outDir / kDevBootstrapMetadataPath;
+    std::error_code dirError;
+    std::filesystem::create_directories(metadataPath.parent_path(), dirError);
+    if (dirError) {
+        return false;
+    }
+    return writeTextFile(metadataPath, makeDevBootstrapMetadata(target));
+}
+
 void makeExecutable(const std::filesystem::path& path) {
     std::error_code chmodError;
     std::filesystem::permissions(path,
@@ -247,6 +286,12 @@ ExecutableStageResult stageRealMacRuntime(const ExportConfig& config) {
 } // namespace
 
 ExecutableStageResult stageExecutableArtifacts(const ExportConfig& config) {
+    if (config.mode == ExportMode::Release && config.target == ExportTarget::Web_WASM) {
+        ExecutableStageResult result;
+        result.log += "Release Web runtime staging is unavailable: no real WASM/runtime artifact contract exists.\n";
+        return result;
+    }
+
     if (config.target == ExportTarget::Windows_x64 && !config.runtimeBinaryPath.empty()) {
         return stageRealWindowsRuntime(config);
     }
@@ -262,11 +307,12 @@ ExecutableStageResult stageExecutableArtifacts(const ExportConfig& config) {
 
     switch (config.target) {
     case ExportTarget::Windows_x64: {
-        if (!writeTextFile(outDir / "game.exe", "MZ synthetic windows executable\n")) {
+        if (!writeTextFile(outDir / "game.exe", "URPG DEV BOOTSTRAP ONLY - synthetic Windows executable\n")) {
             result.log += "Failed to synthesize bounded Windows executable placeholder.\n";
             return result;
         }
         result.files.push_back("game.exe");
+        result.log += "Synthesized bounded Windows dev bootstrap executable placeholder.\n";
         break;
     }
     case ExportTarget::Linux_x64: {
@@ -317,6 +363,12 @@ ExecutableStageResult stageExecutableArtifacts(const ExportConfig& config) {
     }
     }
 
+    if (!writeDevBootstrapMetadata(outDir, config.target)) {
+        result.log += "Failed to write DevBootstrap export metadata.\n";
+        result.files.clear();
+        return result;
+    }
+    result.files.push_back(kDevBootstrapMetadataPath);
     result.log += "Synthesized " + std::to_string(result.files.size()) + " executable artifact(s).\n";
     return result;
 }

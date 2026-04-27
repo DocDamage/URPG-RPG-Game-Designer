@@ -32,7 +32,7 @@ Removing or corrupting that file causes the editor to recover to defaults, which
 
 ## Uploads
 
-The uploader is transport-agnostic and has no network upload handler configured by default in `urpg_editor`. Even if queued events exist, upload is blocked unless a handler is configured, analytics opt-in is enabled, and consent is granted.
+The uploader is transport-agnostic and has no network upload handler configured by default in `urpg_editor`. The release editor configures a local JSONL export handler at `reports/analytics/editor_analytics.jsonl`; queued events are written there only when analytics opt-in is enabled and consent is granted.
 
 URPG does not currently configure advertising identifiers, third-party analytics SDKs, or automatic crash-report uploads in the shipped editor/runtime entry points.
 

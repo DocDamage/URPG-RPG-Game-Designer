@@ -60,6 +60,9 @@ class AbilityInspectorPanel {
         size_t diagnostic_count = 0;
         std::string latest_ability_id;
         std::string latest_outcome;
+        std::string latest_command_id;
+        bool latest_command_success = false;
+        std::string latest_command_message;
         std::string selected_ability_id;
         bool selected_ability_can_activate = false;
         std::string selected_ability_blocking_reason;
@@ -74,6 +77,7 @@ class AbilityInspectorPanel {
     void clear();
     void render();
     void setCommandCallbacks(CommandCallbacks callbacks);
+    void recordCommandResult(const std::string& command_id, bool success, const std::string& message);
     bool selectAbility(size_t index, const AbilitySystemComponent& asc);
     bool previewSelectedAbility(AbilitySystemComponent& asc);
     void resetDraftAbility();

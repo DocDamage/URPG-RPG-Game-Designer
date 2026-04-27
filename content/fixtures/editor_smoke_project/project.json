@@ -9,5 +9,16 @@
       "authoritative": true,
       "note": "Headless editor smoke fixture"
     }
+  },
+  "startup": {
+    "map": "EditorPreview",
+    "map_assets": {
+      "player_sprite": {
+        "id": "editor_smoke_player"
+      },
+      "tileset": {
+        "id": "editor_smoke_tileset"
+      }
+    }
   }
 }

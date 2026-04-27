@@ -475,6 +475,7 @@ add_library(urpg_core
     engine/core/scene/battle_scene.cpp
     engine/core/scene/map_scene.cpp
     engine/core/scene/menu_scene.cpp
+    engine/core/scene/options_scene.cpp
     engine/core/scene/runtime_title_scene.cpp
     runtimes/compat_js/quickjs_runtime.cpp
     runtimes/compat_js/window_color_parser.cpp
@@ -1192,6 +1193,9 @@ add_executable(urpg_tests
 target_link_libraries(urpg_tests PRIVATE urpg_core Catch2::Catch2WithMain)
 target_include_directories(urpg_tests PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
 target_compile_definitions(urpg_tests PRIVATE URPG_SOURCE_DIR="${CMAKE_CURRENT_SOURCE_DIR}")
+if(MINGW)
+    target_compile_options(urpg_tests PRIVATE -Wa,-mbig-obj)
+endif()
 add_dependencies(urpg_tests urpg_project_audit)
 add_dependencies(urpg_tests urpg_export_smoke_app)
 add_dependencies(urpg_tests urpg_pack_cli)
@@ -1354,6 +1358,21 @@ set_tests_properties(
     PROPERTIES LABELS "pr;editor_smoke"
 )
 
+add_test(
+    NAME urpg_editor_list_panels
+    COMMAND
+        $<TARGET_FILE:urpg_editor>
+        --headless
+        --list-panels
+        --frames
+        1
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+)
+set_tests_properties(
+    urpg_editor_list_panels
+    PROPERTIES LABELS "pr;editor_smoke"
+)
+
 if(URPG_POWERSHELL_EXE)
     add_test(
         NAME urpg_golden_replay_lane
@@ -1415,6 +1434,26 @@ if(URPG_POWERSHELL_EXE)
     set_tests_properties(
         urpg_package_smoke
         PROPERTIES LABELS "nightly;packaging"
+    )
+
+    add_test(
+        NAME urpg_agent_knowledge_check
+        COMMAND
+            ${URPG_POWERSHELL_EXE}
+            -NoProfile
+            -ExecutionPolicy
+            Bypass
+            -File
+            "${CMAKE_SOURCE_DIR}/tools/docs/check-agent-knowledge.ps1"
+            -RepoRoot
+            "${CMAKE_SOURCE_DIR}"
+            -BuildDirectory
+            "${CMAKE_BINARY_DIR}"
+        WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+    )
+    set_tests_properties(
+        urpg_agent_knowledge_check
+        PROPERTIES LABELS "pr;docs;agent"
     )
 else()
     message(STATUS "Skipping PowerShell-backed CTest lanes because PowerShell was not found.")

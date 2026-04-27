@@ -3,8 +3,10 @@
 #include "engine/core/analytics/analytics_event.h"
 
 #include <cstdint>
+#include <filesystem>
 #include <functional>
 #include <nlohmann/json.hpp>
+#include <optional>
 #include <string>
 #include <vector>
 
@@ -61,6 +63,8 @@ class AnalyticsUploader {
      */
     void setUploadHandler(UploadHandler handler);
     bool hasUploadHandler() const;
+    void setLocalJsonlExportPath(std::filesystem::path path);
+    const std::optional<std::filesystem::path>& localJsonlExportPath() const { return m_localJsonlExportPath; }
 
     /**
      * @brief Set the maximum number of events per flush batch.  Defaults to
@@ -92,6 +96,7 @@ class AnalyticsUploader {
 
   private:
     UploadHandler m_handler;
+    std::optional<std::filesystem::path> m_localJsonlExportPath;
     size_t m_batchSize = 100;
     SessionAggregate m_aggregate;
 };

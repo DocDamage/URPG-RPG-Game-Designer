@@ -21,10 +21,19 @@ namespace urpg::tools {
     };
 
     /**
+     * @brief Packaging mode controls whether bootstrap-only smoke artifacts are allowed.
+     */
+    enum class ExportMode {
+        DevBootstrap,
+        Release
+    };
+
+    /**
      * @brief Configuration for the automated export process.
      */
     struct ExportConfig {
         ExportTarget target;
+        ExportMode mode = ExportMode::DevBootstrap;
         std::string outputDir;
         std::string runtimeBinaryPath;
         std::string assetBundleManifestRootOverride;

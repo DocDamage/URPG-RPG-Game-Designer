@@ -33,7 +33,9 @@
 #include <imgui.h>
 #endif
 
+#include <algorithm>
 #include <chrono>
+#include <cctype>
 #include <exception>
 #include <filesystem>
 #include <functional>
@@ -80,14 +82,109 @@ struct EditorPanelRuntime {
     urpg::analytics::AnalyticsDispatcher analytics_dispatcher;
     urpg::analytics::AnalyticsUploader analytics_uploader;
     urpg::analytics::AnalyticsPrivacyController analytics_privacy_controller;
+    std::filesystem::path project_root;
 };
+
+std::string abilityAssetFileName(const urpg::ability::AuthoredAbilityAsset& asset) {
+    std::string stem;
+    stem.reserve(asset.ability_id.size());
+    for (const unsigned char ch : asset.ability_id) {
+        if (std::isalnum(ch) || ch == '_' || ch == '-') {
+            stem.push_back(static_cast<char>(ch));
+        } else if (ch == '.' || ch == '/' || ch == '\\' || ch == ' ') {
+            stem.push_back('_');
+        }
+    }
+
+    if (stem.empty()) {
+        stem = "draft";
+    }
+    return stem + ".json";
+}
 
 bool registerEditorPanels(urpg::editor::EditorShell& editor_shell, EditorPanelRuntime& runtime) {
     runtime.ability_inspector_panel.update(runtime.ability_runtime);
+    runtime.ability_inspector_panel.setCommandCallbacks({
+        [&runtime] {
+            const bool ok = runtime.ability_inspector_panel.previewSelectedAbility(runtime.ability_runtime);
+            runtime.ability_inspector_panel.recordCommandResult(
+                "preview_selected", ok,
+                ok ? "Previewed selected ability against the editor runtime."
+                   : "Select a runtime ability before previewing.");
+            return ok;
+        },
+        [&runtime] {
+            runtime.ability_inspector_panel.applyDraftToRuntime(runtime.ability_runtime);
+            runtime.ability_inspector_panel.update(runtime.ability_runtime);
+            const bool selected = runtime.ability_inspector_panel.selectDraftAbility(runtime.ability_runtime);
+            const auto asset = runtime.ability_inspector_panel.getDraftAsset();
+            runtime.ability_inspector_panel.recordCommandResult(
+                "apply_draft", selected,
+                selected ? "Applied draft ability '" + asset.ability_id + "' to the editor runtime."
+                         : "Draft ability was applied, but the runtime selection could not be refreshed.");
+            return selected;
+        },
+        [&runtime] {
+            if (runtime.project_root.empty()) {
+                runtime.ability_inspector_panel.recordCommandResult("save_draft", false,
+                                                                    "Project root is not configured.");
+                return false;
+            }
+
+            const auto asset = runtime.ability_inspector_panel.getDraftAsset();
+            const auto target_path =
+                urpg::ability::canonicalAbilityContentDirectory(runtime.project_root) / abilityAssetFileName(asset);
+            const bool ok = urpg::ability::saveAuthoredAbilityAssetToFile(asset, target_path);
+            runtime.ability_inspector_panel.recordCommandResult(
+                "save_draft", ok,
+                ok ? "Saved draft ability to " +
+                         std::filesystem::relative(target_path, runtime.project_root).generic_string()
+                   : "Failed to save draft ability to " + target_path.generic_string());
+            return ok;
+        },
+        [&runtime] {
+            if (runtime.project_root.empty()) {
+                runtime.ability_inspector_panel.recordCommandResult("load_draft", false,
+                                                                    "Project root is not configured.");
+                return false;
+            }
+
+            const auto records = urpg::ability::discoverAuthoredAbilityAssets(runtime.project_root);
+            if (records.empty()) {
+                runtime.ability_inspector_panel.recordCommandResult(
+                    "load_draft", false, "No authored ability assets found under content/abilities.");
+                return false;
+            }
+
+            const auto current_asset = runtime.ability_inspector_panel.getDraftAsset();
+            auto selected = records.begin();
+            const auto matching = std::find_if(records.begin(), records.end(), [&current_asset](const auto& record) {
+                return record.ability_id == current_asset.ability_id;
+            });
+            if (matching != records.end()) {
+                selected = matching;
+            }
+
+            const auto asset = urpg::ability::loadAuthoredAbilityAssetFromFile(selected->absolute_path);
+            if (!asset.has_value()) {
+                runtime.ability_inspector_panel.recordCommandResult(
+                    "load_draft", false, "Failed to load " + selected->relative_path + ".");
+                return false;
+            }
+
+            runtime.ability_inspector_panel.setDraftFromAsset(*asset);
+            runtime.ability_inspector_panel.update(runtime.ability_runtime);
+            runtime.ability_inspector_panel.recordCommandResult(
+                "load_draft", true, "Loaded draft ability from " + selected->relative_path + ".");
+            return true;
+        },
+    });
     runtime.pattern_field_panel.bindModel(runtime.pattern_field_model);
     runtime.mod_loader = std::make_unique<urpg::mod::ModLoader>(runtime.mod_registry);
     runtime.mod_manager_panel.bindRegistry(&runtime.mod_registry);
     runtime.mod_manager_panel.bindLoader(runtime.mod_loader.get());
+    runtime.analytics_uploader.setLocalJsonlExportPath(runtime.project_root / "reports" / "analytics" /
+                                                       "editor_analytics.jsonl");
     runtime.analytics_panel.bindDispatcher(&runtime.analytics_dispatcher);
     runtime.analytics_panel.bindUploader(&runtime.analytics_uploader);
     runtime.analytics_panel.bindPrivacyController(&runtime.analytics_privacy_controller);
@@ -375,8 +472,10 @@ int main(int argc, char** argv) {
         }
 
         clearSceneStack();
-        urpg::scene::SceneManager::getInstance().gotoScene(
-            std::make_shared<urpg::scene::MapScene>("EditorPreview", 16, 12));
+        auto editorPreview = std::make_shared<urpg::scene::MapScene>("EditorPreview", 16, 12);
+        editorPreview->setAssetReferences(
+            urpg::scene::loadRuntimeMapAssetReferences(options.project_root, "EditorPreview"));
+        urpg::scene::SceneManager::getInstance().gotoScene(editorPreview);
 
         urpg::editor::EditorShell editorShell;
         editorShell.setProjectRoot(options.project_root);
@@ -400,6 +499,7 @@ int main(int argc, char** argv) {
 #endif
 
         EditorPanelRuntime panelRuntime;
+        panelRuntime.project_root = options.project_root;
         const auto analyticsConsent = analyticsConsentFromSettings(settingsLoad.settings.analytics_consent_state);
         panelRuntime.analytics_privacy_controller.recordConsentDecision(analyticsConsent);
         panelRuntime.analytics_dispatcher.setOptIn(analyticsConsent == urpg::analytics::ConsentState::Granted &&

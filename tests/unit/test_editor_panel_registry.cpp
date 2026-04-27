@@ -27,7 +27,7 @@ TEST_CASE("Editor panel registry exposes canonical top-level panels", "[editor][
 
     const auto* patterns = urpg::editor::findEditorPanelRegistryEntry("patterns");
     REQUIRE(patterns != nullptr);
-    REQUIRE(patterns->exposure == urpg::editor::EditorPanelExposure::TopLevel);
+    REQUIRE(patterns->exposure == urpg::editor::EditorPanelExposure::ReleaseTopLevel);
     REQUIRE(patterns->title == "Pattern Field Editor");
 }
 
@@ -42,7 +42,14 @@ TEST_CASE("Editor panel registry documents every hidden compiled panel", "[edito
         REQUIRE_FALSE(entry.owner.empty());
         REQUIRE(seen.insert(entry.id).second);
 
-        if (entry.exposure != urpg::editor::EditorPanelExposure::TopLevel) {
+        const auto isKnownExposure =
+            entry.exposure == urpg::editor::EditorPanelExposure::ReleaseTopLevel ||
+            entry.exposure == urpg::editor::EditorPanelExposure::Nested ||
+            entry.exposure == urpg::editor::EditorPanelExposure::DevOnly ||
+            entry.exposure == urpg::editor::EditorPanelExposure::Deferred;
+        REQUIRE(isKnownExposure);
+
+        if (entry.exposure != urpg::editor::EditorPanelExposure::ReleaseTopLevel) {
             REQUIRE_FALSE(entry.reason.empty());
         }
     }
@@ -51,11 +58,15 @@ TEST_CASE("Editor panel registry documents every hidden compiled panel", "[edito
 TEST_CASE("Editor panel registry classifies diagnostics and incubating workspaces", "[editor][panel][registry]") {
     const auto* saveInspector = urpg::editor::findEditorPanelRegistryEntry("save_inspector");
     REQUIRE(saveInspector != nullptr);
-    REQUIRE(saveInspector->exposure == urpg::editor::EditorPanelExposure::NestedWorkspace);
+    REQUIRE(saveInspector->exposure == urpg::editor::EditorPanelExposure::Nested);
 
     const auto* spatialAuthoring = urpg::editor::findEditorPanelRegistryEntry("spatial_authoring");
     REQUIRE(spatialAuthoring != nullptr);
-    REQUIRE(spatialAuthoring->exposure == urpg::editor::EditorPanelExposure::Internal);
+    REQUIRE(spatialAuthoring->exposure == urpg::editor::EditorPanelExposure::Deferred);
+
+    const auto* modSdk = urpg::editor::findEditorPanelRegistryEntry("mod_sdk");
+    REQUIRE(modSdk != nullptr);
+    REQUIRE(modSdk->exposure == urpg::editor::EditorPanelExposure::DevOnly);
 
     const auto topLevel = urpg::editor::topLevelEditorPanels();
     REQUIRE(topLevel.size() == urpg::editor::requiredTopLevelPanelIds().size());

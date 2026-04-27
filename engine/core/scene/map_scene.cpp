@@ -2,14 +2,20 @@
 #include "engine/core/animation/animation_ai_bridge.h"
 #include "engine/core/audio/audio_ai_bridge.h"
 #include "engine/core/audio/audio_core.h"
+#include "engine/core/diagnostics/runtime_diagnostics.h"
 #include "engine/core/render/asset_loader.h"
 #include "engine/core/save/save_runtime.h"
 #include "engine/core/save/save_serialization_hub.h"
+#include <fstream>
+#include <nlohmann/json.hpp>
 #include <utility>
 
 namespace urpg::scene {
 
 namespace {
+
+constexpr const char* kMissingPlayerSpriteId = "missing_player_sprite";
+constexpr const char* kMissingTilesetId = "missing_tileset";
 
 bool BindingMatches(const MapScene::InteractionAbilityBinding& binding, const std::string& trigger_id,
                     std::optional<std::pair<int, int>> tile, std::optional<std::string_view> prop_asset_id) {
@@ -54,6 +60,52 @@ bool BindingKeyMatches(const MapScene::InteractionAbilityBinding& binding, MapSc
     return false;
 }
 
+std::filesystem::path resolveProjectPath(const std::filesystem::path& project_root, const std::filesystem::path& path) {
+    if (path.empty() || path.is_absolute()) {
+        return path;
+    }
+    return project_root / path;
+}
+
+MapAssetReference readAssetReference(const nlohmann::json& root, const char* key) {
+    MapAssetReference reference;
+    if (!root.contains(key) || !root.at(key).is_object()) {
+        return reference;
+    }
+
+    const auto& asset = root.at(key);
+    if (asset.contains("id") && asset.at("id").is_string()) {
+        reference.id = asset.at("id").get<std::string>();
+    }
+    if (asset.contains("path") && asset.at("path").is_string()) {
+        reference.path = asset.at("path").get<std::string>();
+    }
+    return reference;
+}
+
+const nlohmann::json* findMapAssets(const nlohmann::json& project, const std::string& map_id) {
+    if (project.contains("startup") && project.at("startup").is_object()) {
+        const auto& startup = project.at("startup");
+        if (startup.contains("map_assets") && startup.at("map_assets").is_object()) {
+            return &startup.at("map_assets");
+        }
+    }
+
+    if (!project.contains("maps") || !project.at("maps").is_array()) {
+        return nullptr;
+    }
+
+    for (const auto& map : project.at("maps")) {
+        if (!map.is_object() || map.value("id", "") != map_id) {
+            continue;
+        }
+        if (map.contains("assets") && map.at("assets").is_object()) {
+            return &map.at("assets");
+        }
+    }
+    return nullptr;
+}
+
 } // namespace
 
 MapScene::MapScene(const std::string& mapId, int width, int height) : m_mapId(mapId), m_width(width), m_height(height) {
@@ -72,6 +124,8 @@ MapScene::MapScene(const std::string& mapId, int width, int height) : m_mapId(ma
 }
 
 void MapScene::onUpdate(float deltaTime) {
+    validateRenderAssetReferences();
+
     // Keep RenderLayer in sync for scene/engine tests and headless render pipelines.
     auto& layer = urpg::RenderLayer::getInstance();
     layer.flush();
@@ -139,7 +193,8 @@ void MapScene::onUpdate(float deltaTime) {
     }
 
     urpg::SpriteCommand playerCmd;
-    playerCmd.textureId = "hero_sprite";
+    playerCmd.textureId =
+        m_assetReferences.player_sprite.id.empty() ? kMissingPlayerSpriteId : m_assetReferences.player_sprite.id;
     playerCmd.x = playerX;
     playerCmd.y = playerY;
     playerCmd.width = 48;
@@ -158,7 +213,7 @@ void MapScene::rebuildTileRenderCache() {
         for (int x = 0; x < m_width; ++x) {
             const auto& tile = m_tiles[static_cast<size_t>(y * m_width + x)];
             urpg::TileCommand tileCmd;
-            tileCmd.tilesetId = "default_tileset";
+            tileCmd.tilesetId = m_assetReferences.tileset.id.empty() ? kMissingTilesetId : m_assetReferences.tileset.id;
             tileCmd.tileIndex = tile.tileId;
             tileCmd.x = static_cast<float>(x) * kTileSize;
             tileCmd.y = static_cast<float>(y) * kTileSize;
@@ -326,6 +381,48 @@ void MapScene::setPlayerCharacter(const std::string& name, int /*index*/) {
     auto texture = urpg::AssetLoader::loadTexture("img/characters/" + name + ".png");
     m_playerAnimator = std::make_unique<SpriteAnimator>(texture);
     // index * 3 is typical for character sheet offset but simplified here
+}
+
+void MapScene::setAssetReferences(MapAssetReferences references) {
+    m_assetReferences = std::move(references);
+    m_assetDiagnostics.clear();
+    m_assetReferencesValidated = false;
+    m_renderLayerDirty = true;
+}
+
+void MapScene::validateRenderAssetReferences() {
+    if (m_assetReferencesValidated) {
+        return;
+    }
+    m_assetReferencesValidated = true;
+
+    const auto validate = [this](const MapAssetReference& reference, const char* role, const char* code,
+                                 const char* missingIdDiagnostic) {
+        if (reference.id.empty()) {
+            const std::string message = std::string("Map '") + m_mapId + "' has no " + role +
+                                        " asset id; rendering will use a diagnostic placeholder.";
+            m_assetDiagnostics.push_back(missingIdDiagnostic);
+            urpg::diagnostics::RuntimeDiagnostics::warning("scene.map", code, message);
+            return;
+        }
+
+        if (reference.path.empty()) {
+            return;
+        }
+
+        std::error_code ec;
+        if (!std::filesystem::is_regular_file(reference.path, ec) || ec) {
+            const std::string message = std::string("Map '") + m_mapId + "' references missing " + role +
+                                        " asset path: " + reference.path.generic_string() +
+                                        "; rendering will use logical id '" + reference.id + "'.";
+            m_assetDiagnostics.push_back(std::string(role) + "_path_missing");
+            urpg::diagnostics::RuntimeDiagnostics::warning("scene.map", code, message);
+        }
+    };
+
+    validate(m_assetReferences.player_sprite, "player_sprite", "map.player_sprite_missing",
+             "player_sprite_id_missing");
+    validate(m_assetReferences.tileset, "tileset", "map.tileset_missing", "tileset_id_missing");
 }
 
 void MapScene::startDialogue(const std::vector<urpg::message::DialoguePage>& pages) {
@@ -620,6 +717,40 @@ bool MapScene::hasInteractionAbilityBinding(const std::string& trigger_id) const
     }
 
     return false;
+}
+
+MapAssetReferences loadRuntimeMapAssetReferences(const std::filesystem::path& project_root, const std::string& map_id) {
+    MapAssetReferences references;
+    const auto project_path = project_root / "project.json";
+    std::ifstream in(project_path, std::ios::binary);
+    if (!in) {
+        urpg::diagnostics::RuntimeDiagnostics::warning(
+            "scene.map", "map.project_manifest_missing",
+            "Runtime project manifest was not found while resolving map assets: " + project_path.generic_string());
+        return references;
+    }
+
+    const auto project = nlohmann::json::parse(in, nullptr, false);
+    if (project.is_discarded() || !project.is_object()) {
+        urpg::diagnostics::RuntimeDiagnostics::warning(
+            "scene.map", "map.project_manifest_invalid",
+            "Runtime project manifest is invalid while resolving map assets: " + project_path.generic_string());
+        return references;
+    }
+
+    const auto* assets = findMapAssets(project, map_id);
+    if (assets == nullptr) {
+        urpg::diagnostics::RuntimeDiagnostics::warning(
+            "scene.map", "map.asset_references_missing",
+            "Runtime project manifest has no map asset references for map '" + map_id + "'.");
+        return references;
+    }
+
+    references.player_sprite = readAssetReference(*assets, "player_sprite");
+    references.tileset = readAssetReference(*assets, "tileset");
+    references.player_sprite.path = resolveProjectPath(project_root, references.player_sprite.path);
+    references.tileset.path = resolveProjectPath(project_root, references.tileset.path);
+    return references;
 }
 
 } // namespace urpg::scene

@@ -6,6 +6,7 @@
 
 #include "runtimes/compat_js/quickjs_runtime.h"
 #include <catch2/catch_test_macros.hpp>
+#include <algorithm>
 
 using namespace urpg::compat;
 
@@ -117,6 +118,30 @@ TEST_CASE("QuickJSContext callMethod invokes registered object method", "[compat
     const auto status = ctx.getAPIStatus("MathObj.mul2");
     REQUIRE(status.callCount == 1);
     REQUIRE(status.failCount == 0);
+}
+
+TEST_CASE("QuickJSContext stub API calls emit diagnostics instead of silent no-op", "[compat][quickjs]") {
+    QuickJSContext ctx;
+    REQUIRE(ctx.initialize(QuickJSConfig{}));
+
+    std::vector<QuickJSContext::MethodDef> methods;
+    methods.push_back({"optionalHook",
+                       [](const std::vector<urpg::Value>&) -> urpg::Value {
+                           return urpg::Value::Int(99);
+                       },
+                       CompatStatus::STUB, "Optional plugin hook is not release-required."});
+    REQUIRE(ctx.registerObject("OptionalCompat", methods));
+
+    const auto result = ctx.callMethod("OptionalCompat", "optionalHook", {});
+    REQUIRE(result.success);
+    REQUIRE(std::holds_alternative<std::monostate>(result.value.v));
+
+    const auto diagnostics = ctx.getRuntimeDiagnostics();
+    REQUIRE(std::any_of(diagnostics.begin(), diagnostics.end(), [](const auto& diagnostic) {
+        return diagnostic.operation == "quickjs_stub_api_call" &&
+               diagnostic.message == "Stub API called: OptionalCompat.optionalHook" &&
+               diagnostic.sourceLocation == "OptionalCompat.optionalHook";
+    }));
 }
 
 TEST_CASE("QuickJSContext live JS can call registered host functions", "[compat][quickjs][runtime]") {

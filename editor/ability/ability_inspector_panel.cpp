@@ -29,6 +29,13 @@ void AbilityInspectorPanel::setCommandCallbacks(CommandCallbacks callbacks) {
     rebuildControlState();
 }
 
+void AbilityInspectorPanel::recordCommandResult(const std::string& command_id, bool success,
+                                                const std::string& message) {
+    m_snapshot.latest_command_id = command_id;
+    m_snapshot.latest_command_success = success;
+    m_snapshot.latest_command_message = message;
+}
+
 bool AbilityInspectorPanel::selectAbility(size_t index, const AbilitySystemComponent& asc) {
     const bool changed = m_model.selectAbility(index);
     if (changed) {
@@ -351,6 +358,13 @@ void AbilityInspectorPanel::render() {
         }
     }
 
+    if (!m_snapshot.latest_command_message.empty()) {
+        ImGui::Separator();
+        ImGui::Text("Last Command");
+        ImGui::BulletText("%s: %s", m_snapshot.latest_command_success ? "OK" : "Error",
+                          m_snapshot.latest_command_message.c_str());
+    }
+
     if (!m_snapshot.validation_issues.empty()) {
         ImGui::Separator();
         ImGui::Text("Validation");
@@ -423,8 +437,14 @@ void AbilityInspectorPanel::validateDraftPattern() {
 }
 
 void AbilityInspectorPanel::rebuildSnapshot(const AbilitySystemComponent& asc) {
+    const auto latest_command_id = m_snapshot.latest_command_id;
+    const auto latest_command_success = m_snapshot.latest_command_success;
+    const auto latest_command_message = m_snapshot.latest_command_message;
     m_snapshot = {};
     m_snapshot.visible = m_visible;
+    m_snapshot.latest_command_id = latest_command_id;
+    m_snapshot.latest_command_success = latest_command_success;
+    m_snapshot.latest_command_message = latest_command_message;
     m_snapshot.draft_preview = buildDraftPreviewSnapshot();
 
     validateDraftPattern();
