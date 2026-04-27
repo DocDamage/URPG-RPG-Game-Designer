@@ -99,6 +99,5 @@ After this signoff is completed:
 - Update `docs/APP_RELEASE_READINESS_MATRIX.md`.
 - Update `docs/release/AAA_RELEASE_READINESS_REPORT.md`.
 - Run `.\tools\ci\run_release_candidate_gate.ps1`.
-- Run the remote manual GitHub Actions release-candidate workflow.
-- Record the remote workflow URL/result.
+- Remote manual GitHub Actions release-candidate workflow recorded: run `25025111713` passed on `2026-04-27` at commit `7439132f4fa2638730498781f617d78af7b16514`: `https://github.com/DocDamage/URPG-RPG-Game-Designer/actions/runs/25025111713`.
 - Create an annotated prerelease or release tag only after all release exits are closed or formally waived.
