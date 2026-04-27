@@ -25,7 +25,7 @@ std::string DataManager::dataDirectory_;
 void DataManager::setDataDirectory(const std::string& path) {
     dataDirectory_ = path;
     if (!dataDirectory_.empty() && dataDirectory_.back() != '/' && dataDirectory_.back() != '\\') {
-        dataDirectory_.push_back('\\');
+        dataDirectory_.push_back('/');
     }
 }
 

@@ -18,6 +18,7 @@
 #include <filesystem>
 #include <memory>
 #include <stdexcept>
+#include <string_view>
 
 using namespace urpg;
 using namespace urpg::testing;
@@ -30,17 +31,12 @@ std::filesystem::path getGoldenRoot() {
 }
 
 bool shouldRegenerateRendererBackedGoldens() {
-    char* value = nullptr;
-    size_t length = 0;
-    const errno_t err = _dupenv_s(&value, &length, "URPG_REGEN_RENDERER_BACKED_GOLDENS");
-    if (err != 0 || value == nullptr) {
+    const char* value = std::getenv("URPG_REGEN_RENDERER_BACKED_GOLDENS");
+    if (value == nullptr) {
         return false;
     }
 
-    const std::string_view setting(value, length > 0 ? length - 1 : 0);
-    const bool regenerate = setting == "1";
-    free(value);
-    return regenerate;
+    return std::string_view(value) == "1";
 }
 
 SceneSnapshot cropSnapshot(const SceneSnapshot& source, int x, int y, int width, int height) {
