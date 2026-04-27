@@ -1,6 +1,6 @@
 # App Release Readiness Matrix
 
-Status Date: 2026-04-26
+Status Date: 2026-04-27
 Authority: canonical app-level release-readiness tracker for runtime, editor, packaging, legal, and asset-hydration gates.
 
 This matrix maps release-facing application workflows to the execution-plan task that proves or blocks them. It complements `docs/release/RELEASE_READINESS_MATRIX.md`, which remains the subsystem status reference.
@@ -31,16 +31,16 @@ This matrix maps release-facing application workflows to the execution-plan task
 | Install layout | `VERIFIED` | `CMakeLists.txt`; `tools/ci/check_install_smoke.ps1`; `docs/packaging.md` | `./tools/ci/check_install_smoke.ps1 -BuildDirectory build/dev-ninja-release -InstallPrefix build/install-smoke` | P5-001; P5-004 | Installed tree includes apps, runtime data, docs, metadata, and can launch runtime smoke. |
 | Package layout | `VERIFIED` | `cmake/packaging.cmake`; `tools/ci/check_package_smoke.ps1`; `docs/release/RELEASE_PACKAGING.md` | `./tools/ci/check_package_smoke.ps1 -BuildDirectory build/dev-ninja-release -PackageRoot build/package-smoke` | P5-003; P5-004 | CPack emits component archives with expected runtime, data, docs, icon, and desktop metadata entries. |
 | Legal docs | `PARTIAL` | `THIRD_PARTY_NOTICES.md`; `EULA.md`; `PRIVACY_POLICY.md`; `CREDITS.md`; `CHANGELOG.md` | `./tools/ci/check_install_smoke.ps1 -BuildDirectory build/dev-ninja-release -InstallPrefix build/install-smoke` | P5-002 | Required docs exist and install; legal sufficiency remains unverified until qualified legal review. |
-| LFS hydration | `BLOCKED` | `.gitattributes`; `.gitignore`; `imports/`; `third_party/`; `more assets/` | `GIT_LFS_SKIP_SMUDGE=1 git clone --depth 1 --branch development --filter=blob:none <origin> <temp>; git lfs pull` | P5-005; P6-002 | Fresh-clone hydration failed because GitHub reports the repository exceeded its LFS budget; the P6-002 unwaived RC hydration attempt timed out before verification. |
-| Final release candidate gate | `PARTIAL` | `tools/ci/run_release_candidate_gate.ps1`; `.github/workflows/ci-gates.yml` | `./tools/ci/run_release_candidate_gate.ps1 -SkipLfsHydration -LfsWaiverReference docs/APP_RELEASE_READINESS_MATRIX.md#open-release-blocks` | P6-001; P6-002 | Local gate script passes with explicit LFS waiver and manual CI job exists; full unwaived gate remains blocked by GitHub LFS budget/access. |
+| Release-required asset hydration | `VERIFIED` | `.gitattributes`; `resources/icons/*.png`; `tools/ci/run_release_candidate_gate.ps1` | `./tools/ci/run_release_candidate_gate.ps1` | P5-005; P6-002 | Fresh clone from GitHub verifies the release-required icon assets without an LFS waiver; source/vendor LFS packs remain outside the release package path. |
+| Final release candidate gate | `PARTIAL` | `tools/ci/run_release_candidate_gate.ps1`; `.github/workflows/ci-gates.yml` | `./tools/ci/run_release_candidate_gate.ps1` | P6-001; P6-002 | Local unwaived gate passes through fresh-clone asset hydration, configure, build, PR tests, presentation validation, install smoke, and package smoke; remote manual workflow run remains unverified. |
 
-## Open Release Blocks
+## Open Release Blocks And External Constraints
 
 | Blocker | Status | Required Resolution |
 | --- | --- | --- |
-| GitHub LFS budget/access | `BLOCKED` | Restore GitHub LFS budget/access or move release-required LFS payload to an accessible artifact store, then rerun fresh-clone hydration. |
+| Repository-wide source/vendor LFS budget/access | `BLOCKED` | Restore GitHub LFS budget/access before relying on full vendor/source asset hydration. This is not currently a release-package blocker because release-required assets are now normal Git blobs and are verified by the RC gate. |
 | Legal review | `PARTIAL` | Qualified legal/privacy review must approve EULA, privacy policy, third-party notices, credits, and public distribution terms. |
-| Release candidate gate | `PARTIAL` | Run the P6-001 gate without LFS waiver after GitHub LFS budget/access is restored, then record the remote/manual workflow result and final P6-002 verification. |
+| Remote release candidate workflow | `PARTIAL` | Run the manual GitHub Actions release-candidate job and record the remote run URL and result. |
 
 ## Verification
 

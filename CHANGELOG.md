@@ -4,8 +4,9 @@ All notable changes to URPG are tracked here.
 
 ## Unreleased
 
-- Ran the P6 release-readiness verification pass, including pre-commit, local gates, presentation/visual regression, and the release-candidate gate with an explicit LFS waiver.
-- Updated the AAA release-readiness report to reflect closed app/runtime/editor/package blockers and the remaining LFS, legal, remote workflow, and tag blockers.
+- Ran the P6 release-readiness verification pass, including pre-commit, local gates, presentation/visual regression, and the release-candidate gate.
+- Removed the small runtime/editor release icon PNGs from Git LFS so release package metadata no longer depends on the exhausted repository LFS budget.
+- Updated the AAA release-readiness report to reflect closed app/runtime/editor/package/release-required asset blockers and the remaining legal, remote workflow, and tag blockers.
 - Restored root-level machine-contract governance docs required by existing CI scripts after the docs organization pass.
 - Fixed CI smoke checks for generator-expression source entries and Debug SDL runtime DLL names.
 - Added CMake project version metadata and shared application version reporting.

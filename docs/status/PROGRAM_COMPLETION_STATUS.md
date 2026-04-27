@@ -1,11 +1,11 @@
 # URPG Program Completion Status
 
-Status Date: 2026-04-23
+Status Date: 2026-04-27
 Program Scope: native-first roadmap rewire plus Wave 1 absorption, Wave 2 advanced capability expansion, post-Phase-2 compat exit hardening, and governance/template-readiness consolidation
 
 Cross-cutting debt, truthfulness, and intake-governance source of truth: `docs/archive/planning/TECHNICAL_DEBT_REMEDIATION_PLAN.md`.
 
-Current app-level release readiness source of truth: [`docs/APP_RELEASE_READINESS_MATRIX.md`](../APP_RELEASE_READINESS_MATRIX.md). It maps boot flow, save/load, settings, audio, input, localization, asset validation, editor navigation, analytics consent, install/package, legal docs, LFS hydration, and final release-candidate gates to concrete task IDs and evidence commands. As of the P6-002 verification pass, local gates and the release-candidate gate pass with an explicit LFS waiver, but public release remains blocked by unverified fresh-clone LFS hydration and legal/privacy review.
+Current app-level release readiness source of truth: [`docs/APP_RELEASE_READINESS_MATRIX.md`](../APP_RELEASE_READINESS_MATRIX.md). It maps boot flow, save/load, settings, audio, input, localization, asset validation, editor navigation, analytics consent, install/package, legal docs, release-required asset hydration, and final release-candidate gates to concrete task IDs and evidence commands. As of the P6-002 follow-up verification pass, local gates and the unwaived release-candidate gate pass, including fresh-clone release-required asset verification from GitHub. Public release remains blocked by legal/privacy review, remote manual workflow evidence, and release tagging.
 
 2026-04-24 technical debt audit Sprint 2 evidence refresh:
 - `battle_core` and `save_data_core` validation was refreshed through focused Catch2 tag filters, battle/save integration, Wave 1 closure integration, save policy governance, release readiness, and truth reconciliation.

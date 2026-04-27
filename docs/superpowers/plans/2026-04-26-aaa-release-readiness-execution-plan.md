@@ -69,9 +69,9 @@
   - Verified blocker: release readiness governance is split across docs without an app-level release matrix for shipped-product readiness.
 
 - `third_party/`, `imports/`, `more assets/`, `.gitattributes`, `.gitignore`
-  - Verified blocker: release validation depends on Git LFS hydration; fresh clone and CI LFS access are unverified while remote LFS budget was observed exhausted.
+  - Verified blocker: repository-wide source/vendor Git LFS hydration is blocked by remote LFS budget/access.
   - Verified mitigation already done: duplicate ZIP archives and duplicate asset tree removals were completed in prior cleanup.
-  - Required verification: fresh clone or CI runner must prove required LFS objects hydrate.
+  - Required verification: release-required assets must be available from a fresh clone without relying on local cache; source/vendor LFS packs need restored budget/access before they can be treated as dependable development inputs.
 
 - Platform metadata paths to create or inspect
   - Verified blocker: no app-level icon or platform metadata wiring was verified.
@@ -1197,7 +1197,7 @@
 
 ### P5-005 - Prove Fresh Clone And LFS Asset Hydration
 
-**Status:** Verified blocked in this pass; current-checkout LFS footprint reduced.
+**Status:** Release-required fresh-clone asset verification passed; repository-wide source/vendor LFS hydration remains blocked.
 
 **Files to edit:**
 - `.gitattributes`
@@ -1236,18 +1236,18 @@
 - Mitigation in this pass: remove remaining tracked `more assets/` source-drop files from Git tracking and ignore `more assets/` going forward. Local files remain on disk.
 - Mitigation in this pass: remove source-only `third_party/itch-assets/packs/fantasy-platformer-game-ui/PSD/` files from Git tracking and ignore that PSD folder going forward. The PNG exports remain tracked under the canonical pack.
 - The staged cleanup removes 63 current LFS-tracked source-only files, approximately 1450925875 bytes / 1383.71 MiB of current-checkout LFS payload.
-- Fresh-clone asset preflight remains unverified because LFS hydration failed before the preflight could run.
+- Follow-up release-required asset verification moved `resources/icons/*.png` out of LFS and verified them from a fresh GitHub clone through the release-candidate gate.
 
 **Acceptance criteria:**
-- A fresh clone can hydrate required assets without relying on local cache. **Not met: remote LFS budget is exhausted.**
-- CI/release machines can access all required LFS objects. **Not met until GitHub LFS budget/access is restored or remaining required LFS assets move to an accessible artifact store.**
+- A fresh clone can access release-required assets without relying on local cache. **Met for current install/package scope by `.\tools\ci\run_release_candidate_gate.ps1` after commit `4fb53f721`.**
+- CI/release machines can access all release-required assets. **Met for current install/package scope; not met for repository-wide source/vendor LFS packs until GitHub LFS budget/access is restored.**
 - Duplicate archives and source-only raw drops remain ignored and untracked. **Partially met: `more assets/` and the source-only fantasy UI PSD folder are ignored and removed from current tracking in this task.**
 
 **Verification command or manual test:**
 - `git lfs ls-files`
 - `python .\tools\assets\asset_hygiene.py --write-reports`
 - `GIT_LFS_SKIP_SMUDGE=1 git clone --depth 1 --branch development --filter=blob:none <origin> <temp>; git lfs pull`
-- Fresh-clone verification is currently failed because the remote GitHub LFS budget is exceeded.
+- Release-required fresh-clone verification is currently passing through the release-candidate gate. Broad source/vendor LFS hydration remains failed because the remote GitHub LFS budget is exceeded.
 
 ### P5-006 - Create App-Level Release Readiness Matrix
 
@@ -1277,7 +1277,7 @@
 **Evidence:**
 - Created `docs/APP_RELEASE_READINESS_MATRIX.md` as the app-level tracker.
 - The matrix maps release-facing workflows to owner files, statuses, evidence commands, and task IDs.
-- The matrix marks LFS hydration as `BLOCKED`, legal docs as `PARTIAL`, and the final release-candidate gate as `PARTIAL` until the GitHub LFS budget/access blocker is cleared and the gate can run unwaived.
+- The matrix marks release-required asset hydration as `VERIFIED`, legal docs as `PARTIAL`, and the final release-candidate gate as `PARTIAL` until the remote manual workflow result is recorded.
 - Linked the matrix from `docs/release/AAA_RELEASE_READINESS_REPORT.md`.
 - Added the matrix as the current app-level release-readiness source of truth in `docs/status/PROGRAM_COMPLETION_STATUS.md`.
 
@@ -1295,7 +1295,7 @@
 
 ### P6-001 - Add End-To-End Release Candidate Gate Script
 
-**Status:** Completed in this pass with an explicit LFS waiver path. The unwaived release-candidate gate remains blocked by the verified GitHub LFS budget/access issue from P5-005.
+**Status:** Completed in this pass; follow-up verification removed the LFS waiver requirement for release-required assets. The remote manual workflow remains unverified.
 
 **Files to edit:**
 - `tools/ci/run_release_candidate_gate.ps1`
@@ -1324,8 +1324,8 @@
 - Added optional `-RunReleaseCandidateGate` integration to `tools/ci/run_local_gates.ps1`.
 - Added a manual `release-candidate` GitHub Actions job under `workflow_dispatch` with optional LFS waiver input.
 - Restored root-level machine-contract governance docs required by Gate 1 scripts and project-audit tests (`docs/SCHEMA_CHANGELOG.md`, `docs/RELEASE_SIGNOFF_WORKFLOW.md`, signoff artifacts, readiness/truth/project-audit matrices).
-- Updated `docs/APP_RELEASE_READINESS_MATRIX.md` to point at the release-candidate gate script and keep the gate `PARTIAL` until LFS hydration can run without waiver.
-- Local verification used `-SkipLfsHydration -LfsWaiverReference docs/APP_RELEASE_READINESS_MATRIX.md#open-release-blocks` because P5-005 verified fresh-clone LFS hydration is blocked by GitHub LFS budget/access.
+- Updated `docs/APP_RELEASE_READINESS_MATRIX.md` to point at the release-candidate gate script and keep the gate `PARTIAL` until the remote manual workflow result is recorded.
+- Initial local verification used `-SkipLfsHydration -LfsWaiverReference docs/APP_RELEASE_READINESS_MATRIX.md#open-release-blocks`; follow-up verification now passes unwaived for release-required assets.
 - Focused regression verified the restored governance docs: `ctest --test-dir build/dev-ninja-release --output-on-failure -R "Project audit CLI emits parseable JSON from the default repo data|Project audit CLI exposes structured signoff contract state for governed subsystem artifacts|FFS-17 governance scripts"`.
 
 **Acceptance criteria:**
@@ -1339,7 +1339,7 @@
 
 ### P6-002 - Run Full Regression And Close The Readiness Report
 
-**Status:** Completed with blocked release exits recorded. Local gates and the release-candidate gate pass with the explicit LFS waiver; unwaived fresh-clone LFS hydration, legal review, remote manual workflow verification, and release tagging remain open release blockers.
+**Status:** Completed with blocked release exits recorded. Local gates and the unwaived release-candidate gate pass for release-required assets; legal review, remote manual workflow verification, and release tagging remain open release blockers.
 
 **Files to edit:**
 - `docs/release/AAA_RELEASE_READINESS_REPORT.md`
@@ -1361,7 +1361,7 @@
 - [x] Run `.\tools\ci\run_local_gates.ps1`.
 - [x] Run `.\tools\ci\run_presentation_gate.ps1`.
 - [x] Run `.\tools\ci\run_release_candidate_gate.ps1` with the explicit LFS waiver from the app readiness matrix.
-- [ ] Run fresh-clone LFS hydration and install/package smoke outside the local cached repo.
+- [x] Run fresh-clone release-required asset verification and install/package smoke outside the local cached repo.
 - [x] Update the readiness report and keep the verdict `NOT RELEASE-READY` because not every release exit is closed.
 - [ ] Create a signed or annotated prerelease tag only after all gates pass.
 
@@ -1370,7 +1370,9 @@
 - `.\tools\ci\run_local_gates.ps1` passed after fixing generator-expression parsing in `tools/ci/check_cmake_completeness.ps1` and Debug SDL runtime detection in `tools/ci/check_install_smoke.ps1`.
 - `.\tools\ci\run_presentation_gate.ps1` passed, including visual regression.
 - `.\tools\ci\run_release_candidate_gate.ps1 -SkipLfsHydration -LfsWaiverReference docs/APP_RELEASE_READINESS_MATRIX.md#open-release-blocks` passed.
-- `.\tools\ci\run_release_candidate_gate.ps1 -SkipConfigure -SkipBuild` without LFS waiver timed out during fresh-clone LFS hydration, so unwaived LFS hydration remains unverified and blocked.
+- Initial `.\tools\ci\run_release_candidate_gate.ps1 -SkipConfigure -SkipBuild` without LFS waiver timed out during broad fresh-clone LFS hydration.
+- Follow-up `.\tools\ci\run_release_candidate_gate.ps1 -SkipConfigure -SkipBuild` passed without LFS waiver after `resources/icons/*.png` were committed as normal Git blobs and the RC gate was narrowed to release-required assets.
+- Full follow-up `.\tools\ci\run_release_candidate_gate.ps1` passed without LFS waiver, including configure, build, PR tests, presentation validation, install smoke, and package smoke.
 - `git tag -l` returned no tags. No tag was created because the release exits are not all closed.
 
 **Acceptance criteria:**
@@ -1382,7 +1384,7 @@
 - `pre-commit run --all-files`
 - `.\tools\ci\run_local_gates.ps1`
 - `.\tools\ci\run_presentation_gate.ps1`
-- `.\tools\ci\run_release_candidate_gate.ps1 -SkipLfsHydration -LfsWaiverReference docs/APP_RELEASE_READINESS_MATRIX.md#open-release-blocks`
+- `.\tools\ci\run_release_candidate_gate.ps1`
 - `git status --short`
 - `git tag -l`
 
@@ -1394,5 +1396,6 @@
 - Verified: The plan maps every critical, high, and medium finding in the report to at least one task.
 - Verified: Audit-gap items are marked unverified and require inspection/tests before implementation.
 - Unverified: Any code fix in this plan. This document is an execution plan only; implementation tasks still need to be performed and verified.
-- Unverified: Fresh-clone LFS hydration. It requires a clone that does not rely on the local Git LFS cache.
+- Verified: Fresh-clone release-required asset verification passes without relying on the local Git LFS cache.
+- Unverified/blocked outside release scope: repository-wide source/vendor LFS hydration still requires restored GitHub LFS budget/access.
 - Unverified: Legal sufficiency of EULA/privacy/third-party notices. It requires qualified legal review.
