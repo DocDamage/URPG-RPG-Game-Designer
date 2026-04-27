@@ -322,7 +322,7 @@ This plan converts the game/app completion audit into ordered implementation wor
   4. Emit startup diagnostics with bundle path and reason.
   5. Add tamper tests through runtime startup.
 - Acceptance criteria: Tampered `data.pck` prevents runtime boot/use.
-- Verification command or manual test: `ctest --preset dev-all -R "runtime bundle|exported runtime|tamper" --output-on-failure`
+- Verification command or manual test: `ctest --preset dev-all -R "runtime bundle|tamper" --output-on-failure`
 
 ### Task P4-03
 

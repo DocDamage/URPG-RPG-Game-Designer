@@ -76,7 +76,7 @@ $ErrorActionPreference = "Stop"
 
 Write-Host "== Validate presentation docs links ==" -ForegroundColor Cyan
 & "$PSScriptRoot\..\docs\check-presentation-doc-links.ps1"
-if ($LASTEXITCODE -ne 0) {
+if (-not $?) {
     throw "Presentation docs link validation failed."
 }
 
