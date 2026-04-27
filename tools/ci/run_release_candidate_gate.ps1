@@ -85,6 +85,54 @@ function Test-RequiredDocs {
   }
 }
 
+function Test-LfsPointerFile {
+  param(
+    [Parameter(Mandatory = $true)]
+    [string]$Path
+  )
+
+  $reader = $null
+  try {
+    $reader = [System.IO.File]::OpenText($Path)
+    $firstLine = $reader.ReadLine()
+    return $firstLine -eq "version https://git-lfs.github.com/spec/v1"
+  } finally {
+    if ($null -ne $reader) {
+      $reader.Dispose()
+    }
+  }
+}
+
+function Assert-ReleaseLfsFileHydrated {
+  param(
+    [Parameter(Mandatory = $true)]
+    [string]$ClonePath,
+    [Parameter(Mandatory = $true)]
+    [string]$RelativePath
+  )
+
+  $fullPath = Join-Path $ClonePath $RelativePath
+  if (-not (Test-Path -LiteralPath $fullPath -PathType Leaf)) {
+    throw "Required release LFS file is missing from fresh clone: $RelativePath"
+  }
+
+  if (Test-LfsPointerFile -Path $fullPath) {
+    throw "Required release LFS file is still an unresolved pointer after hydration: $RelativePath"
+  }
+
+  $stream = $null
+  try {
+    $stream = [System.IO.File]::OpenRead($fullPath)
+    if ($stream.Length -le 0) {
+      throw "Required release LFS file is empty after hydration: $RelativePath"
+    }
+  } finally {
+    if ($null -ne $stream) {
+      $stream.Dispose()
+    }
+  }
+}
+
 function Invoke-LfsHydrationCheck {
   param(
     [Parameter(Mandatory = $true)]
@@ -113,6 +161,12 @@ function Invoke-LfsHydrationCheck {
   $clonePath = Join-Path $tempRoot ("urpg-rc-lfs-{0:yyyyMMdd-HHmmss}" -f (Get-Date))
   Write-Host "Fresh clone path: $clonePath"
 
+  $releaseRequiredLfsPaths = @(
+    "resources/icons/urpg_editor.png",
+    "resources/icons/urpg_runtime.png"
+  )
+  $releaseLfsInclude = $releaseRequiredLfsPaths -join ","
+
   $previousSkipSmudge = $env:GIT_LFS_SKIP_SMUDGE
   $env:GIT_LFS_SKIP_SMUDGE = "1"
   try {
@@ -130,11 +184,15 @@ function Invoke-LfsHydrationCheck {
     git -C $clonePath lfs install --local
     Assert-LastExitCode "Initialize Git LFS in fresh clone"
 
-    git -C $clonePath lfs pull
-    Assert-LastExitCode "Fresh-clone Git LFS pull"
+    git -C $clonePath lfs pull --include="$releaseLfsInclude" --exclude=""
+    Assert-LastExitCode "Fresh-clone release-required Git LFS pull"
 
-    git -C $clonePath lfs fsck
-    Assert-LastExitCode "Fresh-clone Git LFS fsck"
+    foreach ($relativePath in $releaseRequiredLfsPaths) {
+      Assert-ReleaseLfsFileHydrated -ClonePath $clonePath -RelativePath $relativePath
+    }
+
+    git -C $clonePath lfs fsck --pointers
+    Assert-LastExitCode "Fresh-clone Git LFS pointer fsck"
   } finally {
     if (Test-Path -LiteralPath $clonePath) {
       $resolvedClone = [System.IO.Path]::GetFullPath((Resolve-Path -LiteralPath $clonePath).Path)
