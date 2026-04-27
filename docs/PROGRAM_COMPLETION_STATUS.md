@@ -507,7 +507,7 @@ Phase 3 diagnostics productization is complete as of 2026-04-19, Phase 4 governa
   - `test_compat_plugin_failure_diagnostics.cpp` now proves real curated by-name dispatch emits the same deterministic dependency-missing diagnostics as direct command dispatch when a dependent profile loses `VisuStella_CoreEngine_MZ`.
   - `COMPAT_EXIT_CHECKLIST.md` now records that the failure-parity lane covers both direct and by-name invocation surfaces for this dependency-gating path, narrowing the remaining compat maintenance work to future failure-operation growth and routine truth upkeep.
 - Sprint 05 closeout snapshot (2026-04-21)
-  - `ctest --test-dir build/dev-ninja-debug --output-on-failure -R "Compat fixtures: curated all-profile orchestration scenario survives directory re-import|Compat fixtures: dependent command execution is gated with diagnostics when core dependency is missing"` => 2/2 passed
+  - `.\build\dev-ninja-debug\urpg_tests.exe "Compat fixtures: curated all-profile orchestration scenario survives directory re-import" "Compat fixtures: dependent command execution is gated with diagnostics when core dependency is missing" --reporter compact` => 2/2 passed
   - `ctest --test-dir build/dev-ninja-debug -L weekly --output-on-failure` => 44/44 passed
   - `ctest --test-dir build/dev-ninja-debug -L pr --output-on-failure` => 835/835 passed
   - `powershell -ExecutionPolicy Bypass -File tools/ci/check_release_readiness.ps1` => passed
