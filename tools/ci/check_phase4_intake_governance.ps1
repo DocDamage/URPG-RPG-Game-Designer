@@ -24,7 +24,6 @@ $requiredFiles = @(
     "imports/manifests/asset_bundles/BND-001.json",
     "imports/manifests/asset_bundles/BND-002.json",
     "imports/normalized/prototype_sprites/gdquest_blue_actor.svg",
-    "imports/normalized/ui_sfx/kenney_click_001.wav",
     "imports/reports/asset_intake/source_capture_status.json",
     "imports/reports/asset_intake/wysiwyg_smoke_proof.json",
     "third_party/external-repos/README.md",
@@ -52,10 +51,8 @@ $placeholderFiles = @(
     "docs/external-intake/urpg_feature_adoption_matrix.md",
     "docs/asset_intake/ASSET_SOURCE_REGISTRY.md",
     "docs/asset_intake/ASSET_CATEGORY_GAPS.md",
-    "docs/TECHNICAL_DEBT_REMEDIATION_PLAN.md",
     "docs/PROGRAM_COMPLETION_STATUS.md",
-    "WORKLOG.md",
-    "docs/presentation/PLAN.md"
+    "WORKLOG.md"
 )
 
 $placeholderPatterns = @(
@@ -133,16 +130,6 @@ if ($assetPromotionGuide -notmatch "promotion record" -or
     $assetPromotionGuide -notmatch "source manifest" -or
     $assetPromotionGuide -notmatch "bundle manifest") {
     Write-Host "Asset promotion guide does not require provenance-preserving promotion records."
-    $hasError = $true
-}
-
-$remediation = Get-Content "docs/TECHNICAL_DEBT_REMEDIATION_PLAN.md" -Raw
-if ($remediation -notmatch "\| P3-02 \| External Repository Intake Needs Canonical Governance \| ✅ Remediated \|") {
-    Write-Host "P3-02 is not marked remediated in the technical debt remediation plan."
-    $hasError = $true
-}
-if ($remediation -notmatch "\| P3-03 \| Private-Use Asset Intake Needs Canonical Governance \| ✅ Remediated \|") {
-    Write-Host "P3-03 is not marked remediated in the technical debt remediation plan."
     $hasError = $true
 }
 

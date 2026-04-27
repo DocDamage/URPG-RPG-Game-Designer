@@ -229,6 +229,11 @@ try {
     Invoke-LfsHydrationCheck -RepoRoot $repoRoot
   }
 
+  Invoke-GateStep "Check release-required asset manifest" {
+    & "$PSScriptRoot\check_release_required_assets.ps1"
+    Assert-LastExitCode "Release-required asset manifest"
+  }
+
   if (-not $SkipConfigure) {
     Invoke-GateStep "Configure release build ($ConfigurePreset)" {
       cmake --preset $script:RcConfigurePreset

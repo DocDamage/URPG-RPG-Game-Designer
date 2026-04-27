@@ -86,7 +86,7 @@ rg -n "READY|PARTIAL|EXPERIMENTAL|release-readiness|template readiness|truth" do
 
 **Files:**
 - Modify: `WORKLOG.md`
-- Modify: `docs/TECHNICAL_DEBT_REMEDIATION_PLAN.md`
+- Modify: `docs/PROGRAM_COMPLETION_STATUS.md`
 - Modify: `README.md` if needed for top-level status wording
 
 - [ ] Update the worklog and canonical remediation hub to reflect the new governance-foundation slice.

@@ -2,7 +2,7 @@
 
 Derived from `docs/archive/planning/urpg_first_class_presentation_architecture_plan_v2.md` Section 32.
 
-Cross-cutting readiness waivers, truthfulness corrections, and intake-governance gates are tracked in `docs/TECHNICAL_DEBT_REMEDIATION_PLAN.md`.
+Cross-cutting readiness waivers, truthfulness corrections, and intake-governance gates are tracked in `docs/PROGRAM_COMPLETION_STATUS.md`.
 
 ## Pre-Release Items
 

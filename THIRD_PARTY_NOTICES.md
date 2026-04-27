@@ -1,6 +1,6 @@
 # Third-Party Notices
 
-Status Date: 2026-04-26
+Status Date: 2026-04-27
 
 This notice records third-party material known to the URPG repository and the current release install layout. It is not a legal opinion. External distribution requires review by a qualified legal reviewer before publication.
 
@@ -23,8 +23,8 @@ This notice records third-party material known to the URPG repository and the cu
 | --- | --- | --- | --- | --- |
 | URPG schemas, readiness data, starter templates, and level library records | This repository | MIT, see `LICENSE` | `share/urpg/content/` | Runtime/editor release data. |
 | Asset source and bundle manifests | This repository intake records | Manifest text is MIT; referenced assets retain their original upstream terms | `share/urpg/imports/manifests/` | Manifests are shipped for provenance. Raw source assets are not installed by P5-001 install rules. |
-| `SRC-002` promoted visual proof lane | GDQuest/game-sprites, captured snapshot `ea05c63eb1d88af928d2d9a7445879500c9ece3f` | Recorded as `cc0_candidate_recorded_for_private_use_intake`; legal review required before external publication | Manifest only in install; promoted asset path recorded as `imports/normalized/prototype_sprites/gdquest_blue_actor.svg` | See `imports/manifests/asset_sources/SRC-002.json` and `imports/manifests/asset_bundles/BND-001.json`. |
-| `SRC-003` promoted UI SFX proof lane | Calinou/kenney-interface-sounds, captured snapshot `4596a49eaf5a533948d49a47467f606bcdea70ff` | Recorded as `cc0_candidate_recorded_for_private_use_intake`; legal review required before external publication | Manifest only in install; promoted asset path recorded as `imports/normalized/ui_sfx/kenney_click_001.wav` | See `imports/manifests/asset_sources/SRC-003.json` and `imports/manifests/asset_bundles/BND-002.json`. |
+| `SRC-002` release-required promoted visual proof lane | GDQuest/game-sprites, captured snapshot `ea05c63eb1d88af928d2d9a7445879500c9ece3f` | Recorded as `cc0_candidate_recorded_for_private_use_intake`; legal review required before external publication | Bundled in `data.pck` through `BND-001`; promoted asset path recorded as `imports/normalized/prototype_sprites/gdquest_blue_actor.svg` | Release-required for title, map, and battle placeholder surfaces. See `imports/manifests/asset_sources/SRC-002.json`, `imports/manifests/asset_bundles/BND-001.json`, and `content/fixtures/project_governance_fixture.json`. |
+| `SRC-003` deferred UI SFX proof lane | Calinou/kenney-interface-sounds, captured snapshot `4596a49eaf5a533948d49a47467f606bcdea70ff` | Recorded as `cc0_candidate_recorded_for_private_use_intake`; legal review required before external publication | Not release-required and not bundled; local WAV payloads under `imports/normalized/ui_sfx/` are ignored from GitHub | The release UI/audio surfaces use explicit silent/muted fallback policy entries until an approved non-LFS audio artifact exists. See `imports/manifests/asset_sources/SRC-003.json` and `imports/manifests/asset_bundles/BND-002.json`. |
 
 ## Repository-Only Intake And Reference Material
 
@@ -46,4 +46,4 @@ Do not treat these folders as redistributable product content unless a source-sp
 - Legal sufficiency of this notice is unverified.
 - Exact upstream license texts for fetched dependencies must be bundled or referenced from reviewed release artifacts before public distribution.
 - Toolchain runtime redistribution terms must be checked for the compiler used to build the final package.
-- Any future asset promotion must update this file, `CREDITS.md`, and the relevant `imports/manifests` records before packaging.
+- Any future asset promotion or public-release waiver must update this file, `CREDITS.md`, `docs/release/LEGAL_REVIEW_SIGNOFF.md`, and the relevant `imports/manifests` records before packaging.

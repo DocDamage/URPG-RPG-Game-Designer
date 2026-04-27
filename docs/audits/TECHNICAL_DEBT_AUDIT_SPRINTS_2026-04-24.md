@@ -10,7 +10,7 @@ This file remains an execution checklist, not a new source of truth. If any spri
 - `docs/status/PROGRAM_COMPLETION_STATUS.md`
 - `docs/release/RELEASE_READINESS_MATRIX.md`
 - `docs/archive/planning/TECHNICAL_DEBT_ACTION_PLAN.md`
-- `docs/archive/planning/TECHNICAL_DEBT_REMEDIATION_PLAN.md`
+- `docs/archive/planning/PROGRAM_COMPLETION_STATUS.md`
 - `content/readiness/readiness_status.json`
 - `WORKLOG.md`
 

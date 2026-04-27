@@ -31,6 +31,26 @@
         "promoted"
       ]
     },
+    "release_required": {
+      "type": "boolean",
+      "description": "Whether this promoted bundle contributes at least one release-required runtime asset."
+    },
+    "release_surfaces": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": [
+          "title",
+          "map",
+          "battle",
+          "ui",
+          "audio",
+          "icons",
+          "fonts"
+        ]
+      },
+      "uniqueItems": true
+    },
     "assets": {
       "type": "array",
       "items": {
@@ -60,6 +80,38 @@
               "planned",
               "normalized",
               "promoted"
+            ]
+          },
+          "release_required": {
+            "type": "boolean",
+            "description": "Whether this asset is required by a release runtime or distribution surface."
+          },
+          "release_surfaces": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "title",
+                "map",
+                "battle",
+                "ui",
+                "audio",
+                "icons",
+                "fonts"
+              ]
+            },
+            "uniqueItems": true
+          },
+          "license_cleared": {
+            "type": "boolean",
+            "description": "True when source/license evidence has been reviewed for release packaging."
+          },
+          "distribution": {
+            "type": "string",
+            "enum": [
+              "bundled",
+              "dev_only",
+              "deferred"
             ]
           },
           "notes": {

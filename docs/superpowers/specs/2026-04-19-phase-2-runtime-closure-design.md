@@ -7,7 +7,7 @@
 
 Record the design for the Phase 2 technical debt remediation closure pass that finished the remaining high-value compat runtime work, verified it with focused tests, and reconciled stale labels and documentation so the canonical docs could reflect the actual codebase.
 
-For current status, closure boundaries, and post-closure hardening work, use `docs/status/PROGRAM_COMPLETION_STATUS.md` and `docs/archive/planning/TECHNICAL_DEBT_REMEDIATION_PLAN.md`.
+For current status, closure boundaries, and post-closure hardening work, use `docs/status/PROGRAM_COMPLETION_STATUS.md` and `docs/archive/planning/PROGRAM_COMPLETION_STATUS.md`.
 
 ## Scope
 
@@ -150,7 +150,7 @@ Even after runtime work landed, Phase 2 was not complete until tests, comments, 
 
 ### Files in scope
 
-- `docs/archive/planning/TECHNICAL_DEBT_REMEDIATION_PLAN.md`
+- `docs/archive/planning/PROGRAM_COMPLETION_STATUS.md`
 - `docs/status/PROGRAM_COMPLETION_STATUS.md`
 - `WORKLOG.md`
 

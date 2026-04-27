@@ -23,7 +23,7 @@
 Read these before starting `S09-T01`:
 
 - `docs/PROGRAM_COMPLETION_STATUS.md`
-- `docs/TECHNICAL_DEBT_REMEDIATION_PLAN.md`
+- `docs/PROGRAM_COMPLETION_STATUS.md`
 - `docs/NATIVE_FEATURE_ABSORPTION_PLAN.md`
 - `content/readiness/readiness_status.json`
 
@@ -137,7 +137,7 @@ ctest -L pr --output-on-failure
 **Primary files:**
 - `docs/PROJECT_AUDIT.md`
 - `docs/PROGRAM_COMPLETION_STATUS.md`
-- `docs/TECHNICAL_DEBT_REMEDIATION_PLAN.md`
+- `docs/PROGRAM_COMPLETION_STATUS.md`
 - `docs/superpowers/plans/ACTIVE_SPRINT.md`
 - `docs/superpowers/plans/2026-04-21-s09-task-board.md`
 - `WORKLOG.md`

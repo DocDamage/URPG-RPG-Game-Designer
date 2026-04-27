@@ -6,7 +6,7 @@ Scope: turn the current technical-debt audit into bounded sprint work with expli
 
 This file is an execution annex to the canonical debt/status stack:
 
-- `docs/TECHNICAL_DEBT_REMEDIATION_PLAN.md`
+- `docs/PROGRAM_COMPLETION_STATUS.md`
 - `docs/PROGRAM_COMPLETION_STATUS.md`
 - `docs/RELEASE_READINESS_MATRIX.md`
 - `content/readiness/readiness_status.json`
@@ -266,7 +266,7 @@ Convert the current review-gated lanes into explicit review decisions instead of
 - [x] `TD-Sprint-05` presentation breadth and complexity paydown is landed for the bounded current slice: `profile_arena.cpp` is registered through `urpg_profile_arena`, the renderer-backed OpenGL lane has a shell-owned BattleScene actor-cue crop golden, the first two oversized compat test files are split by domain, and project-audit asset-summary parsing is helper-extracted.
 - [ ] The residual from `TD-Sprint-05` remains open as backlog, not a promotion claim: cross-backend renderer parity, broader shell-owned scene permutations, and deeper audit/diagnostics production-file decomposition are still mandatory follow-through before `presentation_runtime` or `visual_regression_harness` can move beyond `PARTIAL`.
 
-- [ ] Keep `docs/TECHNICAL_DEBT_REMEDIATION_PLAN.md`, this action plan, and `docs/PROGRAM_COMPLETION_STATUS.md` aligned at the end of each sprint.
+- [ ] Keep `docs/PROGRAM_COMPLETION_STATUS.md`, this action plan, and `docs/PROGRAM_COMPLETION_STATUS.md` aligned at the end of each sprint.
 - [ ] Keep `urpg_project_audit` outputs conservative; prefer real blockers over optimistic assumptions.
 - [ ] Do not mark a sprint complete if the code landed but the audit/docs still describe the old contract.
 - [ ] Do not let this annex become a parallel authority; fold any major scope change back into the canonical remediation and status docs.

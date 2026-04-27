@@ -1,7 +1,7 @@
 # URPG Asset Category Gaps
 
 > Current asset gaps by category. Used to drive acquisition backlog and promotion decisions.
-> See [URPG_private_asset_intake_plan.md](../archive/planning/asset_intake__URPG_private_asset_intake_plan.md) and [TECHNICAL_DEBT_REMEDIATION_PLAN.md](../archive/planning/TECHNICAL_DEBT_REMEDIATION_PLAN.md) (P3-03, Phase 4 / Workstream 4.2).
+> See [URPG_private_asset_intake_plan.md](../archive/planning/asset_intake__URPG_private_asset_intake_plan.md) and [PROGRAM_COMPLETION_STATUS.md](../archive/planning/PROGRAM_COMPLETION_STATUS.md) (P3-03, Phase 4 / Workstream 4.2).
 
 ---
 
@@ -21,8 +21,10 @@
 
 | Category | Status | Coverage Notes | Target Source(s) | Priority |
 |----------|--------|----------------|------------------|----------|
-| UI sounds | `partial` | First governed `SRC-003` UI SFX proof asset is normalized and promoted; broader menu, notification, and editor feedback coverage remains future work | `SRC-003` | P0 |
+| UI sounds | `fixture_only` | First governed `SRC-003` UI SFX proof is retained as a local/deferred lane; WAV payloads are ignored and are not release-required until binary hosting or a non-LFS asset is approved | `SRC-003` | P0 |
 | Prototype sprites | `partial` | First governed `SRC-002` prototype actor SVG is normalized and promoted; broader character/item/grid coverage remains future work | `SRC-002` | P0 |
+| Release icons | `adequate` | `resources/icons/urpg_editor.png` and `resources/icons/urpg_runtime.png` are release-required repo resources validated for hydration by the release-candidate gate | repo resources | P0 |
+| Runtime font fallback | `adequate` | Current release uses platform/system text rendering; no raw/vendor font pack is release-required, and this fallback is declared in the project release asset manifest | system fallback | P0 |
 | Fantasy environment tilesets | `fixture_only` | Existing environment coverage remains test/reference-oriented; `SRC-001` is cataloged for curated future capture | `SRC-001` | P1 |
 | Placeholder characters / monsters | `fixture_only` | Existing character coverage remains fixture/reference-oriented; `SRC-001` is cataloged for curated future capture | `SRC-001` | P1 |
 | Placeholder UI frames / chrome | `fixture_only` | No promoted pack exists; `SRC-001` is only a cataloged future source candidate | `SRC-001` | P1 |
@@ -43,7 +45,7 @@
 
 These are the governed promotion targets after the first TD Sprint 04 proof lanes:
 
-1. **UI Sound Pass** — Expand the first `kenney-interface-sounds` proof beyond `kenney_click_001.wav` into a small confirm/cancel/open/close set, then wire those cues into editor/runtime audio events.
+1. **UI Sound Pass** — Restore an approved audio distribution path, then expand the `kenney-interface-sounds` proof beyond `kenney_click_001.wav` into a small confirm/cancel/open/close set and wire those cues into editor/runtime audio events.
 2. **Prototype Sprite Pass** — Expand the first `GDQuest/game-sprites` proof beyond `gdquest_blue_actor.svg` into a curated actor/item/grid subset, then wire it into map/battle test scenes.
 3. **Fantasy Environment Vertical Slice** — Capture one curated tileset bundle and one character subset from `Intersect-Assets`, record attribution manifests, and promote them into a representative scene.
 
@@ -67,6 +69,7 @@ Categories to mine from `awesome-cc0` and `Game-Assets-And-Resources`:
 - This intake is about **coverage and acceleration**, not final visual canon.
 - Even after the current direct-ingest plan executes, cohesive final-quality art and audio identities will remain gaps.
 - Use this document to justify future acquisition sprints and to avoid over-promising content completeness.
+- Release-required surfaces are declared under `releaseAssets` in `content/fixtures/project_governance_fixture.json` and enforced by `tools/ci/check_release_required_assets.ps1`.
 
 ---
 
@@ -77,3 +80,5 @@ Categories to mine from `awesome-cc0` and `Game-Assets-And-Resources`:
 | 2026-04-17 | Initial gap map created from `docs/asset_intake/URPG_private_asset_intake_plan.md` |
 | 2026-04-19 | Replaced misleading staged-state wording with cataloged-not-mirrored reality and rewrote fast-win targets as governed future capture/promote work. |
 | 2026-04-23 | TD Sprint 04 moved UI sounds and prototype sprites from fixture-only to partial with one promoted proof asset in each lane. |
+| 2026-04-27 | Added explicit release-required asset manifest coverage for title, map, battle, UI, audio, icons, and font fallback surfaces. |
+| 2026-04-27 | Deferred tracked WAV payloads from release scope; UI/audio release surfaces now use fallback policy entries until an approved bundled audio asset exists. |

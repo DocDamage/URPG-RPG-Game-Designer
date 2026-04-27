@@ -113,6 +113,65 @@
         "additionalProperties": false
       }
     },
+    "releaseAssets": {
+      "type": "object",
+      "description": "Release-required runtime and distribution asset manifest. Repo-local paths must not point at raw vendor or unresolved LFS-only assets.",
+      "required": ["manifestVersion", "assetBundleManifestRoot", "requiredSurfaces", "assets"],
+      "properties": {
+        "manifestVersion": {
+          "type": "string",
+          "const": "1.0.0"
+        },
+        "assetBundleManifestRoot": {
+          "type": "string",
+          "const": "imports/manifests/asset_bundles"
+        },
+        "requiredSurfaces": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": ["title", "map", "battle", "ui", "audio", "icons", "fonts"]
+          },
+          "uniqueItems": true
+        },
+        "assets": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["id", "surface", "category", "required", "source"],
+            "properties": {
+              "id": { "type": "string", "minLength": 1 },
+              "surface": {
+                "type": "string",
+                "enum": ["title", "map", "battle", "ui", "audio", "icons", "fonts"]
+              },
+              "category": { "type": "string", "minLength": 1 },
+              "required": { "type": "boolean" },
+              "source": {
+                "type": "string",
+                "enum": ["asset_bundle", "repo_resource", "system_fallback"]
+              },
+              "path": {
+                "type": "string",
+                "description": "Repo-relative path for asset_bundle and repo_resource entries."
+              },
+              "bundleId": {
+                "type": "string",
+                "pattern": "^BND-[0-9]{3}$"
+              },
+              "licenseCleared": { "type": "boolean" },
+              "distribution": {
+                "type": "string",
+                "enum": ["bundled", "lfs_hydrated", "system_fallback"]
+              },
+              "notes": { "type": "string" }
+            },
+            "additionalProperties": false
+          }
+        }
+      },
+      "additionalProperties": false
+    },
     "startup": {
       "type": "object",
       "description": "Runtime startup scene and release map asset references.",

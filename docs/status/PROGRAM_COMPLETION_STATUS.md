@@ -3,7 +3,7 @@
 Status Date: 2026-04-27
 Program Scope: native-first roadmap rewire plus Wave 1 absorption, Wave 2 advanced capability expansion, post-Phase-2 compat exit hardening, and governance/template-readiness consolidation
 
-Cross-cutting debt, truthfulness, and intake-governance source of truth: `docs/archive/planning/TECHNICAL_DEBT_REMEDIATION_PLAN.md`.
+Cross-cutting debt, truthfulness, and intake-governance source of truth: `docs/archive/planning/PROGRAM_COMPLETION_STATUS.md`.
 
 Current app-level release readiness source of truth: [`docs/APP_RELEASE_READINESS_MATRIX.md`](../APP_RELEASE_READINESS_MATRIX.md). It maps boot flow, save/load, settings, audio, input, localization, asset validation, editor navigation, analytics consent, install/package, legal docs, release-required asset hydration, and final release-candidate gates to concrete task IDs and evidence commands. As of the P6-002 follow-up verification pass, local gates and the unwaived release-candidate gate pass, including fresh-clone release-required asset verification from GitHub. Public release remains blocked by legal/privacy review, remote manual workflow evidence, and release tagging.
 
@@ -23,7 +23,7 @@ Current app-level release readiness source of truth: [`docs/APP_RELEASE_READINES
 - These slices do not promote any readiness record to `READY`; project health and asset library remain productization follow-through lanes until richer remediation, license-review, and promotion workflows are complete.
 
 Canonical planning chain:
-- `docs/archive/planning/TECHNICAL_DEBT_REMEDIATION_PLAN.md` governs cross-cutting truthfulness, reconciliation, and Definition-of-Done requirements.
+- `docs/archive/planning/PROGRAM_COMPLETION_STATUS.md` governs cross-cutting truthfulness, reconciliation, and Definition-of-Done requirements.
 - `docs/archive/planning/NATIVE_FEATURE_ABSORPTION_PLAN.md` is the canonical product roadmap.
 - `docs/status/PROGRAM_COMPLETION_STATUS.md` is the canonical latest-status snapshot.
 - `docs/asset_intake/ASSET_LIBRARY_AND_MORE_ASSETS_INTAKE.md` records the new raw asset intake, hygiene, catalog, and report-only dedupe status.
@@ -100,7 +100,7 @@ Phase 3 diagnostics productization is complete as of 2026-04-19, Phase 4 governa
   - retained tile render commands are now explicitly documented and verified as pointer-stable across unchanged frames
   - the Phase 4 governance gate now enforces wrapper/facade-only production-candidate adoption plus provenance-preserving asset-promotion records
   - the native `PluginAPI` bridge now routes globals into `GlobalStateHub`, input queries into compat `InputManager` state, and entity lifecycle into a caller-bound ECS world instead of scratch-state placeholders
-- **Planning Governance:** standalone PGMMV/native-absorption roadmap files are now treated as reference annexes under [`docs/archive/planning/TECHNICAL_DEBT_REMEDIATION_PLAN.md`](../archive/planning/TECHNICAL_DEBT_REMEDIATION_PLAN.md) and indexed in [`docs/archive/README.md`](../archive/README.md), not parallel execution authorities.
+- **Planning Governance:** standalone PGMMV/native-absorption roadmap files are now treated as reference annexes under [`docs/archive/planning/PROGRAM_COMPLETION_STATUS.md`](../archive/planning/PROGRAM_COMPLETION_STATUS.md) and indexed in [`docs/archive/README.md`](../archive/README.md), not parallel execution authorities.
 - The current program-level risk has shifted from baseline closure to governance drift:
   - subsystem-wide release-readiness matrix is still not landed as a full product-readiness signoff system; the repo currently has a first-slice canonical matrix plus machine-readable readiness records
   - template readiness matrix and template-claim guardrails are still not landed as full template signoff governance; the repo currently has a first-slice canonical matrix and conservative claim checks
@@ -566,7 +566,7 @@ Phase 3 diagnostics productization is complete as of 2026-04-19, Phase 4 governa
   - `docs/archive/planning/NATIVE_FEATURE_ABSORPTION_PLAN.md`
   - includes Wave 2 advanced capability tracks (ability framework, pattern editor, modular level assembly, sprite pipeline, procedural toolkit, 2.5D presentation lane, timeline orchestration, editor utilities)
 - Normalized planning authority for PGMMV/native-absorption scope:
-  - `docs/archive/planning/TECHNICAL_DEBT_REMEDIATION_PLAN.md` now governs roadmap-alignment and truthfulness requirements for newly added planning scope
+  - `docs/archive/planning/PROGRAM_COMPLETION_STATUS.md` now governs roadmap-alignment and truthfulness requirements for newly added planning scope
   - `docs/archive/planning/URPG_MASTER_NATIVE_ABSORPTION_AND_PGMMV_ROADMAP_2026-04-18.md`, `docs/archive/planning/URPG_PGMMV_SUPPORT_PLAN.md`, and `docs/archive/planning/URPG_NATIVE_ABSORPTION_ROADMAP_2026-04-18.md` are now linked as detailed planning inputs rather than canonical status/roadmap authorities
   - the remediation hub now also carries a finding-status dashboard, expanded documentation tree, and additional planning-governance risks so execution/state review can start from one document
 - Added canonical Wave 1 closure checklist governance:
@@ -723,11 +723,11 @@ Phase 3 diagnostics productization is complete as of 2026-04-19, Phase 4 governa
   - Input manager status honesty: downgraded all 79 inflated `FULL` labels to `PARTIAL` in `runtimes/compat_js/input_manager.cpp`; aligned `tests/unit/test_input_manager.cpp`.
   - Migration wizard productization: added `rerunSubsystem(id, project_data)` to `MigrationWizardModel` and `MigrationWizardPanel`; exposed `can_rerun_selected_subsystem` in render snapshot; implemented `bindMigrationWizardRuntime()` in `DiagnosticsWorkspace`; added 3 new workflow tests.
   - Data manager runtime closure: implemented real `loadDatabase()` orchestration with seeded actor/class/skill/item records; wired up all stubbed JS bindings in `registerAPI` (loadDatabase, saveGame, loadGame, getGold, setGold, getSwitch, setSwitch, getVariable, setVariable, getItemCount, gainItem); implemented real `getActorsAsValue()`, `getItemsAsValue()`, `getSkillsAsValue()`, `getWeaponsAsValue()`, `getArmorsAsValue()`, `getClassesAsValue()` serializers.
-  - Doc sync: linked new intake governance artifacts into `docs/external-intake/URPG_repo_intake_plan.md`, `docs/asset_intake/URPG_private_asset_intake_plan.md`, `docs/archive/planning/TECHNICAL_DEBT_REMEDIATION_PLAN.md`, and `docs/status/PROGRAM_COMPLETION_STATUS.md`; marked P3-02 and P3-03 as partially remediated.
+  - Doc sync: linked new intake governance artifacts into `docs/external-intake/URPG_repo_intake_plan.md`, `docs/asset_intake/URPG_private_asset_intake_plan.md`, `docs/archive/planning/PROGRAM_COMPLETION_STATUS.md`, and `docs/status/PROGRAM_COMPLETION_STATUS.md`; marked P3-02 and P3-03 as partially remediated.
   - Latest recorded validation snapshot: `urpg_tests` => 400/400 passed (5,098 assertions).
 - 2026-04-18 audio compat closure:
   - `AudioManager` now advances deterministic playback position, applies deterministic duck/unduck ramps, applies master/bus volume scaling to active playback, and exposes live compat-state bindings through `AudioManager::registerAPI()`.
-  - Documentation truth was reconciled across `WORKLOG.md`, `docs/archive/planning/TECHNICAL_DEBT_REMEDIATION_PLAN.md`, `docs/DEVELOPMENT_KICKOFF.md`, and `docs/archive/planning/COMPAT_EXIT_CHECKLIST.md` so the audio lane is consistently described as deterministic harness-backed `PARTIAL` behavior rather than a `FULL` live-audio surface.
+  - Documentation truth was reconciled across `WORKLOG.md`, `docs/archive/planning/PROGRAM_COMPLETION_STATUS.md`, `docs/DEVELOPMENT_KICKOFF.md`, and `docs/archive/planning/COMPAT_EXIT_CHECKLIST.md` so the audio lane is consistently described as deterministic harness-backed `PARTIAL` behavior rather than a `FULL` live-audio surface.
 - 2026-04-18 window compat closure follow-through:
   - `Window_Selectable` now supports keyboard/gamepad navigation, pointer press/drag/release hit-testing, drag retargeting, drag-scroll, and mouse-wheel scrolling through `InputManager`.
   - `Window_Base::contents()` now tracks compat bitmap metadata (handle, width, height) and keeps that metadata synchronized with rect/padding changes.

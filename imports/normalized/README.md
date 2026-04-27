@@ -1,12 +1,12 @@
-﻿# normalized
+# normalized
 
 Governance directory for URPG asset and external repository intake.
-See docs/TECHNICAL_DEBT_REMEDIATION_PLAN.md (P3-02, P3-03) for program context.
+See docs/PROGRAM_COMPLETION_STATUS.md (P3-02, P3-03) for program context.
 
 TD Sprint 04 activated the first bounded promoted outputs:
 
 - `prototype_sprites/gdquest_blue_actor.svg`
-- `ui_sfx/kenney_click_001.wav`
+- `ui_sfx/kenney_click_001.wav` as a local/deferred proof payload; WAV files in this folder are ignored and are not release-required GitHub content
 
 Release attribution records for these promoted outputs live under
 `imports/reports/asset_intake/attribution/`.

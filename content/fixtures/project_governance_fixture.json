@@ -32,5 +32,100 @@
       "validationReportSchemaPath": "content/schemas/export_validation_report.schema.json",
       "outputDir": "build/exports/windows_debug"
     }
-  ]
+  ],
+  "releaseAssets": {
+    "manifestVersion": "1.0.0",
+    "assetBundleManifestRoot": "imports/manifests/asset_bundles",
+    "requiredSurfaces": ["title", "map", "battle", "ui", "audio", "icons", "fonts"],
+    "assets": [
+      {
+        "id": "release.prototype_actor.title",
+        "surface": "title",
+        "category": "prototype_sprite",
+        "required": true,
+        "source": "asset_bundle",
+        "bundleId": "BND-001",
+        "path": "imports/normalized/prototype_sprites/gdquest_blue_actor.svg",
+        "licenseCleared": true,
+        "distribution": "bundled",
+        "notes": "Bounded title/startup visual proof asset."
+      },
+      {
+        "id": "release.prototype_actor.map",
+        "surface": "map",
+        "category": "prototype_sprite",
+        "required": true,
+        "source": "asset_bundle",
+        "bundleId": "BND-001",
+        "path": "imports/normalized/prototype_sprites/gdquest_blue_actor.svg",
+        "licenseCleared": true,
+        "distribution": "bundled",
+        "notes": "Bounded map-scene player placeholder asset."
+      },
+      {
+        "id": "release.prototype_actor.battle",
+        "surface": "battle",
+        "category": "prototype_sprite",
+        "required": true,
+        "source": "asset_bundle",
+        "bundleId": "BND-001",
+        "path": "imports/normalized/prototype_sprites/gdquest_blue_actor.svg",
+        "licenseCleared": true,
+        "distribution": "bundled",
+        "notes": "Bounded battle actor/enemy placeholder asset."
+      },
+      {
+        "id": "release.ui.silent_feedback_policy",
+        "surface": "ui",
+        "category": "ui_feedback_policy",
+        "required": true,
+        "source": "system_fallback",
+        "licenseCleared": true,
+        "distribution": "system_fallback",
+        "notes": "Current release ships without bundled UI SFX; controls remain silent instead of depending on ignored or LFS-only WAV files."
+      },
+      {
+        "id": "release.audio.muted_fallback",
+        "surface": "audio",
+        "category": "audio_policy",
+        "required": true,
+        "source": "system_fallback",
+        "licenseCleared": true,
+        "distribution": "system_fallback",
+        "notes": "Audio release surface is satisfied by explicit muted fallback until a non-LFS release audio asset is approved."
+      },
+      {
+        "id": "release.icon.editor",
+        "surface": "icons",
+        "category": "application_icon",
+        "required": true,
+        "source": "repo_resource",
+        "path": "resources/icons/urpg_editor.png",
+        "licenseCleared": true,
+        "distribution": "lfs_hydrated",
+        "notes": "Editor application icon required by release package layout."
+      },
+      {
+        "id": "release.icon.runtime",
+        "surface": "icons",
+        "category": "application_icon",
+        "required": true,
+        "source": "repo_resource",
+        "path": "resources/icons/urpg_runtime.png",
+        "licenseCleared": true,
+        "distribution": "lfs_hydrated",
+        "notes": "Runtime application icon required by release package layout."
+      },
+      {
+        "id": "release.font.system_ui",
+        "surface": "fonts",
+        "category": "system_font",
+        "required": true,
+        "source": "system_fallback",
+        "licenseCleared": true,
+        "distribution": "system_fallback",
+        "notes": "Current release uses platform/system text rendering; no raw vendor font pack is required."
+      }
+    ]
+  }
 }

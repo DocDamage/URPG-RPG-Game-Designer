@@ -16,7 +16,7 @@ Use these as the linked source-of-truth stack for status, governance, and promot
 
 - Readiness record: [`content/readiness/readiness_status.json`](../../../content/readiness/readiness_status.json)
 - Program status: [`docs/PROGRAM_COMPLETION_STATUS.md`](../../PROGRAM_COMPLETION_STATUS.md)
-- Technical debt / remediation hub: [`docs/TECHNICAL_DEBT_REMEDIATION_PLAN.md`](../../TECHNICAL_DEBT_REMEDIATION_PLAN.md)
+- Technical debt / remediation hub: [`docs/PROGRAM_COMPLETION_STATUS.md`](../../PROGRAM_COMPLETION_STATUS.md)
 - Release readiness matrix: [`docs/RELEASE_READINESS_MATRIX.md`](../../RELEASE_READINESS_MATRIX.md)
 - Template readiness matrix: [`docs/TEMPLATE_READINESS_MATRIX.md`](../../TEMPLATE_READINESS_MATRIX.md)
 - Project audit contract: [`docs/PROJECT_AUDIT.md`](../../PROJECT_AUDIT.md)
@@ -336,7 +336,7 @@ Protect runtime cleanliness while completing the first approved tooling lanes.
 
 - [x] [`content/readiness/readiness_status.json`](../../../content/readiness/readiness_status.json)
 - [x] [`docs/PROGRAM_COMPLETION_STATUS.md`](../../PROGRAM_COMPLETION_STATUS.md)
-- [x] [`docs/TECHNICAL_DEBT_REMEDIATION_PLAN.md`](../../TECHNICAL_DEBT_REMEDIATION_PLAN.md)
+- [x] [`docs/PROGRAM_COMPLETION_STATUS.md`](../../PROGRAM_COMPLETION_STATUS.md)
 - [x] [`docs/RELEASE_READINESS_MATRIX.md`](../../RELEASE_READINESS_MATRIX.md)
 - [x] [`docs/TEMPLATE_READINESS_MATRIX.md`](../../TEMPLATE_READINESS_MATRIX.md)
 - [x] [`docs/PROJECT_AUDIT.md`](../../PROJECT_AUDIT.md)
@@ -361,7 +361,7 @@ When a ticket changes canonical readiness or promotion wording, update **all** o
 - `docs/RELEASE_READINESS_MATRIX.md`
 - `docs/TEMPLATE_READINESS_MATRIX.md` (when template status, bars, or blockers change)
 - `docs/PROGRAM_COMPLETION_STATUS.md`
-- `docs/TECHNICAL_DEBT_REMEDIATION_PLAN.md`
+- `docs/PROGRAM_COMPLETION_STATUS.md`
 - `docs/PROJECT_AUDIT.md` (when the shipped audit contract changes)
 
 **Naming conventions:**
@@ -384,7 +384,7 @@ When a ticket changes canonical readiness or promotion wording, update **all** o
 - `docs/RELEASE_READINESS_MATRIX.md`
 - `docs/RELEASE_SIGNOFF_WORKFLOW.md`
 - `docs/PROGRAM_COMPLETION_STATUS.md`
-- `docs/TECHNICAL_DEBT_REMEDIATION_PLAN.md`
+- `docs/PROGRAM_COMPLETION_STATUS.md`
 - `tools/ci/check_release_readiness.ps1`
 - `tools/ci/truth_reconciler.ps1`
 

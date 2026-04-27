@@ -5,7 +5,7 @@ This folder keeps historical blueprint sources that are still useful for traceab
 These files are not current execution authorities. If they disagree with the branch state, follow:
 
 - `../../PROGRAM_COMPLETION_STATUS.md`
-- `../../TECHNICAL_DEBT_REMEDIATION_PLAN.md`
+- `../../PROGRAM_COMPLETION_STATUS.md`
 - `../../NATIVE_FEATURE_ABSORPTION_PLAN.md`
 
 Contents:

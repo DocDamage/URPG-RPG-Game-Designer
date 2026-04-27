@@ -5,7 +5,7 @@ Status: detailed planning annex / historical execution-detail input
 Scope: add Pixel Game Maker MV (PGMMV) project support to URPG as a native import, migration, diagnostics, and editor workflow lane
 
 Canonical governance and current execution authority live in:
-- `../../TECHNICAL_DEBT_REMEDIATION_PLAN.md`
+- `../../PROGRAM_COMPLETION_STATUS.md`
 - `../../NATIVE_FEATURE_ABSORPTION_PLAN.md`
 - `../../PROGRAM_COMPLETION_STATUS.md`
 - `URPG_MASTER_NATIVE_ABSORPTION_AND_PGMMV_ROADMAP_2026-04-18.md`

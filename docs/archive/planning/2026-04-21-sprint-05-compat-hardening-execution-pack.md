@@ -23,7 +23,7 @@
 Read these before starting Ticket `S05-T01`:
 
 - `docs/PROGRAM_COMPLETION_STATUS.md`
-- `docs/TECHNICAL_DEBT_REMEDIATION_PLAN.md`
+- `docs/PROGRAM_COMPLETION_STATUS.md`
 - `docs/COMPAT_EXIT_CHECKLIST.md`
 - `docs/COMPAT_BRIDGE_EXIT_SIGNOFF.md`
 - `content/readiness/readiness_status.json`

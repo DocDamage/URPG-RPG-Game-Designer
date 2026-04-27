@@ -15,7 +15,7 @@ This directory is the agent-facing map for URPG. It points to canonical files ra
 ## Canonical Status
 
 - Program status: `docs/PROGRAM_COMPLETION_STATUS.md`
-- Technical debt: `docs/TECHNICAL_DEBT_REMEDIATION_PLAN.md`
+- Technical debt: `docs/PROGRAM_COMPLETION_STATUS.md`
 - Native feature roadmap: `docs/NATIVE_FEATURE_ABSORPTION_PLAN.md`
 - Release readiness matrix: `docs/release/RELEASE_READINESS_MATRIX.md`
 - Editor control inventory: `docs/release/EDITOR_CONTROL_INVENTORY.md`

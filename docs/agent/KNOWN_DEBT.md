@@ -5,7 +5,7 @@ This file is a pointer map, not the debt database.
 ## Canonical Sources
 
 - Program status snapshot: `docs/PROGRAM_COMPLETION_STATUS.md`
-- Technical debt remediation plan: `docs/TECHNICAL_DEBT_REMEDIATION_PLAN.md`
+- Known debt index: `docs/PROGRAM_COMPLETION_STATUS.md`
 - Release execution plan: `docs/release/AAA_RELEASE_EXECUTION_PLAN.md`
 - Release readiness matrix: `docs/release/RELEASE_READINESS_MATRIX.md`
 - App release readiness matrix: `docs/APP_RELEASE_READINESS_MATRIX.md`

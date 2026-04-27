@@ -36,7 +36,7 @@
   Responsible for canonical repo dispositions and allowed adoption modes.
 - `docs/asset_intake/ASSET_PROMOTION_GUIDE.md`
   Responsible for the product-lane promotion contract for private-use assets.
-- `docs/TECHNICAL_DEBT_REMEDIATION_PLAN.md`
+- `docs/PROGRAM_COMPLETION_STATUS.md`
   Canonical remediation hub and Phase 5 authority.
 - `docs/PROGRAM_COMPLETION_STATUS.md`
   Canonical current-state status snapshot.
@@ -51,7 +51,7 @@
 - Modify: `runtimes/compat_js/plugin_manager.h`
 - Modify: `runtimes/compat_js/plugin_manager.cpp`
 - Modify: `tests/unit/test_plugin_manager.cpp`
-- Modify: `docs/TECHNICAL_DEBT_REMEDIATION_PLAN.md`
+- Modify: `docs/PROGRAM_COMPLETION_STATUS.md`
 
 - [ ] **Step 1: Add a failing audit regression for callback-queue integrity after a rejected foreign-thread drain**
 
@@ -163,7 +163,7 @@ Expected: PASS with the async FIFO, foreign-thread rejection, and queue-integrit
 - [ ] **Step 6: Commit**
 
 ```bash
-git add runtimes/compat_js/plugin_manager.h runtimes/compat_js/plugin_manager.cpp tests/unit/test_plugin_manager.cpp docs/TECHNICAL_DEBT_REMEDIATION_PLAN.md
+git add runtimes/compat_js/plugin_manager.h runtimes/compat_js/plugin_manager.cpp tests/unit/test_plugin_manager.cpp docs/PROGRAM_COMPLETION_STATUS.md
 git commit -m "test: finish plugin callback thread-affinity audit"
 ```
 
@@ -408,7 +408,7 @@ git commit -m "docs: harden phase 4 governance gates for phase 5 closure"
 ### Task 5: Publish the Phase 5 Closure Pack
 
 **Files:**
-- Modify: `docs/TECHNICAL_DEBT_REMEDIATION_PLAN.md`
+- Modify: `docs/PROGRAM_COMPLETION_STATUS.md`
 - Modify: `docs/PROGRAM_COMPLETION_STATUS.md`
 - Modify: `RELEASE_CHECKLIST.md`
 - Modify: `WORKLOG.md`
@@ -472,7 +472,7 @@ Expected: PASS for all four commands. Do not mark Phase 5 closed until all four 
 - [ ] **Step 6: Commit**
 
 ```bash
-git add docs/TECHNICAL_DEBT_REMEDIATION_PLAN.md docs/PROGRAM_COMPLETION_STATUS.md RELEASE_CHECKLIST.md WORKLOG.md
+git add docs/PROGRAM_COMPLETION_STATUS.md docs/PROGRAM_COMPLETION_STATUS.md RELEASE_CHECKLIST.md WORKLOG.md
 git commit -m "docs: close phase 5 hardening"
 ```
 

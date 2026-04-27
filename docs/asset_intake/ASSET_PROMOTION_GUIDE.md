@@ -1,7 +1,7 @@
 # URPG Asset Promotion Guide
 
 > Guide for staging → normalization → promotion workflow for private-use asset intake.
-> See [URPG_private_asset_intake_plan.md](../archive/planning/asset_intake__URPG_private_asset_intake_plan.md) and [TECHNICAL_DEBT_REMEDIATION_PLAN.md](../archive/planning/TECHNICAL_DEBT_REMEDIATION_PLAN.md) (P3-03, Phase 4 / Workstream 4.2).
+> See [URPG_private_asset_intake_plan.md](../archive/planning/asset_intake__URPG_private_asset_intake_plan.md) and [PROGRAM_COMPLETION_STATUS.md](../archive/planning/PROGRAM_COMPLETION_STATUS.md) (P3-03, Phase 4 / Workstream 4.2).
 
 ---
 
@@ -80,20 +80,27 @@ Every promoted asset subset must retain a provenance chain made of:
 - Source-to-target mapping is explicit.
 - Every promoted subset has a promotion record that links the source manifest and bundle manifest entries used to justify promotion.
 - ExportPackager may stage bundle manifests plus promoted assets into `data.pck`, but only for bundle manifests with `bundle_state: "promoted"` and asset rows with `status: "promoted"` that resolve to existing repo-local files under `imports/normalized/`.
+- Release-required assets must be explicitly marked in bundle manifests with `release_required: true`, `release_surfaces`, `license_cleared: true`, and `distribution: "bundled"`. The project-level release manifest in `content/fixtures/project_governance_fixture.json` lists every current title, map, battle, UI, audio, icon, and font surface consumed by the release candidate gate.
+- `tools/ci/check_release_required_assets.ps1` validates that required repo-local assets exist, are hydrated, are not raw/vendor paths, and have license-cleared manifest metadata.
+- Local WAV proofs under `imports/normalized/ui_sfx/` are ignored and excluded from GitHub until binary hosting is restored or an approved non-LFS release audio asset is promoted. Release UI/audio surfaces must use an explicit fallback entry or a hydrated bundled asset.
 
 ### Promotion Manifest Schema Example
 
 ```json
 {
   "bundle_id": "BND-001",
-  "bundle_name": "prototype_ui_sfx_01",
-  "source_id": "SRC-003",
+  "bundle_name": "prototype_sprite_01",
+  "source_id": "SRC-002",
   "assets": [
     {
-      "original_relative_path": "audio/click.wav",
-      "promoted_relative_path": "ui_sfx/click_01.wav",
-      "category": "ui_sfx",
-      "status": "normalized"
+      "original_relative_path": "sprites/hero.svg",
+      "promoted_relative_path": "prototype_sprites/hero.svg",
+      "category": "prototype_sprite",
+      "status": "promoted",
+      "release_required": true,
+      "release_surfaces": ["title", "map", "battle"],
+      "license_cleared": true,
+      "distribution": "bundled"
     }
   ]
 }
@@ -170,3 +177,5 @@ Target integrations by priority:
 | 2026-04-17 | Initial guide created from `docs/asset_intake/URPG_private_asset_intake_plan.md` |
 | 2026-04-23 | TD Sprint 04 exercised the guide with `BND-001` and `BND-002`, proving one visual and one UI-audio promoted lane through source manifests, normalized assets, smoke-proof reporting, and export bundle staging. |
 | 2026-04-25 | Added release attribution records for the promoted proof assets and clarified that shipped normalized assets must enter exports through promoted bundle manifests, not broad raw-intake or normalized-root discovery. |
+| 2026-04-27 | Added release-required asset manifest metadata and CI validation for title, map, battle, UI, audio, icons, and font fallback surfaces. |
+| 2026-04-27 | Deferred tracked WAV payloads from release packaging; local UI SFX proofs are ignored while release UI/audio surfaces use explicit fallback policy entries. |

@@ -16,7 +16,7 @@ This plan defines how to evaluate, ingest, quarantine, mine, and operationalize 
 
 This is **not** a blind vendoring plan. The point is to extract leverage without contaminating URPG’s architecture, license posture, determinism guarantees, or runtime quality.
 
-Program linkage: this intake plan is governed at the program level by `docs/TECHNICAL_DEBT_REMEDIATION_PLAN.md` under `P3-02 — External Repository Intake Needs Canonical Governance` and `Phase 4 / Workstream 4.1`.
+Program linkage: this intake plan is governed at the program level by `docs/PROGRAM_COMPLETION_STATUS.md` under `P3-02 — External Repository Intake Needs Canonical Governance` and `Phase 4 / Workstream 4.1`.
 
 ## Governance Artifacts
 

@@ -303,6 +303,9 @@ std::vector<BundlePayload> collectPromotedAssetBundlePayloads(const ExportConfig
                 !asset.contains("category") || !asset["category"].is_string()) {
                 continue;
             }
+            if (asset.value("distribution", "bundled") != "bundled") {
+                continue;
+            }
 
             const auto relativePath = std::filesystem::path(asset["promoted_relative_path"].get<std::string>());
             if (relativePath.is_absolute()) {

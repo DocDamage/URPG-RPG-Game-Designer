@@ -26,7 +26,7 @@
 Read these before starting Ticket S01-T01:
 
 - `docs/PROGRAM_COMPLETION_STATUS.md`
-- `docs/TECHNICAL_DEBT_REMEDIATION_PLAN.md`
+- `docs/PROGRAM_COMPLETION_STATUS.md`
 - `docs/NATIVE_FEATURE_ABSORPTION_PLAN.md`
 - `docs/COMPAT_EXIT_CHECKLIST.md`
 - `docs/BATTLE_CORE_CLOSURE_SIGNOFF.md`
@@ -51,7 +51,7 @@ Reference implementation surfaces:
 - Use failing-test-first whenever practical.
 - Update docs in the same change as implementation. At minimum keep these aligned when a ticket lands:
   - `docs/PROGRAM_COMPLETION_STATUS.md`
-  - `docs/TECHNICAL_DEBT_REMEDIATION_PLAN.md`
+  - `docs/PROGRAM_COMPLETION_STATUS.md`
   - `docs/COMPAT_EXIT_CHECKLIST.md` when compat evidence changes
   - `content/readiness/readiness_status.json` when subsystem status or main gaps change
   - `WORKLOG.md`
@@ -261,7 +261,7 @@ ctest --test-dir build/dev-ninja-debug --output-on-failure -R "plugin_api|global
 - `tools/ci/truth_reconciler.ps1`
 - `content/readiness/readiness_status.json`
 - `docs/PROGRAM_COMPLETION_STATUS.md`
-- `docs/TECHNICAL_DEBT_REMEDIATION_PLAN.md`
+- `docs/PROGRAM_COMPLETION_STATUS.md`
 
 **Implementation targets:**
 - fail CI when `READY` lacks required evidence fields

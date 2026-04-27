@@ -23,7 +23,7 @@
 Read these before starting Ticket `S03-T01`:
 
 - `docs/PROGRAM_COMPLETION_STATUS.md`
-- `docs/TECHNICAL_DEBT_REMEDIATION_PLAN.md`
+- `docs/PROGRAM_COMPLETION_STATUS.md`
 - `docs/RELEASE_READINESS_MATRIX.md`
 - `docs/TRUTH_ALIGNMENT_RULES.md`
 - `docs/COMPAT_EXIT_CHECKLIST.md`

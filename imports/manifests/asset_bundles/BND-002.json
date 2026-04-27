@@ -3,13 +3,19 @@
   "bundle_name": "td_sprint_04_ui_sfx_lane",
   "source_id": "SRC-003",
   "bundle_state": "promoted",
+  "release_required": false,
+  "release_surfaces": ["ui", "audio"],
   "assets": [
     {
       "original_relative_path": "addons/kenney_interface_sounds/click_001.wav",
       "promoted_relative_path": "ui_sfx/kenney_click_001.wav",
       "category": "ui_sfx",
       "status": "promoted",
-      "notes": "First governed audio proof asset for resolver/runtime/export smoke coverage."
+      "release_required": false,
+      "release_surfaces": ["ui", "audio"],
+      "license_cleared": true,
+      "distribution": "deferred",
+      "notes": "Governed audio proof asset retained for local validation; WAV payloads are ignored locally and not release-required until binary hosting is restored."
     }
   ]
 }

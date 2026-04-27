@@ -36,7 +36,7 @@ This is preferred over annotation-heavy preservation because leaving obsolete bo
 
 These are the documents that define current repo status and should be treated as the top-level source of truth. This class includes materials such as:
 
-- `docs/archive/planning/TECHNICAL_DEBT_REMEDIATION_PLAN.md`
+- `docs/archive/planning/PROGRAM_COMPLETION_STATUS.md`
 - `docs/status/PROGRAM_COMPLETION_STATUS.md`
 - `WORKLOG.md`
 - any other current-state status hub discovered during the audit

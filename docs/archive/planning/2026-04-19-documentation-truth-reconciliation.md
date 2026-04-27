@@ -20,7 +20,7 @@
   Active phase/task tracker used to orient current execution.
 - `WORKLOG.md`
   Narrative record of recent work; must align with canonical program status.
-- `docs/TECHNICAL_DEBT_REMEDIATION_PLAN.md`
+- `docs/PROGRAM_COMPLETION_STATUS.md`
   Canonical remediation hub and cross-cutting truthfulness source.
 - `docs/PROGRAM_COMPLETION_STATUS.md`
   Canonical latest-status snapshot.
@@ -81,7 +81,7 @@ These may not all need edits, but they must be checked if canonical wording chan
 - Modify: `README.md`
 - Modify: `PLAN.md`
 - Modify: `WORKLOG.md`
-- Modify: `docs/TECHNICAL_DEBT_REMEDIATION_PLAN.md`
+- Modify: `docs/PROGRAM_COMPLETION_STATUS.md`
 - Modify: `docs/PROGRAM_COMPLETION_STATUS.md`
 - Modify: `docs/COMPAT_EXIT_CHECKLIST.md`
 - Modify: `docs/DEVELOPMENT_KICKOFF.md`
@@ -104,7 +104,7 @@ Run:
 Get-Content 'README.md'
 Get-Content 'PLAN.md'
 Get-Content 'WORKLOG.md'
-Get-Content 'docs/TECHNICAL_DEBT_REMEDIATION_PLAN.md'
+Get-Content 'docs/PROGRAM_COMPLETION_STATUS.md'
 Get-Content 'docs/PROGRAM_COMPLETION_STATUS.md'
 Get-Content 'docs/COMPAT_EXIT_CHECKLIST.md'
 Get-Content 'docs/DEVELOPMENT_KICKOFF.md'
@@ -120,7 +120,7 @@ Apply the following content rules while editing:
 - README.md must no longer describe Phase 2 as in progress if the canonical docs now treat Phase 2 closure as complete.
 - PLAN.md must describe the actual current phase/task and remove stale “next” framing that was already completed.
 - WORKLOG.md must record this documentation reconciliation pass and keep prior closure entries chronological and accurate.
-- docs/TECHNICAL_DEBT_REMEDIATION_PLAN.md must update stale status dates/revision labels and any finding/phase statuses that no longer match the current branch truth.
+- docs/PROGRAM_COMPLETION_STATUS.md must update stale status dates/revision labels and any finding/phase statuses that no longer match the current branch truth.
 - docs/PROGRAM_COMPLETION_STATUS.md must keep canonical planning authority, current phase framing, and latest validation snapshots aligned with the remediation hub and README.
 - docs/COMPAT_EXIT_CHECKLIST.md and docs/DEVELOPMENT_KICKOFF.md must stop overstating remaining compat/runtime debt where closure already landed, while preserving honestly partial residuals.
 ```
@@ -130,7 +130,7 @@ Apply the following content rules while editing:
 Run:
 
 ```powershell
-rg -n "Phase 2|In Progress|Partially Remediated|Document status|Status Date|remaining work|open work" README.md PLAN.md WORKLOG.md docs/TECHNICAL_DEBT_REMEDIATION_PLAN.md docs/PROGRAM_COMPLETION_STATUS.md docs/COMPAT_EXIT_CHECKLIST.md docs/DEVELOPMENT_KICKOFF.md
+rg -n "Phase 2|In Progress|Partially Remediated|Document status|Status Date|remaining work|open work" README.md PLAN.md WORKLOG.md docs/PROGRAM_COMPLETION_STATUS.md docs/PROGRAM_COMPLETION_STATUS.md docs/COMPAT_EXIT_CHECKLIST.md docs/DEVELOPMENT_KICKOFF.md
 ```
 
 Expected: remaining hits are either intentionally current or clearly historical/contextual rather than contradictory.
@@ -138,7 +138,7 @@ Expected: remaining hits are either intentionally current or clearly historical/
 - [ ] **Step 5: Commit the canonical-doc pass**
 
 ```bash
-git add README.md PLAN.md WORKLOG.md docs/TECHNICAL_DEBT_REMEDIATION_PLAN.md docs/PROGRAM_COMPLETION_STATUS.md docs/COMPAT_EXIT_CHECKLIST.md docs/DEVELOPMENT_KICKOFF.md
+git add README.md PLAN.md WORKLOG.md docs/PROGRAM_COMPLETION_STATUS.md docs/PROGRAM_COMPLETION_STATUS.md docs/COMPAT_EXIT_CHECKLIST.md docs/DEVELOPMENT_KICKOFF.md
 git commit -m "docs: reconcile canonical status and remediation truth"
 ```
 
@@ -297,7 +297,7 @@ Run:
 ```powershell
 git diff --stat
 rg -n "\[TBD|TODO|FIXME|current phase|must begin|remaining work|open work|not implemented|not started" README.md PLAN.md WORKLOG.md docs
-git diff -- README.md PLAN.md WORKLOG.md docs/TECHNICAL_DEBT_REMEDIATION_PLAN.md docs/PROGRAM_COMPLETION_STATUS.md docs/COMPAT_EXIT_CHECKLIST.md docs/DEVELOPMENT_KICKOFF.md docs/superpowers/specs/2026-04-19-phase-2-runtime-closure-design.md docs/superpowers/plans/2026-04-19-phase-2-runtime-closure.md docs/NATIVE_FEATURE_ABSORPTION_PLAN.md docs/WAVE2_AUDIO_STATE_SYNC_PLAN.md docs/presentation/README.md docs/presentation/test_matrix/README.md docs/archive/README.md docs/adr/ADR-010.md docs/adr/ADR-010-presentation-completion.md docs/adr/ADR-011-presentation-spatial-status.md docs/archive/planning/URPG_MASTER_NATIVE_ABSORPTION_AND_PGMMV_ROADMAP_2026-04-18.md docs/archive/planning/URPG_NATIVE_ABSORPTION_ROADMAP_2026-04-18.md docs/archive/planning/URPG_PGMMV_SUPPORT_PLAN.md docs/archive/planning/urpg_first_class_presentation_architecture_plan_v2.md
+git diff -- README.md PLAN.md WORKLOG.md docs/PROGRAM_COMPLETION_STATUS.md docs/PROGRAM_COMPLETION_STATUS.md docs/COMPAT_EXIT_CHECKLIST.md docs/DEVELOPMENT_KICKOFF.md docs/superpowers/specs/2026-04-19-phase-2-runtime-closure-design.md docs/superpowers/plans/2026-04-19-phase-2-runtime-closure.md docs/NATIVE_FEATURE_ABSORPTION_PLAN.md docs/WAVE2_AUDIO_STATE_SYNC_PLAN.md docs/presentation/README.md docs/presentation/test_matrix/README.md docs/archive/README.md docs/adr/ADR-010.md docs/adr/ADR-010-presentation-completion.md docs/adr/ADR-011-presentation-spatial-status.md docs/archive/planning/URPG_MASTER_NATIVE_ABSORPTION_AND_PGMMV_ROADMAP_2026-04-18.md docs/archive/planning/URPG_NATIVE_ABSORPTION_ROADMAP_2026-04-18.md docs/archive/planning/URPG_PGMMV_SUPPORT_PLAN.md docs/archive/planning/urpg_first_class_presentation_architecture_plan_v2.md
 ```
 
 Expected: diffs show only truth-reconciliation changes, and residual wording hits are either accurate or explicitly historical.

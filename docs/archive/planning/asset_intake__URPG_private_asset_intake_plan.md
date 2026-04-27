@@ -16,7 +16,7 @@ This plan intentionally relaxes distribution-focused filtering, but it still avo
 - repos that are mostly engine wrappers with no transferable value,
 - repos that are too chaotic to ingest without structure.
 
-Program linkage: this intake plan is governed at the program level by `docs/TECHNICAL_DEBT_REMEDIATION_PLAN.md` under `P3-03 — Private-Use Asset Intake Needs Canonical Governance` and `Phase 4 / Workstream 4.2`.
+Program linkage: this intake plan is governed at the program level by `docs/PROGRAM_COMPLETION_STATUS.md` under `P3-03 — Private-Use Asset Intake Needs Canonical Governance` and `Phase 4 / Workstream 4.2`.
 
 ## Governance Artifacts
 

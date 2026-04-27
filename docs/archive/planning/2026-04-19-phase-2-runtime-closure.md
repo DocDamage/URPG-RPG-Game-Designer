@@ -10,7 +10,7 @@
 
 **Tech Stack:** C++17, Catch2, CMake, nlohmann::json, URPG compat/runtime layer
 
-For current status, closure boundaries, and post-closure compat work, use `docs/PROGRAM_COMPLETION_STATUS.md` and `docs/TECHNICAL_DEBT_REMEDIATION_PLAN.md`.
+For current status, closure boundaries, and post-closure compat work, use `docs/PROGRAM_COMPLETION_STATUS.md` and `docs/PROGRAM_COMPLETION_STATUS.md`.
 
 ---
 
@@ -36,7 +36,7 @@ For current status, closure boundaries, and post-closure compat work, use `docs/
   Responsible for public audio compat comments and method-level deviation notes.
 - `tests/unit/test_audio_manager.cpp`
   Responsible for proving the supported deterministic audio semantics.
-- `docs/TECHNICAL_DEBT_REMEDIATION_PLAN.md`
+- `docs/PROGRAM_COMPLETION_STATUS.md`
   Canonical remediation hub that must reflect the final Phase 2 state.
 - `docs/PROGRAM_COMPLETION_STATUS.md`
   Status document that must match the implemented and tested Phase 2 closure.
@@ -290,7 +290,7 @@ git commit -m "docs: reconcile compat audio semantics"
 ### Task 4: Reconciled Canonical Phase 2 Docs
 
 **Files touched during the closure pass:**
-- Modified: `docs/TECHNICAL_DEBT_REMEDIATION_PLAN.md`
+- Modified: `docs/PROGRAM_COMPLETION_STATUS.md`
 - Modified: `docs/PROGRAM_COMPLETION_STATUS.md`
 - Modified: `WORKLOG.md`
 
@@ -322,7 +322,7 @@ Recorded expectation at the time: all targeted Phase 2 lanes pass before any doc
 The canonical docs were updated to reflect the actual post-test state and residual limitations.
 
 ```md
-<!-- docs/TECHNICAL_DEBT_REMEDIATION_PLAN.md -->
+<!-- docs/PROGRAM_COMPLETION_STATUS.md -->
 - Battle reward application now mutates live compat state for EXP, gold, and drops.
 - Window/data comments were reconciled to current deterministic runtime behavior.
 - Audio lane remains `PARTIAL` because it is still harness-backed, but the supported semantics are now explicitly tested and documented.
@@ -354,6 +354,6 @@ Recorded expectation at the time: PASS again, confirming the final docs were wri
 Command record from the closure pass:
 
 ```bash
-git add docs/TECHNICAL_DEBT_REMEDIATION_PLAN.md docs/PROGRAM_COMPLETION_STATUS.md WORKLOG.md
+git add docs/PROGRAM_COMPLETION_STATUS.md docs/PROGRAM_COMPLETION_STATUS.md WORKLOG.md
 git commit -m "docs: close phase 2 runtime remediation"
 ```

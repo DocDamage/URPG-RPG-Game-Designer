@@ -1,6 +1,6 @@
 # URPG Privacy Policy
 
-Last updated: 2026-04-26
+Last updated: 2026-04-27
 
 Review status: implementation-accurate engineering policy; legal sufficiency is unverified until reviewed by a qualified legal reviewer.
 
@@ -35,6 +35,8 @@ Removing or corrupting that file causes the editor to recover to defaults, which
 The uploader is transport-agnostic and has no network upload handler configured by default in `urpg_editor`. The release editor configures a local JSONL export handler at `reports/analytics/editor_analytics.jsonl`; queued events are written there only when analytics opt-in is enabled and consent is granted.
 
 URPG does not currently configure advertising identifiers, third-party analytics SDKs, or automatic crash-report uploads in the shipped editor/runtime entry points.
+
+Implementation evidence for this policy lives in `apps/editor/main.cpp`, `engine/core/analytics/*`, and `engine/core/settings/app_settings_store.*`.
 
 ## Data Retention And Erasure
 

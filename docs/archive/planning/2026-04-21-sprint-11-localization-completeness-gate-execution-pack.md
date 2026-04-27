@@ -23,7 +23,7 @@
 Read these before starting `S11-T01`:
 
 - `docs/PROGRAM_COMPLETION_STATUS.md`
-- `docs/TECHNICAL_DEBT_REMEDIATION_PLAN.md`
+- `docs/PROGRAM_COMPLETION_STATUS.md`
 - `docs/NATIVE_FEATURE_ABSORPTION_PLAN.md`
 - `content/readiness/readiness_status.json`
 
@@ -141,7 +141,7 @@ powershell -ExecutionPolicy Bypass -File tools/ci/check_localization_consistency
 **Primary files:**
 - `docs/RELEASE_READINESS_MATRIX.md`
 - `docs/PROGRAM_COMPLETION_STATUS.md`
-- `docs/TECHNICAL_DEBT_REMEDIATION_PLAN.md`
+- `docs/PROGRAM_COMPLETION_STATUS.md`
 - `docs/superpowers/plans/ACTIVE_SPRINT.md`
 - `docs/superpowers/plans/2026-04-21-s11-task-board.md`
 - `WORKLOG.md`

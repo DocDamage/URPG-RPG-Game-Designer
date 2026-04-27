@@ -23,7 +23,7 @@
 Read these before starting `S08-T01`:
 
 - `docs/PROGRAM_COMPLETION_STATUS.md`
-- `docs/TECHNICAL_DEBT_REMEDIATION_PLAN.md`
+- `docs/PROGRAM_COMPLETION_STATUS.md`
 - `docs/NATIVE_FEATURE_ABSORPTION_PLAN.md`
 - `content/readiness/readiness_status.json`
 
@@ -141,7 +141,7 @@ powershell -ExecutionPolicy Bypass -File tools/visual_regression/approve_golden.
 
 **Primary files:**
 - `docs/PROGRAM_COMPLETION_STATUS.md`
-- `docs/TECHNICAL_DEBT_REMEDIATION_PLAN.md`
+- `docs/PROGRAM_COMPLETION_STATUS.md`
 - `docs/PROJECT_AUDIT.md`
 - `docs/superpowers/plans/ACTIVE_SPRINT.md`
 - `docs/superpowers/plans/2026-04-21-s08-task-board.md`

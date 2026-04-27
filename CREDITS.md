@@ -1,6 +1,6 @@
 # Credits
 
-Status Date: 2026-04-26
+Status Date: 2026-04-27
 
 URPG is developed as a native C++ RPG engine/editor/runtime. This file records release-facing credits and attribution status. It is not a substitute for legal review.
 
@@ -22,8 +22,8 @@ See `THIRD_PARTY_NOTICES.md` for source paths, license status, install status, a
 
 ## Asset Intake And Promoted Proof Lanes
 
-- `SRC-002` GDQuest/game-sprites: recorded promoted visual proof lane for `gdquest_blue_actor.svg`.
-- `SRC-003` Calinou/kenney-interface-sounds: recorded promoted UI SFX proof lane for `kenney_click_001.wav`.
+- `SRC-002` GDQuest/game-sprites: recorded release-required promoted visual proof lane for `gdquest_blue_actor.svg`, bundled through `BND-001` for title, map, and battle placeholder surfaces.
+- `SRC-003` Calinou/kenney-interface-sounds: recorded deferred/local UI SFX proof lane for `kenney_click_001.wav`; WAV payloads are ignored and are not bundled as release-required public package content.
 
 Both promoted lanes are currently recorded as CC0 candidates for private-use intake. External redistribution remains unverified until a qualified legal reviewer confirms the upstream license evidence and attribution requirements.
 
@@ -34,6 +34,7 @@ The repository contains source/intake/reference material under `third_party/` an
 ## Required Before Public Release
 
 - Confirm final third-party dependency license texts.
-- Confirm final promoted asset attribution requirements.
+- Confirm final promoted asset attribution requirements, including `BND-001` if it remains bundled for public distribution.
+- Record an explicit public-release waiver if qualified legal review is not obtained.
 - Confirm whether RPG Maker DLC/plugin samples or itch asset packs are excluded from all public packages, or add source-specific credits for any approved shipped subset.
 - Record legal reviewer signoff in the release signoff workflow.

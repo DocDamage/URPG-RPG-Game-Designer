@@ -23,7 +23,7 @@
 Read these before starting `S12-T01`:
 
 - `docs/PROGRAM_COMPLETION_STATUS.md`
-- `docs/TECHNICAL_DEBT_REMEDIATION_PLAN.md`
+- `docs/PROGRAM_COMPLETION_STATUS.md`
 - `docs/NATIVE_FEATURE_ABSORPTION_PLAN.md`
 - `content/readiness/readiness_status.json`
 
@@ -140,7 +140,7 @@ powershell -ExecutionPolicy Bypass -File tools/ci/truth_reconciler.ps1
 
 **Primary files:**
 - `docs/PROGRAM_COMPLETION_STATUS.md`
-- `docs/TECHNICAL_DEBT_REMEDIATION_PLAN.md`
+- `docs/PROGRAM_COMPLETION_STATUS.md`
 - `docs/superpowers/plans/ACTIVE_SPRINT.md`
 - `docs/superpowers/plans/2026-04-21-s12-task-board.md`
 - `WORKLOG.md`

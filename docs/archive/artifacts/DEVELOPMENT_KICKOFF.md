@@ -7,12 +7,12 @@ This repository is bootstrapped to the blueprint's canonical structure and now i
 This document is a historical kickoff snapshot, not the canonical current-status file.
 For current completion, remediation, validation, and active execution context, use:
 - `docs/PROGRAM_COMPLETION_STATUS.md`
-- `docs/TECHNICAL_DEBT_REMEDIATION_PLAN.md`
+- `docs/PROGRAM_COMPLETION_STATUS.md`
 - `docs/RELEASE_READINESS_MATRIX.md`
 - `docs/PROJECT_AUDIT.md`
 - `docs/superpowers/plans/ACTIVE_SPRINT.md`
 
-Cross-cutting debt closure, documentation-truth alignment, and intake-governance tracking: `docs/TECHNICAL_DEBT_REMEDIATION_PLAN.md`.
+Cross-cutting debt closure, documentation-truth alignment, and intake-governance tracking: `docs/PROGRAM_COMPLETION_STATUS.md`.
 
 Historical note: Phase 2 runtime closure completed later on 2026-04-19, and later sprint execution extended the canonical governance/status stack through the current active sprint record. Any remaining compat or roadmap work referenced here should be read as historical context unless the canonical status docs say otherwise.
 
@@ -34,7 +34,7 @@ Historical kickoff snapshot values below are preserved for context. For current 
 - Dependabot version-update branch churn is disabled.
 - Active roadmap has been rewritten as one integrated execution plan (`docs/NATIVE_FEATURE_ABSORPTION_PLAN.md`) including Wave 2 advanced capability tracks.
 - Canonical completion checklist (done + remaining to 100%): `docs/PROGRAM_COMPLETION_STATUS.md`.
-- Canonical debt/truthfulness/intake-governance tracker: `docs/TECHNICAL_DEBT_REMEDIATION_PLAN.md`.
+- Canonical debt/truthfulness/intake-governance tracker: `docs/PROGRAM_COMPLETION_STATUS.md`.
 - Canonical Wave 1 subsystem closure checklist source: `docs/WAVE1_SUBSYSTEM_CLOSURE_CHECKLIST.md`.
 - Subsystem checklist sync is automated via `tools/docs/sync-wave1-spec-checklist.ps1` and verified by `tools/ci/check_wave1_spec_checklists.ps1`.
 

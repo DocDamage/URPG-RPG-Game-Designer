@@ -1,9 +1,9 @@
-﻿# Presentation Core - Work Log (WORKLOG.md)
+# Presentation Core - Work Log (WORKLOG.md)
 
 ## Current Status
 **Phase:** Post-Phase-5 closure follow-through
 **Active Task:** Maintain documentation truthfulness and verified branch state while extending the governance-driven project-audit scanner
-**Cross-Cutting Governance:** cross-program debt, truthfulness, and intake-governance tracking lives in `docs/TECHNICAL_DEBT_REMEDIATION_PLAN.md`
+**Cross-Cutting Governance:** cross-program debt, truthfulness, and intake-governance tracking lives in `docs/PROGRAM_COMPLETION_STATUS.md`
 
 ---
 
@@ -342,17 +342,17 @@
 ### 2026-04-21 — Sprint 08 Ticket S08-T02: Visual Regression Executable Gate
 - **Action**: Added an approval-path regression in `tests/unit/test_visual_regression_harness.cpp` proving `tools/visual_regression/approve_golden.ps1` can write a golden JSON file that `VisualRegressionHarness` then loads and compares successfully.
 - **Action**: Added `tools/ci/check_visual_regression_harness.ps1` as a focused executable gate for the file-backed visual-regression harness contract and wired it into `tools/ci/run_local_gates.ps1` after the build step.
-- **Action**: Reconciled `content/readiness/readiness_status.json`, `docs/RELEASE_READINESS_MATRIX.md`, `docs/PROGRAM_COMPLETION_STATUS.md`, and `docs/TECHNICAL_DEBT_REMEDIATION_PLAN.md` so the visual-regression lane now claims the landed file-backed gate while still explicitly leaving real render-output capture and a full CI golden pipeline below the current scope.
+- **Action**: Reconciled `content/readiness/readiness_status.json`, `docs/RELEASE_READINESS_MATRIX.md`, `docs/PROGRAM_COMPLETION_STATUS.md`, and `docs/PROGRAM_COMPLETION_STATUS.md` so the visual-regression lane now claims the landed file-backed gate while still explicitly leaving real render-output capture and a full CI golden pipeline below the current scope.
 - **Result**: The visual-regression lane now has a truthful executable gate around the harness and approval workflow without overstating it as a renderer-capture or full product-visual regression system.
 
 ### 2026-04-21 — Sprint 07 Ticket S07-T02: Template-Spec Audit Parity Enforcement
 - **Action**: Extended `tools/audit/urpg_project_audit.cpp` so `templateSpecArtifacts` now checks the selected template spec artifact for the expected authority line, required subsystem rows, and cross-cutting bar rows instead of only checking that the markdown file exists.
 - **Action**: Added focused CLI regressions in `tests/unit/test_project_audit_cli.cpp` for template-spec bar drift and required-subsystem drift, keeping the enforcement bounded to conservative governance mismatches rather than feature claims.
-- **Action**: Reconciled `docs/templates/monster_collector_rpg_spec.md`, `docs/templates/2_5d_rpg_spec.md`, `docs/TEMPLATE_READINESS_MATRIX.md`, `docs/PROJECT_AUDIT.md`, `docs/PROGRAM_COMPLETION_STATUS.md`, and `docs/TECHNICAL_DEBT_REMEDIATION_PLAN.md` so the canonical template-facing docs match the current readiness truth.
+- **Action**: Reconciled `docs/templates/monster_collector_rpg_spec.md`, `docs/templates/2_5d_rpg_spec.md`, `docs/TEMPLATE_READINESS_MATRIX.md`, `docs/PROJECT_AUDIT.md`, `docs/PROGRAM_COMPLETION_STATUS.md`, and `docs/PROGRAM_COMPLETION_STATUS.md` so the canonical template-facing docs match the current readiness truth.
 - **Result**: `urpg_project_audit` can now catch real template-spec/readiness drift for selected templates, and the live `monster_collector_rpg` / `2_5d_rpg` audit path stays green for template-spec governance while preserving the existing blocker language from the broader readiness record.
 
 ### 2026-04-21 — Sprint 07 Ticket S07-T03: Governance Truth Maintenance And Closeout
-- **Action**: Updated the Sprint 07 task board, `ACTIVE_SPRINT.md`, `PROGRAM_COMPLETION_STATUS.md`, and `TECHNICAL_DEBT_REMEDIATION_PLAN.md` so the canonical sprint/control docs reflect the landed template-spec parity enforcement instead of leaving Sprint 07 mid-flight.
+- **Action**: Updated the Sprint 07 task board, `ACTIVE_SPRINT.md`, `PROGRAM_COMPLETION_STATUS.md`, and `PROGRAM_COMPLETION_STATUS.md` so the canonical sprint/control docs reflect the landed template-spec parity enforcement instead of leaving Sprint 07 mid-flight.
 - **Action**: Ran the broader PR lane after the focused audit checks to verify the sprint closeout against the full local `pr` label, not just the project-audit subset.
 - **Result**: Sprint 07 is now closed with truthful sprint artifacts, updated canonical status language, and a green validation snapshot spanning the focused audit lane, governance scripts, and the broader PR test lane.
 
@@ -394,7 +394,7 @@
 - **Action**: Extended `engine/core/battle/battle_migration.h` so troop-page `Change Switches` (121) and `Change Variables` (122) now map to native `change_switches` and `change_variables` effects.
 - **Action**: Replaced the old generic unmapped-command bucket with per-command `unsupported_command` artifacts carrying code, reason, and preserved parameters.
 - **Action**: Treated conditional-branch pages as explicit unsupported artifacts with captured nested source commands so branch-scoped bodies are not flattened into unconditional native effects.
-- **Action**: Updated `content/schemas/battle_troops.schema.json`, `docs/SCHEMA_CHANGELOG.md`, `docs/PROGRAM_COMPLETION_STATUS.md`, `docs/BATTLE_CORE_CLOSURE_SIGNOFF.md`, and `docs/TECHNICAL_DEBT_REMEDIATION_PLAN.md` to match the stronger event-command contract.
+- **Action**: Updated `content/schemas/battle_troops.schema.json`, `docs/SCHEMA_CHANGELOG.md`, `docs/PROGRAM_COMPLETION_STATUS.md`, `docs/BATTLE_CORE_CLOSURE_SIGNOFF.md`, and `docs/PROGRAM_COMPLETION_STATUS.md` to match the stronger event-command contract.
 - **Result**: Battle compat migration now covers the real high-value command gaps exercised by the current test lane and preserves unsupported troop-page command structures explicitly instead of dropping them into a vague fallback.
 
 ### 2026-04-21 — Sprint 01 Ticket S01-T01: Battle Condition Tree Preservation
@@ -614,7 +614,7 @@
 
 ### 2026-04-19 — Final Remediation Finding Closure
 - **Action**: Closed `P1-02` by reconciling the remaining public compat truth surfaces with the already-honest runtime registries: `input_manager.h` and `plugin_manager.h` now label fixture-backed compat behavior as `PARTIAL`, and focused status-registry coverage in `test_input_manager.cpp` and `test_plugin_manager.cpp` now locks those representative entries down.
-- **Action**: Updated `docs/COMPAT_EXIT_CHECKLIST.md`, `docs/DEVELOPMENT_KICKOFF.md`, `docs/PROGRAM_COMPLETION_STATUS.md`, `README.md`, and `docs/TECHNICAL_DEBT_REMEDIATION_PLAN.md` so the canonical stack now states plainly that the audited remediation findings are fully closed.
+- **Action**: Updated `docs/COMPAT_EXIT_CHECKLIST.md`, `docs/DEVELOPMENT_KICKOFF.md`, `docs/PROGRAM_COMPLETION_STATUS.md`, `README.md`, and `docs/PROGRAM_COMPLETION_STATUS.md` so the canonical stack now states plainly that the audited remediation findings are fully closed.
 - **Result**: The remediation findings table is fully green. Focused verification passed for `ctest --test-dir build/dev-mingw-debug --output-on-failure -R "InputManager:|TouchInput:|PluginManager: Method status registry"` with 14/14 tests green.
 
 ### 2026-04-19 — Phase 5 Hardening Closure
@@ -634,14 +634,14 @@
 ### 2026-04-19 — Phase 4 Governance/Reconciliation Closure
 - **Action**: Replaced the remaining Phase 4 placeholder intake states with explicit governance records: external repo dispositions in `docs/external-intake/license-matrix.md`, schema-backed attribution and fixture-metadata artifacts in `docs/external-intake/`, and schema-backed asset source manifests plus source-capture reporting under `imports/manifests/` and `imports/reports/asset_intake/`.
 - **Action**: Reconciled `docs/asset_intake/ASSET_SOURCE_REGISTRY.md` and `docs/asset_intake/ASSET_CATEGORY_GAPS.md` so they describe the truthful current state: sources are cataloged but not yet mirrored, staged, normalized, or promoted.
-- **Action**: Added the Phase 4 validation gate in `tools/ci/check_phase4_intake_governance.ps1` and updated `docs/TECHNICAL_DEBT_REMEDIATION_PLAN.md`, `docs/PROGRAM_COMPLETION_STATUS.md`, `PLAN.md`, and the worklog header so the canonical status stack now treats `P3-02`, `P3-03`, and Phase 4 as closed.
+- **Action**: Added the Phase 4 validation gate in `tools/ci/check_phase4_intake_governance.ps1` and updated `docs/PROGRAM_COMPLETION_STATUS.md`, `docs/PROGRAM_COMPLETION_STATUS.md`, `PLAN.md`, and the worklog header so the canonical status stack now treats `P3-02`, `P3-03`, and Phase 4 as closed.
 - **Result**: Phase 4 is now CLOSED. Remaining remediation focus moved to Phase 5 hardening work until the later 2026-04-19 closure pass completed that lane as well.
 
 ### 2026-04-19 — Phase 3 Diagnostics Productization Closure
 - **Action**: Added issue-focused migration-wizard subsystem navigation so the diagnostics workflow can jump directly between warning/error-bearing subsystem results instead of only stepping linearly through all results.
 - **Action**: Added audio-inspector row selection/navigation workflow state so the audio tab now exports selected live-handle detail plus next/previous row affordances instead of only a passive live-row list.
 - **Action**: Forwarded both workflow slices through `DiagnosticsWorkspace` and expanded focused regressions in `test_migration_wizard.cpp`, `test_audio_inspector.cpp`, and `test_diagnostics_workspace.cpp`.
-- **Action**: Reconciled `docs/TECHNICAL_DEBT_REMEDIATION_PLAN.md`, `docs/PROGRAM_COMPLETION_STATUS.md`, and the worklog header so the canonical status stack now treats `P2-03` and Phase 3 as closed and points the next active remediation lane at Phase 4 governance/reconciliation work.
+- **Action**: Reconciled `docs/PROGRAM_COMPLETION_STATUS.md`, `docs/PROGRAM_COMPLETION_STATUS.md`, and the worklog header so the canonical status stack now treats `P2-03` and Phase 3 as closed and points the next active remediation lane at Phase 4 governance/reconciliation work.
 - **Result**: Phase 3 is now CLOSED. Focused diagnostics verification passed for `ctest --test-dir build/dev-mingw-debug --output-on-failure -R "DiagnosticsWorkspace|AudioInspector|MigrationWizard"` with 68/68 tests green.
 
 ### 2026-04-19 — Final Documentation Truth-Reconciliation Sweep (Task 4)
@@ -651,7 +651,7 @@
 - **Result**: The final docs sweep found no additional authority conflicts requiring broader edits; live navigation docs now point at the completed close-out pass, and the remaining residual hits are historical, scoped, or intentionally current.
 
 ### 2026-04-19 — Canonical Current-State Docs Truth Reconciliation (Task 1)
-- **Action**: Reconciled `README.md`, `PLAN.md`, `WORKLOG.md`, `docs/TECHNICAL_DEBT_REMEDIATION_PLAN.md`, `docs/PROGRAM_COMPLETION_STATUS.md`, `docs/COMPAT_EXIT_CHECKLIST.md`, and `docs/DEVELOPMENT_KICKOFF.md` so they all treat the 2026-04-19 Phase 2 runtime closure as complete.
+- **Action**: Reconciled `README.md`, `PLAN.md`, `WORKLOG.md`, `docs/PROGRAM_COMPLETION_STATUS.md`, `docs/PROGRAM_COMPLETION_STATUS.md`, `docs/COMPAT_EXIT_CHECKLIST.md`, and `docs/DEVELOPMENT_KICKOFF.md` so they all treat the 2026-04-19 Phase 2 runtime closure as complete.
 - **Action**: Reframed remaining compat work as post-closure exit hardening, corpus depth, and ongoing documentation/status discipline rather than unresolved Phase 2 runtime closure.
 - **Action**: Updated the remediation hub to reflect closed build-integrity/planning-authority findings and removed stale descriptions that still treated rendered diagnostics surfaces or compile blockers as open truth.
 - **Action**: Ran the required owned-doc status grep after the edits to confirm the canonical docs no longer contradict each other on the targeted status vocabulary.
@@ -668,11 +668,11 @@
 - **Action**: Fixed `InputManager` one-frame edge semantics for mouse and gamepad trigger state so pointer/gamepad triggers do not remain sticky across updates.
 - **Action**: Replaced the old handle-only `Window_Base::contents()` model with a compat bitmap registry that tracks allocated handle, width, and height, and keeps bitmap dimensions synchronized with live rect/padding changes.
 - **Action**: Expanded `tests/unit/test_window_compat.cpp` and `tests/unit/test_input_manager.cpp` coverage for touch release semantics, drag retarget suppression, drag-scroll, mouse-wheel scrolling, and contents-bitmap dimension synchronization.
-- **Action**: Reconciled `docs/PROGRAM_COMPLETION_STATUS.md` and `docs/TECHNICAL_DEBT_REMEDIATION_PLAN.md` so the canonical status/docs describe `window_compat` as a richer partial implementation rather than a mostly placeholder surface.
+- **Action**: Reconciled `docs/PROGRAM_COMPLETION_STATUS.md` and `docs/PROGRAM_COMPLETION_STATUS.md` so the canonical status/docs describe `window_compat` as a richer partial implementation rather than a mostly placeholder surface.
 - **Result**: Focused compat window/input lanes pass, and the repo-wide validation snapshot is green at `ctest --preset dev-all --output-on-failure` => 564/564 passed.
 
 ### 2026-04-18 — Canonical Planning Linkage Sync
-- **Action**: Updated `docs/TECHNICAL_DEBT_REMEDIATION_PLAN.md` to absorb PGMMV/native-absorption planning governance, including canonical roadmap-alignment requirements and Definition-of-Done hooks.
+- **Action**: Updated `docs/PROGRAM_COMPLETION_STATUS.md` to absorb PGMMV/native-absorption planning governance, including canonical roadmap-alignment requirements and Definition-of-Done hooks.
 - **Action**: Updated `docs/PROGRAM_COMPLETION_STATUS.md` and `docs/NATIVE_FEATURE_ABSORPTION_PLAN.md` to publish the canonical planning chain and identify standalone PGMMV/native-absorption files as planning annexes rather than parallel authorities.
 - **Action**: Updated `README.md` documentation links so remediation, roadmap, status, and detailed planning annexes are distinguished clearly.
 - **Action**: Archived superseded planning inputs under `docs/archive/planning/`, including `URPG_MASTER_NATIVE_ABSORPTION_AND_PGMMV_ROADMAP_2026-04-18.md`, `URPG_PGMMV_SUPPORT_PLAN.md`, `URPG_NATIVE_ABSORPTION_ROADMAP_2026-04-18.md`, and `urpg_first_class_presentation_architecture_plan_v2.md`.
@@ -1141,7 +1141,7 @@
   - Downgraded all 79 inflated `FULL` labels to `PARTIAL` in `input_manager.cpp`.
   - Deepened migration wizard productization with `rerunSubsystem(id, project_data)` action, panel snapshot exposure, and `bindMigrationWizardRuntime()` wiring.
   - Implemented real `loadDatabase()` orchestration in `data_manager.cpp` with seeded records; wired up all stubbed JS bindings; implemented real `get*AsValue()` serializers.
-  - Synchronized intake governance artifacts into `URPG_repo_intake_plan.md`, `URPG_private_asset_intake_plan.md`, `TECHNICAL_DEBT_REMEDIATION_PLAN.md`, and `PROGRAM_COMPLETION_STATUS.md`.
+  - Synchronized intake governance artifacts into `URPG_repo_intake_plan.md`, `URPG_private_asset_intake_plan.md`, `PROGRAM_COMPLETION_STATUS.md`, and `PROGRAM_COMPLETION_STATUS.md`.
 - **Result**: `urpg_core` builds cleanly; `urpg_tests` passes 400 test cases (5,098 assertions).
 
 ### 2026-04-17 Ã¢â‚¬â€ Menu Diagnostics Workspace Actions
@@ -1257,7 +1257,7 @@
 - **Action**: Battle manager runtime closure: gainExp level-up, applySkill, applyItem.
 - **Action**: Message inspector panel productization: RenderSnapshot, render(), workspace snapshot coherence.
 - **Action**: Compat exit checklist publication: created docs/COMPAT_EXIT_CHECKLIST.md with import-confidence and migration-confidence pass criteria, signed-off-by section, and related-document links.
-- **Result**: Compat exit checklist artifact is published. Documentation alignment updates applied to docs/PROGRAM_COMPLETION_STATUS.md, docs/TECHNICAL_DEBT_REMEDIATION_PLAN.md, and WORKLOG.md.
+- **Result**: Compat exit checklist artifact is published. Documentation alignment updates applied to docs/PROGRAM_COMPLETION_STATUS.md, docs/PROGRAM_COMPLETION_STATUS.md, and WORKLOG.md.
 ## 2026-04-20 - Compat Failure-Parity Checklist Reconciliation
 
 - **Context**: The compat exit checklist still left failure-path parity unchecked even though the mixed-chain diagnostics suite was already asserting JSONL export, report-model ingestion/export, and panel projection across the active plugin failure matrix.
@@ -1340,7 +1340,7 @@
 
 - **Context**: The main remaining `governance_foundation` gap in the canonical matrix was fuller release-signoff enforcement. The repo had audit/signoff artifacts and gates, but no single canonical workflow artifact tying that discipline together.
 - **Action**: Added `docs/RELEASE_SIGNOFF_WORKFLOW.md` as the canonical non-promoting release-signoff workflow, then updated `tools/ci/check_release_readiness.ps1` and `tools/ci/truth_reconciler.ps1` to require the workflow doc, its date alignment, and its expected non-promoting wording.
-- **Action**: Reconciled `content/readiness/readiness_status.json`, `docs/RELEASE_READINESS_MATRIX.md`, `docs/TRUTH_ALIGNMENT_RULES.md`, `docs/PROGRAM_COMPLETION_STATUS.md`, and `docs/TECHNICAL_DEBT_REMEDIATION_PLAN.md` so the governance-foundation lane now truthfully reflects that workflow artifact.
+- **Action**: Reconciled `content/readiness/readiness_status.json`, `docs/RELEASE_READINESS_MATRIX.md`, `docs/TRUTH_ALIGNMENT_RULES.md`, `docs/PROGRAM_COMPLETION_STATUS.md`, and `docs/PROGRAM_COMPLETION_STATUS.md` so the governance-foundation lane now truthfully reflects that workflow artifact.
 - **Result**: Governance foundation now has an explicit release-signoff workflow artifact in the canonical stack, narrowing the remaining gap to deeper enforcement and broader productization rather than a missing workflow definition.
 
 ## 2026-04-21 - Sprint 04 Project Audit Release-Signoff Workflow Parity
@@ -1360,14 +1360,14 @@
 
 - **Context**: Sprint 05 opened on compat maintenance, and the weakest corpus-depth gap was that the docs implied weekly coverage proved import-style corpus reload/orchestration depth even though the existing evidence split directory import and orchestration reload across separate tests.
 - **Action**: Added a weekly-lane compat fixture test that loads the curated corpus through `loadPluginsFromDirectory(...)`, runs the all-profile orchestration fixture, unloads everything, re-imports the corpus through the same directory path, reruns orchestration, and verifies by-name execution plus empty failure diagnostics.
-- **Action**: Updated `docs/COMPAT_EXIT_CHECKLIST.md`, `docs/PROGRAM_COMPLETION_STATUS.md`, and `docs/TECHNICAL_DEBT_REMEDIATION_PLAN.md` so the recorded compat evidence matches the new import-style corpus-depth anchor.
+- **Action**: Updated `docs/COMPAT_EXIT_CHECKLIST.md`, `docs/PROGRAM_COMPLETION_STATUS.md`, and `docs/PROGRAM_COMPLETION_STATUS.md` so the recorded compat evidence matches the new import-style corpus-depth anchor.
 - **Result**: The weekly compat lane now has an explicit directory re-import plus orchestration rerun anchor, tightening the honest corpus-depth claim for the curated import/migration profiles.
 
 ## 2026-04-21 - Sprint 05 Compat By-Name Dependency-Gating Parity
 
 - **Context**: After the corpus-depth fix, the next compat hardening gap was invocation-surface asymmetry: curated reload/orchestration scenarios used `executeCommandByName(...)` heavily on happy paths, but the failure lane only covered parse failures and direct dependency-gating.
 - **Action**: Extended `test_compat_plugin_failure_diagnostics.cpp` so the same dependency-missing scenario now exercises both direct command dispatch and real curated by-name dispatch against `VisuStella_MainMenuCore_MZ_openMenu`, while asserting the same deterministic `execute_command_dependency_missing` diagnostics payload.
-- **Action**: Updated `docs/COMPAT_EXIT_CHECKLIST.md`, `docs/PROGRAM_COMPLETION_STATUS.md`, and `docs/TECHNICAL_DEBT_REMEDIATION_PLAN.md` so the recorded failure-parity claim matches the now-covered direct and by-name invocation surfaces.
+- **Action**: Updated `docs/COMPAT_EXIT_CHECKLIST.md`, `docs/PROGRAM_COMPLETION_STATUS.md`, and `docs/PROGRAM_COMPLETION_STATUS.md` so the recorded failure-parity claim matches the now-covered direct and by-name invocation surfaces.
 - **Result**: Compat failure-parity evidence now covers the real by-name invocation surface used by the curated corpus, reducing the chance of a regression that only breaks one dispatch path while leaving happy-path reload scenarios looking healthy.
 
 ## 2026-04-21 - Sprint 05 Closeout
@@ -1413,7 +1413,7 @@
 ## 2026-04-21 - Sprint 09 Closeout
 
 - **Context**: After the richer ProjectAudit parity slice landed, the remaining Sprint 09 work was to reconcile the canonical audit/status stack and prove the broader PR lane plus governance gates still held on the current tree.
-- **Action**: Updated `docs/PROJECT_AUDIT.md`, `docs/PROGRAM_COMPLETION_STATUS.md`, `docs/TECHNICAL_DEBT_REMEDIATION_PLAN.md`, and the Sprint 09 task board to describe the landed diagnostics parity truthfully, then ran `ctest --test-dir build/dev-ninja-debug -L pr --output-on-failure`, `powershell -ExecutionPolicy Bypass -File tools/ci/check_release_readiness.ps1`, and `powershell -ExecutionPolicy Bypass -File tools/ci/truth_reconciler.ps1`.
+- **Action**: Updated `docs/PROJECT_AUDIT.md`, `docs/PROGRAM_COMPLETION_STATUS.md`, `docs/PROGRAM_COMPLETION_STATUS.md`, and the Sprint 09 task board to describe the landed diagnostics parity truthfully, then ran `ctest --test-dir build/dev-ninja-debug -L pr --output-on-failure`, `powershell -ExecutionPolicy Bypass -File tools/ci/check_release_readiness.ps1`, and `powershell -ExecutionPolicy Bypass -File tools/ci/truth_reconciler.ps1`.
 - **Result**: Sprint 09 is closed with richer ProjectAudit CLI-to-diagnostics parity for signoff and template-spec governance detail, plus a clean validation snapshot across the PR lane and the readiness/truth governance gates.
 
 ## 2026-04-21 - Sprint 10 Opened For Export Validation Pipeline Hardening
@@ -1439,7 +1439,7 @@
 ## 2026-04-21 - Sprint 10 Closeout
 
 - **Context**: With the export validator/packager seam hardened and the diagnostics surface aligned to the same preflight path, the remaining Sprint 10 work was to reconcile the canonical export wording and prove the broader PR plus governance validation snapshot on the current tree.
-- **Action**: Updated `docs/RELEASE_READINESS_MATRIX.md`, `docs/PROGRAM_COMPLETION_STATUS.md`, `docs/TECHNICAL_DEBT_REMEDIATION_PLAN.md`, and the Sprint 10 task board to describe the landed export evidence conservatively, then ran `ctest --test-dir build/dev-ninja-debug -L pr --output-on-failure`, `powershell -ExecutionPolicy Bypass -File tools/ci/check_release_readiness.ps1`, and `powershell -ExecutionPolicy Bypass -File tools/ci/truth_reconciler.ps1`.
+- **Action**: Updated `docs/RELEASE_READINESS_MATRIX.md`, `docs/PROGRAM_COMPLETION_STATUS.md`, `docs/PROGRAM_COMPLETION_STATUS.md`, and the Sprint 10 task board to describe the landed export evidence conservatively, then ran `ctest --test-dir build/dev-ninja-debug -L pr --output-on-failure`, `powershell -ExecutionPolicy Bypass -File tools/ci/check_release_readiness.ps1`, and `powershell -ExecutionPolicy Bypass -File tools/ci/truth_reconciler.ps1`.
 - **Result**: Sprint 10 is closed with sharper executable proof for the export validation lane, aligned export diagnostics parity, and a clean validation snapshot across the PR lane and the readiness/truth governance gates.
 
 ## 2026-04-21 - Sprint 11 Opened For Localization Completeness Gate
@@ -1463,7 +1463,7 @@
 ## 2026-04-21 - Sprint 11 Closeout
 
 - **Context**: With the executable localization gate landed and ProjectAudit consuming the same bounded evidence, the remaining Sprint 11 work was to reconcile the canonical status stack and prove the broader validation snapshot still held on the current tree.
-- **Action**: Updated `docs/PROGRAM_COMPLETION_STATUS.md`, `docs/TECHNICAL_DEBT_REMEDIATION_PLAN.md`, `docs/PROJECT_AUDIT.md`, `ACTIVE_SPRINT.md`, and the Sprint 11 task board, then ran `ctest --test-dir build/dev-ninja-debug -L pr --output-on-failure`, `powershell -ExecutionPolicy Bypass -File tools/ci/check_release_readiness.ps1`, and `powershell -ExecutionPolicy Bypass -File tools/ci/truth_reconciler.ps1`.
+- **Action**: Updated `docs/PROGRAM_COMPLETION_STATUS.md`, `docs/PROGRAM_COMPLETION_STATUS.md`, `docs/PROJECT_AUDIT.md`, `ACTIVE_SPRINT.md`, and the Sprint 11 task board, then ran `ctest --test-dir build/dev-ninja-debug -L pr --output-on-failure`, `powershell -ExecutionPolicy Bypass -File tools/ci/check_release_readiness.ps1`, and `powershell -ExecutionPolicy Bypass -File tools/ci/truth_reconciler.ps1`.
 - **Result**: Sprint 11 is closed with a real localization completeness gate, bounded ProjectAudit localization evidence, and a clean PR-lane plus readiness/truth validation snapshot.
 
 ## 2026-04-21 - Sprint 12 Opened For Governance Foundation Release Signoff Enforcement
@@ -1487,7 +1487,7 @@
 ## 2026-04-21 - Sprint 12 Closeout
 
 - **Context**: With the ProjectAudit contract lock-in and localization-evidence diagnostics parity slices landed, the remaining Sprint 12 work was to reconcile the canonical status stack and prove the broader PR plus readiness/truth lanes on the current tree.
-- **Action**: Updated `docs/PROGRAM_COMPLETION_STATUS.md`, `docs/TECHNICAL_DEBT_REMEDIATION_PLAN.md`, `ACTIVE_SPRINT.md`, and the Sprint 12 task board, then ran `ctest --test-dir build/dev-ninja-debug -L pr --output-on-failure`, `powershell -ExecutionPolicy Bypass -File tools/ci/check_release_readiness.ps1`, and `powershell -ExecutionPolicy Bypass -File tools/ci/truth_reconciler.ps1`.
+- **Action**: Updated `docs/PROGRAM_COMPLETION_STATUS.md`, `docs/PROGRAM_COMPLETION_STATUS.md`, `ACTIVE_SPRINT.md`, and the Sprint 12 task board, then ran `ctest --test-dir build/dev-ninja-debug -L pr --output-on-failure`, `powershell -ExecutionPolicy Bypass -File tools/ci/check_release_readiness.ps1`, and `powershell -ExecutionPolicy Bypass -File tools/ci/truth_reconciler.ps1`.
 - **Result**: Sprint 12 is closed with the richer ProjectAudit contract machine-checked by the governance gates, bounded localization-evidence parity across CLI and diagnostics, and a clean validation snapshot across the PR lane plus the readiness/truth gates.
 
 ## 2026-04-23 - TD Sprint 01 Governance Contract Lock
@@ -1502,7 +1502,7 @@
 
 - **Context**: Sprint 2 called for closing the missing canonical export CLI artifact and refreshing battle/save signoff validation without inventing human review approvals.
 - **Action**: Added `tools/pack/pack_cli.cpp`, wired `urpg_pack_cli` into `CMakeLists.txt`, and added process-level CLI coverage for a successful Web export plus an invalid output-root preflight failure.
-- **Action**: Reconciled `content/readiness/readiness_status.json`, `docs/RELEASE_READINESS_MATRIX.md`, `docs/PROJECT_AUDIT.md`, `docs/PROGRAM_COMPLETION_STATUS.md`, `docs/TECHNICAL_DEBT_ACTION_PLAN.md`, and `docs/TECHNICAL_DEBT_REMEDIATION_PLAN.md` so export wording now names the canonical CLI while broader signing/notarization/runtime-signature enforcement remains partial.
+- **Action**: Reconciled `content/readiness/readiness_status.json`, `docs/RELEASE_READINESS_MATRIX.md`, `docs/PROJECT_AUDIT.md`, `docs/PROGRAM_COMPLETION_STATUS.md`, `docs/TECHNICAL_DEBT_ACTION_PLAN.md`, and `docs/PROGRAM_COMPLETION_STATUS.md` so export wording now names the canonical CLI while broader signing/notarization/runtime-signature enforcement remains partial.
 - **Validation**: `cmake --build --preset dev-debug --target urpg_pack_cli urpg_project_audit urpg_tests` passed; `.\build\dev-ninja-debug\urpg_tests.exe "[project_audit_cli]" --reporter compact` passed 700 assertions / 30 test cases; `.\build\dev-ninja-debug\urpg_tests.exe "[export][packager]" --reporter compact` passed 965 assertions / 22 test cases; `.\build\dev-ninja-debug\urpg_tests.exe "[export][validation]" --reporter compact` passed 71 assertions / 19 test cases; `.\build\dev-ninja-debug\urpg_tests.exe "[battle],[battlemgr],[save]" --reporter compact` passed 1,430 assertions / 183 test cases; `.\build\dev-ninja-debug\urpg_integration_tests.exe "[integration][battle],[integration][save]" --reporter compact` passed 71 assertions / 7 test cases; `.\build\dev-ninja-debug\urpg_integration_tests.exe "[integration][wave1][closure]" --reporter compact` passed 39 assertions / 4 test cases; `ctest --test-dir build\dev-ninja-debug -L pr --output-on-failure` passed 1,149/1,149 tests; release-readiness, truth-reconciler, and CMake completeness gates passed; `ctest --preset dev-all -N` enumerated 1,228 tests.
 - **Result**: TD Sprint 02 closes the export CLI false-positive: ProjectAudit now reports `governance.exportArtifacts.issueCount: 0` and `exportBlockerCount: 0`. `battle_core` and `save_data_core` intentionally remain `PARTIAL`, leaving `releaseBlockerCount: 2` until human reviewers record explicit accept/reject notes.
 
@@ -1511,7 +1511,7 @@
 - **Context**: Sprint 3 called for keeping the compat runtime contract explicit and reducing high-use WindowCompat TODO behavior without widening the fixture-backed QuickJS/plugin harness into a live runtime claim.
 - **Action**: Left the runtime contract locked to the fixture-backed import/validation/migration bridge, then implemented JS-facing color parsing for `Window_Base::changeTextColor` and `drawGauge` across color objects, arrays, hex strings, and rgb/rgba strings.
 - **Action**: Changed `Window_Base::drawGauge` from a single solid fill to bounded segmented gradient fill rects using both supplied colors, while preserving the documented non-pixel `contents()` handle/dimension contract.
-- **Action**: Updated `content/readiness/readiness_status.json`, `docs/RELEASE_READINESS_MATRIX.md`, `docs/COMPAT_BRIDGE_EXIT_SIGNOFF.md`, `docs/COMPAT_EXIT_CHECKLIST.md`, `docs/PROGRAM_COMPLETION_STATUS.md`, `docs/TECHNICAL_DEBT_ACTION_PLAN.md`, and `docs/TECHNICAL_DEBT_REMEDIATION_PLAN.md` so the compat bridge stays `PARTIAL` but the new window fidelity evidence is recorded.
+- **Action**: Updated `content/readiness/readiness_status.json`, `docs/RELEASE_READINESS_MATRIX.md`, `docs/COMPAT_BRIDGE_EXIT_SIGNOFF.md`, `docs/COMPAT_EXIT_CHECKLIST.md`, `docs/PROGRAM_COMPLETION_STATUS.md`, `docs/TECHNICAL_DEBT_ACTION_PLAN.md`, and `docs/PROGRAM_COMPLETION_STATUS.md` so the compat bridge stays `PARTIAL` but the new window fidelity evidence is recorded.
 - **Validation**: `cmake --build --preset dev-debug --target urpg_tests urpg_compat_tests` passed; `.\build\dev-ninja-debug\urpg_tests.exe "[compat][window]" --reporter compact` passed 393 assertions / 75 test cases; `.\build\dev-ninja-debug\urpg_tests.exe "[compat][manager][quickjs]" --reporter compact` passed 13 assertions / 1 test case; `.\build\dev-ninja-debug\urpg_tests.exe "[compat][quickjs]" --reporter compact` passed 151 assertions / 40 test cases; `.\build\dev-ninja-debug\urpg_tests.exe "[plugin_manager]" --reporter compact` passed 2,342 assertions / 13 test cases; `ctest --test-dir build\dev-ninja-debug -L weekly --output-on-failure` passed 47/47 tests; release-readiness, truth-reconciler, and CMake completeness gates passed; `ctest --test-dir build\dev-ninja-debug -L pr --output-on-failure` passed 1,151/1,151 tests; `ctest --preset dev-all -N` enumerated 1,230 tests.
 - **Result**: TD Sprint 03 closes the highest-use WindowCompat color/gauge TODOs for the bounded harness contract. Remaining compat bridge gaps are ongoing corpus maintenance, truth upkeep, pixel-backed contents depth, and live runtime/backend parity, not silent color/gauge no-ops.
 

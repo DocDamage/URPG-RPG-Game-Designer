@@ -14,7 +14,7 @@ You are continuing the active sprint in the URPG repository.
 Follow these files first:
 - docs/superpowers/plans/ACTIVE_SPRINT.md
 - docs/PROGRAM_COMPLETION_STATUS.md
-- docs/TECHNICAL_DEBT_REMEDIATION_PLAN.md
+- docs/PROGRAM_COMPLETION_STATUS.md
 - content/readiness/readiness_status.json
 
 Rules:

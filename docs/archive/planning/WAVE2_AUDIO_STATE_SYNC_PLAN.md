@@ -41,7 +41,7 @@ Provide a unified mechanism for synchronizing global game state (Switches, Varia
 ## Authority and follow-up
 
 - For canonical latest status, use `docs/PROGRAM_COMPLETION_STATUS.md`.
-- For canonical closure boundaries and residual compat-audio limitations, use `docs/TECHNICAL_DEBT_REMEDIATION_PLAN.md`.
+- For canonical closure boundaries and residual compat-audio limitations, use `docs/PROGRAM_COMPLETION_STATUS.md`.
 - Any remaining audio backend, threading, or release-hardening work belongs to later roadmap/remediation lanes, not to a reopened Phase 2 closure claim in this document.
 
 ---

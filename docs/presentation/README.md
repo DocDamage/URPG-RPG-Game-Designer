@@ -3,7 +3,7 @@
 ## Purpose
 This folder is the documentation home for the native presentation subsystem: contracts, validation, spatial editor tooling, schema evolution, and performance guidance.
 
-It is a presentation-specific reference hub, not the canonical authority for overall program status, remediation phase state, or build-graph/product-readiness claims. For those, use `docs/status/PROGRAM_COMPLETION_STATUS.md` and `docs/archive/planning/TECHNICAL_DEBT_REMEDIATION_PLAN.md`.
+It is a presentation-specific reference hub, not the canonical authority for overall program status, remediation phase state, or build-graph/product-readiness claims. For those, use `docs/status/PROGRAM_COMPLETION_STATUS.md` and `docs/archive/planning/PROGRAM_COMPLETION_STATUS.md`.
 
 ## Core Guides
 - [Risk Register](./RISKS.md)

@@ -27,11 +27,17 @@ Reviewed commit: `dc8789953b47226295312273e2dc880696898e03`
 
 Distribution scope: `Private/internal release-candidate use only`
 
+Public release waiver: `NOT_RECORDED`
+
+P5-02 evidence status: `BLOCKED_FOR_PUBLIC_RELEASE`
+
 Decision notes:
 
 - The release owner stated they read the legal/release files and agree to the current terms for private/internal release-candidate use.
 - This is not qualified legal counsel approval for public binary distribution.
 - Public release remains blocked until qualified legal review approves production distribution terms or the release owner records an explicit public-release waiver.
+- The current release-required asset manifest bundles `BND-001` only for title, map, and battle placeholder coverage; `BND-002` UI SFX WAV payloads are deferred/local-only and ignored from GitHub packaging.
+- Privacy policy text was checked against the editor analytics implementation: analytics starts disabled, requires explicit opt-in, and writes only to local JSONL export in the shipped editor entry point.
 
 ## Required Review Checklist
 
@@ -45,7 +51,8 @@ Decision notes:
 - [x] `CHANGELOG.md` wording is accepted for private/internal RC distribution only.
 - [x] Package contents were reviewed against `docs/release/RELEASE_PACKAGING.md`.
 - [x] Raw/vendor/source asset packs are confirmed excluded from the current package scope.
-- [x] Promoted proof-lane asset scope is accepted as manifest/provenance-only for private/internal RC scope.
+- [x] Promoted proof-lane asset scope is accepted for private/internal RC scope: `BND-001` visual proof is bundled; `BND-002` audio proof is deferred/local-only.
+- [x] Release-required UI/audio surfaces are covered by explicit silent/muted fallback policy entries instead of a bundled WAV dependency.
 - [x] Repository-wide source/vendor LFS budget/access constraint is accepted as non-release-package scope for private/internal RC use.
 - [x] Any required changes are listed below.
 
@@ -75,8 +82,10 @@ Distribution scope: Private/internal release-candidate use only
 Required changes:
 
 - Public binary release still requires qualified legal/privacy/distribution approval or an explicit release-owner waiver for public distribution.
+- No public-release waiver has been recorded in this repository.
 - Public release contact/support routing remains unresolved.
 - Public release should not ship raw/vendor/source asset packs unless source-specific license and attribution review approves them.
+- If any audio asset becomes release-required, it must be hosted as a hydrated non-LFS release artifact or covered by a reviewed external artifact process before public distribution.
 
 Approval or rejection notes:
 

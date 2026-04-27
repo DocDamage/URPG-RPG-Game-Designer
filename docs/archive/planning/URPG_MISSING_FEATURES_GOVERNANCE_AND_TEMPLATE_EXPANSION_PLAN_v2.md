@@ -16,7 +16,7 @@ This document is **not** a replacement for:
 
 - `docs/NATIVE_FEATURE_ABSORPTION_PLAN.md`
 - `docs/PROGRAM_COMPLETION_STATUS.md`
-- `docs/TECHNICAL_DEBT_REMEDIATION_PLAN.md`
+- `docs/PROGRAM_COMPLETION_STATUS.md`
 
 It is an addendum focused on the things URPG still needs in order to become a **trustworthy multi-template engine product**.
 

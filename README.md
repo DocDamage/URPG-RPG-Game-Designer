@@ -63,7 +63,7 @@ So the current repo should be read as:
 For canonical status, use:
 
 - [Program Completion Status](./docs/PROGRAM_COMPLETION_STATUS.md)
-- [Technical Debt Remediation Plan](./docs/TECHNICAL_DEBT_REMEDIATION_PLAN.md)
+- [Program Completion Status](./docs/PROGRAM_COMPLETION_STATUS.md)
 - [Native Feature Absorption Plan](./docs/NATIVE_FEATURE_ABSORPTION_PLAN.md)
 - [Release Readiness Matrix](./docs/RELEASE_READINESS_MATRIX.md)
 - [Future Feature Upgrade Plans](./docs/FUTURE_FEATURE_UPGRADE_PLANS.md)
@@ -314,7 +314,7 @@ ctest -L weekly
 Start here for truth:
 
 - [Program Completion Status](./docs/PROGRAM_COMPLETION_STATUS.md)
-- [Technical Debt Remediation Plan](./docs/TECHNICAL_DEBT_REMEDIATION_PLAN.md)
+- [Program Completion Status](./docs/PROGRAM_COMPLETION_STATUS.md)
 - [Native Feature Absorption Plan](./docs/NATIVE_FEATURE_ABSORPTION_PLAN.md)
 
 Supporting references:

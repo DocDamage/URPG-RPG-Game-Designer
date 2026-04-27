@@ -290,7 +290,7 @@ Protect runtime cleanliness while completing first approved tooling lanes.
 
 - [ ] `content/readiness/readiness_status.json`
 - [ ] `docs/PROGRAM_COMPLETION_STATUS.md`
-- [ ] `docs/TECHNICAL_DEBT_REMEDIATION_PLAN.md`
+- [ ] `docs/PROGRAM_COMPLETION_STATUS.md`
 - [ ] `docs/RELEASE_READINESS_MATRIX.md`
 - [ ] `docs/TEMPLATE_READINESS_MATRIX.md`
 - [ ] `docs/PROJECT_AUDIT.md`
@@ -314,7 +314,7 @@ This section exists so a low-context implementation model can execute the new ti
   - `docs/RELEASE_READINESS_MATRIX.md`
   - `docs/TEMPLATE_READINESS_MATRIX.md` when template status/bars/blockers change
   - `docs/PROGRAM_COMPLETION_STATUS.md`
-  - `docs/TECHNICAL_DEBT_REMEDIATION_PLAN.md`
+  - `docs/PROGRAM_COMPLETION_STATUS.md`
   - `docs/PROJECT_AUDIT.md` when the shipped audit contract changes
 - Template spec naming convention is `docs/templates/<template_id>_spec.md`.
 - Template spec header must follow the existing canonical pattern:
@@ -340,7 +340,7 @@ Primary file anchors:
 - `docs/RELEASE_READINESS_MATRIX.md`
 - `docs/RELEASE_SIGNOFF_WORKFLOW.md`
 - `docs/PROGRAM_COMPLETION_STATUS.md`
-- `docs/TECHNICAL_DEBT_REMEDIATION_PLAN.md`
+- `docs/PROGRAM_COMPLETION_STATUS.md`
 - `tools/ci/check_release_readiness.ps1`
 - `tools/ci/truth_reconciler.ps1`
 

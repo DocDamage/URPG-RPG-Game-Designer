@@ -78,7 +78,7 @@ Compat bridge exit is a maintenance-mode lane that requires ongoing review rathe
 
 - `docs/archive/planning/COMPAT_EXIT_CHECKLIST.md`
 - `docs/status/PROGRAM_COMPLETION_STATUS.md`
-- `docs/archive/planning/TECHNICAL_DEBT_REMEDIATION_PLAN.md`
+- `docs/archive/planning/PROGRAM_COMPLETION_STATUS.md`
 - `docs/release/RELEASE_READINESS_MATRIX.md`
 - `content/readiness/readiness_status.json`
 

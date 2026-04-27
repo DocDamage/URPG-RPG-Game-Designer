@@ -25,7 +25,7 @@
 Read these before starting Ticket `S02-T01`:
 
 - `docs/PROGRAM_COMPLETION_STATUS.md`
-- `docs/TECHNICAL_DEBT_REMEDIATION_PLAN.md`
+- `docs/PROGRAM_COMPLETION_STATUS.md`
 - `docs/NATIVE_FEATURE_ABSORPTION_PLAN.md`
 - `docs/RELEASE_READINESS_MATRIX.md`
 - `docs/TEMPLATE_READINESS_MATRIX.md`
@@ -49,7 +49,7 @@ Reference implementation surfaces:
 - Use failing-test-first whenever practical.
 - Update docs in the same change as implementation. At minimum keep these aligned when a ticket lands:
   - `docs/PROGRAM_COMPLETION_STATUS.md`
-  - `docs/TECHNICAL_DEBT_REMEDIATION_PLAN.md`
+  - `docs/PROGRAM_COMPLETION_STATUS.md`
   - `docs/RELEASE_READINESS_MATRIX.md`
   - `docs/TEMPLATE_READINESS_MATRIX.md`
   - `content/readiness/readiness_status.json`

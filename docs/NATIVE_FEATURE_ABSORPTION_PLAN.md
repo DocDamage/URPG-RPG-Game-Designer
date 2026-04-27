@@ -6,9 +6,9 @@ Scope: native runtime, editor workflows, schema/migration, compat bridge exit, a
 
 This is the roadmap document, not the canonical latest-status snapshot. For current completion, remediation, and validation state, use:
 - `docs/PROGRAM_COMPLETION_STATUS.md`
-- `docs/TECHNICAL_DEBT_REMEDIATION_PLAN.md`
+- `docs/PROGRAM_COMPLETION_STATUS.md`
 
-Cross-cutting debt closure, documentation-truth alignment, and intake-governance companion: `docs/TECHNICAL_DEBT_REMEDIATION_PLAN.md`.
+Cross-cutting debt closure, documentation-truth alignment, and intake-governance companion: `docs/PROGRAM_COMPLETION_STATUS.md`.
 
 Phase/remediation vocabulary note: Phase 2 runtime closure completed on 2026-04-19 in the canonical remediation/status docs. This roadmap remains the product roadmap; compat follow-up work belongs to later hardening and exit lanes unless the canonical docs explicitly re-open a Phase 2 slice.
 
@@ -19,7 +19,7 @@ Planning-input annexes for this roadmap:
 - `./archive/planning/URPG_MISSING_FEATURES_GOVERNANCE_AND_TEMPLATE_EXPANSION_PLAN_v2.md` - governance/template expansion addendum retained as planning input while its approved deltas are absorbed into this roadmap and the canonical status stack
 - `./URPG_facebookresearch_tooling_integration_plan.md` - offline ML/research tooling boundary input retained as planning input while its approved scope is absorbed into this roadmap and the canonical status stack
 
-These annexes are not parallel execution authorities. New phase, status, and release-gate claims become canonical only after they are absorbed into this roadmap, `docs/PROGRAM_COMPLETION_STATUS.md`, and `docs/TECHNICAL_DEBT_REMEDIATION_PLAN.md`.
+These annexes are not parallel execution authorities. New phase, status, and release-gate claims become canonical only after they are absorbed into this roadmap, `docs/PROGRAM_COMPLETION_STATUS.md`, and `docs/PROGRAM_COMPLETION_STATUS.md`.
 
 This plan replaces the previous addendum and becomes the single roadmap for turning URPG into a high-power engine for multiple game styles, while preserving import and migration trust for RPG Maker content.
 
@@ -424,7 +424,7 @@ This plan is complete when:
 
 ## Execution references
 
-- Cross-cutting truthfulness, intake governance, and roadmap-alignment requirements: `docs/TECHNICAL_DEBT_REMEDIATION_PLAN.md`
+- Cross-cutting truthfulness, intake governance, and roadmap-alignment requirements: `docs/PROGRAM_COMPLETION_STATUS.md`
 - Program status and remaining checklist: `docs/PROGRAM_COMPLETION_STATUS.md`
 - Governance foundation references:
   - `docs/RELEASE_READINESS_MATRIX.md`

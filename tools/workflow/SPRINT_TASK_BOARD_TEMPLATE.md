@@ -43,6 +43,6 @@
 
 - [ ] All tickets are `DONE` or explicitly moved out of sprint with rationale.
 - [ ] `docs/PROGRAM_COMPLETION_STATUS.md` is aligned.
-- [ ] `docs/TECHNICAL_DEBT_REMEDIATION_PLAN.md` is aligned.
+- [ ] `docs/PROGRAM_COMPLETION_STATUS.md` is aligned.
 - [ ] `WORKLOG.md` records the sprint slices.
 - [ ] Final validation commands were run or explicitly waived with reason.

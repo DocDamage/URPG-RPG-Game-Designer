@@ -37,7 +37,7 @@ This ADR recorded an explicit status correction for these directories so the pla
 
 ## Rationale
 
-A subsystem is considered landed in URPG when it is built, test-registered, and reachable from a real runtime or editor entry point (see Remediation Principle #2 in `TECHNICAL_DEBT_REMEDIATION_PLAN.md`). The presentation/spatial subsystem now meets these criteria: compiled panels, compiled runtime and bridge, end-to-end authoring→runtime tests, and release-validation coverage. The remaining gaps (mock renderer backend, unregistered `profile_arena.cpp`) are explicitly scoped as residual future work rather than blocking productization claims.
+A subsystem is considered landed in URPG when it is built, test-registered, and reachable from a real runtime or editor entry point (see Remediation Principle #2 in `PROGRAM_COMPLETION_STATUS.md`). The presentation/spatial subsystem now meets these criteria: compiled panels, compiled runtime and bridge, end-to-end authoring→runtime tests, and release-validation coverage. The remaining gaps (mock renderer backend, unregistered `profile_arena.cpp`) are explicitly scoped as residual future work rather than blocking productization claims.
 
 ## Consequences
 

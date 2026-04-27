@@ -21,7 +21,7 @@
 ## Canonical Sources
 
 - `docs/PROGRAM_COMPLETION_STATUS.md`
-- `docs/TECHNICAL_DEBT_REMEDIATION_PLAN.md`
+- `docs/PROGRAM_COMPLETION_STATUS.md`
 - `docs/NATIVE_FEATURE_ABSORPTION_PLAN.md`
 - `content/readiness/readiness_status.json`
 - `docs/RELEASE_READINESS_MATRIX.md`

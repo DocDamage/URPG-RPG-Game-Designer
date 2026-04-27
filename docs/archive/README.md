@@ -3,7 +3,7 @@
 This folder holds superseded or reference-only planning material that is kept for traceability. It preserves historical planning and decision context, but it is not a source of current execution truth for this branch.
 
 Canonical document chain:
-- `../TECHNICAL_DEBT_REMEDIATION_PLAN.md` - cross-cutting governance, truthfulness, and Definition-of-Done authority
+- `../PROGRAM_COMPLETION_STATUS.md` - cross-cutting governance, truthfulness, and Definition-of-Done authority
 - `../NATIVE_FEATURE_ABSORPTION_PLAN.md` - canonical product roadmap
 - `../PROGRAM_COMPLETION_STATUS.md` - canonical latest-status snapshot
 

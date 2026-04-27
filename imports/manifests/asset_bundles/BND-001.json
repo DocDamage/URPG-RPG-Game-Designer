@@ -3,12 +3,18 @@
   "bundle_name": "td_sprint_04_prototype_visual_lane",
   "source_id": "SRC-002",
   "bundle_state": "promoted",
+  "release_required": true,
+  "release_surfaces": ["title", "map", "battle"],
   "assets": [
     {
       "original_relative_path": "characters/blue.svg",
       "promoted_relative_path": "prototype_sprites/gdquest_blue_actor.svg",
       "category": "prototype_sprite",
       "status": "promoted",
+      "release_required": true,
+      "release_surfaces": ["title", "map", "battle"],
+      "license_cleared": true,
+      "distribution": "bundled",
       "notes": "First governed visual proof asset for editor/runtime/export smoke coverage."
     }
   ]

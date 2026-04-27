@@ -4,7 +4,7 @@ Status Date: 2026-04-23
 
 This checklist is the canonical pass/fail artifact for deciding whether the compat lane is trustworthy enough to serve as an import, validation, and migration bridge without overstating runtime parity.
 
-Cross-cutting source of truth: [TECHNICAL_DEBT_REMEDIATION_PLAN.md](./TECHNICAL_DEBT_REMEDIATION_PLAN.md)
+Cross-cutting source of truth: [PROGRAM_COMPLETION_STATUS.md](./PROGRAM_COMPLETION_STATUS.md)
 
 Phase 2 runtime closure completed on 2026-04-19. The unchecked items below are post-closure import/migration confidence gates and ongoing truth-maintenance requirements, not evidence that the baseline Phase 2 runtime closure is still open.
 
@@ -27,7 +27,7 @@ It is intentionally narrower than full native-feature completion:
 - [x] Focused compat suites pass in the active local build lane.
 
 Evidence anchors:
-- [TECHNICAL_DEBT_REMEDIATION_PLAN.md](./TECHNICAL_DEBT_REMEDIATION_PLAN.md)
+- [PROGRAM_COMPLETION_STATUS.md](./PROGRAM_COMPLETION_STATUS.md)
 - [PROGRAM_COMPLETION_STATUS.md](./PROGRAM_COMPLETION_STATUS.md)
 - [test_compat_plugin_fixtures.cpp](../tests/compat/test_compat_plugin_fixtures.cpp)
 - [test_compat_plugin_failure_diagnostics.cpp](../tests/compat/test_compat_plugin_failure_diagnostics.cpp)
@@ -99,7 +99,7 @@ Evidence anchors:
 ## Related Documents
 
 - [PROGRAM_COMPLETION_STATUS.md](./PROGRAM_COMPLETION_STATUS.md)
-- [TECHNICAL_DEBT_REMEDIATION_PLAN.md](./TECHNICAL_DEBT_REMEDIATION_PLAN.md)
+- [PROGRAM_COMPLETION_STATUS.md](./PROGRAM_COMPLETION_STATUS.md)
 - [COMPAT_BRIDGE_EXIT_SIGNOFF.md](./COMPAT_BRIDGE_EXIT_SIGNOFF.md)
 - [DEVELOPMENT_KICKOFF.md](./DEVELOPMENT_KICKOFF.md)
 - [WORKLOG.md](../WORKLOG.md)

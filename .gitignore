@@ -36,6 +36,7 @@ third_party/asset-index/
 third_party/itch-assets/reports/
 third_party/itch-assets/packs-by-category/ui/fantasy-platformer-game-ui/
 imports/reports/
+imports/normalized/ui_sfx/*.wav
 itch/archives/
 more assets/
 third_party/itch-assets/packs/fantasy-platformer-game-ui/PSD/

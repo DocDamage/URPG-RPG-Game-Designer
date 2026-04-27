@@ -14,11 +14,11 @@
 
 **Related Enablement**
 - Curated Hugging Face fixture ingestion is now in place for TMX, Visual Novel Maker, and Godot reference corpora, with manifest-driven refresh tooling under `tools/assets/`.
-- Cross-cutting debt, truthfulness, and intake-governance tracking lives in `docs/TECHNICAL_DEBT_REMEDIATION_PLAN.md`.
+- Cross-cutting debt, truthfulness, and intake-governance tracking lives in `docs/PROGRAM_COMPLETION_STATUS.md`.
 
 **Current framing note**
 - The historical presentation-core backlog below remains accurate as a planning reference.
-- Active repo-wide execution has moved beyond the closed Phase 2 runtime lane, the closed Phase 3 diagnostics lane, and the closed Phase 4 governance/reconciliation lane; current truth and remaining work are tracked canonically in `docs/PROGRAM_COMPLETION_STATUS.md` and `docs/TECHNICAL_DEBT_REMEDIATION_PLAN.md`.
+- Active repo-wide execution has moved beyond the closed Phase 2 runtime lane, the closed Phase 3 diagnostics lane, and the closed Phase 4 governance/reconciliation lane; current truth and remaining work are tracked canonically in `docs/PROGRAM_COMPLETION_STATUS.md` and `docs/PROGRAM_COMPLETION_STATUS.md`.
 
 ---
 

@@ -916,7 +916,7 @@ TEST_CASE("ExportPackager fails closed on disallowed promoted asset legal dispos
     std::filesystem::remove_all(base);
 }
 
-TEST_CASE("ExportPackager stages canonical promoted visual and audio intake lanes", "[export][packager][assets]") {
+TEST_CASE("ExportPackager stages canonical release-required visual intake lane", "[export][packager][assets]") {
     const auto base = std::filesystem::temp_directory_path() / "urpg_export_packager_canonical_promoted_assets";
     std::filesystem::remove_all(base);
 
@@ -946,33 +946,17 @@ TEST_CASE("ExportPackager stages canonical promoted visual and audio intake lane
     };
 
     const auto visualManifestEntry = findEntry("imports/manifests/asset_bundles/BND-001.json");
-    const auto audioManifestEntry = findEntry("imports/manifests/asset_bundles/BND-002.json");
     const auto visualAssetEntry = findEntry("imports/normalized/prototype_sprites/gdquest_blue_actor.svg");
-    const auto audioAssetEntry = findEntry("imports/normalized/ui_sfx/kenney_click_001.wav");
 
     const auto visualBytes = DecodeBundleEntryBytes(bundlePath, ExportTarget::Windows_x64, visualAssetEntry);
-    const auto audioBytes = DecodeBundleEntryBytes(bundlePath, ExportTarget::Windows_x64, audioAssetEntry);
     const std::string visualText(visualBytes.begin(), visualBytes.end());
 
     REQUIRE(visualManifestEntry["kind"] == "asset_bundle_manifest");
-    REQUIRE(audioManifestEntry["kind"] == "asset_bundle_manifest");
     REQUIRE(visualAssetEntry["kind"] == "promoted_asset");
-    REQUIRE(audioAssetEntry["kind"] == "promoted_asset");
     REQUIRE(visualText.find("<svg") != std::string::npos);
-    REQUIRE(audioBytes.size() > 12);
-    const std::string audioHeader(audioBytes.begin(), audioBytes.begin() + std::min<std::size_t>(audioBytes.size(), 64));
-    if (audioHeader.rfind("version https://git-lfs.github.com/spec/v1", 0) == 0) {
-        const std::string audioText(audioBytes.begin(), audioBytes.end());
-        REQUIRE(audioText.find("oid sha256:") != std::string::npos);
-        REQUIRE(audioText.find("size ") != std::string::npos);
-    } else {
-        REQUIRE(static_cast<char>(audioBytes[0]) == 'R');
-        REQUIRE(static_cast<char>(audioBytes[1]) == 'I');
-        REQUIRE(static_cast<char>(audioBytes[2]) == 'F');
-        REQUIRE(static_cast<char>(audioBytes[3]) == 'F');
-    }
     for (const auto& entry : manifest["entries"]) {
         const auto path = entry["path"].get<std::string>();
+        REQUIRE(path != "imports/normalized/ui_sfx/kenney_click_001.wav");
         REQUIRE(path.rfind("imports/raw/", 0) != 0);
         REQUIRE(path.rfind("third_party/", 0) != 0);
         REQUIRE(path.rfind("itch/", 0) != 0);

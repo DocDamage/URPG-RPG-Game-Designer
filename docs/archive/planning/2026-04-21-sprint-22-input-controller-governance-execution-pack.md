@@ -22,7 +22,7 @@
 ## Canonical Sources
 
 - `docs/PROGRAM_COMPLETION_STATUS.md`
-- `docs/TECHNICAL_DEBT_REMEDIATION_PLAN.md`
+- `docs/PROGRAM_COMPLETION_STATUS.md`
 - `content/readiness/readiness_status.json`
 - `docs/RELEASE_READINESS_MATRIX.md`
 - `engine/core/input/input_remap_store.h`
