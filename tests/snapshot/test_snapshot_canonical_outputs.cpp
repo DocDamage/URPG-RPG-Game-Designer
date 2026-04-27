@@ -25,11 +25,8 @@ uint64_t Fnv1a64(std::string_view value) {
 }
 
 std::string ActiveRendererTier() {
-    char* value = nullptr;
-    size_t length = 0;
-    if (_dupenv_s(&value, &length, "URPG_RENDERER_TIER") == 0 && value != nullptr) {
+    if (const char* value = std::getenv("URPG_RENDERER_TIER"); value != nullptr) {
         std::string tier(value);
-        free(value);
         return tier;
     }
     return "basic";
