@@ -5,6 +5,8 @@ Program Scope: native-first roadmap rewire plus Wave 1 absorption, Wave 2 advanc
 
 Cross-cutting debt, truthfulness, and intake-governance source of truth: `docs/archive/planning/TECHNICAL_DEBT_REMEDIATION_PLAN.md`.
 
+Current app-level release readiness source of truth: [`docs/APP_RELEASE_READINESS_MATRIX.md`](../APP_RELEASE_READINESS_MATRIX.md). It maps boot flow, save/load, settings, audio, input, localization, asset validation, editor navigation, analytics consent, install/package, legal docs, LFS hydration, and final release-candidate gates to concrete task IDs and evidence commands.
+
 2026-04-24 technical debt audit Sprint 2 evidence refresh:
 - `battle_core` and `save_data_core` validation was refreshed through focused Catch2 tag filters, battle/save integration, Wave 1 closure integration, save policy governance, release readiness, and truth reconciliation.
 - Both lanes intentionally remain `PARTIAL`; `urpg_project_audit --json` still reports `releaseBlockerCount: 2` and `exportBlockerCount: 0` because no human reviewer accept/reject decisions have been recorded.
@@ -890,4 +892,3 @@ Phase 2 runtime closure is already complete. The remaining compat work below is 
   - [x] `AbilityStateMachine` now records deterministic entered/failed/finished transition diagnostics through the shared ability execution history.
   - [x] `AbilityInspectorPanel` now exposes replay-log-oriented render snapshot data for the current ability runtime history.
   - [x] Focused verification: `.\build\Debug\urpg_tests.exe "[ability]" --reporter compact` => 49 assertions / 8 test cases passed.
-

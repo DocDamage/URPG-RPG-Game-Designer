@@ -564,7 +564,7 @@
 
 **Exact implementation steps:**
 - [x] Run searches for empty render functions, placeholder labels, mock data strings, disabled buttons with no reason, and no-op handlers.
-- [x] Record each verified stub in `docs/release/RELEASE_READINESS_MATRIX.md` or the app-level matrix from P5-005.
+- [x] Record each verified stub in `docs/release/RELEASE_READINESS_MATRIX.md` or the app-level matrix from P5-006.
 - [x] For each user-facing stub, either implement the real behavior or convert it to an explicit disabled state with owner, reason, and unlock condition.
 - [x] Add a focused test for each implemented behavior or disabled-state contract.
 - [x] Do not edit audit-gap items until the search proves the specific file and behavior.
@@ -1059,7 +1059,7 @@
 - `PRIVACY_POLICY.md`
 - `CREDITS.md`
 - `CHANGELOG.md`
-- `docs/release/RELEASE_READINESS_MATRIX.md` or app-level matrix from P5-005
+- `docs/release/RELEASE_READINESS_MATRIX.md` or app-level matrix from P5-006
 
 **Files to inspect:**
 - `LICENSE`
@@ -1251,6 +1251,8 @@
 
 ### P5-006 - Create App-Level Release Readiness Matrix
 
+**Status:** Completed in this pass.
+
 **Files to edit:**
 - `docs/APP_RELEASE_READINESS_MATRIX.md`
 - `docs/release/AAA_RELEASE_READINESS_REPORT.md`
@@ -1267,10 +1269,17 @@
 **Risk level:** Low.
 
 **Exact implementation steps:**
-- [ ] Create an app-level matrix with rows for boot flow, save/load, settings, audio, input, localization, asset validation, editor navigation, analytics consent, install/package, legal docs, LFS hydration, and final gates.
-- [ ] For each row, include owner file, status, evidence command, and blocking task ID.
-- [ ] Link the matrix from `AAA_RELEASE_READINESS_REPORT.md`.
-- [ ] Update `PROGRAM_COMPLETION_STATUS.md` to reference the app-level matrix as the current release-readiness tracker.
+- [x] Create an app-level matrix with rows for boot flow, save/load, settings, audio, input, localization, asset validation, editor navigation, analytics consent, install/package, legal docs, LFS hydration, and final gates.
+- [x] For each row, include owner file, status, evidence command, and blocking task ID.
+- [x] Link the matrix from `AAA_RELEASE_READINESS_REPORT.md`.
+- [x] Update `PROGRAM_COMPLETION_STATUS.md` to reference the app-level matrix as the current release-readiness tracker.
+
+**Evidence:**
+- Created `docs/APP_RELEASE_READINESS_MATRIX.md` as the app-level tracker.
+- The matrix maps release-facing workflows to owner files, statuses, evidence commands, and task IDs.
+- The matrix marks LFS hydration as `BLOCKED`, legal docs as `PARTIAL`, and the final release-candidate gate as `PENDING`.
+- Linked the matrix from `docs/release/AAA_RELEASE_READINESS_REPORT.md`.
+- Added the matrix as the current app-level release-readiness source of truth in `docs/status/PROGRAM_COMPLETION_STATUS.md`.
 
 **Acceptance criteria:**
 - Release governance no longer depends on scattered docs alone.

@@ -7,6 +7,8 @@
 
 This report replaces the prior broad audit with a stricter evidence standard. Findings below are limited to facts verified from the repository on 2026-04-26. Items that were not exhaustively audited are listed separately under "Audit Gaps" and must not be treated as proven defects until verified.
 
+Current app-level execution status is tracked in [App Release Readiness Matrix](../APP_RELEASE_READINESS_MATRIX.md). That matrix maps each release-facing workflow to its owner file, task ID, evidence command, and remaining release gate.
+
 ## Evidence Basis
 
 The following checks were performed against the local tree:
@@ -321,6 +323,8 @@ Two additional narrow archive removals were completed after confirming retained 
 **Impact:** Engine subsystem readiness and app/product release readiness can diverge.
 
 **Required fix:** Add an app-level release matrix covering boot flow, save/load, settings, audio, input, packaging, legal docs, and editor navigation.
+
+**Status update:** The app-level tracker now exists at [docs/APP_RELEASE_READINESS_MATRIX.md](../APP_RELEASE_READINESS_MATRIX.md). It records the current verified app gates, partial legal/manual gates, blocked LFS hydration gate, and pending final release-candidate gate.
 
 ## Audit Gaps
 
