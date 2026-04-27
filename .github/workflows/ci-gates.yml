@@ -8,6 +8,17 @@ on:
     - cron: "0 6 * * *"
     - cron: "0 7 * * 1"
   workflow_dispatch:
+    inputs:
+      run_release_candidate_gate:
+        description: "Run the release-candidate gate job"
+        required: false
+        default: false
+        type: boolean
+      lfs_waiver_reference:
+        description: "Required when running the RC gate while the GitHub LFS budget blocker is active"
+        required: false
+        default: ""
+        type: string
 
 concurrency:
   group: urpg-ci-gates-${{ github.ref }}
@@ -249,3 +260,45 @@ jobs:
         with:
           name: gate3-weekly-logs
           path: gate3-weekly.log
+
+  release-candidate:
+    if: github.event_name == 'workflow_dispatch' && inputs.run_release_candidate_gate
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          lfs: false
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y sccache xvfb libgl1-mesa-dev
+      - name: Cache sccache
+        uses: actions/cache@v4
+        with:
+          path: .cache/sccache
+          key: ${{ runner.os }}-sccache-${{ hashFiles('CMakeLists.txt', 'CMakePresets.json') }}
+          restore-keys: |
+            ${{ runner.os }}-sccache-
+      - name: Cache FetchContent dependencies
+        uses: actions/cache@v4
+        with:
+          path: .cache/fetchcontent
+          key: ${{ runner.os }}-fetchcontent-${{ hashFiles('CMakeLists.txt', 'CMakePresets.json') }}
+          restore-keys: |
+            ${{ runner.os }}-fetchcontent-
+      - name: Run release-candidate gate
+        shell: pwsh
+        run: |
+          $args = @(
+            "-ConfigurePreset", "ci",
+            "-BuildPreset", "ci-release",
+            "-BuildDirectory", "build/ci",
+            "-Configuration", "Release"
+          )
+          if ("${{ inputs.lfs_waiver_reference }}" -ne "") {
+            $args += @(
+              "-SkipLfsHydration",
+              "-LfsWaiverReference", "${{ inputs.lfs_waiver_reference }}"
+            )
+          }
+          ./tools/ci/run_release_candidate_gate.ps1 @args

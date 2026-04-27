@@ -32,7 +32,7 @@ This matrix maps release-facing application workflows to the execution-plan task
 | Package layout | `VERIFIED` | `cmake/packaging.cmake`; `tools/ci/check_package_smoke.ps1`; `docs/release/RELEASE_PACKAGING.md` | `./tools/ci/check_package_smoke.ps1 -BuildDirectory build/dev-ninja-release -PackageRoot build/package-smoke` | P5-003; P5-004 | CPack emits component archives with expected runtime, data, docs, icon, and desktop metadata entries. |
 | Legal docs | `PARTIAL` | `THIRD_PARTY_NOTICES.md`; `EULA.md`; `PRIVACY_POLICY.md`; `CREDITS.md`; `CHANGELOG.md` | `./tools/ci/check_install_smoke.ps1 -BuildDirectory build/dev-ninja-release -InstallPrefix build/install-smoke` | P5-002 | Required docs exist and install; legal sufficiency remains unverified until qualified legal review. |
 | LFS hydration | `BLOCKED` | `.gitattributes`; `.gitignore`; `imports/`; `third_party/`; `more assets/` | `GIT_LFS_SKIP_SMUDGE=1 git clone --depth 1 --branch development --filter=blob:none <origin> <temp>; git lfs pull` | P5-005 | Fresh-clone hydration failed because GitHub reports the repository exceeded its LFS budget. |
-| Final release candidate gate | `PENDING` | `tools/ci/run_release_candidate_gate.ps1`; `.github/workflows/ci-gates.yml` | `./tools/ci/run_release_candidate_gate.ps1` | P6-001; P6-002 | One command and manual CI workflow must prove final build, tests, smokes, docs, and LFS gate behavior. |
+| Final release candidate gate | `PARTIAL` | `tools/ci/run_release_candidate_gate.ps1`; `.github/workflows/ci-gates.yml` | `./tools/ci/run_release_candidate_gate.ps1 -SkipLfsHydration -LfsWaiverReference docs/APP_RELEASE_READINESS_MATRIX.md#open-release-blocks` | P6-001; P6-002 | Local gate script and manual CI job exist; full unwaived gate remains blocked by GitHub LFS budget/access. |
 
 ## Open Release Blocks
 
@@ -40,7 +40,7 @@ This matrix maps release-facing application workflows to the execution-plan task
 | --- | --- | --- |
 | GitHub LFS budget/access | `BLOCKED` | Restore GitHub LFS budget/access or move release-required LFS payload to an accessible artifact store, then rerun fresh-clone hydration. |
 | Legal review | `PARTIAL` | Qualified legal/privacy review must approve EULA, privacy policy, third-party notices, credits, and public distribution terms. |
-| Release candidate gate | `PENDING` | Implement and run the P6-001 release-candidate gate, then record final P6-002 verification results. |
+| Release candidate gate | `PARTIAL` | Run the P6-001 gate without LFS waiver after GitHub LFS budget/access is restored, then record final P6-002 verification results. |
 
 ## Verification
 

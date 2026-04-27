@@ -1277,7 +1277,7 @@
 **Evidence:**
 - Created `docs/APP_RELEASE_READINESS_MATRIX.md` as the app-level tracker.
 - The matrix maps release-facing workflows to owner files, statuses, evidence commands, and task IDs.
-- The matrix marks LFS hydration as `BLOCKED`, legal docs as `PARTIAL`, and the final release-candidate gate as `PENDING`.
+- The matrix marks LFS hydration as `BLOCKED`, legal docs as `PARTIAL`, and the final release-candidate gate as `PARTIAL` until the GitHub LFS budget/access blocker is cleared and the gate can run unwaived.
 - Linked the matrix from `docs/release/AAA_RELEASE_READINESS_REPORT.md`.
 - Added the matrix as the current app-level release-readiness source of truth in `docs/status/PROGRAM_COMPLETION_STATUS.md`.
 
@@ -1295,11 +1295,14 @@
 
 ### P6-001 - Add End-To-End Release Candidate Gate Script
 
+**Status:** Completed in this pass with an explicit LFS waiver path. The unwaived release-candidate gate remains blocked by the verified GitHub LFS budget/access issue from P5-005.
+
 **Files to edit:**
 - `tools/ci/run_release_candidate_gate.ps1`
 - `tools/ci/run_local_gates.ps1`
 - `.github/workflows/ci-gates.yml`
 - `docs/APP_RELEASE_READINESS_MATRIX.md`
+- Root-level machine-contract governance docs under `docs/*.md`
 
 **Files to inspect:**
 - `tools/ci/run_local_gates.ps1`
@@ -1311,10 +1314,19 @@
 **Risk level:** Medium.
 
 **Exact implementation steps:**
-- [ ] Create a release-candidate gate script that configures release build, builds runtime/editor/validation targets, runs PR tests, runs presentation validation, runs install/package smoke, and checks required docs exist.
-- [ ] Include LFS hydration check or skip only with an explicit failure message and waiver reference.
-- [ ] Add the gate to CI as manual `workflow_dispatch`.
-- [ ] Add matrix row evidence pointing to the gate.
+- [x] Create a release-candidate gate script that configures release build, builds runtime/editor/validation targets, runs PR tests, runs presentation validation, runs install/package smoke, and checks required docs exist.
+- [x] Include LFS hydration check or skip only with an explicit failure message and waiver reference.
+- [x] Add the gate to CI as manual `workflow_dispatch`.
+- [x] Add matrix row evidence pointing to the gate.
+
+**Evidence:**
+- Added `tools/ci/run_release_candidate_gate.ps1`.
+- Added optional `-RunReleaseCandidateGate` integration to `tools/ci/run_local_gates.ps1`.
+- Added a manual `release-candidate` GitHub Actions job under `workflow_dispatch` with optional LFS waiver input.
+- Restored root-level machine-contract governance docs required by Gate 1 scripts and project-audit tests (`docs/SCHEMA_CHANGELOG.md`, `docs/RELEASE_SIGNOFF_WORKFLOW.md`, signoff artifacts, readiness/truth/project-audit matrices).
+- Updated `docs/APP_RELEASE_READINESS_MATRIX.md` to point at the release-candidate gate script and keep the gate `PARTIAL` until LFS hydration can run without waiver.
+- Local verification used `-SkipLfsHydration -LfsWaiverReference docs/APP_RELEASE_READINESS_MATRIX.md#open-release-blocks` because P5-005 verified fresh-clone LFS hydration is blocked by GitHub LFS budget/access.
+- Focused regression verified the restored governance docs: `ctest --test-dir build/dev-ninja-release --output-on-failure -R "Project audit CLI emits parseable JSON from the default repo data|Project audit CLI exposes structured signoff contract state for governed subsystem artifacts|FFS-17 governance scripts"`.
 
 **Acceptance criteria:**
 - One command exercises the objective release-candidate exit criteria.
@@ -1322,7 +1334,7 @@
 - The gate fails on missing docs, missing package output, failed validation, or broken tests.
 
 **Verification command or manual test:**
-- `.\tools\ci\run_release_candidate_gate.ps1`
+- `.\tools\ci\run_release_candidate_gate.ps1 -SkipLfsHydration -LfsWaiverReference docs/APP_RELEASE_READINESS_MATRIX.md#open-release-blocks`
 - GitHub Actions verification remains unverified until the workflow is run remotely.
 
 ### P6-002 - Run Full Regression And Close The Readiness Report

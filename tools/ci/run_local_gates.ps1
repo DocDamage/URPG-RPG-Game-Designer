@@ -5,7 +5,9 @@ param(
     [int]$CTestTimeoutSeconds = 300,
     [switch]$SkipBuild,
     [switch]$SkipPresentationGate,
-    [switch]$SkipWarningsAsErrorsGate
+    [switch]$SkipWarningsAsErrorsGate,
+    [switch]$RunReleaseCandidateGate,
+    [string]$ReleaseCandidateLfsWaiverReference = ""
 )
 
 $ErrorActionPreference = "Stop"
@@ -270,6 +272,26 @@ try {
     Write-Host "== Gate 3 (weekly) ==" -ForegroundColor Cyan
     ctest --test-dir $testDir --output-on-failure --timeout $CTestTimeoutSeconds -L "^weekly$"
     Assert-LastExitCode "Gate 3 (weekly)"
+
+    if ($RunReleaseCandidateGate) {
+        Write-Host "== Release candidate gate ==" -ForegroundColor Cyan
+        $releaseCandidateArgs = @(
+            "-ConfigurePreset", $ConfigurePreset,
+            "-BuildPreset", $BuildPreset,
+            "-BuildDirectory", $testDir,
+            "-Configuration", $PresentationConfiguration,
+            "-CTestTimeoutSeconds", $CTestTimeoutSeconds,
+            "-SkipConfigure",
+            "-SkipBuild"
+        )
+        if (-not [string]::IsNullOrWhiteSpace($ReleaseCandidateLfsWaiverReference)) {
+            $releaseCandidateArgs += @(
+                "-SkipLfsHydration",
+                "-LfsWaiverReference", $ReleaseCandidateLfsWaiverReference
+            )
+        }
+        & "$PSScriptRoot\run_release_candidate_gate.ps1" @releaseCandidateArgs
+    }
 
     Write-Host "All gates passed." -ForegroundColor Green
 } finally {
