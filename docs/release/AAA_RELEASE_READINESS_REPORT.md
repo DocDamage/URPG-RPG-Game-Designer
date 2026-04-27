@@ -261,6 +261,8 @@ As a mitigation after this audit, 39 duplicate source ZIP archives under `more a
 
 A second duplicate-asset mitigation removed the byte-for-byte duplicate `third_party/itch-assets/packs-by-category/ui/fantasy-platformer-game-ui/` tree from Git tracking and added that path to `.gitignore`. The canonical copy remains tracked at `third_party/itch-assets/packs/fantasy-platformer-game-ui/`. This removes another 592 duplicate tracked files, about 444.67 MB of LFS payload from future tracked revisions.
 
+A P5-005 fresh-clone verification pass on 2026-04-26 cloned `development` with LFS smudge disabled and then ran `git lfs pull`. Hydration failed with GitHub LFS API rate-limit messages followed by `This repository exceeded its LFS budget. The account responsible for the budget should increase it to restore access.` In the same pass, the remaining tracked `more assets/` source-drop files and source-only `third_party/itch-assets/packs/fantasy-platformer-game-ui/PSD/` files were removed from current tracking and ignored, reducing current-checkout LFS payload by about 1.38 GiB. This is a mitigation only; it does not make fresh clones release-ready while the remote LFS budget is exhausted.
+
 Two additional narrow archive removals were completed after confirming retained canonical copies:
 
 - `imports/root-drop/archives/rpgmaker/visustella/VisuMZ_Sample_Game_Project.zip`, because the sample project is already unpacked under `third_party/rpgmaker-mz/visumz-sample-project/`.
@@ -352,4 +354,3 @@ A release candidate should not be cut from this repository until all critical fi
 ## Final Assessment
 
 URPG contains a substantial engine and editor codebase, but the audited entry points and packaging metadata are not yet at release-candidate quality. The main blocker is not the absence of subsystem code; it is that essential product flows are either not wired through the shipped applications, not covered by smoke tests, or not represented in release/package metadata.
-

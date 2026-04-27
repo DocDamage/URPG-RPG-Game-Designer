@@ -95,3 +95,12 @@ Status Date: 2026-04-26
 | Credits | `PARTIAL` | Root `CREDITS.md` records URPG project credits, dependency credits, and promoted proof-lane attribution status. | Confirm final public attribution requirements for any promoted asset or plugin included in a release package. |
 | EULA | `BLOCKED` | Root `EULA.md` exists as an internal-only placeholder. | Replace with or approve production EULA through qualified legal review before external distribution. |
 | Privacy policy | `PARTIAL` | Root `PRIVACY_POLICY.md` matches the opt-in analytics implementation and no-default-upload behavior. | Replace internal contact routing and complete qualified legal/privacy review before public release. |
+
+## LFS Hydration Snapshot
+
+Status Date: 2026-04-26
+
+| Area | Status | Evidence | Remaining Gate |
+| --- | --- | --- | --- |
+| Fresh clone LFS hydration | `BLOCKED` | A remote fresh clone with smudge disabled, followed by `git lfs pull`, failed with GitHub LFS API rate-limit messages and `This repository exceeded its LFS budget. The account responsible for the budget should increase it to restore access.` | Restore GitHub LFS budget/access or move remaining release-required LFS assets to an accessible artifact store, then rerun fresh-clone hydration and asset preflight. |
+| Current checkout LFS footprint | `PARTIAL` | P5-005 removes current tracking for 45 remaining `more assets/` source-drop files and 18 source-only `fantasy-platformer-game-ui/PSD/` files, about 1.38 GiB of current-checkout LFS payload. | Continue reducing required LFS to release-owned/promoted assets only; history still contains prior LFS payload and cannot be considered hydrated until remote access is restored. |

@@ -37,7 +37,8 @@ third_party/itch-assets/reports/
 third_party/itch-assets/packs-by-category/ui/fantasy-platformer-game-ui/
 imports/reports/
 itch/archives/
-more assets/**/*.zip
+more assets/
+third_party/itch-assets/packs/fantasy-platformer-game-ui/PSD/
 imports/root-drop/archives/rpgmaker/visustella/VisuMZ_Sample_Game_Project.zip
 third_party/itch-assets/packs-by-category/bundles-mega/2017patronbundle/2017/children/children_frames.zip
 docs/archive/blueprints/URPG_Blueprint_v3_1_Integrated.docx

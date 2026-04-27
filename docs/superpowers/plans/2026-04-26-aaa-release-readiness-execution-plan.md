@@ -1197,6 +1197,8 @@
 
 ### P5-005 - Prove Fresh Clone And LFS Asset Hydration
 
+**Status:** Verified blocked in this pass; current-checkout LFS footprint reduced.
+
 **Files to edit:**
 - `.gitattributes`
 - `.gitignore`
@@ -1214,22 +1216,38 @@
 **Risk level:** High.
 
 **Exact implementation steps:**
-- [ ] Run `git lfs ls-files` and capture required LFS object count and largest paths.
-- [ ] Run asset hygiene and review oversize/duplicate reports.
-- [ ] Perform a fresh clone with LFS enabled in a temporary directory or CI runner.
-- [ ] Run `git lfs pull` in the fresh clone.
+- [x] Run `git lfs ls-files` and capture required LFS object count and largest paths.
+- [x] Run asset hygiene and review oversize/duplicate reports.
+- [x] Perform a fresh clone with LFS enabled in a temporary directory or CI runner.
+- [x] Run `git lfs pull` in the fresh clone.
 - [ ] Build or run a minimal asset preflight from the fresh clone.
-- [ ] If LFS budget blocks hydration, either increase remote LFS capacity, move release assets to an accessible artifact store, or reduce required LFS footprint further.
+- [x] If LFS budget blocks hydration, either increase remote LFS capacity, move release assets to an accessible artifact store, or reduce required LFS footprint further.
+
+**Evidence:**
+- Current branch before this task had `156215` LFS paths from `git lfs ls-files --size`.
+- `git lfs ls-files --size --all` reported `106499` historical LFS paths; largest historical objects were source ZIP archives under `more assets/`.
+- Current largest required objects included normalized/imported WAV files, `more assets/` source-drop files, and `third_party/itch-assets/packs/fantasy-platformer-game-ui/PSD/17Icons.psd`.
+- `python ./tools/assets/asset_hygiene.py --write-reports` timed out after 5 minutes in this pass, but refreshed reports were written. The summary records 158849 scanned files, 0 junk files, 1 oversize file, 42708 duplicate groups, 93932 duplicate files, 2715392371 duplicate-waste bytes, and 0 hash skips.
+- Remaining oversize report before this task listed `third_party/itch-assets/packs/fantasy-platformer-game-ui/PSD/17Icons.psd` at 105418536 bytes.
+- Fresh remote clone path used for verification: `%TEMP%/urpg-lfs-smoke-20260426-200530`.
+- Fresh clone command sequence: `GIT_LFS_SKIP_SMUDGE=1 git clone --depth 1 --branch development --filter=blob:none <origin> <temp>`, then `git lfs install --local`, then `git lfs pull`.
+- Fresh clone hydration failed with GitHub LFS API rate-limit messages followed by `This repository exceeded its LFS budget. The account responsible for the budget should increase it to restore access.`
+- The failed temp clone was removed after verifying the path resolved under the system temp directory.
+- Mitigation in this pass: remove remaining tracked `more assets/` source-drop files from Git tracking and ignore `more assets/` going forward. Local files remain on disk.
+- Mitigation in this pass: remove source-only `third_party/itch-assets/packs/fantasy-platformer-game-ui/PSD/` files from Git tracking and ignore that PSD folder going forward. The PNG exports remain tracked under the canonical pack.
+- The staged cleanup removes 63 current LFS-tracked source-only files, approximately 1450925875 bytes / 1383.71 MiB of current-checkout LFS payload.
+- Fresh-clone asset preflight remains unverified because LFS hydration failed before the preflight could run.
 
 **Acceptance criteria:**
-- A fresh clone can hydrate required assets without relying on local cache.
-- CI/release machines can access all required LFS objects.
-- Duplicate archives remain ignored and untracked.
+- A fresh clone can hydrate required assets without relying on local cache. **Not met: remote LFS budget is exhausted.**
+- CI/release machines can access all required LFS objects. **Not met until GitHub LFS budget/access is restored or remaining required LFS assets move to an accessible artifact store.**
+- Duplicate archives and source-only raw drops remain ignored and untracked. **Partially met: `more assets/` and the source-only fantasy UI PSD folder are ignored and removed from current tracking in this task.**
 
 **Verification command or manual test:**
 - `git lfs ls-files`
 - `python .\tools\assets\asset_hygiene.py --write-reports`
-- Fresh-clone verification is currently unverified until run outside the local cached repo.
+- `GIT_LFS_SKIP_SMUDGE=1 git clone --depth 1 --branch development --filter=blob:none <origin> <temp>; git lfs pull`
+- Fresh-clone verification is currently failed because the remote GitHub LFS budget is exceeded.
 
 ### P5-006 - Create App-Level Release Readiness Matrix
 
