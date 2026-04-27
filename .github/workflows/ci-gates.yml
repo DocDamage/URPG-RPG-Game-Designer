@@ -61,9 +61,6 @@ jobs:
       - name: Validate presentation docs links
         shell: pwsh
         run: ./tools/docs/check-presentation-doc-links.ps1
-      - name: Validate release readiness records
-        shell: pwsh
-        run: ./tools/ci/check_release_readiness.ps1
       - name: Validate schema changelog governance
         shell: pwsh
         run: ./tools/ci/check_schema_changelog.ps1
@@ -100,6 +97,9 @@ jobs:
         run: pre-commit run --all-files
       - name: Build
         run: cmake --build --preset ci-release
+      - name: Validate release readiness records
+        shell: pwsh
+        run: ./tools/ci/check_release_readiness.ps1
       - name: Validate platform export matrix
         shell: pwsh
         run: ./tools/ci/check_platform_exports.ps1 -BuildDirectory build/ci
@@ -289,16 +289,18 @@ jobs:
       - name: Run release-candidate gate
         shell: pwsh
         run: |
-          $args = @(
-            "-ConfigurePreset", "ci",
-            "-BuildPreset", "ci-release",
-            "-BuildDirectory", "build/ci",
-            "-Configuration", "Release"
-          )
           if ("${{ inputs.lfs_waiver_reference }}" -ne "") {
-            $args += @(
-              "-SkipLfsHydration",
-              "-LfsWaiverReference", "${{ inputs.lfs_waiver_reference }}"
-            )
+            ./tools/ci/run_release_candidate_gate.ps1 `
+              -ConfigurePreset ci `
+              -BuildPreset ci-release `
+              -BuildDirectory build/ci `
+              -Configuration Release `
+              -SkipLfsHydration `
+              -LfsWaiverReference "${{ inputs.lfs_waiver_reference }}"
+          } else {
+            ./tools/ci/run_release_candidate_gate.ps1 `
+              -ConfigurePreset ci `
+              -BuildPreset ci-release `
+              -BuildDirectory build/ci `
+              -Configuration Release
           }
-          ./tools/ci/run_release_candidate_gate.ps1 @args
