@@ -77,4 +77,3 @@ Categories to mine from `awesome-cc0` and `Game-Assets-And-Resources`:
 | 2026-04-17 | Initial gap map created from `docs/asset_intake/URPG_private_asset_intake_plan.md` |
 | 2026-04-19 | Replaced misleading staged-state wording with cataloged-not-mirrored reality and rewrote fast-win targets as governed future capture/promote work. |
 | 2026-04-23 | TD Sprint 04 moved UI sounds and prototype sprites from fixture-only to partial with one promoted proof asset in each lane. |
-

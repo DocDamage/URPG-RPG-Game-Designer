@@ -108,4 +108,3 @@
 | Date | Change |
 |------|--------|
 | 2026-04-17 | Initial matrix and adoption cards created from `docs/external-intake/URPG_repo_intake_plan.md` |
-

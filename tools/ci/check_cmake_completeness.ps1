@@ -43,6 +43,9 @@ function Get-TargetFiles {
             $trimmed = $trimmed.Substring(0, $commentIndex).Trim()
         }
         if (-not [string]::IsNullOrWhiteSpace($trimmed)) {
+            if ($trimmed -match ':(?<path>[^:<>]+\.(?:c|cc|cxx|cpp|h|hpp))>$') {
+                $trimmed = $matches["path"]
+            }
             $files += (Normalize-Path $trimmed)
         }
     }

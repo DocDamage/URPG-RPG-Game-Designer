@@ -31,8 +31,8 @@ This matrix maps release-facing application workflows to the execution-plan task
 | Install layout | `VERIFIED` | `CMakeLists.txt`; `tools/ci/check_install_smoke.ps1`; `docs/packaging.md` | `./tools/ci/check_install_smoke.ps1 -BuildDirectory build/dev-ninja-release -InstallPrefix build/install-smoke` | P5-001; P5-004 | Installed tree includes apps, runtime data, docs, metadata, and can launch runtime smoke. |
 | Package layout | `VERIFIED` | `cmake/packaging.cmake`; `tools/ci/check_package_smoke.ps1`; `docs/release/RELEASE_PACKAGING.md` | `./tools/ci/check_package_smoke.ps1 -BuildDirectory build/dev-ninja-release -PackageRoot build/package-smoke` | P5-003; P5-004 | CPack emits component archives with expected runtime, data, docs, icon, and desktop metadata entries. |
 | Legal docs | `PARTIAL` | `THIRD_PARTY_NOTICES.md`; `EULA.md`; `PRIVACY_POLICY.md`; `CREDITS.md`; `CHANGELOG.md` | `./tools/ci/check_install_smoke.ps1 -BuildDirectory build/dev-ninja-release -InstallPrefix build/install-smoke` | P5-002 | Required docs exist and install; legal sufficiency remains unverified until qualified legal review. |
-| LFS hydration | `BLOCKED` | `.gitattributes`; `.gitignore`; `imports/`; `third_party/`; `more assets/` | `GIT_LFS_SKIP_SMUDGE=1 git clone --depth 1 --branch development --filter=blob:none <origin> <temp>; git lfs pull` | P5-005 | Fresh-clone hydration failed because GitHub reports the repository exceeded its LFS budget. |
-| Final release candidate gate | `PARTIAL` | `tools/ci/run_release_candidate_gate.ps1`; `.github/workflows/ci-gates.yml` | `./tools/ci/run_release_candidate_gate.ps1 -SkipLfsHydration -LfsWaiverReference docs/APP_RELEASE_READINESS_MATRIX.md#open-release-blocks` | P6-001; P6-002 | Local gate script and manual CI job exist; full unwaived gate remains blocked by GitHub LFS budget/access. |
+| LFS hydration | `BLOCKED` | `.gitattributes`; `.gitignore`; `imports/`; `third_party/`; `more assets/` | `GIT_LFS_SKIP_SMUDGE=1 git clone --depth 1 --branch development --filter=blob:none <origin> <temp>; git lfs pull` | P5-005; P6-002 | Fresh-clone hydration failed because GitHub reports the repository exceeded its LFS budget; the P6-002 unwaived RC hydration attempt timed out before verification. |
+| Final release candidate gate | `PARTIAL` | `tools/ci/run_release_candidate_gate.ps1`; `.github/workflows/ci-gates.yml` | `./tools/ci/run_release_candidate_gate.ps1 -SkipLfsHydration -LfsWaiverReference docs/APP_RELEASE_READINESS_MATRIX.md#open-release-blocks` | P6-001; P6-002 | Local gate script passes with explicit LFS waiver and manual CI job exists; full unwaived gate remains blocked by GitHub LFS budget/access. |
 
 ## Open Release Blocks
 
@@ -40,7 +40,7 @@ This matrix maps release-facing application workflows to the execution-plan task
 | --- | --- | --- |
 | GitHub LFS budget/access | `BLOCKED` | Restore GitHub LFS budget/access or move release-required LFS payload to an accessible artifact store, then rerun fresh-clone hydration. |
 | Legal review | `PARTIAL` | Qualified legal/privacy review must approve EULA, privacy policy, third-party notices, credits, and public distribution terms. |
-| Release candidate gate | `PARTIAL` | Run the P6-001 gate without LFS waiver after GitHub LFS budget/access is restored, then record final P6-002 verification results. |
+| Release candidate gate | `PARTIAL` | Run the P6-001 gate without LFS waiver after GitHub LFS budget/access is restored, then record the remote/manual workflow result and final P6-002 verification. |
 
 ## Verification
 

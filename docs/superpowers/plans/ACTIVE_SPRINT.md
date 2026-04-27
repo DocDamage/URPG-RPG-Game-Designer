@@ -23,4 +23,3 @@ This file tells any LLM session which execution artifacts to open first.
 - Start with P0-001 in `2026-04-26-aaa-release-readiness-execution-plan.md`.
 - Keep `docs/release/AAA_RELEASE_READINESS_REPORT.md` as the source audit until findings are closed with verification evidence.
 - All other plan, roadmap, task-board, and checklist documents have been moved to `docs/archive/planning/` so this folder has exactly one active execution plan.
-

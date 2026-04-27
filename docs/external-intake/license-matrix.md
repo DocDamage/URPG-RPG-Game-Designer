@@ -49,4 +49,3 @@
 |------|--------|
 | 2026-04-17 | Initial template created from `docs/external-intake/URPG_repo_intake_plan.md` |
 | 2026-04-19 | Replaced placeholder audit rows with explicit recorded dispositions, blocking rules for unverified upstream terms, and Phase 4 closure-ready policy language. |
-

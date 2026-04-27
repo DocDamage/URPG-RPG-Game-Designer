@@ -215,7 +215,7 @@ Phase 1 of UI / Menu Core absorption should deliver:
 ## Wave 1 Closure Checklist (Canonical)
 
 _Managed by `tools/docs/sync-wave1-spec-checklist.ps1`. Do not edit manually._
-_Canonical source: [WAVE1_SUBSYSTEM_CLOSURE_CHECKLIST.md](../archive/planning/WAVE1_SUBSYSTEM_CLOSURE_CHECKLIST.md)_
+_Canonical source: [WAVE1_SUBSYSTEM_CLOSURE_CHECKLIST.md](WAVE1_SUBSYSTEM_CLOSURE_CHECKLIST.md)_
 
 ### Universal closure gates
 
@@ -238,7 +238,7 @@ _Canonical source: [WAVE1_SUBSYSTEM_CLOSURE_CHECKLIST.md](../archive/planning/WA
 - [ ] Editor owner files listed.
 - [ ] Schema and migration files listed.
 - [ ] Latest deterministic test outputs recorded.
-- [ ] README.md, docs/status/PROGRAM_COMPLETION_STATUS.md, and docs/archive/blueprints/URPG_Blueprint_v3_1_Integrated.md updated.
+- [ ] README.md, docs/PROGRAM_COMPLETION_STATUS.md, and docs/archive/blueprints/URPG_Blueprint_v3_1_Integrated.md updated.
 <!-- WAVE1_CHECKLIST_END -->
 
 ## Non-goals for this slice

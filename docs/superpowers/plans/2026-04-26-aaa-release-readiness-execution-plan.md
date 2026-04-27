@@ -1339,6 +1339,8 @@
 
 ### P6-002 - Run Full Regression And Close The Readiness Report
 
+**Status:** Completed with blocked release exits recorded. Local gates and the release-candidate gate pass with the explicit LFS waiver; unwaived fresh-clone LFS hydration, legal review, remote manual workflow verification, and release tagging remain open release blockers.
+
 **Files to edit:**
 - `docs/release/AAA_RELEASE_READINESS_REPORT.md`
 - `docs/APP_RELEASE_READINESS_MATRIX.md`
@@ -1355,13 +1357,21 @@
 **Risk level:** High.
 
 **Exact implementation steps:**
-- [ ] Run `pre-commit run --all-files`.
-- [ ] Run `.\tools\ci\run_local_gates.ps1`.
-- [ ] Run `.\tools\ci\run_presentation_gate.ps1`.
-- [ ] Run `.\tools\ci\run_release_candidate_gate.ps1`.
+- [x] Run `pre-commit run --all-files`.
+- [x] Run `.\tools\ci\run_local_gates.ps1`.
+- [x] Run `.\tools\ci\run_presentation_gate.ps1`.
+- [x] Run `.\tools\ci\run_release_candidate_gate.ps1` with the explicit LFS waiver from the app readiness matrix.
 - [ ] Run fresh-clone LFS hydration and install/package smoke outside the local cached repo.
-- [ ] Update the readiness report from `NOT RELEASE-READY` only if every critical finding is closed with evidence.
+- [x] Update the readiness report and keep the verdict `NOT RELEASE-READY` because not every release exit is closed.
 - [ ] Create a signed or annotated prerelease tag only after all gates pass.
+
+**Evidence:**
+- `pre-commit run --all-files` passed after the hook normalized missing final newlines in existing docs.
+- `.\tools\ci\run_local_gates.ps1` passed after fixing generator-expression parsing in `tools/ci/check_cmake_completeness.ps1` and Debug SDL runtime detection in `tools/ci/check_install_smoke.ps1`.
+- `.\tools\ci\run_presentation_gate.ps1` passed, including visual regression.
+- `.\tools\ci\run_release_candidate_gate.ps1 -SkipLfsHydration -LfsWaiverReference docs/APP_RELEASE_READINESS_MATRIX.md#open-release-blocks` passed.
+- `.\tools\ci\run_release_candidate_gate.ps1 -SkipConfigure -SkipBuild` without LFS waiver timed out during fresh-clone LFS hydration, so unwaived LFS hydration remains unverified and blocked.
+- `git tag -l` returned no tags. No tag was created because the release exits are not all closed.
 
 **Acceptance criteria:**
 - All critical findings are closed or explicitly waived with issue URL, owner, scope, and non-expired date.
@@ -1372,7 +1382,7 @@
 - `pre-commit run --all-files`
 - `.\tools\ci\run_local_gates.ps1`
 - `.\tools\ci\run_presentation_gate.ps1`
-- `.\tools\ci\run_release_candidate_gate.ps1`
+- `.\tools\ci\run_release_candidate_gate.ps1 -SkipLfsHydration -LfsWaiverReference docs/APP_RELEASE_READINESS_MATRIX.md#open-release-blocks`
 - `git status --short`
 - `git tag -l`
 

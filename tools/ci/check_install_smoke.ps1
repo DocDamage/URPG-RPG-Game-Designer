@@ -80,17 +80,25 @@ $requiredPaths = @(
   "share/doc/urpg/release/RELEASE_PACKAGING.md"
 )
 
-if ($exeSuffix -eq ".exe") {
-  $requiredPaths += @(
-    "bin/SDL2.dll"
-  )
-}
-
 $missing = @()
 foreach ($relativePath in $requiredPaths) {
   $candidate = Join-Path $InstallPrefix $relativePath
   if (-not (Test-Path -LiteralPath $candidate)) {
     $missing += $relativePath
+  }
+}
+
+if ($exeSuffix -eq ".exe") {
+  $sdlRuntimeCandidates = @("bin/SDL2.dll", "bin/SDL2d.dll")
+  $hasSdlRuntime = $false
+  foreach ($candidate in $sdlRuntimeCandidates) {
+    if (Test-Path -LiteralPath (Join-Path $InstallPrefix $candidate) -PathType Leaf) {
+      $hasSdlRuntime = $true
+      break
+    }
+  }
+  if (-not $hasSdlRuntime) {
+    $missing += "bin/SDL2.dll or bin/SDL2d.dll"
   }
 }
 

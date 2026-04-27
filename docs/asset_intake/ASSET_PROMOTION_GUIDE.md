@@ -170,4 +170,3 @@ Target integrations by priority:
 | 2026-04-17 | Initial guide created from `docs/asset_intake/URPG_private_asset_intake_plan.md` |
 | 2026-04-23 | TD Sprint 04 exercised the guide with `BND-001` and `BND-002`, proving one visual and one UI-audio promoted lane through source manifests, normalized assets, smoke-proof reporting, and export bundle staging. |
 | 2026-04-25 | Added release attribution records for the promoted proof assets and clarified that shipped normalized assets must enter exports through promoted bundle manifests, not broad raw-intake or normalized-root discovery. |
-

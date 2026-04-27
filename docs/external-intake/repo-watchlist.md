@@ -50,4 +50,3 @@
 | Date | Change |
 |------|--------|
 | 2026-04-17 | Initial watchlist created from `docs/external-intake/URPG_repo_intake_plan.md` |
-
