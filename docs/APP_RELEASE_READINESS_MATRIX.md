@@ -30,7 +30,7 @@ This matrix maps release-facing application workflows to the execution-plan task
 | Analytics consent | `VERIFIED` | `engine/core/analytics/*`; `apps/editor/main.cpp` | `ctest --preset dev-all -R "analytics|privacy|consent" --output-on-failure` | P4-002 | Analytics remains opt-in with persisted consent and disable path. |
 | Install layout | `VERIFIED` | `CMakeLists.txt`; `tools/ci/check_install_smoke.ps1`; `docs/packaging.md` | `./tools/ci/check_install_smoke.ps1 -BuildDirectory build/dev-ninja-release -InstallPrefix build/install-smoke` | P5-001; P5-004 | Installed tree includes apps, runtime data, docs, metadata, and can launch runtime smoke. |
 | Package layout | `VERIFIED` | `cmake/packaging.cmake`; `tools/ci/check_package_smoke.ps1`; `docs/release/RELEASE_PACKAGING.md` | `./tools/ci/check_package_smoke.ps1 -BuildDirectory build/dev-ninja-release -PackageRoot build/package-smoke` | P5-003; P5-004 | CPack emits component archives with expected runtime, data, docs, icon, and desktop metadata entries. |
-| Legal docs | `PARTIAL` | `THIRD_PARTY_NOTICES.md`; `EULA.md`; `PRIVACY_POLICY.md`; `CREDITS.md`; `CHANGELOG.md` | `./tools/ci/check_install_smoke.ps1 -BuildDirectory build/dev-ninja-release -InstallPrefix build/install-smoke` | P5-002 | Required docs exist and install; legal sufficiency remains unverified until qualified legal review. |
+| Legal docs | `PARTIAL` | `THIRD_PARTY_NOTICES.md`; `EULA.md`; `PRIVACY_POLICY.md`; `CREDITS.md`; `CHANGELOG.md`; `docs/release/LEGAL_REVIEW_SIGNOFF.md` | `./tools/ci/check_install_smoke.ps1 -BuildDirectory build/dev-ninja-release -InstallPrefix build/install-smoke` | P5-002 | Required docs exist and install; release owner approved private/internal RC use only. Public legal sufficiency remains unverified until qualified legal review or explicit public-release waiver. |
 | Release-required asset hydration | `VERIFIED` | `.gitattributes`; `resources/icons/*.png`; `tools/ci/run_release_candidate_gate.ps1` | `./tools/ci/run_release_candidate_gate.ps1` | P5-005; P6-002 | Fresh clone from GitHub verifies the release-required icon assets without an LFS waiver; source/vendor LFS packs remain outside the release package path. |
 | Final release candidate gate | `PARTIAL` | `tools/ci/run_release_candidate_gate.ps1`; `.github/workflows/ci-gates.yml` | `./tools/ci/run_release_candidate_gate.ps1` | P6-001; P6-002 | Local unwaived gate passes through fresh-clone asset hydration, configure, build, PR tests, presentation validation, install smoke, and package smoke; remote manual workflow run remains unverified. |
 
@@ -39,7 +39,7 @@ This matrix maps release-facing application workflows to the execution-plan task
 | Blocker | Status | Required Resolution |
 | --- | --- | --- |
 | Repository-wide source/vendor LFS budget/access | `BLOCKED` | Restore GitHub LFS budget/access before relying on full vendor/source asset hydration. This is not currently a release-package blocker because release-required assets are now normal Git blobs and are verified by the RC gate. |
-| Legal review | `PARTIAL` | Qualified legal/privacy review must approve EULA, privacy policy, third-party notices, credits, and public distribution terms. |
+| Legal review | `PARTIAL` | Private/internal RC use is owner-approved in `docs/release/LEGAL_REVIEW_SIGNOFF.md`; public release still requires qualified legal/privacy review or explicit public-release waiver. |
 | Remote release candidate workflow | `PARTIAL` | Run the manual GitHub Actions release-candidate job and record the remote run URL and result. |
 
 ## Verification

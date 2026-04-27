@@ -7,9 +7,9 @@
 **Purpose:** Authoritative release-readiness audit for the current runtime, editor, packaging, release governance, and asset-hydration gates.
 **Verdict:** **NOT RELEASE-READY**
 
-URPG is no longer blocked by the original app-entry, editor-navigation, install/package, metadata, release-required asset hydration, or local validation issues recorded in the first 2026-04-26 audit. Those items now have direct implementation and gate evidence. The project is still not release-ready because required release exits remain unverified or externally blocked:
+URPG is no longer blocked by the original app-entry, editor-navigation, install/package, metadata, release-required asset hydration, private/internal RC legal owner acceptance, or local validation issues recorded in the first 2026-04-26 audit. Those items now have direct implementation and gate evidence. The project is still not public-release-ready because required public release exits remain unverified or externally blocked:
 
-- Legal/privacy/distribution sufficiency is not verified by a qualified reviewer.
+- Legal/privacy/distribution sufficiency for public release is not verified by a qualified reviewer or explicit public-release waiver.
 - The manual GitHub Actions release-candidate workflow has not been run and recorded.
 - No release or prerelease tag exists.
 
@@ -25,7 +25,7 @@ The current app-level source of truth is [docs/APP_RELEASE_READINESS_MATRIX.md](
 | Install/package/app metadata | `VERIFIED` | P5-001, P5-003, P5-004, P6-002 local gates and release-candidate gate | No longer a release blocker for local artifacts. |
 | Release-candidate gate script | `PARTIAL` | `./tools/ci/run_release_candidate_gate.ps1` passed without LFS waiver after commit `4fb53f721` | Local gate passes through fresh-clone asset verification, configure, build, PR tests, presentation validation, install smoke, and package smoke; remote manual workflow run remains unverified. |
 | Release-required asset hydration | `VERIFIED` | `resources/icons/*.png` were demoted from LFS to normal Git blobs; fresh clone from GitHub passed the RC asset check | No longer a release-package blocker. Repository-wide vendor/source LFS hydration remains blocked by GitHub budget/access and is not required by current package/install rules. |
-| Legal/privacy/distribution review | `PARTIAL` | Required docs exist and install/package, but legal sufficiency was not reviewed by qualified counsel | Blocks public release. |
+| Legal/privacy/distribution review | `PARTIAL` | Required docs exist and install/package; release owner approved private/internal RC use in `docs/release/LEGAL_REVIEW_SIGNOFF.md`; qualified legal counsel has not approved public release | Blocks public release, not private/internal RC use. |
 | Release tag | `PENDING` | `git tag -l` returned no tags during P6-002 | Do not tag until unwaived LFS hydration, legal review, and final release decision pass. |
 
 ## P6-002 Verification Results
@@ -83,9 +83,9 @@ The original audit findings below are closed for the current claimed scope:
 
 **Status:** `PARTIAL`
 
-`THIRD_PARTY_NOTICES.md`, `EULA.md`, `PRIVACY_POLICY.md`, `CREDITS.md`, and `CHANGELOG.md` exist and are included in install/package smoke outputs. Their legal sufficiency is not verified.
+`THIRD_PARTY_NOTICES.md`, `EULA.md`, `PRIVACY_POLICY.md`, `CREDITS.md`, and `CHANGELOG.md` exist and are included in install/package smoke outputs. The release owner has approved them for private/internal release-candidate use in `docs/release/LEGAL_REVIEW_SIGNOFF.md`. Their public-release legal sufficiency is not verified by qualified counsel.
 
-Required verification: qualified legal/privacy review approves the documents and distribution terms.
+Required verification for public release: qualified legal/privacy review approves the documents and distribution terms, or the release owner records an explicit public-release waiver.
 
 ### RB-2: Remote Manual Release-Candidate Workflow Is Not Verified
 
@@ -118,7 +118,7 @@ The project may be marked release-ready only after all of the following are true
 - `.\tools\ci\run_presentation_gate.ps1` passes.
 - `.\tools\ci\run_release_candidate_gate.ps1` passes without `-SkipLfsHydration`.
 - Fresh-clone release-required asset verification passes without relying on local cache.
-- Legal/privacy/distribution review is complete.
+- Legal/privacy/distribution review is complete for the intended distribution scope.
 - A release owner records the release decision and creates an annotated prerelease or release tag.
 
 Until then, the authoritative verdict remains **NOT RELEASE-READY**.
