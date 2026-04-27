@@ -76,14 +76,6 @@ std::shared_ptr<urpg::scene::MapScene> makeRuntimeMapScene(const std::filesystem
     return map;
 }
 
-void applyRuntimeAudioSettings(urpg::audio::AudioCore& audio, const urpg::settings::AudioSettings& settings) {
-    audio.setCategoryVolume(urpg::audio::AudioCategory::BGM, settings.bgm_volume * settings.master_volume);
-    audio.setCategoryVolume(urpg::audio::AudioCategory::BGS, settings.bgs_volume * settings.master_volume);
-    audio.setCategoryVolume(urpg::audio::AudioCategory::SE, settings.se_volume * settings.master_volume);
-    audio.setCategoryVolume(urpg::audio::AudioCategory::ME, settings.me_volume * settings.master_volume);
-    audio.setCategoryVolume(urpg::audio::AudioCategory::System, settings.system_volume * settings.master_volume);
-}
-
 } // namespace
 
 int main(int argc, char** argv) {
@@ -163,7 +155,7 @@ int main(int argc, char** argv) {
             std::cerr << "URPG runtime startup failed.\n";
             return 1;
         }
-        applyRuntimeAudioSettings(shell.getAudio(), settingsLoad.settings.audio);
+        urpg::RuntimeStartupServices::applyAudioSettings(shell.getAudio(), settingsLoad.settings.audio);
         printStartupDiagnostics(shell.getRuntimeStartupReport());
 
         clearSceneStack();
@@ -203,12 +195,14 @@ int main(int argc, char** argv) {
                         [] { urpg::scene::SceneManager::getInstance().popScene(); },
                         [&settingsLoad, &shell](const urpg::settings::RuntimeSettings& savedSettings) {
                             settingsLoad.settings = savedSettings;
-                            applyRuntimeAudioSettings(shell.getAudio(), settingsLoad.settings.audio);
+                            urpg::RuntimeStartupServices::applyAudioSettings(shell.getAudio(),
+                                                                             settingsLoad.settings.audio);
                         },
                     }));
             },
         });
         titleScene->setContinueAvailability(startupSaveState.hasLoadableSave(), startupSaveState.continueDisabledReason());
+        titleScene->setStartupReport(shell.getRuntimeStartupReport());
         urpg::scene::SceneManager::getInstance().gotoScene(titleScene);
 
         int frame = 0;

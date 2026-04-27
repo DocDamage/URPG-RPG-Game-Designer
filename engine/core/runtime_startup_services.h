@@ -2,6 +2,7 @@
 
 #include "engine/core/audio/audio_core.h"
 #include "engine/core/input/input_core.h"
+#include "engine/core/settings/app_settings_store.h"
 
 #include <filesystem>
 #include <string>
@@ -39,6 +40,7 @@ class RuntimeStartupServices {
   public:
     static RuntimeStartupReport initialize(const std::filesystem::path& project_root, audio::AudioCore& audio,
                                            input::InputCore& input, bool audio_compat_bound);
+    static void applyAudioSettings(audio::AudioCore& audio, const settings::AudioSettings& settings);
 };
 
 const char* toString(RuntimeStartupSubsystemStatus status);

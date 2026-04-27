@@ -845,6 +845,27 @@ TEST_CASE("RuntimeTitleScene runtime input reports disabled selected command", "
     REQUIRE(title.lastCommandResult().message == "No save data found");
 }
 
+TEST_CASE("RuntimeTitleScene exposes startup warnings and errors for title UI", "[scene][runtime][title][diagnostics]") {
+    RuntimeTitleScene title;
+    urpg::RuntimeStartupReport report;
+    report.subsystems.push_back({"LocaleCatalog", urpg::RuntimeStartupSubsystemStatus::Warning,
+                                 "localization.catalog_missing",
+                                 "No locale catalog was found under project content."});
+    report.subsystems.push_back({"PerfProfiler", urpg::RuntimeStartupSubsystemStatus::Initialized, "profiler.ready",
+                                 "PerfProfiler initialized."});
+    report.subsystems.push_back({"RuntimeBundleLoader", urpg::RuntimeStartupSubsystemStatus::Error,
+                                 "runtime_bundle.validation_failed", "Runtime asset bundle validation failed."});
+
+    title.setStartupReport(report);
+
+    REQUIRE(title.startupNotices().size() == 2);
+    REQUIRE(title.startupNotices()[0].status == urpg::RuntimeStartupSubsystemStatus::Warning);
+    REQUIRE(title.startupNotices()[0].subsystem == "LocaleCatalog");
+    REQUIRE(title.startupNotices()[0].code == "localization.catalog_missing");
+    REQUIRE(title.startupNotices()[1].status == urpg::RuntimeStartupSubsystemStatus::Error);
+    REQUIRE(title.startupNotices()[1].subsystem == "RuntimeBundleLoader");
+}
+
 TEST_CASE("RuntimeTitleScene New Game can transition to the existing runtime boot map", "[scene][runtime][title]") {
     SceneManager manager;
     auto title = makeDefaultRuntimeTitleScene({
@@ -1005,6 +1026,38 @@ TEST_CASE("RuntimeTitleScene emits visible title and disabled command labels", "
     REQUIRE(sawDisabledOptions);
     REQUIRE(sawExit);
     REQUIRE(sawFocusHighlight);
+
+    layer.flush();
+}
+
+TEST_CASE("RuntimeTitleScene renders startup diagnostics on the title screen", "[scene][runtime][title][render]") {
+    auto& layer = urpg::RenderLayer::getInstance();
+    layer.flush();
+
+    RuntimeTitleScene title;
+    urpg::RuntimeStartupReport report;
+    report.subsystems.push_back({"LocaleCatalog", urpg::RuntimeStartupSubsystemStatus::Warning,
+                                 "localization.catalog_missing",
+                                 "No locale catalog was found under project content."});
+    title.setStartupReport(report);
+    title.onUpdate(0.016f);
+
+    bool sawDiagnosticsHeading = false;
+    bool sawLocalizationWarning = false;
+    for (const auto& command : renderFrameCommands(layer)) {
+        if (renderCommandType(command) != urpg::RenderCmdType::Text) {
+            continue;
+        }
+        const auto* text = renderCommandAs<urpg::TextRenderData>(command);
+        REQUIRE(text != nullptr);
+        sawDiagnosticsHeading = sawDiagnosticsHeading || text->text == "Startup Diagnostics";
+        sawLocalizationWarning = sawLocalizationWarning ||
+                                 text->text.find("Startup warning [LocaleCatalog:localization.catalog_missing]") !=
+                                     std::string::npos;
+    }
+
+    REQUIRE(sawDiagnosticsHeading);
+    REQUIRE(sawLocalizationWarning);
 
     layer.flush();
 }

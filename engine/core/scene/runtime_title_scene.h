@@ -1,6 +1,7 @@
 #pragma once
 
 #include "engine/core/input/input_core.h"
+#include "engine/core/runtime_startup_services.h"
 #include "engine/core/scene/scene_manager.h"
 
 #include <functional>
@@ -31,6 +32,13 @@ struct RuntimeTitleCommandResult {
     std::string message;
 };
 
+struct RuntimeTitleStartupNotice {
+    RuntimeStartupSubsystemStatus status = RuntimeStartupSubsystemStatus::Warning;
+    std::string subsystem;
+    std::string code;
+    std::string message;
+};
+
 class RuntimeTitleScene final : public GameScene {
   public:
     struct Callbacks {
@@ -53,6 +61,8 @@ class RuntimeTitleScene final : public GameScene {
     size_t selectedCommandIndex() const { return selected_command_index_; }
     const RuntimeTitleCommand* selectedCommand() const;
     void setContinueAvailability(bool enabled, std::string disabled_reason = {});
+    void setStartupReport(const RuntimeStartupReport& report);
+    const std::vector<RuntimeTitleStartupNotice>& startupNotices() const { return startup_notices_; }
     RuntimeTitleCommandResult activateCommand(RuntimeTitleCommandId id);
     const RuntimeTitleCommandResult& lastCommandResult() const { return last_command_result_; }
 
@@ -61,6 +71,7 @@ class RuntimeTitleScene final : public GameScene {
 
     Callbacks callbacks_;
     std::vector<RuntimeTitleCommand> commands_;
+    std::vector<RuntimeTitleStartupNotice> startup_notices_;
     size_t selected_command_index_ = 0;
     RuntimeTitleCommandResult last_command_result_;
 };

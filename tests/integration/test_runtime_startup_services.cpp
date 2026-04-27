@@ -1,4 +1,5 @@
 #include "engine/core/audio/audio_core.h"
+#include "engine/core/audio/audio_core_fwd.h"
 #include "engine/core/diagnostics/runtime_diagnostics.h"
 #include "engine/core/engine_shell.h"
 #include "engine/core/input/input_core.h"
@@ -7,9 +8,11 @@
 #include "engine/core/platform/headless_surface.h"
 #include "engine/core/runtime_startup_services.h"
 #include "engine/core/settings/app_settings_store.h"
+#include "engine/core/tools/export_packager.h"
 
 #include <catch2/catch_test_macros.hpp>
 
+#include <algorithm>
 #include <chrono>
 #include <filesystem>
 #include <fstream>
@@ -88,6 +91,42 @@ TEST_CASE("RuntimeStartupServices loads a project locale catalog when present",
     REQUIRE(report.hasSubsystemCode("LocaleCatalog", "localization.ready"));
     REQUIRE(report.locale_code == "en-US");
     REQUIRE(report.locale_key_count == 2);
+}
+
+TEST_CASE("RuntimeStartupServices rejects tampered runtime bundles before project content use",
+          "[integration][runtime][startup][runtime bundle][tamper]") {
+    const TempProject project;
+
+    urpg::tools::ExportPackager packager;
+    urpg::tools::ExportConfig config{};
+    config.target = urpg::tools::ExportTarget::Windows_x64;
+    config.outputDir = project.root().string();
+    config.compressAssets = true;
+
+    const auto exportResult = packager.runExport(config);
+    INFO(exportResult.log);
+    REQUIRE(exportResult.success);
+
+    {
+        std::fstream bundle(project.root() / "data.pck", std::ios::binary | std::ios::in | std::ios::out);
+        REQUIRE(bundle.good());
+        bundle.seekp(-1, std::ios::end);
+        const char tampered = '\x42';
+        bundle.write(&tampered, 1);
+    }
+
+    urpg::audio::AudioCore audio;
+    urpg::input::InputCore input;
+    const auto report = urpg::RuntimeStartupServices::initialize(project.root(), audio, input, true);
+
+    REQUIRE(report.hasErrors());
+    REQUIRE(report.hasSubsystemCode("RuntimeBundleLoader", "runtime_bundle.validation_failed"));
+    const auto runtimeBundleEntry = std::find_if(report.subsystems.begin(), report.subsystems.end(), [](const auto& entry) {
+        return entry.subsystem == "RuntimeBundleLoader" && entry.code == "runtime_bundle.validation_failed";
+    });
+    REQUIRE(runtimeBundleEntry != report.subsystems.end());
+    REQUIRE(runtimeBundleEntry->message.find("Runtime asset bundle validation failed") != std::string::npos);
+    REQUIRE(runtimeBundleEntry->message.find("entry_integrity_mismatch") != std::string::npos);
 }
 
 TEST_CASE("RuntimeStartupServices surfaces invalid locale catalogs as targeted diagnostics",
@@ -169,6 +208,33 @@ TEST_CASE("RuntimeStartupServices warns and keeps defaults when input remap is m
     REQUIRE(report.hasSubsystemCode("InputManager", "input.remap_json_parse_failed"));
     REQUIRE(input.hasMappingFor('W', urpg::input::InputAction::MoveUp));
     REQUIRE(input.hasMappingFor('Z', urpg::input::InputAction::Confirm));
+}
+
+TEST_CASE("RuntimeStartupServices applies persisted audio settings to AudioCore",
+          "[integration][runtime][startup][audio][settings][persistence]") {
+    const TempProject project;
+    const auto settingsPaths = urpg::settings::appSettingsPaths(project.root());
+
+    auto runtimeSettings = urpg::settings::defaultRuntimeSettings();
+    runtimeSettings.audio.master_volume = 0.5f;
+    runtimeSettings.audio.bgm_volume = 0.8f;
+    runtimeSettings.audio.bgs_volume = 0.6f;
+    runtimeSettings.audio.se_volume = 0.4f;
+    runtimeSettings.audio.me_volume = 0.2f;
+    runtimeSettings.audio.system_volume = 1.0f;
+    REQUIRE(urpg::settings::saveRuntimeSettings(settingsPaths.runtime_settings, runtimeSettings));
+
+    const auto loaded = urpg::settings::loadRuntimeSettings(settingsPaths.runtime_settings);
+    REQUIRE(loaded.report.loaded);
+
+    urpg::audio::AudioCore audio;
+    urpg::RuntimeStartupServices::applyAudioSettings(audio, loaded.settings.audio);
+
+    REQUIRE(audio.getCategoryVolume(urpg::audio::AudioCategory::BGM) == 0.4f);
+    REQUIRE(audio.getCategoryVolume(urpg::audio::AudioCategory::BGS) == 0.3f);
+    REQUIRE(audio.getCategoryVolume(urpg::audio::AudioCategory::SE) == 0.2f);
+    REQUIRE(audio.getCategoryVolume(urpg::audio::AudioCategory::ME) == 0.1f);
+    REQUIRE(audio.getCategoryVolume(urpg::audio::AudioCategory::System) == 0.5f);
 }
 
 TEST_CASE("EngineShell startup invokes RuntimeStartupServices",

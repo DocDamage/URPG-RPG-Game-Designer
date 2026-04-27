@@ -309,6 +309,14 @@ RuntimeStartupReport RuntimeStartupServices::initialize(const std::filesystem::p
     return report;
 }
 
+void RuntimeStartupServices::applyAudioSettings(audio::AudioCore& audio, const settings::AudioSettings& settings) {
+    audio.setCategoryVolume(audio::AudioCategory::BGM, settings.bgm_volume * settings.master_volume);
+    audio.setCategoryVolume(audio::AudioCategory::BGS, settings.bgs_volume * settings.master_volume);
+    audio.setCategoryVolume(audio::AudioCategory::SE, settings.se_volume * settings.master_volume);
+    audio.setCategoryVolume(audio::AudioCategory::ME, settings.me_volume * settings.master_volume);
+    audio.setCategoryVolume(audio::AudioCategory::System, settings.system_volume * settings.master_volume);
+}
+
 const char* toString(RuntimeStartupSubsystemStatus status) {
     switch (status) {
     case RuntimeStartupSubsystemStatus::Initialized:

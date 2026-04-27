@@ -16,6 +16,11 @@ std::string commandLabel(const RuntimeTitleCommand& command) {
     return command.label + " - " + command.disabled_reason;
 }
 
+std::string noticeLabel(const RuntimeTitleStartupNotice& notice) {
+    return std::string("Startup ") + toString(notice.status) + " [" + notice.subsystem + ":" + notice.code +
+           "]: " + notice.message;
+}
+
 } // namespace
 
 RuntimeTitleScene::RuntimeTitleScene(Callbacks callbacks) : callbacks_(std::move(callbacks)) {
@@ -96,6 +101,39 @@ void RuntimeTitleScene::onUpdate(float deltaTime) {
         layer.submit(urpg::toFrameRenderCommand(text));
         y += 34.0f;
     }
+
+    if (!startup_notices_.empty()) {
+        urpg::TextCommand heading;
+        heading.text = "Startup Diagnostics";
+        heading.x = 56.0f;
+        heading.y = 270.0f;
+        heading.fontSize = 16;
+        heading.r = 255;
+        heading.g = 220;
+        heading.b = 120;
+        heading.maxWidth = 528;
+        heading.zOrder = 2;
+        layer.submit(urpg::toFrameRenderCommand(heading));
+
+        float noticeY = 294.0f;
+        for (const auto& notice : startup_notices_) {
+            urpg::TextCommand text;
+            text.text = noticeLabel(notice);
+            text.x = 72.0f;
+            text.y = noticeY;
+            text.fontSize = 13;
+            text.r = notice.status == RuntimeStartupSubsystemStatus::Error ? 255 : 230;
+            text.g = notice.status == RuntimeStartupSubsystemStatus::Error ? 150 : 210;
+            text.b = notice.status == RuntimeStartupSubsystemStatus::Error ? 150 : 170;
+            text.maxWidth = 500;
+            text.zOrder = 2;
+            layer.submit(urpg::toFrameRenderCommand(text));
+            noticeY += 18.0f;
+            if (noticeY > 346.0f) {
+                break;
+            }
+        }
+    }
 }
 
 void RuntimeTitleScene::handleInput(const urpg::input::InputCore& input) {
@@ -142,6 +180,23 @@ void RuntimeTitleScene::setContinueAvailability(bool enabled, std::string disabl
             }
             return;
         }
+    }
+}
+
+void RuntimeTitleScene::setStartupReport(const RuntimeStartupReport& report) {
+    startup_notices_.clear();
+    for (const auto& subsystem : report.subsystems) {
+        if (subsystem.status != RuntimeStartupSubsystemStatus::Warning &&
+            subsystem.status != RuntimeStartupSubsystemStatus::Error) {
+            continue;
+        }
+
+        startup_notices_.push_back({
+            subsystem.status,
+            subsystem.subsystem,
+            subsystem.code,
+            subsystem.message,
+        });
     }
 }
 
