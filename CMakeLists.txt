@@ -236,6 +236,7 @@ set(URPG_CORE_SOURCES
     engine/core/engine_shell.cpp
     engine/core/global_state_hub.cpp
     engine/core/gameplay/gameplay_wysiwyg_system.cpp
+    engine/core/community/community_wysiwyg_feature.cpp
     engine/core/input/input_remap_store.cpp
     engine/core/input/input_remap_profile.cpp
     engine/core/platform/device_profile.cpp
@@ -396,6 +397,7 @@ set(URPG_CORE_SOURCES
     editor/events/event_authoring_panel.cpp
     editor/events/event_command_graph_panel.cpp
     editor/gameplay/gameplay_wysiwyg_panel.cpp
+    editor/community/community_wysiwyg_panel.cpp
     editor/plugin/plugin_inspector_model.cpp
     editor/plugin/plugin_inspector_panel.cpp
     editor/project/new_project_wizard_model.cpp
@@ -1349,6 +1351,7 @@ add_executable(urpg_tests
     tests/unit/test_cutscene_timeline.cpp
     tests/unit/test_event_macro_recorder.cpp
     tests/unit/test_gameplay_wysiwyg_systems.cpp
+    tests/unit/test_community_wysiwyg_features.cpp
     tests/unit/test_replay_recorder.cpp
     tests/unit/test_timeline_replay_panels.cpp
     tests/unit/test_rpg_database_suite.cpp

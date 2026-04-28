@@ -17,7 +17,7 @@ bool ContainsId(const std::vector<std::string>& ids, const std::string& id) {
 TEST_CASE("Editor panel registry exposes canonical top-level panels", "[editor][panel][registry]") {
     const auto ids = urpg::editor::requiredTopLevelPanelIds();
 
-    REQUIRE(ids.size() == 30);
+    REQUIRE(ids.size() == 42);
     REQUIRE(ContainsId(ids, "diagnostics"));
     REQUIRE(ContainsId(ids, "assets"));
     REQUIRE(ContainsId(ids, "ability"));
@@ -36,6 +36,18 @@ TEST_CASE("Editor panel registry exposes canonical top-level panels", "[editor][
     REQUIRE(ContainsId(ids, "world_state_timeline"));
     REQUIRE(ContainsId(ids, "tactical_terrain_effects"));
     REQUIRE(ContainsId(ids, "procedural_content_rules"));
+    REQUIRE(ContainsId(ids, "smart_event_workflow"));
+    REQUIRE(ContainsId(ids, "event_template_library"));
+    REQUIRE(ContainsId(ids, "interaction_prompt_system"));
+    REQUIRE(ContainsId(ids, "message_log_history"));
+    REQUIRE(ContainsId(ids, "minimap_fog_of_war"));
+    REQUIRE(ContainsId(ids, "picture_hotspot_common_event"));
+    REQUIRE(ContainsId(ids, "common_event_menu_builder"));
+    REQUIRE(ContainsId(ids, "developer_debug_overlay"));
+    REQUIRE(ContainsId(ids, "switch_variable_inspector"));
+    REQUIRE(ContainsId(ids, "asset_dlc_library_manager"));
+    REQUIRE(ContainsId(ids, "hud_maker"));
+    REQUIRE(ContainsId(ids, "plugin_conflict_resolver"));
     REQUIRE(ContainsId(ids, "quest"));
     REQUIRE(ContainsId(ids, "skill_tree"));
     REQUIRE(ContainsId(ids, "relationship"));
@@ -114,6 +126,18 @@ TEST_CASE("Editor smoke coverage follows every registered top-level panel", "[ed
     REQUIRE(ContainsId(smokeIds, "world_state_timeline"));
     REQUIRE(ContainsId(smokeIds, "tactical_terrain_effects"));
     REQUIRE(ContainsId(smokeIds, "procedural_content_rules"));
+    REQUIRE(ContainsId(smokeIds, "smart_event_workflow"));
+    REQUIRE(ContainsId(smokeIds, "event_template_library"));
+    REQUIRE(ContainsId(smokeIds, "interaction_prompt_system"));
+    REQUIRE(ContainsId(smokeIds, "message_log_history"));
+    REQUIRE(ContainsId(smokeIds, "minimap_fog_of_war"));
+    REQUIRE(ContainsId(smokeIds, "picture_hotspot_common_event"));
+    REQUIRE(ContainsId(smokeIds, "common_event_menu_builder"));
+    REQUIRE(ContainsId(smokeIds, "developer_debug_overlay"));
+    REQUIRE(ContainsId(smokeIds, "switch_variable_inspector"));
+    REQUIRE(ContainsId(smokeIds, "asset_dlc_library_manager"));
+    REQUIRE(ContainsId(smokeIds, "hud_maker"));
+    REQUIRE(ContainsId(smokeIds, "plugin_conflict_resolver"));
     REQUIRE(ContainsId(smokeIds, "quest"));
     REQUIRE(ContainsId(smokeIds, "skill_tree"));
     REQUIRE(ContainsId(smokeIds, "relationship"));

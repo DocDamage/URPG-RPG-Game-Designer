@@ -1,0 +1,52 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:urpg:community-wysiwyg-feature",
+  "title": "URPG Community WYSIWYG Feature",
+  "type": "object",
+  "required": ["schema_version", "id", "feature_type", "display_name", "visual_layers", "actions"],
+  "properties": {
+    "schema_version": { "const": "urpg.community_wysiwyg.v1" },
+    "id": { "type": "string", "minLength": 1 },
+    "feature_type": {
+      "enum": [
+        "smart_event_workflow",
+        "event_template_library",
+        "interaction_prompt_system",
+        "message_log_history",
+        "minimap_fog_of_war",
+        "picture_hotspot_common_event",
+        "common_event_menu_builder",
+        "developer_debug_overlay",
+        "switch_variable_inspector",
+        "asset_dlc_library_manager",
+        "hud_maker",
+        "plugin_conflict_resolver"
+      ]
+    },
+    "display_name": { "type": "string", "minLength": 1 },
+    "visual_layers": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "type": "string", "minLength": 1 }
+    },
+    "actions": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["id", "label", "trigger", "command", "target", "required_flags", "parameters"],
+        "properties": {
+          "id": { "type": "string", "minLength": 1 },
+          "label": { "type": "string", "minLength": 1 },
+          "trigger": { "type": "string", "minLength": 1 },
+          "command": { "type": "string", "minLength": 1 },
+          "target": { "type": "string", "minLength": 1 },
+          "required_flags": { "type": "array", "items": { "type": "string" } },
+          "parameters": { "type": "object", "additionalProperties": { "type": "string" } }
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false
+}
