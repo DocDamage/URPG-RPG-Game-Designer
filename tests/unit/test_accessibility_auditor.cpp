@@ -190,3 +190,58 @@ TEST_CASE("Render contrast adapter exposes low renderer-derived text contrast to
     REQUIRE(issues[0].elementId == "render.text.0");
     REQUIRE(issues[0].sourceFile == "engine/core/render/render_layer.h");
 }
+
+TEST_CASE("Render contrast adapter reports renderer-derived surface coverage",
+          "[accessibility][render][wysiwyg][task5]") {
+    urpg::RectCommand panel;
+    panel.x = 0.0f;
+    panel.y = 0.0f;
+    panel.w = 320.0f;
+    panel.h = 120.0f;
+    panel.r = 0.01f;
+    panel.g = 0.01f;
+    panel.b = 0.01f;
+    panel.zOrder = 1;
+
+    urpg::TextCommand backed;
+    backed.x = 12.0f;
+    backed.y = 12.0f;
+    backed.text = "Backed title";
+    backed.fontSize = 20;
+    backed.maxWidth = 160;
+    backed.r = 255;
+    backed.g = 255;
+    backed.b = 255;
+    backed.zOrder = 2;
+
+    urpg::TextCommand unbacked;
+    unbacked.x = 400.0f;
+    unbacked.y = 12.0f;
+    unbacked.text = "No panel";
+    unbacked.fontSize = 20;
+    unbacked.maxWidth = 120;
+    unbacked.r = 255;
+    unbacked.g = 255;
+    unbacked.b = 255;
+    unbacked.zOrder = 2;
+
+    const std::vector<urpg::FrameRenderCommand> commands = {
+        urpg::toFrameRenderCommand(panel),
+        urpg::toFrameRenderCommand(backed),
+        urpg::toFrameRenderCommand(unbacked),
+    };
+
+    RenderContrastAdapterOptions options;
+    options.text_is_focusable = true;
+    options.first_focus_order = 4;
+    const auto report = extractRendererContrastReport(commands, "task5.save_export_panels", options);
+
+    REQUIRE(report.surface_id == "task5.save_export_panels");
+    REQUIRE(report.text_command_count == 2);
+    REQUIRE(report.audited_element_count == 2);
+    REQUIRE(report.backed_text_count == 1);
+    REQUIRE(report.unbacked_text_count == 1);
+    REQUIRE(report.minimum_contrast_ratio > 10.0f);
+    REQUIRE(report.elements[0].focusOrder == 4);
+    REQUIRE(report.elements[1].focusOrder == 5);
+}

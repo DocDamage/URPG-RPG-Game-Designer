@@ -152,7 +152,14 @@ Export preview slice status:
 - Create: offline artifact tools only when a lane has no existing tool entry point
 - Test: focused tests and local gates per lane
 
-- [ ] **Step 1: Extend renderer parity tests across backend permutations that can run locally.**
-- [ ] **Step 2: Add contrast extraction from renderer-derived UI surfaces.**
-- [ ] **Step 3: Keep proprietary SDKs, store credentials, payments, cloud AI, analytics privacy review, and external marketplaces as project-configured/external boundaries.**
-- [ ] **Step 4: Keep FAISS, SAM/SAM2, Demucs, and Encodec as offline artifact generation tools and prove no runtime dependency creep is introduced.**
+- [x] **Step 1: Extend renderer parity tests across backend permutations that can run locally.**
+- [x] **Step 2: Add contrast extraction from renderer-derived UI surfaces.**
+- [x] **Step 3: Keep proprietary SDKs, store credentials, payments, cloud AI, analytics privacy review, and external marketplaces as project-configured/external boundaries.**
+- [x] **Step 4: Keep FAISS, SAM/SAM2, Demucs, and Encodec as offline artifact generation tools and prove no runtime dependency creep is introduced.**
+
+Task 5 completion status:
+
+- [x] `VisualRegressionHarness::buildLocalBackendParityMatrix()` now reports the local OpenGL/headless capture support contract, and focused tests assert each backend permutation that can run locally.
+- [x] `RenderContrastExtractionReport` now summarizes renderer-derived UI contrast coverage, including backed text, unbacked text, audited element count, minimum contrast, and focus-order projection.
+- [x] Platform/service tests prove cloud remains local simulated, analytics HTTP remains privacy-review-gated, and external integrations are not silently treated as live in-tree services.
+- [x] Offline tooling tests execute `tools/ci/check_tooling_boundary.ps1`, assert a clean boundary report, and confirm FAISS/SAM/SAM2/Demucs/Encodec lanes remain under `tools/`.

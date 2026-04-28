@@ -59,6 +59,32 @@ std::string VisualRegressionHarness::captureBackendToString(CaptureBackend backe
     }
 }
 
+std::vector<RendererBackendParityEntry> VisualRegressionHarness::buildLocalBackendParityMatrix() {
+    std::vector<RendererBackendParityEntry> entries;
+#ifdef URPG_HEADLESS
+    entries.push_back({CaptureBackend::OpenGL,
+                       false,
+                       false,
+                       false,
+                       false,
+                       "OpenGL capture is unavailable in headless builds."});
+#else
+    entries.push_back({CaptureBackend::OpenGL,
+                       true,
+                       true,
+                       true,
+                       true,
+                       "OpenGL renderer-backed capture supports frame, scene, and EngineShell permutations."});
+#endif
+    entries.push_back({CaptureBackend::Headless,
+                       true,
+                       false,
+                       false,
+                       false,
+                       "Headless backend is locally runnable for deterministic command/state tests but has no pixel capture surface."});
+    return entries;
+}
+
 void VisualRegressionHarness::setGoldenRoot(const std::string& path) {
     m_goldenRoot = path;
 }

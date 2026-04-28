@@ -134,4 +134,28 @@ ingestRendererContrastElements(const std::vector<urpg::FrameRenderCommand>& comm
     return elements;
 }
 
+RenderContrastExtractionReport
+extractRendererContrastReport(const std::vector<urpg::FrameRenderCommand>& commands,
+                              std::string surface_id,
+                              const RenderContrastAdapterOptions& options) {
+    RenderContrastExtractionReport report;
+    report.surface_id = std::move(surface_id);
+    report.elements = ingestRendererContrastElements(commands, options);
+    report.audited_element_count = report.elements.size();
+    report.text_command_count = report.elements.size();
+    report.minimum_contrast_ratio = 0.0f;
+
+    for (const auto& element : report.elements) {
+        if (element.contrastRatio > 0.0f) {
+            ++report.backed_text_count;
+            if (report.minimum_contrast_ratio == 0.0f || element.contrastRatio < report.minimum_contrast_ratio) {
+                report.minimum_contrast_ratio = element.contrastRatio;
+            }
+        } else {
+            ++report.unbacked_text_count;
+        }
+    }
+    return report;
+}
+
 } // namespace urpg::accessibility

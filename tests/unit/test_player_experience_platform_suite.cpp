@@ -1,9 +1,17 @@
 #include "editor/localization/localization_workspace_model.h"
 #include "engine/core/accessibility/accessibility_fix_advisor.h"
+#include "engine/core/analytics/analytics_endpoint_profile.h"
 #include "engine/core/input/input_remap_profile.h"
 #include "engine/core/platform/device_profile.h"
+#include "engine/core/social/cloud_service.h"
 
 #include <catch2/catch_test_macros.hpp>
+
+#include <algorithm>
+#include <cstdlib>
+#include <filesystem>
+#include <fstream>
+#include <nlohmann/json.hpp>
 
 TEST_CASE("Localization workspace flags missing key and respects fallback", "[localization][ffs14]") {
     urpg::editor::localization::LocalizationWorkspaceModel workspace;
@@ -71,4 +79,61 @@ TEST_CASE("Device profile flags over-budget frame time and memory", "[platform][
 
     REQUIRE_FALSE(report.ready);
     REQUIRE(report.issues == std::vector<std::string>{"frame_time_over_budget", "memory_over_budget", "resolution_over_budget", "storage_over_budget", "missing_input_device"});
+}
+
+TEST_CASE("Platform and service integrations stay external or locally simulated",
+          "[platform][services][task5]") {
+    urpg::social::LocalInMemoryCloudService cloud;
+    const auto init = cloud.initialize(urpg::social::CloudProvider::LocalSimulated, "not-used");
+    REQUIRE(init.success);
+    REQUIRE(init.message.find("NOT LIVE") != std::string::npos);
+
+    const std::vector<uint8_t> payload{1, 2, 3};
+    const auto sync = cloud.syncToCloud("save-slot", payload);
+    REQUIRE(sync.success);
+    REQUIRE(sync.message.find("process-local") != std::string::npos);
+    REQUIRE(cloud.fetchFromCloud("save-slot") == payload);
+
+    urpg::analytics::AnalyticsEndpointProfile profile;
+    profile.profileId = "http_without_review";
+    profile.mode = urpg::analytics::AnalyticsEndpointMode::HttpJson;
+    profile.url = "https://analytics.example.test/events";
+    const auto diagnostics = urpg::analytics::validateAnalyticsEndpointProfile(profile);
+
+    const auto hasDiagnostic = [&diagnostics](const std::string& code) {
+        return std::any_of(diagnostics.begin(), diagnostics.end(), [&code](const auto& diagnostic) {
+            return diagnostic.code == code;
+        });
+    };
+    REQUIRE(hasDiagnostic("privacy_review_required"));
+    REQUIRE(hasDiagnostic("missing_privacy_reviewer"));
+    REQUIRE(hasDiagnostic("missing_data_categories"));
+}
+
+TEST_CASE("Offline tooling boundary gate keeps ML tooling out of runtime trees",
+          "[tooling][offline][task5]") {
+    const auto repoRoot = std::filesystem::path(URPG_SOURCE_DIR);
+    const auto scriptPath = repoRoot / "tools" / "ci" / "check_tooling_boundary.ps1";
+    const auto reportPath = std::filesystem::temp_directory_path() / "urpg_tooling_boundary_task5.json";
+    std::filesystem::remove(reportPath);
+
+    const std::string command =
+        "powershell -ExecutionPolicy Bypass -File \"" + scriptPath.string() +
+        "\" -ReportPath \"" + reportPath.string() + "\"";
+    REQUIRE(std::system(command.c_str()) == 0);
+
+    nlohmann::json report;
+    {
+        std::ifstream reportFile(reportPath);
+        REQUIRE(reportFile.is_open());
+        report = nlohmann::json::parse(reportFile);
+    }
+    REQUIRE(report["clean"] == true);
+    REQUIRE(report["violation_count"] == 0);
+    REQUIRE(report["tool"] == "check_tooling_boundary");
+
+    REQUIRE(std::filesystem::exists(repoRoot / "tools" / "retrieval" / "faiss_index_builder"));
+    REQUIRE(std::filesystem::exists(repoRoot / "tools" / "vision" / "README.md"));
+    REQUIRE(std::filesystem::exists(repoRoot / "tools" / "audio" / "README.md"));
+    std::filesystem::remove(reportPath);
 }

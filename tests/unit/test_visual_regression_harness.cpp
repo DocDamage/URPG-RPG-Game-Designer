@@ -6,6 +6,7 @@
 #include <cstdlib>
 #include <filesystem>
 #include <fstream>
+#include <algorithm>
 #include <unordered_map>
 
 using namespace urpg::testing;
@@ -166,6 +167,36 @@ TEST_CASE("VisualRegressionHarness buildReportJson contains expected fields", "[
 TEST_CASE("VisualRegressionHarness exposes stable backend names", "[testing][visual_regression]") {
     REQUIRE(VisualRegressionHarness::captureBackendToString(CaptureBackend::OpenGL) == "OpenGL");
     REQUIRE(VisualRegressionHarness::captureBackendToString(CaptureBackend::Headless) == "Headless");
+}
+
+TEST_CASE("VisualRegressionHarness reports local renderer backend parity matrix",
+          "[testing][visual_regression][task5]") {
+    const auto matrix = VisualRegressionHarness::buildLocalBackendParityMatrix();
+    REQUIRE(matrix.size() == 2);
+
+    const auto openGl = std::find_if(matrix.begin(), matrix.end(), [](const auto& entry) {
+        return entry.backend == CaptureBackend::OpenGL;
+    });
+    const auto headless = std::find_if(matrix.begin(), matrix.end(), [](const auto& entry) {
+        return entry.backend == CaptureBackend::Headless;
+    });
+
+    REQUIRE(openGl != matrix.end());
+    REQUIRE(headless != matrix.end());
+    REQUIRE(headless->local_runnable);
+    REQUIRE_FALSE(headless->frame_capture_supported);
+    REQUIRE_FALSE(headless->scene_capture_supported);
+    REQUIRE_FALSE(headless->engine_tick_capture_supported);
+    REQUIRE_FALSE(headless->boundary_note.empty());
+#ifdef URPG_HEADLESS
+    REQUIRE_FALSE(openGl->local_runnable);
+    REQUIRE_FALSE(openGl->frame_capture_supported);
+#else
+    REQUIRE(openGl->local_runnable);
+    REQUIRE(openGl->frame_capture_supported);
+    REQUIRE(openGl->scene_capture_supported);
+    REQUIRE(openGl->engine_tick_capture_supported);
+#endif
 }
 
 TEST_CASE("VisualRegressionHarness generic capture API rejects unsupported headless pixel capture",

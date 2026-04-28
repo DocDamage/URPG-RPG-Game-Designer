@@ -42,6 +42,7 @@ Repository-wide source/vendor LFS hydration is still externally constrained by G
 - Text and rectangle command submission through the presentation/render bridge.
 - Renderer-backed visual capture tests with committed goldens.
 - Visual regression harness with golden load/save, snapshot comparison, diff heatmap generation, JSON reports, and approval tooling.
+- Local renderer backend parity matrix covering OpenGL frame/scene/EngineShell capture support and headless deterministic-command boundaries.
 - Presentation bridge for active scene frame construction and battle scene state translation.
 - Runtime VFX cue baseline for battle effects, including semantic cue kinds, resolver/translator coverage, and a WYSIWYG battle VFX timeline with saved tracks, event-to-track binding, frame scrubbing, live runtime preview commands, visibility-aware panel preview, diagnostics, schema/fixture coverage, and BattleScene execution.
 - Spatial presentation/editor support for terrain elevation, props, interaction overlays, and composed workspace snapshots.
@@ -67,6 +68,7 @@ Repository-wide source/vendor LFS hydration is still externally constrained by G
 - Achievement registry with definitions, progress, unlock-condition tokens, save/load JSON, vendor-neutral trophy export payload, editor panel, and tests.
 - Audio mix presets with default, battle, and cinematic profiles, category volumes, ducking rules, schema, editor panel, and tests.
 - Accessibility auditor with missing-label, focus-order, contrast, and navigation rules plus editor reporting.
+- Renderer-derived accessibility contrast extraction reports for frame-command UI surfaces, including backed/unbacked text counts, minimum contrast, focus-order projection, and auditor ingestion.
 - Mod registry with manifest registration, dependency ordering, activation state, save/load JSON, schema, editor panel, and tests.
 - WYSIWYG gameplay maker systems with deterministic runtime documents, editor panels, saved JSON, diagnostics, schemas, fixtures, registry wiring, and tests for quest objective graphs, skill trees/class progression, relationship affinity, crafting/gathering/economy loops, monster capture/party/storage/evolution, encounter design, loot generation, NPC schedules, metroidvania ability gates, and cutscene timelines.
 - WYSIWYG gameplay feature suite covering status effects, enemy AI behavior trees, boss phase scripts, equipment set bonuses, dungeon room flow, companion banter, quest choice consequences, shop economy simulation, puzzle mechanic building, world-state timelines, tactical terrain effects, and procedural content rules.
@@ -116,6 +118,8 @@ Repository-wide source/vendor LFS hydration is still externally constrained by G
 - Mod SDK sample validation with manifest, permissions, validation docs, expected diagnostics, and forbidden-permission checks.
 - Local co-author review bundles with change summaries, comments, review checklists, handoff payloads, and file-manifest fallback when Git is unavailable.
 - Optional AI assistant configuration and suggestion records with explicit disabled state, provider-independent config, provenance/source notes, generated-content flags, review state, and apply protection for runtime status docs.
+- Platform/service boundaries keep live cloud, proprietary achievement SDKs, external marketplace/payment/review publishing, and analytics HTTP upload behind local simulation or explicit project/privacy-review configuration.
+- Offline FAISS-style retrieval, SAM/SAM2-style vision segmentation, and Demucs/Encodec-style audio tooling stay under `tools/` with executable boundary checks proving engine/runtime code does not import tooling sources.
 - Template certification and advisory project completeness scoring for JRPG, visual novel, turn-based RPG, tactics, ARPG, monster collector, cozy/life, metroidvania-lite, and 2.5D RPG template families.
 - Future-feature governance scripts and docs checks for template certification, feature-governance manifests, schema changelog coverage, and conservative readiness integration.
 
@@ -150,12 +154,14 @@ The roadmap remains WYSIWYG-first. Most previously listed future-feature slices 
 - richer Project Health guided remediation workflows
 - asset promotion, license review, and cleanup automation
 - fuller live renderer/editor integration for authored systems that currently expose deterministic contracts and headless panel snapshots
+- broader renderer parity beyond the implemented local OpenGL/headless matrix where additional backends become available
+- full renderer-derived contrast coverage across every UI/editor surface beyond the implemented frame-command extraction report
 - broader RPG Maker event-command parity where product scope requires it, while preserving unsupported payloads with diagnostics
 - richer battle presentation tooling beyond the current authoring contracts
 - deeper tile renderer/editor integration for worldbuilding documents, region rules, procedural maps, tactical overlays, spawn tables, lighting, and weather
 - platform-specific achievement backend integrations beyond the current vendor-neutral registry/export payload
 - external mod marketplace services, payments, reviews, publishing, production analytics privacy review, and live AI/cloud providers as explicit project-configured integrations rather than in-tree runtime assumptions
-- offline artifact tooling for retrieval, segmentation, and audio processing without adding runtime dependency creep
+- deeper offline artifact tooling for retrieval, segmentation, and audio processing beyond the implemented boundary/gate proof, without adding runtime dependency creep
 - production asset library promotion after license review, attribution review, and LFS/package constraints are resolved
 - public-release legal/privacy/distribution approval or an explicit public-release waiver
 - final release decision and annotated prerelease/release tag

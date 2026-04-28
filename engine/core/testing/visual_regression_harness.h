@@ -9,6 +9,7 @@
 #include <functional>
 #include <optional>
 #include <string>
+#include <vector>
 
 namespace urpg {
 class OpenGLRenderer;
@@ -31,11 +32,21 @@ struct GoldenSnapshot {
     std::string snapshotId;
 };
 
+struct RendererBackendParityEntry {
+    CaptureBackend backend = CaptureBackend::Headless;
+    bool local_runnable = false;
+    bool frame_capture_supported = false;
+    bool scene_capture_supported = false;
+    bool engine_tick_capture_supported = false;
+    std::string boundary_note;
+};
+
 class VisualRegressionHarness {
 public:
     void setGoldenRoot(const std::string& path);
 
     static std::string captureBackendToString(CaptureBackend backend);
+    static std::vector<RendererBackendParityEntry> buildLocalBackendParityMatrix();
 
     std::optional<GoldenSnapshot> loadGolden(const std::string& testName,
                                              const std::string& snapshotId);
