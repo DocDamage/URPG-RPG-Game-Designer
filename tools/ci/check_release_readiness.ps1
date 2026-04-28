@@ -241,7 +241,8 @@ foreach ($subsystemId in $signoffDocPaths.Keys) {
     $isReady = [string]$readinessEntry.status -eq "READY"
     $summaryText = [string]$readinessEntry.summary
     $mainGapText = (($readinessEntry.mainGaps | ForEach-Object { [string]$_ }) -join " ")
-    if (-not $isReady) {
+    $hasApprovedReview = [string]$readinessEntry.signoff.reviewStatus -eq "APPROVED"
+    if (-not $isReady -and -not $hasApprovedReview) {
         if ($summaryText -notmatch "signoff|human review") {
             throw "Signoff-governed subsystem '$subsystemId' must mention signoff or human review in readiness_status.json summary while it is not READY."
         }
@@ -254,7 +255,7 @@ foreach ($subsystemId in $signoffDocPaths.Keys) {
     if (-not $rowText) {
         throw "Release readiness matrix row text for signoff-governed subsystem '$subsystemId' could not be found."
     }
-    if (-not $isReady -and $rowText -notmatch "signoff|human review") {
+    if (-not $isReady -and -not $hasApprovedReview -and $rowText -notmatch "signoff|human review") {
         throw "Release readiness matrix row for signoff-governed subsystem '$subsystemId' must mention signoff or human review while it is not READY."
     }
 
@@ -273,12 +274,12 @@ foreach ($subsystemId in $signoffDocPaths.Keys) {
         throw "Subsystem '$subsystemId' signoff.artifactPath must be '$expectedRelativePath' but was '$actualArtifactPath'."
     }
 
-    if ($isReady) {
+    if ($isReady -or $hasApprovedReview) {
         if ($signoff.promotionRequiresHumanReview -ne $false) {
-            throw "READY subsystem '$subsystemId' must set signoff.promotionRequiresHumanReview to false."
+            throw "Approved-review subsystem '$subsystemId' must set signoff.promotionRequiresHumanReview to false."
         }
         if ([string]$signoff.reviewStatus -ne "APPROVED") {
-            throw "READY subsystem '$subsystemId' must set signoff.reviewStatus to APPROVED."
+            throw "Approved-review subsystem '$subsystemId' must set signoff.reviewStatus to APPROVED."
         }
     } elseif ($signoff.promotionRequiresHumanReview -ne $true) {
         throw "Subsystem '$subsystemId' must keep signoff.promotionRequiresHumanReview set to true while it is not READY."

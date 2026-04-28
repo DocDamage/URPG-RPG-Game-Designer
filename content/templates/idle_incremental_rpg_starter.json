@@ -1,0 +1,31 @@
+{
+  "template_id": "idle_incremental_rpg",
+  "display_name": "Idle Incremental RPG Starter",
+  "status": "READY",
+  "loops": [
+    "offline_gain_loop",
+    "auto_battle_loop",
+    "prestige_upgrade_loop",
+    "save_loop"
+  ],
+  "systems": {
+    "genre_features": [
+      "offline_gains",
+      "prestige",
+      "auto_battle",
+      "upgrade_tree"
+    ],
+    "integrations": {
+      "export_validation": [
+        "starter_data_complete",
+        "required_text_keys_bound",
+        "save_state_declared"
+      ],
+      "wysiwyg_surfaces": [
+        "offline_rewards",
+        "auto_battle",
+        "upgrade_tree"
+      ]
+    }
+  }
+}

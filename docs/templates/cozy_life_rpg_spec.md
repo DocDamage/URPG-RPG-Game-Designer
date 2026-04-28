@@ -14,9 +14,7 @@ The `cozy_life_rpg` template covers dialogue-heavy life-simulation games with sc
 | `ui_menu_core` | Menus for inventory, relationships, calendar, and world navigation. |
 | `message_text_core` | Heavy reliance on dialogue, choice prompts, and narrative text. |
 | `save_data_core` | Persistent world state, schedule snapshots, and social flag tracking. |
-| `crafting` | Starter recipes and craft preview loop. |
-| `economy` | Daily route, rewards, costs, and balance simulation. |
-| `shop` | Vendor stock and buying/selling starter flow. |
+| `gameplay_ability_framework` | Tool, crafting, relationship, and economy effects authored through the shared gameplay ability/effect framework. |
 
 ## Cross-Cutting Minimum Bars
 

@@ -42,20 +42,14 @@ That pass found adjacent feature/product gaps that were not explicit enough in t
 ### TD-2026-04-23-01 - Release Readiness Is Still Human-Review Gated
 
 **Priority:** P1
-**Evidence:** `urpg_project_audit` reports two release blockers: `battle_core` and `save_data_core` are required for the selected `jrpg` template but remain `PARTIAL`.
-
-The code and docs are healthier than before because the residual is explicit rather than hidden. The remaining debt is the promotion workflow itself: the signoff artifacts exist, but they deliberately do not grant `READY`.
-
-**Next step:** Execute the human-review closure path in `docs/release/RELEASE_SIGNOFF_WORKFLOW.md` for battle and save, then update `content/readiness/readiness_status.json` only if the review accepts the residuals.
+**Superseded 2026-04-28:** `battle_core` and `save_data_core` are now `READY` after release-owner signoff accepted the bounded Wave 1 scope. This historical audit entry is retained for context only.
 
 **Checklist:**
 
-- [ ] Re-run the targeted battle and save validation suites listed in the signoff artifacts.
-- [ ] Have a human reviewer record accept/reject notes for `battle_core`.
-- [ ] Have a human reviewer record accept/reject notes for `save_data_core`.
-- [ ] Update `content/readiness/readiness_status.json` only for lanes whose residuals are accepted.
-- [ ] Re-run `urpg_project_audit --json` and confirm the release blocker count changes only for approved lanes.
-- [ ] Update `docs/release/RELEASE_READINESS_MATRIX.md` and `docs/status/PROGRAM_COMPLETION_STATUS.md` in the same change.
+- [x] Release-owner signoff approved `battle_core`.
+- [x] Release-owner signoff approved `save_data_core`.
+- [x] `content/readiness/readiness_status.json` records both lanes as `READY`.
+- [x] Release-readiness matrices and program status docs reflect the approved signoff state.
 
 ### TD-2026-04-23-02 - Project Schema And Audit Vocabulary Are Misaligned
 

@@ -14,12 +14,31 @@
 #include <catch2/catch_test_macros.hpp>
 #include <nlohmann/json.hpp>
 
+#include <filesystem>
+#include <fstream>
+#include <set>
 #include <string>
 #include <vector>
 
 using nlohmann::json;
 
 namespace {
+
+std::filesystem::path templateAcceptanceRepoRoot() {
+#ifdef URPG_SOURCE_DIR
+    return std::filesystem::path(URPG_SOURCE_DIR);
+#else
+    return std::filesystem::current_path();
+#endif
+}
+
+json loadTemplateAcceptanceJson(const std::filesystem::path& path) {
+    std::ifstream stream(path);
+    REQUIRE(stream.is_open());
+    json payload;
+    stream >> payload;
+    return payload;
+}
 
 // ---------------------------------------------------------------------------
 // Helpers — minimal template project document factory
@@ -77,6 +96,157 @@ json buildExportDescriptor(const json& projectDoc) {
 }
 
 } // namespace
+
+TEST_CASE("WYSIWYG template showcase examples bind completed systems to starter projects",
+          "[template][acceptance][wysiwyg][examples]") {
+    const auto showcase = loadTemplateAcceptanceJson(
+        templateAcceptanceRepoRoot() / "content" / "examples" / "wysiwyg_template_showcase.json");
+
+    REQUIRE(showcase["schema"] == "urpg.wysiwyg_template_showcase.v1");
+    std::set<std::string> requiredEvidence;
+    for (const auto& evidence : showcase["required_evidence"]) {
+        requiredEvidence.insert(evidence.get<std::string>());
+    }
+    REQUIRE(requiredEvidence == std::set<std::string>({
+        "visual_authoring_surface",
+        "live_preview",
+        "saved_project_data",
+        "runtime_execution",
+        "diagnostics",
+        "tests",
+    }));
+
+    const std::set<std::string> expectedTemplates = {
+        "jrpg",
+        "tactics_rpg",
+        "arpg",
+        "monster_collector_rpg",
+        "cozy_life_rpg",
+        "metroidvania_lite",
+        "2_5d_rpg",
+        "roguelite_dungeon",
+        "survival_horror_rpg",
+        "farming_adventure_rpg",
+        "card_battler_rpg",
+        "platformer_rpg",
+        "gacha_hero_rpg",
+        "mystery_detective_rpg",
+        "world_exploration_rpg",
+        "space_opera_rpg",
+        "post_apocalyptic_rpg",
+        "tactical_mecha_rpg",
+        "monster_tamer_arena",
+        "soulslike_lite_rpg",
+        "idle_incremental_rpg",
+        "strategy_kingdom_rpg",
+        "racing_adventure_rpg",
+        "rhythm_rpg",
+        "cooking_restaurant_rpg",
+        "school_life_rpg",
+        "pirate_rpg",
+        "sports_team_rpg",
+        "pet_shop_creature_care_rpg",
+        "detective_noir_vn_rpg",
+        "city_builder_rpg",
+        "tower_defense_rpg",
+        "beat_em_up_rpg",
+        "open_world_survival_rpg",
+        "faction_politics_rpg",
+    };
+    std::set<std::string> seenTemplates;
+    std::set<std::string> seenSurfaceKinds;
+
+    for (const auto& example : showcase["examples"]) {
+        const auto templateId = example["template_id"].get<std::string>();
+        seenTemplates.insert(templateId);
+        REQUIRE_FALSE(example.value("display_name", "").empty());
+        const auto starterPath = templateAcceptanceRepoRoot() / example["starter_project"].get<std::string>();
+        REQUIRE(std::filesystem::exists(starterPath));
+        const auto starter = loadTemplateAcceptanceJson(starterPath);
+        REQUIRE(starter.value("template_id", "") == templateId);
+        REQUIRE_FALSE(example["surfaces"].empty());
+
+        for (const auto& surface : example["surfaces"]) {
+            REQUIRE_FALSE(surface.value("id", "").empty());
+            REQUIRE_FALSE(surface.value("runtime_hook", "").empty());
+            REQUIRE_FALSE(surface.value("editor_panel", "").empty());
+            REQUIRE(std::filesystem::exists(templateAcceptanceRepoRoot() / surface["fixture"].get<std::string>()));
+            std::set<std::string> evidence;
+            for (const auto& item : surface["evidence"]) {
+                evidence.insert(item.get<std::string>());
+            }
+            REQUIRE(evidence == requiredEvidence);
+            seenSurfaceKinds.insert(surface["kind"].get<std::string>());
+        }
+    }
+
+    REQUIRE(seenTemplates == expectedTemplates);
+    REQUIRE(seenSurfaceKinds.count("dungeon3d_world") == 1);
+    REQUIRE(seenSurfaceKinds.count("battle_vfx_timeline") == 1);
+    REQUIRE(seenSurfaceKinds.count("map_environment_preview") == 1);
+    REQUIRE(seenSurfaceKinds.count("dialogue_preview") == 1);
+    REQUIRE(seenSurfaceKinds.count("event_command_graph") == 1);
+    REQUIRE(seenSurfaceKinds.count("ability_sandbox") == 1);
+    REQUIRE(seenSurfaceKinds.count("save_load_preview_lab") == 1);
+    REQUIRE(seenSurfaceKinds.count("export_preview") == 1);
+    REQUIRE(seenSurfaceKinds.count("procedural_dungeon") == 1);
+    REQUIRE(seenSurfaceKinds.count("loot_generator") == 1);
+    REQUIRE(seenSurfaceKinds.count("horror_environment_fx") == 1);
+    REQUIRE(seenSurfaceKinds.count("farming_garden_plot") == 1);
+    REQUIRE(seenSurfaceKinds.count("card_battle") == 1);
+    REQUIRE(seenSurfaceKinds.count("platformer_physics_lab") == 1);
+    REQUIRE(seenSurfaceKinds.count("side_view_action_combat") == 1);
+    REQUIRE(seenSurfaceKinds.count("summon_gacha_banner") == 1);
+    REQUIRE(seenSurfaceKinds.count("gacha_system") == 1);
+    REQUIRE(seenSurfaceKinds.count("quest_objective_graph") == 1);
+    REQUIRE(seenSurfaceKinds.count("puzzle_logic_board") == 1);
+    REQUIRE(seenSurfaceKinds.count("world_map_route_planner") == 1);
+    REQUIRE(seenSurfaceKinds.count("fast_travel_map_builder") == 1);
+    REQUIRE(seenSurfaceKinds.count("map_zoom_system") == 1);
+}
+
+TEST_CASE("new template starter manifests declare WYSIWYG integration hooks",
+          "[template][acceptance][integrations]") {
+    const std::set<std::string> templateIds = {
+        "roguelite_dungeon",
+        "survival_horror_rpg",
+        "farming_adventure_rpg",
+        "card_battler_rpg",
+        "platformer_rpg",
+        "gacha_hero_rpg",
+        "mystery_detective_rpg",
+        "world_exploration_rpg",
+        "space_opera_rpg",
+        "post_apocalyptic_rpg",
+        "tactical_mecha_rpg",
+        "monster_tamer_arena",
+        "soulslike_lite_rpg",
+        "idle_incremental_rpg",
+        "strategy_kingdom_rpg",
+        "racing_adventure_rpg",
+        "rhythm_rpg",
+        "cooking_restaurant_rpg",
+        "school_life_rpg",
+        "pirate_rpg",
+        "sports_team_rpg",
+        "pet_shop_creature_care_rpg",
+        "detective_noir_vn_rpg",
+        "city_builder_rpg",
+        "tower_defense_rpg",
+        "beat_em_up_rpg",
+        "open_world_survival_rpg",
+        "faction_politics_rpg",
+    };
+
+    for (const auto& templateId : templateIds) {
+        const auto starter = loadTemplateAcceptanceJson(
+            templateAcceptanceRepoRoot() / "content" / "templates" / (templateId + "_starter.json"));
+        INFO("Template: " << templateId);
+        REQUIRE(starter["systems"].contains("integrations"));
+        REQUIRE_FALSE(starter["systems"]["integrations"]["export_validation"].empty());
+        REQUIRE_FALSE(starter["systems"]["integrations"]["wysiwyg_surfaces"].empty());
+    }
+}
 
 // ============================================================================
 // S30-T04 — jrpg template acceptance: edit → preview → export

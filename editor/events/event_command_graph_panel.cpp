@@ -93,16 +93,34 @@ void EventCommandGraphPanel::refreshPreview() {
     snapshot_.dependency_edge_count = dependencies.edges().size();
     snapshot_.switch_state_count = runtime_preview_.state.switches.size();
     snapshot_.variable_state_count = runtime_preview_.state.variables.size();
+    snapshot_.traversal_ratio = snapshot_.edge_count == 0
+        ? (snapshot_.node_count == 0 ? 0.0f : 1.0f)
+        : static_cast<float>(snapshot_.traversed_edge_count) / static_cast<float>(snapshot_.edge_count);
     snapshot_.selected_node_label.clear();
     snapshot_.selected_node_kind.clear();
+    snapshot_.selected_node_runtime_summary.clear();
     const auto selected = std::find_if(document_.nodes.begin(), document_.nodes.end(), [&](const auto& node) {
         return node.id == snapshot_.selected_node_id;
     });
     if (selected != document_.nodes.end()) {
         snapshot_.selected_node_label = selected->label;
         snapshot_.selected_node_kind = urpg::events::toString(selected->kind);
+        snapshot_.selected_node_runtime_summary = snapshot_.selected_node_kind + ":" + snapshot_.selected_node_label;
     }
     snapshot_.runtime_executed = snapshot_.diagnostic_count == 0 && !runtime_preview_.executed_commands.empty();
+    if (snapshot_.diagnostic_count > 0) {
+        snapshot_.ux_focus_lane = "diagnostics";
+        snapshot_.primary_action = "Resolve event graph diagnostics before runtime preview approval.";
+    } else if (!snapshot_.selected_node_id.empty()) {
+        snapshot_.ux_focus_lane = "node_inspector";
+        snapshot_.primary_action = "Inspect the selected node command and branch effects.";
+    } else if (snapshot_.traversed_edge_count < snapshot_.edge_count) {
+        snapshot_.ux_focus_lane = "branch_coverage";
+        snapshot_.primary_action = "Adjust initial switch/variable state to preview untraversed branches.";
+    } else {
+        snapshot_.ux_focus_lane = "runtime_trace";
+        snapshot_.primary_action = "Use the runtime trace to confirm the graph ships as authored.";
+    }
     snapshot_.saved_project_json = document_.toJson().dump();
     snapshot_.status_message =
         snapshot_.diagnostic_count == 0 ? "Event command graph preview is ready." : "Event command graph preview has diagnostics.";

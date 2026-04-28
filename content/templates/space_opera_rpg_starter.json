@@ -1,0 +1,31 @@
+{
+  "template_id": "space_opera_rpg",
+  "display_name": "Space Opera RPG Starter",
+  "status": "READY",
+  "loops": [
+    "crew_management_loop",
+    "starship_travel_loop",
+    "faction_mission_loop",
+    "save_loop"
+  ],
+  "systems": {
+    "genre_features": [
+      "crew_roster",
+      "ship_travel",
+      "planet_landings",
+      "faction_reputation"
+    ],
+    "integrations": {
+      "export_validation": [
+        "starter_data_complete",
+        "required_text_keys_bound",
+        "save_state_declared"
+      ],
+      "wysiwyg_surfaces": [
+        "crew_management",
+        "starship_route",
+        "faction_mission"
+      ]
+    }
+  }
+}

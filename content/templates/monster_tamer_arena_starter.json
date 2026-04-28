@@ -1,0 +1,31 @@
+{
+  "template_id": "monster_tamer_arena",
+  "display_name": "Monster Tamer Arena Starter",
+  "status": "READY",
+  "loops": [
+    "team_build_loop",
+    "arena_battle_loop",
+    "evolution_training_loop",
+    "save_loop"
+  ],
+  "systems": {
+    "genre_features": [
+      "team_rules",
+      "league_ladder",
+      "breeding",
+      "evolution"
+    ],
+    "integrations": {
+      "export_validation": [
+        "starter_data_complete",
+        "required_text_keys_bound",
+        "save_state_declared"
+      ],
+      "wysiwyg_surfaces": [
+        "team_roster",
+        "arena_rules",
+        "league_rewards"
+      ]
+    }
+  }
+}

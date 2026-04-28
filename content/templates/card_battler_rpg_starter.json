@@ -1,0 +1,22 @@
+{
+  "template_id": "card_battler_rpg",
+  "display_name": "Card Battler RPG Starter",
+  "status": "READY",
+  "loops": ["deck_build_loop", "card_battle_loop", "reward_draft_loop", "collection_save_loop"],
+  "systems": {
+    "cards": {
+      "deck_size": {"min": 12, "max": 30},
+      "hand_size": 5,
+      "resources": ["energy", "focus"],
+      "starter_deck": ["strike", "guard", "spark", "draw"]
+    },
+    "battle": {
+      "turn_structure": ["draw", "play", "enemy_intent", "resolve"],
+      "visible_intent": true
+    },
+    "integrations": {
+      "export_validation": ["starter_deck_valid", "reward_pool_weighted", "card_text_localized"],
+      "wysiwyg_surfaces": ["ability_sandbox", "battle_vfx_timeline", "export_preview"]
+    }
+  }
+}

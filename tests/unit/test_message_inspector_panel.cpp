@@ -188,6 +188,10 @@ TEST_CASE("Dialogue preview resolves portraits, choices, variables, localization
     REQUIRE(panel.snapshot().diagnostic_count == 0);
     REQUIRE(panel.snapshot().runtime_page_index == 0);
     REQUIRE(panel.snapshot().runtime_command_count == 5);
+    REQUIRE(panel.snapshot().body_character_count == 32);
+    REQUIRE(panel.snapshot().portrait_visible);
+    REQUIRE(panel.snapshot().choice_state_summary == "1/2 choices enabled");
+    REQUIRE(panel.snapshot().ux_focus_lane == "choices");
     REQUIRE(panel.snapshot().status_message == "Dialogue preview is ready.");
 
     const auto& preview = panel.preview();
@@ -216,6 +220,8 @@ TEST_CASE("Dialogue preview confirms authored choice effects through runtime tra
     REQUIRE(panel.snapshot().selected_choice_index == 0);
     REQUIRE(panel.snapshot().confirmed_choice_id == "accept");
     REQUIRE(panel.snapshot().next_page_id == "accepted");
+    REQUIRE(panel.snapshot().has_branch_target);
+    REQUIRE(panel.snapshot().ux_focus_lane == "localized_preview");
     REQUIRE(panel.snapshot().variable_after_choice_count == 2);
     REQUIRE(panel.snapshot().variables_after_choice_json.find("\"2\":1") != std::string::npos);
     REQUIRE(panel.preview().variables_after_choice.at(2) == 1);
@@ -274,6 +280,7 @@ TEST_CASE("Dialogue preview diagnostics block false complete claims",
 
     REQUIRE(panel.hasRenderedFrame());
     REQUIRE(panel.snapshot().diagnostic_count >= 5);
+    REQUIRE(panel.snapshot().ux_focus_lane == "diagnostics");
     REQUIRE(panel.snapshot().status_message == "Dialogue preview has diagnostics.");
 
     const auto& diagnostics = panel.preview().diagnostics;

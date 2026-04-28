@@ -1,0 +1,1730 @@
+{
+  "schema": "urpg.wysiwyg_template_showcase.v1",
+  "status_date": "2026-04-28",
+  "description": "Integrated creator-facing examples proving completed WYSIWYG systems can be combined into template starter projects.",
+  "required_evidence": [
+    "visual_authoring_surface",
+    "live_preview",
+    "saved_project_data",
+    "runtime_execution",
+    "diagnostics",
+    "tests"
+  ],
+  "examples": [
+    {
+      "template_id": "jrpg",
+      "display_name": "Crystal Gate JRPG",
+      "starter_project": "content/templates/jrpg_starter.json",
+      "surfaces": [
+        {
+          "id": "dialogue_intro",
+          "kind": "dialogue_preview",
+          "fixture": "content/fixtures/dialogue_preview_fixture.json",
+          "runtime_hook": "message_text_core",
+          "editor_panel": "DialoguePreviewPanel",
+          "evidence": [
+            "visual_authoring_surface",
+            "live_preview",
+            "saved_project_data",
+            "runtime_execution",
+            "diagnostics",
+            "tests"
+          ]
+        },
+        {
+          "id": "forest_gate_event",
+          "kind": "event_command_graph",
+          "fixture": "content/fixtures/event_command_graph_fixture.json",
+          "runtime_hook": "event_runtime",
+          "editor_panel": "EventCommandGraphPanel",
+          "evidence": [
+            "visual_authoring_surface",
+            "live_preview",
+            "saved_project_data",
+            "runtime_execution",
+            "diagnostics",
+            "tests"
+          ]
+        },
+        {
+          "id": "first_save_lab",
+          "kind": "save_load_preview_lab",
+          "fixture": "content/fixtures/save_load_preview_lab_fixture.json",
+          "runtime_hook": "save_data_core",
+          "editor_panel": "SaveLoadPreviewLabPanel",
+          "evidence": [
+            "visual_authoring_surface",
+            "live_preview",
+            "saved_project_data",
+            "runtime_execution",
+            "diagnostics",
+            "tests"
+          ]
+        }
+      ]
+    },
+    {
+      "template_id": "tactics_rpg",
+      "display_name": "Rain Pass Tactics",
+      "starter_project": "content/templates/tactics_rpg_starter.json",
+      "surfaces": [
+        {
+          "id": "weather_grid",
+          "kind": "map_environment_preview",
+          "fixture": "content/fixtures/map_environment_preview_fixture.json",
+          "runtime_hook": "presentation_runtime",
+          "editor_panel": "MapEnvironmentPreviewPanel",
+          "evidence": [
+            "visual_authoring_surface",
+            "live_preview",
+            "saved_project_data",
+            "runtime_execution",
+            "diagnostics",
+            "tests"
+          ]
+        },
+        {
+          "id": "slash_combo",
+          "kind": "battle_vfx_timeline",
+          "fixture": "content/fixtures/battle_vfx_timeline_fixture.json",
+          "runtime_hook": "battle_core",
+          "editor_panel": "BattleVfxTimelinePanel",
+          "evidence": [
+            "visual_authoring_surface",
+            "live_preview",
+            "saved_project_data",
+            "runtime_execution",
+            "diagnostics",
+            "tests"
+          ]
+        }
+      ]
+    },
+    {
+      "template_id": "arpg",
+      "display_name": "Power Surge ARPG",
+      "starter_project": "content/templates/arpg_starter.json",
+      "surfaces": [
+        {
+          "id": "power_surge_sandbox",
+          "kind": "ability_sandbox",
+          "fixture": "content/fixtures/ability_sandbox_fixture.json",
+          "runtime_hook": "gameplay_ability_framework",
+          "editor_panel": "AbilitySandboxPanel",
+          "evidence": [
+            "visual_authoring_surface",
+            "live_preview",
+            "saved_project_data",
+            "runtime_execution",
+            "diagnostics",
+            "tests"
+          ]
+        },
+        {
+          "id": "export_release_preview",
+          "kind": "export_preview",
+          "fixture": "content/fixtures/export_preview_fixture.json",
+          "runtime_hook": "export_validator",
+          "editor_panel": "ExportPreviewPanel",
+          "evidence": [
+            "visual_authoring_surface",
+            "live_preview",
+            "saved_project_data",
+            "runtime_execution",
+            "diagnostics",
+            "tests"
+          ]
+        }
+      ]
+    },
+    {
+      "template_id": "monster_collector_rpg",
+      "display_name": "Capture Field",
+      "starter_project": "content/templates/monster_collector_rpg_starter.json",
+      "surfaces": [
+        {
+          "id": "monster_collection_loop",
+          "kind": "monster_collection",
+          "fixture": "content/fixtures/monster_collection_fixture.json",
+          "runtime_hook": "gameplay_wysiwyg_system",
+          "editor_panel": "GameplayWysiwygPanel",
+          "evidence": [
+            "visual_authoring_surface",
+            "live_preview",
+            "saved_project_data",
+            "runtime_execution",
+            "diagnostics",
+            "tests"
+          ]
+        }
+      ]
+    },
+    {
+      "template_id": "cozy_life_rpg",
+      "display_name": "Festival Workshop",
+      "starter_project": "content/templates/cozy_life_rpg_starter.json",
+      "surfaces": [
+        {
+          "id": "crafting_economy_loop",
+          "kind": "crafting_economy_loop",
+          "fixture": "content/fixtures/crafting_economy_loop_fixture.json",
+          "runtime_hook": "gameplay_wysiwyg_system",
+          "editor_panel": "GameplayWysiwygPanel",
+          "evidence": [
+            "visual_authoring_surface",
+            "live_preview",
+            "saved_project_data",
+            "runtime_execution",
+            "diagnostics",
+            "tests"
+          ]
+        },
+        {
+          "id": "relationship_affinity",
+          "kind": "relationship_affinity",
+          "fixture": "content/fixtures/relationship_affinity_fixture.json",
+          "runtime_hook": "gameplay_wysiwyg_system",
+          "editor_panel": "GameplayWysiwygPanel",
+          "evidence": [
+            "visual_authoring_surface",
+            "live_preview",
+            "saved_project_data",
+            "runtime_execution",
+            "diagnostics",
+            "tests"
+          ]
+        }
+      ]
+    },
+    {
+      "template_id": "metroidvania_lite",
+      "display_name": "Gatebound Ruins",
+      "starter_project": "content/templates/metroidvania_lite_starter.json",
+      "surfaces": [
+        {
+          "id": "ability_gates",
+          "kind": "metroidvania_ability_gates",
+          "fixture": "content/fixtures/metroidvania_ability_gates_fixture.json",
+          "runtime_hook": "gameplay_ability_framework",
+          "editor_panel": "GameplayWysiwygPanel",
+          "evidence": [
+            "visual_authoring_surface",
+            "live_preview",
+            "saved_project_data",
+            "runtime_execution",
+            "diagnostics",
+            "tests"
+          ]
+        },
+        {
+          "id": "dungeon_depth",
+          "kind": "dungeon3d_world",
+          "fixture": "content/fixtures/dungeon3d_world_fixture.json",
+          "runtime_hook": "presentation_runtime",
+          "editor_panel": "Dungeon3DWorldPanel",
+          "evidence": [
+            "visual_authoring_surface",
+            "live_preview",
+            "saved_project_data",
+            "runtime_execution",
+            "diagnostics",
+            "tests"
+          ]
+        }
+      ]
+    },
+    {
+      "template_id": "2_5d_rpg",
+      "display_name": "Ancient Crypt 2.5D",
+      "starter_project": "content/templates/2_5d_rpg_starter.json",
+      "surfaces": [
+        {
+          "id": "crypt_depth_preview",
+          "kind": "dungeon3d_world",
+          "fixture": "content/fixtures/dungeon3d_world_fixture.json",
+          "runtime_hook": "presentation_runtime",
+          "editor_panel": "Dungeon3DWorldPanel",
+          "evidence": [
+            "visual_authoring_surface",
+            "live_preview",
+            "saved_project_data",
+            "runtime_execution",
+            "diagnostics",
+            "tests"
+          ]
+        },
+        {
+          "id": "lighting_weather",
+          "kind": "map_environment_preview",
+          "fixture": "content/fixtures/map_environment_preview_fixture.json",
+          "runtime_hook": "presentation_runtime",
+          "editor_panel": "MapEnvironmentPreviewPanel",
+          "evidence": [
+            "visual_authoring_surface",
+            "live_preview",
+            "saved_project_data",
+            "runtime_execution",
+            "diagnostics",
+            "tests"
+          ]
+        }
+      ]
+    },
+    {
+      "template_id": "roguelite_dungeon",
+      "display_name": "Everdeep Run",
+      "starter_project": "content/templates/roguelite_dungeon_starter.json",
+      "surfaces": [
+        {
+          "id": "seeded_room_stitcher",
+          "kind": "procedural_dungeon",
+          "fixture": "content/fixtures/random_dungeon_room_stitcher_fixture.json",
+          "runtime_hook": "presentation_runtime",
+          "editor_panel": "GameplayWysiwygPanel",
+          "evidence": [
+            "visual_authoring_surface",
+            "live_preview",
+            "saved_project_data",
+            "runtime_execution",
+            "diagnostics",
+            "tests"
+          ]
+        },
+        {
+          "id": "weighted_loot_rewards",
+          "kind": "loot_generator",
+          "fixture": "content/fixtures/loot_generator_fixture.json",
+          "runtime_hook": "gameplay_ability_framework",
+          "editor_panel": "GameplayWysiwygPanel",
+          "evidence": [
+            "visual_authoring_surface",
+            "live_preview",
+            "saved_project_data",
+            "runtime_execution",
+            "diagnostics",
+            "tests"
+          ]
+        },
+        {
+          "id": "run_depth_preview",
+          "kind": "dungeon3d_world",
+          "fixture": "content/fixtures/dungeon3d_world_fixture.json",
+          "runtime_hook": "presentation_runtime",
+          "editor_panel": "Dungeon3DWorldPanel",
+          "evidence": [
+            "visual_authoring_surface",
+            "live_preview",
+            "saved_project_data",
+            "runtime_execution",
+            "diagnostics",
+            "tests"
+          ]
+        }
+      ]
+    },
+    {
+      "template_id": "survival_horror_rpg",
+      "display_name": "Blackout Ward",
+      "starter_project": "content/templates/survival_horror_rpg_starter.json",
+      "surfaces": [
+        {
+          "id": "low_light_fx",
+          "kind": "horror_environment_fx",
+          "fixture": "content/fixtures/horror_fx_builder_fixture.json",
+          "runtime_hook": "presentation_runtime",
+          "editor_panel": "GameplayWysiwygPanel",
+          "evidence": [
+            "visual_authoring_surface",
+            "live_preview",
+            "saved_project_data",
+            "runtime_execution",
+            "diagnostics",
+            "tests"
+          ]
+        },
+        {
+          "id": "clue_dialogue_preview",
+          "kind": "dialogue_preview",
+          "fixture": "content/fixtures/dialogue_preview_fixture.json",
+          "runtime_hook": "message_text_core",
+          "editor_panel": "DialoguePreviewPanel",
+          "evidence": [
+            "visual_authoring_surface",
+            "live_preview",
+            "saved_project_data",
+            "runtime_execution",
+            "diagnostics",
+            "tests"
+          ]
+        },
+        {
+          "id": "safe_room_save_lab",
+          "kind": "save_load_preview_lab",
+          "fixture": "content/fixtures/save_load_preview_lab_fixture.json",
+          "runtime_hook": "save_data_core",
+          "editor_panel": "SaveLoadPreviewLabPanel",
+          "evidence": [
+            "visual_authoring_surface",
+            "live_preview",
+            "saved_project_data",
+            "runtime_execution",
+            "diagnostics",
+            "tests"
+          ]
+        }
+      ]
+    },
+    {
+      "template_id": "farming_adventure_rpg",
+      "display_name": "Moonroot Valley",
+      "starter_project": "content/templates/farming_adventure_rpg_starter.json",
+      "surfaces": [
+        {
+          "id": "crop_plot_builder",
+          "kind": "farming_garden_plot",
+          "fixture": "content/fixtures/farming_garden_plot_builder_fixture.json",
+          "runtime_hook": "gameplay_wysiwyg_system",
+          "editor_panel": "GameplayWysiwygPanel",
+          "evidence": [
+            "visual_authoring_surface",
+            "live_preview",
+            "saved_project_data",
+            "runtime_execution",
+            "diagnostics",
+            "tests"
+          ]
+        },
+        {
+          "id": "crafting_shop_loop",
+          "kind": "crafting_economy_loop",
+          "fixture": "content/fixtures/crafting_economy_loop_fixture.json",
+          "runtime_hook": "gameplay_wysiwyg_system",
+          "editor_panel": "GameplayWysiwygPanel",
+          "evidence": [
+            "visual_authoring_surface",
+            "live_preview",
+            "saved_project_data",
+            "runtime_execution",
+            "diagnostics",
+            "tests"
+          ]
+        },
+        {
+          "id": "friendship_progression",
+          "kind": "relationship_affinity",
+          "fixture": "content/fixtures/relationship_affinity_fixture.json",
+          "runtime_hook": "message_text_core",
+          "editor_panel": "GameplayWysiwygPanel",
+          "evidence": [
+            "visual_authoring_surface",
+            "live_preview",
+            "saved_project_data",
+            "runtime_execution",
+            "diagnostics",
+            "tests"
+          ]
+        }
+      ]
+    },
+    {
+      "template_id": "card_battler_rpg",
+      "display_name": "Astral Deck",
+      "starter_project": "content/templates/card_battler_rpg_starter.json",
+      "surfaces": [
+        {
+          "id": "duel_rules_preview",
+          "kind": "card_battle",
+          "fixture": "content/fixtures/duelist_card_battle_system_fixture.json",
+          "runtime_hook": "battle_core",
+          "editor_panel": "GameplayWysiwygPanel",
+          "evidence": [
+            "visual_authoring_surface",
+            "live_preview",
+            "saved_project_data",
+            "runtime_execution",
+            "diagnostics",
+            "tests"
+          ]
+        },
+        {
+          "id": "card_effect_sandbox",
+          "kind": "ability_sandbox",
+          "fixture": "content/fixtures/ability_sandbox_fixture.json",
+          "runtime_hook": "gameplay_ability_framework",
+          "editor_panel": "AbilitySandboxPanel",
+          "evidence": [
+            "visual_authoring_surface",
+            "live_preview",
+            "saved_project_data",
+            "runtime_execution",
+            "diagnostics",
+            "tests"
+          ]
+        },
+        {
+          "id": "card_release_preview",
+          "kind": "export_preview",
+          "fixture": "content/fixtures/export_preview_fixture.json",
+          "runtime_hook": "export_validator",
+          "editor_panel": "ExportPreviewPanel",
+          "evidence": [
+            "visual_authoring_surface",
+            "live_preview",
+            "saved_project_data",
+            "runtime_execution",
+            "diagnostics",
+            "tests"
+          ]
+        }
+      ]
+    },
+    {
+      "template_id": "platformer_rpg",
+      "display_name": "Skyline Runner",
+      "starter_project": "content/templates/platformer_rpg_starter.json",
+      "surfaces": [
+        {
+          "id": "jump_physics_lab",
+          "kind": "platformer_physics_lab",
+          "fixture": "content/fixtures/platformer_physics_lab_fixture.json",
+          "runtime_hook": "presentation_runtime",
+          "editor_panel": "GameplayWysiwygPanel",
+          "evidence": [
+            "visual_authoring_surface",
+            "live_preview",
+            "saved_project_data",
+            "runtime_execution",
+            "diagnostics",
+            "tests"
+          ]
+        },
+        {
+          "id": "side_action_kit",
+          "kind": "side_view_action_combat",
+          "fixture": "content/fixtures/side_view_action_combat_kit_fixture.json",
+          "runtime_hook": "battle_core",
+          "editor_panel": "GameplayWysiwygPanel",
+          "evidence": [
+            "visual_authoring_surface",
+            "live_preview",
+            "saved_project_data",
+            "runtime_execution",
+            "diagnostics",
+            "tests"
+          ]
+        },
+        {
+          "id": "traversal_gate_preview",
+          "kind": "metroidvania_ability_gates",
+          "fixture": "content/fixtures/metroidvania_ability_gates_fixture.json",
+          "runtime_hook": "gameplay_ability_framework",
+          "editor_panel": "GameplayWysiwygPanel",
+          "evidence": [
+            "visual_authoring_surface",
+            "live_preview",
+            "saved_project_data",
+            "runtime_execution",
+            "diagnostics",
+            "tests"
+          ]
+        }
+      ]
+    },
+    {
+      "template_id": "gacha_hero_rpg",
+      "display_name": "Starlight Summoners",
+      "starter_project": "content/templates/gacha_hero_rpg_starter.json",
+      "surfaces": [
+        {
+          "id": "summon_banner_preview",
+          "kind": "summon_gacha_banner",
+          "fixture": "content/fixtures/summon_gacha_banner_builder_fixture.json",
+          "runtime_hook": "ui_menu_core",
+          "editor_panel": "GameplayWysiwygPanel",
+          "evidence": [
+            "visual_authoring_surface",
+            "live_preview",
+            "saved_project_data",
+            "runtime_execution",
+            "diagnostics",
+            "tests"
+          ]
+        },
+        {
+          "id": "pity_rate_simulation",
+          "kind": "gacha_system",
+          "fixture": "content/fixtures/gacha_system_fixture.json",
+          "runtime_hook": "save_data_core",
+          "editor_panel": "GameplayWysiwygPanel",
+          "evidence": [
+            "visual_authoring_surface",
+            "live_preview",
+            "saved_project_data",
+            "runtime_execution",
+            "diagnostics",
+            "tests"
+          ]
+        },
+        {
+          "id": "hero_roster_milestones",
+          "kind": "achievement_visual_builder",
+          "fixture": "content/fixtures/achievement_visual_builder_fixture.json",
+          "runtime_hook": "export_validator",
+          "editor_panel": "GameplayWysiwygPanel",
+          "evidence": [
+            "visual_authoring_surface",
+            "live_preview",
+            "saved_project_data",
+            "runtime_execution",
+            "diagnostics",
+            "tests"
+          ]
+        }
+      ]
+    },
+    {
+      "template_id": "mystery_detective_rpg",
+      "display_name": "Clocktower Case",
+      "starter_project": "content/templates/mystery_detective_rpg_starter.json",
+      "surfaces": [
+        {
+          "id": "case_objective_graph",
+          "kind": "quest_objective_graph",
+          "fixture": "content/fixtures/quest_objective_graph_fixture.json",
+          "runtime_hook": "gameplay_ability_framework",
+          "editor_panel": "GameplayWysiwygPanel",
+          "evidence": [
+            "visual_authoring_surface",
+            "live_preview",
+            "saved_project_data",
+            "runtime_execution",
+            "diagnostics",
+            "tests"
+          ]
+        },
+        {
+          "id": "interrogation_preview",
+          "kind": "dialogue_preview",
+          "fixture": "content/fixtures/dialogue_preview_fixture.json",
+          "runtime_hook": "message_text_core",
+          "editor_panel": "DialoguePreviewPanel",
+          "evidence": [
+            "visual_authoring_surface",
+            "live_preview",
+            "saved_project_data",
+            "runtime_execution",
+            "diagnostics",
+            "tests"
+          ]
+        },
+        {
+          "id": "deduction_logic_board",
+          "kind": "puzzle_logic_board",
+          "fixture": "content/fixtures/puzzle_logic_board_fixture.json",
+          "runtime_hook": "export_validator",
+          "editor_panel": "GameplayWysiwygPanel",
+          "evidence": [
+            "visual_authoring_surface",
+            "live_preview",
+            "saved_project_data",
+            "runtime_execution",
+            "diagnostics",
+            "tests"
+          ]
+        }
+      ]
+    },
+    {
+      "template_id": "world_exploration_rpg",
+      "display_name": "Windroad Atlas",
+      "starter_project": "content/templates/world_exploration_rpg_starter.json",
+      "surfaces": [
+        {
+          "id": "route_planner",
+          "kind": "world_map_route_planner",
+          "fixture": "content/fixtures/world_map_route_planner_fixture.json",
+          "runtime_hook": "presentation_runtime",
+          "editor_panel": "GameplayWysiwygPanel",
+          "evidence": [
+            "visual_authoring_surface",
+            "live_preview",
+            "saved_project_data",
+            "runtime_execution",
+            "diagnostics",
+            "tests"
+          ]
+        },
+        {
+          "id": "fast_travel_network",
+          "kind": "fast_travel_map_builder",
+          "fixture": "content/fixtures/fast_travel_map_builder_fixture.json",
+          "runtime_hook": "save_data_core",
+          "editor_panel": "GameplayWysiwygPanel",
+          "evidence": [
+            "visual_authoring_surface",
+            "live_preview",
+            "saved_project_data",
+            "runtime_execution",
+            "diagnostics",
+            "tests"
+          ]
+        },
+        {
+          "id": "world_zoom_preview",
+          "kind": "map_zoom_system",
+          "fixture": "content/fixtures/map_zoom_system_fixture.json",
+          "runtime_hook": "presentation_runtime",
+          "editor_panel": "GameplayWysiwygPanel",
+          "evidence": [
+            "visual_authoring_surface",
+            "live_preview",
+            "saved_project_data",
+            "runtime_execution",
+            "diagnostics",
+            "tests"
+          ]
+        }
+      ]
+    },
+    {
+      "template_id": "space_opera_rpg",
+      "display_name": "Space Opera RPG",
+      "starter_project": "content/templates/space_opera_rpg_starter.json",
+      "surfaces": [
+        {
+          "id": "crew_management",
+          "kind": "crew_management",
+          "fixture": "content/fixtures/companion_command_wheel_fixture.json",
+          "runtime_hook": "gameplay_wysiwyg_system",
+          "editor_panel": "GameplayWysiwygPanel",
+          "evidence": [
+            "visual_authoring_surface",
+            "live_preview",
+            "saved_project_data",
+            "runtime_execution",
+            "diagnostics",
+            "tests"
+          ]
+        },
+        {
+          "id": "starship_route",
+          "kind": "starship_route",
+          "fixture": "content/fixtures/world_map_route_planner_fixture.json",
+          "runtime_hook": "gameplay_wysiwyg_system",
+          "editor_panel": "GameplayWysiwygPanel",
+          "evidence": [
+            "visual_authoring_surface",
+            "live_preview",
+            "saved_project_data",
+            "runtime_execution",
+            "diagnostics",
+            "tests"
+          ]
+        },
+        {
+          "id": "faction_mission",
+          "kind": "faction_mission",
+          "fixture": "content/fixtures/quest_board_mission_builder_fixture.json",
+          "runtime_hook": "gameplay_wysiwyg_system",
+          "editor_panel": "GameplayWysiwygPanel",
+          "evidence": [
+            "visual_authoring_surface",
+            "live_preview",
+            "saved_project_data",
+            "runtime_execution",
+            "diagnostics",
+            "tests"
+          ]
+        }
+      ]
+    },
+    {
+      "template_id": "post_apocalyptic_rpg",
+      "display_name": "Post-Apocalyptic RPG",
+      "starter_project": "content/templates/post_apocalyptic_rpg_starter.json",
+      "surfaces": [
+        {
+          "id": "scavenge_rules",
+          "kind": "scavenge_rules",
+          "fixture": "content/fixtures/procedural_content_rules_fixture.json",
+          "runtime_hook": "gameplay_wysiwyg_system",
+          "editor_panel": "GameplayWysiwygPanel",
+          "evidence": [
+            "visual_authoring_surface",
+            "live_preview",
+            "saved_project_data",
+            "runtime_execution",
+            "diagnostics",
+            "tests"
+          ]
+        },
+        {
+          "id": "settlement_crafting",
+          "kind": "settlement_crafting",
+          "fixture": "content/fixtures/crafting_recipe_graph_fixture.json",
+          "runtime_hook": "gameplay_wysiwyg_system",
+          "editor_panel": "GameplayWysiwygPanel",
+          "evidence": [
+            "visual_authoring_surface",
+            "live_preview",
+            "saved_project_data",
+            "runtime_execution",
+            "diagnostics",
+            "tests"
+          ]
+        },
+        {
+          "id": "wasteland_biomes",
+          "kind": "wasteland_biomes",
+          "fixture": "content/fixtures/biome_rule_system_fixture.json",
+          "runtime_hook": "gameplay_wysiwyg_system",
+          "editor_panel": "GameplayWysiwygPanel",
+          "evidence": [
+            "visual_authoring_surface",
+            "live_preview",
+            "saved_project_data",
+            "runtime_execution",
+            "diagnostics",
+            "tests"
+          ]
+        }
+      ]
+    },
+    {
+      "template_id": "tactical_mecha_rpg",
+      "display_name": "Tactical Mecha RPG",
+      "starter_project": "content/templates/tactical_mecha_rpg_starter.json",
+      "surfaces": [
+        {
+          "id": "mech_loadout",
+          "kind": "mech_loadout",
+          "fixture": "content/fixtures/equip_construct_visible_equipment_fixture.json",
+          "runtime_hook": "gameplay_wysiwyg_system",
+          "editor_panel": "GameplayWysiwygPanel",
+          "evidence": [
+            "visual_authoring_surface",
+            "live_preview",
+            "saved_project_data",
+            "runtime_execution",
+            "diagnostics",
+            "tests"
+          ]
+        },
+        {
+          "id": "grid_battle",
+          "kind": "grid_battle",
+          "fixture": "content/fixtures/tactical_battle_system_fixture.json",
+          "runtime_hook": "gameplay_wysiwyg_system",
+          "editor_panel": "GameplayWysiwygPanel",
+          "evidence": [
+            "visual_authoring_surface",
+            "live_preview",
+            "saved_project_data",
+            "runtime_execution",
+            "diagnostics",
+            "tests"
+          ]
+        },
+        {
+          "id": "pilot_bonds",
+          "kind": "pilot_bonds",
+          "fixture": "content/fixtures/relationship_affinity_fixture.json",
+          "runtime_hook": "gameplay_wysiwyg_system",
+          "editor_panel": "GameplayWysiwygPanel",
+          "evidence": [
+            "visual_authoring_surface",
+            "live_preview",
+            "saved_project_data",
+            "runtime_execution",
+            "diagnostics",
+            "tests"
+          ]
+        }
+      ]
+    },
+    {
+      "template_id": "monster_tamer_arena",
+      "display_name": "Monster Tamer Arena",
+      "starter_project": "content/templates/monster_tamer_arena_starter.json",
+      "surfaces": [
+        {
+          "id": "team_roster",
+          "kind": "team_roster",
+          "fixture": "content/fixtures/monster_collection_fixture.json",
+          "runtime_hook": "gameplay_wysiwyg_system",
+          "editor_panel": "GameplayWysiwygPanel",
+          "evidence": [
+            "visual_authoring_surface",
+            "live_preview",
+            "saved_project_data",
+            "runtime_execution",
+            "diagnostics",
+            "tests"
+          ]
+        },
+        {
+          "id": "arena_rules",
+          "kind": "arena_rules",
+          "fixture": "content/fixtures/encounter_designer_fixture.json",
+          "runtime_hook": "gameplay_wysiwyg_system",
+          "editor_panel": "GameplayWysiwygPanel",
+          "evidence": [
+            "visual_authoring_surface",
+            "live_preview",
+            "saved_project_data",
+            "runtime_execution",
+            "diagnostics",
+            "tests"
+          ]
+        },
+        {
+          "id": "league_rewards",
+          "kind": "league_rewards",
+          "fixture": "content/fixtures/achievement_visual_builder_fixture.json",
+          "runtime_hook": "gameplay_wysiwyg_system",
+          "editor_panel": "GameplayWysiwygPanel",
+          "evidence": [
+            "visual_authoring_surface",
+            "live_preview",
+            "saved_project_data",
+            "runtime_execution",
+            "diagnostics",
+            "tests"
+          ]
+        }
+      ]
+    },
+    {
+      "template_id": "soulslike_lite_rpg",
+      "display_name": "Soulslike Lite RPG",
+      "starter_project": "content/templates/soulslike_lite_rpg_starter.json",
+      "surfaces": [
+        {
+          "id": "stamina_combat",
+          "kind": "stamina_combat",
+          "fixture": "content/fixtures/side_view_action_combat_kit_fixture.json",
+          "runtime_hook": "gameplay_wysiwyg_system",
+          "editor_panel": "GameplayWysiwygPanel",
+          "evidence": [
+            "visual_authoring_surface",
+            "live_preview",
+            "saved_project_data",
+            "runtime_execution",
+            "diagnostics",
+            "tests"
+          ]
+        },
+        {
+          "id": "boss_phases",
+          "kind": "boss_phases",
+          "fixture": "content/fixtures/boss_phase_script_fixture.json",
+          "runtime_hook": "gameplay_wysiwyg_system",
+          "editor_panel": "GameplayWysiwygPanel",
+          "evidence": [
+            "visual_authoring_surface",
+            "live_preview",
+            "saved_project_data",
+            "runtime_execution",
+            "diagnostics",
+            "tests"
+          ]
+        },
+        {
+          "id": "checkpoint_save",
+          "kind": "checkpoint_save",
+          "fixture": "content/fixtures/save_load_preview_lab_fixture.json",
+          "runtime_hook": "gameplay_wysiwyg_system",
+          "editor_panel": "GameplayWysiwygPanel",
+          "evidence": [
+            "visual_authoring_surface",
+            "live_preview",
+            "saved_project_data",
+            "runtime_execution",
+            "diagnostics",
+            "tests"
+          ]
+        }
+      ]
+    },
+    {
+      "template_id": "idle_incremental_rpg",
+      "display_name": "Idle Incremental RPG",
+      "starter_project": "content/templates/idle_incremental_rpg_starter.json",
+      "surfaces": [
+        {
+          "id": "offline_rewards",
+          "kind": "offline_rewards",
+          "fixture": "content/fixtures/step_rewards_system_fixture.json",
+          "runtime_hook": "gameplay_wysiwyg_system",
+          "editor_panel": "GameplayWysiwygPanel",
+          "evidence": [
+            "visual_authoring_surface",
+            "live_preview",
+            "saved_project_data",
+            "runtime_execution",
+            "diagnostics",
+            "tests"
+          ]
+        },
+        {
+          "id": "auto_battle",
+          "kind": "auto_battle",
+          "fixture": "content/fixtures/order_turn_battle_system_fixture.json",
+          "runtime_hook": "gameplay_wysiwyg_system",
+          "editor_panel": "GameplayWysiwygPanel",
+          "evidence": [
+            "visual_authoring_surface",
+            "live_preview",
+            "saved_project_data",
+            "runtime_execution",
+            "diagnostics",
+            "tests"
+          ]
+        },
+        {
+          "id": "upgrade_tree",
+          "kind": "upgrade_tree",
+          "fixture": "content/fixtures/skill_tree_fixture.json",
+          "runtime_hook": "gameplay_wysiwyg_system",
+          "editor_panel": "GameplayWysiwygPanel",
+          "evidence": [
+            "visual_authoring_surface",
+            "live_preview",
+            "saved_project_data",
+            "runtime_execution",
+            "diagnostics",
+            "tests"
+          ]
+        }
+      ]
+    },
+    {
+      "template_id": "strategy_kingdom_rpg",
+      "display_name": "Strategy Kingdom RPG",
+      "starter_project": "content/templates/strategy_kingdom_rpg_starter.json",
+      "surfaces": [
+        {
+          "id": "recruiting",
+          "kind": "recruiting",
+          "fixture": "content/fixtures/recruiting_board_fixture.json",
+          "runtime_hook": "gameplay_wysiwyg_system",
+          "editor_panel": "GameplayWysiwygPanel",
+          "evidence": [
+            "visual_authoring_surface",
+            "live_preview",
+            "saved_project_data",
+            "runtime_execution",
+            "diagnostics",
+            "tests"
+          ]
+        },
+        {
+          "id": "missions",
+          "kind": "missions",
+          "fixture": "content/fixtures/quest_board_mission_builder_fixture.json",
+          "runtime_hook": "gameplay_wysiwyg_system",
+          "editor_panel": "GameplayWysiwygPanel",
+          "evidence": [
+            "visual_authoring_surface",
+            "live_preview",
+            "saved_project_data",
+            "runtime_execution",
+            "diagnostics",
+            "tests"
+          ]
+        },
+        {
+          "id": "economy",
+          "kind": "economy",
+          "fixture": "content/fixtures/economy_balance_simulator_fixture.json",
+          "runtime_hook": "gameplay_wysiwyg_system",
+          "editor_panel": "GameplayWysiwygPanel",
+          "evidence": [
+            "visual_authoring_surface",
+            "live_preview",
+            "saved_project_data",
+            "runtime_execution",
+            "diagnostics",
+            "tests"
+          ]
+        }
+      ]
+    },
+    {
+      "template_id": "racing_adventure_rpg",
+      "display_name": "Racing Adventure RPG",
+      "starter_project": "content/templates/racing_adventure_rpg_starter.json",
+      "surfaces": [
+        {
+          "id": "vehicles",
+          "kind": "vehicles",
+          "fixture": "content/fixtures/mount_vehicle_system_fixture.json",
+          "runtime_hook": "gameplay_wysiwyg_system",
+          "editor_panel": "GameplayWysiwygPanel",
+          "evidence": [
+            "visual_authoring_surface",
+            "live_preview",
+            "saved_project_data",
+            "runtime_execution",
+            "diagnostics",
+            "tests"
+          ]
+        },
+        {
+          "id": "route_planner",
+          "kind": "route_planner",
+          "fixture": "content/fixtures/world_map_route_planner_fixture.json",
+          "runtime_hook": "gameplay_wysiwyg_system",
+          "editor_panel": "GameplayWysiwygPanel",
+          "evidence": [
+            "visual_authoring_surface",
+            "live_preview",
+            "saved_project_data",
+            "runtime_execution",
+            "diagnostics",
+            "tests"
+          ]
+        },
+        {
+          "id": "license_rewards",
+          "kind": "license_rewards",
+          "fixture": "content/fixtures/achievement_visual_builder_fixture.json",
+          "runtime_hook": "gameplay_wysiwyg_system",
+          "editor_panel": "GameplayWysiwygPanel",
+          "evidence": [
+            "visual_authoring_surface",
+            "live_preview",
+            "saved_project_data",
+            "runtime_execution",
+            "diagnostics",
+            "tests"
+          ]
+        }
+      ]
+    },
+    {
+      "template_id": "rhythm_rpg",
+      "display_name": "Rhythm RPG",
+      "starter_project": "content/templates/rhythm_rpg_starter.json",
+      "surfaces": [
+        {
+          "id": "timed_input",
+          "kind": "timed_input",
+          "fixture": "content/fixtures/timed_attack_qte_builder_fixture.json",
+          "runtime_hook": "gameplay_wysiwyg_system",
+          "editor_panel": "GameplayWysiwygPanel",
+          "evidence": [
+            "visual_authoring_surface",
+            "live_preview",
+            "saved_project_data",
+            "runtime_execution",
+            "diagnostics",
+            "tests"
+          ]
+        },
+        {
+          "id": "battle_vfx",
+          "kind": "battle_vfx",
+          "fixture": "content/fixtures/battle_vfx_timeline_fixture.json",
+          "runtime_hook": "gameplay_wysiwyg_system",
+          "editor_panel": "GameplayWysiwygPanel",
+          "evidence": [
+            "visual_authoring_surface",
+            "live_preview",
+            "saved_project_data",
+            "runtime_execution",
+            "diagnostics",
+            "tests"
+          ]
+        },
+        {
+          "id": "grades",
+          "kind": "grades",
+          "fixture": "content/fixtures/victory_screen_builder_fixture.json",
+          "runtime_hook": "gameplay_wysiwyg_system",
+          "editor_panel": "GameplayWysiwygPanel",
+          "evidence": [
+            "visual_authoring_surface",
+            "live_preview",
+            "saved_project_data",
+            "runtime_execution",
+            "diagnostics",
+            "tests"
+          ]
+        }
+      ]
+    },
+    {
+      "template_id": "cooking_restaurant_rpg",
+      "display_name": "Cooking Restaurant RPG",
+      "starter_project": "content/templates/cooking_restaurant_rpg_starter.json",
+      "surfaces": [
+        {
+          "id": "recipes",
+          "kind": "recipes",
+          "fixture": "content/fixtures/crafting_recipe_graph_fixture.json",
+          "runtime_hook": "gameplay_wysiwyg_system",
+          "editor_panel": "GameplayWysiwygPanel",
+          "evidence": [
+            "visual_authoring_surface",
+            "live_preview",
+            "saved_project_data",
+            "runtime_execution",
+            "diagnostics",
+            "tests"
+          ]
+        },
+        {
+          "id": "customer_queue",
+          "kind": "customer_queue",
+          "fixture": "content/fixtures/npc_schedule_fixture.json",
+          "runtime_hook": "gameplay_wysiwyg_system",
+          "editor_panel": "GameplayWysiwygPanel",
+          "evidence": [
+            "visual_authoring_surface",
+            "live_preview",
+            "saved_project_data",
+            "runtime_execution",
+            "diagnostics",
+            "tests"
+          ]
+        },
+        {
+          "id": "shop_economy",
+          "kind": "shop_economy",
+          "fixture": "content/fixtures/shop_economy_sim_lab_fixture.json",
+          "runtime_hook": "gameplay_wysiwyg_system",
+          "editor_panel": "GameplayWysiwygPanel",
+          "evidence": [
+            "visual_authoring_surface",
+            "live_preview",
+            "saved_project_data",
+            "runtime_execution",
+            "diagnostics",
+            "tests"
+          ]
+        }
+      ]
+    },
+    {
+      "template_id": "school_life_rpg",
+      "display_name": "School Life RPG",
+      "starter_project": "content/templates/school_life_rpg_starter.json",
+      "surfaces": [
+        {
+          "id": "calendar",
+          "kind": "calendar",
+          "fixture": "content/fixtures/world_state_timeline_fixture.json",
+          "runtime_hook": "gameplay_wysiwyg_system",
+          "editor_panel": "GameplayWysiwygPanel",
+          "evidence": [
+            "visual_authoring_surface",
+            "live_preview",
+            "saved_project_data",
+            "runtime_execution",
+            "diagnostics",
+            "tests"
+          ]
+        },
+        {
+          "id": "clubs",
+          "kind": "clubs",
+          "fixture": "content/fixtures/relationship_event_scheduler_fixture.json",
+          "runtime_hook": "gameplay_wysiwyg_system",
+          "editor_panel": "GameplayWysiwygPanel",
+          "evidence": [
+            "visual_authoring_surface",
+            "live_preview",
+            "saved_project_data",
+            "runtime_execution",
+            "diagnostics",
+            "tests"
+          ]
+        },
+        {
+          "id": "social_links",
+          "kind": "social_links",
+          "fixture": "content/fixtures/relationship_affinity_fixture.json",
+          "runtime_hook": "gameplay_wysiwyg_system",
+          "editor_panel": "GameplayWysiwygPanel",
+          "evidence": [
+            "visual_authoring_surface",
+            "live_preview",
+            "saved_project_data",
+            "runtime_execution",
+            "diagnostics",
+            "tests"
+          ]
+        }
+      ]
+    },
+    {
+      "template_id": "pirate_rpg",
+      "display_name": "Pirate RPG",
+      "starter_project": "content/templates/pirate_rpg_starter.json",
+      "surfaces": [
+        {
+          "id": "crew",
+          "kind": "crew",
+          "fixture": "content/fixtures/companion_command_wheel_fixture.json",
+          "runtime_hook": "gameplay_wysiwyg_system",
+          "editor_panel": "GameplayWysiwygPanel",
+          "evidence": [
+            "visual_authoring_surface",
+            "live_preview",
+            "saved_project_data",
+            "runtime_execution",
+            "diagnostics",
+            "tests"
+          ]
+        },
+        {
+          "id": "treasure_routes",
+          "kind": "treasure_routes",
+          "fixture": "content/fixtures/world_map_route_planner_fixture.json",
+          "runtime_hook": "gameplay_wysiwyg_system",
+          "editor_panel": "GameplayWysiwygPanel",
+          "evidence": [
+            "visual_authoring_surface",
+            "live_preview",
+            "saved_project_data",
+            "runtime_execution",
+            "diagnostics",
+            "tests"
+          ]
+        },
+        {
+          "id": "naval_encounters",
+          "kind": "naval_encounters",
+          "fixture": "content/fixtures/encounter_designer_fixture.json",
+          "runtime_hook": "gameplay_wysiwyg_system",
+          "editor_panel": "GameplayWysiwygPanel",
+          "evidence": [
+            "visual_authoring_surface",
+            "live_preview",
+            "saved_project_data",
+            "runtime_execution",
+            "diagnostics",
+            "tests"
+          ]
+        }
+      ]
+    },
+    {
+      "template_id": "sports_team_rpg",
+      "display_name": "Sports Team RPG",
+      "starter_project": "content/templates/sports_team_rpg_starter.json",
+      "surfaces": [
+        {
+          "id": "team_roster",
+          "kind": "team_roster",
+          "fixture": "content/fixtures/formation_positioning_system_fixture.json",
+          "runtime_hook": "gameplay_wysiwyg_system",
+          "editor_panel": "GameplayWysiwygPanel",
+          "evidence": [
+            "visual_authoring_surface",
+            "live_preview",
+            "saved_project_data",
+            "runtime_execution",
+            "diagnostics",
+            "tests"
+          ]
+        },
+        {
+          "id": "training",
+          "kind": "training",
+          "fixture": "content/fixtures/skill_tree_fixture.json",
+          "runtime_hook": "gameplay_wysiwyg_system",
+          "editor_panel": "GameplayWysiwygPanel",
+          "evidence": [
+            "visual_authoring_surface",
+            "live_preview",
+            "saved_project_data",
+            "runtime_execution",
+            "diagnostics",
+            "tests"
+          ]
+        },
+        {
+          "id": "match_day",
+          "kind": "match_day",
+          "fixture": "content/fixtures/order_turn_battle_system_fixture.json",
+          "runtime_hook": "gameplay_wysiwyg_system",
+          "editor_panel": "GameplayWysiwygPanel",
+          "evidence": [
+            "visual_authoring_surface",
+            "live_preview",
+            "saved_project_data",
+            "runtime_execution",
+            "diagnostics",
+            "tests"
+          ]
+        }
+      ]
+    },
+    {
+      "template_id": "pet_shop_creature_care_rpg",
+      "display_name": "Pet Shop Creature Care RPG",
+      "starter_project": "content/templates/pet_shop_creature_care_rpg_starter.json",
+      "surfaces": [
+        {
+          "id": "pet_roster",
+          "kind": "pet_roster",
+          "fixture": "content/fixtures/monster_collection_fixture.json",
+          "runtime_hook": "gameplay_wysiwyg_system",
+          "editor_panel": "GameplayWysiwygPanel",
+          "evidence": [
+            "visual_authoring_surface",
+            "live_preview",
+            "saved_project_data",
+            "runtime_execution",
+            "diagnostics",
+            "tests"
+          ]
+        },
+        {
+          "id": "care_schedule",
+          "kind": "care_schedule",
+          "fixture": "content/fixtures/npc_schedule_fixture.json",
+          "runtime_hook": "gameplay_wysiwyg_system",
+          "editor_panel": "GameplayWysiwygPanel",
+          "evidence": [
+            "visual_authoring_surface",
+            "live_preview",
+            "saved_project_data",
+            "runtime_execution",
+            "diagnostics",
+            "tests"
+          ]
+        },
+        {
+          "id": "shop_requests",
+          "kind": "shop_requests",
+          "fixture": "content/fixtures/shop_economy_sim_lab_fixture.json",
+          "runtime_hook": "gameplay_wysiwyg_system",
+          "editor_panel": "GameplayWysiwygPanel",
+          "evidence": [
+            "visual_authoring_surface",
+            "live_preview",
+            "saved_project_data",
+            "runtime_execution",
+            "diagnostics",
+            "tests"
+          ]
+        }
+      ]
+    },
+    {
+      "template_id": "detective_noir_vn_rpg",
+      "display_name": "Detective Noir VN RPG",
+      "starter_project": "content/templates/detective_noir_vn_rpg_starter.json",
+      "surfaces": [
+        {
+          "id": "evidence_dialogue",
+          "kind": "evidence_dialogue",
+          "fixture": "content/fixtures/dialogue_preview_fixture.json",
+          "runtime_hook": "gameplay_wysiwyg_system",
+          "editor_panel": "GameplayWysiwygPanel",
+          "evidence": [
+            "visual_authoring_surface",
+            "live_preview",
+            "saved_project_data",
+            "runtime_execution",
+            "diagnostics",
+            "tests"
+          ]
+        },
+        {
+          "id": "case_graph",
+          "kind": "case_graph",
+          "fixture": "content/fixtures/quest_objective_graph_fixture.json",
+          "runtime_hook": "gameplay_wysiwyg_system",
+          "editor_panel": "GameplayWysiwygPanel",
+          "evidence": [
+            "visual_authoring_surface",
+            "live_preview",
+            "saved_project_data",
+            "runtime_execution",
+            "diagnostics",
+            "tests"
+          ]
+        },
+        {
+          "id": "ending_branches",
+          "kind": "ending_branches",
+          "fixture": "content/fixtures/branch_coverage_preview_fixture.json",
+          "runtime_hook": "gameplay_wysiwyg_system",
+          "editor_panel": "GameplayWysiwygPanel",
+          "evidence": [
+            "visual_authoring_surface",
+            "live_preview",
+            "saved_project_data",
+            "runtime_execution",
+            "diagnostics",
+            "tests"
+          ]
+        }
+      ]
+    },
+    {
+      "template_id": "city_builder_rpg",
+      "display_name": "City Builder RPG",
+      "starter_project": "content/templates/city_builder_rpg_starter.json",
+      "surfaces": [
+        {
+          "id": "districts",
+          "kind": "districts",
+          "fixture": "content/fixtures/housing_decoration_editor_fixture.json",
+          "runtime_hook": "gameplay_wysiwyg_system",
+          "editor_panel": "GameplayWysiwygPanel",
+          "evidence": [
+            "visual_authoring_surface",
+            "live_preview",
+            "saved_project_data",
+            "runtime_execution",
+            "diagnostics",
+            "tests"
+          ]
+        },
+        {
+          "id": "citizens",
+          "kind": "citizens",
+          "fixture": "content/fixtures/npc_schedule_fixture.json",
+          "runtime_hook": "gameplay_wysiwyg_system",
+          "editor_panel": "GameplayWysiwygPanel",
+          "evidence": [
+            "visual_authoring_surface",
+            "live_preview",
+            "saved_project_data",
+            "runtime_execution",
+            "diagnostics",
+            "tests"
+          ]
+        },
+        {
+          "id": "resource_chains",
+          "kind": "resource_chains",
+          "fixture": "content/fixtures/economy_balance_simulator_fixture.json",
+          "runtime_hook": "gameplay_wysiwyg_system",
+          "editor_panel": "GameplayWysiwygPanel",
+          "evidence": [
+            "visual_authoring_surface",
+            "live_preview",
+            "saved_project_data",
+            "runtime_execution",
+            "diagnostics",
+            "tests"
+          ]
+        }
+      ]
+    },
+    {
+      "template_id": "tower_defense_rpg",
+      "display_name": "Tower Defense RPG",
+      "starter_project": "content/templates/tower_defense_rpg_starter.json",
+      "surfaces": [
+        {
+          "id": "waves",
+          "kind": "waves",
+          "fixture": "content/fixtures/enemy_troop_timeline_preview_fixture.json",
+          "runtime_hook": "gameplay_wysiwyg_system",
+          "editor_panel": "GameplayWysiwygPanel",
+          "evidence": [
+            "visual_authoring_surface",
+            "live_preview",
+            "saved_project_data",
+            "runtime_execution",
+            "diagnostics",
+            "tests"
+          ]
+        },
+        {
+          "id": "tower_grid",
+          "kind": "tower_grid",
+          "fixture": "content/fixtures/tactical_terrain_effects_fixture.json",
+          "runtime_hook": "gameplay_wysiwyg_system",
+          "editor_panel": "GameplayWysiwygPanel",
+          "evidence": [
+            "visual_authoring_surface",
+            "live_preview",
+            "saved_project_data",
+            "runtime_execution",
+            "diagnostics",
+            "tests"
+          ]
+        },
+        {
+          "id": "hero_abilities",
+          "kind": "hero_abilities",
+          "fixture": "content/fixtures/ability_sandbox_fixture.json",
+          "runtime_hook": "gameplay_wysiwyg_system",
+          "editor_panel": "GameplayWysiwygPanel",
+          "evidence": [
+            "visual_authoring_surface",
+            "live_preview",
+            "saved_project_data",
+            "runtime_execution",
+            "diagnostics",
+            "tests"
+          ]
+        }
+      ]
+    },
+    {
+      "template_id": "beat_em_up_rpg",
+      "display_name": "Beat Em Up RPG",
+      "starter_project": "content/templates/beat_em_up_rpg_starter.json",
+      "surfaces": [
+        {
+          "id": "brawler_combat",
+          "kind": "brawler_combat",
+          "fixture": "content/fixtures/side_view_action_combat_kit_fixture.json",
+          "runtime_hook": "gameplay_wysiwyg_system",
+          "editor_panel": "GameplayWysiwygPanel",
+          "evidence": [
+            "visual_authoring_surface",
+            "live_preview",
+            "saved_project_data",
+            "runtime_execution",
+            "diagnostics",
+            "tests"
+          ]
+        },
+        {
+          "id": "combos",
+          "kind": "combos",
+          "fixture": "content/fixtures/skill_combo_chain_builder_fixture.json",
+          "runtime_hook": "gameplay_wysiwyg_system",
+          "editor_panel": "GameplayWysiwygPanel",
+          "evidence": [
+            "visual_authoring_surface",
+            "live_preview",
+            "saved_project_data",
+            "runtime_execution",
+            "diagnostics",
+            "tests"
+          ]
+        },
+        {
+          "id": "stage_rewards",
+          "kind": "stage_rewards",
+          "fixture": "content/fixtures/loot_generator_fixture.json",
+          "runtime_hook": "gameplay_wysiwyg_system",
+          "editor_panel": "GameplayWysiwygPanel",
+          "evidence": [
+            "visual_authoring_surface",
+            "live_preview",
+            "saved_project_data",
+            "runtime_execution",
+            "diagnostics",
+            "tests"
+          ]
+        }
+      ]
+    },
+    {
+      "template_id": "open_world_survival_rpg",
+      "display_name": "Open World Survival RPG",
+      "starter_project": "content/templates/open_world_survival_rpg_starter.json",
+      "surfaces": [
+        {
+          "id": "camps",
+          "kind": "camps",
+          "fixture": "content/fixtures/housing_decoration_editor_fixture.json",
+          "runtime_hook": "gameplay_wysiwyg_system",
+          "editor_panel": "GameplayWysiwygPanel",
+          "evidence": [
+            "visual_authoring_surface",
+            "live_preview",
+            "saved_project_data",
+            "runtime_execution",
+            "diagnostics",
+            "tests"
+          ]
+        },
+        {
+          "id": "biomes",
+          "kind": "biomes",
+          "fixture": "content/fixtures/biome_rule_system_fixture.json",
+          "runtime_hook": "gameplay_wysiwyg_system",
+          "editor_panel": "GameplayWysiwygPanel",
+          "evidence": [
+            "visual_authoring_surface",
+            "live_preview",
+            "saved_project_data",
+            "runtime_execution",
+            "diagnostics",
+            "tests"
+          ]
+        },
+        {
+          "id": "crafting",
+          "kind": "crafting",
+          "fixture": "content/fixtures/crafting_recipe_graph_fixture.json",
+          "runtime_hook": "gameplay_wysiwyg_system",
+          "editor_panel": "GameplayWysiwygPanel",
+          "evidence": [
+            "visual_authoring_surface",
+            "live_preview",
+            "saved_project_data",
+            "runtime_execution",
+            "diagnostics",
+            "tests"
+          ]
+        }
+      ]
+    },
+    {
+      "template_id": "faction_politics_rpg",
+      "display_name": "Faction Politics RPG",
+      "starter_project": "content/templates/faction_politics_rpg_starter.json",
+      "surfaces": [
+        {
+          "id": "reputation",
+          "kind": "reputation",
+          "fixture": "content/fixtures/relationship_affinity_fixture.json",
+          "runtime_hook": "gameplay_wysiwyg_system",
+          "editor_panel": "GameplayWysiwygPanel",
+          "evidence": [
+            "visual_authoring_surface",
+            "live_preview",
+            "saved_project_data",
+            "runtime_execution",
+            "diagnostics",
+            "tests"
+          ]
+        },
+        {
+          "id": "diplomacy",
+          "kind": "diplomacy",
+          "fixture": "content/fixtures/quest_choice_consequence_fixture.json",
+          "runtime_hook": "gameplay_wysiwyg_system",
+          "editor_panel": "GameplayWysiwygPanel",
+          "evidence": [
+            "visual_authoring_surface",
+            "live_preview",
+            "saved_project_data",
+            "runtime_execution",
+            "diagnostics",
+            "tests"
+          ]
+        },
+        {
+          "id": "territory",
+          "kind": "territory",
+          "fixture": "content/fixtures/world_state_timeline_fixture.json",
+          "runtime_hook": "gameplay_wysiwyg_system",
+          "editor_panel": "GameplayWysiwygPanel",
+          "evidence": [
+            "visual_authoring_surface",
+            "live_preview",
+            "saved_project_data",
+            "runtime_execution",
+            "diagnostics",
+            "tests"
+          ]
+        }
+      ]
+    }
+  ]
+}

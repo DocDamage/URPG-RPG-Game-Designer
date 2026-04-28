@@ -32,7 +32,12 @@ struct AbilitySandboxPanelSnapshot {
     size_t diagnostic_count = 0;
     bool activation_allowed = false;
     bool activation_executed = false;
+    float mp_delta = 0.0f;
+    float effect_delta = 0.0f;
+    float activation_success_ratio = 0.0f;
+    std::string ux_focus_lane = "ability_tuning";
     std::string blocking_reason;
+    std::string primary_action = "Load an ability sandbox.";
     std::string saved_project_json;
     std::string status_message = "Load an ability sandbox before rendering this panel.";
 };

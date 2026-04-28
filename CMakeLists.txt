@@ -227,7 +227,9 @@ set(URPG_CORE_SOURCES
     engine/core/action/controller_binding_runtime.cpp
     engine/core/app_cli.cpp
     engine/core/ai/ai_assistant_config.cpp
+    engine/core/ai/ai_knowledge_base.cpp
     engine/core/ai/ai_suggestion_record.cpp
+    engine/core/ai/creator_command_planner.cpp
     engine/core/collaboration/local_review_bundle.cpp
     engine/core/diagnostics/diagnostics_bundle_exporter.cpp
     engine/core/debug/debug_session.cpp
@@ -375,6 +377,7 @@ set(URPG_CORE_SOURCES
     engine/core/ui/ui_command_list.cpp
     engine/core/message/message_core.cpp
     engine/core/message/dialogue_preview.cpp
+    engine/core/message/visual_novel_pacing.cpp
     engine/core/message/ai_sync_coordinator.cpp
     engine/core/message/dialogue_registry.cpp
     engine/core/message/dialogue_project_loader.cpp
@@ -455,6 +458,7 @@ set(URPG_CORE_SOURCES
     editor/message/message_inspector_model.cpp
     editor/message/message_inspector_panel.cpp
     editor/message/dialogue_preview_panel.cpp
+    editor/message/visual_novel_pacing_panel.cpp
     editor/ui/menu_inspector_model.cpp
     editor/ui/menu_inspector_panel.cpp
     editor/ui/menu_preview_panel.cpp
@@ -491,6 +495,7 @@ set(URPG_CORE_SOURCES
     editor/audio/audio_inspector_model.cpp
     editor/analytics/analytics_panel.cpp
     editor/ai/ai_assistant_panel.cpp
+    editor/ai/creator_command_panel.cpp
     editor/collaboration/local_review_panel.cpp
     editor/mod/mod_manager_panel.cpp
     editor/mod/mod_sdk_panel.cpp
@@ -969,8 +974,14 @@ if(WIN32)
     set(_urpg_editor_rc "${CMAKE_CURRENT_BINARY_DIR}/generated/resources/windows/urpg_editor.rc")
     configure_file(resources/windows/urpg_runtime.rc.in "${_urpg_runtime_rc}" @ONLY)
     configure_file(resources/windows/urpg_editor.rc.in "${_urpg_editor_rc}" @ONLY)
-    target_sources(urpg_runtime PRIVATE "${_urpg_runtime_rc}")
-    target_sources(urpg_editor PRIVATE "${_urpg_editor_rc}")
+    if(MINGW AND CMAKE_BINARY_DIR MATCHES " ")
+        message(STATUS
+            "URPG: skipping app Windows resource sources for MinGW builds under a space-containing "
+            "build path because CMake/Ninja may emit raw windres rules that split include paths.")
+    else()
+        target_sources(urpg_runtime PRIVATE "${_urpg_runtime_rc}")
+        target_sources(urpg_editor PRIVATE "${_urpg_editor_rc}")
+    endif()
 endif()
 
 if(WIN32)
@@ -1177,6 +1188,8 @@ add_executable(urpg_tests
     tests/unit/test_frame_budget.cpp
     tests/unit/test_future_feature_16.cpp
     tests/unit/test_future_feature_17.cpp
+    tests/unit/test_ai_knowledge_base.cpp
+    tests/unit/test_creator_command_planner.cpp
     tests/unit/test_perf_profiler.cpp
     tests/unit/test_perf_diagnostics_panel.cpp
     tests/unit/test_ecs_world.cpp

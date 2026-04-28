@@ -25,6 +25,10 @@ struct SaveLoadPreviewLabPanelSnapshot {
     int32_t loaded_slot_id = 0;
     std::string loaded_map_display_name;
     size_t diagnostic_count = 0;
+    float integrity_score = 0.0f;
+    std::string ux_focus_lane = "save_roundtrip";
+    std::string integrity_summary;
+    std::string primary_action = "Load a save/load preview lab.";
     std::string saved_project_json;
     std::string status_message = "Load a save/load preview lab before rendering this panel.";
 };

@@ -1,0 +1,31 @@
+{
+  "template_id": "pet_shop_creature_care_rpg",
+  "display_name": "Pet Shop Creature Care RPG Starter",
+  "status": "READY",
+  "loops": [
+    "pet_care_loop",
+    "breeding_loop",
+    "customer_request_loop",
+    "save_loop"
+  ],
+  "systems": {
+    "genre_features": [
+      "pet_care",
+      "breeding",
+      "shop_economy",
+      "customer_requests"
+    ],
+    "integrations": {
+      "export_validation": [
+        "starter_data_complete",
+        "required_text_keys_bound",
+        "save_state_declared"
+      ],
+      "wysiwyg_surfaces": [
+        "pet_roster",
+        "care_schedule",
+        "shop_requests"
+      ]
+    }
+  }
+}

@@ -1,0 +1,31 @@
+{
+  "template_id": "detective_noir_vn_rpg",
+  "display_name": "Detective Noir VN RPG Starter",
+  "status": "READY",
+  "loops": [
+    "noir_case_loop",
+    "evidence_board_loop",
+    "branching_ending_loop",
+    "save_loop"
+  ],
+  "systems": {
+    "genre_features": [
+      "evidence_boards",
+      "branching_endings",
+      "noir_dialogue",
+      "case_variables"
+    ],
+    "integrations": {
+      "export_validation": [
+        "starter_data_complete",
+        "required_text_keys_bound",
+        "save_state_declared"
+      ],
+      "wysiwyg_surfaces": [
+        "evidence_dialogue",
+        "case_graph",
+        "ending_branches"
+      ]
+    }
+  }
+}

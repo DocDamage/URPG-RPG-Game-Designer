@@ -14,7 +14,6 @@ The `arpg` template covers real-time action RPG games with movement-driven comba
 | `presentation_runtime` | Real-time render loop, movement update cycles, and spatial camera management. |
 | `save_data_core` | Persistent character stats, equipment, and session state. |
 | `gameplay_ability_framework` | Action skills, growth loop hooks, and combat ability integration. |
-| `input_runtime` | Real-time action input mapping for attack, dodge, interact, and quick item. |
 
 ## Cross-Cutting Minimum Bars
 

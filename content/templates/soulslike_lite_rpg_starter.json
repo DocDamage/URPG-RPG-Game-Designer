@@ -1,0 +1,31 @@
+{
+  "template_id": "soulslike_lite_rpg",
+  "display_name": "Soulslike Lite RPG Starter",
+  "status": "READY",
+  "loops": [
+    "stamina_combat_loop",
+    "checkpoint_recovery_loop",
+    "boss_phase_loop",
+    "save_loop"
+  ],
+  "systems": {
+    "genre_features": [
+      "stamina_combat",
+      "currency_recovery",
+      "boss_phases",
+      "checkpoint_respawn"
+    ],
+    "integrations": {
+      "export_validation": [
+        "starter_data_complete",
+        "required_text_keys_bound",
+        "save_state_declared"
+      ],
+      "wysiwyg_surfaces": [
+        "stamina_combat",
+        "boss_phases",
+        "checkpoint_save"
+      ]
+    }
+  }
+}

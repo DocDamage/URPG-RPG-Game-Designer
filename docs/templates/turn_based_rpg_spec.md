@@ -40,4 +40,4 @@ This template may advance to `READY` only when:
 - All required subsystems (`message_text_core`, `battle_core`, `save_data_core`) are `READY`.
 - All cross-cutting bars are at least `PARTIAL` with accepted bounded-scope wording.
 - Template-level acceptance tests (combat loop → save → reload) are landed and green.
-- A human reviewer has completed the signoff closure for each human-review-gated required subsystem (`battle_core`, `save_data_core`).
+- Required subsystem signoffs are approved or not required for the claimed template scope.

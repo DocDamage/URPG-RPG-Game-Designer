@@ -73,7 +73,7 @@ rg --files engine editor runtimes tools tests | line-count sort for hot spots
 | ID | Priority | Finding | Status |
 | --- | --- | --- | --- |
 | TD-AUD-01 | P0 | Broad CTest discovery/label selection is broken by generated compat test metadata | Closed |
-| TD-AUD-02 | P1 | Release promotion remains human-review blocked for battle/save | Evidence refreshed; human review pending |
+| TD-AUD-02 | P1 | Release promotion had an open battle/save review gate | Superseded 2026-04-28; release-owner signoff approved both lanes |
 | TD-AUD-03 | P2 | Export hardening is stronger; runtime-side signature enforcement later landed, while native signing/notarization remain backlog | Closed as design/readiness boundary; 2026-04-27 follow-up landed runtime enforcement |
 | TD-AUD-04 | P2 | Renderer-backed visual goldens are very large and expensive to review/store | Closed as governance guard |
 | TD-AUD-05 | P2 | Product-feature coverage remains partial across multiple readiness rows | First vertical slice landed; broader lanes open |

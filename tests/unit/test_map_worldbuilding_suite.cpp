@@ -131,6 +131,9 @@ TEST_CASE("Map environment preview turns region rules into live runtime lighting
     REQUIRE(panel.snapshot().weather == "rain");
     REQUIRE(panel.snapshot().diagnostic_count == 0);
     REQUIRE(panel.snapshot().status_message == "Map environment preview is ready.");
+    REQUIRE(panel.snapshot().ux_focus_lane == "lighting_weather");
+    REQUIRE(panel.snapshot().selected_tile_summary == "rain_path:rain");
+    REQUIRE(panel.snapshot().overlay_density == 0.0f);
     REQUIRE_FALSE(panel.snapshot().saved_project_json.empty());
     REQUIRE(panel.snapshot().region_overlay_count == 2);
 
@@ -191,6 +194,8 @@ TEST_CASE("Map environment preview fixture is saved project data and executes in
     REQUIRE(panel.snapshot().runtime_overlay_command_count == 4);
     REQUIRE(panel.snapshot().tactical_reachable_count == result.tactical_reachable_count);
     REQUIRE(panel.snapshot().spawn_entry_count == 2);
+    REQUIRE(panel.snapshot().ux_focus_lane == "spawns");
+    REQUIRE(panel.snapshot().primary_action.find("spawn-table") != std::string::npos);
 }
 
 TEST_CASE("Map environment preview diagnostics block false completion claims",
@@ -220,6 +225,7 @@ TEST_CASE("Map environment preview diagnostics block false completion claims",
 
     REQUIRE(panel.hasRenderedFrame());
     REQUIRE(panel.snapshot().diagnostic_count >= 5);
+    REQUIRE(panel.snapshot().ux_focus_lane == "diagnostics");
     REQUIRE(panel.snapshot().status_message == "Map environment preview has diagnostics.");
 
     const auto& diagnostics = panel.preview().diagnostics;

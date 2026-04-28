@@ -1,0 +1,31 @@
+{
+  "template_id": "faction_politics_rpg",
+  "display_name": "Faction Politics RPG Starter",
+  "status": "READY",
+  "loops": [
+    "reputation_choice_loop",
+    "diplomacy_mission_loop",
+    "territory_influence_loop",
+    "save_loop"
+  ],
+  "systems": {
+    "genre_features": [
+      "reputation",
+      "diplomacy",
+      "faction_quests",
+      "territory_influence"
+    ],
+    "integrations": {
+      "export_validation": [
+        "starter_data_complete",
+        "required_text_keys_bound",
+        "save_state_declared"
+      ],
+      "wysiwyg_surfaces": [
+        "reputation",
+        "diplomacy",
+        "territory"
+      ]
+    }
+  }
+}

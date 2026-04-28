@@ -7,7 +7,8 @@
 // content/readiness/readiness_status.json:
 //   1. Is present and has the expected fields (id, status, bars, barEvidence).
 //   2. Has non-empty barEvidence for all bars present in the bars map.
-//   3. Has a non-empty safeScope and at least one mainBlocker.
+//   3. Has a non-empty safeScope. PARTIAL templates keep explicit blockers;
+//      READY templates must not invent blockers for claimed scope.
 //
 // These snapshot tests serve as a governance contract: if a template is
 // removed or its evidence is stripped, the test fails with a clear signal.
@@ -74,7 +75,11 @@ void assertTemplateEvidenceSnapshot(
 
     REQUIRE(!tmpl.value("safeScope", "").empty());
     REQUIRE(tmpl.contains("mainBlockers"));
-    REQUIRE(!tmpl["mainBlockers"].empty());
+    if (expectedStatus == "READY") {
+        REQUIRE(tmpl["mainBlockers"].empty());
+    } else {
+        REQUIRE(!tmpl["mainBlockers"].empty());
+    }
 }
 
 } // namespace
@@ -115,26 +120,33 @@ TEST_CASE("2_5d_rpg: readiness record has evidence snapshot for all bars",
     assertTemplateEvidenceSnapshot(readiness, "2_5d_rpg", "READY");
 }
 
-TEST_CASE("all S31 templates have non-empty mainBlockers with specific wording",
+TEST_CASE("new advanced templates: readiness records have evidence snapshots for all bars",
+          "[template][snapshot][template_expansion]") {
+    const json readiness = loadReadinessStatus();
+    for (const auto& tmpl : readiness["templates"]) {
+        if (tmpl.value("status", "") == "READY") {
+            assertTemplateEvidenceSnapshot(readiness, tmpl.value("id", ""), "READY");
+        }
+    }
+}
+
+TEST_CASE("S31 template blockers match readiness status",
           "[template][snapshot][s31t09]") {
     const json readiness = loadReadinessStatus();
-    const std::vector<std::string> s31Templates = {
-        "tactics_rpg", "arpg", "monster_collector_rpg",
-        "cozy_life_rpg", "metroidvania_lite", "2_5d_rpg"
-    };
-    for (const auto& id : s31Templates) {
-        INFO("Template: " << id);
-        const json tmpl = findTemplate(readiness, id);
-        REQUIRE(!tmpl.empty());
+    for (const auto& tmpl : readiness["templates"]) {
+        INFO("Template: " << tmpl.value("id", ""));
         REQUIRE(tmpl.contains("mainBlockers"));
-        // Each template must have at least one blocker with a non-empty string
-        bool hasNonEmptyBlocker = false;
-        for (const auto& blocker : tmpl["mainBlockers"]) {
-            if (!blocker.get<std::string>().empty()) {
-                hasNonEmptyBlocker = true;
-                break;
+        if (tmpl.value("status", "") == "READY") {
+            REQUIRE(tmpl["mainBlockers"].empty());
+        } else {
+            bool hasNonEmptyBlocker = false;
+            for (const auto& blocker : tmpl["mainBlockers"]) {
+                if (!blocker.get<std::string>().empty()) {
+                    hasNonEmptyBlocker = true;
+                    break;
+                }
             }
+            REQUIRE(hasNonEmptyBlocker);
         }
-        REQUIRE(hasNonEmptyBlocker);
     }
 }

@@ -113,6 +113,11 @@ TEST_CASE("battle VFX timeline is visually authorable, previewable, saved, and e
     REQUIRE(panel.snapshot().visible_event_ids[0] == "cast_flash");
     REQUIRE(panel.snapshot().runtime_preview_cue_count == 1);
     REQUIRE(panel.snapshot().runtime_preview_command_count == 2);
+    REQUIRE(panel.snapshot().timeline_progress > 0.0f);
+    REQUIRE(panel.snapshot().active_track_id == "cast_track");
+    REQUIRE(panel.snapshot().next_event_id == "target_impact");
+    REQUIRE(panel.snapshot().ux_focus_lane == "live_cue");
+    REQUIRE(panel.snapshot().primary_action.find("active cue") != std::string::npos);
     REQUIRE(std::find(panel.snapshot().runtime_preview_commands.begin(),
                       panel.snapshot().runtime_preview_commands.end(),
                       "battle_vfx_cue:cast_flash:cast:track=cast_track:asset=vfx/cast_flash") !=
@@ -199,6 +204,7 @@ TEST_CASE("battle VFX timeline diagnostics block false done claims", "[battle][a
     panel.render();
 
     REQUIRE(panel.snapshot().diagnostic_count >= 4);
+    REQUIRE(panel.snapshot().ux_focus_lane == "diagnostics");
     REQUIRE(std::any_of(panel.snapshot().diagnostics.begin(), panel.snapshot().diagnostics.end(), [](const auto& row) {
         return row.find("event_after_duration:bad_hit") != std::string::npos;
     }));

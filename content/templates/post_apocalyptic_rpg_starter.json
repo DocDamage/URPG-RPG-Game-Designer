@@ -1,0 +1,31 @@
+{
+  "template_id": "post_apocalyptic_rpg",
+  "display_name": "Post-Apocalyptic RPG Starter",
+  "status": "READY",
+  "loops": [
+    "scavenge_route_loop",
+    "settlement_upgrade_loop",
+    "survival_resource_loop",
+    "save_loop"
+  ],
+  "systems": {
+    "genre_features": [
+      "scavenging",
+      "settlements",
+      "survival_resources",
+      "faction_zones"
+    ],
+    "integrations": {
+      "export_validation": [
+        "starter_data_complete",
+        "required_text_keys_bound",
+        "save_state_declared"
+      ],
+      "wysiwyg_surfaces": [
+        "scavenge_rules",
+        "settlement_crafting",
+        "wasteland_biomes"
+      ]
+    }
+  }
+}

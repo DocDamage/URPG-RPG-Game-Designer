@@ -1,0 +1,21 @@
+{
+  "template_id": "survival_horror_rpg",
+  "display_name": "Survival Horror RPG Starter",
+  "status": "READY",
+  "loops": ["tension_exploration_loop", "scarce_resource_loop", "puzzle_unlock_loop", "safe_room_save_loop"],
+  "systems": {
+    "tension": {
+      "flashlight_cone_degrees": 55,
+      "ambient_floor": 0.18,
+      "resources": {"ammo": 12, "healing": 2, "battery_seconds": 180}
+    },
+    "puzzles": {
+      "locks": ["west_wing_emblem", "archive_terminal"],
+      "diagnostics": ["missing_clue_link", "unreachable_safe_room", "resource_softlock_risk"]
+    },
+    "integrations": {
+      "export_validation": ["safe_room_reachable", "critical_key_not_missable", "lighting_budget_defined"],
+      "wysiwyg_surfaces": ["map_environment_preview", "dialogue_preview", "save_load_preview_lab"]
+    }
+  }
+}

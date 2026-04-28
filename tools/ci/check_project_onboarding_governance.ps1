@@ -26,6 +26,34 @@ $requiredPaths = @(
   "content/templates/cozy_life_rpg_starter.json",
   "content/templates/metroidvania_lite_starter.json",
   "content/templates/2_5d_rpg_starter.json",
+  "content/templates/roguelite_dungeon_starter.json",
+  "content/templates/survival_horror_rpg_starter.json",
+  "content/templates/farming_adventure_rpg_starter.json",
+  "content/templates/card_battler_rpg_starter.json",
+  "content/templates/platformer_rpg_starter.json",
+  "content/templates/gacha_hero_rpg_starter.json",
+  "content/templates/mystery_detective_rpg_starter.json",
+  "content/templates/world_exploration_rpg_starter.json",
+  "content/templates/space_opera_rpg_starter.json",
+  "content/templates/post_apocalyptic_rpg_starter.json",
+  "content/templates/tactical_mecha_rpg_starter.json",
+  "content/templates/monster_tamer_arena_starter.json",
+  "content/templates/soulslike_lite_rpg_starter.json",
+  "content/templates/idle_incremental_rpg_starter.json",
+  "content/templates/strategy_kingdom_rpg_starter.json",
+  "content/templates/racing_adventure_rpg_starter.json",
+  "content/templates/rhythm_rpg_starter.json",
+  "content/templates/cooking_restaurant_rpg_starter.json",
+  "content/templates/school_life_rpg_starter.json",
+  "content/templates/pirate_rpg_starter.json",
+  "content/templates/sports_team_rpg_starter.json",
+  "content/templates/pet_shop_creature_care_rpg_starter.json",
+  "content/templates/detective_noir_vn_rpg_starter.json",
+  "content/templates/city_builder_rpg_starter.json",
+  "content/templates/tower_defense_rpg_starter.json",
+  "content/templates/beat_em_up_rpg_starter.json",
+  "content/templates/open_world_survival_rpg_starter.json",
+  "content/templates/faction_politics_rpg_starter.json",
   "content/fixtures/dev_room_fixture.json",
   "tests/unit/test_project_template_generator.cpp",
   "tests/unit/test_dev_room_generator.cpp",
@@ -60,7 +88,11 @@ foreach ($needle in @(
   }
 }
 
-$plan = Get-Content (Join-Path $RepoRoot "docs/FUTURE_FEATURE_ACTIONABLE_SPRINT_PLAN.md") -Raw
+$planPath = Join-Path $RepoRoot "docs/FUTURE_FEATURE_ACTIONABLE_SPRINT_PLAN.md"
+if (-not (Test-Path $planPath)) {
+  $planPath = Join-Path $RepoRoot "docs/archive/planning/FUTURE_FEATURE_ACTIONABLE_SPRINT_PLAN.md"
+}
+$plan = Get-Content $planPath -Raw
 if ($plan.Contains("- [ ] Generate project from template with maps, menu, message, battle, save, localization, input, and export profile.")) {
   throw "FFS-08 project-template checklist remains unchecked."
 }

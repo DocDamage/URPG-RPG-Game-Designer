@@ -1,10 +1,13 @@
 #pragma once
 
+#include "engine/core/ai/ai_knowledge_base.h"
 #include "engine/core/message/message_core.h"
 #include "engine/core/message/world_knowledge_bridge.h"
 #include <functional>
 #include <memory>
+#include <nlohmann/json.hpp>
 #include <string>
+#include <utility>
 #include <vector>
 
 namespace urpg::ai {
@@ -51,9 +54,15 @@ class IChatService {
  */
 class ChatbotComponent {
   public:
-    ChatbotComponent(std::shared_ptr<IChatService> service) : m_service(service) {}
+    ChatbotComponent(std::shared_ptr<IChatService> service) : m_service(std::move(service)) { rebuildAiKnowledge(); }
 
     void setSystemPrompt(const std::string& prompt) { m_systemPrompt = prompt; }
+    void setProjectData(nlohmann::json projectData) {
+        m_projectData = std::move(projectData);
+        rebuildAiKnowledge();
+    }
+
+    const nlohmann::json& projectData() const { return m_projectData; }
 
     /**
      * @brief Interacts with the AI.
@@ -83,12 +92,123 @@ class ChatbotComponent {
     /**
      * @brief Executes a tool/function requested by the AI.
      */
-    void executeTool(const std::string& command) {
-        // Tool routing is still scaffolding; keep the hook explicit without
-        // pretending there is a shared command registry wired yet.
+    nlohmann::json executeTool(const std::string& command) {
+        if (command.rfind("AI_TASK:", 0) == 0) {
+            return planAiTask(command.substr(std::string("AI_TASK:").size()));
+        }
+        if (command.rfind("AI_APPROVE_STEP:", 0) == 0) {
+            return approveAiToolStep(command.substr(std::string("AI_APPROVE_STEP:").size()));
+        }
+        if (command.rfind("AI_REJECT_STEP:", 0) == 0) {
+            return rejectAiToolStep(command.substr(std::string("AI_REJECT_STEP:").size()));
+        }
+        if (command == "AI_APPROVE_ALL") {
+            const auto approved = approveAllAiToolSteps();
+            m_lastAiToolSnapshot = aiToolSnapshot();
+            m_lastAiToolSnapshot["approved_count"] = approved;
+            return m_lastAiToolSnapshot;
+        }
+        if (command == "AI_APPLY") {
+            return applyApprovedAiToolPlan();
+        }
+
         urpg::message::DialogueCommandProcessor processor;
-        processor.execute(command);
+        const auto result = processor.execute(command);
+        m_lastAiToolSnapshot = {
+            {"type", "dialogue_command"},
+            {"command", command},
+            {"handled", result.handled},
+            {"success", result.success},
+            {"code", result.code},
+            {"message", result.message},
+        };
+        return m_lastAiToolSnapshot;
     }
+
+    nlohmann::json planAiTask(const std::string& userRequest) {
+        rebuildAiKnowledge();
+        AiTaskPlanner planner;
+        m_currentAiTaskPlan = planner.planTask(userRequest, m_aiKnowledge.capabilities, m_aiKnowledge.project_index,
+                                               m_aiKnowledge.docs_index, m_aiKnowledge.tools);
+        m_lastAiToolSnapshot = aiToolSnapshot();
+        return m_lastAiToolSnapshot;
+    }
+
+    bool approveAiToolStepById(const std::string& stepId) {
+        if (m_currentAiTaskPlan.id.empty()) {
+            return false;
+        }
+        for (auto& step : m_currentAiTaskPlan.steps) {
+            if (step.id == stepId) {
+                step.approved = true;
+                step.rejected = false;
+                return true;
+            }
+        }
+        return false;
+    }
+
+    nlohmann::json approveAiToolStep(const std::string& stepId) {
+        const bool approved = approveAiToolStepById(stepId);
+        m_lastAiToolSnapshot = aiToolSnapshot();
+        m_lastAiToolSnapshot["approved"] = approved;
+        return m_lastAiToolSnapshot;
+    }
+
+    nlohmann::json rejectAiToolStep(const std::string& stepId) {
+        bool rejected = false;
+        if (!m_currentAiTaskPlan.id.empty()) {
+            for (auto& step : m_currentAiTaskPlan.steps) {
+                if (step.id == stepId) {
+                    step.approved = false;
+                    step.rejected = true;
+                    rejected = true;
+                    break;
+                }
+            }
+        }
+        m_lastAiToolSnapshot = aiToolSnapshot();
+        m_lastAiToolSnapshot["rejected"] = rejected;
+        return m_lastAiToolSnapshot;
+    }
+
+    std::size_t approveAllAiToolSteps() {
+        if (m_currentAiTaskPlan.id.empty()) {
+            return 0;
+        }
+        std::size_t approved = 0;
+        for (auto& step : m_currentAiTaskPlan.steps) {
+            const auto* tool = m_aiKnowledge.tools.find(step.tool_id);
+            if (tool != nullptr && tool->requires_approval && !step.approved && !step.rejected) {
+                step.approved = true;
+                ++approved;
+            }
+        }
+        return approved;
+    }
+
+    nlohmann::json applyApprovedAiToolPlan() {
+        const auto result = m_aiKnowledge.tools.applyApprovedPlan(m_currentAiTaskPlan, m_projectData);
+        m_projectData = result.project_data;
+        if (result.applied) {
+            rebuildAiKnowledge();
+        }
+        m_lastAiToolSnapshot = aiToolSnapshot();
+        m_lastAiToolSnapshot["last_apply"] = result.toJson();
+        return m_lastAiToolSnapshot;
+    }
+
+    nlohmann::json aiToolSnapshot() const {
+        return {
+            {"project_index_count", m_aiKnowledge.project_index.entries().size()},
+            {"capability_count", m_aiKnowledge.capabilities.capabilities().size()},
+            {"tool_count", m_aiKnowledge.tools.tools().size()},
+            {"task_plan", m_currentAiTaskPlan.toJson()},
+            {"approval", m_aiKnowledge.tools.approvalManifest(m_currentAiTaskPlan, m_aiKnowledge.capabilities)},
+        };
+    }
+
+    const nlohmann::json& lastAiToolSnapshot() const { return m_lastAiToolSnapshot; }
 
     /**
      * @brief Streams the AI response in real-time.
@@ -125,6 +245,10 @@ class ChatbotComponent {
     void restoreHistory(const std::vector<ChatMessage>& history) { m_history = history; }
 
   private:
+    void rebuildAiKnowledge() {
+        m_aiKnowledge = buildDefaultAiKnowledgeSnapshot(m_projectData);
+    }
+
     void prepareHistory(const std::string& userInput) {
         // ALWAYS refresh the dynamic world state context for every request
         // This ensures the AI knows if a quest progressed or a switch flipped since the last message.
@@ -143,6 +267,10 @@ class ChatbotComponent {
     std::shared_ptr<IChatService> m_service;
     std::vector<ChatMessage> m_history;
     std::string m_systemPrompt;
+    nlohmann::json m_projectData = nlohmann::json::object();
+    AiKnowledgeSnapshot m_aiKnowledge;
+    AiTaskPlan m_currentAiTaskPlan;
+    nlohmann::json m_lastAiToolSnapshot = nlohmann::json::object();
 };
 
 } // namespace urpg::ai

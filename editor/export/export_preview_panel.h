@@ -26,6 +26,10 @@ struct ExportPreviewPanelSnapshot {
     size_t missing_expected_artifact_count = 0;
     size_t runtime_trace_count = 0;
     size_t diagnostic_count = 0;
+    float release_readiness_score = 0.0f;
+    std::string ux_focus_lane = "shipping_manifest";
+    std::string blocker_summary;
+    std::string primary_action = "Load an export preview.";
     std::string saved_project_json;
     nlohmann::json shipping_manifest = nlohmann::json::object();
     std::string status_message = "Load an export preview before rendering this panel.";

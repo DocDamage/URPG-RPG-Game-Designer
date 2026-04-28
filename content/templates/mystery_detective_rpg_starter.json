@@ -1,0 +1,20 @@
+{
+  "template_id": "mystery_detective_rpg",
+  "display_name": "Mystery Detective RPG Starter",
+  "status": "READY",
+  "loops": ["clue_board_loop", "interrogation_dialogue_loop", "deduction_puzzle_loop", "case_resolution_save_loop"],
+  "systems": {
+    "casework": {
+      "clue_types": ["evidence", "testimony", "location", "contradiction"],
+      "diagnostics": ["unreachable_clue", "dead_end_case", "missing_resolution_path"]
+    },
+    "dialogue": {
+      "interrogation_modes": ["friendly", "press", "present_evidence"],
+      "variable_preview": true
+    },
+    "integrations": {
+      "export_validation": ["case_has_resolution", "critical_clues_reachable", "dialogue_variables_bound"],
+      "wysiwyg_surfaces": ["quest_objective_graph", "dialogue_preview", "puzzle_logic_board"]
+    }
+  }
+}

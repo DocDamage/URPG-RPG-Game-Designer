@@ -33,7 +33,7 @@ TEST_CASE("Template certification covers all conservative template suites", "[ce
     urpg::project::TemplateCertification certification;
     const auto suites = certification.defaultSuites();
 
-    REQUIRE(suites.size() == 9);
+    REQUIRE(suites.size() == 37);
     REQUIRE(suites[0].templateId == "jrpg");
     REQUIRE(suites[1].templateId == "visual_novel");
     REQUIRE(suites[2].templateId == "turn_based_rpg");
@@ -43,6 +43,16 @@ TEST_CASE("Template certification covers all conservative template suites", "[ce
     REQUIRE(suites[6].templateId == "cozy_life_rpg");
     REQUIRE(suites[7].templateId == "metroidvania_lite");
     REQUIRE(suites[8].templateId == "2_5d_rpg");
+    REQUIRE(suites[9].templateId == "roguelite_dungeon");
+    REQUIRE(suites[10].templateId == "survival_horror_rpg");
+    REQUIRE(suites[11].templateId == "farming_adventure_rpg");
+    REQUIRE(suites[12].templateId == "card_battler_rpg");
+    REQUIRE(suites[13].templateId == "platformer_rpg");
+    REQUIRE(suites[14].templateId == "gacha_hero_rpg");
+    REQUIRE(suites[15].templateId == "mystery_detective_rpg");
+    REQUIRE(suites[16].templateId == "world_exploration_rpg");
+    REQUIRE(suites[17].templateId == "space_opera_rpg");
+    REQUIRE(suites[36].templateId == "faction_politics_rpg");
     for (const auto& suite : suites) {
         REQUIRE(suite.status == "READY");
     }

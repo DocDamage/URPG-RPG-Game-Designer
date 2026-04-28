@@ -1,0 +1,31 @@
+{
+  "template_id": "sports_team_rpg",
+  "display_name": "Sports Team RPG Starter",
+  "status": "READY",
+  "loops": [
+    "team_roster_loop",
+    "training_week_loop",
+    "match_day_loop",
+    "save_loop"
+  ],
+  "systems": {
+    "genre_features": [
+      "team_roster",
+      "training",
+      "season_matches",
+      "relationships"
+    ],
+    "integrations": {
+      "export_validation": [
+        "starter_data_complete",
+        "required_text_keys_bound",
+        "save_state_declared"
+      ],
+      "wysiwyg_surfaces": [
+        "team_roster",
+        "training",
+        "match_day"
+      ]
+    }
+  }
+}

@@ -164,8 +164,8 @@ Subsystem targets:
 
 1. UI/Menu Core — CLOSED
 2. Message/Text Core — CLOSED
-3. Battle Core — CLOSED 2026-04-20 (closure signoff at `docs/BATTLE_CORE_CLOSURE_SIGNOFF.md`; promotion to `READY` requires human review of residual gaps)
-4. Save/Data Core — CLOSED 2026-04-20 (closure signoff at `docs/SAVE_DATA_CORE_CLOSURE_SIGNOFF.md`; promotion to `READY` requires human review of residual gaps)
+3. Battle Core — CLOSED 2026-04-20; `READY` after release-owner closure signoff on 2026-04-28 (`docs/BATTLE_CORE_CLOSURE_SIGNOFF.md`)
+4. Save/Data Core — CLOSED 2026-04-20; `READY` after release-owner closure signoff on 2026-04-28 (`docs/SAVE_DATA_CORE_CLOSURE_SIGNOFF.md`)
    - recovery diagnostics and serialization schema export are landed; save policy editing/validation/apply is also landed
 
 - [x] Wave 2 Audio State Sync: Implemented `GlobalStateHub` with "Diff-First" notifications and `StateDrivenAudioResolver` for automated BGM transitions. [Landed 2026-04-16]

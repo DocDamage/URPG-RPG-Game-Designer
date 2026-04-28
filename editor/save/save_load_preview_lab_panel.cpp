@@ -84,6 +84,28 @@ void SaveLoadPreviewLabPanel::refreshPreview() {
     snapshot_.loaded_slot_id = result_.loaded_meta.slot_id;
     snapshot_.loaded_map_display_name = result_.loaded_meta.map_display_name;
     snapshot_.diagnostic_count = result_.diagnostics.size();
+    float passed_checks = 0.0f;
+    passed_checks += snapshot_.saved_primary ? 1.0f : 0.0f;
+    passed_checks += snapshot_.loaded_ok ? 1.0f : 0.0f;
+    passed_checks += snapshot_.payload_matches_expected ? 1.0f : 0.0f;
+    passed_checks += snapshot_.variables_payload_matches ? 1.0f : 0.0f;
+    snapshot_.integrity_score = passed_checks / 4.0f;
+    snapshot_.integrity_summary = snapshot_.loaded_from_recovery
+        ? "Loaded through " + snapshot_.recovery_tier
+        : (snapshot_.loaded_ok ? "Primary save round-trip is clean." : "Save/load round-trip failed.");
+    if (snapshot_.loaded_from_recovery) {
+        snapshot_.ux_focus_lane = "recovery";
+        snapshot_.primary_action = "Inspect recovery behavior and safe-mode boot state.";
+    } else if (snapshot_.diagnostic_count > 0) {
+        snapshot_.ux_focus_lane = "diagnostics";
+        snapshot_.primary_action = "Resolve save lab diagnostics before accepting the slot.";
+    } else if (!snapshot_.payload_matches_expected || !snapshot_.variables_payload_matches) {
+        snapshot_.ux_focus_lane = "diff";
+        snapshot_.primary_action = "Review payload diffs and variable preservation.";
+    } else {
+        snapshot_.ux_focus_lane = "roundtrip";
+        snapshot_.primary_action = "Use this save/load trace as the expected runtime contract.";
+    }
     snapshot_.saved_project_json = document_.toJson().dump();
     snapshot_.status_message =
         snapshot_.diagnostic_count == 0 ? "Save/load preview lab is ready." : "Save/load preview lab has diagnostics.";

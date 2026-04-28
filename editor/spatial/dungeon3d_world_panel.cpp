@@ -220,6 +220,16 @@ void Dungeon3DWorldPanel::refresh() {
     snapshot_.camera_head_bob = preview_.camera_head_bob;
     snapshot_.camera_shake = preview_.camera_shake;
     snapshot_.verification_completion = preview_.verification_completion;
+    snapshot_.minimap_visibility_ratio = snapshot_.minimap_tile_count == 0
+        ? 0.0f
+        : static_cast<float>(snapshot_.visible_minimap_tile_count) /
+              static_cast<float>(snapshot_.minimap_tile_count);
+    const auto interactive_count = snapshot_.event_cell_count + snapshot_.door_count + snapshot_.secret_count +
+                                   snapshot_.encounter_cell_count + snapshot_.trap_count +
+                                   snapshot_.puzzle_device_count + snapshot_.boss_arena_count;
+    snapshot_.interaction_density = snapshot_.minimap_tile_count == 0
+        ? 0.0f
+        : static_cast<float>(interactive_count) / static_cast<float>(snapshot_.minimap_tile_count);
     snapshot_.visual_authoring_layers = preview_.visual_authoring_layers;
     snapshot_.template_binding_ids = preview_.template_binding_ids;
     snapshot_.active_ambient_sound = preview_.active_ambient_sound;
@@ -242,6 +252,25 @@ void Dungeon3DWorldPanel::refresh() {
     snapshot_.player_hidden = preview_.player_hidden;
     snapshot_.current_floor_id = document_.session.current_floor_id;
     snapshot_.last_event_log_entry = document_.session.event_log.empty() ? "" : document_.session.event_log.back();
+    if (snapshot_.diagnostic_count > 0) {
+        snapshot_.ux_focus_lane = "diagnostics";
+        snapshot_.primary_action = "Resolve dungeon diagnostics before claiming the preview is shippable.";
+    } else if (snapshot_.required_verification_step_count > snapshot_.passed_verification_step_count) {
+        snapshot_.ux_focus_lane = "verification";
+        snapshot_.primary_action = "Review and accept the remaining visual verification steps.";
+    } else if (snapshot_.facing_locked && !snapshot_.facing_can_open) {
+        snapshot_.ux_focus_lane = "interaction";
+        snapshot_.primary_action = "Add the required item or unlock rule for the facing door.";
+    } else if (snapshot_.armed_trap_count > 0) {
+        snapshot_.ux_focus_lane = "hazards";
+        snapshot_.primary_action = "Preview trap disarm paths and confirm hazard feedback.";
+    } else if (snapshot_.floor_completion < 1.0f) {
+        snapshot_.ux_focus_lane = "objectives";
+        snapshot_.primary_action = "Complete or preview remaining floor objectives.";
+    } else {
+        snapshot_.ux_focus_lane = "ship_preview";
+        snapshot_.primary_action = "Use the runtime command trace as the shipping preview contract.";
+    }
     snapshot_.status_message =
         snapshot_.diagnostic_count == 0 ? "3D dungeon world preview is ready." : "3D dungeon world has diagnostics.";
 }

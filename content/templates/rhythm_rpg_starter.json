@@ -1,0 +1,31 @@
+{
+  "template_id": "rhythm_rpg",
+  "display_name": "Rhythm RPG Starter",
+  "status": "READY",
+  "loops": [
+    "song_chart_loop",
+    "timed_battle_loop",
+    "performance_grade_loop",
+    "save_loop"
+  ],
+  "systems": {
+    "genre_features": [
+      "beat_timed_combat",
+      "song_charts",
+      "timing_windows",
+      "grades"
+    ],
+    "integrations": {
+      "export_validation": [
+        "starter_data_complete",
+        "required_text_keys_bound",
+        "save_state_declared"
+      ],
+      "wysiwyg_surfaces": [
+        "timed_input",
+        "battle_vfx",
+        "grades"
+      ]
+    }
+  }
+}

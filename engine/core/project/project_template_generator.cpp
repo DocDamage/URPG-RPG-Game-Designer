@@ -55,6 +55,30 @@ TemplateSpec specFromProfile(const TemplateRuntimeProfile& profile) {
     } else if (profile.id == "2_5d_rpg") {
         spec.maps = {"spatial_intro", "spatial_ruins"};
         spec.battle_mode = "spatial";
+    } else if (profile.id == "roguelite_dungeon") {
+        spec.maps = {"hub_camp", "floor_01_seeded", "boss_gate"};
+        spec.battle_mode = "dungeon_run";
+    } else if (profile.id == "survival_horror_rpg") {
+        spec.maps = {"safe_room", "west_wing", "archive_puzzle"};
+        spec.battle_mode = "scarce_resource";
+    } else if (profile.id == "farming_adventure_rpg") {
+        spec.maps = {"farmstead", "town_market", "spirit_grove"};
+        spec.battle_mode = "adventure";
+    } else if (profile.id == "card_battler_rpg") {
+        spec.maps = {"deck_room", "duel_arena", "reward_draft"};
+        spec.battle_mode = "card_battle";
+    } else if (profile.id == "platformer_rpg") {
+        spec.maps = {"cliffside_tutorial", "bridge_checkpoint", "tower_gate"};
+        spec.battle_mode = "side_action";
+    } else if (profile.id == "gacha_hero_rpg") {
+        spec.maps = {"summon_hall", "hero_roster", "training_arena"};
+        spec.battle_mode = "party_battle";
+    } else if (profile.id == "mystery_detective_rpg") {
+        spec.maps = {"case_office", "clock_tower_scene", "library_interrogation"};
+        spec.battle_mode = "none";
+    } else if (profile.id == "world_exploration_rpg") {
+        spec.maps = {"world_map_capital", "forest_route", "coast_landmark"};
+        spec.battle_mode = "exploration";
     } else if (profile.id == "turn_based_rpg") {
         spec.maps = {"map_intro", "map_arena"};
         spec.battle_mode = "turn_based";

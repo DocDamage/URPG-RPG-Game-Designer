@@ -1,0 +1,21 @@
+{
+  "template_id": "farming_adventure_rpg",
+  "display_name": "Farming Adventure RPG Starter",
+  "status": "READY",
+  "loops": ["crop_day_loop", "forage_adventure_loop", "crafting_economy_loop", "relationship_save_loop"],
+  "systems": {
+    "farming": {
+      "seasons": ["spring", "summer", "autumn", "winter"],
+      "starter_crops": ["turnip", "tomato", "moonroot"],
+      "weather_effects": {"rain_waters_crops": true, "storm_damages_chance": 0.08}
+    },
+    "adventure": {
+      "forage_zones": ["meadow", "old_mine", "spirit_grove"],
+      "tool_gates": ["fallen_log_path", "old_mine_floor_2"]
+    },
+    "integrations": {
+      "export_validation": ["crop_calendar_valid", "vendor_stock_priced", "relationship_keys_localized"],
+      "wysiwyg_surfaces": ["map_environment_preview", "crafting_economy_loop", "relationship_affinity"]
+    }
+  }
+}

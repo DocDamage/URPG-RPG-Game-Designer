@@ -32,8 +32,7 @@ Wave 1 native-first JRPG projects using the four required subsystems (`ui_menu_c
 
 ## Main Blockers
 
-1. **Battle and save closure remain open** — `battle_core` and `save_data_core` remain `PARTIAL` with human-review gates. JRPG cannot advance to `READY` until both close.
-2. **Cross-cutting readiness bars are not complete** — All five bars (`accessibility`, `audio`, `input`, `localization`, `performance`) are `PARTIAL`. Production-grade claims require each bar to reach `READY` or explicitly bounded `PARTIAL` with accepted scope limits.
+1. **Cross-cutting readiness bars are not complete** — All five bars (`accessibility`, `audio`, `input`, `localization`, `performance`) are `PARTIAL`. Production-grade claims require each bar to reach `READY` or explicitly bounded `PARTIAL` with accepted scope limits.
 
 ## Promotion Path
 
@@ -42,4 +41,4 @@ This template may advance to `READY` only when:
 - All required subsystems (`ui_menu_core`, `message_text_core`, `battle_core`, `save_data_core`) are `READY`.
 - All cross-cutting bars are at least `PARTIAL` with accepted bounded-scope wording, and any bar remaining `PARTIAL` has explicit residual scope documented.
 - Template-level acceptance tests (edit → preview → export) are landed and green.
-- A human reviewer has completed the relevant signoff closure for each human-review-gated required subsystem.
+- Required subsystem signoffs are approved or not required for the claimed template scope.

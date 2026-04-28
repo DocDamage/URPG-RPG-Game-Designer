@@ -21,6 +21,12 @@ struct BattleVfxTimelinePanelSnapshot {
     std::size_t runtime_preview_cue_count = 0;
     std::size_t runtime_preview_command_count = 0;
     std::size_t diagnostic_count = 0;
+    float timeline_progress = 0.0f;
+    float visible_event_ratio = 0.0f;
+    std::string active_track_id;
+    std::string next_event_id;
+    std::string ux_focus_lane = "timeline";
+    std::string primary_action = "Load a battle VFX timeline.";
     std::vector<std::string> track_ids;
     std::vector<std::string> visible_event_ids;
     std::vector<std::string> runtime_preview_commands;

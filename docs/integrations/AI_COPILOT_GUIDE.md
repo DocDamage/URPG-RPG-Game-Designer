@@ -22,6 +22,62 @@ The in-tree runtime is interface-first:
 - **MockChatService**: Deterministic in-tree provider for CI/CD pipelines and harness scenarios.
 - **Out-of-tree providers**: `engine/core/ai/ai_connectivity.h` now documents the boundary where live transport or inference integrations belong; no OpenAI-, Anthropic-, or llama.cpp-backed provider is implemented in-tree.
 
+### 2a. Creator Command Planner
+`CreatorCommandPlanner` turns a selected tile plus a creator prompt into a reviewable WYSIWYG edit plan. The shipped deterministic intents are:
+
+- `make_house`
+- `make_shop`
+- `make_inn`
+- `make_dungeon_room`
+- `make_npc`
+- `make_quest_giver`
+- `make_treasure_chest`
+- `make_locked_door`
+- `make_puzzle`
+- `make_farm_plot`
+
+Plans include terrain/decor/collision tile edits, prop edits, runtime logic edits, diagnostics, and an apply-ready JSON contract. Building plans include passable doors and transfer logic. Interaction plans include the runtime logic they need, such as shop-open, party recovery, quest-state, item grants, locked-door checks, switches/variables, and crop planting.
+
+The planner exposes provider profiles for hosted and local providers:
+
+- Hosted: `chatgpt`, `gemini`, `kimi`, `anthropic`, `mistral`, `cohere`, `groq`, `perplexity`, `xai`, `deepseek`, `together`, `openrouter`, `azure_openai`, and `aws_bedrock`.
+- Local: `ollama`, `lmstudio`, `llamacpp`, `vllm`, `text_generation_webui`, and `localai`.
+
+Expected API-key environment variables are recorded in the profiles, including `OPENAI_API_KEY`, `GEMINI_API_KEY`, `KIMI_API_KEY`, `ANTHROPIC_API_KEY`, `MISTRAL_API_KEY`, `COHERE_API_KEY`, `GROQ_API_KEY`, `PERPLEXITY_API_KEY`, `XAI_API_KEY`, `DEEPSEEK_API_KEY`, `TOGETHER_API_KEY`, `OPENROUTER_API_KEY`, `AZURE_OPENAI_API_KEY`, and `AWS_BEDROCK_BEARER_TOKEN`. Local providers use localhost OpenAI-compatible endpoints and do not require API keys by default.
+
+The in-tree transport can build and execute a `curl` request from project configuration through `CreatorProviderTransportConfig`. It writes the provider-specific request payload, posts it to the configured endpoint, and stores the raw provider response path for review/import. Secrets are supplied at runtime by project configuration or environment resolution, not hardcoded into the engine. The deterministic local planner remains available as a fallback so the editor can preview and test the feature without a live provider.
+
+Provider responses are imported through `extractCreatorPlanJsonFromProviderResponse` and `parseCreatorCommandPlan`. The importer supports direct URPG plan JSON, OpenAI Responses `output_text`/`output`, OpenAI-compatible chat `choices`, Gemini `candidates.content.parts`, Anthropic `content`, and Cohere-style message content. Malformed or unsupported responses become non-applyable diagnostic plans instead of throwing.
+
+Before any plan is applied, `validateCreatorCommandPlan` checks schema, apply readiness, map bounds, nonnegative tile ids, complete prop/logic records, and intent-specific runtime requirements. `applyCreatorCommandPlan` writes validated tile, prop, and logic edits into project JSON under the selected map and appends creator-command history for review. `CreatorCommandPanel` exposes the selected tile, provider payload, dry-run transport command, live preview metrics, validation diagnostics, apply preview, and last-apply result for WYSIWYG editor surfaces.
+
+### 2b. App Knowledge and Tool Registry
+The chatbot now has an in-tree knowledge foundation in `engine/core/ai/ai_knowledge_base.*`. It is deterministic and safe to run without a live model provider.
+
+- `AppCapabilityRegistry` catalogs what the app can do across map authoring, event graphs, dialogue, abilities, battle VFX, save labs, export preview, assets, templates, and creator commands.
+- `ProjectKnowledgeIndex` summarizes supplied project JSON into searchable project entries for maps, events, dialogue, abilities, assets, templates, localization, and export settings.
+- `DocumentationKnowledgeIndex` exposes canonical docs such as the agent index, architecture map, quality gates, AI Copilot guide, and release readiness matrix.
+- `AiToolRegistry` defines safe callable tools across maps, regions, lighting/weather, events, dialogue, localization, quests, NPC schedules, abilities, battle VFX, save labs, assets, templates, export preview, validation, and creator commands.
+- `AiTaskPlanner` turns user requests into reviewable `urpg.ai_task_plan.v1` tool plans.
+- `applyApprovedPlan` refuses mutating steps until they are approved, then writes the approved map/event/dialogue/ability/export/creator-command changes into project JSON and records `ai_tool_applications`.
+- `approvalManifest` lists pending approval steps and the project paths they can touch.
+
+`AiAssistantPanel` includes a knowledge snapshot and current task plan in its deterministic render snapshot, giving the WYSIWYG editor a stable surface for showing what the chatbot knows, what tools it wants to call, and what will be changed before anything is applied.
+
+The mutating tools that require approval are `create_map`, `place_tile`, `paint_region`, `configure_environment`, `add_event`, `edit_dialogue`, `add_localization_entry`, `add_quest`, `set_npc_schedule`, `add_ability`, `add_vfx_keyframe`, `configure_save_preview`, `import_asset_record`, `create_template_project`, and `plan_creator_command`. `run_validation` and `run_export_preview` are non-mutating queue/preview tools and do not require approval.
+
+Editor approval is handled by `AiAssistantPanel::approveStep(stepId)` or `AiAssistantPanel::approveAllPendingSteps()`. After approval, `AiAssistantPanel::applyApprovedPlan()` applies the validated tool plan to project JSON and records the result in the panel snapshot under `last_apply`.
+
+`ChatbotComponent` is wired to the same tool registry through explicit tool commands:
+
+- `AI_TASK:<creator request>` builds a reviewable `urpg.ai_task_plan.v1`.
+- `AI_APPROVE_STEP:<step id>` approves one pending step.
+- `AI_REJECT_STEP:<step id>` rejects one pending step.
+- `AI_APPROVE_ALL` approves all pending mutating steps.
+- `AI_APPLY` applies the approved plan to project JSON.
+
+The chatbot exposes the current `task_plan`, `approval` manifest, and `last_apply` result through `lastAiToolSnapshot()`.
+
 ### 3. Knowledge Bridges
 - **WorldKnowledgeBridge**: Serializes NPC locations, item names, and plot flags into a "World Context" digest.
 - **BattleKnowledgeBridge**: Provides tactical context (HP, Mana, Elemental weaknesses) for real-time combat advice.

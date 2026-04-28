@@ -1,0 +1,31 @@
+{
+  "template_id": "cooking_restaurant_rpg",
+  "display_name": "Cooking Restaurant RPG Starter",
+  "status": "READY",
+  "loops": [
+    "recipe_prep_loop",
+    "customer_queue_loop",
+    "restaurant_upgrade_loop",
+    "save_loop"
+  ],
+  "systems": {
+    "genre_features": [
+      "recipes",
+      "customer_queue",
+      "restaurant_upgrades",
+      "food_buffs"
+    ],
+    "integrations": {
+      "export_validation": [
+        "starter_data_complete",
+        "required_text_keys_bound",
+        "save_state_declared"
+      ],
+      "wysiwyg_surfaces": [
+        "recipes",
+        "customer_queue",
+        "shop_economy"
+      ]
+    }
+  }
+}

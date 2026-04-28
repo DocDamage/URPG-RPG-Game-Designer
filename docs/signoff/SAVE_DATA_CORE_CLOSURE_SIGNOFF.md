@@ -3,7 +3,7 @@
 > **Status:** `PARTIAL`
 > **Purpose:** Evidence-gathering artifact for Wave 1 closure review.
 > **Date:** 2026-04-20
-> **Rule:** This document does **not** promote `readiness_status.json` status. Human review is required for promotion to `READY`.
+> **Rule:** Release-owner review approved the bounded Wave 1 save/data scope on 2026-04-28. This document does not grant public release approval or imply scope beyond the evidence below.
 
 ---
 

@@ -101,7 +101,26 @@ void AbilitySandboxPanel::refreshPreview() {
     snapshot_.diagnostic_count = result_.diagnostics.size();
     snapshot_.activation_allowed = result_.activation_allowed;
     snapshot_.activation_executed = result_.activation_executed;
+    snapshot_.mp_delta = snapshot_.mp_after - snapshot_.mp_before;
+    snapshot_.effect_delta = snapshot_.effect_after - snapshot_.effect_before;
+    snapshot_.activation_success_ratio = snapshot_.activation_attempt_count == 0
+        ? 0.0f
+        : static_cast<float>(result_.execution_history_count) /
+              static_cast<float>(snapshot_.activation_attempt_count);
     snapshot_.blocking_reason = result_.blocking_reason;
+    if (snapshot_.diagnostic_count > 0) {
+        snapshot_.ux_focus_lane = "diagnostics";
+        snapshot_.primary_action = "Resolve ability sandbox diagnostics before testing balance.";
+    } else if (!snapshot_.activation_allowed) {
+        snapshot_.ux_focus_lane = "requirements";
+        snapshot_.primary_action = "Tune tags, MP, or cooldown until activation is allowed.";
+    } else if (snapshot_.cooldown_after > 0.0f) {
+        snapshot_.ux_focus_lane = "cooldown";
+        snapshot_.primary_action = "Scrub repeated attempts to balance cooldown recovery.";
+    } else {
+        snapshot_.ux_focus_lane = "effects";
+        snapshot_.primary_action = "Compare MP and effect deltas against the intended ability role.";
+    }
     snapshot_.saved_project_json = document_.toJson().dump();
     snapshot_.status_message =
         snapshot_.diagnostic_count == 0 ? "Ability sandbox preview is ready." : "Ability sandbox preview has diagnostics.";

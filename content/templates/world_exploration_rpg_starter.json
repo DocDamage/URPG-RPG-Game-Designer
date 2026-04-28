@@ -1,0 +1,21 @@
+{
+  "template_id": "world_exploration_rpg",
+  "display_name": "World Exploration RPG Starter",
+  "status": "READY",
+  "loops": ["world_route_loop", "fast_travel_loop", "biome_event_loop", "quest_journal_save_loop"],
+  "systems": {
+    "world": {
+      "biomes": ["grassland", "snowfield", "desert", "coast"],
+      "routes": ["capital_to_forest", "forest_to_mine", "mine_to_coast"],
+      "fast_travel": {"requires_discovery": true, "cost_mode": "none"}
+    },
+    "quests": {
+      "journal_categories": ["main", "side", "rumor"],
+      "objective_radar": true
+    },
+    "integrations": {
+      "export_validation": ["route_graph_connected", "landmarks_discoverable", "quest_markers_bound"],
+      "wysiwyg_surfaces": ["world_map_route_planner", "fast_travel_map_builder", "map_zoom_system"]
+    }
+  }
+}

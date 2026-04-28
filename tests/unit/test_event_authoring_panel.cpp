@@ -100,6 +100,9 @@ TEST_CASE("Event command graph is visually authorable, saved, and executable",
     REQUIRE(panel.snapshot().switch_state_count == 1);
     REQUIRE(panel.snapshot().variable_state_count == 1);
     REQUIRE(panel.snapshot().runtime_executed);
+    REQUIRE(panel.snapshot().traversal_ratio == 1.0f);
+    REQUIRE(panel.snapshot().ux_focus_lane == "node_inspector");
+    REQUIRE(panel.snapshot().selected_node_runtime_summary == "switch:Set gate switch");
     REQUIRE(panel.snapshot().status_message == "Event command graph preview is ready.");
     REQUIRE_FALSE(panel.snapshot().saved_project_json.empty());
 
@@ -143,6 +146,7 @@ TEST_CASE("Event command graph panel mutations update saved graph and runtime pr
     REQUIRE(panel.snapshot().runtime_command_count == 5);
     REQUIRE(panel.snapshot().selected_node_label == "Set bonus reward variable");
     REQUIRE(panel.snapshot().selected_node_kind == "variable");
+    REQUIRE(panel.snapshot().primary_action.find("selected node") != std::string::npos);
     REQUIRE(panel.runtimePreview().state.variables.at("bonus_reward") == 3);
     REQUIRE(std::find(panel.runtimePreview().traversed_edge_ids.begin(),
                       panel.runtimePreview().traversed_edge_ids.end(),
@@ -197,6 +201,7 @@ TEST_CASE("Event command graph diagnostics block false complete claims",
 
     REQUIRE(panel.hasRenderedFrame());
     REQUIRE(panel.snapshot().diagnostic_count >= 5);
+    REQUIRE(panel.snapshot().ux_focus_lane == "diagnostics");
     REQUIRE_FALSE(panel.snapshot().runtime_executed);
     REQUIRE(panel.snapshot().status_message == "Event command graph preview has diagnostics.");
 

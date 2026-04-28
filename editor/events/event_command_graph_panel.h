@@ -22,8 +22,12 @@ struct EventCommandGraphPanelSnapshot {
     size_t switch_state_count = 0;
     size_t variable_state_count = 0;
     bool runtime_executed = false;
+    float traversal_ratio = 0.0f;
+    std::string ux_focus_lane = "graph";
     std::string selected_node_label;
     std::string selected_node_kind;
+    std::string selected_node_runtime_summary;
+    std::string primary_action = "Load an event command graph.";
     std::string saved_project_json;
     std::string status_message = "Load an event command graph before rendering this panel.";
 };

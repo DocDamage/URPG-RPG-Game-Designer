@@ -1,0 +1,31 @@
+{
+  "template_id": "strategy_kingdom_rpg",
+  "display_name": "Strategy Kingdom RPG Starter",
+  "status": "READY",
+  "loops": [
+    "kingdom_build_loop",
+    "recruitment_loop",
+    "army_mission_loop",
+    "save_loop"
+  ],
+  "systems": {
+    "genre_features": [
+      "buildings",
+      "recruiting",
+      "resources",
+      "army_missions"
+    ],
+    "integrations": {
+      "export_validation": [
+        "starter_data_complete",
+        "required_text_keys_bound",
+        "save_state_declared"
+      ],
+      "wysiwyg_surfaces": [
+        "recruiting",
+        "missions",
+        "economy"
+      ]
+    }
+  }
+}

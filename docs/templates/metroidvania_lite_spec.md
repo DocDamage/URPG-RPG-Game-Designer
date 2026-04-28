@@ -14,7 +14,6 @@ The `metroidvania_lite` template covers 2D action-exploration games with ability
 | `presentation_runtime` | Real-time rendering, camera, and spatial updates for action exploration. |
 | `save_data_core` | Persistent map unlock state, ability unlocks, and checkpoint recovery. |
 | `gameplay_ability_framework` | Traversal abilities (dash, double-jump, wall-jump) and combat skills. |
-| `map_runtime` | Region unlock data, room reveal state, and traversal-gate metadata. |
 
 ## Cross-Cutting Minimum Bars
 

@@ -1,0 +1,31 @@
+{
+  "template_id": "tower_defense_rpg",
+  "display_name": "Tower Defense RPG Starter",
+  "status": "READY",
+  "loops": [
+    "wave_design_loop",
+    "tower_upgrade_loop",
+    "hero_defense_loop",
+    "save_loop"
+  ],
+  "systems": {
+    "genre_features": [
+      "wave_design",
+      "towers",
+      "traps",
+      "hero_abilities"
+    ],
+    "integrations": {
+      "export_validation": [
+        "starter_data_complete",
+        "required_text_keys_bound",
+        "save_state_declared"
+      ],
+      "wysiwyg_surfaces": [
+        "waves",
+        "tower_grid",
+        "hero_abilities"
+      ]
+    }
+  }
+}

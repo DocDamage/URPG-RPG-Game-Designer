@@ -3,7 +3,7 @@
 > **Status:** `PARTIAL`
 > **Purpose:** Evidence-gathering artifact for GAF release closure review.
 > **Date:** 2026-04-23
-> **Rule:** This document does **not** promote `readiness_status.json` status. Human review is required for promotion to `READY`.
+> **Rule:** This document records release-owner acceptance of the manual residual-gap review for the current internal branch. It does **not** claim scripted-condition support, full authored composition breadth, or public release approval.
 
 ---
 
@@ -85,4 +85,4 @@ Key cross-subsystem assertions include:
 
 ---
 
-*Sign-off prepared by governance agent. Promotion to `READY` requires human review of the residual gaps above.*
+*Release-owner review accepted the manual residual-gap review for the current internal branch on 2026-04-28. The lane remains `PARTIAL` only for the technical product-depth gaps above.*

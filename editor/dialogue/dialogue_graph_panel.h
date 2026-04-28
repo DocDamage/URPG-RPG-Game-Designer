@@ -3,6 +3,7 @@
 #include "engine/core/dialogue/dialogue_graph.h"
 
 #include <nlohmann/json.hpp>
+#include <string>
 
 namespace urpg::editor {
 

@@ -1,0 +1,31 @@
+{
+  "template_id": "school_life_rpg",
+  "display_name": "School Life RPG Starter",
+  "status": "READY",
+  "loops": [
+    "class_calendar_loop",
+    "club_activity_loop",
+    "social_link_loop",
+    "save_loop"
+  ],
+  "systems": {
+    "genre_features": [
+      "classes",
+      "clubs",
+      "social_links",
+      "exams"
+    ],
+    "integrations": {
+      "export_validation": [
+        "starter_data_complete",
+        "required_text_keys_bound",
+        "save_state_declared"
+      ],
+      "wysiwyg_surfaces": [
+        "calendar",
+        "clubs",
+        "social_links"
+      ]
+    }
+  }
+}

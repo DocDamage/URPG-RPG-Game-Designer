@@ -16,6 +16,132 @@ Each governed schema entry should include:
 
 ## Entries
 
+### `visual_novel_pacing` (`visual_novel_pacing.schema.json`)
+
+- Version: `1.0.0`
+- Date: `2026-04-28`
+- Summary: initial schema for visual-novel backlog, auto-advance, skip-read, and text-speed pacing controls
+- Migration Impact: none; additive schema for visual-novel template authoring
+
+### `character_appearance_composition` (`character_appearance_composition.schema.json`)
+
+- Version: `1.0.0`
+- Date: `2026-04-28`
+- Summary: initial schema for layered portrait, field, and battle character appearance composition data
+- Migration Impact: none; additive schema for character identity authoring
+
+### `community_wysiwyg_feature` (`community_wysiwyg_feature.schema.json`)
+
+- Version: `1.0.0`
+- Date: `2026-04-28`
+- Summary: initial schema for community-requested WYSIWYG maker feature documents
+- Migration Impact: none; additive schema for maker feature authoring
+
+### `crafting_economy_loop` (`crafting_economy_loop.schema.json`)
+
+- Version: `1.0.0`
+- Date: `2026-04-28`
+- Summary: initial schema for crafting, gathering, economy, shop, and recipe-loop authoring data
+- Migration Impact: none; additive schema for gameplay loop authoring
+
+### `created_protagonist_save` (`created_protagonist_save.schema.json`)
+
+- Version: `1.0.0`
+- Date: `2026-04-28`
+- Summary: initial schema for runtime-created protagonist save persistence data
+- Migration Impact: none; additive schema for character creation persistence
+
+### `cutscene_timeline` (`cutscene_timeline.schema.json`)
+
+- Version: `1.0.0`
+- Date: `2026-04-28`
+- Summary: initial schema for WYSIWYG cutscene timeline tracks, beats, and runtime preview data
+- Migration Impact: none; additive schema for cutscene authoring
+
+### `dungeon3d_world` (`dungeon3d_world.schema.json`)
+
+- Version: `1.0.0`
+- Date: `2026-04-28`
+- Summary: initial schema for RPG-style 3D dungeon/world floors, interactions, audio zones, automap, and template bindings
+- Migration Impact: none; additive schema for 3D dungeon/world authoring
+
+### `encounter_designer` (`encounter_designer.schema.json`)
+
+- Version: `1.0.0`
+- Date: `2026-04-28`
+- Summary: initial schema for encounter table, zone, weight, and preview authoring data
+- Migration Impact: none; additive schema for encounter design
+
+### `gameplay_wysiwyg_system` (`gameplay_wysiwyg_system.schema.json`)
+
+- Version: `1.0.0`
+- Date: `2026-04-28`
+- Summary: initial schema for deterministic WYSIWYG gameplay maker system documents
+- Migration Impact: none; additive schema for gameplay system authoring
+
+### `loot_generator` (`loot_generator.schema.json`)
+
+- Version: `1.0.0`
+- Date: `2026-04-28`
+- Summary: initial schema for loot tables, rolls, weights, and diagnostics preview data
+- Migration Impact: none; additive schema for loot authoring
+
+### `maker_wysiwyg_feature` (`maker_wysiwyg_feature.schema.json`)
+
+- Version: `1.0.0`
+- Date: `2026-04-28`
+- Summary: initial schema for expanded maker WYSIWYG feature documents and editor/runtime proof data
+- Migration Impact: none; additive schema for maker feature authoring
+
+### `map_environment_preview` (`map_environment_preview.schema.json`)
+
+- Version: `1.0.0`
+- Date: `2026-04-28`
+- Summary: initial schema for map lighting, weather, region, tactical overlay, and spawn-table preview data
+- Migration Impact: none; additive schema for map environment authoring
+
+### `metroidvania_ability_gates` (`metroidvania_ability_gates.schema.json`)
+
+- Version: `1.0.0`
+- Date: `2026-04-28`
+- Summary: initial schema for ability-gated progression, region unlock, and traversal preview data
+- Migration Impact: none; additive schema for metroidvania-lite authoring
+
+### `mod_store_catalog` (`mod_store_catalog.schema.json`)
+
+- Version: `1.0.0`
+- Date: `2026-04-28`
+- Summary: initial schema for local mod-store catalog entries, install metadata, and package descriptors
+- Migration Impact: none; additive schema for local mod catalog tooling
+
+### `monster_collection` (`monster_collection.schema.json`)
+
+- Version: `1.0.0`
+- Date: `2026-04-28`
+- Summary: initial schema for monster species, capture, party, storage, and evolution authoring data
+- Migration Impact: none; additive schema for monster collector templates
+
+### `quest_objective_graph` (`quest_objective_graph.schema.json`)
+
+- Version: `1.0.0`
+- Date: `2026-04-28`
+- Summary: initial schema for quest objective graphs, dependencies, rewards, and runtime preview diagnostics
+- Migration Impact: none; additive schema for quest authoring
+
+### `relationship_affinity` (`relationship_affinity.schema.json`)
+
+- Version: `1.0.0`
+- Date: `2026-04-28`
+- Summary: initial schema for relationship affinity rules, schedules, gifts, and preview state
+- Migration Impact: none; additive schema for relationship authoring
+
+### `skill_tree` (`skill_tree.schema.json`)
+
+- Version: `1.0.0`
+- Date: `2026-04-28`
+- Summary: initial schema for class progression, skill tree nodes, unlock rules, and preview diagnostics
+- Migration Impact: none; additive schema for progression authoring
+
 ### `export_preview` (`export_preview.schema.json`)
 
 - Version: `1.1.0`

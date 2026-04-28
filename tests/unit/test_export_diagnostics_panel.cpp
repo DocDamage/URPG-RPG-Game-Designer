@@ -258,6 +258,9 @@ TEST_CASE("ExportPreviewPanel produces exact release shipping manifest",
     REQUIRE(panel.snapshot().missing_expected_artifact_count == 0);
     REQUIRE(panel.snapshot().runtime_trace_count >= 5);
     REQUIRE(panel.snapshot().diagnostic_count == 0);
+    REQUIRE(panel.snapshot().release_readiness_score == 1.0f);
+    REQUIRE(panel.snapshot().ux_focus_lane == "exact_ship");
+    REQUIRE(panel.snapshot().blocker_summary == "No export blockers for this preview.");
     REQUIRE(panel.snapshot().status_message == "Export preview is exactly what will ship.");
     REQUIRE(panel.snapshot().shipping_manifest["schema"] == "urpg.export_preview_manifest.v1");
     REQUIRE(panel.snapshot().shipping_manifest["exact_ship_preview"] == true);
@@ -303,6 +306,9 @@ TEST_CASE("ExportPreviewPanel edits ship settings and blocks missing expected ar
     REQUIRE_FALSE(panel.snapshot().exact_ship_preview);
     REQUIRE(panel.snapshot().expected_artifact_count == 3);
     REQUIRE(panel.snapshot().missing_expected_artifact_count == 1);
+    REQUIRE(panel.snapshot().release_readiness_score == 0.75f);
+    REQUIRE(panel.snapshot().ux_focus_lane == "shipping_manifest");
+    REQUIRE(panel.snapshot().blocker_summary == "Missing expected shipping artifacts.");
     REQUIRE(panel.result().missing_expected_artifacts[0] == "missing.bin");
     REQUIRE(panel.snapshot().shipping_manifest["expected_artifacts"].size() == 3);
     REQUIRE(panel.snapshot().shipping_manifest["runtime_trace"].is_array());
@@ -352,6 +358,8 @@ TEST_CASE("Export preview diagnostics block false exact-ship claims",
 
     REQUIRE(panel.hasRenderedFrame());
     REQUIRE(panel.snapshot().diagnostic_count == 1);
+    REQUIRE(panel.snapshot().ux_focus_lane == "preflight");
+    REQUIRE(panel.snapshot().blocker_summary == "Preflight failed.");
     REQUIRE_FALSE(panel.snapshot().preflight_passed);
     REQUIRE_FALSE(panel.snapshot().export_success);
     REQUIRE_FALSE(panel.snapshot().exact_ship_preview);

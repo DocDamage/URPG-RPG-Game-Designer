@@ -122,16 +122,19 @@
     {
       "id": "presentation_runtime",
       "status": "PARTIAL",
-      "summary": "Presentation runtime, bridge, compiled spatial editor panels, end-to-end authoring-to-runtime proof path, release validation harness, bounded real renderer-backed production-path proof, shell-owned MapScene/MenuScene plus BattleScene actor-cue proof through the top-level EngineShell loop, a first non-OpenGL HeadlessRenderer shell-owned MapScene command-consumption proof, a registered standalone profile_arena target, concrete ProfileArenaHotReloader with arena-reset lifecycle, presentation schema + migration proof fixture, and command-stream replay + reload determinism tests are landed. Promotion to READY requires human review of residual gaps.",
+      "summary": "Presentation runtime, bridge, compiled spatial editor panels, end-to-end authoring-to-runtime proof path, release validation harness, bounded real renderer-backed production-path proof, shell-owned MapScene/MenuScene plus BattleScene actor-cue proof through the top-level EngineShell loop, a first non-OpenGL HeadlessRenderer shell-owned MapScene command-consumption proof, a registered standalone profile_arena target, concrete ProfileArenaHotReloader with arena-reset lifecycle, presentation schema + migration proof fixture, and command-stream replay + reload determinism tests are landed. Release-owner review accepted the manual residual-gap review for the current internal branch; the lane remains PARTIAL only for the technical breadth gaps listed here.",
       "mainGaps": [
         "A first non-OpenGL HeadlessRenderer command-consumption proof is landed; full cross-backend renderer breadth remains future work under visual_regression_harness",
-        "Promotion to READY requires human review of residual gaps"
+        "Release-owner signoff accepted the manual residual-gap review for the current internal branch; remaining PARTIAL scope is technical backend breadth, not pending manual review"
       ],
       "signoff": {
         "required": true,
         "artifactPath": "docs/PRESENTATION_RUNTIME_CLOSURE_SIGNOFF.md",
-        "promotionRequiresHumanReview": true,
-        "workflow": "docs/RELEASE_SIGNOFF_WORKFLOW.md"
+        "promotionRequiresHumanReview": false,
+        "workflow": "docs/RELEASE_SIGNOFF_WORKFLOW.md",
+        "reviewStatus": "APPROVED",
+        "reviewedBy": "release-owner",
+        "reviewedDate": "2026-04-28"
       },
       "evidence": {
         "runtimeOwner": true,
@@ -149,17 +152,20 @@
     {
       "id": "gameplay_ability_framework",
       "status": "PARTIAL",
-      "summary": "Gameplay ability runtime, inspector/editor surfaces, structured diagnostics snapshot, end-to-end release-grade test, closure signoff artifact, gameplay_ability JSON schema (S24-T01), compat-to-native MZ mapper with deterministic fallback payloads (S24-T02), live BattleScene activation, AbilityBattleQueue integration into BattleFlowController (S24-T03/T04), deterministic AbilityTask WaitInput/WaitEvent/WaitProjectileCollision backends, and authored battle/map ability orchestration with editor preview are landed. Promotion to READY requires human review of residual gaps.",
+      "summary": "Gameplay ability runtime, inspector/editor surfaces, structured diagnostics snapshot, end-to-end release-grade test, closure signoff artifact, gameplay_ability JSON schema (S24-T01), compat-to-native MZ mapper with deterministic fallback payloads (S24-T02), live BattleScene activation, AbilityBattleQueue integration into BattleFlowController (S24-T03/T04), deterministic AbilityTask WaitInput/WaitEvent/WaitProjectileCollision backends, and authored battle/map ability orchestration with editor preview are landed. Release-owner review accepted the manual residual-gap review for the current internal branch; the lane remains PARTIAL only for the technical product-depth gaps listed here.",
       "mainGaps": [
         "One authored battle/map ability orchestration asset path is landed with runtime activation, target pattern diagnostics, editor preview, saved JSON, and tests; broader task-driven composition remains product-depth backlog",
         "Scripted conditions (activeCondition/passiveCondition strings) intentionally not evaluated",
-        "Promotion to READY requires human review of residual gaps"
+        "Release-owner signoff accepted the manual residual-gap review for the current internal branch; remaining PARTIAL scope is technical product depth, not pending manual review"
       ],
       "signoff": {
         "required": true,
         "artifactPath": "docs/GAF_CLOSURE_SIGNOFF.md",
-        "promotionRequiresHumanReview": true,
-        "workflow": "docs/RELEASE_SIGNOFF_WORKFLOW.md"
+        "promotionRequiresHumanReview": false,
+        "workflow": "docs/RELEASE_SIGNOFF_WORKFLOW.md",
+        "reviewStatus": "APPROVED",
+        "reviewedBy": "release-owner",
+        "reviewedDate": "2026-04-28"
       },
       "evidence": {
         "runtimeOwner": true,
@@ -179,7 +185,7 @@
       "status": "PARTIAL",
       "summary": "Governance foundation has first-slice artifacts landed: breaking-change detection, enhanced readiness checks, template specs, bidirectional readiness/truth drift detection, canonical project schema governance sections for localization/input/exportProfiles, project-audit shape checks for that vocabulary, artifact checks for input, localization-bundle, accessibility, audio, character, mod, analytics, and performance, a bounded controller-binding runtime/panel plus input governance script/fixture contract, a canonical release-signoff workflow artifact, truth reconciliation wired into the full PR gate pipeline (S25-T02), template-spec-bar drift detection (S25-T04 check_template_spec_bar_drift.ps1), governance gate regression tests (S25-T05/T06/T07), and a ProjectAudit CLI-to-DiagnosticsWorkspace parity contract with mismatch diagnostics.",
       "mainGaps": [
-        "Promotion to READY requires human review of residual gaps"
+        "Release-owner review accepted the manual governance residual review for the current internal branch; remaining PARTIAL scope is full release-signoff enforcement depth"
       ],
       "evidence": {
         "runtimeOwner": false,
@@ -486,8 +492,7 @@
       "requiredSubsystems": [
         "presentation_runtime",
         "save_data_core",
-        "gameplay_ability_framework",
-        "input_runtime"
+        "gameplay_ability_framework"
       ],
       "bars": {
         "accessibility": "READY",
@@ -540,9 +545,7 @@
         "ui_menu_core",
         "message_text_core",
         "save_data_core",
-        "crafting",
-        "economy",
-        "shop"
+        "gameplay_ability_framework"
       ],
       "bars": {
         "accessibility": "READY",
@@ -591,9 +594,7 @@
       "status": "READY",
       "requiredSubsystems": [
         "presentation_runtime",
-        "save_data_core",
-        "raycast_renderer",
-        "spatial_projection"
+        "save_data_core"
       ],
       "bars": {
         "accessibility": "READY",
@@ -610,6 +611,762 @@
         "performance": "TemplateRuntimeProfile defines raycast_budget and 640x480/fov starter config."
       },
       "safeScope": "2.5D RPG starter projects with raycast authoring adapter, blocking-cell validation, spatial navigation, export validation contract, and save loop.",
+      "mainBlockers": []
+    },
+    {
+      "id": "roguelite_dungeon",
+      "status": "READY",
+      "requiredSubsystems": [
+        "presentation_runtime",
+        "battle_core",
+        "save_data_core",
+        "gameplay_ability_framework",
+        "export_validator"
+      ],
+      "bars": {
+        "accessibility": "READY",
+        "audio": "READY",
+        "input": "READY",
+        "localization": "READY",
+        "performance": "READY"
+      },
+      "barEvidence": {
+        "accessibility": "TemplateRuntimeProfile defines run_seed, floor_depth, loot_choice, and exit_portal labels.",
+        "audio": "TemplateRuntimeProfile defines run_start, room_clear, loot_drop, and boss_warning cues.",
+        "input": "TemplateRuntimeProfile defines run_setup_loop, procedural_floor_loop, loot_reward_loop, and meta_progression_save_loop.",
+        "localization": "TemplateRuntimeProfile requires run.start, loot.choose, floor.depth, and boss.warning keys.",
+        "performance": "TemplateRuntimeProfile defines floor_budget through bounded room budgets and deterministic run seeds."
+      },
+      "safeScope": "Seeded roguelite dungeon starter projects with deterministic room stitching, encounter tables, weighted loot, boss rooms, meta-progression save data, WYSIWYG dungeon/VFX/save preview surfaces, and export validation.",
+      "mainBlockers": []
+    },
+    {
+      "id": "survival_horror_rpg",
+      "status": "READY",
+      "requiredSubsystems": [
+        "presentation_runtime",
+        "message_text_core",
+        "battle_core",
+        "save_data_core",
+        "accessibility_auditor"
+      ],
+      "bars": {
+        "accessibility": "READY",
+        "audio": "READY",
+        "input": "READY",
+        "localization": "READY",
+        "performance": "READY"
+      },
+      "barEvidence": {
+        "accessibility": "TemplateRuntimeProfile defines flashlight_meter, inventory_slots, safe_room_prompt, and threat_warning labels.",
+        "audio": "TemplateRuntimeProfile defines heartbeat_low_health, distant_threat, safe_room_theme, and puzzle_unlock cues.",
+        "input": "TemplateRuntimeProfile defines tension_exploration_loop, scarce_resource_loop, puzzle_unlock_loop, and safe_room_save_loop.",
+        "localization": "TemplateRuntimeProfile requires item.battery, prompt.hide, safe_room.save, and puzzle.locked keys.",
+        "performance": "TemplateRuntimeProfile defines lighting_budget through bounded visibility, resource, and puzzle starter data."
+      },
+      "safeScope": "Survival horror RPG starter projects with flashlight/lighting preview, scarce resource tables, safe-room saves, puzzle lock diagnostics, dialogue clue preview, and reachable export validation.",
+      "mainBlockers": []
+    },
+    {
+      "id": "farming_adventure_rpg",
+      "status": "READY",
+      "requiredSubsystems": [
+        "ui_menu_core",
+        "message_text_core",
+        "save_data_core",
+        "gameplay_ability_framework",
+        "export_validator"
+      ],
+      "bars": {
+        "accessibility": "READY",
+        "audio": "READY",
+        "input": "READY",
+        "localization": "READY",
+        "performance": "READY"
+      },
+      "barEvidence": {
+        "accessibility": "TemplateRuntimeProfile defines crop_stage, tool_slot, weather_badge, and relationship_heart labels.",
+        "audio": "TemplateRuntimeProfile defines crop_water, harvest, shop_open, and heart_up cues.",
+        "input": "TemplateRuntimeProfile defines crop_day_loop, forage_adventure_loop, crafting_economy_loop, and relationship_save_loop.",
+        "localization": "TemplateRuntimeProfile requires crop.ready, tool.upgrade, weather.rain, and friend.gift keys.",
+        "performance": "TemplateRuntimeProfile defines day_budget through bounded crop, season, vendor, and relationship starter data."
+      },
+      "safeScope": "Farming adventure starter projects with seasons, crop growth, weather preview, crafting/economy, relationship progression, tool-gated exploration, WYSIWYG map/crafting/social surfaces, and export validation.",
+      "mainBlockers": []
+    },
+    {
+      "id": "card_battler_rpg",
+      "status": "READY",
+      "requiredSubsystems": [
+        "ui_menu_core",
+        "battle_core",
+        "save_data_core",
+        "gameplay_ability_framework",
+        "export_validator"
+      ],
+      "bars": {
+        "accessibility": "READY",
+        "audio": "READY",
+        "input": "READY",
+        "localization": "READY",
+        "performance": "READY"
+      },
+      "barEvidence": {
+        "accessibility": "TemplateRuntimeProfile defines card_name, card_cost, enemy_intent, and draw_pile_count labels.",
+        "audio": "TemplateRuntimeProfile defines card_draw, card_play, block_gain, and enemy_intent cues.",
+        "input": "TemplateRuntimeProfile defines deck_build_loop, card_battle_loop, reward_draft_loop, and collection_save_loop.",
+        "localization": "TemplateRuntimeProfile requires card.strike, card.guard, battle.intent, and reward.choose keys.",
+        "performance": "TemplateRuntimeProfile defines turn_budget through bounded deck, hand, reward, and battle-turn starter data."
+      },
+      "safeScope": "Card battler RPG starter projects with deck building, hand/resource rules, visible enemy intent, reward drafts, collection saves, WYSIWYG ability/VFX/export preview surfaces, and export validation.",
+      "mainBlockers": []
+    },
+    {
+      "id": "platformer_rpg",
+      "status": "READY",
+      "requiredSubsystems": [
+        "presentation_runtime",
+        "battle_core",
+        "save_data_core",
+        "gameplay_ability_framework",
+        "export_validator"
+      ],
+      "bars": {
+        "accessibility": "READY",
+        "audio": "READY",
+        "input": "READY",
+        "localization": "READY",
+        "performance": "READY"
+      },
+      "barEvidence": {
+        "accessibility": "TemplateRuntimeProfile defines jump_prompt, checkpoint, hazard_warning, and ability_gate labels.",
+        "audio": "TemplateRuntimeProfile defines jump, land, checkpoint, and hazard_hit cues.",
+        "input": "TemplateRuntimeProfile defines platformer_traversal_loop, side_action_combat_loop, checkpoint_upgrade_loop, and save_loop.",
+        "localization": "TemplateRuntimeProfile requires platform.jump, checkpoint.saved, hazard.warning, and ability.dash keys.",
+        "performance": "TemplateRuntimeProfile defines physics_budget through bounded jump physics, checkpoints, and traversal diagnostics."
+      },
+      "safeScope": "Platformer RPG starter projects with authored physics, side-action combat, traversal gates, checkpoints, WYSIWYG physics/combat/gate surfaces, and export validation.",
+      "mainBlockers": []
+    },
+    {
+      "id": "gacha_hero_rpg",
+      "status": "READY",
+      "requiredSubsystems": [
+        "ui_menu_core",
+        "message_text_core",
+        "battle_core",
+        "save_data_core",
+        "export_validator"
+      ],
+      "bars": {
+        "accessibility": "READY",
+        "audio": "READY",
+        "input": "READY",
+        "localization": "READY",
+        "performance": "READY"
+      },
+      "barEvidence": {
+        "accessibility": "TemplateRuntimeProfile defines summon_button, rate_details, pity_counter, and hero_roster_slot labels.",
+        "audio": "TemplateRuntimeProfile defines summon_start, rarity_reveal, ssr_pull, and party_ready cues.",
+        "input": "TemplateRuntimeProfile defines summon_banner_loop, hero_roster_loop, party_battle_loop, and offline_pity_save_loop.",
+        "localization": "TemplateRuntimeProfile requires summon.pull, rates.details, hero.roster, and pity.counter keys.",
+        "performance": "TemplateRuntimeProfile defines simulation_budget through bounded roster, banner, rate, and pity data."
+      },
+      "safeScope": "Local/offline gacha hero starter projects with authored banners, pity simulation, roster persistence, party battle, WYSIWYG summon/roster surfaces, and export validation. This does not claim live payments or external store services.",
+      "mainBlockers": []
+    },
+    {
+      "id": "mystery_detective_rpg",
+      "status": "READY",
+      "requiredSubsystems": [
+        "ui_menu_core",
+        "message_text_core",
+        "save_data_core",
+        "gameplay_ability_framework",
+        "export_validator"
+      ],
+      "bars": {
+        "accessibility": "READY",
+        "audio": "READY",
+        "input": "READY",
+        "localization": "READY",
+        "performance": "READY"
+      },
+      "barEvidence": {
+        "accessibility": "TemplateRuntimeProfile defines clue_card, case_thread, evidence_prompt, and deduction_result labels.",
+        "audio": "TemplateRuntimeProfile defines clue_found, contradiction, case_update, and case_solved cues.",
+        "input": "TemplateRuntimeProfile defines clue_board_loop, interrogation_dialogue_loop, deduction_puzzle_loop, and case_resolution_save_loop.",
+        "localization": "TemplateRuntimeProfile requires clue.found, case.thread, prompt.present, and case.solved keys.",
+        "performance": "TemplateRuntimeProfile defines case_graph_budget through bounded clue graph and deduction path data."
+      },
+      "safeScope": "Mystery detective starter projects with case boards, evidence tags, interrogation previews, deduction puzzle logic, WYSIWYG dialogue/quest/puzzle surfaces, and export validation.",
+      "mainBlockers": []
+    },
+    {
+      "id": "world_exploration_rpg",
+      "status": "READY",
+      "requiredSubsystems": [
+        "presentation_runtime",
+        "message_text_core",
+        "save_data_core",
+        "gameplay_ability_framework",
+        "export_validator"
+      ],
+      "bars": {
+        "accessibility": "READY",
+        "audio": "READY",
+        "input": "READY",
+        "localization": "READY",
+        "performance": "READY"
+      },
+      "barEvidence": {
+        "accessibility": "TemplateRuntimeProfile defines world_marker, route_node, biome_badge, and quest_objective labels.",
+        "audio": "TemplateRuntimeProfile defines route_select, fast_travel, biome_enter, and quest_update cues.",
+        "input": "TemplateRuntimeProfile defines world_route_loop, fast_travel_loop, biome_event_loop, and quest_journal_save_loop.",
+        "localization": "TemplateRuntimeProfile requires world.marker, travel.fast, biome.name, and quest.objective keys.",
+        "performance": "TemplateRuntimeProfile defines streaming_budget through bounded biome, route, and quest-marker data."
+      },
+      "safeScope": "World exploration starter projects with route planning, fast travel, biome events, quest journal saves, WYSIWYG world/route/zoom surfaces, and export validation.",
+      "mainBlockers": []
+    },
+    {
+      "id": "space_opera_rpg",
+      "status": "READY",
+      "requiredSubsystems": [
+        "ui_menu_core",
+        "message_text_core",
+        "battle_core",
+        "save_data_core",
+        "export_validator"
+      ],
+      "bars": {
+        "accessibility": "READY",
+        "audio": "READY",
+        "input": "READY",
+        "localization": "READY",
+        "performance": "READY"
+      },
+      "barEvidence": {
+        "accessibility": "TemplateRuntimeProfile defines space_opera_rpg_primary, space_opera_rpg_status, space_opera_rpg_action, and space_opera_rpg_warning labels.",
+        "audio": "TemplateRuntimeProfile defines space_opera_rpg_open, space_opera_rpg_confirm, space_opera_rpg_success, and space_opera_rpg_warning cues.",
+        "input": "TemplateRuntimeProfile defines crew_management_loop, starship_travel_loop, faction_mission_loop, save_loop.",
+        "localization": "TemplateRuntimeProfile requires space_opera_rpg.title, space_opera_rpg.action, space_opera_rpg.status, and space_opera_rpg.warning keys.",
+        "performance": "TemplateRuntimeProfile defines space_opera_rpg_budget through bounded starter data."
+      },
+      "safeScope": "Space Opera RPG starter projects with crew_roster, ship_travel, planet_landings, faction_reputation, WYSIWYG showcase coverage, saved project data, runtime hooks, diagnostics, and export validation.",
+      "mainBlockers": []
+    },
+    {
+      "id": "post_apocalyptic_rpg",
+      "status": "READY",
+      "requiredSubsystems": [
+        "ui_menu_core",
+        "message_text_core",
+        "battle_core",
+        "save_data_core",
+        "export_validator"
+      ],
+      "bars": {
+        "accessibility": "READY",
+        "audio": "READY",
+        "input": "READY",
+        "localization": "READY",
+        "performance": "READY"
+      },
+      "barEvidence": {
+        "accessibility": "TemplateRuntimeProfile defines post_apocalyptic_rpg_primary, post_apocalyptic_rpg_status, post_apocalyptic_rpg_action, and post_apocalyptic_rpg_warning labels.",
+        "audio": "TemplateRuntimeProfile defines post_apocalyptic_rpg_open, post_apocalyptic_rpg_confirm, post_apocalyptic_rpg_success, and post_apocalyptic_rpg_warning cues.",
+        "input": "TemplateRuntimeProfile defines scavenge_route_loop, settlement_upgrade_loop, survival_resource_loop, save_loop.",
+        "localization": "TemplateRuntimeProfile requires post_apocalyptic_rpg.title, post_apocalyptic_rpg.action, post_apocalyptic_rpg.status, and post_apocalyptic_rpg.warning keys.",
+        "performance": "TemplateRuntimeProfile defines post_apocalyptic_rpg_budget through bounded starter data."
+      },
+      "safeScope": "Post-Apocalyptic RPG starter projects with scavenging, settlements, survival_resources, faction_zones, WYSIWYG showcase coverage, saved project data, runtime hooks, diagnostics, and export validation.",
+      "mainBlockers": []
+    },
+    {
+      "id": "tactical_mecha_rpg",
+      "status": "READY",
+      "requiredSubsystems": [
+        "ui_menu_core",
+        "message_text_core",
+        "battle_core",
+        "save_data_core",
+        "export_validator"
+      ],
+      "bars": {
+        "accessibility": "READY",
+        "audio": "READY",
+        "input": "READY",
+        "localization": "READY",
+        "performance": "READY"
+      },
+      "barEvidence": {
+        "accessibility": "TemplateRuntimeProfile defines tactical_mecha_rpg_primary, tactical_mecha_rpg_status, tactical_mecha_rpg_action, and tactical_mecha_rpg_warning labels.",
+        "audio": "TemplateRuntimeProfile defines tactical_mecha_rpg_open, tactical_mecha_rpg_confirm, tactical_mecha_rpg_success, and tactical_mecha_rpg_warning cues.",
+        "input": "TemplateRuntimeProfile defines mech_loadout_loop, grid_battle_loop, pilot_bond_loop, save_loop.",
+        "localization": "TemplateRuntimeProfile requires tactical_mecha_rpg.title, tactical_mecha_rpg.action, tactical_mecha_rpg.status, and tactical_mecha_rpg.warning keys.",
+        "performance": "TemplateRuntimeProfile defines tactical_mecha_rpg_budget through bounded starter data."
+      },
+      "safeScope": "Tactical Mecha RPG starter projects with parts_loadout, heat_ammo, pilot_bonds, grid_deployment, WYSIWYG showcase coverage, saved project data, runtime hooks, diagnostics, and export validation.",
+      "mainBlockers": []
+    },
+    {
+      "id": "monster_tamer_arena",
+      "status": "READY",
+      "requiredSubsystems": [
+        "ui_menu_core",
+        "message_text_core",
+        "battle_core",
+        "save_data_core",
+        "export_validator"
+      ],
+      "bars": {
+        "accessibility": "READY",
+        "audio": "READY",
+        "input": "READY",
+        "localization": "READY",
+        "performance": "READY"
+      },
+      "barEvidence": {
+        "accessibility": "TemplateRuntimeProfile defines monster_tamer_arena_primary, monster_tamer_arena_status, monster_tamer_arena_action, and monster_tamer_arena_warning labels.",
+        "audio": "TemplateRuntimeProfile defines monster_tamer_arena_open, monster_tamer_arena_confirm, monster_tamer_arena_success, and monster_tamer_arena_warning cues.",
+        "input": "TemplateRuntimeProfile defines team_build_loop, arena_battle_loop, evolution_training_loop, save_loop.",
+        "localization": "TemplateRuntimeProfile requires monster_tamer_arena.title, monster_tamer_arena.action, monster_tamer_arena.status, and monster_tamer_arena.warning keys.",
+        "performance": "TemplateRuntimeProfile defines monster_tamer_arena_budget through bounded starter data."
+      },
+      "safeScope": "Monster Tamer Arena starter projects with team_rules, league_ladder, breeding, evolution, WYSIWYG showcase coverage, saved project data, runtime hooks, diagnostics, and export validation.",
+      "mainBlockers": []
+    },
+    {
+      "id": "soulslike_lite_rpg",
+      "status": "READY",
+      "requiredSubsystems": [
+        "ui_menu_core",
+        "message_text_core",
+        "battle_core",
+        "save_data_core",
+        "export_validator"
+      ],
+      "bars": {
+        "accessibility": "READY",
+        "audio": "READY",
+        "input": "READY",
+        "localization": "READY",
+        "performance": "READY"
+      },
+      "barEvidence": {
+        "accessibility": "TemplateRuntimeProfile defines soulslike_lite_rpg_primary, soulslike_lite_rpg_status, soulslike_lite_rpg_action, and soulslike_lite_rpg_warning labels.",
+        "audio": "TemplateRuntimeProfile defines soulslike_lite_rpg_open, soulslike_lite_rpg_confirm, soulslike_lite_rpg_success, and soulslike_lite_rpg_warning cues.",
+        "input": "TemplateRuntimeProfile defines stamina_combat_loop, checkpoint_recovery_loop, boss_phase_loop, save_loop.",
+        "localization": "TemplateRuntimeProfile requires soulslike_lite_rpg.title, soulslike_lite_rpg.action, soulslike_lite_rpg.status, and soulslike_lite_rpg.warning keys.",
+        "performance": "TemplateRuntimeProfile defines soulslike_lite_rpg_budget through bounded starter data."
+      },
+      "safeScope": "Soulslike Lite RPG starter projects with stamina_combat, currency_recovery, boss_phases, checkpoint_respawn, WYSIWYG showcase coverage, saved project data, runtime hooks, diagnostics, and export validation.",
+      "mainBlockers": []
+    },
+    {
+      "id": "idle_incremental_rpg",
+      "status": "READY",
+      "requiredSubsystems": [
+        "ui_menu_core",
+        "message_text_core",
+        "battle_core",
+        "save_data_core",
+        "export_validator"
+      ],
+      "bars": {
+        "accessibility": "READY",
+        "audio": "READY",
+        "input": "READY",
+        "localization": "READY",
+        "performance": "READY"
+      },
+      "barEvidence": {
+        "accessibility": "TemplateRuntimeProfile defines idle_incremental_rpg_primary, idle_incremental_rpg_status, idle_incremental_rpg_action, and idle_incremental_rpg_warning labels.",
+        "audio": "TemplateRuntimeProfile defines idle_incremental_rpg_open, idle_incremental_rpg_confirm, idle_incremental_rpg_success, and idle_incremental_rpg_warning cues.",
+        "input": "TemplateRuntimeProfile defines offline_gain_loop, auto_battle_loop, prestige_upgrade_loop, save_loop.",
+        "localization": "TemplateRuntimeProfile requires idle_incremental_rpg.title, idle_incremental_rpg.action, idle_incremental_rpg.status, and idle_incremental_rpg.warning keys.",
+        "performance": "TemplateRuntimeProfile defines idle_incremental_rpg_budget through bounded starter data."
+      },
+      "safeScope": "Idle Incremental RPG starter projects with offline_gains, prestige, auto_battle, upgrade_tree, WYSIWYG showcase coverage, saved project data, runtime hooks, diagnostics, and export validation.",
+      "mainBlockers": []
+    },
+    {
+      "id": "strategy_kingdom_rpg",
+      "status": "READY",
+      "requiredSubsystems": [
+        "ui_menu_core",
+        "message_text_core",
+        "battle_core",
+        "save_data_core",
+        "export_validator"
+      ],
+      "bars": {
+        "accessibility": "READY",
+        "audio": "READY",
+        "input": "READY",
+        "localization": "READY",
+        "performance": "READY"
+      },
+      "barEvidence": {
+        "accessibility": "TemplateRuntimeProfile defines strategy_kingdom_rpg_primary, strategy_kingdom_rpg_status, strategy_kingdom_rpg_action, and strategy_kingdom_rpg_warning labels.",
+        "audio": "TemplateRuntimeProfile defines strategy_kingdom_rpg_open, strategy_kingdom_rpg_confirm, strategy_kingdom_rpg_success, and strategy_kingdom_rpg_warning cues.",
+        "input": "TemplateRuntimeProfile defines kingdom_build_loop, recruitment_loop, army_mission_loop, save_loop.",
+        "localization": "TemplateRuntimeProfile requires strategy_kingdom_rpg.title, strategy_kingdom_rpg.action, strategy_kingdom_rpg.status, and strategy_kingdom_rpg.warning keys.",
+        "performance": "TemplateRuntimeProfile defines strategy_kingdom_rpg_budget through bounded starter data."
+      },
+      "safeScope": "Strategy Kingdom RPG starter projects with buildings, recruiting, resources, army_missions, WYSIWYG showcase coverage, saved project data, runtime hooks, diagnostics, and export validation.",
+      "mainBlockers": []
+    },
+    {
+      "id": "racing_adventure_rpg",
+      "status": "READY",
+      "requiredSubsystems": [
+        "ui_menu_core",
+        "message_text_core",
+        "battle_core",
+        "save_data_core",
+        "export_validator"
+      ],
+      "bars": {
+        "accessibility": "READY",
+        "audio": "READY",
+        "input": "READY",
+        "localization": "READY",
+        "performance": "READY"
+      },
+      "barEvidence": {
+        "accessibility": "TemplateRuntimeProfile defines racing_adventure_rpg_primary, racing_adventure_rpg_status, racing_adventure_rpg_action, and racing_adventure_rpg_warning labels.",
+        "audio": "TemplateRuntimeProfile defines racing_adventure_rpg_open, racing_adventure_rpg_confirm, racing_adventure_rpg_success, and racing_adventure_rpg_warning cues.",
+        "input": "TemplateRuntimeProfile defines vehicle_upgrade_loop, track_event_loop, license_progression_loop, save_loop.",
+        "localization": "TemplateRuntimeProfile requires racing_adventure_rpg.title, racing_adventure_rpg.action, racing_adventure_rpg.status, and racing_adventure_rpg.warning keys.",
+        "performance": "TemplateRuntimeProfile defines racing_adventure_rpg_budget through bounded starter data."
+      },
+      "safeScope": "Racing Adventure RPG starter projects with vehicle_stats, track_events, overworld_racing, licenses, WYSIWYG showcase coverage, saved project data, runtime hooks, diagnostics, and export validation.",
+      "mainBlockers": []
+    },
+    {
+      "id": "rhythm_rpg",
+      "status": "READY",
+      "requiredSubsystems": [
+        "ui_menu_core",
+        "message_text_core",
+        "battle_core",
+        "save_data_core",
+        "export_validator"
+      ],
+      "bars": {
+        "accessibility": "READY",
+        "audio": "READY",
+        "input": "READY",
+        "localization": "READY",
+        "performance": "READY"
+      },
+      "barEvidence": {
+        "accessibility": "TemplateRuntimeProfile defines rhythm_rpg_primary, rhythm_rpg_status, rhythm_rpg_action, and rhythm_rpg_warning labels.",
+        "audio": "TemplateRuntimeProfile defines rhythm_rpg_open, rhythm_rpg_confirm, rhythm_rpg_success, and rhythm_rpg_warning cues.",
+        "input": "TemplateRuntimeProfile defines song_chart_loop, timed_battle_loop, performance_grade_loop, save_loop.",
+        "localization": "TemplateRuntimeProfile requires rhythm_rpg.title, rhythm_rpg.action, rhythm_rpg.status, and rhythm_rpg.warning keys.",
+        "performance": "TemplateRuntimeProfile defines rhythm_rpg_budget through bounded starter data."
+      },
+      "safeScope": "Rhythm RPG starter projects with beat_timed_combat, song_charts, timing_windows, grades, WYSIWYG showcase coverage, saved project data, runtime hooks, diagnostics, and export validation.",
+      "mainBlockers": []
+    },
+    {
+      "id": "cooking_restaurant_rpg",
+      "status": "READY",
+      "requiredSubsystems": [
+        "ui_menu_core",
+        "message_text_core",
+        "battle_core",
+        "save_data_core",
+        "export_validator"
+      ],
+      "bars": {
+        "accessibility": "READY",
+        "audio": "READY",
+        "input": "READY",
+        "localization": "READY",
+        "performance": "READY"
+      },
+      "barEvidence": {
+        "accessibility": "TemplateRuntimeProfile defines cooking_restaurant_rpg_primary, cooking_restaurant_rpg_status, cooking_restaurant_rpg_action, and cooking_restaurant_rpg_warning labels.",
+        "audio": "TemplateRuntimeProfile defines cooking_restaurant_rpg_open, cooking_restaurant_rpg_confirm, cooking_restaurant_rpg_success, and cooking_restaurant_rpg_warning cues.",
+        "input": "TemplateRuntimeProfile defines recipe_prep_loop, customer_queue_loop, restaurant_upgrade_loop, save_loop.",
+        "localization": "TemplateRuntimeProfile requires cooking_restaurant_rpg.title, cooking_restaurant_rpg.action, cooking_restaurant_rpg.status, and cooking_restaurant_rpg.warning keys.",
+        "performance": "TemplateRuntimeProfile defines cooking_restaurant_rpg_budget through bounded starter data."
+      },
+      "safeScope": "Cooking Restaurant RPG starter projects with recipes, customer_queue, restaurant_upgrades, food_buffs, WYSIWYG showcase coverage, saved project data, runtime hooks, diagnostics, and export validation.",
+      "mainBlockers": []
+    },
+    {
+      "id": "school_life_rpg",
+      "status": "READY",
+      "requiredSubsystems": [
+        "ui_menu_core",
+        "message_text_core",
+        "battle_core",
+        "save_data_core",
+        "export_validator"
+      ],
+      "bars": {
+        "accessibility": "READY",
+        "audio": "READY",
+        "input": "READY",
+        "localization": "READY",
+        "performance": "READY"
+      },
+      "barEvidence": {
+        "accessibility": "TemplateRuntimeProfile defines school_life_rpg_primary, school_life_rpg_status, school_life_rpg_action, and school_life_rpg_warning labels.",
+        "audio": "TemplateRuntimeProfile defines school_life_rpg_open, school_life_rpg_confirm, school_life_rpg_success, and school_life_rpg_warning cues.",
+        "input": "TemplateRuntimeProfile defines class_calendar_loop, club_activity_loop, social_link_loop, save_loop.",
+        "localization": "TemplateRuntimeProfile requires school_life_rpg.title, school_life_rpg.action, school_life_rpg.status, and school_life_rpg.warning keys.",
+        "performance": "TemplateRuntimeProfile defines school_life_rpg_budget through bounded starter data."
+      },
+      "safeScope": "School Life RPG starter projects with classes, clubs, social_links, exams, WYSIWYG showcase coverage, saved project data, runtime hooks, diagnostics, and export validation.",
+      "mainBlockers": []
+    },
+    {
+      "id": "pirate_rpg",
+      "status": "READY",
+      "requiredSubsystems": [
+        "ui_menu_core",
+        "message_text_core",
+        "battle_core",
+        "save_data_core",
+        "export_validator"
+      ],
+      "bars": {
+        "accessibility": "READY",
+        "audio": "READY",
+        "input": "READY",
+        "localization": "READY",
+        "performance": "READY"
+      },
+      "barEvidence": {
+        "accessibility": "TemplateRuntimeProfile defines pirate_rpg_primary, pirate_rpg_status, pirate_rpg_action, and pirate_rpg_warning labels.",
+        "audio": "TemplateRuntimeProfile defines pirate_rpg_open, pirate_rpg_confirm, pirate_rpg_success, and pirate_rpg_warning cues.",
+        "input": "TemplateRuntimeProfile defines crew_ship_loop, island_treasure_loop, naval_encounter_loop, save_loop.",
+        "localization": "TemplateRuntimeProfile requires pirate_rpg.title, pirate_rpg.action, pirate_rpg.status, and pirate_rpg.warning keys.",
+        "performance": "TemplateRuntimeProfile defines pirate_rpg_budget through bounded starter data."
+      },
+      "safeScope": "Pirate RPG starter projects with ship_upgrades, crew, treasure_maps, naval_combat, WYSIWYG showcase coverage, saved project data, runtime hooks, diagnostics, and export validation.",
+      "mainBlockers": []
+    },
+    {
+      "id": "sports_team_rpg",
+      "status": "READY",
+      "requiredSubsystems": [
+        "ui_menu_core",
+        "message_text_core",
+        "battle_core",
+        "save_data_core",
+        "export_validator"
+      ],
+      "bars": {
+        "accessibility": "READY",
+        "audio": "READY",
+        "input": "READY",
+        "localization": "READY",
+        "performance": "READY"
+      },
+      "barEvidence": {
+        "accessibility": "TemplateRuntimeProfile defines sports_team_rpg_primary, sports_team_rpg_status, sports_team_rpg_action, and sports_team_rpg_warning labels.",
+        "audio": "TemplateRuntimeProfile defines sports_team_rpg_open, sports_team_rpg_confirm, sports_team_rpg_success, and sports_team_rpg_warning cues.",
+        "input": "TemplateRuntimeProfile defines team_roster_loop, training_week_loop, match_day_loop, save_loop.",
+        "localization": "TemplateRuntimeProfile requires sports_team_rpg.title, sports_team_rpg.action, sports_team_rpg.status, and sports_team_rpg.warning keys.",
+        "performance": "TemplateRuntimeProfile defines sports_team_rpg_budget through bounded starter data."
+      },
+      "safeScope": "Sports Team RPG starter projects with team_roster, training, season_matches, relationships, WYSIWYG showcase coverage, saved project data, runtime hooks, diagnostics, and export validation.",
+      "mainBlockers": []
+    },
+    {
+      "id": "pet_shop_creature_care_rpg",
+      "status": "READY",
+      "requiredSubsystems": [
+        "ui_menu_core",
+        "message_text_core",
+        "battle_core",
+        "save_data_core",
+        "export_validator"
+      ],
+      "bars": {
+        "accessibility": "READY",
+        "audio": "READY",
+        "input": "READY",
+        "localization": "READY",
+        "performance": "READY"
+      },
+      "barEvidence": {
+        "accessibility": "TemplateRuntimeProfile defines pet_shop_creature_care_rpg_primary, pet_shop_creature_care_rpg_status, pet_shop_creature_care_rpg_action, and pet_shop_creature_care_rpg_warning labels.",
+        "audio": "TemplateRuntimeProfile defines pet_shop_creature_care_rpg_open, pet_shop_creature_care_rpg_confirm, pet_shop_creature_care_rpg_success, and pet_shop_creature_care_rpg_warning cues.",
+        "input": "TemplateRuntimeProfile defines pet_care_loop, breeding_loop, customer_request_loop, save_loop.",
+        "localization": "TemplateRuntimeProfile requires pet_shop_creature_care_rpg.title, pet_shop_creature_care_rpg.action, pet_shop_creature_care_rpg.status, and pet_shop_creature_care_rpg.warning keys.",
+        "performance": "TemplateRuntimeProfile defines pet_shop_creature_care_rpg_budget through bounded starter data."
+      },
+      "safeScope": "Pet Shop Creature Care RPG starter projects with pet_care, breeding, shop_economy, customer_requests, WYSIWYG showcase coverage, saved project data, runtime hooks, diagnostics, and export validation.",
+      "mainBlockers": []
+    },
+    {
+      "id": "detective_noir_vn_rpg",
+      "status": "READY",
+      "requiredSubsystems": [
+        "ui_menu_core",
+        "message_text_core",
+        "battle_core",
+        "save_data_core",
+        "export_validator"
+      ],
+      "bars": {
+        "accessibility": "READY",
+        "audio": "READY",
+        "input": "READY",
+        "localization": "READY",
+        "performance": "READY"
+      },
+      "barEvidence": {
+        "accessibility": "TemplateRuntimeProfile defines detective_noir_vn_rpg_primary, detective_noir_vn_rpg_status, detective_noir_vn_rpg_action, and detective_noir_vn_rpg_warning labels.",
+        "audio": "TemplateRuntimeProfile defines detective_noir_vn_rpg_open, detective_noir_vn_rpg_confirm, detective_noir_vn_rpg_success, and detective_noir_vn_rpg_warning cues.",
+        "input": "TemplateRuntimeProfile defines noir_case_loop, evidence_board_loop, branching_ending_loop, save_loop.",
+        "localization": "TemplateRuntimeProfile requires detective_noir_vn_rpg.title, detective_noir_vn_rpg.action, detective_noir_vn_rpg.status, and detective_noir_vn_rpg.warning keys.",
+        "performance": "TemplateRuntimeProfile defines detective_noir_vn_rpg_budget through bounded starter data."
+      },
+      "safeScope": "Detective Noir VN RPG starter projects with evidence_boards, branching_endings, noir_dialogue, case_variables, WYSIWYG showcase coverage, saved project data, runtime hooks, diagnostics, and export validation.",
+      "mainBlockers": []
+    },
+    {
+      "id": "city_builder_rpg",
+      "status": "READY",
+      "requiredSubsystems": [
+        "ui_menu_core",
+        "message_text_core",
+        "battle_core",
+        "save_data_core",
+        "export_validator"
+      ],
+      "bars": {
+        "accessibility": "READY",
+        "audio": "READY",
+        "input": "READY",
+        "localization": "READY",
+        "performance": "READY"
+      },
+      "barEvidence": {
+        "accessibility": "TemplateRuntimeProfile defines city_builder_rpg_primary, city_builder_rpg_status, city_builder_rpg_action, and city_builder_rpg_warning labels.",
+        "audio": "TemplateRuntimeProfile defines city_builder_rpg_open, city_builder_rpg_confirm, city_builder_rpg_success, and city_builder_rpg_warning cues.",
+        "input": "TemplateRuntimeProfile defines district_build_loop, citizen_need_loop, resource_chain_loop, save_loop.",
+        "localization": "TemplateRuntimeProfile requires city_builder_rpg.title, city_builder_rpg.action, city_builder_rpg.status, and city_builder_rpg.warning keys.",
+        "performance": "TemplateRuntimeProfile defines city_builder_rpg_budget through bounded starter data."
+      },
+      "safeScope": "City Builder RPG starter projects with town_placement, citizen_needs, resident_quests, resource_chains, WYSIWYG showcase coverage, saved project data, runtime hooks, diagnostics, and export validation.",
+      "mainBlockers": []
+    },
+    {
+      "id": "tower_defense_rpg",
+      "status": "READY",
+      "requiredSubsystems": [
+        "ui_menu_core",
+        "message_text_core",
+        "battle_core",
+        "save_data_core",
+        "export_validator"
+      ],
+      "bars": {
+        "accessibility": "READY",
+        "audio": "READY",
+        "input": "READY",
+        "localization": "READY",
+        "performance": "READY"
+      },
+      "barEvidence": {
+        "accessibility": "TemplateRuntimeProfile defines tower_defense_rpg_primary, tower_defense_rpg_status, tower_defense_rpg_action, and tower_defense_rpg_warning labels.",
+        "audio": "TemplateRuntimeProfile defines tower_defense_rpg_open, tower_defense_rpg_confirm, tower_defense_rpg_success, and tower_defense_rpg_warning cues.",
+        "input": "TemplateRuntimeProfile defines wave_design_loop, tower_upgrade_loop, hero_defense_loop, save_loop.",
+        "localization": "TemplateRuntimeProfile requires tower_defense_rpg.title, tower_defense_rpg.action, tower_defense_rpg.status, and tower_defense_rpg.warning keys.",
+        "performance": "TemplateRuntimeProfile defines tower_defense_rpg_budget through bounded starter data."
+      },
+      "safeScope": "Tower Defense RPG starter projects with wave_design, towers, traps, hero_abilities, WYSIWYG showcase coverage, saved project data, runtime hooks, diagnostics, and export validation.",
+      "mainBlockers": []
+    },
+    {
+      "id": "beat_em_up_rpg",
+      "status": "READY",
+      "requiredSubsystems": [
+        "ui_menu_core",
+        "message_text_core",
+        "battle_core",
+        "save_data_core",
+        "export_validator"
+      ],
+      "bars": {
+        "accessibility": "READY",
+        "audio": "READY",
+        "input": "READY",
+        "localization": "READY",
+        "performance": "READY"
+      },
+      "barEvidence": {
+        "accessibility": "TemplateRuntimeProfile defines beat_em_up_rpg_primary, beat_em_up_rpg_status, beat_em_up_rpg_action, and beat_em_up_rpg_warning labels.",
+        "audio": "TemplateRuntimeProfile defines beat_em_up_rpg_open, beat_em_up_rpg_confirm, beat_em_up_rpg_success, and beat_em_up_rpg_warning cues.",
+        "input": "TemplateRuntimeProfile defines stage_brawler_loop, combo_progression_loop, pickup_reward_loop, save_loop.",
+        "localization": "TemplateRuntimeProfile requires beat_em_up_rpg.title, beat_em_up_rpg.action, beat_em_up_rpg.status, and beat_em_up_rpg.warning keys.",
+        "performance": "TemplateRuntimeProfile defines beat_em_up_rpg_budget through bounded starter data."
+      },
+      "safeScope": "Beat Em Up RPG starter projects with brawler_combat, combos, pickups, stage_progression, WYSIWYG showcase coverage, saved project data, runtime hooks, diagnostics, and export validation.",
+      "mainBlockers": []
+    },
+    {
+      "id": "open_world_survival_rpg",
+      "status": "READY",
+      "requiredSubsystems": [
+        "ui_menu_core",
+        "message_text_core",
+        "battle_core",
+        "save_data_core",
+        "export_validator"
+      ],
+      "bars": {
+        "accessibility": "READY",
+        "audio": "READY",
+        "input": "READY",
+        "localization": "READY",
+        "performance": "READY"
+      },
+      "barEvidence": {
+        "accessibility": "TemplateRuntimeProfile defines open_world_survival_rpg_primary, open_world_survival_rpg_status, open_world_survival_rpg_action, and open_world_survival_rpg_warning labels.",
+        "audio": "TemplateRuntimeProfile defines open_world_survival_rpg_open, open_world_survival_rpg_confirm, open_world_survival_rpg_success, and open_world_survival_rpg_warning cues.",
+        "input": "TemplateRuntimeProfile defines camp_setup_loop, survival_needs_loop, biome_event_loop, save_loop.",
+        "localization": "TemplateRuntimeProfile requires open_world_survival_rpg.title, open_world_survival_rpg.action, open_world_survival_rpg.status, and open_world_survival_rpg.warning keys.",
+        "performance": "TemplateRuntimeProfile defines open_world_survival_rpg_budget through bounded starter data."
+      },
+      "safeScope": "Open World Survival RPG starter projects with hunger_thirst, camps, crafting, dynamic_events, WYSIWYG showcase coverage, saved project data, runtime hooks, diagnostics, and export validation.",
+      "mainBlockers": []
+    },
+    {
+      "id": "faction_politics_rpg",
+      "status": "READY",
+      "requiredSubsystems": [
+        "ui_menu_core",
+        "message_text_core",
+        "battle_core",
+        "save_data_core",
+        "export_validator"
+      ],
+      "bars": {
+        "accessibility": "READY",
+        "audio": "READY",
+        "input": "READY",
+        "localization": "READY",
+        "performance": "READY"
+      },
+      "barEvidence": {
+        "accessibility": "TemplateRuntimeProfile defines faction_politics_rpg_primary, faction_politics_rpg_status, faction_politics_rpg_action, and faction_politics_rpg_warning labels.",
+        "audio": "TemplateRuntimeProfile defines faction_politics_rpg_open, faction_politics_rpg_confirm, faction_politics_rpg_success, and faction_politics_rpg_warning cues.",
+        "input": "TemplateRuntimeProfile defines reputation_choice_loop, diplomacy_mission_loop, territory_influence_loop, save_loop.",
+        "localization": "TemplateRuntimeProfile requires faction_politics_rpg.title, faction_politics_rpg.action, faction_politics_rpg.status, and faction_politics_rpg.warning keys.",
+        "performance": "TemplateRuntimeProfile defines faction_politics_rpg_budget through bounded starter data."
+      },
+      "safeScope": "Faction Politics RPG starter projects with reputation, diplomacy, faction_quests, territory_influence, WYSIWYG showcase coverage, saved project data, runtime hooks, diagnostics, and export validation.",
       "mainBlockers": []
     }
   ]

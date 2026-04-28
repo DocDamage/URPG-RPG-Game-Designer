@@ -1,0 +1,31 @@
+{
+  "template_id": "racing_adventure_rpg",
+  "display_name": "Racing Adventure RPG Starter",
+  "status": "READY",
+  "loops": [
+    "vehicle_upgrade_loop",
+    "track_event_loop",
+    "license_progression_loop",
+    "save_loop"
+  ],
+  "systems": {
+    "genre_features": [
+      "vehicle_stats",
+      "track_events",
+      "overworld_racing",
+      "licenses"
+    ],
+    "integrations": {
+      "export_validation": [
+        "starter_data_complete",
+        "required_text_keys_bound",
+        "save_state_declared"
+      ],
+      "wysiwyg_surfaces": [
+        "vehicles",
+        "route_planner",
+        "license_rewards"
+      ]
+    }
+  }
+}

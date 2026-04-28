@@ -1,0 +1,31 @@
+{
+  "template_id": "beat_em_up_rpg",
+  "display_name": "Beat Em Up RPG Starter",
+  "status": "READY",
+  "loops": [
+    "stage_brawler_loop",
+    "combo_progression_loop",
+    "pickup_reward_loop",
+    "save_loop"
+  ],
+  "systems": {
+    "genre_features": [
+      "brawler_combat",
+      "combos",
+      "pickups",
+      "stage_progression"
+    ],
+    "integrations": {
+      "export_validation": [
+        "starter_data_complete",
+        "required_text_keys_bound",
+        "save_state_declared"
+      ],
+      "wysiwyg_surfaces": [
+        "brawler_combat",
+        "combos",
+        "stage_rewards"
+      ]
+    }
+  }
+}

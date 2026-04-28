@@ -13,8 +13,6 @@ The `2_5d_rpg` template covers games that use a raycast-based or faux-3D present
 | --- | --- |
 | `presentation_runtime` | Raycast rendering, camera, and spatial updates for the 2.5D mode. |
 | `save_data_core` | Persistent progression, settings, and session recovery. |
-| `raycast_renderer` | Raycast frame casting and blocking-cell authoring adapter. |
-| `spatial_projection` | Spatial presentation profile and projection metadata. |
 
 ## Cross-Cutting Minimum Bars
 

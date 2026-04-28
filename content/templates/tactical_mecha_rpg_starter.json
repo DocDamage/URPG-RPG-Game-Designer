@@ -1,0 +1,31 @@
+{
+  "template_id": "tactical_mecha_rpg",
+  "display_name": "Tactical Mecha RPG Starter",
+  "status": "READY",
+  "loops": [
+    "mech_loadout_loop",
+    "grid_battle_loop",
+    "pilot_bond_loop",
+    "save_loop"
+  ],
+  "systems": {
+    "genre_features": [
+      "parts_loadout",
+      "heat_ammo",
+      "pilot_bonds",
+      "grid_deployment"
+    ],
+    "integrations": {
+      "export_validation": [
+        "starter_data_complete",
+        "required_text_keys_bound",
+        "save_state_declared"
+      ],
+      "wysiwyg_surfaces": [
+        "mech_loadout",
+        "grid_battle",
+        "pilot_bonds"
+      ]
+    }
+  }
+}

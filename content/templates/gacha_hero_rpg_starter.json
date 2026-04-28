@@ -1,0 +1,22 @@
+{
+  "template_id": "gacha_hero_rpg",
+  "display_name": "Gacha Hero RPG Starter",
+  "status": "READY",
+  "loops": ["summon_banner_loop", "hero_roster_loop", "party_battle_loop", "offline_pity_save_loop"],
+  "systems": {
+    "summon": {
+      "currency": "star_gems",
+      "rarities": ["r", "sr", "ssr"],
+      "pity": {"ssr_max_pulls": 90, "guaranteed_featured_after_miss": true}
+    },
+    "heroes": {
+      "starter_roster": ["aura_knight", "cinder_mage", "tide_mender"],
+      "party_size": 4,
+      "duplicates_convert_to": "hero_shards"
+    },
+    "integrations": {
+      "export_validation": ["rates_sum_to_one", "featured_unit_exists", "pity_state_saved"],
+      "wysiwyg_surfaces": ["summon_gacha_banner", "gacha_system", "achievement_visual_builder"]
+    }
+  }
+}

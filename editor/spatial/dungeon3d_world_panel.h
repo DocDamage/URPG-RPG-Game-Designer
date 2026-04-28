@@ -65,8 +65,12 @@ struct Dungeon3DWorldPanelSnapshot {
     float camera_head_bob = 0.0f;
     float camera_shake = 0.0f;
     float verification_completion = 0.0f;
+    float minimap_visibility_ratio = 0.0f;
+    float interaction_density = 0.0f;
     std::vector<std::string> visual_authoring_layers;
     std::vector<std::string> template_binding_ids;
+    std::string ux_focus_lane = "setup";
+    std::string primary_action = "Load a 3D dungeon world document.";
     std::string active_ambient_sound;
     std::string active_reverb_preset;
     std::string active_weather;

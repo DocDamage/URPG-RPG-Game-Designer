@@ -45,6 +45,27 @@ void MapEnvironmentPreviewPanel::refreshPreview() {
     snapshot_.spawn_entry_count = preview_.spawn_entry_count;
     snapshot_.diagnostic_count = preview_.diagnostics.size();
     snapshot_.selected_tile_blocked = preview_.selected_tile_blocked;
+    const auto overlay_count = snapshot_.region_overlay_count + snapshot_.tactical_reachable_count +
+                               snapshot_.spawn_entry_count;
+    snapshot_.overlay_density = snapshot_.visible_tile_layer_count == 0
+        ? 0.0f
+        : static_cast<float>(overlay_count) / static_cast<float>(snapshot_.visible_tile_layer_count);
+    snapshot_.selected_tile_summary = snapshot_.region_id.empty()
+        ? "No region/weather rule on selected tile."
+        : snapshot_.region_id + ":" + snapshot_.weather;
+    if (snapshot_.diagnostic_count > 0) {
+        snapshot_.ux_focus_lane = "diagnostics";
+        snapshot_.primary_action = "Resolve map preview diagnostics before shipping this area.";
+    } else if (snapshot_.selected_tile_blocked) {
+        snapshot_.ux_focus_lane = "collision";
+        snapshot_.primary_action = "Inspect passability and collision overlays for the selected tile.";
+    } else if (snapshot_.spawn_entry_count > 0) {
+        snapshot_.ux_focus_lane = "spawns";
+        snapshot_.primary_action = "Tune spawn-table weights against the selected region preview.";
+    } else {
+        snapshot_.ux_focus_lane = "lighting_weather";
+        snapshot_.primary_action = "Preview lighting, weather, and region overlays on the selected tile.";
+    }
     snapshot_.saved_project_json = document_.toJson().dump();
     snapshot_.status_message =
         snapshot_.diagnostic_count == 0 ? "Map environment preview is ready." : "Map environment preview has diagnostics.";

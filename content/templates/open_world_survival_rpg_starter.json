@@ -1,0 +1,31 @@
+{
+  "template_id": "open_world_survival_rpg",
+  "display_name": "Open World Survival RPG Starter",
+  "status": "READY",
+  "loops": [
+    "camp_setup_loop",
+    "survival_needs_loop",
+    "biome_event_loop",
+    "save_loop"
+  ],
+  "systems": {
+    "genre_features": [
+      "hunger_thirst",
+      "camps",
+      "crafting",
+      "dynamic_events"
+    ],
+    "integrations": {
+      "export_validation": [
+        "starter_data_complete",
+        "required_text_keys_bound",
+        "save_state_declared"
+      ],
+      "wysiwyg_surfaces": [
+        "camps",
+        "biomes",
+        "crafting"
+      ]
+    }
+  }
+}

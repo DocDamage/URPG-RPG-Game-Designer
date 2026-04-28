@@ -1,0 +1,36 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://urpg.dev/schemas/visual_novel_pacing.schema.json",
+  "title": "URPG visual novel pacing controls",
+  "type": "object",
+  "required": ["schema", "id", "controls", "backlog"],
+  "properties": {
+    "schema": { "const": "urpg.visual_novel_pacing.v1" },
+    "id": { "type": "string", "minLength": 1 },
+    "controls": {
+      "type": "object",
+      "required": ["auto_advance", "skip_read_text", "text_speed_cps", "auto_advance_delay_seconds", "backlog_limit"],
+      "properties": {
+        "auto_advance": { "type": "boolean" },
+        "skip_read_text": { "type": "boolean" },
+        "text_speed_cps": { "type": "number", "exclusiveMinimum": 0 },
+        "auto_advance_delay_seconds": { "type": "number", "minimum": 0 },
+        "backlog_limit": { "type": "integer", "minimum": 1 }
+      }
+    },
+    "backlog": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["page_id", "speaker", "text", "voice_cue", "read"],
+        "properties": {
+          "page_id": { "type": "string", "minLength": 1 },
+          "speaker": { "type": "string", "minLength": 1 },
+          "text": { "type": "string", "minLength": 1 },
+          "voice_cue": { "type": "string" },
+          "read": { "type": "boolean" }
+        }
+      }
+    }
+  }
+}

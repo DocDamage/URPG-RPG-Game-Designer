@@ -67,8 +67,26 @@ void DialoguePreviewPanel::refreshPreview() {
     snapshot_.selected_choice_index = preview_.selected_choice_index.value_or(preview_.flow_snapshot.selected_choice_index);
     snapshot_.runtime_command_count = preview_.runtime_commands.size();
     snapshot_.variable_after_choice_count = preview_.variables_after_choice.size();
+    snapshot_.body_character_count = preview_.body.size();
+    snapshot_.portrait_visible = preview_.portrait.has_value();
     snapshot_.confirmed_choice_id = preview_.confirmed_choice_id;
     snapshot_.next_page_id = preview_.next_page_id;
+    snapshot_.has_branch_target = !snapshot_.next_page_id.empty();
+    snapshot_.choice_state_summary = std::to_string(snapshot_.enabled_choice_count) + "/" +
+                                     std::to_string(snapshot_.choice_count) + " choices enabled";
+    if (snapshot_.diagnostic_count > 0) {
+        snapshot_.ux_focus_lane = "diagnostics";
+        snapshot_.primary_action = "Resolve dialogue preview diagnostics before recording this page.";
+    } else if (snapshot_.choice_count > 0 && !snapshot_.has_branch_target) {
+        snapshot_.ux_focus_lane = "choices";
+        snapshot_.primary_action = "Select and confirm a choice to preview branch state.";
+    } else if (!snapshot_.portrait_visible) {
+        snapshot_.ux_focus_lane = "portrait";
+        snapshot_.primary_action = "Assign a portrait layer for this speaker preview.";
+    } else {
+        snapshot_.ux_focus_lane = "localized_preview";
+        snapshot_.primary_action = "Compare portrait, localized text, variables, and runtime commands.";
+    }
     nlohmann::json variables_json = nlohmann::json::object();
     for (const auto& [key, value] : preview_.variables_after_choice) {
         variables_json[std::to_string(key)] = value;

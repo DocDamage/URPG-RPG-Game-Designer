@@ -359,6 +359,10 @@ TEST_CASE("Ability sandbox shows costs, cooldowns, tags, effects, and runtime ac
     REQUIRE(panel.snapshot().diagnostic_count == 0);
     REQUIRE(panel.snapshot().activation_allowed);
     REQUIRE(panel.snapshot().activation_executed);
+    REQUIRE(panel.snapshot().mp_delta == -15.0f);
+    REQUIRE(panel.snapshot().effect_delta == 8.0f);
+    REQUIRE(panel.snapshot().activation_success_ratio == 1.0f);
+    REQUIRE(panel.snapshot().ux_focus_lane == "cooldown");
     REQUIRE(panel.snapshot().status_message == "Ability sandbox preview is ready.");
     REQUIRE_FALSE(panel.snapshot().saved_project_json.empty());
 
@@ -386,6 +390,7 @@ TEST_CASE("Ability sandbox panel edits live costs, cooldowns, tags, and effects 
 
     REQUIRE_FALSE(panel.snapshot().activation_executed);
     REQUIRE(panel.snapshot().blocking_reason == "missing_required_tags");
+    REQUIRE(panel.snapshot().ux_focus_lane == "requirements");
     REQUIRE(panel.snapshot().source_tag_count == 1);
     REQUIRE(panel.snapshot().mp_after == 50.0f);
 
@@ -398,6 +403,7 @@ TEST_CASE("Ability sandbox panel edits live costs, cooldowns, tags, and effects 
     REQUIRE(panel.snapshot().mp_after == 30.0f);
     REQUIRE(panel.snapshot().cooldown_after == 2.0f);
     REQUIRE(panel.snapshot().effect_after == 34.0f);
+    REQUIRE(panel.snapshot().activation_success_ratio == 1.0f);
     REQUIRE(panel.result().activation_steps[0].effect_attribute_after == 22.0f);
     REQUIRE(panel.result().activation_steps[1].executed);
     REQUIRE(panel.result().activation_steps[1].cooldown_before == 0.0f);
@@ -457,6 +463,7 @@ TEST_CASE("Ability sandbox diagnostics and tag gates block false complete claims
 
     REQUIRE(panel.hasRenderedFrame());
     REQUIRE(panel.snapshot().diagnostic_count >= 2);
+    REQUIRE(panel.snapshot().ux_focus_lane == "diagnostics");
     REQUIRE_FALSE(panel.snapshot().activation_executed);
     REQUIRE(panel.snapshot().status_message == "Ability sandbox preview has diagnostics.");
 

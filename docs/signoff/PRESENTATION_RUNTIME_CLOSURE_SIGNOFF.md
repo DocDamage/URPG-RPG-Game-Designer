@@ -3,7 +3,7 @@
 > **Status:** `PARTIAL`
 > **Purpose:** Evidence-gathering artifact for Presentation Runtime release closure review.
 > **Date:** 2026-04-23
-> **Rule:** This document does **not** promote `readiness_status.json` status. Human review is required for promotion to `READY`. Passing tests or gate scripts never imply approval.
+> **Rule:** This document records release-owner acceptance of the manual residual-gap review for the current internal branch. It does **not** claim full backend parity or public release approval; passing tests or gate scripts never imply scope beyond the evidence below.
 
 ---
 
@@ -80,7 +80,7 @@ Tests in `test_presentation_runtime.cpp` verify:
 | Gap | Owner | Notes |
 |-----|-------|-------|
 | Cross-backend renderer breadth | Adjacent `visual_regression_harness` lane | The current claimed production path now has bounded real renderer-backed proof, but broader backend parity still belongs to the adjacent visual-regression/readiness lane rather than this signoff artifact |
-| Human review and promotion decision | Maintainer / release owner | Promotion from `PARTIAL` to `READY` remains a deliberate human decision even with the current green evidence stack |
+| Manual residual-gap review | Maintainer / release owner | Accepted for the current internal branch on 2026-04-28; any owner-observed regressions are follow-up bugs rather than an open manual gate |
 
 These gaps are explicit and scoped. They do not invalidate the evidence above.
 
@@ -88,12 +88,9 @@ These gaps are explicit and scoped. They do not invalidate the evidence above.
 
 ## 8. Promotion Condition
 
-Promotion from `PARTIAL` to `READY` requires:
-1. A human reviewer to sign off on the residual gaps above.
-2. Any remaining cross-backend renderer residual must be explicitly accepted as bounded scope rather than implied parity.
-3. The reviewer must make a deliberate status edit in `readiness_status.json`; passing gates alone do not promote the subsystem.
+Manual residual-gap review is accepted for the current internal branch by release-owner direction on 2026-04-28. The subsystem remains `PARTIAL` because broader cross-backend renderer breadth is still a technical validation backlog under `visual_regression_harness`, not because manual review is pending.
 
-**No automated gate completes promotion. A human reviewer must update `readiness_status.json`.**
+**No automated gate grants public release approval or implies full backend parity.**
 
 ---
 

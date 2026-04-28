@@ -1,0 +1,21 @@
+{
+  "template_id": "roguelite_dungeon",
+  "display_name": "Roguelite Dungeon Starter",
+  "status": "READY",
+  "loops": ["run_setup_loop", "procedural_floor_loop", "loot_reward_loop", "meta_progression_save_loop"],
+  "systems": {
+    "procedural_dungeon": {
+      "room_types": ["start", "combat", "event", "treasure", "boss", "exit"],
+      "room_budget": {"min": 8, "max": 14},
+      "stitcher": "random_dungeon_room_stitcher"
+    },
+    "loot": {
+      "rarities": ["common", "rare", "epic"],
+      "reward_pity": {"enabled": true, "max_dry_rooms": 3}
+    },
+    "integrations": {
+      "export_validation": ["loot_table_has_weights", "boss_drop_defined", "run_seed_recorded"],
+      "wysiwyg_surfaces": ["dungeon3d_world", "battle_vfx_timeline", "save_load_preview_lab"]
+    }
+  }
+}

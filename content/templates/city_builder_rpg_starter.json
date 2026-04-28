@@ -1,0 +1,31 @@
+{
+  "template_id": "city_builder_rpg",
+  "display_name": "City Builder RPG Starter",
+  "status": "READY",
+  "loops": [
+    "district_build_loop",
+    "citizen_need_loop",
+    "resource_chain_loop",
+    "save_loop"
+  ],
+  "systems": {
+    "genre_features": [
+      "town_placement",
+      "citizen_needs",
+      "resident_quests",
+      "resource_chains"
+    ],
+    "integrations": {
+      "export_validation": [
+        "starter_data_complete",
+        "required_text_keys_bound",
+        "save_state_declared"
+      ],
+      "wysiwyg_surfaces": [
+        "districts",
+        "citizens",
+        "resource_chains"
+      ]
+    }
+  }
+}

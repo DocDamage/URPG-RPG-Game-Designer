@@ -75,6 +75,33 @@ void ExportPreviewPanel::refreshPreview() {
     snapshot_.missing_expected_artifact_count = result_.missing_expected_artifacts.size();
     snapshot_.runtime_trace_count = result_.runtime_trace.size();
     snapshot_.diagnostic_count = result_.diagnostics.size();
+    float passed_checks = 0.0f;
+    passed_checks += snapshot_.preflight_passed ? 1.0f : 0.0f;
+    passed_checks += snapshot_.export_success ? 1.0f : 0.0f;
+    passed_checks += snapshot_.post_export_validation_passed ? 1.0f : 0.0f;
+    passed_checks += snapshot_.missing_expected_artifact_count == 0 ? 1.0f : 0.0f;
+    snapshot_.release_readiness_score = passed_checks / 4.0f;
+    if (!snapshot_.preflight_passed) {
+        snapshot_.blocker_summary = "Preflight failed.";
+        snapshot_.ux_focus_lane = "preflight";
+        snapshot_.primary_action = "Fix export preflight inputs before packaging.";
+    } else if (!snapshot_.export_success) {
+        snapshot_.blocker_summary = "Export execution failed.";
+        snapshot_.ux_focus_lane = "export";
+        snapshot_.primary_action = "Inspect export trace and generated files.";
+    } else if (snapshot_.missing_expected_artifact_count > 0) {
+        snapshot_.blocker_summary = "Missing expected shipping artifacts.";
+        snapshot_.ux_focus_lane = "shipping_manifest";
+        snapshot_.primary_action = "Add or correct expected shipping artifacts.";
+    } else if (!snapshot_.post_export_validation_passed) {
+        snapshot_.blocker_summary = "Post-export validation failed.";
+        snapshot_.ux_focus_lane = "validation";
+        snapshot_.primary_action = "Resolve post-export validation diagnostics.";
+    } else {
+        snapshot_.blocker_summary = "No export blockers for this preview.";
+        snapshot_.ux_focus_lane = "exact_ship";
+        snapshot_.primary_action = "Use the manifest as the exact shipping preview.";
+    }
     snapshot_.saved_project_json = document_.toJson().dump();
     snapshot_.shipping_manifest = result_.shipping_manifest;
     snapshot_.status_message =

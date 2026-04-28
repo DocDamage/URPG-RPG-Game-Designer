@@ -24,8 +24,14 @@ struct DialoguePreviewPanelSnapshot {
     size_t selected_choice_index = 0;
     size_t runtime_command_count = 0;
     size_t variable_after_choice_count = 0;
+    size_t body_character_count = 0;
+    bool portrait_visible = false;
+    bool has_branch_target = false;
     std::string confirmed_choice_id;
     std::string next_page_id;
+    std::string ux_focus_lane = "dialogue";
+    std::string choice_state_summary;
+    std::string primary_action = "Load a dialogue preview.";
     std::string variables_after_choice_json;
     std::string saved_project_json;
     std::string status_message = "Load a dialogue preview before rendering this panel.";

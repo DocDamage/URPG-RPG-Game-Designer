@@ -1,0 +1,34 @@
+{
+  "schema": "urpg.visual_novel_pacing.v1",
+  "id": "chapter_intro_pacing",
+  "controls": {
+    "auto_advance": true,
+    "skip_read_text": true,
+    "text_speed_cps": 24.0,
+    "auto_advance_delay_seconds": 1.5,
+    "backlog_limit": 3
+  },
+  "backlog": [
+    {
+      "page_id": "intro_001",
+      "speaker": "Mira",
+      "text": "The rain has stopped.",
+      "voice_cue": "voice/mira_intro_001",
+      "read": true
+    },
+    {
+      "page_id": "intro_002",
+      "speaker": "Guide",
+      "text": "Then the gate will answer.",
+      "voice_cue": "voice/guide_intro_002",
+      "read": true
+    },
+    {
+      "page_id": "intro_003",
+      "speaker": "Mira",
+      "text": "I can hear it opening.",
+      "voice_cue": "voice/mira_intro_003",
+      "read": false
+    }
+  ]
+}

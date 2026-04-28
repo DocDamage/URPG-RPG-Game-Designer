@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <cmath>
+#include <limits>
 #include <utility>
 
 namespace urpg::editor {
@@ -82,6 +83,9 @@ void BattleVfxTimelinePanel::refreshSnapshot() {
     snapshot_.duration_frames = document_.duration_frames;
     snapshot_.track_count = document_.tracks().size();
     snapshot_.event_count = document_.events().size();
+    snapshot_.timeline_progress = document_.duration_frames <= 0
+        ? 0.0f
+        : static_cast<float>(current_frame_) / static_cast<float>(document_.duration_frames);
     snapshot_.runtime_preview_cue_count = runtime_preview_cues_.size();
     snapshot_.runtime_preview_commands = runtime_preview_commands_;
     snapshot_.runtime_preview_command_count = snapshot_.runtime_preview_commands.size();
@@ -102,14 +106,41 @@ void BattleVfxTimelinePanel::refreshSnapshot() {
     for (const auto& event : document_.eventsAtFrame(current_frame_)) {
         if (event_is_visible(event)) {
             snapshot_.visible_event_ids.push_back(event.id);
+            if (snapshot_.active_track_id.empty()) {
+                snapshot_.active_track_id = event.track_id;
+            }
         }
     }
     snapshot_.visible_event_count = snapshot_.visible_event_ids.size();
+    snapshot_.visible_event_ratio = snapshot_.event_count == 0
+        ? 0.0f
+        : static_cast<float>(snapshot_.visible_event_count) / static_cast<float>(snapshot_.event_count);
+
+    int32_t nearest_next_frame = std::numeric_limits<int32_t>::max();
+    for (const auto& event : document_.events()) {
+        if (event.frame > current_frame_ && event.frame < nearest_next_frame && event_is_visible(event)) {
+            nearest_next_frame = event.frame;
+            snapshot_.next_event_id = event.id;
+        }
+    }
 
     for (const auto& diagnostic : document_.validate()) {
         snapshot_.diagnostics.push_back(diagnostic.code + ":" + diagnostic.event_id);
     }
     snapshot_.diagnostic_count = snapshot_.diagnostics.size();
+    if (snapshot_.diagnostic_count > 0) {
+        snapshot_.ux_focus_lane = "diagnostics";
+        snapshot_.primary_action = "Fix VFX timeline diagnostics before preview approval.";
+    } else if (!snapshot_.visible_event_ids.empty()) {
+        snapshot_.ux_focus_lane = "live_cue";
+        snapshot_.primary_action = "Tune the active cue intensity, anchor, and asset payload.";
+    } else if (!snapshot_.next_event_id.empty()) {
+        snapshot_.ux_focus_lane = "scrub";
+        snapshot_.primary_action = "Scrub to the next authored VFX event.";
+    } else {
+        snapshot_.ux_focus_lane = "timeline";
+        snapshot_.primary_action = "Add or reveal a VFX event track for this frame.";
+    }
 }
 
 void BattleVfxTimelinePanel::rebuildRuntimePreview() {

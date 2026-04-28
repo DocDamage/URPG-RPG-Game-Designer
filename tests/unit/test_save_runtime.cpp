@@ -154,6 +154,9 @@ TEST_CASE("Save/load preview lab round-trips authored slot through runtime loade
     REQUIRE(panel.snapshot().loaded_slot_id == 3);
     REQUIRE(panel.snapshot().loaded_map_display_name == "Town");
     REQUIRE(panel.snapshot().diagnostic_count == 0);
+    REQUIRE(panel.snapshot().integrity_score == 0.75f);
+    REQUIRE(panel.snapshot().ux_focus_lane == "diff");
+    REQUIRE(panel.snapshot().integrity_summary == "Primary save round-trip is clean.");
     REQUIRE(panel.snapshot().status_message == "Save/load preview lab is ready.");
     REQUIRE_FALSE(panel.snapshot().saved_project_json.empty());
 
@@ -186,6 +189,7 @@ TEST_CASE("Save/load preview lab panel edits slot payload and recovery mode live
     panel.render();
     REQUIRE(panel.snapshot().loaded_from_recovery);
     REQUIRE(panel.snapshot().recovery_tier == "level1_autosave");
+    REQUIRE(panel.snapshot().ux_focus_lane == "recovery");
 
     panel.setForceSafeMode(true);
     panel.render();
@@ -238,6 +242,7 @@ TEST_CASE("Save/load preview lab diagnostics block false complete claims",
 
     REQUIRE(panel.hasRenderedFrame());
     REQUIRE(panel.snapshot().diagnostic_count >= 4);
+    REQUIRE(panel.snapshot().ux_focus_lane == "diagnostics");
     REQUIRE_FALSE(panel.snapshot().loaded_ok);
     REQUIRE_FALSE(panel.snapshot().payload_matches_expected);
     REQUIRE(panel.snapshot().status_message == "Save/load preview lab has diagnostics.");

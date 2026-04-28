@@ -24,7 +24,11 @@ struct MapEnvironmentPreviewPanelSnapshot {
     size_t tactical_reachable_count = 0;
     size_t spawn_entry_count = 0;
     size_t diagnostic_count = 0;
+    float overlay_density = 0.0f;
     bool selected_tile_blocked = false;
+    std::string ux_focus_lane = "map_layers";
+    std::string selected_tile_summary;
+    std::string primary_action = "Load a map environment preview.";
     std::string saved_project_json;
     std::string status_message = "Load a map environment preview before rendering this panel.";
 };

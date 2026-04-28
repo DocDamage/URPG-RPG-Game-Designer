@@ -1,0 +1,54 @@
+{
+  "schema": "urpg.release_asset_promotion_manifest.v1",
+  "status_date": "2026-04-28",
+  "assets": [
+    {
+      "id": "icon_app_png",
+      "path": "resources/icons/urpg_icon_256.png",
+      "kind": "icon",
+      "release_required": true,
+      "distribution": "bundled",
+      "license_cleared": true,
+      "license": "project-owned",
+      "attribution": "URPG project icon asset",
+      "source_url": "repo:resources/icons/urpg_icon_256.png",
+      "release_surfaces": ["runtime", "editor", "package"]
+    },
+    {
+      "id": "prototype_actor_svg",
+      "path": "imports/normalized/prototype_sprites/gdquest_blue_actor.svg",
+      "kind": "prototype_sprite",
+      "release_required": true,
+      "distribution": "bundled",
+      "license_cleared": true,
+      "license": "CC0-1.0",
+      "attribution": "GDQuest prototype sprite subset",
+      "source_url": "https://github.com/GDQuest/godot-2d-platformer",
+      "release_surfaces": ["map", "battle", "wysiwyg_smoke"]
+    },
+    {
+      "id": "ui_sfx_local_fallback",
+      "path": "content/audio/fallbacks/ui_click_placeholder.ogg",
+      "kind": "ui_audio_fallback",
+      "release_required": true,
+      "distribution": "bundled",
+      "license_cleared": true,
+      "license": "project-owned",
+      "attribution": "URPG generated fallback UI click",
+      "source_url": "repo:content/audio/fallbacks/ui_click_placeholder.ogg",
+      "release_surfaces": ["ui", "audio_smoke"]
+    },
+    {
+      "id": "source_psd_reference",
+      "path": "third_party/itch-assets/packs/fantasy-platformer-game-ui/PSD/source_panel.psd",
+      "kind": "source_reference",
+      "release_required": false,
+      "distribution": "excluded",
+      "license_cleared": false,
+      "license": "source-only",
+      "attribution": "",
+      "source_url": "",
+      "release_surfaces": []
+    }
+  ]
+}

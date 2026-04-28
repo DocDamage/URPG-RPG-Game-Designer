@@ -16,8 +16,12 @@
 #include "engine/core/localization/completeness_checker.h"
 #include "engine/core/localization/locale_catalog.h"
 #include "engine/core/accessibility/accessibility_auditor.h"
+#include "engine/core/message/visual_novel_pacing.h"
+#include "editor/message/visual_novel_pacing_panel.h"
 #include <nlohmann/json.hpp>
 
+#include <filesystem>
+#include <fstream>
 #include <string>
 #include <vector>
 #include <unordered_map>
@@ -25,6 +29,26 @@
 using namespace urpg::localization;
 using namespace urpg::accessibility;
 using nlohmann::json;
+
+namespace {
+
+std::filesystem::path templateBarRepoRoot() {
+#ifdef URPG_SOURCE_DIR
+    return std::filesystem::path(URPG_SOURCE_DIR);
+#else
+    return std::filesystem::current_path();
+#endif
+}
+
+json loadTemplateBarJson(const std::filesystem::path& path) {
+    std::ifstream stream(path);
+    REQUIRE(stream.is_open());
+    json payload;
+    stream >> payload;
+    return payload;
+}
+
+} // namespace
 
 // ============================================================================
 // S30B-T01 — Localization completeness proof per template
@@ -93,6 +117,68 @@ json makeTemplateTargetCatalog(const std::string& locale,
 }
 
 } // namespace
+
+TEST_CASE("visual_novel pacing controls enforce backlog auto advance and skip-read UX",
+          "[visual_novel][pacing][template][wysiwyg]") {
+    const auto fixture = loadTemplateBarJson(
+        templateBarRepoRoot() / "content" / "fixtures" / "visual_novel_pacing_fixture.json");
+    const auto document = urpg::message::VisualNovelPacingDocument::fromJson(fixture);
+
+    urpg::editor::VisualNovelPacingPanel panel;
+    panel.loadDocument(document);
+    panel.render();
+
+    REQUIRE(panel.hasRenderedFrame());
+    REQUIRE_FALSE(panel.snapshot().disabled);
+    REQUIRE(panel.snapshot().document_id == "chapter_intro_pacing");
+    REQUIRE(panel.snapshot().auto_advance_enabled);
+    REQUIRE(panel.snapshot().skip_available);
+    REQUIRE(panel.snapshot().text_speed_cps == 24.0f);
+    REQUIRE(panel.snapshot().backlog_entry_count == 3);
+    REQUIRE(panel.snapshot().visible_backlog_count == 3);
+    REQUIRE(panel.snapshot().unread_entry_count == 1);
+    REQUIRE(panel.snapshot().runtime_command_count == 3);
+    REQUIRE(panel.snapshot().diagnostic_count == 0);
+    REQUIRE(panel.snapshot().ux_focus_lane == "auto_advance");
+    REQUIRE(panel.snapshot().primary_action.find("auto-advance") != std::string::npos);
+    REQUIRE(panel.snapshot().status_message == "Visual novel pacing preview is ready.");
+    REQUIRE_FALSE(panel.snapshot().saved_project_json.empty());
+
+    const auto previewJson = urpg::message::visualNovelPacingPreviewToJson(panel.preview());
+    REQUIRE(previewJson["runtime_commands"].size() == 3);
+    REQUIRE(previewJson["visible_backlog"].size() == 3);
+
+    panel.setAutoAdvance(false);
+    panel.render();
+    REQUIRE(panel.snapshot().ux_focus_lane == "skip");
+    REQUIRE(panel.snapshot().next_action == "Skip already-read backlog entries.");
+
+    panel.setSkipReadText(false);
+    panel.appendBacklogEntry({"intro_004", "Guide", "Step forward when you are ready.", "", false});
+    panel.render();
+    REQUIRE(panel.snapshot().visible_backlog_count == 3);
+    REQUIRE(panel.snapshot().backlog_entry_count == 4);
+    REQUIRE(panel.snapshot().ux_focus_lane == "backlog");
+}
+
+TEST_CASE("visual_novel pacing diagnostics block invalid controls",
+          "[visual_novel][pacing][template][wysiwyg]") {
+    urpg::message::VisualNovelPacingDocument document;
+    document.id = "";
+    document.controls.text_speed_cps = 0.0f;
+    document.controls.auto_advance_delay_seconds = -1.0f;
+    document.controls.backlog_limit = 0;
+    document.backlog.push_back({"", "", "", "", false});
+
+    urpg::editor::VisualNovelPacingPanel panel;
+    panel.loadDocument(document);
+    panel.render();
+
+    REQUIRE(panel.hasRenderedFrame());
+    REQUIRE(panel.snapshot().diagnostic_count >= 7);
+    REQUIRE(panel.snapshot().ux_focus_lane == "diagnostics");
+    REQUIRE(panel.snapshot().status_message == "Visual novel pacing preview has diagnostics.");
+}
 
 TEST_CASE("jrpg localization: complete ja locale passes completeness check",
           "[localization][template][s30bt01]") {

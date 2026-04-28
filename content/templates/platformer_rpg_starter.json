@@ -1,0 +1,17 @@
+{
+  "template_id": "platformer_rpg",
+  "display_name": "Platformer RPG Starter",
+  "status": "READY",
+  "loops": ["platformer_traversal_loop", "side_action_combat_loop", "checkpoint_upgrade_loop", "save_loop"],
+  "systems": {
+    "platformer": {
+      "physics": {"gravity": 38.0, "jump_velocity": 14.5, "coyote_ms": 100, "buffer_ms": 120},
+      "abilities": ["dash", "wall_slide", "double_jump"],
+      "diagnostics": ["unreachable_pickup", "unsafe_spawn", "missing_checkpoint_after_gate"]
+    },
+    "integrations": {
+      "export_validation": ["spawn_safe", "checkpoint_after_gate", "physics_budget_defined"],
+      "wysiwyg_surfaces": ["platformer_physics_lab", "side_view_action_combat", "metroidvania_ability_gates"]
+    }
+  }
+}
