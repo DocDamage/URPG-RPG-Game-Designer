@@ -254,10 +254,14 @@ TEST_CASE("ExportPreviewPanel produces exact release shipping manifest",
     REQUIRE(panel.snapshot().exact_ship_preview);
     REQUIRE(panel.snapshot().generated_file_count >= 2);
     REQUIRE(panel.snapshot().emitted_artifact_count >= 2);
+    REQUIRE(panel.snapshot().expected_artifact_count == 2);
+    REQUIRE(panel.snapshot().missing_expected_artifact_count == 0);
+    REQUIRE(panel.snapshot().runtime_trace_count >= 5);
     REQUIRE(panel.snapshot().diagnostic_count == 0);
     REQUIRE(panel.snapshot().status_message == "Export preview is exactly what will ship.");
     REQUIRE(panel.snapshot().shipping_manifest["schema"] == "urpg.export_preview_manifest.v1");
     REQUIRE(panel.snapshot().shipping_manifest["exact_ship_preview"] == true);
+    REQUIRE(panel.snapshot().shipping_manifest["missing_expected_artifacts"].empty());
 
     bool foundPck = false;
     bool foundExe = false;
@@ -267,6 +271,42 @@ TEST_CASE("ExportPreviewPanel produces exact release shipping manifest",
     }
     REQUIRE(foundPck);
     REQUIRE(foundExe);
+
+    std::filesystem::remove_all(workspace);
+}
+
+TEST_CASE("ExportPreviewPanel edits ship settings and blocks missing expected artifacts",
+          "[export][editor][preview][wysiwyg]") {
+    const auto runtime = ExportSmokeRuntimePath();
+    REQUIRE_FALSE(runtime.empty());
+    REQUIRE(std::filesystem::exists(runtime));
+
+    auto document = urpg::exporting::ExportPreviewDocument::fromJson(
+        LoadExportPanelJson(ExportPanelRepoRoot() / "content" / "fixtures" / "export_preview_fixture.json"));
+    document.mode = urpg::tools::ExportMode::DevBootstrap;
+
+    const auto workspace = std::filesystem::temp_directory_path() / "urpg_export_preview_panel_edits";
+    std::filesystem::remove_all(workspace);
+
+    urpg::editor::ExportPreviewPanel panel;
+    panel.loadDocument(document, workspace);
+    panel.setRuntimeBinaryPath(runtime.string());
+    panel.setMode(urpg::tools::ExportMode::Release);
+    panel.setTarget(urpg::tools::ExportTarget::Windows_x64);
+    panel.setOutputDir((workspace / "edited_output").string());
+    panel.setExpectedArtifacts({"data.pck", "game.exe", "missing.bin"});
+    panel.render();
+
+    REQUIRE(panel.snapshot().preflight_passed);
+    REQUIRE(panel.snapshot().export_success);
+    REQUIRE(panel.snapshot().post_export_validation_passed);
+    REQUIRE_FALSE(panel.snapshot().exact_ship_preview);
+    REQUIRE(panel.snapshot().expected_artifact_count == 3);
+    REQUIRE(panel.snapshot().missing_expected_artifact_count == 1);
+    REQUIRE(panel.result().missing_expected_artifacts[0] == "missing.bin");
+    REQUIRE(panel.snapshot().shipping_manifest["expected_artifacts"].size() == 3);
+    REQUIRE(panel.snapshot().shipping_manifest["runtime_trace"].is_array());
+    REQUIRE(panel.snapshot().status_message == "Export preview has diagnostics.");
 
     std::filesystem::remove_all(workspace);
 }
@@ -285,6 +325,7 @@ TEST_CASE("Export preview saved project data round-trips and flags bootstrap out
     const auto result = urpg::exporting::RunExportPreview(restored, workspace);
 
     REQUIRE(saved["schema"] == "urpg.export_preview.v1");
+    REQUIRE(restored.expected_artifacts.size() == 2);
     REQUIRE(result.preflight_passed);
     REQUIRE(result.export_success);
     REQUIRE(result.post_export_validation_passed);

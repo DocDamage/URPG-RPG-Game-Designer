@@ -148,11 +148,49 @@ TEST_CASE("Save/load preview lab round-trips authored slot through runtime loade
     REQUIRE_FALSE(panel.snapshot().boot_safe_mode);
     REQUIRE(panel.snapshot().recovery_tier == "none");
     REQUIRE(panel.snapshot().payload_matches_expected);
+    REQUIRE_FALSE(panel.snapshot().variables_payload_matches);
+    REQUIRE(panel.snapshot().payload_diff_count == 0);
+    REQUIRE(panel.snapshot().runtime_trace_count >= 7);
     REQUIRE(panel.snapshot().loaded_slot_id == 3);
     REQUIRE(panel.snapshot().loaded_map_display_name == "Town");
     REQUIRE(panel.snapshot().diagnostic_count == 0);
     REQUIRE(panel.snapshot().status_message == "Save/load preview lab is ready.");
     REQUIRE_FALSE(panel.snapshot().saved_project_json.empty());
+
+    std::filesystem::remove_all(workspace);
+}
+
+TEST_CASE("Save/load preview lab panel edits slot payload and recovery mode live",
+          "[save][runtime][preview_lab][wysiwyg]") {
+    const auto json = LoadSaveRuntimeJson(
+        saveRuntimeRepoRoot() / "content" / "fixtures" / "save_load_preview_lab_fixture.json");
+    auto document = urpg::save::SaveLoadPreviewLabDocument::fromJson(json);
+    const auto workspace = std::filesystem::temp_directory_path() / "urpg_save_load_preview_lab_edits";
+    std::filesystem::remove_all(workspace);
+
+    urpg::editor::SaveLoadPreviewLabPanel panel;
+    panel.loadDocument(document, workspace);
+    panel.setSlotId(4);
+    panel.setPrimaryPayloadField("map", "Castle");
+    panel.setVariablePayloadField("preview_note", "edited");
+    panel.render();
+
+    REQUIRE(panel.snapshot().loaded_ok);
+    REQUIRE(panel.snapshot().loaded_slot_id == 4);
+    REQUIRE(panel.snapshot().payload_matches_expected);
+    REQUIRE_FALSE(panel.snapshot().variables_payload_matches);
+    REQUIRE(panel.result().loaded_payload_json["map"] == "Castle");
+    REQUIRE(panel.result().loaded_variables_payload.empty());
+
+    panel.setCorruptPrimary(true);
+    panel.render();
+    REQUIRE(panel.snapshot().loaded_from_recovery);
+    REQUIRE(panel.snapshot().recovery_tier == "level1_autosave");
+
+    panel.setForceSafeMode(true);
+    panel.render();
+    REQUIRE(panel.snapshot().boot_safe_mode);
+    REQUIRE(panel.snapshot().recovery_tier == "level3_safe_skeleton");
 
     std::filesystem::remove_all(workspace);
 }

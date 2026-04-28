@@ -16,6 +16,20 @@ Each governed schema entry should include:
 
 ## Entries
 
+### `export_preview` (`export_preview.schema.json`)
+
+- Version: `1.1.0`
+- Date: `2026-04-28`
+- Summary: adds expected shipping artifact declarations so export preview can block exact-ship claims when required artifacts are absent
+- Migration Impact: additive optional field; existing export preview documents default to no expected artifact checks
+
+### `save_load_preview_lab` (`save_load_preview_lab.schema.json`)
+
+- Version: `1.1.0`
+- Date: `2026-04-28`
+- Summary: runtime/editor behavior now records loaded-vs-expected payload diffs, variables payload matching, and save/load traces without changing required saved fields
+- Migration Impact: none; schema remains compatible and existing documents continue to load
+
 ### `ability_sandbox` (`ability_sandbox.schema.json`)
 
 - Version: `1.1.0`

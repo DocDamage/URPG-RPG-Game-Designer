@@ -27,6 +27,7 @@ struct ExportPreviewDocument {
     bool obfuscate_scripts = false;
     bool include_debug_symbols = false;
     std::vector<std::string> asset_discovery_roots;
+    std::vector<std::string> expected_artifacts;
 
     std::vector<ExportPreviewDiagnostic> validate() const;
     tools::ExportConfig toConfig(const std::filesystem::path& workspace_root) const;
@@ -43,6 +44,8 @@ struct ExportPreviewResult {
     std::string output_dir;
     std::vector<std::string> generated_files;
     std::vector<std::string> emitted_artifacts;
+    std::vector<std::string> missing_expected_artifacts;
+    std::vector<std::string> runtime_trace;
     nlohmann::json shipping_manifest = nlohmann::json::object();
     std::vector<ExportPreviewDiagnostic> diagnostics;
 };

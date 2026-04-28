@@ -3,6 +3,7 @@
 #include "engine/core/save/save_load_preview_lab.h"
 
 #include <filesystem>
+#include <nlohmann/json.hpp>
 #include <string>
 
 namespace urpg::editor {
@@ -18,6 +19,9 @@ struct SaveLoadPreviewLabPanelSnapshot {
     bool boot_safe_mode = false;
     std::string recovery_tier;
     bool payload_matches_expected = false;
+    bool variables_payload_matches = false;
+    size_t payload_diff_count = 0;
+    size_t runtime_trace_count = 0;
     int32_t loaded_slot_id = 0;
     std::string loaded_map_display_name;
     size_t diagnostic_count = 0;
@@ -28,6 +32,11 @@ struct SaveLoadPreviewLabPanelSnapshot {
 class SaveLoadPreviewLabPanel {
 public:
     void loadDocument(urpg::save::SaveLoadPreviewLabDocument document, std::filesystem::path workspace_root);
+    void setSlotId(int32_t slot_id);
+    void setPrimaryPayloadField(std::string key, nlohmann::json value);
+    void setVariablePayloadField(std::string key, nlohmann::json value);
+    void setCorruptPrimary(bool corrupt);
+    void setForceSafeMode(bool force_safe_mode);
     void render();
 
     const SaveLoadPreviewLabPanelSnapshot& snapshot() const { return snapshot_; }

@@ -118,6 +118,7 @@ nlohmann::json ExportPreviewDocument::toJson() const {
         {"obfuscate_scripts", obfuscate_scripts},
         {"include_debug_symbols", include_debug_symbols},
         {"asset_discovery_roots", asset_discovery_roots},
+        {"expected_artifacts", expected_artifacts},
     };
 }
 
@@ -135,6 +136,7 @@ ExportPreviewDocument ExportPreviewDocument::fromJson(const nlohmann::json& json
     document.obfuscate_scripts = json.value("obfuscate_scripts", false);
     document.include_debug_symbols = json.value("include_debug_symbols", false);
     document.asset_discovery_roots = stringArray(json.value("asset_discovery_roots", nlohmann::json::array()));
+    document.expected_artifacts = stringArray(json.value("expected_artifacts", nlohmann::json::array()));
     return document;
 }
 
@@ -144,6 +146,8 @@ ExportPreviewResult RunExportPreview(const ExportPreviewDocument& document,
     result.diagnostics = document.validate();
     const auto config = document.toConfig(workspace_root);
     result.output_dir = config.outputDir;
+    result.runtime_trace.push_back("target:" + ExportPreviewTargetLabel(config.target));
+    result.runtime_trace.push_back("mode:" + ExportPreviewModeLabel(config.mode));
     if (!result.diagnostics.empty()) {
         return result;
     }
@@ -152,6 +156,7 @@ ExportPreviewResult RunExportPreview(const ExportPreviewDocument& document,
     ExportValidator validator;
     const auto preflight = packager.validateBeforeExport(config);
     result.preflight_passed = preflight.passed;
+    result.runtime_trace.push_back(std::string("preflight:") + (preflight.passed ? "passed" : "failed"));
     for (const auto& error : preflight.errors) {
         result.diagnostics.push_back({"preflight_failed", error, document.id});
     }
@@ -161,6 +166,7 @@ ExportPreviewResult RunExportPreview(const ExportPreviewDocument& document,
 
     const auto export_result = packager.runExport(config);
     result.export_success = export_result.success;
+    result.runtime_trace.push_back(std::string("export:") + (export_result.success ? "success" : "failed"));
     result.generated_files = export_result.generatedFiles;
     if (!export_result.success) {
         result.diagnostics.push_back({"export_failed", export_result.log, document.id});
@@ -169,13 +175,22 @@ ExportPreviewResult RunExportPreview(const ExportPreviewDocument& document,
 
     const auto post_errors = validator.validateExportDirectory(config.outputDir, config.target);
     result.post_export_validation_passed = post_errors.empty();
+    result.runtime_trace.push_back(std::string("post_validate:") + (post_errors.empty() ? "passed" : "failed"));
     for (const auto& error : post_errors) {
         result.diagnostics.push_back({"post_export_validation_failed", error, document.id});
     }
 
     result.emitted_artifacts = listFiles(config.outputDir);
+    for (const auto& expected : document.expected_artifacts) {
+        if (std::find(result.emitted_artifacts.begin(), result.emitted_artifacts.end(), expected) ==
+            result.emitted_artifacts.end()) {
+            result.missing_expected_artifacts.push_back(expected);
+            result.diagnostics.push_back({"missing_expected_artifact", "Expected shipping artifact was not emitted: " + expected,
+                                          document.id});
+        }
+    }
     result.exact_ship_preview = result.export_success && result.post_export_validation_passed &&
-                                config.mode == tools::ExportMode::Release;
+                                result.missing_expected_artifacts.empty() && config.mode == tools::ExportMode::Release;
     if (config.mode != tools::ExportMode::Release) {
         result.diagnostics.push_back({"dev_bootstrap_not_release",
                                       "Dev bootstrap output is not an exact release shipping preview.", document.id});
@@ -190,6 +205,9 @@ ExportPreviewResult RunExportPreview(const ExportPreviewDocument& document,
         {"exact_ship_preview", result.exact_ship_preview},
         {"generated_files", result.generated_files},
         {"emitted_artifacts", result.emitted_artifacts},
+        {"expected_artifacts", document.expected_artifacts},
+        {"missing_expected_artifacts", result.missing_expected_artifacts},
+        {"runtime_trace", result.runtime_trace},
         {"post_export_validation_passed", result.post_export_validation_passed},
     };
     return result;

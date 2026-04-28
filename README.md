@@ -59,6 +59,7 @@ Repository-wide source/vendor LFS hydration is still externally constrained by G
 - Event-command visual graph authoring with saved nodes and edges, editor add/update/move/connect actions, sequence and conditional edge traversal, runtime switch/variable state application, edge/runtime traces, dependency graph projection, diagnostics, schema/fixture coverage, and tests tying panel edits to runtime execution.
 - Battle runtime with participant state, bounded formula evaluation, battle event migration, reward/event cadence coverage, BGM/ME routing through compat audio state, battleback diagnostics, HUD quads, gauges, popups, guard markers, and state icon presentation.
 - Save/data runtime with slot descriptors, save policy governance, compat save import, native payload generation, JSONL diagnostics, and metadata preservation.
+- Save/load preview lab with editable slot id, primary payload fields, variables payload fields, corrupt-primary and safe-mode toggles, runtime save/write/load traces, expected-vs-loaded payload diff counts, variables payload matching, recovery tier proof, saved JSON, diagnostics, schema/fixture coverage, and tests.
 - Gameplay Ability Framework with tags, abilities, effects, cooldown/cost checks, ability system components, battle activation, map-side ability consumption, authored ability assets, diagnostics preview, save/load, and runtime apply flows.
 - Ability sandbox WYSIWYG preview with live source MP, cost, cooldown, effect value, tag, attempt-count, and interval edits, repeated runtime activation attempts, cooldown blocking/progression proof, MP/effect deltas, execution history counts, runtime traces, saved JSON, diagnostics, schema/fixture coverage, and tests.
 - Map interaction ability binding for tile, prop, and region triggers.
@@ -74,6 +75,7 @@ Repository-wide source/vendor LFS hydration is still externally constrained by G
 - Visual creator WYSIWYG suite covering fast travel, platformer game type authoring, gacha and summon banners, map zoom, picture-based UI creation, realtime event effects, directional shadows, dynamic environment effects, camera direction, post FX, weather, lighting, platformer physics, side-view action combat, mission boards, relationship schedules, farming, fishing, mounts and vehicles, stealth, puzzle logic, phone/messenger UI, crafting recipe graphs, housing decoration, companion command wheels, title/save screens, credits/endings, tutorial overlays, accessibility previews, economy simulation, encounter-zone painting, random dungeon stitching, achievement visuals, and mod marketplace packaging.
 - itch.io-inspired maker WYSIWYG suite covering proximity compass/objective radar, unused asset cleaning, visual inventory, animated picture timelines, horror FX, cutscene skip/fast-forward, translation helper export, deployment cook dashboard, break shields, boost points, battle weapon swaps, order-turn battle, item concoctions, unison attacks, timed attacks/QTEs, action-sequence impact, side battle status UI, victory screens, state tooltips, animated loading screens, popups, animated windows, video playback, tactical battle, bullet hell, card battle, spin-top battle, recruiting boards, step rewards, event spawning, smart event timers/progress bars, actor construction, visible equipment, skill equip, and front-view battle mode.
 - Export validator and packager with platform requirement checks, package validation, config schema, editor diagnostics panel, install smoke, package smoke, and release-candidate gates.
+- Export preview WYSIWYG surface with editable target, mode, runtime binary path, output directory, expected shipping artifacts, preflight/export/post-validation trace, exact shipping manifest, missing-artifact blocking diagnostics, saved JSON, schema/fixture coverage, and tests.
 
 ### Editor And Authoring
 
@@ -142,8 +144,8 @@ The roadmap remains WYSIWYG-first. Most previously listed future-feature slices 
 - deeper dialogue graph and message preview polish beyond the implemented portrait/localization/choice selection, choice command, variable-write, runtime-trace, saved-data, diagnostics, schema, fixture, and tests
 - deeper event-command graph polish beyond the implemented saved nodes/edges, editor mutation actions, conditional traversal, runtime trace, diagnostics, schema, fixture, and tests
 - deeper ability sandbox polish beyond the implemented live cost/cooldown/tag/effect edits, repeated runtime attempts, traces, saved data, diagnostics, schema, fixture, and tests
-- save/load preview lab for inspecting persisted runtime state
-- export preview that shows exactly what will ship
+- deeper save/load preview lab polish beyond the implemented editable slot/payload/recovery controls, runtime traces, loaded-vs-expected diff proof, saved data, diagnostics, schema, fixture, and tests
+- deeper export preview polish beyond the implemented editable ship settings, expected artifact checks, exact shipping manifest, runtime trace, saved data, diagnostics, schema, fixture, and tests
 - product-depth expansion of the new WYSIWYG gameplay/community systems beyond their first runtime/editor/saved-data/diagnostics/test slices
 - richer Project Health guided remediation workflows
 - asset promotion, license review, and cleanup automation

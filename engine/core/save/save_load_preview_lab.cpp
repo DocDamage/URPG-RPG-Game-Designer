@@ -38,6 +38,25 @@ bool jsonEquivalent(const std::string& actual, const nlohmann::json& expected) {
     return !parsed.is_discarded() && parsed == expected;
 }
 
+size_t topLevelDiffCount(const nlohmann::json& actual, const nlohmann::json& expected) {
+    if (!actual.is_object() || !expected.is_object()) {
+        return actual == expected ? 0 : 1;
+    }
+    size_t count = 0;
+    for (const auto& [key, value] : expected.items()) {
+        const auto it = actual.find(key);
+        if (it == actual.end() || *it != value) {
+            ++count;
+        }
+    }
+    for (const auto& [key, _] : actual.items()) {
+        if (!expected.contains(key)) {
+            ++count;
+        }
+    }
+    return count;
+}
+
 } // namespace
 
 std::vector<SaveLoadPreviewDiagnostic> SaveLoadPreviewLabDocument::validate() const {
@@ -111,6 +130,7 @@ SaveLoadPreviewLabResult RunSaveLoadPreviewLab(const SaveLoadPreviewLabDocument&
     const auto autosave_path = lab_root / "autosave.json";
     const auto metadata_path = lab_root / "metadata.json";
     const auto variables_path = lab_root / "variables.json";
+    result.runtime_trace.push_back("workspace:" + lab_root.generic_string());
 
     RuntimeSaveLoadRequest request;
     request.primary_save_path = primary_path;
@@ -122,9 +142,13 @@ SaveLoadPreviewLabResult RunSaveLoadPreviewLab(const SaveLoadPreviewLabDocument&
 
     result.saved_primary = document.corrupt_primary ? writeText(primary_path, "{not-valid-json")
                                                     : RuntimeSaveLoader::Save(request, document.primary_payload.dump());
+    result.runtime_trace.push_back(document.corrupt_primary ? "write_primary:corrupt" : "write_primary:json");
     const bool wrote_autosave = writeText(autosave_path, document.autosave_payload.dump());
     const bool wrote_metadata = writeText(metadata_path, document.metadata_payload.dump());
     const bool wrote_variables = writeText(variables_path, document.variables_payload.dump());
+    result.runtime_trace.push_back("write_autosave:" + std::string(wrote_autosave ? "ok" : "failed"));
+    result.runtime_trace.push_back("write_metadata:" + std::string(wrote_metadata ? "ok" : "failed"));
+    result.runtime_trace.push_back("write_variables:" + std::string(wrote_variables ? "ok" : "failed"));
     if (!result.saved_primary) {
         result.diagnostics.push_back({"primary_save_failed", "Preview lab could not write the primary save.", document.id});
     }
@@ -142,12 +166,17 @@ SaveLoadPreviewLabResult RunSaveLoadPreviewLab(const SaveLoadPreviewLabDocument&
     }
 
     const auto loaded = RuntimeSaveLoader::Load(request);
+    result.runtime_trace.push_back("load_slot:" + std::to_string(document.slot_id));
     result.loaded_ok = loaded.ok;
     result.loaded_from_recovery = loaded.loaded_from_recovery;
     result.boot_safe_mode = loaded.boot_safe_mode;
     result.recovery_tier = loaded.recovery_tier;
     result.loaded_payload = loaded.payload;
     result.loaded_variables_payload = loaded.variables_payload;
+    result.loaded_payload_json = nlohmann::json::parse(loaded.payload, nullptr, false);
+    if (result.loaded_payload_json.is_discarded()) {
+        result.loaded_payload_json = nlohmann::json::object();
+    }
     result.loaded_meta = loaded.active_meta;
     for (const auto& diagnostic : loaded.diagnostics) {
         result.diagnostics.push_back({"runtime_" + diagnostic, "Runtime save loader reported " + diagnostic,
@@ -161,12 +190,21 @@ SaveLoadPreviewLabResult RunSaveLoadPreviewLab(const SaveLoadPreviewLabDocument&
     }
 
     if (document.force_safe_mode) {
+        result.expected_payload = nlohmann::json::object();
         result.payload_matches_expected = result.boot_safe_mode && result.loaded_payload.empty();
     } else if (document.corrupt_primary) {
+        result.expected_payload = document.autosave_payload;
         result.payload_matches_expected = jsonEquivalent(result.loaded_payload, document.autosave_payload);
     } else {
+        result.expected_payload = document.primary_payload;
         result.payload_matches_expected = jsonEquivalent(result.loaded_payload, document.primary_payload);
     }
+    result.payload_diff_count = topLevelDiffCount(result.loaded_payload_json, result.expected_payload);
+    result.variables_payload_matches = result.loaded_variables_payload.empty()
+                                           ? document.variables_payload.empty()
+                                           : jsonEquivalent(result.loaded_variables_payload, document.variables_payload);
+    result.runtime_trace.push_back("recovery_tier:" + tierToString(result.recovery_tier));
+    result.runtime_trace.push_back("payload_matches:" + std::string(result.payload_matches_expected ? "true" : "false"));
 
     if (!result.payload_matches_expected) {
         result.diagnostics.push_back({"payload_mismatch", "Loaded payload does not match the expected preview result.",

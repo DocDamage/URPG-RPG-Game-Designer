@@ -14,6 +14,7 @@
     "compress_assets": { "type": "boolean" },
     "obfuscate_scripts": { "type": "boolean" },
     "include_debug_symbols": { "type": "boolean" },
-    "asset_discovery_roots": { "type": "array", "items": { "type": "string" } }
+    "asset_discovery_roots": { "type": "array", "items": { "type": "string" } },
+    "expected_artifacts": { "type": "array", "items": { "type": "string" } }
   }
 }

@@ -4,6 +4,7 @@
 
 #include <filesystem>
 #include <string>
+#include <vector>
 
 namespace urpg::editor {
 
@@ -21,6 +22,9 @@ struct ExportPreviewPanelSnapshot {
     bool exact_ship_preview = false;
     size_t generated_file_count = 0;
     size_t emitted_artifact_count = 0;
+    size_t expected_artifact_count = 0;
+    size_t missing_expected_artifact_count = 0;
+    size_t runtime_trace_count = 0;
     size_t diagnostic_count = 0;
     std::string saved_project_json;
     nlohmann::json shipping_manifest = nlohmann::json::object();
@@ -30,6 +34,11 @@ struct ExportPreviewPanelSnapshot {
 class ExportPreviewPanel {
 public:
     void loadDocument(urpg::exporting::ExportPreviewDocument document, std::filesystem::path workspace_root);
+    void setMode(urpg::tools::ExportMode mode);
+    void setTarget(urpg::tools::ExportTarget target);
+    void setRuntimeBinaryPath(std::string runtime_binary_path);
+    void setOutputDir(std::string output_dir);
+    void setExpectedArtifacts(std::vector<std::string> expected_artifacts);
     void render();
 
     const ExportPreviewPanelSnapshot& snapshot() const { return snapshot_; }

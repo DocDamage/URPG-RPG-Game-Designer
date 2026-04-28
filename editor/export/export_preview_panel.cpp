@@ -12,6 +12,41 @@ void ExportPreviewPanel::loadDocument(urpg::exporting::ExportPreviewDocument doc
     refreshPreview();
 }
 
+void ExportPreviewPanel::setMode(urpg::tools::ExportMode mode) {
+    document_.mode = mode;
+    if (loaded_) {
+        refreshPreview();
+    }
+}
+
+void ExportPreviewPanel::setTarget(urpg::tools::ExportTarget target) {
+    document_.target = target;
+    if (loaded_) {
+        refreshPreview();
+    }
+}
+
+void ExportPreviewPanel::setRuntimeBinaryPath(std::string runtime_binary_path) {
+    document_.runtime_binary_path = std::move(runtime_binary_path);
+    if (loaded_) {
+        refreshPreview();
+    }
+}
+
+void ExportPreviewPanel::setOutputDir(std::string output_dir) {
+    document_.output_dir = std::move(output_dir);
+    if (loaded_) {
+        refreshPreview();
+    }
+}
+
+void ExportPreviewPanel::setExpectedArtifacts(std::vector<std::string> expected_artifacts) {
+    document_.expected_artifacts = std::move(expected_artifacts);
+    if (loaded_) {
+        refreshPreview();
+    }
+}
+
 void ExportPreviewPanel::render() {
     snapshot_.visible = true;
     snapshot_.rendered = true;
@@ -36,6 +71,9 @@ void ExportPreviewPanel::refreshPreview() {
     snapshot_.exact_ship_preview = result_.exact_ship_preview;
     snapshot_.generated_file_count = result_.generated_files.size();
     snapshot_.emitted_artifact_count = result_.emitted_artifacts.size();
+    snapshot_.expected_artifact_count = document_.expected_artifacts.size();
+    snapshot_.missing_expected_artifact_count = result_.missing_expected_artifacts.size();
+    snapshot_.runtime_trace_count = result_.runtime_trace.size();
     snapshot_.diagnostic_count = result_.diagnostics.size();
     snapshot_.saved_project_json = document_.toJson().dump();
     snapshot_.shipping_manifest = result_.shipping_manifest;

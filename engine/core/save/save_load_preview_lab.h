@@ -41,8 +41,13 @@ struct SaveLoadPreviewLabResult {
     SaveRecoveryTier recovery_tier = SaveRecoveryTier::None;
     std::string loaded_payload;
     std::string loaded_variables_payload;
+    nlohmann::json expected_payload = nlohmann::json::object();
+    nlohmann::json loaded_payload_json = nlohmann::json::object();
+    size_t payload_diff_count = 0;
+    bool variables_payload_matches = false;
     SaveSlotMeta loaded_meta;
     bool payload_matches_expected = false;
+    std::vector<std::string> runtime_trace;
     std::vector<SaveLoadPreviewDiagnostic> diagnostics;
 };
 

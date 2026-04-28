@@ -12,6 +12,51 @@ void SaveLoadPreviewLabPanel::loadDocument(urpg::save::SaveLoadPreviewLabDocumen
     refreshPreview();
 }
 
+void SaveLoadPreviewLabPanel::setSlotId(int32_t slot_id) {
+    document_.slot_id = slot_id;
+    if (!document_.metadata_payload.is_object()) {
+        document_.metadata_payload = nlohmann::json::object();
+    }
+    document_.metadata_payload["_slot_id"] = slot_id;
+    if (loaded_) {
+        refreshPreview();
+    }
+}
+
+void SaveLoadPreviewLabPanel::setPrimaryPayloadField(std::string key, nlohmann::json value) {
+    if (!document_.primary_payload.is_object()) {
+        document_.primary_payload = nlohmann::json::object();
+    }
+    document_.primary_payload[std::move(key)] = std::move(value);
+    if (loaded_) {
+        refreshPreview();
+    }
+}
+
+void SaveLoadPreviewLabPanel::setVariablePayloadField(std::string key, nlohmann::json value) {
+    if (!document_.variables_payload.is_object()) {
+        document_.variables_payload = nlohmann::json::object();
+    }
+    document_.variables_payload[std::move(key)] = std::move(value);
+    if (loaded_) {
+        refreshPreview();
+    }
+}
+
+void SaveLoadPreviewLabPanel::setCorruptPrimary(bool corrupt) {
+    document_.corrupt_primary = corrupt;
+    if (loaded_) {
+        refreshPreview();
+    }
+}
+
+void SaveLoadPreviewLabPanel::setForceSafeMode(bool force_safe_mode) {
+    document_.force_safe_mode = force_safe_mode;
+    if (loaded_) {
+        refreshPreview();
+    }
+}
+
 void SaveLoadPreviewLabPanel::render() {
     snapshot_.visible = true;
     snapshot_.rendered = true;
@@ -33,6 +78,9 @@ void SaveLoadPreviewLabPanel::refreshPreview() {
     snapshot_.boot_safe_mode = result_.boot_safe_mode;
     snapshot_.recovery_tier = recoveryTierLabel(result_.recovery_tier);
     snapshot_.payload_matches_expected = result_.payload_matches_expected;
+    snapshot_.variables_payload_matches = result_.variables_payload_matches;
+    snapshot_.payload_diff_count = result_.payload_diff_count;
+    snapshot_.runtime_trace_count = result_.runtime_trace.size();
     snapshot_.loaded_slot_id = result_.loaded_meta.slot_id;
     snapshot_.loaded_map_display_name = result_.loaded_meta.map_display_name;
     snapshot_.diagnostic_count = result_.diagnostics.size();

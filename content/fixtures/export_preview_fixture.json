@@ -8,5 +8,6 @@
   "compress_assets": true,
   "obfuscate_scripts": false,
   "include_debug_symbols": false,
-  "asset_discovery_roots": []
+  "asset_discovery_roots": [],
+  "expected_artifacts": ["data.pck", "game.exe"]
 }

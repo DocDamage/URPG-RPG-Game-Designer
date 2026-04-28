@@ -107,9 +107,9 @@ Expected: build succeeds, the dungeon3d suite passes, and `git diff --check` rep
 - Modify: matching `editor/*` panels
 - Test: matching unit/editor/snapshot tests
 
-- [ ] **Step 1: Confirm each surface saves project data and executes through runtime contracts.**
-- [ ] **Step 2: Add missing editor actions and diagnostics where panels only snapshot data.**
-- [ ] **Step 3: Add tests tying editor preview state to runtime execution state.**
+- [x] **Step 1: Confirm each surface saves project data and executes through runtime contracts.**
+- [x] **Step 2: Add missing editor actions and diagnostics where panels only snapshot data.**
+- [x] **Step 3: Add tests tying editor preview state to runtime execution state.**
 
 Dialogue preview slice status:
 
@@ -131,6 +131,19 @@ Ability sandbox slice status:
 - [x] Runtime preview now executes multiple activation attempts through `AbilitySystemComponent`, including cooldown blocking/progression, MP deltas, effect deltas, execution history, visible tags, and trace strings.
 - [x] Editor panel now exposes live source MP, cost, cooldown, effect value, attempt-count, attempt-interval, and source-tag edits.
 - [x] Focused tests tie panel edits, saved JSON, activation traces, cooldown behavior, diagnostics, and runtime execution together.
+
+Save/load preview lab slice status:
+
+- [x] Runtime preview now records save/write/load traces, expected payloads, parsed loaded payloads, top-level diff counts, variables-payload matching, and recovery tier proof.
+- [x] Editor panel now exposes live slot-id, primary-payload, variables-payload, corrupt-primary, and safe-mode edits.
+- [x] Focused tests tie panel edits, saved JSON, runtime loader behavior, recovery paths, diff proof, diagnostics, and state inspection together.
+
+Export preview slice status:
+
+- [x] Saved export preview data now persists expected shipping artifacts.
+- [x] Runtime preview now records preflight/export/post-validation traces, exact shipping manifests, and missing expected artifact diagnostics that block exact-ship claims.
+- [x] Editor panel now exposes live target, mode, runtime binary path, output directory, and expected-artifact edits.
+- [x] Focused tests tie panel edits, saved JSON, expected artifact checks, exact manifest output, diagnostics, and export runtime execution together.
 
 ### Task 5: Renderer, Accessibility, Audio, Performance, Platform, and Offline Tooling Lanes
 
