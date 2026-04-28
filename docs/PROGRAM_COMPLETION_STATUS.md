@@ -7,6 +7,14 @@ Cross-cutting debt, truthfulness, and intake-governance source of truth: `docs/a
 
 Current app-level release readiness source of truth: [`docs/APP_RELEASE_READINESS_MATRIX.md`](APP_RELEASE_READINESS_MATRIX.md). It maps boot flow, save/load, settings, audio, input, localization, asset validation, editor navigation, analytics consent, install/package, legal docs, release-required asset hydration, and final release-candidate gates to concrete task IDs and evidence commands. As of the P6-002 follow-up verification pass, local gates, the unwaived release-candidate gate, and the remote manual GitHub Actions release-candidate workflow pass, including fresh-clone release-required asset verification from GitHub. Public release remains blocked by legal/privacy review and release tagging.
 
+2026-04-28 documentation and AI/editor checkpoint:
+- `development` is pushed to `origin/development` at commit `cfdae41e9` (`Advance AI editor and template readiness`) before this documentation refresh.
+- The README now describes the repository as an internal/private release-candidate validation checkpoint rather than a public-release-ready product.
+- AI assistant project edits now expose reviewable editor state for approve, reject, approve all, apply, revert, apply preview, and result diff.
+- AI tool apply results now carry before-project data, forward JSON Patch, and reverse JSON Patch data so the latest AI-applied project change can be reverted.
+- The AI knowledge/tool registry covers app capabilities, project summaries, canonical docs, and review-gated tools for map authoring, event graphs, dialogue, localization, abilities, battle VFX, save labs, export preview, asset import, template instancing, and creator commands.
+- Template expansion is current through the advanced template set under `content/templates/` and `docs/templates/`, with runtime profiles, generated starter support, certification loops, readiness rows, and WYSIWYG showcase bindings.
+
 2026-04-28 Wave 1 signoff closure:
 - `battle_core`, `save_data_core`, and `compat_bridge_exit` are promoted to `READY` for their bounded claimed scopes after release-owner signoff artifacts were updated and governance gates were changed to require approved signoff metadata for READY rows.
 - Public release remains blocked by legal/privacy/distribution review and release tagging; those are app-release gates, not subsystem readiness gaps.

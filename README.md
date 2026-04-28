@@ -1,186 +1,105 @@
-# URPG (Universal RPG Engine)
+# URPG Maker
 
-![URPG Header](https://raw.githubusercontent.com/URPG-Project/assets/main/header.png)
+URPG Maker is a deterministic C++20 RPG engine and editor for native-first RPG creation. It combines a native runtime core, an ImGui editor, RPG Maker MZ compatibility and migration tooling, OpenGL/headless rendering paths, release packaging, Catch2 validation, and governance docs that keep feature claims tied to evidence.
 
-URPG is a native-first C++20 RPG engine and editor for deterministic 2D, 2.5D, and RPG-style 3D dungeon/world development. It combines a native runtime core, an ImGui editor, RPG Maker MZ compatibility and migration tooling, OpenGL and headless rendering paths, release packaging, and evidence-backed validation.
+The product direction is WYSIWYG-first: a feature is not considered complete just because its backend exists. The expected bar is visual authoring, live preview of the behavior that will ship, saved project data, runtime execution, diagnostics, tests, and truthful readiness docs.
 
-The product goal is a WYSIWYG authoring experience where creators edit the same runtime behavior that ships. No system is treated as done until it has a visual authoring surface, live preview, saved project data, runtime execution, diagnostics, and tests, with that evidence represented truthfully in the project docs and readiness data.
-
-## Current Status
+## Current State
 
 Status date: 2026-04-28
 
-The current `development` branch has passing local and remote release-candidate gates for private/internal release-candidate validation. The remote manual GitHub Actions release-candidate workflow passed in run `25025111713` at commit `7439132f4fa2638730498781f617d78af7b16514`.
+Current pushed checkpoint:
 
-URPG is not yet public-release-ready. Remaining public release exits are:
+- Branch: `development`
+- Latest pushed commit at the time of this README update: `cfdae41e9` (`Advance AI editor and template readiness`)
+- Remote: `origin/development` at [DocDamage/URPG-RPG-Game-Designer](https://github.com/DocDamage/URPG-RPG-Game-Designer)
 
-- qualified legal/privacy/distribution approval or an explicit public-release waiver
-- a recorded final release decision
-- an annotated prerelease or release tag
+The tree is suitable for internal/private release-candidate validation. It is not yet public-release-ready. Public release remains blocked on qualified legal/privacy/distribution approval or waiver, a recorded final release decision, and an annotated prerelease or release tag.
 
-Repository-wide source/vendor LFS hydration is still externally constrained by GitHub LFS budget/access, but release-required package assets are normal Git blobs and pass fresh-clone release verification.
+Recent current-state additions include:
 
-## What URPG Can Do Today
+- AI assistant project-edit workflow with visible approve, reject, approve-all, apply, revert, preview, and result-diff state exposed through deterministic editor snapshots.
+- AI tool applications now record forward JSON patches and reverse patches so an AI-applied project change can be reverted.
+- A deterministic AI knowledge and tool registry covering map authoring, event graphs, dialogue, localization, abilities, battle VFX, save preview, export preview, asset import, template instancing, and creator commands.
+- Creator-command planning with deterministic local plans plus provider profiles for hosted and OpenAI-compatible local transports.
+- Expanded template coverage with starter manifests, specs, certification loops, runtime profiles, readiness rows, and WYSIWYG showcase bindings for the advanced template set.
+- Visual novel pacing runtime/editor/schema coverage and additional panel snapshot evidence across ability, battle VFX, dialogue, events, export preview, save preview, spatial environment, and 3D dungeon/world authoring surfaces.
 
-### Native Runtime
+## What Is Implemented
 
-- Deterministic native runtime core in C++20.
-- Scene shell with title, menu, map, battle, options/startup-adjacent, and headless test paths.
-- Runtime title flow with New Game, Continue, Options-style startup integration surfaces, disabled/error states, and save discovery.
-- Runtime startup diagnostics for audio, input, localization, profiler, project data, and preflight failures.
-- Save/load flow with slot metadata, recovery/failure handling, migration diagnostics, and native runtime load paths.
-- Settings persistence for runtime and editor configuration.
-- Input remapping with MZ-compatible defaults, JSON persistence, version validation, unsaved-change tracking, and runtime startup loading.
-- Localization bundles with merge support, completeness checking, missing-key reporting, schema validation, and CI consistency checks.
-- Performance profiling with frame-time buffers, budget violations, named section timings, JSON export, and diagnostics integration.
-- Analytics consent handling with opt-in gating, persisted consent, local buffering, and no default upload behavior.
+### Runtime Core
 
-### Rendering And Presentation
+- C++20 deterministic runtime kernels and app shell.
+- Scene flow for title/menu/map/battle/startup-adjacent paths.
+- Save/load, slot metadata, recovery diagnostics, migration paths, and save preview lab coverage.
+- Settings, input remapping, localization bundles, performance profiling, analytics consent, and startup diagnostics.
+- Gameplay systems for battles, abilities, events, dialogue, quests, relationships, crafting, encounters, loot, NPC schedules, character creation, achievements, mod state, audio mix presets, accessibility auditing, and template runtime profiles.
 
-- SDL2/OpenGL rendering path with headless CI fallback.
-- Value-owned frame render commands consumed by OpenGL/headless backends.
-- Text and rectangle command submission through the presentation/render bridge.
-- Renderer-backed visual capture tests with committed goldens.
-- Visual regression harness with golden load/save, snapshot comparison, diff heatmap generation, JSON reports, and approval tooling.
-- Local renderer backend parity matrix covering OpenGL frame/scene/EngineShell capture support and headless deterministic-command boundaries.
-- Presentation bridge for active scene frame construction and battle scene state translation.
-- Runtime VFX cue baseline for battle effects, including semantic cue kinds, resolver/translator coverage, and a WYSIWYG battle VFX timeline with saved tracks, event-to-track binding, frame scrubbing, live runtime preview commands, visibility-aware panel preview, diagnostics, schema/fixture coverage, and BattleScene execution.
-- Spatial presentation/editor support for terrain elevation, props, interaction overlays, and composed workspace snapshots.
-- Map environment WYSIWYG preview with saved tile layers, lighting, weather, region overlays, tactical move overlays, spawn-table overlays, runtime presentation commands, runtime overlay commands, conflict diagnostics, schema/fixture coverage, and editor panel snapshots.
-- 3D Dungeon World support with RPG Maker-style 2D-map-to-3D switching, raycast runtime preview, camera feel controls, cutscene camera rails, reusable room templates, boss arena setup/defeat flow, wall/floor/ceiling material customization with lighting and footstep metadata, collision-aware movement, facing-cell interaction/stair/event preview, locked doors, switch-to-door links, required items, secret walls, floor transfers, encounter cells/zones, traps/disarming, patrol routes, vision cones, hiding spots, stealth alert state, puzzle devices with target links, audio zones, floor atmosphere/weather/particles/light cues, persistent automap/session state, authored floors, map markers, objectives, notes, minimap visibility, diagnostics, saved JSON, and a release-registered WYSIWYG editor panel.
-- 3D WYSIWYG authoring depth for visual authoring layers, saved manual/runtime verification steps, evidence strings, verification completion metrics, template bindings, and runtime commands tying dungeon/world systems into 2.5D RPG and metroidvania-lite template lanes.
-- Baseline raycast/2.5D presentation lane support in the native render stack.
+### Editor
 
-### RPG Systems
+- ImGui editor shell with release-governed panel registration.
+- Diagnostics workspace for project audit, migration, compatibility, audio, abilities, events, menu/message/battle/save, project health, and export surfaces.
+- WYSIWYG panels for ability sandboxing, battle VFX timelines, event command graphs, dialogue preview, export preview, save/load lab, map environment preview, 3D dungeon/world authoring, visual novel pacing, template workflows, and broad maker-style feature families.
+- AI assistant and creator command panels for reviewable AI-generated project edits.
+- Disabled, empty, and error state snapshots for headless verification of many editor controls.
 
-- Native Wave 1 ownership for UI/Menu Core, Message/Text Core, Battle Core, and Save/Data Core.
-- Menu scene graph, command registry, route resolver, editor preview, diagnostics export, and schema/migration coverage.
-- Message flow runner, rich text layout, choice prompt state, portrait binding, text rendering handoff, editor workflows, and diagnostics round-trips.
-- Dialogue WYSIWYG preview with saved portrait, localized text, choices, default selection, authored choice target pages, variable writes, choice commands, runtime command traces, post-choice state preview, diagnostics, schema/fixture coverage, and editor selection/confirmation actions.
-- Event-command visual graph authoring with saved nodes and edges, editor add/update/move/connect actions, sequence and conditional edge traversal, runtime switch/variable state application, edge/runtime traces, dependency graph projection, diagnostics, schema/fixture coverage, and tests tying panel edits to runtime execution.
-- Battle runtime with participant state, bounded formula evaluation, battle event migration, reward/event cadence coverage, BGM/ME routing through compat audio state, battleback diagnostics, HUD quads, gauges, popups, guard markers, and state icon presentation.
-- Save/data runtime with slot descriptors, save policy governance, compat save import, native payload generation, JSONL diagnostics, and metadata preservation.
-- Save/load preview lab with editable slot id, primary payload fields, variables payload fields, corrupt-primary and safe-mode toggles, runtime save/write/load traces, expected-vs-loaded payload diff counts, variables payload matching, recovery tier proof, saved JSON, diagnostics, schema/fixture coverage, and tests.
-- Gameplay Ability Framework with tags, abilities, effects, cooldown/cost checks, ability system components, battle activation, map-side ability consumption, authored ability assets, diagnostics preview, save/load, and runtime apply flows.
-- Ability sandbox WYSIWYG preview with live source MP, cost, cooldown, effect value, tag, attempt-count, and interval edits, repeated runtime activation attempts, cooldown blocking/progression proof, MP/effect deltas, execution history counts, runtime traces, saved JSON, diagnostics, schema/fixture coverage, and tests.
-- Map interaction ability binding for tile, prop, and region triggers.
-- Character identity and create-a-character runtime/editor slice with name, portrait, body, class, attributes, appearance tokens, JSON round-trip, schema, editor model/panel, runtime screen, and tests.
-- Achievement registry with definitions, progress, unlock-condition tokens, save/load JSON, vendor-neutral trophy export payload, editor panel, and tests.
-- Audio mix presets with default, battle, and cinematic profiles, category volumes, ducking rules, schema, editor panel, and tests.
-- Accessibility auditor with missing-label, focus-order, contrast, and navigation rules plus editor reporting.
-- Renderer-derived accessibility contrast extraction reports for frame-command UI surfaces, including backed/unbacked text counts, minimum contrast, focus-order projection, and auditor ingestion.
-- Mod registry with manifest registration, dependency ordering, activation state, save/load JSON, schema, editor panel, and tests.
-- WYSIWYG gameplay maker systems with deterministic runtime documents, editor panels, saved JSON, diagnostics, schemas, fixtures, registry wiring, and tests for quest objective graphs, skill trees/class progression, relationship affinity, crafting/gathering/economy loops, monster capture/party/storage/evolution, encounter design, loot generation, NPC schedules, metroidvania ability gates, and cutscene timelines.
-- WYSIWYG gameplay feature suite covering status effects, enemy AI behavior trees, boss phase scripts, equipment set bonuses, dungeon room flow, companion banter, quest choice consequences, shop economy simulation, puzzle mechanic building, world-state timelines, tactical terrain effects, and procedural content rules.
-- RPG Maker community-requested WYSIWYG maker features covering smart event workflows, event template libraries, interaction prompts, message logs, minimap/fog-of-war, picture hotspot common events, common event menus, developer debug overlays, switch/variable inspection and refactoring, asset/DLC library management, HUD making, and plugin conflict resolution.
-- Expanded maker WYSIWYG feature suite covering project search, broken-reference repair, mass edit/batch operations, project diff review, template sync, parallax mapping, collision/passability visualization, world route planning, hidden-object authoring, biome rules, dialogue relationship matrices, branch coverage, cutscene blocking, localization context review, damage formula labs, troop timeline preview, skill combo chains, bestiary discovery, formations, menus, journals, notifications, input prompt skins, playtest recording, bug report packaging, performance heatmaps, release dashboards, store-page assets, mod conflict visualization, mod packaging, and plugin-to-native migration advice.
-- Visual creator WYSIWYG suite covering fast travel, platformer game type authoring, gacha and summon banners, map zoom, picture-based UI creation, realtime event effects, directional shadows, dynamic environment effects, camera direction, post FX, weather, lighting, platformer physics, side-view action combat, mission boards, relationship schedules, farming, fishing, mounts and vehicles, stealth, puzzle logic, phone/messenger UI, crafting recipe graphs, housing decoration, companion command wheels, title/save screens, credits/endings, tutorial overlays, accessibility previews, economy simulation, encounter-zone painting, random dungeon stitching, achievement visuals, and mod marketplace packaging.
-- itch.io-inspired maker WYSIWYG suite covering proximity compass/objective radar, unused asset cleaning, visual inventory, animated picture timelines, horror FX, cutscene skip/fast-forward, translation helper export, deployment cook dashboard, break shields, boost points, battle weapon swaps, order-turn battle, item concoctions, unison attacks, timed attacks/QTEs, action-sequence impact, side battle status UI, victory screens, state tooltips, animated loading screens, popups, animated windows, video playback, tactical battle, bullet hell, card battle, spin-top battle, recruiting boards, step rewards, event spawning, smart event timers/progress bars, actor construction, visible equipment, skill equip, and front-view battle mode.
-- Export validator and packager with platform requirement checks, package validation, config schema, editor diagnostics panel, install smoke, package smoke, and release-candidate gates.
-- Export preview WYSIWYG surface with editable target, mode, runtime binary path, output directory, expected shipping artifacts, preflight/export/post-validation trace, exact shipping manifest, missing-artifact blocking diagnostics, saved JSON, schema/fixture coverage, and tests.
+### Compatibility And Migration
 
-### Editor And Authoring
+- QuickJS-based RPG Maker MZ compatibility layer under `runtimes/compat_js/`.
+- Bounded DataManager, BattleManager, Window, Sprite, Input, Audio, plugin-fixture, and migration surfaces.
+- Compat is intentionally scoped as an import, validation, and migration harness. It is not claimed as full live RPG Maker JavaScript runtime parity.
 
-- ImGui editor shell with governed production panel registration and headless panel listing.
-- Diagnostics workspace covering audit, migration, audio, abilities, event authority, menu, message, battle, project health, export, and other subsystem projections.
-- Project Audit CLI and diagnostics tab with readiness-derived blockers, fix-next queues, stale-state detection, and JSON output.
-- Project Health dashboard slice with grouped health cards and deterministic remediation ordering.
-- Asset Library runtime/editor model with asset records, provenance packets, duplicate grouping, case-collision flags, report loading, safe cleanup previews, and raw asset intake indexing.
-- Ability Inspector with draft authoring, preview/test activation, runtime application, canonical `content/abilities/` discovery, load/apply/save workflows, and map-scene handoff.
-- Spatial Authoring Workspace that composes elevation painting, prop placement, map ability binding, direct canvas overlays, release-level 3D dungeon authoring, and saved WYSIWYG verification/template-binding state for 3D dungeon/world projects.
-- Direct canvas interaction authoring with click-to-place tile bindings, prop handles, region painting/resizing, hover previews, trigger switching, conflict warnings, and suggested conflict resolution.
-- Character Creator, Achievement, Accessibility, Audio Mix, Analytics, Export Diagnostics, Mod Manager, Input Remap, Localization, Performance Diagnostics, and Project/New Project surfaces with explicit disabled/empty/error states where dependencies are absent.
-- Release-registered WYSIWYG panels for the gameplay maker, community-requested, expanded maker, visual creator, and itch.io-inspired systems, including quest, skill tree, relationship, cutscene timeline, encounter designer, loot generator, crafting loop, monster collection, NPC schedule, metroidvania gates, status effects, enemy AI, boss phases, equipment sets, dungeon flow, companion banter, quest consequences, shop economy lab, puzzle builder, world-state timeline, tactical terrain, procedural rules, smart event workflows, event templates, interaction prompts, message history, minimap/fog, picture hotspots, common event menus, debug overlay, switch/variable inspector, asset/DLC library manager, HUD maker, plugin conflict resolver, project search, reference repair, batch edit, diff review, template sync, parallax mapping, collision/passability visualization, route planning, hidden objects, biome rules, dialogue relationship matrices, branch coverage, cutscene blocking, localization review, formula labs, troop timelines, skill combos, bestiary discovery, formations, menu builder, journal hub, notifications, prompt skins, playtest recorder, bug report packager, performance heatmap, release checklist, store asset generator, mod conflict visualizer, mod packaging wizard, plugin migration advisor, fast travel, platformer type, gacha, map zoom, picture UI creator, realtime event effects, directional shadows, dynamic environment effects, camera director, post FX, weather composer, lighting painter, platformer physics, action combat, summon banners, mission boards, relationship scheduler, farming, fishing, mounts, stealth, puzzle logic, phone UI, crafting recipe graph, housing decoration, companion command wheel, title/save builder, credits/ending builder, tutorial overlay, accessibility preview, economy simulator, encounter zone painter, random dungeon stitcher, achievement visuals, mod marketplace packager, objective radar, resource cleaner, visual inventory, animated pictures, horror FX, cutscene skip, translation helper, cook dashboard, break shields, boost points, weapon swap, order-turn battle, concoctions, unison attacks, timed attacks, action-sequence impact, side battle HUD, victory screen, state tooltips, loading screens, popups, animated windows, video playback, tactical battle, bullet hell, card battle, spin-top battle, recruiting board, step rewards, event spawner, smart timers, actor construct, visible equipment, skill equip, and front-view battle mode.
-- Migration wizard diagnostics with rendered workflow actions, selected-result details, issue navigation, report save/load, and bound-runtime rerun flows.
+### AI
 
-### RPG Maker MZ Compatibility And Migration
+- `IChatService` abstraction and deterministic `MockChatService` remain the in-tree runtime provider path.
+- Live chatbot providers are still not shipped as runtime services in tree.
+- Creator-command transport profiles exist for ChatGPT/OpenAI, Kimi, OpenRouter, Ollama, LM Studio, and other hosted/local OpenAI-compatible endpoints.
+- AI tool plans require explicit review before mutation. The editor exposes approval controls and diff/revert data; `ChatbotComponent` exposes equivalent tool commands for scripted review flows.
 
-- QuickJS-based bounded compatibility layer under `runtimes/compat_js/`.
-- RPG Maker MZ-shaped DataManager, BattleManager, Window, Sprite, Input, and Audio surfaces for import, validation, and migration confidence.
-- DataManager seeded-container behavior, database loading, enemy battler name preservation, and export paths.
-- BattleManager support for bounded formulas, troop page conditions, variable conditional branches, switches, battle audio routing, reward/event cadence, and fallback preservation for unsupported effects.
-- Window compatibility for text drawing, `drawTextEx`, selectable pointer/mouse-wheel semantics, message alignment, contents lifecycle, and bitmap handle dimensions.
-- Sprite compatibility for character/actor bitmap ownership, reload, destructor cleanup, source rect mapping, and actor motion lifecycle.
-- Save migration from `.rpgsave`-style compat documents into native runtime save state while retaining unsupported plugin blobs and unmapped payload fields.
-- Compatibility corpus health checks with executable fixtures separated from health-only corpus fixtures.
+### Templates And Governance
 
-### Tools, Governance, And Release Engineering
+- Template runtime profiles, starter project generation, certification, readiness rows, and specs cover JRPG, visual novel, turn-based RPG, tactics RPG, ARPG, monster collector, cozy/life, metroidvania-lite, 2.5D RPG, roguelite dungeon, survival horror, farming adventure, card battler, platformer, gacha hero, mystery detective, world exploration, and the additional genre-template set under `content/templates/` and `docs/templates/`.
+- Readiness docs are conservative. `READY` means the bounded claimed scope has evidence; `PARTIAL` means either the code is intentionally scoped or productization/release evidence is still incomplete.
+
+### Release Engineering
 
 - CMake/Ninja and Visual Studio build presets.
-- Catch2 unit, integration, snapshot, compat, and engine test suites.
-- Local gates, presentation gate, release-candidate gate, install smoke, package smoke, CMake completeness, truth reconciliation, schema-breaking-change, release-readiness, localization, save-policy, and asset/governance checks.
-- GitHub Actions CI with PR, release-candidate, nightly, and weekly lanes.
-- Release-required asset verification from a fresh GitHub clone.
-- Component install and CPack package layout with runtime data, docs, metadata, icon, and desktop metadata entries.
-- Legal/release docs, app readiness matrix, release readiness report, legal signoff record, EULA, privacy policy, third-party notices, credits, and changelog.
-- Documentation health checks for agent knowledge, canonical status, and readiness references.
-- Diagnostics bundle export with secret-file exclusion, manifest output, logs, reports, config, save metadata, system info, and recent diagnostics snapshots.
-- Mod SDK sample validation with manifest, permissions, validation docs, expected diagnostics, and forbidden-permission checks.
-- Local co-author review bundles with change summaries, comments, review checklists, handoff payloads, and file-manifest fallback when Git is unavailable.
-- Optional AI assistant configuration and suggestion records with explicit disabled state, provider-independent config, provenance/source notes, generated-content flags, review state, and apply protection for runtime status docs.
-- Platform/service boundaries keep live cloud, proprietary achievement SDKs, external marketplace/payment/review publishing, and analytics HTTP upload behind local simulation or explicit project/privacy-review configuration.
-- Offline FAISS-style retrieval, SAM/SAM2-style vision segmentation, and Demucs/Encodec-style audio tooling stay under `tools/` with executable boundary checks proving engine/runtime code does not import tooling sources.
-- Template certification and advisory project completeness scoring for JRPG, visual novel, turn-based RPG, tactics, ARPG, monster collector, cozy/life, metroidvania-lite, and 2.5D RPG template families.
-- Future-feature governance scripts and docs checks for template certification, feature-governance manifests, schema changelog coverage, and conservative readiness integration.
+- Catch2 unit, integration, snapshot, compat, and engine test lanes.
+- Local, PR, nightly, weekly, presentation, package, install, release-readiness, schema, truth-reconciliation, asset, and docs checks.
+- Export packager/validator and release-required asset verification.
 
-## Current Boundaries
+## Boundaries
 
-URPG’s implemented feature set is listed above. The remaining boundaries are release, distribution, or externally configured integrations rather than unfinished WYSIWYG feature claims:
-
-- Public release still requires qualified legal/privacy/distribution approval or an explicit public-release waiver, a recorded final release decision, and an annotated prerelease/release tag.
-- Achievement platform SDKs, live cloud providers, external mod marketplaces, payments, reviews, publishing, and production analytics HTTP upload are intentionally project-configured or out of tree.
-- The QuickJS compatibility layer is a bounded import/validation/migration harness, not complete live RPG Maker JavaScript runtime parity.
+- Public release is blocked until legal/privacy/distribution and tagging exits are closed.
+- Full native signing, notarization, broader platform packaging, and public artifact policy are still backlog beyond the current internal validation checkpoint.
+- Achievement platform SDKs, live cloud sync, external marketplaces, payments, reviews, publishing, and production analytics upload remain project-configured, simulated, out-of-tree, or future work.
 - Raw/vendor/source asset packs are not release-package dependencies until license review, attribution review, promotion, and package constraints are cleared.
-- FAISS retrieval, SAM/SAM2 segmentation, and Demucs/Encodec audio processing remain offline artifact-generation lanes, not runtime dependencies.
+- Offline FAISS/SAM/SAM2/Demucs/Encodec-style tooling remains an artifact-generation lane under `tools/`, not a runtime dependency.
 
-## Future Expansion
+## Repository Layout
 
-The next development cycle can build on the completed WYSIWYG surfaces with additional templates, polish, integrations, renderer/device coverage, and production examples. Those are additive enhancements, not missing prerequisites for the implemented features documented in this README.
-
-## Architecture
-
-Core stack:
-
-- Language: C++20
-- Build system: CMake 3.23+
-- Primary local generator: Ninja
-- Platforms: Windows first, with GCC/Clang support paths
-- Rendering/windowing: SDL2 + OpenGL, with headless CI paths
-- JSON: nlohmann/json
-- Testing: Catch2 v3
-- Compatibility runtime: QuickJS
-- Editor UI: ImGui
-
-Repository layout:
-
-- `apps/`: runtime/editor entry points
-- `engine/core/`: native runtime systems
-- `engine/api/`: public runtime API entry points
-- `engine/runtimes/bridge/`: native/script bridge support
-- `editor/`: editor panels, models, diagnostics, and workspaces
-- `runtimes/compat_js/`: QuickJS and RPG Maker MZ compatibility surfaces
-- `content/`: schemas, fixtures, abilities, readiness data, and release-required content
-- `resources/`: release-required app resources
-- `tests/`: unit, integration, snapshot, compat, and engine coverage
-- `tools/`: CI gates, docs checks, asset tooling, packaging, migration, and workflow scripts
-- `docs/`: architecture, roadmap, status, readiness, signoff, ADRs, and validation guides
+- `apps/`: runtime and editor entry points.
+- `engine/core/`: native runtime systems.
+- `engine/api/`: public runtime API entry points.
+- `engine/runtimes/bridge/`: native/script bridge support.
+- `editor/`: editor panels, models, diagnostics, and workspaces.
+- `runtimes/compat_js/`: QuickJS and RPG Maker MZ compatibility surfaces.
+- `content/`: schemas, fixtures, templates, abilities, readiness data, and release-required content.
+- `resources/`: release-required app resources.
+- `tests/`: unit, integration, snapshot, compat, and engine coverage.
+- `tools/`: CI gates, docs checks, asset tooling, packaging, migration, and workflow scripts.
+- `docs/`: architecture, roadmap, status, readiness, signoff, ADRs, governance, and validation guides.
 
 ## Build
 
-Recommended local build:
+Recommended Windows/Ninja build:
 
 ```powershell
 cmake --preset dev-ninja-debug
 cmake --build --preset dev-debug
 ```
 
-Run the default local test suite:
-
-```powershell
-ctest --preset dev-all
-```
-
-Other useful presets:
+Other supported local presets:
 
 ```powershell
 cmake --preset dev-vs2022
@@ -188,43 +107,43 @@ cmake --build --preset dev-vs2022-debug
 
 cmake --preset dev-mingw-debug
 cmake --build --preset dev-mingw-debug-build
-
-cmake --preset ci
-cmake --build --preset ci-release
 ```
 
-## Validation
+## Test And Validate
 
-Focused gates:
+Run all registered tests for the active debug preset:
 
 ```powershell
-ctest -L pr
-ctest -L nightly
-ctest -L weekly
+ctest --preset dev-all --output-on-failure
+```
+
+Common focused gates:
+
+```powershell
+ctest --preset dev-all -L pr --output-on-failure
+ctest --preset dev-all -L nightly --output-on-failure
+ctest --preset dev-all -L weekly --output-on-failure
 .\tools\ci\run_presentation_gate.ps1
 .\tools\ci\run_local_gates.ps1
-.\tools\ci\run_release_candidate_gate.ps1
 ```
 
-Useful focused test examples:
+AI/editor lanes used for the latest AI assistant checkpoint:
 
 ```powershell
-.\build\dev-ninja-debug\urpg_tests.exe "[editor][spatial]" --reporter compact
-.\build\dev-ninja-debug\urpg_tests.exe "[editor][diagnostics][integration][abilities]" --reporter compact
-.\build\dev-ninja-debug\urpg_tests.exe "[scene][map]" --reporter compact
-.\build\dev-ninja-debug\urpg_snapshot_tests.exe "[snapshot][renderer][visual_capture]" --reporter compact
+ctest --preset dev-all -R "AI (knowledge|task|tool|assistant)|Chatbot component" --output-on-failure
+ctest --preset dev-all -R "FFS-16|AI suggestions require approval" --output-on-failure
 ```
 
-Documentation and readiness checks:
+Docs and governance checks:
 
 ```powershell
-.\tools\docs\check-agent-knowledge.ps1 -BuildRoot build/dev-ninja-debug
+.\tools\docs\check-agent-knowledge.ps1 -BuildDirectory build/dev-ninja-debug
 .\tools\ci\check_release_required_assets.ps1
 ```
 
 ## Documentation Map
 
-Start with:
+Start here:
 
 - [Agent Knowledge Index](./docs/agent/INDEX.md)
 - [Architecture Map](./docs/agent/ARCHITECTURE_MAP.md)
@@ -232,16 +151,15 @@ Start with:
 - [Execution Workflow](./docs/agent/EXECUTION_WORKFLOW.md)
 - [Known Debt](./docs/agent/KNOWN_DEBT.md)
 - [Program Completion Status](./docs/PROGRAM_COMPLETION_STATUS.md)
-- [App Release Readiness Matrix](./docs/APP_RELEASE_READINESS_MATRIX.md)
-- [AAA Release Readiness Report](./docs/release/AAA_RELEASE_READINESS_REPORT.md)
-- [AAA Release Execution Plan](./docs/release/AAA_RELEASE_EXECUTION_PLAN.md)
-- [Native Feature Absorption Plan](./docs/NATIVE_FEATURE_ABSORPTION_PLAN.md)
-- [Release Readiness Matrix](./docs/RELEASE_READINESS_MATRIX.md)
-- [Future Feature Actionable Sprint Plan](./docs/archive/planning/FUTURE_FEATURE_ACTIONABLE_SPRINT_PLAN.md)
+- [Status Snapshot](./docs/status/PROGRAM_COMPLETION_STATUS.md)
+- [Release Readiness Matrix](./docs/release/RELEASE_READINESS_MATRIX.md)
+- [Editor Control Inventory](./docs/release/EDITOR_CONTROL_INVENTORY.md)
+- [AI Copilot Guide](./docs/integrations/AI_COPILOT_GUIDE.md)
+- [Template Specs](./docs/templates/)
 
 ## Development Rules
 
-- Keep feature claims truthful and evidence-backed.
+- Keep claims truthful and evidence-backed.
 - Prefer existing subsystem patterns over new abstractions.
 - Update tests and docs when behavior changes.
 - Keep release-required assets independent of unavailable source/vendor LFS packs.
@@ -250,4 +168,4 @@ Start with:
 
 ## Summary
 
-URPG is building a native, deterministic RPG runtime and a WYSIWYG editor that previews real shipped behavior. The current tree has broad runtime, editor, compatibility, packaging, and validation foundations in place, with private/internal release-candidate gates passing. The next development cycle can add features on top of this checkpoint while preserving the project rule: implemented, authorable, previewable, tested, and documented.
+URPG Maker is an ambitious native RPG engine/editor with broad deterministic runtime coverage, many WYSIWYG authoring surfaces, a bounded RPG Maker MZ compatibility harness, internal release validation infrastructure, and conservative readiness governance. The current `development` branch is a strong internal validation checkpoint, with public release still gated by distribution/legal exits and remaining platform-productization work.

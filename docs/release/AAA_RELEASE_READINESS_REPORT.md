@@ -7,6 +7,8 @@
 **Purpose:** Authoritative release-readiness audit for the current runtime, editor, packaging, release governance, and asset-hydration gates.
 **Verdict:** **NOT RELEASE-READY**
 
+**Current documentation note (2026-04-28):** this report remains the latest recorded release-candidate audit. The `development` branch has advanced beyond the verification base commit to include AI editor review/revert surfaces and template-readiness expansion work, including pushed commit `cfdae41e9`. Before any public release decision or tag, rerun the release-candidate gate and remote manual workflow on the then-current commit.
+
 URPG is no longer blocked by the original app-entry, editor-navigation, install/package, metadata, release-required asset hydration, private/internal RC legal owner acceptance, or local validation issues recorded in the first 2026-04-26 audit. Those items now have direct implementation and gate evidence. The project is still not public-release-ready because required public release exits remain unverified or externally blocked:
 
 - Legal/privacy/distribution sufficiency for public release is not verified by a qualified reviewer, and no explicit public-release waiver is recorded.

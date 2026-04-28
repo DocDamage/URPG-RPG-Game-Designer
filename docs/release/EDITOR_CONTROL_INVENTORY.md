@@ -1,8 +1,8 @@
 # Editor Control Inventory
 
-Status Date: 2026-04-26
+Status Date: 2026-04-28
 
-This inventory records the P2-002 sweep of user-facing ImGui controls under `editor/`.
+This inventory records the P2-002 sweep of user-facing ImGui controls under `editor/`, plus the current AI assistant review controls exposed through deterministic render snapshots.
 
 ## Production Panel Exposure Map
 
@@ -39,6 +39,11 @@ rg -n "ImGui::(Button|MenuItem|Checkbox|Combo|Selectable|Slider|Drag)" editor
 | `editor/ability/ability_inspector_panel.cpp` | `Apply` button | Calls host-provided `apply_draft_to_runtime` callback. | Disabled tooltip/snapshot reason is `Editor host has not registered an apply-draft command handler.` |
 | `editor/ability/ability_inspector_panel.cpp` | `Save` button | Calls host-provided `save_draft` callback. | Disabled tooltip/snapshot reason is `Editor host has not registered a save-draft command handler.` |
 | `editor/ability/ability_inspector_panel.cpp` | `Load` button | Calls host-provided `load_draft` callback. | Disabled tooltip/snapshot reason is `Editor host has not registered a load-draft command handler.` |
+| `editor/ai/ai_assistant_panel.cpp` | AI step `Approve` action | Calls `AiAssistantPanel::approveStep(stepId)` and moves the selected tool step from `needs_review` to `approved`. | `controls.step_controls[].approve_button.enabled` is false when the step is already approved or rejected, or when the tool does not require approval. |
+| `editor/ai/ai_assistant_panel.cpp` | AI step `Reject` action | Calls `AiAssistantPanel::rejectStep(stepId)` and marks the selected tool step as rejected so it cannot be applied. | `controls.step_controls[].reject_button.enabled` is false after the step is already rejected, or when the tool does not require approval. |
+| `editor/ai/ai_assistant_panel.cpp` | `Approve All` action | Calls `AiAssistantPanel::approveAllPendingSteps()` and approves all pending mutating steps in the active plan. | `controls.approve_all_button.enabled` is false when the approval manifest has no pending steps. |
+| `editor/ai/ai_assistant_panel.cpp` | `Apply` action | Calls `AiAssistantPanel::applyApprovedPlan()`, writes the approved plan into project JSON, and records `last_apply`, `project_patch`, and `revert_patch`. | `controls.apply_button.enabled` is false until the active plan validates with all mutating steps approved and no rejected steps. |
+| `editor/ai/ai_assistant_panel.cpp` | `Revert AI Change` action | Calls `AiAssistantPanel::revertLastAppliedPlan()` and applies the latest reverse JSON Patch to project data. | `controls.revert_button.enabled` is false until at least one AI-applied project change is recorded. |
 
 ## Verification
 
@@ -48,5 +53,6 @@ rg -n "ImGui::(Button|MenuItem|Checkbox|Combo|Selectable|Slider|Drag)" editor
 - `build\dev-ninja-debug\urpg_tests.exe "[analytics][editor][panel]"`
 - `build\dev-ninja-debug\urpg_tests.exe "[ui][editor][menu_inspector][panel]"`
 - `ctest --preset dev-all -R "Ability|Pattern|Analytics|MenuInspector" --output-on-failure`
+- `ctest --preset dev-all -R "AI (knowledge|task|tool|assistant)|Chatbot component" --output-on-failure`
 
 Manual graphical verification in `urpg_editor` remains required for visual tooltip affordance, because headless tests validate the disabled-state contract but do not hover controls.

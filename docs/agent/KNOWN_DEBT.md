@@ -14,6 +14,9 @@ This file is a pointer map, not the debt database.
 
 - Prefer closing release-plan tasks over broad refactors.
 - Enforce the WYSIWYG done rule: a subsystem is not done without visual authoring, live preview, saved project data, runtime execution, diagnostics, and tests.
+- Keep the AI assistant workflow visibly review-gated: approve/reject/approve-all/apply/revert controls, result diffs, and reverse patches must stay exposed in editor snapshots when AI tooling changes.
+- Treat live chatbot provider integration as future work unless a concrete provider service lands behind `IChatService`; creator-command transport profiles are not the same as shipped live chatbot providers.
+- Keep template expansion tied to starter manifests, runtime profiles, certification loops, readiness rows, and specs before claiming a template lane is product-ready.
 - Keep bootstrap/dev surfaces visibly marked as non-production.
 - Keep any future compat and migration limitations diagnostic-rich and documented; current public compat manager registries are closed for the claimed bridge scope.
 - Keep editor release navigation aligned with `docs/release/EDITOR_CONTROL_INVENTORY.md`.

@@ -64,9 +64,20 @@ The chatbot now has an in-tree knowledge foundation in `engine/core/ai/ai_knowle
 
 `AiAssistantPanel` includes a knowledge snapshot and current task plan in its deterministic render snapshot, giving the WYSIWYG editor a stable surface for showing what the chatbot knows, what tools it wants to call, and what will be changed before anything is applied.
 
+The editor-facing AI action model is now explicit:
+
+- `controls.step_controls[]` exposes each planned step, its review state, and approve/reject button visibility and enabled state.
+- `controls.approve_all_button` exposes the approve-all affordance.
+- `controls.apply_button` is enabled only after the current plan validates with all mutating steps approved and no rejected steps.
+- `controls.revert_button` is enabled after at least one AI-applied project change is available to undo.
+- `apply_preview` contains the dry-run apply diagnostics plus the JSON Patch that would be written when the plan is approved.
+- `result_diff` contains the forward patch and reverse patch for the latest applied AI change.
+
+`AiToolApplyResult` records `before_project_data`, `project_data`, `project_patch`, and `revert_patch`. The patches use nlohmann/json's JSON Patch representation. `AiAssistantPanel::revertLastAppliedPlan()` applies the latest reverse patch, updates the project knowledge snapshot, and records the result under `last_revert`.
+
 The mutating tools that require approval are `create_map`, `place_tile`, `paint_region`, `configure_environment`, `add_event`, `edit_dialogue`, `add_localization_entry`, `add_quest`, `set_npc_schedule`, `add_ability`, `add_vfx_keyframe`, `configure_save_preview`, `import_asset_record`, `create_template_project`, and `plan_creator_command`. `run_validation` and `run_export_preview` are non-mutating queue/preview tools and do not require approval.
 
-Editor approval is handled by `AiAssistantPanel::approveStep(stepId)` or `AiAssistantPanel::approveAllPendingSteps()`. After approval, `AiAssistantPanel::applyApprovedPlan()` applies the validated tool plan to project JSON and records the result in the panel snapshot under `last_apply`.
+Editor approval is handled by `AiAssistantPanel::approveStep(stepId)` or `AiAssistantPanel::approveAllPendingSteps()`. Rejection is handled by `AiAssistantPanel::rejectStep(stepId)`. After approval, `AiAssistantPanel::applyApprovedPlan()` applies the validated tool plan to project JSON and records the result in the panel snapshot under `last_apply`.
 
 `ChatbotComponent` is wired to the same tool registry through explicit tool commands:
 
