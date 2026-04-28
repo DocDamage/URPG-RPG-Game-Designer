@@ -35,6 +35,9 @@
     "activated_switches": [],
     "alerted_patrols": [],
     "activated_puzzles": [],
+    "placed_room_templates": [],
+    "active_boss_arenas": [],
+    "defeated_boss_arenas": [],
     "patrol_indices": {},
     "current_hiding_spot": "",
     "current_camera_rail": "",
@@ -81,6 +84,16 @@
       "label": "Crypt key",
       "type": "item",
       "x": 2,
+      "y": 3,
+      "floor_id": "crypt_b1",
+      "visible": true,
+      "completed": false
+    },
+    {
+      "id": "boss_reward",
+      "label": "Crypt champion reward",
+      "type": "reward",
+      "x": 3,
       "y": 3,
       "floor_id": "crypt_b1",
       "visible": true,
@@ -205,6 +218,32 @@
       "duration": 1.25,
       "floor_id": "crypt_b1",
       "trigger_id": "pressure_plate_door"
+    }
+  ],
+  "room_templates": [
+    {
+      "id": "crypt_guard_room",
+      "label": "Crypt Guard Room",
+      "category": "combat",
+      "width": 3,
+      "height": 3,
+      "anchor_x": 1,
+      "anchor_y": 1,
+      "floor_id": "crypt_b1",
+      "included_events": ["torch_a", "spawn"],
+      "reusable": false
+    }
+  ],
+  "boss_arenas": [
+    {
+      "id": "crypt_champion_arena",
+      "label": "Crypt Champion Arena",
+      "floor_id": "crypt_b1",
+      "entry_door_id": "crypt_door",
+      "exit_door_id": "crypt_door",
+      "boss_encounter_tag": "crypt_champion",
+      "reward_marker_id": "boss_reward",
+      "defeated": false
     }
   ],
   "materials": [

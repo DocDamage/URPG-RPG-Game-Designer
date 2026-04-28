@@ -105,6 +105,30 @@ bool Dungeon3DWorldPanel::playCameraRail(std::string rail_id) {
     return played;
 }
 
+bool Dungeon3DWorldPanel::placeRoomTemplate(std::string template_id) {
+    const bool placed = document_.placeRoomTemplate(std::move(template_id));
+    if (loaded_) {
+        refresh();
+    }
+    return placed;
+}
+
+bool Dungeon3DWorldPanel::startBossArena(std::string arena_id) {
+    const bool started = document_.startBossArena(std::move(arena_id));
+    if (loaded_) {
+        refresh();
+    }
+    return started;
+}
+
+bool Dungeon3DWorldPanel::defeatBossArena(std::string arena_id) {
+    const bool defeated = document_.defeatBossArena(std::move(arena_id));
+    if (loaded_) {
+        refresh();
+    }
+    return defeated;
+}
+
 void Dungeon3DWorldPanel::rotate(float radians) {
     document_.rotate(radians);
     if (loaded_) {
@@ -164,6 +188,11 @@ void Dungeon3DWorldPanel::refresh() {
     snapshot_.active_puzzle_device_count = static_cast<size_t>(preview_.active_puzzle_device_count);
     snapshot_.solved_puzzle_count = static_cast<size_t>(preview_.solved_puzzle_count);
     snapshot_.camera_rail_cue_count = static_cast<size_t>(preview_.camera_rail_cue_count);
+    snapshot_.room_template_count = static_cast<size_t>(preview_.room_template_count);
+    snapshot_.placed_room_template_count = static_cast<size_t>(preview_.placed_room_template_count);
+    snapshot_.boss_arena_count = static_cast<size_t>(preview_.boss_arena_count);
+    snapshot_.active_boss_arena_count = static_cast<size_t>(preview_.active_boss_arena_count);
+    snapshot_.defeated_boss_arena_count = static_cast<size_t>(preview_.defeated_boss_arena_count);
     snapshot_.opened_door_count = static_cast<size_t>(preview_.opened_door_count);
     snapshot_.revealed_secret_count = static_cast<size_t>(preview_.revealed_secret_count);
     snapshot_.runtime_command_count = preview_.runtime_commands.size();

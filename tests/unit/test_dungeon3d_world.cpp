@@ -32,7 +32,7 @@ TEST_CASE("3D dungeon world converts 2D map data into runtime raycast preview", 
     REQUIRE(document.height == 5);
     REQUIRE(document.cells.size() == 25);
     REQUIRE(document.floors.size() == 2);
-    REQUIRE(document.markers.size() == 3);
+    REQUIRE(document.markers.size() == 4);
     REQUIRE(document.notes.size() == 1);
     REQUIRE(document.encounter_zones.size() == 1);
     REQUIRE(document.lock_links.size() == 1);
@@ -43,6 +43,8 @@ TEST_CASE("3D dungeon world converts 2D map data into runtime raycast preview", 
     REQUIRE(document.hiding_spots.size() == 1);
     REQUIRE(document.puzzle_devices.size() == 1);
     REQUIRE(document.camera_rails.size() == 1);
+    REQUIRE(document.room_templates.size() == 1);
+    REQUIRE(document.boss_arenas.size() == 1);
     REQUIRE(document.camera_feel.fov == 72.0f);
     REQUIRE(document.materials.size() == 2);
     REQUIRE(document.validate().empty());
@@ -60,8 +62,8 @@ TEST_CASE("3D dungeon world converts 2D map data into runtime raycast preview", 
     REQUIRE(preview.door_count == 1);
     REQUIRE(preview.secret_count == 1);
     REQUIRE(preview.encounter_cell_count == 1);
-    REQUIRE(preview.marker_count == 3);
-    REQUIRE(preview.visible_marker_count == 3);
+    REQUIRE(preview.marker_count == 4);
+    REQUIRE(preview.visible_marker_count == 4);
     REQUIRE(preview.objective_count == 1);
     REQUIRE(preview.completed_objective_count == 0);
     REQUIRE(preview.note_count == 1);
@@ -78,6 +80,11 @@ TEST_CASE("3D dungeon world converts 2D map data into runtime raycast preview", 
     REQUIRE(preview.active_puzzle_device_count == 1);
     REQUIRE(preview.solved_puzzle_count == 0);
     REQUIRE(preview.camera_rail_cue_count == 1);
+    REQUIRE(preview.room_template_count == 1);
+    REQUIRE(preview.placed_room_template_count == 0);
+    REQUIRE(preview.boss_arena_count == 1);
+    REQUIRE(preview.active_boss_arena_count == 0);
+    REQUIRE(preview.defeated_boss_arena_count == 0);
     REQUIRE(preview.camera_fov == 72.0f);
     REQUIRE(preview.camera_head_bob == 0.05f);
     REQUIRE_FALSE(preview.player_hidden);
@@ -93,6 +100,8 @@ TEST_CASE("3D dungeon world converts 2D map data into runtime raycast preview", 
     REQUIRE(containsCommand(preview.runtime_commands, "switch_to_3d:ancient_crypt"));
     REQUIRE(containsCommand(preview.runtime_commands, "camera_feel:ancient_crypt"));
     REQUIRE(containsCommand(preview.runtime_commands, "preview_camera_rail:door_reveal_rail"));
+    REQUIRE(containsCommand(preview.runtime_commands, "preview_room_template:crypt_guard_room"));
+    REQUIRE(containsCommand(preview.runtime_commands, "preview_boss_arena:crypt_champion_arena"));
     REQUIRE(containsCommand(preview.runtime_commands, "raycast_frame:ancient_crypt"));
     REQUIRE(containsCommand(preview.runtime_commands, "update_automap:ancient_crypt"));
 }
@@ -115,8 +124,8 @@ TEST_CASE("3D dungeon world supports 2D to 3D switching and WYSIWYG panel snapsh
     REQUIRE(panel.snapshot().door_count == 1);
     REQUIRE(panel.snapshot().secret_count == 1);
     REQUIRE(panel.snapshot().encounter_cell_count == 1);
-    REQUIRE(panel.snapshot().marker_count == 3);
-    REQUIRE(panel.snapshot().visible_marker_count == 3);
+    REQUIRE(panel.snapshot().marker_count == 4);
+    REQUIRE(panel.snapshot().visible_marker_count == 4);
     REQUIRE(panel.snapshot().objective_count == 1);
     REQUIRE(panel.snapshot().completed_objective_count == 0);
     REQUIRE(panel.snapshot().note_count == 1);
@@ -133,6 +142,11 @@ TEST_CASE("3D dungeon world supports 2D to 3D switching and WYSIWYG panel snapsh
     REQUIRE(panel.snapshot().active_puzzle_device_count == 1);
     REQUIRE(panel.snapshot().solved_puzzle_count == 0);
     REQUIRE(panel.snapshot().camera_rail_cue_count == 1);
+    REQUIRE(panel.snapshot().room_template_count == 1);
+    REQUIRE(panel.snapshot().placed_room_template_count == 0);
+    REQUIRE(panel.snapshot().boss_arena_count == 1);
+    REQUIRE(panel.snapshot().active_boss_arena_count == 0);
+    REQUIRE(panel.snapshot().defeated_boss_arena_count == 0);
     REQUIRE(panel.snapshot().camera_fov == 72.0f);
     REQUIRE(panel.snapshot().camera_head_bob == 0.05f);
     REQUIRE(panel.snapshot().active_ambient_sound == "ambience_crypt_echo");
@@ -143,14 +157,14 @@ TEST_CASE("3D dungeon world supports 2D to 3D switching and WYSIWYG panel snapsh
     REQUIRE(panel.snapshot().nearest_patrol_id == "skeleton_guard_route");
     REQUIRE_FALSE(panel.snapshot().player_hidden);
     REQUIRE(panel.snapshot().average_wall_distance > 0.0f);
-    REQUIRE(panel.snapshot().runtime_command_count == 8);
+    REQUIRE(panel.snapshot().runtime_command_count == 10);
     REQUIRE(panel.saveProjectData() == document.toJson());
     REQUIRE(urpg::render::dungeon3DPreviewToJson(panel.preview())["columns"].size() == 64);
 
     panel.setMode("2d");
     REQUIRE(panel.snapshot().mode == "2d");
     REQUIRE(panel.snapshot().raycast_column_count == 0);
-    REQUIRE(panel.snapshot().runtime_command_count == 7);
+    REQUIRE(panel.snapshot().runtime_command_count == 9);
     REQUIRE(containsCommand(panel.preview().runtime_commands, "switch_to_2d:ancient_crypt"));
 
     const auto switched = document.switchMode("3d");
@@ -262,8 +276,8 @@ TEST_CASE("3D dungeon world tracks floor objectives markers and notes", "[dungeo
     auto document = urpg::render::Dungeon3DWorldDocument::fromJson(loadFixture("dungeon3d_world"));
     auto preview = document.preview();
 
-    REQUIRE(preview.marker_count == 3);
-    REQUIRE(preview.visible_marker_count == 3);
+    REQUIRE(preview.marker_count == 4);
+    REQUIRE(preview.visible_marker_count == 4);
     REQUIRE(preview.objective_count == 1);
     REQUIRE(preview.completed_objective_count == 0);
     REQUIRE(preview.note_count == 1);
@@ -457,6 +471,48 @@ TEST_CASE("3D dungeon world previews camera feel and plays cutscene rails", "[du
     REQUIRE(panel.snapshot().active_camera_rail_id == "door_reveal_rail");
     REQUIRE(panel.snapshot().last_event_log_entry == "play_camera_rail:door_reveal_rail");
     REQUIRE_FALSE(panel.playCameraRail("missing_rail"));
+}
+
+TEST_CASE("3D dungeon world places room templates and resolves boss arenas", "[dungeon3d][wysiwyg]") {
+    auto document = urpg::render::Dungeon3DWorldDocument::fromJson(loadFixture("dungeon3d_world"));
+    auto preview = document.preview();
+
+    REQUIRE(preview.room_template_count == 1);
+    REQUIRE(preview.placed_room_template_count == 0);
+    REQUIRE(preview.boss_arena_count == 1);
+    REQUIRE(preview.active_boss_arena_count == 0);
+    REQUIRE(preview.defeated_boss_arena_count == 0);
+    REQUIRE(containsCommand(preview.runtime_commands, "preview_room_template:crypt_guard_room"));
+    REQUIRE(containsCommand(preview.runtime_commands, "preview_boss_arena:crypt_champion_arena"));
+
+    REQUIRE(document.placeRoomTemplate("crypt_guard_room"));
+    preview = document.preview();
+    REQUIRE(preview.placed_room_template_count == 1);
+    REQUIRE_FALSE(document.placeRoomTemplate("crypt_guard_room"));
+
+    REQUIRE(document.startBossArena("crypt_champion_arena"));
+    preview = document.preview();
+    REQUIRE(preview.active_boss_arena_count == 1);
+    REQUIRE(document.session.triggered_encounters.contains("crypt_champion"));
+    REQUIRE_FALSE(document.session.opened_doors.contains("crypt_door"));
+
+    REQUIRE(document.defeatBossArena("crypt_champion_arena"));
+    preview = document.preview();
+    REQUIRE(preview.active_boss_arena_count == 0);
+    REQUIRE(preview.defeated_boss_arena_count == 1);
+    REQUIRE(document.session.opened_doors.contains("crypt_door"));
+    REQUIRE(document.session.completed_markers.contains("boss_reward"));
+
+    urpg::editor::Dungeon3DWorldPanel panel;
+    panel.loadDocument(urpg::render::Dungeon3DWorldDocument::fromJson(loadFixture("dungeon3d_world")));
+    REQUIRE(panel.placeRoomTemplate("crypt_guard_room"));
+    REQUIRE(panel.snapshot().placed_room_template_count == 1);
+    REQUIRE(panel.startBossArena("crypt_champion_arena"));
+    REQUIRE(panel.snapshot().active_boss_arena_count == 1);
+    REQUIRE(panel.defeatBossArena("crypt_champion_arena"));
+    REQUIRE(panel.snapshot().defeated_boss_arena_count == 1);
+    REQUIRE(panel.snapshot().last_event_log_entry == "defeat_boss_arena:crypt_champion_arena");
+    REQUIRE_FALSE(panel.startBossArena("missing_arena"));
 }
 
 TEST_CASE("3D dungeon world is release registered with promoted spatial authoring", "[dungeon3d][wysiwyg]") {

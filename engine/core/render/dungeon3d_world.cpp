@@ -152,6 +152,30 @@ Dungeon3DPuzzleDevice puzzleDeviceFromJson(const nlohmann::json& json) {
             json.value("active", true)};
 }
 
+Dungeon3DRoomTemplate roomTemplateFromJson(const nlohmann::json& json) {
+    return {json.value("id", ""),
+            json.value("label", ""),
+            json.value("category", ""),
+            json.value("width", 0),
+            json.value("height", 0),
+            json.value("anchor_x", 0),
+            json.value("anchor_y", 0),
+            json.value("floor_id", ""),
+            json.value("included_events", std::vector<std::string>{}),
+            json.value("reusable", true)};
+}
+
+Dungeon3DBossArena bossArenaFromJson(const nlohmann::json& json) {
+    return {json.value("id", ""),
+            json.value("label", ""),
+            json.value("floor_id", ""),
+            json.value("entry_door_id", ""),
+            json.value("exit_door_id", ""),
+            json.value("boss_encounter_tag", ""),
+            json.value("reward_marker_id", ""),
+            json.value("defeated", false)};
+}
+
 nlohmann::json materialToJson(const Dungeon3DMaterial& material) {
     return {{"id", material.id},
             {"wall_texture", material.wall_texture},
@@ -294,6 +318,30 @@ nlohmann::json puzzleDeviceToJson(const Dungeon3DPuzzleDevice& device) {
             {"active", device.active}};
 }
 
+nlohmann::json roomTemplateToJson(const Dungeon3DRoomTemplate& room_template) {
+    return {{"id", room_template.id},
+            {"label", room_template.label},
+            {"category", room_template.category},
+            {"width", room_template.width},
+            {"height", room_template.height},
+            {"anchor_x", room_template.anchor_x},
+            {"anchor_y", room_template.anchor_y},
+            {"floor_id", room_template.floor_id},
+            {"included_events", room_template.included_events},
+            {"reusable", room_template.reusable}};
+}
+
+nlohmann::json bossArenaToJson(const Dungeon3DBossArena& arena) {
+    return {{"id", arena.id},
+            {"label", arena.label},
+            {"floor_id", arena.floor_id},
+            {"entry_door_id", arena.entry_door_id},
+            {"exit_door_id", arena.exit_door_id},
+            {"boss_encounter_tag", arena.boss_encounter_tag},
+            {"reward_marker_id", arena.reward_marker_id},
+            {"defeated", arena.defeated}};
+}
+
 Dungeon3DCell cellFromJson(const nlohmann::json& json) {
     return {json.value("tile_id", ""),
             json.value("material_id", ""),
@@ -341,6 +389,9 @@ nlohmann::json sessionToJson(const Dungeon3DSessionState& session) {
             {"activated_switches", session.activated_switches},
             {"alerted_patrols", session.alerted_patrols},
             {"activated_puzzles", session.activated_puzzles},
+            {"placed_room_templates", session.placed_room_templates},
+            {"active_boss_arenas", session.active_boss_arenas},
+            {"defeated_boss_arenas", session.defeated_boss_arenas},
             {"patrol_indices", session.patrol_indices},
             {"current_hiding_spot", session.current_hiding_spot},
             {"current_camera_rail", session.current_camera_rail},
@@ -360,6 +411,9 @@ Dungeon3DSessionState sessionFromJson(const nlohmann::json& json) {
     session.activated_switches = json.value("activated_switches", std::set<std::string>{});
     session.alerted_patrols = json.value("alerted_patrols", std::set<std::string>{});
     session.activated_puzzles = json.value("activated_puzzles", std::set<std::string>{});
+    session.placed_room_templates = json.value("placed_room_templates", std::set<std::string>{});
+    session.active_boss_arenas = json.value("active_boss_arenas", std::set<std::string>{});
+    session.defeated_boss_arenas = json.value("defeated_boss_arenas", std::set<std::string>{});
     session.patrol_indices = json.value("patrol_indices", std::map<std::string, int32_t>{});
     session.current_hiding_spot = json.value("current_hiding_spot", "");
     session.current_camera_rail = json.value("current_camera_rail", "");
@@ -901,6 +955,54 @@ std::vector<Dungeon3DDiagnostic> Dungeon3DWorldDocument::validate() const {
             diagnostics.push_back({"unknown_camera_rail_floor", "3D dungeon camera rail references an unknown floor: " + cue.id});
         }
     }
+    std::set<std::string> room_template_ids;
+    for (const auto& room_template : room_templates) {
+        if (room_template.id.empty()) {
+            diagnostics.push_back({"missing_room_template_id", "3D dungeon room template is missing an id."});
+        } else if (!room_template_ids.insert(room_template.id).second) {
+            diagnostics.push_back({"duplicate_room_template_id", "3D dungeon room template id is duplicated: " + room_template.id});
+        }
+        if (room_template.width <= 0 || room_template.height <= 0) {
+            diagnostics.push_back({"invalid_room_template_size", "3D dungeon room template dimensions must be positive: " + room_template.id});
+        }
+        if (!inBounds(*this, room_template.anchor_x, room_template.anchor_y)) {
+            diagnostics.push_back({"room_template_anchor_out_of_bounds",
+                                   "3D dungeon room template anchor is outside the authored map: " + room_template.id});
+        }
+        if (!room_template.floor_id.empty() && !floor_ids.empty() && !floor_ids.contains(room_template.floor_id)) {
+            diagnostics.push_back({"unknown_room_template_floor", "3D dungeon room template references an unknown floor: " + room_template.id});
+        }
+        for (const auto& event_id : room_template.included_events) {
+            if (!event_id.empty() && !event_ids.contains(event_id)) {
+                diagnostics.push_back({"unknown_room_template_event",
+                                       "3D dungeon room template references an unknown event: " + room_template.id});
+                break;
+            }
+        }
+    }
+    std::set<std::string> boss_arena_ids;
+    for (const auto& arena : boss_arenas) {
+        if (arena.id.empty()) {
+            diagnostics.push_back({"missing_boss_arena_id", "3D dungeon boss arena is missing an id."});
+        } else if (!boss_arena_ids.insert(arena.id).second) {
+            diagnostics.push_back({"duplicate_boss_arena_id", "3D dungeon boss arena id is duplicated: " + arena.id});
+        }
+        if (!arena.floor_id.empty() && !floor_ids.empty() && !floor_ids.contains(arena.floor_id)) {
+            diagnostics.push_back({"unknown_boss_arena_floor", "3D dungeon boss arena references an unknown floor: " + arena.id});
+        }
+        if (arena.boss_encounter_tag.empty()) {
+            diagnostics.push_back({"missing_boss_arena_encounter", "3D dungeon boss arena is missing a boss encounter tag: " + arena.id});
+        }
+        if (!arena.entry_door_id.empty() && !door_ids.contains(arena.entry_door_id)) {
+            diagnostics.push_back({"unknown_boss_arena_entry", "3D dungeon boss arena references an unknown entry door: " + arena.id});
+        }
+        if (!arena.exit_door_id.empty() && !door_ids.contains(arena.exit_door_id)) {
+            diagnostics.push_back({"unknown_boss_arena_exit", "3D dungeon boss arena references an unknown exit door: " + arena.id});
+        }
+        if (!arena.reward_marker_id.empty() && !marker_ids.contains(arena.reward_marker_id)) {
+            diagnostics.push_back({"unknown_boss_arena_reward", "3D dungeon boss arena references an unknown reward marker: " + arena.id});
+        }
+    }
     return diagnostics;
 }
 
@@ -914,6 +1016,11 @@ Dungeon3DPreview Dungeon3DWorldDocument::preview() const {
     result.camera_head_bob = camera_feel.head_bob;
     result.camera_shake = camera_feel.shake;
     result.active_camera_rail_id = session.current_camera_rail;
+    result.room_template_count = static_cast<int32_t>(room_templates.size());
+    result.placed_room_template_count = static_cast<int32_t>(session.placed_room_templates.size());
+    result.boss_arena_count = static_cast<int32_t>(boss_arenas.size());
+    result.active_boss_arena_count = static_cast<int32_t>(session.active_boss_arenas.size());
+    result.defeated_boss_arena_count = static_cast<int32_t>(session.defeated_boss_arenas.size());
     result.runtime_commands.push_back("camera_feel:" + map_id);
     for (const auto& cell : cells) {
         if (cell.blocking) {
@@ -1014,6 +1121,16 @@ Dungeon3DPreview Dungeon3DWorldDocument::preview() const {
     for (const auto& cue : camera_rails) {
         if (matchesCurrentFloor(*this, cue.floor_id)) {
             result.runtime_commands.push_back("preview_camera_rail:" + cue.id);
+        }
+    }
+    for (const auto& room_template : room_templates) {
+        if (matchesCurrentFloor(*this, room_template.floor_id)) {
+            result.runtime_commands.push_back("preview_room_template:" + room_template.id);
+        }
+    }
+    for (const auto& arena : boss_arenas) {
+        if (matchesCurrentFloor(*this, arena.floor_id)) {
+            result.runtime_commands.push_back("preview_boss_arena:" + arena.id);
         }
     }
     result.facing_interaction = interactionAhead(*this);
@@ -1389,6 +1506,62 @@ bool Dungeon3DWorldDocument::playCameraRail(std::string rail_id) {
     return true;
 }
 
+bool Dungeon3DWorldDocument::placeRoomTemplate(std::string template_id) {
+    const auto found = std::find_if(room_templates.begin(), room_templates.end(), [&](const auto& room_template) {
+        return room_template.id == template_id;
+    });
+    if (found == room_templates.end() || !matchesCurrentFloor(*this, found->floor_id)) {
+        return false;
+    }
+    if (!found->reusable && session.placed_room_templates.contains(template_id)) {
+        return false;
+    }
+    session.placed_room_templates.insert(template_id);
+    session.event_log.push_back("place_room_template:" + template_id);
+    return true;
+}
+
+bool Dungeon3DWorldDocument::startBossArena(std::string arena_id) {
+    const auto found = std::find_if(boss_arenas.begin(), boss_arenas.end(), [&](const auto& arena) {
+        return arena.id == arena_id;
+    });
+    if (found == boss_arenas.end() || !matchesCurrentFloor(*this, found->floor_id) ||
+        session.defeated_boss_arenas.contains(arena_id) || found->defeated) {
+        return false;
+    }
+    if (!found->entry_door_id.empty()) {
+        session.opened_doors.erase(found->entry_door_id);
+    }
+    if (!found->exit_door_id.empty()) {
+        session.opened_doors.erase(found->exit_door_id);
+    }
+    session.active_boss_arenas.insert(arena_id);
+    if (!found->boss_encounter_tag.empty()) {
+        session.triggered_encounters.insert(found->boss_encounter_tag);
+    }
+    session.event_log.push_back("start_boss_arena:" + arena_id);
+    return true;
+}
+
+bool Dungeon3DWorldDocument::defeatBossArena(std::string arena_id) {
+    const auto found = std::find_if(boss_arenas.begin(), boss_arenas.end(), [&](const auto& arena) {
+        return arena.id == arena_id;
+    });
+    if (found == boss_arenas.end() || !matchesCurrentFloor(*this, found->floor_id)) {
+        return false;
+    }
+    session.active_boss_arenas.erase(arena_id);
+    session.defeated_boss_arenas.insert(arena_id);
+    if (!found->exit_door_id.empty()) {
+        session.opened_doors.insert(found->exit_door_id);
+    }
+    if (!found->reward_marker_id.empty()) {
+        session.completed_markers.insert(found->reward_marker_id);
+    }
+    session.event_log.push_back("defeat_boss_arena:" + arena_id);
+    return true;
+}
+
 bool Dungeon3DWorldDocument::enterHidingSpot(std::string hiding_spot_id) {
     if (hiding_spot_id.empty()) {
         return false;
@@ -1512,6 +1685,14 @@ nlohmann::json Dungeon3DWorldDocument::toJson() const {
     for (const auto& cue : camera_rails) {
         json["camera_rails"].push_back(cameraRailCueToJson(cue));
     }
+    json["room_templates"] = nlohmann::json::array();
+    for (const auto& room_template : room_templates) {
+        json["room_templates"].push_back(roomTemplateToJson(room_template));
+    }
+    json["boss_arenas"] = nlohmann::json::array();
+    for (const auto& arena : boss_arenas) {
+        json["boss_arenas"].push_back(bossArenaToJson(arena));
+    }
     json["materials"] = nlohmann::json::array();
     for (const auto& [_, material] : materials) {
         json["materials"].push_back(materialToJson(material));
@@ -1585,6 +1766,12 @@ Dungeon3DWorldDocument Dungeon3DWorldDocument::fromJson(const nlohmann::json& js
     }
     for (const auto& cue_json : json.value("camera_rails", nlohmann::json::array())) {
         document.camera_rails.push_back(cameraRailCueFromJson(cue_json));
+    }
+    for (const auto& room_template_json : json.value("room_templates", nlohmann::json::array())) {
+        document.room_templates.push_back(roomTemplateFromJson(room_template_json));
+    }
+    for (const auto& arena_json : json.value("boss_arenas", nlohmann::json::array())) {
+        document.boss_arenas.push_back(bossArenaFromJson(arena_json));
     }
     for (const auto& material_json : json.value("materials", nlohmann::json::array())) {
         auto material = materialFromJson(material_json);
@@ -1685,6 +1872,11 @@ nlohmann::json dungeon3DPreviewToJson(const Dungeon3DPreview& preview) {
     json["nearest_patrol_id"] = preview.nearest_patrol_id;
     json["current_hiding_spot"] = preview.current_hiding_spot;
     json["camera_rail_cue_count"] = preview.camera_rail_cue_count;
+    json["room_template_count"] = preview.room_template_count;
+    json["placed_room_template_count"] = preview.placed_room_template_count;
+    json["boss_arena_count"] = preview.boss_arena_count;
+    json["active_boss_arena_count"] = preview.active_boss_arena_count;
+    json["defeated_boss_arena_count"] = preview.defeated_boss_arena_count;
     json["camera_fov"] = preview.camera_fov;
     json["camera_head_bob"] = preview.camera_head_bob;
     json["camera_shake"] = preview.camera_shake;

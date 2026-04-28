@@ -182,6 +182,30 @@ struct Dungeon3DCameraRailCue {
     std::string trigger_id;
 };
 
+struct Dungeon3DRoomTemplate {
+    std::string id;
+    std::string label;
+    std::string category;
+    int32_t width = 0;
+    int32_t height = 0;
+    int32_t anchor_x = 0;
+    int32_t anchor_y = 0;
+    std::string floor_id;
+    std::vector<std::string> included_events;
+    bool reusable = true;
+};
+
+struct Dungeon3DBossArena {
+    std::string id;
+    std::string label;
+    std::string floor_id;
+    std::string entry_door_id;
+    std::string exit_door_id;
+    std::string boss_encounter_tag;
+    std::string reward_marker_id;
+    bool defeated = false;
+};
+
 struct Dungeon3DColumn {
     int32_t x = 0;
     int32_t map_x = 0;
@@ -271,6 +295,9 @@ struct Dungeon3DSessionState {
     std::set<std::string> activated_switches;
     std::set<std::string> alerted_patrols;
     std::set<std::string> activated_puzzles;
+    std::set<std::string> placed_room_templates;
+    std::set<std::string> active_boss_arenas;
+    std::set<std::string> defeated_boss_arenas;
     std::map<std::string, int32_t> patrol_indices;
     std::string current_hiding_spot;
     std::string current_camera_rail;
@@ -320,6 +347,11 @@ struct Dungeon3DPreview {
     std::string nearest_patrol_id;
     std::string current_hiding_spot;
     int32_t camera_rail_cue_count = 0;
+    int32_t room_template_count = 0;
+    int32_t placed_room_template_count = 0;
+    int32_t boss_arena_count = 0;
+    int32_t active_boss_arena_count = 0;
+    int32_t defeated_boss_arena_count = 0;
     float camera_fov = 66.0f;
     float camera_head_bob = 0.0f;
     float camera_shake = 0.0f;
@@ -353,6 +385,8 @@ public:
     std::vector<Dungeon3DHidingSpot> hiding_spots;
     std::vector<Dungeon3DPuzzleDevice> puzzle_devices;
     std::vector<Dungeon3DCameraRailCue> camera_rails;
+    std::vector<Dungeon3DRoomTemplate> room_templates;
+    std::vector<Dungeon3DBossArena> boss_arenas;
     std::map<std::string, Dungeon3DMaterial> materials;
     std::vector<Dungeon3DCell> cells;
 
@@ -370,6 +404,9 @@ public:
     bool advancePatrol(std::string patrol_id);
     bool activatePuzzle(std::string puzzle_id);
     bool playCameraRail(std::string rail_id);
+    bool placeRoomTemplate(std::string template_id);
+    bool startBossArena(std::string arena_id);
+    bool defeatBossArena(std::string arena_id);
     void rotate(float radians);
     [[nodiscard]] nlohmann::json toJson() const;
 

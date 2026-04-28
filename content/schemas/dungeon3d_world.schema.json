@@ -55,6 +55,9 @@
         "activated_switches": { "type": "array", "items": { "type": "string" } },
         "alerted_patrols": { "type": "array", "items": { "type": "string" } },
         "activated_puzzles": { "type": "array", "items": { "type": "string" } },
+        "placed_room_templates": { "type": "array", "items": { "type": "string" } },
+        "active_boss_arenas": { "type": "array", "items": { "type": "string" } },
+        "defeated_boss_arenas": { "type": "array", "items": { "type": "string" } },
         "patrol_indices": { "type": "object", "additionalProperties": { "type": "integer" } },
         "current_hiding_spot": { "type": "string" },
         "current_camera_rail": { "type": "string" },
@@ -272,6 +275,44 @@
           "duration": { "type": "number", "minimum": 0 },
           "floor_id": { "type": "string" },
           "trigger_id": { "type": "string" }
+        }
+      }
+    },
+    "room_templates": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "label", "category", "width", "height", "anchor_x", "anchor_y", "floor_id", "included_events", "reusable"],
+        "properties": {
+          "id": { "type": "string", "minLength": 1 },
+          "label": { "type": "string" },
+          "category": { "type": "string" },
+          "width": { "type": "integer", "minimum": 1 },
+          "height": { "type": "integer", "minimum": 1 },
+          "anchor_x": { "type": "integer" },
+          "anchor_y": { "type": "integer" },
+          "floor_id": { "type": "string" },
+          "included_events": { "type": "array", "items": { "type": "string" } },
+          "reusable": { "type": "boolean" }
+        }
+      }
+    },
+    "boss_arenas": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "label", "floor_id", "entry_door_id", "exit_door_id", "boss_encounter_tag", "reward_marker_id", "defeated"],
+        "properties": {
+          "id": { "type": "string", "minLength": 1 },
+          "label": { "type": "string" },
+          "floor_id": { "type": "string" },
+          "entry_door_id": { "type": "string" },
+          "exit_door_id": { "type": "string" },
+          "boss_encounter_tag": { "type": "string", "minLength": 1 },
+          "reward_marker_id": { "type": "string" },
+          "defeated": { "type": "boolean" }
         }
       }
     },

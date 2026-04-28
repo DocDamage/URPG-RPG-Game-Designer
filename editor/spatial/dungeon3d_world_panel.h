@@ -40,6 +40,11 @@ struct Dungeon3DWorldPanelSnapshot {
     size_t active_puzzle_device_count = 0;
     size_t solved_puzzle_count = 0;
     size_t camera_rail_cue_count = 0;
+    size_t room_template_count = 0;
+    size_t placed_room_template_count = 0;
+    size_t boss_arena_count = 0;
+    size_t active_boss_arena_count = 0;
+    size_t defeated_boss_arena_count = 0;
     size_t opened_door_count = 0;
     size_t revealed_secret_count = 0;
     size_t runtime_command_count = 0;
@@ -90,6 +95,9 @@ public:
     bool advancePatrol(std::string patrol_id);
     bool activatePuzzle(std::string puzzle_id);
     bool playCameraRail(std::string rail_id);
+    bool placeRoomTemplate(std::string template_id);
+    bool startBossArena(std::string arena_id);
+    bool defeatBossArena(std::string arena_id);
     void rotate(float radians);
     void render();
 
