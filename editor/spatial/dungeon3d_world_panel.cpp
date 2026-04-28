@@ -18,6 +18,29 @@ void Dungeon3DWorldPanel::setMode(std::string mode) {
     }
 }
 
+urpg::render::Dungeon3DNavigationResult Dungeon3DWorldPanel::moveForward(float distance) {
+    auto result = document_.moveForward(distance);
+    if (loaded_) {
+        refresh();
+    }
+    return result;
+}
+
+urpg::render::Dungeon3DNavigationResult Dungeon3DWorldPanel::strafe(float distance) {
+    auto result = document_.strafe(distance);
+    if (loaded_) {
+        refresh();
+    }
+    return result;
+}
+
+void Dungeon3DWorldPanel::rotate(float radians) {
+    document_.rotate(radians);
+    if (loaded_) {
+        refresh();
+    }
+}
+
 void Dungeon3DWorldPanel::render() {
     snapshot_.visible = true;
     if (!loaded_) {
@@ -43,8 +66,20 @@ void Dungeon3DWorldPanel::refresh() {
         std::count_if(preview_.minimap_tiles.begin(), preview_.minimap_tiles.end(), [](const auto& tile) {
             return tile.discovered;
         }));
+    snapshot_.visible_minimap_tile_count = static_cast<size_t>(
+        std::count_if(preview_.minimap_tiles.begin(), preview_.minimap_tiles.end(), [](const auto& tile) {
+            return tile.visible;
+        }));
+    snapshot_.blocking_cell_count = static_cast<size_t>(preview_.blocking_cell_count);
+    snapshot_.event_cell_count = static_cast<size_t>(preview_.event_cell_count);
     snapshot_.runtime_command_count = preview_.runtime_commands.size();
     snapshot_.diagnostic_count = preview_.diagnostics.size();
+    snapshot_.camera_x = document_.camera.pos_x;
+    snapshot_.camera_y = document_.camera.pos_y;
+    snapshot_.average_wall_distance = preview_.average_wall_distance;
+    snapshot_.facing_event_id = preview_.facing_interaction ? preview_.facing_interaction->event_id : "";
+    snapshot_.facing_material_id = preview_.facing_interaction ? preview_.facing_interaction->material_id : "";
+    snapshot_.facing_blocked = preview_.facing_interaction ? preview_.facing_interaction->blocking : false;
     snapshot_.status_message =
         snapshot_.diagnostic_count == 0 ? "3D dungeon world preview is ready." : "3D dungeon world has diagnostics.";
 }

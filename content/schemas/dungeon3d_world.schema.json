@@ -40,7 +40,9 @@
           "id": { "type": "string", "minLength": 1 },
           "wall_texture": { "type": "string", "minLength": 1 },
           "floor_texture": { "type": "string", "minLength": 1 },
-          "ceiling_texture": { "type": "string", "minLength": 1 }
+        "ceiling_texture": { "type": "string", "minLength": 1 },
+        "light": { "type": "number", "minimum": 0 },
+        "footstep_sound": { "type": "string" }
         }
       }
     },

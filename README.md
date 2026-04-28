@@ -45,7 +45,7 @@ Repository-wide source/vendor LFS hydration is still externally constrained by G
 - Presentation bridge for active scene frame construction and battle scene state translation.
 - Runtime VFX cue baseline for battle effects, including semantic cue kinds and resolver/translator coverage.
 - Spatial presentation/editor support for terrain elevation, props, interaction overlays, and composed workspace snapshots.
-- 3D Dungeon World support with RPG Maker-style 2D-map-to-3D switching, raycast runtime preview, wall/floor/ceiling material customization, minimap/auto-mapping, diagnostics, saved JSON, and a release-registered WYSIWYG editor panel.
+- 3D Dungeon World support with RPG Maker-style 2D-map-to-3D switching, raycast runtime preview, wall/floor/ceiling material customization with lighting and footstep metadata, collision-aware movement, facing-cell interaction/stair/event preview, minimap/auto-mapping visibility, diagnostics, saved JSON, and a release-registered WYSIWYG editor panel.
 - Baseline raycast/2.5D presentation lane support in the native render stack.
 
 ### RPG Systems

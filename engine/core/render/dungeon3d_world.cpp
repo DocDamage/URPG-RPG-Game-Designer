@@ -13,14 +13,18 @@ Dungeon3DMaterial materialFromJson(const nlohmann::json& json) {
     return {json.value("id", ""),
             json.value("wall_texture", ""),
             json.value("floor_texture", ""),
-            json.value("ceiling_texture", "")};
+            json.value("ceiling_texture", ""),
+            json.value("light", 1.0f),
+            json.value("footstep_sound", "")};
 }
 
 nlohmann::json materialToJson(const Dungeon3DMaterial& material) {
     return {{"id", material.id},
             {"wall_texture", material.wall_texture},
             {"floor_texture", material.floor_texture},
-            {"ceiling_texture", material.ceiling_texture}};
+            {"ceiling_texture", material.ceiling_texture},
+            {"light", material.light},
+            {"footstep_sound", material.footstep_sound}};
 }
 
 Dungeon3DCell cellFromJson(const nlohmann::json& json) {
@@ -61,6 +65,66 @@ bool is3DMode(const std::string& mode) {
 
 std::string commandForMode(const Dungeon3DWorldDocument& document) {
     return is3DMode(document.mode) ? "switch_to_3d:" + document.map_id : "switch_to_2d:" + document.map_id;
+}
+
+size_t cellIndex(const Dungeon3DWorldDocument& document, int32_t x, int32_t y) {
+    return static_cast<size_t>(y * document.width + x);
+}
+
+bool inBounds(const Dungeon3DWorldDocument& document, int32_t x, int32_t y) {
+    return x >= 0 && y >= 0 && x < document.width && y < document.height;
+}
+
+const Dungeon3DCell* cellAt(const Dungeon3DWorldDocument& document, int32_t x, int32_t y) {
+    if (!inBounds(document, x, y)) {
+        return nullptr;
+    }
+    const auto index = cellIndex(document, x, y);
+    return index < document.cells.size() ? &document.cells[index] : nullptr;
+}
+
+std::optional<Dungeon3DInteraction> interactionAhead(const Dungeon3DWorldDocument& document) {
+    const auto target_x = static_cast<int32_t>(std::floor(document.camera.pos_x + document.camera.dir_x));
+    const auto target_y = static_cast<int32_t>(std::floor(document.camera.pos_y + document.camera.dir_y));
+    const auto* cell = cellAt(document, target_x, target_y);
+    if (cell == nullptr) {
+        return std::nullopt;
+    }
+    return Dungeon3DInteraction{target_x,
+                                target_y,
+                                cell->blocking,
+                                !cell->event_id.empty(),
+                                cell->stairs_up,
+                                cell->stairs_down,
+                                cell->dark_zone,
+                                cell->event_id,
+                                cell->material_id};
+}
+
+Dungeon3DNavigationResult tryMove(Dungeon3DWorldDocument& document, float delta_x, float delta_y) {
+    Dungeon3DNavigationResult result;
+    const auto next_x = document.camera.pos_x + delta_x;
+    const auto next_y = document.camera.pos_y + delta_y;
+    const auto tile_x = static_cast<int32_t>(std::floor(next_x));
+    const auto tile_y = static_cast<int32_t>(std::floor(next_y));
+    const auto* cell = cellAt(document, tile_x, tile_y);
+    if (cell == nullptr) {
+        result.blocked = true;
+        result.command = "blocked:out_of_bounds";
+        result.diagnostic = {"navigation_out_of_bounds", "3D dungeon movement would leave the authored map."};
+        return result;
+    }
+    if (cell->blocking) {
+        result.blocked = true;
+        result.command = "blocked:wall";
+        result.diagnostic = {"navigation_blocked", "3D dungeon movement hit a blocking cell."};
+        return result;
+    }
+    document.camera.pos_x = next_x;
+    document.camera.pos_y = next_y;
+    result.moved = true;
+    result.command = "move_camera:" + document.map_id;
+    return result;
 }
 
 } // namespace
@@ -109,6 +173,9 @@ std::vector<Dungeon3DDiagnostic> Dungeon3DWorldDocument::validate() const {
         if (material.wall_texture.empty() || material.floor_texture.empty() || material.ceiling_texture.empty()) {
             diagnostics.push_back({"incomplete_material", "3D dungeon material must define wall, floor, and ceiling textures."});
         }
+        if (material.light < 0.0f) {
+            diagnostics.push_back({"invalid_material_light", "3D dungeon material light multiplier cannot be negative."});
+        }
         material_ids.insert(id_key);
     }
     for (const auto& cell : cells) {
@@ -125,6 +192,15 @@ Dungeon3DPreview Dungeon3DWorldDocument::preview() const {
     result.mode = mode;
     result.diagnostics = validate();
     result.runtime_commands.push_back(commandForMode(*this));
+    for (const auto& cell : cells) {
+        if (cell.blocking) {
+            ++result.blocking_cell_count;
+        }
+        if (!cell.event_id.empty()) {
+            ++result.event_cell_count;
+        }
+    }
+    result.facing_interaction = interactionAhead(*this);
 
     const auto adapter = buildAdapter(*this);
     if (is3DMode(mode) && result.diagnostics.empty()) {
@@ -134,9 +210,33 @@ Dungeon3DPreview Dungeon3DWorldDocument::preview() const {
         config.presentationMode = presentation::PresentationMode::Spatial;
 
         RaycastRenderer::Camera ray_camera{camera.pos_x, camera.pos_y, camera.dir_x, camera.dir_y, camera.plane_x, camera.plane_y};
-        result.columns = RaycastRenderer::castFrame(ray_camera, config, [&](int32_t x, int32_t y) {
+        const auto casts = RaycastRenderer::castFrame(ray_camera, config, [&](int32_t x, int32_t y) {
             return adapter.isBlocking(x, y);
         });
+        float distance_total = 0.0f;
+        for (const auto& cast : casts) {
+            const auto* cell = cellAt(*this, cast.mapX, cast.mapY);
+            const auto material_id = cell != nullptr ? cell->material_id : std::string{};
+            const auto material_it = materials.find(material_id);
+            const float side_shade = cast.side == 0 ? 1.0f : 0.78f;
+            const float material_light = material_it != materials.end() ? material_it->second.light : 1.0f;
+            const auto wall_texture = material_it != materials.end() ? material_it->second.wall_texture : std::string{};
+            const auto wall_height = static_cast<int32_t>(
+                std::clamp(config.screenHeight / std::max(cast.wallDist, 0.001f), 1.0f, static_cast<float>(config.screenHeight)));
+            result.columns.push_back({cast.x,
+                                      cast.mapX,
+                                      cast.mapY,
+                                      cast.side,
+                                      cast.wallDist,
+                                      material_id,
+                                      wall_texture,
+                                      std::clamp(side_shade * material_light, 0.0f, 2.0f),
+                                      wall_height});
+            distance_total += cast.wallDist;
+        }
+        if (!result.columns.empty()) {
+            result.average_wall_distance = distance_total / static_cast<float>(result.columns.size());
+        }
         result.runtime_commands.push_back("raycast_frame:" + map_id);
     }
 
@@ -149,8 +249,8 @@ Dungeon3DPreview Dungeon3DWorldDocument::preview() const {
         }
         if (auto_mapping) {
             for (const auto& column : result.columns) {
-                if (column.mapX >= 0 && column.mapY >= 0 && column.mapX < width && column.mapY < height) {
-                    discovered.insert(static_cast<size_t>(column.mapY * width + column.mapX));
+                if (column.map_x >= 0 && column.map_y >= 0 && column.map_x < width && column.map_y < height) {
+                    discovered.insert(static_cast<size_t>(column.map_y * width + column.map_x));
                 }
             }
         }
@@ -160,8 +260,15 @@ Dungeon3DPreview Dungeon3DWorldDocument::preview() const {
                 if (index >= cells.size()) {
                     continue;
                 }
+                const bool visible = discovered.contains(index) || (std::abs(x - current_x) <= 1 && std::abs(y - current_y) <= 1);
                 result.minimap_tiles.push_back(
-                    {x, y, cells[index].blocking, discovered.contains(index), x == current_x && y == current_y, cells[index].event_id});
+                    {x,
+                     y,
+                     cells[index].blocking,
+                     discovered.contains(index),
+                     x == current_x && y == current_y,
+                     visible,
+                     cells[index].event_id});
             }
         }
         result.runtime_commands.push_back(auto_mapping ? "update_automap:" + map_id : "render_minimap:" + map_id);
@@ -173,6 +280,23 @@ Dungeon3DPreview Dungeon3DWorldDocument::preview() const {
 Dungeon3DPreview Dungeon3DWorldDocument::switchMode(std::string next_mode) {
     mode = std::move(next_mode);
     return preview();
+}
+
+Dungeon3DNavigationResult Dungeon3DWorldDocument::moveForward(float distance) {
+    return tryMove(*this, camera.dir_x * distance, camera.dir_y * distance);
+}
+
+Dungeon3DNavigationResult Dungeon3DWorldDocument::strafe(float distance) {
+    return tryMove(*this, camera.plane_x * distance, camera.plane_y * distance);
+}
+
+void Dungeon3DWorldDocument::rotate(float radians) {
+    const auto old_dir_x = camera.dir_x;
+    camera.dir_x = camera.dir_x * std::cos(radians) - camera.dir_y * std::sin(radians);
+    camera.dir_y = old_dir_x * std::sin(radians) + camera.dir_y * std::cos(radians);
+    const auto old_plane_x = camera.plane_x;
+    camera.plane_x = camera.plane_x * std::cos(radians) - camera.plane_y * std::sin(radians);
+    camera.plane_y = old_plane_x * std::sin(radians) + camera.plane_y * std::cos(radians);
 }
 
 nlohmann::json Dungeon3DWorldDocument::toJson() const {
@@ -240,10 +364,14 @@ nlohmann::json dungeon3DPreviewToJson(const Dungeon3DPreview& preview) {
     json["columns"] = nlohmann::json::array();
     for (const auto& column : preview.columns) {
         json["columns"].push_back({{"x", column.x},
-                                   {"map_x", column.mapX},
-                                   {"map_y", column.mapY},
+                                   {"map_x", column.map_x},
+                                   {"map_y", column.map_y},
                                    {"side", column.side},
-                                   {"wall_dist", column.wallDist}});
+                                   {"wall_dist", column.wall_dist},
+                                   {"material_id", column.material_id},
+                                   {"wall_texture", column.wall_texture},
+                                   {"shade", column.shade},
+                                   {"projected_wall_height", column.projected_wall_height}});
     }
     json["minimap_tiles"] = nlohmann::json::array();
     for (const auto& tile : preview.minimap_tiles) {
@@ -252,8 +380,24 @@ nlohmann::json dungeon3DPreviewToJson(const Dungeon3DPreview& preview) {
                                          {"blocking", tile.blocking},
                                          {"discovered", tile.discovered},
                                          {"current", tile.current},
+                                         {"visible", tile.visible},
                                          {"event_id", tile.event_id}});
     }
+    if (preview.facing_interaction.has_value()) {
+        const auto& interaction = *preview.facing_interaction;
+        json["facing_interaction"] = {{"x", interaction.x},
+                                      {"y", interaction.y},
+                                      {"blocking", interaction.blocking},
+                                      {"has_event", interaction.has_event},
+                                      {"stairs_up", interaction.stairs_up},
+                                      {"stairs_down", interaction.stairs_down},
+                                      {"dark_zone", interaction.dark_zone},
+                                      {"event_id", interaction.event_id},
+                                      {"material_id", interaction.material_id}};
+    }
+    json["blocking_cell_count"] = preview.blocking_cell_count;
+    json["event_cell_count"] = preview.event_cell_count;
+    json["average_wall_distance"] = preview.average_wall_distance;
     json["diagnostics"] = nlohmann::json::array();
     for (const auto& diagnostic : preview.diagnostics) {
         json["diagnostics"].push_back({{"code", diagnostic.code}, {"message", diagnostic.message}});
