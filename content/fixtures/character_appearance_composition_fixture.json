@@ -1,0 +1,35 @@
+{
+  "complete": true,
+  "diagnostic_count": 0,
+  "diagnostics": [],
+  "portrait": {
+    "surface": "portrait",
+    "base_asset_id": "portrait_ranger_01",
+    "layer_count": 3,
+    "layers": [
+      { "id": "portrait.base", "source_asset_id": "portrait_ranger_01", "slot": "base", "order": 0, "required": true },
+      { "id": "portrait.cloak_travel", "source_asset_id": "portrait/cloak_travel", "slot": "outerwear", "order": 10, "required": false },
+      { "id": "portrait.hair_long", "source_asset_id": "portrait/hair_long", "slot": "hair", "order": 20, "required": false }
+    ]
+  },
+  "field": {
+    "surface": "field",
+    "base_asset_id": "sprite_ranger_body",
+    "layer_count": 3,
+    "layers": [
+      { "id": "field.base", "source_asset_id": "sprite_ranger_body", "slot": "base", "order": 0, "required": true },
+      { "id": "field.cloak_travel", "source_asset_id": "field/cloak_travel", "slot": "outerwear", "order": 10, "required": false },
+      { "id": "field.hair_long", "source_asset_id": "field/hair_long", "slot": "hair", "order": 20, "required": false }
+    ]
+  },
+  "battle": {
+    "surface": "battle",
+    "base_asset_id": "sprite_ranger_body",
+    "layer_count": 3,
+    "layers": [
+      { "id": "battle.base", "source_asset_id": "sprite_ranger_body", "slot": "base", "order": 0, "required": true },
+      { "id": "battle.cloak_travel", "source_asset_id": "battle/cloak_travel", "slot": "outerwear", "order": 10, "required": false },
+      { "id": "battle.hair_long", "source_asset_id": "battle/hair_long", "slot": "hair", "order": 20, "required": false }
+    ]
+  }
+}

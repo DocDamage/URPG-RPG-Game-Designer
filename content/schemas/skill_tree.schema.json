@@ -1,0 +1,65 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://urpg.local/schemas/skill_tree.schema.json",
+  "title": "URPG Skill Tree",
+  "type": "object",
+  "required": ["schema_version", "tree_id", "nodes"],
+  "properties": {
+    "schema_version": {
+      "const": "urpg.skill_tree.v1"
+    },
+    "tree_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "title": {
+      "type": "string"
+    },
+    "nodes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "ability_id", "cost"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "title": {
+            "type": "string"
+          },
+          "class_id": {
+            "type": "string"
+          },
+          "ability_id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "prerequisites": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "cost": {
+            "type": "object",
+            "required": ["currency", "amount"],
+            "properties": {
+              "currency": {
+                "type": "string",
+                "minLength": 1
+              },
+              "amount": {
+                "type": "integer",
+                "minimum": 1
+              }
+            },
+            "additionalProperties": false
+          }
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false
+}

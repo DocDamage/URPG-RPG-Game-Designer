@@ -1,0 +1,36 @@
+{
+  "id": "forest_loot",
+  "affixes_per_item": 2,
+  "base_items": [
+    {
+      "id": "iron_sword",
+      "slot": "weapon",
+      "rarity": "rare",
+      "base_value": 100,
+      "tags": ["melee"]
+    },
+    {
+      "id": "linen_cloak",
+      "slot": "armor",
+      "rarity": "rare",
+      "base_value": 80,
+      "tags": ["cloth"]
+    }
+  ],
+  "affixes": [
+    {
+      "id": "sharp",
+      "rarity": "rare",
+      "min_value": 2,
+      "max_value": 5,
+      "economy_multiplier": 120
+    },
+    {
+      "id": "bright",
+      "rarity": "rare",
+      "min_value": 1,
+      "max_value": 3,
+      "economy_multiplier": 110
+    }
+  ]
+}

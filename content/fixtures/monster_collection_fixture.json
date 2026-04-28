@@ -1,0 +1,22 @@
+{
+  "schema_version": "urpg.monster_collection.v1",
+  "party_limit": 6,
+  "species": [
+    {
+      "id": "slime",
+      "display_name": "Slime",
+      "base_capture_rate": 15,
+      "evolves_to": "big_slime",
+      "evolution_level": 5
+    },
+    {
+      "id": "big_slime",
+      "display_name": "Big Slime",
+      "base_capture_rate": 5,
+      "evolves_to": "",
+      "evolution_level": 0
+    }
+  ],
+  "party": [],
+  "storage": []
+}

@@ -1,9 +1,11 @@
 #include "editor/character/character_creator_model.h"
 
+#include "engine/core/character/character_appearance_composition.h"
 #include "engine/core/character/character_creation_rules.h"
 #include "engine/core/character/character_identity_catalog.h"
 #include "engine/core/character/character_identity_validator.h"
 #include "engine/core/character/character_identity_system.h"
+#include "engine/core/character/character_save_state.h"
 #include "engine/core/ecs/actor_manager.h"
 
 #include <algorithm>
@@ -215,6 +217,38 @@ nlohmann::json CharacterCreatorModel::buildCatalogSnapshot() const {
     };
 }
 
+nlohmann::json CharacterCreatorModel::buildSavePersistenceSnapshot(const nlohmann::json& validation) const {
+    nlohmann::json diagnostics = nlohmann::json::array();
+    const bool hasSpawnedEntity = m_last_spawned_entity.has_value();
+    const bool identityValid = validation.value("is_valid", false);
+
+    if (!hasSpawnedEntity) {
+        diagnostics.push_back({
+            {"code", "created_protagonist_missing_spawned_entity"},
+            {"severity", "info"},
+            {"message", "Spawn a validated protagonist before attaching character identity to a runtime save."},
+        });
+    }
+    if (!identityValid) {
+        diagnostics.push_back({
+            {"code", "created_protagonist_identity_invalid"},
+            {"severity", "error"},
+            {"message", "Resolve character identity validation issues before saving the created protagonist."},
+        });
+    }
+
+    return {
+        {"schema_id", "https://urpg.dev/schemas/created_protagonist_save.schema.json"},
+        {"save_key", urpg::character::kCreatedProtagonistSaveKey},
+        {"has_spawned_entity", hasSpawnedEntity},
+        {"entity", hasSpawnedEntity ? nlohmann::json(*m_last_spawned_entity) : nlohmann::json(nullptr)},
+        {"identity_valid", identityValid},
+        {"can_attach_to_save", hasSpawnedEntity && identityValid},
+        {"diagnostic_count", diagnostics.size()},
+        {"diagnostics", diagnostics},
+    };
+}
+
 nlohmann::json CharacterCreatorModel::buildSnapshot() const {
     const auto validation = buildValidationSnapshot();
     return {
@@ -222,7 +256,11 @@ nlohmann::json CharacterCreatorModel::buildSnapshot() const {
         {"is_dirty", m_dirty},
         {"validation", validation},
         {"preview", buildPreviewSnapshot()},
+        {"appearance_composition",
+         urpg::character::characterAppearanceCompositionToJson(
+             urpg::character::composeCharacterAppearance(m_identity))},
         {"catalog", buildCatalogSnapshot()},
+        {"save_persistence", buildSavePersistenceSnapshot(validation)},
         {"creation_rules", urpg::character::characterCreationRulesToJson(urpg::character::defaultCharacterCreationRules())},
         {"spawn_config", {
             {"x", m_spawn_x.ToFloat()},

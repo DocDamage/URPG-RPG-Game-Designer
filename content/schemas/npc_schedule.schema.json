@@ -1,11 +1,55 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "urn:urpg:npc_schedule",
+  "title": "URPG NPC Schedule",
   "type": "object",
   "required": ["version", "routines", "fallback"],
   "properties": {
     "version": { "const": "1.0.0" },
-    "routines": { "type": "array" },
-    "fallback": { "type": "object" }
-  }
+    "routines": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["npc_id", "map_id", "start_hour", "end_hour", "position", "animation", "dialogue_state"],
+        "properties": {
+          "npc_id": { "type": "string", "minLength": 1 },
+          "map_id": { "type": "string", "minLength": 1 },
+          "start_hour": { "type": "integer", "minimum": 0, "maximum": 23 },
+          "end_hour": { "type": "integer", "minimum": 0, "maximum": 23 },
+          "position": {
+            "type": "object",
+            "required": ["x", "y"],
+            "properties": {
+              "x": { "type": "integer" },
+              "y": { "type": "integer" }
+            },
+            "additionalProperties": false
+          },
+          "animation": { "type": "string" },
+          "dialogue_state": { "type": "string" }
+        },
+        "additionalProperties": false
+      }
+    },
+    "fallback": {
+      "type": "object",
+      "required": ["map_id", "position", "animation", "dialogue_state"],
+      "properties": {
+        "map_id": { "type": "string", "minLength": 1 },
+        "position": {
+          "type": "object",
+          "required": ["x", "y"],
+          "properties": {
+            "x": { "type": "integer" },
+            "y": { "type": "integer" }
+          },
+          "additionalProperties": false
+        },
+        "animation": { "type": "string" },
+        "dialogue_state": { "type": "string" }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
 }

@@ -1,0 +1,60 @@
+{
+  "schema": "urpg.event_command_graph.v1",
+  "id": "forest_gate_graph",
+  "map_id": "forest",
+  "event_id": "evt_forest_gate",
+  "page_id": "open_gate",
+  "trigger": "action_button",
+  "event_x": 4,
+  "event_y": 6,
+  "entry_node_id": "msg_locked",
+  "nodes": [
+    {
+      "id": "msg_locked",
+      "label": "Show locked gate message",
+      "kind": "message",
+      "target": "",
+      "value": "The gate opens with a crystal hum.",
+      "amount": 0,
+      "x": 80,
+      "y": 120,
+      "payload": { "speaker": "Guide" }
+    },
+    {
+      "id": "set_gate_open",
+      "label": "Set gate switch",
+      "kind": "switch",
+      "target": "gate_open",
+      "value": "true",
+      "amount": 1,
+      "x": 320,
+      "y": 120,
+      "payload": {}
+    },
+    {
+      "id": "set_crystal_count",
+      "label": "Track crystal count",
+      "kind": "variable",
+      "target": "crystals_spent",
+      "value": "",
+      "amount": 1,
+      "x": 560,
+      "y": 120,
+      "payload": {}
+    }
+  ],
+  "edges": [
+    {
+      "id": "edge_msg_to_switch",
+      "from_node_id": "msg_locked",
+      "to_node_id": "set_gate_open",
+      "kind": "sequence"
+    },
+    {
+      "id": "edge_switch_to_variable",
+      "from_node_id": "set_gate_open",
+      "to_node_id": "set_crystal_count",
+      "kind": "sequence"
+    }
+  ]
+}

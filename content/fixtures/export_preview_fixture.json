@@ -1,0 +1,12 @@
+{
+  "schema": "urpg.export_preview.v1",
+  "id": "windows_release_preview",
+  "target": "Windows_x64",
+  "mode": "release",
+  "output_dir": "",
+  "runtime_binary_path": "",
+  "compress_assets": true,
+  "obfuscate_scripts": false,
+  "include_debug_symbols": false,
+  "asset_discovery_roots": []
+}

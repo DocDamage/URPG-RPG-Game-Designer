@@ -1,6 +1,7 @@
 #include <catch2/catch_test_macros.hpp>
 #include <nlohmann/json.hpp>
 
+#include <algorithm>
 #include <cstdlib>
 #include <filesystem>
 #include <fstream>
@@ -39,7 +40,18 @@ TEST_CASE("readiness_status.schema.json validates a known-good subset", "[govern
     REQUIRE(statuses.size() == 5);
 
     const auto evidenceFields = schema["definitions"]["evidence"]["required"];
-    REQUIRE(evidenceFields.size() == 6);
+    REQUIRE(evidenceFields.size() == 10);
+    const std::vector<std::string> wysiwygEvidenceFields = {
+        "visualAuthoringSurface",
+        "livePreview",
+        "savedProjectData",
+        "runtimeExecution",
+        "diagnostics",
+        "testsValidation",
+    };
+    for (const auto& field : wysiwygEvidenceFields) {
+        REQUIRE(std::find(evidenceFields.begin(), evidenceFields.end(), field) != evidenceFields.end());
+    }
 
     // Known-good minimal subset that conforms to the schema structure
     const nlohmann::json goodSubset = nlohmann::json::parse(R"({
@@ -53,8 +65,12 @@ TEST_CASE("readiness_status.schema.json validates a known-good subset", "[govern
                 "mainGaps": [],
                 "evidence": {
                     "runtimeOwner": true,
+                    "runtimeExecution": true,
                     "editorSurface": true,
+                    "visualAuthoringSurface": true,
+                    "livePreview": true,
                     "schemaMigration": true,
+                    "savedProjectData": true,
                     "diagnostics": true,
                     "testsValidation": true,
                     "docsAligned": true

@@ -47,6 +47,37 @@
         },
         "curlExecutable": {
           "type": "string"
+        },
+        "profileId": {
+          "type": "string"
+        },
+        "localJsonlPath": {
+          "type": "string"
+        },
+        "privacyReview": {
+          "type": "object",
+          "required": ["approved", "reviewer", "dataCategories"],
+          "properties": {
+            "approved": {
+              "type": "boolean"
+            },
+            "reviewer": {
+              "type": "string"
+            },
+            "approvedAt": {
+              "type": "string"
+            },
+            "notes": {
+              "type": "string"
+            },
+            "dataCategories": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "additionalProperties": false
         }
       },
       "additionalProperties": false

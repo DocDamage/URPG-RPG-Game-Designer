@@ -264,6 +264,49 @@ void CompatReportModel::ingestPluginFailureDiagnosticsJsonl(std::string_view dia
     }
 }
 
+void CompatReportModel::ingestPluginExecutionDiagnosticsJsonl(std::string_view diagnostics_jsonl) {
+    if (diagnostics_jsonl.empty()) {
+        return;
+    }
+
+    std::istringstream stream{std::string(diagnostics_jsonl)};
+    std::string line;
+    while (std::getline(stream, line)) {
+        if (line.empty()) {
+            continue;
+        }
+
+        nlohmann::json row = nlohmann::json::parse(line, nullptr, false);
+        if (row.is_discarded() || !row.is_object()) {
+            continue;
+        }
+
+        if (row.value("subsystem", "") != "plugin_manager" || row.value("event", "") != "compat_execution") {
+            continue;
+        }
+
+        const std::string pluginId = row.value("plugin", "");
+        const std::string command = row.value("command", "");
+        if (pluginId.empty() || command.empty()) {
+            continue;
+        }
+
+        CompatEvent event;
+        event.timestamp = row.value(
+            "seq", static_cast<uint64_t>(duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count()));
+        event.pluginId = pluginId;
+        event.className = "PluginManager";
+        event.methodName = row.value("operation", "execute_command");
+        event.severity = CompatEvent::Severity::INFO;
+        event.message = "Executed live compat command: " + pluginId + "." + command;
+        event.sourceFile = row.value("subsystem", "");
+        event.navigationTarget = "plugin://" + pluginId + "#" + command;
+
+        recordEvent(event);
+        recordCall(pluginId, "PluginManager", command, CompatStatus::FULL);
+    }
+}
+
 void CompatReportModel::recalculateSummaries() const {
     if (!summariesDirty_)
         return;
@@ -819,6 +862,12 @@ void CompatReportPanel::clearSelection() {
 
 void CompatReportPanel::refresh() {
     compat::PluginManager& pluginManager = compat::PluginManager::instance();
+    const std::string executionDiagnosticsJsonl = pluginManager.exportExecutionDiagnosticsJsonl();
+    if (!executionDiagnosticsJsonl.empty()) {
+        model_.ingestPluginExecutionDiagnosticsJsonl(executionDiagnosticsJsonl);
+        pluginManager.clearExecutionDiagnostics();
+    }
+
     const std::string diagnosticsJsonl = pluginManager.exportFailureDiagnosticsJsonl();
     if (!diagnosticsJsonl.empty()) {
         model_.ingestPluginFailureDiagnosticsJsonl(diagnosticsJsonl);

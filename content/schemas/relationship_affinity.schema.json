@@ -1,0 +1,66 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://urpg.local/schemas/relationship_affinity.schema.json",
+  "title": "URPG Relationship Affinity",
+  "type": "object",
+  "required": ["schema_version", "document_id", "rules", "gates"],
+  "properties": {
+    "schema_version": {
+      "const": "urpg.relationship_affinity.v1"
+    },
+    "document_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "rules": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "subject_id", "source", "tag", "delta"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "subject_id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "source": {
+            "enum": ["gift", "dialogue_choice", "quest", "faction", "event"]
+          },
+          "tag": {
+            "type": "string",
+            "minLength": 1
+          },
+          "delta": {
+            "type": "integer"
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "gates": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["content_id", "subject_id", "minimum"],
+        "properties": {
+          "content_id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "subject_id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "minimum": {
+            "type": "integer"
+          }
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false
+}

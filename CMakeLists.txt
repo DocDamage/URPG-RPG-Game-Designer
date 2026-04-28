@@ -223,7 +223,7 @@ function(urpg_enable_windows_test_binary_unlock target_name)
     )
 endfunction()
 
-add_library(urpg_core
+set(URPG_CORE_SOURCES
     engine/core/action/controller_binding_runtime.cpp
     engine/core/app_cli.cpp
     engine/core/ai/ai_assistant_config.cpp
@@ -255,6 +255,7 @@ add_library(urpg_core
     engine/core/testing/visual_regression_harness.cpp
     engine/core/analytics/analytics_dispatcher.cpp
     engine/core/analytics/analytics_dispatcher_validator.cpp
+    engine/core/analytics/analytics_endpoint_profile.cpp
     engine/core/analytics/analytics_uploader.cpp
     engine/core/analytics/analytics_privacy_controller.cpp
     engine/core/semver.cpp
@@ -264,20 +265,24 @@ add_library(urpg_core
     engine/core/events/event_debugger.cpp
     engine/core/events/event_dependency_graph.cpp
     engine/core/events/event_document.cpp
+    engine/core/events/event_command_graph.cpp
     engine/core/events/event_macro_recorder.cpp
     engine/core/events/event_runtime.cpp
     engine/core/format/canonical_json.cpp
     engine/core/migrate/migration_runner.cpp
     engine/core/plugin/plugin_compatibility_score.cpp
     engine/core/quest/quest_registry.cpp
+    engine/core/quest/quest_objective_graph.cpp
     engine/core/quest/quest_validator.cpp
     engine/core/dialogue/dialogue_graph.cpp
     engine/core/narrative/choice_consequence_tracker.cpp
     engine/core/narrative/ending_route_manager.cpp
     engine/core/narrative/narrative_continuity_checker.cpp
     engine/core/relationship/relationship_registry.cpp
+    engine/core/relationship/relationship_affinity.cpp
     engine/core/timeline/timeline_document.cpp
     engine/core/timeline/timeline_player.cpp
+    engine/core/timeline/cutscene_timeline.cpp
     engine/core/replay/replay_recorder.cpp
     engine/core/replay/replay_player.cpp
     engine/core/replay/replay_gallery.cpp
@@ -285,7 +290,10 @@ add_library(urpg_core
     engine/core/database/rpg_database.cpp
     engine/core/world/world_map_graph.cpp
     engine/core/crafting/crafting_registry.cpp
+    engine/core/crafting/crafting_economy_loop.cpp
     engine/core/codex/bestiary_registry.cpp
+    engine/core/monster/monster_collection.cpp
+    engine/core/metroidvania/ability_gate_system.cpp
     engine/core/time/calendar_runtime.cpp
     engine/core/npc/npc_schedule.cpp
     engine/core/puzzle/puzzle_registry.cpp
@@ -296,13 +304,16 @@ add_library(urpg_core
     engine/core/rest/rest_point.cpp
     engine/core/items/loot_affix_generator.cpp
     engine/core/progression/class_progression.cpp
+    engine/core/progression/skill_tree.cpp
     engine/core/ability/skill_combo_rules.cpp
+    engine/core/ability/ability_sandbox.cpp
     engine/core/sync/source_authority.cpp
     engine/core/save/save_catalog.cpp
     engine/core/save/save_compatibility_preview.cpp
     engine/core/save/save_corruption_lab.cpp
     engine/core/save/save_debugger.cpp
     engine/core/save/save_journal.cpp
+    engine/core/save/save_load_preview_lab.cpp
     engine/core/save/save_migration.cpp
     engine/core/save/save_recovery.cpp
     engine/core/save/save_runtime.cpp
@@ -314,17 +325,20 @@ add_library(urpg_core
     engine/core/battle/battle_ai_bridge.cpp
     engine/core/battle/battle_formula_probe.cpp
     engine/core/battle/battle_presentation_profile.cpp
+    engine/core/battle/battle_vfx_timeline.cpp
     engine/core/battle/boss_profile.cpp
     engine/core/battle/enemy_ai_profile.cpp
     engine/core/battle/party_tactics_profile.cpp
     engine/core/map/tile_layer_document.cpp
     engine/core/map/terrain_brush.cpp
     engine/core/map/map_region_rules.cpp
+    engine/core/map/map_environment_preview.cpp
     engine/core/map/procedural_map_generator.cpp
     engine/core/map/spawn_table.cpp
     engine/core/map/tactical_grid_preview.cpp
     engine/core/character/character_identity.cpp
     engine/core/character/character_identity_catalog.cpp
+    engine/core/character/character_appearance_composition.cpp
     engine/core/character/character_creation_rules.cpp
     engine/core/character/character_identity_validator.cpp
     engine/core/character/character_creation_screen.cpp
@@ -332,6 +346,7 @@ add_library(urpg_core
     engine/core/character/character_save_state.cpp
     engine/core/achievement/achievement_registry.cpp
     engine/core/achievement/achievement_platform_backend.cpp
+    engine/core/achievement/achievement_platform_profile.cpp
     engine/core/achievement/achievement_trigger.cpp
     engine/core/achievement/achievement_validator.cpp
     engine/core/presentation/presentation_bridge.cpp
@@ -344,8 +359,10 @@ add_library(urpg_core
     engine/core/audio/audio_ai_bridge.cpp
     engine/core/assets/asset_library.cpp
     engine/core/assets/asset_cleanup_planner.cpp
+    engine/core/audio/audio_mix_backend_smoke.cpp
     engine/core/audio/audio_mix_presets.cpp
     engine/core/audio/audio_mix_validator.cpp
+    engine/core/ability/ability_orchestration.cpp
     engine/core/animation/animation_ai_bridge.cpp
     engine/core/ui/ui_window.cpp
     engine/core/ui/theme_registry.cpp
@@ -353,6 +370,7 @@ add_library(urpg_core
     engine/core/ui/chat_window.cpp
     engine/core/ui/ui_command_list.cpp
     engine/core/message/message_core.cpp
+    engine/core/message/dialogue_preview.cpp
     engine/core/message/ai_sync_coordinator.cpp
     engine/core/message/dialogue_registry.cpp
     engine/core/message/dialogue_project_loader.cpp
@@ -361,6 +379,7 @@ add_library(urpg_core
     engine/core/localization/completeness_checker.cpp
     engine/core/accessibility/accessibility_auditor.cpp
     engine/core/accessibility/accessibility_fix_advisor.cpp
+    engine/core/accessibility/render_contrast_adapter.cpp
     editor/diagnostics/event_authority_diagnostics.cpp
     editor/diagnostics/event_authority_panel.cpp
     editor/diagnostics/diagnostics_workspace.cpp
@@ -368,37 +387,47 @@ add_library(urpg_core
     editor/diagnostics/diagnostics_workspace_export.cpp
     editor/diagnostics/diagnostics_workspace_serialization.cpp
     editor/diagnostics/diagnostics_facade.cpp
+    editor/diagnostics/project_audit_export_parity.cpp
     editor/diagnostics/project_audit_panel.cpp
     editor/diagnostics/project_health_model.cpp
     editor/diagnostics/project_health_panel.cpp
     editor/events/event_authoring_model.cpp
     editor/events/event_authoring_panel.cpp
+    editor/events/event_command_graph_panel.cpp
     editor/plugin/plugin_inspector_model.cpp
     editor/plugin/plugin_inspector_panel.cpp
     editor/project/new_project_wizard_model.cpp
     editor/project/new_project_wizard_panel.cpp
     editor/quest/quest_panel.cpp
+    editor/progression/skill_tree_panel.cpp
     editor/dialogue/dialogue_graph_panel.cpp
     editor/narrative/narrative_continuity_panel.cpp
     editor/relationship/relationship_panel.cpp
     editor/localization/localization_workspace_model.cpp
     editor/localization/localization_workspace_panel.cpp
     editor/timeline/timeline_panel.cpp
+    editor/timeline/cutscene_timeline_panel.cpp
     editor/replay/replay_panel.cpp
     editor/capture/capture_panel.cpp
     editor/presentation/photo_mode_panel.cpp
     editor/database/database_panel.cpp
     editor/balance/balance_panel.cpp
+    editor/balance/encounter_designer_panel.cpp
+    editor/items/loot_generator_panel.cpp
     editor/shop/vendor_panel.cpp
     editor/world/world_panel.cpp
     editor/crafting/crafting_panel.cpp
+    editor/crafting/crafting_loop_panel.cpp
     editor/codex/codex_panel.cpp
+    editor/monster/monster_collection_panel.cpp
+    editor/metroidvania/ability_gate_panel.cpp
     editor/time/calendar_panel.cpp
     editor/npc/npc_panel.cpp
     editor/puzzle/puzzle_panel.cpp
     editor/assets/asset_library_model.cpp
     editor/assets/asset_library_panel.cpp
     editor/export/export_diagnostics_panel.cpp
+    editor/export/export_preview_panel.cpp
     editor/compat/compat_report_panel.cpp
     editor/character/character_creator_model.cpp
     editor/character/character_creator_panel.cpp
@@ -407,20 +436,25 @@ add_library(urpg_core
     editor/save/save_debugger_panel.cpp
     editor/save/save_inspector_model.cpp
     editor/save/save_inspector_panel.cpp
+    editor/save/save_load_preview_lab_panel.cpp
     editor/save/save_migration_preview_panel.cpp
     editor/battle/battle_inspector_model.cpp
     editor/battle/battle_presentation_panel.cpp
+    editor/battle/battle_vfx_timeline_panel.cpp
     editor/battle/boss_designer_panel.cpp
     editor/battle/formula_debugger_panel.cpp
     editor/battle/battle_preview_panel.cpp
     editor/battle/battle_inspector_panel.cpp
     editor/message/message_inspector_model.cpp
     editor/message/message_inspector_panel.cpp
+    editor/message/dialogue_preview_panel.cpp
     editor/ui/menu_inspector_model.cpp
     editor/ui/menu_inspector_panel.cpp
     editor/ui/menu_preview_panel.cpp
     editor/ability/ability_inspector_model.cpp
     editor/ability/ability_inspector_panel.cpp
+    editor/ability/ability_orchestration_panel.cpp
+    editor/ability/ability_sandbox_panel.cpp
     editor/ability/pattern_field_model.cpp
     editor/ability/pattern_field_panel.cpp
     editor/perf/perf_diagnostics_model.cpp
@@ -428,6 +462,7 @@ add_library(urpg_core
     editor/spatial/elevation_brush_panel.cpp
     editor/spatial/terrain_brush_panel.cpp
     editor/spatial/region_rules_panel.cpp
+    editor/spatial/map_environment_preview_panel.cpp
     editor/spatial/procedural_map_panel.cpp
     editor/spatial/prop_placement_panel.cpp
     editor/spatial/map_ability_binding_panel.cpp
@@ -462,10 +497,12 @@ add_library(urpg_core
     engine/core/mod/mod_sdk_sample_validator.cpp
     engine/core/mod/mod_loader.cpp
     engine/core/mod/mod_hot_loader.cpp
+    engine/core/mod/mod_store.cpp
     engine/core/diagnostics/startup_diagnostics.cpp
     engine/core/export/creator_package_manifest.cpp
     engine/core/export/export_bundle_contract.cpp
     engine/core/export/export_artifact_compare.cpp
+    engine/core/export/export_preview.cpp
     engine/core/export/export_validator.cpp
     engine/core/export/patch_manifest.cpp
     engine/core/export/runtime_bundle_loader.cpp
@@ -526,7 +563,88 @@ add_library(urpg_core
     runtimes/compat_js/plugin_manager_support.cpp
 )
 
-target_include_directories(urpg_core PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+set(URPG_RUNTIME_CORE_SOURCES ${URPG_CORE_SOURCES})
+
+set(URPG_EDITOR_CORE_SOURCES ${URPG_CORE_SOURCES})
+list(FILTER URPG_EDITOR_CORE_SOURCES INCLUDE REGEX "^engine/core/editor/")
+
+set(URPG_EDITOR_PANELS_SOURCES ${URPG_CORE_SOURCES})
+list(FILTER URPG_EDITOR_PANELS_SOURCES INCLUDE REGEX "^editor/")
+
+set(URPG_COMPAT_MZ_SOURCES ${URPG_CORE_SOURCES})
+list(FILTER URPG_COMPAT_MZ_SOURCES INCLUDE REGEX "^runtimes/compat_js/")
+
+set(URPG_RENDERING_SOURCES ${URPG_CORE_SOURCES})
+list(FILTER URPG_RENDERING_SOURCES INCLUDE REGEX "engine/core/(platform|render|capture|presentation)/|^engine/core/sprite_batcher\\.cpp$")
+
+set(URPG_AUDIO_SOURCES ${URPG_CORE_SOURCES})
+list(FILTER URPG_AUDIO_SOURCES INCLUDE REGEX "^engine/core/audio/")
+
+set(URPG_EXPORT_SOURCES ${URPG_CORE_SOURCES})
+list(FILTER URPG_EXPORT_SOURCES INCLUDE REGEX "^engine/core/export/|^engine/core/tools/export_packager")
+
+set(URPG_PROJECT_TOOLS_SOURCES ${URPG_CORE_SOURCES})
+list(FILTER URPG_PROJECT_TOOLS_SOURCES INCLUDE REGEX "^engine/core/project/|^engine/core/tutorial/")
+
+set(URPG_TESTING_SUPPORT_SOURCES ${URPG_CORE_SOURCES})
+list(FILTER URPG_TESTING_SUPPORT_SOURCES INCLUDE REGEX "^engine/core/testing/")
+
+foreach(_urpg_domain_sources IN ITEMS
+    URPG_EDITOR_CORE_SOURCES
+    URPG_EDITOR_PANELS_SOURCES
+    URPG_COMPAT_MZ_SOURCES
+    URPG_RENDERING_SOURCES
+    URPG_AUDIO_SOURCES
+    URPG_EXPORT_SOURCES
+    URPG_PROJECT_TOOLS_SOURCES
+    URPG_TESTING_SUPPORT_SOURCES
+)
+    list(REMOVE_ITEM URPG_RUNTIME_CORE_SOURCES ${${_urpg_domain_sources}})
+endforeach()
+
+add_library(urpg_runtime_core_objects OBJECT ${URPG_RUNTIME_CORE_SOURCES})
+add_library(urpg_editor_core_objects OBJECT ${URPG_EDITOR_CORE_SOURCES})
+add_library(urpg_editor_panels_objects OBJECT ${URPG_EDITOR_PANELS_SOURCES})
+add_library(urpg_compat_mz_objects OBJECT ${URPG_COMPAT_MZ_SOURCES})
+add_library(urpg_rendering_objects OBJECT ${URPG_RENDERING_SOURCES})
+add_library(urpg_audio_objects OBJECT ${URPG_AUDIO_SOURCES})
+add_library(urpg_export_objects OBJECT ${URPG_EXPORT_SOURCES})
+add_library(urpg_project_tools_objects OBJECT ${URPG_PROJECT_TOOLS_SOURCES})
+add_library(urpg_testing_support_objects OBJECT ${URPG_TESTING_SUPPORT_SOURCES})
+
+add_library(urpg_runtime_core STATIC $<TARGET_OBJECTS:urpg_runtime_core_objects>)
+add_library(urpg_editor_core STATIC $<TARGET_OBJECTS:urpg_editor_core_objects>)
+add_library(urpg_editor_panels STATIC $<TARGET_OBJECTS:urpg_editor_panels_objects>)
+add_library(urpg_compat_mz STATIC $<TARGET_OBJECTS:urpg_compat_mz_objects>)
+add_library(urpg_rendering STATIC $<TARGET_OBJECTS:urpg_rendering_objects>)
+add_library(urpg_audio STATIC $<TARGET_OBJECTS:urpg_audio_objects>)
+add_library(urpg_export STATIC $<TARGET_OBJECTS:urpg_export_objects>)
+add_library(urpg_project_tools STATIC $<TARGET_OBJECTS:urpg_project_tools_objects>)
+add_library(urpg_testing_support STATIC $<TARGET_OBJECTS:urpg_testing_support_objects>)
+
+set(URPG_CORE_DOMAIN_TARGETS
+    urpg_runtime_core
+    urpg_editor_core
+    urpg_editor_panels
+    urpg_compat_mz
+    urpg_rendering
+    urpg_audio
+    urpg_export
+    urpg_project_tools
+    urpg_testing_support
+)
+
+set(URPG_CORE_DOMAIN_OBJECT_TARGETS
+    urpg_runtime_core_objects
+    urpg_editor_core_objects
+    urpg_editor_panels_objects
+    urpg_compat_mz_objects
+    urpg_rendering_objects
+    urpg_audio_objects
+    urpg_export_objects
+    urpg_project_tools_objects
+    urpg_testing_support_objects
+)
 
 enable_testing()
 
@@ -552,8 +670,6 @@ if(NOT nlohmann_json_FOUND)
     )
     FetchContent_MakeAvailable(nlohmann_json)
 endif()
-
-target_link_libraries(urpg_core PUBLIC nlohmann_json::nlohmann_json)
 
 if(URPG_FETCH_QUICKJS_NG)
     include(FetchContent)
@@ -703,12 +819,6 @@ add_library(imgui STATIC
 target_include_directories(imgui PUBLIC ${imgui_SOURCE_DIR})
 target_compile_features(imgui PUBLIC cxx_std_20)
 
-target_include_directories(urpg_core PUBLIC
-    ${CMAKE_CURRENT_SOURCE_DIR}
-    ${CMAKE_CURRENT_BINARY_DIR}/generated
-    ${stb_SOURCE_DIR}
-)
-
 if(NOT URPG_SKIP_OPENGL)
     find_package(OpenGL REQUIRED)
 endif()
@@ -734,42 +844,116 @@ foreach(_urpg_sdl_vendor_target IN ITEMS SDL2 SDL2-static)
     endif()
 endforeach()
 
-target_link_libraries(urpg_core PUBLIC
+add_library(urpg_domain_dependencies INTERFACE)
+target_include_directories(urpg_domain_dependencies INTERFACE
+    ${CMAKE_CURRENT_SOURCE_DIR}
+    ${CMAKE_CURRENT_BINARY_DIR}/generated
+    ${stb_SOURCE_DIR}
+)
+target_link_libraries(urpg_domain_dependencies INTERFACE
     urpg_project_warnings
     imgui
     nlohmann_json::nlohmann_json
     qjs
     ${URPG_SDL_TARGET}
 )
-target_compile_definitions(urpg_core PUBLIC URPG_QUICKJS_ENABLED=1)
-target_compile_definitions(urpg_core PUBLIC URPG_IMGUI_ENABLED=1)
+target_compile_definitions(urpg_domain_dependencies INTERFACE URPG_QUICKJS_ENABLED=1)
+target_compile_definitions(urpg_domain_dependencies INTERFACE URPG_IMGUI_ENABLED=1)
 
 if(NOT URPG_SKIP_OPENGL)
-    target_link_libraries(urpg_core PUBLIC OpenGL::GL)
+    target_link_libraries(urpg_domain_dependencies INTERFACE OpenGL::GL)
 else()
-    target_compile_definitions(urpg_core PUBLIC URPG_HEADLESS=1)
+    target_compile_definitions(urpg_domain_dependencies INTERFACE URPG_HEADLESS=1)
     message(STATUS "URPG: Building in HEADLESS mode (OpenGL skipped)")
 endif()
+
+foreach(_urpg_domain_target IN LISTS URPG_CORE_DOMAIN_TARGETS)
+    target_compile_features(${_urpg_domain_target} PUBLIC cxx_std_20)
+    target_link_libraries(${_urpg_domain_target} PUBLIC urpg_domain_dependencies)
+endforeach()
+
+foreach(_urpg_domain_object_target IN LISTS URPG_CORE_DOMAIN_OBJECT_TARGETS)
+    target_compile_features(${_urpg_domain_object_target} PUBLIC cxx_std_20)
+    target_link_libraries(${_urpg_domain_object_target} PUBLIC urpg_domain_dependencies)
+endforeach()
+
+target_link_libraries(urpg_rendering PUBLIC urpg_runtime_core)
+target_link_libraries(urpg_audio PUBLIC urpg_runtime_core)
+target_link_libraries(urpg_compat_mz PUBLIC urpg_runtime_core urpg_rendering urpg_audio)
+target_link_libraries(urpg_export PUBLIC urpg_runtime_core urpg_rendering)
+target_link_libraries(urpg_project_tools PUBLIC urpg_runtime_core urpg_export)
+target_link_libraries(urpg_editor_core PUBLIC urpg_runtime_core)
+target_link_libraries(urpg_editor_panels PUBLIC
+    urpg_runtime_core
+    urpg_editor_core
+    urpg_compat_mz
+    urpg_rendering
+    urpg_audio
+    urpg_export
+    urpg_project_tools
+)
+target_link_libraries(urpg_testing_support PUBLIC urpg_runtime_core urpg_rendering)
+
+add_library(urpg_core INTERFACE)
+target_link_libraries(urpg_core INTERFACE
+    $<$<OR:$<CXX_COMPILER_ID:GNU>,$<CXX_COMPILER_ID:Clang>>:-Wl,--start-group>
+    urpg_runtime_core
+    urpg_compat_mz
+    urpg_rendering
+    urpg_audio
+    urpg_export
+    urpg_project_tools
+    urpg_editor_core
+    urpg_editor_panels
+    urpg_testing_support
+    urpg_runtime_core
+    urpg_compat_mz
+    urpg_rendering
+    urpg_audio
+    urpg_export
+    urpg_project_tools
+    $<$<OR:$<CXX_COMPILER_ID:GNU>,$<CXX_COMPILER_ID:Clang>>:-Wl,--end-group>
+)
 
 add_executable(urpg_runtime
     apps/runtime/main.cpp
 )
 
-target_link_libraries(urpg_runtime PRIVATE urpg_core)
+target_link_libraries(urpg_runtime PRIVATE
+    urpg_runtime_core
+    urpg_compat_mz
+    urpg_rendering
+    urpg_audio
+    urpg_export
+    urpg_project_tools
+)
 target_include_directories(urpg_runtime PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
 
 add_executable(urpg_editor
     apps/editor/main.cpp
 )
 
-target_link_libraries(urpg_editor PRIVATE urpg_core)
+target_link_libraries(urpg_editor PRIVATE
+    urpg_runtime_core
+    urpg_editor_core
+    urpg_editor_panels
+    urpg_compat_mz
+    urpg_rendering
+    urpg_audio
+    urpg_export
+    urpg_project_tools
+    urpg_testing_support
+)
 target_include_directories(urpg_editor PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
 
 add_executable(urpg_audio_smoke
     apps/audio_smoke/main.cpp
 )
 
-target_link_libraries(urpg_audio_smoke PRIVATE urpg_core)
+target_link_libraries(urpg_audio_smoke PRIVATE
+    urpg_runtime_core
+    urpg_audio
+)
 target_include_directories(urpg_audio_smoke PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
 
 if(WIN32)
@@ -1160,6 +1344,7 @@ add_executable(urpg_tests
     tests/unit/test_dev_room_generator.cpp
     tests/unit/test_tutorial_lesson.cpp
     tests/unit/test_timeline_player.cpp
+    tests/unit/test_cutscene_timeline.cpp
     tests/unit/test_event_macro_recorder.cpp
     tests/unit/test_replay_recorder.cpp
     tests/unit/test_timeline_replay_panels.cpp
@@ -1174,6 +1359,8 @@ add_executable(urpg_tests
     tests/unit/test_database_balance_panels.cpp
     tests/unit/test_world_simulation_suite.cpp
     tests/unit/test_crafting_registry.cpp
+    tests/unit/test_monster_collection.cpp
+    tests/unit/test_metroidvania_ability_gates.cpp
     tests/unit/test_bestiary_registry.cpp
     tests/unit/test_calendar_runtime.cpp
     tests/unit/test_npc_schedule.cpp

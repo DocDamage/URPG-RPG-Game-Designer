@@ -5,61 +5,61 @@
     {
       "id": "compat_bridge_exit",
       "ownerTrack": "Compat runtime",
-      "nextVerticalSlice": "Run a curated live-plugin QuickJS parity fixture end-to-end through diagnostics and export evidence.",
+      "nextVerticalSlice": "Completed 2026-04-28: a live QuickJS plugin command now emits successful execution diagnostics, CompatReportPanel ingests them, and DiagnosticsWorkspace exports the parity evidence.",
       "deferredScope": "Ongoing corpus maintenance and broad plugin/backend parity remain backlog."
     },
     {
       "id": "presentation_runtime",
       "ownerTrack": "Presentation runtime",
-      "nextVerticalSlice": "Add one non-OpenGL backend parity proof for a shell-owned scene once backend support exists.",
+      "nextVerticalSlice": "Completed 2026-04-28: HeadlessRenderer records shell-owned MapScene render batches/frame commands as the first non-OpenGL backend parity proof.",
       "deferredScope": "Full cross-backend renderer parity remains backlog."
     },
     {
       "id": "gameplay_ability_framework",
       "ownerTrack": "Gameplay ability",
-      "nextVerticalSlice": "Land one authored battle/map ability orchestration asset with runtime activation, editor preview, diagnostics, and tests.",
+      "nextVerticalSlice": "Completed 2026-04-28: AbilityOrchestrationDocument runs authored battle/map ability assets through runtime activation, target pattern diagnostics, saved JSON, and AbilityOrchestrationPanel preview.",
       "deferredScope": "Scripted condition evaluation and broader authored task composition remain backlog."
     },
     {
       "id": "governance_foundation",
       "ownerTrack": "Governance diagnostics",
-      "nextVerticalSlice": "Unify ProjectAudit CLI output and editor diagnostics export into one parity-checked JSON contract.",
+      "nextVerticalSlice": "Completed 2026-04-28: ProjectAudit CLI reports and DiagnosticsWorkspace project-audit exports now flow through a parity-checked canonical JSON contract with mismatch diagnostics.",
       "deferredScope": "Full release-signoff enforcement beyond artifact-backed checks remains backlog."
     },
     {
       "id": "character_identity",
       "ownerTrack": "Character runtime",
-      "nextVerticalSlice": "Persist one runtime-created protagonist through save/load with editor diagnostics and schema proof.",
-      "deferredScope": "Creation rules are implemented; full layered portrait/field/battle composition remains backlog."
+      "nextVerticalSlice": "Completed 2026-04-28: runtime-created protagonists persist through RuntimeSaveLoader and layered portrait/field/battle composition is resolved by CharacterAppearanceComposition with editor preview/schema proof.",
+      "deferredScope": "Broader authored asset-library tooling for creator-supplied appearance part imports remains backlog."
     },
     {
       "id": "achievement_registry",
       "ownerTrack": "Achievements",
-      "nextVerticalSlice": "Bind platform backend synchronization into one packaged project profile with configured command adapter evidence.",
+      "nextVerticalSlice": "Completed 2026-04-28: AchievementPlatformProfile binds packaged memory/command backend configuration into AchievementRegistry and AchievementPanel exposes apply/sync evidence.",
       "deferredScope": "Proprietary store SDK credentials and account-specific publishing remain project configuration."
     },
     {
       "id": "accessibility_auditor",
       "ownerTrack": "Accessibility",
-      "nextVerticalSlice": "Populate contrast evidence from one real renderer-derived WYSIWYG surface.",
-      "deferredScope": "Full renderer-derived contrast coverage across all UI surfaces remains backlog."
+      "nextVerticalSlice": "Completed 2026-04-28: render_contrast_adapter ingests FrameRenderCommand text/rect surfaces and feeds renderer-derived contrast ratios to AccessibilityAuditor.",
+      "deferredScope": "Full renderer-derived contrast coverage across every UI surface remains backlog."
     },
     {
       "id": "audio_mix_presets",
       "ownerTrack": "Audio runtime",
-      "nextVerticalSlice": "Bind one live audio backend/device smoke path to preset application diagnostics.",
+      "nextVerticalSlice": "Completed 2026-04-28: AudioMixBackendSmoke applies a preset to live AudioCore, runs a deterministic backend playback probe, and surfaces device/backend diagnostics through AudioMixPanel.",
       "deferredScope": "Broad device/backend matrix coverage remains backlog."
     },
     {
       "id": "mod_registry",
       "ownerTrack": "Mod runtime",
-      "nextVerticalSlice": "Surface ModHotLoader event log in the editor manager panel.",
-      "deferredScope": "Mod store integration and broad third-party mod execution remain backlog."
+      "nextVerticalSlice": "Completed 2026-04-28: ModManagerPanel now binds ModHotLoader and ModStoreCatalog, exposes hot-load events, and installs local store catalog entries through ModLoader.",
+      "deferredScope": "External marketplace services, payments, reviews, account credentials, and broad third-party mod execution remain backlog."
     },
     {
       "id": "analytics_dispatcher",
       "ownerTrack": "Analytics",
-      "nextVerticalSlice": "Bind one product telemetry endpoint profile through settings UI and privacy review evidence.",
+      "nextVerticalSlice": "Completed 2026-04-28: AnalyticsEndpointProfile binds reviewed telemetry endpoint settings into AnalyticsUploader and AnalyticsPanel surfaces/apply-gates privacy review evidence.",
       "deferredScope": "Production privacy review workflow remains backlog."
     }
   ]

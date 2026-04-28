@@ -15,6 +15,7 @@ Use the narrowest command that covers the changed surface. If a release plan spe
 | Compat JS / WindowCompat / plugin fixtures | `ctest -L weekly --output-on-failure` |
 | Export packager/validator | `ctest --preset dev-all -R "ExportPackager|urpg_pack_cli|export_validator" --output-on-failure` |
 | Presentation/spatial/rendering | `.\tools\ci\run_presentation_gate.ps1` |
+| WYSIWYG readiness/done-rule changes | `ctest --preset dev-all -R "WYSIWYG|readiness_status|truth" --output-on-failure` |
 | Native package layout | `.\tools\ci\check_package_smoke.ps1 -BuildDirectory build/dev-ninja-release -PackageRoot build/package-smoke` |
 | Full local gate | `.\tools\ci\run_local_gates.ps1` |
 

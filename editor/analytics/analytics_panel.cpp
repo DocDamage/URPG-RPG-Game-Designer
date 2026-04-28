@@ -47,6 +47,10 @@ void AnalyticsPanel::bindPrivacyController(urpg::analytics::AnalyticsPrivacyCont
     m_privacyController = privacyController;
 }
 
+void AnalyticsPanel::bindEndpointProfile(const urpg::analytics::AnalyticsEndpointProfile* endpointProfile) {
+    m_endpointProfile = endpointProfile;
+}
+
 void AnalyticsPanel::setSessionId(std::string sessionId) {
     m_sessionId = std::move(sessionId);
 }
@@ -71,6 +75,10 @@ void AnalyticsPanel::render() {
 
     if (ImGui::Button("Clear Queue")) {
         (void)clearQueuedEvents();
+    }
+    ImGui::SameLine();
+    if (ImGui::Button("Apply Endpoint Profile")) {
+        (void)applyEndpointProfile();
     }
     ImGui::SameLine();
     if (ImGui::Button("Flush Upload")) {
@@ -106,6 +114,33 @@ bool AnalyticsPanel::setOptIn(bool enabled) {
                                                            : urpg::analytics::ConsentState::Denied);
     }
     recordAction("set_opt_in", true, enabled ? "Analytics collection enabled." : "Analytics collection disabled.");
+    rebuildSnapshot();
+    return true;
+}
+
+bool AnalyticsPanel::applyEndpointProfile() {
+    if (!m_uploader) {
+        recordAction("apply_endpoint_profile", false, "No analytics uploader is bound.");
+        rebuildSnapshot();
+        return false;
+    }
+    if (!m_endpointProfile) {
+        recordAction("apply_endpoint_profile", false, "No analytics endpoint profile is bound.");
+        rebuildSnapshot();
+        return false;
+    }
+
+    const auto result = urpg::analytics::applyAnalyticsEndpointProfile(*m_uploader, *m_endpointProfile);
+    if (!result.applied) {
+        const std::string message = result.diagnostics.empty()
+                                        ? "Analytics endpoint profile was not applied."
+                                        : result.diagnostics.front().message;
+        recordAction("apply_endpoint_profile", false, message, result.diagnostics.size());
+        rebuildSnapshot();
+        return false;
+    }
+
+    recordAction("apply_endpoint_profile", true, "Analytics endpoint profile applied.");
     rebuildSnapshot();
     return true;
 }
@@ -179,6 +214,8 @@ void AnalyticsPanel::rebuildSnapshot() {
     nlohmann::json snapshot;
     snapshot["dispatcherBound"] = m_dispatcher != nullptr;
     snapshot["uploaderBound"] = m_uploader != nullptr;
+    snapshot["endpointProfileBound"] = m_endpointProfile != nullptr;
+    snapshot["endpointProfile"] = nullptr;
     snapshot["uploadMode"] = "disabled";
     snapshot["localExportPath"] = "";
     snapshot["privacyControllerBound"] = m_privacyController != nullptr;
@@ -211,6 +248,7 @@ void AnalyticsPanel::rebuildSnapshot() {
         }
         snapshot["actions"] = {
             {"setOptIn", false},
+            {"applyEndpointProfile", false},
             {"clearQueue", false},
             {"flushUpload", false},
         };
@@ -238,6 +276,25 @@ void AnalyticsPanel::rebuildSnapshot() {
     snapshot["retentionMaxAgeTicks"] = m_privacyController ? m_privacyController->getRetentionPolicy().maxAgeTicks : 0;
     snapshot["retentionMaxEventCount"] =
         m_privacyController ? m_privacyController->getRetentionPolicy().maxEventCount : 0;
+
+    if (m_endpointProfile) {
+        snapshot["endpointProfile"] = m_endpointProfile->toJson();
+        const auto profileDiagnostics = urpg::analytics::validateAnalyticsEndpointProfile(*m_endpointProfile);
+        nlohmann::json diagnostics = nlohmann::json::array();
+        for (const auto& diagnostic : profileDiagnostics) {
+            diagnostics.push_back({
+                {"code", diagnostic.code},
+                {"message", diagnostic.message},
+                {"target", diagnostic.target},
+            });
+        }
+        snapshot["endpointProfileDiagnostics"] = diagnostics;
+        snapshot["endpointProfilePrivacyApproved"] = m_endpointProfile->privacyReview.approved;
+    } else {
+        snapshot["endpointProfileDiagnostics"] = nlohmann::json::array();
+        snapshot["endpointProfilePrivacyApproved"] = false;
+        snapshot["statusMessages"].push_back("No analytics endpoint profile is bound.");
+    }
 
     nlohmann::json allEvents = m_dispatcher->getBufferSnapshot();
     nlohmann::json recentEvents = nlohmann::json::array();
@@ -305,6 +362,7 @@ void AnalyticsPanel::rebuildSnapshot() {
     snapshot["disabledUploadMessage"] = disabledMessage;
     snapshot["actions"] = {
         {"setOptIn", true},
+        {"applyEndpointProfile", m_uploader != nullptr && m_endpointProfile != nullptr},
         {"clearQueue", m_dispatcher->getQueuedEventCount() > 0},
         {"flushUpload", disabledMessage.empty()},
     };

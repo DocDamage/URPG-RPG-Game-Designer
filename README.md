@@ -4,7 +4,7 @@
 
 URPG is a native-first C++20 RPG engine and editor for deterministic 2D RPG development. It combines a native runtime core, an ImGui editor, RPG Maker MZ compatibility and migration tooling, OpenGL and headless rendering paths, release packaging, and evidence-backed validation.
 
-The product goal is a WYSIWYG authoring experience where creators edit the same runtime behavior that ships. A feature is treated as complete only when it is implemented, visually authorable where appropriate, live-previewable, test-covered, and represented truthfully in the project docs.
+The product goal is a WYSIWYG authoring experience where creators edit the same runtime behavior that ships. No system is treated as done until it has a visual authoring surface, live preview, saved project data, runtime execution, diagnostics, and tests, with that evidence represented truthfully in the project docs and readiness data.
 
 ## Current Status
 
@@ -120,6 +120,13 @@ URPG is a strong native/editor foundation, not a finished public product. Import
 
 The roadmap remains WYSIWYG-first. Most previously listed future-feature slices now have first implementation slices in the tree. Remaining work is product-depth, polish, integration, and public-release hardening:
 
+- battle animation/VFX timeline editing with the same cues the runtime ships
+- map lighting, weather, and region previews backed by runtime data
+- dialogue preview with portraits, choices, variables, and localization
+- event-command visual graph authoring with runtime command execution proof
+- ability sandboxing with visible costs, cooldowns, tags, and effects
+- save/load preview lab for inspecting persisted runtime state
+- export preview that shows exactly what will ship
 - richer Project Health guided remediation workflows
 - asset promotion, license review, and cleanup automation
 - fuller live renderer/editor integration for authored systems that currently expose deterministic contracts and headless panel snapshots

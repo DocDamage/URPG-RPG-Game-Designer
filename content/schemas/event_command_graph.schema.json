@@ -1,0 +1,57 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://urpg.dev/schemas/event_command_graph.schema.json",
+  "title": "URPG event command graph",
+  "type": "object",
+  "required": ["schema", "id", "map_id", "event_id", "page_id", "entry_node_id", "nodes", "edges"],
+  "properties": {
+    "schema": { "const": "urpg.event_command_graph.v1" },
+    "id": { "type": "string", "minLength": 1 },
+    "map_id": { "type": "string", "minLength": 1 },
+    "event_id": { "type": "string", "minLength": 1 },
+    "page_id": { "type": "string", "minLength": 1 },
+    "trigger": { "type": "string", "enum": ["action_button", "player_touch", "autorun", "parallel"] },
+    "event_x": { "type": "integer", "minimum": 0 },
+    "event_y": { "type": "integer", "minimum": 0 },
+    "entry_node_id": { "type": "string", "minLength": 1 },
+    "nodes": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/node" }
+    },
+    "edges": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/edge" }
+    }
+  },
+  "$defs": {
+    "node": {
+      "type": "object",
+      "required": ["id", "label", "kind", "target", "value", "amount", "x", "y", "payload"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "label": { "type": "string" },
+        "kind": {
+          "type": "string",
+          "enum": ["message", "switch", "variable", "transfer", "common_event", "battle", "item", "gold", "wait", "fade", "sound", "plugin"]
+        },
+        "target": { "type": "string" },
+        "value": { "type": "string" },
+        "amount": { "type": "integer" },
+        "x": { "type": "integer" },
+        "y": { "type": "integer" },
+        "payload": { "type": "object" }
+      }
+    },
+    "edge": {
+      "type": "object",
+      "required": ["id", "from_node_id", "to_node_id", "kind"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "from_node_id": { "type": "string", "minLength": 1 },
+        "to_node_id": { "type": "string", "minLength": 1 },
+        "kind": { "type": "string", "enum": ["sequence"] }
+      }
+    }
+  }
+}

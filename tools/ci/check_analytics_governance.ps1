@@ -7,18 +7,47 @@ $requiredFiles = @(
     "content\schemas\analytics_config.schema.json",
     "engine\core\analytics\analytics_dispatcher.h",
     "engine\core\analytics\analytics_dispatcher.cpp",
+    "engine\core\analytics\analytics_endpoint_profile.h",
+    "engine\core\analytics\analytics_endpoint_profile.cpp",
     "engine\core\analytics\analytics_dispatcher_validator.h",
     "engine\core\analytics\analytics_dispatcher_validator.cpp",
     "editor\analytics\analytics_panel.h",
     "editor\analytics\analytics_panel.cpp",
     "tools\ci\check_analytics_governance.ps1",
-    "content\fixtures\analytics_fixture.json"
+    "content\fixtures\analytics_fixture.json",
+    "content\fixtures\analytics_endpoint_profile_fixture.json"
 )
 
 foreach ($relPath in $requiredFiles) {
     $fullPath = Join-Path $repoRoot $relPath
     if (-not (Test-Path $fullPath)) {
         $errors += "Missing required analytics artifact: $relPath"
+    }
+}
+
+$endpointFixturePath = Join-Path $repoRoot "content\fixtures\analytics_endpoint_profile_fixture.json"
+if (Test-Path $endpointFixturePath) {
+    try {
+        $fixture = Get-Content -Raw -Path $endpointFixturePath | ConvertFrom-Json
+        if ($fixture.schema -ne "urpg.analytics_endpoint_profile.v1") {
+            $errors += "Analytics endpoint profile fixture has unexpected schema"
+        }
+        if (-not $fixture.profileId) {
+            $errors += "Analytics endpoint profile fixture is missing profileId"
+        }
+        if ($fixture.mode -eq "http_json") {
+            if (-not $fixture.url) {
+                $errors += "HTTP analytics endpoint profile fixture is missing url"
+            }
+            if ($null -eq $fixture.privacyReview -or $fixture.privacyReview.approved -ne $true) {
+                $errors += "HTTP analytics endpoint profile fixture requires approved privacyReview"
+            }
+            if ($null -eq $fixture.privacyReview.dataCategories -or $fixture.privacyReview.dataCategories.Count -eq 0) {
+                $errors += "HTTP analytics endpoint profile fixture requires privacyReview dataCategories"
+            }
+        }
+    } catch {
+        $errors += "Analytics endpoint profile fixture is not valid JSON: $_"
     }
 }
 

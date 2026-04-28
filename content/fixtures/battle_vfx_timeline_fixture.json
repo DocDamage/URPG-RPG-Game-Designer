@@ -1,0 +1,36 @@
+{
+  "schema_version": "urpg.battle_vfx_timeline.v1",
+  "id": "slash_combo",
+  "fps": 60,
+  "duration_frames": 48,
+  "events": [
+    {
+      "id": "cast_flash",
+      "frame": 4,
+      "kind": "cast",
+      "anchor": "owner",
+      "source_id": 1,
+      "owner_id": 1,
+      "intensity": 1.1,
+      "overlay_emphasis": 0.15,
+      "label": "Cast flash",
+      "payload": {
+        "asset": "vfx/cast_flash"
+      }
+    },
+    {
+      "id": "target_impact",
+      "frame": 18,
+      "kind": "hit",
+      "anchor": "target",
+      "source_id": 1,
+      "owner_id": 2,
+      "intensity": 1.6,
+      "overlay_emphasis": 0.65,
+      "label": "Impact",
+      "payload": {
+        "asset": "vfx/slash"
+      }
+    }
+  ]
+}

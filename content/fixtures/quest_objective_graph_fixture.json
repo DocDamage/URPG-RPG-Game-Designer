@@ -1,0 +1,70 @@
+{
+  "schema_version": "urpg.quest_objective_graph.v1",
+  "quest_id": "intro_relic",
+  "title": "Intro Relic",
+  "nodes": [
+    {
+      "id": "start",
+      "type": "start",
+      "title": "Quest Offered",
+      "localization_key": "quest.intro_relic.start"
+    },
+    {
+      "id": "find_relic",
+      "type": "objective",
+      "title": "Find the ancient relic",
+      "objective_id": "find_relic",
+      "localization_key": "quest.intro_relic.find_relic",
+      "conditions": [
+        {
+          "type": "switch",
+          "id": "intro_started",
+          "value": 1
+        },
+        {
+          "type": "item",
+          "id": "ancient_relic",
+          "value": 1
+        },
+        {
+          "type": "reputation",
+          "id": "guide",
+          "value": 10
+        }
+      ],
+      "rewards": [
+        {
+          "type": "currency",
+          "id": "gold",
+          "value": 100
+        }
+      ]
+    },
+    {
+      "id": "reward",
+      "type": "reward",
+      "title": "Reward Granted",
+      "localization_key": "quest.intro_relic.reward"
+    },
+    {
+      "id": "end",
+      "type": "end",
+      "title": "Quest Complete",
+      "localization_key": "quest.intro_relic.end"
+    }
+  ],
+  "links": [
+    {
+      "from": "start",
+      "to": "find_relic"
+    },
+    {
+      "from": "find_relic",
+      "to": "reward"
+    },
+    {
+      "from": "reward",
+      "to": "end"
+    }
+  ]
+}

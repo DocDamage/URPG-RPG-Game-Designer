@@ -8,15 +8,18 @@ This document defines how readiness claims stay aligned across canonical docs, t
 
 No release-facing status claim may exceed the strongest evidence-backed status present in the canonical readiness records.
 
+No subsystem may be called done unless it satisfies the WYSIWYG completion rule in `content/readiness/wysiwyg_done_rule.json`: visual authoring surface, live preview, saved project data, runtime execution, diagnostics, and tests.
+
 ## Sources of Truth
 
 When these disagree, the canonical resolution order is:
 
 1. `content/readiness/readiness_status.json`
-2. `docs/release/RELEASE_READINESS_MATRIX.md`
-3. `docs/governance/TEMPLATE_READINESS_MATRIX.md`
-4. `docs/status/PROGRAM_COMPLETION_STATUS.md`
-5. `docs/archive/planning/NATIVE_FEATURE_ABSORPTION_PLAN.md`
+2. `content/readiness/wysiwyg_done_rule.json`
+3. `docs/release/RELEASE_READINESS_MATRIX.md`
+4. `docs/governance/TEMPLATE_READINESS_MATRIX.md`
+5. `docs/status/PROGRAM_COMPLETION_STATUS.md`
+6. `docs/archive/planning/NATIVE_FEATURE_ABSORPTION_PLAN.md`
 
 Older planning inputs, archive docs, and addenda are reference material, not status authorities.
 
@@ -33,6 +36,7 @@ The following must agree:
 - structured signoff-contract fields for subsystems that depend on signoff-based promotion language
 - release-signoff workflow artifact presence and wording for the governed readiness stack
 - schema/version governance expectations
+- WYSIWYG done-rule evidence for any `READY` or "done" claim
 
 If a document or diagnostics surface needs nuance, it may be more conservative than the readiness records, but never more optimistic.
 

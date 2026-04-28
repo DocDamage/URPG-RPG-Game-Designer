@@ -1,0 +1,29 @@
+{
+  "schema_version": "urpg.skill_tree.v1",
+  "tree_id": "mage_fire",
+  "title": "Mage Fire",
+  "nodes": [
+    {
+      "id": "firebolt",
+      "title": "Firebolt",
+      "class_id": "class.mage",
+      "ability_id": "skill.fire",
+      "prerequisites": [],
+      "cost": {
+        "currency": "skill_point",
+        "amount": 1
+      }
+    },
+    {
+      "id": "flame_wall",
+      "title": "Flame Wall",
+      "class_id": "class.mage",
+      "ability_id": "skill.flame_wall",
+      "prerequisites": ["firebolt"],
+      "cost": {
+        "currency": "skill_point",
+        "amount": 1
+      }
+    }
+  ]
+}

@@ -1,5 +1,6 @@
 #include <catch2/catch_test_macros.hpp>
 #include "engine/core/accessibility/accessibility_auditor.h"
+#include "engine/core/accessibility/render_contrast_adapter.h"
 #include <nlohmann/json.hpp>
 #include <cstdlib>
 #include <filesystem>
@@ -107,4 +108,85 @@ TEST_CASE("AccessibilityAuditor: CI governance script validates artifacts", "[ac
     REQUIRE(result["passed"].get<bool>() == true);
     REQUIRE(result["errors"].is_array());
     REQUIRE(result["errors"].empty());
+}
+
+TEST_CASE("Render contrast adapter derives WYSIWYG contrast from frame commands",
+          "[accessibility][render][wysiwyg]") {
+    urpg::RectCommand background;
+    background.x = 10.0f;
+    background.y = 20.0f;
+    background.w = 240.0f;
+    background.h = 64.0f;
+    background.r = 0.02f;
+    background.g = 0.02f;
+    background.b = 0.02f;
+    background.zOrder = 1;
+
+    urpg::TextCommand label;
+    label.x = 24.0f;
+    label.y = 34.0f;
+    label.text = "Readable command";
+    label.fontSize = 20;
+    label.maxWidth = 180;
+    label.r = 255;
+    label.g = 255;
+    label.b = 255;
+    label.zOrder = 2;
+
+    const std::vector<urpg::FrameRenderCommand> commands = {
+        urpg::toFrameRenderCommand(background),
+        urpg::toFrameRenderCommand(label),
+    };
+
+    RenderContrastAdapterOptions options;
+    options.text_is_focusable = true;
+    const auto elements = ingestRendererContrastElements(commands, options);
+    REQUIRE(elements.size() == 1);
+    REQUIRE(elements[0].id == "render.text.0");
+    REQUIRE(elements[0].label == "Readable command");
+    REQUIRE(elements[0].contrastRatio > 10.0f);
+
+    AccessibilityAuditor auditor;
+    auditor.ingestElements(elements);
+    REQUIRE(auditor.audit().empty());
+}
+
+TEST_CASE("Render contrast adapter exposes low renderer-derived text contrast to auditor",
+          "[accessibility][render][wysiwyg]") {
+    urpg::RectCommand background;
+    background.x = 0.0f;
+    background.y = 0.0f;
+    background.w = 200.0f;
+    background.h = 40.0f;
+    background.r = 0.5f;
+    background.g = 0.5f;
+    background.b = 0.5f;
+    background.zOrder = 1;
+
+    urpg::TextCommand label;
+    label.x = 8.0f;
+    label.y = 8.0f;
+    label.text = "Low contrast";
+    label.fontSize = 18;
+    label.maxWidth = 160;
+    label.r = 128;
+    label.g = 128;
+    label.b = 128;
+    label.zOrder = 2;
+
+    const std::vector<urpg::FrameRenderCommand> commands = {
+        urpg::toFrameRenderCommand(background),
+        urpg::toFrameRenderCommand(label),
+    };
+
+    AccessibilityAuditor auditor;
+    RenderContrastAdapterOptions options;
+    options.text_is_focusable = true;
+    auditor.ingestElements(ingestRendererContrastElements(commands, options));
+    const auto issues = auditor.audit();
+
+    REQUIRE(issues.size() == 1);
+    REQUIRE(issues[0].category == IssueCategory::Contrast);
+    REQUIRE(issues[0].elementId == "render.text.0");
+    REQUIRE(issues[0].sourceFile == "engine/core/render/render_layer.h");
 }

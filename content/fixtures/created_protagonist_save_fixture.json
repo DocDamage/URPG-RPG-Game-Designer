@@ -1,0 +1,27 @@
+{
+  "_urpg_format_version": "1.0",
+  "map_id": 1,
+  "player": {
+    "gold": 25
+  },
+  "_created_protagonist": {
+    "schemaVersion": "1.0.0",
+    "entity": 1001,
+    "identity": {
+      "schemaVersion": "1.0.0",
+      "name": "Nova",
+      "classId": "class_ranger",
+      "speciesId": "species_human",
+      "originId": "origin_frontier",
+      "backgroundId": "background_scout",
+      "portraitId": "portrait_ranger_01",
+      "bodySpriteId": "sprite_ranger_body",
+      "baseAttributes": {
+        "AGI": 14,
+        "DEX": 11,
+        "HP": 90
+      },
+      "appearanceTokens": ["cloak_travel"]
+    }
+  }
+}

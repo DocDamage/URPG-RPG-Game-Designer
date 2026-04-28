@@ -1,0 +1,28 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://urpg.dev/schemas/created_protagonist_save.schema.json",
+  "title": "URPG Created Protagonist Save Payload",
+  "description": "Native save-document extension that persists a runtime-created protagonist identity.",
+  "type": "object",
+  "required": ["_created_protagonist"],
+  "properties": {
+    "_created_protagonist": {
+      "type": "object",
+      "required": ["schemaVersion", "entity", "identity"],
+      "properties": {
+        "schemaVersion": {
+          "type": "string",
+          "const": "1.0.0"
+        },
+        "entity": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "identity": {
+          "$ref": "character_identity.schema.json"
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}

@@ -1,4 +1,5 @@
 #include "editor/achievement/achievement_panel.h"
+#include "engine/core/achievement/achievement_platform_profile.h"
 #include "engine/core/achievement/achievement_registry.h"
 
 #include <catch2/catch_test_macros.hpp>
@@ -99,4 +100,39 @@ TEST_CASE("AchievementPanel unlocked count is correct", "[achievement][editor][p
     REQUIRE(snapshot["trophy_export"]["unlocked"] == 1);
     REQUIRE(snapshot["achievements"][0]["unlocked"] == true);
     REQUIRE(snapshot["achievements"][1]["unlocked"] == false);
+}
+
+TEST_CASE("AchievementPanel applies platform profile and syncs unlocked achievements",
+          "[achievement][editor][panel][platform]") {
+    AchievementRegistry registry;
+    AchievementDef def;
+    def.id = "ach_panel_profile";
+    def.title = "Panel Profile";
+    def.description = "Sync from panel.";
+    def.unlockCondition = "count_1";
+    def.iconId = "icon_panel_profile";
+    registry.registerAchievement(def);
+
+    AchievementPlatformProfile profile;
+    profile.profileId = "panel-profile";
+    profile.packageId = "com.urpg.panel";
+    profile.backends.push_back({"urpg-local", AchievementPlatformProfileBackendType::Memory, "", {}});
+
+    AchievementPanel panel;
+    panel.bindRegistry(&registry);
+    panel.bindPlatformProfile(&profile);
+    REQUIRE(panel.applyPlatformProfile());
+
+    REQUIRE(registry.reportProgress("ach_panel_profile", 1));
+    const auto results = panel.syncUnlockedAchievements();
+    REQUIRE(results.size() == 1);
+    REQUIRE(results[0].success);
+
+    panel.render();
+    const auto snapshot = panel.lastRenderSnapshot();
+    REQUIRE(snapshot["platform_profile_bound"] == true);
+    REQUIRE(snapshot["platform_profile"]["profileId"] == "panel-profile");
+    REQUIRE(snapshot["platform_backends"]["backendCount"] == 1);
+    REQUIRE(snapshot["last_action"]["action"] == "sync_unlocked_achievements");
+    REQUIRE(snapshot["actions"]["applyPlatformProfile"] == true);
 }

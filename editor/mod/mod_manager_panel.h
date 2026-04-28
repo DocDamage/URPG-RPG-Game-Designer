@@ -1,7 +1,9 @@
 #pragma once
 
+#include "engine/core/mod/mod_hot_loader.h"
 #include "engine/core/mod/mod_loader.h"
 #include "engine/core/mod/mod_registry.h"
+#include "engine/core/mod/mod_store.h"
 
 #include <nlohmann/json.hpp>
 
@@ -16,6 +18,8 @@ class ModManagerPanel {
 
     void bindRegistry(urpg::mod::ModRegistry* registry);
     void bindLoader(urpg::mod::ModLoader* loader);
+    void bindHotLoader(urpg::mod::ModHotLoader* hot_loader);
+    void bindStoreCatalog(urpg::mod::ModStoreCatalog* store_catalog);
     void render();
 
     bool importManifest(const std::filesystem::path& manifest_path, const urpg::mod::ModSandboxPolicy& policy = {});
@@ -23,6 +27,11 @@ class ModManagerPanel {
     bool activateMod(const std::string& id);
     bool deactivateMod(const std::string& id);
     bool reloadMod(const std::string& id);
+    bool trackHotLoadMod(const std::string& id);
+    size_t trackRegisteredHotLoadMods();
+    urpg::mod::ModHotLoadPollResult pollHotLoader();
+    void clearHotLoadEventLog();
+    bool installStoreEntry(const std::string& entry_id, const std::filesystem::path& catalog_root = {});
     void clearLastAction();
 
     nlohmann::json lastRenderSnapshot() const;
@@ -33,8 +42,11 @@ class ModManagerPanel {
 
     urpg::mod::ModRegistry* registry_ = nullptr;
     urpg::mod::ModLoader* loader_ = nullptr;
+    urpg::mod::ModHotLoader* hot_loader_ = nullptr;
+    urpg::mod::ModStoreCatalog* store_catalog_ = nullptr;
     nlohmann::json last_render_snapshot_;
     nlohmann::json last_action_snapshot_;
+    urpg::mod::ModHotLoadPollResult last_hot_poll_result_;
 };
 
 } // namespace urpg::editor

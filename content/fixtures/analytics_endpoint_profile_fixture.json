@@ -1,0 +1,23 @@
+{
+  "schema": "urpg.analytics_endpoint_profile.v1",
+  "profileId": "product-telemetry-local-review",
+  "mode": "http_json",
+  "localJsonlPath": "",
+  "url": "https://telemetry.example.invalid/urpg/editor",
+  "headers": {
+    "X-URPG-Product": "URPG Maker",
+    "X-URPG-Channel": "internal-review"
+  },
+  "bearerToken": "",
+  "curlExecutable": "curl",
+  "privacyReview": {
+    "approved": true,
+    "reviewer": "internal-privacy-review",
+    "approvedAt": "2026-04-28",
+    "notes": "Profile declares editor usage telemetry only; uploads remain blocked until user consent and opt-in are granted.",
+    "dataCategories": [
+      "editor_usage",
+      "diagnostic_counts"
+    ]
+  }
+}

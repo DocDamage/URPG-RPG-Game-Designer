@@ -1,0 +1,27 @@
+{
+  "schema_version": "urpg.relationship_affinity.v1",
+  "document_id": "guide_affinity",
+  "rules": [
+    {
+      "id": "guide.favorite_flower",
+      "subject_id": "guide",
+      "source": "gift",
+      "tag": "favorite_flower",
+      "delta": 15
+    },
+    {
+      "id": "guide.kind_answer",
+      "subject_id": "guide",
+      "source": "dialogue_choice",
+      "tag": "kind_answer",
+      "delta": 5
+    }
+  ],
+  "gates": [
+    {
+      "content_id": "guide_bond_scene",
+      "subject_id": "guide",
+      "minimum": 20
+    }
+  ]
+}

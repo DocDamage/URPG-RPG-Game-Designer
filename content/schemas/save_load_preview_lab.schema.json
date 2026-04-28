@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://urpg.dev/schemas/save_load_preview_lab.schema.json",
+  "title": "URPG save load preview lab",
+  "type": "object",
+  "required": ["schema", "id", "slot_id", "primary_payload", "autosave_payload", "metadata_payload", "variables_payload"],
+  "properties": {
+    "schema": { "const": "urpg.save_load_preview_lab.v1" },
+    "id": { "type": "string", "minLength": 1 },
+    "slot_id": { "type": "integer", "minimum": 0 },
+    "primary_payload": { "type": "object" },
+    "autosave_payload": { "type": "object" },
+    "metadata_payload": { "type": "object" },
+    "variables_payload": { "type": "object" },
+    "corrupt_primary": { "type": "boolean" },
+    "force_safe_mode": { "type": "boolean" },
+    "safe_mode_fallback_map": { "type": "string", "minLength": 1 }
+  }
+}

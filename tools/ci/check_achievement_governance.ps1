@@ -6,23 +6,48 @@ $errors = @()
 $requiredFiles = @(
     "content\schemas\achievements.schema.json",
     "content\schemas\achievement_trophy_export.schema.json",
+    "content\schemas\achievement_platform_profile.schema.json",
     "engine\core\achievement\achievement_registry.h",
     "engine\core\achievement\achievement_registry.cpp",
     "engine\core\achievement\achievement_platform_backend.h",
     "engine\core\achievement\achievement_platform_backend.cpp",
+    "engine\core\achievement\achievement_platform_profile.h",
+    "engine\core\achievement\achievement_platform_profile.cpp",
     "engine\core\achievement\achievement_validator.h",
     "engine\core\achievement\achievement_validator.cpp",
     "editor\achievement\achievement_panel.h",
     "editor\achievement\achievement_panel.cpp",
     "tools\ci\check_achievement_governance.ps1",
     "content\fixtures\achievement_registry_fixture.json",
-    "content\fixtures\achievement_trophy_export_fixture.json"
+    "content\fixtures\achievement_trophy_export_fixture.json",
+    "content\fixtures\achievement_platform_profile_fixture.json"
 )
 
 foreach ($relPath in $requiredFiles) {
     $fullPath = Join-Path $repoRoot $relPath
     if (-not (Test-Path $fullPath)) {
         $errors += "Missing required achievement artifact: $relPath"
+    }
+}
+
+$platformProfileFixturePath = Join-Path $repoRoot "content\fixtures\achievement_platform_profile_fixture.json"
+if (Test-Path $platformProfileFixturePath) {
+    try {
+        $fixture = Get-Content -Raw -Path $platformProfileFixturePath | ConvertFrom-Json
+        if ($fixture.schema -ne "urpg.achievement_platform_profile.v1") {
+            $errors += "Achievement platform profile fixture has unexpected schema"
+        }
+        if (-not $fixture.profileId) {
+            $errors += "Achievement platform profile fixture is missing profileId"
+        }
+        if (-not $fixture.packageId) {
+            $errors += "Achievement platform profile fixture is missing packageId"
+        }
+        if ($null -eq $fixture.backends -or $fixture.backends.Count -eq 0) {
+            $errors += "Achievement platform profile fixture requires at least one backend"
+        }
+    } catch {
+        $errors += "Achievement platform profile fixture is not valid JSON: $_"
     }
 }
 

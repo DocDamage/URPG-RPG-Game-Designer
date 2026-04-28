@@ -13,7 +13,11 @@
         "schemaMigration": true,
         "diagnostics": true,
         "testsValidation": true,
-        "docsAligned": true
+        "docsAligned": true,
+        "runtimeExecution": true,
+        "visualAuthoringSurface": true,
+        "savedProjectData": true,
+        "livePreview": true
       }
     },
     {
@@ -27,7 +31,11 @@
         "schemaMigration": true,
         "diagnostics": true,
         "testsValidation": true,
-        "docsAligned": true
+        "docsAligned": true,
+        "runtimeExecution": true,
+        "visualAuthoringSurface": true,
+        "savedProjectData": true,
+        "livePreview": true
       }
     },
     {
@@ -50,7 +58,11 @@
         "schemaMigration": true,
         "diagnostics": true,
         "testsValidation": true,
-        "docsAligned": true
+        "docsAligned": true,
+        "runtimeExecution": true,
+        "visualAuthoringSurface": true,
+        "savedProjectData": true,
+        "livePreview": true
       }
     },
     {
@@ -73,13 +85,17 @@
         "schemaMigration": true,
         "diagnostics": true,
         "testsValidation": true,
-        "docsAligned": true
+        "docsAligned": true,
+        "runtimeExecution": true,
+        "visualAuthoringSurface": true,
+        "savedProjectData": true,
+        "livePreview": true
       }
     },
     {
       "id": "compat_bridge_exit",
       "status": "READY",
-      "summary": "Compat bridge exit is closed for the bounded import, validation, migration, diagnostics, and verification scope. Public compat registries under runtimes/compat_js now have no PARTIAL method-status markers, diagnostics/export parity is covered, and the closure signoff is approved for the claimed bridge-exit scope.",
+      "summary": "Compat bridge exit is closed for the bounded import, validation, migration, diagnostics, and verification scope. Public compat registries under runtimes/compat_js now have no PARTIAL method-status markers, failure and successful live QuickJS plugin execution diagnostics/export parity are covered, and the closure signoff is approved for the claimed bridge-exit scope.",
       "mainGaps": [],
       "signoff": {
         "required": true,
@@ -96,15 +112,19 @@
         "schemaMigration": true,
         "diagnostics": true,
         "testsValidation": true,
-        "docsAligned": true
+        "docsAligned": true,
+        "runtimeExecution": true,
+        "visualAuthoringSurface": true,
+        "savedProjectData": true,
+        "livePreview": true
       }
     },
     {
       "id": "presentation_runtime",
       "status": "PARTIAL",
-      "summary": "Presentation runtime, bridge, compiled spatial editor panels, end-to-end authoring-to-runtime proof path, release validation harness, bounded real renderer-backed production-path proof, shell-owned MapScene/MenuScene plus BattleScene actor-cue proof through the top-level EngineShell loop, a registered standalone profile_arena target, concrete ProfileArenaHotReloader with arena-reset lifecycle, presentation schema + migration proof fixture, and command-stream replay + reload determinism tests are landed. Promotion to READY requires human review of residual gaps.",
+      "summary": "Presentation runtime, bridge, compiled spatial editor panels, end-to-end authoring-to-runtime proof path, release validation harness, bounded real renderer-backed production-path proof, shell-owned MapScene/MenuScene plus BattleScene actor-cue proof through the top-level EngineShell loop, a first non-OpenGL HeadlessRenderer shell-owned MapScene command-consumption proof, a registered standalone profile_arena target, concrete ProfileArenaHotReloader with arena-reset lifecycle, presentation schema + migration proof fixture, and command-stream replay + reload determinism tests are landed. Promotion to READY requires human review of residual gaps.",
       "mainGaps": [
-        "Cross-backend renderer breadth remains future work under visual_regression_harness; the current claimed production path is the bounded OpenGL-backed lane with shell-owned MapScene/MenuScene/BattleScene proof rather than cross-backend parity",
+        "A first non-OpenGL HeadlessRenderer command-consumption proof is landed; full cross-backend renderer breadth remains future work under visual_regression_harness",
         "Promotion to READY requires human review of residual gaps"
       ],
       "signoff": {
@@ -119,15 +139,19 @@
         "schemaMigration": true,
         "diagnostics": true,
         "testsValidation": true,
-        "docsAligned": true
+        "docsAligned": true,
+        "runtimeExecution": true,
+        "visualAuthoringSurface": true,
+        "savedProjectData": true,
+        "livePreview": true
       }
     },
     {
       "id": "gameplay_ability_framework",
       "status": "PARTIAL",
-      "summary": "Gameplay ability runtime, inspector/editor surfaces, structured diagnostics snapshot, end-to-end release-grade test, closure signoff artifact, gameplay_ability JSON schema (S24-T01), compat-to-native MZ mapper with deterministic fallback payloads (S24-T02), live BattleScene activation, AbilityBattleQueue integration into BattleFlowController (S24-T03/T04), and deterministic AbilityTask WaitInput/WaitEvent/WaitProjectileCollision backends are landed. Promotion to READY requires human review of residual gaps.",
+      "summary": "Gameplay ability runtime, inspector/editor surfaces, structured diagnostics snapshot, end-to-end release-grade test, closure signoff artifact, gameplay_ability JSON schema (S24-T01), compat-to-native MZ mapper with deterministic fallback payloads (S24-T02), live BattleScene activation, AbilityBattleQueue integration into BattleFlowController (S24-T03/T04), deterministic AbilityTask WaitInput/WaitEvent/WaitProjectileCollision backends, and authored battle/map ability orchestration with editor preview are landed. Promotion to READY requires human review of residual gaps.",
       "mainGaps": [
-        "Richer task-driven ability orchestration across authored battle/map content remains broader product-depth backlog",
+        "One authored battle/map ability orchestration asset path is landed with runtime activation, target pattern diagnostics, editor preview, saved JSON, and tests; broader task-driven composition remains product-depth backlog",
         "Scripted conditions (activeCondition/passiveCondition strings) intentionally not evaluated",
         "Promotion to READY requires human review of residual gaps"
       ],
@@ -143,34 +167,41 @@
         "schemaMigration": true,
         "diagnostics": true,
         "testsValidation": true,
-        "docsAligned": true
+        "docsAligned": true,
+        "runtimeExecution": true,
+        "visualAuthoringSurface": true,
+        "savedProjectData": true,
+        "livePreview": true
       }
     },
     {
       "id": "governance_foundation",
       "status": "PARTIAL",
-      "summary": "Governance foundation has first-slice artifacts landed: breaking-change detection, enhanced readiness checks, template specs, bidirectional readiness/truth drift detection, canonical project schema governance sections for localization/input/exportProfiles, project-audit shape checks for that vocabulary, artifact checks for input, localization-bundle, accessibility, audio, character, mod, analytics, and performance, a bounded controller-binding runtime/panel plus input governance script/fixture contract, a canonical release-signoff workflow artifact, truth reconciliation wired into the full PR gate pipeline (S25-T02), template-spec-bar drift detection (S25-T04 check_template_spec_bar_drift.ps1), and governance gate regression tests (S25-T05/T06/T07).",
+      "summary": "Governance foundation has first-slice artifacts landed: breaking-change detection, enhanced readiness checks, template specs, bidirectional readiness/truth drift detection, canonical project schema governance sections for localization/input/exportProfiles, project-audit shape checks for that vocabulary, artifact checks for input, localization-bundle, accessibility, audio, character, mod, analytics, and performance, a bounded controller-binding runtime/panel plus input governance script/fixture contract, a canonical release-signoff workflow artifact, truth reconciliation wired into the full PR gate pipeline (S25-T02), template-spec-bar drift detection (S25-T04 check_template_spec_bar_drift.ps1), governance gate regression tests (S25-T05/T06/T07), and a ProjectAudit CLI-to-DiagnosticsWorkspace parity contract with mismatch diagnostics.",
       "mainGaps": [
-        "Governance CLI diagnostics and editor surface panel output are not yet unified into a single parity export path",
         "Promotion to READY requires human review of residual gaps"
       ],
       "evidence": {
         "runtimeOwner": false,
-        "editorSurface": false,
+        "editorSurface": true,
         "schemaMigration": true,
-        "diagnostics": false,
+        "diagnostics": true,
         "testsValidation": true,
-        "docsAligned": true
+        "docsAligned": true,
+        "runtimeExecution": false,
+        "visualAuthoringSurface": false,
+        "savedProjectData": true,
+        "livePreview": false
       }
     },
     {
       "id": "character_identity",
       "status": "PARTIAL",
-      "summary": "Character identity runtime, editor creator panel, character creation rules, bounded validation runtime, ECS component/system integration, deterministic spawner, preset-based runtime creator screen, and preview card surface are landed with schema and focused tests.",
+      "summary": "Character identity runtime, editor creator panel, character creation rules, bounded validation runtime, ECS component/system integration, deterministic spawner, preset-based runtime creator screen, preview card surface, runtime-created protagonist save/load persistence, and layered portrait/field/battle composition are landed with schema and focused tests.",
       "mainGaps": [
         "Character identity validator, governance script, ProjectAudit artifact section, bounded runtime creator screen, preview card surface, and reusable CharacterCreationRules runtime are landed for the current editor/runtime contract.",
-        "Creation rules now enforce background/origin/species restrictions, free-text naming limits, class appearance restrictions, and stat allocation budgets; save/load persistence for runtime-created protagonists remains adjacent save-state follow-through.",
-        "Layered portrait/field/battle composition from appearance parts is not landed; the current runtime preview is a bounded card surface rather than a full asset compositor."
+        "Creation rules now enforce background/origin/species restrictions, free-text naming limits, class appearance restrictions, and stat allocation budgets; runtime-created protagonist save/load persistence is landed with editor save diagnostics and schema proof.",
+        "Layered portrait/field/battle composition is landed through CharacterAppearanceComposition with editor preview snapshots, schema, fixture, and focused tests."
       ],
       "evidence": {
         "runtimeOwner": true,
@@ -178,17 +209,21 @@
         "schemaMigration": true,
         "diagnostics": true,
         "testsValidation": true,
-        "docsAligned": true
+        "docsAligned": true,
+        "runtimeExecution": true,
+        "visualAuthoringSurface": true,
+        "savedProjectData": true,
+        "livePreview": true
       }
     },
     {
       "id": "achievement_registry",
       "status": "PARTIAL",
-      "summary": "Achievement registry with progress tracking, unlock conditions, trigger parsing, event-bus auto-unlock, editor panel, vendor-neutral trophy export payload, and platform backend synchronization are landed.",
+      "summary": "Achievement registry with progress tracking, unlock conditions, trigger parsing, event-bus auto-unlock, editor panel, vendor-neutral trophy export payload, platform backend synchronization, and packaged platform profile application are landed.",
       "mainGaps": [
         "Achievement validator is landed with EmptyId, EmptyTitle, EmptyUnlockCondition, ZeroTarget, DuplicateId, and EmptyIconId checks.",
         "Vendor-neutral trophy export payload is landed with runtime JSON, editor summary, schema, fixture, governance, and focused tests.",
-        "Platform backend synchronization is landed through IAchievementPlatformBackend with in-tree memory and command backends; proprietary store SDK credentials remain project configuration, not mocked in engine code."
+        "Platform backend synchronization is landed through IAchievementPlatformBackend with in-tree memory and command backends plus AchievementPlatformProfile packaged configuration; proprietary store SDK credentials remain project configuration, not mocked in engine code."
       ],
       "evidence": {
         "runtimeOwner": true,
@@ -196,16 +231,20 @@
         "schemaMigration": true,
         "diagnostics": true,
         "testsValidation": true,
-        "docsAligned": true
+        "docsAligned": true,
+        "runtimeExecution": true,
+        "visualAuthoringSurface": true,
+        "savedProjectData": true,
+        "livePreview": true
       }
     },
     {
       "id": "accessibility_auditor",
       "status": "PARTIAL",
-      "summary": "Accessibility auditor with missing-label, focus-order, contrast, and navigation rules is landed. Live-ingestion adapters for menu (S16), spatial editor (S28-T01), audio mix panel (S28-T01), and battle inspector (S28-T01) are landed.",
+      "summary": "Accessibility auditor with missing-label, focus-order, contrast, navigation rules, live editor adapters, and renderer-derived WYSIWYG contrast ingestion is landed.",
       "mainGaps": [
         "All four bounded adapter surfaces (menu, spatial, audio, battle) are now covered.",
-        "Full WYSIWYG contrast-ratio population from real renderer data remains future work.",
+        "Renderer-derived WYSIWYG contrast ingestion is landed through render_contrast_adapter over FrameRenderCommand text/rect surfaces; broader contrast coverage across every UI surface remains backlog.",
         "Automated CI enforcement of accessibility report artifacts is validated by check_accessibility_governance.ps1."
       ],
       "evidence": {
@@ -214,7 +253,11 @@
         "schemaMigration": true,
         "diagnostics": true,
         "testsValidation": true,
-        "docsAligned": true
+        "docsAligned": true,
+        "runtimeExecution": true,
+        "visualAuthoringSurface": true,
+        "savedProjectData": true,
+        "livePreview": true
       }
     },
     {
@@ -222,8 +265,8 @@
       "status": "PARTIAL",
       "summary": "Visual regression harness with golden file management, diff heatmaps, approval tooling, a file-backed executable harness gate, backend-selectable capture entry points, and one bounded OpenGL-enabled local renderer-backed capture lane enforcing primitive, live-widget, full-frame scene, transition-pair, diff-heatmap, shell-owned full-scene Map/Menu goldens, and a shell-owned BattleScene actor-cue crop golden in local gates and Gate 1 CI is landed.",
       "mainGaps": [
-        "Broader backend execution \u00e2\u20ac\u201d deferred; the generic capture API currently routes only to the bounded OpenGL-backed implementation and explicit headless rejection rather than cross-backend parity.",
-        "Wider shell-owned state/permutation coverage \u00e2\u20ac\u201d deferred; current goldens now prove bounded EngineShell MapScene, MenuScene, and BattleScene slices rather than every production render path."
+        "Broader backend execution â€” deferred; the generic capture API currently routes only to the bounded OpenGL-backed implementation and explicit headless rejection rather than cross-backend parity.",
+        "Wider shell-owned state/permutation coverage â€” deferred; current goldens now prove bounded EngineShell MapScene, MenuScene, and BattleScene slices rather than every production render path."
       ],
       "evidence": {
         "runtimeOwner": true,
@@ -231,16 +274,20 @@
         "schemaMigration": false,
         "diagnostics": false,
         "testsValidation": true,
-        "docsAligned": true
+        "docsAligned": true,
+        "runtimeExecution": true,
+        "visualAuthoringSurface": false,
+        "savedProjectData": false,
+        "livePreview": false
       }
     },
     {
       "id": "audio_mix_presets",
       "status": "PARTIAL",
-      "summary": "Audio mix preset bank with default profiles, category volume mapping, ducking rules, and editor panel is landed.",
+      "summary": "Audio mix preset bank with default profiles, category volume mapping, ducking rules, editor panel, validator governance, and live AudioCore backend smoke diagnostics is landed.",
       "mainGaps": [
-        "Audio mix preset validator is landed with MissingDefaultPreset, ConflictingDuckRules, VolumeOutOfRange, and EmptyCategoryVolumes checks.",
-        "Live audio backend integration beyond the current compat-truth harness \u00e2\u20ac\u201d deferred; real audio device integration and audio backend runtime are explicitly out-of-scope for the PARTIAL milestone."
+        "Audio mix preset validator is landed with MissingDefaultPreset, ConflictingDuckRules, VolumeOutOfRange, EmptyCategoryVolumes, unknown-category, and cross-preset duck-conflict checks.",
+        "A bounded live AudioCore backend smoke path is landed for preset application diagnostics; broad physical device/backend matrix coverage remains backlog."
       ],
       "evidence": {
         "runtimeOwner": true,
@@ -248,7 +295,11 @@
         "schemaMigration": true,
         "diagnostics": true,
         "testsValidation": true,
-        "docsAligned": true
+        "docsAligned": true,
+        "runtimeExecution": true,
+        "visualAuthoringSurface": true,
+        "savedProjectData": true,
+        "livePreview": true
       }
     },
     {
@@ -266,18 +317,22 @@
         "schemaMigration": true,
         "diagnostics": true,
         "testsValidation": true,
-        "docsAligned": true
+        "docsAligned": true,
+        "runtimeExecution": true,
+        "visualAuthoringSurface": true,
+        "savedProjectData": true,
+        "livePreview": true
       }
     },
     {
       "id": "mod_registry",
       "status": "PARTIAL",
-      "summary": "Mod registry with manifest registration, dependency resolution, load-order topology, bounded validation runtime, sandboxed QuickJS activation, deterministic reload, polling hot-load, and editor manager panel is landed.",
+      "summary": "Mod registry with manifest registration, dependency resolution, load-order topology, bounded validation runtime, sandboxed QuickJS activation, deterministic reload, polling hot-load, editor manager panel hot-load event log, and local mod-store catalog install are landed.",
       "mainGaps": [
         "Mod registry validator, governance script, and ProjectAudit artifact section are landed for the bounded manifest/editor contract.",
-        "Live mod loading is landed through ModLoader activation, deterministic reload/unload, and ModHotLoader entrypoint polling.",
+        "Live mod loading is landed through ModLoader activation, deterministic reload/unload, ModHotLoader entrypoint polling, and ModManagerPanel event-log actions/snapshots.",
         "Sandboxed script execution is landed through QuickJS mod contexts with deny-by-default policy checks and runtime command registration.",
-        "Mod-store integration \u00e2\u20ac\u201d explicitly out-of-tree; vendor/platform store integration is intentionally deferred."
+        "Local mod-store catalog integration is landed through ModStoreCatalog, ModStoreInstaller, schema/fixture evidence, and ModManagerPanel install actions; external marketplace credentials, payments, reviews, and proprietary platform SDK publishing remain project configuration."
       ],
       "evidence": {
         "runtimeOwner": true,
@@ -285,18 +340,22 @@
         "schemaMigration": true,
         "diagnostics": true,
         "testsValidation": true,
-        "docsAligned": true
+        "docsAligned": true,
+        "runtimeExecution": true,
+        "visualAuthoringSurface": true,
+        "savedProjectData": true,
+        "livePreview": true
       }
     },
     {
       "id": "analytics_dispatcher",
       "status": "PARTIAL",
-      "summary": "Opt-in analytics dispatcher with deterministic tick counters, event buffering, circular drop, local and remote telemetry upload, editor panel, and bounded validator/governance coverage is landed.",
+      "summary": "Opt-in analytics dispatcher with deterministic tick counters, event buffering, circular drop, local and remote telemetry upload, reviewed endpoint profiles, editor panel, and bounded validator/governance coverage is landed.",
       "mainGaps": [
         "Analytics validator, governance script, and ProjectAudit artifact section are landed for the bounded opt-in telemetry/editor contract.",
-        "Telemetry upload pipeline is landed with local JSONL export, custom handler mode, and configured HTTP JSON endpoint upload via command transport.",
+        "Telemetry upload pipeline is landed with local JSONL export, custom handler mode, configured HTTP JSON endpoint upload via command transport, and AnalyticsEndpointProfile privacy-review gates surfaced through AnalyticsPanel.",
         "Session aggregation is landed in AnalyticsUploader through cross-session event/category counters.",
-        "Privacy audit workflow \u00e2\u20ac\u201d deferred; a formal opt-in privacy review and user consent workflow are not established."
+        "A bounded endpoint-profile privacy review evidence contract is landed; qualified production privacy/legal review remains mandatory before public release."
       ],
       "evidence": {
         "runtimeOwner": true,
@@ -304,7 +363,11 @@
         "schemaMigration": true,
         "diagnostics": true,
         "testsValidation": true,
-        "docsAligned": true
+        "docsAligned": true,
+        "runtimeExecution": true,
+        "visualAuthoringSurface": true,
+        "savedProjectData": true,
+        "livePreview": true
       }
     }
   ],

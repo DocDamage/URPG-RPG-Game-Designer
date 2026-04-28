@@ -1,0 +1,42 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:urpg:cutscene-timeline",
+  "title": "URPG Cutscene Timeline",
+  "type": "object",
+  "required": ["id", "actors", "tracks", "cues"],
+  "properties": {
+    "id": { "type": "string", "minLength": 1 },
+    "actors": { "type": "array", "items": { "type": "string", "minLength": 1 }, "uniqueItems": true },
+    "tracks": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "kind", "actor_id"],
+        "properties": {
+          "id": { "type": "string", "minLength": 1 },
+          "kind": { "enum": ["dialogue", "choice", "camera", "audio", "variable", "event", "wait"] },
+          "actor_id": { "type": "string" }
+        },
+        "additionalProperties": false
+      }
+    },
+    "cues": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "track_id", "tick", "duration", "target", "localization_key", "payload"],
+        "properties": {
+          "id": { "type": "string", "minLength": 1 },
+          "track_id": { "type": "string", "minLength": 1 },
+          "tick": { "type": "integer", "minimum": 0 },
+          "duration": { "type": "integer", "minimum": 0 },
+          "target": { "type": "string" },
+          "localization_key": { "type": "string" },
+          "payload": { "type": "object" }
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false
+}

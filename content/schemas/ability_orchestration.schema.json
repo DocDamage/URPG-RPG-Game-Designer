@@ -1,0 +1,85 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urpg.ability_orchestration.v1",
+  "title": "URPG Ability Orchestration",
+  "type": "object",
+  "required": ["schema", "id", "mode", "ability", "source", "targets"],
+  "properties": {
+    "schema": {
+      "const": "urpg.ability_orchestration.v1"
+    },
+    "id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "mode": {
+      "enum": ["battle", "map"]
+    },
+    "ability": {
+      "type": "object"
+    },
+    "source": {
+      "$ref": "#/$defs/actor"
+    },
+    "targets": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/actor"
+      }
+    },
+    "required_tags": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "blocking_tags": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "battle_turn": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "battle_speed": {
+      "type": "integer"
+    },
+    "battle_priority": {
+      "type": "integer"
+    }
+  },
+  "$defs": {
+    "actor": {
+      "type": "object",
+      "required": ["id", "mp", "effect_attribute_base", "x", "y"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "mp": {
+          "type": "number",
+          "minimum": 0
+        },
+        "effect_attribute_base": {
+          "type": "number"
+        },
+        "x": {
+          "type": "integer"
+        },
+        "y": {
+          "type": "integer"
+        },
+        "tags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}

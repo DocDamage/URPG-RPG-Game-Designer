@@ -1,0 +1,79 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://urpg.dev/schemas/dialogue_preview.schema.json",
+  "title": "URPG dialogue preview",
+  "type": "object",
+  "required": ["schema", "id", "locale", "pages"],
+  "properties": {
+    "schema": { "const": "urpg.dialogue_preview.v1" },
+    "id": { "type": "string", "minLength": 1 },
+    "locale": { "type": "string", "minLength": 1 },
+    "variables": {
+      "type": "object",
+      "additionalProperties": { "type": "integer" }
+    },
+    "actor_names": {
+      "type": "object",
+      "additionalProperties": { "type": "string" }
+    },
+    "party_actor_ids": {
+      "type": "array",
+      "items": { "type": "integer" }
+    },
+    "pages": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/page" }
+    }
+  },
+  "$defs": {
+    "variant": {
+      "type": "object",
+      "required": ["mode", "tone", "speaker", "face_actor_id"],
+      "properties": {
+        "mode": { "type": "string", "enum": ["speaker", "narration", "system"] },
+        "tone": { "type": "string", "enum": ["portrait", "neutral", "system"] },
+        "speaker": { "type": "string" },
+        "face_actor_id": { "type": "integer" },
+        "route_token": { "type": "string" }
+      }
+    },
+    "portrait": {
+      "type": "object",
+      "required": ["face_name", "face_index", "mirror"],
+      "properties": {
+        "face_name": { "type": "string", "minLength": 1 },
+        "face_index": { "type": "integer", "minimum": 0 },
+        "mirror": { "type": "boolean" }
+      }
+    },
+    "choice": {
+      "type": "object",
+      "required": ["id", "label", "localization_key", "enabled"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "label": { "type": "string" },
+        "localization_key": { "type": "string" },
+        "enabled": { "type": "boolean" },
+        "disabled_reason": { "type": "string" }
+      }
+    },
+    "page": {
+      "type": "object",
+      "required": ["id", "body", "localization_key", "variant", "choices"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "body": { "type": "string" },
+        "localization_key": { "type": "string" },
+        "variant": { "$ref": "#/$defs/variant" },
+        "portrait": { "$ref": "#/$defs/portrait" },
+        "default_choice_index": { "type": "integer", "minimum": 0 },
+        "wait_for_advance": { "type": "boolean" },
+        "choices": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/choice" }
+        }
+      }
+    }
+  }
+}

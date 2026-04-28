@@ -1,0 +1,46 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:urpg:encounter-designer",
+  "title": "URPG Encounter Designer",
+  "type": "object",
+  "required": ["id", "regions", "encounters"],
+  "properties": {
+    "id": { "type": "string", "minLength": 1 },
+    "regions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "map_id", "biome"],
+        "properties": {
+          "id": { "type": "string", "minLength": 1 },
+          "map_id": { "type": "string", "minLength": 1 },
+          "biome": { "type": "string" },
+          "min_party_level": { "type": "integer", "minimum": 1 },
+          "max_party_level": { "type": "integer", "minimum": 1 },
+          "required_flags": { "type": "array", "items": { "type": "string" } }
+        },
+        "additionalProperties": false
+      }
+    },
+    "encounters": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "enemy_id", "region_id", "weight", "difficulty"],
+        "properties": {
+          "id": { "type": "string", "minLength": 1 },
+          "enemy_id": { "type": "string", "minLength": 1 },
+          "region_id": { "type": "string", "minLength": 1 },
+          "weight": { "type": "integer", "minimum": 1 },
+          "difficulty": { "type": "integer", "minimum": 1 },
+          "min_party_level": { "type": "integer", "minimum": 1 },
+          "max_party_level": { "type": "integer", "minimum": 1 },
+          "tags": { "type": "array", "items": { "type": "string" } },
+          "rewards": { "type": "array", "items": { "type": "string" } }
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false
+}

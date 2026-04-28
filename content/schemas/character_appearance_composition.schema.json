@@ -1,0 +1,40 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://urpg.dev/schemas/character_appearance_composition.schema.json",
+  "title": "URPG Character Appearance Composition",
+  "type": "object",
+  "required": ["complete", "portrait", "field", "battle"],
+  "properties": {
+    "complete": { "type": "boolean" },
+    "diagnostic_count": { "type": "integer", "minimum": 0 },
+    "diagnostics": { "type": "array", "items": { "type": "string" } },
+    "portrait": { "$ref": "#/$defs/surface" },
+    "field": { "$ref": "#/$defs/surface" },
+    "battle": { "$ref": "#/$defs/surface" }
+  },
+  "$defs": {
+    "surface": {
+      "type": "object",
+      "required": ["surface", "base_asset_id", "layer_count", "layers"],
+      "properties": {
+        "surface": { "type": "string", "enum": ["portrait", "field", "battle"] },
+        "base_asset_id": { "type": "string" },
+        "layer_count": { "type": "integer", "minimum": 0 },
+        "layers": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["id", "source_asset_id", "slot", "order", "required"],
+            "properties": {
+              "id": { "type": "string" },
+              "source_asset_id": { "type": "string" },
+              "slot": { "type": "string" },
+              "order": { "type": "integer" },
+              "required": { "type": "boolean" }
+            }
+          }
+        }
+      }
+    }
+  }
+}

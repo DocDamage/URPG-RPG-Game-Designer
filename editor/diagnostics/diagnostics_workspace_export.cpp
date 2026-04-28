@@ -1210,6 +1210,15 @@ std::string DiagnosticsWorkspace::exportAsJson() const {
         if (snapshot.audio_artifact_issue_count.has_value()) {
             activeTabDetail["audio_artifact_issue_count"] = *snapshot.audio_artifact_issue_count;
         }
+        if (snapshot.character_artifact_issue_count.has_value()) {
+            activeTabDetail["character_artifact_issue_count"] = *snapshot.character_artifact_issue_count;
+        }
+        if (snapshot.mod_artifact_issue_count.has_value()) {
+            activeTabDetail["mod_artifact_issue_count"] = *snapshot.mod_artifact_issue_count;
+        }
+        if (snapshot.analytics_artifact_issue_count.has_value()) {
+            activeTabDetail["analytics_artifact_issue_count"] = *snapshot.analytics_artifact_issue_count;
+        }
         if (snapshot.performance_artifact_issue_count.has_value()) {
             activeTabDetail["performance_artifact_issue_count"] = *snapshot.performance_artifact_issue_count;
         }
@@ -1303,6 +1312,15 @@ std::string DiagnosticsWorkspace::exportAsJson() const {
         }
         if (snapshot.audio_artifacts.has_value()) {
             governance["audio_artifacts"] = ProjectAuditArtifactGovernanceJson(*snapshot.audio_artifacts);
+        }
+        if (snapshot.character_artifacts.has_value()) {
+            governance["character_artifacts"] = ProjectAuditArtifactGovernanceJson(*snapshot.character_artifacts);
+        }
+        if (snapshot.mod_artifacts.has_value()) {
+            governance["mod_artifacts"] = ProjectAuditArtifactGovernanceJson(*snapshot.mod_artifacts);
+        }
+        if (snapshot.analytics_artifacts.has_value()) {
+            governance["analytics_artifacts"] = ProjectAuditArtifactGovernanceJson(*snapshot.analytics_artifacts);
         }
         if (snapshot.performance_artifacts.has_value()) {
             governance["performance_artifacts"] =

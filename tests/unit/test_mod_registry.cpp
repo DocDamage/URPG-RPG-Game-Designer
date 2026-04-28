@@ -3,6 +3,7 @@
 #include "engine/core/mod/mod_registry.h"
 #include "engine/core/mod/mod_registry_validator.h"
 #include "engine/core/mod/mod_loader.h"
+#include "engine/core/mod/mod_store.h"
 
 #include <chrono>
 #include <cstdlib>
@@ -388,4 +389,30 @@ TEST_CASE("ModLoader: setStoreContract adjusts required fields",
 
     auto result = loader.loadMod(m);
     REQUIRE(result.success);
+}
+
+TEST_CASE("ModStoreCatalog installs verified catalog entries through ModLoader", "[mod][store]") {
+    const auto repoRoot = std::filesystem::path(__FILE__).parent_path().parent_path().parent_path();
+    const auto catalogPath = repoRoot / "content" / "fixtures" / "mod_store_catalog_fixture.json";
+
+    ModStoreCatalog catalog;
+    std::vector<std::string> diagnostics;
+    REQUIRE(catalog.loadFromFile(catalogPath, &diagnostics));
+    REQUIRE(diagnostics.empty());
+    REQUIRE(catalog.entries().size() == 1);
+    REQUIRE(catalog.entries()[0].verified);
+    REQUIRE(catalog.entries()[0].sandboxPolicy.allowFileSystemRead);
+
+    ModRegistry registry;
+    ModLoader loader(registry);
+    ModStoreInstaller installer(loader);
+    const auto result = installer.install(catalog.entries()[0], repoRoot / "content" / "fixtures");
+
+    REQUIRE(result.success);
+    REQUIRE(result.entryId == "store.core_ui");
+    REQUIRE(result.modId == "core_ui_store");
+    REQUIRE(registry.getMod("core_ui_store").has_value());
+    REQUIRE(loader.getSandboxPolicy("core_ui_store").has_value());
+    REQUIRE(loader.getSandboxPolicy("core_ui_store")->allowFileSystemRead);
+    REQUIRE(registry.getMod("core_ui_store")->entryPoint.find("mods/core_ui/main.js") != std::string::npos);
 }

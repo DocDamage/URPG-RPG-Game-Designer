@@ -1,6 +1,46 @@
 ﻿#include "editor/message/message_inspector_panel.h"
 
+#include "editor/message/dialogue_preview_panel.h"
+
 #include <catch2/catch_test_macros.hpp>
+
+#include <algorithm>
+#include <filesystem>
+#include <fstream>
+
+namespace {
+
+std::filesystem::path messagePanelRepoRoot() {
+#ifdef URPG_SOURCE_DIR
+    return std::filesystem::path(URPG_SOURCE_DIR);
+#else
+    return std::filesystem::current_path();
+#endif
+}
+
+nlohmann::json loadMessagePanelJson(const std::filesystem::path& path) {
+    std::ifstream stream(path);
+    REQUIRE(stream.is_open());
+    nlohmann::json json;
+    stream >> json;
+    return json;
+}
+
+urpg::localization::LocaleCatalog makeGuideLocale() {
+    urpg::localization::LocaleCatalog catalog;
+    catalog.loadFromJson({
+        {"locale", "en-US"},
+        {"keys",
+         {
+             {"dialogue.guide.intro", "Hello \\P[1], you have \\V[1] crystals."},
+             {"dialogue.guide.choice.accept", "Light the gate"},
+             {"dialogue.guide.choice.locked", "Ask about the sealed path"},
+         }},
+    });
+    return catalog;
+}
+
+} // namespace
 
 TEST_CASE("MessageInspectorPanel - Refresh projects runtime message state", "[message][editor][panel]") {
     urpg::message::MessageFlowRunner runner;
@@ -122,4 +162,98 @@ TEST_CASE("MessageInspectorPanel delegates page mutations to model", "[message][
     REQUIRE(snapshot.total_pages == 2);
     REQUIRE(snapshot.visible_row_count == 2);
     REQUIRE(snapshot.visible_rows[1].page_id == "speaker_b");
+}
+
+TEST_CASE("Dialogue preview resolves portraits, choices, variables, localization, and runtime flow",
+          "[message][editor][dialogue_preview][wysiwyg]") {
+    const auto json = loadMessagePanelJson(
+        messagePanelRepoRoot() / "content" / "fixtures" / "dialogue_preview_fixture.json");
+    const auto document = urpg::message::DialoguePreviewDocument::fromJson(json);
+
+    urpg::editor::DialoguePreviewPanel panel;
+    panel.loadDocument(document, makeGuideLocale());
+    panel.selectPage("intro");
+    panel.render();
+
+    REQUIRE(panel.hasRenderedFrame());
+    REQUIRE_FALSE(panel.snapshot().disabled);
+    REQUIRE(panel.snapshot().preview_id == "guide_intro_preview");
+    REQUIRE(panel.snapshot().page_id == "intro");
+    REQUIRE(panel.snapshot().locale == "en-US");
+    REQUIRE(panel.snapshot().speaker == "Guide");
+    REQUIRE(panel.snapshot().body == "Hello Mira, you have 7 crystals.");
+    REQUIRE(panel.snapshot().portrait_face_name == "portraits/guide.png");
+    REQUIRE(panel.snapshot().choice_count == 2);
+    REQUIRE(panel.snapshot().enabled_choice_count == 1);
+    REQUIRE(panel.snapshot().diagnostic_count == 0);
+    REQUIRE(panel.snapshot().runtime_page_index == 0);
+    REQUIRE(panel.snapshot().status_message == "Dialogue preview is ready.");
+
+    const auto& preview = panel.preview();
+    REQUIRE(preview.flow_snapshot.state == urpg::message::MessageFlowState::AwaitingChoice);
+    REQUIRE(preview.choices[0].label == "Light the gate");
+    REQUIRE(preview.choices[1].label == "Ask about the sealed path");
+    REQUIRE_FALSE(preview.choices[1].enabled);
+    REQUIRE(preview.layout_metrics.width > 0);
+    REQUIRE_FALSE(panel.snapshot().saved_project_json.empty());
+}
+
+TEST_CASE("Dialogue preview saved project data round-trips through schema surface",
+          "[message][editor][dialogue_preview][wysiwyg]") {
+    const auto json = loadMessagePanelJson(
+        messagePanelRepoRoot() / "content" / "fixtures" / "dialogue_preview_fixture.json");
+    const auto document = urpg::message::DialoguePreviewDocument::fromJson(json);
+    const auto saved = document.toJson();
+    const auto restored = urpg::message::DialoguePreviewDocument::fromJson(saved);
+
+    REQUIRE(saved["schema"] == "urpg.dialogue_preview.v1");
+    REQUIRE(restored.id == document.id);
+    REQUIRE(restored.pages.size() == 1);
+    REQUIRE(restored.variables.at(1) == 7);
+    REQUIRE(restored.actor_names.at(1) == "Mira");
+
+    const auto result = urpg::message::PreviewDialoguePage(restored, makeGuideLocale(), "intro");
+    REQUIRE(result.diagnostics.empty());
+    REQUIRE(result.body == "Hello Mira, you have 7 crystals.");
+    REQUIRE(result.portrait.has_value());
+}
+
+TEST_CASE("Dialogue preview diagnostics block false complete claims",
+          "[message][editor][dialogue_preview][wysiwyg]") {
+    urpg::message::DialoguePreviewDocument document;
+    document.id = "broken_dialogue";
+    document.locale = "en-US";
+    document.pages.push_back({
+        "intro",
+        "",
+        "dialogue.missing",
+        urpg::message::variantFromCompatRoute("speaker", "", 4),
+        {
+            {"", "", "dialogue.choice.missing", false, ""},
+        },
+        0,
+        true,
+    });
+
+    urpg::editor::DialoguePreviewPanel panel;
+    panel.loadDocument(document, makeGuideLocale());
+    panel.selectPage("intro");
+    panel.render();
+
+    REQUIRE(panel.hasRenderedFrame());
+    REQUIRE(panel.snapshot().diagnostic_count >= 5);
+    REQUIRE(panel.snapshot().status_message == "Dialogue preview has diagnostics.");
+
+    const auto& diagnostics = panel.preview().diagnostics;
+    const auto hasCode = [&diagnostics](const std::string& code) {
+        return std::any_of(diagnostics.begin(), diagnostics.end(), [&code](const auto& diagnostic) {
+            return diagnostic.code == code;
+        });
+    };
+    REQUIRE(hasCode("missing_localization_key"));
+    REQUIRE(hasCode("missing_speaker"));
+    REQUIRE(hasCode("missing_portrait_binding"));
+    REQUIRE(hasCode("choice_unreachable"));
+    REQUIRE(hasCode("missing_choice_id"));
+    REQUIRE(hasCode("missing_choice_label"));
 }

@@ -45,6 +45,7 @@ private:
     nlohmann::json buildValidationSnapshot() const;
     nlohmann::json buildPreviewSnapshot() const;
     nlohmann::json buildCatalogSnapshot() const;
+    nlohmann::json buildSavePersistenceSnapshot(const nlohmann::json& validation) const;
 
     urpg::character::CharacterIdentity m_identity;
     bool m_dirty = false;

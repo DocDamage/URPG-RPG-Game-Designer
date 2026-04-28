@@ -1,0 +1,43 @@
+{
+  "schemaVersion": "1.0.0",
+  "ruleId": "wysiwyg_done_rule",
+  "rule": "No system is done until there is a visual authoring surface, live preview, saved project data, runtime execution, diagnostics, and tests.",
+  "requiredEvidence": [
+    "visualAuthoringSurface",
+    "livePreview",
+    "savedProjectData",
+    "runtimeExecution",
+    "diagnostics",
+    "testsValidation"
+  ],
+  "prioritySurfaces": [
+    {
+      "id": "battle_animation_vfx_timeline",
+      "label": "Battle animation/VFX timeline editor"
+    },
+    {
+      "id": "map_lighting_weather_region_preview",
+      "label": "Map lighting/weather/region preview"
+    },
+    {
+      "id": "dialogue_portrait_choice_variable_localization_preview",
+      "label": "Dialogue preview with portraits, choices, variables, and localization"
+    },
+    {
+      "id": "event_command_visual_graph",
+      "label": "Event-command visual graph"
+    },
+    {
+      "id": "ability_sandbox_visible_costs_cooldowns_tags_effects",
+      "label": "Ability sandbox with costs, cooldowns, tags, and effects visible"
+    },
+    {
+      "id": "save_load_preview_lab",
+      "label": "Save/load preview lab"
+    },
+    {
+      "id": "export_exact_ship_preview",
+      "label": "Export preview: this is exactly what will ship"
+    }
+  ]
+}

@@ -1,0 +1,50 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:urpg:battle-vfx-timeline:v1",
+  "title": "URPG Battle VFX Timeline",
+  "type": "object",
+  "required": ["schema_version", "id", "fps", "duration_frames", "events"],
+  "properties": {
+    "schema_version": { "const": "urpg.battle_vfx_timeline.v1" },
+    "id": { "type": "string", "minLength": 1 },
+    "fps": { "type": "integer", "minimum": 1 },
+    "duration_frames": { "type": "integer", "minimum": 1 },
+    "events": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "frame", "kind", "anchor", "source_id", "owner_id", "intensity", "overlay_emphasis"],
+        "properties": {
+          "id": { "type": "string", "minLength": 1 },
+          "frame": { "type": "integer", "minimum": 0 },
+          "kind": {
+            "enum": [
+              "gameplay",
+              "status",
+              "system",
+              "cast",
+              "hit",
+              "critical",
+              "guard",
+              "miss",
+              "heal",
+              "death",
+              "phase_transition"
+            ]
+          },
+          "anchor": {
+            "enum": ["world", "owner", "target", "screen", "overlay"]
+          },
+          "source_id": { "type": "integer", "minimum": 0 },
+          "owner_id": { "type": "integer", "minimum": 0 },
+          "intensity": { "type": "number", "minimum": 0 },
+          "overlay_emphasis": { "type": "number", "minimum": 0, "maximum": 1 },
+          "label": { "type": "string" },
+          "payload": { "type": "object" }
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false
+}

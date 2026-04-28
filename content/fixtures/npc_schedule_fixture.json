@@ -1,0 +1,29 @@
+{
+  "version": "1.0.0",
+  "routines": [
+    {
+      "npc_id": "npc.merchant",
+      "map_id": "market",
+      "start_hour": 8,
+      "end_hour": 17,
+      "position": { "x": 4, "y": 6 },
+      "animation": "idle",
+      "dialogue_state": "dialogue.shop"
+    },
+    {
+      "npc_id": "npc.merchant",
+      "map_id": "tavern",
+      "start_hour": 18,
+      "end_hour": 22,
+      "position": { "x": 2, "y": 3 },
+      "animation": "sit",
+      "dialogue_state": "dialogue.after_hours"
+    }
+  ],
+  "fallback": {
+    "map_id": "home",
+    "position": { "x": 1, "y": 1 },
+    "animation": "wait",
+    "dialogue_state": "dialogue.closed"
+  }
+}

@@ -1,6 +1,7 @@
 #include <catch2/catch_test_macros.hpp>
 
 #include <chrono>
+#include <algorithm>
 #include <cstdlib>
 #include <filesystem>
 #include <fstream>
@@ -8,6 +9,7 @@
 #include <nlohmann/json.hpp>
 
 #include "engine/core/analytics/analytics_dispatcher.h"
+#include "engine/core/analytics/analytics_endpoint_profile.h"
 #include "engine/core/analytics/analytics_uploader.h"
 #include "engine/core/analytics/analytics_privacy_controller.h"
 
@@ -240,6 +242,51 @@ TEST_CASE("AnalyticsUploader: HTTP endpoint config exposes concrete remote uploa
     REQUIRE(uploader.httpEndpoint().has_value());
     REQUIRE(uploader.httpEndpoint()->url == endpoint.url);
     REQUIRE(uploader.httpEndpoint()->headers.at("X-URPG-Build") == "test");
+}
+
+TEST_CASE("AnalyticsEndpointProfile applies reviewed HTTP endpoint to uploader",
+          "[analytics][endpoint_profile][privacy]") {
+    const auto repoRoot = std::filesystem::path(__FILE__).parent_path().parent_path().parent_path();
+    std::ifstream in(repoRoot / "content" / "fixtures" / "analytics_endpoint_profile_fixture.json");
+    REQUIRE(in.is_open());
+    const auto profileJson = nlohmann::json::parse(in);
+    const auto profile = AnalyticsEndpointProfile::fromJson(profileJson);
+
+    AnalyticsUploader uploader;
+    const auto result = applyAnalyticsEndpointProfile(uploader, profile);
+
+    REQUIRE(result.applied);
+    REQUIRE(result.diagnostics.empty());
+    REQUIRE(result.uploadMode == "http_json");
+    REQUIRE(uploader.hasUploadHandler());
+    REQUIRE(uploader.httpEndpoint().has_value());
+    REQUIRE(uploader.httpEndpoint()->url == "https://telemetry.example.invalid/urpg/editor");
+    REQUIRE(uploader.httpEndpoint()->headers.at("X-URPG-Product") == "URPG Maker");
+
+    const auto saved = profile.toJson();
+    REQUIRE(saved["schema"] == "urpg.analytics_endpoint_profile.v1");
+    REQUIRE(saved["bearerToken"] == "");
+    REQUIRE(saved["privacyReview"]["approved"] == true);
+}
+
+TEST_CASE("AnalyticsEndpointProfile blocks remote endpoints without privacy evidence",
+          "[analytics][endpoint_profile][privacy]") {
+    AnalyticsEndpointProfile profile;
+    profile.profileId = "unsafe-remote";
+    profile.mode = AnalyticsEndpointMode::HttpJson;
+    profile.url = "https://telemetry.example.invalid/collect";
+
+    AnalyticsUploader uploader;
+    const auto result = applyAnalyticsEndpointProfile(uploader, profile);
+
+    REQUIRE_FALSE(result.applied);
+    REQUIRE_FALSE(result.diagnostics.empty());
+    REQUIRE_FALSE(uploader.hasUploadHandler());
+    const auto hasPrivacyDiagnostic = std::any_of(result.diagnostics.begin(), result.diagnostics.end(),
+                                                  [](const auto& diagnostic) {
+                                                      return diagnostic.code == "privacy_review_required";
+                                                  });
+    REQUIRE(hasPrivacyDiagnostic);
 }
 
 TEST_CASE("AnalyticsUploader: batching splits events into multiple handler calls",

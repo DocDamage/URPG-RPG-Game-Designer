@@ -2,6 +2,7 @@
 
 #include "editor/analytics/analytics_panel.h"
 #include "engine/core/analytics/analytics_dispatcher.h"
+#include "engine/core/analytics/analytics_endpoint_profile.h"
 #include "engine/core/analytics/analytics_privacy_controller.h"
 #include "engine/core/analytics/analytics_uploader.h"
 
@@ -10,6 +11,8 @@
 #include <vector>
 
 using urpg::analytics::AnalyticsDispatcher;
+using urpg::analytics::AnalyticsEndpointMode;
+using urpg::analytics::AnalyticsEndpointProfile;
 using urpg::analytics::AnalyticsPrivacyController;
 using urpg::analytics::AnalyticsUploader;
 using urpg::analytics::ConsentState;
@@ -59,10 +62,11 @@ TEST_CASE("AnalyticsPanel snapshot reflects events after dispatch", "[analytics]
     REQUIRE(snapshot["recentEvents"][0]["eventName"] == "editor_event");
     REQUIRE(snapshot["recentEvents"][0]["category"] == "editor_category");
     REQUIRE(snapshot["queuedEventCount"] == 1);
-    REQUIRE(snapshot["statusMessages"].size() == 2);
+    REQUIRE(snapshot["statusMessages"].size() == 3);
     REQUIRE(snapshot["statusMessages"][0] ==
             "No analytics privacy controller is bound; dispatcher opt-in is used as fallback.");
-    REQUIRE(snapshot["statusMessages"][1] == "No analytics uploader is bound; uploads are disabled.");
+    REQUIRE(snapshot["statusMessages"][1] == "No analytics endpoint profile is bound.");
+    REQUIRE(snapshot["statusMessages"][2] == "No analytics uploader is bound; uploads are disabled.");
 }
 
 TEST_CASE("AnalyticsPanel opt-in toggle reflected in snapshot", "[analytics][editor][panel]") {
@@ -289,4 +293,61 @@ TEST_CASE("AnalyticsPanel reports release local export handler as upload mode",
 
     std::error_code ec;
     std::filesystem::remove_all(exportRoot, ec);
+}
+
+TEST_CASE("AnalyticsPanel applies reviewed endpoint profile before upload",
+          "[analytics][editor][panel][endpoint_profile][privacy]") {
+    AnalyticsDispatcher dispatcher;
+    AnalyticsUploader uploader;
+    AnalyticsPrivacyController privacy;
+    AnalyticsEndpointProfile profile;
+    profile.profileId = "reviewed-http";
+    profile.mode = AnalyticsEndpointMode::HttpJson;
+    profile.url = "https://telemetry.example.invalid/collect";
+    profile.headers["X-URPG-Channel"] = "test";
+    profile.privacyReview.approved = true;
+    profile.privacyReview.reviewer = "privacy";
+    profile.privacyReview.dataCategories = {"editor_usage"};
+
+    AnalyticsPanel panel;
+    panel.bindDispatcher(&dispatcher);
+    panel.bindUploader(&uploader);
+    panel.bindPrivacyController(&privacy);
+    panel.bindEndpointProfile(&profile);
+    panel.render();
+
+    auto snapshot = panel.lastRenderSnapshot();
+    REQUIRE(snapshot["endpointProfileBound"] == true);
+    REQUIRE(snapshot["endpointProfile"]["profileId"] == "reviewed-http");
+    REQUIRE(snapshot["endpointProfilePrivacyApproved"] == true);
+    REQUIRE(snapshot["actions"]["applyEndpointProfile"] == true);
+
+    REQUIRE(panel.applyEndpointProfile());
+    snapshot = panel.lastRenderSnapshot();
+    REQUIRE(snapshot["uploadMode"] == "http_json");
+    REQUIRE(snapshot["uploadEndpoint"] == "https://telemetry.example.invalid/collect");
+    REQUIRE(snapshot["lastAction"]["action"] == "apply_endpoint_profile");
+    REQUIRE(snapshot["lastAction"]["success"] == true);
+}
+
+TEST_CASE("AnalyticsPanel reports endpoint profile privacy diagnostics",
+          "[analytics][editor][panel][endpoint_profile][privacy]") {
+    AnalyticsDispatcher dispatcher;
+    AnalyticsUploader uploader;
+    AnalyticsEndpointProfile profile;
+    profile.profileId = "unreviewed-http";
+    profile.mode = AnalyticsEndpointMode::HttpJson;
+    profile.url = "https://telemetry.example.invalid/collect";
+
+    AnalyticsPanel panel;
+    panel.bindDispatcher(&dispatcher);
+    panel.bindUploader(&uploader);
+    panel.bindEndpointProfile(&profile);
+
+    REQUIRE_FALSE(panel.applyEndpointProfile());
+    const auto snapshot = panel.lastRenderSnapshot();
+    REQUIRE(snapshot["endpointProfileDiagnostics"].is_array());
+    REQUIRE_FALSE(snapshot["endpointProfileDiagnostics"].empty());
+    REQUIRE(snapshot["lastAction"]["action"] == "apply_endpoint_profile");
+    REQUIRE(snapshot["lastAction"]["success"] == false);
 }

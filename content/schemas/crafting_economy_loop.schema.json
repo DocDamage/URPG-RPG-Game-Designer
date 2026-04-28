@@ -1,0 +1,72 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://urpg.local/schemas/crafting_economy_loop.schema.json",
+  "title": "URPG Crafting Economy Loop",
+  "type": "object",
+  "required": ["schema_version", "loop_id", "gathering_sources", "recipes"],
+  "properties": {
+    "schema_version": {
+      "const": "urpg.crafting_economy_loop.v1"
+    },
+    "loop_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "gathering_sources": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "yields"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "required_flag": {
+            "type": "string"
+          },
+          "yields": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "integer",
+              "minimum": 1
+            }
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "recipes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "ingredients", "results"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "unlock_flag": {
+            "type": "string"
+          },
+          "ingredients": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "integer",
+              "minimum": 1
+            }
+          },
+          "results": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "integer",
+              "minimum": 1
+            }
+          }
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false
+}

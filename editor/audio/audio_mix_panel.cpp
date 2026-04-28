@@ -25,6 +25,21 @@ bool AudioMixPanel::selectPreset(const std::string& name) {
     return true;
 }
 
+bool AudioMixPanel::runBackendSmoke(const std::string& presetName) {
+    if (!m_bank || !m_core) {
+        return false;
+    }
+
+    urpg::audio::AudioMixBackendSmokeRequest request;
+    request.presetName = presetName;
+    const auto result = urpg::audio::runAudioMixBackendSmoke(*m_bank, *m_core, request);
+    m_lastBackendSmoke = urpg::audio::audioMixBackendSmokeResultToJson(result);
+    if (result.presetApplied) {
+        m_selectedPreset = presetName;
+    }
+    return result.presetApplied && (!result.probeAttempted || result.probeAccepted);
+}
+
 void AudioMixPanel::render() {
     nlohmann::json snapshot;
     snapshot["bankBound"] = m_bank != nullptr;
@@ -33,6 +48,7 @@ void AudioMixPanel::render() {
     snapshot["actions"] = {
         {"selectPreset", m_bank != nullptr},
         {"applyToLiveCore", m_bank != nullptr && m_core != nullptr},
+        {"runBackendSmoke", m_bank != nullptr && m_core != nullptr},
     };
 
     if (m_bank) {
@@ -93,6 +109,8 @@ void AudioMixPanel::render() {
         snapshot["statusMessages"].push_back(
             "No live AudioCore is bound; preset selection will not affect runtime audio.");
     }
+
+    snapshot["backendSmoke"] = m_lastBackendSmoke.is_null() ? nlohmann::json(nullptr) : m_lastBackendSmoke;
 
     m_lastSnapshot = snapshot;
 }

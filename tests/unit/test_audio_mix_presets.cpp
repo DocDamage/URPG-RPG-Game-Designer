@@ -1,9 +1,11 @@
 #include "editor/audio/audio_mix_panel.h"
 #include "engine/core/audio/audio_core.h"
+#include "engine/core/audio/audio_mix_backend_smoke.h"
 #include "engine/core/audio/audio_mix_presets.h"
 #include "engine/core/audio/audio_mix_validator.h"
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/matchers/catch_matchers_vector.hpp>
+#include <algorithm>
 #include <cstdlib>
 #include <filesystem>
 #include <fstream>
@@ -482,4 +484,77 @@ TEST_CASE("AudioMixPanel render snapshot explains missing preset bank and core",
     REQUIRE(snapshot["statusMessages"][0] == "No audio mix preset bank is bound.");
     REQUIRE(snapshot["statusMessages"][1] ==
             "No live AudioCore is bound; preset selection will not affect runtime audio.");
+}
+
+TEST_CASE("Audio mix backend smoke applies preset and records live backend diagnostics",
+          "[audio][mix][backend_smoke]") {
+    AudioMixPresetBank bank;
+    bank.loadDefaults();
+    AudioCore core;
+
+    AudioMixBackendSmokeRequest request;
+    request.presetName = "Battle";
+    const auto result = runAudioMixBackendSmoke(bank, core, request);
+    const auto jsonResult = audioMixBackendSmokeResultToJson(result);
+
+    REQUIRE(result.presetFound);
+    REQUIRE(result.presetApplied);
+    REQUIRE(result.probeAttempted);
+    REQUIRE(result.probeAccepted);
+    REQUIRE(result.duckBGMOnSE);
+    REQUIRE(result.duckAmount == Catch::Approx(0.5f));
+    REQUIRE(result.categoryVolumes.at(AudioCategory::BGM) == Catch::Approx(0.8f));
+    REQUIRE(result.categoryVolumes.at(AudioCategory::SE) == Catch::Approx(1.2f));
+    REQUIRE(jsonResult["probeAccepted"] == true);
+    REQUIRE(jsonResult["deviceOpenBefore"].is_boolean());
+    REQUIRE(jsonResult["deviceOpenAfter"].is_boolean());
+    REQUIRE(jsonResult["diagnostics"].is_array());
+
+    const auto hasSyntheticProbeDiagnostic = std::any_of(result.diagnostics.begin(), result.diagnostics.end(),
+                                                         [](const AudioBackendDiagnostic& diagnostic) {
+                                                             return diagnostic.code == "audio.synthetic_asset";
+                                                         });
+    REQUIRE(hasSyntheticProbeDiagnostic);
+}
+
+TEST_CASE("Audio mix backend smoke reports missing presets without playback",
+          "[audio][mix][backend_smoke]") {
+    AudioMixPresetBank bank;
+    bank.loadDefaults();
+    AudioCore core;
+
+    AudioMixBackendSmokeRequest request;
+    request.presetName = "MissingPreset";
+    const auto result = runAudioMixBackendSmoke(bank, core, request);
+
+    REQUIRE_FALSE(result.presetFound);
+    REQUIRE_FALSE(result.presetApplied);
+    REQUIRE_FALSE(result.probeAttempted);
+    REQUIRE_FALSE(result.probeAccepted);
+    REQUIRE(result.diagnostics.size() == 1);
+    REQUIRE(result.diagnostics[0].code == "audio.mix_preset_missing");
+    REQUIRE(result.diagnostics[0].asset_id == "MissingPreset");
+}
+
+TEST_CASE("AudioMixPanel exposes backend smoke action and snapshot",
+          "[audio][mix][backend_smoke]") {
+    AudioMixPresetBank bank;
+    bank.loadDefaults();
+    AudioCore core;
+
+    urpg::editor::AudioMixPanel panel;
+    panel.bindBank(&bank);
+    panel.bindCore(&core);
+
+    REQUIRE(panel.runBackendSmoke("Battle"));
+    panel.render();
+
+    const auto snapshot = panel.lastRenderSnapshot();
+    REQUIRE(snapshot["actions"]["runBackendSmoke"] == true);
+    REQUIRE(snapshot["backendSmoke"]["presetName"] == "Battle");
+    REQUIRE(snapshot["backendSmoke"]["presetApplied"] == true);
+    REQUIRE(snapshot["backendSmoke"]["probeAttempted"] == true);
+    REQUIRE(snapshot["backendSmoke"]["probeAccepted"] == true);
+    REQUIRE(snapshot["backendSmoke"]["duckBGMOnSE"] == true);
+    REQUIRE(snapshot["liveCore"]["duckAmount"].get<float>() == Catch::Approx(0.5f));
 }

@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://urpg.dev/schemas/export_preview.schema.json",
+  "title": "URPG export preview",
+  "type": "object",
+  "required": ["schema", "id", "target", "mode", "output_dir", "runtime_binary_path"],
+  "properties": {
+    "schema": { "const": "urpg.export_preview.v1" },
+    "id": { "type": "string", "minLength": 1 },
+    "target": { "type": "string", "enum": ["Windows_x64", "Linux_x64", "macOS_Universal", "Web_WASM"] },
+    "mode": { "type": "string", "enum": ["dev_bootstrap", "release"] },
+    "output_dir": { "type": "string" },
+    "runtime_binary_path": { "type": "string" },
+    "compress_assets": { "type": "boolean" },
+    "obfuscate_scripts": { "type": "boolean" },
+    "include_debug_symbols": { "type": "boolean" },
+    "asset_discovery_roots": { "type": "array", "items": { "type": "string" } }
+  }
+}

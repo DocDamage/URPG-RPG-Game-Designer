@@ -1030,6 +1030,15 @@ std::vector<DiagnosticsTabSummary> DiagnosticsWorkspace::allTabSummaries() const
     };
 }
 
+ProjectAuditExportParityResult DiagnosticsWorkspace::compareProjectAuditExportParityReport(
+    const nlohmann::json& cli_report) const {
+    return compareProjectAuditExportParity(cli_report, nlohmann::json::parse(exportAsJson()));
+}
+
+std::string DiagnosticsWorkspace::exportProjectAuditParityJson(const nlohmann::json& cli_report) const {
+    return projectAuditExportParityResultToJson(compareProjectAuditExportParityReport(cli_report)).dump(2);
+}
+
 void DiagnosticsWorkspace::render() {
     if (!visible_) {
         return;

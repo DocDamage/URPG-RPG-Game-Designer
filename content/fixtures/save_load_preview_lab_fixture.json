@@ -1,0 +1,33 @@
+{
+  "schema": "urpg.save_load_preview_lab.v1",
+  "id": "slot_roundtrip_lab",
+  "slot_id": 3,
+  "primary_payload": {
+    "state": "primary",
+    "map": "Town",
+    "variables": {
+      "gold": 125
+    }
+  },
+  "autosave_payload": {
+    "state": "autosave",
+    "map": "Forest"
+  },
+  "metadata_payload": {
+    "_slot_id": 3,
+    "_slot_category": "manual",
+    "_retention_class": "manual",
+    "_save_version": "1.0.0",
+    "_timestamp": "2026-04-28T12:00:00Z",
+    "_playtime_seconds": 240,
+    "_map_display_name": "Town"
+  },
+  "variables_payload": {
+    "variables": {
+      "gold": 125
+    }
+  },
+  "corrupt_primary": false,
+  "force_safe_mode": false,
+  "safe_mode_fallback_map": "Safe Mode - Origin"
+}

@@ -60,6 +60,23 @@ json loadPartialLaneSlices() {
     return json{};
 }
 
+json loadWysiwygDoneRule() {
+    const std::vector<std::string> candidates = {
+        "content/readiness/wysiwyg_done_rule.json",
+        "../content/readiness/wysiwyg_done_rule.json",
+        "../../content/readiness/wysiwyg_done_rule.json",
+    };
+    for (const auto& path : candidates) {
+        std::ifstream ifs(path);
+        if (ifs.is_open()) {
+            json doc;
+            ifs >> doc;
+            return doc;
+        }
+    }
+    return json{};
+}
+
 json findSubsystem(const json& readiness, const std::string& subsystemId) {
     if (!readiness.contains("subsystems")) return json{};
     for (const auto& sub : readiness["subsystems"]) {
@@ -91,6 +108,13 @@ std::string readTextFile(const std::vector<std::string>& candidates) {
     return {};
 }
 
+bool jsonArrayContainsString(const json& values, const std::string& expected) {
+    if (!values.is_array()) return false;
+    return std::any_of(values.begin(), values.end(), [&expected](const json& value) {
+        return value.is_string() && value.get<std::string>() == expected;
+    });
+}
+
 } // namespace
 
 // ============================================================================
@@ -107,15 +131,15 @@ TEST_CASE("character_identity: readiness record acknowledges bounded runtime cre
     REQUIRE(sub.value("summary", "").find("runtime creator screen") != std::string::npos);
 }
 
-TEST_CASE("character_identity: readiness record narrows remaining gaps to rules/persistence/compositor depth",
+TEST_CASE("character_identity: readiness record acknowledges compositor as landed",
           "[wysiwyg][character][s32t02]") {
     const json readiness = loadReadinessStatus();
     const json sub = findSubsystem(readiness, "character_identity");
 
     REQUIRE(!sub.empty());
     REQUIRE(hasGapContaining(sub, "free-text naming"));
-    REQUIRE(hasGapContaining(sub, "save/load persistence"));
-    REQUIRE(hasGapContaining(sub, "asset compositor"));
+    REQUIRE(hasGapContaining(sub, "save/load persistence is landed"));
+    REQUIRE(hasGapContaining(sub, "Layered portrait/field/battle composition is landed"));
     REQUIRE_FALSE(hasGapContaining(sub, "no creator-screen runtime"));
     REQUIRE_FALSE(hasGapContaining(sub, "appearance preview pipeline"));
 }
@@ -306,5 +330,75 @@ TEST_CASE("partial product lanes have owned next vertical slices",
         REQUIRE_FALSE(it->value("ownerTrack", "").empty());
         REQUIRE_FALSE(it->value("nextVerticalSlice", "").empty());
         REQUIRE_FALSE(it->value("deferredScope", "").empty());
+    }
+}
+
+TEST_CASE("WYSIWYG done rule defines the non-negotiable completion bars",
+          "[wysiwyg][done_rule]") {
+    const json rule = loadWysiwygDoneRule();
+
+    REQUIRE(!rule.empty());
+    REQUIRE(rule.value("ruleId", "") == "wysiwyg_done_rule");
+    REQUIRE(rule.value("rule", "").find("No system is done") != std::string::npos);
+
+    const std::vector<std::string> requiredEvidence = {
+        "visualAuthoringSurface",
+        "livePreview",
+        "savedProjectData",
+        "runtimeExecution",
+        "diagnostics",
+        "testsValidation",
+    };
+
+    REQUIRE(rule.contains("requiredEvidence"));
+    for (const auto& field : requiredEvidence) {
+        REQUIRE(jsonArrayContainsString(rule["requiredEvidence"], field));
+    }
+}
+
+TEST_CASE("READY subsystems satisfy every WYSIWYG done-rule evidence bar",
+          "[wysiwyg][done_rule][readiness]") {
+    const json readiness = loadReadinessStatus();
+    const json rule = loadWysiwygDoneRule();
+
+    REQUIRE(!readiness.empty());
+    REQUIRE(!rule.empty());
+
+    for (const auto& sub : readiness["subsystems"]) {
+        if (sub.value("status", "") != "READY") {
+            continue;
+        }
+        REQUIRE(sub.contains("evidence"));
+        for (const auto& field : rule["requiredEvidence"]) {
+            REQUIRE(field.is_string());
+            REQUIRE(sub["evidence"].value(field.get<std::string>(), false) == true);
+        }
+    }
+}
+
+TEST_CASE("WYSIWYG priority surface list keeps the next creator-tool pushes explicit",
+          "[wysiwyg][done_rule][priority_surfaces]") {
+    const json rule = loadWysiwygDoneRule();
+
+    REQUIRE(!rule.empty());
+    REQUIRE(rule.contains("prioritySurfaces"));
+    REQUIRE(rule["prioritySurfaces"].size() == 7);
+
+    const std::vector<std::string> requiredSurfaces = {
+        "battle_animation_vfx_timeline",
+        "map_lighting_weather_region_preview",
+        "dialogue_portrait_choice_variable_localization_preview",
+        "event_command_visual_graph",
+        "ability_sandbox_visible_costs_cooldowns_tags_effects",
+        "save_load_preview_lab",
+        "export_exact_ship_preview",
+    };
+
+    for (const auto& id : requiredSurfaces) {
+        const auto it = std::find_if(rule["prioritySurfaces"].begin(), rule["prioritySurfaces"].end(),
+            [&id](const json& surface) {
+                return surface.value("id", "") == id && !surface.value("label", "").empty();
+            });
+        REQUIRE(it != rule["prioritySurfaces"].end());
     }
 }

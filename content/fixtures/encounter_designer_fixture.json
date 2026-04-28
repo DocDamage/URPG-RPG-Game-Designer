@@ -1,0 +1,37 @@
+{
+  "id": "forest_encounters",
+  "regions": [
+    {
+      "id": "forest_day",
+      "map_id": "forest_01",
+      "biome": "forest",
+      "min_party_level": 1,
+      "max_party_level": 8,
+      "required_flags": ["forest_unlocked"]
+    }
+  ],
+  "encounters": [
+    {
+      "id": "slime_pack",
+      "enemy_id": "slime",
+      "region_id": "forest_day",
+      "weight": 4,
+      "difficulty": 1,
+      "min_party_level": 1,
+      "max_party_level": 4,
+      "tags": ["starter", "field"],
+      "rewards": ["gel", "small_xp"]
+    },
+    {
+      "id": "wolf_patrol",
+      "enemy_id": "wolf",
+      "region_id": "forest_day",
+      "weight": 2,
+      "difficulty": 3,
+      "min_party_level": 3,
+      "max_party_level": 8,
+      "tags": ["beast", "field"],
+      "rewards": ["pelt", "medium_xp"]
+    }
+  ]
+}

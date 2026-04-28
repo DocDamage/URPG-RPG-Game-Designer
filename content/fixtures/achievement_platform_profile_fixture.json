@@ -1,0 +1,13 @@
+{
+  "schema": "urpg.achievement_platform_profile.v1",
+  "profileId": "internal-package-achievements",
+  "packageId": "com.urpgmaker.internal",
+  "backends": [
+    {
+      "platformId": "urpg-local",
+      "type": "memory",
+      "executable": "",
+      "arguments": []
+    }
+  ]
+}

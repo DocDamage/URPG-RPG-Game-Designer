@@ -1,11 +1,36 @@
 #include "editor/battle/battle_presentation_panel.h"
+#include "editor/battle/battle_vfx_timeline_panel.h"
 #include "editor/battle/boss_designer_panel.h"
 #include "editor/battle/formula_debugger_panel.h"
 #include "engine/core/battle/enemy_ai_profile.h"
 #include "engine/core/battle/party_tactics_profile.h"
+#include "engine/core/scene/battle_scene.h"
 
 #include <catch2/catch_test_macros.hpp>
+#include <catch2/catch_approx.hpp>
 #include <algorithm>
+#include <filesystem>
+#include <fstream>
+
+namespace {
+
+std::filesystem::path repoRoot() {
+#ifdef URPG_SOURCE_DIR
+    return std::filesystem::path(URPG_SOURCE_DIR);
+#else
+    return std::filesystem::current_path();
+#endif
+}
+
+nlohmann::json loadJsonFile(const std::filesystem::path& path) {
+    std::ifstream stream(path);
+    REQUIRE(stream.is_open());
+    nlohmann::json json;
+    stream >> json;
+    return json;
+}
+
+} // namespace
 
 TEST_CASE("battle authoring validates battlebacks, HUD elements, and deterministic cue replay", "[battle][authoring][ffs05]") {
     urpg::battle::BattlePresentationProfile profile;
@@ -38,6 +63,122 @@ TEST_CASE("battle authoring validates battlebacks, HUD elements, and determinist
     REQUIRE(panel.validation().replay_cues[2].id == "victory");
     REQUIRE_FALSE(panel.validation().diagnostics.empty());
     REQUIRE(panel.validation().diagnostics[0].code == "missing_battleback");
+}
+
+TEST_CASE("battle VFX timeline is visually authorable, previewable, saved, and executable",
+          "[battle][authoring][vfx][wysiwyg]") {
+    urpg::battle::BattleVfxTimelineDocument document;
+    document.id = "slash_combo";
+    document.fps = 60;
+    document.duration_frames = 48;
+    document.addEvent({
+        "cast_flash",
+        4,
+        "Cast flash",
+        urpg::presentation::effects::EffectCueKind::CastStart,
+        urpg::presentation::effects::EffectAnchorMode::Owner,
+        1,
+        1,
+        1.1f,
+        0.15f,
+        {{"asset", "vfx/cast_flash"}}
+    });
+    document.addEvent({
+        "target_impact",
+        18,
+        "Impact",
+        urpg::presentation::effects::EffectCueKind::HitConfirm,
+        urpg::presentation::effects::EffectAnchorMode::Target,
+        1,
+        2,
+        1.6f,
+        0.65f,
+        {{"asset", "vfx/slash"}}
+    });
+
+    urpg::editor::BattleVfxTimelinePanel panel;
+    panel.loadDocument(document);
+    panel.scrubToFrame(4);
+    panel.render();
+
+    REQUIRE(panel.snapshot().has_document);
+    REQUIRE(panel.snapshot().event_count == 2);
+    REQUIRE(panel.snapshot().visible_event_count == 1);
+    REQUIRE(panel.snapshot().visible_event_ids[0] == "cast_flash");
+    REQUIRE(panel.snapshot().runtime_preview_cue_count == 1);
+    REQUIRE(panel.snapshot().diagnostic_count == 0);
+
+    const auto saved = panel.saveProjectData();
+    REQUIRE(saved["schema_version"] == "urpg.battle_vfx_timeline.v1");
+    REQUIRE(saved["events"].size() == 2);
+
+    const auto restored = urpg::battle::BattleVfxTimelineDocument::fromJson(saved);
+    REQUIRE(restored.toJson() == saved);
+
+    const auto timeline = restored.toTimelineDocument();
+    REQUIRE(timeline.commands().size() == 2);
+    REQUIRE(timeline.commands()[0].kind == urpg::timeline::TimelineCommandKind::BattleCue);
+    REQUIRE(timeline.validate().empty());
+
+    urpg::scene::BattleScene scene({});
+    const auto applied = urpg::battle::applyBattleVfxTimeline(scene, restored);
+    REQUIRE(applied == 2);
+    REQUIRE(scene.effectCues().size() == 2);
+    CHECK(scene.effectCues()[0].frameTick == 4);
+    CHECK(scene.effectCues()[0].kind == urpg::presentation::effects::EffectCueKind::CastStart);
+    CHECK(scene.effectCues()[1].frameTick == 18);
+    CHECK(scene.effectCues()[1].ownerId == 2);
+    CHECK(scene.effectCues()[1].intensity.value == Catch::Approx(1.6f));
+    CHECK(scene.effectCues()[1].overlayEmphasis.value == Catch::Approx(0.65f));
+}
+
+TEST_CASE("battle VFX timeline project-data fixture round-trips through the authored schema surface",
+          "[battle][authoring][vfx][schema]") {
+    const auto fixture = loadJsonFile(repoRoot() / "content" / "fixtures" / "battle_vfx_timeline_fixture.json");
+    const auto schema = loadJsonFile(repoRoot() / "content" / "schemas" / "battle_vfx_timeline.schema.json");
+
+    REQUIRE(schema["properties"].contains("events"));
+    REQUIRE(schema["properties"]["events"]["items"]["required"].size() == 8);
+
+    const auto document = urpg::battle::BattleVfxTimelineDocument::fromJson(fixture);
+    REQUIRE(document.validate().empty());
+    const auto saved = document.toJson();
+    REQUIRE(saved["schema_version"] == fixture["schema_version"]);
+    REQUIRE(saved["id"] == fixture["id"]);
+    REQUIRE(saved["events"].size() == fixture["events"].size());
+    REQUIRE(saved["events"][0]["id"] == "cast_flash");
+    REQUIRE(saved["events"][1]["id"] == "target_impact");
+    REQUIRE(document.toEffectCues().size() == 2);
+}
+
+TEST_CASE("battle VFX timeline diagnostics block false done claims", "[battle][authoring][vfx][diagnostics]") {
+    urpg::battle::BattleVfxTimelineDocument document;
+    document.id.clear();
+    document.duration_frames = 12;
+    document.addEvent({
+        "bad_hit",
+        20,
+        "Bad hit",
+        urpg::presentation::effects::EffectCueKind::HitConfirm,
+        urpg::presentation::effects::EffectAnchorMode::Target,
+        0,
+        0,
+        -1.0f,
+        1.5f,
+        {}
+    });
+
+    urpg::editor::BattleVfxTimelinePanel panel;
+    panel.loadDocument(document);
+    panel.render();
+
+    REQUIRE(panel.snapshot().diagnostic_count >= 4);
+    REQUIRE(std::any_of(panel.snapshot().diagnostics.begin(), panel.snapshot().diagnostics.end(), [](const auto& row) {
+        return row.find("event_after_duration:bad_hit") != std::string::npos;
+    }));
+    REQUIRE(std::any_of(panel.snapshot().diagnostics.begin(), panel.snapshot().diagnostics.end(), [](const auto& row) {
+        return row.find("missing_anchor_participant:bad_hit") != std::string::npos;
+    }));
 }
 
 TEST_CASE("battle authoring requires an explicit release battleback", "[battle][authoring][assets]") {

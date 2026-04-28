@@ -259,6 +259,12 @@ class PluginManager {
     // Status: FULL - Clears compat bridge failure diagnostics
     void clearFailureDiagnostics();
 
+    // Status: FULL - Exports successful compat command execution diagnostics for editor/report parity
+    std::string exportExecutionDiagnosticsJsonl() const;
+
+    // Status: FULL - Clears successful compat command execution diagnostics
+    void clearExecutionDiagnostics();
+
     // ========================================================================
     // CompatStatus API Surface
     // ========================================================================

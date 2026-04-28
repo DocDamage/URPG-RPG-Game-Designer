@@ -1,0 +1,48 @@
+{
+  "id": "cavern_gates",
+  "regions": [
+    {
+      "id": "entry",
+      "map_id": "cavern_entry",
+      "ability_rewards": []
+    },
+    {
+      "id": "dash_shrine",
+      "map_id": "cavern_shrine",
+      "ability_rewards": ["dash"]
+    },
+    {
+      "id": "upper_cavern",
+      "map_id": "cavern_upper",
+      "ability_rewards": ["wall_jump"]
+    },
+    {
+      "id": "boss_door",
+      "map_id": "cavern_boss",
+      "ability_rewards": []
+    }
+  ],
+  "links": [
+    {
+      "id": "entry_to_shrine",
+      "from_region": "entry",
+      "to_region": "dash_shrine",
+      "required_abilities": [],
+      "one_way": false
+    },
+    {
+      "id": "shrine_to_upper",
+      "from_region": "dash_shrine",
+      "to_region": "upper_cavern",
+      "required_abilities": ["dash"],
+      "one_way": false
+    },
+    {
+      "id": "upper_to_boss",
+      "from_region": "upper_cavern",
+      "to_region": "boss_door",
+      "required_abilities": ["dash", "wall_jump"],
+      "one_way": true
+    }
+  ]
+}

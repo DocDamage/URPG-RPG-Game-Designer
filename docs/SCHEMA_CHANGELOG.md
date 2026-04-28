@@ -16,6 +16,13 @@ Each governed schema entry should include:
 
 ## Entries
 
+### `battle_vfx_timeline` (`battle_vfx_timeline.schema.json`)
+
+- Version: `1.0.0`
+- Date: `2026-04-28`
+- Summary: project-data schema for WYSIWYG battle animation/VFX timeline events, including frame timing, cue kind, anchor, participants, intensity, overlay emphasis, labels, and payload metadata
+- Migration Impact: none; initial schema for the battle VFX timeline authoring surface
+
 ### `template_certification` (`template_certification` report payload)
 
 - Version: `1.0.0`
@@ -45,6 +52,11 @@ Each governed schema entry should include:
 - Migration Impact: none; initial introduction for the FFS-15 capture, theme, and presentation polish slice
 
 ### `readiness_status` (`readiness_status.schema.json`)
+
+- Version: `1.0.1`
+- Date: `2026-04-28`
+- Summary: adds explicit WYSIWYG done-rule evidence fields for runtime execution, visual authoring surface, live preview, and saved project data
+- Migration Impact: additive evidence fields; existing readiness entries must populate the new booleans before claiming `READY`
 
 - Version: `1.0.0`
 - Date: `2026-04-20`
@@ -93,6 +105,13 @@ Each governed schema entry should include:
 - Summary: vendor-neutral achievement trophy export payload with summary counts, per-trophy progress, and configured/not-configured platform backend integration state
 - Migration Impact: none; additive export contract for the existing achievement registry
 
+### `achievement_platform_profile` (`achievement_platform_profile.schema.json`)
+
+- Version: `1.0.0`
+- Date: `2026-04-28`
+- Summary: packaged achievement platform profile schema for memory/command backend configuration, package id, and editor-applied platform sync evidence.
+- Migration Impact: none; additive platform-profile contract for achievement backend synchronization
+
 ### `accessibility_report` (`accessibility_report.schema.json`)
 
 - Version: `1.0.0`
@@ -125,8 +144,15 @@ Each governed schema entry should include:
 
 - Version: `1.0.0`
 - Date: `2026-04-20`
-- Summary: analytics configuration schema with opt-in flag, session id, buffer size, and allowed categories
+- Summary: analytics configuration schema with opt-in flag, session id, buffer size, allowed categories, and governed upload endpoint profile/privacy-review fields
 - Migration Impact: none; initial introduction
+
+### `analytics_endpoint_profile` (`analytics_endpoint_profile_fixture.json`)
+
+- Version: `1.0.0`
+- Date: `2026-04-28`
+- Summary: fixture-backed telemetry endpoint profile contract with local/HTTP modes, headers, curl executable, redacted token surface, and privacy review evidence used by `AnalyticsEndpointProfile`.
+- Migration Impact: none; extends analytics endpoint configuration without enabling uploads by default
 
 ### `export_config` (`export_config.schema.json`)
 
@@ -443,6 +469,13 @@ Each governed schema entry should include:
 - Date: `2026-04-25`
 - Summary: runtime hint schema for once-only hint definitions, localization keys, trigger flags, accessibility settings, and dismissed state
 - Migration Impact: none; initial introduction for the FFS-13 simulation and world systems slice
+
+### `ability_orchestration` (`ability_orchestration.schema.json`)
+
+- Version: `1.0.0`
+- Date: `2026-04-28`
+- Summary: ability orchestration schema for authored battle/map activation documents with source/target actors, pattern-aware target diagnostics, battle queue metadata, and saved editor preview data.
+- Migration Impact: none; initial introduction for the gameplay ability authored-orchestration slice.
 
 ### `device_profile` (`device_profile.schema.json`)
 

@@ -1,4 +1,5 @@
 #include <catch2/catch_test_macros.hpp>
+#include "engine/core/character/character_appearance_composition.h"
 #include "engine/core/character/character_creation_rules.h"
 #include "engine/core/character/character_identity_validator.h"
 #include <algorithm>
@@ -167,4 +168,31 @@ TEST_CASE("CharacterIdentityValidator: CI governance script validates artifacts"
     REQUIRE(result["passed"].get<bool>() == true);
     REQUIRE(result["errors"].is_array());
     REQUIRE(result["errors"].empty());
+}
+
+TEST_CASE("CharacterAppearanceComposition resolves portrait field and battle layers",
+          "[character][identity][composition]") {
+    CharacterIdentity identity;
+    identity.setName("Nova");
+    identity.setClassId("class_ranger");
+    identity.setPortraitId("portrait_ranger_01");
+    identity.setBodySpriteId("sprite_ranger_body");
+    identity.addAppearanceToken("cloak_travel");
+    identity.addAppearanceToken("hair_long");
+
+    const auto composition = composeCharacterAppearance(identity);
+    REQUIRE(composition.complete);
+    REQUIRE(composition.diagnostics.empty());
+    REQUIRE(composition.portrait.layers.size() == 3);
+    REQUIRE(composition.field.layers.size() == 3);
+    REQUIRE(composition.battle.layers.size() == 3);
+    REQUIRE(composition.portrait.layers[0].source_asset_id == "portrait_ranger_01");
+    REQUIRE(composition.field.layers[1].source_asset_id == "field/cloak_travel");
+    REQUIRE(composition.battle.layers[2].slot == "hair");
+
+    const auto snapshot = characterAppearanceCompositionToJson(composition);
+    REQUIRE(snapshot["complete"] == true);
+    REQUIRE(snapshot["portrait"]["surface"] == "portrait");
+    REQUIRE(snapshot["field"]["surface"] == "field");
+    REQUIRE(snapshot["battle"]["surface"] == "battle");
 }

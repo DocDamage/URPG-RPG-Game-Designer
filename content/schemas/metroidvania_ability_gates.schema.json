@@ -1,0 +1,39 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:urpg:metroidvania-ability-gates",
+  "title": "URPG Metroidvania Ability Gates",
+  "type": "object",
+  "required": ["id", "regions", "links"],
+  "properties": {
+    "id": { "type": "string", "minLength": 1 },
+    "regions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "map_id"],
+        "properties": {
+          "id": { "type": "string", "minLength": 1 },
+          "map_id": { "type": "string", "minLength": 1 },
+          "ability_rewards": { "type": "array", "items": { "type": "string" } }
+        },
+        "additionalProperties": false
+      }
+    },
+    "links": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "from_region", "to_region", "required_abilities"],
+        "properties": {
+          "id": { "type": "string", "minLength": 1 },
+          "from_region": { "type": "string", "minLength": 1 },
+          "to_region": { "type": "string", "minLength": 1 },
+          "required_abilities": { "type": "array", "items": { "type": "string" } },
+          "one_way": { "type": "boolean" }
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false
+}

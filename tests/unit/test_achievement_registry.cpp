@@ -1,4 +1,5 @@
 #include "engine/core/achievement/achievement_registry.h"
+#include "engine/core/achievement/achievement_platform_profile.h"
 #include "engine/core/achievement/achievement_validator.h"
 
 #include <catch2/catch_test_macros.hpp>
@@ -248,6 +249,50 @@ TEST_CASE("AchievementRegistry syncs unlocks to configured platform backend",
     REQUIRE(snapshot["updates"][0]["achievementId"] == "ach_platform");
     REQUIRE(snapshot["updates"][0]["unlocked"] == true);
     REQUIRE(registry.exportTrophyPayload("steam")["backendIntegration"] == "configured");
+}
+
+TEST_CASE("AchievementPlatformProfile applies packaged memory backend and syncs unlocked achievements",
+          "[achievement][platform][profile]") {
+    const auto repoRoot = std::filesystem::path(__FILE__).parent_path().parent_path().parent_path();
+    std::ifstream in(repoRoot / "content" / "fixtures" / "achievement_platform_profile_fixture.json");
+    REQUIRE(in.is_open());
+    const auto profile = AchievementPlatformProfile::fromJson(nlohmann::json::parse(in));
+
+    AchievementRegistry registry;
+    AchievementDef def;
+    def.id = "ach_profile";
+    def.title = "Profile";
+    def.description = "Submit through packaged profile.";
+    def.unlockCondition = "count_1";
+    def.iconId = "icon_profile";
+    registry.registerAchievement(def);
+
+    const auto applyResult = applyAchievementPlatformProfile(registry, profile);
+    REQUIRE(applyResult.applied);
+    REQUIRE(applyResult.backendCount == 1);
+    REQUIRE(applyResult.diagnostics.empty());
+    REQUIRE(registry.platformBackendSnapshot()["backendCount"] == 1);
+
+    REQUIRE(registry.reportProgress("ach_profile", 1));
+    const auto backendSnapshot = registry.platformBackendSnapshot();
+    REQUIRE(backendSnapshot["backends"][0]["platform"] == "urpg-local");
+    REQUIRE(backendSnapshot["backends"][0]["submittedCount"] == 1);
+    REQUIRE(backendSnapshot["backends"][0]["updates"][0]["achievementId"] == "ach_profile");
+}
+
+TEST_CASE("AchievementPlatformProfile validates command backend configuration",
+          "[achievement][platform][profile]") {
+    AchievementPlatformProfile profile;
+    profile.profileId = "bad-command";
+    profile.packageId = "com.example.bad";
+    AchievementPlatformProfileBackend backend;
+    backend.platformId = "steam";
+    backend.type = AchievementPlatformProfileBackendType::Command;
+    profile.backends.push_back(backend);
+
+    const auto diagnostics = validateAchievementPlatformProfile(profile);
+    REQUIRE_FALSE(diagnostics.empty());
+    REQUIRE(diagnostics[0].code == "missing_command_executable");
 }
 
 TEST_CASE("AchievementRegistry trophy payload defaults to neutral platform", "[achievement][export]") {

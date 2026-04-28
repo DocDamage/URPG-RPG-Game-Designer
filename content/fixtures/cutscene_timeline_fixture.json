@@ -1,0 +1,58 @@
+{
+  "id": "intro_cutscene",
+  "actors": ["hero", "guide", "camera"],
+  "tracks": [
+    { "id": "dialogue_guide", "kind": "dialogue", "actor_id": "guide" },
+    { "id": "camera_main", "kind": "camera", "actor_id": "camera" },
+    { "id": "audio_music", "kind": "audio", "actor_id": "" },
+    { "id": "variables", "kind": "variable", "actor_id": "" },
+    { "id": "choice_prompt", "kind": "choice", "actor_id": "hero" }
+  ],
+  "cues": [
+    {
+      "id": "camera_pan",
+      "track_id": "camera_main",
+      "tick": 0,
+      "duration": 60,
+      "target": "pan_to_town",
+      "localization_key": "",
+      "payload": { "easing": "smooth" }
+    },
+    {
+      "id": "music_start",
+      "track_id": "audio_music",
+      "tick": 0,
+      "duration": 0,
+      "target": "bgm_intro",
+      "localization_key": "",
+      "payload": {}
+    },
+    {
+      "id": "guide_line",
+      "track_id": "dialogue_guide",
+      "tick": 12,
+      "duration": 90,
+      "target": "portrait.guide",
+      "localization_key": "intro.guide.line",
+      "payload": { "portrait": "guide_smile" }
+    },
+    {
+      "id": "set_intro_seen",
+      "track_id": "variables",
+      "tick": 24,
+      "duration": 0,
+      "target": "",
+      "localization_key": "",
+      "payload": { "name": "intro_seen", "value": "true" }
+    },
+    {
+      "id": "choice_ready",
+      "track_id": "choice_prompt",
+      "tick": 48,
+      "duration": 120,
+      "target": "choice.start",
+      "localization_key": "intro.choice.ready",
+      "payload": { "choices": ["yes", "not_yet"] }
+    }
+  ]
+}

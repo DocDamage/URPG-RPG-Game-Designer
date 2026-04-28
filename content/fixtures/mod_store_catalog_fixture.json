@@ -1,0 +1,28 @@
+{
+  "version": 1,
+  "entries": [
+    {
+      "id": "store.core_ui",
+      "displayName": "Core UI Store Package",
+      "version": "1.0.0",
+      "publisher": "URPG",
+      "packageRoot": "mods/core_ui",
+      "verified": true,
+      "tags": ["ui", "sample"],
+      "manifest": {
+        "id": "core_ui_store",
+        "name": "Core UI Store",
+        "version": "1.0.0",
+        "author": "URPG",
+        "dependencies": [],
+        "entryPoint": "main.js"
+      },
+      "sandboxPolicy": {
+        "fileSystemRead": true,
+        "fileSystemWrite": false,
+        "networkAccess": false,
+        "nativeInterop": false
+      }
+    }
+  ]
+}

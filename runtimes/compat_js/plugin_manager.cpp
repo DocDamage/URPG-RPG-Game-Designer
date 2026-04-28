@@ -157,6 +157,8 @@ class PluginManagerImpl {
     // Structured diagnostics for failure-path artifact export.
     std::vector<std::string> failureDiagnosticsJsonl_;
     uint64_t nextFailureDiagnosticSequence_ = 1;
+    std::vector<std::string> executionDiagnosticsJsonl_;
+    uint64_t nextExecutionDiagnosticSequence_ = 1;
 
     // Plugin source path tracking (used by reload)
     std::unordered_map<std::string, std::string> pluginSourcePaths_;
@@ -206,6 +208,26 @@ class PluginManagerImpl {
         constexpr size_t kMaxFailureDiagnostics = 2048;
         if (failureDiagnosticsJsonl_.size() > kMaxFailureDiagnostics) {
             failureDiagnosticsJsonl_.erase(failureDiagnosticsJsonl_.begin());
+        }
+    }
+
+    void appendExecutionDiagnostic(const std::string& pluginName, const std::string& commandName,
+                                   size_t argumentCount) {
+        nlohmann::json diagnostic;
+        diagnostic["seq"] = nextExecutionDiagnosticSequence_++;
+        diagnostic["ts"] = currentUtcTimestampIso8601();
+        diagnostic["subsystem"] = "plugin_manager";
+        diagnostic["event"] = "compat_execution";
+        diagnostic["plugin"] = pluginName;
+        diagnostic["command"] = commandName;
+        diagnostic["operation"] = "execute_command";
+        diagnostic["argumentCount"] = argumentCount;
+        diagnostic["severity"] = "INFO";
+        executionDiagnosticsJsonl_.push_back(diagnostic.dump());
+
+        constexpr size_t kMaxExecutionDiagnostics = 2048;
+        if (executionDiagnosticsJsonl_.size() > kMaxExecutionDiagnostics) {
+            executionDiagnosticsJsonl_.erase(executionDiagnosticsJsonl_.begin());
         }
     }
 
@@ -1136,6 +1158,9 @@ Value PluginManager::executeCommand(const std::string& pluginName, const std::st
     Value result;
     try {
         result = it->second.handler(args);
+        if (impl_->lastError_.empty()) {
+            impl_->appendExecutionDiagnostic(pluginName, commandName, args.size());
+        }
     } catch (const std::exception& e) {
         reportCommandError(std::string("Command execution error: ") + e.what());
     } catch (...) {
@@ -1422,6 +1447,27 @@ std::string PluginManager::exportFailureDiagnosticsJsonl() const {
 void PluginManager::clearFailureDiagnostics() {
     std::lock_guard<std::recursive_mutex> lock(impl_->stateMutex_);
     impl_->failureDiagnosticsJsonl_.clear();
+}
+
+std::string PluginManager::exportExecutionDiagnosticsJsonl() const {
+    std::lock_guard<std::recursive_mutex> lock(impl_->stateMutex_);
+    if (impl_->executionDiagnosticsJsonl_.empty()) {
+        return "";
+    }
+
+    std::ostringstream out;
+    for (size_t i = 0; i < impl_->executionDiagnosticsJsonl_.size(); ++i) {
+        out << impl_->executionDiagnosticsJsonl_[i];
+        if (i + 1 < impl_->executionDiagnosticsJsonl_.size()) {
+            out << '\n';
+        }
+    }
+    return out.str();
+}
+
+void PluginManager::clearExecutionDiagnostics() {
+    std::lock_guard<std::recursive_mutex> lock(impl_->stateMutex_);
+    impl_->executionDiagnosticsJsonl_.clear();
 }
 
 // ============================================================================

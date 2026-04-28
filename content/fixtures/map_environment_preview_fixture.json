@@ -1,0 +1,84 @@
+{
+  "schema": "urpg.map_environment_preview.v1",
+  "map_id": "forest_weather_lab",
+  "width": 12,
+  "height": 8,
+  "base_weather": "clear",
+  "base_light": {
+    "id": 1,
+    "intensity": 1.0,
+    "range": 24.0,
+    "position": [0.0, 8.0, 0.0],
+    "color": [1.0, 1.0, 1.0]
+  },
+  "base_fog": {
+    "density": 0.006,
+    "start_distance": 0.0,
+    "end_distance": 140.0,
+    "color": [0.68, 0.76, 0.88]
+  },
+  "base_post_fx": {
+    "exposure": 1.0,
+    "bloom_threshold": 1.0,
+    "bloom_intensity": 0.05,
+    "saturation": 1.0
+  },
+  "regions": [
+    {
+      "id": "rain_path",
+      "x": 2,
+      "y": 1,
+      "width": 4,
+      "height": 3,
+      "weather": "rain",
+      "lighting": "day",
+      "light": {
+        "id": 10,
+        "intensity": 0.82,
+        "range": 24.0,
+        "position": [2.0, 8.0, 1.0],
+        "color": [0.72, 0.8, 0.95]
+      },
+      "fog": {
+        "density": 0.035,
+        "start_distance": 0.0,
+        "end_distance": 90.0,
+        "color": [0.36, 0.43, 0.55]
+      },
+      "post_fx": {
+        "exposure": 1.0,
+        "bloom_threshold": 1.0,
+        "bloom_intensity": 0.12,
+        "saturation": 0.82
+      }
+    },
+    {
+      "id": "night_clearing",
+      "x": 7,
+      "y": 2,
+      "width": 3,
+      "height": 3,
+      "weather": "fog",
+      "lighting": "night",
+      "light": {
+        "id": 11,
+        "intensity": 0.55,
+        "range": 24.0,
+        "position": [7.0, 8.0, 2.0],
+        "color": [0.62, 0.7, 1.0]
+      },
+      "fog": {
+        "density": 0.06,
+        "start_distance": 0.0,
+        "end_distance": 45.0,
+        "color": [0.62, 0.64, 0.66]
+      },
+      "post_fx": {
+        "exposure": 0.82,
+        "bloom_threshold": 1.0,
+        "bloom_intensity": 0.2,
+        "saturation": 0.72
+      }
+    }
+  ]
+}

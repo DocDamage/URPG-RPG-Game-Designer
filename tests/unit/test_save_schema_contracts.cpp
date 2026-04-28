@@ -38,31 +38,45 @@ TEST_CASE("Save schema contract files exist and expose required roots", "[save][
     const auto slots_schema_path = schema_dir / "save_slots.schema.json";
     const auto metadata_schema_path = schema_dir / "save_metadata.schema.json";
     const auto migrations_schema_path = schema_dir / "save_migrations.schema.json";
+    const auto created_protagonist_schema_path = schema_dir / "created_protagonist_save.schema.json";
+    const auto composition_schema_path = schema_dir / "character_appearance_composition.schema.json";
+    const auto mod_store_schema_path = schema_dir / "mod_store_catalog.schema.json";
 
     REQUIRE(std::filesystem::exists(policies_schema_path));
     REQUIRE(std::filesystem::exists(slots_schema_path));
     REQUIRE(std::filesystem::exists(metadata_schema_path));
     REQUIRE(std::filesystem::exists(migrations_schema_path));
+    REQUIRE(std::filesystem::exists(created_protagonist_schema_path));
+    REQUIRE(std::filesystem::exists(composition_schema_path));
+    REQUIRE(std::filesystem::exists(mod_store_schema_path));
 
     const auto policies_schema = LoadJson(policies_schema_path);
     const auto slots_schema = LoadJson(slots_schema_path);
     const auto metadata_schema = LoadJson(metadata_schema_path);
     const auto migrations_schema = LoadJson(migrations_schema_path);
+    const auto created_protagonist_schema = LoadJson(created_protagonist_schema_path);
+    const auto composition_schema = LoadJson(composition_schema_path);
+    const auto mod_store_schema = LoadJson(mod_store_schema_path);
 
     REQUIRE(policies_schema["$id"] == "https://urpg.dev/schemas/save_policies.schema.json");
     REQUIRE(slots_schema["$id"] == "https://urpg.dev/schemas/save_slots.schema.json");
     REQUIRE(metadata_schema["$id"] == "https://urpg.dev/schemas/save_metadata.schema.json");
     REQUIRE(migrations_schema["$id"] == "https://urpg.dev/schemas/save_migrations.schema.json");
+    REQUIRE(created_protagonist_schema["$id"] == "https://urpg.dev/schemas/created_protagonist_save.schema.json");
+    REQUIRE(composition_schema["$id"] == "https://urpg.dev/schemas/character_appearance_composition.schema.json");
+    REQUIRE(mod_store_schema["$id"] == "https://urpg.dev/schemas/mod_store_catalog.schema.json");
 
     REQUIRE(policies_schema["required"].is_array());
     REQUIRE(slots_schema["required"].is_array());
     REQUIRE(metadata_schema["required"].is_array());
     REQUIRE(migrations_schema["required"].is_array());
+    REQUIRE(created_protagonist_schema["required"].is_array());
 
     REQUIRE(policies_schema["required"][0] == "_urpg_format_version");
     REQUIRE(slots_schema["required"][0] == "_urpg_format_version");
     REQUIRE(metadata_schema["required"][0] == "_urpg_format_version");
     REQUIRE(migrations_schema["required"][0] == "_urpg_format_version");
+    REQUIRE(created_protagonist_schema["required"][0] == "_created_protagonist");
 }
 
 TEST_CASE("Save policies schema exposes autosave retention and metadata field contracts", "[save][schema]") {
@@ -134,4 +148,24 @@ TEST_CASE("Save metadata and migration schemas expose typed native save contract
     REQUIRE(migration_item_properties.contains("from"));
     REQUIRE(migration_item_properties.contains("to"));
     REQUIRE(migration_item_properties.contains("ops"));
+}
+
+TEST_CASE("Created protagonist save schema exposes persisted identity contract", "[save][schema][character]") {
+    const auto root = sourceRootFromMacro();
+    REQUIRE_FALSE(root.empty());
+
+    const auto schema = LoadJson(root / "content" / "schemas" / "created_protagonist_save.schema.json");
+    const auto fixture = LoadJson(root / "content" / "fixtures" / "created_protagonist_save_fixture.json");
+
+    const auto protagonist = schema["properties"]["_created_protagonist"];
+    REQUIRE(protagonist["required"].size() == 3);
+    REQUIRE(protagonist["properties"]["schemaVersion"]["const"] == "1.0.0");
+    REQUIRE(protagonist["properties"]["entity"]["minimum"] == 1);
+    REQUIRE(protagonist["properties"]["identity"]["$ref"] == "character_identity.schema.json");
+
+    REQUIRE(fixture.contains("_created_protagonist"));
+    REQUIRE(fixture["_created_protagonist"]["schemaVersion"] == "1.0.0");
+    REQUIRE(fixture["_created_protagonist"]["entity"] == 1001);
+    REQUIRE(fixture["_created_protagonist"]["identity"]["name"] == "Nova");
+    REQUIRE(fixture["_created_protagonist"]["identity"]["classId"] == "class_ranger");
 }

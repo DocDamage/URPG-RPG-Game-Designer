@@ -1,0 +1,50 @@
+{
+  "schema": "urpg.dialogue_preview.v1",
+  "id": "guide_intro_preview",
+  "locale": "en-US",
+  "variables": {
+    "1": 7
+  },
+  "actor_names": {
+    "1": "Mira",
+    "2": "Guide"
+  },
+  "party_actor_ids": [1],
+  "pages": [
+    {
+      "id": "intro",
+      "body": "",
+      "localization_key": "dialogue.guide.intro",
+      "variant": {
+        "mode": "speaker",
+        "tone": "portrait",
+        "speaker": "Guide",
+        "face_actor_id": 2,
+        "route_token": "speaker:speaker:portrait"
+      },
+      "portrait": {
+        "face_name": "portraits/guide.png",
+        "face_index": 0,
+        "mirror": false
+      },
+      "default_choice_index": 0,
+      "wait_for_advance": true,
+      "choices": [
+        {
+          "id": "accept",
+          "label": "",
+          "localization_key": "dialogue.guide.choice.accept",
+          "enabled": true,
+          "disabled_reason": ""
+        },
+        {
+          "id": "locked",
+          "label": "",
+          "localization_key": "dialogue.guide.choice.locked",
+          "enabled": false,
+          "disabled_reason": "Requires lantern."
+        }
+      ]
+    }
+  ]
+}

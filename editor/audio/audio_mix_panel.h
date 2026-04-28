@@ -1,6 +1,7 @@
 #pragma once
 
 #include <nlohmann/json.hpp>
+#include "../../engine/core/audio/audio_mix_backend_smoke.h"
 #include "../../engine/core/audio/audio_mix_presets.h"
 #include "../../engine/core/audio/audio_core.h"
 
@@ -28,6 +29,11 @@ public:
      *         core is bound), false if the preset is unknown.
      */
     bool selectPreset(const std::string& name);
+    /**
+     * @brief Apply a preset to the live core and run a deterministic backend
+     *        playback smoke probe. The latest result is included in render().
+     */
+    bool runBackendSmoke(const std::string& presetName);
     void render();
 
     nlohmann::json lastRenderSnapshot() const;
@@ -36,6 +42,7 @@ private:
     urpg::audio::AudioMixPresetBank* m_bank = nullptr;
     urpg::audio::AudioCore*          m_core = nullptr;
     std::string m_selectedPreset;
+    nlohmann::json m_lastBackendSmoke;
     nlohmann::json m_lastSnapshot;
 };
 

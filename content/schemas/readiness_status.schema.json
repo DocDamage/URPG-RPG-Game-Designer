@@ -52,16 +52,24 @@
       "type": "object",
       "properties": {
         "runtimeOwner": { "type": "boolean" },
+        "runtimeExecution": { "type": "boolean" },
         "editorSurface": { "type": "boolean" },
+        "visualAuthoringSurface": { "type": "boolean" },
+        "livePreview": { "type": "boolean" },
         "schemaMigration": { "type": "boolean" },
+        "savedProjectData": { "type": "boolean" },
         "diagnostics": { "type": "boolean" },
         "testsValidation": { "type": "boolean" },
         "docsAligned": { "type": "boolean" }
       },
       "required": [
         "runtimeOwner",
+        "runtimeExecution",
         "editorSurface",
+        "visualAuthoringSurface",
+        "livePreview",
         "schemaMigration",
+        "savedProjectData",
         "diagnostics",
         "testsValidation",
         "docsAligned"

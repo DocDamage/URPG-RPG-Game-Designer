@@ -137,6 +137,7 @@ class CompatReportModel {
 
     // Ingest PluginManager structured failure diagnostics (JSONL).
     void ingestPluginFailureDiagnosticsJsonl(std::string_view diagnostics_jsonl);
+    void ingestPluginExecutionDiagnosticsJsonl(std::string_view diagnostics_jsonl);
 
     // Get summaries
     std::vector<PluginCompatSummary> getAllPluginSummaries() const;

@@ -1,0 +1,76 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://urpg.dev/schemas/map_environment_preview.schema.json",
+  "title": "URPG map environment preview",
+  "type": "object",
+  "required": ["schema", "map_id", "width", "height", "base_weather", "regions"],
+  "properties": {
+    "schema": { "const": "urpg.map_environment_preview.v1" },
+    "map_id": { "type": "string", "minLength": 1 },
+    "width": { "type": "integer", "minimum": 1 },
+    "height": { "type": "integer", "minimum": 1 },
+    "base_weather": { "type": "string", "enum": ["clear", "rain", "snow", "storm", "fog"] },
+    "base_light": { "$ref": "#/$defs/light" },
+    "base_fog": { "$ref": "#/$defs/fog" },
+    "base_post_fx": { "$ref": "#/$defs/post_fx" },
+    "regions": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/region" }
+    }
+  },
+  "$defs": {
+    "vec3": {
+      "type": "array",
+      "minItems": 3,
+      "maxItems": 3,
+      "items": { "type": "number" }
+    },
+    "light": {
+      "type": "object",
+      "required": ["id", "intensity", "range", "position", "color"],
+      "properties": {
+        "id": { "type": "integer", "minimum": 0 },
+        "intensity": { "type": "number", "minimum": 0 },
+        "range": { "type": "number", "exclusiveMinimum": 0 },
+        "position": { "$ref": "#/$defs/vec3" },
+        "color": { "$ref": "#/$defs/vec3" }
+      }
+    },
+    "fog": {
+      "type": "object",
+      "required": ["density", "start_distance", "end_distance", "color"],
+      "properties": {
+        "density": { "type": "number", "minimum": 0 },
+        "start_distance": { "type": "number" },
+        "end_distance": { "type": "number" },
+        "color": { "$ref": "#/$defs/vec3" }
+      }
+    },
+    "post_fx": {
+      "type": "object",
+      "required": ["exposure", "bloom_threshold", "bloom_intensity", "saturation"],
+      "properties": {
+        "exposure": { "type": "number" },
+        "bloom_threshold": { "type": "number" },
+        "bloom_intensity": { "type": "number" },
+        "saturation": { "type": "number" }
+      }
+    },
+    "region": {
+      "type": "object",
+      "required": ["id", "x", "y", "width", "height", "weather", "lighting", "light", "fog", "post_fx"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "x": { "type": "integer", "minimum": 0 },
+        "y": { "type": "integer", "minimum": 0 },
+        "width": { "type": "integer", "minimum": 1 },
+        "height": { "type": "integer", "minimum": 1 },
+        "weather": { "type": "string", "enum": ["clear", "rain", "snow", "storm", "fog"] },
+        "lighting": { "type": "string", "enum": ["day", "night"] },
+        "light": { "$ref": "#/$defs/light" },
+        "fog": { "$ref": "#/$defs/fog" },
+        "post_fx": { "$ref": "#/$defs/post_fx" }
+      }
+    }
+  }
+}

@@ -1,0 +1,104 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://urpg.local/schemas/quest_objective_graph.schema.json",
+  "title": "URPG Quest Objective Graph",
+  "type": "object",
+  "required": ["schema_version", "quest_id", "nodes", "links"],
+  "properties": {
+    "schema_version": {
+      "const": "urpg.quest_objective_graph.v1"
+    },
+    "quest_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "title": {
+      "type": "string"
+    },
+    "nodes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "type"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "type": {
+            "enum": ["start", "objective", "reward", "end"]
+          },
+          "title": {
+            "type": "string"
+          },
+          "objective_id": {
+            "type": "string"
+          },
+          "localization_key": {
+            "type": "string"
+          },
+          "conditions": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["type", "id"],
+              "properties": {
+                "type": {
+                  "enum": ["switch", "variable", "item", "battle", "dialogue_choice", "reputation"]
+                },
+                "id": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "value": {
+                  "type": "integer"
+                }
+              },
+              "additionalProperties": false
+            }
+          },
+          "rewards": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["type", "id"],
+              "properties": {
+                "type": {
+                  "enum": ["currency", "item", "experience", "reputation", "ability"]
+                },
+                "id": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "value": {
+                  "type": "integer"
+                }
+              },
+              "additionalProperties": false
+            }
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "links": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["from", "to"],
+        "properties": {
+          "from": {
+            "type": "string",
+            "minLength": 1
+          },
+          "to": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false
+}

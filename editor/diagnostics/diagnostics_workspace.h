@@ -6,6 +6,7 @@
 #include "editor/compat/compat_report_panel.h"
 #include "editor/diagnostics/event_authority_panel.h"
 #include "editor/diagnostics/migration_wizard_panel.h"
+#include "editor/diagnostics/project_audit_export_parity.h"
 #include "editor/diagnostics/project_audit_panel.h"
 #include "editor/diagnostics/project_health_panel.h"
 #include "editor/message/message_inspector_panel.h"
@@ -199,6 +200,8 @@ class DiagnosticsWorkspace {
     DiagnosticsTabSummary tabSummary(DiagnosticsTab tab) const;
     std::vector<DiagnosticsTabSummary> allTabSummaries() const;
     std::string exportAsJson() const;
+    ProjectAuditExportParityResult compareProjectAuditExportParityReport(const nlohmann::json& cli_report) const;
+    std::string exportProjectAuditParityJson(const nlohmann::json& cli_report) const;
 
     void render();
     void refresh();

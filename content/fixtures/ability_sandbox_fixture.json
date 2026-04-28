@@ -1,0 +1,19 @@
+{
+  "schema": "urpg.ability_sandbox.v1",
+  "id": "power_surge_sandbox",
+  "source_mp": 40.0,
+  "source_attack": 10.0,
+  "source_tags": ["Class.Warrior", "Weapon.Sword"],
+  "required_tags": ["Class.Warrior"],
+  "blocking_tags": ["State.Silenced"],
+  "ability": {
+    "ability_id": "skill.power_surge",
+    "cooldown_seconds": 5.0,
+    "mp_cost": 15.0,
+    "effect_id": "effect.power_surge",
+    "effect_attribute": "Attack",
+    "effect_operation": "Add",
+    "effect_value": 8.0,
+    "effect_duration": 6.0
+  }
+}

@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://urpg.dev/schemas/ability_sandbox.schema.json",
+  "title": "URPG ability sandbox",
+  "type": "object",
+  "required": ["schema", "id", "ability", "source_mp", "source_attack", "source_tags", "required_tags", "blocking_tags"],
+  "properties": {
+    "schema": { "const": "urpg.ability_sandbox.v1" },
+    "id": { "type": "string", "minLength": 1 },
+    "source_mp": { "type": "number", "minimum": 0 },
+    "source_attack": { "type": "number" },
+    "source_tags": { "type": "array", "items": { "type": "string" } },
+    "required_tags": { "type": "array", "items": { "type": "string" } },
+    "blocking_tags": { "type": "array", "items": { "type": "string" } },
+    "ability": {
+      "type": "object",
+      "required": ["ability_id", "cooldown_seconds", "mp_cost", "effect_id", "effect_attribute", "effect_operation", "effect_value", "effect_duration"],
+      "properties": {
+        "ability_id": { "type": "string", "minLength": 1 },
+        "cooldown_seconds": { "type": "number", "minimum": 0 },
+        "mp_cost": { "type": "number", "minimum": 0 },
+        "effect_id": { "type": "string", "minLength": 1 },
+        "effect_attribute": { "type": "string", "minLength": 1 },
+        "effect_operation": { "type": "string", "enum": ["Add", "Multiply", "Override"] },
+        "effect_value": { "type": "number" },
+        "effect_duration": { "type": "number" }
+      }
+    }
+  }
+}

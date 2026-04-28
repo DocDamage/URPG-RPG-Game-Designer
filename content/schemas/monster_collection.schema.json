@@ -1,0 +1,56 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://urpg.local/schemas/monster_collection.schema.json",
+  "title": "URPG Monster Collection",
+  "type": "object",
+  "required": ["schema_version", "party_limit", "species", "party", "storage"],
+  "properties": {
+    "schema_version": {
+      "const": "urpg.monster_collection.v1"
+    },
+    "party_limit": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "species": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "display_name", "base_capture_rate"],
+        "properties": {
+          "id": {"type": "string", "minLength": 1},
+          "display_name": {"type": "string"},
+          "base_capture_rate": {"type": "integer", "minimum": 1},
+          "evolves_to": {"type": "string"},
+          "evolution_level": {"type": "integer", "minimum": 0}
+        },
+        "additionalProperties": false
+      }
+    },
+    "party": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/captured_monster"
+      }
+    },
+    "storage": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/captured_monster"
+      }
+    }
+  },
+  "$defs": {
+    "captured_monster": {
+      "type": "object",
+      "required": ["instance_id", "species_id", "level"],
+      "properties": {
+        "instance_id": {"type": "string", "minLength": 1},
+        "species_id": {"type": "string", "minLength": 1},
+        "level": {"type": "integer", "minimum": 1}
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

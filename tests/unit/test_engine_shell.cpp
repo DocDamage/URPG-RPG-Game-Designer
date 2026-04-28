@@ -103,6 +103,39 @@ TEST_CASE("EngineShell Tick Loop", "[engine_shell][core]") {
     clearSceneStack();
 }
 
+TEST_CASE("EngineShell records shell-owned MapScene commands through the headless renderer",
+          "[engine][shell][render][presentation][backend][headless]") {
+    auto& sceneManager = SceneManager::getInstance();
+    clearSceneStack();
+    RenderLayer::getInstance().flush();
+
+    auto& shell = EngineShell::getInstance();
+    auto surface = std::make_unique<HeadlessSurface>();
+    shell.startup(std::move(surface), std::make_unique<HeadlessRenderer>());
+
+    auto map = std::make_shared<MapScene>("HeadlessParityMap", 4, 3);
+    map->setTile(0, 0, 1, true);
+    map->setTile(1, 0, 2, true);
+    sceneManager.pushScene(map);
+
+    shell.tick();
+
+    const auto* renderer = dynamic_cast<const HeadlessRenderer*>(shell.getRenderer());
+    REQUIRE(renderer != nullptr);
+    REQUIRE(renderer->initialized());
+    REQUIRE(renderer->frameHistory().size() == 1);
+
+    const auto& summary = renderer->lastFrameSummary();
+    REQUIRE(summary.frameIndex == 1);
+    REQUIRE(summary.commandCount > 0);
+    REQUIRE(summary.tileCommandCount > 0);
+    REQUIRE(summary.commandCount == renderer->lastFrameCommands().size());
+    REQUIRE(RenderLayer::getInstance().getFrameCommands().empty());
+
+    shell.shutdown();
+    clearSceneStack();
+}
+
 TEST_CASE("EngineShell advances input just-pressed state after scene input", "[engine_shell][core][input]") {
     auto& shell = EngineShell::getInstance();
     clearSceneStack();

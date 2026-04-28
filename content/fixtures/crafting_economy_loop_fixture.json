@@ -1,0 +1,26 @@
+{
+  "schema_version": "urpg.crafting_economy_loop.v1",
+  "loop_id": "alchemy_loop",
+  "gathering_sources": [
+    {
+      "id": "forest_patch",
+      "required_flag": "",
+      "yields": {
+        "herb": 2
+      }
+    }
+  ],
+  "recipes": [
+    {
+      "id": "recipe.potion",
+      "unlock_flag": "alchemy_unlocked",
+      "ingredients": {
+        "herb": 2,
+        "water": 1
+      },
+      "results": {
+        "potion": 1
+      }
+    }
+  ]
+}

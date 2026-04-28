@@ -1,11 +1,44 @@
+#include "editor/spatial/map_environment_preview_panel.h"
 #include "editor/spatial/procedural_map_panel.h"
 #include "editor/spatial/region_rules_panel.h"
 #include "editor/spatial/terrain_brush_panel.h"
+#include "engine/core/map/map_environment_preview.h"
 #include "engine/core/map/spawn_table.h"
 #include "engine/core/map/tactical_grid_preview.h"
 #include "engine/core/map/tile_layer_document.h"
+#include "engine/core/presentation/presentation_runtime.h"
 
 #include <catch2/catch_test_macros.hpp>
+
+#include <filesystem>
+#include <fstream>
+
+namespace {
+
+std::filesystem::path mapWorldbuildingRepoRoot() {
+#ifdef URPG_SOURCE_DIR
+    return std::filesystem::path(URPG_SOURCE_DIR);
+#else
+    return std::filesystem::current_path();
+#endif
+}
+
+nlohmann::json loadMapWorldbuildingJson(const std::filesystem::path& path) {
+    std::ifstream stream(path);
+    REQUIRE(stream.is_open());
+    nlohmann::json json;
+    stream >> json;
+    return json;
+}
+
+size_t countPresentationCommand(const urpg::presentation::PresentationFrameIntent& intent,
+                                urpg::presentation::PresentationCommand::Type type) {
+    return static_cast<size_t>(std::count_if(intent.commands.begin(), intent.commands.end(), [type](const auto& cmd) {
+        return cmd.type == type;
+    }));
+}
+
+} // namespace
 
 TEST_CASE("Terrain brush output is deterministic for the same seed", "[map][worldbuilding][ffs06]") {
     urpg::map::TerrainBrush brush;
@@ -73,6 +106,99 @@ TEST_CASE("Region rules panel renders an explicit disabled empty state", "[map][
     REQUIRE(panel.snapshot().rule_count == 0);
     REQUIRE(panel.snapshot().diagnostic_count == 0);
     REQUIRE(panel.snapshot().status_message == "Load region rules before previewing this panel.");
+}
+
+TEST_CASE("Map environment preview turns region rules into live runtime lighting and weather",
+          "[map][worldbuilding][environment][wysiwyg]") {
+    const auto document = urpg::map::MapEnvironmentPreviewDocument::fromRegionRules(
+        "forest_storm_pass",
+        12,
+        8,
+        {
+            {"rain_path", 2, 1, 4, 3, "", "rain_loop", "rain", "", "normal", ""},
+            {"night_clearing", 7, 2, 3, 3, "", "crickets", "fog", "dark", "normal", ""},
+        });
+
+    urpg::editor::MapEnvironmentPreviewPanel panel;
+    panel.loadDocument(document);
+    panel.selectTile(3, 2);
+    panel.render();
+
+    REQUIRE(panel.hasRenderedFrame());
+    REQUIRE_FALSE(panel.snapshot().disabled);
+    REQUIRE(panel.snapshot().map_id == "forest_storm_pass");
+    REQUIRE(panel.snapshot().region_id == "rain_path");
+    REQUIRE(panel.snapshot().weather == "rain");
+    REQUIRE(panel.snapshot().diagnostic_count == 0);
+    REQUIRE(panel.snapshot().status_message == "Map environment preview is ready.");
+    REQUIRE_FALSE(panel.snapshot().saved_project_json.empty());
+
+    const auto& intent = panel.preview().runtime_intent;
+    REQUIRE(countPresentationCommand(intent, urpg::presentation::PresentationCommand::Type::SetFog) == 1);
+    REQUIRE(countPresentationCommand(intent, urpg::presentation::PresentationCommand::Type::SetPostFX) == 1);
+    REQUIRE(countPresentationCommand(intent, urpg::presentation::PresentationCommand::Type::SetLight) == 2);
+    REQUIRE(intent.resolvedFogProfiles.size() == 1);
+    REQUIRE(intent.resolvedFogProfiles[0].density > 0.006f);
+}
+
+TEST_CASE("Map environment preview fixture is saved project data and executes in presentation runtime",
+          "[map][worldbuilding][environment][wysiwyg]") {
+    const auto json = loadMapWorldbuildingJson(
+        mapWorldbuildingRepoRoot() / "content" / "fixtures" / "map_environment_preview_fixture.json");
+    const auto document = urpg::map::MapEnvironmentPreviewDocument::fromJson(json);
+
+    REQUIRE(document.map_id == "forest_weather_lab");
+    REQUIRE(document.regions.size() == 2);
+    REQUIRE(document.validate().empty());
+
+    const auto saved = document.toJson();
+    REQUIRE(saved["schema"] == "urpg.map_environment_preview.v1");
+    REQUIRE(saved["regions"].size() == 2);
+
+    const auto result = urpg::map::PreviewMapEnvironment(document, 8, 3);
+    REQUIRE(result.region != nullptr);
+    REQUIRE(result.region->id == "night_clearing");
+    REQUIRE(result.diagnostics.empty());
+    REQUIRE(countPresentationCommand(result.runtime_intent, urpg::presentation::PresentationCommand::Type::SetFog) == 1);
+    REQUIRE(countPresentationCommand(result.runtime_intent, urpg::presentation::PresentationCommand::Type::SetPostFX) == 1);
+}
+
+TEST_CASE("Map environment preview diagnostics block false completion claims",
+          "[map][worldbuilding][environment][wysiwyg]") {
+    urpg::map::MapEnvironmentPreviewDocument document;
+    document.map_id = "broken_weather";
+    document.width = 4;
+    document.height = 4;
+    document.base_weather = "clear";
+    document.regions = {
+        {"storm", 1, 1, 4, 2, "storm", "day", {}, {}, {}},
+        {"storm", 2, 2, 2, 2, "acid", "day", {}, {}, {}},
+    };
+    document.regions[0].light.range = 0.0f;
+    document.regions[0].fog.endDist = 0.0f;
+    document.regions[0].fog.startDist = 1.0f;
+
+    urpg::editor::MapEnvironmentPreviewPanel panel;
+    panel.loadDocument(document);
+    panel.selectTile(9, 9);
+    panel.render();
+
+    REQUIRE(panel.hasRenderedFrame());
+    REQUIRE(panel.snapshot().diagnostic_count >= 5);
+    REQUIRE(panel.snapshot().status_message == "Map environment preview has diagnostics.");
+
+    const auto& diagnostics = panel.preview().diagnostics;
+    const auto hasCode = [&diagnostics](const std::string& code) {
+        return std::any_of(diagnostics.begin(), diagnostics.end(), [&code](const auto& diagnostic) {
+            return diagnostic.code == code;
+        });
+    };
+    REQUIRE(hasCode("region_out_of_bounds"));
+    REQUIRE(hasCode("duplicate_region_id"));
+    REQUIRE(hasCode("unknown_weather"));
+    REQUIRE(hasCode("invalid_light_profile"));
+    REQUIRE(hasCode("invalid_fog_profile"));
+    REQUIRE(hasCode("preview_tile_out_of_bounds"));
 }
 
 TEST_CASE("Procedural generator reports unsatisfied constraints and returns editable document", "[map][worldbuilding][ffs06]") {

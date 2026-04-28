@@ -1,0 +1,36 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://urpg.dev/schemas/mod_store_catalog.schema.json",
+  "title": "URPG Mod Store Catalog",
+  "type": "object",
+  "required": ["version", "entries"],
+  "properties": {
+    "version": { "type": "integer", "minimum": 1 },
+    "entries": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "displayName", "version", "publisher", "packageRoot", "manifest"],
+        "properties": {
+          "id": { "type": "string" },
+          "displayName": { "type": "string" },
+          "version": { "type": "string" },
+          "publisher": { "type": "string" },
+          "packageRoot": { "type": "string" },
+          "verified": { "type": "boolean" },
+          "tags": { "type": "array", "items": { "type": "string" } },
+          "manifest": { "$ref": "mod_manifest.schema.json" },
+          "sandboxPolicy": {
+            "type": "object",
+            "properties": {
+              "fileSystemRead": { "type": "boolean" },
+              "fileSystemWrite": { "type": "boolean" },
+              "networkAccess": { "type": "boolean" },
+              "nativeInterop": { "type": "boolean" }
+            }
+          }
+        }
+      }
+    }
+  }
+}
