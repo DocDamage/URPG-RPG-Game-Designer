@@ -56,6 +56,7 @@ Repository-wide source/vendor LFS hydration is still externally constrained by G
 - Menu scene graph, command registry, route resolver, editor preview, diagnostics export, and schema/migration coverage.
 - Message flow runner, rich text layout, choice prompt state, portrait binding, text rendering handoff, editor workflows, and diagnostics round-trips.
 - Dialogue WYSIWYG preview with saved portrait, localized text, choices, default selection, authored choice target pages, variable writes, choice commands, runtime command traces, post-choice state preview, diagnostics, schema/fixture coverage, and editor selection/confirmation actions.
+- Event-command visual graph authoring with saved nodes and edges, editor add/update/move/connect actions, sequence and conditional edge traversal, runtime switch/variable state application, edge/runtime traces, dependency graph projection, diagnostics, schema/fixture coverage, and tests tying panel edits to runtime execution.
 - Battle runtime with participant state, bounded formula evaluation, battle event migration, reward/event cadence coverage, BGM/ME routing through compat audio state, battleback diagnostics, HUD quads, gauges, popups, guard markers, and state icon presentation.
 - Save/data runtime with slot descriptors, save policy governance, compat save import, native payload generation, JSONL diagnostics, and metadata preservation.
 - Gameplay Ability Framework with tags, abilities, effects, cooldown/cost checks, ability system components, battle activation, map-side ability consumption, authored ability assets, diagnostics preview, save/load, and runtime apply flows.
@@ -138,7 +139,7 @@ The roadmap remains WYSIWYG-first. Most previously listed future-feature slices 
 - deeper battle animation/VFX timeline polish beyond the implemented saved tracks, event binding, live preview commands, runtime cue execution, diagnostics, schema, fixture, and tests
 - deeper map lighting/weather/region/tile/tactical/spawn preview polish beyond the implemented saved combined preview contract, runtime presentation commands, overlay commands, diagnostics, schema, fixture, editor snapshot, and tests
 - deeper dialogue graph and message preview polish beyond the implemented portrait/localization/choice selection, choice command, variable-write, runtime-trace, saved-data, diagnostics, schema, fixture, and tests
-- event-command visual graph authoring with runtime command execution proof
+- deeper event-command graph polish beyond the implemented saved nodes/edges, editor mutation actions, conditional traversal, runtime trace, diagnostics, schema, fixture, and tests
 - ability sandboxing with visible costs, cooldowns, tags, and effects
 - save/load preview lab for inspecting persisted runtime state
 - export preview that shows exactly what will ship

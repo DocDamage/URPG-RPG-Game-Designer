@@ -16,6 +16,13 @@ Each governed schema entry should include:
 
 ## Entries
 
+### `event_command_graph` (`event_command_graph.schema.json`)
+
+- Version: `1.1.0`
+- Date: `2026-04-28`
+- Summary: adds conditional edge metadata for switch and variable conditions so visual event graphs can preview branch traversal and runtime state changes
+- Migration Impact: additive optional fields; existing event command graph edges continue to load as sequence edges with no conditions
+
 ### `dialogue_preview` (`dialogue_preview.schema.json`)
 
 - Version: `1.1.0`

@@ -28,6 +28,10 @@ struct EventCommandGraphEdge {
     std::string from_node_id;
     std::string to_node_id;
     std::string kind = "sequence";
+    std::string condition_switch_id;
+    bool condition_switch_value = true;
+    std::string condition_variable_id;
+    int64_t condition_variable_min = 0;
 };
 
 struct EventCommandGraphDiagnostic {
@@ -59,6 +63,8 @@ struct EventCommandGraphDocument {
 struct EventCommandGraphRuntimeResult {
     EventWorldState state;
     std::vector<EventCommand> executed_commands;
+    std::vector<std::string> traversed_edge_ids;
+    std::vector<std::string> runtime_trace;
     urpg::EventExecutionTimeline timeline;
     std::vector<EventCommandGraphDiagnostic> diagnostics;
 };

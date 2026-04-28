@@ -77,6 +77,43 @@ const EventCommandGraphNode* findNode(const std::vector<EventCommandGraphNode>& 
     return it == nodes.end() ? nullptr : &(*it);
 }
 
+bool edgeConditionMatches(const EventCommandGraphEdge& edge, const EventWorldState& state) {
+    if (!edge.condition_switch_id.empty()) {
+        const auto it = state.switches.find(edge.condition_switch_id);
+        const bool value = it != state.switches.end() && it->second;
+        if (value != edge.condition_switch_value) {
+            return false;
+        }
+    }
+    if (!edge.condition_variable_id.empty()) {
+        const auto it = state.variables.find(edge.condition_variable_id);
+        const int64_t value = it == state.variables.end() ? 0 : it->second;
+        if (value < edge.condition_variable_min) {
+            return false;
+        }
+    }
+    return true;
+}
+
+void applyCommandToState(const EventCommand& command, EventWorldState& state) {
+    if (command.kind == EventCommandKind::Switch && !command.target.empty()) {
+        state.switches[command.target] = command.value == "true" || command.value == "on" || command.amount != 0;
+    } else if (command.kind == EventCommandKind::Variable && !command.target.empty()) {
+        state.variables[command.target] = command.amount;
+    }
+}
+
+std::string commandTrace(const EventCommand& command) {
+    std::string trace = "execute:" + command.id + ":" + toString(command.kind);
+    if (!command.target.empty()) {
+        trace += ":" + command.target;
+    }
+    if (command.kind == EventCommandKind::Switch || command.kind == EventCommandKind::Variable) {
+        trace += "=" + (command.kind == EventCommandKind::Switch ? command.value : std::to_string(command.amount));
+    }
+    return trace;
+}
+
 } // namespace
 
 std::vector<EventCommandGraphDiagnostic> EventCommandGraphDocument::validate() const {
@@ -136,6 +173,13 @@ std::vector<EventCommandGraphDiagnostic> EventCommandGraphDocument::validate() c
         if (!node_ids.contains(edge.to_node_id)) {
             diagnostics.push_back({"missing_edge_target", "Event command graph edge target node does not exist.",
                                    edge.to_node_id});
+        }
+        if (edge.kind != "sequence" && edge.kind != "conditional") {
+            diagnostics.push_back({"unsupported_edge_kind", "Event command graph edge kind is unsupported.", edge.id});
+        }
+        if (edge.kind == "conditional" && edge.condition_switch_id.empty() && edge.condition_variable_id.empty()) {
+            diagnostics.push_back({"missing_edge_condition", "Conditional event graph edge requires a condition.",
+                                   edge.id});
         }
         ++incoming[edge.to_node_id];
     }
@@ -247,6 +291,10 @@ nlohmann::json EventCommandGraphDocument::toJson() const {
             {"from_node_id", edge.from_node_id},
             {"to_node_id", edge.to_node_id},
             {"kind", edge.kind},
+            {"condition_switch_id", edge.condition_switch_id},
+            {"condition_switch_value", edge.condition_switch_value},
+            {"condition_variable_id", edge.condition_variable_id},
+            {"condition_variable_min", edge.condition_variable_min},
         });
     }
     return json;
@@ -277,6 +325,10 @@ EventCommandGraphDocument EventCommandGraphDocument::fromJson(const nlohmann::js
             edge_json.value("from_node_id", ""),
             edge_json.value("to_node_id", ""),
             edge_json.value("kind", "sequence"),
+            edge_json.value("condition_switch_id", ""),
+            edge_json.value("condition_switch_value", true),
+            edge_json.value("condition_variable_id", ""),
+            edge_json.value("condition_variable_min", int64_t{0}),
         });
     }
     return document;
@@ -297,15 +349,49 @@ EventCommandGraphRuntimeResult ExecuteEventCommandGraphPreview(const EventComman
     urpg::EventDispatchSession session;
     session.BeginInvocation(invocation);
 
-    for (const auto& node : document.orderedNodes()) {
-        auto command = toEventCommand(node);
-        result.executed_commands.push_back(command);
-        if (command.kind == EventCommandKind::Switch && !command.target.empty()) {
-            result.state.switches[command.target] =
-                command.value == "true" || command.value == "on" || command.amount != 0;
-        } else if (command.kind == EventCommandKind::Variable && !command.target.empty()) {
-            result.state.variables[command.target] = command.amount;
+    std::map<std::string, std::vector<EventCommandGraphEdge>> outgoing;
+    for (const auto& edge : document.edges) {
+        outgoing[edge.from_node_id].push_back(edge);
+    }
+    for (auto& [_, edges] : outgoing) {
+        std::sort(edges.begin(), edges.end(), [](const auto& left, const auto& right) {
+            if (left.kind != right.kind) {
+                return left.kind == "conditional";
+            }
+            return left.id < right.id;
+        });
+    }
+
+    auto ordered = document.orderedNodes();
+    std::string cursor = ordered.empty() ? "" : ordered.front().id;
+    std::set<std::string> visited;
+    while (!cursor.empty() && !visited.contains(cursor)) {
+        const auto* node = findNode(document.nodes, cursor);
+        if (node == nullptr) {
+            break;
         }
+        visited.insert(cursor);
+        auto command = toEventCommand(*node);
+        result.executed_commands.push_back(command);
+        result.runtime_trace.push_back(commandTrace(command));
+        applyCommandToState(command, result.state);
+
+        const auto next_edges = outgoing.find(cursor);
+        if (next_edges == outgoing.end()) {
+            break;
+        }
+        std::string next_node_id;
+        for (const auto& edge : next_edges->second) {
+            const bool condition_matches = edgeConditionMatches(edge, result.state);
+            result.runtime_trace.push_back(std::string("edge:") + edge.id + ":" +
+                                           (condition_matches ? "taken" : "skipped"));
+            if (condition_matches) {
+                result.traversed_edge_ids.push_back(edge.id);
+                next_node_id = edge.to_node_id;
+                break;
+            }
+        }
+        cursor = next_node_id;
     }
 
     session.EndInvocation(invocation);

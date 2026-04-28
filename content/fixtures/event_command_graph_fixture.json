@@ -41,6 +41,17 @@
       "x": 560,
       "y": 120,
       "payload": {}
+    },
+    {
+      "id": "reward_chime",
+      "label": "Play gate reward chime",
+      "kind": "sound",
+      "target": "gate_chime",
+      "value": "",
+      "amount": 0,
+      "x": 800,
+      "y": 120,
+      "payload": { "volume": 80 }
     }
   ],
   "edges": [
@@ -55,6 +66,16 @@
       "from_node_id": "set_gate_open",
       "to_node_id": "set_crystal_count",
       "kind": "sequence"
+    },
+    {
+      "id": "edge_variable_to_chime",
+      "from_node_id": "set_crystal_count",
+      "to_node_id": "reward_chime",
+      "kind": "conditional",
+      "condition_switch_id": "gate_open",
+      "condition_switch_value": true,
+      "condition_variable_id": "crystals_spent",
+      "condition_variable_min": 1
     }
   ]
 }

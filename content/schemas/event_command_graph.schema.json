@@ -50,7 +50,11 @@
         "id": { "type": "string", "minLength": 1 },
         "from_node_id": { "type": "string", "minLength": 1 },
         "to_node_id": { "type": "string", "minLength": 1 },
-        "kind": { "type": "string", "enum": ["sequence"] }
+        "kind": { "type": "string", "enum": ["sequence", "conditional"] },
+        "condition_switch_id": { "type": "string" },
+        "condition_switch_value": { "type": "boolean" },
+        "condition_variable_id": { "type": "string" },
+        "condition_variable_min": { "type": "integer" }
       }
     }
   }

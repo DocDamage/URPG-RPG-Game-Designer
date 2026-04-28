@@ -118,6 +118,13 @@ Dialogue preview slice status:
 - [x] Editor panel now exposes choice selection/confirmation actions and post-choice state snapshots.
 - [x] Focused tests tie saved fixture data, editor preview state, runtime command traces, diagnostics, and JSON round-trip behavior together.
 
+Event-command visual graph slice status:
+
+- [x] Saved event command graph edges now support sequence and conditional traversal with switch/variable conditions.
+- [x] Runtime preview now emits command and edge traces and applies switch/variable writes through the same graph traversal shown by the editor.
+- [x] Editor panel now exposes add/update node, move node, and connect edge actions, plus selected-node details and post-run state counts.
+- [x] Focused tests tie panel graph mutations, saved JSON, dependency projection, conditional traversal, diagnostics, and runtime execution together.
+
 ### Task 5: Renderer, Accessibility, Audio, Performance, Platform, and Offline Tooling Lanes
 
 **Files:**
