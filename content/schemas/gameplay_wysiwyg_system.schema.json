@@ -1,0 +1,56 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:urpg:gameplay-wysiwyg-system",
+  "title": "URPG Gameplay WYSIWYG System",
+  "type": "object",
+  "required": ["schema_version", "id", "feature_type", "display_name", "visual_layers", "rules"],
+  "properties": {
+    "schema_version": { "const": "urpg.gameplay_wysiwyg.v1" },
+    "id": { "type": "string", "minLength": 1 },
+    "feature_type": {
+      "enum": [
+        "status_effect_designer",
+        "enemy_ai_behavior_tree",
+        "boss_phase_script",
+        "equipment_set_bonus",
+        "dungeon_room_flow",
+        "companion_banter",
+        "quest_choice_consequence",
+        "shop_economy_sim_lab",
+        "puzzle_mechanic_builder",
+        "world_state_timeline",
+        "tactical_terrain_effects",
+        "procedural_content_rules"
+      ]
+    },
+    "display_name": { "type": "string", "minLength": 1 },
+    "visual_layers": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "type": "string", "minLength": 1 }
+    },
+    "rules": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["id", "label", "trigger", "target", "effect"],
+        "properties": {
+          "id": { "type": "string", "minLength": 1 },
+          "label": { "type": "string", "minLength": 1 },
+          "trigger": { "type": "string", "minLength": 1 },
+          "target": { "type": "string", "minLength": 1 },
+          "effect": { "type": "string", "minLength": 1 },
+          "value": { "type": "integer" },
+          "duration": { "type": "integer", "minimum": 0 },
+          "required_flags": { "type": "array", "items": { "type": "string" } },
+          "grants_flags": { "type": "array", "items": { "type": "string" } },
+          "variable_writes": { "type": "object", "additionalProperties": { "type": "string" } },
+          "resource_delta": { "type": "object", "additionalProperties": { "type": "integer" } }
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false
+}

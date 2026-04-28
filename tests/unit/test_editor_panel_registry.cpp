@@ -17,13 +17,25 @@ bool ContainsId(const std::vector<std::string>& ids, const std::string& id) {
 TEST_CASE("Editor panel registry exposes canonical top-level panels", "[editor][panel][registry]") {
     const auto ids = urpg::editor::requiredTopLevelPanelIds();
 
-    REQUIRE(ids.size() == 18);
+    REQUIRE(ids.size() == 30);
     REQUIRE(ContainsId(ids, "diagnostics"));
     REQUIRE(ContainsId(ids, "assets"));
     REQUIRE(ContainsId(ids, "ability"));
     REQUIRE(ContainsId(ids, "patterns"));
     REQUIRE(ContainsId(ids, "mod"));
     REQUIRE(ContainsId(ids, "analytics"));
+    REQUIRE(ContainsId(ids, "status_effect_designer"));
+    REQUIRE(ContainsId(ids, "enemy_ai_behavior_tree"));
+    REQUIRE(ContainsId(ids, "boss_phase_script"));
+    REQUIRE(ContainsId(ids, "equipment_set_bonus"));
+    REQUIRE(ContainsId(ids, "dungeon_room_flow"));
+    REQUIRE(ContainsId(ids, "companion_banter"));
+    REQUIRE(ContainsId(ids, "quest_choice_consequence"));
+    REQUIRE(ContainsId(ids, "shop_economy_sim_lab"));
+    REQUIRE(ContainsId(ids, "puzzle_mechanic_builder"));
+    REQUIRE(ContainsId(ids, "world_state_timeline"));
+    REQUIRE(ContainsId(ids, "tactical_terrain_effects"));
+    REQUIRE(ContainsId(ids, "procedural_content_rules"));
     REQUIRE(ContainsId(ids, "quest"));
     REQUIRE(ContainsId(ids, "skill_tree"));
     REQUIRE(ContainsId(ids, "relationship"));
@@ -90,6 +102,18 @@ TEST_CASE("Editor smoke coverage follows every registered top-level panel", "[ed
 
     REQUIRE(smokeIds == topLevelIds);
     REQUIRE(ContainsId(smokeIds, "patterns"));
+    REQUIRE(ContainsId(smokeIds, "status_effect_designer"));
+    REQUIRE(ContainsId(smokeIds, "enemy_ai_behavior_tree"));
+    REQUIRE(ContainsId(smokeIds, "boss_phase_script"));
+    REQUIRE(ContainsId(smokeIds, "equipment_set_bonus"));
+    REQUIRE(ContainsId(smokeIds, "dungeon_room_flow"));
+    REQUIRE(ContainsId(smokeIds, "companion_banter"));
+    REQUIRE(ContainsId(smokeIds, "quest_choice_consequence"));
+    REQUIRE(ContainsId(smokeIds, "shop_economy_sim_lab"));
+    REQUIRE(ContainsId(smokeIds, "puzzle_mechanic_builder"));
+    REQUIRE(ContainsId(smokeIds, "world_state_timeline"));
+    REQUIRE(ContainsId(smokeIds, "tactical_terrain_effects"));
+    REQUIRE(ContainsId(smokeIds, "procedural_content_rules"));
     REQUIRE(ContainsId(smokeIds, "quest"));
     REQUIRE(ContainsId(smokeIds, "skill_tree"));
     REQUIRE(ContainsId(smokeIds, "relationship"));
