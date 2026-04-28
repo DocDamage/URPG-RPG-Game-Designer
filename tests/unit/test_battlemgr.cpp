@@ -1033,7 +1033,7 @@ TEST_CASE("BattleManager: applySkill uses the supported compat formula subset wh
     skill->damage = originalDamage;
 }
 
-TEST_CASE("BattleManager: applyItem exposes unsupported compat formulas and falls back safely", "[battlemgr]") {
+TEST_CASE("BattleManager: applyItem resolves actor level formulas", "[battlemgr]") {
     DataManager::instance().loadDatabase();
     DataManager::instance().setupNewGame();
 
@@ -1052,15 +1052,24 @@ TEST_CASE("BattleManager: applyItem exposes unsupported compat formulas and fall
     item->effects.clear();
     item->animationId = 0;
 
+    BattleSubject actor;
+    actor.type = BattleSubjectType::ACTOR;
+    actor.id = 1;
+    actor.index = 0;
+    actor.hp = 100;
+    actor.mhp = 100;
+    ActorData* actorData = DataManager::instance().getActor(1);
+    REQUIRE(actorData != nullptr);
+    actorData->level = 6;
+
     BattleSubject* enemy = bm.getEnemy(0);
     REQUIRE(enemy != nullptr);
     const int32_t initialHp = enemy->hp;
 
-    bm.applyItem(nullptr, enemy, 1);
+    bm.applyItem(&actor, enemy, 1);
 
-    REQUIRE(enemy->hp == initialHp - 9);
-    REQUIRE(BattleManager::getMethodDeviation("applyItem")
-                .find("Last formula fallback: unsupported_formula_symbol:a.level") != std::string::npos);
+    REQUIRE(enemy->hp == initialHp - 12);
+    REQUIRE(BattleManager::getMethodDeviation("applyItem").find("Last formula fallback") == std::string::npos);
 
     item->damage = originalDamage;
     item->effects = originalEffects;

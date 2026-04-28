@@ -52,7 +52,7 @@ class AISyncCoordinator {
     SyncResult restoreHistoryFromCloudDetailed(const std::string& profileId, ChatbotComponent& chatbot);
 
     /**
-     * @brief Placeholder hook for checking remote AI knowledge updates.
+     * @brief Checks the configured cloud-service backend for a project knowledge update feed.
      */
     bool checkForRemoteKnowledgeUpdates(const std::string& projectId);
     SyncResult checkForRemoteKnowledgeUpdatesDetailed(const std::string& projectId);
@@ -61,6 +61,7 @@ class AISyncCoordinator {
 
   private:
     static std::string historyKeyForProfile(const std::string& profileId);
+    static std::string knowledgeUpdatesKeyForProject(const std::string& projectId);
 
     std::shared_ptr<urpg::social::ICloudService> m_cloud;
     SyncResult m_lastResult;

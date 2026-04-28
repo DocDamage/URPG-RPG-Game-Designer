@@ -146,6 +146,7 @@ This plan converts the game/app completion audit into ordered implementation wor
 
 - Task ID: `P1-05`
 - Title: Decide and wire Analytics Flush behavior
+- Status: `DONE` as of 2026-04-27. The shipped editor path uses local JSONL analytics export only, binds `AnalyticsUploader` in `apps/editor/main.cpp`, gates flush behind explicit consent/opt-in, and exposes disabled reasons when uploader, consent, opt-in, or queued events are missing.
 - Files to edit: `apps/editor/main.cpp`, `editor/analytics/analytics_panel.*`, `engine/core/analytics/analytics_uploader.*`
 - Files to inspect: `PRIVACY_POLICY.md`, `docs/release/LEGAL_REVIEW_SIGNOFF.md`
 - Dependencies: None
@@ -212,6 +213,7 @@ This plan converts the game/app completion audit into ordered implementation wor
 
 - Task ID: `P2-04`
 - Title: Audit and close QuickJS/WindowCompat public stubs
+- Status: `IN PROGRESS` as of 2026-04-27. `Window_Base` release-required draw/status helpers have been reconciled to implemented `FULL` coverage, and DataManager JS-facing troop, state, and global-state value projections now expose loaded runtime data instead of empty/partial snapshots. Broader non-release `PARTIAL` compat surfaces remain explicitly scoped rather than silently no-op.
 - Files to edit: `runtimes/compat_js/window_compat.*`, `runtimes/compat_js/quickjs_runtime.cpp`
 - Files to inspect: `tests/compat/*`, `docs/PROGRAM_COMPLETION_STATUS.md`
 - Dependencies: None
@@ -230,6 +232,7 @@ This plan converts the game/app completion audit into ordered implementation wor
 
 - Task ID: `P3-01`
 - Title: Fix AudioCore false-active playback state
+- Status: `DONE` as of 2026-04-27. `AudioCore` now checks backend playback results before tracking active sources, keeps BGM/BGS/ME state unchanged on failed playback, returns success/failure from long-running playback calls, and reports `audio.play_failed` diagnostics. Missing release audio assets no longer appear active.
 - Files to edit: `engine/core/audio/audio_core.h`
 - Files to inspect: `engine/core/audio/audio_runtime_backend.*`, `editor/audio/audio_inspector_panel.h`
 - Dependencies: None
@@ -246,6 +249,7 @@ This plan converts the game/app completion audit into ordered implementation wor
 
 - Task ID: `P3-02`
 - Title: Harden audio config parsing
+- Status: `DONE` as of 2026-04-27. `AudioCore` now parses `audio.*` volume config through a safe parser, clamps valid values, preserves fallback/current values for malformed strings, and records `audio.config_invalid` diagnostics instead of throwing.
 - Files to edit: `engine/core/audio/audio_core.h`
 - Files to inspect: `engine/core/global_state_hub.*`, `engine/core/settings/app_settings_store.*`
 - Dependencies: None
@@ -278,6 +282,7 @@ This plan converts the game/app completion audit into ordered implementation wor
 
 - Task ID: `P3-04`
 - Title: Surface runtime startup warnings in UI
+- Status: `DONE` as of 2026-04-27. `RuntimeTitleScene` accepts `RuntimeStartupReport`, filters warning/error subsystem records into startup notices, renders them on the title scene, and `apps/runtime/main.cpp` passes the shell startup report into the title scene after startup diagnostics are printed.
 - Files to edit: `apps/runtime/main.cpp`, `engine/core/scene/runtime_title_scene.*`
 - Files to inspect: `engine/core/runtime_startup_services.cpp`, `engine/core/diagnostics/startup_diagnostics.*`
 - Dependencies: `P0-01`
@@ -295,6 +300,7 @@ This plan converts the game/app completion audit into ordered implementation wor
 
 - Task ID: `P4-01`
 - Title: Persist runtime-created protagonist data
+- Status: `DONE` as of 2026-04-27. `RuntimeSaveLoader::SaveCreatedProtagonist` writes the created protagonist identity into the save document, `RuntimeSaveLoader::Load` hydrates it back into `created_protagonist`, and integration coverage verifies a runtime-created protagonist survives save/load.
 - Files to edit: `engine/core/character/*`, `engine/core/save/*`, character creator runtime files
 - Files to inspect: `docs/PROGRAM_COMPLETION_STATUS.md`, `tests/unit/test_character_creation_screen.cpp`
 - Dependencies: `P1-02`
@@ -328,6 +334,7 @@ This plan converts the game/app completion audit into ordered implementation wor
 
 - Task ID: `P4-03`
 - Title: Apply persisted audio settings to runtime AudioCore
+- Status: `DONE` as of 2026-04-27. Runtime startup loads persisted audio settings, applies them through `RuntimeStartupServices::applyAudioSettings`, the Options flow writes settings back to disk, and malformed config is now guarded by safe parsing in `AudioCore`.
 - Files to edit: `apps/runtime/main.cpp`, `engine/core/runtime_startup_services.cpp`, `engine/core/audio/audio_core.h`
 - Files to inspect: `engine/core/settings/app_settings_store.*`
 - Dependencies: `P3-02`

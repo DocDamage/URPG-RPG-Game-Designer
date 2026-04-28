@@ -6,10 +6,12 @@
 #include "../global_state_hub.h"
 #include <algorithm>
 #include <atomic>
+#include <charconv>
 #include <filesystem>
 #include <map>
 #include <memory>
 #include <string>
+#include <system_error>
 #include <vector>
 
 namespace urpg::audio {
@@ -60,49 +62,80 @@ class AudioCore {
         AudioHandle handle = ++m_handleCounter;
         const float normalizedVolume = clampVolume(volume);
         const float normalizedPitch = std::clamp(pitch, 0.5f, 2.0f);
+        if (!m_backend->play({handle, assetId, category, normalizedVolume, normalizedPitch, false, 0.0f})) {
+            m_diagnostics.push_back({
+                "audio.play_failed",
+                "Audio backend rejected playback; source was not marked active.",
+                assetId,
+            });
+            return 0;
+        }
         m_activeSources[handle] = {assetId, normalizedVolume, normalizedPitch, false, category, 1.0f, 0.0f};
-        m_backend->play({handle, assetId, category, normalizedVolume, normalizedPitch, false, 0.0f});
         return handle;
     }
 
     /**
      * @brief Plays background music with crossfade support.
      */
-    void playBGM(const std::string& assetId, float fadeSeconds = 1.0f) {
+    bool playBGM(const std::string& assetId, float fadeSeconds = 1.0f) {
+        AudioHandle handle = ++m_handleCounter;
+        if (!m_backend->play({handle, assetId, AudioCategory::BGM, 1.0f, 1.0f, true, fadeSeconds})) {
+            m_diagnostics.push_back({
+                "audio.play_failed",
+                "Audio backend rejected BGM playback; current BGM state was left unchanged.",
+                assetId,
+            });
+            return false;
+        }
         if (m_bgmHandle != 0) {
             m_backend->stop(m_bgmHandle, fadeSeconds);
             m_activeSources.erase(m_bgmHandle);
         }
-        AudioHandle handle = ++m_handleCounter;
         m_currentBGM = assetId;
         m_bgmHandle = handle;
         m_activeSources[handle] = {assetId, 1.0f, 1.0f, true, AudioCategory::BGM, 1.0f, 0.0f};
-        m_backend->play({handle, assetId, AudioCategory::BGM, 1.0f, 1.0f, true, fadeSeconds});
+        return true;
     }
 
-    void playBGS(const std::string& assetId, float fadeSeconds = 1.0f) {
+    bool playBGS(const std::string& assetId, float fadeSeconds = 1.0f) {
+        AudioHandle handle = ++m_handleCounter;
+        if (!m_backend->play({handle, assetId, AudioCategory::BGS, 1.0f, 1.0f, true, fadeSeconds})) {
+            m_diagnostics.push_back({
+                "audio.play_failed",
+                "Audio backend rejected BGS playback; current BGS state was left unchanged.",
+                assetId,
+            });
+            return false;
+        }
         if (m_bgsHandle != 0) {
             m_backend->stop(m_bgsHandle, fadeSeconds);
             m_activeSources.erase(m_bgsHandle);
         }
-        AudioHandle handle = ++m_handleCounter;
         m_currentBGS = assetId;
         m_bgsHandle = handle;
         m_activeSources[handle] = {assetId, 1.0f, 1.0f, true, AudioCategory::BGS, 1.0f, 0.0f};
-        m_backend->play({handle, assetId, AudioCategory::BGS, 1.0f, 1.0f, true, fadeSeconds});
+        return true;
     }
 
-    void playME(const std::string& assetId, float volume = 1.0f, float pitch = 1.0f) {
+    bool playME(const std::string& assetId, float volume = 1.0f, float pitch = 1.0f) {
+        AudioHandle handle = ++m_handleCounter;
+        const float normalizedVolume = clampVolume(volume);
+        const float normalizedPitch = std::clamp(pitch, 0.5f, 2.0f);
+        if (!m_backend->play({handle, assetId, AudioCategory::ME, normalizedVolume, normalizedPitch, false, 0.0f})) {
+            m_diagnostics.push_back({
+                "audio.play_failed",
+                "Audio backend rejected ME playback; source was not marked active.",
+                assetId,
+            });
+            return false;
+        }
         if (m_meHandle != 0) {
             m_backend->stop(m_meHandle);
             m_activeSources.erase(m_meHandle);
         }
-        AudioHandle handle = ++m_handleCounter;
         m_meHandle = handle;
-        const float normalizedVolume = clampVolume(volume);
-        const float normalizedPitch = std::clamp(pitch, 0.5f, 2.0f);
         m_activeSources[handle] = {assetId, normalizedVolume, normalizedPitch, false, AudioCategory::ME, 1.0f, 0.0f};
-        m_backend->play({handle, assetId, AudioCategory::ME, normalizedVolume, normalizedPitch, false, 0.0f});
+        return true;
     }
 
     const std::string& currentBGM() const { return m_currentBGM; }
@@ -260,13 +293,35 @@ class AudioCore {
   private:
     static float clampVolume(float volume) { return std::clamp(volume, 0.0f, 1.0f); }
 
+    float parseConfigVolume(const std::string& key, const std::string& value, float fallback) {
+        float parsed = fallback;
+        const auto* begin = value.data();
+        const auto* end = value.data() + value.size();
+        const auto result = std::from_chars(begin, end, parsed);
+        if (result.ec != std::errc{} || result.ptr != end) {
+            m_diagnostics.push_back({
+                "audio.config_invalid",
+                "Invalid audio volume config for '" + key + "'; using " + std::to_string(fallback) + ".",
+                value,
+            });
+            return fallback;
+        }
+        return clampVolume(parsed);
+    }
+
     void syncVolumes() {
         auto& hub = GlobalStateHub::getInstance();
-        setCategoryVolume(AudioCategory::BGM, std::stof(hub.getConfig("audio.bgm_volume", "1.0")));
-        setCategoryVolume(AudioCategory::BGS, std::stof(hub.getConfig("audio.bgs_volume", "1.0")));
-        setCategoryVolume(AudioCategory::SE, std::stof(hub.getConfig("audio.se_volume", "1.0")));
-        setCategoryVolume(AudioCategory::ME, std::stof(hub.getConfig("audio.me_volume", "1.0")));
-        setCategoryVolume(AudioCategory::System, std::stof(hub.getConfig("audio.system_volume", "1.0")));
+        setCategoryVolume(AudioCategory::BGM,
+                          parseConfigVolume("audio.bgm_volume", hub.getConfig("audio.bgm_volume", "1.0"), 1.0f));
+        setCategoryVolume(AudioCategory::BGS,
+                          parseConfigVolume("audio.bgs_volume", hub.getConfig("audio.bgs_volume", "1.0"), 1.0f));
+        setCategoryVolume(AudioCategory::SE,
+                          parseConfigVolume("audio.se_volume", hub.getConfig("audio.se_volume", "1.0"), 1.0f));
+        setCategoryVolume(AudioCategory::ME,
+                          parseConfigVolume("audio.me_volume", hub.getConfig("audio.me_volume", "1.0"), 1.0f));
+        setCategoryVolume(
+            AudioCategory::System,
+            parseConfigVolume("audio.system_volume", hub.getConfig("audio.system_volume", "1.0"), 1.0f));
     }
 
     void onConfigChanged(const std::string& key, const GlobalStateHub::Value& value) {
@@ -276,18 +331,20 @@ class AudioCore {
         if (!std::holds_alternative<std::string>(value))
             return;
         const std::string& valStr = std::get<std::string>(value);
-        float volume = std::stof(valStr);
 
         if (key == "audio.bgm_volume")
-            setCategoryVolume(AudioCategory::BGM, volume);
+            setCategoryVolume(AudioCategory::BGM,
+                              parseConfigVolume(key, valStr, getCategoryVolume(AudioCategory::BGM)));
         else if (key == "audio.bgs_volume")
-            setCategoryVolume(AudioCategory::BGS, volume);
+            setCategoryVolume(AudioCategory::BGS,
+                              parseConfigVolume(key, valStr, getCategoryVolume(AudioCategory::BGS)));
         else if (key == "audio.se_volume")
-            setCategoryVolume(AudioCategory::SE, volume);
+            setCategoryVolume(AudioCategory::SE, parseConfigVolume(key, valStr, getCategoryVolume(AudioCategory::SE)));
         else if (key == "audio.me_volume")
-            setCategoryVolume(AudioCategory::ME, volume);
+            setCategoryVolume(AudioCategory::ME, parseConfigVolume(key, valStr, getCategoryVolume(AudioCategory::ME)));
         else if (key == "audio.system_volume")
-            setCategoryVolume(AudioCategory::System, volume);
+            setCategoryVolume(AudioCategory::System,
+                              parseConfigVolume(key, valStr, getCategoryVolume(AudioCategory::System)));
     }
 
     void applyRuntimeDucking() {

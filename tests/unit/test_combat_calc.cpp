@@ -1,5 +1,6 @@
 #include "engine/gameplay/combat/combat_calc.h"
 #include "engine/core/scene/combat_formula.h"
+#include "runtimes/compat_js/data_manager.h"
 
 #include <catch2/catch_test_macros.hpp>
 
@@ -57,12 +58,40 @@ TEST_CASE("CombatFormula flags unsupported symbols instead of silently pretendin
     auto target = makeFormulaParticipant("-1", true);
     const urpg::combat::CombatFormula::Context ctx{&subject, &target, nullptr, nullptr};
 
-    const auto result = urpg::combat::CombatFormula::evaluateFormula("a.level * 2", ctx);
+    const auto result = urpg::combat::CombatFormula::evaluateFormula("a.customStat * 2", ctx);
 
     REQUIRE(result.usedFallback);
-    REQUIRE(result.reason == "unsupported_formula_symbol:a.level");
+    REQUIRE(result.reason == "unsupported_formula_symbol:a.customStat");
     REQUIRE(result.value == urpg::combat::CombatFormula::evaluateDamage(ctx));
     REQUIRE(result.normalizedFormula.empty());
+}
+
+TEST_CASE("CombatFormula resolves common MZ battler value symbols", "[combat][battle]") {
+    urpg::compat::DataManager::setDataDirectory("");
+    auto& data = urpg::compat::DataManager::instance();
+    REQUIRE(data.loadDatabase());
+    data.setupNewGame();
+    auto* actor = data.getActor(1);
+    REQUIRE(actor != nullptr);
+    actor->level = 7;
+
+    auto subject = makeFormulaParticipant("1", false);
+    subject.hp = 44;
+    subject.maxHp = 100;
+    subject.mp = 9;
+    subject.maxMp = 30;
+    auto target = makeFormulaParticipant("1", true);
+    target.hp = 12;
+    target.maxHp = 30;
+    target.mp = 3;
+    target.maxMp = 0;
+    const urpg::combat::CombatFormula::Context ctx{&subject, &target, nullptr, nullptr};
+
+    const auto result =
+        urpg::combat::CombatFormula::evaluateFormula("a.level + a.hp + a.mhp + a.mp + a.mmp + b.hp + b.mhp", ctx);
+
+    REQUIRE_FALSE(result.usedFallback);
+    REQUIRE(result.value == 7 + 44 + 100 + 9 + 30 + 12 + 30);
 }
 
 TEST_CASE("CombatFormula flags malformed expressions instead of silently degrading", "[combat][battle]") {

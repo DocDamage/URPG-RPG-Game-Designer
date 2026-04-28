@@ -200,6 +200,51 @@ TEST_CASE("DataManager: global state and inventory", "[data_manager]") {
     REQUIRE_FALSE(dm.hasItem(1));
 }
 
+TEST_CASE("DataManager: global state Value snapshot exposes party switches variables and inventory", "[data_manager]") {
+    DataManager::setDataDirectory("");
+    DataManager dm;
+    dm.loadDatabase();
+    dm.setupNewGame();
+    dm.setGold(77);
+    dm.setSwitch(2, true);
+    dm.setVariable(3, 42);
+    dm.setSelfSwitch(1, 9, "A", true);
+    dm.gainItem(4, 5);
+    dm.gainWeapon(6, 2);
+    dm.gainArmor(8, 1);
+    dm.setPlayerPosition(12, 3, 4);
+    dm.setPlayerDirection(6);
+
+    auto value = dm.getGlobalStateAsValue();
+    REQUIRE(std::holds_alternative<Object>(value.v));
+    const auto& root = std::get<Object>(value.v);
+
+    REQUIRE(std::get<int64_t>(root.at("gold").v) == 77);
+    REQUIRE(std::get<int64_t>(root.at("mapId").v) == 12);
+    REQUIRE(std::get<int64_t>(root.at("playerX").v) == 3);
+    REQUIRE(std::get<int64_t>(root.at("playerY").v) == 4);
+    REQUIRE(std::get<int64_t>(root.at("playerDirection").v) == 6);
+
+    const auto& party = std::get<Array>(root.at("partyMembers").v);
+    REQUIRE_FALSE(party.empty());
+    REQUIRE(std::get<int64_t>(party.front().v) == 1);
+
+    const auto& switches = std::get<Array>(root.at("switches").v);
+    REQUIRE(switches.size() >= 2);
+    REQUIRE(std::get<bool>(switches[1].v));
+
+    const auto& variables = std::get<Array>(root.at("variables").v);
+    REQUIRE(variables.size() >= 3);
+    REQUIRE(std::get<int64_t>(variables[2].v) == 42);
+
+    const auto& selfSwitches = std::get<Object>(root.at("selfSwitches").v);
+    REQUIRE(std::get<bool>(selfSwitches.at("1_9_A").v));
+
+    REQUIRE(std::get<int64_t>(std::get<Object>(root.at("items").v).at("4").v) == 5);
+    REQUIRE(std::get<int64_t>(std::get<Object>(root.at("weapons").v).at("6").v) == 2);
+    REQUIRE(std::get<int64_t>(std::get<Object>(root.at("armors").v).at("8").v) == 1);
+}
+
 TEST_CASE("DataManager: actor param access stays safe when only actor records are loaded", "[data_manager]") {
     DataManager::setDataDirectory("");
     DataManager dm;
@@ -408,6 +453,31 @@ TEST_CASE("DataManager: database accessors as Value", "[data_manager]") {
     REQUIRE(std::holds_alternative<Object>(enemyArr.front().v));
     REQUIRE(std::holds_alternative<std::string>(std::get<Object>(enemyArr.front().v).at("battlerName").v));
     REQUIRE(std::get<std::string>(std::get<Object>(enemyArr.front().v).at("battlerName").v) == "Goblin");
+
+    auto troops = dm.getTroopsAsValue();
+    REQUIRE(std::holds_alternative<Array>(troops.v));
+    auto& troopArr = std::get<Array>(troops.v);
+    REQUIRE(!troopArr.empty());
+    REQUIRE(std::holds_alternative<Object>(troopArr.front().v));
+    const auto& troop = std::get<Object>(troopArr.front().v);
+    REQUIRE(std::get<int64_t>(troop.at("id").v) > 0);
+    REQUIRE(std::holds_alternative<std::string>(troop.at("name").v));
+    REQUIRE(std::holds_alternative<Array>(troop.at("members").v));
+    REQUIRE(!std::get<Array>(troop.at("members").v).empty());
+    REQUIRE(std::holds_alternative<Object>(std::get<Array>(troop.at("members").v).front().v));
+    REQUIRE(std::get<Object>(std::get<Array>(troop.at("members").v).front().v).contains("enemyId"));
+    REQUIRE(troop.contains("pages"));
+
+    auto states = dm.getStatesAsValue();
+    REQUIRE(std::holds_alternative<Array>(states.v));
+    auto& stateArr = std::get<Array>(states.v);
+    REQUIRE(!stateArr.empty());
+    REQUIRE(std::holds_alternative<Object>(stateArr.front().v));
+    const auto& state = std::get<Object>(stateArr.front().v);
+    REQUIRE(std::get<int64_t>(state.at("id").v) > 0);
+    REQUIRE(std::holds_alternative<std::string>(state.at("name").v));
+    REQUIRE(state.contains("iconIndex"));
+    REQUIRE(state.contains("autoRemovalTiming"));
 
     REQUIRE(dm.loadMapInfos());
     auto mapInfos = dm.getMapInfosAsValue();

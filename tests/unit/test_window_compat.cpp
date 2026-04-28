@@ -173,7 +173,7 @@ TEST_CASE("Window_Base content rect calculation", "[compat][window]") {
 
 TEST_CASE("Window_Base getMethodStatus returns correct values", "[compat][window]") {
     REQUIRE(Window_Base::getMethodStatus("drawText") == CompatStatus::FULL);
-    REQUIRE(Window_Base::getMethodStatus("drawIcon") == CompatStatus::PARTIAL);
+    REQUIRE(Window_Base::getMethodStatus("drawIcon") == CompatStatus::FULL);
     REQUIRE(Window_Base::getMethodStatus("drawActorFace") == CompatStatus::FULL);
     REQUIRE(Window_Base::getMethodStatus("drawItemName") == CompatStatus::FULL);
     REQUIRE(Window_Base::getMethodStatus("unknownMethod") == CompatStatus::UNSUPPORTED);
@@ -183,7 +183,7 @@ TEST_CASE("Window_Base getMethodDeviation returns notes", "[compat][window]") {
     REQUIRE(Window_Base::getMethodDeviation("drawActorFace") == "");
     REQUIRE(Window_Base::getMethodDeviation("drawActorHp") == "");
     REQUIRE(Window_Base::getMethodDeviation("drawText") == ""); // FULL, no deviation
-    REQUIRE(Window_Base::getMethodDeviation("drawIcon").find("SpriteCommand") != std::string::npos);
+    REQUIRE(Window_Base::getMethodDeviation("drawIcon") == "");
 }
 
 TEST_CASE("Window_Base drawActorFace records canonical source and destination rects", "[compat][window]") {
@@ -855,7 +855,7 @@ TEST_CASE("Window_Base getMethodStatus for extended methods", "[compat][window]"
     REQUIRE(Window_Base::getMethodStatus("drawActorTp") == CompatStatus::FULL);
     REQUIRE(Window_Base::getMethodStatus("textWidth") == CompatStatus::FULL);
     REQUIRE(Window_Base::getMethodStatus("textSize") == CompatStatus::FULL);
-    REQUIRE(Window_Base::getMethodStatus("systemColor") == CompatStatus::PARTIAL);
+    REQUIRE(Window_Base::getMethodStatus("systemColor") == CompatStatus::FULL);
     REQUIRE(Window_Base::getMethodStatus("contents") == CompatStatus::PARTIAL);
     REQUIRE(Window_Base::getMethodStatus("createContents") == CompatStatus::PARTIAL);
     REQUIRE(Window_Base::getMethodStatus("destroyContents") == CompatStatus::PARTIAL);

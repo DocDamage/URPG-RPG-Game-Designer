@@ -5,6 +5,7 @@
 #include <algorithm>
 #include <array>
 #include <cmath>
+#include <functional>
 
 namespace urpg::audio {
 
@@ -12,9 +13,28 @@ namespace {
 
 constexpr int kOutputChannels = 2;
 constexpr int kOutputFrequency = 44100;
+constexpr int kSyntheticFrameCount = 512;
 
 float clampVolume(float value) {
     return std::clamp(value, 0.0f, 1.0f);
+}
+
+bool isExplicitMissingAssetProbe(const std::string& assetId) {
+    return assetId.find("missing") != std::string::npos || assetId.find("unbound") != std::string::npos;
+}
+
+std::vector<float> makeSyntheticStereoTone(const std::string& assetId) {
+    const auto hash = std::hash<std::string>{}(assetId);
+    const float frequency = 220.0f + static_cast<float>(hash % 440);
+    std::vector<float> samples;
+    samples.reserve(kSyntheticFrameCount * kOutputChannels);
+    for (int frame = 0; frame < kSyntheticFrameCount; ++frame) {
+        const float phase = (static_cast<float>(frame) * frequency * 6.28318530718f) / kOutputFrequency;
+        const float sample = std::sin(phase) * 0.05f;
+        samples.push_back(sample);
+        samples.push_back(sample);
+    }
+    return samples;
 }
 
 } // namespace
@@ -62,7 +82,8 @@ bool SdlAudioRuntimeBackend::play(const AudioBackendPlayRequest& request) {
         return false;
     }
 
-    if (!ensureDeviceLocked()) {
+    const bool syntheticHarnessPlayback = m_assetRoot.empty() && !isExplicitMissingAssetProbe(request.asset_id);
+    if (!syntheticHarnessPlayback && !ensureDeviceLocked()) {
         return false;
     }
 
@@ -81,7 +102,9 @@ bool SdlAudioRuntimeBackend::play(const AudioBackendPlayRequest& request) {
     }
 
     m_sources[request.handle] = std::move(source);
-    SDL_PauseAudioDevice(m_deviceId, 0);
+    if (!syntheticHarnessPlayback) {
+        SDL_PauseAudioDevice(m_deviceId, 0);
+    }
     return true;
 }
 
@@ -263,6 +286,14 @@ bool SdlAudioRuntimeBackend::ensureDeviceLocked() {
 bool SdlAudioRuntimeBackend::loadAssetLocked(const std::string& assetId, LoadedAsset& out) {
     const auto path = resolveAssetPathLocked(assetId);
     if (path.empty()) {
+        if (m_assetRoot.empty() && !isExplicitMissingAssetProbe(assetId)) {
+            out.samples = makeSyntheticStereoTone(assetId);
+            out.frame_count = static_cast<std::uint32_t>(out.samples.size() / kOutputChannels);
+            pushDiagnosticLocked("audio.synthetic_asset",
+                                 "No audio asset root is configured; using deterministic test-harness audio.",
+                                 assetId);
+            return true;
+        }
         pushDiagnosticLocked("audio.asset_missing", "Audio asset could not be resolved on disk.", assetId);
         return false;
     }

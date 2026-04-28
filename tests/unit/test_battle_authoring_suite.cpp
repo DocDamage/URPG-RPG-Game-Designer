@@ -78,7 +78,7 @@ TEST_CASE("Formula debugger uses bounded combat formula contract and reports fal
     urpg::editor::FormulaDebuggerPanel panel;
     panel.loadCases({
         {"supported", "a.atk * 4 - b.def * 2"},
-        {"unsupported", "a.level * 2"},
+        {"unsupported", "a.customStat * 2"},
         {"malformed", "a.atk +"},
     });
     panel.render();
@@ -89,7 +89,7 @@ TEST_CASE("Formula debugger uses bounded combat formula contract and reports fal
     REQUIRE(panel.results()[0].id == "malformed");
     REQUIRE(panel.results()[0].reason == "malformed_formula_expression");
     REQUIRE(panel.results()[2].id == "unsupported");
-    REQUIRE(panel.results()[2].reason == "unsupported_formula_symbol:a.level");
+    REQUIRE(panel.results()[2].reason == "unsupported_formula_symbol:a.customStat");
 }
 
 TEST_CASE("Enemy AI chooses deterministic weighted actions and rejects zero-weight profiles", "[battle][authoring][ffs05]") {

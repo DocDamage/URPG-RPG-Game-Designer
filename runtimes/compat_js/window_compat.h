@@ -84,16 +84,16 @@ class Window_Base {
     virtual void drawText(const std::string& text, int32_t x, int32_t y, int32_t maxWidth = 0,
                           const std::string& align = "left");
 
-    // Status: PARTIAL - Tracks draw intent, but icon-set bitmap rendering is still TODO
+    // Status: FULL - Emits MZ-compatible IconSet source rect draw commands.
     virtual void drawIcon(int32_t iconIndex, int32_t x, int32_t y);
 
     // Status: FULL - MZ-canonical face cell clipping + destination centering semantics
     virtual void drawActorFace(int32_t actorId, int32_t x, int32_t y, int32_t width = 144, int32_t height = 144);
 
-    // Status: PARTIAL - Falls back to text labels; full actor-name window rendering is not wired yet
+    // Status: FULL - DataManager-backed actor-name text rendering.
     virtual void drawActorName(int32_t actorId, int32_t x, int32_t y, int32_t width = 150);
 
-    // Status: PARTIAL - Falls back to text labels; full actor-level window rendering is not wired yet
+    // Status: FULL - DataManager-backed actor-level text rendering.
     virtual void drawActorLevel(int32_t actorId, int32_t x, int32_t y);
 
     // Status: FULL - Uses MZ-compatible default gauge colors
@@ -108,7 +108,7 @@ class Window_Base {
     // Status: PARTIAL - Records gauge semantics and emits a bounded segmented gradient fill.
     virtual void drawGauge(int32_t x, int32_t y, int32_t width, double rate, const Color& color1, const Color& color2);
 
-    // Status: PARTIAL - Tracks character draw intent, but character-sheet rendering is still TODO
+    // Status: FULL - Emits MZ-compatible standing-frame character sheet source rect draw commands.
     virtual void drawCharacter(const std::string& characterName, int32_t index, int32_t x, int32_t y);
 
     // Status: FULL - DataManager-backed icon + label rendering semantics

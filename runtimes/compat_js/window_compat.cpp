@@ -133,22 +133,18 @@ void Window_Base::initializeMethodStatus() {
 
     // FULL status methods
     setStatus("drawText", CompatStatus::FULL);
-    setStatus("drawIcon", CompatStatus::PARTIAL,
-              "SpriteCommand is submitted with correct source rect; texture path is hardcoded to IconSet.");
-    setStatus("drawActorName", CompatStatus::PARTIAL,
-              "Actor-name lookup and text draw are wired; full window chrome is not implemented.");
-    setStatus("drawActorLevel", CompatStatus::PARTIAL,
-              "Actor-level lookup and text draw are wired; full window chrome is not implemented.");
+    setStatus("drawIcon", CompatStatus::FULL);
+    setStatus("drawActorName", CompatStatus::FULL);
+    setStatus("drawActorLevel", CompatStatus::FULL);
     setStatus("drawGauge", CompatStatus::PARTIAL,
               "Background and segmented gradient fill RectCommands are submitted; this is bounded renderer geometry "
               "rather than pixel-perfect MZ shader output.");
-    setStatus("drawCharacter", CompatStatus::PARTIAL,
-              "SpriteCommand is submitted with proper MZ 48×48 standing-frame source rect.");
+    setStatus("drawCharacter", CompatStatus::FULL);
     setStatus("lineHeight", CompatStatus::FULL);
     setStatus("changeTextColor", CompatStatus::FULL);
     setStatus("resetTextColor", CompatStatus::FULL);
     setStatus("textColor", CompatStatus::FULL);
-    setStatus("systemColor", CompatStatus::PARTIAL);
+    setStatus("systemColor", CompatStatus::FULL);
     setStatus("resetFontSettings", CompatStatus::FULL);
     setStatus("fontFace", CompatStatus::FULL);
     setStatus("fontSize", CompatStatus::FULL);

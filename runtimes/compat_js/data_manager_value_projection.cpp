@@ -2,6 +2,8 @@
 
 #include "runtimes/compat_js/data_manager_support.h"
 
+#include <string>
+#include <unordered_map>
 #include <utility>
 
 namespace urpg {
@@ -136,8 +138,51 @@ Value DataManager::getEnemiesAsValue() const {
     }
     return Value::Arr(std::move(arr));
 }
-Value DataManager::getTroopsAsValue() const { return Value::Arr({}); }
-Value DataManager::getStatesAsValue() const { return Value::Arr({}); }
+
+Value DataManager::getTroopsAsValue() const {
+    Array arr;
+    for (const auto& troop : troops_) {
+        Object obj;
+        obj["id"] = Value::Int(troop.id);
+        Value name;
+        name.v = troop.name;
+        obj["name"] = std::move(name);
+
+        Array members;
+        for (int32_t enemyId : troop.members) {
+            Object member;
+            member["enemyId"] = Value::Int(enemyId);
+            members.push_back(Value::Obj(std::move(member)));
+        }
+        obj["members"] = Value::Arr(std::move(members));
+        obj["pages"] = troop.pages;
+
+        arr.push_back(Value::Obj(std::move(obj)));
+    }
+    return Value::Arr(std::move(arr));
+}
+
+Value DataManager::getStatesAsValue() const {
+    Array arr;
+    for (const auto& state : states_) {
+        Object obj;
+        obj["id"] = Value::Int(state.id);
+        Value name;
+        name.v = state.name;
+        obj["name"] = std::move(name);
+        Value iconIndex;
+        iconIndex.v = state.iconIndex;
+        obj["iconIndex"] = std::move(iconIndex);
+        obj["priority"] = Value::Int(state.priority);
+        obj["restriction"] = Value::Int(state.restriction);
+        obj["autoRemovalTiming"] = Value::Int(state.autoRemovalTiming);
+        obj["minTurns"] = Value::Int(state.minTurns);
+        obj["maxTurns"] = Value::Int(state.maxTurns);
+        arr.push_back(Value::Obj(std::move(obj)));
+    }
+    return Value::Arr(std::move(arr));
+}
+
 Value DataManager::getClassesAsValue() const {
     Array arr;
     for (const auto& cls : classes_) {
@@ -169,6 +214,45 @@ Value DataManager::getGlobalStateAsValue() const {
     obj["playerX"] = Value::Int(globalState_.playerX);
     obj["playerY"] = Value::Int(globalState_.playerY);
     obj["playerDirection"] = Value::Int(globalState_.playerDirection);
+
+    Array partyMembers;
+    for (int32_t actorId : globalState_.partyMembers) {
+        partyMembers.push_back(Value::Int(actorId));
+    }
+    obj["partyMembers"] = Value::Arr(std::move(partyMembers));
+
+    Array switches;
+    for (bool value : globalState_.switches) {
+        Value switchValue;
+        switchValue.v = value;
+        switches.push_back(std::move(switchValue));
+    }
+    obj["switches"] = Value::Arr(std::move(switches));
+
+    Array variables;
+    for (int32_t value : globalState_.variables) {
+        variables.push_back(Value::Int(value));
+    }
+    obj["variables"] = Value::Arr(std::move(variables));
+
+    Object selfSwitches;
+    for (const auto& [key, value] : globalState_.selfSwitches) {
+        Value switchValue;
+        switchValue.v = value;
+        selfSwitches[key] = std::move(switchValue);
+    }
+    obj["selfSwitches"] = Value::Obj(std::move(selfSwitches));
+
+    auto inventoryToValue = [](const std::unordered_map<int32_t, int32_t>& inventory) {
+        Object out;
+        for (const auto& [id, count] : inventory) {
+            out[std::to_string(id)] = Value::Int(count);
+        }
+        return Value::Obj(std::move(out));
+    };
+    obj["items"] = inventoryToValue(globalState_.items);
+    obj["weapons"] = inventoryToValue(globalState_.weapons);
+    obj["armors"] = inventoryToValue(globalState_.armors);
     return Value::Obj(std::move(obj));
 }
 

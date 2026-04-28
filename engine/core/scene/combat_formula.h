@@ -43,7 +43,7 @@ public:
 
     /**
      * @brief Parses a basic math string formula (MZ format).
-     * Supported subset: integer literals, a./b. stat symbols, + - * /, and parentheses.
+     * Supported subset: integer literals, common a./b. battler symbols, + - * /, and parentheses.
      */
     static int32_t parseFormula(const std::string& formula, const Context& ctx) {
         return evaluateFormula(formula, ctx).value;
@@ -306,20 +306,22 @@ private:
         if (token == "a.mdf") return getStat(ctx.subject, 5);
         if (token == "a.agi") return getStat(ctx.subject, 6);
         if (token == "a.luk") return getStat(ctx.subject, 7);
-        if (token == "a.hp") return getStat(ctx.subject, 0);
-        if (token == "a.mhp") return getStat(ctx.subject, 0);
-        if (token == "a.mp") return getStat(ctx.subject, 1);
-        if (token == "a.mmp") return getStat(ctx.subject, 1);
+        if (token == "a.hp") return getCurrentHp(ctx.subject);
+        if (token == "a.mhp") return getMaxHp(ctx.subject);
+        if (token == "a.mp") return getCurrentMp(ctx.subject);
+        if (token == "a.mmp") return getMaxMp(ctx.subject);
+        if (token == "a.level") return getLevel(ctx.subject);
         if (token == "b.atk") return getStat(ctx.target, 2);
         if (token == "b.def") return getStat(ctx.target, 3);
         if (token == "b.mat") return getStat(ctx.target, 4);
         if (token == "b.mdf") return getStat(ctx.target, 5);
         if (token == "b.agi") return getStat(ctx.target, 6);
         if (token == "b.luk") return getStat(ctx.target, 7);
-        if (token == "b.hp") return getStat(ctx.target, 0);
-        if (token == "b.mhp") return getStat(ctx.target, 0);
-        if (token == "b.mp") return getStat(ctx.target, 1);
-        if (token == "b.mmp") return getStat(ctx.target, 1);
+        if (token == "b.hp") return getCurrentHp(ctx.target);
+        if (token == "b.mhp") return getMaxHp(ctx.target);
+        if (token == "b.mp") return getCurrentMp(ctx.target);
+        if (token == "b.mmp") return getMaxMp(ctx.target);
+        if (token == "b.level") return getLevel(ctx.target);
         return std::nullopt;
     }
 
@@ -372,6 +374,36 @@ private:
         } else {
             return dm.getActorParam(participantId, paramId, 1);
         }
+    }
+
+    static int32_t getCurrentHp(const scene::BattleParticipant* p) {
+        return p == nullptr ? 0 : std::max(0, p->hp);
+    }
+
+    static int32_t getMaxHp(const scene::BattleParticipant* p) {
+        return p == nullptr ? 1 : std::max(1, p->maxHp);
+    }
+
+    static int32_t getCurrentMp(const scene::BattleParticipant* p) {
+        return p == nullptr ? 0 : std::max(0, p->mp);
+    }
+
+    static int32_t getMaxMp(const scene::BattleParticipant* p) {
+        return p == nullptr ? 0 : std::max(0, p->maxMp);
+    }
+
+    static int32_t getLevel(const scene::BattleParticipant* p) {
+        if (p == nullptr || p->isEnemy) {
+            return 1;
+        }
+
+        const int32_t participantId = parseParticipantId(p);
+        if (participantId <= 0) {
+            return 1;
+        }
+
+        const auto* actor = compat::DataManager::instance().getActor(participantId);
+        return actor ? std::max(1, actor->level) : 1;
     }
 };
 

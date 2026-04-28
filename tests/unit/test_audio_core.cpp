@@ -36,16 +36,44 @@ TEST_CASE("AudioCore: runtime backend reports asset failures without dropping li
     audio.clearAudioDiagnostics();
 
     const auto handle = audio.playSound("missing_release_audio_asset", AudioCategory::SE);
-    REQUIRE(handle > 0);
-    REQUIRE(audio.activeSourceCount() == 1);
+    REQUIRE(handle == 0);
+    REQUIRE(audio.activeSourceCount() == 0);
 
     const auto diagnostics = audio.audioDiagnostics();
     REQUIRE_FALSE(diagnostics.empty());
-    REQUIRE(diagnostics.back().code == "audio.asset_missing");
-    REQUIRE(diagnostics.back().asset_id == "missing_release_audio_asset");
+    REQUIRE(std::any_of(diagnostics.begin(), diagnostics.end(), [](const auto& diagnostic) {
+        return diagnostic.code == "audio.asset_missing" && diagnostic.asset_id == "missing_release_audio_asset";
+    }));
+    REQUIRE(std::any_of(diagnostics.begin(), diagnostics.end(), [](const auto& diagnostic) {
+        return diagnostic.code == "audio.play_failed" && diagnostic.asset_id == "missing_release_audio_asset";
+    }));
 
     audio.stopHandle(handle);
     REQUIRE(audio.activeSourceCount() == 0);
+}
+
+TEST_CASE("AudioCore: malformed config values fall back without throwing", "[audio][core][config]") {
+    auto& hub = urpg::GlobalStateHub::getInstance();
+    hub.resetAll();
+    hub.setConfig("audio.bgm_volume", "not-a-number");
+
+    AudioCore audio;
+
+    REQUIRE(audio.getCategoryVolume(AudioCategory::BGM) == 1.0f);
+    const auto diagnostics = audio.audioDiagnostics();
+    REQUIRE(std::any_of(diagnostics.begin(), diagnostics.end(), [](const auto& diagnostic) {
+        return diagnostic.code == "audio.config_invalid" && diagnostic.asset_id == "not-a-number";
+    }));
+
+    audio.clearAudioDiagnostics();
+    hub.setConfig("audio.bgm_volume", "still-bad");
+    REQUIRE(audio.getCategoryVolume(AudioCategory::BGM) == 1.0f);
+    const auto updateDiagnostics = audio.audioDiagnostics();
+    REQUIRE(std::any_of(updateDiagnostics.begin(), updateDiagnostics.end(), [](const auto& diagnostic) {
+        return diagnostic.code == "audio.config_invalid" && diagnostic.asset_id == "still-bad";
+    }));
+
+    hub.resetAll();
 }
 
 TEST_CASE("AudioCore: category playback lifecycle covers BGM BGS ME and SE", "[audio][core][runtime]") {

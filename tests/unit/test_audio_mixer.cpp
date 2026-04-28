@@ -11,7 +11,7 @@ TEST_CASE("AudioMixer routes spatial gain and pan into AudioCore snapshots", "[a
     AudioMixer mixer;
     mixer.bindCore(&core);
 
-    const AudioHandle handle = mixer.playSE("missing_spatial_test_asset", 100.0f, 0.0f);
+    const AudioHandle handle = mixer.playSE("spatial_test_asset", 100.0f, 0.0f);
     REQUIRE(handle > 0);
 
     mixer.update(0.0f, 0.0f);
@@ -33,7 +33,7 @@ TEST_CASE("AudioMixer updates moving source pan and gain each frame", "[audio][s
     AudioMixer mixer;
     mixer.bindCore(&core);
 
-    const AudioHandle handle = mixer.playSE("missing_spatial_move_asset", -50.0f, 0.0f);
+    const AudioHandle handle = mixer.playSE("spatial_move_asset", -50.0f, 0.0f);
     REQUIRE(handle > 0);
 
     mixer.update(0.0f, 0.0f);

@@ -209,12 +209,66 @@ TEST_CASE("AISyncCoordinator reports schema mismatches during restore", "[ai][cl
     }
 }
 
-TEST_CASE("AISyncCoordinator reports unsupported remote knowledge updates", "[ai][cloud]") {
+TEST_CASE("AISyncCoordinator checks project knowledge update feeds through cloud storage", "[ai][cloud]") {
     auto cloud = std::make_shared<FakeCloudService>();
+    REQUIRE(cloud->initialize(urpg::social::CloudProvider::LocalSimulated, "").success);
+    cloud->putText("ai_knowledge_updates_project_alpha.json",
+                   R"({"projectId":"project_alpha","updates":[{"id":"npc-lore-001","summary":"Shrine clue"}]})");
+
     urpg::ai::AISyncCoordinator coordinator(cloud);
 
     const auto result = coordinator.checkForRemoteKnowledgeUpdatesDetailed("project_alpha");
-    REQUIRE_FALSE(result.success);
-    REQUIRE(result.code == urpg::ai::AISyncCoordinator::SyncErrorCode::RemoteUpdatesUnsupported);
-    REQUIRE(result.message.find("project_alpha") != std::string::npos);
+    REQUIRE(result.success);
+    REQUIRE(result.code == urpg::ai::AISyncCoordinator::SyncErrorCode::None);
+    REQUIRE(result.key == "ai_knowledge_updates_project_alpha.json");
+    REQUIRE(result.details.size() == 1);
+    REQUIRE(result.details[0] == "npc-lore-001");
+    REQUIRE(coordinator.checkForRemoteKnowledgeUpdates("project_alpha"));
+}
+
+TEST_CASE("AISyncCoordinator reports missing and malformed knowledge update feeds", "[ai][cloud]") {
+    auto cloud = std::make_shared<FakeCloudService>();
+    REQUIRE(cloud->initialize(urpg::social::CloudProvider::LocalSimulated, "").success);
+
+    SECTION("missing feed") {
+        urpg::ai::AISyncCoordinator coordinator(cloud);
+
+        const auto result = coordinator.checkForRemoteKnowledgeUpdatesDetailed("project_alpha");
+        REQUIRE_FALSE(result.success);
+        REQUIRE(result.code == urpg::ai::AISyncCoordinator::SyncErrorCode::MissingKey);
+        REQUIRE(result.key == "ai_knowledge_updates_project_alpha.json");
+    }
+
+    SECTION("invalid JSON") {
+        cloud->putText("ai_knowledge_updates_project_alpha.json", "{not json");
+        urpg::ai::AISyncCoordinator coordinator(cloud);
+
+        const auto result = coordinator.checkForRemoteKnowledgeUpdatesDetailed("project_alpha");
+        REQUIRE_FALSE(result.success);
+        REQUIRE(result.code == urpg::ai::AISyncCoordinator::SyncErrorCode::InvalidJson);
+    }
+
+    SECTION("project mismatch") {
+        cloud->putText("ai_knowledge_updates_project_alpha.json",
+                       R"({"projectId":"other_project","updates":[]})");
+        urpg::ai::AISyncCoordinator coordinator(cloud);
+
+        const auto result = coordinator.checkForRemoteKnowledgeUpdatesDetailed("project_alpha");
+        REQUIRE_FALSE(result.success);
+        REQUIRE(result.code == urpg::ai::AISyncCoordinator::SyncErrorCode::SchemaMismatch);
+        REQUIRE(result.details.size() == 1);
+        REQUIRE(result.details[0] == "projectId");
+    }
+
+    SECTION("invalid update entry") {
+        cloud->putText("ai_knowledge_updates_project_alpha.json",
+                       R"({"projectId":"project_alpha","updates":[42]})");
+        urpg::ai::AISyncCoordinator coordinator(cloud);
+
+        const auto result = coordinator.checkForRemoteKnowledgeUpdatesDetailed("project_alpha");
+        REQUIRE_FALSE(result.success);
+        REQUIRE(result.code == urpg::ai::AISyncCoordinator::SyncErrorCode::SchemaMismatch);
+        REQUIRE(result.details.size() == 1);
+        REQUIRE(result.details[0] == "updates[0]");
+    }
 }
