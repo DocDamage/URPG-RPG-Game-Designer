@@ -27,6 +27,7 @@
     "disabled_traps": [],
     "activated_switches": [],
     "alerted_patrols": [],
+    "activated_puzzles": [],
     "patrol_indices": {},
     "current_hiding_spot": "",
     "current_floor_id": "crypt_b1",
@@ -170,6 +171,19 @@
       "y": 1,
       "floor_id": "crypt_b1",
       "required_item": ""
+    }
+  ],
+  "puzzle_devices": [
+    {
+      "id": "pressure_plate_door",
+      "type": "pressure_plate",
+      "label": "Door Plate",
+      "x": 3,
+      "y": 2,
+      "floor_id": "crypt_b1",
+      "target_id": "crypt_door",
+      "required_item": "",
+      "active": true
     }
   ],
   "materials": [

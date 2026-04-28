@@ -36,6 +36,9 @@ struct Dungeon3DWorldPanelSnapshot {
     size_t active_patrol_count = 0;
     size_t alerted_patrol_count = 0;
     size_t hiding_spot_count = 0;
+    size_t puzzle_device_count = 0;
+    size_t active_puzzle_device_count = 0;
+    size_t solved_puzzle_count = 0;
     size_t opened_door_count = 0;
     size_t revealed_secret_count = 0;
     size_t runtime_command_count = 0;
@@ -80,6 +83,7 @@ public:
     bool enterHidingSpot(std::string hiding_spot_id);
     bool leaveHidingSpot();
     bool advancePatrol(std::string patrol_id);
+    bool activatePuzzle(std::string puzzle_id);
     void rotate(float radians);
     void render();
 

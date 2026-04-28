@@ -41,6 +41,7 @@ TEST_CASE("3D dungeon world converts 2D map data into runtime raycast preview", 
     REQUIRE(document.atmospheres.size() == 2);
     REQUIRE(document.patrol_routes.size() == 1);
     REQUIRE(document.hiding_spots.size() == 1);
+    REQUIRE(document.puzzle_devices.size() == 1);
     REQUIRE(document.materials.size() == 2);
     REQUIRE(document.validate().empty());
 
@@ -71,6 +72,9 @@ TEST_CASE("3D dungeon world converts 2D map data into runtime raycast preview", 
     REQUIRE(preview.active_patrol_count == 1);
     REQUIRE(preview.alerted_patrol_count == 0);
     REQUIRE(preview.hiding_spot_count == 1);
+    REQUIRE(preview.puzzle_device_count == 1);
+    REQUIRE(preview.active_puzzle_device_count == 1);
+    REQUIRE(preview.solved_puzzle_count == 0);
     REQUIRE_FALSE(preview.player_hidden);
     REQUIRE(preview.floor_completion == 0.0f);
     REQUIRE(preview.current_light_multiplier == 0.85f);
@@ -118,6 +122,9 @@ TEST_CASE("3D dungeon world supports 2D to 3D switching and WYSIWYG panel snapsh
     REQUIRE(panel.snapshot().active_patrol_count == 1);
     REQUIRE(panel.snapshot().alerted_patrol_count == 0);
     REQUIRE(panel.snapshot().hiding_spot_count == 1);
+    REQUIRE(panel.snapshot().puzzle_device_count == 1);
+    REQUIRE(panel.snapshot().active_puzzle_device_count == 1);
+    REQUIRE(panel.snapshot().solved_puzzle_count == 0);
     REQUIRE(panel.snapshot().active_ambient_sound == "ambience_crypt_echo");
     REQUIRE(panel.snapshot().active_reverb_preset == "stone_room");
     REQUIRE(panel.snapshot().active_weather == "dust_motes");
@@ -366,6 +373,52 @@ TEST_CASE("3D dungeon world previews patrol stealth and hiding spot authoring", 
     REQUIRE(panel.leaveHidingSpot());
     REQUIRE_FALSE(panel.snapshot().player_hidden);
     REQUIRE(panel.snapshot().last_event_log_entry == "leave_hiding_spot:shadow_urn");
+}
+
+TEST_CASE("3D dungeon world activates authored puzzle devices and target links", "[dungeon3d][wysiwyg]") {
+    auto document = urpg::render::Dungeon3DWorldDocument::fromJson(loadFixture("dungeon3d_world"));
+    auto preview = document.preview();
+
+    REQUIRE(preview.puzzle_device_count == 1);
+    REQUIRE(preview.active_puzzle_device_count == 1);
+    REQUIRE(preview.solved_puzzle_count == 0);
+
+    const auto json = urpg::render::dungeon3DPreviewToJson(preview);
+    bool found_puzzle = false;
+    for (const auto& tile : json.at("minimap_tiles")) {
+        const bool is_plate = tile.value("puzzle_id", std::string{}) == "pressure_plate_door" &&
+                              tile.value("puzzle_type", std::string{}) == "pressure_plate";
+        found_puzzle = found_puzzle || is_plate;
+    }
+    REQUIRE(found_puzzle);
+
+    document.camera.pos_x = 2.5f;
+    document.camera.pos_y = 2.5f;
+    document.camera.dir_x = 1.0f;
+    document.camera.dir_y = 0.0f;
+    document.camera.plane_x = 0.0f;
+    document.camera.plane_y = 0.66f;
+
+    auto interaction = document.interactFacing();
+    REQUIRE(interaction.handled);
+    REQUIRE(interaction.activated_puzzle);
+    REQUIRE(interaction.opened_door);
+    REQUIRE(interaction.command == "activate_puzzle:pressure_plate_door");
+    REQUIRE(interaction.target_id == "crypt_door");
+    REQUIRE(document.session.activated_puzzles.contains("pressure_plate_door"));
+    REQUIRE(document.session.opened_doors.contains("crypt_door"));
+
+    preview = document.preview();
+    REQUIRE(preview.solved_puzzle_count == 1);
+    REQUIRE(preview.opened_door_count == 1);
+
+    urpg::editor::Dungeon3DWorldPanel panel;
+    panel.loadDocument(urpg::render::Dungeon3DWorldDocument::fromJson(loadFixture("dungeon3d_world")));
+    REQUIRE(panel.activatePuzzle("pressure_plate_door"));
+    REQUIRE(panel.snapshot().solved_puzzle_count == 1);
+    REQUIRE(panel.snapshot().opened_door_count == 1);
+    REQUIRE(panel.snapshot().last_event_log_entry == "activate_puzzle:pressure_plate_door");
+    REQUIRE_FALSE(panel.activatePuzzle("missing_puzzle"));
 }
 
 TEST_CASE("3D dungeon world is release registered with promoted spatial authoring", "[dungeon3d][wysiwyg]") {

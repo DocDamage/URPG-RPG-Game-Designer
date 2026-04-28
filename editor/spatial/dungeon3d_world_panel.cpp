@@ -89,6 +89,14 @@ bool Dungeon3DWorldPanel::advancePatrol(std::string patrol_id) {
     return advanced;
 }
 
+bool Dungeon3DWorldPanel::activatePuzzle(std::string puzzle_id) {
+    const bool activated = document_.activatePuzzle(std::move(puzzle_id));
+    if (loaded_) {
+        refresh();
+    }
+    return activated;
+}
+
 void Dungeon3DWorldPanel::rotate(float radians) {
     document_.rotate(radians);
     if (loaded_) {
@@ -144,6 +152,9 @@ void Dungeon3DWorldPanel::refresh() {
     snapshot_.active_patrol_count = static_cast<size_t>(preview_.active_patrol_count);
     snapshot_.alerted_patrol_count = static_cast<size_t>(preview_.alerted_patrol_count);
     snapshot_.hiding_spot_count = static_cast<size_t>(preview_.hiding_spot_count);
+    snapshot_.puzzle_device_count = static_cast<size_t>(preview_.puzzle_device_count);
+    snapshot_.active_puzzle_device_count = static_cast<size_t>(preview_.active_puzzle_device_count);
+    snapshot_.solved_puzzle_count = static_cast<size_t>(preview_.solved_puzzle_count);
     snapshot_.opened_door_count = static_cast<size_t>(preview_.opened_door_count);
     snapshot_.revealed_secret_count = static_cast<size_t>(preview_.revealed_secret_count);
     snapshot_.runtime_command_count = preview_.runtime_commands.size();

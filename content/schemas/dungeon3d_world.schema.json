@@ -42,6 +42,7 @@
         "disabled_traps": { "type": "array", "items": { "type": "string" } },
         "activated_switches": { "type": "array", "items": { "type": "string" } },
         "alerted_patrols": { "type": "array", "items": { "type": "string" } },
+        "activated_puzzles": { "type": "array", "items": { "type": "string" } },
         "patrol_indices": { "type": "object", "additionalProperties": { "type": "integer" } },
         "current_hiding_spot": { "type": "string" },
         "current_floor_id": { "type": "string" },
@@ -220,6 +221,25 @@
           "y": { "type": "integer" },
           "floor_id": { "type": "string" },
           "required_item": { "type": "string" }
+        }
+      }
+    },
+    "puzzle_devices": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "type", "label", "x", "y", "floor_id", "target_id", "required_item", "active"],
+        "properties": {
+          "id": { "type": "string", "minLength": 1 },
+          "type": { "type": "string", "minLength": 1 },
+          "label": { "type": "string" },
+          "x": { "type": "integer" },
+          "y": { "type": "integer" },
+          "floor_id": { "type": "string" },
+          "target_id": { "type": "string" },
+          "required_item": { "type": "string" },
+          "active": { "type": "boolean" }
         }
       }
     },

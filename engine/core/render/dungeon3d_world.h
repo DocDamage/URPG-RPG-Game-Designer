@@ -125,6 +125,18 @@ struct Dungeon3DHidingSpot {
     std::string required_item;
 };
 
+struct Dungeon3DPuzzleDevice {
+    std::string id;
+    std::string type;
+    std::string label;
+    int32_t x = 0;
+    int32_t y = 0;
+    std::string floor_id;
+    std::string target_id;
+    std::string required_item;
+    bool active = true;
+};
+
 struct Dungeon3DCell {
     std::string tile_id;
     std::string material_id;
@@ -176,6 +188,8 @@ struct Dungeon3DMinimapTile {
     std::string audio_zone_id;
     std::string patrol_id;
     std::string hiding_spot_id;
+    std::string puzzle_id;
+    std::string puzzle_type;
     bool in_patrol_vision = false;
     std::string event_id;
 };
@@ -220,6 +234,7 @@ struct Dungeon3DInteractionResult {
     bool activated_switch = false;
     bool disarmed_trap = false;
     bool entered_hiding_spot = false;
+    bool activated_puzzle = false;
     std::string command;
     std::string target_id;
     Dungeon3DDiagnostic diagnostic;
@@ -235,6 +250,7 @@ struct Dungeon3DSessionState {
     std::set<std::string> disabled_traps;
     std::set<std::string> activated_switches;
     std::set<std::string> alerted_patrols;
+    std::set<std::string> activated_puzzles;
     std::map<std::string, int32_t> patrol_indices;
     std::string current_hiding_spot;
     std::string current_floor_id;
@@ -267,6 +283,9 @@ struct Dungeon3DPreview {
     int32_t active_patrol_count = 0;
     int32_t alerted_patrol_count = 0;
     int32_t hiding_spot_count = 0;
+    int32_t puzzle_device_count = 0;
+    int32_t active_puzzle_device_count = 0;
+    int32_t solved_puzzle_count = 0;
     int32_t opened_door_count = 0;
     int32_t revealed_secret_count = 0;
     bool player_hidden = false;
@@ -305,6 +324,7 @@ public:
     std::vector<Dungeon3DAtmosphere> atmospheres;
     std::vector<Dungeon3DPatrolRoute> patrol_routes;
     std::vector<Dungeon3DHidingSpot> hiding_spots;
+    std::vector<Dungeon3DPuzzleDevice> puzzle_devices;
     std::map<std::string, Dungeon3DMaterial> materials;
     std::vector<Dungeon3DCell> cells;
 
@@ -320,6 +340,7 @@ public:
     bool enterHidingSpot(std::string hiding_spot_id);
     bool leaveHidingSpot();
     bool advancePatrol(std::string patrol_id);
+    bool activatePuzzle(std::string puzzle_id);
     void rotate(float radians);
     [[nodiscard]] nlohmann::json toJson() const;
 

@@ -120,6 +120,18 @@ Dungeon3DHidingSpot hidingSpotFromJson(const nlohmann::json& json) {
             json.value("required_item", "")};
 }
 
+Dungeon3DPuzzleDevice puzzleDeviceFromJson(const nlohmann::json& json) {
+    return {json.value("id", ""),
+            json.value("type", ""),
+            json.value("label", ""),
+            json.value("x", 0),
+            json.value("y", 0),
+            json.value("floor_id", ""),
+            json.value("target_id", ""),
+            json.value("required_item", ""),
+            json.value("active", true)};
+}
+
 nlohmann::json materialToJson(const Dungeon3DMaterial& material) {
     return {{"id", material.id},
             {"wall_texture", material.wall_texture},
@@ -230,6 +242,18 @@ nlohmann::json hidingSpotToJson(const Dungeon3DHidingSpot& spot) {
             {"required_item", spot.required_item}};
 }
 
+nlohmann::json puzzleDeviceToJson(const Dungeon3DPuzzleDevice& device) {
+    return {{"id", device.id},
+            {"type", device.type},
+            {"label", device.label},
+            {"x", device.x},
+            {"y", device.y},
+            {"floor_id", device.floor_id},
+            {"target_id", device.target_id},
+            {"required_item", device.required_item},
+            {"active", device.active}};
+}
+
 Dungeon3DCell cellFromJson(const nlohmann::json& json) {
     return {json.value("tile_id", ""),
             json.value("material_id", ""),
@@ -276,6 +300,7 @@ nlohmann::json sessionToJson(const Dungeon3DSessionState& session) {
             {"disabled_traps", session.disabled_traps},
             {"activated_switches", session.activated_switches},
             {"alerted_patrols", session.alerted_patrols},
+            {"activated_puzzles", session.activated_puzzles},
             {"patrol_indices", session.patrol_indices},
             {"current_hiding_spot", session.current_hiding_spot},
             {"current_floor_id", session.current_floor_id},
@@ -293,6 +318,7 @@ Dungeon3DSessionState sessionFromJson(const nlohmann::json& json) {
     session.disabled_traps = json.value("disabled_traps", std::set<std::string>{});
     session.activated_switches = json.value("activated_switches", std::set<std::string>{});
     session.alerted_patrols = json.value("alerted_patrols", std::set<std::string>{});
+    session.activated_puzzles = json.value("activated_puzzles", std::set<std::string>{});
     session.patrol_indices = json.value("patrol_indices", std::map<std::string, int32_t>{});
     session.current_hiding_spot = json.value("current_hiding_spot", "");
     session.current_floor_id = json.value("current_floor_id", "");
@@ -426,6 +452,13 @@ const Dungeon3DHidingSpot* hidingSpotAt(const Dungeon3DWorldDocument& document, 
         return spot.x == x && spot.y == y && matchesCurrentFloor(document, spot.floor_id);
     });
     return it == document.hiding_spots.end() ? nullptr : &(*it);
+}
+
+const Dungeon3DPuzzleDevice* puzzleDeviceAt(const Dungeon3DWorldDocument& document, int32_t x, int32_t y) {
+    const auto it = std::find_if(document.puzzle_devices.begin(), document.puzzle_devices.end(), [&](const auto& device) {
+        return device.x == x && device.y == y && device.active && matchesCurrentFloor(document, device.floor_id);
+    });
+    return it == document.puzzle_devices.end() ? nullptr : &(*it);
 }
 
 bool patrolSeesTile(const Dungeon3DWorldDocument& document, const Dungeon3DPatrolRoute& route, int32_t x, int32_t y) {
@@ -749,6 +782,23 @@ std::vector<Dungeon3DDiagnostic> Dungeon3DWorldDocument::validate() const {
             diagnostics.push_back({"unknown_hiding_spot_floor", "3D dungeon hiding spot references an unknown floor: " + spot.id});
         }
     }
+    std::set<std::string> puzzle_device_ids;
+    for (const auto& device : puzzle_devices) {
+        if (device.id.empty()) {
+            diagnostics.push_back({"missing_puzzle_device_id", "3D dungeon puzzle device is missing an id."});
+        } else if (!puzzle_device_ids.insert(device.id).second) {
+            diagnostics.push_back({"duplicate_puzzle_device_id", "3D dungeon puzzle device id is duplicated: " + device.id});
+        }
+        if (device.type.empty()) {
+            diagnostics.push_back({"missing_puzzle_device_type", "3D dungeon puzzle device is missing a type: " + device.id});
+        }
+        if (!inBounds(*this, device.x, device.y)) {
+            diagnostics.push_back({"puzzle_device_out_of_bounds", "3D dungeon puzzle device is outside the authored map: " + device.id});
+        }
+        if (!device.floor_id.empty() && !floor_ids.empty() && !floor_ids.contains(device.floor_id)) {
+            diagnostics.push_back({"unknown_puzzle_device_floor", "3D dungeon puzzle device references an unknown floor: " + device.id});
+        }
+    }
     std::set<std::string> door_ids;
     std::set<std::string> event_ids;
     for (const auto& cell : cells) {
@@ -775,6 +825,12 @@ std::vector<Dungeon3DDiagnostic> Dungeon3DWorldDocument::validate() const {
         }
         if (link.target_door_id.empty() || !door_ids.contains(link.target_door_id)) {
             diagnostics.push_back({"unknown_lock_link_target", "3D dungeon lock link references an unknown target door: " + link.id});
+        }
+    }
+    for (const auto& device : puzzle_devices) {
+        if (!device.target_id.empty() && !door_ids.contains(device.target_id) && !marker_ids.contains(device.target_id) &&
+            !puzzle_device_ids.contains(device.target_id)) {
+            diagnostics.push_back({"unknown_puzzle_device_target", "3D dungeon puzzle device references an unknown target: " + device.id});
         }
     }
     return diagnostics;
@@ -823,6 +879,7 @@ Dungeon3DPreview Dungeon3DWorldDocument::preview() const {
     result.audio_zone_count = static_cast<int32_t>(audio_zones.size());
     result.patrol_count = static_cast<int32_t>(patrol_routes.size());
     result.hiding_spot_count = static_cast<int32_t>(hiding_spots.size());
+    result.puzzle_device_count = static_cast<int32_t>(puzzle_devices.size());
     for (const auto& trap : traps) {
         if (trap.armed && !session.disabled_traps.contains(trap.id)) {
             ++result.armed_trap_count;
@@ -834,6 +891,12 @@ Dungeon3DPreview Dungeon3DWorldDocument::preview() const {
         }
     }
     result.alerted_patrol_count = static_cast<int32_t>(session.alerted_patrols.size());
+    for (const auto& device : puzzle_devices) {
+        if (device.active) {
+            ++result.active_puzzle_device_count;
+        }
+    }
+    result.solved_puzzle_count = static_cast<int32_t>(session.activated_puzzles.size());
     result.player_hidden = !session.current_hiding_spot.empty();
     result.current_hiding_spot = session.current_hiding_spot;
     if (result.objective_count > 0) {
@@ -995,6 +1058,15 @@ Dungeon3DPreview Dungeon3DWorldDocument::preview() const {
                         break;
                     }
                 }
+                std::string puzzle_id;
+                std::string puzzle_type;
+                for (const auto& device : puzzle_devices) {
+                    if (device.active && device.x == x && device.y == y && matchesCurrentFloor(*this, device.floor_id)) {
+                        puzzle_id = device.id;
+                        puzzle_type = device.type;
+                        break;
+                    }
+                }
                 result.minimap_tiles.push_back(
                     {x,
                      y,
@@ -1009,6 +1081,8 @@ Dungeon3DPreview Dungeon3DWorldDocument::preview() const {
                      audio_zone_id,
                      patrol_id,
                      hiding_spot_id,
+                     puzzle_id,
+                     puzzle_type,
                      in_patrol_vision,
                      cells[index].event_id});
             }
@@ -1100,6 +1174,24 @@ Dungeon3DInteractionResult Dungeon3DWorldDocument::interactFacing() {
         result.target_id = spot->id;
         return result;
     }
+    if (const auto* device = puzzleDeviceAt(*this, interaction->x, interaction->y); device != nullptr) {
+        if (!device->required_item.empty() && !session.inventory.contains(device->required_item)) {
+            result.command = "puzzle_requires_item:" + device->id;
+            result.target_id = device->target_id;
+            result.diagnostic = {"missing_puzzle_required_item", "3D dungeon puzzle requires item: " + device->required_item};
+            return result;
+        }
+        const bool activated = activatePuzzle(device->id);
+        const bool targets_door = std::any_of(cells.begin(), cells.end(), [&](const auto& cell) {
+            return cell.door_id == device->target_id;
+        });
+        result.handled = activated;
+        result.activated_puzzle = activated;
+        result.opened_door = activated && targets_door;
+        result.command = activated ? "activate_puzzle:" + device->id : "puzzle_inactive:" + device->id;
+        result.target_id = device->target_id;
+        return result;
+    }
     if (!interaction->event_id.empty()) {
         const auto link_it = std::find_if(lock_links.begin(), lock_links.end(), [&](const auto& link) {
             return link.opens_on_interact && link.source_event_id == interaction->event_id;
@@ -1167,6 +1259,38 @@ bool Dungeon3DWorldDocument::disarmTrap(std::string trap_id) {
     }
     session.disabled_traps.insert(trap_id);
     session.event_log.push_back("disarm_trap:" + trap_id);
+    return true;
+}
+
+bool Dungeon3DWorldDocument::activatePuzzle(std::string puzzle_id) {
+    if (puzzle_id.empty()) {
+        return false;
+    }
+    const auto found = std::find_if(puzzle_devices.begin(), puzzle_devices.end(), [&](const auto& device) {
+        return device.id == puzzle_id;
+    });
+    if (found == puzzle_devices.end() || !found->active) {
+        return false;
+    }
+    if (!found->required_item.empty() && !session.inventory.contains(found->required_item)) {
+        return false;
+    }
+    session.activated_puzzles.insert(puzzle_id);
+    if (!found->target_id.empty()) {
+        const auto door = std::find_if(cells.begin(), cells.end(), [&](const auto& cell) {
+            return cell.door_id == found->target_id;
+        });
+        if (door != cells.end()) {
+            session.opened_doors.insert(found->target_id);
+        }
+        const auto marker = std::find_if(markers.begin(), markers.end(), [&](const auto& map_marker) {
+            return map_marker.id == found->target_id;
+        });
+        if (marker != markers.end()) {
+            session.completed_markers.insert(found->target_id);
+        }
+    }
+    session.event_log.push_back("activate_puzzle:" + puzzle_id);
     return true;
 }
 
@@ -1284,6 +1408,10 @@ nlohmann::json Dungeon3DWorldDocument::toJson() const {
     for (const auto& spot : hiding_spots) {
         json["hiding_spots"].push_back(hidingSpotToJson(spot));
     }
+    json["puzzle_devices"] = nlohmann::json::array();
+    for (const auto& device : puzzle_devices) {
+        json["puzzle_devices"].push_back(puzzleDeviceToJson(device));
+    }
     json["materials"] = nlohmann::json::array();
     for (const auto& [_, material] : materials) {
         json["materials"].push_back(materialToJson(material));
@@ -1349,6 +1477,9 @@ Dungeon3DWorldDocument Dungeon3DWorldDocument::fromJson(const nlohmann::json& js
     for (const auto& spot_json : json.value("hiding_spots", nlohmann::json::array())) {
         document.hiding_spots.push_back(hidingSpotFromJson(spot_json));
     }
+    for (const auto& device_json : json.value("puzzle_devices", nlohmann::json::array())) {
+        document.puzzle_devices.push_back(puzzleDeviceFromJson(device_json));
+    }
     for (const auto& material_json : json.value("materials", nlohmann::json::array())) {
         auto material = materialFromJson(material_json);
         document.materials[material.id] = std::move(material);
@@ -1388,6 +1519,8 @@ nlohmann::json dungeon3DPreviewToJson(const Dungeon3DPreview& preview) {
                                          {"audio_zone_id", tile.audio_zone_id},
                                          {"patrol_id", tile.patrol_id},
                                          {"hiding_spot_id", tile.hiding_spot_id},
+                                         {"puzzle_id", tile.puzzle_id},
+                                         {"puzzle_type", tile.puzzle_type},
                                          {"in_patrol_vision", tile.in_patrol_vision},
                                          {"event_id", tile.event_id}});
     }
@@ -1430,6 +1563,9 @@ nlohmann::json dungeon3DPreviewToJson(const Dungeon3DPreview& preview) {
     json["active_patrol_count"] = preview.active_patrol_count;
     json["alerted_patrol_count"] = preview.alerted_patrol_count;
     json["hiding_spot_count"] = preview.hiding_spot_count;
+    json["puzzle_device_count"] = preview.puzzle_device_count;
+    json["active_puzzle_device_count"] = preview.active_puzzle_device_count;
+    json["solved_puzzle_count"] = preview.solved_puzzle_count;
     json["opened_door_count"] = preview.opened_door_count;
     json["revealed_secret_count"] = preview.revealed_secret_count;
     json["player_hidden"] = preview.player_hidden;
