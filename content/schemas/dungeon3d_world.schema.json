@@ -1,0 +1,66 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://urpg.dev/schemas/dungeon3d_world.schema.json",
+  "title": "URPG 3D Dungeon World",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "id", "map_id", "width", "height", "screen_width", "screen_height", "minimap_enabled", "auto_mapping", "mode", "camera", "materials", "cells"],
+  "properties": {
+    "schema_version": { "const": "urpg.dungeon3d_world.v1" },
+    "id": { "type": "string", "minLength": 1 },
+    "map_id": { "type": "string", "minLength": 1 },
+    "width": { "type": "integer", "minimum": 1 },
+    "height": { "type": "integer", "minimum": 1 },
+    "screen_width": { "type": "integer", "minimum": 1 },
+    "screen_height": { "type": "integer", "minimum": 1 },
+    "minimap_enabled": { "type": "boolean" },
+    "auto_mapping": { "type": "boolean" },
+    "mode": { "enum": ["2d", "3d", "spatial"] },
+    "camera": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["pos_x", "pos_y", "dir_x", "dir_y", "plane_x", "plane_y"],
+      "properties": {
+        "pos_x": { "type": "number" },
+        "pos_y": { "type": "number" },
+        "dir_x": { "type": "number" },
+        "dir_y": { "type": "number" },
+        "plane_x": { "type": "number" },
+        "plane_y": { "type": "number" }
+      }
+    },
+    "materials": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "wall_texture", "floor_texture", "ceiling_texture"],
+        "properties": {
+          "id": { "type": "string", "minLength": 1 },
+          "wall_texture": { "type": "string", "minLength": 1 },
+          "floor_texture": { "type": "string", "minLength": 1 },
+          "ceiling_texture": { "type": "string", "minLength": 1 }
+        }
+      }
+    },
+    "cells": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["tile_id", "material_id", "event_id", "blocking", "dark_zone", "stairs_up", "stairs_down"],
+        "properties": {
+          "tile_id": { "type": "string" },
+          "material_id": { "type": "string" },
+          "event_id": { "type": "string" },
+          "blocking": { "type": "boolean" },
+          "dark_zone": { "type": "boolean" },
+          "stairs_up": { "type": "boolean" },
+          "stairs_down": { "type": "boolean" }
+        }
+      }
+    }
+  }
+}

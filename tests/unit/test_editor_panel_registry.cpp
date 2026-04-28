@@ -17,7 +17,7 @@ bool ContainsId(const std::vector<std::string>& ids, const std::string& id) {
 TEST_CASE("Editor panel registry exposes canonical top-level panels", "[editor][panel][registry]") {
     const auto ids = urpg::editor::requiredTopLevelPanelIds();
 
-    REQUIRE(ids.size() == 144);
+    REQUIRE(ids.size() == 146);
     REQUIRE(ContainsId(ids, "diagnostics"));
     REQUIRE(ContainsId(ids, "assets"));
     REQUIRE(ContainsId(ids, "ability"));
@@ -123,6 +123,7 @@ TEST_CASE("Editor panel registry exposes canonical top-level panels", "[editor][
     REQUIRE(ContainsId(ids, "cutscene_skip_fast_forward"));
     REQUIRE(ContainsId(ids, "translation_helper_workspace"));
     REQUIRE(ContainsId(ids, "deployment_cook_dashboard"));
+    REQUIRE(ContainsId(ids, "3d_dungeon_world"));
     REQUIRE(ContainsId(ids, "break_shield_system"));
     REQUIRE(ContainsId(ids, "boost_point_system"));
     REQUIRE(ContainsId(ids, "battle_weapon_swap"));
@@ -162,6 +163,7 @@ TEST_CASE("Editor panel registry exposes canonical top-level panels", "[editor][
     REQUIRE(ContainsId(ids, "monster_collection"));
     REQUIRE(ContainsId(ids, "npc"));
     REQUIRE(ContainsId(ids, "metroidvania_gates"));
+    REQUIRE(ContainsId(ids, "spatial_authoring"));
 
     const auto* patterns = urpg::editor::findEditorPanelRegistryEntry("patterns");
     REQUIRE(patterns != nullptr);
@@ -200,7 +202,7 @@ TEST_CASE("Editor panel registry classifies diagnostics and incubating workspace
 
     const auto* spatialAuthoring = urpg::editor::findEditorPanelRegistryEntry("spatial_authoring");
     REQUIRE(spatialAuthoring != nullptr);
-    REQUIRE(spatialAuthoring->exposure == urpg::editor::EditorPanelExposure::Deferred);
+    REQUIRE(spatialAuthoring->exposure == urpg::editor::EditorPanelExposure::ReleaseTopLevel);
 
     const auto* modSdk = urpg::editor::findEditorPanelRegistryEntry("mod_sdk");
     REQUIRE(modSdk != nullptr);
@@ -315,6 +317,7 @@ TEST_CASE("Editor smoke coverage follows every registered top-level panel", "[ed
     REQUIRE(ContainsId(smokeIds, "cutscene_skip_fast_forward"));
     REQUIRE(ContainsId(smokeIds, "translation_helper_workspace"));
     REQUIRE(ContainsId(smokeIds, "deployment_cook_dashboard"));
+    REQUIRE(ContainsId(smokeIds, "3d_dungeon_world"));
     REQUIRE(ContainsId(smokeIds, "break_shield_system"));
     REQUIRE(ContainsId(smokeIds, "boost_point_system"));
     REQUIRE(ContainsId(smokeIds, "battle_weapon_swap"));
@@ -352,4 +355,5 @@ TEST_CASE("Editor smoke coverage follows every registered top-level panel", "[ed
     REQUIRE(ContainsId(smokeIds, "monster_collection"));
     REQUIRE(ContainsId(smokeIds, "npc"));
     REQUIRE(ContainsId(smokeIds, "metroidvania_gates"));
+    REQUIRE(ContainsId(smokeIds, "spatial_authoring"));
 }

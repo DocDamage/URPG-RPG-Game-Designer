@@ -249,6 +249,7 @@ set(URPG_CORE_SOURCES
     $<$<NOT:$<BOOL:${URPG_SKIP_OPENGL}>>:engine/core/platform/gl_texture.cpp>
     $<$<BOOL:${URPG_SKIP_OPENGL}>:engine/core/platform/headless_texture.cpp>
     engine/core/render/asset_loader.cpp
+    engine/core/render/dungeon3d_world.cpp
     engine/core/render/tilemap_renderer.cpp
     engine/core/render/sprite_animator.cpp
     engine/core/runtime_startup_services.cpp
@@ -468,6 +469,7 @@ set(URPG_CORE_SOURCES
     editor/spatial/elevation_brush_panel.cpp
     editor/spatial/terrain_brush_panel.cpp
     editor/spatial/region_rules_panel.cpp
+    editor/spatial/dungeon3d_world_panel.cpp
     editor/spatial/map_environment_preview_panel.cpp
     editor/spatial/procedural_map_panel.cpp
     editor/spatial/prop_placement_panel.cpp
@@ -1299,6 +1301,7 @@ add_executable(urpg_tests
     tests/unit/test_presentation_effect_translation.cpp
     tests/unit/test_project_audit_cli.cpp
     tests/unit/test_effect_cue.cpp
+    tests/unit/test_dungeon3d_world.cpp
     tests/unit/test_spatial_editor.cpp
     tests/unit/test_map_worldbuilding_suite.cpp
     tests/unit/test_huggingface_curated_assets.cpp
