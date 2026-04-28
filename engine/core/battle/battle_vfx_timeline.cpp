@@ -25,6 +25,7 @@ void addDiagnostic(std::vector<BattleVfxTimelineDiagnostic>& diagnostics,
 BattleVfxTimelineEvent eventFromJson(const nlohmann::json& json) {
     BattleVfxTimelineEvent event;
     event.id = json.value("id", "");
+    event.track_id = json.value("track_id", json.value("trackId", ""));
     event.frame = json.value("frame", 0);
     event.label = json.value("label", "");
     event.kind = effectCueKindFromString(json.value("kind", json.value("type", "gameplay")));
@@ -40,9 +41,18 @@ BattleVfxTimelineEvent eventFromJson(const nlohmann::json& json) {
     return event;
 }
 
+BattleVfxTimelineTrack trackFromJson(const nlohmann::json& json) {
+    return {json.value("id", ""),
+            json.value("label", ""),
+            json.value("kind", ""),
+            json.value("visible", true),
+            json.value("locked", false)};
+}
+
 nlohmann::json eventToJson(const BattleVfxTimelineEvent& event) {
     nlohmann::json json;
     json["id"] = event.id;
+    json["track_id"] = event.track_id;
     json["frame"] = event.frame;
     json["kind"] = toString(event.kind);
     json["anchor"] = toString(event.anchor);
@@ -59,6 +69,14 @@ nlohmann::json eventToJson(const BattleVfxTimelineEvent& event) {
     return json;
 }
 
+nlohmann::json trackToJson(const BattleVfxTimelineTrack& track) {
+    return {{"id", track.id},
+            {"label", track.label},
+            {"kind", track.kind},
+            {"visible", track.visible},
+            {"locked", track.locked}};
+}
+
 EffectCue eventToCue(const BattleVfxTimelineEvent& event) {
     EffectCue cue;
     cue.frameTick = static_cast<uint64_t>(std::max(event.frame, 0));
@@ -73,8 +91,23 @@ EffectCue eventToCue(const BattleVfxTimelineEvent& event) {
 
 } // namespace
 
+void BattleVfxTimelineDocument::addTrack(BattleVfxTimelineTrack track) {
+    tracks_.push_back(std::move(track));
+}
+
 void BattleVfxTimelineDocument::addEvent(BattleVfxTimelineEvent event) {
     events_.push_back(std::move(event));
+}
+
+bool BattleVfxTimelineDocument::setTrackVisible(std::string track_id, bool visible) {
+    const auto found = std::find_if(tracks_.begin(), tracks_.end(), [&](const auto& track) {
+        return track.id == track_id;
+    });
+    if (found == tracks_.end()) {
+        return false;
+    }
+    found->visible = visible;
+    return true;
 }
 
 void BattleVfxTimelineDocument::clearEvents() {
@@ -114,6 +147,18 @@ std::vector<BattleVfxTimelineDiagnostic> BattleVfxTimelineDocument::validate() c
         addDiagnostic(diagnostics, "invalid_duration", "Battle VFX timeline duration must be positive.", {});
     }
 
+    std::map<std::string, int> track_ids;
+    for (const auto& track : tracks_) {
+        if (track.id.empty()) {
+            addDiagnostic(diagnostics, "missing_track_id", "Battle VFX track is missing an id.", {});
+        } else if (++track_ids[track.id] > 1) {
+            addDiagnostic(diagnostics, "duplicate_track_id", "Battle VFX track id is duplicated.", track.id);
+        }
+        if (track.label.empty()) {
+            addDiagnostic(diagnostics, "missing_track_label", "Battle VFX track is missing a label.", track.id);
+        }
+    }
+
     for (const auto& event : events_) {
         if (event.id.empty()) {
             addDiagnostic(diagnostics, "missing_event_id", "Battle VFX event is missing an id.", event.id);
@@ -125,6 +170,9 @@ std::vector<BattleVfxTimelineDiagnostic> BattleVfxTimelineDocument::validate() c
         }
         if (event.frame > duration_frames) {
             addDiagnostic(diagnostics, "event_after_duration", "Battle VFX event falls after the timeline duration.", event.id);
+        }
+        if (!event.track_id.empty() && !track_ids.contains(event.track_id)) {
+            addDiagnostic(diagnostics, "unknown_event_track", "Battle VFX event references an unknown track.", event.id);
         }
         if ((event.anchor == EffectAnchorMode::Owner || event.anchor == EffectAnchorMode::Target) &&
             event.source_id == 0 && event.owner_id == 0) {
@@ -144,6 +192,27 @@ std::vector<BattleVfxTimelineDiagnostic> BattleVfxTimelineDocument::validate() c
         return std::tie(lhs.code, lhs.event_id) < std::tie(rhs.code, rhs.event_id);
     });
     return diagnostics;
+}
+
+std::vector<std::string> BattleVfxTimelineDocument::runtimeCommandsAtFrame(int32_t frame) const {
+    std::vector<std::string> commands;
+    const auto clamped_frame = std::clamp(frame, 0, std::max(0, duration_frames));
+    commands.push_back("battle_vfx_timeline:" + id + ":frame:" + std::to_string(clamped_frame));
+    for (const auto& event : eventsAtFrame(clamped_frame)) {
+        std::string asset;
+        if (event.payload.is_object()) {
+            asset = event.payload.value("asset", "");
+        }
+        auto command = "battle_vfx_cue:" + event.id + ":" + toString(event.kind);
+        if (!event.track_id.empty()) {
+            command += ":track=" + event.track_id;
+        }
+        if (!asset.empty()) {
+            command += ":asset=" + asset;
+        }
+        commands.push_back(std::move(command));
+    }
+    return commands;
 }
 
 timeline::TimelineDocument BattleVfxTimelineDocument::toTimelineDocument() const {
@@ -174,6 +243,10 @@ nlohmann::json BattleVfxTimelineDocument::toJson() const {
     json["id"] = id;
     json["fps"] = fps;
     json["duration_frames"] = duration_frames;
+    json["tracks"] = nlohmann::json::array();
+    for (const auto& track : tracks_) {
+        json["tracks"].push_back(trackToJson(track));
+    }
     json["events"] = nlohmann::json::array();
     for (const auto& event : sortedEvents()) {
         json["events"].push_back(eventToJson(event));
@@ -189,6 +262,11 @@ BattleVfxTimelineDocument BattleVfxTimelineDocument::fromJson(const nlohmann::js
     document.id = json.value("id", document.id);
     document.fps = json.value("fps", document.fps);
     document.duration_frames = json.value("duration_frames", json.value("durationFrames", document.duration_frames));
+    for (const auto& row : json.value("tracks", nlohmann::json::array())) {
+        if (row.is_object()) {
+            document.addTrack(trackFromJson(row));
+        }
+    }
     for (const auto& row : json.value("events", nlohmann::json::array())) {
         if (row.is_object()) {
             document.addEvent(eventFromJson(row));

@@ -71,8 +71,11 @@ TEST_CASE("battle VFX timeline is visually authorable, previewable, saved, and e
     document.id = "slash_combo";
     document.fps = 60;
     document.duration_frames = 48;
+    document.addTrack({"cast_track", "Cast", "vfx", true, false});
+    document.addTrack({"impact_track", "Impact", "vfx", true, false});
     document.addEvent({
         "cast_flash",
+        "cast_track",
         4,
         "Cast flash",
         urpg::presentation::effects::EffectCueKind::CastStart,
@@ -85,6 +88,7 @@ TEST_CASE("battle VFX timeline is visually authorable, previewable, saved, and e
     });
     document.addEvent({
         "target_impact",
+        "impact_track",
         18,
         "Impact",
         urpg::presentation::effects::EffectCueKind::HitConfirm,
@@ -102,14 +106,28 @@ TEST_CASE("battle VFX timeline is visually authorable, previewable, saved, and e
     panel.render();
 
     REQUIRE(panel.snapshot().has_document);
+    REQUIRE(panel.snapshot().track_count == 2);
+    REQUIRE(panel.snapshot().visible_track_count == 2);
     REQUIRE(panel.snapshot().event_count == 2);
     REQUIRE(panel.snapshot().visible_event_count == 1);
     REQUIRE(panel.snapshot().visible_event_ids[0] == "cast_flash");
     REQUIRE(panel.snapshot().runtime_preview_cue_count == 1);
+    REQUIRE(panel.snapshot().runtime_preview_command_count == 2);
+    REQUIRE(std::find(panel.snapshot().runtime_preview_commands.begin(),
+                      panel.snapshot().runtime_preview_commands.end(),
+                      "battle_vfx_cue:cast_flash:cast:track=cast_track:asset=vfx/cast_flash") !=
+            panel.snapshot().runtime_preview_commands.end());
     REQUIRE(panel.snapshot().diagnostic_count == 0);
+
+    REQUIRE(panel.setTrackVisible("cast_track", false));
+    REQUIRE(panel.snapshot().visible_track_count == 1);
+    REQUIRE(panel.snapshot().visible_event_count == 0);
+    REQUIRE(panel.snapshot().runtime_preview_cue_count == 0);
+    REQUIRE_FALSE(panel.setTrackVisible("missing_track", false));
 
     const auto saved = panel.saveProjectData();
     REQUIRE(saved["schema_version"] == "urpg.battle_vfx_timeline.v1");
+    REQUIRE(saved["tracks"].size() == 2);
     REQUIRE(saved["events"].size() == 2);
 
     const auto restored = urpg::battle::BattleVfxTimelineDocument::fromJson(saved);
@@ -138,10 +156,12 @@ TEST_CASE("battle VFX timeline project-data fixture round-trips through the auth
     const auto schema = loadJsonFile(repoRoot() / "content" / "schemas" / "battle_vfx_timeline.schema.json");
 
     REQUIRE(schema["properties"].contains("events"));
-    REQUIRE(schema["properties"]["events"]["items"]["required"].size() == 8);
+    REQUIRE(schema["properties"].contains("tracks"));
+    REQUIRE(schema["properties"]["events"]["items"]["required"].size() == 9);
 
     const auto document = urpg::battle::BattleVfxTimelineDocument::fromJson(fixture);
     REQUIRE(document.validate().empty());
+    REQUIRE(document.tracks().size() == 2);
     const auto saved = document.toJson();
     REQUIRE(saved["schema_version"] == fixture["schema_version"]);
     REQUIRE(saved["id"] == fixture["id"]);
@@ -149,14 +169,20 @@ TEST_CASE("battle VFX timeline project-data fixture round-trips through the auth
     REQUIRE(saved["events"][0]["id"] == "cast_flash");
     REQUIRE(saved["events"][1]["id"] == "target_impact");
     REQUIRE(document.toEffectCues().size() == 2);
+    REQUIRE(document.runtimeCommandsAtFrame(18).size() == 2);
+    REQUIRE(document.runtimeCommandsAtFrame(18)[1] ==
+            "battle_vfx_cue:target_impact:hit:track=impact_track:asset=vfx/slash");
 }
 
 TEST_CASE("battle VFX timeline diagnostics block false done claims", "[battle][authoring][vfx][diagnostics]") {
     urpg::battle::BattleVfxTimelineDocument document;
     document.id.clear();
     document.duration_frames = 12;
+    document.addTrack({"duplicate", "Duplicate", "vfx", true, false});
+    document.addTrack({"duplicate", "Duplicate Two", "vfx", true, false});
     document.addEvent({
         "bad_hit",
+        "missing_track",
         20,
         "Bad hit",
         urpg::presentation::effects::EffectCueKind::HitConfirm,
@@ -178,6 +204,12 @@ TEST_CASE("battle VFX timeline diagnostics block false done claims", "[battle][a
     }));
     REQUIRE(std::any_of(panel.snapshot().diagnostics.begin(), panel.snapshot().diagnostics.end(), [](const auto& row) {
         return row.find("missing_anchor_participant:bad_hit") != std::string::npos;
+    }));
+    REQUIRE(std::any_of(panel.snapshot().diagnostics.begin(), panel.snapshot().diagnostics.end(), [](const auto& row) {
+        return row.find("unknown_event_track:bad_hit") != std::string::npos;
+    }));
+    REQUIRE(std::any_of(panel.snapshot().diagnostics.begin(), panel.snapshot().diagnostics.end(), [](const auto& row) {
+        return row.find("duplicate_track_id:duplicate") != std::string::npos;
     }));
 }
 

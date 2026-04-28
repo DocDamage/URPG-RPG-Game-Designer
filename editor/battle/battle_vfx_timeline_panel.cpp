@@ -20,6 +20,7 @@ void BattleVfxTimelinePanel::clearDocument() {
     is_playing_ = false;
     current_frame_ = 0;
     runtime_preview_cues_.clear();
+    runtime_preview_commands_.clear();
     refreshSnapshot();
 }
 
@@ -29,6 +30,15 @@ void BattleVfxTimelinePanel::scrubToFrame(int32_t frame) {
         : 0;
     rebuildRuntimePreview();
     refreshSnapshot();
+}
+
+bool BattleVfxTimelinePanel::setTrackVisible(std::string track_id, bool visible) {
+    const bool changed = has_document_ && document_.setTrackVisible(std::move(track_id), visible);
+    if (changed) {
+        rebuildRuntimePreview();
+    }
+    refreshSnapshot();
+    return changed;
 }
 
 void BattleVfxTimelinePanel::setPlaying(bool playing) {
@@ -70,11 +80,29 @@ void BattleVfxTimelinePanel::refreshSnapshot() {
     }
 
     snapshot_.duration_frames = document_.duration_frames;
+    snapshot_.track_count = document_.tracks().size();
     snapshot_.event_count = document_.events().size();
     snapshot_.runtime_preview_cue_count = runtime_preview_cues_.size();
+    snapshot_.runtime_preview_commands = runtime_preview_commands_;
+    snapshot_.runtime_preview_command_count = snapshot_.runtime_preview_commands.size();
+
+    std::vector<std::string> visible_track_ids;
+    for (const auto& track : document_.tracks()) {
+        snapshot_.track_ids.push_back(track.id);
+        if (track.visible) {
+            visible_track_ids.push_back(track.id);
+        }
+    }
+    snapshot_.visible_track_count = visible_track_ids.size();
+    auto event_is_visible = [&](const auto& event) {
+        return event.track_id.empty() ||
+               std::find(visible_track_ids.begin(), visible_track_ids.end(), event.track_id) != visible_track_ids.end();
+    };
 
     for (const auto& event : document_.eventsAtFrame(current_frame_)) {
-        snapshot_.visible_event_ids.push_back(event.id);
+        if (event_is_visible(event)) {
+            snapshot_.visible_event_ids.push_back(event.id);
+        }
     }
     snapshot_.visible_event_count = snapshot_.visible_event_ids.size();
 
@@ -86,12 +114,28 @@ void BattleVfxTimelinePanel::refreshSnapshot() {
 
 void BattleVfxTimelinePanel::rebuildRuntimePreview() {
     runtime_preview_cues_.clear();
+    runtime_preview_commands_.clear();
     if (!has_document_) {
         return;
     }
+    runtime_preview_commands_ = document_.runtimeCommandsAtFrame(current_frame_);
+
+    std::vector<std::string> visible_track_ids;
+    for (const auto& track : document_.tracks()) {
+        if (track.visible) {
+            visible_track_ids.push_back(track.id);
+        }
+    }
+    auto event_is_visible = [&](const auto& event) {
+        return event.track_id.empty() ||
+               std::find(visible_track_ids.begin(), visible_track_ids.end(), event.track_id) != visible_track_ids.end();
+    };
     for (const auto& cue : document_.toEffectCues()) {
         if (cue.frameTick <= static_cast<std::uint64_t>(std::max(0, current_frame_))) {
-            runtime_preview_cues_.push_back(cue);
+            const auto events = document_.eventsAtFrame(static_cast<int32_t>(cue.frameTick));
+            if (std::any_of(events.begin(), events.end(), event_is_visible)) {
+                runtime_preview_cues_.push_back(cue);
+            }
         }
     }
 }

@@ -3,19 +3,35 @@
   "$id": "urn:urpg:battle-vfx-timeline:v1",
   "title": "URPG Battle VFX Timeline",
   "type": "object",
-  "required": ["schema_version", "id", "fps", "duration_frames", "events"],
+  "required": ["schema_version", "id", "fps", "duration_frames", "tracks", "events"],
   "properties": {
     "schema_version": { "const": "urpg.battle_vfx_timeline.v1" },
     "id": { "type": "string", "minLength": 1 },
     "fps": { "type": "integer", "minimum": 1 },
     "duration_frames": { "type": "integer", "minimum": 1 },
+    "tracks": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "label", "kind", "visible", "locked"],
+        "properties": {
+          "id": { "type": "string", "minLength": 1 },
+          "label": { "type": "string" },
+          "kind": { "type": "string" },
+          "visible": { "type": "boolean" },
+          "locked": { "type": "boolean" }
+        },
+        "additionalProperties": false
+      }
+    },
     "events": {
       "type": "array",
       "items": {
         "type": "object",
-        "required": ["id", "frame", "kind", "anchor", "source_id", "owner_id", "intensity", "overlay_emphasis"],
+        "required": ["id", "track_id", "frame", "kind", "anchor", "source_id", "owner_id", "intensity", "overlay_emphasis"],
         "properties": {
           "id": { "type": "string", "minLength": 1 },
+          "track_id": { "type": "string" },
           "frame": { "type": "integer", "minimum": 0 },
           "kind": {
             "enum": [

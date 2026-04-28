@@ -43,7 +43,7 @@ Repository-wide source/vendor LFS hydration is still externally constrained by G
 - Renderer-backed visual capture tests with committed goldens.
 - Visual regression harness with golden load/save, snapshot comparison, diff heatmap generation, JSON reports, and approval tooling.
 - Presentation bridge for active scene frame construction and battle scene state translation.
-- Runtime VFX cue baseline for battle effects, including semantic cue kinds and resolver/translator coverage.
+- Runtime VFX cue baseline for battle effects, including semantic cue kinds, resolver/translator coverage, and a WYSIWYG battle VFX timeline with saved tracks, event-to-track binding, frame scrubbing, live runtime preview commands, visibility-aware panel preview, diagnostics, schema/fixture coverage, and BattleScene execution.
 - Spatial presentation/editor support for terrain elevation, props, interaction overlays, and composed workspace snapshots.
 - 3D Dungeon World support with RPG Maker-style 2D-map-to-3D switching, raycast runtime preview, camera feel controls, cutscene camera rails, reusable room templates, boss arena setup/defeat flow, wall/floor/ceiling material customization with lighting and footstep metadata, collision-aware movement, facing-cell interaction/stair/event preview, locked doors, switch-to-door links, required items, secret walls, floor transfers, encounter cells/zones, traps/disarming, patrol routes, vision cones, hiding spots, stealth alert state, puzzle devices with target links, audio zones, floor atmosphere/weather/particles/light cues, persistent automap/session state, authored floors, map markers, objectives, notes, minimap visibility, diagnostics, saved JSON, and a release-registered WYSIWYG editor panel.
 - 3D WYSIWYG authoring depth for visual authoring layers, saved manual/runtime verification steps, evidence strings, verification completion metrics, template bindings, and runtime commands tying dungeon/world systems into 2.5D RPG and metroidvania-lite template lanes.
@@ -133,7 +133,7 @@ URPG is a strong native/editor foundation, not a finished public product. Import
 The roadmap remains WYSIWYG-first. Most previously listed future-feature slices now have first implementation slices in the tree. Remaining work is product-depth, polish, integration, and public-release hardening:
 
 - deeper 3D dungeon/world production samples with richer world-depth, broader game-template coverage, and manual visual evidence captured against real editor/runtime workflows
-- battle animation/VFX timeline editing with the same cues the runtime ships
+- deeper battle animation/VFX timeline polish beyond the implemented saved tracks, event binding, live preview commands, runtime cue execution, diagnostics, schema, fixture, and tests
 - map lighting, weather, and region previews backed by runtime data
 - dialogue preview with portraits, choices, variables, and localization
 - event-command visual graph authoring with runtime command execution proof

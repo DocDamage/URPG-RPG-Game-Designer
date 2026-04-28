@@ -16,6 +16,7 @@ namespace urpg::battle {
 
 struct BattleVfxTimelineEvent {
     std::string id;
+    std::string track_id;
     int32_t frame = 0;
     std::string label;
     presentation::effects::EffectCueKind kind = presentation::effects::EffectCueKind::Gameplay;
@@ -27,6 +28,16 @@ struct BattleVfxTimelineEvent {
     nlohmann::json payload = nlohmann::json::object();
 
     bool operator==(const BattleVfxTimelineEvent& other) const = default;
+};
+
+struct BattleVfxTimelineTrack {
+    std::string id;
+    std::string label;
+    std::string kind;
+    bool visible = true;
+    bool locked = false;
+
+    bool operator==(const BattleVfxTimelineTrack& other) const = default;
 };
 
 struct BattleVfxTimelineDiagnostic {
@@ -41,13 +52,17 @@ public:
     int32_t fps = 60;
     int32_t duration_frames = 120;
 
+    void addTrack(BattleVfxTimelineTrack track);
     void addEvent(BattleVfxTimelineEvent event);
+    bool setTrackVisible(std::string track_id, bool visible);
     void clearEvents();
 
+    const std::vector<BattleVfxTimelineTrack>& tracks() const { return tracks_; }
     const std::vector<BattleVfxTimelineEvent>& events() const { return events_; }
     std::vector<BattleVfxTimelineEvent> sortedEvents() const;
     std::vector<BattleVfxTimelineEvent> eventsAtFrame(int32_t frame) const;
     std::vector<BattleVfxTimelineDiagnostic> validate() const;
+    std::vector<std::string> runtimeCommandsAtFrame(int32_t frame) const;
 
     timeline::TimelineDocument toTimelineDocument() const;
     std::vector<presentation::effects::EffectCue> toEffectCues() const;
@@ -57,6 +72,7 @@ public:
     static BattleVfxTimelineDocument fromPresentationJson(const nlohmann::json& json);
 
 private:
+    std::vector<BattleVfxTimelineTrack> tracks_;
     std::vector<BattleVfxTimelineEvent> events_;
 };
 

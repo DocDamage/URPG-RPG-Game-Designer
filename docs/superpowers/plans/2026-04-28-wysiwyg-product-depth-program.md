@@ -84,9 +84,9 @@ Expected: build succeeds, the dungeon3d suite passes, and `git diff --check` rep
 - Modify: relevant schema/fixture files
 - Test: relevant Catch2 battle/editor tests
 
-- [ ] **Step 1: Require timeline data to save clips, tracks, keys, preview cursor, diagnostics, and runtime playback commands.**
-- [ ] **Step 2: Add editor controls for clip/track/key editing and live runtime preview.**
-- [ ] **Step 3: Add tests proving saved timeline data produces the same runtime playback events shown by the editor.**
+- [x] **Step 1: Require timeline data to save clips, tracks, keys, preview cursor, diagnostics, and runtime playback commands.**
+- [x] **Step 2: Add editor controls for clip/track/key editing and live runtime preview.**
+- [x] **Step 3: Add tests proving saved timeline data produces the same runtime playback events shown by the editor.**
 
 ### Task 3: Map Lighting, Weather, Region, Tactical Overlay, and Spawn Preview Slice
 
@@ -122,4 +122,3 @@ Expected: build succeeds, the dungeon3d suite passes, and `git diff --check` rep
 - [ ] **Step 2: Add contrast extraction from renderer-derived UI surfaces.**
 - [ ] **Step 3: Keep proprietary SDKs, store credentials, payments, cloud AI, analytics privacy review, and external marketplaces as project-configured/external boundaries.**
 - [ ] **Step 4: Keep FAISS, SAM/SAM2, Demucs, and Encodec as offline artifact generation tools and prove no runtime dependency creep is introduced.**
-

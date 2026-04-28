@@ -3,9 +3,26 @@
   "id": "slash_combo",
   "fps": 60,
   "duration_frames": 48,
+  "tracks": [
+    {
+      "id": "cast_track",
+      "label": "Cast",
+      "kind": "vfx",
+      "visible": true,
+      "locked": false
+    },
+    {
+      "id": "impact_track",
+      "label": "Impact",
+      "kind": "vfx",
+      "visible": true,
+      "locked": false
+    }
+  ],
   "events": [
     {
       "id": "cast_flash",
+      "track_id": "cast_track",
       "frame": 4,
       "kind": "cast",
       "anchor": "owner",
@@ -20,6 +37,7 @@
     },
     {
       "id": "target_impact",
+      "track_id": "impact_track",
       "frame": 18,
       "kind": "hit",
       "anchor": "target",
