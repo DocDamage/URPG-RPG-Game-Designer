@@ -34,6 +34,11 @@ TEST_CASE("3D dungeon world converts 2D map data into runtime raycast preview", 
     REQUIRE(document.floors.size() == 2);
     REQUIRE(document.markers.size() == 3);
     REQUIRE(document.notes.size() == 1);
+    REQUIRE(document.encounter_zones.size() == 1);
+    REQUIRE(document.lock_links.size() == 1);
+    REQUIRE(document.traps.size() == 1);
+    REQUIRE(document.audio_zones.size() == 1);
+    REQUIRE(document.atmospheres.size() == 2);
     REQUIRE(document.materials.size() == 2);
     REQUIRE(document.validate().empty());
 
@@ -55,7 +60,17 @@ TEST_CASE("3D dungeon world converts 2D map data into runtime raycast preview", 
     REQUIRE(preview.objective_count == 1);
     REQUIRE(preview.completed_objective_count == 0);
     REQUIRE(preview.note_count == 1);
+    REQUIRE(preview.encounter_zone_count == 1);
+    REQUIRE(preview.lock_link_count == 1);
+    REQUIRE(preview.trap_count == 1);
+    REQUIRE(preview.armed_trap_count == 1);
+    REQUIRE(preview.audio_zone_count == 1);
     REQUIRE(preview.floor_completion == 0.0f);
+    REQUIRE(preview.current_light_multiplier == 0.85f);
+    REQUIRE(preview.active_ambient_sound == "ambience_crypt_echo");
+    REQUIRE(preview.active_reverb_preset == "stone_room");
+    REQUIRE(preview.active_weather == "dust_motes");
+    REQUIRE(preview.active_particles == "slow_ash");
     REQUIRE(preview.facing_interaction.has_value());
     REQUIRE(preview.facing_interaction->event_id.empty());
     REQUIRE(containsCommand(preview.runtime_commands, "switch_to_3d:ancient_crypt"));
@@ -86,15 +101,25 @@ TEST_CASE("3D dungeon world supports 2D to 3D switching and WYSIWYG panel snapsh
     REQUIRE(panel.snapshot().objective_count == 1);
     REQUIRE(panel.snapshot().completed_objective_count == 0);
     REQUIRE(panel.snapshot().note_count == 1);
+    REQUIRE(panel.snapshot().encounter_zone_count == 1);
+    REQUIRE(panel.snapshot().lock_link_count == 1);
+    REQUIRE(panel.snapshot().trap_count == 1);
+    REQUIRE(panel.snapshot().armed_trap_count == 1);
+    REQUIRE(panel.snapshot().audio_zone_count == 1);
+    REQUIRE(panel.snapshot().active_ambient_sound == "ambience_crypt_echo");
+    REQUIRE(panel.snapshot().active_reverb_preset == "stone_room");
+    REQUIRE(panel.snapshot().active_weather == "dust_motes");
+    REQUIRE(panel.snapshot().active_particles == "slow_ash");
+    REQUIRE(panel.snapshot().current_light_multiplier == 0.85f);
     REQUIRE(panel.snapshot().average_wall_distance > 0.0f);
-    REQUIRE(panel.snapshot().runtime_command_count == 3);
+    REQUIRE(panel.snapshot().runtime_command_count == 6);
     REQUIRE(panel.saveProjectData() == document.toJson());
     REQUIRE(urpg::render::dungeon3DPreviewToJson(panel.preview())["columns"].size() == 64);
 
     panel.setMode("2d");
     REQUIRE(panel.snapshot().mode == "2d");
     REQUIRE(panel.snapshot().raycast_column_count == 0);
-    REQUIRE(panel.snapshot().runtime_command_count == 2);
+    REQUIRE(panel.snapshot().runtime_command_count == 5);
     REQUIRE(containsCommand(panel.preview().runtime_commands, "switch_to_2d:ancient_crypt"));
 
     const auto switched = document.switchMode("3d");
@@ -233,6 +258,59 @@ TEST_CASE("3D dungeon world tracks floor objectives markers and notes", "[dungeo
     REQUIRE(panel.snapshot().floor_completion == 1.0f);
     REQUIRE(panel.snapshot().last_event_log_entry == "complete_marker:obj_unlock_door");
     REQUIRE_FALSE(panel.completeMarker("missing_marker"));
+}
+
+TEST_CASE("3D dungeon world runs authored encounter zones traps audio and switch locks", "[dungeon3d][wysiwyg]") {
+    auto document = urpg::render::Dungeon3DWorldDocument::fromJson(loadFixture("dungeon3d_world"));
+
+    document.camera.pos_x = 1.5f;
+    document.camera.pos_y = 2.5f;
+    document.camera.dir_x = 0.0f;
+    document.camera.dir_y = 1.0f;
+    document.camera.plane_x = -0.66f;
+    document.camera.plane_y = 0.0f;
+
+    auto moved = document.moveForward(1.0f);
+    REQUIRE(moved.moved);
+    REQUIRE(moved.encounter_triggered);
+    REQUIRE(moved.trap_triggered);
+    REQUIRE(moved.command == "trigger_trap:poison_plate");
+    REQUIRE(document.session.triggered_encounters.contains("zone_bone_pile"));
+    REQUIRE(document.session.disabled_traps.contains("poison_plate"));
+
+    auto preview = document.preview();
+    REQUIRE(preview.armed_trap_count == 0);
+    REQUIRE(preview.encounter_zone_count == 1);
+    REQUIRE(preview.trap_count == 1);
+
+    const auto json = urpg::render::dungeon3DPreviewToJson(preview);
+    REQUIRE(json["trap_count"] == 1);
+    REQUIRE(json["armed_trap_count"] == 0);
+    REQUIRE(json["active_weather"] == "dust_motes");
+
+    auto switchDocument = urpg::render::Dungeon3DWorldDocument::fromJson(loadFixture("dungeon3d_world"));
+    switchDocument.camera.pos_x = 2.5f;
+    switchDocument.camera.pos_y = 2.5f;
+    switchDocument.camera.dir_x = 0.0f;
+    switchDocument.camera.dir_y = -1.0f;
+    switchDocument.camera.plane_x = 0.66f;
+    switchDocument.camera.plane_y = 0.0f;
+
+    auto interaction = switchDocument.interactFacing();
+    REQUIRE(interaction.handled);
+    REQUIRE(interaction.activated_switch);
+    REQUIRE(interaction.opened_door);
+    REQUIRE(interaction.command == "activate_switch:torch_switch_opens_door");
+    REQUIRE(interaction.target_id == "crypt_door");
+    REQUIRE(switchDocument.session.activated_switches.contains("torch_switch_opens_door"));
+    REQUIRE(switchDocument.session.opened_doors.contains("crypt_door"));
+
+    urpg::editor::Dungeon3DWorldPanel panel;
+    panel.loadDocument(urpg::render::Dungeon3DWorldDocument::fromJson(loadFixture("dungeon3d_world")));
+    REQUIRE(panel.snapshot().armed_trap_count == 1);
+    REQUIRE(panel.disarmTrap("poison_plate"));
+    REQUIRE(panel.snapshot().armed_trap_count == 0);
+    REQUIRE(panel.snapshot().last_event_log_entry == "disarm_trap:poison_plate");
 }
 
 TEST_CASE("3D dungeon world is release registered with promoted spatial authoring", "[dungeon3d][wysiwyg]") {

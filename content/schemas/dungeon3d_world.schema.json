@@ -39,6 +39,8 @@
         "revealed_secrets": { "type": "array", "items": { "type": "string" } },
         "triggered_encounters": { "type": "array", "items": { "type": "string" } },
         "completed_markers": { "type": "array", "items": { "type": "string" } },
+        "disabled_traps": { "type": "array", "items": { "type": "string" } },
+        "activated_switches": { "type": "array", "items": { "type": "string" } },
         "current_floor_id": { "type": "string" },
         "event_log": { "type": "array", "items": { "type": "string" } }
       }
@@ -87,6 +89,90 @@
           "x": { "type": "integer" },
           "y": { "type": "integer" },
           "floor_id": { "type": "string" }
+        }
+      }
+    },
+    "encounter_zones": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "encounter_tag", "x", "y", "radius", "weight", "floor_id", "repeatable"],
+        "properties": {
+          "id": { "type": "string", "minLength": 1 },
+          "encounter_tag": { "type": "string", "minLength": 1 },
+          "x": { "type": "integer" },
+          "y": { "type": "integer" },
+          "radius": { "type": "integer", "minimum": 0 },
+          "weight": { "type": "integer", "minimum": 1 },
+          "floor_id": { "type": "string" },
+          "repeatable": { "type": "boolean" }
+        }
+      }
+    },
+    "lock_links": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "source_event_id", "target_door_id", "required_item", "opens_on_interact"],
+        "properties": {
+          "id": { "type": "string", "minLength": 1 },
+          "source_event_id": { "type": "string", "minLength": 1 },
+          "target_door_id": { "type": "string", "minLength": 1 },
+          "required_item": { "type": "string" },
+          "opens_on_interact": { "type": "boolean" }
+        }
+      }
+    },
+    "traps": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "x", "y", "floor_id", "effect_id", "damage", "repeatable", "disarm_item", "armed"],
+        "properties": {
+          "id": { "type": "string", "minLength": 1 },
+          "x": { "type": "integer" },
+          "y": { "type": "integer" },
+          "floor_id": { "type": "string" },
+          "effect_id": { "type": "string", "minLength": 1 },
+          "damage": { "type": "integer", "minimum": 0 },
+          "repeatable": { "type": "boolean" },
+          "disarm_item": { "type": "string" },
+          "armed": { "type": "boolean" }
+        }
+      }
+    },
+    "audio_zones": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "x", "y", "radius", "floor_id", "ambient_sound", "reverb_preset"],
+        "properties": {
+          "id": { "type": "string", "minLength": 1 },
+          "x": { "type": "integer" },
+          "y": { "type": "integer" },
+          "radius": { "type": "integer", "minimum": 0 },
+          "floor_id": { "type": "string" },
+          "ambient_sound": { "type": "string" },
+          "reverb_preset": { "type": "string" }
+        }
+      }
+    },
+    "atmospheres": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "floor_id", "weather", "particle_preset", "light_multiplier"],
+        "properties": {
+          "id": { "type": "string", "minLength": 1 },
+          "floor_id": { "type": "string" },
+          "weather": { "type": "string" },
+          "particle_preset": { "type": "string" },
+          "light_multiplier": { "type": "number", "minimum": 0 }
         }
       }
     },

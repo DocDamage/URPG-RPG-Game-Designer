@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <cmath>
+#include <limits>
 #include <set>
 #include <utility>
 
@@ -44,6 +45,55 @@ Dungeon3DMapNote noteFromJson(const nlohmann::json& json) {
             json.value("floor_id", "")};
 }
 
+Dungeon3DEncounterZone encounterZoneFromJson(const nlohmann::json& json) {
+    return {json.value("id", ""),
+            json.value("encounter_tag", ""),
+            json.value("x", 0),
+            json.value("y", 0),
+            json.value("radius", 0),
+            json.value("weight", 1),
+            json.value("floor_id", ""),
+            json.value("repeatable", false)};
+}
+
+Dungeon3DLockLink lockLinkFromJson(const nlohmann::json& json) {
+    return {json.value("id", ""),
+            json.value("source_event_id", ""),
+            json.value("target_door_id", ""),
+            json.value("required_item", ""),
+            json.value("opens_on_interact", true)};
+}
+
+Dungeon3DTrap trapFromJson(const nlohmann::json& json) {
+    return {json.value("id", ""),
+            json.value("x", 0),
+            json.value("y", 0),
+            json.value("floor_id", ""),
+            json.value("effect_id", ""),
+            json.value("damage", 0),
+            json.value("repeatable", false),
+            json.value("disarm_item", ""),
+            json.value("armed", true)};
+}
+
+Dungeon3DAudioZone audioZoneFromJson(const nlohmann::json& json) {
+    return {json.value("id", ""),
+            json.value("x", 0),
+            json.value("y", 0),
+            json.value("radius", 0),
+            json.value("floor_id", ""),
+            json.value("ambient_sound", ""),
+            json.value("reverb_preset", "")};
+}
+
+Dungeon3DAtmosphere atmosphereFromJson(const nlohmann::json& json) {
+    return {json.value("id", ""),
+            json.value("floor_id", ""),
+            json.value("weather", ""),
+            json.value("particle_preset", ""),
+            json.value("light_multiplier", 1.0f)};
+}
+
 nlohmann::json materialToJson(const Dungeon3DMaterial& material) {
     return {{"id", material.id},
             {"wall_texture", material.wall_texture},
@@ -77,6 +127,55 @@ nlohmann::json noteToJson(const Dungeon3DMapNote& note) {
             {"x", note.x},
             {"y", note.y},
             {"floor_id", note.floor_id}};
+}
+
+nlohmann::json encounterZoneToJson(const Dungeon3DEncounterZone& zone) {
+    return {{"id", zone.id},
+            {"encounter_tag", zone.encounter_tag},
+            {"x", zone.x},
+            {"y", zone.y},
+            {"radius", zone.radius},
+            {"weight", zone.weight},
+            {"floor_id", zone.floor_id},
+            {"repeatable", zone.repeatable}};
+}
+
+nlohmann::json lockLinkToJson(const Dungeon3DLockLink& link) {
+    return {{"id", link.id},
+            {"source_event_id", link.source_event_id},
+            {"target_door_id", link.target_door_id},
+            {"required_item", link.required_item},
+            {"opens_on_interact", link.opens_on_interact}};
+}
+
+nlohmann::json trapToJson(const Dungeon3DTrap& trap) {
+    return {{"id", trap.id},
+            {"x", trap.x},
+            {"y", trap.y},
+            {"floor_id", trap.floor_id},
+            {"effect_id", trap.effect_id},
+            {"damage", trap.damage},
+            {"repeatable", trap.repeatable},
+            {"disarm_item", trap.disarm_item},
+            {"armed", trap.armed}};
+}
+
+nlohmann::json audioZoneToJson(const Dungeon3DAudioZone& zone) {
+    return {{"id", zone.id},
+            {"x", zone.x},
+            {"y", zone.y},
+            {"radius", zone.radius},
+            {"floor_id", zone.floor_id},
+            {"ambient_sound", zone.ambient_sound},
+            {"reverb_preset", zone.reverb_preset}};
+}
+
+nlohmann::json atmosphereToJson(const Dungeon3DAtmosphere& atmosphere) {
+    return {{"id", atmosphere.id},
+            {"floor_id", atmosphere.floor_id},
+            {"weather", atmosphere.weather},
+            {"particle_preset", atmosphere.particle_preset},
+            {"light_multiplier", atmosphere.light_multiplier}};
 }
 
 Dungeon3DCell cellFromJson(const nlohmann::json& json) {
@@ -122,6 +221,8 @@ nlohmann::json sessionToJson(const Dungeon3DSessionState& session) {
             {"revealed_secrets", session.revealed_secrets},
             {"triggered_encounters", session.triggered_encounters},
             {"completed_markers", session.completed_markers},
+            {"disabled_traps", session.disabled_traps},
+            {"activated_switches", session.activated_switches},
             {"current_floor_id", session.current_floor_id},
             {"event_log", session.event_log}};
 }
@@ -134,6 +235,8 @@ Dungeon3DSessionState sessionFromJson(const nlohmann::json& json) {
     session.revealed_secrets = json.value("revealed_secrets", std::set<std::string>{});
     session.triggered_encounters = json.value("triggered_encounters", std::set<std::string>{});
     session.completed_markers = json.value("completed_markers", std::set<std::string>{});
+    session.disabled_traps = json.value("disabled_traps", std::set<std::string>{});
+    session.activated_switches = json.value("activated_switches", std::set<std::string>{});
     session.current_floor_id = json.value("current_floor_id", "");
     session.event_log = json.value("event_log", std::vector<std::string>{});
     return session;
@@ -172,6 +275,16 @@ bool inBounds(const Dungeon3DWorldDocument& document, int32_t x, int32_t y) {
     return x >= 0 && y >= 0 && x < document.width && y < document.height;
 }
 
+bool matchesCurrentFloor(const Dungeon3DWorldDocument& document, const std::string& floor_id) {
+    return floor_id.empty() || document.session.current_floor_id.empty() || floor_id == document.session.current_floor_id;
+}
+
+int32_t squaredDistance(int32_t ax, int32_t ay, int32_t bx, int32_t by) {
+    const auto dx = ax - bx;
+    const auto dy = ay - by;
+    return dx * dx + dy * dy;
+}
+
 const Dungeon3DCell* cellAt(const Dungeon3DWorldDocument& document, int32_t x, int32_t y) {
     if (!inBounds(document, x, y)) {
         return nullptr;
@@ -192,6 +305,46 @@ bool isPassable(const Dungeon3DWorldDocument& document, int32_t x, int32_t y) {
         return true;
     }
     return !cell->blocking;
+}
+
+const Dungeon3DEncounterZone* encounterZoneAt(const Dungeon3DWorldDocument& document, int32_t x, int32_t y) {
+    const Dungeon3DEncounterZone* best = nullptr;
+    int32_t best_weight = -1;
+    for (const auto& zone : document.encounter_zones) {
+        const auto radius = std::max(zone.radius, 0);
+        if (!matchesCurrentFloor(document, zone.floor_id) || zone.encounter_tag.empty()) {
+            continue;
+        }
+        if (squaredDistance(x, y, zone.x, zone.y) <= radius * radius && zone.weight > best_weight) {
+            best = &zone;
+            best_weight = zone.weight;
+        }
+    }
+    return best;
+}
+
+const Dungeon3DTrap* trapAt(const Dungeon3DWorldDocument& document, int32_t x, int32_t y) {
+    const auto it = std::find_if(document.traps.begin(), document.traps.end(), [&](const auto& trap) {
+        return trap.x == x && trap.y == y && matchesCurrentFloor(document, trap.floor_id);
+    });
+    return it == document.traps.end() ? nullptr : &(*it);
+}
+
+const Dungeon3DAudioZone* audioZoneAt(const Dungeon3DWorldDocument& document, int32_t x, int32_t y) {
+    const Dungeon3DAudioZone* best = nullptr;
+    int32_t best_distance = std::numeric_limits<int32_t>::max();
+    for (const auto& zone : document.audio_zones) {
+        const auto radius = std::max(zone.radius, 0);
+        if (!matchesCurrentFloor(document, zone.floor_id)) {
+            continue;
+        }
+        const auto distance = squaredDistance(x, y, zone.x, zone.y);
+        if (distance <= radius * radius && distance < best_distance) {
+            best = &zone;
+            best_distance = distance;
+        }
+    }
+    return best;
 }
 
 std::optional<Dungeon3DInteraction> interactionAhead(const Dungeon3DWorldDocument& document) {
@@ -251,6 +404,32 @@ Dungeon3DNavigationResult tryMove(Dungeon3DWorldDocument& document, float delta_
         document.session.event_log.push_back("encounter:" + cell->encounter_tag);
         result.encounter_triggered = true;
         result.command = "trigger_encounter:" + cell->encounter_tag;
+        result.triggered_id = cell->encounter_tag;
+    } else if (const auto* zone = encounterZoneAt(document, tile_x, tile_y);
+               zone != nullptr && (zone->repeatable || !document.session.triggered_encounters.contains(zone->id))) {
+        document.session.triggered_encounters.insert(zone->id);
+        document.session.event_log.push_back("encounter_zone:" + zone->id + ":" + zone->encounter_tag);
+        result.encounter_triggered = true;
+        result.command = "trigger_encounter_zone:" + zone->id;
+        result.triggered_id = zone->id;
+    }
+    if (const auto* trap = trapAt(document, tile_x, tile_y);
+        trap != nullptr && trap->armed && !document.session.disabled_traps.contains(trap->id)) {
+        document.session.event_log.push_back("trigger_trap:" + trap->id + ":" + trap->effect_id);
+        result.trap_triggered = true;
+        result.command = "trigger_trap:" + trap->id;
+        result.triggered_id = trap->id;
+        if (!trap->repeatable) {
+            document.session.disabled_traps.insert(trap->id);
+        }
+    }
+    if (const auto* zone = audioZoneAt(document, tile_x, tile_y); zone != nullptr) {
+        document.session.event_log.push_back("enter_audio_zone:" + zone->id);
+        result.audio_zone_entered = true;
+        if (!result.trap_triggered && !result.encounter_triggered) {
+            result.command = "enter_audio_zone:" + zone->id;
+            result.triggered_id = zone->id;
+        }
     }
     return result;
 }
@@ -341,10 +520,106 @@ std::vector<Dungeon3DDiagnostic> Dungeon3DWorldDocument::validate() const {
             diagnostics.push_back({"unknown_note_floor", "3D dungeon note references an unknown floor: " + note.id});
         }
     }
+    std::set<std::string> encounter_zone_ids;
+    for (const auto& zone : encounter_zones) {
+        if (zone.id.empty()) {
+            diagnostics.push_back({"missing_encounter_zone_id", "3D dungeon encounter zone is missing an id."});
+        } else if (!encounter_zone_ids.insert(zone.id).second) {
+            diagnostics.push_back({"duplicate_encounter_zone_id", "3D dungeon encounter zone id is duplicated: " + zone.id});
+        }
+        if (zone.encounter_tag.empty()) {
+            diagnostics.push_back({"missing_encounter_zone_tag", "3D dungeon encounter zone is missing an encounter tag: " + zone.id});
+        }
+        if (!inBounds(*this, zone.x, zone.y)) {
+            diagnostics.push_back({"encounter_zone_out_of_bounds", "3D dungeon encounter zone is outside the authored map: " + zone.id});
+        }
+        if (zone.radius < 0 || zone.weight <= 0) {
+            diagnostics.push_back({"invalid_encounter_zone_shape", "3D dungeon encounter zone radius and weight must be positive: " + zone.id});
+        }
+        if (!zone.floor_id.empty() && !floor_ids.empty() && !floor_ids.contains(zone.floor_id)) {
+            diagnostics.push_back({"unknown_encounter_zone_floor", "3D dungeon encounter zone references an unknown floor: " + zone.id});
+        }
+    }
+    std::set<std::string> trap_ids;
+    for (const auto& trap : traps) {
+        if (trap.id.empty()) {
+            diagnostics.push_back({"missing_trap_id", "3D dungeon trap is missing an id."});
+        } else if (!trap_ids.insert(trap.id).second) {
+            diagnostics.push_back({"duplicate_trap_id", "3D dungeon trap id is duplicated: " + trap.id});
+        }
+        if (!inBounds(*this, trap.x, trap.y)) {
+            diagnostics.push_back({"trap_out_of_bounds", "3D dungeon trap is outside the authored map: " + trap.id});
+        }
+        if (trap.effect_id.empty()) {
+            diagnostics.push_back({"missing_trap_effect", "3D dungeon trap is missing an effect id: " + trap.id});
+        }
+        if (trap.damage < 0) {
+            diagnostics.push_back({"invalid_trap_damage", "3D dungeon trap damage cannot be negative: " + trap.id});
+        }
+        if (!trap.floor_id.empty() && !floor_ids.empty() && !floor_ids.contains(trap.floor_id)) {
+            diagnostics.push_back({"unknown_trap_floor", "3D dungeon trap references an unknown floor: " + trap.id});
+        }
+    }
+    std::set<std::string> audio_zone_ids;
+    for (const auto& zone : audio_zones) {
+        if (zone.id.empty()) {
+            diagnostics.push_back({"missing_audio_zone_id", "3D dungeon audio zone is missing an id."});
+        } else if (!audio_zone_ids.insert(zone.id).second) {
+            diagnostics.push_back({"duplicate_audio_zone_id", "3D dungeon audio zone id is duplicated: " + zone.id});
+        }
+        if (!inBounds(*this, zone.x, zone.y)) {
+            diagnostics.push_back({"audio_zone_out_of_bounds", "3D dungeon audio zone is outside the authored map: " + zone.id});
+        }
+        if (zone.radius < 0) {
+            diagnostics.push_back({"invalid_audio_zone_radius", "3D dungeon audio zone radius cannot be negative: " + zone.id});
+        }
+        if (zone.ambient_sound.empty() && zone.reverb_preset.empty()) {
+            diagnostics.push_back({"empty_audio_zone", "3D dungeon audio zone must define ambient sound or reverb: " + zone.id});
+        }
+        if (!zone.floor_id.empty() && !floor_ids.empty() && !floor_ids.contains(zone.floor_id)) {
+            diagnostics.push_back({"unknown_audio_zone_floor", "3D dungeon audio zone references an unknown floor: " + zone.id});
+        }
+    }
+    std::set<std::string> atmosphere_ids;
+    for (const auto& atmosphere : atmospheres) {
+        if (atmosphere.id.empty()) {
+            diagnostics.push_back({"missing_atmosphere_id", "3D dungeon atmosphere is missing an id."});
+        } else if (!atmosphere_ids.insert(atmosphere.id).second) {
+            diagnostics.push_back({"duplicate_atmosphere_id", "3D dungeon atmosphere id is duplicated: " + atmosphere.id});
+        }
+        if (!atmosphere.floor_id.empty() && !floor_ids.empty() && !floor_ids.contains(atmosphere.floor_id)) {
+            diagnostics.push_back({"unknown_atmosphere_floor", "3D dungeon atmosphere references an unknown floor: " + atmosphere.id});
+        }
+        if (atmosphere.light_multiplier < 0.0f) {
+            diagnostics.push_back({"invalid_atmosphere_light", "3D dungeon atmosphere light multiplier cannot be negative: " + atmosphere.id});
+        }
+    }
+    std::set<std::string> door_ids;
+    std::set<std::string> event_ids;
     for (const auto& cell : cells) {
         if (!cell.material_id.empty() && !material_ids.contains(cell.material_id)) {
             diagnostics.push_back({"unknown_cell_material", "3D dungeon cell references an unknown material: " + cell.material_id});
             break;
+        }
+        if (!cell.door_id.empty()) {
+            door_ids.insert(cell.door_id);
+        }
+        if (!cell.event_id.empty()) {
+            event_ids.insert(cell.event_id);
+        }
+    }
+    std::set<std::string> lock_link_ids;
+    for (const auto& link : lock_links) {
+        if (link.id.empty()) {
+            diagnostics.push_back({"missing_lock_link_id", "3D dungeon lock link is missing an id."});
+        } else if (!lock_link_ids.insert(link.id).second) {
+            diagnostics.push_back({"duplicate_lock_link_id", "3D dungeon lock link id is duplicated: " + link.id});
+        }
+        if (link.source_event_id.empty() || !event_ids.contains(link.source_event_id)) {
+            diagnostics.push_back({"unknown_lock_link_source", "3D dungeon lock link references an unknown source event: " + link.id});
+        }
+        if (link.target_door_id.empty() || !door_ids.contains(link.target_door_id)) {
+            diagnostics.push_back({"unknown_lock_link_target", "3D dungeon lock link references an unknown target door: " + link.id});
         }
     }
     return diagnostics;
@@ -387,9 +662,49 @@ Dungeon3DPreview Dungeon3DWorldDocument::preview() const {
         }
     }
     result.note_count = static_cast<int32_t>(notes.size());
+    result.encounter_zone_count = static_cast<int32_t>(encounter_zones.size());
+    result.lock_link_count = static_cast<int32_t>(lock_links.size());
+    result.trap_count = static_cast<int32_t>(traps.size());
+    result.audio_zone_count = static_cast<int32_t>(audio_zones.size());
+    for (const auto& trap : traps) {
+        if (trap.armed && !session.disabled_traps.contains(trap.id)) {
+            ++result.armed_trap_count;
+        }
+    }
     if (result.objective_count > 0) {
         result.floor_completion =
             static_cast<float>(result.completed_objective_count) / static_cast<float>(result.objective_count);
+    }
+    for (const auto& atmosphere : atmospheres) {
+        if (matchesCurrentFloor(*this, atmosphere.floor_id)) {
+            result.current_light_multiplier = atmosphere.light_multiplier;
+            result.active_weather = atmosphere.weather;
+            result.active_particles = atmosphere.particle_preset;
+            break;
+        }
+    }
+    const auto current_x = static_cast<int32_t>(std::floor(camera.pos_x));
+    const auto current_y = static_cast<int32_t>(std::floor(camera.pos_y));
+    if (const auto* zone = audioZoneAt(*this, current_x, current_y); zone != nullptr) {
+        result.active_ambient_sound = zone->ambient_sound;
+        result.active_reverb_preset = zone->reverb_preset;
+    }
+    if (result.active_ambient_sound.empty()) {
+        const auto floor_it = std::find_if(floors.begin(), floors.end(), [&](const auto& floor) {
+            return floor.id == session.current_floor_id;
+        });
+        if (floor_it != floors.end()) {
+            result.active_ambient_sound = floor_it->ambient_sound;
+        }
+    }
+    if (!result.active_ambient_sound.empty()) {
+        result.runtime_commands.push_back("set_ambient:" + result.active_ambient_sound);
+    }
+    if (!result.active_weather.empty()) {
+        result.runtime_commands.push_back("set_weather:" + result.active_weather);
+    }
+    if (!result.active_particles.empty()) {
+        result.runtime_commands.push_back("set_particles:" + result.active_particles);
     }
     result.facing_interaction = interactionAhead(*this);
 
@@ -421,7 +736,7 @@ Dungeon3DPreview Dungeon3DWorldDocument::preview() const {
                                       cast.wallDist,
                                       material_id,
                                       wall_texture,
-                                      std::clamp(side_shade * material_light, 0.0f, 2.0f),
+                                      std::clamp(side_shade * material_light * result.current_light_multiplier, 0.0f, 2.0f),
                                       wall_height});
             distance_total += cast.wallDist;
         }
@@ -480,6 +795,22 @@ Dungeon3DPreview Dungeon3DWorldDocument::preview() const {
                         break;
                     }
                 }
+                std::string trap_id;
+                for (const auto& trap : traps) {
+                    if (trap.x == x && trap.y == y && trap.armed && !session.disabled_traps.contains(trap.id) &&
+                        matchesCurrentFloor(*this, trap.floor_id)) {
+                        trap_id = trap.id;
+                        break;
+                    }
+                }
+                std::string audio_zone_id;
+                for (const auto& zone : audio_zones) {
+                    const auto radius = std::max(zone.radius, 0);
+                    if (matchesCurrentFloor(*this, zone.floor_id) && squaredDistance(x, y, zone.x, zone.y) <= radius * radius) {
+                        audio_zone_id = zone.id;
+                        break;
+                    }
+                }
                 result.minimap_tiles.push_back(
                     {x,
                      y,
@@ -490,6 +821,8 @@ Dungeon3DPreview Dungeon3DWorldDocument::preview() const {
                      marker_id,
                      marker_type,
                      note_id,
+                     trap_id,
+                     audio_zone_id,
                      cells[index].event_id});
             }
         }
@@ -549,6 +882,45 @@ Dungeon3DInteractionResult Dungeon3DWorldDocument::interactFacing() {
         result.command = "transfer_floor:" + interaction->floor_transfer;
         return result;
     }
+    if (const auto* trap = trapAt(*this, interaction->x, interaction->y);
+        trap != nullptr && trap->armed && !session.disabled_traps.contains(trap->id)) {
+        if (!trap->disarm_item.empty() && !session.inventory.contains(trap->disarm_item)) {
+            result.command = "trap_requires_item:" + trap->id;
+            result.target_id = trap->id;
+            result.diagnostic = {"missing_trap_disarm_item", "3D dungeon trap requires item: " + trap->disarm_item};
+            return result;
+        }
+        session.disabled_traps.insert(trap->id);
+        session.event_log.push_back("disarm_trap:" + trap->id);
+        result.handled = true;
+        result.disarmed_trap = true;
+        result.command = "disarm_trap:" + trap->id;
+        result.target_id = trap->id;
+        return result;
+    }
+    if (!interaction->event_id.empty()) {
+        const auto link_it = std::find_if(lock_links.begin(), lock_links.end(), [&](const auto& link) {
+            return link.opens_on_interact && link.source_event_id == interaction->event_id;
+        });
+        if (link_it != lock_links.end()) {
+            if (!link_it->required_item.empty() && !session.inventory.contains(link_it->required_item)) {
+                result.command = "switch_requires_item:" + link_it->id;
+                result.target_id = link_it->target_door_id;
+                result.diagnostic = {"missing_switch_required_item",
+                                     "3D dungeon switch requires item: " + link_it->required_item};
+                return result;
+            }
+            session.activated_switches.insert(link_it->id);
+            session.opened_doors.insert(link_it->target_door_id);
+            session.event_log.push_back("activate_switch:" + link_it->id + ":" + link_it->target_door_id);
+            result.handled = true;
+            result.activated_switch = true;
+            result.opened_door = true;
+            result.command = "activate_switch:" + link_it->id;
+            result.target_id = link_it->target_door_id;
+            return result;
+        }
+    }
     if (!interaction->event_id.empty()) {
         session.event_log.push_back("activate_event:" + interaction->event_id);
         result.handled = true;
@@ -578,6 +950,21 @@ bool Dungeon3DWorldDocument::completeMarker(std::string marker_id) {
     }
     session.completed_markers.insert(marker_id);
     session.event_log.push_back("complete_marker:" + marker_id);
+    return true;
+}
+
+bool Dungeon3DWorldDocument::disarmTrap(std::string trap_id) {
+    if (trap_id.empty()) {
+        return false;
+    }
+    const auto found = std::find_if(traps.begin(), traps.end(), [&](const auto& trap) {
+        return trap.id == trap_id;
+    });
+    if (found == traps.end()) {
+        return false;
+    }
+    session.disabled_traps.insert(trap_id);
+    session.event_log.push_back("disarm_trap:" + trap_id);
     return true;
 }
 
@@ -620,6 +1007,26 @@ nlohmann::json Dungeon3DWorldDocument::toJson() const {
     json["notes"] = nlohmann::json::array();
     for (const auto& note : notes) {
         json["notes"].push_back(noteToJson(note));
+    }
+    json["encounter_zones"] = nlohmann::json::array();
+    for (const auto& zone : encounter_zones) {
+        json["encounter_zones"].push_back(encounterZoneToJson(zone));
+    }
+    json["lock_links"] = nlohmann::json::array();
+    for (const auto& link : lock_links) {
+        json["lock_links"].push_back(lockLinkToJson(link));
+    }
+    json["traps"] = nlohmann::json::array();
+    for (const auto& trap : traps) {
+        json["traps"].push_back(trapToJson(trap));
+    }
+    json["audio_zones"] = nlohmann::json::array();
+    for (const auto& zone : audio_zones) {
+        json["audio_zones"].push_back(audioZoneToJson(zone));
+    }
+    json["atmospheres"] = nlohmann::json::array();
+    for (const auto& atmosphere : atmospheres) {
+        json["atmospheres"].push_back(atmosphereToJson(atmosphere));
     }
     json["materials"] = nlohmann::json::array();
     for (const auto& [_, material] : materials) {
@@ -665,6 +1072,21 @@ Dungeon3DWorldDocument Dungeon3DWorldDocument::fromJson(const nlohmann::json& js
     for (const auto& note_json : json.value("notes", nlohmann::json::array())) {
         document.notes.push_back(noteFromJson(note_json));
     }
+    for (const auto& zone_json : json.value("encounter_zones", nlohmann::json::array())) {
+        document.encounter_zones.push_back(encounterZoneFromJson(zone_json));
+    }
+    for (const auto& link_json : json.value("lock_links", nlohmann::json::array())) {
+        document.lock_links.push_back(lockLinkFromJson(link_json));
+    }
+    for (const auto& trap_json : json.value("traps", nlohmann::json::array())) {
+        document.traps.push_back(trapFromJson(trap_json));
+    }
+    for (const auto& zone_json : json.value("audio_zones", nlohmann::json::array())) {
+        document.audio_zones.push_back(audioZoneFromJson(zone_json));
+    }
+    for (const auto& atmosphere_json : json.value("atmospheres", nlohmann::json::array())) {
+        document.atmospheres.push_back(atmosphereFromJson(atmosphere_json));
+    }
     for (const auto& material_json : json.value("materials", nlohmann::json::array())) {
         auto material = materialFromJson(material_json);
         document.materials[material.id] = std::move(material);
@@ -700,6 +1122,8 @@ nlohmann::json dungeon3DPreviewToJson(const Dungeon3DPreview& preview) {
                                          {"marker_id", tile.marker_id},
                                          {"marker_type", tile.marker_type},
                                          {"note_id", tile.note_id},
+                                         {"trap_id", tile.trap_id},
+                                         {"audio_zone_id", tile.audio_zone_id},
                                          {"event_id", tile.event_id}});
     }
     if (preview.facing_interaction.has_value()) {
@@ -732,10 +1156,20 @@ nlohmann::json dungeon3DPreviewToJson(const Dungeon3DPreview& preview) {
     json["objective_count"] = preview.objective_count;
     json["completed_objective_count"] = preview.completed_objective_count;
     json["note_count"] = preview.note_count;
+    json["encounter_zone_count"] = preview.encounter_zone_count;
+    json["lock_link_count"] = preview.lock_link_count;
+    json["trap_count"] = preview.trap_count;
+    json["armed_trap_count"] = preview.armed_trap_count;
+    json["audio_zone_count"] = preview.audio_zone_count;
     json["opened_door_count"] = preview.opened_door_count;
     json["revealed_secret_count"] = preview.revealed_secret_count;
     json["floor_completion"] = preview.floor_completion;
     json["average_wall_distance"] = preview.average_wall_distance;
+    json["current_light_multiplier"] = preview.current_light_multiplier;
+    json["active_ambient_sound"] = preview.active_ambient_sound;
+    json["active_reverb_preset"] = preview.active_reverb_preset;
+    json["active_weather"] = preview.active_weather;
+    json["active_particles"] = preview.active_particles;
     json["diagnostics"] = nlohmann::json::array();
     for (const auto& diagnostic : preview.diagnostics) {
         json["diagnostics"].push_back({{"code", diagnostic.code}, {"message", diagnostic.message}});

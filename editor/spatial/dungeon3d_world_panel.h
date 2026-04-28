@@ -27,6 +27,11 @@ struct Dungeon3DWorldPanelSnapshot {
     size_t objective_count = 0;
     size_t completed_objective_count = 0;
     size_t note_count = 0;
+    size_t encounter_zone_count = 0;
+    size_t lock_link_count = 0;
+    size_t trap_count = 0;
+    size_t armed_trap_count = 0;
+    size_t audio_zone_count = 0;
     size_t opened_door_count = 0;
     size_t revealed_secret_count = 0;
     size_t runtime_command_count = 0;
@@ -35,6 +40,11 @@ struct Dungeon3DWorldPanelSnapshot {
     float camera_y = 0.0f;
     float average_wall_distance = 0.0f;
     float floor_completion = 0.0f;
+    float current_light_multiplier = 1.0f;
+    std::string active_ambient_sound;
+    std::string active_reverb_preset;
+    std::string active_weather;
+    std::string active_particles;
     std::string facing_event_id;
     std::string facing_material_id;
     std::string facing_door_id;
@@ -59,6 +69,7 @@ public:
     urpg::render::Dungeon3DInteractionResult interactFacing();
     void addInventoryItem(std::string item_id);
     bool completeMarker(std::string marker_id);
+    bool disarmTrap(std::string trap_id);
     void rotate(float radians);
     void render();
 

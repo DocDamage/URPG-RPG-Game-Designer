@@ -24,6 +24,8 @@
     "revealed_secrets": [],
     "triggered_encounters": [],
     "completed_markers": [],
+    "disabled_traps": [],
+    "activated_switches": [],
     "current_floor_id": "crypt_b1",
     "event_log": []
   },
@@ -80,6 +82,67 @@
       "x": 2,
       "y": 1,
       "floor_id": "crypt_b1"
+    }
+  ],
+  "encounter_zones": [
+    {
+      "id": "zone_bone_pile",
+      "encounter_tag": "crypt_bats",
+      "x": 1,
+      "y": 3,
+      "radius": 0,
+      "weight": 3,
+      "floor_id": "crypt_b1",
+      "repeatable": false
+    }
+  ],
+  "lock_links": [
+    {
+      "id": "torch_switch_opens_door",
+      "source_event_id": "torch_a",
+      "target_door_id": "crypt_door",
+      "required_item": "",
+      "opens_on_interact": true
+    }
+  ],
+  "traps": [
+    {
+      "id": "poison_plate",
+      "x": 1,
+      "y": 3,
+      "floor_id": "crypt_b1",
+      "effect_id": "poison",
+      "damage": 12,
+      "repeatable": false,
+      "disarm_item": "trap_kit",
+      "armed": true
+    }
+  ],
+  "audio_zones": [
+    {
+      "id": "crypt_echo_chamber",
+      "x": 2,
+      "y": 2,
+      "radius": 1,
+      "floor_id": "crypt_b1",
+      "ambient_sound": "ambience_crypt_echo",
+      "reverb_preset": "stone_room"
+    }
+  ],
+  "atmospheres": [
+    {
+      "id": "crypt_b1_haze",
+      "floor_id": "crypt_b1",
+      "weather": "dust_motes",
+      "particle_preset": "slow_ash",
+      "light_multiplier": 0.85
+    },
+    {
+      "id": "crypt_b2_deep_fog",
+      "floor_id": "crypt_b2",
+      "weather": "deep_fog",
+      "particle_preset": "cold_mist",
+      "light_multiplier": 0.55
     }
   ],
   "materials": [

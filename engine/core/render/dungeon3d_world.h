@@ -53,6 +53,55 @@ struct Dungeon3DMapNote {
     std::string floor_id;
 };
 
+struct Dungeon3DEncounterZone {
+    std::string id;
+    std::string encounter_tag;
+    int32_t x = 0;
+    int32_t y = 0;
+    int32_t radius = 0;
+    int32_t weight = 1;
+    std::string floor_id;
+    bool repeatable = false;
+};
+
+struct Dungeon3DLockLink {
+    std::string id;
+    std::string source_event_id;
+    std::string target_door_id;
+    std::string required_item;
+    bool opens_on_interact = true;
+};
+
+struct Dungeon3DTrap {
+    std::string id;
+    int32_t x = 0;
+    int32_t y = 0;
+    std::string floor_id;
+    std::string effect_id;
+    int32_t damage = 0;
+    bool repeatable = false;
+    std::string disarm_item;
+    bool armed = true;
+};
+
+struct Dungeon3DAudioZone {
+    std::string id;
+    int32_t x = 0;
+    int32_t y = 0;
+    int32_t radius = 0;
+    std::string floor_id;
+    std::string ambient_sound;
+    std::string reverb_preset;
+};
+
+struct Dungeon3DAtmosphere {
+    std::string id;
+    std::string floor_id;
+    std::string weather;
+    std::string particle_preset;
+    float light_multiplier = 1.0f;
+};
+
 struct Dungeon3DCell {
     std::string tile_id;
     std::string material_id;
@@ -100,6 +149,8 @@ struct Dungeon3DMinimapTile {
     std::string marker_id;
     std::string marker_type;
     std::string note_id;
+    std::string trap_id;
+    std::string audio_zone_id;
     std::string event_id;
 };
 
@@ -127,7 +178,10 @@ struct Dungeon3DNavigationResult {
     bool moved = false;
     bool blocked = false;
     bool encounter_triggered = false;
+    bool trap_triggered = false;
+    bool audio_zone_entered = false;
     std::string command;
+    std::string triggered_id;
     Dungeon3DDiagnostic diagnostic;
 };
 
@@ -136,7 +190,10 @@ struct Dungeon3DInteractionResult {
     bool opened_door = false;
     bool revealed_secret = false;
     bool transferred_floor = false;
+    bool activated_switch = false;
+    bool disarmed_trap = false;
     std::string command;
+    std::string target_id;
     Dungeon3DDiagnostic diagnostic;
 };
 
@@ -147,6 +204,8 @@ struct Dungeon3DSessionState {
     std::set<std::string> revealed_secrets;
     std::set<std::string> triggered_encounters;
     std::set<std::string> completed_markers;
+    std::set<std::string> disabled_traps;
+    std::set<std::string> activated_switches;
     std::string current_floor_id;
     std::vector<std::string> event_log;
 };
@@ -168,10 +227,20 @@ struct Dungeon3DPreview {
     int32_t objective_count = 0;
     int32_t completed_objective_count = 0;
     int32_t note_count = 0;
+    int32_t encounter_zone_count = 0;
+    int32_t lock_link_count = 0;
+    int32_t trap_count = 0;
+    int32_t armed_trap_count = 0;
+    int32_t audio_zone_count = 0;
     int32_t opened_door_count = 0;
     int32_t revealed_secret_count = 0;
     float floor_completion = 0.0f;
     float average_wall_distance = 0.0f;
+    float current_light_multiplier = 1.0f;
+    std::string active_ambient_sound;
+    std::string active_reverb_preset;
+    std::string active_weather;
+    std::string active_particles;
 };
 
 class Dungeon3DWorldDocument {
@@ -191,6 +260,11 @@ public:
     std::vector<Dungeon3DFloor> floors;
     std::vector<Dungeon3DMapMarker> markers;
     std::vector<Dungeon3DMapNote> notes;
+    std::vector<Dungeon3DEncounterZone> encounter_zones;
+    std::vector<Dungeon3DLockLink> lock_links;
+    std::vector<Dungeon3DTrap> traps;
+    std::vector<Dungeon3DAudioZone> audio_zones;
+    std::vector<Dungeon3DAtmosphere> atmospheres;
     std::map<std::string, Dungeon3DMaterial> materials;
     std::vector<Dungeon3DCell> cells;
 
@@ -202,6 +276,7 @@ public:
     [[nodiscard]] Dungeon3DInteractionResult interactFacing();
     void addInventoryItem(std::string item_id);
     bool completeMarker(std::string marker_id);
+    bool disarmTrap(std::string trap_id);
     void rotate(float radians);
     [[nodiscard]] nlohmann::json toJson() const;
 
