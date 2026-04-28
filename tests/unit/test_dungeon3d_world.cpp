@@ -39,6 +39,8 @@ TEST_CASE("3D dungeon world converts 2D map data into runtime raycast preview", 
     REQUIRE(document.traps.size() == 1);
     REQUIRE(document.audio_zones.size() == 1);
     REQUIRE(document.atmospheres.size() == 2);
+    REQUIRE(document.patrol_routes.size() == 1);
+    REQUIRE(document.hiding_spots.size() == 1);
     REQUIRE(document.materials.size() == 2);
     REQUIRE(document.validate().empty());
 
@@ -65,12 +67,18 @@ TEST_CASE("3D dungeon world converts 2D map data into runtime raycast preview", 
     REQUIRE(preview.trap_count == 1);
     REQUIRE(preview.armed_trap_count == 1);
     REQUIRE(preview.audio_zone_count == 1);
+    REQUIRE(preview.patrol_count == 1);
+    REQUIRE(preview.active_patrol_count == 1);
+    REQUIRE(preview.alerted_patrol_count == 0);
+    REQUIRE(preview.hiding_spot_count == 1);
+    REQUIRE_FALSE(preview.player_hidden);
     REQUIRE(preview.floor_completion == 0.0f);
     REQUIRE(preview.current_light_multiplier == 0.85f);
     REQUIRE(preview.active_ambient_sound == "ambience_crypt_echo");
     REQUIRE(preview.active_reverb_preset == "stone_room");
     REQUIRE(preview.active_weather == "dust_motes");
     REQUIRE(preview.active_particles == "slow_ash");
+    REQUIRE(preview.nearest_patrol_id == "skeleton_guard_route");
     REQUIRE(preview.facing_interaction.has_value());
     REQUIRE(preview.facing_interaction->event_id.empty());
     REQUIRE(containsCommand(preview.runtime_commands, "switch_to_3d:ancient_crypt"));
@@ -106,11 +114,17 @@ TEST_CASE("3D dungeon world supports 2D to 3D switching and WYSIWYG panel snapsh
     REQUIRE(panel.snapshot().trap_count == 1);
     REQUIRE(panel.snapshot().armed_trap_count == 1);
     REQUIRE(panel.snapshot().audio_zone_count == 1);
+    REQUIRE(panel.snapshot().patrol_count == 1);
+    REQUIRE(panel.snapshot().active_patrol_count == 1);
+    REQUIRE(panel.snapshot().alerted_patrol_count == 0);
+    REQUIRE(panel.snapshot().hiding_spot_count == 1);
     REQUIRE(panel.snapshot().active_ambient_sound == "ambience_crypt_echo");
     REQUIRE(panel.snapshot().active_reverb_preset == "stone_room");
     REQUIRE(panel.snapshot().active_weather == "dust_motes");
     REQUIRE(panel.snapshot().active_particles == "slow_ash");
     REQUIRE(panel.snapshot().current_light_multiplier == 0.85f);
+    REQUIRE(panel.snapshot().nearest_patrol_id == "skeleton_guard_route");
+    REQUIRE_FALSE(panel.snapshot().player_hidden);
     REQUIRE(panel.snapshot().average_wall_distance > 0.0f);
     REQUIRE(panel.snapshot().runtime_command_count == 6);
     REQUIRE(panel.saveProjectData() == document.toJson());
@@ -311,6 +325,47 @@ TEST_CASE("3D dungeon world runs authored encounter zones traps audio and switch
     REQUIRE(panel.disarmTrap("poison_plate"));
     REQUIRE(panel.snapshot().armed_trap_count == 0);
     REQUIRE(panel.snapshot().last_event_log_entry == "disarm_trap:poison_plate");
+}
+
+TEST_CASE("3D dungeon world previews patrol stealth and hiding spot authoring", "[dungeon3d][wysiwyg]") {
+    auto document = urpg::render::Dungeon3DWorldDocument::fromJson(loadFixture("dungeon3d_world"));
+    auto preview = document.preview();
+
+    REQUIRE(preview.patrol_count == 1);
+    REQUIRE(preview.active_patrol_count == 1);
+    REQUIRE(preview.hiding_spot_count == 1);
+    REQUIRE(preview.nearest_patrol_id == "skeleton_guard_route");
+    REQUIRE_FALSE(preview.player_hidden);
+
+    const auto json = urpg::render::dungeon3DPreviewToJson(preview);
+    bool found_patrol = false;
+    bool found_hiding_spot = false;
+    bool found_vision = false;
+    for (const auto& tile : json.at("minimap_tiles")) {
+        found_patrol = found_patrol || tile.value("patrol_id", std::string{}) == "skeleton_guard_route";
+        found_hiding_spot = found_hiding_spot || tile.value("hiding_spot_id", std::string{}) == "shadow_urn";
+        found_vision = found_vision || tile.value("in_patrol_vision", false);
+    }
+    REQUIRE(found_patrol);
+    REQUIRE(found_hiding_spot);
+    REQUIRE(found_vision);
+
+    REQUIRE(document.advancePatrol("skeleton_guard_route"));
+    preview = document.preview();
+    REQUIRE(preview.alerted_patrol_count == 1);
+    REQUIRE(document.session.alerted_patrols.contains("skeleton_guard_route"));
+    REQUIRE(document.session.event_log.back() == "patrol_alert:skeleton_guard_route");
+
+    urpg::editor::Dungeon3DWorldPanel panel;
+    panel.loadDocument(urpg::render::Dungeon3DWorldDocument::fromJson(loadFixture("dungeon3d_world")));
+    REQUIRE(panel.enterHidingSpot("shadow_urn"));
+    REQUIRE(panel.snapshot().player_hidden);
+    REQUIRE(panel.snapshot().current_hiding_spot == "shadow_urn");
+    REQUIRE(panel.advancePatrol("skeleton_guard_route"));
+    REQUIRE(panel.snapshot().alerted_patrol_count == 0);
+    REQUIRE(panel.leaveHidingSpot());
+    REQUIRE_FALSE(panel.snapshot().player_hidden);
+    REQUIRE(panel.snapshot().last_event_log_entry == "leave_hiding_spot:shadow_urn");
 }
 
 TEST_CASE("3D dungeon world is release registered with promoted spatial authoring", "[dungeon3d][wysiwyg]") {

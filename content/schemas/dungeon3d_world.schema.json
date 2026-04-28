@@ -41,6 +41,9 @@
         "completed_markers": { "type": "array", "items": { "type": "string" } },
         "disabled_traps": { "type": "array", "items": { "type": "string" } },
         "activated_switches": { "type": "array", "items": { "type": "string" } },
+        "alerted_patrols": { "type": "array", "items": { "type": "string" } },
+        "patrol_indices": { "type": "object", "additionalProperties": { "type": "integer" } },
+        "current_hiding_spot": { "type": "string" },
         "current_floor_id": { "type": "string" },
         "event_log": { "type": "array", "items": { "type": "string" } }
       }
@@ -173,6 +176,50 @@
           "weather": { "type": "string" },
           "particle_preset": { "type": "string" },
           "light_multiplier": { "type": "number", "minimum": 0 }
+        }
+      }
+    },
+    "patrol_routes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "enemy_id", "floor_id", "waypoints", "vision_range", "vision_width", "active"],
+        "properties": {
+          "id": { "type": "string", "minLength": 1 },
+          "enemy_id": { "type": "string", "minLength": 1 },
+          "floor_id": { "type": "string" },
+          "waypoints": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["x", "y"],
+              "properties": {
+                "x": { "type": "integer" },
+                "y": { "type": "integer" }
+              }
+            }
+          },
+          "vision_range": { "type": "integer", "minimum": 0 },
+          "vision_width": { "type": "integer", "minimum": 0 },
+          "active": { "type": "boolean" }
+        }
+      }
+    },
+    "hiding_spots": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "x", "y", "floor_id", "required_item"],
+        "properties": {
+          "id": { "type": "string", "minLength": 1 },
+          "x": { "type": "integer" },
+          "y": { "type": "integer" },
+          "floor_id": { "type": "string" },
+          "required_item": { "type": "string" }
         }
       }
     },

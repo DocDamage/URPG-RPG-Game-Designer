@@ -32,6 +32,10 @@ struct Dungeon3DWorldPanelSnapshot {
     size_t trap_count = 0;
     size_t armed_trap_count = 0;
     size_t audio_zone_count = 0;
+    size_t patrol_count = 0;
+    size_t active_patrol_count = 0;
+    size_t alerted_patrol_count = 0;
+    size_t hiding_spot_count = 0;
     size_t opened_door_count = 0;
     size_t revealed_secret_count = 0;
     size_t runtime_command_count = 0;
@@ -45,6 +49,8 @@ struct Dungeon3DWorldPanelSnapshot {
     std::string active_reverb_preset;
     std::string active_weather;
     std::string active_particles;
+    std::string nearest_patrol_id;
+    std::string current_hiding_spot;
     std::string facing_event_id;
     std::string facing_material_id;
     std::string facing_door_id;
@@ -55,6 +61,7 @@ struct Dungeon3DWorldPanelSnapshot {
     bool facing_can_open = false;
     bool facing_can_transfer = false;
     bool facing_blocked = false;
+    bool player_hidden = false;
     std::string current_floor_id;
     std::string last_event_log_entry;
     std::string status_message = "Load a 3D dungeon world document before rendering this panel.";
@@ -70,6 +77,9 @@ public:
     void addInventoryItem(std::string item_id);
     bool completeMarker(std::string marker_id);
     bool disarmTrap(std::string trap_id);
+    bool enterHidingSpot(std::string hiding_spot_id);
+    bool leaveHidingSpot();
+    bool advancePatrol(std::string patrol_id);
     void rotate(float radians);
     void render();
 

@@ -94,6 +94,32 @@ Dungeon3DAtmosphere atmosphereFromJson(const nlohmann::json& json) {
             json.value("light_multiplier", 1.0f)};
 }
 
+Dungeon3DPatrolWaypoint patrolWaypointFromJson(const nlohmann::json& json) {
+    return {json.value("x", 0), json.value("y", 0)};
+}
+
+Dungeon3DPatrolRoute patrolRouteFromJson(const nlohmann::json& json) {
+    Dungeon3DPatrolRoute route;
+    route.id = json.value("id", "");
+    route.enemy_id = json.value("enemy_id", "");
+    route.floor_id = json.value("floor_id", "");
+    route.vision_range = json.value("vision_range", 0);
+    route.vision_width = json.value("vision_width", 0);
+    route.active = json.value("active", true);
+    for (const auto& waypoint_json : json.value("waypoints", nlohmann::json::array())) {
+        route.waypoints.push_back(patrolWaypointFromJson(waypoint_json));
+    }
+    return route;
+}
+
+Dungeon3DHidingSpot hidingSpotFromJson(const nlohmann::json& json) {
+    return {json.value("id", ""),
+            json.value("x", 0),
+            json.value("y", 0),
+            json.value("floor_id", ""),
+            json.value("required_item", "")};
+}
+
 nlohmann::json materialToJson(const Dungeon3DMaterial& material) {
     return {{"id", material.id},
             {"wall_texture", material.wall_texture},
@@ -178,6 +204,32 @@ nlohmann::json atmosphereToJson(const Dungeon3DAtmosphere& atmosphere) {
             {"light_multiplier", atmosphere.light_multiplier}};
 }
 
+nlohmann::json patrolWaypointToJson(const Dungeon3DPatrolWaypoint& waypoint) {
+    return {{"x", waypoint.x}, {"y", waypoint.y}};
+}
+
+nlohmann::json patrolRouteToJson(const Dungeon3DPatrolRoute& route) {
+    nlohmann::json json{{"id", route.id},
+                        {"enemy_id", route.enemy_id},
+                        {"floor_id", route.floor_id},
+                        {"vision_range", route.vision_range},
+                        {"vision_width", route.vision_width},
+                        {"active", route.active}};
+    json["waypoints"] = nlohmann::json::array();
+    for (const auto& waypoint : route.waypoints) {
+        json["waypoints"].push_back(patrolWaypointToJson(waypoint));
+    }
+    return json;
+}
+
+nlohmann::json hidingSpotToJson(const Dungeon3DHidingSpot& spot) {
+    return {{"id", spot.id},
+            {"x", spot.x},
+            {"y", spot.y},
+            {"floor_id", spot.floor_id},
+            {"required_item", spot.required_item}};
+}
+
 Dungeon3DCell cellFromJson(const nlohmann::json& json) {
     return {json.value("tile_id", ""),
             json.value("material_id", ""),
@@ -223,6 +275,9 @@ nlohmann::json sessionToJson(const Dungeon3DSessionState& session) {
             {"completed_markers", session.completed_markers},
             {"disabled_traps", session.disabled_traps},
             {"activated_switches", session.activated_switches},
+            {"alerted_patrols", session.alerted_patrols},
+            {"patrol_indices", session.patrol_indices},
+            {"current_hiding_spot", session.current_hiding_spot},
             {"current_floor_id", session.current_floor_id},
             {"event_log", session.event_log}};
 }
@@ -237,6 +292,9 @@ Dungeon3DSessionState sessionFromJson(const nlohmann::json& json) {
     session.completed_markers = json.value("completed_markers", std::set<std::string>{});
     session.disabled_traps = json.value("disabled_traps", std::set<std::string>{});
     session.activated_switches = json.value("activated_switches", std::set<std::string>{});
+    session.alerted_patrols = json.value("alerted_patrols", std::set<std::string>{});
+    session.patrol_indices = json.value("patrol_indices", std::map<std::string, int32_t>{});
+    session.current_hiding_spot = json.value("current_hiding_spot", "");
     session.current_floor_id = json.value("current_floor_id", "");
     session.event_log = json.value("event_log", std::vector<std::string>{});
     return session;
@@ -347,6 +405,52 @@ const Dungeon3DAudioZone* audioZoneAt(const Dungeon3DWorldDocument& document, in
     return best;
 }
 
+int32_t patrolIndexFor(const Dungeon3DWorldDocument& document, const Dungeon3DPatrolRoute& route) {
+    if (route.waypoints.empty()) {
+        return 0;
+    }
+    const auto it = document.session.patrol_indices.find(route.id);
+    const auto raw_index = it == document.session.patrol_indices.end() ? 0 : it->second;
+    return std::clamp(raw_index, 0, static_cast<int32_t>(route.waypoints.size() - 1));
+}
+
+Dungeon3DPatrolWaypoint patrolPositionFor(const Dungeon3DWorldDocument& document, const Dungeon3DPatrolRoute& route) {
+    if (route.waypoints.empty()) {
+        return {};
+    }
+    return route.waypoints[static_cast<size_t>(patrolIndexFor(document, route))];
+}
+
+const Dungeon3DHidingSpot* hidingSpotAt(const Dungeon3DWorldDocument& document, int32_t x, int32_t y) {
+    const auto it = std::find_if(document.hiding_spots.begin(), document.hiding_spots.end(), [&](const auto& spot) {
+        return spot.x == x && spot.y == y && matchesCurrentFloor(document, spot.floor_id);
+    });
+    return it == document.hiding_spots.end() ? nullptr : &(*it);
+}
+
+bool patrolSeesTile(const Dungeon3DWorldDocument& document, const Dungeon3DPatrolRoute& route, int32_t x, int32_t y) {
+    if (!route.active || route.waypoints.empty() || !matchesCurrentFloor(document, route.floor_id)) {
+        return false;
+    }
+    const auto position = patrolPositionFor(document, route);
+    const auto manhattan = std::abs(position.x - x) + std::abs(position.y - y);
+    const auto width = std::max(route.vision_width, 0);
+    return manhattan <= route.vision_range && std::abs(position.x - x) <= route.vision_range &&
+           std::abs(position.y - y) <= std::max(route.vision_range, width);
+}
+
+const Dungeon3DPatrolRoute* visiblePatrolForPlayer(const Dungeon3DWorldDocument& document, int32_t x, int32_t y) {
+    if (!document.session.current_hiding_spot.empty()) {
+        return nullptr;
+    }
+    for (const auto& route : document.patrol_routes) {
+        if (patrolSeesTile(document, route, x, y)) {
+            return &route;
+        }
+    }
+    return nullptr;
+}
+
 std::optional<Dungeon3DInteraction> interactionAhead(const Dungeon3DWorldDocument& document) {
     const auto target_x = static_cast<int32_t>(std::floor(document.camera.pos_x + document.camera.dir_x));
     const auto target_y = static_cast<int32_t>(std::floor(document.camera.pos_y + document.camera.dir_y));
@@ -396,6 +500,7 @@ Dungeon3DNavigationResult tryMove(Dungeon3DWorldDocument& document, float delta_
     }
     document.camera.pos_x = next_x;
     document.camera.pos_y = next_y;
+    document.session.current_hiding_spot.clear();
     document.session.discovered_cells.insert(cellKey(tile_x, tile_y));
     result.moved = true;
     result.command = "move_camera:" + document.map_id;
@@ -429,6 +534,15 @@ Dungeon3DNavigationResult tryMove(Dungeon3DWorldDocument& document, float delta_
         if (!result.trap_triggered && !result.encounter_triggered) {
             result.command = "enter_audio_zone:" + zone->id;
             result.triggered_id = zone->id;
+        }
+    }
+    if (const auto* patrol = visiblePatrolForPlayer(document, tile_x, tile_y); patrol != nullptr) {
+        document.session.alerted_patrols.insert(patrol->id);
+        document.session.event_log.push_back("patrol_alert:" + patrol->id);
+        result.patrol_alerted = true;
+        if (!result.trap_triggered && !result.encounter_triggered && !result.audio_zone_entered) {
+            result.command = "patrol_alert:" + patrol->id;
+            result.triggered_id = patrol->id;
         }
     }
     return result;
@@ -594,6 +708,47 @@ std::vector<Dungeon3DDiagnostic> Dungeon3DWorldDocument::validate() const {
             diagnostics.push_back({"invalid_atmosphere_light", "3D dungeon atmosphere light multiplier cannot be negative: " + atmosphere.id});
         }
     }
+    std::set<std::string> patrol_ids;
+    for (const auto& route : patrol_routes) {
+        if (route.id.empty()) {
+            diagnostics.push_back({"missing_patrol_id", "3D dungeon patrol route is missing an id."});
+        } else if (!patrol_ids.insert(route.id).second) {
+            diagnostics.push_back({"duplicate_patrol_id", "3D dungeon patrol route id is duplicated: " + route.id});
+        }
+        if (route.enemy_id.empty()) {
+            diagnostics.push_back({"missing_patrol_enemy", "3D dungeon patrol route is missing an enemy id: " + route.id});
+        }
+        if (route.waypoints.empty()) {
+            diagnostics.push_back({"empty_patrol_route", "3D dungeon patrol route must have at least one waypoint: " + route.id});
+        }
+        if (route.vision_range < 0 || route.vision_width < 0) {
+            diagnostics.push_back({"invalid_patrol_vision", "3D dungeon patrol vision range and width cannot be negative: " + route.id});
+        }
+        if (!route.floor_id.empty() && !floor_ids.empty() && !floor_ids.contains(route.floor_id)) {
+            diagnostics.push_back({"unknown_patrol_floor", "3D dungeon patrol route references an unknown floor: " + route.id});
+        }
+        for (const auto& waypoint : route.waypoints) {
+            if (!inBounds(*this, waypoint.x, waypoint.y)) {
+                diagnostics.push_back({"patrol_waypoint_out_of_bounds",
+                                       "3D dungeon patrol route has a waypoint outside the authored map: " + route.id});
+                break;
+            }
+        }
+    }
+    std::set<std::string> hiding_spot_ids;
+    for (const auto& spot : hiding_spots) {
+        if (spot.id.empty()) {
+            diagnostics.push_back({"missing_hiding_spot_id", "3D dungeon hiding spot is missing an id."});
+        } else if (!hiding_spot_ids.insert(spot.id).second) {
+            diagnostics.push_back({"duplicate_hiding_spot_id", "3D dungeon hiding spot id is duplicated: " + spot.id});
+        }
+        if (!inBounds(*this, spot.x, spot.y)) {
+            diagnostics.push_back({"hiding_spot_out_of_bounds", "3D dungeon hiding spot is outside the authored map: " + spot.id});
+        }
+        if (!spot.floor_id.empty() && !floor_ids.empty() && !floor_ids.contains(spot.floor_id)) {
+            diagnostics.push_back({"unknown_hiding_spot_floor", "3D dungeon hiding spot references an unknown floor: " + spot.id});
+        }
+    }
     std::set<std::string> door_ids;
     std::set<std::string> event_ids;
     for (const auto& cell : cells) {
@@ -666,11 +821,21 @@ Dungeon3DPreview Dungeon3DWorldDocument::preview() const {
     result.lock_link_count = static_cast<int32_t>(lock_links.size());
     result.trap_count = static_cast<int32_t>(traps.size());
     result.audio_zone_count = static_cast<int32_t>(audio_zones.size());
+    result.patrol_count = static_cast<int32_t>(patrol_routes.size());
+    result.hiding_spot_count = static_cast<int32_t>(hiding_spots.size());
     for (const auto& trap : traps) {
         if (trap.armed && !session.disabled_traps.contains(trap.id)) {
             ++result.armed_trap_count;
         }
     }
+    for (const auto& route : patrol_routes) {
+        if (route.active) {
+            ++result.active_patrol_count;
+        }
+    }
+    result.alerted_patrol_count = static_cast<int32_t>(session.alerted_patrols.size());
+    result.player_hidden = !session.current_hiding_spot.empty();
+    result.current_hiding_spot = session.current_hiding_spot;
     if (result.objective_count > 0) {
         result.floor_completion =
             static_cast<float>(result.completed_objective_count) / static_cast<float>(result.objective_count);
@@ -688,6 +853,9 @@ Dungeon3DPreview Dungeon3DWorldDocument::preview() const {
     if (const auto* zone = audioZoneAt(*this, current_x, current_y); zone != nullptr) {
         result.active_ambient_sound = zone->ambient_sound;
         result.active_reverb_preset = zone->reverb_preset;
+    }
+    if (const auto* patrol = visiblePatrolForPlayer(*this, current_x, current_y); patrol != nullptr) {
+        result.nearest_patrol_id = patrol->id;
     }
     if (result.active_ambient_sound.empty()) {
         const auto floor_it = std::find_if(floors.begin(), floors.end(), [&](const auto& floor) {
@@ -811,6 +979,22 @@ Dungeon3DPreview Dungeon3DWorldDocument::preview() const {
                         break;
                     }
                 }
+                std::string patrol_id;
+                bool in_patrol_vision = false;
+                for (const auto& route : patrol_routes) {
+                    const auto position = patrolPositionFor(*this, route);
+                    if (route.active && matchesCurrentFloor(*this, route.floor_id) && position.x == x && position.y == y) {
+                        patrol_id = route.id;
+                    }
+                    in_patrol_vision = in_patrol_vision || patrolSeesTile(*this, route, x, y);
+                }
+                std::string hiding_spot_id;
+                for (const auto& spot : hiding_spots) {
+                    if (spot.x == x && spot.y == y && matchesCurrentFloor(*this, spot.floor_id)) {
+                        hiding_spot_id = spot.id;
+                        break;
+                    }
+                }
                 result.minimap_tiles.push_back(
                     {x,
                      y,
@@ -823,6 +1007,9 @@ Dungeon3DPreview Dungeon3DWorldDocument::preview() const {
                      note_id,
                      trap_id,
                      audio_zone_id,
+                     patrol_id,
+                     hiding_spot_id,
+                     in_patrol_vision,
                      cells[index].event_id});
             }
         }
@@ -898,6 +1085,21 @@ Dungeon3DInteractionResult Dungeon3DWorldDocument::interactFacing() {
         result.target_id = trap->id;
         return result;
     }
+    if (const auto* spot = hidingSpotAt(*this, interaction->x, interaction->y); spot != nullptr) {
+        if (!spot->required_item.empty() && !session.inventory.contains(spot->required_item)) {
+            result.command = "hiding_spot_requires_item:" + spot->id;
+            result.target_id = spot->id;
+            result.diagnostic = {"missing_hiding_spot_item", "3D dungeon hiding spot requires item: " + spot->required_item};
+            return result;
+        }
+        session.current_hiding_spot = spot->id;
+        session.event_log.push_back("enter_hiding_spot:" + spot->id);
+        result.handled = true;
+        result.entered_hiding_spot = true;
+        result.command = "enter_hiding_spot:" + spot->id;
+        result.target_id = spot->id;
+        return result;
+    }
     if (!interaction->event_id.empty()) {
         const auto link_it = std::find_if(lock_links.begin(), lock_links.end(), [&](const auto& link) {
             return link.opens_on_interact && link.source_event_id == interaction->event_id;
@@ -968,6 +1170,52 @@ bool Dungeon3DWorldDocument::disarmTrap(std::string trap_id) {
     return true;
 }
 
+bool Dungeon3DWorldDocument::enterHidingSpot(std::string hiding_spot_id) {
+    if (hiding_spot_id.empty()) {
+        return false;
+    }
+    const auto found = std::find_if(hiding_spots.begin(), hiding_spots.end(), [&](const auto& spot) {
+        return spot.id == hiding_spot_id;
+    });
+    if (found == hiding_spots.end()) {
+        return false;
+    }
+    if (!found->required_item.empty() && !session.inventory.contains(found->required_item)) {
+        return false;
+    }
+    session.current_hiding_spot = hiding_spot_id;
+    session.event_log.push_back("enter_hiding_spot:" + hiding_spot_id);
+    return true;
+}
+
+bool Dungeon3DWorldDocument::leaveHidingSpot() {
+    if (session.current_hiding_spot.empty()) {
+        return false;
+    }
+    session.event_log.push_back("leave_hiding_spot:" + session.current_hiding_spot);
+    session.current_hiding_spot.clear();
+    return true;
+}
+
+bool Dungeon3DWorldDocument::advancePatrol(std::string patrol_id) {
+    const auto found = std::find_if(patrol_routes.begin(), patrol_routes.end(), [&](const auto& route) {
+        return route.id == patrol_id;
+    });
+    if (found == patrol_routes.end() || found->waypoints.empty()) {
+        return false;
+    }
+    auto& index = session.patrol_indices[patrol_id];
+    index = (index + 1) % static_cast<int32_t>(found->waypoints.size());
+    session.event_log.push_back("advance_patrol:" + patrol_id + ":" + std::to_string(index));
+    const auto player_x = static_cast<int32_t>(std::floor(camera.pos_x));
+    const auto player_y = static_cast<int32_t>(std::floor(camera.pos_y));
+    if (patrolSeesTile(*this, *found, player_x, player_y) && session.current_hiding_spot.empty()) {
+        session.alerted_patrols.insert(patrol_id);
+        session.event_log.push_back("patrol_alert:" + patrol_id);
+    }
+    return true;
+}
+
 void Dungeon3DWorldDocument::rotate(float radians) {
     const auto old_dir_x = camera.dir_x;
     camera.dir_x = camera.dir_x * std::cos(radians) - camera.dir_y * std::sin(radians);
@@ -1028,6 +1276,14 @@ nlohmann::json Dungeon3DWorldDocument::toJson() const {
     for (const auto& atmosphere : atmospheres) {
         json["atmospheres"].push_back(atmosphereToJson(atmosphere));
     }
+    json["patrol_routes"] = nlohmann::json::array();
+    for (const auto& route : patrol_routes) {
+        json["patrol_routes"].push_back(patrolRouteToJson(route));
+    }
+    json["hiding_spots"] = nlohmann::json::array();
+    for (const auto& spot : hiding_spots) {
+        json["hiding_spots"].push_back(hidingSpotToJson(spot));
+    }
     json["materials"] = nlohmann::json::array();
     for (const auto& [_, material] : materials) {
         json["materials"].push_back(materialToJson(material));
@@ -1087,6 +1343,12 @@ Dungeon3DWorldDocument Dungeon3DWorldDocument::fromJson(const nlohmann::json& js
     for (const auto& atmosphere_json : json.value("atmospheres", nlohmann::json::array())) {
         document.atmospheres.push_back(atmosphereFromJson(atmosphere_json));
     }
+    for (const auto& route_json : json.value("patrol_routes", nlohmann::json::array())) {
+        document.patrol_routes.push_back(patrolRouteFromJson(route_json));
+    }
+    for (const auto& spot_json : json.value("hiding_spots", nlohmann::json::array())) {
+        document.hiding_spots.push_back(hidingSpotFromJson(spot_json));
+    }
     for (const auto& material_json : json.value("materials", nlohmann::json::array())) {
         auto material = materialFromJson(material_json);
         document.materials[material.id] = std::move(material);
@@ -1124,6 +1386,9 @@ nlohmann::json dungeon3DPreviewToJson(const Dungeon3DPreview& preview) {
                                          {"note_id", tile.note_id},
                                          {"trap_id", tile.trap_id},
                                          {"audio_zone_id", tile.audio_zone_id},
+                                         {"patrol_id", tile.patrol_id},
+                                         {"hiding_spot_id", tile.hiding_spot_id},
+                                         {"in_patrol_vision", tile.in_patrol_vision},
                                          {"event_id", tile.event_id}});
     }
     if (preview.facing_interaction.has_value()) {
@@ -1161,8 +1426,13 @@ nlohmann::json dungeon3DPreviewToJson(const Dungeon3DPreview& preview) {
     json["trap_count"] = preview.trap_count;
     json["armed_trap_count"] = preview.armed_trap_count;
     json["audio_zone_count"] = preview.audio_zone_count;
+    json["patrol_count"] = preview.patrol_count;
+    json["active_patrol_count"] = preview.active_patrol_count;
+    json["alerted_patrol_count"] = preview.alerted_patrol_count;
+    json["hiding_spot_count"] = preview.hiding_spot_count;
     json["opened_door_count"] = preview.opened_door_count;
     json["revealed_secret_count"] = preview.revealed_secret_count;
+    json["player_hidden"] = preview.player_hidden;
     json["floor_completion"] = preview.floor_completion;
     json["average_wall_distance"] = preview.average_wall_distance;
     json["current_light_multiplier"] = preview.current_light_multiplier;
@@ -1170,6 +1440,8 @@ nlohmann::json dungeon3DPreviewToJson(const Dungeon3DPreview& preview) {
     json["active_reverb_preset"] = preview.active_reverb_preset;
     json["active_weather"] = preview.active_weather;
     json["active_particles"] = preview.active_particles;
+    json["nearest_patrol_id"] = preview.nearest_patrol_id;
+    json["current_hiding_spot"] = preview.current_hiding_spot;
     json["diagnostics"] = nlohmann::json::array();
     for (const auto& diagnostic : preview.diagnostics) {
         json["diagnostics"].push_back({{"code", diagnostic.code}, {"message", diagnostic.message}});

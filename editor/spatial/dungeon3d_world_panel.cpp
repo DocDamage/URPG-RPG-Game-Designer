@@ -65,6 +65,30 @@ bool Dungeon3DWorldPanel::disarmTrap(std::string trap_id) {
     return disarmed;
 }
 
+bool Dungeon3DWorldPanel::enterHidingSpot(std::string hiding_spot_id) {
+    const bool entered = document_.enterHidingSpot(std::move(hiding_spot_id));
+    if (loaded_) {
+        refresh();
+    }
+    return entered;
+}
+
+bool Dungeon3DWorldPanel::leaveHidingSpot() {
+    const bool left = document_.leaveHidingSpot();
+    if (loaded_) {
+        refresh();
+    }
+    return left;
+}
+
+bool Dungeon3DWorldPanel::advancePatrol(std::string patrol_id) {
+    const bool advanced = document_.advancePatrol(std::move(patrol_id));
+    if (loaded_) {
+        refresh();
+    }
+    return advanced;
+}
+
 void Dungeon3DWorldPanel::rotate(float radians) {
     document_.rotate(radians);
     if (loaded_) {
@@ -116,6 +140,10 @@ void Dungeon3DWorldPanel::refresh() {
     snapshot_.trap_count = static_cast<size_t>(preview_.trap_count);
     snapshot_.armed_trap_count = static_cast<size_t>(preview_.armed_trap_count);
     snapshot_.audio_zone_count = static_cast<size_t>(preview_.audio_zone_count);
+    snapshot_.patrol_count = static_cast<size_t>(preview_.patrol_count);
+    snapshot_.active_patrol_count = static_cast<size_t>(preview_.active_patrol_count);
+    snapshot_.alerted_patrol_count = static_cast<size_t>(preview_.alerted_patrol_count);
+    snapshot_.hiding_spot_count = static_cast<size_t>(preview_.hiding_spot_count);
     snapshot_.opened_door_count = static_cast<size_t>(preview_.opened_door_count);
     snapshot_.revealed_secret_count = static_cast<size_t>(preview_.revealed_secret_count);
     snapshot_.runtime_command_count = preview_.runtime_commands.size();
@@ -129,6 +157,8 @@ void Dungeon3DWorldPanel::refresh() {
     snapshot_.active_reverb_preset = preview_.active_reverb_preset;
     snapshot_.active_weather = preview_.active_weather;
     snapshot_.active_particles = preview_.active_particles;
+    snapshot_.nearest_patrol_id = preview_.nearest_patrol_id;
+    snapshot_.current_hiding_spot = preview_.current_hiding_spot;
     snapshot_.facing_event_id = preview_.facing_interaction ? preview_.facing_interaction->event_id : "";
     snapshot_.facing_material_id = preview_.facing_interaction ? preview_.facing_interaction->material_id : "";
     snapshot_.facing_door_id = preview_.facing_interaction ? preview_.facing_interaction->door_id : "";
@@ -139,6 +169,7 @@ void Dungeon3DWorldPanel::refresh() {
     snapshot_.facing_can_open = preview_.facing_interaction ? preview_.facing_interaction->can_open : false;
     snapshot_.facing_can_transfer = preview_.facing_interaction ? preview_.facing_interaction->can_transfer : false;
     snapshot_.facing_blocked = preview_.facing_interaction ? preview_.facing_interaction->blocking : false;
+    snapshot_.player_hidden = preview_.player_hidden;
     snapshot_.current_floor_id = document_.session.current_floor_id;
     snapshot_.last_event_log_entry = document_.session.event_log.empty() ? "" : document_.session.event_log.back();
     snapshot_.status_message =
