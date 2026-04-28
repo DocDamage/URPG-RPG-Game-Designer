@@ -5,15 +5,15 @@ Program Scope: native-first roadmap rewire plus Wave 1 absorption, Wave 2 advanc
 
 Cross-cutting debt, truthfulness, and intake-governance source of truth: `docs/archive/planning/PROGRAM_COMPLETION_STATUS.md`.
 
-Current app-level release readiness source of truth: [`docs/APP_RELEASE_READINESS_MATRIX.md`](../APP_RELEASE_READINESS_MATRIX.md). It maps boot flow, save/load, settings, audio, input, localization, asset validation, editor navigation, analytics consent, install/package, legal docs, release-required asset hydration, and final release-candidate gates to concrete task IDs and evidence commands. As of the P6-002 follow-up verification pass, local gates and the unwaived release-candidate gate pass, including fresh-clone release-required asset verification from GitHub. Public release remains blocked by legal/privacy review, remote manual workflow evidence, and release tagging.
+Current app-level release readiness source of truth: [`docs/APP_RELEASE_READINESS_MATRIX.md`](../APP_RELEASE_READINESS_MATRIX.md). It maps boot flow, save/load, settings, audio, input, localization, asset validation, editor navigation, analytics consent, install/package, legal docs, release-required asset hydration, and final release-candidate gates to concrete task IDs and evidence commands. As of the P6-002 follow-up verification pass, local gates, the unwaived release-candidate gate, and the remote manual GitHub Actions release-candidate workflow pass, including fresh-clone release-required asset verification from GitHub. Public release remains blocked by legal/privacy review and release tagging.
 
 2026-04-24 technical debt audit Sprint 2 evidence refresh:
 - `battle_core` and `save_data_core` validation was refreshed through focused Catch2 tag filters, battle/save integration, Wave 1 closure integration, save policy governance, release readiness, and truth reconciliation.
 - Both lanes intentionally remain `PARTIAL`; `urpg_project_audit --json` still reports `releaseBlockerCount: 2` and `exportBlockerCount: 0` because no human reviewer accept/reject decisions have been recorded.
 
-2026-04-24 technical debt audit Sprint 3 export-hardening boundary:
-- `docs/specs/EXPORT_RUNTIME_SIGNATURE_ENFORCEMENT_DESIGN.md` now records the runtime/load-time `data.pck` signature-enforcement contract required before any export-validator promotion to `READY`.
-- Export remains `PARTIAL`: current keyed SHA-256 bundle-signature enforcement is validator-time protection, while runtime rejection of tampered bundles, temp-file-plus-atomic-rename publication, full native signing, and notarization remain backlog.
+2026-04-27 export-hardening follow-through:
+- `RuntimeBundleLoader` now enforces the keyed SHA-256 `data.pck` bundle signature and per-entry integrity tags at load time, and `RuntimeStartupServices` rejects tampered bundles before project content use.
+- Export remains `PARTIAL`: runtime rejection of tampered bundles and temp-file-plus-atomic-rename publication are landed, while full native signing, notarization, broader platform packaging, and public release artifact policy remain backlog.
 - Achievement registry remains `PARTIAL`: the vendor-neutral trophy export payload is now landed and governed, while platform-specific achievement backend integration remains explicitly out-of-tree.
 
 2026-04-24 future-feature vertical slice update:

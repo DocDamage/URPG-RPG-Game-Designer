@@ -6,7 +6,7 @@
 // S32-T02: Character appearance/preview pipeline boundary.
 // S32-T03: Achievement registry platform backend integration scope.
 // S32-T04: Reconcile outstanding mainGaps entries for partial systems.
-// S32-T05: Confirm export_validator crypto hardening roadmap in scope.
+// S32-T05: Confirm export_validator crypto hardening boundary in scope.
 // S32-T06: Achievement trophy export pipeline scope wording.
 //
 // These tests verify that the readiness record accurately reflects the bounded
@@ -213,22 +213,23 @@ TEST_CASE("visual_regression_harness: mainGaps entries have specific wording (no
 }
 
 // ============================================================================
-// S32-T05 — Export validator signature-enforcement roadmap in scope
+// S32-T05 — Export validator signature-enforcement boundary in scope
 // ============================================================================
 
-TEST_CASE("export_validator: mainGaps acknowledges runtime-side signature enforcement as mandatory pre-READY backlog",
+TEST_CASE("export_validator: mainGaps acknowledges runtime-side signature enforcement is landed but export remains partial",
           "[wysiwyg][export][s32t05]") {
     const json readiness = loadReadinessStatus();
     const json sub = findSubsystem(readiness, "export_validator");
 
     REQUIRE(!sub.empty());
     REQUIRE(sub.value("status", "") == "PARTIAL");
-    // The mainGaps must still call out stronger runtime-side signature enforcement
+    REQUIRE(sub.value("summary", "").find("runtime/load-time bundle rejection") != std::string::npos);
     REQUIRE(hasGapContaining(sub, "signature"));
-    REQUIRE(hasGapContaining(sub, "pre-READY"));
+    REQUIRE_FALSE(hasGapContaining(sub, "mandatory current backlog"));
+    REQUIRE(hasGapContaining(sub, "native signing"));
 }
 
-TEST_CASE("export_validator: runtime signature enforcement design note keeps validator-time boundary explicit",
+TEST_CASE("export_validator: runtime signature enforcement design note keeps non-runtime boundary explicit",
           "[wysiwyg][export][s32t05]") {
     const std::string text = readTextFile({
         "docs/specs/EXPORT_RUNTIME_SIGNATURE_ENFORCEMENT_DESIGN.md",
@@ -240,10 +241,11 @@ TEST_CASE("export_validator: runtime signature enforcement design note keeps val
     });
 
     REQUIRE_FALSE(text.empty());
-    REQUIRE(text.find("validator-time protection only") != std::string::npos);
-    REQUIRE(text.find("runtime loader") != std::string::npos);
+    REQUIRE(text.find("RuntimeBundleLoader") != std::string::npos);
+    REQUIRE(text.find("runtime/load-time protection") != std::string::npos);
     REQUIRE(text.find("temp-file-plus-atomic-rename") != std::string::npos);
     REQUIRE(text.find("must not claim") != std::string::npos);
+    REQUIRE(text.find("not OS/vendor code signing") != std::string::npos);
 }
 
 // ============================================================================

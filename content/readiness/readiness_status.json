@@ -252,11 +252,11 @@
     {
       "id": "export_validator",
       "status": "PARTIAL",
-      "summary": "Platform-specific export validator with per-target requirement checking, fixture-backed validation coverage, PowerShell CI script with JSON output, canonical urpg_pack_cli entrypoint, diagnostics panel with post-export artifact surfacing, bounded real Windows/Web/Linux/macOS bootstrap paths, bundle-level lightweight RLE-plus-XOR payload protection plus keyed integrity-tag validation, configured project-asset auto-discovery manifest staging, bounded repo-owned content bundling for readiness/schema/level-library roots, governed manifest-driven promoted-asset bundle staging support, keyed SHA-256 bundle-signature validation, and structured bundle-summary JSON reporting are landed.",
+      "summary": "Platform-specific export validator with per-target requirement checking, fixture-backed validation coverage, PowerShell CI script with JSON output, canonical urpg_pack_cli entrypoint, diagnostics panel with post-export artifact surfacing, bounded real Windows/Web/Linux/macOS bootstrap paths, bundle-level lightweight RLE-plus-XOR payload protection plus keyed integrity-tag validation, configured project-asset auto-discovery manifest staging, bounded repo-owned content bundling for readiness/schema/level-library roots, governed manifest-driven promoted-asset bundle staging support, keyed SHA-256 bundle-signature validation, runtime/load-time bundle rejection, temp-file-plus-atomic-rename publication, and structured bundle-summary JSON reporting are landed.",
       "mainGaps": [
         "Configured project-asset root discovery is landed; broader arbitrary external intake/store discovery remains future work.",
         "Full native packaging/signing/notarization is still out of scope.",
-        "Runtime-side signature enforcement beyond the current validator-time keyed SHA-256 bundle-signature lane remains mandatory current backlog — tracked as a pre-READY gate in docs/EXPORT_RUNTIME_SIGNATURE_ENFORCEMENT_DESIGN.md; the current lane is stronger than the old keyed-integrity-only contract but still not sufficient for production release claims without runtime enforcement."
+        "Runtime/load-time signature enforcement is landed through RuntimeBundleLoader and RuntimeStartupServices, with tamper tests covering payload, manifest, missing signature, unsupported signature mode, and startup rejection; export remains PARTIAL because native signing/notarization and broader platform packaging are still out of scope."
       ],
       "evidence": {
         "runtimeOwner": true,

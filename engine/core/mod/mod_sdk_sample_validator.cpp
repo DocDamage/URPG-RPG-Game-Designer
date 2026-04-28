@@ -44,6 +44,12 @@ ModSdkSampleValidationResult ModSdkSampleValidator::validateSample(const std::fi
                 {ModSdkSampleSeverity::Error, "missing_permissions", "permissions array is required."});
         } else {
             for (const auto& permission : result.manifest["permissions"]) {
+                if (!permission.is_string()) {
+                    result.issues.push_back({ModSdkSampleSeverity::Error,
+                                             "invalid_permission",
+                                             "Permission entries must be strings."});
+                    continue;
+                }
                 const auto value = permission.get<std::string>();
                 if (!isAllowedPermission(value)) {
                     result.issues.push_back({ModSdkSampleSeverity::Error,

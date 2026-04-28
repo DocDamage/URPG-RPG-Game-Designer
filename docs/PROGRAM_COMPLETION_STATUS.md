@@ -11,14 +11,16 @@ Current app-level release readiness source of truth: [`docs/APP_RELEASE_READINES
 - `battle_core` and `save_data_core` validation was refreshed through focused Catch2 tag filters, battle/save integration, Wave 1 closure integration, save policy governance, release readiness, and truth reconciliation.
 - Both lanes intentionally remain `PARTIAL`; `urpg_project_audit --json` still reports `releaseBlockerCount: 2` and `exportBlockerCount: 0` because no human reviewer accept/reject decisions have been recorded.
 
-2026-04-24 technical debt audit Sprint 3 export-hardening boundary:
-- `docs/specs/EXPORT_RUNTIME_SIGNATURE_ENFORCEMENT_DESIGN.md` now records the runtime/load-time `data.pck` signature-enforcement contract required before any export-validator promotion to `READY`.
-- Export remains `PARTIAL`: current keyed SHA-256 bundle-signature enforcement is validator-time protection, while runtime rejection of tampered bundles, temp-file-plus-atomic-rename publication, full native signing, and notarization remain backlog.
+2026-04-27 export-hardening follow-through:
+- `RuntimeBundleLoader` now enforces the keyed SHA-256 `data.pck` bundle signature and per-entry integrity tags at load time, and `RuntimeStartupServices` rejects tampered bundles before project content use.
+- Export remains `PARTIAL`: runtime rejection of tampered bundles and temp-file-plus-atomic-rename publication are landed, while full native signing, notarization, broader platform packaging, and public release artifact policy remain backlog.
 - Achievement registry remains `PARTIAL`: the vendor-neutral trophy export payload is now landed and governed, while platform-specific achievement backend integration remains explicitly out-of-tree.
 
 2026-04-24 future-feature vertical slice update:
 - FFS-01 Project Health now has a first editor/runtime projection over `urpg_project_audit` JSON: grouped health cards, stale-state detection, and a deterministic `fix_next` queue exported through the diagnostics workspace.
 - FFS-02 Asset Library now has a first runtime/editor slice: asset records, provenance packets, duplicate grouping, case-collision flags, safe cleanup previews, report-directory loading, and focused asset-library governance.
+- FFS-16 Collaboration, SDK, And Optional AI now has diagnostics bundle export, Mod SDK sample validation, local co-author review bundles, optional AI assistant config/suggestion records, editor panel snapshots, docs, fixtures, CMake wiring, and focused tests.
+- FFS-17 Certification And Governance Integration now has template certification suites, advisory project completeness scoring, project audit advisory output, positive/negative governance fixtures, docs, scripts, CMake wiring, and focused tests.
 - The local `more assets/` source drop was inventoried, safely extracted to `imports/raw/more_assets/`, cleaned of OS/archive junk, indexed in the asset catalog as `category=more-assets-raw`, and documented in `docs/asset_intake/ASSET_LIBRARY_AND_MORE_ASSETS_INTAKE.md`.
 - These slices do not promote any readiness record to `READY`; project health and asset library remain productization follow-through lanes until richer remediation, license-review, and promotion workflows are complete.
 

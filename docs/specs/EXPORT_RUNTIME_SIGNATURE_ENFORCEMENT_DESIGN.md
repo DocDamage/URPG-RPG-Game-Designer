@@ -1,26 +1,27 @@
 # Export Runtime Signature Enforcement Design
 
-Status: design note for TD-AUD-03
-Date: 2026-04-24
-Scope: define the missing runtime/load-time security contract for `data.pck` before any export lane can be promoted to `READY`.
+Status: implemented runtime/load-time contract for TD-AUD-03
+Date: 2026-04-27
+Scope: record the runtime/load-time security contract for `data.pck` and the remaining non-runtime export hardening boundaries.
 
 ## Current Landed Boundary
 
-The current export pipeline is stronger than the old placeholder bundle lane:
+The current export pipeline and runtime startup path are stronger than the old placeholder bundle lane:
 
 - `ExportPackager` emits a deterministic bounded `data.pck` container with an embedded manifest.
 - Bundle entries carry keyed integrity metadata.
 - The bundle manifest carries a keyed SHA-256 bundle signature.
 - `ExportValidator` verifies the keyed SHA-256 bundle signature during post-export validation.
-- Tests cover malformed manifests, missing signature metadata, corrupt payload bytes, and manifest tampering through the validator path.
+- `RuntimeBundleLoader` validates the same bundle contract at load time before exposing payloads.
+- `RuntimeStartupServices` discovers exported `data.pck` candidates and emits a `RuntimeBundleLoader` startup error when validation fails.
+- `ExportPackager` publishes bundles through a temp-file validation path and atomically replaces `data.pck` only after validation succeeds.
+- Tests cover malformed manifests, missing signature metadata, corrupt payload bytes, manifest tampering, unsupported signature mode, failed atomic publish preservation, and runtime startup rejection.
 
-This is validator-time protection only. It proves emitted artifacts can be checked after export; it does not prove an exported runtime refuses to load a tampered bundle.
+This is bounded runtime/load-time protection. It is not OS/vendor code signing, notarization, platform-store packaging, anti-tamper, or DRM-grade asset protection.
 
-## Required Runtime Contract Before `READY`
+## Runtime Contract
 
-The export lane must remain `PARTIAL` until the runtime loader owns the same rejection behavior that `ExportValidator` currently proves offline.
-
-A release-grade runtime bundle loader must:
+The runtime bundle loader:
 
 1. Open `data.pck` through a runtime-owned loader API, not through ad hoc file reads.
 2. Parse the bundle header and manifest with strict size bounds before reading payload data.
@@ -31,18 +32,19 @@ A release-grade runtime bundle loader must:
 7. Return structured diagnostics that distinguish missing bundle, malformed bundle, signature mismatch, entry integrity mismatch, unsupported signature mode, and unsupported integrity mode.
 8. Share one canonical verification helper or byte-contract fixture with `ExportValidator` so runtime and post-export validation cannot drift.
 
-## Test Requirements
+## Test Coverage
 
-Runtime-side implementation is not considered landed until tests cover:
+Runtime-side implementation coverage includes:
 
 - a valid packaged `data.pck` loading through the runtime loader;
 - rejection of a tampered manifest;
 - rejection of a tampered payload byte;
 - rejection of a missing bundle signature;
 - rejection of an unsupported signature mode;
-- diagnostics surfaced to the export/runtime report path.
+- diagnostics surfaced through runtime startup;
+- exported runtime smoke rejection of a tampered bundle.
 
-These tests must exercise the runtime/load-time path, not only `ExportValidator`.
+These tests exercise the runtime/load-time path, not only `ExportValidator`.
 
 ## Atomic Bundle Write Decision
 
@@ -54,7 +56,7 @@ These tests must exercise the runtime/load-time path, not only `ExportValidator`
 - atomically replace `data.pck` only after validation succeeds;
 - remove the temp file on failure and report a structured export error.
 
-This is backlog hardening rather than the old bug where failed writes could still be reported as successful, but it should be completed before release-grade packaging claims.
+This is implemented as bounded local filesystem publication. Broader platform installer/updater atomicity remains separate release engineering work.
 
 ## Out Of Scope Until Implemented
 
@@ -63,7 +65,6 @@ The current tree must not claim:
 - OS/vendor code signing;
 - notarization;
 - platform-store packaging;
-- anti-tamper or DRM-grade asset protection;
-- runtime-side signature enforcement.
+- anti-tamper or DRM-grade asset protection.
 
-Those are valid future features, but they are not landed by the current validator-time SHA-256 bundle-signature lane.
+Those are valid future features, but they are not landed by the current runtime bundle-signature lane.

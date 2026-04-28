@@ -34,6 +34,17 @@ nlohmann::json pathRecord(const std::filesystem::path& path, const std::filesyst
     return record;
 }
 
+std::filesystem::path relativePathForBundle(const std::filesystem::path& path, const std::filesystem::path& root) {
+    std::error_code ec;
+    const auto absolute = std::filesystem::absolute(path, ec);
+    const auto relative = std::filesystem::relative(absolute, root, ec);
+    const auto generic = relative.generic_string();
+    if (ec || relative.empty() || generic == ".." || generic.rfind("../", 0) == 0) {
+        return path.filename();
+    }
+    return relative;
+}
+
 } // namespace
 
 namespace urpg::diagnostics {
@@ -61,12 +72,12 @@ DiagnosticsBundleResult DiagnosticsBundleExporter::exportBundle(
     manifest["diagnostics_snapshots"] = nlohmann::json::array();
 
     const auto root = input.projectRoot.empty() ? std::filesystem::current_path() : input.projectRoot;
-    addPathGroup(manifest, result, "logs", input.logs, root);
-    addPathGroup(manifest, result, "project_audits", input.projectAudits, root);
-    addPathGroup(manifest, result, "asset_reports", input.assetReports, root);
-    addPathGroup(manifest, result, "configs", input.configs, root);
-    addPathGroup(manifest, result, "save_metadata", input.saveMetadata, root);
-    addPathGroup(manifest, result, "diagnostics_snapshots", input.diagnosticsSnapshots, root);
+    addPathGroup(manifest, result, "logs", input.logs, root, outputDirectory);
+    addPathGroup(manifest, result, "project_audits", input.projectAudits, root, outputDirectory);
+    addPathGroup(manifest, result, "asset_reports", input.assetReports, root, outputDirectory);
+    addPathGroup(manifest, result, "configs", input.configs, root, outputDirectory);
+    addPathGroup(manifest, result, "save_metadata", input.saveMetadata, root, outputDirectory);
+    addPathGroup(manifest, result, "diagnostics_snapshots", input.diagnosticsSnapshots, root, outputDirectory);
 
     manifest["excluded_paths"] = nlohmann::json::array();
     for (const auto& path : result.excludedPaths) {
@@ -97,13 +108,31 @@ void DiagnosticsBundleExporter::addPathGroup(nlohmann::json& manifest,
                                              DiagnosticsBundleResult& result,
                                              const std::string& key,
                                              const std::vector<std::filesystem::path>& paths,
-                                             const std::filesystem::path& projectRoot) const {
+                                             const std::filesystem::path& projectRoot,
+                                             const std::filesystem::path& outputDirectory) const {
     for (const auto& path : paths) {
         if (isExcludedPath(path)) {
             result.excludedPaths.push_back(path);
             continue;
         }
-        manifest[key].push_back(pathRecord(path, projectRoot));
+        auto record = pathRecord(path, projectRoot);
+        if (std::filesystem::exists(path) && std::filesystem::is_regular_file(path)) {
+            const auto relative = relativePathForBundle(path, projectRoot);
+            const auto destination = outputDirectory / relative;
+
+            std::error_code ec;
+            std::filesystem::create_directories(destination.parent_path(), ec);
+            if (!ec) {
+                std::filesystem::copy_file(path, destination, std::filesystem::copy_options::overwrite_existing, ec);
+            }
+
+            if (ec) {
+                result.warnings.push_back("Unable to copy diagnostics bundle file '" + path.string() + "': " + ec.message());
+            } else {
+                record["bundle_path"] = normalizeGeneric(relative);
+            }
+        }
+        manifest[key].push_back(std::move(record));
     }
 }
 

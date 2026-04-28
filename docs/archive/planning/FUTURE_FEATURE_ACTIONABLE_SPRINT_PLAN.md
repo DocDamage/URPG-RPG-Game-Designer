@@ -943,6 +943,9 @@ powershell -ExecutionPolicy Bypass -File .\tools\ci\run_presentation_gate.ps1 -S
 
 ## FFS-16 - Collaboration, SDK, And Optional AI
 
+### 2026-04-27 Status
+FFS-16 implementation slice is complete. It adds diagnostics bundle export with secret-file exclusion, Mod SDK sample validation, local co-author review bundles with file-manifest fallback, optional AI assistant config/suggestion records, headless editor panel snapshots, modding docs, fixtures, CMake wiring, and focused tests. This is not a live-service integration and does not make AI required for runtime.
+
 ### Objective
 Support teams and extension authors without adding hidden live-service dependencies.
 
@@ -953,25 +956,25 @@ Support teams and extension authors without adding hidden live-service dependenc
 - Local AI design assistant.
 
 ### Files To Add Or Modify
-- [ ] `engine/core/diagnostics/diagnostics_bundle_exporter.*`
-- [ ] `engine/core/mod/mod_sdk_sample_validator.*`
-- [ ] `engine/core/collaboration/local_review_bundle.*`
-- [ ] `engine/core/ai/ai_assistant_config.*`
-- [ ] `engine/core/ai/ai_suggestion_record.*`
-- [ ] `editor/diagnostics/diagnostics_bundle_panel.*`
-- [ ] `editor/mod/mod_sdk_panel.*`
-- [ ] `editor/collaboration/local_review_panel.*`
-- [ ] `editor/ai/ai_assistant_panel.*`
-- [ ] `docs/modding/`
-- [ ] `content/fixtures/mod_sdk_sample/`
-- [ ] Focused tests under `tests/unit/`.
+- [x] `engine/core/diagnostics/diagnostics_bundle_exporter.*`
+- [x] `engine/core/mod/mod_sdk_sample_validator.*`
+- [x] `engine/core/collaboration/local_review_bundle.*`
+- [x] `engine/core/ai/ai_assistant_config.*`
+- [x] `engine/core/ai/ai_suggestion_record.*`
+- [x] `editor/diagnostics/diagnostics_bundle_panel.*`
+- [x] `editor/mod/mod_sdk_panel.*`
+- [x] `editor/collaboration/local_review_panel.*`
+- [x] `editor/ai/ai_assistant_panel.*`
+- [x] `docs/modding/`
+- [x] `content/fixtures/mod_sdk_sample/`
+- [x] Focused tests under `tests/unit/`.
 
 ### Checklist
-- [ ] Diagnostics bundle includes logs, project audit, asset report, config, save metadata, system info, and recent diagnostics snapshots.
-- [ ] Mod SDK sample includes manifest, permissions, validation docs, and expected diagnostics.
-- [ ] Co-author review produces local change summaries, comments, review checklists, and handoff bundles.
-- [ ] AI assistant is opt-in, provider-independent, and never required for runtime.
-- [ ] AI suggestions have review state, provenance/source notes, and generated-content flags.
+- [x] Diagnostics bundle includes logs, project audit, asset report, config, save metadata, system info, and recent diagnostics snapshots.
+- [x] Mod SDK sample includes manifest, permissions, validation docs, and expected diagnostics.
+- [x] Co-author review produces local change summaries, comments, review checklists, and handoff bundles.
+- [x] AI assistant is opt-in, provider-independent, and never required for runtime.
+- [x] AI suggestions have review state, provenance/source notes, and generated-content flags.
 
 ### Edge Cases
 - Diagnostics bundle contains secrets or ignored `.env` files.
@@ -981,11 +984,11 @@ Support teams and extension authors without adding hidden live-service dependenc
 - AI suggestion tries to modify runtime status docs.
 
 ### Tests
-- [ ] Diagnostics bundle excludes ignored secret files.
-- [ ] Mod sample passes validation and forbidden-permission sample fails.
-- [ ] Co-author summary works without Git by falling back to file manifest.
-- [ ] AI assistant disabled state is explicit and non-error.
-- [ ] Generated suggestions require approval before applying.
+- [x] Diagnostics bundle excludes ignored secret files.
+- [x] Mod sample passes validation and forbidden-permission sample fails.
+- [x] Co-author summary works without Git by falling back to file manifest.
+- [x] AI assistant disabled state is explicit and non-error.
+- [x] Generated suggestions require approval before applying.
 
 ### Acceptance Commands
 
@@ -999,28 +1002,31 @@ powershell -ExecutionPolicy Bypass -File .\tools\rpgmaker\validate-plugin-dropin
 
 ## FFS-17 - Certification And Governance Integration
 
+### 2026-04-27 Status
+FFS-17 implementation slice is complete. It adds conservative template certification suites, advisory project completeness scoring, project audit advisory output, positive/negative governance fixtures, template certification docs, schema changelog entries, CMake wiring, and focused tests/scripts. Completeness scoring remains non-authoritative and is not a release gate.
+
 ### Objective
 Make the future feature set governable and shippable rather than just large.
 
 ### Files To Add Or Modify
-- [ ] `tools/ci/check_template_certification.ps1`
-- [ ] `tools/ci/check_feature_governance.ps1`
-- [ ] `tools/docs/check_future_feature_docs.ps1`
-- [ ] `tools/audit/project_completeness_score.*`
-- [ ] `engine/core/project/template_certification.*`
-- [ ] `content/fixtures/template_certification/`
-- [ ] `docs/certification/`
-- [ ] Extend `tools/audit/project_audit.*` only after advisory scoring is stable.
-- [ ] Focused tests under `tests/unit/` and governance-script negative fixtures.
+- [x] `tools/ci/check_template_certification.ps1`
+- [x] `tools/ci/check_feature_governance.ps1`
+- [x] `tools/docs/check_future_feature_docs.ps1`
+- [x] `tools/audit/project_completeness_score.*`
+- [x] `engine/core/project/template_certification.*`
+- [x] `content/fixtures/template_certification/`
+- [x] `docs/certification/`
+- [x] Extend `tools/audit/project_audit.*` only after advisory scoring is stable.
+- [x] Focused tests under `tests/unit/` and governance-script negative fixtures.
 
 ### Checklist
-- [ ] Add template certification suites for JRPG, VN, TBR, tactics, ARPG, monster collector, cozy/life, metroidvania-lite, and 2.5D RPG where appropriate.
-- [ ] Add content completeness score to project audit as a non-authoritative advisory first.
-- [ ] Promote advisory score to release gate only after false positives are understood.
-- [ ] Add per-feature governance scripts only when artifacts are stable.
-- [ ] Add docs explaining supported scope, unsupported scope, and residual gaps.
-- [ ] Add schema changelog entries for every new schema.
-- [ ] Keep readiness matrix and template matrix conservative.
+- [x] Add template certification suites for JRPG, VN, TBR, tactics, ARPG, monster collector, cozy/life, metroidvania-lite, and 2.5D RPG where appropriate.
+- [x] Add content completeness score to project audit as a non-authoritative advisory first.
+- [x] Keep advisory score out of release gates until false positives are understood.
+- [x] Add per-feature governance scripts only when artifacts are stable.
+- [x] Add docs explaining supported scope, unsupported scope, and residual gaps.
+- [x] Add schema changelog entries for every new schema.
+- [x] Keep readiness matrix and template matrix conservative.
 
 ### Edge Cases
 - Completeness score penalizes intentionally minimalist projects.
@@ -1029,10 +1035,10 @@ Make the future feature set governable and shippable rather than just large.
 - Governance script fails on generated local files.
 
 ### Tests
-- [ ] Completeness scoring ignores explicitly disabled optional features.
-- [ ] Template certification fails when required template loop is missing.
-- [ ] Governance script positive and negative fixtures are both covered.
-- [ ] Truth reconciler passes after docs are updated.
+- [x] Completeness scoring ignores explicitly disabled optional features.
+- [x] Template certification fails when required template loop is missing.
+- [x] Governance script positive and negative fixtures are both covered.
+- [x] Truth reconciler passes after docs are updated.
 
 ### Acceptance Commands
 

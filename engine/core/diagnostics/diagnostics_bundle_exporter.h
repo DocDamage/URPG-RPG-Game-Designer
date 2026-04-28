@@ -42,7 +42,8 @@ private:
                       DiagnosticsBundleResult& result,
                       const std::string& key,
                       const std::vector<std::filesystem::path>& paths,
-                      const std::filesystem::path& projectRoot) const;
+                      const std::filesystem::path& projectRoot,
+                      const std::filesystem::path& outputDirectory) const;
 };
 
 } // namespace urpg::diagnostics

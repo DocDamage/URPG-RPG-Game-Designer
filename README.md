@@ -97,6 +97,12 @@ Repository-wide source/vendor LFS hydration is still externally constrained by G
 - Component install and CPack package layout with runtime data, docs, metadata, icon, and desktop metadata entries.
 - Legal/release docs, app readiness matrix, release readiness report, legal signoff record, EULA, privacy policy, third-party notices, credits, and changelog.
 - Documentation health checks for agent knowledge, canonical status, and readiness references.
+- Diagnostics bundle export with secret-file exclusion, manifest output, logs, reports, config, save metadata, system info, and recent diagnostics snapshots.
+- Mod SDK sample validation with manifest, permissions, validation docs, expected diagnostics, and forbidden-permission checks.
+- Local co-author review bundles with change summaries, comments, review checklists, handoff payloads, and file-manifest fallback when Git is unavailable.
+- Optional AI assistant configuration and suggestion records with explicit disabled state, provider-independent config, provenance/source notes, generated-content flags, review state, and apply protection for runtime status docs.
+- Template certification and advisory project completeness scoring for JRPG, visual novel, turn-based RPG, tactics, ARPG, monster collector, cozy/life, metroidvania-lite, and 2.5D RPG template families.
+- Future-feature governance scripts and docs checks for template certification, feature-governance manifests, schema changelog coverage, and conservative readiness integration.
 
 ## Current Limitations
 
@@ -104,44 +110,26 @@ URPG is a strong native/editor foundation, not a finished public product. Import
 
 - Public release is blocked until legal/privacy/distribution approval or waiver is recorded.
 - Some editor surfaces are release-registered but still have partial graphical/manual behavior verification.
-- Export hardening still has backlog items such as runtime-side bundle signature enforcement, atomic publication, native signing, notarization, and broader platform validation.
+- Export hardening still has backlog items such as native signing, notarization, broader platform validation, and public release artifact policy.
 - Achievement platform backends are out of tree; the current implementation is a vendor-neutral registry/export payload.
 - The QuickJS compatibility layer is a bounded import/validation/migration harness, not a promise of complete live RPG Maker JavaScript runtime parity.
 - The in-tree AI/cloud surfaces are local/simulated boundaries only; live providers are out of tree.
 - The production asset library is still conservative. Raw/vendor/source asset packs are not treated as release-package dependencies.
 
-## Planned Product Work
+## Remaining Product Work
 
-The roadmap remains WYSIWYG-first. Planned or partially landed productization lanes include:
+The roadmap remains WYSIWYG-first. Most previously listed future-feature slices now have first implementation slices in the tree. Remaining work is product-depth, polish, integration, and public-release hardening:
 
 - richer Project Health guided remediation workflows
 - asset promotion, license review, and cleanup automation
-- visual event authoring and event debugging
-- plugin compatibility inspection
-- battle presentation authoring
-- tilemap, terrain, layer, collision, navigation, overpass, lighting, and weather upgrades
-- starter project templates
-- save/load debugger and corruption lab
-- one-click dev room test harness
-- quest/objective system
-- dialogue graph editor
-- common event library
-- database editor parity
-- cutscene/timeline sequencer
-- in-editor playtest with time travel
-- localization workspace
-- accessibility authoring assistant
-- formula/rule debugger
-- economy balancer
-- encounter table editor
-- world map and travel systems
-- sprite/animation import pipeline
-- controller and keyboard remap UX
-- crash/diagnostics bundle export
-- mod SDK docs and sample mod
-- cloud-free backup/project snapshotting
-- tutorial project and interactive lessons
-- procedural map generation, dependency graphs, narrative continuity checking, replay galleries, UI skinning, crafting, codex/bestiary, patch/DLC packaging, and marketplace-ready packaging
+- fuller live renderer/editor integration for authored systems that currently expose deterministic contracts and headless panel snapshots
+- broader RPG Maker event-command parity where product scope requires it, while preserving unsupported payloads with diagnostics
+- richer battle presentation tooling beyond the current authoring contracts
+- deeper tile renderer/editor integration for worldbuilding documents, region rules, procedural maps, tactical overlays, spawn tables, lighting, and weather
+- platform-specific achievement backend integrations beyond the current vendor-neutral registry/export payload
+- production asset library promotion after license review, attribution review, and LFS/package constraints are resolved
+- public-release legal/privacy/distribution approval or an explicit public-release waiver
+- final release decision and annotated prerelease/release tag
 
 ## Architecture
 

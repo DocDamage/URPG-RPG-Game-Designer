@@ -50,7 +50,12 @@ TEST_CASE("DiagnosticsBundleExporter excludes ignored secret files", "[diagnosti
     REQUIRE(std::filesystem::exists(result.manifestPath));
     REQUIRE(result.manifest["logs"].size() == 1);
     REQUIRE(result.manifest["logs"][0]["path"] == "logs/editor.log");
+    REQUIRE(result.manifest["logs"][0]["bundle_path"] == "logs/editor.log");
+    REQUIRE(std::filesystem::exists(root / "bundle" / "logs" / "editor.log"));
+    REQUIRE_FALSE(std::filesystem::exists(root / "bundle" / "logs" / ".env"));
     REQUIRE(result.manifest["asset_reports"].size() == 1);
+    REQUIRE(result.manifest["asset_reports"][0]["bundle_path"] == "reports/asset_report.json");
+    REQUIRE(std::filesystem::exists(root / "bundle" / "reports" / "asset_report.json"));
     REQUIRE(result.manifest["excluded_paths"].size() == 1);
     REQUIRE(result.manifest["contains_secret_files"] == false);
 }
@@ -73,6 +78,13 @@ TEST_CASE("Mod SDK sample passes validation and forbidden permission fails", "[m
     REQUIRE_FALSE(invalid.passed);
     REQUIRE(invalid.issues.size() == 1);
     REQUIRE(invalid.issues[0].code == "forbidden_permission");
+
+    writeText(badRoot / "manifest.json",
+              R"({"id":"bad","name":"Bad","version":"1.0.0","entryPoint":"main.js","permissions":[7]})");
+    const auto malformed = validator.validateSample(badRoot);
+    REQUIRE_FALSE(malformed.passed);
+    REQUIRE(malformed.issues.size() == 1);
+    REQUIRE(malformed.issues[0].code == "invalid_permission");
 }
 
 TEST_CASE("Local review summary falls back to file manifest without Git", "[collaboration]") {

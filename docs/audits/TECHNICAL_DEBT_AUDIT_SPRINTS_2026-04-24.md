@@ -74,7 +74,7 @@ rg --files engine editor runtimes tools tests | line-count sort for hot spots
 | --- | --- | --- | --- |
 | TD-AUD-01 | P0 | Broad CTest discovery/label selection is broken by generated compat test metadata | Closed |
 | TD-AUD-02 | P1 | Release promotion remains human-review blocked for battle/save | Evidence refreshed; human review pending |
-| TD-AUD-03 | P2 | Export hardening is stronger, but runtime-side signature enforcement and native signing remain backlog | Closed as design/readiness boundary |
+| TD-AUD-03 | P2 | Export hardening is stronger; runtime-side signature enforcement later landed, while native signing/notarization remain backlog | Closed as design/readiness boundary; 2026-04-27 follow-up landed runtime enforcement |
 | TD-AUD-04 | P2 | Renderer-backed visual goldens are very large and expensive to review/store | Closed as governance guard |
 | TD-AUD-05 | P2 | Product-feature coverage remains partial across multiple readiness rows | First vertical slice landed; broader lanes open |
 | TD-AUD-06 | P3 | Complexity hot spots remain after the first split pass | Diagnostics and compat fixture splits landed; mixed-chain helper extraction continued |
@@ -159,22 +159,24 @@ This is honest debt rather than status inflation. The risk is process stagnation
 - `writeBundleFile()` now checks uint32 payload/manifest bounds and stream state after close.
 - `ExportValidator` enforces keyed SHA-256 bundle-signature validation at post-export time.
 
-The remaining debt is the readiness residual already named by ProjectAudit: runtime-side signature enforcement, full native signing/notarization, and shipping-grade packaging are still not landed.
+2026-04-27 follow-up: runtime-side signature enforcement is now landed through `RuntimeBundleLoader` and `RuntimeStartupServices`, with tampered bundle startup rejection covered by integration tests. The remaining debt is full native signing/notarization, broader platform packaging, and public release artifact policy.
 
 **Sprint Checklist:**
 
 - [x] Keep the old license-audit and uint32-wrap sprint items marked closed.
 - [x] Add runtime-side bundle-signature enforcement design notes before any `READY` export claim.
-- [x] Document the required runtime/load-time rejection tests for tampered `data.pck` once runtime enforcement exists.
-- [x] Decide whether bundle writes should move to temp-file-plus-atomic-rename for stronger partial-write protection.
+- [x] Land runtime/load-time rejection tests for tampered `data.pck`.
+- [x] Move bundle writes to temp-file-plus-atomic-rename for stronger partial-write protection.
 - [x] Keep signing/notarization language explicitly out of scope until platform-specific implementation exists.
 
 **Exit Criteria:**
 
-- [x] Export readiness wording distinguishes current validator-time protection from runtime enforcement.
-- [x] Any future promotion is now blocked on runtime-side tamper rejection and platform packaging evidence.
+- [x] Export readiness wording distinguishes current runtime bundle-signature protection from platform signing/notarization.
+- [x] Any future promotion is now blocked on platform packaging/signing/notarization evidence, not runtime-side tamper rejection.
 
-**Closure Evidence (2026-04-24):** `docs/specs/EXPORT_RUNTIME_SIGNATURE_ENFORCEMENT_DESIGN.md` now records the required runtime/load-time `data.pck` signature-enforcement contract, the test cases required once runtime enforcement exists, and the decision to move future bundle publication to temp-file-plus-atomic-rename before release-grade packaging claims. `content/readiness/readiness_status.json`, `docs/release/RELEASE_READINESS_MATRIX.md`, and `docs/status/PROGRAM_COMPLETION_STATUS.md` distinguish current validator-time keyed SHA-256 bundle-signature validation from missing runtime enforcement. A governance regression in `tests/unit/test_s32_wysiwyg_lanes.cpp` keeps that design note and boundary wording present. No `READY` export promotion was made.
+**Closure Evidence (2026-04-24):** `docs/specs/EXPORT_RUNTIME_SIGNATURE_ENFORCEMENT_DESIGN.md` recorded the required runtime/load-time `data.pck` signature-enforcement contract, the test cases required once runtime enforcement exists, and the decision to move future bundle publication to temp-file-plus-atomic-rename before release-grade packaging claims.
+
+**Follow-up Evidence (2026-04-27):** `RuntimeBundleLoader` and `RuntimeStartupServices` now enforce runtime/load-time bundle rejection. Tests cover valid bundles, tampered payloads, tampered manifests, missing signatures, unsupported signature modes, failed atomic publish preservation, runtime startup diagnostics, and exported runtime smoke rejection. `content/readiness/readiness_status.json`, `docs/release/RELEASE_READINESS_MATRIX.md`, and `docs/status/PROGRAM_COMPLETION_STATUS.md` now distinguish current runtime bundle-signature protection from remaining platform signing/notarization backlog. No `READY` export promotion was made.
 
 ### TD-AUD-04 - Renderer-Backed Visual Goldens Are Oversized
 
