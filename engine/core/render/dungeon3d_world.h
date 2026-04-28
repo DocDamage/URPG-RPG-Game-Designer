@@ -7,6 +7,7 @@
 #include <cstdint>
 #include <map>
 #include <optional>
+#include <set>
 #include <string>
 #include <vector>
 
@@ -30,10 +31,16 @@ struct Dungeon3DCell {
     std::string tile_id;
     std::string material_id;
     std::string event_id;
+    std::string door_id;
+    std::string required_item;
+    std::string encounter_tag;
+    std::string floor_transfer;
     bool blocking = false;
     bool dark_zone = false;
     bool stairs_up = false;
     bool stairs_down = false;
+    bool secret = false;
+    bool locked = false;
 };
 
 struct Dungeon3DCamera {
@@ -75,15 +82,43 @@ struct Dungeon3DInteraction {
     bool stairs_up = false;
     bool stairs_down = false;
     bool dark_zone = false;
+    bool secret = false;
+    bool locked = false;
+    bool can_open = false;
+    bool can_transfer = false;
     std::string event_id;
     std::string material_id;
+    std::string door_id;
+    std::string required_item;
+    std::string encounter_tag;
+    std::string floor_transfer;
 };
 
 struct Dungeon3DNavigationResult {
     bool moved = false;
     bool blocked = false;
+    bool encounter_triggered = false;
     std::string command;
     Dungeon3DDiagnostic diagnostic;
+};
+
+struct Dungeon3DInteractionResult {
+    bool handled = false;
+    bool opened_door = false;
+    bool revealed_secret = false;
+    bool transferred_floor = false;
+    std::string command;
+    Dungeon3DDiagnostic diagnostic;
+};
+
+struct Dungeon3DSessionState {
+    std::set<std::string> inventory;
+    std::set<std::string> discovered_cells;
+    std::set<std::string> opened_doors;
+    std::set<std::string> revealed_secrets;
+    std::set<std::string> triggered_encounters;
+    std::string current_floor_id;
+    std::vector<std::string> event_log;
 };
 
 struct Dungeon3DPreview {
@@ -95,6 +130,11 @@ struct Dungeon3DPreview {
     std::optional<Dungeon3DInteraction> facing_interaction;
     int32_t blocking_cell_count = 0;
     int32_t event_cell_count = 0;
+    int32_t door_count = 0;
+    int32_t secret_count = 0;
+    int32_t encounter_cell_count = 0;
+    int32_t opened_door_count = 0;
+    int32_t revealed_secret_count = 0;
     float average_wall_distance = 0.0f;
 };
 
@@ -111,6 +151,7 @@ public:
     bool auto_mapping = true;
     std::string mode = "3d";
     Dungeon3DCamera camera;
+    Dungeon3DSessionState session;
     std::map<std::string, Dungeon3DMaterial> materials;
     std::vector<Dungeon3DCell> cells;
 
@@ -119,6 +160,8 @@ public:
     [[nodiscard]] Dungeon3DPreview switchMode(std::string next_mode);
     [[nodiscard]] Dungeon3DNavigationResult moveForward(float distance = 1.0f);
     [[nodiscard]] Dungeon3DNavigationResult strafe(float distance);
+    [[nodiscard]] Dungeon3DInteractionResult interactFacing();
+    void addInventoryItem(std::string item_id);
     void rotate(float radians);
     [[nodiscard]] nlohmann::json toJson() const;
 

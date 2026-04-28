@@ -42,8 +42,11 @@ TEST_CASE("3D dungeon world converts 2D map data into runtime raycast preview", 
     REQUIRE(preview.columns.front().projected_wall_height > 0);
     REQUIRE(preview.average_wall_distance > 0.0f);
     REQUIRE(preview.minimap_tiles.size() == 25);
-    REQUIRE(preview.blocking_cell_count == 16);
-    REQUIRE(preview.event_cell_count == 3);
+    REQUIRE(preview.blocking_cell_count == 18);
+    REQUIRE(preview.event_cell_count == 5);
+    REQUIRE(preview.door_count == 1);
+    REQUIRE(preview.secret_count == 1);
+    REQUIRE(preview.encounter_cell_count == 1);
     REQUIRE(preview.facing_interaction.has_value());
     REQUIRE(preview.facing_interaction->event_id.empty());
     REQUIRE(containsCommand(preview.runtime_commands, "switch_to_3d:ancient_crypt"));
@@ -64,8 +67,11 @@ TEST_CASE("3D dungeon world supports 2D to 3D switching and WYSIWYG panel snapsh
     REQUIRE(panel.snapshot().minimap_tile_count == 25);
     REQUIRE(panel.snapshot().discovered_tile_count > 0);
     REQUIRE(panel.snapshot().visible_minimap_tile_count > 0);
-    REQUIRE(panel.snapshot().blocking_cell_count == 16);
-    REQUIRE(panel.snapshot().event_cell_count == 3);
+    REQUIRE(panel.snapshot().blocking_cell_count == 18);
+    REQUIRE(panel.snapshot().event_cell_count == 5);
+    REQUIRE(panel.snapshot().door_count == 1);
+    REQUIRE(panel.snapshot().secret_count == 1);
+    REQUIRE(panel.snapshot().encounter_cell_count == 1);
     REQUIRE(panel.snapshot().average_wall_distance > 0.0f);
     REQUIRE(panel.snapshot().runtime_command_count == 3);
     REQUIRE(panel.saveProjectData() == document.toJson());
@@ -88,7 +94,8 @@ TEST_CASE("3D dungeon world supports movement collision and facing interactions"
     auto moved = document.moveForward(0.5f);
     REQUIRE(moved.moved);
     REQUIRE_FALSE(moved.blocked);
-    REQUIRE(moved.command == "move_camera:ancient_crypt");
+    REQUIRE(moved.encounter_triggered);
+    REQUIRE(moved.command == "trigger_encounter:crypt_slime");
     REQUIRE(document.camera.pos_x > 2.5f);
 
     moved = document.moveForward(1.0f);
@@ -112,6 +119,75 @@ TEST_CASE("3D dungeon world supports movement collision and facing interactions"
     REQUIRE(panel.snapshot().camera_y != document.camera.pos_y);
 }
 
+TEST_CASE("3D dungeon world resolves doors secrets floor transfers and session automap", "[dungeon3d][wysiwyg]") {
+    auto document = urpg::render::Dungeon3DWorldDocument::fromJson(loadFixture("dungeon3d_world"));
+
+    document.camera.pos_x = 2.5f;
+    document.camera.pos_y = 3.5f;
+    document.camera.dir_x = 1.0f;
+    document.camera.dir_y = 0.0f;
+    document.camera.plane_x = 0.0f;
+    document.camera.plane_y = 0.66f;
+
+    auto preview = document.preview();
+    REQUIRE(preview.facing_interaction.has_value());
+    REQUIRE(preview.facing_interaction->door_id == "crypt_door");
+    REQUIRE(preview.facing_interaction->locked);
+    REQUIRE_FALSE(preview.facing_interaction->can_open);
+
+    auto interaction = document.interactFacing();
+    REQUIRE_FALSE(interaction.handled);
+    REQUIRE(interaction.command == "locked_door:crypt_door");
+    REQUIRE(interaction.diagnostic.code == "missing_required_item");
+
+    document.addInventoryItem("crypt_key");
+    preview = document.preview();
+    REQUIRE(preview.facing_interaction->can_open);
+
+    interaction = document.interactFacing();
+    REQUIRE(interaction.handled);
+    REQUIRE(interaction.opened_door);
+    REQUIRE(interaction.command == "open_door:crypt_door");
+
+    preview = document.preview();
+    REQUIRE(preview.opened_door_count == 1);
+    REQUIRE_FALSE(preview.facing_interaction->blocking);
+
+    interaction = document.interactFacing();
+    REQUIRE(interaction.transferred_floor);
+    REQUIRE(interaction.command == "transfer_floor:crypt_b2");
+    REQUIRE(document.session.current_floor_id == "crypt_b2");
+
+    document.camera.pos_x = 2.5f;
+    document.camera.pos_y = 2.5f;
+    document.camera.dir_x = -1.0f;
+    document.camera.dir_y = 0.0f;
+    document.camera.plane_x = 0.0f;
+    document.camera.plane_y = -0.66f;
+
+    preview = document.preview();
+    REQUIRE(preview.facing_interaction.has_value());
+    REQUIRE(preview.facing_interaction->secret);
+    REQUIRE(preview.facing_interaction->blocking);
+
+    interaction = document.interactFacing();
+    REQUIRE(interaction.revealed_secret);
+    REQUIRE(interaction.command == "reveal_secret:1,2");
+
+    const auto moved = document.moveForward(1.0f);
+    REQUIRE(moved.moved);
+    REQUIRE_FALSE(moved.blocked);
+    REQUIRE(document.session.discovered_cells.contains("1,2"));
+
+    urpg::editor::Dungeon3DWorldPanel panel;
+    panel.loadDocument(document);
+    panel.render();
+    REQUIRE(panel.snapshot().opened_door_count == 1);
+    REQUIRE(panel.snapshot().revealed_secret_count == 1);
+    REQUIRE(panel.snapshot().current_floor_id == "crypt_b2");
+    REQUIRE_FALSE(panel.snapshot().last_event_log_entry.empty());
+}
+
 TEST_CASE("3D dungeon world is release registered with promoted spatial authoring", "[dungeon3d][wysiwyg]") {
     const auto* dungeon = urpg::editor::findEditorPanelRegistryEntry("3d_dungeon_world");
     REQUIRE(dungeon != nullptr);
@@ -128,7 +204,7 @@ TEST_CASE("3D dungeon world reports broken authoring diagnostics", "[dungeon3d][
     document.map_id = "bad_map";
     document.width = 2;
     document.height = 2;
-    document.cells.push_back({"floor", "missing_material", "", false, false, false, false});
+    document.cells.push_back({"floor", "missing_material", "", "", "", "", "", false, false, false, false, false, false});
     document.materials["stone"] = {"stone", "", "floor.png", "ceiling.png", -1.0f, ""};
 
     const auto diagnostics = document.validate();

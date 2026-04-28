@@ -4,7 +4,7 @@
   "title": "URPG 3D Dungeon World",
   "type": "object",
   "additionalProperties": false,
-  "required": ["schema_version", "id", "map_id", "width", "height", "screen_width", "screen_height", "minimap_enabled", "auto_mapping", "mode", "camera", "materials", "cells"],
+    "required": ["schema_version", "id", "map_id", "width", "height", "screen_width", "screen_height", "minimap_enabled", "auto_mapping", "mode", "camera", "materials", "cells"],
   "properties": {
     "schema_version": { "const": "urpg.dungeon3d_world.v1" },
     "id": { "type": "string", "minLength": 1 },
@@ -27,6 +27,19 @@
         "dir_y": { "type": "number" },
         "plane_x": { "type": "number" },
         "plane_y": { "type": "number" }
+      }
+    },
+    "session": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "inventory": { "type": "array", "items": { "type": "string" } },
+        "discovered_cells": { "type": "array", "items": { "type": "string" } },
+        "opened_doors": { "type": "array", "items": { "type": "string" } },
+        "revealed_secrets": { "type": "array", "items": { "type": "string" } },
+        "triggered_encounters": { "type": "array", "items": { "type": "string" } },
+        "current_floor_id": { "type": "string" },
+        "event_log": { "type": "array", "items": { "type": "string" } }
       }
     },
     "materials": {
@@ -57,10 +70,16 @@
           "tile_id": { "type": "string" },
           "material_id": { "type": "string" },
           "event_id": { "type": "string" },
+          "door_id": { "type": "string" },
+          "required_item": { "type": "string" },
+          "encounter_tag": { "type": "string" },
+          "floor_transfer": { "type": "string" },
           "blocking": { "type": "boolean" },
           "dark_zone": { "type": "boolean" },
           "stairs_up": { "type": "boolean" },
-          "stairs_down": { "type": "boolean" }
+          "stairs_down": { "type": "boolean" },
+          "secret": { "type": "boolean" },
+          "locked": { "type": "boolean" }
         }
       }
     }

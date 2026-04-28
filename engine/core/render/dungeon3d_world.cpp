@@ -31,20 +31,58 @@ Dungeon3DCell cellFromJson(const nlohmann::json& json) {
     return {json.value("tile_id", ""),
             json.value("material_id", ""),
             json.value("event_id", ""),
+            json.value("door_id", ""),
+            json.value("required_item", ""),
+            json.value("encounter_tag", ""),
+            json.value("floor_transfer", ""),
             json.value("blocking", false),
             json.value("dark_zone", false),
             json.value("stairs_up", false),
-            json.value("stairs_down", false)};
+            json.value("stairs_down", false),
+            json.value("secret", false),
+            json.value("locked", false)};
 }
 
 nlohmann::json cellToJson(const Dungeon3DCell& cell) {
     return {{"tile_id", cell.tile_id},
             {"material_id", cell.material_id},
             {"event_id", cell.event_id},
+            {"door_id", cell.door_id},
+            {"required_item", cell.required_item},
+            {"encounter_tag", cell.encounter_tag},
+            {"floor_transfer", cell.floor_transfer},
             {"blocking", cell.blocking},
             {"dark_zone", cell.dark_zone},
             {"stairs_up", cell.stairs_up},
-            {"stairs_down", cell.stairs_down}};
+            {"stairs_down", cell.stairs_down},
+            {"secret", cell.secret},
+            {"locked", cell.locked}};
+}
+
+std::string cellKey(int32_t x, int32_t y) {
+    return std::to_string(x) + "," + std::to_string(y);
+}
+
+nlohmann::json sessionToJson(const Dungeon3DSessionState& session) {
+    return {{"inventory", session.inventory},
+            {"discovered_cells", session.discovered_cells},
+            {"opened_doors", session.opened_doors},
+            {"revealed_secrets", session.revealed_secrets},
+            {"triggered_encounters", session.triggered_encounters},
+            {"current_floor_id", session.current_floor_id},
+            {"event_log", session.event_log}};
+}
+
+Dungeon3DSessionState sessionFromJson(const nlohmann::json& json) {
+    Dungeon3DSessionState session;
+    session.inventory = json.value("inventory", std::set<std::string>{});
+    session.discovered_cells = json.value("discovered_cells", std::set<std::string>{});
+    session.opened_doors = json.value("opened_doors", std::set<std::string>{});
+    session.revealed_secrets = json.value("revealed_secrets", std::set<std::string>{});
+    session.triggered_encounters = json.value("triggered_encounters", std::set<std::string>{});
+    session.current_floor_id = json.value("current_floor_id", "");
+    session.event_log = json.value("event_log", std::vector<std::string>{});
+    return session;
 }
 
 RaycastRenderer::AuthoringAdapter buildAdapter(const Dungeon3DWorldDocument& document) {
@@ -54,7 +92,12 @@ RaycastRenderer::AuthoringAdapter buildAdapter(const Dungeon3DWorldDocument& doc
     adapter.height = document.height;
     adapter.blockingCells.assign(static_cast<size_t>(std::max(0, document.width * document.height)), 0);
     for (size_t i = 0; i < document.cells.size() && i < adapter.blockingCells.size(); ++i) {
-        adapter.blockingCells[i] = document.cells[i].blocking ? 1 : 0;
+        const auto& cell = document.cells[i];
+        const bool opened = !cell.door_id.empty() && document.session.opened_doors.contains(cell.door_id);
+        const bool revealed = cell.secret && document.session.revealed_secrets.contains(cellKey(
+                                        static_cast<int32_t>(i % static_cast<size_t>(std::max(document.width, 1))),
+                                        static_cast<int32_t>(i / static_cast<size_t>(std::max(document.width, 1)))));
+        adapter.blockingCells[i] = (cell.blocking && !opened && !revealed) ? 1 : 0;
     }
     return adapter;
 }
@@ -83,6 +126,20 @@ const Dungeon3DCell* cellAt(const Dungeon3DWorldDocument& document, int32_t x, i
     return index < document.cells.size() ? &document.cells[index] : nullptr;
 }
 
+bool isPassable(const Dungeon3DWorldDocument& document, int32_t x, int32_t y) {
+    const auto* cell = cellAt(document, x, y);
+    if (cell == nullptr) {
+        return false;
+    }
+    if (!cell->door_id.empty() && document.session.opened_doors.contains(cell->door_id)) {
+        return true;
+    }
+    if (cell->secret && document.session.revealed_secrets.contains(cellKey(x, y))) {
+        return true;
+    }
+    return !cell->blocking;
+}
+
 std::optional<Dungeon3DInteraction> interactionAhead(const Dungeon3DWorldDocument& document) {
     const auto target_x = static_cast<int32_t>(std::floor(document.camera.pos_x + document.camera.dir_x));
     const auto target_y = static_cast<int32_t>(std::floor(document.camera.pos_y + document.camera.dir_y));
@@ -90,15 +147,25 @@ std::optional<Dungeon3DInteraction> interactionAhead(const Dungeon3DWorldDocumen
     if (cell == nullptr) {
         return std::nullopt;
     }
+    const bool opened = !cell->door_id.empty() && document.session.opened_doors.contains(cell->door_id);
+    const bool has_key = cell->required_item.empty() || document.session.inventory.contains(cell->required_item);
     return Dungeon3DInteraction{target_x,
                                 target_y,
-                                cell->blocking,
+                                !isPassable(document, target_x, target_y),
                                 !cell->event_id.empty(),
                                 cell->stairs_up,
                                 cell->stairs_down,
                                 cell->dark_zone,
+                                cell->secret,
+                                cell->locked && !opened,
+                                !cell->door_id.empty() && !opened && has_key,
+                                !cell->floor_transfer.empty(),
                                 cell->event_id,
-                                cell->material_id};
+                                cell->material_id,
+                                cell->door_id,
+                                cell->required_item,
+                                cell->encounter_tag,
+                                cell->floor_transfer};
 }
 
 Dungeon3DNavigationResult tryMove(Dungeon3DWorldDocument& document, float delta_x, float delta_y) {
@@ -114,7 +181,7 @@ Dungeon3DNavigationResult tryMove(Dungeon3DWorldDocument& document, float delta_
         result.diagnostic = {"navigation_out_of_bounds", "3D dungeon movement would leave the authored map."};
         return result;
     }
-    if (cell->blocking) {
+    if (!isPassable(document, tile_x, tile_y)) {
         result.blocked = true;
         result.command = "blocked:wall";
         result.diagnostic = {"navigation_blocked", "3D dungeon movement hit a blocking cell."};
@@ -122,8 +189,15 @@ Dungeon3DNavigationResult tryMove(Dungeon3DWorldDocument& document, float delta_
     }
     document.camera.pos_x = next_x;
     document.camera.pos_y = next_y;
+    document.session.discovered_cells.insert(cellKey(tile_x, tile_y));
     result.moved = true;
     result.command = "move_camera:" + document.map_id;
+    if (!cell->encounter_tag.empty() && !document.session.triggered_encounters.contains(cell->encounter_tag)) {
+        document.session.triggered_encounters.insert(cell->encounter_tag);
+        document.session.event_log.push_back("encounter:" + cell->encounter_tag);
+        result.encounter_triggered = true;
+        result.command = "trigger_encounter:" + cell->encounter_tag;
+    }
     return result;
 }
 
@@ -199,7 +273,18 @@ Dungeon3DPreview Dungeon3DWorldDocument::preview() const {
         if (!cell.event_id.empty()) {
             ++result.event_cell_count;
         }
+        if (!cell.door_id.empty()) {
+            ++result.door_count;
+        }
+        if (cell.secret) {
+            ++result.secret_count;
+        }
+        if (!cell.encounter_tag.empty()) {
+            ++result.encounter_cell_count;
+        }
     }
+    result.opened_door_count = static_cast<int32_t>(session.opened_doors.size());
+    result.revealed_secret_count = static_cast<int32_t>(session.revealed_secrets.size());
     result.facing_interaction = interactionAhead(*this);
 
     const auto adapter = buildAdapter(*this);
@@ -247,6 +332,17 @@ Dungeon3DPreview Dungeon3DWorldDocument::preview() const {
         if (current_x >= 0 && current_y >= 0 && current_x < width && current_y < height) {
             discovered.insert(static_cast<size_t>(current_y * width + current_x));
         }
+        for (const auto& key : session.discovered_cells) {
+            const auto comma = key.find(',');
+            if (comma == std::string::npos) {
+                continue;
+            }
+            const auto x = std::stoi(key.substr(0, comma));
+            const auto y = std::stoi(key.substr(comma + 1));
+            if (inBounds(*this, x, y)) {
+                discovered.insert(cellIndex(*this, x, y));
+            }
+        }
         if (auto_mapping) {
             for (const auto& column : result.columns) {
                 if (column.map_x >= 0 && column.map_y >= 0 && column.map_x < width && column.map_y < height) {
@@ -290,6 +386,60 @@ Dungeon3DNavigationResult Dungeon3DWorldDocument::strafe(float distance) {
     return tryMove(*this, camera.plane_x * distance, camera.plane_y * distance);
 }
 
+Dungeon3DInteractionResult Dungeon3DWorldDocument::interactFacing() {
+    Dungeon3DInteractionResult result;
+    const auto interaction = interactionAhead(*this);
+    if (!interaction.has_value()) {
+        result.diagnostic = {"interaction_out_of_bounds", "There is no authored 3D dungeon cell in front of the camera."};
+        return result;
+    }
+    const auto key = cellKey(interaction->x, interaction->y);
+    if (!interaction->door_id.empty() && !session.opened_doors.contains(interaction->door_id)) {
+        if (!interaction->required_item.empty() && !session.inventory.contains(interaction->required_item)) {
+            result.command = "locked_door:" + interaction->door_id;
+            result.diagnostic = {"missing_required_item", "3D dungeon door requires item: " + interaction->required_item};
+            return result;
+        }
+        session.opened_doors.insert(interaction->door_id);
+        session.event_log.push_back("open_door:" + interaction->door_id);
+        result.handled = true;
+        result.opened_door = true;
+        result.command = "open_door:" + interaction->door_id;
+        return result;
+    }
+    if (interaction->secret && !session.revealed_secrets.contains(key)) {
+        session.revealed_secrets.insert(key);
+        session.event_log.push_back("reveal_secret:" + key);
+        result.handled = true;
+        result.revealed_secret = true;
+        result.command = "reveal_secret:" + key;
+        return result;
+    }
+    if (!interaction->floor_transfer.empty()) {
+        session.current_floor_id = interaction->floor_transfer;
+        session.event_log.push_back("transfer_floor:" + interaction->floor_transfer);
+        result.handled = true;
+        result.transferred_floor = true;
+        result.command = "transfer_floor:" + interaction->floor_transfer;
+        return result;
+    }
+    if (!interaction->event_id.empty()) {
+        session.event_log.push_back("activate_event:" + interaction->event_id);
+        result.handled = true;
+        result.command = "activate_event:" + interaction->event_id;
+        return result;
+    }
+    result.command = "inspect_cell:" + key;
+    result.handled = true;
+    return result;
+}
+
+void Dungeon3DWorldDocument::addInventoryItem(std::string item_id) {
+    if (!item_id.empty()) {
+        session.inventory.insert(std::move(item_id));
+    }
+}
+
 void Dungeon3DWorldDocument::rotate(float radians) {
     const auto old_dir_x = camera.dir_x;
     camera.dir_x = camera.dir_x * std::cos(radians) - camera.dir_y * std::sin(radians);
@@ -316,7 +466,8 @@ nlohmann::json Dungeon3DWorldDocument::toJson() const {
                           {"dir_x", camera.dir_x},
                           {"dir_y", camera.dir_y},
                           {"plane_x", camera.plane_x},
-                          {"plane_y", camera.plane_y}}}};
+                          {"plane_y", camera.plane_y}}},
+                        {"session", sessionToJson(session)}};
     json["materials"] = nlohmann::json::array();
     for (const auto& [_, material] : materials) {
         json["materials"].push_back(materialToJson(material));
@@ -348,6 +499,9 @@ Dungeon3DWorldDocument Dungeon3DWorldDocument::fromJson(const nlohmann::json& js
         document.camera.dir_y = camera_json.value("dir_y", 0.0f);
         document.camera.plane_x = camera_json.value("plane_x", 0.0f);
         document.camera.plane_y = camera_json.value("plane_y", 0.66f);
+    }
+    if (json.contains("session")) {
+        document.session = sessionFromJson(json.at("session"));
     }
     for (const auto& material_json : json.value("materials", nlohmann::json::array())) {
         auto material = materialFromJson(material_json);
@@ -392,11 +546,24 @@ nlohmann::json dungeon3DPreviewToJson(const Dungeon3DPreview& preview) {
                                       {"stairs_up", interaction.stairs_up},
                                       {"stairs_down", interaction.stairs_down},
                                       {"dark_zone", interaction.dark_zone},
+                                      {"secret", interaction.secret},
+                                      {"locked", interaction.locked},
+                                      {"can_open", interaction.can_open},
+                                      {"can_transfer", interaction.can_transfer},
                                       {"event_id", interaction.event_id},
-                                      {"material_id", interaction.material_id}};
+                                      {"material_id", interaction.material_id},
+                                      {"door_id", interaction.door_id},
+                                      {"required_item", interaction.required_item},
+                                      {"encounter_tag", interaction.encounter_tag},
+                                      {"floor_transfer", interaction.floor_transfer}};
     }
     json["blocking_cell_count"] = preview.blocking_cell_count;
     json["event_cell_count"] = preview.event_cell_count;
+    json["door_count"] = preview.door_count;
+    json["secret_count"] = preview.secret_count;
+    json["encounter_cell_count"] = preview.encounter_cell_count;
+    json["opened_door_count"] = preview.opened_door_count;
+    json["revealed_secret_count"] = preview.revealed_secret_count;
     json["average_wall_distance"] = preview.average_wall_distance;
     json["diagnostics"] = nlohmann::json::array();
     for (const auto& diagnostic : preview.diagnostics) {

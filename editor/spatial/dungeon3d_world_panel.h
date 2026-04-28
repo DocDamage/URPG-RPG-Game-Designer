@@ -19,6 +19,11 @@ struct Dungeon3DWorldPanelSnapshot {
     size_t visible_minimap_tile_count = 0;
     size_t blocking_cell_count = 0;
     size_t event_cell_count = 0;
+    size_t door_count = 0;
+    size_t secret_count = 0;
+    size_t encounter_cell_count = 0;
+    size_t opened_door_count = 0;
+    size_t revealed_secret_count = 0;
     size_t runtime_command_count = 0;
     size_t diagnostic_count = 0;
     float camera_x = 0.0f;
@@ -26,7 +31,16 @@ struct Dungeon3DWorldPanelSnapshot {
     float average_wall_distance = 0.0f;
     std::string facing_event_id;
     std::string facing_material_id;
+    std::string facing_door_id;
+    std::string facing_required_item;
+    std::string facing_floor_transfer;
+    bool facing_secret = false;
+    bool facing_locked = false;
+    bool facing_can_open = false;
+    bool facing_can_transfer = false;
     bool facing_blocked = false;
+    std::string current_floor_id;
+    std::string last_event_log_entry;
     std::string status_message = "Load a 3D dungeon world document before rendering this panel.";
 };
 
@@ -36,6 +50,8 @@ public:
     void setMode(std::string mode);
     urpg::render::Dungeon3DNavigationResult moveForward(float distance = 1.0f);
     urpg::render::Dungeon3DNavigationResult strafe(float distance);
+    urpg::render::Dungeon3DInteractionResult interactFacing();
+    void addInventoryItem(std::string item_id);
     void rotate(float radians);
     void render();
 
