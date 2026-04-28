@@ -31,6 +31,9 @@ TEST_CASE("3D dungeon world converts 2D map data into runtime raycast preview", 
     REQUIRE(document.width == 5);
     REQUIRE(document.height == 5);
     REQUIRE(document.cells.size() == 25);
+    REQUIRE(document.floors.size() == 2);
+    REQUIRE(document.markers.size() == 3);
+    REQUIRE(document.notes.size() == 1);
     REQUIRE(document.materials.size() == 2);
     REQUIRE(document.validate().empty());
 
@@ -47,6 +50,12 @@ TEST_CASE("3D dungeon world converts 2D map data into runtime raycast preview", 
     REQUIRE(preview.door_count == 1);
     REQUIRE(preview.secret_count == 1);
     REQUIRE(preview.encounter_cell_count == 1);
+    REQUIRE(preview.marker_count == 3);
+    REQUIRE(preview.visible_marker_count == 3);
+    REQUIRE(preview.objective_count == 1);
+    REQUIRE(preview.completed_objective_count == 0);
+    REQUIRE(preview.note_count == 1);
+    REQUIRE(preview.floor_completion == 0.0f);
     REQUIRE(preview.facing_interaction.has_value());
     REQUIRE(preview.facing_interaction->event_id.empty());
     REQUIRE(containsCommand(preview.runtime_commands, "switch_to_3d:ancient_crypt"));
@@ -72,6 +81,11 @@ TEST_CASE("3D dungeon world supports 2D to 3D switching and WYSIWYG panel snapsh
     REQUIRE(panel.snapshot().door_count == 1);
     REQUIRE(panel.snapshot().secret_count == 1);
     REQUIRE(panel.snapshot().encounter_cell_count == 1);
+    REQUIRE(panel.snapshot().marker_count == 3);
+    REQUIRE(panel.snapshot().visible_marker_count == 3);
+    REQUIRE(panel.snapshot().objective_count == 1);
+    REQUIRE(panel.snapshot().completed_objective_count == 0);
+    REQUIRE(panel.snapshot().note_count == 1);
     REQUIRE(panel.snapshot().average_wall_distance > 0.0f);
     REQUIRE(panel.snapshot().runtime_command_count == 3);
     REQUIRE(panel.saveProjectData() == document.toJson());
@@ -186,6 +200,39 @@ TEST_CASE("3D dungeon world resolves doors secrets floor transfers and session a
     REQUIRE(panel.snapshot().revealed_secret_count == 1);
     REQUIRE(panel.snapshot().current_floor_id == "crypt_b2");
     REQUIRE_FALSE(panel.snapshot().last_event_log_entry.empty());
+}
+
+TEST_CASE("3D dungeon world tracks floor objectives markers and notes", "[dungeon3d][wysiwyg]") {
+    auto document = urpg::render::Dungeon3DWorldDocument::fromJson(loadFixture("dungeon3d_world"));
+    auto preview = document.preview();
+
+    REQUIRE(preview.marker_count == 3);
+    REQUIRE(preview.visible_marker_count == 3);
+    REQUIRE(preview.objective_count == 1);
+    REQUIRE(preview.completed_objective_count == 0);
+    REQUIRE(preview.note_count == 1);
+
+    const auto json = urpg::render::dungeon3DPreviewToJson(preview);
+    bool found_marker = false;
+    bool found_note = false;
+    for (const auto& tile : json.at("minimap_tiles")) {
+        found_marker = found_marker || !tile.value("marker_id", std::string{}).empty();
+        found_note = found_note || !tile.value("note_id", std::string{}).empty();
+    }
+    REQUIRE(found_marker);
+    REQUIRE(found_note);
+
+    REQUIRE(document.completeMarker("obj_unlock_door"));
+    preview = document.preview();
+    REQUIRE(preview.completed_objective_count == 1);
+    REQUIRE(preview.floor_completion == 1.0f);
+
+    urpg::editor::Dungeon3DWorldPanel panel;
+    panel.loadDocument(document);
+    REQUIRE(panel.snapshot().completed_objective_count == 1);
+    REQUIRE(panel.snapshot().floor_completion == 1.0f);
+    REQUIRE(panel.snapshot().last_event_log_entry == "complete_marker:obj_unlock_door");
+    REQUIRE_FALSE(panel.completeMarker("missing_marker"));
 }
 
 TEST_CASE("3D dungeon world is release registered with promoted spatial authoring", "[dungeon3d][wysiwyg]") {

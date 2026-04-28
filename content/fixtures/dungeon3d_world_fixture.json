@@ -23,9 +23,65 @@
     "opened_doors": [],
     "revealed_secrets": [],
     "triggered_encounters": [],
+    "completed_markers": [],
     "current_floor_id": "crypt_b1",
     "event_log": []
   },
+  "floors": [
+    {
+      "id": "crypt_b1",
+      "display_name": "Ancient Crypt B1",
+      "depth": 1,
+      "ambient_sound": "ambience_crypt_low"
+    },
+    {
+      "id": "crypt_b2",
+      "display_name": "Ancient Crypt B2",
+      "depth": 2,
+      "ambient_sound": "ambience_crypt_deep"
+    }
+  ],
+  "markers": [
+    {
+      "id": "obj_unlock_door",
+      "label": "Unlock the lower stair door",
+      "type": "objective",
+      "x": 3,
+      "y": 3,
+      "floor_id": "crypt_b1",
+      "visible": true,
+      "completed": false
+    },
+    {
+      "id": "marker_hidden_cache",
+      "label": "Suspicious wall",
+      "type": "secret",
+      "x": 1,
+      "y": 2,
+      "floor_id": "crypt_b1",
+      "visible": true,
+      "completed": false
+    },
+    {
+      "id": "marker_key",
+      "label": "Crypt key",
+      "type": "item",
+      "x": 2,
+      "y": 3,
+      "floor_id": "crypt_b1",
+      "visible": true,
+      "completed": false
+    }
+  ],
+  "notes": [
+    {
+      "id": "note_torch",
+      "text": "The torch marks the safe path.",
+      "x": 2,
+      "y": 1,
+      "floor_id": "crypt_b1"
+    }
+  ],
   "materials": [
     {
       "id": "stone",

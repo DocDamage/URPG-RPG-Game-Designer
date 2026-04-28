@@ -27,6 +27,32 @@ struct Dungeon3DMaterial {
     std::string footstep_sound;
 };
 
+struct Dungeon3DFloor {
+    std::string id;
+    std::string display_name;
+    int32_t depth = 0;
+    std::string ambient_sound;
+};
+
+struct Dungeon3DMapMarker {
+    std::string id;
+    std::string label;
+    std::string type;
+    int32_t x = 0;
+    int32_t y = 0;
+    std::string floor_id;
+    bool visible = true;
+    bool completed = false;
+};
+
+struct Dungeon3DMapNote {
+    std::string id;
+    std::string text;
+    int32_t x = 0;
+    int32_t y = 0;
+    std::string floor_id;
+};
+
 struct Dungeon3DCell {
     std::string tile_id;
     std::string material_id;
@@ -71,6 +97,9 @@ struct Dungeon3DMinimapTile {
     bool discovered = false;
     bool current = false;
     bool visible = false;
+    std::string marker_id;
+    std::string marker_type;
+    std::string note_id;
     std::string event_id;
 };
 
@@ -117,6 +146,7 @@ struct Dungeon3DSessionState {
     std::set<std::string> opened_doors;
     std::set<std::string> revealed_secrets;
     std::set<std::string> triggered_encounters;
+    std::set<std::string> completed_markers;
     std::string current_floor_id;
     std::vector<std::string> event_log;
 };
@@ -133,8 +163,14 @@ struct Dungeon3DPreview {
     int32_t door_count = 0;
     int32_t secret_count = 0;
     int32_t encounter_cell_count = 0;
+    int32_t marker_count = 0;
+    int32_t visible_marker_count = 0;
+    int32_t objective_count = 0;
+    int32_t completed_objective_count = 0;
+    int32_t note_count = 0;
     int32_t opened_door_count = 0;
     int32_t revealed_secret_count = 0;
+    float floor_completion = 0.0f;
     float average_wall_distance = 0.0f;
 };
 
@@ -152,6 +188,9 @@ public:
     std::string mode = "3d";
     Dungeon3DCamera camera;
     Dungeon3DSessionState session;
+    std::vector<Dungeon3DFloor> floors;
+    std::vector<Dungeon3DMapMarker> markers;
+    std::vector<Dungeon3DMapNote> notes;
     std::map<std::string, Dungeon3DMaterial> materials;
     std::vector<Dungeon3DCell> cells;
 
@@ -162,6 +201,7 @@ public:
     [[nodiscard]] Dungeon3DNavigationResult strafe(float distance);
     [[nodiscard]] Dungeon3DInteractionResult interactFacing();
     void addInventoryItem(std::string item_id);
+    bool completeMarker(std::string marker_id);
     void rotate(float radians);
     [[nodiscard]] nlohmann::json toJson() const;
 

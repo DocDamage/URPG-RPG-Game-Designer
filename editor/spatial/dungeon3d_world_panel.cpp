@@ -49,6 +49,14 @@ void Dungeon3DWorldPanel::addInventoryItem(std::string item_id) {
     }
 }
 
+bool Dungeon3DWorldPanel::completeMarker(std::string marker_id) {
+    const bool completed = document_.completeMarker(std::move(marker_id));
+    if (loaded_) {
+        refresh();
+    }
+    return completed;
+}
+
 void Dungeon3DWorldPanel::rotate(float radians) {
     document_.rotate(radians);
     if (loaded_) {
@@ -90,6 +98,11 @@ void Dungeon3DWorldPanel::refresh() {
     snapshot_.door_count = static_cast<size_t>(preview_.door_count);
     snapshot_.secret_count = static_cast<size_t>(preview_.secret_count);
     snapshot_.encounter_cell_count = static_cast<size_t>(preview_.encounter_cell_count);
+    snapshot_.marker_count = static_cast<size_t>(preview_.marker_count);
+    snapshot_.visible_marker_count = static_cast<size_t>(preview_.visible_marker_count);
+    snapshot_.objective_count = static_cast<size_t>(preview_.objective_count);
+    snapshot_.completed_objective_count = static_cast<size_t>(preview_.completed_objective_count);
+    snapshot_.note_count = static_cast<size_t>(preview_.note_count);
     snapshot_.opened_door_count = static_cast<size_t>(preview_.opened_door_count);
     snapshot_.revealed_secret_count = static_cast<size_t>(preview_.revealed_secret_count);
     snapshot_.runtime_command_count = preview_.runtime_commands.size();
@@ -97,6 +110,7 @@ void Dungeon3DWorldPanel::refresh() {
     snapshot_.camera_x = document_.camera.pos_x;
     snapshot_.camera_y = document_.camera.pos_y;
     snapshot_.average_wall_distance = preview_.average_wall_distance;
+    snapshot_.floor_completion = preview_.floor_completion;
     snapshot_.facing_event_id = preview_.facing_interaction ? preview_.facing_interaction->event_id : "";
     snapshot_.facing_material_id = preview_.facing_interaction ? preview_.facing_interaction->material_id : "";
     snapshot_.facing_door_id = preview_.facing_interaction ? preview_.facing_interaction->door_id : "";

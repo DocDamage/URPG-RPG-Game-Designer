@@ -18,6 +18,32 @@ Dungeon3DMaterial materialFromJson(const nlohmann::json& json) {
             json.value("footstep_sound", "")};
 }
 
+Dungeon3DFloor floorFromJson(const nlohmann::json& json) {
+    return {json.value("id", ""),
+            json.value("display_name", ""),
+            json.value("depth", 0),
+            json.value("ambient_sound", "")};
+}
+
+Dungeon3DMapMarker markerFromJson(const nlohmann::json& json) {
+    return {json.value("id", ""),
+            json.value("label", ""),
+            json.value("type", ""),
+            json.value("x", 0),
+            json.value("y", 0),
+            json.value("floor_id", ""),
+            json.value("visible", true),
+            json.value("completed", false)};
+}
+
+Dungeon3DMapNote noteFromJson(const nlohmann::json& json) {
+    return {json.value("id", ""),
+            json.value("text", ""),
+            json.value("x", 0),
+            json.value("y", 0),
+            json.value("floor_id", "")};
+}
+
 nlohmann::json materialToJson(const Dungeon3DMaterial& material) {
     return {{"id", material.id},
             {"wall_texture", material.wall_texture},
@@ -25,6 +51,32 @@ nlohmann::json materialToJson(const Dungeon3DMaterial& material) {
             {"ceiling_texture", material.ceiling_texture},
             {"light", material.light},
             {"footstep_sound", material.footstep_sound}};
+}
+
+nlohmann::json floorToJson(const Dungeon3DFloor& floor) {
+    return {{"id", floor.id},
+            {"display_name", floor.display_name},
+            {"depth", floor.depth},
+            {"ambient_sound", floor.ambient_sound}};
+}
+
+nlohmann::json markerToJson(const Dungeon3DMapMarker& marker) {
+    return {{"id", marker.id},
+            {"label", marker.label},
+            {"type", marker.type},
+            {"x", marker.x},
+            {"y", marker.y},
+            {"floor_id", marker.floor_id},
+            {"visible", marker.visible},
+            {"completed", marker.completed}};
+}
+
+nlohmann::json noteToJson(const Dungeon3DMapNote& note) {
+    return {{"id", note.id},
+            {"text", note.text},
+            {"x", note.x},
+            {"y", note.y},
+            {"floor_id", note.floor_id}};
 }
 
 Dungeon3DCell cellFromJson(const nlohmann::json& json) {
@@ -69,6 +121,7 @@ nlohmann::json sessionToJson(const Dungeon3DSessionState& session) {
             {"opened_doors", session.opened_doors},
             {"revealed_secrets", session.revealed_secrets},
             {"triggered_encounters", session.triggered_encounters},
+            {"completed_markers", session.completed_markers},
             {"current_floor_id", session.current_floor_id},
             {"event_log", session.event_log}};
 }
@@ -80,6 +133,7 @@ Dungeon3DSessionState sessionFromJson(const nlohmann::json& json) {
     session.opened_doors = json.value("opened_doors", std::set<std::string>{});
     session.revealed_secrets = json.value("revealed_secrets", std::set<std::string>{});
     session.triggered_encounters = json.value("triggered_encounters", std::set<std::string>{});
+    session.completed_markers = json.value("completed_markers", std::set<std::string>{});
     session.current_floor_id = json.value("current_floor_id", "");
     session.event_log = json.value("event_log", std::vector<std::string>{});
     return session;
@@ -252,6 +306,41 @@ std::vector<Dungeon3DDiagnostic> Dungeon3DWorldDocument::validate() const {
         }
         material_ids.insert(id_key);
     }
+    std::set<std::string> floor_ids;
+    for (const auto& floor : floors) {
+        if (floor.id.empty()) {
+            diagnostics.push_back({"missing_floor_id", "3D dungeon floor is missing an id."});
+        }
+        floor_ids.insert(floor.id);
+    }
+    if (!session.current_floor_id.empty() && !floor_ids.empty() && !floor_ids.contains(session.current_floor_id)) {
+        diagnostics.push_back({"unknown_current_floor", "3D dungeon session current floor is not authored."});
+    }
+    std::set<std::string> marker_ids;
+    for (const auto& marker : markers) {
+        if (marker.id.empty()) {
+            diagnostics.push_back({"missing_marker_id", "3D dungeon map marker is missing an id."});
+        } else if (!marker_ids.insert(marker.id).second) {
+            diagnostics.push_back({"duplicate_marker_id", "3D dungeon map marker id is duplicated: " + marker.id});
+        }
+        if (!inBounds(*this, marker.x, marker.y)) {
+            diagnostics.push_back({"marker_out_of_bounds", "3D dungeon map marker is outside the authored map: " + marker.id});
+        }
+        if (!marker.floor_id.empty() && !floor_ids.empty() && !floor_ids.contains(marker.floor_id)) {
+            diagnostics.push_back({"unknown_marker_floor", "3D dungeon marker references an unknown floor: " + marker.id});
+        }
+    }
+    for (const auto& note : notes) {
+        if (note.id.empty()) {
+            diagnostics.push_back({"missing_note_id", "3D dungeon map note is missing an id."});
+        }
+        if (!inBounds(*this, note.x, note.y)) {
+            diagnostics.push_back({"note_out_of_bounds", "3D dungeon map note is outside the authored map: " + note.id});
+        }
+        if (!note.floor_id.empty() && !floor_ids.empty() && !floor_ids.contains(note.floor_id)) {
+            diagnostics.push_back({"unknown_note_floor", "3D dungeon note references an unknown floor: " + note.id});
+        }
+    }
     for (const auto& cell : cells) {
         if (!cell.material_id.empty() && !material_ids.contains(cell.material_id)) {
             diagnostics.push_back({"unknown_cell_material", "3D dungeon cell references an unknown material: " + cell.material_id});
@@ -285,6 +374,23 @@ Dungeon3DPreview Dungeon3DWorldDocument::preview() const {
     }
     result.opened_door_count = static_cast<int32_t>(session.opened_doors.size());
     result.revealed_secret_count = static_cast<int32_t>(session.revealed_secrets.size());
+    for (const auto& marker : markers) {
+        ++result.marker_count;
+        if (marker.visible) {
+            ++result.visible_marker_count;
+        }
+        if (marker.type == "objective") {
+            ++result.objective_count;
+            if (marker.completed || session.completed_markers.contains(marker.id)) {
+                ++result.completed_objective_count;
+            }
+        }
+    }
+    result.note_count = static_cast<int32_t>(notes.size());
+    if (result.objective_count > 0) {
+        result.floor_completion =
+            static_cast<float>(result.completed_objective_count) / static_cast<float>(result.objective_count);
+    }
     result.facing_interaction = interactionAhead(*this);
 
     const auto adapter = buildAdapter(*this);
@@ -357,6 +463,23 @@ Dungeon3DPreview Dungeon3DWorldDocument::preview() const {
                     continue;
                 }
                 const bool visible = discovered.contains(index) || (std::abs(x - current_x) <= 1 && std::abs(y - current_y) <= 1);
+                std::string marker_id;
+                std::string marker_type;
+                for (const auto& marker : markers) {
+                    if (marker.visible && marker.x == x && marker.y == y &&
+                        (marker.floor_id.empty() || marker.floor_id == session.current_floor_id)) {
+                        marker_id = marker.id;
+                        marker_type = marker.type;
+                        break;
+                    }
+                }
+                std::string note_id;
+                for (const auto& note : notes) {
+                    if (note.x == x && note.y == y && (note.floor_id.empty() || note.floor_id == session.current_floor_id)) {
+                        note_id = note.id;
+                        break;
+                    }
+                }
                 result.minimap_tiles.push_back(
                     {x,
                      y,
@@ -364,6 +487,9 @@ Dungeon3DPreview Dungeon3DWorldDocument::preview() const {
                      discovered.contains(index),
                      x == current_x && y == current_y,
                      visible,
+                     marker_id,
+                     marker_type,
+                     note_id,
                      cells[index].event_id});
             }
         }
@@ -440,6 +566,21 @@ void Dungeon3DWorldDocument::addInventoryItem(std::string item_id) {
     }
 }
 
+bool Dungeon3DWorldDocument::completeMarker(std::string marker_id) {
+    if (marker_id.empty()) {
+        return false;
+    }
+    const auto found = std::find_if(markers.begin(), markers.end(), [&](const auto& marker) {
+        return marker.id == marker_id;
+    });
+    if (found == markers.end()) {
+        return false;
+    }
+    session.completed_markers.insert(marker_id);
+    session.event_log.push_back("complete_marker:" + marker_id);
+    return true;
+}
+
 void Dungeon3DWorldDocument::rotate(float radians) {
     const auto old_dir_x = camera.dir_x;
     camera.dir_x = camera.dir_x * std::cos(radians) - camera.dir_y * std::sin(radians);
@@ -468,6 +609,18 @@ nlohmann::json Dungeon3DWorldDocument::toJson() const {
                           {"plane_x", camera.plane_x},
                           {"plane_y", camera.plane_y}}},
                         {"session", sessionToJson(session)}};
+    json["floors"] = nlohmann::json::array();
+    for (const auto& floor : floors) {
+        json["floors"].push_back(floorToJson(floor));
+    }
+    json["markers"] = nlohmann::json::array();
+    for (const auto& marker : markers) {
+        json["markers"].push_back(markerToJson(marker));
+    }
+    json["notes"] = nlohmann::json::array();
+    for (const auto& note : notes) {
+        json["notes"].push_back(noteToJson(note));
+    }
     json["materials"] = nlohmann::json::array();
     for (const auto& [_, material] : materials) {
         json["materials"].push_back(materialToJson(material));
@@ -503,6 +656,15 @@ Dungeon3DWorldDocument Dungeon3DWorldDocument::fromJson(const nlohmann::json& js
     if (json.contains("session")) {
         document.session = sessionFromJson(json.at("session"));
     }
+    for (const auto& floor_json : json.value("floors", nlohmann::json::array())) {
+        document.floors.push_back(floorFromJson(floor_json));
+    }
+    for (const auto& marker_json : json.value("markers", nlohmann::json::array())) {
+        document.markers.push_back(markerFromJson(marker_json));
+    }
+    for (const auto& note_json : json.value("notes", nlohmann::json::array())) {
+        document.notes.push_back(noteFromJson(note_json));
+    }
     for (const auto& material_json : json.value("materials", nlohmann::json::array())) {
         auto material = materialFromJson(material_json);
         document.materials[material.id] = std::move(material);
@@ -535,6 +697,9 @@ nlohmann::json dungeon3DPreviewToJson(const Dungeon3DPreview& preview) {
                                          {"discovered", tile.discovered},
                                          {"current", tile.current},
                                          {"visible", tile.visible},
+                                         {"marker_id", tile.marker_id},
+                                         {"marker_type", tile.marker_type},
+                                         {"note_id", tile.note_id},
                                          {"event_id", tile.event_id}});
     }
     if (preview.facing_interaction.has_value()) {
@@ -562,8 +727,14 @@ nlohmann::json dungeon3DPreviewToJson(const Dungeon3DPreview& preview) {
     json["door_count"] = preview.door_count;
     json["secret_count"] = preview.secret_count;
     json["encounter_cell_count"] = preview.encounter_cell_count;
+    json["marker_count"] = preview.marker_count;
+    json["visible_marker_count"] = preview.visible_marker_count;
+    json["objective_count"] = preview.objective_count;
+    json["completed_objective_count"] = preview.completed_objective_count;
+    json["note_count"] = preview.note_count;
     json["opened_door_count"] = preview.opened_door_count;
     json["revealed_secret_count"] = preview.revealed_secret_count;
+    json["floor_completion"] = preview.floor_completion;
     json["average_wall_distance"] = preview.average_wall_distance;
     json["diagnostics"] = nlohmann::json::array();
     for (const auto& diagnostic : preview.diagnostics) {

@@ -38,8 +38,56 @@
         "opened_doors": { "type": "array", "items": { "type": "string" } },
         "revealed_secrets": { "type": "array", "items": { "type": "string" } },
         "triggered_encounters": { "type": "array", "items": { "type": "string" } },
+        "completed_markers": { "type": "array", "items": { "type": "string" } },
         "current_floor_id": { "type": "string" },
         "event_log": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "floors": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "display_name", "depth", "ambient_sound"],
+        "properties": {
+          "id": { "type": "string", "minLength": 1 },
+          "display_name": { "type": "string" },
+          "depth": { "type": "integer" },
+          "ambient_sound": { "type": "string" }
+        }
+      }
+    },
+    "markers": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "label", "type", "x", "y", "floor_id", "visible", "completed"],
+        "properties": {
+          "id": { "type": "string", "minLength": 1 },
+          "label": { "type": "string" },
+          "type": { "type": "string" },
+          "x": { "type": "integer" },
+          "y": { "type": "integer" },
+          "floor_id": { "type": "string" },
+          "visible": { "type": "boolean" },
+          "completed": { "type": "boolean" }
+        }
+      }
+    },
+    "notes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "text", "x", "y", "floor_id"],
+        "properties": {
+          "id": { "type": "string", "minLength": 1 },
+          "text": { "type": "string" },
+          "x": { "type": "integer" },
+          "y": { "type": "integer" },
+          "floor_id": { "type": "string" }
+        }
       }
     },
     "materials": {
