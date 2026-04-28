@@ -16,6 +16,13 @@ Each governed schema entry should include:
 
 ## Entries
 
+### `ability_sandbox` (`ability_sandbox.schema.json`)
+
+- Version: `1.1.0`
+- Date: `2026-04-28`
+- Summary: adds repeated activation attempt count and interval timing so the WYSIWYG ability sandbox can preview cooldown blocking and cooldown recovery through the runtime component
+- Migration Impact: additive optional fields; existing ability sandbox documents default to one activation attempt with no interval
+
 ### `event_command_graph` (`event_command_graph.schema.json`)
 
 - Version: `1.1.0`

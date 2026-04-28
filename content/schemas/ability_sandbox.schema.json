@@ -9,6 +9,8 @@
     "id": { "type": "string", "minLength": 1 },
     "source_mp": { "type": "number", "minimum": 0 },
     "source_attack": { "type": "number" },
+    "activation_attempts": { "type": "integer", "minimum": 1 },
+    "seconds_between_attempts": { "type": "number", "minimum": 0 },
     "source_tags": { "type": "array", "items": { "type": "string" } },
     "required_tags": { "type": "array", "items": { "type": "string" } },
     "blocking_tags": { "type": "array", "items": { "type": "string" } },

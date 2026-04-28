@@ -20,6 +20,8 @@ struct AbilitySandboxDocument {
     AuthoredAbilityAsset ability;
     float source_mp = 100.0f;
     float source_attack = 10.0f;
+    int32_t activation_attempts = 1;
+    float seconds_between_attempts = 0.0f;
     std::vector<std::string> source_tags;
     std::vector<std::string> required_tags;
     std::vector<std::string> blocking_tags;
@@ -28,6 +30,19 @@ struct AbilitySandboxDocument {
     nlohmann::json toJson() const;
 
     static AbilitySandboxDocument fromJson(const nlohmann::json& json);
+};
+
+struct AbilitySandboxActivationStep {
+    size_t attempt_index = 0;
+    bool allowed = false;
+    bool executed = false;
+    std::string blocking_reason;
+    float mp_before = 0.0f;
+    float mp_after = 0.0f;
+    float cooldown_before = 0.0f;
+    float cooldown_after = 0.0f;
+    float effect_attribute_after = 0.0f;
+    size_t active_effect_count = 0;
 };
 
 struct AbilitySandboxResult {
@@ -41,7 +56,10 @@ struct AbilitySandboxResult {
     float effect_attribute_after = 0.0f;
     size_t active_effect_count = 0;
     size_t active_tag_count = 0;
+    size_t execution_history_count = 0;
     std::vector<std::string> visible_tags;
+    std::vector<std::string> runtime_trace;
+    std::vector<AbilitySandboxActivationStep> activation_steps;
     std::vector<AbilitySandboxDiagnostic> diagnostics;
 };
 

@@ -125,6 +125,13 @@ Event-command visual graph slice status:
 - [x] Editor panel now exposes add/update node, move node, and connect edge actions, plus selected-node details and post-run state counts.
 - [x] Focused tests tie panel graph mutations, saved JSON, dependency projection, conditional traversal, diagnostics, and runtime execution together.
 
+Ability sandbox slice status:
+
+- [x] Saved ability sandbox documents now persist repeated activation attempts and interval timing.
+- [x] Runtime preview now executes multiple activation attempts through `AbilitySystemComponent`, including cooldown blocking/progression, MP deltas, effect deltas, execution history, visible tags, and trace strings.
+- [x] Editor panel now exposes live source MP, cost, cooldown, effect value, attempt-count, attempt-interval, and source-tag edits.
+- [x] Focused tests tie panel edits, saved JSON, activation traces, cooldown behavior, diagnostics, and runtime execution together.
+
 ### Task 5: Renderer, Accessibility, Audio, Performance, Platform, and Offline Tooling Lanes
 
 **Files:**

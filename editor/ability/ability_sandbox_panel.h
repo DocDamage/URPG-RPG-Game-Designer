@@ -15,6 +15,7 @@ struct AbilitySandboxPanelSnapshot {
     float mp_cost = 0.0f;
     float cooldown_seconds = 0.0f;
     float cooldown_after = 0.0f;
+    float seconds_between_attempts = 0.0f;
     float mp_before = 0.0f;
     float mp_after = 0.0f;
     std::string effect_id;
@@ -25,6 +26,9 @@ struct AbilitySandboxPanelSnapshot {
     size_t required_tag_count = 0;
     size_t blocking_tag_count = 0;
     size_t active_effect_count = 0;
+    size_t activation_attempt_count = 0;
+    size_t execution_history_count = 0;
+    size_t runtime_trace_count = 0;
     size_t diagnostic_count = 0;
     bool activation_allowed = false;
     bool activation_executed = false;
@@ -36,6 +40,13 @@ struct AbilitySandboxPanelSnapshot {
 class AbilitySandboxPanel {
 public:
     void loadDocument(urpg::ability::AbilitySandboxDocument document);
+    void setSourceMp(float source_mp);
+    void setAbilityCost(float mp_cost);
+    void setAbilityCooldown(float cooldown_seconds);
+    void setEffectValue(float effect_value);
+    void setActivationAttempts(int32_t attempts, float seconds_between_attempts);
+    void addSourceTag(std::string tag);
+    void removeSourceTag(std::string tag);
     void render();
 
     const AbilitySandboxPanelSnapshot& snapshot() const { return snapshot_; }

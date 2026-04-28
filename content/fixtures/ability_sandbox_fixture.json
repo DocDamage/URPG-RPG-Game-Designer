@@ -3,6 +3,8 @@
   "id": "power_surge_sandbox",
   "source_mp": 40.0,
   "source_attack": 10.0,
+  "activation_attempts": 2,
+  "seconds_between_attempts": 0.0,
   "source_tags": ["Class.Warrior", "Weapon.Sword"],
   "required_tags": ["Class.Warrior"],
   "blocking_tags": ["State.Silenced"],

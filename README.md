@@ -60,6 +60,7 @@ Repository-wide source/vendor LFS hydration is still externally constrained by G
 - Battle runtime with participant state, bounded formula evaluation, battle event migration, reward/event cadence coverage, BGM/ME routing through compat audio state, battleback diagnostics, HUD quads, gauges, popups, guard markers, and state icon presentation.
 - Save/data runtime with slot descriptors, save policy governance, compat save import, native payload generation, JSONL diagnostics, and metadata preservation.
 - Gameplay Ability Framework with tags, abilities, effects, cooldown/cost checks, ability system components, battle activation, map-side ability consumption, authored ability assets, diagnostics preview, save/load, and runtime apply flows.
+- Ability sandbox WYSIWYG preview with live source MP, cost, cooldown, effect value, tag, attempt-count, and interval edits, repeated runtime activation attempts, cooldown blocking/progression proof, MP/effect deltas, execution history counts, runtime traces, saved JSON, diagnostics, schema/fixture coverage, and tests.
 - Map interaction ability binding for tile, prop, and region triggers.
 - Character identity and create-a-character runtime/editor slice with name, portrait, body, class, attributes, appearance tokens, JSON round-trip, schema, editor model/panel, runtime screen, and tests.
 - Achievement registry with definitions, progress, unlock-condition tokens, save/load JSON, vendor-neutral trophy export payload, editor panel, and tests.
@@ -140,7 +141,7 @@ The roadmap remains WYSIWYG-first. Most previously listed future-feature slices 
 - deeper map lighting/weather/region/tile/tactical/spawn preview polish beyond the implemented saved combined preview contract, runtime presentation commands, overlay commands, diagnostics, schema, fixture, editor snapshot, and tests
 - deeper dialogue graph and message preview polish beyond the implemented portrait/localization/choice selection, choice command, variable-write, runtime-trace, saved-data, diagnostics, schema, fixture, and tests
 - deeper event-command graph polish beyond the implemented saved nodes/edges, editor mutation actions, conditional traversal, runtime trace, diagnostics, schema, fixture, and tests
-- ability sandboxing with visible costs, cooldowns, tags, and effects
+- deeper ability sandbox polish beyond the implemented live cost/cooldown/tag/effect edits, repeated runtime attempts, traces, saved data, diagnostics, schema, fixture, and tests
 - save/load preview lab for inspecting persisted runtime state
 - export preview that shows exactly what will ship
 - product-depth expansion of the new WYSIWYG gameplay/community systems beyond their first runtime/editor/saved-data/diagnostics/test slices

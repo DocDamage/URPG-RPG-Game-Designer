@@ -341,6 +341,7 @@ TEST_CASE("Ability sandbox shows costs, cooldowns, tags, effects, and runtime ac
     REQUIRE(panel.snapshot().ability_id == "skill.power_surge");
     REQUIRE(panel.snapshot().mp_cost == 15.0f);
     REQUIRE(panel.snapshot().cooldown_seconds == 5.0f);
+    REQUIRE(panel.snapshot().seconds_between_attempts == 0.0f);
     REQUIRE(panel.snapshot().mp_before == 40.0f);
     REQUIRE(panel.snapshot().mp_after == 25.0f);
     REQUIRE(panel.snapshot().cooldown_after == 5.0f);
@@ -352,11 +353,64 @@ TEST_CASE("Ability sandbox shows costs, cooldowns, tags, effects, and runtime ac
     REQUIRE(panel.snapshot().required_tag_count == 1);
     REQUIRE(panel.snapshot().blocking_tag_count == 1);
     REQUIRE(panel.snapshot().active_effect_count == 1);
+    REQUIRE(panel.snapshot().activation_attempt_count == 2);
+    REQUIRE(panel.snapshot().execution_history_count == 2);
+    REQUIRE(panel.snapshot().runtime_trace_count == 4);
     REQUIRE(panel.snapshot().diagnostic_count == 0);
     REQUIRE(panel.snapshot().activation_allowed);
     REQUIRE(panel.snapshot().activation_executed);
     REQUIRE(panel.snapshot().status_message == "Ability sandbox preview is ready.");
     REQUIRE_FALSE(panel.snapshot().saved_project_json.empty());
+
+    REQUIRE(panel.result().activation_steps[0].executed);
+    REQUIRE_FALSE(panel.result().activation_steps[1].executed);
+    REQUIRE(panel.result().activation_steps[1].blocking_reason == "cooldown_active");
+    REQUIRE(std::find(panel.result().runtime_trace.begin(), panel.result().runtime_trace.end(),
+                      "attempt:2:blocked:cooldown_active") != panel.result().runtime_trace.end());
+}
+
+TEST_CASE("Ability sandbox panel edits live costs, cooldowns, tags, and effects through runtime preview",
+          "[ability][sandbox][wysiwyg]") {
+    const auto json = loadAbilityJson(abilityRepoRoot() / "content" / "fixtures" / "ability_sandbox_fixture.json");
+    const auto document = AbilitySandboxDocument::fromJson(json);
+
+    AbilitySandboxPanel panel;
+    panel.loadDocument(document);
+    panel.setSourceMp(50.0f);
+    panel.setAbilityCost(10.0f);
+    panel.setAbilityCooldown(2.0f);
+    panel.setEffectValue(12.0f);
+    panel.setActivationAttempts(2, 2.0f);
+    panel.removeSourceTag("Class.Warrior");
+    panel.render();
+
+    REQUIRE_FALSE(panel.snapshot().activation_executed);
+    REQUIRE(panel.snapshot().blocking_reason == "missing_required_tags");
+    REQUIRE(panel.snapshot().source_tag_count == 1);
+    REQUIRE(panel.snapshot().mp_after == 50.0f);
+
+    panel.addSourceTag("Class.Warrior");
+    panel.render();
+
+    REQUIRE(panel.snapshot().activation_executed);
+    REQUIRE(panel.snapshot().activation_attempt_count == 2);
+    REQUIRE(panel.snapshot().execution_history_count == 2);
+    REQUIRE(panel.snapshot().mp_after == 30.0f);
+    REQUIRE(panel.snapshot().cooldown_after == 2.0f);
+    REQUIRE(panel.snapshot().effect_after == 34.0f);
+    REQUIRE(panel.result().activation_steps[0].effect_attribute_after == 22.0f);
+    REQUIRE(panel.result().activation_steps[1].executed);
+    REQUIRE(panel.result().activation_steps[1].cooldown_before == 0.0f);
+    REQUIRE(std::find(panel.result().runtime_trace.begin(), panel.result().runtime_trace.end(),
+                      "tick:2.000000") != panel.result().runtime_trace.end());
+
+    const auto saved = nlohmann::json::parse(panel.snapshot().saved_project_json);
+    REQUIRE(saved["source_mp"] == 50.0f);
+    REQUIRE(saved["ability"]["mp_cost"] == 10.0f);
+    REQUIRE(saved["ability"]["cooldown_seconds"] == 2.0f);
+    REQUIRE(saved["ability"]["effect_value"] == 12.0f);
+    REQUIRE(saved["activation_attempts"] == 2);
+    REQUIRE(saved["seconds_between_attempts"] == 2.0f);
 }
 
 TEST_CASE("Ability sandbox saved project data round-trips through schema surface",
@@ -370,12 +424,16 @@ TEST_CASE("Ability sandbox saved project data round-trips through schema surface
     REQUIRE(restored.id == document.id);
     REQUIRE(restored.ability.ability_id == "skill.power_surge");
     REQUIRE(restored.required_tags.size() == 1);
+    REQUIRE(restored.activation_attempts == 2);
+    REQUIRE(restored.seconds_between_attempts == 0.0f);
 
     const auto result = RunAbilitySandbox(restored);
     REQUIRE(result.diagnostics.empty());
     REQUIRE(result.activation_executed);
     REQUIRE(result.mp_after == 25.0f);
     REQUIRE(result.effect_attribute_after == 18.0f);
+    REQUIRE(result.activation_steps.size() == 2);
+    REQUIRE(result.activation_steps[1].blocking_reason == "cooldown_active");
 }
 
 TEST_CASE("Ability sandbox diagnostics and tag gates block false complete claims",
@@ -389,6 +447,8 @@ TEST_CASE("Ability sandbox diagnostics and tag gates block false complete claims
     document.ability.mp_cost = 10.0f;
     document.ability.effect_id = "";
     document.ability.effect_attribute = "";
+    document.activation_attempts = 0;
+    document.seconds_between_attempts = -1.0f;
     document.required_tags = {"Class.Mage"};
 
     AbilitySandboxPanel panel;
@@ -407,12 +467,16 @@ TEST_CASE("Ability sandbox diagnostics and tag gates block false complete claims
         });
     };
     REQUIRE(hasCode("invalid_cooldown"));
+    REQUIRE(hasCode("invalid_activation_attempts"));
+    REQUIRE(hasCode("invalid_attempt_interval"));
     REQUIRE(hasCode("missing_effect_id"));
     REQUIRE(hasCode("missing_effect_attribute"));
 
     document.ability.cooldown_seconds = 1.0f;
     document.ability.effect_id = "effect.blocked";
     document.ability.effect_attribute = "Attack";
+    document.activation_attempts = 1;
+    document.seconds_between_attempts = 0.0f;
     document.source_tags.clear();
     const auto result = RunAbilitySandbox(document);
     REQUIRE(result.diagnostics.empty());
