@@ -111,6 +111,13 @@ Expected: build succeeds, the dungeon3d suite passes, and `git diff --check` rep
 - [ ] **Step 2: Add missing editor actions and diagnostics where panels only snapshot data.**
 - [ ] **Step 3: Add tests tying editor preview state to runtime execution state.**
 
+Dialogue preview slice status:
+
+- [x] Saved dialogue preview choices now persist target pages, command hooks, and variable writes.
+- [x] Runtime preview now emits command traces for showing pages, speakers, portraits, text, choices, selected choices, confirmed choices, variable writes, choice commands, and next-page routing.
+- [x] Editor panel now exposes choice selection/confirmation actions and post-choice state snapshots.
+- [x] Focused tests tie saved fixture data, editor preview state, runtime command traces, diagnostics, and JSON round-trip behavior together.
+
 ### Task 5: Renderer, Accessibility, Audio, Performance, Platform, and Offline Tooling Lanes
 
 **Files:**

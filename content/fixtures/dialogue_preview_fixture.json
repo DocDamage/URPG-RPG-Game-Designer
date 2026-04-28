@@ -34,6 +34,11 @@
           "id": "accept",
           "label": "",
           "localization_key": "dialogue.guide.choice.accept",
+          "target_page_id": "accepted",
+          "command": "open_gate",
+          "variable_writes": {
+            "2": 1
+          },
           "enabled": true,
           "disabled_reason": ""
         },
@@ -41,10 +46,28 @@
           "id": "locked",
           "label": "",
           "localization_key": "dialogue.guide.choice.locked",
+          "target_page_id": "",
+          "command": "",
+          "variable_writes": {},
           "enabled": false,
           "disabled_reason": "Requires lantern."
         }
       ]
+    },
+    {
+      "id": "accepted",
+      "body": "The gate opens.",
+      "localization_key": "",
+      "variant": {
+        "mode": "system",
+        "tone": "system",
+        "speaker": "System",
+        "face_actor_id": 0,
+        "route_token": "system:system:system"
+      },
+      "default_choice_index": 0,
+      "wait_for_advance": true,
+      "choices": []
     }
   ]
 }

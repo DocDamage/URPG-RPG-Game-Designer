@@ -187,15 +187,45 @@ TEST_CASE("Dialogue preview resolves portraits, choices, variables, localization
     REQUIRE(panel.snapshot().enabled_choice_count == 1);
     REQUIRE(panel.snapshot().diagnostic_count == 0);
     REQUIRE(panel.snapshot().runtime_page_index == 0);
+    REQUIRE(panel.snapshot().runtime_command_count == 5);
     REQUIRE(panel.snapshot().status_message == "Dialogue preview is ready.");
 
     const auto& preview = panel.preview();
     REQUIRE(preview.flow_snapshot.state == urpg::message::MessageFlowState::AwaitingChoice);
     REQUIRE(preview.choices[0].label == "Light the gate");
+    REQUIRE(preview.choices[0].target_page_id == "accepted");
     REQUIRE(preview.choices[1].label == "Ask about the sealed path");
     REQUIRE_FALSE(preview.choices[1].enabled);
     REQUIRE(preview.layout_metrics.width > 0);
     REQUIRE_FALSE(panel.snapshot().saved_project_json.empty());
+}
+
+TEST_CASE("Dialogue preview confirms authored choice effects through runtime trace",
+          "[message][editor][dialogue_preview][wysiwyg]") {
+    const auto json = loadMessagePanelJson(
+        messagePanelRepoRoot() / "content" / "fixtures" / "dialogue_preview_fixture.json");
+    const auto document = urpg::message::DialoguePreviewDocument::fromJson(json);
+
+    urpg::editor::DialoguePreviewPanel panel;
+    panel.loadDocument(document, makeGuideLocale());
+    panel.selectPage("intro");
+    panel.selectChoice(0);
+    panel.confirmSelectedChoice(true);
+    panel.render();
+
+    REQUIRE(panel.snapshot().selected_choice_index == 0);
+    REQUIRE(panel.snapshot().confirmed_choice_id == "accept");
+    REQUIRE(panel.snapshot().next_page_id == "accepted");
+    REQUIRE(panel.snapshot().variable_after_choice_count == 2);
+    REQUIRE(panel.snapshot().variables_after_choice_json.find("\"2\":1") != std::string::npos);
+    REQUIRE(panel.preview().variables_after_choice.at(2) == 1);
+
+    const auto& commands = panel.preview().runtime_commands;
+    REQUIRE(std::find(commands.begin(), commands.end(), "select_choice:accept") != commands.end());
+    REQUIRE(std::find(commands.begin(), commands.end(), "confirm_choice:accept") != commands.end());
+    REQUIRE(std::find(commands.begin(), commands.end(), "set_variable:2=1") != commands.end());
+    REQUIRE(std::find(commands.begin(), commands.end(), "choice_command:open_gate") != commands.end());
+    REQUIRE(std::find(commands.begin(), commands.end(), "goto_page:accepted") != commands.end());
 }
 
 TEST_CASE("Dialogue preview saved project data round-trips through schema surface",
@@ -208,9 +238,11 @@ TEST_CASE("Dialogue preview saved project data round-trips through schema surfac
 
     REQUIRE(saved["schema"] == "urpg.dialogue_preview.v1");
     REQUIRE(restored.id == document.id);
-    REQUIRE(restored.pages.size() == 1);
+    REQUIRE(restored.pages.size() == 2);
     REQUIRE(restored.variables.at(1) == 7);
     REQUIRE(restored.actor_names.at(1) == "Mira");
+    REQUIRE(restored.pages.front().choices.front().target_page_id == "accepted");
+    REQUIRE(restored.pages.front().choices.front().variable_writes.at(2) == 1);
 
     const auto result = urpg::message::PreviewDialoguePage(restored, makeGuideLocale(), "intro");
     REQUIRE(result.diagnostics.empty());
@@ -229,7 +261,7 @@ TEST_CASE("Dialogue preview diagnostics block false complete claims",
         "dialogue.missing",
         urpg::message::variantFromCompatRoute("speaker", "", 4),
         {
-            {"", "", "dialogue.choice.missing", false, ""},
+            {"", "", "dialogue.choice.missing", "missing_target", "", {}, false, ""},
         },
         0,
         true,
@@ -256,4 +288,5 @@ TEST_CASE("Dialogue preview diagnostics block false complete claims",
     REQUIRE(hasCode("choice_unreachable"));
     REQUIRE(hasCode("missing_choice_id"));
     REQUIRE(hasCode("missing_choice_label"));
+    REQUIRE(hasCode("missing_choice_target"));
 }

@@ -16,6 +16,13 @@ Each governed schema entry should include:
 
 ## Entries
 
+### `dialogue_preview` (`dialogue_preview.schema.json`)
+
+- Version: `1.1.0`
+- Date: `2026-04-28`
+- Summary: adds choice target pages, choice command hooks, and choice variable writes for WYSIWYG dialogue preview/runtime trace parity
+- Migration Impact: additive optional fields; existing dialogue preview documents continue to load with empty choice targets, commands, and variable writes
+
 ### `template_certification` (`template_certification` report payload)
 
 - Version: `1.0.0`

@@ -54,6 +54,12 @@
         "id": { "type": "string", "minLength": 1 },
         "label": { "type": "string" },
         "localization_key": { "type": "string" },
+        "target_page_id": { "type": "string" },
+        "command": { "type": "string" },
+        "variable_writes": {
+          "type": "object",
+          "additionalProperties": { "type": "integer" }
+        },
         "enabled": { "type": "boolean" },
         "disabled_reason": { "type": "string" }
       }

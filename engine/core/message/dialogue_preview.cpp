@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <cctype>
+#include <iterator>
 #include <set>
 #include <utility>
 
@@ -139,6 +140,24 @@ DialoguePage toRuntimePage(const DialoguePreviewPage& page, const localization::
     return runtime;
 }
 
+const DialoguePreviewChoice* choiceAt(const DialoguePreviewPage& page, size_t index) {
+    if (index >= page.choices.size()) {
+        return nullptr;
+    }
+    return &page.choices[index];
+}
+
+std::string nextSequentialPageId(const DialoguePreviewDocument& document, const DialoguePreviewPage& page) {
+    const auto it = std::find_if(document.pages.begin(), document.pages.end(), [&page](const auto& candidate) {
+        return candidate.id == page.id;
+    });
+    if (it == document.pages.end()) {
+        return "";
+    }
+    const auto next = std::next(it);
+    return next == document.pages.end() ? "" : next->id;
+}
+
 } // namespace
 
 nlohmann::json DialoguePreviewDocument::toJson() const {
@@ -166,13 +185,20 @@ nlohmann::json DialoguePreviewDocument::toJson() const {
         page_json["wait_for_advance"] = page.wait_for_advance;
         page_json["choices"] = nlohmann::json::array();
         for (const auto& choice : page.choices) {
-            page_json["choices"].push_back({
+            nlohmann::json choice_json = {
                 {"id", choice.id},
                 {"label", choice.label},
                 {"localization_key", choice.localization_key},
+                {"target_page_id", choice.target_page_id},
+                {"command", choice.command},
                 {"enabled", choice.enabled},
                 {"disabled_reason", choice.disabled_reason},
-            });
+            };
+            choice_json["variable_writes"] = nlohmann::json::object();
+            for (const auto& [key, value] : choice.variable_writes) {
+                choice_json["variable_writes"][std::to_string(key)] = value;
+            }
+            page_json["choices"].push_back(std::move(choice_json));
         }
         if (const auto* binding = portraits.resolveBinding(page.variant.face_actor_id)) {
             page_json["portrait"] = {
@@ -198,9 +224,17 @@ std::vector<DialoguePreviewDiagnostic> DialoguePreviewDocument::validate(
 
     std::set<std::string> page_ids;
     for (const auto& page : pages) {
+        if (!page.id.empty()) {
+            page_ids.insert(page.id);
+        }
+    }
+
+    for (const auto& page : pages) {
         if (page.id.empty()) {
             diagnostics.push_back({"missing_page_id", "Dialogue preview page requires an id.", "", ""});
-        } else if (!page_ids.insert(page.id).second) {
+        } else if (static_cast<size_t>(std::count_if(pages.begin(), pages.end(), [&page](const auto& candidate) {
+                       return candidate.id == page.id;
+                   })) > 1) {
             diagnostics.push_back({"duplicate_page_id", "Dialogue preview page id must be unique.", page.id, page.id});
         }
         if (page.localization_key.empty() && page.body.empty()) {
@@ -246,6 +280,10 @@ std::vector<DialoguePreviewDiagnostic> DialoguePreviewDocument::validate(
                                            page.id, choice.id});
                 }
             }
+            if (!choice.target_page_id.empty() && !page_ids.contains(choice.target_page_id)) {
+                diagnostics.push_back({"missing_choice_target", "Dialogue preview choice targets a missing page.",
+                                       page.id, choice.target_page_id});
+            }
         }
     }
     return diagnostics;
@@ -290,9 +328,18 @@ DialoguePreviewDocument DialoguePreviewDocument::fromJson(const nlohmann::json& 
                 choice_json.value("id", ""),
                 choice_json.value("label", ""),
                 choice_json.value("localization_key", ""),
+                choice_json.value("target_page_id", ""),
+                choice_json.value("command", ""),
+                {},
                 choice_json.value("enabled", true),
                 choice_json.value("disabled_reason", ""),
             });
+            if (const auto writes = choice_json.find("variable_writes");
+                writes != choice_json.end() && writes->is_object()) {
+                for (const auto& [key, value] : writes->items()) {
+                    page.choices.back().variable_writes[std::stoi(key)] = value.get<int32_t>();
+                }
+            }
         }
         if (const auto portrait = page_json.find("portrait"); portrait != page_json.end() && portrait->is_object()) {
             document.portraits.registerBinding(page.variant.face_actor_id,
@@ -308,9 +355,17 @@ DialoguePreviewDocument DialoguePreviewDocument::fromJson(const nlohmann::json& 
 DialoguePreviewResult PreviewDialoguePage(const DialoguePreviewDocument& document,
                                           const localization::LocaleCatalog& locale_catalog,
                                           const std::string& page_id) {
+    return PreviewDialoguePage(document, locale_catalog, page_id, {});
+}
+
+DialoguePreviewResult PreviewDialoguePage(const DialoguePreviewDocument& document,
+                                          const localization::LocaleCatalog& locale_catalog,
+                                          const std::string& page_id,
+                                          const DialoguePreviewInteraction& interaction) {
     DialoguePreviewResult result;
     result.locale = locale_catalog.getLocaleCode().empty() ? document.locale : locale_catalog.getLocaleCode();
     result.diagnostics = document.validate(locale_catalog);
+    result.variables_after_choice = document.variables;
 
     const auto* page = findPage(document, page_id);
     if (page == nullptr) {
@@ -343,11 +398,18 @@ DialoguePreviewResult PreviewDialoguePage(const DialoguePreviewDocument& documen
     }
 
     MessageFlowRunner runner;
+    runner.setCommandExecutor([&result](const std::string& command) {
+        result.runtime_commands.push_back("page_command:" + command);
+    });
     runner.begin(runtime_pages);
     const auto selected_index = static_cast<size_t>(std::distance(
         document.pages.data(), page));
     if (selected_index < runtime_pages.size()) {
         runner.restore({selected_index, MessageFlowState::Presenting, static_cast<size_t>(page->default_choice_index)});
+    }
+    result.runtime_commands.push_back("show_page:" + page->id);
+    if (!page->variant.speaker.empty()) {
+        result.runtime_commands.push_back("show_speaker:" + page->variant.speaker);
     }
     runner.markPagePresented();
 
@@ -356,17 +418,68 @@ DialoguePreviewResult PreviewDialoguePage(const DialoguePreviewDocument& documen
     result.body = layout_engine.resolveEscapes(resolveLocalizedText(locale_catalog, page->localization_key, page->body));
     if (const auto* binding = document.portraits.resolveBinding(page->variant.face_actor_id)) {
         result.portrait = *binding;
+        result.runtime_commands.push_back("show_portrait:" + binding->face_name + ":" +
+                                          std::to_string(binding->face_index));
     }
+    result.runtime_commands.push_back("show_text:" + result.body);
     const auto layout = layout_engine.layout(result.body);
     result.layout_metrics = layout.metrics;
-    result.flow_snapshot = runner.snapshot();
 
     const auto* runtime_page = runner.currentPage();
     if (runtime_page != nullptr) {
         for (const auto& choice : runtime_page->choices) {
-            result.choices.push_back({choice.id, choice.label, choice.enabled, choice.disabled_reason});
+            const auto choice_index = result.choices.size();
+            const auto* authored_choice = choiceAt(*page, choice_index);
+            result.choices.push_back({choice.id,
+                                      choice.label,
+                                      authored_choice == nullptr ? "" : authored_choice->target_page_id,
+                                      choice.enabled,
+                                      choice.disabled_reason});
         }
     }
+    if (!result.choices.empty()) {
+        result.runtime_commands.push_back("show_choices:" + std::to_string(result.choices.size()));
+    }
+
+    if (interaction.selected_choice_index.has_value() && runtime_page != nullptr && !result.choices.empty()) {
+        const size_t requested = std::min(*interaction.selected_choice_index, result.choices.size() - 1);
+        const bool restored = runner.restore({selected_index, MessageFlowState::AwaitingChoice, requested});
+        if (restored) {
+            result.selected_choice_index = runner.snapshot().selected_choice_index;
+            if (result.selected_choice_index.has_value() && *result.selected_choice_index < result.choices.size()) {
+                const auto& selected = result.choices[*result.selected_choice_index];
+                result.runtime_commands.push_back("select_choice:" + selected.id);
+                if (interaction.confirm_selected_choice) {
+                    if (const auto confirmed = runner.confirmChoice(); confirmed.has_value()) {
+                        result.confirmed_choice_id = *confirmed;
+                        result.runtime_commands.push_back("confirm_choice:" + *confirmed);
+                        const auto* authored_choice = choiceAt(*page, *result.selected_choice_index);
+                        if (authored_choice != nullptr) {
+                            for (const auto& [variable_id, value] : authored_choice->variable_writes) {
+                                result.variables_after_choice[variable_id] = value;
+                                result.runtime_commands.push_back("set_variable:" + std::to_string(variable_id) + "=" +
+                                                                  std::to_string(value));
+                            }
+                            if (!authored_choice->command.empty()) {
+                                result.runtime_commands.push_back("choice_command:" + authored_choice->command);
+                            }
+                            result.next_page_id = authored_choice->target_page_id.empty()
+                                                      ? nextSequentialPageId(document, *page)
+                                                      : authored_choice->target_page_id;
+                        }
+                        if (!result.next_page_id.empty()) {
+                            result.runtime_commands.push_back("goto_page:" + result.next_page_id);
+                        }
+                    }
+                }
+            }
+        } else {
+            result.diagnostics.push_back({"choice_not_selectable", "Requested dialogue preview choice is disabled.",
+                                          page->id, std::to_string(requested)});
+        }
+    }
+
+    result.flow_snapshot = runner.snapshot();
     return result;
 }
 

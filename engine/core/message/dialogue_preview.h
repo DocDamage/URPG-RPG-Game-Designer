@@ -16,6 +16,9 @@ struct DialoguePreviewChoice {
     std::string id;
     std::string label;
     std::string localization_key;
+    std::string target_page_id;
+    std::string command;
+    std::map<int32_t, int32_t> variable_writes;
     bool enabled = true;
     std::string disabled_reason;
 };
@@ -55,8 +58,14 @@ struct DialoguePreviewDocument {
 struct DialoguePreviewResolvedChoice {
     std::string id;
     std::string label;
+    std::string target_page_id;
     bool enabled = true;
     std::string disabled_reason;
+};
+
+struct DialoguePreviewInteraction {
+    std::optional<size_t> selected_choice_index;
+    bool confirm_selected_choice = false;
 };
 
 struct DialoguePreviewResult {
@@ -69,10 +78,19 @@ struct DialoguePreviewResult {
     RichTextLayoutMetrics layout_metrics;
     MessageFlowSnapshot flow_snapshot;
     std::vector<DialoguePreviewDiagnostic> diagnostics;
+    std::vector<std::string> runtime_commands;
+    std::map<int32_t, int32_t> variables_after_choice;
+    std::optional<size_t> selected_choice_index;
+    std::string confirmed_choice_id;
+    std::string next_page_id;
 };
 
 DialoguePreviewResult PreviewDialoguePage(const DialoguePreviewDocument& document,
                                           const localization::LocaleCatalog& locale_catalog,
                                           const std::string& page_id);
+DialoguePreviewResult PreviewDialoguePage(const DialoguePreviewDocument& document,
+                                          const localization::LocaleCatalog& locale_catalog,
+                                          const std::string& page_id,
+                                          const DialoguePreviewInteraction& interaction);
 
 } // namespace urpg::message
