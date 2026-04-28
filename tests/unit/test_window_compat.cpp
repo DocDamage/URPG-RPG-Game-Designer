@@ -671,6 +671,7 @@ TEST_CASE("Window_Base contents management", "[compat][window]") {
     REQUIRE(window.getContentsBitmapInfo()->handle == window.contents());
     REQUIRE(window.getContentsBitmapInfo()->width == 176);
     REQUIRE(window.getContentsBitmapInfo()->height == 76);
+    REQUIRE(window.getContentsBitmapInfo()->pixels.size() == 176 * 76);
 
     window.destroyContents();
     REQUIRE(window.contents() == INVALID_BITMAP);
@@ -713,8 +714,10 @@ TEST_CASE("Window_Base contents handles are unique per allocation", "[compat][wi
     REQUIRE(second.getContentsBitmapInfo().has_value());
     REQUIRE(first.getContentsBitmapInfo()->width == 176);
     REQUIRE(first.getContentsBitmapInfo()->height == 76);
+    REQUIRE(first.getContentsBitmapInfo()->pixels.size() == 176 * 76);
     REQUIRE(second.getContentsBitmapInfo()->width == 136);
     REQUIRE(second.getContentsBitmapInfo()->height == 66);
+    REQUIRE(second.getContentsBitmapInfo()->pixels.size() == 136 * 66);
 }
 
 TEST_CASE("Window_Base contents bitmap dimensions stay in sync with rect and padding", "[compat][window]") {
@@ -731,11 +734,13 @@ TEST_CASE("Window_Base contents bitmap dimensions stay in sync with rect and pad
     REQUIRE(window.getContentsBitmapInfo().has_value());
     REQUIRE(window.getContentsBitmapInfo()->width == 156);
     REQUIRE(window.getContentsBitmapInfo()->height == 116);
+    REQUIRE(window.getContentsBitmapInfo()->pixels.size() == 156 * 116);
 
     window.setPadding(20);
     REQUIRE(window.getContentsBitmapInfo().has_value());
     REQUIRE(window.getContentsBitmapInfo()->width == 140);
     REQUIRE(window.getContentsBitmapInfo()->height == 100);
+    REQUIRE(window.getContentsBitmapInfo()->pixels.size() == 140 * 100);
 }
 
 TEST_CASE("Window_Base drawTextEx processes escape codes", "[compat][window]") {
@@ -856,16 +861,14 @@ TEST_CASE("Window_Base getMethodStatus for extended methods", "[compat][window]"
     REQUIRE(Window_Base::getMethodStatus("textWidth") == CompatStatus::FULL);
     REQUIRE(Window_Base::getMethodStatus("textSize") == CompatStatus::FULL);
     REQUIRE(Window_Base::getMethodStatus("systemColor") == CompatStatus::FULL);
-    REQUIRE(Window_Base::getMethodStatus("contents") == CompatStatus::PARTIAL);
-    REQUIRE(Window_Base::getMethodStatus("createContents") == CompatStatus::PARTIAL);
-    REQUIRE(Window_Base::getMethodStatus("destroyContents") == CompatStatus::PARTIAL);
-    REQUIRE(Window_Base::getMethodStatus("update") == CompatStatus::PARTIAL);
-    REQUIRE(Window_Base::getMethodDeviation("contents").find("no backing pixel buffer exists") != std::string::npos);
-    REQUIRE(Window_Base::getMethodDeviation("createContents").find("no backing pixel buffer exists") !=
-            std::string::npos);
-    REQUIRE(Window_Base::getMethodDeviation("destroyContents").find("no backing pixel buffer exists") !=
-            std::string::npos);
-    REQUIRE(Window_Base::getMethodDeviation("update").find("multi-touch") != std::string::npos);
+    REQUIRE(Window_Base::getMethodStatus("contents") == CompatStatus::FULL);
+    REQUIRE(Window_Base::getMethodStatus("createContents") == CompatStatus::FULL);
+    REQUIRE(Window_Base::getMethodStatus("destroyContents") == CompatStatus::FULL);
+    REQUIRE(Window_Base::getMethodStatus("update") == CompatStatus::FULL);
+    REQUIRE(Window_Base::getMethodDeviation("contents").empty());
+    REQUIRE(Window_Base::getMethodDeviation("createContents").empty());
+    REQUIRE(Window_Base::getMethodDeviation("destroyContents").empty());
+    REQUIRE(Window_Base::getMethodDeviation("update").empty());
     REQUIRE(Window_Base::getMethodStatus("nonexistentMethod") == CompatStatus::UNSUPPORTED);
 }
 

@@ -213,7 +213,7 @@ This plan converts the game/app completion audit into ordered implementation wor
 
 - Task ID: `P2-04`
 - Title: Audit and close QuickJS/WindowCompat public stubs
-- Status: `IN PROGRESS` as of 2026-04-27. `Window_Base` release-required draw/status helpers have been reconciled to implemented `FULL` coverage, and DataManager JS-facing troop, state, and global-state value projections now expose loaded runtime data instead of empty/partial snapshots. Broader non-release `PARTIAL` compat surfaces remain explicitly scoped rather than silently no-op.
+- Status: `IN PROGRESS` as of 2026-04-28. `Window_Base`, DataManager, InputManager, AudioManager, PluginManager, and BattleManager public compat registries now report implemented `FULL` coverage where the backing behavior exists. DataManager JS-facing troop, state, and global-state value projections expose loaded runtime data; Window contents records now include backing pixel storage; AudioManager routes through bound `AudioCore`; PluginManager live/fixture command flow is covered; and BattleManager setup, event, reward, audio-cue, and formula item/skill paths have focused coverage. The current runtime scan has no `CompatStatus::PARTIAL` or `Status: PARTIAL` hits under `runtimes/compat_js`.
 - Files to edit: `runtimes/compat_js/window_compat.*`, `runtimes/compat_js/quickjs_runtime.cpp`
 - Files to inspect: `tests/compat/*`, `docs/PROGRAM_COMPLETION_STATUS.md`
 - Dependencies: None

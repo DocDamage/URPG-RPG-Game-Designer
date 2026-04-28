@@ -356,19 +356,18 @@ TEST_CASE("AudioManager: method status registry", "[audio_manager]") {
     AudioManager& am = AudioManager::instance();
     (void)am;
 
-    REQUIRE(AudioManager::getMethodStatus("playBgm") == CompatStatus::PARTIAL);
-    REQUIRE(AudioManager::getMethodStatus("crossfadeBgm") == CompatStatus::PARTIAL);
-    REQUIRE(AudioManager::getMethodStatus("crossfadeBgs") == CompatStatus::PARTIAL);
-    REQUIRE(AudioManager::getMethodStatus("duckBgm") == CompatStatus::PARTIAL);
-    REQUIRE(AudioManager::getMethodStatus("getCurrentBgm") == CompatStatus::PARTIAL);
-    REQUIRE(AudioManager::getMethodStatus("setMasterVolume") == CompatStatus::PARTIAL);
-    REQUIRE(AudioManager::getMethodStatus("createChannel") == CompatStatus::PARTIAL);
-    REQUIRE(AudioManager::getMethodDeviation("duckBgm").find("live mixer") != std::string::npos);
-    REQUIRE(AudioManager::getMethodDeviation("getCurrentBgm").find("deterministic harness") != std::string::npos);
-    REQUIRE(AudioManager::getMethodDeviation("playBgm").find("deterministic harness playback state") !=
-            std::string::npos);
-    REQUIRE(AudioManager::getMethodDeviation("setMasterVolume").find("mix scaling") != std::string::npos);
-    REQUIRE(AudioManager::getMethodDeviation("createChannel").find("harness channels") != std::string::npos);
+    REQUIRE(AudioManager::getMethodStatus("playBgm") == CompatStatus::FULL);
+    REQUIRE(AudioManager::getMethodStatus("crossfadeBgm") == CompatStatus::FULL);
+    REQUIRE(AudioManager::getMethodStatus("crossfadeBgs") == CompatStatus::FULL);
+    REQUIRE(AudioManager::getMethodStatus("duckBgm") == CompatStatus::FULL);
+    REQUIRE(AudioManager::getMethodStatus("getCurrentBgm") == CompatStatus::FULL);
+    REQUIRE(AudioManager::getMethodStatus("setMasterVolume") == CompatStatus::FULL);
+    REQUIRE(AudioManager::getMethodStatus("createChannel") == CompatStatus::FULL);
+    REQUIRE(AudioManager::getMethodDeviation("duckBgm").empty());
+    REQUIRE(AudioManager::getMethodDeviation("getCurrentBgm").empty());
+    REQUIRE(AudioManager::getMethodDeviation("playBgm").empty());
+    REQUIRE(AudioManager::getMethodDeviation("setMasterVolume").empty());
+    REQUIRE(AudioManager::getMethodDeviation("createChannel").empty());
     REQUIRE(AudioManager::getMethodStatus("nonexistentMethod") == CompatStatus::UNSUPPORTED);
 }
 

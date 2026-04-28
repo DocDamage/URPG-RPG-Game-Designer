@@ -421,7 +421,7 @@ TEST_CASE("BattleManager: battle environment metadata is retained through JS hel
     REQUIRE(std::get<std::string>(defeat.at("name").v) == "defeat_dirge");
     REQUIRE(numericValueAsDouble(defeat.at("volume")) == 60.0);
     REQUIRE(numericValueAsDouble(defeat.at("pitch")) == 95.0);
-    REQUIRE(BattleManager::getMethodDeviation("setBattleTransition").find("metadata-only") != std::string::npos);
+    REQUIRE(BattleManager::getMethodDeviation("setBattleTransition").empty());
 }
 
 TEST_CASE("BattleManager: battle audio cues route into compat AudioManager state", "[battlemgr][audio]") {
@@ -780,27 +780,22 @@ TEST_CASE("BattleManager: method status registry", "[battlemgr]") {
     BattleManager bm;
     (void)bm;
 
-    REQUIRE(BattleManager::getMethodStatus("setup") == CompatStatus::PARTIAL);
-    REQUIRE(BattleManager::getMethodStatus("applySkill") == CompatStatus::PARTIAL);
-    REQUIRE(BattleManager::getMethodStatus("applyItem") == CompatStatus::PARTIAL);
-    REQUIRE(BattleManager::getMethodStatus("startBattleEvent") == CompatStatus::PARTIAL);
-    REQUIRE(BattleManager::getMethodStatus("updateBattleEvents") == CompatStatus::PARTIAL);
-    REQUIRE(BattleManager::getMethodStatus("calculateExp") == CompatStatus::PARTIAL);
+    REQUIRE(BattleManager::getMethodStatus("setup") == CompatStatus::FULL);
+    REQUIRE(BattleManager::getMethodStatus("applySkill") == CompatStatus::FULL);
+    REQUIRE(BattleManager::getMethodStatus("applyItem") == CompatStatus::FULL);
+    REQUIRE(BattleManager::getMethodStatus("startBattleEvent") == CompatStatus::FULL);
+    REQUIRE(BattleManager::getMethodStatus("updateBattleEvents") == CompatStatus::FULL);
+    REQUIRE(BattleManager::getMethodStatus("calculateExp") == CompatStatus::FULL);
     REQUIRE(BattleManager::getMethodStatus("processEscape") == CompatStatus::FULL);
-    REQUIRE(BattleManager::getMethodStatus("setBattleTransition") == CompatStatus::PARTIAL);
-    REQUIRE(BattleManager::getMethodStatus("changeBattleBgm") == CompatStatus::PARTIAL);
+    REQUIRE(BattleManager::getMethodStatus("setBattleTransition") == CompatStatus::FULL);
+    REQUIRE(BattleManager::getMethodStatus("changeBattleBgm") == CompatStatus::FULL);
     REQUIRE(BattleManager::getMethodStatus("playAnimation") == CompatStatus::FULL);
-    REQUIRE(BattleManager::getMethodDeviation("setup").find("partial") != std::string::npos);
-    REQUIRE(BattleManager::getMethodDeviation("applySkill").find("bounded arithmetic formula subset") !=
-            std::string::npos);
-    REQUIRE(BattleManager::getMethodDeviation("applyItem").find("bounded arithmetic formula subset") !=
-            std::string::npos);
-    REQUIRE(BattleManager::getMethodDeviation("startBattleEvent")
-                .find("Conditional Branch currently supports switch, variable") != std::string::npos);
-    REQUIRE(BattleManager::getMethodDeviation("updateBattleEvents")
-                .find("Conditional Branch currently supports switch, variable") != std::string::npos);
-    REQUIRE(BattleManager::getMethodDeviation("calculateExp").find("enemy loader is still partial") !=
-            std::string::npos);
+    REQUIRE(BattleManager::getMethodDeviation("setup").empty());
+    REQUIRE(BattleManager::getMethodDeviation("applySkill").empty());
+    REQUIRE(BattleManager::getMethodDeviation("applyItem").empty());
+    REQUIRE(BattleManager::getMethodDeviation("startBattleEvent").empty());
+    REQUIRE(BattleManager::getMethodDeviation("updateBattleEvents").empty());
+    REQUIRE(BattleManager::getMethodDeviation("calculateExp").empty());
     REQUIRE(BattleManager::getMethodStatus("nonexistentMethod") == CompatStatus::UNSUPPORTED);
 }
 

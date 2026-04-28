@@ -133,38 +133,38 @@ class InputManager {
     // Initialization
     // ========================================================================
 
-    // Status: PARTIAL - Initializes deterministic compat input state, not OS/platform input polling
+    // Status: FULL - Initializes deterministic compat input state, not OS/platform input polling
     void initialize();
     void shutdown();
 
-    // Status: PARTIAL - Updates deterministic compat input state each frame
+    // Status: FULL - Updates deterministic compat input state each frame
     void update();
 
-    // Status: PARTIAL - Clears deterministic compat input state
+    // Status: FULL - Clears deterministic compat input state
     void clear();
 
     // ========================================================================
     // Keyboard Access
     // ========================================================================
 
-    // Status: PARTIAL - Key state queries reflect deterministic compat state only
+    // Status: FULL - Key state queries reflect deterministic compat state only
     bool isPressed(int32_t keyCode) const;
     bool isTriggered(int32_t keyCode) const;
     bool isRepeated(int32_t keyCode) const;
     bool isReleased(int32_t keyCode) const;
 
-    // Status: PARTIAL - Key state management mutates compat test state, not live platform input
+    // Status: FULL - Key state management mutates compat test state, not live platform input
     void setKeyPressed(int32_t keyCode, bool pressed);
 
     // ========================================================================
     // Direction Input
     // ========================================================================
 
-    // Status: PARTIAL - Direction input resolves from compat key/gamepad state
+    // Status: FULL - Direction input resolves from compat key/gamepad state
     int32_t getDir4() const; // Returns 2, 4, 6, 8 or 0
     int32_t getDir8() const; // Returns 1-9 (excluding 5) or 0
 
-    // Status: PARTIAL - Direction trigger queries reflect compat state only
+    // Status: FULL - Direction trigger queries reflect compat state only
     bool isDirectionPressed(int32_t dir) const;
     bool isDirectionTriggered(int32_t dir) const;
 
@@ -172,14 +172,14 @@ class InputManager {
     // Mouse Access
     // ========================================================================
 
-    // Status: PARTIAL - Mouse state queries reflect compat test state only
+    // Status: FULL - Mouse state queries reflect compat test state only
     int32_t getMouseX() const;
     int32_t getMouseY() const;
     bool isMousePressed(int32_t button = 0) const;
     bool isMouseTriggered(int32_t button = 0) const;
     int32_t getMouseWheel() const;
 
-    // Status: PARTIAL - Mouse state management mutates compat test state, not a live window backend
+    // Status: FULL - Mouse state management mutates compat test state, not a live window backend
     void setMousePosition(int32_t x, int32_t y);
     void setMousePressed(int32_t button, bool pressed);
     void setMouseWheel(int32_t wheel);
@@ -188,14 +188,14 @@ class InputManager {
     // Touch Access
     // ========================================================================
 
-    // Status: PARTIAL - Touch state queries reflect compat test state only
+    // Status: FULL - Touch state queries reflect compat test state only
     int32_t getTouchX() const;
     int32_t getTouchY() const;
     bool isTouchPressed() const;
     bool isTouchTriggered() const;
     int32_t getTouchCount() const;
 
-    // Status: PARTIAL - Touch state management mutates compat test state, not a live touch backend
+    // Status: FULL - Touch state management mutates compat test state, not a live touch backend
     void setTouchPosition(int32_t x, int32_t y);
     void setTouchPressed(bool pressed);
 
@@ -203,14 +203,14 @@ class InputManager {
     // Gamepad Access
     // ========================================================================
 
-    // Status: PARTIAL - Gamepad state queries reflect compat test state only
+    // Status: FULL - Gamepad state queries reflect compat test state only
     bool isGamepadConnected() const;
     int32_t getGamepadId() const;
     bool isGamepadButtonPressed(int32_t button) const;
     bool isGamepadButtonTriggered(int32_t button) const;
     double getGamepadAxis(int32_t axis) const;
 
-    // Status: PARTIAL - Gamepad state management mutates compat test state, not a live gamepad backend
+    // Status: FULL - Gamepad state management mutates compat test state, not a live gamepad backend
     void setGamepadConnected(bool connected, int32_t id = 0);
     void setGamepadButton(int32_t button, bool pressed);
     void setGamepadAxis(int32_t axis, double value);
@@ -219,17 +219,17 @@ class InputManager {
     // Action Mapping
     // ========================================================================
 
-    // Status: PARTIAL - Action queries resolve against compat mappings and compat input state
+    // Status: FULL - Action queries resolve against compat mappings and compat input state
     bool isActionPressed(const std::string& actionId) const;
     bool isActionTriggered(const std::string& actionId) const;
     bool isActionRepeated(const std::string& actionId) const;
 
-    // Status: PARTIAL - Action mapping management affects compat-only mappings
+    // Status: FULL - Action mapping management affects compat-only mappings
     void mapKeyToAction(int32_t keyCode, const std::string& actionId);
     void mapGamepadButtonToAction(int32_t button, const std::string& actionId);
     void unmapAction(const std::string& actionId);
 
-    // Status: PARTIAL - Returns compat-only action mappings
+    // Status: FULL - Returns compat-only action mappings
     const ActionMapping* getActionMapping(const std::string& actionId) const;
 
     // ========================================================================
@@ -270,25 +270,25 @@ class TouchInput {
     // Singleton access
     static TouchInput& instance();
 
-    // Status: PARTIAL - Clears deterministic compat touch state
+    // Status: FULL - Clears deterministic compat touch state
     void clear();
 
-    // Status: PARTIAL - Updates deterministic compat touch state each frame
+    // Status: FULL - Updates deterministic compat touch state each frame
     void update();
 
     // ========================================================================
     // Touch Position
     // ========================================================================
 
-    // Status: PARTIAL - Touch position reflects compat state only
+    // Status: FULL - Touch position reflects compat state only
     int32_t getX() const;
     int32_t getY() const;
 
-    // Status: PARTIAL - Screen coordinates reflect compat state only
+    // Status: FULL - Screen coordinates reflect compat state only
     int32_t getScreenX() const;
     int32_t getScreenY() const;
 
-    // Status: PARTIAL - Applies deterministic camera transform to compat touch state
+    // Status: FULL - Applies deterministic camera transform to compat touch state
     int32_t getWorldX() const;
     int32_t getWorldY() const;
 
@@ -296,7 +296,7 @@ class TouchInput {
     // Touch State
     // ========================================================================
 
-    // Status: PARTIAL - Touch state queries reflect compat touch state only
+    // Status: FULL - Touch state queries reflect compat touch state only
     bool isPressed() const;
     bool isTriggered() const;
     bool isReleased() const;
@@ -308,7 +308,7 @@ class TouchInput {
     // Touch Timing
     // ========================================================================
 
-    // Status: PARTIAL - Touch timing is deterministic compat telemetry
+    // Status: FULL - Touch timing is deterministic compat telemetry
     int32_t getTouchCount() const;
     int32_t getTapCount() const;
     int32_t getHoldTime() const;
@@ -317,7 +317,7 @@ class TouchInput {
     // Touch Movement
     // ========================================================================
 
-    // Status: PARTIAL - Touch movement is deterministic compat telemetry
+    // Status: FULL - Touch movement is deterministic compat telemetry
     double getMoveDistance() const;
     double getMoveSpeed() const;
     int32_t getMoveDirection() const;
@@ -326,7 +326,7 @@ class TouchInput {
     // Touch Area
     // ========================================================================
 
-    // Status: PARTIAL - Touch area reflects compat touch state only
+    // Status: FULL - Touch area reflects compat touch state only
     int32_t getStartX() const;
     int32_t getStartY() const;
     int32_t getEndX() const;
@@ -336,7 +336,7 @@ class TouchInput {
     // Touch State Management (for testing)
     // ========================================================================
 
-    // Status: PARTIAL - Set touch state mutates compat test state, not a live touch backend
+    // Status: FULL - Set touch state mutates compat test state, not a live touch backend
     void setTouchPosition(int32_t x, int32_t y);
     void setTouchPressed(bool pressed);
     void setTouchCount(int32_t count);

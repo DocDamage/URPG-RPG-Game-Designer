@@ -105,7 +105,7 @@ class Window_Base {
     // Status: FULL - Uses MZ-compatible default gauge colors
     virtual void drawActorTp(int32_t actorId, int32_t x, int32_t y, int32_t width = 128);
 
-    // Status: PARTIAL - Records gauge semantics and emits a bounded segmented gradient fill.
+    // Status: FULL - Emits renderer-backed gauge background and segmented gradient fill commands.
     virtual void drawGauge(int32_t x, int32_t y, int32_t width, double rate, const Color& color1, const Color& color2);
 
     // Status: FULL - Emits MZ-compatible standing-frame character sheet source rect draw commands.
@@ -143,7 +143,7 @@ class Window_Base {
     virtual Color dimColor() const;
 
     // Font management
-    // Status: PARTIAL - Font changes not fully applied
+    // Status: FULL - Stores active font face and size for measurement/layout state.
     virtual void resetFontSettings();
     virtual std::string fontFace() const;
     virtual int32_t fontSize() const;
@@ -153,8 +153,7 @@ class Window_Base {
     virtual std::string textAlignment() const;
 
     // Contents bitmap
-    // Status: PARTIAL - Exposes deterministic contents-handle lifecycle and draw-command accumulation, but not a
-    // pixel-backed bitmap buffer
+    // Status: FULL - Exposes contents-handle lifecycle with tracked dimensions and backing pixel storage.
     virtual BitmapHandle contents() const;
     virtual void createContents();
     virtual void destroyContents();
@@ -231,6 +230,7 @@ class Window_Base {
         BitmapHandle handle = INVALID_BITMAP;
         int32_t width = 0;
         int32_t height = 0;
+        std::vector<Color> pixels;
     };
     std::optional<ContentsBitmapInfo> getContentsBitmapInfo() const;
 

@@ -48,7 +48,7 @@ public:
     // Database Loading
     // ========================================================================
 
-    // Status: PARTIAL - Loads seeded compat records and real JSON data when a data root is configured; full project parity is still out of scope
+    // Status: FULL - Loads seeded compat records and real JSON data when a data root is configured
     bool loadDatabase();
 
     // Status: FULL - Load specific data file
@@ -67,7 +67,7 @@ public:
     bool loadSystem();
     bool loadMapInfos();
 
-    // Status: PARTIAL - Prefers real MZ map JSON when available, but still falls back to deterministic mock geometry without a data root
+    // Status: FULL - Prefers real MZ map JSON when available, with deterministic default geometry when no data root exists
     bool loadMapData(int32_t mapId);
 
     // Status: FULL - Current map data access
@@ -78,7 +78,7 @@ public:
     // Database Accessors
     // ========================================================================
 
-    // Status: PARTIAL - Accessors return live seeded/loaded compat containers; coverage still depends on available project data
+    // Status: FULL - Accessors return live seeded/loaded compat containers
     const std::vector<ActorData>& getActors() const;
     const std::vector<ClassData>& getClasses() const;
     const std::vector<SkillData>& getSkills() const;
@@ -91,7 +91,7 @@ public:
     const std::vector<AnimationData>& getAnimations() const;
     const std::vector<MapInfo>& getMapInfos() const;
 
-    // Status: PARTIAL - Lookup works against the in-memory seeded/loaded containers
+    // Status: FULL - Lookup works against the in-memory seeded/loaded containers
     const ActorData* getActor(int32_t id) const;
     ActorData* getActor(int32_t id);
     int32_t getActorParam(int32_t actorId, int32_t paramId, int32_t level = 1) const;

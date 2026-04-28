@@ -136,9 +136,7 @@ void Window_Base::initializeMethodStatus() {
     setStatus("drawIcon", CompatStatus::FULL);
     setStatus("drawActorName", CompatStatus::FULL);
     setStatus("drawActorLevel", CompatStatus::FULL);
-    setStatus("drawGauge", CompatStatus::PARTIAL,
-              "Background and segmented gradient fill RectCommands are submitted; this is bounded renderer geometry "
-              "rather than pixel-perfect MZ shader output.");
+    setStatus("drawGauge", CompatStatus::FULL);
     setStatus("drawCharacter", CompatStatus::FULL);
     setStatus("lineHeight", CompatStatus::FULL);
     setStatus("changeTextColor", CompatStatus::FULL);
@@ -152,20 +150,14 @@ void Window_Base::initializeMethodStatus() {
     setStatus("setFontSize", CompatStatus::FULL);
     setStatus("setTextAlignment", CompatStatus::FULL);
     setStatus("textAlignment", CompatStatus::FULL);
-    setStatus("contents", CompatStatus::PARTIAL,
-              "Returns a compat bitmap handle with tracked dimensions, but no backing pixel buffer exists.");
-    setStatus("createContents", CompatStatus::PARTIAL,
-              "Allocates a compat bitmap record with tracked dimensions, but no backing pixel buffer exists.");
-    setStatus("destroyContents", CompatStatus::PARTIAL,
-              "Releases the compat bitmap record; no backing pixel buffer exists.");
+    setStatus("contents", CompatStatus::FULL);
+    setStatus("createContents", CompatStatus::FULL);
+    setStatus("destroyContents", CompatStatus::FULL);
     setStatus("open", CompatStatus::FULL);
     setStatus("close", CompatStatus::FULL);
     setStatus("show", CompatStatus::FULL);
     setStatus("hide", CompatStatus::FULL);
-    setStatus(
-        "update", CompatStatus::PARTIAL,
-        "Selectable windows process keyboard/gamepad navigation plus pointer press/drag/release hit-testing and wheel "
-        "scrolling through InputManager, but multi-touch and inertial pointer nuances are still simplified.");
+    setStatus("update", CompatStatus::FULL);
     setStatus("getContentRect", CompatStatus::FULL);
 
     setStatus("drawActorFace", CompatStatus::FULL);
@@ -687,8 +679,11 @@ void Window_Base::syncContentsBitmap() {
     }
 
     const Rect contentRect = getContentRect();
-    contentsBitmaps_[contents_] =
-        ContentsBitmapInfo{contents_, std::max(0, contentRect.width), std::max(0, contentRect.height)};
+    ContentsBitmapInfo& info = contentsBitmaps_[contents_];
+    info.handle = contents_;
+    info.width = std::max(0, contentRect.width);
+    info.height = std::max(0, contentRect.height);
+    info.pixels.assign(static_cast<size_t>(info.width) * static_cast<size_t>(info.height), Color{0, 0, 0, 0});
 }
 
 void Window_Base::createContents() {

@@ -419,9 +419,9 @@ TEST_CASE("DataManager: method status registry", "[data_manager]") {
     DataManager dm;
     (void)dm;
 
-    REQUIRE(DataManager::getMethodStatus("loadDatabase") == CompatStatus::PARTIAL);
-    REQUIRE(DataManager::getMethodStatus("setupNewGame") == CompatStatus::PARTIAL);
-    REQUIRE(DataManager::getMethodStatus("setSaveHeaderExtension") == CompatStatus::PARTIAL);
+    REQUIRE(DataManager::getMethodStatus("loadDatabase") == CompatStatus::FULL);
+    REQUIRE(DataManager::getMethodStatus("setupNewGame") == CompatStatus::FULL);
+    REQUIRE(DataManager::getMethodStatus("setSaveHeaderExtension") == CompatStatus::FULL);
     REQUIRE(DataManager::getMethodDeviation("loadDatabase").empty());
     REQUIRE(DataManager::getMethodStatus("nonexistentMethod") == CompatStatus::UNSUPPORTED);
 }

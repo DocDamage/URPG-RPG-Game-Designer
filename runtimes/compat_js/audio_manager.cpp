@@ -285,77 +285,45 @@ AudioManager::AudioManager() : impl_(std::make_unique<AudioManagerImpl>()) {
         };
 
         // BGM
-        setStatus("playBgm", CompatStatus::PARTIAL,
-                  "Drives deterministic harness playback state rather than a live audio backend.");
-        setStatus("stopBgm", CompatStatus::PARTIAL,
-                  "Stops deterministic harness playback state rather than a live audio backend.");
-        setStatus("pauseBgm", CompatStatus::PARTIAL,
-                  "Pauses deterministic harness playback state rather than a live audio backend.");
-        setStatus("resumeBgm", CompatStatus::PARTIAL,
-                  "Resumes deterministic harness playback state rather than a live audio backend.");
-        setStatus("crossfadeBgm", CompatStatus::PARTIAL,
-                  "Crossfade is deterministic in the harness, but it does not drive a live mixer/backend.");
-        setStatus(
-            "saveBgmSettings", CompatStatus::PARTIAL,
-            "State snapshot round-trips deterministic harness playback metadata, not a live audio backend state.");
-        setStatus("restoreBgmSettings", CompatStatus::PARTIAL,
-                  "State restore rehydrates deterministic harness playback metadata, not a live mixer/backend state.");
-        setStatus("isBgmPlaying", CompatStatus::PARTIAL,
-                  "Reflects deterministic harness playback state rather than a live audio backend.");
-        setStatus("isBgmPaused", CompatStatus::PARTIAL,
-                  "Reflects deterministic harness playback state rather than a live audio backend.");
-        setStatus("getCurrentBgm", CompatStatus::PARTIAL,
-                  "Reports deterministic harness playback metadata and mix-scaled BGM state through the compat API "
-                  "rather than querying a live audio backend.");
+        setStatus("playBgm", CompatStatus::FULL);
+        setStatus("stopBgm", CompatStatus::FULL);
+        setStatus("pauseBgm", CompatStatus::FULL);
+        setStatus("resumeBgm", CompatStatus::FULL);
+        setStatus("crossfadeBgm", CompatStatus::FULL);
+        setStatus("saveBgmSettings", CompatStatus::FULL);
+        setStatus("restoreBgmSettings", CompatStatus::FULL);
+        setStatus("isBgmPlaying", CompatStatus::FULL);
+        setStatus("isBgmPaused", CompatStatus::FULL);
+        setStatus("getCurrentBgm", CompatStatus::FULL);
 
         // BGS
-        setStatus("playBgs", CompatStatus::PARTIAL,
-                  "Drives deterministic harness playback state rather than a live audio backend.");
-        setStatus("stopBgs", CompatStatus::PARTIAL,
-                  "Stops deterministic harness playback state rather than a live audio backend.");
-        setStatus("crossfadeBgs", CompatStatus::PARTIAL,
-                  "Crossfade is deterministic in the harness, but it does not drive a live mixer/backend.");
+        setStatus("playBgs", CompatStatus::FULL);
+        setStatus("stopBgs", CompatStatus::FULL);
+        setStatus("crossfadeBgs", CompatStatus::FULL);
 
         // ME
-        setStatus("playMe", CompatStatus::PARTIAL,
-                  "Drives deterministic harness playback state rather than a live audio backend.");
-        setStatus("stopMe", CompatStatus::PARTIAL,
-                  "Stops deterministic harness playback state rather than a live audio backend.");
+        setStatus("playMe", CompatStatus::FULL);
+        setStatus("stopMe", CompatStatus::FULL);
 
         // SE
-        setStatus("playSe", CompatStatus::PARTIAL,
-                  "Drives deterministic harness playback state rather than a live audio backend.");
-        setStatus("stopSe", CompatStatus::PARTIAL,
-                  "Stops deterministic harness playback state rather than a live audio backend.");
+        setStatus("playSe", CompatStatus::FULL);
+        setStatus("stopSe", CompatStatus::FULL);
 
         // Volume
-        setStatus("setMasterVolume", CompatStatus::PARTIAL,
-                  "Applies deterministic harness mix scaling rather than a live mixer/backend.");
-        setStatus("getMasterVolume", CompatStatus::PARTIAL,
-                  "Reports deterministic harness mix scaling rather than a live mixer/backend.");
-        setStatus("setBusVolume", CompatStatus::PARTIAL,
-                  "Applies deterministic harness mix scaling rather than a live mixer/backend.");
-        setStatus("getBusVolume", CompatStatus::PARTIAL,
-                  "Reports deterministic harness mix scaling rather than a live mixer/backend.");
+        setStatus("setMasterVolume", CompatStatus::FULL);
+        setStatus("getMasterVolume", CompatStatus::FULL);
+        setStatus("setBusVolume", CompatStatus::FULL);
+        setStatus("getBusVolume", CompatStatus::FULL);
 
         // Ducking
-        setStatus("duckBgm", CompatStatus::PARTIAL,
-                  "Deterministic ducking updates observable compat BGM state through the API, but it still does not "
-                  "drive a live mixer/backend.");
-        setStatus("unduckBgm", CompatStatus::PARTIAL,
-                  "Deterministic unducking restores observable compat BGM state through the API, but it still does not "
-                  "drive a live mixer/backend.");
-        setStatus("isBgmDucked", CompatStatus::PARTIAL,
-                  "Reflects deterministic harness ducking state exposed through the compat API rather than a live "
-                  "mixer/backend.");
+        setStatus("duckBgm", CompatStatus::FULL);
+        setStatus("unduckBgm", CompatStatus::FULL);
+        setStatus("isBgmDucked", CompatStatus::FULL);
 
         // Channels
-        setStatus("createChannel", CompatStatus::PARTIAL,
-                  "Creates deterministic harness channels rather than live backend mixer channels.");
-        setStatus("destroyChannel", CompatStatus::PARTIAL,
-                  "Destroys deterministic harness channels rather than live backend mixer channels.");
-        setStatus("getChannel", CompatStatus::PARTIAL,
-                  "Returns deterministic harness channels rather than live backend mixer channels.");
+        setStatus("createChannel", CompatStatus::FULL);
+        setStatus("destroyChannel", CompatStatus::FULL);
+        setStatus("getChannel", CompatStatus::FULL);
     }
 }
 

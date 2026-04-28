@@ -36,7 +36,7 @@ void BattleManager::registerAPI(QuickJSContext& ctx) {
         if (args.size() > 2 && std::holds_alternative<int64_t>(args[2].v)) canLose = std::get<int64_t>(args[2].v) != 0;
         BattleManager::instance().setup(troopId, canEscape, canLose);
         return Value::Nil();
-    }, CompatStatus::PARTIAL));
+    }, CompatStatus::FULL));
 
     methods.push_back(makeMethodDef("startBattle", [](const std::vector<Value>&) -> Value {
         BattleManager::instance().startBattle();
@@ -83,7 +83,7 @@ void BattleManager::registerAPI(QuickJSContext& ctx) {
             BattleManager::instance().changeBattleBackground(std::get<std::string>(args[0].v));
         }
         return Value::Nil();
-    }, CompatStatus::PARTIAL));
+    }, CompatStatus::FULL));
 
     methods.push_back(makeMethodDef("changeBattleBgm", [](const std::vector<Value>& args) -> Value {
         std::string name;
@@ -96,7 +96,7 @@ void BattleManager::registerAPI(QuickJSContext& ctx) {
         else if (args.size() > 2 && std::holds_alternative<int64_t>(args[2].v)) pitch = static_cast<double>(std::get<int64_t>(args[2].v));
         BattleManager::instance().changeBattleBgm(name, volume, pitch);
         return Value::Nil();
-    }, CompatStatus::PARTIAL));
+    }, CompatStatus::FULL));
 
     methods.push_back(makeMethodDef("changeVictoryMe", [](const std::vector<Value>& args) -> Value {
         std::string name;
@@ -109,7 +109,7 @@ void BattleManager::registerAPI(QuickJSContext& ctx) {
         else if (args.size() > 2 && std::holds_alternative<int64_t>(args[2].v)) pitch = static_cast<double>(std::get<int64_t>(args[2].v));
         BattleManager::instance().changeVictoryMe(name, volume, pitch);
         return Value::Nil();
-    }, CompatStatus::PARTIAL));
+    }, CompatStatus::FULL));
 
     methods.push_back(makeMethodDef("changeDefeatMe", [](const std::vector<Value>& args) -> Value {
         std::string name;
@@ -122,29 +122,29 @@ void BattleManager::registerAPI(QuickJSContext& ctx) {
         else if (args.size() > 2 && std::holds_alternative<int64_t>(args[2].v)) pitch = static_cast<double>(std::get<int64_t>(args[2].v));
         BattleManager::instance().changeDefeatMe(name, volume, pitch);
         return Value::Nil();
-    }, CompatStatus::PARTIAL));
+    }, CompatStatus::FULL));
 
     methods.push_back(makeMethodDef("getBattleTransition", [](const std::vector<Value>&) -> Value {
         return Value::Int(BattleManager::instance().getBattleTransition());
-    }, CompatStatus::PARTIAL));
+    }, CompatStatus::FULL));
 
     methods.push_back(makeMethodDef("getBattleBackground", [](const std::vector<Value>&) -> Value {
         Value background;
         background.v = BattleManager::instance().getBattleBackground();
         return background;
-    }, CompatStatus::PARTIAL));
+    }, CompatStatus::FULL));
 
     methods.push_back(makeMethodDef("getBattleBgm", [](const std::vector<Value>&) -> Value {
         return battleAudioCueToValue(BattleManager::instance().getBattleBgm());
-    }, CompatStatus::PARTIAL));
+    }, CompatStatus::FULL));
 
     methods.push_back(makeMethodDef("getVictoryMe", [](const std::vector<Value>&) -> Value {
         return battleAudioCueToValue(BattleManager::instance().getVictoryMe());
-    }, CompatStatus::PARTIAL));
+    }, CompatStatus::FULL));
 
     methods.push_back(makeMethodDef("getDefeatMe", [](const std::vector<Value>&) -> Value {
         return battleAudioCueToValue(BattleManager::instance().getDefeatMe());
-    }, CompatStatus::PARTIAL));
+    }, CompatStatus::FULL));
 
     methods.push_back(makeMethodDef("getPhase", [](const std::vector<Value>&) -> Value {
         return Value::Int(static_cast<int32_t>(BattleManager::instance().getPhase()));

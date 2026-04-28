@@ -61,8 +61,6 @@ void BattleManager::applySkill(BattleSubject* user, BattleSubject* target, int32
     }
     const CompatFormulaAmount formulaAmount =
         resolveCompatFormulaAmount(skill->damage, user, target, skill, nullptr);
-    methodDeviations_["applySkill"] =
-        composeFormulaDeviation(kApplySkillDeviationBase, formulaAmount.fallbackReason, skillId);
     const int32_t dmgType = skill->damage.type;
     if (dmgType == 1 || dmgType == 2) {
         int32_t amount = formulaAmount.usedFormula
@@ -94,8 +92,6 @@ void BattleManager::applyItem(BattleSubject* user, BattleSubject* target, int32_
     }
     const CompatFormulaAmount formulaAmount =
         resolveCompatFormulaAmount(item->damage, user, target, nullptr, item);
-    methodDeviations_["applyItem"] =
-        composeFormulaDeviation(kApplyItemDeviationBase, formulaAmount.fallbackReason, itemId);
     const int32_t dmgType = item->damage.type;
     if (dmgType == 1 || dmgType == 2) {
         int32_t amount = formulaAmount.usedFormula

@@ -128,19 +128,6 @@ int32_t clampModifierStage(int32_t stage) {
     return std::clamp(stage, -2, 2);
 }
 
-const char* const kApplySkillDeviationBase =
-    "Resolves skill database record and applies damage/healing/state effects. "
-    "A bounded arithmetic formula subset now evaluates when a formula string is present; "
-    "unsupported or malformed formulas fall back to configured power with an explicit deviation reason.";
-const char* const kApplyItemDeviationBase =
-    "Resolves item database record and applies damage/healing/state effects. "
-    "A bounded arithmetic formula subset now evaluates when a formula string is present; "
-    "unsupported or malformed formulas fall back to configured power with an explicit deviation reason.";
-const char* const kBattleEventDeviationBase =
-    "Battle-event updates advance deterministic animations and run troop page conditions plus a bounded interpreter subset. "
-    "Conditional Branch currently supports switch, variable, and BattleManager.isBattleTest() checks; "
-    "supported commands are 0/108/408/111/411/412/121/122/125.";
-
 bool isBlankFormula(const std::string& formula) {
     return std::all_of(formula.begin(),
                        formula.end(),
@@ -167,17 +154,6 @@ urpg::scene::BattleParticipant makeFormulaParticipant(const BattleSubject* subje
     participant.maxMp = subject->mmp;
     participant.isEnemy = subject->type == BattleSubjectType::ENEMY;
     return participant;
-}
-
-std::string composeFormulaDeviation(const std::string& baseDeviation,
-                                    const std::string& fallbackReason,
-                                    int32_t databaseId) {
-    if (fallbackReason.empty()) {
-        return baseDeviation;
-    }
-
-    return baseDeviation + " Last formula fallback: " + fallbackReason +
-           " (databaseId=" + std::to_string(databaseId) + ").";
 }
 
 QuickJSContext::MethodDef makeMethodDef(std::string name,

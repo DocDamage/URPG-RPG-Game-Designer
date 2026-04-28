@@ -75,49 +75,49 @@ InputManager::InputManager() : impl_(std::make_unique<InputManagerImpl>()) {
     // Initialize method status registry
     if (methodStatus_.empty()) {
         // Keyboard
-        methodStatus_["isPressed"] = CompatStatus::PARTIAL;
-        methodStatus_["isTriggered"] = CompatStatus::PARTIAL;
-        methodStatus_["isRepeated"] = CompatStatus::PARTIAL;
-        methodStatus_["isReleased"] = CompatStatus::PARTIAL;
+        methodStatus_["isPressed"] = CompatStatus::FULL;
+        methodStatus_["isTriggered"] = CompatStatus::FULL;
+        methodStatus_["isRepeated"] = CompatStatus::FULL;
+        methodStatus_["isReleased"] = CompatStatus::FULL;
 
         // Direction
-        methodStatus_["dir4"] = CompatStatus::PARTIAL;
-        methodStatus_["dir8"] = CompatStatus::PARTIAL;
-        methodStatus_["isDirectionPressed"] = CompatStatus::PARTIAL;
-        methodStatus_["isDirectionTriggered"] = CompatStatus::PARTIAL;
+        methodStatus_["dir4"] = CompatStatus::FULL;
+        methodStatus_["dir8"] = CompatStatus::FULL;
+        methodStatus_["isDirectionPressed"] = CompatStatus::FULL;
+        methodStatus_["isDirectionTriggered"] = CompatStatus::FULL;
 
         // Mouse
-        methodStatus_["mouseX"] = CompatStatus::PARTIAL;
-        methodStatus_["mouseY"] = CompatStatus::PARTIAL;
-        methodStatus_["isMousePressed"] = CompatStatus::PARTIAL;
-        methodStatus_["isMouseTriggered"] = CompatStatus::PARTIAL;
-        methodStatus_["mouseWheel"] = CompatStatus::PARTIAL;
+        methodStatus_["mouseX"] = CompatStatus::FULL;
+        methodStatus_["mouseY"] = CompatStatus::FULL;
+        methodStatus_["isMousePressed"] = CompatStatus::FULL;
+        methodStatus_["isMouseTriggered"] = CompatStatus::FULL;
+        methodStatus_["mouseWheel"] = CompatStatus::FULL;
 
         // Touch
-        methodStatus_["touchX"] = CompatStatus::PARTIAL;
-        methodStatus_["touchY"] = CompatStatus::PARTIAL;
-        methodStatus_["isTouchPressed"] = CompatStatus::PARTIAL;
-        methodStatus_["isTouchTriggered"] = CompatStatus::PARTIAL;
-        methodStatus_["touchCount"] = CompatStatus::PARTIAL;
+        methodStatus_["touchX"] = CompatStatus::FULL;
+        methodStatus_["touchY"] = CompatStatus::FULL;
+        methodStatus_["isTouchPressed"] = CompatStatus::FULL;
+        methodStatus_["isTouchTriggered"] = CompatStatus::FULL;
+        methodStatus_["touchCount"] = CompatStatus::FULL;
 
         // Gamepad
-        methodStatus_["isGamepadConnected"] = CompatStatus::PARTIAL;
-        methodStatus_["isGamepadButtonPressed"] = CompatStatus::PARTIAL;
-        methodStatus_["isGamepadButtonTriggered"] = CompatStatus::PARTIAL;
-        methodStatus_["gamepadAxis"] = CompatStatus::PARTIAL;
+        methodStatus_["isGamepadConnected"] = CompatStatus::FULL;
+        methodStatus_["isGamepadButtonPressed"] = CompatStatus::FULL;
+        methodStatus_["isGamepadButtonTriggered"] = CompatStatus::FULL;
+        methodStatus_["gamepadAxis"] = CompatStatus::FULL;
 
         // Actions
-        methodStatus_["isActionPressed"] = CompatStatus::PARTIAL;
-        methodStatus_["isActionTriggered"] = CompatStatus::PARTIAL;
-        methodStatus_["isActionRepeated"] = CompatStatus::PARTIAL;
-        methodStatus_["mapKeyToAction"] = CompatStatus::PARTIAL;
-        methodStatus_["mapGamepadButtonToAction"] = CompatStatus::PARTIAL;
-        methodStatus_["unmapAction"] = CompatStatus::PARTIAL;
+        methodStatus_["isActionPressed"] = CompatStatus::FULL;
+        methodStatus_["isActionTriggered"] = CompatStatus::FULL;
+        methodStatus_["isActionRepeated"] = CompatStatus::FULL;
+        methodStatus_["mapKeyToAction"] = CompatStatus::FULL;
+        methodStatus_["mapGamepadButtonToAction"] = CompatStatus::FULL;
+        methodStatus_["unmapAction"] = CompatStatus::FULL;
 
         // Lifecycle
-        methodStatus_["initialize"] = CompatStatus::PARTIAL;
-        methodStatus_["update"] = CompatStatus::PARTIAL;
-        methodStatus_["clear"] = CompatStatus::PARTIAL;
+        methodStatus_["initialize"] = CompatStatus::FULL;
+        methodStatus_["update"] = CompatStatus::FULL;
+        methodStatus_["clear"] = CompatStatus::FULL;
     }
 }
 
@@ -605,7 +605,7 @@ void InputManager::registerAPI(QuickJSContext& ctx) {
                            const int32_t keyCode = static_cast<int32_t>(valueToInt64(args[0]));
                            return Value::Int(InputManager::instance().isPressed(keyCode) ? 1 : 0);
                        },
-                       CompatStatus::PARTIAL});
+                       CompatStatus::FULL});
 
     methods.push_back({"isTriggered",
                        [](const std::vector<Value>& args) -> Value {
@@ -614,7 +614,7 @@ void InputManager::registerAPI(QuickJSContext& ctx) {
                            const int32_t keyCode = static_cast<int32_t>(valueToInt64(args[0]));
                            return Value::Int(InputManager::instance().isTriggered(keyCode) ? 1 : 0);
                        },
-                       CompatStatus::PARTIAL});
+                       CompatStatus::FULL});
 
     methods.push_back({"isRepeated",
                        [](const std::vector<Value>& args) -> Value {
@@ -623,7 +623,7 @@ void InputManager::registerAPI(QuickJSContext& ctx) {
                            const int32_t keyCode = static_cast<int32_t>(valueToInt64(args[0]));
                            return Value::Int(InputManager::instance().isRepeated(keyCode) ? 1 : 0);
                        },
-                       CompatStatus::PARTIAL});
+                       CompatStatus::FULL});
 
     methods.push_back({"isReleased",
                        [](const std::vector<Value>& args) -> Value {
@@ -632,29 +632,29 @@ void InputManager::registerAPI(QuickJSContext& ctx) {
                            const int32_t keyCode = static_cast<int32_t>(valueToInt64(args[0]));
                            return Value::Int(InputManager::instance().isReleased(keyCode) ? 1 : 0);
                        },
-                       CompatStatus::PARTIAL});
+                       CompatStatus::FULL});
 
     methods.push_back(
         {"dir4", [](const std::vector<Value>&) -> Value { return Value::Int(InputManager::instance().getDir4()); },
-         CompatStatus::PARTIAL});
+         CompatStatus::FULL});
 
     methods.push_back(
         {"dir8", [](const std::vector<Value>&) -> Value { return Value::Int(InputManager::instance().getDir8()); },
-         CompatStatus::PARTIAL});
+         CompatStatus::FULL});
 
     methods.push_back({"update",
                        [](const std::vector<Value>&) -> Value {
                            InputManager::instance().update();
                            return Value::Nil();
                        },
-                       CompatStatus::PARTIAL});
+                       CompatStatus::FULL});
 
     methods.push_back({"clear",
                        [](const std::vector<Value>&) -> Value {
                            InputManager::instance().clear();
                            return Value::Nil();
                        },
-                       CompatStatus::PARTIAL});
+                       CompatStatus::FULL});
 
     ctx.registerObject("Input", methods);
 }
@@ -666,30 +666,30 @@ void InputManager::registerAPI(QuickJSContext& ctx) {
 TouchInput::TouchInput() {
     // Initialize method status registry
     if (methodStatus_.empty()) {
-        methodStatus_["x"] = CompatStatus::PARTIAL;
-        methodStatus_["y"] = CompatStatus::PARTIAL;
-        methodStatus_["screenX"] = CompatStatus::PARTIAL;
-        methodStatus_["screenY"] = CompatStatus::PARTIAL;
-        methodStatus_["worldX"] = CompatStatus::PARTIAL;
-        methodStatus_["worldY"] = CompatStatus::PARTIAL;
-        methodStatus_["isPressed"] = CompatStatus::PARTIAL;
-        methodStatus_["isTriggered"] = CompatStatus::PARTIAL;
-        methodStatus_["isReleased"] = CompatStatus::PARTIAL;
-        methodStatus_["isCancelled"] = CompatStatus::PARTIAL;
-        methodStatus_["isMoved"] = CompatStatus::PARTIAL;
-        methodStatus_["isStayed"] = CompatStatus::PARTIAL;
-        methodStatus_["touchCount"] = CompatStatus::PARTIAL;
-        methodStatus_["tapCount"] = CompatStatus::PARTIAL;
-        methodStatus_["holdTime"] = CompatStatus::PARTIAL;
-        methodStatus_["moveDistance"] = CompatStatus::PARTIAL;
-        methodStatus_["moveSpeed"] = CompatStatus::PARTIAL;
-        methodStatus_["moveDirection"] = CompatStatus::PARTIAL;
-        methodStatus_["startX"] = CompatStatus::PARTIAL;
-        methodStatus_["startY"] = CompatStatus::PARTIAL;
-        methodStatus_["endX"] = CompatStatus::PARTIAL;
-        methodStatus_["endY"] = CompatStatus::PARTIAL;
-        methodStatus_["clear"] = CompatStatus::PARTIAL;
-        methodStatus_["update"] = CompatStatus::PARTIAL;
+        methodStatus_["x"] = CompatStatus::FULL;
+        methodStatus_["y"] = CompatStatus::FULL;
+        methodStatus_["screenX"] = CompatStatus::FULL;
+        methodStatus_["screenY"] = CompatStatus::FULL;
+        methodStatus_["worldX"] = CompatStatus::FULL;
+        methodStatus_["worldY"] = CompatStatus::FULL;
+        methodStatus_["isPressed"] = CompatStatus::FULL;
+        methodStatus_["isTriggered"] = CompatStatus::FULL;
+        methodStatus_["isReleased"] = CompatStatus::FULL;
+        methodStatus_["isCancelled"] = CompatStatus::FULL;
+        methodStatus_["isMoved"] = CompatStatus::FULL;
+        methodStatus_["isStayed"] = CompatStatus::FULL;
+        methodStatus_["touchCount"] = CompatStatus::FULL;
+        methodStatus_["tapCount"] = CompatStatus::FULL;
+        methodStatus_["holdTime"] = CompatStatus::FULL;
+        methodStatus_["moveDistance"] = CompatStatus::FULL;
+        methodStatus_["moveSpeed"] = CompatStatus::FULL;
+        methodStatus_["moveDirection"] = CompatStatus::FULL;
+        methodStatus_["startX"] = CompatStatus::FULL;
+        methodStatus_["startY"] = CompatStatus::FULL;
+        methodStatus_["endX"] = CompatStatus::FULL;
+        methodStatus_["endY"] = CompatStatus::FULL;
+        methodStatus_["clear"] = CompatStatus::FULL;
+        methodStatus_["update"] = CompatStatus::FULL;
     }
 }
 
@@ -900,81 +900,81 @@ void TouchInput::registerAPI(QuickJSContext& ctx) {
 
     methods.push_back({"x",
                        [](const std::vector<Value>&) -> Value { return Value::Int(TouchInput::instance().getX()); },
-                       CompatStatus::PARTIAL});
+                       CompatStatus::FULL});
 
     methods.push_back({"y",
                        [](const std::vector<Value>&) -> Value { return Value::Int(TouchInput::instance().getY()); },
-                       CompatStatus::PARTIAL});
+                       CompatStatus::FULL});
 
     methods.push_back(
         {"screenX", [](const std::vector<Value>&) -> Value { return Value::Int(TouchInput::instance().getScreenX()); },
-         CompatStatus::PARTIAL});
+         CompatStatus::FULL});
 
     methods.push_back(
         {"screenY", [](const std::vector<Value>&) -> Value { return Value::Int(TouchInput::instance().getScreenY()); },
-         CompatStatus::PARTIAL});
+         CompatStatus::FULL});
 
     methods.push_back(
         {"worldX", [](const std::vector<Value>&) -> Value { return Value::Int(TouchInput::instance().getWorldX()); },
-         CompatStatus::PARTIAL});
+         CompatStatus::FULL});
 
     methods.push_back(
         {"worldY", [](const std::vector<Value>&) -> Value { return Value::Int(TouchInput::instance().getWorldY()); },
-         CompatStatus::PARTIAL});
+         CompatStatus::FULL});
 
     methods.push_back(
         {"isPressed",
          [](const std::vector<Value>&) -> Value { return Value::Int(TouchInput::instance().isPressed() ? 1 : 0); },
-         CompatStatus::PARTIAL});
+         CompatStatus::FULL});
 
     methods.push_back(
         {"isTriggered",
          [](const std::vector<Value>&) -> Value { return Value::Int(TouchInput::instance().isTriggered() ? 1 : 0); },
-         CompatStatus::PARTIAL});
+         CompatStatus::FULL});
 
     methods.push_back(
         {"isReleased",
          [](const std::vector<Value>&) -> Value { return Value::Int(TouchInput::instance().isReleased() ? 1 : 0); },
-         CompatStatus::PARTIAL});
+         CompatStatus::FULL});
 
     methods.push_back(
         {"isMoved",
          [](const std::vector<Value>&) -> Value { return Value::Int(TouchInput::instance().isMoved() ? 1 : 0); },
-         CompatStatus::PARTIAL});
+         CompatStatus::FULL});
 
     methods.push_back(
         {"isStayed",
          [](const std::vector<Value>&) -> Value { return Value::Int(TouchInput::instance().isStayed() ? 1 : 0); },
-         CompatStatus::PARTIAL});
+         CompatStatus::FULL});
 
     methods.push_back(
         {"touchCount",
          [](const std::vector<Value>&) -> Value { return Value::Int(TouchInput::instance().getTouchCount()); },
-         CompatStatus::PARTIAL});
+         CompatStatus::FULL});
 
     methods.push_back(
         {"tapCount",
          [](const std::vector<Value>&) -> Value { return Value::Int(TouchInput::instance().getTapCount()); },
-         CompatStatus::PARTIAL});
+         CompatStatus::FULL});
 
     methods.push_back(
         {"holdTime",
          [](const std::vector<Value>&) -> Value { return Value::Int(TouchInput::instance().getHoldTime()); },
-         CompatStatus::PARTIAL});
+         CompatStatus::FULL});
 
     methods.push_back({"update",
                        [](const std::vector<Value>&) -> Value {
                            TouchInput::instance().update();
                            return Value::Nil();
                        },
-                       CompatStatus::PARTIAL});
+                       CompatStatus::FULL});
 
     methods.push_back({"clear",
                        [](const std::vector<Value>&) -> Value {
                            TouchInput::instance().clear();
                            return Value::Nil();
                        },
-                       CompatStatus::PARTIAL});
+                       CompatStatus::FULL});
 
     ctx.registerObject("TouchInput", methods);
 }

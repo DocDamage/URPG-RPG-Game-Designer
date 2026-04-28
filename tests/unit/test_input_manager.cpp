@@ -148,10 +148,10 @@ TEST_CASE("InputManager: method status registry", "[input_manager]") {
     InputManager& im = InputManager::instance();
     (void)im;
 
-    REQUIRE(InputManager::getMethodStatus("isPressed") == CompatStatus::PARTIAL);
-    REQUIRE(InputManager::getMethodStatus("dir4") == CompatStatus::PARTIAL);
-    REQUIRE(InputManager::getMethodStatus("initialize") == CompatStatus::PARTIAL);
-    REQUIRE(InputManager::getMethodStatus("clear") == CompatStatus::PARTIAL);
+    REQUIRE(InputManager::getMethodStatus("isPressed") == CompatStatus::FULL);
+    REQUIRE(InputManager::getMethodStatus("dir4") == CompatStatus::FULL);
+    REQUIRE(InputManager::getMethodStatus("initialize") == CompatStatus::FULL);
+    REQUIRE(InputManager::getMethodStatus("clear") == CompatStatus::FULL);
     REQUIRE(InputManager::getMethodStatus("nonexistentMethod") == CompatStatus::UNSUPPORTED);
 }
 
@@ -222,12 +222,12 @@ TEST_CASE("TouchInput: method status and constants", "[input_manager]") {
     TouchInput& touch = TouchInput::instance();
     (void)touch;
 
-    REQUIRE(TouchInput::getMethodStatus("x") == CompatStatus::PARTIAL);
-    REQUIRE(TouchInput::getMethodStatus("isPressed") == CompatStatus::PARTIAL);
-    REQUIRE(TouchInput::getMethodStatus("worldX") == CompatStatus::PARTIAL);
-    REQUIRE(TouchInput::getMethodStatus("worldY") == CompatStatus::PARTIAL);
-    REQUIRE(TouchInput::getMethodStatus("moveSpeed") == CompatStatus::PARTIAL);
-    REQUIRE(TouchInput::getMethodStatus("clear") == CompatStatus::PARTIAL);
+    REQUIRE(TouchInput::getMethodStatus("x") == CompatStatus::FULL);
+    REQUIRE(TouchInput::getMethodStatus("isPressed") == CompatStatus::FULL);
+    REQUIRE(TouchInput::getMethodStatus("worldX") == CompatStatus::FULL);
+    REQUIRE(TouchInput::getMethodStatus("worldY") == CompatStatus::FULL);
+    REQUIRE(TouchInput::getMethodStatus("moveSpeed") == CompatStatus::FULL);
+    REQUIRE(TouchInput::getMethodStatus("clear") == CompatStatus::FULL);
 
     REQUIRE(InputKey::DOWN == 2);
     REQUIRE(InputKey::LEFT == 4);

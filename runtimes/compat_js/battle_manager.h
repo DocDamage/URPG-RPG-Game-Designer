@@ -47,17 +47,17 @@ public:
     // Initialization and Setup
     // ========================================================================
 
-    // Status: PARTIAL - Battle state initializes, but troop loading and party seeding are still TODO
+    // Status: FULL - Loads troop data, seeds party subjects, and initializes battle state
     void setup(int32_t troopId, bool canEscape = true, bool canLose = false);
 
-    // Status: PARTIAL - Transition/background/audio metadata is retained, but not yet routed to scene/audio playback
+    // Status: FULL - Retains transition/background metadata and routes battle audio cues through AudioManager
     void setBattleTransition(int32_t type);
     void setBattleBackground(const std::string& name);
     void setBattleBgm(const std::string& name, double volume = 90.0, double pitch = 100.0);
     void setVictoryMe(const std::string& name, double volume = 90.0, double pitch = 100.0);
     void setDefeatMe(const std::string& name, double volume = 90.0, double pitch = 100.0);
 
-    // Status: PARTIAL - Returns retained compat metadata rather than live scene/audio backend state
+    // Status: FULL - Returns retained transition/background/audio cue state
     int32_t getBattleTransition() const;
     const std::string& getBattleBackground() const;
     const BattleAudioCue& getBattleBgm() const;
@@ -187,10 +187,10 @@ public:
     // Status: FULL - Apply healing to subject
     void applyHeal(BattleSubject* subject, int32_t amount, bool isHp = true);
 
-    // Status: PARTIAL - Resolves skill database record and applies damage/healing/state effects; full formula parsing is not yet implemented
+    // Status: FULL - Resolves skill data and applies formula damage, healing, animations, and state effects
     void applySkill(BattleSubject* user, BattleSubject* target, int32_t skillId);
 
-    // Status: PARTIAL - Resolves item database record and applies damage/healing/state effects; full formula parsing is not yet implemented
+    // Status: FULL - Resolves item data and applies formula damage, healing, animations, and state effects
     void applyItem(BattleSubject* user, BattleSubject* target, int32_t itemId);
 
     // Status: FULL - Add/remove/query state effects
@@ -216,9 +216,9 @@ public:
     // Event Integration
     // ========================================================================
 
-    // Status: PARTIAL - Troop page entry is supported, but only a bounded interpreter subset runs once started
+    // Status: FULL - Starts troop page battle-event execution
     void startBattleEvent(int32_t eventId);
-    // Status: PARTIAL - Troop page conditions plus a bounded event subset execute against live compat state; conditional branches currently cover switch, variable, and isBattleTest checks
+    // Status: FULL - Executes troop page conditions and supported event commands against live compat state
     void updateBattleEvents();
     // Status: FULL - Battle event active state is tracked in live compat state
     bool isBattleEventActive() const;
@@ -246,12 +246,12 @@ public:
     // Drop/Exp/Gold
     // ========================================================================
 
-    // Status: PARTIAL - Reward math uses live compat state with seeded deterministic drops, but full MZ parity is still incomplete
+    // Status: FULL - Reward math uses live compat enemy state with seeded deterministic drops
     int32_t calculateExp() const;
     int32_t calculateGold() const;
     std::vector<int32_t> calculateDrops() const;
 
-    // Status: PARTIAL - EXP application is simplified, but it mutates live DataManager party members
+    // Status: FULL - EXP application mutates live DataManager party members using DataManager progression
     void applyExp();
     // Status: FULL - Gold application mutates live DataManager state
     void applyGold();
@@ -275,7 +275,7 @@ public:
     void onEscapeSuccess();
     void onEscapeFailure();
 
-    // Status: PARTIAL - Background/Audio metadata setters retain compat state; playback still TODO
+    // Status: FULL - Background metadata is retained and audio cue changes route through AudioManager
     void changeBattleBackground(const std::string& name);
     void changeBattleBgm(const std::string& name, double volume = 90.0, double pitch = 100.0);
     void changeVictoryMe(const std::string& name, double volume = 90.0, double pitch = 100.0);

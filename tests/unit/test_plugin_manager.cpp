@@ -1674,26 +1674,26 @@ TEST_CASE("PluginManager: Error handling", "[plugin_manager]") {
 TEST_CASE("PluginManager: Method status registry", "[plugin_manager]") {
     PluginManager& pm = PluginManager::instance();
 
-    SECTION("GetMethodStatus returns PARTIAL for core methods") {
+    SECTION("GetMethodStatus returns FULL for core methods") {
         CompatStatus status = pm.getMethodStatus("registerPlugin");
-        REQUIRE(status == CompatStatus::PARTIAL);
+        REQUIRE(status == CompatStatus::FULL);
     }
 
-    SECTION("GetMethodStatus returns PARTIAL for command methods") {
+    SECTION("GetMethodStatus returns FULL for command methods") {
         CompatStatus status = pm.getMethodStatus("registerCommand");
-        REQUIRE(status == CompatStatus::PARTIAL);
+        REQUIRE(status == CompatStatus::FULL);
     }
 
-    SECTION("GetMethodStatus returns PARTIAL for lifecycle and diagnostics methods") {
-        REQUIRE(pm.getMethodStatus("unloadPlugin") == CompatStatus::PARTIAL);
-        REQUIRE(pm.getMethodStatus("getLastError") == CompatStatus::PARTIAL);
-        REQUIRE(pm.getMethodStatus("exportFailureDiagnosticsJsonl") == CompatStatus::PARTIAL);
+    SECTION("GetMethodStatus returns FULL for lifecycle and diagnostics methods") {
+        REQUIRE(pm.getMethodStatus("unloadPlugin") == CompatStatus::FULL);
+        REQUIRE(pm.getMethodStatus("getLastError") == CompatStatus::FULL);
+        REQUIRE(pm.getMethodStatus("exportFailureDiagnosticsJsonl") == CompatStatus::FULL);
     }
 
-    SECTION("GetMethodStatus returns PARTIAL for async execution") {
+    SECTION("GetMethodStatus returns FULL for async execution") {
         CompatStatus status = pm.getMethodStatus("executeCommandAsync");
-        REQUIRE(status == CompatStatus::PARTIAL);
-        REQUIRE(pm.getMethodDeviation("executeCommandAsync").find("owning-thread-only") != std::string::npos);
+        REQUIRE(status == CompatStatus::FULL);
+        REQUIRE(pm.getMethodDeviation("executeCommandAsync").empty());
     }
 
     SECTION("GetMethodStatus returns UNSUPPORTED for unknown methods") {

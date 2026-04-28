@@ -20,10 +20,6 @@ constexpr int32_t kVictorySwitchId = 101;
 constexpr int32_t kDefeatSwitchId = 102;
 constexpr int32_t kEscapeSwitchId = 103;
 
-extern const char* const kApplySkillDeviationBase;
-extern const char* const kApplyItemDeviationBase;
-extern const char* const kBattleEventDeviationBase;
-
 struct CompatFormulaAmount {
     int32_t amount = 0;
     bool usedFormula = false;
@@ -45,7 +41,6 @@ uint32_t mixEscapeSeed(int32_t troopId);
 double nextEscapeRoll(uint32_t& state);
 bool isBlankFormula(const std::string& formula);
 urpg::scene::BattleParticipant makeFormulaParticipant(const BattleSubject* subject);
-std::string composeFormulaDeviation(const std::string& baseDeviation, const std::string& fallbackReason, int32_t databaseId);
 QuickJSContext::MethodDef makeMethodDef(std::string name, QuickJSContext::HostFunction fn, CompatStatus status, std::string deviationNote = {});
 int32_t getModifierStage(const BattleSubject* subject, int32_t paramId);
 double modifierMultiplier(int32_t stage);

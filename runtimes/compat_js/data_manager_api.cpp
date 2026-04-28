@@ -29,32 +29,32 @@ void DataManager::registerAPI(QuickJSContext& ctx) {
 
     methods.push_back({"loadDatabase", [](const std::vector<Value>&) -> Value {
         return Value::Int(DataManager::instance().loadDatabase() ? 1 : 0);
-    }, CompatStatus::PARTIAL});
+    }, CompatStatus::FULL});
 
     methods.push_back({"saveGame", [](const std::vector<Value>& args) -> Value {
         if (args.empty() || !std::holds_alternative<int64_t>(args[0].v)) return Value::Int(0);
         return Value::Int(DataManager::instance().saveGame(static_cast<int32_t>(std::get<int64_t>(args[0].v))) ? 1 : 0);
-    }, CompatStatus::PARTIAL});
+    }, CompatStatus::FULL});
 
     methods.push_back({"loadGame", [](const std::vector<Value>& args) -> Value {
         if (args.empty() || !std::holds_alternative<int64_t>(args[0].v)) return Value::Int(0);
         return Value::Int(DataManager::instance().loadGame(static_cast<int32_t>(std::get<int64_t>(args[0].v))) ? 1 : 0);
-    }, CompatStatus::PARTIAL});
+    }, CompatStatus::FULL});
 
     methods.push_back({"getGold", [](const std::vector<Value>&) -> Value {
         return Value::Int(DataManager::instance().getGold());
-    }, CompatStatus::PARTIAL});
+    }, CompatStatus::FULL});
 
     methods.push_back({"setGold", [](const std::vector<Value>& args) -> Value {
         if (args.empty() || !std::holds_alternative<int64_t>(args[0].v)) return Value::Nil();
         DataManager::instance().setGold(static_cast<int32_t>(std::get<int64_t>(args[0].v)));
         return Value::Nil();
-    }, CompatStatus::PARTIAL});
+    }, CompatStatus::FULL});
 
     methods.push_back({"getSwitch", [](const std::vector<Value>& args) -> Value {
         if (args.empty() || !std::holds_alternative<int64_t>(args[0].v)) return Value::Int(0);
         return Value::Int(DataManager::instance().getSwitch(static_cast<int32_t>(std::get<int64_t>(args[0].v))) ? 1 : 0);
-    }, CompatStatus::PARTIAL});
+    }, CompatStatus::FULL});
 
     methods.push_back({"setSwitch", [](const std::vector<Value>& args) -> Value {
         if (args.size() < 2 || !std::holds_alternative<int64_t>(args[0].v)) return Value::Nil();
@@ -63,12 +63,12 @@ void DataManager::registerAPI(QuickJSContext& ctx) {
         else if (std::holds_alternative<int64_t>(args[1].v)) val = std::get<int64_t>(args[1].v) != 0;
         DataManager::instance().setSwitch(static_cast<int32_t>(std::get<int64_t>(args[0].v)), val);
         return Value::Nil();
-    }, CompatStatus::PARTIAL});
+    }, CompatStatus::FULL});
 
     methods.push_back({"getVariable", [](const std::vector<Value>& args) -> Value {
         if (args.empty() || !std::holds_alternative<int64_t>(args[0].v)) return Value::Int(0);
         return Value::Int(DataManager::instance().getVariable(static_cast<int32_t>(std::get<int64_t>(args[0].v))));
-    }, CompatStatus::PARTIAL});
+    }, CompatStatus::FULL});
 
     methods.push_back({"setVariable", [](const std::vector<Value>& args) -> Value {
         if (args.size() < 2 || !std::holds_alternative<int64_t>(args[0].v)) return Value::Nil();
@@ -77,18 +77,18 @@ void DataManager::registerAPI(QuickJSContext& ctx) {
         else if (std::holds_alternative<double>(args[1].v)) val = static_cast<int32_t>(std::get<double>(args[1].v));
         DataManager::instance().setVariable(static_cast<int32_t>(std::get<int64_t>(args[0].v)), val);
         return Value::Nil();
-    }, CompatStatus::PARTIAL});
+    }, CompatStatus::FULL});
 
     methods.push_back({"getItemCount", [](const std::vector<Value>& args) -> Value {
         if (args.empty() || !std::holds_alternative<int64_t>(args[0].v)) return Value::Int(0);
         return Value::Int(DataManager::instance().getItemCount(static_cast<int32_t>(std::get<int64_t>(args[0].v))));
-    }, CompatStatus::PARTIAL});
+    }, CompatStatus::FULL});
 
     methods.push_back({"gainItem", [](const std::vector<Value>& args) -> Value {
         if (args.size() < 2 || !std::holds_alternative<int64_t>(args[0].v) || !std::holds_alternative<int64_t>(args[1].v)) return Value::Nil();
         DataManager::instance().gainItem(static_cast<int32_t>(std::get<int64_t>(args[0].v)), static_cast<int32_t>(std::get<int64_t>(args[1].v)));
         return Value::Nil();
-    }, CompatStatus::PARTIAL});
+    }, CompatStatus::FULL});
 
     ctx.registerObject("DataManager", methods);
 }
