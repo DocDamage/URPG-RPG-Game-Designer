@@ -21,6 +21,10 @@ bool containsCommand(const std::vector<std::string>& commands, const std::string
     return std::find(commands.begin(), commands.end(), command) != commands.end();
 }
 
+bool containsValue(const std::vector<std::string>& values, const std::string& value) {
+    return std::find(values.begin(), values.end(), value) != values.end();
+}
+
 } // namespace
 
 TEST_CASE("3D dungeon world converts 2D map data into runtime raycast preview", "[dungeon3d][wysiwyg]") {
@@ -45,6 +49,8 @@ TEST_CASE("3D dungeon world converts 2D map data into runtime raycast preview", 
     REQUIRE(document.camera_rails.size() == 1);
     REQUIRE(document.room_templates.size() == 1);
     REQUIRE(document.boss_arenas.size() == 1);
+    REQUIRE(document.visual_verification_steps.size() == 2);
+    REQUIRE(document.template_bindings.size() == 2);
     REQUIRE(document.camera_feel.fov == 72.0f);
     REQUIRE(document.materials.size() == 2);
     REQUIRE(document.validate().empty());
@@ -85,6 +91,19 @@ TEST_CASE("3D dungeon world converts 2D map data into runtime raycast preview", 
     REQUIRE(preview.boss_arena_count == 1);
     REQUIRE(preview.active_boss_arena_count == 0);
     REQUIRE(preview.defeated_boss_arena_count == 0);
+    REQUIRE(preview.visual_authoring_layer_count == 13);
+    REQUIRE(preview.verification_step_count == 2);
+    REQUIRE(preview.required_verification_step_count == 2);
+    REQUIRE(preview.passed_verification_step_count == 0);
+    REQUIRE(preview.template_binding_count == 2);
+    REQUIRE(preview.enabled_template_binding_count == 2);
+    REQUIRE(preview.verification_completion == 0.0f);
+    REQUIRE(containsValue(preview.visual_authoring_layers, "lighting_weather"));
+    REQUIRE(containsValue(preview.visual_authoring_layers, "spawn_tables"));
+    REQUIRE(containsValue(preview.visual_authoring_layers, "stealth"));
+    REQUIRE(containsValue(preview.visual_authoring_layers, "boss_arenas"));
+    REQUIRE(containsValue(preview.template_binding_ids, "2_5d_rpg"));
+    REQUIRE(containsValue(preview.template_binding_ids, "metroidvania_lite"));
     REQUIRE(preview.camera_fov == 72.0f);
     REQUIRE(preview.camera_head_bob == 0.05f);
     REQUIRE_FALSE(preview.player_hidden);
@@ -102,6 +121,8 @@ TEST_CASE("3D dungeon world converts 2D map data into runtime raycast preview", 
     REQUIRE(containsCommand(preview.runtime_commands, "preview_camera_rail:door_reveal_rail"));
     REQUIRE(containsCommand(preview.runtime_commands, "preview_room_template:crypt_guard_room"));
     REQUIRE(containsCommand(preview.runtime_commands, "preview_boss_arena:crypt_champion_arena"));
+    REQUIRE(containsCommand(preview.runtime_commands, "bind_template_3d:2_5d_rpg"));
+    REQUIRE(containsCommand(preview.runtime_commands, "bind_template_3d:metroidvania_lite"));
     REQUIRE(containsCommand(preview.runtime_commands, "raycast_frame:ancient_crypt"));
     REQUIRE(containsCommand(preview.runtime_commands, "update_automap:ancient_crypt"));
 }
@@ -147,6 +168,15 @@ TEST_CASE("3D dungeon world supports 2D to 3D switching and WYSIWYG panel snapsh
     REQUIRE(panel.snapshot().boss_arena_count == 1);
     REQUIRE(panel.snapshot().active_boss_arena_count == 0);
     REQUIRE(panel.snapshot().defeated_boss_arena_count == 0);
+    REQUIRE(panel.snapshot().visual_authoring_layer_count == 13);
+    REQUIRE(panel.snapshot().verification_step_count == 2);
+    REQUIRE(panel.snapshot().required_verification_step_count == 2);
+    REQUIRE(panel.snapshot().passed_verification_step_count == 0);
+    REQUIRE(panel.snapshot().template_binding_count == 2);
+    REQUIRE(panel.snapshot().enabled_template_binding_count == 2);
+    REQUIRE(panel.snapshot().verification_completion == 0.0f);
+    REQUIRE(containsValue(panel.snapshot().visual_authoring_layers, "lighting_weather"));
+    REQUIRE(containsValue(panel.snapshot().template_binding_ids, "2_5d_rpg"));
     REQUIRE(panel.snapshot().camera_fov == 72.0f);
     REQUIRE(panel.snapshot().camera_head_bob == 0.05f);
     REQUIRE(panel.snapshot().active_ambient_sound == "ambience_crypt_echo");
@@ -157,14 +187,14 @@ TEST_CASE("3D dungeon world supports 2D to 3D switching and WYSIWYG panel snapsh
     REQUIRE(panel.snapshot().nearest_patrol_id == "skeleton_guard_route");
     REQUIRE_FALSE(panel.snapshot().player_hidden);
     REQUIRE(panel.snapshot().average_wall_distance > 0.0f);
-    REQUIRE(panel.snapshot().runtime_command_count == 10);
+    REQUIRE(panel.snapshot().runtime_command_count == 12);
     REQUIRE(panel.saveProjectData() == document.toJson());
     REQUIRE(urpg::render::dungeon3DPreviewToJson(panel.preview())["columns"].size() == 64);
 
     panel.setMode("2d");
     REQUIRE(panel.snapshot().mode == "2d");
     REQUIRE(panel.snapshot().raycast_column_count == 0);
-    REQUIRE(panel.snapshot().runtime_command_count == 9);
+    REQUIRE(panel.snapshot().runtime_command_count == 11);
     REQUIRE(containsCommand(panel.preview().runtime_commands, "switch_to_2d:ancient_crypt"));
 
     const auto switched = document.switchMode("3d");
@@ -513,6 +543,51 @@ TEST_CASE("3D dungeon world places room templates and resolves boss arenas", "[d
     REQUIRE(panel.snapshot().defeated_boss_arena_count == 1);
     REQUIRE(panel.snapshot().last_event_log_entry == "defeat_boss_arena:crypt_champion_arena");
     REQUIRE_FALSE(panel.startBossArena("missing_arena"));
+}
+
+TEST_CASE("3D dungeon world persists visual verification and template bindings", "[dungeon3d][wysiwyg]") {
+    auto document = urpg::render::Dungeon3DWorldDocument::fromJson(loadFixture("dungeon3d_world"));
+    auto preview = document.preview();
+
+    REQUIRE(preview.verification_step_count == 2);
+    REQUIRE(preview.passed_verification_step_count == 0);
+    REQUIRE(preview.template_binding_count == 2);
+    REQUIRE(containsCommand(preview.runtime_commands, "bind_template_3d:2_5d_rpg"));
+
+    REQUIRE(document.markVisualVerification("runtime_preview_match", true, "captures/dungeon3d/runtime-preview-match.png"));
+    preview = document.preview();
+    REQUIRE(preview.passed_verification_step_count == 1);
+    REQUIRE(preview.verification_completion == 0.5f);
+    REQUIRE(document.visual_verification_steps.front().evidence == "captures/dungeon3d/runtime-preview-match.png");
+    REQUIRE(document.session.event_log.back() == "mark_visual_verification:runtime_preview_match:passed");
+
+    const auto json = document.toJson();
+    REQUIRE(json.at("visual_verification_steps").at(0).at("passed").get<bool>());
+    REQUIRE(json.at("template_bindings").size() == 2);
+
+    auto roundtrip = urpg::render::Dungeon3DWorldDocument::fromJson(json);
+    REQUIRE(roundtrip.visual_verification_steps.front().passed);
+    REQUIRE(roundtrip.visual_verification_steps.front().evidence == "captures/dungeon3d/runtime-preview-match.png");
+    REQUIRE(roundtrip.template_bindings.front().template_id == "2_5d_rpg");
+
+    urpg::editor::Dungeon3DWorldPanel panel;
+    panel.loadDocument(urpg::render::Dungeon3DWorldDocument::fromJson(loadFixture("dungeon3d_world")));
+    REQUIRE(panel.markVisualVerification("manual_walkthrough", true, "manual-review:2026-04-28"));
+    REQUIRE(panel.snapshot().passed_verification_step_count == 1);
+    REQUIRE(panel.snapshot().verification_completion == 0.5f);
+    REQUIRE(panel.snapshot().last_event_log_entry == "mark_visual_verification:manual_walkthrough:passed");
+    REQUIRE_FALSE(panel.markVisualVerification("missing_step", true, "manual-review:missing"));
+
+    auto invalid = urpg::render::Dungeon3DWorldDocument::fromJson(loadFixture("dungeon3d_world"));
+    invalid.visual_verification_steps.push_back(invalid.visual_verification_steps.front());
+    invalid.template_bindings.push_back(invalid.template_bindings.front());
+    const auto diagnostics = invalid.validate();
+    REQUIRE(std::any_of(diagnostics.begin(), diagnostics.end(), [](const auto& diagnostic) {
+        return diagnostic.code == "duplicate_visual_verification_id";
+    }));
+    REQUIRE(std::any_of(diagnostics.begin(), diagnostics.end(), [](const auto& diagnostic) {
+        return diagnostic.code == "duplicate_template_binding_id";
+    }));
 }
 
 TEST_CASE("3D dungeon world is release registered with promoted spatial authoring", "[dungeon3d][wysiwyg]") {

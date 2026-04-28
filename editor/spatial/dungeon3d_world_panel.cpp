@@ -129,6 +129,14 @@ bool Dungeon3DWorldPanel::defeatBossArena(std::string arena_id) {
     return defeated;
 }
 
+bool Dungeon3DWorldPanel::markVisualVerification(std::string step_id, bool passed, std::string evidence) {
+    const bool marked = document_.markVisualVerification(std::move(step_id), passed, std::move(evidence));
+    if (loaded_) {
+        refresh();
+    }
+    return marked;
+}
+
 void Dungeon3DWorldPanel::rotate(float radians) {
     document_.rotate(radians);
     if (loaded_) {
@@ -193,6 +201,12 @@ void Dungeon3DWorldPanel::refresh() {
     snapshot_.boss_arena_count = static_cast<size_t>(preview_.boss_arena_count);
     snapshot_.active_boss_arena_count = static_cast<size_t>(preview_.active_boss_arena_count);
     snapshot_.defeated_boss_arena_count = static_cast<size_t>(preview_.defeated_boss_arena_count);
+    snapshot_.visual_authoring_layer_count = static_cast<size_t>(preview_.visual_authoring_layer_count);
+    snapshot_.verification_step_count = static_cast<size_t>(preview_.verification_step_count);
+    snapshot_.required_verification_step_count = static_cast<size_t>(preview_.required_verification_step_count);
+    snapshot_.passed_verification_step_count = static_cast<size_t>(preview_.passed_verification_step_count);
+    snapshot_.template_binding_count = static_cast<size_t>(preview_.template_binding_count);
+    snapshot_.enabled_template_binding_count = static_cast<size_t>(preview_.enabled_template_binding_count);
     snapshot_.opened_door_count = static_cast<size_t>(preview_.opened_door_count);
     snapshot_.revealed_secret_count = static_cast<size_t>(preview_.revealed_secret_count);
     snapshot_.runtime_command_count = preview_.runtime_commands.size();
@@ -205,6 +219,9 @@ void Dungeon3DWorldPanel::refresh() {
     snapshot_.camera_fov = preview_.camera_fov;
     snapshot_.camera_head_bob = preview_.camera_head_bob;
     snapshot_.camera_shake = preview_.camera_shake;
+    snapshot_.verification_completion = preview_.verification_completion;
+    snapshot_.visual_authoring_layers = preview_.visual_authoring_layers;
+    snapshot_.template_binding_ids = preview_.template_binding_ids;
     snapshot_.active_ambient_sound = preview_.active_ambient_sound;
     snapshot_.active_reverb_preset = preview_.active_reverb_preset;
     snapshot_.active_weather = preview_.active_weather;

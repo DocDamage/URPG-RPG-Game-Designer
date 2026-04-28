@@ -316,6 +316,36 @@
         }
       }
     },
+    "visual_verification_steps": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "label", "category", "required", "passed", "evidence"],
+        "properties": {
+          "id": { "type": "string", "minLength": 1 },
+          "label": { "type": "string" },
+          "category": { "type": "string" },
+          "required": { "type": "boolean" },
+          "passed": { "type": "boolean" },
+          "evidence": { "type": "string" }
+        }
+      }
+    },
+    "template_bindings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["template_id", "surface_id", "required_feature_tags", "enabled"],
+        "properties": {
+          "template_id": { "type": "string", "minLength": 1 },
+          "surface_id": { "type": "string", "minLength": 1 },
+          "required_feature_tags": { "type": "array", "items": { "type": "string", "minLength": 1 } },
+          "enabled": { "type": "boolean" }
+        }
+      }
+    },
     "materials": {
       "type": "array",
       "minItems": 1,

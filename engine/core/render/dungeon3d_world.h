@@ -206,6 +206,22 @@ struct Dungeon3DBossArena {
     bool defeated = false;
 };
 
+struct Dungeon3DVisualVerificationStep {
+    std::string id;
+    std::string label;
+    std::string category;
+    bool required = true;
+    bool passed = false;
+    std::string evidence;
+};
+
+struct Dungeon3DTemplateBinding {
+    std::string template_id;
+    std::string surface_id;
+    std::vector<std::string> required_feature_tags;
+    bool enabled = true;
+};
+
 struct Dungeon3DColumn {
     int32_t x = 0;
     int32_t map_x = 0;
@@ -356,6 +372,15 @@ struct Dungeon3DPreview {
     float camera_head_bob = 0.0f;
     float camera_shake = 0.0f;
     std::string active_camera_rail_id;
+    std::vector<std::string> visual_authoring_layers;
+    std::vector<std::string> template_binding_ids;
+    int32_t visual_authoring_layer_count = 0;
+    int32_t verification_step_count = 0;
+    int32_t required_verification_step_count = 0;
+    int32_t passed_verification_step_count = 0;
+    int32_t template_binding_count = 0;
+    int32_t enabled_template_binding_count = 0;
+    float verification_completion = 0.0f;
 };
 
 class Dungeon3DWorldDocument {
@@ -387,6 +412,8 @@ public:
     std::vector<Dungeon3DCameraRailCue> camera_rails;
     std::vector<Dungeon3DRoomTemplate> room_templates;
     std::vector<Dungeon3DBossArena> boss_arenas;
+    std::vector<Dungeon3DVisualVerificationStep> visual_verification_steps;
+    std::vector<Dungeon3DTemplateBinding> template_bindings;
     std::map<std::string, Dungeon3DMaterial> materials;
     std::vector<Dungeon3DCell> cells;
 
@@ -407,6 +434,7 @@ public:
     bool placeRoomTemplate(std::string template_id);
     bool startBossArena(std::string arena_id);
     bool defeatBossArena(std::string arena_id);
+    bool markVisualVerification(std::string step_id, bool passed, std::string evidence);
     void rotate(float radians);
     [[nodiscard]] nlohmann::json toJson() const;
 

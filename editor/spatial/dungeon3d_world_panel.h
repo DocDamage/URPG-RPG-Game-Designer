@@ -5,6 +5,7 @@
 #include <nlohmann/json.hpp>
 
 #include <string>
+#include <vector>
 
 namespace urpg::editor {
 
@@ -45,6 +46,12 @@ struct Dungeon3DWorldPanelSnapshot {
     size_t boss_arena_count = 0;
     size_t active_boss_arena_count = 0;
     size_t defeated_boss_arena_count = 0;
+    size_t visual_authoring_layer_count = 0;
+    size_t verification_step_count = 0;
+    size_t required_verification_step_count = 0;
+    size_t passed_verification_step_count = 0;
+    size_t template_binding_count = 0;
+    size_t enabled_template_binding_count = 0;
     size_t opened_door_count = 0;
     size_t revealed_secret_count = 0;
     size_t runtime_command_count = 0;
@@ -57,6 +64,9 @@ struct Dungeon3DWorldPanelSnapshot {
     float camera_fov = 66.0f;
     float camera_head_bob = 0.0f;
     float camera_shake = 0.0f;
+    float verification_completion = 0.0f;
+    std::vector<std::string> visual_authoring_layers;
+    std::vector<std::string> template_binding_ids;
     std::string active_ambient_sound;
     std::string active_reverb_preset;
     std::string active_weather;
@@ -98,6 +108,7 @@ public:
     bool placeRoomTemplate(std::string template_id);
     bool startBossArena(std::string arena_id);
     bool defeatBossArena(std::string arena_id);
+    bool markVisualVerification(std::string step_id, bool passed, std::string evidence);
     void rotate(float radians);
     void render();
 

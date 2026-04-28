@@ -2,7 +2,7 @@
 
 ![URPG Header](https://raw.githubusercontent.com/URPG-Project/assets/main/header.png)
 
-URPG is a native-first C++20 RPG engine and editor for deterministic 2D RPG development. It combines a native runtime core, an ImGui editor, RPG Maker MZ compatibility and migration tooling, OpenGL and headless rendering paths, release packaging, and evidence-backed validation.
+URPG is a native-first C++20 RPG engine and editor for deterministic 2D, 2.5D, and RPG-style 3D dungeon/world development. It combines a native runtime core, an ImGui editor, RPG Maker MZ compatibility and migration tooling, OpenGL and headless rendering paths, release packaging, and evidence-backed validation.
 
 The product goal is a WYSIWYG authoring experience where creators edit the same runtime behavior that ships. No system is treated as done until it has a visual authoring surface, live preview, saved project data, runtime execution, diagnostics, and tests, with that evidence represented truthfully in the project docs and readiness data.
 
@@ -46,6 +46,7 @@ Repository-wide source/vendor LFS hydration is still externally constrained by G
 - Runtime VFX cue baseline for battle effects, including semantic cue kinds and resolver/translator coverage.
 - Spatial presentation/editor support for terrain elevation, props, interaction overlays, and composed workspace snapshots.
 - 3D Dungeon World support with RPG Maker-style 2D-map-to-3D switching, raycast runtime preview, camera feel controls, cutscene camera rails, reusable room templates, boss arena setup/defeat flow, wall/floor/ceiling material customization with lighting and footstep metadata, collision-aware movement, facing-cell interaction/stair/event preview, locked doors, switch-to-door links, required items, secret walls, floor transfers, encounter cells/zones, traps/disarming, patrol routes, vision cones, hiding spots, stealth alert state, puzzle devices with target links, audio zones, floor atmosphere/weather/particles/light cues, persistent automap/session state, authored floors, map markers, objectives, notes, minimap visibility, diagnostics, saved JSON, and a release-registered WYSIWYG editor panel.
+- 3D WYSIWYG authoring depth for visual authoring layers, saved manual/runtime verification steps, evidence strings, verification completion metrics, template bindings, and runtime commands tying dungeon/world systems into 2.5D RPG and metroidvania-lite template lanes.
 - Baseline raycast/2.5D presentation lane support in the native render stack.
 
 ### RPG Systems
@@ -78,7 +79,7 @@ Repository-wide source/vendor LFS hydration is still externally constrained by G
 - Project Health dashboard slice with grouped health cards and deterministic remediation ordering.
 - Asset Library runtime/editor model with asset records, provenance packets, duplicate grouping, case-collision flags, report loading, safe cleanup previews, and raw asset intake indexing.
 - Ability Inspector with draft authoring, preview/test activation, runtime application, canonical `content/abilities/` discovery, load/apply/save workflows, and map-scene handoff.
-- Spatial Authoring Workspace that composes elevation painting, prop placement, map ability binding, direct canvas overlays, and release-level 3D dungeon authoring.
+- Spatial Authoring Workspace that composes elevation painting, prop placement, map ability binding, direct canvas overlays, release-level 3D dungeon authoring, and saved WYSIWYG verification/template-binding state for 3D dungeon/world projects.
 - Direct canvas interaction authoring with click-to-place tile bindings, prop handles, region painting/resizing, hover previews, trigger switching, conflict warnings, and suggested conflict resolution.
 - Character Creator, Achievement, Accessibility, Audio Mix, Analytics, Export Diagnostics, Mod Manager, Input Remap, Localization, Performance Diagnostics, and Project/New Project surfaces with explicit disabled/empty/error states where dependencies are absent.
 - Release-registered WYSIWYG panels for the gameplay maker, community-requested, expanded maker, visual creator, and itch.io-inspired systems, including quest, skill tree, relationship, cutscene timeline, encounter designer, loot generator, crafting loop, monster collection, NPC schedule, metroidvania gates, status effects, enemy AI, boss phases, equipment sets, dungeon flow, companion banter, quest consequences, shop economy lab, puzzle builder, world-state timeline, tactical terrain, procedural rules, smart event workflows, event templates, interaction prompts, message history, minimap/fog, picture hotspots, common event menus, debug overlay, switch/variable inspector, asset/DLC library manager, HUD maker, plugin conflict resolver, project search, reference repair, batch edit, diff review, template sync, parallax mapping, collision/passability visualization, route planning, hidden objects, biome rules, dialogue relationship matrices, branch coverage, cutscene blocking, localization review, formula labs, troop timelines, skill combos, bestiary discovery, formations, menu builder, journal hub, notifications, prompt skins, playtest recorder, bug report packager, performance heatmap, release checklist, store asset generator, mod conflict visualizer, mod packaging wizard, plugin migration advisor, fast travel, platformer type, gacha, map zoom, picture UI creator, realtime event effects, directional shadows, dynamic environment effects, camera director, post FX, weather composer, lighting painter, platformer physics, action combat, summon banners, mission boards, relationship scheduler, farming, fishing, mounts, stealth, puzzle logic, phone UI, crafting recipe graph, housing decoration, companion command wheel, title/save builder, credits/ending builder, tutorial overlay, accessibility preview, economy simulator, encounter zone painter, random dungeon stitcher, achievement visuals, mod marketplace packager, objective radar, resource cleaner, visual inventory, animated pictures, horror FX, cutscene skip, translation helper, cook dashboard, break shields, boost points, weapon swap, order-turn battle, concoctions, unison attacks, timed attacks, action-sequence impact, side battle HUD, victory screen, state tooltips, loading screens, popups, animated windows, video playback, tactical battle, bullet hell, card battle, spin-top battle, recruiting board, step rewards, event spawner, smart timers, actor construct, visible equipment, skill equip, and front-view battle mode.
@@ -117,18 +118,21 @@ Repository-wide source/vendor LFS hydration is still externally constrained by G
 URPG is a strong native/editor foundation, not a finished public product. Important limitations are intentionally documented:
 
 - Public release is blocked until legal/privacy/distribution approval or waiver is recorded.
-- Some editor surfaces are release-registered but still have partial graphical/manual behavior verification.
+- Some editor surfaces are release-registered but still need broader graphical/manual behavior verification across real creator workflows and renderer/device matrices.
 - Several newly added WYSIWYG systems are first complete implementation slices with deterministic runtime/editor contracts and headless panel evidence; deeper bespoke UI polish and wider game-template integration remain product-depth work.
+- 3D dungeon/world authoring now persists visual authoring layers, manual verification steps, evidence, completion metrics, and template bindings, but broader live visual review coverage and cross-template production examples still need more slices.
 - Export hardening still has backlog items such as native signing, notarization, broader platform validation, and public release artifact policy.
 - Achievement platform backends are out of tree; the current implementation is a vendor-neutral registry/export payload.
 - The QuickJS compatibility layer is a bounded import/validation/migration harness, not a promise of complete live RPG Maker JavaScript runtime parity.
 - The in-tree AI/cloud surfaces are local/simulated boundaries only; live providers are out of tree.
 - The production asset library is still conservative. Raw/vendor/source asset packs are not treated as release-package dependencies.
+- FAISS retrieval, SAM/SAM2 segmentation, and Demucs/Encodec audio processing remain offline artifact-generation lanes, not runtime dependencies.
 
 ## Remaining Product Work
 
 The roadmap remains WYSIWYG-first. Most previously listed future-feature slices now have first implementation slices in the tree. Remaining work is product-depth, polish, integration, and public-release hardening:
 
+- deeper 3D dungeon/world production samples with richer world-depth, broader game-template coverage, and manual visual evidence captured against real editor/runtime workflows
 - battle animation/VFX timeline editing with the same cues the runtime ships
 - map lighting, weather, and region previews backed by runtime data
 - dialogue preview with portraits, choices, variables, and localization
@@ -144,6 +148,8 @@ The roadmap remains WYSIWYG-first. Most previously listed future-feature slices 
 - richer battle presentation tooling beyond the current authoring contracts
 - deeper tile renderer/editor integration for worldbuilding documents, region rules, procedural maps, tactical overlays, spawn tables, lighting, and weather
 - platform-specific achievement backend integrations beyond the current vendor-neutral registry/export payload
+- external mod marketplace services, payments, reviews, publishing, production analytics privacy review, and live AI/cloud providers as explicit project-configured integrations rather than in-tree runtime assumptions
+- offline artifact tooling for retrieval, segmentation, and audio processing without adding runtime dependency creep
 - production asset library promotion after license review, attribution review, and LFS/package constraints are resolved
 - public-release legal/privacy/distribution approval or an explicit public-release waiver
 - final release decision and annotated prerelease/release tag

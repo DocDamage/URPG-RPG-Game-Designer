@@ -176,6 +176,22 @@ Dungeon3DBossArena bossArenaFromJson(const nlohmann::json& json) {
             json.value("defeated", false)};
 }
 
+Dungeon3DVisualVerificationStep visualVerificationStepFromJson(const nlohmann::json& json) {
+    return {json.value("id", ""),
+            json.value("label", ""),
+            json.value("category", ""),
+            json.value("required", true),
+            json.value("passed", false),
+            json.value("evidence", "")};
+}
+
+Dungeon3DTemplateBinding templateBindingFromJson(const nlohmann::json& json) {
+    return {json.value("template_id", ""),
+            json.value("surface_id", ""),
+            json.value("required_feature_tags", std::vector<std::string>{}),
+            json.value("enabled", true)};
+}
+
 nlohmann::json materialToJson(const Dungeon3DMaterial& material) {
     return {{"id", material.id},
             {"wall_texture", material.wall_texture},
@@ -340,6 +356,22 @@ nlohmann::json bossArenaToJson(const Dungeon3DBossArena& arena) {
             {"boss_encounter_tag", arena.boss_encounter_tag},
             {"reward_marker_id", arena.reward_marker_id},
             {"defeated", arena.defeated}};
+}
+
+nlohmann::json visualVerificationStepToJson(const Dungeon3DVisualVerificationStep& step) {
+    return {{"id", step.id},
+            {"label", step.label},
+            {"category", step.category},
+            {"required", step.required},
+            {"passed", step.passed},
+            {"evidence", step.evidence}};
+}
+
+nlohmann::json templateBindingToJson(const Dungeon3DTemplateBinding& binding) {
+    return {{"template_id", binding.template_id},
+            {"surface_id", binding.surface_id},
+            {"required_feature_tags", binding.required_feature_tags},
+            {"enabled", binding.enabled}};
 }
 
 Dungeon3DCell cellFromJson(const nlohmann::json& json) {
@@ -1003,6 +1035,40 @@ std::vector<Dungeon3DDiagnostic> Dungeon3DWorldDocument::validate() const {
             diagnostics.push_back({"unknown_boss_arena_reward", "3D dungeon boss arena references an unknown reward marker: " + arena.id});
         }
     }
+    std::set<std::string> verification_step_ids;
+    for (const auto& step : visual_verification_steps) {
+        if (step.id.empty()) {
+            diagnostics.push_back({"missing_visual_verification_id", "3D dungeon visual verification step is missing an id."});
+        } else if (!verification_step_ids.insert(step.id).second) {
+            diagnostics.push_back({"duplicate_visual_verification_id",
+                                   "3D dungeon visual verification step id is duplicated: " + step.id});
+        }
+        if (step.label.empty()) {
+            diagnostics.push_back({"missing_visual_verification_label",
+                                   "3D dungeon visual verification step is missing a label: " + step.id});
+        }
+        if (step.passed && step.evidence.empty()) {
+            diagnostics.push_back({"missing_visual_verification_evidence",
+                                   "3D dungeon passed visual verification step needs evidence: " + step.id});
+        }
+    }
+    std::set<std::string> template_binding_ids;
+    for (const auto& binding : template_bindings) {
+        if (binding.template_id.empty()) {
+            diagnostics.push_back({"missing_template_binding_id", "3D dungeon template binding is missing a template id."});
+        } else if (!template_binding_ids.insert(binding.template_id).second) {
+            diagnostics.push_back({"duplicate_template_binding_id",
+                                   "3D dungeon template binding id is duplicated: " + binding.template_id});
+        }
+        if (binding.surface_id.empty()) {
+            diagnostics.push_back({"missing_template_binding_surface",
+                                   "3D dungeon template binding is missing a surface id: " + binding.template_id});
+        }
+        if (binding.enabled && binding.required_feature_tags.empty()) {
+            diagnostics.push_back({"empty_template_binding_features",
+                                   "3D dungeon enabled template binding has no required feature tags: " + binding.template_id});
+        }
+    }
     return diagnostics;
 }
 
@@ -1021,7 +1087,15 @@ Dungeon3DPreview Dungeon3DWorldDocument::preview() const {
     result.boss_arena_count = static_cast<int32_t>(boss_arenas.size());
     result.active_boss_arena_count = static_cast<int32_t>(session.active_boss_arenas.size());
     result.defeated_boss_arena_count = static_cast<int32_t>(session.defeated_boss_arenas.size());
+    result.verification_step_count = static_cast<int32_t>(visual_verification_steps.size());
+    result.template_binding_count = static_cast<int32_t>(template_bindings.size());
     result.runtime_commands.push_back("camera_feel:" + map_id);
+    auto add_authoring_layer = [&](const std::string& layer) {
+        if (std::find(result.visual_authoring_layers.begin(), result.visual_authoring_layers.end(), layer) ==
+            result.visual_authoring_layers.end()) {
+            result.visual_authoring_layers.push_back(layer);
+        }
+    };
     for (const auto& cell : cells) {
         if (cell.blocking) {
             ++result.blocking_cell_count;
@@ -1039,6 +1113,9 @@ Dungeon3DPreview Dungeon3DWorldDocument::preview() const {
             ++result.encounter_cell_count;
         }
     }
+    if (!cells.empty()) {
+        add_authoring_layer("tile_collision");
+    }
     result.opened_door_count = static_cast<int32_t>(session.opened_doors.size());
     result.revealed_secret_count = static_cast<int32_t>(session.revealed_secrets.size());
     for (const auto& marker : markers) {
@@ -1053,6 +1130,9 @@ Dungeon3DPreview Dungeon3DWorldDocument::preview() const {
             }
         }
     }
+    if (!markers.empty() || !notes.empty()) {
+        add_authoring_layer("map_annotations");
+    }
     result.note_count = static_cast<int32_t>(notes.size());
     result.encounter_zone_count = static_cast<int32_t>(encounter_zones.size());
     result.lock_link_count = static_cast<int32_t>(lock_links.size());
@@ -1061,6 +1141,59 @@ Dungeon3DPreview Dungeon3DWorldDocument::preview() const {
     result.patrol_count = static_cast<int32_t>(patrol_routes.size());
     result.hiding_spot_count = static_cast<int32_t>(hiding_spots.size());
     result.puzzle_device_count = static_cast<int32_t>(puzzle_devices.size());
+    if (!materials.empty()) {
+        add_authoring_layer("materials");
+    }
+    if (!atmospheres.empty()) {
+        add_authoring_layer("lighting_weather");
+    }
+    if (!encounter_zones.empty() || result.encounter_cell_count > 0) {
+        add_authoring_layer("spawn_tables");
+    }
+    if (!lock_links.empty()) {
+        add_authoring_layer("lock_links");
+    }
+    if (!traps.empty()) {
+        add_authoring_layer("traps");
+    }
+    if (!audio_zones.empty()) {
+        add_authoring_layer("spatial_audio");
+    }
+    if (!patrol_routes.empty() || !hiding_spots.empty()) {
+        add_authoring_layer("stealth");
+    }
+    if (!puzzle_devices.empty()) {
+        add_authoring_layer("puzzles");
+    }
+    if (!camera_rails.empty()) {
+        add_authoring_layer("camera_rails");
+    }
+    if (!room_templates.empty()) {
+        add_authoring_layer("room_templates");
+    }
+    if (!boss_arenas.empty()) {
+        add_authoring_layer("boss_arenas");
+    }
+    for (const auto& step : visual_verification_steps) {
+        if (step.required) {
+            ++result.required_verification_step_count;
+        }
+        if (step.passed) {
+            ++result.passed_verification_step_count;
+        }
+    }
+    if (result.verification_step_count > 0) {
+        result.verification_completion =
+            static_cast<float>(result.passed_verification_step_count) / static_cast<float>(result.verification_step_count);
+    }
+    for (const auto& binding : template_bindings) {
+        result.template_binding_ids.push_back(binding.template_id);
+        if (binding.enabled) {
+            ++result.enabled_template_binding_count;
+            result.runtime_commands.push_back("bind_template_3d:" + binding.template_id);
+        }
+    }
+    result.visual_authoring_layer_count = static_cast<int32_t>(result.visual_authoring_layers.size());
     for (const auto& trap : traps) {
         if (trap.armed && !session.disabled_traps.contains(trap.id)) {
             ++result.armed_trap_count;
@@ -1562,6 +1695,19 @@ bool Dungeon3DWorldDocument::defeatBossArena(std::string arena_id) {
     return true;
 }
 
+bool Dungeon3DWorldDocument::markVisualVerification(std::string step_id, bool passed, std::string evidence) {
+    const auto found = std::find_if(visual_verification_steps.begin(), visual_verification_steps.end(), [&](const auto& step) {
+        return step.id == step_id;
+    });
+    if (found == visual_verification_steps.end()) {
+        return false;
+    }
+    found->passed = passed;
+    found->evidence = std::move(evidence);
+    session.event_log.push_back(std::string{"mark_visual_verification:"} + step_id + ":" + (passed ? "passed" : "failed"));
+    return true;
+}
+
 bool Dungeon3DWorldDocument::enterHidingSpot(std::string hiding_spot_id) {
     if (hiding_spot_id.empty()) {
         return false;
@@ -1693,6 +1839,14 @@ nlohmann::json Dungeon3DWorldDocument::toJson() const {
     for (const auto& arena : boss_arenas) {
         json["boss_arenas"].push_back(bossArenaToJson(arena));
     }
+    json["visual_verification_steps"] = nlohmann::json::array();
+    for (const auto& step : visual_verification_steps) {
+        json["visual_verification_steps"].push_back(visualVerificationStepToJson(step));
+    }
+    json["template_bindings"] = nlohmann::json::array();
+    for (const auto& binding : template_bindings) {
+        json["template_bindings"].push_back(templateBindingToJson(binding));
+    }
     json["materials"] = nlohmann::json::array();
     for (const auto& [_, material] : materials) {
         json["materials"].push_back(materialToJson(material));
@@ -1772,6 +1926,12 @@ Dungeon3DWorldDocument Dungeon3DWorldDocument::fromJson(const nlohmann::json& js
     }
     for (const auto& arena_json : json.value("boss_arenas", nlohmann::json::array())) {
         document.boss_arenas.push_back(bossArenaFromJson(arena_json));
+    }
+    for (const auto& step_json : json.value("visual_verification_steps", nlohmann::json::array())) {
+        document.visual_verification_steps.push_back(visualVerificationStepFromJson(step_json));
+    }
+    for (const auto& binding_json : json.value("template_bindings", nlohmann::json::array())) {
+        document.template_bindings.push_back(templateBindingFromJson(binding_json));
     }
     for (const auto& material_json : json.value("materials", nlohmann::json::array())) {
         auto material = materialFromJson(material_json);
@@ -1881,6 +2041,15 @@ nlohmann::json dungeon3DPreviewToJson(const Dungeon3DPreview& preview) {
     json["camera_head_bob"] = preview.camera_head_bob;
     json["camera_shake"] = preview.camera_shake;
     json["active_camera_rail_id"] = preview.active_camera_rail_id;
+    json["visual_authoring_layers"] = preview.visual_authoring_layers;
+    json["template_binding_ids"] = preview.template_binding_ids;
+    json["visual_authoring_layer_count"] = preview.visual_authoring_layer_count;
+    json["verification_step_count"] = preview.verification_step_count;
+    json["required_verification_step_count"] = preview.required_verification_step_count;
+    json["passed_verification_step_count"] = preview.passed_verification_step_count;
+    json["template_binding_count"] = preview.template_binding_count;
+    json["enabled_template_binding_count"] = preview.enabled_template_binding_count;
+    json["verification_completion"] = preview.verification_completion;
     json["diagnostics"] = nlohmann::json::array();
     for (const auto& diagnostic : preview.diagnostics) {
         json["diagnostics"].push_back({{"code", diagnostic.code}, {"message", diagnostic.message}});

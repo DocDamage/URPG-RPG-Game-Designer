@@ -246,6 +246,38 @@
       "defeated": false
     }
   ],
+  "visual_verification_steps": [
+    {
+      "id": "runtime_preview_match",
+      "label": "Runtime raycast and editor preview match",
+      "category": "visual",
+      "required": true,
+      "passed": false,
+      "evidence": ""
+    },
+    {
+      "id": "manual_walkthrough",
+      "label": "Manual first-person walkthrough completed",
+      "category": "manual",
+      "required": true,
+      "passed": false,
+      "evidence": ""
+    }
+  ],
+  "template_bindings": [
+    {
+      "template_id": "2_5d_rpg",
+      "surface_id": "dungeon3d_world",
+      "required_feature_tags": ["raycast", "lighting_weather", "spatial_audio", "room_templates", "boss_arenas"],
+      "enabled": true
+    },
+    {
+      "template_id": "metroidvania_lite",
+      "surface_id": "dungeon3d_world",
+      "required_feature_tags": ["tile_collision", "map_annotations", "puzzles", "lock_links", "camera_rails"],
+      "enabled": true
+    }
+  ],
   "materials": [
     {
       "id": "stone",
