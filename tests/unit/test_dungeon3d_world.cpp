@@ -42,6 +42,8 @@ TEST_CASE("3D dungeon world converts 2D map data into runtime raycast preview", 
     REQUIRE(document.patrol_routes.size() == 1);
     REQUIRE(document.hiding_spots.size() == 1);
     REQUIRE(document.puzzle_devices.size() == 1);
+    REQUIRE(document.camera_rails.size() == 1);
+    REQUIRE(document.camera_feel.fov == 72.0f);
     REQUIRE(document.materials.size() == 2);
     REQUIRE(document.validate().empty());
 
@@ -75,6 +77,9 @@ TEST_CASE("3D dungeon world converts 2D map data into runtime raycast preview", 
     REQUIRE(preview.puzzle_device_count == 1);
     REQUIRE(preview.active_puzzle_device_count == 1);
     REQUIRE(preview.solved_puzzle_count == 0);
+    REQUIRE(preview.camera_rail_cue_count == 1);
+    REQUIRE(preview.camera_fov == 72.0f);
+    REQUIRE(preview.camera_head_bob == 0.05f);
     REQUIRE_FALSE(preview.player_hidden);
     REQUIRE(preview.floor_completion == 0.0f);
     REQUIRE(preview.current_light_multiplier == 0.85f);
@@ -86,6 +91,8 @@ TEST_CASE("3D dungeon world converts 2D map data into runtime raycast preview", 
     REQUIRE(preview.facing_interaction.has_value());
     REQUIRE(preview.facing_interaction->event_id.empty());
     REQUIRE(containsCommand(preview.runtime_commands, "switch_to_3d:ancient_crypt"));
+    REQUIRE(containsCommand(preview.runtime_commands, "camera_feel:ancient_crypt"));
+    REQUIRE(containsCommand(preview.runtime_commands, "preview_camera_rail:door_reveal_rail"));
     REQUIRE(containsCommand(preview.runtime_commands, "raycast_frame:ancient_crypt"));
     REQUIRE(containsCommand(preview.runtime_commands, "update_automap:ancient_crypt"));
 }
@@ -125,6 +132,9 @@ TEST_CASE("3D dungeon world supports 2D to 3D switching and WYSIWYG panel snapsh
     REQUIRE(panel.snapshot().puzzle_device_count == 1);
     REQUIRE(panel.snapshot().active_puzzle_device_count == 1);
     REQUIRE(panel.snapshot().solved_puzzle_count == 0);
+    REQUIRE(panel.snapshot().camera_rail_cue_count == 1);
+    REQUIRE(panel.snapshot().camera_fov == 72.0f);
+    REQUIRE(panel.snapshot().camera_head_bob == 0.05f);
     REQUIRE(panel.snapshot().active_ambient_sound == "ambience_crypt_echo");
     REQUIRE(panel.snapshot().active_reverb_preset == "stone_room");
     REQUIRE(panel.snapshot().active_weather == "dust_motes");
@@ -133,14 +143,14 @@ TEST_CASE("3D dungeon world supports 2D to 3D switching and WYSIWYG panel snapsh
     REQUIRE(panel.snapshot().nearest_patrol_id == "skeleton_guard_route");
     REQUIRE_FALSE(panel.snapshot().player_hidden);
     REQUIRE(panel.snapshot().average_wall_distance > 0.0f);
-    REQUIRE(panel.snapshot().runtime_command_count == 6);
+    REQUIRE(panel.snapshot().runtime_command_count == 8);
     REQUIRE(panel.saveProjectData() == document.toJson());
     REQUIRE(urpg::render::dungeon3DPreviewToJson(panel.preview())["columns"].size() == 64);
 
     panel.setMode("2d");
     REQUIRE(panel.snapshot().mode == "2d");
     REQUIRE(panel.snapshot().raycast_column_count == 0);
-    REQUIRE(panel.snapshot().runtime_command_count == 5);
+    REQUIRE(panel.snapshot().runtime_command_count == 7);
     REQUIRE(containsCommand(panel.preview().runtime_commands, "switch_to_2d:ancient_crypt"));
 
     const auto switched = document.switchMode("3d");
@@ -419,6 +429,34 @@ TEST_CASE("3D dungeon world activates authored puzzle devices and target links",
     REQUIRE(panel.snapshot().opened_door_count == 1);
     REQUIRE(panel.snapshot().last_event_log_entry == "activate_puzzle:pressure_plate_door");
     REQUIRE_FALSE(panel.activatePuzzle("missing_puzzle"));
+}
+
+TEST_CASE("3D dungeon world previews camera feel and plays cutscene rails", "[dungeon3d][wysiwyg]") {
+    auto document = urpg::render::Dungeon3DWorldDocument::fromJson(loadFixture("dungeon3d_world"));
+    auto preview = document.preview();
+
+    REQUIRE(preview.camera_rail_cue_count == 1);
+    REQUIRE(preview.camera_fov == 72.0f);
+    REQUIRE(preview.camera_head_bob == 0.05f);
+    REQUIRE(preview.camera_shake == 0.0f);
+    REQUIRE(containsCommand(preview.runtime_commands, "camera_feel:ancient_crypt"));
+    REQUIRE(containsCommand(preview.runtime_commands, "preview_camera_rail:door_reveal_rail"));
+
+    REQUIRE(document.playCameraRail("door_reveal_rail"));
+    REQUIRE(document.camera.pos_x == 2.5f);
+    REQUIRE(document.camera.pos_y == 3.5f);
+    REQUIRE(document.session.current_camera_rail == "door_reveal_rail");
+
+    preview = document.preview();
+    REQUIRE(preview.active_camera_rail_id == "door_reveal_rail");
+
+    urpg::editor::Dungeon3DWorldPanel panel;
+    panel.loadDocument(urpg::render::Dungeon3DWorldDocument::fromJson(loadFixture("dungeon3d_world")));
+    REQUIRE(panel.playCameraRail("door_reveal_rail"));
+    REQUIRE(panel.snapshot().camera_y == 3.5f);
+    REQUIRE(panel.snapshot().active_camera_rail_id == "door_reveal_rail");
+    REQUIRE(panel.snapshot().last_event_log_entry == "play_camera_rail:door_reveal_rail");
+    REQUIRE_FALSE(panel.playCameraRail("missing_rail"));
 }
 
 TEST_CASE("3D dungeon world is release registered with promoted spatial authoring", "[dungeon3d][wysiwyg]") {

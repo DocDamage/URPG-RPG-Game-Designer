@@ -39,6 +39,7 @@ struct Dungeon3DWorldPanelSnapshot {
     size_t puzzle_device_count = 0;
     size_t active_puzzle_device_count = 0;
     size_t solved_puzzle_count = 0;
+    size_t camera_rail_cue_count = 0;
     size_t opened_door_count = 0;
     size_t revealed_secret_count = 0;
     size_t runtime_command_count = 0;
@@ -48,12 +49,16 @@ struct Dungeon3DWorldPanelSnapshot {
     float average_wall_distance = 0.0f;
     float floor_completion = 0.0f;
     float current_light_multiplier = 1.0f;
+    float camera_fov = 66.0f;
+    float camera_head_bob = 0.0f;
+    float camera_shake = 0.0f;
     std::string active_ambient_sound;
     std::string active_reverb_preset;
     std::string active_weather;
     std::string active_particles;
     std::string nearest_patrol_id;
     std::string current_hiding_spot;
+    std::string active_camera_rail_id;
     std::string facing_event_id;
     std::string facing_material_id;
     std::string facing_door_id;
@@ -84,6 +89,7 @@ public:
     bool leaveHidingSpot();
     bool advancePatrol(std::string patrol_id);
     bool activatePuzzle(std::string puzzle_id);
+    bool playCameraRail(std::string rail_id);
     void rotate(float radians);
     void render();
 

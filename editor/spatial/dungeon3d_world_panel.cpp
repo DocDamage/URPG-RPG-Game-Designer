@@ -97,6 +97,14 @@ bool Dungeon3DWorldPanel::activatePuzzle(std::string puzzle_id) {
     return activated;
 }
 
+bool Dungeon3DWorldPanel::playCameraRail(std::string rail_id) {
+    const bool played = document_.playCameraRail(std::move(rail_id));
+    if (loaded_) {
+        refresh();
+    }
+    return played;
+}
+
 void Dungeon3DWorldPanel::rotate(float radians) {
     document_.rotate(radians);
     if (loaded_) {
@@ -155,6 +163,7 @@ void Dungeon3DWorldPanel::refresh() {
     snapshot_.puzzle_device_count = static_cast<size_t>(preview_.puzzle_device_count);
     snapshot_.active_puzzle_device_count = static_cast<size_t>(preview_.active_puzzle_device_count);
     snapshot_.solved_puzzle_count = static_cast<size_t>(preview_.solved_puzzle_count);
+    snapshot_.camera_rail_cue_count = static_cast<size_t>(preview_.camera_rail_cue_count);
     snapshot_.opened_door_count = static_cast<size_t>(preview_.opened_door_count);
     snapshot_.revealed_secret_count = static_cast<size_t>(preview_.revealed_secret_count);
     snapshot_.runtime_command_count = preview_.runtime_commands.size();
@@ -164,12 +173,16 @@ void Dungeon3DWorldPanel::refresh() {
     snapshot_.average_wall_distance = preview_.average_wall_distance;
     snapshot_.floor_completion = preview_.floor_completion;
     snapshot_.current_light_multiplier = preview_.current_light_multiplier;
+    snapshot_.camera_fov = preview_.camera_fov;
+    snapshot_.camera_head_bob = preview_.camera_head_bob;
+    snapshot_.camera_shake = preview_.camera_shake;
     snapshot_.active_ambient_sound = preview_.active_ambient_sound;
     snapshot_.active_reverb_preset = preview_.active_reverb_preset;
     snapshot_.active_weather = preview_.active_weather;
     snapshot_.active_particles = preview_.active_particles;
     snapshot_.nearest_patrol_id = preview_.nearest_patrol_id;
     snapshot_.current_hiding_spot = preview_.current_hiding_spot;
+    snapshot_.active_camera_rail_id = preview_.active_camera_rail_id;
     snapshot_.facing_event_id = preview_.facing_interaction ? preview_.facing_interaction->event_id : "";
     snapshot_.facing_material_id = preview_.facing_interaction ? preview_.facing_interaction->material_id : "";
     snapshot_.facing_door_id = preview_.facing_interaction ? preview_.facing_interaction->door_id : "";

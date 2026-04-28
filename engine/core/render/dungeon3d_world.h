@@ -162,6 +162,26 @@ struct Dungeon3DCamera {
     float plane_y = 0.66f;
 };
 
+struct Dungeon3DCameraFeel {
+    float fov = 66.0f;
+    float turn_smoothing = 0.0f;
+    float move_smoothing = 0.0f;
+    float head_bob = 0.0f;
+    float shake = 0.0f;
+};
+
+struct Dungeon3DCameraRailCue {
+    std::string id;
+    std::string label;
+    float pos_x = 0.0f;
+    float pos_y = 0.0f;
+    float dir_x = 1.0f;
+    float dir_y = 0.0f;
+    float duration = 0.0f;
+    std::string floor_id;
+    std::string trigger_id;
+};
+
 struct Dungeon3DColumn {
     int32_t x = 0;
     int32_t map_x = 0;
@@ -253,6 +273,7 @@ struct Dungeon3DSessionState {
     std::set<std::string> activated_puzzles;
     std::map<std::string, int32_t> patrol_indices;
     std::string current_hiding_spot;
+    std::string current_camera_rail;
     std::string current_floor_id;
     std::vector<std::string> event_log;
 };
@@ -298,6 +319,11 @@ struct Dungeon3DPreview {
     std::string active_particles;
     std::string nearest_patrol_id;
     std::string current_hiding_spot;
+    int32_t camera_rail_cue_count = 0;
+    float camera_fov = 66.0f;
+    float camera_head_bob = 0.0f;
+    float camera_shake = 0.0f;
+    std::string active_camera_rail_id;
 };
 
 class Dungeon3DWorldDocument {
@@ -313,6 +339,7 @@ public:
     bool auto_mapping = true;
     std::string mode = "3d";
     Dungeon3DCamera camera;
+    Dungeon3DCameraFeel camera_feel;
     Dungeon3DSessionState session;
     std::vector<Dungeon3DFloor> floors;
     std::vector<Dungeon3DMapMarker> markers;
@@ -325,6 +352,7 @@ public:
     std::vector<Dungeon3DPatrolRoute> patrol_routes;
     std::vector<Dungeon3DHidingSpot> hiding_spots;
     std::vector<Dungeon3DPuzzleDevice> puzzle_devices;
+    std::vector<Dungeon3DCameraRailCue> camera_rails;
     std::map<std::string, Dungeon3DMaterial> materials;
     std::vector<Dungeon3DCell> cells;
 
@@ -341,6 +369,7 @@ public:
     bool leaveHidingSpot();
     bool advancePatrol(std::string patrol_id);
     bool activatePuzzle(std::string puzzle_id);
+    bool playCameraRail(std::string rail_id);
     void rotate(float radians);
     [[nodiscard]] nlohmann::json toJson() const;
 

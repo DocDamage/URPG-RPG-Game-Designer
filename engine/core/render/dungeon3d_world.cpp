@@ -98,6 +98,26 @@ Dungeon3DPatrolWaypoint patrolWaypointFromJson(const nlohmann::json& json) {
     return {json.value("x", 0), json.value("y", 0)};
 }
 
+Dungeon3DCameraFeel cameraFeelFromJson(const nlohmann::json& json) {
+    return {json.value("fov", 66.0f),
+            json.value("turn_smoothing", 0.0f),
+            json.value("move_smoothing", 0.0f),
+            json.value("head_bob", 0.0f),
+            json.value("shake", 0.0f)};
+}
+
+Dungeon3DCameraRailCue cameraRailCueFromJson(const nlohmann::json& json) {
+    return {json.value("id", ""),
+            json.value("label", ""),
+            json.value("pos_x", 0.0f),
+            json.value("pos_y", 0.0f),
+            json.value("dir_x", 1.0f),
+            json.value("dir_y", 0.0f),
+            json.value("duration", 0.0f),
+            json.value("floor_id", ""),
+            json.value("trigger_id", "")};
+}
+
 Dungeon3DPatrolRoute patrolRouteFromJson(const nlohmann::json& json) {
     Dungeon3DPatrolRoute route;
     route.id = json.value("id", "");
@@ -220,6 +240,26 @@ nlohmann::json patrolWaypointToJson(const Dungeon3DPatrolWaypoint& waypoint) {
     return {{"x", waypoint.x}, {"y", waypoint.y}};
 }
 
+nlohmann::json cameraFeelToJson(const Dungeon3DCameraFeel& feel) {
+    return {{"fov", feel.fov},
+            {"turn_smoothing", feel.turn_smoothing},
+            {"move_smoothing", feel.move_smoothing},
+            {"head_bob", feel.head_bob},
+            {"shake", feel.shake}};
+}
+
+nlohmann::json cameraRailCueToJson(const Dungeon3DCameraRailCue& cue) {
+    return {{"id", cue.id},
+            {"label", cue.label},
+            {"pos_x", cue.pos_x},
+            {"pos_y", cue.pos_y},
+            {"dir_x", cue.dir_x},
+            {"dir_y", cue.dir_y},
+            {"duration", cue.duration},
+            {"floor_id", cue.floor_id},
+            {"trigger_id", cue.trigger_id}};
+}
+
 nlohmann::json patrolRouteToJson(const Dungeon3DPatrolRoute& route) {
     nlohmann::json json{{"id", route.id},
                         {"enemy_id", route.enemy_id},
@@ -303,6 +343,7 @@ nlohmann::json sessionToJson(const Dungeon3DSessionState& session) {
             {"activated_puzzles", session.activated_puzzles},
             {"patrol_indices", session.patrol_indices},
             {"current_hiding_spot", session.current_hiding_spot},
+            {"current_camera_rail", session.current_camera_rail},
             {"current_floor_id", session.current_floor_id},
             {"event_log", session.event_log}};
 }
@@ -321,6 +362,7 @@ Dungeon3DSessionState sessionFromJson(const nlohmann::json& json) {
     session.activated_puzzles = json.value("activated_puzzles", std::set<std::string>{});
     session.patrol_indices = json.value("patrol_indices", std::map<std::string, int32_t>{});
     session.current_hiding_spot = json.value("current_hiding_spot", "");
+    session.current_camera_rail = json.value("current_camera_rail", "");
     session.current_floor_id = json.value("current_floor_id", "");
     session.event_log = json.value("event_log", std::vector<std::string>{});
     return session;
@@ -600,6 +642,13 @@ std::vector<Dungeon3DDiagnostic> Dungeon3DWorldDocument::validate() const {
     if (screen_width <= 0 || screen_height <= 0) {
         diagnostics.push_back({"invalid_screen_size", "3D dungeon preview screen size must be positive."});
     }
+    if (camera_feel.fov <= 0.0f || camera_feel.fov > 180.0f) {
+        diagnostics.push_back({"invalid_camera_fov", "3D dungeon camera FOV must be between 0 and 180 degrees."});
+    }
+    if (camera_feel.turn_smoothing < 0.0f || camera_feel.move_smoothing < 0.0f || camera_feel.head_bob < 0.0f ||
+        camera_feel.shake < 0.0f) {
+        diagnostics.push_back({"invalid_camera_feel", "3D dungeon camera feel values cannot be negative."});
+    }
     const auto expected_cells = static_cast<size_t>(std::max(0, width * height));
     if (cells.size() != expected_cells) {
         diagnostics.push_back({"cell_count_mismatch", "3D dungeon world cell count does not match width times height."});
@@ -833,6 +882,25 @@ std::vector<Dungeon3DDiagnostic> Dungeon3DWorldDocument::validate() const {
             diagnostics.push_back({"unknown_puzzle_device_target", "3D dungeon puzzle device references an unknown target: " + device.id});
         }
     }
+    std::set<std::string> camera_rail_ids;
+    for (const auto& cue : camera_rails) {
+        if (cue.id.empty()) {
+            diagnostics.push_back({"missing_camera_rail_id", "3D dungeon camera rail cue is missing an id."});
+        } else if (!camera_rail_ids.insert(cue.id).second) {
+            diagnostics.push_back({"duplicate_camera_rail_id", "3D dungeon camera rail cue id is duplicated: " + cue.id});
+        }
+        const auto x = static_cast<int32_t>(std::floor(cue.pos_x));
+        const auto y = static_cast<int32_t>(std::floor(cue.pos_y));
+        if (!inBounds(*this, x, y)) {
+            diagnostics.push_back({"camera_rail_out_of_bounds", "3D dungeon camera rail cue is outside the authored map: " + cue.id});
+        }
+        if (cue.duration < 0.0f) {
+            diagnostics.push_back({"invalid_camera_rail_duration", "3D dungeon camera rail duration cannot be negative: " + cue.id});
+        }
+        if (!cue.floor_id.empty() && !floor_ids.empty() && !floor_ids.contains(cue.floor_id)) {
+            diagnostics.push_back({"unknown_camera_rail_floor", "3D dungeon camera rail references an unknown floor: " + cue.id});
+        }
+    }
     return diagnostics;
 }
 
@@ -841,6 +909,12 @@ Dungeon3DPreview Dungeon3DWorldDocument::preview() const {
     result.mode = mode;
     result.diagnostics = validate();
     result.runtime_commands.push_back(commandForMode(*this));
+    result.camera_rail_cue_count = static_cast<int32_t>(camera_rails.size());
+    result.camera_fov = camera_feel.fov;
+    result.camera_head_bob = camera_feel.head_bob;
+    result.camera_shake = camera_feel.shake;
+    result.active_camera_rail_id = session.current_camera_rail;
+    result.runtime_commands.push_back("camera_feel:" + map_id);
     for (const auto& cell : cells) {
         if (cell.blocking) {
             ++result.blocking_cell_count;
@@ -936,6 +1010,11 @@ Dungeon3DPreview Dungeon3DWorldDocument::preview() const {
     }
     if (!result.active_particles.empty()) {
         result.runtime_commands.push_back("set_particles:" + result.active_particles);
+    }
+    for (const auto& cue : camera_rails) {
+        if (matchesCurrentFloor(*this, cue.floor_id)) {
+            result.runtime_commands.push_back("preview_camera_rail:" + cue.id);
+        }
     }
     result.facing_interaction = interactionAhead(*this);
 
@@ -1294,6 +1373,22 @@ bool Dungeon3DWorldDocument::activatePuzzle(std::string puzzle_id) {
     return true;
 }
 
+bool Dungeon3DWorldDocument::playCameraRail(std::string rail_id) {
+    const auto found = std::find_if(camera_rails.begin(), camera_rails.end(), [&](const auto& cue) {
+        return cue.id == rail_id;
+    });
+    if (found == camera_rails.end() || !matchesCurrentFloor(*this, found->floor_id)) {
+        return false;
+    }
+    camera.pos_x = found->pos_x;
+    camera.pos_y = found->pos_y;
+    camera.dir_x = found->dir_x;
+    camera.dir_y = found->dir_y;
+    session.current_camera_rail = rail_id;
+    session.event_log.push_back("play_camera_rail:" + rail_id);
+    return true;
+}
+
 bool Dungeon3DWorldDocument::enterHidingSpot(std::string hiding_spot_id) {
     if (hiding_spot_id.empty()) {
         return false;
@@ -1367,6 +1462,7 @@ nlohmann::json Dungeon3DWorldDocument::toJson() const {
                           {"dir_y", camera.dir_y},
                           {"plane_x", camera.plane_x},
                           {"plane_y", camera.plane_y}}},
+                        {"camera_feel", cameraFeelToJson(camera_feel)},
                         {"session", sessionToJson(session)}};
     json["floors"] = nlohmann::json::array();
     for (const auto& floor : floors) {
@@ -1412,6 +1508,10 @@ nlohmann::json Dungeon3DWorldDocument::toJson() const {
     for (const auto& device : puzzle_devices) {
         json["puzzle_devices"].push_back(puzzleDeviceToJson(device));
     }
+    json["camera_rails"] = nlohmann::json::array();
+    for (const auto& cue : camera_rails) {
+        json["camera_rails"].push_back(cameraRailCueToJson(cue));
+    }
     json["materials"] = nlohmann::json::array();
     for (const auto& [_, material] : materials) {
         json["materials"].push_back(materialToJson(material));
@@ -1443,6 +1543,9 @@ Dungeon3DWorldDocument Dungeon3DWorldDocument::fromJson(const nlohmann::json& js
         document.camera.dir_y = camera_json.value("dir_y", 0.0f);
         document.camera.plane_x = camera_json.value("plane_x", 0.0f);
         document.camera.plane_y = camera_json.value("plane_y", 0.66f);
+    }
+    if (json.contains("camera_feel")) {
+        document.camera_feel = cameraFeelFromJson(json.at("camera_feel"));
     }
     if (json.contains("session")) {
         document.session = sessionFromJson(json.at("session"));
@@ -1479,6 +1582,9 @@ Dungeon3DWorldDocument Dungeon3DWorldDocument::fromJson(const nlohmann::json& js
     }
     for (const auto& device_json : json.value("puzzle_devices", nlohmann::json::array())) {
         document.puzzle_devices.push_back(puzzleDeviceFromJson(device_json));
+    }
+    for (const auto& cue_json : json.value("camera_rails", nlohmann::json::array())) {
+        document.camera_rails.push_back(cameraRailCueFromJson(cue_json));
     }
     for (const auto& material_json : json.value("materials", nlohmann::json::array())) {
         auto material = materialFromJson(material_json);
@@ -1578,6 +1684,11 @@ nlohmann::json dungeon3DPreviewToJson(const Dungeon3DPreview& preview) {
     json["active_particles"] = preview.active_particles;
     json["nearest_patrol_id"] = preview.nearest_patrol_id;
     json["current_hiding_spot"] = preview.current_hiding_spot;
+    json["camera_rail_cue_count"] = preview.camera_rail_cue_count;
+    json["camera_fov"] = preview.camera_fov;
+    json["camera_head_bob"] = preview.camera_head_bob;
+    json["camera_shake"] = preview.camera_shake;
+    json["active_camera_rail_id"] = preview.active_camera_rail_id;
     json["diagnostics"] = nlohmann::json::array();
     for (const auto& diagnostic : preview.diagnostics) {
         json["diagnostics"].push_back({{"code", diagnostic.code}, {"message", diagnostic.message}});

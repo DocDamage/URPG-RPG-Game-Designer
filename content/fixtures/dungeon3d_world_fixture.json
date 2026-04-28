@@ -17,6 +17,13 @@
     "plane_x": 0.0,
     "plane_y": 0.66
   },
+  "camera_feel": {
+    "fov": 72.0,
+    "turn_smoothing": 0.2,
+    "move_smoothing": 0.1,
+    "head_bob": 0.05,
+    "shake": 0.0
+  },
   "session": {
     "inventory": [],
     "discovered_cells": ["2,2"],
@@ -30,6 +37,7 @@
     "activated_puzzles": [],
     "patrol_indices": {},
     "current_hiding_spot": "",
+    "current_camera_rail": "",
     "current_floor_id": "crypt_b1",
     "event_log": []
   },
@@ -184,6 +192,19 @@
       "target_id": "crypt_door",
       "required_item": "",
       "active": true
+    }
+  ],
+  "camera_rails": [
+    {
+      "id": "door_reveal_rail",
+      "label": "Door Reveal",
+      "pos_x": 2.5,
+      "pos_y": 3.5,
+      "dir_x": 1.0,
+      "dir_y": 0.0,
+      "duration": 1.25,
+      "floor_id": "crypt_b1",
+      "trigger_id": "pressure_plate_door"
     }
   ],
   "materials": [
