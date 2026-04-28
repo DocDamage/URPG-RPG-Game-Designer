@@ -1,6 +1,9 @@
 #pragma once
 
+#include "engine/core/achievement/achievement_platform_backend.h"
+
 #include <cstdint>
+#include <memory>
 #include <nlohmann/json.hpp>
 #include <optional>
 #include <string>
@@ -37,6 +40,11 @@ public:
     std::optional<AchievementProgress> getProgress(const std::string& id) const;
     void resetProgress(const std::string& id);
 
+    void addPlatformBackend(std::shared_ptr<IAchievementPlatformBackend> backend);
+    std::vector<AchievementPlatformResult> syncAchievementToBackends(const std::string& id);
+    std::vector<AchievementPlatformResult> syncUnlockedAchievementsToBackends();
+    nlohmann::json platformBackendSnapshot() const;
+
     nlohmann::json saveToJson() const;
     void loadFromJson(const nlohmann::json& json);
     nlohmann::json exportTrophyPayload(const std::string& platform = "urpg-neutral") const;
@@ -44,6 +52,7 @@ public:
 private:
     std::unordered_map<std::string, AchievementDef> m_definitions;
     std::unordered_map<std::string, AchievementProgress> m_progress;
+    std::vector<std::shared_ptr<IAchievementPlatformBackend>> m_platformBackends;
 };
 
 } // namespace urpg::achievement

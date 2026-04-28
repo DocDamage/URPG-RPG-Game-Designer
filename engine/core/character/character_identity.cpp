@@ -12,6 +12,9 @@ nlohmann::json CharacterIdentity::toJson() const {
     j["portraitId"] = m_portraitId;
     j["bodySpriteId"] = m_bodySpriteId;
     j["classId"] = m_classId;
+    j["speciesId"] = m_speciesId;
+    j["originId"] = m_originId;
+    j["backgroundId"] = m_backgroundId;
     j["baseAttributes"] = m_baseAttributes;
     j["appearanceTokens"] = m_appearanceTokens;
     return j;
@@ -30,6 +33,9 @@ CharacterIdentity CharacterIdentity::fromJson(const nlohmann::json& j) {
     identity.m_portraitId = j.value("portraitId", "");
     identity.m_bodySpriteId = j.value("bodySpriteId", "");
     identity.m_classId = j.value("classId", "");
+    identity.m_speciesId = j.value("speciesId", "");
+    identity.m_originId = j.value("originId", "");
+    identity.m_backgroundId = j.value("backgroundId", "");
 
     if (j.contains("baseAttributes") && j["baseAttributes"].is_object()) {
         for (const auto& [key, val] : j["baseAttributes"].items()) {

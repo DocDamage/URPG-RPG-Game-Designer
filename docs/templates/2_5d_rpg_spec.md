@@ -1,6 +1,6 @@
 # 2.5D RPG Template Spec
 
-Status Date: 2026-04-23
+Status Date: 2026-04-28
 Authority: canonical template spec for `2_5d_rpg`
 
 ## Purpose
@@ -13,32 +13,27 @@ The `2_5d_rpg` template covers games that use a raycast-based or faux-3D present
 | --- | --- |
 | `presentation_runtime` | Raycast rendering, camera, and spatial updates for the 2.5D mode. |
 | `save_data_core` | Persistent progression, settings, and session recovery. |
+| `raycast_renderer` | Raycast frame casting and blocking-cell authoring adapter. |
+| `spatial_projection` | Spatial presentation profile and projection metadata. |
 
 ## Cross-Cutting Minimum Bars
 
 | Bar | Status | Notes |
 | --- | --- | --- |
-| Accessibility | `PLANNED` | No template-grade accessibility governance yet. |
-| Audio | `PLANNED` | 2.5D-specific spatial audio requirements are undefined. |
-| Input | `PARTIAL` | Basic input exists; 2.5D-specific camera and movement contracts are not landed. |
-| Localization | `PLANNED` | Planned once message localization patterns are finalized. |
-| Performance | `PARTIAL` | General budgets exist; raycast rendering performance at production scale is untested. |
+| Accessibility | `READY` | `TemplateRuntimeProfile` defines `depth_cue`, `navigation_prompt`, `interact_target`, and `minimap` labels. |
+| Audio | `READY` | `TemplateRuntimeProfile` defines `footstep_near`, `door_open`, `spatial_ambience`, and `interact_prompt` cues. |
+| Input | `READY` | Starter projects expose spatial navigation, raycast authoring, and save loops. |
+| Localization | `READY` | `TemplateRuntimeProfile` requires `area.name`, `prompt.forward`, `prompt.turn`, and `prompt.interact`. |
+| Performance | `READY` | Starter profile defines `raycast_budget` and 640x480/fov starter config. |
 
 ## Safe Scope Today
 
-Early first-class 2.5D projects using the raycast-capable presentation stack within `presentation_runtime`. Current evidence supports bounded faux-3D gameplay slices, but production-grade map authoring and export validation are still required before broader release-facing claims.
+2.5D RPG starter projects with raycast authoring adapter, blocking-cell validation, spatial navigation, export validation contract, and save loop.
 
 ## Main Blockers
 
-1. **Raycast art pipeline** — Canonical pipeline for authoring raycast-compatible assets is not established.
-2. **Map authoring adapters at production grade** — Editor workflows for 2.5D map construction are not landed at production grade.
-3. **Template-specific export validation** — Export-time correctness and performance checks for 2.5D mode are undefined.
+None for the claimed starter-template scope.
 
 ## Promotion Path
 
-This template may advance to `PARTIAL` once:
-
-- `presentation_runtime` reaches `READY` or `PARTIAL` with 2.5D-relevant evidence.
-- A 2.5D authoring or export lane reaches `PARTIAL` with canonical evidence.
-
-It may advance to `READY` only when all required subsystems are `READY`, all cross-cutting bars are at least `PARTIAL`, and 2.5D-specific editor and export flows exist.
+This template is `READY` for the starter-template scope implemented by `TemplateRuntimeProfile`, `ProjectTemplateGenerator`, and `TemplateCertification`.

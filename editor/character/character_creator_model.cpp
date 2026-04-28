@@ -1,5 +1,6 @@
 #include "editor/character/character_creator_model.h"
 
+#include "engine/core/character/character_creation_rules.h"
 #include "engine/core/character/character_identity_catalog.h"
 #include "engine/core/character/character_identity_validator.h"
 #include "engine/core/character/character_identity_system.h"
@@ -33,6 +34,8 @@ std::string issueCode(urpg::character::CharacterIdentityIssueCategory category) 
         return "unknown_appearance_token";
     case CharacterIdentityIssueCategory::DuplicateAppearanceToken:
         return "duplicate_appearance_token";
+    case CharacterIdentityIssueCategory::CreationRuleViolation:
+        return "creation_rule_violation";
     }
 
     return "unknown_issue";
@@ -220,6 +223,7 @@ nlohmann::json CharacterCreatorModel::buildSnapshot() const {
         {"validation", validation},
         {"preview", buildPreviewSnapshot()},
         {"catalog", buildCatalogSnapshot()},
+        {"creation_rules", urpg::character::characterCreationRulesToJson(urpg::character::defaultCharacterCreationRules())},
         {"spawn_config", {
             {"x", m_spawn_x.ToFloat()},
             {"y", m_spawn_y.ToFloat()},

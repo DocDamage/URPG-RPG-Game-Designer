@@ -325,11 +325,13 @@ add_library(urpg_core
     engine/core/map/tactical_grid_preview.cpp
     engine/core/character/character_identity.cpp
     engine/core/character/character_identity_catalog.cpp
+    engine/core/character/character_creation_rules.cpp
     engine/core/character/character_identity_validator.cpp
     engine/core/character/character_creation_screen.cpp
     engine/core/character/character_identity_system.cpp
     engine/core/character/character_save_state.cpp
     engine/core/achievement/achievement_registry.cpp
+    engine/core/achievement/achievement_platform_backend.cpp
     engine/core/achievement/achievement_trigger.cpp
     engine/core/achievement/achievement_validator.cpp
     engine/core/presentation/presentation_bridge.cpp
@@ -459,6 +461,7 @@ add_library(urpg_core
     engine/core/mod/mod_registry_validator.cpp
     engine/core/mod/mod_sdk_sample_validator.cpp
     engine/core/mod/mod_loader.cpp
+    engine/core/mod/mod_hot_loader.cpp
     engine/core/diagnostics/startup_diagnostics.cpp
     engine/core/export/creator_package_manifest.cpp
     engine/core/export/export_bundle_contract.cpp
@@ -474,6 +477,7 @@ add_library(urpg_core
     engine/core/project/dev_room_generator.cpp
     engine/core/project/project_snapshot_store.cpp
     engine/core/project/project_template_generator.cpp
+    engine/core/project/template_runtime_profile.cpp
     engine/core/project/template_certification.cpp
     engine/core/tutorial/tutorial_lesson.cpp
     engine/core/level/level_assembly.cpp

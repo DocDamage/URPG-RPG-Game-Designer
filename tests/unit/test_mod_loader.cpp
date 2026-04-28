@@ -1,8 +1,10 @@
 #include <catch2/catch_test_macros.hpp>
 
 #include "engine/core/mod/mod_loader.h"
+#include "engine/core/mod/mod_hot_loader.h"
 #include "engine/core/mod/mod_registry.h"
 
+#include <chrono>
 #include <filesystem>
 #include <fstream>
 #include <nlohmann/json.hpp>
@@ -113,6 +115,52 @@ TEST_CASE("ModLoader rolls back activation when sandbox denies requested source 
     const auto snapshot = loader.getRuntimeSnapshot("urpg.bad.network");
     REQUIRE_FALSE(snapshot.active);
     REQUIRE_FALSE(snapshot.scriptLoaded);
+
+    std::error_code ec;
+    std::filesystem::remove_all(tempDir, ec);
+}
+
+TEST_CASE("ModHotLoader reloads active mod when entrypoint changes", "[mod][hotload]") {
+    const auto tempDir = std::filesystem::temp_directory_path() / "urpg_hot_mod";
+    std::filesystem::create_directories(tempDir);
+    const auto scriptPath = tempDir / "hot_mod.js";
+    {
+        std::ofstream script(scriptPath, std::ios::binary);
+        REQUIRE(script.is_open());
+        script << "export function activate(context) { context.commands.register('hot.echo', function(v) { return 'v1:' + v; }); }";
+    }
+
+    ModManifest manifest;
+    manifest.id = "urpg.hot.echo";
+    manifest.name = "Hot Echo";
+    manifest.version = "1.0.0";
+    manifest.entryPoint = scriptPath.string();
+
+    ModRegistry registry;
+    ModLoader loader(registry);
+    REQUIRE(loader.loadMod(manifest).success);
+
+    ModHotLoader hotLoader(loader, registry);
+    hotLoader.setDebounceInterval(std::chrono::milliseconds(0));
+    REQUIRE(hotLoader.trackMod(manifest.id));
+
+    {
+        std::ofstream script(scriptPath, std::ios::binary | std::ios::trunc);
+        REQUIRE(script.is_open());
+        script << "export function activate(context) { context.commands.register('hot.echo', function(v) { return 'v2:' + v; }); }";
+    }
+
+    const auto result = hotLoader.poll();
+    REQUIRE(result.anyReloaded);
+    REQUIRE(std::find_if(result.events.begin(), result.events.end(), [](const ModHotLoadEvent& event) {
+                return event.type == ModHotLoadEventType::Reloaded;
+            }) != result.events.end());
+
+    urpg::Value payload;
+    payload.v = std::string("ok");
+    const auto commandResult = loader.executeCommand(manifest.id, "hot.echo", {payload});
+    REQUIRE(commandResult.has_value());
+    REQUIRE(std::get<std::string>(commandResult->v) == "v2:ok");
 
     std::error_code ec;
     std::filesystem::remove_all(tempDir, ec);

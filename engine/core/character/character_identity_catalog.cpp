@@ -113,6 +113,21 @@ bool applyCharacterClassPreset(CharacterIdentity& identity,
 
     identity.setClassId(preset->id);
     identity.setBaseAttributes(preset->baseAttributes);
+    if (identity.getSpeciesId().empty()) {
+        identity.setSpeciesId("human");
+    }
+    if (identity.getOriginId().empty()) {
+        identity.setOriginId(preset->id == "class_mage" || preset->id == "class_rogue" ? "capital" : "frontier");
+    }
+    if (identity.getBackgroundId().empty()) {
+        if (preset->id == "class_mage") {
+            identity.setBackgroundId("scholar");
+        } else if (preset->id == "class_ranger" || preset->id == "class_rogue") {
+            identity.setBackgroundId("wanderer");
+        } else {
+            identity.setBackgroundId("soldier");
+        }
+    }
 
     if (applyVisualDefaults) {
         identity.setPortraitId(preset->portraitId);

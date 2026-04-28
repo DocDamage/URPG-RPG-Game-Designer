@@ -281,6 +281,9 @@ void AnalyticsPanel::rebuildSnapshot() {
     if (m_uploader && m_uploader->localJsonlExportPath().has_value()) {
         snapshot["uploadMode"] = "local_jsonl";
         snapshot["localExportPath"] = m_uploader->localJsonlExportPath()->generic_string();
+    } else if (m_uploader && m_uploader->httpEndpoint().has_value()) {
+        snapshot["uploadMode"] = m_uploader->uploadMode();
+        snapshot["uploadEndpoint"] = m_uploader->httpEndpoint()->url;
     }
 
     std::string disabledMessage;

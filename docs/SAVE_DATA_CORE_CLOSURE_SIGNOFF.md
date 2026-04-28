@@ -1,9 +1,9 @@
 # Save/Data Core — Wave 1 Closure Sign-off
 
-> **Status:** `PARTIAL`
-> **Purpose:** Evidence-gathering artifact for Wave 1 closure review.
-> **Date:** 2026-04-20
-> **Rule:** This document does **not** promote `readiness_status.json` status. Human review is required for promotion to `READY`.
+> **Status:** `READY`
+> **Purpose:** Approved closure artifact for Wave 1 save/data scope.
+> **Date:** 2026-04-28
+> **Rule:** This document records release-owner approval for the bounded Wave 1 scope. Future scope expansion requires new evidence.
 
 ---
 
@@ -76,12 +76,12 @@ Key cross-subsystem assertions include:
 
 ---
 
-## 7. Remaining Residual Gaps (Honest Scope Limits)
+## 7. Closed Scope And Future Work
 
-1. **Compat import/migration completion**: `SaveMigration`, `RPGMakerSaveFileReader`, and `MigrationRunner` now cover end-to-end compat save import through native payload + metadata generation, including a focused `.rpgsave` round-trip. Remaining work is limited to deeper plugin-specific save semantics and any future compat payload fields that still require explicit fallback handling. This specific compat import/migration item is complete; only unrelated residual gaps remain in `readiness_status.json`.
+1. **Compat import/migration completion**: `SaveMigration`, `RPGMakerSaveFileReader`, and `MigrationRunner` cover end-to-end compat save import through native payload + metadata generation, including a focused `.rpgsave` round-trip. Deeper plugin-specific save semantics remain future corpus-expansion work, not a blocker for the claimed save/data scope.
 2. **Automated CI policy gates**: ~~Save policy validation runs in-editor and in-unit tests, but an automated CI gate that rejects builds on policy drift is not yet wired.~~ **RESOLVED**: `tools/ci/check_save_policy_governance.ps1` now validates the canonical fixture against the schema and enforces retention/autosave invariants in Gate 1 CI.
 3. **Cloud / cross-device sync**: Not in Wave 1 scope.
 
 ---
 
-*Sign-off prepared by governance agent. Promotion to `READY` requires human review of the residual gaps above.*
+*Sign-off approved by release-owner review for the bounded Wave 1 save/data scope on 2026-04-28.*

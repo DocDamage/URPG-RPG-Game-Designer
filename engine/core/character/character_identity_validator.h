@@ -19,7 +19,8 @@ enum class CharacterIdentityIssueCategory {
     UnknownPortrait,
     UnknownBodySprite,
     UnknownAppearanceToken,
-    DuplicateAppearanceToken
+    DuplicateAppearanceToken,
+    CreationRuleViolation
 };
 
 struct CharacterIdentityCatalog {

@@ -444,6 +444,18 @@ void addAchievementArtifactGovernance(const TemplateContext& templateContext,
             fs::path("engine") / "core" / "achievement" / "achievement_validator.cpp",
         },
         {
+            "achievement_artifact.platform_backend_header_missing",
+            "Canonical achievement platform backend header missing",
+            "Achievement",
+            fs::path("engine") / "core" / "achievement" / "achievement_platform_backend.h",
+        },
+        {
+            "achievement_artifact.platform_backend_source_missing",
+            "Canonical achievement platform backend source missing",
+            "Achievement",
+            fs::path("engine") / "core" / "achievement" / "achievement_platform_backend.cpp",
+        },
+        {
             "achievement_artifact.panel_header_missing",
             "Canonical achievement panel header missing",
             "Achievement",

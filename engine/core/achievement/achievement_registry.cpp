@@ -55,6 +55,7 @@ bool AchievementRegistry::reportProgress(const std::string& id, uint32_t increme
     if (progress.current >= progress.target) {
         progress.unlocked = true;
         progress.unlockTime = "deterministic_timestamp";
+        (void)syncAchievementToBackends(id);
         return true;
     }
     return false;
@@ -75,6 +76,61 @@ void AchievementRegistry::resetProgress(const std::string& id) {
         it->second.unlocked = false;
         it->second.unlockTime = std::nullopt;
     }
+}
+
+void AchievementRegistry::addPlatformBackend(std::shared_ptr<IAchievementPlatformBackend> backend) {
+    if (!backend) {
+        return;
+    }
+    m_platformBackends.push_back(std::move(backend));
+}
+
+std::vector<AchievementPlatformResult> AchievementRegistry::syncAchievementToBackends(const std::string& id) {
+    std::vector<AchievementPlatformResult> results;
+    const auto progressIt = m_progress.find(id);
+    if (progressIt == m_progress.end()) {
+        return results;
+    }
+
+    for (const auto& backend : m_platformBackends) {
+        if (!backend) {
+            continue;
+        }
+        AchievementPlatformUpdate update;
+        update.platform = backend->platformId();
+        update.achievementId = id;
+        update.current = progressIt->second.current;
+        update.target = progressIt->second.target;
+        update.unlocked = progressIt->second.unlocked;
+        update.unlockTime = progressIt->second.unlockTime;
+        results.push_back(backend->submitProgress(update));
+    }
+    return results;
+}
+
+std::vector<AchievementPlatformResult> AchievementRegistry::syncUnlockedAchievementsToBackends() {
+    std::vector<AchievementPlatformResult> results;
+    for (const auto& [id, progress] : m_progress) {
+        if (!progress.unlocked) {
+            continue;
+        }
+        auto one = syncAchievementToBackends(id);
+        results.insert(results.end(), one.begin(), one.end());
+    }
+    return results;
+}
+
+nlohmann::json AchievementRegistry::platformBackendSnapshot() const {
+    nlohmann::json backends = nlohmann::json::array();
+    for (const auto& backend : m_platformBackends) {
+        if (backend) {
+            backends.push_back(backend->snapshot());
+        }
+    }
+    return {
+        {"backendCount", backends.size()},
+        {"backends", backends},
+    };
 }
 
 nlohmann::json AchievementRegistry::saveToJson() const {
@@ -183,12 +239,13 @@ nlohmann::json AchievementRegistry::exportTrophyPayload(const std::string& platf
     return nlohmann::json{
         {"version", "1.0.0"},
         {"platform", platform.empty() ? "urpg-neutral" : platform},
-        {"backendIntegration", "out-of-tree"},
+        {"backendIntegration", m_platformBackends.empty() ? "not_configured" : "configured"},
         {"summary", {
             {"total", definitions.size()},
             {"unlocked", unlockedCount},
             {"secret", secretCount}
         }},
+        {"platformBackends", platformBackendSnapshot()},
         {"trophies", trophies}
     };
 }

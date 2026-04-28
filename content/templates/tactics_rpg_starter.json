@@ -1,0 +1,11 @@
+{
+  "template_id": "tactics_rpg",
+  "display_name": "Tactics RPG Starter",
+  "status": "READY",
+  "loops": ["tactical_battle_loop", "scenario_authoring_loop", "save_loop"],
+  "systems": {
+    "scenario_authoring": true,
+    "deployment_zones": true,
+    "turn_order": "speed_then_team_priority"
+  }
+}

@@ -1,5 +1,6 @@
 #include "engine/core/character/character_creation_screen.h"
 
+#include "engine/core/character/character_creation_rules.h"
 #include "engine/core/character/character_identity_validator.h"
 #include "engine/core/ecs/actor_manager.h"
 #include "engine/core/render/render_layer.h"
@@ -28,6 +29,8 @@ std::string issueCode(CharacterIdentityIssueCategory category) {
         return "unknown_appearance_token";
     case CharacterIdentityIssueCategory::DuplicateAppearanceToken:
         return "duplicate_appearance_token";
+    case CharacterIdentityIssueCategory::CreationRuleViolation:
+        return "creation_rule_violation";
     }
 
     return "unknown_issue";
@@ -192,6 +195,7 @@ nlohmann::json CharacterCreationScreen::buildSnapshot() const {
             {"appearance_tokens", m_catalog.appearanceTokens},
             {"name_suggestions", m_nameSuggestions},
         }},
+        {"creation_rules", characterCreationRulesToJson(defaultCharacterCreationRules())},
     };
 }
 

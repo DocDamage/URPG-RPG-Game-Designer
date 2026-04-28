@@ -268,14 +268,16 @@ foreach ($requiredPhrase in @(
 }
 
 # ---------------------------------------------------------------------------
-# i. Signoff artifacts must match the shipped human-review-gated pattern
+# i. Signoff artifacts must match their current review state
 # ---------------------------------------------------------------------------
 foreach ($signoffDoc in @(
-        @{ Name = "BATTLE_CORE_CLOSURE_SIGNOFF.md"; Text = $battleSignoffText; RequiredPhrases = @("Human review is required", "residual gaps", "PARTIAL") },
-        @{ Name = "SAVE_DATA_CORE_CLOSURE_SIGNOFF.md"; Text = $saveSignoffText; RequiredPhrases = @("Human review is required", "residual gaps", "PARTIAL") },
-        @{ Name = "COMPAT_BRIDGE_EXIT_SIGNOFF.md"; Text = $compatSignoffText; RequiredPhrases = @("Compat Bridge Exit", "Human review is required", "compat bridge exit", "residual gaps", "PARTIAL") }
+        @{ Name = "BATTLE_CORE_CLOSURE_SIGNOFF.md"; Text = $battleSignoffText; SubsystemId = "battle_core"; ReadyPhrases = @("Status:** ``READY``", "approved by release-owner review"); PendingPhrases = @("Human review is required", "residual gaps", "PARTIAL") },
+        @{ Name = "SAVE_DATA_CORE_CLOSURE_SIGNOFF.md"; Text = $saveSignoffText; SubsystemId = "save_data_core"; ReadyPhrases = @("Status:** ``READY``", "approved by release-owner review"); PendingPhrases = @("Human review is required", "residual gaps", "PARTIAL") },
+        @{ Name = "COMPAT_BRIDGE_EXIT_SIGNOFF.md"; Text = $compatSignoffText; SubsystemId = "compat_bridge_exit"; ReadyPhrases = @("Compat Bridge Exit", "Status:** ``READY``", "approved by release-owner review"); PendingPhrases = @("Compat Bridge Exit", "Human review is required", "compat bridge exit", "residual gaps", "PARTIAL") }
     )) {
-    foreach ($requiredPhrase in $signoffDoc.RequiredPhrases) {
+    $entry = $readiness.subsystems | Where-Object { $_.id -eq $signoffDoc.SubsystemId } | Select-Object -First 1
+    $requiredPhrases = if ($entry -and $entry.status -eq "READY") { $signoffDoc.ReadyPhrases } else { $signoffDoc.PendingPhrases }
+    foreach ($requiredPhrase in $requiredPhrases) {
         if ($signoffDoc.Text -notmatch [regex]::Escape($requiredPhrase)) {
             $mismatches += "$($signoffDoc.Name) is missing expected phrase '$requiredPhrase'."
         }
@@ -305,8 +307,15 @@ foreach ($subsystemId in $signoffArtifactMap.Keys) {
         $mismatches += "Subsystem '$subsystemId' signoff.artifactPath must be '$($signoffArtifactMap[$subsystemId])'."
     }
 
-    if ($entry.signoff.promotionRequiresHumanReview -ne $true) {
-        $mismatches += "Subsystem '$subsystemId' must keep signoff.promotionRequiresHumanReview set to true."
+    if ($entry.status -eq "READY") {
+        if ($entry.signoff.promotionRequiresHumanReview -ne $false) {
+            $mismatches += "READY subsystem '$subsystemId' must set signoff.promotionRequiresHumanReview to false."
+        }
+        if ([string]$entry.signoff.reviewStatus -ne "APPROVED") {
+            $mismatches += "READY subsystem '$subsystemId' must set signoff.reviewStatus to APPROVED."
+        }
+    } elseif ($entry.signoff.promotionRequiresHumanReview -ne $true) {
+        $mismatches += "Subsystem '$subsystemId' must keep signoff.promotionRequiresHumanReview set to true while it is not READY."
     }
 
     if ([string]$entry.signoff.workflow -ne $releaseSignoffWorkflowRelativePath) {

@@ -28,6 +28,28 @@
         "type": "string"
       },
       "description": "List of event categories that are permitted to be recorded."
+    },
+    "upload": {
+      "type": "object",
+      "properties": {
+        "mode": {
+          "type": "string",
+          "enum": ["disabled", "local_jsonl", "http_json", "custom_handler"]
+        },
+        "url": {
+          "type": "string"
+        },
+        "headers": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "curlExecutable": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
     }
   },
   "additionalProperties": false

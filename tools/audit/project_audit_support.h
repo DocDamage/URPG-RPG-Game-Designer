@@ -60,7 +60,8 @@ struct SignoffArtifactSpec {
     std::string title;
     std::string detailPrefix;
     std::filesystem::path path;
-    std::vector<std::string> requiredPhrases;
+    std::vector<std::string> pendingPhrases;
+    std::vector<std::string> readyPhrases;
 };
 
 std::string readFile(const std::filesystem::path& path);

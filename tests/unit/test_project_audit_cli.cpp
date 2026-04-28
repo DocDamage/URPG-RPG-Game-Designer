@@ -1556,7 +1556,7 @@ TEST_CASE("Project audit CLI does NOT fail closed on missing spec for non-candid
         {"subsystems", json::array()},
         {"templates", json::array({
             {
-                {"id", "tactics_rpg"},
+                {"id", "sandbox_template"},
                 {"status", "EXPERIMENTAL"},
                 {"requiredSubsystems", json::array({"battle_core"})},
                 {"bars", {{"accessibility", "PLANNED"}}},
@@ -1567,7 +1567,7 @@ TEST_CASE("Project audit CLI does NOT fail closed on missing spec for non-candid
 
     const ProcessResult result = runProjectAudit(
         {"--json", "--input", (tempRoot / "content" / "readiness" / "synthetic_readiness.json").string(),
-         "--template", "tactics_rpg"},
+         "--template", "sandbox_template"},
         tempRoot);
 
     REQUIRE(result.exitCode == 0);

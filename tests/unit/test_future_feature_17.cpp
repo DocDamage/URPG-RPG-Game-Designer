@@ -43,6 +43,9 @@ TEST_CASE("Template certification covers all conservative template suites", "[ce
     REQUIRE(suites[6].templateId == "cozy_life_rpg");
     REQUIRE(suites[7].templateId == "metroidvania_lite");
     REQUIRE(suites[8].templateId == "2_5d_rpg");
+    for (const auto& suite : suites) {
+        REQUIRE(suite.status == "READY");
+    }
 }
 
 TEST_CASE("Template certification fails when required template loop is missing", "[certification]") {

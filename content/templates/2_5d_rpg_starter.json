@@ -1,0 +1,11 @@
+{
+  "template_id": "2_5d_rpg",
+  "display_name": "2.5D RPG Starter",
+  "status": "READY",
+  "loops": ["spatial_navigation_loop", "raycast_authoring_loop", "save_loop"],
+  "systems": {
+    "raycast_authoring_adapter": true,
+    "blocking_cell_validation": true,
+    "spatial_projection": true
+  }
+}

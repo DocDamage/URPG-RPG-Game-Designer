@@ -7,6 +7,8 @@ $ErrorActionPreference = "Stop"
 $requiredPaths = @(
   "engine/core/project/project_template_generator.h",
   "engine/core/project/project_template_generator.cpp",
+  "engine/core/project/template_runtime_profile.h",
+  "engine/core/project/template_runtime_profile.cpp",
   "engine/core/project/dev_room_generator.h",
   "engine/core/project/dev_room_generator.cpp",
   "engine/core/tutorial/tutorial_lesson.h",
@@ -18,6 +20,12 @@ $requiredPaths = @(
   "content/templates/jrpg_starter.json",
   "content/templates/visual_novel_starter.json",
   "content/templates/turn_based_rpg_starter.json",
+  "content/templates/tactics_rpg_starter.json",
+  "content/templates/arpg_starter.json",
+  "content/templates/monster_collector_rpg_starter.json",
+  "content/templates/cozy_life_rpg_starter.json",
+  "content/templates/metroidvania_lite_starter.json",
+  "content/templates/2_5d_rpg_starter.json",
   "content/fixtures/dev_room_fixture.json",
   "tests/unit/test_project_template_generator.cpp",
   "tests/unit/test_dev_room_generator.cpp",
@@ -38,6 +46,7 @@ if ($missing.Count -gt 0) {
 $cmake = Get-Content (Join-Path $RepoRoot "CMakeLists.txt") -Raw
 foreach ($needle in @(
   "engine/core/project/project_template_generator.cpp",
+  "engine/core/project/template_runtime_profile.cpp",
   "engine/core/project/dev_room_generator.cpp",
   "engine/core/tutorial/tutorial_lesson.cpp",
   "editor/project/new_project_wizard_model.cpp",

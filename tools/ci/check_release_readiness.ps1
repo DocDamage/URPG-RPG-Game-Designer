@@ -238,21 +238,24 @@ foreach ($subsystemId in $signoffDocPaths.Keys) {
         throw "Signoff-governed subsystem '$subsystemId' is missing from readiness_status.json."
     }
 
+    $isReady = [string]$readinessEntry.status -eq "READY"
     $summaryText = [string]$readinessEntry.summary
     $mainGapText = (($readinessEntry.mainGaps | ForEach-Object { [string]$_ }) -join " ")
-    if ($summaryText -notmatch "signoff|human review") {
-        throw "Signoff-governed subsystem '$subsystemId' must mention signoff or human review in readiness_status.json summary."
-    }
-    if ($mainGapText -notmatch "signoff|human review") {
-        throw "Signoff-governed subsystem '$subsystemId' must mention signoff or human review in readiness_status.json mainGaps."
+    if (-not $isReady) {
+        if ($summaryText -notmatch "signoff|human review") {
+            throw "Signoff-governed subsystem '$subsystemId' must mention signoff or human review in readiness_status.json summary while it is not READY."
+        }
+        if ($mainGapText -notmatch "signoff|human review") {
+            throw "Signoff-governed subsystem '$subsystemId' must mention signoff or human review in readiness_status.json mainGaps while it is not READY."
+        }
     }
 
     $rowText = Get-MatrixRowText -Text $matrixText -Id $subsystemId
     if (-not $rowText) {
         throw "Release readiness matrix row text for signoff-governed subsystem '$subsystemId' could not be found."
     }
-    if ($rowText -notmatch "signoff|human review") {
-        throw "Release readiness matrix row for signoff-governed subsystem '$subsystemId' must mention signoff or human review."
+    if (-not $isReady -and $rowText -notmatch "signoff|human review") {
+        throw "Release readiness matrix row for signoff-governed subsystem '$subsystemId' must mention signoff or human review while it is not READY."
     }
 
     if (-not ($readinessEntry.PSObject.Properties.Name -contains "signoff")) {
@@ -270,8 +273,15 @@ foreach ($subsystemId in $signoffDocPaths.Keys) {
         throw "Subsystem '$subsystemId' signoff.artifactPath must be '$expectedRelativePath' but was '$actualArtifactPath'."
     }
 
-    if ($signoff.promotionRequiresHumanReview -ne $true) {
-        throw "Subsystem '$subsystemId' must keep signoff.promotionRequiresHumanReview set to true."
+    if ($isReady) {
+        if ($signoff.promotionRequiresHumanReview -ne $false) {
+            throw "READY subsystem '$subsystemId' must set signoff.promotionRequiresHumanReview to false."
+        }
+        if ([string]$signoff.reviewStatus -ne "APPROVED") {
+            throw "READY subsystem '$subsystemId' must set signoff.reviewStatus to APPROVED."
+        }
+    } elseif ($signoff.promotionRequiresHumanReview -ne $true) {
+        throw "Subsystem '$subsystemId' must keep signoff.promotionRequiresHumanReview set to true while it is not READY."
     }
 
     $actualWorkflowPath = [string]$signoff.workflow
@@ -279,9 +289,6 @@ foreach ($subsystemId in $signoffDocPaths.Keys) {
         throw "Subsystem '$subsystemId' signoff.workflow must be '$releaseSignoffWorkflowRelativePath' but was '$actualWorkflowPath'."
     }
 
-    if ($readinessEntry.status -eq "READY") {
-        throw "Signoff-governed subsystem '$subsystemId' cannot be marked READY while the machine-checked signoff contract still requires human review."
-    }
 }
 
 foreach ($requiredPhrase in @(

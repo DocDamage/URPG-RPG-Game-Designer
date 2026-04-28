@@ -1,5 +1,7 @@
 #include "engine/core/character/character_identity_validator.h"
 
+#include "engine/core/character/character_creation_rules.h"
+
 #include <algorithm>
 
 namespace urpg::character {
@@ -89,6 +91,16 @@ std::vector<CharacterIdentityIssue> CharacterIdentityValidator::validate(
         } else {
             seenTokens.push_back(token);
         }
+    }
+
+    for (const auto& ruleIssue : validateCharacterCreationRules(identity)) {
+        issues.push_back({
+            CharacterIdentityIssueSeverity::Error,
+            CharacterIdentityIssueCategory::CreationRuleViolation,
+            ruleIssue.field,
+            ruleIssue.value,
+            ruleIssue.message,
+        });
     }
 
     return issues;

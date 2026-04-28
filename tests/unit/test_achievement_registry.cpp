@@ -6,6 +6,7 @@
 #include <cstdlib>
 #include <filesystem>
 #include <fstream>
+#include <memory>
 #include <string>
 
 using namespace urpg::achievement;
@@ -202,7 +203,7 @@ TEST_CASE("AchievementRegistry exports vendor-neutral trophy payload", "[achieve
 
     REQUIRE(payload["version"] == "1.0.0");
     REQUIRE(payload["platform"] == "urpg-neutral");
-    REQUIRE(payload["backendIntegration"] == "out-of-tree");
+    REQUIRE(payload["backendIntegration"] == "not_configured");
     REQUIRE(payload["summary"]["total"] == 2);
     REQUIRE(payload["summary"]["unlocked"] == 1);
     REQUIRE(payload["summary"]["secret"] == 1);
@@ -221,6 +222,32 @@ TEST_CASE("AchievementRegistry exports vendor-neutral trophy payload", "[achieve
     REQUIRE(payload["trophies"][1]["progress"] == 2);
     REQUIRE(payload["trophies"][1]["unlocked"] == false);
     REQUIRE_FALSE(payload["trophies"][1].contains("unlockTime"));
+}
+
+TEST_CASE("AchievementRegistry syncs unlocks to configured platform backend",
+          "[achievement][platform]") {
+    AchievementRegistry registry;
+
+    auto backend = std::make_shared<MemoryAchievementPlatformBackend>("steam");
+    registry.addPlatformBackend(backend);
+
+    AchievementDef def;
+    def.id = "ach_platform";
+    def.title = "Platform";
+    def.description = "Submit to backend.";
+    def.secret = false;
+    def.unlockCondition = "count_1";
+    def.iconId = "icon_platform";
+
+    registry.registerAchievement(def);
+    REQUIRE(registry.reportProgress("ach_platform", 1));
+
+    const auto snapshot = backend->snapshot();
+    REQUIRE(snapshot["platform"] == "steam");
+    REQUIRE(snapshot["submittedCount"] == 1);
+    REQUIRE(snapshot["updates"][0]["achievementId"] == "ach_platform");
+    REQUIRE(snapshot["updates"][0]["unlocked"] == true);
+    REQUIRE(registry.exportTrophyPayload("steam")["backendIntegration"] == "configured");
 }
 
 TEST_CASE("AchievementRegistry trophy payload defaults to neutral platform", "[achievement][export]") {

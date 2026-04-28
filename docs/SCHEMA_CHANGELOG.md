@@ -90,7 +90,7 @@ Each governed schema entry should include:
 
 - Version: `1.0.0`
 - Date: `2026-04-24`
-- Summary: vendor-neutral achievement trophy export payload with summary counts, per-trophy progress, and an explicit out-of-tree backend-integration marker
+- Summary: vendor-neutral achievement trophy export payload with summary counts, per-trophy progress, and configured/not-configured platform backend integration state
 - Migration Impact: none; additive export contract for the existing achievement registry
 
 ### `accessibility_report` (`accessibility_report.schema.json`)

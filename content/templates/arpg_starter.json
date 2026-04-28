@@ -1,0 +1,10 @@
+{
+  "template_id": "arpg",
+  "display_name": "Action RPG Starter",
+  "status": "READY",
+  "loops": ["action_combat_loop", "growth_loop", "save_loop"],
+  "systems": {
+    "combat_states": ["idle", "attacking", "dodging", "recoiling"],
+    "actions": ["light_attack", "heavy_attack", "dodge", "interact", "quick_item"]
+  }
+}

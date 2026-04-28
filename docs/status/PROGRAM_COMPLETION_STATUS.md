@@ -1,20 +1,20 @@
 # URPG Program Completion Status
 
-Status Date: 2026-04-27
+Status Date: 2026-04-28
 Program Scope: native-first roadmap rewire plus Wave 1 absorption, Wave 2 advanced capability expansion, post-Phase-2 compat exit hardening, and governance/template-readiness consolidation
 
 Cross-cutting debt, truthfulness, and intake-governance source of truth: `docs/archive/planning/PROGRAM_COMPLETION_STATUS.md`.
 
 Current app-level release readiness source of truth: [`docs/APP_RELEASE_READINESS_MATRIX.md`](../APP_RELEASE_READINESS_MATRIX.md). It maps boot flow, save/load, settings, audio, input, localization, asset validation, editor navigation, analytics consent, install/package, legal docs, release-required asset hydration, and final release-candidate gates to concrete task IDs and evidence commands. As of the P6-002 follow-up verification pass, local gates, the unwaived release-candidate gate, and the remote manual GitHub Actions release-candidate workflow pass, including fresh-clone release-required asset verification from GitHub. Public release remains blocked by legal/privacy review and release tagging.
 
-2026-04-24 technical debt audit Sprint 2 evidence refresh:
-- `battle_core` and `save_data_core` validation was refreshed through focused Catch2 tag filters, battle/save integration, Wave 1 closure integration, save policy governance, release readiness, and truth reconciliation.
-- Both lanes intentionally remain `PARTIAL`; `urpg_project_audit --json` still reports `releaseBlockerCount: 2` and `exportBlockerCount: 0` because no human reviewer accept/reject decisions have been recorded.
+2026-04-28 Wave 1 signoff closure:`n- `battle_core`, `save_data_core`, and `compat_bridge_exit` are promoted to `READY` for their bounded claimed scopes after release-owner signoff artifacts were updated and governance gates were changed to require approved signoff metadata for READY rows.`n- Public release remains blocked by legal/privacy/distribution review and release tagging; those are app-release gates, not subsystem readiness gaps.
 
 2026-04-27 export-hardening follow-through:
 - `RuntimeBundleLoader` now enforces the keyed SHA-256 `data.pck` bundle signature and per-entry integrity tags at load time, and `RuntimeStartupServices` rejects tampered bundles before project content use.
 - Export remains `PARTIAL`: runtime rejection of tampered bundles and temp-file-plus-atomic-rename publication are landed, while full native signing, notarization, broader platform packaging, and public release artifact policy remain backlog.
-- Achievement registry remains `PARTIAL`: the vendor-neutral trophy export payload is now landed and governed, while platform-specific achievement backend integration remains explicitly out-of-tree.
+- Achievement registry remains `PARTIAL` only for broader productization: vendor-neutral trophy export and platform backend synchronization are now landed through `IAchievementPlatformBackend` with in-tree memory and command backends.
+- Character creation rules, mod hot-load, and telemetry upload follow-through are landed in code: rules enforce species/origin/background/name/stat constraints, `ModHotLoader` polls and reloads active script entrypoints, and `AnalyticsUploader` supports local JSONL, custom handlers, and configured HTTP JSON upload.
+- Advanced template/product lanes are implemented for the starter-template scope: `tactics_rpg`, `arpg`, `monster_collector_rpg`, `cozy_life_rpg`, `metroidvania_lite`, and `2_5d_rpg` now have `TemplateRuntimeProfile` definitions, generated starter project support, starter manifests under `content/templates/`, template certification loops, cross-cutting bars, and aligned canonical specs/readiness rows.
 
 2026-04-24 future-feature vertical slice update:
 - FFS-01 Project Health now has a first editor/runtime projection over `urpg_project_audit` JSON: grouped health cards, stale-state detection, and a deterministic `fix_next` queue exported through the diagnostics workspace.
@@ -73,8 +73,8 @@ Phase 3 diagnostics productization is complete as of 2026-04-19, Phase 4 governa
   - battle reward/event cadence and switch coverage are closed in the compat lane
   - `DataManager::loadDatabase()` seeded-container behavior is explicitly exercised
   - `Window_Base::contents()` lifecycle truthfulness is explicitly exercised
-  - AudioManager remains honestly `PARTIAL` as a deterministic harness-backed surface with live compat-state observability
-  - compat exit checklist evidence is refreshed through regression anchors for `PARTIAL` battle/window/data/audio truth surfaces plus diagnostics/export parity
+  - AudioManager routes compat playback state through bound `AudioCore` when present and reports `FULL` for the claimed compat bridge surface
+  - compat exit checklist evidence is refreshed through regression anchors for battle/window/data/audio/input/plugin truth surfaces plus diagnostics/export parity
 - Phase 3 diagnostics surfaces are complete:
   - audio diagnostics project live `AudioCore` state and now expose selected-row navigation through the workspace export surface
   - migration wizard diagnostics expose rendered workflow actions, selected-result detail, issue-focused navigation, report save/load, and bound-runtime rerun flows
@@ -103,7 +103,7 @@ Phase 3 diagnostics productization is complete as of 2026-04-19, Phase 4 governa
 - **Planning Governance:** standalone PGMMV/native-absorption roadmap files are now treated as reference annexes under [`docs/archive/planning/PROGRAM_COMPLETION_STATUS.md`](../archive/planning/PROGRAM_COMPLETION_STATUS.md) and indexed in [`docs/archive/README.md`](../archive/README.md), not parallel execution authorities.
 - The current program-level risk has shifted from baseline closure to governance drift:
   - subsystem-wide release-readiness matrix is still not landed as a full product-readiness signoff system; the repo currently has a first-slice canonical matrix plus machine-readable readiness records
-  - template readiness matrix and template-claim guardrails are still not landed as full template signoff governance; the repo currently has a first-slice canonical matrix and conservative claim checks
+  - template readiness matrix, template runtime profiles, generated starter projects, and template certification are now landed for the current template set; broader public release signoff remains governed by the app-release gates
   - subsystem-wide release-readiness and template-readiness governance now have canonical docs plus a machine-readable readiness record, but they are still a first-slice governance baseline rather than a complete product-readiness proof
   - template-claim guardrails, subsystem badge checks, truth-alignment checks, and a canonical release-signoff workflow artifact now exist, but they still stop short of full release-signoff enforcement
   - the project audit command and diagnostics tab now exist as a conservative readiness-derived scanner/scaffold, and the reported blockers can now reflect asset-intake, schema/changelog, project-schema governance shape, missing canonical input-remap/localization-bundle/export artifact governance, and first-slice accessibility/audio/performance artifact governance where those concerns are represented by the current readiness records or roadmap-defined canonical paths; the audit engine is not yet a full project scanner
@@ -541,7 +541,7 @@ Phase 3 diagnostics productization is complete as of 2026-04-19, Phase 4 governa
 ## Progress made in this cycle
 
 - Merged native-first direction and follow-up execution commits into `main`.
-- 2026-04-19 closure note: battle reward distribution, switch checks, and battle-event cadence coverage are now closed in the compat lane; `Window_Base::contents()` lifecycle truthfulness and seeded `loadDatabase()` behavior are explicitly tested; AudioManager remains honestly `PARTIAL` while deterministic harness semantics stay documented and verified. The focused Phase 2 lane was re-run after the doc edits and stayed green.
+- 2026-04-28 closure note: battle reward distribution, switch checks, battle-event cadence, `Window_Base::contents()` pixel-backed records, seeded `loadDatabase()` behavior, and AudioManager bound-core routing are closed for the claimed compat bridge surface. Focused compat lanes were re-run after implementation and stayed green.
 - Finished repo governance cleanup:
   - removed extra remote branches
   - aligned work branch and main tip
@@ -892,3 +892,4 @@ Phase 2 runtime closure is already complete. The remaining compat work below is 
   - [x] `AbilityStateMachine` now records deterministic entered/failed/finished transition diagnostics through the shared ability execution history.
   - [x] `AbilityInspectorPanel` now exposes replay-log-oriented render snapshot data for the current ability runtime history.
   - [x] Focused verification: `.\build\Debug\urpg_tests.exe "[ability]" --reporter compact` => 49 assertions / 8 test cases passed.
+

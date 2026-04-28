@@ -1,0 +1,11 @@
+{
+  "template_id": "metroidvania_lite",
+  "display_name": "Metroidvania Lite Starter",
+  "status": "READY",
+  "loops": ["ability_gate_loop", "map_unlock_loop", "traversal_loop", "save_loop"],
+  "systems": {
+    "abilities": ["dash", "wall_jump", "double_jump"],
+    "gated_regions": true,
+    "map_unlocks": true
+  }
+}

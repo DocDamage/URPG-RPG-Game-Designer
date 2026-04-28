@@ -1,5 +1,7 @@
 #include "engine/core/project/template_certification.h"
 
+#include "engine/core/project/template_runtime_profile.h"
+
 #include <algorithm>
 #include <array>
 
@@ -17,12 +19,12 @@ const std::vector<urpg::project::TemplateCertificationSuite>& suites() {
         {"jrpg", "READY", {{"battle_loop", "Map-to-battle-to-reward loop"}, {"save_loop", "Save/load loop"}}},
         {"visual_novel", "READY", {{"dialogue_loop", "Dialogue choice loop"}, {"save_loop", "Save/load loop"}}},
         {"turn_based_rpg", "READY", {{"turn_based_battle_loop", "Turn-based battle loop"}, {"save_loop", "Save/load loop"}}},
-        {"tactics_rpg", "EXPERIMENTAL", {{"tactical_battle_loop", "Grid tactics loop"}, {"save_loop", "Save/load loop"}}},
-        {"arpg", "EXPERIMENTAL", {{"action_combat_loop", "Action combat loop"}, {"save_loop", "Save/load loop"}}},
-        {"monster_collector_rpg", "PLANNED", {{"capture_loop", "Monster capture loop"}, {"save_loop", "Save/load loop"}}},
-        {"cozy_life_rpg", "PLANNED", {{"daily_life_loop", "Daily life schedule loop"}, {"save_loop", "Save/load loop"}}},
-        {"metroidvania_lite", "PLANNED", {{"ability_gate_loop", "Ability-gated exploration loop"}, {"save_loop", "Save/load loop"}}},
-        {"2_5d_rpg", "PLANNED", {{"spatial_navigation_loop", "2.5D spatial navigation loop"}, {"save_loop", "Save/load loop"}}},
+        {"tactics_rpg", "READY", {{"tactical_battle_loop", "Grid tactics loop"}, {"scenario_authoring_loop", "Scenario authoring loop"}, {"save_loop", "Save/load loop"}}},
+        {"arpg", "READY", {{"action_combat_loop", "Action combat loop"}, {"growth_loop", "Growth loop"}, {"save_loop", "Save/load loop"}}},
+        {"monster_collector_rpg", "READY", {{"capture_loop", "Monster capture loop"}, {"party_assembly_loop", "Party assembly loop"}, {"battle_loop", "Battle loop"}, {"save_loop", "Save/load loop"}}},
+        {"cozy_life_rpg", "READY", {{"daily_life_loop", "Daily life schedule loop"}, {"relationship_loop", "Relationship loop"}, {"crafting_loop", "Crafting loop"}, {"economy_loop", "Economy loop"}, {"save_loop", "Save/load loop"}}},
+        {"metroidvania_lite", "READY", {{"ability_gate_loop", "Ability-gated exploration loop"}, {"map_unlock_loop", "Map unlock loop"}, {"traversal_loop", "Traversal loop"}, {"save_loop", "Save/load loop"}}},
+        {"2_5d_rpg", "READY", {{"spatial_navigation_loop", "2.5D spatial navigation loop"}, {"raycast_authoring_loop", "Raycast authoring loop"}, {"save_loop", "Save/load loop"}}},
     };
     return kSuites;
 }
@@ -74,6 +76,25 @@ CertificationReport TemplateCertification::certify(const nlohmann::json& project
                 "missing_required_loop",
                 "Template '" + templateId + "' is missing loop '" + requirement.id + "'.",
             });
+        }
+    }
+
+    const auto profile = findTemplateRuntimeProfile(templateId);
+    if (!profile.has_value()) {
+        report.issues.push_back({CertificationSeverity::Error, "missing_runtime_profile",
+                                 "Template runtime profile is missing."});
+    } else {
+        for (const auto& issue : validateTemplateRuntimeProfile(*profile)) {
+            report.issues.push_back({CertificationSeverity::Error, "invalid_runtime_profile", issue});
+        }
+        if (projectDocument.contains("template_bars") && projectDocument["template_bars"].is_object()) {
+            for (const auto& [bar, value] : profile->bars.items()) {
+                if (!projectDocument["template_bars"].contains(bar) ||
+                    projectDocument["template_bars"][bar].value("status", "") != "READY") {
+                    report.issues.push_back({CertificationSeverity::Error, "template_bar_not_ready",
+                                             "Template '" + templateId + "' has non-ready bar '" + bar + "'."});
+                }
+            }
         }
     }
 

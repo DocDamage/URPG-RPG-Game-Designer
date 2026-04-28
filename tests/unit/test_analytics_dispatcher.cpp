@@ -225,6 +225,23 @@ TEST_CASE("AnalyticsUploader: local JSONL export writes consent-gated batches",
     std::filesystem::remove_all(root, ec);
 }
 
+TEST_CASE("AnalyticsUploader: HTTP endpoint config exposes concrete remote upload mode",
+          "[analytics][upload][remote]") {
+    AnalyticsUploader uploader;
+    AnalyticsUploadEndpoint endpoint;
+    endpoint.url = "https://telemetry.example.invalid/collect";
+    endpoint.headers["X-URPG-Build"] = "test";
+    endpoint.bearerToken = "redacted-token";
+
+    uploader.setHttpJsonEndpoint(endpoint);
+
+    REQUIRE(uploader.hasUploadHandler());
+    REQUIRE(uploader.uploadMode() == "http_json");
+    REQUIRE(uploader.httpEndpoint().has_value());
+    REQUIRE(uploader.httpEndpoint()->url == endpoint.url);
+    REQUIRE(uploader.httpEndpoint()->headers.at("X-URPG-Build") == "test");
+}
+
 TEST_CASE("AnalyticsUploader: batching splits events into multiple handler calls",
           "[analytics][upload][s28t07]") {
     int callCount = 0;

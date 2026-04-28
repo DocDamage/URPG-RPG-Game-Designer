@@ -141,15 +141,14 @@ TEST_CASE("character_identity: landed evidence flags are all set",
 // S32-T03 — Achievement registry platform backend scope
 // ============================================================================
 
-TEST_CASE("achievement_registry: readiness record acknowledges platform backend integration as out-of-tree",
+TEST_CASE("achievement_registry: readiness record acknowledges platform backend integration as implemented",
           "[wysiwyg][achievement][s32t03]") {
     const json readiness = loadReadinessStatus();
     const json sub = findSubsystem(readiness, "achievement_registry");
 
     REQUIRE(!sub.empty());
     REQUIRE(sub.value("status", "") == "PARTIAL");
-    // The mainGaps must explicitly state platform backend integration is out-of-tree
-    REQUIRE(hasGapContaining(sub, "out-of-tree"));
+    REQUIRE(hasGapContaining(sub, "Platform backend synchronization is landed"));
 }
 
 // ============================================================================
@@ -252,15 +251,15 @@ TEST_CASE("export_validator: runtime signature enforcement design note keeps non
 // S32-T06 — Achievement trophy export pipeline scope wording
 // ============================================================================
 
-TEST_CASE("achievement_registry: readiness record keeps trophy export landed and platform backend deferred",
+TEST_CASE("achievement_registry: readiness record keeps trophy export and platform backend landed",
           "[wysiwyg][achievement][s32t06]") {
     const json readiness = loadReadinessStatus();
     const json sub = findSubsystem(readiness, "achievement_registry");
 
     REQUIRE(!sub.empty());
     REQUIRE(sub.value("summary", "").find("trophy export payload") != std::string::npos);
-    REQUIRE(hasGapContaining(sub, "Platform-specific achievement backend integration"));
-    REQUIRE(hasGapContaining(sub, "out-of-tree"));
+    REQUIRE(hasGapContaining(sub, "Platform backend synchronization is landed"));
+    REQUIRE(hasGapContaining(sub, "IAchievementPlatformBackend"));
 }
 
 TEST_CASE("achievement_registry: landed evidence flags are all set",

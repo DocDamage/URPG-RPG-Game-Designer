@@ -30,13 +30,13 @@
       "id": "character_identity",
       "ownerTrack": "Character runtime",
       "nextVerticalSlice": "Persist one runtime-created protagonist through save/load with editor diagnostics and schema proof.",
-      "deferredScope": "Author-defined creation rules and full layered portrait/field/battle composition remain backlog."
+      "deferredScope": "Creation rules are implemented; full layered portrait/field/battle composition remains backlog."
     },
     {
       "id": "achievement_registry",
       "ownerTrack": "Achievements",
-      "nextVerticalSlice": "Ship the vendor-neutral trophy export payload through runtime, editor summary, schema, fixture, governance, and tests.",
-      "deferredScope": "Platform-specific achievement backends remain out-of-tree."
+      "nextVerticalSlice": "Bind platform backend synchronization into one packaged project profile with configured command adapter evidence.",
+      "deferredScope": "Proprietary store SDK credentials and account-specific publishing remain project configuration."
     },
     {
       "id": "accessibility_auditor",
@@ -53,14 +53,14 @@
     {
       "id": "mod_registry",
       "ownerTrack": "Mod runtime",
-      "nextVerticalSlice": "Load one sandboxed repo-owned mod manifest and script through runtime, editor diagnostics, and reload tests.",
+      "nextVerticalSlice": "Surface ModHotLoader event log in the editor manager panel.",
       "deferredScope": "Mod store integration and broad third-party mod execution remain backlog."
     },
     {
       "id": "analytics_dispatcher",
       "ownerTrack": "Analytics",
-      "nextVerticalSlice": "Export one privacy-audited local session aggregate with diagnostics and opt-in proof.",
-      "deferredScope": "Remote upload pipeline and production privacy review workflow remain backlog."
+      "nextVerticalSlice": "Bind one product telemetry endpoint profile through settings UI and privacy review evidence.",
+      "deferredScope": "Production privacy review workflow remains backlog."
     }
   ]
 }

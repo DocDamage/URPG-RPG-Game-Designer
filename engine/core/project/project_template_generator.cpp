@@ -1,5 +1,7 @@
 #include "engine/core/project/project_template_generator.h"
 
+#include "engine/core/project/template_runtime_profile.h"
+
 #include <algorithm>
 #include <array>
 #include <cctype>
@@ -16,12 +18,6 @@ struct TemplateSpec {
     std::string battle_mode;
 };
 
-const std::array<TemplateSpec, 3> kTemplates = {{
-    {"jrpg", "Classic JRPG", {"party", "battle", "exploration"}, {"map_intro", "map_town", "map_field"}, "turn_based"},
-    {"visual_novel", "Visual Novel", {"dialogue", "choices", "save"}, {"scene_intro", "scene_choice"}, "none"},
-    {"turn_based_rpg", "Turn-Based RPG", {"tactics", "battle", "progression"}, {"map_intro", "map_arena"}, "turn_based"},
-}};
-
 const std::array<std::string, 8> kRequiredSubsystems = {
     "maps",
     "menu",
@@ -33,11 +29,40 @@ const std::array<std::string, 8> kRequiredSubsystems = {
     "export_profile",
 };
 
-const TemplateSpec* findTemplate(const std::string& id) {
-    const auto it = std::find_if(kTemplates.begin(), kTemplates.end(), [&](const TemplateSpec& spec) {
-        return spec.id == id;
-    });
-    return it == kTemplates.end() ? nullptr : &*it;
+TemplateSpec specFromProfile(const TemplateRuntimeProfile& profile) {
+    TemplateSpec spec;
+    spec.id = profile.id;
+    spec.display_name = profile.displayName;
+    spec.tags = profile.tags;
+    if (profile.id == "visual_novel") {
+        spec.maps = {"scene_intro", "scene_choice"};
+        spec.battle_mode = "none";
+    } else if (profile.id == "tactics_rpg") {
+        spec.maps = {"scenario_training_grid", "scenario_fortress"};
+        spec.battle_mode = "tactics";
+    } else if (profile.id == "arpg") {
+        spec.maps = {"map_action_intro", "map_combat_field"};
+        spec.battle_mode = "action";
+    } else if (profile.id == "monster_collector_rpg") {
+        spec.maps = {"map_route_01", "map_capture_grove", "map_ranch"};
+        spec.battle_mode = "collection";
+    } else if (profile.id == "cozy_life_rpg") {
+        spec.maps = {"map_home", "map_town_square", "map_forest"};
+        spec.battle_mode = "none";
+    } else if (profile.id == "metroidvania_lite") {
+        spec.maps = {"room_start", "room_old_well", "room_clock_tower"};
+        spec.battle_mode = "action";
+    } else if (profile.id == "2_5d_rpg") {
+        spec.maps = {"spatial_intro", "spatial_ruins"};
+        spec.battle_mode = "spatial";
+    } else if (profile.id == "turn_based_rpg") {
+        spec.maps = {"map_intro", "map_arena"};
+        spec.battle_mode = "turn_based";
+    } else {
+        spec.maps = {"map_intro", "map_town", "map_field"};
+        spec.battle_mode = "turn_based";
+    }
+    return spec;
 }
 
 bool isValidProjectId(const std::string& id) {
@@ -62,8 +87,8 @@ nlohmann::json makeMaps(const TemplateSpec& spec) {
     return maps;
 }
 
-nlohmann::json makeSubsystems(const TemplateSpec& spec) {
-    return {
+nlohmann::json makeSubsystems(const TemplateSpec& spec, const TemplateRuntimeProfile& profile) {
+    nlohmann::json subsystems = {
         {"maps", makeMaps(spec)},
         {"menu", {{"style", spec.id == "visual_novel" ? "minimal" : "classic"}, {"commands", {"items", "skills", "save"}}}},
         {"message", {{"default_speaker", "Guide"}, {"sample_line", "Welcome to your first playable slice."}}},
@@ -72,7 +97,12 @@ nlohmann::json makeSubsystems(const TemplateSpec& spec) {
         {"localization", {{"default_locale", "en-US"}, {"locales", {"en-US"}}}},
         {"input", {{"profile", "keyboard_gamepad"}, {"confirm", "Enter"}, {"cancel", "Escape"}}},
         {"export_profile", {{"target", "Windows_x64"}, {"integrity", "strict"}, {"output_name", spec.id + "_starter"}}},
+        {"template_runtime", templateRuntimeProfileToJson(profile)},
     };
+    for (const auto& [key, value] : profile.systems.items()) {
+        subsystems[key] = value;
+    }
+    return subsystems;
 }
 
 std::vector<std::string> missingSubsystems(const nlohmann::json& project) {
@@ -92,9 +122,16 @@ std::vector<std::string> missingSubsystems(const nlohmann::json& project) {
 
 ProjectTemplateResult ProjectTemplateGenerator::generate(const ProjectTemplateRequest& request) {
     ProjectTemplateResult result;
-    const TemplateSpec* spec = findTemplate(request.template_id);
-    if (!spec) {
+    const auto profile = findTemplateRuntimeProfile(request.template_id);
+    if (!profile.has_value()) {
         result.errors.push_back("unknown_template:" + request.template_id);
+        return result;
+    }
+    const TemplateSpec spec = specFromProfile(*profile);
+    for (const auto& issue : validateTemplateRuntimeProfile(*profile)) {
+        result.errors.push_back("invalid_template_profile:" + issue);
+    }
+    if (!result.errors.empty()) {
         return result;
     }
     if (!isValidProjectId(request.project_id)) {
@@ -114,16 +151,19 @@ ProjectTemplateResult ProjectTemplateGenerator::generate(const ProjectTemplateRe
         {"schema_version", "urpg.project.v1"},
         {"project_id", request.project_id},
         {"project_name", request.project_name},
-        {"template_id", spec->id},
-        {"template_display_name", spec->display_name},
-        {"tags", spec->tags},
-        {"subsystems", makeSubsystems(*spec)},
+        {"template_id", spec.id},
+        {"template_display_name", spec.display_name},
+        {"tags", spec.tags},
+        {"loops", profile->loops},
+        {"template_bars", profile->bars},
+        {"subsystems", makeSubsystems(spec, *profile)},
     };
     result.audit_report = {
         {"project_id", request.project_id},
-        {"template_id", spec->id},
+        {"template_id", spec.id},
         {"status", "passed"},
         {"checked_subsystems", kRequiredSubsystems},
+        {"checked_template_loops", profile->loops},
         {"issues", nlohmann::json::array()},
     };
     issued_project_ids_.insert(request.project_id);
@@ -142,8 +182,14 @@ std::vector<std::string> ProjectTemplateGenerator::validateProjectDocument(const
     if (!isValidProjectId(project.value("project_id", ""))) {
         errors.push_back("invalid_project_id");
     }
-    if (!findTemplate(project.value("template_id", ""))) {
+    if (!findTemplateRuntimeProfile(project.value("template_id", "")).has_value()) {
         errors.push_back("unknown_template:" + project.value("template_id", ""));
+    }
+    if (!project.contains("loops") || !project["loops"].is_array() || project["loops"].empty()) {
+        errors.push_back("missing_template_loops");
+    }
+    if (!project.contains("template_bars") || !project["template_bars"].is_object()) {
+        errors.push_back("missing_template_bars");
     }
     for (const auto& subsystem : missingSubsystems(project)) {
         errors.push_back("missing_subsystem:" + subsystem);

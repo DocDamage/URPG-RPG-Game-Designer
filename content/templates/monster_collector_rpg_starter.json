@@ -1,0 +1,11 @@
+{
+  "template_id": "monster_collector_rpg",
+  "display_name": "Monster Collector RPG Starter",
+  "status": "READY",
+  "loops": ["capture_loop", "party_assembly_loop", "battle_loop", "save_loop"],
+  "systems": {
+    "collection": true,
+    "capture_formula": "base_rate + status_bonus - rarity_penalty",
+    "max_active_party": 4
+  }
+}

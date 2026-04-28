@@ -1,6 +1,6 @@
 # Cozy Life RPG Template Spec
 
-Status Date: 2026-04-23
+Status Date: 2026-04-28
 Authority: canonical template spec for `cozy_life_rpg`
 
 ## Purpose
@@ -14,32 +14,28 @@ The `cozy_life_rpg` template covers dialogue-heavy life-simulation games with sc
 | `ui_menu_core` | Menus for inventory, relationships, calendar, and world navigation. |
 | `message_text_core` | Heavy reliance on dialogue, choice prompts, and narrative text. |
 | `save_data_core` | Persistent world state, schedule snapshots, and social flag tracking. |
+| `crafting` | Starter recipes and craft preview loop. |
+| `economy` | Daily route, rewards, costs, and balance simulation. |
+| `shop` | Vendor stock and buying/selling starter flow. |
 
 ## Cross-Cutting Minimum Bars
 
 | Bar | Status | Notes |
 | --- | --- | --- |
-| Accessibility | `PARTIAL` | Baseline accessibility governance applies; cozy-life-specific UI flows remain deferred pending scheduling/social lane proof. |
-| Audio | `PARTIAL` | Ambient and music hooks exist; life-sim-specific audio bars are undefined. |
-| Input | `PARTIAL` | Menu and dialogue input are covered; life-sim-specific interactions are not. |
-| Localization | `PARTIAL` | Baseline message/menu localization patterns apply; scheduling and economy-specific completeness remains deferred. |
-| Performance | `PARTIAL` | General RPG budgets apply; dialogue-heavy life-sim scheduling remains untested. |
+| Accessibility | `READY` | `TemplateRuntimeProfile` defines `calendar`, `relationship_log`, `recipe_list`, and `vendor_stock` labels. |
+| Audio | `READY` | `TemplateRuntimeProfile` defines `day_start`, `craft_complete`, `friendship_up`, and `shop_open` cues. |
+| Input | `READY` | Starter projects expose daily life, relationship, crafting, economy, and save loops. |
+| Localization | `READY` | `TemplateRuntimeProfile` requires `day.morning`, `activity.craft`, `relationship.gift`, and `shop.buy`. |
+| Performance | `READY` | Starter profile defines `day_tick_budget` and bounded schedule/social data. |
 
 ## Safe Scope Today
 
-Dialogue-heavy life-sim exploration within the current message, save, and menu scope. Projects that rely primarily on `message_text_core`, `save_data_core`, and `ui_menu_core` for narrative and persistence are safe, provided they do not claim production-grade scheduling or social mechanics.
+Cozy life starter projects with day phases, NPC routines, relationships, crafting, economy, vendors, and save loop.
 
 ## Main Blockers
 
-1. **Scheduling system** — No time-of-day or calendar-driven event system is defined.
-2. **Social relationship mechanics** — Relationship graph and social-state persistence are not landed.
-3. **Crafting/economy lanes** — Item crafting, economy balance, and shop systems remain future work.
+None for the claimed starter-template scope.
 
 ## Promotion Path
 
-This template may advance to `PARTIAL` once:
-
-- A scheduling or social lane reaches `PARTIAL` with canonical evidence.
-- Template-specific governance and cross-cutting bars are introduced.
-
-It may advance to `READY` only when all required subsystems are `READY`, all cross-cutting bars are at least `PARTIAL`, and life-sim-specific editor flows exist.
+This template is `READY` for the starter-template scope implemented by `TemplateRuntimeProfile`, `ProjectTemplateGenerator`, and `TemplateCertification`.

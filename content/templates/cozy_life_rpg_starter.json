@@ -1,0 +1,12 @@
+{
+  "template_id": "cozy_life_rpg",
+  "display_name": "Cozy Life RPG Starter",
+  "status": "READY",
+  "loops": ["daily_life_loop", "relationship_loop", "crafting_loop", "economy_loop", "save_loop"],
+  "systems": {
+    "day_phases": ["morning", "afternoon", "evening", "night"],
+    "crafting": true,
+    "economy": true,
+    "shop": true
+  }
+}

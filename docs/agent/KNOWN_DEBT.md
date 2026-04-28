@@ -14,7 +14,7 @@ This file is a pointer map, not the debt database.
 
 - Prefer closing release-plan tasks over broad refactors.
 - Keep bootstrap/dev surfaces visibly marked as non-production.
-- Keep compat and migration partial surfaces diagnostic-rich and documented.
+- Keep any future compat and migration limitations diagnostic-rich and documented; current public compat manager registries are closed for the claimed bridge scope.
 - Keep editor release navigation aligned with `docs/release/EDITOR_CONTROL_INVENTORY.md`.
 - Convert repeated review feedback into scripts or docs under `tools/` and `docs/agent/`.
 

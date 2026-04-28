@@ -1,6 +1,6 @@
 # JRPG Template Spec
 
-Status Date: 2026-04-23
+Status Date: 2026-04-28
 Authority: canonical template spec for `jrpg`
 
 ## Purpose

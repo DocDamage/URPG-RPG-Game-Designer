@@ -35,6 +35,15 @@ public:
     void setClassId(const std::string& value) { m_classId = value; }
     const std::string& getClassId() const { return m_classId; }
 
+    void setSpeciesId(const std::string& value) { m_speciesId = value; }
+    const std::string& getSpeciesId() const { return m_speciesId; }
+
+    void setOriginId(const std::string& value) { m_originId = value; }
+    const std::string& getOriginId() const { return m_originId; }
+
+    void setBackgroundId(const std::string& value) { m_backgroundId = value; }
+    const std::string& getBackgroundId() const { return m_backgroundId; }
+
     /** @brief Sets a base attribute value. */
     void setAttribute(const std::string& key, float value);
 
@@ -58,6 +67,9 @@ private:
     std::string m_portraitId;
     std::string m_bodySpriteId;
     std::string m_classId;
+    std::string m_speciesId;
+    std::string m_originId;
+    std::string m_backgroundId;
     std::unordered_map<std::string, float> m_baseAttributes;
     std::vector<std::string> m_appearanceTokens;
 };

@@ -15,6 +15,15 @@
     "classId": {
       "type": "string"
     },
+    "speciesId": {
+      "type": "string"
+    },
+    "originId": {
+      "type": "string"
+    },
+    "backgroundId": {
+      "type": "string"
+    },
     "portraitId": {
       "type": "string"
     },

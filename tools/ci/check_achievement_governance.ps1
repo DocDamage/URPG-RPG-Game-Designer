@@ -8,6 +8,8 @@ $requiredFiles = @(
     "content\schemas\achievement_trophy_export.schema.json",
     "engine\core\achievement\achievement_registry.h",
     "engine\core\achievement\achievement_registry.cpp",
+    "engine\core\achievement\achievement_platform_backend.h",
+    "engine\core\achievement\achievement_platform_backend.cpp",
     "engine\core\achievement\achievement_validator.h",
     "engine\core\achievement\achievement_validator.cpp",
     "editor\achievement\achievement_panel.h",
@@ -78,8 +80,11 @@ $trophyFixturePath = Join-Path $repoRoot "content\fixtures\achievement_trophy_ex
 if (Test-Path $trophyFixturePath) {
     try {
         $fixture = Get-Content -Raw -Path $trophyFixturePath | ConvertFrom-Json
-        if ($fixture.backendIntegration -ne "out-of-tree") {
-            $errors += "Achievement trophy fixture must keep backendIntegration='out-of-tree'"
+        if ($fixture.backendIntegration -ne "not_configured" -and $fixture.backendIntegration -ne "configured") {
+            $errors += "Achievement trophy fixture backendIntegration must be 'not_configured' or 'configured'"
+        }
+        if (-not $fixture.platformBackends) {
+            $errors += "Achievement trophy fixture is missing platformBackends"
         }
         if (-not $fixture.summary) {
             $errors += "Achievement trophy fixture is missing summary"

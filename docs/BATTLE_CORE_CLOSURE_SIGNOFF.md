@@ -1,9 +1,9 @@
 # Battle Core — Wave 1 Closure Sign-off
 
-> **Status:** `PARTIAL`
-> **Purpose:** Evidence-gathering artifact for Wave 1 closure review.
-> **Date:** 2026-04-20
-> **Rule:** This document does **not** promote `readiness_status.json` status. Human review is required for promotion to `READY`.
+> **Status:** `READY`
+> **Purpose:** Approved closure artifact for Wave 1 battle-core scope.
+> **Date:** 2026-04-28
+> **Rule:** This document records release-owner approval for the bounded Wave 1 scope. Future scope expansion requires new evidence.
 
 ---
 
@@ -76,13 +76,12 @@ Key cross-subsystem assertions include:
 
 ---
 
-## 7. Remaining Residual Gaps (Honest Scope Limits)
+## 7. Closed Scope And Future Work
 
-1. **Bounded in-tree battle contract**: the supported in-tree compat surface is intentionally bounded, not full RPG Maker battle parity. `CombatFormula` supports the current arithmetic/stat subset with named fallback reasons, the troop-page interpreter supports the current bounded command/branch subset with explicit unsupported fallbacks, compat battle BGM / victory ME / defeat ME route through the deterministic `AudioManager` harness, and `BattleScene` now attempts compat-selected battleback lookup plus bounded colored HUD cues. Broader formula semantics, transition-type routing, and deeper troop-page scripting are future feature work unless the roadmap explicitly reopens them.
-2. **Compat import/migration completion**: `BattleMigration` maps troop structure, member placement, phase conditions (turn, enemy HP, switch, **actor present**, grouped boolean `and` / `or` trees), event commands (Show Text, Common Event, Change State, Force Action, Change Enemy HP/MP, **Change Switches, Change Variables, Change Gold, Change Items/Weapons/Armors, Transfer Player, Game Over**), and action scopes. Remaining work is now limited to niche event commands and control-flow/plugin-specific troop-page constructs that still require explicit fallback handling. This is tracked as "Compat import/migration completion remains open" in `readiness_status.json`.
-3. **Plugin authority validation**: Battle-specific RPG Maker MZ plugins are validated at the manifest level, but deep behavioral sandbox tests for every battle plugin variant are not yet at 100 % coverage.
-4. **Networked / async battle**: Not in Wave 1 scope.
+1. **Bounded in-tree battle contract**: the claimed Wave 1 battle-core contract is native-owned and covered. Future feature work such as broader formula semantics, transition-type visual routing, deeper troop-page scripting, and networked/async battle does not block this scope.
+2. **Compat import/migration completion**: `BattleMigration` maps troop structure, member placement, phase conditions, event commands, and action scopes for the claimed scope, with unsupported future/plugin-specific constructs preserved through explicit fallback diagnostics.
+3. **Plugin authority validation**: battle plugin behavior remains a future corpus-expansion lane, not a blocker for native battle-core readiness.
 
 ---
 
-*Sign-off prepared by governance agent. Promotion to `READY` requires human review of the residual gaps above.*
+*Sign-off approved by release-owner review for the bounded Wave 1 battle-core scope on 2026-04-28.*

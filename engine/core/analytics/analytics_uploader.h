@@ -8,6 +8,7 @@
 #include <nlohmann/json.hpp>
 #include <optional>
 #include <string>
+#include <unordered_map>
 #include <vector>
 
 namespace urpg::analytics {
@@ -33,6 +34,13 @@ struct SessionAggregate {
     std::unordered_map<std::string, uint64_t> countsByCategory;
     /** Map of event name → count across all sessions. */
     std::unordered_map<std::string, uint64_t> countsByEvent;
+};
+
+struct AnalyticsUploadEndpoint {
+    std::string url;
+    std::unordered_map<std::string, std::string> headers;
+    std::string bearerToken;
+    std::string curlExecutable = "curl";
 };
 
 /**
@@ -64,7 +72,10 @@ class AnalyticsUploader {
     void setUploadHandler(UploadHandler handler);
     bool hasUploadHandler() const;
     void setLocalJsonlExportPath(std::filesystem::path path);
+    void setHttpJsonEndpoint(AnalyticsUploadEndpoint endpoint);
+    std::string uploadMode() const { return m_uploadMode; }
     const std::optional<std::filesystem::path>& localJsonlExportPath() const { return m_localJsonlExportPath; }
+    const std::optional<AnalyticsUploadEndpoint>& httpEndpoint() const { return m_httpEndpoint; }
 
     /**
      * @brief Set the maximum number of events per flush batch.  Defaults to
@@ -97,6 +108,8 @@ class AnalyticsUploader {
   private:
     UploadHandler m_handler;
     std::optional<std::filesystem::path> m_localJsonlExportPath;
+    std::optional<AnalyticsUploadEndpoint> m_httpEndpoint;
+    std::string m_uploadMode = "disabled";
     size_t m_batchSize = 100;
     SessionAggregate m_aggregate;
 };

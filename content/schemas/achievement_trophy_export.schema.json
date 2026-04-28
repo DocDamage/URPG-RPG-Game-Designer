@@ -2,7 +2,7 @@
   "$schema": "http://json-schema.org/draft-07/schema#",
   "$id": "https://urpg.dev/schemas/achievement_trophy_export.schema.json",
   "title": "URPG Achievement Trophy Export Payload",
-  "description": "Vendor-neutral achievement trophy export contract. Platform-specific backend upload is intentionally out-of-tree.",
+  "description": "Vendor-neutral achievement trophy export contract with optional platform backend submission state.",
   "type": "object",
   "required": [
     "version",
@@ -22,8 +22,12 @@
     "backendIntegration": {
       "type": "string",
       "enum": [
-        "out-of-tree"
+        "not_configured",
+        "configured"
       ]
+    },
+    "platformBackends": {
+      "type": "object"
     },
     "summary": {
       "type": "object",

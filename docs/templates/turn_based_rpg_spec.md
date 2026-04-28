@@ -1,6 +1,6 @@
 # Turn-Based RPG Template Spec
 
-Status Date: 2026-04-23
+Status Date: 2026-04-28
 Authority: canonical template spec for `turn_based_rpg`
 
 ## Purpose

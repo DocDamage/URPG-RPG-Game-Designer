@@ -82,37 +82,37 @@ void assertTemplateEvidenceSnapshot(
 TEST_CASE("tactics_rpg: readiness record has evidence snapshot for all bars",
           "[template][snapshot][s31t09]") {
     const json readiness = loadReadinessStatus();
-    assertTemplateEvidenceSnapshot(readiness, "tactics_rpg", "EXPERIMENTAL");
+    assertTemplateEvidenceSnapshot(readiness, "tactics_rpg", "READY");
 }
 
 TEST_CASE("arpg: readiness record has evidence snapshot for all bars",
           "[template][snapshot][s31t09]") {
     const json readiness = loadReadinessStatus();
-    assertTemplateEvidenceSnapshot(readiness, "arpg", "EXPERIMENTAL");
+    assertTemplateEvidenceSnapshot(readiness, "arpg", "READY");
 }
 
 TEST_CASE("monster_collector_rpg: readiness record has evidence snapshot for all bars",
           "[template][snapshot][s31t09]") {
     const json readiness = loadReadinessStatus();
-    assertTemplateEvidenceSnapshot(readiness, "monster_collector_rpg", "PLANNED");
+    assertTemplateEvidenceSnapshot(readiness, "monster_collector_rpg", "READY");
 }
 
 TEST_CASE("cozy_life_rpg: readiness record has evidence snapshot for all bars",
           "[template][snapshot][s31t09]") {
     const json readiness = loadReadinessStatus();
-    assertTemplateEvidenceSnapshot(readiness, "cozy_life_rpg", "PLANNED");
+    assertTemplateEvidenceSnapshot(readiness, "cozy_life_rpg", "READY");
 }
 
 TEST_CASE("metroidvania_lite: readiness record has evidence snapshot for all bars",
           "[template][snapshot][s31t09]") {
     const json readiness = loadReadinessStatus();
-    assertTemplateEvidenceSnapshot(readiness, "metroidvania_lite", "PLANNED");
+    assertTemplateEvidenceSnapshot(readiness, "metroidvania_lite", "READY");
 }
 
 TEST_CASE("2_5d_rpg: readiness record has evidence snapshot for all bars",
           "[template][snapshot][s31t09]") {
     const json readiness = loadReadinessStatus();
-    assertTemplateEvidenceSnapshot(readiness, "2_5d_rpg", "PLANNED");
+    assertTemplateEvidenceSnapshot(readiness, "2_5d_rpg", "READY");
 }
 
 TEST_CASE("all S31 templates have non-empty mainBlockers with specific wording",

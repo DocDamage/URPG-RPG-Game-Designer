@@ -1,11 +1,15 @@
 {
   "version": "1.0.0",
   "platform": "urpg-neutral",
-  "backendIntegration": "out-of-tree",
+  "backendIntegration": "not_configured",
   "summary": {
     "total": 2,
     "unlocked": 1,
     "secret": 1
+  },
+  "platformBackends": {
+    "backendCount": 0,
+    "backends": []
   },
   "trophies": [
     {

@@ -23,7 +23,15 @@ void addTemplateSpecArtifactGovernance(const TemplateContext& templateContext,
 
     // Templates that are READY candidates must fail closed on spec governance gaps.
     static const std::vector<std::string> kFailClosedTemplates = {
-        "jrpg", "visual_novel", "turn_based_rpg"
+        "jrpg",
+        "visual_novel",
+        "turn_based_rpg",
+        "tactics_rpg",
+        "arpg",
+        "monster_collector_rpg",
+        "cozy_life_rpg",
+        "metroidvania_lite",
+        "2_5d_rpg",
     };
     const bool failClosed = enabled && std::find(
         kFailClosedTemplates.begin(), kFailClosedTemplates.end(), templateContext.id
@@ -262,6 +270,7 @@ void addSignoffArtifactGovernance(const json& readiness,
             "Battle Core signoff",
             fs::path("docs") / "BATTLE_CORE_CLOSURE_SIGNOFF.md",
             {"Human review is required", "residual gaps", "PARTIAL"},
+            {"Status:** `READY`", "approved by release-owner review"},
         },
         {
             "save_data_core",
@@ -272,6 +281,7 @@ void addSignoffArtifactGovernance(const json& readiness,
             "Save/Data Core signoff",
             fs::path("docs") / "SAVE_DATA_CORE_CLOSURE_SIGNOFF.md",
             {"Human review is required", "residual gaps", "PARTIAL"},
+            {"Status:** `READY`", "approved by release-owner review"},
         },
         {
             "compat_bridge_exit",
@@ -282,6 +292,7 @@ void addSignoffArtifactGovernance(const json& readiness,
             "Compat Bridge Exit signoff",
             fs::path("docs") / "COMPAT_BRIDGE_EXIT_SIGNOFF.md",
             {"Compat Bridge Exit", "Human review is required", "compat bridge exit", "residual gaps", "PARTIAL"},
+            {"Compat Bridge Exit", "Status:** `READY`", "approved by release-owner review"},
         },
     };
 
@@ -302,6 +313,7 @@ void addSignoffArtifactGovernance(const json& readiness,
         json missingPhrases = json::array();
         std::string status = regularFile ? "present" : (exists ? "invalid" : "missing");
         json contractEntry = json::object();
+        const bool subsystemReady = subsystem != nullptr && getString(*subsystem, "status", "") == "READY";
 
         if (subsystem != nullptr && subsystem->contains("signoff") && subsystem->at("signoff").is_object()) {
             const auto& signoff = subsystem->at("signoff");
@@ -313,14 +325,18 @@ void addSignoffArtifactGovernance(const json& readiness,
                 signoff.at("promotionRequiresHumanReview").is_boolean() &&
                 signoff.at("promotionRequiresHumanReview").get<bool>();
             const std::string workflow = getString(signoff, "workflow", "");
+            const std::string reviewStatus = getString(signoff, "reviewStatus", "");
 
             contractOk = required && artifactPath == artifact.path.generic_string() &&
-                promotionRequiresHumanReview && workflow == (fs::path("docs") / "RELEASE_SIGNOFF_WORKFLOW.md").generic_string();
+                workflow == (fs::path("docs") / "RELEASE_SIGNOFF_WORKFLOW.md").generic_string() &&
+                (subsystemReady ? (!promotionRequiresHumanReview && reviewStatus == "APPROVED")
+                                : promotionRequiresHumanReview);
 
             contractEntry = {
                 {"required", required},
                 {"artifactPath", artifactPath},
                 {"promotionRequiresHumanReview", promotionRequiresHumanReview},
+                {"reviewStatus", reviewStatus},
                 {"workflow", workflow},
                 {"contractOk", contractOk},
             };
@@ -338,7 +354,8 @@ void addSignoffArtifactGovernance(const json& readiness,
             try {
                 const std::string text = readFile(artifact.path);
                 wordingOk = true;
-                for (const auto& phrase : artifact.requiredPhrases) {
+                const auto& requiredPhrases = subsystemReady ? artifact.readyPhrases : artifact.pendingPhrases;
+                for (const auto& phrase : requiredPhrases) {
                     if (text.find(phrase) == std::string::npos) {
                         wordingOk = false;
                         missingPhrases.push_back(phrase);

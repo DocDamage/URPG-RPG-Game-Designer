@@ -1,5 +1,7 @@
 #include <catch2/catch_test_macros.hpp>
+#include "engine/core/character/character_creation_rules.h"
 #include "engine/core/character/character_identity_validator.h"
+#include <algorithm>
 #include <chrono>
 #include <cstdlib>
 #include <filesystem>
@@ -16,6 +18,9 @@ TEST_CASE("CharacterIdentity round-trip serialization", "[character][identity]")
     original.setPortraitId("portrait_elena_01");
     original.setBodySpriteId("sprite_elena_body");
     original.setClassId("class_mage");
+    original.setSpeciesId("elf");
+    original.setOriginId("capital");
+    original.setBackgroundId("scholar");
     original.setAttribute("STR", 8.0f);
     original.setAttribute("INT", 15.0f);
     original.addAppearanceToken("hair_brown");
@@ -25,6 +30,9 @@ TEST_CASE("CharacterIdentity round-trip serialization", "[character][identity]")
     REQUIRE(json["schemaVersion"] == "1.0.0");
     REQUIRE(json["name"] == "Elena");
     REQUIRE(json["classId"] == "class_mage");
+    REQUIRE(json["speciesId"] == "elf");
+    REQUIRE(json["originId"] == "capital");
+    REQUIRE(json["backgroundId"] == "scholar");
     REQUIRE(json["portraitId"] == "portrait_elena_01");
     REQUIRE(json["bodySpriteId"] == "sprite_elena_body");
     REQUIRE(json["baseAttributes"]["STR"] == 8.0f);
@@ -38,11 +46,44 @@ TEST_CASE("CharacterIdentity round-trip serialization", "[character][identity]")
     REQUIRE(restored.getPortraitId() == "portrait_elena_01");
     REQUIRE(restored.getBodySpriteId() == "sprite_elena_body");
     REQUIRE(restored.getClassId() == "class_mage");
+    REQUIRE(restored.getSpeciesId() == "elf");
+    REQUIRE(restored.getOriginId() == "capital");
+    REQUIRE(restored.getBackgroundId() == "scholar");
     REQUIRE(restored.getAttribute("STR") == 8.0f);
     REQUIRE(restored.getAttribute("INT") == 15.0f);
     REQUIRE(restored.getAppearanceTokens().size() == 2);
     REQUIRE(restored.getAppearanceTokens()[0] == "hair_brown");
     REQUIRE(restored.getAppearanceTokens()[1] == "eyes_green");
+}
+
+TEST_CASE("CharacterCreationRules enforce origins species appearances and point budget",
+          "[character][identity][rules]") {
+    CharacterIdentity identity;
+    identity.setName("Ka");
+    identity.setClassId("class_mage");
+    identity.setSpeciesId("dwarf");
+    identity.setOriginId("frontier");
+    identity.setBackgroundId("soldier");
+    identity.addAppearanceToken("armor_steel");
+    identity.setAttribute("STR", 19.0f);
+    identity.setAttribute("VIT", 18.0f);
+    identity.setAttribute("INT", 18.0f);
+    identity.setAttribute("AGI", 18.0f);
+
+    const auto issues = validateCharacterCreationRules(identity);
+    REQUIRE_FALSE(issues.empty());
+    REQUIRE(std::find_if(issues.begin(), issues.end(), [](const CharacterCreationRuleIssue& issue) {
+                return issue.code == "class_species_restricted";
+            }) != issues.end());
+    REQUIRE(std::find_if(issues.begin(), issues.end(), [](const CharacterCreationRuleIssue& issue) {
+                return issue.code == "class_origin_restricted";
+            }) != issues.end());
+    REQUIRE(std::find_if(issues.begin(), issues.end(), [](const CharacterCreationRuleIssue& issue) {
+                return issue.code == "appearance_forbidden";
+            }) != issues.end());
+    REQUIRE(std::find_if(issues.begin(), issues.end(), [](const CharacterCreationRuleIssue& issue) {
+                return issue.code == "attribute_budget_exceeded";
+            }) != issues.end());
 }
 
 TEST_CASE("CharacterIdentity default attribute returns 0", "[character][identity]") {
