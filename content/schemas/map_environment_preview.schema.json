@@ -3,7 +3,7 @@
   "$id": "https://urpg.dev/schemas/map_environment_preview.schema.json",
   "title": "URPG map environment preview",
   "type": "object",
-  "required": ["schema", "map_id", "width", "height", "base_weather", "regions"],
+  "required": ["schema", "map_id", "width", "height", "base_weather", "tile_layers", "regions", "tactical_overlay", "spawn_table"],
   "properties": {
     "schema": { "const": "urpg.map_environment_preview.v1" },
     "map_id": { "type": "string", "minLength": 1 },
@@ -13,10 +13,16 @@
     "base_light": { "$ref": "#/$defs/light" },
     "base_fog": { "$ref": "#/$defs/fog" },
     "base_post_fx": { "$ref": "#/$defs/post_fx" },
+    "tile_layers": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/tile_layer" }
+    },
     "regions": {
       "type": "array",
       "items": { "$ref": "#/$defs/region" }
-    }
+    },
+    "tactical_overlay": { "$ref": "#/$defs/tactical_overlay" },
+    "spawn_table": { "$ref": "#/$defs/spawn_table" }
   },
   "$defs": {
     "vec3": {
@@ -71,6 +77,55 @@
         "fog": { "$ref": "#/$defs/fog" },
         "post_fx": { "$ref": "#/$defs/post_fx" }
       }
+    },
+    "tile_layer": {
+      "type": "object",
+      "required": ["id", "visible", "locked", "collision", "navigation", "draw_order", "tiles"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "visible": { "type": "boolean" },
+        "locked": { "type": "boolean" },
+        "collision": { "type": "boolean" },
+        "navigation": { "type": "boolean" },
+        "draw_order": { "type": "integer" },
+        "tiles": { "type": "array", "items": { "type": "integer" } }
+      },
+      "additionalProperties": false
+    },
+    "tactical_overlay": {
+      "type": "object",
+      "required": ["enabled", "origin_x", "origin_y", "move_range"],
+      "properties": {
+        "enabled": { "type": "boolean" },
+        "origin_x": { "type": "integer" },
+        "origin_y": { "type": "integer" },
+        "move_range": { "type": "integer", "minimum": 0 }
+      },
+      "additionalProperties": false
+    },
+    "spawn_table": {
+      "type": "object",
+      "required": ["id", "entries"],
+      "properties": {
+        "id": { "type": "string" },
+        "entries": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["id", "enemy_id", "x", "y", "cooldown_seconds", "persistent"],
+            "properties": {
+              "id": { "type": "string", "minLength": 1 },
+              "enemy_id": { "type": "string", "minLength": 1 },
+              "x": { "type": "integer" },
+              "y": { "type": "integer" },
+              "cooldown_seconds": { "type": "integer", "minimum": 0 },
+              "persistent": { "type": "boolean" }
+            },
+            "additionalProperties": false
+          }
+        }
+      },
+      "additionalProperties": false
     }
   }
 }

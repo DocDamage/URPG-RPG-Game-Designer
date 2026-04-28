@@ -96,8 +96,8 @@ Expected: build succeeds, the dungeon3d suite passes, and `git diff --check` rep
 - Modify: relevant schema/fixture files
 - Test: renderer/editor/map tests
 
-- [ ] **Step 1: Bind authored tile, lighting, weather, region, tactical overlay, and spawn-table data into a single preview contract.**
-- [ ] **Step 2: Add editor diagnostics for missing renderer coverage and conflicting overlays.**
+- [x] **Step 1: Bind authored tile, lighting, weather, region, tactical overlay, and spawn-table data into a single preview contract.**
+- [x] **Step 2: Add editor diagnostics for missing renderer coverage and conflicting overlays.**
 - [ ] **Step 3: Add cross-backend visual validation snapshots for supported renderer paths.**
 
 ### Task 4: Dialogue, Event Graph, Ability Sandbox, Save Lab, and Export Preview Hardening

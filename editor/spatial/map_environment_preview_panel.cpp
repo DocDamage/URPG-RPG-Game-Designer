@@ -37,7 +37,14 @@ void MapEnvironmentPreviewPanel::refreshPreview() {
     snapshot_.region_id = preview_.region ? preview_.region->id : "";
     snapshot_.weather = preview_.region ? preview_.region->weather : document_.base_weather;
     snapshot_.runtime_command_count = preview_.runtime_intent.commands.size();
+    snapshot_.runtime_overlay_command_count = preview_.runtime_overlay_commands.size();
+    snapshot_.visible_tile_layer_count = preview_.visible_tile_layer_count;
+    snapshot_.collision_tile_count = preview_.collision_tile_count;
+    snapshot_.region_overlay_count = preview_.region_overlay_count;
+    snapshot_.tactical_reachable_count = preview_.tactical_reachable_count;
+    snapshot_.spawn_entry_count = preview_.spawn_entry_count;
     snapshot_.diagnostic_count = preview_.diagnostics.size();
+    snapshot_.selected_tile_blocked = preview_.selected_tile_blocked;
     snapshot_.saved_project_json = document_.toJson().dump();
     snapshot_.status_message =
         snapshot_.diagnostic_count == 0 ? "Map environment preview is ready." : "Map environment preview has diagnostics.";

@@ -17,7 +17,14 @@ struct MapEnvironmentPreviewPanelSnapshot {
     std::string region_id;
     std::string weather;
     size_t runtime_command_count = 0;
+    size_t runtime_overlay_command_count = 0;
+    size_t visible_tile_layer_count = 0;
+    size_t collision_tile_count = 0;
+    size_t region_overlay_count = 0;
+    size_t tactical_reachable_count = 0;
+    size_t spawn_entry_count = 0;
     size_t diagnostic_count = 0;
+    bool selected_tile_blocked = false;
     std::string saved_project_json;
     std::string status_message = "Load a map environment preview before rendering this panel.";
 };

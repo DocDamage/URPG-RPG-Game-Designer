@@ -132,6 +132,7 @@ TEST_CASE("Map environment preview turns region rules into live runtime lighting
     REQUIRE(panel.snapshot().diagnostic_count == 0);
     REQUIRE(panel.snapshot().status_message == "Map environment preview is ready.");
     REQUIRE_FALSE(panel.snapshot().saved_project_json.empty());
+    REQUIRE(panel.snapshot().region_overlay_count == 2);
 
     const auto& intent = panel.preview().runtime_intent;
     REQUIRE(countPresentationCommand(intent, urpg::presentation::PresentationCommand::Type::SetFog) == 1);
@@ -149,18 +150,47 @@ TEST_CASE("Map environment preview fixture is saved project data and executes in
 
     REQUIRE(document.map_id == "forest_weather_lab");
     REQUIRE(document.regions.size() == 2);
+    REQUIRE(document.tile_layers.size() == 2);
+    REQUIRE(document.tactical_overlay.enabled);
+    REQUIRE(document.spawn_table.entries.size() == 2);
     REQUIRE(document.validate().empty());
 
     const auto saved = document.toJson();
     REQUIRE(saved["schema"] == "urpg.map_environment_preview.v1");
+    REQUIRE(saved["tile_layers"].size() == 2);
     REQUIRE(saved["regions"].size() == 2);
+    REQUIRE(saved["tactical_overlay"]["enabled"].get<bool>());
+    REQUIRE(saved["spawn_table"]["entries"].size() == 2);
 
     const auto result = urpg::map::PreviewMapEnvironment(document, 8, 3);
     REQUIRE(result.region != nullptr);
     REQUIRE(result.region->id == "night_clearing");
     REQUIRE(result.diagnostics.empty());
+    REQUIRE(result.visible_tile_layer_count == 2);
+    REQUIRE(result.collision_tile_count == 2);
+    REQUIRE(result.region_overlay_count == 2);
+    REQUIRE(result.tactical_reachable_count > 0);
+    REQUIRE(result.spawn_entry_count == 2);
+    REQUIRE_FALSE(result.selected_tile_blocked);
+    REQUIRE(result.runtime_overlay_commands.size() == 4);
+    REQUIRE(std::find(result.runtime_overlay_commands.begin(),
+                      result.runtime_overlay_commands.end(),
+                      "render_tile_layers:forest_weather_lab:2") != result.runtime_overlay_commands.end());
+    REQUIRE(std::find(result.runtime_overlay_commands.begin(),
+                      result.runtime_overlay_commands.end(),
+                      "render_spawn_overlay:forest_weather_spawns:2") != result.runtime_overlay_commands.end());
     REQUIRE(countPresentationCommand(result.runtime_intent, urpg::presentation::PresentationCommand::Type::SetFog) == 1);
     REQUIRE(countPresentationCommand(result.runtime_intent, urpg::presentation::PresentationCommand::Type::SetPostFX) == 1);
+
+    urpg::editor::MapEnvironmentPreviewPanel panel;
+    panel.loadDocument(document);
+    panel.selectTile(8, 3);
+    panel.render();
+
+    REQUIRE(panel.snapshot().visible_tile_layer_count == 2);
+    REQUIRE(panel.snapshot().runtime_overlay_command_count == 4);
+    REQUIRE(panel.snapshot().tactical_reachable_count == result.tactical_reachable_count);
+    REQUIRE(panel.snapshot().spawn_entry_count == 2);
 }
 
 TEST_CASE("Map environment preview diagnostics block false completion claims",
@@ -174,6 +204,11 @@ TEST_CASE("Map environment preview diagnostics block false completion claims",
         {"storm", 1, 1, 4, 2, "storm", "day", {}, {}, {}},
         {"storm", 2, 2, 2, 2, "acid", "day", {}, {}, {}},
     };
+    document.tile_layers = {
+        {"collision", true, false, true, false, 0, {1}},
+    };
+    document.tactical_overlay = {true, 0, 0, 2};
+    document.spawn_table = {"broken_spawns", {{"blocked_spawn", "slime", 0, 0, 10, true}}};
     document.regions[0].light.range = 0.0f;
     document.regions[0].fog.endDist = 0.0f;
     document.regions[0].fog.startDist = 1.0f;
@@ -198,6 +233,9 @@ TEST_CASE("Map environment preview diagnostics block false completion claims",
     REQUIRE(hasCode("unknown_weather"));
     REQUIRE(hasCode("invalid_light_profile"));
     REQUIRE(hasCode("invalid_fog_profile"));
+    REQUIRE(hasCode("tile_layer_size_mismatch"));
+    REQUIRE(hasCode("tactical_origin_blocked"));
+    REQUIRE(hasCode("spawn_on_blocked_tile"));
     REQUIRE(hasCode("preview_tile_out_of_bounds"));
 }
 

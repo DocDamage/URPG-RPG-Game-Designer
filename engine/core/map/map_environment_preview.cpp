@@ -211,6 +211,82 @@ MapEnvironmentRegion regionFromJson(const nlohmann::json& json, uint32_t light_i
     return region;
 }
 
+TileLayer tileLayerFromJson(const nlohmann::json& json) {
+    TileLayer layer;
+    if (!json.is_object()) {
+        return layer;
+    }
+    layer.id = json.value("id", "");
+    layer.visible = json.value("visible", true);
+    layer.locked = json.value("locked", false);
+    layer.collision = json.value("collision", false);
+    layer.navigation = json.value("navigation", true);
+    layer.draw_order = json.value("draw_order", 0);
+    layer.tiles = json.value("tiles", std::vector<int32_t>{});
+    return layer;
+}
+
+nlohmann::json tileLayerToJson(const TileLayer& layer) {
+    return {{"id", layer.id},
+            {"visible", layer.visible},
+            {"locked", layer.locked},
+            {"collision", layer.collision},
+            {"navigation", layer.navigation},
+            {"draw_order", layer.draw_order},
+            {"tiles", layer.tiles}};
+}
+
+MapTacticalOverlayPreview tacticalOverlayFromJson(const nlohmann::json& json) {
+    MapTacticalOverlayPreview overlay;
+    if (!json.is_object()) {
+        return overlay;
+    }
+    overlay.enabled = json.value("enabled", false);
+    overlay.origin_x = json.value("origin_x", 0);
+    overlay.origin_y = json.value("origin_y", 0);
+    overlay.move_range = json.value("move_range", 0);
+    return overlay;
+}
+
+nlohmann::json tacticalOverlayToJson(const MapTacticalOverlayPreview& overlay) {
+    return {{"enabled", overlay.enabled},
+            {"origin_x", overlay.origin_x},
+            {"origin_y", overlay.origin_y},
+            {"move_range", overlay.move_range}};
+}
+
+bool inBounds(const MapEnvironmentPreviewDocument& document, int32_t x, int32_t y) {
+    return x >= 0 && y >= 0 && x < document.width && y < document.height;
+}
+
+size_t tileIndex(const MapEnvironmentPreviewDocument& document, int32_t x, int32_t y) {
+    return static_cast<size_t>(y * document.width + x);
+}
+
+TileLayerDocument buildTileDocument(const MapEnvironmentPreviewDocument& document) {
+    TileLayerDocument tile_document(document.width, document.height);
+    for (const auto& layer : document.tile_layers) {
+        tile_document.addLayer(layer);
+    }
+    return tile_document;
+}
+
+std::set<GridCell> blockedCells(const MapEnvironmentPreviewDocument& document) {
+    std::set<GridCell> blocked;
+    for (int32_t y = 0; y < document.height; ++y) {
+        for (int32_t x = 0; x < document.width; ++x) {
+            for (const auto& layer : document.tile_layers) {
+                const auto index = tileIndex(document, x, y);
+                if (layer.collision && index < layer.tiles.size() && layer.tiles[index] != 0) {
+                    blocked.insert({x, y});
+                    break;
+                }
+            }
+        }
+    }
+    return blocked;
+}
+
 } // namespace
 
 bool MapEnvironmentRegion::contains(int32_t tile_x, int32_t tile_y) const {
@@ -229,6 +305,24 @@ std::vector<MapDiagnostic> MapEnvironmentPreviewDocument::validate() const {
     if (!validWeather(base_weather)) {
         diagnostics.push_back({"unknown_weather", "Base weather is not supported by the runtime preview.", -1, -1,
                                base_weather});
+    }
+    const auto expected_tile_count = static_cast<size_t>(std::max(0, width) * std::max(0, height));
+    std::set<std::string> layer_ids;
+    for (const auto& layer : tile_layers) {
+        if (layer.id.empty()) {
+            diagnostics.push_back({"missing_tile_layer_id", "Tile layer requires an id.", -1, -1, ""});
+        } else if (!layer_ids.insert(layer.id).second) {
+            diagnostics.push_back({"duplicate_tile_layer_id", "Tile layer id must be unique.", -1, -1, layer.id});
+        }
+        if (expected_tile_count > 0 && layer.tiles.size() != expected_tile_count) {
+            diagnostics.push_back({"tile_layer_size_mismatch", "Tile layer tile count must match map dimensions.", -1,
+                                   -1, layer.id});
+        }
+    }
+    if (!tile_layers.empty()) {
+        const auto tile_document = buildTileDocument(*this);
+        auto tile_diagnostics = tile_document.validateNavigation();
+        diagnostics.insert(diagnostics.end(), tile_diagnostics.begin(), tile_diagnostics.end());
     }
 
     std::set<std::string> ids;
@@ -274,6 +368,32 @@ std::vector<MapDiagnostic> MapEnvironmentPreviewDocument::validate() const {
         }
     }
 
+    const auto blocked = blockedCells(*this);
+    if (tactical_overlay.enabled) {
+        if (!inBounds(*this, tactical_overlay.origin_x, tactical_overlay.origin_y)) {
+            diagnostics.push_back({"tactical_origin_out_of_bounds", "Tactical overlay origin is outside the map.",
+                                   tactical_overlay.origin_x, tactical_overlay.origin_y, map_id});
+        }
+        if (tactical_overlay.move_range < 0) {
+            diagnostics.push_back({"invalid_tactical_move_range", "Tactical overlay move range cannot be negative.",
+                                   tactical_overlay.origin_x, tactical_overlay.origin_y, map_id});
+        }
+        if (blocked.contains({tactical_overlay.origin_x, tactical_overlay.origin_y})) {
+            diagnostics.push_back({"tactical_origin_blocked", "Tactical overlay starts on a blocked tile.",
+                                   tactical_overlay.origin_x, tactical_overlay.origin_y, map_id});
+        }
+    }
+    for (const auto& entry : spawn_table.entries) {
+        if (!inBounds(*this, entry.x, entry.y)) {
+            diagnostics.push_back({"spawn_out_of_bounds", "Spawn table entry is outside the map.", entry.x, entry.y,
+                                   entry.id});
+        }
+        if (blocked.contains({entry.x, entry.y})) {
+            diagnostics.push_back({"spawn_on_blocked_tile", "Spawn table entry is placed on a blocked tile.", entry.x,
+                                   entry.y, entry.id});
+        }
+    }
+
     return diagnostics;
 }
 
@@ -315,6 +435,10 @@ nlohmann::json MapEnvironmentPreviewDocument::toJson() const {
     json["base_light"] = lightToJson(base_light);
     json["base_fog"] = fogToJson(base_fog);
     json["base_post_fx"] = postFxToJson(base_post_fx);
+    json["tile_layers"] = nlohmann::json::array();
+    for (const auto& layer : tile_layers) {
+        json["tile_layers"].push_back(tileLayerToJson(layer));
+    }
     json["regions"] = nlohmann::json::array();
     for (const auto& region : regions) {
         json["regions"].push_back({
@@ -330,6 +454,8 @@ nlohmann::json MapEnvironmentPreviewDocument::toJson() const {
             {"post_fx", postFxToJson(region.post_fx)},
         });
     }
+    json["tactical_overlay"] = tacticalOverlayToJson(tactical_overlay);
+    json["spawn_table"] = SpawnTableToJson(spawn_table);
     return json;
 }
 
@@ -350,12 +476,20 @@ MapEnvironmentPreviewDocument MapEnvironmentPreviewDocument::fromJson(const nloh
     document.base_post_fx = postFxFromJson(json.value("base_post_fx", nlohmann::json::object()),
                                            postFxForWeather(document.base_weather, "day"));
 
+    for (const auto& row : json.value("tile_layers", nlohmann::json::array())) {
+        if (row.is_object()) {
+            document.tile_layers.push_back(tileLayerFromJson(row));
+        }
+    }
+
     uint32_t light_id = 10;
     for (const auto& row : json.value("regions", nlohmann::json::array())) {
         if (row.is_object()) {
             document.regions.push_back(regionFromJson(row, light_id++));
         }
     }
+    document.tactical_overlay = tacticalOverlayFromJson(json.value("tactical_overlay", nlohmann::json::object()));
+    document.spawn_table = SpawnTableFromJson(json.value("spawn_table", nlohmann::json::object()));
     return document;
 }
 
@@ -396,6 +530,44 @@ MapEnvironmentPreviewResult PreviewMapEnvironment(const MapEnvironmentPreviewDoc
     result.region = document.regionAt(tile_x, tile_y);
     result.runtime_intent = document.buildRuntimePreview(tile_x, tile_y);
     result.diagnostics = document.validate();
+    result.region_overlay_count = document.regions.size();
+    result.spawn_entry_count = document.spawn_table.entries.size();
+    const auto blocked = blockedCells(document);
+    result.selected_tile_blocked = blocked.contains({tile_x, tile_y});
+    for (const auto& layer : document.tile_layers) {
+        if (layer.visible) {
+            ++result.visible_tile_layer_count;
+        }
+        if (layer.collision) {
+            result.collision_tile_count += static_cast<size_t>(std::count_if(layer.tiles.begin(), layer.tiles.end(), [](int32_t tile) {
+                return tile != 0;
+            }));
+        }
+    }
+    if (!document.tile_layers.empty()) {
+        result.runtime_overlay_commands.push_back("render_tile_layers:" + document.map_id + ":" +
+                                                  std::to_string(result.visible_tile_layer_count));
+    }
+    if (!document.regions.empty()) {
+        result.runtime_overlay_commands.push_back("render_region_overlays:" + document.map_id + ":" +
+                                                  std::to_string(result.region_overlay_count));
+    }
+    if (document.tactical_overlay.enabled) {
+        const auto reachable = PreviewTacticalMoveRange(document.width,
+                                                        document.height,
+                                                        {document.tactical_overlay.origin_x,
+                                                         document.tactical_overlay.origin_y},
+                                                        document.tactical_overlay.move_range,
+                                                        blocked);
+        result.tactical_reachable_cells.assign(reachable.begin(), reachable.end());
+        result.tactical_reachable_count = result.tactical_reachable_cells.size();
+        result.runtime_overlay_commands.push_back("render_tactical_overlay:" + document.map_id + ":" +
+                                                  std::to_string(result.tactical_reachable_count));
+    }
+    if (!document.spawn_table.entries.empty()) {
+        result.runtime_overlay_commands.push_back("render_spawn_overlay:" + document.spawn_table.id + ":" +
+                                                  std::to_string(result.spawn_entry_count));
+    }
     if (tile_x < 0 || tile_y < 0 || tile_x >= document.width || tile_y >= document.height) {
         result.diagnostics.push_back({"preview_tile_out_of_bounds", "Selected preview tile is outside the map.", tile_x,
                                       tile_y, document.map_id});

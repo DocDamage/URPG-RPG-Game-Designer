@@ -23,6 +23,44 @@
     "bloom_intensity": 0.05,
     "saturation": 1.0
   },
+  "tile_layers": [
+    {
+      "id": "terrain",
+      "visible": true,
+      "locked": false,
+      "collision": false,
+      "navigation": false,
+      "draw_order": 0,
+      "tiles": [
+        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1
+      ]
+    },
+    {
+      "id": "collision",
+      "visible": true,
+      "locked": false,
+      "collision": true,
+      "navigation": false,
+      "draw_order": 1,
+      "tiles": [
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+      ]
+    }
+  ],
   "regions": [
     {
       "id": "rain_path",
@@ -80,5 +118,32 @@
         "saturation": 0.72
       }
     }
-  ]
+  ],
+  "tactical_overlay": {
+    "enabled": true,
+    "origin_x": 3,
+    "origin_y": 2,
+    "move_range": 3
+  },
+  "spawn_table": {
+    "id": "forest_weather_spawns",
+    "entries": [
+      {
+        "id": "slime_rain_spawn",
+        "enemy_id": "slime",
+        "x": 4,
+        "y": 2,
+        "cooldown_seconds": 30,
+        "persistent": true
+      },
+      {
+        "id": "wisp_clearing_spawn",
+        "enemy_id": "wisp",
+        "x": 8,
+        "y": 3,
+        "cooldown_seconds": 45,
+        "persistent": false
+      }
+    ]
+  }
 }
