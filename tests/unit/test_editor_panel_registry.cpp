@@ -17,13 +17,25 @@ bool ContainsId(const std::vector<std::string>& ids, const std::string& id) {
 TEST_CASE("Editor panel registry exposes canonical top-level panels", "[editor][panel][registry]") {
     const auto ids = urpg::editor::requiredTopLevelPanelIds();
 
-    REQUIRE(ids.size() == 6);
+    REQUIRE(ids.size() == 18);
     REQUIRE(ContainsId(ids, "diagnostics"));
     REQUIRE(ContainsId(ids, "assets"));
     REQUIRE(ContainsId(ids, "ability"));
     REQUIRE(ContainsId(ids, "patterns"));
     REQUIRE(ContainsId(ids, "mod"));
     REQUIRE(ContainsId(ids, "analytics"));
+    REQUIRE(ContainsId(ids, "quest"));
+    REQUIRE(ContainsId(ids, "skill_tree"));
+    REQUIRE(ContainsId(ids, "relationship"));
+    REQUIRE(ContainsId(ids, "timeline"));
+    REQUIRE(ContainsId(ids, "cutscene_timeline"));
+    REQUIRE(ContainsId(ids, "balance"));
+    REQUIRE(ContainsId(ids, "encounter_designer"));
+    REQUIRE(ContainsId(ids, "loot_generator"));
+    REQUIRE(ContainsId(ids, "crafting"));
+    REQUIRE(ContainsId(ids, "monster_collection"));
+    REQUIRE(ContainsId(ids, "npc"));
+    REQUIRE(ContainsId(ids, "metroidvania_gates"));
 
     const auto* patterns = urpg::editor::findEditorPanelRegistryEntry("patterns");
     REQUIRE(patterns != nullptr);
@@ -78,4 +90,14 @@ TEST_CASE("Editor smoke coverage follows every registered top-level panel", "[ed
 
     REQUIRE(smokeIds == topLevelIds);
     REQUIRE(ContainsId(smokeIds, "patterns"));
+    REQUIRE(ContainsId(smokeIds, "quest"));
+    REQUIRE(ContainsId(smokeIds, "skill_tree"));
+    REQUIRE(ContainsId(smokeIds, "relationship"));
+    REQUIRE(ContainsId(smokeIds, "cutscene_timeline"));
+    REQUIRE(ContainsId(smokeIds, "encounter_designer"));
+    REQUIRE(ContainsId(smokeIds, "loot_generator"));
+    REQUIRE(ContainsId(smokeIds, "crafting"));
+    REQUIRE(ContainsId(smokeIds, "monster_collection"));
+    REQUIRE(ContainsId(smokeIds, "npc"));
+    REQUIRE(ContainsId(smokeIds, "metroidvania_gates"));
 }
