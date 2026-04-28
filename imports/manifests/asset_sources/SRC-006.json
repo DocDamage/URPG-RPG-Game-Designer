@@ -1,0 +1,28 @@
+{
+  "source_id": "SRC-006",
+  "repo_name": "DocDamage/Unity-Duelyst-Animations",
+  "source_url": "https://github.com/DocDamage/Unity-Duelyst-Animations",
+  "capture_state": "cataloged_not_mirrored",
+  "snapshot_commit": null,
+  "snapshot_date": null,
+  "source_type": "direct_asset_pack",
+  "category_tags": [
+    "sprites",
+    "unit_animations",
+    "pixel_art",
+    "battle_actors"
+  ],
+  "intended_use": [
+    "Battle actor animation prototypes",
+    "Sprite pipeline atlas and animation preview stress testing",
+    "Tactics, card battler, and monster-collector template demo candidates"
+  ],
+  "handling_path": "direct_ingest_when_captured",
+  "legal_disposition": "cc0_candidate_recorded_for_private_use_intake",
+  "promotion_status": "not_started",
+  "notes": [
+    "Do not vendor the Unity project directly into URPG release content.",
+    "Use tools/assets/ingest_duelyst_animations.py against a local checkout to generate normalized sprite_atlas metadata.",
+    "Generated outputs remain normalized_not_promoted until attribution, package size, and release-promotion manifests are approved."
+  ]
+}

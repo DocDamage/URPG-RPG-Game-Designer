@@ -24,6 +24,7 @@ These repos are approved for controlled capture. As of 2026-04-23, TD Sprint 04 
 | 1 | `SRC-001` | AscensionGameDev/Intersect-Assets | `https://github.com/AscensionGameDev/Intersect-Assets` | `—` | `—` | `direct_asset_pack` | tilesets, characters, animations, UI, sounds, music, tools | Environment kit bootstrapping; character placeholder coverage; UI prototyping; audio resolver testing; animation/VFX placeholder coverage | `cataloged_not_mirrored` | `direct_ingest_when_captured` | `mixed_asset_pack_reference_only_until_per-asset_attribution_is_captured` | `not_started` |
 | 2 | `SRC-002` | GDQuest/game-sprites | `https://github.com/GDQuest/game-sprites` | `ea05c63eb1d88af928d2d9a7445879500c9ece3f` | `2026-04-23` | `direct_asset_pack` | sprites, items, grid actors | Combat prototype actors; inventory/item placeholders; grid-based and interaction tests; early map/entity validation | `normalized` | `direct_ingest_when_captured` | `cc0_candidate_recorded_for_private_use_intake` | `promoted` |
 | 3 | `SRC-003` | Calinou/kenney-interface-sounds | `https://github.com/Calinou/kenney-interface-sounds` | `4596a49eaf5a533948d49a47467f606bcdea70ff` | `2026-04-23` | `direct_asset_pack` | UI SFX, feedback sounds | Menu confirm/cancel; button hover/click; panel open/close; inventory and notification feedback; editor shell feedback sounds | `normalized` | `direct_ingest_when_captured` | `cc0_candidate_recorded_for_private_use_intake` | `promoted` |
+| 4 | `SRC-006` | DocDamage/Unity-Duelyst-Animations | `https://github.com/DocDamage/Unity-Duelyst-Animations` | `—` | `—` | `direct_asset_pack` | sprites, unit animations, pixel art, battle actors | Battle actor animation prototypes; sprite pipeline atlas/preview stress testing; tactics/card-battler/monster-collector demo candidates | `cataloged_not_mirrored` | `direct_ingest_when_captured` | `cc0_candidate_recorded_for_private_use_intake` | `not_started` |
 
 ## Discovery / Source-Mining Sources
 
@@ -31,8 +32,8 @@ These repos are indexes and directories. They feed the acquisition backlog, not 
 
 | # | Source ID | Repo Name | Source URL | Type | Category Tags | Intended Use | Capture State | Handling Path | Status |
 |---|-----------|-----------|------------|------|---------------|--------------|---------------|---------------|--------|
-| 4 | `SRC-004` | madjin/awesome-cc0 | `https://github.com/madjin/awesome-cc0` | `discovery_index` | textures, materials, HDRIs, 3D models, CC0 sources | Sourcing environment materials; finding future UI/icon/audio/3D references; building a vetted internal source list | `cataloged_not_mirrored` | `discovery_backlog_only` | Acquisition backlog source |
-| 5 | `SRC-005` | HotpotDesign/Game-Assets-And-Resources | `https://github.com/HotpotDesign/Game-Assets-And-Resources` | `discovery_index` | broad directory | Finding category-specific asset sources; locating emergency fill-ins for missing content classes; maintaining a future acquisition backlog | `cataloged_not_mirrored` | `discovery_backlog_only` | Acquisition backlog source |
+| 5 | `SRC-004` | madjin/awesome-cc0 | `https://github.com/madjin/awesome-cc0` | `discovery_index` | textures, materials, HDRIs, 3D models, CC0 sources | Sourcing environment materials; finding future UI/icon/audio/3D references; building a vetted internal source list | `cataloged_not_mirrored` | `discovery_backlog_only` | Acquisition backlog source |
+| 6 | `SRC-005` | HotpotDesign/Game-Assets-And-Resources | `https://github.com/HotpotDesign/Game-Assets-And-Resources` | `discovery_index` | broad directory | Finding category-specific asset sources; locating emergency fill-ins for missing content classes; maintaining a future acquisition backlog | `cataloged_not_mirrored` | `discovery_backlog_only` | Acquisition backlog source |
 
 ---
 
@@ -75,9 +76,9 @@ Each direct-ingest source must have a manifest under `imports/manifests/asset_so
 
 ## Current Capture Snapshot
 
-- Canonical source manifests: `imports/manifests/asset_sources/SRC-001.json` through `SRC-005.json`
+- Canonical source manifests: `imports/manifests/asset_sources/SRC-001.json` through `SRC-006.json`
 - Canonical status report: `imports/reports/asset_intake/source_capture_status.json`
-- Current recorded state: 5 cataloged sources, 2 normalized/promoted proof lanes, 3 cataloged future candidates
+- Current recorded state: 6 cataloged sources, 2 normalized/promoted proof lanes, 4 cataloged future candidates
 - First promoted visual lane: `imports/normalized/prototype_sprites/gdquest_blue_actor.svg` via `imports/manifests/asset_bundles/BND-001.json`
 - First promoted audio lane: `imports/normalized/ui_sfx/kenney_click_001.wav` via `imports/manifests/asset_bundles/BND-002.json`; WAV payloads are ignored locally and deferred from release-required GitHub packaging until binary hosting is restored
 - Release attribution records: `imports/reports/asset_intake/attribution/SRC-002_gdquest_blue_actor.json` and `imports/reports/asset_intake/attribution/SRC-003_kenney_click_001.json`
@@ -93,3 +94,4 @@ Each direct-ingest source must have a manifest under `imports/manifests/asset_so
 | 2026-04-23 | TD Sprint 04 promoted the first bounded visual (`SRC-002`) and UI-audio (`SRC-003`) proof lanes with source snapshots, normalized assets, bundle manifests, and smoke-proof reporting. |
 | 2026-04-25 | Added per-asset release attribution records for the promoted visual and UI-audio lanes and tightened export discovery so promoted normalized assets ship through bundle manifests rather than generic discovery. |
 | 2026-04-27 | Deferred tracked WAV payloads from release-required GitHub packaging while retaining the governed BND-002 attribution record for local/non-release validation. |
+| 2026-04-28 | Added `SRC-006` for `DocDamage/Unity-Duelyst-Animations` plus a normalized metadata importer for Duelyst unit animation atlases; no release promotion was made. |

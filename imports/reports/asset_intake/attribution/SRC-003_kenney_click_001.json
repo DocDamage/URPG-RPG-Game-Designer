@@ -1,0 +1,15 @@
+{
+  "asset_id": "imports/normalized/ui_sfx/kenney_click_001.wav",
+  "source_id": "SRC-003",
+  "source_repo": "Calinou/kenney-interface-sounds",
+  "source_url": "https://github.com/Calinou/kenney-interface-sounds",
+  "original_relative_path": "Audio/click_001.wav",
+  "author": "Kenney",
+  "license": "CC0-1.0",
+  "commercial_use_allowed": true,
+  "redistribution_allowed": true,
+  "promotion_status": "promoted",
+  "notes": [
+    "Bounded UI-audio proof lane attribution record for the promoted local click sound."
+  ]
+}

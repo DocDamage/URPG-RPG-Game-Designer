@@ -1,14 +1,14 @@
 {
-  "report_date": "2026-04-23",
+  "report_date": "2026-04-28",
   "report_version": 1,
   "summary": {
-    "total_sources": 5,
-    "cataloged_not_mirrored": 3,
+    "total_sources": 6,
+    "cataloged_not_mirrored": 4,
     "mirrored": 2,
     "staged": 2,
     "normalized": 2,
     "discovery_only": 0,
-    "direct_asset_pack_sources": 3,
+    "direct_asset_pack_sources": 4,
     "discovery_index_sources": 2,
     "promotion_ready": 0,
     "promoted": 2,
@@ -57,6 +57,20 @@
       "attribution_record": "imports/reports/asset_intake/attribution/SRC-003_kenney_click_001.json"
     },
     {
+      "source_id": "SRC-006",
+      "repo_name": "DocDamage/Unity-Duelyst-Animations",
+      "source_type": "direct_asset_pack",
+      "capture_state": "cataloged_not_mirrored",
+      "handling_path": "direct_ingest_when_captured",
+      "legal_disposition": "cc0_candidate_recorded_for_private_use_intake",
+      "promotion_status": "not_started",
+      "normalization_tool": "tools/assets/ingest_duelyst_animations.py",
+      "normalized_outputs": [
+        "imports/normalized/duelyst_animations/atlases/*.sprite_atlas.json"
+      ],
+      "export_eligible": false
+    },
+    {
       "source_id": "SRC-004",
       "repo_name": "madjin/awesome-cc0",
       "source_type": "discovery_index",
@@ -77,6 +91,7 @@
   ],
   "notes": [
     "This report mirrors the canonical source manifests under imports/manifests/asset_sources/.",
-    "TD Sprint 04 promotes one bounded visual lane and one bounded audio lane; the remaining cataloged sources stay future intake candidates."
+    "TD Sprint 04 promotes one bounded visual lane and one bounded audio lane; the remaining cataloged sources stay future intake candidates.",
+    "SRC-006 is cataloged with a metadata-only normalization tool for Duelyst unit animations. No texture payloads are mirrored or promoted by this report."
   ]
 }

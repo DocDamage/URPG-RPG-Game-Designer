@@ -1,0 +1,27 @@
+{
+  "atlasName": "sample_unit",
+  "texturePath": "Assets/Duelyst-Sprites/Spritesheets/Units/sample_unit.png",
+  "size": [128, 128],
+  "sprites": [
+    {"id": "attack_000", "x": 0, "y": 64, "w": 96, "h": 64, "pivot": [52, 30]},
+    {"id": "idle_000", "x": 0, "y": 0, "w": 64, "h": 64, "pivot": [32, 32]},
+    {"id": "idle_001", "x": 64, "y": 0, "w": 64, "h": 64, "pivot": [32, 32]}
+  ],
+  "animations": [
+    {"id": "attack", "frames": ["attack_000"], "frameDuration": 0.05, "loop": true},
+    {"id": "idle", "frames": ["idle_000", "idle_001"], "frameDuration": 0.05, "loop": true}
+  ],
+  "preview": {
+    "defaultAnimation": "idle",
+    "frameCount": 2,
+    "orderedSpriteIds": ["attack_000", "idle_000", "idle_001"]
+  },
+  "provenance": {
+    "sourceId": "SRC-006",
+    "sourceRepo": "DocDamage/Unity-Duelyst-Animations",
+    "sourceUrl": "https://github.com/DocDamage/Unity-Duelyst-Animations",
+    "license": "CC0-1.0",
+    "promotionStatus": "normalized_not_promoted",
+    "exportEligible": false
+  }
+}

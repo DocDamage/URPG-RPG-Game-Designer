@@ -82,6 +82,20 @@ Inputs and outputs:
 - Extracted files: `imports/raw/more_assets/`
 - Manifest: `imports/reports/more_assets/more_assets_intake_manifest.json`
 
+## Duelyst animation metadata intake
+Convert a local checkout of `DocDamage/Unity-Duelyst-Animations` into URPG `sprite_atlas` manifests.
+The tool does not clone the source repo and does not promote generated content for release.
+
+```powershell
+git clone https://github.com/DocDamage/Unity-Duelyst-Animations.git ..\Unity-Duelyst-Animations
+python .\tools\assets\ingest_duelyst_animations.py `
+  --source-root ..\Unity-Duelyst-Animations `
+  --output-root .\imports\normalized\duelyst_animations `
+  --limit 10
+```
+
+Add `--copy-textures` only for local/non-release preview work. Generated reports and atlas metadata are normalized intake output with `export_eligible=false` until a promotion manifest and attribution review approve a curated subset.
+
 ## Safe duplicate prune wave
 Conservative duplicate cleanup for extracted working copies (`itch/unzipped`) when canonical copies already exist.
 

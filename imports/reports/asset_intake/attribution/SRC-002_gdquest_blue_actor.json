@@ -1,0 +1,15 @@
+{
+  "asset_id": "imports/normalized/prototype_sprites/gdquest_blue_actor.svg",
+  "source_id": "SRC-002",
+  "source_repo": "GDQuest/game-sprites",
+  "source_url": "https://github.com/GDQuest/game-sprites",
+  "original_relative_path": "characters/blue.svg",
+  "author": "GDQuest",
+  "license": "CC0-1.0",
+  "commercial_use_allowed": true,
+  "redistribution_allowed": true,
+  "promotion_status": "promoted",
+  "notes": [
+    "Bounded visual proof lane attribution record for the promoted GDQuest blue actor placeholder."
+  ]
+}
