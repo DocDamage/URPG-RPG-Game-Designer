@@ -8,7 +8,7 @@ The product goal is a WYSIWYG authoring experience where creators edit the same 
 
 ## Current Status
 
-Status date: 2026-04-27
+Status date: 2026-04-28
 
 The current `development` branch has passing local and remote release-candidate gates for private/internal release-candidate validation. The remote manual GitHub Actions release-candidate workflow passed in run `25025111713` at commit `7439132f4fa2638730498781f617d78af7b16514`.
 
@@ -61,6 +61,9 @@ Repository-wide source/vendor LFS hydration is still externally constrained by G
 - Audio mix presets with default, battle, and cinematic profiles, category volumes, ducking rules, schema, editor panel, and tests.
 - Accessibility auditor with missing-label, focus-order, contrast, and navigation rules plus editor reporting.
 - Mod registry with manifest registration, dependency ordering, activation state, save/load JSON, schema, editor panel, and tests.
+- WYSIWYG gameplay maker systems with deterministic runtime documents, editor panels, saved JSON, diagnostics, schemas, fixtures, registry wiring, and tests for quest objective graphs, skill trees/class progression, relationship affinity, crafting/gathering/economy loops, monster capture/party/storage/evolution, encounter design, loot generation, NPC schedules, metroidvania ability gates, and cutscene timelines.
+- WYSIWYG gameplay feature suite covering status effects, enemy AI behavior trees, boss phase scripts, equipment set bonuses, dungeon room flow, companion banter, quest choice consequences, shop economy simulation, puzzle mechanic building, world-state timelines, tactical terrain effects, and procedural content rules.
+- RPG Maker community-requested WYSIWYG maker features covering smart event workflows, event template libraries, interaction prompts, message logs, minimap/fog-of-war, picture hotspot common events, common event menus, developer debug overlays, switch/variable inspection and refactoring, asset/DLC library management, HUD making, and plugin conflict resolution.
 - Export validator and packager with platform requirement checks, package validation, config schema, editor diagnostics panel, install smoke, package smoke, and release-candidate gates.
 
 ### Editor And Authoring
@@ -74,6 +77,7 @@ Repository-wide source/vendor LFS hydration is still externally constrained by G
 - Spatial Authoring Workspace that composes elevation painting, prop placement, map ability binding, and direct canvas overlays.
 - Direct canvas interaction authoring with click-to-place tile bindings, prop handles, region painting/resizing, hover previews, trigger switching, conflict warnings, and suggested conflict resolution.
 - Character Creator, Achievement, Accessibility, Audio Mix, Analytics, Export Diagnostics, Mod Manager, Input Remap, Localization, Performance Diagnostics, and Project/New Project surfaces with explicit disabled/empty/error states where dependencies are absent.
+- Release-registered WYSIWYG panels for the gameplay maker and community-requested systems, including quest, skill tree, relationship, cutscene timeline, encounter designer, loot generator, crafting loop, monster collection, NPC schedule, metroidvania gates, status effects, enemy AI, boss phases, equipment sets, dungeon flow, companion banter, quest consequences, shop economy lab, puzzle builder, world-state timeline, tactical terrain, procedural rules, smart event workflows, event templates, interaction prompts, message history, minimap/fog, picture hotspots, common event menus, debug overlay, switch/variable inspector, asset/DLC library manager, HUD maker, and plugin conflict resolver.
 - Migration wizard diagnostics with rendered workflow actions, selected-result details, issue navigation, report save/load, and bound-runtime rerun flows.
 
 ### RPG Maker MZ Compatibility And Migration
@@ -110,6 +114,7 @@ URPG is a strong native/editor foundation, not a finished public product. Import
 
 - Public release is blocked until legal/privacy/distribution approval or waiver is recorded.
 - Some editor surfaces are release-registered but still have partial graphical/manual behavior verification.
+- Several newly added WYSIWYG systems are first complete implementation slices with deterministic runtime/editor contracts and headless panel evidence; deeper bespoke UI polish and wider game-template integration remain product-depth work.
 - Export hardening still has backlog items such as native signing, notarization, broader platform validation, and public release artifact policy.
 - Achievement platform backends are out of tree; the current implementation is a vendor-neutral registry/export payload.
 - The QuickJS compatibility layer is a bounded import/validation/migration harness, not a promise of complete live RPG Maker JavaScript runtime parity.
@@ -127,6 +132,7 @@ The roadmap remains WYSIWYG-first. Most previously listed future-feature slices 
 - ability sandboxing with visible costs, cooldowns, tags, and effects
 - save/load preview lab for inspecting persisted runtime state
 - export preview that shows exactly what will ship
+- product-depth expansion of the new WYSIWYG gameplay/community systems beyond their first runtime/editor/saved-data/diagnostics/test slices
 - richer Project Health guided remediation workflows
 - asset promotion, license review, and cleanup automation
 - fuller live renderer/editor integration for authored systems that currently expose deterministic contracts and headless panel snapshots
