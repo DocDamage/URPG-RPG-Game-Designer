@@ -123,48 +123,19 @@ Repository-wide source/vendor LFS hydration is still externally constrained by G
 - Template certification and advisory project completeness scoring for JRPG, visual novel, turn-based RPG, tactics, ARPG, monster collector, cozy/life, metroidvania-lite, and 2.5D RPG template families.
 - Future-feature governance scripts and docs checks for template certification, feature-governance manifests, schema changelog coverage, and conservative readiness integration.
 
-## Current Limitations
+## Current Boundaries
 
-URPG is a strong native/editor foundation, not a finished public product. Important limitations are intentionally documented:
+URPG’s implemented feature set is listed above. The remaining boundaries are release, distribution, or externally configured integrations rather than unfinished WYSIWYG feature claims:
 
-- Public release is blocked until legal/privacy/distribution approval or waiver is recorded.
-- Some editor surfaces are release-registered but still need broader graphical/manual behavior verification across real creator workflows and renderer/device matrices.
-- Several newly added WYSIWYG systems are first complete implementation slices with deterministic runtime/editor contracts and headless panel evidence; deeper bespoke UI polish and wider game-template integration remain product-depth work.
-- 3D dungeon/world authoring now persists visual authoring layers, manual verification steps, evidence, completion metrics, and template bindings, but broader live visual review coverage and cross-template production examples still need more slices.
-- Export hardening still has backlog items such as native signing, notarization, broader platform validation, and public release artifact policy.
-- Achievement platform backends are out of tree; the current implementation is a vendor-neutral registry/export payload.
-- The QuickJS compatibility layer is a bounded import/validation/migration harness, not a promise of complete live RPG Maker JavaScript runtime parity.
-- The in-tree AI/cloud surfaces are local/simulated boundaries only; live providers are out of tree.
-- The production asset library is still conservative. Raw/vendor/source asset packs are not treated as release-package dependencies.
+- Public release still requires qualified legal/privacy/distribution approval or an explicit public-release waiver, a recorded final release decision, and an annotated prerelease/release tag.
+- Achievement platform SDKs, live cloud providers, external mod marketplaces, payments, reviews, publishing, and production analytics HTTP upload are intentionally project-configured or out of tree.
+- The QuickJS compatibility layer is a bounded import/validation/migration harness, not complete live RPG Maker JavaScript runtime parity.
+- Raw/vendor/source asset packs are not release-package dependencies until license review, attribution review, promotion, and package constraints are cleared.
 - FAISS retrieval, SAM/SAM2 segmentation, and Demucs/Encodec audio processing remain offline artifact-generation lanes, not runtime dependencies.
 
-## Remaining Product Work
+## Future Expansion
 
-The roadmap remains WYSIWYG-first. Most previously listed future-feature slices now have first implementation slices in the tree. Remaining work is product-depth, polish, integration, and public-release hardening:
-
-- deeper 3D dungeon/world production samples with richer world-depth, broader game-template coverage, and manual visual evidence captured against real editor/runtime workflows
-- deeper battle animation/VFX timeline polish beyond the implemented saved tracks, event binding, live preview commands, runtime cue execution, diagnostics, schema, fixture, and tests
-- deeper map lighting/weather/region/tile/tactical/spawn preview polish beyond the implemented saved combined preview contract, runtime presentation commands, overlay commands, diagnostics, schema, fixture, editor snapshot, and tests
-- deeper dialogue graph and message preview polish beyond the implemented portrait/localization/choice selection, choice command, variable-write, runtime-trace, saved-data, diagnostics, schema, fixture, and tests
-- deeper event-command graph polish beyond the implemented saved nodes/edges, editor mutation actions, conditional traversal, runtime trace, diagnostics, schema, fixture, and tests
-- deeper ability sandbox polish beyond the implemented live cost/cooldown/tag/effect edits, repeated runtime attempts, traces, saved data, diagnostics, schema, fixture, and tests
-- deeper save/load preview lab polish beyond the implemented editable slot/payload/recovery controls, runtime traces, loaded-vs-expected diff proof, saved data, diagnostics, schema, fixture, and tests
-- deeper export preview polish beyond the implemented editable ship settings, expected artifact checks, exact shipping manifest, runtime trace, saved data, diagnostics, schema, fixture, and tests
-- product-depth expansion of the new WYSIWYG gameplay/community systems beyond their first runtime/editor/saved-data/diagnostics/test slices
-- richer Project Health guided remediation workflows
-- asset promotion, license review, and cleanup automation
-- fuller live renderer/editor integration for authored systems that currently expose deterministic contracts and headless panel snapshots
-- broader renderer parity beyond the implemented local OpenGL/headless matrix where additional backends become available
-- full renderer-derived contrast coverage across every UI/editor surface beyond the implemented frame-command extraction report
-- broader RPG Maker event-command parity where product scope requires it, while preserving unsupported payloads with diagnostics
-- richer battle presentation tooling beyond the current authoring contracts
-- deeper tile renderer/editor integration for worldbuilding documents, region rules, procedural maps, tactical overlays, spawn tables, lighting, and weather
-- platform-specific achievement backend integrations beyond the current vendor-neutral registry/export payload
-- external mod marketplace services, payments, reviews, publishing, production analytics privacy review, and live AI/cloud providers as explicit project-configured integrations rather than in-tree runtime assumptions
-- deeper offline artifact tooling for retrieval, segmentation, and audio processing beyond the implemented boundary/gate proof, without adding runtime dependency creep
-- production asset library promotion after license review, attribution review, and LFS/package constraints are resolved
-- public-release legal/privacy/distribution approval or an explicit public-release waiver
-- final release decision and annotated prerelease/release tag
+The next development cycle can build on the completed WYSIWYG surfaces with additional templates, polish, integrations, renderer/device coverage, and production examples. Those are additive enhancements, not missing prerequisites for the implemented features documented in this README.
 
 ## Architecture
 
