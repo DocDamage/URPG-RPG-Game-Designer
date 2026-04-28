@@ -1,0 +1,78 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://urpg.dev/schemas/maker_wysiwyg_feature.schema.json",
+  "title": "URPG Maker WYSIWYG Feature",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "id", "feature_type", "display_name", "visual_layers", "actions"],
+  "properties": {
+    "schema_version": { "const": "urpg.maker_wysiwyg.v1" },
+    "id": { "type": "string", "minLength": 1 },
+    "feature_type": {
+      "type": "string",
+      "enum": [
+        "project_search_everywhere",
+        "broken_reference_repair",
+        "mass_edit_batch_operations",
+        "project_diff_change_review",
+        "template_instance_sync",
+        "parallax_mapping_editor",
+        "collision_passability_visualizer",
+        "world_map_route_planner",
+        "secret_hidden_object_authoring",
+        "biome_rule_system",
+        "dialogue_relationship_matrix",
+        "branch_coverage_preview",
+        "cutscene_blocking_tool",
+        "localization_context_review",
+        "damage_formula_visual_lab",
+        "enemy_troop_timeline_preview",
+        "skill_combo_chain_builder",
+        "bestiary_discovery_system",
+        "formation_positioning_system",
+        "menu_builder",
+        "journal_hub",
+        "notification_toast_system",
+        "input_prompt_skinner",
+        "playtest_session_recorder",
+        "bug_report_packager",
+        "performance_heatmap",
+        "release_checklist_dashboard",
+        "store_page_asset_generator",
+        "mod_conflict_visualizer",
+        "mod_packaging_wizard",
+        "plugin_to_native_migration_advisor"
+      ]
+    },
+    "display_name": { "type": "string", "minLength": 1 },
+    "visual_layers": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "type": "string", "minLength": 1 }
+    },
+    "actions": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "label", "trigger", "operation", "target", "required_flags", "parameters"],
+        "properties": {
+          "id": { "type": "string", "minLength": 1 },
+          "label": { "type": "string", "minLength": 1 },
+          "trigger": { "type": "string", "minLength": 1 },
+          "operation": { "type": "string", "minLength": 1 },
+          "target": { "type": "string", "minLength": 1 },
+          "required_flags": {
+            "type": "array",
+            "items": { "type": "string", "minLength": 1 }
+          },
+          "parameters": {
+            "type": "object",
+            "additionalProperties": { "type": "string" }
+          }
+        }
+      }
+    }
+  }
+}
