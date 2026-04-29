@@ -26,12 +26,22 @@ struct ExportPreviewPanelSnapshot {
     size_t missing_expected_artifact_count = 0;
     size_t runtime_trace_count = 0;
     size_t diagnostic_count = 0;
+    size_t platform_checklist_count = 0;
+    size_t platform_checklist_blocker_count = 0;
+    size_t packaging_diagnostic_count = 0;
     float release_readiness_score = 0.0f;
     std::string ux_focus_lane = "shipping_manifest";
     std::string blocker_summary;
     std::string primary_action = "Load an export preview.";
+    std::string signing_status = "unknown";
+    std::string smoke_test_status = "unknown";
     std::string saved_project_json;
     nlohmann::json shipping_manifest = nlohmann::json::object();
+    nlohmann::json platform_checklist = nlohmann::json::array();
+    nlohmann::json missing_asset_report = nlohmann::json::object();
+    nlohmann::json packaging_diagnostics = nlohmann::json::array();
+    nlohmann::json signing_status_detail = nlohmann::json::object();
+    nlohmann::json smoke_test_evidence = nlohmann::json::object();
     std::string status_message = "Load an export preview before rendering this panel.";
 };
 

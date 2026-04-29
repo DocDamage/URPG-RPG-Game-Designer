@@ -75,6 +75,24 @@ void ExportPreviewPanel::refreshPreview() {
     snapshot_.missing_expected_artifact_count = result_.missing_expected_artifacts.size();
     snapshot_.runtime_trace_count = result_.runtime_trace.size();
     snapshot_.diagnostic_count = result_.diagnostics.size();
+    snapshot_.platform_checklist = result_.platform_checklist;
+    snapshot_.missing_asset_report = result_.missing_asset_report;
+    snapshot_.packaging_diagnostics = result_.packaging_diagnostics;
+    snapshot_.signing_status_detail = result_.signing_status;
+    snapshot_.smoke_test_evidence = result_.smoke_test_evidence;
+    snapshot_.platform_checklist_count = snapshot_.platform_checklist.is_array() ? snapshot_.platform_checklist.size() : 0;
+    snapshot_.platform_checklist_blocker_count = 0;
+    if (snapshot_.platform_checklist.is_array()) {
+        for (const auto& item : snapshot_.platform_checklist) {
+            if (item.is_object() && item.contains("passed") && item["passed"].is_boolean() &&
+                !item["passed"].get<bool>()) {
+                ++snapshot_.platform_checklist_blocker_count;
+            }
+        }
+    }
+    snapshot_.packaging_diagnostic_count = snapshot_.packaging_diagnostics.is_array() ? snapshot_.packaging_diagnostics.size() : 0;
+    snapshot_.signing_status = snapshot_.signing_status_detail.value("status", "unknown");
+    snapshot_.smoke_test_status = snapshot_.smoke_test_evidence.value("playable_smoke_status", "unknown");
     float passed_checks = 0.0f;
     passed_checks += snapshot_.preflight_passed ? 1.0f : 0.0f;
     passed_checks += snapshot_.export_success ? 1.0f : 0.0f;

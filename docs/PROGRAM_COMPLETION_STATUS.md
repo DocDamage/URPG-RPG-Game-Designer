@@ -33,6 +33,7 @@ Current app-level release readiness source of truth: [`docs/APP_RELEASE_READINES
 - AI project knowledge indexing now creates searchable records for project files, schemas, readiness reports, validation reports, asset catalogs, project docs, template specs, and source summaries supplied through project data.
 - AI tools now emit concrete editor preview artifacts for event graph authoring, battle VFX timelines, lighting/weather previews, ability sandbox compositions, export preview configuration, and asset import/promotion review instead of only broad project records.
 - `IChatService` now has a bounded OpenAI-compatible in-tree transport with dry-run request/command building, curl execution, and response parsing for ChatGPT-compatible gateways, Kimi-compatible gateways, Ollama, LM Studio, OpenRouter, vLLM, and LocalAI-style `/v1/chat/completions` providers.
+- Export/release UX now projects platform checklist rows, missing asset/artifact report data, packaging diagnostics, signing/notarization status, and staged smoke evidence through the export preview result and editor panel snapshot while keeping full native signing/notarization as backlog.
 
 2026-04-28 documentation and AI/editor checkpoint:
 - `development` is pushed to `origin/development` at commit `cfdae41e9` (`Advance AI editor and template readiness`) before this documentation refresh.

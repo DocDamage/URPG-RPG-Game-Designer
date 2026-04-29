@@ -56,6 +56,100 @@ std::vector<std::string> listFiles(const std::filesystem::path& root) {
     return files;
 }
 
+nlohmann::json checklistItem(const std::string& id,
+                             const std::string& label,
+                             bool passed,
+                             const std::string& detail) {
+    return {{"id", id}, {"label", label}, {"passed", passed}, {"detail", detail}};
+}
+
+nlohmann::json diagnosticsToJson(const std::vector<ExportPreviewDiagnostic>& diagnostics) {
+    nlohmann::json out = nlohmann::json::array();
+    for (const auto& item : diagnostics) {
+        out.push_back({{"code", item.code}, {"message", item.message}, {"target", item.target}});
+    }
+    return out;
+}
+
+nlohmann::json buildMissingAssetReport(const ExportPreviewDocument& document,
+                                       const ExportPreviewResult& result) {
+    nlohmann::json missingRoots = nlohmann::json::array();
+    for (const auto& root : document.asset_discovery_roots) {
+        std::error_code ec;
+        if (!std::filesystem::exists(root, ec) || ec) {
+            missingRoots.push_back(root);
+        }
+    }
+    return {
+        {"schema", "urpg.export_missing_asset_report.v1"},
+        {"asset_discovery_root_count", document.asset_discovery_roots.size()},
+        {"missing_asset_discovery_roots", missingRoots},
+        {"missing_expected_artifacts", result.missing_expected_artifacts},
+        {"has_missing_assets_or_artifacts", !missingRoots.empty() || !result.missing_expected_artifacts.empty()},
+    };
+}
+
+nlohmann::json buildSigningStatus(const ExportPreviewDocument& document) {
+    return {
+        {"schema", "urpg.export_signing_status.v1"},
+        {"target", ExportPreviewTargetLabel(document.target)},
+        {"signing_required_for_public_release", document.mode == tools::ExportMode::Release},
+        {"native_signing_configured", false},
+        {"notarization_configured", false},
+        {"status", document.mode == tools::ExportMode::Release ? "not_configured" : "not_required_for_dev_bootstrap"},
+        {"detail", "Runtime bundle integrity is validated separately; platform signing/notarization remains explicit release backlog."},
+    };
+}
+
+nlohmann::json buildSmokeEvidence(const ExportPreviewDocument& document,
+                                  const ExportPreviewResult& result) {
+    const bool executablePresent = std::find(result.emitted_artifacts.begin(), result.emitted_artifacts.end(),
+                                            document.target == tools::ExportTarget::Windows_x64 ? "game.exe" : "game") !=
+                                   result.emitted_artifacts.end();
+    return {
+        {"schema", "urpg.export_smoke_evidence.v1"},
+        {"target", ExportPreviewTargetLabel(document.target)},
+        {"mode", ExportPreviewModeLabel(document.mode)},
+        {"staged_runtime_present", executablePresent},
+        {"post_export_validation_passed", result.post_export_validation_passed},
+        {"playable_smoke_status", executablePresent && result.post_export_validation_passed ? "staged_not_launched" : "not_ready"},
+        {"detail", executablePresent ? "Runtime artifact is staged for smoke launch."
+                                      : "No runnable runtime artifact was staged for this preview."},
+    };
+}
+
+nlohmann::json buildPlatformChecklist(const ExportPreviewDocument& document,
+                                      const ExportPreviewResult& result) {
+    const bool nativeTarget = document.target != tools::ExportTarget::Web_WASM;
+    const bool runtimeConfigured = !document.runtime_binary_path.empty();
+    const bool noMissingArtifacts = result.missing_expected_artifacts.empty();
+    nlohmann::json checklist = nlohmann::json::array();
+    checklist.push_back(checklistItem("output_dir", "Output directory",
+                                      !result.output_dir.empty(), result.output_dir));
+    checklist.push_back(checklistItem("runtime_binary", "Runtime binary",
+                                      !nativeTarget || runtimeConfigured,
+                                      nativeTarget ? (runtimeConfigured ? document.runtime_binary_path
+                                                                        : "Missing runtime binary path.")
+                                                   : "Web runtime artifact is not part of this native checklist."));
+    checklist.push_back(checklistItem("preflight", "Packager preflight", result.preflight_passed,
+                                      result.preflight_passed ? "Preflight passed." : "Preflight failed."));
+    checklist.push_back(checklistItem("export", "Export execution", result.export_success,
+                                      result.export_success ? "Export completed." : "Export did not complete."));
+    checklist.push_back(checklistItem("post_validation", "Post-export validation",
+                                      result.post_export_validation_passed,
+                                      result.post_export_validation_passed ? "Export directory validated."
+                                                                           : "Export directory validation failed."));
+    checklist.push_back(checklistItem("expected_artifacts", "Expected artifacts",
+                                      noMissingArtifacts, noMissingArtifacts ? "All expected artifacts were emitted."
+                                                                            : "Expected artifacts are missing."));
+    checklist.push_back(checklistItem("platform_signing", "Platform signing/notarization",
+                                      document.mode != tools::ExportMode::Release,
+                                      document.mode == tools::ExportMode::Release
+                                          ? "Not configured; required before public release."
+                                          : "Not required for dev bootstrap preview."));
+    return checklist;
+}
+
 } // namespace
 
 std::string ExportPreviewTargetLabel(tools::ExportTarget target) {
@@ -149,6 +243,11 @@ ExportPreviewResult RunExportPreview(const ExportPreviewDocument& document,
     result.runtime_trace.push_back("target:" + ExportPreviewTargetLabel(config.target));
     result.runtime_trace.push_back("mode:" + ExportPreviewModeLabel(config.mode));
     if (!result.diagnostics.empty()) {
+        result.platform_checklist = buildPlatformChecklist(document, result);
+        result.missing_asset_report = buildMissingAssetReport(document, result);
+        result.signing_status = buildSigningStatus(document);
+        result.smoke_test_evidence = buildSmokeEvidence(document, result);
+        result.packaging_diagnostics = diagnosticsToJson(result.diagnostics);
         return result;
     }
 
@@ -161,6 +260,11 @@ ExportPreviewResult RunExportPreview(const ExportPreviewDocument& document,
         result.diagnostics.push_back({"preflight_failed", error, document.id});
     }
     if (!preflight.passed) {
+        result.platform_checklist = buildPlatformChecklist(document, result);
+        result.missing_asset_report = buildMissingAssetReport(document, result);
+        result.signing_status = buildSigningStatus(document);
+        result.smoke_test_evidence = buildSmokeEvidence(document, result);
+        result.packaging_diagnostics = diagnosticsToJson(result.diagnostics);
         return result;
     }
 
@@ -170,6 +274,11 @@ ExportPreviewResult RunExportPreview(const ExportPreviewDocument& document,
     result.generated_files = export_result.generatedFiles;
     if (!export_result.success) {
         result.diagnostics.push_back({"export_failed", export_result.log, document.id});
+        result.platform_checklist = buildPlatformChecklist(document, result);
+        result.missing_asset_report = buildMissingAssetReport(document, result);
+        result.signing_status = buildSigningStatus(document);
+        result.smoke_test_evidence = buildSmokeEvidence(document, result);
+        result.packaging_diagnostics = diagnosticsToJson(result.diagnostics);
         return result;
     }
 
@@ -195,6 +304,11 @@ ExportPreviewResult RunExportPreview(const ExportPreviewDocument& document,
         result.diagnostics.push_back({"dev_bootstrap_not_release",
                                       "Dev bootstrap output is not an exact release shipping preview.", document.id});
     }
+    result.platform_checklist = buildPlatformChecklist(document, result);
+    result.missing_asset_report = buildMissingAssetReport(document, result);
+    result.signing_status = buildSigningStatus(document);
+    result.smoke_test_evidence = buildSmokeEvidence(document, result);
+    result.packaging_diagnostics = diagnosticsToJson(result.diagnostics);
 
     result.shipping_manifest = {
         {"schema", "urpg.export_preview_manifest.v1"},
@@ -209,6 +323,11 @@ ExportPreviewResult RunExportPreview(const ExportPreviewDocument& document,
         {"missing_expected_artifacts", result.missing_expected_artifacts},
         {"runtime_trace", result.runtime_trace},
         {"post_export_validation_passed", result.post_export_validation_passed},
+        {"platform_checklist", result.platform_checklist},
+        {"missing_asset_report", result.missing_asset_report},
+        {"packaging_diagnostics", result.packaging_diagnostics},
+        {"signing_status", result.signing_status},
+        {"smoke_test_evidence", result.smoke_test_evidence},
     };
     return result;
 }

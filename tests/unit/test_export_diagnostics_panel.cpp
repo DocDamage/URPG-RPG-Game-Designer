@@ -265,6 +265,14 @@ TEST_CASE("ExportPreviewPanel produces exact release shipping manifest",
     REQUIRE(panel.snapshot().shipping_manifest["schema"] == "urpg.export_preview_manifest.v1");
     REQUIRE(panel.snapshot().shipping_manifest["exact_ship_preview"] == true);
     REQUIRE(panel.snapshot().shipping_manifest["missing_expected_artifacts"].empty());
+    REQUIRE(panel.snapshot().platform_checklist_count == 7);
+    REQUIRE(panel.snapshot().platform_checklist_blocker_count == 1);
+    REQUIRE(panel.snapshot().platform_checklist[0]["id"] == "output_dir");
+    REQUIRE(panel.snapshot().signing_status == "not_configured");
+    REQUIRE(panel.snapshot().smoke_test_status == "staged_not_launched");
+    REQUIRE(panel.snapshot().shipping_manifest["platform_checklist"].size() == 7);
+    REQUIRE(panel.snapshot().shipping_manifest["signing_status"]["native_signing_configured"] == false);
+    REQUIRE(panel.snapshot().shipping_manifest["smoke_test_evidence"]["staged_runtime_present"] == true);
 
     bool foundPck = false;
     bool foundExe = false;
@@ -312,6 +320,10 @@ TEST_CASE("ExportPreviewPanel edits ship settings and blocks missing expected ar
     REQUIRE(panel.result().missing_expected_artifacts[0] == "missing.bin");
     REQUIRE(panel.snapshot().shipping_manifest["expected_artifacts"].size() == 3);
     REQUIRE(panel.snapshot().shipping_manifest["runtime_trace"].is_array());
+    REQUIRE(panel.snapshot().platform_checklist_blocker_count == 2);
+    REQUIRE(panel.snapshot().missing_asset_report["has_missing_assets_or_artifacts"] == true);
+    REQUIRE(panel.snapshot().missing_asset_report["missing_expected_artifacts"][0] == "missing.bin");
+    REQUIRE(panel.snapshot().packaging_diagnostic_count == 1);
     REQUIRE(panel.snapshot().status_message == "Export preview has diagnostics.");
 
     std::filesystem::remove_all(workspace);
@@ -338,6 +350,9 @@ TEST_CASE("Export preview saved project data round-trips and flags bootstrap out
     REQUIRE_FALSE(result.exact_ship_preview);
     REQUIRE_FALSE(result.diagnostics.empty());
     REQUIRE(result.diagnostics.back().code == "dev_bootstrap_not_release");
+    REQUIRE(result.platform_checklist.size() == 7);
+    REQUIRE(result.signing_status["status"] == "not_required_for_dev_bootstrap");
+    REQUIRE(result.smoke_test_evidence["post_export_validation_passed"] == true);
 
     std::filesystem::remove_all(workspace);
 }
@@ -365,6 +380,11 @@ TEST_CASE("Export preview diagnostics block false exact-ship claims",
     REQUIRE_FALSE(panel.snapshot().exact_ship_preview);
     REQUIRE(panel.snapshot().status_message == "Export preview has diagnostics.");
     REQUIRE(panel.result().diagnostics[0].code == "missing_runtime_binary");
+    REQUIRE(panel.snapshot().platform_checklist_count == 7);
+    REQUIRE(panel.snapshot().platform_checklist_blocker_count >= 1);
+    REQUIRE(panel.snapshot().signing_status == "not_configured");
+    REQUIRE(panel.snapshot().smoke_test_status == "not_ready");
+    REQUIRE(panel.snapshot().packaging_diagnostic_count == 1);
 
     std::filesystem::remove_all(workspace);
 }

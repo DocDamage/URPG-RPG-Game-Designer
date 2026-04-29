@@ -47,6 +47,11 @@ struct ExportPreviewResult {
     std::vector<std::string> missing_expected_artifacts;
     std::vector<std::string> runtime_trace;
     nlohmann::json shipping_manifest = nlohmann::json::object();
+    nlohmann::json platform_checklist = nlohmann::json::array();
+    nlohmann::json missing_asset_report = nlohmann::json::object();
+    nlohmann::json packaging_diagnostics = nlohmann::json::array();
+    nlohmann::json signing_status = nlohmann::json::object();
+    nlohmann::json smoke_test_evidence = nlohmann::json::object();
     std::vector<ExportPreviewDiagnostic> diagnostics;
 };
 
