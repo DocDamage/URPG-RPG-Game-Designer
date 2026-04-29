@@ -44,6 +44,55 @@ TEST_CASE("AssetLibrary provenance packet round-trips JSON", "[assets][asset_lib
     REQUIRE(provenance.export_eligible);
 }
 
+TEST_CASE("AssetLibrary ingests local promotion catalog records", "[assets][asset_library][asset_intake]") {
+    urpg::assets::AssetLibrary library;
+    library.ingestPromotionCatalog(nlohmann::json{
+        {"source_id", "SRC-007"},
+        {"source_root", "imports/raw/urpg_stuff"},
+        {"export_eligible", false},
+        {"assets",
+         {
+             {
+                 {"source_path", "imports/raw/urpg_stuff/audio/UI/click.ogg"},
+                 {"normalized_path", "asset://src-007/audio/ui/click-abc123.ogg"},
+                 {"preview_path", "imports/raw/urpg_stuff/audio/UI/click.ogg"},
+                 {"preview_kind", "audio"},
+                 {"media_kind", "audio"},
+                 {"category", "audio/ui"},
+                 {"pack", "UI Soundpack"},
+                 {"size_bytes", 1234},
+                 {"sha256", "abc123"},
+                 {"tags", {"kind:audio", "category:audio-ui", "ui"}},
+                 {"license", "user_attested_free_for_game_use_pending_per_pack_attribution"},
+             },
+             {
+                 {"source_path", "imports/raw/urpg_stuff/audio/UI/click-copy.ogg"},
+                 {"normalized_path", "asset://src-007/audio/ui/click-copy-abc123.ogg"},
+                 {"media_kind", "audio"},
+                 {"category", "audio/ui"},
+                 {"pack", "UI Soundpack"},
+                 {"size_bytes", 1234},
+                 {"sha256", "abc123"},
+                 {"duplicate_of", "src007:abc123"},
+                 {"status", "duplicate"},
+                 {"license", "user_attested_free_for_game_use_pending_per_pack_attribution"},
+             },
+         }},
+    });
+
+    const auto asset = library.findAsset("imports/raw/urpg_stuff/audio/UI/click.ogg");
+    REQUIRE(asset.has_value());
+    REQUIRE(asset->normalized_path == "asset://src-007/audio/ui/click-abc123.ogg");
+    REQUIRE(asset->preview_kind == "audio");
+    REQUIRE(asset->media_kind == "audio");
+    REQUIRE(asset->category == "audio/ui");
+    REQUIRE(asset->tags.size() == 3);
+
+    const auto duplicate = library.findAsset("imports/raw/urpg_stuff/audio/UI/click-copy.ogg");
+    REQUIRE(duplicate.has_value());
+    REQUIRE(duplicate->statuses.contains(urpg::assets::AssetStatus::Duplicate));
+}
+
 TEST_CASE("AssetLibrary detects case collisions and unsupported paths", "[assets][asset_library]") {
     urpg::assets::AssetLibrary library;
     library.markUnsupportedFormat("Assets/Hero.PNG");

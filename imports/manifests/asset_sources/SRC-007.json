@@ -21,12 +21,13 @@
   ],
   "handling_path": "direct_ingest_when_captured",
   "legal_disposition": "user_attested_free_for_game_use_requires_per_pack_attribution_and_tool_bundle_review",
-  "promotion_status": "not_started",
+  "promotion_status": "cataloged_local",
   "notes": [
     "Captured from the local folder previously named 'urpg stuff' and moved under imports/raw/urpg_stuff.",
     "User attested on 2026-04-28 that all assets in this local drop are free to use and usable in games.",
+    "All supported local payloads are catalog-normalized through imports/reports/asset_intake/urpg_stuff_promotion_catalog.json with stable virtual asset ids, inferred categories, tags, preview paths, and exact duplicate markers.",
     "Before promoting a curated subset into the editor bundle or release content, capture per-pack attribution and reconcile any pack-specific restrictions with URPG's game-making-tool distribution model.",
     "Non-OGG audio was removed from the raw drop during OGG normalization work. The audio conversion report records existing tracked LFS pointers that could not be hydrated because the GitHub LFS budget is exceeded.",
-    "Raw payload is intake-only and not export eligible until curated bundle manifests and attribution records are created."
+    "Raw payload remains local and is not export eligible until curated bundle manifests and attribution records are created."
   ]
 }

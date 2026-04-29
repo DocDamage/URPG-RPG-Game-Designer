@@ -8,7 +8,7 @@
     "bytes": 708805146,
     "non_ogg_audio_files": 0,
     "export_eligible": false,
-    "promotion_status": "not_started"
+    "promotion_status": "cataloged_local"
   },
   "extension_counts": {
     ".png": 53805,
@@ -31,6 +31,7 @@
   ],
   "notes": [
     "Raw quarantine intake only; user attested on 2026-04-28 that all assets in this local drop are free to use and usable in games.",
+    "Catalog-normalized into imports/reports/asset_intake/urpg_stuff_promotion_catalog.json for local editor/library browsing.",
     "Promote curated subsets only after per-pack attribution and editor/tool bundle review.",
     "Audio intake is OGG-only. Local WAV/MP3 source files were converted, copied into this raw intake as OGG, and archived under .urpg/local_audio_archive."
   ]

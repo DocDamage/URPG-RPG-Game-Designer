@@ -27,6 +27,8 @@ class AssetLibraryModel {
   public:
     void ingestReports(const nlohmann::json& hygiene_summary, const nlohmann::json& intake_report,
                        std::string_view duplicate_csv);
+    void ingestReports(const nlohmann::json& hygiene_summary, const nlohmann::json& intake_report,
+                       const nlohmann::json& promotion_catalog, std::string_view duplicate_csv);
     bool loadReportsFromDirectory(const std::filesystem::path& reports_root, std::string* error_message = nullptr);
     void addReferencedAsset(std::string path);
     void rebuildCleanupPreview();

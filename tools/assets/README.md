@@ -35,6 +35,8 @@ python .\tools\assets\asset_db.py find --kind image --ext png --pack "Monster Me
 python .\tools\assets\asset_db.py index --roots third_party/itch-assets/packs third_party/huggingface imports/root-drop/archives
 ```
 
+`imports/raw/urpg_stuff` is included in the default roots when the local drop exists.
+
 ## Convenience wrappers
 ```powershell
 .\tools\assets\asset-index.ps1
@@ -106,6 +108,19 @@ python .\tools\assets\convert_audio_to_ogg.py --delete-source
 ```
 
 The report is written to `imports/reports/audio_conversion/audio_to_ogg_manifest.json`.
+
+## Local URPG asset catalog-normalization
+Build an editor-loadable catalog for the local `SRC-007` raw asset drop without copying the binary payload into a second tree.
+
+```powershell
+python .\tools\assets\promote_urpg_stuff_assets.py
+```
+
+Outputs:
+- `imports/reports/asset_intake/urpg_stuff_promotion_catalog.json`
+- `imports/reports/asset_intake/urpg_stuff_promotion_summary.json`
+
+The catalog records stable virtual normalized paths, source paths, inferred categories, packs, tags, preview paths, SHA-256 hashes, image/audio metadata, and exact duplicate groups. The editor asset library loads it from the canonical report directory when present. The catalog is local-discovery ready but remains `export_eligible=false` until curated subsets get per-pack attribution and promoted bundle manifests.
 
 ## Safe duplicate prune wave
 Conservative duplicate cleanup for extracted working copies (`itch/unzipped`) when canonical copies already exist.

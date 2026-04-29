@@ -7,9 +7,15 @@ namespace urpg::editor {
 
 void AssetLibraryModel::ingestReports(const nlohmann::json& hygiene_summary, const nlohmann::json& intake_report,
                                       std::string_view duplicate_csv) {
+    ingestReports(hygiene_summary, intake_report, nlohmann::json::object(), duplicate_csv);
+}
+
+void AssetLibraryModel::ingestReports(const nlohmann::json& hygiene_summary, const nlohmann::json& intake_report,
+                                      const nlohmann::json& promotion_catalog, std::string_view duplicate_csv) {
     library_.clear();
     library_.ingestHygieneSummary(hygiene_summary);
     library_.ingestIntakeReport(intake_report);
+    library_.ingestPromotionCatalog(promotion_catalog);
     library_.ingestDuplicateCsv(duplicate_csv);
     library_.detectCaseCollisions();
     rebuildCleanupPreview();
@@ -24,6 +30,7 @@ bool AssetLibraryModel::loadReportsFromDirectory(const std::filesystem::path& re
     const auto hygiene_path = reports_root / "asset_hygiene_summary.json";
     const auto duplicates_path = reports_root / "asset_hygiene_duplicates.csv";
     const auto intake_path = reports_root / "asset_intake" / "source_capture_status.json";
+    const auto promotion_catalog_path = reports_root / "asset_intake" / "urpg_stuff_promotion_catalog.json";
 
     if (!std::filesystem::is_regular_file(hygiene_path) || !std::filesystem::is_regular_file(duplicates_path) ||
         !std::filesystem::is_regular_file(intake_path)) {
@@ -46,7 +53,12 @@ bool AssetLibraryModel::loadReportsFromDirectory(const std::filesystem::path& re
 
         const auto hygiene_summary = nlohmann::json::parse(hygiene_stream);
         const auto intake_report = nlohmann::json::parse(intake_stream);
-        ingestReports(hygiene_summary, intake_report, duplicate_buffer.str());
+        nlohmann::json promotion_catalog = nlohmann::json::object();
+        if (std::filesystem::is_regular_file(promotion_catalog_path)) {
+            std::ifstream promotion_stream(promotion_catalog_path);
+            promotion_catalog = nlohmann::json::parse(promotion_stream);
+        }
+        ingestReports(hygiene_summary, intake_report, promotion_catalog, duplicate_buffer.str());
     } catch (const std::exception& ex) {
         if (error_message != nullptr) {
             *error_message = ex.what();

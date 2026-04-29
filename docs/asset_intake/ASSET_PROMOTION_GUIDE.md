@@ -84,6 +84,20 @@ Every promoted asset subset must retain a provenance chain made of:
 - `tools/ci/check_release_required_assets.ps1` validates that required repo-local assets exist, are hydrated, are not raw/vendor paths, and have license-cleared manifest metadata.
 - Local WAV proofs under `imports/normalized/ui_sfx/` are ignored and excluded from GitHub until binary hosting is restored or an approved non-LFS release audio asset is promoted. Release UI/audio surfaces must use an explicit fallback entry or a hydrated bundled asset.
 
+### Local Bulk Catalog-Normalization
+
+Large local drops can enter the editor library before release promotion by producing a catalog-normalized report instead of copying every binary into `imports/normalized/`.
+
+```powershell
+python .\tools\assets\promote_urpg_stuff_assets.py
+```
+
+This writes:
+- `imports/reports/asset_intake/urpg_stuff_promotion_catalog.json`
+- `imports/reports/asset_intake/urpg_stuff_promotion_summary.json`
+
+The catalog gives each raw asset a stable virtual `asset://` normalized path, inferred category, pack, tags, preview path, checksum, and duplicate marker. The editor asset library loads this optional catalog from the canonical report directory. These records are usable for local browsing, preview, and curation, but are not release/export eligible until a curated subset receives bundle manifests, attribution records, and copied or otherwise hydrated promoted payloads.
+
 ### Promotion Manifest Schema Example
 
 ```json
@@ -179,3 +193,4 @@ Target integrations by priority:
 | 2026-04-25 | Added release attribution records for the promoted proof assets and clarified that shipped normalized assets must enter exports through promoted bundle manifests, not broad raw-intake or normalized-root discovery. |
 | 2026-04-27 | Added release-required asset manifest metadata and CI validation for title, map, battle, UI, audio, icons, and font fallback surfaces. |
 | 2026-04-27 | Deferred tracked WAV payloads from release packaging; local UI SFX proofs are ignored while release UI/audio surfaces use explicit fallback policy entries. |
+| 2026-04-28 | Added local bulk catalog-normalization for `SRC-007` so large raw drops can be tagged, deduped, preview-addressed, and loaded by the editor asset library without duplicating or committing binary payloads. |

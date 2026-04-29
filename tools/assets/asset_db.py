@@ -23,6 +23,7 @@ DEFAULT_ROOTS = [
     "third_party/huggingface",
     "imports/root-drop/archives",
     "imports/raw/more_assets",
+    "imports/raw/urpg_stuff",
 ]
 EXCLUDED_DIRS = {
     ".git",
@@ -122,6 +123,11 @@ def infer_pack_category(path_rel: str) -> tuple[str | None, str | None]:
         if i + 1 < len(parts):
             pack = parts[i + 1]
         category = "more-assets-raw"
+    if "imports" in parts and "raw" in parts and "urpg_stuff" in parts:
+        i = parts.index("urpg_stuff")
+        if i + 1 < len(parts):
+            pack = parts[i + 1]
+        category = "urpg-stuff-local"
     return pack, category
 
 

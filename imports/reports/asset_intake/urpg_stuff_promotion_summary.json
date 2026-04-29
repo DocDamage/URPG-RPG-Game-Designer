@@ -1,0 +1,44 @@
+{
+  "schema": "urpg/asset_promotion_summary/v1",
+  "generated_at": "2026-04-29T00:34:06+00:00",
+  "source_id": "SRC-007",
+  "source_root": "imports/raw/urpg_stuff",
+  "promotion_status": "cataloged_local",
+  "export_eligible": false,
+  "asset_count": 55192,
+  "canonical_asset_count": 53126,
+  "duplicate_group_count": 2066,
+  "duplicate_asset_count": 2066,
+  "unsupported_count": 0,
+  "kind_counts": {
+    "audio": 1303,
+    "document": 8,
+    "image": 53881
+  },
+  "category_counts": {
+    "audio/dialogue": 545,
+    "audio/music": 111,
+    "audio/sfx": 407,
+    "audio/ui": 240,
+    "backgrounds": 7143,
+    "characters": 1438,
+    "documentation": 8,
+    "props": 6456,
+    "ui": 22188,
+    "vfx": 16656
+  },
+  "extension_counts": {
+    "ase": 1,
+    "gif": 1,
+    "ogg": 1303,
+    "pdf": 3,
+    "png": 53805,
+    "psd": 74,
+    "txt": 5
+  },
+  "notes": [
+    "All supported SRC-007 files were catalog-normalized for local editor/library use.",
+    "Binary payloads remain in the local raw intake root; normalized_path values are stable virtual asset ids.",
+    "export_eligible remains false until curated subsets receive per-pack attribution and bundle promotion."
+  ]
+}

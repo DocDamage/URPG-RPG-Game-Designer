@@ -34,6 +34,35 @@ std::optional<std::string> readString(const nlohmann::json& value, const char* k
     return it->get<std::string>();
 }
 
+std::vector<std::string> readStringArray(const nlohmann::json& value, const char* key) {
+    std::vector<std::string> out;
+    const auto it = value.find(key);
+    if (it == value.end() || !it->is_array()) {
+        return out;
+    }
+    for (const auto& item : *it) {
+        if (item.is_string()) {
+            out.push_back(item.get<std::string>());
+        }
+    }
+    return out;
+}
+
+uint64_t readUint64(const nlohmann::json& value, const char* key) {
+    const auto it = value.find(key);
+    if (it == value.end()) {
+        return 0;
+    }
+    if (it->is_number_unsigned()) {
+        return it->get<uint64_t>();
+    }
+    if (it->is_number_integer()) {
+        const auto number = it->get<long long>();
+        return number > 0 ? static_cast<uint64_t>(number) : 0;
+    }
+    return 0;
+}
+
 bool statusLess(const AssetRecord& lhs, const AssetRecord& rhs) {
     return lhs.path < rhs.path;
 }
@@ -178,6 +207,64 @@ void AssetLibrary::ingestIntakeReport(const nlohmann::json& report) {
             }
         }
     }
+    sortSnapshot();
+}
+
+void AssetLibrary::ingestPromotionCatalog(const nlohmann::json& catalog) {
+    if (!catalog.is_object()) {
+        return;
+    }
+    const auto assets = catalog.find("assets");
+    if (assets == catalog.end() || !assets->is_array()) {
+        return;
+    }
+
+    const auto source_id = readString(catalog, "source_id").value_or("");
+    const auto source_root = readString(catalog, "source_root").value_or("");
+    const bool catalog_export_eligible = catalog.value("export_eligible", false);
+
+    for (const auto& asset : *assets) {
+        if (!asset.is_object()) {
+            continue;
+        }
+        const auto source_path = readString(asset, "source_path").value_or("");
+        const auto normalized_path = readString(asset, "normalized_path").value_or(source_path);
+        if (source_path.empty() && normalized_path.empty()) {
+            continue;
+        }
+
+        auto& record = ensureAsset(source_path.empty() ? normalized_path : source_path);
+        record.source_path = source_path;
+        record.normalized_path = normalized_path;
+        record.preview_path = readString(asset, "preview_path").value_or("");
+        record.preview_kind = readString(asset, "preview_kind").value_or("");
+        record.media_kind = readString(asset, "media_kind").value_or("");
+        record.category = readString(asset, "category").value_or("");
+        record.pack = readString(asset, "pack").value_or("");
+        record.duplicate_of = readString(asset, "duplicate_of").value_or("");
+        record.size_bytes = readUint64(asset, "size_bytes");
+        record.sha256 = readString(asset, "sha256").value_or("");
+        record.tags = readStringArray(asset, "tags");
+        record.provenance.original_source = record.pack.empty() ? source_id : record.pack;
+        record.provenance.license = readString(asset, "license").value_or("");
+        record.provenance.normalized_path = normalized_path;
+        record.provenance.export_eligible = asset.value("export_eligible", catalog_export_eligible);
+
+        if (record.provenance.license.empty()) {
+            record.statuses.insert(AssetStatus::MissingLicense);
+            ++snapshot_.missing_license_count;
+        }
+        if (!record.duplicate_of.empty() || readString(asset, "status").value_or("") == "duplicate") {
+            record.statuses.insert(AssetStatus::Duplicate);
+        }
+        if (readString(asset, "status").value_or("") == "unsupported") {
+            record.statuses.insert(AssetStatus::UnsupportedFormat);
+        }
+        if (source_path.rfind(source_root, 0) != 0 && !source_root.empty()) {
+            record.statuses.insert(AssetStatus::Risky);
+        }
+    }
+
     sortSnapshot();
 }
 

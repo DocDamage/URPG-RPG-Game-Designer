@@ -11,4 +11,10 @@ TD Sprint 04 activated the first bounded promoted outputs:
 Release attribution records for these promoted outputs live under
 `imports/reports/asset_intake/attribution/`.
 
+Large local raw drops may be catalog-normalized before binary promotion. `SRC-007` is exposed through
+`imports/reports/asset_intake/urpg_stuff_promotion_catalog.json`, which gives local raw assets stable
+virtual `asset://` normalized paths, tags, preview paths, and duplicate markers for editor/library
+browsing. Those catalog records are not release/export eligible until a curated subset is promoted into
+this directory or another approved hydrated bundle surface.
+
 Future additions should continue to arrive through source manifests, bundle manifests, and asset-intake reports rather than broad content dumps.

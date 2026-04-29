@@ -25,8 +25,17 @@ enum class AssetStatus : uint16_t {
 
 struct AssetRecord {
     std::string path;
+    std::string source_path;
+    std::string normalized_path;
+    std::string preview_path;
+    std::string preview_kind;
+    std::string media_kind;
+    std::string category;
+    std::string pack;
+    std::string duplicate_of;
     uint64_t size_bytes = 0;
     std::string sha256;
+    std::vector<std::string> tags;
     std::set<AssetStatus> statuses;
     AssetProvenance provenance;
 };
@@ -60,6 +69,7 @@ public:
     void clear();
     void ingestHygieneSummary(const nlohmann::json& summary);
     void ingestIntakeReport(const nlohmann::json& report);
+    void ingestPromotionCatalog(const nlohmann::json& catalog);
     void ingestDuplicateCsv(std::string_view csv_text);
     void addReferencedAsset(std::string path);
     void markMissingFile(std::string path);
