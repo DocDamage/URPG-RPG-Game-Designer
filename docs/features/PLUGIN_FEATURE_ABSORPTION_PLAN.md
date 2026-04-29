@@ -26,7 +26,7 @@ URPG should absorb the submitted RPG Maker plugin behavior as native maker featu
 | `ExtendedPictureManager.js`, `TSk_Picture_Tasks.js` | More picture slots and common-event picture tasks | `pictures_ui_creator_fixture`, event runtime | Add native picture task bindings. |
 | TSk variable/switch files | JS, map, scoped, self variables/switches | `GlobalStateHub`, switch-variable inspector fixture, compat state | Add native scoped/self/map variable banks and migration adapters. |
 | TSk text fixes | Nested escapes and canvas text alignment fixes | `message_core`, UI text rendering | Add message escape recursion tests and text alignment guards where missing. |
-| TSk battle helpers | chip damage/healing, zero damage as miss/evasion, custom buff levels, troop positions | `BattleRuleResolver`, battle presentation, troop fixtures | Extend battle rules and presentation policies. |
+| TSk battle helpers | chip damage/healing, zero damage as miss/evasion, custom buff levels, troop positions | `BattleRuleResolver`, battle presentation, troop fixtures | Implemented as native battle feedback policy and preview support in this pass. |
 | LootTableDesigner | Visual loot table editor | `LootGeneratorDocument`, `LootGeneratorPanel` | Existing native feature; improve UX/import only. |
 
 ## Implementation Order
@@ -35,7 +35,7 @@ URPG should absorb the submitted RPG Maker plugin behavior as native maker featu
 2. Random BGM native completion: deterministic weighted track pools on `StateDrivenAudioResolver`. Completed in this pass.
 3. Battle presentation media lane: animated battlebacks and battler light cues on `BattlePresentationProfile`. Completed in this pass.
 4. Map presentation lane: parallax layers, region smoke emitters, terrain height/curve/walkability rules, and edge-scroll camera profiles. Completed in this pass.
-5. Battle feedback lane: blood VFX cue kind completed in this pass; chip damage/healing, custom buff levels, zero-damage presentation policies, and troop-position reuse remain.
+5. Battle feedback lane: blood VFX cue kind, chip damage/healing, custom buff levels, zero-damage presentation policies, and troop-position reuse completed in this pass.
 6. World/system lane: fast travel, vehicle profiles/interiors/transitions, and draggable event metadata completed in this pass.
 7. State/message/picture lane: scoped/self/map/JS variable banks, nested text escapes, picture tasks, and high-count picture management.
 8. Progression lane: level-up stat allocation model and editor panel.

@@ -25,10 +25,15 @@
         "type": "object",
         "required": ["type", "formula"],
         "properties": {
-          "type": { "enum": ["damage", "recover_hp", "recover_mp", "add_state", "remove_state"] },
+          "type": { "enum": ["damage", "recover_hp", "recover_mp", "add_state", "remove_state", "chip_damage", "chip_healing", "buff_level"] },
           "formula": { "type": "string" },
           "variance": { "type": "integer", "default": 10 },
-          "drain": { "type": "boolean", "default": false }
+          "drain": { "type": "boolean", "default": false },
+          "chip_percent": { "type": "integer", "minimum": 0, "maximum": 100 },
+          "min_chip": { "type": "integer", "minimum": 0 },
+          "buff_delta": { "type": "integer" },
+          "max_buff_level": { "type": "integer", "minimum": 0 },
+          "zero_damage_policy": { "enum": ["miss", "evasion", "immune", "no_effect"] }
         }
       }
     },

@@ -1,6 +1,7 @@
 #include "engine/core/battle/battle_core.h"
 
 #include <algorithm>
+#include <utility>
 
 namespace urpg::battle {
 
@@ -140,6 +141,62 @@ int32_t BattleRuleResolver::resolveDamage(const BattleDamageContext& context) {
     }
 
     return std::clamp(damage, 0, ClampPositive(context.target.hp));
+}
+
+BattleFeedbackPreview BattleRuleResolver::resolveFeedbackPreview(int32_t damage,
+                                                                 int32_t healing,
+                                                                 int32_t current_buff_level,
+                                                                 int32_t buff_delta,
+                                                                 const BattleFeedbackPolicy& policy) {
+    BattleFeedbackPreview preview;
+    const int32_t safe_damage_percent = std::clamp(policy.chip_damage_percent, 0, 100);
+    const int32_t safe_healing_percent = std::clamp(policy.chip_healing_percent, 0, 100);
+    if (damage > 0) {
+        preview.chip_damage = std::max(policy.min_chip_damage, (damage * safe_damage_percent) / 100);
+        preview.chip_damage = std::min(preview.chip_damage, damage);
+    }
+    if (healing > 0) {
+        preview.chip_healing = std::max(policy.min_chip_healing, (healing * safe_healing_percent) / 100);
+        preview.chip_healing = std::min(preview.chip_healing, healing);
+    }
+    preview.buff_level = std::clamp(current_buff_level + buff_delta, -std::max(0, policy.max_buff_level),
+                                    std::max(0, policy.max_buff_level));
+    preview.zero_damage_label = toString(policy.zero_damage_policy);
+    return preview;
+}
+
+TroopPositionReuseResult BattleRuleResolver::resolveTroopPositions(
+    const std::vector<TroopMemberPosition>& authored_positions,
+    const std::vector<TroopMemberPosition>& reusable_positions,
+    const BattleFeedbackPolicy& policy) {
+    TroopPositionReuseResult result;
+    result.positions = authored_positions;
+    if (!policy.reuse_troop_positions) {
+        return result;
+    }
+
+    for (auto& authored : result.positions) {
+        const auto reusable = std::find_if(reusable_positions.begin(), reusable_positions.end(),
+                                           [&](const TroopMemberPosition& candidate) {
+                                               return candidate.enemy_id == authored.enemy_id;
+                                           });
+        if (reusable != reusable_positions.end()) {
+            authored.x = reusable->x;
+            authored.y = reusable->y;
+            ++result.reused_count;
+        }
+    }
+    return result;
+}
+
+std::string BattleRuleResolver::toString(ZeroDamagePresentationPolicy policy) {
+    switch (policy) {
+        case ZeroDamagePresentationPolicy::Evasion: return "evasion";
+        case ZeroDamagePresentationPolicy::Immune: return "immune";
+        case ZeroDamagePresentationPolicy::NoEffect: return "no_effect";
+        case ZeroDamagePresentationPolicy::Miss: return "miss";
+    }
+    return "miss";
 }
 
 int32_t BattleRuleResolver::resolveEscapeRatio(int32_t party_agi, int32_t troop_agi, int32_t fail_count) {

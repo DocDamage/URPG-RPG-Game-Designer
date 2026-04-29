@@ -1,6 +1,7 @@
 #include "editor/battle/battle_preview_panel.h"
 
 #include <algorithm>
+#include <utility>
 
 namespace urpg::editor {
 
@@ -74,6 +75,17 @@ void BattlePreviewPanel::setMagicalPreviewContext(const urpg::battle::BattleDama
     magical_preview_context_ = context;
 }
 
+void BattlePreviewPanel::setFeedbackPolicy(const urpg::battle::BattleFeedbackPolicy& policy) {
+    feedback_policy_ = policy;
+}
+
+void BattlePreviewPanel::setTroopPositionPreview(
+    std::vector<urpg::battle::TroopMemberPosition> authored_positions,
+    std::vector<urpg::battle::TroopMemberPosition> reusable_positions) {
+    authored_troop_positions_ = std::move(authored_positions);
+    reusable_troop_positions_ = std::move(reusable_positions);
+}
+
 void BattlePreviewPanel::setEscapePreviewAgility(int32_t party_agi, int32_t troop_agi) {
     preview_party_agi_ = party_agi;
     preview_troop_agi_ = troop_agi;
@@ -131,6 +143,15 @@ void BattlePreviewPanel::refresh() {
     snapshot_.guarded_damage = urpg::battle::BattleRuleResolver::resolveDamage(guarded);
     snapshot_.critical_damage = urpg::battle::BattleRuleResolver::resolveDamage(critical);
     snapshot_.magical_damage = urpg::battle::BattleRuleResolver::resolveDamage(magical);
+    const auto feedback = urpg::battle::BattleRuleResolver::resolveFeedbackPreview(
+        snapshot_.physical_damage, snapshot_.magical_damage, 1, 2, feedback_policy_);
+    snapshot_.chip_damage = feedback.chip_damage;
+    snapshot_.chip_healing = feedback.chip_healing;
+    snapshot_.buff_level_preview = feedback.buff_level;
+    snapshot_.zero_damage_label = feedback.zero_damage_label;
+    snapshot_.reused_troop_position_count = urpg::battle::BattleRuleResolver::resolveTroopPositions(
+                                                authored_troop_positions_, reusable_troop_positions_, feedback_policy_)
+                                                .reused_count;
     snapshot_.escape_ratio_now = urpg::battle::BattleRuleResolver::resolveEscapeRatio(
         preview_party_agi_, preview_troop_agi_, flow_controller_->escapeFailures());
     snapshot_.escape_ratio_next_fail = urpg::battle::BattleRuleResolver::resolveEscapeRatio(

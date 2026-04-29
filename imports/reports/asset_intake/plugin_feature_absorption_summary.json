@@ -89,10 +89,19 @@
         "event validation reports invalid axes, inverted bounds, bounds outside the owning map, and missing required switches",
         "event authoring snapshots expose draggable event counts for editor state views"
       ]
+    },
+    {
+      "feature": "battle_feedback_policy",
+      "native_surface": "engine/core/battle/BattleRuleResolver and editor/battle/BattlePreviewPanel",
+      "source_semantics": [
+        "chip damage and chip healing previews are resolved natively from configurable percentages and minimums",
+        "zero-damage presentation can be configured as miss, evasion, immune, or no effect",
+        "buff and debuff preview levels clamp against configurable custom caps",
+        "troop member positions can reuse authored coordinates by enemy id when policy allows it"
+      ]
     }
   ],
   "remaining_lanes": [
-    "battle_feedback",
     "state_message_picture",
     "progression_stat_allocation"
   ]

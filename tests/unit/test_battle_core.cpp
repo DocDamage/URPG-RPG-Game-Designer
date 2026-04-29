@@ -122,3 +122,39 @@ TEST_CASE("BattleRuleResolver escape ratio ramps with failed attempts", "[battle
     REQUIRE(ramp1 < ramp3);
     REQUIRE(ramp3 <= 100);
 }
+
+TEST_CASE("BattleRuleResolver previews chip feedback zero-damage policy and buff caps", "[battle][core][rules][feedback]") {
+    BattleFeedbackPolicy policy;
+    policy.chip_damage_percent = 25;
+    policy.chip_healing_percent = 50;
+    policy.min_chip_damage = 3;
+    policy.min_chip_healing = 4;
+    policy.max_buff_level = 4;
+    policy.zero_damage_policy = ZeroDamagePresentationPolicy::Evasion;
+
+    const auto preview = BattleRuleResolver::resolveFeedbackPreview(40, 6, 3, 3, policy);
+
+    REQUIRE(preview.chip_damage == 10);
+    REQUIRE(preview.chip_healing == 4);
+    REQUIRE(preview.buff_level == 4);
+    REQUIRE(preview.zero_damage_label == "evasion");
+}
+
+TEST_CASE("BattleRuleResolver reuses troop positions by enemy id when enabled", "[battle][core][rules][feedback]") {
+    BattleFeedbackPolicy policy;
+    policy.reuse_troop_positions = true;
+    std::vector<TroopMemberPosition> authored{{"slime", 100, 200, false}, {"bat", 140, 220, false}};
+    std::vector<TroopMemberPosition> reusable{{"slime", 320, 180, false}, {"ghost", 500, 200, false}};
+
+    const auto reused = BattleRuleResolver::resolveTroopPositions(authored, reusable, policy);
+
+    REQUIRE(reused.reused_count == 1);
+    REQUIRE(reused.positions[0].x == 320);
+    REQUIRE(reused.positions[0].y == 180);
+    REQUIRE(reused.positions[1].x == 140);
+
+    policy.reuse_troop_positions = false;
+    const auto fresh = BattleRuleResolver::resolveTroopPositions(authored, reusable, policy);
+    REQUIRE(fresh.reused_count == 0);
+    REQUIRE(fresh.positions[0].x == 100);
+}

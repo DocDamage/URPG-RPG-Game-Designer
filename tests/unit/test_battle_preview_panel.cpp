@@ -25,6 +25,13 @@ TEST_CASE("Battle preview panel projects deterministic damage and escape preview
     magical.power = 16;
     magical.magical = true;
     panel.setMagicalPreviewContext(magical);
+    urpg::battle::BattleFeedbackPolicy feedback;
+    feedback.chip_damage_percent = 20;
+    feedback.chip_healing_percent = 25;
+    feedback.max_buff_level = 3;
+    feedback.zero_damage_policy = urpg::battle::ZeroDamagePresentationPolicy::Immune;
+    panel.setFeedbackPolicy(feedback);
+    panel.setTroopPositionPreview({{"slime", 100, 200, false}}, {{"slime", 180, 220, false}});
     panel.setEscapePreviewAgility(80, 100);
     panel.refresh();
 
@@ -35,6 +42,11 @@ TEST_CASE("Battle preview panel projects deterministic damage and escape preview
     REQUIRE(snapshot.guarded_damage < snapshot.physical_damage);
     REQUIRE(snapshot.critical_damage > snapshot.physical_damage);
     REQUIRE(snapshot.magical_damage > 0);
+    REQUIRE(snapshot.chip_damage > 0);
+    REQUIRE(snapshot.chip_healing > 0);
+    REQUIRE(snapshot.buff_level_preview == 3);
+    REQUIRE(snapshot.zero_damage_label == "immune");
+    REQUIRE(snapshot.reused_troop_position_count == 1);
     REQUIRE(snapshot.escape_ratio_next_fail > snapshot.escape_ratio_now);
     REQUIRE(snapshot.issue_count == panel.issues().size());
 }

@@ -16,6 +16,7 @@
           "enemy_id": { "type": "string" },
           "x": { "type": "integer" },
           "y": { "type": "integer" },
+          "position_reuse_key": { "type": "string" },
           "hidden": { "type": "boolean", "default": false }
         }
       }

@@ -18,6 +18,13 @@ enum class BattleFlowPhase : uint8_t {
     Abort = 7,
 };
 
+enum class ZeroDamagePresentationPolicy : uint8_t {
+    Miss,
+    Evasion,
+    Immune,
+    NoEffect
+};
+
 class BattleFlowController {
 public:
     void beginBattle(bool can_escape);
@@ -85,9 +92,47 @@ struct BattleDamageContext {
     int32_t variance_percent = 0;
 };
 
+struct BattleFeedbackPolicy {
+    int32_t chip_damage_percent = 10;
+    int32_t chip_healing_percent = 10;
+    int32_t min_chip_damage = 1;
+    int32_t min_chip_healing = 1;
+    int32_t max_buff_level = 2;
+    ZeroDamagePresentationPolicy zero_damage_policy = ZeroDamagePresentationPolicy::Miss;
+    bool reuse_troop_positions = true;
+};
+
+struct BattleFeedbackPreview {
+    int32_t chip_damage = 0;
+    int32_t chip_healing = 0;
+    int32_t buff_level = 0;
+    std::string zero_damage_label;
+};
+
+struct TroopMemberPosition {
+    std::string enemy_id;
+    int32_t x = 0;
+    int32_t y = 0;
+    bool hidden = false;
+};
+
+struct TroopPositionReuseResult {
+    std::vector<TroopMemberPosition> positions;
+    size_t reused_count = 0;
+};
+
 class BattleRuleResolver {
 public:
     static int32_t resolveDamage(const BattleDamageContext& context);
+    static BattleFeedbackPreview resolveFeedbackPreview(int32_t damage,
+                                                        int32_t healing,
+                                                        int32_t current_buff_level,
+                                                        int32_t buff_delta,
+                                                        const BattleFeedbackPolicy& policy);
+    static TroopPositionReuseResult resolveTroopPositions(const std::vector<TroopMemberPosition>& authored_positions,
+                                                          const std::vector<TroopMemberPosition>& reusable_positions,
+                                                          const BattleFeedbackPolicy& policy);
+    static std::string toString(ZeroDamagePresentationPolicy policy);
     static int32_t resolveEscapeRatio(int32_t party_agi, int32_t troop_agi, int32_t fail_count);
 };
 
