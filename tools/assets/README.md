@@ -11,12 +11,12 @@ Robust local asset index for this repo using SQLite + FTS5.
 - Full text search over paths, filenames, pack/category, and tags.
 
 ## Database
-- Default DB path: `third_party/asset-index/asset_catalog.db`
+- Default DB path: `.urpg/asset-index/asset_catalog.db`
 - Default roots:
-  - `third_party/itch-assets/packs`
-  - `third_party/itch-assets/loose-files`
-  - `third_party/rpgmaker-mz`
-  - `third_party/huggingface`
+  - `imports/raw/third_party_assets/itch-assets/packs`
+  - `imports/raw/third_party_assets/itch-assets/loose-files`
+  - `imports/raw/third_party_assets/rpgmaker-mz`
+  - `imports/raw/third_party_assets/huggingface`
   - `imports/root-drop/archives`
   - `imports/raw/more_assets`
 
@@ -24,7 +24,7 @@ Robust local asset index for this repo using SQLite + FTS5.
 ```powershell
 python .\tools\assets\asset_db.py init
 python .\tools\assets\asset_db.py index
-python .\tools\assets\asset_db.py index --roots third_party/itch-assets/packs third_party/itch-assets/loose-files third_party/rpgmaker-mz third_party/huggingface third_party/aseprite third_party/external-repos third_party/github_assets itch/loose
+python .\tools\assets\asset_db.py index --roots imports/raw/third_party_assets/itch-assets/packs imports/raw/third_party_assets/itch-assets/loose-files imports/raw/third_party_assets/rpgmaker-mz imports/raw/third_party_assets/huggingface imports/raw/third_party_assets/aseprite imports/raw/third_party_assets/external-repos imports/raw/third_party_assets/github_assets imports/raw/itch_assets/loose
 python .\tools\assets\asset_db.py stats
 python .\tools\assets\asset_db.py dupes --show-paths --limit 20
 python .\tools\assets\asset_db.py find --query "dragon" --limit 25
@@ -34,12 +34,12 @@ python .\tools\assets\report_third_party_itch_ingest.py
 
 ## Custom roots
 ```powershell
-python .\tools\assets\asset_db.py index --roots third_party/itch-assets/packs third_party/huggingface imports/root-drop/archives
+python .\tools\assets\asset_db.py index --roots imports/raw/third_party_assets/itch-assets/packs imports/raw/third_party_assets/huggingface imports/root-drop/archives
 ```
 
 `imports/raw/urpg_stuff` is included in the default roots when the local drop exists.
 
-`report_third_party_itch_ingest.py` writes a tracked summary report to `imports/reports/asset_intake/third_party_itch_ingest_summary.json` after a third-party/itch indexing pass. The SQLite DB remains local under `third_party/asset-index/`.
+`report_third_party_itch_ingest.py` writes a tracked summary report to `imports/reports/asset_intake/third_party_itch_ingest_summary.json` after a third-party/itch indexing pass. The SQLite DB remains local under `.urpg/asset-index/`.
 
 ## Convenience wrappers
 ```powershell
@@ -151,7 +151,7 @@ Output:
 Current candidate kinds include Godot sprite/background generators, source archive generators, and Tiled map-editor interop/reference code. These records are review inputs only; integration into URPG Maker requires license, dependency, sandboxing, and product-surface review. Candidate records include target surfaces for both editor panels and generated-game runtime use where applicable.
 
 ## Safe duplicate prune wave
-Conservative duplicate cleanup for extracted working copies (`itch/unzipped`) when canonical copies already exist.
+Conservative duplicate cleanup for extracted working copies (`imports/raw/itch_assets/unzipped`) when canonical copies already exist.
 
 ```powershell
 python .\tools\assets\prune_safe_duplicates.py

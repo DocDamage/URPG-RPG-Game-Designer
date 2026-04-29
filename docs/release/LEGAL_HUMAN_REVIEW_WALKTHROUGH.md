@@ -47,11 +47,11 @@ The package scope currently includes:
 
 The package scope currently excludes raw source/reference packs under:
 
-- `third_party/itch-assets/`
-- `third_party/rpgmaker-mz/`
-- `third_party/aseprite/`
-- `third_party/huggingface/`
-- `third_party/github_assets/`
+- `imports/raw/third_party_assets/itch-assets/`
+- `imports/raw/third_party_assets/rpgmaker-mz/`
+- `imports/raw/third_party_assets/aseprite/`
+- `imports/raw/third_party_assets/huggingface/`
+- `imports/raw/third_party_assets/github_assets/`
 - `imports/raw/`
 - `imports/staging/`
 - `imports/normalized/`
@@ -138,7 +138,7 @@ For each shipped dependency, confirm:
 
 ### 6. Review Asset And Plugin Boundaries
 
-Confirm that source/vendor asset packs in `third_party/` and raw/staging imports are not treated as redistributable product content.
+Confirm that source/vendor asset packs in `imports/raw/third_party_assets/` and raw/staging imports are not treated as redistributable product content.
 
 Review the promoted proof lanes:
 

@@ -1,70 +1,70 @@
 {
   "schema": "urpg/third_party_itch_ingest_summary/v1",
-  "generated_at": "2026-04-29T02:53:32+00:00",
-  "asset_db": "third_party/asset-index/asset_catalog.db",
+  "generated_at": "2026-04-29T03:13:36+00:00",
+  "asset_db": ".urpg/asset-index/asset_catalog.db",
   "latest_scan": {
-    "id": 2,
-    "started_at": "2026-04-29T02:49:09+00:00",
-    "finished_at": "2026-04-29T02:52:11+00:00",
+    "id": 3,
+    "started_at": "2026-04-29T03:10:52+00:00",
+    "finished_at": "2026-04-29T03:13:30+00:00",
     "roots": [
-      "third_party/itch-assets/packs",
-      "third_party/itch-assets/loose-files",
-      "third_party/rpgmaker-mz",
-      "third_party/huggingface",
-      "third_party/aseprite",
-      "third_party/external-repos",
-      "third_party/github_assets",
-      "itch/loose"
+      "imports/raw/third_party_assets/itch-assets/packs",
+      "imports/raw/third_party_assets/itch-assets/loose-files",
+      "imports/raw/third_party_assets/rpgmaker-mz",
+      "imports/raw/third_party_assets/huggingface",
+      "imports/raw/third_party_assets/aseprite",
+      "imports/raw/third_party_assets/external-repos",
+      "imports/raw/third_party_assets/github_assets",
+      "imports/raw/itch_assets/loose"
     ],
     "files_seen": 34651,
     "files_indexed": 34651,
     "files_skipped": 0,
-    "files_removed_from_db": 55192
+    "files_removed_from_db": 89843
   },
   "summary": {
     "asset_count": 34651,
-    "total_size_bytes": 3744998464,
+    "total_size_bytes": 3745009568,
     "duplicate_group_count": 3233,
     "duplicate_asset_count": 8273
   },
   "by_root": [
     {
-      "source_root": "third_party/rpgmaker-mz",
+      "source_root": "imports/raw/third_party_assets/rpgmaker-mz",
       "count": 18959,
-      "size_bytes": 1316976349
+      "size_bytes": 1316987453
     },
     {
-      "source_root": "third_party/itch-assets/packs",
+      "source_root": "imports/raw/third_party_assets/itch-assets/packs",
       "count": 14878,
       "size_bytes": 2414038169
     },
     {
-      "source_root": "third_party/itch-assets/loose-files",
+      "source_root": "imports/raw/third_party_assets/itch-assets/loose-files",
       "count": 396,
       "size_bytes": 6804050
     },
     {
-      "source_root": "itch/loose",
+      "source_root": "imports/raw/itch_assets/loose",
       "count": 396,
       "size_bytes": 6804052
     },
     {
-      "source_root": "third_party/huggingface",
+      "source_root": "imports/raw/third_party_assets/huggingface",
       "count": 16,
       "size_bytes": 217028
     },
     {
-      "source_root": "third_party/aseprite",
+      "source_root": "imports/raw/third_party_assets/aseprite",
       "count": 4,
       "size_bytes": 157919
     },
     {
-      "source_root": "third_party/github_assets",
+      "source_root": "imports/raw/third_party_assets/github_assets",
       "count": 1,
       "size_bytes": 267
     },
     {
-      "source_root": "third_party/external-repos",
+      "source_root": "imports/raw/third_party_assets/external-repos",
       "count": 1,
       "size_bytes": 630
     }
@@ -83,7 +83,7 @@
     {
       "media_kind": "text-data",
       "count": 1497,
-      "size_bytes": 81632994
+      "size_bytes": 81644098
     },
     {
       "media_kind": "binary",
@@ -105,7 +105,7 @@
     {
       "category": "rpgmaker-mz-steam-dlc",
       "count": 17483,
-      "size_bytes": 1163463595
+      "size_bytes": 1163474699
     },
     {
       "category": "itch-pack",
@@ -119,8 +119,13 @@
     },
     {
       "category": "(none)",
-      "count": 799,
-      "size_bytes": 13767742
+      "count": 403,
+      "size_bytes": 6963690
+    },
+    {
+      "category": "itch-loose",
+      "count": 396,
+      "size_bytes": 6804052
     },
     {
       "category": "rpgmaker-mz-cgmz",
@@ -162,7 +167,7 @@
     {
       "ext": "json",
       "count": 814,
-      "size_bytes": 28250020
+      "size_bytes": 28251491
     },
     {
       "ext": "js",
@@ -202,7 +207,7 @@
     {
       "ext": "csv",
       "count": 20,
-      "size_bytes": 90361
+      "size_bytes": 99994
     },
     {
       "ext": "gif",
@@ -370,12 +375,6 @@
       "size_bytes": 378950
     },
     {
-      "pack": "(none)",
-      "category": "(none)",
-      "count": 799,
-      "size_bytes": 13767742
-    },
-    {
       "pack": "BasicResources",
       "category": "rpgmaker-mz-steam-dlc",
       "count": 745,
@@ -410,6 +409,18 @@
       "category": "itch-pack",
       "count": 508,
       "size_bytes": 1521385
+    },
+    {
+      "pack": "(none)",
+      "category": "(none)",
+      "count": 403,
+      "size_bytes": 6963690
+    },
+    {
+      "pack": "loose",
+      "category": "itch-loose",
+      "count": 396,
+      "size_bytes": 6804052
     },
     {
       "pack": "2017patronbundle",
@@ -535,7 +546,7 @@
       "pack": "(none)",
       "category": "rpgmaker-mz-steam-dlc",
       "count": 56,
-      "size_bytes": 1086053
+      "size_bytes": 1097157
     },
     {
       "pack": "Steampunk Game Assets Pixel Art",
@@ -554,12 +565,6 @@
       "category": "itch-pack",
       "count": 45,
       "size_bytes": 1096759
-    },
-    {
-      "pack": "elements_char_expansion2_tdsm",
-      "category": "itch-pack",
-      "count": 43,
-      "size_bytes": 424067
     }
   ],
   "top_duplicate_groups": [
@@ -568,18 +573,18 @@
       "copies": 15,
       "total_size_bytes": 5235,
       "sample_paths": [
-        "third_party/rpgmaker-mz/steam-dlc/packs/MV Trinity Resource Pack/MV Trinity Resource Pack/Generator/TV/Female/TV_FacialMark_p01_c.png",
-        "third_party/rpgmaker-mz/steam-dlc/packs/MV Trinity Resource Pack/MV Trinity Resource Pack/Generator/TV/Female/TV_FacialMark_p02_c.png",
-        "third_party/rpgmaker-mz/steam-dlc/packs/MV Trinity Resource Pack/MV Trinity Resource Pack/Generator/TV/Female/TV_FrontHair2_p04_c.png",
-        "third_party/rpgmaker-mz/steam-dlc/packs/MV Trinity Resource Pack/MV Trinity Resource Pack/Generator/TV/Female/TV_FrontHair2_p07_c.png",
-        "third_party/rpgmaker-mz/steam-dlc/packs/MV Trinity Resource Pack/MV Trinity Resource Pack/Generator/TV/Male/TV_Beard2_p03_c.png",
-        "third_party/rpgmaker-mz/steam-dlc/packs/MV Trinity Resource Pack/MV Trinity Resource Pack/Generator/TV/Male/TV_Beard2_p04_c.png",
-        "third_party/rpgmaker-mz/steam-dlc/packs/MV Trinity Resource Pack/MV Trinity Resource Pack/Generator/TV/Male/TV_Beard2_p05_c.png",
-        "third_party/rpgmaker-mz/steam-dlc/packs/MV Trinity Resource Pack/MV Trinity Resource Pack/Generator/TV/Male/TV_Beard2_p06_c.png",
-        "third_party/rpgmaker-mz/steam-dlc/packs/MV Trinity Resource Pack/MV Trinity Resource Pack/Generator/TV/Male/TV_Beard2_p07_c.png",
-        "third_party/rpgmaker-mz/steam-dlc/packs/MV Trinity Resource Pack/MV Trinity Resource Pack/Generator/TV/Male/TV_Beard2_p08_c.png",
-        "third_party/rpgmaker-mz/steam-dlc/packs/MV Trinity Resource Pack/MV Trinity Resource Pack/Generator/TV/Male/TV_Beard2_p09_c.png",
-        "third_party/rpgmaker-mz/steam-dlc/packs/MV Trinity Resource Pack/MV Trinity Resource Pack/Generator/TV/Male/TV_Beard2_p10_c.png"
+        "imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/packs/MV Trinity Resource Pack/MV Trinity Resource Pack/Generator/TV/Female/TV_FacialMark_p01_c.png",
+        "imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/packs/MV Trinity Resource Pack/MV Trinity Resource Pack/Generator/TV/Female/TV_FacialMark_p02_c.png",
+        "imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/packs/MV Trinity Resource Pack/MV Trinity Resource Pack/Generator/TV/Female/TV_FrontHair2_p04_c.png",
+        "imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/packs/MV Trinity Resource Pack/MV Trinity Resource Pack/Generator/TV/Female/TV_FrontHair2_p07_c.png",
+        "imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/packs/MV Trinity Resource Pack/MV Trinity Resource Pack/Generator/TV/Male/TV_Beard2_p03_c.png",
+        "imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/packs/MV Trinity Resource Pack/MV Trinity Resource Pack/Generator/TV/Male/TV_Beard2_p04_c.png",
+        "imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/packs/MV Trinity Resource Pack/MV Trinity Resource Pack/Generator/TV/Male/TV_Beard2_p05_c.png",
+        "imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/packs/MV Trinity Resource Pack/MV Trinity Resource Pack/Generator/TV/Male/TV_Beard2_p06_c.png",
+        "imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/packs/MV Trinity Resource Pack/MV Trinity Resource Pack/Generator/TV/Male/TV_Beard2_p07_c.png",
+        "imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/packs/MV Trinity Resource Pack/MV Trinity Resource Pack/Generator/TV/Male/TV_Beard2_p08_c.png",
+        "imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/packs/MV Trinity Resource Pack/MV Trinity Resource Pack/Generator/TV/Male/TV_Beard2_p09_c.png",
+        "imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/packs/MV Trinity Resource Pack/MV Trinity Resource Pack/Generator/TV/Male/TV_Beard2_p10_c.png"
       ]
     },
     {
@@ -587,18 +592,18 @@
       "copies": 14,
       "total_size_bytes": 5754,
       "sample_paths": [
-        "third_party/rpgmaker-mz/steam-dlc/packs/MV Trinity Resource Pack/MV Trinity Resource Pack/Generator/TV/Female/TV_FacialMark_p01.png",
-        "third_party/rpgmaker-mz/steam-dlc/packs/MV Trinity Resource Pack/MV Trinity Resource Pack/Generator/TV/Female/TV_FrontHair2_p04.png",
-        "third_party/rpgmaker-mz/steam-dlc/packs/MV Trinity Resource Pack/MV Trinity Resource Pack/Generator/TV/Female/TV_FrontHair2_p07.png",
-        "third_party/rpgmaker-mz/steam-dlc/packs/MV Trinity Resource Pack/MV Trinity Resource Pack/Generator/TV/Male/TV_Beard2_p03.png",
-        "third_party/rpgmaker-mz/steam-dlc/packs/MV Trinity Resource Pack/MV Trinity Resource Pack/Generator/TV/Male/TV_Beard2_p04.png",
-        "third_party/rpgmaker-mz/steam-dlc/packs/MV Trinity Resource Pack/MV Trinity Resource Pack/Generator/TV/Male/TV_Beard2_p05.png",
-        "third_party/rpgmaker-mz/steam-dlc/packs/MV Trinity Resource Pack/MV Trinity Resource Pack/Generator/TV/Male/TV_Beard2_p06.png",
-        "third_party/rpgmaker-mz/steam-dlc/packs/MV Trinity Resource Pack/MV Trinity Resource Pack/Generator/TV/Male/TV_Beard2_p07.png",
-        "third_party/rpgmaker-mz/steam-dlc/packs/MV Trinity Resource Pack/MV Trinity Resource Pack/Generator/TV/Male/TV_Beard2_p08.png",
-        "third_party/rpgmaker-mz/steam-dlc/packs/MV Trinity Resource Pack/MV Trinity Resource Pack/Generator/TV/Male/TV_Beard2_p09.png",
-        "third_party/rpgmaker-mz/steam-dlc/packs/MV Trinity Resource Pack/MV Trinity Resource Pack/Generator/TV/Male/TV_Beard2_p10.png",
-        "third_party/rpgmaker-mz/steam-dlc/packs/MV Trinity Resource Pack/MV Trinity Resource Pack/Generator/TV/Male/TV_Beard2_p11.png"
+        "imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/packs/MV Trinity Resource Pack/MV Trinity Resource Pack/Generator/TV/Female/TV_FacialMark_p01.png",
+        "imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/packs/MV Trinity Resource Pack/MV Trinity Resource Pack/Generator/TV/Female/TV_FrontHair2_p04.png",
+        "imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/packs/MV Trinity Resource Pack/MV Trinity Resource Pack/Generator/TV/Female/TV_FrontHair2_p07.png",
+        "imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/packs/MV Trinity Resource Pack/MV Trinity Resource Pack/Generator/TV/Male/TV_Beard2_p03.png",
+        "imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/packs/MV Trinity Resource Pack/MV Trinity Resource Pack/Generator/TV/Male/TV_Beard2_p04.png",
+        "imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/packs/MV Trinity Resource Pack/MV Trinity Resource Pack/Generator/TV/Male/TV_Beard2_p05.png",
+        "imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/packs/MV Trinity Resource Pack/MV Trinity Resource Pack/Generator/TV/Male/TV_Beard2_p06.png",
+        "imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/packs/MV Trinity Resource Pack/MV Trinity Resource Pack/Generator/TV/Male/TV_Beard2_p07.png",
+        "imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/packs/MV Trinity Resource Pack/MV Trinity Resource Pack/Generator/TV/Male/TV_Beard2_p08.png",
+        "imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/packs/MV Trinity Resource Pack/MV Trinity Resource Pack/Generator/TV/Male/TV_Beard2_p09.png",
+        "imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/packs/MV Trinity Resource Pack/MV Trinity Resource Pack/Generator/TV/Male/TV_Beard2_p10.png",
+        "imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/packs/MV Trinity Resource Pack/MV Trinity Resource Pack/Generator/TV/Male/TV_Beard2_p11.png"
       ]
     },
     {
@@ -606,16 +611,16 @@
       "copies": 10,
       "total_size_bytes": 3760,
       "sample_paths": [
-        "third_party/rpgmaker-mz/steam-dlc/packs/3D Particle Effect Pack/3D Particle Effect Pack/sample_project_en/data/CommonEvents.json",
-        "third_party/rpgmaker-mz/steam-dlc/packs/3D Particle Effect Pack/3D Particle Effect Pack/sample_project_jp/data/CommonEvents.json",
-        "third_party/rpgmaker-mz/steam-dlc/packs/CAMERA MOVEMENT PLUGIN/CAMERA MOVEMENT PLUGIN/MZ Example - en/data/CommonEvents.json",
-        "third_party/rpgmaker-mz/steam-dlc/packs/CAMERA MOVEMENT PLUGIN/CAMERA MOVEMENT PLUGIN/MZ Example - jp/data/CommonEvents.json",
-        "third_party/rpgmaker-mz/steam-dlc/packs/MV Trinity Resource Pack/MV Trinity Resource Pack/samplemap_en/data/CommonEvents.json",
-        "third_party/rpgmaker-mz/steam-dlc/packs/MV Trinity Resource Pack/MV Trinity Resource Pack/samplemap_ja/data/CommonEvents.json",
-        "third_party/rpgmaker-mz/steam-dlc/packs/RemakeMapResourcePack/RemakeMapResourcePack/MV_SampleMap_en/data/CommonEvents.json",
-        "third_party/rpgmaker-mz/steam-dlc/packs/RemakeMapResourcePack/RemakeMapResourcePack/MV_SampleMap_ja/data/CommonEvents.json",
-        "third_party/rpgmaker-mz/steam-dlc/packs/RemakeMapResourcePack/RemakeMapResourcePack/VXA_SampleMap_en/data/CommonEvents.json",
-        "third_party/rpgmaker-mz/steam-dlc/packs/RemakeMapResourcePack/RemakeMapResourcePack/VXA_SampleMap_ja/data/CommonEvents.json"
+        "imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/packs/3D Particle Effect Pack/3D Particle Effect Pack/sample_project_en/data/CommonEvents.json",
+        "imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/packs/3D Particle Effect Pack/3D Particle Effect Pack/sample_project_jp/data/CommonEvents.json",
+        "imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/packs/CAMERA MOVEMENT PLUGIN/CAMERA MOVEMENT PLUGIN/MZ Example - en/data/CommonEvents.json",
+        "imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/packs/CAMERA MOVEMENT PLUGIN/CAMERA MOVEMENT PLUGIN/MZ Example - jp/data/CommonEvents.json",
+        "imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/packs/MV Trinity Resource Pack/MV Trinity Resource Pack/samplemap_en/data/CommonEvents.json",
+        "imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/packs/MV Trinity Resource Pack/MV Trinity Resource Pack/samplemap_ja/data/CommonEvents.json",
+        "imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/packs/RemakeMapResourcePack/RemakeMapResourcePack/MV_SampleMap_en/data/CommonEvents.json",
+        "imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/packs/RemakeMapResourcePack/RemakeMapResourcePack/MV_SampleMap_ja/data/CommonEvents.json",
+        "imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/packs/RemakeMapResourcePack/RemakeMapResourcePack/VXA_SampleMap_en/data/CommonEvents.json",
+        "imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/packs/RemakeMapResourcePack/RemakeMapResourcePack/VXA_SampleMap_ja/data/CommonEvents.json"
       ]
     },
     {
@@ -623,15 +628,15 @@
       "copies": 9,
       "total_size_bytes": 3786327,
       "sample_paths": [
-        "third_party/rpgmaker-mz/steam-dlc/packs/3D Particle Effect Pack/3D Particle Effect Pack/sample_project_en/img/battlebacks1/Snowfield.png",
-        "third_party/rpgmaker-mz/steam-dlc/packs/3D Particle Effect Pack/3D Particle Effect Pack/sample_project_jp/img/battlebacks1/Snowfield.png",
-        "third_party/rpgmaker-mz/steam-dlc/packs/MV Trinity Resource Pack/MV Trinity Resource Pack/samplemap_en/img/battlebacks1/Snowfield.png",
-        "third_party/rpgmaker-mz/steam-dlc/packs/MV Trinity Resource Pack/MV Trinity Resource Pack/samplemap_ja/img/battlebacks1/Snowfield.png",
-        "third_party/rpgmaker-mz/steam-dlc/packs/Menu Builder/Menu Builder/Menu Builder_sample_en/img/battlebacks1/Snowfield.png",
-        "third_party/rpgmaker-mz/steam-dlc/packs/Menu Builder/Menu Builder/Menu Builder_sample_en/img/pictures/backgrounds/Snowfield.png",
-        "third_party/rpgmaker-mz/steam-dlc/packs/Menu Builder/Menu Builder/Menu Builder_sample_jp/img/battlebacks1/Snowfield.png",
-        "third_party/rpgmaker-mz/steam-dlc/packs/Menu Builder/Menu Builder/Menu Builder_sample_jp/img/pictures/backgrounds/Snowfield.png",
-        "third_party/rpgmaker-mz/visumz-sample-project/VisuMZ_Sample_Game_Project/img/battlebacks1/Snowfield.png"
+        "imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/packs/3D Particle Effect Pack/3D Particle Effect Pack/sample_project_en/img/battlebacks1/Snowfield.png",
+        "imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/packs/3D Particle Effect Pack/3D Particle Effect Pack/sample_project_jp/img/battlebacks1/Snowfield.png",
+        "imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/packs/MV Trinity Resource Pack/MV Trinity Resource Pack/samplemap_en/img/battlebacks1/Snowfield.png",
+        "imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/packs/MV Trinity Resource Pack/MV Trinity Resource Pack/samplemap_ja/img/battlebacks1/Snowfield.png",
+        "imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/packs/Menu Builder/Menu Builder/Menu Builder_sample_en/img/battlebacks1/Snowfield.png",
+        "imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/packs/Menu Builder/Menu Builder/Menu Builder_sample_en/img/pictures/backgrounds/Snowfield.png",
+        "imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/packs/Menu Builder/Menu Builder/Menu Builder_sample_jp/img/battlebacks1/Snowfield.png",
+        "imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/packs/Menu Builder/Menu Builder/Menu Builder_sample_jp/img/pictures/backgrounds/Snowfield.png",
+        "imports/raw/third_party_assets/rpgmaker-mz/visumz-sample-project/VisuMZ_Sample_Game_Project/img/battlebacks1/Snowfield.png"
       ]
     },
     {
@@ -639,15 +644,15 @@
       "copies": 9,
       "total_size_bytes": 3505995,
       "sample_paths": [
-        "third_party/rpgmaker-mz/steam-dlc/packs/3D Particle Effect Pack/3D Particle Effect Pack/sample_project_en/img/battlebacks1/Lava1.png",
-        "third_party/rpgmaker-mz/steam-dlc/packs/3D Particle Effect Pack/3D Particle Effect Pack/sample_project_jp/img/battlebacks1/Lava1.png",
-        "third_party/rpgmaker-mz/steam-dlc/packs/MV Trinity Resource Pack/MV Trinity Resource Pack/samplemap_en/img/battlebacks1/Lava1.png",
-        "third_party/rpgmaker-mz/steam-dlc/packs/MV Trinity Resource Pack/MV Trinity Resource Pack/samplemap_ja/img/battlebacks1/Lava1.png",
-        "third_party/rpgmaker-mz/steam-dlc/packs/Menu Builder/Menu Builder/Menu Builder_sample_en/img/battlebacks1/Lava1.png",
-        "third_party/rpgmaker-mz/steam-dlc/packs/Menu Builder/Menu Builder/Menu Builder_sample_en/img/pictures/backgrounds/Lava1.png",
-        "third_party/rpgmaker-mz/steam-dlc/packs/Menu Builder/Menu Builder/Menu Builder_sample_jp/img/battlebacks1/Lava1.png",
-        "third_party/rpgmaker-mz/steam-dlc/packs/Menu Builder/Menu Builder/Menu Builder_sample_jp/img/pictures/backgrounds/Lava1.png",
-        "third_party/rpgmaker-mz/visumz-sample-project/VisuMZ_Sample_Game_Project/img/battlebacks1/Lava1.png"
+        "imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/packs/3D Particle Effect Pack/3D Particle Effect Pack/sample_project_en/img/battlebacks1/Lava1.png",
+        "imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/packs/3D Particle Effect Pack/3D Particle Effect Pack/sample_project_jp/img/battlebacks1/Lava1.png",
+        "imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/packs/MV Trinity Resource Pack/MV Trinity Resource Pack/samplemap_en/img/battlebacks1/Lava1.png",
+        "imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/packs/MV Trinity Resource Pack/MV Trinity Resource Pack/samplemap_ja/img/battlebacks1/Lava1.png",
+        "imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/packs/Menu Builder/Menu Builder/Menu Builder_sample_en/img/battlebacks1/Lava1.png",
+        "imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/packs/Menu Builder/Menu Builder/Menu Builder_sample_en/img/pictures/backgrounds/Lava1.png",
+        "imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/packs/Menu Builder/Menu Builder/Menu Builder_sample_jp/img/battlebacks1/Lava1.png",
+        "imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/packs/Menu Builder/Menu Builder/Menu Builder_sample_jp/img/pictures/backgrounds/Lava1.png",
+        "imports/raw/third_party_assets/rpgmaker-mz/visumz-sample-project/VisuMZ_Sample_Game_Project/img/battlebacks1/Lava1.png"
       ]
     },
     {
@@ -655,15 +660,15 @@
       "copies": 9,
       "total_size_bytes": 2984652,
       "sample_paths": [
-        "third_party/rpgmaker-mz/steam-dlc/packs/3D Particle Effect Pack/3D Particle Effect Pack/sample_project_en/img/battlebacks1/Wasteland.png",
-        "third_party/rpgmaker-mz/steam-dlc/packs/3D Particle Effect Pack/3D Particle Effect Pack/sample_project_jp/img/battlebacks1/Wasteland.png",
-        "third_party/rpgmaker-mz/steam-dlc/packs/MV Trinity Resource Pack/MV Trinity Resource Pack/samplemap_en/img/battlebacks1/Wasteland.png",
-        "third_party/rpgmaker-mz/steam-dlc/packs/MV Trinity Resource Pack/MV Trinity Resource Pack/samplemap_ja/img/battlebacks1/Wasteland.png",
-        "third_party/rpgmaker-mz/steam-dlc/packs/Menu Builder/Menu Builder/Menu Builder_sample_en/img/battlebacks1/Wasteland.png",
-        "third_party/rpgmaker-mz/steam-dlc/packs/Menu Builder/Menu Builder/Menu Builder_sample_en/img/pictures/backgrounds/Wasteland.png",
-        "third_party/rpgmaker-mz/steam-dlc/packs/Menu Builder/Menu Builder/Menu Builder_sample_jp/img/battlebacks1/Wasteland.png",
-        "third_party/rpgmaker-mz/steam-dlc/packs/Menu Builder/Menu Builder/Menu Builder_sample_jp/img/pictures/backgrounds/Wasteland.png",
-        "third_party/rpgmaker-mz/visumz-sample-project/VisuMZ_Sample_Game_Project/img/battlebacks1/Wasteland.png"
+        "imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/packs/3D Particle Effect Pack/3D Particle Effect Pack/sample_project_en/img/battlebacks1/Wasteland.png",
+        "imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/packs/3D Particle Effect Pack/3D Particle Effect Pack/sample_project_jp/img/battlebacks1/Wasteland.png",
+        "imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/packs/MV Trinity Resource Pack/MV Trinity Resource Pack/samplemap_en/img/battlebacks1/Wasteland.png",
+        "imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/packs/MV Trinity Resource Pack/MV Trinity Resource Pack/samplemap_ja/img/battlebacks1/Wasteland.png",
+        "imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/packs/Menu Builder/Menu Builder/Menu Builder_sample_en/img/battlebacks1/Wasteland.png",
+        "imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/packs/Menu Builder/Menu Builder/Menu Builder_sample_en/img/pictures/backgrounds/Wasteland.png",
+        "imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/packs/Menu Builder/Menu Builder/Menu Builder_sample_jp/img/battlebacks1/Wasteland.png",
+        "imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/packs/Menu Builder/Menu Builder/Menu Builder_sample_jp/img/pictures/backgrounds/Wasteland.png",
+        "imports/raw/third_party_assets/rpgmaker-mz/visumz-sample-project/VisuMZ_Sample_Game_Project/img/battlebacks1/Wasteland.png"
       ]
     },
     {
@@ -671,15 +676,15 @@
       "copies": 9,
       "total_size_bytes": 2892060,
       "sample_paths": [
-        "third_party/rpgmaker-mz/steam-dlc/packs/3D Particle Effect Pack/3D Particle Effect Pack/sample_project_en/img/battlebacks1/Ship.png",
-        "third_party/rpgmaker-mz/steam-dlc/packs/3D Particle Effect Pack/3D Particle Effect Pack/sample_project_jp/img/battlebacks1/Ship.png",
-        "third_party/rpgmaker-mz/steam-dlc/packs/MV Trinity Resource Pack/MV Trinity Resource Pack/samplemap_en/img/battlebacks1/Ship.png",
-        "third_party/rpgmaker-mz/steam-dlc/packs/MV Trinity Resource Pack/MV Trinity Resource Pack/samplemap_ja/img/battlebacks1/Ship.png",
-        "third_party/rpgmaker-mz/steam-dlc/packs/Menu Builder/Menu Builder/Menu Builder_sample_en/img/battlebacks1/Ship.png",
-        "third_party/rpgmaker-mz/steam-dlc/packs/Menu Builder/Menu Builder/Menu Builder_sample_en/img/pictures/backgrounds/Ship.png",
-        "third_party/rpgmaker-mz/steam-dlc/packs/Menu Builder/Menu Builder/Menu Builder_sample_jp/img/battlebacks1/Ship.png",
-        "third_party/rpgmaker-mz/steam-dlc/packs/Menu Builder/Menu Builder/Menu Builder_sample_jp/img/pictures/backgrounds/Ship.png",
-        "third_party/rpgmaker-mz/visumz-sample-project/VisuMZ_Sample_Game_Project/img/battlebacks1/Ship.png"
+        "imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/packs/3D Particle Effect Pack/3D Particle Effect Pack/sample_project_en/img/battlebacks1/Ship.png",
+        "imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/packs/3D Particle Effect Pack/3D Particle Effect Pack/sample_project_jp/img/battlebacks1/Ship.png",
+        "imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/packs/MV Trinity Resource Pack/MV Trinity Resource Pack/samplemap_en/img/battlebacks1/Ship.png",
+        "imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/packs/MV Trinity Resource Pack/MV Trinity Resource Pack/samplemap_ja/img/battlebacks1/Ship.png",
+        "imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/packs/Menu Builder/Menu Builder/Menu Builder_sample_en/img/battlebacks1/Ship.png",
+        "imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/packs/Menu Builder/Menu Builder/Menu Builder_sample_en/img/pictures/backgrounds/Ship.png",
+        "imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/packs/Menu Builder/Menu Builder/Menu Builder_sample_jp/img/battlebacks1/Ship.png",
+        "imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/packs/Menu Builder/Menu Builder/Menu Builder_sample_jp/img/pictures/backgrounds/Ship.png",
+        "imports/raw/third_party_assets/rpgmaker-mz/visumz-sample-project/VisuMZ_Sample_Game_Project/img/battlebacks1/Ship.png"
       ]
     },
     {
@@ -687,15 +692,15 @@
       "copies": 9,
       "total_size_bytes": 2836323,
       "sample_paths": [
-        "third_party/rpgmaker-mz/steam-dlc/packs/3D Particle Effect Pack/3D Particle Effect Pack/sample_project_en/img/battlebacks1/Lava2.png",
-        "third_party/rpgmaker-mz/steam-dlc/packs/3D Particle Effect Pack/3D Particle Effect Pack/sample_project_jp/img/battlebacks1/Lava2.png",
-        "third_party/rpgmaker-mz/steam-dlc/packs/MV Trinity Resource Pack/MV Trinity Resource Pack/samplemap_en/img/battlebacks1/Lava2.png",
-        "third_party/rpgmaker-mz/steam-dlc/packs/MV Trinity Resource Pack/MV Trinity Resource Pack/samplemap_ja/img/battlebacks1/Lava2.png",
-        "third_party/rpgmaker-mz/steam-dlc/packs/Menu Builder/Menu Builder/Menu Builder_sample_en/img/battlebacks1/Lava2.png",
-        "third_party/rpgmaker-mz/steam-dlc/packs/Menu Builder/Menu Builder/Menu Builder_sample_en/img/pictures/backgrounds/Lava2.png",
-        "third_party/rpgmaker-mz/steam-dlc/packs/Menu Builder/Menu Builder/Menu Builder_sample_jp/img/battlebacks1/Lava2.png",
-        "third_party/rpgmaker-mz/steam-dlc/packs/Menu Builder/Menu Builder/Menu Builder_sample_jp/img/pictures/backgrounds/Lava2.png",
-        "third_party/rpgmaker-mz/visumz-sample-project/VisuMZ_Sample_Game_Project/img/battlebacks1/Lava2.png"
+        "imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/packs/3D Particle Effect Pack/3D Particle Effect Pack/sample_project_en/img/battlebacks1/Lava2.png",
+        "imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/packs/3D Particle Effect Pack/3D Particle Effect Pack/sample_project_jp/img/battlebacks1/Lava2.png",
+        "imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/packs/MV Trinity Resource Pack/MV Trinity Resource Pack/samplemap_en/img/battlebacks1/Lava2.png",
+        "imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/packs/MV Trinity Resource Pack/MV Trinity Resource Pack/samplemap_ja/img/battlebacks1/Lava2.png",
+        "imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/packs/Menu Builder/Menu Builder/Menu Builder_sample_en/img/battlebacks1/Lava2.png",
+        "imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/packs/Menu Builder/Menu Builder/Menu Builder_sample_en/img/pictures/backgrounds/Lava2.png",
+        "imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/packs/Menu Builder/Menu Builder/Menu Builder_sample_jp/img/battlebacks1/Lava2.png",
+        "imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/packs/Menu Builder/Menu Builder/Menu Builder_sample_jp/img/pictures/backgrounds/Lava2.png",
+        "imports/raw/third_party_assets/rpgmaker-mz/visumz-sample-project/VisuMZ_Sample_Game_Project/img/battlebacks1/Lava2.png"
       ]
     },
     {
@@ -703,15 +708,15 @@
       "copies": 9,
       "total_size_bytes": 2692134,
       "sample_paths": [
-        "third_party/rpgmaker-mz/steam-dlc/packs/3D Particle Effect Pack/3D Particle Effect Pack/sample_project_en/img/battlebacks1/Grassland.png",
-        "third_party/rpgmaker-mz/steam-dlc/packs/3D Particle Effect Pack/3D Particle Effect Pack/sample_project_jp/img/battlebacks1/Grassland.png",
-        "third_party/rpgmaker-mz/steam-dlc/packs/MV Trinity Resource Pack/MV Trinity Resource Pack/samplemap_en/img/battlebacks1/Grassland.png",
-        "third_party/rpgmaker-mz/steam-dlc/packs/MV Trinity Resource Pack/MV Trinity Resource Pack/samplemap_ja/img/battlebacks1/Grassland.png",
-        "third_party/rpgmaker-mz/steam-dlc/packs/Menu Builder/Menu Builder/Menu Builder_sample_en/img/battlebacks1/Grassland.png",
-        "third_party/rpgmaker-mz/steam-dlc/packs/Menu Builder/Menu Builder/Menu Builder_sample_en/img/pictures/backgrounds/Grassland.png",
-        "third_party/rpgmaker-mz/steam-dlc/packs/Menu Builder/Menu Builder/Menu Builder_sample_jp/img/battlebacks1/Grassland.png",
-        "third_party/rpgmaker-mz/steam-dlc/packs/Menu Builder/Menu Builder/Menu Builder_sample_jp/img/pictures/backgrounds/Grassland.png",
-        "third_party/rpgmaker-mz/visumz-sample-project/VisuMZ_Sample_Game_Project/img/battlebacks1/Grassland.png"
+        "imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/packs/3D Particle Effect Pack/3D Particle Effect Pack/sample_project_en/img/battlebacks1/Grassland.png",
+        "imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/packs/3D Particle Effect Pack/3D Particle Effect Pack/sample_project_jp/img/battlebacks1/Grassland.png",
+        "imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/packs/MV Trinity Resource Pack/MV Trinity Resource Pack/samplemap_en/img/battlebacks1/Grassland.png",
+        "imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/packs/MV Trinity Resource Pack/MV Trinity Resource Pack/samplemap_ja/img/battlebacks1/Grassland.png",
+        "imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/packs/Menu Builder/Menu Builder/Menu Builder_sample_en/img/battlebacks1/Grassland.png",
+        "imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/packs/Menu Builder/Menu Builder/Menu Builder_sample_en/img/pictures/backgrounds/Grassland.png",
+        "imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/packs/Menu Builder/Menu Builder/Menu Builder_sample_jp/img/battlebacks1/Grassland.png",
+        "imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/packs/Menu Builder/Menu Builder/Menu Builder_sample_jp/img/pictures/backgrounds/Grassland.png",
+        "imports/raw/third_party_assets/rpgmaker-mz/visumz-sample-project/VisuMZ_Sample_Game_Project/img/battlebacks1/Grassland.png"
       ]
     },
     {
@@ -719,15 +724,15 @@
       "copies": 9,
       "total_size_bytes": 2614059,
       "sample_paths": [
-        "third_party/rpgmaker-mz/steam-dlc/packs/3D Particle Effect Pack/3D Particle Effect Pack/sample_project_en/img/battlebacks1/DirtField.png",
-        "third_party/rpgmaker-mz/steam-dlc/packs/3D Particle Effect Pack/3D Particle Effect Pack/sample_project_jp/img/battlebacks1/DirtField.png",
-        "third_party/rpgmaker-mz/steam-dlc/packs/MV Trinity Resource Pack/MV Trinity Resource Pack/samplemap_en/img/battlebacks1/DirtField.png",
-        "third_party/rpgmaker-mz/steam-dlc/packs/MV Trinity Resource Pack/MV Trinity Resource Pack/samplemap_ja/img/battlebacks1/DirtField.png",
-        "third_party/rpgmaker-mz/steam-dlc/packs/Menu Builder/Menu Builder/Menu Builder_sample_en/img/battlebacks1/DirtField.png",
-        "third_party/rpgmaker-mz/steam-dlc/packs/Menu Builder/Menu Builder/Menu Builder_sample_en/img/pictures/backgrounds/DirtField.png",
-        "third_party/rpgmaker-mz/steam-dlc/packs/Menu Builder/Menu Builder/Menu Builder_sample_jp/img/battlebacks1/DirtField.png",
-        "third_party/rpgmaker-mz/steam-dlc/packs/Menu Builder/Menu Builder/Menu Builder_sample_jp/img/pictures/backgrounds/DirtField.png",
-        "third_party/rpgmaker-mz/visumz-sample-project/VisuMZ_Sample_Game_Project/img/battlebacks1/DirtField.png"
+        "imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/packs/3D Particle Effect Pack/3D Particle Effect Pack/sample_project_en/img/battlebacks1/DirtField.png",
+        "imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/packs/3D Particle Effect Pack/3D Particle Effect Pack/sample_project_jp/img/battlebacks1/DirtField.png",
+        "imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/packs/MV Trinity Resource Pack/MV Trinity Resource Pack/samplemap_en/img/battlebacks1/DirtField.png",
+        "imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/packs/MV Trinity Resource Pack/MV Trinity Resource Pack/samplemap_ja/img/battlebacks1/DirtField.png",
+        "imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/packs/Menu Builder/Menu Builder/Menu Builder_sample_en/img/battlebacks1/DirtField.png",
+        "imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/packs/Menu Builder/Menu Builder/Menu Builder_sample_en/img/pictures/backgrounds/DirtField.png",
+        "imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/packs/Menu Builder/Menu Builder/Menu Builder_sample_jp/img/battlebacks1/DirtField.png",
+        "imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/packs/Menu Builder/Menu Builder/Menu Builder_sample_jp/img/pictures/backgrounds/DirtField.png",
+        "imports/raw/third_party_assets/rpgmaker-mz/visumz-sample-project/VisuMZ_Sample_Game_Project/img/battlebacks1/DirtField.png"
       ]
     },
     {
@@ -735,15 +740,15 @@
       "copies": 9,
       "total_size_bytes": 2387358,
       "sample_paths": [
-        "third_party/rpgmaker-mz/steam-dlc/packs/3D Particle Effect Pack/3D Particle Effect Pack/sample_project_en/img/battlebacks1/Clouds.png",
-        "third_party/rpgmaker-mz/steam-dlc/packs/3D Particle Effect Pack/3D Particle Effect Pack/sample_project_jp/img/battlebacks1/Clouds.png",
-        "third_party/rpgmaker-mz/steam-dlc/packs/MV Trinity Resource Pack/MV Trinity Resource Pack/samplemap_en/img/battlebacks1/Clouds.png",
-        "third_party/rpgmaker-mz/steam-dlc/packs/MV Trinity Resource Pack/MV Trinity Resource Pack/samplemap_ja/img/battlebacks1/Clouds.png",
-        "third_party/rpgmaker-mz/steam-dlc/packs/Menu Builder/Menu Builder/Menu Builder_sample_en/img/battlebacks1/Clouds.png",
-        "third_party/rpgmaker-mz/steam-dlc/packs/Menu Builder/Menu Builder/Menu Builder_sample_en/img/pictures/backgrounds/Clouds.png",
-        "third_party/rpgmaker-mz/steam-dlc/packs/Menu Builder/Menu Builder/Menu Builder_sample_jp/img/battlebacks1/Clouds.png",
-        "third_party/rpgmaker-mz/steam-dlc/packs/Menu Builder/Menu Builder/Menu Builder_sample_jp/img/pictures/backgrounds/Clouds.png",
-        "third_party/rpgmaker-mz/visumz-sample-project/VisuMZ_Sample_Game_Project/img/battlebacks1/Clouds.png"
+        "imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/packs/3D Particle Effect Pack/3D Particle Effect Pack/sample_project_en/img/battlebacks1/Clouds.png",
+        "imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/packs/3D Particle Effect Pack/3D Particle Effect Pack/sample_project_jp/img/battlebacks1/Clouds.png",
+        "imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/packs/MV Trinity Resource Pack/MV Trinity Resource Pack/samplemap_en/img/battlebacks1/Clouds.png",
+        "imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/packs/MV Trinity Resource Pack/MV Trinity Resource Pack/samplemap_ja/img/battlebacks1/Clouds.png",
+        "imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/packs/Menu Builder/Menu Builder/Menu Builder_sample_en/img/battlebacks1/Clouds.png",
+        "imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/packs/Menu Builder/Menu Builder/Menu Builder_sample_en/img/pictures/backgrounds/Clouds.png",
+        "imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/packs/Menu Builder/Menu Builder/Menu Builder_sample_jp/img/battlebacks1/Clouds.png",
+        "imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/packs/Menu Builder/Menu Builder/Menu Builder_sample_jp/img/pictures/backgrounds/Clouds.png",
+        "imports/raw/third_party_assets/rpgmaker-mz/visumz-sample-project/VisuMZ_Sample_Game_Project/img/battlebacks1/Clouds.png"
       ]
     },
     {
@@ -751,15 +756,15 @@
       "copies": 9,
       "total_size_bytes": 2329596,
       "sample_paths": [
-        "third_party/rpgmaker-mz/steam-dlc/packs/3D Particle Effect Pack/3D Particle Effect Pack/sample_project_en/img/battlebacks1/PoisonSwamp.png",
-        "third_party/rpgmaker-mz/steam-dlc/packs/3D Particle Effect Pack/3D Particle Effect Pack/sample_project_jp/img/battlebacks1/PoisonSwamp.png",
-        "third_party/rpgmaker-mz/steam-dlc/packs/MV Trinity Resource Pack/MV Trinity Resource Pack/samplemap_en/img/battlebacks1/PoisonSwamp.png",
-        "third_party/rpgmaker-mz/steam-dlc/packs/MV Trinity Resource Pack/MV Trinity Resource Pack/samplemap_ja/img/battlebacks1/PoisonSwamp.png",
-        "third_party/rpgmaker-mz/steam-dlc/packs/Menu Builder/Menu Builder/Menu Builder_sample_en/img/battlebacks1/PoisonSwamp.png",
-        "third_party/rpgmaker-mz/steam-dlc/packs/Menu Builder/Menu Builder/Menu Builder_sample_en/img/pictures/backgrounds/PoisonSwamp.png",
-        "third_party/rpgmaker-mz/steam-dlc/packs/Menu Builder/Menu Builder/Menu Builder_sample_jp/img/battlebacks1/PoisonSwamp.png",
-        "third_party/rpgmaker-mz/steam-dlc/packs/Menu Builder/Menu Builder/Menu Builder_sample_jp/img/pictures/backgrounds/PoisonSwamp.png",
-        "third_party/rpgmaker-mz/visumz-sample-project/VisuMZ_Sample_Game_Project/img/battlebacks1/PoisonSwamp.png"
+        "imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/packs/3D Particle Effect Pack/3D Particle Effect Pack/sample_project_en/img/battlebacks1/PoisonSwamp.png",
+        "imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/packs/3D Particle Effect Pack/3D Particle Effect Pack/sample_project_jp/img/battlebacks1/PoisonSwamp.png",
+        "imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/packs/MV Trinity Resource Pack/MV Trinity Resource Pack/samplemap_en/img/battlebacks1/PoisonSwamp.png",
+        "imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/packs/MV Trinity Resource Pack/MV Trinity Resource Pack/samplemap_ja/img/battlebacks1/PoisonSwamp.png",
+        "imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/packs/Menu Builder/Menu Builder/Menu Builder_sample_en/img/battlebacks1/PoisonSwamp.png",
+        "imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/packs/Menu Builder/Menu Builder/Menu Builder_sample_en/img/pictures/backgrounds/PoisonSwamp.png",
+        "imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/packs/Menu Builder/Menu Builder/Menu Builder_sample_jp/img/battlebacks1/PoisonSwamp.png",
+        "imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/packs/Menu Builder/Menu Builder/Menu Builder_sample_jp/img/pictures/backgrounds/PoisonSwamp.png",
+        "imports/raw/third_party_assets/rpgmaker-mz/visumz-sample-project/VisuMZ_Sample_Game_Project/img/battlebacks1/PoisonSwamp.png"
       ]
     },
     {
@@ -767,15 +772,15 @@
       "copies": 9,
       "total_size_bytes": 2087001,
       "sample_paths": [
-        "third_party/rpgmaker-mz/steam-dlc/packs/3D Particle Effect Pack/3D Particle Effect Pack/sample_project_en/img/titles1/Ruins.png",
-        "third_party/rpgmaker-mz/steam-dlc/packs/3D Particle Effect Pack/3D Particle Effect Pack/sample_project_jp/img/titles1/Ruins.png",
-        "third_party/rpgmaker-mz/steam-dlc/packs/CAMERA MOVEMENT PLUGIN/CAMERA MOVEMENT PLUGIN/MZ Example - en/img/titles1/Ruins.png",
-        "third_party/rpgmaker-mz/steam-dlc/packs/CAMERA MOVEMENT PLUGIN/CAMERA MOVEMENT PLUGIN/MZ Example - jp/img/titles1/Ruins.png",
-        "third_party/rpgmaker-mz/steam-dlc/packs/MV Trinity Resource Pack/MV Trinity Resource Pack/samplemap_en/img/titles1/Ruins.png",
-        "third_party/rpgmaker-mz/steam-dlc/packs/MV Trinity Resource Pack/MV Trinity Resource Pack/samplemap_ja/img/titles1/Ruins.png",
-        "third_party/rpgmaker-mz/steam-dlc/packs/Menu Builder/Menu Builder/Menu Builder_sample_en/img/titles1/Ruins.png",
-        "third_party/rpgmaker-mz/steam-dlc/packs/Menu Builder/Menu Builder/Menu Builder_sample_jp/img/titles1/Ruins.png",
-        "third_party/rpgmaker-mz/visumz-sample-project/VisuMZ_Sample_Game_Project/img/titles1/Ruins.png"
+        "imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/packs/3D Particle Effect Pack/3D Particle Effect Pack/sample_project_en/img/titles1/Ruins.png",
+        "imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/packs/3D Particle Effect Pack/3D Particle Effect Pack/sample_project_jp/img/titles1/Ruins.png",
+        "imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/packs/CAMERA MOVEMENT PLUGIN/CAMERA MOVEMENT PLUGIN/MZ Example - en/img/titles1/Ruins.png",
+        "imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/packs/CAMERA MOVEMENT PLUGIN/CAMERA MOVEMENT PLUGIN/MZ Example - jp/img/titles1/Ruins.png",
+        "imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/packs/MV Trinity Resource Pack/MV Trinity Resource Pack/samplemap_en/img/titles1/Ruins.png",
+        "imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/packs/MV Trinity Resource Pack/MV Trinity Resource Pack/samplemap_ja/img/titles1/Ruins.png",
+        "imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/packs/Menu Builder/Menu Builder/Menu Builder_sample_en/img/titles1/Ruins.png",
+        "imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/packs/Menu Builder/Menu Builder/Menu Builder_sample_jp/img/titles1/Ruins.png",
+        "imports/raw/third_party_assets/rpgmaker-mz/visumz-sample-project/VisuMZ_Sample_Game_Project/img/titles1/Ruins.png"
       ]
     },
     {
@@ -783,15 +788,15 @@
       "copies": 9,
       "total_size_bytes": 1959372,
       "sample_paths": [
-        "third_party/rpgmaker-mz/steam-dlc/packs/3D Particle Effect Pack/3D Particle Effect Pack/sample_project_en/img/battlebacks1/Desert.png",
-        "third_party/rpgmaker-mz/steam-dlc/packs/3D Particle Effect Pack/3D Particle Effect Pack/sample_project_jp/img/battlebacks1/Desert.png",
-        "third_party/rpgmaker-mz/steam-dlc/packs/MV Trinity Resource Pack/MV Trinity Resource Pack/samplemap_en/img/battlebacks1/Desert.png",
-        "third_party/rpgmaker-mz/steam-dlc/packs/MV Trinity Resource Pack/MV Trinity Resource Pack/samplemap_ja/img/battlebacks1/Desert.png",
-        "third_party/rpgmaker-mz/steam-dlc/packs/Menu Builder/Menu Builder/Menu Builder_sample_en/img/battlebacks1/Desert.png",
-        "third_party/rpgmaker-mz/steam-dlc/packs/Menu Builder/Menu Builder/Menu Builder_sample_en/img/pictures/backgrounds/Desert.png",
-        "third_party/rpgmaker-mz/steam-dlc/packs/Menu Builder/Menu Builder/Menu Builder_sample_jp/img/battlebacks1/Desert.png",
-        "third_party/rpgmaker-mz/steam-dlc/packs/Menu Builder/Menu Builder/Menu Builder_sample_jp/img/pictures/backgrounds/Desert.png",
-        "third_party/rpgmaker-mz/visumz-sample-project/VisuMZ_Sample_Game_Project/img/battlebacks1/Desert.png"
+        "imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/packs/3D Particle Effect Pack/3D Particle Effect Pack/sample_project_en/img/battlebacks1/Desert.png",
+        "imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/packs/3D Particle Effect Pack/3D Particle Effect Pack/sample_project_jp/img/battlebacks1/Desert.png",
+        "imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/packs/MV Trinity Resource Pack/MV Trinity Resource Pack/samplemap_en/img/battlebacks1/Desert.png",
+        "imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/packs/MV Trinity Resource Pack/MV Trinity Resource Pack/samplemap_ja/img/battlebacks1/Desert.png",
+        "imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/packs/Menu Builder/Menu Builder/Menu Builder_sample_en/img/battlebacks1/Desert.png",
+        "imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/packs/Menu Builder/Menu Builder/Menu Builder_sample_en/img/pictures/backgrounds/Desert.png",
+        "imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/packs/Menu Builder/Menu Builder/Menu Builder_sample_jp/img/battlebacks1/Desert.png",
+        "imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/packs/Menu Builder/Menu Builder/Menu Builder_sample_jp/img/pictures/backgrounds/Desert.png",
+        "imports/raw/third_party_assets/rpgmaker-mz/visumz-sample-project/VisuMZ_Sample_Game_Project/img/battlebacks1/Desert.png"
       ]
     },
     {
@@ -799,15 +804,15 @@
       "copies": 9,
       "total_size_bytes": 508392,
       "sample_paths": [
-        "third_party/rpgmaker-mz/steam-dlc/packs/3D Particle Effect Pack/3D Particle Effect Pack/sample_project_en/img/system/GameOver.png",
-        "third_party/rpgmaker-mz/steam-dlc/packs/3D Particle Effect Pack/3D Particle Effect Pack/sample_project_jp/img/system/GameOver.png",
-        "third_party/rpgmaker-mz/steam-dlc/packs/CAMERA MOVEMENT PLUGIN/CAMERA MOVEMENT PLUGIN/MZ Example - en/img/system/GameOver.png",
-        "third_party/rpgmaker-mz/steam-dlc/packs/CAMERA MOVEMENT PLUGIN/CAMERA MOVEMENT PLUGIN/MZ Example - jp/img/system/GameOver.png",
-        "third_party/rpgmaker-mz/steam-dlc/packs/MV Trinity Resource Pack/MV Trinity Resource Pack/samplemap_en/img/system/GameOver.png",
-        "third_party/rpgmaker-mz/steam-dlc/packs/MV Trinity Resource Pack/MV Trinity Resource Pack/samplemap_ja/img/system/GameOver.png",
-        "third_party/rpgmaker-mz/steam-dlc/packs/Menu Builder/Menu Builder/Menu Builder_sample_en/img/system/GameOver.png",
-        "third_party/rpgmaker-mz/steam-dlc/packs/Menu Builder/Menu Builder/Menu Builder_sample_jp/img/system/GameOver.png",
-        "third_party/rpgmaker-mz/visumz-sample-project/VisuMZ_Sample_Game_Project/img/system/GameOver.png"
+        "imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/packs/3D Particle Effect Pack/3D Particle Effect Pack/sample_project_en/img/system/GameOver.png",
+        "imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/packs/3D Particle Effect Pack/3D Particle Effect Pack/sample_project_jp/img/system/GameOver.png",
+        "imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/packs/CAMERA MOVEMENT PLUGIN/CAMERA MOVEMENT PLUGIN/MZ Example - en/img/system/GameOver.png",
+        "imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/packs/CAMERA MOVEMENT PLUGIN/CAMERA MOVEMENT PLUGIN/MZ Example - jp/img/system/GameOver.png",
+        "imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/packs/MV Trinity Resource Pack/MV Trinity Resource Pack/samplemap_en/img/system/GameOver.png",
+        "imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/packs/MV Trinity Resource Pack/MV Trinity Resource Pack/samplemap_ja/img/system/GameOver.png",
+        "imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/packs/Menu Builder/Menu Builder/Menu Builder_sample_en/img/system/GameOver.png",
+        "imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/packs/Menu Builder/Menu Builder/Menu Builder_sample_jp/img/system/GameOver.png",
+        "imports/raw/third_party_assets/rpgmaker-mz/visumz-sample-project/VisuMZ_Sample_Game_Project/img/system/GameOver.png"
       ]
     },
     {
@@ -815,15 +820,15 @@
       "copies": 9,
       "total_size_bytes": 436536,
       "sample_paths": [
-        "third_party/rpgmaker-mz/steam-dlc/packs/3D Particle Effect Pack/3D Particle Effect Pack/sample_project_en/img/system/States.png",
-        "third_party/rpgmaker-mz/steam-dlc/packs/3D Particle Effect Pack/3D Particle Effect Pack/sample_project_jp/img/system/States.png",
-        "third_party/rpgmaker-mz/steam-dlc/packs/CAMERA MOVEMENT PLUGIN/CAMERA MOVEMENT PLUGIN/MZ Example - en/img/system/States.png",
-        "third_party/rpgmaker-mz/steam-dlc/packs/CAMERA MOVEMENT PLUGIN/CAMERA MOVEMENT PLUGIN/MZ Example - jp/img/system/States.png",
-        "third_party/rpgmaker-mz/steam-dlc/packs/MV Trinity Resource Pack/MV Trinity Resource Pack/samplemap_en/img/system/States.png",
-        "third_party/rpgmaker-mz/steam-dlc/packs/MV Trinity Resource Pack/MV Trinity Resource Pack/samplemap_ja/img/system/States.png",
-        "third_party/rpgmaker-mz/steam-dlc/packs/Menu Builder/Menu Builder/Menu Builder_sample_en/img/system/States.png",
-        "third_party/rpgmaker-mz/steam-dlc/packs/Menu Builder/Menu Builder/Menu Builder_sample_jp/img/system/States.png",
-        "third_party/rpgmaker-mz/visumz-sample-project/VisuMZ_Sample_Game_Project/img/system/States.png"
+        "imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/packs/3D Particle Effect Pack/3D Particle Effect Pack/sample_project_en/img/system/States.png",
+        "imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/packs/3D Particle Effect Pack/3D Particle Effect Pack/sample_project_jp/img/system/States.png",
+        "imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/packs/CAMERA MOVEMENT PLUGIN/CAMERA MOVEMENT PLUGIN/MZ Example - en/img/system/States.png",
+        "imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/packs/CAMERA MOVEMENT PLUGIN/CAMERA MOVEMENT PLUGIN/MZ Example - jp/img/system/States.png",
+        "imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/packs/MV Trinity Resource Pack/MV Trinity Resource Pack/samplemap_en/img/system/States.png",
+        "imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/packs/MV Trinity Resource Pack/MV Trinity Resource Pack/samplemap_ja/img/system/States.png",
+        "imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/packs/Menu Builder/Menu Builder/Menu Builder_sample_en/img/system/States.png",
+        "imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/packs/Menu Builder/Menu Builder/Menu Builder_sample_jp/img/system/States.png",
+        "imports/raw/third_party_assets/rpgmaker-mz/visumz-sample-project/VisuMZ_Sample_Game_Project/img/system/States.png"
       ]
     },
     {
@@ -831,15 +836,15 @@
       "copies": 9,
       "total_size_bytes": 413901,
       "sample_paths": [
-        "third_party/rpgmaker-mz/steam-dlc/packs/3D Particle Effect Pack/3D Particle Effect Pack/sample_project_en/js/libs/pako.min.js",
-        "third_party/rpgmaker-mz/steam-dlc/packs/3D Particle Effect Pack/3D Particle Effect Pack/sample_project_jp/js/libs/pako.min.js",
-        "third_party/rpgmaker-mz/steam-dlc/packs/CAMERA MOVEMENT PLUGIN/CAMERA MOVEMENT PLUGIN/MZ Example - en/js/libs/pako.min.js",
-        "third_party/rpgmaker-mz/steam-dlc/packs/CAMERA MOVEMENT PLUGIN/CAMERA MOVEMENT PLUGIN/MZ Example - jp/js/libs/pako.min.js",
-        "third_party/rpgmaker-mz/steam-dlc/packs/MV Trinity Resource Pack/MV Trinity Resource Pack/samplemap_en/js/libs/pako.min.js",
-        "third_party/rpgmaker-mz/steam-dlc/packs/MV Trinity Resource Pack/MV Trinity Resource Pack/samplemap_ja/js/libs/pako.min.js",
-        "third_party/rpgmaker-mz/steam-dlc/packs/Menu Builder/Menu Builder/Menu Builder_sample_en/js/libs/pako.min.js",
-        "third_party/rpgmaker-mz/steam-dlc/packs/Menu Builder/Menu Builder/Menu Builder_sample_jp/js/libs/pako.min.js",
-        "third_party/rpgmaker-mz/visumz-sample-project/VisuMZ_Sample_Game_Project/js/libs/pako.min.js"
+        "imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/packs/3D Particle Effect Pack/3D Particle Effect Pack/sample_project_en/js/libs/pako.min.js",
+        "imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/packs/3D Particle Effect Pack/3D Particle Effect Pack/sample_project_jp/js/libs/pako.min.js",
+        "imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/packs/CAMERA MOVEMENT PLUGIN/CAMERA MOVEMENT PLUGIN/MZ Example - en/js/libs/pako.min.js",
+        "imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/packs/CAMERA MOVEMENT PLUGIN/CAMERA MOVEMENT PLUGIN/MZ Example - jp/js/libs/pako.min.js",
+        "imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/packs/MV Trinity Resource Pack/MV Trinity Resource Pack/samplemap_en/js/libs/pako.min.js",
+        "imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/packs/MV Trinity Resource Pack/MV Trinity Resource Pack/samplemap_ja/js/libs/pako.min.js",
+        "imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/packs/Menu Builder/Menu Builder/Menu Builder_sample_en/js/libs/pako.min.js",
+        "imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/packs/Menu Builder/Menu Builder/Menu Builder_sample_jp/js/libs/pako.min.js",
+        "imports/raw/third_party_assets/rpgmaker-mz/visumz-sample-project/VisuMZ_Sample_Game_Project/js/libs/pako.min.js"
       ]
     },
     {
@@ -847,15 +852,15 @@
       "copies": 9,
       "total_size_bytes": 265662,
       "sample_paths": [
-        "third_party/rpgmaker-mz/steam-dlc/packs/3D Particle Effect Pack/3D Particle Effect Pack/sample_project_en/js/libs/localforage.min.js",
-        "third_party/rpgmaker-mz/steam-dlc/packs/3D Particle Effect Pack/3D Particle Effect Pack/sample_project_jp/js/libs/localforage.min.js",
-        "third_party/rpgmaker-mz/steam-dlc/packs/CAMERA MOVEMENT PLUGIN/CAMERA MOVEMENT PLUGIN/MZ Example - en/js/libs/localforage.min.js",
-        "third_party/rpgmaker-mz/steam-dlc/packs/CAMERA MOVEMENT PLUGIN/CAMERA MOVEMENT PLUGIN/MZ Example - jp/js/libs/localforage.min.js",
-        "third_party/rpgmaker-mz/steam-dlc/packs/MV Trinity Resource Pack/MV Trinity Resource Pack/samplemap_en/js/libs/localforage.min.js",
-        "third_party/rpgmaker-mz/steam-dlc/packs/MV Trinity Resource Pack/MV Trinity Resource Pack/samplemap_ja/js/libs/localforage.min.js",
-        "third_party/rpgmaker-mz/steam-dlc/packs/Menu Builder/Menu Builder/Menu Builder_sample_en/js/libs/localforage.min.js",
-        "third_party/rpgmaker-mz/steam-dlc/packs/Menu Builder/Menu Builder/Menu Builder_sample_jp/js/libs/localforage.min.js",
-        "third_party/rpgmaker-mz/visumz-sample-project/VisuMZ_Sample_Game_Project/js/libs/localforage.min.js"
+        "imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/packs/3D Particle Effect Pack/3D Particle Effect Pack/sample_project_en/js/libs/localforage.min.js",
+        "imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/packs/3D Particle Effect Pack/3D Particle Effect Pack/sample_project_jp/js/libs/localforage.min.js",
+        "imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/packs/CAMERA MOVEMENT PLUGIN/CAMERA MOVEMENT PLUGIN/MZ Example - en/js/libs/localforage.min.js",
+        "imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/packs/CAMERA MOVEMENT PLUGIN/CAMERA MOVEMENT PLUGIN/MZ Example - jp/js/libs/localforage.min.js",
+        "imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/packs/MV Trinity Resource Pack/MV Trinity Resource Pack/samplemap_en/js/libs/localforage.min.js",
+        "imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/packs/MV Trinity Resource Pack/MV Trinity Resource Pack/samplemap_ja/js/libs/localforage.min.js",
+        "imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/packs/Menu Builder/Menu Builder/Menu Builder_sample_en/js/libs/localforage.min.js",
+        "imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/packs/Menu Builder/Menu Builder/Menu Builder_sample_jp/js/libs/localforage.min.js",
+        "imports/raw/third_party_assets/rpgmaker-mz/visumz-sample-project/VisuMZ_Sample_Game_Project/js/libs/localforage.min.js"
       ]
     },
     {
@@ -863,15 +868,15 @@
       "copies": 9,
       "total_size_bytes": 157779,
       "sample_paths": [
-        "third_party/rpgmaker-mz/steam-dlc/packs/3D Particle Effect Pack/3D Particle Effect Pack/sample_project_en/img/system/Balloon.png",
-        "third_party/rpgmaker-mz/steam-dlc/packs/3D Particle Effect Pack/3D Particle Effect Pack/sample_project_jp/img/system/Balloon.png",
-        "third_party/rpgmaker-mz/steam-dlc/packs/CAMERA MOVEMENT PLUGIN/CAMERA MOVEMENT PLUGIN/MZ Example - en/img/system/Balloon.png",
-        "third_party/rpgmaker-mz/steam-dlc/packs/CAMERA MOVEMENT PLUGIN/CAMERA MOVEMENT PLUGIN/MZ Example - jp/img/system/Balloon.png",
-        "third_party/rpgmaker-mz/steam-dlc/packs/MV Trinity Resource Pack/MV Trinity Resource Pack/samplemap_en/img/system/Balloon.png",
-        "third_party/rpgmaker-mz/steam-dlc/packs/MV Trinity Resource Pack/MV Trinity Resource Pack/samplemap_ja/img/system/Balloon.png",
-        "third_party/rpgmaker-mz/steam-dlc/packs/Menu Builder/Menu Builder/Menu Builder_sample_en/img/system/Balloon.png",
-        "third_party/rpgmaker-mz/steam-dlc/packs/Menu Builder/Menu Builder/Menu Builder_sample_jp/img/system/Balloon.png",
-        "third_party/rpgmaker-mz/visumz-sample-project/VisuMZ_Sample_Game_Project/img/system/Balloon.png"
+        "imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/packs/3D Particle Effect Pack/3D Particle Effect Pack/sample_project_en/img/system/Balloon.png",
+        "imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/packs/3D Particle Effect Pack/3D Particle Effect Pack/sample_project_jp/img/system/Balloon.png",
+        "imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/packs/CAMERA MOVEMENT PLUGIN/CAMERA MOVEMENT PLUGIN/MZ Example - en/img/system/Balloon.png",
+        "imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/packs/CAMERA MOVEMENT PLUGIN/CAMERA MOVEMENT PLUGIN/MZ Example - jp/img/system/Balloon.png",
+        "imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/packs/MV Trinity Resource Pack/MV Trinity Resource Pack/samplemap_en/img/system/Balloon.png",
+        "imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/packs/MV Trinity Resource Pack/MV Trinity Resource Pack/samplemap_ja/img/system/Balloon.png",
+        "imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/packs/Menu Builder/Menu Builder/Menu Builder_sample_en/img/system/Balloon.png",
+        "imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/packs/Menu Builder/Menu Builder/Menu Builder_sample_jp/img/system/Balloon.png",
+        "imports/raw/third_party_assets/rpgmaker-mz/visumz-sample-project/VisuMZ_Sample_Game_Project/img/system/Balloon.png"
       ]
     },
     {
@@ -879,15 +884,15 @@
       "copies": 9,
       "total_size_bytes": 68130,
       "sample_paths": [
-        "third_party/rpgmaker-mz/steam-dlc/packs/3D Particle Effect Pack/3D Particle Effect Pack/sample_project_en/img/system/ButtonSet.png",
-        "third_party/rpgmaker-mz/steam-dlc/packs/3D Particle Effect Pack/3D Particle Effect Pack/sample_project_jp/img/system/ButtonSet.png",
-        "third_party/rpgmaker-mz/steam-dlc/packs/CAMERA MOVEMENT PLUGIN/CAMERA MOVEMENT PLUGIN/MZ Example - en/img/system/ButtonSet.png",
-        "third_party/rpgmaker-mz/steam-dlc/packs/CAMERA MOVEMENT PLUGIN/CAMERA MOVEMENT PLUGIN/MZ Example - jp/img/system/ButtonSet.png",
-        "third_party/rpgmaker-mz/steam-dlc/packs/MV Trinity Resource Pack/MV Trinity Resource Pack/samplemap_en/img/system/ButtonSet.png",
-        "third_party/rpgmaker-mz/steam-dlc/packs/MV Trinity Resource Pack/MV Trinity Resource Pack/samplemap_ja/img/system/ButtonSet.png",
-        "third_party/rpgmaker-mz/steam-dlc/packs/Menu Builder/Menu Builder/Menu Builder_sample_en/img/system/ButtonSet.png",
-        "third_party/rpgmaker-mz/steam-dlc/packs/Menu Builder/Menu Builder/Menu Builder_sample_jp/img/system/ButtonSet.png",
-        "third_party/rpgmaker-mz/visumz-sample-project/VisuMZ_Sample_Game_Project/img/system/ButtonSet.png"
+        "imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/packs/3D Particle Effect Pack/3D Particle Effect Pack/sample_project_en/img/system/ButtonSet.png",
+        "imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/packs/3D Particle Effect Pack/3D Particle Effect Pack/sample_project_jp/img/system/ButtonSet.png",
+        "imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/packs/CAMERA MOVEMENT PLUGIN/CAMERA MOVEMENT PLUGIN/MZ Example - en/img/system/ButtonSet.png",
+        "imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/packs/CAMERA MOVEMENT PLUGIN/CAMERA MOVEMENT PLUGIN/MZ Example - jp/img/system/ButtonSet.png",
+        "imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/packs/MV Trinity Resource Pack/MV Trinity Resource Pack/samplemap_en/img/system/ButtonSet.png",
+        "imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/packs/MV Trinity Resource Pack/MV Trinity Resource Pack/samplemap_ja/img/system/ButtonSet.png",
+        "imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/packs/Menu Builder/Menu Builder/Menu Builder_sample_en/img/system/ButtonSet.png",
+        "imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/packs/Menu Builder/Menu Builder/Menu Builder_sample_jp/img/system/ButtonSet.png",
+        "imports/raw/third_party_assets/rpgmaker-mz/visumz-sample-project/VisuMZ_Sample_Game_Project/img/system/ButtonSet.png"
       ]
     },
     {
@@ -895,15 +900,15 @@
       "copies": 9,
       "total_size_bytes": 54000,
       "sample_paths": [
-        "third_party/rpgmaker-mz/steam-dlc/packs/3D Particle Effect Pack/3D Particle Effect Pack/sample_project_en/img/system/Weapons1.png",
-        "third_party/rpgmaker-mz/steam-dlc/packs/3D Particle Effect Pack/3D Particle Effect Pack/sample_project_jp/img/system/Weapons1.png",
-        "third_party/rpgmaker-mz/steam-dlc/packs/CAMERA MOVEMENT PLUGIN/CAMERA MOVEMENT PLUGIN/MZ Example - en/img/system/Weapons1.png",
-        "third_party/rpgmaker-mz/steam-dlc/packs/CAMERA MOVEMENT PLUGIN/CAMERA MOVEMENT PLUGIN/MZ Example - jp/img/system/Weapons1.png",
-        "third_party/rpgmaker-mz/steam-dlc/packs/MV Trinity Resource Pack/MV Trinity Resource Pack/samplemap_en/img/system/Weapons1.png",
-        "third_party/rpgmaker-mz/steam-dlc/packs/MV Trinity Resource Pack/MV Trinity Resource Pack/samplemap_ja/img/system/Weapons1.png",
-        "third_party/rpgmaker-mz/steam-dlc/packs/Menu Builder/Menu Builder/Menu Builder_sample_en/img/system/Weapons1.png",
-        "third_party/rpgmaker-mz/steam-dlc/packs/Menu Builder/Menu Builder/Menu Builder_sample_jp/img/system/Weapons1.png",
-        "third_party/rpgmaker-mz/visumz-sample-project/VisuMZ_Sample_Game_Project/img/system/Weapons1.png"
+        "imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/packs/3D Particle Effect Pack/3D Particle Effect Pack/sample_project_en/img/system/Weapons1.png",
+        "imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/packs/3D Particle Effect Pack/3D Particle Effect Pack/sample_project_jp/img/system/Weapons1.png",
+        "imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/packs/CAMERA MOVEMENT PLUGIN/CAMERA MOVEMENT PLUGIN/MZ Example - en/img/system/Weapons1.png",
+        "imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/packs/CAMERA MOVEMENT PLUGIN/CAMERA MOVEMENT PLUGIN/MZ Example - jp/img/system/Weapons1.png",
+        "imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/packs/MV Trinity Resource Pack/MV Trinity Resource Pack/samplemap_en/img/system/Weapons1.png",
+        "imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/packs/MV Trinity Resource Pack/MV Trinity Resource Pack/samplemap_ja/img/system/Weapons1.png",
+        "imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/packs/Menu Builder/Menu Builder/Menu Builder_sample_en/img/system/Weapons1.png",
+        "imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/packs/Menu Builder/Menu Builder/Menu Builder_sample_jp/img/system/Weapons1.png",
+        "imports/raw/third_party_assets/rpgmaker-mz/visumz-sample-project/VisuMZ_Sample_Game_Project/img/system/Weapons1.png"
       ]
     },
     {
@@ -911,15 +916,15 @@
       "copies": 9,
       "total_size_bytes": 52803,
       "sample_paths": [
-        "third_party/rpgmaker-mz/steam-dlc/packs/3D Particle Effect Pack/3D Particle Effect Pack/sample_project_en/img/system/Weapons2.png",
-        "third_party/rpgmaker-mz/steam-dlc/packs/3D Particle Effect Pack/3D Particle Effect Pack/sample_project_jp/img/system/Weapons2.png",
-        "third_party/rpgmaker-mz/steam-dlc/packs/CAMERA MOVEMENT PLUGIN/CAMERA MOVEMENT PLUGIN/MZ Example - en/img/system/Weapons2.png",
-        "third_party/rpgmaker-mz/steam-dlc/packs/CAMERA MOVEMENT PLUGIN/CAMERA MOVEMENT PLUGIN/MZ Example - jp/img/system/Weapons2.png",
-        "third_party/rpgmaker-mz/steam-dlc/packs/MV Trinity Resource Pack/MV Trinity Resource Pack/samplemap_en/img/system/Weapons2.png",
-        "third_party/rpgmaker-mz/steam-dlc/packs/MV Trinity Resource Pack/MV Trinity Resource Pack/samplemap_ja/img/system/Weapons2.png",
-        "third_party/rpgmaker-mz/steam-dlc/packs/Menu Builder/Menu Builder/Menu Builder_sample_en/img/system/Weapons2.png",
-        "third_party/rpgmaker-mz/steam-dlc/packs/Menu Builder/Menu Builder/Menu Builder_sample_jp/img/system/Weapons2.png",
-        "third_party/rpgmaker-mz/visumz-sample-project/VisuMZ_Sample_Game_Project/img/system/Weapons2.png"
+        "imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/packs/3D Particle Effect Pack/3D Particle Effect Pack/sample_project_en/img/system/Weapons2.png",
+        "imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/packs/3D Particle Effect Pack/3D Particle Effect Pack/sample_project_jp/img/system/Weapons2.png",
+        "imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/packs/CAMERA MOVEMENT PLUGIN/CAMERA MOVEMENT PLUGIN/MZ Example - en/img/system/Weapons2.png",
+        "imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/packs/CAMERA MOVEMENT PLUGIN/CAMERA MOVEMENT PLUGIN/MZ Example - jp/img/system/Weapons2.png",
+        "imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/packs/MV Trinity Resource Pack/MV Trinity Resource Pack/samplemap_en/img/system/Weapons2.png",
+        "imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/packs/MV Trinity Resource Pack/MV Trinity Resource Pack/samplemap_ja/img/system/Weapons2.png",
+        "imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/packs/Menu Builder/Menu Builder/Menu Builder_sample_en/img/system/Weapons2.png",
+        "imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/packs/Menu Builder/Menu Builder/Menu Builder_sample_jp/img/system/Weapons2.png",
+        "imports/raw/third_party_assets/rpgmaker-mz/visumz-sample-project/VisuMZ_Sample_Game_Project/img/system/Weapons2.png"
       ]
     },
     {
@@ -927,15 +932,15 @@
       "copies": 9,
       "total_size_bytes": 39969,
       "sample_paths": [
-        "third_party/rpgmaker-mz/steam-dlc/packs/3D Particle Effect Pack/3D Particle Effect Pack/sample_project_en/js/plugins/AltSaveScreen.js",
-        "third_party/rpgmaker-mz/steam-dlc/packs/3D Particle Effect Pack/3D Particle Effect Pack/sample_project_jp/js/plugins/AltSaveScreen.js",
-        "third_party/rpgmaker-mz/steam-dlc/packs/Menu Builder/Menu Builder/Menu Builder_sample_en/js/plugins/AltSaveScreen.js",
-        "third_party/rpgmaker-mz/steam-dlc/packs/Menu Builder/Menu Builder/Menu Builder_sample_jp/js/plugins/AltSaveScreen.js",
-        "third_party/rpgmaker-mz/steam-dlc/plugin-dropins-curated/js/plugins/AltSaveScreen.js",
-        "third_party/rpgmaker-mz/steam-dlc/plugin-dropins/js/plugins/steam-dlc/3D Particle Effect Pack/sample_project_en/js/plugins/AltSaveScreen.js",
-        "third_party/rpgmaker-mz/steam-dlc/plugin-dropins/js/plugins/steam-dlc/3D Particle Effect Pack/sample_project_jp/js/plugins/AltSaveScreen.js",
-        "third_party/rpgmaker-mz/steam-dlc/plugin-dropins/js/plugins/steam-dlc/Menu Builder/Menu Builder_sample_en/js/plugins/AltSaveScreen.js",
-        "third_party/rpgmaker-mz/steam-dlc/plugin-dropins/js/plugins/steam-dlc/Menu Builder/Menu Builder_sample_jp/js/plugins/AltSaveScreen.js"
+        "imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/packs/3D Particle Effect Pack/3D Particle Effect Pack/sample_project_en/js/plugins/AltSaveScreen.js",
+        "imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/packs/3D Particle Effect Pack/3D Particle Effect Pack/sample_project_jp/js/plugins/AltSaveScreen.js",
+        "imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/packs/Menu Builder/Menu Builder/Menu Builder_sample_en/js/plugins/AltSaveScreen.js",
+        "imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/packs/Menu Builder/Menu Builder/Menu Builder_sample_jp/js/plugins/AltSaveScreen.js",
+        "imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/plugin-dropins-curated/js/plugins/AltSaveScreen.js",
+        "imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/plugin-dropins/js/plugins/steam-dlc/3D Particle Effect Pack/sample_project_en/js/plugins/AltSaveScreen.js",
+        "imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/plugin-dropins/js/plugins/steam-dlc/3D Particle Effect Pack/sample_project_jp/js/plugins/AltSaveScreen.js",
+        "imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/plugin-dropins/js/plugins/steam-dlc/Menu Builder/Menu Builder_sample_en/js/plugins/AltSaveScreen.js",
+        "imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/plugin-dropins/js/plugins/steam-dlc/Menu Builder/Menu Builder_sample_jp/js/plugins/AltSaveScreen.js"
       ]
     },
     {
@@ -943,15 +948,15 @@
       "copies": 9,
       "total_size_bytes": 36504,
       "sample_paths": [
-        "third_party/rpgmaker-mz/steam-dlc/packs/3D Particle Effect Pack/3D Particle Effect Pack/sample_project_en/js/plugins/TextPicture.js",
-        "third_party/rpgmaker-mz/steam-dlc/packs/3D Particle Effect Pack/3D Particle Effect Pack/sample_project_jp/js/plugins/TextPicture.js",
-        "third_party/rpgmaker-mz/steam-dlc/packs/Menu Builder/Menu Builder/Menu Builder_sample_en/js/plugins/TextPicture.js",
-        "third_party/rpgmaker-mz/steam-dlc/packs/Menu Builder/Menu Builder/Menu Builder_sample_jp/js/plugins/TextPicture.js",
-        "third_party/rpgmaker-mz/steam-dlc/plugin-dropins-curated/js/plugins/TextPicture.js",
-        "third_party/rpgmaker-mz/steam-dlc/plugin-dropins/js/plugins/steam-dlc/3D Particle Effect Pack/sample_project_en/js/plugins/TextPicture.js",
-        "third_party/rpgmaker-mz/steam-dlc/plugin-dropins/js/plugins/steam-dlc/3D Particle Effect Pack/sample_project_jp/js/plugins/TextPicture.js",
-        "third_party/rpgmaker-mz/steam-dlc/plugin-dropins/js/plugins/steam-dlc/Menu Builder/Menu Builder_sample_en/js/plugins/TextPicture.js",
-        "third_party/rpgmaker-mz/steam-dlc/plugin-dropins/js/plugins/steam-dlc/Menu Builder/Menu Builder_sample_jp/js/plugins/TextPicture.js"
+        "imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/packs/3D Particle Effect Pack/3D Particle Effect Pack/sample_project_en/js/plugins/TextPicture.js",
+        "imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/packs/3D Particle Effect Pack/3D Particle Effect Pack/sample_project_jp/js/plugins/TextPicture.js",
+        "imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/packs/Menu Builder/Menu Builder/Menu Builder_sample_en/js/plugins/TextPicture.js",
+        "imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/packs/Menu Builder/Menu Builder/Menu Builder_sample_jp/js/plugins/TextPicture.js",
+        "imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/plugin-dropins-curated/js/plugins/TextPicture.js",
+        "imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/plugin-dropins/js/plugins/steam-dlc/3D Particle Effect Pack/sample_project_en/js/plugins/TextPicture.js",
+        "imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/plugin-dropins/js/plugins/steam-dlc/3D Particle Effect Pack/sample_project_jp/js/plugins/TextPicture.js",
+        "imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/plugin-dropins/js/plugins/steam-dlc/Menu Builder/Menu Builder_sample_en/js/plugins/TextPicture.js",
+        "imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/plugin-dropins/js/plugins/steam-dlc/Menu Builder/Menu Builder_sample_jp/js/plugins/TextPicture.js"
       ]
     },
     {
@@ -959,22 +964,22 @@
       "copies": 9,
       "total_size_bytes": 32067,
       "sample_paths": [
-        "third_party/rpgmaker-mz/steam-dlc/packs/3D Particle Effect Pack/3D Particle Effect Pack/sample_project_en/js/plugins/AltMenuScreen.js",
-        "third_party/rpgmaker-mz/steam-dlc/packs/3D Particle Effect Pack/3D Particle Effect Pack/sample_project_jp/js/plugins/AltMenuScreen.js",
-        "third_party/rpgmaker-mz/steam-dlc/packs/Menu Builder/Menu Builder/Menu Builder_sample_en/js/plugins/AltMenuScreen.js",
-        "third_party/rpgmaker-mz/steam-dlc/packs/Menu Builder/Menu Builder/Menu Builder_sample_jp/js/plugins/AltMenuScreen.js",
-        "third_party/rpgmaker-mz/steam-dlc/plugin-dropins-curated/js/plugins/AltMenuScreen.js",
-        "third_party/rpgmaker-mz/steam-dlc/plugin-dropins/js/plugins/steam-dlc/3D Particle Effect Pack/sample_project_en/js/plugins/AltMenuScreen.js",
-        "third_party/rpgmaker-mz/steam-dlc/plugin-dropins/js/plugins/steam-dlc/3D Particle Effect Pack/sample_project_jp/js/plugins/AltMenuScreen.js",
-        "third_party/rpgmaker-mz/steam-dlc/plugin-dropins/js/plugins/steam-dlc/Menu Builder/Menu Builder_sample_en/js/plugins/AltMenuScreen.js",
-        "third_party/rpgmaker-mz/steam-dlc/plugin-dropins/js/plugins/steam-dlc/Menu Builder/Menu Builder_sample_jp/js/plugins/AltMenuScreen.js"
+        "imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/packs/3D Particle Effect Pack/3D Particle Effect Pack/sample_project_en/js/plugins/AltMenuScreen.js",
+        "imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/packs/3D Particle Effect Pack/3D Particle Effect Pack/sample_project_jp/js/plugins/AltMenuScreen.js",
+        "imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/packs/Menu Builder/Menu Builder/Menu Builder_sample_en/js/plugins/AltMenuScreen.js",
+        "imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/packs/Menu Builder/Menu Builder/Menu Builder_sample_jp/js/plugins/AltMenuScreen.js",
+        "imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/plugin-dropins-curated/js/plugins/AltMenuScreen.js",
+        "imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/plugin-dropins/js/plugins/steam-dlc/3D Particle Effect Pack/sample_project_en/js/plugins/AltMenuScreen.js",
+        "imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/plugin-dropins/js/plugins/steam-dlc/3D Particle Effect Pack/sample_project_jp/js/plugins/AltMenuScreen.js",
+        "imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/plugin-dropins/js/plugins/steam-dlc/Menu Builder/Menu Builder_sample_en/js/plugins/AltMenuScreen.js",
+        "imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/plugin-dropins/js/plugins/steam-dlc/Menu Builder/Menu Builder_sample_jp/js/plugins/AltMenuScreen.js"
       ]
     }
   ],
   "notes": [
     "This is a local catalog/index ingest, not release promotion.",
     "The SQLite database is ignored by Git; this JSON is the tracked audit summary.",
-    "third_party/itch-assets/packs-by-category junctions are intentionally excluded from asset_db indexing to avoid double counting.",
+    "imports/raw/third_party_assets/itch-assets/packs-by-category junctions are intentionally excluded from asset_db indexing to avoid double counting.",
     "files_removed_from_db means stale asset DB rows were pruned; it does not mean files were deleted from disk."
   ]
 }

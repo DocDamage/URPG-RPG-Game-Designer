@@ -1,11 +1,18 @@
 # URPG Program Completion Status
 
-Status Date: 2026-04-28
+Status Date: 2026-04-29
 Program Scope: native-first roadmap rewire plus Wave 1 absorption, Wave 2 advanced capability expansion, post-Phase-2 compat exit hardening, and governance/template-readiness consolidation
 
 Cross-cutting debt, truthfulness, and intake-governance source of truth: `docs/archive/planning/PROGRAM_COMPLETION_STATUS.md`.
 
 Current app-level release readiness source of truth: [`docs/APP_RELEASE_READINESS_MATRIX.md`](../APP_RELEASE_READINESS_MATRIX.md). It maps boot flow, save/load, settings, audio, input, localization, asset validation, editor navigation, analytics consent, install/package, legal docs, release-required asset hydration, and final release-candidate gates to concrete task IDs and evidence commands. As of the P6-002 follow-up verification pass, local gates, the unwaived release-candidate gate, and the remote manual GitHub Actions release-candidate workflow pass, including fresh-clone release-required asset verification from GitHub. Public release remains blocked by legal/privacy review and release tagging.
+
+2026-04-29 asset-root reorganization and README refresh:
+- Root-level `third_party/` and `itch/` asset folders were retired after indexing; tracked payloads now live under `imports/raw/third_party_assets/` and `imports/raw/itch_assets/`.
+- The local asset DB moved to the ignored `.urpg/asset-index/asset_catalog.db`; `imports/reports/asset_intake/third_party_itch_ingest_summary.json` is the tracked audit report.
+- Third-party/itch indexing currently records 34,651 files, 28,995 images, 3,014 audio records, and 3,233 exact duplicate groups for future curation.
+- `SRC-007` remains deduped and catalog-normalized under `imports/raw/urpg_stuff`; existing OGG context was preserved and tracked MP3/WAV files remain excluded.
+- The README was rewritten to match the current native runtime/editor, AI review workflow, template coverage, asset-intake governance, release boundaries, and product positioning versus RPG Maker, Unity/Godot, and browser-only RPG tools.
 
 2026-04-28 documentation and AI/editor checkpoint:
 - `development` is pushed to `origin/development` at commit `cfdae41e9` (`Advance AI editor and template readiness`) before this documentation refresh.
@@ -94,7 +101,7 @@ Phase 3 diagnostics productization is complete as of 2026-04-19, Phase 4 governa
   - `engine/core/presentation/*` still remains mostly header-oriented abstraction, but the registered runtime/release-validation lane is stable and the spatial authoring surfaces are no longer just header-only scaffolding.
   - `test_spatial_editor.cpp` and `test_presentation_runtime.cpp` are registered and passing, anchoring the now-compiled spatial authoring path.
 - Supporting enablement landed for curated Hugging Face fixture ingestion:
-  - permissive TMX, Visual Novel Maker, and Godot samples are vendored under `third_party/huggingface/`
+  - permissive TMX, Visual Novel Maker, and Godot samples are vendored under `imports/raw/third_party_assets/huggingface/`
   - restrictive RPG Maker MV / XP corpora remain manifest-only due to license constraints
   - asset tooling now indexes and validates the Hugging Face fixture roots
 - Asset reality remains intentionally conservative:
@@ -566,7 +573,7 @@ Phase 3 diagnostics productization is complete as of 2026-04-19, Phase 4 governa
   - [docs/asset_intake/ASSET_SOURCE_REGISTRY.md](../asset_intake/ASSET_SOURCE_REGISTRY.md)
   - [docs/asset_intake/ASSET_PROMOTION_GUIDE.md](../asset_intake/ASSET_PROMOTION_GUIDE.md)
   - [docs/asset_intake/ASSET_CATEGORY_GAPS.md](../asset_intake/ASSET_CATEGORY_GAPS.md)
-  - Scaffolded [`imports/staging/asset_intake/`](../../imports/staging/asset_intake/), [`imports/normalized/`](../../imports/normalized/), [`imports/manifests/`](../../imports/manifests/), [`imports/reports/`](../../imports/reports/), and [`third_party/github_assets/`](../../third_party/github_assets/)
+  - Scaffolded [`imports/staging/asset_intake/`](../../imports/staging/asset_intake/), [`imports/normalized/`](../../imports/normalized/), [`imports/manifests/`](../../imports/manifests/), [`imports/reports/`](../../imports/reports/), and [`imports/raw/third_party_assets/github_assets/`](../../imports/raw/third_party_assets/github_assets/)
 - Updated subsystem planning set:
   - `docs/specs/UI_MENU_CORE_NATIVE_SPEC.md`
   - `docs/specs/MESSAGE_TEXT_CORE_NATIVE_SPEC.md`

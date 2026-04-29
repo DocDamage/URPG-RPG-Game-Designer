@@ -15,12 +15,16 @@ import sys
 from pathlib import Path
 
 SCHEMA_VERSION = 1
-DEFAULT_DB = Path("third_party/asset-index/asset_catalog.db")
+DEFAULT_DB = Path(".urpg/asset-index/asset_catalog.db")
 DEFAULT_ROOTS = [
-    "third_party/itch-assets/packs",
-    "third_party/itch-assets/loose-files",
-    "third_party/rpgmaker-mz",
-    "third_party/huggingface",
+    "imports/raw/third_party_assets/itch-assets/packs",
+    "imports/raw/third_party_assets/itch-assets/loose-files",
+    "imports/raw/third_party_assets/rpgmaker-mz",
+    "imports/raw/third_party_assets/huggingface",
+    "imports/raw/third_party_assets/aseprite",
+    "imports/raw/third_party_assets/external-repos",
+    "imports/raw/third_party_assets/github_assets",
+    "imports/raw/itch_assets/loose",
     "imports/root-drop/archives",
     "imports/raw/more_assets",
     "imports/raw/urpg_stuff",
@@ -93,7 +97,7 @@ def infer_pack_category(path_rel: str) -> tuple[str | None, str | None]:
     parts = path_rel.replace("\\", "/").split("/")
     pack = None
     category = None
-    if "third_party" in parts and "itch-assets" in parts and "packs" in parts:
+    if "itch-assets" in parts and "packs" in parts:
         i = parts.index("packs")
         if i + 1 < len(parts):
             pack = parts[i + 1]
@@ -113,11 +117,14 @@ def infer_pack_category(path_rel: str) -> tuple[str | None, str | None]:
     if "visumz-sample-project" in parts and not category:
         category = "rpgmaker-mz-visustella-sample"
         pack = pack or "VisuMZ_Sample_Game_Project"
-    if "third_party" in parts and "huggingface" in parts:
+    if "huggingface" in parts:
         i = parts.index("huggingface")
         if i + 1 < len(parts) and parts[i + 1] != "README.md":
             category = f"huggingface-{parts[i + 1]}"
             pack = pack or parts[i + 1]
+    if "itch_assets" in parts and "loose" in parts:
+        category = "itch-loose"
+        pack = pack or "loose"
     if "imports" in parts and "raw" in parts and "more_assets" in parts:
         i = parts.index("more_assets")
         if i + 1 < len(parts):

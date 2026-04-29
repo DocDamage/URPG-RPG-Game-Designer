@@ -36,7 +36,7 @@ Cross-cutting private-use asset intake artifacts:
 - Normalized root: [`imports/normalized/`](imports/normalized/)
 - Manifest roots: [`imports/manifests/`](imports/manifests/)
 - Report root: [`imports/reports/`](imports/reports/)
-- Direct-ingest asset mirrors: [`third_party/github_assets/`](third_party/github_assets/)
+- Direct-ingest asset mirrors: [`imports/raw/third_party_assets/github_assets/`](imports/raw/third_party_assets/github_assets/)
 
 ---
 
@@ -248,7 +248,7 @@ docs/
 1. Create [`docs/external-intake/repo-watchlist.md`](docs/external-intake/repo-watchlist.md)
 2. Create [`docs/external-intake/license-matrix.md`](docs/external-intake/license-matrix.md)
 3. Create [`docs/external-intake/repo-audit-template.md`](docs/external-intake/repo-audit-template.md)
-4. Create `third_party/external-repos/` structure
+4. Create `imports/raw/third_party_assets/external-repos/` structure
 5. Create `.gitignore`/LFS rules for heavy fixture and asset lanes
 6. Define asset attribution manifest schema
 7. Define plugin fixture metadata schema
@@ -819,7 +819,7 @@ Mitigation:
 1. Create `docs/external-intake/repo-watchlist.md`
 2. Create `docs/external-intake/license-matrix.md`
 3. Create `docs/external-intake/repo-audit-template.md`
-4. Scaffold `third_party/external-repos/`
+4. Scaffold `imports/raw/third_party_assets/external-repos/`
 5. Scaffold `imports/fixtures/compat/`
 6. Scaffold `imports/fixtures/legacy-projects/`
 7. Scaffold `imports/fixtures/localization/`

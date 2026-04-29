@@ -55,7 +55,7 @@ Presentation documentation links are validated automatically by `.\tools\ci\run_
 
 ## 4) Repository organization
 
-- Keep imports under `imports/` and third-party/vendor packs under `third_party/`.
+- Keep imports, quarantined source drops, and third-party/vendor asset packs under `imports/`.
 - Put generated reports under `imports/reports/` or tool-specific `reports/` folders.
 - Avoid mixing executable tools and content assets in the same directory.
 

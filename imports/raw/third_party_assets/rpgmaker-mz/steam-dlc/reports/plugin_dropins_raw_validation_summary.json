@@ -1,0 +1,10 @@
+{
+    "GeneratedAt":  "2026-04-25T20:20:23-04:00",
+    "RepoRoot":  "C:\\dev\\URPG Maker",
+    "PluginRoot":  "C:\\dev\\URPG Maker\\third_party\\rpgmaker-mz\\steam-dlc\\plugin-dropins\\js\\plugins",
+    "FileCount":  30,
+    "ErrorCount":  48,
+    "WarnCount":  12,
+    "StemCollisionCount":  7,
+    "PluginKeyCollisionCount":  7
+}

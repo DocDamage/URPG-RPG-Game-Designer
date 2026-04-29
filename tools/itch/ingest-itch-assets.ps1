@@ -1,5 +1,5 @@
 param(
-    [string]$ItchRoot = ".\itch",
+    [string]$ItchRoot = ".\imports\raw\itch_assets",
     [string]$OutputRoot = "",
     [switch]$DryRun
 )
@@ -57,7 +57,7 @@ $repoRoot = (Resolve-Path ".").Path
 $itchRootResolved = (Resolve-Path $ItchRoot).Path
 
 if ([string]::IsNullOrWhiteSpace($OutputRoot)) {
-    $outputRootResolved = Join-Path $repoRoot "third_party\itch-assets"
+    $outputRootResolved = Join-Path $repoRoot "imports\raw\third_party_assets\itch-assets"
 } else {
     $outputRootResolved = (Resolve-Path $OutputRoot).Path
 }

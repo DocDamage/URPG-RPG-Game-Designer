@@ -7,12 +7,12 @@ import datetime as dt
 import json
 from pathlib import Path
 
-SAFE_REMOVE_PREFIXES = ("itch/unzipped/",)
+SAFE_REMOVE_PREFIXES = ("imports/raw/itch_assets/unzipped/",)
 SAFE_KEEP_PREFIXES = (
-    "third_party/itch-assets/packs/",
-    "third_party/itch-assets/loose-files/",
-    "third_party/rpgmaker-mz/",
-    "third_party/huggingface/",
+    "imports/raw/third_party_assets/itch-assets/packs/",
+    "imports/raw/third_party_assets/itch-assets/loose-files/",
+    "imports/raw/third_party_assets/rpgmaker-mz/",
+    "imports/raw/third_party_assets/huggingface/",
     "imports/root-drop/archives/",
 )
 
@@ -25,7 +25,7 @@ def parse_args() -> argparse.Namespace:
     p = argparse.ArgumentParser(
         description=(
             "Safely prune duplicate files by using asset_hygiene duplicate report. "
-            "Only removes files in itch/unzipped when canonical copies exist in approved roots."
+            "Only removes files in imports/raw/itch_assets/unzipped when canonical copies exist in approved roots."
         )
     )
     p.add_argument("--repo-root", default=".", help="Repository root")

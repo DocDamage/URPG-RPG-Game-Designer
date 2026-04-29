@@ -29,7 +29,7 @@ This plan is supported by the following canonical artifacts:
 - Normalized root: [`imports/normalized/`](imports/normalized/)
 - Manifest roots: [`imports/manifests/`](imports/manifests/)
 - Report root: [`imports/reports/`](imports/reports/)
-- Direct-ingest asset mirrors: [`third_party/github_assets/`](third_party/github_assets/)
+- Direct-ingest asset mirrors: [`imports/raw/third_party_assets/github_assets/`](imports/raw/third_party_assets/github_assets/)
 
 Cross-cutting external repository intake artifacts:
 
@@ -214,7 +214,7 @@ docs/
 Mirror or snapshot candidate sources into repo-controlled staging roots.
 
 ### Tasks
-1. Clone or download the direct-ingest repos into `third_party/github_assets/`.
+1. Clone or download the direct-ingest repos into `imports/raw/third_party_assets/github_assets/`.
 2. Record source metadata for each repo:
    - repo name
    - branch/commit

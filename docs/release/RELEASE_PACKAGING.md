@@ -27,7 +27,7 @@ Export-packager smoke outputs that synthesize runtime launchers are explicitly m
 Release packaging also requires the curated RPG Maker plugin release manifest:
 
 ```text
-third_party/rpgmaker-mz/steam-dlc/reports/plugin_dropins_release_manifest.json
+imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/reports/plugin_dropins_release_manifest.json
 ```
 
 That manifest records the one packaged source per plugin key and the raw DLC candidates excluded as duplicate copies, localized sample copies, or conflicting implementations.

@@ -80,8 +80,8 @@ if ([string]::IsNullOrWhiteSpace($RepoRoot)) {
 }
 
 if ([string]::IsNullOrWhiteSpace($PluginRoot)) {
-    $curatedPluginRoot = Join-Path $RepoRoot "third_party/rpgmaker-mz/steam-dlc/plugin-dropins-curated/js/plugins"
-    $rawPluginRoot = Join-Path $RepoRoot "third_party/rpgmaker-mz/steam-dlc/plugin-dropins/js/plugins"
+    $curatedPluginRoot = Join-Path $RepoRoot "imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/plugin-dropins-curated/js/plugins"
+    $rawPluginRoot = Join-Path $RepoRoot "imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/plugin-dropins/js/plugins"
     if (Test-Path -LiteralPath $curatedPluginRoot) {
         $PluginRoot = $curatedPluginRoot
     } else {
@@ -96,7 +96,7 @@ if (-not (Test-Path -LiteralPath $PluginRoot)) {
 }
 
 $pluginRootResolved = (Resolve-Path $PluginRoot).Path
-$reportRoot = Join-Path $RepoRoot "third_party/rpgmaker-mz/steam-dlc/reports"
+$reportRoot = Join-Path $RepoRoot "imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/reports"
 Ensure-Directory -Path $reportRoot
 
 $files = Get-ChildItem -LiteralPath $pluginRootResolved -File -Recurse -Filter "*.js" | Sort-Object FullName

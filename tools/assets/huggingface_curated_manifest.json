@@ -5,7 +5,7 @@
       "repo": "NintenHero/RPG-Maker-MV-Data",
       "license": "cc-by-nc-sa-4.0",
       "ingestMode": "manifest_only",
-      "targetRoot": "third_party/huggingface/rpg-maker-mv-data",
+      "targetRoot": "imports/raw/third_party_assets/huggingface/rpg-maker-mv-data",
       "notes": "RPG Maker MV project-data corpus. Kept manifest-only in this repo because the dataset license is non-commercial/share-alike.",
       "files": [
         "6ft Blunder/Map001.json",
@@ -17,7 +17,7 @@
       "repo": "NintenHero/RPG-Maker-XP-Data",
       "license": "cc-by-nc-sa-4.0",
       "ingestMode": "manifest_only",
-      "targetRoot": "third_party/huggingface/rpg-maker-xp-data",
+      "targetRoot": "imports/raw/third_party_assets/huggingface/rpg-maker-xp-data",
       "notes": "RPG Maker XP raw project-data corpus. Kept manifest-only in this repo because the dataset license is non-commercial/share-alike.",
       "files": [
         "Astray/Map001.rxdata",
@@ -29,7 +29,7 @@
       "repo": "NintenHero/Tiled-Map-Editor-TMX",
       "license": "bsd-3-clause",
       "ingestMode": "vendor_direct",
-      "targetRoot": "third_party/huggingface/tiled-map-editor-tmx",
+      "targetRoot": "imports/raw/third_party_assets/huggingface/tiled-map-editor-tmx",
       "notes": "TMX map fixtures for importer, translator, and spatial-scene experiments.",
       "files": [
         "Bubblegum Bandit/rules1.tmx",
@@ -43,7 +43,7 @@
       "repo": "NintenHero/Visual-Novel-Maker-Data",
       "license": "apache-2.0",
       "ingestMode": "vendor_direct",
-      "targetRoot": "third_party/huggingface/visual-novel-maker-data",
+      "targetRoot": "imports/raw/third_party_assets/huggingface/visual-novel-maker-data",
       "notes": "Visual Novel Maker data fragments for future dialogue/script import work.",
       "files": [
         "My Boss Is Scaring Me/07DDA09123019333.json.js",
@@ -57,7 +57,7 @@
       "repo": "wallstoneai/godot-gdscript-dataset",
       "license": "apache-2.0",
       "ingestMode": "vendor_direct",
-      "targetRoot": "third_party/huggingface/godot-gdscript-dataset",
+      "targetRoot": "imports/raw/third_party_assets/huggingface/godot-gdscript-dataset",
       "notes": "Reference corpus for import tools, script-analysis utilities, and cross-engine migration experiments.",
       "files": [
         "README.md",

@@ -19,7 +19,7 @@ Every promoted asset subset must retain a provenance chain made of:
 
 ## Phase A — Source Capture
 
-1. Clone or download the direct-ingest repo into `third_party/github_assets/<repo-name>/`.
+1. Clone or download the direct-ingest repo into `imports/raw/third_party_assets/github_assets/<repo-name>/`.
 2. Record source metadata (repo name, branch/commit, snapshot date, intended use, source category).
 3. Build a small manifest per source under `imports/manifests/asset_sources/<source_id>.json`.
 4. Keep original folder structures intact during capture.

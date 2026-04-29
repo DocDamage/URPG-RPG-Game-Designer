@@ -250,7 +250,7 @@ Scope: Convert the senior release audit into ordered implementation work for mov
 - Task ID: P2-06
 - Title: Complete Plugin Manager Live Loading
 - Files to edit: `runtimes/compat_js/plugin_manager.*`, `runtimes/compat_js/plugin_manager_status.cpp`
-- Files to inspect: `third_party/rpgmaker-mz/**`, `tests/compat/fixtures/**`
+- Files to inspect: `imports/raw/third_party_assets/rpgmaker-mz/**`, `tests/compat/fixtures/**`
 - Dependencies: P2-05
 - Risk level: High
 - Exact implementation steps:
@@ -478,8 +478,8 @@ Scope: Convert the senior release audit into ordered implementation work for mov
 
 - Task ID: P5-06 (completed)
 - Title: Resolve RPG Maker Plugin Drop-In Collisions
-- Files to edit: `third_party/rpgmaker-mz/steam-dlc/plugin-dropins/**`, `third_party/rpgmaker-mz/steam-dlc/reports/**`, release packaging manifests
-- Files to inspect: `tools/rpgmaker/validate-plugin-dropins.ps1`, `third_party/rpgmaker-mz/steam-dlc/reports/plugin_dropins_validation_issues.csv`
+- Files to edit: `imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/plugin-dropins/**`, `imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/reports/**`, release packaging manifests
+- Files to inspect: `tools/rpgmaker/validate-plugin-dropins.ps1`, `imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/reports/plugin_dropins_validation_issues.csv`
 - Dependencies: P5-04
 - Risk level: High
 - Exact implementation steps:

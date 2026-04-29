@@ -111,7 +111,7 @@
 
 | ID | Task | Status | Notes |
 |---|---|---|---|
-| E1 | Curate and vendor permissive Hugging Face fixture samples | Completed | Vendored TMX, VNM, and Godot samples under `third_party/huggingface/`. |
+| E1 | Curate and vendor permissive Hugging Face fixture samples | Completed | Vendored TMX, VNM, and Godot samples under `imports/raw/third_party_assets/huggingface/`. |
 | E2 | Add manifest-driven Hugging Face ingest workflow | Completed | `tools/assets/huggingface_curated_manifest.json` + `tools/assets/ingest_huggingface_curated.ps1`. |
 | E3 | Integrate Hugging Face fixture roots into asset tooling | Completed | Asset catalog, hygiene, duplicate-prune rules, and unit coverage updated. |
 | E4 | Evaluate local embeddings + reranker stack for repo, docs, and asset retrieval | Planned | Favor editor/pipeline retrieval over runtime inference. |

@@ -760,7 +760,7 @@
 - **Action**: Completed Phase 5 bootstrap for environment intent emission by wiring dynamic light commands, fog, Post-FX, and shadow proxies into the map presentation path.
 - **Action**: Added and wired `test_spatial_editor.cpp` plus targeted presentation/runtime assertions for Tier 1 environment behavior.
 - **Action**: Added curated Hugging Face fixture ingestion for TMX, Visual Novel Maker, and Godot corpora, with manifest-driven refresh tooling under `tools/assets/`.
-- **Action**: Integrated `third_party/huggingface/` into asset catalog, hygiene, and duplicate-planning workflows.
+- **Action**: Integrated `imports/raw/third_party_assets/huggingface/` into asset catalog, hygiene, and duplicate-planning workflows.
 - **Action**: Added `test_huggingface_curated_assets.cpp` to keep the curated manifest and vendored fixture set aligned.
 - **Action**: Synced `PLAN.md` with the latest GitHub plan update, including supporting enablement, AI-tooling follow-ons, and the asset reality check.
 - **Result**: Task 41 is COMPLETE, Task 42 is IN PROGRESS, and Task 43 is the next active presentation task.

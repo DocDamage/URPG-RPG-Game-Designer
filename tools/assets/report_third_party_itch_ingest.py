@@ -8,7 +8,7 @@ import sqlite3
 from pathlib import Path
 
 
-DEFAULT_DB = "third_party/asset-index/asset_catalog.db"
+DEFAULT_DB = ".urpg/asset-index/asset_catalog.db"
 DEFAULT_REPORT = "imports/reports/asset_intake/third_party_itch_ingest_summary.json"
 
 
@@ -173,7 +173,7 @@ def main() -> int:
         "notes": [
             "This is a local catalog/index ingest, not release promotion.",
             "The SQLite database is ignored by Git; this JSON is the tracked audit summary.",
-            "third_party/itch-assets/packs-by-category junctions are intentionally excluded from asset_db indexing to avoid double counting.",
+            "imports/raw/third_party_assets/itch-assets/packs-by-category junctions are intentionally excluded from asset_db indexing to avoid double counting.",
             "files_removed_from_db means stale asset DB rows were pruned; it does not mean files were deleted from disk.",
         ],
     }

@@ -257,7 +257,7 @@ try {
 
     Write-Host "== Validate curated RPG Maker plugin drop-ins ==" -ForegroundColor Cyan
     & "$PSScriptRoot\..\rpgmaker\validate-plugin-dropins.ps1" `
-        -PluginRoot "third_party\rpgmaker-mz\steam-dlc\plugin-dropins-curated\js\plugins" `
+        -PluginRoot "imports\raw\third_party_assets\rpgmaker-mz\steam-dlc\plugin-dropins-curated\js\plugins" `
         -ReportPrefix "plugin_dropins_curated_ci_validation" `
         -FailOnError
 

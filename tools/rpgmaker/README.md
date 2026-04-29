@@ -12,15 +12,15 @@ By default, sync now also runs curated drop-in generation and curated validation
 Use `-SkipCurate` and/or `-SkipCuratedValidation` only when you intentionally want to bypass that pipeline.
 
 Reports:
-- `third_party/rpgmaker-mz/steam-dlc/reports/steam_mz_dlc_inventory.json`
-- `third_party/rpgmaker-mz/steam-dlc/reports/steam_mz_dlc_packs.csv`
-- `third_party/rpgmaker-mz/steam-dlc/reports/steam_mz_dlc_plugins.csv`
+- `imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/reports/steam_mz_dlc_inventory.json`
+- `imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/reports/steam_mz_dlc_packs.csv`
+- `imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/reports/steam_mz_dlc_plugins.csv`
 
 ## Plugin drop-in validation
 
 Validates plugin JS headers and detects duplicate stem/key conflicts across release drop-ins. With no
 `-PluginRoot`, the validator uses the curated release tree when present and falls back to raw staged
-DLC only before curation has been generated. Use `-PluginRoot third_party\rpgmaker-mz\steam-dlc\plugin-dropins\js\plugins`
+DLC only before curation has been generated. Use `-PluginRoot imports\raw\third_party_assets\rpgmaker-mz\steam-dlc\plugin-dropins\js\plugins`
 when auditing raw vendor intake collisions.
 
 ```powershell
@@ -29,9 +29,9 @@ when auditing raw vendor intake collisions.
 ```
 
 Reports:
-- `third_party/rpgmaker-mz/steam-dlc/reports/plugin_dropins_validation_summary.json`
-- `third_party/rpgmaker-mz/steam-dlc/reports/plugin_dropins_validation_files.csv`
-- `third_party/rpgmaker-mz/steam-dlc/reports/plugin_dropins_validation_issues.csv`
+- `imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/reports/plugin_dropins_validation_summary.json`
+- `imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/reports/plugin_dropins_validation_files.csv`
+- `imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/reports/plugin_dropins_validation_issues.csv`
 
 ## Curated safe drop-ins
 
@@ -39,17 +39,17 @@ Builds a conflict-free curated plugin set (one canonical JS per plugin key) and 
 
 ```powershell
 .\tools\rpgmaker\curate-plugin-dropins.ps1 -CleanOutput
-.\tools\rpgmaker\validate-plugin-dropins.ps1 -PluginRoot third_party\rpgmaker-mz\steam-dlc\plugin-dropins-curated\js\plugins -ReportPrefix plugin_dropins_curated_validation -FailOnError
+.\tools\rpgmaker\validate-plugin-dropins.ps1 -PluginRoot imports\raw\third_party_assets\rpgmaker-mz\steam-dlc\plugin-dropins-curated\js\plugins -ReportPrefix plugin_dropins_curated_validation -FailOnError
 ```
 
 Curated output:
-- `third_party/rpgmaker-mz/steam-dlc/plugin-dropins-curated/js/plugins/*.js`
+- `imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/plugin-dropins-curated/js/plugins/*.js`
 
 Reports:
-- `third_party/rpgmaker-mz/steam-dlc/reports/plugin_dropins_curated_summary.json`
-- `third_party/rpgmaker-mz/steam-dlc/reports/plugin_dropins_curated_manifest.csv`
-- `third_party/rpgmaker-mz/steam-dlc/reports/plugin_dropins_curated_conflicts.csv`
-- `third_party/rpgmaker-mz/steam-dlc/reports/plugin_dropins_release_manifest.json`
-- `third_party/rpgmaker-mz/steam-dlc/reports/plugin_dropins_curated_validation_summary.json`
-- `third_party/rpgmaker-mz/steam-dlc/reports/plugin_dropins_curated_validation_files.csv`
-- `third_party/rpgmaker-mz/steam-dlc/reports/plugin_dropins_curated_validation_issues.csv`
+- `imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/reports/plugin_dropins_curated_summary.json`
+- `imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/reports/plugin_dropins_curated_manifest.csv`
+- `imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/reports/plugin_dropins_curated_conflicts.csv`
+- `imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/reports/plugin_dropins_release_manifest.json`
+- `imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/reports/plugin_dropins_curated_validation_summary.json`
+- `imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/reports/plugin_dropins_curated_validation_files.csv`
+- `imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/reports/plugin_dropins_curated_validation_issues.csv`

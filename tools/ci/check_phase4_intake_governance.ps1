@@ -26,7 +26,7 @@ $requiredFiles = @(
     "imports/normalized/prototype_sprites/gdquest_blue_actor.svg",
     "imports/reports/asset_intake/source_capture_status.json",
     "imports/reports/asset_intake/wysiwyg_smoke_proof.json",
-    "third_party/external-repos/README.md",
+    "imports/raw/third_party_assets/external-repos/README.md",
     "imports/fixtures/compat/README.md",
     "imports/fixtures/legacy-projects/README.md",
     "imports/fixtures/localization/README.md",

@@ -87,8 +87,8 @@ function New-BaseReport {
   )
 
   $signingInputs = Get-RequiredSigningInputs
-  $pluginDropinsManifest = ConvertTo-RepoPath "third_party/rpgmaker-mz/steam-dlc/reports/plugin_dropins_release_manifest.json"
-  $pluginDropinsReleaseRoot = ConvertTo-RepoPath "third_party/rpgmaker-mz/steam-dlc/plugin-dropins-curated/js/plugins"
+  $pluginDropinsManifest = ConvertTo-RepoPath "imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/reports/plugin_dropins_release_manifest.json"
+  $pluginDropinsReleaseRoot = ConvertTo-RepoPath "imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/plugin-dropins-curated/js/plugins"
   return [ordered]@{
     tool = "package_release_artifacts"
     mode = $Mode

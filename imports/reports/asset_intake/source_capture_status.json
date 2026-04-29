@@ -137,6 +137,6 @@
     "Tracked WAV/MP3 paths were removed from GitHub. Future audio promotion must use OGG payloads.",
     "SRC-007 duplicate cleanup removed 30,495 exact duplicate raw files after preserving canonical copies; the regenerated non-audio catalog reports zero duplicate groups.",
     "SRC-007 already-ingested local source-drop folders were moved out of the project root into .urpg/archive/source_drops/20260429; the catalog source of truth remains imports/raw/urpg_stuff.",
-    "Third-party and itch folders were indexed into the local asset DB across third_party/itch-assets, third_party/rpgmaker-mz, third_party/huggingface, third_party/aseprite, third_party/external-repos, third_party/github_assets, and itch/loose; imports/reports/asset_intake/third_party_itch_ingest_summary.json records the tracked audit summary. This is catalog/index intake only, not release promotion."
+    "Third-party and itch folders were moved out of the repository root into imports/raw/third_party_assets and imports/raw/itch_assets, then indexed into the local asset DB across itch-assets, rpgmaker-mz, huggingface, aseprite, external-repos, github_assets, and itch loose assets. imports/reports/asset_intake/third_party_itch_ingest_summary.json records the tracked audit summary. This is catalog/index intake only, not release promotion."
   ]
 }

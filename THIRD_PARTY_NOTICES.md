@@ -30,11 +30,11 @@ This notice records third-party material known to the URPG repository and the cu
 
 These paths are present in the working repository but are not installed by the native app layout added in P5-001:
 
-- `third_party/itch-assets/`
-- `third_party/rpgmaker-mz/`
-- `third_party/aseprite/`
-- `third_party/huggingface/`
-- `third_party/github_assets/`
+- `imports/raw/third_party_assets/itch-assets/`
+- `imports/raw/third_party_assets/rpgmaker-mz/`
+- `imports/raw/third_party_assets/aseprite/`
+- `imports/raw/third_party_assets/huggingface/`
+- `imports/raw/third_party_assets/github_assets/`
 - `imports/raw/`
 - `imports/staging/`
 - `imports/normalized/`

@@ -68,7 +68,7 @@
   - Verified blocker: no root-level or docs-level `THIRD_PARTY_NOTICES.md`, `EULA.md`, `PRIVACY_POLICY.md`, `CREDITS.md`, or `CHANGELOG.md`.
   - Verified blocker: release readiness governance is split across docs without an app-level release matrix for shipped-product readiness.
 
-- `third_party/`, `imports/`, `more assets/`, `.gitattributes`, `.gitignore`
+- `imports/raw/third_party_assets/`, `imports/`, `more assets/`, `.gitattributes`, `.gitignore`
   - Verified blocker: repository-wide source/vendor Git LFS hydration is blocked by remote LFS budget/access.
   - Verified mitigation already done: duplicate ZIP archives and duplicate asset tree removals were completed in prior cleanup.
   - Required verification: release-required assets must be available from a fresh clone without relying on local cache; source/vendor LFS packs need restored budget/access before they can be treated as dependable development inputs.
@@ -1012,7 +1012,7 @@
 
 **Files to inspect:**
 - `imports/`
-- `third_party/`
+- `imports/raw/third_party_assets/`
 - Runtime shader/plugin/template/data directories.
 - License files for vendored dependencies.
 
@@ -1063,7 +1063,7 @@
 
 **Files to inspect:**
 - `LICENSE`
-- `third_party/**`
+- `imports/raw/third_party_assets/**`
 - `imports/**`
 - `.gitattributes`
 - Asset license manifests and intake docs.
@@ -1073,7 +1073,7 @@
 **Risk level:** High.
 
 **Exact implementation steps:**
-- [x] Inventory third-party code and asset sources from `third_party/`, `imports/`, and existing intake docs.
+- [x] Inventory third-party code and asset sources from `imports/raw/third_party_assets/`, `imports/`, and existing intake docs.
 - [x] Create `THIRD_PARTY_NOTICES.md` with dependency/source, license, path, and distribution notes.
 - [x] Create `CREDITS.md` covering engine, assets, plugins, and third-party packs where attribution is required.
 - [x] Create `EULA.md` suitable for the intended distribution mode, or mark it as internal-only if external legal review is required before publication.
@@ -1099,7 +1099,7 @@
 - `docs/release/RELEASE_READINESS_MATRIX.md` updated with a legal/notices snapshot.
 - `Test-Path .\THIRD_PARTY_NOTICES.md, .\EULA.md, .\PRIVACY_POLICY.md, .\CREDITS.md, .\CHANGELOG.md` returned five `True` values.
 - `python .\tools\assets\asset_hygiene.py --write-reports` passed after a long scan: 158849 files, 0 junk files, 1 oversize file, 42708 duplicate groups, 93932 duplicate files, 2715392371 duplicate-waste bytes, 0 hash skips.
-- Remaining oversize file: `third_party/itch-assets/packs/fantasy-platformer-game-ui/PSD/17Icons.psd` at 105418536 bytes.
+- Remaining oversize file: `imports/raw/third_party_assets/itch-assets/packs/fantasy-platformer-game-ui/PSD/17Icons.psd` at 105418536 bytes.
 - `.\tools\ci\check_install_smoke.ps1 -BuildDirectory build/dev-ninja-release -InstallPrefix build/install-smoke` passed after reconfigure and verified the new legal docs are installed under `share/doc/urpg/`.
 - Legal sufficiency remains unverified; a qualified legal reviewer must approve notices, EULA, third-party license text, and public privacy/contact language before external release.
 
@@ -1206,7 +1206,7 @@
 - `docs/release/RELEASE_READINESS_MATRIX.md`
 
 **Files to inspect:**
-- `third_party/`
+- `imports/raw/third_party_assets/`
 - `imports/`
 - `more assets/`
 - Git LFS tracking state
@@ -1226,15 +1226,15 @@
 **Evidence:**
 - Current branch before this task had `156215` LFS paths from `git lfs ls-files --size`.
 - `git lfs ls-files --size --all` reported `106499` historical LFS paths; largest historical objects were source ZIP archives under `more assets/`.
-- Current largest required objects included normalized/imported WAV files, `more assets/` source-drop files, and `third_party/itch-assets/packs/fantasy-platformer-game-ui/PSD/17Icons.psd`.
+- Current largest required objects included normalized/imported WAV files, `more assets/` source-drop files, and `imports/raw/third_party_assets/itch-assets/packs/fantasy-platformer-game-ui/PSD/17Icons.psd`.
 - `python ./tools/assets/asset_hygiene.py --write-reports` timed out after 5 minutes in this pass, but refreshed reports were written. The summary records 158849 scanned files, 0 junk files, 1 oversize file, 42708 duplicate groups, 93932 duplicate files, 2715392371 duplicate-waste bytes, and 0 hash skips.
-- Remaining oversize report before this task listed `third_party/itch-assets/packs/fantasy-platformer-game-ui/PSD/17Icons.psd` at 105418536 bytes.
+- Remaining oversize report before this task listed `imports/raw/third_party_assets/itch-assets/packs/fantasy-platformer-game-ui/PSD/17Icons.psd` at 105418536 bytes.
 - Fresh remote clone path used for verification: `%TEMP%/urpg-lfs-smoke-20260426-200530`.
 - Fresh clone command sequence: `GIT_LFS_SKIP_SMUDGE=1 git clone --depth 1 --branch development --filter=blob:none <origin> <temp>`, then `git lfs install --local`, then `git lfs pull`.
 - Fresh clone hydration failed with GitHub LFS API rate-limit messages followed by `This repository exceeded its LFS budget. The account responsible for the budget should increase it to restore access.`
 - The failed temp clone was removed after verifying the path resolved under the system temp directory.
 - Mitigation in this pass: remove remaining tracked `more assets/` source-drop files from Git tracking and ignore `more assets/` going forward. Local files remain on disk.
-- Mitigation in this pass: remove source-only `third_party/itch-assets/packs/fantasy-platformer-game-ui/PSD/` files from Git tracking and ignore that PSD folder going forward. The PNG exports remain tracked under the canonical pack.
+- Mitigation in this pass: remove source-only `imports/raw/third_party_assets/itch-assets/packs/fantasy-platformer-game-ui/PSD/` files from Git tracking and ignore that PSD folder going forward. The PNG exports remain tracked under the canonical pack.
 - The staged cleanup removes 63 current LFS-tracked source-only files, approximately 1450925875 bytes / 1383.71 MiB of current-checkout LFS payload.
 - Follow-up release-required asset verification moved `resources/icons/*.png` out of LFS and verified them from a fresh GitHub clone through the release-candidate gate.
 

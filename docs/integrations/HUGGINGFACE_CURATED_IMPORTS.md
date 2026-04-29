@@ -6,7 +6,7 @@ This repo carries a small curated seed set from a few Hugging Face datasets that
 
 - Vendor direct only when the dataset license is straightforward for in-repo storage.
 - Keep restrictive corpora as manifest-only sources that can be fetched on demand.
-- Preserve original source-relative paths under `third_party/huggingface/` for traceability.
+- Preserve original source-relative paths under `imports/raw/third_party_assets/huggingface/` for traceability.
 
 ## Current Sources
 

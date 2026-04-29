@@ -1,7 +1,7 @@
 param(
-    [string]$PackRoot = ".\third_party\itch-assets\packs",
-    [string]$OutputRoot = ".\third_party\itch-assets\packs-by-category",
-    [string]$ReportRoot = ".\third_party\itch-assets\reports",
+    [string]$PackRoot = ".\imports\raw\third_party_assets\itch-assets\packs",
+    [string]$OutputRoot = ".\imports\raw\third_party_assets\itch-assets\packs-by-category",
+    [string]$ReportRoot = ".\imports\raw\third_party_assets\itch-assets\reports",
     [switch]$DryRun
 )
 

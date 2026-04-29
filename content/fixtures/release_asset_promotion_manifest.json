@@ -40,7 +40,7 @@
     },
     {
       "id": "source_psd_reference",
-      "path": "third_party/itch-assets/packs/fantasy-platformer-game-ui/PSD/source_panel.psd",
+      "path": "imports/raw/third_party_assets/itch-assets/packs/fantasy-platformer-game-ui/PSD/source_panel.psd",
       "kind": "source_reference",
       "release_required": false,
       "distribution": "excluded",

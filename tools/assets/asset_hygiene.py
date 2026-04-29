@@ -10,7 +10,7 @@ import os
 import shutil
 from pathlib import Path
 
-DEFAULT_ROOTS = ["third_party", "imports", "itch"]
+DEFAULT_ROOTS = ["imports"]
 EXCLUDED_DIRS = {
     ".git",
     ".venv",
@@ -48,13 +48,13 @@ def sha256_file(path: Path) -> str:
 
 def preference_score(path_rel: str) -> tuple[int, int, str]:
     checks = [
-        "third_party/rpgmaker-mz/steam-dlc/packs/",
-        "third_party/huggingface/",
-        "third_party/itch-assets/packs/",
-        "third_party/rpgmaker-mz/",
-        "third_party/",
+        "imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/packs/",
+        "imports/raw/third_party_assets/huggingface/",
+        "imports/raw/third_party_assets/itch-assets/packs/",
+        "imports/raw/third_party_assets/rpgmaker-mz/",
+        "imports/raw/third_party_assets/",
         "imports/",
-        "itch/",
+        "imports/raw/itch_assets/",
     ]
     for idx, prefix in enumerate(checks):
         if path_rel.startswith(prefix):

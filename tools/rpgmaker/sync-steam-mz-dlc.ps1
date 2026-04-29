@@ -33,7 +33,7 @@ if (-not (Test-Path -LiteralPath $SteamDlcRoot)) {
 }
 
 $steamDlcRootResolved = (Resolve-Path $SteamDlcRoot).Path
-$vendorRoot = Join-Path $RepoRoot "third_party/rpgmaker-mz/steam-dlc"
+$vendorRoot = Join-Path $RepoRoot "imports/raw/third_party_assets/rpgmaker-mz/steam-dlc"
 $packsRoot = Join-Path $vendorRoot "packs"
 $pluginRoot = Join-Path $vendorRoot "plugin-dropins/js/plugins/steam-dlc"
 $reportRoot = Join-Path $vendorRoot "reports"
@@ -126,7 +126,7 @@ if (-not $DryRun) {
     if (-not $SkipCuratedValidation) {
         & (Join-Path $PSScriptRoot "validate-plugin-dropins.ps1") `
             -RepoRoot $RepoRoot `
-            -PluginRoot "third_party/rpgmaker-mz/steam-dlc/plugin-dropins-curated/js/plugins" `
+            -PluginRoot "imports/raw/third_party_assets/rpgmaker-mz/steam-dlc/plugin-dropins-curated/js/plugins" `
             -ReportPrefix "plugin_dropins_curated_validation" `
             -FailOnError
     }
