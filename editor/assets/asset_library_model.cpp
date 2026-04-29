@@ -229,8 +229,19 @@ void AssetLibraryModel::setFilter(urpg::assets::AssetLibraryFilter filter) {
 
 bool AssetLibraryModel::applyQuickFilter(std::string_view filter_id) {
     urpg::assets::AssetLibraryFilter filter;
+    const auto recordResult = [&](bool success, std::string code, std::string message) {
+        snapshot_.last_action = {
+            {"action", "filter_assets"},
+            {"success", success},
+            {"code", std::move(code)},
+            {"message", std::move(message)},
+            {"filter_id", std::string(filter_id)},
+        };
+        action_history_.push_back(snapshot_.last_action);
+    };
     if (filter_id == "all_assets") {
         setFilter(filter);
+        recordResult(true, "quick_filter_applied", "All asset filters cleared.");
         return true;
     }
     if (filter_id == "sequence_packs") {
@@ -238,18 +249,22 @@ bool AssetLibraryModel::applyQuickFilter(std::string_view filter_id) {
         filter.runtime_ready_only = true;
         filter.previewable_only = true;
         setFilter(filter);
+        recordResult(true, "quick_filter_applied", "Sequence pack filter applied.");
         return true;
     }
     if (filter_id == "runtime_ready") {
         filter.runtime_ready_only = true;
         setFilter(filter);
+        recordResult(true, "quick_filter_applied", "Runtime-ready asset filter applied.");
         return true;
     }
     if (filter_id == "previewable") {
         filter.previewable_only = true;
         setFilter(filter);
+        recordResult(true, "quick_filter_applied", "Previewable asset filter applied.");
         return true;
     }
+    recordResult(false, "unknown_quick_filter", "Asset quick filter is not registered.");
     return false;
 }
 
