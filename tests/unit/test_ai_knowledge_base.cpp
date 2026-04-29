@@ -349,6 +349,10 @@ TEST_CASE("AI assistant panel exposes knowledge and task plan snapshots",
     REQUIRE(snapshot["apply_preview"]["project_patch_count"] == 0);
     REQUIRE(snapshot["apply_history"]["count"] == 0);
     REQUIRE(snapshot["apply_history"]["can_revert_latest"] == false);
+    REQUIRE(snapshot["rationale_rows"].size() == 1);
+    REQUIRE(snapshot["rationale_rows"][0]["step_id"] == "step_dialogue");
+    REQUIRE(snapshot["rationale_rows"][0]["state"] == "needs_review");
+    REQUIRE(snapshot["rationale_rows"][0]["rationale"].get<std::string>().find("requires review") != std::string::npos);
     REQUIRE(snapshot["wysiwyg_chatbot_coverage"]["passed"] == true);
     REQUIRE(snapshot["wysiwyg_chatbot_coverage"]["asset_library_actions_available"] == true);
     REQUIRE(snapshot["wysiwyg_chatbot_coverage"]["release_panel_count"].get<size_t>() > 0);
@@ -372,6 +376,11 @@ TEST_CASE("AI assistant panel approves and applies task plans",
     REQUIRE(panel.approveStep("step_dialogue"));
     panel.render();
     REQUIRE(panel.lastRenderSnapshot()["approval"]["pending_count"] == 0);
+    REQUIRE(panel.lastRenderSnapshot()["rationale_rows"][0]["state"] == "approved");
+    REQUIRE(panel.lastRenderSnapshot()["apply_preview"]["would_apply"] == true);
+    REQUIRE(panel.lastRenderSnapshot()["apply_preview"]["diff_rows"].size() > 0);
+    REQUIRE(panel.lastRenderSnapshot()["apply_preview"]["diff_rows"][0]["tone"] == "added");
+    REQUIRE(panel.lastRenderSnapshot()["apply_preview"]["diff_rows"][0]["root"] == "ai_tool_applications");
 
     REQUIRE(panel.applyApprovedPlan());
     REQUIRE(panel.lastRenderSnapshot()["last_apply"]["applied"] == true);
@@ -386,11 +395,16 @@ TEST_CASE("AI assistant panel approves and applies task plans",
     REQUIRE(panel.lastRenderSnapshot()["result_diff"]["has_changes"] == true);
     REQUIRE(panel.lastRenderSnapshot()["result_diff"]["forward_patch_count"].get<size_t>() > 0);
     REQUIRE(panel.lastRenderSnapshot()["result_diff"]["revert_patch_count"].get<size_t>() > 0);
+    REQUIRE(panel.lastRenderSnapshot()["result_diff"]["row_count"].get<size_t>() > 0);
+    REQUIRE(panel.lastRenderSnapshot()["result_diff"]["rows"][0]["operation"] == "add");
+    REQUIRE(panel.lastRenderSnapshot()["result_diff"]["rows"][0].contains("before"));
+    REQUIRE(panel.lastRenderSnapshot()["result_diff"]["rows"][0].contains("after"));
     REQUIRE(panel.lastRenderSnapshot()["apply_history"]["count"] == 1);
     REQUIRE(panel.lastRenderSnapshot()["apply_history"]["can_revert_latest"] == true);
     REQUIRE(panel.lastRenderSnapshot()["apply_history"]["entries"][0]["can_revert"] == true);
     REQUIRE(panel.lastRenderSnapshot()["apply_history"]["entries"][0]["project_patch_count"].get<size_t>() > 0);
     REQUIRE(panel.lastRenderSnapshot()["apply_history"]["entries"][0]["revert_patch_count"].get<size_t>() > 0);
+    REQUIRE(panel.lastRenderSnapshot()["apply_history"]["entries"][0]["diff_rows"].size() > 0);
 
     REQUIRE(panel.revertLastAppliedPlan());
     REQUIRE(panel.lastRenderSnapshot()["last_revert"]["reverted"] == true);

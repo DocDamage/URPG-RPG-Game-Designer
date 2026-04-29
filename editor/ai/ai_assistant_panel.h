@@ -32,6 +32,8 @@ private:
     nlohmann::json buildApplyPreviewSnapshot() const;
     nlohmann::json buildApplyHistorySnapshot() const;
     nlohmann::json buildValidationSnapshot() const;
+    nlohmann::json buildRationaleRows() const;
+    nlohmann::json buildDiffRows(const urpg::ai::AiToolApplyResult& result) const;
 
     urpg::ai::AiAssistantConfig config_;
     bool provider_available_ = false;

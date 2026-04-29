@@ -10,7 +10,7 @@ URPG has enough native subsystems now that the next work should deepen existing 
 2. State/message/picture: scoped/self/map/JS variable banks, nested text escapes, picture task bindings, high-count picture management, native picture UI runtime preview rows, and compat migration adapters for scoped state/picture tasks are started in native code; broader fixture import coverage remains.
 3. Progression: level-up stat allocation pools, caps, class/actor rules, preview math, editor snapshots, applied stat-allocation save/load records, and post-load actor application rows are started in native code; richer visual controls remain.
 4. Asset browser/runtime library: tag/status/category filters, duplicate groups, source/license badges, previewable/runtime-ready counts, used-by references, promote/archive action state, shared editor/chatbot asset action rows, and shared thumbnail/waveform preview rows are started in native code; actual file moves and richer generated preview assets remain.
-5. AI editor workflow: approve/reject/apply/revert controls, validation blocking reasons, apply-preview patch counts, result diff patch counts, and undo-stack/apply-history snapshots are started in native code; richer painted diff browsing and per-record rationale UI remain.
+5. AI editor workflow: approve/reject/apply/revert controls, validation blocking reasons, apply-preview patch counts, result diff patch counts, undo-stack/apply-history snapshots, structured diff rows, and per-step rationale rows are started in native code; richer painted diff rendering remains.
 6. Project knowledge indexing: project files, schemas, readiness reports, validation reports, asset catalogs, project docs, template specs, and source summaries are started in native project-data indexing; direct filesystem/doc ingestion and freshness checks remain.
 7. Concrete AI tools: AI applies now emit concrete editor preview artifacts for event graphs, battle VFX timelines, lighting/weather previews, ability sandbox compositions, export preview configuration, and asset import/promotion; deeper native validator execution remains.
 8. Live chat providers: OpenAI-compatible `IChatService` transport is started with deterministic dry-run request/command building, curl execution, and common response import for ChatGPT-compatible gateways, Kimi-compatible gateways, Ollama, LM Studio, OpenRouter, vLLM, and LocalAI; richer provider profile UI and streaming remain.
@@ -31,6 +31,10 @@ Asset action recommendations are shared by the WYSIWYG asset browser and chatbot
 ## Asset Preview Rows
 
 Asset preview metadata is now shared through `buildAssetPreviewRows()`. Promotion catalog records can carry thumbnail dimensions, audio duration, and waveform peaks; the editor asset browser, AI assistant panel, and chatbot snapshots expose ready/pending/missing preview state for images, video thumbnails, and audio waveforms without relying on a separate UI-only interpretation.
+
+## AI Review Diff Rows
+
+`AiAssistantPanel` now projects each reviewable step into rationale rows with capability, tool, approval state, project paths, arguments, and a user-facing rationale string. Apply previews, result diffs, and apply-history entries now expose structured diff rows derived from JSON patches, including operation, root path, before/after values, tone, and summary data for a future painted diff browser.
 
 ## Progression Save Records
 

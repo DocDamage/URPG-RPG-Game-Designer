@@ -15,6 +15,39 @@ nlohmann::json diagnosticsToJson(const std::vector<urpg::ai::AiKnowledgeDiagnost
     return out;
 }
 
+std::string patchPathRoot(const std::string& path) {
+    if (path.empty() || path == "/") {
+        return "/";
+    }
+    const auto next = path.find('/', 1);
+    return next == std::string::npos ? path.substr(1) : path.substr(1, next - 1);
+}
+
+std::string patchTone(const std::string& operation) {
+    if (operation == "add") {
+        return "added";
+    }
+    if (operation == "remove") {
+        return "removed";
+    }
+    if (operation == "replace") {
+        return "changed";
+    }
+    return "review";
+}
+
+nlohmann::json valueAtPointerOrNull(const nlohmann::json& document, const std::string& path) {
+    try {
+        const nlohmann::json::json_pointer pointer(path);
+        if (document.contains(pointer)) {
+            return document.at(pointer);
+        }
+    } catch (const nlohmann::json::exception&) {
+        return nullptr;
+    }
+    return nullptr;
+}
+
 } // namespace
 
 namespace urpg::editor {
@@ -73,15 +106,19 @@ void AiAssistantPanel::render() {
         {"validation", buildValidationSnapshot()},
         {"apply_preview", buildApplyPreviewSnapshot()},
         {"apply_history", buildApplyHistorySnapshot()},
+        {"rationale_rows", buildRationaleRows()},
     };
     if (!applied_changes_.empty()) {
         last_render_snapshot_["last_apply"] = applied_changes_.back().toJson();
+        const auto diffRows = buildDiffRows(applied_changes_.back());
         last_render_snapshot_["result_diff"] = {
             {"has_changes", !applied_changes_.back().project_patch.empty()},
             {"forward_patch_count", applied_changes_.back().project_patch.size()},
             {"revert_patch_count", applied_changes_.back().revert_patch.size()},
             {"forward_patch", applied_changes_.back().project_patch},
             {"revert_patch", applied_changes_.back().revert_patch},
+            {"rows", diffRows},
+            {"row_count", diffRows.size()},
         };
     } else {
         last_render_snapshot_["result_diff"] = {
@@ -90,6 +127,8 @@ void AiAssistantPanel::render() {
             {"revert_patch_count", 0},
             {"forward_patch", nlohmann::json::array()},
             {"revert_patch", nlohmann::json::array()},
+            {"rows", nlohmann::json::array()},
+            {"row_count", 0},
         };
     }
 }
@@ -247,6 +286,8 @@ nlohmann::json AiAssistantPanel::buildApplyPreviewSnapshot() const {
         {"revert_patch_count", result.revert_patch.size()},
         {"project_patch", result.project_patch},
         {"revert_patch", result.revert_patch},
+        {"diff_rows", buildDiffRows(result)},
+        {"rationale_rows", buildRationaleRows()},
     };
 }
 
@@ -263,6 +304,7 @@ nlohmann::json AiAssistantPanel::buildApplyHistorySnapshot() const {
             {"can_revert", index + 1 == applied_changes_.size()},
             {"project_patch", change.project_patch},
             {"revert_patch", change.revert_patch},
+            {"diff_rows", buildDiffRows(change)},
         });
     }
     return {
@@ -292,6 +334,68 @@ nlohmann::json AiAssistantPanel::buildValidationSnapshot() const {
         {"diagnostics", diagnosticsToJson(diagnostics)},
         {"blocked_reason", blockedReason},
     };
+}
+
+nlohmann::json AiAssistantPanel::buildRationaleRows() const {
+    nlohmann::json rows = nlohmann::json::array();
+    for (const auto& step : current_task_plan_.steps) {
+        const auto* tool = knowledge_.tools.find(step.tool_id);
+        const auto* capability = tool == nullptr ? nullptr : knowledge_.capabilities.find(tool->capability_id);
+        const std::string state = step.rejected ? "rejected" : (step.approved ? "approved" : "needs_review");
+        nlohmann::json projectPaths = nlohmann::json::array();
+        if (capability != nullptr) {
+            for (const auto& path : capability->project_paths) {
+                projectPaths.push_back(path);
+            }
+        }
+        rows.push_back({
+            {"step_id", step.id},
+            {"tool_id", step.tool_id},
+            {"tool_title", tool == nullptr ? "" : tool->title},
+            {"capability_id", tool == nullptr ? "" : tool->capability_id},
+            {"capability_title", capability == nullptr ? "" : capability->title},
+            {"summary", step.summary},
+            {"state", state},
+            {"mutates_project", tool != nullptr && tool->mutates_project},
+            {"requires_approval", tool != nullptr && tool->requires_approval},
+            {"project_paths", projectPaths},
+            {"arguments", step.arguments},
+            {"rationale",
+             step.rejected
+                 ? "Step was rejected by the user and is blocked from apply."
+                 : (step.approved
+                        ? "Step is approved for a controlled project-data patch."
+                        : "Step requires review before it can modify project data.")},
+        });
+    }
+    return rows;
+}
+
+nlohmann::json AiAssistantPanel::buildDiffRows(const urpg::ai::AiToolApplyResult& result) const {
+    nlohmann::json rows = nlohmann::json::array();
+    if (!result.project_patch.is_array()) {
+        return rows;
+    }
+    for (std::size_t index = 0; index < result.project_patch.size(); ++index) {
+        const auto& patch = result.project_patch[index];
+        if (!patch.is_object()) {
+            continue;
+        }
+        const std::string op = patch.value("op", "");
+        const std::string path = patch.value("path", "");
+        rows.push_back({
+            {"index", index},
+            {"operation", op},
+            {"path", path},
+            {"root", patchPathRoot(path)},
+            {"tone", patchTone(op)},
+            {"before", valueAtPointerOrNull(result.before_project_data, path)},
+            {"after", valueAtPointerOrNull(result.project_data, path)},
+            {"patch", patch},
+            {"summary", patchTone(op) + std::string(" ") + path},
+        });
+    }
+    return rows;
 }
 
 } // namespace urpg::editor
