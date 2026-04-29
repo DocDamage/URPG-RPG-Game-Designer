@@ -14,6 +14,7 @@ Current app-level release readiness source of truth: [`docs/APP_RELEASE_READINES
 - `SRC-007` remains deduped and catalog-normalized under `imports/raw/urpg_stuff`; existing OGG context was preserved and tracked MP3/WAV files remain excluded.
 - `SRC-008` now covers the local `assets to ingest` drop: the raw 9.5 GiB folder was moved under `imports/raw/urpg_stuff/assets_to_ingest_20260429`, contained no audio, and was aggregate-cataloged into 35 editor/library sequence/archive/document/metadata pack records over 662,009 raw files.
 - Shared WYSIWYG/chatbot asset action and preview rows now expose aggregate animation-pack sequence metadata, including frame counts, sequence counts, and representative sequence samples.
+- Asset library snapshots now expose aggregate sequence asset, raw frame, and clip counts for SRC-008-style animation packs so editor/chatbot summaries do not need to inspect raw intake folders.
 - The README was rewritten to match the current native runtime/editor, AI review workflow, template coverage, asset-intake governance, release boundaries, and product positioning versus RPG Maker, Unity/Godot, and browser-only RPG tools.
 
 2026-04-29 plugin feature absorption checkpoint:

@@ -24,6 +24,9 @@ struct AssetLibraryModelSnapshot {
     size_t referenced_asset_count = 0;
     size_t runtime_ready_count = 0;
     size_t previewable_count = 0;
+    size_t sequence_asset_count = 0;
+    size_t sequence_frame_count = 0;
+    size_t sequence_clip_count = 0;
     size_t promoted_count = 0;
     size_t archived_count = 0;
     size_t filtered_asset_count = 0;

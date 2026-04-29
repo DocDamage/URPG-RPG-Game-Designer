@@ -351,6 +351,10 @@ TEST_CASE("Asset action view recommends promote archive and blocked states",
          }}});
     library.addUsageReference("imports/raw/urpg_stuff/characters/hero.png", "actor.hero");
 
+    REQUIRE(library.snapshot().sequence_asset_count == 1);
+    REQUIRE(library.snapshot().sequence_frame_count == 1200);
+    REQUIRE(library.snapshot().sequence_clip_count == 18);
+
     const auto rows = urpg::assets::buildAssetActionRows(library.snapshot());
     REQUIRE(rows.size() == 5);
 

@@ -211,6 +211,9 @@ void AssetLibraryModel::refreshSnapshot() {
     snapshot_.referenced_asset_count = asset_snapshot.referenced_asset_count;
     snapshot_.runtime_ready_count = asset_snapshot.runtime_ready_count;
     snapshot_.previewable_count = asset_snapshot.previewable_count;
+    snapshot_.sequence_asset_count = asset_snapshot.sequence_asset_count;
+    snapshot_.sequence_frame_count = asset_snapshot.sequence_frame_count;
+    snapshot_.sequence_clip_count = asset_snapshot.sequence_clip_count;
     snapshot_.promoted_count = asset_snapshot.promoted_count;
     snapshot_.archived_count = asset_snapshot.archived_count;
     snapshot_.filtered_asset_count = library_.filterAssets(filter_).size();

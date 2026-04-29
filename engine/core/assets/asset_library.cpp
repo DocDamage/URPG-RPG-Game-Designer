@@ -118,6 +118,10 @@ bool statusLess(const AssetRecord& lhs, const AssetRecord& rhs) {
     return lhs.path < rhs.path;
 }
 
+bool isSequenceAsset(const AssetRecord& asset) {
+    return asset.media_kind == "image_sequence_collection" || asset.media_kind == "image_sequence";
+}
+
 std::string lowerPath(std::string value) {
     std::replace(value.begin(), value.end(), '\\', '/');
     std::transform(value.begin(), value.end(), value.begin(), [](unsigned char ch) {
@@ -612,6 +616,9 @@ void AssetLibrary::refreshDerivedCounts() {
     snapshot_.referenced_asset_count = referenced_assets_.size();
     snapshot_.runtime_ready_count = 0;
     snapshot_.previewable_count = 0;
+    snapshot_.sequence_asset_count = 0;
+    snapshot_.sequence_frame_count = 0;
+    snapshot_.sequence_clip_count = 0;
     snapshot_.promoted_count = 0;
     snapshot_.archived_count = 0;
     for (const auto& asset : snapshot_.assets) {
@@ -620,6 +627,11 @@ void AssetLibrary::refreshDerivedCounts() {
         }
         if (isPreviewable(asset)) {
             ++snapshot_.previewable_count;
+        }
+        if (isSequenceAsset(asset)) {
+            ++snapshot_.sequence_asset_count;
+            snapshot_.sequence_frame_count += asset.frame_count;
+            snapshot_.sequence_clip_count += asset.sequence_count;
         }
         if (asset.statuses.contains(AssetStatus::Promoted)) {
             ++snapshot_.promoted_count;

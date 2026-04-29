@@ -214,6 +214,9 @@ TEST_CASE("AssetLibraryModel loads optional local promotion catalog", "[assets][
     REQUIRE(model.snapshot().kind_counts.at("image_sequence_collection") == 1);
     REQUIRE(model.snapshot().runtime_ready_count == 2);
     REQUIRE(model.snapshot().previewable_count == 2);
+    REQUIRE(model.snapshot().sequence_asset_count == 1);
+    REQUIRE(model.snapshot().sequence_frame_count == 0);
+    REQUIRE(model.snapshot().sequence_clip_count == 0);
     REQUIRE(model.snapshot().filtered_asset_count == 2);
     REQUIRE(model.snapshot().asset_preview_rows.size() == 2);
     const auto sized_preview = std::find_if(
