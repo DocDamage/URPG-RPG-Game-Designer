@@ -55,7 +55,7 @@ Before any plan is applied, `validateCreatorCommandPlan` checks schema, apply re
 The chatbot now has an in-tree knowledge foundation in `engine/core/ai/ai_knowledge_base.*`. It is deterministic and safe to run without a live model provider.
 
 - `AppCapabilityRegistry` catalogs what the app can do across map authoring, event graphs, dialogue, abilities, battle VFX, save labs, export preview, assets, templates, and creator commands.
-- `ProjectKnowledgeIndex` summarizes supplied project JSON into searchable project entries for maps, events, dialogue, abilities, assets, templates, localization, and export settings.
+- `ProjectKnowledgeIndex` summarizes supplied project JSON into searchable project entries for maps, events, dialogue, abilities, assets, templates, localization, export settings, project files, schemas, readiness reports, validation reports, asset catalogs, project docs, template specs, and source summaries.
 - `DocumentationKnowledgeIndex` exposes canonical docs such as the agent index, architecture map, quality gates, AI Copilot guide, and release readiness matrix.
 - `AiToolRegistry` defines safe callable tools across maps, regions, lighting/weather, events, dialogue, localization, quests, NPC schedules, abilities, battle VFX, save labs, assets, templates, export preview, validation, and creator commands.
 - `AiTaskPlanner` turns user requests into reviewable `urpg.ai_task_plan.v1` tool plans.

@@ -94,6 +94,102 @@ void appendObjectSummary(urpg::ai::ProjectKnowledgeIndex& index,
     });
 }
 
+std::string jsonString(const nlohmann::json& value, const std::string& key, const std::string& fallback = "") {
+    if (value.is_object() && value.contains(key) && value[key].is_string()) {
+        return value[key].get<std::string>();
+    }
+    return fallback;
+}
+
+std::string jsonCountSummary(const nlohmann::json& value, const std::string& fallback) {
+    if (value.is_array() || value.is_object()) {
+        return fallback + " entries available: " + std::to_string(value.size());
+    }
+    return fallback + " entry is available.";
+}
+
+int jsonInt(const nlohmann::json& value, const std::string& key, int fallback = 0) {
+    if (!value.is_object() || !value.contains(key) || !value[key].is_number_integer()) {
+        return fallback;
+    }
+    return value[key].get<int>();
+}
+
+void appendStructuredKnowledgeRecords(urpg::ai::ProjectKnowledgeIndex& index,
+                                      const nlohmann::json& root,
+                                      const std::string& key,
+                                      const std::string& type,
+                                      const std::string& title,
+                                      const std::vector<std::string>& keywords) {
+    if (!root.contains(key)) {
+        return;
+    }
+    const auto& value = root[key];
+    const auto count = value.is_array() || value.is_object() ? value.size() : 1;
+    auto summaryKeywords = keywords;
+    pushUnique(summaryKeywords, key);
+    pushUnique(summaryKeywords, type);
+    index.addEntry({
+        key,
+        type + "_collection",
+        title,
+        "/" + key,
+        jsonCountSummary(value, title),
+        summaryKeywords,
+        {{"count", count}, {"source", key}},
+    });
+
+    auto appendRecord = [&](const nlohmann::json& record, const std::string& id, const std::string& path) {
+        const auto recordTitle = jsonString(record, "title", jsonString(record, "name", id));
+        auto summary = jsonString(record, "summary");
+        if (summary.empty()) {
+            summary = jsonString(record, "description");
+        }
+        if (summary.empty()) {
+            summary = recordTitle + " indexed from " + title + ".";
+        }
+        auto recordKeywords = keywords;
+        pushUnique(recordKeywords, id);
+        pushUnique(recordKeywords, recordTitle);
+        pushUnique(recordKeywords, jsonString(record, "status"));
+        pushUnique(recordKeywords, jsonString(record, "type"));
+        index.addEntry({
+            key + ":" + id,
+            type,
+            recordTitle,
+            path,
+            summary,
+            recordKeywords,
+            {
+                {"source", key},
+                {"record_id", id},
+                {"file_path", jsonString(record, "path")},
+                {"status", jsonString(record, "status")},
+                {"schema", jsonString(record, "schema")},
+                {"asset_count", jsonInt(record, "asset_count")},
+                {"duplicate_group_count", jsonInt(record, "duplicate_group_count")},
+            },
+        });
+    };
+
+    if (value.is_array()) {
+        for (std::size_t indexValue = 0; indexValue < value.size(); ++indexValue) {
+            const auto& record = value[indexValue];
+            if (!record.is_object()) {
+                continue;
+            }
+            const auto id = jsonString(record, "id", jsonString(record, "path", std::to_string(indexValue)));
+            appendRecord(record, id, "/" + key + "/" + std::to_string(indexValue));
+        }
+    } else if (value.is_object()) {
+        for (auto it = value.begin(); it != value.end(); ++it) {
+            if (it.value().is_object()) {
+                appendRecord(it.value(), it.key(), "/" + key + "/" + it.key());
+            }
+        }
+    }
+}
+
 } // namespace
 
 namespace urpg::ai {
@@ -245,6 +341,22 @@ ProjectKnowledgeIndex ProjectKnowledgeIndex::buildFromProjectData(const nlohmann
     appendObjectSummary(index, projectData, "templates", "template", "Templates");
     appendObjectSummary(index, projectData, "localization", "localization", "Localization");
     appendObjectSummary(index, projectData, "export", "export", "Export Settings");
+    appendStructuredKnowledgeRecords(index, projectData, "project_files", "project_file", "Project Files",
+                                     {"project", "file", "source", "json", "config"});
+    appendStructuredKnowledgeRecords(index, projectData, "schemas", "schema", "Schemas",
+                                     {"schema", "contract", "validation", "json"});
+    appendStructuredKnowledgeRecords(index, projectData, "readiness_reports", "readiness_report", "Readiness Reports",
+                                     {"readiness", "status", "release", "wysiwyg"});
+    appendStructuredKnowledgeRecords(index, projectData, "validation_reports", "validation_report", "Validation Reports",
+                                     {"validation", "test", "gate", "diagnostic"});
+    appendStructuredKnowledgeRecords(index, projectData, "asset_catalogs", "asset_catalog", "Asset Catalogs",
+                                     {"asset", "catalog", "license", "duplicate", "preview"});
+    appendStructuredKnowledgeRecords(index, projectData, "docs", "doc", "Project Docs",
+                                     {"doc", "documentation", "guide", "spec"});
+    appendStructuredKnowledgeRecords(index, projectData, "template_specs", "template_spec", "Template Specs",
+                                     {"template", "starter", "genre", "spec"});
+    appendStructuredKnowledgeRecords(index, projectData, "source_summaries", "source_summary", "Source Summaries",
+                                     {"source", "code", "summary", "subsystem"});
     return index;
 }
 

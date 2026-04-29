@@ -34,6 +34,27 @@ TEST_CASE("AI knowledge snapshot indexes app capabilities docs tools and project
         {"dialogue", {{"intro", {{"lines", nlohmann::json::array({"Hello"})}}}}},
         {"abilities", nlohmann::json::array({{{"ability_id", "fire"}}})},
         {"assets", nlohmann::json::array({{{"id", "hero"}}})},
+        {"project_files", nlohmann::json::array({
+            {{"id", "project_json"}, {"path", "game/project.urpg.json"}, {"title", "Project Manifest"}, {"summary", "Root project file."}},
+        })},
+        {"schemas", nlohmann::json::array({
+            {{"id", "ability_schema"}, {"path", "content/schemas/gameplay_ability.schema.json"}, {"title", "Ability Schema"}, {"summary", "Ability authoring contract."}},
+        })},
+        {"readiness_reports", nlohmann::json::array({
+            {{"id", "release_matrix"}, {"path", "docs/RELEASE_READINESS_MATRIX.md"}, {"status", "PARTIAL"}, {"summary", "Release readiness evidence."}},
+        })},
+        {"validation_reports", nlohmann::json::array({
+            {{"id", "local_gate"}, {"path", "reports/local_gate.json"}, {"status", "passed"}, {"summary", "Local gate validation output."}},
+        })},
+        {"asset_catalogs", nlohmann::json::array({
+            {{"id", "main_catalog"}, {"path", "imports/reports/asset_intake/catalog.json"}, {"asset_count", 42}, {"duplicate_group_count", 3}, {"summary", "Indexed asset catalog."}},
+        })},
+        {"docs", nlohmann::json::array({
+            {{"id", "combat_doc"}, {"path", "docs/BATTLE_CORE_NATIVE_SPEC.md"}, {"title", "Battle Spec"}, {"summary", "Battle authoring docs."}},
+        })},
+        {"template_specs", nlohmann::json::array({
+            {{"id", "monster_collector"}, {"path", "docs/templates/monster_collector_rpg.md"}, {"status", "starter"}, {"summary", "Monster collector template spec."}},
+        })},
     };
 
     const auto snapshot = urpg::ai::buildDefaultAiKnowledgeSnapshot(project);
@@ -45,8 +66,20 @@ TEST_CASE("AI knowledge snapshot indexes app capabilities docs tools and project
     REQUIRE(snapshot.capabilities.find("creator_command") != nullptr);
     REQUIRE(snapshot.tools.find("add_event") != nullptr);
     REQUIRE_FALSE(snapshot.project_index.search("dialogue").empty());
+    REQUIRE_FALSE(snapshot.project_index.search("ability schema").empty());
+    REQUIRE_FALSE(snapshot.project_index.search("release readiness").empty());
+    REQUIRE_FALSE(snapshot.project_index.search("local gate validation").empty());
+    REQUIRE_FALSE(snapshot.project_index.search("asset catalog duplicate").empty());
+    REQUIRE_FALSE(snapshot.project_index.search("monster collector template").empty());
     REQUIRE_FALSE(snapshot.docs_index.search("copilot").empty());
     REQUIRE(snapshot.toJson()["capabilities"].size() == snapshot.capabilities.capabilities().size());
+    const auto catalogMatches = snapshot.project_index.search("main_catalog");
+    const auto catalogIt = std::find_if(catalogMatches.begin(), catalogMatches.end(), [](const auto& entry) {
+        return entry.id == "asset_catalogs:main_catalog";
+    });
+    REQUIRE(catalogIt != catalogMatches.end());
+    REQUIRE(catalogIt->metadata["asset_count"] == 42);
+    REQUIRE(catalogIt->metadata["duplicate_group_count"] == 3);
 }
 
 TEST_CASE("AI task planner creates safe reviewable tool plans for creator tasks",
