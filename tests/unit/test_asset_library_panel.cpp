@@ -254,6 +254,8 @@ TEST_CASE("AssetLibraryModel loads optional local promotion catalog", "[assets][
     REQUIRE(model.snapshot().last_action["success"] == true);
     REQUIRE(model.snapshot().last_action["code"] == "quick_filter_applied");
     REQUIRE(model.snapshot().last_action["filter_id"] == "sequence_packs");
+    REQUIRE(model.snapshot().action_history.size() == 1);
+    REQUIRE(model.snapshot().action_history.back()["filter_id"] == "sequence_packs");
     REQUIRE(model.snapshot().filtered_asset_count == 1);
     REQUIRE(model.snapshot().filter_controls["active_filter"]["media_kind"] == "image_sequence_collection");
     REQUIRE(model.snapshot().filter_controls["active_filter"]["runtime_ready_only"] == true);
@@ -265,12 +267,16 @@ TEST_CASE("AssetLibraryModel loads optional local promotion catalog", "[assets][
 
     REQUIRE(model.applyQuickFilter("all_assets"));
     REQUIRE(model.snapshot().last_action["filter_id"] == "all_assets");
+    REQUIRE(model.snapshot().action_history.size() == 2);
+    REQUIRE(model.snapshot().action_history.back()["filter_id"] == "all_assets");
     REQUIRE(model.snapshot().filtered_asset_count == 2);
     REQUIRE(model.snapshot().filter_controls["active_filter"]["media_kind"] == "");
     REQUIRE_FALSE(model.applyQuickFilter("missing_filter"));
     REQUIRE(model.snapshot().last_action["success"] == false);
     REQUIRE(model.snapshot().last_action["code"] == "unknown_quick_filter");
     REQUIRE(model.snapshot().last_action["filter_id"] == "missing_filter");
+    REQUIRE(model.snapshot().action_history.size() == 3);
+    REQUIRE(model.snapshot().action_history.back()["filter_id"] == "missing_filter");
 
     std::filesystem::remove_all(root);
 }

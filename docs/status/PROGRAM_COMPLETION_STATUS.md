@@ -18,7 +18,7 @@ Current app-level release readiness source of truth: [`docs/APP_RELEASE_READINES
 - Asset library model snapshots now expose active filter state and quick-filter controls for sequence packs, runtime-ready assets, and previewable assets.
 - Asset action rows and preview rows now honor the active asset-library filter while full-library counts remain visible at the snapshot top level.
 - `AssetLibraryModel::applyQuickFilter()` now applies the exposed sequence-pack, runtime-ready, previewable, and all-assets reset actions for WYSIWYG/chatbot control paths.
-- Asset quick-filter actions now record deterministic success/failure payloads in `last_action` and `action_history`.
+- Asset quick-filter actions now record deterministic success/failure payloads in `last_action` and immediately refreshed `action_history`.
 - The README was rewritten to match the current native runtime/editor, AI review workflow, template coverage, asset-intake governance, release boundaries, and product positioning versus RPG Maker, Unity/Godot, and browser-only RPG tools.
 
 2026-04-29 plugin feature absorption checkpoint:

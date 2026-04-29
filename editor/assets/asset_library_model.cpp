@@ -238,6 +238,7 @@ bool AssetLibraryModel::applyQuickFilter(std::string_view filter_id) {
             {"filter_id", std::string(filter_id)},
         };
         action_history_.push_back(snapshot_.last_action);
+        snapshot_.action_history = action_history_;
     };
     if (filter_id == "all_assets") {
         setFilter(filter);

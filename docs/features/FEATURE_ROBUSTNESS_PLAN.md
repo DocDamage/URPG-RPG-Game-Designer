@@ -34,7 +34,7 @@ Asset preview metadata is now shared through `buildAssetPreviewRows()`. Promotio
 
 ## Asset Filter Controls
 
-`AssetLibraryModelSnapshot` now exposes deterministic filter controls for WYSIWYG and chatbot surfaces. The snapshot records the active filter, filtered result count, and quick filters for sequence packs, runtime-ready assets, and previewable assets; sequence-pack quick filters include aggregate pack, frame, and clip counts so SRC-008-style animation drops are discoverable without opening raw intake folders. `AssetLibraryModel::applyQuickFilter()` applies those exposed actions, including sequence packs, runtime-ready, previewable, and all-assets reset, and records success/failure payloads under `last_action` plus `action_history`. Asset action rows and preview rows are built from the active filtered asset set, while top-level counts continue to summarize the full loaded library.
+`AssetLibraryModelSnapshot` now exposes deterministic filter controls for WYSIWYG and chatbot surfaces. The snapshot records the active filter, filtered result count, and quick filters for sequence packs, runtime-ready assets, and previewable assets; sequence-pack quick filters include aggregate pack, frame, and clip counts so SRC-008-style animation drops are discoverable without opening raw intake folders. `AssetLibraryModel::applyQuickFilter()` applies those exposed actions, including sequence packs, runtime-ready, previewable, and all-assets reset, and records success/failure payloads under `last_action` plus the immediately refreshed `action_history`. Asset action rows and preview rows are built from the active filtered asset set, while top-level counts continue to summarize the full loaded library.
 
 ## AI Review Diff Rows
 
