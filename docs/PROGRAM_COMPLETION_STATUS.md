@@ -22,6 +22,7 @@ Current app-level release readiness source of truth: [`docs/APP_RELEASE_READINES
 - State-driven audio absorbed random BGM selection as deterministic weighted track pools.
 - Battle presentation absorbed animated battle media layers and battler light cues; battle VFX absorbed blood splatter as a first-class cue kind.
 - Map environment preview absorbed parallax layers, procedural region smoke emitters, terrain mesh rules, and edge-scroll camera profiles as native saved project data.
+- World graph absorbed fast-travel destinations and vehicle profiles with native preview commands, unlock/terrain diagnostics, vehicle audio metadata, interiors, and transitions.
 
 2026-04-28 documentation and AI/editor checkpoint:
 - `development` is pushed to `origin/development` at commit `cfdae41e9` (`Advance AI editor and template readiness`) before this documentation refresh.

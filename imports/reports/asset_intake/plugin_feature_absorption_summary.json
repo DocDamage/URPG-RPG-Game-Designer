@@ -69,11 +69,21 @@
         "map terrain can define region mesh height, curve, and walkability rules",
         "map camera can define edge-scroll, keyboard pan, click-follow, speed, margin, and recenter hotkey"
       ]
+    },
+    {
+      "feature": "world_fast_travel_and_vehicle_profiles",
+      "native_surface": "engine/core/world/WorldMapGraph",
+      "source_semantics": [
+        "fast travel destinations can carry map transfer targets, preview assets, descriptions, unlock flags, locked common-event fallbacks, and current-location hiding",
+        "fast travel preview returns deterministic transfer commands and diagnostics for locked, missing, or current-location-hidden destinations",
+        "vehicle profiles can carry allowed terrain tags, BGM/BGS assets, speed and encounter multipliers, interior transfer targets, and transition metadata",
+        "vehicle preview returns deterministic movement, audio, interior-transfer, and terrain-blocking diagnostics"
+      ]
     }
   ],
   "remaining_lanes": [
     "battle_feedback",
-    "world_vehicle_audio_event",
+    "event_drag_metadata",
     "state_message_picture",
     "progression_stat_allocation"
   ]

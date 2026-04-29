@@ -6,6 +6,51 @@
   "properties": {
     "version": { "const": "1.0.0" },
     "nodes": { "type": "array" },
-    "routes": { "type": "array" }
+    "routes": { "type": "array" },
+    "fast_travel_destinations": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "node_id", "map_id", "x", "y"],
+        "properties": {
+          "id": { "type": "string", "minLength": 1 },
+          "node_id": { "type": "string", "minLength": 1 },
+          "map_id": { "type": "integer", "minimum": 1 },
+          "x": { "type": "integer", "minimum": 0 },
+          "y": { "type": "integer", "minimum": 0 },
+          "preview_asset": { "type": "string" },
+          "description": { "type": "string" },
+          "unlock_flag": { "type": "string" },
+          "locked_common_event": { "type": "string" },
+          "hidden_when_current": { "type": "boolean" }
+        },
+        "additionalProperties": false
+      }
+    },
+    "vehicle_profiles": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id"],
+        "properties": {
+          "id": { "type": "string", "minLength": 1 },
+          "name": { "type": "string" },
+          "allowed_terrain_tags": {
+            "type": "array",
+            "items": { "type": "integer", "minimum": 0 }
+          },
+          "bgm_asset": { "type": "string" },
+          "bgs_asset": { "type": "string" },
+          "speed_multiplier": { "type": "number", "exclusiveMinimum": 0 },
+          "encounter_rate_multiplier": { "type": "number", "minimum": 0 },
+          "interior_map_id": { "type": "integer", "minimum": 0 },
+          "interior_x": { "type": "integer", "minimum": 0 },
+          "interior_y": { "type": "integer", "minimum": 0 },
+          "transition_color": { "type": "string" },
+          "transition_frames": { "type": "integer", "minimum": 0 }
+        },
+        "additionalProperties": false
+      }
+    }
   }
 }
