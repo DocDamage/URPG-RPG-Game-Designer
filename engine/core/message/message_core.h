@@ -165,6 +165,8 @@ class RichTextLayoutEngine {
   private:
     std::vector<RichTextToken> tokenize(const std::string& text) const;
     std::string resolveEscape(char command, int32_t arg) const;
+    std::string resolveEscapesInternal(const std::string& text, int32_t depth) const;
+    bool parseBracketedIntResolved(const std::string& text, size_t& cursor, int32_t& value, int32_t depth) const;
 
     VariableResolver variable_resolver_;
     ActorNameResolver actor_name_resolver_;

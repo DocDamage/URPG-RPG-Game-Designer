@@ -26,6 +26,7 @@ Current app-level release readiness source of truth: [`docs/APP_RELEASE_READINES
 - Event authoring absorbed draggable event metadata with native JSON round-trip, validation, and editor snapshot visibility.
 - Battle feedback absorbed chip damage/healing, zero-damage presentation policy, custom buff-level caps, and troop-position reuse into native rule and preview surfaces.
 - `docs/features/FEATURE_ROBUSTNESS_PLAN.md` now tracks the broader deepening plan for battle, state/message/picture, progression, asset browser, AI workflow, project indexing, concrete AI tools, and export UX.
+- State/message/picture absorption now has native scoped state banks, nested message escape recursion, high-count picture task bindings, and picture-task schema/validation coverage.
 
 2026-04-28 documentation and AI/editor checkpoint:
 - `development` is pushed to `origin/development` at commit `cfdae41e9` (`Advance AI editor and template readiness`) before this documentation refresh.

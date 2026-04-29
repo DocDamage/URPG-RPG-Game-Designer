@@ -1,4 +1,5 @@
 #include "engine/core/message/message_core.h"
+#include "engine/core/message/picture_task_document.h"
 
 #include <catch2/catch_test_macros.hpp>
 
@@ -92,6 +93,28 @@ TEST_CASE("RichTextLayoutEngine expands escapes and measures deterministic layou
         const std::string text = "Points: \\V[2]";
         const std::string expanded = layout.resolveEscapes(text);
         REQUIRE(expanded == "Points: 777");
+    }
+
+    SECTION("nested variable escapes resolve recursively") {
+        RichTextLayoutEngine nested_layout;
+        nested_layout.setVariableResolver([](int32_t id) {
+            if (id == 1) {
+                return 2;
+            }
+            if (id == 2) {
+                return 777;
+            }
+            return 0;
+        });
+        REQUIRE(nested_layout.resolveEscapes("Nested: \\V[\\V[1]]") == "Nested: 777");
+        const auto nested_tokens = nested_layout.layout("Nested: \\V[\\V[1]]");
+        bool found_nested_value = false;
+        for (const auto& token : nested_tokens.tokens) {
+            found_nested_value = found_nested_value ||
+                                 (token.type == RichTextTokenType::Text &&
+                                  token.text.find("777") != std::string::npos);
+        }
+        REQUIRE(found_nested_value);
     }
 
     SECTION("setMaxWidth enables word-wrapping") {
@@ -297,4 +320,24 @@ TEST_CASE("MessageFlowRunner snapshot and restore keeps in-flight choice state",
     REQUIRE(restored.currentPage()->id == "choice");
     REQUIRE(restored.choicePrompt().selectedOption() != nullptr);
     REQUIRE(restored.choicePrompt().selectedOption()->id == "c");
+}
+
+TEST_CASE("PictureTaskDocument supports high-count picture slots and common-event bindings", "[message][picture][tasks]") {
+    PictureTaskDocument document;
+    document.setMaxPictures(1000);
+    document.addBinding({350, "open_codex_hotspot", "common_event.open_codex", "click", true});
+    document.addBinding({350, "hover_codex_hotspot", "common_event.preview_codex", "hover", false});
+
+    const auto bindings = document.bindingsForPicture(350);
+    REQUIRE(document.maxPictures() == 1000);
+    REQUIRE(bindings.size() == 1);
+    REQUIRE(bindings.front().task_id == "open_codex_hotspot");
+    REQUIRE(bindings.front().common_event_id == "common_event.open_codex");
+    REQUIRE(document.validate().empty());
+
+    PictureTaskDocument invalid;
+    invalid.setMaxPictures(2);
+    invalid.addBinding({5, "", "", "click", true});
+    const auto diagnostics = invalid.validate();
+    REQUIRE(diagnostics.size() == 3);
 }

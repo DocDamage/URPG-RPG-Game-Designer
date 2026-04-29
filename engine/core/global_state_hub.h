@@ -1,9 +1,11 @@
 #pragma once
 
 #include <functional>
+#include <optional>
 #include <mutex>
 #include <string>
 #include <unordered_map>
+#include <utility>
 #include <variant>
 #include <vector>
 
@@ -251,6 +253,75 @@ class GlobalStateHub {
     uint32_t m_nextHandle = 1;
 
     mutable std::mutex m_mutex;
+};
+
+enum class StateBankScope : uint8_t {
+    Global,
+    Map,
+    Self,
+    Scoped,
+    Js
+};
+
+struct StateBankContext {
+    std::string map_id;
+    std::string event_id;
+    std::string scope_id;
+};
+
+class ScopedStateBanks {
+  public:
+    using Value = GlobalStateHub::Value;
+
+    void setSwitch(StateBankScope scope, const StateBankContext& context, const std::string& id, bool value) {
+        m_switches[makeKey(scope, context, id)] = value;
+    }
+
+    [[nodiscard]] bool getSwitch(StateBankScope scope, const StateBankContext& context, const std::string& id) const {
+        const auto it = m_switches.find(makeKey(scope, context, id));
+        return it != m_switches.end() ? it->second : false;
+    }
+
+    void setVariable(StateBankScope scope, const StateBankContext& context, const std::string& id, Value value) {
+        m_variables[makeKey(scope, context, id)] = std::move(value);
+    }
+
+    [[nodiscard]] Value getVariable(StateBankScope scope, const StateBankContext& context, const std::string& id) const {
+        const auto it = m_variables.find(makeKey(scope, context, id));
+        return it != m_variables.end() ? it->second : Value(0);
+    }
+
+    [[nodiscard]] std::optional<Value> findVariable(StateBankScope scope,
+                                                    const StateBankContext& context,
+                                                    const std::string& id) const {
+        const auto it = m_variables.find(makeKey(scope, context, id));
+        if (it == m_variables.end()) {
+            return std::nullopt;
+        }
+        return it->second;
+    }
+
+    [[nodiscard]] size_t switchCount() const { return m_switches.size(); }
+    [[nodiscard]] size_t variableCount() const { return m_variables.size(); }
+
+  private:
+    static std::string scopeLabel(StateBankScope scope) {
+        switch (scope) {
+            case StateBankScope::Map: return "map";
+            case StateBankScope::Self: return "self";
+            case StateBankScope::Scoped: return "scoped";
+            case StateBankScope::Js: return "js";
+            case StateBankScope::Global: return "global";
+        }
+        return "global";
+    }
+
+    static std::string makeKey(StateBankScope scope, const StateBankContext& context, const std::string& id) {
+        return scopeLabel(scope) + ":" + context.map_id + ":" + context.event_id + ":" + context.scope_id + ":" + id;
+    }
+
+    std::unordered_map<std::string, bool> m_switches;
+    std::unordered_map<std::string, Value> m_variables;
 };
 
 } // namespace urpg

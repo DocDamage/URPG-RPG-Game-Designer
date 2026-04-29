@@ -99,10 +99,21 @@
         "buff and debuff preview levels clamp against configurable custom caps",
         "troop member positions can reuse authored coordinates by enemy id when policy allows it"
       ]
+    },
+    {
+      "feature": "state_message_picture_core",
+      "native_surface": "engine/core/GlobalStateHub, engine/core/message/RichTextLayoutEngine, and engine/core/message/PictureTaskDocument",
+      "source_semantics": [
+        "map, self, scoped, and JS variable/switch lanes are isolated from the global state hub while using the same native value type",
+        "nested message text escapes resolve recursively with a bounded depth guard",
+        "picture task bindings support high-count picture slots and common-event triggers",
+        "picture task validation reports unavailable slots and missing task/common-event ids"
+      ]
     }
   ],
   "remaining_lanes": [
-    "state_message_picture",
+    "state_message_picture_runtime_preview",
+    "state_message_picture_migration_adapters",
     "progression_stat_allocation"
   ]
 }

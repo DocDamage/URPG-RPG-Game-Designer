@@ -1,0 +1,27 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:urpg:picture_tasks",
+  "title": "URPG Picture Task Bindings",
+  "type": "object",
+  "required": ["version", "max_pictures", "bindings"],
+  "properties": {
+    "version": { "const": "1.0.0" },
+    "max_pictures": { "type": "integer", "minimum": 1 },
+    "bindings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["picture_id", "task_id", "common_event_id"],
+        "properties": {
+          "picture_id": { "type": "integer", "minimum": 1 },
+          "task_id": { "type": "string", "minLength": 1 },
+          "common_event_id": { "type": "string", "minLength": 1 },
+          "trigger": { "type": "string", "enum": ["click", "hover", "focus", "confirm", "cancel"] },
+          "enabled": { "type": "boolean" }
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false
+}

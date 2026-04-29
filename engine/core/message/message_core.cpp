@@ -21,37 +21,28 @@ std::string toLowerCopy(const std::string& value) {
     return lowered;
 }
 
-bool parseBracketedInt(const std::string& text, size_t& cursor, int32_t& value) {
-    if (cursor >= text.size() || text[cursor] != '[') {
+bool parseIntegerText(const std::string& text, int32_t& value) {
+    if (text.empty()) {
         return false;
     }
-
-    size_t i = cursor + 1;
+    size_t cursor = 0;
     bool negative = false;
-    if (i < text.size() && text[i] == '-') {
+    if (text[cursor] == '-') {
         negative = true;
-        ++i;
+        ++cursor;
     }
-    if (i >= text.size() || !std::isdigit(static_cast<unsigned char>(text[i]))) {
+    if (cursor >= text.size()) {
         return false;
     }
-
     int64_t parsed = 0;
-    while (i < text.size() && std::isdigit(static_cast<unsigned char>(text[i]))) {
-        parsed = parsed * 10 + static_cast<int64_t>(text[i] - '0');
-        ++i;
+    while (cursor < text.size()) {
+        if (!std::isdigit(static_cast<unsigned char>(text[cursor]))) {
+            return false;
+        }
+        parsed = parsed * 10 + static_cast<int64_t>(text[cursor] - '0');
+        ++cursor;
     }
-
-    if (i >= text.size() || text[i] != ']') {
-        return false;
-    }
-    ++i;
-
-    if (negative) {
-        parsed = -parsed;
-    }
-    value = static_cast<int32_t>(parsed);
-    cursor = i;
+    value = static_cast<int32_t>(negative ? -parsed : parsed);
     return true;
 }
 
@@ -533,7 +524,7 @@ std::vector<RichTextToken> RichTextLayoutEngine::tokenize(const std::string& tex
         }
 
         if (command == 'C' || command == 'I' || command == 'V' || command == 'N' || command == 'P') {
-            if (!parseBracketedInt(text, cursor, arg)) {
+            if (!parseBracketedIntResolved(text, cursor, arg, 0)) {
                 push_literal_command();
                 continue;
             }
@@ -591,7 +582,48 @@ std::string RichTextLayoutEngine::resolveEscape(char command, int32_t arg) const
 }
 
 std::string RichTextLayoutEngine::resolveEscapes(const std::string& text) const {
+    return resolveEscapesInternal(text, 0);
+}
+
+bool RichTextLayoutEngine::parseBracketedIntResolved(const std::string& text,
+                                                     size_t& cursor,
+                                                     int32_t& value,
+                                                     int32_t depth) const {
+    if (cursor >= text.size() || text[cursor] != '[' || depth > 8) {
+        return false;
+    }
+    size_t i = cursor + 1;
+    int32_t nesting = 0;
+    std::string inner;
+    while (i < text.size()) {
+        const char ch = text[i];
+        if (ch == '[') {
+            ++nesting;
+            inner.push_back(ch);
+        } else if (ch == ']') {
+            if (nesting == 0) {
+                const std::string resolved = resolveEscapesInternal(inner, depth + 1);
+                if (!parseIntegerText(resolved, value)) {
+                    return false;
+                }
+                cursor = i + 1;
+                return true;
+            }
+            --nesting;
+            inner.push_back(ch);
+        } else {
+            inner.push_back(ch);
+        }
+        ++i;
+    }
+    return false;
+}
+
+std::string RichTextLayoutEngine::resolveEscapesInternal(const std::string& text, int32_t depth) const {
     std::string result;
+    if (depth > 8) {
+        return text;
+    }
     size_t i = 0;
     while (i < text.size()) {
         const char ch = text[i];
@@ -619,7 +651,7 @@ std::string RichTextLayoutEngine::resolveEscapes(const std::string& text) const 
         int32_t arg = 0;
 
         if (command == 'V' || command == 'N' || command == 'P') {
-            if (parseBracketedInt(text, cursor, arg)) {
+            if (parseBracketedIntResolved(text, cursor, arg, depth)) {
                 result += resolveEscape(command, arg);
                 i = cursor;
                 continue;
