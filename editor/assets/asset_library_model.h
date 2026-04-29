@@ -24,12 +24,16 @@ struct AssetLibraryModelSnapshot {
     size_t referenced_asset_count = 0;
     size_t runtime_ready_count = 0;
     size_t previewable_count = 0;
+    size_t promoted_count = 0;
+    size_t archived_count = 0;
     size_t filtered_asset_count = 0;
     size_t cleanup_allowed_count = 0;
     size_t cleanup_refused_count = 0;
     bool export_eligible = false;
     bool reports_loaded = false;
     std::string promotion_status;
+    nlohmann::json last_action = nlohmann::json::object();
+    nlohmann::json action_history = nlohmann::json::array();
     std::map<std::string, size_t> category_counts;
     std::map<std::string, size_t> kind_counts;
     std::string status_message = "No asset library reports are loaded.";
@@ -46,6 +50,8 @@ class AssetLibraryModel {
     bool loadReportsFromDirectory(const std::filesystem::path& reports_root, std::string* error_message = nullptr);
     void addReferencedAsset(std::string path);
     void addUsageReference(std::string path, std::string owner_id);
+    urpg::assets::AssetLibraryActionResult promoteAsset(std::string path);
+    urpg::assets::AssetLibraryActionResult archiveAsset(std::string path, std::string reason = {});
     void setFilter(urpg::assets::AssetLibraryFilter filter);
     void rebuildCleanupPreview();
     void clear();
@@ -62,6 +68,7 @@ class AssetLibraryModel {
     urpg::assets::AssetCleanupPlan cleanup_plan_;
     urpg::assets::AssetLibraryFilter filter_;
     AssetLibraryModelSnapshot snapshot_{};
+    nlohmann::json action_history_ = nlohmann::json::array();
 };
 
 } // namespace urpg::editor

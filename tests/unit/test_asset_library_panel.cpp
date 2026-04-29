@@ -219,3 +219,44 @@ TEST_CASE("AssetLibraryModel exposes filters and used-by reference counts", "[as
     REQUIRE(model.snapshot().previewable_count == 2);
     REQUIRE(model.snapshot().filtered_asset_count == 1);
 }
+
+TEST_CASE("AssetLibraryPanel exposes promote and archive action state", "[assets][asset_library][editor][browser][actions]") {
+    urpg::editor::AssetLibraryPanel panel;
+    panel.model().ingestReports(nlohmann::json{{"file_count", 1}, {"duplicate_groups", 0}, {"oversize_count", 0}},
+                                nlohmann::json{{"sources", nlohmann::json::array()}},
+                                nlohmann::json{
+                                    {"source_id", "SRC-007"},
+                                    {"source_root", "imports/raw/urpg_stuff"},
+                                    {"assets",
+                                     {
+                                         {
+                                             {"source_path", "imports/raw/urpg_stuff/characters/hero.png"},
+                                             {"normalized_path", "asset://src-007/characters/hero.png"},
+                                             {"preview_path", "imports/raw/urpg_stuff/characters/hero.png"},
+                                             {"preview_kind", "image"},
+                                             {"media_kind", "image"},
+                                             {"category", "characters"},
+                                             {"tags", {"hero", "kind:image"}},
+                                             {"license", "user_attested_free_for_game_use_pending_per_pack_attribution"},
+                                         },
+                                     }}},
+                                "");
+
+    const auto promoted = panel.model().promoteAsset("imports/raw/urpg_stuff/characters/hero.png");
+    REQUIRE(promoted.success);
+    panel.render();
+    REQUIRE(panel.lastRenderSnapshot().promoted_count == 1);
+    REQUIRE(panel.lastRenderSnapshot().archived_count == 0);
+    REQUIRE(panel.lastRenderSnapshot().last_action["action"] == "promote");
+    REQUIRE(panel.lastRenderSnapshot().last_action["success"] == true);
+    REQUIRE(panel.lastRenderSnapshot().action_history.size() == 1);
+
+    const auto archived = panel.model().archiveAsset("imports/raw/urpg_stuff/characters/hero.png", "archive test");
+    REQUIRE(archived.success);
+    panel.render();
+    REQUIRE(panel.lastRenderSnapshot().promoted_count == 0);
+    REQUIRE(panel.lastRenderSnapshot().archived_count == 1);
+    REQUIRE(panel.lastRenderSnapshot().runtime_ready_count == 0);
+    REQUIRE(panel.lastRenderSnapshot().last_action["action"] == "archive");
+    REQUIRE(panel.lastRenderSnapshot().action_history.size() == 2);
+}

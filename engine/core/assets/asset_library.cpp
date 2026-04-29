@@ -133,7 +133,8 @@ bool isRuntimeReady(const AssetRecord& record) {
            !hasStatus(record, AssetStatus::MissingFile) &&
            !hasStatus(record, AssetStatus::UnsupportedFormat) &&
            !hasStatus(record, AssetStatus::MissingLicense) &&
-           !hasStatus(record, AssetStatus::Duplicate);
+           !hasStatus(record, AssetStatus::Duplicate) &&
+           !hasStatus(record, AssetStatus::Archived);
 }
 
 bool isPreviewable(const AssetRecord& record) {
@@ -161,8 +162,59 @@ const char* toString(AssetStatus status) {
         return "unsupported_format";
     case AssetStatus::CaseCollision:
         return "case_collision";
+    case AssetStatus::Promoted:
+        return "promoted";
+    case AssetStatus::Archived:
+        return "archived";
     }
     return "risky";
+}
+
+namespace {
+
+bool canPromoteAsset(const AssetRecord& record, std::string& code, std::string& message) {
+    if (record.path.empty()) {
+        code = "asset_missing";
+        message = "Asset record does not exist.";
+        return false;
+    }
+    if (record.normalized_path.empty()) {
+        code = "asset_not_normalized";
+        message = "Asset must have a normalized path before promotion.";
+        return false;
+    }
+    if (record.statuses.contains(AssetStatus::MissingFile)) {
+        code = "asset_missing_file";
+        message = "Missing files cannot be promoted.";
+        return false;
+    }
+    if (record.statuses.contains(AssetStatus::UnsupportedFormat)) {
+        code = "asset_unsupported_format";
+        message = "Unsupported formats cannot be promoted.";
+        return false;
+    }
+    if (record.statuses.contains(AssetStatus::MissingLicense)) {
+        code = "asset_missing_license";
+        message = "Assets without license evidence cannot be promoted.";
+        return false;
+    }
+    if (record.statuses.contains(AssetStatus::Duplicate)) {
+        code = "asset_duplicate";
+        message = "Duplicate assets must be resolved before promotion.";
+        return false;
+    }
+    if (record.statuses.contains(AssetStatus::Archived)) {
+        code = "asset_archived";
+        message = "Archived assets must be restored before promotion.";
+        return false;
+    }
+    return true;
+}
+
+} // namespace
+
+nlohmann::json AssetLibraryActionResult::toJson() const {
+    return {{"action", action}, {"path", path}, {"success", success}, {"code", code}, {"message", message}};
 }
 
 std::string exportProvenancePacket(const AssetRecord& record) {
@@ -404,6 +456,45 @@ void AssetLibrary::addUsageReference(std::string path, std::string owner_id) {
     refreshDerivedCounts();
 }
 
+AssetLibraryActionResult AssetLibrary::promoteAsset(std::string path) {
+    std::replace(path.begin(), path.end(), '\\', '/');
+    auto found = findAsset(path);
+    if (!found.has_value()) {
+        return {"promote", path, false, "asset_not_found", "Asset was not found in the library."};
+    }
+    std::string code;
+    std::string message;
+    if (!canPromoteAsset(*found, code, message)) {
+        return {"promote", path, false, code, message};
+    }
+
+    auto& record = ensureAsset(path);
+    record.statuses.insert(AssetStatus::Promoted);
+    record.statuses.erase(AssetStatus::Risky);
+    record.provenance.export_eligible = true;
+    refreshDerivedCounts();
+    sortSnapshot();
+    return {"promote", path, true, "asset_promoted", "Asset is promoted for runtime/export library use."};
+}
+
+AssetLibraryActionResult AssetLibrary::archiveAsset(std::string path, std::string reason) {
+    std::replace(path.begin(), path.end(), '\\', '/');
+    auto found = findAsset(path);
+    if (!found.has_value()) {
+        return {"archive", path, false, "asset_not_found", "Asset was not found in the library."};
+    }
+    auto& record = ensureAsset(path);
+    record.statuses.insert(AssetStatus::Archived);
+    record.statuses.erase(AssetStatus::Promoted);
+    record.provenance.export_eligible = false;
+    refreshDerivedCounts();
+    sortSnapshot();
+    if (reason.empty()) {
+        reason = "Asset archived from editor library workflow.";
+    }
+    return {"archive", path, true, "asset_archived", reason};
+}
+
 void AssetLibrary::markMissingFile(std::string path) {
     ensureAsset(std::move(path)).statuses.insert(AssetStatus::MissingFile);
     refreshDerivedCounts();
@@ -477,12 +568,20 @@ void AssetLibrary::refreshDerivedCounts() {
     snapshot_.referenced_asset_count = referenced_assets_.size();
     snapshot_.runtime_ready_count = 0;
     snapshot_.previewable_count = 0;
+    snapshot_.promoted_count = 0;
+    snapshot_.archived_count = 0;
     for (const auto& asset : snapshot_.assets) {
         if (isRuntimeReady(asset)) {
             ++snapshot_.runtime_ready_count;
         }
         if (isPreviewable(asset)) {
             ++snapshot_.previewable_count;
+        }
+        if (asset.statuses.contains(AssetStatus::Promoted)) {
+            ++snapshot_.promoted_count;
+        }
+        if (asset.statuses.contains(AssetStatus::Archived)) {
+            ++snapshot_.archived_count;
         }
     }
 }

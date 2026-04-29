@@ -22,6 +22,8 @@ enum class AssetStatus : uint16_t {
     MissingFile = 1 << 5,
     UnsupportedFormat = 1 << 6,
     CaseCollision = 1 << 7,
+    Promoted = 1 << 8,
+    Archived = 1 << 9,
 };
 
 struct AssetRecord {
@@ -66,6 +68,15 @@ struct AssetDuplicateGroup {
     std::vector<AssetDuplicateEntry> entries;
 };
 
+struct AssetLibraryActionResult {
+    std::string action;
+    std::string path;
+    bool success = false;
+    std::string code;
+    std::string message;
+    nlohmann::json toJson() const;
+};
+
 struct AssetLibrarySnapshot {
     size_t file_count = 0;
     size_t catalog_asset_count = 0;
@@ -80,6 +91,8 @@ struct AssetLibrarySnapshot {
     size_t referenced_asset_count = 0;
     size_t runtime_ready_count = 0;
     size_t previewable_count = 0;
+    size_t promoted_count = 0;
+    size_t archived_count = 0;
     bool export_eligible = false;
     std::string promotion_status;
     std::map<std::string, size_t> category_counts;
@@ -97,6 +110,8 @@ public:
     void ingestDuplicateCsv(std::string_view csv_text);
     void addReferencedAsset(std::string path);
     void addUsageReference(std::string path, std::string owner_id);
+    AssetLibraryActionResult promoteAsset(std::string path);
+    AssetLibraryActionResult archiveAsset(std::string path, std::string reason);
     void markMissingFile(std::string path);
     void markUnsupportedFormat(std::string path);
     void detectCaseCollisions();

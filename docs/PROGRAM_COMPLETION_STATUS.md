@@ -29,6 +29,7 @@ Current app-level release readiness source of truth: [`docs/APP_RELEASE_READINES
 - State/message/picture absorption now has native scoped state banks, nested message escape recursion, high-count picture task bindings, and picture-task schema/validation coverage.
 - Progression absorption now has native stat allocation pools, class/actor-aware point spending, caps, before/after preview math, diagnostics, schema coverage, and editor snapshot visibility.
 - Asset browser robustness now exposes native tag/category/status/reference/runtime-ready/previewable filters and used-by references on the asset library model.
+- Asset browser actions now support native promote/archive state transitions with action history and panel snapshot counts, while actual file moves remain outside this bounded slice.
 - AI editor workflow robustness now exposes validation blocking reasons, apply-preview patch counts, result diff patch counts, undo-stack metadata, and apply-history entries in the deterministic assistant panel snapshot.
 - AI project knowledge indexing now creates searchable records for project files, schemas, readiness reports, validation reports, asset catalogs, project docs, template specs, and source summaries supplied through project data.
 - AI tools now emit concrete editor preview artifacts for event graph authoring, battle VFX timelines, lighting/weather previews, ability sandbox compositions, export preview configuration, and asset import/promotion review instead of only broad project records.

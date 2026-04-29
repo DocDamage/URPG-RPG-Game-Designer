@@ -214,3 +214,56 @@ TEST_CASE("AssetLibrary filters by tags status references and runtime readiness"
     duplicate_filter.required_status = urpg::assets::AssetStatus::Duplicate;
     REQUIRE(library.filterAssets(duplicate_filter).size() == 1);
 }
+
+TEST_CASE("AssetLibrary promotes and archives curated assets", "[assets][asset_library][browser][actions]") {
+    urpg::assets::AssetLibrary library;
+    library.ingestPromotionCatalog(nlohmann::json{
+        {"source_id", "SRC-007"},
+        {"source_root", "imports/raw/urpg_stuff"},
+        {"assets",
+         {
+             {
+                 {"source_path", "imports/raw/urpg_stuff/characters/hero.png"},
+                 {"normalized_path", "asset://src-007/characters/hero.png"},
+                 {"preview_path", "imports/raw/urpg_stuff/characters/hero.png"},
+                 {"preview_kind", "image"},
+                 {"media_kind", "image"},
+                 {"category", "characters"},
+                 {"tags", {"hero", "kind:image"}},
+                 {"license", "user_attested_free_for_game_use_pending_per_pack_attribution"},
+             },
+             {
+                 {"source_path", "imports/raw/urpg_stuff/characters/hero-copy.png"},
+                 {"normalized_path", "asset://src-007/characters/hero-copy.png"},
+                 {"media_kind", "image"},
+                 {"category", "characters"},
+                 {"duplicate_of", "hero"},
+                 {"status", "duplicate"},
+                 {"license", "user_attested_free_for_game_use_pending_per_pack_attribution"},
+             },
+         }}});
+
+    const auto promoted = library.promoteAsset("imports/raw/urpg_stuff/characters/hero.png");
+    REQUIRE(promoted.success);
+    REQUIRE(promoted.code == "asset_promoted");
+    auto hero = library.findAsset("imports/raw/urpg_stuff/characters/hero.png");
+    REQUIRE(hero.has_value());
+    REQUIRE(hero->statuses.contains(urpg::assets::AssetStatus::Promoted));
+    REQUIRE(hero->provenance.export_eligible);
+    REQUIRE(library.snapshot().promoted_count == 1);
+
+    const auto duplicate = library.promoteAsset("imports/raw/urpg_stuff/characters/hero-copy.png");
+    REQUIRE_FALSE(duplicate.success);
+    REQUIRE(duplicate.code == "asset_duplicate");
+
+    const auto archived = library.archiveAsset("imports/raw/urpg_stuff/characters/hero.png", "not needed");
+    REQUIRE(archived.success);
+    hero = library.findAsset("imports/raw/urpg_stuff/characters/hero.png");
+    REQUIRE(hero.has_value());
+    REQUIRE(hero->statuses.contains(urpg::assets::AssetStatus::Archived));
+    REQUIRE_FALSE(hero->statuses.contains(urpg::assets::AssetStatus::Promoted));
+    REQUIRE_FALSE(hero->provenance.export_eligible);
+    REQUIRE(library.snapshot().promoted_count == 0);
+    REQUIRE(library.snapshot().archived_count == 1);
+    REQUIRE(library.snapshot().runtime_ready_count == 0);
+}

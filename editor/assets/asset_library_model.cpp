@@ -14,6 +14,7 @@ void AssetLibraryModel::ingestReports(const nlohmann::json& hygiene_summary, con
 void AssetLibraryModel::ingestReports(const nlohmann::json& hygiene_summary, const nlohmann::json& intake_report,
                                       const nlohmann::json& promotion_catalog, std::string_view duplicate_csv) {
     library_.clear();
+    action_history_ = nlohmann::json::array();
     library_.ingestHygieneSummary(hygiene_summary);
     library_.ingestIntakeReport(intake_report);
     library_.ingestPromotionCatalog(promotion_catalog);
@@ -102,6 +103,7 @@ bool AssetLibraryModel::loadReportsFromDirectory(const std::filesystem::path& re
             promotion_catalog = nlohmann::json::parse(promotion_stream);
         }
         library_.clear();
+        action_history_ = nlohmann::json::array();
         library_.ingestHygieneSummary(hygiene_summary);
         library_.ingestIntakeReport(intake_report);
         ingestCatalogWithShards(library_, reports_root, promotion_catalog);
@@ -136,6 +138,24 @@ void AssetLibraryModel::addUsageReference(std::string path, std::string owner_id
     rebuildCleanupPreview();
 }
 
+urpg::assets::AssetLibraryActionResult AssetLibraryModel::promoteAsset(std::string path) {
+    auto result = library_.promoteAsset(std::move(path));
+    action_history_.push_back(result.toJson());
+    rebuildCleanupPreview();
+    snapshot_.last_action = result.toJson();
+    snapshot_.action_history = action_history_;
+    return result;
+}
+
+urpg::assets::AssetLibraryActionResult AssetLibraryModel::archiveAsset(std::string path, std::string reason) {
+    auto result = library_.archiveAsset(std::move(path), std::move(reason));
+    action_history_.push_back(result.toJson());
+    rebuildCleanupPreview();
+    snapshot_.last_action = result.toJson();
+    snapshot_.action_history = action_history_;
+    return result;
+}
+
 void AssetLibraryModel::setFilter(urpg::assets::AssetLibraryFilter filter) {
     filter_ = std::move(filter);
     refreshSnapshot();
@@ -149,6 +169,7 @@ void AssetLibraryModel::rebuildCleanupPreview() {
 void AssetLibraryModel::clear() {
     library_.clear();
     cleanup_plan_ = {};
+    action_history_ = nlohmann::json::array();
     snapshot_ = {};
     snapshot_.status = "empty";
     snapshot_.reports_loaded = false;
@@ -171,11 +192,17 @@ void AssetLibraryModel::refreshSnapshot() {
     snapshot_.referenced_asset_count = asset_snapshot.referenced_asset_count;
     snapshot_.runtime_ready_count = asset_snapshot.runtime_ready_count;
     snapshot_.previewable_count = asset_snapshot.previewable_count;
+    snapshot_.promoted_count = asset_snapshot.promoted_count;
+    snapshot_.archived_count = asset_snapshot.archived_count;
     snapshot_.filtered_asset_count = library_.filterAssets(filter_).size();
     snapshot_.cleanup_allowed_count = cleanup_plan_.allowed_count;
     snapshot_.cleanup_refused_count = cleanup_plan_.refused_count;
     snapshot_.export_eligible = asset_snapshot.export_eligible;
     snapshot_.promotion_status = asset_snapshot.promotion_status;
+    snapshot_.action_history = action_history_;
+    if (!action_history_.empty()) {
+        snapshot_.last_action = action_history_.back();
+    }
     snapshot_.category_counts = asset_snapshot.category_counts;
     snapshot_.kind_counts = asset_snapshot.kind_counts;
     snapshot_.reports_loaded = asset_snapshot.assets.size() > 0 || asset_snapshot.duplicate_groups.size() > 0 ||
