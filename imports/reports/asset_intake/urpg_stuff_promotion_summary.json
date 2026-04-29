@@ -1,6 +1,6 @@
 {
   "schema": "urpg/asset_promotion_summary/v1",
-  "generated_at": "2026-04-29T00:34:06+00:00",
+  "generated_at": "2026-04-29T00:50:38+00:00",
   "source_id": "SRC-007",
   "source_root": "imports/raw/urpg_stuff",
   "promotion_status": "cataloged_local",

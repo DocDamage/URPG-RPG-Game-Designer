@@ -94,9 +94,10 @@ python .\tools\assets\promote_urpg_stuff_assets.py
 
 This writes:
 - `imports/reports/asset_intake/urpg_stuff_promotion_catalog.json`
+- `imports/reports/asset_intake/urpg_stuff_promotion_catalog/*.json`
 - `imports/reports/asset_intake/urpg_stuff_promotion_summary.json`
 
-The catalog gives each raw asset a stable virtual `asset://` normalized path, inferred category, pack, tags, preview path, checksum, and duplicate marker. The editor asset library loads this optional catalog from the canonical report directory. These records are usable for local browsing, preview, and curation, but are not release/export eligible until a curated subset receives bundle manifests, attribution records, and copied or otherwise hydrated promoted payloads.
+The top-level catalog is a small manifest plus duplicate index; category shards give each raw asset a stable virtual `asset://` normalized path, inferred category, pack, tags, preview path, checksum, and duplicate marker. The editor asset library loads this optional catalog from the canonical report directory. These records are usable for local browsing, preview, and curation, but are not release/export eligible until a curated subset receives bundle manifests, attribution records, and copied or otherwise hydrated promoted payloads.
 
 ### Promotion Manifest Schema Example
 

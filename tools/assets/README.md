@@ -118,9 +118,10 @@ python .\tools\assets\promote_urpg_stuff_assets.py
 
 Outputs:
 - `imports/reports/asset_intake/urpg_stuff_promotion_catalog.json`
+- `imports/reports/asset_intake/urpg_stuff_promotion_catalog/*.json`
 - `imports/reports/asset_intake/urpg_stuff_promotion_summary.json`
 
-The catalog records stable virtual normalized paths, source paths, inferred categories, packs, tags, preview paths, SHA-256 hashes, image/audio metadata, and exact duplicate groups. The editor asset library loads it from the canonical report directory when present. The catalog is local-discovery ready but remains `export_eligible=false` until curated subsets get per-pack attribution and promoted bundle manifests.
+The top-level catalog is a manifest plus duplicate index; category shards record stable virtual normalized paths, source paths, inferred categories, packs, tags, preview paths, SHA-256 hashes, image/audio metadata, and exact duplicate markers. The editor asset library loads the manifest and shards from the canonical report directory when present. The catalog is local-discovery ready but remains `export_eligible=false` until curated subsets get per-pack attribution and promoted bundle manifests.
 
 ## Safe duplicate prune wave
 Conservative duplicate cleanup for extracted working copies (`itch/unzipped`) when canonical copies already exist.

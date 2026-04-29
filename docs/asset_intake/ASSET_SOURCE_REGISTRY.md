@@ -80,7 +80,7 @@ Each direct-ingest source must have a manifest under `imports/manifests/asset_so
 - Canonical source manifests: `imports/manifests/asset_sources/SRC-001.json` through `SRC-007.json`
 - Canonical status report: `imports/reports/asset_intake/source_capture_status.json`
 - Current recorded state: 7 cataloged sources, 2 normalized/promoted proof lanes, 1 local catalog-normalized raw quarantine source, 4 cataloged future candidates
-- SRC-007 local catalog-normalization: `imports/reports/asset_intake/urpg_stuff_promotion_catalog.json` records 55,192 supported assets, 53,126 canonical exact-hash assets, 2,066 duplicate groups, inferred categories/tags, and preview paths for editor/library discovery. Raw binaries remain local under `imports/raw/urpg_stuff`.
+- SRC-007 local catalog-normalization: `imports/reports/asset_intake/urpg_stuff_promotion_catalog.json` plus category shards under `imports/reports/asset_intake/urpg_stuff_promotion_catalog/` record 55,192 supported assets, 53,126 canonical exact-hash assets, 2,066 duplicate groups, inferred categories/tags, and preview paths for editor/library discovery. Raw binaries remain local under `imports/raw/urpg_stuff`.
 - First promoted visual lane: `imports/normalized/prototype_sprites/gdquest_blue_actor.svg` via `imports/manifests/asset_bundles/BND-001.json`
 - First audio proof lane: `imports/manifests/asset_bundles/BND-002.json`; the former WAV payload was removed from GitHub and future promoted audio must use OGG output from `tools/assets/convert_audio_to_ogg.py`
 - Release attribution records: `imports/reports/asset_intake/attribution/SRC-002_gdquest_blue_actor.json` and `imports/reports/asset_intake/attribution/SRC-003_kenney_click_001.json`

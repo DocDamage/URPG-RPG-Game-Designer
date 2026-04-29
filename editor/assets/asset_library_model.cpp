@@ -25,6 +25,48 @@ void AssetLibraryModel::ingestReports(const nlohmann::json& hygiene_summary, con
     snapshot_.error_message = "";
 }
 
+namespace {
+
+void ingestCatalogWithShards(urpg::assets::AssetLibrary& library, const std::filesystem::path& reports_root,
+                             const nlohmann::json& promotion_catalog) {
+    library.ingestPromotionCatalog(promotion_catalog);
+    const auto shards = promotion_catalog.find("shards");
+    if (shards == promotion_catalog.end() || !shards->is_array()) {
+        return;
+    }
+    const auto repo_root = reports_root.parent_path();
+    for (const auto& shard : *shards) {
+        if (!shard.is_object()) {
+            continue;
+        }
+        const auto path_it = shard.find("path");
+        if (path_it == shard.end() || !path_it->is_string()) {
+            continue;
+        }
+        auto shard_path = std::filesystem::path(path_it->get<std::string>());
+        if (shard_path.is_relative()) {
+            const auto relative = shard_path;
+            const auto repo_relative = repo_root.parent_path() / relative;
+            const auto imports_relative = repo_root / relative;
+            const auto reports_relative = reports_root / relative;
+            if (std::filesystem::is_regular_file(reports_relative)) {
+                shard_path = reports_relative;
+            } else if (std::filesystem::is_regular_file(repo_relative)) {
+                shard_path = repo_relative;
+            } else {
+                shard_path = imports_relative;
+            }
+        }
+        if (!std::filesystem::is_regular_file(shard_path)) {
+            continue;
+        }
+        std::ifstream shard_stream(shard_path);
+        library.ingestPromotionCatalog(nlohmann::json::parse(shard_stream));
+    }
+}
+
+} // namespace
+
 bool AssetLibraryModel::loadReportsFromDirectory(const std::filesystem::path& reports_root,
                                                  std::string* error_message) {
     const auto hygiene_path = reports_root / "asset_hygiene_summary.json";
@@ -58,7 +100,17 @@ bool AssetLibraryModel::loadReportsFromDirectory(const std::filesystem::path& re
             std::ifstream promotion_stream(promotion_catalog_path);
             promotion_catalog = nlohmann::json::parse(promotion_stream);
         }
-        ingestReports(hygiene_summary, intake_report, promotion_catalog, duplicate_buffer.str());
+        library_.clear();
+        library_.ingestHygieneSummary(hygiene_summary);
+        library_.ingestIntakeReport(intake_report);
+        ingestCatalogWithShards(library_, reports_root, promotion_catalog);
+        library_.ingestDuplicateCsv(duplicate_buffer.str());
+        library_.detectCaseCollisions();
+        rebuildCleanupPreview();
+        snapshot_.reports_loaded = true;
+        snapshot_.status = "ready";
+        snapshot_.status_message = "";
+        snapshot_.error_message = "";
     } catch (const std::exception& ex) {
         if (error_message != nullptr) {
             *error_message = ex.what();

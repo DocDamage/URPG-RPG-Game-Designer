@@ -209,7 +209,12 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--catalog",
         default="imports/reports/asset_intake/urpg_stuff_promotion_catalog.json",
-        help="Full promoted catalog report path.",
+        help="Promoted catalog manifest path.",
+    )
+    parser.add_argument(
+        "--shard-dir",
+        default="imports/reports/asset_intake/urpg_stuff_promotion_catalog",
+        help="Directory for category shard files.",
     )
     parser.add_argument(
         "--summary",
@@ -218,6 +223,10 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument("--source-id", default="SRC-007")
     return parser.parse_args()
+
+
+def shard_filename(category: str) -> str:
+    return f"{slugify(category)}.json"
 
 
 def main() -> int:
@@ -326,6 +335,39 @@ def main() -> int:
             "export_eligible remains false until curated subsets receive per-pack attribution and bundle promotion.",
         ],
     }
+    shard_root = (repo_root / args.shard_dir).resolve()
+    if shard_root.exists():
+        for old_file in shard_root.glob("*.json"):
+            old_file.unlink()
+    shard_root.mkdir(parents=True, exist_ok=True)
+
+    shards = []
+    assets_by_category: dict[str, list[dict]] = {}
+    for asset in assets:
+        assets_by_category.setdefault(asset["category"], []).append(asset)
+
+    for category, category_assets in sorted(assets_by_category.items()):
+        shard_path = shard_root / shard_filename(category)
+        shard = {
+            "schema": "urpg/promoted_asset_catalog_shard/v1",
+            "generated_at": generated_at,
+            "source_id": args.source_id,
+            "source_root": source_root_rel,
+            "category": category,
+            "promotion_status": "cataloged_local",
+            "export_eligible": False,
+            "asset_count": len(category_assets),
+            "assets": category_assets,
+        }
+        shard_path.write_text(json.dumps(shard, indent=2), encoding="utf-8")
+        shards.append(
+            {
+                "category": category,
+                "path": rel(shard_path, repo_root),
+                "asset_count": len(category_assets),
+            }
+        )
+
     catalog = {
         "schema": "urpg/promoted_asset_catalog/v1",
         "generated_at": generated_at,
@@ -334,7 +376,7 @@ def main() -> int:
         "promotion_status": "cataloged_local",
         "export_eligible": False,
         "summary": summary,
-        "assets": assets,
+        "shards": shards,
         "duplicate_groups": duplicate_groups,
         "unsupported_files": unsupported,
     }

@@ -108,6 +108,22 @@ TEST_CASE("AssetLibraryModel loads optional local promotion catalog", "[assets][
         out << R"({
           "source_id": "SRC-007",
           "source_root": "imports/raw/urpg_stuff",
+          "shards": [
+            {
+              "category": "characters",
+              "path": "asset_intake/urpg_stuff_promotion_catalog/characters.json",
+              "asset_count": 1
+            }
+          ]
+        })";
+    }
+    std::filesystem::create_directories(root / "asset_intake" / "urpg_stuff_promotion_catalog");
+    {
+        std::ofstream out(root / "asset_intake" / "urpg_stuff_promotion_catalog" / "characters.json");
+        out << R"({
+          "source_id": "SRC-007",
+          "source_root": "imports/raw/urpg_stuff",
+          "category": "characters",
           "assets": [
             {
               "source_path": "imports/raw/urpg_stuff/side scroller stuff/Hero/Idle.png",
