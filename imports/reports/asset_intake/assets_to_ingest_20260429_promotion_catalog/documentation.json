@@ -1,0 +1,72 @@
+{
+  "schema": "urpg/promoted_asset_catalog_shard/v1",
+  "generated_at": "2026-04-29T16:18:53+00:00",
+  "source_id": "SRC-008",
+  "source_root": "imports/raw/urpg_stuff/assets_to_ingest_20260429",
+  "category": "documentation",
+  "promotion_status": "cataloged_local_aggregate",
+  "export_eligible": false,
+  "asset_count": 2,
+  "assets": [
+    {
+      "id": "src-008:7438ace862ecf418",
+      "source_id": "SRC-008",
+      "source_path": "imports/raw/urpg_stuff/assets_to_ingest_20260429/apex predators/Read Me II.docx",
+      "normalized_path": "asset://src-008/documentation/read-me-ii-docx-7438ace862ecf418",
+      "preview_path": null,
+      "preview_kind": "metadata",
+      "media_kind": "document",
+      "category": "documentation",
+      "pack": "apex predators",
+      "filename": "Read Me II.docx",
+      "file_count": 1,
+      "size_bytes": 35246,
+      "tags": [
+        "20260429",
+        "apex",
+        "category:documentation",
+        "docx",
+        "kind:document",
+        "pack:apex-predators",
+        "predators",
+        "read",
+        "stuff"
+      ],
+      "status": "cataloged",
+      "export_eligible": false,
+      "license": "user_attested_free_for_game_use_pending_per_pack_attribution",
+      "sha256_head": "3432ef53ef97c67a518ae9a1e3cdea4c974b1adaeedbf65688cf46b14221c1e2"
+    },
+    {
+      "id": "src-008:53faabdd96d9dc47",
+      "source_id": "SRC-008",
+      "source_path": "imports/raw/urpg_stuff/assets_to_ingest_20260429/apex predators/Reference - Monster Sheets.docx",
+      "normalized_path": "asset://src-008/documentation/reference-monster-sheets-docx-53faabdd96d9dc47",
+      "preview_path": null,
+      "preview_kind": "metadata",
+      "media_kind": "document",
+      "category": "documentation",
+      "pack": "apex predators",
+      "filename": "Reference - Monster Sheets.docx",
+      "file_count": 1,
+      "size_bytes": 13883,
+      "tags": [
+        "20260429",
+        "apex",
+        "category:documentation",
+        "docx",
+        "kind:document",
+        "monster",
+        "pack:apex-predators",
+        "predators",
+        "reference",
+        "sheets",
+        "stuff"
+      ],
+      "status": "cataloged",
+      "export_eligible": false,
+      "license": "user_attested_free_for_game_use_pending_per_pack_attribution",
+      "sha256_head": "8e5d71c38af2fb1d8ffa1c99780c22a685da52bfc13a375fedd52e3aaac57e47"
+    }
+  ]
+}

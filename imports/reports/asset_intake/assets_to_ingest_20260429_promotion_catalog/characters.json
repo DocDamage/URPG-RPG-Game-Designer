@@ -1,0 +1,826 @@
+{
+  "schema": "urpg/promoted_asset_catalog_shard/v1",
+  "generated_at": "2026-04-29T16:18:53+00:00",
+  "source_id": "SRC-008",
+  "source_root": "imports/raw/urpg_stuff/assets_to_ingest_20260429",
+  "category": "characters",
+  "promotion_status": "cataloged_local_aggregate",
+  "export_eligible": false,
+  "asset_count": 4,
+  "assets": [
+    {
+      "id": "src-008:f2d1beebf76509c2",
+      "source_id": "SRC-008",
+      "source_path": "imports/raw/urpg_stuff/assets_to_ingest_20260429/Free Animated Knight",
+      "normalized_path": "asset://src-008/characters/free-animated-knight-f2d1beebf76509c2",
+      "preview_path": "imports/raw/urpg_stuff/assets_to_ingest_20260429/Free Animated Knight/Knight/Knight_FromSide.png",
+      "preview_kind": "image",
+      "media_kind": "image_sequence_collection",
+      "category": "characters",
+      "pack": "Free Animated Knight",
+      "filename": "Free Animated Knight",
+      "file_count": 3568,
+      "size_bytes": 69868832,
+      "tags": [
+        "20260429",
+        "animated",
+        "category:characters",
+        "free",
+        "kind:image_sequence_collection",
+        "knight",
+        "pack:free-animated-knight",
+        "stuff"
+      ],
+      "status": "cataloged",
+      "export_eligible": false,
+      "license": "user_attested_free_for_game_use_pending_per_pack_attribution",
+      "sequence_count": 70,
+      "frame_count": 3568,
+      "fingerprint": "995aa5429d81c7f5cfa85c9168303eacd90b7808affa6e7630ad549a856588de",
+      "representative_sequences": [
+        {
+          "path": "imports/raw/urpg_stuff/assets_to_ingest_20260429/Free Animated Knight/Knight",
+          "frame_count": 2,
+          "representative_files": [
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/Free Animated Knight/Knight/Knight_FromSide.png",
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/Free Animated Knight/Knight/Knight_InFront.png"
+          ]
+        },
+        {
+          "path": "imports/raw/urpg_stuff/assets_to_ingest_20260429/Free Animated Knight/Knight/Animations_Frames_256x256/L_Block",
+          "frame_count": 43,
+          "representative_files": [
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/Free Animated Knight/Knight/Animations_Frames_256x256/L_Block/L_Block_0000.png",
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/Free Animated Knight/Knight/Animations_Frames_256x256/L_Block/L_Block_0001.png",
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/Free Animated Knight/Knight/Animations_Frames_256x256/L_Block/L_Block_0002.png"
+          ]
+        },
+        {
+          "path": "imports/raw/urpg_stuff/assets_to_ingest_20260429/Free Animated Knight/Knight/Animations_Frames_256x256/L_Cast_Powerful",
+          "frame_count": 90,
+          "representative_files": [
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/Free Animated Knight/Knight/Animations_Frames_256x256/L_Cast_Powerful/L_Cast_Powerful_0000.png",
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/Free Animated Knight/Knight/Animations_Frames_256x256/L_Cast_Powerful/L_Cast_Powerful_0001.png",
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/Free Animated Knight/Knight/Animations_Frames_256x256/L_Cast_Powerful/L_Cast_Powerful_0002.png"
+          ]
+        },
+        {
+          "path": "imports/raw/urpg_stuff/assets_to_ingest_20260429/Free Animated Knight/Knight/Animations_Frames_256x256/L_Cast_Simple",
+          "frame_count": 32,
+          "representative_files": [
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/Free Animated Knight/Knight/Animations_Frames_256x256/L_Cast_Simple/L_Cast_Simple_0000.png",
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/Free Animated Knight/Knight/Animations_Frames_256x256/L_Cast_Simple/L_Cast_Simple_0001.png",
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/Free Animated Knight/Knight/Animations_Frames_256x256/L_Cast_Simple/L_Cast_Simple_0002.png"
+          ]
+        },
+        {
+          "path": "imports/raw/urpg_stuff/assets_to_ingest_20260429/Free Animated Knight/Knight/Animations_Frames_256x256/L_Death_Backward",
+          "frame_count": 70,
+          "representative_files": [
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/Free Animated Knight/Knight/Animations_Frames_256x256/L_Death_Backward/L_Death_Backward_0000.png",
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/Free Animated Knight/Knight/Animations_Frames_256x256/L_Death_Backward/L_Death_Backward_0001.png",
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/Free Animated Knight/Knight/Animations_Frames_256x256/L_Death_Backward/L_Death_Backward_0002.png"
+          ]
+        },
+        {
+          "path": "imports/raw/urpg_stuff/assets_to_ingest_20260429/Free Animated Knight/Knight/Animations_Frames_256x256/L_Death_Forward",
+          "frame_count": 118,
+          "representative_files": [
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/Free Animated Knight/Knight/Animations_Frames_256x256/L_Death_Forward/L_Death_Forward_0000.png",
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/Free Animated Knight/Knight/Animations_Frames_256x256/L_Death_Forward/L_Death_Forward_0001.png",
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/Free Animated Knight/Knight/Animations_Frames_256x256/L_Death_Forward/L_Death_Forward_0002.png"
+          ]
+        },
+        {
+          "path": "imports/raw/urpg_stuff/assets_to_ingest_20260429/Free Animated Knight/Knight/Animations_Frames_256x256/L_Fall",
+          "frame_count": 33,
+          "representative_files": [
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/Free Animated Knight/Knight/Animations_Frames_256x256/L_Fall/L_Fall_0000.png",
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/Free Animated Knight/Knight/Animations_Frames_256x256/L_Fall/L_Fall_0001.png",
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/Free Animated Knight/Knight/Animations_Frames_256x256/L_Fall/L_Fall_0002.png"
+          ]
+        },
+        {
+          "path": "imports/raw/urpg_stuff/assets_to_ingest_20260429/Free Animated Knight/Knight/Animations_Frames_256x256/L_Idle",
+          "frame_count": 77,
+          "representative_files": [
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/Free Animated Knight/Knight/Animations_Frames_256x256/L_Idle/L_Idle_0000.png",
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/Free Animated Knight/Knight/Animations_Frames_256x256/L_Idle/L_Idle_0001.png",
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/Free Animated Knight/Knight/Animations_Frames_256x256/L_Idle/L_Idle_0002.png"
+          ]
+        },
+        {
+          "path": "imports/raw/urpg_stuff/assets_to_ingest_20260429/Free Animated Knight/Knight/Animations_Frames_256x256/L_Impact_Body",
+          "frame_count": 30,
+          "representative_files": [
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/Free Animated Knight/Knight/Animations_Frames_256x256/L_Impact_Body/L_Impact_Body_0000.png",
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/Free Animated Knight/Knight/Animations_Frames_256x256/L_Impact_Body/L_Impact_Body_0001.png",
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/Free Animated Knight/Knight/Animations_Frames_256x256/L_Impact_Body/L_Impact_Body_0002.png"
+          ]
+        },
+        {
+          "path": "imports/raw/urpg_stuff/assets_to_ingest_20260429/Free Animated Knight/Knight/Animations_Frames_256x256/L_Impact_Head",
+          "frame_count": 22,
+          "representative_files": [
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/Free Animated Knight/Knight/Animations_Frames_256x256/L_Impact_Head/L_Impact_Head_0000.png",
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/Free Animated Knight/Knight/Animations_Frames_256x256/L_Impact_Head/L_Impact_Head_0001.png",
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/Free Animated Knight/Knight/Animations_Frames_256x256/L_Impact_Head/L_Impact_Head_0002.png"
+          ]
+        },
+        {
+          "path": "imports/raw/urpg_stuff/assets_to_ingest_20260429/Free Animated Knight/Knight/Animations_Frames_256x256/L_Jump",
+          "frame_count": 26,
+          "representative_files": [
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/Free Animated Knight/Knight/Animations_Frames_256x256/L_Jump/L_Jump_0000.png",
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/Free Animated Knight/Knight/Animations_Frames_256x256/L_Jump/L_Jump_0001.png",
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/Free Animated Knight/Knight/Animations_Frames_256x256/L_Jump/L_Jump_0002.png"
+          ]
+        },
+        {
+          "path": "imports/raw/urpg_stuff/assets_to_ingest_20260429/Free Animated Knight/Knight/Animations_Frames_256x256/L_Kick",
+          "frame_count": 37,
+          "representative_files": [
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/Free Animated Knight/Knight/Animations_Frames_256x256/L_Kick/L_Kick_0000.png",
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/Free Animated Knight/Knight/Animations_Frames_256x256/L_Kick/L_Kick_0001.png",
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/Free Animated Knight/Knight/Animations_Frames_256x256/L_Kick/L_Kick_0002.png"
+          ]
+        },
+        {
+          "path": "imports/raw/urpg_stuff/assets_to_ingest_20260429/Free Animated Knight/Knight/Animations_Frames_256x256/L_PowerUp",
+          "frame_count": 72,
+          "representative_files": [
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/Free Animated Knight/Knight/Animations_Frames_256x256/L_PowerUp/L_PowerUp_0000.png",
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/Free Animated Knight/Knight/Animations_Frames_256x256/L_PowerUp/L_PowerUp_0001.png",
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/Free Animated Knight/Knight/Animations_Frames_256x256/L_PowerUp/L_PowerUp_0002.png"
+          ]
+        },
+        {
+          "path": "imports/raw/urpg_stuff/assets_to_ingest_20260429/Free Animated Knight/Knight/Animations_Frames_256x256/L_Run",
+          "frame_count": 22,
+          "representative_files": [
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/Free Animated Knight/Knight/Animations_Frames_256x256/L_Run/L_Run_0000.png",
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/Free Animated Knight/Knight/Animations_Frames_256x256/L_Run/L_Run_0001.png",
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/Free Animated Knight/Knight/Animations_Frames_256x256/L_Run/L_Run_0002.png"
+          ]
+        },
+        {
+          "path": "imports/raw/urpg_stuff/assets_to_ingest_20260429/Free Animated Knight/Knight/Animations_Frames_256x256/L_Slash_1",
+          "frame_count": 46,
+          "representative_files": [
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/Free Animated Knight/Knight/Animations_Frames_256x256/L_Slash_1/L_Slash_1_0000.png",
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/Free Animated Knight/Knight/Animations_Frames_256x256/L_Slash_1/L_Slash_1_0001.png",
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/Free Animated Knight/Knight/Animations_Frames_256x256/L_Slash_1/L_Slash_1_0002.png"
+          ]
+        },
+        {
+          "path": "imports/raw/urpg_stuff/assets_to_ingest_20260429/Free Animated Knight/Knight/Animations_Frames_256x256/L_Slash_2",
+          "frame_count": 51,
+          "representative_files": [
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/Free Animated Knight/Knight/Animations_Frames_256x256/L_Slash_2/L_Slash_2_0000.png",
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/Free Animated Knight/Knight/Animations_Frames_256x256/L_Slash_2/L_Slash_2_0001.png",
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/Free Animated Knight/Knight/Animations_Frames_256x256/L_Slash_2/L_Slash_2_0002.png"
+          ]
+        },
+        {
+          "path": "imports/raw/urpg_stuff/assets_to_ingest_20260429/Free Animated Knight/Knight/Animations_Frames_256x256/L_Slash_3",
+          "frame_count": 40,
+          "representative_files": [
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/Free Animated Knight/Knight/Animations_Frames_256x256/L_Slash_3/L_Slash_3_0000.png",
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/Free Animated Knight/Knight/Animations_Frames_256x256/L_Slash_3/L_Slash_3_0001.png",
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/Free Animated Knight/Knight/Animations_Frames_256x256/L_Slash_3/L_Slash_3_0002.png"
+          ]
+        },
+        {
+          "path": "imports/raw/urpg_stuff/assets_to_ingest_20260429/Free Animated Knight/Knight/Animations_Frames_256x256/L_Slash_4",
+          "frame_count": 74,
+          "representative_files": [
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/Free Animated Knight/Knight/Animations_Frames_256x256/L_Slash_4/L_Slash_4_0000.png",
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/Free Animated Knight/Knight/Animations_Frames_256x256/L_Slash_4/L_Slash_4_0001.png",
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/Free Animated Knight/Knight/Animations_Frames_256x256/L_Slash_4/L_Slash_4_0002.png"
+          ]
+        },
+        {
+          "path": "imports/raw/urpg_stuff/assets_to_ingest_20260429/Free Animated Knight/Knight/Animations_Frames_256x256/R_Block",
+          "frame_count": 43,
+          "representative_files": [
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/Free Animated Knight/Knight/Animations_Frames_256x256/R_Block/R_Block_0000.png",
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/Free Animated Knight/Knight/Animations_Frames_256x256/R_Block/R_Block_0001.png",
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/Free Animated Knight/Knight/Animations_Frames_256x256/R_Block/R_Block_0002.png"
+          ]
+        },
+        {
+          "path": "imports/raw/urpg_stuff/assets_to_ingest_20260429/Free Animated Knight/Knight/Animations_Frames_256x256/R_Cast_Powerful",
+          "frame_count": 90,
+          "representative_files": [
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/Free Animated Knight/Knight/Animations_Frames_256x256/R_Cast_Powerful/R_Cast_Powerful_0000.png",
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/Free Animated Knight/Knight/Animations_Frames_256x256/R_Cast_Powerful/R_Cast_Powerful_0001.png",
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/Free Animated Knight/Knight/Animations_Frames_256x256/R_Cast_Powerful/R_Cast_Powerful_0002.png"
+          ]
+        },
+        {
+          "path": "imports/raw/urpg_stuff/assets_to_ingest_20260429/Free Animated Knight/Knight/Animations_Frames_256x256/R_Cast_Simple",
+          "frame_count": 32,
+          "representative_files": [
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/Free Animated Knight/Knight/Animations_Frames_256x256/R_Cast_Simple/R_Cast_Simple_0000.png",
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/Free Animated Knight/Knight/Animations_Frames_256x256/R_Cast_Simple/R_Cast_Simple_0001.png",
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/Free Animated Knight/Knight/Animations_Frames_256x256/R_Cast_Simple/R_Cast_Simple_0002.png"
+          ]
+        },
+        {
+          "path": "imports/raw/urpg_stuff/assets_to_ingest_20260429/Free Animated Knight/Knight/Animations_Frames_256x256/R_Death_Backward",
+          "frame_count": 70,
+          "representative_files": [
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/Free Animated Knight/Knight/Animations_Frames_256x256/R_Death_Backward/R_Death_Backward_0000.png",
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/Free Animated Knight/Knight/Animations_Frames_256x256/R_Death_Backward/R_Death_Backward_0001.png",
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/Free Animated Knight/Knight/Animations_Frames_256x256/R_Death_Backward/R_Death_Backward_0002.png"
+          ]
+        },
+        {
+          "path": "imports/raw/urpg_stuff/assets_to_ingest_20260429/Free Animated Knight/Knight/Animations_Frames_256x256/R_Death_Forward",
+          "frame_count": 118,
+          "representative_files": [
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/Free Animated Knight/Knight/Animations_Frames_256x256/R_Death_Forward/R_Death_Forward_0000.png",
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/Free Animated Knight/Knight/Animations_Frames_256x256/R_Death_Forward/R_Death_Forward_0001.png",
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/Free Animated Knight/Knight/Animations_Frames_256x256/R_Death_Forward/R_Death_Forward_0002.png"
+          ]
+        },
+        {
+          "path": "imports/raw/urpg_stuff/assets_to_ingest_20260429/Free Animated Knight/Knight/Animations_Frames_256x256/R_Fall",
+          "frame_count": 33,
+          "representative_files": [
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/Free Animated Knight/Knight/Animations_Frames_256x256/R_Fall/R_Fall_0000.png",
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/Free Animated Knight/Knight/Animations_Frames_256x256/R_Fall/R_Fall_0001.png",
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/Free Animated Knight/Knight/Animations_Frames_256x256/R_Fall/R_Fall_0002.png"
+          ]
+        }
+      ],
+      "preview_width": 1024,
+      "preview_height": 1024
+    },
+    {
+      "id": "src-008:beefbe95581a9109",
+      "source_id": "SRC-008",
+      "source_path": "imports/raw/urpg_stuff/assets_to_ingest_20260429/animated demon",
+      "normalized_path": "asset://src-008/characters/animated-demon-beefbe95581a9109",
+      "preview_path": "imports/raw/urpg_stuff/assets_to_ingest_20260429/animated demon/Frames_180x180/Attack_01/Body/000/Attack_01_Body_000_0001.png",
+      "preview_kind": "image",
+      "media_kind": "image_sequence_collection",
+      "category": "characters",
+      "pack": "animated demon",
+      "filename": "animated demon",
+      "file_count": 34944,
+      "size_bytes": 255710355,
+      "tags": [
+        "20260429",
+        "animated",
+        "category:characters",
+        "demon",
+        "kind:image_sequence_collection",
+        "pack:animated-demon",
+        "stuff"
+      ],
+      "status": "cataloged",
+      "export_eligible": false,
+      "license": "user_attested_free_for_game_use_pending_per_pack_attribution",
+      "sequence_count": 2970,
+      "frame_count": 34944,
+      "fingerprint": "8844454a44a7d4e77558a921641c9e1a315ed8b87d16550c42ef9fbde8964e8c",
+      "representative_sequences": [
+        {
+          "path": "imports/raw/urpg_stuff/assets_to_ingest_20260429/animated demon/Frames_180x180/Attack_01/Body/000",
+          "frame_count": 12,
+          "representative_files": [
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/animated demon/Frames_180x180/Attack_01/Body/000/Attack_01_Body_000_0001.png",
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/animated demon/Frames_180x180/Attack_01/Body/000/Attack_01_Body_000_0002.png",
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/animated demon/Frames_180x180/Attack_01/Body/000/Attack_01_Body_000_0003.png"
+          ]
+        },
+        {
+          "path": "imports/raw/urpg_stuff/assets_to_ingest_20260429/animated demon/Frames_180x180/Attack_01/Body/022",
+          "frame_count": 12,
+          "representative_files": [
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/animated demon/Frames_180x180/Attack_01/Body/022/Attack_01_Body_022_0001.png",
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/animated demon/Frames_180x180/Attack_01/Body/022/Attack_01_Body_022_0002.png",
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/animated demon/Frames_180x180/Attack_01/Body/022/Attack_01_Body_022_0003.png"
+          ]
+        },
+        {
+          "path": "imports/raw/urpg_stuff/assets_to_ingest_20260429/animated demon/Frames_180x180/Attack_01/Body/045",
+          "frame_count": 12,
+          "representative_files": [
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/animated demon/Frames_180x180/Attack_01/Body/045/Attack_01_Body_045_0001.png",
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/animated demon/Frames_180x180/Attack_01/Body/045/Attack_01_Body_045_0002.png",
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/animated demon/Frames_180x180/Attack_01/Body/045/Attack_01_Body_045_0003.png"
+          ]
+        },
+        {
+          "path": "imports/raw/urpg_stuff/assets_to_ingest_20260429/animated demon/Frames_180x180/Attack_01/Body/067",
+          "frame_count": 12,
+          "representative_files": [
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/animated demon/Frames_180x180/Attack_01/Body/067/Attack_01_Body_067_0001.png",
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/animated demon/Frames_180x180/Attack_01/Body/067/Attack_01_Body_067_0002.png",
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/animated demon/Frames_180x180/Attack_01/Body/067/Attack_01_Body_067_0003.png"
+          ]
+        },
+        {
+          "path": "imports/raw/urpg_stuff/assets_to_ingest_20260429/animated demon/Frames_180x180/Attack_01/Body/090",
+          "frame_count": 12,
+          "representative_files": [
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/animated demon/Frames_180x180/Attack_01/Body/090/Attack_01_Body_090_0001.png",
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/animated demon/Frames_180x180/Attack_01/Body/090/Attack_01_Body_090_0002.png",
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/animated demon/Frames_180x180/Attack_01/Body/090/Attack_01_Body_090_0003.png"
+          ]
+        },
+        {
+          "path": "imports/raw/urpg_stuff/assets_to_ingest_20260429/animated demon/Frames_180x180/Attack_01/Body/112",
+          "frame_count": 12,
+          "representative_files": [
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/animated demon/Frames_180x180/Attack_01/Body/112/Attack_01_Body_112_0001.png",
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/animated demon/Frames_180x180/Attack_01/Body/112/Attack_01_Body_112_0002.png",
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/animated demon/Frames_180x180/Attack_01/Body/112/Attack_01_Body_112_0003.png"
+          ]
+        },
+        {
+          "path": "imports/raw/urpg_stuff/assets_to_ingest_20260429/animated demon/Frames_180x180/Attack_01/Body/135",
+          "frame_count": 12,
+          "representative_files": [
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/animated demon/Frames_180x180/Attack_01/Body/135/Attack_01_Body_135_0001.png",
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/animated demon/Frames_180x180/Attack_01/Body/135/Attack_01_Body_135_0002.png",
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/animated demon/Frames_180x180/Attack_01/Body/135/Attack_01_Body_135_0003.png"
+          ]
+        },
+        {
+          "path": "imports/raw/urpg_stuff/assets_to_ingest_20260429/animated demon/Frames_180x180/Attack_01/Body/157",
+          "frame_count": 12,
+          "representative_files": [
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/animated demon/Frames_180x180/Attack_01/Body/157/Attack_01_Body_157_0001.png",
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/animated demon/Frames_180x180/Attack_01/Body/157/Attack_01_Body_157_0002.png",
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/animated demon/Frames_180x180/Attack_01/Body/157/Attack_01_Body_157_0003.png"
+          ]
+        },
+        {
+          "path": "imports/raw/urpg_stuff/assets_to_ingest_20260429/animated demon/Frames_180x180/Attack_01/Body/180",
+          "frame_count": 12,
+          "representative_files": [
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/animated demon/Frames_180x180/Attack_01/Body/180/Attack_01_Body_180_0001.png",
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/animated demon/Frames_180x180/Attack_01/Body/180/Attack_01_Body_180_0002.png",
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/animated demon/Frames_180x180/Attack_01/Body/180/Attack_01_Body_180_0003.png"
+          ]
+        },
+        {
+          "path": "imports/raw/urpg_stuff/assets_to_ingest_20260429/animated demon/Frames_180x180/Attack_01/Body/202",
+          "frame_count": 12,
+          "representative_files": [
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/animated demon/Frames_180x180/Attack_01/Body/202/Attack_01_Body_202_0001.png",
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/animated demon/Frames_180x180/Attack_01/Body/202/Attack_01_Body_202_0002.png",
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/animated demon/Frames_180x180/Attack_01/Body/202/Attack_01_Body_202_0003.png"
+          ]
+        },
+        {
+          "path": "imports/raw/urpg_stuff/assets_to_ingest_20260429/animated demon/Frames_180x180/Attack_01/Body/225",
+          "frame_count": 12,
+          "representative_files": [
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/animated demon/Frames_180x180/Attack_01/Body/225/Attack_01_Body_225_0001.png",
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/animated demon/Frames_180x180/Attack_01/Body/225/Attack_01_Body_225_0002.png",
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/animated demon/Frames_180x180/Attack_01/Body/225/Attack_01_Body_225_0003.png"
+          ]
+        },
+        {
+          "path": "imports/raw/urpg_stuff/assets_to_ingest_20260429/animated demon/Frames_180x180/Attack_01/Body/247",
+          "frame_count": 12,
+          "representative_files": [
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/animated demon/Frames_180x180/Attack_01/Body/247/Attack_01_Body_247_0001.png",
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/animated demon/Frames_180x180/Attack_01/Body/247/Attack_01_Body_247_0002.png",
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/animated demon/Frames_180x180/Attack_01/Body/247/Attack_01_Body_247_0003.png"
+          ]
+        },
+        {
+          "path": "imports/raw/urpg_stuff/assets_to_ingest_20260429/animated demon/Frames_180x180/Attack_01/Body/270",
+          "frame_count": 12,
+          "representative_files": [
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/animated demon/Frames_180x180/Attack_01/Body/270/Attack_01_Body_270_0001.png",
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/animated demon/Frames_180x180/Attack_01/Body/270/Attack_01_Body_270_0002.png",
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/animated demon/Frames_180x180/Attack_01/Body/270/Attack_01_Body_270_0003.png"
+          ]
+        },
+        {
+          "path": "imports/raw/urpg_stuff/assets_to_ingest_20260429/animated demon/Frames_180x180/Attack_01/Body/292",
+          "frame_count": 12,
+          "representative_files": [
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/animated demon/Frames_180x180/Attack_01/Body/292/Attack_01_Body_292_0001.png",
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/animated demon/Frames_180x180/Attack_01/Body/292/Attack_01_Body_292_0002.png",
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/animated demon/Frames_180x180/Attack_01/Body/292/Attack_01_Body_292_0003.png"
+          ]
+        },
+        {
+          "path": "imports/raw/urpg_stuff/assets_to_ingest_20260429/animated demon/Frames_180x180/Attack_01/Body/315",
+          "frame_count": 12,
+          "representative_files": [
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/animated demon/Frames_180x180/Attack_01/Body/315/Attack_01_Body_315_0001.png",
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/animated demon/Frames_180x180/Attack_01/Body/315/Attack_01_Body_315_0002.png",
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/animated demon/Frames_180x180/Attack_01/Body/315/Attack_01_Body_315_0003.png"
+          ]
+        },
+        {
+          "path": "imports/raw/urpg_stuff/assets_to_ingest_20260429/animated demon/Frames_180x180/Attack_01/Body/337",
+          "frame_count": 12,
+          "representative_files": [
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/animated demon/Frames_180x180/Attack_01/Body/337/Attack_01_Body_337_0001.png",
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/animated demon/Frames_180x180/Attack_01/Body/337/Attack_01_Body_337_0002.png",
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/animated demon/Frames_180x180/Attack_01/Body/337/Attack_01_Body_337_0003.png"
+          ]
+        },
+        {
+          "path": "imports/raw/urpg_stuff/assets_to_ingest_20260429/animated demon/Frames_180x180/Attack_01/Shadow/000",
+          "frame_count": 12,
+          "representative_files": [
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/animated demon/Frames_180x180/Attack_01/Shadow/000/Attack_01_Shadow_000_0001.png",
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/animated demon/Frames_180x180/Attack_01/Shadow/000/Attack_01_Shadow_000_0002.png",
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/animated demon/Frames_180x180/Attack_01/Shadow/000/Attack_01_Shadow_000_0003.png"
+          ]
+        },
+        {
+          "path": "imports/raw/urpg_stuff/assets_to_ingest_20260429/animated demon/Frames_180x180/Attack_01/Shadow/022",
+          "frame_count": 12,
+          "representative_files": [
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/animated demon/Frames_180x180/Attack_01/Shadow/022/Attack_01_Shadow_022_0001.png",
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/animated demon/Frames_180x180/Attack_01/Shadow/022/Attack_01_Shadow_022_0002.png",
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/animated demon/Frames_180x180/Attack_01/Shadow/022/Attack_01_Shadow_022_0003.png"
+          ]
+        },
+        {
+          "path": "imports/raw/urpg_stuff/assets_to_ingest_20260429/animated demon/Frames_180x180/Attack_01/Shadow/045",
+          "frame_count": 12,
+          "representative_files": [
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/animated demon/Frames_180x180/Attack_01/Shadow/045/Attack_01_Shadow_045_0001.png",
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/animated demon/Frames_180x180/Attack_01/Shadow/045/Attack_01_Shadow_045_0002.png",
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/animated demon/Frames_180x180/Attack_01/Shadow/045/Attack_01_Shadow_045_0003.png"
+          ]
+        },
+        {
+          "path": "imports/raw/urpg_stuff/assets_to_ingest_20260429/animated demon/Frames_180x180/Attack_01/Shadow/067",
+          "frame_count": 12,
+          "representative_files": [
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/animated demon/Frames_180x180/Attack_01/Shadow/067/Attack_01_Shadow_067_0001.png",
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/animated demon/Frames_180x180/Attack_01/Shadow/067/Attack_01_Shadow_067_0002.png",
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/animated demon/Frames_180x180/Attack_01/Shadow/067/Attack_01_Shadow_067_0003.png"
+          ]
+        },
+        {
+          "path": "imports/raw/urpg_stuff/assets_to_ingest_20260429/animated demon/Frames_180x180/Attack_01/Shadow/090",
+          "frame_count": 12,
+          "representative_files": [
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/animated demon/Frames_180x180/Attack_01/Shadow/090/Attack_01_Shadow_090_0001.png",
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/animated demon/Frames_180x180/Attack_01/Shadow/090/Attack_01_Shadow_090_0002.png",
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/animated demon/Frames_180x180/Attack_01/Shadow/090/Attack_01_Shadow_090_0003.png"
+          ]
+        },
+        {
+          "path": "imports/raw/urpg_stuff/assets_to_ingest_20260429/animated demon/Frames_180x180/Attack_01/Shadow/112",
+          "frame_count": 12,
+          "representative_files": [
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/animated demon/Frames_180x180/Attack_01/Shadow/112/Attack_01_Shadow_112_0001.png",
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/animated demon/Frames_180x180/Attack_01/Shadow/112/Attack_01_Shadow_112_0002.png",
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/animated demon/Frames_180x180/Attack_01/Shadow/112/Attack_01_Shadow_112_0003.png"
+          ]
+        },
+        {
+          "path": "imports/raw/urpg_stuff/assets_to_ingest_20260429/animated demon/Frames_180x180/Attack_01/Shadow/135",
+          "frame_count": 12,
+          "representative_files": [
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/animated demon/Frames_180x180/Attack_01/Shadow/135/Attack_01_Shadow_135_0001.png",
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/animated demon/Frames_180x180/Attack_01/Shadow/135/Attack_01_Shadow_135_0002.png",
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/animated demon/Frames_180x180/Attack_01/Shadow/135/Attack_01_Shadow_135_0003.png"
+          ]
+        },
+        {
+          "path": "imports/raw/urpg_stuff/assets_to_ingest_20260429/animated demon/Frames_180x180/Attack_01/Shadow/157",
+          "frame_count": 12,
+          "representative_files": [
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/animated demon/Frames_180x180/Attack_01/Shadow/157/Attack_01_Shadow_157_0001.png",
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/animated demon/Frames_180x180/Attack_01/Shadow/157/Attack_01_Shadow_157_0002.png",
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/animated demon/Frames_180x180/Attack_01/Shadow/157/Attack_01_Shadow_157_0003.png"
+          ]
+        }
+      ],
+      "preview_width": 180,
+      "preview_height": 180
+    },
+    {
+      "id": "src-008:3d64f8f7dfd5ddfa",
+      "source_id": "SRC-008",
+      "source_path": "imports/raw/urpg_stuff/assets_to_ingest_20260429/apex predators",
+      "normalized_path": "asset://src-008/characters/apex-predators-3d64f8f7dfd5ddfa",
+      "preview_path": "imports/raw/urpg_stuff/assets_to_ingest_20260429/apex predators/ApexHunter_SideViewBattler_Large.png",
+      "preview_kind": "image",
+      "media_kind": "image_sequence_collection",
+      "category": "characters",
+      "pack": "apex predators",
+      "filename": "apex predators",
+      "file_count": 30,
+      "size_bytes": 170780889,
+      "tags": [
+        "20260429",
+        "apex",
+        "category:characters",
+        "kind:image_sequence_collection",
+        "pack:apex-predators",
+        "predators",
+        "stuff"
+      ],
+      "status": "cataloged",
+      "export_eligible": false,
+      "license": "user_attested_free_for_game_use_pending_per_pack_attribution",
+      "sequence_count": 4,
+      "frame_count": 30,
+      "fingerprint": "e873be86f2f605a7ae42e7f840490f3f7401039675987fc280bf2a4ec41b37b4",
+      "representative_sequences": [
+        {
+          "path": "imports/raw/urpg_stuff/assets_to_ingest_20260429/apex predators",
+          "frame_count": 3,
+          "representative_files": [
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/apex predators/ApexHunter_SideViewBattler_Large.png",
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/apex predators/ApexPredator_SideViewBattler_Large.png",
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/apex predators/ApexStalker_SideViewBattler_Large.png"
+          ]
+        },
+        {
+          "path": "imports/raw/urpg_stuff/assets_to_ingest_20260429/apex predators/Apex_Hunter",
+          "frame_count": 9,
+          "representative_files": [
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/apex predators/Apex_Hunter/ApexHunter_Large.png",
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/apex predators/Apex_Hunter/Sprite_1.png",
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/apex predators/Apex_Hunter/Sprite_2.png"
+          ]
+        },
+        {
+          "path": "imports/raw/urpg_stuff/assets_to_ingest_20260429/apex predators/Apex_Predator",
+          "frame_count": 9,
+          "representative_files": [
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/apex predators/Apex_Predator/ApexPredator_Large.png",
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/apex predators/Apex_Predator/Sprite_1.png",
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/apex predators/Apex_Predator/Sprite_2.png"
+          ]
+        },
+        {
+          "path": "imports/raw/urpg_stuff/assets_to_ingest_20260429/apex predators/Apex_Stalker",
+          "frame_count": 9,
+          "representative_files": [
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/apex predators/Apex_Stalker/ApexStalker_Large.png",
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/apex predators/Apex_Stalker/Sprite_1.png",
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/apex predators/Apex_Stalker/Sprite_2.png"
+          ]
+        }
+      ],
+      "preview_width": 12000,
+      "preview_height": 4800
+    },
+    {
+      "id": "src-008:5b77a44ba5c28800",
+      "source_id": "SRC-008",
+      "source_path": "imports/raw/urpg_stuff/assets_to_ingest_20260429/starlight furnace",
+      "normalized_path": "asset://src-008/characters/starlight-furnace-5b77a44ba5c28800",
+      "preview_path": "imports/raw/urpg_stuff/assets_to_ingest_20260429/starlight furnace/Archology South/Infrastructure/Canal E arc.png",
+      "preview_kind": "image",
+      "media_kind": "image_sequence_collection",
+      "category": "characters",
+      "pack": "starlight furnace",
+      "filename": "starlight furnace",
+      "file_count": 1114,
+      "size_bytes": 186583825,
+      "tags": [
+        "20260429",
+        "category:characters",
+        "furnace",
+        "kind:image_sequence_collection",
+        "pack:starlight-furnace",
+        "starlight",
+        "stuff"
+      ],
+      "status": "cataloged",
+      "export_eligible": false,
+      "license": "user_attested_free_for_game_use_pending_per_pack_attribution",
+      "sequence_count": 40,
+      "frame_count": 1114,
+      "fingerprint": "de01207665316ecd5c2b76cef553c35252ca435431f6b729f9844bda6d6b7fe8",
+      "representative_sequences": [
+        {
+          "path": "imports/raw/urpg_stuff/assets_to_ingest_20260429/starlight furnace/Archology South/Infrastructure",
+          "frame_count": 122,
+          "representative_files": [
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/starlight furnace/Archology South/Infrastructure/Canal E arc.png",
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/starlight furnace/Archology South/Infrastructure/Canal E Bend.png",
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/starlight furnace/Archology South/Infrastructure/Canal N arc.png"
+          ]
+        },
+        {
+          "path": "imports/raw/urpg_stuff/assets_to_ingest_20260429/starlight furnace/Archology South/Remnants",
+          "frame_count": 6,
+          "representative_files": [
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/starlight furnace/Archology South/Remnants/Ruins - size 2 - typeA.i - blue.png",
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/starlight furnace/Archology South/Remnants/Ruins - size 2 - typeA.i - red.png",
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/starlight furnace/Archology South/Remnants/Ruins - size 2 - typeA.i - white.png"
+          ]
+        },
+        {
+          "path": "imports/raw/urpg_stuff/assets_to_ingest_20260429/starlight furnace/Archology South/Structures",
+          "frame_count": 92,
+          "representative_files": [
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/starlight furnace/Archology South/Structures/Building - size 1 - height 1 - type A.png",
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/starlight furnace/Archology South/Structures/Building - size 1 - height 1 - type B.i.png",
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/starlight furnace/Archology South/Structures/Building - size 1 - height 1 - type B.ii.png"
+          ]
+        },
+        {
+          "path": "imports/raw/urpg_stuff/assets_to_ingest_20260429/starlight furnace/Arid Badlands/Flora",
+          "frame_count": 16,
+          "representative_files": [
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/starlight furnace/Arid Badlands/Flora/Acacia Style Trees Patch 2z2 A-green.png",
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/starlight furnace/Arid Badlands/Flora/Acacia Style Trees Patch 2z2 A-red.png",
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/starlight furnace/Arid Badlands/Flora/Acacia Style Trees Patch 2z2 B-green.png"
+          ]
+        },
+        {
+          "path": "imports/raw/urpg_stuff/assets_to_ingest_20260429/starlight furnace/Arid Badlands/Odds and Ends",
+          "frame_count": 27,
+          "representative_files": [
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/starlight furnace/Arid Badlands/Odds and Ends/Desert_terrain_l_Objective-Crashed Aerostatic-sz1-0.1.png",
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/starlight furnace/Arid Badlands/Odds and Ends/Grass Patch Large A - brown.png",
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/starlight furnace/Arid Badlands/Odds and Ends/Grass Patch Large A - red.png"
+          ]
+        },
+        {
+          "path": "imports/raw/urpg_stuff/assets_to_ingest_20260429/starlight furnace/Arid Badlands/Rocks",
+          "frame_count": 104,
+          "representative_files": [
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/starlight furnace/Arid Badlands/Rocks/Dersert Rocks - Size 1A - dark.png",
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/starlight furnace/Arid Badlands/Rocks/Dersert Rocks - Size 1A - light.png",
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/starlight furnace/Arid Badlands/Rocks/Dersert Rocks - Size 1A - medium.png"
+          ]
+        },
+        {
+          "path": "imports/raw/urpg_stuff/assets_to_ingest_20260429/starlight furnace/Arid Badlands/Structures",
+          "frame_count": 15,
+          "representative_files": [
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/starlight furnace/Arid Badlands/Structures/Building A1.1 sz2 noshadow.png",
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/starlight furnace/Arid Badlands/Structures/Building A1.1 sz2 shadow.png",
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/starlight furnace/Arid Badlands/Structures/Building A1.2 sz2 shadow.png"
+          ]
+        },
+        {
+          "path": "imports/raw/urpg_stuff/assets_to_ingest_20260429/starlight furnace/Arid Badlands/Waterways",
+          "frame_count": 21,
+          "representative_files": [
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/starlight furnace/Arid Badlands/Waterways/Sandy  Waterway 1 - coast short 1A.png",
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/starlight furnace/Arid Badlands/Waterways/Sandy Waterway 1 - coast corner east.png",
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/starlight furnace/Arid Badlands/Waterways/Sandy Waterway 1 - coast corner north.png"
+          ]
+        },
+        {
+          "path": "imports/raw/urpg_stuff/assets_to_ingest_20260429/starlight furnace/Brutalist Metropole",
+          "frame_count": 3,
+          "representative_files": [
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/starlight furnace/Brutalist Metropole/Earth Patch - Rough - Gray - 2x2.png",
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/starlight furnace/Brutalist Metropole/Earth Patch - Rough - Gray - 3x3.png",
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/starlight furnace/Brutalist Metropole/Earth Patch - Rough - Gray - 4x4.png"
+          ]
+        },
+        {
+          "path": "imports/raw/urpg_stuff/assets_to_ingest_20260429/starlight furnace/Brutalist Metropole/Buildings",
+          "frame_count": 15,
+          "representative_files": [
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/starlight furnace/Brutalist Metropole/Buildings/Brutalist Block Building s2A i.png",
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/starlight furnace/Brutalist Metropole/Buildings/Brutalist Block Building s2A ii.png",
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/starlight furnace/Brutalist Metropole/Buildings/Brutalist Building s2A.png"
+          ]
+        },
+        {
+          "path": "imports/raw/urpg_stuff/assets_to_ingest_20260429/starlight furnace/Brutalist Metropole/Buildings/Noshadow",
+          "frame_count": 8,
+          "representative_files": [
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/starlight furnace/Brutalist Metropole/Buildings/Noshadow/Brutalist Building s2A noshadow stackable.png",
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/starlight furnace/Brutalist Metropole/Buildings/Noshadow/Brutalist Building s2B noshadow stackable.png",
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/starlight furnace/Brutalist Metropole/Buildings/Noshadow/Brutalist Building s2C noshadow.png"
+          ]
+        },
+        {
+          "path": "imports/raw/urpg_stuff/assets_to_ingest_20260429/starlight furnace/Brutalist Metropole/Infrastructure",
+          "frame_count": 12,
+          "representative_files": [
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/starlight furnace/Brutalist Metropole/Infrastructure/Raised Transitway - East Bend.png",
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/starlight furnace/Brutalist Metropole/Infrastructure/Raised Transitway - East Corner.png",
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/starlight furnace/Brutalist Metropole/Infrastructure/Raised Transitway - Junction Center.png"
+          ]
+        },
+        {
+          "path": "imports/raw/urpg_stuff/assets_to_ingest_20260429/starlight furnace/Brutalist Metropole/Ruins",
+          "frame_count": 6,
+          "representative_files": [
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/starlight furnace/Brutalist Metropole/Ruins/Rubble A.png",
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/starlight furnace/Brutalist Metropole/Ruins/Rubble B.png",
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/starlight furnace/Brutalist Metropole/Ruins/Rubble C.png"
+          ]
+        },
+        {
+          "path": "imports/raw/urpg_stuff/assets_to_ingest_20260429/starlight furnace/Exo-Lunar Desolation/Hydrofeatures",
+          "frame_count": 42,
+          "representative_files": [
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/starlight furnace/Exo-Lunar Desolation/Hydrofeatures/Hydrofeature - Caustic Oxides - coast corner east.png",
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/starlight furnace/Exo-Lunar Desolation/Hydrofeatures/Hydrofeature - Caustic Oxides - coast corner north.png",
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/starlight furnace/Exo-Lunar Desolation/Hydrofeatures/Hydrofeature - Caustic Oxides - coast corner south.png"
+          ]
+        },
+        {
+          "path": "imports/raw/urpg_stuff/assets_to_ingest_20260429/starlight furnace/Exo-Lunar Desolation/Remnants",
+          "frame_count": 24,
+          "representative_files": [
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/starlight furnace/Exo-Lunar Desolation/Remnants/Moonrocks1-Crater1x1-A V2 Ochre Tholin.png",
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/starlight furnace/Exo-Lunar Desolation/Remnants/Moonrocks1-Crater1x1-A V3 Oxide Dust.png",
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/starlight furnace/Exo-Lunar Desolation/Remnants/Moonrocks1-Crater1x1-A.png"
+          ]
+        },
+        {
+          "path": "imports/raw/urpg_stuff/assets_to_ingest_20260429/starlight furnace/Exo-Lunar Desolation/Rocks",
+          "frame_count": 27,
+          "representative_files": [
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/starlight furnace/Exo-Lunar Desolation/Rocks/Moonrocks1-sz1-A V2 Ochre Tholin.png",
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/starlight furnace/Exo-Lunar Desolation/Rocks/Moonrocks1-sz1-A V3 Oxide Dust.png",
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/starlight furnace/Exo-Lunar Desolation/Rocks/Moonrocks1-sz1-A.png"
+          ]
+        },
+        {
+          "path": "imports/raw/urpg_stuff/assets_to_ingest_20260429/starlight furnace/Exo-Lunar Desolation/Structures",
+          "frame_count": 31,
+          "representative_files": [
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/starlight furnace/Exo-Lunar Desolation/Structures/Building - size 3 - height 1 typeAi.png",
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/starlight furnace/Exo-Lunar Desolation/Structures/Building-Hab Unit-sz2-A1.png",
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/starlight furnace/Exo-Lunar Desolation/Structures/Building-Hab Unit-sz2-A2.png"
+          ]
+        },
+        {
+          "path": "imports/raw/urpg_stuff/assets_to_ingest_20260429/starlight furnace/Gallian Ice Field/Rocks and Glaciers",
+          "frame_count": 15,
+          "representative_files": [
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/starlight furnace/Gallian Ice Field/Rocks and Glaciers/Glacial Ice - Sz 1 - A.png",
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/starlight furnace/Gallian Ice Field/Rocks and Glaciers/Glacial Ice - Sz 1 - B.png",
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/starlight furnace/Gallian Ice Field/Rocks and Glaciers/Glacial Ice - Sz 1 - C.png"
+          ]
+        },
+        {
+          "path": "imports/raw/urpg_stuff/assets_to_ingest_20260429/starlight furnace/Gallian Ice Field/Structures",
+          "frame_count": 1,
+          "representative_files": [
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/starlight furnace/Gallian Ice Field/Structures/Industrial Building - Sz 2 - A.png"
+          ]
+        },
+        {
+          "path": "imports/raw/urpg_stuff/assets_to_ingest_20260429/starlight furnace/Gloria Station",
+          "frame_count": 19,
+          "representative_files": [
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/starlight furnace/Gloria Station/Hall 2x2 nwXse - dark metals.png",
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/starlight furnace/Gloria Station/Hall 2x2 nwXse-Windows A - dark metals.png",
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/starlight furnace/Gloria Station/Hall 2x2 nwXse-Windows A.png"
+          ]
+        },
+        {
+          "path": "imports/raw/urpg_stuff/assets_to_ingest_20260429/starlight furnace/Gloria Station/Debris-Objects",
+          "frame_count": 28,
+          "representative_files": [
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/starlight furnace/Gloria Station/Debris-Objects/Floating Crate 1A-i.png",
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/starlight furnace/Gloria Station/Debris-Objects/Floating Crate 1A.png",
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/starlight furnace/Gloria Station/Debris-Objects/Floating Crate 1B-i.png"
+          ]
+        },
+        {
+          "path": "imports/raw/urpg_stuff/assets_to_ingest_20260429/starlight furnace/Gloria Station/Floors",
+          "frame_count": 12,
+          "representative_files": [
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/starlight furnace/Gloria Station/Floors/2x2 panel floor compromised sw.png",
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/starlight furnace/Gloria Station/Floors/2x2 panel floor.png",
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/starlight furnace/Gloria Station/Floors/2x2 scafold floor.png"
+          ]
+        },
+        {
+          "path": "imports/raw/urpg_stuff/assets_to_ingest_20260429/starlight furnace/Gloria Station/Space Rocks",
+          "frame_count": 24,
+          "representative_files": [
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/starlight furnace/Gloria Station/Space Rocks/Space Rock Field A oxide red.png",
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/starlight furnace/Gloria Station/Space Rocks/Space Rock Field A.png",
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/starlight furnace/Gloria Station/Space Rocks/Space Rock Field B oxide red.png"
+          ]
+        },
+        {
+          "path": "imports/raw/urpg_stuff/assets_to_ingest_20260429/starlight furnace/Gloria Station/Walls",
+          "frame_count": 50,
+          "representative_files": [
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/starlight furnace/Gloria Station/Walls/2x door neXsw.png",
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/starlight furnace/Gloria Station/Walls/2x door nwXse.png",
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/starlight furnace/Gloria Station/Walls/2x wall neXsw - dark metals.png"
+          ]
+        }
+      ],
+      "preview_width": 706,
+      "preview_height": 500
+    }
+  ]
+}

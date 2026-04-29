@@ -1,0 +1,86 @@
+{
+  "schema": "urpg/promoted_asset_catalog/v1",
+  "generated_at": "2026-04-29T16:18:53+00:00",
+  "source_id": "SRC-008",
+  "source_root": "imports/raw/urpg_stuff/assets_to_ingest_20260429",
+  "promotion_status": "cataloged_local_aggregate",
+  "export_eligible": false,
+  "summary": {
+    "schema": "urpg/aggregate_animation_asset_intake_summary/v1",
+    "generated_at": "2026-04-29T16:18:53+00:00",
+    "source_id": "SRC-008",
+    "source_root": "imports/raw/urpg_stuff/assets_to_ingest_20260429",
+    "promotion_status": "cataloged_local_aggregate",
+    "export_eligible": false,
+    "raw_file_count": 662009,
+    "raw_size_bytes": 10224471226,
+    "asset_record_count": 35,
+    "potential_duplicate_group_count": 0,
+    "potential_duplicate_asset_count": 0,
+    "kind_counts": {
+      "animation_metadata": 2,
+      "archive": 13,
+      "document": 2,
+      "image_sequence_collection": 18
+    },
+    "category_counts": {
+      "archives": 13,
+      "backgrounds": 1,
+      "characters": 4,
+      "characters/isometric": 12,
+      "characters/sideview": 1,
+      "documentation": 2,
+      "tooling/source": 2
+    },
+    "extension_counts": {
+      ".docx": 2,
+      ".lua": 66,
+      ".png": 661928,
+      ".zip": 13
+    },
+    "notes": [
+      "This aggregate catalog represents large frame folders as animation/background sequence assets.",
+      "Raw files remain local under ignored intake storage and are not committed.",
+      "Potential duplicate groups are directory-sequence fingerprints, not full byte-for-byte duplicate proof.",
+      "Release promotion still requires per-pack attribution and curated bundle manifests."
+    ]
+  },
+  "shards": [
+    {
+      "category": "archives",
+      "path": "imports/reports/asset_intake/assets_to_ingest_20260429_promotion_catalog/archives.json",
+      "asset_count": 13
+    },
+    {
+      "category": "backgrounds",
+      "path": "imports/reports/asset_intake/assets_to_ingest_20260429_promotion_catalog/backgrounds.json",
+      "asset_count": 1
+    },
+    {
+      "category": "characters",
+      "path": "imports/reports/asset_intake/assets_to_ingest_20260429_promotion_catalog/characters.json",
+      "asset_count": 4
+    },
+    {
+      "category": "characters/isometric",
+      "path": "imports/reports/asset_intake/assets_to_ingest_20260429_promotion_catalog/characters-isometric.json",
+      "asset_count": 12
+    },
+    {
+      "category": "characters/sideview",
+      "path": "imports/reports/asset_intake/assets_to_ingest_20260429_promotion_catalog/characters-sideview.json",
+      "asset_count": 1
+    },
+    {
+      "category": "documentation",
+      "path": "imports/reports/asset_intake/assets_to_ingest_20260429_promotion_catalog/documentation.json",
+      "asset_count": 2
+    },
+    {
+      "category": "tooling/source",
+      "path": "imports/reports/asset_intake/assets_to_ingest_20260429_promotion_catalog/tooling-source.json",
+      "asset_count": 2
+    }
+  ],
+  "duplicate_groups": []
+}

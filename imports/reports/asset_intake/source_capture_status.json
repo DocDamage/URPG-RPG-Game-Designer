@@ -2,14 +2,14 @@
   "report_date": "2026-04-29",
   "report_version": 1,
   "summary": {
-    "total_sources": 7,
+    "total_sources": 8,
     "cataloged_not_mirrored": 4,
-    "mirrored": 3,
+    "mirrored": 4,
     "staged": 2,
     "normalized": 2,
-    "cataloged_local": 1,
+    "cataloged_local": 2,
     "discovery_only": 0,
-    "direct_asset_pack_sources": 5,
+    "direct_asset_pack_sources": 6,
     "discovery_index_sources": 2,
     "promotion_ready": 0,
     "promoted": 2,
@@ -107,6 +107,26 @@
       "exact_duplicate_bytes_removed": 899347493
     },
     {
+      "source_id": "SRC-008",
+      "repo_name": "Local isometric animation and background drop",
+      "source_type": "direct_asset_pack",
+      "capture_state": "mirrored",
+      "handling_path": "direct_ingest_when_captured",
+      "legal_disposition": "user_attested_free_for_game_use_requires_per_pack_attribution_and_bundle_review",
+      "promotion_status": "in_review",
+      "raw_root": "imports/raw/urpg_stuff/assets_to_ingest_20260429",
+      "promotion_catalog": "imports/reports/asset_intake/assets_to_ingest_20260429_promotion_catalog.json",
+      "promotion_catalog_shards": "imports/reports/asset_intake/assets_to_ingest_20260429_promotion_catalog/*.json",
+      "promotion_summary": "imports/reports/asset_intake/assets_to_ingest_20260429_promotion_summary.json",
+      "raw_file_count": 662009,
+      "raw_size_bytes": 10224471226,
+      "asset_record_count": 35,
+      "potential_duplicate_group_count": 0,
+      "potential_duplicate_asset_count": 0,
+      "audio_file_count": 0,
+      "export_eligible": false
+    },
+    {
       "source_id": "SRC-004",
       "repo_name": "madjin/awesome-cc0",
       "source_type": "discovery_index",
@@ -137,6 +157,7 @@
     "Tracked WAV/MP3 paths were removed from GitHub. Future audio promotion must use OGG payloads.",
     "SRC-007 duplicate cleanup removed 30,495 exact duplicate raw files after preserving canonical copies; the regenerated non-audio catalog reports zero duplicate groups.",
     "SRC-007 already-ingested local source-drop folders were moved out of the project root into .urpg/archive/source_drops/20260429; the catalog source of truth remains imports/raw/urpg_stuff.",
-    "Third-party and itch folders were moved out of the repository root into imports/raw/third_party_assets and imports/raw/itch_assets, then indexed into the local asset DB across itch-assets, rpgmaker-mz, huggingface, aseprite, external-repos, github_assets, and itch loose assets. imports/reports/asset_intake/third_party_itch_ingest_summary.json records the tracked audit summary. This is catalog/index intake only, not release promotion."
+    "Third-party and itch folders were moved out of the repository root into imports/raw/third_party_assets and imports/raw/itch_assets, then indexed into the local asset DB across itch-assets, rpgmaker-mz, huggingface, aseprite, external-repos, github_assets, and itch loose assets. imports/reports/asset_intake/third_party_itch_ingest_summary.json records the tracked audit summary. This is catalog/index intake only, not release promotion.",
+    "SRC-008 was moved from the project root into imports/raw/urpg_stuff/assets_to_ingest_20260429 and aggregate-cataloged as 35 editor/library pack records over 662,009 raw files. The drop contains no audio; raw payload remains local and export-ineligible pending curated attribution and bundle promotion."
   ]
 }

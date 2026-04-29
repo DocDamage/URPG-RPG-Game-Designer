@@ -4,6 +4,7 @@
 
 #include <fstream>
 #include <sstream>
+#include <vector>
 #include <utility>
 
 namespace urpg::editor {
@@ -99,16 +100,32 @@ bool AssetLibraryModel::loadReportsFromDirectory(const std::filesystem::path& re
 
         const auto hygiene_summary = nlohmann::json::parse(hygiene_stream);
         const auto intake_report = nlohmann::json::parse(intake_stream);
-        nlohmann::json promotion_catalog = nlohmann::json::object();
+        std::vector<std::filesystem::path> promotion_catalog_paths;
         if (std::filesystem::is_regular_file(promotion_catalog_path)) {
-            std::ifstream promotion_stream(promotion_catalog_path);
-            promotion_catalog = nlohmann::json::parse(promotion_stream);
+            promotion_catalog_paths.push_back(promotion_catalog_path);
+        }
+        const auto asset_intake_root = reports_root / "asset_intake";
+        if (std::filesystem::is_directory(asset_intake_root)) {
+            for (const auto& entry : std::filesystem::directory_iterator(asset_intake_root)) {
+                if (!entry.is_regular_file()) {
+                    continue;
+                }
+                const auto path = entry.path();
+                const auto filename = path.filename().string();
+                if (filename.size() >= std::string("_promotion_catalog.json").size() &&
+                    filename.ends_with("_promotion_catalog.json") && path != promotion_catalog_path) {
+                    promotion_catalog_paths.push_back(path);
+                }
+            }
         }
         library_.clear();
         action_history_ = nlohmann::json::array();
         library_.ingestHygieneSummary(hygiene_summary);
         library_.ingestIntakeReport(intake_report);
-        ingestCatalogWithShards(library_, reports_root, promotion_catalog);
+        for (const auto& path : promotion_catalog_paths) {
+            std::ifstream promotion_stream(path);
+            ingestCatalogWithShards(library_, reports_root, nlohmann::json::parse(promotion_stream));
+        }
         library_.ingestDuplicateCsv(duplicate_buffer.str());
         library_.detectCaseCollisions();
         rebuildCleanupPreview();

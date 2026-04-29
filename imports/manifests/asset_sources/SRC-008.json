@@ -1,0 +1,33 @@
+{
+  "source_id": "SRC-008",
+  "repo_name": "Local isometric animation and background drop",
+  "source_url": "local://imports/raw/urpg_stuff/assets_to_ingest_20260429",
+  "capture_state": "mirrored",
+  "snapshot_commit": null,
+  "snapshot_date": "2026-04-29",
+  "source_type": "direct_asset_pack",
+  "category_tags": [
+    "isometric_characters",
+    "sideview_battlers",
+    "animation_frames",
+    "sprite_sheets",
+    "backgrounds",
+    "animation_metadata",
+    "source_archives"
+  ],
+  "intended_use": [
+    "Editor asset browser discovery for large animation-frame packs",
+    "Runtime library candidates for isometric actors, sideview battlers, monsters, drones, trees, and backgrounds",
+    "Animation metadata review for Lua-packed frame definitions",
+    "Curated future bundle promotion after per-pack attribution review"
+  ],
+  "handling_path": "direct_ingest_when_captured",
+  "legal_disposition": "user_attested_free_for_game_use_requires_per_pack_attribution_and_bundle_review",
+  "promotion_status": "in_review",
+  "notes": [
+    "Captured from the local folder previously named 'assets to ingest' and moved under imports/raw/urpg_stuff/assets_to_ingest_20260429.",
+    "No audio files were present in this drop.",
+    "The aggregate catalog represents large frame folders as image-sequence assets so the editor does not need one browser row per raw frame.",
+    "Raw payload remains local and is not export eligible until curated bundle manifests and attribution records are created."
+  ]
+}

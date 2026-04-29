@@ -12,6 +12,7 @@ Current app-level release readiness source of truth: [`docs/APP_RELEASE_READINES
 - The local asset DB moved to the ignored `.urpg/asset-index/asset_catalog.db`; `imports/reports/asset_intake/third_party_itch_ingest_summary.json` is the tracked audit report.
 - Third-party/itch indexing currently records 34,651 files, 28,995 images, 3,014 audio records, and 3,233 exact duplicate groups for future curation.
 - `SRC-007` remains deduped and catalog-normalized under `imports/raw/urpg_stuff`; existing OGG context was preserved and tracked MP3/WAV files remain excluded.
+- `SRC-008` now covers the local `assets to ingest` drop: the raw 9.5 GiB folder was moved under `imports/raw/urpg_stuff/assets_to_ingest_20260429`, contained no audio, and was aggregate-cataloged into 35 editor/library sequence/archive/document/metadata pack records over 662,009 raw files.
 - The README was rewritten to match the current native runtime/editor, AI review workflow, template coverage, asset-intake governance, release boundaries, and product positioning versus RPG Maker, Unity/Godot, and browser-only RPG tools.
 
 2026-04-29 plugin feature absorption checkpoint:

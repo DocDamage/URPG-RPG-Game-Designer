@@ -1,0 +1,264 @@
+{
+  "schema": "urpg/promoted_asset_catalog_shard/v1",
+  "generated_at": "2026-04-29T16:18:53+00:00",
+  "source_id": "SRC-008",
+  "source_root": "imports/raw/urpg_stuff/assets_to_ingest_20260429",
+  "category": "characters/sideview",
+  "promotion_status": "cataloged_local_aggregate",
+  "export_eligible": false,
+  "asset_count": 1,
+  "assets": [
+    {
+      "id": "src-008:04c072c3e5cac90e",
+      "source_id": "SRC-008",
+      "source_path": "imports/raw/urpg_stuff/assets_to_ingest_20260429/Animated Isometric Thief + bonus Sideview",
+      "normalized_path": "asset://src-008/characters/sideview/animated-isometric-thief-bonus-sideview-04c072c3e5cac90e",
+      "preview_path": "imports/raw/urpg_stuff/assets_to_ingest_20260429/Animated Isometric Thief + bonus Sideview/256x256/Attack1/Attack1_0001.png",
+      "preview_kind": "image",
+      "media_kind": "image_sequence_collection",
+      "category": "characters/sideview",
+      "pack": "Animated Isometric Thief + bonus Sideview",
+      "filename": "Animated Isometric Thief + bonus Sideview",
+      "file_count": 27804,
+      "size_bytes": 557012598,
+      "tags": [
+        "20260429",
+        "animated",
+        "bonus",
+        "category:characters-sideview",
+        "isometric",
+        "kind:image_sequence_collection",
+        "pack:animated-isometric-thief-bonus-sideview",
+        "sideview",
+        "stuff",
+        "thief"
+      ],
+      "status": "cataloged",
+      "export_eligible": false,
+      "license": "user_attested_free_for_game_use_pending_per_pack_attribution",
+      "sequence_count": 1373,
+      "frame_count": 27804,
+      "fingerprint": "d0222fed68f5deca3fffb47b8b53e200ca314505cd09bb8e9b1fba624f4ad0d4",
+      "representative_sequences": [
+        {
+          "path": "imports/raw/urpg_stuff/assets_to_ingest_20260429/Animated Isometric Thief + bonus Sideview/256x256/Attack1",
+          "frame_count": 24,
+          "representative_files": [
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/Animated Isometric Thief + bonus Sideview/256x256/Attack1/Attack1_0001.png",
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/Animated Isometric Thief + bonus Sideview/256x256/Attack1/Attack1_0002.png",
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/Animated Isometric Thief + bonus Sideview/256x256/Attack1/Attack1_0003.png"
+          ]
+        },
+        {
+          "path": "imports/raw/urpg_stuff/assets_to_ingest_20260429/Animated Isometric Thief + bonus Sideview/256x256/Attack1/Body/000",
+          "frame_count": 24,
+          "representative_files": [
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/Animated Isometric Thief + bonus Sideview/256x256/Attack1/Body/000/Attack1_Body_0_0001.png",
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/Animated Isometric Thief + bonus Sideview/256x256/Attack1/Body/000/Attack1_Body_0_0002.png",
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/Animated Isometric Thief + bonus Sideview/256x256/Attack1/Body/000/Attack1_Body_0_0003.png"
+          ]
+        },
+        {
+          "path": "imports/raw/urpg_stuff/assets_to_ingest_20260429/Animated Isometric Thief + bonus Sideview/256x256/Attack1/Body/030",
+          "frame_count": 24,
+          "representative_files": [
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/Animated Isometric Thief + bonus Sideview/256x256/Attack1/Body/030/Attack1_Body_030_0001.png",
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/Animated Isometric Thief + bonus Sideview/256x256/Attack1/Body/030/Attack1_Body_030_0002.png",
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/Animated Isometric Thief + bonus Sideview/256x256/Attack1/Body/030/Attack1_Body_030_0003.png"
+          ]
+        },
+        {
+          "path": "imports/raw/urpg_stuff/assets_to_ingest_20260429/Animated Isometric Thief + bonus Sideview/256x256/Attack1/Body/045",
+          "frame_count": 24,
+          "representative_files": [
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/Animated Isometric Thief + bonus Sideview/256x256/Attack1/Body/045/Attack1_Body_045_0001.png",
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/Animated Isometric Thief + bonus Sideview/256x256/Attack1/Body/045/Attack1_Body_045_0002.png",
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/Animated Isometric Thief + bonus Sideview/256x256/Attack1/Body/045/Attack1_Body_045_0003.png"
+          ]
+        },
+        {
+          "path": "imports/raw/urpg_stuff/assets_to_ingest_20260429/Animated Isometric Thief + bonus Sideview/256x256/Attack1/Body/060",
+          "frame_count": 24,
+          "representative_files": [
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/Animated Isometric Thief + bonus Sideview/256x256/Attack1/Body/060/Attack1_Body_060_0001.png",
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/Animated Isometric Thief + bonus Sideview/256x256/Attack1/Body/060/Attack1_Body_060_0002.png",
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/Animated Isometric Thief + bonus Sideview/256x256/Attack1/Body/060/Attack1_Body_060_0003.png"
+          ]
+        },
+        {
+          "path": "imports/raw/urpg_stuff/assets_to_ingest_20260429/Animated Isometric Thief + bonus Sideview/256x256/Attack1/Body/090",
+          "frame_count": 24,
+          "representative_files": [
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/Animated Isometric Thief + bonus Sideview/256x256/Attack1/Body/090/Attack1_Body_090_0001.png",
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/Animated Isometric Thief + bonus Sideview/256x256/Attack1/Body/090/Attack1_Body_090_0002.png",
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/Animated Isometric Thief + bonus Sideview/256x256/Attack1/Body/090/Attack1_Body_090_0003.png"
+          ]
+        },
+        {
+          "path": "imports/raw/urpg_stuff/assets_to_ingest_20260429/Animated Isometric Thief + bonus Sideview/256x256/Attack1/Body/120",
+          "frame_count": 24,
+          "representative_files": [
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/Animated Isometric Thief + bonus Sideview/256x256/Attack1/Body/120/Attack1_Body_120_0001.png",
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/Animated Isometric Thief + bonus Sideview/256x256/Attack1/Body/120/Attack1_Body_120_0002.png",
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/Animated Isometric Thief + bonus Sideview/256x256/Attack1/Body/120/Attack1_Body_120_0003.png"
+          ]
+        },
+        {
+          "path": "imports/raw/urpg_stuff/assets_to_ingest_20260429/Animated Isometric Thief + bonus Sideview/256x256/Attack1/Body/135",
+          "frame_count": 24,
+          "representative_files": [
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/Animated Isometric Thief + bonus Sideview/256x256/Attack1/Body/135/Attack1_Body_135_0001.png",
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/Animated Isometric Thief + bonus Sideview/256x256/Attack1/Body/135/Attack1_Body_135_0002.png",
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/Animated Isometric Thief + bonus Sideview/256x256/Attack1/Body/135/Attack1_Body_135_0003.png"
+          ]
+        },
+        {
+          "path": "imports/raw/urpg_stuff/assets_to_ingest_20260429/Animated Isometric Thief + bonus Sideview/256x256/Attack1/Body/150",
+          "frame_count": 24,
+          "representative_files": [
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/Animated Isometric Thief + bonus Sideview/256x256/Attack1/Body/150/Attack1_Body_150_0001.png",
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/Animated Isometric Thief + bonus Sideview/256x256/Attack1/Body/150/Attack1_Body_150_0002.png",
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/Animated Isometric Thief + bonus Sideview/256x256/Attack1/Body/150/Attack1_Body_150_0003.png"
+          ]
+        },
+        {
+          "path": "imports/raw/urpg_stuff/assets_to_ingest_20260429/Animated Isometric Thief + bonus Sideview/256x256/Attack1/Body/180",
+          "frame_count": 24,
+          "representative_files": [
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/Animated Isometric Thief + bonus Sideview/256x256/Attack1/Body/180/Attack1_Body_180_0001.png",
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/Animated Isometric Thief + bonus Sideview/256x256/Attack1/Body/180/Attack1_Body_180_0002.png",
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/Animated Isometric Thief + bonus Sideview/256x256/Attack1/Body/180/Attack1_Body_180_0003.png"
+          ]
+        },
+        {
+          "path": "imports/raw/urpg_stuff/assets_to_ingest_20260429/Animated Isometric Thief + bonus Sideview/256x256/Attack1/Body/210",
+          "frame_count": 24,
+          "representative_files": [
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/Animated Isometric Thief + bonus Sideview/256x256/Attack1/Body/210/Attack1_Body_210_0001.png",
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/Animated Isometric Thief + bonus Sideview/256x256/Attack1/Body/210/Attack1_Body_210_0002.png",
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/Animated Isometric Thief + bonus Sideview/256x256/Attack1/Body/210/Attack1_Body_210_0003.png"
+          ]
+        },
+        {
+          "path": "imports/raw/urpg_stuff/assets_to_ingest_20260429/Animated Isometric Thief + bonus Sideview/256x256/Attack1/Body/225",
+          "frame_count": 24,
+          "representative_files": [
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/Animated Isometric Thief + bonus Sideview/256x256/Attack1/Body/225/Attack1_Body_225_0001.png",
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/Animated Isometric Thief + bonus Sideview/256x256/Attack1/Body/225/Attack1_Body_225_0002.png",
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/Animated Isometric Thief + bonus Sideview/256x256/Attack1/Body/225/Attack1_Body_225_0003.png"
+          ]
+        },
+        {
+          "path": "imports/raw/urpg_stuff/assets_to_ingest_20260429/Animated Isometric Thief + bonus Sideview/256x256/Attack1/Body/240",
+          "frame_count": 24,
+          "representative_files": [
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/Animated Isometric Thief + bonus Sideview/256x256/Attack1/Body/240/Attack1_Body_240_0001.png",
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/Animated Isometric Thief + bonus Sideview/256x256/Attack1/Body/240/Attack1_Body_240_0002.png",
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/Animated Isometric Thief + bonus Sideview/256x256/Attack1/Body/240/Attack1_Body_240_0003.png"
+          ]
+        },
+        {
+          "path": "imports/raw/urpg_stuff/assets_to_ingest_20260429/Animated Isometric Thief + bonus Sideview/256x256/Attack1/Body/270",
+          "frame_count": 24,
+          "representative_files": [
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/Animated Isometric Thief + bonus Sideview/256x256/Attack1/Body/270/Attack1_Body_270_0001.png",
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/Animated Isometric Thief + bonus Sideview/256x256/Attack1/Body/270/Attack1_Body_270_0002.png",
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/Animated Isometric Thief + bonus Sideview/256x256/Attack1/Body/270/Attack1_Body_270_0003.png"
+          ]
+        },
+        {
+          "path": "imports/raw/urpg_stuff/assets_to_ingest_20260429/Animated Isometric Thief + bonus Sideview/256x256/Attack1/Body/300",
+          "frame_count": 24,
+          "representative_files": [
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/Animated Isometric Thief + bonus Sideview/256x256/Attack1/Body/300/Attack1_Body_300_0001.png",
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/Animated Isometric Thief + bonus Sideview/256x256/Attack1/Body/300/Attack1_Body_300_0002.png",
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/Animated Isometric Thief + bonus Sideview/256x256/Attack1/Body/300/Attack1_Body_300_0003.png"
+          ]
+        },
+        {
+          "path": "imports/raw/urpg_stuff/assets_to_ingest_20260429/Animated Isometric Thief + bonus Sideview/256x256/Attack1/Body/315",
+          "frame_count": 24,
+          "representative_files": [
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/Animated Isometric Thief + bonus Sideview/256x256/Attack1/Body/315/Attack1_Body_315_0001.png",
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/Animated Isometric Thief + bonus Sideview/256x256/Attack1/Body/315/Attack1_Body_315_0002.png",
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/Animated Isometric Thief + bonus Sideview/256x256/Attack1/Body/315/Attack1_Body_315_0003.png"
+          ]
+        },
+        {
+          "path": "imports/raw/urpg_stuff/assets_to_ingest_20260429/Animated Isometric Thief + bonus Sideview/256x256/Attack1/Body/330",
+          "frame_count": 24,
+          "representative_files": [
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/Animated Isometric Thief + bonus Sideview/256x256/Attack1/Body/330/Attack1_Body_330_0001.png",
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/Animated Isometric Thief + bonus Sideview/256x256/Attack1/Body/330/Attack1_Body_330_0002.png",
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/Animated Isometric Thief + bonus Sideview/256x256/Attack1/Body/330/Attack1_Body_330_0003.png"
+          ]
+        },
+        {
+          "path": "imports/raw/urpg_stuff/assets_to_ingest_20260429/Animated Isometric Thief + bonus Sideview/256x256/Attack1/Shadow/000",
+          "frame_count": 24,
+          "representative_files": [
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/Animated Isometric Thief + bonus Sideview/256x256/Attack1/Shadow/000/Attack1_Shadow_0_0001.png",
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/Animated Isometric Thief + bonus Sideview/256x256/Attack1/Shadow/000/Attack1_Shadow_0_0002.png",
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/Animated Isometric Thief + bonus Sideview/256x256/Attack1/Shadow/000/Attack1_Shadow_0_0003.png"
+          ]
+        },
+        {
+          "path": "imports/raw/urpg_stuff/assets_to_ingest_20260429/Animated Isometric Thief + bonus Sideview/256x256/Attack1/Shadow/030",
+          "frame_count": 24,
+          "representative_files": [
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/Animated Isometric Thief + bonus Sideview/256x256/Attack1/Shadow/030/Attack1_Shadow_030_0001.png",
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/Animated Isometric Thief + bonus Sideview/256x256/Attack1/Shadow/030/Attack1_Shadow_030_0002.png",
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/Animated Isometric Thief + bonus Sideview/256x256/Attack1/Shadow/030/Attack1_Shadow_030_0003.png"
+          ]
+        },
+        {
+          "path": "imports/raw/urpg_stuff/assets_to_ingest_20260429/Animated Isometric Thief + bonus Sideview/256x256/Attack1/Shadow/045",
+          "frame_count": 24,
+          "representative_files": [
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/Animated Isometric Thief + bonus Sideview/256x256/Attack1/Shadow/045/Attack1_Shadow_045_0001.png",
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/Animated Isometric Thief + bonus Sideview/256x256/Attack1/Shadow/045/Attack1_Shadow_045_0002.png",
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/Animated Isometric Thief + bonus Sideview/256x256/Attack1/Shadow/045/Attack1_Shadow_045_0003.png"
+          ]
+        },
+        {
+          "path": "imports/raw/urpg_stuff/assets_to_ingest_20260429/Animated Isometric Thief + bonus Sideview/256x256/Attack1/Shadow/060",
+          "frame_count": 24,
+          "representative_files": [
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/Animated Isometric Thief + bonus Sideview/256x256/Attack1/Shadow/060/Attack1_Shadow_060_0001.png",
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/Animated Isometric Thief + bonus Sideview/256x256/Attack1/Shadow/060/Attack1_Shadow_060_0002.png",
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/Animated Isometric Thief + bonus Sideview/256x256/Attack1/Shadow/060/Attack1_Shadow_060_0003.png"
+          ]
+        },
+        {
+          "path": "imports/raw/urpg_stuff/assets_to_ingest_20260429/Animated Isometric Thief + bonus Sideview/256x256/Attack1/Shadow/090",
+          "frame_count": 24,
+          "representative_files": [
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/Animated Isometric Thief + bonus Sideview/256x256/Attack1/Shadow/090/Attack1_Shadow_090_0001.png",
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/Animated Isometric Thief + bonus Sideview/256x256/Attack1/Shadow/090/Attack1_Shadow_090_0002.png",
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/Animated Isometric Thief + bonus Sideview/256x256/Attack1/Shadow/090/Attack1_Shadow_090_0003.png"
+          ]
+        },
+        {
+          "path": "imports/raw/urpg_stuff/assets_to_ingest_20260429/Animated Isometric Thief + bonus Sideview/256x256/Attack1/Shadow/120",
+          "frame_count": 24,
+          "representative_files": [
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/Animated Isometric Thief + bonus Sideview/256x256/Attack1/Shadow/120/Attack1_Shadow_120_0001.png",
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/Animated Isometric Thief + bonus Sideview/256x256/Attack1/Shadow/120/Attack1_Shadow_120_0002.png",
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/Animated Isometric Thief + bonus Sideview/256x256/Attack1/Shadow/120/Attack1_Shadow_120_0003.png"
+          ]
+        },
+        {
+          "path": "imports/raw/urpg_stuff/assets_to_ingest_20260429/Animated Isometric Thief + bonus Sideview/256x256/Attack1/Shadow/135",
+          "frame_count": 24,
+          "representative_files": [
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/Animated Isometric Thief + bonus Sideview/256x256/Attack1/Shadow/135/Attack1_Shadow_135_0001.png",
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/Animated Isometric Thief + bonus Sideview/256x256/Attack1/Shadow/135/Attack1_Shadow_135_0002.png",
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/Animated Isometric Thief + bonus Sideview/256x256/Attack1/Shadow/135/Attack1_Shadow_135_0003.png"
+          ]
+        }
+      ],
+      "preview_width": 256,
+      "preview_height": 256
+    }
+  ]
+}

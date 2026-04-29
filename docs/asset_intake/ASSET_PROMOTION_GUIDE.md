@@ -118,6 +118,20 @@ python .\tools\assets\catalog_urpg_generators.py --source-root "imports/raw/urpg
 
 This writes `imports/reports/asset_intake/urpg_stuff_generator_candidates.json`. Treat those records as engineering-review candidates only; do not execute or bundle generator code until license, dependency, sandboxing, and product-surface review are complete. Candidate generators may target both URPG Maker editor panels and generated-game runtime features when the review approves that surface.
 
+Large animation-frame drops should be aggregate-cataloged rather than flattened into one browser row per PNG:
+
+```powershell
+python tools/assets/catalog_animation_asset_drop.py `
+  --repo-root . `
+  --source-root imports/raw/urpg_stuff/assets_to_ingest_20260429 `
+  --source-id SRC-008 `
+  --catalog imports/reports/asset_intake/assets_to_ingest_20260429_promotion_catalog.json `
+  --summary imports/reports/asset_intake/assets_to_ingest_20260429_promotion_summary.json `
+  --shard-dir imports/reports/asset_intake/assets_to_ingest_20260429_promotion_catalog
+```
+
+This writes aggregate image-sequence, archive, document, and animation-metadata records. It is intended for high-volume frame folders where the editor asset browser and chatbot need pack/sequence-level assets, not hundreds of thousands of individual frame rows.
+
 ### Promotion Manifest Schema Example
 
 ```json
@@ -216,4 +230,5 @@ Target integrations by priority:
 | 2026-04-28 | Added local bulk catalog-normalization for `SRC-007` so large raw drops can be tagged, deduped, preview-addressed, and loaded by the editor asset library without duplicating or committing binary payloads. |
 | 2026-04-28 | Added non-audio refresh handling and generator/tool candidate cataloging for `SRC-007`, including map/model/archive/tooling categories. |
 | 2026-04-29 | Added exact duplicate pruning for the ignored `SRC-007` raw intake and clarified generator candidates can be reviewed for both editor and generated-game runtime surfaces. |
+| 2026-04-29 | Added aggregate animation-frame cataloging for `SRC-008` so very large frame drops become usable editor/library sequence records without committing raw binaries or flattening every PNG into a separate browser asset. |
 | 2026-04-29 | Repointed generator candidate cataloging at the ingested raw refresh path after archiving already-ingested local source-drop folders out of the project root. |

@@ -3,6 +3,7 @@
 #include <catch2/catch_test_macros.hpp>
 #include <nlohmann/json.hpp>
 
+#include <algorithm>
 #include <filesystem>
 #include <fstream>
 
@@ -128,6 +129,27 @@ TEST_CASE("AssetLibraryModel loads optional local promotion catalog", "[assets][
           ]
         })";
     }
+    {
+        std::ofstream out(root / "asset_intake" / "assets_to_ingest_20260429_promotion_catalog.json");
+        out << R"({
+          "source_id": "SRC-008",
+          "source_root": "imports/raw/urpg_stuff/assets_to_ingest_20260429",
+          "promotion_status": "cataloged_local_aggregate",
+          "export_eligible": false,
+          "summary": {
+            "asset_record_count": 1,
+            "category_counts": {"characters/isometric": 1},
+            "kind_counts": {"image_sequence_collection": 1}
+          },
+          "shards": [
+            {
+              "category": "characters/isometric",
+              "path": "asset_intake/assets_to_ingest_20260429_promotion_catalog/characters-isometric.json",
+              "asset_count": 1
+            }
+          ]
+        })";
+    }
     std::filesystem::create_directories(root / "asset_intake" / "urpg_stuff_promotion_catalog");
     {
         std::ofstream out(root / "asset_intake" / "urpg_stuff_promotion_catalog" / "characters.json");
@@ -152,30 +174,63 @@ TEST_CASE("AssetLibraryModel loads optional local promotion catalog", "[assets][
           ]
         })";
     }
+    std::filesystem::create_directories(root / "asset_intake" / "assets_to_ingest_20260429_promotion_catalog");
+    {
+        std::ofstream out(root / "asset_intake" / "assets_to_ingest_20260429_promotion_catalog" /
+                          "characters-isometric.json");
+        out << R"({
+          "source_id": "SRC-008",
+          "source_root": "imports/raw/urpg_stuff/assets_to_ingest_20260429",
+          "category": "characters/isometric",
+          "assets": [
+            {
+              "source_path": "imports/raw/urpg_stuff/assets_to_ingest_20260429/Animated Demon",
+              "normalized_path": "asset://src-008/characters/isometric/idle-sequence",
+              "preview_path": "imports/raw/urpg_stuff/assets_to_ingest_20260429/Animated Demon/Idle/0001.png",
+              "preview_kind": "image",
+              "media_kind": "image_sequence_collection",
+              "category": "characters/isometric",
+              "pack": "Animated Demon",
+              "tags": ["kind:image_sequence", "category:characters-isometric"],
+              "license": "user_attested_free_for_game_use_pending_per_pack_attribution"
+            }
+          ]
+        })";
+    }
 
     urpg::editor::AssetLibraryModel model;
     std::string error;
     REQUIRE(model.loadReportsFromDirectory(root, &error));
     REQUIRE(error.empty());
-    REQUIRE(model.snapshot().asset_count == 1);
-    REQUIRE(model.snapshot().catalog_asset_count == 1);
-    REQUIRE(model.snapshot().canonical_asset_count == 1);
-    REQUIRE(model.snapshot().catalog_shard_count == 1);
-    REQUIRE(model.snapshot().promotion_status == "cataloged_local");
+    REQUIRE(model.snapshot().asset_count == 2);
+    REQUIRE(model.snapshot().catalog_asset_count == 2);
+    REQUIRE(model.snapshot().canonical_asset_count == 2);
+    REQUIRE(model.snapshot().catalog_shard_count == 2);
+    REQUIRE(model.snapshot().promotion_status == "cataloged_local_aggregate");
     REQUIRE_FALSE(model.snapshot().export_eligible);
     REQUIRE(model.snapshot().category_counts.at("characters") == 1);
+    REQUIRE(model.snapshot().category_counts.at("characters/isometric") == 1);
     REQUIRE(model.snapshot().kind_counts.at("image") == 1);
-    REQUIRE(model.snapshot().runtime_ready_count == 1);
-    REQUIRE(model.snapshot().previewable_count == 1);
-    REQUIRE(model.snapshot().filtered_asset_count == 1);
-    REQUIRE(model.snapshot().asset_preview_rows.size() == 1);
-    REQUIRE(model.snapshot().asset_preview_rows[0]["thumbnail"]["ready"] == true);
-    REQUIRE(model.snapshot().asset_preview_rows[0]["thumbnail"]["width"] == 96);
-    REQUIRE(model.snapshot().asset_preview_rows[0]["thumbnail"]["height"] == 64);
+    REQUIRE(model.snapshot().kind_counts.at("image_sequence_collection") == 1);
+    REQUIRE(model.snapshot().runtime_ready_count == 2);
+    REQUIRE(model.snapshot().previewable_count == 2);
+    REQUIRE(model.snapshot().filtered_asset_count == 2);
+    REQUIRE(model.snapshot().asset_preview_rows.size() == 2);
+    const auto sized_preview = std::find_if(
+        model.snapshot().asset_preview_rows.begin(), model.snapshot().asset_preview_rows.end(), [](const auto& row) {
+            return row["thumbnail"]["ready"] == true && row["thumbnail"]["width"] == 96 &&
+                   row["thumbnail"]["height"] == 64;
+        });
+    REQUIRE(sized_preview != model.snapshot().asset_preview_rows.end());
     const auto asset = model.library().findAsset("imports/raw/urpg_stuff/side scroller stuff/Hero/Idle.png");
     REQUIRE(asset.has_value());
     REQUIRE(asset->preview_kind == "image");
     REQUIRE(asset->normalized_path == "asset://src-007/characters/idle-123.png");
+    const auto sequence =
+        model.library().findAsset("imports/raw/urpg_stuff/assets_to_ingest_20260429/Animated Demon");
+    REQUIRE(sequence.has_value());
+    REQUIRE(sequence->media_kind == "image_sequence_collection");
+    REQUIRE(sequence->normalized_path == "asset://src-008/characters/isometric/idle-sequence");
 
     std::filesystem::remove_all(root);
 }

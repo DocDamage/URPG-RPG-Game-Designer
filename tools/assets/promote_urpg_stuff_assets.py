@@ -14,13 +14,14 @@ from pathlib import Path
 
 IMAGE_EXTS = {"png", "gif", "jpg", "jpeg", "bmp", "webp", "ase", "aseprite", "ico", "psd", "svg"}
 AUDIO_EXTS = {"ogg"}
-DOC_EXTS = {"", "1", "apache", "bsd", "gpl", "license", "txt", "md", "pdf", "rst", "ronn", "rtf", "csv", "po", "pot"}
+DOC_EXTS = {"", "1", "apache", "bsd", "gpl", "license", "txt", "md", "pdf", "rst", "ronn", "rtf", "csv", "po", "pot", "docx"}
 DATA_EXTS = {
     "desktop",
     "dtd",
     "entitlements",
     "godot",
     "json",
+    "lua",
     "lock",
     "nix",
     "pem",
@@ -263,16 +264,20 @@ def infer_category(path_rel: str, kind: str) -> str:
         return "archives"
     if kind == "font":
         return "fonts"
+    if "isometric" in lower or "/packed_" in lower or "/separated" in lower or "/assembled" in lower:
+        return "characters/isometric"
+    if "sideview" in lower or "side_view" in lower or "sideviewbattler" in lower or "side view" in lower:
+        return "characters/sideview"
     if "spells" in lower or "vfx" in lower or "effect" in lower or "magic" in lower:
         return "vfx"
+    if "background" in lower or "parallax" in lower or "map_l" in lower or "map empty" in lower:
+        return "backgrounds"
     if "side scroller" in lower or any(token in lower for token in ("idle", "walk", "attack", "hurt", "dead", "jump", "run")):
         return "characters"
     if "tile" in lower or "tileset" in lower or "terrain" in lower or "environment" in lower:
         return "tilesets"
     if "/ui" in lower or "button" in lower or "icon" in lower or "hud" in lower:
         return "ui"
-    if "background" in lower or "parallax" in lower:
-        return "backgrounds"
     return "props"
 
 

@@ -1,0 +1,105 @@
+{
+  "schema": "urpg/promoted_asset_catalog_shard/v1",
+  "generated_at": "2026-04-29T16:18:53+00:00",
+  "source_id": "SRC-008",
+  "source_root": "imports/raw/urpg_stuff/assets_to_ingest_20260429",
+  "category": "backgrounds",
+  "promotion_status": "cataloged_local_aggregate",
+  "export_eligible": false,
+  "asset_count": 1,
+  "assets": [
+    {
+      "id": "src-008:987338f252ccd595",
+      "source_id": "SRC-008",
+      "source_path": "imports/raw/urpg_stuff/assets_to_ingest_20260429/starlight furnace",
+      "normalized_path": "asset://src-008/backgrounds/starlight-furnace-987338f252ccd595",
+      "preview_path": "imports/raw/urpg_stuff/assets_to_ingest_20260429/starlight furnace/Archology South/Backgrounds-Tiles/Background - Archology South Dock Overlook.png",
+      "preview_kind": "image",
+      "media_kind": "image_sequence_collection",
+      "category": "backgrounds",
+      "pack": "starlight furnace",
+      "filename": "starlight furnace",
+      "file_count": 49,
+      "size_bytes": 658151752,
+      "tags": [
+        "20260429",
+        "category:backgrounds",
+        "furnace",
+        "kind:image_sequence_collection",
+        "pack:starlight-furnace",
+        "starlight",
+        "stuff"
+      ],
+      "status": "cataloged",
+      "export_eligible": false,
+      "license": "user_attested_free_for_game_use_pending_per_pack_attribution",
+      "sequence_count": 7,
+      "frame_count": 49,
+      "fingerprint": "0e41527fda915d4784d8f021604f3a5afe8aa603ec773a880b2d2fb0b3d94039",
+      "representative_sequences": [
+        {
+          "path": "imports/raw/urpg_stuff/assets_to_ingest_20260429/starlight furnace/Archology South/Backgrounds-Tiles",
+          "frame_count": 21,
+          "representative_files": [
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/starlight furnace/Archology South/Backgrounds-Tiles/Background - Archology South Dock Overlook.png",
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/starlight furnace/Archology South/Backgrounds-Tiles/Concrete Ground Square Tile.png",
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/starlight furnace/Archology South/Backgrounds-Tiles/Dusty Concrete -Light.png"
+          ]
+        },
+        {
+          "path": "imports/raw/urpg_stuff/assets_to_ingest_20260429/starlight furnace/Arid Badlands/Backgrounds",
+          "frame_count": 9,
+          "representative_files": [
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/starlight furnace/Arid Badlands/Backgrounds/Desert Map - road-AOmark.png",
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/starlight furnace/Arid Badlands/Backgrounds/Desert Map Empty 2-AOmark.png",
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/starlight furnace/Arid Badlands/Backgrounds/Desert Map Empty 3-AOmark.png"
+          ]
+        },
+        {
+          "path": "imports/raw/urpg_stuff/assets_to_ingest_20260429/starlight furnace/Brutalist Metropole/Backgrounds",
+          "frame_count": 2,
+          "representative_files": [
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/starlight furnace/Brutalist Metropole/Backgrounds/Dusty Concrete -Dark.png",
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/starlight furnace/Brutalist Metropole/Backgrounds/Dusty Wastes.png"
+          ]
+        },
+        {
+          "path": "imports/raw/urpg_stuff/assets_to_ingest_20260429/starlight furnace/Exo-Lunar Desolation/Backgrounds",
+          "frame_count": 3,
+          "representative_files": [
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/starlight furnace/Exo-Lunar Desolation/Backgrounds/Background-moonscape desolation V2 Ochre Tholin.png",
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/starlight furnace/Exo-Lunar Desolation/Backgrounds/Background-moonscape desolation V3 Oxide Dust.png",
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/starlight furnace/Exo-Lunar Desolation/Backgrounds/Background-moonscape desolation.png"
+          ]
+        },
+        {
+          "path": "imports/raw/urpg_stuff/assets_to_ingest_20260429/starlight furnace/Gallian Ice Field/Backgrounds",
+          "frame_count": 1,
+          "representative_files": [
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/starlight furnace/Gallian Ice Field/Backgrounds/Background - Ice field.png"
+          ]
+        },
+        {
+          "path": "imports/raw/urpg_stuff/assets_to_ingest_20260429/starlight furnace/Golbanc Homestead/Backgrounds",
+          "frame_count": 9,
+          "representative_files": [
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/starlight furnace/Golbanc Homestead/Backgrounds/Grassland - Painted - green.png",
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/starlight furnace/Golbanc Homestead/Backgrounds/Grassland - Painted - snowy.png",
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/starlight furnace/Golbanc Homestead/Backgrounds/Grassland - Painted - sparse green.png"
+          ]
+        },
+        {
+          "path": "imports/raw/urpg_stuff/assets_to_ingest_20260429/starlight furnace/Hercynian Lowlands/Backgrounds",
+          "frame_count": 4,
+          "representative_files": [
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/starlight furnace/Hercynian Lowlands/Backgrounds/Background - Churned Earth - dry.png",
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/starlight furnace/Hercynian Lowlands/Backgrounds/Background - Churned Earth - wet.png",
+            "imports/raw/urpg_stuff/assets_to_ingest_20260429/starlight furnace/Hercynian Lowlands/Backgrounds/Background - Hercynian Lowlands - dry.png"
+          ]
+        }
+      ],
+      "preview_width": 5284,
+      "preview_height": 4036
+    }
+  ]
+}

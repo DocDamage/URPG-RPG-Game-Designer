@@ -108,6 +108,12 @@ std::map<std::string, size_t> readCountMap(const nlohmann::json& value, const ch
     return out;
 }
 
+void addCountMap(std::map<std::string, size_t>& target, const std::map<std::string, size_t>& source) {
+    for (const auto& [key, count] : source) {
+        target[key] += count;
+    }
+}
+
 bool statusLess(const AssetRecord& lhs, const AssetRecord& rhs) {
     return lhs.path < rhs.path;
 }
@@ -334,21 +340,26 @@ void AssetLibrary::ingestPromotionCatalog(const nlohmann::json& catalog) {
 
     const auto summary = catalog.find("summary");
     if (summary != catalog.end() && summary->is_object()) {
-        snapshot_.catalog_asset_count = readCount(*summary, "asset_count").value_or(snapshot_.catalog_asset_count);
-        snapshot_.canonical_asset_count = readCount(*summary, "canonical_asset_count").value_or(snapshot_.canonical_asset_count);
-        snapshot_.duplicate_group_count =
-            readCount(*summary, "duplicate_group_count").value_or(snapshot_.duplicate_group_count);
-        snapshot_.duplicate_asset_count = readCount(*summary, "duplicate_asset_count").value_or(snapshot_.duplicate_asset_count);
-        snapshot_.unsupported_count = readCount(*summary, "unsupported_count").value_or(snapshot_.unsupported_count);
-        snapshot_.category_counts = readCountMap(*summary, "category_counts");
-        snapshot_.kind_counts = readCountMap(*summary, "kind_counts");
+        snapshot_.catalog_asset_count +=
+            readCount(*summary, "asset_count").value_or(readCount(*summary, "asset_record_count").value_or(0));
+        snapshot_.canonical_asset_count +=
+            readCount(*summary, "canonical_asset_count").value_or(readCount(*summary, "asset_record_count").value_or(0));
+        snapshot_.duplicate_group_count +=
+            readCount(*summary, "duplicate_group_count")
+                .value_or(readCount(*summary, "potential_duplicate_group_count").value_or(0));
+        snapshot_.duplicate_asset_count +=
+            readCount(*summary, "duplicate_asset_count")
+                .value_or(readCount(*summary, "potential_duplicate_asset_count").value_or(0));
+        snapshot_.unsupported_count += readCount(*summary, "unsupported_count").value_or(0);
+        addCountMap(snapshot_.category_counts, readCountMap(*summary, "category_counts"));
+        addCountMap(snapshot_.kind_counts, readCountMap(*summary, "kind_counts"));
         snapshot_.promotion_status = readString(*summary, "promotion_status").value_or(snapshot_.promotion_status);
         snapshot_.export_eligible = summary->value("export_eligible", snapshot_.export_eligible);
     }
 
     const auto shards = catalog.find("shards");
     if (shards != catalog.end() && shards->is_array()) {
-        snapshot_.catalog_shard_count = shards->size();
+        snapshot_.catalog_shard_count += shards->size();
     }
 
     const auto assets = catalog.find("assets");
