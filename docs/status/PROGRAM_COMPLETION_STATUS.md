@@ -41,6 +41,7 @@ Current app-level release readiness source of truth: [`docs/APP_RELEASE_READINES
 - Progression robustness now persists applied stat-allocation records through runtime save/load under `_stat_allocations`, including actor/class/pool identity, before/after stats, point spending, and remaining points.
 - Picture UI robustness now projects high-count picture slots into native runtime preview rows with bounds, z order, opacity, click/hover common-event bindings, hover hit testing, and out-of-range diagnostics.
 - Battle feedback robustness now round-trips feedback policy JSON, migrates legacy policy keys, clamps unsafe authoring values, and exposes the policy in the battle presentation schema.
+- State/message/picture migration robustness now emits native scoped state-bank and picture-task documents from compat/plugin-style payloads, with scalar-value preservation, trigger normalization, diagnostics for dropped rows, and a schema-backed scoped state-bank contract.
 
 2026-04-28 documentation and AI/editor checkpoint:
 - `development` is pushed to `origin/development` at commit `cfdae41e9` (`Advance AI editor and template readiness`) before this documentation refresh.

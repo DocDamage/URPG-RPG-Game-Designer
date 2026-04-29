@@ -242,3 +242,73 @@ TEST_CASE("MessageMigration output conforms to dialogue_sequences schema", "[mes
     REQUIRE(page["wait_for_advance"] == true);
     REQUIRE(page["default_choice_index"] == 0);
 }
+
+TEST_CASE("Message migration maps scoped state banks and picture task adapters",
+          "[message][migration][state][picture]") {
+    const json compat = {
+        {"id", "state_picture_import"},
+        {"pages", json::array({{{"id", "p0"}, {"route", "narration"}, {"body", "Adapters."}}})},
+        {"stateBanks",
+         {{"switches",
+           json::array({
+               {{"scope", "self"}, {"mapId", "map_1"}, {"eventId", "event_2"}, {"id", "A"}, {"value", true}},
+               {{"scope", "bad_scope"}, {"id", "drop_me"}, {"value", true}},
+           })},
+          {"variables",
+           json::array({
+               {{"scope", "map"}, {"map_id", "map_1"}, {"id", "weather_seed"}, {"value", 42}},
+               {{"scope", "js"}, {"scopeId", "plugin_cache"}, {"id", "cached_result"}, {"value", "ok"}},
+           })}}},
+        {"scopedVariables", json::array({{{"scope", "scoped"}, {"scope_id", "quest"}, {"id", "progress"}, {"value", 3}}})},
+        {"pictureTasks",
+         {{"maxPictures", 1000},
+          {"bindings",
+           json::array({
+               {{"pictureId", 350},
+                {"taskId", "open_codex_hotspot"},
+                {"commonEventId", "common_event.open_codex"},
+                {"trigger", "confirm"},
+                {"enabled", true}},
+               {{"picture_id", 351},
+                {"task_id", "hover_codex_hotspot"},
+                {"common_event_id", "common_event.preview_codex"},
+                {"trigger", "press"},
+                {"enabled", false}},
+           })}}},
+    };
+
+    const auto migrated = urpg::message::UpgradeCompatMessageDocument(compat);
+
+    REQUIRE(migrated.scoped_state_banks["version"] == "1.0.0");
+    REQUIRE(migrated.scoped_state_banks["switches"].size() == 1);
+    REQUIRE(migrated.scoped_state_banks["switches"][0]["scope"] == "self");
+    REQUIRE(migrated.scoped_state_banks["switches"][0]["map_id"] == "map_1");
+    REQUIRE(migrated.scoped_state_banks["switches"][0]["event_id"] == "event_2");
+    REQUIRE(migrated.scoped_state_banks["switches"][0]["id"] == "A");
+    REQUIRE(migrated.scoped_state_banks["switches"][0]["value"] == true);
+    REQUIRE(migrated.scoped_state_banks["variables"].size() == 3);
+    REQUIRE(migrated.scoped_state_banks["variables"][0]["scope"] == "map");
+    REQUIRE(migrated.scoped_state_banks["variables"][0]["value"] == 42);
+    REQUIRE(migrated.scoped_state_banks["variables"][1]["scope"] == "js");
+    REQUIRE(migrated.scoped_state_banks["variables"][1]["scope_id"] == "plugin_cache");
+    REQUIRE(migrated.scoped_state_banks["variables"][2]["scope"] == "scoped");
+
+    REQUIRE(migrated.picture_tasks["version"] == "1.0.0");
+    REQUIRE(migrated.picture_tasks["max_pictures"] == 1000);
+    REQUIRE(migrated.picture_tasks["bindings"].size() == 2);
+    REQUIRE(migrated.picture_tasks["bindings"][0]["picture_id"] == 350);
+    REQUIRE(migrated.picture_tasks["bindings"][0]["task_id"] == "open_codex_hotspot");
+    REQUIRE(migrated.picture_tasks["bindings"][0]["common_event_id"] == "common_event.open_codex");
+    REQUIRE(migrated.picture_tasks["bindings"][0]["trigger"] == "confirm");
+    REQUIRE(migrated.picture_tasks["bindings"][1]["trigger"] == "click");
+    REQUIRE(migrated.picture_tasks["bindings"][1]["enabled"] == false);
+
+    const auto has_code = [&](std::string_view code) {
+        return std::any_of(
+            migrated.diagnostics.begin(),
+            migrated.diagnostics.end(),
+            [&](const urpg::message::MessageMigrationDiagnostic& d) { return d.code == code; });
+    };
+    REQUIRE(has_code("unsupported_state_scope"));
+    REQUIRE(has_code("normalized_picture_task_trigger"));
+}

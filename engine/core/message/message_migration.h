@@ -25,6 +25,8 @@ struct MessageMigrationDiagnostic {
 struct MessageMigrationResult {
     nlohmann::json dialogue_sequences;
     nlohmann::json message_styles;
+    nlohmann::json scoped_state_banks;
+    nlohmann::json picture_tasks;
     std::vector<MessageMigrationDiagnostic> diagnostics;
     bool used_safe_fallback = false;
 };

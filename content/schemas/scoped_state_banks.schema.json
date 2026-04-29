@@ -1,0 +1,45 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:urpg:scoped_state_banks",
+  "title": "URPG Scoped State Banks",
+  "type": "object",
+  "required": ["version", "switches", "variables"],
+  "properties": {
+    "version": { "const": "1.0.0" },
+    "switches": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["scope", "map_id", "event_id", "scope_id", "id", "value"],
+        "properties": {
+          "scope": { "type": "string", "enum": ["global", "map", "self", "scoped", "js"] },
+          "map_id": { "type": "string" },
+          "event_id": { "type": "string" },
+          "scope_id": { "type": "string" },
+          "id": { "type": "string", "minLength": 1 },
+          "value": { "type": "boolean" },
+          "source_index": { "type": "integer", "minimum": 0 }
+        },
+        "additionalProperties": false
+      }
+    },
+    "variables": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["scope", "map_id", "event_id", "scope_id", "id", "value"],
+        "properties": {
+          "scope": { "type": "string", "enum": ["global", "map", "self", "scoped", "js"] },
+          "map_id": { "type": "string" },
+          "event_id": { "type": "string" },
+          "scope_id": { "type": "string" },
+          "id": { "type": "string", "minLength": 1 },
+          "value": { "type": ["boolean", "integer", "number", "string"] },
+          "source_index": { "type": "integer", "minimum": 0 }
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false
+}

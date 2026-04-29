@@ -36,6 +36,26 @@ std::string NormalizeRoute(std::string route) {
     return "unsupported";
 }
 
+std::string NormalizeStateScope(std::string scope) {
+    std::transform(scope.begin(), scope.end(), scope.begin(), [](unsigned char ch) {
+        return static_cast<char>(std::tolower(ch));
+    });
+    if (scope == "global" || scope == "map" || scope == "self" || scope == "scoped" || scope == "js") {
+        return scope;
+    }
+    return "unsupported";
+}
+
+std::string NormalizePictureTrigger(std::string trigger) {
+    std::transform(trigger.begin(), trigger.end(), trigger.begin(), [](unsigned char ch) {
+        return static_cast<char>(std::tolower(ch));
+    });
+    if (trigger == "click" || trigger == "hover" || trigger == "focus" || trigger == "confirm" || trigger == "cancel") {
+        return trigger;
+    }
+    return "click";
+}
+
 std::string StringifyScalar(const json& value) {
     if (value.is_string()) {
         return value.get<std::string>();
@@ -48,6 +68,19 @@ std::string StringifyScalar(const json& value) {
     }
     if (value.is_boolean()) {
         return value.get<bool>() ? "true" : "false";
+    }
+    return {};
+}
+
+json NormalizeStateValue(const json& value, bool* supported) {
+    if (supported != nullptr) {
+        *supported = true;
+    }
+    if (value.is_boolean() || value.is_number_integer() || value.is_number_float() || value.is_string()) {
+        return value;
+    }
+    if (supported != nullptr) {
+        *supported = false;
     }
     return {};
 }
@@ -113,6 +146,16 @@ MessageMigrationResult UpgradeCompatMessageDocument(const nlohmann::json& compat
                 },
             })},
     };
+    result.scoped_state_banks = {
+        {"version", "1.0.0"},
+        {"switches", json::array()},
+        {"variables", json::array()},
+    };
+    result.picture_tasks = {
+        {"version", "1.0.0"},
+        {"max_pictures", 100},
+        {"bindings", json::array()},
+    };
 
     const auto emit_diagnostic = [&](MessageMigrationSeverity severity, std::string code, std::string page_id,
                                      std::string message, std::string token = "") {
@@ -124,6 +167,113 @@ MessageMigrationResult UpgradeCompatMessageDocument(const nlohmann::json& compat
         diagnostic.token = std::move(token);
         result.diagnostics.push_back(std::move(diagnostic));
     };
+
+    const auto map_state_row = [&](const json& source_row, bool is_switch, size_t index) {
+        if (!source_row.is_object()) {
+            emit_diagnostic(MessageMigrationSeverity::Warning, "unsupported_state_bank_row", "state_bank",
+                            "State bank row had unsupported shape and was dropped.");
+            return;
+        }
+
+        const std::string raw_scope = SafeValue<std::string>(source_row, "scope", is_switch ? "self" : "scoped");
+        const std::string scope = NormalizeStateScope(raw_scope);
+        if (scope == "unsupported") {
+            emit_diagnostic(MessageMigrationSeverity::Warning, "unsupported_state_scope", "state_bank",
+                            "State bank scope '" + raw_scope + "' is not supported and was dropped.");
+            return;
+        }
+
+        const std::string id = SafeValue<std::string>(source_row, "id", "");
+        if (id.empty()) {
+            emit_diagnostic(MessageMigrationSeverity::Warning, "missing_state_bank_id", "state_bank",
+                            "State bank row is missing an id and was dropped.");
+            return;
+        }
+
+        json row = {
+            {"scope", scope},
+            {"map_id", SafeValue<std::string>(source_row, "mapId", SafeValue<std::string>(source_row, "map_id", ""))},
+            {"event_id", SafeValue<std::string>(source_row, "eventId", SafeValue<std::string>(source_row, "event_id", ""))},
+            {"scope_id", SafeValue<std::string>(source_row, "scopeId", SafeValue<std::string>(source_row, "scope_id", ""))},
+            {"id", id},
+            {"source_index", static_cast<int64_t>(index)},
+        };
+
+        if (is_switch) {
+            row["value"] = SafeValue<bool>(source_row, "value", false);
+            result.scoped_state_banks["switches"].push_back(std::move(row));
+            return;
+        }
+
+        bool supported = true;
+        const json value = NormalizeStateValue(source_row.value("value", json{}), &supported);
+        if (!supported) {
+            emit_diagnostic(MessageMigrationSeverity::Warning, "unsupported_state_value", "state_bank",
+                            "State bank variable value is not scalar and was dropped.", id);
+            return;
+        }
+        row["value"] = value;
+        result.scoped_state_banks["variables"].push_back(std::move(row));
+    };
+
+    const auto map_state_rows = [&](const json& rows, bool is_switch) {
+        if (!rows.is_array()) {
+            return;
+        }
+        for (size_t i = 0; i < rows.size(); ++i) {
+            map_state_row(rows[i], is_switch, i);
+        }
+    };
+
+    if (compat_document.is_object()) {
+        if (compat_document.contains("stateBanks") && compat_document["stateBanks"].is_object()) {
+            map_state_rows(compat_document["stateBanks"].value("switches", json::array()), true);
+            map_state_rows(compat_document["stateBanks"].value("variables", json::array()), false);
+        }
+        map_state_rows(compat_document.value("scopedSwitches", json::array()), true);
+        map_state_rows(compat_document.value("scopedVariables", json::array()), false);
+
+        const json picture_tasks = compat_document.value("pictureTasks", json::object());
+        if (picture_tasks.is_object()) {
+            result.picture_tasks["max_pictures"] = std::max(1, SafeValue<int32_t>(picture_tasks, "maxPictures",
+                                                                                  SafeValue<int32_t>(picture_tasks, "max_pictures", 100)));
+            const json bindings = picture_tasks.value("bindings", json::array());
+            if (bindings.is_array()) {
+                for (size_t i = 0; i < bindings.size(); ++i) {
+                    const json& source_binding = bindings[i];
+                    if (!source_binding.is_object()) {
+                        emit_diagnostic(MessageMigrationSeverity::Warning, "unsupported_picture_task_row", "picture_tasks",
+                                        "Picture task binding had unsupported shape and was dropped.");
+                        continue;
+                    }
+                    const int32_t picture_id = SafeValue<int32_t>(source_binding, "pictureId",
+                                                                  SafeValue<int32_t>(source_binding, "picture_id", 0));
+                    const std::string task_id = SafeValue<std::string>(source_binding, "taskId",
+                                                                       SafeValue<std::string>(source_binding, "task_id", ""));
+                    const std::string common_event_id =
+                        SafeValue<std::string>(source_binding, "commonEventId",
+                                               SafeValue<std::string>(source_binding, "common_event_id", ""));
+                    if (picture_id <= 0 || task_id.empty() || common_event_id.empty()) {
+                        emit_diagnostic(MessageMigrationSeverity::Warning, "invalid_picture_task_binding", "picture_tasks",
+                                        "Picture task binding is missing picture id, task id, or common event id.");
+                        continue;
+                    }
+                    const std::string raw_trigger =
+                        SafeValue<std::string>(source_binding, "trigger", SafeValue<std::string>(source_binding, "action", "click"));
+                    const std::string trigger = NormalizePictureTrigger(raw_trigger);
+                    if (trigger != raw_trigger) {
+                        emit_diagnostic(MessageMigrationSeverity::Info, "normalized_picture_task_trigger", "picture_tasks",
+                                        "Picture task trigger '" + raw_trigger + "' was normalized to '" + trigger + "'.");
+                    }
+                    result.picture_tasks["bindings"].push_back({{"picture_id", picture_id},
+                                                                 {"task_id", task_id},
+                                                                 {"common_event_id", common_event_id},
+                                                                 {"trigger", trigger},
+                                                                 {"enabled", SafeValue<bool>(source_binding, "enabled", true)}});
+                }
+            }
+        }
+    }
 
     std::vector<json> compat_pages;
     if (compat_document.is_object() && compat_document.contains("pages") && compat_document["pages"].is_array()) {
