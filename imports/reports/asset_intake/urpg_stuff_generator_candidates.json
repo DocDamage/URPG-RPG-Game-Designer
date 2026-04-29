@@ -1,6 +1,6 @@
 {
   "schema": "urpg/generator_candidate_catalog/v1",
-  "generated_at": "2026-04-29T02:14:39+00:00",
+  "generated_at": "2026-04-29T02:35:10+00:00",
   "source_root": "urpg stuff",
   "candidate_count": 4,
   "candidates": [
@@ -9,6 +9,16 @@
       "root": "urpg stuff/pixel planet maker",
       "kind": "source_archives",
       "integration": "candidate_for_planet_and_space_background_generation_tools",
+      "target_surfaces": [
+        "editor",
+        "generated_game_runtime"
+      ],
+      "runtime_use_cases": [
+        "space_world_preview",
+        "planet_thumbnail_generation",
+        "in_game_procedural_space_scenes"
+      ],
+      "integration_priority": "high",
       "status": "cataloged_local_review_required",
       "file_count": 3,
       "source_file_count": 0,
@@ -24,6 +34,16 @@
       "root": "urpg stuff/SpaceBackground/BackgroundGenerator",
       "kind": "godot_space_background_generator",
       "integration": "candidate_for_background_generator_panel",
+      "target_surfaces": [
+        "editor",
+        "generated_game_runtime"
+      ],
+      "runtime_use_cases": [
+        "background_generator_panel",
+        "battleback_generation",
+        "in_game_procedural_space_backgrounds"
+      ],
+      "integration_priority": "high",
       "status": "cataloged_local_review_required",
       "file_count": 18,
       "source_file_count": 10,
@@ -55,6 +75,16 @@
       "root": "urpg stuff/SpriteGenerator",
       "kind": "godot_sprite_generator",
       "integration": "candidate_for_character_sprite_generator_panel",
+      "target_surfaces": [
+        "editor",
+        "generated_game_runtime"
+      ],
+      "runtime_use_cases": [
+        "character_creator",
+        "npc_party_generator",
+        "procedural_sprite_variant_generation"
+      ],
+      "integration_priority": "high",
       "status": "cataloged_local_review_required",
       "file_count": 41,
       "source_file_count": 18,
@@ -91,6 +121,16 @@
       "root": "urpg stuff/tiled-map editor",
       "kind": "map_editor_source",
       "integration": "candidate_for_tiled_map_importer_and_editor_interop",
+      "target_surfaces": [
+        "editor",
+        "generated_game_runtime"
+      ],
+      "runtime_use_cases": [
+        "tmx_import_validation",
+        "tileset_collision_preview",
+        "runtime_tilemap_loading_reference"
+      ],
+      "integration_priority": "high",
       "status": "cataloged_local_review_required",
       "file_count": 1688,
       "source_file_count": 993,

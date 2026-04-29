@@ -124,6 +124,16 @@ Outputs:
 
 The top-level catalog is a manifest plus duplicate index; category shards record stable virtual normalized paths, source paths, inferred categories, packs, tags, preview paths, SHA-256 hashes, image/audio/model/map metadata, and exact duplicate markers. Use `--exclude-audio` when a refresh should ignore audio. The editor asset library loads the manifest and shards from the canonical report directory when present. The catalog is local-discovery ready but remains `export_eligible=false` until curated subsets get per-pack attribution and promoted bundle manifests.
 
+Exact duplicates can be removed from the ignored raw intake after a catalog has been generated:
+
+```powershell
+python .\tools\assets\prune_urpg_stuff_duplicates.py
+python .\tools\assets\prune_urpg_stuff_duplicates.py --apply
+python .\tools\assets\promote_urpg_stuff_assets.py --exclude-audio
+```
+
+The duplicate pruner only removes cataloged `duplicate_source_paths` under `imports/raw/urpg_stuff`, preserves canonical files, and writes `imports/reports/asset_intake/urpg_stuff_duplicate_prune_report.json`.
+
 ## Local generator/tool candidate catalog
 Catalog generator and tool source folders from a local drop for engineering review without executing them.
 
@@ -134,7 +144,7 @@ python .\tools\assets\catalog_urpg_generators.py --source-root "urpg stuff"
 Output:
 - `imports/reports/asset_intake/urpg_stuff_generator_candidates.json`
 
-Current candidate kinds include Godot sprite/background generators, source archive generators, and Tiled map-editor interop/reference code. These records are review inputs only; integration into URPG Maker requires license, dependency, sandboxing, and product-surface review.
+Current candidate kinds include Godot sprite/background generators, source archive generators, and Tiled map-editor interop/reference code. These records are review inputs only; integration into URPG Maker requires license, dependency, sandboxing, and product-surface review. Candidate records include target surfaces for both editor panels and generated-game runtime use where applicable.
 
 ## Safe duplicate prune wave
 Conservative duplicate cleanup for extracted working copies (`itch/unzipped`) when canonical copies already exist.

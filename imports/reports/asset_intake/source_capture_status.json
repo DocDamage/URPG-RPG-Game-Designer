@@ -85,10 +85,10 @@
       "promotion_catalog": "imports/reports/asset_intake/urpg_stuff_promotion_catalog.json",
       "promotion_catalog_shards": "imports/reports/asset_intake/urpg_stuff_promotion_catalog/*.json",
       "promotion_summary": "imports/reports/asset_intake/urpg_stuff_promotion_summary.json",
-      "asset_count": 86591,
+      "asset_count": 56096,
       "canonical_asset_count": 56096,
-      "duplicate_group_count": 25882,
-      "duplicate_asset_count": 30495,
+      "duplicate_group_count": 0,
+      "duplicate_asset_count": 0,
       "unsupported_count": 0,
       "latest_refresh_root": "imports/raw/urpg_stuff/refresh_20260428_2206",
       "latest_refresh_audio_policy": "ignored_per_user_instruction",
@@ -97,7 +97,10 @@
       "audio_conversion_report": "imports/reports/audio_conversion/audio_to_ogg_manifest.json",
       "audio_drop_conversion_report": "imports/reports/audio_conversion/allnewaudio_to_ogg_manifest.json",
       "local_audio_archive_report": "imports/reports/audio_conversion/local_audio_archive_manifest.json",
-      "export_eligible": false
+      "export_eligible": false,
+      "duplicate_prune_report": "imports/reports/asset_intake/urpg_stuff_duplicate_prune_report.json",
+      "exact_duplicate_files_removed": 30495,
+      "exact_duplicate_bytes_removed": 899347493
     },
     {
       "source_id": "SRC-004",
@@ -124,9 +127,10 @@
     "SRC-006 is cataloged with a metadata-only normalization tool for Duelyst unit animations. No texture payloads are mirrored or promoted by this report.",
     "SRC-007 is mirrored as local raw quarantine intake and catalog-normalized for editor/library discovery. User attested on 2026-04-28 that all assets in this local drop are free to use and usable in games.",
     "SRC-007 latest refresh copied non-audio assets from C:\\dev\\URPG Maker\\urpg stuff into imports/raw/urpg_stuff/refresh_20260428_2206 and ignored audio per user instruction.",
-    "SRC-007 catalog-normalization records stable virtual normalized paths, inferred categories, tags, preview paths, maps/models/archives/tooling categories, and exact duplicate groups in a small top-level manifest plus category shards. Release promotion still requires per-pack attribution and review before editor/tool bundling or release packaging.",
-    "SRC-007 generator/tool candidates are cataloged separately for engineering review before integration into the URPG game maker.",
+    "SRC-007 catalog-normalization records stable virtual normalized paths, inferred categories, tags, preview paths, and maps/models/archives/tooling categories. Exact duplicates were pruned from the ignored raw intake, and the regenerated catalog has zero remaining duplicate groups in a small top-level manifest plus category shards. Release promotion still requires per-pack attribution and review before editor/tool bundling or release packaging.",
+    "SRC-007 generator/tool candidates are cataloged separately for engineering review for both editor integration and generated-game runtime use before integration into the URPG game maker.",
     "Non-OGG audio in available raw intake was converted into OGG and copied under SRC-007. Original local WAV/MP3 sources were archived under .urpg/local_audio_archive.",
-    "Tracked WAV/MP3 paths were removed from GitHub. Future audio promotion must use OGG payloads."
+    "Tracked WAV/MP3 paths were removed from GitHub. Future audio promotion must use OGG payloads.",
+    "SRC-007 duplicate cleanup removed 30,495 exact duplicate raw files after preserving canonical copies; the regenerated non-audio catalog reports zero duplicate groups."
   ]
 }

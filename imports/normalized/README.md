@@ -14,13 +14,15 @@ Release attribution records for these promoted outputs live under
 Large local raw drops may be catalog-normalized before binary promotion. `SRC-007` is exposed through
 `imports/reports/asset_intake/urpg_stuff_promotion_catalog.json` and category shards under
 `imports/reports/asset_intake/urpg_stuff_promotion_catalog/`, which give local raw assets stable virtual
-`asset://` normalized paths, tags, preview paths, and duplicate markers for editor/library browsing.
+`asset://` normalized paths, tags, preview paths, and duplicate status for editor/library browsing.
 Those catalog records are not release/export eligible until a curated subset is promoted into this
 directory or another approved hydrated bundle surface.
 
 The latest `SRC-007` refresh also catalogs non-audio maps, models, archives, fonts, and tooling metadata.
 Generator/tool candidates are tracked separately in
 `imports/reports/asset_intake/urpg_stuff_generator_candidates.json`; they are not promoted runtime
-assets and require engineering review before any URPG Maker integration.
+assets and require engineering review before any URPG Maker editor or generated-game integration.
+Exact raw duplicates were pruned after preserving canonical copies, so the refreshed promotion catalog
+currently reports zero duplicate groups.
 
 Future additions should continue to arrive through source manifests, bundle manifests, and asset-intake reports rather than broad content dumps.

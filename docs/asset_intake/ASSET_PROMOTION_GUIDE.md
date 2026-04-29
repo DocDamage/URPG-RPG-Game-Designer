@@ -100,13 +100,23 @@ This writes:
 
 The top-level catalog is a small manifest plus duplicate index; category shards give each raw asset a stable virtual `asset://` normalized path, inferred category, pack, tags, preview path, checksum, and duplicate marker. The editor asset library loads this optional catalog from the canonical report directory. These records are usable for local browsing, preview, and curation, but are not release/export eligible until a curated subset receives bundle manifests, attribution records, and copied or otherwise hydrated promoted payloads.
 
+After catalog-normalization, exact raw duplicates can be pruned from the ignored `SRC-007` raw root while preserving the canonical catalog copy:
+
+```powershell
+python .\tools\assets\prune_urpg_stuff_duplicates.py
+python .\tools\assets\prune_urpg_stuff_duplicates.py --apply
+python .\tools\assets\promote_urpg_stuff_assets.py --exclude-audio
+```
+
+This writes `imports/reports/asset_intake/urpg_stuff_duplicate_prune_report.json`. Always regenerate the promotion catalog after applying the prune so duplicate counts and category shards reflect the cleaned raw tree.
+
 Tooling and generator folders must be cataloged separately from game-art promotion:
 
 ```powershell
 python .\tools\assets\catalog_urpg_generators.py --source-root "urpg stuff"
 ```
 
-This writes `imports/reports/asset_intake/urpg_stuff_generator_candidates.json`. Treat those records as engineering-review candidates only; do not execute or bundle generator code until license, dependency, sandboxing, and product-surface review are complete.
+This writes `imports/reports/asset_intake/urpg_stuff_generator_candidates.json`. Treat those records as engineering-review candidates only; do not execute or bundle generator code until license, dependency, sandboxing, and product-surface review are complete. Candidate generators may target both URPG Maker editor panels and generated-game runtime features when the review approves that surface.
 
 ### Promotion Manifest Schema Example
 
@@ -205,3 +215,4 @@ Target integrations by priority:
 | 2026-04-27 | Deferred tracked WAV payloads from release packaging; local UI SFX proofs are ignored while release UI/audio surfaces use explicit fallback policy entries. |
 | 2026-04-28 | Added local bulk catalog-normalization for `SRC-007` so large raw drops can be tagged, deduped, preview-addressed, and loaded by the editor asset library without duplicating or committing binary payloads. |
 | 2026-04-28 | Added non-audio refresh handling and generator/tool candidate cataloging for `SRC-007`, including map/model/archive/tooling categories. |
+| 2026-04-29 | Added exact duplicate pruning for the ignored `SRC-007` raw intake and clarified generator candidates can be reviewed for both editor and generated-game runtime surfaces. |

@@ -11,21 +11,45 @@ GENERATOR_HINTS = {
     "SpriteGenerator": {
         "kind": "godot_sprite_generator",
         "integration": "candidate_for_character_sprite_generator_panel",
+        "target_surfaces": ["editor", "generated_game_runtime"],
+        "runtime_use_cases": [
+            "character_creator",
+            "npc_party_generator",
+            "procedural_sprite_variant_generation",
+        ],
         "notes": "Godot project with sprite, color scheme, map, and name generator scripts.",
     },
     "pixel planet maker": {
         "kind": "source_archives",
         "integration": "candidate_for_planet_and_space_background_generation_tools",
+        "target_surfaces": ["editor", "generated_game_runtime"],
+        "runtime_use_cases": [
+            "space_world_preview",
+            "planet_thumbnail_generation",
+            "in_game_procedural_space_scenes",
+        ],
         "notes": "Source archives for planet, sprite, and space background generators.",
     },
     "BackgroundGenerator": {
         "kind": "godot_space_background_generator",
         "integration": "candidate_for_background_generator_panel",
+        "target_surfaces": ["editor", "generated_game_runtime"],
+        "runtime_use_cases": [
+            "background_generator_panel",
+            "battleback_generation",
+            "in_game_procedural_space_backgrounds",
+        ],
         "notes": "Godot scene/scripts/shaders for procedural space backgrounds.",
     },
     "tiled-map editor": {
         "kind": "map_editor_source",
         "integration": "candidate_for_tiled_map_importer_and_editor_interop",
+        "target_surfaces": ["editor", "generated_game_runtime"],
+        "runtime_use_cases": [
+            "tmx_import_validation",
+            "tileset_collision_preview",
+            "runtime_tilemap_loading_reference",
+        ],
         "notes": "Tiled editor source tree and examples; treat as a tool integration reference, not bundled game art.",
     },
 }
@@ -114,6 +138,9 @@ def summarize(root: Path, repo_root: Path) -> dict:
         "root": rel(root, repo_root),
         "kind": hint.get("kind", "generator_or_tool_source"),
         "integration": hint.get("integration", "candidate_for_tool_review"),
+        "target_surfaces": hint.get("target_surfaces", ["editor"]),
+        "runtime_use_cases": hint.get("runtime_use_cases", []),
+        "integration_priority": "high",
         "status": "cataloged_local_review_required",
         "file_count": file_count,
         "source_file_count": source_file_count,
