@@ -154,6 +154,10 @@ TEST_CASE("Map environment preview fixture is saved project data and executes in
     REQUIRE(document.map_id == "forest_weather_lab");
     REQUIRE(document.regions.size() == 2);
     REQUIRE(document.tile_layers.size() == 2);
+    REQUIRE(document.parallax_layers.size() == 2);
+    REQUIRE(document.smoke_emitters.size() == 1);
+    REQUIRE(document.terrain_mesh_rules.size() == 1);
+    REQUIRE(document.edge_scroll_camera.enabled);
     REQUIRE(document.tactical_overlay.enabled);
     REQUIRE(document.spawn_table.entries.size() == 2);
     REQUIRE(document.validate().empty());
@@ -162,6 +166,10 @@ TEST_CASE("Map environment preview fixture is saved project data and executes in
     REQUIRE(saved["schema"] == "urpg.map_environment_preview.v1");
     REQUIRE(saved["tile_layers"].size() == 2);
     REQUIRE(saved["regions"].size() == 2);
+    REQUIRE(saved["parallax_layers"].size() == 2);
+    REQUIRE(saved["smoke_emitters"].size() == 1);
+    REQUIRE(saved["terrain_mesh_rules"].size() == 1);
+    REQUIRE(saved["edge_scroll_camera"]["enabled"].get<bool>());
     REQUIRE(saved["tactical_overlay"]["enabled"].get<bool>());
     REQUIRE(saved["spawn_table"]["entries"].size() == 2);
 
@@ -172,16 +180,32 @@ TEST_CASE("Map environment preview fixture is saved project data and executes in
     REQUIRE(result.visible_tile_layer_count == 2);
     REQUIRE(result.collision_tile_count == 2);
     REQUIRE(result.region_overlay_count == 2);
+    REQUIRE(result.parallax_layer_count == 2);
+    REQUIRE(result.smoke_emitter_count == 1);
+    REQUIRE(result.terrain_mesh_rule_count == 1);
+    REQUIRE(result.edge_scroll_enabled);
     REQUIRE(result.tactical_reachable_count > 0);
     REQUIRE(result.spawn_entry_count == 2);
     REQUIRE_FALSE(result.selected_tile_blocked);
-    REQUIRE(result.runtime_overlay_commands.size() == 4);
+    REQUIRE(result.runtime_overlay_commands.size() == 8);
     REQUIRE(std::find(result.runtime_overlay_commands.begin(),
                       result.runtime_overlay_commands.end(),
                       "render_tile_layers:forest_weather_lab:2") != result.runtime_overlay_commands.end());
     REQUIRE(std::find(result.runtime_overlay_commands.begin(),
                       result.runtime_overlay_commands.end(),
                       "render_spawn_overlay:forest_weather_spawns:2") != result.runtime_overlay_commands.end());
+    REQUIRE(std::find(result.runtime_overlay_commands.begin(),
+                      result.runtime_overlay_commands.end(),
+                      "render_parallax_layers:forest_weather_lab:2") != result.runtime_overlay_commands.end());
+    REQUIRE(std::find(result.runtime_overlay_commands.begin(),
+                      result.runtime_overlay_commands.end(),
+                      "render_region_smoke:forest_weather_lab:1") != result.runtime_overlay_commands.end());
+    REQUIRE(std::find(result.runtime_overlay_commands.begin(),
+                      result.runtime_overlay_commands.end(),
+                      "render_terrain_mesh_rules:forest_weather_lab:1") != result.runtime_overlay_commands.end());
+    REQUIRE(std::find(result.runtime_overlay_commands.begin(),
+                      result.runtime_overlay_commands.end(),
+                      "camera_edge_scroll:forest_weather_lab:32") != result.runtime_overlay_commands.end());
     REQUIRE(countPresentationCommand(result.runtime_intent, urpg::presentation::PresentationCommand::Type::SetFog) == 1);
     REQUIRE(countPresentationCommand(result.runtime_intent, urpg::presentation::PresentationCommand::Type::SetPostFX) == 1);
 
@@ -191,11 +215,62 @@ TEST_CASE("Map environment preview fixture is saved project data and executes in
     panel.render();
 
     REQUIRE(panel.snapshot().visible_tile_layer_count == 2);
-    REQUIRE(panel.snapshot().runtime_overlay_command_count == 4);
+    REQUIRE(panel.snapshot().runtime_overlay_command_count == 8);
+    REQUIRE(panel.snapshot().parallax_layer_count == 2);
+    REQUIRE(panel.snapshot().smoke_emitter_count == 1);
+    REQUIRE(panel.snapshot().terrain_mesh_rule_count == 1);
+    REQUIRE(panel.snapshot().edge_scroll_enabled);
     REQUIRE(panel.snapshot().tactical_reachable_count == result.tactical_reachable_count);
     REQUIRE(panel.snapshot().spawn_entry_count == 2);
     REQUIRE(panel.snapshot().ux_focus_lane == "spawns");
     REQUIRE(panel.snapshot().primary_action.find("spawn-table") != std::string::npos);
+}
+
+TEST_CASE("Map environment preview absorbs parallax smoke terrain and edge-scroll camera settings",
+          "[map][worldbuilding][environment][native-plugin-absorption]") {
+    urpg::map::MapEnvironmentPreviewDocument document;
+    document.map_id = "plugin_absorption_map";
+    document.width = 4;
+    document.height = 4;
+    document.base_weather = "clear";
+    document.parallax_layers = {
+        {"clouds", "parallax/clouds.png", "screen", "add", 0.6f, 0.1f, 0.0f, 0, 3},
+    };
+    document.smoke_emitters = {
+        {"smoke_region", 2, 5, 1.25f, 160, "#ffffff", true, 0.1f, -0.2f},
+    };
+    document.terrain_mesh_rules = {
+        {"hill_region", 3, 2.0f, 0.25f, true},
+    };
+    document.edge_scroll_camera = {true, true, true, 8.0f, 24, "Space"};
+
+    const auto result = urpg::map::PreviewMapEnvironment(document, 1, 1);
+    REQUIRE(result.diagnostics.empty());
+    REQUIRE(result.parallax_layer_count == 1);
+    REQUIRE(result.smoke_emitter_count == 1);
+    REQUIRE(result.terrain_mesh_rule_count == 1);
+    REQUIRE(result.edge_scroll_enabled);
+    REQUIRE(std::find(result.runtime_overlay_commands.begin(),
+                      result.runtime_overlay_commands.end(),
+                      "render_parallax_layers:plugin_absorption_map:1") != result.runtime_overlay_commands.end());
+    REQUIRE(std::find(result.runtime_overlay_commands.begin(),
+                      result.runtime_overlay_commands.end(),
+                      "render_region_smoke:plugin_absorption_map:1") != result.runtime_overlay_commands.end());
+    REQUIRE(std::find(result.runtime_overlay_commands.begin(),
+                      result.runtime_overlay_commands.end(),
+                      "render_terrain_mesh_rules:plugin_absorption_map:1") != result.runtime_overlay_commands.end());
+    REQUIRE(std::find(result.runtime_overlay_commands.begin(),
+                      result.runtime_overlay_commands.end(),
+                      "camera_edge_scroll:plugin_absorption_map:24") != result.runtime_overlay_commands.end());
+
+    urpg::editor::MapEnvironmentPreviewPanel panel;
+    panel.loadDocument(document);
+    panel.selectTile(1, 1);
+    panel.render();
+    REQUIRE(panel.snapshot().parallax_layer_count == 1);
+    REQUIRE(panel.snapshot().smoke_emitter_count == 1);
+    REQUIRE(panel.snapshot().terrain_mesh_rule_count == 1);
+    REQUIRE(panel.snapshot().edge_scroll_enabled);
 }
 
 TEST_CASE("Map environment preview diagnostics block false completion claims",

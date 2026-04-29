@@ -21,6 +21,19 @@
       "type": "array",
       "items": { "$ref": "#/$defs/region" }
     },
+    "parallax_layers": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/parallax_layer" }
+    },
+    "smoke_emitters": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/smoke_emitter" }
+    },
+    "terrain_mesh_rules": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/terrain_mesh_rule" }
+    },
+    "edge_scroll_camera": { "$ref": "#/$defs/edge_scroll_camera" },
     "tactical_overlay": { "$ref": "#/$defs/tactical_overlay" },
     "spawn_table": { "$ref": "#/$defs/spawn_table" }
   },
@@ -89,6 +102,63 @@
         "navigation": { "type": "boolean" },
         "draw_order": { "type": "integer" },
         "tiles": { "type": "array", "items": { "type": "integer" } }
+      },
+      "additionalProperties": false
+    },
+    "parallax_layer": {
+      "type": "object",
+      "required": ["id", "asset", "lock_mode", "blend_mode", "opacity", "scroll_x", "scroll_y", "region_id", "draw_order"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "asset": { "type": "string", "minLength": 1 },
+        "lock_mode": { "type": "string", "enum": ["map", "screen"] },
+        "blend_mode": { "type": "string", "enum": ["normal", "add", "multiply", "screen"] },
+        "opacity": { "type": "number", "minimum": 0, "maximum": 1 },
+        "scroll_x": { "type": "number" },
+        "scroll_y": { "type": "number" },
+        "region_id": { "type": "integer", "minimum": 0 },
+        "draw_order": { "type": "integer" }
+      },
+      "additionalProperties": false
+    },
+    "smoke_emitter": {
+      "type": "object",
+      "required": ["id", "region_id", "intensity", "size", "opacity", "color", "bloom", "drift_x", "drift_y"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "region_id": { "type": "integer", "minimum": 0 },
+        "intensity": { "type": "integer", "minimum": 0, "maximum": 100 },
+        "size": { "type": "number", "exclusiveMinimum": 0 },
+        "opacity": { "type": "integer", "minimum": 0, "maximum": 255 },
+        "color": { "type": "string", "pattern": "^#[0-9A-Fa-f]{6}$" },
+        "bloom": { "type": "boolean" },
+        "drift_x": { "type": "number" },
+        "drift_y": { "type": "number" }
+      },
+      "additionalProperties": false
+    },
+    "terrain_mesh_rule": {
+      "type": "object",
+      "required": ["id", "region_id", "height", "curve", "walkable"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "region_id": { "type": "integer", "minimum": 0 },
+        "height": { "type": "number", "minimum": 0 },
+        "curve": { "type": "number" },
+        "walkable": { "type": "boolean" }
+      },
+      "additionalProperties": false
+    },
+    "edge_scroll_camera": {
+      "type": "object",
+      "required": ["enabled", "keyboard_pan", "click_follow", "speed_tiles_per_second", "margin_pixels", "recenter_hotkey"],
+      "properties": {
+        "enabled": { "type": "boolean" },
+        "keyboard_pan": { "type": "boolean" },
+        "click_follow": { "type": "boolean" },
+        "speed_tiles_per_second": { "type": "number", "exclusiveMinimum": 0 },
+        "margin_pixels": { "type": "integer", "minimum": 0 },
+        "recenter_hotkey": { "type": "string" }
       },
       "additionalProperties": false
     },

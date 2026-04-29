@@ -37,6 +37,47 @@ struct MapTacticalOverlayPreview {
     int32_t move_range = 0;
 };
 
+struct MapParallaxLayer {
+    std::string id;
+    std::string asset;
+    std::string lock_mode = "map";
+    std::string blend_mode = "normal";
+    float opacity = 1.0f;
+    float scroll_x = 0.0f;
+    float scroll_y = 0.0f;
+    int32_t region_id = 0;
+    int32_t draw_order = 0;
+};
+
+struct MapSmokeEmitter {
+    std::string id;
+    int32_t region_id = 0;
+    int32_t intensity = 0;
+    float size = 1.0f;
+    int32_t opacity = 128;
+    std::string color = "#ffffff";
+    bool bloom = false;
+    float drift_x = 0.0f;
+    float drift_y = -0.25f;
+};
+
+struct MapTerrainMeshRule {
+    std::string id;
+    int32_t region_id = 0;
+    float height = 0.0f;
+    float curve = 0.0f;
+    bool walkable = true;
+};
+
+struct MapEdgeScrollCameraProfile {
+    bool enabled = false;
+    bool keyboard_pan = false;
+    bool click_follow = false;
+    float speed_tiles_per_second = 8.0f;
+    int32_t margin_pixels = 24;
+    std::string recenter_hotkey = "Space";
+};
+
 struct MapEnvironmentPreviewDocument {
     std::string map_id;
     int32_t width = 0;
@@ -47,6 +88,10 @@ struct MapEnvironmentPreviewDocument {
     presentation::PostFXProfile base_post_fx;
     std::vector<TileLayer> tile_layers;
     std::vector<MapEnvironmentRegion> regions;
+    std::vector<MapParallaxLayer> parallax_layers;
+    std::vector<MapSmokeEmitter> smoke_emitters;
+    std::vector<MapTerrainMeshRule> terrain_mesh_rules;
+    MapEdgeScrollCameraProfile edge_scroll_camera;
     MapTacticalOverlayPreview tactical_overlay;
     SpawnTable spawn_table;
 
@@ -69,6 +114,10 @@ struct MapEnvironmentPreviewResult {
     size_t visible_tile_layer_count = 0;
     size_t collision_tile_count = 0;
     size_t region_overlay_count = 0;
+    size_t parallax_layer_count = 0;
+    size_t smoke_emitter_count = 0;
+    size_t terrain_mesh_rule_count = 0;
+    bool edge_scroll_enabled = false;
     size_t tactical_reachable_count = 0;
     size_t spawn_entry_count = 0;
     bool selected_tile_blocked = false;

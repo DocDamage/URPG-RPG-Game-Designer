@@ -41,12 +41,17 @@ void MapEnvironmentPreviewPanel::refreshPreview() {
     snapshot_.visible_tile_layer_count = preview_.visible_tile_layer_count;
     snapshot_.collision_tile_count = preview_.collision_tile_count;
     snapshot_.region_overlay_count = preview_.region_overlay_count;
+    snapshot_.parallax_layer_count = preview_.parallax_layer_count;
+    snapshot_.smoke_emitter_count = preview_.smoke_emitter_count;
+    snapshot_.terrain_mesh_rule_count = preview_.terrain_mesh_rule_count;
+    snapshot_.edge_scroll_enabled = preview_.edge_scroll_enabled;
     snapshot_.tactical_reachable_count = preview_.tactical_reachable_count;
     snapshot_.spawn_entry_count = preview_.spawn_entry_count;
     snapshot_.diagnostic_count = preview_.diagnostics.size();
     snapshot_.selected_tile_blocked = preview_.selected_tile_blocked;
-    const auto overlay_count = snapshot_.region_overlay_count + snapshot_.tactical_reachable_count +
-                               snapshot_.spawn_entry_count;
+    const auto overlay_count = snapshot_.region_overlay_count + snapshot_.parallax_layer_count +
+                               snapshot_.smoke_emitter_count + snapshot_.terrain_mesh_rule_count +
+                               snapshot_.tactical_reachable_count + snapshot_.spawn_entry_count;
     snapshot_.overlay_density = snapshot_.visible_tile_layer_count == 0
         ? 0.0f
         : static_cast<float>(overlay_count) / static_cast<float>(snapshot_.visible_tile_layer_count);

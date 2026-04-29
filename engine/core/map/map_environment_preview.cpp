@@ -1,6 +1,7 @@
 #include "engine/core/map/map_environment_preview.h"
 
 #include <algorithm>
+#include <cctype>
 #include <set>
 #include <utility>
 
@@ -107,6 +108,23 @@ presentation::PostFXProfile postFxForWeather(const std::string& weather, const s
 
 bool validWeather(const std::string& weather) {
     return weather == "clear" || weather == "rain" || weather == "snow" || weather == "storm" || weather == "fog";
+}
+
+bool validBlendMode(const std::string& mode) {
+    return mode == "normal" || mode == "add" || mode == "multiply" || mode == "screen";
+}
+
+bool validLockMode(const std::string& mode) {
+    return mode == "map" || mode == "screen";
+}
+
+bool validHexColor(const std::string& color) {
+    if (color.size() != 7 || color[0] != '#') {
+        return false;
+    }
+    return std::all_of(color.begin() + 1, color.end(), [](unsigned char ch) {
+        return std::isxdigit(ch) != 0;
+    });
 }
 
 nlohmann::json lightToJson(const presentation::LightProfile& light) {
@@ -255,6 +273,108 @@ nlohmann::json tacticalOverlayToJson(const MapTacticalOverlayPreview& overlay) {
             {"move_range", overlay.move_range}};
 }
 
+MapParallaxLayer parallaxLayerFromJson(const nlohmann::json& json) {
+    MapParallaxLayer layer;
+    if (!json.is_object()) {
+        return layer;
+    }
+    layer.id = json.value("id", "");
+    layer.asset = json.value("asset", "");
+    layer.lock_mode = json.value("lock_mode", "map");
+    layer.blend_mode = json.value("blend_mode", "normal");
+    layer.opacity = json.value("opacity", 1.0f);
+    layer.scroll_x = json.value("scroll_x", 0.0f);
+    layer.scroll_y = json.value("scroll_y", 0.0f);
+    layer.region_id = json.value("region_id", 0);
+    layer.draw_order = json.value("draw_order", 0);
+    return layer;
+}
+
+nlohmann::json parallaxLayerToJson(const MapParallaxLayer& layer) {
+    return {{"id", layer.id},
+            {"asset", layer.asset},
+            {"lock_mode", layer.lock_mode},
+            {"blend_mode", layer.blend_mode},
+            {"opacity", layer.opacity},
+            {"scroll_x", layer.scroll_x},
+            {"scroll_y", layer.scroll_y},
+            {"region_id", layer.region_id},
+            {"draw_order", layer.draw_order}};
+}
+
+MapSmokeEmitter smokeEmitterFromJson(const nlohmann::json& json) {
+    MapSmokeEmitter emitter;
+    if (!json.is_object()) {
+        return emitter;
+    }
+    emitter.id = json.value("id", "");
+    emitter.region_id = json.value("region_id", 0);
+    emitter.intensity = json.value("intensity", 0);
+    emitter.size = json.value("size", 1.0f);
+    emitter.opacity = json.value("opacity", 128);
+    emitter.color = json.value("color", "#ffffff");
+    emitter.bloom = json.value("bloom", false);
+    emitter.drift_x = json.value("drift_x", 0.0f);
+    emitter.drift_y = json.value("drift_y", -0.25f);
+    return emitter;
+}
+
+nlohmann::json smokeEmitterToJson(const MapSmokeEmitter& emitter) {
+    return {{"id", emitter.id},
+            {"region_id", emitter.region_id},
+            {"intensity", emitter.intensity},
+            {"size", emitter.size},
+            {"opacity", emitter.opacity},
+            {"color", emitter.color},
+            {"bloom", emitter.bloom},
+            {"drift_x", emitter.drift_x},
+            {"drift_y", emitter.drift_y}};
+}
+
+MapTerrainMeshRule terrainMeshRuleFromJson(const nlohmann::json& json) {
+    MapTerrainMeshRule rule;
+    if (!json.is_object()) {
+        return rule;
+    }
+    rule.id = json.value("id", "");
+    rule.region_id = json.value("region_id", 0);
+    rule.height = json.value("height", 0.0f);
+    rule.curve = json.value("curve", 0.0f);
+    rule.walkable = json.value("walkable", true);
+    return rule;
+}
+
+nlohmann::json terrainMeshRuleToJson(const MapTerrainMeshRule& rule) {
+    return {{"id", rule.id},
+            {"region_id", rule.region_id},
+            {"height", rule.height},
+            {"curve", rule.curve},
+            {"walkable", rule.walkable}};
+}
+
+MapEdgeScrollCameraProfile edgeScrollCameraFromJson(const nlohmann::json& json) {
+    MapEdgeScrollCameraProfile camera;
+    if (!json.is_object()) {
+        return camera;
+    }
+    camera.enabled = json.value("enabled", false);
+    camera.keyboard_pan = json.value("keyboard_pan", false);
+    camera.click_follow = json.value("click_follow", false);
+    camera.speed_tiles_per_second = json.value("speed_tiles_per_second", 8.0f);
+    camera.margin_pixels = json.value("margin_pixels", 24);
+    camera.recenter_hotkey = json.value("recenter_hotkey", "Space");
+    return camera;
+}
+
+nlohmann::json edgeScrollCameraToJson(const MapEdgeScrollCameraProfile& camera) {
+    return {{"enabled", camera.enabled},
+            {"keyboard_pan", camera.keyboard_pan},
+            {"click_follow", camera.click_follow},
+            {"speed_tiles_per_second", camera.speed_tiles_per_second},
+            {"margin_pixels", camera.margin_pixels},
+            {"recenter_hotkey", camera.recenter_hotkey}};
+}
+
 bool inBounds(const MapEnvironmentPreviewDocument& document, int32_t x, int32_t y) {
     return x >= 0 && y >= 0 && x < document.width && y < document.height;
 }
@@ -394,6 +514,90 @@ std::vector<MapDiagnostic> MapEnvironmentPreviewDocument::validate() const {
         }
     }
 
+    std::set<std::string> parallax_ids;
+    for (const auto& layer : parallax_layers) {
+        if (layer.id.empty()) {
+            diagnostics.push_back({"missing_parallax_id", "Parallax layer requires an id.", -1, -1, layer.asset});
+        } else if (!parallax_ids.insert(layer.id).second) {
+            diagnostics.push_back({"duplicate_parallax_id", "Parallax layer id must be unique.", -1, -1, layer.id});
+        }
+        if (layer.asset.empty()) {
+            diagnostics.push_back({"missing_parallax_asset", "Parallax layer requires an asset.", -1, -1, layer.id});
+        }
+        if (!validLockMode(layer.lock_mode)) {
+            diagnostics.push_back({"invalid_parallax_lock_mode", "Parallax lock mode must be map or screen.", -1, -1,
+                                   layer.id});
+        }
+        if (!validBlendMode(layer.blend_mode)) {
+            diagnostics.push_back({"invalid_parallax_blend_mode",
+                                   "Parallax blend mode must be normal, add, multiply, or screen.", -1, -1,
+                                   layer.id});
+        }
+        if (layer.opacity < 0.0f || layer.opacity > 1.0f) {
+            diagnostics.push_back({"invalid_parallax_opacity", "Parallax opacity must be between 0 and 1.", -1, -1,
+                                   layer.id});
+        }
+        if (layer.region_id < 0) {
+            diagnostics.push_back({"invalid_parallax_region", "Parallax region id cannot be negative.", -1, -1,
+                                   layer.id});
+        }
+    }
+
+    std::set<std::string> smoke_ids;
+    for (const auto& emitter : smoke_emitters) {
+        if (emitter.id.empty()) {
+            diagnostics.push_back({"missing_smoke_id", "Smoke emitter requires an id.", -1, -1, ""});
+        } else if (!smoke_ids.insert(emitter.id).second) {
+            diagnostics.push_back({"duplicate_smoke_id", "Smoke emitter id must be unique.", -1, -1, emitter.id});
+        }
+        if (emitter.region_id < 0) {
+            diagnostics.push_back({"invalid_smoke_region", "Smoke region id cannot be negative.", -1, -1, emitter.id});
+        }
+        if (emitter.intensity < 0 || emitter.intensity > 100) {
+            diagnostics.push_back({"invalid_smoke_intensity", "Smoke intensity must be between 0 and 100.", -1, -1,
+                                   emitter.id});
+        }
+        if (emitter.size <= 0.0f) {
+            diagnostics.push_back({"invalid_smoke_size", "Smoke particle size must be positive.", -1, -1, emitter.id});
+        }
+        if (emitter.opacity < 0 || emitter.opacity > 255) {
+            diagnostics.push_back({"invalid_smoke_opacity", "Smoke opacity must be between 0 and 255.", -1, -1,
+                                   emitter.id});
+        }
+        if (!validHexColor(emitter.color)) {
+            diagnostics.push_back({"invalid_smoke_color", "Smoke color must be #rrggbb.", -1, -1, emitter.id});
+        }
+    }
+
+    std::set<std::string> terrain_rule_ids;
+    for (const auto& rule : terrain_mesh_rules) {
+        if (rule.id.empty()) {
+            diagnostics.push_back({"missing_terrain_mesh_id", "Terrain mesh rule requires an id.", -1, -1, ""});
+        } else if (!terrain_rule_ids.insert(rule.id).second) {
+            diagnostics.push_back({"duplicate_terrain_mesh_id", "Terrain mesh rule id must be unique.", -1, -1,
+                                   rule.id});
+        }
+        if (rule.region_id < 0) {
+            diagnostics.push_back({"invalid_terrain_mesh_region", "Terrain mesh region id cannot be negative.", -1,
+                                   -1, rule.id});
+        }
+        if (rule.height < 0.0f) {
+            diagnostics.push_back({"invalid_terrain_mesh_height", "Terrain mesh height cannot be negative.", -1, -1,
+                                   rule.id});
+        }
+    }
+
+    if (edge_scroll_camera.enabled) {
+        if (edge_scroll_camera.speed_tiles_per_second <= 0.0f) {
+            diagnostics.push_back({"invalid_edge_scroll_speed", "Edge-scroll speed must be positive.", -1, -1,
+                                   map_id});
+        }
+        if (edge_scroll_camera.margin_pixels < 0) {
+            diagnostics.push_back({"invalid_edge_scroll_margin", "Edge-scroll margin cannot be negative.", -1, -1,
+                                   map_id});
+        }
+    }
+
     return diagnostics;
 }
 
@@ -454,6 +658,19 @@ nlohmann::json MapEnvironmentPreviewDocument::toJson() const {
             {"post_fx", postFxToJson(region.post_fx)},
         });
     }
+    json["parallax_layers"] = nlohmann::json::array();
+    for (const auto& layer : parallax_layers) {
+        json["parallax_layers"].push_back(parallaxLayerToJson(layer));
+    }
+    json["smoke_emitters"] = nlohmann::json::array();
+    for (const auto& emitter : smoke_emitters) {
+        json["smoke_emitters"].push_back(smokeEmitterToJson(emitter));
+    }
+    json["terrain_mesh_rules"] = nlohmann::json::array();
+    for (const auto& rule : terrain_mesh_rules) {
+        json["terrain_mesh_rules"].push_back(terrainMeshRuleToJson(rule));
+    }
+    json["edge_scroll_camera"] = edgeScrollCameraToJson(edge_scroll_camera);
     json["tactical_overlay"] = tacticalOverlayToJson(tactical_overlay);
     json["spawn_table"] = SpawnTableToJson(spawn_table);
     return json;
@@ -488,6 +705,22 @@ MapEnvironmentPreviewDocument MapEnvironmentPreviewDocument::fromJson(const nloh
             document.regions.push_back(regionFromJson(row, light_id++));
         }
     }
+    for (const auto& row : json.value("parallax_layers", nlohmann::json::array())) {
+        if (row.is_object()) {
+            document.parallax_layers.push_back(parallaxLayerFromJson(row));
+        }
+    }
+    for (const auto& row : json.value("smoke_emitters", nlohmann::json::array())) {
+        if (row.is_object()) {
+            document.smoke_emitters.push_back(smokeEmitterFromJson(row));
+        }
+    }
+    for (const auto& row : json.value("terrain_mesh_rules", nlohmann::json::array())) {
+        if (row.is_object()) {
+            document.terrain_mesh_rules.push_back(terrainMeshRuleFromJson(row));
+        }
+    }
+    document.edge_scroll_camera = edgeScrollCameraFromJson(json.value("edge_scroll_camera", nlohmann::json::object()));
     document.tactical_overlay = tacticalOverlayFromJson(json.value("tactical_overlay", nlohmann::json::object()));
     document.spawn_table = SpawnTableFromJson(json.value("spawn_table", nlohmann::json::object()));
     return document;
@@ -531,6 +764,10 @@ MapEnvironmentPreviewResult PreviewMapEnvironment(const MapEnvironmentPreviewDoc
     result.runtime_intent = document.buildRuntimePreview(tile_x, tile_y);
     result.diagnostics = document.validate();
     result.region_overlay_count = document.regions.size();
+    result.parallax_layer_count = document.parallax_layers.size();
+    result.smoke_emitter_count = document.smoke_emitters.size();
+    result.terrain_mesh_rule_count = document.terrain_mesh_rules.size();
+    result.edge_scroll_enabled = document.edge_scroll_camera.enabled;
     result.spawn_entry_count = document.spawn_table.entries.size();
     const auto blocked = blockedCells(document);
     result.selected_tile_blocked = blocked.contains({tile_x, tile_y});
@@ -551,6 +788,22 @@ MapEnvironmentPreviewResult PreviewMapEnvironment(const MapEnvironmentPreviewDoc
     if (!document.regions.empty()) {
         result.runtime_overlay_commands.push_back("render_region_overlays:" + document.map_id + ":" +
                                                   std::to_string(result.region_overlay_count));
+    }
+    if (!document.parallax_layers.empty()) {
+        result.runtime_overlay_commands.push_back("render_parallax_layers:" + document.map_id + ":" +
+                                                  std::to_string(result.parallax_layer_count));
+    }
+    if (!document.smoke_emitters.empty()) {
+        result.runtime_overlay_commands.push_back("render_region_smoke:" + document.map_id + ":" +
+                                                  std::to_string(result.smoke_emitter_count));
+    }
+    if (!document.terrain_mesh_rules.empty()) {
+        result.runtime_overlay_commands.push_back("render_terrain_mesh_rules:" + document.map_id + ":" +
+                                                  std::to_string(result.terrain_mesh_rule_count));
+    }
+    if (document.edge_scroll_camera.enabled) {
+        result.runtime_overlay_commands.push_back("camera_edge_scroll:" + document.map_id + ":" +
+                                                  std::to_string(document.edge_scroll_camera.margin_pixels));
     }
     if (document.tactical_overlay.enabled) {
         const auto reachable = PreviewTacticalMoveRange(document.width,

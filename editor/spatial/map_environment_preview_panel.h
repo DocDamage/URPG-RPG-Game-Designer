@@ -21,6 +21,10 @@ struct MapEnvironmentPreviewPanelSnapshot {
     size_t visible_tile_layer_count = 0;
     size_t collision_tile_count = 0;
     size_t region_overlay_count = 0;
+    size_t parallax_layer_count = 0;
+    size_t smoke_emitter_count = 0;
+    size_t terrain_mesh_rule_count = 0;
+    bool edge_scroll_enabled = false;
     size_t tactical_reachable_count = 0;
     size_t spawn_entry_count = 0;
     size_t diagnostic_count = 0;

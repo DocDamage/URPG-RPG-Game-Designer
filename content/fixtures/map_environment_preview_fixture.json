@@ -119,6 +119,60 @@
       }
     }
   ],
+  "parallax_layers": [
+    {
+      "id": "mist_overlay",
+      "asset": "parallax/mist.png",
+      "lock_mode": "screen",
+      "blend_mode": "screen",
+      "opacity": 0.55,
+      "scroll_x": 0.05,
+      "scroll_y": -0.02,
+      "region_id": 0,
+      "draw_order": 20
+    },
+    {
+      "id": "rain_path_water",
+      "asset": "parallax/rain_water.png",
+      "lock_mode": "map",
+      "blend_mode": "normal",
+      "opacity": 0.8,
+      "scroll_x": 0.0,
+      "scroll_y": 0.12,
+      "region_id": 5,
+      "draw_order": 5
+    }
+  ],
+  "smoke_emitters": [
+    {
+      "id": "clearing_fog_smoke",
+      "region_id": 7,
+      "intensity": 6,
+      "size": 1.4,
+      "opacity": 128,
+      "color": "#d8d8ff",
+      "bloom": true,
+      "drift_x": 0.05,
+      "drift_y": -0.2
+    }
+  ],
+  "terrain_mesh_rules": [
+    {
+      "id": "bridge_height",
+      "region_id": 6,
+      "height": 1.5,
+      "curve": 0.15,
+      "walkable": true
+    }
+  ],
+  "edge_scroll_camera": {
+    "enabled": true,
+    "keyboard_pan": true,
+    "click_follow": true,
+    "speed_tiles_per_second": 9.5,
+    "margin_pixels": 32,
+    "recenter_hotkey": "Space"
+  },
   "tactical_overlay": {
     "enabled": true,
     "origin_x": 3,

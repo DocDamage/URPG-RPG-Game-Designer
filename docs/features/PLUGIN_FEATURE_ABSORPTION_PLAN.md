@@ -34,7 +34,7 @@ URPG should absorb the submitted RPG Maker plugin behavior as native maker featu
 1. Monster capture native completion: item-gated capture, actor IDs, battle-removal and reward-suppression result. Completed in this pass.
 2. Random BGM native completion: deterministic weighted track pools on `StateDrivenAudioResolver`. Completed in this pass.
 3. Battle presentation media lane: animated battlebacks and battler light cues on `BattlePresentationProfile`. Completed in this pass.
-4. Map presentation lane: parallax layers, region smoke emitters, terrain height/curve/collision rules, and edge-scroll camera profiles.
+4. Map presentation lane: parallax layers, region smoke emitters, terrain height/curve/walkability rules, and edge-scroll camera profiles. Completed in this pass.
 5. Battle feedback lane: blood VFX cue kind completed in this pass; chip damage/healing, custom buff levels, zero-damage presentation policies, and troop-position reuse remain.
 6. World/system lane: fast travel, vehicle profiles/interiors/transitions, and draggable event metadata.
 7. State/message/picture lane: scoped/self/map/JS variable banks, nested text escapes, picture tasks, and high-count picture management.

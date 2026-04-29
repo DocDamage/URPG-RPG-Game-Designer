@@ -59,10 +59,19 @@
         "blood splatter is a first-class native battle VFX cue kind",
         "blood VFX round-trips through timeline project data and runtime effect cues"
       ]
+    },
+    {
+      "feature": "map_presentation_layers_smoke_terrain_camera",
+      "native_surface": "engine/core/map/MapEnvironmentPreviewDocument",
+      "source_semantics": [
+        "map presentation can define parallax layers with map/screen lock, blend mode, opacity, scroll rates, region mask, and draw order",
+        "map presentation can define procedural smoke emitters by region with intensity, size, opacity, color, bloom, and drift",
+        "map terrain can define region mesh height, curve, and walkability rules",
+        "map camera can define edge-scroll, keyboard pan, click-follow, speed, margin, and recenter hotkey"
+      ]
     }
   ],
   "remaining_lanes": [
-    "map_presentation",
     "battle_feedback",
     "world_vehicle_audio_event",
     "state_message_picture",
