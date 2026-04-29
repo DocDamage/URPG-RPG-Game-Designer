@@ -20,6 +20,15 @@ bool assetAvailable(const std::string& path, const std::set<std::string>& availa
     return !path.empty() && available_assets.contains(path);
 }
 
+bool isHexColor(const std::string& value) {
+    if (value.size() != 7 || value[0] != '#') {
+        return false;
+    }
+    return std::all_of(value.begin() + 1, value.end(), [](unsigned char ch) {
+        return std::isxdigit(ch) != 0;
+    });
+}
+
 } // namespace
 
 BattlePresentationProfile BattlePresentationProfileFromJson(const nlohmann::json& json) {
@@ -30,6 +39,44 @@ BattlePresentationProfile BattlePresentationProfileFromJson(const nlohmann::json
     profile.id = json.value("id", "");
     profile.battleback1 = json.value("battleback1", "");
     profile.battleback2 = json.value("battleback2", "");
+
+    if (const auto media_it = json.find("media_layers");
+        media_it != json.end() && media_it->is_array()) {
+        for (const auto& row : *media_it) {
+            if (!row.is_object()) {
+                continue;
+            }
+            profile.media_layers.push_back({
+                row.value("id", ""),
+                row.value("role", "background"),
+                row.value("asset", ""),
+                row.value("loop", true),
+                row.value("playback_rate", 1.0f),
+                row.value("opacity", 1.0f),
+                row.value("region_id", 0),
+                row.value("fade_in_frames", 0),
+            });
+        }
+    }
+
+    if (const auto light_it = json.find("light_cues");
+        light_it != json.end() && light_it->is_array()) {
+        for (const auto& row : *light_it) {
+            if (!row.is_object()) {
+                continue;
+            }
+            profile.light_cues.push_back({
+                row.value("id", ""),
+                row.value("target", "all"),
+                row.value("radius", 150),
+                row.value("color", "#ffffff"),
+                row.value("opacity", 0.5f),
+                row.value("pulsate", false),
+                row.value("flicker", false),
+                row.value("hide_on_death", true),
+            });
+        }
+    }
 
     if (const auto hud_it = json.find("hud");
         hud_it != json.end() && hud_it->is_array()) {
@@ -81,6 +128,55 @@ BattlePresentationValidationResult ValidateBattlePresentationProfile(
     if (!profile.battleback2.empty() && !assetAvailable(profile.battleback2, available_assets)) {
         addDiagnostic(result.diagnostics, BattleAuthoringSeverity::Error, "missing_battleback",
                       "Battleback asset is not available: " + profile.battleback2, profile.battleback2);
+    }
+    const std::set<std::string> media_roles = {"background", "foreground", "overlay"};
+    for (const auto& layer : profile.media_layers) {
+        if (layer.id.empty()) {
+            addDiagnostic(result.diagnostics, BattleAuthoringSeverity::Error, "missing_media_layer_id",
+                          "Battle media layer requires an id.", layer.asset);
+        }
+        if (!media_roles.contains(layer.role)) {
+            addDiagnostic(result.diagnostics, BattleAuthoringSeverity::Error, "invalid_media_layer_role",
+                          "Battle media layer role must be background, foreground, or overlay.", layer.id);
+        }
+        if (!assetAvailable(layer.asset, available_assets)) {
+            addDiagnostic(result.diagnostics, BattleAuthoringSeverity::Error, "missing_media_asset",
+                          "Battle media asset is not available: " + layer.asset, layer.asset);
+        }
+        if (layer.playback_rate <= 0.0f) {
+            addDiagnostic(result.diagnostics, BattleAuthoringSeverity::Error, "invalid_media_playback_rate",
+                          "Battle media playback rate must be positive.", layer.id);
+        }
+        if (layer.opacity < 0.0f || layer.opacity > 1.0f) {
+            addDiagnostic(result.diagnostics, BattleAuthoringSeverity::Error, "invalid_media_opacity",
+                          "Battle media opacity must be between 0 and 1.", layer.id);
+        }
+        if (layer.region_id < 0) {
+            addDiagnostic(result.diagnostics, BattleAuthoringSeverity::Error, "invalid_media_region",
+                          "Battle media region id cannot be negative.", layer.id);
+        }
+        if (layer.fade_in_frames < 0) {
+            addDiagnostic(result.diagnostics, BattleAuthoringSeverity::Error, "invalid_media_fade",
+                          "Battle media fade-in frames cannot be negative.", layer.id);
+        }
+    }
+    for (const auto& light : profile.light_cues) {
+        if (light.id.empty()) {
+            addDiagnostic(result.diagnostics, BattleAuthoringSeverity::Error, "missing_light_id",
+                          "Battle light cue requires an id.", light.target);
+        }
+        if (light.radius <= 0) {
+            addDiagnostic(result.diagnostics, BattleAuthoringSeverity::Error, "invalid_light_radius",
+                          "Battle light radius must be positive.", light.id);
+        }
+        if (!isHexColor(light.color)) {
+            addDiagnostic(result.diagnostics, BattleAuthoringSeverity::Error, "invalid_light_color",
+                          "Battle light color must be #rrggbb.", light.id);
+        }
+        if (light.opacity < 0.0f || light.opacity > 1.0f) {
+            addDiagnostic(result.diagnostics, BattleAuthoringSeverity::Error, "invalid_light_opacity",
+                          "Battle light opacity must be between 0 and 1.", light.id);
+        }
     }
 
     std::set<std::string> lower_assets;
@@ -153,6 +249,32 @@ nlohmann::json BattlePresentationProfileToJson(const BattlePresentationProfile& 
     json["id"] = profile.id;
     json["battleback1"] = profile.battleback1;
     json["battleback2"] = profile.battleback2;
+    json["media_layers"] = nlohmann::json::array();
+    for (const auto& layer : profile.media_layers) {
+        json["media_layers"].push_back({
+            {"id", layer.id},
+            {"role", layer.role},
+            {"asset", layer.asset},
+            {"loop", layer.loop},
+            {"playback_rate", layer.playback_rate},
+            {"opacity", layer.opacity},
+            {"region_id", layer.region_id},
+            {"fade_in_frames", layer.fade_in_frames},
+        });
+    }
+    json["light_cues"] = nlohmann::json::array();
+    for (const auto& light : profile.light_cues) {
+        json["light_cues"].push_back({
+            {"id", light.id},
+            {"target", light.target},
+            {"radius", light.radius},
+            {"color", light.color},
+            {"opacity", light.opacity},
+            {"pulsate", light.pulsate},
+            {"flicker", light.flicker},
+            {"hide_on_death", light.hide_on_death},
+        });
+    }
     json["hud"] = nlohmann::json::array();
     for (const auto& element : profile.hud_elements) {
         json["hud"].push_back({

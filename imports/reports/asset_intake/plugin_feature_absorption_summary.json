@@ -42,10 +42,26 @@
         "selection is deterministic from a seed",
         "empty and non-positive-weight tracks are ignored"
       ]
+    },
+    {
+      "feature": "battle_presentation_media_and_lighting",
+      "native_surface": "engine/core/battle/BattlePresentationProfile",
+      "source_semantics": [
+        "battle presentation can define looping animated media layers",
+        "media layers support background/foreground/overlay roles, playback rate, opacity, region override, and fade-in frames",
+        "battle presentation can define battler light cues with radius, color, opacity, pulsate, flicker, and death-hide policy"
+      ]
+    },
+    {
+      "feature": "battle_blood_vfx_cue",
+      "native_surface": "engine/core/battle/BattleVfxTimelineDocument",
+      "source_semantics": [
+        "blood splatter is a first-class native battle VFX cue kind",
+        "blood VFX round-trips through timeline project data and runtime effect cues"
+      ]
     }
   ],
   "remaining_lanes": [
-    "presentation_media",
     "map_presentation",
     "battle_feedback",
     "world_vehicle_audio_event",

@@ -37,6 +37,12 @@ TEST_CASE("battle authoring validates battlebacks, HUD elements, and determinist
     profile.id = "arena";
     profile.battleback1 = "img/battlebacks1/CrystalCave.png";
     profile.battleback2 = "img/battlebacks2/MissingFog.png";
+    profile.media_layers = {
+        {"lava_video", "background", "movies/battle/lava_loop.webm", true, 1.5f, 0.8f, 5, 12},
+    };
+    profile.light_cues = {
+        {"enemy_glow", "enemy", 180, "#ff8844", 0.65f, true, true, true},
+    };
     profile.hud_elements = {
         {"hp", "gauge", 8, 8, true},
         {"state", "state_icon", 8, 32, true},
@@ -51,18 +57,53 @@ TEST_CASE("battle authoring validates battlebacks, HUD elements, and determinist
     };
 
     urpg::editor::BattlePresentationPanel panel;
-    panel.loadProfile(profile, {"img/battlebacks1/CrystalCave.png"});
+    panel.loadProfile(profile, {"img/battlebacks1/CrystalCave.png", "movies/battle/lava_loop.webm"});
     panel.render();
 
     REQUIRE(panel.hasRenderedFrame());
     REQUIRE(panel.snapshot().hud_element_count == 5);
     REQUIRE(panel.snapshot().cue_count == 3);
+    REQUIRE(panel.snapshot().media_layer_count == 1);
+    REQUIRE(panel.snapshot().light_cue_count == 1);
     REQUIRE(panel.snapshot().replay_cue_count == 3);
     REQUIRE(panel.validation().replay_cues[0].id == "cast");
     REQUIRE(panel.validation().replay_cues[1].id == "hit");
     REQUIRE(panel.validation().replay_cues[2].id == "victory");
     REQUIRE_FALSE(panel.validation().diagnostics.empty());
     REQUIRE(panel.validation().diagnostics[0].code == "missing_battleback");
+}
+
+TEST_CASE("battle presentation absorbs animated media layers and battler light cues",
+          "[battle][authoring][presentation][native-plugin-absorption]") {
+    const auto fixture = loadJsonFile(repoRoot() / "content" / "fixtures" / "battle_authoring_fixture.json");
+    auto profile = urpg::battle::BattlePresentationProfileFromJson(fixture["presentation"]);
+
+    REQUIRE(profile.media_layers.size() == 1);
+    REQUIRE(profile.media_layers[0].asset == "movies/battle/lava_loop.webm");
+    REQUIRE(profile.media_layers[0].region_id == 5);
+    REQUIRE(profile.light_cues.size() == 1);
+    REQUIRE(profile.light_cues[0].pulsate);
+    REQUIRE(profile.light_cues[0].flicker);
+
+    const std::set<std::string> assets = {
+        "img/battlebacks1/CrystalCave.png",
+        "img/battlebacks2/CrystalFog.png",
+        "movies/battle/lava_loop.webm",
+    };
+    const auto result = urpg::battle::ValidateBattlePresentationProfile(profile, assets);
+    REQUIRE(std::none_of(result.diagnostics.begin(), result.diagnostics.end(), [](const auto& diagnostic) {
+        return diagnostic.severity == urpg::battle::BattleAuthoringSeverity::Error;
+    }));
+
+    urpg::editor::BattlePresentationPanel panel;
+    panel.loadProfile(profile, assets);
+    panel.render();
+    REQUIRE(panel.snapshot().media_layer_count == 1);
+    REQUIRE(panel.snapshot().light_cue_count == 1);
+
+    const auto saved = urpg::battle::BattlePresentationProfileToJson(profile);
+    REQUIRE(saved["media_layers"][0]["asset"] == "movies/battle/lava_loop.webm");
+    REQUIRE(saved["light_cues"][0]["color"] == "#ff8844");
 }
 
 TEST_CASE("battle VFX timeline is visually authorable, previewable, saved, and executable",
@@ -99,6 +140,19 @@ TEST_CASE("battle VFX timeline is visually authorable, previewable, saved, and e
         0.65f,
         {{"asset", "vfx/slash"}}
     });
+    document.addEvent({
+        "blood_splatter",
+        "impact_track",
+        20,
+        "Blood splatter",
+        urpg::presentation::effects::EffectCueKind::BloodSplatter,
+        urpg::presentation::effects::EffectAnchorMode::Target,
+        1,
+        2,
+        1.0f,
+        0.45f,
+        {{"asset", "vfx/blood_splatter"}}
+    });
 
     urpg::editor::BattleVfxTimelinePanel panel;
     panel.loadDocument(document);
@@ -108,7 +162,7 @@ TEST_CASE("battle VFX timeline is visually authorable, previewable, saved, and e
     REQUIRE(panel.snapshot().has_document);
     REQUIRE(panel.snapshot().track_count == 2);
     REQUIRE(panel.snapshot().visible_track_count == 2);
-    REQUIRE(panel.snapshot().event_count == 2);
+    REQUIRE(panel.snapshot().event_count == 3);
     REQUIRE(panel.snapshot().visible_event_count == 1);
     REQUIRE(panel.snapshot().visible_event_ids[0] == "cast_flash");
     REQUIRE(panel.snapshot().runtime_preview_cue_count == 1);
@@ -133,26 +187,27 @@ TEST_CASE("battle VFX timeline is visually authorable, previewable, saved, and e
     const auto saved = panel.saveProjectData();
     REQUIRE(saved["schema_version"] == "urpg.battle_vfx_timeline.v1");
     REQUIRE(saved["tracks"].size() == 2);
-    REQUIRE(saved["events"].size() == 2);
+    REQUIRE(saved["events"].size() == 3);
 
     const auto restored = urpg::battle::BattleVfxTimelineDocument::fromJson(saved);
     REQUIRE(restored.toJson() == saved);
 
     const auto timeline = restored.toTimelineDocument();
-    REQUIRE(timeline.commands().size() == 2);
+    REQUIRE(timeline.commands().size() == 3);
     REQUIRE(timeline.commands()[0].kind == urpg::timeline::TimelineCommandKind::BattleCue);
     REQUIRE(timeline.validate().empty());
 
     urpg::scene::BattleScene scene({});
     const auto applied = urpg::battle::applyBattleVfxTimeline(scene, restored);
-    REQUIRE(applied == 2);
-    REQUIRE(scene.effectCues().size() == 2);
+    REQUIRE(applied == 3);
+    REQUIRE(scene.effectCues().size() == 3);
     CHECK(scene.effectCues()[0].frameTick == 4);
     CHECK(scene.effectCues()[0].kind == urpg::presentation::effects::EffectCueKind::CastStart);
     CHECK(scene.effectCues()[1].frameTick == 18);
     CHECK(scene.effectCues()[1].ownerId == 2);
     CHECK(scene.effectCues()[1].intensity.value == Catch::Approx(1.6f));
     CHECK(scene.effectCues()[1].overlayEmphasis.value == Catch::Approx(0.65f));
+    CHECK(scene.effectCues()[2].kind == urpg::presentation::effects::EffectCueKind::BloodSplatter);
 }
 
 TEST_CASE("battle VFX timeline project-data fixture round-trips through the authored schema surface",

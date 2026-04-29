@@ -14,6 +14,8 @@ void BattlePresentationPanel::loadProfile(urpg::battle::BattlePresentationProfil
         true,
         profile_.hud_elements.size(),
         profile_.cue_timeline.size(),
+        profile_.media_layers.size(),
+        profile_.light_cues.size(),
         validation_.diagnostics.size(),
         validation_.replay_cues.size(),
     };

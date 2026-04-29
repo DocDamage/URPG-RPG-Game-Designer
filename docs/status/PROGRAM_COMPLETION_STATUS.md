@@ -20,6 +20,7 @@ Current app-level release readiness source of truth: [`docs/APP_RELEASE_READINES
 - `docs/features/PLUGIN_FEATURE_ABSORPTION_PLAN.md` records the native absorption plan; the policy is to extend existing C++/editor systems rather than ship parallel JavaScript plugins.
 - Monster capture absorbed the first plugin behavior slice: item-gated capture attempts, species actor IDs, successful capture battle removal, and exp/gold/drop suppression.
 - State-driven audio absorbed random BGM selection as deterministic weighted track pools.
+- Battle presentation absorbed animated battle media layers and battler light cues; battle VFX absorbed blood splatter as a first-class cue kind.
 
 2026-04-28 documentation and AI/editor checkpoint:
 - `development` is pushed to `origin/development` at commit `cfdae41e9` (`Advance AI editor and template readiness`) before this documentation refresh.

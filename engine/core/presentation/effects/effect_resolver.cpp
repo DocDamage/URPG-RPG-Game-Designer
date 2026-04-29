@@ -106,6 +106,10 @@ std::vector<ResolvedEffectInstance> EffectResolver::resolve(const EffectCue& cue
     case EffectCueKind::GuardClash:
         resolved.push_back(makeInstance(cue, EffectCatalog::impactHeavy(), battleState, EffectPlacement::World, -1.0f));
         return resolved;
+    case EffectCueKind::BloodSplatter:
+        resolved.push_back(makeInstance(cue, EffectCatalog::impactHeavy(), battleState, EffectPlacement::World,
+                                        std::max(cue.overlayEmphasis.value, 0.45f)));
+        return resolved;
     case EffectCueKind::CriticalHit:
     case EffectCueKind::HitConfirm:
     case EffectCueKind::Gameplay:

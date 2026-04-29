@@ -10,6 +10,8 @@ struct BattlePresentationPanelSnapshot {
     bool has_profile = false;
     size_t hud_element_count = 0;
     size_t cue_count = 0;
+    size_t media_layer_count = 0;
+    size_t light_cue_count = 0;
     size_t diagnostic_count = 0;
     size_t replay_cue_count = 0;
 };

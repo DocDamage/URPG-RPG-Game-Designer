@@ -15,6 +15,7 @@ enum class EffectCueKind {
     CastStart,
     HitConfirm,
     CriticalHit,
+    BloodSplatter,
     GuardClash,
     MissSweep,
     HealPulse,

@@ -3,6 +3,30 @@
     "id": "crystal_cave_battle",
     "battleback1": "img/battlebacks1/CrystalCave.png",
     "battleback2": "img/battlebacks2/CrystalFog.png",
+    "media_layers": [
+      {
+        "id": "lava_region_video",
+        "role": "background",
+        "asset": "movies/battle/lava_loop.webm",
+        "loop": true,
+        "playback_rate": 1.25,
+        "opacity": 0.85,
+        "region_id": 5,
+        "fade_in_frames": 18
+      }
+    ],
+    "light_cues": [
+      {
+        "id": "enemy_glow",
+        "target": "enemy",
+        "radius": 180,
+        "color": "#ff8844",
+        "opacity": 0.65,
+        "pulsate": true,
+        "flicker": true,
+        "hide_on_death": true
+      }
+    ],
     "hud": [
       { "id": "actor_hp", "type": "gauge", "x": 8, "y": 8, "visible": true },
       { "id": "state_icons", "type": "state_icon", "x": 8, "y": 32, "visible": true },

@@ -7,6 +7,40 @@
     "id": { "type": "string" },
     "battleback1": { "type": "string" },
     "battleback2": { "type": "string" },
+    "media_layers": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "role", "asset"],
+        "properties": {
+          "id": { "type": "string" },
+          "role": { "enum": ["background", "foreground", "overlay"] },
+          "asset": { "type": "string" },
+          "loop": { "type": "boolean" },
+          "playback_rate": { "type": "number", "exclusiveMinimum": 0 },
+          "opacity": { "type": "number", "minimum": 0, "maximum": 1 },
+          "region_id": { "type": "integer", "minimum": 0 },
+          "fade_in_frames": { "type": "integer", "minimum": 0 }
+        }
+      }
+    },
+    "light_cues": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "target", "radius", "color", "opacity"],
+        "properties": {
+          "id": { "type": "string" },
+          "target": { "type": "string" },
+          "radius": { "type": "integer", "minimum": 1 },
+          "color": { "type": "string", "pattern": "^#[0-9A-Fa-f]{6}$" },
+          "opacity": { "type": "number", "minimum": 0, "maximum": 1 },
+          "pulsate": { "type": "boolean" },
+          "flicker": { "type": "boolean" },
+          "hide_on_death": { "type": "boolean" }
+        }
+      }
+    },
     "hud": {
       "type": "array",
       "items": {

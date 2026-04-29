@@ -301,6 +301,7 @@ std::string toString(EffectCueKind kind) {
     case EffectCueKind::CastStart: return "cast";
     case EffectCueKind::HitConfirm: return "hit";
     case EffectCueKind::CriticalHit: return "critical";
+    case EffectCueKind::BloodSplatter: return "blood";
     case EffectCueKind::GuardClash: return "guard";
     case EffectCueKind::MissSweep: return "miss";
     case EffectCueKind::HealPulse: return "heal";
@@ -316,6 +317,7 @@ EffectCueKind effectCueKindFromString(const std::string& value) {
     if (value == "cast" || value == "cast_start") return EffectCueKind::CastStart;
     if (value == "hit" || value == "hit_confirm") return EffectCueKind::HitConfirm;
     if (value == "critical" || value == "critical_hit") return EffectCueKind::CriticalHit;
+    if (value == "blood" || value == "blood_splatter") return EffectCueKind::BloodSplatter;
     if (value == "guard" || value == "guard_clash") return EffectCueKind::GuardClash;
     if (value == "miss" || value == "miss_sweep") return EffectCueKind::MissSweep;
     if (value == "heal" || value == "heal_pulse") return EffectCueKind::HealPulse;

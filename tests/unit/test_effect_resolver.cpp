@@ -234,3 +234,20 @@ TEST_CASE("EffectResolver routes GuardClash as single world impact", "[presentat
     REQUIRE(resolved.size() == 1);
     CHECK(resolved[0].placement == EffectPlacement::World);
 }
+
+TEST_CASE("EffectResolver routes BloodSplatter as native battle impact feedback",
+          "[presentation][effects][resolver][native-plugin-absorption]") {
+    EffectCue cue;
+    cue.kind = EffectCueKind::BloodSplatter;
+    cue.sourceId = 1;
+    cue.ownerId = 2;
+    cue.overlayEmphasis.value = 0.2f;
+
+    EffectResolver resolver;
+    const auto resolved = resolver.resolve(cue, CapabilityTier::Tier1_Standard);
+
+    REQUIRE(resolved.size() == 1);
+    CHECK(resolved[0].placement == EffectPlacement::World);
+    CHECK(resolved[0].ownerId == 2);
+    CHECK(resolved[0].overlayEmphasis.value >= 0.45f);
+}

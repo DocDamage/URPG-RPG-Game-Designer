@@ -41,6 +41,7 @@
               "cast",
               "hit",
               "critical",
+              "blood",
               "guard",
               "miss",
               "heal",
