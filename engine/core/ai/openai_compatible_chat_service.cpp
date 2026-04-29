@@ -6,6 +6,7 @@
 #include <filesystem>
 #include <fstream>
 #include <sstream>
+#include <string_view>
 #include <utility>
 
 namespace {
@@ -72,6 +73,22 @@ std::string firstTextFromContentArray(const nlohmann::json& content) {
     return combined;
 }
 
+std::string streamedDeltaText(const nlohmann::json& response) {
+    if (!response.is_object() || !response.contains("choices") || !response["choices"].is_array() ||
+        response["choices"].empty()) {
+        return "";
+    }
+    const auto& choice = response["choices"][0];
+    if (!choice.is_object() || !choice.contains("delta") || !choice["delta"].is_object()) {
+        return "";
+    }
+    const auto& delta = choice["delta"];
+    if (delta.contains("content") && delta["content"].is_string()) {
+        return delta["content"].get<std::string>();
+    }
+    return firstTextFromContentArray(delta.value("content", nlohmann::json::array()));
+}
+
 } // namespace
 
 namespace urpg::ai {
@@ -90,6 +107,7 @@ nlohmann::json OpenAiCompatibleChatTransportResult::toJson() const {
     return {
         {"attempted", attempted},
         {"success", success},
+        {"streaming_requested", streaming_requested},
         {"exit_code", exit_code},
         {"command", command},
         {"request_path", request_path},
@@ -101,13 +119,13 @@ nlohmann::json OpenAiCompatibleChatTransportResult::toJson() const {
 
 std::vector<OpenAiCompatibleProviderProfile> openAiCompatibleProviderProfiles() {
     return {
-        {"chatgpt", "ChatGPT / OpenAI", "https://api.openai.com/v1/chat/completions", "gpt-4o-mini", false, true, false},
-        {"openrouter", "OpenRouter", "https://openrouter.ai/api/v1/chat/completions", "openai/gpt-4o-mini", false, true, false},
-        {"kimi", "Kimi / Moonshot", "https://api.moonshot.ai/v1/chat/completions", "moonshot-v1-8k", false, true, false},
-        {"ollama", "Ollama", "http://127.0.0.1:11434/v1/chat/completions", "llama3.1", true, false, false},
-        {"lm_studio", "LM Studio", "http://127.0.0.1:1234/v1/chat/completions", "local-model", true, false, false},
-        {"vllm", "vLLM", "http://127.0.0.1:8000/v1/chat/completions", "local-model", true, false, false},
-        {"localai", "LocalAI", "http://127.0.0.1:8080/v1/chat/completions", "local-model", true, false, false},
+        {"chatgpt", "ChatGPT / OpenAI", "https://api.openai.com/v1/chat/completions", "gpt-4o-mini", false, true, true},
+        {"openrouter", "OpenRouter", "https://openrouter.ai/api/v1/chat/completions", "openai/gpt-4o-mini", false, true, true},
+        {"kimi", "Kimi / Moonshot", "https://api.moonshot.ai/v1/chat/completions", "moonshot-v1-8k", false, true, true},
+        {"ollama", "Ollama", "http://127.0.0.1:11434/v1/chat/completions", "llama3.1", true, false, true},
+        {"lm_studio", "LM Studio", "http://127.0.0.1:1234/v1/chat/completions", "local-model", true, false, true},
+        {"vllm", "vLLM", "http://127.0.0.1:8000/v1/chat/completions", "local-model", true, false, true},
+        {"localai", "LocalAI", "http://127.0.0.1:8080/v1/chat/completions", "local-model", true, false, true},
     };
 }
 
@@ -135,11 +153,15 @@ nlohmann::json buildOpenAiCompatibleChatRequest(const std::vector<ChatMessage>& 
     for (const auto& item : history) {
         messages.push_back({{"role", item.role.empty() ? "user" : item.role}, {"content", item.content}});
     }
-    return {
+    nlohmann::json request = {
         {"model", config.model.empty() ? "local-model" : config.model},
         {"temperature", config.temperature},
         {"messages", messages},
     };
+    if (config.stream) {
+        request["stream"] = true;
+    }
+    return request;
 }
 
 std::string buildOpenAiCompatibleChatCurlCommand(const OpenAiCompatibleChatConfig& config) {
@@ -149,6 +171,9 @@ std::string buildOpenAiCompatibleChatCurlCommand(const OpenAiCompatibleChatConfi
             << " --max-time " << std::max(1, config.timeout_seconds)
             << " -X POST"
             << " -H " << quoteCommandArg("Content-Type: application/json");
+    if (config.stream) {
+        command << " --no-buffer";
+    }
     if (!config.api_key.empty()) {
         command << " -H " << quoteCommandArg("Authorization: Bearer " + config.api_key);
     }
@@ -202,9 +227,44 @@ std::pair<std::string, std::string> parseOpenAiCompatibleChatResponse(const nloh
     return {"", ""};
 }
 
+std::pair<std::string, std::string> parseOpenAiCompatibleChatStreamResponse(std::string_view responseText) {
+    std::istringstream input{std::string(responseText)};
+    std::string line;
+    std::string combined;
+    while (std::getline(input, line)) {
+        line = trim(std::move(line));
+        if (line.empty()) {
+            continue;
+        }
+        constexpr std::string_view prefix = "data:";
+        if (line.rfind(prefix, 0) == 0) {
+            line = trim(line.substr(prefix.size()));
+        }
+        if (line == "[DONE]") {
+            break;
+        }
+        try {
+            const auto chunk = nlohmann::json::parse(line);
+            const auto delta = streamedDeltaText(chunk);
+            if (!delta.empty()) {
+                combined += delta;
+                continue;
+            }
+            const auto parsed = parseOpenAiCompatibleChatResponse(chunk);
+            if (!parsed.first.empty()) {
+                combined += parsed.first;
+            }
+        } catch (const nlohmann::json::exception&) {
+            continue;
+        }
+    }
+    return splitCommand(combined);
+}
+
 OpenAiCompatibleChatTransportResult invokeOpenAiCompatibleChat(const std::vector<ChatMessage>& history,
                                                                const OpenAiCompatibleChatConfig& config) {
     OpenAiCompatibleChatTransportResult result;
+    result.streaming_requested = config.stream;
     result.request_path = config.request_path.empty() ? "chat_request.json" : config.request_path;
     result.response_path = config.response_path.empty() ? "chat_response.json" : config.response_path;
     result.request_body = buildOpenAiCompatibleChatRequest(history, config);
@@ -253,6 +313,43 @@ void OpenAiCompatibleChatService::requestResponse(const std::vector<ChatMessage>
     }
     const auto parsed = parseOpenAiCompatibleChatResponse(response);
     callback(parsed.first.empty() ? "provider_response_empty" : parsed.first, parsed.second);
+}
+
+void OpenAiCompatibleChatService::requestStream(const std::vector<ChatMessage>& history, StreamCallback onChunk,
+                                                ChatCallback onComplete) {
+    auto streamConfig = config_;
+    streamConfig.stream = true;
+    last_result_ = invokeOpenAiCompatibleChat(history, streamConfig);
+    if (!last_result_.success) {
+        onComplete(last_result_.message, "");
+        return;
+    }
+
+    std::ifstream responseFile(last_result_.response_path);
+    if (!responseFile.is_open()) {
+        onComplete("provider_response_open_failed", "");
+        return;
+    }
+    std::ostringstream buffer;
+    buffer << responseFile.rdbuf();
+    const auto responseText = buffer.str();
+
+    try {
+        const auto response = nlohmann::json::parse(responseText);
+        const auto parsed = parseOpenAiCompatibleChatResponse(response);
+        if (!parsed.first.empty()) {
+            onChunk(parsed.first);
+        }
+        onComplete(parsed.first.empty() ? "provider_response_empty" : parsed.first, parsed.second);
+        return;
+    } catch (const nlohmann::json::exception&) {
+    }
+
+    const auto parsed = parseOpenAiCompatibleChatStreamResponse(responseText);
+    if (!parsed.first.empty()) {
+        onChunk(parsed.first);
+    }
+    onComplete(parsed.first.empty() ? "provider_response_empty" : parsed.first, parsed.second);
 }
 
 } // namespace urpg::ai

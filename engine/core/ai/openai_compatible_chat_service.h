@@ -5,12 +5,14 @@
 #include <nlohmann/json.hpp>
 
 #include <string>
+#include <string_view>
 #include <vector>
 
 namespace urpg::ai {
 
 struct OpenAiCompatibleChatConfig {
     bool execute = false;
+    bool stream = false;
     std::string endpoint = "http://127.0.0.1:11434/v1/chat/completions";
     std::string model = "local-model";
     std::string api_key;
@@ -35,6 +37,7 @@ struct OpenAiCompatibleProviderProfile {
 struct OpenAiCompatibleChatTransportResult {
     bool attempted = false;
     bool success = false;
+    bool streaming_requested = false;
     int exit_code = -1;
     std::string command;
     std::string request_path;
@@ -52,6 +55,7 @@ nlohmann::json buildOpenAiCompatibleChatRequest(const std::vector<ChatMessage>& 
                                                 const OpenAiCompatibleChatConfig& config);
 std::string buildOpenAiCompatibleChatCurlCommand(const OpenAiCompatibleChatConfig& config);
 std::pair<std::string, std::string> parseOpenAiCompatibleChatResponse(const nlohmann::json& response);
+std::pair<std::string, std::string> parseOpenAiCompatibleChatStreamResponse(std::string_view responseText);
 OpenAiCompatibleChatTransportResult invokeOpenAiCompatibleChat(const std::vector<ChatMessage>& history,
                                                                const OpenAiCompatibleChatConfig& config);
 
@@ -60,6 +64,8 @@ public:
     explicit OpenAiCompatibleChatService(OpenAiCompatibleChatConfig config);
 
     void requestResponse(const std::vector<ChatMessage>& history, ChatCallback callback) override;
+    void requestStream(const std::vector<ChatMessage>& history, StreamCallback onChunk,
+                       ChatCallback onComplete) override;
     const OpenAiCompatibleChatTransportResult& lastTransportResult() const { return last_result_; }
 
 private:

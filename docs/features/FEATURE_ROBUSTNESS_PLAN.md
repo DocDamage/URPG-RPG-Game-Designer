@@ -13,7 +13,7 @@ URPG has enough native subsystems now that the next work should deepen existing 
 5. AI editor workflow: approve/reject/apply/revert controls, validation blocking reasons, apply-preview patch counts, result diff patch counts, undo-stack/apply-history snapshots, structured diff rows, and per-step rationale rows are started in native code; richer painted diff rendering remains.
 6. Project knowledge indexing: project files, schemas, readiness reports, validation reports, asset catalogs, project docs, template specs, source summaries, directly ingested filesystem/doc records, and freshness metadata are started in native project-data indexing; broader automatic filesystem walking remains.
 7. Concrete AI tools: AI applies now emit concrete editor preview artifacts for event graphs, battle VFX timelines, lighting/weather previews, ability sandbox compositions, export preview configuration, and asset import/promotion; `run_validation` now executes deterministic validator rows over those preview artifacts, while broader subsystem validator invocation remains.
-8. Live chat providers: OpenAI-compatible `IChatService` transport is started with deterministic dry-run request/command building, curl execution, common response import, and provider profile UI state for ChatGPT-compatible gateways, Kimi-compatible gateways, Ollama, LM Studio, OpenRouter, vLLM, and LocalAI; streaming remains.
+8. Live chat providers: OpenAI-compatible `IChatService` transport is started with deterministic dry-run request/command building, curl execution, common response import, provider profile UI state, streaming request toggles, curl `--no-buffer`, and SSE response import for ChatGPT-compatible gateways, Kimi-compatible gateways, Ollama, LM Studio, OpenRouter, vLLM, and LocalAI; true socket-level live chunk delivery remains.
 9. Export/release UX: export preview now exposes platform checklist rows, missing asset/artifact report, packaging diagnostics, signing/notarization status, and staged smoke evidence in the result and editor panel snapshot; full native signing/notarization and launched multi-platform smoke remain.
 
 ## Implementation Rule
@@ -46,7 +46,7 @@ Asset preview metadata is now shared through `buildAssetPreviewRows()`. Promotio
 
 ## Live Provider UI
 
-OpenAI-compatible provider profiles now expose editor-ready UI state for ChatGPT/OpenAI, OpenRouter, Kimi/Moonshot, Ollama, LM Studio, vLLM, and LocalAI. `AiAssistantPanel` surfaces selectable profile rows, resolved endpoint/model, API-key requirements, local/hosted provider status, dry-run versus live execution state, test-request controls, and a truthful `not_yet_wired` streaming state.
+OpenAI-compatible provider profiles now expose editor-ready UI state for ChatGPT/OpenAI, OpenRouter, Kimi/Moonshot, Ollama, LM Studio, vLLM, and LocalAI. `AiAssistantPanel` surfaces selectable profile rows, resolved endpoint/model, API-key requirements, local/hosted provider status, dry-run versus live execution state, test-request controls, a stream toggle, and `available` versus `streaming_requested` state. `OpenAiCompatibleChatService::requestStream()` now sends OpenAI-compatible `stream: true` request bodies, adds curl `--no-buffer`, and imports saved SSE `data:` chunks into the same response/command callback shape used by normal chat responses.
 
 ## Progression Save Records
 

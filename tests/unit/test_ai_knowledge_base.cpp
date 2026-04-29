@@ -411,6 +411,7 @@ TEST_CASE("AI assistant panel exposes knowledge and task plan snapshots",
     panel.setConfig(config, true);
     urpg::ai::OpenAiCompatibleChatConfig providerConfig;
     providerConfig.execute = false;
+    providerConfig.stream = true;
     providerConfig.temperature = 0.4f;
     panel.setOpenAiProviderConfig(providerConfig, "ollama");
     panel.setProjectData({{"project_id", "p1"}, {"maps", {{"town", {{"width", 20}, {"height", 20}}}}}});
@@ -423,7 +424,9 @@ TEST_CASE("AI assistant panel exposes knowledge and task plan snapshots",
     REQUIRE(snapshot["provider_ui"]["selected_provider_id"] == "ollama");
     REQUIRE(snapshot["provider_ui"]["connection_state"] == "dry_run");
     REQUIRE(snapshot["provider_ui"]["api_key_required"] == false);
-    REQUIRE(snapshot["provider_ui"]["streaming_state"] == "not_yet_wired");
+    REQUIRE(snapshot["provider_ui"]["streaming_state"] == "streaming_requested");
+    REQUIRE(snapshot["provider_ui"]["stream_toggle"]["enabled"] == true);
+    REQUIRE(snapshot["provider_ui"]["stream_toggle"]["checked"] == true);
     REQUIRE(snapshot["provider_ui"]["profiles"].size() >= 7);
     REQUIRE(snapshot["provider_ui"]["test_request_button"]["enabled"] == true);
     REQUIRE(snapshot["knowledge"]["capability_count"].get<size_t>() >= 10);

@@ -368,6 +368,9 @@ nlohmann::json AiAssistantPanel::buildProviderUiSnapshot() const {
         });
     }
     const bool apiKeyMissing = selected.api_key_required && selectedConfig.api_key.empty();
+    const bool streamEnabled = selected.streaming_supported && selectedConfig.stream;
+    const std::string streamingState =
+        streamEnabled ? "streaming_requested" : (selected.streaming_supported ? "available" : "not_supported");
     return {
         {"selected_provider_id", selected.id},
         {"selected_label", selected.label},
@@ -383,8 +386,17 @@ nlohmann::json AiAssistantPanel::buildProviderUiSnapshot() const {
         {"api_key_configured", !selectedConfig.api_key.empty()},
         {"local_provider", selected.local_provider},
         {"streaming_supported", selected.streaming_supported},
-        {"streaming_state", selected.streaming_supported ? "available" : "not_yet_wired"},
+        {"streaming_requested", streamEnabled},
+        {"streaming_state", streamingState},
         {"connection_state", !selectedConfig.execute ? "dry_run" : (apiKeyMissing ? "blocked_missing_api_key" : "ready_to_execute")},
+        {"stream_toggle",
+         {
+             {"visible", true},
+             {"enabled", selected.streaming_supported},
+             {"checked", streamEnabled},
+             {"action", "toggle_provider_streaming"},
+             {"disabled_reason", selected.streaming_supported ? nlohmann::json(nullptr) : "provider_streaming_not_supported"},
+         }},
         {"dry_run_button",
          {
              {"visible", true},

@@ -18,6 +18,7 @@ TEST_CASE("OpenAI-compatible chat service builds request and curl command",
 
     const auto request = urpg::ai::buildOpenAiCompatibleChatRequest(history, config);
     REQUIRE(request["model"] == "local-test");
+    REQUIRE_FALSE(request.contains("stream"));
     REQUIRE(request["messages"].size() == 2);
     REQUIRE(request["messages"][1]["role"] == "user");
     REQUIRE(request["messages"][1]["content"] == "Plan a house.");
@@ -29,6 +30,19 @@ TEST_CASE("OpenAI-compatible chat service builds request and curl command",
     REQUIRE(command.find("tmp/chat-response.json") != std::string::npos);
 }
 
+TEST_CASE("OpenAI-compatible chat service builds streaming requests",
+          "[ai][chat][provider]") {
+    urpg::ai::OpenAiCompatibleChatConfig config;
+    config.stream = true;
+    config.model = "stream-test";
+
+    const auto request = urpg::ai::buildOpenAiCompatibleChatRequest({{"user", "stream please"}}, config);
+    REQUIRE(request["stream"] == true);
+
+    const auto command = urpg::ai::buildOpenAiCompatibleChatCurlCommand(config);
+    REQUIRE(command.find("--no-buffer") != std::string::npos);
+}
+
 TEST_CASE("OpenAI-compatible provider profiles cover local and hosted gateways",
           "[ai][chat][provider][ui]") {
     const auto profiles = urpg::ai::openAiCompatibleProviderProfiles();
@@ -37,7 +51,7 @@ TEST_CASE("OpenAI-compatible provider profiles cover local and hosted gateways",
         return profile.id == "chatgpt" && profile.api_key_required && !profile.local_provider;
     }));
     REQUIRE(std::any_of(profiles.begin(), profiles.end(), [](const auto& profile) {
-        return profile.id == "ollama" && !profile.api_key_required && profile.local_provider;
+        return profile.id == "ollama" && !profile.api_key_required && profile.local_provider && profile.streaming_supported;
     }));
     REQUIRE(std::any_of(profiles.begin(), profiles.end(), [](const auto& profile) {
         return profile.id == "openrouter" && profile.endpoint.find("openrouter") != std::string::npos;
@@ -50,6 +64,18 @@ TEST_CASE("OpenAI-compatible provider profiles cover local and hosted gateways",
     REQUIRE(applied.endpoint == "http://127.0.0.1:11434/v1/chat/completions");
     REQUIRE(applied.model == "llama3.1");
     REQUIRE(applied.api_key.empty());
+}
+
+TEST_CASE("OpenAI-compatible chat parser combines streamed SSE chunks",
+          "[ai][chat][provider]") {
+    const std::string stream =
+        "data: {\"choices\":[{\"delta\":{\"content\":\"Hel\"}}]}\n\n"
+        "data: {\"choices\":[{\"delta\":{\"content\":\"lo\\nCOMMAND:AI_TASK:open export preview\"}}]}\n\n"
+        "data: [DONE]\n\n";
+
+    const auto parsed = urpg::ai::parseOpenAiCompatibleChatStreamResponse(stream);
+    REQUIRE(parsed.first == "Hello");
+    REQUIRE(parsed.second == "AI_TASK:open export preview");
 }
 
 TEST_CASE("OpenAI-compatible chat parser supports common response shapes",

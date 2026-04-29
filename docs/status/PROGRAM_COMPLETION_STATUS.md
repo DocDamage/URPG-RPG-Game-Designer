@@ -36,8 +36,8 @@ Current app-level release readiness source of truth: [`docs/APP_RELEASE_READINES
 - AI project knowledge indexing now also accepts direct filesystem/doc ingestion records with content excerpts, direct-ingestion metadata, and deterministic fresh/stale flags from modified/indexed timestamps or age thresholds.
 - AI tools now emit concrete editor preview artifacts for event graph authoring, battle VFX timelines, lighting/weather previews, ability sandbox compositions, export preview configuration, and asset import/promotion review instead of only broad project records.
 - AI concrete tool validation now makes `run_validation` execute deterministic validator rows over generated preview artifacts, emitting `last_ai_validation`, `ai_validation_reports`, and a `validation_execution` preview artifact with issue counts, severity status, validator names, and structured issues.
-- `IChatService` now has a bounded OpenAI-compatible in-tree transport with dry-run request/command building, curl execution, and response parsing for ChatGPT-compatible gateways, Kimi-compatible gateways, Ollama, LM Studio, OpenRouter, vLLM, and LocalAI-style `/v1/chat/completions` providers.
-- Live provider UI robustness now exposes OpenAI-compatible provider profile rows in `AiAssistantPanel`, including selected endpoint/model, API-key requirements, local/hosted state, dry-run/live execution controls, test-request enablement, and truthful streaming availability state.
+- `IChatService` now has a bounded OpenAI-compatible in-tree transport with dry-run request/command building, curl execution, response parsing, streaming request bodies, curl `--no-buffer`, and SSE response import for ChatGPT-compatible gateways, Kimi-compatible gateways, Ollama, LM Studio, OpenRouter, vLLM, and LocalAI-style `/v1/chat/completions` providers.
+- Live provider UI robustness now exposes OpenAI-compatible provider profile rows in `AiAssistantPanel`, including selected endpoint/model, API-key requirements, local/hosted state, dry-run/live execution controls, stream toggle state, test-request enablement, and truthful streaming availability/requested state.
 - Export/release UX now projects platform checklist rows, missing asset/artifact report data, packaging diagnostics, signing/notarization status, and staged smoke evidence through the export preview result and editor panel snapshot while keeping full native signing/notarization as backlog.
 - Chatbot/WYSIWYG coverage now indexes every release top-level editor panel into chatbot knowledge and adds a native coverage report proving app capabilities have WYSIWYG surfaces, chatbot tools, and asset-library panel/tool coverage.
 - Chatbot/WYSIWYG coverage is now visible in both `AiAssistantPanel` and `ChatbotComponent` snapshots, including injected asset-library action readiness for promoted/previewable/runtime-ready/archive state.
@@ -900,7 +900,7 @@ Phase 2 runtime closure is already complete. The remaining compat work below is 
 - [x] AI Copilot Native Infrastructure (Wave 2 Advanced):
   - [x] Knowledge Bridges (World, Battle, Audio, Animation, Debug).
   - [x] `ChatbotComponent` with Streaming and Tool-Calling support.
-  - [x] `IChatService` abstraction plus deterministic `MockChatService` and bounded OpenAI-compatible chat transport; broader non-compatible live provider integrations remain out-of-tree.
+  - [x] `IChatService` abstraction plus deterministic `MockChatService` and bounded OpenAI-compatible chat transport with stream request/SSE import support; broader non-compatible live provider integrations remain out-of-tree.
   - [x] NPC Personality Registry and prompt templating.
   - [x] `ChatWindow` UI with word-wrap, streaming logic, and bounded renderer-backed mixed textured-plus-text golden coverage.
   - [x] Unit/Regex test coverage for AI orchestration logic.
