@@ -108,6 +108,17 @@ TEST_CASE("AssetLibraryModel loads optional local promotion catalog", "[assets][
         out << R"({
           "source_id": "SRC-007",
           "source_root": "imports/raw/urpg_stuff",
+          "promotion_status": "cataloged_local",
+          "export_eligible": false,
+          "summary": {
+            "asset_count": 1,
+            "canonical_asset_count": 1,
+            "duplicate_group_count": 0,
+            "duplicate_asset_count": 0,
+            "unsupported_count": 0,
+            "category_counts": {"characters": 1},
+            "kind_counts": {"image": 1}
+          },
           "shards": [
             {
               "category": "characters",
@@ -145,6 +156,13 @@ TEST_CASE("AssetLibraryModel loads optional local promotion catalog", "[assets][
     REQUIRE(model.loadReportsFromDirectory(root, &error));
     REQUIRE(error.empty());
     REQUIRE(model.snapshot().asset_count == 1);
+    REQUIRE(model.snapshot().catalog_asset_count == 1);
+    REQUIRE(model.snapshot().canonical_asset_count == 1);
+    REQUIRE(model.snapshot().catalog_shard_count == 1);
+    REQUIRE(model.snapshot().promotion_status == "cataloged_local");
+    REQUIRE_FALSE(model.snapshot().export_eligible);
+    REQUIRE(model.snapshot().category_counts.at("characters") == 1);
+    REQUIRE(model.snapshot().kind_counts.at("image") == 1);
     const auto asset = model.library().findAsset("imports/raw/urpg_stuff/side scroller stuff/Hero/Idle.png");
     REQUIRE(asset.has_value());
     REQUIRE(asset->preview_kind == "image");

@@ -93,6 +93,43 @@ TEST_CASE("AssetLibrary ingests local promotion catalog records", "[assets][asse
     REQUIRE(duplicate->statuses.contains(urpg::assets::AssetStatus::Duplicate));
 }
 
+TEST_CASE("AssetLibrary ingests promotion catalog summary", "[assets][asset_library][asset_intake]") {
+    urpg::assets::AssetLibrary library;
+    library.ingestPromotionCatalog(nlohmann::json{
+        {"source_id", "SRC-007"},
+        {"source_root", "imports/raw/urpg_stuff"},
+        {"promotion_status", "cataloged_local"},
+        {"export_eligible", false},
+        {"summary",
+         {
+             {"asset_count", 55192},
+             {"canonical_asset_count", 53126},
+             {"duplicate_group_count", 2066},
+             {"duplicate_asset_count", 2066},
+             {"unsupported_count", 0},
+             {"category_counts", {{"audio/ui", 240}, {"characters", 1438}}},
+             {"kind_counts", {{"audio", 1303}, {"image", 53881}}},
+         }},
+        {"shards",
+         {
+             {{"category", "audio/ui"}, {"path", "imports/reports/asset_intake/urpg_stuff_promotion_catalog/audio-ui.json"}},
+             {{"category", "characters"}, {"path", "imports/reports/asset_intake/urpg_stuff_promotion_catalog/characters.json"}},
+         }},
+    });
+
+    const auto& snapshot = library.snapshot();
+    REQUIRE(snapshot.catalog_asset_count == 55192);
+    REQUIRE(snapshot.canonical_asset_count == 53126);
+    REQUIRE(snapshot.duplicate_group_count == 2066);
+    REQUIRE(snapshot.duplicate_asset_count == 2066);
+    REQUIRE(snapshot.unsupported_count == 0);
+    REQUIRE(snapshot.catalog_shard_count == 2);
+    REQUIRE_FALSE(snapshot.export_eligible);
+    REQUIRE(snapshot.promotion_status == "cataloged_local");
+    REQUIRE(snapshot.category_counts.at("audio/ui") == 240);
+    REQUIRE(snapshot.kind_counts.at("image") == 53881);
+}
+
 TEST_CASE("AssetLibrary detects case collisions and unsupported paths", "[assets][asset_library]") {
     urpg::assets::AssetLibrary library;
     library.markUnsupportedFormat("Assets/Hero.PNG");

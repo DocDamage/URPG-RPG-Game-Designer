@@ -6,6 +6,7 @@
 #include <nlohmann/json.hpp>
 
 #include <filesystem>
+#include <map>
 #include <string>
 
 namespace urpg::editor {
@@ -13,11 +14,20 @@ namespace urpg::editor {
 struct AssetLibraryModelSnapshot {
     std::string status = "empty";
     size_t asset_count = 0;
+    size_t catalog_asset_count = 0;
+    size_t canonical_asset_count = 0;
     size_t issue_count = 0;
     size_t duplicate_group_count = 0;
+    size_t duplicate_asset_count = 0;
+    size_t unsupported_count = 0;
+    size_t catalog_shard_count = 0;
     size_t cleanup_allowed_count = 0;
     size_t cleanup_refused_count = 0;
+    bool export_eligible = false;
     bool reports_loaded = false;
+    std::string promotion_status;
+    std::map<std::string, size_t> category_counts;
+    std::map<std::string, size_t> kind_counts;
     std::string status_message = "No asset library reports are loaded.";
     std::string error_message;
     std::string remediation = "Run tools/assets/asset_hygiene.py --write-reports to generate asset library reports.";

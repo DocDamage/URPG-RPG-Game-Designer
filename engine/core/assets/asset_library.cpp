@@ -63,6 +63,25 @@ uint64_t readUint64(const nlohmann::json& value, const char* key) {
     return 0;
 }
 
+std::map<std::string, size_t> readCountMap(const nlohmann::json& value, const char* key) {
+    std::map<std::string, size_t> out;
+    const auto it = value.find(key);
+    if (it == value.end() || !it->is_object()) {
+        return out;
+    }
+    for (const auto& [name, count] : it->items()) {
+        if (count.is_number_unsigned()) {
+            out[name] = count.get<size_t>();
+        } else if (count.is_number_integer()) {
+            const auto signed_count = count.get<long long>();
+            if (signed_count >= 0) {
+                out[name] = static_cast<size_t>(signed_count);
+            }
+        }
+    }
+    return out;
+}
+
 bool statusLess(const AssetRecord& lhs, const AssetRecord& rhs) {
     return lhs.path < rhs.path;
 }
@@ -214,6 +233,28 @@ void AssetLibrary::ingestPromotionCatalog(const nlohmann::json& catalog) {
     if (!catalog.is_object()) {
         return;
     }
+    snapshot_.promotion_status = readString(catalog, "promotion_status").value_or(snapshot_.promotion_status);
+    snapshot_.export_eligible = catalog.value("export_eligible", snapshot_.export_eligible);
+
+    const auto summary = catalog.find("summary");
+    if (summary != catalog.end() && summary->is_object()) {
+        snapshot_.catalog_asset_count = readCount(*summary, "asset_count").value_or(snapshot_.catalog_asset_count);
+        snapshot_.canonical_asset_count = readCount(*summary, "canonical_asset_count").value_or(snapshot_.canonical_asset_count);
+        snapshot_.duplicate_group_count =
+            readCount(*summary, "duplicate_group_count").value_or(snapshot_.duplicate_group_count);
+        snapshot_.duplicate_asset_count = readCount(*summary, "duplicate_asset_count").value_or(snapshot_.duplicate_asset_count);
+        snapshot_.unsupported_count = readCount(*summary, "unsupported_count").value_or(snapshot_.unsupported_count);
+        snapshot_.category_counts = readCountMap(*summary, "category_counts");
+        snapshot_.kind_counts = readCountMap(*summary, "kind_counts");
+        snapshot_.promotion_status = readString(*summary, "promotion_status").value_or(snapshot_.promotion_status);
+        snapshot_.export_eligible = summary->value("export_eligible", snapshot_.export_eligible);
+    }
+
+    const auto shards = catalog.find("shards");
+    if (shards != catalog.end() && shards->is_array()) {
+        snapshot_.catalog_shard_count = shards->size();
+    }
+
     const auto assets = catalog.find("assets");
     if (assets == catalog.end() || !assets->is_array()) {
         return;

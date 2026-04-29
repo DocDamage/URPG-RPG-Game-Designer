@@ -148,10 +148,23 @@ void AssetLibraryModel::clear() {
 void AssetLibraryModel::refreshSnapshot() {
     const auto& asset_snapshot = library_.snapshot();
     snapshot_.asset_count = asset_snapshot.assets.size();
+    snapshot_.catalog_asset_count = asset_snapshot.catalog_asset_count;
+    snapshot_.canonical_asset_count = asset_snapshot.canonical_asset_count;
     snapshot_.duplicate_group_count = asset_snapshot.duplicate_groups.size();
+    if (snapshot_.duplicate_group_count == 0) {
+        snapshot_.duplicate_group_count = asset_snapshot.duplicate_group_count;
+    }
+    snapshot_.duplicate_asset_count = asset_snapshot.duplicate_asset_count;
+    snapshot_.unsupported_count = asset_snapshot.unsupported_count;
+    snapshot_.catalog_shard_count = asset_snapshot.catalog_shard_count;
     snapshot_.cleanup_allowed_count = cleanup_plan_.allowed_count;
     snapshot_.cleanup_refused_count = cleanup_plan_.refused_count;
+    snapshot_.export_eligible = asset_snapshot.export_eligible;
+    snapshot_.promotion_status = asset_snapshot.promotion_status;
+    snapshot_.category_counts = asset_snapshot.category_counts;
+    snapshot_.kind_counts = asset_snapshot.kind_counts;
     snapshot_.reports_loaded = asset_snapshot.assets.size() > 0 || asset_snapshot.duplicate_groups.size() > 0 ||
+                               asset_snapshot.catalog_asset_count > 0 || asset_snapshot.catalog_shard_count > 0 ||
                                cleanup_plan_.allowed_count > 0 || cleanup_plan_.refused_count > 0;
     snapshot_.status = snapshot_.reports_loaded ? "ready" : "empty";
     snapshot_.status_message = snapshot_.reports_loaded ? "" : "No asset library reports are loaded.";

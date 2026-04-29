@@ -5,6 +5,7 @@
 #include <nlohmann/json.hpp>
 
 #include <cstdint>
+#include <map>
 #include <optional>
 #include <set>
 #include <string>
@@ -56,10 +57,19 @@ struct AssetDuplicateGroup {
 
 struct AssetLibrarySnapshot {
     size_t file_count = 0;
+    size_t catalog_asset_count = 0;
+    size_t canonical_asset_count = 0;
     size_t duplicate_group_count = 0;
+    size_t duplicate_asset_count = 0;
     size_t oversize_count = 0;
+    size_t unsupported_count = 0;
     size_t missing_license_count = 0;
     size_t case_collision_count = 0;
+    size_t catalog_shard_count = 0;
+    bool export_eligible = false;
+    std::string promotion_status;
+    std::map<std::string, size_t> category_counts;
+    std::map<std::string, size_t> kind_counts;
     std::vector<AssetRecord> assets;
     std::vector<AssetDuplicateGroup> duplicate_groups;
 };
