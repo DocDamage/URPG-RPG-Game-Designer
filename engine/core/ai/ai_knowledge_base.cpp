@@ -164,6 +164,125 @@ nlohmann::json makeAiToolPreview(const std::string& kind,
     };
 }
 
+nlohmann::json makeValidationIssue(const std::string& code,
+                                   const std::string& severity,
+                                   const std::string& message,
+                                   const std::string& target) {
+    return {{"code", code}, {"severity", severity}, {"message", message}, {"target", target}};
+}
+
+nlohmann::json validateAiToolPreviewArtifact(const nlohmann::json& preview) {
+    const auto kind = jsonString(preview, "kind");
+    const auto id = jsonString(preview, "id");
+    const auto toolId = jsonString(preview, "tool_id");
+    const auto payload = preview.is_object() && preview.contains("payload") && preview["payload"].is_object()
+                             ? preview["payload"]
+                             : nlohmann::json::object();
+    nlohmann::json issues = nlohmann::json::array();
+    std::string validator = "ai_preview_validator";
+
+    if (kind == "event_graph_authoring") {
+        validator = "event_graph_validator";
+        if (payload.value("node_count", 0) <= 0) {
+            issues.push_back(makeValidationIssue("event_graph_empty", "error",
+                                                 "Event graph preview has no command nodes.", id));
+        }
+        if (jsonString(payload, "event_id").empty() || jsonString(payload, "map_id").empty()) {
+            issues.push_back(makeValidationIssue("event_graph_missing_identity", "error",
+                                                 "Event graph preview needs event and map identity.", id));
+        }
+    } else if (kind == "ability_sandbox_composition") {
+        validator = "ability_sandbox_validator";
+        if (payload.value("cost", 0) < 0 || payload.value("cooldown", 0) < 0) {
+            issues.push_back(makeValidationIssue("ability_negative_cost_or_cooldown", "error",
+                                                 "Ability sandbox preview cannot use negative cost or cooldown.", id));
+        }
+        if (!payload.contains("effects") || !payload["effects"].is_array() || payload["effects"].empty()) {
+            issues.push_back(makeValidationIssue("ability_missing_effects", "warning",
+                                                 "Ability sandbox preview has no authored effects.", id));
+        }
+    } else if (kind == "vfx_timeline_edit") {
+        validator = "battle_vfx_timeline_validator";
+        if (payload.value("keyframe_count", 0) <= 0) {
+            issues.push_back(makeValidationIssue("vfx_timeline_empty", "error",
+                                                 "Battle VFX timeline preview has no keyframes.", id));
+        }
+        if (!payload.contains("latest_keyframe") || !payload["latest_keyframe"].is_object() ||
+            jsonString(payload["latest_keyframe"], "effect").empty()) {
+            issues.push_back(makeValidationIssue("vfx_keyframe_missing_effect", "warning",
+                                                 "Latest VFX keyframe is missing an effect id.", id));
+        }
+    } else if (kind == "lighting_weather_preview") {
+        validator = "map_environment_preview_validator";
+        if (jsonString(payload, "weather").empty() || jsonString(payload, "lighting_profile").empty()) {
+            issues.push_back(makeValidationIssue("environment_missing_weather_or_lighting", "error",
+                                                 "Lighting/weather preview needs both weather and lighting profile.", id));
+        }
+    } else if (kind == "asset_import_promotion") {
+        validator = "asset_import_promotion_validator";
+        if (jsonString(payload, "path").empty() || jsonString(payload, "path") == "project-configured") {
+            issues.push_back(makeValidationIssue("asset_import_path_needs_review", "warning",
+                                                 "Asset import preview needs a concrete project-local source path.", id));
+        }
+        if (jsonString(payload, "license").empty() || jsonString(payload, "license") == "review_required") {
+            issues.push_back(makeValidationIssue("asset_import_license_needs_review", "warning",
+                                                 "Asset import preview requires license review before promotion.", id));
+        }
+    } else if (kind == "export_preview_configuration") {
+        validator = "export_preview_validator";
+        if (jsonString(payload, "profile").empty()) {
+            issues.push_back(makeValidationIssue("export_preview_missing_profile", "error",
+                                                 "Export preview needs a profile id.", id));
+        }
+    }
+
+    bool hasError = false;
+    bool hasWarning = false;
+    for (const auto& issue : issues) {
+        hasError = hasError || issue.value("severity", "") == "error";
+        hasWarning = hasWarning || issue.value("severity", "") == "warning";
+    }
+    return {
+        {"kind", kind},
+        {"id", id},
+        {"tool_id", toolId},
+        {"validator", validator},
+        {"status", hasError ? "failed" : (hasWarning ? "warning" : "passed")},
+        {"issue_count", issues.size()},
+        {"issues", issues},
+    };
+}
+
+nlohmann::json buildAiValidationReport(const nlohmann::json& projectData,
+                                       const std::string& planId,
+                                       const std::string& scope) {
+    const auto previews = projectData.contains("ai_tool_previews") && projectData["ai_tool_previews"].is_array()
+                              ? projectData["ai_tool_previews"]
+                              : nlohmann::json::array();
+    nlohmann::json validators = nlohmann::json::array();
+    std::size_t issueCount = 0;
+    std::size_t failedCount = 0;
+    std::size_t warningCount = 0;
+    for (const auto& preview : previews) {
+        const auto row = validateAiToolPreviewArtifact(preview);
+        issueCount += row.value("issue_count", std::size_t{0});
+        failedCount += row.value("status", "") == "failed" ? 1U : 0U;
+        warningCount += row.value("status", "") == "warning" ? 1U : 0U;
+        validators.push_back(row);
+    }
+    return {
+        {"requested_by_plan", planId},
+        {"scope", scope},
+        {"status", failedCount > 0 ? "failed" : (warningCount > 0 ? "warning" : "passed")},
+        {"preview_artifact_count", previews.size()},
+        {"validator_count", validators.size()},
+        {"issue_count", issueCount},
+        {"failed_count", failedCount},
+        {"warning_count", warningCount},
+        {"validators", validators},
+    };
+}
+
 void appendStructuredKnowledgeRecords(urpg::ai::ProjectKnowledgeIndex& index,
                                       const nlohmann::json& root,
                                       const std::string& key,
@@ -865,7 +984,13 @@ AiToolApplyResult AiToolRegistry::applyApprovedPlan(const AiTaskPlan& plan, cons
             }
             templates.push_back(step.arguments);
         } else if (step.tool_id == "run_validation") {
-            result.project_data["last_ai_validation"] = {{"requested_by_plan", plan.id}, {"status", "queued"}};
+            const auto validationReport =
+                buildAiValidationReport(result.project_data, plan.id, step.arguments.value("scope", "project"));
+            result.project_data["last_ai_validation"] = validationReport;
+            ensureArray(result.project_data, "ai_validation_reports").push_back(validationReport);
+            ensureArray(result.project_data, "ai_tool_previews")
+                .push_back(makeAiToolPreview("validation_execution", validationReport.value("scope", "project"), step,
+                                             validationReport));
         } else if (step.tool_id == "run_export_preview") {
             result.project_data["last_ai_export_preview"] = {
                 {"requested_by_plan", plan.id},

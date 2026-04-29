@@ -281,7 +281,12 @@ TEST_CASE("AI tool registry applies approved map event dialogue ability and expo
     REQUIRE(result.project_data["events"].size() == 1);
     REQUIRE(result.project_data["dialogue"]["intro"]["lines"].size() == 1);
     REQUIRE(result.project_data["abilities"].size() == 1);
-    REQUIRE(result.project_data["last_ai_validation"]["status"] == "queued");
+    REQUIRE(result.project_data["last_ai_validation"]["status"] == "passed");
+    REQUIRE(result.project_data["last_ai_validation"]["scope"] == "project");
+    REQUIRE(result.project_data["last_ai_validation"]["validator_count"] == 2);
+    REQUIRE(result.project_data["last_ai_validation"]["validators"][0]["validator"] == "event_graph_validator");
+    REQUIRE(result.project_data["last_ai_validation"]["validators"][1]["validator"] == "ability_sandbox_validator");
+    REQUIRE(result.project_data["ai_validation_reports"].size() == 1);
     REQUIRE(result.project_data["last_ai_export_preview"]["status"] == "queued");
 }
 
@@ -347,6 +352,35 @@ TEST_CASE("AI tool registry emits concrete subsystem preview artifacts",
     REQUIRE(result.project_data["ai_tool_previews"][2]["kind"] == "export_preview_configuration");
     REQUIRE(result.project_data["last_ai_export_preview"]["profile"] == "windows_debug");
     REQUIRE(result.project_data["last_ai_export_preview"]["preview_surface"] == "export_preview_panel");
+}
+
+TEST_CASE("AI run_validation executes concrete preview validators",
+          "[ai_knowledge][ai_assistant][tools][validation]") {
+    const auto tools = urpg::ai::AiToolRegistry::buildDefault();
+    urpg::ai::AiTaskPlan plan;
+    plan.id = "validation_plan";
+    plan.user_request = "validate concrete previews";
+    plan.steps = {
+        {"event", "add_event", "Add incomplete event graph.", {{"event_id", "empty"}, {"map_id", "town"}, {"x", 1}, {"y", 1}, {"commands", nlohmann::json::array()}}, true},
+        {"asset", "import_asset_record", "Review asset import.", {{"asset_id", "hero"}, {"path", "project-configured"}, {"license", "review_required"}}, true},
+        {"validate", "run_validation", "Run validators.", {{"scope", "ai_tool_previews"}}, true},
+    };
+
+    REQUIRE(tools.validatePlan(plan).empty());
+    const auto result = tools.applyApprovedPlan(plan, {{"project_id", "p1"}});
+
+    REQUIRE(result.applied);
+    REQUIRE(result.project_data["last_ai_validation"]["status"] == "failed");
+    REQUIRE(result.project_data["last_ai_validation"]["scope"] == "ai_tool_previews");
+    REQUIRE(result.project_data["last_ai_validation"]["preview_artifact_count"] == 2);
+    REQUIRE(result.project_data["last_ai_validation"]["validator_count"] == 2);
+    REQUIRE(result.project_data["last_ai_validation"]["issue_count"].get<std::size_t>() >= 3);
+    REQUIRE(result.project_data["last_ai_validation"]["validators"][0]["status"] == "failed");
+    REQUIRE(result.project_data["last_ai_validation"]["validators"][0]["issues"][0]["code"] == "event_graph_empty");
+    REQUIRE(result.project_data["last_ai_validation"]["validators"][1]["validator"] == "asset_import_promotion_validator");
+    REQUIRE(result.project_data["last_ai_validation"]["validators"][1]["status"] == "warning");
+    REQUIRE(result.project_data["ai_tool_previews"].back()["kind"] == "validation_execution");
+    REQUIRE(result.project_data["ai_tool_previews"].back()["payload"]["validator_count"] == 2);
 }
 
 TEST_CASE("AI assistant panel exposes knowledge and task plan snapshots",
