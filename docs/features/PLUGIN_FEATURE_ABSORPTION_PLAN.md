@@ -22,7 +22,7 @@ URPG should absorb the submitted RPG Maker plugin behavior as native maker featu
 | `randombgms.js` | Random map/battle BGM and boss overrides | `StateDrivenAudioResolver`, audio inspector/mix panels | Extend state-driven audio with weighted/random pools. |
 | `SRG_Drag.js` | Drag map events tagged as draggable | Event authoring/runtime and input systems | Implemented as native draggable-event interaction metadata in this pass. |
 | `LoopingTitleVideo.js` | Title splash videos, logos, social links, skip rules | `RuntimeTitleScene`, title/save-screen builder fixture | Extend title presentation profile. |
-| `Synrec_LevelStats.js` | Level-up stat allocation UI and stat images | `ClassProgression`, character/progression panels | Add native stat allocation model and panel, not plugin UI. |
+| `Synrec_LevelStats.js` | Level-up stat allocation UI and stat images | `ClassProgression`, character/progression panels | Implemented native stat allocation pools, preview math, caps, and editor snapshot in this pass. |
 | `ExtendedPictureManager.js`, `TSk_Picture_Tasks.js` | More picture slots and common-event picture tasks | `pictures_ui_creator_fixture`, event runtime | Implemented native high-count picture task bindings in this pass; runtime picture UI preview remains. |
 | TSk variable/switch files | JS, map, scoped, self variables/switches | `GlobalStateHub`, switch-variable inspector fixture, compat state | Implemented native scoped state banks in this pass; migration adapters remain. |
 | TSk text fixes | Nested escapes and canvas text alignment fixes | `message_core`, UI text rendering | Implemented nested escape recursion in this pass; text alignment guards already covered. |
@@ -38,7 +38,7 @@ URPG should absorb the submitted RPG Maker plugin behavior as native maker featu
 5. Battle feedback lane: blood VFX cue kind, chip damage/healing, custom buff levels, zero-damage presentation policies, and troop-position reuse completed in this pass.
 6. World/system lane: fast travel, vehicle profiles/interiors/transitions, and draggable event metadata completed in this pass.
 7. State/message/picture lane: scoped/self/map/JS variable banks, nested text escapes, picture tasks, and high-count picture management started in this pass; runtime picture UI preview and migration adapters remain.
-8. Progression lane: level-up stat allocation model and editor panel.
+8. Progression lane: level-up stat allocation model and editor panel started in this pass; save integration and richer UI controls remain.
 
 ## Acceptance Bar
 

@@ -109,11 +109,21 @@
         "picture task bindings support high-count picture slots and common-event triggers",
         "picture task validation reports unavailable slots and missing task/common-event ids"
       ]
+    },
+    {
+      "feature": "progression_stat_allocation",
+      "native_surface": "engine/core/progression/StatAllocationDocument and editor/progression/StatAllocationPanel",
+      "source_semantics": [
+        "actors can have class-aware stat allocation pools with unspent level-up points",
+        "stat rules define point cost, stat gain, and caps for hp, mp, atk, def, mat, mdf, agi, and luk",
+        "allocation preview calculates before/after stats, spent points, remaining points, caps, and overspend diagnostics",
+        "editor snapshot exposes stat allocation preview state for progression panels"
+      ]
     }
   ],
   "remaining_lanes": [
     "state_message_picture_runtime_preview",
     "state_message_picture_migration_adapters",
-    "progression_stat_allocation"
+    "progression_stat_allocation_save_integration"
   ]
 }

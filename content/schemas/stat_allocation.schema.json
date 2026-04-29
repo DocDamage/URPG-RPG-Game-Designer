@@ -1,0 +1,40 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:urpg:stat_allocation",
+  "title": "URPG Stat Allocation",
+  "type": "object",
+  "required": ["version", "pools"],
+  "properties": {
+    "version": { "const": "1.0.0" },
+    "pools": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "actor_id", "unspent_points", "rules"],
+        "properties": {
+          "id": { "type": "string", "minLength": 1 },
+          "actor_id": { "type": "string", "minLength": 1 },
+          "class_id": { "type": "string" },
+          "points_per_level": { "type": "integer", "minimum": 0 },
+          "unspent_points": { "type": "integer", "minimum": 0 },
+          "rules": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["stat_id", "point_cost", "stat_gain", "cap"],
+              "properties": {
+                "stat_id": { "enum": ["hp", "mp", "atk", "def", "mat", "mdf", "agi", "luk"] },
+                "point_cost": { "type": "integer", "minimum": 1 },
+                "stat_gain": { "type": "integer", "minimum": 1 },
+                "cap": { "type": "integer", "minimum": 0 }
+              },
+              "additionalProperties": false
+            }
+          }
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false
+}

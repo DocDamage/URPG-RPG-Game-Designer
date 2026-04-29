@@ -311,6 +311,7 @@ set(URPG_CORE_SOURCES
     engine/core/items/loot_affix_generator.cpp
     engine/core/progression/class_progression.cpp
     engine/core/progression/skill_tree.cpp
+    engine/core/progression/stat_allocation.cpp
     engine/core/ability/skill_combo_rules.cpp
     engine/core/ability/ability_sandbox.cpp
     engine/core/sync/source_authority.cpp
@@ -459,6 +460,7 @@ set(URPG_CORE_SOURCES
     editor/message/message_inspector_panel.cpp
     editor/message/dialogue_preview_panel.cpp
     editor/message/visual_novel_pacing_panel.cpp
+    editor/progression/stat_allocation_panel.cpp
     editor/ui/menu_inspector_model.cpp
     editor/ui/menu_inspector_panel.cpp
     editor/ui/menu_preview_panel.cpp

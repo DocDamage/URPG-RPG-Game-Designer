@@ -1,6 +1,8 @@
 #include "engine/core/progression/class_progression.h"
 #include "engine/core/progression/skill_tree.h"
 #include "editor/progression/skill_tree_panel.h"
+#include "engine/core/progression/stat_allocation.h"
+#include "editor/progression/stat_allocation_panel.h"
 
 #include <catch2/catch_test_macros.hpp>
 #include <filesystem>
@@ -93,4 +95,71 @@ TEST_CASE("Skill tree reports missing ability and prerequisite diagnostics", "[p
     REQUIRE(diagnostics.size() == 2);
     REQUIRE(diagnostics[0].code == "missing_ability_reference");
     REQUIRE(diagnostics[1].code == "missing_prerequisite");
+}
+
+TEST_CASE("Stat allocation previews level-up spending and editor state", "[progression][stat_allocation]") {
+    urpg::progression::StatAllocationDocument document;
+    document.addPool({"actor_hero_pool",
+                      "actor.hero",
+                      "class.warrior",
+                      3,
+                      5,
+                      {{"hp", 1, 10, 180}, {"atk", 2, 1, 25}, {"agi", 1, 2, 18}}});
+
+    REQUIRE(document.validate().empty());
+
+    urpg::progression::ActorStatBlock stats;
+    stats.hp = 150;
+    stats.atk = 20;
+    stats.agi = 10;
+
+    urpg::progression::StatAllocationRequest request;
+    request.pool_id = "actor_hero_pool";
+    request.points_by_stat = {{"hp", 2}, {"atk", 1}, {"agi", 1}};
+
+    const auto preview = document.preview("actor_hero_pool", stats, request);
+    REQUIRE(preview.diagnostics.empty());
+    REQUIRE(preview.spent_points == 5);
+    REQUIRE(preview.remaining_points == 0);
+    REQUIRE(preview.after.hp == 170);
+    REQUIRE(preview.after.atk == 21);
+    REQUIRE(preview.after.agi == 12);
+
+    urpg::editor::StatAllocationPanel panel;
+    panel.bindDocument(document);
+    panel.setCurrentStats(stats);
+    panel.setRequest(request);
+    panel.render();
+
+    const auto snapshot = panel.lastRenderSnapshot();
+    REQUIRE(snapshot["panel"] == "stat_allocation");
+    REQUIRE(snapshot["pool_id"] == "actor_hero_pool");
+    REQUIRE(snapshot["remaining_points"] == 0);
+    REQUIRE(snapshot["after"]["hp"] == 170);
+}
+
+TEST_CASE("Stat allocation reports overspend missing rules and invalid pools", "[progression][stat_allocation]") {
+    urpg::progression::StatAllocationDocument document;
+    document.addPool({"bad_pool", "", "class.mage", -1, 1, {{"atk", 0, 1, 10}, {"atk", 1, 1, 10}, {"unknown", 1, 1, 10}}});
+    auto diagnostics = document.validate();
+    REQUIRE(diagnostics.size() >= 4);
+
+    urpg::progression::StatAllocationDocument valid;
+    valid.addPool({"pool", "actor.hero", "class.mage", 2, 1, {{"mat", 1, 2, 12}}});
+    urpg::progression::ActorStatBlock stats;
+    stats.mat = 10;
+    urpg::progression::StatAllocationRequest request;
+    request.pool_id = "pool";
+    request.points_by_stat = {{"mat", 2}, {"luk", 1}};
+
+    const auto preview = valid.preview("pool", stats, request);
+    REQUIRE(preview.spent_points == 2);
+    REQUIRE(preview.remaining_points == -1);
+    REQUIRE(preview.after.mat == 12);
+    REQUIRE(std::any_of(preview.diagnostics.begin(), preview.diagnostics.end(), [](const auto& diagnostic) {
+        return diagnostic.code == "stat_points_overspent";
+    }));
+    REQUIRE(std::any_of(preview.diagnostics.begin(), preview.diagnostics.end(), [](const auto& diagnostic) {
+        return diagnostic.code == "missing_stat_rule";
+    }));
 }
