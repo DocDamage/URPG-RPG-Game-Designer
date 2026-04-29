@@ -20,7 +20,10 @@ The primary hub for AI interaction. It handles the `IChatService` communication 
 The in-tree runtime is interface-first:
 - **IChatService**: Provider abstraction consumed by `ChatbotComponent`.
 - **MockChatService**: Deterministic in-tree provider for CI/CD pipelines and harness scenarios.
-- **Out-of-tree providers**: `engine/core/ai/ai_connectivity.h` now documents the boundary where live transport or inference integrations belong; no OpenAI-, Anthropic-, or llama.cpp-backed provider is implemented in-tree.
+- **OpenAiCompatibleChatService**: Curl-backed in-tree `IChatService` implementation for OpenAI-compatible `/v1/chat/completions` endpoints, including ChatGPT/OpenAI-compatible gateways, Kimi-compatible gateways, Ollama, LM Studio, OpenRouter, vLLM, LocalAI, and similar servers when configured by the host.
+- **Out-of-tree providers**: Non-compatible production providers still belong behind out-of-tree `IChatService` implementations.
+
+`OpenAiCompatibleChatConfig` records endpoint, model, API key, request/response paths, timeout, and dry-run/execute mode. Dry-run mode builds deterministic request bodies and curl commands without network access. Execute mode writes the request JSON, invokes curl, reads the provider response, and imports common OpenAI-compatible chat, OpenAI Responses `output_text`, Ollama-style `message.content`, and direct `{response, command}` shapes. Secrets are supplied at runtime by host configuration or environment resolution, not hardcoded into the engine.
 
 ### 2a. Creator Command Planner
 `CreatorCommandPlanner` turns a selected tile plus a creator prompt into a reviewable WYSIWYG edit plan. The shipped deterministic intents are:

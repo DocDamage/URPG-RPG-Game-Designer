@@ -13,7 +13,8 @@ URPG has enough native subsystems now that the next work should deepen existing 
 5. AI editor workflow: approve/reject/apply/revert controls, validation blocking reasons, apply-preview patch counts, result diff patch counts, and undo-stack/apply-history snapshots are started in native code; richer painted diff browsing and per-record rationale UI remain.
 6. Project knowledge indexing: project files, schemas, readiness reports, validation reports, asset catalogs, project docs, template specs, and source summaries are started in native project-data indexing; direct filesystem/doc ingestion and freshness checks remain.
 7. Concrete AI tools: AI applies now emit concrete editor preview artifacts for event graphs, battle VFX timelines, lighting/weather previews, ability sandbox compositions, export preview configuration, and asset import/promotion; deeper native validator execution remains.
-8. Export/release UX: export preview panel, platform checklist, missing asset report, packaging diagnostics, signing/notarization status, and playable smoke-test evidence.
+8. Live chat providers: OpenAI-compatible `IChatService` transport is started with deterministic dry-run request/command building, curl execution, and common response import for ChatGPT-compatible gateways, Kimi-compatible gateways, Ollama, LM Studio, OpenRouter, vLLM, and LocalAI; richer provider profile UI and streaming remain.
+9. Export/release UX: export preview panel, platform checklist, missing asset report, packaging diagnostics, signing/notarization status, and playable smoke-test evidence.
 
 ## Implementation Rule
 

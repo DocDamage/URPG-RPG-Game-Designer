@@ -230,6 +230,7 @@ set(URPG_CORE_SOURCES
     engine/core/ai/ai_knowledge_base.cpp
     engine/core/ai/ai_suggestion_record.cpp
     engine/core/ai/creator_command_planner.cpp
+    engine/core/ai/openai_compatible_chat_service.cpp
     engine/core/collaboration/local_review_bundle.cpp
     engine/core/diagnostics/diagnostics_bundle_exporter.cpp
     engine/core/debug/debug_session.cpp
@@ -1192,6 +1193,7 @@ add_executable(urpg_tests
     tests/unit/test_future_feature_17.cpp
     tests/unit/test_ai_knowledge_base.cpp
     tests/unit/test_creator_command_planner.cpp
+    tests/unit/test_openai_compatible_chat_service.cpp
     tests/unit/test_perf_profiler.cpp
     tests/unit/test_perf_diagnostics_panel.cpp
     tests/unit/test_ecs_world.cpp

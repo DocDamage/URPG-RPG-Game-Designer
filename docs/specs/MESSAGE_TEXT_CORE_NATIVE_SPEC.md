@@ -19,7 +19,7 @@ Scope: runtime ownership, editor ownership, schema, migration, diagnostics, and 
   - `content/schemas/message_styles.schema.json` and related message schemas
 - `engine/core/message/message_migration.*`
 - **Native AI Chatbot Infrastructure landed (2026-04-16):**
-  - `ChatbotComponent` (`IChatService`-backed streaming and tool-calling, with only deterministic in-tree providers)
+  - `ChatbotComponent` (`IChatService`-backed streaming and tool-calling, with deterministic mock and bounded OpenAI-compatible in-tree providers)
   - `WorldKnowledgeBridge` (narrative and world state context serialization)
   - `PersonalityRegistry` (NPC behavioral prompt templates)
   - `ChatWindow` (native word-wrapped streaming chat UI)
