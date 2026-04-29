@@ -28,6 +28,7 @@ Current app-level release readiness source of truth: [`docs/APP_RELEASE_READINES
 - `docs/features/FEATURE_ROBUSTNESS_PLAN.md` now tracks the broader deepening plan for battle, state/message/picture, progression, asset browser, AI workflow, project indexing, concrete AI tools, and export UX.
 - State/message/picture absorption now has native scoped state banks, nested message escape recursion, high-count picture task bindings, and picture-task schema/validation coverage.
 - Progression absorption now has native stat allocation pools, class/actor-aware point spending, caps, before/after preview math, diagnostics, schema coverage, and editor snapshot visibility.
+- Asset browser robustness now exposes native tag/category/status/reference/runtime-ready/previewable filters and used-by references on the asset library model.
 
 2026-04-28 documentation and AI/editor checkpoint:
 - `development` is pushed to `origin/development` at commit `cfdae41e9` (`Advance AI editor and template readiness`) before this documentation refresh.

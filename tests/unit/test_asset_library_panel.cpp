@@ -163,10 +163,59 @@ TEST_CASE("AssetLibraryModel loads optional local promotion catalog", "[assets][
     REQUIRE_FALSE(model.snapshot().export_eligible);
     REQUIRE(model.snapshot().category_counts.at("characters") == 1);
     REQUIRE(model.snapshot().kind_counts.at("image") == 1);
+    REQUIRE(model.snapshot().runtime_ready_count == 1);
+    REQUIRE(model.snapshot().previewable_count == 1);
+    REQUIRE(model.snapshot().filtered_asset_count == 1);
     const auto asset = model.library().findAsset("imports/raw/urpg_stuff/side scroller stuff/Hero/Idle.png");
     REQUIRE(asset.has_value());
     REQUIRE(asset->preview_kind == "image");
     REQUIRE(asset->normalized_path == "asset://src-007/characters/idle-123.png");
 
     std::filesystem::remove_all(root);
+}
+
+TEST_CASE("AssetLibraryModel exposes filters and used-by reference counts", "[assets][asset_library][editor][browser]") {
+    urpg::editor::AssetLibraryModel model;
+    model.ingestReports(nlohmann::json{{"file_count", 2}, {"duplicate_groups", 0}, {"oversize_count", 0}},
+                        nlohmann::json{{"sources", nlohmann::json::array()}},
+                        nlohmann::json{
+                            {"source_id", "SRC-007"},
+                            {"source_root", "imports/raw/urpg_stuff"},
+                            {"assets",
+                             {
+                                 {
+                                     {"source_path", "imports/raw/urpg_stuff/characters/hero.png"},
+                                     {"normalized_path", "asset://src-007/characters/hero.png"},
+                                     {"preview_path", "imports/raw/urpg_stuff/characters/hero.png"},
+                                     {"preview_kind", "image"},
+                                     {"media_kind", "image"},
+                                     {"category", "characters"},
+                                     {"tags", {"hero", "kind:image"}},
+                                     {"license", "user_attested_free_for_game_use_pending_per_pack_attribution"},
+                                 },
+                                 {
+                                     {"source_path", "imports/raw/urpg_stuff/audio/click.ogg"},
+                                     {"normalized_path", "asset://src-007/audio/click.ogg"},
+                                     {"preview_path", "imports/raw/urpg_stuff/audio/click.ogg"},
+                                     {"preview_kind", "audio"},
+                                     {"media_kind", "audio"},
+                                     {"category", "audio/ui"},
+                                     {"tags", {"ui", "kind:audio"}},
+                                     {"license", "user_attested_free_for_game_use_pending_per_pack_attribution"},
+                                 },
+                             }}},
+                        "");
+    model.addUsageReference("imports/raw/urpg_stuff/characters/hero.png", "actor.hero");
+
+    urpg::assets::AssetLibraryFilter filter;
+    filter.media_kind = "image";
+    filter.required_tag = "hero";
+    filter.referenced_only = true;
+    filter.runtime_ready_only = true;
+    model.setFilter(filter);
+
+    REQUIRE(model.snapshot().referenced_asset_count == 1);
+    REQUIRE(model.snapshot().runtime_ready_count == 2);
+    REQUIRE(model.snapshot().previewable_count == 2);
+    REQUIRE(model.snapshot().filtered_asset_count == 1);
 }

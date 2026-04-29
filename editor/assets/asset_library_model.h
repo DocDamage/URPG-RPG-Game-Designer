@@ -21,6 +21,10 @@ struct AssetLibraryModelSnapshot {
     size_t duplicate_asset_count = 0;
     size_t unsupported_count = 0;
     size_t catalog_shard_count = 0;
+    size_t referenced_asset_count = 0;
+    size_t runtime_ready_count = 0;
+    size_t previewable_count = 0;
+    size_t filtered_asset_count = 0;
     size_t cleanup_allowed_count = 0;
     size_t cleanup_refused_count = 0;
     bool export_eligible = false;
@@ -41,6 +45,8 @@ class AssetLibraryModel {
                        const nlohmann::json& promotion_catalog, std::string_view duplicate_csv);
     bool loadReportsFromDirectory(const std::filesystem::path& reports_root, std::string* error_message = nullptr);
     void addReferencedAsset(std::string path);
+    void addUsageReference(std::string path, std::string owner_id);
+    void setFilter(urpg::assets::AssetLibraryFilter filter);
     void rebuildCleanupPreview();
     void clear();
 
@@ -54,6 +60,7 @@ class AssetLibraryModel {
     urpg::assets::AssetLibrary library_;
     urpg::assets::AssetCleanupPlanner cleanup_planner_;
     urpg::assets::AssetCleanupPlan cleanup_plan_;
+    urpg::assets::AssetLibraryFilter filter_;
     AssetLibraryModelSnapshot snapshot_{};
 };
 

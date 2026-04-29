@@ -2,6 +2,7 @@
 
 #include <fstream>
 #include <sstream>
+#include <utility>
 
 namespace urpg::editor {
 
@@ -130,6 +131,16 @@ void AssetLibraryModel::addReferencedAsset(std::string path) {
     rebuildCleanupPreview();
 }
 
+void AssetLibraryModel::addUsageReference(std::string path, std::string owner_id) {
+    library_.addUsageReference(std::move(path), std::move(owner_id));
+    rebuildCleanupPreview();
+}
+
+void AssetLibraryModel::setFilter(urpg::assets::AssetLibraryFilter filter) {
+    filter_ = std::move(filter);
+    refreshSnapshot();
+}
+
 void AssetLibraryModel::rebuildCleanupPreview() {
     cleanup_plan_ = cleanup_planner_.buildDuplicateCleanupPlan(library_);
     refreshSnapshot();
@@ -157,6 +168,10 @@ void AssetLibraryModel::refreshSnapshot() {
     snapshot_.duplicate_asset_count = asset_snapshot.duplicate_asset_count;
     snapshot_.unsupported_count = asset_snapshot.unsupported_count;
     snapshot_.catalog_shard_count = asset_snapshot.catalog_shard_count;
+    snapshot_.referenced_asset_count = asset_snapshot.referenced_asset_count;
+    snapshot_.runtime_ready_count = asset_snapshot.runtime_ready_count;
+    snapshot_.previewable_count = asset_snapshot.previewable_count;
+    snapshot_.filtered_asset_count = library_.filterAssets(filter_).size();
     snapshot_.cleanup_allowed_count = cleanup_plan_.allowed_count;
     snapshot_.cleanup_refused_count = cleanup_plan_.refused_count;
     snapshot_.export_eligible = asset_snapshot.export_eligible;

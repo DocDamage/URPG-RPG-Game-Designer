@@ -147,3 +147,70 @@ TEST_CASE("AssetLibrary detects case collisions and unsupported paths", "[assets
     REQUIRE(lower->statuses.contains(urpg::assets::AssetStatus::CaseCollision));
     REQUIRE(library.snapshot().case_collision_count == 2);
 }
+
+TEST_CASE("AssetLibrary filters by tags status references and runtime readiness", "[assets][asset_library][browser]") {
+    urpg::assets::AssetLibrary library;
+    library.ingestPromotionCatalog(nlohmann::json{
+        {"source_id", "SRC-007"},
+        {"source_root", "imports/raw/urpg_stuff"},
+        {"export_eligible", false},
+        {"assets",
+         {
+             {
+                 {"source_path", "imports/raw/urpg_stuff/characters/hero.png"},
+                 {"normalized_path", "asset://src-007/characters/hero.png"},
+                 {"preview_path", "imports/raw/urpg_stuff/characters/hero.png"},
+                 {"preview_kind", "image"},
+                 {"media_kind", "image"},
+                 {"category", "characters"},
+                 {"pack", "Hero Pack"},
+                 {"tags", {"kind:image", "character", "hero"}},
+                 {"license", "user_attested_free_for_game_use_pending_per_pack_attribution"},
+             },
+             {
+                 {"source_path", "imports/raw/urpg_stuff/audio/click.ogg"},
+                 {"normalized_path", "asset://src-007/audio/click.ogg"},
+                 {"preview_path", "imports/raw/urpg_stuff/audio/click.ogg"},
+                 {"preview_kind", "audio"},
+                 {"media_kind", "audio"},
+                 {"category", "audio/ui"},
+                 {"pack", "UI Pack"},
+                 {"tags", {"kind:audio", "ui"}},
+                 {"license", "user_attested_free_for_game_use_pending_per_pack_attribution"},
+             },
+             {
+                 {"source_path", "imports/raw/urpg_stuff/audio/click-copy.ogg"},
+                 {"normalized_path", "asset://src-007/audio/click-copy.ogg"},
+                 {"preview_path", "imports/raw/urpg_stuff/audio/click-copy.ogg"},
+                 {"preview_kind", "audio"},
+                 {"media_kind", "audio"},
+                 {"category", "audio/ui"},
+                 {"pack", "UI Pack"},
+                 {"tags", {"kind:audio", "ui"}},
+                 {"duplicate_of", "click"},
+                 {"status", "duplicate"},
+                 {"license", "user_attested_free_for_game_use_pending_per_pack_attribution"},
+             },
+         }}});
+
+    library.addUsageReference("imports/raw/urpg_stuff/characters/hero.png", "project.map_001");
+    library.addUsageReference("imports/raw/urpg_stuff/characters/hero.png", "project.actor_hero");
+
+    urpg::assets::AssetLibraryFilter image_filter;
+    image_filter.media_kind = "image";
+    image_filter.required_tag = "hero";
+    image_filter.referenced_only = true;
+    image_filter.runtime_ready_only = true;
+    image_filter.previewable_only = true;
+    const auto images = library.filterAssets(image_filter);
+
+    REQUIRE(images.size() == 1);
+    REQUIRE(images.front().used_by.size() == 2);
+    REQUIRE(library.snapshot().referenced_asset_count == 1);
+    REQUIRE(library.snapshot().runtime_ready_count == 2);
+    REQUIRE(library.snapshot().previewable_count == 3);
+
+    urpg::assets::AssetLibraryFilter duplicate_filter;
+    duplicate_filter.required_status = urpg::assets::AssetStatus::Duplicate;
+    REQUIRE(library.filterAssets(duplicate_filter).size() == 1);
+}

@@ -124,6 +124,23 @@ bool truthy(std::string_view value) {
     return value == "yes" || value == "true" || value == "1";
 }
 
+bool hasStatus(const AssetRecord& record, AssetStatus status) {
+    return record.statuses.contains(status);
+}
+
+bool isRuntimeReady(const AssetRecord& record) {
+    return !record.normalized_path.empty() &&
+           !hasStatus(record, AssetStatus::MissingFile) &&
+           !hasStatus(record, AssetStatus::UnsupportedFormat) &&
+           !hasStatus(record, AssetStatus::MissingLicense) &&
+           !hasStatus(record, AssetStatus::Duplicate);
+}
+
+bool isPreviewable(const AssetRecord& record) {
+    return !record.preview_path.empty() &&
+           (record.preview_kind == "image" || record.preview_kind == "audio" || record.preview_kind == "video");
+}
+
 } // namespace
 
 const char* toString(AssetStatus status) {
@@ -226,6 +243,7 @@ void AssetLibrary::ingestIntakeReport(const nlohmann::json& report) {
             }
         }
     }
+    refreshDerivedCounts();
     sortSnapshot();
 }
 
@@ -306,6 +324,7 @@ void AssetLibrary::ingestPromotionCatalog(const nlohmann::json& catalog) {
         }
     }
 
+    refreshDerivedCounts();
     sortSnapshot();
 }
 
@@ -364,20 +383,35 @@ void AssetLibrary::ingestDuplicateCsv(std::string_view csv_text) {
         return lhs.sha256 < rhs.sha256;
     });
     snapshot_.duplicate_group_count = snapshot_.duplicate_groups.size();
+    refreshDerivedCounts();
     sortSnapshot();
 }
 
 void AssetLibrary::addReferencedAsset(std::string path) {
     std::replace(path.begin(), path.end(), '\\', '/');
     referenced_assets_.insert(std::move(path));
+    snapshot_.referenced_asset_count = referenced_assets_.size();
+}
+
+void AssetLibrary::addUsageReference(std::string path, std::string owner_id) {
+    std::replace(path.begin(), path.end(), '\\', '/');
+    auto& record = ensureAsset(path);
+    if (!owner_id.empty() && std::find(record.used_by.begin(), record.used_by.end(), owner_id) == record.used_by.end()) {
+        record.used_by.push_back(std::move(owner_id));
+        std::sort(record.used_by.begin(), record.used_by.end());
+    }
+    referenced_assets_.insert(record.path);
+    refreshDerivedCounts();
 }
 
 void AssetLibrary::markMissingFile(std::string path) {
     ensureAsset(std::move(path)).statuses.insert(AssetStatus::MissingFile);
+    refreshDerivedCounts();
 }
 
 void AssetLibrary::markUnsupportedFormat(std::string path) {
     ensureAsset(std::move(path)).statuses.insert(AssetStatus::UnsupportedFormat);
+    refreshDerivedCounts();
 }
 
 void AssetLibrary::detectCaseCollisions() {
@@ -396,6 +430,7 @@ void AssetLibrary::detectCaseCollisions() {
             ++snapshot_.case_collision_count;
         }
     }
+    refreshDerivedCounts();
     sortSnapshot();
 }
 
@@ -406,6 +441,50 @@ std::optional<AssetRecord> AssetLibrary::findAsset(std::string_view path) const 
         }
     }
     return std::nullopt;
+}
+
+std::vector<AssetRecord> AssetLibrary::filterAssets(const AssetLibraryFilter& filter) const {
+    std::vector<AssetRecord> result;
+    for (const auto& asset : snapshot_.assets) {
+        if (!filter.media_kind.empty() && asset.media_kind != filter.media_kind) {
+            continue;
+        }
+        if (!filter.category.empty() && asset.category != filter.category) {
+            continue;
+        }
+        if (!filter.required_tag.empty() &&
+            std::find(asset.tags.begin(), asset.tags.end(), filter.required_tag) == asset.tags.end()) {
+            continue;
+        }
+        if (filter.required_status.has_value() && !asset.statuses.contains(*filter.required_status)) {
+            continue;
+        }
+        if (filter.referenced_only && !referenced_assets_.contains(asset.path)) {
+            continue;
+        }
+        if (filter.runtime_ready_only && !isRuntimeReady(asset)) {
+            continue;
+        }
+        if (filter.previewable_only && !isPreviewable(asset)) {
+            continue;
+        }
+        result.push_back(asset);
+    }
+    return result;
+}
+
+void AssetLibrary::refreshDerivedCounts() {
+    snapshot_.referenced_asset_count = referenced_assets_.size();
+    snapshot_.runtime_ready_count = 0;
+    snapshot_.previewable_count = 0;
+    for (const auto& asset : snapshot_.assets) {
+        if (isRuntimeReady(asset)) {
+            ++snapshot_.runtime_ready_count;
+        }
+        if (isPreviewable(asset)) {
+            ++snapshot_.previewable_count;
+        }
+    }
 }
 
 void AssetLibrary::sortSnapshot() {

@@ -37,8 +37,19 @@ struct AssetRecord {
     uint64_t size_bytes = 0;
     std::string sha256;
     std::vector<std::string> tags;
+    std::vector<std::string> used_by;
     std::set<AssetStatus> statuses;
     AssetProvenance provenance;
+};
+
+struct AssetLibraryFilter {
+    std::string media_kind;
+    std::string category;
+    std::string required_tag;
+    std::optional<AssetStatus> required_status;
+    bool referenced_only = false;
+    bool runtime_ready_only = false;
+    bool previewable_only = false;
 };
 
 struct AssetDuplicateEntry {
@@ -66,6 +77,9 @@ struct AssetLibrarySnapshot {
     size_t missing_license_count = 0;
     size_t case_collision_count = 0;
     size_t catalog_shard_count = 0;
+    size_t referenced_asset_count = 0;
+    size_t runtime_ready_count = 0;
+    size_t previewable_count = 0;
     bool export_eligible = false;
     std::string promotion_status;
     std::map<std::string, size_t> category_counts;
@@ -82,6 +96,7 @@ public:
     void ingestPromotionCatalog(const nlohmann::json& catalog);
     void ingestDuplicateCsv(std::string_view csv_text);
     void addReferencedAsset(std::string path);
+    void addUsageReference(std::string path, std::string owner_id);
     void markMissingFile(std::string path);
     void markUnsupportedFormat(std::string path);
     void detectCaseCollisions();
@@ -89,9 +104,11 @@ public:
     const AssetLibrarySnapshot& snapshot() const { return snapshot_; }
     const std::set<std::string>& referencedAssets() const { return referenced_assets_; }
     std::optional<AssetRecord> findAsset(std::string_view path) const;
+    std::vector<AssetRecord> filterAssets(const AssetLibraryFilter& filter) const;
 
 private:
     AssetRecord& ensureAsset(std::string path);
+    void refreshDerivedCounts();
     void sortSnapshot();
 
     AssetLibrarySnapshot snapshot_{};
