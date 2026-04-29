@@ -41,8 +41,11 @@ struct AssetRecord {
     std::string pack;
     std::string duplicate_of;
     uint64_t size_bytes = 0;
+    size_t frame_count = 0;
+    size_t sequence_count = 0;
     std::string sha256;
     std::vector<std::string> tags;
+    nlohmann::json representative_sequences = nlohmann::json::array();
     std::vector<std::string> used_by;
     std::set<AssetStatus> statuses;
     AssetProvenance provenance;

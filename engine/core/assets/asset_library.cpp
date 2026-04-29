@@ -395,8 +395,11 @@ void AssetLibrary::ingestPromotionCatalog(const nlohmann::json& catalog) {
         record.pack = readString(asset, "pack").value_or("");
         record.duplicate_of = readString(asset, "duplicate_of").value_or("");
         record.size_bytes = readUint64(asset, "size_bytes");
+        record.frame_count = readCount(asset, "frame_count").value_or(0);
+        record.sequence_count = readCount(asset, "sequence_count").value_or(0);
         record.sha256 = readString(asset, "sha256").value_or("");
         record.tags = readStringArray(asset, "tags");
+        record.representative_sequences = asset.value("representative_sequences", nlohmann::json::array());
         record.provenance.original_source = record.pack.empty() ? source_id : record.pack;
         record.provenance.license = readString(asset, "license").value_or("");
         record.provenance.normalized_path = normalized_path;

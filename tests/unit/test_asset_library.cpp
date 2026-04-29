@@ -328,11 +328,31 @@ TEST_CASE("Asset action view recommends promote archive and blocked states",
                  {"media_kind", "image"},
                  {"category", "characters"},
              },
+             {
+                 {"source_path", "imports/raw/urpg_stuff/assets_to_ingest_20260429/Animated Demon"},
+                 {"normalized_path", "asset://src-008/characters/isometric/animated-demon"},
+                 {"preview_path", "imports/raw/urpg_stuff/assets_to_ingest_20260429/Animated Demon/Idle/0001.png"},
+                 {"preview_kind", "image"},
+                 {"preview_width", 512},
+                 {"preview_height", 512},
+                 {"media_kind", "image_sequence_collection"},
+                 {"category", "characters/isometric"},
+                 {"pack", "Animated Demon"},
+                 {"frame_count", 1200},
+                 {"sequence_count", 18},
+                 {"representative_sequences",
+                  {{{"path", "imports/raw/urpg_stuff/assets_to_ingest_20260429/Animated Demon/Idle"},
+                    {"frame_count", 64},
+                    {"representative_files",
+                     {"imports/raw/urpg_stuff/assets_to_ingest_20260429/Animated Demon/Idle/0001.png"}}}}},
+                 {"tags", {"kind:image_sequence_collection", "category:characters-isometric"}},
+                 {"license", "user_attested_free_for_game_use_pending_per_pack_attribution"},
+             },
          }}});
     library.addUsageReference("imports/raw/urpg_stuff/characters/hero.png", "actor.hero");
 
     const auto rows = urpg::assets::buildAssetActionRows(library.snapshot());
-    REQUIRE(rows.size() == 4);
+    REQUIRE(rows.size() == 5);
 
     const auto hero = std::find_if(rows.begin(), rows.end(), [](const auto& row) {
         return row["path"] == "imports/raw/urpg_stuff/characters/hero.png";
@@ -360,8 +380,17 @@ TEST_CASE("Asset action view recommends promote archive and blocked states",
     REQUIRE((*unlicensed)["promote_button"]["enabled"] == false);
     REQUIRE((*unlicensed)["promote_button"]["disabled_reason"] == "asset_missing_license");
 
+    const auto sequence = std::find_if(rows.begin(), rows.end(), [](const auto& row) {
+        return row["path"] == "imports/raw/urpg_stuff/assets_to_ingest_20260429/Animated Demon";
+    });
+    REQUIRE(sequence != rows.end());
+    REQUIRE((*sequence)["sequence"]["visible"] == true);
+    REQUIRE((*sequence)["sequence"]["frame_count"] == 1200);
+    REQUIRE((*sequence)["sequence"]["sequence_count"] == 18);
+    REQUIRE((*sequence)["sequence"]["representative_sequences"].size() == 1);
+
     const auto previewRows = urpg::assets::buildAssetPreviewRows(library.snapshot());
-    REQUIRE(previewRows.size() == 4);
+    REQUIRE(previewRows.size() == 5);
     const auto heroPreview = std::find_if(previewRows.begin(), previewRows.end(), [](const auto& row) {
         return row["path"] == "imports/raw/urpg_stuff/characters/hero.png";
     });
@@ -379,4 +408,14 @@ TEST_CASE("Asset action view recommends promote archive and blocked states",
     REQUIRE((*audioPreview)["waveform"]["ready"] == true);
     REQUIRE((*audioPreview)["waveform"]["duration_ms"] == 420);
     REQUIRE((*audioPreview)["waveform"]["peak_count"] == 4);
+
+    const auto sequencePreview = std::find_if(previewRows.begin(), previewRows.end(), [](const auto& row) {
+        return row["path"] == "imports/raw/urpg_stuff/assets_to_ingest_20260429/Animated Demon";
+    });
+    REQUIRE(sequencePreview != previewRows.end());
+    REQUIRE((*sequencePreview)["status"] == "ready");
+    REQUIRE((*sequencePreview)["sequence"]["visible"] == true);
+    REQUIRE((*sequencePreview)["sequence"]["frame_count"] == 1200);
+    REQUIRE((*sequencePreview)["sequence"]["sequence_count"] == 18);
+    REQUIRE((*sequencePreview)["thumbnail"]["ready"] == true);
 }

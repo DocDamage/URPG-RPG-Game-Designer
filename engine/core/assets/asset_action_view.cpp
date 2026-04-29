@@ -111,6 +111,17 @@ nlohmann::json previewStatus(const AssetRecord& asset) {
     return "ready";
 }
 
+nlohmann::json sequenceMetadata(const AssetRecord& asset) {
+    const bool isSequence = asset.media_kind == "image_sequence_collection" || asset.media_kind == "image_sequence";
+    return {
+        {"visible", isSequence},
+        {"frame_count", asset.frame_count},
+        {"sequence_count", asset.sequence_count},
+        {"representative_sequences", asset.representative_sequences.is_array() ? asset.representative_sequences
+                                                                               : nlohmann::json::array()},
+    };
+}
+
 } // namespace
 
 nlohmann::json buildAssetActionRows(const AssetLibrarySnapshot& snapshot) {
@@ -132,6 +143,7 @@ nlohmann::json buildAssetActionRows(const AssetLibrarySnapshot& snapshot) {
             {"duplicate_of", asset.duplicate_of},
             {"tags", asset.tags},
             {"used_by", asset.used_by},
+            {"sequence", sequenceMetadata(asset)},
             {"statuses", statusList(asset)},
             {"recommended_action", recommendedAction(asset, canPromote, canArchive)},
             {"promote_button",
@@ -191,6 +203,7 @@ nlohmann::json buildAssetPreviewRows(const AssetLibrarySnapshot& snapshot) {
                  {"duration_ms", asset.duration_ms},
                  {"peaks", waveform},
              }},
+            {"sequence", sequenceMetadata(asset)},
         });
     }
     std::sort(rows.begin(), rows.end(), [](const auto& lhs, const auto& rhs) {
