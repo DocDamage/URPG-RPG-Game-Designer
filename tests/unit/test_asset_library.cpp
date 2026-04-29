@@ -60,6 +60,8 @@ TEST_CASE("AssetLibrary ingests local promotion catalog records", "[assets][asse
                  {"normalized_path", "asset://src-007/audio/ui/click-abc123.ogg"},
                  {"preview_path", "imports/raw/urpg_stuff/audio/UI/click.ogg"},
                  {"preview_kind", "audio"},
+                 {"duration_ms", 880},
+                 {"waveform_peaks", {0.1, 0.5, 1.0}},
                  {"media_kind", "audio"},
                  {"category", "audio/ui"},
                  {"pack", "UI Soundpack"},
@@ -87,6 +89,8 @@ TEST_CASE("AssetLibrary ingests local promotion catalog records", "[assets][asse
     REQUIRE(asset.has_value());
     REQUIRE(asset->normalized_path == "asset://src-007/audio/ui/click-abc123.ogg");
     REQUIRE(asset->preview_kind == "audio");
+    REQUIRE(asset->duration_ms == 880);
+    REQUIRE(asset->waveform_peaks.size() == 3);
     REQUIRE(asset->media_kind == "audio");
     REQUIRE(asset->category == "audio/ui");
     REQUIRE(asset->tags.size() == 3);
@@ -164,6 +168,8 @@ TEST_CASE("AssetLibrary filters by tags status references and runtime readiness"
                  {"normalized_path", "asset://src-007/characters/hero.png"},
                  {"preview_path", "imports/raw/urpg_stuff/characters/hero.png"},
                  {"preview_kind", "image"},
+                 {"preview_width", 64},
+                 {"preview_height", 48},
                  {"media_kind", "image"},
                  {"category", "characters"},
                  {"pack", "Hero Pack"},
@@ -175,6 +181,8 @@ TEST_CASE("AssetLibrary filters by tags status references and runtime readiness"
                  {"normalized_path", "asset://src-007/audio/click.ogg"},
                  {"preview_path", "imports/raw/urpg_stuff/audio/click.ogg"},
                  {"preview_kind", "audio"},
+                 {"duration_ms", 420},
+                 {"waveform_peaks", {0.2, 0.4, 0.8, 0.4}},
                  {"media_kind", "audio"},
                  {"category", "audio/ui"},
                  {"pack", "UI Pack"},
@@ -230,6 +238,8 @@ TEST_CASE("AssetLibrary promotes and archives curated assets", "[assets][asset_l
                  {"normalized_path", "asset://src-007/characters/hero.png"},
                  {"preview_path", "imports/raw/urpg_stuff/characters/hero.png"},
                  {"preview_kind", "image"},
+                 {"preview_width", 64},
+                 {"preview_height", 48},
                  {"media_kind", "image"},
                  {"category", "characters"},
                  {"tags", {"hero", "kind:image"}},
@@ -284,6 +294,8 @@ TEST_CASE("Asset action view recommends promote archive and blocked states",
                  {"normalized_path", "asset://src-007/characters/hero.png"},
                  {"preview_path", "imports/raw/urpg_stuff/characters/hero.png"},
                  {"preview_kind", "image"},
+                 {"preview_width", 64},
+                 {"preview_height", 48},
                  {"media_kind", "image"},
                  {"category", "characters"},
                  {"tags", {"hero", "kind:image"}},
@@ -299,6 +311,18 @@ TEST_CASE("Asset action view recommends promote archive and blocked states",
                  {"license", "user_attested_free_for_game_use_pending_per_pack_attribution"},
              },
              {
+                 {"source_path", "imports/raw/urpg_stuff/audio/click.ogg"},
+                 {"normalized_path", "asset://src-007/audio/click.ogg"},
+                 {"preview_path", "imports/raw/urpg_stuff/audio/click.ogg"},
+                 {"preview_kind", "audio"},
+                 {"duration_ms", 420},
+                 {"waveform_peaks", {0.2, 0.4, 0.8, 0.4}},
+                 {"media_kind", "audio"},
+                 {"category", "audio/ui"},
+                 {"tags", {"ui", "kind:audio"}},
+                 {"license", "user_attested_free_for_game_use_pending_per_pack_attribution"},
+             },
+             {
                  {"source_path", "imports/raw/urpg_stuff/characters/unlicensed.png"},
                  {"normalized_path", "asset://src-007/characters/unlicensed.png"},
                  {"media_kind", "image"},
@@ -308,7 +332,7 @@ TEST_CASE("Asset action view recommends promote archive and blocked states",
     library.addUsageReference("imports/raw/urpg_stuff/characters/hero.png", "actor.hero");
 
     const auto rows = urpg::assets::buildAssetActionRows(library.snapshot());
-    REQUIRE(rows.size() == 3);
+    REQUIRE(rows.size() == 4);
 
     const auto hero = std::find_if(rows.begin(), rows.end(), [](const auto& row) {
         return row["path"] == "imports/raw/urpg_stuff/characters/hero.png";
@@ -335,4 +359,24 @@ TEST_CASE("Asset action view recommends promote archive and blocked states",
     REQUIRE((*unlicensed)["recommended_action"] == "add_license_evidence");
     REQUIRE((*unlicensed)["promote_button"]["enabled"] == false);
     REQUIRE((*unlicensed)["promote_button"]["disabled_reason"] == "asset_missing_license");
+
+    const auto previewRows = urpg::assets::buildAssetPreviewRows(library.snapshot());
+    REQUIRE(previewRows.size() == 4);
+    const auto heroPreview = std::find_if(previewRows.begin(), previewRows.end(), [](const auto& row) {
+        return row["path"] == "imports/raw/urpg_stuff/characters/hero.png";
+    });
+    REQUIRE(heroPreview != previewRows.end());
+    REQUIRE((*heroPreview)["status"] == "ready");
+    REQUIRE((*heroPreview)["thumbnail"]["ready"] == true);
+    REQUIRE((*heroPreview)["thumbnail"]["width"] == 64);
+    REQUIRE((*heroPreview)["thumbnail"]["height"] == 48);
+
+    const auto audioPreview = std::find_if(previewRows.begin(), previewRows.end(), [](const auto& row) {
+        return row["path"] == "imports/raw/urpg_stuff/audio/click.ogg";
+    });
+    REQUIRE(audioPreview != previewRows.end());
+    REQUIRE((*audioPreview)["status"] == "ready");
+    REQUIRE((*audioPreview)["waveform"]["ready"] == true);
+    REQUIRE((*audioPreview)["waveform"]["duration_ms"] == 420);
+    REQUIRE((*audioPreview)["waveform"]["peak_count"] == 4);
 }

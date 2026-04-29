@@ -1,6 +1,7 @@
 #include "editor/ai/ai_assistant_panel.h"
 
 #include "engine/core/ai/wysiwyg_chatbot_coverage.h"
+#include "engine/core/assets/asset_action_view.h"
 
 #include <utility>
 
@@ -65,6 +66,7 @@ void AiAssistantPanel::render() {
         }},
         {"wysiwyg_chatbot_coverage",
          urpg::ai::buildWysiwygChatbotCoverageReport(knowledge_, asset_library_snapshot_).toJson()},
+        {"asset_preview_rows", urpg::assets::buildAssetPreviewRows(asset_library_snapshot_)},
         {"task_plan", current_task_plan_.toJson()},
         {"approval", knowledge_.tools.approvalManifest(current_task_plan_, knowledge_.capabilities)},
         {"controls", buildControlSnapshot()},

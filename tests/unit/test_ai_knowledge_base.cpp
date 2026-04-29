@@ -447,6 +447,8 @@ TEST_CASE("Chatbot component plans approves and applies AI tool commands",
                  {"normalized_path", "asset://src-009/characters/hero.png"},
                  {"preview_path", "imports/raw/curated/characters/hero.png"},
                  {"preview_kind", "image"},
+                 {"preview_width", 128},
+                 {"preview_height", 96},
                  {"media_kind", "image"},
                  {"category", "characters"},
                  {"tags", {"hero", "kind:image"}},
@@ -470,6 +472,9 @@ TEST_CASE("Chatbot component plans approves and applies AI tool commands",
     REQUIRE(chatbot.lastAiToolSnapshot()["asset_action_rows"][0]["recommended_action"] == "ready");
     REQUIRE(chatbot.lastAiToolSnapshot()["asset_action_rows"][0]["promote_button"]["disabled_reason"] ==
             "asset_already_promoted");
+    REQUIRE(chatbot.lastAiToolSnapshot()["asset_preview_rows"].size() == 1);
+    REQUIRE(chatbot.lastAiToolSnapshot()["asset_preview_rows"][0]["thumbnail"]["ready"] == true);
+    REQUIRE(chatbot.lastAiToolSnapshot()["asset_preview_rows"][0]["thumbnail"]["width"] == 128);
     REQUIRE(chatbot.lastAiToolSnapshot()["task_plan"]["steps"][0]["tool_id"] == "edit_dialogue");
     REQUIRE(chatbot.lastAiToolSnapshot()["approval"]["pending_count"] == 1);
 

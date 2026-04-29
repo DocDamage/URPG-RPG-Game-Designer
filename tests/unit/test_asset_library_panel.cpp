@@ -141,6 +141,8 @@ TEST_CASE("AssetLibraryModel loads optional local promotion catalog", "[assets][
               "normalized_path": "asset://src-007/characters/idle-123.png",
               "preview_path": "imports/raw/urpg_stuff/side scroller stuff/Hero/Idle.png",
               "preview_kind": "image",
+              "preview_width": 96,
+              "preview_height": 64,
               "media_kind": "image",
               "category": "characters",
               "pack": "side scroller stuff",
@@ -166,6 +168,10 @@ TEST_CASE("AssetLibraryModel loads optional local promotion catalog", "[assets][
     REQUIRE(model.snapshot().runtime_ready_count == 1);
     REQUIRE(model.snapshot().previewable_count == 1);
     REQUIRE(model.snapshot().filtered_asset_count == 1);
+    REQUIRE(model.snapshot().asset_preview_rows.size() == 1);
+    REQUIRE(model.snapshot().asset_preview_rows[0]["thumbnail"]["ready"] == true);
+    REQUIRE(model.snapshot().asset_preview_rows[0]["thumbnail"]["width"] == 96);
+    REQUIRE(model.snapshot().asset_preview_rows[0]["thumbnail"]["height"] == 64);
     const auto asset = model.library().findAsset("imports/raw/urpg_stuff/side scroller stuff/Hero/Idle.png");
     REQUIRE(asset.has_value());
     REQUIRE(asset->preview_kind == "image");

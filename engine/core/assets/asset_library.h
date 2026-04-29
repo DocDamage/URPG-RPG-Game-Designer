@@ -32,6 +32,10 @@ struct AssetRecord {
     std::string normalized_path;
     std::string preview_path;
     std::string preview_kind;
+    int32_t preview_width = 0;
+    int32_t preview_height = 0;
+    int32_t duration_ms = 0;
+    std::vector<float> waveform_peaks;
     std::string media_kind;
     std::string category;
     std::string pack;

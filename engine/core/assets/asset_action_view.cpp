@@ -84,6 +84,33 @@ std::string recommendedAction(const AssetRecord& asset, bool canPromote, bool ca
     return "review";
 }
 
+bool hasPreviewPayload(const AssetRecord& asset) {
+    return !asset.preview_path.empty() &&
+           (asset.preview_kind == "image" || asset.preview_kind == "audio" || asset.preview_kind == "video");
+}
+
+nlohmann::json previewStatus(const AssetRecord& asset) {
+    if (hasStatus(asset, AssetStatus::MissingFile)) {
+        return "missing_file";
+    }
+    if (hasStatus(asset, AssetStatus::UnsupportedFormat)) {
+        return "unsupported_format";
+    }
+    if (asset.preview_path.empty()) {
+        return "missing_preview";
+    }
+    if (!hasPreviewPayload(asset)) {
+        return "unsupported_preview_kind";
+    }
+    if (asset.preview_kind == "image" && (asset.preview_width <= 0 || asset.preview_height <= 0)) {
+        return "thumbnail_pending";
+    }
+    if (asset.preview_kind == "audio" && asset.waveform_peaks.empty()) {
+        return "waveform_pending";
+    }
+    return "ready";
+}
+
 } // namespace
 
 nlohmann::json buildAssetActionRows(const AssetLibrarySnapshot& snapshot) {
@@ -120,6 +147,49 @@ nlohmann::json buildAssetActionRows(const AssetLibrarySnapshot& snapshot) {
                  {"enabled", canArchive},
                  {"action", "archive_asset"},
                  {"disabled_reason", canArchive ? nlohmann::json(nullptr) : nlohmann::json(archiveReason)},
+             }},
+        });
+    }
+    std::sort(rows.begin(), rows.end(), [](const auto& lhs, const auto& rhs) {
+        return lhs.value("path", "") < rhs.value("path", "");
+    });
+    return rows;
+}
+
+nlohmann::json buildAssetPreviewRows(const AssetLibrarySnapshot& snapshot) {
+    nlohmann::json rows = nlohmann::json::array();
+    for (const auto& asset : snapshot.assets) {
+        const bool isImage = asset.preview_kind == "image";
+        const bool isAudio = asset.preview_kind == "audio";
+        const bool isVideo = asset.preview_kind == "video";
+        nlohmann::json waveform = nlohmann::json::array();
+        for (const auto peak : asset.waveform_peaks) {
+            waveform.push_back(peak);
+        }
+        rows.push_back({
+            {"path", asset.path},
+            {"normalized_path", asset.normalized_path},
+            {"preview_path", asset.preview_path},
+            {"preview_kind", asset.preview_kind},
+            {"media_kind", asset.media_kind},
+            {"category", asset.category},
+            {"pack", asset.pack},
+            {"status", previewStatus(asset)},
+            {"previewable", hasPreviewPayload(asset)},
+            {"thumbnail",
+             {
+                 {"visible", isImage || isVideo},
+                 {"ready", (isImage || isVideo) && asset.preview_width > 0 && asset.preview_height > 0},
+                 {"width", asset.preview_width},
+                 {"height", asset.preview_height},
+             }},
+            {"waveform",
+             {
+                 {"visible", isAudio},
+                 {"ready", isAudio && !asset.waveform_peaks.empty()},
+                 {"peak_count", asset.waveform_peaks.size()},
+                 {"duration_ms", asset.duration_ms},
+                 {"peaks", waveform},
              }},
         });
     }

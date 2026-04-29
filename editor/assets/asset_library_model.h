@@ -33,6 +33,7 @@ struct AssetLibraryModelSnapshot {
     bool reports_loaded = false;
     std::string promotion_status;
     nlohmann::json asset_action_rows = nlohmann::json::array();
+    nlohmann::json asset_preview_rows = nlohmann::json::array();
     nlohmann::json last_action = nlohmann::json::object();
     nlohmann::json action_history = nlohmann::json::array();
     std::map<std::string, size_t> category_counts;

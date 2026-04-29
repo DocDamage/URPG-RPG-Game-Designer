@@ -48,6 +48,32 @@ std::vector<std::string> readStringArray(const nlohmann::json& value, const char
     return out;
 }
 
+std::vector<float> readFloatArray(const nlohmann::json& value, const char* key) {
+    std::vector<float> out;
+    const auto it = value.find(key);
+    if (it == value.end() || !it->is_array()) {
+        return out;
+    }
+    for (const auto& item : *it) {
+        if (item.is_number()) {
+            out.push_back(item.get<float>());
+        }
+    }
+    return out;
+}
+
+int32_t readInt32(const nlohmann::json& value, const char* key) {
+    const auto it = value.find(key);
+    if (it == value.end() || !it->is_number_integer()) {
+        return 0;
+    }
+    const auto number = it->get<long long>();
+    if (number <= 0) {
+        return 0;
+    }
+    return static_cast<int32_t>(std::min<long long>(number, INT32_MAX));
+}
+
 uint64_t readUint64(const nlohmann::json& value, const char* key) {
     const auto it = value.find(key);
     if (it == value.end()) {
@@ -349,6 +375,10 @@ void AssetLibrary::ingestPromotionCatalog(const nlohmann::json& catalog) {
         record.normalized_path = normalized_path;
         record.preview_path = readString(asset, "preview_path").value_or("");
         record.preview_kind = readString(asset, "preview_kind").value_or("");
+        record.preview_width = readInt32(asset, "preview_width");
+        record.preview_height = readInt32(asset, "preview_height");
+        record.duration_ms = readInt32(asset, "duration_ms");
+        record.waveform_peaks = readFloatArray(asset, "waveform_peaks");
         record.media_kind = readString(asset, "media_kind").value_or("");
         record.category = readString(asset, "category").value_or("");
         record.pack = readString(asset, "pack").value_or("");

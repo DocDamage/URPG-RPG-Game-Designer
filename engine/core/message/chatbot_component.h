@@ -212,6 +212,7 @@ class ChatbotComponent {
             {"wysiwyg_chatbot_coverage",
              buildWysiwygChatbotCoverageReport(m_aiKnowledge, m_assetLibrarySnapshot).toJson()},
             {"asset_action_rows", urpg::assets::buildAssetActionRows(m_assetLibrarySnapshot)},
+            {"asset_preview_rows", urpg::assets::buildAssetPreviewRows(m_assetLibrarySnapshot)},
             {"task_plan", m_currentAiTaskPlan.toJson()},
             {"approval", m_aiKnowledge.tools.approvalManifest(m_currentAiTaskPlan, m_aiKnowledge.capabilities)},
         };

@@ -7,5 +7,6 @@
 namespace urpg::assets {
 
 nlohmann::json buildAssetActionRows(const AssetLibrarySnapshot& snapshot);
+nlohmann::json buildAssetPreviewRows(const AssetLibrarySnapshot& snapshot);
 
 } // namespace urpg::assets

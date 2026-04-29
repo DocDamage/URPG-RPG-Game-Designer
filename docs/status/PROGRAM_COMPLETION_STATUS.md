@@ -38,6 +38,7 @@ Current app-level release readiness source of truth: [`docs/APP_RELEASE_READINES
 - Chatbot/WYSIWYG coverage now indexes every release top-level editor panel into chatbot knowledge and adds a native coverage report proving app capabilities have WYSIWYG surfaces, chatbot tools, and asset-library panel/tool coverage.
 - Chatbot/WYSIWYG coverage is now visible in both `AiAssistantPanel` and `ChatbotComponent` snapshots, including injected asset-library action readiness for promoted/previewable/runtime-ready/archive state.
 - Asset action rows now share promote/archive button state and blocked-reason recommendations between the WYSIWYG asset browser and chatbot snapshots.
+- Asset preview rows now share thumbnail dimensions, audio duration, waveform peaks, and ready/pending/missing preview state between the WYSIWYG asset browser, AI assistant panel, and chatbot snapshots.
 - Progression robustness now persists applied stat-allocation records through runtime save/load under `_stat_allocations`, including actor/class/pool identity, before/after stats, point spending, and remaining points.
 - Progression post-load robustness now builds actor-specific stat-allocation apply rows with current versus saved stats, apply/already-applied/blocked state, diagnostics, and editor snapshot visibility.
 - Picture UI robustness now projects high-count picture slots into native runtime preview rows with bounds, z order, opacity, click/hover common-event bindings, hover hit testing, and out-of-range diagnostics.
