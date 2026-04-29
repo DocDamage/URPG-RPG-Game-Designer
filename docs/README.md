@@ -23,6 +23,10 @@ This folder is organized by document purpose. Use the active sprint pointer for 
 - `templates/` - game-template specifications.
 - `adr/` - architecture decision records.
 
+## Root Compatibility Docs
+
+Several `docs/*.md` files intentionally remain at the docs root because CI gates and agent workflows still read those exact paths. When a matching categorized copy exists under `release/`, `status/`, `governance/`, `specs/`, `signoff/`, or `audits/`, treat the categorized folder as the human browsing location and keep the root copy aligned until the gates are migrated.
+
 ## Archive
 
 - `archive/planning/` - superseded plans, task boards, roadmap documents, and historical planning references.

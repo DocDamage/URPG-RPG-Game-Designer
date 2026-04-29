@@ -1,0 +1,26 @@
+{
+  "schema": "urpg/local_source_drop_archive/v1",
+  "generated_at": "2026-04-29T02:44:27Z",
+  "archive_root": ".urpg/archive/source_drops/20260429",
+  "moves": [
+    {
+      "source": "urpg stuff",
+      "archived_to": ".urpg/archive/source_drops/20260429/urpg stuff",
+      "file_count": 35047,
+      "bytes": 3006164749,
+      "archived_at": "2026-04-29T02:44:27Z"
+    },
+    {
+      "source": "more assets",
+      "archived_to": ".urpg/archive/source_drops/20260429/more assets",
+      "file_count": 0,
+      "bytes": 0,
+      "archived_at": "2026-04-29T02:44:27Z"
+    }
+  ],
+  "notes": [
+    "Moved already-ingested local source-drop folders out of the project root into the ignored .urpg archive.",
+    "No tracked normalized/catalog reports were removed.",
+    "Existing OGG files under imports/raw/urpg_stuff were preserved."
+  ]
+}

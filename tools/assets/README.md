@@ -138,7 +138,7 @@ The duplicate pruner only removes cataloged `duplicate_source_paths` under `impo
 Catalog generator and tool source folders from a local drop for engineering review without executing them.
 
 ```powershell
-python .\tools\assets\catalog_urpg_generators.py --source-root "urpg stuff"
+python .\tools\assets\catalog_urpg_generators.py --source-root "imports/raw/urpg_stuff/refresh_20260428_2206"
 ```
 
 Output:

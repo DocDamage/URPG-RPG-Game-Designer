@@ -113,7 +113,7 @@ This writes `imports/reports/asset_intake/urpg_stuff_duplicate_prune_report.json
 Tooling and generator folders must be cataloged separately from game-art promotion:
 
 ```powershell
-python .\tools\assets\catalog_urpg_generators.py --source-root "urpg stuff"
+python .\tools\assets\catalog_urpg_generators.py --source-root "imports/raw/urpg_stuff/refresh_20260428_2206"
 ```
 
 This writes `imports/reports/asset_intake/urpg_stuff_generator_candidates.json`. Treat those records as engineering-review candidates only; do not execute or bundle generator code until license, dependency, sandboxing, and product-surface review are complete. Candidate generators may target both URPG Maker editor panels and generated-game runtime features when the review approves that surface.
@@ -216,3 +216,4 @@ Target integrations by priority:
 | 2026-04-28 | Added local bulk catalog-normalization for `SRC-007` so large raw drops can be tagged, deduped, preview-addressed, and loaded by the editor asset library without duplicating or committing binary payloads. |
 | 2026-04-28 | Added non-audio refresh handling and generator/tool candidate cataloging for `SRC-007`, including map/model/archive/tooling categories. |
 | 2026-04-29 | Added exact duplicate pruning for the ignored `SRC-007` raw intake and clarified generator candidates can be reviewed for both editor and generated-game runtime surfaces. |
+| 2026-04-29 | Repointed generator candidate cataloging at the ingested raw refresh path after archiving already-ingested local source-drop folders out of the project root. |

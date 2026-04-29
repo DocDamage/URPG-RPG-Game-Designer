@@ -94,6 +94,7 @@
       "latest_refresh_audio_policy": "ignored_per_user_instruction",
       "generator_candidate_report": "imports/reports/asset_intake/urpg_stuff_generator_candidates.json",
       "generator_candidate_count": 4,
+      "local_source_archive_report": "imports/reports/asset_intake/local_source_drop_archive_20260429.json",
       "audio_conversion_report": "imports/reports/audio_conversion/audio_to_ogg_manifest.json",
       "audio_drop_conversion_report": "imports/reports/audio_conversion/allnewaudio_to_ogg_manifest.json",
       "local_audio_archive_report": "imports/reports/audio_conversion/local_audio_archive_manifest.json",
@@ -131,6 +132,7 @@
     "SRC-007 generator/tool candidates are cataloged separately for engineering review for both editor integration and generated-game runtime use before integration into the URPG game maker.",
     "Non-OGG audio in available raw intake was converted into OGG and copied under SRC-007. Original local WAV/MP3 sources were archived under .urpg/local_audio_archive.",
     "Tracked WAV/MP3 paths were removed from GitHub. Future audio promotion must use OGG payloads.",
-    "SRC-007 duplicate cleanup removed 30,495 exact duplicate raw files after preserving canonical copies; the regenerated non-audio catalog reports zero duplicate groups."
+    "SRC-007 duplicate cleanup removed 30,495 exact duplicate raw files after preserving canonical copies; the regenerated non-audio catalog reports zero duplicate groups.",
+    "SRC-007 already-ingested local source-drop folders were moved out of the project root into .urpg/archive/source_drops/20260429; the catalog source of truth remains imports/raw/urpg_stuff."
   ]
 }
