@@ -13,7 +13,7 @@ The `development` branch is suitable for internal/private release-candidate vali
 Recent progress includes:
 
 - Review-gated AI project edits with visible approve, reject, approve-all, apply, preview, result-diff, and revert state in editor-facing models.
-- AI-applied project changes now persist `_ai_change_history` records with forward/reverse JSON patch data, before/after project data, and reverted state so applied edits can be undone from project state.
+- AI-applied project changes now persist `_ai_change_history` records with forward/reverse JSON patch data, before/after project data, and reverted state so editor and chatbot-applied edits can be undone from project state.
 - AI knowledge/tool indexing now covers project metadata, canonical docs, asset reports, schemas, readiness reports, template specs, validation reports, and subsystem-specific tool candidates.
 - Concrete AI tool surfaces are tracked for event graph authoring, VFX timeline edits, lighting/weather preview updates, ability sandbox composition, export preview configuration, and asset import/promotion.
 - `SRC-007` local URPG assets are catalog-normalized, deduped, and split into editor-loadable category shards.

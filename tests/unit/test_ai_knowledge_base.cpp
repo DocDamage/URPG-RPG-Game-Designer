@@ -658,6 +658,17 @@ TEST_CASE("Chatbot component plans approves and applies AI tool commands",
     const auto applied = chatbot.executeTool("AI_APPLY");
     REQUIRE(applied["last_apply"]["applied"] == true);
     REQUIRE(chatbot.projectData()["dialogue"]["generated_dialogue"]["lines"].size() == 1);
+    REQUIRE(chatbot.projectData()["_ai_change_history"].size() == 1);
+    REQUIRE(applied["apply_history"]["can_revert_latest"] == true);
+    REQUIRE(applied["controls"]["revert_button"]["enabled"] == true);
+
+    urpg::ai::ChatbotComponent restored(std::make_shared<ToolCommandChatService>(""));
+    restored.setProjectData(chatbot.projectData());
+    const auto restoredSnapshot = restored.executeTool("AI_REVERT");
+    REQUIRE(restoredSnapshot["last_revert"]["reverted"] == true);
+    REQUIRE_FALSE(restored.projectData().contains("dialogue"));
+    REQUIRE(restored.projectData()["_ai_change_history"][0]["reverted"] == true);
+    REQUIRE(restoredSnapshot["apply_history"]["can_revert_latest"] == false);
 }
 
 TEST_CASE("Chatbot component rejects AI tool commands before apply",

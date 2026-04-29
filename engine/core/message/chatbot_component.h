@@ -9,6 +9,7 @@
 #include <functional>
 #include <memory>
 #include <nlohmann/json.hpp>
+#include <optional>
 #include <string>
 #include <utility>
 #include <vector>
@@ -117,6 +118,9 @@ class ChatbotComponent {
         if (command == "AI_APPLY") {
             return applyApprovedAiToolPlan();
         }
+        if (command == "AI_REVERT") {
+            return revertLatestAiToolChange();
+        }
 
         urpg::message::DialogueCommandProcessor processor;
         const auto result = processor.execute(command);
@@ -194,13 +198,58 @@ class ChatbotComponent {
     }
 
     nlohmann::json applyApprovedAiToolPlan() {
-        const auto result = m_aiKnowledge.tools.applyApprovedPlan(m_currentAiTaskPlan, m_projectData);
+        auto result = m_aiKnowledge.tools.applyApprovedPlan(m_currentAiTaskPlan, m_projectData);
         m_projectData = result.project_data;
         if (result.applied) {
+            auto& history = m_projectData["_ai_change_history"];
+            if (!history.is_array()) {
+                history = nlohmann::json::array();
+            }
+            history.push_back(makeAiChangeRecord(result, history.size()));
+            result.project_data = m_projectData;
             rebuildAiKnowledge();
         }
         m_lastAiToolSnapshot = aiToolSnapshot();
         m_lastAiToolSnapshot["last_apply"] = result.toJson();
+        return m_lastAiToolSnapshot;
+    }
+
+    nlohmann::json revertLatestAiToolChange() {
+        const auto changeIndex = latestUnrevertedAiChangeIndex();
+        if (!changeIndex.has_value()) {
+            m_lastAiToolSnapshot = aiToolSnapshot();
+            m_lastAiToolSnapshot["last_revert"] = {{"reverted", false}, {"reason", "no_applied_ai_change"}};
+            return m_lastAiToolSnapshot;
+        }
+
+        const auto change = m_projectData["_ai_change_history"][*changeIndex];
+        try {
+            m_projectData = m_projectData.patch(change.value("revert_patch", nlohmann::json::array()));
+        } catch (const nlohmann::json::exception&) {
+            m_lastAiToolSnapshot = aiToolSnapshot();
+            m_lastAiToolSnapshot["last_revert"] = {{"reverted", false}, {"reason", "patch_apply_failed"}};
+            return m_lastAiToolSnapshot;
+        }
+
+        auto& history = m_projectData["_ai_change_history"];
+        if (!history.is_array()) {
+            history = nlohmann::json::array();
+        }
+        if (*changeIndex < history.size()) {
+            history[*changeIndex]["reverted"] = true;
+        } else {
+            auto restoredChange = change;
+            restoredChange["reverted"] = true;
+            history.push_back(std::move(restoredChange));
+        }
+        rebuildAiKnowledge();
+        m_lastAiToolSnapshot = aiToolSnapshot();
+        m_lastAiToolSnapshot["last_revert"] = {
+            {"reverted", true},
+            {"change_id", change.value("change_id", "")},
+            {"revert_patch", change.value("revert_patch", nlohmann::json::array())},
+            {"project_data", m_projectData},
+        };
         return m_lastAiToolSnapshot;
     }
 
@@ -215,6 +264,8 @@ class ChatbotComponent {
             {"asset_preview_rows", urpg::assets::buildAssetPreviewRows(m_assetLibrarySnapshot)},
             {"task_plan", m_currentAiTaskPlan.toJson()},
             {"approval", m_aiKnowledge.tools.approvalManifest(m_currentAiTaskPlan, m_aiKnowledge.capabilities)},
+            {"controls", buildAiToolControls()},
+            {"apply_history", buildApplyHistorySnapshot()},
         };
     }
 
@@ -255,6 +306,90 @@ class ChatbotComponent {
     void restoreHistory(const std::vector<ChatMessage>& history) { m_history = history; }
 
   private:
+    nlohmann::json makeAiChangeRecord(const AiToolApplyResult& result, std::size_t index) const {
+        return {
+            {"change_id", "ai_change_" + std::to_string(index + 1)},
+            {"plan_id", m_currentAiTaskPlan.id},
+            {"user_request", m_currentAiTaskPlan.user_request},
+            {"step_count", m_currentAiTaskPlan.steps.size()},
+            {"forward_patch", result.project_patch},
+            {"revert_patch", result.revert_patch},
+            {"before_project_data", result.before_project_data},
+            {"after_project_data", result.project_data},
+            {"reverted", false},
+        };
+    }
+
+    std::optional<std::size_t> latestUnrevertedAiChangeIndex() const {
+        if (!m_projectData.is_object() || !m_projectData.contains("_ai_change_history") ||
+            !m_projectData["_ai_change_history"].is_array()) {
+            return std::nullopt;
+        }
+        const auto& history = m_projectData["_ai_change_history"];
+        for (std::size_t offset = 0; offset < history.size(); ++offset) {
+            const auto index = history.size() - 1U - offset;
+            if (!history[index].value("reverted", false)) {
+                return index;
+            }
+        }
+        return std::nullopt;
+    }
+
+    nlohmann::json buildApplyHistorySnapshot() const {
+        nlohmann::json entries = nlohmann::json::array();
+        const auto latestIndex = latestUnrevertedAiChangeIndex();
+        if (m_projectData.is_object() && m_projectData.contains("_ai_change_history") &&
+            m_projectData["_ai_change_history"].is_array()) {
+            const auto& history = m_projectData["_ai_change_history"];
+            for (std::size_t index = 0; index < history.size(); ++index) {
+                const auto& record = history[index];
+                if (record.value("reverted", false)) {
+                    continue;
+                }
+                const auto forwardPatch = record.value("forward_patch", nlohmann::json::array());
+                const auto revertPatch = record.value("revert_patch", nlohmann::json::array());
+                entries.push_back({
+                    {"index", index},
+                    {"change_id", record.value("change_id", "")},
+                    {"plan_id", record.value("plan_id", "")},
+                    {"can_revert", latestIndex.value_or(index) == index},
+                    {"project_patch_count", forwardPatch.size()},
+                    {"revert_patch_count", revertPatch.size()},
+                    {"persisted_record", record},
+                });
+            }
+        }
+        return {
+            {"count", entries.size()},
+            {"can_revert_latest", latestIndex.has_value()},
+            {"latest_change_id",
+             latestIndex.has_value() && m_projectData["_ai_change_history"].is_array()
+                 ? nlohmann::json(m_projectData["_ai_change_history"][*latestIndex].value("change_id", ""))
+                 : nlohmann::json(nullptr)},
+            {"entries", entries},
+        };
+    }
+
+    nlohmann::json buildAiToolControls() const {
+        const auto history = buildApplyHistorySnapshot();
+        const bool canRevert = history.value("can_revert_latest", false);
+        return {
+            {"revert_button",
+             {
+                 {"visible", true},
+                 {"enabled", canRevert},
+                 {"label", "Revert AI Change"},
+                 {"action", "AI_REVERT"},
+             }},
+            {"undo_stack",
+             {
+                 {"available", canRevert},
+                 {"count", history.value("count", std::size_t{0})},
+                 {"latest_change_id", history.value("latest_change_id", nlohmann::json(nullptr))},
+             }},
+        };
+    }
+
     void rebuildAiKnowledge() {
         m_aiKnowledge = buildDefaultAiKnowledgeSnapshot(m_projectData);
     }

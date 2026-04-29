@@ -38,7 +38,7 @@ Asset preview metadata is now shared through `buildAssetPreviewRows()`. Promotio
 
 ## AI Review Diff Rows
 
-`AiAssistantPanel` now projects each reviewable step into rationale rows with capability, tool, approval state, project paths, arguments, and a user-facing rationale string. Apply previews, result diffs, and apply-history entries now expose structured diff rows derived from JSON patches, including operation, root path, before/after values, tone, and summary data for a future painted diff browser. Successful applies also persist `_ai_change_history` records with change id, plan id, forward patch, revert patch, before-project data, after-project data, and reverted state; revert now resolves the latest unreverted persisted record so undo availability survives snapshot rebuilds instead of depending only on process-local state.
+`AiAssistantPanel` now projects each reviewable step into rationale rows with capability, tool, approval state, project paths, arguments, and a user-facing rationale string. Apply previews, result diffs, and apply-history entries now expose structured diff rows derived from JSON patches, including operation, root path, before/after values, tone, and summary data for a future painted diff browser. Successful applies also persist `_ai_change_history` records with change id, plan id, forward patch, revert patch, before-project data, after-project data, and reverted state; both the editor panel and chatbot `AI_APPLY`/`AI_REVERT` path resolve the latest unreverted persisted record so undo availability survives snapshot rebuilds instead of depending only on process-local state.
 
 ## Project Knowledge Freshness
 
