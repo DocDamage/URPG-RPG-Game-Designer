@@ -21,6 +21,17 @@ struct OpenAiCompatibleChatConfig {
     float temperature = 0.2f;
 };
 
+struct OpenAiCompatibleProviderProfile {
+    std::string id;
+    std::string label;
+    std::string endpoint;
+    std::string default_model;
+    bool local_provider = false;
+    bool api_key_required = true;
+    bool streaming_supported = false;
+    nlohmann::json toJson() const;
+};
+
 struct OpenAiCompatibleChatTransportResult {
     bool attempted = false;
     bool success = false;
@@ -33,6 +44,10 @@ struct OpenAiCompatibleChatTransportResult {
     nlohmann::json toJson() const;
 };
 
+std::vector<OpenAiCompatibleProviderProfile> openAiCompatibleProviderProfiles();
+OpenAiCompatibleProviderProfile openAiCompatibleProviderProfileById(const std::string& id);
+OpenAiCompatibleChatConfig applyOpenAiCompatibleProviderProfile(OpenAiCompatibleChatConfig config,
+                                                                const OpenAiCompatibleProviderProfile& profile);
 nlohmann::json buildOpenAiCompatibleChatRequest(const std::vector<ChatMessage>& history,
                                                 const OpenAiCompatibleChatConfig& config);
 std::string buildOpenAiCompatibleChatCurlCommand(const OpenAiCompatibleChatConfig& config);

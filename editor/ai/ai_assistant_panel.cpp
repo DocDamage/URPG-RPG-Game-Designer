@@ -57,6 +57,14 @@ void AiAssistantPanel::setConfig(urpg::ai::AiAssistantConfig config, bool provid
     provider_available_ = providerAvailable;
 }
 
+void AiAssistantPanel::setOpenAiProviderConfig(urpg::ai::OpenAiCompatibleChatConfig config,
+                                               std::string selectedProviderId) {
+    provider_config_ = std::move(config);
+    if (!selectedProviderId.empty()) {
+        selected_provider_id_ = std::move(selectedProviderId);
+    }
+}
+
 void AiAssistantPanel::setSuggestion(urpg::ai::AiSuggestionRecord suggestion) {
     suggestion_ = std::move(suggestion);
 }
@@ -90,6 +98,7 @@ void AiAssistantPanel::render() {
     }
     last_render_snapshot_ = {
         {"status", validator.evaluate(config_, provider_available_).toJson()},
+        {"provider_ui", buildProviderUiSnapshot()},
         {"suggestion", policy.toJson(suggestion_)},
         {"knowledge", {
             {"capability_count", knowledge_.capabilities.capabilities().size()},
@@ -333,6 +342,71 @@ nlohmann::json AiAssistantPanel::buildValidationSnapshot() const {
         {"diagnostic_count", diagnostics.size()},
         {"diagnostics", diagnosticsToJson(diagnostics)},
         {"blocked_reason", blockedReason},
+    };
+}
+
+nlohmann::json AiAssistantPanel::buildProviderUiSnapshot() const {
+    const auto selected = urpg::ai::openAiCompatibleProviderProfileById(selected_provider_id_);
+    const auto selectedConfig = urpg::ai::applyOpenAiCompatibleProviderProfile(provider_config_, selected);
+    nlohmann::json profileRows = nlohmann::json::array();
+    for (const auto& profile : urpg::ai::openAiCompatibleProviderProfiles()) {
+        profileRows.push_back({
+            {"id", profile.id},
+            {"label", profile.label},
+            {"endpoint", profile.endpoint},
+            {"default_model", profile.default_model},
+            {"selected", profile.id == selected.id},
+            {"local_provider", profile.local_provider},
+            {"api_key_required", profile.api_key_required},
+            {"streaming_supported", profile.streaming_supported},
+            {"select_button",
+             {
+                 {"visible", true},
+                 {"enabled", profile.id != selected.id},
+                 {"action", "select_openai_provider"},
+             }},
+        });
+    }
+    const bool apiKeyMissing = selected.api_key_required && selectedConfig.api_key.empty();
+    return {
+        {"selected_provider_id", selected.id},
+        {"selected_label", selected.label},
+        {"endpoint", selectedConfig.endpoint},
+        {"model", selectedConfig.model},
+        {"execute_live", selectedConfig.execute},
+        {"temperature", selectedConfig.temperature},
+        {"timeout_seconds", selectedConfig.timeout_seconds},
+        {"request_path", selectedConfig.request_path},
+        {"response_path", selectedConfig.response_path},
+        {"curl_executable", selectedConfig.curl_executable},
+        {"api_key_required", selected.api_key_required},
+        {"api_key_configured", !selectedConfig.api_key.empty()},
+        {"local_provider", selected.local_provider},
+        {"streaming_supported", selected.streaming_supported},
+        {"streaming_state", selected.streaming_supported ? "available" : "not_yet_wired"},
+        {"connection_state", !selectedConfig.execute ? "dry_run" : (apiKeyMissing ? "blocked_missing_api_key" : "ready_to_execute")},
+        {"dry_run_button",
+         {
+             {"visible", true},
+             {"enabled", selectedConfig.execute},
+             {"action", "set_provider_dry_run"},
+         }},
+        {"live_execute_toggle",
+         {
+             {"visible", true},
+             {"enabled", !apiKeyMissing || selected.local_provider},
+             {"checked", selectedConfig.execute},
+             {"action", "toggle_provider_live_execute"},
+             {"disabled_reason", apiKeyMissing && !selected.local_provider ? "missing_api_key" : nlohmann::json(nullptr)},
+         }},
+        {"test_request_button",
+         {
+             {"visible", true},
+             {"enabled", !apiKeyMissing || selected.local_provider},
+             {"action", "test_provider_request"},
+             {"mode", selectedConfig.execute ? "live" : "dry_run"},
+         }},
+        {"profiles", profileRows},
     };
 }
 

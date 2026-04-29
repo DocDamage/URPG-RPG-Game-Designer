@@ -29,6 +29,29 @@ TEST_CASE("OpenAI-compatible chat service builds request and curl command",
     REQUIRE(command.find("tmp/chat-response.json") != std::string::npos);
 }
 
+TEST_CASE("OpenAI-compatible provider profiles cover local and hosted gateways",
+          "[ai][chat][provider][ui]") {
+    const auto profiles = urpg::ai::openAiCompatibleProviderProfiles();
+    REQUIRE(profiles.size() >= 7);
+    REQUIRE(std::any_of(profiles.begin(), profiles.end(), [](const auto& profile) {
+        return profile.id == "chatgpt" && profile.api_key_required && !profile.local_provider;
+    }));
+    REQUIRE(std::any_of(profiles.begin(), profiles.end(), [](const auto& profile) {
+        return profile.id == "ollama" && !profile.api_key_required && profile.local_provider;
+    }));
+    REQUIRE(std::any_of(profiles.begin(), profiles.end(), [](const auto& profile) {
+        return profile.id == "openrouter" && profile.endpoint.find("openrouter") != std::string::npos;
+    }));
+
+    urpg::ai::OpenAiCompatibleChatConfig config;
+    config.api_key = "secret";
+    const auto ollama = urpg::ai::openAiCompatibleProviderProfileById("ollama");
+    const auto applied = urpg::ai::applyOpenAiCompatibleProviderProfile(config, ollama);
+    REQUIRE(applied.endpoint == "http://127.0.0.1:11434/v1/chat/completions");
+    REQUIRE(applied.model == "llama3.1");
+    REQUIRE(applied.api_key.empty());
+}
+
 TEST_CASE("OpenAI-compatible chat parser supports common response shapes",
           "[ai][chat][provider]") {
     const auto chat = urpg::ai::parseOpenAiCompatibleChatResponse({

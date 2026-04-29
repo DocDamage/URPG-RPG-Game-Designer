@@ -2,6 +2,7 @@
 
 #include "engine/core/ai/ai_assistant_config.h"
 #include "engine/core/ai/ai_knowledge_base.h"
+#include "engine/core/ai/openai_compatible_chat_service.h"
 #include "engine/core/ai/ai_suggestion_record.h"
 #include "engine/core/assets/asset_library.h"
 
@@ -14,6 +15,7 @@ namespace urpg::editor {
 class AiAssistantPanel {
 public:
     void setConfig(urpg::ai::AiAssistantConfig config, bool providerAvailable);
+    void setOpenAiProviderConfig(urpg::ai::OpenAiCompatibleChatConfig config, std::string selectedProviderId = {});
     void setSuggestion(urpg::ai::AiSuggestionRecord suggestion);
     void setProjectData(nlohmann::json projectData);
     void setAssetLibrarySnapshot(urpg::assets::AssetLibrarySnapshot assetLibrarySnapshot);
@@ -34,8 +36,11 @@ private:
     nlohmann::json buildValidationSnapshot() const;
     nlohmann::json buildRationaleRows() const;
     nlohmann::json buildDiffRows(const urpg::ai::AiToolApplyResult& result) const;
+    nlohmann::json buildProviderUiSnapshot() const;
 
     urpg::ai::AiAssistantConfig config_;
+    urpg::ai::OpenAiCompatibleChatConfig provider_config_{};
+    std::string selected_provider_id_ = "ollama";
     bool provider_available_ = false;
     urpg::ai::AiSuggestionRecord suggestion_;
     nlohmann::json project_data_ = nlohmann::json::object();

@@ -76,6 +76,16 @@ std::string firstTextFromContentArray(const nlohmann::json& content) {
 
 namespace urpg::ai {
 
+nlohmann::json OpenAiCompatibleProviderProfile::toJson() const {
+    return {{"id", id},
+            {"label", label},
+            {"endpoint", endpoint},
+            {"default_model", default_model},
+            {"local_provider", local_provider},
+            {"api_key_required", api_key_required},
+            {"streaming_supported", streaming_supported}};
+}
+
 nlohmann::json OpenAiCompatibleChatTransportResult::toJson() const {
     return {
         {"attempted", attempted},
@@ -87,6 +97,36 @@ nlohmann::json OpenAiCompatibleChatTransportResult::toJson() const {
         {"message", message},
         {"request_body", request_body},
     };
+}
+
+std::vector<OpenAiCompatibleProviderProfile> openAiCompatibleProviderProfiles() {
+    return {
+        {"chatgpt", "ChatGPT / OpenAI", "https://api.openai.com/v1/chat/completions", "gpt-4o-mini", false, true, false},
+        {"openrouter", "OpenRouter", "https://openrouter.ai/api/v1/chat/completions", "openai/gpt-4o-mini", false, true, false},
+        {"kimi", "Kimi / Moonshot", "https://api.moonshot.ai/v1/chat/completions", "moonshot-v1-8k", false, true, false},
+        {"ollama", "Ollama", "http://127.0.0.1:11434/v1/chat/completions", "llama3.1", true, false, false},
+        {"lm_studio", "LM Studio", "http://127.0.0.1:1234/v1/chat/completions", "local-model", true, false, false},
+        {"vllm", "vLLM", "http://127.0.0.1:8000/v1/chat/completions", "local-model", true, false, false},
+        {"localai", "LocalAI", "http://127.0.0.1:8080/v1/chat/completions", "local-model", true, false, false},
+    };
+}
+
+OpenAiCompatibleProviderProfile openAiCompatibleProviderProfileById(const std::string& id) {
+    const auto profiles = openAiCompatibleProviderProfiles();
+    const auto it = std::find_if(profiles.begin(), profiles.end(), [&](const auto& profile) {
+        return profile.id == id;
+    });
+    return it == profiles.end() ? profiles.front() : *it;
+}
+
+OpenAiCompatibleChatConfig applyOpenAiCompatibleProviderProfile(OpenAiCompatibleChatConfig config,
+                                                                const OpenAiCompatibleProviderProfile& profile) {
+    config.endpoint = profile.endpoint;
+    config.model = profile.default_model;
+    if (!profile.api_key_required) {
+        config.api_key.clear();
+    }
+    return config;
 }
 
 nlohmann::json buildOpenAiCompatibleChatRequest(const std::vector<ChatMessage>& history,
