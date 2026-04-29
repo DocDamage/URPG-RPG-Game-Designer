@@ -27,6 +27,21 @@
           "map_id": {"type": "string", "minLength": 1},
           "x": {"type": "integer", "minimum": 0},
           "y": {"type": "integer", "minimum": 0},
+          "drag": {
+            "type": "object",
+            "properties": {
+              "enabled": {"type": "boolean"},
+              "axis": {"type": "string", "enum": ["free", "horizontal", "vertical"]},
+              "snap_to_grid": {"type": "boolean"},
+              "require_passable_target": {"type": "boolean"},
+              "required_switch": {"type": "string"},
+              "min_x": {"type": "integer", "minimum": 0},
+              "min_y": {"type": "integer", "minimum": 0},
+              "max_x": {"type": "integer", "minimum": 0},
+              "max_y": {"type": "integer", "minimum": 0}
+            },
+            "additionalProperties": false
+          },
           "pages": {
             "type": "array",
             "items": {

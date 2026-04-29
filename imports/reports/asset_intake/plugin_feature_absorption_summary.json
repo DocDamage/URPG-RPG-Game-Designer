@@ -79,11 +79,20 @@
         "vehicle profiles can carry allowed terrain tags, BGM/BGS assets, speed and encounter multipliers, interior transfer targets, and transition metadata",
         "vehicle preview returns deterministic movement, audio, interior-transfer, and terrain-blocking diagnostics"
       ]
+    },
+    {
+      "feature": "native_draggable_event_metadata",
+      "native_surface": "engine/core/events/EventDocument and editor/events/EventAuthoringModel",
+      "source_semantics": [
+        "map events can be marked draggable without requiring an RPG Maker plugin runtime",
+        "drag metadata supports free, horizontal, and vertical axes, grid snapping, passability policy, required switch gating, and drag bounds",
+        "event validation reports invalid axes, inverted bounds, bounds outside the owning map, and missing required switches",
+        "event authoring snapshots expose draggable event counts for editor state views"
+      ]
     }
   ],
   "remaining_lanes": [
     "battle_feedback",
-    "event_drag_metadata",
     "state_message_picture",
     "progression_stat_allocation"
   ]

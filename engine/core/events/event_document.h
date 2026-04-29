@@ -87,12 +87,39 @@ struct EventPage {
     std::vector<EventCommand> commands;
 };
 
+struct EventDragInteraction {
+    bool enabled = false;
+    std::string axis = "free";
+    bool snap_to_grid = true;
+    bool require_passable_target = true;
+    std::string required_switch;
+    std::optional<int32_t> min_x;
+    std::optional<int32_t> min_y;
+    std::optional<int32_t> max_x;
+    std::optional<int32_t> max_y;
+};
+
 struct EventDefinition {
+    EventDefinition() = default;
+    EventDefinition(std::string event_id,
+                    std::string event_map_id,
+                    int32_t event_x,
+                    int32_t event_y,
+                    std::vector<EventPage> event_pages,
+                    EventDragInteraction event_drag = {})
+        : id(std::move(event_id)),
+          map_id(std::move(event_map_id)),
+          x(event_x),
+          y(event_y),
+          pages(std::move(event_pages)),
+          drag(std::move(event_drag)) {}
+
     std::string id;
     std::string map_id;
     int32_t x = 0;
     int32_t y = 0;
     std::vector<EventPage> pages;
+    EventDragInteraction drag;
 };
 
 struct CommonEventDefinition {

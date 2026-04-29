@@ -20,7 +20,7 @@ URPG should absorb the submitted RPG Maker plugin behavior as native maker featu
 | `BloodSplatterEffect.js` | Blood/death/critical animations, SFX, options toggle | `BattleVfxTimeline`, effect cues, accessibility/settings | Extend battle VFX cue taxonomy and options. |
 | `VehicleEffects.js` | Vehicle BGM/BGS, speed, encounters, interiors, transitions | `mount_vehicle_system_fixture`, audio resolver, map transfer systems | Implemented as native vehicle profile preview data in this pass. |
 | `randombgms.js` | Random map/battle BGM and boss overrides | `StateDrivenAudioResolver`, audio inspector/mix panels | Extend state-driven audio with weighted/random pools. |
-| `SRG_Drag.js` | Drag map events tagged as draggable | Event authoring/runtime and input systems | Add editor/runtime draggable-event interaction metadata. |
+| `SRG_Drag.js` | Drag map events tagged as draggable | Event authoring/runtime and input systems | Implemented as native draggable-event interaction metadata in this pass. |
 | `LoopingTitleVideo.js` | Title splash videos, logos, social links, skip rules | `RuntimeTitleScene`, title/save-screen builder fixture | Extend title presentation profile. |
 | `Synrec_LevelStats.js` | Level-up stat allocation UI and stat images | `ClassProgression`, character/progression panels | Add native stat allocation model and panel, not plugin UI. |
 | `ExtendedPictureManager.js`, `TSk_Picture_Tasks.js` | More picture slots and common-event picture tasks | `pictures_ui_creator_fixture`, event runtime | Add native picture task bindings. |
@@ -36,7 +36,7 @@ URPG should absorb the submitted RPG Maker plugin behavior as native maker featu
 3. Battle presentation media lane: animated battlebacks and battler light cues on `BattlePresentationProfile`. Completed in this pass.
 4. Map presentation lane: parallax layers, region smoke emitters, terrain height/curve/walkability rules, and edge-scroll camera profiles. Completed in this pass.
 5. Battle feedback lane: blood VFX cue kind completed in this pass; chip damage/healing, custom buff levels, zero-damage presentation policies, and troop-position reuse remain.
-6. World/system lane: fast travel and vehicle profiles/interiors/transitions completed in this pass; draggable event metadata remains.
+6. World/system lane: fast travel, vehicle profiles/interiors/transitions, and draggable event metadata completed in this pass.
 7. State/message/picture lane: scoped/self/map/JS variable banks, nested text escapes, picture tasks, and high-count picture management.
 8. Progression lane: level-up stat allocation model and editor panel.
 

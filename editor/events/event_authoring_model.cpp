@@ -33,6 +33,9 @@ void EventAuthoringModel::refresh() {
     snapshot_ = {};
     snapshot_.event_count = document_.events().size();
     for (const auto& event : document_.events()) {
+        if (event.drag.enabled) {
+            ++snapshot_.draggable_event_count;
+        }
         snapshot_.page_count += event.pages.size();
         snapshot_.has_active_page = snapshot_.has_active_page || document_.resolveActivePage(event.id, state_).has_value();
         for (const auto& page : event.pages) {

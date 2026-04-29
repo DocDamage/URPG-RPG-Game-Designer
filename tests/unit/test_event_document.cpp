@@ -65,6 +65,74 @@ TEST_CASE("EventDocument preserves unsupported commands in compat fallback paylo
     REQUIRE(round_trip["events"][0]["pages"][0]["commands"][0]["_compat_command_fallbacks"]["payload"]["code"] == 777);
 }
 
+TEST_CASE("EventDocument round-trips native draggable event metadata", "[events][authoring][document][drag]") {
+    const auto json = nlohmann::json::parse(R"({
+        "maps": [{"id": "town", "width": 20, "height": 15}],
+        "events": [{
+            "id": "evt_crate",
+            "map_id": "town",
+            "x": 3,
+            "y": 4,
+            "drag": {
+                "enabled": true,
+                "axis": "horizontal",
+                "snap_to_grid": true,
+                "require_passable_target": true,
+                "required_switch": "can_push_crates",
+                "min_x": 2,
+                "min_y": 4,
+                "max_x": 12,
+                "max_y": 4
+            },
+            "pages": [{
+                "id": "p1",
+                "priority": 0,
+                "trigger": "action_button",
+                "commands": []
+            }]
+        }]
+    })");
+
+    auto document = urpg::events::EventDocument::fromJson(json);
+    document.setKnownSwitches({"can_push_crates"});
+    const auto diagnostics = document.validate();
+    const auto saved = document.toJson();
+
+    REQUIRE(diagnostics.empty());
+    REQUIRE(document.events()[0].drag.enabled);
+    REQUIRE(document.events()[0].drag.axis == "horizontal");
+    REQUIRE(document.events()[0].drag.required_switch == "can_push_crates");
+    REQUIRE(saved["events"][0]["drag"]["enabled"] == true);
+    REQUIRE(saved["events"][0]["drag"]["max_x"] == 12);
+}
+
+TEST_CASE("EventDocument validates draggable event configuration", "[events][authoring][document][drag]") {
+    using namespace urpg::events;
+    EventDocument document;
+    document.addMap(MapDefinition{"town", 10, 10});
+    document.setKnownSwitches({"can_drag"});
+    EventDefinition event;
+    event.id = "evt_bad_drag";
+    event.map_id = "town";
+    event.x = 1;
+    event.y = 1;
+    event.drag.enabled = true;
+    event.drag.axis = "diagonal";
+    event.drag.required_switch = "missing_switch";
+    event.drag.min_x = 8;
+    event.drag.max_x = 2;
+    event.drag.max_y = 99;
+    event.pages.push_back(EventPage{"p", 0, EventTrigger::ActionButton, {}, {}});
+    document.addEvent(std::move(event));
+
+    const auto diagnostics = document.validate();
+
+    REQUIRE(std::any_of(diagnostics.begin(), diagnostics.end(), [](const auto& diagnostic) { return diagnostic.code == "invalid_drag_axis"; }));
+    REQUIRE(std::any_of(diagnostics.begin(), diagnostics.end(), [](const auto& diagnostic) { return diagnostic.code == "invalid_drag_bounds"; }));
+    REQUIRE(std::any_of(diagnostics.begin(), diagnostics.end(), [](const auto& diagnostic) { return diagnostic.code == "drag_bounds_out_of_map"; }));
+    REQUIRE(std::any_of(diagnostics.begin(), diagnostics.end(), [](const auto& diagnostic) { return diagnostic.code == "missing_switch_reference"; }));
+}
+
 TEST_CASE("EventDocument validation reports duplicate ids, missing references, disabled plugins, and cycles", "[events][authoring][document]") {
     using namespace urpg::events;
     EventDocument document;

@@ -21,6 +21,19 @@ int64_t intValue(const nlohmann::json& json, std::string_view key, int64_t fallb
     return it != json.end() && it->is_number_integer() ? it->get<int64_t>() : fallback;
 }
 
+bool boolValue(const nlohmann::json& json, std::string_view key, bool fallback = false) {
+    const auto it = json.find(std::string(key));
+    return it != json.end() && it->is_boolean() ? it->get<bool>() : fallback;
+}
+
+std::optional<int32_t> optionalIntValue(const nlohmann::json& json, std::string_view key) {
+    const auto it = json.find(std::string(key));
+    if (it == json.end() || !it->is_number_integer()) {
+        return std::nullopt;
+    }
+    return static_cast<int32_t>(it->get<int64_t>());
+}
+
 EventTrigger triggerFromString(const std::string& value) {
     if (value == "player_touch") {
         return EventTrigger::PlayerTouch;
@@ -77,6 +90,46 @@ nlohmann::json conditionToJson(const EventCondition& condition) {
     json["quest_flags"] = nlohmann::json::array();
     for (const auto& flag : condition.quest_flags) {
         json["quest_flags"].push_back(flag);
+    }
+    return json;
+}
+
+EventDragInteraction dragFromJson(const nlohmann::json& json) {
+    EventDragInteraction drag;
+    if (!json.is_object()) {
+        return drag;
+    }
+    drag.enabled = boolValue(json, "enabled");
+    drag.axis = stringValue(json, "axis").empty() ? "free" : stringValue(json, "axis");
+    drag.snap_to_grid = boolValue(json, "snap_to_grid", true);
+    drag.require_passable_target = boolValue(json, "require_passable_target", true);
+    drag.required_switch = stringValue(json, "required_switch");
+    drag.min_x = optionalIntValue(json, "min_x");
+    drag.min_y = optionalIntValue(json, "min_y");
+    drag.max_x = optionalIntValue(json, "max_x");
+    drag.max_y = optionalIntValue(json, "max_y");
+    return drag;
+}
+
+nlohmann::json dragToJson(const EventDragInteraction& drag) {
+    nlohmann::json json = {
+        {"enabled", drag.enabled},
+        {"axis", drag.axis},
+        {"snap_to_grid", drag.snap_to_grid},
+        {"require_passable_target", drag.require_passable_target},
+        {"required_switch", drag.required_switch}
+    };
+    if (drag.min_x.has_value()) {
+        json["min_x"] = *drag.min_x;
+    }
+    if (drag.min_y.has_value()) {
+        json["min_y"] = *drag.min_y;
+    }
+    if (drag.max_x.has_value()) {
+        json["max_x"] = *drag.max_x;
+    }
+    if (drag.max_y.has_value()) {
+        json["max_y"] = *drag.max_y;
     }
     return json;
 }
@@ -277,6 +330,33 @@ std::vector<EventDiagnostic> EventDocument::validate(const EventWorldState& stat
             pushDiagnostic(diagnostics, EventDiagnosticSeverity::Error, "transfer_coordinates_out_of_bounds",
                            "Event coordinates are outside the owning map bounds.", event.id);
         }
+        if (event.drag.enabled) {
+            if (event.drag.axis != "free" && event.drag.axis != "horizontal" && event.drag.axis != "vertical") {
+                pushDiagnostic(diagnostics, EventDiagnosticSeverity::Error, "invalid_drag_axis",
+                               "Draggable event axis must be free, horizontal, or vertical.", event.id);
+            }
+            if (event.drag.min_x.has_value() && event.drag.max_x.has_value() && *event.drag.min_x > *event.drag.max_x) {
+                pushDiagnostic(diagnostics, EventDiagnosticSeverity::Error, "invalid_drag_bounds",
+                               "Draggable event min_x cannot be greater than max_x.", event.id);
+            }
+            if (event.drag.min_y.has_value() && event.drag.max_y.has_value() && *event.drag.min_y > *event.drag.max_y) {
+                pushDiagnostic(diagnostics, EventDiagnosticSeverity::Error, "invalid_drag_bounds",
+                               "Draggable event min_y cannot be greater than max_y.", event.id);
+            }
+            if (map_it != maps_.end()) {
+                if ((event.drag.max_x.has_value() && *event.drag.max_x >= map_it->second.width) ||
+                    (event.drag.max_y.has_value() && *event.drag.max_y >= map_it->second.height)) {
+                    pushDiagnostic(diagnostics, EventDiagnosticSeverity::Error, "drag_bounds_out_of_map",
+                                   "Draggable event bounds exceed the owning map dimensions.", event.id);
+                }
+            }
+            if (!event.drag.required_switch.empty() &&
+                !known_switches_.empty() &&
+                !known_switches_.contains(event.drag.required_switch)) {
+                pushDiagnostic(diagnostics, EventDiagnosticSeverity::Error, "missing_switch_reference",
+                               "Draggable event references an unknown required switch.", event.id);
+            }
+        }
 
         std::set<std::string> unconditional_signatures;
         for (size_t page_index = 0; page_index < event.pages.size(); ++page_index) {
@@ -413,6 +493,9 @@ nlohmann::json EventDocument::toJson() const {
     json["events"] = nlohmann::json::array();
     for (const auto& event : events_) {
         nlohmann::json event_json = {{"id", event.id}, {"map_id", event.map_id}, {"x", event.x}, {"y", event.y}};
+        if (event.drag.enabled) {
+            event_json["drag"] = dragToJson(event.drag);
+        }
         event_json["pages"] = nlohmann::json::array();
         for (const auto& page : event.pages) {
             nlohmann::json page_json = {
@@ -455,6 +538,7 @@ EventDocument EventDocument::fromJson(const nlohmann::json& json) {
         event.map_id = stringValue(event_json, "map_id");
         event.x = static_cast<int32_t>(intValue(event_json, "x"));
         event.y = static_cast<int32_t>(intValue(event_json, "y"));
+        event.drag = dragFromJson(event_json.value("drag", nlohmann::json::object()));
         for (const auto& page_json : event_json.value("pages", nlohmann::json::array())) {
             EventPage page;
             page.id = stringValue(page_json, "id");

@@ -9,6 +9,7 @@ struct EventAuthoringModelSnapshot {
     size_t event_count = 0;
     size_t page_count = 0;
     size_t command_count = 0;
+    size_t draggable_event_count = 0;
     size_t diagnostic_count = 0;
     size_t dependency_edge_count = 0;
     bool has_active_page = false;
