@@ -67,6 +67,32 @@ struct AppliedStatAllocation {
     std::vector<ProgressionDiagnostic> diagnostics;
 };
 
+struct StatAllocationApplicationRow {
+    std::string pool_id;
+    std::string actor_id;
+    std::string class_id;
+    ActorStatBlock current;
+    ActorStatBlock saved_after;
+    std::map<std::string, int32_t> points_by_stat;
+    int32_t spent_points = 0;
+    int32_t remaining_points = 0;
+    bool valid_record = false;
+    bool already_applied = false;
+    bool can_apply = false;
+    std::string blocked_reason;
+    std::vector<ProgressionDiagnostic> diagnostics;
+};
+
+struct StatAllocationApplicationPreview {
+    std::string actor_id;
+    ActorStatBlock current;
+    size_t row_count = 0;
+    size_t applicable_count = 0;
+    size_t already_applied_count = 0;
+    size_t blocked_count = 0;
+    std::vector<StatAllocationApplicationRow> rows;
+};
+
 class StatAllocationDocument {
 public:
     void addPool(StatAllocationPool pool);
@@ -87,6 +113,7 @@ private:
 
 nlohmann::json toJson(const ActorStatBlock& stats);
 ActorStatBlock actorStatBlockFromJson(const nlohmann::json& json);
+bool actorStatsEqual(const ActorStatBlock& lhs, const ActorStatBlock& rhs);
 nlohmann::json toJson(const AppliedStatAllocation& allocation);
 std::optional<AppliedStatAllocation> appliedStatAllocationFromJson(const nlohmann::json& json,
                                                                    std::vector<std::string>* diagnostics = nullptr);
@@ -94,5 +121,14 @@ bool attachStatAllocationToSaveDocument(nlohmann::json& document, const AppliedS
                                         std::vector<std::string>* diagnostics = nullptr);
 std::vector<AppliedStatAllocation> loadStatAllocationsFromSaveDocument(
     const nlohmann::json& document, std::vector<std::string>* diagnostics = nullptr);
+StatAllocationApplicationPreview buildStatAllocationApplicationPreview(
+    const std::string& actor_id,
+    const ActorStatBlock& current_stats,
+    const std::vector<AppliedStatAllocation>& allocations);
+std::optional<ActorStatBlock> applyLatestStatAllocationForActor(
+    const std::string& actor_id,
+    const ActorStatBlock& current_stats,
+    const std::vector<AppliedStatAllocation>& allocations,
+    std::vector<std::string>* diagnostics = nullptr);
 
 } // namespace urpg::progression

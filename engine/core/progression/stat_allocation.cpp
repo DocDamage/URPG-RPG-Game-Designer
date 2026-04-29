@@ -57,6 +57,13 @@ std::vector<std::string> diagnosticStrings(const std::vector<ProgressionDiagnost
     return out;
 }
 
+std::string firstDiagnosticReason(const std::vector<ProgressionDiagnostic>& diagnostics) {
+    if (diagnostics.empty()) {
+        return {};
+    }
+    return diagnostics.front().code + ":" + diagnostics.front().id;
+}
+
 } // namespace
 
 void StatAllocationDocument::addPool(StatAllocationPool pool) {
@@ -192,6 +199,11 @@ ActorStatBlock actorStatBlockFromJson(const nlohmann::json& json) {
     return stats;
 }
 
+bool actorStatsEqual(const ActorStatBlock& lhs, const ActorStatBlock& rhs) {
+    return lhs.hp == rhs.hp && lhs.mp == rhs.mp && lhs.atk == rhs.atk && lhs.def == rhs.def &&
+           lhs.mat == rhs.mat && lhs.mdf == rhs.mdf && lhs.agi == rhs.agi && lhs.luk == rhs.luk;
+}
+
 nlohmann::json toJson(const AppliedStatAllocation& allocation) {
     nlohmann::json diagnostics = nlohmann::json::array();
     for (const auto& diagnostic : allocation.diagnostics) {
@@ -295,6 +307,81 @@ std::vector<AppliedStatAllocation> loadStatAllocationsFromSaveDocument(
         }
     }
     return allocations;
+}
+
+StatAllocationApplicationPreview buildStatAllocationApplicationPreview(
+    const std::string& actor_id,
+    const ActorStatBlock& current_stats,
+    const std::vector<AppliedStatAllocation>& allocations) {
+    StatAllocationApplicationPreview preview;
+    preview.actor_id = actor_id;
+    preview.current = current_stats;
+
+    for (const auto& allocation : allocations) {
+        if (allocation.actor_id != actor_id) {
+            continue;
+        }
+
+        StatAllocationApplicationRow row;
+        row.pool_id = allocation.pool_id;
+        row.actor_id = allocation.actor_id;
+        row.class_id = allocation.class_id;
+        row.current = current_stats;
+        row.saved_after = allocation.after;
+        row.points_by_stat = allocation.points_by_stat;
+        row.spent_points = allocation.spent_points;
+        row.remaining_points = allocation.remaining_points;
+        row.valid_record = allocation.valid;
+        row.diagnostics = allocation.diagnostics;
+        row.already_applied = actorStatsEqual(current_stats, allocation.after);
+
+        if (!row.valid_record) {
+            row.blocked_reason = firstDiagnosticReason(row.diagnostics);
+            if (row.blocked_reason.empty()) {
+                row.blocked_reason = "invalid_stat_allocation_record";
+            }
+        } else if (row.already_applied) {
+            row.blocked_reason = "already_applied";
+        } else {
+            row.can_apply = true;
+        }
+
+        if (row.can_apply) {
+            ++preview.applicable_count;
+        } else if (row.already_applied) {
+            ++preview.already_applied_count;
+        } else {
+            ++preview.blocked_count;
+        }
+        preview.rows.push_back(std::move(row));
+    }
+
+    preview.row_count = preview.rows.size();
+    return preview;
+}
+
+std::optional<ActorStatBlock> applyLatestStatAllocationForActor(
+    const std::string& actor_id,
+    const ActorStatBlock& current_stats,
+    const std::vector<AppliedStatAllocation>& allocations,
+    std::vector<std::string>* diagnostics) {
+    const auto preview = buildStatAllocationApplicationPreview(actor_id, current_stats, allocations);
+    for (auto it = preview.rows.rbegin(); it != preview.rows.rend(); ++it) {
+        if (it->can_apply) {
+            return it->saved_after;
+        }
+    }
+
+    if (diagnostics != nullptr) {
+        if (preview.rows.empty()) {
+            diagnostics->push_back("stat_allocation_no_actor_records");
+        } else if (preview.already_applied_count == preview.row_count) {
+            diagnostics->push_back("stat_allocation_already_applied");
+        } else {
+            diagnostics->push_back("stat_allocation_no_applicable_records");
+        }
+    }
+    return std::nullopt;
 }
 
 } // namespace urpg::progression

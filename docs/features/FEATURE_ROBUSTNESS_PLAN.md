@@ -8,7 +8,7 @@ URPG has enough native subsystems now that the next work should deepen existing 
 
 1. Battle feedback: chip damage/healing, configurable zero-damage presentation, custom buff caps, troop-position reuse, preview panel visibility, schema coverage, and legacy policy migration are started in native code; broader battle feedback fixture coverage remains.
 2. State/message/picture: scoped/self/map/JS variable banks, nested text escapes, picture task bindings, high-count picture management, native picture UI runtime preview rows, and compat migration adapters for scoped state/picture tasks are started in native code; broader fixture import coverage remains.
-3. Progression: level-up stat allocation pools, caps, class/actor rules, preview math, editor snapshots, and applied stat-allocation save/load records are started in native code; richer post-load actor application UI remains.
+3. Progression: level-up stat allocation pools, caps, class/actor rules, preview math, editor snapshots, applied stat-allocation save/load records, and post-load actor application rows are started in native code; richer visual controls remain.
 4. Asset browser/runtime library: tag/status/category filters, duplicate groups, source/license badges, previewable/runtime-ready counts, used-by references, promote/archive action state, and shared editor/chatbot asset action rows are started in native code; actual file moves plus richer thumbnail/waveform UI remain.
 5. AI editor workflow: approve/reject/apply/revert controls, validation blocking reasons, apply-preview patch counts, result diff patch counts, and undo-stack/apply-history snapshots are started in native code; richer painted diff browsing and per-record rationale UI remain.
 6. Project knowledge indexing: project files, schemas, readiness reports, validation reports, asset catalogs, project docs, template specs, and source summaries are started in native project-data indexing; direct filesystem/doc ingestion and freshness checks remain.
@@ -31,6 +31,10 @@ Asset action recommendations are shared by the WYSIWYG asset browser and chatbot
 ## Progression Save Records
 
 Stat allocation now has a commit record that can be attached to runtime save JSON under `_stat_allocations` and hydrated by `RuntimeSaveLoader`. The record stores pool/class/actor identity, before/after stats, spent and remaining points, and per-stat spending so level-up allocation previews can survive save/load.
+
+## Progression Post-Load Apply Rows
+
+Loaded stat-allocation records now build actor-specific application previews that show current stats, saved after-stats, spent/remaining points, applicable/already-applied/blocked state, and diagnostics. `StatAllocationPanel` exposes those rows in its snapshot with explicit post-load actor selection so the editor, chatbot, and WYSIWYG surfaces can present loaded progression changes before applying them.
 
 ## Picture Runtime Preview
 

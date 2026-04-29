@@ -158,6 +158,39 @@ TEST_CASE("Stat allocation previews level-up spending and editor state", "[progr
     REQUIRE(loaded[0].valid);
     REQUIRE(loaded[0].points_by_stat.at("atk") == 1);
     REQUIRE(loaded[0].after.agi == 12);
+
+    const auto post_load_preview =
+        urpg::progression::buildStatAllocationApplicationPreview("actor.hero", stats, loaded);
+    REQUIRE(post_load_preview.row_count == 1);
+    REQUIRE(post_load_preview.applicable_count == 1);
+    REQUIRE(post_load_preview.rows[0].can_apply);
+    REQUIRE_FALSE(post_load_preview.rows[0].already_applied);
+    REQUIRE(post_load_preview.rows[0].saved_after.hp == 170);
+
+    std::vector<std::string> apply_diagnostics;
+    const auto applied_stats =
+        urpg::progression::applyLatestStatAllocationForActor("actor.hero", stats, loaded, &apply_diagnostics);
+    REQUIRE(apply_diagnostics.empty());
+    REQUIRE(applied_stats.has_value());
+    REQUIRE(applied_stats->hp == 170);
+    REQUIRE(applied_stats->atk == 21);
+
+    panel.setLoadedAllocations(loaded);
+    panel.setPostLoadActorId("actor.hero");
+    panel.render();
+    const auto post_load_snapshot = panel.lastRenderSnapshot()["post_load"];
+    REQUIRE(post_load_snapshot["actor_id"] == "actor.hero");
+    REQUIRE(post_load_snapshot["row_count"] == 1);
+    REQUIRE(post_load_snapshot["applicable_count"] == 1);
+    REQUIRE(post_load_snapshot["rows"][0]["can_apply"] == true);
+    REQUIRE(post_load_snapshot["rows"][0]["saved_after"]["agi"] == 12);
+
+    const auto already_applied_preview =
+        urpg::progression::buildStatAllocationApplicationPreview("actor.hero", loaded[0].after, loaded);
+    REQUIRE(already_applied_preview.row_count == 1);
+    REQUIRE(already_applied_preview.applicable_count == 0);
+    REQUIRE(already_applied_preview.already_applied_count == 1);
+    REQUIRE(already_applied_preview.rows[0].blocked_reason == "already_applied");
 }
 
 TEST_CASE("Stat allocation reports overspend missing rules and invalid pools", "[progression][stat_allocation]") {
