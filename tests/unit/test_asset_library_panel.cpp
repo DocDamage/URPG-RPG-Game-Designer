@@ -4,8 +4,19 @@
 #include <nlohmann/json.hpp>
 
 #include <algorithm>
+#include <chrono>
 #include <filesystem>
 #include <fstream>
+#include <string>
+
+namespace {
+
+std::filesystem::path uniqueTempRoot(const std::string& prefix) {
+    const auto tick = std::chrono::steady_clock::now().time_since_epoch().count();
+    return std::filesystem::temp_directory_path() / (prefix + "_" + std::to_string(tick));
+}
+
+} // namespace
 
 TEST_CASE("AssetLibraryPanel renders cleanup preview summary", "[assets][asset_library][editor]") {
     urpg::editor::AssetLibraryPanel panel;
@@ -40,7 +51,7 @@ TEST_CASE("AssetLibraryPanel empty snapshot explains missing reports", "[assets]
 }
 
 TEST_CASE("AssetLibraryPanel load error snapshot includes remediation", "[assets][asset_library][editor][error]") {
-    const auto root = std::filesystem::temp_directory_path() / "urpg_asset_library_missing_reports";
+    const auto root = uniqueTempRoot("urpg_asset_library_missing_reports");
     std::filesystem::remove_all(root);
     std::filesystem::create_directories(root);
 
@@ -60,7 +71,7 @@ TEST_CASE("AssetLibraryPanel load error snapshot includes remediation", "[assets
 }
 
 TEST_CASE("AssetLibraryModel loads canonical report directory shape", "[assets][asset_library][editor]") {
-    const auto root = std::filesystem::temp_directory_path() / "urpg_asset_library_model_reports";
+    const auto root = uniqueTempRoot("urpg_asset_library_model_reports");
     std::filesystem::remove_all(root);
     std::filesystem::create_directories(root / "asset_intake");
 
@@ -88,7 +99,7 @@ TEST_CASE("AssetLibraryModel loads canonical report directory shape", "[assets][
 }
 
 TEST_CASE("AssetLibraryModel loads optional local promotion catalog", "[assets][asset_library][editor][asset_intake]") {
-    const auto root = std::filesystem::temp_directory_path() / "urpg_asset_library_model_promotion_reports";
+    const auto root = uniqueTempRoot("urpg_asset_library_model_promotion_reports");
     std::filesystem::remove_all(root);
     std::filesystem::create_directories(root / "asset_intake");
 
@@ -247,6 +258,10 @@ TEST_CASE("AssetLibraryModel loads optional local promotion catalog", "[assets][
     REQUIRE(model.snapshot().filter_controls["active_filter"]["media_kind"] == "image_sequence_collection");
     REQUIRE(model.snapshot().filter_controls["active_filter"]["runtime_ready_only"] == true);
     REQUIRE(model.snapshot().filter_controls["active_filter"]["previewable_only"] == true);
+    REQUIRE(model.snapshot().asset_action_rows.size() == 1);
+    REQUIRE(model.snapshot().asset_action_rows[0]["media_kind"] == "image_sequence_collection");
+    REQUIRE(model.snapshot().asset_preview_rows.size() == 1);
+    REQUIRE(model.snapshot().asset_preview_rows[0]["media_kind"] == "image_sequence_collection");
 
     std::filesystem::remove_all(root);
 }

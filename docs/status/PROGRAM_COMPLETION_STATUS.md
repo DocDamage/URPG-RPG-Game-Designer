@@ -16,6 +16,7 @@ Current app-level release readiness source of truth: [`docs/APP_RELEASE_READINES
 - Shared WYSIWYG/chatbot asset action and preview rows now expose aggregate animation-pack sequence metadata, including frame counts, sequence counts, and representative sequence samples.
 - Asset library snapshots now expose aggregate sequence asset, raw frame, and clip counts for SRC-008-style animation packs so editor/chatbot summaries do not need to inspect raw intake folders.
 - Asset library model snapshots now expose active filter state and quick-filter controls for sequence packs, runtime-ready assets, and previewable assets.
+- Asset action rows and preview rows now honor the active asset-library filter while full-library counts remain visible at the snapshot top level.
 - The README was rewritten to match the current native runtime/editor, AI review workflow, template coverage, asset-intake governance, release boundaries, and product positioning versus RPG Maker, Unity/Godot, and browser-only RPG tools.
 
 2026-04-29 plugin feature absorption checkpoint:

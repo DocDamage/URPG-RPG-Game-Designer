@@ -263,14 +263,17 @@ void AssetLibraryModel::refreshSnapshot() {
     snapshot_.sequence_clip_count = asset_snapshot.sequence_clip_count;
     snapshot_.promoted_count = asset_snapshot.promoted_count;
     snapshot_.archived_count = asset_snapshot.archived_count;
-    snapshot_.filtered_asset_count = library_.filterAssets(filter_).size();
+    auto filteredAssets = library_.filterAssets(filter_);
+    snapshot_.filtered_asset_count = filteredAssets.size();
     snapshot_.filter_controls = filterControls(filter_, asset_snapshot, snapshot_.filtered_asset_count);
     snapshot_.cleanup_allowed_count = cleanup_plan_.allowed_count;
     snapshot_.cleanup_refused_count = cleanup_plan_.refused_count;
     snapshot_.export_eligible = asset_snapshot.export_eligible;
     snapshot_.promotion_status = asset_snapshot.promotion_status;
-    snapshot_.asset_action_rows = urpg::assets::buildAssetActionRows(asset_snapshot);
-    snapshot_.asset_preview_rows = urpg::assets::buildAssetPreviewRows(asset_snapshot);
+    auto visible_snapshot = asset_snapshot;
+    visible_snapshot.assets = std::move(filteredAssets);
+    snapshot_.asset_action_rows = urpg::assets::buildAssetActionRows(visible_snapshot);
+    snapshot_.asset_preview_rows = urpg::assets::buildAssetPreviewRows(visible_snapshot);
     snapshot_.action_history = action_history_;
     if (!action_history_.empty()) {
         snapshot_.last_action = action_history_.back();
