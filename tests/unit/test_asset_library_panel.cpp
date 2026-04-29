@@ -259,4 +259,10 @@ TEST_CASE("AssetLibraryPanel exposes promote and archive action state", "[assets
     REQUIRE(panel.lastRenderSnapshot().runtime_ready_count == 0);
     REQUIRE(panel.lastRenderSnapshot().last_action["action"] == "archive");
     REQUIRE(panel.lastRenderSnapshot().action_history.size() == 2);
+    REQUIRE(panel.lastRenderSnapshot().asset_action_rows.size() == 1);
+    REQUIRE(panel.lastRenderSnapshot().asset_action_rows[0]["recommended_action"] == "archived");
+    REQUIRE(panel.lastRenderSnapshot().asset_action_rows[0]["promote_button"]["enabled"] == false);
+    REQUIRE(panel.lastRenderSnapshot().asset_action_rows[0]["promote_button"]["disabled_reason"] == "asset_archived");
+    REQUIRE(panel.lastRenderSnapshot().asset_action_rows[0]["archive_button"]["enabled"] == false);
+    REQUIRE(panel.lastRenderSnapshot().asset_action_rows[0]["archive_button"]["disabled_reason"] == "asset_already_archived");
 }

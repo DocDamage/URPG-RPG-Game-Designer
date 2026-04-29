@@ -466,6 +466,10 @@ TEST_CASE("Chatbot component plans approves and applies AI tool commands",
     REQUIRE(callbackCalled);
     REQUIRE(chatbot.lastAiToolSnapshot()["wysiwyg_chatbot_coverage"]["passed"] == true);
     REQUIRE(chatbot.lastAiToolSnapshot()["wysiwyg_chatbot_coverage"]["asset_library_actions_available"] == true);
+    REQUIRE(chatbot.lastAiToolSnapshot()["asset_action_rows"].size() == 1);
+    REQUIRE(chatbot.lastAiToolSnapshot()["asset_action_rows"][0]["recommended_action"] == "ready");
+    REQUIRE(chatbot.lastAiToolSnapshot()["asset_action_rows"][0]["promote_button"]["disabled_reason"] ==
+            "asset_already_promoted");
     REQUIRE(chatbot.lastAiToolSnapshot()["task_plan"]["steps"][0]["tool_id"] == "edit_dialogue");
     REQUIRE(chatbot.lastAiToolSnapshot()["approval"]["pending_count"] == 1);
 

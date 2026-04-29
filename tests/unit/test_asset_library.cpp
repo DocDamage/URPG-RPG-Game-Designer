@@ -1,7 +1,10 @@
+#include "engine/core/assets/asset_action_view.h"
 #include "engine/core/assets/asset_library.h"
 
 #include <catch2/catch_test_macros.hpp>
 #include <nlohmann/json.hpp>
+
+#include <algorithm>
 
 TEST_CASE("AssetLibrary ingests duplicate groups deterministically", "[assets][asset_library]") {
     urpg::assets::AssetLibrary library;
@@ -266,4 +269,70 @@ TEST_CASE("AssetLibrary promotes and archives curated assets", "[assets][asset_l
     REQUIRE(library.snapshot().promoted_count == 0);
     REQUIRE(library.snapshot().archived_count == 1);
     REQUIRE(library.snapshot().runtime_ready_count == 0);
+}
+
+TEST_CASE("Asset action view recommends promote archive and blocked states",
+          "[assets][asset_library][browser][actions]") {
+    urpg::assets::AssetLibrary library;
+    library.ingestPromotionCatalog(nlohmann::json{
+        {"source_id", "SRC-007"},
+        {"source_root", "imports/raw/urpg_stuff"},
+        {"assets",
+         {
+             {
+                 {"source_path", "imports/raw/urpg_stuff/characters/hero.png"},
+                 {"normalized_path", "asset://src-007/characters/hero.png"},
+                 {"preview_path", "imports/raw/urpg_stuff/characters/hero.png"},
+                 {"preview_kind", "image"},
+                 {"media_kind", "image"},
+                 {"category", "characters"},
+                 {"tags", {"hero", "kind:image"}},
+                 {"license", "user_attested_free_for_game_use_pending_per_pack_attribution"},
+             },
+             {
+                 {"source_path", "imports/raw/urpg_stuff/characters/hero-copy.png"},
+                 {"normalized_path", "asset://src-007/characters/hero-copy.png"},
+                 {"media_kind", "image"},
+                 {"category", "characters"},
+                 {"duplicate_of", "hero"},
+                 {"status", "duplicate"},
+                 {"license", "user_attested_free_for_game_use_pending_per_pack_attribution"},
+             },
+             {
+                 {"source_path", "imports/raw/urpg_stuff/characters/unlicensed.png"},
+                 {"normalized_path", "asset://src-007/characters/unlicensed.png"},
+                 {"media_kind", "image"},
+                 {"category", "characters"},
+             },
+         }}});
+    library.addUsageReference("imports/raw/urpg_stuff/characters/hero.png", "actor.hero");
+
+    const auto rows = urpg::assets::buildAssetActionRows(library.snapshot());
+    REQUIRE(rows.size() == 3);
+
+    const auto hero = std::find_if(rows.begin(), rows.end(), [](const auto& row) {
+        return row["path"] == "imports/raw/urpg_stuff/characters/hero.png";
+    });
+    REQUIRE(hero != rows.end());
+    REQUIRE((*hero)["recommended_action"] == "promote");
+    REQUIRE((*hero)["promote_button"]["enabled"] == true);
+    REQUIRE((*hero)["archive_button"]["enabled"] == false);
+    REQUIRE((*hero)["archive_button"]["disabled_reason"] == "asset_in_use");
+
+    const auto duplicate = std::find_if(rows.begin(), rows.end(), [](const auto& row) {
+        return row["path"] == "imports/raw/urpg_stuff/characters/hero-copy.png";
+    });
+    REQUIRE(duplicate != rows.end());
+    REQUIRE((*duplicate)["recommended_action"] == "archive_duplicate");
+    REQUIRE((*duplicate)["promote_button"]["enabled"] == false);
+    REQUIRE((*duplicate)["promote_button"]["disabled_reason"] == "asset_duplicate");
+    REQUIRE((*duplicate)["archive_button"]["enabled"] == true);
+
+    const auto unlicensed = std::find_if(rows.begin(), rows.end(), [](const auto& row) {
+        return row["path"] == "imports/raw/urpg_stuff/characters/unlicensed.png";
+    });
+    REQUIRE(unlicensed != rows.end());
+    REQUIRE((*unlicensed)["recommended_action"] == "add_license_evidence");
+    REQUIRE((*unlicensed)["promote_button"]["enabled"] == false);
+    REQUIRE((*unlicensed)["promote_button"]["disabled_reason"] == "asset_missing_license");
 }

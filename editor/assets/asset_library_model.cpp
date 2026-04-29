@@ -1,5 +1,7 @@
 #include "editor/assets/asset_library_model.h"
 
+#include "engine/core/assets/asset_action_view.h"
+
 #include <fstream>
 #include <sstream>
 #include <utility>
@@ -199,6 +201,7 @@ void AssetLibraryModel::refreshSnapshot() {
     snapshot_.cleanup_refused_count = cleanup_plan_.refused_count;
     snapshot_.export_eligible = asset_snapshot.export_eligible;
     snapshot_.promotion_status = asset_snapshot.promotion_status;
+    snapshot_.asset_action_rows = urpg::assets::buildAssetActionRows(asset_snapshot);
     snapshot_.action_history = action_history_;
     if (!action_history_.empty()) {
         snapshot_.last_action = action_history_.back();

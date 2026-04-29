@@ -2,6 +2,7 @@
 
 #include "engine/core/ai/ai_knowledge_base.h"
 #include "engine/core/ai/wysiwyg_chatbot_coverage.h"
+#include "engine/core/assets/asset_action_view.h"
 #include "engine/core/assets/asset_library.h"
 #include "engine/core/message/message_core.h"
 #include "engine/core/message/world_knowledge_bridge.h"
@@ -210,6 +211,7 @@ class ChatbotComponent {
             {"tool_count", m_aiKnowledge.tools.tools().size()},
             {"wysiwyg_chatbot_coverage",
              buildWysiwygChatbotCoverageReport(m_aiKnowledge, m_assetLibrarySnapshot).toJson()},
+            {"asset_action_rows", urpg::assets::buildAssetActionRows(m_assetLibrarySnapshot)},
             {"task_plan", m_currentAiTaskPlan.toJson()},
             {"approval", m_aiKnowledge.tools.approvalManifest(m_currentAiTaskPlan, m_aiKnowledge.capabilities)},
         };

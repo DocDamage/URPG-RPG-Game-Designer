@@ -367,6 +367,7 @@ set(URPG_CORE_SOURCES
     engine/gameplay/combat/combat_calc.cpp
     engine/core/audio/audio_ai_bridge.cpp
     engine/core/assets/asset_library.cpp
+    engine/core/assets/asset_action_view.cpp
     engine/core/assets/asset_cleanup_planner.cpp
     engine/core/audio/audio_mix_backend_smoke.cpp
     engine/core/audio/audio_mix_presets.cpp
