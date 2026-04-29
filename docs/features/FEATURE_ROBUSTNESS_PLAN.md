@@ -10,7 +10,7 @@ URPG has enough native subsystems now that the next work should deepen existing 
 2. State/message/picture: scoped/self/map/JS variable banks, nested text escapes, picture task bindings, and high-count picture management are started in native code; picture UI runtime preview remains.
 3. Progression: level-up stat allocation pools, caps, class/actor rules, preview math, and editor snapshots are started in native code; save integration remains.
 4. Asset browser/runtime library: tag/status/category filters, duplicate groups, source/license badges, previewable/runtime-ready counts, and used-by references are started in native code; promote/archive actions and richer thumbnail/waveform UI remain.
-5. AI editor workflow: in-editor diff viewer, per-record approvals, apply history, undo stack visibility, change rationale, and validation results per proposed change.
+5. AI editor workflow: approve/reject/apply/revert controls, validation blocking reasons, apply-preview patch counts, result diff patch counts, and undo-stack/apply-history snapshots are started in native code; richer painted diff browsing and per-record rationale UI remain.
 6. Project knowledge indexing: project files, schemas, readiness reports, validation reports, asset catalogs, template specs, generated docs, and source summaries.
 7. Concrete AI tools: subsystem validators/builders for event graphs, battle VFX, lighting/weather, ability sandboxing, export preview, asset promotion, and template instancing.
 8. Export/release UX: export preview panel, platform checklist, missing asset report, packaging diagnostics, signing/notarization status, and playable smoke-test evidence.

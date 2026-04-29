@@ -60,18 +60,24 @@ void AiAssistantPanel::render() {
         {"task_plan", current_task_plan_.toJson()},
         {"approval", knowledge_.tools.approvalManifest(current_task_plan_, knowledge_.capabilities)},
         {"controls", buildControlSnapshot()},
+        {"validation", buildValidationSnapshot()},
         {"apply_preview", buildApplyPreviewSnapshot()},
+        {"apply_history", buildApplyHistorySnapshot()},
     };
     if (!applied_changes_.empty()) {
         last_render_snapshot_["last_apply"] = applied_changes_.back().toJson();
         last_render_snapshot_["result_diff"] = {
             {"has_changes", !applied_changes_.back().project_patch.empty()},
+            {"forward_patch_count", applied_changes_.back().project_patch.size()},
+            {"revert_patch_count", applied_changes_.back().revert_patch.size()},
             {"forward_patch", applied_changes_.back().project_patch},
             {"revert_patch", applied_changes_.back().revert_patch},
         };
     } else {
         last_render_snapshot_["result_diff"] = {
             {"has_changes", false},
+            {"forward_patch_count", 0},
+            {"revert_patch_count", 0},
             {"forward_patch", nlohmann::json::array()},
             {"revert_patch", nlohmann::json::array()},
         };
@@ -208,6 +214,12 @@ nlohmann::json AiAssistantPanel::buildControlSnapshot() const {
             {"label", "Revert AI Change"},
             {"action", "revert_last_applied_plan"},
         }},
+        {"undo_stack", {
+            {"available", !applied_changes_.empty()},
+            {"count", applied_changes_.size()},
+            {"latest_forward_patch_count", applied_changes_.empty() ? 0 : applied_changes_.back().project_patch.size()},
+            {"latest_revert_patch_count", applied_changes_.empty() ? 0 : applied_changes_.back().revert_patch.size()},
+        }},
         {"step_controls", stepControls},
         {"diagnostics", current_task_plan_.id.empty() ? nlohmann::json::array() : diagnosticsToJson(diagnostics)},
     };
@@ -221,8 +233,54 @@ nlohmann::json AiAssistantPanel::buildApplyPreviewSnapshot() const {
     return {
         {"would_apply", result.applied},
         {"diagnostics", result.toJson()["diagnostics"]},
+        {"project_patch_count", result.project_patch.size()},
+        {"revert_patch_count", result.revert_patch.size()},
         {"project_patch", result.project_patch},
         {"revert_patch", result.revert_patch},
+    };
+}
+
+nlohmann::json AiAssistantPanel::buildApplyHistorySnapshot() const {
+    nlohmann::json entries = nlohmann::json::array();
+    for (std::size_t index = 0; index < applied_changes_.size(); ++index) {
+        const auto& change = applied_changes_[index];
+        entries.push_back({
+            {"index", index},
+            {"applied", change.applied},
+            {"project_patch_count", change.project_patch.size()},
+            {"revert_patch_count", change.revert_patch.size()},
+            {"diagnostic_count", change.diagnostics.size()},
+            {"can_revert", index + 1 == applied_changes_.size()},
+            {"project_patch", change.project_patch},
+            {"revert_patch", change.revert_patch},
+        });
+    }
+    return {
+        {"count", applied_changes_.size()},
+        {"can_revert_latest", !applied_changes_.empty()},
+        {"entries", entries},
+    };
+}
+
+nlohmann::json AiAssistantPanel::buildValidationSnapshot() const {
+    if (current_task_plan_.id.empty()) {
+        return {
+            {"valid", false},
+            {"diagnostic_count", 0},
+            {"diagnostics", nlohmann::json::array()},
+            {"blocked_reason", "no_task_plan"},
+        };
+    }
+    const auto diagnostics = knowledge_.tools.validatePlan(current_task_plan_);
+    nlohmann::json blockedReason = nullptr;
+    if (!diagnostics.empty()) {
+        blockedReason = diagnostics.front().code;
+    }
+    return {
+        {"valid", diagnostics.empty()},
+        {"diagnostic_count", diagnostics.size()},
+        {"diagnostics", diagnosticsToJson(diagnostics)},
+        {"blocked_reason", blockedReason},
     };
 }
 

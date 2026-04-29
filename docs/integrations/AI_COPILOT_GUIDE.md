@@ -70,8 +70,11 @@ The editor-facing AI action model is now explicit:
 - `controls.approve_all_button` exposes the approve-all affordance.
 - `controls.apply_button` is enabled only after the current plan validates with all mutating steps approved and no rejected steps.
 - `controls.revert_button` is enabled after at least one AI-applied project change is available to undo.
-- `apply_preview` contains the dry-run apply diagnostics plus the JSON Patch that would be written when the plan is approved.
-- `result_diff` contains the forward patch and reverse patch for the latest applied AI change.
+- `controls.undo_stack` exposes whether a reversible AI change exists, how many applied changes are stacked, and patch counts for the latest change.
+- `validation` exposes whether the plan is applyable, diagnostic counts, concrete diagnostics, and the first blocking reason for editor disabled-state copy.
+- `apply_preview` contains the dry-run apply diagnostics, patch counts, and the JSON Patch that would be written when the plan is approved.
+- `result_diff` contains the forward patch, reverse patch, and patch counts for the latest applied AI change.
+- `apply_history.entries[]` exposes every currently reversible AI-applied change, including forward/reverse patch counts and whether it is the latest change that can be reverted.
 
 `AiToolApplyResult` records `before_project_data`, `project_data`, `project_patch`, and `revert_patch`. The patches use nlohmann/json's JSON Patch representation. `AiAssistantPanel::revertLastAppliedPlan()` applies the latest reverse patch, updates the project knowledge snapshot, and records the result under `last_revert`.
 

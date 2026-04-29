@@ -28,6 +28,8 @@ private:
     void rebuildTaskPlan();
     nlohmann::json buildControlSnapshot() const;
     nlohmann::json buildApplyPreviewSnapshot() const;
+    nlohmann::json buildApplyHistorySnapshot() const;
+    nlohmann::json buildValidationSnapshot() const;
 
     urpg::ai::AiAssistantConfig config_;
     bool provider_available_ = false;

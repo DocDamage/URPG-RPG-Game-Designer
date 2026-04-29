@@ -220,7 +220,12 @@ TEST_CASE("AI assistant panel exposes knowledge and task plan snapshots",
     REQUIRE(snapshot["controls"]["approve_all_button"]["enabled"] == true);
     REQUIRE(snapshot["controls"]["apply_button"]["enabled"] == false);
     REQUIRE(snapshot["controls"]["step_controls"][0]["approve_button"]["enabled"] == true);
+    REQUIRE(snapshot["validation"]["valid"] == false);
+    REQUIRE(snapshot["validation"]["blocked_reason"] == "ai_tool_unapproved");
     REQUIRE(snapshot["apply_preview"]["would_apply"] == false);
+    REQUIRE(snapshot["apply_preview"]["project_patch_count"] == 0);
+    REQUIRE(snapshot["apply_history"]["count"] == 0);
+    REQUIRE(snapshot["apply_history"]["can_revert_latest"] == false);
 }
 
 TEST_CASE("AI assistant panel approves and applies task plans",
@@ -250,11 +255,24 @@ TEST_CASE("AI assistant panel approves and applies task plans",
 
     panel.render();
     REQUIRE(panel.lastRenderSnapshot()["controls"]["revert_button"]["enabled"] == true);
+    REQUIRE(panel.lastRenderSnapshot()["controls"]["undo_stack"]["available"] == true);
+    REQUIRE(panel.lastRenderSnapshot()["controls"]["undo_stack"]["count"] == 1);
     REQUIRE(panel.lastRenderSnapshot()["result_diff"]["has_changes"] == true);
+    REQUIRE(panel.lastRenderSnapshot()["result_diff"]["forward_patch_count"].get<size_t>() > 0);
+    REQUIRE(panel.lastRenderSnapshot()["result_diff"]["revert_patch_count"].get<size_t>() > 0);
+    REQUIRE(panel.lastRenderSnapshot()["apply_history"]["count"] == 1);
+    REQUIRE(panel.lastRenderSnapshot()["apply_history"]["can_revert_latest"] == true);
+    REQUIRE(panel.lastRenderSnapshot()["apply_history"]["entries"][0]["can_revert"] == true);
+    REQUIRE(panel.lastRenderSnapshot()["apply_history"]["entries"][0]["project_patch_count"].get<size_t>() > 0);
+    REQUIRE(panel.lastRenderSnapshot()["apply_history"]["entries"][0]["revert_patch_count"].get<size_t>() > 0);
 
     REQUIRE(panel.revertLastAppliedPlan());
     REQUIRE(panel.lastRenderSnapshot()["last_revert"]["reverted"] == true);
     REQUIRE_FALSE(panel.lastRenderSnapshot()["last_revert"]["project_data"].contains("dialogue"));
+
+    panel.render();
+    REQUIRE(panel.lastRenderSnapshot()["apply_history"]["count"] == 0);
+    REQUIRE(panel.lastRenderSnapshot()["controls"]["undo_stack"]["available"] == false);
 }
 
 TEST_CASE("AI assistant panel rejects proposed task steps",
