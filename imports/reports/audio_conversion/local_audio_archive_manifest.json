@@ -1,0 +1,17 @@
+{
+  "schema": "urpg/local_audio_archive/v1",
+  "generated_at": "2026-04-29T00:08:40+00:00",
+  "tracked_in_git": false,
+  "archives": [
+    {
+      "path": "C:\\dev\\URPG Maker\\.urpg\\local_audio_archive\\allnewaudio_20260428_200732",
+      "wav_files": 1692,
+      "mp3_files": 52,
+      "ogg_files": 1251
+    }
+  ],
+  "notes": [
+    "Local WAV/MP3 source archives are kept under .urpg, which is ignored by Git.",
+    "GitHub-tracked WAV/MP3 paths were removed; repository audio intake is OGG-only."
+  ]
+}

@@ -23,7 +23,7 @@ See `THIRD_PARTY_NOTICES.md` for source paths, license status, install status, a
 ## Asset Intake And Promoted Proof Lanes
 
 - `SRC-002` GDQuest/game-sprites: recorded release-required promoted visual proof lane for `gdquest_blue_actor.svg`, bundled through `BND-001` for title, map, and battle placeholder surfaces.
-- `SRC-003` Calinou/kenney-interface-sounds: recorded deferred/local UI SFX proof lane for `kenney_click_001.wav`; WAV payloads are ignored and are not bundled as release-required public package content.
+- `SRC-003` Calinou/kenney-interface-sounds: recorded deferred UI SFX proof lane; the former WAV payload was removed from GitHub and future promoted audio payloads must be OGG.
 
 Both promoted lanes are currently recorded as CC0 candidates for private-use intake. External redistribution remains unverified until a qualified legal reviewer confirms the upstream license evidence and attribution requirements.
 

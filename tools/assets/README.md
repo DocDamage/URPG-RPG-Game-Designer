@@ -96,6 +96,17 @@ python .\tools\assets\ingest_duelyst_animations.py `
 
 Add `--copy-textures` only for local/non-release preview work. Generated reports and atlas metadata are normalized intake output with `export_eligible=false` until a promotion manifest and attribution review approve a curated subset.
 
+## Audio OGG conversion
+Convert intake audio assets to OGG/Vorbis and write an audit manifest.
+Build/cache/vendor folders are skipped by default.
+
+```powershell
+python .\tools\assets\convert_audio_to_ogg.py --dry-run
+python .\tools\assets\convert_audio_to_ogg.py --delete-source
+```
+
+The report is written to `imports/reports/audio_conversion/audio_to_ogg_manifest.json`.
+
 ## Safe duplicate prune wave
 Conservative duplicate cleanup for extracted working copies (`itch/unzipped`) when canonical copies already exist.
 

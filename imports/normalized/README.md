@@ -6,7 +6,7 @@ See docs/PROGRAM_COMPLETION_STATUS.md (P3-02, P3-03) for program context.
 TD Sprint 04 activated the first bounded promoted outputs:
 
 - `prototype_sprites/gdquest_blue_actor.svg`
-- `ui_sfx/kenney_click_001.wav` as a local/deferred proof payload; WAV files in this folder are ignored and are not release-required GitHub content
+- `ui_sfx/` remains reserved for future promoted audio; WAV/MP3 payloads are not tracked in GitHub and future promoted audio must use OGG.
 
 Release attribution records for these promoted outputs live under
 `imports/reports/asset_intake/attribution/`.

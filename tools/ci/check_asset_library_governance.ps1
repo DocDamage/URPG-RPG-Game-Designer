@@ -60,7 +60,7 @@ foreach ($relativePath in $attributionRecords) {
     exit 1
   }
   $assetPath = Join-Path $RepoRoot $record.asset_id
-  if (-not (Test-Path -LiteralPath $assetPath -PathType Leaf)) {
+  if ($record.payload_required -ne $false -and -not (Test-Path -LiteralPath $assetPath -PathType Leaf)) {
     Write-Error "Asset attribution record points at a missing promoted asset: $($record.asset_id)"
     exit 1
   }

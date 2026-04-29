@@ -1,0 +1,37 @@
+{
+  "schema": "urpg/raw_asset_intake_inventory/v1",
+  "source_id": "SRC-007",
+  "root": "imports/raw/urpg_stuff",
+  "generated_at": "2026-04-29T00:08:27+00:00",
+  "summary": {
+    "files": 55192,
+    "bytes": 708805146,
+    "non_ogg_audio_files": 0,
+    "export_eligible": false,
+    "promotion_status": "not_started"
+  },
+  "extension_counts": {
+    ".png": 53805,
+    ".ogg": 1303,
+    ".psd": 74,
+    ".txt": 5,
+    ".pdf": 3,
+    ".ase": 1,
+    ".gif": 1
+  },
+  "license_or_readme_documents": [
+    "imports/raw/urpg_stuff/audio/Super Dialogue Audio Pack v1/Step 1 - License and Contact Info/License.pdf",
+    "imports/raw/urpg_stuff/audio/Super Dialogue Audio Pack v1/Step 1 - License and Contact Info/Voice Actors Contact Information.pdf",
+    "imports/raw/urpg_stuff/audio/Super Dialogue Audio Pack v1/Step 2 - Audio Files/Reference Sheet.pdf",
+    "imports/raw/urpg_stuff/audio/UI Soundpack/readme.txt",
+    "imports/raw/urpg_stuff/side scroller stuff/GandalfHardcore Character Asset Pack/READ ME.txt",
+    "imports/raw/urpg_stuff/side scroller stuff/GandalfHardcore FREE Platformer Assets/Links.txt",
+    "imports/raw/urpg_stuff/side scroller stuff/GandalfHardcore FREE Platformer Assets/READ ME.txt",
+    "imports/raw/urpg_stuff/side scroller stuff/GandalfHardcore Hp bar/READ ME.txt"
+  ],
+  "notes": [
+    "Raw quarantine intake only; user attested on 2026-04-28 that all assets in this local drop are free to use and usable in games.",
+    "Promote curated subsets only after per-pack attribution and editor/tool bundle review.",
+    "Audio intake is OGG-only. Local WAV/MP3 source files were converted, copied into this raw intake as OGG, and archived under .urpg/local_audio_archive."
+  ]
+}

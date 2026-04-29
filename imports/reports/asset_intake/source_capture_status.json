@@ -2,13 +2,13 @@
   "report_date": "2026-04-28",
   "report_version": 1,
   "summary": {
-    "total_sources": 6,
+    "total_sources": 7,
     "cataloged_not_mirrored": 4,
-    "mirrored": 2,
+    "mirrored": 3,
     "staged": 2,
     "normalized": 2,
     "discovery_only": 0,
-    "direct_asset_pack_sources": 4,
+    "direct_asset_pack_sources": 5,
     "discovery_index_sources": 2,
     "promotion_ready": 0,
     "promoted": 2,
@@ -54,7 +54,8 @@
         "imports/normalized/ui_sfx/kenney_click_001.wav"
       ],
       "bundle_manifest": "imports/manifests/asset_bundles/BND-002.json",
-      "attribution_record": "imports/reports/asset_intake/attribution/SRC-003_kenney_click_001.json"
+      "attribution_record": "imports/reports/asset_intake/attribution/SRC-003_kenney_click_001.json",
+      "payload_status": "wav_payload_removed_from_github_ogg_required_for_future_audio_promotion"
     },
     {
       "source_id": "SRC-006",
@@ -68,6 +69,21 @@
       "normalized_outputs": [
         "imports/normalized/duelyst_animations/atlases/*.sprite_atlas.json"
       ],
+      "export_eligible": false
+    },
+    {
+      "source_id": "SRC-007",
+      "repo_name": "Local URPG asset drop",
+      "source_type": "direct_asset_pack",
+      "capture_state": "mirrored",
+      "handling_path": "direct_ingest_when_captured",
+      "legal_disposition": "user_attested_free_for_game_use_requires_per_pack_attribution_and_tool_bundle_review",
+      "promotion_status": "not_started",
+      "raw_root": "imports/raw/urpg_stuff",
+      "inventory_report": "imports/reports/asset_intake/urpg_stuff_inventory.json",
+      "audio_conversion_report": "imports/reports/audio_conversion/audio_to_ogg_manifest.json",
+      "audio_drop_conversion_report": "imports/reports/audio_conversion/allnewaudio_to_ogg_manifest.json",
+      "local_audio_archive_report": "imports/reports/audio_conversion/local_audio_archive_manifest.json",
       "export_eligible": false
     },
     {
@@ -92,6 +108,10 @@
   "notes": [
     "This report mirrors the canonical source manifests under imports/manifests/asset_sources/.",
     "TD Sprint 04 promotes one bounded visual lane and one bounded audio lane; the remaining cataloged sources stay future intake candidates.",
-    "SRC-006 is cataloged with a metadata-only normalization tool for Duelyst unit animations. No texture payloads are mirrored or promoted by this report."
+    "SRC-006 is cataloged with a metadata-only normalization tool for Duelyst unit animations. No texture payloads are mirrored or promoted by this report.",
+    "SRC-007 is mirrored as raw quarantine intake only. User attested on 2026-04-28 that all assets in this local drop are free to use and usable in games.",
+    "SRC-007 promotion still requires per-pack attribution and review before editor/tool bundling or release packaging.",
+    "Non-OGG audio in available raw intake was converted into OGG and copied under SRC-007. Original local WAV/MP3 sources were archived under .urpg/local_audio_archive.",
+    "Tracked WAV/MP3 paths were removed from GitHub. Future audio promotion must use OGG payloads."
   ]
 }

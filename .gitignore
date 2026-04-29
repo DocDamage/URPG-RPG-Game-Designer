@@ -17,6 +17,8 @@ __pycache__/
 *.suo
 *.tmp
 *.log
+*.mp3
+*.wav
 build_log.txt
 build_output*.txt
 final_build_log*.txt
@@ -38,8 +40,11 @@ third_party/itch-assets/packs-by-category/ui/fantasy-platformer-game-ui/
 imports/reports/
 !imports/reports/
 !imports/reports/asset_intake/
+!imports/reports/asset_intake/*.json
 !imports/reports/asset_intake/attribution/
 !imports/reports/asset_intake/attribution/*.json
+!imports/reports/audio_conversion/
+!imports/reports/audio_conversion/*.json
 imports/normalized/ui_sfx/*.wav
 itch/archives/
 more assets/

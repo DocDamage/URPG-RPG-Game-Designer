@@ -15,7 +15,7 @@
       "release_surfaces": ["ui", "audio"],
       "license_cleared": true,
       "distribution": "deferred",
-      "notes": "Governed audio proof asset retained for local validation; WAV payloads are ignored locally and not release-required until binary hosting is restored."
+      "notes": "Governed audio proof record retained for attribution/history only. The WAV payload has been removed from GitHub; future promoted audio must use OGG output from the audio conversion pipeline."
     }
   ]
 }

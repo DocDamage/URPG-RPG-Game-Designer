@@ -8,8 +8,10 @@
   "license": "CC0-1.0",
   "commercial_use_allowed": true,
   "redistribution_allowed": true,
-  "promotion_status": "promoted",
+  "promotion_status": "deferred_payload_removed",
+  "payload_required": false,
   "notes": [
-    "Bounded UI-audio proof lane attribution record for the promoted local click sound."
+    "Bounded UI-audio proof lane attribution record retained for history.",
+    "The WAV payload was removed from GitHub during the OGG-only audio cleanup. Future promoted audio must use OGG."
   ]
 }
