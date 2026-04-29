@@ -3,6 +3,8 @@
 #include "engine/core/ai/wysiwyg_chatbot_coverage.h"
 #include "engine/core/assets/asset_action_view.h"
 
+#include <algorithm>
+#include <optional>
 #include <utility>
 
 namespace {
@@ -46,6 +48,37 @@ nlohmann::json valueAtPointerOrNull(const nlohmann::json& document, const std::s
         return nullptr;
     }
     return nullptr;
+}
+
+nlohmann::json makeAiChangeRecord(const urpg::ai::AiTaskPlan& plan,
+                                  const urpg::ai::AiToolApplyResult& result,
+                                  std::size_t index) {
+    return {
+        {"change_id", "ai_change_" + std::to_string(index + 1)},
+        {"plan_id", plan.id},
+        {"user_request", plan.user_request},
+        {"step_count", plan.steps.size()},
+        {"forward_patch", result.project_patch},
+        {"revert_patch", result.revert_patch},
+        {"before_project_data", result.before_project_data},
+        {"after_project_data", result.project_data},
+        {"reverted", false},
+    };
+}
+
+std::optional<std::size_t> latestUnrevertedAiChangeIndex(const nlohmann::json& projectData) {
+    if (!projectData.is_object() || !projectData.contains("_ai_change_history") ||
+        !projectData["_ai_change_history"].is_array()) {
+        return std::nullopt;
+    }
+    const auto& history = projectData["_ai_change_history"];
+    for (std::size_t offset = 0; offset < history.size(); ++offset) {
+        const auto index = history.size() - 1U - offset;
+        if (!history[index].value("reverted", false)) {
+            return index;
+        }
+    }
+    return std::nullopt;
 }
 
 } // namespace
@@ -190,36 +223,107 @@ bool AiAssistantPanel::applyApprovedPlan() {
     if (current_task_plan_.id.empty()) {
         rebuildTaskPlan();
     }
-    const auto result = knowledge_.tools.applyApprovedPlan(current_task_plan_, project_data_);
+    auto result = knowledge_.tools.applyApprovedPlan(current_task_plan_, project_data_);
     project_data_ = result.project_data;
     last_render_snapshot_["last_apply"] = result.toJson();
     if (result.applied) {
+        auto& history = project_data_["_ai_change_history"];
+        if (!history.is_array()) {
+            history = nlohmann::json::array();
+        }
+        history.push_back(makeAiChangeRecord(current_task_plan_, result, history.size()));
+        result.project_data = project_data_;
         applied_changes_.push_back(result);
         knowledge_ = urpg::ai::buildDefaultAiKnowledgeSnapshot(project_data_);
+        last_render_snapshot_["last_apply"] = result.toJson();
     }
     return result.applied;
 }
 
 bool AiAssistantPanel::revertLastAppliedPlan() {
-    if (applied_changes_.empty()) {
+    const auto changeIndex = latestUnrevertedAiChangeIndex(project_data_);
+    if (!changeIndex.has_value()) {
         last_render_snapshot_["last_revert"] = {{"reverted", false}, {"reason", "no_applied_ai_change"}};
         return false;
     }
-    const auto change = applied_changes_.back();
+    const auto change = project_data_["_ai_change_history"][*changeIndex];
     try {
-        project_data_ = project_data_.patch(change.revert_patch);
+        project_data_ = project_data_.patch(change.value("revert_patch", nlohmann::json::array()));
     } catch (const nlohmann::json::exception&) {
         last_render_snapshot_["last_revert"] = {{"reverted", false}, {"reason", "patch_apply_failed"}};
         return false;
     }
-    applied_changes_.pop_back();
+    auto& history = project_data_["_ai_change_history"];
+    if (!history.is_array()) {
+        history = nlohmann::json::array();
+    }
+    if (*changeIndex < history.size()) {
+        history[*changeIndex]["reverted"] = true;
+    } else {
+        auto restoredChange = change;
+        restoredChange["reverted"] = true;
+        history.push_back(std::move(restoredChange));
+    }
+    if (!applied_changes_.empty()) {
+        applied_changes_.pop_back();
+    }
     knowledge_ = urpg::ai::buildDefaultAiKnowledgeSnapshot(project_data_);
     last_render_snapshot_["last_revert"] = {
         {"reverted", true},
-        {"revert_patch", change.revert_patch},
+        {"change_id", change.value("change_id", "")},
+        {"revert_patch", change.value("revert_patch", nlohmann::json::array())},
         {"project_data", project_data_},
     };
     return true;
+}
+
+bool AiAssistantPanel::selectOpenAiProvider(const std::string& providerId) {
+    const auto profiles = urpg::ai::openAiCompatibleProviderProfiles();
+    const auto found = std::find_if(profiles.begin(), profiles.end(), [&](const auto& profile) {
+        return profile.id == providerId;
+    });
+    if (found == profiles.end()) {
+        last_provider_test_ = {
+            {"attempted", false},
+            {"success", false},
+            {"connection_state", "provider_not_found"},
+            {"failure_reason", "provider_not_found"},
+            {"provider_id", providerId},
+        };
+        return false;
+    }
+    selected_provider_id_ = providerId;
+    return true;
+}
+
+nlohmann::json AiAssistantPanel::testOpenAiProviderRequest() {
+    const auto selected = urpg::ai::openAiCompatibleProviderProfileById(selected_provider_id_);
+    const auto selectedConfig = urpg::ai::applyOpenAiCompatibleProviderProfile(provider_config_, selected);
+    const bool apiKeyMissing = selected.api_key_required && selectedConfig.api_key.empty();
+    if (apiKeyMissing) {
+        last_provider_test_ = {
+            {"attempted", false},
+            {"success", false},
+            {"connection_state", "blocked_missing_api_key"},
+            {"failure_reason", "missing_api_key"},
+            {"provider_id", selected.id},
+            {"endpoint", selectedConfig.endpoint},
+            {"model", selectedConfig.model},
+        };
+        return last_provider_test_;
+    }
+    const auto result = urpg::ai::invokeOpenAiCompatibleChat(
+        {{"user", "URPG provider connectivity test."}}, selectedConfig);
+    const std::string connectionState =
+        !selectedConfig.execute ? "dry_run" : (result.success ? "connected" : "failed");
+    const std::string failureReason = result.success ? "" : result.message;
+    last_provider_test_ = result.toJson();
+    last_provider_test_["connection_state"] = connectionState;
+    last_provider_test_["failure_reason"] = failureReason;
+    last_provider_test_["provider_id"] = selected.id;
+    last_provider_test_["endpoint"] = selectedConfig.endpoint;
+    last_provider_test_["model"] = selectedConfig.model;
+    return last_provider_test_;
 }
 
 nlohmann::json AiAssistantPanel::lastRenderSnapshot() const {
@@ -230,6 +334,9 @@ nlohmann::json AiAssistantPanel::buildControlSnapshot() const {
     const auto diagnostics = knowledge_.tools.validatePlan(current_task_plan_);
     const bool canApply = current_task_plan_.id.empty() ? false : diagnostics.empty();
     const auto approval = knowledge_.tools.approvalManifest(current_task_plan_, knowledge_.capabilities);
+    const auto latestChangeIndex = latestUnrevertedAiChangeIndex(project_data_);
+    const bool canRevert = latestChangeIndex.has_value();
+    const auto history = buildApplyHistorySnapshot();
     nlohmann::json stepControls = nlohmann::json::array();
     for (const auto& step : current_task_plan_.steps) {
         const auto* tool = knowledge_.tools.find(step.tool_id);
@@ -268,15 +375,18 @@ nlohmann::json AiAssistantPanel::buildControlSnapshot() const {
         }},
         {"revert_button", {
             {"visible", true},
-            {"enabled", !applied_changes_.empty()},
+            {"enabled", canRevert},
             {"label", "Revert AI Change"},
             {"action", "revert_last_applied_plan"},
         }},
         {"undo_stack", {
-            {"available", !applied_changes_.empty()},
-            {"count", applied_changes_.size()},
-            {"latest_forward_patch_count", applied_changes_.empty() ? 0 : applied_changes_.back().project_patch.size()},
-            {"latest_revert_patch_count", applied_changes_.empty() ? 0 : applied_changes_.back().revert_patch.size()},
+            {"available", canRevert},
+            {"count", history.value("count", std::size_t{0})},
+            {"latest_change_id", history.value("latest_change_id", nlohmann::json(nullptr))},
+            {"latest_forward_patch_count",
+             canRevert ? project_data_["_ai_change_history"][*latestChangeIndex].value("forward_patch", nlohmann::json::array()).size() : 0},
+            {"latest_revert_patch_count",
+             canRevert ? project_data_["_ai_change_history"][*latestChangeIndex].value("revert_patch", nlohmann::json::array()).size() : 0},
         }},
         {"step_controls", stepControls},
         {"diagnostics", current_task_plan_.id.empty() ? nlohmann::json::array() : diagnosticsToJson(diagnostics)},
@@ -302,23 +412,44 @@ nlohmann::json AiAssistantPanel::buildApplyPreviewSnapshot() const {
 
 nlohmann::json AiAssistantPanel::buildApplyHistorySnapshot() const {
     nlohmann::json entries = nlohmann::json::array();
-    for (std::size_t index = 0; index < applied_changes_.size(); ++index) {
-        const auto& change = applied_changes_[index];
+    nlohmann::json persisted = nlohmann::json::array();
+    if (project_data_.is_object() && project_data_.contains("_ai_change_history") &&
+        project_data_["_ai_change_history"].is_array()) {
+        persisted = project_data_["_ai_change_history"];
+    }
+    for (std::size_t index = 0; index < persisted.size(); ++index) {
+        const auto& record = persisted[index];
+        if (record.value("reverted", false)) {
+            continue;
+        }
+        urpg::ai::AiToolApplyResult change;
+        change.applied = true;
+        change.project_patch = record.value("forward_patch", nlohmann::json::array());
+        change.revert_patch = record.value("revert_patch", nlohmann::json::array());
+        change.before_project_data = record.value("before_project_data", nlohmann::json::object());
+        change.project_data = record.value("after_project_data", nlohmann::json::object());
         entries.push_back({
             {"index", index},
             {"applied", change.applied},
             {"project_patch_count", change.project_patch.size()},
             {"revert_patch_count", change.revert_patch.size()},
             {"diagnostic_count", change.diagnostics.size()},
-            {"can_revert", index + 1 == applied_changes_.size()},
+            {"can_revert", latestUnrevertedAiChangeIndex(project_data_).value_or(index) == index},
+            {"change_id", record.value("change_id", "")},
+            {"persisted_record", record},
             {"project_patch", change.project_patch},
             {"revert_patch", change.revert_patch},
             {"diff_rows", buildDiffRows(change)},
         });
     }
+    const auto latestIndex = latestUnrevertedAiChangeIndex(project_data_);
+    const nlohmann::json latestChangeId = latestIndex.has_value() && *latestIndex < persisted.size()
+                                              ? nlohmann::json(persisted[*latestIndex].value("change_id", ""))
+                                              : nlohmann::json(nullptr);
     return {
-        {"count", applied_changes_.size()},
-        {"can_revert_latest", !applied_changes_.empty()},
+        {"count", entries.size()},
+        {"can_revert_latest", latestIndex.has_value()},
+        {"latest_change_id", latestChangeId},
         {"entries", entries},
     };
 }
@@ -359,10 +490,16 @@ nlohmann::json AiAssistantPanel::buildProviderUiSnapshot() const {
             {"local_provider", profile.local_provider},
             {"api_key_required", profile.api_key_required},
             {"streaming_supported", profile.streaming_supported},
+            {"status_badge",
+             {
+                 {"tone", profile.local_provider ? "local" : "hosted"},
+                 {"label", profile.local_provider ? "Local" : "Hosted"},
+             }},
             {"select_button",
              {
                  {"visible", true},
                  {"enabled", profile.id != selected.id},
+                 {"label", profile.id == selected.id ? "Selected" : "Select"},
                  {"action", "select_openai_provider"},
              }},
         });
@@ -371,9 +508,22 @@ nlohmann::json AiAssistantPanel::buildProviderUiSnapshot() const {
     const bool streamEnabled = selected.streaming_supported && selectedConfig.stream;
     const std::string streamingState =
         streamEnabled ? "streaming_requested" : (selected.streaming_supported ? "available" : "not_supported");
+    const std::string connectionState =
+        !selectedConfig.execute ? "dry_run" : (apiKeyMissing ? "blocked_missing_api_key" : "ready_to_execute");
+    const nlohmann::json failureReason =
+        apiKeyMissing ? nlohmann::json("missing_api_key")
+                      : (!last_provider_test_.empty() && last_provider_test_.contains("failure_reason")
+                             ? last_provider_test_["failure_reason"]
+                             : nlohmann::json(nullptr));
+    nlohmann::json selectedProfile = selected.toJson();
+    selectedProfile["status_badge"] = {
+        {"tone", apiKeyMissing ? "blocked" : (selected.local_provider ? "local" : "hosted")},
+        {"label", apiKeyMissing ? "Missing API key" : (selected.local_provider ? "Local" : "Hosted")},
+    };
     return {
         {"selected_provider_id", selected.id},
         {"selected_label", selected.label},
+        {"selected_profile", selectedProfile},
         {"endpoint", selectedConfig.endpoint},
         {"model", selectedConfig.model},
         {"execute_live", selectedConfig.execute},
@@ -388,7 +538,9 @@ nlohmann::json AiAssistantPanel::buildProviderUiSnapshot() const {
         {"streaming_supported", selected.streaming_supported},
         {"streaming_requested", streamEnabled},
         {"streaming_state", streamingState},
-        {"connection_state", !selectedConfig.execute ? "dry_run" : (apiKeyMissing ? "blocked_missing_api_key" : "ready_to_execute")},
+        {"connection_state", connectionState},
+        {"failure_reason", failureReason},
+        {"last_test", last_provider_test_},
         {"stream_toggle",
          {
              {"visible", true},

@@ -480,6 +480,12 @@ TEST_CASE("AI assistant panel approves and applies task plans",
     REQUIRE(panel.applyApprovedPlan());
     REQUIRE(panel.lastRenderSnapshot()["last_apply"]["applied"] == true);
     REQUIRE(panel.lastRenderSnapshot()["last_apply"]["project_data"]["dialogue"]["generated_dialogue"]["lines"].size() == 1);
+    REQUIRE(panel.lastRenderSnapshot()["last_apply"]["project_data"]["_ai_change_history"].size() == 1);
+    REQUIRE(panel.lastRenderSnapshot()["last_apply"]["project_data"]["_ai_change_history"][0]["plan_id"] ==
+            panel.lastRenderSnapshot()["task_plan"]["id"]);
+    REQUIRE(panel.lastRenderSnapshot()["last_apply"]["project_data"]["_ai_change_history"][0]["forward_patch"].size() > 0);
+    REQUIRE(panel.lastRenderSnapshot()["last_apply"]["project_data"]["_ai_change_history"][0]["revert_patch"].size() > 0);
+    REQUIRE(panel.lastRenderSnapshot()["last_apply"]["project_data"]["_ai_change_history"][0]["reverted"] == false);
     REQUIRE_FALSE(panel.lastRenderSnapshot()["last_apply"]["project_patch"].empty());
     REQUIRE_FALSE(panel.lastRenderSnapshot()["last_apply"]["revert_patch"].empty());
 
@@ -499,15 +505,73 @@ TEST_CASE("AI assistant panel approves and applies task plans",
     REQUIRE(panel.lastRenderSnapshot()["apply_history"]["entries"][0]["can_revert"] == true);
     REQUIRE(panel.lastRenderSnapshot()["apply_history"]["entries"][0]["project_patch_count"].get<size_t>() > 0);
     REQUIRE(panel.lastRenderSnapshot()["apply_history"]["entries"][0]["revert_patch_count"].get<size_t>() > 0);
+    REQUIRE(panel.lastRenderSnapshot()["apply_history"]["entries"][0]["persisted_record"]["reverted"] == false);
+    REQUIRE(panel.lastRenderSnapshot()["apply_history"]["latest_change_id"].is_string());
     REQUIRE(panel.lastRenderSnapshot()["apply_history"]["entries"][0]["diff_rows"].size() > 0);
 
     REQUIRE(panel.revertLastAppliedPlan());
     REQUIRE(panel.lastRenderSnapshot()["last_revert"]["reverted"] == true);
     REQUIRE_FALSE(panel.lastRenderSnapshot()["last_revert"]["project_data"].contains("dialogue"));
+    REQUIRE(panel.lastRenderSnapshot()["last_revert"]["project_data"]["_ai_change_history"][0]["reverted"] == true);
 
     panel.render();
     REQUIRE(panel.lastRenderSnapshot()["apply_history"]["count"] == 0);
     REQUIRE(panel.lastRenderSnapshot()["controls"]["undo_stack"]["available"] == false);
+}
+
+TEST_CASE("AI assistant panel restores revert availability from persisted change history",
+          "[ai_knowledge][ai_assistant][editor][approval]") {
+    urpg::editor::AiAssistantPanel original;
+    original.setProjectData({{"project_id", "p1"}});
+    original.setTaskRequest("create dialogue for the town intro");
+    original.render();
+    REQUIRE(original.approveStep("step_dialogue"));
+    REQUIRE(original.applyApprovedPlan());
+    const auto savedProject = original.lastRenderSnapshot()["last_apply"]["project_data"];
+
+    urpg::editor::AiAssistantPanel restored;
+    restored.setProjectData(savedProject);
+    restored.render();
+    REQUIRE(restored.lastRenderSnapshot()["controls"]["revert_button"]["enabled"] == true);
+    REQUIRE(restored.lastRenderSnapshot()["apply_history"]["count"] == 1);
+
+    REQUIRE(restored.revertLastAppliedPlan());
+    REQUIRE_FALSE(restored.lastRenderSnapshot()["last_revert"]["project_data"].contains("dialogue"));
+    REQUIRE(restored.lastRenderSnapshot()["last_revert"]["project_data"]["_ai_change_history"][0]["reverted"] == true);
+}
+
+TEST_CASE("AI assistant panel selects and tests OpenAI-compatible providers",
+          "[ai_knowledge][ai_assistant][editor][provider_ui]") {
+    urpg::editor::AiAssistantPanel panel;
+    urpg::ai::OpenAiCompatibleChatConfig providerConfig;
+    providerConfig.execute = false;
+    providerConfig.stream = true;
+    panel.setOpenAiProviderConfig(providerConfig, "ollama");
+    panel.render();
+
+    REQUIRE(panel.lastRenderSnapshot()["provider_ui"]["profiles"][0].contains("status_badge"));
+    REQUIRE(panel.lastRenderSnapshot()["provider_ui"]["selected_profile"]["id"] == "ollama");
+
+    REQUIRE(panel.selectOpenAiProvider("lm_studio"));
+    panel.render();
+    REQUIRE(panel.lastRenderSnapshot()["provider_ui"]["selected_provider_id"] == "lm_studio");
+    REQUIRE(panel.lastRenderSnapshot()["provider_ui"]["endpoint"] == "http://127.0.0.1:1234/v1/chat/completions");
+
+    const auto dryRun = panel.testOpenAiProviderRequest();
+    REQUIRE(dryRun["attempted"] == false);
+    REQUIRE(dryRun["success"] == false);
+    REQUIRE(dryRun["connection_state"] == "dry_run");
+    REQUIRE(dryRun["failure_reason"] == "dry_run");
+    panel.render();
+    REQUIRE(panel.lastRenderSnapshot()["provider_ui"]["last_test"]["failure_reason"] == "dry_run");
+
+    providerConfig.execute = true;
+    providerConfig.api_key.clear();
+    panel.setOpenAiProviderConfig(providerConfig, "chatgpt");
+    panel.render();
+    REQUIRE(panel.lastRenderSnapshot()["provider_ui"]["connection_state"] == "blocked_missing_api_key");
+    REQUIRE(panel.lastRenderSnapshot()["provider_ui"]["failure_reason"] == "missing_api_key");
+    REQUIRE(panel.lastRenderSnapshot()["provider_ui"]["test_request_button"]["enabled"] == false);
 }
 
 TEST_CASE("AI assistant panel rejects proposed task steps",

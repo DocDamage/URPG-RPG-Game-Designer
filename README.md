@@ -13,7 +13,7 @@ The `development` branch is suitable for internal/private release-candidate vali
 Recent progress includes:
 
 - Review-gated AI project edits with visible approve, reject, approve-all, apply, preview, result-diff, and revert state in editor-facing models.
-- AI-applied project changes now carry forward and reverse JSON patch data so applied edits can be undone.
+- AI-applied project changes now persist `_ai_change_history` records with forward/reverse JSON patch data, before/after project data, and reverted state so applied edits can be undone from project state.
 - AI knowledge/tool indexing now covers project metadata, canonical docs, asset reports, schemas, readiness reports, template specs, validation reports, and subsystem-specific tool candidates.
 - Concrete AI tool surfaces are tracked for event graph authoring, VFX timeline edits, lighting/weather preview updates, ability sandbox composition, export preview configuration, and asset import/promotion.
 - `SRC-007` local URPG assets are catalog-normalized, deduped, and split into editor-loadable category shards.
@@ -74,7 +74,7 @@ Compared with browser-only RPG tools:
 ### AI
 
 - `IChatService` abstraction and deterministic in-tree `MockChatService`.
-- Creator-command transport profiles for OpenAI-compatible hosted and local providers such as ChatGPT/OpenAI, Kimi, OpenRouter, Ollama, and LM Studio.
+- Creator-command transport profiles for OpenAI-compatible hosted and local providers such as ChatGPT/OpenAI, Kimi, OpenRouter, Ollama, and LM Studio, with editor-visible provider selection, dry-run/live test state, and failure reasons.
 - Review-gated AI tool plans before mutation.
 - Patch-backed AI apply/revert flow for project JSON changes.
 - Current live chatbot provider implementation is still a productization priority; deterministic local behavior remains the shipped in-tree baseline.

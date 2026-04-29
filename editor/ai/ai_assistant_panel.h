@@ -26,6 +26,8 @@ public:
     bool rejectStep(const std::string& stepId);
     bool applyApprovedPlan();
     bool revertLastAppliedPlan();
+    bool selectOpenAiProvider(const std::string& providerId);
+    nlohmann::json testOpenAiProviderRequest();
     nlohmann::json lastRenderSnapshot() const;
 
 private:
@@ -49,6 +51,7 @@ private:
     urpg::ai::AiKnowledgeSnapshot knowledge_;
     urpg::ai::AiTaskPlan current_task_plan_;
     std::vector<urpg::ai::AiToolApplyResult> applied_changes_;
+    nlohmann::json last_provider_test_ = nlohmann::json::object();
     nlohmann::json last_render_snapshot_ = nlohmann::json::object();
 };
 
