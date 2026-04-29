@@ -234,6 +234,20 @@ TEST_CASE("battle VFX timeline project-data fixture round-trips through the auth
             "battle_vfx_cue:target_impact:hit:track=impact_track:asset=vfx/slash");
 }
 
+TEST_CASE("battle presentation schema exposes feedback policy authoring contract",
+          "[battle][authoring][schema][feedback]") {
+    const auto schema = loadJsonFile(repoRoot() / "content" / "schemas" / "battle_presentation.schema.json");
+
+    REQUIRE(schema["properties"].contains("feedback_policy"));
+    const auto feedback = schema["properties"]["feedback_policy"];
+    REQUIRE(feedback["required"].size() == 4);
+    REQUIRE(feedback["properties"]["schemaVersion"]["const"] == "1.0.0");
+    REQUIRE(feedback["properties"]["chipDamagePercent"]["maximum"] == 100);
+    REQUIRE(feedback["properties"]["chipHealingPercent"]["minimum"] == 0);
+    REQUIRE(feedback["properties"]["zeroDamagePolicy"]["enum"].size() == 4);
+    REQUIRE(feedback["properties"].contains("reuseTroopPositions"));
+}
+
 TEST_CASE("battle VFX timeline diagnostics block false done claims", "[battle][authoring][vfx][diagnostics]") {
     urpg::battle::BattleVfxTimelineDocument document;
     document.id.clear();

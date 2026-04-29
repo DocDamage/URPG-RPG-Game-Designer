@@ -140,6 +140,51 @@ TEST_CASE("BattleRuleResolver previews chip feedback zero-damage policy and buff
     REQUIRE(preview.zero_damage_label == "evasion");
 }
 
+TEST_CASE("BattleRuleResolver serializes and migrates feedback policy contracts",
+          "[battle][core][rules][feedback][schema][migration]") {
+    BattleFeedbackPolicy policy;
+    policy.chip_damage_percent = 125;
+    policy.chip_healing_percent = 35;
+    policy.min_chip_damage = -4;
+    policy.min_chip_healing = 2;
+    policy.max_buff_level = 6;
+    policy.zero_damage_policy = ZeroDamagePresentationPolicy::NoEffect;
+    policy.reuse_troop_positions = false;
+
+    const auto saved = BattleRuleResolver::feedbackPolicyToJson(policy);
+    REQUIRE(saved["schemaVersion"] == "1.0.0");
+    REQUIRE(saved["chipDamagePercent"] == 100);
+    REQUIRE(saved["minChipDamage"] == 0);
+    REQUIRE(saved["zeroDamagePolicy"] == "no_effect");
+    REQUIRE(saved["reuseTroopPositions"] == false);
+
+    const auto restored = BattleRuleResolver::feedbackPolicyFromJson(saved);
+    REQUIRE(restored.chip_damage_percent == 100);
+    REQUIRE(restored.chip_healing_percent == 35);
+    REQUIRE(restored.min_chip_damage == 0);
+    REQUIRE(restored.min_chip_healing == 2);
+    REQUIRE(restored.max_buff_level == 6);
+    REQUIRE(restored.zero_damage_policy == ZeroDamagePresentationPolicy::NoEffect);
+    REQUIRE_FALSE(restored.reuse_troop_positions);
+
+    const auto migrated = BattleRuleResolver::migrateFeedbackPolicy(nlohmann::json{
+        {"chip_damage_percent", 22},
+        {"chip_healing_percent", 44},
+        {"min_chip_damage", 3},
+        {"min_chip_healing", 5},
+        {"custom_buff_cap", 8},
+        {"zero_damage_policy", "zero_as_evasion"},
+        {"reuse_troop_positions", true},
+    });
+    REQUIRE(migrated.chip_damage_percent == 22);
+    REQUIRE(migrated.chip_healing_percent == 44);
+    REQUIRE(migrated.min_chip_damage == 3);
+    REQUIRE(migrated.min_chip_healing == 5);
+    REQUIRE(migrated.max_buff_level == 8);
+    REQUIRE(migrated.zero_damage_policy == ZeroDamagePresentationPolicy::Evasion);
+    REQUIRE(migrated.reuse_troop_positions);
+}
+
 TEST_CASE("BattleRuleResolver reuses troop positions by enemy id when enabled", "[battle][core][rules][feedback]") {
     BattleFeedbackPolicy policy;
     policy.reuse_troop_positions = true;

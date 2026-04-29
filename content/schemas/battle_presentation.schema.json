@@ -71,6 +71,20 @@
           "payload": { "type": "string" }
         }
       }
+    },
+    "feedback_policy": {
+      "type": "object",
+      "required": ["schemaVersion", "chipDamagePercent", "chipHealingPercent", "zeroDamagePolicy"],
+      "properties": {
+        "schemaVersion": { "const": "1.0.0" },
+        "chipDamagePercent": { "type": "integer", "minimum": 0, "maximum": 100 },
+        "chipHealingPercent": { "type": "integer", "minimum": 0, "maximum": 100 },
+        "minChipDamage": { "type": "integer", "minimum": 0 },
+        "minChipHealing": { "type": "integer", "minimum": 0 },
+        "maxBuffLevel": { "type": "integer", "minimum": 0 },
+        "zeroDamagePolicy": { "enum": ["miss", "evasion", "immune", "no_effect"] },
+        "reuseTroopPositions": { "type": "boolean" }
+      }
     }
   }
 }

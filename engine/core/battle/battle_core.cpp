@@ -199,6 +199,76 @@ std::string BattleRuleResolver::toString(ZeroDamagePresentationPolicy policy) {
     return "miss";
 }
 
+ZeroDamagePresentationPolicy BattleRuleResolver::zeroDamagePolicyFromString(const std::string& value) {
+    if (value == "evasion" || value == "evade" || value == "zero_as_evasion") {
+        return ZeroDamagePresentationPolicy::Evasion;
+    }
+    if (value == "immune" || value == "zero_as_immune") {
+        return ZeroDamagePresentationPolicy::Immune;
+    }
+    if (value == "no_effect" || value == "none" || value == "zero_as_no_effect") {
+        return ZeroDamagePresentationPolicy::NoEffect;
+    }
+    return ZeroDamagePresentationPolicy::Miss;
+}
+
+nlohmann::json BattleRuleResolver::feedbackPolicyToJson(const BattleFeedbackPolicy& policy) {
+    return {
+        {"schemaVersion", "1.0.0"},
+        {"chipDamagePercent", std::clamp(policy.chip_damage_percent, 0, 100)},
+        {"chipHealingPercent", std::clamp(policy.chip_healing_percent, 0, 100)},
+        {"minChipDamage", std::max(0, policy.min_chip_damage)},
+        {"minChipHealing", std::max(0, policy.min_chip_healing)},
+        {"maxBuffLevel", std::max(0, policy.max_buff_level)},
+        {"zeroDamagePolicy", toString(policy.zero_damage_policy)},
+        {"reuseTroopPositions", policy.reuse_troop_positions},
+    };
+}
+
+BattleFeedbackPolicy BattleRuleResolver::feedbackPolicyFromJson(const nlohmann::json& json) {
+    BattleFeedbackPolicy policy;
+    if (!json.is_object()) {
+        return policy;
+    }
+    policy.chip_damage_percent = std::clamp(json.value("chipDamagePercent", policy.chip_damage_percent), 0, 100);
+    policy.chip_healing_percent = std::clamp(json.value("chipHealingPercent", policy.chip_healing_percent), 0, 100);
+    policy.min_chip_damage = std::max(0, json.value("minChipDamage", policy.min_chip_damage));
+    policy.min_chip_healing = std::max(0, json.value("minChipHealing", policy.min_chip_healing));
+    policy.max_buff_level = std::max(0, json.value("maxBuffLevel", policy.max_buff_level));
+    policy.zero_damage_policy = zeroDamagePolicyFromString(json.value("zeroDamagePolicy", toString(policy.zero_damage_policy)));
+    policy.reuse_troop_positions = json.value("reuseTroopPositions", policy.reuse_troop_positions);
+    return policy;
+}
+
+BattleFeedbackPolicy BattleRuleResolver::migrateFeedbackPolicy(const nlohmann::json& legacy_json) {
+    BattleFeedbackPolicy policy;
+    if (!legacy_json.is_object()) {
+        return policy;
+    }
+    policy.chip_damage_percent = std::clamp(
+        legacy_json.value("chip_damage_percent", legacy_json.value("chipDamagePercent", policy.chip_damage_percent)),
+        0,
+        100);
+    policy.chip_healing_percent = std::clamp(
+        legacy_json.value("chip_healing_percent", legacy_json.value("chipHealingPercent", policy.chip_healing_percent)),
+        0,
+        100);
+    policy.min_chip_damage =
+        std::max(0, legacy_json.value("min_chip_damage", legacy_json.value("minChipDamage", policy.min_chip_damage)));
+    policy.min_chip_healing =
+        std::max(0, legacy_json.value("min_chip_healing", legacy_json.value("minChipHealing", policy.min_chip_healing)));
+    policy.max_buff_level = std::max(
+        0,
+        legacy_json.value("custom_buff_cap",
+                          legacy_json.value("max_buff_level",
+                                            legacy_json.value("maxBuffLevel", policy.max_buff_level))));
+    policy.zero_damage_policy = zeroDamagePolicyFromString(legacy_json.value(
+        "zero_damage_policy", legacy_json.value("zeroDamagePolicy", toString(policy.zero_damage_policy))));
+    policy.reuse_troop_positions =
+        legacy_json.value("reuse_troop_positions", legacy_json.value("reuseTroopPositions", policy.reuse_troop_positions));
+    return policy;
+}
+
 int32_t BattleRuleResolver::resolveEscapeRatio(int32_t party_agi, int32_t troop_agi, int32_t fail_count) {
     const int32_t safe_party_agi = ClampPositive(party_agi);
     const int32_t safe_troop_agi = ClampPositive(troop_agi);

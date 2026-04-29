@@ -6,7 +6,7 @@ URPG has enough native subsystems now that the next work should deepen existing 
 
 ## Priority Lanes
 
-1. Battle feedback: chip damage/healing, configurable zero-damage presentation, custom buff caps, troop-position reuse, preview panel visibility, and migration/schema coverage.
+1. Battle feedback: chip damage/healing, configurable zero-damage presentation, custom buff caps, troop-position reuse, preview panel visibility, schema coverage, and legacy policy migration are started in native code; broader battle feedback fixture coverage remains.
 2. State/message/picture: scoped/self/map/JS variable banks, nested text escapes, picture task bindings, high-count picture management, and native picture UI runtime preview rows are started in native code; migration adapters remain.
 3. Progression: level-up stat allocation pools, caps, class/actor rules, preview math, editor snapshots, and applied stat-allocation save/load records are started in native code; richer post-load actor application UI remains.
 4. Asset browser/runtime library: tag/status/category filters, duplicate groups, source/license badges, previewable/runtime-ready counts, used-by references, promote/archive action state, and shared editor/chatbot asset action rows are started in native code; actual file moves plus richer thumbnail/waveform UI remain.
@@ -35,3 +35,7 @@ Stat allocation now has a commit record that can be attached to runtime save JSO
 ## Picture Runtime Preview
 
 `PictureTaskDocument::previewRuntime()` now projects high-count picture slots into WYSIWYG-ready rows with bounds, z order, opacity, visibility, click/hover binding state, common-event targets, hover hit testing, and diagnostics for out-of-range runtime slots.
+
+## Battle Feedback Policy
+
+Battle feedback policy now round-trips through schema-versioned JSON, migrates legacy snake-case/plugin-style keys, clamps chip percentages and minimum values, and is exposed in `battle_presentation.schema.json` for editor/project authoring.

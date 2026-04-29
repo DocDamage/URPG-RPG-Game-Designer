@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstdint>
+#include <nlohmann/json.hpp>
 #include <optional>
 #include <string>
 #include <vector>
@@ -133,6 +134,10 @@ public:
                                                           const std::vector<TroopMemberPosition>& reusable_positions,
                                                           const BattleFeedbackPolicy& policy);
     static std::string toString(ZeroDamagePresentationPolicy policy);
+    static ZeroDamagePresentationPolicy zeroDamagePolicyFromString(const std::string& value);
+    static nlohmann::json feedbackPolicyToJson(const BattleFeedbackPolicy& policy);
+    static BattleFeedbackPolicy feedbackPolicyFromJson(const nlohmann::json& json);
+    static BattleFeedbackPolicy migrateFeedbackPolicy(const nlohmann::json& legacy_json);
     static int32_t resolveEscapeRatio(int32_t party_agi, int32_t troop_agi, int32_t fail_count);
 };
 
