@@ -24,10 +24,12 @@ Robust local asset index for this repo using SQLite + FTS5.
 ```powershell
 python .\tools\assets\asset_db.py init
 python .\tools\assets\asset_db.py index
+python .\tools\assets\asset_db.py index --roots third_party/itch-assets/packs third_party/itch-assets/loose-files third_party/rpgmaker-mz third_party/huggingface third_party/aseprite third_party/external-repos third_party/github_assets itch/loose
 python .\tools\assets\asset_db.py stats
 python .\tools\assets\asset_db.py dupes --show-paths --limit 20
 python .\tools\assets\asset_db.py find --query "dragon" --limit 25
 python .\tools\assets\asset_db.py find --kind image --ext png --pack "Monster Mega"
+python .\tools\assets\report_third_party_itch_ingest.py
 ```
 
 ## Custom roots
@@ -36,6 +38,8 @@ python .\tools\assets\asset_db.py index --roots third_party/itch-assets/packs th
 ```
 
 `imports/raw/urpg_stuff` is included in the default roots when the local drop exists.
+
+`report_third_party_itch_ingest.py` writes a tracked summary report to `imports/reports/asset_intake/third_party_itch_ingest_summary.json` after a third-party/itch indexing pass. The SQLite DB remains local under `third_party/asset-index/`.
 
 ## Convenience wrappers
 ```powershell
