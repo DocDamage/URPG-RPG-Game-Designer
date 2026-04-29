@@ -59,6 +59,7 @@ class AssetLibraryModel {
     urpg::assets::AssetLibraryActionResult promoteAsset(std::string path);
     urpg::assets::AssetLibraryActionResult archiveAsset(std::string path, std::string reason = {});
     void setFilter(urpg::assets::AssetLibraryFilter filter);
+    bool applyQuickFilter(std::string_view filter_id);
     void rebuildCleanupPreview();
     void clear();
 

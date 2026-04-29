@@ -227,6 +227,32 @@ void AssetLibraryModel::setFilter(urpg::assets::AssetLibraryFilter filter) {
     refreshSnapshot();
 }
 
+bool AssetLibraryModel::applyQuickFilter(std::string_view filter_id) {
+    urpg::assets::AssetLibraryFilter filter;
+    if (filter_id == "all_assets") {
+        setFilter(filter);
+        return true;
+    }
+    if (filter_id == "sequence_packs") {
+        filter.media_kind = "image_sequence_collection";
+        filter.runtime_ready_only = true;
+        filter.previewable_only = true;
+        setFilter(filter);
+        return true;
+    }
+    if (filter_id == "runtime_ready") {
+        filter.runtime_ready_only = true;
+        setFilter(filter);
+        return true;
+    }
+    if (filter_id == "previewable") {
+        filter.previewable_only = true;
+        setFilter(filter);
+        return true;
+    }
+    return false;
+}
+
 void AssetLibraryModel::rebuildCleanupPreview() {
     cleanup_plan_ = cleanup_planner_.buildDuplicateCleanupPlan(library_);
     refreshSnapshot();
