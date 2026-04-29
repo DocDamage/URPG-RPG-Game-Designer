@@ -57,6 +57,35 @@ TEST_CASE("AI knowledge snapshot indexes app capabilities docs tools and project
         {"template_specs", nlohmann::json::array({
             {{"id", "monster_collector"}, {"path", "docs/templates/monster_collector_rpg.md"}, {"status", "starter"}, {"summary", "Monster collector template spec."}},
         })},
+        {"filesystem_documents", nlohmann::json::array({
+            {
+                {"id", "event_runtime_cpp"},
+                {"path", "engine/core/events/event_runtime.cpp"},
+                {"kind", "source"},
+                {"content", "Event runtime executes command graphs and validates switch conditions."},
+                {"indexed_at_epoch", 100},
+                {"modified_at_epoch", 90},
+                {"age_days", 2},
+                {"max_age_days", 14},
+            },
+            {
+                {"id", "asset_report"},
+                {"path", "imports/reports/asset_intake/summary.json"},
+                {"kind", "report"},
+                {"content", "Asset catalog report lists promoted sprites and duplicate groups."},
+                {"indexed_at_epoch", 100},
+                {"modified_at_epoch", 120},
+                {"age_days", 40},
+                {"max_age_days", 14},
+            },
+        })},
+        {"ingested_docs", nlohmann::json::array({
+            {
+                {"id", "readme"},
+                {"path", "README.md"},
+                {"content", "URPG Maker provides WYSIWYG RPG authoring with deterministic native runtime ownership."},
+            },
+        })},
     };
 
     const auto snapshot = urpg::ai::buildDefaultAiKnowledgeSnapshot(project);
@@ -73,6 +102,8 @@ TEST_CASE("AI knowledge snapshot indexes app capabilities docs tools and project
     REQUIRE_FALSE(snapshot.project_index.search("local gate validation").empty());
     REQUIRE_FALSE(snapshot.project_index.search("asset catalog duplicate").empty());
     REQUIRE_FALSE(snapshot.project_index.search("monster collector template").empty());
+    REQUIRE_FALSE(snapshot.project_index.search("event runtime switch conditions").empty());
+    REQUIRE_FALSE(snapshot.project_index.search("deterministic native runtime ownership").empty());
     REQUIRE_FALSE(snapshot.docs_index.search("copilot").empty());
     REQUIRE_FALSE(snapshot.docs_index.search("asset dlc library manager").empty());
     REQUIRE_FALSE(snapshot.docs_index.search("release checklist dashboard").empty());
@@ -84,6 +115,23 @@ TEST_CASE("AI knowledge snapshot indexes app capabilities docs tools and project
     REQUIRE(catalogIt != catalogMatches.end());
     REQUIRE(catalogIt->metadata["asset_count"] == 42);
     REQUIRE(catalogIt->metadata["duplicate_group_count"] == 3);
+
+    const auto staleMatches = snapshot.project_index.search("asset_report");
+    const auto staleIt = std::find_if(staleMatches.begin(), staleMatches.end(), [](const auto& entry) {
+        return entry.id == "filesystem_documents:asset_report";
+    });
+    REQUIRE(staleIt != staleMatches.end());
+    REQUIRE(staleIt->metadata["freshness"] == "stale");
+    REQUIRE(staleIt->metadata["stale"] == true);
+    REQUIRE(staleIt->metadata["direct_ingestion"] == true);
+
+    const auto freshMatches = snapshot.project_index.search("event_runtime_cpp");
+    const auto freshIt = std::find_if(freshMatches.begin(), freshMatches.end(), [](const auto& entry) {
+        return entry.id == "filesystem_documents:event_runtime_cpp";
+    });
+    REQUIRE(freshIt != freshMatches.end());
+    REQUIRE(freshIt->metadata["freshness"] == "fresh");
+    REQUIRE(freshIt->metadata["content_excerpt"].get<std::string>().find("Event runtime") != std::string::npos);
 }
 
 TEST_CASE("AI chatbot knowledge covers release WYSIWYG panels features and asset actions",

@@ -117,6 +117,22 @@ int jsonInt(const nlohmann::json& value, const std::string& key, int fallback = 
     return value[key].get<int>();
 }
 
+std::int64_t jsonInt64(const nlohmann::json& value, const std::string& key, std::int64_t fallback = 0) {
+    if (!value.is_object() || !value.contains(key) || !value[key].is_number_integer()) {
+        return fallback;
+    }
+    return value[key].get<std::int64_t>();
+}
+
+std::string excerpt(std::string text, std::size_t maxLength = 180) {
+    text.erase(std::remove(text.begin(), text.end(), '\r'), text.end());
+    std::replace(text.begin(), text.end(), '\n', ' ');
+    if (text.size() <= maxLength) {
+        return text;
+    }
+    return text.substr(0, maxLength) + "...";
+}
+
 nlohmann::json& ensureArray(nlohmann::json& root, const std::string& key) {
     auto& value = root[key];
     if (!value.is_array()) {
@@ -220,6 +236,84 @@ void appendStructuredKnowledgeRecords(urpg::ai::ProjectKnowledgeIndex& index,
                 appendRecord(it.value(), it.key(), "/" + key + "/" + it.key());
             }
         }
+    }
+}
+
+void appendIngestedDocumentRecords(urpg::ai::ProjectKnowledgeIndex& index,
+                                   const nlohmann::json& root,
+                                   const std::string& key,
+                                   const std::string& type,
+                                   const std::string& title,
+                                   const std::vector<std::string>& keywords) {
+    if (!root.contains(key) || !root[key].is_array()) {
+        return;
+    }
+
+    const auto& records = root[key];
+    index.addEntry({
+        key,
+        type + "_collection",
+        title,
+        "/" + key,
+        title + " entries ingested: " + std::to_string(records.size()),
+        keywords,
+        {{"count", records.size()}, {"source", key}, {"direct_ingestion", true}},
+    });
+
+    for (std::size_t i = 0; i < records.size(); ++i) {
+        const auto& record = records[i];
+        if (!record.is_object()) {
+            continue;
+        }
+        const auto path = jsonString(record, "path", jsonString(record, "uri", std::to_string(i)));
+        const auto id = jsonString(record, "id", path);
+        const auto content = jsonString(record, "content", jsonString(record, "text"));
+        const auto indexedAt = jsonInt64(record, "indexed_at_epoch");
+        const auto modifiedAt = jsonInt64(record, "modified_at_epoch");
+        const auto maxAgeDays = jsonInt(record, "max_age_days", 30);
+        const auto ageDays = jsonInt(record, "age_days", 0);
+        const bool staleByModified = indexedAt > 0 && modifiedAt > 0 && modifiedAt > indexedAt;
+        const bool staleByAge = ageDays > maxAgeDays;
+        const std::string freshness = staleByModified || staleByAge ? "stale" : "fresh";
+
+        auto recordKeywords = keywords;
+        pushUnique(recordKeywords, id);
+        pushUnique(recordKeywords, path);
+        pushUnique(recordKeywords, jsonString(record, "kind"));
+        pushUnique(recordKeywords, jsonString(record, "status"));
+        pushUnique(recordKeywords, freshness);
+        if (!content.empty()) {
+            recordKeywords.push_back(excerpt(content, 80));
+        }
+
+        auto summary = jsonString(record, "summary");
+        if (summary.empty()) {
+            summary = content.empty() ? "Directly ingested project document." : excerpt(content);
+        }
+
+        index.addEntry({
+            key + ":" + id,
+            type,
+            jsonString(record, "title", path),
+            path,
+            summary,
+            recordKeywords,
+            {
+                {"source", key},
+                {"record_id", id},
+                {"path", path},
+                {"kind", jsonString(record, "kind")},
+                {"content_bytes", content.size()},
+                {"content_excerpt", excerpt(content)},
+                {"indexed_at_epoch", indexedAt},
+                {"modified_at_epoch", modifiedAt},
+                {"age_days", ageDays},
+                {"max_age_days", maxAgeDays},
+                {"freshness", freshness},
+                {"stale", freshness == "stale"},
+                {"direct_ingestion", true},
+            },
+        });
     }
 }
 
@@ -390,6 +484,10 @@ ProjectKnowledgeIndex ProjectKnowledgeIndex::buildFromProjectData(const nlohmann
                                      {"template", "starter", "genre", "spec"});
     appendStructuredKnowledgeRecords(index, projectData, "source_summaries", "source_summary", "Source Summaries",
                                      {"source", "code", "summary", "subsystem"});
+    appendIngestedDocumentRecords(index, projectData, "filesystem_documents", "filesystem_document", "Filesystem Documents",
+                                  {"filesystem", "file", "direct", "ingested", "freshness"});
+    appendIngestedDocumentRecords(index, projectData, "ingested_docs", "ingested_doc", "Ingested Project Docs",
+                                  {"doc", "documentation", "direct", "ingested", "freshness"});
     return index;
 }
 
