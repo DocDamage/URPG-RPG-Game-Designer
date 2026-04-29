@@ -1,8 +1,10 @@
 #pragma once
 
 #include "../global_state_hub.h"
+#include <cstdint>
 #include "audio_core.h"
 #include <map>
+#include <optional>
 #include <string>
 #include <vector>
 
@@ -22,6 +24,19 @@ class StateDrivenAudioResolver {
         float fadeSeconds = 1.0f;
     };
 
+    struct WeightedTrack {
+        std::string assetId;
+        int32_t weight = 1;
+    };
+
+    struct RandomRule {
+        std::string hubKey;
+        std::string hubValue;
+        std::vector<WeightedTrack> tracks;
+        uint32_t seed = 0;
+        float fadeSeconds = 1.0f;
+    };
+
     StateDrivenAudioResolver(AudioCore& core) : m_core(core) {
         // Subscribe to changes in state that might trigger BGM swaps
         // Updated Pattern matching to use global listener for multi-prefix rules
@@ -33,6 +48,32 @@ class StateDrivenAudioResolver {
     ~StateDrivenAudioResolver() { GlobalStateHub::getInstance().unsubscribe(m_subHandle); }
 
     void addRule(const Rule& rule) { m_rules.push_back(rule); }
+    void addRandomRule(const RandomRule& rule) { m_randomRules.push_back(rule); }
+
+    static std::optional<std::string> selectWeightedTrack(const std::vector<WeightedTrack>& tracks, uint32_t seed) {
+        int32_t totalWeight = 0;
+        for (const auto& track : tracks) {
+            if (!track.assetId.empty() && track.weight > 0) {
+                totalWeight += track.weight;
+            }
+        }
+        if (totalWeight <= 0) {
+            return std::nullopt;
+        }
+
+        const auto roll = static_cast<int32_t>((seed * 1103515245U + 12345U) % static_cast<uint32_t>(totalWeight));
+        int32_t cursor = 0;
+        for (const auto& track : tracks) {
+            if (track.assetId.empty() || track.weight <= 0) {
+                continue;
+            }
+            cursor += track.weight;
+            if (roll < cursor) {
+                return track.assetId;
+            }
+        }
+        return std::nullopt;
+    }
 
   private:
     void evaluateRules(const std::string& key, const GlobalStateHub::Value& value) {
@@ -52,10 +93,19 @@ class StateDrivenAudioResolver {
                 break;
             }
         }
+        for (const auto& rule : m_randomRules) {
+            if (rule.hubKey == key && rule.hubValue == valStr) {
+                if (const auto selected = selectWeightedTrack(rule.tracks, rule.seed)) {
+                    m_core.playBGM(*selected, rule.fadeSeconds);
+                }
+                break;
+            }
+        }
     }
 
     AudioCore& m_core;
     std::vector<Rule> m_rules;
+    std::vector<RandomRule> m_randomRules;
     uint32_t m_subHandle = 0;
 };
 

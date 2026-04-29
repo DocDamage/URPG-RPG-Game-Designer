@@ -47,6 +47,7 @@ imports/reports/
 !imports/reports/audio_conversion/*.json
 imports/normalized/ui_sfx/*.wav
 imports/raw/urpg_stuff/
+imports/raw/plugin_feature_intake/
 urpg stuff/
 imports/raw/itch_assets/archives/
 more assets/

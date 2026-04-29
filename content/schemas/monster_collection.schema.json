@@ -20,9 +20,24 @@
         "properties": {
           "id": {"type": "string", "minLength": 1},
           "display_name": {"type": "string"},
+          "actor_id": {"type": "integer", "minimum": 0},
           "base_capture_rate": {"type": "integer", "minimum": 1},
           "evolves_to": {"type": "string"},
           "evolution_level": {"type": "integer", "minimum": 0}
+        },
+        "additionalProperties": false
+      }
+    },
+    "capture_items": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id"],
+        "properties": {
+          "id": {"type": "string", "minLength": 1},
+          "display_name": {"type": "string"},
+          "capture_bonus": {"type": "integer"},
+          "enabled": {"type": "boolean"}
         },
         "additionalProperties": false
       }

@@ -63,6 +63,42 @@ TEST_CASE("Monster collection captures moves stores and previews editor state", 
     REQUIRE(snapshot["capture_preview"]["success"] == true);
 }
 
+TEST_CASE("Monster collection supports item-gated capture with actor conversion and reward suppression",
+          "[monster][capture][native-plugin-absorption]") {
+    const auto fixturePath = sourceRootFromMacro() / "content" / "fixtures" / "monster_collection_fixture.json";
+    std::ifstream input(fixturePath);
+    REQUIRE(input.is_open());
+    nlohmann::json fixture;
+    input >> fixture;
+
+    auto document = urpg::monster::MonsterCollectionDocument::fromJson(fixture);
+    REQUIRE(document.validate().empty());
+
+    urpg::monster::CaptureAttempt attempt;
+    attempt.species_id = "slime";
+    attempt.item_id = "basic_capture_chip";
+    attempt.target_hp_percent = 50;
+    attempt.seed = 0;
+
+    const auto preview = document.previewCapture(attempt);
+    REQUIRE(preview.success);
+    REQUIRE(preview.requires_capture_item);
+    REQUIRE(preview.actor_id == 5);
+    REQUIRE(preview.chance == 55);
+    REQUIRE(preview.suppress_exp_gold_drops);
+
+    const auto resolution = document.resolveItemCapture(attempt, "slime_capture_001");
+    REQUIRE(resolution.captured);
+    REQUIRE(resolution.remove_enemy_from_battle);
+    REQUIRE(resolution.suppress_exp_gold_drops);
+    REQUIRE(resolution.actor_id_added == 5);
+    REQUIRE(document.party.size() == 1);
+
+    const auto json = urpg::monster::monsterCaptureResolutionToJson(resolution);
+    REQUIRE(json["captured"] == true);
+    REQUIRE(json["actor_id_added"] == 5);
+}
+
 TEST_CASE("Monster collection reports invalid species references", "[monster][capture]") {
     auto document = urpg::monster::MonsterCollectionDocument::fromJson(nlohmann::json{
         {"party_limit", 1},

@@ -5,6 +5,7 @@
     {
       "id": "slime",
       "display_name": "Slime",
+      "actor_id": 5,
       "base_capture_rate": 15,
       "evolves_to": "big_slime",
       "evolution_level": 5
@@ -12,9 +13,18 @@
     {
       "id": "big_slime",
       "display_name": "Big Slime",
+      "actor_id": 6,
       "base_capture_rate": 5,
       "evolves_to": "",
       "evolution_level": 0
+    }
+  ],
+  "capture_items": [
+    {
+      "id": "basic_capture_chip",
+      "display_name": "Basic Capture Chip",
+      "capture_bonus": 15,
+      "enabled": true
     }
   ],
   "party": [],

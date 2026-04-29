@@ -1,0 +1,55 @@
+{
+  "status_date": "2026-04-29",
+  "raw_intake_root": "imports/raw/plugin_feature_intake",
+  "raw_intake_git_state": "ignored",
+  "source_file_count": 32,
+  "duplicate_check": {
+    "existing_native_surfaces_found": [
+      "monster_collection",
+      "loot_generator",
+      "battle_vfx_timeline",
+      "battle_presentation",
+      "lighting_system",
+      "camera_system",
+      "terrain_brush",
+      "map_environment_preview",
+      "state_driven_audio_resolver",
+      "runtime_title_scene",
+      "event_authoring",
+      "picture_ui_fixture",
+      "switch_variable_inspector_fixture",
+      "mount_vehicle_system_fixture"
+    ],
+    "parallel_plugin_runtime_allowed": false,
+    "absorption_strategy": "extend existing native systems and migrate plugin semantics into schemas, runtime models, editor panels, diagnostics, and tests"
+  },
+  "implemented_this_pass": [
+    {
+      "feature": "monster_capture_item_rules",
+      "native_surface": "engine/core/monster/MonsterCollectionDocument",
+      "source_semantics": [
+        "capture item gates capture attempt",
+        "enemy/species capture metadata maps to actor id",
+        "successful capture removes enemy from battle",
+        "successful capture suppresses exp/gold/drop reward"
+      ]
+    },
+    {
+      "feature": "deterministic_weighted_random_bgm",
+      "native_surface": "engine/core/audio/StateDrivenAudioResolver",
+      "source_semantics": [
+        "map and battle BGM can be selected from a configured pool",
+        "selection is deterministic from a seed",
+        "empty and non-positive-weight tracks are ignored"
+      ]
+    }
+  ],
+  "remaining_lanes": [
+    "presentation_media",
+    "map_presentation",
+    "battle_feedback",
+    "world_vehicle_audio_event",
+    "state_message_picture",
+    "progression_stat_allocation"
+  ]
+}

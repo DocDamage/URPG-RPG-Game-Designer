@@ -1,4 +1,5 @@
 #include "engine/core/audio/audio_core.h"
+#include "engine/core/audio/state_driven_audio_resolver.h"
 #include "engine/core/global_state_hub.h"
 #include <catch2/catch_test_macros.hpp>
 
@@ -36,4 +37,16 @@ TEST_CASE("AudioCore: GlobalStateHub Sync", "[audio][state][sync]") {
 
         REQUIRE(audio.getCategoryVolume(AudioCategory::BGM) == 0.4f);
     }
+}
+
+TEST_CASE("StateDrivenAudioResolver supports deterministic weighted random BGM pools",
+          "[audio][state][native-plugin-absorption]") {
+    auto selected = StateDrivenAudioResolver::selectWeightedTrack(
+        {{"map_theme_a", 1}, {"map_theme_b", 3}, {"", 99}, {"disabled", 0}},
+        0
+    );
+
+    REQUIRE(selected.has_value());
+    REQUIRE(*selected == "map_theme_b");
+    REQUIRE(StateDrivenAudioResolver::selectWeightedTrack({{"", 1}, {"disabled", 0}}, 3) == std::nullopt);
 }

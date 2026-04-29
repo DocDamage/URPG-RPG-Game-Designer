@@ -21,6 +21,7 @@ void MonsterCollectionPanel::render() {
                  {"document", document_.toJson()},
                  {"capture_attempt",
                   {{"species_id", attempt_.species_id},
+                   {"item_id", attempt_.item_id},
                    {"target_hp_percent", attempt_.target_hp_percent},
                    {"ball_bonus", attempt_.ball_bonus},
                    {"seed", attempt_.seed}}},

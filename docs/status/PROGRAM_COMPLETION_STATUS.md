@@ -14,6 +14,13 @@ Current app-level release readiness source of truth: [`docs/APP_RELEASE_READINES
 - `SRC-007` remains deduped and catalog-normalized under `imports/raw/urpg_stuff`; existing OGG context was preserved and tracked MP3/WAV files remain excluded.
 - The README was rewritten to match the current native runtime/editor, AI review workflow, template coverage, asset-intake governance, release boundaries, and product positioning versus RPG Maker, Unity/Godot, and browser-only RPG tools.
 
+2026-04-29 plugin feature absorption checkpoint:
+- The local plugin/tool feature drop was moved out of the repo root into ignored raw intake at `imports/raw/plugin_feature_intake/`.
+- Duplicate review found overlapping native URPG surfaces for monster capture, loot generation, battle VFX, lighting, camera, terrain, map environment preview, state-driven audio, title presentation, event authoring, picture UI, variables/switches, and vehicle systems.
+- `docs/features/PLUGIN_FEATURE_ABSORPTION_PLAN.md` records the native absorption plan; the policy is to extend existing C++/editor systems rather than ship parallel JavaScript plugins.
+- Monster capture absorbed the first plugin behavior slice: item-gated capture attempts, species actor IDs, successful capture battle removal, and exp/gold/drop suppression.
+- State-driven audio absorbed random BGM selection as deterministic weighted track pools.
+
 2026-04-28 documentation and AI/editor checkpoint:
 - `development` is pushed to `origin/development` at commit `cfdae41e9` (`Advance AI editor and template readiness`) before this documentation refresh.
 - The README now describes the repository as an internal/private release-candidate validation checkpoint rather than a public-release-ready product.
