@@ -18,4 +18,9 @@ Large local raw drops may be catalog-normalized before binary promotion. `SRC-00
 Those catalog records are not release/export eligible until a curated subset is promoted into this
 directory or another approved hydrated bundle surface.
 
+The latest `SRC-007` refresh also catalogs non-audio maps, models, archives, fonts, and tooling metadata.
+Generator/tool candidates are tracked separately in
+`imports/reports/asset_intake/urpg_stuff_generator_candidates.json`; they are not promoted runtime
+assets and require engineering review before any URPG Maker integration.
+
 Future additions should continue to arrive through source manifests, bundle manifests, and asset-intake reports rather than broad content dumps.

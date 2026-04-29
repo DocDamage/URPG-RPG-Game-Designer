@@ -47,6 +47,7 @@ imports/reports/
 !imports/reports/audio_conversion/*.json
 imports/normalized/ui_sfx/*.wav
 imports/raw/urpg_stuff/
+urpg stuff/
 itch/archives/
 more assets/
 third_party/itch-assets/packs/fantasy-platformer-game-ui/PSD/

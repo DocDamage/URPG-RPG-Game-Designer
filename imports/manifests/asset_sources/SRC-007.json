@@ -12,20 +12,26 @@
     "pixel_art",
     "ui_audio",
     "voice_audio",
-    "source_art"
+    "source_art",
+    "isometric_models",
+    "maps",
+    "generator_tools"
   ],
   "intended_use": [
     "Raw asset cataloging and visual prototype candidate review",
     "Side-scroller animation source review",
-    "UI/audio pack review after OGG-only normalization"
+    "UI/audio pack review after OGG-only normalization",
+    "Map/model/archive/tooling candidate review with audio ignored for the latest refresh"
   ],
   "handling_path": "direct_ingest_when_captured",
   "legal_disposition": "user_attested_free_for_game_use_requires_per_pack_attribution_and_tool_bundle_review",
   "promotion_status": "cataloged_local",
   "notes": [
     "Captured from the local folder previously named 'urpg stuff' and moved under imports/raw/urpg_stuff.",
+    "Latest refresh copied non-audio assets from C:\\dev\\URPG Maker\\urpg stuff into imports/raw/urpg_stuff/refresh_20260428_2206; audio was ignored per user instruction.",
     "User attested on 2026-04-28 that all assets in this local drop are free to use and usable in games.",
-    "All supported local payloads are catalog-normalized through imports/reports/asset_intake/urpg_stuff_promotion_catalog.json and category shards with stable virtual asset ids, inferred categories, tags, preview paths, and exact duplicate markers.",
+    "All supported local non-audio payloads are catalog-normalized through imports/reports/asset_intake/urpg_stuff_promotion_catalog.json and category shards with stable virtual asset ids, inferred categories, tags, preview paths, maps/models/archives/tooling categories, and exact duplicate markers.",
+    "Generator/tool candidates are cataloged in imports/reports/asset_intake/urpg_stuff_generator_candidates.json for engineering review before incorporation into URPG Maker.",
     "Before promoting a curated subset into the editor bundle or release content, capture per-pack attribution and reconcile any pack-specific restrictions with URPG's game-making-tool distribution model.",
     "Non-OGG audio was removed from the raw drop during OGG normalization work. The audio conversion report records existing tracked LFS pointers that could not be hydrated because the GitHub LFS budget is exceeded.",
     "Raw payload remains local and is not export eligible until curated bundle manifests and attribution records are created."

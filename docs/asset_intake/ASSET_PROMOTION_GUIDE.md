@@ -90,6 +90,7 @@ Large local drops can enter the editor library before release promotion by produ
 
 ```powershell
 python .\tools\assets\promote_urpg_stuff_assets.py
+python .\tools\assets\promote_urpg_stuff_assets.py --exclude-audio
 ```
 
 This writes:
@@ -98,6 +99,14 @@ This writes:
 - `imports/reports/asset_intake/urpg_stuff_promotion_summary.json`
 
 The top-level catalog is a small manifest plus duplicate index; category shards give each raw asset a stable virtual `asset://` normalized path, inferred category, pack, tags, preview path, checksum, and duplicate marker. The editor asset library loads this optional catalog from the canonical report directory. These records are usable for local browsing, preview, and curation, but are not release/export eligible until a curated subset receives bundle manifests, attribution records, and copied or otherwise hydrated promoted payloads.
+
+Tooling and generator folders must be cataloged separately from game-art promotion:
+
+```powershell
+python .\tools\assets\catalog_urpg_generators.py --source-root "urpg stuff"
+```
+
+This writes `imports/reports/asset_intake/urpg_stuff_generator_candidates.json`. Treat those records as engineering-review candidates only; do not execute or bundle generator code until license, dependency, sandboxing, and product-surface review are complete.
 
 ### Promotion Manifest Schema Example
 
@@ -195,3 +204,4 @@ Target integrations by priority:
 | 2026-04-27 | Added release-required asset manifest metadata and CI validation for title, map, battle, UI, audio, icons, and font fallback surfaces. |
 | 2026-04-27 | Deferred tracked WAV payloads from release packaging; local UI SFX proofs are ignored while release UI/audio surfaces use explicit fallback policy entries. |
 | 2026-04-28 | Added local bulk catalog-normalization for `SRC-007` so large raw drops can be tagged, deduped, preview-addressed, and loaded by the editor asset library without duplicating or committing binary payloads. |
+| 2026-04-28 | Added non-audio refresh handling and generator/tool candidate cataloging for `SRC-007`, including map/model/archive/tooling categories. |

@@ -12,10 +12,73 @@ import struct
 import subprocess
 from pathlib import Path
 
-IMAGE_EXTS = {"png", "gif", "jpg", "jpeg", "bmp", "webp", "ase", "psd"}
+IMAGE_EXTS = {"png", "gif", "jpg", "jpeg", "bmp", "webp", "ase", "aseprite", "ico", "psd", "svg"}
 AUDIO_EXTS = {"ogg"}
-DOC_EXTS = {"txt", "md", "pdf", "json", "csv"}
-SUPPORTED_EXTS = IMAGE_EXTS | AUDIO_EXTS | DOC_EXTS
+DOC_EXTS = {"", "1", "apache", "bsd", "gpl", "license", "txt", "md", "pdf", "rst", "ronn", "rtf", "csv", "po", "pot"}
+DATA_EXTS = {
+    "desktop",
+    "dtd",
+    "entitlements",
+    "godot",
+    "json",
+    "lock",
+    "nix",
+    "pem",
+    "plist",
+    "shader",
+    "swatch",
+    "thumbnailer",
+    "xml",
+    "xjb",
+    "xsd",
+    "xsl",
+    "yml",
+    "yaml",
+    "cfg",
+    "conf",
+    "ini",
+    "import",
+    "tres",
+    "tscn",
+    "tx",
+}
+SOURCE_EXTS = {
+    "bat",
+    "c",
+    "cc",
+    "cmake",
+    "cmd",
+    "cpp",
+    "css",
+    "gd",
+    "gdshader",
+    "h",
+    "hpp",
+    "in",
+    "java",
+    "js",
+    "pri",
+    "py",
+    "qbs",
+    "qml",
+    "qrc",
+    "rb",
+    "sh",
+    "ts",
+    "ui",
+    "wxs",
+}
+MODEL_EXTS = {"obj", "fbx", "mtl", "ply", "vox", "blend", "mat", "glb", "gltf", "stex"}
+MAP_EXTS = {"tmx", "tsx", "world", "tiled-project"}
+ARCHIVE_EXTS = {"zip", "rar", "7z"}
+FONT_EXTS = {"ttf", "otf"}
+SUPPORTED_EXTS = IMAGE_EXTS | AUDIO_EXTS | DOC_EXTS | DATA_EXTS | SOURCE_EXTS | MODEL_EXTS | MAP_EXTS | ARCHIVE_EXTS | FONT_EXTS
+TOOL_PATH_HINTS = (
+    "/spritegenerator/",
+    "/pixel planet maker/",
+    "/backgroundgenerator/",
+    "/tiled-map editor/",
+)
 EXCLUDED_DIRS = {
     ".git",
     ".cache",
@@ -147,6 +210,18 @@ def media_kind(ext: str) -> str:
         return "audio"
     if ext in DOC_EXTS:
         return "document"
+    if ext in DATA_EXTS:
+        return "data"
+    if ext in SOURCE_EXTS:
+        return "source"
+    if ext in MODEL_EXTS:
+        return "model"
+    if ext in MAP_EXTS:
+        return "map"
+    if ext in ARCHIVE_EXTS:
+        return "archive"
+    if ext in FONT_EXTS:
+        return "font"
     return "unsupported"
 
 
@@ -163,6 +238,11 @@ def infer_pack(path_rel: str, source_root: str) -> str:
 
 def infer_category(path_rel: str, kind: str) -> str:
     lower = path_rel.lower()
+    normalized_lower = "/" + lower.replace("\\", "/") + "/"
+    if any(hint in normalized_lower for hint in TOOL_PATH_HINTS):
+        if "tiled-map editor" in lower:
+            return "tooling/map-editor"
+        return "tooling/generator"
     if kind == "audio":
         if "dialogue" in lower or "voice" in lower:
             return "audio/dialogue"
@@ -173,6 +253,16 @@ def infer_category(path_rel: str, kind: str) -> str:
         return "audio/sfx"
     if kind == "document":
         return "documentation"
+    if kind in {"source", "data"}:
+        return "tooling/source"
+    if kind == "model":
+        return "models"
+    if kind == "map":
+        return "maps"
+    if kind == "archive":
+        return "archives"
+    if kind == "font":
+        return "fonts"
     if "spells" in lower or "vfx" in lower or "effect" in lower or "magic" in lower:
         return "vfx"
     if "side scroller" in lower or any(token in lower for token in ("idle", "walk", "attack", "hurt", "dead", "jump", "run")):
@@ -222,6 +312,7 @@ def parse_args() -> argparse.Namespace:
         help="Small summary report path.",
     )
     parser.add_argument("--source-id", default="SRC-007")
+    parser.add_argument("--exclude-audio", action="store_true", help="Skip audio files entirely.")
     return parser.parse_args()
 
 
@@ -245,6 +336,8 @@ def main() -> int:
 
     for path in iter_files(source_root):
         ext = path.suffix.lower().lstrip(".")
+        if args.exclude_audio and ext in AUDIO_EXTS:
+            continue
         extension_counts[ext or "(none)"] = extension_counts.get(ext or "(none)", 0) + 1
         if ext not in SUPPORTED_EXTS:
             unsupported.append(rel(path, repo_root))
