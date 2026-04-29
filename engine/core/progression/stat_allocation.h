@@ -4,6 +4,8 @@
 
 #include <cstdint>
 #include <map>
+#include <nlohmann/json.hpp>
+#include <optional>
 #include <set>
 #include <string>
 #include <vector>
@@ -50,6 +52,21 @@ struct StatAllocationPreview {
     std::vector<ProgressionDiagnostic> diagnostics;
 };
 
+inline constexpr const char* kStatAllocationsSaveKey = "_stat_allocations";
+
+struct AppliedStatAllocation {
+    std::string pool_id;
+    std::string actor_id;
+    std::string class_id;
+    ActorStatBlock before;
+    ActorStatBlock after;
+    std::map<std::string, int32_t> points_by_stat;
+    int32_t spent_points = 0;
+    int32_t remaining_points = 0;
+    bool valid = false;
+    std::vector<ProgressionDiagnostic> diagnostics;
+};
+
 class StatAllocationDocument {
 public:
     void addPool(StatAllocationPool pool);
@@ -57,6 +74,9 @@ public:
     [[nodiscard]] StatAllocationPreview preview(const std::string& pool_id,
                                                 const ActorStatBlock& current_stats,
                                                 const StatAllocationRequest& request) const;
+    [[nodiscard]] AppliedStatAllocation commit(const std::string& pool_id,
+                                               const ActorStatBlock& current_stats,
+                                               const StatAllocationRequest& request) const;
 
 private:
     [[nodiscard]] const StatAllocationPool* findPool(const std::string& pool_id) const;
@@ -64,5 +84,15 @@ private:
 
     std::map<std::string, StatAllocationPool> pools_;
 };
+
+nlohmann::json toJson(const ActorStatBlock& stats);
+ActorStatBlock actorStatBlockFromJson(const nlohmann::json& json);
+nlohmann::json toJson(const AppliedStatAllocation& allocation);
+std::optional<AppliedStatAllocation> appliedStatAllocationFromJson(const nlohmann::json& json,
+                                                                   std::vector<std::string>* diagnostics = nullptr);
+bool attachStatAllocationToSaveDocument(nlohmann::json& document, const AppliedStatAllocation& allocation,
+                                        std::vector<std::string>* diagnostics = nullptr);
+std::vector<AppliedStatAllocation> loadStatAllocationsFromSaveDocument(
+    const nlohmann::json& document, std::vector<std::string>* diagnostics = nullptr);
 
 } // namespace urpg::progression

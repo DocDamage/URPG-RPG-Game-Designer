@@ -37,6 +37,26 @@ bool knownStat(const std::string& stat_id) {
     return kStats.contains(stat_id);
 }
 
+ProgressionDiagnostic makeDiagnostic(std::string code, std::string message, std::string target) {
+    return {std::move(code), std::move(message), std::move(target)};
+}
+
+void appendDiagnosticStrings(std::vector<std::string>* diagnostics, const std::vector<std::string>& values) {
+    if (diagnostics == nullptr) {
+        return;
+    }
+    diagnostics->insert(diagnostics->end(), values.begin(), values.end());
+}
+
+std::vector<std::string> diagnosticStrings(const std::vector<ProgressionDiagnostic>& diagnostics) {
+    std::vector<std::string> out;
+    out.reserve(diagnostics.size());
+    for (const auto& diagnostic : diagnostics) {
+        out.push_back(diagnostic.code + ":" + diagnostic.id);
+    }
+    return out;
+}
+
 } // namespace
 
 void StatAllocationDocument::addPool(StatAllocationPool pool) {
@@ -107,6 +127,32 @@ StatAllocationPreview StatAllocationDocument::preview(const std::string& pool_id
     return preview;
 }
 
+AppliedStatAllocation StatAllocationDocument::commit(const std::string& pool_id,
+                                                     const ActorStatBlock& current_stats,
+                                                     const StatAllocationRequest& request) const {
+    AppliedStatAllocation allocation;
+    allocation.pool_id = pool_id;
+    allocation.before = current_stats;
+    allocation.points_by_stat = request.points_by_stat;
+
+    const auto* pool = findPool(pool_id);
+    if (pool == nullptr) {
+        allocation.diagnostics.push_back(
+            makeDiagnostic("missing_stat_pool", "Stat allocation pool does not exist.", pool_id));
+        return allocation;
+    }
+    allocation.actor_id = pool->actor_id;
+    allocation.class_id = pool->class_id;
+
+    const auto preview_result = preview(pool_id, current_stats, request);
+    allocation.after = preview_result.after;
+    allocation.spent_points = preview_result.spent_points;
+    allocation.remaining_points = preview_result.remaining_points;
+    allocation.diagnostics = preview_result.diagnostics;
+    allocation.valid = allocation.diagnostics.empty() && allocation.remaining_points >= 0;
+    return allocation;
+}
+
 const StatAllocationPool* StatAllocationDocument::findPool(const std::string& pool_id) const {
     const auto it = pools_.find(pool_id);
     return it == pools_.end() ? nullptr : &it->second;
@@ -117,6 +163,138 @@ const StatAllocationRule* StatAllocationDocument::findRule(const StatAllocationP
     const auto it = std::find_if(pool.rules.begin(), pool.rules.end(),
                                  [&](const StatAllocationRule& rule) { return rule.stat_id == stat_id; });
     return it == pool.rules.end() ? nullptr : &*it;
+}
+
+nlohmann::json toJson(const ActorStatBlock& stats) {
+    return {{"hp", stats.hp},
+            {"mp", stats.mp},
+            {"atk", stats.atk},
+            {"def", stats.def},
+            {"mat", stats.mat},
+            {"mdf", stats.mdf},
+            {"agi", stats.agi},
+            {"luk", stats.luk}};
+}
+
+ActorStatBlock actorStatBlockFromJson(const nlohmann::json& json) {
+    ActorStatBlock stats;
+    if (!json.is_object()) {
+        return stats;
+    }
+    stats.hp = json.value("hp", stats.hp);
+    stats.mp = json.value("mp", stats.mp);
+    stats.atk = json.value("atk", stats.atk);
+    stats.def = json.value("def", stats.def);
+    stats.mat = json.value("mat", stats.mat);
+    stats.mdf = json.value("mdf", stats.mdf);
+    stats.agi = json.value("agi", stats.agi);
+    stats.luk = json.value("luk", stats.luk);
+    return stats;
+}
+
+nlohmann::json toJson(const AppliedStatAllocation& allocation) {
+    nlohmann::json diagnostics = nlohmann::json::array();
+    for (const auto& diagnostic : allocation.diagnostics) {
+        diagnostics.push_back(
+            nlohmann::json{{"code", diagnostic.code}, {"message", diagnostic.message}, {"id", diagnostic.id}});
+    }
+    return {
+        {"schemaVersion", "1.0.0"},
+        {"poolId", allocation.pool_id},
+        {"actorId", allocation.actor_id},
+        {"classId", allocation.class_id},
+        {"before", toJson(allocation.before)},
+        {"after", toJson(allocation.after)},
+        {"pointsByStat", allocation.points_by_stat},
+        {"spentPoints", allocation.spent_points},
+        {"remainingPoints", allocation.remaining_points},
+        {"valid", allocation.valid},
+        {"diagnostics", diagnostics},
+    };
+}
+
+std::optional<AppliedStatAllocation> appliedStatAllocationFromJson(const nlohmann::json& json,
+                                                                   std::vector<std::string>* diagnostics) {
+    if (!json.is_object()) {
+        if (diagnostics != nullptr) {
+            diagnostics->push_back("stat_allocation_not_object");
+        }
+        return std::nullopt;
+    }
+    if (json.value("schemaVersion", "") != "1.0.0") {
+        if (diagnostics != nullptr) {
+            diagnostics->push_back("stat_allocation_unsupported_schema");
+        }
+        return std::nullopt;
+    }
+    AppliedStatAllocation allocation;
+    allocation.pool_id = json.value("poolId", "");
+    allocation.actor_id = json.value("actorId", "");
+    allocation.class_id = json.value("classId", "");
+    allocation.before = actorStatBlockFromJson(json.value("before", nlohmann::json::object()));
+    allocation.after = actorStatBlockFromJson(json.value("after", nlohmann::json::object()));
+    allocation.spent_points = json.value("spentPoints", 0);
+    allocation.remaining_points = json.value("remainingPoints", 0);
+    allocation.valid = json.value("valid", false);
+    const auto points = json.find("pointsByStat");
+    if (points != json.end() && points->is_object()) {
+        for (const auto& [stat, value] : points->items()) {
+            if (value.is_number_integer()) {
+                allocation.points_by_stat[stat] = value.get<int32_t>();
+            }
+        }
+    }
+    if (allocation.pool_id.empty() || allocation.actor_id.empty()) {
+        if (diagnostics != nullptr) {
+            diagnostics->push_back("stat_allocation_missing_identity");
+        }
+        return std::nullopt;
+    }
+    return allocation;
+}
+
+bool attachStatAllocationToSaveDocument(nlohmann::json& document, const AppliedStatAllocation& allocation,
+                                        std::vector<std::string>* diagnostics) {
+    if (!document.is_object()) {
+        if (diagnostics != nullptr) {
+            diagnostics->push_back("save_document_not_object");
+        }
+        return false;
+    }
+    if (!allocation.valid) {
+        appendDiagnosticStrings(diagnostics, diagnosticStrings(allocation.diagnostics));
+        if (diagnostics != nullptr && allocation.diagnostics.empty()) {
+            diagnostics->push_back("stat_allocation_invalid");
+        }
+        return false;
+    }
+    if (!document.contains(kStatAllocationsSaveKey) || !document[kStatAllocationsSaveKey].is_array()) {
+        document[kStatAllocationsSaveKey] = nlohmann::json::array();
+    }
+    document[kStatAllocationsSaveKey].push_back(toJson(allocation));
+    return true;
+}
+
+std::vector<AppliedStatAllocation> loadStatAllocationsFromSaveDocument(
+    const nlohmann::json& document, std::vector<std::string>* diagnostics) {
+    std::vector<AppliedStatAllocation> allocations;
+    if (!document.is_object() || !document.contains(kStatAllocationsSaveKey)) {
+        return allocations;
+    }
+    const auto& root = document[kStatAllocationsSaveKey];
+    if (!root.is_array()) {
+        if (diagnostics != nullptr) {
+            diagnostics->push_back("stat_allocations_not_array");
+        }
+        return allocations;
+    }
+    for (const auto& item : root) {
+        auto allocation = appliedStatAllocationFromJson(item, diagnostics);
+        if (allocation.has_value()) {
+            allocations.push_back(std::move(*allocation));
+        }
+    }
+    return allocations;
 }
 
 } // namespace urpg::progression

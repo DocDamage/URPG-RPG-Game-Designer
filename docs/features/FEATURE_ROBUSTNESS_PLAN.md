@@ -8,7 +8,7 @@ URPG has enough native subsystems now that the next work should deepen existing 
 
 1. Battle feedback: chip damage/healing, configurable zero-damage presentation, custom buff caps, troop-position reuse, preview panel visibility, and migration/schema coverage.
 2. State/message/picture: scoped/self/map/JS variable banks, nested text escapes, picture task bindings, and high-count picture management are started in native code; picture UI runtime preview remains.
-3. Progression: level-up stat allocation pools, caps, class/actor rules, preview math, and editor snapshots are started in native code; save integration remains.
+3. Progression: level-up stat allocation pools, caps, class/actor rules, preview math, editor snapshots, and applied stat-allocation save/load records are started in native code; richer post-load actor application UI remains.
 4. Asset browser/runtime library: tag/status/category filters, duplicate groups, source/license badges, previewable/runtime-ready counts, used-by references, promote/archive action state, and shared editor/chatbot asset action rows are started in native code; actual file moves plus richer thumbnail/waveform UI remain.
 5. AI editor workflow: approve/reject/apply/revert controls, validation blocking reasons, apply-preview patch counts, result diff patch counts, and undo-stack/apply-history snapshots are started in native code; richer painted diff browsing and per-record rationale UI remain.
 6. Project knowledge indexing: project files, schemas, readiness reports, validation reports, asset catalogs, project docs, template specs, and source summaries are started in native project-data indexing; direct filesystem/doc ingestion and freshness checks remain.
@@ -27,3 +27,7 @@ The chatbot and WYSIWYG bridge now has a native coverage report. Release top-lev
 ## Asset Action Rows
 
 Asset action recommendations are shared by the WYSIWYG asset browser and chatbot snapshots through `buildAssetActionRows()`. Rows expose preview metadata, tags, usage references, status badges, promote/archive button enablement, disabled reasons, and recommendations such as `promote`, `archive_duplicate`, `add_license_evidence`, `fix_missing_file`, `convert_or_replace`, `ready`, and `archived`.
+
+## Progression Save Records
+
+Stat allocation now has a commit record that can be attached to runtime save JSON under `_stat_allocations` and hydrated by `RuntimeSaveLoader`. The record stores pool/class/actor identity, before/after stats, spent and remaining points, and per-stat spending so level-up allocation previews can survive save/load.

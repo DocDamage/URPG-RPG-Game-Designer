@@ -160,6 +160,22 @@ void TryHydrateCreatedProtagonist(RuntimeSaveLoadResult& result) {
     result.diagnostics.insert(result.diagnostics.end(), diagnostics.begin(), diagnostics.end());
 }
 
+void TryHydrateStatAllocations(RuntimeSaveLoadResult& result) {
+    if (result.payload.empty()) {
+        return;
+    }
+
+    const auto parsed = nlohmann::json::parse(result.payload, nullptr, false);
+    if (parsed.is_discarded()) {
+        result.diagnostics.push_back("stat_allocations_payload_json_parse_failed");
+        return;
+    }
+
+    std::vector<std::string> diagnostics;
+    result.stat_allocations = progression::loadStatAllocationsFromSaveDocument(parsed, &diagnostics);
+    result.diagnostics.insert(result.diagnostics.end(), diagnostics.begin(), diagnostics.end());
+}
+
 } // namespace
 
 RuntimeSaveLoadResult RuntimeSaveLoader::Load(const RuntimeSaveLoadRequest& request) {
@@ -172,6 +188,7 @@ RuntimeSaveLoadResult RuntimeSaveLoader::Load(const RuntimeSaveLoadRequest& requ
             result.recovery_tier = SaveRecoveryTier::None;
             TryHydrateMeta(ReadAll(request.metadata_path), result.active_meta);
             TryHydrateCreatedProtagonist(result);
+            TryHydrateStatAllocations(result);
             return result;
         }
     }
@@ -206,6 +223,7 @@ RuntimeSaveLoadResult RuntimeSaveLoader::Load(const RuntimeSaveLoadRequest& requ
     case SaveRecoveryTier::Level1Autosave:
         result.payload = recovery_result.full_payload;
         TryHydrateCreatedProtagonist(result);
+        TryHydrateStatAllocations(result);
         break;
     case SaveRecoveryTier::Level2MetadataVariables:
         result.payload = recovery_result.metadata_payload;
@@ -266,6 +284,30 @@ bool RuntimeSaveLoader::SaveCreatedProtagonist(const RuntimeSaveLoadRequest& req
     }
 
     if (!character::attachCreatedProtagonistToSaveDocument(document, entity, identity, diagnostics)) {
+        return false;
+    }
+
+    return Save(request, document.dump());
+}
+
+bool RuntimeSaveLoader::SaveStatAllocation(const RuntimeSaveLoadRequest& request, const std::string& payload,
+                                           const progression::AppliedStatAllocation& allocation,
+                                           std::vector<std::string>* diagnostics) {
+    auto document = nlohmann::json::parse(payload.empty() ? "{}" : payload, nullptr, false);
+    if (document.is_discarded()) {
+        if (diagnostics != nullptr) {
+            diagnostics->push_back("save_payload_json_parse_failed");
+        }
+        return false;
+    }
+    if (!document.is_object()) {
+        if (diagnostics != nullptr) {
+            diagnostics->push_back("save_payload_not_object");
+        }
+        return false;
+    }
+
+    if (!progression::attachStatAllocationToSaveDocument(document, allocation, diagnostics)) {
         return false;
     }
 

@@ -38,6 +38,7 @@ Current app-level release readiness source of truth: [`docs/APP_RELEASE_READINES
 - Chatbot/WYSIWYG coverage now indexes every release top-level editor panel into chatbot knowledge and adds a native coverage report proving app capabilities have WYSIWYG surfaces, chatbot tools, and asset-library panel/tool coverage.
 - Chatbot/WYSIWYG coverage is now visible in both `AiAssistantPanel` and `ChatbotComponent` snapshots, including injected asset-library action readiness for promoted/previewable/runtime-ready/archive state.
 - Asset action rows now share promote/archive button state and blocked-reason recommendations between the WYSIWYG asset browser and chatbot snapshots.
+- Progression robustness now persists applied stat-allocation records through runtime save/load under `_stat_allocations`, including actor/class/pool identity, before/after stats, point spending, and remaining points.
 
 2026-04-28 documentation and AI/editor checkpoint:
 - `development` is pushed to `origin/development` at commit `cfdae41e9` (`Advance AI editor and template readiness`) before this documentation refresh.

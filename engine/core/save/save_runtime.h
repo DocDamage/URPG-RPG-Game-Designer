@@ -1,6 +1,7 @@
 #pragma once
 
 #include "engine/core/character/character_save_state.h"
+#include "engine/core/progression/stat_allocation.h"
 #include "engine/core/save/save_recovery.h"
 #include "engine/core/save/save_types.h"
 
@@ -31,6 +32,7 @@ struct RuntimeSaveLoadResult {
     std::string variables_payload;
     SaveSlotMeta active_meta;
     std::optional<character::CreatedProtagonistSaveState> created_protagonist;
+    std::vector<progression::AppliedStatAllocation> stat_allocations;
     std::vector<std::string> diagnostics;
 };
 
@@ -41,6 +43,9 @@ class RuntimeSaveLoader {
     static bool SaveCreatedProtagonist(const RuntimeSaveLoadRequest& request, const std::string& payload,
                                        EntityID entity, const character::CharacterIdentity& identity,
                                        std::vector<std::string>* diagnostics = nullptr);
+    static bool SaveStatAllocation(const RuntimeSaveLoadRequest& request, const std::string& payload,
+                                   const progression::AppliedStatAllocation& allocation,
+                                   std::vector<std::string>* diagnostics = nullptr);
 };
 
 } // namespace urpg

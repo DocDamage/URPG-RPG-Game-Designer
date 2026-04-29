@@ -136,6 +136,28 @@ TEST_CASE("Stat allocation previews level-up spending and editor state", "[progr
     REQUIRE(snapshot["pool_id"] == "actor_hero_pool");
     REQUIRE(snapshot["remaining_points"] == 0);
     REQUIRE(snapshot["after"]["hp"] == 170);
+
+    const auto committed = document.commit("actor_hero_pool", stats, request);
+    REQUIRE(committed.valid);
+    REQUIRE(committed.actor_id == "actor.hero");
+    REQUIRE(committed.class_id == "class.warrior");
+    REQUIRE(committed.spent_points == 5);
+    REQUIRE(committed.after.hp == 170);
+
+    nlohmann::json save_document = {{"_urpg_format_version", "1.0"}};
+    std::vector<std::string> save_diagnostics;
+    REQUIRE(urpg::progression::attachStatAllocationToSaveDocument(save_document, committed, &save_diagnostics));
+    REQUIRE(save_diagnostics.empty());
+    REQUIRE(save_document[urpg::progression::kStatAllocationsSaveKey].size() == 1);
+    REQUIRE(save_document[urpg::progression::kStatAllocationsSaveKey][0]["actorId"] == "actor.hero");
+    REQUIRE(save_document[urpg::progression::kStatAllocationsSaveKey][0]["after"]["hp"] == 170);
+
+    const auto loaded = urpg::progression::loadStatAllocationsFromSaveDocument(save_document, &save_diagnostics);
+    REQUIRE(save_diagnostics.empty());
+    REQUIRE(loaded.size() == 1);
+    REQUIRE(loaded[0].valid);
+    REQUIRE(loaded[0].points_by_stat.at("atk") == 1);
+    REQUIRE(loaded[0].after.agi == 12);
 }
 
 TEST_CASE("Stat allocation reports overspend missing rules and invalid pools", "[progression][stat_allocation]") {
