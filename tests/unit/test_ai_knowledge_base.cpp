@@ -304,11 +304,31 @@ TEST_CASE("AI tool registry emits concrete subsystem preview artifacts",
 TEST_CASE("AI assistant panel exposes knowledge and task plan snapshots",
           "[ai_knowledge][ai_assistant][editor]") {
     urpg::editor::AiAssistantPanel panel;
+    urpg::assets::AssetLibrary library;
+    library.ingestPromotionCatalog(nlohmann::json{
+        {"source_id", "SRC-008"},
+        {"source_root", "imports/raw/curated"},
+        {"assets",
+         {
+             {
+                 {"source_path", "imports/raw/curated/ui/menu.png"},
+                 {"normalized_path", "asset://src-008/ui/menu.png"},
+                 {"preview_path", "imports/raw/curated/ui/menu.png"},
+                 {"preview_kind", "image"},
+                 {"media_kind", "image"},
+                 {"category", "ui"},
+                 {"tags", {"menu", "kind:image"}},
+                 {"license", "user_attested_free_for_game_use_pending_per_pack_attribution"},
+             },
+         }}});
+    REQUIRE(library.promoteAsset("imports/raw/curated/ui/menu.png").success);
+
     urpg::ai::AiAssistantConfig config;
     config.enabled = true;
     config.providerId = "local_deterministic";
     panel.setConfig(config, true);
     panel.setProjectData({{"project_id", "p1"}, {"maps", {{"town", {{"width", 20}, {"height", 20}}}}}});
+    panel.setAssetLibrarySnapshot(library.snapshot());
     panel.setTaskRequest("create dialogue for the town intro");
     panel.render();
 
@@ -329,6 +349,9 @@ TEST_CASE("AI assistant panel exposes knowledge and task plan snapshots",
     REQUIRE(snapshot["apply_preview"]["project_patch_count"] == 0);
     REQUIRE(snapshot["apply_history"]["count"] == 0);
     REQUIRE(snapshot["apply_history"]["can_revert_latest"] == false);
+    REQUIRE(snapshot["wysiwyg_chatbot_coverage"]["passed"] == true);
+    REQUIRE(snapshot["wysiwyg_chatbot_coverage"]["asset_library_actions_available"] == true);
+    REQUIRE(snapshot["wysiwyg_chatbot_coverage"]["release_panel_count"].get<size_t>() > 0);
 }
 
 TEST_CASE("AI assistant panel approves and applies task plans",
@@ -413,7 +436,26 @@ TEST_CASE("Chatbot component plans approves and applies AI tool commands",
           "[ai_knowledge][ai_assistant][chatbot]") {
     auto service = std::make_shared<ToolCommandChatService>("AI_TASK:create dialogue for the town intro");
     urpg::ai::ChatbotComponent chatbot(service);
+    urpg::assets::AssetLibrary library;
+    library.ingestPromotionCatalog(nlohmann::json{
+        {"source_id", "SRC-009"},
+        {"source_root", "imports/raw/curated"},
+        {"assets",
+         {
+             {
+                 {"source_path", "imports/raw/curated/characters/hero.png"},
+                 {"normalized_path", "asset://src-009/characters/hero.png"},
+                 {"preview_path", "imports/raw/curated/characters/hero.png"},
+                 {"preview_kind", "image"},
+                 {"media_kind", "image"},
+                 {"category", "characters"},
+                 {"tags", {"hero", "kind:image"}},
+                 {"license", "user_attested_free_for_game_use_pending_per_pack_attribution"},
+             },
+         }}});
+    REQUIRE(library.promoteAsset("imports/raw/curated/characters/hero.png").success);
     chatbot.setProjectData({{"project_id", "p1"}});
+    chatbot.setAssetLibrarySnapshot(library.snapshot());
 
     bool callbackCalled = false;
     chatbot.getResponse("please make intro dialogue", [&](urpg::message::DialoguePage page) {
@@ -422,6 +464,8 @@ TEST_CASE("Chatbot component plans approves and applies AI tool commands",
     });
 
     REQUIRE(callbackCalled);
+    REQUIRE(chatbot.lastAiToolSnapshot()["wysiwyg_chatbot_coverage"]["passed"] == true);
+    REQUIRE(chatbot.lastAiToolSnapshot()["wysiwyg_chatbot_coverage"]["asset_library_actions_available"] == true);
     REQUIRE(chatbot.lastAiToolSnapshot()["task_plan"]["steps"][0]["tool_id"] == "edit_dialogue");
     REQUIRE(chatbot.lastAiToolSnapshot()["approval"]["pending_count"] == 1);
 

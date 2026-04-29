@@ -1,6 +1,8 @@
 #pragma once
 
 #include "engine/core/ai/ai_knowledge_base.h"
+#include "engine/core/ai/wysiwyg_chatbot_coverage.h"
+#include "engine/core/assets/asset_library.h"
 #include "engine/core/message/message_core.h"
 #include "engine/core/message/world_knowledge_bridge.h"
 #include <functional>
@@ -60,6 +62,9 @@ class ChatbotComponent {
     void setProjectData(nlohmann::json projectData) {
         m_projectData = std::move(projectData);
         rebuildAiKnowledge();
+    }
+    void setAssetLibrarySnapshot(urpg::assets::AssetLibrarySnapshot assetLibrarySnapshot) {
+        m_assetLibrarySnapshot = std::move(assetLibrarySnapshot);
     }
 
     const nlohmann::json& projectData() const { return m_projectData; }
@@ -203,6 +208,8 @@ class ChatbotComponent {
             {"project_index_count", m_aiKnowledge.project_index.entries().size()},
             {"capability_count", m_aiKnowledge.capabilities.capabilities().size()},
             {"tool_count", m_aiKnowledge.tools.tools().size()},
+            {"wysiwyg_chatbot_coverage",
+             buildWysiwygChatbotCoverageReport(m_aiKnowledge, m_assetLibrarySnapshot).toJson()},
             {"task_plan", m_currentAiTaskPlan.toJson()},
             {"approval", m_aiKnowledge.tools.approvalManifest(m_currentAiTaskPlan, m_aiKnowledge.capabilities)},
         };
@@ -268,6 +275,7 @@ class ChatbotComponent {
     std::vector<ChatMessage> m_history;
     std::string m_systemPrompt;
     nlohmann::json m_projectData = nlohmann::json::object();
+    urpg::assets::AssetLibrarySnapshot m_assetLibrarySnapshot{};
     AiKnowledgeSnapshot m_aiKnowledge;
     AiTaskPlan m_currentAiTaskPlan;
     nlohmann::json m_lastAiToolSnapshot = nlohmann::json::object();

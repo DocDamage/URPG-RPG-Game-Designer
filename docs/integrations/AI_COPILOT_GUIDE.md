@@ -97,7 +97,7 @@ Editor approval is handled by `AiAssistantPanel::approveStep(stepId)` or `AiAssi
 
 The chatbot exposes the current `task_plan`, `approval` manifest, and `last_apply` result through `lastAiToolSnapshot()`.
 
-`buildWysiwygChatbotCoverageReport()` verifies the bridge between chatbot and WYSIWYG surfaces. It checks that every release top-level panel is searchable by chatbot knowledge, every registered app capability declares a WYSIWYG surface and has at least one chatbot tool, and the asset lane has both the WYSIWYG panel and asset import/promotion tool registered.
+`buildWysiwygChatbotCoverageReport()` verifies the bridge between chatbot and WYSIWYG surfaces. It checks that every release top-level panel is searchable by chatbot knowledge, every registered app capability declares a WYSIWYG surface and has at least one chatbot tool, and the asset lane has both the WYSIWYG panel and asset import/promotion tool registered. `AiAssistantPanel` and `ChatbotComponent` both expose this report under `wysiwyg_chatbot_coverage`; callers can inject the current `AssetLibrarySnapshot` so asset promotion/preview/archive readiness is visible in normal editor and chatbot state.
 
 ### 3. Knowledge Bridges
 - **WorldKnowledgeBridge**: Serializes NPC locations, item names, and plot flags into a "World Context" digest.

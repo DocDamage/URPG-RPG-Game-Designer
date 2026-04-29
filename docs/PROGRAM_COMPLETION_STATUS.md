@@ -36,6 +36,7 @@ Current app-level release readiness source of truth: [`docs/APP_RELEASE_READINES
 - `IChatService` now has a bounded OpenAI-compatible in-tree transport with dry-run request/command building, curl execution, and response parsing for ChatGPT-compatible gateways, Kimi-compatible gateways, Ollama, LM Studio, OpenRouter, vLLM, and LocalAI-style `/v1/chat/completions` providers.
 - Export/release UX now projects platform checklist rows, missing asset/artifact report data, packaging diagnostics, signing/notarization status, and staged smoke evidence through the export preview result and editor panel snapshot while keeping full native signing/notarization as backlog.
 - Chatbot/WYSIWYG coverage now indexes every release top-level editor panel into chatbot knowledge and adds a native coverage report proving app capabilities have WYSIWYG surfaces, chatbot tools, and asset-library panel/tool coverage.
+- Chatbot/WYSIWYG coverage is now visible in both `AiAssistantPanel` and `ChatbotComponent` snapshots, including injected asset-library action readiness for promoted/previewable/runtime-ready/archive state.
 
 2026-04-28 documentation and AI/editor checkpoint:
 - `development` is pushed to `origin/development` at commit `cfdae41e9` (`Advance AI editor and template readiness`) before this documentation refresh.

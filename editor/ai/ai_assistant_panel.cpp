@@ -1,5 +1,7 @@
 #include "editor/ai/ai_assistant_panel.h"
 
+#include "engine/core/ai/wysiwyg_chatbot_coverage.h"
+
 #include <utility>
 
 namespace {
@@ -30,6 +32,10 @@ void AiAssistantPanel::setProjectData(nlohmann::json projectData) {
     rebuildTaskPlan();
 }
 
+void AiAssistantPanel::setAssetLibrarySnapshot(urpg::assets::AssetLibrarySnapshot assetLibrarySnapshot) {
+    asset_library_snapshot_ = std::move(assetLibrarySnapshot);
+}
+
 void AiAssistantPanel::setTaskRequest(std::string taskRequest) {
     task_request_ = std::move(taskRequest);
     rebuildTaskPlan();
@@ -57,6 +63,8 @@ void AiAssistantPanel::render() {
             {"doc_entry_count", knowledge_.docs_index.entries().size()},
             {"tool_count", knowledge_.tools.tools().size()},
         }},
+        {"wysiwyg_chatbot_coverage",
+         urpg::ai::buildWysiwygChatbotCoverageReport(knowledge_, asset_library_snapshot_).toJson()},
         {"task_plan", current_task_plan_.toJson()},
         {"approval", knowledge_.tools.approvalManifest(current_task_plan_, knowledge_.capabilities)},
         {"controls", buildControlSnapshot()},

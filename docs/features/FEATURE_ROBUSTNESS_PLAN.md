@@ -22,4 +22,4 @@ Each lane should land as native project data, schema coverage when data-driven, 
 
 ## Chatbot and WYSIWYG Coverage
 
-The chatbot and WYSIWYG bridge now has a native coverage report. Release top-level editor panels are indexed into chatbot knowledge as searchable `editor_panel` entries, AI capabilities must declare a WYSIWYG surface and at least one tool, and the asset lane is checked for both WYSIWYG panel registration and asset import/promotion tool coverage.
+The chatbot and WYSIWYG bridge now has a native coverage report. Release top-level editor panels are indexed into chatbot knowledge as searchable `editor_panel` entries, AI capabilities must declare a WYSIWYG surface and at least one tool, and the asset lane is checked for both WYSIWYG panel registration and asset import/promotion tool coverage. The report is surfaced through both `AiAssistantPanel` and `ChatbotComponent`, with `AssetLibrarySnapshot` injection so the editor and chatbot can show asset action readiness alongside feature/tool coverage.
