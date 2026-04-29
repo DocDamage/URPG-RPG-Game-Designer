@@ -60,6 +60,7 @@ The chatbot now has an in-tree knowledge foundation in `engine/core/ai/ai_knowle
 - `AiToolRegistry` defines safe callable tools across maps, regions, lighting/weather, events, dialogue, localization, quests, NPC schedules, abilities, battle VFX, save labs, assets, templates, export preview, validation, and creator commands.
 - `AiTaskPlanner` turns user requests into reviewable `urpg.ai_task_plan.v1` tool plans.
 - `applyApprovedPlan` refuses mutating steps until they are approved, then writes the approved map/event/dialogue/ability/export/creator-command changes into project JSON and records `ai_tool_applications`.
+- Concrete tool applies also emit `ai_tool_previews` for editor-facing event graph authoring, battle VFX timeline edits, lighting/weather previews, ability sandbox compositions, export preview configuration, and asset import/promotion review. Asset imports additionally create `asset_promotion_requests` so promotion remains review-gated.
 - `approvalManifest` lists pending approval steps and the project paths they can touch.
 
 `AiAssistantPanel` includes a knowledge snapshot and current task plan in its deterministic render snapshot, giving the WYSIWYG editor a stable surface for showing what the chatbot knows, what tools it wants to call, and what will be changed before anything is applied.

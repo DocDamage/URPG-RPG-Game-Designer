@@ -229,6 +229,37 @@ TEST_CASE("AI tool registry applies broader WYSIWYG project records",
     REQUIRE(result.project_data["save_labs"].size() == 1);
     REQUIRE(result.project_data["assets"].size() == 1);
     REQUIRE(result.project_data["template_instances"].size() == 1);
+    REQUIRE(result.project_data["ai_tool_previews"].size() == 3);
+    REQUIRE(result.project_data["ai_tool_previews"][0]["kind"] == "lighting_weather_preview");
+    REQUIRE(result.project_data["ai_tool_previews"][1]["kind"] == "vfx_timeline_edit");
+    REQUIRE(result.project_data["ai_tool_previews"][2]["kind"] == "asset_import_promotion");
+    REQUIRE(result.project_data["asset_promotion_requests"][0]["status"] == "review_required");
+}
+
+TEST_CASE("AI tool registry emits concrete subsystem preview artifacts",
+          "[ai_knowledge][ai_assistant][tools]") {
+    const auto tools = urpg::ai::AiToolRegistry::buildDefault();
+    urpg::ai::AiTaskPlan plan;
+    plan.id = "concrete_tool_plan";
+    plan.user_request = "build concrete subsystem previews";
+    plan.steps = {
+        {"event", "add_event", "Add event graph.", {{"event_id", "door"}, {"map_id", "town"}, {"x", 2}, {"y", 3}, {"commands", nlohmann::json::array({"show_text", "transfer_player"})}}, true},
+        {"ability", "add_ability", "Compose ability sandbox.", {{"ability_id", "spark"}, {"cost", 4}, {"cooldown", 2}, {"effects", nlohmann::json::array({"damage"})}}, true},
+        {"export", "run_export_preview", "Configure export preview.", {{"profile", "windows_debug"}}, true},
+    };
+
+    REQUIRE(tools.validatePlan(plan).empty());
+    const auto result = tools.applyApprovedPlan(plan, {{"project_id", "p1"}});
+
+    REQUIRE(result.applied);
+    REQUIRE(result.project_data["ai_tool_previews"].size() == 3);
+    REQUIRE(result.project_data["ai_tool_previews"][0]["kind"] == "event_graph_authoring");
+    REQUIRE(result.project_data["ai_tool_previews"][0]["payload"]["node_count"] == 2);
+    REQUIRE(result.project_data["ai_tool_previews"][1]["kind"] == "ability_sandbox_composition");
+    REQUIRE(result.project_data["ai_tool_previews"][1]["payload"]["preview_surface"] == "ability_sandbox");
+    REQUIRE(result.project_data["ai_tool_previews"][2]["kind"] == "export_preview_configuration");
+    REQUIRE(result.project_data["last_ai_export_preview"]["profile"] == "windows_debug");
+    REQUIRE(result.project_data["last_ai_export_preview"]["preview_surface"] == "export_preview_panel");
 }
 
 TEST_CASE("AI assistant panel exposes knowledge and task plan snapshots",

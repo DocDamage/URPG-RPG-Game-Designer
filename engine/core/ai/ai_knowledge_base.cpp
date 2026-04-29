@@ -115,6 +115,37 @@ int jsonInt(const nlohmann::json& value, const std::string& key, int fallback = 
     return value[key].get<int>();
 }
 
+nlohmann::json& ensureArray(nlohmann::json& root, const std::string& key) {
+    auto& value = root[key];
+    if (!value.is_array()) {
+        value = nlohmann::json::array();
+    }
+    return value;
+}
+
+nlohmann::json& ensureObject(nlohmann::json& root, const std::string& key) {
+    auto& value = root[key];
+    if (!value.is_object()) {
+        value = nlohmann::json::object();
+    }
+    return value;
+}
+
+nlohmann::json makeAiToolPreview(const std::string& kind,
+                                 const std::string& id,
+                                 const urpg::ai::AiToolStep& step,
+                                 nlohmann::json payload) {
+    return {
+        {"kind", kind},
+        {"id", id},
+        {"step_id", step.id},
+        {"tool_id", step.tool_id},
+        {"summary", step.summary},
+        {"status", "ready_for_editor_preview"},
+        {"payload", std::move(payload)},
+    };
+}
+
 void appendStructuredKnowledgeRecords(urpg::ai::ProjectKnowledgeIndex& index,
                                       const nlohmann::json& root,
                                       const std::string& key,
@@ -615,17 +646,28 @@ AiToolApplyResult AiToolRegistry::applyApprovedPlan(const AiTaskPlan& plan, cons
             }
             regions.push_back(step.arguments);
         } else if (step.tool_id == "configure_environment") {
-            auto& environments = result.project_data["environments"];
-            if (!environments.is_object()) {
-                environments = nlohmann::json::object();
-            }
-            environments[step.arguments.value("map_id", "current_map")] = step.arguments;
+            auto& environments = ensureObject(result.project_data, "environments");
+            const auto mapId = step.arguments.value("map_id", "current_map");
+            environments[mapId] = step.arguments;
+            ensureArray(result.project_data, "ai_tool_previews")
+                .push_back(makeAiToolPreview("lighting_weather_preview", mapId, step,
+                                             {{"map_id", mapId},
+                                              {"weather", step.arguments.value("weather", "clear")},
+                                              {"lighting_profile", step.arguments.value("lighting_profile", "default")},
+                                              {"preview_surface", "map_environment_preview"}}));
         } else if (step.tool_id == "add_event") {
-            auto& events = result.project_data["events"];
-            if (!events.is_array()) {
-                events = nlohmann::json::array();
-            }
+            auto& events = ensureArray(result.project_data, "events");
             events.push_back(step.arguments);
+            const auto eventId = step.arguments.value("event_id", "generated_event");
+            ensureArray(result.project_data, "ai_tool_previews")
+                .push_back(makeAiToolPreview("event_graph_authoring", eventId, step,
+                                             {{"event_id", eventId},
+                                              {"map_id", step.arguments.value("map_id", "current_map")},
+                                              {"node_count", step.arguments.contains("commands") && step.arguments["commands"].is_array()
+                                                                 ? step.arguments["commands"].size()
+                                                                 : 0},
+                                              {"commands", step.arguments.value("commands", nlohmann::json::array())},
+                                              {"preview_surface", "event_command_graph"}}));
         } else if (step.tool_id == "edit_dialogue") {
             auto& dialogue = result.project_data["dialogue"];
             if (!dialogue.is_object()) {
@@ -652,21 +694,30 @@ AiToolApplyResult AiToolRegistry::applyApprovedPlan(const AiTaskPlan& plan, cons
             }
             schedules[step.arguments.value("npc_id", "generated_npc")] = step.arguments["schedule"];
         } else if (step.tool_id == "add_ability") {
-            auto& abilities = result.project_data["abilities"];
-            if (!abilities.is_array()) {
-                abilities = nlohmann::json::array();
-            }
+            auto& abilities = ensureArray(result.project_data, "abilities");
             abilities.push_back(step.arguments);
+            const auto abilityId = step.arguments.value("ability_id", "generated_ability");
+            ensureArray(result.project_data, "ai_tool_previews")
+                .push_back(makeAiToolPreview("ability_sandbox_composition", abilityId, step,
+                                             {{"ability_id", abilityId},
+                                              {"cost", step.arguments.value("cost", 0)},
+                                              {"cooldown", step.arguments.value("cooldown", 0)},
+                                              {"effects", step.arguments.value("effects", nlohmann::json::array())},
+                                              {"preview_surface", "ability_sandbox"}}));
         } else if (step.tool_id == "add_vfx_keyframe") {
-            auto& timelines = result.project_data["battle_vfx"];
-            if (!timelines.is_object()) {
-                timelines = nlohmann::json::object();
-            }
-            auto& keyframes = timelines[step.arguments.value("timeline_id", "generated_timeline")]["keyframes"];
+            auto& timelines = ensureObject(result.project_data, "battle_vfx");
+            const auto timelineId = step.arguments.value("timeline_id", "generated_timeline");
+            auto& keyframes = timelines[timelineId]["keyframes"];
             if (!keyframes.is_array()) {
                 keyframes = nlohmann::json::array();
             }
             keyframes.push_back(step.arguments);
+            ensureArray(result.project_data, "ai_tool_previews")
+                .push_back(makeAiToolPreview("vfx_timeline_edit", timelineId, step,
+                                             {{"timeline_id", timelineId},
+                                              {"keyframe_count", keyframes.size()},
+                                              {"latest_keyframe", step.arguments},
+                                              {"preview_surface", "battle_vfx_timeline"}}));
         } else if (step.tool_id == "configure_save_preview") {
             auto& saveLabs = result.project_data["save_labs"];
             if (!saveLabs.is_array()) {
@@ -674,11 +725,20 @@ AiToolApplyResult AiToolRegistry::applyApprovedPlan(const AiTaskPlan& plan, cons
             }
             saveLabs.push_back(step.arguments);
         } else if (step.tool_id == "import_asset_record") {
-            auto& assets = result.project_data["assets"];
-            if (!assets.is_array()) {
-                assets = nlohmann::json::array();
-            }
+            auto& assets = ensureArray(result.project_data, "assets");
             assets.push_back(step.arguments);
+            ensureArray(result.project_data, "asset_promotion_requests")
+                .push_back({{"asset_id", step.arguments.value("asset_id", "generated_asset")},
+                            {"source_path", step.arguments.value("path", "project-configured")},
+                            {"license", step.arguments.value("license", "review_required")},
+                            {"status", "review_required"},
+                            {"requested_by_step", step.id}});
+            ensureArray(result.project_data, "ai_tool_previews")
+                .push_back(makeAiToolPreview("asset_import_promotion", step.arguments.value("asset_id", "generated_asset"), step,
+                                             {{"asset_id", step.arguments.value("asset_id", "generated_asset")},
+                                              {"path", step.arguments.value("path", "project-configured")},
+                                              {"license", step.arguments.value("license", "review_required")},
+                                              {"preview_surface", "asset_library_promotion"}}));
         } else if (step.tool_id == "create_template_project") {
             auto& templates = result.project_data["template_instances"];
             if (!templates.is_array()) {
@@ -688,7 +748,15 @@ AiToolApplyResult AiToolRegistry::applyApprovedPlan(const AiTaskPlan& plan, cons
         } else if (step.tool_id == "run_validation") {
             result.project_data["last_ai_validation"] = {{"requested_by_plan", plan.id}, {"status", "queued"}};
         } else if (step.tool_id == "run_export_preview") {
-            result.project_data["last_ai_export_preview"] = {{"requested_by_plan", plan.id}, {"status", "queued"}};
+            result.project_data["last_ai_export_preview"] = {
+                {"requested_by_plan", plan.id},
+                {"profile", step.arguments.value("profile", "default")},
+                {"status", "queued"},
+                {"preview_surface", "export_preview_panel"},
+            };
+            ensureArray(result.project_data, "ai_tool_previews")
+                .push_back(makeAiToolPreview("export_preview_configuration", step.arguments.value("profile", "default"), step,
+                                             result.project_data["last_ai_export_preview"]));
         } else if (step.tool_id == "plan_creator_command") {
             auto& commands = result.project_data["creator_command_requests"];
             if (!commands.is_array()) {

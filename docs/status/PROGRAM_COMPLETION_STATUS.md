@@ -31,6 +31,7 @@ Current app-level release readiness source of truth: [`docs/APP_RELEASE_READINES
 - Asset browser robustness now exposes native tag/category/status/reference/runtime-ready/previewable filters and used-by references on the asset library model.
 - AI editor workflow robustness now exposes validation blocking reasons, apply-preview patch counts, result diff patch counts, undo-stack metadata, and apply-history entries in the deterministic assistant panel snapshot.
 - AI project knowledge indexing now creates searchable records for project files, schemas, readiness reports, validation reports, asset catalogs, project docs, template specs, and source summaries supplied through project data.
+- AI tools now emit concrete editor preview artifacts for event graph authoring, battle VFX timelines, lighting/weather previews, ability sandbox compositions, export preview configuration, and asset import/promotion review instead of only broad project records.
 
 2026-04-28 documentation and AI/editor checkpoint:
 - `development` is pushed to `origin/development` at commit `cfdae41e9` (`Advance AI editor and template readiness`) before this documentation refresh.
