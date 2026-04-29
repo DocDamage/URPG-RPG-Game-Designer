@@ -218,6 +218,9 @@ TEST_CASE("AssetLibraryModel loads optional local promotion catalog", "[assets][
     REQUIRE(model.snapshot().sequence_frame_count == 0);
     REQUIRE(model.snapshot().sequence_clip_count == 0);
     REQUIRE(model.snapshot().filtered_asset_count == 2);
+    REQUIRE(model.snapshot().filter_controls["quick_filters"]["sequence_packs"]["enabled"] == true);
+    REQUIRE(model.snapshot().filter_controls["quick_filters"]["sequence_packs"]["count"] == 1);
+    REQUIRE(model.snapshot().filter_controls["quick_filters"]["sequence_packs"]["media_kind"] == "image_sequence_collection");
     REQUIRE(model.snapshot().asset_preview_rows.size() == 2);
     const auto sized_preview = std::find_if(
         model.snapshot().asset_preview_rows.begin(), model.snapshot().asset_preview_rows.end(), [](const auto& row) {
@@ -234,6 +237,16 @@ TEST_CASE("AssetLibraryModel loads optional local promotion catalog", "[assets][
     REQUIRE(sequence.has_value());
     REQUIRE(sequence->media_kind == "image_sequence_collection");
     REQUIRE(sequence->normalized_path == "asset://src-008/characters/isometric/idle-sequence");
+
+    urpg::assets::AssetLibraryFilter sequenceFilter;
+    sequenceFilter.media_kind = "image_sequence_collection";
+    sequenceFilter.runtime_ready_only = true;
+    sequenceFilter.previewable_only = true;
+    model.setFilter(sequenceFilter);
+    REQUIRE(model.snapshot().filtered_asset_count == 1);
+    REQUIRE(model.snapshot().filter_controls["active_filter"]["media_kind"] == "image_sequence_collection");
+    REQUIRE(model.snapshot().filter_controls["active_filter"]["runtime_ready_only"] == true);
+    REQUIRE(model.snapshot().filter_controls["active_filter"]["previewable_only"] == true);
 
     std::filesystem::remove_all(root);
 }

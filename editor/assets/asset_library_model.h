@@ -35,6 +35,7 @@ struct AssetLibraryModelSnapshot {
     bool export_eligible = false;
     bool reports_loaded = false;
     std::string promotion_status;
+    nlohmann::json filter_controls = nlohmann::json::object();
     nlohmann::json asset_action_rows = nlohmann::json::array();
     nlohmann::json asset_preview_rows = nlohmann::json::array();
     nlohmann::json last_action = nlohmann::json::object();

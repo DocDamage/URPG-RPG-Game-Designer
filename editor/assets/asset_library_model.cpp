@@ -70,6 +70,53 @@ void ingestCatalogWithShards(urpg::assets::AssetLibrary& library, const std::fil
     }
 }
 
+nlohmann::json filterControls(const urpg::assets::AssetLibraryFilter& filter,
+                              const urpg::assets::AssetLibrarySnapshot& snapshot, size_t filteredCount) {
+    return {
+        {"active_filter",
+         {
+             {"media_kind", filter.media_kind},
+             {"category", filter.category},
+             {"required_tag", filter.required_tag},
+             {"required_status", filter.required_status.has_value()
+                                     ? nlohmann::json(urpg::assets::toString(*filter.required_status))
+                                     : nlohmann::json(nullptr)},
+             {"referenced_only", filter.referenced_only},
+             {"runtime_ready_only", filter.runtime_ready_only},
+             {"previewable_only", filter.previewable_only},
+             {"result_count", filteredCount},
+         }},
+        {"quick_filters",
+         {
+             {"sequence_packs",
+              {
+                  {"visible", true},
+                  {"enabled", snapshot.sequence_asset_count > 0},
+                  {"label", "Sequence Packs"},
+                  {"action", "filter_asset_sequence_packs"},
+                  {"media_kind", "image_sequence_collection"},
+                  {"count", snapshot.sequence_asset_count},
+                  {"frame_count", snapshot.sequence_frame_count},
+                  {"clip_count", snapshot.sequence_clip_count},
+              }},
+             {"runtime_ready",
+              {
+                  {"visible", true},
+                  {"enabled", snapshot.runtime_ready_count > 0},
+                  {"action", "filter_runtime_ready_assets"},
+                  {"count", snapshot.runtime_ready_count},
+              }},
+             {"previewable",
+              {
+                  {"visible", true},
+                  {"enabled", snapshot.previewable_count > 0},
+                  {"action", "filter_previewable_assets"},
+                  {"count", snapshot.previewable_count},
+              }},
+         }},
+    };
+}
+
 } // namespace
 
 bool AssetLibraryModel::loadReportsFromDirectory(const std::filesystem::path& reports_root,
@@ -217,6 +264,7 @@ void AssetLibraryModel::refreshSnapshot() {
     snapshot_.promoted_count = asset_snapshot.promoted_count;
     snapshot_.archived_count = asset_snapshot.archived_count;
     snapshot_.filtered_asset_count = library_.filterAssets(filter_).size();
+    snapshot_.filter_controls = filterControls(filter_, asset_snapshot, snapshot_.filtered_asset_count);
     snapshot_.cleanup_allowed_count = cleanup_plan_.allowed_count;
     snapshot_.cleanup_refused_count = cleanup_plan_.refused_count;
     snapshot_.export_eligible = asset_snapshot.export_eligible;
