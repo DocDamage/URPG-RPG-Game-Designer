@@ -341,3 +341,51 @@ TEST_CASE("PictureTaskDocument supports high-count picture slots and common-even
     const auto diagnostics = invalid.validate();
     REQUIRE(diagnostics.size() == 3);
 }
+
+TEST_CASE("PictureTaskDocument builds runtime preview rows for WYSIWYG picture UI",
+          "[message][picture][tasks][preview]") {
+    PictureTaskDocument document;
+    document.setMaxPictures(1000);
+    document.addBinding({350, "open_codex_hotspot", "common_event.open_codex", "click", true});
+    document.addBinding({350, "hover_codex_hotspot", "common_event.preview_codex", "hover", true});
+    document.addBinding({999, "open_map_hotspot", "common_event.open_map", "click", true});
+    document.addBinding({999, "disabled_map_hover", "common_event.disabled", "hover", false});
+
+    const std::vector<PictureRuntimeSlot> pictures = {
+        {999, "asset://ui/map_button.png", 200, 20, 48, 48, 5, 1.0F, true},
+        {350, "asset://ui/codex_button.png", 10, 10, 64, 32, 2, 0.75F, true},
+        {1001, "asset://ui/out_of_range.png", 0, 0, 16, 16, 1, 1.0F, true},
+        {120, "asset://ui/hidden.png", 0, 0, 32, 32, 0, 0.0F, true},
+    };
+
+    const auto preview = document.previewRuntime(pictures, 20, 20);
+
+    REQUIRE(preview.max_pictures == 1000);
+    REQUIRE(preview.visible_picture_count == 2);
+    REQUIRE(preview.bound_picture_count == 2);
+    REQUIRE(preview.clickable_picture_count == 2);
+    REQUIRE(preview.hoverable_picture_count == 1);
+    REQUIRE(preview.rows.size() == 3);
+    REQUIRE(preview.rows[0].picture_id == 120);
+    REQUIRE_FALSE(preview.rows[0].visible);
+    REQUIRE(preview.rows[1].picture_id == 350);
+    REQUIRE(preview.rows[1].visible);
+    REQUIRE(preview.rows[1].clickable);
+    REQUIRE(preview.rows[1].hoverable);
+    REQUIRE(preview.rows[1].hovered);
+    REQUIRE(preview.rows[1].bindings.size() == 2);
+    REQUIRE(preview.rows[1].common_event_ids.size() == 2);
+    REQUIRE(preview.rows[2].picture_id == 999);
+    REQUIRE(preview.rows[2].bindings.size() == 1);
+    REQUIRE_FALSE(preview.rows[2].hoverable);
+    REQUIRE_FALSE(preview.rows[2].hovered);
+    REQUIRE(preview.diagnostics.size() == 1);
+    REQUIRE(preview.diagnostics[0].code == "picture_runtime_slot_out_of_range");
+
+    const auto json = preview.toJson();
+    REQUIRE(json["rows"].size() == 3);
+    REQUIRE(json["rows"][1]["picture_id"] == 350);
+    REQUIRE(json["rows"][1]["hovered"] == true);
+    REQUIRE(json["rows"][1]["bindings"].size() == 2);
+    REQUIRE(json["diagnostics"][0]["picture_id"] == 1001);
+}

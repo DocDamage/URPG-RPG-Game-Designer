@@ -7,7 +7,7 @@ URPG has enough native subsystems now that the next work should deepen existing 
 ## Priority Lanes
 
 1. Battle feedback: chip damage/healing, configurable zero-damage presentation, custom buff caps, troop-position reuse, preview panel visibility, and migration/schema coverage.
-2. State/message/picture: scoped/self/map/JS variable banks, nested text escapes, picture task bindings, and high-count picture management are started in native code; picture UI runtime preview remains.
+2. State/message/picture: scoped/self/map/JS variable banks, nested text escapes, picture task bindings, high-count picture management, and native picture UI runtime preview rows are started in native code; migration adapters remain.
 3. Progression: level-up stat allocation pools, caps, class/actor rules, preview math, editor snapshots, and applied stat-allocation save/load records are started in native code; richer post-load actor application UI remains.
 4. Asset browser/runtime library: tag/status/category filters, duplicate groups, source/license badges, previewable/runtime-ready counts, used-by references, promote/archive action state, and shared editor/chatbot asset action rows are started in native code; actual file moves plus richer thumbnail/waveform UI remain.
 5. AI editor workflow: approve/reject/apply/revert controls, validation blocking reasons, apply-preview patch counts, result diff patch counts, and undo-stack/apply-history snapshots are started in native code; richer painted diff browsing and per-record rationale UI remain.
@@ -31,3 +31,7 @@ Asset action recommendations are shared by the WYSIWYG asset browser and chatbot
 ## Progression Save Records
 
 Stat allocation now has a commit record that can be attached to runtime save JSON under `_stat_allocations` and hydrated by `RuntimeSaveLoader`. The record stores pool/class/actor identity, before/after stats, spent and remaining points, and per-stat spending so level-up allocation previews can survive save/load.
+
+## Picture Runtime Preview
+
+`PictureTaskDocument::previewRuntime()` now projects high-count picture slots into WYSIWYG-ready rows with bounds, z order, opacity, visibility, click/hover binding state, common-event targets, hover hit testing, and diagnostics for out-of-range runtime slots.
