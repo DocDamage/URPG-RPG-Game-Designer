@@ -1,5 +1,7 @@
 #include "editor/ai/ai_assistant_panel.h"
 #include "engine/core/ai/ai_knowledge_base.h"
+#include "engine/core/ai/wysiwyg_chatbot_coverage.h"
+#include "engine/core/assets/asset_library.h"
 #include "engine/core/message/chatbot_component.h"
 
 #include <catch2/catch_test_macros.hpp>
@@ -72,6 +74,8 @@ TEST_CASE("AI knowledge snapshot indexes app capabilities docs tools and project
     REQUIRE_FALSE(snapshot.project_index.search("asset catalog duplicate").empty());
     REQUIRE_FALSE(snapshot.project_index.search("monster collector template").empty());
     REQUIRE_FALSE(snapshot.docs_index.search("copilot").empty());
+    REQUIRE_FALSE(snapshot.docs_index.search("asset dlc library manager").empty());
+    REQUIRE_FALSE(snapshot.docs_index.search("release checklist dashboard").empty());
     REQUIRE(snapshot.toJson()["capabilities"].size() == snapshot.capabilities.capabilities().size());
     const auto catalogMatches = snapshot.project_index.search("main_catalog");
     const auto catalogIt = std::find_if(catalogMatches.begin(), catalogMatches.end(), [](const auto& entry) {
@@ -80,6 +84,41 @@ TEST_CASE("AI knowledge snapshot indexes app capabilities docs tools and project
     REQUIRE(catalogIt != catalogMatches.end());
     REQUIRE(catalogIt->metadata["asset_count"] == 42);
     REQUIRE(catalogIt->metadata["duplicate_group_count"] == 3);
+}
+
+TEST_CASE("AI chatbot knowledge covers release WYSIWYG panels features and asset actions",
+          "[ai_knowledge][ai_assistant][wysiwyg][coverage]") {
+    const auto snapshot = urpg::ai::buildDefaultAiKnowledgeSnapshot();
+    urpg::assets::AssetLibrary library;
+    library.ingestPromotionCatalog(nlohmann::json{
+        {"source_id", "SRC-007"},
+        {"source_root", "imports/raw/urpg_stuff"},
+        {"assets",
+         {
+             {
+                 {"source_path", "imports/raw/urpg_stuff/characters/hero.png"},
+                 {"normalized_path", "asset://src-007/characters/hero.png"},
+                 {"preview_path", "imports/raw/urpg_stuff/characters/hero.png"},
+                 {"preview_kind", "image"},
+                 {"media_kind", "image"},
+                 {"category", "characters"},
+                 {"tags", {"hero", "kind:image"}},
+                 {"license", "user_attested_free_for_game_use_pending_per_pack_attribution"},
+             },
+         }}});
+    REQUIRE(library.promoteAsset("imports/raw/urpg_stuff/characters/hero.png").success);
+
+    const auto report = urpg::ai::buildWysiwygChatbotCoverageReport(snapshot, library.snapshot());
+
+    REQUIRE(report.passed);
+    REQUIRE(report.release_panel_count > 0);
+    REQUIRE(report.release_panel_count == report.searchable_panel_count);
+    REQUIRE(report.capability_count == report.capability_with_tool_count);
+    REQUIRE(report.capability_count == report.capability_with_wysiwyg_surface_count);
+    REQUIRE(report.asset_panel_registered);
+    REQUIRE(report.asset_chatbot_tool_registered);
+    REQUIRE(report.asset_library_actions_available);
+    REQUIRE(report.toJson()["missing"].empty());
 }
 
 TEST_CASE("AI task planner creates safe reviewable tool plans for creator tasks",

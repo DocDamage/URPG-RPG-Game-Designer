@@ -19,3 +19,7 @@ URPG has enough native subsystems now that the next work should deepen existing 
 ## Implementation Rule
 
 Each lane should land as native project data, schema coverage when data-driven, runtime behavior, editor state/preview, diagnostics, focused tests, and status documentation. Raw imported plugin or asset folders remain ignored intake evidence, not shipped runtime dependencies.
+
+## Chatbot and WYSIWYG Coverage
+
+The chatbot and WYSIWYG bridge now has a native coverage report. Release top-level editor panels are indexed into chatbot knowledge as searchable `editor_panel` entries, AI capabilities must declare a WYSIWYG surface and at least one tool, and the asset lane is checked for both WYSIWYG panel registration and asset import/promotion tool coverage.

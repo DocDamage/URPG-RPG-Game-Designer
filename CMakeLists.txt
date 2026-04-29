@@ -231,6 +231,7 @@ set(URPG_CORE_SOURCES
     engine/core/ai/ai_suggestion_record.cpp
     engine/core/ai/creator_command_planner.cpp
     engine/core/ai/openai_compatible_chat_service.cpp
+    engine/core/ai/wysiwyg_chatbot_coverage.cpp
     engine/core/collaboration/local_review_bundle.cpp
     engine/core/diagnostics/diagnostics_bundle_exporter.cpp
     engine/core/debug/debug_session.cpp

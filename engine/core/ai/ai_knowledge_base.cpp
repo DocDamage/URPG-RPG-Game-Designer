@@ -1,5 +1,7 @@
 #include "engine/core/ai/ai_knowledge_base.h"
 
+#include "engine/core/editor/editor_panel_registry.h"
+
 #include <algorithm>
 #include <cctype>
 #include <set>
@@ -427,6 +429,25 @@ DocumentationKnowledgeIndex DocumentationKnowledgeIndex::buildDefault() {
                     "AI assistant, creator command, provider, and safety guidance.", {"ai", "chatbot", "provider", "creator"}});
     index.addEntry({"readiness", "doc", "Release Readiness Matrix", "docs/RELEASE_READINESS_MATRIX.md",
                     "Release status and readiness evidence.", {"release", "readiness", "status"}});
+    for (const auto& panel : urpg::editor::editorPanelRegistry()) {
+        if (panel.exposure != urpg::editor::EditorPanelExposure::ReleaseTopLevel) {
+            continue;
+        }
+        index.addEntry({
+            "editor_panel:" + panel.id,
+            "editor_panel",
+            panel.title,
+            "editor://" + panel.id,
+            panel.reason,
+            {panel.id, panel.title, panel.category, panel.owner, "wysiwyg", "editor", "panel"},
+            {
+                {"panel_id", panel.id},
+                {"category", panel.category},
+                {"owner", panel.owner},
+                {"exposure", "release_top_level"},
+            },
+        });
+    }
     return index;
 }
 

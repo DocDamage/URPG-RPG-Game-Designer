@@ -60,6 +60,7 @@ The chatbot now has an in-tree knowledge foundation in `engine/core/ai/ai_knowle
 - `AppCapabilityRegistry` catalogs what the app can do across map authoring, event graphs, dialogue, abilities, battle VFX, save labs, export preview, assets, templates, and creator commands.
 - `ProjectKnowledgeIndex` summarizes supplied project JSON into searchable project entries for maps, events, dialogue, abilities, assets, templates, localization, export settings, project files, schemas, readiness reports, validation reports, asset catalogs, project docs, template specs, and source summaries.
 - `DocumentationKnowledgeIndex` exposes canonical docs such as the agent index, architecture map, quality gates, AI Copilot guide, and release readiness matrix.
+- Release top-level editor panels from `EditorPanelRegistry` are indexed as `editor_panel` knowledge entries, so chatbot search can discover WYSIWYG surfaces by panel id, title, category, owner, or workflow description.
 - `AiToolRegistry` defines safe callable tools across maps, regions, lighting/weather, events, dialogue, localization, quests, NPC schedules, abilities, battle VFX, save labs, assets, templates, export preview, validation, and creator commands.
 - `AiTaskPlanner` turns user requests into reviewable `urpg.ai_task_plan.v1` tool plans.
 - `applyApprovedPlan` refuses mutating steps until they are approved, then writes the approved map/event/dialogue/ability/export/creator-command changes into project JSON and records `ai_tool_applications`.
@@ -95,6 +96,8 @@ Editor approval is handled by `AiAssistantPanel::approveStep(stepId)` or `AiAssi
 - `AI_APPLY` applies the approved plan to project JSON.
 
 The chatbot exposes the current `task_plan`, `approval` manifest, and `last_apply` result through `lastAiToolSnapshot()`.
+
+`buildWysiwygChatbotCoverageReport()` verifies the bridge between chatbot and WYSIWYG surfaces. It checks that every release top-level panel is searchable by chatbot knowledge, every registered app capability declares a WYSIWYG surface and has at least one chatbot tool, and the asset lane has both the WYSIWYG panel and asset import/promotion tool registered.
 
 ### 3. Knowledge Bridges
 - **WorldKnowledgeBridge**: Serializes NPC locations, item names, and plot flags into a "World Context" digest.
