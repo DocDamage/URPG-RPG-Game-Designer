@@ -226,6 +226,7 @@ try {
             urpg_export_smoke_app `
             urpg_presentation_release_validation `
             urpg_tests `
+            urpg_render_tests `
             urpg_integration_tests `
             urpg_snapshot_tests `
             urpg_compat_tests

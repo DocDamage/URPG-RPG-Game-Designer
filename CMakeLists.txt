@@ -1440,7 +1440,6 @@ add_executable(urpg_tests
     tests/unit/test_capture_theme_presentation_suite.cpp
     tests/unit/test_s31_template_evidence_snapshots.cpp
     tests/unit/test_s32_wysiwyg_lanes.cpp
-    tests/engine/core/test_render_assets.cpp
     tests/test_asset_license_audit.cpp
     tests/test_copilot_kernel.cpp
     tests/test_headless_play_mode.cpp
@@ -1471,6 +1470,18 @@ add_dependencies(urpg_tests urpg_pack_cli)
 target_compile_definitions(urpg_tests PRIVATE URPG_EXPORT_SMOKE_APP_PATH="$<TARGET_FILE:urpg_export_smoke_app>")
 target_compile_definitions(urpg_tests PRIVATE URPG_PACK_CLI_PATH="$<TARGET_FILE:urpg_pack_cli>")
 urpg_enable_windows_test_binary_unlock(urpg_tests)
+
+add_executable(urpg_render_tests
+    tests/engine/core/test_render_assets.cpp
+)
+
+target_link_libraries(urpg_render_tests PRIVATE urpg_core Catch2::Catch2WithMain)
+target_include_directories(urpg_render_tests PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+target_compile_definitions(urpg_render_tests PRIVATE URPG_SOURCE_DIR="${CMAKE_CURRENT_SOURCE_DIR}")
+if(MINGW)
+    target_compile_options(urpg_render_tests PRIVATE -Wa,-mbig-obj)
+endif()
+urpg_enable_windows_test_binary_unlock(urpg_render_tests)
 
 add_executable(urpg_integration_tests
     tests/integration/test_grid_part_map_scene_integration.cpp
@@ -1527,6 +1538,12 @@ catch_discover_tests(
     urpg_tests
     DISCOVERY_MODE PRE_TEST
     PROPERTIES LABELS "pr"
+)
+
+catch_discover_tests(
+    urpg_render_tests
+    DISCOVERY_MODE PRE_TEST
+    PROPERTIES LABELS "pr;render"
 )
 
 catch_discover_tests(

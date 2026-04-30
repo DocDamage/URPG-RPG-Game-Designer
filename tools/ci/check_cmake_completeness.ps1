@@ -89,6 +89,7 @@ function Get-SetFiles {
 
 $coreFiles = Get-SetFiles -content $cmakeContent -variableName "URPG_CORE_SOURCES"
 $testFiles = Get-TargetFiles -content $cmakeContent -targetName "urpg_tests"
+$renderTestFiles = Get-TargetFiles -content $cmakeContent -targetName "urpg_render_tests"
 $integrationFiles = Get-TargetFiles -content $cmakeContent -targetName "urpg_integration_tests"
 $snapshotFiles = Get-TargetFiles -content $cmakeContent -targetName "urpg_snapshot_tests"
 $compatFiles = Get-TargetFiles -content $cmakeContent -targetName "urpg_compat_tests"
@@ -97,7 +98,7 @@ $auditFiles = Get-TargetFiles -content $cmakeContent -targetName "urpg_project_a
 $presValFiles = Get-TargetFiles -content $cmakeContent -targetName "urpg_presentation_release_validation"
 $profileArenaFiles = Get-TargetFiles -content $cmakeContent -targetName "urpg_profile_arena"
 
-$allTestExeFiles = $testFiles + $integrationFiles + $snapshotFiles + $compatFiles + $migrateFiles + $auditFiles + $presValFiles
+$allTestExeFiles = $testFiles + $renderTestFiles + $integrationFiles + $snapshotFiles + $compatFiles + $migrateFiles + $auditFiles + $presValFiles
 $standaloneToolFiles = $profileArenaFiles
 $allCMakeFiles = $coreFiles + $allTestExeFiles + $standaloneToolFiles
 
