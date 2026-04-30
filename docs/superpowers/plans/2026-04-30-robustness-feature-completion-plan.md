@@ -925,7 +925,7 @@ git commit -m "feat: add governed asset promotion manifests"
 - Modify: `tests/unit/test_character_creator_panel.cpp`
 - Modify: `content/schemas/character_identity.schema.json`
 
-- [ ] **Step 1: Add tests for promoted appearance part selection**
+- [x] **Step 1: Add tests for promoted appearance part selection**
 
 Test cases:
 
@@ -945,7 +945,7 @@ REQUIRE_FALSE(snapshot.appearance_parts[1].enabled);
 REQUIRE(snapshot.appearance_parts[1].disabled_reason == "Asset is not runtime-ready or lacks license evidence.");
 ```
 
-- [ ] **Step 2: Run focused character tests and confirm failure**
+- [x] **Step 2: Run focused character tests and confirm failure**
 
 Run:
 
@@ -955,7 +955,9 @@ ctest --preset dev-all -R "CharacterCreator|character.*identity|character.*appea
 
 Expected: FAIL for missing promoted-asset selection rows.
 
-- [ ] **Step 3: Add appearance part references to character identity**
+Execution note: focused character tests now cover promoted portrait/field/layer selection, disabled unlicensed/archived rows, and identity JSON persistence.
+
+- [x] **Step 3: Add appearance part references to character identity**
 
 Add fields:
 
@@ -968,11 +970,11 @@ std::vector<std::string> layeredPartAssetIds;
 
 Serialization must preserve existing identity fields and old saves without appearance part ids.
 
-- [ ] **Step 4: Connect `CharacterCreatorModel` to asset promotion snapshots**
+- [x] **Step 4: Connect `CharacterCreatorModel` to asset promotion snapshots**
 
 The model should accept promoted asset rows from `AssetLibraryModelSnapshot` or a narrow adapter. Do not make the character model scan raw intake folders.
 
-- [ ] **Step 5: Render disabled reasons in panel snapshots**
+- [x] **Step 5: Render disabled reasons in panel snapshots**
 
 Add snapshot rows:
 
@@ -987,7 +989,7 @@ struct CharacterAppearancePartRow {
 };
 ```
 
-- [ ] **Step 6: Re-run focused tests**
+- [x] **Step 6: Re-run focused tests**
 
 Run:
 
@@ -997,7 +999,7 @@ ctest --preset dev-all -R "CharacterCreator|character.*identity|character.*appea
 
 Expected: PASS.
 
-- [ ] **Step 7: Update readiness**
+- [x] **Step 7: Update readiness**
 
 Update:
 
@@ -1006,7 +1008,7 @@ Update:
 
 If this closes the only true `character_identity` gap, promote cautiously only if evidence fields remain true and docs agree.
 
-- [ ] **Step 8: Commit**
+- [x] **Step 8: Commit**
 
 ```powershell
 git add engine/core/character editor/character tests/unit/test_character_creator_model.cpp tests/unit/test_character_creator_panel.cpp content/schemas/character_identity.schema.json docs/release/RELEASE_READINESS_MATRIX.md content/readiness/readiness_status.json

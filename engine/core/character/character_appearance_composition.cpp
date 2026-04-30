@@ -46,12 +46,22 @@ std::string slotForToken(const std::string& token) {
     return it == kSlots.end() ? "accessory" : it->second;
 }
 
+std::string slotForAssetId(const std::string& assetId) {
+    const auto lastDot = assetId.find_last_of('.');
+    if (lastDot == std::string::npos || lastDot + 1 >= assetId.size()) {
+        return "promoted_part";
+    }
+    return assetId.substr(lastDot + 1);
+}
+
 void addBaseDiagnostics(const CharacterIdentity& identity, std::vector<std::string>& diagnostics) {
-    if (identity.getPortraitId().empty()) {
+    if (identity.getPortraitId().empty() && identity.getPortraitAssetId().empty()) {
         diagnostics.push_back("missing_portrait_base_asset");
     }
-    if (identity.getBodySpriteId().empty()) {
+    if (identity.getBodySpriteId().empty() && identity.getFieldSpriteAssetId().empty()) {
         diagnostics.push_back("missing_field_body_base_asset");
+    }
+    if (identity.getBodySpriteId().empty() && identity.getBattleSpriteAssetId().empty()) {
         diagnostics.push_back("missing_battle_body_base_asset");
     }
 }
@@ -75,6 +85,16 @@ CharacterSurfaceComposition composeSurface(const CharacterIdentity& identity,
     int32_t order = 10;
     for (const auto& token : identity.getAppearanceTokens()) {
         composition.layers.push_back(makeLayer(token, surface, order, slotForToken(token)));
+        order += 10;
+    }
+    for (const auto& assetId : identity.getLayeredPartAssetIds()) {
+        composition.layers.push_back({
+            surfaceToString(surface) + ".promoted." + std::to_string(order),
+            assetId,
+            slotForAssetId(assetId),
+            order,
+            false,
+        });
         order += 10;
     }
 
@@ -108,9 +128,14 @@ nlohmann::json surfaceToJson(const CharacterSurfaceComposition& surface) {
 
 CharacterAppearanceComposition composeCharacterAppearance(const CharacterIdentity& identity) {
     CharacterAppearanceComposition composition;
-    composition.portrait = composeSurface(identity, CharacterCompositionSurface::Portrait, identity.getPortraitId());
-    composition.field = composeSurface(identity, CharacterCompositionSurface::Field, identity.getBodySpriteId());
-    composition.battle = composeSurface(identity, CharacterCompositionSurface::Battle, identity.getBodySpriteId());
+    const auto portraitBase = identity.getPortraitAssetId().empty() ? identity.getPortraitId() : identity.getPortraitAssetId();
+    const auto fieldBase =
+        identity.getFieldSpriteAssetId().empty() ? identity.getBodySpriteId() : identity.getFieldSpriteAssetId();
+    const auto battleBase =
+        identity.getBattleSpriteAssetId().empty() ? identity.getBodySpriteId() : identity.getBattleSpriteAssetId();
+    composition.portrait = composeSurface(identity, CharacterCompositionSurface::Portrait, portraitBase);
+    composition.field = composeSurface(identity, CharacterCompositionSurface::Field, fieldBase);
+    composition.battle = composeSurface(identity, CharacterCompositionSurface::Battle, battleBase);
     addBaseDiagnostics(identity, composition.diagnostics);
     composition.complete = composition.diagnostics.empty() && !composition.portrait.layers.empty() &&
                            !composition.field.layers.empty() && !composition.battle.layers.empty();

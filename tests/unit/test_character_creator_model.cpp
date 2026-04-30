@@ -1,10 +1,39 @@
 #include <catch2/catch_test_macros.hpp>
 
 #include "editor/character/character_creator_model.h"
+#include "engine/core/assets/asset_action_view.h"
+#include "engine/core/assets/asset_library.h"
+#include "engine/core/assets/asset_promotion_manifest.h"
 #include "engine/core/ecs/actor_components.h"
 #include "engine/core/ecs/actor_manager.h"
 
+#include <utility>
+
 using namespace urpg::editor;
+
+namespace {
+
+urpg::assets::AssetPromotionManifest makeCharacterManifest(std::string assetId,
+                                                           std::string sourcePath,
+                                                           std::string promotedPath,
+                                                           std::string licenseId,
+                                                           std::string status,
+                                                           std::string previewKind = "image") {
+    return urpg::assets::deserializeAssetPromotionManifest(nlohmann::json{
+        {"schemaVersion", "1.0.0"},
+        {"assetId", std::move(assetId)},
+        {"sourcePath", std::move(sourcePath)},
+        {"promotedPath", std::move(promotedPath)},
+        {"licenseId", std::move(licenseId)},
+        {"status", std::move(status)},
+        {"preview",
+         {{"kind", std::move(previewKind)}, {"thumbnailPath", "resources/previews/part.thumb.png"}, {"width", 48}, {"height", 48}}},
+        {"package", {{"includeInRuntime", true}, {"requiredForRelease", false}}},
+        {"diagnostics", nlohmann::json::array()},
+    });
+}
+
+} // namespace
 
 TEST_CASE("CharacterCreatorModel class preset seeds base attributes", "[character][editor][model]") {
     CharacterCreatorModel model;
@@ -76,4 +105,89 @@ TEST_CASE("CharacterCreatorModel rejects unknown catalog selections", "[characte
     const auto snapshot = model.buildSnapshot();
     REQUIRE_FALSE(snapshot["validation"]["is_valid"]);
     REQUIRE(snapshot["validation"]["issue_count"] == 3);
+}
+
+TEST_CASE("CharacterCreatorModel selects promoted appearance parts and persists asset ids",
+          "[character][editor][model][appearance][assets]") {
+    urpg::assets::AssetLibrary library;
+    library.ingestPromotionManifest(makeCharacterManifest("asset.character.hero.portrait.hair_01",
+                                                          "imports/raw/hero/hair.png",
+                                                          "resources/assets/characters/hero/hair.png",
+                                                          "BND-CHR",
+                                                          "runtime_ready"));
+    library.ingestPromotionManifest(makeCharacterManifest("asset.character.hero.field.body_01",
+                                                          "imports/raw/hero/body.png",
+                                                          "resources/assets/characters/hero/body.png",
+                                                          "BND-CHR",
+                                                          "runtime_ready"));
+    library.ingestPromotionManifest(makeCharacterManifest("asset.character.hero.layer.cloak_01",
+                                                          "imports/raw/hero/cloak.png",
+                                                          "resources/assets/characters/hero/cloak.png",
+                                                          "BND-CHR",
+                                                          "runtime_ready"));
+    library.ingestPromotionManifest(makeCharacterManifest("asset.character.hero.raw_unlicensed",
+                                                          "imports/raw/hero/unlicensed.png",
+                                                          "resources/assets/characters/hero/unlicensed.png",
+                                                          "",
+                                                          "runtime_ready"));
+    library.ingestPromotionManifest(makeCharacterManifest("asset.character.hero.archived",
+                                                          "imports/raw/hero/archived.png",
+                                                          "resources/assets/characters/hero/archived.png",
+                                                          "BND-CHR",
+                                                          "archived"));
+
+    auto rows = urpg::assets::buildAssetActionRows(library.snapshot());
+    for (auto& row : rows) {
+        const auto assetId = row.value("asset_id", "");
+        if (assetId.find(".portrait.") != std::string::npos) {
+            row["slot"] = "portrait";
+        } else if (assetId.find(".field.") != std::string::npos) {
+            row["slot"] = "field";
+        } else if (assetId.find(".archived") != std::string::npos) {
+            row["slot"] = "battle";
+        } else {
+            row["slot"] = "layer";
+        }
+    }
+
+    CharacterCreatorModel model;
+    model.setPromotedAppearanceAssetRows(rows);
+
+    auto snapshot = model.buildSnapshot();
+    REQUIRE(snapshot["appearance_parts"].size() == 5);
+    const auto field = std::find_if(snapshot["appearance_parts"].begin(), snapshot["appearance_parts"].end(),
+                                    [](const auto& row) {
+                                        return row["asset_id"] == "asset.character.hero.field.body_01";
+                                    });
+    REQUIRE(field != snapshot["appearance_parts"].end());
+    REQUIRE((*field)["enabled"] == true);
+
+    const auto unlicensed = std::find_if(snapshot["appearance_parts"].begin(), snapshot["appearance_parts"].end(),
+                                         [](const auto& row) {
+                                             return row["asset_id"] == "asset.character.hero.raw_unlicensed";
+                                         });
+    REQUIRE(unlicensed != snapshot["appearance_parts"].end());
+    REQUIRE((*unlicensed)["enabled"] == false);
+    REQUIRE((*unlicensed)["disabled_reason"] == "Asset is not runtime-ready or lacks license evidence.");
+
+    REQUIRE(model.selectPromotedAppearancePart("asset.character.hero.portrait.hair_01"));
+    REQUIRE(model.selectPromotedAppearancePart("asset.character.hero.field.body_01"));
+    REQUIRE(model.selectPromotedAppearancePart("asset.character.hero.layer.cloak_01"));
+    REQUIRE_FALSE(model.selectPromotedAppearancePart("asset.character.hero.raw_unlicensed"));
+    REQUIRE_FALSE(model.selectPromotedAppearancePart("asset.character.hero.archived"));
+
+    snapshot = model.buildSnapshot();
+    REQUIRE(snapshot["identity"]["portraitAssetId"] == "asset.character.hero.portrait.hair_01");
+    REQUIRE(snapshot["identity"]["fieldSpriteAssetId"] == "asset.character.hero.field.body_01");
+    REQUIRE(snapshot["identity"]["layeredPartAssetIds"][0] == "asset.character.hero.layer.cloak_01");
+    REQUIRE(snapshot["preview"]["portrait_asset_id"] == "asset.character.hero.portrait.hair_01");
+    REQUIRE(snapshot["appearance_composition"]["portrait"]["base_asset_id"] ==
+            "asset.character.hero.portrait.hair_01");
+    REQUIRE(snapshot["appearance_composition"]["field"]["base_asset_id"] == "asset.character.hero.field.body_01");
+
+    const auto restored = urpg::character::CharacterIdentity::fromJson(snapshot["identity"]);
+    REQUIRE(restored.getPortraitAssetId() == "asset.character.hero.portrait.hair_01");
+    REQUIRE(restored.getFieldSpriteAssetId() == "asset.character.hero.field.body_01");
+    REQUIRE(restored.getLayeredPartAssetIds().size() == 1);
+    REQUIRE(restored.getLayeredPartAssetIds()[0] == "asset.character.hero.layer.cloak_01");
 }

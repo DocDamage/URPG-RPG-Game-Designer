@@ -30,6 +30,15 @@
     "bodySpriteId": {
       "type": "string"
     },
+    "portraitAssetId": {
+      "type": "string"
+    },
+    "fieldSpriteAssetId": {
+      "type": "string"
+    },
+    "battleSpriteAssetId": {
+      "type": "string"
+    },
     "baseAttributes": {
       "type": "object",
       "additionalProperties": {
@@ -37,6 +46,12 @@
       }
     },
     "appearanceTokens": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "layeredPartAssetIds": {
       "type": "array",
       "items": {
         "type": "string"

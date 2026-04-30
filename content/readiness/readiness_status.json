@@ -203,11 +203,12 @@
     {
       "id": "character_identity",
       "status": "PARTIAL",
-      "summary": "Character identity runtime, editor creator panel, character creation rules, bounded validation runtime, ECS component/system integration, deterministic spawner, preset-based runtime creator screen, preview card surface, runtime-created protagonist save/load persistence, and layered portrait/field/battle composition are landed with schema and focused tests.",
+      "summary": "Character identity runtime, editor creator panel, character creation rules, bounded validation runtime, ECS component/system integration, deterministic spawner, preset-based runtime creator screen, preview card surface, runtime-created protagonist save/load persistence, layered portrait/field/battle composition, and promoted asset-library appearance-part selection are landed with schema and focused tests.",
       "mainGaps": [
         "Character identity validator, governance script, ProjectAudit artifact section, bounded runtime creator screen, preview card surface, and reusable CharacterCreationRules runtime are landed for the current editor/runtime contract.",
         "Creation rules now enforce background/origin/species restrictions, free-text naming limits, class appearance restrictions, and stat allocation budgets; runtime-created protagonist save/load persistence is landed with editor save diagnostics and schema proof.",
-        "Layered portrait/field/battle composition is landed through CharacterAppearanceComposition with editor preview snapshots, schema, fixture, and focused tests."
+        "Layered portrait/field/battle composition is landed through CharacterAppearanceComposition with editor preview snapshots, schema, fixture, and focused tests.",
+        "Promoted appearance-part selection is landed through AssetLibrary action rows, CharacterCreatorModel appearance part rows, persisted portrait/field/battle/layered asset ids, disabled reasons for non-runtime-ready assets, schema fields, and focused tests. Broader authored appearance part import tooling, part-library management, and creator-supplied asset conversion remain backlog."
       ],
       "evidence": {
         "runtimeOwner": true,

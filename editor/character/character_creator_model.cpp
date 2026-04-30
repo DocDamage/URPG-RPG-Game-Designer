@@ -9,6 +9,7 @@
 #include "engine/core/ecs/actor_manager.h"
 
 #include <algorithm>
+#include <string_view>
 
 namespace urpg::editor {
 
@@ -62,6 +63,53 @@ std::string primaryAttribute(const urpg::character::CharacterIdentity& identity)
         }
     }
     return best_key;
+}
+
+std::string valueOrEmpty(const nlohmann::json& row, const char* key) {
+    const auto it = row.find(key);
+    return it != row.end() && it->is_string() ? it->get<std::string>() : std::string{};
+}
+
+bool containsStatus(const nlohmann::json& row, std::string_view status) {
+    const auto it = row.find("statuses");
+    if (it == row.end() || !it->is_array()) {
+        return false;
+    }
+    for (const auto& item : *it) {
+        if (item.is_string() && item.get<std::string>() == status) {
+            return true;
+        }
+    }
+    return false;
+}
+
+bool hasDiagnostics(const nlohmann::json& row) {
+    const auto it = row.find("promotion_diagnostics");
+    return it != row.end() && it->is_array() && !it->empty();
+}
+
+std::string disabledReasonForPromotedAsset(const nlohmann::json& row) {
+    if (containsStatus(row, "archived")) {
+        return "Asset is archived and cannot be assigned to a character.";
+    }
+    if (containsStatus(row, "unsupported_format")) {
+        return "Asset format is not supported for character appearance.";
+    }
+    if (containsStatus(row, "missing_file") || hasDiagnostics(row)) {
+        return "Asset is not runtime-ready or lacks license evidence.";
+    }
+    if (!row.value("include_in_runtime", false)) {
+        return "Asset is not runtime-ready or lacks license evidence.";
+    }
+    return {};
+}
+
+std::string labelForAssetRow(const nlohmann::json& row) {
+    const auto assetId = valueOrEmpty(row, "asset_id");
+    if (!assetId.empty()) {
+        return assetId;
+    }
+    return valueOrEmpty(row, "path");
 }
 
 } // namespace
@@ -133,6 +181,62 @@ void CharacterCreatorModel::removeAppearanceToken(const std::string& token) {
     m_dirty = true;
 }
 
+void CharacterCreatorModel::setPromotedAppearanceAssetRows(const nlohmann::json& rows) {
+    m_appearance_part_rows.clear();
+    if (!rows.is_array()) {
+        return;
+    }
+    for (const auto& row : rows) {
+        if (!row.is_object()) {
+            continue;
+        }
+        CharacterAppearancePartRow part;
+        part.asset_id = valueOrEmpty(row, "asset_id");
+        if (part.asset_id.empty()) {
+            part.asset_id = valueOrEmpty(row, "path");
+        }
+        if (part.asset_id.empty()) {
+            continue;
+        }
+        part.label = labelForAssetRow(row);
+        part.slot = valueOrEmpty(row, "slot");
+        if (part.slot.empty()) {
+            part.slot = "layer";
+        }
+        part.preview_kind = valueOrEmpty(row, "preview_kind");
+        part.disabled_reason = disabledReasonForPromotedAsset(row);
+        part.enabled = part.disabled_reason.empty();
+        m_appearance_part_rows.push_back(std::move(part));
+    }
+    std::sort(m_appearance_part_rows.begin(), m_appearance_part_rows.end(), [](const auto& lhs, const auto& rhs) {
+        if (lhs.slot != rhs.slot) {
+            return lhs.slot < rhs.slot;
+        }
+        return lhs.asset_id < rhs.asset_id;
+    });
+}
+
+bool CharacterCreatorModel::selectPromotedAppearancePart(const std::string& asset_id) {
+    const auto it = std::find_if(m_appearance_part_rows.begin(), m_appearance_part_rows.end(), [&](const auto& row) {
+        return row.asset_id == asset_id;
+    });
+    if (it == m_appearance_part_rows.end() || !it->enabled) {
+        return false;
+    }
+
+    if (it->slot == "portrait") {
+        m_identity.setPortraitAssetId(it->asset_id);
+    } else if (it->slot == "field") {
+        m_identity.setFieldSpriteAssetId(it->asset_id);
+    } else if (it->slot == "battle") {
+        m_identity.setBattleSpriteAssetId(it->asset_id);
+    } else {
+        m_identity.addLayeredPartAssetId(it->asset_id);
+    }
+    m_dirty = true;
+    return true;
+}
+
 void CharacterCreatorModel::setSpawnPosition(urpg::Fixed32 x, urpg::Fixed32 y, urpg::Fixed32 z) {
     m_spawn_x = x;
     m_spawn_y = y;
@@ -202,9 +306,13 @@ nlohmann::json CharacterCreatorModel::buildPreviewSnapshot() const {
         {"class_id", m_identity.getClassId()},
         {"portrait_id", m_identity.getPortraitId()},
         {"body_sprite_id", m_identity.getBodySpriteId()},
+        {"portrait_asset_id", m_identity.getPortraitAssetId()},
+        {"field_sprite_asset_id", m_identity.getFieldSpriteAssetId()},
+        {"battle_sprite_asset_id", m_identity.getBattleSpriteAssetId()},
         {"primary_attribute", primaryAttribute(m_identity)},
         {"attribute_total", attributeTotal(m_identity)},
-        {"appearance_tokens", m_identity.getAppearanceTokens()}
+        {"appearance_tokens", m_identity.getAppearanceTokens()},
+        {"layered_part_asset_ids", m_identity.getLayeredPartAssetIds()}
     };
 }
 
@@ -215,6 +323,25 @@ nlohmann::json CharacterCreatorModel::buildCatalogSnapshot() const {
         {"body_sprite_ids", m_known_body_sprite_ids},
         {"appearance_tokens", m_known_appearance_tokens}
     };
+}
+
+nlohmann::json CharacterCreatorModel::buildAppearancePartsSnapshot() const {
+    nlohmann::json rows = nlohmann::json::array();
+    for (const auto& part : m_appearance_part_rows) {
+        rows.push_back({
+            {"asset_id", part.asset_id},
+            {"label", part.label},
+            {"slot", part.slot},
+            {"enabled", part.enabled},
+            {"disabled_reason", part.disabled_reason},
+            {"preview_kind", part.preview_kind},
+            {"selected", part.asset_id == m_identity.getPortraitAssetId() ||
+                             part.asset_id == m_identity.getFieldSpriteAssetId() ||
+                             part.asset_id == m_identity.getBattleSpriteAssetId() ||
+                             containsValue(m_identity.getLayeredPartAssetIds(), part.asset_id)},
+        });
+    }
+    return rows;
 }
 
 nlohmann::json CharacterCreatorModel::buildSavePersistenceSnapshot(const nlohmann::json& validation) const {
@@ -256,6 +383,7 @@ nlohmann::json CharacterCreatorModel::buildSnapshot() const {
         {"is_dirty", m_dirty},
         {"validation", validation},
         {"preview", buildPreviewSnapshot()},
+        {"appearance_parts", buildAppearancePartsSnapshot()},
         {"appearance_composition",
          urpg::character::characterAppearanceCompositionToJson(
              urpg::character::composeCharacterAppearance(m_identity))},

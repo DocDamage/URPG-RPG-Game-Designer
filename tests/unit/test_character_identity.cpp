@@ -22,10 +22,14 @@ TEST_CASE("CharacterIdentity round-trip serialization", "[character][identity]")
     original.setSpeciesId("elf");
     original.setOriginId("capital");
     original.setBackgroundId("scholar");
+    original.setPortraitAssetId("asset.character.elena.portrait");
+    original.setFieldSpriteAssetId("asset.character.elena.field");
+    original.setBattleSpriteAssetId("asset.character.elena.battle");
     original.setAttribute("STR", 8.0f);
     original.setAttribute("INT", 15.0f);
     original.addAppearanceToken("hair_brown");
     original.addAppearanceToken("eyes_green");
+    original.addLayeredPartAssetId("asset.character.elena.hair");
 
     auto json = original.toJson();
     REQUIRE(json["schemaVersion"] == "1.0.0");
@@ -36,16 +40,23 @@ TEST_CASE("CharacterIdentity round-trip serialization", "[character][identity]")
     REQUIRE(json["backgroundId"] == "scholar");
     REQUIRE(json["portraitId"] == "portrait_elena_01");
     REQUIRE(json["bodySpriteId"] == "sprite_elena_body");
+    REQUIRE(json["portraitAssetId"] == "asset.character.elena.portrait");
+    REQUIRE(json["fieldSpriteAssetId"] == "asset.character.elena.field");
+    REQUIRE(json["battleSpriteAssetId"] == "asset.character.elena.battle");
     REQUIRE(json["baseAttributes"]["STR"] == 8.0f);
     REQUIRE(json["baseAttributes"]["INT"] == 15.0f);
     REQUIRE(json["appearanceTokens"].size() == 2);
     REQUIRE(json["appearanceTokens"][0] == "hair_brown");
     REQUIRE(json["appearanceTokens"][1] == "eyes_green");
+    REQUIRE(json["layeredPartAssetIds"][0] == "asset.character.elena.hair");
 
     auto restored = CharacterIdentity::fromJson(json);
     REQUIRE(restored.getName() == "Elena");
     REQUIRE(restored.getPortraitId() == "portrait_elena_01");
     REQUIRE(restored.getBodySpriteId() == "sprite_elena_body");
+    REQUIRE(restored.getPortraitAssetId() == "asset.character.elena.portrait");
+    REQUIRE(restored.getFieldSpriteAssetId() == "asset.character.elena.field");
+    REQUIRE(restored.getBattleSpriteAssetId() == "asset.character.elena.battle");
     REQUIRE(restored.getClassId() == "class_mage");
     REQUIRE(restored.getSpeciesId() == "elf");
     REQUIRE(restored.getOriginId() == "capital");
@@ -55,6 +66,8 @@ TEST_CASE("CharacterIdentity round-trip serialization", "[character][identity]")
     REQUIRE(restored.getAppearanceTokens().size() == 2);
     REQUIRE(restored.getAppearanceTokens()[0] == "hair_brown");
     REQUIRE(restored.getAppearanceTokens()[1] == "eyes_green");
+    REQUIRE(restored.getLayeredPartAssetIds().size() == 1);
+    REQUIRE(restored.getLayeredPartAssetIds()[0] == "asset.character.elena.hair");
 }
 
 TEST_CASE("CharacterCreationRules enforce origins species appearances and point budget",

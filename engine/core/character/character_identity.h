@@ -32,6 +32,19 @@ public:
     void setBodySpriteId(const std::string& value) { m_bodySpriteId = value; }
     const std::string& getBodySpriteId() const { return m_bodySpriteId; }
 
+    void setPortraitAssetId(const std::string& value) { m_portraitAssetId = value; }
+    const std::string& getPortraitAssetId() const { return m_portraitAssetId; }
+
+    void setFieldSpriteAssetId(const std::string& value) { m_fieldSpriteAssetId = value; }
+    const std::string& getFieldSpriteAssetId() const { return m_fieldSpriteAssetId; }
+
+    void setBattleSpriteAssetId(const std::string& value) { m_battleSpriteAssetId = value; }
+    const std::string& getBattleSpriteAssetId() const { return m_battleSpriteAssetId; }
+
+    void addLayeredPartAssetId(const std::string& value);
+    void setLayeredPartAssetIds(const std::vector<std::string>& value) { m_layeredPartAssetIds = value; }
+    const std::vector<std::string>& getLayeredPartAssetIds() const { return m_layeredPartAssetIds; }
+
     void setClassId(const std::string& value) { m_classId = value; }
     const std::string& getClassId() const { return m_classId; }
 
@@ -66,12 +79,16 @@ private:
     std::string m_name;
     std::string m_portraitId;
     std::string m_bodySpriteId;
+    std::string m_portraitAssetId;
+    std::string m_fieldSpriteAssetId;
+    std::string m_battleSpriteAssetId;
     std::string m_classId;
     std::string m_speciesId;
     std::string m_originId;
     std::string m_backgroundId;
     std::unordered_map<std::string, float> m_baseAttributes;
     std::vector<std::string> m_appearanceTokens;
+    std::vector<std::string> m_layeredPartAssetIds;
 };
 
 } // namespace urpg::character

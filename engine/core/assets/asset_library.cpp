@@ -441,6 +441,7 @@ void AssetLibrary::ingestPromotionManifest(const AssetPromotionManifest& manifes
     }
 
     auto& record = ensureAsset(path);
+    record.asset_id = manifest.assetId;
     record.source_path = manifest.sourcePath;
     record.normalized_path = manifest.promotedPath.empty() ? record.normalized_path : manifest.promotedPath;
     record.promoted_path = manifest.promotedPath;

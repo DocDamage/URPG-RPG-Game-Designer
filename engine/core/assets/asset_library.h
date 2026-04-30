@@ -28,6 +28,7 @@ enum class AssetStatus : uint16_t {
 };
 
 struct AssetRecord {
+    std::string asset_id;
     std::string path;
     std::string source_path;
     std::string normalized_path;

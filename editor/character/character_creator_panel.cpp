@@ -28,7 +28,11 @@ void CharacterCreatorPanel::render() {
         {"display_name", identity.getDisplayName()},
         {"class_id", identity.getClassId()},
         {"portrait_id", identity.getPortraitId()},
-        {"body_sprite_id", identity.getBodySpriteId()}
+        {"body_sprite_id", identity.getBodySpriteId()},
+        {"portrait_asset_id", identity.getPortraitAssetId()},
+        {"field_sprite_asset_id", identity.getFieldSpriteAssetId()},
+        {"battle_sprite_asset_id", identity.getBattleSpriteAssetId()},
+        {"layered_part_asset_ids", identity.getLayeredPartAssetIds()}
     };
     m_snapshot["appearance_token_count"] = identity.getAppearanceTokens().size();
     m_snapshot["preview_card"] = m_snapshot["preview"];

@@ -1,10 +1,39 @@
 #include <catch2/catch_test_macros.hpp>
 #include "editor/character/character_creator_panel.h"
 #include "editor/character/character_creator_model.h"
+#include "engine/core/assets/asset_action_view.h"
+#include "engine/core/assets/asset_library.h"
+#include "engine/core/assets/asset_promotion_manifest.h"
 #include "engine/core/ecs/actor_manager.h"
+
+#include <algorithm>
+#include <utility>
 
 using namespace urpg::editor;
 using namespace urpg::character;
+
+namespace {
+
+urpg::assets::AssetPromotionManifest makePanelCharacterManifest(std::string assetId,
+                                                                std::string sourcePath,
+                                                                std::string promotedPath,
+                                                                std::string licenseId,
+                                                                std::string status) {
+    return urpg::assets::deserializeAssetPromotionManifest(nlohmann::json{
+        {"schemaVersion", "1.0.0"},
+        {"assetId", std::move(assetId)},
+        {"sourcePath", std::move(sourcePath)},
+        {"promotedPath", std::move(promotedPath)},
+        {"licenseId", std::move(licenseId)},
+        {"status", std::move(status)},
+        {"preview",
+         {{"kind", "image"}, {"thumbnailPath", "resources/previews/part.thumb.png"}, {"width", 48}, {"height", 48}}},
+        {"package", {{"includeInRuntime", true}, {"requiredForRelease", false}}},
+        {"diagnostics", nlohmann::json::array()},
+    });
+}
+
+} // namespace
 
 TEST_CASE("CharacterCreatorPanel snapshot is empty when no model bound", "[character][editor][panel]") {
     CharacterCreatorPanel panel;
@@ -123,4 +152,52 @@ TEST_CASE("CharacterCreatorPanel exposes created protagonist save diagnostics", 
     REQUIRE(snapshot["save_persistence_diagnostics"]["identity_valid"] == true);
     REQUIRE(snapshot["save_persistence_diagnostics"]["can_attach_to_save"] == true);
     REQUIRE(snapshot["save_persistence_diagnostics"]["diagnostic_count"] == 0);
+}
+
+TEST_CASE("CharacterCreatorPanel exposes promoted appearance part rows",
+          "[character][editor][panel][appearance][assets]") {
+    urpg::assets::AssetLibrary library;
+    library.ingestPromotionManifest(makePanelCharacterManifest("asset.character.hero.portrait.hair_01",
+                                                               "imports/raw/hero/hair.png",
+                                                               "resources/assets/characters/hero/hair.png",
+                                                               "BND-CHR",
+                                                               "runtime_ready"));
+    library.ingestPromotionManifest(makePanelCharacterManifest("asset.character.hero.raw_unlicensed",
+                                                               "imports/raw/hero/unlicensed.png",
+                                                               "resources/assets/characters/hero/unlicensed.png",
+                                                               "",
+                                                               "runtime_ready"));
+
+    auto rows = urpg::assets::buildAssetActionRows(library.snapshot());
+    for (auto& row : rows) {
+        row["slot"] = row.value("asset_id", "").find(".portrait.") != std::string::npos ? "portrait" : "layer";
+    }
+
+    CharacterCreatorModel model;
+    model.setPromotedAppearanceAssetRows(rows);
+    REQUIRE(model.selectPromotedAppearancePart("asset.character.hero.portrait.hair_01"));
+
+    CharacterCreatorPanel panel;
+    panel.bindModel(&model);
+    panel.render();
+
+    const auto& snapshot = panel.lastRenderSnapshot();
+    REQUIRE(snapshot["appearance_parts"].size() == 2);
+    const auto portrait = std::find_if(snapshot["appearance_parts"].begin(), snapshot["appearance_parts"].end(),
+                                       [](const auto& row) {
+                                           return row["asset_id"] == "asset.character.hero.portrait.hair_01";
+                                       });
+    REQUIRE(portrait != snapshot["appearance_parts"].end());
+    REQUIRE((*portrait)["enabled"] == true);
+    REQUIRE((*portrait)["selected"] == true);
+    REQUIRE((*portrait)["slot"] == "portrait");
+
+    const auto unlicensed = std::find_if(snapshot["appearance_parts"].begin(), snapshot["appearance_parts"].end(),
+                                         [](const auto& row) {
+                                             return row["asset_id"] == "asset.character.hero.raw_unlicensed";
+                                         });
+    REQUIRE(unlicensed != snapshot["appearance_parts"].end());
+    REQUIRE((*unlicensed)["enabled"] == false);
+    REQUIRE((*unlicensed)["disabled_reason"] == "Asset is not runtime-ready or lacks license evidence.");
+    REQUIRE(snapshot["identity_summary"]["portrait_asset_id"] == "asset.character.hero.portrait.hair_01");
 }

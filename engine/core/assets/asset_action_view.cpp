@@ -132,6 +132,7 @@ nlohmann::json buildAssetActionRows(const AssetLibrarySnapshot& snapshot) {
         const bool canPromote = promoteReason.empty();
         const bool canArchive = archiveReason.empty();
         rows.push_back({
+            {"asset_id", asset.asset_id},
             {"path", asset.path},
             {"source_path", asset.source_path},
             {"normalized_path", asset.normalized_path},

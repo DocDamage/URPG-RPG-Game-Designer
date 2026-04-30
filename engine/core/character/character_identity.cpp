@@ -11,12 +11,16 @@ nlohmann::json CharacterIdentity::toJson() const {
     j["name"] = m_name;
     j["portraitId"] = m_portraitId;
     j["bodySpriteId"] = m_bodySpriteId;
+    j["portraitAssetId"] = m_portraitAssetId;
+    j["fieldSpriteAssetId"] = m_fieldSpriteAssetId;
+    j["battleSpriteAssetId"] = m_battleSpriteAssetId;
     j["classId"] = m_classId;
     j["speciesId"] = m_speciesId;
     j["originId"] = m_originId;
     j["backgroundId"] = m_backgroundId;
     j["baseAttributes"] = m_baseAttributes;
     j["appearanceTokens"] = m_appearanceTokens;
+    j["layeredPartAssetIds"] = m_layeredPartAssetIds;
     return j;
 }
 
@@ -32,6 +36,9 @@ CharacterIdentity CharacterIdentity::fromJson(const nlohmann::json& j) {
     identity.m_name = j.value("name", "");
     identity.m_portraitId = j.value("portraitId", "");
     identity.m_bodySpriteId = j.value("bodySpriteId", "");
+    identity.m_portraitAssetId = j.value("portraitAssetId", "");
+    identity.m_fieldSpriteAssetId = j.value("fieldSpriteAssetId", "");
+    identity.m_battleSpriteAssetId = j.value("battleSpriteAssetId", "");
     identity.m_classId = j.value("classId", "");
     identity.m_speciesId = j.value("speciesId", "");
     identity.m_originId = j.value("originId", "");
@@ -45,6 +52,9 @@ CharacterIdentity CharacterIdentity::fromJson(const nlohmann::json& j) {
 
     if (j.contains("appearanceTokens") && j["appearanceTokens"].is_array()) {
         identity.m_appearanceTokens = j["appearanceTokens"].get<std::vector<std::string>>();
+    }
+    if (j.contains("layeredPartAssetIds") && j["layeredPartAssetIds"].is_array()) {
+        identity.m_layeredPartAssetIds = j["layeredPartAssetIds"].get<std::vector<std::string>>();
     }
 
     return identity;
@@ -71,6 +81,12 @@ float CharacterIdentity::getAttribute(const std::string& key) const {
 
 void CharacterIdentity::addAppearanceToken(const std::string& token) {
     m_appearanceTokens.push_back(token);
+}
+
+void CharacterIdentity::addLayeredPartAssetId(const std::string& value) {
+    if (std::find(m_layeredPartAssetIds.begin(), m_layeredPartAssetIds.end(), value) == m_layeredPartAssetIds.end()) {
+        m_layeredPartAssetIds.push_back(value);
+    }
 }
 
 void CharacterIdentity::removeAppearanceToken(const std::string& token) {
