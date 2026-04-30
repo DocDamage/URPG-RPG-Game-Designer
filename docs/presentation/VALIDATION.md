@@ -41,7 +41,7 @@ This document records the focused validation lanes for the native presentation s
 
 ### Renderer-Backed Snapshot Capture Lane
 - **Executable surface**:
-  - `urpg_snapshot_tests.exe "[snapshot][renderer][visual_capture]"`
+  - `urpg_snapshot_renderer_tests.exe "[snapshot][renderer][visual_capture]"`
   - `pwsh -File .\tools\ci\check_renderer_backed_visual_capture.ps1 -BuildDirectory build\dev-ninja-debug`
 - **What it covers**:
   - hidden SDL/OpenGL context creation for a bounded OpenGL-enabled local smoke/golden path
@@ -65,7 +65,7 @@ This document records the focused validation lanes for the native presentation s
   - this lane is intentionally outside the focused PR presentation gate
   - local validation now runs this lane through `tools/ci/run_local_gates.ps1`
   - CI Gate 1 now enforces this lane through a dedicated non-headless `build/ci-renderer-backed` snapshot build executed under `xvfb`
-  - `tools/ci/run_presentation_gate.ps1` now also builds `urpg_snapshot_tests` and runs a dedicated `ctest -L regression` fail-on-drift stage so golden drift stops the focused presentation gate immediately
+  - `tools/ci/run_presentation_gate.ps1` now also builds `urpg_snapshot_canonical_tests` and `urpg_snapshot_renderer_tests`, and runs a dedicated `ctest -L regression` fail-on-drift stage so golden drift stops the focused presentation gate immediately
   - the current renderer truth is split intentionally: the `SpriteBatcher -> renderBatches()` path now has real textured OpenGL coverage, and frame-command sprite/tile submission now has bounded direct texture resolution for preloaded logical ids while unresolved sprite/tile ids still use deterministic placeholders
   - it now proves one bounded primitive lane, three live overlay/widget slices, one bounded placeholder world slice, two bounded direct frame-command textured slices, two real textured whole-scene batch slices, and shell-owned Map/Menu/Battle/Title/Options runtime slices, not broad final-form coverage for every world/render path
 
@@ -85,7 +85,7 @@ This document records the focused validation lanes for the native presentation s
 - `build\dev-vs2022\Debug\urpg_tests.exe "[presentation]"` or the equivalent active local-profile build directory
 - `build\dev-vs2022\Debug\urpg_tests.exe "[editor][spatial]"` or the equivalent active local-profile build directory
 - `build\dev-vs2022\Debug\urpg_tests.exe "EngineShell records shell-owned title and options commands through the headless renderer"` or the equivalent active local-profile build directory
-- `build\dev-vs2022\Debug\urpg_snapshot_tests.exe "[snapshot][renderer][visual_capture]"` or the equivalent active OpenGL-enabled local-profile build directory
+- `build\dev-vs2022\Debug\urpg_snapshot_renderer_tests.exe "[snapshot][renderer][visual_capture]"` or the equivalent active OpenGL-enabled local-profile build directory
 
 ## Notes
 - The focused presentation gate is intended to complement, not replace, the broader `pr`, `nightly`, and `weekly` suites.

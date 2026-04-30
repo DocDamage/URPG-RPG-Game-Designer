@@ -16,6 +16,13 @@ Each governed schema entry should include:
 
 ## Entries
 
+### `asset_promotion_manifest` (`asset_promotion_manifest.schema.json`)
+
+- Version: `1.0.0`
+- Date: `2026-04-30`
+- Summary: initial governed manifest for assets promoted from raw/source intake into runtime/package-ready URPG content, including source and promoted paths, license id, promotion status, preview metadata, package inclusion flags, and diagnostics
+- Migration Impact: none; additive schema for curated asset promotion records
+
 ### `grid_part_authoring` (`grid_part_authoring.schema.json`)
 
 - Version: `1.0.0`

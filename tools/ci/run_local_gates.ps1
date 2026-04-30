@@ -228,7 +228,8 @@ try {
             urpg_tests `
             urpg_render_tests `
             urpg_integration_tests `
-            urpg_snapshot_tests `
+            urpg_snapshot_canonical_tests `
+            urpg_snapshot_renderer_tests `
             urpg_compat_tests
         Assert-LastExitCode "Build strict warnings gate"
     }

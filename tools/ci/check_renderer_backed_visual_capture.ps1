@@ -47,14 +47,14 @@ if ($skipOpenGL -eq "ON") {
 }
 
 $matches = Get-ChildItem -Path $buildRoot -Recurse -File | Where-Object {
-    $_.BaseName -eq "urpg_snapshot_tests" -and ($_.Extension -eq ".exe" -or [string]::IsNullOrEmpty($_.Extension))
+    $_.BaseName -eq "urpg_snapshot_renderer_tests" -and ($_.Extension -eq ".exe" -or [string]::IsNullOrEmpty($_.Extension))
 } | Sort-Object -Property @(
     @{ Expression = "LastWriteTime"; Descending = $true },
     @{ Expression = "FullName"; Descending = $false }
 )
 
 if (-not $matches) {
-    throw "Could not find urpg_snapshot_tests under $buildRoot. Build an OpenGL-enabled profile before running check_renderer_backed_visual_capture.ps1."
+    throw "Could not find urpg_snapshot_renderer_tests under $buildRoot. Build an OpenGL-enabled profile before running check_renderer_backed_visual_capture.ps1."
 }
 
 $testExecutable = ($matches | Select-Object -First 1).FullName

@@ -82,7 +82,7 @@ if (-not $?) {
 
 if (-not $SkipBuild) {
     Write-Host "== Build presentation targets ($Configuration) ==" -ForegroundColor Cyan
-    cmake --build --preset $BuildPreset --target urpg_tests urpg_presentation_release_validation urpg_snapshot_tests
+    cmake --build --preset $BuildPreset --target urpg_tests urpg_presentation_release_validation urpg_snapshot_canonical_tests urpg_snapshot_renderer_tests
     if ($LASTEXITCODE -ne 0) {
         throw "Build failed for presentation targets."
     }
