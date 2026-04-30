@@ -1302,6 +1302,8 @@ add_executable(urpg_tests
     tests/unit/test_debug_session.cpp
     tests/unit/test_quickjs_runtime.cpp
     tests/unit/test_window_compat.cpp
+    tests/unit/test_window_compat_selectable_command.cpp
+    tests/unit/test_window_compat_sprite_manager.cpp
     tests/unit/test_compat_report_panel.cpp
     tests/unit/test_battlemgr.cpp
     tests/unit/test_mod_registry.cpp
