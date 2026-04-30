@@ -1,8 +1,8 @@
 # Asset Library And More Assets Intake
 
-Status Date: 2026-04-25
+Status Date: 2026-04-30
 
-This document records the current asset-library vertical slice and the local `more assets/` intake that was unpacked, cleaned, indexed, and prepared for repository tracking.
+This document records the current asset-library vertical slice and the local `more assets/` intake that was unpacked, cleaned, indexed, and kept as non-release raw quarantine.
 
 ## Current Scope
 
@@ -46,10 +46,13 @@ Intake results:
 - Extracted payload after junk cleanup: 109,622 files, approximately 6.53 GB.
 - Raw source folder payload: 84 files, approximately 7.02 GB.
 
-The raw source and extracted intake paths are tracked through Git LFS using path-specific `.gitattributes` rules:
+The raw source and extracted intake paths are intentionally ignored local quarantine, not repository payload:
 
 - `more assets/**`
 - `imports/raw/more_assets/**`
+- `imports/raw/itch_assets/loose/**`
+
+Reports and curated promotion records remain eligible for normal Git tracking under `imports/reports/`, `imports/manifests/`, and `imports/normalized/`. Promote only selected, governed assets into those paths; do not re-add the full raw extraction trees or source archive drops.
 
 ## Hygiene Results
 

@@ -101,9 +101,9 @@ Status Date: 2026-04-30
 
 ## LFS Hydration Snapshot
 
-Status Date: 2026-04-26
+Status Date: 2026-04-30
 
 | Area | Status | Evidence | Remaining Gate |
 | --- | --- | --- | --- |
 | Fresh clone LFS hydration | `BLOCKED` | A remote fresh clone with smudge disabled, followed by `git lfs pull`, failed with GitHub LFS API rate-limit messages and `This repository exceeded its LFS budget. The account responsible for the budget should increase it to restore access.` | Restore GitHub LFS budget/access or move remaining release-required LFS assets to an accessible artifact store, then rerun fresh-clone hydration and asset preflight. |
-| Current checkout LFS footprint | `PARTIAL` | P5-005 removes current tracking for 45 remaining `more assets/` source-drop files and 18 source-only `fantasy-platformer-game-ui/PSD/` files, about 1.38 GiB of current-checkout LFS payload. | Continue reducing required LFS to release-owned/promoted assets only; history still contains prior LFS payload and cannot be considered hydrated until remote access is restored. |
+| Current checkout LFS footprint | `PARTIAL` | P5-005 removed current tracking for 45 remaining `more assets/` source-drop files and 18 source-only `fantasy-platformer-game-ui/PSD/` files. The 2026-04-30 baggage pass also removes current Git tracking for `imports/raw/more_assets/` and `imports/raw/itch_assets/loose/` while preserving local working files as ignored raw quarantine. | Continue reducing required LFS to release-owned/promoted assets only. Repository history still contains prior LFS payload and cannot be considered globally hydrated until remote access is restored. |
