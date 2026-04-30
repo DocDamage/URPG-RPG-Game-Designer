@@ -1,12 +1,23 @@
 #include "engine/core/editor/editor_panel_registry.h"
 
 #include <algorithm>
+#include <array>
 
 namespace urpg::editor {
 
 namespace {
 
-const std::vector<EditorPanelRegistryEntry> kRegistry = {
+constexpr std::array<std::string_view, 7> kReleaseTopLevelPanelIds = {
+    "diagnostics", "assets", "ability", "patterns", "mod", "analytics", "level_builder",
+};
+
+bool isReleaseTopLevelPanelId(std::string_view id) {
+    return std::find(kReleaseTopLevelPanelIds.begin(), kReleaseTopLevelPanelIds.end(), id) !=
+           kReleaseTopLevelPanelIds.end();
+}
+
+std::vector<EditorPanelRegistryEntry> buildRegistry() {
+    std::vector<EditorPanelRegistryEntry> registry = {
     {"diagnostics", "Diagnostics", "System", EditorPanelExposure::ReleaseTopLevel, "editor/diagnostics",
      "Top-level diagnostics workspace and nested validation panels."},
     {"assets", "Assets", "Content", EditorPanelExposure::ReleaseTopLevel, "editor/assets",
@@ -53,8 +64,9 @@ const std::vector<EditorPanelRegistryEntry> kRegistry = {
      "editor/community", "Clickable picture hotspot authoring with common-event binding, hover preview, and hit-test rules."},
     {"common_event_menu_builder", "Common Event Menu Builder", "UI", EditorPanelExposure::ReleaseTopLevel,
      "editor/community", "Common-event menu layout authoring with help/picture/subtext windows and switch visibility."},
-    {"developer_debug_overlay", "Developer Debug Overlay", "Diagnostics", EditorPanelExposure::ReleaseTopLevel,
-     "editor/community", "Dev-only console, quick reload, battle test, map transfer, save, and region overlay controls."},
+    {"developer_debug_overlay", "Developer Debug Overlay", "Diagnostics", EditorPanelExposure::DevOnly,
+     "editor/community",
+     "Dev-only overlay excluded from release navigation; console, quick reload, battle test, map transfer, save, and region overlay controls remain gated to developer workflows."},
     {"switch_variable_inspector", "Switch Variable Inspector", "Diagnostics", EditorPanelExposure::ReleaseTopLevel,
      "editor/community", "Switch/variable graph, usage search, rename/refactor, unused scan, and condition simplification preview."},
     {"asset_dlc_library_manager", "Asset DLC Library Manager", "Content", EditorPanelExposure::ReleaseTopLevel,
@@ -424,7 +436,18 @@ const std::vector<EditorPanelRegistryEntry> kRegistry = {
      "engine/core/editor/panels", "Dev-only legacy core editor panel API; excluded from release navigation."},
     {"core_property_inspector", "Core Property Inspector", "Core Editor", EditorPanelExposure::DevOnly,
      "engine/core/editor/panels", "Dev-only legacy core editor panel API; excluded from release navigation."},
-};
+    };
+
+    for (auto& entry : registry) {
+        if (entry.exposure == EditorPanelExposure::ReleaseTopLevel && !isReleaseTopLevelPanelId(entry.id)) {
+            entry.exposure = EditorPanelExposure::Deferred;
+        }
+    }
+
+    return registry;
+}
+
+const std::vector<EditorPanelRegistryEntry> kRegistry = buildRegistry();
 
 } // namespace
 

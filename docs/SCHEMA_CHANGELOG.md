@@ -170,6 +170,27 @@ Each governed schema entry should include:
 - Summary: initial schema for class progression, skill tree nodes, unlock rules, and preview diagnostics
 - Migration Impact: none; additive schema for progression authoring
 
+### `stat_allocation` (`stat_allocation.schema.json`)
+
+- Version: `1.0.0`
+- Date: `2026-04-30`
+- Summary: initial schema for actor stat-allocation pools, unspent points, per-stat point costs, gains, and caps
+- Migration Impact: none; additive schema for progression/stat-allocation authoring and save preview validation
+
+### `picture_tasks` (`picture_tasks.schema.json`)
+
+- Version: `1.0.0`
+- Date: `2026-04-30`
+- Summary: initial schema for picture-to-task/common-event bindings with trigger and enabled-state metadata
+- Migration Impact: none; additive schema for picture interaction authoring
+
+### `scoped_state_banks` (`scoped_state_banks.schema.json`)
+
+- Version: `1.0.0`
+- Date: `2026-04-30`
+- Summary: initial schema for scoped switch and variable banks across global, map, self, scoped, and JavaScript-derived state
+- Migration Impact: none; additive schema for scoped state import and governance validation
+
 ### `export_preview` (`export_preview.schema.json`)
 
 - Version: `1.1.0`

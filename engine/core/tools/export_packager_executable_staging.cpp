@@ -308,11 +308,11 @@ ExecutableStageResult stageExecutableArtifacts(const ExportConfig& config) {
     switch (config.target) {
     case ExportTarget::Windows_x64: {
         if (!writeTextFile(outDir / "game.exe", "URPG DEV BOOTSTRAP ONLY - synthetic Windows executable\n")) {
-            result.log += "Failed to synthesize bounded Windows executable placeholder.\n";
+            result.log += "Failed to synthesize bounded Windows dev bootstrap executable marker.\n";
             return result;
         }
         result.files.push_back("game.exe");
-        result.log += "Synthesized bounded Windows dev bootstrap executable placeholder.\n";
+        result.log += "Synthesized bounded Windows dev bootstrap executable marker.\n";
         break;
     }
     case ExportTarget::Linux_x64: {

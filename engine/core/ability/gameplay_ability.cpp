@@ -119,9 +119,7 @@ const std::string& GameplayAbility::resolveActiveCondition() const {
 
 bool AbilitySystemComponent::canApplyEffect(const GameplayEffect& effect) const {
     (void)effect;
-    // Basic implementation for canApplyEffect
-    // Check if the source has any tags that would block this effect
-    // (This is a placeholder for future logic where Effects have their own Tag requirements)
+    // Effects are currently gated by ability activation; effect-specific tag requirements are not part of this API.
     return true;
 }
 

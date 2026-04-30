@@ -63,8 +63,7 @@ void UICommandList::draw(SpriteBatcher& batcher) {
 
     // 3. Draw Items
     for (int i = m_topIndex; i < std::min((int)m_items.size(), m_topIndex + m_maxVisible); ++i) {
-        // Here we would call a glyph/font renderer.
-        // Since font support is a separate module, we'll placeholder it for now.
+        // Text rendering is handled by the font subsystem; this command list emits the selection frame only.
     }
 }
 

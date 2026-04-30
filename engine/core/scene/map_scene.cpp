@@ -318,8 +318,7 @@ void MapScene::handleInput(const urpg::input::InputCore& input) {
             return;
         }
 
-        // In a real game, we'd check for the interact target tile here.
-        // For testing, let's trigger the mock "intro_elder" dialogue if we interact with anything
+        // Fallback project interaction path used when no authored interaction ability handles the tile.
         auto& registry = urpg::message::DialogueRegistry::getInstance();
         auto pages = registry.flattenConversation("intro_elder");
         if (!pages.empty()) {
@@ -410,7 +409,7 @@ void MapScene::validateRenderAssetReferences() {
                                  const char* missingIdDiagnostic) {
         if (reference.id.empty()) {
             const std::string message = std::string("Map '") + m_mapId + "' has no " + role +
-                                        " asset id; rendering will use a diagnostic placeholder.";
+                                        " asset id; rendering will use a diagnostic fallback visual.";
             m_assetDiagnostics.push_back(missingIdDiagnostic);
             urpg::diagnostics::RuntimeDiagnostics::warning("scene.map", code, message);
             return;

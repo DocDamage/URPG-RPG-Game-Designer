@@ -22,9 +22,13 @@ tagging.
 
 Current headline state:
 
-- Native Level Builder is now the top-level shippable map editor surface.
+- Native Level Builder is implemented as the shippable top-level map editor workspace.
 - `GridPartDocument` is the canonical editable map document for grid-part level
   authoring.
+- Release-surface audit remediation is complete through Phase 2 Task 2:
+  editor release navigation, compiled panel exposure, placeholder governance,
+  and fixture/mock readiness overclaim checks are now covered by tests or CI
+  scripts.
 - Legacy spatial authoring is now supporting tooling under Level Builder for
   elevation, props, and ability-binding workflows.
 - Grid-part unit and integration lanes are registered in CTest and passing in
@@ -78,7 +82,7 @@ explicitly bounded compatibility/migration scopes.
 ### Native Level Builder
 
 The Level Builder is the end-shippable map authoring surface. It is registered
-as the top-level `level_builder` editor panel and owns the normal map-building
+as the `level_builder` editor workspace and owns the normal map-building
 workflow.
 
 Implemented Level Builder capabilities:

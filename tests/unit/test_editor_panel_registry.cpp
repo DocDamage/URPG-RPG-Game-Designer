@@ -3,8 +3,12 @@
 #include <catch2/catch_test_macros.hpp>
 
 #include <algorithm>
+#include <filesystem>
+#include <fstream>
+#include <map>
 #include <set>
 #include <string>
+#include <vector>
 
 namespace {
 
@@ -12,157 +16,170 @@ bool ContainsId(const std::vector<std::string>& ids, const std::string& id) {
     return std::find(ids.begin(), ids.end(), id) != ids.end();
 }
 
+const std::vector<std::string>& CanonicalReleasePanelIds() {
+    static const std::vector<std::string> ids = {"diagnostics", "assets",  "ability", "patterns",
+                                                 "mod",         "analytics", "level_builder"};
+    return ids;
+}
+
+std::string normalizePath(const std::filesystem::path& path) {
+    return path.generic_string();
+}
+
+const std::map<std::string, std::string>& CompiledPanelRegistryOwners() {
+    static const std::map<std::string, std::string> owners = {
+        {"editor/ability/ability_inspector_panel.cpp", "ability"},
+        {"editor/ability/ability_orchestration_panel.cpp", "ability"},
+        {"editor/ability/ability_sandbox_panel.cpp", "ability"},
+        {"editor/ability/pattern_field_panel.cpp", "patterns"},
+        {"editor/accessibility/accessibility_assistant_panel.cpp", "accessibility_assistant"},
+        {"editor/accessibility/accessibility_panel.cpp", "accessibility"},
+        {"editor/achievement/achievement_panel.cpp", "achievement"},
+        {"editor/action/controller_binding_panel.cpp", "controller_binding"},
+        {"editor/ai/ai_assistant_panel.cpp", "ai_assistant"},
+        {"editor/ai/creator_command_panel.cpp", "ai_assistant"},
+        {"editor/analytics/analytics_panel.cpp", "analytics"},
+        {"editor/assets/asset_library_panel.cpp", "assets"},
+        {"editor/audio/audio_mix_panel.cpp", "audio_mix"},
+        {"editor/balance/balance_panel.cpp", "balance"},
+        {"editor/balance/encounter_designer_panel.cpp", "encounter_designer"},
+        {"editor/battle/battle_inspector_panel.cpp", "battle_inspector"},
+        {"editor/battle/battle_presentation_panel.cpp", "battle_presentation"},
+        {"editor/battle/battle_preview_panel.cpp", "battle_preview"},
+        {"editor/battle/battle_vfx_timeline_panel.cpp", "battle_presentation"},
+        {"editor/battle/boss_designer_panel.cpp", "boss_designer"},
+        {"editor/battle/formula_debugger_panel.cpp", "formula_debugger"},
+        {"editor/capture/capture_panel.cpp", "capture"},
+        {"editor/character/character_creator_panel.cpp", "character_creator"},
+        {"editor/codex/codex_panel.cpp", "codex"},
+        {"editor/collaboration/local_review_panel.cpp", "local_review"},
+        {"editor/community/community_wysiwyg_panel.cpp", "smart_event_workflow"},
+        {"editor/compat/compat_report_panel.cpp", "compat_report"},
+        {"editor/crafting/crafting_loop_panel.cpp", "crafting"},
+        {"editor/crafting/crafting_panel.cpp", "crafting"},
+        {"editor/database/database_panel.cpp", "database"},
+        {"editor/diagnostics/diagnostics_bundle_panel.cpp", "diagnostics_bundle"},
+        {"editor/diagnostics/diagnostics_workspace.cpp", "diagnostics"},
+        {"editor/diagnostics/event_authority_panel.cpp", "event_authority"},
+        {"editor/diagnostics/project_audit_panel.cpp", "project_audit"},
+        {"editor/diagnostics/project_health_panel.cpp", "project_health"},
+        {"editor/dialogue/dialogue_graph_panel.cpp", "dialogue_graph"},
+        {"editor/events/event_authoring_panel.cpp", "event_authoring"},
+        {"editor/events/event_command_graph_panel.cpp", "event_authoring"},
+        {"editor/export/export_diagnostics_panel.cpp", "export_diagnostics"},
+        {"editor/export/export_preview_panel.cpp", "export_diagnostics"},
+        {"editor/gameplay/gameplay_wysiwyg_panel.cpp", "status_effect_designer"},
+        {"editor/input/input_remap_panel.cpp", "input_remap"},
+        {"editor/items/loot_generator_panel.cpp", "loot_generator"},
+        {"editor/localization/localization_workspace_panel.cpp", "localization_workspace"},
+        {"editor/maker/maker_wysiwyg_panel.cpp", "project_search_everywhere"},
+        {"editor/message/dialogue_preview_panel.cpp", "message_inspector"},
+        {"editor/message/message_inspector_panel.cpp", "message_inspector"},
+        {"editor/message/visual_novel_pacing_panel.cpp", "message_inspector"},
+        {"editor/metroidvania/ability_gate_panel.cpp", "metroidvania_gates"},
+        {"editor/mod/mod_manager_panel.cpp", "mod"},
+        {"editor/mod/mod_sdk_panel.cpp", "mod_sdk"},
+        {"editor/monster/monster_collection_panel.cpp", "monster_collection"},
+        {"editor/narrative/narrative_continuity_panel.cpp", "narrative_continuity"},
+        {"editor/npc/npc_panel.cpp", "npc"},
+        {"editor/perf/perf_diagnostics_panel.cpp", "perf_diagnostics"},
+        {"editor/platform/device_profile_panel.cpp", "device_profile"},
+        {"editor/plugin/plugin_inspector_panel.cpp", "plugin_inspector"},
+        {"editor/presentation/photo_mode_panel.cpp", "photo_mode"},
+        {"editor/progression/skill_tree_panel.cpp", "skill_tree"},
+        {"editor/progression/stat_allocation_panel.cpp", "skill_tree"},
+        {"editor/project/new_project_wizard_panel.cpp", "new_project_wizard"},
+        {"editor/puzzle/puzzle_panel.cpp", "puzzle"},
+        {"editor/quest/quest_panel.cpp", "quest"},
+        {"editor/relationship/relationship_panel.cpp", "relationship"},
+        {"editor/replay/replay_panel.cpp", "replay"},
+        {"editor/save/save_debugger_panel.cpp", "save_debugger"},
+        {"editor/save/save_inspector_panel.cpp", "save_inspector"},
+        {"editor/save/save_load_preview_lab_panel.cpp", "save_inspector"},
+        {"editor/save/save_migration_preview_panel.cpp", "save_migration_preview"},
+        {"editor/shop/vendor_panel.cpp", "vendor"},
+        {"editor/spatial/dungeon3d_world_panel.cpp", "3d_dungeon_world"},
+        {"editor/spatial/elevation_brush_panel.cpp", "elevation_brush"},
+        {"editor/spatial/grid_part_inspector_panel.cpp", "level_builder"},
+        {"editor/spatial/grid_part_palette_panel.cpp", "level_builder"},
+        {"editor/spatial/grid_part_placement_panel.cpp", "level_builder"},
+        {"editor/spatial/grid_part_playtest_panel.cpp", "level_builder"},
+        {"editor/spatial/level_builder_workspace.cpp", "level_builder"},
+        {"editor/spatial/map_ability_binding_panel.cpp", "map_ability_binding"},
+        {"editor/spatial/map_environment_preview_panel.cpp", "spatial_authoring"},
+        {"editor/spatial/procedural_map_panel.cpp", "procedural_map"},
+        {"editor/spatial/prop_placement_panel.cpp", "prop_placement"},
+        {"editor/spatial/region_rules_panel.cpp", "region_rules"},
+        {"editor/spatial/spatial_ability_canvas_panel.cpp", "spatial_ability_canvas"},
+        {"editor/spatial/spatial_authoring_workspace.cpp", "spatial_authoring"},
+        {"editor/spatial/terrain_brush_panel.cpp", "terrain_brush"},
+        {"editor/sprite/sprite_animation_preview_panel.cpp", "sprite_animation_preview"},
+        {"editor/time/calendar_panel.cpp", "calendar"},
+        {"editor/timeline/cutscene_timeline_panel.cpp", "cutscene_timeline"},
+        {"editor/timeline/timeline_panel.cpp", "timeline"},
+        {"editor/ui/menu_inspector_panel.cpp", "menu_inspector"},
+        {"editor/ui/menu_preview_panel.cpp", "menu_preview"},
+        {"editor/ui/theme_builder_panel.cpp", "theme_builder"},
+        {"editor/world/world_panel.cpp", "world"},
+    };
+    return owners;
+}
+
+bool isAllowedReleasePlaceholderTerm(const std::string& source, const std::string& line,
+                                     const std::string& term) {
+    struct Allowance {
+        const char* source;
+        const char* needle;
+        const char* term;
+        const char* reason;
+    };
+
+    static constexpr Allowance allowances[] = {
+        {"editor/diagnostics/diagnostics_workspace_export.cpp", "stubCount", "stub",
+         "Compatibility reports expose stubCount as an explicit diagnostic status bucket, not production behavior."},
+    };
+
+    for (const auto& allowance : allowances) {
+        if (source == allowance.source && term == allowance.term && line.find(allowance.needle) != std::string::npos &&
+            std::string_view(allowance.reason).size() > 0) {
+            return true;
+        }
+    }
+    return false;
+}
+
+std::vector<std::filesystem::path> sourceFilesUnder(const std::filesystem::path& ownerPath) {
+    std::vector<std::filesystem::path> files;
+    if (std::filesystem::is_regular_file(ownerPath)) {
+        files.push_back(ownerPath);
+        return files;
+    }
+
+    for (const auto& entry : std::filesystem::recursive_directory_iterator(ownerPath)) {
+        if (!entry.is_regular_file()) {
+            continue;
+        }
+
+        const auto extension = entry.path().extension().string();
+        if (extension == ".cpp" || extension == ".h" || extension == ".hpp") {
+            files.push_back(entry.path());
+        }
+    }
+    return files;
+}
+
 } // namespace
 
 TEST_CASE("Editor panel registry exposes canonical top-level panels", "[editor][panel][registry]") {
     const auto ids = urpg::editor::requiredTopLevelPanelIds();
 
-    REQUIRE(ids.size() == 146);
+    REQUIRE(ids == CanonicalReleasePanelIds());
     REQUIRE(ContainsId(ids, "diagnostics"));
     REQUIRE(ContainsId(ids, "assets"));
     REQUIRE(ContainsId(ids, "ability"));
     REQUIRE(ContainsId(ids, "patterns"));
     REQUIRE(ContainsId(ids, "mod"));
     REQUIRE(ContainsId(ids, "analytics"));
-    REQUIRE(ContainsId(ids, "status_effect_designer"));
-    REQUIRE(ContainsId(ids, "enemy_ai_behavior_tree"));
-    REQUIRE(ContainsId(ids, "boss_phase_script"));
-    REQUIRE(ContainsId(ids, "equipment_set_bonus"));
-    REQUIRE(ContainsId(ids, "dungeon_room_flow"));
-    REQUIRE(ContainsId(ids, "companion_banter"));
-    REQUIRE(ContainsId(ids, "quest_choice_consequence"));
-    REQUIRE(ContainsId(ids, "shop_economy_sim_lab"));
-    REQUIRE(ContainsId(ids, "puzzle_mechanic_builder"));
-    REQUIRE(ContainsId(ids, "world_state_timeline"));
-    REQUIRE(ContainsId(ids, "tactical_terrain_effects"));
-    REQUIRE(ContainsId(ids, "procedural_content_rules"));
-    REQUIRE(ContainsId(ids, "smart_event_workflow"));
-    REQUIRE(ContainsId(ids, "event_template_library"));
-    REQUIRE(ContainsId(ids, "interaction_prompt_system"));
-    REQUIRE(ContainsId(ids, "message_log_history"));
-    REQUIRE(ContainsId(ids, "minimap_fog_of_war"));
-    REQUIRE(ContainsId(ids, "picture_hotspot_common_event"));
-    REQUIRE(ContainsId(ids, "common_event_menu_builder"));
-    REQUIRE(ContainsId(ids, "developer_debug_overlay"));
-    REQUIRE(ContainsId(ids, "switch_variable_inspector"));
-    REQUIRE(ContainsId(ids, "asset_dlc_library_manager"));
-    REQUIRE(ContainsId(ids, "hud_maker"));
-    REQUIRE(ContainsId(ids, "plugin_conflict_resolver"));
-    REQUIRE(ContainsId(ids, "project_search_everywhere"));
-    REQUIRE(ContainsId(ids, "broken_reference_repair"));
-    REQUIRE(ContainsId(ids, "mass_edit_batch_operations"));
-    REQUIRE(ContainsId(ids, "project_diff_change_review"));
-    REQUIRE(ContainsId(ids, "template_instance_sync"));
-    REQUIRE(ContainsId(ids, "parallax_mapping_editor"));
-    REQUIRE(ContainsId(ids, "collision_passability_visualizer"));
-    REQUIRE(ContainsId(ids, "world_map_route_planner"));
-    REQUIRE(ContainsId(ids, "secret_hidden_object_authoring"));
-    REQUIRE(ContainsId(ids, "biome_rule_system"));
-    REQUIRE(ContainsId(ids, "dialogue_relationship_matrix"));
-    REQUIRE(ContainsId(ids, "branch_coverage_preview"));
-    REQUIRE(ContainsId(ids, "cutscene_blocking_tool"));
-    REQUIRE(ContainsId(ids, "localization_context_review"));
-    REQUIRE(ContainsId(ids, "damage_formula_visual_lab"));
-    REQUIRE(ContainsId(ids, "enemy_troop_timeline_preview"));
-    REQUIRE(ContainsId(ids, "skill_combo_chain_builder"));
-    REQUIRE(ContainsId(ids, "bestiary_discovery_system"));
-    REQUIRE(ContainsId(ids, "formation_positioning_system"));
-    REQUIRE(ContainsId(ids, "menu_builder"));
-    REQUIRE(ContainsId(ids, "journal_hub"));
-    REQUIRE(ContainsId(ids, "notification_toast_system"));
-    REQUIRE(ContainsId(ids, "input_prompt_skinner"));
-    REQUIRE(ContainsId(ids, "playtest_session_recorder"));
-    REQUIRE(ContainsId(ids, "bug_report_packager"));
-    REQUIRE(ContainsId(ids, "performance_heatmap"));
-    REQUIRE(ContainsId(ids, "release_checklist_dashboard"));
-    REQUIRE(ContainsId(ids, "store_page_asset_generator"));
-    REQUIRE(ContainsId(ids, "mod_conflict_visualizer"));
-    REQUIRE(ContainsId(ids, "mod_packaging_wizard"));
-    REQUIRE(ContainsId(ids, "plugin_to_native_migration_advisor"));
-    REQUIRE(ContainsId(ids, "fast_travel_system"));
-    REQUIRE(ContainsId(ids, "platformer_game_type"));
-    REQUIRE(ContainsId(ids, "gacha_system"));
-    REQUIRE(ContainsId(ids, "map_zoom_system"));
-    REQUIRE(ContainsId(ids, "pictures_ui_creator"));
-    REQUIRE(ContainsId(ids, "realtime_event_effects_builder"));
-    REQUIRE(ContainsId(ids, "directional_shadow_system"));
-    REQUIRE(ContainsId(ids, "dynamic_environment_effects_builder"));
-    REQUIRE(ContainsId(ids, "camera_director"));
-    REQUIRE(ContainsId(ids, "screen_filter_post_fx_builder"));
-    REQUIRE(ContainsId(ids, "weather_composer"));
-    REQUIRE(ContainsId(ids, "lighting_painter"));
-    REQUIRE(ContainsId(ids, "platformer_physics_lab"));
-    REQUIRE(ContainsId(ids, "side_view_action_combat_kit"));
-    REQUIRE(ContainsId(ids, "summon_gacha_banner_builder"));
-    REQUIRE(ContainsId(ids, "fast_travel_map_builder"));
-    REQUIRE(ContainsId(ids, "quest_board_mission_builder"));
-    REQUIRE(ContainsId(ids, "relationship_event_scheduler"));
-    REQUIRE(ContainsId(ids, "farming_garden_plot_builder"));
-    REQUIRE(ContainsId(ids, "fishing_minigame_builder"));
-    REQUIRE(ContainsId(ids, "mount_vehicle_system"));
-    REQUIRE(ContainsId(ids, "stealth_system"));
-    REQUIRE(ContainsId(ids, "puzzle_logic_board"));
-    REQUIRE(ContainsId(ids, "in_game_phone_messenger"));
-    REQUIRE(ContainsId(ids, "crafting_recipe_graph"));
-    REQUIRE(ContainsId(ids, "housing_decoration_editor"));
-    REQUIRE(ContainsId(ids, "companion_command_wheel"));
-    REQUIRE(ContainsId(ids, "title_save_screen_builder"));
-    REQUIRE(ContainsId(ids, "credits_ending_builder"));
-    REQUIRE(ContainsId(ids, "tutorial_overlay_builder"));
-    REQUIRE(ContainsId(ids, "accessibility_preview_lab"));
-    REQUIRE(ContainsId(ids, "economy_balance_simulator"));
-    REQUIRE(ContainsId(ids, "enemy_encounter_zone_painter"));
-    REQUIRE(ContainsId(ids, "random_dungeon_room_stitcher"));
-    REQUIRE(ContainsId(ids, "achievement_visual_builder"));
-    REQUIRE(ContainsId(ids, "mod_marketplace_packager"));
-    REQUIRE(ContainsId(ids, "proximity_compass_objective_radar"));
-    REQUIRE(ContainsId(ids, "resource_manager_unused_asset_cleaner"));
-    REQUIRE(ContainsId(ids, "visual_inventory_builder"));
-    REQUIRE(ContainsId(ids, "animated_pictures_timeline"));
-    REQUIRE(ContainsId(ids, "horror_fx_builder"));
-    REQUIRE(ContainsId(ids, "cutscene_skip_fast_forward"));
-    REQUIRE(ContainsId(ids, "translation_helper_workspace"));
-    REQUIRE(ContainsId(ids, "deployment_cook_dashboard"));
-    REQUIRE(ContainsId(ids, "3d_dungeon_world"));
-    REQUIRE(ContainsId(ids, "break_shield_system"));
-    REQUIRE(ContainsId(ids, "boost_point_system"));
-    REQUIRE(ContainsId(ids, "battle_weapon_swap"));
-    REQUIRE(ContainsId(ids, "order_turn_battle_system"));
-    REQUIRE(ContainsId(ids, "item_concoction_system"));
-    REQUIRE(ContainsId(ids, "unison_attack_builder"));
-    REQUIRE(ContainsId(ids, "timed_attack_qte_builder"));
-    REQUIRE(ContainsId(ids, "action_sequence_impact_builder"));
-    REQUIRE(ContainsId(ids, "side_battle_status_ui_builder"));
-    REQUIRE(ContainsId(ids, "victory_screen_builder"));
-    REQUIRE(ContainsId(ids, "state_tooltip_display"));
-    REQUIRE(ContainsId(ids, "animated_loading_screen_builder"));
-    REQUIRE(ContainsId(ids, "popup_builder"));
-    REQUIRE(ContainsId(ids, "animated_window_builder"));
-    REQUIRE(ContainsId(ids, "video_player_surface"));
-    REQUIRE(ContainsId(ids, "tactical_battle_system"));
-    REQUIRE(ContainsId(ids, "bullet_hell_maker"));
-    REQUIRE(ContainsId(ids, "duelist_card_battle_system"));
-    REQUIRE(ContainsId(ids, "spin_top_battle_system"));
-    REQUIRE(ContainsId(ids, "recruiting_board"));
-    REQUIRE(ContainsId(ids, "step_rewards_system"));
-    REQUIRE(ContainsId(ids, "event_spawner_solution"));
-    REQUIRE(ContainsId(ids, "smart_event_timers_progress"));
-    REQUIRE(ContainsId(ids, "actor_construct"));
-    REQUIRE(ContainsId(ids, "equip_construct_visible_equipment"));
-    REQUIRE(ContainsId(ids, "skill_equip_system"));
-    REQUIRE(ContainsId(ids, "front_view_battler_mode"));
-    REQUIRE(ContainsId(ids, "quest"));
-    REQUIRE(ContainsId(ids, "skill_tree"));
-    REQUIRE(ContainsId(ids, "relationship"));
-    REQUIRE(ContainsId(ids, "timeline"));
-    REQUIRE(ContainsId(ids, "cutscene_timeline"));
-    REQUIRE(ContainsId(ids, "balance"));
-    REQUIRE(ContainsId(ids, "encounter_designer"));
-    REQUIRE(ContainsId(ids, "loot_generator"));
-    REQUIRE(ContainsId(ids, "crafting"));
-    REQUIRE(ContainsId(ids, "monster_collection"));
-    REQUIRE(ContainsId(ids, "npc"));
-    REQUIRE(ContainsId(ids, "metroidvania_gates"));
     REQUIRE(ContainsId(ids, "level_builder"));
 
     const auto* patterns = urpg::editor::findEditorPanelRegistryEntry("patterns");
@@ -195,6 +212,77 @@ TEST_CASE("Editor panel registry documents every hidden compiled panel", "[edito
     }
 }
 
+TEST_CASE("Editor panel registry assigns every compiled editor panel one exposure decision",
+          "[editor][panel][registry]") {
+    const auto sourceRoot = std::filesystem::path(URPG_SOURCE_DIR);
+    const auto editorRoot = sourceRoot / "editor";
+
+    std::set<std::string> compiledPanelSources;
+    for (const auto& entry : std::filesystem::recursive_directory_iterator(editorRoot)) {
+        if (!entry.is_regular_file() || entry.path().extension() != ".cpp") {
+            continue;
+        }
+
+        const auto filename = entry.path().filename().string();
+        if (filename.ends_with("_panel.cpp") || filename.ends_with("_workspace.cpp")) {
+            compiledPanelSources.insert(normalizePath(std::filesystem::relative(entry.path(), sourceRoot)));
+        }
+    }
+
+    std::set<std::string> classifiedPanelSources;
+    for (const auto& [source, registryId] : CompiledPanelRegistryOwners()) {
+        INFO(source);
+        classifiedPanelSources.insert(source);
+        REQUIRE(urpg::editor::findEditorPanelRegistryEntry(registryId) != nullptr);
+    }
+
+    REQUIRE(classifiedPanelSources == compiledPanelSources);
+}
+
+TEST_CASE("Editor panel registry owner paths exist", "[editor][panel][registry]") {
+    const auto sourceRoot = std::filesystem::path(URPG_SOURCE_DIR);
+
+    for (const auto& entry : urpg::editor::editorPanelRegistry()) {
+        INFO(entry.id);
+        REQUIRE(std::filesystem::exists(sourceRoot / entry.owner));
+    }
+}
+
+TEST_CASE("Editor panel registry release top-level owners do not expose ungoverned placeholder terms",
+          "[editor][panel][registry][release]") {
+    static const std::vector<std::string> bannedTerms = {
+        "TODO", "FIXME", "stub", "placeholder", "fake", "mock", "For testing", "dummy", "dev bootstrap",
+    };
+
+    const auto sourceRoot = std::filesystem::path(URPG_SOURCE_DIR);
+    std::set<std::filesystem::path> releaseOwnerPaths;
+    for (const auto& panel : urpg::editor::topLevelEditorPanels()) {
+        releaseOwnerPaths.insert(sourceRoot / panel.owner);
+    }
+
+    for (const auto& ownerPath : releaseOwnerPaths) {
+        for (const auto& sourcePath : sourceFilesUnder(ownerPath)) {
+            const auto relativeSource = normalizePath(std::filesystem::relative(sourcePath, sourceRoot));
+            std::ifstream input(sourcePath);
+            REQUIRE(input.good());
+
+            std::string line;
+            size_t lineNumber = 0;
+            while (std::getline(input, line)) {
+                ++lineNumber;
+                for (const auto& term : bannedTerms) {
+                    if (line.find(term) == std::string::npos) {
+                        continue;
+                    }
+
+                    INFO(relativeSource << ":" << lineNumber << " contains " << term);
+                    REQUIRE(isAllowedReleasePlaceholderTerm(relativeSource, line, term));
+                }
+            }
+        }
+    }
+}
+
 TEST_CASE("Editor panel registry classifies diagnostics and incubating workspaces", "[editor][panel][registry]") {
     const auto* saveInspector = urpg::editor::findEditorPanelRegistryEntry("save_inspector");
     REQUIRE(saveInspector != nullptr);
@@ -212,6 +300,11 @@ TEST_CASE("Editor panel registry classifies diagnostics and incubating workspace
     REQUIRE(modSdk != nullptr);
     REQUIRE(modSdk->exposure == urpg::editor::EditorPanelExposure::DevOnly);
 
+    const auto* developerDebugOverlay = urpg::editor::findEditorPanelRegistryEntry("developer_debug_overlay");
+    REQUIRE(developerDebugOverlay != nullptr);
+    REQUIRE(developerDebugOverlay->exposure == urpg::editor::EditorPanelExposure::DevOnly);
+    REQUIRE_FALSE(ContainsId(urpg::editor::requiredTopLevelPanelIds(), "developer_debug_overlay"));
+
     const auto topLevel = urpg::editor::topLevelEditorPanels();
     REQUIRE(topLevel.size() == urpg::editor::requiredTopLevelPanelIds().size());
 }
@@ -221,143 +314,5 @@ TEST_CASE("Editor smoke coverage follows every registered top-level panel", "[ed
     const auto smokeIds = urpg::editor::smokeRequiredEditorPanelIds();
 
     REQUIRE(smokeIds == topLevelIds);
-    REQUIRE(ContainsId(smokeIds, "patterns"));
-    REQUIRE(ContainsId(smokeIds, "status_effect_designer"));
-    REQUIRE(ContainsId(smokeIds, "enemy_ai_behavior_tree"));
-    REQUIRE(ContainsId(smokeIds, "boss_phase_script"));
-    REQUIRE(ContainsId(smokeIds, "equipment_set_bonus"));
-    REQUIRE(ContainsId(smokeIds, "dungeon_room_flow"));
-    REQUIRE(ContainsId(smokeIds, "companion_banter"));
-    REQUIRE(ContainsId(smokeIds, "quest_choice_consequence"));
-    REQUIRE(ContainsId(smokeIds, "shop_economy_sim_lab"));
-    REQUIRE(ContainsId(smokeIds, "puzzle_mechanic_builder"));
-    REQUIRE(ContainsId(smokeIds, "world_state_timeline"));
-    REQUIRE(ContainsId(smokeIds, "tactical_terrain_effects"));
-    REQUIRE(ContainsId(smokeIds, "procedural_content_rules"));
-    REQUIRE(ContainsId(smokeIds, "smart_event_workflow"));
-    REQUIRE(ContainsId(smokeIds, "event_template_library"));
-    REQUIRE(ContainsId(smokeIds, "interaction_prompt_system"));
-    REQUIRE(ContainsId(smokeIds, "message_log_history"));
-    REQUIRE(ContainsId(smokeIds, "minimap_fog_of_war"));
-    REQUIRE(ContainsId(smokeIds, "picture_hotspot_common_event"));
-    REQUIRE(ContainsId(smokeIds, "common_event_menu_builder"));
-    REQUIRE(ContainsId(smokeIds, "developer_debug_overlay"));
-    REQUIRE(ContainsId(smokeIds, "switch_variable_inspector"));
-    REQUIRE(ContainsId(smokeIds, "asset_dlc_library_manager"));
-    REQUIRE(ContainsId(smokeIds, "hud_maker"));
-    REQUIRE(ContainsId(smokeIds, "plugin_conflict_resolver"));
-    REQUIRE(ContainsId(smokeIds, "project_search_everywhere"));
-    REQUIRE(ContainsId(smokeIds, "broken_reference_repair"));
-    REQUIRE(ContainsId(smokeIds, "mass_edit_batch_operations"));
-    REQUIRE(ContainsId(smokeIds, "project_diff_change_review"));
-    REQUIRE(ContainsId(smokeIds, "template_instance_sync"));
-    REQUIRE(ContainsId(smokeIds, "parallax_mapping_editor"));
-    REQUIRE(ContainsId(smokeIds, "collision_passability_visualizer"));
-    REQUIRE(ContainsId(smokeIds, "world_map_route_planner"));
-    REQUIRE(ContainsId(smokeIds, "secret_hidden_object_authoring"));
-    REQUIRE(ContainsId(smokeIds, "biome_rule_system"));
-    REQUIRE(ContainsId(smokeIds, "dialogue_relationship_matrix"));
-    REQUIRE(ContainsId(smokeIds, "branch_coverage_preview"));
-    REQUIRE(ContainsId(smokeIds, "cutscene_blocking_tool"));
-    REQUIRE(ContainsId(smokeIds, "localization_context_review"));
-    REQUIRE(ContainsId(smokeIds, "damage_formula_visual_lab"));
-    REQUIRE(ContainsId(smokeIds, "enemy_troop_timeline_preview"));
-    REQUIRE(ContainsId(smokeIds, "skill_combo_chain_builder"));
-    REQUIRE(ContainsId(smokeIds, "bestiary_discovery_system"));
-    REQUIRE(ContainsId(smokeIds, "formation_positioning_system"));
-    REQUIRE(ContainsId(smokeIds, "menu_builder"));
-    REQUIRE(ContainsId(smokeIds, "journal_hub"));
-    REQUIRE(ContainsId(smokeIds, "notification_toast_system"));
-    REQUIRE(ContainsId(smokeIds, "input_prompt_skinner"));
-    REQUIRE(ContainsId(smokeIds, "playtest_session_recorder"));
-    REQUIRE(ContainsId(smokeIds, "bug_report_packager"));
-    REQUIRE(ContainsId(smokeIds, "performance_heatmap"));
-    REQUIRE(ContainsId(smokeIds, "release_checklist_dashboard"));
-    REQUIRE(ContainsId(smokeIds, "store_page_asset_generator"));
-    REQUIRE(ContainsId(smokeIds, "mod_conflict_visualizer"));
-    REQUIRE(ContainsId(smokeIds, "mod_packaging_wizard"));
-    REQUIRE(ContainsId(smokeIds, "plugin_to_native_migration_advisor"));
-    REQUIRE(ContainsId(smokeIds, "fast_travel_system"));
-    REQUIRE(ContainsId(smokeIds, "platformer_game_type"));
-    REQUIRE(ContainsId(smokeIds, "gacha_system"));
-    REQUIRE(ContainsId(smokeIds, "map_zoom_system"));
-    REQUIRE(ContainsId(smokeIds, "pictures_ui_creator"));
-    REQUIRE(ContainsId(smokeIds, "realtime_event_effects_builder"));
-    REQUIRE(ContainsId(smokeIds, "directional_shadow_system"));
-    REQUIRE(ContainsId(smokeIds, "dynamic_environment_effects_builder"));
-    REQUIRE(ContainsId(smokeIds, "camera_director"));
-    REQUIRE(ContainsId(smokeIds, "screen_filter_post_fx_builder"));
-    REQUIRE(ContainsId(smokeIds, "weather_composer"));
-    REQUIRE(ContainsId(smokeIds, "lighting_painter"));
-    REQUIRE(ContainsId(smokeIds, "platformer_physics_lab"));
-    REQUIRE(ContainsId(smokeIds, "side_view_action_combat_kit"));
-    REQUIRE(ContainsId(smokeIds, "summon_gacha_banner_builder"));
-    REQUIRE(ContainsId(smokeIds, "fast_travel_map_builder"));
-    REQUIRE(ContainsId(smokeIds, "quest_board_mission_builder"));
-    REQUIRE(ContainsId(smokeIds, "relationship_event_scheduler"));
-    REQUIRE(ContainsId(smokeIds, "farming_garden_plot_builder"));
-    REQUIRE(ContainsId(smokeIds, "fishing_minigame_builder"));
-    REQUIRE(ContainsId(smokeIds, "mount_vehicle_system"));
-    REQUIRE(ContainsId(smokeIds, "stealth_system"));
-    REQUIRE(ContainsId(smokeIds, "puzzle_logic_board"));
-    REQUIRE(ContainsId(smokeIds, "in_game_phone_messenger"));
-    REQUIRE(ContainsId(smokeIds, "crafting_recipe_graph"));
-    REQUIRE(ContainsId(smokeIds, "housing_decoration_editor"));
-    REQUIRE(ContainsId(smokeIds, "companion_command_wheel"));
-    REQUIRE(ContainsId(smokeIds, "title_save_screen_builder"));
-    REQUIRE(ContainsId(smokeIds, "credits_ending_builder"));
-    REQUIRE(ContainsId(smokeIds, "tutorial_overlay_builder"));
-    REQUIRE(ContainsId(smokeIds, "accessibility_preview_lab"));
-    REQUIRE(ContainsId(smokeIds, "economy_balance_simulator"));
-    REQUIRE(ContainsId(smokeIds, "enemy_encounter_zone_painter"));
-    REQUIRE(ContainsId(smokeIds, "random_dungeon_room_stitcher"));
-    REQUIRE(ContainsId(smokeIds, "achievement_visual_builder"));
-    REQUIRE(ContainsId(smokeIds, "mod_marketplace_packager"));
-    REQUIRE(ContainsId(smokeIds, "proximity_compass_objective_radar"));
-    REQUIRE(ContainsId(smokeIds, "resource_manager_unused_asset_cleaner"));
-    REQUIRE(ContainsId(smokeIds, "visual_inventory_builder"));
-    REQUIRE(ContainsId(smokeIds, "animated_pictures_timeline"));
-    REQUIRE(ContainsId(smokeIds, "horror_fx_builder"));
-    REQUIRE(ContainsId(smokeIds, "cutscene_skip_fast_forward"));
-    REQUIRE(ContainsId(smokeIds, "translation_helper_workspace"));
-    REQUIRE(ContainsId(smokeIds, "deployment_cook_dashboard"));
-    REQUIRE(ContainsId(smokeIds, "3d_dungeon_world"));
-    REQUIRE(ContainsId(smokeIds, "break_shield_system"));
-    REQUIRE(ContainsId(smokeIds, "boost_point_system"));
-    REQUIRE(ContainsId(smokeIds, "battle_weapon_swap"));
-    REQUIRE(ContainsId(smokeIds, "order_turn_battle_system"));
-    REQUIRE(ContainsId(smokeIds, "item_concoction_system"));
-    REQUIRE(ContainsId(smokeIds, "unison_attack_builder"));
-    REQUIRE(ContainsId(smokeIds, "timed_attack_qte_builder"));
-    REQUIRE(ContainsId(smokeIds, "action_sequence_impact_builder"));
-    REQUIRE(ContainsId(smokeIds, "side_battle_status_ui_builder"));
-    REQUIRE(ContainsId(smokeIds, "victory_screen_builder"));
-    REQUIRE(ContainsId(smokeIds, "state_tooltip_display"));
-    REQUIRE(ContainsId(smokeIds, "animated_loading_screen_builder"));
-    REQUIRE(ContainsId(smokeIds, "popup_builder"));
-    REQUIRE(ContainsId(smokeIds, "animated_window_builder"));
-    REQUIRE(ContainsId(smokeIds, "video_player_surface"));
-    REQUIRE(ContainsId(smokeIds, "tactical_battle_system"));
-    REQUIRE(ContainsId(smokeIds, "bullet_hell_maker"));
-    REQUIRE(ContainsId(smokeIds, "duelist_card_battle_system"));
-    REQUIRE(ContainsId(smokeIds, "spin_top_battle_system"));
-    REQUIRE(ContainsId(smokeIds, "recruiting_board"));
-    REQUIRE(ContainsId(smokeIds, "step_rewards_system"));
-    REQUIRE(ContainsId(smokeIds, "event_spawner_solution"));
-    REQUIRE(ContainsId(smokeIds, "smart_event_timers_progress"));
-    REQUIRE(ContainsId(smokeIds, "actor_construct"));
-    REQUIRE(ContainsId(smokeIds, "equip_construct_visible_equipment"));
-    REQUIRE(ContainsId(smokeIds, "skill_equip_system"));
-    REQUIRE(ContainsId(smokeIds, "front_view_battler_mode"));
-    REQUIRE(ContainsId(smokeIds, "quest"));
-    REQUIRE(ContainsId(smokeIds, "skill_tree"));
-    REQUIRE(ContainsId(smokeIds, "relationship"));
-    REQUIRE(ContainsId(smokeIds, "cutscene_timeline"));
-    REQUIRE(ContainsId(smokeIds, "encounter_designer"));
-    REQUIRE(ContainsId(smokeIds, "loot_generator"));
-    REQUIRE(ContainsId(smokeIds, "crafting"));
-    REQUIRE(ContainsId(smokeIds, "monster_collection"));
-    REQUIRE(ContainsId(smokeIds, "npc"));
-    REQUIRE(ContainsId(smokeIds, "metroidvania_gates"));
-    REQUIRE(ContainsId(smokeIds, "level_builder"));
+    REQUIRE(smokeIds == CanonicalReleasePanelIds());
 }

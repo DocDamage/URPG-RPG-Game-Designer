@@ -456,6 +456,7 @@ TEST_CASE(
     DataManager& data = DataManager::instance();
     pm.unloadAllPlugins();
     pm.clearFailureDiagnostics();
+    pm.clearExecutionDiagnostics();
 
     data.setupNewGame();
     data.deleteSaveFile(0);
@@ -616,9 +617,11 @@ TEST_CASE(
     REQUIRE(exportedReport.find("CGMZ_MenuCommandWindow") != std::string::npos);
     REQUIRE(exportedReport.find("Command not found: CGMZ_MenuCommandWindow_refresh") != std::string::npos);
 
+    pm.clearExecutionDiagnostics();
     urpg::editor::CompatReportPanel panel;
     panel.refresh();
     REQUIRE(pm.exportFailureDiagnosticsJsonl().empty());
+    REQUIRE(pm.exportExecutionDiagnosticsJsonl().empty());
 
     const auto panelDashboardEvents = panel.getModel().getPluginEvents("CGMZ_MenuCommandWindow");
     REQUIRE(panelDashboardEvents.size() == 2);
@@ -636,6 +639,7 @@ TEST_CASE(
     data.deleteSaveFile(0);
     data.deleteSaveFile(1);
     pm.clearFailureDiagnostics();
+    pm.clearExecutionDiagnostics();
     pm.unloadAllPlugins();
 
     std::error_code ec;

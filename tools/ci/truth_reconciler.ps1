@@ -3,6 +3,7 @@ $ErrorActionPreference = "Stop"
 $repoRoot = Resolve-Path (Join-Path $PSScriptRoot "../..")
 $readinessPath = Join-Path $repoRoot "content/readiness/readiness_status.json"
 $releaseMatrixPath = Join-Path $repoRoot "docs/RELEASE_READINESS_MATRIX.md"
+$appReleaseMatrixPath = Join-Path $repoRoot "docs/APP_RELEASE_READINESS_MATRIX.md"
 $templateMatrixPath = Join-Path $repoRoot "docs/TEMPLATE_READINESS_MATRIX.md"
 $changelogPath = Join-Path $repoRoot "docs/SCHEMA_CHANGELOG.md"
 $truthRulesPath = Join-Path $repoRoot "docs/TRUTH_ALIGNMENT_RULES.md"
@@ -17,6 +18,7 @@ $schemasDir = Join-Path $repoRoot "content/schemas"
 foreach ($file in @(
         $readinessPath,
         $releaseMatrixPath,
+        $appReleaseMatrixPath,
         $templateMatrixPath,
         $changelogPath,
         $truthRulesPath,
@@ -33,6 +35,7 @@ foreach ($file in @(
 
 $readiness = Get-Content -Raw -Path $readinessPath | ConvertFrom-Json
 $releaseMatrixText = Get-Content -Raw -Path $releaseMatrixPath
+$appReleaseMatrixText = Get-Content -Raw -Path $appReleaseMatrixPath
 $templateMatrixText = Get-Content -Raw -Path $templateMatrixPath
 $changelogText = Get-Content -Raw -Path $changelogPath
 $truthRulesText = Get-Content -Raw -Path $truthRulesPath
@@ -94,6 +97,59 @@ function Get-MatrixRows {
     return $rows
 }
 
+function Get-CurrentMatrixStatusRows {
+    param(
+        [string]$Text
+    )
+
+    $rows = @()
+    $seenCurrentMatrix = $false
+    foreach ($line in ($Text -split "`r?`n")) {
+        if ($line -match '^## Current') {
+            $seenCurrentMatrix = $true
+            continue
+        }
+        if (-not $seenCurrentMatrix) {
+            continue
+        }
+        if ($line -match '^## ') {
+            break
+        }
+        if ($line -match '^\| (?:`([^`]+)`|([^|`]+?)) \| `([^`]+)` \|') {
+            $id = if ($matches[1]) { $matches[1] } else { $matches[2].Trim() }
+            $rows += @{ Id = $id; Status = $matches[3]; Line = $line }
+        }
+    }
+    return $rows
+}
+
+function Get-FixtureOnlyOverclaimTerms {
+    param(
+        [string]$Text
+    )
+
+    $terms = @(
+        "fixture-only",
+        "fixture only",
+        "mock-only",
+        "mock only",
+        "mock-backed",
+        "mock backed",
+        "placeholder-backed",
+        "placeholder backed",
+        "dev bootstrap"
+    )
+
+    $hits = @()
+    $lower = $Text.ToLowerInvariant()
+    foreach ($term in $terms) {
+        if ($lower.Contains($term)) {
+            $hits += $term
+        }
+    }
+    return $hits
+}
+
 $docDates = @(
     @{ Label = "RELEASE_READINESS_MATRIX.md"; Value = (Get-StatusDateFromText -Text $releaseMatrixText -Label "RELEASE_READINESS_MATRIX.md") },
     @{ Label = "TEMPLATE_READINESS_MATRIX.md"; Value = (Get-StatusDateFromText -Text $templateMatrixText -Label "TEMPLATE_READINESS_MATRIX.md") },
@@ -112,6 +168,51 @@ foreach ($docDate in $docDates) {
 
 $releaseRows = Get-MatrixRows -Text $releaseMatrixText
 $templateRows = Get-MatrixRows -Text $templateMatrixText
+
+# ---------------------------------------------------------------------------
+# a0. READY/VERIFIED claims must not be justified by fixture-only, mock-only,
+#     placeholder-backed, or dev-bootstrap evidence.
+# ---------------------------------------------------------------------------
+foreach ($entry in $readiness.subsystems) {
+    if ($entry.status -ne "READY") {
+        continue
+    }
+
+    $claimText = @($entry.summary) + @($entry.mainGaps) -join " "
+    $hits = Get-FixtureOnlyOverclaimTerms -Text $claimText
+    foreach ($hit in $hits) {
+        $mismatches += "READY subsystem '$($entry.id)' contains release-overclaim term '$hit' in readiness_status.json."
+    }
+}
+
+foreach ($entry in $readiness.templates) {
+    if ($entry.status -ne "READY") {
+        continue
+    }
+
+    $claimText = @($entry.safeScope) + @($entry.mainBlockers) + @($entry.barEvidence.PSObject.Properties.Value) -join " "
+    $hits = Get-FixtureOnlyOverclaimTerms -Text $claimText
+    foreach ($hit in $hits) {
+        $mismatches += "READY template '$($entry.id)' contains release-overclaim term '$hit' in readiness_status.json."
+    }
+}
+
+foreach ($matrix in @(
+        @{ Name = "RELEASE_READINESS_MATRIX.md"; Text = $releaseMatrixText; ReadyStatuses = @("READY") },
+        @{ Name = "TEMPLATE_READINESS_MATRIX.md"; Text = $templateMatrixText; ReadyStatuses = @("READY") },
+        @{ Name = "APP_RELEASE_READINESS_MATRIX.md"; Text = $appReleaseMatrixText; ReadyStatuses = @("VERIFIED") }
+    )) {
+    foreach ($row in Get-CurrentMatrixStatusRows -Text $matrix.Text) {
+        if ($matrix.ReadyStatuses -notcontains $row.Status) {
+            continue
+        }
+
+        $hits = Get-FixtureOnlyOverclaimTerms -Text $row.Line
+        foreach ($hit in $hits) {
+            $mismatches += "$($matrix.Name) row '$($row.Id)' is $($row.Status) but contains release-overclaim term '$hit'."
+        }
+    }
+}
 
 # ---------------------------------------------------------------------------
 # a. Every subsystem in readiness_status.json has a row in RELEASE_READINESS_MATRIX.md

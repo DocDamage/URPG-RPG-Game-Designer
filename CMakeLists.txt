@@ -967,6 +967,7 @@ target_include_directories(urpg_runtime PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
 
 add_executable(urpg_editor
     apps/editor/main.cpp
+    apps/editor/editor_app_panels.cpp
 )
 
 target_link_libraries(urpg_editor PRIVATE
@@ -1293,6 +1294,7 @@ add_executable(urpg_tests
     tests/unit/test_diagnostics_workspace.cpp
     tests/unit/test_event_runtime.cpp
     tests/unit/test_editor_panel_registry.cpp
+    tests/unit/test_editor_app_panels.cpp
     tests/unit/test_debug_session.cpp
     tests/unit/test_quickjs_runtime.cpp
     tests/unit/test_window_compat.cpp
@@ -1448,6 +1450,7 @@ add_executable(urpg_tests
     tests/test_effect_modifiers.cpp
     tests/test_pattern_field_editor.cpp
     tests/test_pattern_serialization.cpp
+    apps/editor/editor_app_panels.cpp
     tools/audit/project_completeness_score.cpp
 )
 

@@ -52,6 +52,7 @@ If a document or diagnostics surface needs nuance, it may be more conservative t
 - a template matrix row says `EXPERIMENTAL`, but a roadmap summary implies release-safe support
 - a docs/status update marks a governance feature landed before its files, checks, or build registration exist
 - schema/version governance language claims enforcement when only policy text exists
+- a `READY` subsystem/template or `VERIFIED` app-release row cites fixture-only, mock-only, placeholder-backed, or dev-bootstrap evidence as its release proof
 
 ## Governance Expectations
 

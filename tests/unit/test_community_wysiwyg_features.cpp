@@ -70,7 +70,11 @@ TEST_CASE("Community WYSIWYG features expose runtime editor saved-data and regis
 
         const auto* entry = urpg::editor::findEditorPanelRegistryEntry(feature);
         REQUIRE(entry != nullptr);
-        REQUIRE(entry->exposure == urpg::editor::EditorPanelExposure::ReleaseTopLevel);
+        if (feature == "developer_debug_overlay") {
+            REQUIRE(entry->exposure == urpg::editor::EditorPanelExposure::DevOnly);
+        } else {
+            REQUIRE(entry->exposure == urpg::editor::EditorPanelExposure::Deferred);
+        }
 
         auto state = stateForFeature(feature);
         const auto trigger = document.actions.front().trigger;

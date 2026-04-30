@@ -1,9 +1,11 @@
+#include "apps/editor/editor_app_panels.h"
 #include "editor/ability/ability_inspector_panel.h"
 #include "editor/ability/pattern_field_panel.h"
 #include "editor/analytics/analytics_panel.h"
 #include "editor/assets/asset_library_panel.h"
 #include "editor/diagnostics/diagnostics_workspace.h"
 #include "editor/mod/mod_manager_panel.h"
+#include "editor/spatial/level_builder_workspace.h"
 #include "engine/core/ability/ability_system_component.h"
 #include "engine/core/analytics/analytics_dispatcher.h"
 #include "engine/core/analytics/analytics_privacy_controller.h"
@@ -12,11 +14,15 @@
 #include "engine/core/diagnostics/startup_diagnostics.h"
 #include "engine/core/editor/editor_panel_registry.h"
 #include "engine/core/editor/editor_shell.h"
+#include "engine/core/engine_context.h"
 #include "engine/core/engine_shell.h"
+#include "engine/core/map/grid_part_catalog.h"
+#include "engine/core/map/grid_part_document.h"
 #include "engine/core/mod/mod_loader.h"
 #include "engine/core/mod/mod_registry.h"
 #include "engine/core/platform/headless_renderer.h"
 #include "engine/core/platform/headless_surface.h"
+#include "engine/core/presentation/presentation_schema.h"
 #include "engine/core/project/project_snapshot_store.h"
 #include "engine/core/scene/map_scene.h"
 #include "engine/core/scene/scene_manager.h"
@@ -76,7 +82,11 @@ struct EditorPanelRuntime {
     urpg::editor::PatternFieldPanel pattern_field_panel;
     urpg::editor::ModManagerPanel mod_manager_panel;
     urpg::editor::AnalyticsPanel analytics_panel;
+    urpg::editor::LevelBuilderWorkspace level_builder_workspace;
     urpg::ability::AbilitySystemComponent ability_runtime;
+    urpg::map::GridPartDocument level_builder_document{"EditorPreview", 16, 12};
+    urpg::map::GridPartCatalog level_builder_catalog;
+    urpg::presentation::SpatialMapOverlay level_builder_overlay;
     urpg::mod::ModRegistry mod_registry;
     std::unique_ptr<urpg::mod::ModLoader> mod_loader;
     urpg::analytics::AnalyticsDispatcher analytics_dispatcher;
@@ -100,6 +110,160 @@ std::string abilityAssetFileName(const urpg::ability::AuthoredAbilityAsset& asse
         stem = "draft";
     }
     return stem + ".json";
+}
+
+urpg::map::GridPartCategory gridPartCategoryFromString(const std::string& value) {
+    using Category = urpg::map::GridPartCategory;
+    static const std::unordered_map<std::string, Category> categories = {
+        {"Tile", Category::Tile},
+        {"Wall", Category::Wall},
+        {"Platform", Category::Platform},
+        {"Hazard", Category::Hazard},
+        {"Door", Category::Door},
+        {"Npc", Category::Npc},
+        {"Enemy", Category::Enemy},
+        {"TreasureChest", Category::TreasureChest},
+        {"SavePoint", Category::SavePoint},
+        {"Trigger", Category::Trigger},
+        {"CutsceneZone", Category::CutsceneZone},
+        {"Shop", Category::Shop},
+        {"QuestItem", Category::QuestItem},
+        {"Prop", Category::Prop},
+        {"LevelBlock", Category::LevelBlock},
+    };
+
+    const auto found = categories.find(value);
+    return found == categories.end() ? Category::Prop : found->second;
+}
+
+urpg::map::GridPartLayer gridPartLayerFromString(const std::string& value) {
+    using Layer = urpg::map::GridPartLayer;
+    static const std::unordered_map<std::string, Layer> layers = {
+        {"Terrain", Layer::Terrain},     {"Decoration", Layer::Decoration}, {"Collision", Layer::Collision},
+        {"Object", Layer::Object},       {"Actor", Layer::Actor},           {"Trigger", Layer::Trigger},
+        {"Region", Layer::Region},       {"Overlay", Layer::Overlay},
+    };
+
+    const auto found = layers.find(value);
+    return found == layers.end() ? Layer::Object : found->second;
+}
+
+urpg::map::GridPartCollisionPolicy gridPartCollisionPolicyFromString(const std::string& value) {
+    using Policy = urpg::map::GridPartCollisionPolicy;
+    static const std::unordered_map<std::string, Policy> policies = {
+        {"None", Policy::None},
+        {"Solid", Policy::Solid},
+        {"Hazard", Policy::Hazard},
+        {"TriggerOnly", Policy::TriggerOnly},
+        {"Custom", Policy::Custom},
+    };
+
+    const auto found = policies.find(value);
+    return found == policies.end() ? Policy::None : found->second;
+}
+
+urpg::map::GridPartRuleset gridPartRulesetFromString(const std::string& value) {
+    using Ruleset = urpg::map::GridPartRuleset;
+    static const std::unordered_map<std::string, Ruleset> rulesets = {
+        {"TopDownJRPG", Ruleset::TopDownJRPG},
+        {"SideScrollerAction", Ruleset::SideScrollerAction},
+        {"TacticalGrid", Ruleset::TacticalGrid},
+        {"DungeonRoomBuilder", Ruleset::DungeonRoomBuilder},
+        {"WorldMap", Ruleset::WorldMap},
+        {"TownHub", Ruleset::TownHub},
+        {"BattleArena", Ruleset::BattleArena},
+        {"CutsceneStage", Ruleset::CutsceneStage},
+    };
+
+    const auto found = rulesets.find(value);
+    return found == rulesets.end() ? Ruleset::TopDownJRPG : found->second;
+}
+
+bool loadGridPartCatalog(const std::filesystem::path& projectRoot, urpg::map::GridPartCatalog& catalog) {
+    const auto catalogPath = projectRoot / "content" / "part_catalogs" / "base_jrpg_parts.json";
+    std::ifstream stream(catalogPath, std::ios::binary);
+    if (!stream) {
+        return false;
+    }
+
+    nlohmann::json payload;
+    try {
+        payload = nlohmann::json::parse(stream);
+    } catch (const nlohmann::json::exception&) {
+        return false;
+    }
+
+    if (!payload.contains("parts") || !payload["parts"].is_array()) {
+        return false;
+    }
+
+    urpg::map::GridPartCatalog loaded;
+    for (const auto& part : payload["parts"]) {
+        if (!part.is_object() || !part.contains("partId") || !part["partId"].is_string()) {
+            return false;
+        }
+
+        urpg::map::GridPartDefinition definition;
+        definition.part_id = part["partId"].get<std::string>();
+        definition.display_name = part.value("displayName", definition.part_id);
+        definition.description = part.value("description", "");
+        definition.category = gridPartCategoryFromString(part.value("category", "Prop"));
+        definition.default_layer = gridPartLayerFromString(part.value("defaultLayer", "Object"));
+        definition.collision_policy = gridPartCollisionPolicyFromString(part.value("collisionPolicy", "None"));
+        definition.asset_id = part.value("assetId", "");
+        definition.prefab_path = part.value("prefabPath", "");
+        definition.tile_id = part.value("tileId", 0);
+
+        const auto footprint = part.value("footprint", nlohmann::json::object());
+        definition.footprint.width = footprint.value("width", 1);
+        definition.footprint.height = footprint.value("height", 1);
+        definition.footprint.allow_overlap = footprint.value("allowOverlap", false);
+        definition.footprint.blocks_navigation = footprint.value("blocksNavigation", false);
+
+        for (const auto& ruleset : part.value("supportedRulesets", nlohmann::json::array())) {
+            if (ruleset.is_string()) {
+                definition.supported_rulesets.push_back(gridPartRulesetFromString(ruleset.get<std::string>()));
+            }
+        }
+        if (definition.supported_rulesets.empty()) {
+            definition.supported_rulesets.push_back(urpg::map::GridPartRuleset::TopDownJRPG);
+        }
+
+        for (const auto& tag : part.value("tags", nlohmann::json::array())) {
+            if (tag.is_string()) {
+                definition.tags.push_back(tag.get<std::string>());
+            }
+        }
+
+        const auto properties = part.value("defaultProperties", nlohmann::json::object());
+        for (const auto& [key, value] : properties.items()) {
+            if (value.is_string()) {
+                definition.default_properties[key] = value.get<std::string>();
+            }
+        }
+
+        if (!loaded.addDefinition(std::move(definition))) {
+            return false;
+        }
+    }
+
+    catalog = std::move(loaded);
+    return catalog.size() > 0;
+}
+
+void bindLevelBuilder(EditorPanelRuntime& runtime) {
+    runtime.level_builder_overlay.mapId = runtime.level_builder_document.mapId();
+    runtime.level_builder_overlay.elevation.width = static_cast<uint32_t>(runtime.level_builder_document.width());
+    runtime.level_builder_overlay.elevation.height = static_cast<uint32_t>(runtime.level_builder_document.height());
+    runtime.level_builder_overlay.elevation.levels.assign(
+        static_cast<size_t>(runtime.level_builder_overlay.elevation.width) *
+            static_cast<size_t>(runtime.level_builder_overlay.elevation.height),
+        0);
+
+    const bool catalogLoaded = loadGridPartCatalog(runtime.project_root, runtime.level_builder_catalog);
+    runtime.level_builder_workspace.SetTargets(&runtime.level_builder_document,
+                                               catalogLoaded ? &runtime.level_builder_catalog : nullptr,
+                                               &runtime.level_builder_overlay);
 }
 
 bool registerEditorPanels(urpg::editor::EditorShell& editor_shell, EditorPanelRuntime& runtime) {
@@ -189,6 +353,7 @@ bool registerEditorPanels(urpg::editor::EditorShell& editor_shell, EditorPanelRu
     runtime.analytics_panel.bindUploader(&runtime.analytics_uploader);
     runtime.analytics_panel.bindPrivacyController(&runtime.analytics_privacy_controller);
     runtime.diagnostics_workspace.bindAbilityRuntime(runtime.ability_runtime);
+    bindLevelBuilder(runtime);
 
     using PanelRenderFactory = std::function<urpg::editor::EditorShell::RenderCallback(EditorPanelRuntime&)>;
     const std::unordered_map<std::string, PanelRenderFactory> renderFactories = {
@@ -230,7 +395,25 @@ bool registerEditorPanels(urpg::editor::EditorShell& editor_shell, EditorPanelRu
                  panelRuntime.analytics_panel.render();
              };
          }},
+        {"level_builder",
+         [](EditorPanelRuntime& panelRuntime) {
+             return [&panelRuntime](const urpg::editor::EditorFrameContext& context) {
+                 panelRuntime.level_builder_workspace.Render(
+                     urpg::FrameContext{static_cast<float>(context.delta_seconds),
+                                        static_cast<uint32_t>(context.frame_index)});
+             };
+         }},
     };
+
+    for (const auto& factoryId : urpg::editor_app::editorAppRegisteredPanelFactoryIds()) {
+        if (renderFactories.find(factoryId) == renderFactories.end()) {
+            return false;
+        }
+    }
+
+    if (!urpg::editor_app::editorAppMissingReleasePanelFactoryIds().empty()) {
+        return false;
+    }
 
     bool ok = true;
     for (const auto& panel : urpg::editor::topLevelEditorPanels()) {

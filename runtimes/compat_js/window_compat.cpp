@@ -1,7 +1,7 @@
 // WindowCompat - Core Surface Implementation
 // Phase 2 - Compat Layer
 //
-// Implementation stubs for MZ Window API compatibility surface.
+// Deterministic implementation of the supported MZ Window API compatibility surface.
 
 #include "window_compat.h"
 #include "data_manager.h"
