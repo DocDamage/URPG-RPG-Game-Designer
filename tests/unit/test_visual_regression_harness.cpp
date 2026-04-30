@@ -63,6 +63,43 @@ TEST_CASE("VisualRegressionHarness saveGolden and loadGolden round-trip", "[test
     cleanupGolden(testName, snapshotId);
 }
 
+TEST_CASE("VisualRegressionHarness writes compact run-length goldens",
+          "[testing][visual_regression]") {
+    VisualRegressionHarness harness;
+    harness.setGoldenRoot(getGoldenRoot().string());
+
+    const std::string testName = "CompactRunLengthTest";
+    const std::string snapshotId = "snapshot_01";
+
+    cleanupGolden(testName, snapshotId);
+
+    SceneSnapshot original = makeTestSnapshot(8, 2);
+    original.pixels[8] = {64, 96, 128, 255};
+
+    REQUIRE(harness.saveGolden(testName, snapshotId, original));
+
+    const auto goldenPath = getGoldenRoot() / (testName + "_" + snapshotId + ".golden.json");
+    nlohmann::json metadata;
+    {
+        std::ifstream file(goldenPath);
+        REQUIRE(file.good());
+        metadata = nlohmann::json::parse(file);
+    }
+
+    REQUIRE(metadata.contains("format"));
+    REQUIRE(metadata["format"] == "urpg.visual_golden.rle.v1");
+    REQUIRE(metadata.contains("pixelRuns"));
+    REQUIRE_FALSE(metadata.contains("pixels"));
+    REQUIRE(metadata["pixelRuns"].size() == 3);
+    REQUIRE(metadata["pixelRuns"][0] == nlohmann::json::array({8, 128, 128, 128, 255}));
+
+    auto loaded = harness.loadGolden(testName, snapshotId);
+    REQUIRE(loaded.has_value());
+    REQUIRE(loaded->pixels == original.pixels);
+
+    cleanupGolden(testName, snapshotId);
+}
+
 TEST_CASE("VisualRegressionHarness compareAgainstGolden returns match when identical", "[testing][visual_regression]") {
     VisualRegressionHarness harness;
     harness.setGoldenRoot(getGoldenRoot().string());
@@ -314,5 +351,4 @@ TEST_CASE("VisualRegressionHarness oversized committed goldens are governance-li
     }
 
     REQUIRE(oversizedCount == governed.size());
-    REQUIRE(oversizedCount > 0);
 }

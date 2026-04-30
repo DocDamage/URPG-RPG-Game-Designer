@@ -95,14 +95,15 @@ $exportProcessFiles = Get-TargetFiles -content $cmakeContent -targetName "urpg_e
 $spatialUnitFiles = Get-TargetFiles -content $cmakeContent -targetName "urpg_spatial_unit_tests"
 $renderTestFiles = Get-TargetFiles -content $cmakeContent -targetName "urpg_render_tests"
 $integrationFiles = Get-TargetFiles -content $cmakeContent -targetName "urpg_integration_tests"
-$snapshotFiles = Get-TargetFiles -content $cmakeContent -targetName "urpg_snapshot_tests"
+$snapshotCanonicalFiles = Get-TargetFiles -content $cmakeContent -targetName "urpg_snapshot_canonical_tests"
+$snapshotRendererFiles = Get-TargetFiles -content $cmakeContent -targetName "urpg_snapshot_renderer_tests"
 $compatFiles = Get-TargetFiles -content $cmakeContent -targetName "urpg_compat_tests"
 $migrateFiles = Get-TargetFiles -content $cmakeContent -targetName "urpg_migrate"
 $auditFiles = Get-TargetFiles -content $cmakeContent -targetName "urpg_project_audit"
 $presValFiles = Get-TargetFiles -content $cmakeContent -targetName "urpg_presentation_release_validation"
 $profileArenaFiles = Get-TargetFiles -content $cmakeContent -targetName "urpg_profile_arena"
 
-$allTestExeFiles = $testFiles + $projectAuditUnitFiles + $exportUnitFiles + $exportProcessFiles + $spatialUnitFiles + $renderTestFiles + $integrationFiles + $snapshotFiles + $compatFiles + $migrateFiles + $auditFiles + $presValFiles
+$allTestExeFiles = $testFiles + $projectAuditUnitFiles + $exportUnitFiles + $exportProcessFiles + $spatialUnitFiles + $renderTestFiles + $integrationFiles + $snapshotCanonicalFiles + $snapshotRendererFiles + $compatFiles + $migrateFiles + $auditFiles + $presValFiles
 $standaloneToolFiles = $profileArenaFiles
 $allCMakeFiles = $coreFiles + $allTestExeFiles + $standaloneToolFiles
 

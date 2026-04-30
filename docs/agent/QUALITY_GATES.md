@@ -18,6 +18,7 @@ Use anchored label presets for common lanes. Raw `ctest -L pr` is regex-based an
 | Compat JS / WindowCompat / plugin fixtures | `ctest -L weekly --output-on-failure` |
 | Export packager/validator | `ctest --preset dev-export --output-on-failure` |
 | AI assistant/tool review surface | `ctest --preset dev-all -R "AI (knowledge|task|tool|assistant)|Chatbot component" --output-on-failure` |
+| Snapshot/golden visual baselines | `ctest --preset dev-snapshot --output-on-failure` |
 | Presentation/spatial/rendering | `ctest --preset dev-spatial --output-on-failure`; then `.\tools\ci\run_presentation_gate.ps1` when touching rendering/presentation gates |
 | Native Level Builder / grid-part editor | `.\build\dev-ninja-debug\urpg_tests.exe "[grid_part][editor]"`; then `ctest --test-dir build\dev-ninja-debug -L grid_part --output-on-failure` |
 | Grid-part runtime/compiler/package governance | `ctest --test-dir build\dev-ninja-debug -L grid_part --output-on-failure` |

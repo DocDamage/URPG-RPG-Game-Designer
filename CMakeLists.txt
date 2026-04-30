@@ -1554,15 +1554,15 @@ target_compile_definitions(urpg_integration_tests PRIVATE URPG_EXPORT_SMOKE_APP_
 target_compile_definitions(urpg_integration_tests PRIVATE URPG_PACK_CLI_PATH="$<TARGET_FILE:urpg_pack_cli>")
 urpg_enable_windows_test_binary_unlock(urpg_integration_tests)
 
-add_executable(urpg_snapshot_tests
+add_executable(urpg_snapshot_canonical_tests
     tests/snapshot/test_snapshot_canonical_outputs.cpp
+)
+urpg_configure_unit_test_target(urpg_snapshot_canonical_tests)
+
+add_executable(urpg_snapshot_renderer_tests
     tests/snapshot/test_renderer_backed_visual_capture.cpp
 )
-
-target_link_libraries(urpg_snapshot_tests PRIVATE urpg_core Catch2::Catch2WithMain)
-target_include_directories(urpg_snapshot_tests PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
-target_compile_definitions(urpg_snapshot_tests PRIVATE URPG_SOURCE_DIR="${CMAKE_CURRENT_SOURCE_DIR}")
-urpg_enable_windows_test_binary_unlock(urpg_snapshot_tests)
+urpg_configure_unit_test_target(urpg_snapshot_renderer_tests)
 
 add_executable(urpg_compat_tests
     tests/compat/test_compat_authority_suite.cpp
@@ -1629,18 +1629,24 @@ catch_discover_tests(
 )
 
 catch_discover_tests(
-    urpg_snapshot_tests
+    urpg_snapshot_canonical_tests
     DISCOVERY_MODE PRE_TEST
-    PROPERTIES LABELS "nightly"
+    PROPERTIES LABELS "nightly\;snapshot\;canonical"
+)
+
+catch_discover_tests(
+    urpg_snapshot_renderer_tests
+    DISCOVERY_MODE PRE_TEST
+    PROPERTIES LABELS "nightly\;snapshot\;renderer"
 )
 
 add_test(
     NAME urpg_snapshot_regression_lane
-    COMMAND urpg_snapshot_tests "[snapshot][regression]"
+    COMMAND urpg_snapshot_renderer_tests "[snapshot][regression]"
 )
 set_tests_properties(
     urpg_snapshot_regression_lane
-    PROPERTIES LABELS "nightly;regression"
+    PROPERTIES LABELS "nightly;snapshot;renderer;regression"
 )
 
 add_test(

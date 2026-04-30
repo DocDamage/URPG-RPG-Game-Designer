@@ -183,6 +183,18 @@
       }
     },
     {
+      "name": "dev-snapshot",
+      "configurePreset": "dev-ninja-debug",
+      "filter": {
+        "include": {
+          "label": "^snapshot$"
+        }
+      },
+      "output": {
+        "outputOnFailure": true
+      }
+    },
+    {
       "name": "dev-process",
       "configurePreset": "dev-ninja-debug",
       "filter": {

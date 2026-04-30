@@ -14,6 +14,7 @@
 #include <cstdint>
 #include <fstream>
 #include <filesystem>
+#include <limits>
 
 namespace urpg::testing {
 
@@ -47,6 +48,96 @@ private:
 
 } // namespace
 #endif
+
+namespace {
+
+constexpr const char* kCompactGoldenFormat = "urpg.visual_golden.rle.v1";
+constexpr int kRleRunFieldCount = 5;
+
+bool decodeLegacyPixels(const nlohmann::json& pixels, GoldenSnapshot& golden) {
+    if (!pixels.is_array()) {
+        return false;
+    }
+
+    golden.pixels.reserve(pixels.size());
+    for (const auto& p : pixels) {
+        SnapshotPixel pixel;
+        pixel.r = p.value("r", 0);
+        pixel.g = p.value("g", 0);
+        pixel.b = p.value("b", 0);
+        pixel.a = p.value("a", 0);
+        golden.pixels.push_back(pixel);
+    }
+
+    return true;
+}
+
+bool decodeRunLengthPixels(const nlohmann::json& runs, GoldenSnapshot& golden) {
+    if (!runs.is_array()) {
+        return false;
+    }
+
+    const auto expectedPixels = static_cast<size_t>(std::max(golden.width, 0)) *
+                                static_cast<size_t>(std::max(golden.height, 0));
+    golden.pixels.clear();
+    golden.pixels.reserve(expectedPixels);
+
+    for (const auto& run : runs) {
+        if (!run.is_array() || run.size() != kRleRunFieldCount || !run[0].is_number_unsigned()) {
+            return false;
+        }
+
+        const auto count = run[0].get<size_t>();
+        if (count == 0 || count > expectedPixels - golden.pixels.size()) {
+            return false;
+        }
+
+        const SnapshotPixel pixel{
+            run[1].get<uint8_t>(),
+            run[2].get<uint8_t>(),
+            run[3].get<uint8_t>(),
+            run[4].get<uint8_t>(),
+        };
+        golden.pixels.insert(golden.pixels.end(), count, pixel);
+    }
+
+    return golden.pixels.size() == expectedPixels;
+}
+
+nlohmann::json encodeRunLengthPixels(const SceneSnapshot& snapshot) {
+    nlohmann::json runs = nlohmann::json::array();
+    if (snapshot.pixels.empty()) {
+        return runs;
+    }
+
+    SnapshotPixel current = snapshot.pixels.front();
+    size_t count = 0;
+    const auto flushRun = [&]() {
+        runs.push_back(nlohmann::json::array({
+            count,
+            current.r,
+            current.g,
+            current.b,
+            current.a,
+        }));
+    };
+
+    for (const auto& pixel : snapshot.pixels) {
+        if (pixel == current && count < std::numeric_limits<uint32_t>::max()) {
+            ++count;
+            continue;
+        }
+
+        flushRun();
+        current = pixel;
+        count = 1;
+    }
+    flushRun();
+
+    return runs;
+}
+
+} // namespace
 
 std::string VisualRegressionHarness::captureBackendToString(CaptureBackend backend) {
     switch (backend) {
@@ -119,22 +210,24 @@ std::optional<GoldenSnapshot> VisualRegressionHarness::loadGolden(const std::str
     golden.testName = testName;
     golden.snapshotId = snapshotId;
 
-    if (!j.contains("width") || !j.contains("height") || !j.contains("pixels")) {
+    if (!j.contains("width") || !j.contains("height")) {
         return std::nullopt;
     }
 
     golden.width = j["width"].get<int>();
     golden.height = j["height"].get<int>();
+    const auto expectedPixels = static_cast<size_t>(std::max(golden.width, 0)) *
+                                static_cast<size_t>(std::max(golden.height, 0));
 
-    const auto& pixels = j["pixels"];
-    golden.pixels.reserve(pixels.size());
-    for (const auto& p : pixels) {
-        SnapshotPixel pixel;
-        pixel.r = p.value("r", 0);
-        pixel.g = p.value("g", 0);
-        pixel.b = p.value("b", 0);
-        pixel.a = p.value("a", 0);
-        golden.pixels.push_back(pixel);
+    bool decoded = false;
+    if (j.value("format", std::string{}) == kCompactGoldenFormat && j.contains("pixelRuns")) {
+        decoded = decodeRunLengthPixels(j["pixelRuns"], golden);
+    } else if (j.contains("pixels")) {
+        decoded = decodeLegacyPixels(j["pixels"], golden);
+    }
+
+    if (!decoded || golden.pixels.size() != expectedPixels) {
+        return std::nullopt;
     }
 
     return golden;
@@ -151,26 +244,21 @@ bool VisualRegressionHarness::saveGolden(const std::string& testName,
     }
 
     nlohmann::json j;
+    j["format"] = kCompactGoldenFormat;
     j["width"] = snapshot.width;
     j["height"] = snapshot.height;
-
-    nlohmann::json pixels = nlohmann::json::array();
-    for (const auto& p : snapshot.pixels) {
-        nlohmann::json pixel;
-        pixel["r"] = p.r;
-        pixel["g"] = p.g;
-        pixel["b"] = p.b;
-        pixel["a"] = p.a;
-        pixels.push_back(pixel);
-    }
-    j["pixels"] = pixels;
+    j["encoding"] = {
+        {"kind", "rgba_rle"},
+        {"runFields", {"count", "r", "g", "b", "a"}},
+    };
+    j["pixelRuns"] = encodeRunLengthPixels(snapshot);
 
     std::ofstream file(path);
     if (!file.is_open()) {
         return false;
     }
 
-    file << j.dump(4);
+    file << j.dump();
     return file.good();
 }
 

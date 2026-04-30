@@ -29,6 +29,7 @@ Run tests:
 ctest --preset dev-all
 ctest --preset dev-pr
 ctest --preset dev-spatial
+ctest --preset dev-snapshot
 ctest --preset dev-export
 ctest --preset dev-project-audit
 ctest --preset dev-process
