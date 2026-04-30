@@ -1349,7 +1349,10 @@ add_executable(urpg_tests
     tests/unit/test_presentation_bridge.cpp
     tests/unit/test_presentation_runtime.cpp
     tests/unit/test_presentation_effect_translation.cpp
+    tests/unit/project_audit_cli_test_helpers.cpp
     tests/unit/test_project_audit_cli.cpp
+    tests/unit/test_project_audit_cli_localization.cpp
+    tests/unit/test_project_audit_cli_template_artifacts.cpp
     tests/unit/test_effect_cue.cpp
     tests/unit/test_dungeon3d_world.cpp
     tests/unit/test_spatial_editor.cpp
