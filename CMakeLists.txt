@@ -1296,6 +1296,9 @@ add_executable(urpg_tests
     tests/unit/test_event_authority_diagnostics.cpp
     tests/unit/test_event_authority_panel.cpp
     tests/unit/test_diagnostics_workspace.cpp
+    tests/unit/test_diagnostics_workspace_project_audit.cpp
+    tests/unit/test_diagnostics_workspace_workflows.cpp
+    tests/unit/test_diagnostics_workspace_abilities.cpp
     tests/unit/test_event_runtime.cpp
     tests/unit/test_editor_panel_registry.cpp
     tests/unit/test_editor_app_panels.cpp
