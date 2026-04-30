@@ -56,6 +56,8 @@ This document records the focused validation lanes for the native presentation s
   - committed textured `MapScene` batch golden coverage, proving the real `SpriteBatcher -> renderBatches()` whole-scene path now renders through the OpenGL backend inside the snapshot lane
   - committed textured `BattleScene` runtime golden coverage, proving a second live whole-scene batch composition with battler sprites and HUD cue quads through the same path
   - committed `EngineShell`-owned `MapScene` mixed runtime golden coverage, proving one real top-level tick can drive update, batch rendering, and frame-command submission through the same OpenGL capture lane
+  - committed `EngineShell`-owned runtime title diagnostics golden coverage, proving startup warning/error notices and input-moved command focus render through the same top-level shell tick
+  - committed `EngineShell`-owned runtime options high-contrast golden coverage, proving runtime accessibility settings alter the real options frame through the same top-level shell tick
   - committed `EngineShell`-owned `BattleScene` actor-cue crop golden coverage, proving the top-level shell tick can also drive a live battle scene with battler sprites and cue/status quads through the real OpenGL-backed capture path
   - committed full-frame `MenuScene`, `MapScene`, and `BattleScene` regression goldens, proving the lane now carries scene-shaped full-frame drift anchors instead of only cropped widget and primitive proof
   - committed transition-pair and diff-heatmap stability goldens, proving deterministic transition capture and repeatable renderer-backed diff artifact generation
@@ -65,7 +67,7 @@ This document records the focused validation lanes for the native presentation s
   - CI Gate 1 now enforces this lane through a dedicated non-headless `build/ci-renderer-backed` snapshot build executed under `xvfb`
   - `tools/ci/run_presentation_gate.ps1` now also builds `urpg_snapshot_tests` and runs a dedicated `ctest -L regression` fail-on-drift stage so golden drift stops the focused presentation gate immediately
   - the current renderer truth is split intentionally: the `SpriteBatcher -> renderBatches()` path now has real textured OpenGL coverage, and frame-command sprite/tile submission now has bounded direct texture resolution for preloaded logical ids while unresolved sprite/tile ids still use deterministic placeholders
-  - it now proves one bounded primitive lane, three live overlay/widget slices, one bounded placeholder world slice, two bounded direct frame-command textured slices, two real textured whole-scene batch slices, and shell-owned Map/Menu/Battle runtime slices, not broad final-form coverage for every world/render path
+  - it now proves one bounded primitive lane, three live overlay/widget slices, one bounded placeholder world slice, two bounded direct frame-command textured slices, two real textured whole-scene batch slices, and shell-owned Map/Menu/Battle/Title/Options runtime slices, not broad final-form coverage for every world/render path
 
 ## Combined Presentation Gate
 - **Command**:

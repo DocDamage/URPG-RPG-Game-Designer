@@ -234,7 +234,7 @@ No file changes are expected from this task.
 - Inspect: `engine/core/scene/battle_scene.*`
 - Inspect: `engine/core/testing/visual_regression_harness.*`
 
-- [ ] **Step 1: Add failing tests for two new shell-owned captures**
+- [x] **Step 1: Add failing tests for two new shell-owned captures**
 
 Add tests in `tests/snapshot/test_renderer_backed_visual_capture.cpp` using the existing `RendererBackedCapture` style:
 
@@ -282,7 +282,7 @@ TEST_CASE("RendererBackedCapture captures shell-owned menu navigation focus fram
 
 If `configureForHeadlessTest()` or `pushMenuSceneForTest()` do not exist, add test-only helper methods using the existing `EngineShell` test helper pattern rather than reaching into private scene state.
 
-- [ ] **Step 2: Run the focused snapshot test and confirm missing goldens fail**
+- [x] **Step 2: Run the focused snapshot/build path before regeneration**
 
 Run:
 
@@ -292,9 +292,11 @@ ctest --test-dir build\dev-ninja-debug -R "RendererBackedCapture" --output-on-fa
 
 Expected:
 
-- The new tests fail because the golden files do not exist or helper seams are missing.
+- The new tests either fail because the golden files do not exist, or the build exposes missing helper seams before golden regeneration.
 
-- [ ] **Step 3: Add minimal shell helper seams if the tests cannot compile**
+Execution note: existing `EngineShell` capture helpers were sufficient, so the implementation went through `cmake --build --preset dev-debug --target urpg_snapshot_tests` plus explicit regeneration for the two new golden ids instead of adding temporary failing helper seams.
+
+- [x] **Step 3: Add minimal shell helper seams if the tests cannot compile**
 
 Prefer methods guarded as ordinary deterministic test helpers, not production-only shortcuts:
 
@@ -306,7 +308,9 @@ void pushMenuSceneForTest();
 
 Implementation should use existing scene construction and `SceneManager` APIs. It must not bypass normal `tick()` render command emission.
 
-- [ ] **Step 4: Generate new goldens explicitly**
+Execution note: no new `EngineShell` API was required; the tests use `VisualRegressionHarness::captureEngineTick()` plus `SceneManager::pushScene()`.
+
+- [x] **Step 4: Generate new goldens explicitly**
 
 Run:
 
@@ -321,7 +325,7 @@ Expected:
 - New `RendererBackedCapture_*.golden.json` files are written under `tests/snapshot/goldens/`.
 - The generated files are deterministic on a second run.
 
-- [ ] **Step 5: Re-run without regeneration**
+- [x] **Step 5: Re-run without regeneration**
 
 Run:
 
@@ -331,7 +335,7 @@ ctest --test-dir build\dev-ninja-debug -R "RendererBackedCapture.*shell-owned" -
 
 Expected: PASS.
 
-- [ ] **Step 6: Update docs/readiness only for the new evidence**
+- [x] **Step 6: Update docs/readiness only for the new evidence**
 
 Update:
 
@@ -341,7 +345,7 @@ Update:
 
 Do not promote `presentation_runtime` or `visual_regression_harness` to `READY` unless cross-backend breadth is also complete.
 
-- [ ] **Step 7: Verify the presentation lane**
+- [x] **Step 7: Verify the presentation lane**
 
 Run:
 

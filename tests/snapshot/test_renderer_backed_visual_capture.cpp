@@ -3,6 +3,8 @@
 #include "engine/core/scene/battle_scene.h"
 #include "engine/core/scene/map_scene.h"
 #include "engine/core/scene/menu_scene.h"
+#include "engine/core/scene/options_scene.h"
+#include "engine/core/scene/runtime_title_scene.h"
 #include "engine/core/message/message_core.h"
 #include "engine/core/platform/gl_texture.h"
 #include "engine/core/platform/opengl_renderer.h"
@@ -532,6 +534,65 @@ SceneSnapshot captureEngineShellBattleSceneSnapshot() {
     return *snapshot;
 }
 
+SceneSnapshot captureEngineShellRuntimeTitleSceneSnapshot(bool includeDiagnostics) {
+    VisualRegressionHarness harness;
+    std::string errorMessage;
+    const auto snapshot = harness.captureEngineTick(
+        CaptureBackend::OpenGL,
+        [includeDiagnostics](urpg::EngineShell& shell) {
+            auto title = urpg::scene::makeDefaultRuntimeTitleScene({
+                {},
+                {},
+                {},
+                [] {},
+            });
+            if (includeDiagnostics) {
+                urpg::RuntimeStartupReport report;
+                report.subsystems.push_back({"LocaleCatalog",
+                                             urpg::RuntimeStartupSubsystemStatus::Warning,
+                                             "localization.catalog_missing",
+                                             "No locale catalog was found under project content."});
+                report.subsystems.push_back({"RuntimeBundleLoader",
+                                             urpg::RuntimeStartupSubsystemStatus::Error,
+                                             "runtime_bundle.validation_failed",
+                                             "Runtime asset bundle validation failed."});
+                title->setStartupReport(report);
+                shell.getInput().updateActionState(urpg::input::InputAction::MoveDown,
+                                                   urpg::input::ActionState::Pressed);
+            }
+
+            urpg::scene::SceneManager::getInstance().pushScene(title);
+        },
+        640,
+        360,
+        &errorMessage);
+    INFO(errorMessage);
+    REQUIRE(snapshot.has_value());
+    return *snapshot;
+}
+
+SceneSnapshot captureEngineShellRuntimeOptionsSceneSnapshot(bool highContrast) {
+    VisualRegressionHarness harness;
+    std::string errorMessage;
+    const auto snapshot = harness.captureEngineTick(
+        CaptureBackend::OpenGL,
+        [highContrast](urpg::EngineShell& /*shell*/) {
+            auto settings = urpg::settings::defaultRuntimeSettings();
+            settings.accessibility.high_contrast = highContrast;
+            settings.audio.master_volume = highContrast ? 0.8f : settings.audio.master_volume;
+            settings.accessibility.ui_scale = highContrast ? 1.2f : settings.accessibility.ui_scale;
+
+            auto options = urpg::scene::makeRuntimeOptionsScene(settings, {});
+            urpg::scene::SceneManager::getInstance().pushScene(options);
+        },
+        640,
+        360,
+        &errorMessage);
+    INFO(errorMessage);
+    REQUIRE(snapshot.has_value());
+    return *snapshot;
+}
+
 SceneSnapshot captureTexturedMapSceneBatchSnapshot() {
     VisualRegressionHarness harness;
     std::string errorMessage;
@@ -999,6 +1060,60 @@ TEST_CASE("Snapshot: renderer-backed visual capture covers EngineShell MapScene 
     REQUIRE(identical.errorPercentage <= rendererBackedGoldenThreshold());
 
     const auto changed = SnapshotValidator::compare(shellMixed, shellWorldOnly);
+    REQUIRE_FALSE(changed.matches);
+    REQUIRE(changed.errorPercentage > 0.0f);
+}
+
+TEST_CASE("Snapshot: renderer-backed visual capture covers EngineShell title diagnostics runtime path",
+          "[snapshot][renderer][visual_capture]") {
+    const auto titleDiagnostics = captureEngineShellRuntimeTitleSceneSnapshot(true);
+    const auto titlePlain = captureEngineShellRuntimeTitleSceneSnapshot(false);
+
+    REQUIRE(titleDiagnostics.width == 640);
+    REQUIRE(titleDiagnostics.height == 360);
+    REQUIRE(titleDiagnostics.pixels.size() ==
+            static_cast<size_t>(titleDiagnostics.width) * titleDiagnostics.height);
+
+    VisualRegressionHarness harness;
+    harness.setGoldenRoot(getGoldenRoot().string());
+    if (shouldRegenerateRendererBackedGoldens()) {
+        REQUIRE(harness.saveGolden(
+            "RendererBackedCapture", "engine_shell_title_diagnostics_runtime_path", titleDiagnostics));
+    }
+
+    const auto identical =
+        compareRendererBackedGolden(harness, "engine_shell_title_diagnostics_runtime_path", titleDiagnostics);
+    REQUIRE(identical.matches);
+    REQUIRE(identical.errorPercentage <= rendererBackedGoldenThreshold());
+
+    const auto changed = SnapshotValidator::compare(titleDiagnostics, titlePlain);
+    REQUIRE_FALSE(changed.matches);
+    REQUIRE(changed.errorPercentage > 0.0f);
+}
+
+TEST_CASE("Snapshot: renderer-backed visual capture covers EngineShell options high-contrast runtime path",
+          "[snapshot][renderer][visual_capture]") {
+    const auto optionsHighContrast = captureEngineShellRuntimeOptionsSceneSnapshot(true);
+    const auto optionsDefault = captureEngineShellRuntimeOptionsSceneSnapshot(false);
+
+    REQUIRE(optionsHighContrast.width == 640);
+    REQUIRE(optionsHighContrast.height == 360);
+    REQUIRE(optionsHighContrast.pixels.size() ==
+            static_cast<size_t>(optionsHighContrast.width) * optionsHighContrast.height);
+
+    VisualRegressionHarness harness;
+    harness.setGoldenRoot(getGoldenRoot().string());
+    if (shouldRegenerateRendererBackedGoldens()) {
+        REQUIRE(harness.saveGolden(
+            "RendererBackedCapture", "engine_shell_options_high_contrast_runtime_path", optionsHighContrast));
+    }
+
+    const auto identical =
+        compareRendererBackedGolden(harness, "engine_shell_options_high_contrast_runtime_path", optionsHighContrast);
+    REQUIRE(identical.matches);
+    REQUIRE(identical.errorPercentage <= rendererBackedGoldenThreshold());
+
+    const auto changed = SnapshotValidator::compare(optionsHighContrast, optionsDefault);
     REQUIRE_FALSE(changed.matches);
     REQUIRE(changed.errorPercentage > 0.0f);
 }

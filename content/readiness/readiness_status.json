@@ -269,10 +269,10 @@
     {
       "id": "visual_regression_harness",
       "status": "PARTIAL",
-      "summary": "Visual regression harness with golden file management, diff heatmaps, approval tooling, a file-backed executable harness gate, backend-selectable capture entry points, and one bounded OpenGL-enabled local renderer-backed capture lane enforcing primitive, live-widget, full-frame scene, transition-pair, diff-heatmap, shell-owned full-scene Map/Menu goldens, and a shell-owned BattleScene actor-cue crop golden in local gates and Gate 1 CI is landed.",
+      "summary": "Visual regression harness with golden file management, diff heatmaps, approval tooling, a file-backed executable harness gate, backend-selectable capture entry points, and one bounded OpenGL-enabled local renderer-backed capture lane enforcing primitive, live-widget, full-frame scene, transition-pair, diff-heatmap, shell-owned full-scene Map/Menu/Title/Options goldens, and a shell-owned BattleScene actor-cue crop golden in local gates and Gate 1 CI is landed.",
       "mainGaps": [
         "Broader backend execution â€” deferred; the generic capture API currently routes only to the bounded OpenGL-backed implementation and explicit headless rejection rather than cross-backend parity.",
-        "Wider shell-owned state/permutation coverage â€” deferred; current goldens now prove bounded EngineShell MapScene, MenuScene, and BattleScene slices rather than every production render path."
+        "Wider shell-owned state/permutation coverage â€” deferred; current goldens now prove bounded EngineShell MapScene, MenuScene, RuntimeTitleScene, RuntimeOptionsScene, and BattleScene slices rather than every production render path."
       ],
       "evidence": {
         "runtimeOwner": true,
