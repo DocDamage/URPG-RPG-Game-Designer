@@ -1356,6 +1356,10 @@ add_executable(urpg_tests
     tests/unit/test_effect_cue.cpp
     tests/unit/test_dungeon3d_world.cpp
     tests/unit/test_spatial_editor.cpp
+    tests/unit/test_spatial_editor_bindings.cpp
+    tests/unit/test_spatial_editor_canvas_workspace.cpp
+    tests/unit/test_spatial_editor_projection.cpp
+    tests/unit/test_spatial_presentation.cpp
     tests/unit/test_map_worldbuilding_suite.cpp
     tests/unit/test_huggingface_curated_assets.cpp
     tests/unit/test_ability_activation.cpp
