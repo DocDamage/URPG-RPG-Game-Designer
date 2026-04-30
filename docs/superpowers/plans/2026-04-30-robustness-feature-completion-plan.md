@@ -372,7 +372,7 @@ git commit -m "test: broaden renderer-backed shell captures"
 - Modify: `docs/release/RELEASE_READINESS_MATRIX.md`
 - Modify: `content/readiness/readiness_status.json`
 
-- [ ] **Step 1: Write a failing test that submits the same command stream to `HeadlessRenderer`**
+- [x] **Step 1: Write a failing test that submits the same command stream to `HeadlessRenderer`**
 
 Add a test:
 
@@ -403,7 +403,7 @@ TEST_CASE("HeadlessRenderer consumes shell-owned map and menu command streams", 
 
 If `consumeFrame` already has a different name, use the existing public method and return a small structured result instead of making the test parse private state.
 
-- [ ] **Step 2: Run and confirm failure**
+- [x] **Step 2: Run focused build/test and confirm the missing surface**
 
 Run:
 
@@ -413,9 +413,11 @@ ctest --test-dir build\dev-ninja-debug -R "HeadlessRenderer consumes shell-owned
 
 Expected:
 
-- FAIL because result counters or API support are missing.
+- The test either fails because result counters or API support are missing, or existing counters expose the narrower missing parity surface.
 
-- [ ] **Step 3: Implement result counters in `HeadlessRenderer`**
+Execution note: `HeadlessRenderer` already exposed frame summaries, so the added focused test covered the missing shell-owned Title/Options parity without requiring a new `consumeFrame` API.
+
+- [x] **Step 3: Implement result counters in `HeadlessRenderer`**
 
 Add a result type:
 
@@ -433,7 +435,9 @@ struct HeadlessFrameResult {
 
 Count supported command types. Unsupported command types should increment `rejected_count` and push a diagnostic with the command kind.
 
-- [ ] **Step 4: Re-run the focused test**
+Execution note: no renderer changes were needed; existing `HeadlessRenderFrameSummary` counters already record command, text, rect, sprite, and tile counts.
+
+- [x] **Step 4: Re-run the focused test**
 
 Run:
 
@@ -443,7 +447,7 @@ ctest --test-dir build\dev-ninja-debug -R "HeadlessRenderer consumes shell-owned
 
 Expected: PASS.
 
-- [ ] **Step 5: Re-run presentation gate**
+- [x] **Step 5: Re-run presentation gate**
 
 Run:
 

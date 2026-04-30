@@ -2,6 +2,8 @@
 #include "engine/core/platform/headless_renderer.h"
 #include "engine/core/platform/headless_surface.h"
 #include "engine/core/scene/map_scene.h"
+#include "engine/core/scene/options_scene.h"
+#include "engine/core/scene/runtime_title_scene.h"
 #include "engine/core/scene/scene_manager.h"
 #include <catch2/catch_test_macros.hpp>
 #include <chrono>
@@ -130,6 +132,71 @@ TEST_CASE("EngineShell records shell-owned MapScene commands through the headles
     REQUIRE(summary.commandCount > 0);
     REQUIRE(summary.tileCommandCount > 0);
     REQUIRE(summary.commandCount == renderer->lastFrameCommands().size());
+    REQUIRE(RenderLayer::getInstance().getFrameCommands().empty());
+
+    shell.shutdown();
+    clearSceneStack();
+}
+
+TEST_CASE("EngineShell records shell-owned title and options commands through the headless renderer",
+          "[engine][shell][render][presentation][backend][headless]") {
+    auto& sceneManager = SceneManager::getInstance();
+    clearSceneStack();
+    RenderLayer::getInstance().flush();
+
+    auto& shell = EngineShell::getInstance();
+    auto surface = std::make_unique<HeadlessSurface>();
+    shell.startup(std::move(surface), std::make_unique<HeadlessRenderer>());
+
+    auto title = makeDefaultRuntimeTitleScene({
+        {},
+        {},
+        {},
+        [] {},
+    });
+    RuntimeStartupReport report;
+    report.subsystems.push_back({"LocaleCatalog",
+                                 RuntimeStartupSubsystemStatus::Warning,
+                                 "localization.catalog_missing",
+                                 "No locale catalog was found under project content."});
+    report.subsystems.push_back({"RuntimeBundleLoader",
+                                 RuntimeStartupSubsystemStatus::Error,
+                                 "runtime_bundle.validation_failed",
+                                 "Runtime asset bundle validation failed."});
+    title->setStartupReport(report);
+    sceneManager.pushScene(title);
+    shell.getInput().updateActionState(input::InputAction::MoveDown, input::ActionState::Pressed);
+
+    shell.tick();
+
+    const auto* renderer = dynamic_cast<const HeadlessRenderer*>(shell.getRenderer());
+    REQUIRE(renderer != nullptr);
+    REQUIRE(renderer->initialized());
+    REQUIRE(renderer->frameHistory().size() == 1);
+
+    const auto& titleSummary = renderer->lastFrameSummary();
+    REQUIRE(titleSummary.frameIndex == 1);
+    REQUIRE(titleSummary.commandCount > 0);
+    REQUIRE(titleSummary.rectCommandCount > 0);
+    REQUIRE(titleSummary.textCommandCount >= 4);
+    REQUIRE(titleSummary.commandCount == renderer->lastFrameCommands().size());
+    REQUIRE(RenderLayer::getInstance().getFrameCommands().empty());
+
+    auto settings = settings::defaultRuntimeSettings();
+    settings.accessibility.high_contrast = true;
+    settings.audio.master_volume = 0.8f;
+    settings.accessibility.ui_scale = 1.2f;
+    sceneManager.gotoScene(makeRuntimeOptionsScene(settings, {}));
+
+    shell.tick();
+
+    REQUIRE(renderer->frameHistory().size() == 2);
+    const auto& optionsSummary = renderer->lastFrameSummary();
+    REQUIRE(optionsSummary.frameIndex == 2);
+    REQUIRE(optionsSummary.commandCount > 0);
+    REQUIRE(optionsSummary.rectCommandCount > 0);
+    REQUIRE(optionsSummary.textCommandCount >= 10);
+    REQUIRE(optionsSummary.commandCount == renderer->lastFrameCommands().size());
     REQUIRE(RenderLayer::getInstance().getFrameCommands().empty());
 
     shell.shutdown();

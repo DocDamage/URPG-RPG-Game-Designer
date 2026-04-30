@@ -122,9 +122,9 @@
     {
       "id": "presentation_runtime",
       "status": "PARTIAL",
-      "summary": "Presentation runtime, bridge, compiled spatial editor panels, end-to-end authoring-to-runtime proof path, release validation harness, bounded real renderer-backed production-path proof, shell-owned MapScene/MenuScene plus BattleScene actor-cue proof through the top-level EngineShell loop, a first non-OpenGL HeadlessRenderer shell-owned MapScene command-consumption proof, a registered standalone profile_arena target, concrete ProfileArenaHotReloader with arena-reset lifecycle, presentation schema + migration proof fixture, and command-stream replay + reload determinism tests are landed. Release-owner review accepted the manual residual-gap review for the current internal branch; the lane remains PARTIAL only for the technical breadth gaps listed here.",
+      "summary": "Presentation runtime, bridge, compiled spatial editor panels, end-to-end authoring-to-runtime proof path, release validation harness, bounded real renderer-backed production-path proof, shell-owned MapScene/MenuScene plus BattleScene actor-cue proof through the top-level EngineShell loop, a first non-OpenGL HeadlessRenderer shell-owned MapScene/Title/Options command-consumption proof, a registered standalone profile_arena target, concrete ProfileArenaHotReloader with arena-reset lifecycle, presentation schema + migration proof fixture, and command-stream replay + reload determinism tests are landed. Release-owner review accepted the manual residual-gap review for the current internal branch; the lane remains PARTIAL only for the technical breadth gaps listed here.",
       "mainGaps": [
-        "A first non-OpenGL HeadlessRenderer command-consumption proof is landed; full cross-backend renderer breadth remains future work under visual_regression_harness",
+        "A first non-OpenGL HeadlessRenderer command-consumption proof is landed for shell-owned MapScene, RuntimeTitleScene, and RuntimeOptionsScene frames; full cross-backend renderer breadth remains future work under visual_regression_harness",
         "Release-owner signoff accepted the manual residual-gap review for the current internal branch; remaining PARTIAL scope is technical backend breadth, not pending manual review"
       ],
       "signoff": {

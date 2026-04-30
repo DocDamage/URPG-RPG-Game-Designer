@@ -84,6 +84,7 @@ This document records the focused validation lanes for the native presentation s
 ## Related Test Surfaces
 - `build\dev-vs2022\Debug\urpg_tests.exe "[presentation]"` or the equivalent active local-profile build directory
 - `build\dev-vs2022\Debug\urpg_tests.exe "[editor][spatial]"` or the equivalent active local-profile build directory
+- `build\dev-vs2022\Debug\urpg_tests.exe "EngineShell records shell-owned title and options commands through the headless renderer"` or the equivalent active local-profile build directory
 - `build\dev-vs2022\Debug\urpg_snapshot_tests.exe "[snapshot][renderer][visual_capture]"` or the equivalent active OpenGL-enabled local-profile build directory
 
 ## Notes
