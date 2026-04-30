@@ -1535,6 +1535,7 @@ add_executable(urpg_compat_tests
     tests/compat/test_compat_plugin_failure_diagnostics_malformed.cpp
     tests/compat/test_compat_plugin_failure_diagnostics_runtime.cpp
     tests/compat/test_compat_plugin_failure_diagnostics_directory.cpp
+    tests/compat/compat_plugin_failure_mixed_chain_helpers.cpp
     tests/compat/test_compat_plugin_failure_mixed_chain.cpp
 )
 
