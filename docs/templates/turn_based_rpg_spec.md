@@ -21,7 +21,7 @@ The `turn_based_rpg` template covers turn-based tactical or strategic RPGs that 
 | --- | --- | --- |
 | Accessibility | `PARTIAL` | Baseline accessibility governance (label audits, focus-order, contrast) is active via `AccessibilityAuditor`. Turn-based-RPG-specific expectations (battle-menu hold alternatives, status-screen readability, colorblind unit highlighting) are scaffolded but not fully enforced. |
 | Audio | `PARTIAL` | Audio mix preset governance applies. Turn-based-RPG-specific battle audio transitions and victory fanfare sequencing are scaffolded in `AudioMixPresets` but not fully validated. |
-| Input | `PARTIAL` | Battle and menu input paths are covered by unit tests. Controller remap and cross-template binding governance via `test_input_remap_store` apply. Full binding closure for all battle actions is pending. |
+| Input | `READY` | The turn-based RPG starter manifest and generated project input subsystem now declare the full navigation/menu/battle action set (`Move*`, `Confirm`, `Cancel`, `Menu`, `PageLeft`, `PageRight`, `BattleAttack`, `BattleSkill`, `BattleItem`, `BattleDefend`, `BattleEscape`) with keyboard and controller defaults. `test_template_acceptance` verifies manifest and generator closure, and `test_input_remap_store` proves the action names survive save/load. Touch remains a hit-test UI/world path and reports `touch_binding_unsupported` for remap profiles. |
 | Localization | `PARTIAL` | Baseline message localization patterns from `message_text_core` apply. Per-template completeness metrics, battle-text, and status-effect localization are not yet measured. |
 | Performance | `PARTIAL` | Presentation runtime arena and `profile_arena` frame-time budget tests apply. Battle-sequence scalability under extended play and large-unit-count scenarios are not production-validated. |
 
@@ -31,7 +31,7 @@ A conservative turn-based template slice using `message_text_core`, `battle_core
 
 ## Main Blockers
 
-1. **Cross-cutting readiness bars and dedicated template governance remain incomplete** — All five bars (`accessibility`, `audio`, `input`, `localization`, `performance`) are `PARTIAL`. Machine-checked template governance (spec drift detection, project-audit coverage) is not yet fully landed.
+1. **Cross-cutting readiness bars and dedicated template governance remain incomplete** — Input is `READY`; `accessibility`, `audio`, `localization`, and `performance` remain `PARTIAL`. Machine-checked template governance (spec drift detection, project-audit coverage) is not yet fully landed.
 
 ## Promotion Path
 

@@ -33,6 +33,13 @@
               "Confirm",
               "Cancel",
               "Menu",
+              "PageLeft",
+              "PageRight",
+              "BattleAttack",
+              "BattleSkill",
+              "BattleItem",
+              "BattleDefend",
+              "BattleEscape",
               "Debug"
             ]
           }

@@ -21,6 +21,13 @@ enum class InputAction : uint32_t {
     Confirm, // 'Z', 'Enter', 'Space'
     Cancel,  // 'X', 'Esc'
     Menu,    // 'C', 'Tab'
+    PageLeft,
+    PageRight,
+    BattleAttack,
+    BattleSkill,
+    BattleItem,
+    BattleDefend,
+    BattleEscape,
     Debug    // '~'
 };
 

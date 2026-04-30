@@ -111,6 +111,71 @@ nlohmann::json makeMaps(const TemplateSpec& spec) {
     return maps;
 }
 
+nlohmann::json makeRpgInputBindings(const TemplateSpec& spec) {
+    const bool requiresBattleActions = spec.id == "jrpg" || spec.id == "turn_based_rpg";
+    if (!requiresBattleActions) {
+        return {{"profile", "keyboard_gamepad"}, {"confirm", "Enter"}, {"cancel", "Escape"}};
+    }
+
+    const nlohmann::json requiredActions = {
+        "MoveUp",
+        "MoveDown",
+        "MoveLeft",
+        "MoveRight",
+        "Confirm",
+        "Cancel",
+        "Menu",
+        "PageLeft",
+        "PageRight",
+        "BattleAttack",
+        "BattleSkill",
+        "BattleItem",
+        "BattleDefend",
+        "BattleEscape",
+    };
+
+    return {
+        {"profile", "keyboard_gamepad"},
+        {"required_actions", requiredActions},
+        {"keyboard_bindings", nlohmann::json::array({
+            {{"keyCode", 38}, {"key", "ArrowUp"}, {"action", "MoveUp"}},
+            {{"keyCode", 40}, {"key", "ArrowDown"}, {"action", "MoveDown"}},
+            {{"keyCode", 37}, {"key", "ArrowLeft"}, {"action", "MoveLeft"}},
+            {{"keyCode", 39}, {"key", "ArrowRight"}, {"action", "MoveRight"}},
+            {{"keyCode", 13}, {"key", "Enter"}, {"action", "Confirm"}},
+            {{"keyCode", 27}, {"key", "Escape"}, {"action", "Cancel"}},
+            {{"keyCode", 67}, {"key", "C"}, {"action", "Menu"}},
+            {{"keyCode", 33}, {"key", "PageUp"}, {"action", "PageLeft"}},
+            {{"keyCode", 34}, {"key", "PageDown"}, {"action", "PageRight"}},
+            {{"keyCode", 65}, {"key", "A"}, {"action", "BattleAttack"}},
+            {{"keyCode", 83}, {"key", "S"}, {"action", "BattleSkill"}},
+            {{"keyCode", 73}, {"key", "I"}, {"action", "BattleItem"}},
+            {{"keyCode", 68}, {"key", "D"}, {"action", "BattleDefend"}},
+            {{"keyCode", 69}, {"key", "E"}, {"action", "BattleEscape"}},
+        })},
+        {"controller_bindings", nlohmann::json::array({
+            {{"button", "DPadUp"}, {"action", "MoveUp"}},
+            {{"button", "DPadDown"}, {"action", "MoveDown"}},
+            {{"button", "DPadLeft"}, {"action", "MoveLeft"}},
+            {{"button", "DPadRight"}, {"action", "MoveRight"}},
+            {{"button", "FaceBottom"}, {"action", "Confirm"}},
+            {{"button", "FaceRight"}, {"action", "Cancel"}},
+            {{"button", "Start"}, {"action", "Menu"}},
+            {{"button", "LeftShoulder"}, {"action", "PageLeft"}},
+            {{"button", "RightShoulder"}, {"action", "PageRight"}},
+            {{"button", "FaceLeft"}, {"action", "BattleAttack"}},
+            {{"button", "FaceTop"}, {"action", "BattleSkill"}},
+            {{"button", "LeftStickPress"}, {"action", "BattleItem"}},
+            {{"button", "RightStickPress"}, {"action", "BattleDefend"}},
+            {{"button", "Select"}, {"action", "BattleEscape"}},
+        })},
+        {"touch_policy", {
+            {"mode", "hit_test_ui_world"},
+            {"remap_status", "touch_binding_unsupported"},
+        }},
+    };
+}
+
 nlohmann::json makeSubsystems(const TemplateSpec& spec, const TemplateRuntimeProfile& profile) {
     nlohmann::json subsystems = {
         {"maps", makeMaps(spec)},
@@ -119,7 +184,7 @@ nlohmann::json makeSubsystems(const TemplateSpec& spec, const TemplateRuntimePro
         {"battle", {{"mode", spec.battle_mode}, {"encounter_id", spec.battle_mode == "none" ? "" : "battle_training_01"}}},
         {"save", {{"slot_count", 3}, {"autosave", true}}},
         {"localization", {{"default_locale", "en-US"}, {"locales", {"en-US"}}}},
-        {"input", {{"profile", "keyboard_gamepad"}, {"confirm", "Enter"}, {"cancel", "Escape"}}},
+        {"input", makeRpgInputBindings(spec)},
         {"export_profile", {{"target", "Windows_x64"}, {"integrity", "strict"}, {"output_name", spec.id + "_starter"}}},
         {"template_runtime", templateRuntimeProfileToJson(profile)},
     };

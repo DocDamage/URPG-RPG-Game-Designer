@@ -391,20 +391,20 @@
       "bars": {
         "accessibility": "PARTIAL",
         "audio": "PARTIAL",
-        "input": "PARTIAL",
+        "input": "READY",
         "localization": "PARTIAL",
         "performance": "PARTIAL"
       },
       "barEvidence": {
         "accessibility": "Baseline accessibility governance (label checks, focus-order audits, contrast rules) is exercised via AccessibilityAuditor unit tests and the accessibility panel adapter. JRPG-specific text-speed control and input-hold alternatives are scaffolded; production enforcement not yet landed.",
         "audio": "Audio mix preset governance and validator rules are exercised via test_audio_mix_presets. JRPG-specific battle jingle and BGM-transition bars are scaffolded in AudioMixPresets but not fully validated end-to-end.",
-        "input": "Menu and battle input paths are covered by test_input_core and test_input_manager. Controller-binding governance and cross-template remap validation are tested via test_input_remap_store. Full closure requires end-to-end remap regression for all menu/battle screens.",
+        "input": "JRPG starter manifests and generated projects declare the full menu/battle required action set with keyboard and controller defaults. test_template_acceptance verifies template input closure, and test_input_remap_store proves those action names survive save/load. Touch remains hit-test UI/world behavior and reports touch_binding_unsupported for remap profiles.",
         "localization": "Baseline message and menu localization patterns are exercised via message_text_core tests. Completeness metrics, font-set coverage, and per-region test fixtures are not yet landed.",
         "performance": "General RPG frame-time budgets are enforced through presentation_runtime arena allocation and profile_arena tests. Large-world streaming and extended-play battle-sequence consistency are not production-validated."
       },
       "safeScope": "Wave 1 native-first baseline with truthful residual gaps.",
       "mainBlockers": [
-        "Cross-cutting readiness bars are not complete; bar evidence is documented but production-grade closure is pending for each bar"
+        "Cross-cutting readiness bars are not complete; input is READY, while accessibility, audio, localization, and performance remain PARTIAL"
       ]
     },
     {
@@ -444,20 +444,20 @@
       "bars": {
         "accessibility": "PARTIAL",
         "audio": "PARTIAL",
-        "input": "PARTIAL",
+        "input": "READY",
         "localization": "PARTIAL",
         "performance": "PARTIAL"
       },
       "barEvidence": {
         "accessibility": "Baseline accessibility governance (label audits, focus-order, contrast) is active. Turn-based-RPG-specific accessibility expectations (battle-menu hold alternatives, status-screen readability) are scaffolded but not fully enforced.",
         "audio": "Audio mix preset governance applies. Turn-based-RPG-specific battle audio transitions and victory fanfare sequencing are scaffolded in AudioMixPresets but not fully validated.",
-        "input": "Battle and menu input paths are covered. Controller remap and cross-template binding governance via test_input_remap_store apply. Full binding closure for all battle actions is pending.",
+        "input": "Turn-based RPG starter manifests and generated projects declare the full navigation/menu/battle required action set with keyboard and controller defaults. test_template_acceptance verifies template input closure, and test_input_remap_store proves those action names survive save/load. Touch remains hit-test UI/world behavior and reports touch_binding_unsupported for remap profiles.",
         "localization": "Baseline message localization patterns from message_text_core apply. Per-template completeness metrics and font-set coverage are not yet measured.",
         "performance": "Presentation runtime arena and profile_arena frame-time budget tests apply. Battle-sequence scalability under extended play is not production-validated."
       },
       "safeScope": "A conservative turn-based template slice similar to jrpg without implying broader productization.",
       "mainBlockers": [
-        "Cross-cutting readiness bars and dedicated template governance remain incomplete; bar evidence is documented but production-grade closure is pending for each bar"
+        "Cross-cutting readiness bars and dedicated template governance remain incomplete; input is READY, while accessibility, audio, localization, and performance remain PARTIAL"
       ]
     },
     {

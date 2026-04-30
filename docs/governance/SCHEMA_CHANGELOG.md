@@ -117,6 +117,11 @@ Each governed schema entry should include:
 ### `input_bindings` (`input_bindings.schema.json`)
 
 - Version: `1.0.0`
+- Date: `2026-04-30`
+- Summary: extends the bounded input action enum with template RPG page and battle actions (`PageLeft`, `PageRight`, `BattleAttack`, `BattleSkill`, `BattleItem`, `BattleDefend`, `BattleEscape`) while keeping the persisted schema version stable
+- Migration Impact: none; additive enum values for starter-template input closure
+
+- Version: `1.0.0`
 - Date: `2026-04-20`
 - Summary: input remapping store schema with action-to-key mappings and version validation
 - Migration Impact: none; initial introduction

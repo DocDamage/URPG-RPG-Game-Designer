@@ -15,7 +15,15 @@ constexpr int32_t VK_RIGHT = 39;
 constexpr int32_t VK_DOWN = 40;
 constexpr int32_t VK_ENTER = 13;
 constexpr int32_t VK_ESCAPE = 27;
+constexpr int32_t VK_PAGE_UP = 33;
+constexpr int32_t VK_PAGE_DOWN = 34;
+constexpr int32_t VK_A = 65;
 constexpr int32_t VK_Z = 90;
+constexpr int32_t VK_D = 68;
+constexpr int32_t VK_E = 69;
+constexpr int32_t VK_I = 73;
+constexpr int32_t VK_Q = 81;
+constexpr int32_t VK_S = 83;
 constexpr int32_t VK_X = 88;
 constexpr int32_t VK_C = 67;
 
@@ -28,6 +36,13 @@ const std::unordered_map<std::string, InputAction> kActionNameMap = {
     {"Confirm", InputAction::Confirm},
     {"Cancel", InputAction::Cancel},
     {"Menu", InputAction::Menu},
+    {"PageLeft", InputAction::PageLeft},
+    {"PageRight", InputAction::PageRight},
+    {"BattleAttack", InputAction::BattleAttack},
+    {"BattleSkill", InputAction::BattleSkill},
+    {"BattleItem", InputAction::BattleItem},
+    {"BattleDefend", InputAction::BattleDefend},
+    {"BattleEscape", InputAction::BattleEscape},
     {"Debug", InputAction::Debug},
 };
 
@@ -44,6 +59,14 @@ std::map<int32_t, InputAction> InputRemapStore::buildDefaultMappings() {
     defs[VK_X] = InputAction::Cancel;
     defs[VK_ESCAPE] = InputAction::Cancel;
     defs[VK_C] = InputAction::Menu;
+    defs[VK_PAGE_UP] = InputAction::PageLeft;
+    defs[VK_Q] = InputAction::PageLeft;
+    defs[VK_PAGE_DOWN] = InputAction::PageRight;
+    defs[VK_A] = InputAction::BattleAttack;
+    defs[VK_S] = InputAction::BattleSkill;
+    defs[VK_I] = InputAction::BattleItem;
+    defs[VK_D] = InputAction::BattleDefend;
+    defs[VK_E] = InputAction::BattleEscape;
     return defs;
 }
 
@@ -57,6 +80,13 @@ std::string InputRemapStore::actionToString(InputAction action) {
         case InputAction::Confirm: return "Confirm";
         case InputAction::Cancel: return "Cancel";
         case InputAction::Menu: return "Menu";
+        case InputAction::PageLeft: return "PageLeft";
+        case InputAction::PageRight: return "PageRight";
+        case InputAction::BattleAttack: return "BattleAttack";
+        case InputAction::BattleSkill: return "BattleSkill";
+        case InputAction::BattleItem: return "BattleItem";
+        case InputAction::BattleDefend: return "BattleDefend";
+        case InputAction::BattleEscape: return "BattleEscape";
         case InputAction::Debug: return "Debug";
     }
     return "None";

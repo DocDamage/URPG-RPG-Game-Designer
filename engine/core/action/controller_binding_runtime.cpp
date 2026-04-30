@@ -212,6 +212,13 @@ std::string ControllerBindingRuntime::actionToString(urpg::input::InputAction ac
     case urpg::input::InputAction::Confirm: return "Confirm";
     case urpg::input::InputAction::Cancel: return "Cancel";
     case urpg::input::InputAction::Menu: return "Menu";
+    case urpg::input::InputAction::PageLeft: return "PageLeft";
+    case urpg::input::InputAction::PageRight: return "PageRight";
+    case urpg::input::InputAction::BattleAttack: return "BattleAttack";
+    case urpg::input::InputAction::BattleSkill: return "BattleSkill";
+    case urpg::input::InputAction::BattleItem: return "BattleItem";
+    case urpg::input::InputAction::BattleDefend: return "BattleDefend";
+    case urpg::input::InputAction::BattleEscape: return "BattleEscape";
     case urpg::input::InputAction::Debug: return "Debug";
     }
 
@@ -245,6 +252,27 @@ std::optional<urpg::input::InputAction> ControllerBindingRuntime::stringToAction
     if (value == "Menu") {
         return InputAction::Menu;
     }
+    if (value == "PageLeft") {
+        return InputAction::PageLeft;
+    }
+    if (value == "PageRight") {
+        return InputAction::PageRight;
+    }
+    if (value == "BattleAttack") {
+        return InputAction::BattleAttack;
+    }
+    if (value == "BattleSkill") {
+        return InputAction::BattleSkill;
+    }
+    if (value == "BattleItem") {
+        return InputAction::BattleItem;
+    }
+    if (value == "BattleDefend") {
+        return InputAction::BattleDefend;
+    }
+    if (value == "BattleEscape") {
+        return InputAction::BattleEscape;
+    }
     if (value == "Debug") {
         return InputAction::Debug;
     }
@@ -275,8 +303,14 @@ std::map<ControllerButton, urpg::input::InputAction> ControllerBindingRuntime::b
         {ControllerButton::DPadRight, InputAction::MoveRight},
         {ControllerButton::FaceBottom, InputAction::Confirm},
         {ControllerButton::FaceRight, InputAction::Cancel},
+        {ControllerButton::LeftShoulder, InputAction::PageLeft},
+        {ControllerButton::RightShoulder, InputAction::PageRight},
+        {ControllerButton::FaceLeft, InputAction::BattleAttack},
+        {ControllerButton::FaceTop, InputAction::BattleSkill},
+        {ControllerButton::LeftStickPress, InputAction::BattleItem},
+        {ControllerButton::RightStickPress, InputAction::BattleDefend},
+        {ControllerButton::Select, InputAction::BattleEscape},
         {ControllerButton::Start, InputAction::Menu},
-        {ControllerButton::FaceTop, InputAction::Debug},
     };
 }
 
@@ -291,6 +325,13 @@ std::vector<urpg::input::InputAction> ControllerBindingRuntime::requiredActions(
         InputAction::Confirm,
         InputAction::Cancel,
         InputAction::Menu,
+        InputAction::PageLeft,
+        InputAction::PageRight,
+        InputAction::BattleAttack,
+        InputAction::BattleSkill,
+        InputAction::BattleItem,
+        InputAction::BattleDefend,
+        InputAction::BattleEscape,
     };
 }
 

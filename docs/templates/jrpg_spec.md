@@ -22,7 +22,7 @@ The `jrpg` template covers classic Japanese-style RPGs: party management, turn-b
 | --- | --- | --- |
 | Accessibility | `PARTIAL` | Baseline accessibility governance (label checks, focus-order audits, contrast rules) is exercised via `AccessibilityAuditor` unit tests and the accessibility panel adapter. JRPG-specific text-speed control and input-hold alternatives for menu navigation are scaffolded; production enforcement is not yet landed. |
 | Audio | `PARTIAL` | Audio mix preset governance and validator rules are exercised. JRPG-specific battle jingle and BGM-transition bars are scaffolded in `AudioMixPresets` but not fully validated end-to-end. |
-| Input | `PARTIAL` | Menu and battle input paths are covered by unit tests. Controller-binding governance and cross-template remap validation are tested via `test_input_remap_store`. Full closure requires end-to-end remap regression for all menu/battle screens. |
+| Input | `READY` | The JRPG starter manifest and generated project input subsystem now declare the full menu/battle action set (`Move*`, `Confirm`, `Cancel`, `Menu`, `PageLeft`, `PageRight`, `BattleAttack`, `BattleSkill`, `BattleItem`, `BattleDefend`, `BattleEscape`) with keyboard and controller defaults. `test_template_acceptance` verifies manifest and generator closure, and `test_input_remap_store` proves the action names survive save/load. Touch remains a hit-test UI/world path and reports `touch_binding_unsupported` for remap profiles. |
 | Localization | `PARTIAL` | Baseline message and menu localization patterns are exercised via `message_text_core` tests. Completeness metrics, font-set coverage, and per-region test fixtures are not yet landed. |
 | Performance | `PARTIAL` | General RPG frame-time budgets are enforced through presentation runtime arena allocation and `profile_arena` tests. Large-world streaming and extended-play battle-sequence consistency are not production-validated. |
 
@@ -32,7 +32,7 @@ Wave 1 native-first JRPG projects using the four required subsystems (`ui_menu_c
 
 ## Main Blockers
 
-1. **Cross-cutting readiness bars are not complete** — All five bars (`accessibility`, `audio`, `input`, `localization`, `performance`) are `PARTIAL`. Production-grade claims require each bar to reach `READY` or explicitly bounded `PARTIAL` with accepted scope limits.
+1. **Cross-cutting readiness bars are not complete** — Input is `READY`; `accessibility`, `audio`, `localization`, and `performance` remain `PARTIAL`. Production-grade claims require each bar to reach `READY` or explicitly bounded `PARTIAL` with accepted scope limits.
 
 ## Promotion Path
 

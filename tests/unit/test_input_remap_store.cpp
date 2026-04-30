@@ -81,6 +81,40 @@ TEST_CASE("InputRemapStore: saveToJson / loadFromJson round-trip preserves custo
     REQUIRE_FALSE(other.hasUnsavedChanges());
 }
 
+TEST_CASE("InputRemapStore: template RPG actions round-trip by name", "[input][remap][template]") {
+    const nlohmann::json j = {
+        {"version", "1.0.0"},
+        {"bindings", nlohmann::json::array({
+            {{"keyCode", 38}, {"action", "MoveUp"}},
+            {{"keyCode", 40}, {"action", "MoveDown"}},
+            {{"keyCode", 37}, {"action", "MoveLeft"}},
+            {{"keyCode", 39}, {"action", "MoveRight"}},
+            {{"keyCode", 13}, {"action", "Confirm"}},
+            {{"keyCode", 27}, {"action", "Cancel"}},
+            {{"keyCode", 67}, {"action", "Menu"}},
+            {{"keyCode", 33}, {"action", "PageLeft"}},
+            {{"keyCode", 34}, {"action", "PageRight"}},
+            {{"keyCode", 65}, {"action", "BattleAttack"}},
+            {{"keyCode", 83}, {"action", "BattleSkill"}},
+            {{"keyCode", 73}, {"action", "BattleItem"}},
+            {{"keyCode", 68}, {"action", "BattleDefend"}},
+            {{"keyCode", 69}, {"action", "BattleEscape"}},
+        })},
+    };
+
+    InputRemapStore store;
+    store.loadFromJson(j);
+
+    REQUIRE(store.getMapping(33) == InputAction::PageLeft);
+    REQUIRE(store.getMapping(34) == InputAction::PageRight);
+    REQUIRE(store.getMapping(65) == InputAction::BattleAttack);
+    REQUIRE(store.getMapping(83) == InputAction::BattleSkill);
+    REQUIRE(store.getMapping(73) == InputAction::BattleItem);
+    REQUIRE(store.getMapping(68) == InputAction::BattleDefend);
+    REQUIRE(store.getMapping(69) == InputAction::BattleEscape);
+    REQUIRE(store.saveToJson()["bindings"].size() == 14);
+}
+
 TEST_CASE("InputRemapStore: loadFromJson throws on missing version", "[input][remap]") {
     InputRemapStore store;
     nlohmann::json j;

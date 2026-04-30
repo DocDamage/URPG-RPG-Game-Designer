@@ -1031,7 +1031,7 @@ git commit -m "feat: bind character appearance to promoted assets"
 - Modify: `tests/unit/test_input_remap_store.cpp`
 - Modify if needed: `engine/core/input/input_remap_store.*`
 
-- [ ] **Step 1: Define required action set in tests**
+- [x] **Step 1: Define required action set in tests**
 
 Required actions:
 
@@ -1052,11 +1052,11 @@ BattleDefend
 BattleEscape
 ```
 
-- [ ] **Step 2: Add failing template acceptance tests**
+- [x] **Step 2: Add failing template acceptance tests**
 
 Add assertions that generated `jrpg` and `turn_based_rpg` starter projects include bindings for every required action and that each action survives save/load through `InputRemapStore`.
 
-- [ ] **Step 3: Run focused tests**
+- [x] **Step 3: Run focused tests**
 
 Run:
 
@@ -1066,11 +1066,11 @@ ctest --preset dev-all -R "template.*acceptance|InputRemapStore" --output-on-fai
 
 Expected: FAIL until missing actions are wired.
 
-- [ ] **Step 4: Add missing bindings to template manifests**
+- [x] **Step 4: Add missing bindings to template manifests**
 
 Edit the relevant `content/templates/` manifests. Bind keyboard and controller defaults. Keep touch as hit-test UI/world behavior and continue reporting `touch_binding_unsupported` for remap profiles.
 
-- [ ] **Step 5: Re-run focused tests**
+- [x] **Step 5: Re-run focused tests**
 
 Run:
 
@@ -1080,11 +1080,11 @@ ctest --preset dev-all -R "template.*acceptance|InputRemapStore" --output-on-fai
 
 Expected: PASS.
 
-- [ ] **Step 6: Update template docs and readiness bar language**
+- [x] **Step 6: Update template docs and readiness bar language**
 
 Update `input` bars for `jrpg` and `turn_based_rpg`. Promote only the input bar if the tests prove closure; do not promote the whole template until accessibility/audio/localization/performance bars are also closed.
 
-- [ ] **Step 7: Commit**
+- [x] **Step 7: Commit**
 
 ```powershell
 git add content/templates content/readiness/readiness_status.json docs/templates/jrpg_spec.md docs/templates/turn_based_rpg_spec.md tests/unit/test_template_acceptance.cpp tests/unit/test_input_remap_store.cpp

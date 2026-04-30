@@ -20,6 +20,9 @@
 #include <string>
 #include <vector>
 
+#include "engine/core/input/input_remap_store.h"
+#include "engine/core/project/project_template_generator.h"
+
 using nlohmann::json;
 
 namespace {
@@ -38,6 +41,58 @@ json loadTemplateAcceptanceJson(const std::filesystem::path& path) {
     json payload;
     stream >> payload;
     return payload;
+}
+
+const std::set<std::string>& rpgRequiredInputActions() {
+    static const std::set<std::string> actions = {
+        "MoveUp",
+        "MoveDown",
+        "MoveLeft",
+        "MoveRight",
+        "Confirm",
+        "Cancel",
+        "Menu",
+        "PageLeft",
+        "PageRight",
+        "BattleAttack",
+        "BattleSkill",
+        "BattleItem",
+        "BattleDefend",
+        "BattleEscape",
+    };
+    return actions;
+}
+
+std::set<std::string> collectActionStrings(const json& bindings) {
+    REQUIRE(bindings.is_array());
+    std::set<std::string> actions;
+    for (const auto& binding : bindings) {
+        REQUIRE(binding.contains("action"));
+        REQUIRE(binding["action"].is_string());
+        actions.insert(binding["action"].get<std::string>());
+    }
+    return actions;
+}
+
+void requireRpgInputClosure(const json& starter) {
+    REQUIRE(starter.contains("input"));
+    const auto& input = starter["input"];
+    REQUIRE(input.value("profile", "") == "keyboard_gamepad");
+
+    const auto requiredActions = rpgRequiredInputActions();
+    REQUIRE(collectActionStrings(input.at("keyboard_bindings")) == requiredActions);
+    REQUIRE(collectActionStrings(input.at("controller_bindings")) == requiredActions);
+    REQUIRE(input["touch_policy"].value("mode", "") == "hit_test_ui_world");
+    REQUIRE(input["touch_policy"].value("remap_status", "") == "touch_binding_unsupported");
+
+    nlohmann::json persisted = {
+        {"version", "1.0.0"},
+        {"bindings", input.at("keyboard_bindings")},
+    };
+    urpg::input::InputRemapStore store;
+    store.loadFromJson(persisted);
+    const auto saved = store.saveToJson();
+    REQUIRE(collectActionStrings(saved.at("bindings")) == requiredActions);
 }
 
 // ---------------------------------------------------------------------------
@@ -419,6 +474,28 @@ TEST_CASE("turn_based_rpg template: export bundle descriptor is valid and contai
     REQUIRE(descriptor["integrityMode"] == "strict");
     REQUIRE(descriptor["entries"].is_array());
     REQUIRE(descriptor.contains("manifestHash"));
+}
+
+TEST_CASE("JRPG and turn-based RPG starter manifests close required input bindings",
+          "[template][acceptance][input]") {
+    for (const std::string templateId : {"jrpg", "turn_based_rpg"}) {
+        INFO("Template: " << templateId);
+        const auto starter = loadTemplateAcceptanceJson(
+            templateAcceptanceRepoRoot() / "content" / "templates" / (templateId + "_starter.json"));
+        REQUIRE(starter.value("template_id", "") == templateId);
+        requireRpgInputClosure(starter);
+    }
+}
+
+TEST_CASE("JRPG and turn-based RPG generated projects close required input bindings",
+          "[template][acceptance][input][project]") {
+    urpg::project::ProjectTemplateGenerator generator;
+    for (const std::string templateId : {"jrpg", "turn_based_rpg"}) {
+        INFO("Template: " << templateId);
+        const auto result = generator.generate({templateId, templateId + "_input_project", templateId + " Input Project"});
+        REQUIRE(result.success);
+        requireRpgInputClosure(result.project["subsystems"]);
+    }
 }
 
 // ============================================================================
