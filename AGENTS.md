@@ -27,7 +27,11 @@ Run tests:
 
 ```powershell
 ctest --preset dev-all
-ctest -L pr
+ctest --preset dev-pr
+ctest --preset dev-spatial
+ctest --preset dev-export
+ctest --preset dev-project-audit
+ctest --preset dev-process
 ctest -L nightly
 ctest -L weekly
 .\tools\ci\run_presentation_gate.ps1

@@ -1215,7 +1215,6 @@ add_executable(urpg_tests
     tests/unit/test_fixed32.cpp
     tests/unit/test_frame_budget.cpp
     tests/unit/test_future_feature_16.cpp
-    tests/unit/test_future_feature_17.cpp
     tests/unit/test_ai_knowledge_base.cpp
     tests/unit/test_creator_command_planner.cpp
     tests/unit/test_openai_compatible_chat_service.cpp
@@ -1349,17 +1348,8 @@ add_executable(urpg_tests
     tests/unit/test_presentation_bridge.cpp
     tests/unit/test_presentation_runtime.cpp
     tests/unit/test_presentation_effect_translation.cpp
-    tests/unit/project_audit_cli_test_helpers.cpp
-    tests/unit/test_project_audit_cli.cpp
-    tests/unit/test_project_audit_cli_localization.cpp
-    tests/unit/test_project_audit_cli_template_artifacts.cpp
     tests/unit/test_effect_cue.cpp
     tests/unit/test_dungeon3d_world.cpp
-    tests/unit/test_spatial_editor.cpp
-    tests/unit/test_spatial_editor_bindings.cpp
-    tests/unit/test_spatial_editor_canvas_workspace.cpp
-    tests/unit/test_spatial_editor_projection.cpp
-    tests/unit/test_spatial_presentation.cpp
     tests/unit/test_map_worldbuilding_suite.cpp
     tests/unit/test_huggingface_curated_assets.cpp
     tests/unit/test_ability_activation.cpp
@@ -1407,15 +1397,6 @@ add_executable(urpg_tests
     tests/unit/test_accessibility_auditor.cpp
     tests/unit/test_accessibility_panel.cpp
     tests/unit/test_creator_package_manifest.cpp
-    tests/unit/test_export_artifact_compare.cpp
-    tests/unit/test_export_validator.cpp
-    tests/unit/export_packager_test_helpers.cpp
-    tests/unit/test_export_packager.cpp
-    tests/unit/test_export_packager_bundles.cpp
-    tests/unit/test_export_packager_bootstrap_cli.cpp
-    tests/unit/test_export_diagnostics_panel.cpp
-    tests/unit/test_patch_manifest.cpp
-    tests/unit/test_runtime_bundle_loader.cpp
     tests/unit/test_visual_regression_harness.cpp
     tests/unit/test_truth_reconciler.cpp
     tests/unit/test_governance_regression.cpp
@@ -1471,23 +1452,72 @@ add_executable(urpg_tests
     tests/test_pattern_field_editor.cpp
     tests/test_pattern_serialization.cpp
     apps/editor/editor_app_panels.cpp
-    tools/audit/project_completeness_score.cpp
 )
 
 target_link_libraries(urpg_tests PRIVATE urpg_core Catch2::Catch2WithMain)
 target_include_directories(urpg_tests PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
 target_compile_definitions(urpg_tests PRIVATE URPG_SOURCE_DIR="${CMAKE_CURRENT_SOURCE_DIR}")
-target_compile_definitions(urpg_tests PRIVATE URPG_PROJECT_AUDIT_PATH="$<TARGET_FILE:urpg_project_audit>")
-target_compile_definitions(urpg_tests PRIVATE URPG_POWERSHELL_EXE="${URPG_POWERSHELL_EXE}")
 if(MINGW)
     target_compile_options(urpg_tests PRIVATE -Wa,-mbig-obj)
 endif()
-add_dependencies(urpg_tests urpg_project_audit)
-add_dependencies(urpg_tests urpg_export_smoke_app)
-add_dependencies(urpg_tests urpg_pack_cli)
-target_compile_definitions(urpg_tests PRIVATE URPG_EXPORT_SMOKE_APP_PATH="$<TARGET_FILE:urpg_export_smoke_app>")
-target_compile_definitions(urpg_tests PRIVATE URPG_PACK_CLI_PATH="$<TARGET_FILE:urpg_pack_cli>")
 urpg_enable_windows_test_binary_unlock(urpg_tests)
+function(urpg_configure_unit_test_target target_name)
+    target_link_libraries(${target_name} PRIVATE urpg_core Catch2::Catch2WithMain)
+    target_include_directories(${target_name} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+    target_compile_definitions(${target_name} PRIVATE URPG_SOURCE_DIR="${CMAKE_CURRENT_SOURCE_DIR}")
+    if(MINGW)
+        target_compile_options(${target_name} PRIVATE -Wa,-mbig-obj)
+    endif()
+    urpg_enable_windows_test_binary_unlock(${target_name})
+endfunction()
+
+add_executable(urpg_project_audit_unit_tests
+    tests/unit/test_future_feature_17.cpp
+    tests/unit/project_audit_cli_test_helpers.cpp
+    tests/unit/test_project_audit_cli.cpp
+    tests/unit/test_project_audit_cli_localization.cpp
+    tests/unit/test_project_audit_cli_template_artifacts.cpp
+    tools/audit/project_completeness_score.cpp
+)
+urpg_configure_unit_test_target(urpg_project_audit_unit_tests)
+add_dependencies(urpg_project_audit_unit_tests urpg_project_audit)
+target_compile_definitions(urpg_project_audit_unit_tests PRIVATE URPG_PROJECT_AUDIT_PATH="$<TARGET_FILE:urpg_project_audit>")
+target_compile_definitions(urpg_project_audit_unit_tests PRIVATE URPG_POWERSHELL_EXE="${URPG_POWERSHELL_EXE}")
+
+add_executable(urpg_export_unit_tests
+    tests/unit/test_export_artifact_compare.cpp
+    tests/unit/test_export_validator.cpp
+    tests/unit/export_packager_test_helpers.cpp
+    tests/unit/test_export_packager.cpp
+    tests/unit/test_export_packager_bundles.cpp
+    tests/unit/test_export_diagnostics_panel.cpp
+    tests/unit/test_patch_manifest.cpp
+    tests/unit/test_runtime_bundle_loader.cpp
+)
+urpg_configure_unit_test_target(urpg_export_unit_tests)
+add_dependencies(urpg_export_unit_tests urpg_pack_cli)
+add_dependencies(urpg_export_unit_tests urpg_export_smoke_app)
+target_compile_definitions(urpg_export_unit_tests PRIVATE URPG_PACK_CLI_PATH="$<TARGET_FILE:urpg_pack_cli>")
+target_compile_definitions(urpg_export_unit_tests PRIVATE URPG_EXPORT_SMOKE_APP_PATH="$<TARGET_FILE:urpg_export_smoke_app>")
+
+add_executable(urpg_export_process_tests
+    tests/unit/export_packager_test_helpers.cpp
+    tests/unit/test_export_packager_bootstrap_cli.cpp
+)
+urpg_configure_unit_test_target(urpg_export_process_tests)
+add_dependencies(urpg_export_process_tests urpg_pack_cli)
+add_dependencies(urpg_export_process_tests urpg_export_smoke_app)
+target_compile_definitions(urpg_export_process_tests PRIVATE URPG_PACK_CLI_PATH="$<TARGET_FILE:urpg_pack_cli>")
+target_compile_definitions(urpg_export_process_tests PRIVATE URPG_EXPORT_SMOKE_APP_PATH="$<TARGET_FILE:urpg_export_smoke_app>")
+
+add_executable(urpg_spatial_unit_tests
+    tests/unit/test_spatial_editor.cpp
+    tests/unit/test_spatial_editor_bindings.cpp
+    tests/unit/test_spatial_editor_canvas_workspace.cpp
+    tests/unit/test_spatial_editor_projection.cpp
+    tests/unit/test_spatial_presentation.cpp
+)
+urpg_configure_unit_test_target(urpg_spatial_unit_tests)
 
 add_executable(urpg_render_tests
     tests/engine/core/test_render_assets.cpp
@@ -1563,9 +1593,33 @@ catch_discover_tests(
 )
 
 catch_discover_tests(
+    urpg_project_audit_unit_tests
+    DISCOVERY_MODE PRE_TEST
+    PROPERTIES LABELS "nightly\;audit\;cli\;external"
+)
+
+catch_discover_tests(
+    urpg_export_unit_tests
+    DISCOVERY_MODE PRE_TEST
+    PROPERTIES LABELS "pr\;export"
+)
+
+catch_discover_tests(
+    urpg_export_process_tests
+    DISCOVERY_MODE PRE_TEST
+    PROPERTIES LABELS "nightly\;export\;cli\;external\;slow"
+)
+
+catch_discover_tests(
+    urpg_spatial_unit_tests
+    DISCOVERY_MODE PRE_TEST
+    PROPERTIES LABELS "pr\;editor\;spatial\;presentation"
+)
+
+catch_discover_tests(
     urpg_render_tests
     DISCOVERY_MODE PRE_TEST
-    PROPERTIES LABELS "pr;render"
+    PROPERTIES LABELS "pr\;render"
 )
 
 catch_discover_tests(
@@ -1769,21 +1823,57 @@ else()
 endif()
 
 add_test(
+    NAME urpg_project_audit_unit_lane
+    COMMAND urpg_project_audit_unit_tests "[project_audit_cli],[project_audit],[certification],[project_schema]"
+)
+set_tests_properties(
+    urpg_project_audit_unit_lane
+    PROPERTIES LABELS "nightly;audit;cli;external"
+)
+
+add_test(
+    NAME urpg_export_unit_lane
+    COMMAND urpg_export_unit_tests "[export]"
+)
+set_tests_properties(
+    urpg_export_unit_lane
+    PROPERTIES LABELS "pr;export"
+)
+
+add_test(
+    NAME urpg_export_process_lane
+    COMMAND urpg_export_process_tests "[export]"
+)
+set_tests_properties(
+    urpg_export_process_lane
+    PROPERTIES LABELS "nightly;export;cli;external;slow"
+)
+
+add_test(
+    NAME urpg_spatial_unit_lane
+    COMMAND urpg_spatial_unit_tests "[editor][spatial],[presentation]"
+)
+set_tests_properties(
+    urpg_spatial_unit_lane
+    PROPERTIES LABELS "pr;editor;spatial;presentation"
+)
+
+add_test(
     NAME urpg_presentation_unit_lane
-    COMMAND urpg_tests "[presentation]"
+    COMMAND urpg_spatial_unit_tests "[presentation]"
 )
 set_tests_properties(
     urpg_presentation_unit_lane
-    PROPERTIES LABELS "pr;presentation"
+    PROPERTIES LABELS "pr;presentation;spatial"
 )
 
 add_test(
     NAME urpg_spatial_editor_lane
-    COMMAND urpg_tests "[editor][spatial]"
+    COMMAND urpg_spatial_unit_tests "[editor][spatial]"
 )
 set_tests_properties(
     urpg_spatial_editor_lane
-    PROPERTIES LABELS "pr;presentation;editor"
+    PROPERTIES LABELS "pr;presentation;editor;spatial"
 )
 
 add_test(

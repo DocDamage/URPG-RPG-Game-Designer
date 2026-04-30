@@ -51,7 +51,8 @@
       "inherits": "base",
       "generator": "Ninja",
       "cacheVariables": {
-        "CMAKE_BUILD_TYPE": "Debug"
+        "CMAKE_BUILD_TYPE": "Debug",
+        "URPG_USE_SCCACHE": "OFF"
       }
     },
     {
@@ -60,7 +61,8 @@
       "inherits": "base",
       "generator": "Ninja",
       "cacheVariables": {
-        "CMAKE_BUILD_TYPE": "Release"
+        "CMAKE_BUILD_TYPE": "Release",
+        "URPG_USE_SCCACHE": "OFF"
       }
     },
     {
@@ -128,6 +130,66 @@
     {
       "name": "dev-all",
       "configurePreset": "dev-ninja-debug",
+      "output": {
+        "outputOnFailure": true
+      }
+    },
+    {
+      "name": "dev-pr",
+      "configurePreset": "dev-ninja-debug",
+      "filter": {
+        "include": {
+          "label": "^pr$"
+        }
+      },
+      "output": {
+        "outputOnFailure": true
+      }
+    },
+    {
+      "name": "dev-export",
+      "configurePreset": "dev-ninja-debug",
+      "filter": {
+        "include": {
+          "label": "^export$"
+        }
+      },
+      "output": {
+        "outputOnFailure": true
+      }
+    },
+    {
+      "name": "dev-project-audit",
+      "configurePreset": "dev-ninja-debug",
+      "filter": {
+        "include": {
+          "label": "^audit$"
+        }
+      },
+      "output": {
+        "outputOnFailure": true
+      }
+    },
+    {
+      "name": "dev-spatial",
+      "configurePreset": "dev-ninja-debug",
+      "filter": {
+        "include": {
+          "label": "^spatial$"
+        }
+      },
+      "output": {
+        "outputOnFailure": true
+      }
+    },
+    {
+      "name": "dev-process",
+      "configurePreset": "dev-ninja-debug",
+      "filter": {
+        "include": {
+          "label": "^external$"
+        }
+      },
       "output": {
         "outputOnFailure": true
       }

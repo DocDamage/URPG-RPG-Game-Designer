@@ -4,19 +4,21 @@ Use the narrowest command that covers the changed surface. If a release plan spe
 
 `ctest -R` matching is case-sensitive. Use the casing from discovered CTest names (`ctest --test-dir <build-dir> -N`) and avoid lowercase or underscore aliases unless those aliases are present in the discovered test list.
 
+Use anchored label presets for common lanes. Raw `ctest -L pr` is regex-based and also matches labels such as `presentation`; prefer `ctest --preset dev-pr`.
+
 ## Command Map
 
 | Change Area | Command |
 | --- | --- |
-| General PR-level changes | `ctest --preset dev-all -L pr --output-on-failure` or `ctest -L pr --output-on-failure` from the build dir |
+| General PR-level changes | `ctest --preset dev-pr --output-on-failure` |
 | Runtime startup/settings/input | `ctest --preset dev-all -R "startup|settings|input" --output-on-failure` |
 | Runtime input, pause/resume, and title/menu navigation | `ctest --preset dev-all -R "startup|settings|input|SceneManager|RuntimeTitleScene" --output-on-failure` |
 | Map scene/render assets | `ctest --preset dev-all -R "MapScene|AssetLoader|Runtime map asset" --output-on-failure` |
 | Battle assets/authoring | `ctest --preset dev-all -R "battle.*assets|battle.*authoring" --output-on-failure` |
 | Compat JS / WindowCompat / plugin fixtures | `ctest -L weekly --output-on-failure` |
-| Export packager/validator | `ctest --preset dev-all -R "ExportPackager|urpg_pack_cli|export_validator" --output-on-failure` |
+| Export packager/validator | `ctest --preset dev-export --output-on-failure` |
 | AI assistant/tool review surface | `ctest --preset dev-all -R "AI (knowledge|task|tool|assistant)|Chatbot component" --output-on-failure` |
-| Presentation/spatial/rendering | `.\tools\ci\run_presentation_gate.ps1` |
+| Presentation/spatial/rendering | `ctest --preset dev-spatial --output-on-failure`; then `.\tools\ci\run_presentation_gate.ps1` when touching rendering/presentation gates |
 | Native Level Builder / grid-part editor | `.\build\dev-ninja-debug\urpg_tests.exe "[grid_part][editor]"`; then `ctest --test-dir build\dev-ninja-debug -L grid_part --output-on-failure` |
 | Grid-part runtime/compiler/package governance | `ctest --test-dir build\dev-ninja-debug -L grid_part --output-on-failure` |
 | Release authoring persistence / save-load paths | `ctest --preset dev-all -R "settings|persistence|save|load|grid_part|Ability" --output-on-failure` |

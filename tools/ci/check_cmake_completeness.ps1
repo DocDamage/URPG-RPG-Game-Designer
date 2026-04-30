@@ -89,6 +89,10 @@ function Get-SetFiles {
 
 $coreFiles = Get-SetFiles -content $cmakeContent -variableName "URPG_CORE_SOURCES"
 $testFiles = Get-TargetFiles -content $cmakeContent -targetName "urpg_tests"
+$projectAuditUnitFiles = Get-TargetFiles -content $cmakeContent -targetName "urpg_project_audit_unit_tests"
+$exportUnitFiles = Get-TargetFiles -content $cmakeContent -targetName "urpg_export_unit_tests"
+$exportProcessFiles = Get-TargetFiles -content $cmakeContent -targetName "urpg_export_process_tests"
+$spatialUnitFiles = Get-TargetFiles -content $cmakeContent -targetName "urpg_spatial_unit_tests"
 $renderTestFiles = Get-TargetFiles -content $cmakeContent -targetName "urpg_render_tests"
 $integrationFiles = Get-TargetFiles -content $cmakeContent -targetName "urpg_integration_tests"
 $snapshotFiles = Get-TargetFiles -content $cmakeContent -targetName "urpg_snapshot_tests"
@@ -98,7 +102,7 @@ $auditFiles = Get-TargetFiles -content $cmakeContent -targetName "urpg_project_a
 $presValFiles = Get-TargetFiles -content $cmakeContent -targetName "urpg_presentation_release_validation"
 $profileArenaFiles = Get-TargetFiles -content $cmakeContent -targetName "urpg_profile_arena"
 
-$allTestExeFiles = $testFiles + $renderTestFiles + $integrationFiles + $snapshotFiles + $compatFiles + $migrateFiles + $auditFiles + $presValFiles
+$allTestExeFiles = $testFiles + $projectAuditUnitFiles + $exportUnitFiles + $exportProcessFiles + $spatialUnitFiles + $renderTestFiles + $integrationFiles + $snapshotFiles + $compatFiles + $migrateFiles + $auditFiles + $presValFiles
 $standaloneToolFiles = $profileArenaFiles
 $allCMakeFiles = $coreFiles + $allTestExeFiles + $standaloneToolFiles
 
